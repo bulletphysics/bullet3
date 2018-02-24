@@ -30,6 +30,12 @@
 
 	newoption
 	{
+		trigger = "enable_system_glx",
+		description = "Try to link against system glx instead of using glad_glx (default)"
+	}
+
+	newoption
+	{
 		trigger = "enable_system_opengl",
 		description = "Try to link and use the system OpenGL headers version instead of dynamically loading OpenGL (dlopen is default)"
 	}

@@ -85,6 +85,10 @@ public:
 	virtual int getNumModels() const {return 0;}
     virtual void activateModel(int /*modelIndex*/) { }
 	virtual int getNumAllocatedMeshInterfaces() const { return 0;}
+
+	virtual int getNumAllocatedTextures() const { return 0; }
+	virtual int getAllocatedTexture(int index) const { return 0; }
+
 	virtual class btStridingMeshInterface* getAllocatedMeshInterface(int index) {return 0;}
 
 };

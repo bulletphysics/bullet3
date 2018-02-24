@@ -44,7 +44,7 @@ static SimpleOpenGL2App* gApp2=0;
 
 static void Simple2ResizeCallback( float widthf, float heightf)
 {
-	glViewport(0, 0, widthf, heightf);
+	
 
 	int width = (int)widthf;
 	int height = (int)heightf;

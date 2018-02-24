@@ -30,7 +30,7 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]);
 	virtual void changeSpecularColor(int instanceUid, const double specularColor[3]);
 	virtual void changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height);
-
+	virtual void removeTexture(int textureUid);
 	virtual int getShapeIndexFromInstance(int instanceUid);	
 	virtual void replaceTexture(int shapeIndex, int textureUid);
 

@@ -44,6 +44,7 @@ struct GUIHelperInterface
 
 	virtual int getShapeIndexFromInstance(int instanceUid){return -1;}	
 	virtual void replaceTexture(int shapeIndex, int textureUid){}
+	virtual void removeTexture(int textureUid) {}
 	
 	
 	virtual Common2dCanvasInterface* get2dCanvasInterface()=0;

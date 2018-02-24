@@ -15,7 +15,7 @@
 #ifdef GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 #include "glad/glad_glx.h"
 #else
-#include "GL/glx.h"
+#include <GL/glx.h>
 #endif // GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 #include <assert.h>
 

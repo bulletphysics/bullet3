@@ -135,6 +135,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperChangeGraphicsInstanceTextureId,
 	eGUIHelperGetShapeIndexFromInstance,
 	eGUIHelperChangeTexture,
+	eGUIHelperRemoveTexture,
 };
 
 
@@ -857,6 +858,17 @@ public:
 		rbWorld->setDebugDrawer(m_debugDraw );
 
 		//m_childGuiHelper->createPhysicsDebugDrawer(rbWorld);
+	}
+
+	int m_removeTextureUid;
+
+	virtual void removeTexture(int textureUid)
+	{
+		m_removeTextureUid = textureUid;
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIHelperRemoveTexture);
+
+		workerThreadWait();
 	}
 
 	virtual int	registerTexture(const unsigned char* texels, int width, int height)
@@ -1875,6 +1887,13 @@ void	PhysicsServerExample::updateGraphics()
 		B3_PROFILE("eGUIHelperRegisterTexture");
 		m_multiThreadedHelper->m_textureId = m_multiThreadedHelper->m_childGuiHelper->registerTexture(m_multiThreadedHelper->m_texels,
 						m_multiThreadedHelper->m_textureWidth,m_multiThreadedHelper->m_textureHeight);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+	case eGUIHelperRemoveTexture:
+	{
+		B3_PROFILE("eGUIHelperRemoveTexture");
+		m_multiThreadedHelper->m_childGuiHelper->removeTexture(m_multiThreadedHelper->m_removeTextureUid);
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
