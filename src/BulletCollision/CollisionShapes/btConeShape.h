@@ -19,6 +19,14 @@ subject to the following restrictions:
 #include "btConvexInternalShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
+#if defined(BT_USE_DOUBLE_PRECISION)
+#define btConeShapeData btConeShapeDoubleData
+#define btConeShapeDataName "btConeShapeDoubleData"
+#else
+#define btConeShapeData btConeShapeFloatData
+#define btConeShapeDataName "btConeShapeFloatData"
+#endif
+
 ///The btConeShape implements a cone shape primitive, centered around the origin and aligned with the Y axis. The btConeShapeX is aligned around the X axis and btConeShapeZ around the Z axis.
 ATTRIBUTE_ALIGNED16(class) btConeShape : public btConvexInternalShape
 
@@ -149,15 +157,26 @@ public:
 	
 };
 
+#if defined(BT_USE_DOUBLE_PRECISION)
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btConeShapeData
+struct	btConeShapeDoubleData
 {
-	btConvexInternalShapeData	m_convexInternalShapeData;
+	btConvexInternalShapeDoubleData	m_convexInternalShapeData;
 	
 	int	m_upIndex;
 	
 	char	m_padding[4];
 };
+#else
+struct	btConeShapeFloatData
+{
+	btConvexInternalShapeFloatData	m_convexInternalShapeData;
+
+	int	m_upIndex;
+
+	char	m_padding[4];
+};
+#endif
 
 SIMD_FORCE_INLINE	int	btConeShape::calculateSerializeBufferSize() const
 {
@@ -179,7 +198,7 @@ SIMD_FORCE_INLINE	const char*	btConeShape::serialize(void* dataBuffer, btSeriali
 	shapeData->m_padding[2] = 0;
 	shapeData->m_padding[3] = 0;
 
-	return "btConeShapeData";
+	return btConeShapeDataName;
 }
 
 #endif //BT_CONE_MINKOWSKI_H
