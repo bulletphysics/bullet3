@@ -482,17 +482,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(  btCollisionS
 							int i;
 							for ( i=0;i<numPoints;i++)
 							{
-#ifdef BT_USE_DOUBLE_PRECISION
-							if (convexData->m_unscaledPointsDoublePtr)
-								tmpPoints[i].deSerialize(convexData->m_unscaledPointsDoublePtr[i]);
-							if (convexData->m_unscaledPointsFloatPtr)
-								tmpPoints[i].deSerializeFloat(convexData->m_unscaledPointsFloatPtr[i]);
-#else
-							if (convexData->m_unscaledPointsFloatPtr)
-								tmpPoints[i].deSerialize(convexData->m_unscaledPointsFloatPtr[i]);
-							if (convexData->m_unscaledPointsDoublePtr)
-								tmpPoints[i].deSerializeDouble(convexData->m_unscaledPointsDoublePtr[i]);
-#endif //BT_USE_DOUBLE_PRECISION
+								tmpPoints[i].deSerialize(convexData->m_unscaledPointsPtr[i]);
 							}
 							btConvexHullShape* hullShape = createConvexHullShape();
 							for (i=0;i<numPoints;i++)

@@ -20,6 +20,13 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 #include "LinearMath/btAlignedObjectArray.h"
 
+#if defined(BT_USE_DOUBLE_PRECISION)
+#define btConvexHullShapeData btConvexHullShapeDoubleData
+#define btConvexHullShapeDataName "btConvexHullShapeDoubleData"
+#else
+#define btConvexHullShapeData btConvexHullShapeFloatData
+#define btConvexHullShapeDataName "btConvexHullShapeFloatData"
+#endif
 
 ///The btConvexHullShape implements an implicit convex hull of an array of vertices.
 ///Bullet provides a general and fast collision detector for convex shapes based on GJK and EPA using localGetSupportingVertex.
@@ -97,18 +104,30 @@ public:
 
 };
 
+#if defined(BT_USE_DOUBLE_PRECISION)
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btConvexHullShapeData
+struct	btConvexHullShapeDoubleData
 {
-	btConvexInternalShapeData	m_convexInternalShapeData;
+	btConvexInternalShapeDoubleData	m_convexInternalShapeData;
 
-	btVector3FloatData	*m_unscaledPointsFloatPtr;
-	btVector3DoubleData	*m_unscaledPointsDoublePtr;
+	btVector3DoubleData	*m_unscaledPointsPtr;
 
 	int		m_numUnscaledPoints;
 	char m_padding3[4];
 
 };
+#else
+struct	btConvexHullShapeFloatData
+{
+	btConvexInternalShapeFloatData	m_convexInternalShapeData;
+
+	btVector3FloatData	*m_unscaledPointsPtr;
+
+	int		m_numUnscaledPoints;
+	char m_padding3[4];
+
+};
+#endif
 
 
 SIMD_FORCE_INLINE	int	btConvexHullShape::calculateSerializeBufferSize() const
