@@ -197,9 +197,17 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 			//so deal with this
 		case CAPSULE_SHAPE_PROXYTYPE:
 		{
-			btCapsuleShapeData* capData = (btCapsuleShapeData*)shapeData;
+			int upAxis = 0;
+			if(isDouble)
+			{
+				upAxis = ((btCapsuleShapeDoubleData*)shapeData)->m_upAxis;
+			}
+			else
+			{
+				upAxis = ((btCapsuleShapeFloatData*)shapeData)->m_upAxis;
+			}
 
-			switch (capData->m_upAxis)
+			switch (upAxis)
 			{
 				case 0:
 				{
@@ -224,7 +232,14 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 			if (shape)
 			{
 				btCapsuleShape* cap = (btCapsuleShape*)shape;
-				cap->deSerializeFloat(capData);
+				if(isDouble)
+				{
+					cap->deSerialize((btCapsuleShapeDoubleData*)shapeData);
+				}
+				else
+				{
+					cap->deSerialize((btCapsuleShapeFloatData*)shapeData);
+				}
 			}
 			break;
 		}
