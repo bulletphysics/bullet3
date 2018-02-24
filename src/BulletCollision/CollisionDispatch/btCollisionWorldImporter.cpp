@@ -428,8 +428,15 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 				}
 				case MULTI_SPHERE_SHAPE_PROXYTYPE:
 				{
-					btMultiSphereShapeData* mss = (btMultiSphereShapeData*)bsd;
-					int numSpheres = mss->m_localPositionArraySize;
+					int numSpheres = 0;
+					if(isDouble)
+					{
+						numSpheres = ((btMultiSphereShapeDoubleData*)shapeData)->m_localPositionArraySize;
+					}
+					else
+					{
+						numSpheres = ((btMultiSphereShapeFloatData*)shapeData)->m_localPositionArraySize;
+					}
 
 					btAlignedObjectArray<btVector3> tmpPos;
 					btAlignedObjectArray<btScalar> radii;
@@ -438,8 +445,18 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 					int i;
 					for (i = 0; i < numSpheres; i++)
 					{
-						tmpPos[i].deSerializeFloat(mss->m_localPositionArrayPtr[i].m_pos);
-						radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
+						if(isDouble)
+						{
+							btMultiSphereShapeDoubleData* mss = (btMultiSphereShapeDoubleData*)shapeData;
+							tmpPos[i].deSerializeDouble(mss->m_localPositionArrayPtr[i].m_pos);
+							radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
+						}
+						else
+						{
+							btMultiSphereShapeFloatData* mss = (btMultiSphereShapeFloatData*)shapeData;
+							tmpPos[i].deSerializeFloat(mss->m_localPositionArrayPtr[i].m_pos);
+							radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
+						}
 					}
 					shape = createMultiSphereShape(&tmpPos[0], &radii[0], numSpheres);
 					break;
