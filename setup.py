@@ -134,6 +134,9 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/LinearMath/btConvexHullComputer.cpp"]\
 +["src/LinearMath/btQuickprof.cpp"]\
 +["src/LinearMath/btThreads.cpp"]\
++["src/LinearMath/TaskScheduler/btTaskScheduler.cpp"]\
++["src/LinearMath/TaskScheduler/btThreadSupportPosix.cpp"]\
++["src/LinearMath/TaskScheduler/btThreadSupportWin32.cpp"]\
 +["src/BulletCollision/BroadphaseCollision/btAxisSweep3.cpp"]\
 +["src/BulletCollision/BroadphaseCollision/btDbvt.cpp"]\
 +["src/BulletCollision/BroadphaseCollision/btOverlappingPairCache.cpp"]\
@@ -233,6 +236,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletDynamics/Dynamics/btSimulationIslandManagerMt.cpp"]\
 +["src/BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.cpp"]\
 +["src/BulletDynamics/Dynamics/btSimpleDynamicsWorld.cpp"]\
++["src/BulletDynamics/ConstraintSolver/btBatchedConstraints.cpp"]\
 +["src/BulletDynamics/ConstraintSolver/btConeTwistConstraint.cpp"]\
 +["src/BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.cpp"]\
 +["src/BulletDynamics/ConstraintSolver/btSliderConstraint.cpp"]\
@@ -249,6 +253,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletDynamics/ConstraintSolver/btPoint2PointConstraint.cpp"]\
 +["src/BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.cpp"]\
 +["src/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.cpp"]\
++["src/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.cpp"]\
 +["src/BulletDynamics/MLCPSolvers/btDantzigLCP.cpp"]\
 +["src/BulletDynamics/MLCPSolvers/btLemkeAlgorithm.cpp"]\
 +["src/BulletDynamics/MLCPSolvers/btMLCPSolver.cpp"]\
@@ -479,4 +484,3 @@ setup(
     packages=[x for x in find_packages('examples/pybullet/gym')],
     package_data = { 'pybullet_data': need_files }
 )
-
