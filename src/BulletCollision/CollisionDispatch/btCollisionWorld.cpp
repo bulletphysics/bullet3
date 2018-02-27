@@ -428,11 +428,6 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 				//generic (slower) case
 				btConcaveShape* concaveShape = (btConcaveShape*)collisionShape;
 
-				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
-
-				btVector3 rayFromLocal = worldTocollisionObject * rayFromTrans.getOrigin();
-				btVector3 rayToLocal = worldTocollisionObject * rayToTrans.getOrigin();
-
 				//ConvexCast::CastResult
 
 				struct BridgeTriangleRaycastCallback : public btTriangleRaycastCallback
