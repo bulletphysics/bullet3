@@ -1113,7 +1113,7 @@ void btBatchedConstraints::setup(
 {
     if (constraints->size() >= minBatchSize*4)
     {
-        bool use2DGrid = batchingMethod == BatchingMethod::BATCHING_METHOD_SPATIAL_GRID_2D;
+        bool use2DGrid = batchingMethod == BATCHING_METHOD_SPATIAL_GRID_2D;
         setupSpatialGridBatchesMt( this, scratchMemory, constraints, bodies, minBatchSize, maxBatchSize, use2DGrid );
         if (s_debugDrawBatches)
         {
