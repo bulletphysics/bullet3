@@ -44,7 +44,7 @@ btScalar btNNCGConstraintSolver::solveSingleIteration(int iteration, btCollision
 	int numConstraintPool = m_tmpSolverContactConstraintPool.size();
 	int numFrictionPool = m_tmpSolverContactFrictionConstraintPool.size();
 
-	if (infoGlobal.m_solverMode & SOLVER_RANDMIZE_ORDER)
+	if (infoGlobal.m_solverMode & SOLVER_RANDOMIZE_ORDER)
 	{
 		if (1)			// uncomment this for a bit less random ((iteration & 7) == 0)
 		{
