@@ -554,7 +554,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     }
     {
         ButtonParams button( "Solver randomize order", 0, true );
-        button.m_buttonId = SOLVER_RANDMIZE_ORDER;
+        button.m_buttonId = SOLVER_RANDOMIZE_ORDER;
         button.m_initialState = !! (gSolverMode & button.m_buttonId);
         button.m_callback = toggleSolverModeCallback;
         button.m_userPointer = this;
@@ -690,7 +690,7 @@ void CommonRigidBodyMTBase::drawScreenText()
             sprintf( msg, "solver %s mode [%s%s%s%s%s%s]",
                      getSolverTypeName(m_solverType),
                      sm & SOLVER_SIMD ? "SIMD" : "",
-                     sm & SOLVER_RANDMIZE_ORDER ? " randomize" : "",
+                     sm & SOLVER_RANDOMIZE_ORDER ? " randomize" : "",
                      sm & SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS ? " interleave" : "",
                      sm & SOLVER_USE_2_FRICTION_DIRECTIONS ? " friction2x" : "",
                      sm & SOLVER_ENABLE_FRICTION_DIRECTION_CACHING ? " frictionDirCaching" : "",
