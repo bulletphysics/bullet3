@@ -155,7 +155,7 @@ template<class T>  void syncMultiBody(T* mbd, btMultiBody* mb, btMultiBodyWorldI
 		}
 		case btMultibodyLink::eSpherical:
 		{
-			btScalar jointPos[3] = { (btScalar)mbd->m_links[i].m_jointPos[0], (btScalar)mbd->m_links[i].m_jointPos[1], (btScalar)mbd->m_links[i].m_jointPos[2] };
+			btScalar jointPos[4] = { (btScalar)mbd->m_links[i].m_jointPos[0], (btScalar)mbd->m_links[i].m_jointPos[1], (btScalar)mbd->m_links[i].m_jointPos[2], (btScalar)mbd->m_links[i].m_jointPos[3] };
 			btScalar jointVel[3] = { (btScalar)mbd->m_links[i].m_jointVel[0], (btScalar)mbd->m_links[i].m_jointVel[1], (btScalar)mbd->m_links[i].m_jointVel[2] };
 			mb->setJointPosMultiDof(i, jointPos);
 			mb->setJointVelMultiDof(i, jointVel);
@@ -244,7 +244,7 @@ template<class T>  void convertMultiBody(T* mbd, btMultiBodyWorldImporterInterna
 			bool disableParentCollision = true;//todo
 			mb->setupSpherical(i, mbd->m_links[i].m_linkMass, localInertiaDiagonal, mbd->m_links[i].m_parentIndex,
 				parentRotToThis, parentComToThisPivotOffset, thisPivotToThisComOffset, disableParentCollision);
-			btScalar jointPos[3] = { (btScalar)mbd->m_links[i].m_jointPos[0], (btScalar)mbd->m_links[i].m_jointPos[1], (btScalar)mbd->m_links[i].m_jointPos[2] };
+			btScalar jointPos[4] = { (btScalar)mbd->m_links[i].m_jointPos[0], (btScalar)mbd->m_links[i].m_jointPos[1], (btScalar)mbd->m_links[i].m_jointPos[2], (btScalar)mbd->m_links[i].m_jointPos[3] };
 			btScalar jointVel[3] = { (btScalar)mbd->m_links[i].m_jointVel[0], (btScalar)mbd->m_links[i].m_jointVel[1], (btScalar)mbd->m_links[i].m_jointVel[2] };
 			mb->setJointPosMultiDof(i, jointPos);
 			mb->setJointVelMultiDof(i, jointVel);
