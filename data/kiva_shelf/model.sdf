@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
-  <model name="Amazon Pod">
+<world name='default'>
+  <model  name="Amazon Pod">
   	<static>1</static>
   	<pose>0 1 0 0 0 0</pose>
     <link name="pod_link">
@@ -202,4 +203,5 @@
       </collision>
     </link>
   </model>
+  </world>
 </sdf>
