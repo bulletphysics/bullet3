@@ -719,8 +719,8 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 			tag_vel,
 			info->fps * limot->m_motorERP);
 		info->m_constraintError[srow] = mot_fact * limot->m_targetVelocity;
-		info->m_lowerLimit[srow] = -limot->m_maxMotorForce;
-		info->m_upperLimit[srow] = limot->m_maxMotorForce;
+		info->m_lowerLimit[srow] = -limot->m_maxMotorForce / info->fps;
+		info->m_upperLimit[srow] = limot->m_maxMotorForce / info->fps;
 		info->cfm[srow] = limot->m_motorCFM;
 		srow += info->rowskip;
 		++count;
@@ -769,8 +769,8 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 			mot_fact = 0;
 		}
 		info->m_constraintError[srow] = mot_fact * targetvelocity * (rotational ? -1 : 1);
-		info->m_lowerLimit[srow] = -limot->m_maxMotorForce;
-		info->m_upperLimit[srow] = limot->m_maxMotorForce;
+		info->m_lowerLimit[srow] = -limot->m_maxMotorForce / info->fps;
+		info->m_upperLimit[srow] = limot->m_maxMotorForce / info->fps;
 		info->cfm[srow] = limot->m_motorCFM;
 		srow += info->rowskip;
 		++count;
