@@ -28,10 +28,10 @@
 #include "Win32OpenGLWindow.h"
 #else
 //let's cross the fingers it is Linux/X11
+#include "X11OpenGLWindow.h"
 #ifdef BT_USE_EGL
 #include "EGLOpenGLWindow.h"
 #else
-#include "X11OpenGLWindow.h"
 #endif //BT_USE_EGL
 #endif //_WIN32
 #endif//__APPLE__

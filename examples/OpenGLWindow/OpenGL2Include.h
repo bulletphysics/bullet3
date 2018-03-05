@@ -24,10 +24,10 @@ subject to the following restrictions:
 #else
 
 #ifdef B3_USE_GLFW
-#include "glad/glad.h"
+#include "glad/gl.h"
 #include <GLFW/glfw3.h>
 #else
-#include "glad/glad.h"
+#include "glad/gl.h"
 #endif //B3_USE_GLFW
 #endif //BT_NO_GLAD
 
