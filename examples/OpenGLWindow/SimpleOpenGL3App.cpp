@@ -17,10 +17,11 @@
 #include "Win32OpenGLWindow.h"
 #else
 //let's cross the fingers it is Linux/X11
+#include "X11OpenGLWindow.h"
+#define BT_USE_X11  // for runtime backend selection, move to build?
 #ifdef BT_USE_EGL
 #include "EGLOpenGLWindow.h"
 #else
-#include "X11OpenGLWindow.h"
 #endif //BT_USE_EGL
 #endif //_WIN32
 #endif//__APPLE__
@@ -295,7 +296,7 @@ static void printGLString(const char *name, GLenum s) {
 bool sOpenGLVerbose = true;
 
 
-SimpleOpenGL3App::SimpleOpenGL3App(const char* title, int width, int height, bool allowRetina, int maxNumObjectCapacity, int maxShapeCapacityInBytes)
+SimpleOpenGL3App::SimpleOpenGL3App(const char* title, int width, int height, bool allowRetina, int maxNumObjectCapacity, int maxShapeCapacityInBytes, int windowType, int renderDevice)
 {
 	gApp = this;
 
@@ -306,7 +307,28 @@ SimpleOpenGL3App::SimpleOpenGL3App(const char* title, int width, int height, boo
 	m_data->m_userPointer = 0;
 	m_data->m_upAxis = 1;
 
-	m_window = new b3gDefaultOpenGLWindow();
+        if( windowType == 0) {
+            m_window = new b3gDefaultOpenGLWindow();
+        } else if (windowType == 1) {
+#ifdef BT_USE_X11
+            m_window = new X11OpenGLWindow();
+#else
+            b3Warning("X11 requires Linux. Loading default window instead. \n");
+            m_window = new b3gDefaultOpenGLWindow();
+#endif
+        } else if ( windowType == 2 ) {
+#ifdef BT_USE_EGL
+            m_window = new EGLOpenGLWindow();
+#else
+            b3Warning("EGL window requires compilation with BT_USE_EGL.\n");
+            b3Warning("Loading default window instead. \n");
+            m_window = new b3gDefaultOpenGLWindow();
+#endif
+        } else {
+            b3Warning("Unknown window type %d must be (0=default, 1=X11, 2=EGL).\n", windowType);
+            b3Warning("Loading default window instead. \n");
+            m_window = new b3gDefaultOpenGLWindow();
+        }
    
 	m_window->setAllowRetina(allowRetina);
 	
@@ -314,6 +336,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(const char* title, int width, int height, boo
 	ci.m_title = title;
 	ci.m_width = width;
 	ci.m_height = height;
+	ci.m_renderDevice = renderDevice;
 	m_window->createWindow(ci);
 
 	m_window->setWindowTitle(title);

@@ -2,7 +2,7 @@
 #ifdef B3_USE_GLFW
 #include "GLFWOpenGLWindow.h"
 		
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
 #include <stdlib.h>
