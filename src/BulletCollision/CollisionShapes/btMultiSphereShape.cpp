@@ -170,16 +170,20 @@ const char*	btMultiSphereShape::serialize(void* dataBuffer, btSerializer* serial
 		btPositionAndRadius* memPtr = (btPositionAndRadius*)chunk->m_oldPtr;
 		for (int i=0;i<numElem;i++,memPtr++)
 		{
+#if defined(BT_USE_DOUBLE_PRECISION)
+			m_localPositionArray[i].serializeDouble(memPtr->m_pos);
+#else
 			m_localPositionArray[i].serializeFloat(memPtr->m_pos);
-			memPtr->m_radius = float(m_radiArray[i]);
+#endif
+			memPtr->m_radius = m_radiArray[i];
 		}
-		serializer->finalizeChunk(chunk,"btPositionAndRadius",BT_ARRAY_CODE,(void*)&m_localPositionArray[0]);
+		serializer->finalizeChunk(chunk,btPositionAndRadiusName,BT_ARRAY_CODE,(void*)&m_localPositionArray[0]);
 	}
 
 	// Fill padding with zeros to appease msan.
 	memset(shapeData->m_padding, 0, sizeof(shapeData->m_padding));
 
-	return "btMultiSphereShapeData";
+	return btMultiSphereShapeName;
 }
 
 

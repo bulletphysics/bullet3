@@ -100,6 +100,11 @@ protected:
 
 public:
 
+	virtual void setLocalTime(btScalar localTime)
+	{
+		m_localTime = localTime;
+	}
+
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 

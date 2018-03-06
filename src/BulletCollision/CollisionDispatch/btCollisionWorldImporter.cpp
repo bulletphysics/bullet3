@@ -345,7 +345,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(  btCollisionS
 			if (shape)
 			{
 				btCapsuleShape* cap = (btCapsuleShape*) shape;
-				cap->deSerializeFloat(capData);
+				cap->deSerialize(capData);
 			}
 			break;
 		}
@@ -358,9 +358,14 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(  btCollisionS
 			{
 				btConvexInternalShapeData* bsd = (btConvexInternalShapeData*)shapeData;
 				btVector3 implicitShapeDimensions;
-				implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
 				btVector3 localScaling;
+#ifdef BT_USE_DOUBLE_PRECISION
+				implicitShapeDimensions.deSerializeDouble(bsd->m_implicitShapeDimensions);
+				localScaling.deSerializeDouble(bsd->m_localScaling);
+#else
+				implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
 				localScaling.deSerializeFloat(bsd->m_localScaling);
+#endif
 				btVector3 margin(bsd->m_collisionMargin,bsd->m_collisionMargin,bsd->m_collisionMargin);
 				switch (shapeData->m_shapeType)
 				{
@@ -454,7 +459,11 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(  btCollisionS
 							int i;
 							for ( i=0;i<numSpheres;i++)
 							{
+#if defined(BT_USE_DOUBLE_PRECISION)
+								tmpPos[i].deSerializeDouble(mss->m_localPositionArrayPtr[i].m_pos);
+#else
 								tmpPos[i].deSerializeFloat(mss->m_localPositionArrayPtr[i].m_pos);
+#endif
 								radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
 							}
 							shape = createMultiSphereShape(&tmpPos[0],&radii[0],numSpheres);
@@ -473,17 +482,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(  btCollisionS
 							int i;
 							for ( i=0;i<numPoints;i++)
 							{
-#ifdef BT_USE_DOUBLE_PRECISION
-							if (convexData->m_unscaledPointsDoublePtr)
-								tmpPoints[i].deSerialize(convexData->m_unscaledPointsDoublePtr[i]);
-							if (convexData->m_unscaledPointsFloatPtr)
-								tmpPoints[i].deSerializeFloat(convexData->m_unscaledPointsFloatPtr[i]);
-#else
-							if (convexData->m_unscaledPointsFloatPtr)
-								tmpPoints[i].deSerialize(convexData->m_unscaledPointsFloatPtr[i]);
-							if (convexData->m_unscaledPointsDoublePtr)
-								tmpPoints[i].deSerializeDouble(convexData->m_unscaledPointsDoublePtr[i]);
-#endif //BT_USE_DOUBLE_PRECISION
+								tmpPoints[i].deSerialize(convexData->m_unscaledPointsPtr[i]);
 							}
 							btConvexHullShape* hullShape = createConvexHullShape();
 							for (i=0;i<numPoints;i++)
@@ -506,7 +505,11 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(  btCollisionS
 					shape->setMargin(bsd->m_collisionMargin);
 
 					btVector3 localScaling;
+#ifdef BT_USE_DOUBLE_PRECISION
+					localScaling.deSerializeDouble(bsd->m_localScaling);
+#else
 					localScaling.deSerializeFloat(bsd->m_localScaling);
+#endif
 					shape->setLocalScaling(localScaling);
 
 				}
