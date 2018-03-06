@@ -940,7 +940,7 @@ void btSequentialImpulseConstraintSolverMt::solveGroupCacheFriendlySplitImpulseI
                 {
                     int iPhase = batchedCons.m_phaseOrder[ iiPhase ];
                     const btBatchedConstraints::Range& phase = batchedCons.m_phases[ iPhase ];
-                    int grainSize = 8;
+                    int grainSize = batchedCons.m_phaseGrainSize[iPhase];
                     leastSquaresResidual += btParallelSum( phase.begin, phase.end, grainSize, loop );
                 }
             }

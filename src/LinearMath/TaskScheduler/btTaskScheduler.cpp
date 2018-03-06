@@ -17,41 +17,11 @@ typedef void* ( *btThreadLocalStorageFunc )();
 
 
 
-///
-/// getNumHardwareThreads()
-///
-///
-/// https://stackoverflow.com/questions/150355/programmatically-find-the-number-of-cores-on-a-machine
-///
-#if __cplusplus >= 201103L
-
-#include <thread>
-
-int getNumHardwareThreads()
-{
-    return std::thread::hardware_concurrency();
-}
-
-#elif defined( _WIN32 )
+#if defined( _WIN32 )
 
 #define WIN32_LEAN_AND_MEAN
 
 #include <windows.h>
-
-int getNumHardwareThreads()
-{
-    // caps out at 32
-    SYSTEM_INFO info;
-    GetSystemInfo( &info );
-    return info.dwNumberOfProcessors;
-}
-
-#else
-
-int getNumHardwareThreads()
-{
-    return 0;  // don't know
-}
 
 #endif
 
@@ -581,7 +551,6 @@ public:
 
             // put the main thread to work on emptying the job queue and then wait for all workers to finish
             waitJobs();
-            m_antiNestingLock.unlock();
 
             // add up all the thread sums
             btScalar sum = btScalar(0);
@@ -589,6 +558,7 @@ public:
             {
                 sum += threadLocalSum[ iThread ].mSum;
             }
+            m_antiNestingLock.unlock();
             return sum;
         }
         else

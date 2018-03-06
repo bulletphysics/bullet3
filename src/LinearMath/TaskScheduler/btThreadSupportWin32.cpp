@@ -267,8 +267,8 @@ DWORD WINAPI win32threadStartFunc( LPVOID lpParam )
 void btThreadSupportWin32::runTask( int threadIndex, void* userData )
 {
     btThreadStatus& threadStatus = m_activeThreadStatus[ threadIndex ];
-    btAssert( taskId >= 0 );
-    btAssert( int( taskId ) < m_activeThreadStatus.size() );
+    btAssert( threadIndex >= 0 );
+    btAssert( int( threadIndex ) < m_activeThreadStatus.size() );
 
     threadStatus.m_commandId = 1;
     threadStatus.m_status = 1;

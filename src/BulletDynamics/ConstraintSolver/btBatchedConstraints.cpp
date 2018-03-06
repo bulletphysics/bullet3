@@ -38,11 +38,10 @@ struct btBatchedConstraintInfo
 
 struct btBatchInfo
 {
-    int phaseId;
     int numConstraints;
     int mergeIndex;
 
-    btBatchInfo(int _phaseId = -1) : numConstraints(0), mergeIndex(-1), phaseId(_phaseId) {}
+    btBatchInfo() : numConstraints(0), mergeIndex(kNoMerge) {}
 };
 
 
@@ -728,7 +727,6 @@ struct AssignConstraintsToGridBatchesParams
     btIntVec3* bodyGridCoords;
     int numBodies;
     btBatchedConstraintInfo* conInfos;
-    char* constraintPhaseIds;
     int* constraintBatchIds;
     btIntVec3 gridChunkDim;
     int maxNumBatchesPerPhase;
@@ -807,7 +805,6 @@ static void assignConstraintsToGridBatches(const AssignConstraintsToGridBatchesP
         }
         int iBatch = iPhase * params.maxNumBatchesPerPhase + chunkCoord[ 0 ] + chunkCoord[ 1 ] * gridChunkDim[ 0 ] + chunkCoord[ 2 ] * gridChunkDim[ 0 ] * gridChunkDim[ 1 ];
         btAssert(iBatch >= 0 && iBatch < params.maxNumBatchesPerPhase*params.numPhases);
-        params.constraintPhaseIds[ iCon ] = iPhase;
         params.constraintBatchIds[ iCon ] = iBatch;
     }
 }
@@ -834,8 +831,7 @@ struct AssignConstraintsToGridBatchesLoop : public btIParallelForBody
 /*
 
 Bodies are treated as 3D points at their center of mass. We only consider dynamic bodies at this stage,
-kinematic and static bodies are dealt with at a later stage. Also we only consider constraints that
-are between 2 dynamic bodies ("dynamic" constraints) -- constraints that involve a static or kinematic body are handled later
+because only dynamic bodies are mutated when a constraint is solved, thus subject to race conditions.
 
 1. Compute a bounding box around all dynamic bodies
 2. Compute the maximum extent of all dynamic constraints. Each dynamic constraint is treated as a line segment, and we need the size of
@@ -845,15 +841,16 @@ are between 2 dynamic bodies ("dynamic" constraints) -- constraints that involve
    so that no dynamic constraint can span more than 2 cells of our grid on any axis of the grid. The cell size should be adjusted
    larger in order to keep the total number of cells from being excessively high
 
-Key idea: Given that each constraint spans 1 or 2 grid cells in each dimension, we can handle all dynamic constraints by processing
+Key idea: Given that each constraint spans 1 or 2 grid cells in each dimension, we can handle all constraints by processing
           in chunks of 2x2x2 cells with 8 different 1-cell offsets ((0,0,0),(0,0,1),(0,1,0),(0,1,1),(1,0,0)...).
           For each of the 8 offsets, we create a phase, and for each 2x2x2 chunk with dynamic constraints becomes a batch in that phase.
 
- Once all of the phases have been populated, if any of the phases end up with too few batches, they could possibly be merged with other phases.
+4. Once the grid is established, we can calculate for each constraint which phase and batch it belongs in.
 
- Finally, we handle all of the remaining (non-dynamic) constraints, these can be added to whichever phase is least populated to help
- even things out
+5. Do a merge small batches on the batches of each phase separately, to try to even out the sizes of batches
 
+Optionally, we can "collapse" one dimension of our 3D grid to turn it into a 2D grid, which reduces the number of phases
+to 4. With fewer phases, there are more constraints per phase and this makes it easier to create batches of a useful size.
 */
 //
 static void setupSpatialGridBatchesMt(
@@ -882,7 +879,6 @@ static void setupSpatialGridBatchesMt(
     btBatchInfo* batches = NULL;
     int* batchWork = NULL;
     btBatchedConstraintInfo* conInfos = NULL;
-    char* constraintPhaseIds = NULL;
     int* constraintBatchIds = NULL;
     int* constraintRowBatchIds = NULL;
     {
@@ -893,7 +889,6 @@ static void setupSpatialGridBatchesMt(
         memHelper.addChunk( (void**) &batches, sizeof( btBatchInfo )* allocNumBatches );
         memHelper.addChunk( (void**) &batchWork, sizeof( int )* allocNumBatches );
         memHelper.addChunk( (void**) &conInfos, sizeof( btBatchedConstraintInfo ) * numConstraints );
-        memHelper.addChunk( (void**) &constraintPhaseIds, sizeof( char ) * numConstraints );
         memHelper.addChunk( (void**) &constraintBatchIds, sizeof( int ) * numConstraints );
         memHelper.addChunk( (void**) &constraintRowBatchIds, sizeof( int ) * numConstraintRows );
         size_t scratchSize = memHelper.getSizeToAllocate();
@@ -1010,7 +1005,7 @@ static void setupSpatialGridBatchesMt(
         for ( int iBatch = batchBegin; iBatch < batchEnd; ++iBatch )
         {
             btBatchInfo& batch = batches[ iBatch ];
-            batch = btBatchInfo( iPhase );
+            batch = btBatchInfo();
         }
     }
 
@@ -1020,7 +1015,6 @@ static void setupSpatialGridBatchesMt(
         params.bodyGridCoords = bodyGridCoords;
         params.numBodies = bodies.size();
         params.conInfos = conInfos;
-        params.constraintPhaseIds = constraintPhaseIds;
         params.constraintBatchIds = constraintBatchIds;
         params.gridChunkDim = gridChunkDim;
         params.maxNumBatchesPerPhase = maxNumBatchesPerPhase;
@@ -1030,7 +1024,7 @@ static void setupSpatialGridBatchesMt(
         if (inParallel)
         {
             AssignConstraintsToGridBatchesLoop loop(params);
-            int grainSize = 500;
+            int grainSize = 250;
             btParallelFor(0, numConstraints, grainSize, loop);
         }
         else
