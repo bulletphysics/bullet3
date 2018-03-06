@@ -200,11 +200,11 @@ public:
 ///
 /// myParallelIslandDispatch -- wrap default parallel dispatch for profiling and to get the number of simulation islands
 //
-void myParallelIslandDispatch( btAlignedObjectArray<btSimulationIslandManagerMt::Island*>* islandsPtr, btSimulationIslandManagerMt::IslandCallback* callback )
+void myParallelIslandDispatch( btAlignedObjectArray<btSimulationIslandManagerMt::Island*>* islandsPtr, const btSimulationIslandManagerMt::SolverParams& solverParams)
 {
     ProfileHelper prof( Profiler::kRecordDispatchIslands );
     gNumIslands = islandsPtr->size();
-    btSimulationIslandManagerMt::parallelIslandDispatch( islandsPtr, callback );
+    btSimulationIslandManagerMt::parallelIslandDispatch( islandsPtr, solverParams );
 }
 
 
@@ -239,9 +239,10 @@ public:
     MyDiscreteDynamicsWorld( btDispatcher* dispatcher,
                              btBroadphaseInterface* pairCache,
                              btConstraintSolverPoolMt* constraintSolver,
+                             btSequentialImpulseConstraintSolverMt* constraintSolverMt,
                              btCollisionConfiguration* collisionConfiguration
                              ) :
-                             btDiscreteDynamicsWorldMt( dispatcher, pairCache, constraintSolver, collisionConfiguration )
+                             btDiscreteDynamicsWorldMt( dispatcher, pairCache, constraintSolver, constraintSolverMt, collisionConfiguration )
     {
         btSimulationIslandManagerMt* islandMgr = static_cast<btSimulationIslandManagerMt*>( m_islandManager );
         islandMgr->setIslandDispatchFunction( myParallelIslandDispatch );
@@ -347,11 +348,12 @@ static btTaskSchedulerManager gTaskSchedulerMgr;
 #if BT_THREADSAFE
 static bool gMultithreadedWorld = true;
 static bool gDisplayProfileInfo = true;
+static SolverType gSolverType = SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT;
 #else
 static bool gMultithreadedWorld = false;
 static bool gDisplayProfileInfo = false;
+static SolverType gSolverType = SOLVER_TYPE_SEQUENTIAL_IMPULSE;
 #endif
-static SolverType gSolverType = SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT;
 static int gSolverMode = SOLVER_SIMD |
                         SOLVER_USE_WARMSTARTING |
                         // SOLVER_RANDMIZE_ORDER |
@@ -547,16 +549,28 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 
         btConstraintSolverPoolMt* solverPool;
         {
+            SolverType poolSolverType = m_solverType;
+            if (poolSolverType == SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT)
+            {
+                // pool solvers shouldn't be parallel solvers, we don't allow that kind of
+                // nested parallelism because of performance issues
+                poolSolverType = SOLVER_TYPE_SEQUENTIAL_IMPULSE;
+            }
             btConstraintSolver* solvers[ BT_MAX_THREAD_COUNT ];
             int maxThreadCount = BT_MAX_THREAD_COUNT;
             for ( int i = 0; i < maxThreadCount; ++i )
             {
-                solvers[ i ] = createSolverByType( m_solverType );
+                solvers[ i ] = createSolverByType( poolSolverType );
             }
             solverPool = new btConstraintSolverPoolMt( solvers, maxThreadCount );
             m_solver = solverPool;
         }
-        btDiscreteDynamicsWorld* world = new MyDiscreteDynamicsWorld( m_dispatcher, m_broadphase, solverPool, m_collisionConfiguration );
+        btSequentialImpulseConstraintSolverMt* solverMt = NULL;
+        if ( m_solverType == SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT )
+        {
+            solverMt = new MySequentialImpulseConstraintSolverMt();
+        }
+        btDiscreteDynamicsWorld* world = new MyDiscreteDynamicsWorld( m_dispatcher, m_broadphase, solverPool, solverMt, m_collisionConfiguration );
         m_dynamicsWorld = world;
         m_multithreadedWorld = true;
         btAssert( btGetTaskScheduler() != NULL );
@@ -579,6 +593,8 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
         SolverType solverType = m_solverType;
         if ( solverType == SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT )
         {
+            // using the parallel solver with the single-threaded world works, but is
+            // disabled here to avoid confusion
             solverType = SOLVER_TYPE_SEQUENTIAL_IMPULSE;
         }
         m_solver = createSolverByType( solverType );

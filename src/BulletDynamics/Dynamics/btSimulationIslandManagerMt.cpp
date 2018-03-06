@@ -276,7 +276,7 @@ btSimulationIslandManagerMt::Island* btSimulationIslandManagerMt::allocateIsland
 void btSimulationIslandManagerMt::buildIslands( btDispatcher* dispatcher, btCollisionWorld* collisionWorld )
 {
 
-	BT_PROFILE("islandUnionFindAndQuickSort");
+	BT_PROFILE("buildIslands");
 	
 	btCollisionObjectArray& collisionObjects = collisionWorld->getCollisionObjectArray();
 
@@ -545,53 +545,58 @@ void btSimulationIslandManagerMt::mergeIslands()
 }
 
 
-void btSimulationIslandManagerMt::serialIslandDispatch( btAlignedObjectArray<Island*>* islandsPtr, IslandCallback* callback )
+void btSimulationIslandManagerMt::solveIsland(btConstraintSolver* solver, Island& island, const SolverParams& solverParams)
+{
+    btPersistentManifold** manifolds = island.manifoldArray.size() ? &island.manifoldArray[ 0 ] : NULL;
+    btTypedConstraint** constraintsPtr = island.constraintArray.size() ? &island.constraintArray[ 0 ] : NULL;
+    solver->solveGroup( &island.bodyArray[ 0 ],
+        island.bodyArray.size(),
+        manifolds,
+        island.manifoldArray.size(),
+        constraintsPtr,
+        island.constraintArray.size(),
+        *solverParams.m_solverInfo,
+        solverParams.m_debugDrawer,
+        solverParams.m_dispatcher
+    );
+}
+
+
+void btSimulationIslandManagerMt::serialIslandDispatch( btAlignedObjectArray<Island*>* islandsPtr, const SolverParams& solverParams )
 {
     BT_PROFILE( "serialIslandDispatch" );
     // serial dispatch
     btAlignedObjectArray<Island*>& islands = *islandsPtr;
+    btConstraintSolver* solver = solverParams.m_solverMt ? solverParams.m_solverMt : solverParams.m_solverPool;
     for ( int i = 0; i < islands.size(); ++i )
     {
-        Island* island = islands[ i ];
-        btPersistentManifold** manifolds = island->manifoldArray.size() ? &island->manifoldArray[ 0 ] : NULL;
-        btTypedConstraint** constraintsPtr = island->constraintArray.size() ? &island->constraintArray[ 0 ] : NULL;
-        callback->processIsland( &island->bodyArray[ 0 ],
-                                 island->bodyArray.size(),
-                                 manifolds,
-                                 island->manifoldArray.size(),
-                                 constraintsPtr,
-                                 island->constraintArray.size(),
-                                 island->id
-                                 );
+        solveIsland(solver, *islands[ i ], solverParams);
     }
 }
 
+
 struct UpdateIslandDispatcher : public btIParallelForBody
 {
-    btAlignedObjectArray<btSimulationIslandManagerMt::Island*>* islandsPtr;
-    btSimulationIslandManagerMt::IslandCallback* callback;
+    btAlignedObjectArray<btSimulationIslandManagerMt::Island*>& m_islandsPtr;
+    const btSimulationIslandManagerMt::SolverParams& m_solverParams;
+
+    UpdateIslandDispatcher(btAlignedObjectArray<btSimulationIslandManagerMt::Island*>& islandsPtr, const btSimulationIslandManagerMt::SolverParams& solverParams)
+        : m_islandsPtr(islandsPtr), m_solverParams(solverParams)
+    {}
 
     void forLoop( int iBegin, int iEnd ) const BT_OVERRIDE
     {
+        btConstraintSolver* solver = m_solverParams.m_solverPool;
         for ( int i = iBegin; i < iEnd; ++i )
         {
-            btSimulationIslandManagerMt::Island* island = ( *islandsPtr )[ i ];
-            btPersistentManifold** manifolds = island->manifoldArray.size() ? &island->manifoldArray[ 0 ] : NULL;
-            btTypedConstraint** constraintsPtr = island->constraintArray.size() ? &island->constraintArray[ 0 ] : NULL;
-            callback->processIsland( &island->bodyArray[ 0 ],
-                island->bodyArray.size(),
-                manifolds,
-                island->manifoldArray.size(),
-                constraintsPtr,
-                island->constraintArray.size(),
-                island->id
-            );
+            btSimulationIslandManagerMt::Island* island = m_islandsPtr[ i ];
+            btSimulationIslandManagerMt::solveIsland( solver, *island, m_solverParams );
         }
     }
 };
 
 
-void btSimulationIslandManagerMt::parallelIslandDispatch( btAlignedObjectArray<Island*>* islandsPtr, IslandCallback* callback )
+void btSimulationIslandManagerMt::parallelIslandDispatch( btAlignedObjectArray<Island*>* islandsPtr, const SolverParams& solverParams )
 {
     BT_PROFILE( "parallelIslandDispatch" );
     //
@@ -617,24 +622,25 @@ void btSimulationIslandManagerMt::parallelIslandDispatch( btAlignedObjectArray<I
     // any gains from parallelism.
     //
 
-    UpdateIslandDispatcher dispatcher;
-    dispatcher.islandsPtr = islandsPtr;
-    dispatcher.callback = callback;
+    UpdateIslandDispatcher dispatcher(*islandsPtr, solverParams);
     // We take advantage of the fact the islands are sorted in order of decreasing size
     int iBegin = 0;
-    while (iBegin < islandsPtr->size())
+    if (solverParams.m_solverMt)
     {
-        btSimulationIslandManagerMt::Island* island = (*islandsPtr)[ iBegin ];
-        if (island->manifoldArray.size() < btSequentialImpulseConstraintSolverMt::s_minimumContactManifoldsForBatching)
+        while ( iBegin < islandsPtr->size() )
         {
-            // OK to submit the rest of the array in parallel
-            break;
+            btSimulationIslandManagerMt::Island* island = ( *islandsPtr )[ iBegin ];
+            if ( island->manifoldArray.size() < btSequentialImpulseConstraintSolverMt::s_minimumContactManifoldsForBatching )
+            {
+                // OK to submit the rest of the array in parallel
+                break;
+            }
+            // serial dispatch to parallel solver for large islands (if any)
+            solveIsland(solverParams.m_solverMt, *island, solverParams);
+            ++iBegin;
         }
-        ++iBegin;
     }
-    // serial dispatch for large islands (if any)
-    dispatcher.forLoop(0, iBegin);
-    // parallel dispatch for rest
+    // parallel dispatch to sequential solvers for rest
     btParallelFor( iBegin, islandsPtr->size(), 1, dispatcher );
 }
 
@@ -643,14 +649,13 @@ void btSimulationIslandManagerMt::parallelIslandDispatch( btAlignedObjectArray<I
 void btSimulationIslandManagerMt::buildAndProcessIslands( btDispatcher* dispatcher,
                                                         btCollisionWorld* collisionWorld,
                                                         btAlignedObjectArray<btTypedConstraint*>& constraints,
-                                                        IslandCallback* callback
+                                                        const SolverParams& solverParams
                                                         )
 {
+	BT_PROFILE("buildAndProcessIslands");
 	btCollisionObjectArray& collisionObjects = collisionWorld->getCollisionObjectArray();
 
 	buildIslands(dispatcher,collisionWorld);
-
-	BT_PROFILE("processIslands");
 
 	if(!getSplitIslands())
 	{
@@ -683,14 +688,17 @@ void btSimulationIslandManagerMt::buildAndProcessIslands( btDispatcher* dispatch
             }
         }
         btTypedConstraint** constraintsPtr = constraints.size() ? &constraints[ 0 ] : NULL;
-		callback->processIsland(&collisionObjects[0],
-                                 collisionObjects.size(),
-                                 manifolds,
-                                 maxNumManifolds,
-                                 constraintsPtr,
-                                 constraints.size(),
-                                 -1
-                                 );
+        btConstraintSolver* solver = solverParams.m_solverMt ? solverParams.m_solverMt : solverParams.m_solverPool;
+        solver->solveGroup(&collisionObjects[0],
+                           collisionObjects.size(),
+                           manifolds,
+                           maxNumManifolds,
+                           constraintsPtr,
+                           constraints.size(),
+                           *solverParams.m_solverInfo,
+                           solverParams.m_debugDrawer,
+                           solverParams.m_dispatcher
+                           );
 	}
 	else
 	{
@@ -710,6 +718,6 @@ void btSimulationIslandManagerMt::buildAndProcessIslands( btDispatcher* dispatch
             mergeIslands();
         }
         // dispatch islands to solver
-        m_islandDispatch( &m_activeIslands, callback );
+        m_islandDispatch( &m_activeIslands, solverParams );
 	}
 }
