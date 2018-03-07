@@ -15,17 +15,18 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="teddy2_VHACD_CHs.obj" scale=".1 .1 .1"/>
+        <mesh filename="teddy2_VHACD_CHs.obj" scale="3 3 3"/>
       </geometry>
        <material name="red">
-        <color rgba="1 0.4 0.4 1"/>
+        <color rgba="1 1 1 1"/>
       </material>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-	 	<mesh filename="teddy2_VHACD_CHs.obj" scale=".1 .1 .1"/>
+	 	<mesh filename="teddy2_VHACD_CHs.obj" scale="3 3 3"/>
       </geometry>
     </collision>
   </link>
 </robot>
+
