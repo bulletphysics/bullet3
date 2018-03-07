@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btHashMap.h"
 
+struct btActionInterfaceData;
 class btCollisionShape;
 class btCollisionObject;
 class btRigidBody;
@@ -49,6 +50,7 @@ struct btContactSolverInfo;
 struct btTypedConstraintData;
 struct btTypedConstraintFloatData;
 struct btTypedConstraintDoubleData;
+class btRaycastVehicle;
 
 struct btRigidBodyDoubleData;
 struct btRigidBodyFloatData;
@@ -100,6 +102,7 @@ protected:
 
 	btHashMap<btHashPtr,btCollisionShape*>	m_shapeMap;
 	btHashMap<btHashPtr,btCollisionObject*>	m_bodyMap;
+	btHashMap<btHashPtr,btRaycastVehicle*>	m_vehicleMap;
 
 
 	//methods
@@ -109,6 +112,8 @@ protected:
 	char*	duplicateName(const char* name);
 
 	btCollisionShape* convertCollisionShape(  btCollisionShapeData* shapeData  );
+	void convertAction(btActionInterfaceData* action);
+
 	
 	void	convertConstraintBackwardsCompatible281(btTypedConstraintData* constraintData, btRigidBody* rbA, btRigidBody* rbB, int fileVersion);
 	void	convertConstraintFloat(btTypedConstraintFloatData* constraintData, btRigidBody* rbA, btRigidBody* rbB, int fileVersion);

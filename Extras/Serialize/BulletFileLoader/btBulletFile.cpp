@@ -230,6 +230,16 @@ void btBulletFile::parseData()
 					m_collisionShapes.push_back((bStructHandle*) id);
 				}
 
+				if (dataChunk.code == BT_ACTIONINTERFACE_CODE)
+				{
+					m_actions.push_back((bStructHandle*) id);
+				}
+
+				if (dataChunk.code == BT_WHEELS_CODE)
+				{
+					m_wheels.push_back((bStructHandle*) id);
+				}
+
 		//		if (dataChunk.code == GLOB)
 		//		{
 		//			m_glob = (bStructHandle*) id;

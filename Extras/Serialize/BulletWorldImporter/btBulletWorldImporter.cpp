@@ -356,6 +356,33 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 
 	}
 
+	for (i=0;i<bulletFile2->m_actions.size();i++)
+	{
+		btActionInterfaceData* data = reinterpret_cast<btActionInterfaceData*>(bulletFile2->m_actions[i]);
+		convertAction(data);
+	}
+
+    for (i=0;i<bulletFile2->m_wheels.size();i++)
+    {
+        btWheelDoubleData * data = reinterpret_cast<btWheelDoubleData*>(bulletFile2->m_wheels[i]);
+        btWheelInfoConstructionInfo ci;
+        memcpy(&ci, data, sizeof(btWheelInfoConstructionInfo));
+        btWheelInfo * wheel = new btWheelInfo(ci);
+        wheel->m_steering = data->m_steering;
+        wheel->m_engineForce = data->m_engineForce;
+        wheel->m_rotation = data->m_rotation;
+        wheel->m_deltaRotation = data->m_deltaRotation;
+        wheel->m_brake = data->m_brake;
+        wheel->m_rollInfluence = data->m_rollInfluence;
+
+        btRaycastVehicle** veh = m_vehicleMap.find(data->associatedVehicle);
+        if (veh && *veh)
+        {
+            (*veh)->addWheel(wheel);
+        }
+
+    }
+
 	return true;
 }
 

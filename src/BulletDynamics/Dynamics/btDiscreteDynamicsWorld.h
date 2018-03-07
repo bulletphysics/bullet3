@@ -96,6 +96,8 @@ protected:
 
 	void	serializeRigidBodies(btSerializer* serializer);
 
+	void    serializeActionInterfaces(btSerializer* serializer);
+
 	void	serializeDynamicsWorldInfo(btSerializer* serializer);
 
 public:
@@ -124,6 +126,16 @@ public:
 	virtual void	addAction(btActionInterface*);
 
 	virtual void	removeAction(btActionInterface*);
+
+	btAlignedObjectArray<btActionInterface*> getActionInterfaceArray()
+	{
+		return m_actions;
+	}
+
+	const btAlignedObjectArray<btActionInterface*> getActionInterfaceArray() const
+	{
+		return m_actions;
+	}
 	
 	btSimulationIslandManager*	getSimulationIslandManager()
 	{

@@ -21,14 +21,27 @@ class btDynamicsWorld;
 
 //class btVehicleTuning;
 
+struct btRaycastVehicleData
+{
+    btActionInterfaceData base; // this needs to be first so that the object may be cast to a btActionInterfaceData to read the type
+    char m_pad[4]; // keep things 8-byte aligned
+    void *m_chassisBody;
+    int m_indexRightAxis;
+    int m_indexUpAxis;
+    int	m_indexForwardAxis;
+    char m_pad2[4]; // keep things 8-byte aligned
+};
+
 ///rayCast vehicle, very special constraint that turn a rigidbody into a vehicle.
 class btRaycastVehicle : public btActionInterface
 {
-
-		btAlignedObjectArray<btVector3>	m_forwardWS;
-		btAlignedObjectArray<btVector3>	m_axle;
-		btAlignedObjectArray<btScalar>	m_forwardImpulse;
-		btAlignedObjectArray<btScalar>	m_sideImpulse;
+	// though the contents of these 4 variables are reset on every call to updateVehicle,
+	// keeping them as part of the class means memory will not be deallocated and reallocated
+	// on every call to that function
+	btAlignedObjectArray<btVector3>	m_forwardWS;
+	btAlignedObjectArray<btVector3>	m_axle;
+	btAlignedObjectArray<btScalar>	m_forwardImpulse;
+	btAlignedObjectArray<btScalar>	m_sideImpulse;
 	
 		///backwards compatibility
 		int	m_userConstraintType;
@@ -59,8 +72,6 @@ public:
 private:
 
 	btVehicleRaycaster*	m_vehicleRaycaster;
-	btScalar		m_pitchControl;
-	btScalar	m_steeringValue; 
 	btScalar m_currentVehicleSpeedKmHour;
 
 	btRigidBody* m_chassisBody;
@@ -68,9 +79,6 @@ private:
 	int m_indexRightAxis;
 	int m_indexUpAxis;
 	int	m_indexForwardAxis;
-
-	void defaultInit(const btVehicleTuning& tuning);
-
 public:
 
 	//constructor to create a car from an existing rigidbody
@@ -113,6 +121,7 @@ public:
 //	void	setRaycastWheelInfo( int wheelIndex , bool isInContact, const btVector3& hitPoint, const btVector3& hitNormal,btScalar depth);
 
 	btWheelInfo&	addWheel( const btVector3& connectionPointCS0, const btVector3& wheelDirectionCS0,const btVector3& wheelAxleCS,btScalar suspensionRestLength,btScalar wheelRadius,const btVehicleTuning& tuning, bool isFrontWheel);
+    void addWheel(btWheelInfo * wheelInfo);
 
 	inline int		getNumWheels() const {
 		return int (m_wheelInfo.size());
@@ -129,11 +138,6 @@ public:
 
 	
 	void setBrake(btScalar brake,int wheelIndex);
-
-	void	setPitchControl(btScalar pitch)
-	{
-		m_pitchControl = pitch;
-	}
 	
 	void	updateSuspension(btScalar deltaTime);
 
@@ -213,6 +217,10 @@ public:
 	{
 		return m_userConstraintId;
 	}
+
+	virtual const char * serialize(void * dataBuffer, btSerializer * serializer) const;
+	void deserialize(void * dataBuffer);
+	size_t calculateSerialBufferSize() const {return sizeof(btRaycastVehicleData);}
 
 };
 

@@ -1466,6 +1466,17 @@ void	btDiscreteDynamicsWorld::serializeRigidBodies(btSerializer* serializer)
 	}
 }
 
+void btDiscreteDynamicsWorld::serializeActionInterfaces(btSerializer* serializer)
+{
+	for (int i = 0; i < m_actions.size(); ++i) {
+		btActionInterface* action = m_actions[i];
+		int size = action->calculateSerialBufferSize();
+		btChunk* chunk = serializer->allocate(size, 1);
+		const char* structType = action->serialize(chunk->m_oldPtr, serializer);
+		serializer->finalizeChunk(chunk, structType, BT_ACTIONINTERFACE_CODE, action);
+	}
+}
+
 
 
 
@@ -1534,6 +1545,8 @@ void	btDiscreteDynamicsWorld::serialize(btSerializer* serializer)
 	serializeRigidBodies(serializer);
 
 	serializeContactManifolds(serializer);
+
+	serializeActionInterfaces(serializer);
 
 	serializer->finishSerialization();
 }
