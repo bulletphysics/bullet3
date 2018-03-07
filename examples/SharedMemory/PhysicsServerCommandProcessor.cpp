@@ -43,6 +43,7 @@
 #include "../Utils/b3Clock.h"
 #include "b3PluginManager.h"
 #include "../Extras/Serialize/BulletFileLoader/btBulletFile.h"
+#include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 
 
 #ifdef STATIC_LINK_VR_PLUGIN
@@ -4472,6 +4473,8 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 			clientCmd.m_requestRaycastIntersections.m_rayToPositions[ray][2]);
 
 		btCollisionWorld::ClosestRayResultCallback rayResultCallback(rayFromWorld,rayToWorld);
+		rayResultCallback.m_flags |= btTriangleRaycastCallback::kF_UseGjkConvexCastRaytest;
+
 		m_data->m_dynamicsWorld->rayTest(rayFromWorld,rayToWorld,rayResultCallback);
 		int rayHits = serverStatusOut.m_raycastHits.m_numRaycastHits;
 
