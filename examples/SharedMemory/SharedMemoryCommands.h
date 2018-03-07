@@ -23,7 +23,7 @@
 	typedef unsigned long long int smUint64_t;
 #endif
 
-#define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (512*1024)
+#define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (8*1024*1024)
 
 #define SHARED_MEMORY_SERVER_TEST_C
 #define MAX_DEGREE_OF_FREEDOM 128
