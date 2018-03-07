@@ -72,11 +72,8 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 
 
 	btScalar dist2 = v.length2();
-#ifdef BT_USE_DOUBLE_PRECISION
-	btScalar epsilon = btScalar(0.0001);
-#else
-	btScalar epsilon = btScalar(0.0001);
-#endif //BT_USE_DOUBLE_PRECISION
+	btScalar epsilon = SIMD_EPSILON * 10;
+
 	btVector3	w,p;
 	btScalar VdotR;
 	
