@@ -205,7 +205,7 @@ class KukaGymEnv(gym.Env):
 
         
     rgb_array = np.array(px, dtype=np.uint8)
-    rgb_array = np.reshape(rgb_array, (RENDER_WIDTH, RENDER_HEIGHT, 4))
+    rgb_array = np.reshape(rgb_array, (RENDER_HEIGHT, RENDER_WIDTH, 4))
 		
     rgb_array = rgb_array[:, :, :3]
     return rgb_array
