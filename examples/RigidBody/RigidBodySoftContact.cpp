@@ -110,7 +110,7 @@ void RigidBodySoftContact::initPhysics()
 
 	{
 		btScalar mass(0.);
-		btRigidBody* body = createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1));
+		btRigidBody* body = createRigidBody(mass,groundTransform,groundShape);
         
         body->setContactStiffnessAndDamping(300,10);
 		
