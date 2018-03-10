@@ -6135,6 +6135,235 @@ static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyOb
 	return NULL;
 }
 
+
+static PyObject* pybullet_createVisualShapeArray(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+
+	PyObject* shapeTypeArray = 0;
+	PyObject* radiusArray = 0;
+	PyObject* halfExtentsObjArray = 0;
+	PyObject* lengthArray = 0;
+	PyObject* fileNameArray = 0;
+	PyObject* meshScaleObjArray = 0;
+	PyObject* planeNormalObjArray = 0;
+	PyObject* flagsArray = 0;
+	PyObject* visualFramePositionObjArray = 0;
+	PyObject* visualFrameOrientationObjArray = 0;
+
+	static char* kwlist[] = { "shapeTypes", "radii", "halfExtents", "lengths", "fileNames", "meshScales", "planeNormals",
+		"flags", "visualFramePositions", "visualFrameOrientations", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOOOOOOOi", kwlist,
+		&shapeTypeArray, &radiusArray, &halfExtentsObjArray, &lengthArray, &fileNameArray, &meshScaleObjArray, &planeNormalObjArray, &flagsArray, &visualFramePositionObjArray, &visualFrameOrientationObjArray, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+
+
+
+	{
+		b3SharedMemoryCommandHandle commandHandle = b3CreateVisualShapeCommandInit(sm);
+		int numShapeTypes = 0;
+		int numRadius = 0;
+		int numHalfExtents = 0;
+		int numLengths = 0;
+		int numFileNames = 0;
+		int numMeshScales = 0;
+		int numPlaneNormals = 0;
+		int numFlags = 0;
+		int numPositions = 0;
+		int numOrientations = 0;
+
+		int s;
+		PyObject* shapeTypeArraySeq = shapeTypeArray ? PySequence_Fast(shapeTypeArray, "expected a sequence of shape types") : 0;
+		PyObject* radiusArraySeq = radiusArray ? PySequence_Fast(radiusArray, "expected a sequence of radii") : 0;
+		PyObject* halfExtentsArraySeq = halfExtentsObjArray ? PySequence_Fast(halfExtentsObjArray, "expected a sequence of half extents") : 0;
+		PyObject* lengthArraySeq = lengthArray ? PySequence_Fast(lengthArray, "expected a sequence of lengths") : 0;
+		PyObject* fileNameArraySeq = fileNameArray ? PySequence_Fast(fileNameArray, "expected a sequence of filename") : 0;
+		PyObject* meshScaleArraySeq = meshScaleObjArray ? PySequence_Fast(meshScaleObjArray, "expected a sequence of mesh scale") : 0;
+		PyObject* planeNormalArraySeq = planeNormalObjArray ? PySequence_Fast(planeNormalObjArray, "expected a sequence of plane normal") : 0;
+		PyObject* flagsArraySeq = flagsArray ? PySequence_Fast(flagsArray, "expected a sequence of flags") : 0;
+		PyObject* positionArraySeq = visualFramePositionObjArray ? PySequence_Fast(visualFramePositionObjArray, "expected a sequence of visual frame positions") : 0;
+		PyObject* orientationArraySeq = visualFrameOrientationObjArray ? PySequence_Fast(visualFrameOrientationObjArray, "expected a sequence of visual frame orientations") : 0;
+
+		if (shapeTypeArraySeq == 0)
+		{
+			PyErr_SetString(SpamError, "expected a sequence of shape types");
+			return NULL;
+		}
+
+		numShapeTypes = shapeTypeArray ? PySequence_Size(shapeTypeArray) : 0;
+		numRadius = radiusArraySeq ? PySequence_Size(radiusArraySeq) : 0;
+		numHalfExtents = halfExtentsArraySeq ? PySequence_Size(halfExtentsArraySeq) : 0;
+		numLengths = lengthArraySeq ? PySequence_Size(lengthArraySeq) : 0;
+		numFileNames = fileNameArraySeq ? PySequence_Size(fileNameArraySeq) : 0;
+		numMeshScales = meshScaleArraySeq ? PySequence_Size(meshScaleArraySeq) : 0;
+		numPlaneNormals = planeNormalArraySeq ? PySequence_Size(planeNormalArraySeq) : 0;
+
+		for (s = 0; s<numShapeTypes; s++)
+		{
+			int shapeType = pybullet_internalGetIntFromSequence(shapeTypeArraySeq, s);
+			if (shapeType >= GEOM_SPHERE)
+			{
+
+				int shapeIndex = -1;
+
+				if (shapeType == GEOM_SPHERE && s <= numRadius)
+				{
+					double radius = pybullet_internalGetFloatFromSequence(radiusArraySeq, s);
+					if (radius > 0)
+					{
+						shapeIndex = b3CreateVisualShapeAddSphere(commandHandle, radius);
+					}
+				}
+				if (shapeType == GEOM_BOX)
+				{
+					PyObject* halfExtentsObj = 0;
+					double halfExtents[3] = { 1, 1, 1 };
+
+					if (halfExtentsArraySeq && s <= numHalfExtents)
+					{
+						if (PyList_Check(halfExtentsArraySeq))
+						{
+							halfExtentsObj = PyList_GET_ITEM(halfExtentsArraySeq, s);
+						}
+						else
+						{
+							halfExtentsObj = PyTuple_GET_ITEM(halfExtentsArraySeq, s);
+						}
+					}
+					pybullet_internalSetVectord(halfExtentsObj, halfExtents);
+					shapeIndex = b3CreateVisualShapeAddBox(commandHandle, halfExtents);
+				}
+				if (shapeType == GEOM_CAPSULE && s <= numRadius)
+				{
+					double radius = pybullet_internalGetFloatFromSequence(radiusArraySeq, s);
+					double height = pybullet_internalGetFloatFromSequence(lengthArraySeq, s);
+					if (radius > 0 && height >= 0)
+					{
+						shapeIndex = b3CreateVisualShapeAddCapsule(commandHandle, radius, height);
+					}
+				}
+				if (shapeType == GEOM_CYLINDER  && s <= numRadius && s<numLengths)
+				{
+					double radius = pybullet_internalGetFloatFromSequence(radiusArraySeq, s);
+					double height = pybullet_internalGetFloatFromSequence(lengthArraySeq, s);
+					if (radius > 0 && height >= 0)
+					{
+						shapeIndex = b3CreateVisualShapeAddCylinder(commandHandle, radius, height);
+					}
+				}
+				if (shapeType == GEOM_MESH)
+				{
+					double meshScale[3] = { 1, 1, 1 };
+
+					PyObject* meshScaleObj = meshScaleArraySeq ? PyList_GET_ITEM(meshScaleArraySeq, s) : 0;
+					PyObject* fileNameObj = fileNameArraySeq ? PyList_GET_ITEM(fileNameArraySeq, s) : 0;
+					const char* fileName = 0;
+
+					if (fileNameObj)
+					{
+#if PY_MAJOR_VERSION >= 3
+						PyObject* ob = PyUnicode_AsASCIIString(fileNameObj);
+						fileName = PyBytes_AS_STRING(ob);
+#else
+						fileName = PyString_AsString(fileNameObj);
+#endif
+					}
+					if (meshScaleObj)
+					{
+						pybullet_internalSetVectord(meshScaleObj, meshScale);
+					}
+					if (fileName)
+					{
+						shapeIndex = b3CreateVisualShapeAddMesh(commandHandle, fileName, meshScale);
+					}
+
+				}
+				if (shapeType == GEOM_PLANE)
+				{
+					PyObject* planeNormalObj = planeNormalArraySeq ? PyList_GET_ITEM(planeNormalArraySeq, s) : 0;
+					double planeNormal[3];
+					double planeConstant = 0;
+					pybullet_internalSetVectord(planeNormalObj, planeNormal);
+					shapeIndex = b3CreateVisualShapeAddPlane(commandHandle, planeNormal, planeConstant);
+				}
+				if (flagsArraySeq)
+				{
+					int flags = pybullet_internalGetIntFromSequence(flagsArraySeq, s);
+					b3CreateVisualSetFlag(commandHandle, shapeIndex, flags);
+				}
+				if (positionArraySeq || orientationArraySeq)
+				{
+					PyObject* visualFramePositionObj = positionArraySeq ? PyList_GET_ITEM(positionArraySeq, s) : 0;
+					PyObject* visualFrameOrientationObj = orientationArraySeq ? PyList_GET_ITEM(orientationArraySeq, s) : 0;
+					double visualFramePosition[3] = { 0, 0, 0 };
+					double visualFrameOrientation[4] = { 0, 0, 0, 1 };
+					if (visualFramePositionObj)
+					{
+						pybullet_internalSetVectord(visualFramePositionObj, visualFramePosition);
+					}
+
+					if (visualFrameOrientationObj)
+					{
+						pybullet_internalSetVector4d(visualFrameOrientationObj, visualFrameOrientation);
+					}
+					if (shapeIndex >= 0)
+					{
+						b3CreateVisualShapeSetChildTransform(commandHandle, shapeIndex, visualFramePosition, visualFrameOrientation);
+					}
+
+				}
+			}
+
+
+
+		}
+
+		if (shapeTypeArraySeq)
+			Py_DECREF(shapeTypeArraySeq);
+		if (radiusArraySeq)
+			Py_DECREF(radiusArraySeq);
+		if (halfExtentsArraySeq)
+			Py_DECREF(halfExtentsArraySeq);
+		if (lengthArraySeq)
+			Py_DECREF(lengthArraySeq);
+		if (fileNameArraySeq)
+			Py_DECREF(fileNameArraySeq);
+		if (meshScaleArraySeq)
+			Py_DECREF(meshScaleArraySeq);
+		if (planeNormalArraySeq)
+			Py_DECREF(planeNormalArraySeq);
+		if (flagsArraySeq)
+			Py_DECREF(flagsArraySeq);
+		if (positionArraySeq)
+			Py_DECREF(positionArraySeq);
+		if (orientationArraySeq)
+			Py_DECREF(orientationArraySeq);
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_CREATE_VISUAL_SHAPE_COMPLETED)
+		{
+			int uid = b3GetStatusVisualShapeUniqueId(statusHandle);
+			PyObject* ob = PyLong_FromLong(uid);
+			return ob;
+		}
+	}
+
+	PyErr_SetString(SpamError, "createVisualShapeArray failed.");
+	return NULL;
+}
 static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int physicsClientId = 0;
@@ -8372,10 +8601,13 @@ static PyMethodDef SpamMethods[] = {
 	 "Create a collision shape. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
 
 	{ "createCollisionShapeArray", (PyCFunction)pybullet_createCollisionShapeArray, METH_VARARGS | METH_KEYWORDS,
-	"Create a collision shape. Returns a non-negative (int) unique id, if successfull, negative otherwise." },
+	"Create collision shapes. Returns a non-negative (int) unique id, if successfull, negative otherwise." },
 
 	{"createVisualShape", (PyCFunction)pybullet_createVisualShape, METH_VARARGS | METH_KEYWORDS,
 	 "Create a visual shape. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
+
+	 { "createVisualShapeArray", (PyCFunction)pybullet_createVisualShapeArray, METH_VARARGS | METH_KEYWORDS,
+	"Create visual shapes. Returns a non-negative (int) unique id, if successfull, negative otherwise." },
 
 	{"createMultiBody", (PyCFunction)pybullet_createMultiBody, METH_VARARGS | METH_KEYWORDS,
 	 "Create a multi body. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
