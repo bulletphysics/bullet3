@@ -2224,7 +2224,12 @@ void	PhysicsServerExample::updateGraphics()
 	}
     case eGUIHelperCopyCameraImageData:
         {
-		B3_PROFILE("eGUIHelperCopyCameraImageData");
+			B3_PROFILE("eGUIHelperCopyCameraImageData");
+
+			if (m_multiThreadedHelper->m_startPixelIndex == 0)
+			{
+				m_physicsServer.syncPhysicsToGraphics();
+			}
 
              m_multiThreadedHelper->m_childGuiHelper->copyCameraImageData(m_multiThreadedHelper->m_viewMatrix,
 				 m_multiThreadedHelper->m_projectionMatrix,

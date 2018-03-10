@@ -3946,9 +3946,15 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 	btTransform childTrans;
 	childTrans.setIdentity();
 	const char* pathPrefix = "";
-	if (clientCmd.m_createUserShapeArgs.m_numUserShapes == 1)
+
+	btAlignedObjectArray<GLInstanceVertex> vertices;
+	btAlignedObjectArray<int> indices;
+	btTransform startTrans; startTrans.setIdentity();
+	btAlignedObjectArray<BulletURDFTexture> textures;
+	
+	
+	for (int userShapeIndex = 0; userShapeIndex< clientCmd.m_createUserShapeArgs.m_numUserShapes; userShapeIndex++)
 	{
-		int userShapeIndex = 0;
 
 		UrdfVisual visualShape;
 		visualShape.m_geometry.m_type = (UrdfGeomTypes)clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_type;
@@ -3960,97 +3966,95 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 
 		switch (visualShape.m_geometry.m_type)
 		{
-			case URDF_GEOM_CYLINDER:
+		case URDF_GEOM_CYLINDER:
+		{
+			visualShape.m_geometry.m_capsuleHeight = visShape.m_capsuleHeight;
+			visualShape.m_geometry.m_capsuleRadius = visShape.m_capsuleRadius;
+			break;
+		}
+		case URDF_GEOM_BOX:
+		{
+			visualShape.m_geometry.m_boxSize.setValue(2.*visShape.m_boxHalfExtents[0],
+				2.*visShape.m_boxHalfExtents[1],
+				2.*visShape.m_boxHalfExtents[2]);
+			break;
+		}
+		case URDF_GEOM_SPHERE:
+		{
+			visualShape.m_geometry.m_sphereRadius = visShape.m_sphereRadius;
+			break;
+
+		}
+		case URDF_GEOM_CAPSULE:
+		{
+			visualShape.m_geometry.m_hasFromTo = visShape.m_hasFromTo;
+			if (visualShape.m_geometry.m_hasFromTo)
+			{
+				visualShape.m_geometry.m_capsuleFrom.setValue(visShape.m_capsuleFrom[0],
+					visShape.m_capsuleFrom[1],
+					visShape.m_capsuleFrom[2]);
+				visualShape.m_geometry.m_capsuleTo.setValue(visShape.m_capsuleTo[0],
+					visShape.m_capsuleTo[1],
+					visShape.m_capsuleTo[2]);
+			}
+			else
 			{
 				visualShape.m_geometry.m_capsuleHeight = visShape.m_capsuleHeight;
 				visualShape.m_geometry.m_capsuleRadius = visShape.m_capsuleRadius;
-				break;
 			}
-			case URDF_GEOM_BOX:
+			break;
+		}
+		case URDF_GEOM_MESH:
+		{
+
+			std::string fileName = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshFileName;
+			const std::string& error_message_prefix = "";
+			std::string out_found_filename;
+			int out_type;
+			if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
 			{
-				visualShape.m_geometry.m_boxSize.setValue(2.*visShape.m_boxHalfExtents[0],
-					2.*visShape.m_boxHalfExtents[1],
-					2.*visShape.m_boxHalfExtents[2]);
-				break;
-			}
-			case URDF_GEOM_SPHERE:
-			{
-				visualShape.m_geometry.m_sphereRadius = visShape.m_sphereRadius;
-				break;
-
-			}
-			case URDF_GEOM_CAPSULE:
-			{
-				visualShape.m_geometry.m_hasFromTo = visShape.m_hasFromTo;
-				if (visualShape.m_geometry.m_hasFromTo)
-				{
-					visualShape.m_geometry.m_capsuleFrom.setValue(visShape.m_capsuleFrom[0],
-						visShape.m_capsuleFrom[1],
-						visShape.m_capsuleFrom[2]);				
-					visualShape.m_geometry.m_capsuleTo.setValue(visShape.m_capsuleTo[0],
-						visShape.m_capsuleTo[1],
-						visShape.m_capsuleTo[2]);
-				}
-				else
-				{
-					visualShape.m_geometry.m_capsuleHeight = visShape.m_capsuleHeight;
-					visualShape.m_geometry.m_capsuleRadius = visShape.m_capsuleRadius;
-				}
-				break;
-			}
-			case URDF_GEOM_MESH:
-			{
-
-				std::string fileName = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshFileName;
-				const std::string& error_message_prefix = "";
-				std::string out_found_filename;
-				int out_type;
-				if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
-				{
-					b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
-				}
-
-				bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
-				visualShape.m_geometry.m_meshFileType = out_type;
-				visualShape.m_geometry.m_meshFileName = fileName;
-
-				visualShape.m_geometry.m_meshScale.setValue(clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[0],
-					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[1],
-					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[2]);
-				break;
-
+				b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
 			}
 
-			default:
-			{
-			}
+			bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
+			visualShape.m_geometry.m_meshFileType = out_type;
+			visualShape.m_geometry.m_meshFileName = fileName;
+
+			visualShape.m_geometry.m_meshScale.setValue(clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[0],
+				clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[1],
+				clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[2]);
+			break;
+
+		}
+
+		default:
+		{
+		}
 		};
 		visualShape.m_name = "in_memory";
-		visualShape.m_materialName="";
-		visualShape.m_sourceFileLocation="in_memory_unknown_line";
+		visualShape.m_materialName = "";
+		visualShape.m_sourceFileLocation = "in_memory_unknown_line";
 		visualShape.m_linkLocalFrame.setIdentity();
 		visualShape.m_geometry.m_hasLocalMaterial = false;
-							
-							
-		btAlignedObjectArray<GLInstanceVertex> vertices;
-		btAlignedObjectArray<int> indices;
-		btTransform startTrans; startTrans.setIdentity();
-		btAlignedObjectArray<BulletURDFTexture> textures;
-		bool hasRGBA = (clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_visualFlags&GEOM_VISUAL_HAS_RGBA_COLOR)!=0;;
-		bool hasSpecular = (clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_visualFlags&GEOM_VISUAL_HAS_SPECULAR_COLOR)!=0;;
-		visualShape.m_geometry.m_hasLocalMaterial = hasRGBA|hasSpecular;
+
+
+
+		bool hasRGBA = (clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_visualFlags&GEOM_VISUAL_HAS_RGBA_COLOR) != 0;;
+		bool hasSpecular = (clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_visualFlags&GEOM_VISUAL_HAS_SPECULAR_COLOR) != 0;;
+		visualShape.m_geometry.m_hasLocalMaterial = hasRGBA | hasSpecular;
 		if (visualShape.m_geometry.m_hasLocalMaterial)
 		{
 			if (hasRGBA)
 			{
-			visualShape.m_geometry.m_localMaterial.m_matColor.m_rgbaColor.setValue(
-				clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_rgbaColor[0],
-				clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_rgbaColor[1],
-				clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_rgbaColor[2],
-				clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_rgbaColor[3]);
-			} else
+				visualShape.m_geometry.m_localMaterial.m_matColor.m_rgbaColor.setValue(
+					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_rgbaColor[0],
+					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_rgbaColor[1],
+					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_rgbaColor[2],
+					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_rgbaColor[3]);
+			}
+			else
 			{
-									
+
 			}
 			if (hasSpecular)
 			{
@@ -4058,13 +4062,14 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_specularColor[0],
 					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_specularColor[1],
 					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_specularColor[2]);
-			} else
+			}
+			else
 			{
-				visualShape.m_geometry.m_localMaterial.m_matColor.m_specularColor.setValue(0.4,0.4,0.4);
+				visualShape.m_geometry.m_localMaterial.m_matColor.m_specularColor.setValue(0.4, 0.4, 0.4);
 			}
 		}
-							
-		if (clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_hasChildTransform !=0)
+
+		if (clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_hasChildTransform != 0)
 		{
 			childTrans.setOrigin(btVector3(clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_childPosition[0],
 				clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_childPosition[1],
@@ -4076,42 +4081,44 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 				clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_childOrientation[3]));
 		}
 
-							
-		u2b.convertURDFToVisualShapeInternal(&visualShape, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures);
-					
-		if (vertices.size() && indices.size())
-		{
-			if (1)
-			{
-				int textureIndex = -1;
-				if (textures.size())
-				{
-				
-					textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData1,textures[0].m_width,textures[0].m_height);
-				}
-				int graphicsIndex = -1;
-				{
-					B3_PROFILE("registerGraphicsShape");
-					graphicsIndex = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, textureIndex);
-					if (graphicsIndex>=0)
-					{
-						int visualShapeUniqueId = m_data->m_userVisualShapeHandles.allocHandle();
-						InternalVisualShapeHandle* visualHandle = m_data->m_userVisualShapeHandles.getHandle(visualShapeUniqueId);
-						visualHandle->m_OpenGLGraphicsIndex = graphicsIndex;
-						visualHandle->m_tinyRendererVisualShapeIndex = -1;
-						//tinyrenderer doesn't separate shape versus instance, so create it when creating the multibody instance
-						//store needed info for tinyrenderer
-						visualHandle->m_localInertiaFrame = localInertiaFrame;
-						visualHandle->m_visualShape = visualShape;
-						visualHandle->m_pathPrefix = pathPrefix[0] ? pathPrefix : "";
 
-						serverStatusOut.m_createUserShapeResultArgs.m_userShapeUniqueId = visualShapeUniqueId;
-						serverStatusOut.m_type = CMD_CREATE_VISUAL_SHAPE_COMPLETED;
-					}
+		u2b.convertURDFToVisualShapeInternal(&visualShape, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices, textures);
+
+	}
+	
+	if (vertices.size() && indices.size())
+	{
+		if (1)
+		{
+			int textureIndex = -1;
+			if (textures.size())
+			{
+
+				textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData1, textures[0].m_width, textures[0].m_height);
+			}
+			int graphicsIndex = -1;
+			{
+				B3_PROFILE("registerGraphicsShape");
+				graphicsIndex = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, textureIndex);
+				if (graphicsIndex >= 0)
+				{
+					int visualShapeUniqueId = m_data->m_userVisualShapeHandles.allocHandle();
+					InternalVisualShapeHandle* visualHandle = m_data->m_userVisualShapeHandles.getHandle(visualShapeUniqueId);
+					visualHandle->m_OpenGLGraphicsIndex = graphicsIndex;
+					visualHandle->m_tinyRendererVisualShapeIndex = -1;
+					//tinyrenderer doesn't separate shape versus instance, so create it when creating the multibody instance
+					//store needed info for tinyrenderer
+					visualHandle->m_localInertiaFrame = localInertiaFrame;
+					//visualHandle->m_visualShape1 = visualShape;
+					visualHandle->m_pathPrefix = pathPrefix[0] ? pathPrefix : "";
+
+					serverStatusOut.m_createUserShapeResultArgs.m_userShapeUniqueId = visualShapeUniqueId;
+					serverStatusOut.m_type = CMD_CREATE_VISUAL_SHAPE_COMPLETED;
 				}
 			}
 		}
 	}
+
 	return hasStatus;
 }
 
@@ -6083,7 +6090,7 @@ bool PhysicsServerCommandProcessor::processRequestCollisionInfoCommand(const str
 		for (int l=0;l<mb->getNumLinks();l++)
 		{
 			serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+0] = 0;
-			serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+1] = 0;
+			serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+1] = 0;																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												
 			serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+2] = 0;
 
 			serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+0] = -1;
