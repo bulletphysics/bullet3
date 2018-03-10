@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot name="tm700" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/tm700/visual/Base.STL" />
+      </geometry>
+      <material name="LightGrey">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="meshes/tm700/collision/base.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="shoulder_1_link">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/tm700/visual/Shoulder1.STL" />
+      </geometry>
+      <material name="Grey">
+        <color rgba="0.3 0.3 0.25 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="meshes/tm700/collision/shoulder_1.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="shoulder_1_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="shoulder_1_link"/>
+    <origin  xyz="0 0 0.1451" rpy="-1.57079627 0 0"/>
+    <axis xyz="0 -1 0"/>
+    <limit effort="10.0" lower="-3.14" upper="3.14" velocity="1.0"/>
+  </joint>
+
+  <link name="arm_1_link">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/tm700/visual/Arm1.STL" />
+      </geometry>
+      <material name="Grey">
+        <color rgba="0.3 0.3 0.25 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="meshes/tm700/collision/arm_1.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="shoulder_2_joint" type="revolute">
+    <parent link="shoulder_1_link"/>
+    <child link="arm_1_link"/>
+    <origin xyz="0 0 -0.146" rpy="0 0 -1.57079627"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10.0" lower="-3.14" upper="3.14" velocity="1.0"/>
+  </joint>
+
+  <link name="arm_2_link">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/tm700/visual/Arm2.STL" />
+      </geometry>
+      <material name="Grey">
+        <color rgba="0.3 0.3 0.25 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="meshes/tm700/collision/arm_2.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="elbow_1_joint" type="revolute">
+    <parent link="arm_1_link"/>
+    <child link="arm_2_link"/>
+    <origin xyz="0.329 0 0.1298" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10.0" lower="-3.14" upper="3.14" velocity="1.0"/>
+  </joint>
+
+  <link name="wrist_1_link">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/tm700/visual/Wrist1.STL" />
+      </geometry>
+      <material name="Grey">
+        <color rgba="0.3 0.3 0.25 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="meshes/tm700/collision/wrist_1.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="wrist_1_joint" type="revolute">
+    <parent link="arm_2_link"/>
+    <child link="wrist_1_link"/>
+    <origin xyz="0.3115 0 -0.106" rpy="1.57079627 0 1.57079627"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="10.0" lower="-3.14" upper="3.14" velocity="1.0"/>
+  </joint>
+
+  <link name="wrist_2_link">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/tm700/visual/Wrist2.STL" />
+      </geometry>
+      <material name="Grey">
+        <color rgba="0.3 0.3 0.25 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="meshes/tm700/collision/wrist_2.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="wrist_2_joint" type="revolute">
+    <parent link="wrist_1_link"/>
+    <child link="wrist_2_link"/>
+    <origin xyz="0 0 0.106" rpy="1.57079627 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="10.0" lower="-3.14" upper="3.14" velocity="1.0"/>
+  </joint>
+
+  <link name="wrist_3_link">
+    <visual>
+      <geometry>
+        <mesh filename="meshes/tm700/visual/Wrist3.STL" />
+      </geometry>
+      <origin xyz="0 0 0.015" rpy="0 0 0"/>
+      <material name="LightGrey">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="meshes/tm700/collision/wrist_3.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="wrist_3_joint" type="revolute">
+    <parent link="wrist_2_link"/>
+    <child link="wrist_3_link"/>
+    <origin xyz="0 0 0.0565" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10.0" lower="-3.14" upper="3.14" velocity="1.0"/>
+  </joint>
+
+  <link name="tip_link">
+    <collision>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+      <origin xyz="0 0 0.01" rpy="0 0 0"/>
+    </collision>
+  </link>
+
+  <joint name="tip_fixed_joint" type="fixed">
+    <parent link="wrist_3_link"/>
+    <child link="tip_link"/>
+    <origin xyz="0 0 0.0579" rpy="0 0 0"/>
+  </joint>
+
+</robot>

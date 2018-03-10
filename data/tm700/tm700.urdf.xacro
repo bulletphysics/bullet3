@@ -1,0 +1,332 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- transmission -->
+  <xacro:include filename="$(find tm_description)/urdf/tm.transmission.xacro" />
+
+  <!-- Mass parameters -->
+  <property name="pi" value="3.14159265" />
+
+  <property name="base_mass" value="1.0" />
+  <property name="shoulder_mass" value="4.5" />
+  <property name="arm_1_mass" value="10.5" />
+  <property name="arm_2_mass" value="2.1" />
+  <property name="wrist_1_mass" value="1.45" />
+  <property name="wrist_2_mass" value="1.45" />
+  <property name="wrist_3_mass" value="0.4" />
+
+  <!-- Kinematic model -->
+  <!-- Properties from tmcontrol.conf -->
+  <!--
+    DH for TM700:
+    a = [0.00000, 0.329, 0.3115,  0.00000,  0.00000,  0.0000]
+    d = [0.1451,  0.00000,  0.00000,  -0.1222,  0.106,  0.1144]
+    alpha = [ -1.570796327, 0, 0, 1.570796327, 1.570796327, 0 ]
+    q_home_offset = [0, -1.570796327, 0, 1.570796327, 0, 0]
+    joint_direction = [-1, -1, 1, -1, 1, 1]
+    mass = [4.5, 10.5, 2.1, 1.45, 1.45, 0.4]
+    center_of_mass = [ [0, -0.02561, 0.00193], [0.2125, 0, 0.11336], [0.11993, 0.0, 0.0265], [0, -0.0018, 0.01634], [0, 0.0018,0.01634], [0, 0, -0.001159] ](tm700)
+  -->
+  <property name="tm_d1" value="0.1451" />
+  <property name="tm_a2" value="0.3290" />
+  <property name="tm_a3" value="0.3115" />
+  <property name="tm_d4" value="0.1222" />
+  <property name="tm_d5" value="0.1060" />
+  <property name="tm_d6" value="0.1144" />
+
+  <!-- offsets for shoulder/elbow joints -->
+  <property name="shoulder_offset" value="-0.146" />  <!-- measured from model -->
+  <property name="elbow_offset" value="0.1298" /> <!-- measured from model -->       
+  <property name="wrist_offset" value="${-tm_d4 - elbow_offset - shoulder_offset}" />
+  
+  <!-- link lengths used in model -->
+  <property name="shoulder_height" value="${tm_d1}" />
+  <property name="arm_1_length" value="${tm_a2}" />
+  <property name="arm_2_length" value="${tm_a3}" />
+  <property name="wrist_1_length" value="tm_d5}" />
+  <property name="wrist_2_length" value="${tm_d5}" />
+  <property name="wrist_3_length" value="0.0565" />
+  <property name="ee_length" value="${tm_d6 - wrist_3_length}" />
+
+  <xacro:macro name="cylinder_inertial" params="radius length mass *origin">
+    <inertial>
+      <mass value="${mass}" />
+      <insert_block name="origin" />
+      <inertia ixx="${0.0833333 * mass * (3 * radius * radius + length * length)}" ixy="0.0" ixz="0.0"
+        iyy="${0.0833333 * mass * (3 * radius * radius + length * length)}" iyz="0.0"
+        izz="${0.5 * mass * radius * radius}" />
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="tm700_robot" params="prefix joint_limited">
+
+    <!-- transmission prefix -->
+    <xacro:tm_arm_transmission prefix="${prefix}" />
+
+    <link name="${prefix}base_link" >
+      <visual>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/visual/Base.STL" />
+        </geometry>
+        <material name="Grey">
+          <color rgba="0.5 0.5 0.5 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/collision/base.STL" />
+        </geometry>
+      </collision>
+      
+      <xacro:cylinder_inertial radius="0.06" length="0.05" mass="${base_mass}">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      
+    </link>
+    
+    <link name="${prefix}shoulder_1_link">
+      <visual>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/visual/Shoulder1.STL" />
+        </geometry>
+        <material name="DarkOlive">
+          <color rgba="0.3 0.3 0.25 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/collision/shoulder_1.STL" />
+        </geometry>
+      </collision>
+      
+      <xacro:cylinder_inertial radius="0.06" length="0.15" mass="${shoulder_mass}">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      
+    </link>
+    
+    <joint name="${prefix}shoulder_1_joint" type="revolute">
+      <parent link="${prefix}base_link" />
+      <child link = "${prefix}shoulder_1_link" />
+      <origin xyz="0.0 0.0 ${shoulder_height}" rpy="${-0.5 * pi} 0.0 0.0" />
+      <axis xyz="0 -1 0" />
+      <xacro:unless value="${joint_limited}">
+        <limit lower="${-2.0 * pi}" upper="${2.0 * pi}" effort="150.0" velocity="3.15"/>
+      </xacro:unless>
+      <xacro:if value="${joint_limited}">
+        <limit lower="${-pi}" upper="${pi}" effort="150.0" velocity="3.15"/>
+      </xacro:if>
+      <dynamics damping="0.0" friction="0.0"/>
+    </joint>
+    
+    <link name="${prefix}arm_1_link">
+      <visual>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/visual/Arm1.STL" />
+        </geometry>
+        <material name="DarkOlive">
+          <color rgba="0.3 0.3 0.25 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/collision/arm_1.STL" />
+        </geometry>
+      </collision>
+      
+      <xacro:cylinder_inertial radius="0.06" length="0.56" mass="${arm_1_mass}">
+        <origin xyz="0.0 0.0 0.28" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      
+    </link>
+    
+    <joint name="${prefix}shoulder_2_joint" type="revolute">
+      <parent link="${prefix}shoulder_1_link" />
+      <child link = "${prefix}arm_1_link" />
+      <origin xyz="0.0 0.0 ${shoulder_offset}" rpy="0.0 0.0 ${-0.5 * pi}" />    
+      <axis xyz="0 0 1" />
+      <xacro:unless value="${joint_limited}">
+        <limit lower="${-1.5 * pi}" upper="${1.5 * pi}" effort="150.0" velocity="3.15"/>
+      </xacro:unless>
+      <xacro:if value="${joint_limited}">
+        <limit lower="${-pi}" upper="${pi}" effort="150.0" velocity="3.15"/>
+      </xacro:if>
+      <dynamics damping="0.0" friction="0.0"/>
+    </joint>
+    
+    <link name="${prefix}arm_2_link">
+      <visual>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/visual/Arm2.STL" />
+        </geometry>
+        <material name="DarkOlive">
+          <color rgba="0.3 0.3 0.25 1.0"/>
+        </material>
+      </visual>
+      
+      <collision>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/collision/arm_2.STL" />
+        </geometry>
+      </collision>
+      
+      <xacro:cylinder_inertial radius="0.06" length="0.5" mass="${arm_2_mass}">
+        <origin xyz="0.0 0.0 0.25" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      
+    </link>
+    
+    <joint name="${prefix}elbow_1_joint" type="revolute">
+      <parent link="${prefix}arm_1_link" />
+      <child link = "${prefix}arm_2_link" />
+      <origin xyz="${arm_1_length} 0.0 ${elbow_offset}" rpy="0.0 0.0 0.0" />
+      <axis xyz="0 0 1" />
+      <xacro:unless value="${joint_limited}">
+        <limit lower="${-1.5 * pi}" upper="${1.5 * pi}" effort="150.0" velocity="3.15"/>
+      </xacro:unless>
+      <xacro:if value="${joint_limited}">
+        <limit lower="${-pi}" upper="${pi}" effort="150.0" velocity="3.15"/>
+      </xacro:if>
+      <dynamics damping="0.0" friction="0.0"/>
+    </joint>
+    
+    <link name="${prefix}wrist_1_link">
+      <visual>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/visual/Wrist1.STL" />
+        </geometry>
+        <material name="DarkOlive">
+          <color rgba="0.3 0.3 0.25 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/collision/wrist_1.STL" />
+        </geometry>
+      </collision>
+      
+      <xacro:cylinder_inertial radius="0.6" length="0.12" mass="${wrist_1_mass}">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      
+    </link>
+    
+    <joint name="${prefix}wrist_1_joint" type="revolute">
+      <parent link="${prefix}arm_2_link" />
+      <child link = "${prefix}wrist_1_link" />
+      <origin xyz="${arm_2_length} 0.0 ${wrist_offset}" rpy="${0.5 * pi} 0.0 ${0.5 * pi}" />
+      <axis xyz="0 1 0" />
+      <xacro:unless value="${joint_limited}">
+        <limit lower="${-2.0 * pi}" upper="${2.0 * pi}" effort="28.0" velocity="3.2"/>
+      </xacro:unless>
+      <xacro:if value="${joint_limited}">
+        <limit lower="${-pi}" upper="${pi}" effort="28.0" velocity="3.2"/>
+      </xacro:if>
+      <dynamics damping="0.0" friction="0.0"/>
+    </joint>
+    
+    <link name="${prefix}wrist_2_link">
+      <visual>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/visual/Wrist2.STL" />
+        </geometry>
+        <material name="DarkOlive">
+          <color rgba="0.3 0.3 0.25 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/collision/wrist_2.STL" />
+        </geometry>
+      </collision>
+      
+      <xacro:cylinder_inertial radius="0.6" length="0.12" mass="${wrist_2_mass}">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      
+    </link>
+    
+    <joint name="${prefix}wrist_2_joint" type="revolute">
+      <parent link="${prefix}wrist_1_link" />
+      <child link = "${prefix}wrist_2_link" />
+      <origin xyz="0.0 0.0 ${wrist_2_length}" rpy="${0.5 * pi} 0.0 0.0" />
+      <axis xyz="0 1 0" />
+      <xacro:unless value="${joint_limited}">
+        <limit lower="${-2.0 * pi}" upper="${2.0 * pi}" effort="28.0" velocity="3.2"/>
+      </xacro:unless>
+      <xacro:if value="${joint_limited}">
+        <limit lower="${-pi}" upper="${pi}" effort="28.0" velocity="3.2"/>
+      </xacro:if>
+      <dynamics damping="0.0" friction="0.0"/>
+    </joint>
+    
+    <link name="${prefix}wrist_3_link">
+      <visual>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/visual/Wrist3.STL" />
+        </geometry>
+	<origin xyz="0 0 0.015" rpy="0 0 0"/>
+        <material name="Grey">
+          <color rgba="0.5 0.5 0.5 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+	  <mesh filename="package://tm_description/meshes/tm700/collision/wrist_3.STL" />
+        </geometry>
+      </collision>
+      
+      <xacro:cylinder_inertial radius="0.6" length="0.12" mass="${wrist_3_mass}">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      
+    </link>
+    
+    <joint name="${prefix}wrist_3_joint" type="revolute">
+      <parent link="${prefix}wrist_2_link" />
+      <child link = "${prefix}wrist_3_link" />
+      <origin xyz="0.0 0.0 ${wrist_3_length}" rpy="0.0 0.0 0.0" />
+      <axis xyz="0 0 1" />
+      <xacro:unless value="${joint_limited}">
+        <limit lower="${-2.0 * pi}" upper="${2.0 * pi}" effort="28.0" velocity="3.2"/>
+      </xacro:unless>
+      <xacro:if value="${joint_limited}">
+        <limit lower="${-pi}" upper="${pi}" effort="28.0" velocity="3.2"/>
+      </xacro:if>
+      <dynamics damping="0.0" friction="0.0"/>
+    </joint>
+    
+    <link name="${prefix}tip_link">
+      <collision>
+        <geometry>
+          <box size="0.05 0.05 0.05"/>
+        </geometry>
+        <origin xyz="0 0 0.025" rpy="0 0 0"/>
+      </collision>
+    </link>
+    
+    <joint name="${prefix}tip_fixed_joint" type="fixed">
+      <parent link="${prefix}wrist_3_link" />
+      <child link = "${prefix}tip_link" />
+      <origin xyz="0.0 0.0 ${ee_length}" rpy="0.0 0.0 0.0" />
+    </joint>
+
+    <!-- ROS base to TM 'base_link' Coordinates transform -->
+    <link name="${prefix}base"/>
+    <joint name="${prefix}base-base_link" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="${prefix}base"/>
+      <child link="${prefix}base_link"/>
+    </joint>
+    
+    <!-- Frame coincident with all-zeros TCP on TM controller -->
+    <link name="${prefix}tool0"/>
+    <joint name="${prefix}tip_link-tool0" type="fixed">
+      <parent link="${prefix}tip_link"/>
+      <child link="${prefix}tool0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+  </xacro:macro>
+
+</robot>
