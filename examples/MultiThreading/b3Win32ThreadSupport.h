@@ -24,9 +24,6 @@ subject to the following restrictions:
 #include "b3ThreadSupportInterface.h"
 
 
-typedef void (*b3Win32ThreadFunc)(void* userPtr,void* lsMemory);
-typedef void* (*b3Win32lsMemorySetupFunc)();
-
 
 ///b3Win32ThreadSupport helps to initialize/shutdown libspe2, start/stop SPU tasks and communication
 class b3Win32ThreadSupport : public b3ThreadSupportInterface 
@@ -39,7 +36,7 @@ public:
 		int		m_commandId;
 		int		m_status;
 
-		b3Win32ThreadFunc	m_userThreadFunc;
+		ThreadFunc	m_userThreadFunc;
 		void*	m_userPtr; //for taskDesc etc
 		void*	m_lsMemory; //initialized using Win32LocalStoreMemorySetupFunc
 
@@ -62,34 +59,7 @@ private:
 public:
 	///Setup and initialize SPU/CELL/Libspe2
 
-	struct	Win32ThreadConstructionInfo
-	{
-		Win32ThreadConstructionInfo(const char* uniqueName,
-									b3Win32ThreadFunc userThreadFunc,
-									b3Win32lsMemorySetupFunc	lsMemoryFunc,
-									int numThreads=1,
-									int threadStackSize=65535
-									)
-									:m_uniqueName(uniqueName),
-									m_userThreadFunc(userThreadFunc),
-									m_lsMemoryFunc(lsMemoryFunc),
-									m_numThreads(numThreads),
-									m_threadStackSize(threadStackSize),
-									m_priority(0)
-		{
-
-		}
-
-		const char*				m_uniqueName;
-		b3Win32ThreadFunc			m_userThreadFunc;
-		b3Win32lsMemorySetupFunc	m_lsMemoryFunc;
-		int						m_numThreads;
-		int						m_threadStackSize;
-		int						m_priority;
-
-	};
-
-
+    typedef ConstructionInfo Win32ThreadConstructionInfo;
 
 	b3Win32ThreadSupport(const Win32ThreadConstructionInfo& threadConstructionInfo);
 

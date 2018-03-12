@@ -477,6 +477,10 @@ void b3Win32ThreadSupport::deleteCriticalSection(b3CriticalSection* criticalSect
 
 
 
+b3ThreadSupportInterface* b3ThreadSupportInterface::create(const ConstructionInfo& info)
+{
+    return new b3Win32ThreadSupport(info);
+}
 
 
 #endif //_WIN32

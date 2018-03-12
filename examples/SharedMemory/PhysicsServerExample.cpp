@@ -10,6 +10,7 @@
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "SharedMemoryCommon.h"
 #include "Bullet3Common/b3Matrix3x3.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
 #include "../Utils/b3Clock.h"
 #include "../MultiThreading/b3ThreadSupportInterface.h"
 #include "SharedMemoryPublic.h"
@@ -142,33 +143,13 @@ enum MultiThreadedGUIHelperCommunicationEnums
 #include <stdio.h>
 //#include "BulletMultiThreaded/PlatformDefinitions.h"
 
-#ifndef _WIN32
-#include "../MultiThreading/b3PosixThreadSupport.h"
 
 b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
 {
-	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("MotionThreads",
-                                                                MotionThreadFunc,
-                                                                MotionlsMemoryFunc,
-                                                                numThreads);
-    b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport(constructionInfo);
-
+	b3ThreadSupportInterface::ConstructionInfo threadConstructionInfo("MotionThreads",MotionThreadFunc,MotionlsMemoryFunc,numThreads);
+	b3ThreadSupportInterface* threadSupport = b3ThreadSupportInterface::create(threadConstructionInfo);
 	return threadSupport;
-
 }
-
-
-#elif defined( _WIN32)
-#include "../MultiThreading/b3Win32ThreadSupport.h"
-
-b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
-{
-	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("MotionThreads",MotionThreadFunc,MotionlsMemoryFunc,numThreads);
-	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
-	return threadSupport;
-
-}
-#endif
 
 enum MyMouseCommandType
 {
