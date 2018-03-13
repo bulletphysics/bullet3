@@ -8678,7 +8678,7 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 			int uid = -1;
 			if (m_data->m_pluginManager.getRenderInterface())
 			{
-				m_data->m_pluginManager.getRenderInterface()->loadTextureFile(relativeFileName);
+				uid = m_data->m_pluginManager.getRenderInterface()->loadTextureFile(relativeFileName);
 			}
 			if(uid>=0)
 			{
