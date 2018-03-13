@@ -892,6 +892,12 @@ static void setupSpatialGridBatchesMt(
         memHelper.addChunk( (void**) &constraintBatchIds, sizeof( int ) * numConstraints );
         memHelper.addChunk( (void**) &constraintRowBatchIds, sizeof( int ) * numConstraintRows );
         size_t scratchSize = memHelper.getSizeToAllocate();
+        // if we need to reallocate
+        if (scratchMemory->capacity() < scratchSize)
+        {
+            // allocate 6.25% extra to avoid repeated reallocs
+            scratchMemory->reserve( scratchSize + scratchSize/16 );
+        }
         scratchMemory->resizeNoInitialize( scratchSize );
         char* memPtr = &scratchMemory->at(0);
         memHelper.setChunkPointers( memPtr );

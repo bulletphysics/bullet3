@@ -568,10 +568,22 @@ void btSequentialImpulseConstraintSolverMt::allocAllContactConstraints(btPersist
                 }
             }
         }
-        m_tmpSolverContactConstraintPool.resizeNoInitialize(numContacts);
-        m_rollingFrictionIndexTable.resizeNoInitialize(numContacts);
-        m_tmpSolverContactFrictionConstraintPool.resizeNoInitialize(numContacts*m_numFrictionDirections);
-        m_tmpSolverContactRollingFrictionConstraintPool.resizeNoInitialize(numRollingFrictionConstraints);
+        {
+            BT_PROFILE( "allocPools" );
+            if ( m_tmpSolverContactConstraintPool.capacity() < numContacts )
+            {
+                // if we need to reallocate, reserve some extra so we don't have to reallocate again next frame
+                int extraReserve = numContacts / 16;
+                m_tmpSolverContactConstraintPool.reserve( numContacts + extraReserve );
+                m_rollingFrictionIndexTable.reserve( numContacts + extraReserve );
+                m_tmpSolverContactFrictionConstraintPool.reserve( ( numContacts + extraReserve )*m_numFrictionDirections );
+                m_tmpSolverContactRollingFrictionConstraintPool.reserve( numRollingFrictionConstraints + extraReserve );
+            }
+            m_tmpSolverContactConstraintPool.resizeNoInitialize( numContacts );
+            m_rollingFrictionIndexTable.resizeNoInitialize( numContacts );
+            m_tmpSolverContactFrictionConstraintPool.resizeNoInitialize( numContacts*m_numFrictionDirections );
+            m_tmpSolverContactRollingFrictionConstraintPool.resizeNoInitialize( numRollingFrictionConstraints );
+        }
     }
     {
         AllocContactConstraintsLoop loop(this, &cachedInfoArray[0]);
