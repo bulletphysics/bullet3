@@ -253,9 +253,9 @@ void btCompoundCollisionAlgorithm::processCollision (const btCollisionObjectWrap
 		m_compoundShapeRevision = compoundShape->getUpdateRevision();
 	}
 
-    if (m_childCollisionAlgorithms.size()==0)
-        return;
-    
+	if (m_childCollisionAlgorithms.size()==0)
+		return;
+
 	const btDbvt* tree = compoundShape->getDynamicAabbTree();
 	//use a dynamic aabb tree to cull potential child-overlaps
 	btCompoundLeafCallback  callback(colObjWrap,otherObjWrap,m_dispatcher,dispatchInfo,resultOut,&m_childCollisionAlgorithms[0],m_sharedManifold);
