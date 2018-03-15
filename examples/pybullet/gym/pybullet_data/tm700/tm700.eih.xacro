@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="tm700_eih_camera" params="prefix">
+
+    <gazebo reference="${prefix}eye_in_hand_camera_rgb_frame">
+      <sensor type="camera" name="${prefix}eye_in_hand_camera">
+        <update_rate>15.0</update_rate>
+        <camera name="${prefix}hand_camera">
+          <horizontal_fov>1.3962634</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>15.0</updateRate>
+          <cameraName>${prefix}eye_in_hand_camera</cameraName>
+          <imageTopicName>image_raw</imageTopicName>
+          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+          <frameName>${prefix}eye_in_hand_camera_rgb_frame</frameName>
+          <hackBaseline>0.07</hackBaseline>
+          <distortionK1>0.0</distortionK1>
+          <distortionK2>0.0</distortionK2>
+          <distortionK3>0.0</distortionK3>
+          <distortionT1>0.0</distortionT1>
+          <distortionT2>0.0</distortionT2>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+    <link name="${prefix}eye_in_hand_camera_link" />
+    <joint name="${prefix}eye_in_hand_camera_joint" type="fixed">
+      <parent link="${prefix}tip_link" />
+      <child link="${prefix}eye_in_hand_camera_link" />
+      <origin xyz="0 0.08 0.0421" rpy="0 0 0" />
+    </joint>
+
+    <link name="${prefix}eye_in_hand_camera_rgb_frame" />
+    <joint name="${prefix}eye_in_hand_camera_rgb_joint" type="fixed">
+      <parent link="${prefix}eye_in_hand_camera_link" />
+      <child link="${prefix}eye_in_hand_camera_rgb_frame" />
+      <origin xyz="0 0 0" rpy="-1.57079632679 -1.57079632679 0" />
+    </joint>
+
+  </xacro:macro>
+</robot>
