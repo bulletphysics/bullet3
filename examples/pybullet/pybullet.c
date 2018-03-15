@@ -6150,14 +6150,16 @@ static PyObject* pybullet_createVisualShapeArray(PyObject* self, PyObject* args,
 	PyObject* fileNameArray = 0;
 	PyObject* meshScaleObjArray = 0;
 	PyObject* planeNormalObjArray = 0;
+  	PyObject* rgbaColorArray = 0;
 	PyObject* flagsArray = 0;
 	PyObject* visualFramePositionObjArray = 0;
 	PyObject* visualFrameOrientationObjArray = 0;
 
-	static char* kwlist[] = { "shapeTypes", "radii", "halfExtents", "lengths", "fileNames", "meshScales", "planeNormals",
-		"flags", "visualFramePositions", "visualFrameOrientations", "physicsClientId", NULL };
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOOOOOOOi", kwlist,
-		&shapeTypeArray, &radiusArray, &halfExtentsObjArray, &lengthArray, &fileNameArray, &meshScaleObjArray, &planeNormalObjArray, &flagsArray, &visualFramePositionObjArray, &visualFrameOrientationObjArray, &physicsClientId))
+    static char* kwlist[] = { "shapeTypes", "radii", "halfExtents", "lengths", "fileNames", "meshScales", "planeNormals",
+        "flags", "rgbaColors", "visualFramePositions", "visualFrameOrientations", "physicsClientId", NULL };
+    
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOOOOOOOOi", kwlist,
+                                     &shapeTypeArray, &radiusArray, &halfExtentsObjArray, &lengthArray, &fileNameArray, &meshScaleObjArray, &planeNormalObjArray, &flagsArray, &rgbaColorArray, &visualFramePositionObjArray, &visualFrameOrientationObjArray, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -6180,6 +6182,7 @@ static PyObject* pybullet_createVisualShapeArray(PyObject* self, PyObject* args,
 		int numFileNames = 0;
 		int numMeshScales = 0;
 		int numPlaneNormals = 0;
+        int numRGBAColors = 0;
 		int numFlags = 0;
 		int numPositions = 0;
 		int numOrientations = 0;
@@ -6192,6 +6195,7 @@ static PyObject* pybullet_createVisualShapeArray(PyObject* self, PyObject* args,
 		PyObject* fileNameArraySeq = fileNameArray ? PySequence_Fast(fileNameArray, "expected a sequence of filename") : 0;
 		PyObject* meshScaleArraySeq = meshScaleObjArray ? PySequence_Fast(meshScaleObjArray, "expected a sequence of mesh scale") : 0;
 		PyObject* planeNormalArraySeq = planeNormalObjArray ? PySequence_Fast(planeNormalObjArray, "expected a sequence of plane normal") : 0;
+  		PyObject* rgbaColorArraySeq = rgbaColorArray ? PySequence_Fast(rgbaColorArray, "expected a sequence of rgba color") : 0;
 		PyObject* flagsArraySeq = flagsArray ? PySequence_Fast(flagsArray, "expected a sequence of flags") : 0;
 		PyObject* positionArraySeq = visualFramePositionObjArray ? PySequence_Fast(visualFramePositionObjArray, "expected a sequence of visual frame positions") : 0;
 		PyObject* orientationArraySeq = visualFrameOrientationObjArray ? PySequence_Fast(visualFrameOrientationObjArray, "expected a sequence of visual frame orientations") : 0;
@@ -6209,6 +6213,7 @@ static PyObject* pybullet_createVisualShapeArray(PyObject* self, PyObject* args,
 		numFileNames = fileNameArraySeq ? PySequence_Size(fileNameArraySeq) : 0;
 		numMeshScales = meshScaleArraySeq ? PySequence_Size(meshScaleArraySeq) : 0;
 		numPlaneNormals = planeNormalArraySeq ? PySequence_Size(planeNormalArraySeq) : 0;
+        numRGBAColors = rgbaColorArraySeq ? PySequence_Size(rgbaColorArraySeq) : 0;
 
 		for (s = 0; s<numShapeTypes; s++)
 		{
@@ -6303,6 +6308,16 @@ static PyObject* pybullet_createVisualShapeArray(PyObject* self, PyObject* args,
 					int flags = pybullet_internalGetIntFromSequence(flagsArraySeq, s);
 					b3CreateVisualSetFlag(commandHandle, shapeIndex, flags);
 				}
+                if (rgbaColorArraySeq)
+                {
+                    PyObject* rgbaColorObj = rgbaColorArraySeq ? PyList_GET_ITEM(rgbaColorArraySeq, s) : 0;
+                    double rgbaColor[4] = {1,1,1,1};
+                    if (rgbaColorObj)
+                    {
+                        pybullet_internalSetVector4d(rgbaColorObj,rgbaColor);
+                    }
+                    b3CreateVisualShapeSetRGBAColor(commandHandle,shapeIndex, rgbaColor);
+                }
 				if (positionArraySeq || orientationArraySeq)
 				{
 					PyObject* visualFramePositionObj = positionArraySeq ? PyList_GET_ITEM(positionArraySeq, s) : 0;
@@ -6344,6 +6359,8 @@ static PyObject* pybullet_createVisualShapeArray(PyObject* self, PyObject* args,
 			Py_DECREF(meshScaleArraySeq);
 		if (planeNormalArraySeq)
 			Py_DECREF(planeNormalArraySeq);
+        if (rgbaColorArraySeq)
+            Py_DECREF(rgbaColorArraySeq);
 		if (flagsArraySeq)
 			Py_DECREF(flagsArraySeq);
 		if (positionArraySeq)

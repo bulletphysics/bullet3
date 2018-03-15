@@ -3952,11 +3952,10 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 	btTransform startTrans; startTrans.setIdentity();
 	btAlignedObjectArray<BulletURDFTexture> textures;
 	
-	
+    UrdfVisual visualShape;	
 	for (int userShapeIndex = 0; userShapeIndex< clientCmd.m_createUserShapeArgs.m_numUserShapes; userShapeIndex++)
 	{
 
-		UrdfVisual visualShape;
 		visualShape.m_geometry.m_type = (UrdfGeomTypes)clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_type;
 		char relativeFileName[1024];
 		char pathPrefix[1024];
@@ -4109,7 +4108,7 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 					//tinyrenderer doesn't separate shape versus instance, so create it when creating the multibody instance
 					//store needed info for tinyrenderer
 					visualHandle->m_localInertiaFrame = localInertiaFrame;
-					//visualHandle->m_visualShape1 = visualShape;
+					visualHandle->m_visualShape = visualShape;
 					visualHandle->m_pathPrefix = pathPrefix[0] ? pathPrefix : "";
 
 					serverStatusOut.m_createUserShapeResultArgs.m_userShapeUniqueId = visualShapeUniqueId;
