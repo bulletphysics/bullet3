@@ -2340,14 +2340,14 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 			glBindVertexArray(gfxObj->m_cube_vao);
 
 
-			int vertexStride = 9*sizeof(float);
+			int vertexStride = 9 * sizeof(float);
 			PointerCaster vertex;
 			vertex.m_baseIndex = gfxObj->m_vertexArrayOffset*vertexStride;
 
 
-			glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 9*sizeof(float), vertex.m_pointer);
-			glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(transparentInstances[i].m_instanceId*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes));
-			glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(transparentInstances[i].m_instanceId*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE));
+			glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, vertexStride, vertex.m_pointer);
+			glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(transparentInstances[i].m_instanceId * 4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes));
+			glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(transparentInstances[i].m_instanceId * 4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE));
 
 			PointerCaster uv;
 			uv.m_baseIndex = 7*sizeof(float)+vertex.m_baseIndex;
@@ -2355,10 +2355,10 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 			PointerCaster normal;
 			normal.m_baseIndex = 4*sizeof(float)+vertex.m_baseIndex;
 
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 9*sizeof(float), uv.m_pointer);
-			glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), normal.m_pointer);
-			glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(transparentInstances[i].m_instanceId*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE));
-			glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(transparentInstances[i].m_instanceId*3*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE));
+			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, vertexStride, uv.m_pointer);
+			glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, vertexStride, normal.m_pointer);
+			glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(transparentInstances[i].m_instanceId * 4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE + ORIENTATION_BUFFER_SIZE));
+			glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(transparentInstances[i].m_instanceId * 3 * sizeof(float) + m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE + ORIENTATION_BUFFER_SIZE + COLOR_BUFFER_SIZE));
 
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
@@ -2367,11 +2367,11 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 			glEnableVertexAttribArray(4);
 			glEnableVertexAttribArray(5);
 			glEnableVertexAttribArray(6);
-			glVertexAttribDivisor(0, 0);
+			//glVertexAttribDivisor(0, 0);
 			glVertexAttribDivisor(1, 1);
 			glVertexAttribDivisor(2, 1);
-			glVertexAttribDivisor(3, 0);
-			glVertexAttribDivisor(4, 0);
+			//glVertexAttribDivisor(3, 0);
+			//glVertexAttribDivisor(4, 0);
 			glVertexAttribDivisor(5, 1);
 			glVertexAttribDivisor(6, 1);
 

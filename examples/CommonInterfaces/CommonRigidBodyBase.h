@@ -58,7 +58,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 		m_collisionConfiguration = new btDefaultCollisionConfiguration();
 		//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
-		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+		///use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 		m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 
 		m_broadphase = new btDbvtBroadphase();
@@ -422,7 +422,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 
 	}
 
-	btRigidBody*	createRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape,  const btVector4& color = btVector4(1, 0, 0, 1))
+	btRigidBody*	createRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape)
 	{
 		btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 

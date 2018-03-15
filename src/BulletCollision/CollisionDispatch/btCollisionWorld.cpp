@@ -193,7 +193,6 @@ void	btCollisionWorld::updateAabbs()
 {
 	BT_PROFILE("updateAabbs");
 
-	btTransform predictedTrans;
 	for ( int i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
@@ -428,11 +427,6 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 			{
 				//generic (slower) case
 				btConcaveShape* concaveShape = (btConcaveShape*)collisionShape;
-
-				btTransform worldTocollisionObject = colObjWorldTransform.inverse();
-
-				btVector3 rayFromLocal = worldTocollisionObject * rayFromTrans.getOrigin();
-				btVector3 rayToLocal = worldTocollisionObject * rayToTrans.getOrigin();
 
 				//ConvexCast::CastResult
 

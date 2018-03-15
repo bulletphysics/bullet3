@@ -62,7 +62,7 @@ void BridgeExample::initPhysics()
 	groundTransform.setOrigin(btVector3(0,-50,0)); 
 	{
 		btScalar mass(0.);
-		createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1));
+		createRigidBody(mass,groundTransform,groundShape);
 	}
 
 	//create two fixed boxes to hold the planks

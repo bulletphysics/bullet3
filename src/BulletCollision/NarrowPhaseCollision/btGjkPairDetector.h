@@ -72,9 +72,9 @@ public:
 	{
 		m_minkowskiB = minkB;
 	}
-	void setCachedSeperatingAxis(const btVector3& seperatingAxis)
+	void setCachedSeparatingAxis(const btVector3& separatingAxis)
 	{
-		m_cachedSeparatingAxis = seperatingAxis;
+		m_cachedSeparatingAxis = separatingAxis;
 	}
 
 	const btVector3& getCachedSeparatingAxis() const
