@@ -73,7 +73,6 @@ public:
 
         ThreadFunc m_userThreadFunc;
         void* m_userPtr; //for taskDesc etc
-        void* m_lsMemory; //initialized using PosixLocalStoreMemorySetupFunc
 
         pthread_t thread;
         //each tread will wait until this signal to start its work
@@ -103,17 +102,14 @@ public:
     virtual int getNumWorkerThreads() const BT_OVERRIDE { return m_numThreads; }
     // TODO: return the number of logical processors sharing the first L3 cache
     virtual int getCacheFriendlyNumThreads() const BT_OVERRIDE { return m_numThreads + 1; }
+    // TODO: detect if CPU has hyperthreading enabled
+    virtual int getLogicalToPhysicalCoreRatio() const BT_OVERRIDE { return 1; }
 
     virtual void runTask( int threadIndex, void* userData ) BT_OVERRIDE;
     virtual void waitForAllTasks() BT_OVERRIDE;
 
     virtual btCriticalSection* createCriticalSection() BT_OVERRIDE;
     virtual void deleteCriticalSection( btCriticalSection* criticalSection ) BT_OVERRIDE;
-
-    virtual void* getThreadLocalMemory( int taskId ) BT_OVERRIDE
-    {
-        return m_activeThreadStatus[ taskId ].m_lsMemory;
-    }
 };
 
 
@@ -190,7 +186,7 @@ static void *threadFunction( void *argument )
         if ( userPtr )
         {
             btAssert( status->m_status );
-            status->m_userThreadFunc( userPtr, status->m_lsMemory );
+            status->m_userThreadFunc( userPtr );
             status->m_status = 2;
             checkPThreadFunction( sem_post( status->m_mainSemaphore ) );
             status->threadUsed++;
@@ -292,7 +288,6 @@ void btThreadSupportPosix::startThreads( const ConstructionInfo& threadConstruct
         threadStatus.m_commandId = 0;
         threadStatus.m_status = 0;
         threadStatus.m_mainSemaphore = m_mainSemaphore;
-        threadStatus.m_lsMemory = threadConstructionInfo.m_lsMemoryFunc();
         threadStatus.m_userThreadFunc = threadConstructionInfo.m_userThreadFunc;
         threadStatus.threadUsed = 0;
 

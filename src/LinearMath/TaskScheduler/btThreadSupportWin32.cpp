@@ -179,7 +179,6 @@ public:
 
         ThreadFunc m_userThreadFunc;
         void* m_userPtr; //for taskDesc etc
-        void* m_lsMemory; //initialized using Win32LocalStoreMemorySetupFunc
 
         void* m_threadHandle; //this one is calling 'Win32ThreadFunc'
 
@@ -208,14 +207,10 @@ public:
 
     virtual int getNumWorkerThreads() const BT_OVERRIDE { return m_numThreads; }
     virtual int getCacheFriendlyNumThreads() const BT_OVERRIDE { return countSetBits(m_processorInfo.processorTeamMasks[0]); }
+    virtual int getLogicalToPhysicalCoreRatio() const BT_OVERRIDE { return m_processorInfo.numLogicalProcessors / m_processorInfo.numCores; }
 
     virtual void runTask( int threadIndex, void* userData ) BT_OVERRIDE;
     virtual void waitForAllTasks() BT_OVERRIDE;
-
-    virtual void* getThreadLocalMemory( int taskId ) BT_OVERRIDE
-    {
-        return m_activeThreadStatus[ taskId ].m_lsMemory;
-    }
 
     virtual btCriticalSection* createCriticalSection() BT_OVERRIDE;
     virtual void deleteCriticalSection( btCriticalSection* criticalSection ) BT_OVERRIDE;
@@ -246,7 +241,7 @@ DWORD WINAPI win32threadStartFunc( LPVOID lpParam )
         if ( userPtr )
         {
             btAssert( status->m_status );
-            status->m_userThreadFunc( userPtr, status->m_lsMemory );
+            status->m_userThreadFunc( userPtr );
             status->m_status = 2;
             SetEvent( status->m_eventCompleteHandle );
         }
@@ -392,7 +387,6 @@ void btThreadSupportWin32::startThreads( const ConstructionInfo& threadConstruct
         threadStatus.m_commandId = 0;
         threadStatus.m_status = 0;
         threadStatus.m_threadHandle = handle;
-        threadStatus.m_lsMemory = threadConstructionInfo.m_lsMemoryFunc();
         threadStatus.m_userThreadFunc = threadConstructionInfo.m_userThreadFunc;
 
         printf( "started %s thread %d with threadHandle %p\n", threadConstructionInfo.m_uniqueName, i, handle );
@@ -410,9 +404,7 @@ void btThreadSupportWin32::stopThreads()
             WaitForSingleObject( threadStatus.m_eventCompleteHandle, INFINITE );
         }
 
-        delete threadStatus.m_lsMemory;
-
-        threadStatus.m_userPtr = 0;
+        threadStatus.m_userPtr = NULL;
         SetEvent( threadStatus.m_eventStartHandle );
         WaitForSingleObject( threadStatus.m_eventCompleteHandle, INFINITE );
 

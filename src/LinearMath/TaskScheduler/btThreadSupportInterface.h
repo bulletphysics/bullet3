@@ -37,34 +37,29 @@ public:
 
     virtual int getNumWorkerThreads() const = 0;  // number of worker threads (total number of logical processors - 1)
     virtual int getCacheFriendlyNumThreads() const = 0;  // the number of logical processors sharing a single L3 cache
+    virtual int getLogicalToPhysicalCoreRatio() const = 0;  // the number of logical processors per physical processor (usually 1 or 2)
     virtual void runTask( int threadIndex, void* userData ) = 0;
     virtual void waitForAllTasks() = 0;
 
     virtual btCriticalSection* createCriticalSection() = 0;
     virtual void deleteCriticalSection( btCriticalSection* criticalSection ) = 0;
 
-    virtual void* getThreadLocalMemory( int taskId ) { return NULL; }
-
-    typedef void( *ThreadFunc )( void* userPtr, void* lsMemory );
-    typedef void* ( *MemorySetupFunc )( );
+    typedef void( *ThreadFunc )( void* userPtr );
 
     struct ConstructionInfo
     {
         ConstructionInfo( const char* uniqueName,
             ThreadFunc userThreadFunc,
-            MemorySetupFunc	lsMemoryFunc,
             int threadStackSize = 65535
         )
             :m_uniqueName( uniqueName ),
             m_userThreadFunc( userThreadFunc ),
-            m_lsMemoryFunc( lsMemoryFunc ),
             m_threadStackSize( threadStackSize )
         {
         }
 
         const char*     m_uniqueName;
         ThreadFunc      m_userThreadFunc;
-        MemorySetupFunc m_lsMemoryFunc;
         int             m_threadStackSize;
     };
 
