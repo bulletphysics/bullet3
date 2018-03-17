@@ -9,5 +9,7 @@
 	}
 	files {
 		"*.cpp",
-		"*.h"
+		"*.h",
+		"TaskScheduler/*.cpp",
+		"TaskScheduler/*.h"
 	}
