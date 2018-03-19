@@ -213,6 +213,9 @@ B3_SHARED_API	void b3RequestCameraImageSetFlags(b3SharedMemoryCommandHandle comm
 
 
 B3_SHARED_API	void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData);
+	
+///set projective texture camera matrices.
+B3_SHARED_API	void b3RequestCameraImageSetProjectiveTextureMatrices(b3SharedMemoryCommandHandle commandHandle, float viewMatrix[/*16*/], float projectionMatrix[/*16*/]);
 
 ///compute a view matrix, helper function for b3RequestCameraImageSetCameraMatrices
 B3_SHARED_API	void b3ComputeViewMatrixFromPositions(const float cameraPosition[/*3*/], const float cameraTargetPosition[/*3*/], const float cameraUp[/*3*/], float viewMatrix[/*16*/]);

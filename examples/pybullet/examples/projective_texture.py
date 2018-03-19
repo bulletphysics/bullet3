@@ -25,6 +25,7 @@ if (useRealTimeSimulation):
 
 while 1:
 	if (useRealTimeSimulation):
+		p.getCameraImage(300, 300, lightColor=[1.0,0.0,0.0], renderer=p.ER_BULLET_HARDWARE_OPENGL, flags=p.ER_USE_PROJECTIVE_TEXTURE)
 		p.setGravity(0,0,0)
 		sleep(0.01) # Time in seconds.
 	else:

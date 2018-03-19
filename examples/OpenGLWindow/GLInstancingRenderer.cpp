@@ -1585,7 +1585,6 @@ void GLInstancingRenderer::renderScene()
 	}
 	else if (useProjectiveTexture)
 	{
-		//renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
 		renderSceneInternal(B3_USE_PROJECTIVE_TEXTURE_RENDERMODE);
 	}
 	else

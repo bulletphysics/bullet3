@@ -1,5 +1,6 @@
 #include "PhysicsServerCommandProcessor.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
+#include "../OpenGLWindow/GLInstancingRenderer.h"
 
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
@@ -69,8 +70,6 @@
 #else
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #endif
-
-
 
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
@@ -3109,6 +3108,8 @@ bool PhysicsServerCommandProcessor::processStateLoggingCommand(const struct Shar
 	return hasStatus;
 }
 
+extern bool useShadowMap;
+extern bool useProjectiveTexture;
 bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -3190,6 +3191,16 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
                         
 		if ((clientCmd.m_updateFlags & ER_BULLET_HARDWARE_OPENGL)!=0)
 		{
+			if ((flags & ER_USE_PROJECTIVE_TEXTURE) != 0)
+			{
+				useShadowMap = false;
+				useProjectiveTexture = true;
+			}
+			else
+			{
+				useShadowMap = true;
+				useProjectiveTexture = false;
+			}
 
 			m_data->m_guiHelper->copyCameraImageData(viewMat,
 								projMat,pixelRGBA,numRequestedPixels,
