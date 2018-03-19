@@ -1119,6 +1119,11 @@ public:
 		m_cs->setSharedParam(1,eGUIHelperDisplayCameraImageData);
 		workerThreadWait();
 	}
+	
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+	{
+		m_childGuiHelper->getAppInterface()->m_renderer->setProjectiveTextureMatrices(viewMatrix, projectionMatrix);
+	}
 
 	btDiscreteDynamicsWorld* m_dynamicsWorld;
 

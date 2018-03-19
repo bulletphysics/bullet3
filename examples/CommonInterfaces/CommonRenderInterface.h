@@ -49,6 +49,7 @@ struct CommonRenderInterface
 	
 	virtual void setLightPosition(const float lightPos[3]) = 0;
 	virtual void setLightPosition(const double lightPos[3]) = 0;
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]){};
 
 	virtual void renderScene()=0;
 	virtual void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE){};

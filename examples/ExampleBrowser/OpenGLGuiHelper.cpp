@@ -1098,6 +1098,10 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 	return false;
 }
 
+void OpenGLGuiHelper::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+{
+	m_data->m_glApp->m_renderer->setProjectiveTextureMatrices(viewMatrix, projectionMatrix);
+}
 
 void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
                                           unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 

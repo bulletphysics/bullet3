@@ -94,6 +94,7 @@ struct GUIHelperInterface
                                   int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
 		  int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied){}
 
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])=0;
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) =0;
 	
@@ -177,6 +178,10 @@ struct DummyGUIHelper : public GUIHelperInterface
 	{
         if (numPixelsCopied)
             *numPixelsCopied = 0;
+	}
+	
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+	{
 	}
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) 
