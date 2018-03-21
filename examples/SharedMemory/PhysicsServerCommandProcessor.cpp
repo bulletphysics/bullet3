@@ -1,6 +1,5 @@
 #include "PhysicsServerCommandProcessor.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
-#include "../OpenGLWindow/GLInstancingRenderer.h"
 
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
@@ -3108,8 +3107,6 @@ bool PhysicsServerCommandProcessor::processStateLoggingCommand(const struct Shar
 	return hasStatus;
 }
 
-extern bool useShadowMap;
-extern bool useProjectiveTexture;
 bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -3195,8 +3192,7 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 		{
 			if ((flags & ER_USE_PROJECTIVE_TEXTURE) != 0)
 			{
-				useShadowMap = false;
-				useProjectiveTexture = true;
+				this->m_data->m_guiHelper->setProjectiveTexture(true);
 				if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_PROJECTIVE_TEXTURE_MATRICES)!=0)
 				{
 					for (int i=0;i<16;i++)
@@ -3217,8 +3213,7 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 			}
 			else
 			{
-				useShadowMap = true;
-				useProjectiveTexture = false;
+				this->m_data->m_guiHelper->setProjectiveTexture(false);
 			}
 
 			m_data->m_guiHelper->copyCameraImageData(viewMat,

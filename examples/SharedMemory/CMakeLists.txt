@@ -97,7 +97,7 @@ IF (USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD)
 ENDIF()
 
 LINK_LIBRARIES(
- Bullet3Common BulletWorldImporter BulletFileLoader BulletInverseDynamicsUtils BulletInverseDynamics BulletDynamics BulletCollision LinearMath OpenGLWindow BussIK
+ Bullet3Common BulletWorldImporter BulletFileLoader BulletInverseDynamicsUtils BulletInverseDynamics BulletDynamics BulletCollision LinearMath BussIK
 )
 
 

@@ -1124,6 +1124,11 @@ public:
 	{
 		m_childGuiHelper->getAppInterface()->m_renderer->setProjectiveTextureMatrices(viewMatrix, projectionMatrix);
 	}
+	
+	virtual void setProjectiveTexture(bool useProjectiveTexture)
+	{
+		m_childGuiHelper->getAppInterface()->m_renderer->setProjectiveTexture(useProjectiveTexture);
+	}
 
 	btDiscreteDynamicsWorld* m_dynamicsWorld;
 

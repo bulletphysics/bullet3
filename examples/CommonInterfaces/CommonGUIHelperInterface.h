@@ -95,6 +95,7 @@ struct GUIHelperInterface
 		  int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied){}
 
 	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])=0;
+	virtual void setProjectiveTexture(bool useProjectiveTexture)=0;
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) =0;
 	
@@ -181,6 +182,10 @@ struct DummyGUIHelper : public GUIHelperInterface
 	}
 	
 	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+	{
+	}
+	
+	virtual void setProjectiveTexture(bool useProjectiveTexture)
 	{
 	}
 

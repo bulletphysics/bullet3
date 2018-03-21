@@ -17,7 +17,6 @@ subject to the following restrictions:
 
 ///todo: make this configurable in the gui
 bool useShadowMap = true;// true;//false;//true;
-bool useProjectiveTexture = false;
 int shadowMapWidth= 4096;
 int shadowMapHeight= 4096;
 float shadowMapWorldSize=10;
@@ -228,6 +227,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	GLfloat m_projectiveTextureProjectionMatrix[16];
 	GLfloat m_projectiveTextureViewMatrix[16];
 	GLfloat m_viewMatrixInverse[16];
+	bool m_useProjectiveTexture;
 
 	b3Vector3 m_lightPos;
 	b3Vector3 m_lightSpecularIntensity;
@@ -263,6 +263,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 			m_projectiveTextureViewMatrix[i]=0;
 		}
 
+		m_useProjectiveTexture = false;
 	}
 
 
@@ -1479,6 +1480,12 @@ void GLInstancingRenderer::setProjectiveTextureMatrices(const float viewMatrix[1
 	}
 }
 
+void GLInstancingRenderer::setProjectiveTexture(bool useProjectiveTexture)
+{
+	m_data->m_useProjectiveTexture = useProjectiveTexture;
+	useShadowMap = !useProjectiveTexture;
+}
+
 void GLInstancingRenderer::updateCamera(int upAxis)
 {
 
@@ -1595,7 +1602,7 @@ void GLInstancingRenderer::renderScene()
 		renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
 
 	}
-	else if (useProjectiveTexture)
+	else if (m_data->m_useProjectiveTexture)
 	{
 		renderSceneInternal(B3_USE_PROJECTIVE_TEXTURE_RENDERMODE);
 	}
