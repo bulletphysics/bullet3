@@ -8326,10 +8326,48 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 			int szObVel = PySequence_Size(objVelocities);
 			int szObAcc = PySequence_Size(objAccelerations);
 			int numJoints = b3GetNumJoints(sm, bodyUniqueId);
-			if (numJoints && (szLoPos == 3) && (szObPos == numJoints) && 
-				(szObVel == numJoints) && (szObAcc == numJoints))
+
+			int j=0;
+			int dofCountOrg = 0;
+			for (j=0;j<numJoints;j++)
 			{
-				int byteSizeJoints = sizeof(double) * numJoints;
+				struct b3JointInfo info;
+				b3GetJointInfo(sm, bodyUniqueId, j, &info);
+				switch (info.m_jointType)
+				{
+				case eRevoluteType:
+					{
+						dofCountOrg+=1;
+						break;
+					}
+				case ePrismaticType:
+					{
+						dofCountOrg+=1;
+						break;
+					}
+				case eSphericalType:
+					{
+						PyErr_SetString(SpamError,
+								"Spherirical joints are not supported in the pybullet binding");
+						return NULL;
+					}
+				case ePlanarType:
+					{
+						PyErr_SetString(SpamError,
+								"Planar joints are not supported in the pybullet binding");
+						return NULL;
+					}
+					default:
+					{
+						//fixed joint has 0-dof and at the moment, we don't deal with planar, spherical etc
+					}
+				}
+			}
+
+			if (dofCountOrg && (szLoPos == 3) && (szObPos == dofCountOrg) &&
+				(szObVel == dofCountOrg) && (szObAcc == dofCountOrg))
+			{
+				int byteSizeJoints = sizeof(double) * dofCountOrg;
 				int byteSizeVec3 =  sizeof(double) * 3;
 				int i;
 				PyObject* pyResultList = PyTuple_New(2);
@@ -8341,7 +8379,7 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 				double* angularJacobian = NULL;
 
 				pybullet_internalSetVectord(localPosition, localPoint);
-				for (i = 0; i < numJoints; i++)
+				for (i = 0; i < dofCountOrg; i++)
 				{
 					jointPositions[i] =
 						pybullet_internalGetFloatFromSequence(objPositions, i);
@@ -8423,11 +8461,11 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 			else
 			{
 				PyErr_SetString(SpamError,
-								"calculateJacobian [numJoints] needs to be "
+								"calculateJacobian [numDof] needs to be "
 								"positive, [local position] needs to be of "
 								"size 3 and [joint positions], "
 								"[joint velocities], [joint accelerations] "
-								"need to match the number of joints.");
+								"need to match the number of DoF.");
 				return NULL;
 			}
 		}
