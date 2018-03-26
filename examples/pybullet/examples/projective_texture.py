@@ -25,7 +25,12 @@ if (useRealTimeSimulation):
 
 while 1:
 	if (useRealTimeSimulation):
+		camera = p.getDebugVisualizerCamera()
+		viewMat = camera[2]
+		projMat = camera[3]
+		#An example of setting the view matrix for the projective texture.
+		#viewMat = p.computeViewMatrix(cameraEyePosition=[7,0,0], cameraTargetPosition=[0,0,0], cameraUpVector=[0,0,1])
+		p.getCameraImage(300, 300, renderer=p.ER_BULLET_HARDWARE_OPENGL, flags=p.ER_USE_PROJECTIVE_TEXTURE, projectiveTextureView=viewMat, projectiveTextureProj=projMat)
 		p.setGravity(0,0,0)
-		sleep(0.01) # Time in seconds.
 	else:
 		p.stepSimulation()

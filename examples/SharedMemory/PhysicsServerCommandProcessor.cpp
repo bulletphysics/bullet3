@@ -70,8 +70,6 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #endif
 
-
-
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
 int gVRTrackingObjectUniqueId = -1;
@@ -3156,6 +3154,8 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 		serverStatusOut.m_numDataStreamBytes = numRequestedPixels * totalBytesPerPixel;
 		float viewMat[16];
 		float projMat[16];
+		float projTextureViewMat[16];
+		float projTextureProjMat[16];
 		for (int i=0;i<16;i++)
 		{
 			viewMat[i] = clientCmd.m_requestPixelDataArguments.m_viewMatrix[i];
@@ -3185,11 +3185,36 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 					projMat[i] = tmpCamResult.m_projectionMatrix[i];
 				}
 			}
-			}
+		}
 		bool handled = false;
                         
 		if ((clientCmd.m_updateFlags & ER_BULLET_HARDWARE_OPENGL)!=0)
 		{
+			if ((flags & ER_USE_PROJECTIVE_TEXTURE) != 0)
+			{
+				this->m_data->m_guiHelper->setProjectiveTexture(true);
+				if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_PROJECTIVE_TEXTURE_MATRICES)!=0)
+				{
+					for (int i=0;i<16;i++)
+					{
+						projTextureViewMat[i] = clientCmd.m_requestPixelDataArguments.m_projectiveTextureViewMatrix[i];
+						projTextureProjMat[i] = clientCmd.m_requestPixelDataArguments.m_projectiveTextureProjectionMatrix[i];
+					}
+				}
+				else // If no specified matrices for projective texture, then use the camera matrices.
+				{
+					for (int i=0;i<16;i++)
+					{
+						projTextureViewMat[i] = viewMat[i];
+						projTextureProjMat[i] = projMat[i];
+					}
+				}
+				this->m_data->m_guiHelper->setProjectiveTextureMatrices(projTextureViewMat, projTextureProjMat);
+			}
+			else
+			{
+				this->m_data->m_guiHelper->setProjectiveTexture(false);
+			}
 
 			m_data->m_guiHelper->copyCameraImageData(viewMat,
 								projMat,pixelRGBA,numRequestedPixels,

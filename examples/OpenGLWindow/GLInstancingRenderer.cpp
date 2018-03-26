@@ -17,7 +17,6 @@ subject to the following restrictions:
 
 ///todo: make this configurable in the gui
 bool useShadowMap = true;// true;//false;//true;
-bool useProjectiveTexture = false;
 int shadowMapWidth= 4096;
 int shadowMapHeight= 4096;
 float shadowMapWorldSize=10;
@@ -225,7 +224,10 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	GLfloat m_projectionMatrix[16];
 	GLfloat m_viewMatrix[16];
+	GLfloat m_projectiveTextureProjectionMatrix[16];
+	GLfloat m_projectiveTextureViewMatrix[16];
 	GLfloat m_viewMatrixInverse[16];
+	bool m_useProjectiveTexture;
 
 	b3Vector3 m_lightPos;
 	b3Vector3 m_lightSpecularIntensity;
@@ -257,8 +259,11 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 			m_projectionMatrix[i]=0;
 			m_viewMatrix[i]=0;
 			m_viewMatrixInverse[i]=0;
+			m_projectiveTextureProjectionMatrix[i]=0;
+			m_projectiveTextureViewMatrix[i]=0;
 		}
 
+		m_useProjectiveTexture = false;
 	}
 
 
@@ -1466,6 +1471,20 @@ void GLInstancingRenderer::setLightPosition(const double lightPos[3])
 	m_data->m_lightPos[2] = lightPos[2];
 }
 
+void GLInstancingRenderer::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+{
+	for (int i = 0; i < 16; i++)
+	{
+		m_data->m_projectiveTextureViewMatrix[i] = viewMatrix[i];
+		m_data->m_projectiveTextureProjectionMatrix[i] = projectionMatrix[i];
+	}
+}
+
+void GLInstancingRenderer::setProjectiveTexture(bool useProjectiveTexture)
+{
+	m_data->m_useProjectiveTexture = useProjectiveTexture;
+	useShadowMap = !useProjectiveTexture;
+}
 
 void GLInstancingRenderer::updateCamera(int upAxis)
 {
@@ -1583,9 +1602,8 @@ void GLInstancingRenderer::renderScene()
 		renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
 
 	}
-	else if (useProjectiveTexture)
+	else if (m_data->m_useProjectiveTexture)
 	{
-		//renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
 		renderSceneInternal(B3_USE_PROJECTIVE_TEXTURE_RENDERMODE);
 	}
 	else
@@ -2181,7 +2199,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 	// TODO: Expose the projective texture matrix setup. Temporarily set it to be the same as camera view projection matrix.
 	GLfloat textureMVP[16];
-	b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,textureMVP);
+	b3Matrix4x4Mul16(m_data->m_projectiveTextureProjectionMatrix,m_data->m_projectiveTextureViewMatrix,textureMVP);
 
 	//float m_frustumZNear=0.1;
     //float m_frustumZFar=100.f;
