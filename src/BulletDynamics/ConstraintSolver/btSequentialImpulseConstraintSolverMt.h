@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -127,7 +127,7 @@ protected:
 public:
 
 	BT_DECLARE_ALIGNED_ALLOCATOR();
-	
+
 	btSequentialImpulseConstraintSolverMt();
 	virtual ~btSequentialImpulseConstraintSolverMt();
 
@@ -136,11 +136,11 @@ public:
     btScalar resolveMultipleContactSplitPenetrationImpulseConstraints( const btAlignedObjectArray<int>& consIndices, int batchBegin, int batchEnd );
     btScalar resolveMultipleContactFrictionConstraints( const btAlignedObjectArray<int>& consIndices, int batchBegin, int batchEnd );
     btScalar resolveMultipleContactRollingFrictionConstraints( const btAlignedObjectArray<int>& consIndices, int batchBegin, int batchEnd );
-    btScalar resolveMultipleContactConstraintsInterleaved( const btAlignedObjectArray<int>& consIndices, int batchBegin, int batchEnd );
+    btScalar resolveMultipleContactConstraintsInterleaved( const btAlignedObjectArray<int>& contactIndices, int batchBegin, int batchEnd );
 
-    void internalCollectContactManifoldCachedInfo(btContactManifoldCachedInfo* cachedInfoArray, btPersistentManifold** manifold, int numManifolds, const btContactSolverInfo& infoGlobal);
+    void internalCollectContactManifoldCachedInfo(btContactManifoldCachedInfo* cachedInfoArray, btPersistentManifold** manifoldPtr, int numManifolds, const btContactSolverInfo& infoGlobal);
     void internalAllocContactConstraints(const btContactManifoldCachedInfo* cachedInfoArray, int numManifolds);
-    void internalSetupContactConstraints(int iContact, const btContactSolverInfo& infoGlobal);
+    void internalSetupContactConstraints(int iContactConstraint, const btContactSolverInfo& infoGlobal);
     void internalConvertBodies(btCollisionObject** bodies, int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);
     void internalWriteBackContacts(int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);
     void internalWriteBackJoints(int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);

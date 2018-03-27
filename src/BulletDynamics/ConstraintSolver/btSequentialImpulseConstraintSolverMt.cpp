@@ -537,7 +537,7 @@ void btSequentialImpulseConstraintSolverMt::allocAllContactConstraints(btPersist
     BT_PROFILE( "allocAllContactConstraints" );
     btAlignedObjectArray<btContactManifoldCachedInfo> cachedInfoArray; // = m_manifoldCachedInfoArray;
     cachedInfoArray.resizeNoInitialize( numManifolds );
-    if (false)
+    if (/* DISABLES CODE */ (false))
     {
         // sequential
         internalCollectContactManifoldCachedInfo(&cachedInfoArray[ 0 ], manifoldPtr, numManifolds, infoGlobal);
