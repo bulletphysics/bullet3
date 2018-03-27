@@ -182,6 +182,14 @@ end
 		trigger = "audio",
 		description = "Enable audio"
 	}
+	newoption
+	{
+		trigger = "enable_multithreading",
+		description = "enable CPU multithreading for bullet2 libs"
+	}
+	if _OPTIONS["enable_multithreading"] then
+		defines {"BT_THREADSAFE=1"}
+	end
 	if _OPTIONS["double"] then
 		defines {"BT_USE_DOUBLE_PRECISION"}
 	end
