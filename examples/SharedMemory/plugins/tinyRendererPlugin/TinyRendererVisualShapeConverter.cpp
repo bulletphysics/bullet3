@@ -593,7 +593,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 			colorIndex &=3;
 			btVector4 color;
 			color = sColors[colorIndex];
-			float rgbaColor[4] = {color[0],color[1],color[2],color[3]};
+			float rgbaColor[4] = {(float)color[0],(float)color[1],(float)color[2],(float)color[3]};
 			//if (colObj->getCollisionShape()->getShapeType()==STATIC_PLANE_PROXYTYPE)
 			//{
 			//	color.setValue(1,1,1,1);
@@ -773,7 +773,7 @@ void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int lin
 		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
 		if (ptrptr && *ptrptr)
 		{
-			float rgba[4] = {rgbaColor[0], rgbaColor[1], rgbaColor[2], rgbaColor[3]};
+			float rgba[4] = {(float)rgbaColor[0], (float)rgbaColor[1], (float)rgbaColor[2], (float)rgbaColor[3]};
 			TinyRendererObjectArray* visuals = *ptrptr;
 			if ((bodyUniqueId == visuals->m_objectUniqueId) && (linkIndex == visuals->m_linkIndex))
 			{
