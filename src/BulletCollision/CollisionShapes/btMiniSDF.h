@@ -79,7 +79,7 @@ struct btShapeGradients
 		}
 	}
 	
-	inline double&       operator()(int i, int j)
+	inline btScalar&       operator()(int i, int j)
 	{
 		return m_vec[i][j];
 	}
