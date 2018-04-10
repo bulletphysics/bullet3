@@ -477,9 +477,9 @@ bool btMiniSDF::interpolate(unsigned int field_id, double& dist, btVector3 const
 	btCell32 const& cell = m_cells[field_id][i];
 	if (!gradient)
 	{
-		//auto phi = m_coefficients[field_id][i].dot(shape_function_(xi, nullptr));
+		//auto phi = m_coefficients[field_id][i].dot(shape_function_(xi, 0));
 		double phi = 0.0;
-		btShapeMatrix N = shape_function_(xi, nullptr);
+		btShapeMatrix N = shape_function_(xi, 0;
 		for (unsigned int j = 0u; j < 32u; ++j)
 		{
 			unsigned int v = cell.m_cells[j];
