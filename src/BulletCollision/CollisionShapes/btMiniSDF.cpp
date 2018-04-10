@@ -1,7 +1,7 @@
 #include "btMiniSDF.h"
 
 
-
+#include <limits.h>
 #include <string.h> //memcpy
 
 struct btSdfDataStream
