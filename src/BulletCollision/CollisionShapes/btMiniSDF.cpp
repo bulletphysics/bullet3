@@ -479,7 +479,7 @@ bool btMiniSDF::interpolate(unsigned int field_id, double& dist, btVector3 const
 	{
 		//auto phi = m_coefficients[field_id][i].dot(shape_function_(xi, 0));
 		double phi = 0.0;
-		btShapeMatrix N = shape_function_(xi, 0;
+		btShapeMatrix N = shape_function_(xi, 0);
 		for (unsigned int j = 0u; j < 32u; ++j)
 		{
 			unsigned int v = cell.m_cells[j];
