@@ -1,6 +1,5 @@
 import pybullet as p
 from time import sleep
-from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -9,7 +8,7 @@ physicsClient = p.connect(p.GUI)
 p.setGravity(0,0,0)
 bearStartPos1 = [-3.3,0,0]
 bearStartOrientation1 = p.getQuaternionFromEuler([0,0,0])
-bearId1 = p.loadURDF("teddy_large.urdf", bearStartPos1, bearStartOrientation1)
+bearId1 = p.loadURDF("plane.urdf", bearStartPos1, bearStartOrientation1)
 bearStartPos2 = [0,0,0]
 bearStartOrientation2 = p.getQuaternionFromEuler([0,0,0])
 bearId2 = p.loadURDF("teddy_large.urdf",bearStartPos2, bearStartOrientation2)
