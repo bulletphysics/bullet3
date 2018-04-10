@@ -3,7 +3,7 @@
 
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btAabbUtil2.h"
-#include "Linearmath/btAlignedObjectArray.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 
 struct btMultiIndex

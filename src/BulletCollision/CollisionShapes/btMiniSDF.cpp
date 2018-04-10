@@ -1,7 +1,7 @@
 #include "btMiniSDF.h"
 
 
-#include "LinearMath/btAlignedObjectArray.h"
+
 #include <string.h> //memcpy
 
 struct btSdfDataStream
