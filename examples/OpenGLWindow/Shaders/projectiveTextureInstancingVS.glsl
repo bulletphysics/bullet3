@@ -93,7 +93,5 @@ void main(void)
 	gl_Position = vertexLoc;
 
 	fragment.color = instance_color;
-	vec4 projcoords = TextureMVP * vec4((instance_position+localcoord).xyz,1);
-	vert.texcoord = projcoords.xy/projcoords.z;
 }
 
