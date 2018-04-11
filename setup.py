@@ -219,6 +219,8 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletCollision/CollisionShapes/btTriangleMeshShape.cpp"]\
 +["src/BulletCollision/CollisionShapes/btConvexPointCloudShape.cpp"]\
 +["src/BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btSdfCollisionShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btMiniSDF.cpp"]\
 +["src/BulletCollision/CollisionShapes/btUniformScalingShape.cpp"]\
 +["src/BulletCollision/Gimpact/btContactProcessing.cpp"]\
 +["src/BulletCollision/Gimpact/btGImpactQuantizedBvh.cpp"]\
