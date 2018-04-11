@@ -2,6 +2,8 @@ import unittest
 import pybullet
 import time
 
+from utils import allclose, dot
+
 class TestPybulletMethods(unittest.TestCase):
 
     def test_import(self):
@@ -63,10 +65,6 @@ class TestPybulletJacobian(unittest.TestCase):
                 positionGains=[kp] * num_joints, velocityGains=[kv] * num_joints)
 
     def testJacobian(self):
-        try:
-            import numpy as np
-        except ImportError:
-            return
         import pybullet as p
 
         clid = p.connect(p.SHARED_MEMORY)
@@ -109,8 +107,8 @@ class TestPybulletJacobian(unittest.TestCase):
             jac_t, jac_r = p.calculateJacobian(robotId, endEffectorIndex,
                     com_trn, mpos, zero_vec, zero_vec)
 
-            assert(np.allclose(np.array(jac_t).dot(mvel), link_vt))
-            assert(np.allclose(np.array(jac_r).dot(mvel), link_vr))
+            assert(allclose(dot(jac_t, mvel), link_vt))
+            assert(allclose(dot(jac_r, mvel), link_vr))
         p.disconnect()
 
 if __name__ == '__main__':
