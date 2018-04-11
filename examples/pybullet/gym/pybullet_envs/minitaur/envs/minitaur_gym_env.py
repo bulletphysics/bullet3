@@ -92,6 +92,7 @@ class MinitaurGymEnv(gym.Env):
                control_time_step=None,
                env_randomizer=None,
                forward_reward_cap=float("inf"),
+               reflection=True,
                log_path=None):
     """Initialize the minitaur gym environment.
 
@@ -218,6 +219,7 @@ class MinitaurGymEnv(gym.Env):
     self._pd_latency = pd_latency
     self._urdf_version = urdf_version
     self._ground_id = None
+    self._reflection = reflection
     self._env_randomizers = convert_to_list(
         env_randomizer) if env_randomizer else []
     self._episode_proto = minitaur_logging_pb2.MinitaurEpisode()
@@ -261,6 +263,9 @@ class MinitaurGymEnv(gym.Env):
       self._pybullet_client.setTimeStep(self._time_step)
       self._ground_id = self._pybullet_client.loadURDF(
           "%s/plane.urdf" % self._urdf_root)
+      if (self._reflection):
+        self._pybullet_client.changeVisualShape(self._ground_id,-1,rgbaColor=[1,1,1,0.8])
+        self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_PLANAR_REFLECTION,0)
       self._pybullet_client.setGravity(0, 0, -10)
       acc_motor = self._accurate_motor_model_enabled
       motor_protect = self._motor_overheat_protection

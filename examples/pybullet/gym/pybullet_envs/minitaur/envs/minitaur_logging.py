@@ -120,7 +120,7 @@ class MinitaurLogging(object):
       tf.gfile.MakeDirs(self._log_path)
     ts = time.time()
     time_stamp = datetime.datetime.fromtimestamp(ts).strftime(
-        "%Y-%m-%d-%H:%M:%S")
+        "%Y-%m-%d-%H%M%S")
     log_path = os.path.join(self._log_path,
                             "minitaur_log_{}".format(time_stamp))
     with tf.gfile.Open(log_path, "w") as f:

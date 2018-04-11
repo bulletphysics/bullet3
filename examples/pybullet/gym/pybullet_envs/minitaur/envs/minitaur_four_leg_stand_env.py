@@ -116,6 +116,7 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
         on_rack=on_rack,
         render=render,
         env_randomizer=env_randomizer,
+        reflection = False,
         log_path=log_path)
 
     action_dim = 4
@@ -196,6 +197,8 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
     t = float(float(t) / float(MOVING_FLOOR_TOTAL_STEP))
     ori = map(operator.add, [x * (1.0 - t) for x in self._cur_ori],
               [x * t for x in self._goal_ori])
+    ori=list(ori)
+    print("ori=",ori)
     self._pybullet_client.resetBasePositionAndOrientation(0, [0, 0, 0], ori)
     if self._env_step_counter % PERTURBATION_TOTAL_STEP == 0:
       self._perturbation_magnitude = random.uniform(0.0, 0.0)

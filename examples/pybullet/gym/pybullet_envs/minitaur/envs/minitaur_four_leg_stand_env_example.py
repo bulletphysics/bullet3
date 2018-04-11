@@ -40,10 +40,10 @@ def feed_forward_only_control_example(log_path=None):
 
   np.random.seed(100)
   avg_reward = 0
-  for i in xrange(episodes):
+  for i in range(episodes):
     sum_reward = 0
     observation = environment.reset()
-    for _ in xrange(steps):
+    for _ in range(steps):
       action = [0] * 4
       uroll = kroll * observation[0]
       upitch = kpitch * observation[1]

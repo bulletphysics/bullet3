@@ -2,7 +2,7 @@
 
 """
 import time
-
+import os
 import numpy as np
 import tensorflow as tf
 from pybullet_envs.minitaur.envs import minitaur_gym_env
@@ -18,14 +18,14 @@ def main(unused_argv):
       use_signal_in_observation=False,
       use_angle_in_observation=False,
       render=True,
-      log_path=FLAGS.log_path)
+      log_path=os.getcwd())
 
   np.random.seed(100)
   sum_reward = 0
   environment.reset()
 
   steps = 5000
-  for _ in xrange(steps):
+  for _ in range(steps):
     # Sleep to prevent serial buffer overflow on microcontroller.
     time.sleep(0.002)
     action = [0] * 8

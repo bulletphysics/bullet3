@@ -6,7 +6,7 @@ bent legs, desired_pitch from user input, battery voltage and motor damping.
 
 import numpy as np
 import tensorflow as tf
-from pybullet_envs.minitaur.minitaur.envs import env_randomizer_base
+from pybullet_envs.minitaur.envs import env_randomizer_base
 
 # Absolute range.
 NUM_LEGS = 4

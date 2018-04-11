@@ -8,6 +8,7 @@ import time
 from gym import spaces
 import numpy as np
 from pybullet_envs.minitaur.envs import minitaur_gym_env
+import pybullet_data
 
 ACTION_EPS = 0.01
 # RANGE_OF_LEG_MOTION defines how far legs can rotate in both directions
@@ -34,7 +35,7 @@ class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
   }
 
   def __init__(self,
-               urdf_root="third_party/bullet/data",
+               urdf_root=pybullet_data.getDataPath(),
                action_repeat=1,
                observation_noise_stdev=minitaur_gym_env.SENSOR_NOISE_STDDEV,
                self_collision_enabled=True,
@@ -81,7 +82,7 @@ class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
       done: Whether the episode has ended.
       info: A dictionary that stores diagnostic information.
     """
-    for t in xrange(5000):
+    for t in range(5000):
       if self._is_render:
         base_pos = self.minitaur.GetBasePosition()
         self._pybullet_client.resetDebugVisualizerCamera(

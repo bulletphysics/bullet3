@@ -8,13 +8,12 @@ import numpy as np
 from pybullet_envs.minitaur.envs import minitaur
 from pybullet_envs.minitaur.envs import minitaur_gym_env
 
-flags.DEFINE_string(
-    'terrain_dir', '/cns/od-d/home/brain-minitaur/terrain_obj',
-    'The directory which contains terrain obj files to be used.')
-flags.DEFINE_string('storage_dir', '/tmp',
-                    'The full path to the temporary directory to be used.')
-
-FLAGS = flags.FLAGS
+#flags.DEFINE_string(
+#    'terrain_dir', '/cns/od-d/home/brain-minitaur/terrain_obj',
+#    'The directory which contains terrain obj files to be used.')
+#flags.DEFINE_string('storage_dir', '/tmp',
+#                    'The full path to the temporary directory to be used.')
+#FLAGS = flags.FLAGS
 
 
 class MinitaurRandomizeTerrainGymEnv(minitaur_gym_env.MinitaurGymEnv):
