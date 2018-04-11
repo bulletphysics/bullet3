@@ -509,6 +509,16 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, in
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
+	int shapeIndex = pg->m_shapeIndex;
+	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
+	if (color[3]<1)
+	{
+		gfxObj->m_flags |= eGfxTransparency;
+	} else
+	{
+		gfxObj->m_flags &= ~eGfxTransparency;
+	}
+		
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=float(color[0]);
 	m_data->m_instance_colors_ptr[srcIndex*4+1]=float(color[1]);
 	m_data->m_instance_colors_ptr[srcIndex*4+2]=float(color[2]);
@@ -520,6 +530,16 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
+	int shapeIndex = pg->m_shapeIndex;
+	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
+
+	if (color[3]<1)
+	{
+		gfxObj->m_flags |= eGfxTransparency;
+	} else
+	{
+		gfxObj->m_flags &= ~eGfxTransparency;
+	}
 
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=color[0];
 	m_data->m_instance_colors_ptr[srcIndex*4+1]=color[1];
@@ -2344,8 +2364,11 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 			int shapeIndex = transparentInstances[i].m_shapeIndex;
 
 			//during a reflectionPlanePass, only draw the plane, nothing else
-			if ((shapeIndex!=m_planeReflectionShapeIndex) && reflectionPlanePass)
-				continue;
+			if (reflectionPlanePass)
+			{
+				if (shapeIndex!=m_planeReflectionShapeIndex)
+					continue;
+			}
 
 			b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
 

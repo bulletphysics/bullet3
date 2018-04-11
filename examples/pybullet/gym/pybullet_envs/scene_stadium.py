@@ -32,6 +32,9 @@ class StadiumScene(Scene):
 			#	
 			for i in self.ground_plane_mjcf:
 				p.changeDynamics(i,-1,lateralFriction=0.8, restitution=0.5)
+				p.changeVisualShape(i,-1,rgbaColor=[1,1,1,0.8])
+				p.configureDebugVisualizer(p.COV_ENABLE_PLANAR_REFLECTION,1)
+
 			#	for j in range(p.getNumJoints(i)):
 			#		p.changeDynamics(i,j,lateralFriction=0)
 			#despite the name (stadium_no_collision), it DID have collision, so don't add duplicate ground
