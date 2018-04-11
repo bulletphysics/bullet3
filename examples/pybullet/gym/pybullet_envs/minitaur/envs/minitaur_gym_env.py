@@ -17,6 +17,7 @@ import minitaur_logging
 import minitaur_logging_pb2
 import minitaur_rainbow_dash
 import motor
+from pkg_resources import parse_version
 
 NUM_MOTORS = 8
 MOTOR_ANGLE_OBSERVATION_INDEX = 0
@@ -563,6 +564,13 @@ class MinitaurGymEnv(gym.Env):
     """
     return len(self._get_observation())
 
+  if parse_version(gym.__version__)>=parse_version('0.9.6'):
+                close = _close
+                render = _render
+                reset = _reset
+                seed = _seed
+                step = _step
+
   def set_time_step(self, control_step, simulation_step=0.001):
     """Sets the time step of the environment.
 
@@ -604,3 +612,5 @@ class MinitaurGymEnv(gym.Env):
   @property
   def env_step_counter(self):
     return self._env_step_counter
+
+
