@@ -482,10 +482,10 @@ struct CommandLogPlayback
 		SharedMemoryCommand unused;
 #endif//BACKWARD_COMPAT
 		bool result = false;
-
+		size_t s = 0;
 		if (m_file)
 		{
-			size_t s = 0;
+			
 			int commandType = -1;
 
 			if (m_fileIs64bit)
@@ -518,8 +518,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 					cmd->m_mjcfArguments = unused.m_mjcfArguments;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_mjcfArguments,sizeof(MjcfArgs),1,m_file);
+					s=fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					s = fread(&cmd->m_mjcfArguments,sizeof(MjcfArgs),1,m_file);
 #endif
 					result=true;
 					break;
@@ -529,8 +529,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 					cmd->m_sdfRequestInfoArgs = unused.m_sdfRequestInfoArgs;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_sdfRequestInfoArgs,sizeof(SdfRequestInfoArgs),1,m_file);					
+					s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					s = fread(&cmd->m_sdfRequestInfoArgs,sizeof(SdfRequestInfoArgs),1,m_file);
 #endif
 					result=true;
 					break;
@@ -540,8 +540,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 					cmd->m_requestVisualShapeDataArguments = unused.m_requestVisualShapeDataArguments;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_requestVisualShapeDataArguments,sizeof(RequestVisualShapeDataArgs),1,m_file);					
+					s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					s = fread(&cmd->m_requestVisualShapeDataArguments,sizeof(RequestVisualShapeDataArgs),1,m_file);
 #endif
 					result=true;
 					break;
@@ -551,8 +551,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 					 cmd->m_urdfArguments = unused.m_urdfArguments;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_urdfArguments,sizeof(UrdfArgs),1,m_file);					
+					 s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					 s = fread(&cmd->m_urdfArguments,sizeof(UrdfArgs),1,m_file);
 #endif
 					result=true;
 					break;
@@ -562,8 +562,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 					 cmd->m_initPoseArgs = unused.m_initPoseArgs;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_initPoseArgs,sizeof(InitPoseArgs),1,m_file);					
+					 s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					 s = fread(&cmd->m_initPoseArgs,sizeof(InitPoseArgs),1,m_file);
 
 #endif
 					 result=true;
@@ -574,8 +574,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT					 
 					cmd->m_requestActualStateInformationCommandArgument = unused.m_requestActualStateInformationCommandArgument;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_requestActualStateInformationCommandArgument,sizeof(RequestActualStateArgs),1,m_file);					
+					 s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					 s = fread(&cmd->m_requestActualStateInformationCommandArgument,sizeof(RequestActualStateArgs),1,m_file);
 #endif
 					 result=true;
 					break;
@@ -585,8 +585,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT	
 					 cmd->m_sendDesiredStateCommandArgument = unused.m_sendDesiredStateCommandArgument;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_sendDesiredStateCommandArgument ,sizeof(SendDesiredStateArgs),1,m_file);					
+					 s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					 s = fread(&cmd->m_sendDesiredStateCommandArgument ,sizeof(SendDesiredStateArgs),1,m_file);
 
 #endif
 					 result = true;
@@ -597,8 +597,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT	
 					 cmd->m_physSimParamArgs = unused.m_physSimParamArgs;
 					 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_physSimParamArgs ,sizeof(b3PhysicsSimulationParameters),1,m_file);					
+					s= s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					s = fread(&cmd->m_physSimParamArgs ,sizeof(b3PhysicsSimulationParameters),1,m_file);
 
 					 #endif
 					 result = true;
@@ -609,8 +609,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT	
 					 cmd->m_requestContactPointArguments = unused.m_requestContactPointArguments;
 					 #else
-					 fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_requestContactPointArguments ,sizeof(RequestContactDataArgs),1,m_file);					
+					 s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					 s = fread(&cmd->m_requestContactPointArguments ,sizeof(RequestContactDataArgs),1,m_file);
 
 					 #endif
 					 result = true;
@@ -4794,6 +4794,9 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 								}
 								if (hasDesiredVelocity)
 								{
+									//disable velocity clamp in velocity mode
+									motor->setRhsClamp(SIMD_INFINITY);
+									
 									btScalar maxImp = 1000000.f*m_data->m_physicsDeltaTime;
 									if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex]&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
 									{
