@@ -1,5 +1,5 @@
 #include "BulletMJCFImporter.h"
-#include "../../ThirdPartyLibs/tinyxml/tinyxml.h"
+#include "../../ThirdPartyLibs/tinyxml2/tinyxml2.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include "Bullet3Common/b3HashMap.h"
 #include "LinearMath/btQuickprof.h"
@@ -32,7 +32,7 @@
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btTriangleMesh.h"
-
+using namespace tinyxml2;
 
 
 
@@ -232,7 +232,7 @@ struct BulletMJCFImporterInternalData
 		}
 	}
 
-	std::string sourceFileLocation(TiXmlElement* e)
+	std::string sourceFileLocation(XMLElement* e)
 	{
 #if 0
 	//no C++11 snprintf etc
@@ -241,7 +241,7 @@ struct BulletMJCFImporterInternalData
 		return buf;
 #else
 		char row[1024];
-		sprintf(row,"%d",e->Row());
+		sprintf(row,"%d",e->GetLineNum());
 		std::string str = m_sourceFileName.c_str() + std::string(":") + std::string(row);
 		return str;
 #endif
@@ -261,7 +261,7 @@ struct BulletMJCFImporterInternalData
 		return 0;
 	}
 
-	void parseCompiler(TiXmlElement* root_xml, MJCFErrorLogger* logger)
+	void parseCompiler(XMLElement* root_xml, MJCFErrorLogger* logger)
 	{
 
 		const char* meshDirStr = root_xml->Attribute("meshdir");
@@ -284,10 +284,10 @@ struct BulletMJCFImporterInternalData
 
 	}
 	
-	void parseAssets(TiXmlElement* root_xml, MJCFErrorLogger* logger)
+	void parseAssets(XMLElement* root_xml, MJCFErrorLogger* logger)
 	{
 		//		<mesh name="index0" 	file="index0.stl"/>
-		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
+		for (XMLElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
 		{
 			std::string n = child_xml->Value();
 			if (n=="mesh")
@@ -307,11 +307,11 @@ struct BulletMJCFImporterInternalData
 	}
 	
 	
-	bool parseDefaults(MyMJCFDefaults& defaults, TiXmlElement* root_xml, MJCFErrorLogger* logger)
+	bool parseDefaults(MyMJCFDefaults& defaults, XMLElement* root_xml, MJCFErrorLogger* logger)
 	{
 		bool handled= false;
 		//rudimentary 'default' support, would need more work for better feature coverage
-		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
+		for (XMLElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
 		{
 			std::string n = child_xml->Value();
 		
@@ -413,9 +413,9 @@ struct BulletMJCFImporterInternalData
 		handled=true;
 		return handled;
 	}
-	bool parseRootLevel(MyMJCFDefaults& defaults,  TiXmlElement* root_xml,MJCFErrorLogger* logger)
+	bool parseRootLevel(MyMJCFDefaults& defaults,  XMLElement* root_xml,MJCFErrorLogger* logger)
 	{
-		for (TiXmlElement* rootxml = root_xml->FirstChildElement() ; rootxml ; rootxml = rootxml->NextSiblingElement())
+		for (XMLElement* rootxml = root_xml->FirstChildElement() ; rootxml ; rootxml = rootxml->NextSiblingElement())
 		{
 			bool handled = false;
 			std::string n = rootxml->Value();
@@ -473,7 +473,7 @@ struct BulletMJCFImporterInternalData
 		return true;
 	}
 
-	bool parseJoint(MyMJCFDefaults& defaults, TiXmlElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, const btTransform& parentToLinkTrans, btTransform& jointTransOut)
+	bool parseJoint(MyMJCFDefaults& defaults, XMLElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, const btTransform& parentToLinkTrans, btTransform& jointTransOut)
 	{
 		bool jointHandled = false;
 		const char* jType = link_xml->Attribute("type");
@@ -649,7 +649,7 @@ struct BulletMJCFImporterInternalData
 		*/
 		return false;
 	}
-	bool parseGeom(MyMJCFDefaults& defaults, TiXmlElement* link_xml, int modelIndex, int linkIndex, MJCFErrorLogger* logger, btVector3& inertialShift)
+	bool parseGeom(MyMJCFDefaults& defaults, XMLElement* link_xml, int modelIndex, int linkIndex, MJCFErrorLogger* logger, btVector3& inertialShift)
 	{
 		UrdfLink** linkPtrPtr = m_models[modelIndex]->m_links.getAtIndex(linkIndex);
 		if (linkPtrPtr==0)
@@ -963,7 +963,7 @@ struct BulletMJCFImporterInternalData
 		return handledGeomType;
 	}
 
-	btTransform parseTransform(TiXmlElement* link_xml, MJCFErrorLogger* logger)
+	btTransform parseTransform(XMLElement* link_xml, MJCFErrorLogger* logger)
 	{
 		btTransform tr;
 		tr.setIdentity();
@@ -1090,7 +1090,7 @@ struct BulletMJCFImporterInternalData
 		return orgChildLinkIndex;
 	}
 
-	bool parseBody(MyMJCFDefaults& defaults, TiXmlElement* link_xml, int modelIndex, int orgParentLinkIndex, MJCFErrorLogger* logger)
+	bool parseBody(MyMJCFDefaults& defaults, XMLElement* link_xml, int modelIndex, int orgParentLinkIndex, MJCFErrorLogger* logger)
 	{
 		MyMJCFDefaults curDefaults = defaults;
 
@@ -1142,7 +1142,7 @@ struct BulletMJCFImporterInternalData
 		jointTrans.setIdentity();
 		bool skipFixedJoint = false;
 		
-		for (TiXmlElement* xml = link_xml->FirstChildElement() ; xml ; xml = xml->NextSiblingElement())
+		for (XMLElement* xml = link_xml->FirstChildElement() ; xml ; xml = xml->NextSiblingElement())
 		{
 			bool handled = false;
 			std::string n = xml->Value();
@@ -1482,16 +1482,16 @@ bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger,
 
 bool BulletMJCFImporter::parseMJCFString(const char* xmlText, MJCFErrorLogger* logger)
 {
-	TiXmlDocument xml_doc;
+	XMLDocument xml_doc;
 	xml_doc.Parse(xmlText);
 	if (xml_doc.Error())
 	{
-		logger->reportError(xml_doc.ErrorDesc());
+		logger->reportError(xml_doc.ErrorStr());
 		xml_doc.ClearError();
 		return false;
 	}
 
-	TiXmlElement *mujoco_xml = xml_doc.FirstChildElement("mujoco");
+	XMLElement *mujoco_xml = xml_doc.FirstChildElement("mujoco");
 	if (!mujoco_xml)
 	{
 		logger->reportWarning("Cannot find <mujoco> root element");
@@ -1507,28 +1507,28 @@ bool BulletMJCFImporter::parseMJCFString(const char* xmlText, MJCFErrorLogger* l
 	//<compiler>,<option>,<size>,<default>,<body>,<keyframe>,<contactpair>,
 	//<light>, <camera>,<constraint>,<tendon>,<actuator>,<customfield>,<textfield>
 
-	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("default"); link_xml; link_xml = link_xml->NextSiblingElement("default"))
+	for (XMLElement* link_xml = mujoco_xml->FirstChildElement("default"); link_xml; link_xml = link_xml->NextSiblingElement("default"))
 	{
 		m_data->parseDefaults(m_data->m_globalDefaults,link_xml,logger);
 	}
 
-	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("compiler"); link_xml; link_xml = link_xml->NextSiblingElement("compiler"))
+	for (XMLElement* link_xml = mujoco_xml->FirstChildElement("compiler"); link_xml; link_xml = link_xml->NextSiblingElement("compiler"))
 	{
 		m_data->parseCompiler(link_xml,logger);
 	}
 	
 
-	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("asset"); link_xml; link_xml = link_xml->NextSiblingElement("asset"))
+	for (XMLElement* link_xml = mujoco_xml->FirstChildElement("asset"); link_xml; link_xml = link_xml->NextSiblingElement("asset"))
 	{
 		m_data->parseAssets(link_xml,logger);
 	}
 	
-	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("body"); link_xml; link_xml = link_xml->NextSiblingElement("body"))
+	for (XMLElement* link_xml = mujoco_xml->FirstChildElement("body"); link_xml; link_xml = link_xml->NextSiblingElement("body"))
 	{
 		m_data->parseRootLevel(m_data->m_globalDefaults, link_xml,logger);
 	}
 
-	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("worldbody"); link_xml; link_xml = link_xml->NextSiblingElement("worldbody"))
+	for (XMLElement* link_xml = mujoco_xml->FirstChildElement("worldbody"); link_xml; link_xml = link_xml->NextSiblingElement("worldbody"))
 	{
 		m_data->parseRootLevel(m_data->m_globalDefaults, link_xml,logger);
 	}
