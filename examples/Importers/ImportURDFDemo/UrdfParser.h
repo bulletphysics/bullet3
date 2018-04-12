@@ -266,7 +266,7 @@ protected:
 	bool parseMaterial(UrdfMaterial& material, tinyxml2::XMLElement *config, ErrorLogger* logger);
 	bool parseJointLimits(UrdfJoint& joint, tinyxml2::XMLElement* config, ErrorLogger* logger);
     bool parseJointDynamics(UrdfJoint& joint, tinyxml2::XMLElement* config, ErrorLogger* logger);
-	bool parseJoint(UrdfJoint& link, tinyxml2::XMLElement *config, ErrorLogger* logger);
+	bool parseJoint(UrdfJoint& joint, tinyxml2::XMLElement *config, ErrorLogger* logger);
 	bool parseLink(UrdfModel& model, UrdfLink& link, tinyxml2::XMLElement *config, ErrorLogger* logger);
 	
     

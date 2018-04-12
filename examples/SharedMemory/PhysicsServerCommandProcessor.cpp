@@ -597,7 +597,7 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT	
 					 cmd->m_physSimParamArgs = unused.m_physSimParamArgs;
 					 #else
-					s= s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
 					s = fread(&cmd->m_physSimParamArgs ,sizeof(b3PhysicsSimulationParameters),1,m_file);
 
 					 #endif
