@@ -1909,6 +1909,7 @@ static PyObject* pybullet_setJointMotorControlArray(PyObject* self, PyObject* ar
 				{
 					Py_DECREF(kpsSeq);
 				}
+				
 				PyErr_SetString(SpamError, "number of kds should match the number of joint indices");
 				return NULL;
 			}
@@ -1993,6 +1994,29 @@ static PyObject* pybullet_setJointMotorControlArray(PyObject* self, PyObject* ar
 
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+
+		if (targetVelocitiesSeq)
+		{
+			Py_DECREF(targetVelocitiesSeq);
+		}
+		if (targetPositionsSeq)
+		{
+			Py_DECREF(targetPositionsSeq);
+		}
+		if (forcesSeq)
+		{
+			Py_DECREF(forcesSeq);
+		}
+		if (kpsSeq)
+		{
+			Py_DECREF(kpsSeq);
+		}
+
+		if (kdsSeq)
+		{
+			Py_DECREF(kdsSeq);
+		}
+
 		Py_DECREF(jointIndicesSeq);
 		Py_INCREF(Py_None);
 		return Py_None;
