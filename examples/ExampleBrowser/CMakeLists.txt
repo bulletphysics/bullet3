@@ -338,15 +338,8 @@ SET(BulletExampleBrowser_SRCS
 	../ThirdPartyLibs/stb_image/stb_image.h
 	
 	../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
-	../ThirdPartyLibs/tinyxml/tinystr.cpp
-	../ThirdPartyLibs/tinyxml/tinyxml.cpp
-	../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
-	../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
-
-	../ThirdPartyLibs/tinyxml/tinystr.cpp
-	../ThirdPartyLibs/tinyxml/tinyxml.cpp
-	../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
-	../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
+	
+	../ThirdPartyLibs/tinyxml2/tinyxml2.cpp
 	InProcessExampleBrowser.cpp
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 )

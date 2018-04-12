@@ -19,7 +19,12 @@ subject to the following restrictions:
 #include "LinearMath/btScalar.h"
 
 class btDynamicsWorld;
-class TiXmlNode;
+
+namespace tinyxml2
+{
+	class XMLNode;
+};
+
 struct btConvexInternalShapeData;
 struct btCollisionShapeData;
 #ifdef BT_USE_DOUBLE_PRECISION
@@ -40,6 +45,8 @@ struct btCompoundShapeChildData;
 #include "LinearMath/btAlignedObjectArray.h"
 #include "btWorldImporter.h"
 
+
+
 class btBulletXmlWorldImporter : public btWorldImporter
 {
 
@@ -52,28 +59,28 @@ protected:
 	int													m_fileVersion;
 	bool												m_fileOk;
 
-	void auto_serialize_root_level_children(TiXmlNode* pParent);
-	void auto_serialize(TiXmlNode* pParent);
+	void auto_serialize_root_level_children(tinyxml2::XMLNode* pParent);
+	void auto_serialize(tinyxml2::XMLNode* pParent);
 
-	void deSerializeVector3FloatData(TiXmlNode* pParent,btAlignedObjectArray<btVector3FloatData>& vectors);
+	void deSerializeVector3FloatData(tinyxml2::XMLNode* pParent,btAlignedObjectArray<btVector3FloatData>& vectors);
 
 	void	fixupCollisionDataPointers(btCollisionShapeData* shapeData);
 	void	fixupConstraintData(btTypedConstraintData2* tcd);
 
 	//collision shapes data
-	void deSerializeCollisionShapeData(TiXmlNode* pParent,btCollisionShapeData* colShapeData);
-	void deSerializeConvexInternalShapeData(TiXmlNode* pParent);
-	void deSerializeStaticPlaneShapeData(TiXmlNode* pParent);
-	void deSerializeCompoundShapeData(TiXmlNode* pParent);
-	void deSerializeCompoundShapeChildData(TiXmlNode* pParent);
-	void deSerializeConvexHullShapeData(TiXmlNode* pParent);
-	void deSerializeDynamicsWorldData(TiXmlNode* parent);
+	void deSerializeCollisionShapeData(tinyxml2::XMLNode* pParent,btCollisionShapeData* colShapeData);
+	void deSerializeConvexInternalShapeData(tinyxml2::XMLNode* pParent);
+	void deSerializeStaticPlaneShapeData(tinyxml2::XMLNode* pParent);
+	void deSerializeCompoundShapeData(tinyxml2::XMLNode* pParent);
+	void deSerializeCompoundShapeChildData(tinyxml2::XMLNode* pParent);
+	void deSerializeConvexHullShapeData(tinyxml2::XMLNode* pParent);
+	void deSerializeDynamicsWorldData(tinyxml2::XMLNode* parent);
 	
 	///bodies
-	void deSerializeRigidBodyFloatData(TiXmlNode* pParent);
+	void deSerializeRigidBodyFloatData(tinyxml2::XMLNode* pParent);
 
 	///constraints
-	void deSerializeGeneric6DofConstraintData(TiXmlNode* pParent);
+	void deSerializeGeneric6DofConstraintData(tinyxml2::XMLNode* pParent);
 
 	public:
 		btBulletXmlWorldImporter(btDynamicsWorld* world);
