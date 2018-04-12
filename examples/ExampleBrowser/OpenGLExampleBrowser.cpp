@@ -1257,7 +1257,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
         {
             skip=gPngSkipFrames;
             //printf("gPngFileName=%s\n",gPngFileName);
-            static int s_frameCount = 100;
+            static int s_frameCount = 0;
             
             sprintf(staticPngFileName,"%s%d.png",gPngFileName,s_frameCount++);
             //b3Printf("Made screenshot %s",staticPngFileName);
