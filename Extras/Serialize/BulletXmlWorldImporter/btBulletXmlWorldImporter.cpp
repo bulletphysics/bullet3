@@ -876,11 +876,10 @@ bool btBulletXmlWorldImporter::loadFile(const char* fileName)
 {
 	XMLDocument doc;
 
-	bool loadOkay = doc.LoadFile(fileName);
-	//dump_to_stdout(&doc,0);
 	
-
-	if (loadOkay)
+	XMLError loadOkay = doc.LoadFile(fileName);
+	
+	if (loadOkay==XML_SUCCESS)
 	{
 		if (get_int_attribute_by_name(doc.FirstChildElement()->ToElement(),"version", &m_fileVersion))
 		{
