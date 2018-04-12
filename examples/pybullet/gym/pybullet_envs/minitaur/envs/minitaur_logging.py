@@ -10,12 +10,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 import datetime
 import os
 import time
 
 import tensorflow as tf
-import minitaur_logging_pb2
+from pybullet_envs.minitaur.envs import minitaur_logging_pb2
 
 NUM_MOTORS = 8
 

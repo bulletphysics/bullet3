@@ -4,19 +4,24 @@
 import math
 import time
 
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 import gym
 from gym import spaces
 from gym.utils import seeding
 import numpy as np
 import pybullet
-import bullet_client
+from pybullet_envs.minitaur.envs import bullet_client
 import pybullet_data
-import minitaur
-import minitaur_derpy
-import minitaur_logging
-import minitaur_logging_pb2
-import minitaur_rainbow_dash
-import motor
+from pybullet_envs.minitaur.envs import minitaur
+from pybullet_envs.minitaur.envs import minitaur_derpy
+from pybullet_envs.minitaur.envs import minitaur_logging
+from pybullet_envs.minitaur.envs import minitaur_logging_pb2
+from pybullet_envs.minitaur.envs import minitaur_rainbow_dash
+from pybullet_envs.minitaur.envs import motor
 from pkg_resources import parse_version
 
 NUM_MOTORS = 8

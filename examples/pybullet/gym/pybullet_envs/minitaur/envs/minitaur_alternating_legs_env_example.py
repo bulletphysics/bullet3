@@ -3,12 +3,17 @@
 """
 import time
 
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 import os
 import numpy as np
 import tensorflow as tf
-import minitaur_alternating_legs_env
-import minitaur_gym_env
-from env_randomizers import minitaur_alternating_legs_env_randomizer as randomizer_lib
+from pybullet_envs.minitaur.envs import minitaur_alternating_legs_env
+from pybullet_envs.minitaur.envs import minitaur_gym_env
+from pybullet_envs.minitaur.envs.env_randomizers import minitaur_alternating_legs_env_randomizer as randomizer_lib
 
 #FLAGS = flags.FLAGS
 #flags.DEFINE_string("log_path", None, "The directory to write the log file.")

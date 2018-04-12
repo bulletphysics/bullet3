@@ -3,9 +3,14 @@
 """
 import math
 
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 from gym import spaces
 import numpy as np
-import minitaur_gym_env
+from pybullet_envs.minitaur.envs import minitaur_gym_env
 
 INIT_EXTENSION_POS = 2.6
 INIT_SWING_POS = 0.0

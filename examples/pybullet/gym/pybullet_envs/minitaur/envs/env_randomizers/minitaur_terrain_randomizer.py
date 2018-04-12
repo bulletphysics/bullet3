@@ -4,6 +4,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+parentdir = os.path.dirname(os.path.dirname(parentdir))
+os.sys.path.insert(0,parentdir)
+
 import itertools
 import math
 import enum

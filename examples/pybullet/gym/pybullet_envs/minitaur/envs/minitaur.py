@@ -1,13 +1,19 @@
 """This file implements the functionalities of a minitaur using pybullet.
 
 """
+
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 import collections
 import copy
 import math
 import re
 
 import numpy as np
-import motor
+from pybullet_envs.minitaur.envs import motor
 
 INIT_POSITION = [0, 0, .2]
 INIT_RACK_POSITION = [0, 0, 1]

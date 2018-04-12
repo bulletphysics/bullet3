@@ -2,6 +2,12 @@
 # source: minitaur_logging.proto
 
 import sys
+
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 _b=sys.version_info[0]<3 and (lambda x:x) or (lambda x:x.encode('latin1'))
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
@@ -13,8 +19,8 @@ from google.protobuf import descriptor_pb2
 _sym_db = _symbol_database.Default()
 
 
-import timestamp_pb2 as timestamp__pb2
-import vector_pb2 as vector__pb2
+from pybullet_envs.minitaur.envs import timestamp_pb2 as timestamp__pb2
+from pybullet_envs.minitaur.envs import vector_pb2 as vector__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(

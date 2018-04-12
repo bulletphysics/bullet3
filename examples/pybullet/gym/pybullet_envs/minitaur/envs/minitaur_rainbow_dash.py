@@ -3,10 +3,16 @@
 It is the result of first pass system identification for the rainbow dash robot.
 
 """
+
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 import math
 
 import numpy as np
-import minitaur
+from pybullet_envs.minitaur.envs import minitaur
 
 KNEE_CONSTRAINT_POINT_LONG = [0, 0.0045, 0.088]
 KNEE_CONSTRAINT_POINT_SHORT = [0, 0.0045, 0.100]

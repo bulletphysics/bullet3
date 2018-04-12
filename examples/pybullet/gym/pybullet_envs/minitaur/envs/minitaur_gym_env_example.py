@@ -5,10 +5,15 @@
 import csv
 import math
 
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 import argparse
 import numpy as np
 import tensorflow as tf
-import minitaur_gym_env
+from pybullet_envs.minitaur.envs import minitaur_gym_env
 import time
 
 
