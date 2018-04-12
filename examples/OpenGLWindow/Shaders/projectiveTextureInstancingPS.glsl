@@ -6,13 +6,9 @@ in Fragment
      vec4 color;
 } fragment;
 
-in Vert
-{
-	vec2 texcoord;
-} vert;
-
 uniform sampler2D Diffuse;
 uniform mat4 ViewMatrixInverse;
+uniform mat4 TextureMVP;
 
 in vec3 lightPos,cameraPosition, normal,ambient;
 in vec4 vertexPos;
@@ -23,10 +19,11 @@ in vec3 materialSpecularColor;
 out vec4 color;
 
 
-
 void main(void)
 {
-	vec4 texel = fragment.color*texture(Diffuse,vert.texcoord.xy);
+    vec4 projcoords = TextureMVP * vertexPos;
+    vec2 texturecoords = projcoords.xy/max(projcoords.z,0.1);
+	vec4 texel = fragment.color*texture(Diffuse,texturecoords);
 	vec3 ct,cf;
 	float intensity,at,af;
 	if (fragment.color.w==0)

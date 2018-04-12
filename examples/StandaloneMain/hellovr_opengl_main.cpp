@@ -59,6 +59,9 @@ static vr::VRControllerState_t sPrevStates[vr::k_unMaxTrackedDeviceCount] = { 0 
 #ifdef _WIN32
 #include <Windows.h>
 #endif
+#ifdef __linux__
+#define APIENTRY
+#endif
 
 void ThreadSleep( unsigned long nMilliseconds )
 {
@@ -1804,13 +1807,11 @@ void CMainApplication::RenderStereoTargets()
 	}
 
 	glBindFramebuffer( GL_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId );
- 	glViewport(0, 0, m_nRenderWidth, m_nRenderHeight );
  	
-	
-	
 
 	m_app->m_window->startRendering();
-	
+        glViewport(0, 0, m_nRenderWidth, m_nRenderHeight );
+
 
 	RenderScene( vr::Eye_Left );
 
@@ -1863,9 +1864,9 @@ void CMainApplication::RenderStereoTargets()
 	}
 	
 	glBindFramebuffer( GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId );
- 	glViewport(0, 0, m_nRenderWidth, m_nRenderHeight );
  	
 	m_app->m_window->startRendering();
+        glViewport(0, 0, m_nRenderWidth, m_nRenderHeight );
 	
 	RenderScene( vr::Eye_Right );
 	
@@ -2081,6 +2082,7 @@ void CMainApplication::UpdateHMDMatrixPose()
 					case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
 					case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
 					case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
+                                        case vr::TrackedDeviceClass_GenericTracker:    m_rDevClassChar[nDevice] = 'G'; break;
 					default:                                       m_rDevClassChar[nDevice] = '?'; break;
 					}
 				}
