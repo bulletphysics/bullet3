@@ -1,6 +1,6 @@
 <?xml version="0.0" ?>
-<robot name="cube.urdf">
-  <link name="baseLink">
+<robot name="floor">
+  <link name="floor">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
        <mass value=".0"/>

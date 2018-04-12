@@ -27,6 +27,7 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
+#include "BulletCollision/CollisionShapes/btSdfCollisionShape.h"
 
 btConvexConcaveCollisionAlgorithm::btConvexConcaveCollisionAlgorithm( const btCollisionAlgorithmConstructionInfo& ci, const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap,bool isSwapped)
 : btActivatingCollisionAlgorithm(ci,body0Wrap,body1Wrap),
@@ -202,26 +203,78 @@ void btConvexConcaveCollisionAlgorithm::processCollision (const btCollisionObjec
 
 	if (triBodyWrap->getCollisionShape()->isConcave())
 	{
-
-
-		
-		const btConcaveShape* concaveShape = static_cast<const btConcaveShape*>( triBodyWrap->getCollisionShape());
-		
-		if (convexBodyWrap->getCollisionShape()->isConvex())
+		if (triBodyWrap->getCollisionShape()->getShapeType()==SDF_SHAPE_PROXYTYPE)
 		{
-			btScalar collisionMarginTriangle = concaveShape->getMargin();
+			btSdfCollisionShape* sdfShape = (btSdfCollisionShape*)triBodyWrap->getCollisionShape();
+			if (convexBodyWrap->getCollisionShape()->isConvex())
+			{
+
+				btConvexShape* convex = (btConvexShape*)convexBodyWrap->getCollisionShape();
+				btAlignedObjectArray<btVector3> queryVertices;
+
+				if (convex->isPolyhedral())
+				{
+					btPolyhedralConvexShape* poly = (btPolyhedralConvexShape*) convex;
+					for (int v=0;v<poly->getNumVertices();v++)
+					{
+						btVector3 vtx;
+						poly->getVertex(v,vtx);
+						queryVertices.push_back(vtx);
+					}
+				}
+				if (convex->getShapeType()==SPHERE_SHAPE_PROXYTYPE)
+				{
+					queryVertices.push_back(btVector3(0,0,0));
 					
-			resultOut->setPersistentManifold(m_btConvexTriangleCallback.m_manifoldPtr);
-			m_btConvexTriangleCallback.setTimeStepAndCounters(collisionMarginTriangle,dispatchInfo,convexBodyWrap,triBodyWrap,resultOut);
+				}
+				if (queryVertices.size())
+				{
+					resultOut->setPersistentManifold(m_btConvexTriangleCallback.m_manifoldPtr);
+					//m_btConvexTriangleCallback.m_manifoldPtr->clearManifold();
 
-			m_btConvexTriangleCallback.m_manifoldPtr->setBodies(convexBodyWrap->getCollisionObject(),triBodyWrap->getCollisionObject());
+					btPolyhedralConvexShape* poly = (btPolyhedralConvexShape*) convex;
+					for (int v=0;v<queryVertices.size();v++)
+					{
+						const btVector3& vtx = queryVertices[v];
+						btVector3 vtxWorldSpace = convexBodyWrap->getWorldTransform()*vtx;
+						btVector3 vtxInSdf = triBodyWrap->getWorldTransform().invXform(vtxWorldSpace);
 
-			concaveShape->processAllTriangles( &m_btConvexTriangleCallback,m_btConvexTriangleCallback.getAabbMin(),m_btConvexTriangleCallback.getAabbMax());
+						btVector3 normalLocal;
+						btScalar dist;
+						if (sdfShape->queryPoint(vtxInSdf,dist, normalLocal))
+						{
+							if (dist<=SIMD_EPSILON)
+							{
+								normalLocal.safeNormalize();
+								btVector3 normal = triBodyWrap->getWorldTransform().getBasis()*normalLocal;
+								resultOut->addContactPoint(normal,vtxWorldSpace-normal*dist, dist);
+							}
+						}
+					}
+					resultOut->refreshContactPoints();
+				}
+
+			}
+		} else
+		{
+			const btConcaveShape* concaveShape = static_cast<const btConcaveShape*>( triBodyWrap->getCollisionShape());
+		
+			if (convexBodyWrap->getCollisionShape()->isConvex())
+			{
+				btScalar collisionMarginTriangle = concaveShape->getMargin();
+					
+				resultOut->setPersistentManifold(m_btConvexTriangleCallback.m_manifoldPtr);
+				m_btConvexTriangleCallback.setTimeStepAndCounters(collisionMarginTriangle,dispatchInfo,convexBodyWrap,triBodyWrap,resultOut);
+
+				m_btConvexTriangleCallback.m_manifoldPtr->setBodies(convexBodyWrap->getCollisionObject(),triBodyWrap->getCollisionObject());
+
+				concaveShape->processAllTriangles( &m_btConvexTriangleCallback,m_btConvexTriangleCallback.getAabbMin(),m_btConvexTriangleCallback.getAabbMax());
 			
-			resultOut->refreshContactPoints();
+				resultOut->refreshContactPoints();
 
-			m_btConvexTriangleCallback.clearWrapperData();
+				m_btConvexTriangleCallback.clearWrapperData();
 	
+			}
 		}
 	
 	}

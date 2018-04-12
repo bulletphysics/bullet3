@@ -18,7 +18,7 @@ def StandUpExample():
       motor_velocity_limit=np.inf)
   action = [0.5]
   _, _, done, _ = environment.step(action)
-  for t in xrange(steps):
+  for t in range(steps):
     # A policy that oscillates between -1 and 1
     action = [math.sin(t * math.pi * 0.01)]
     _, _, done, _ = environment.step(action)
@@ -32,4 +32,4 @@ def main(unused_argv):
 
 if __name__ == "__main__":
   tf.logging.set_verbosity(tf.logging.INFO)
-  app.run()
+  main("unused")

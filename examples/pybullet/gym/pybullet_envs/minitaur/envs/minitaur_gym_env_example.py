@@ -5,10 +5,16 @@
 import csv
 import math
 
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 import argparse
 import numpy as np
 import tensorflow as tf
-import minitaur_gym_env
+from pybullet_envs.minitaur.envs import minitaur_gym_env
+import time
 
 
 #FLAGS = flags.FLAGS
@@ -53,6 +59,7 @@ def ResetPoseExample(log_path=None):
   action = [math.pi / 2] * 8
   for _ in range(steps):
     _, _, done, _ = environment.step(action)
+    time.sleep(1./100.)
     if done:
       break
 
@@ -96,6 +103,7 @@ def MotorOverheatExample(log_path=None):
     observation, _, _, _ = environment.step(action)
     current_row.extend(observation.tolist())
     actions_and_observations.append(current_row)
+    time.sleep(1./100.)
 
   if FLAGS.output_filename is not None:
     WriteToCSV(FLAGS.output_filename, actions_and_observations)
@@ -142,6 +150,7 @@ def SineStandExample(log_path=None):
     observation, _, _, _ = environment.step(action)
     current_row.extend(observation.tolist())
     actions_and_observations.append(current_row)
+    time.sleep(1./100.)
 
   if FLAGS.output_filename is not None:
     WriteToCSV(FLAGS.output_filename, actions_and_observations)
@@ -189,6 +198,8 @@ def SinePolicyExample(log_path=None):
     a4 = math.sin(t * speed + math.pi) * amplitude2
     action = [a1, a2, a2, a1, a3, a4, a4, a3]
     _, reward, done, _ = environment.step(action)
+    time.sleep(1./100.)
+
     sum_reward += reward
     if done:
       tf.logging.info("Return is {}".format(sum_reward))

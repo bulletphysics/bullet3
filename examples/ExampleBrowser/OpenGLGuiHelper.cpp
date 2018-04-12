@@ -1026,6 +1026,10 @@ void	OpenGLGuiHelper::setVisualizerFlagCallback(VisualizerFlagCallback callback)
 
 void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
 {
+	if (getRenderInterface() && flag==16)//COV_ENABLE_PLANAR_REFLECTION
+	{
+		getRenderInterface()->setPlaneReflectionShapeIndex(enable);
+	}
 	if (m_data->m_visualizerFlagCallback)
 		(m_data->m_visualizerFlagCallback)(flag,enable);
 }

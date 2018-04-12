@@ -4,19 +4,25 @@
 import math
 import time
 
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 import gym
 from gym import spaces
 from gym.utils import seeding
 import numpy as np
 import pybullet
-import bullet_client
+from pybullet_envs.minitaur.envs import bullet_client
 import pybullet_data
-import minitaur
-import minitaur_derpy
-import minitaur_logging
-import minitaur_logging_pb2
-import minitaur_rainbow_dash
-import motor
+from pybullet_envs.minitaur.envs import minitaur
+from pybullet_envs.minitaur.envs import minitaur_derpy
+from pybullet_envs.minitaur.envs import minitaur_logging
+from pybullet_envs.minitaur.envs import minitaur_logging_pb2
+from pybullet_envs.minitaur.envs import minitaur_rainbow_dash
+from pybullet_envs.minitaur.envs import motor
+from pkg_resources import parse_version
 
 NUM_MOTORS = 8
 MOTOR_ANGLE_OBSERVATION_INDEX = 0
@@ -92,6 +98,7 @@ class MinitaurGymEnv(gym.Env):
                control_time_step=None,
                env_randomizer=None,
                forward_reward_cap=float("inf"),
+               reflection=True,
                log_path=None):
     """Initialize the minitaur gym environment.
 
@@ -218,6 +225,7 @@ class MinitaurGymEnv(gym.Env):
     self._pd_latency = pd_latency
     self._urdf_version = urdf_version
     self._ground_id = None
+    self._reflection = reflection
     self._env_randomizers = convert_to_list(
         env_randomizer) if env_randomizer else []
     self._episode_proto = minitaur_logging_pb2.MinitaurEpisode()
@@ -261,6 +269,9 @@ class MinitaurGymEnv(gym.Env):
       self._pybullet_client.setTimeStep(self._time_step)
       self._ground_id = self._pybullet_client.loadURDF(
           "%s/plane.urdf" % self._urdf_root)
+      if (self._reflection):
+        self._pybullet_client.changeVisualShape(self._ground_id,-1,rgbaColor=[1,1,1,0.8])
+        self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_PLANAR_REFLECTION,0)
       self._pybullet_client.setGravity(0, 0, -10)
       acc_motor = self._accurate_motor_model_enabled
       motor_protect = self._motor_overheat_protection
@@ -558,6 +569,13 @@ class MinitaurGymEnv(gym.Env):
     """
     return len(self._get_observation())
 
+  if parse_version(gym.__version__)>=parse_version('0.9.6'):
+                close = _close
+                render = _render
+                reset = _reset
+                seed = _seed
+                step = _step
+
   def set_time_step(self, control_step, simulation_step=0.001):
     """Sets the time step of the environment.
 
@@ -599,3 +617,5 @@ class MinitaurGymEnv(gym.Env):
   @property
   def env_step_counter(self):
     return self._env_step_counter
+
+

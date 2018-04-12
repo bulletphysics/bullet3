@@ -160,9 +160,9 @@ class MinitaurTrottingEnv(minitaur_gym_env.MinitaurGymEnv):
     """
     motor_pose = np.zeros(NUM_MOTORS)
     for i in range(NUM_LEGS):
-      motor_pose[2 * i] = leg_pose[NUM_LEGS + i] - (-1)**(i / 2) * leg_pose[i]
-      motor_pose[2 * i
-                 + 1] = leg_pose[NUM_LEGS + i] + (-1)**(i / 2) * leg_pose[i]
+      motor_pose[int(2 * i)] = leg_pose[NUM_LEGS + i] - (-1)**int(i / 2) * leg_pose[i]
+      motor_pose[int(2 * i
+                 + 1)] = leg_pose[NUM_LEGS + i] + (-1)**int(i / 2) * leg_pose[i]
     return motor_pose
 
   def _gen_signal(self, t, phase):
