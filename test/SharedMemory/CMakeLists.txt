@@ -75,10 +75,7 @@ ENDIF()
 						../../examples/TinyRenderer/tgaimage.cpp
 						../../examples/TinyRenderer/our_gl.cpp
 						../../examples/TinyRenderer/TinyRenderer.cpp
-                        ../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp
-                        ../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp
-                        ../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
-                        ../../examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
+                        ../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp
                         ../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
                         ../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.h
                         ../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp

@@ -1,8 +1,9 @@
 #include "UrdfParser.h"
 
-#include "../../ThirdPartyLibs/tinyxml/tinyxml.h"
+#include "../../ThirdPartyLibs/tinyxml2/tinyxml2.h"
 #include "urdfStringSplit.h"
 #include "urdfLexicalCast.h"
+using namespace tinyxml2;
 
 UrdfParser::UrdfParser()
 :m_parseSDF(false),
@@ -74,7 +75,7 @@ static bool parseVector3(btVector3& vec3, const std::string& vector_str, ErrorLo
 	return true;
 }
 
-bool UrdfParser::parseMaterial(UrdfMaterial& material, TiXmlElement *config, ErrorLogger* logger)
+bool UrdfParser::parseMaterial(UrdfMaterial& material, XMLElement *config, ErrorLogger* logger)
 {
 		
 	if (!config->Attribute("name"))
@@ -86,7 +87,7 @@ bool UrdfParser::parseMaterial(UrdfMaterial& material, TiXmlElement *config, Err
 	material.m_name = config->Attribute("name");
 		
 	// texture
-	TiXmlElement *t = config->FirstChildElement("texture");
+	XMLElement *t = config->FirstChildElement("texture");
 	if (t)
 	{
 	  if (t->Attribute("filename"))
@@ -102,7 +103,7 @@ bool UrdfParser::parseMaterial(UrdfMaterial& material, TiXmlElement *config, Err
 		
 	// color
 	{
-		TiXmlElement *c = config->FirstChildElement("color");
+		XMLElement *c = config->FirstChildElement("color");
 		if (c)
 		{
 		  if (c->Attribute("rgba")) 
@@ -118,7 +119,7 @@ bool UrdfParser::parseMaterial(UrdfMaterial& material, TiXmlElement *config, Err
 
 	{
 		// specular (non-standard)
-		TiXmlElement *s = config->FirstChildElement("specular");
+		XMLElement *s = config->FirstChildElement("specular");
 		if (s)
 		{
 		  if (s->Attribute("rgb")) 
@@ -133,7 +134,7 @@ bool UrdfParser::parseMaterial(UrdfMaterial& material, TiXmlElement *config, Err
 
 }
 
-bool UrdfParser::parseTransform(btTransform& tr, TiXmlElement* xml, ErrorLogger* logger, bool parseSDF )
+bool UrdfParser::parseTransform(btTransform& tr, XMLElement* xml, ErrorLogger* logger, bool parseSDF )
 {
     tr.setIdentity();
     
@@ -207,13 +208,13 @@ bool UrdfParser::parseTransform(btTransform& tr, TiXmlElement* xml, ErrorLogger*
     return true;
 }
 
-bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorLogger* logger)
+bool UrdfParser::parseInertia(UrdfInertia& inertia, XMLElement* config, ErrorLogger* logger)
 {
 	inertia.m_linkLocalFrame.setIdentity();
 	inertia.m_mass = 0.f;
 	if(m_parseSDF)
 	{
-		TiXmlElement* pose = config->FirstChildElement("pose");
+		XMLElement* pose = config->FirstChildElement("pose");
 		if (pose)
 		{
 			parseTransform(inertia.m_linkLocalFrame, pose,logger,m_parseSDF);
@@ -223,7 +224,7 @@ bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorL
 	
 		
 	// Origin
-	TiXmlElement *o = config->FirstChildElement("origin");
+	XMLElement *o = config->FirstChildElement("origin");
 	if (o)
 	{
 	  if (!parseTransform(inertia.m_linkLocalFrame,o,logger))
@@ -232,7 +233,7 @@ bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorL
 	  }
 	}
 		
-	TiXmlElement *mass_xml = config->FirstChildElement("mass");
+	XMLElement *mass_xml = config->FirstChildElement("mass");
 	if (!mass_xml)
 	{
 	  logger->reportError("Inertial element must have a mass element");
@@ -252,7 +253,7 @@ bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorL
         inertia.m_mass = urdfLexicalCast<double>(mass_xml->Attribute("value"));
     }
 		
-	TiXmlElement *inertia_xml = config->FirstChildElement("inertia");
+	XMLElement *inertia_xml = config->FirstChildElement("inertia");
 	if (!inertia_xml)
 	{
 	  logger->reportError("Inertial element must have inertia element");
@@ -260,12 +261,12 @@ bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorL
 	}
     if (m_parseSDF)
     {
-        TiXmlElement* ixx = inertia_xml->FirstChildElement("ixx");
-        TiXmlElement* ixy = inertia_xml->FirstChildElement("ixy");
-        TiXmlElement* ixz = inertia_xml->FirstChildElement("ixz");
-        TiXmlElement* iyy = inertia_xml->FirstChildElement("iyy");
-        TiXmlElement* iyz = inertia_xml->FirstChildElement("iyz");
-        TiXmlElement* izz = inertia_xml->FirstChildElement("izz");
+        XMLElement* ixx = inertia_xml->FirstChildElement("ixx");
+        XMLElement* ixy = inertia_xml->FirstChildElement("ixy");
+        XMLElement* ixz = inertia_xml->FirstChildElement("ixz");
+        XMLElement* iyy = inertia_xml->FirstChildElement("iyy");
+        XMLElement* iyz = inertia_xml->FirstChildElement("iyz");
+        XMLElement* izz = inertia_xml->FirstChildElement("izz");
         if (ixx && ixy && ixz && iyy && iyz && izz)
         {
             inertia.m_ixx  = urdfLexicalCast<double>(ixx->GetText());
@@ -324,20 +325,21 @@ bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorL
     
 }
 
-bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger* logger)
+bool UrdfParser::parseGeometry(UrdfGeometry& geom, XMLElement* g, ErrorLogger* logger)
 {
 //	btAssert(g);
 	if (g==0)
 		return false;
 
-	TiXmlElement *shape = g->FirstChildElement();
+	XMLElement *shape = g->FirstChildElement();
 	if (!shape)
 	{
 		logger->reportError("Geometry tag contains no child element.");
 		return false;
 	}
 		
-	const std::string type_name = shape->ValueTStr().c_str();
+	//const std::string type_name = shape->ValueTStr().c_str();
+	const std::string type_name = shape->Value();
 	if (type_name == "sphere")
 	{
 		geom.m_type = URDF_GEOM_SPHERE;
@@ -355,7 +357,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 		geom.m_type = URDF_GEOM_BOX;
         if (m_parseSDF)
         {
-            TiXmlElement* size = shape->FirstChildElement("size");
+            XMLElement* size = shape->FirstChildElement("size");
             if (0==size)
             {
                 logger->reportError("box requires a size child element");
@@ -386,12 +388,12 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 		
 		if (m_parseSDF)
 		{
-			if (TiXmlElement* scale = shape->FirstChildElement("radius"))
+			if (XMLElement* scale = shape->FirstChildElement("radius"))
 			{
 				parseVector3(geom.m_meshScale,scale->GetText(),logger);
 				geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(scale->GetText());	
 			}
-			if (TiXmlElement* scale = shape->FirstChildElement("length"))
+			if (XMLElement* scale = shape->FirstChildElement("length"))
 			{
 				parseVector3(geom.m_meshScale,scale->GetText(),logger);
 				geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(scale->GetText());	
@@ -413,12 +415,12 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 		geom.m_hasFromTo = false;
 		if (m_parseSDF)
 		{
-			if (TiXmlElement* scale = shape->FirstChildElement("radius"))
+			if (XMLElement* scale = shape->FirstChildElement("radius"))
 			{
 				parseVector3(geom.m_meshScale,scale->GetText(),logger);
 				geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(scale->GetText());	
 			}
-			if (TiXmlElement* scale = shape->FirstChildElement("length"))
+			if (XMLElement* scale = shape->FirstChildElement("length"))
 			{
 				parseVector3(geom.m_meshScale,scale->GetText(),logger);
 				geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(scale->GetText());	
@@ -442,11 +444,11 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 
 		if (m_parseSDF)
 		{
-			if (TiXmlElement* scale = shape->FirstChildElement("scale"))
+			if (XMLElement* scale = shape->FirstChildElement("scale"))
 			{
 				parseVector3(geom.m_meshScale,scale->GetText(),logger);
 			}
-			if (TiXmlElement* filename = shape->FirstChildElement("uri"))
+			if (XMLElement* filename = shape->FirstChildElement("uri"))
 			{
 				fn = filename->GetText();
 			}
@@ -498,8 +500,8 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 			geom.m_type = URDF_GEOM_PLANE;
 			if (this->m_parseSDF)
 			{
-				TiXmlElement *n = shape->FirstChildElement("normal");
-				TiXmlElement *s = shape->FirstChildElement("size");
+				XMLElement *n = shape->FirstChildElement("normal");
+				XMLElement *s = shape->FirstChildElement("size");
 
 				if ((0==n)||(0==s))
 				{
@@ -535,14 +537,14 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 }
 
 
-bool UrdfParser::parseCollision(UrdfCollision& collision, TiXmlElement* config, ErrorLogger* logger)
+bool UrdfParser::parseCollision(UrdfCollision& collision, XMLElement* config, ErrorLogger* logger)
 {
 
 	collision.m_linkLocalFrame.setIdentity();
 	
 	if(m_parseSDF)
 	{
-		TiXmlElement* pose = config->FirstChildElement("pose");
+		XMLElement* pose = config->FirstChildElement("pose");
 		if (pose)
 		{
 			parseTransform(collision.m_linkLocalFrame, pose,logger,m_parseSDF);
@@ -550,14 +552,14 @@ bool UrdfParser::parseCollision(UrdfCollision& collision, TiXmlElement* config, 
 	}
 
 	// Origin
-	TiXmlElement *o = config->FirstChildElement("origin");
+	XMLElement *o = config->FirstChildElement("origin");
 	if (o) 
 	{
 		if (!parseTransform(collision.m_linkLocalFrame, o,logger))
 			return false;
 	}
  // Geometry
-	TiXmlElement *geom = config->FirstChildElement("geometry");
+	XMLElement *geom = config->FirstChildElement("geometry");
 	if (!parseGeometry(collision.m_geometry,geom,logger))
 	{
 		return false;
@@ -575,12 +577,12 @@ bool UrdfParser::parseCollision(UrdfCollision& collision, TiXmlElement* config, 
 	return true;
 }
 
-bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement* config, ErrorLogger* logger)
+bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, XMLElement* config, ErrorLogger* logger)
 {
 	visual.m_linkLocalFrame.setIdentity();
 	if(m_parseSDF)
 	{
-		TiXmlElement* pose = config->FirstChildElement("pose");
+		XMLElement* pose = config->FirstChildElement("pose");
 		if (pose)
 		{
 			parseTransform(visual.m_linkLocalFrame, pose,logger,m_parseSDF);
@@ -588,14 +590,14 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
 	}
 
   // Origin
-  TiXmlElement *o = config->FirstChildElement("origin");
+  XMLElement *o = config->FirstChildElement("origin");
   if (o) 
   {
 	  if (!parseTransform(visual.m_linkLocalFrame, o,logger))
 		  return false;
   }
  // Geometry
-	TiXmlElement *geom = config->FirstChildElement("geometry");
+	XMLElement *geom = config->FirstChildElement("geometry");
 	if (!parseGeometry(visual.m_geometry,geom,logger))
 	{
 		return false;
@@ -609,7 +611,7 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
 	visual.m_geometry.m_hasLocalMaterial = false;
 	
   // Material
-  TiXmlElement *mat = config->FirstChildElement("material");
+  XMLElement *mat = config->FirstChildElement("material");
 //todo(erwincoumans) skip materials in SDF for now (due to complexity)
   if (mat)
   {
@@ -630,7 +632,7 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
 		}
 		model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
 		{
-			TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
+			XMLElement *diffuse = mat->FirstChildElement("diffuse");
 			if (diffuse) {
 				std::string diffuseText = diffuse->GetText();
 				btVector4 rgba(1,0,0,1);
@@ -642,7 +644,7 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
 			}
 		}
 		{
-			TiXmlElement *specular = mat->FirstChildElement("specular");
+			XMLElement *specular = mat->FirstChildElement("specular");
 			if (specular) {
 				std::string specularText = specular->GetText();
 				btVector3 rgba(1,1,1);
@@ -665,9 +667,9 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
           
           // try to parse material element in place
           
-          TiXmlElement *t = mat->FirstChildElement("texture");
-          TiXmlElement *c = mat->FirstChildElement("color");
-		  TiXmlElement *s = mat->FirstChildElement("specular");
+          XMLElement *t = mat->FirstChildElement("texture");
+          XMLElement *c = mat->FirstChildElement("color");
+		  XMLElement *s = mat->FirstChildElement("specular");
 		  if (t||c||s)
           {
               if (parseMaterial(visual.m_geometry.m_localMaterial, mat,logger))
@@ -692,7 +694,7 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
   return true;
 }
 
-bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *config, ErrorLogger* logger)
+bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement *config, ErrorLogger* logger)
 {
 	const char* linkName  = config->Attribute("name");
 	if (!linkName)
@@ -705,7 +707,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
     if (m_parseSDF) {
 
 
-        TiXmlElement* pose = config->FirstChildElement("pose");
+        XMLElement* pose = config->FirstChildElement("pose");
         if (0==pose)
         {
             link.m_linkTransformInWorld.setIdentity();
@@ -730,7 +732,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
           </contact>
         </audio_source>
 		#endif
-		TiXmlElement* ci = config->FirstChildElement("audio_source");
+		XMLElement* ci = config->FirstChildElement("audio_source");
 		if (ci)
 		{
 			link.m_audioSource.m_flags |= SDFAudioSource::SDFAudioSourceValid;
@@ -741,41 +743,41 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 				link.m_audioSource.m_uri = fn;
 			} else
 			{
-				if (TiXmlElement* filename_xml = ci->FirstChildElement("uri"))
+				if (XMLElement* filename_xml = ci->FirstChildElement("uri"))
 				{
 					link.m_audioSource.m_uri = filename_xml->GetText();
 				}
 			}
-			if (TiXmlElement* pitch_xml = ci->FirstChildElement("pitch"))
+			if (XMLElement* pitch_xml = ci->FirstChildElement("pitch"))
 			{
 				link.m_audioSource.m_pitch = urdfLexicalCast<double>(pitch_xml->GetText());
 			}
-			if (TiXmlElement* gain_xml = ci->FirstChildElement("gain"))
+			if (XMLElement* gain_xml = ci->FirstChildElement("gain"))
 			{
 				link.m_audioSource.m_gain = urdfLexicalCast<double>(gain_xml->GetText());
 			}
 
-			if (TiXmlElement* attack_rate_xml = ci->FirstChildElement("attack_rate"))
+			if (XMLElement* attack_rate_xml = ci->FirstChildElement("attack_rate"))
 			{
 				link.m_audioSource.m_attackRate = urdfLexicalCast<double>(attack_rate_xml->GetText());
 			}
 
-			if (TiXmlElement* decay_rate_xml = ci->FirstChildElement("decay_rate"))
+			if (XMLElement* decay_rate_xml = ci->FirstChildElement("decay_rate"))
 			{
 				link.m_audioSource.m_decayRate = urdfLexicalCast<double>(decay_rate_xml->GetText());
 			}
 
-			if (TiXmlElement* sustain_level_xml = ci->FirstChildElement("sustain_level"))
+			if (XMLElement* sustain_level_xml = ci->FirstChildElement("sustain_level"))
 			{
 				link.m_audioSource.m_sustainLevel = urdfLexicalCast<double>(sustain_level_xml->GetText());
 			}
 
-			if (TiXmlElement* release_rate_xml = ci->FirstChildElement("release_rate"))
+			if (XMLElement* release_rate_xml = ci->FirstChildElement("release_rate"))
 			{
 				link.m_audioSource.m_releaseRate = urdfLexicalCast<double>(release_rate_xml->GetText());
 			}
 
-			if (TiXmlElement* loop_xml = ci->FirstChildElement("loop"))
+			if (XMLElement* loop_xml = ci->FirstChildElement("loop"))
 			{
 				std::string looptxt = loop_xml->GetText();
 				if (looptxt == "true")
@@ -783,7 +785,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 					link.m_audioSource.m_flags |= SDFAudioSource::SDFAudioSourceLooping;
 				}
 			}
-			if (TiXmlElement* forceThreshold_xml = ci->FirstChildElement("collision_force_threshold"))
+			if (XMLElement* forceThreshold_xml = ci->FirstChildElement("collision_force_threshold"))
 			{
 				link.m_audioSource.m_collisionForceThreshold= urdfLexicalCast<double>(forceThreshold_xml->GetText());
 			}
@@ -794,11 +796,11 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 	}
 	{
 		//optional 'contact' parameters
-	 TiXmlElement* ci = config->FirstChildElement("contact");
+	 XMLElement* ci = config->FirstChildElement("contact");
 	  if (ci)
 	  {
         
-          TiXmlElement *damping_xml = ci->FirstChildElement("inertia_scaling");
+          XMLElement *damping_xml = ci->FirstChildElement("inertia_scaling");
           if (damping_xml)
           {
               if (m_parseSDF)
@@ -819,7 +821,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
               }
           }
           {
-		TiXmlElement *friction_xml = ci->FirstChildElement("lateral_friction");
+		XMLElement *friction_xml = ci->FirstChildElement("lateral_friction");
 		if (friction_xml)
 		{
 			if (m_parseSDF)
@@ -839,7 +841,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
           }
           
           {
-              TiXmlElement *rolling_xml = ci->FirstChildElement("rolling_friction");
+              XMLElement *rolling_xml = ci->FirstChildElement("rolling_friction");
               if (rolling_xml)
               {
                   if (m_parseSDF)
@@ -862,7 +864,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
           }
 
 		  {
-			  TiXmlElement *restitution_xml = ci->FirstChildElement("restitution");
+			  XMLElement *restitution_xml = ci->FirstChildElement("restitution");
 			  if (restitution_xml)
 			  {
 				  if (m_parseSDF)
@@ -886,7 +888,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 		  }
 
           {
-              TiXmlElement *spinning_xml = ci->FirstChildElement("spinning_friction");
+              XMLElement *spinning_xml = ci->FirstChildElement("spinning_friction");
               if (spinning_xml)
               {
                   if (m_parseSDF)
@@ -908,7 +910,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
               }
           }
           {
-          	TiXmlElement *friction_anchor = ci->FirstChildElement("friction_anchor");
+          	XMLElement *friction_anchor = ci->FirstChildElement("friction_anchor");
             if (friction_anchor)
             {
             	link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_FRICTION_ANCHOR;
@@ -916,7 +918,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
           }
            {
            
-              TiXmlElement *stiffness_xml = ci->FirstChildElement("stiffness");
+              XMLElement *stiffness_xml = ci->FirstChildElement("stiffness");
               if (stiffness_xml)
               {
                   if (m_parseSDF)
@@ -939,7 +941,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
             }
             {
            
-              TiXmlElement *damping_xml = ci->FirstChildElement("damping");
+              XMLElement *damping_xml = ci->FirstChildElement("damping");
               if (damping_xml)
               {
                   if (m_parseSDF)
@@ -964,7 +966,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 	}
 
   // Inertial (optional)
-  TiXmlElement *i = config->FirstChildElement("inertial");
+  XMLElement *i = config->FirstChildElement("inertial");
   if (i)
   {
 	  if (!parseInertia(link.m_inertia, i,logger))
@@ -997,7 +999,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
   }
 
   // Multiple Visuals (optional)
-  for (TiXmlElement* vis_xml = config->FirstChildElement("visual"); vis_xml; vis_xml = vis_xml->NextSiblingElement("visual"))
+  for (XMLElement* vis_xml = config->FirstChildElement("visual"); vis_xml; vis_xml = vis_xml->NextSiblingElement("visual"))
   {
 	  UrdfVisual visual;
 	  visual.m_sourceFileLocation = sourceFileLocation(vis_xml);
@@ -1017,7 +1019,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 		
   
   // Multiple Collisions (optional)
-  for (TiXmlElement* col_xml = config->FirstChildElement("collision"); col_xml; col_xml = col_xml->NextSiblingElement("collision"))
+  for (XMLElement* col_xml = config->FirstChildElement("collision"); col_xml; col_xml = col_xml->NextSiblingElement("collision"))
   {
 	  UrdfCollision col;
 	  col.m_sourceFileLocation = sourceFileLocation(col_xml);
@@ -1036,7 +1038,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 	return true;
 }
 
-bool UrdfParser::parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorLogger* logger)
+bool UrdfParser::parseJointLimits(UrdfJoint& joint, XMLElement* config, ErrorLogger* logger)
 {
 	joint.m_lowerLimit = 0.f;
 	joint.m_upperLimit = -1.f;
@@ -1047,22 +1049,22 @@ bool UrdfParser::parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorL
 	
     if (m_parseSDF)
     {
-        TiXmlElement *lower_xml = config->FirstChildElement("lower");
+        XMLElement *lower_xml = config->FirstChildElement("lower");
         if (lower_xml) {
             joint.m_lowerLimit = urdfLexicalCast<double>(lower_xml->GetText());
         }
         
-        TiXmlElement *upper_xml = config->FirstChildElement("upper");
+        XMLElement *upper_xml = config->FirstChildElement("upper");
         if (upper_xml) {
             joint.m_upperLimit = urdfLexicalCast<double>(upper_xml->GetText());
         }
         
-        TiXmlElement *effort_xml = config->FirstChildElement("effort");
+        XMLElement *effort_xml = config->FirstChildElement("effort");
         if (effort_xml) {
             joint.m_effortLimit = urdfLexicalCast<double>(effort_xml->GetText());
         }
         
-        TiXmlElement *velocity_xml = config->FirstChildElement("velocity");
+        XMLElement *velocity_xml = config->FirstChildElement("velocity");
         if (velocity_xml) {
             joint.m_velocityLimit = urdfLexicalCast<double>(velocity_xml->GetText());
         }
@@ -1105,18 +1107,18 @@ bool UrdfParser::parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorL
 	return true;
 }
 
-bool UrdfParser::parseJointDynamics(UrdfJoint& joint, TiXmlElement* config, ErrorLogger* logger)
+bool UrdfParser::parseJointDynamics(UrdfJoint& joint, XMLElement* config, ErrorLogger* logger)
 {
     joint.m_jointDamping = 0;
     joint.m_jointFriction = 0;
     
     if (m_parseSDF) {
-        TiXmlElement *damping_xml = config->FirstChildElement("damping");
+        XMLElement *damping_xml = config->FirstChildElement("damping");
         if (damping_xml) {
             joint.m_jointDamping = urdfLexicalCast<double>(damping_xml->GetText());
         }
         
-        TiXmlElement *friction_xml = config->FirstChildElement("friction");
+        XMLElement *friction_xml = config->FirstChildElement("friction");
         if (friction_xml) {
             joint.m_jointFriction = urdfLexicalCast<double>(friction_xml->GetText());
         }
@@ -1153,7 +1155,7 @@ bool UrdfParser::parseJointDynamics(UrdfJoint& joint, TiXmlElement* config, Erro
     return true;
 }
 
-bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger* logger)
+bool UrdfParser::parseJoint(UrdfJoint& joint, XMLElement *config, ErrorLogger* logger)
 {
 	
 		
@@ -1168,7 +1170,7 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
 	joint.m_parentLinkToJointTransform.setIdentity();
 	
 	// Get transform from Parent Link to Joint Frame
-	TiXmlElement *origin_xml = config->FirstChildElement("origin");
+	XMLElement *origin_xml = config->FirstChildElement("origin");
 	if (origin_xml)
 	{
 	  if (!parseTransform(joint.m_parentLinkToJointTransform, origin_xml,logger))
@@ -1180,7 +1182,7 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
   }
 		
   // Get Parent Link
-  TiXmlElement *parent_xml = config->FirstChildElement("parent");
+  XMLElement *parent_xml = config->FirstChildElement("parent");
   if (parent_xml)
   {
       if (m_parseSDF)
@@ -1204,7 +1206,7 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
   }
  		
   // Get Child Link
-  TiXmlElement *child_xml = config->FirstChildElement("child");
+  XMLElement *child_xml = config->FirstChildElement("child");
   if (child_xml)
   {
       if (m_parseSDF)
@@ -1263,14 +1265,14 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
         if (joint.m_type != URDFFloatingJoint && joint.m_type != URDFFixedJoint)
         {
             // axis
-            TiXmlElement *axis_xml = config->FirstChildElement("axis");
+            XMLElement *axis_xml = config->FirstChildElement("axis");
             if (!axis_xml){
                 logger->reportWarning("urdfdom: no axis elemement for Joint, defaulting to (1,0,0) axis");
                 logger->reportWarning(joint.m_name.c_str());
                 joint.m_localJointAxis.setValue(1,0,0);
             }
             else{
-                TiXmlElement *xyz_xml = axis_xml->FirstChildElement("xyz");
+                XMLElement *xyz_xml = axis_xml->FirstChildElement("xyz");
                 if (xyz_xml) {
                     if (!parseVector3(joint.m_localJointAxis,std::string(xyz_xml->GetText()),logger))
                     {
@@ -1282,7 +1284,7 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
                     }
                 }
                 
-                TiXmlElement *limit_xml = axis_xml->FirstChildElement("limit");
+                XMLElement *limit_xml = axis_xml->FirstChildElement("limit");
                 if (limit_xml)
                 {
 					if (joint.m_type != URDFContinuousJoint)
@@ -1308,7 +1310,7 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
                     return false;
                 }
                 
-                TiXmlElement *prop_xml = axis_xml->FirstChildElement("dynamics");
+                XMLElement *prop_xml = axis_xml->FirstChildElement("dynamics");
                 if (prop_xml)
                 {
                     if (!parseJointDynamics(joint, prop_xml,logger))
@@ -1327,7 +1329,7 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
         if (joint.m_type != URDFFloatingJoint && joint.m_type != URDFFixedJoint)
         {
             // axis
-            TiXmlElement *axis_xml = config->FirstChildElement("axis");
+            XMLElement *axis_xml = config->FirstChildElement("axis");
             if (!axis_xml){
                 logger->reportWarning("urdfdom: no axis elemement for Joint, defaulting to (1,0,0) axis");
                 logger->reportWarning(joint.m_name.c_str());
@@ -1349,7 +1351,7 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
         }
         
         // Get limit
-        TiXmlElement *limit_xml = config->FirstChildElement("limit");
+        XMLElement *limit_xml = config->FirstChildElement("limit");
         if (limit_xml)
         {
             if (!parseJointLimits(joint, limit_xml,logger))
@@ -1376,7 +1378,7 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
         joint.m_jointFriction = 0;
         
         // Get Dynamics
-        TiXmlElement *prop_xml = config->FirstChildElement("dynamics");
+        XMLElement *prop_xml = config->FirstChildElement("dynamics");
         if (prop_xml)
         {
             
@@ -1491,16 +1493,16 @@ bool UrdfParser::initTreeAndRoot(UrdfModel& model, ErrorLogger* logger)
 bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceFixedBase)
 {
 	
-	TiXmlDocument xml_doc;
+	XMLDocument xml_doc;
 	xml_doc.Parse(urdfText);
 	if (xml_doc.Error())
 	{
-		logger->reportError(xml_doc.ErrorDesc());
+		logger->reportError(xml_doc.ErrorStr());
 		xml_doc.ClearError();
 		return false;
 	}
 
-	TiXmlElement *robot_xml = xml_doc.FirstChildElement("robot");
+	XMLElement *robot_xml = xml_doc.FirstChildElement("robot");
 	if (!robot_xml)
 	{
 		logger->reportError("expected a robot element");
@@ -1519,7 +1521,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 	
 	
 	// Get all Material elements
-	for (TiXmlElement* material_xml = robot_xml->FirstChildElement("material"); material_xml; material_xml = material_xml->NextSiblingElement("material"))
+	for (XMLElement* material_xml = robot_xml->FirstChildElement("material"); material_xml; material_xml = material_xml->NextSiblingElement("material"))
 	{
 		UrdfMaterial* material = new UrdfMaterial;
 		
@@ -1543,7 +1545,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 //	logger->printMessage(msg);
 
 	
-	for (TiXmlElement* link_xml = robot_xml->FirstChildElement("link"); link_xml; link_xml = link_xml->NextSiblingElement("link"))
+	for (XMLElement* link_xml = robot_xml->FirstChildElement("link"); link_xml; link_xml = link_xml->NextSiblingElement("link"))
 	{
 		UrdfLink* link = new UrdfLink;
 		
@@ -1592,7 +1594,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 	}
 	
 	// Get all Joint elements
-	for (TiXmlElement* joint_xml = robot_xml->FirstChildElement("joint"); joint_xml; joint_xml = joint_xml->NextSiblingElement("joint"))
+	for (XMLElement* joint_xml = robot_xml->FirstChildElement("joint"); joint_xml; joint_xml = joint_xml->NextSiblingElement("joint"))
 	{
 		UrdfJoint* joint = new UrdfJoint;
 		
@@ -1651,16 +1653,16 @@ void UrdfParser::activateModel(int modelIndex)
 bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
 {
     
-    TiXmlDocument xml_doc;
+    XMLDocument xml_doc;
     xml_doc.Parse(sdfText);
     if (xml_doc.Error())
     {
-        logger->reportError(xml_doc.ErrorDesc());
+		logger->reportError(xml_doc.ErrorStr());
         xml_doc.ClearError();
         return false;
     }
 
-    TiXmlElement *sdf_xml = xml_doc.FirstChildElement("sdf");
+    XMLElement *sdf_xml = xml_doc.FirstChildElement("sdf");
     if (!sdf_xml)
     {
         logger->reportError("expected an sdf element");
@@ -1668,9 +1670,9 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
     }
     
 	//apparently, SDF doesn't require a "world" element, optional? URDF does.
-	TiXmlElement *world_xml = sdf_xml->FirstChildElement("world");
+	XMLElement *world_xml = sdf_xml->FirstChildElement("world");
 	
-	TiXmlElement* robot_xml = 0;
+	XMLElement* robot_xml = 0;
 
 	if (!world_xml)
 	{
@@ -1687,7 +1689,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
         UrdfModel* localModel = new UrdfModel;
         m_tmpModels.push_back(localModel);
         
-		TiXmlElement* stat = robot_xml->FirstChildElement("static");
+		XMLElement* stat = robot_xml->FirstChildElement("static");
         if (0!=stat)
         {
 			int val = int(atof(stat->GetText()));
@@ -1707,7 +1709,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
         }
         localModel->m_name = name;
         
-        TiXmlElement* pose_xml = robot_xml->FirstChildElement("pose");
+        XMLElement* pose_xml = robot_xml->FirstChildElement("pose");
         if (0==pose_xml)
         {
             localModel->m_rootTransformInWorld.setIdentity();
@@ -1718,7 +1720,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
         }
 
         // Get all Material elements
-        for (TiXmlElement* material_xml = robot_xml->FirstChildElement("material"); material_xml; material_xml = material_xml->NextSiblingElement("material"))
+        for (XMLElement* material_xml = robot_xml->FirstChildElement("material"); material_xml; material_xml = material_xml->NextSiblingElement("material"))
         {
             UrdfMaterial* material = new UrdfMaterial;
             
@@ -1742,7 +1744,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
         //	logger->printMessage(msg);
         
         
-        for (TiXmlElement* link_xml = robot_xml->FirstChildElement("link"); link_xml; link_xml = link_xml->NextSiblingElement("link"))
+        for (XMLElement* link_xml = robot_xml->FirstChildElement("link"); link_xml; link_xml = link_xml->NextSiblingElement("link"))
         {
             UrdfLink* link = new UrdfLink;
             
@@ -1791,7 +1793,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
         }
         
         // Get all Joint elements
-        for (TiXmlElement* joint_xml = robot_xml->FirstChildElement("joint"); joint_xml; joint_xml = joint_xml->NextSiblingElement("joint"))
+        for (XMLElement* joint_xml = robot_xml->FirstChildElement("joint"); joint_xml; joint_xml = joint_xml->NextSiblingElement("joint"))
         {
             UrdfJoint* joint = new UrdfJoint;
             
@@ -1828,7 +1830,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
     return true;
 }
 
-std::string UrdfParser::sourceFileLocation(TiXmlElement* e)
+std::string UrdfParser::sourceFileLocation(XMLElement* e)
 {
 #if 0
 	//no C++11 etc, no snprintf
@@ -1838,7 +1840,7 @@ std::string UrdfParser::sourceFileLocation(TiXmlElement* e)
 	return buf;
 #else
 	char row[1024];
-        sprintf(row,"%d",e->Row());
+	sprintf(row,"%d",e->GetLineNum());
         std::string str = m_urdf2Model.m_sourceFile.c_str() + std::string(":") + std::string(row);
         return str;
 #endif

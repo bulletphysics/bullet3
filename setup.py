@@ -77,10 +77,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/Utils/ChromeTraceUtil.cpp"]\
 +["examples/Utils/b3Clock.cpp"]\
 +["examples/Utils/b3Quickprof.cpp"]\
-+["examples/ThirdPartyLibs/tinyxml/tinystr.cpp"]\
-+["examples/ThirdPartyLibs/tinyxml/tinyxml.cpp"]\
-+["examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp"]\
-+["examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp"]\
++["examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp"]\
 +["examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp"]\
 +["examples/ThirdPartyLibs/stb_image/stb_image.cpp"]\
 +["examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp"]\
