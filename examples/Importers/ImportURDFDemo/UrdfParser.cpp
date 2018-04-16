@@ -436,9 +436,16 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, XMLElement* g, ErrorLogger* l
 			geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("length"));
 		}
 	}
-	else if (type_name == "mesh")
+	else if ((type_name == "mesh") || (type_name == "cdf"))
 	{
-		geom.m_type = URDF_GEOM_MESH;
+		if ((type_name == "cdf"))
+		{
+			geom.m_type = URDF_GEOM_CDF;
+		}
+		else
+		{
+			geom.m_type = URDF_GEOM_MESH;
+		}
 		geom.m_meshScale.setValue(1,1,1);
 		std::string fn;
 
