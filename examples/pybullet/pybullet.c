@@ -1069,23 +1069,31 @@ static PyObject* pybullet_getPhysicsEngineParameters(PyObject* self, PyObject* a
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
-		if (statusType!=CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED)
+		if (statusType != CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED)
 		{
 			PyErr_SetString(SpamError, "Couldn't get physics simulation parameters.");
 			return NULL;
 		}
-		b3GetStatusPhysicsSimulationParameters(statusHandle,&params);
+		b3GetStatusPhysicsSimulationParameters(statusHandle, &params);
 
 		//for now, return a subset, expose more/all on request
-		val = Py_BuildValue("{s:d,s:i,s:i,s:i,s:d,s:d,s:d}",
-						"fixedTimeStep", params.m_deltaTime, 
-						"numSubSteps", params.m_numSimulationSubSteps, 
-						"numSolverIterations", params.m_numSolverIterations,
-						"useRealTimeSimulation", params.m_useRealTimeSimulation,
-						"gravityAccelerationX", params.m_gravityAcceleration[0],
-						"gravityAccelerationY", params.m_gravityAcceleration[1],
-						"gravityAccelerationZ", params.m_gravityAcceleration[2]
-						);
+		val = Py_BuildValue("{s:d, s:i, s:i, s:d, s:i, s:i, s:d, s:i, s:d, s:d, s:d, s:d, s:i, s:d, s:d, s:d}",
+							"fixedTimeStep", params.m_deltaTime,
+							"numSolverIterations", params.m_numSolverIterations,
+							"useSplitImpulse", params.m_useSplitImpulse,
+							"splitImpulsePenetrationThreshold", params.m_splitImpulsePenetrationThreshold,
+							"numSubSteps", params.m_numSimulationSubSteps,
+							"collisionFilterMode", params.m_collisionFilterMode,
+							"contactBreakingThreshold", params.m_contactBreakingThreshold,
+							"enableFileCaching", params.m_enableFileCaching,
+							"restitutionVelocityThreshold", params.m_restitutionVelocityThreshold,
+							"erp", params.m_defaultNonContactERP,
+							"contactERP", params.m_defaultContactERP,
+							"frictionERP", params.m_frictionERP,
+							"useRealTimeSimulation", params.m_useRealTimeSimulation,
+							"gravityAccelerationX", params.m_gravityAcceleration[0],
+							"gravityAccelerationY", params.m_gravityAcceleration[1],
+							"gravityAccelerationZ", params.m_gravityAcceleration[2]);
 		return val;
 	}
 	//"fixedTimeStep", "numSolverIterations", "useSplitImpulse", "splitImpulsePenetrationThreshold", "numSubSteps", "collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "enableFileCaching","restitutionVelocityThreshold", "erp", "contactERP", "frictionERP", 
