@@ -1,8 +1,4 @@
-r"""An example to use simple_ppo_agent.
-
-blaze run -c opt \
-//robotics/reinforcement_learning/minitaur/envs:minitaur_reactive_env_example
-"""
+r"""Running a pre-trained ppo agent on minitaur_reactive_env."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -11,13 +7,13 @@ from __future__ import print_function
 import os
 import time
 import tensorflow as tf
-from agents.scripts import utility
+from pybullet_envs.minitaur.agents.scripts import utility
+import pybullet_data
 import simple_ppo_agent
 
 flags = tf.app.flags
 FLAGS = tf.app.flags.FLAGS
-LOG_DIR = (
-    "testdata/minitaur_reactive_env_test")
+LOG_DIR = os.path.join(pybullet_data.getDataPath(), "policies/ppo/minitaur_reactive_env")
 CHECKPOINT = "model.ckpt-14000000"
 
 
@@ -43,7 +39,6 @@ def main(argv):
     while True:
       action = agent.get_action([observation])
       observation, reward, done, _ = env.step(action[0])
-      # This sleep is to prevent serial communication error on the real robot.
       time.sleep(0.002)
       sum_reward += reward
       if done:
