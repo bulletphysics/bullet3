@@ -15,7 +15,7 @@
 				<mesh filename="plane_transparent.obj" scale="1 1 1"/>
       </geometry>
        <material name="white">
-        <color rgba="1 1 1 0.4"/>
+        <color rgba="1 1 1 .7"/>
       </material>
     </visual>
     <collision>

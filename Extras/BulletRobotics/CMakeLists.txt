@@ -10,8 +10,8 @@ INCLUDE_DIRECTORIES(
 SET(BulletRobotics_SRCS
 		../../examples/SharedMemory/IKTrajectoryHelper.cpp
 		../../examples/SharedMemory/IKTrajectoryHelper.h
-		../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp
-		../../examples/SharedMemory/TinyRendererVisualShapeConverter.h
+		../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
+		../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
 		../../examples/OpenGLWindow/SimpleCamera.cpp
 		../../examples/OpenGLWindow/SimpleCamera.h
 		../../examples/TinyRenderer/geometry.cpp
@@ -32,6 +32,9 @@ SET(BulletRobotics_SRCS
 		../../examples/SharedMemory/PhysicsDirectC_API.h
 		../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp
 		../../examples/SharedMemory/PhysicsServerCommandProcessor.h
+		../../examples/SharedMemory/b3PluginManager.cpp
+		../../examples/SharedMemory/b3PluginManager.h
+				
 		../../examples/SharedMemory/PhysicsClientSharedMemory.cpp
 		../../examples/SharedMemory/PhysicsClientSharedMemory.h
 		../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.cpp
@@ -56,10 +59,7 @@ SET(BulletRobotics_SRCS
 		../../examples/Utils/b3ReferenceFrameHelper.hpp
 		../../examples/Utils/ChromeTraceUtil.cpp
 
-		../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
+		../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp
 
 		../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
 		../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.h
@@ -117,6 +117,10 @@ ELSE(WIN32)
 	IF(BUILD_CLSOCKET)	
 		ADD_DEFINITIONS(${OSDEF})
 	ENDIF(BUILD_CLSOCKET)
+		
+	IF(NOT APPLE)
+		LINK_LIBRARIES(  pthread ${DL} )
+	ENDIF(APPLE)
 ENDIF(WIN32)
 
 IF(BUILD_ENET)

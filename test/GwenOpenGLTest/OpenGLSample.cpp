@@ -9,6 +9,10 @@
 extern unsigned char OpenSansData[];
 
 #include "Gwen/Renderers/OpenGL_DebugFont.h"
+
+#ifdef B3_USE_GLFW
+#include "OpenGLWindow/GLFWOpenGLWindow.h"
+#else
 #ifdef __APPLE__
 #include "OpenGLWindow/MacOpenGLWindow.h"
 #else
@@ -21,7 +25,7 @@ extern unsigned char OpenSansData[];
 #include "OpenGLWindow/X11OpenGLWindow.h"
 #endif //_WIN32
 #endif//__APPLE__
-
+#endif //B3_USE_GLFW
 #include "OpenGLWindow/opengl_fontstashcallbacks.h"
 #ifndef NO_OPENGL3
 #include "OpenGLWindow/GwenOpenGL3CoreRenderer.h"
@@ -327,7 +331,7 @@ int main()
 
     int majorGlVersion, minorGlVersion;
 
-    if (!sscanf((const char*)glGetString(GL_VERSION), "%d.%d", &majorGlVersion, &minorGlVersion)==2)
+    if (!(sscanf((const char*)glGetString(GL_VERSION), "%d.%d", &majorGlVersion, &minorGlVersion)==2))
     {
         printf("Exit: Error cannot extract OpenGL version from GL_VERSION string\n");
         exit(0);
@@ -341,27 +345,26 @@ int main()
 		sprintf(title,"Gwen with OpenGL %d\n",wci.m_openglVersion);
 	}
 	window->setWindowTitle(title);
+
+	float retinaScale = window->getRetinaScale();
+
 #ifndef NO_OPENGL3
     if (majorGlVersion>=3 && wci.m_openglVersion>=3)
     {
-        float retinaScale = 1.f;
-		
+#ifndef B3_USE_GLFW		
 #ifndef __APPLE__
 #ifndef _WIN32
     //we need glewExperimental on Linux
-    glewExperimental = GL_TRUE;
 #endif // _WIN32
-        glewInit();
+	gladLoadGL();
 #endif
-
+#endif //B3_USE_GLFW
     //we ned to call glGetError twice, because of some Ubuntu/Intel/OpenGL issue
 
     GLuint err = glGetError();
     err = glGetError();
     assert(err==GL_NO_ERROR);
 
-
-        retinaScale = window->getRetinaScale();
 
         primRenderer = new GLPrimitiveRenderer(sWidth,sHeight);
 
@@ -374,7 +377,7 @@ int main()
 #endif
     {
         //OpenGL 2.x
-        gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
+        gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont(retinaScale);
 
 
         skin.SetRender( gwenRenderer );

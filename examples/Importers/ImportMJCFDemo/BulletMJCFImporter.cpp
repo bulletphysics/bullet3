@@ -1,20 +1,27 @@
 #include "BulletMJCFImporter.h"
-#include "../../ThirdPartyLibs/tinyxml/tinyxml.h"
+#include "../../ThirdPartyLibs/tinyxml2/tinyxml2.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include "Bullet3Common/b3HashMap.h"
-
+#include "LinearMath/btQuickprof.h"
+#include "BulletCollision/CollisionShapes/btShapeHull.h"
+#include "../../CommonInterfaces/CommonRenderInterface.h"
+#include "../../CommonInterfaces/CommonGUIHelperInterface.h"
 #include <string>
 #include "../../Utils/b3ResourcePath.h"
 #include <iostream>
 #include <fstream>
+#include "../ImportURDFDemo/URDF2Bullet.h"
 #include "../ImportURDFDemo/UrdfParser.h"
 #include "../ImportURDFDemo/urdfStringSplit.h"
 #include "../ImportURDFDemo/urdfLexicalCast.h"
 #include "../ImportObjDemo/LoadMeshFromObj.h"
 #include "../ImportSTLDemo/LoadMeshFromSTL.h"
+#include "../ImportColladaDemo/LoadMeshFromCollada.h"
+#include "../OpenGLWindow/ShapeData.h"
+
 #include"../../ThirdPartyLibs/Wavefront/tiny_obj_loader.h"
 #include "../ImportMeshUtility/b3ImportMeshUtility.h"
-
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
@@ -25,9 +32,23 @@
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btTriangleMesh.h"
+using namespace tinyxml2;
 
 
 
+
+#define mjcf_sphere_indiced textured_detailed_sphere_indices
+#define mjcf_sphere_vertices textured_detailed_sphere_vertices
+
+
+
+static btVector4 sGoogleColors[4] =
+{
+	btVector4(60. / 256., 186. / 256., 84. / 256., 1),
+	btVector4(244. / 256., 194. / 256., 13. / 256., 1),
+	btVector4(219. / 256., 50. / 256., 54. / 256., 1),
+	btVector4(72. / 256., 133. / 256., 237. / 256., 1),
+};
 
 
 #include <vector>
@@ -163,7 +184,7 @@ struct MyMJCFDefaults
 struct BulletMJCFImporterInternalData
 {
 	GUIHelperInterface* m_guiHelper;
-	struct LinkVisualShapesConverter* m_customVisualShapesConverter;
+	struct UrdfRenderingInterface* m_customVisualShapesConverter;
 	char m_pathPrefix[1024];
 
 	std::string m_sourceFileName; // with path
@@ -172,10 +193,11 @@ struct BulletMJCFImporterInternalData
 
 	btAlignedObjectArray<UrdfModel*>	m_models;
 
-	//<compiler angle="radian" meshdir="mesh/" texturedir="texture/"/>
+	//<compiler angle="radian" meshdir="mesh/" texturedir="texture/" inertiafromgeom="true"/>
 	std::string m_meshDir;
 	std::string m_textureDir;
 	std::string m_angleUnits;
+	bool m_inertiaFromGeom;
 
 
 	int m_activeModel;
@@ -189,9 +211,15 @@ struct BulletMJCFImporterInternalData
 	btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 	mutable btAlignedObjectArray<btTriangleMesh*> m_allocatedMeshInterfaces;
 
+	int m_flags;
+	int m_textureId;
+
 	BulletMJCFImporterInternalData()
-		:m_activeModel(-1),
-		m_activeBodyUniqueId(-1)
+		:m_inertiaFromGeom(true),
+		m_activeModel(-1),
+		m_activeBodyUniqueId(-1),
+		m_flags(0),
+		m_textureId(-1)
 	{
 		m_pathPrefix[0] = 0;
 	}
@@ -204,7 +232,7 @@ struct BulletMJCFImporterInternalData
 		}
 	}
 
-	std::string sourceFileLocation(TiXmlElement* e)
+	std::string sourceFileLocation(XMLElement* e)
 	{
 #if 0
 	//no C++11 snprintf etc
@@ -213,7 +241,7 @@ struct BulletMJCFImporterInternalData
 		return buf;
 #else
 		char row[1024];
-		sprintf(row,"%d",e->Row());
+		sprintf(row,"%d",e->GetLineNum());
 		std::string str = m_sourceFileName.c_str() + std::string(":") + std::string(row);
 		return str;
 #endif
@@ -233,7 +261,7 @@ struct BulletMJCFImporterInternalData
 		return 0;
 	}
 
-	void parseCompiler(TiXmlElement* root_xml, MJCFErrorLogger* logger)
+	void parseCompiler(XMLElement* root_xml, MJCFErrorLogger* logger)
 	{
 
 		const char* meshDirStr = root_xml->Attribute("meshdir");
@@ -248,18 +276,18 @@ struct BulletMJCFImporterInternalData
 		}
 		const char* angle = root_xml->Attribute("angle");
 		m_angleUnits = angle ? angle : "degree";  // degrees by default, http://www.mujoco.org/book/modeling.html#compiler
-#if 0
-		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
+		const char* inertiaFromGeom = root_xml->Attribute("inertiafromgeom");
+		if(inertiaFromGeom && inertiaFromGeom[0] == 'f')  // false, other values assumed `true`.
 		{
-			std::string n = child_xml->Value();
+			m_inertiaFromGeom = false;
 		}
-#endif
+
 	}
 	
-	void parseAssets(TiXmlElement* root_xml, MJCFErrorLogger* logger)
+	void parseAssets(XMLElement* root_xml, MJCFErrorLogger* logger)
 	{
 		//		<mesh name="index0" 	file="index0.stl"/>
-		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
+		for (XMLElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
 		{
 			std::string n = child_xml->Value();
 			if (n=="mesh")
@@ -279,11 +307,11 @@ struct BulletMJCFImporterInternalData
 	}
 	
 	
-	bool parseDefaults(MyMJCFDefaults& defaults, TiXmlElement* root_xml, MJCFErrorLogger* logger)
+	bool parseDefaults(MyMJCFDefaults& defaults, XMLElement* root_xml, MJCFErrorLogger* logger)
 	{
 		bool handled= false;
 		//rudimentary 'default' support, would need more work for better feature coverage
-		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
+		for (XMLElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
 		{
 			std::string n = child_xml->Value();
 		
@@ -385,9 +413,9 @@ struct BulletMJCFImporterInternalData
 		handled=true;
 		return handled;
 	}
-	bool parseRootLevel(MyMJCFDefaults& defaults,  TiXmlElement* root_xml,MJCFErrorLogger* logger)
+	bool parseRootLevel(MyMJCFDefaults& defaults,  XMLElement* root_xml,MJCFErrorLogger* logger)
 	{
-		for (TiXmlElement* rootxml = root_xml->FirstChildElement() ; rootxml ; rootxml = rootxml->NextSiblingElement())
+		for (XMLElement* rootxml = root_xml->FirstChildElement() ; rootxml ; rootxml = rootxml->NextSiblingElement())
 		{
 			bool handled = false;
 			std::string n = rootxml->Value();
@@ -445,7 +473,7 @@ struct BulletMJCFImporterInternalData
 		return true;
 	}
 
-	bool parseJoint(MyMJCFDefaults& defaults, TiXmlElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, const btTransform& parentToLinkTrans, btTransform& jointTransOut)
+	bool parseJoint(MyMJCFDefaults& defaults, XMLElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, const btTransform& parentToLinkTrans, btTransform& jointTransOut)
 	{
 		bool jointHandled = false;
 		const char* jType = link_xml->Attribute("type");
@@ -621,7 +649,7 @@ struct BulletMJCFImporterInternalData
 		*/
 		return false;
 	}
-	bool parseGeom(MyMJCFDefaults& defaults, TiXmlElement* link_xml, int modelIndex, int linkIndex, MJCFErrorLogger* logger, btVector3& inertialShift)
+	bool parseGeom(MyMJCFDefaults& defaults, XMLElement* link_xml, int modelIndex, int linkIndex, MJCFErrorLogger* logger, btVector3& inertialShift)
 	{
 		UrdfLink** linkPtrPtr = m_models[modelIndex]->m_links.getAtIndex(linkIndex);
 		if (linkPtrPtr==0)
@@ -699,6 +727,12 @@ struct BulletMJCFImporterInternalData
 			linkPtr->m_contactInfo.m_flags |= URDF_CONTACT_HAS_ROLLING_FRICTION;
 		}
 
+		{
+			geom.m_localMaterial.m_matColor.m_rgbaColor = sGoogleColors[linkIndex & 3];
+			geom.m_localMaterial.m_matColor.m_specularColor.setValue(1, 1, 1);
+			geom.m_hasLocalMaterial = true;
+		}
+
 		std::string rgba = defaults.m_defaultGeomRgba;
 		if (const char* rgbattr = link_xml->Attribute("rgba"))
 		{
@@ -707,10 +741,15 @@ struct BulletMJCFImporterInternalData
 		if (!rgba.empty())
 		{
 			// "0 0.7 0.7 1"
-			parseVector4(geom.m_localMaterial.m_matColor.m_rgbaColor, rgba);
-			geom.m_hasLocalMaterial = true;
-			geom.m_localMaterial.m_name = rgba;
+			if ((m_flags&CUF_MJCF_COLORS_FROM_FILE))
+			{
+				parseVector4(geom.m_localMaterial.m_matColor.m_rgbaColor, rgba);
+				geom.m_hasLocalMaterial = true;
+				geom.m_localMaterial.m_name = rgba;
+			}
 		}
+
+		
 
 		const char* posS = link_xml->Attribute("pos");
 		if (posS)
@@ -874,31 +913,43 @@ struct BulletMJCFImporterInternalData
 			if (handledGeomType)
 			{
 						
-				UrdfCollision col;
-				col.m_flags |= URDF_HAS_COLLISION_GROUP;
-				col.m_collisionGroup = defaults.m_defaultCollisionGroup;
-				
-				col.m_flags |= URDF_HAS_COLLISION_MASK;
-				col.m_collisionMask = defaults.m_defaultCollisionMask;
-				
-				//contype, conaffinity 
-				const char* conTypeStr = link_xml->Attribute("contype");
-				if (conTypeStr)
 				{
+					UrdfCollision col;
 					col.m_flags |= URDF_HAS_COLLISION_GROUP;
-					col.m_collisionGroup = urdfLexicalCast<int>(conTypeStr);
-				}
-				const char* conAffinityStr = link_xml->Attribute("conaffinity");
-				if (conAffinityStr)
-				{
+					col.m_collisionGroup = defaults.m_defaultCollisionGroup;
+
 					col.m_flags |= URDF_HAS_COLLISION_MASK;
-					col.m_collisionMask = urdfLexicalCast<int>(conAffinityStr);
+					col.m_collisionMask = defaults.m_defaultCollisionMask;
+
+					//contype, conaffinity 
+					const char* conTypeStr = link_xml->Attribute("contype");
+					if (conTypeStr)
+					{
+						col.m_flags |= URDF_HAS_COLLISION_GROUP;
+						col.m_collisionGroup = urdfLexicalCast<int>(conTypeStr);
+					}
+					const char* conAffinityStr = link_xml->Attribute("conaffinity");
+					if (conAffinityStr)
+					{
+						col.m_flags |= URDF_HAS_COLLISION_MASK;
+						col.m_collisionMask = urdfLexicalCast<int>(conAffinityStr);
+					}
+
+					col.m_geometry = geom;
+					col.m_linkLocalFrame = linkLocalFrame;
+					col.m_sourceFileLocation = sourceFileLocation(link_xml);
+					linkPtr->m_collisionArray.push_back(col);
+				}
+				{
+					UrdfVisual vis;
+					vis.m_geometry = geom;
+					vis.m_linkLocalFrame = linkLocalFrame;
+					vis.m_sourceFileLocation = sourceFileLocation(link_xml);
+					linkPtr->m_visualArray.push_back(vis);
+
 				}
 
-				col.m_geometry = geom;
-				col.m_linkLocalFrame = linkLocalFrame;
-				col.m_sourceFileLocation = sourceFileLocation(link_xml);
-				linkPtr->m_collisionArray.push_back(col);
+
 
 			} else
 			{
@@ -912,7 +963,7 @@ struct BulletMJCFImporterInternalData
 		return handledGeomType;
 	}
 
-	btTransform parseTransform(TiXmlElement* link_xml, MJCFErrorLogger* logger)
+	btTransform parseTransform(XMLElement* link_xml, MJCFErrorLogger* logger)
 	{
 		btTransform tr;
 		tr.setIdentity();
@@ -1039,7 +1090,7 @@ struct BulletMJCFImporterInternalData
 		return orgChildLinkIndex;
 	}
 
-	bool parseBody(MyMJCFDefaults& defaults, TiXmlElement* link_xml, int modelIndex, int orgParentLinkIndex, MJCFErrorLogger* logger)
+	bool parseBody(MyMJCFDefaults& defaults, XMLElement* link_xml, int modelIndex, int orgParentLinkIndex, MJCFErrorLogger* logger)
 	{
 		MyMJCFDefaults curDefaults = defaults;
 
@@ -1091,7 +1142,7 @@ struct BulletMJCFImporterInternalData
 		jointTrans.setIdentity();
 		bool skipFixedJoint = false;
 		
-		for (TiXmlElement* xml = link_xml->FirstChildElement() ; xml ; xml = xml->NextSiblingElement())
+		for (XMLElement* xml = link_xml->FirstChildElement() ; xml ; xml = xml->NextSiblingElement())
 		{
 			bool handled = false;
 			std::string n = xml->Value();
@@ -1134,8 +1185,16 @@ struct BulletMJCFImporterInternalData
 				}
 				
 				massDefined = true;
-
 				handled = true;
+
+				if (!m_inertiaFromGeom) {
+					linkPtr->m_inertia.m_mass = mass;
+					linkPtr->m_inertia.m_linkLocalFrame = localInertialFrame;
+					linkPtr->m_inertia.m_ixx = localInertiaDiag[0];
+					linkPtr->m_inertia.m_iyy = localInertiaDiag[1];
+					linkPtr->m_inertia.m_izz = localInertiaDiag[2];
+				}
+
 			}
 
 			if (n=="joint")
@@ -1360,11 +1419,13 @@ struct BulletMJCFImporterInternalData
 
 };
 
-BulletMJCFImporter::BulletMJCFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter)
+BulletMJCFImporter::BulletMJCFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, int flags)
 {
 	m_data = new BulletMJCFImporterInternalData();
 	m_data->m_guiHelper = helper;
 	m_data->m_customVisualShapesConverter = customConverter;
+	m_data->m_flags = flags;
+	m_data->m_textureId = -1;
 }
 
 BulletMJCFImporter::~BulletMJCFImporter()
@@ -1421,16 +1482,16 @@ bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger,
 
 bool BulletMJCFImporter::parseMJCFString(const char* xmlText, MJCFErrorLogger* logger)
 {
-	TiXmlDocument xml_doc;
+	XMLDocument xml_doc;
 	xml_doc.Parse(xmlText);
 	if (xml_doc.Error())
 	{
-		logger->reportError(xml_doc.ErrorDesc());
+		logger->reportError(xml_doc.ErrorStr());
 		xml_doc.ClearError();
 		return false;
 	}
 
-	TiXmlElement *mujoco_xml = xml_doc.FirstChildElement("mujoco");
+	XMLElement *mujoco_xml = xml_doc.FirstChildElement("mujoco");
 	if (!mujoco_xml)
 	{
 		logger->reportWarning("Cannot find <mujoco> root element");
@@ -1446,28 +1507,28 @@ bool BulletMJCFImporter::parseMJCFString(const char* xmlText, MJCFErrorLogger* l
 	//<compiler>,<option>,<size>,<default>,<body>,<keyframe>,<contactpair>,
 	//<light>, <camera>,<constraint>,<tendon>,<actuator>,<customfield>,<textfield>
 
-	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("default"); link_xml; link_xml = link_xml->NextSiblingElement("default"))
+	for (XMLElement* link_xml = mujoco_xml->FirstChildElement("default"); link_xml; link_xml = link_xml->NextSiblingElement("default"))
 	{
 		m_data->parseDefaults(m_data->m_globalDefaults,link_xml,logger);
 	}
 
-	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("compiler"); link_xml; link_xml = link_xml->NextSiblingElement("compiler"))
+	for (XMLElement* link_xml = mujoco_xml->FirstChildElement("compiler"); link_xml; link_xml = link_xml->NextSiblingElement("compiler"))
 	{
 		m_data->parseCompiler(link_xml,logger);
 	}
 	
 
-	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("asset"); link_xml; link_xml = link_xml->NextSiblingElement("asset"))
+	for (XMLElement* link_xml = mujoco_xml->FirstChildElement("asset"); link_xml; link_xml = link_xml->NextSiblingElement("asset"))
 	{
 		m_data->parseAssets(link_xml,logger);
 	}
 	
-	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("body"); link_xml; link_xml = link_xml->NextSiblingElement("body"))
+	for (XMLElement* link_xml = mujoco_xml->FirstChildElement("body"); link_xml; link_xml = link_xml->NextSiblingElement("body"))
 	{
 		m_data->parseRootLevel(m_data->m_globalDefaults, link_xml,logger);
 	}
 
-	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("worldbody"); link_xml; link_xml = link_xml->NextSiblingElement("worldbody"))
+	for (XMLElement* link_xml = mujoco_xml->FirstChildElement("worldbody"); link_xml; link_xml = link_xml->NextSiblingElement("worldbody"))
 	{
 		m_data->parseRootLevel(m_data->m_globalDefaults, link_xml,logger);
 	}
@@ -1508,6 +1569,49 @@ int BulletMJCFImporter::getRootLinkIndex() const
 std::string BulletMJCFImporter::getBodyName() const
 {
 	return m_data->m_fileModelName;
+}
+
+
+
+bool BulletMJCFImporter::getLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const
+{
+	bool hasLinkColor = false;
+	{
+		const UrdfLink* link = m_data->getLink(m_data->m_activeModel, linkIndex);
+		if (link)
+		{
+			for (int i = 0; i < link->m_visualArray.size(); i++)
+			{
+				if (link->m_visualArray[i].m_geometry.m_hasLocalMaterial)
+				{
+					matCol = link->m_visualArray[i].m_geometry.m_localMaterial.m_matColor;
+					hasLinkColor = true;
+					break;
+				}
+			}
+
+			if (!hasLinkColor)
+			{
+				for (int i = 0; i < link->m_collisionArray.size(); i++)
+				{
+					if (link->m_collisionArray[i].m_geometry.m_hasLocalMaterial)
+					{
+						matCol = link->m_collisionArray[0].m_geometry.m_localMaterial.m_matColor;
+						hasLinkColor = true;
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	if (!hasLinkColor)
+	{
+		matCol.m_rgbaColor = sGoogleColors[linkIndex & 3];
+		matCol.m_specularColor.setValue(1, 1, 1);
+		hasLinkColor = true;
+	}
+	return hasLinkColor;
 }
 
 bool BulletMJCFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const
@@ -1649,9 +1753,512 @@ bool BulletMJCFImporter::getRootTransformInWorld(btTransform& rootTransformInWor
 	return true;
 }
 
+void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MJCFURDFTexture>& texturesOut) const
+{
+
+
+	GLInstanceGraphicsShape* glmesh = 0;
+	int strideInBytes = 9 * sizeof(float);
+
+	btConvexShape* convexColShape = 0;
+
+	switch (visual->m_geometry.m_type)
+	{
+	case URDF_GEOM_CAPSULE:
+	{
+		
+#if 1
+
+		btScalar height = visual->m_geometry.m_capsuleHeight;
+
+		btTransform capsuleTrans;
+		capsuleTrans.setIdentity();
+		if (visual->m_geometry.m_hasFromTo)
+		{
+			btVector3 f = visual->m_geometry.m_capsuleFrom;
+			btVector3 t = visual->m_geometry.m_capsuleTo;
+
+			//compute the local 'fromto' transform
+			btVector3 localPosition = btScalar(0.5)*(t + f);
+			btQuaternion localOrn;
+			localOrn = btQuaternion::getIdentity();
+
+			btVector3 diff = t - f;
+			btScalar lenSqr = diff.length2();
+			height = 0.f;
+
+			if (lenSqr > SIMD_EPSILON)
+			{
+				height = btSqrt(lenSqr);
+				btVector3 ax = diff / height;
+
+				btVector3 zAxis(0, 0, 1);
+				localOrn = shortestArcQuat(zAxis, ax);
+			}
+			capsuleTrans.setOrigin(localPosition);
+			capsuleTrans.setRotation(localOrn);
+		}
+		
+		btScalar diam = 2.*visual->m_geometry.m_capsuleRadius;
+		b3AlignedObjectArray<GLInstanceVertex> transformedVertices;
+		int numVertices = sizeof(mjcf_sphere_vertices) / strideInBytes;
+		transformedVertices.resize(numVertices);
+		for (int i = 0; i<numVertices; i++)
+		{
+
+			btVector3 vert;
+			vert.setValue(mjcf_sphere_vertices[i * 9 + 0],
+				mjcf_sphere_vertices[i * 9 + 1],
+				mjcf_sphere_vertices[i * 9 + 2]);
+
+			btScalar halfHeight = 0.5*height;
+			btVector3 trVer = (diam*vert);
+			int up = 2; //default to z axis up for capsule
+			if (trVer[up]>0)
+				trVer[up] += halfHeight;
+			else
+				trVer[up] -= halfHeight;
+
+			trVer = capsuleTrans*trVer;
+
+			transformedVertices[i].xyzw[0] = trVer[0];
+			transformedVertices[i].xyzw[1] = trVer[1];
+			transformedVertices[i].xyzw[2] = trVer[2];
+			transformedVertices[i].xyzw[3] = 0;
+			transformedVertices[i].normal[0] = mjcf_sphere_vertices[i * 9 + 4];
+			transformedVertices[i].normal[1] = mjcf_sphere_vertices[i * 9 + 5];
+			transformedVertices[i].normal[2] = mjcf_sphere_vertices[i * 9 + 6];
+			//transformedVertices[i].uv[0] = mjcf_sphere_vertices[i * 9 + 7];
+			//transformedVertices[i].uv[1] = mjcf_sphere_vertices[i * 9 + 8];
+
+			btScalar u = btAtan2(transformedVertices[i].normal[0], transformedVertices[i].normal[2]) / (2 * SIMD_PI) + 0.5;
+			btScalar v = transformedVertices[i].normal[1] * 0.5 + 0.5;
+			transformedVertices[i].uv[0] = u;
+			transformedVertices[i].uv[1] = v;
+		}
+
+		glmesh = new GLInstanceGraphicsShape;
+		//		int index = 0;
+		glmesh->m_indices = new b3AlignedObjectArray<int>();
+		glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+
+		int numIndices = sizeof(mjcf_sphere_indiced) / sizeof(int);
+		for (int i = 0; i < numIndices; i++)
+		{
+			glmesh->m_indices->push_back(mjcf_sphere_indiced[i]);
+		}
+		for (int i = 0; i < transformedVertices.size(); i++)
+		{
+			glmesh->m_vertices->push_back(transformedVertices[i]);
+		}
+		glmesh->m_numIndices = numIndices;
+		glmesh->m_numvertices = transformedVertices.size();
+		glmesh->m_scaling[0] = 1;
+		glmesh->m_scaling[1] = 1;
+		glmesh->m_scaling[2] = 1;
+		glmesh->m_scaling[3] = 1;
+#else
+		if (visual->m_geometry.m_hasFromTo)
+		{
+			btVector3 f = visual->m_geometry.m_capsuleFrom;
+			btVector3 t = visual->m_geometry.m_capsuleTo;
+			btVector3 fromto[2] = { f, t };
+			btScalar radii[2] = { btScalar(visual->m_geometry.m_capsuleRadius)
+				, btScalar(visual->m_geometry.m_capsuleRadius) };
+
+			btMultiSphereShape* ms = new btMultiSphereShape(fromto, radii, 2);
+			convexColShape = ms;
+		}
+		else
+		{
+			btCapsuleShapeZ* cap = new btCapsuleShapeZ(visual->m_geometry.m_capsuleRadius,
+				visual->m_geometry.m_capsuleHeight);
+			convexColShape = cap;
+		}
+#endif
+
+		break;
+	}
+	
+	case URDF_GEOM_CYLINDER:
+	{
+		btAlignedObjectArray<btVector3> vertices;
+
+		//int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
+		int numSteps = 32;
+		for (int i = 0; i<numSteps; i++)
+		{
+
+			btScalar cylRadius = visual->m_geometry.m_capsuleRadius;
+			btScalar cylLength = visual->m_geometry.m_capsuleHeight;
+
+			btVector3 vert(cylRadius*btSin(SIMD_2_PI*(float(i) / numSteps)), cylRadius*btCos(SIMD_2_PI*(float(i) / numSteps)), cylLength / 2.);
+			vertices.push_back(vert);
+			vert[2] = -cylLength / 2.;
+			vertices.push_back(vert);
+		}
+
+		btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+		cylZShape->setMargin(m_data->m_globalDefaults.m_defaultCollisionMargin);
+		cylZShape->recalcLocalAabb();
+		convexColShape = cylZShape;
+		break;
+	}
+
+	case URDF_GEOM_BOX:
+	{
+		btVector3 extents = visual->m_geometry.m_boxSize;
+		btBoxShape* boxShape = new btBoxShape(extents*0.5f);
+		//btConvexShape* boxShape = new btConeShapeX(extents[2]*0.5,extents[0]*0.5);
+		convexColShape = boxShape;
+		convexColShape->setMargin(m_data->m_globalDefaults.m_defaultCollisionMargin);
+		break;
+	}
+
+	case URDF_GEOM_SPHERE:
+	{
+#if 1
+		btScalar sphereSize = 2.*visual->m_geometry.m_sphereRadius;
+		b3AlignedObjectArray<GLInstanceVertex> transformedVertices;
+		int numVertices = sizeof(mjcf_sphere_vertices) / strideInBytes;
+		transformedVertices.resize(numVertices);
+		
+
+		glmesh = new GLInstanceGraphicsShape;
+		//		int index = 0;
+		glmesh->m_indices = new b3AlignedObjectArray<int>();
+		glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+		printf("vertices:\n");
+		for (int i = 0; i<numVertices; i++)
+		{
+			btVector3 vert;
+			vert.setValue(mjcf_sphere_vertices[i * 9 + 0],
+				mjcf_sphere_vertices[i * 9 + 1],
+				mjcf_sphere_vertices[i * 9 + 2]);
+
+			btVector3 trVer = sphereSize*vert;
+			transformedVertices[i].xyzw[0] = trVer[0];
+			transformedVertices[i].xyzw[1] = trVer[1];
+			transformedVertices[i].xyzw[2] = trVer[2];
+			transformedVertices[i].xyzw[3] = 0;
+			transformedVertices[i].normal[0] = mjcf_sphere_vertices[i * 9 + 4];
+			transformedVertices[i].normal[1] = mjcf_sphere_vertices[i * 9 + 5];
+			transformedVertices[i].normal[2] = mjcf_sphere_vertices[i * 9 + 6];
+			//transformedVertices[i].uv[0] = mjcf_sphere_vertices[i * 9 + 7];
+			//transformedVertices[i].uv[1] = mjcf_sphere_vertices[i * 9 + 8];
+
+			btScalar u = btAtan2(transformedVertices[i].normal[0], transformedVertices[i].normal[2]) / (2 * SIMD_PI) + 0.5;
+			btScalar v = transformedVertices[i].normal[1] * 0.5 + 0.5;
+			transformedVertices[i].uv[0] = u;
+			transformedVertices[i].uv[1] = v;
+
+		}
+		int numIndices = sizeof(mjcf_sphere_indiced) / sizeof(int);
+		for (int i = 0; i < numIndices; i++)
+		{
+			glmesh->m_indices->push_back(mjcf_sphere_indiced[i]);
+		}
+		for (int i = 0; i < transformedVertices.size(); i++)
+		{
+			glmesh->m_vertices->push_back(transformedVertices[i]);
+		}
+		glmesh->m_numIndices = numIndices;
+		glmesh->m_numvertices = transformedVertices.size();
+		glmesh->m_scaling[0] = 1;
+		glmesh->m_scaling[1] = 1;
+		glmesh->m_scaling[2] = 1;
+		glmesh->m_scaling[3] = 1;
+
+#else
+		
+		btScalar radius = visual->m_geometry.m_sphereRadius;
+		btSphereShape* sphereShape = new btSphereShape(radius);
+		convexColShape = sphereShape;
+		convexColShape->setMargin(m_data->m_globalDefaults.m_defaultCollisionMargin);
+#endif
+		break;
+	}
+
+	case URDF_GEOM_MESH:
+	{
+		switch (visual->m_geometry.m_meshFileType)
+		{
+		case UrdfGeometry::FILE_OBJ:
+		{
+			b3ImportMeshData meshData;
+			if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData))
+			{
+
+				if (meshData.m_textureImage1)
+				{
+					MJCFURDFTexture texData;
+					texData.m_width = meshData.m_textureWidth;
+					texData.m_height = meshData.m_textureHeight;
+					texData.textureData1 = meshData.m_textureImage1;
+					texData.m_isCached = meshData.m_isCached;
+					texturesOut.push_back(texData);
+				}
+				glmesh = meshData.m_gfxShape;
+			}
+			break;
+		}
+
+		case UrdfGeometry::FILE_STL:
+		{
+			glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str());
+			break;
+		}
+
+		case UrdfGeometry::FILE_COLLADA:
+		{
+			btAlignedObjectArray<GLInstanceGraphicsShape> visualShapes;
+			btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
+			btTransform upAxisTrans; upAxisTrans.setIdentity();
+			float unitMeterScaling = 1;
+			int upAxis = 2;
+
+			LoadMeshFromCollada(visual->m_geometry.m_meshFileName.c_str(),
+				visualShapes,
+				visualShapeInstances,
+				upAxisTrans,
+				unitMeterScaling,
+				upAxis);
+
+			glmesh = new GLInstanceGraphicsShape;
+			//		int index = 0;
+			glmesh->m_indices = new b3AlignedObjectArray<int>();
+			glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+
+			for (int i = 0; i<visualShapeInstances.size(); i++)
+			{
+				ColladaGraphicsInstance* instance = &visualShapeInstances[i];
+				GLInstanceGraphicsShape* gfxShape = &visualShapes[instance->m_shapeIndex];
+
+				b3AlignedObjectArray<GLInstanceVertex> verts;
+				verts.resize(gfxShape->m_vertices->size());
+
+				int baseIndex = glmesh->m_vertices->size();
+
+				for (int i = 0; i<gfxShape->m_vertices->size(); i++)
+				{
+					verts[i].normal[0] = gfxShape->m_vertices->at(i).normal[0];
+					verts[i].normal[1] = gfxShape->m_vertices->at(i).normal[1];
+					verts[i].normal[2] = gfxShape->m_vertices->at(i).normal[2];
+					verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
+					verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
+					verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
+					verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
+					verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
+					verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
+
+				}
+
+				int curNumIndices = glmesh->m_indices->size();
+				int additionalIndices = gfxShape->m_indices->size();
+				glmesh->m_indices->resize(curNumIndices + additionalIndices);
+				for (int k = 0; k<additionalIndices; k++)
+				{
+					glmesh->m_indices->at(curNumIndices + k) = gfxShape->m_indices->at(k) + baseIndex;
+				}
+
+				//compensate upAxisTrans and unitMeterScaling here
+				btMatrix4x4 upAxisMat;
+				upAxisMat.setIdentity();
+				//								upAxisMat.setPureRotation(upAxisTrans.getRotation());
+				btMatrix4x4 unitMeterScalingMat;
+				unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling, unitMeterScaling, unitMeterScaling));
+				btMatrix4x4 worldMat = unitMeterScalingMat*upAxisMat*instance->m_worldTransform;
+				//btMatrix4x4 worldMat = instance->m_worldTransform;
+				int curNumVertices = glmesh->m_vertices->size();
+				int additionalVertices = verts.size();
+				glmesh->m_vertices->reserve(curNumVertices + additionalVertices);
+
+				for (int v = 0; v<verts.size(); v++)
+				{
+					btVector3 pos(verts[v].xyzw[0], verts[v].xyzw[1], verts[v].xyzw[2]);
+					pos = worldMat*pos;
+					verts[v].xyzw[0] = float(pos[0]);
+					verts[v].xyzw[1] = float(pos[1]);
+					verts[v].xyzw[2] = float(pos[2]);
+					glmesh->m_vertices->push_back(verts[v]);
+				}
+			}
+			glmesh->m_numIndices = glmesh->m_indices->size();
+			glmesh->m_numvertices = glmesh->m_vertices->size();
+			//glmesh = LoadMeshFromCollada(visual->m_geometry.m_meshFileName);
+
+			break;
+		}
+		} // switch file type
+
+		if (!glmesh || !glmesh->m_vertices || glmesh->m_numvertices <= 0)
+		{
+			b3Warning("%s: cannot extract anything useful from mesh '%s'\n", urdfPathPrefix, visual->m_geometry.m_meshFileName.c_str());
+			break;
+		}
+
+		//apply the geometry scaling
+		for (int i = 0; i<glmesh->m_vertices->size(); i++)
+		{
+			glmesh->m_vertices->at(i).xyzw[0] *= visual->m_geometry.m_meshScale[0];
+			glmesh->m_vertices->at(i).xyzw[1] *= visual->m_geometry.m_meshScale[1];
+			glmesh->m_vertices->at(i).xyzw[2] *= visual->m_geometry.m_meshScale[2];
+		}
+		break;
+	}
+	case URDF_GEOM_PLANE:
+	{
+		b3Warning("No default visual for URDF_GEOM_PLANE");
+		break;
+	}
+	default:
+	{
+		b3Warning("Error: unknown visual geometry type %i\n", visual->m_geometry.m_type);
+	}
+	}
+
+	//if we have a convex, tesselate into localVertices/localIndices
+	if ((glmesh == 0) && convexColShape)
+	{
+		BT_PROFILE("convexColShape");
+
+		btShapeHull* hull = new btShapeHull(convexColShape);
+		hull->buildHull(0.0);
+		{
+			//	int strideInBytes = 9*sizeof(float);
+			int numVertices = hull->numVertices();
+			int numIndices = hull->numIndices();
+
+
+			glmesh = new GLInstanceGraphicsShape;
+			//	int index = 0;
+			glmesh->m_indices = new b3AlignedObjectArray<int>();
+			glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+
+
+			
+
+			for (int i = 0; i < numVertices; i++)
+			{
+				GLInstanceVertex vtx;
+				btVector3 pos = hull->getVertexPointer()[i];
+				vtx.xyzw[0] = pos.x();
+				vtx.xyzw[1] = pos.y();
+				vtx.xyzw[2] = pos.z();
+				vtx.xyzw[3] = 1.f;
+				btVector3 normal = pos.normalized();
+				vtx.normal[0] = normal.x();
+				vtx.normal[1] = normal.y();
+				vtx.normal[2] = normal.z();
+				btScalar u = btAtan2(normal[0], normal[2]) / (2 * SIMD_PI) + 0.5;
+				btScalar v = normal[1] * 0.5 + 0.5;
+				vtx.uv[0] = u;
+				vtx.uv[1] = v;
+				glmesh->m_vertices->push_back(vtx);
+			}
+
+			btAlignedObjectArray<int> indices;
+			for (int i = 0; i < numIndices; i++)
+			{
+				glmesh->m_indices->push_back(hull->getIndexPointer()[i]);
+			}
+
+			glmesh->m_numvertices = glmesh->m_vertices->size();
+			glmesh->m_numIndices = glmesh->m_indices->size();
+		}
+		delete hull;
+		delete convexColShape;
+		convexColShape = 0;
+
+	}
+
+	if (glmesh && glmesh->m_numIndices>0 && glmesh->m_numvertices >0)
+	{
+		BT_PROFILE("glmesh");
+		int baseIndex = verticesOut.size();
+
+
+
+		for (int i = 0; i < glmesh->m_indices->size(); i++)
+		{
+			indicesOut.push_back(glmesh->m_indices->at(i) + baseIndex);
+		}
+
+		for (int i = 0; i < glmesh->m_vertices->size(); i++)
+		{
+			GLInstanceVertex& v = glmesh->m_vertices->at(i);
+			btVector3 vert(v.xyzw[0], v.xyzw[1], v.xyzw[2]);
+			btVector3 vt = visualTransform*vert;
+			v.xyzw[0] = vt[0];
+			v.xyzw[1] = vt[1];
+			v.xyzw[2] = vt[2];
+			btVector3 triNormal(v.normal[0], v.normal[1], v.normal[2]);
+			triNormal = visualTransform.getBasis()*triNormal;
+			v.normal[0] = triNormal[0];
+			v.normal[1] = triNormal[1];
+			v.normal[2] = triNormal[2];
+			verticesOut.push_back(v);
+		}
+	}
+	delete glmesh;
+}
+
 int BulletMJCFImporter::convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const
 {
-	return -1;
+	int graphicsIndex = -1;	
+	if (m_data->m_flags&CUF_MJCF_COLORS_FROM_FILE)
+	{
+		btAlignedObjectArray<GLInstanceVertex> vertices;
+		btAlignedObjectArray<int> indices;
+		btTransform startTrans; startTrans.setIdentity();
+		btAlignedObjectArray<MJCFURDFTexture> textures;
+
+		const UrdfModel& model = *m_data->m_models[m_data->m_activeModel];
+		UrdfLink* const* linkPtr = model.m_links.getAtIndex(linkIndex);
+		if (linkPtr)
+		{
+
+			const UrdfLink* link = *linkPtr;
+
+			for (int v = 0; v < link->m_visualArray.size(); v++)
+			{
+				const UrdfVisual& vis = link->m_visualArray[v];
+				btTransform childTrans = vis.m_linkLocalFrame;
+				btHashString matName(vis.m_materialName.c_str());
+				UrdfMaterial *const * matPtr = model.m_materials[matName];
+
+				convertURDFToVisualShapeInternal(&vis, pathPrefix, inertialFrame.inverse()*childTrans, vertices, indices, textures);
+
+			}
+		}
+		if (vertices.size() && indices.size())
+		{
+			if (1)
+			{
+				int textureIndex = -2;
+				if (textures.size())
+				{
+					textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData1, textures[0].m_width, textures[0].m_height);
+				}
+				{
+					B3_PROFILE("registerGraphicsShape");
+					graphicsIndex = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, textureIndex);
+				}
+
+			}
+		}
+
+		//delete textures
+		for (int i = 0; i < textures.size(); i++)
+		{
+			B3_PROFILE("free textureData");
+			if (!textures[i].m_isCached)
+			{
+				free(textures[i].textureData1);
+			}
+		}
+	}
+	return graphicsIndex;
 }
 
 bool BulletMJCFImporter::getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const
@@ -1670,7 +2277,7 @@ void BulletMJCFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, 
 	if (m_data->m_customVisualShapesConverter)
 	{
 		const UrdfLink* link = m_data->getLink(m_data->m_activeModel, urdfIndex);
-		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,inertialFrame, link, 0, colObj, objectIndex);
+		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,inertialFrame, link, 0, colObj->getBroadphaseHandle()->getUid(), objectIndex);
 	}
 }
 
@@ -1887,14 +2494,45 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes( int linkI
 			{
 				if (col->m_geometry.m_hasFromTo)
 				{
-					btVector3 f = col->m_geometry.m_capsuleFrom;
-					btVector3 t = col->m_geometry.m_capsuleTo;
-					btVector3 fromto[2] = {f,t};
-					btScalar radii[2] = {btScalar(col->m_geometry.m_capsuleRadius)
-										,btScalar(col->m_geometry.m_capsuleRadius)};
+					if (m_data->m_flags&CUF_USE_IMPLICIT_CYLINDER)
+					{
+						btVector3 f = col->m_geometry.m_capsuleFrom;
+						btVector3 t = col->m_geometry.m_capsuleTo;
+					
+						//compute the local 'fromto' transform
+						btVector3 localPosition = btScalar(0.5)*(t+f);
+						btQuaternion localOrn;
+						localOrn = btQuaternion::getIdentity();
 
-					btMultiSphereShape* ms = new btMultiSphereShape(fromto,radii,2);
-					childShape = ms;
+						btVector3 diff = t-f;
+						btScalar lenSqr = diff.length2();
+						btScalar height = 0.f;
+
+						if (lenSqr > SIMD_EPSILON)
+						{
+							height = btSqrt(lenSqr);
+							btVector3 ax = diff / height;
+
+							btVector3 zAxis(0,0,1);
+							localOrn = shortestArcQuat(zAxis,ax);
+						}
+						btCapsuleShapeZ* capsule= new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius,height);
+
+						btCompoundShape* compound = new btCompoundShape();
+						btTransform localTransform(localOrn,localPosition);
+						compound->addChildShape(localTransform,capsule);
+						childShape = compound;
+					} else
+					{
+						btVector3 f = col->m_geometry.m_capsuleFrom;
+						btVector3 t = col->m_geometry.m_capsuleTo;
+						btVector3 fromto[2] = {f,t};
+						btScalar radii[2] = {btScalar(col->m_geometry.m_capsuleRadius)
+											,btScalar(col->m_geometry.m_capsuleRadius)};
+
+						btMultiSphereShape* ms = new btMultiSphereShape(fromto,radii,2);
+						childShape = ms;
+					}
 				} else
 				{
 					btCapsuleShapeZ* cap = new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius,

@@ -14,6 +14,10 @@ from . import bullet_client
 from . import racecar
 import random
 import pybullet_data
+from pkg_resources import parse_version
+
+RENDER_HEIGHT = 720
+RENDER_WIDTH = 960
 
 class RacecarZEDGymEnv(gym.Env):
   metadata = {
@@ -37,7 +41,7 @@ class RacecarZEDGymEnv(gym.Env):
     self._renders = renders
     self._width = 100
     self._height = 10
-    
+
     self._isDiscrete = isDiscrete
     if self._renders:
       self._p = bullet_client.BulletClient(
@@ -50,8 +54,8 @@ class RacecarZEDGymEnv(gym.Env):
     observationDim = len(self.getExtendedObservation())
     #print("observationDim")
     #print(observationDim)
-    
-    observation_high = np.array([np.finfo(np.float32).max] * observationDim)    
+
+    observation_high = np.array([np.finfo(np.float32).max] * observationDim)
     if (isDiscrete):
       self.action_space = spaces.Discrete(9)
     else:
@@ -74,14 +78,14 @@ class RacecarZEDGymEnv(gym.Env):
       pos,orn = self._p.getBasePositionAndOrientation(i)
       newpos = [pos[0],pos[1],pos[2]+0.1]
       self._p.resetBasePositionAndOrientation(i,newpos,orn)
-    
+
     dist = 5 +2.*random.random()
     ang = 2.*3.1415925438*random.random()
-    
+
     ballx = dist * math.sin(ang)
     bally = dist * math.cos(ang)
     ballz = 1
-    
+
     self._ballUniqueId = self._p.loadURDF(os.path.join(self._urdfRoot,"sphere2red.urdf"),[ballx,bally,ballz])
     self._p.setGravity(0,0,-10)
     self._racecar = racecar.Racecar(self._p,urdfRootPath=self._urdfRoot, timeStep=self._timeStep)
@@ -101,13 +105,13 @@ class RacecarZEDGymEnv(gym.Env):
   def getExtendedObservation(self):
      carpos,carorn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
      carmat = self._p.getMatrixFromQuaternion(carorn)
-     ballpos,ballorn = self._p.getBasePositionAndOrientation(self._ballUniqueId)      
+     ballpos,ballorn = self._p.getBasePositionAndOrientation(self._ballUniqueId)
      invCarPos,invCarOrn = self._p.invertTransform(carpos,carorn)
      ballPosInCar,ballOrnInCar = self._p.multiplyTransforms(invCarPos,invCarOrn,ballpos,ballorn)
      dist0 = 0.3
      dist1 = 1.
      eyePos = [carpos[0]+dist0*carmat[0],carpos[1]+dist0*carmat[3],carpos[2]+dist0*carmat[6]+0.3]
-     targetPos = [carpos[0]+dist1*carmat[0],carpos[1]+dist1*carmat[3],carpos[2]+dist1*carmat[6]+0.3]      
+     targetPos = [carpos[0]+dist1*carmat[0],carpos[1]+dist1*carmat[3],carpos[2]+dist1*carmat[6]+0.3]
      up = [carmat[2],carmat[5],carmat[8]]
      viewMat = self._p.computeViewMatrix(eyePos,targetPos,up)
      #viewMat = self._p.computeViewMatrixFromYawPitchRoll(carpos,1,0,0,0,2)
@@ -119,12 +123,12 @@ class RacecarZEDGymEnv(gym.Env):
      np_img_arr = np.reshape(rgb, (self._height, self._width, 4))
      self._observation = np_img_arr
      return self._observation
-     
+
   def _step(self, action):
     if (self._renders):
       basePos,orn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
       #self._p.resetDebugVisualizerCamera(1, 30, -40, basePos)
-    
+
     if (self._isDiscrete):
             fwd = [-1,-1,-1,0,0,0,1,1,1]
             steerings = [-0.6,0,0.6,-0.6,0,0.6,-0.6,0,0.6]
@@ -140,25 +144,44 @@ class RacecarZEDGymEnv(gym.Env):
       if self._renders:
         time.sleep(self._timeStep)
       self._observation = self.getExtendedObservation()
-      
+
       if self._termination():
         break
       self._envStepCounter += 1
     reward = self._reward()
     done = self._termination()
     #print("len=%r" % len(self._observation))
-    
+
     return np.array(self._observation), reward, done, {}
 
   def _render(self, mode='human', close=False):
-      return
+    if mode != "rgb_array":
+      return np.array([])
+    base_pos,orn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
+    view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
+        cameraTargetPosition=base_pos,
+        distance=self._cam_dist,
+        yaw=self._cam_yaw,
+        pitch=self._cam_pitch,
+        roll=0,
+        upAxisIndex=2)
+    proj_matrix = self._p.computeProjectionMatrixFOV(
+        fov=60, aspect=float(RENDER_WIDTH)/RENDER_HEIGHT,
+        nearVal=0.1, farVal=100.0)
+    (_, _, px, _, _) = self._p.getCameraImage(
+        width=RENDER_WIDTH, height=RENDER_HEIGHT, viewMatrix=view_matrix,
+        projectionMatrix=proj_matrix, renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
+    rgb_array = np.array(px)
+    rgb_array = rgb_array[:, :, :3]
+    return rgb_array
+
 
   def _termination(self):
     return self._envStepCounter>1000
-    
+
   def _reward(self):
-    closestPoints = self._p.getClosestPoints(self._racecar.racecarUniqueId,self._ballUniqueId,10000) 
-    
+    closestPoints = self._p.getClosestPoints(self._racecar.racecarUniqueId,self._ballUniqueId,10000)
+
     numPt = len(closestPoints)
     reward=-1000
     #print(numPt)
@@ -167,3 +190,9 @@ class RacecarZEDGymEnv(gym.Env):
       reward = -closestPoints[0][8]
       #print(reward)
     return reward
+
+  if parse_version(gym.__version__)>=parse_version('0.9.6'):
+    render = _render
+    reset = _reset
+    seed = _seed
+    step = _step

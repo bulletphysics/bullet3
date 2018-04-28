@@ -1,18 +1,21 @@
+
+#ifndef B3_USE_GLFW
+
 #include "X11OpenGLWindow.h"
 #include "OpenGLInclude.h"
 
 #include<stdio.h>
 #include<stdlib.h>
 #ifdef GLEW_STATIC
-#include "CustomGL/glew.h"
+#include "glad/glad.h"
 #else
 #include <GL/glew.h>
 #endif//GLEW_STATIC
 
 #ifdef GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
-#include "CustomGL/glxew.h"
+#include "glad/glad_glx.h"
 #else
-#include<GL/glx.h>
+#include <GL/glx.h>
 #endif // GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 #include <assert.h>
 
@@ -470,20 +473,12 @@ void X11OpenGLWindow::enableOpenGL()
         glXMakeCurrent(m_data->m_dpy, m_data->m_win, m_data->m_glc);
     }
 
-#ifdef GLEW_INIT_OPENGL11_FUNCTIONS
-{
-	GLboolean res = glewOpenGL11Init();
-	if (res==0)
-		{
-			printf("glewOpenGL11Init OK!\n");
-		} else
-			{
-				fprintf(stderr, "ERROR: glewOpenGL11Init failed, exiting!\n");
-				exit(EXIT_FAILURE);
-			}
-}
+ if(!gladLoadGL()) {
+                printf("gladLoadGL failed!\n");
+                exit(-1);
+    }
 
-#endif //GLEW_INIT_OPENGL11_FUNCTIONS
+
 
     const GLubyte* ven = glGetString(GL_VENDOR);
     printf("GL_VENDOR=%s\n", ven);
@@ -527,18 +522,16 @@ void    X11OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 
     m_data->m_root = DefaultRootWindow(m_data->m_dpy);
 
-
 #ifdef GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
-GLboolean res = glewXInit();
-if (res==0)
-{
-	printf("glewXInit OK\n");
-} else
-{
-	fprintf(stderr, "glewXInit failed, exit\n");
-	exit(EXIT_FAILURE);
-}
-#endif //GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
+
+	int res=gladLoadGLX(m_data->m_dpy,DefaultScreen(m_data->m_dpy));
+	if (!res)
+	{
+		printf("Error in gladLoadGLX\n");
+		exit(0);
+	}
+#endif
+
 
 
     if (ci.m_openglVersion < 3)
@@ -1121,3 +1114,4 @@ int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 	return len;
 
 }
+#endif

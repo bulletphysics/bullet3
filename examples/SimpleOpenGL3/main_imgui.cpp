@@ -1,6 +1,6 @@
 
 
-//#define USE_OPENGL2
+#define USE_OPENGL2
 #ifdef USE_OPENGL2
 #include "OpenGLWindow/SimpleOpenGL2App.h"
 typedef SimpleOpenGL2App SimpleOpenGLApp ;
@@ -37,7 +37,7 @@ float g_MouseWheel = 0.0f;
 int g_MousePressed[3] = {0};
 int g_MousePressed2[3] = {0};
 
-//#define B3_USE_IMGUI
+#define B3_USE_IMGUI
 #ifdef B3_USE_IMGUI
 #include "OpenGLWindow/OpenGLInclude.h"
 #include "ThirdPartyLibs/imgui/imgui.h"
@@ -47,6 +47,11 @@ static GLuint       g_FontTexture = 0;
 
 void ImGui_ImplBullet_CreateDeviceObjects()
 {
+	{
+		GLint err = glGetError();
+		assert(err==GL_NO_ERROR);
+	}
+	
 	ImGuiIO& io = ImGui::GetIO();
 
 	unsigned char* pixels;
@@ -57,9 +62,21 @@ void ImGui_ImplBullet_CreateDeviceObjects()
 	GLint last_texture;
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
 	glGenTextures(1, &g_FontTexture);
+	{
+		GLint err = glGetError();
+		assert(err==GL_NO_ERROR);
+	}
 	glBindTexture(GL_TEXTURE_2D, g_FontTexture);
+	{
+		GLint err = glGetError();
+		assert(err==GL_NO_ERROR);
+	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	{
+		GLint err = glGetError();
+		assert(err==GL_NO_ERROR);
+	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
 	// Store our identifier
@@ -68,11 +85,23 @@ void ImGui_ImplBullet_CreateDeviceObjects()
 	// Restore state
 	glBindTexture(GL_TEXTURE_2D, last_texture);
 
+	
+	{
+		GLint err = glGetError();
+		assert(err==GL_NO_ERROR);
+	}
 }
 
 
 void ImGui_ImplBullet_RenderDrawLists(ImDrawData* draw_data)
 {
+	{
+		GLint err = glGetError();
+		assert(err==GL_NO_ERROR);
+	}
+
+	
+	glEnable(GL_COLOR_MATERIAL);
    // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
     ImGuiIO& io = ImGui::GetIO();
     int fb_width = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
@@ -96,8 +125,14 @@ void ImGui_ImplBullet_RenderDrawLists(ImDrawData* draw_data)
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnable(GL_TEXTURE_2D);
-    //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
+    glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
 
+	{
+		GLint err = glGetError();
+		assert(err==GL_NO_ERROR);
+	}
+
+	
     // Setup viewport, orthographic projection matrix
     glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
     glMatrixMode(GL_PROJECTION);
@@ -107,6 +142,11 @@ void ImGui_ImplBullet_RenderDrawLists(ImDrawData* draw_data)
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
+
+	{
+		GLint err = glGetError();
+		assert(err==GL_NO_ERROR);
+	}
 
     // Render command lists
     #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
@@ -255,10 +295,28 @@ int main(int argc, char* argv[])
 
 		app = new SimpleOpenGLApp("SimpleOpenGLApp", gWidth, gHeight);
 
+		
+		{
+			GLint err = glGetError();
+			assert(err==GL_NO_ERROR);
+		}
+		
+		ImGui::CreateContext();
+		
+		{
+			GLint err = glGetError();
+			assert(err==GL_NO_ERROR);
+		}
+		
 		app->m_renderer->getActiveCamera()->setCameraDistance(13);
 		app->m_renderer->getActiveCamera()->setCameraPitch(0);
 		app->m_renderer->getActiveCamera()->setCameraTargetPosition(0, 0, 0);
 
+		{
+			GLint err = glGetError();
+			assert(err==GL_NO_ERROR);
+		}
+		
 		sOldKeyboardCB = app->m_window->getKeyboardCallback();
 		app->m_window->setKeyboardCallback(MyKeyboardCallback);
 		sOldMouseMoveCB = app->m_window->getMouseMoveCallback();
@@ -292,9 +350,31 @@ int main(int argc, char* argv[])
 		b3Quaternion orn(0, 0, 0, 1);
 		b3Vector3 color = b3MakeVector3(1, 0, 0);
 		b3Vector3 scaling = b3MakeVector3 (1, 1, 1);
+		{
+			GLint err = glGetError();
+			assert(err==GL_NO_ERROR);
+		}
+		
 		app->m_renderer->registerGraphicsInstance(cubeIndex, pos, orn, color, scaling);
 		app->m_renderer->writeTransforms();
 
+		{
+			bool dark= false;
+			ImGuiStyle& style = ImGui::GetStyle();
+			if (dark)
+			{
+				ImGui::StyleColorsDark(&style);
+			}
+			else
+			{
+				ImGui::StyleColorsLight(&style);
+			}
+		}
+		
+		{
+			GLint err = glGetError();
+			assert(err==GL_NO_ERROR);
+		}
 		do
 		{
 			static int frameCount = 0;
@@ -308,7 +388,10 @@ int main(int argc, char* argv[])
 			}
 
 			
-			
+			{
+				GLint err = glGetError();
+				assert(err==GL_NO_ERROR);
+			}
 
 
 			//update the texels of the texture using a simple pattern, animated using frame index
@@ -325,8 +408,18 @@ int main(int argc, char* argv[])
 				}
 			}
 
+			{
+			GLint err = glGetError();
+			assert(err==GL_NO_ERROR);
+			}
+			
 			app->m_renderer->activateTexture(textureHandle);
 			app->m_renderer->updateTexture(textureHandle, image);
+
+			{
+				GLint err = glGetError();
+				assert(err==GL_NO_ERROR);
+			}
 
 			//float color[4] = { 255, 1, 1, 1 };
 			//app->m_primRenderer->drawTexturedRect(100, 200, gWidth / 2 - 50, gHeight / 2 - 50, color, 0, 0, 1, 1, true);
@@ -335,8 +428,23 @@ int main(int argc, char* argv[])
 			app->m_renderer->init();
 			app->m_renderer->updateCamera(1);
 
+			{
+				GLint err = glGetError();
+				assert(err==GL_NO_ERROR);
+			}
+
+			
 			app->m_renderer->renderScene();
-			app->drawGrid();
+			{
+				GLint err = glGetError();
+				assert(err==GL_NO_ERROR);
+			}
+			//app->drawGrid();
+			{
+				GLint err = glGetError();
+				assert(err==GL_NO_ERROR);
+			}
+			
 			char bla[1024];
 			sprintf(bla, "Simple test frame %d", frameCount);
 
@@ -370,9 +478,39 @@ int main(int argc, char* argv[])
 
 				ImGui::NewFrame();
 
-				ImGui::ShowTestWindow();
-				ImGui::ShowMetricsWindow();
-				#if 0
+				{
+					GLint err = glGetError();
+					assert(err==GL_NO_ERROR);
+				}
+
+				{
+					{
+						static float f = 0.0f;
+						static int counter = 0;
+						ImGui::Text("Hello, world!");                           // Display some text (you can use a format string too)
+						ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
+						ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+						
+						//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our windows open/close state
+						ImGui::Checkbox("Another Window", &show_another_window);
+						
+						if (ImGui::Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
+							counter++;
+						ImGui::SameLine();
+						ImGui::Text("counter = %d", counter);
+						
+						ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+					}
+
+				}
+				//ImGui::ShowTestWindow();
+				//ImGui::ShowMetricsWindow();
+				{
+					GLint err = glGetError();
+					assert(err==GL_NO_ERROR);
+				}
+
+#if 0
 				static float f = 0.0f;
 				ImGui::Text("Hello, world!");
 				ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
@@ -384,10 +522,19 @@ int main(int argc, char* argv[])
 				ImGui::Render();
 			}
 #endif //B3_USE_IMGUI
+			
+			{
+				GLint err = glGetError();
+				assert(err==GL_NO_ERROR);
+			}
+
 			app->swapBuffer();
 		} while (!app->m_window->requestedExit());
 
 
+		ImGui::DestroyContext();
+		
+		
 
 		delete app;
 

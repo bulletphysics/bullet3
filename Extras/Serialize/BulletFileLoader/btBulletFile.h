@@ -41,6 +41,8 @@ namespace bParse {
 
 		btAlignedObjectArray<bStructHandle*>	m_multiBodies;
 
+		btAlignedObjectArray<bStructHandle*>	m_multiBodyLinkColliders;
+
 		btAlignedObjectArray<bStructHandle*>	m_softBodies;
 
 		btAlignedObjectArray<bStructHandle*>	m_rigidBodies;
@@ -56,6 +58,8 @@ namespace bParse {
 		btAlignedObjectArray<bStructHandle*>	m_triangleInfoMaps;
 
 		btAlignedObjectArray<bStructHandle*>	m_dynamicsWorldInfo;
+
+		btAlignedObjectArray<bStructHandle*>	m_contactManifolds;
 
 		btAlignedObjectArray<char*>				m_dataBlocks;
 		btBulletFile();

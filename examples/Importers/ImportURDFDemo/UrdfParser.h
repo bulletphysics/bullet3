@@ -6,9 +6,9 @@
 #include "LinearMath/btHashMap.h"
 #include "URDFJointTypes.h"
 #include "SDFAudioTypes.h"
+#include <string>
 
 #define btArray btAlignedObjectArray
-#include <string>
 
 struct ErrorLogger
 {
@@ -240,6 +240,11 @@ struct UrdfModel
 	}
 };
 
+namespace tinyxml2
+{
+	class XMLElement;
+};
+
 class UrdfParser
 {
 protected:
@@ -252,17 +257,17 @@ protected:
     int m_activeSdfModel;
 
 	btScalar m_urdfScaling;
-    bool parseTransform(btTransform& tr, class TiXmlElement* xml, ErrorLogger* logger, bool parseSDF = false);
-	bool parseInertia(UrdfInertia& inertia, class TiXmlElement* config, ErrorLogger* logger);
-	bool parseGeometry(UrdfGeometry& geom, class TiXmlElement* g, ErrorLogger* logger);
-	bool parseVisual(UrdfModel& model, UrdfVisual& visual, class TiXmlElement* config, ErrorLogger* logger);
-	bool parseCollision(UrdfCollision& collision, class TiXmlElement* config, ErrorLogger* logger);
+    bool parseTransform(btTransform& tr, tinyxml2::XMLElement* xml, ErrorLogger* logger, bool parseSDF = false);
+	bool parseInertia(UrdfInertia& inertia, tinyxml2::XMLElement* config, ErrorLogger* logger);
+	bool parseGeometry(UrdfGeometry& geom, tinyxml2::XMLElement* g, ErrorLogger* logger);
+	bool parseVisual(UrdfModel& model, UrdfVisual& visual, tinyxml2::XMLElement* config, ErrorLogger* logger);
+	bool parseCollision(UrdfCollision& collision, tinyxml2::XMLElement* config, ErrorLogger* logger);
 	bool initTreeAndRoot(UrdfModel& model, ErrorLogger* logger);
-	bool parseMaterial(UrdfMaterial& material, class TiXmlElement *config, ErrorLogger* logger);
-	bool parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorLogger* logger);
-    bool parseJointDynamics(UrdfJoint& joint, TiXmlElement* config, ErrorLogger* logger);
-	bool parseJoint(UrdfJoint& link, TiXmlElement *config, ErrorLogger* logger);
-	bool parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *config, ErrorLogger* logger);
+	bool parseMaterial(UrdfMaterial& material, tinyxml2::XMLElement *config, ErrorLogger* logger);
+	bool parseJointLimits(UrdfJoint& joint, tinyxml2::XMLElement* config, ErrorLogger* logger);
+    bool parseJointDynamics(UrdfJoint& joint, tinyxml2::XMLElement* config, ErrorLogger* logger);
+	bool parseJoint(UrdfJoint& joint, tinyxml2::XMLElement *config, ErrorLogger* logger);
+	bool parseLink(UrdfModel& model, UrdfLink& link, tinyxml2::XMLElement *config, ErrorLogger* logger);
 	
     
 public:
@@ -333,7 +338,7 @@ public:
 		return m_urdf2Model;
 	}
 
-	std::string sourceFileLocation(TiXmlElement* e);
+	std::string sourceFileLocation(tinyxml2::XMLElement* e);
 
 	void setSourceFile(const std::string& sourceFile)
 	{

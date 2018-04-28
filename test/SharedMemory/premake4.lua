@@ -152,7 +152,7 @@ project ("Test_PhysicsServerLoopBack")
 
 		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
-		defines {"PHYSICS_LOOP_BACK"}
+		defines {"PHYSICS_LOOP_BACK", "SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD"}
 		links {
 			"BulletInverseDynamicsUtils",
 			"BulletInverseDynamics",
@@ -164,6 +164,9 @@ project ("Test_PhysicsServerLoopBack")
 			"BussIK",
 			"LinearMath"
 		}
+        if os.is("Linux") then
+            links{"dl"}
+        end
 			
 		files {
 			"test.c",
@@ -177,6 +180,8 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/SharedMemory/PhysicsServerSharedMemory.h",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.h",
+			"../../examples/SharedMemory/b3PluginManager.cpp",
+			"../../examples/SharedMemory/PhysicsDirect.cpp",
 			"../../examples/SharedMemory/PhysicsLoopBack.cpp",
 			"../../examples/SharedMemory/PhysicsLoopBack.h",
 			"../../examples/SharedMemory/PhysicsLoopBackC_API.cpp",
@@ -189,8 +194,8 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/SharedMemory/Win32SharedMemory.h",
 			"../../examples/SharedMemory/PosixSharedMemory.cpp",
 			"../../examples/SharedMemory/PosixSharedMemory.h",
-			"../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp",
-			"../../examples/SharedMemory/TinyRendererVisualShapeConverter.h",
+			"../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+			"../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
 			"../../examples/OpenGLWindow/SimpleCamera.cpp",
 			"../../examples/OpenGLWindow/SimpleCamera.h",
 			"../../examples/TinyRenderer/geometry.cpp",
@@ -206,10 +211,7 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/Utils/b3Clock.h",
 			"../../examples/Utils/ChromeTraceUtil.cpp",
 			"../../examples/Utils/ChromeTraceUtil.h",
-			"../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp",
-			"../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp",
-			"../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
-			"../../examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
+			"../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
 			"../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp",
 			"../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.h",
 			"../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp",
@@ -224,6 +226,10 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
                         "../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",
 	}
+	
+if (_OPTIONS["enable_static_plugins"]) then
+		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
 		
 		project ("Test_PhysicsServerDirect")
 
@@ -232,7 +238,7 @@ project ("Test_PhysicsServerLoopBack")
 
 		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
-		defines {"PHYSICS_SERVER_DIRECT"}
+		defines {"PHYSICS_SERVER_DIRECT","SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD"}
 		links {
 			"BulletInverseDynamicsUtils",
 			"BulletInverseDynamics",
@@ -244,6 +250,9 @@ project ("Test_PhysicsServerLoopBack")
 			"BussIK",
 			"LinearMath"
 		}
+        if os.is("Linux") then
+            links{"dl"}
+        end
 			
 		files {
 			"test.c",
@@ -261,6 +270,7 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/SharedMemory/PhysicsDirectC_API.h",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.h",
+			"../../examples/SharedMemory/b3PluginManager.cpp",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.cpp",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.h",
 			"../../examples/SharedMemory/PhysicsClientC_API.cpp",
@@ -269,8 +279,8 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/SharedMemory/Win32SharedMemory.h",
 			"../../examples/SharedMemory/PosixSharedMemory.cpp",
 			"../../examples/SharedMemory/PosixSharedMemory.h",
-			"../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp",
-			"../../examples/SharedMemory/TinyRendererVisualShapeConverter.h",
+			"../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+			"../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
 			"../../examples/TinyRenderer/geometry.cpp",
 			"../../examples/TinyRenderer/model.cpp",
 			"../../examples/TinyRenderer/tgaimage.cpp",
@@ -285,10 +295,7 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/Utils/b3Clock.cpp",
 			"../../examples/Utils/ChromeTraceUtil.cpp",
 			"../../examples/Utils/ChromeTraceUtil.h",			
-			"../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp",
-			"../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp",
-			"../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
-			"../../examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
+			"../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
 			"../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp",
 			"../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.h",
 			"../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp",
@@ -303,7 +310,9 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
                         "../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",     	
 		}
-		
+if (_OPTIONS["enable_static_plugins"]) then
+		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
 
 project ("Test_PhysicsServerInProcessExampleBrowser")
 
@@ -312,7 +321,7 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 
 		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
-		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
+		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER", "SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD"}
 --		links {
 --			"BulletExampleBrowserLib",
 --			"BulletFileLoader",
@@ -370,6 +379,7 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"../../examples/SharedMemory/PhysicsDirectC_API.h",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.h",
+			"../../examples/SharedMemory/b3PluginManager.cpp",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.cpp",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.h",
 			"../../examples/SharedMemory/PhysicsClientC_API.cpp",
@@ -378,8 +388,8 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"../../examples/SharedMemory/Win32SharedMemory.h",
 			"../../examples/SharedMemory/PosixSharedMemory.cpp",
 			"../../examples/SharedMemory/PosixSharedMemory.h",
-			"../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp",
-			"../../examples/SharedMemory/TinyRendererVisualShapeConverter.h",
+			"../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+			"../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
 			"../../examples/TinyRenderer/geometry.cpp",
 			"../../examples/TinyRenderer/model.cpp",
 			"../../examples/TinyRenderer/tgaimage.cpp",
@@ -389,10 +399,7 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"../../examples/Utils/b3ResourcePath.h",
 			"../../examples/Utils/RobotLoggingUtil.cpp",
 			"../../examples/Utils/RobotLoggingUtil.h",
-			"../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp",
-			"../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp",
-			"../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
-			"../../examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
+			"../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
 			"../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp",
 			"../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.h",
 			"../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp",
@@ -410,6 +417,10 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
 			"../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",
 	}
+if (_OPTIONS["enable_static_vr_plugin"]) then
+		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 	if os.is("Linux") then
        		initX11()
 	end

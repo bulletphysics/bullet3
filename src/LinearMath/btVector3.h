@@ -368,7 +368,7 @@ public:
 		return btAcos(dot(v) / s);
 	}
 	
-  /**@brief Return a vector will the absolute values of each element */
+  /**@brief Return a vector with the absolute values of each element */
 	SIMD_FORCE_INLINE btVector3 absolute() const 
 	{
 
@@ -705,7 +705,9 @@ public:
 
 	SIMD_FORCE_INLINE	void	serialize(struct	btVector3Data& dataOut) const;
 
-	SIMD_FORCE_INLINE	void	deSerialize(const struct	btVector3Data& dataIn);
+	SIMD_FORCE_INLINE	void	deSerialize(const struct	btVector3DoubleData& dataIn);
+
+	SIMD_FORCE_INLINE	void	deSerialize(const struct	btVector3FloatData& dataIn);
 
 	SIMD_FORCE_INLINE	void	serializeFloat(struct	btVector3FloatData& dataOut) const;
 
@@ -1187,7 +1189,6 @@ public:
 		if (m_floats[3] < minVal)
 		{
 			minIndex = 3;
-			minVal = m_floats[3];
 		}
 		
 		return minIndex;
@@ -1355,10 +1356,18 @@ SIMD_FORCE_INLINE	void	btVector3::serialize(struct	btVector3Data& dataOut) const
 		dataOut.m_floats[i] = m_floats[i];
 }
 
-SIMD_FORCE_INLINE void	btVector3::deSerialize(const struct	btVector3Data& dataIn)
+
+SIMD_FORCE_INLINE void	btVector3::deSerialize(const struct	btVector3FloatData& dataIn)
+{
+	for (int i = 0; i<4; i++)
+		m_floats[i] = (btScalar)dataIn.m_floats[i];
+}
+
+
+SIMD_FORCE_INLINE void	btVector3::deSerialize(const struct	btVector3DoubleData& dataIn)
 {
 	for (int i=0;i<4;i++)
-		m_floats[i] = dataIn.m_floats[i];
+		m_floats[i] = (btScalar)dataIn.m_floats[i];
 }
 
 #endif //BT_VECTOR3_H

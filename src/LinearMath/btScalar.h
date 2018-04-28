@@ -25,7 +25,7 @@ subject to the following restrictions:
 #include <float.h>
 
 /* SVN $Revision$ on $Date$ from http://bullet.googlecode.com*/
-#define BT_BULLET_VERSION 287
+#define BT_BULLET_VERSION 288
 
 inline int btGetVersion()
 {
@@ -374,8 +374,8 @@ inline int btGetVersion()
 			float mask;
 			int intmask;
 		};
-		btInfMaskConverter(int mask = 0x7F800000)
-			: intmask(mask)
+		btInfMaskConverter(int _mask = 0x7F800000)
+			: intmask(_mask)
 		{
 		}
 	};

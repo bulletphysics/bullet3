@@ -44,10 +44,12 @@ struct PhysicsClientSharedMemoryInternalData {
     btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
 	btAlignedObjectArray<b3OverlappingObject> m_cachedOverlappingObjects;
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
+	btAlignedObjectArray<b3CollisionShapeData> m_cachedCollisionShapes;
+
 	btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
 	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
 	btAlignedObjectArray<b3MouseEvent> m_cachedMouseEvents;
-	
+	btAlignedObjectArray<double> m_cachedMassMatrix;
 	btAlignedObjectArray<b3RayHitInfo>	m_raycastHits;
 
     btAlignedObjectArray<int> m_bodyIdsRequestInfo;
@@ -78,7 +80,7 @@ struct PhysicsClientSharedMemoryInternalData {
           m_hasLastServerStatus(false),
           m_sharedMemoryKey(SHARED_MEMORY_KEY),
           m_verboseOutput(false),
-		  m_timeOutInSeconds(5)
+		  m_timeOutInSeconds(1e30)
 	{}
 
     void processServerStatus();
@@ -108,8 +110,8 @@ bool PhysicsClientSharedMemory::getBodyInfo(int bodyUniqueId, struct b3BodyInfo&
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
-		info.m_baseName = bodyJoints->m_baseName.c_str();
-		info.m_bodyName = bodyJoints->m_bodyName.c_str();
+		strcpy(info.m_baseName,bodyJoints->m_baseName.c_str());
+		strcpy(info.m_bodyName,bodyJoints->m_bodyName.c_str());
 		return true;
 	}
 
@@ -206,19 +208,6 @@ void PhysicsClientSharedMemory::removeCachedBody(int bodyUniqueId)
 	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
-
-		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
-		for (int j=0;j<bodyJoints->m_jointInfo.size();j++) 
-		{
-			if (bodyJoints->m_jointInfo[j].m_jointName)
-			{
-				free(bodyJoints->m_jointInfo[j].m_jointName);
-			}
-			if (bodyJoints->m_jointInfo[j].m_linkName)
-			{
-				free(bodyJoints->m_jointInfo[j].m_linkName);
-			}
-		}
 		delete (*bodyJointsPtr);
 		m_data->m_bodyJointMap.remove(bodyUniqueId);
 	}
@@ -234,16 +223,6 @@ void PhysicsClientSharedMemory::resetData()
 		if (bodyJointsPtr && *bodyJointsPtr)
 		{
 			BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
-			for (int j=0;j<bodyJoints->m_jointInfo.size();j++) {
-				if (bodyJoints->m_jointInfo[j].m_jointName)
-				{
-					free(bodyJoints->m_jointInfo[j].m_jointName);
-				}
-				if (bodyJoints->m_jointInfo[j].m_linkName)
-				{
-					free(bodyJoints->m_jointInfo[j].m_linkName);
-				}
-			}
 			delete (*bodyJointsPtr);
 		}
 	}
@@ -392,8 +371,8 @@ void PhysicsClientSharedMemory::processBodyJointInfo(int bodyUniqueId, const Sha
 template <typename T, typename U> void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool verboseOutput)
 {
 	b3JointInfo info;
-	info.m_jointName = 0;
-	info.m_linkName = 0;
+	info.m_jointName[0] = 0;
+	info.m_linkName[0] = 0;
 	info.m_flags = 0;
 	info.m_jointIndex = linkIndex;
 	info.m_qIndex = linkIndex+7;
@@ -402,7 +381,8 @@ template <typename T, typename U> void addJointInfoFromConstraint(int linkIndex,
 
 	if (con->m_typeConstraintData.m_name)
 	{
-		info.m_jointName = strDup(con->m_typeConstraintData.m_name);
+		strcpy(info.m_jointName,con->m_typeConstraintData.m_name);
+		
 		//info.m_linkName = strDup(con->m_typeConstraintData.m_name);
 	}
 	
@@ -623,6 +603,10 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 
                 break;
             }
+			case CMD_USER_CONSTRAINT_REQUEST_STATE_COMPLETED:
+			{
+				break;
+			}
 			case CMD_USER_CONSTRAINT_INFO_COMPLETED:
 			{
 				B3_PROFILE("CMD_USER_CONSTRAINT_INFO_COMPLETED");
@@ -671,6 +655,22 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 					{
 						userConstraintPtr->m_maxAppliedForce = serverConstraint->m_maxAppliedForce;
 					}
+					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_RATIO)
+					{
+						userConstraintPtr->m_gearRatio = serverConstraint->m_gearRatio;
+					}
+					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET)
+					{
+						userConstraintPtr->m_relativePositionTarget = serverConstraint->m_relativePositionTarget;
+					}
+					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_ERP)
+					{
+						userConstraintPtr->m_erp = serverConstraint->m_erp;
+					}
+					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK)
+					{
+						userConstraintPtr->m_gearAuxLink = serverConstraint->m_gearAuxLink;
+					}
 				}
 				break;
 			}
@@ -690,7 +690,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			case CMD_CHANGE_USER_CONSTRAINT_FAILED:
 			{
 				B3_PROFILE("CMD_CHANGE_USER_CONSTRAINT_FAILED");
-				b3Warning("changeConstraint failed");
+				//b3Warning("changeConstraint failed");
 				break;
 			}
 			case CMD_ACTUAL_STATE_UPDATE_FAILED:
@@ -1200,7 +1200,91 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("Request getCollisionInfo failed");
 				break;
 			}
+			case CMD_CUSTOM_COMMAND_COMPLETED:
+			{
+				break;
+			}
+			case CMD_CALCULATED_JACOBIAN_COMPLETED:
+			{
+				break;
+			}
+			case CMD_CALCULATED_JACOBIAN_FAILED:
+			{
+				b3Warning("jacobian calculation failed");
+				break;
+			}
+			case CMD_CUSTOM_COMMAND_FAILED:
+			{
+				b3Warning("custom plugin command failed");
+				break;
+			}
 
+			case CMD_CALCULATED_MASS_MATRIX_FAILED:
+			{
+				b3Warning("calculate mass matrix failed");
+				break;
+			}
+			case CMD_CALCULATED_MASS_MATRIX_COMPLETED:
+			{
+				double* matrixData = (double*)&this->m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[0];
+				m_data->m_cachedMassMatrix.resize(serverCmd.m_massMatrixResultArgs.m_dofCount*serverCmd.m_massMatrixResultArgs.m_dofCount);
+				for (int i=0;i<serverCmd.m_massMatrixResultArgs.m_dofCount*serverCmd.m_massMatrixResultArgs.m_dofCount;i++)
+				{
+					m_data->m_cachedMassMatrix[i] = matrixData[i];
+				}
+				break;
+			}
+			case CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED:
+			{
+				break;
+			}
+			case CMD_SAVE_STATE_COMPLETED:
+			{
+				break;
+			}
+			case CMD_RESTORE_STATE_FAILED:
+			{
+				b3Warning("restoreState failed");
+				break;
+			}
+			case CMD_RESTORE_STATE_COMPLETED:
+			{
+				break;
+			}
+			case CMD_BULLET_SAVING_COMPLETED:
+			{
+				break;
+			}
+			case CMD_COLLISION_SHAPE_INFO_FAILED:
+			{
+				b3Warning("getCollisionShapeData failed");
+				break;
+			}
+			case CMD_COLLISION_SHAPE_INFO_COMPLETED:
+			{
+				B3_PROFILE("CMD_COLLISION_SHAPE_INFO_COMPLETED");
+				if (m_data->m_verboseOutput)
+				{
+					b3Printf("Collision Shape Information Request OK\n");
+				}
+				int numCollisionShapesCopied = serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes;
+				m_data->m_cachedCollisionShapes.resize(numCollisionShapesCopied);
+				b3CollisionShapeData* shapeData = (b3CollisionShapeData*)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
+				for (int i = 0; i < numCollisionShapesCopied; i++)
+				{
+					m_data->m_cachedCollisionShapes[i] = shapeData[i];
+				}
+				break;
+			}
+			case CMD_LOAD_SOFT_BODY_FAILED:
+				{
+					b3Warning("loadSoftBody failed");
+					break;
+				}
+			case CMD_LOAD_SOFT_BODY_COMPLETED:
+				{
+					break;
+				}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);
@@ -1522,11 +1606,33 @@ void PhysicsClientSharedMemory::getCachedRaycastHits(struct b3RaycastInformation
 }
 
 
+void PhysicsClientSharedMemory::getCachedMassMatrix(int dofCountCheck, double* massMatrix)
+{
+	int sz = dofCountCheck*dofCountCheck;
+	if (sz == m_data->m_cachedMassMatrix.size())
+	{
+		for (int i=0;i<sz;i++)
+		{
+			massMatrix[i] = m_data->m_cachedMassMatrix[i];
+		}
+	}
+}
+
+
+
+
 void PhysicsClientSharedMemory::getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo)
 {
 	visualShapesInfo->m_numVisualShapes = m_data->m_cachedVisualShapes.size();
 	visualShapesInfo->m_visualShapeData = visualShapesInfo->m_numVisualShapes ? &m_data->m_cachedVisualShapes[0] : 0;
 }
+
+void PhysicsClientSharedMemory::getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo)
+{
+	collisionShapesInfo->m_numCollisionShapes = m_data->m_cachedCollisionShapes.size();
+	collisionShapesInfo->m_collisionShapeData = collisionShapesInfo->m_numCollisionShapes? &m_data->m_cachedCollisionShapes[0] : 0;
+}
+
 
 
 const float* PhysicsClientSharedMemory::getDebugLinesFrom() const {

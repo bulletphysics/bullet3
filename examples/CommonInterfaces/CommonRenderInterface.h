@@ -15,6 +15,9 @@ enum
 	//B3_WIREFRAME_RENDERMODE,
 	B3_CREATE_SHADOWMAP_RENDERMODE,
 	B3_USE_SHADOWMAP_RENDERMODE,
+	B3_USE_SHADOWMAP_RENDERMODE_REFLECTION,
+	B3_USE_SHADOWMAP_RENDERMODE_REFLECTION_PLANE,
+	B3_USE_PROJECTIVE_TEXTURE_RENDERMODE,
 };
 
 
@@ -47,6 +50,8 @@ struct CommonRenderInterface
 	
 	virtual void setLightPosition(const float lightPos[3]) = 0;
 	virtual void setLightPosition(const double lightPos[3]) = 0;
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]){};
+	virtual void setProjectiveTexture(bool useProjectiveTexture){};
 
 	virtual void renderScene()=0;
 	virtual void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE){};
@@ -71,6 +76,9 @@ struct CommonRenderInterface
     virtual void updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY=true)=0;
     virtual void activateTexture(int textureIndex)=0;
 	virtual void replaceTexture(int shapeIndex, int textureIndex){};
+	virtual void removeTexture(int textureIndex) = 0;
+
+	virtual void setPlaneReflectionShapeIndex(int index) {}
 
 	virtual int getShapeIndexFromInstance(int srcIndex) {return -1;}
 

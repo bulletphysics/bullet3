@@ -17,35 +17,12 @@ subject to the following restrictions:
 #ifndef __OPENGL_INCLUDE_H
 #define __OPENGL_INCLUDE_H
 
-
-//think different
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/OpenGL.h>
-#include <OpenGL/gl.h>
+#ifdef B3_USE_GLFW
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
 #else
-
-#ifdef GLEW_STATIC
-#include "CustomGL/glew.h"
-#else
-#ifdef NO_GLEW
-#define GL_GLEXT_LEGACY
-#include "third_party/GL/gl/include/GL/gl.h"
-#include "third_party/GL/gl/include/GL/glext.h"
-#else
-#include <GL/glew.h>
-#endif //NO_GLEW
-#endif //GLEW_STATIC
-
-#ifdef _WINDOWS
-#include <windows.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
-#else
-//#include <GL/gl.h>
-//#include <GL/glu.h>
-#endif //_WINDOWS
-#endif //APPLE
-
+#include "glad/glad.h"
+#endif //B3_USE_GLFW
 //disable glGetError
 //#undef glGetError
 //#define glGetError MyGetError

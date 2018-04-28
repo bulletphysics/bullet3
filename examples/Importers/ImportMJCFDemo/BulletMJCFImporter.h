@@ -2,7 +2,7 @@
 #define BULLET_MJCF_IMPORTER_H
 
 #include "../ImportURDFDemo/URDFImporterInterface.h"
-#include "../ImportURDFDemo/LinkVisualShapesConverter.h"
+#include "../ImportURDFDemo/UrdfRenderingInterface.h"
 
 
 struct MJCFErrorLogger
@@ -12,14 +12,22 @@ struct MJCFErrorLogger
 	virtual void printMessage(const char* msg)=0;
 };
 
-
+struct MJCFURDFTexture
+{
+	int m_width;
+	int m_height;
+	unsigned char* textureData1;
+	bool m_isCached;
+};
 
 class BulletMJCFImporter : public URDFImporterInterface
 {
 	struct BulletMJCFImporterInternalData* m_data;
 
+	void convertURDFToVisualShapeInternal(const struct UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<struct GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MJCFURDFTexture>& texturesOut) const;
+
 public:
-	BulletMJCFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter);
+	BulletMJCFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, int flags);
 	virtual ~BulletMJCFImporter();
 	
 	virtual bool parseMJCFString(const char* xmlString, MJCFErrorLogger* logger);
@@ -46,6 +54,7 @@ public:
 
 	/// optional method to provide the link color. return true if the color is available and copied into colorRGBA, return false otherwise
 	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const;
+	bool getLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const;
 
 	//optional method to get collision group (type) and mask (affinity)
 	virtual int getCollisionGroupAndMask(int linkIndex, int& colGroup, int& colMask) const ;

@@ -58,6 +58,8 @@ public:
 
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo) = 0;
 
+	virtual void getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo) = 0;
+
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData) = 0;
 
 	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData) = 0;
@@ -65,6 +67,8 @@ public:
 	virtual void getCachedMouseEvents(struct b3MouseEventsData* mouseEventsData) = 0;
 
 	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits) = 0;
+
+	virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix) = 0;
 
 	virtual void setTimeOut(double timeOutInSeconds) = 0;
 	virtual double getTimeOut() const  = 0;

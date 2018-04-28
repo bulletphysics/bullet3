@@ -354,6 +354,12 @@ void Jacobian::CalcDeltaThetasDLSwithNullspace(const VectorRn& desiredV)
     // Compute null space velocity
     VectorRn nullV(J.GetNumColumns());
     P.Multiply(desiredV, nullV);
+	
+	// Compute residual
+	VectorRn residual(J.GetNumRows());
+	J.Multiply(nullV, residual);
+	// TODO: Use residual to set the null space term coefficient adaptively.
+	//printf("residual: %f\n", residual.Norm());
     
     // Add null space velocity
     dTheta += nullV;
@@ -456,7 +462,8 @@ void Jacobian::CalcDeltaThetasSDLS()
 	// Calculate response vector dTheta that is the SDLS solution.
 	//	Delta target values are the dS values
 	int nRows = J.GetNumRows();
-	int numEndEffectors = m_tree->GetNumEffector();		// Equals the number of rows of J divided by three
+	// TODO: Modify it to work with multiple end effectors.
+	int numEndEffectors = 1;
 	int nCols = J.GetNumColumns();
 	dTheta.SetZero();
 

@@ -20,6 +20,8 @@ myfiles =
 			"../../examples/SharedMemory/PhysicsDirectC_API.h",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.h",
+			"../../examples/SharedMemory/b3PluginManager.cpp",
+
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.cpp",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.h",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.cpp",
@@ -30,8 +32,8 @@ myfiles =
 			"../../examples/SharedMemory/Win32SharedMemory.h",
 			"../../examples/SharedMemory/PosixSharedMemory.cpp",
 			"../../examples/SharedMemory/PosixSharedMemory.h",
-			"../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp",
-			"../../examples/SharedMemory/TinyRendererVisualShapeConverter.h",
+			"../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
+			"../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
 			"../../examples/TinyRenderer/geometry.cpp",
 			"../../examples/TinyRenderer/model.cpp",
 			"../../examples/TinyRenderer/tgaimage.cpp",
@@ -41,10 +43,7 @@ myfiles =
 			"../../examples/Utils/b3ResourcePath.h",
 			"../../examples/Utils/RobotLoggingUtil.cpp",
 			"../../examples/Utils/RobotLoggingUtil.h",
-			"../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp",
-			"../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp",
-			"../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
-			"../../examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
+			"../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
 			"../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp",
 			"../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.h",
 			"../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp",
@@ -70,7 +69,7 @@ project ("App_RobotSimulator")
 
 		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
-		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
+		defines {"B3_USE_ROBOTSIM_GUI", "PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
 
 	hasCL = findOpenCL("clew")
 
@@ -191,10 +190,17 @@ if not _OPTIONS["no-enet"] then
 			"RobotSimulatorMain.cpp",
 			"b3RobotSimulatorClientAPI.cpp",
 			"b3RobotSimulatorClientAPI.h",
+			"b3RobotSimulatorClientAPI_NoGUI.cpp",
+			"b3RobotSimulatorClientAPI_NoGUI.h",
 			"MinitaurSetup.cpp",
 			"MinitaurSetup.h",
 			myfiles
 		}
+
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 	if os.is("Linux") then
        		initX11()
 	end
@@ -276,8 +282,15 @@ project ("App_VRGloveHandSimulator")
 			"VRGloveSimulatorMain.cpp",
 			"b3RobotSimulatorClientAPI.cpp",
 			"b3RobotSimulatorClientAPI.h",
+			"b3RobotSimulatorClientAPI_NoGUI.cpp",
+			"b3RobotSimulatorClientAPI_NoGUI.h",
 			myfiles
 		}
+
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 	if os.is("Linux") then
        		initX11()
 	end

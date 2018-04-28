@@ -1,0 +1,41 @@
+syntax = "proto3";
+package robotics.reinforcement_learning.minitaur.envs;
+
+import "timestamp.proto";
+import "vector.proto";
+
+message MinitaurEpisode {
+  // The state-action pair at each step of the log.
+  repeated MinitaurStateAction state_action = 1;
+}
+
+message MinitaurMotorState {
+  // The current angle of the motor.
+  double angle = 1;
+  // The current velocity of the motor.
+  double velocity = 2;
+  // The current torque exerted at this motor.
+  double torque = 3;
+  // The action directed to this motor. The action is the desired motor angle.
+  double action = 4;
+}
+
+message MinitaurStateAction {
+  // Whether the state/action information is valid. It is always true if the
+  // proto is from simulation. It might be false when communication error
+  // happens on minitaur hardware.
+  bool info_valid = 6;
+  // The time stamp of this step. It is computed since the reset of the
+  // environment.
+  google.protobuf.Timestamp time = 1;
+  // The position of the base of the minitaur.
+  robotics.messages.Vector3d base_position = 2;
+  // The orientation of the base of the minitaur. It is represented as (roll,
+  // pitch, yaw).
+  robotics.messages.Vector3d base_orientation = 3;
+  // The angular velocity of the base of the minitaur. It is the time derivative
+  // of (roll, pitch, yaw).
+  robotics.messages.Vector3d base_angular_vel = 4;
+  // The motor states (angle, velocity, torque, action) of eight motors.
+  repeated MinitaurMotorState motor_states = 5;
+}

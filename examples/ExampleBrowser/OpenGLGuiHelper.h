@@ -5,6 +5,7 @@
 class btCollisionShape;
 class btTransform;
 #include "LinearMath/btAlignedObjectArray.h"
+#include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 
 struct OpenGLGuiHelper : public GUIHelperInterface
 {
@@ -29,7 +30,7 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]);
 	virtual void changeSpecularColor(int instanceUid, const double specularColor[3]);
 	virtual void changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height);
-
+	virtual void removeTexture(int textureUid);
 	virtual int getShapeIndexFromInstance(int instanceUid);	
 	virtual void replaceTexture(int shapeIndex, int textureUid);
 
@@ -60,6 +61,9 @@ struct OpenGLGuiHelper : public GUIHelperInterface
                                   int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
                                   int startPixelIndex, int destinationWidth, 
                                   int destinationHeight, int* numPixelsCopied);
+	
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]);
+	virtual void setProjectiveTexture(bool useProjectiveTexture);
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) ;
 
@@ -99,6 +103,10 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	virtual void	dumpFramesToVideo(const char* mp4FileName);
 
 	int createCheckeredTexture(int r,int g, int b);
+
+	void computeSoftBodyVertices(btCollisionShape* collisionShape,
+											  btAlignedObjectArray<GLInstanceVertex>& gfxVertices,
+											  btAlignedObjectArray<int>& indices);
 };
 
 #endif //OPENGL_GUI_HELPER_H

@@ -56,7 +56,7 @@ public struct IVRSystem
 	internal _GetDXGIOutputInfo GetDXGIOutputInfo;
 
 	[UnmanagedFunctionPointer(CallingConvention.StdCall)]
-	internal delegate void _GetOutputDevice(ref ulong pnDevice, ETextureType textureType);
+	internal delegate void _GetOutputDevice(ref ulong pnDevice, ETextureType textureType, IntPtr pInstance);
 	[MarshalAs(UnmanagedType.FunctionPtr)]
 	internal _GetOutputDevice GetOutputDevice;
 
@@ -845,6 +845,16 @@ public struct IVRCompositor
 	[MarshalAs(UnmanagedType.FunctionPtr)]
 	internal _GetVulkanDeviceExtensionsRequired GetVulkanDeviceExtensionsRequired;
 
+	[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+	internal delegate void _SetExplicitTimingMode(bool bExplicitTimingMode);
+	[MarshalAs(UnmanagedType.FunctionPtr)]
+	internal _SetExplicitTimingMode SetExplicitTimingMode;
+
+	[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+	internal delegate EVRCompositorError _SubmitExplicitTimingData();
+	[MarshalAs(UnmanagedType.FunctionPtr)]
+	internal _SubmitExplicitTimingData SubmitExplicitTimingData;
+
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -1250,6 +1260,11 @@ public struct IVROverlay
 	[MarshalAs(UnmanagedType.FunctionPtr)]
 	internal _ShowMessageOverlay ShowMessageOverlay;
 
+	[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+	internal delegate void _CloseMessageOverlay();
+	[MarshalAs(UnmanagedType.FunctionPtr)]
+	internal _CloseMessageOverlay CloseMessageOverlay;
+
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -1551,10 +1566,10 @@ public class CVRSystem
 		pnAdapterIndex = 0;
 		FnTable.GetDXGIOutputInfo(ref pnAdapterIndex);
 	}
-	public void GetOutputDevice(ref ulong pnDevice,ETextureType textureType)
+	public void GetOutputDevice(ref ulong pnDevice,ETextureType textureType,IntPtr pInstance)
 	{
 		pnDevice = 0;
-		FnTable.GetOutputDevice(ref pnDevice,textureType);
+		FnTable.GetOutputDevice(ref pnDevice,textureType,pInstance);
 	}
 	public bool IsDisplayOnDesktop()
 	{
@@ -1667,6 +1682,7 @@ public class CVRSystem
 	}
 	public bool PollNextEvent(ref VREvent_t pEvent,uint uncbVREvent)
 	{
+#if !UNITY_METRO
 		if ((System.Environment.OSVersion.Platform == System.PlatformID.MacOSX) ||
 				(System.Environment.OSVersion.Platform == System.PlatformID.Unix))
 		{
@@ -1679,6 +1695,7 @@ public class CVRSystem
 			event_packed.Unpack(ref pEvent);
 			return packed_result;
 		}
+#endif
 		bool result = FnTable.PollNextEvent(ref pEvent,uncbVREvent);
 		return result;
 	}
@@ -1711,6 +1728,7 @@ public class CVRSystem
 	}
 	public bool GetControllerState(uint unControllerDeviceIndex,ref VRControllerState_t pControllerState,uint unControllerStateSize)
 	{
+#if !UNITY_METRO
 		if ((System.Environment.OSVersion.Platform == System.PlatformID.MacOSX) ||
 				(System.Environment.OSVersion.Platform == System.PlatformID.Unix))
 		{
@@ -1723,6 +1741,7 @@ public class CVRSystem
 			state_packed.Unpack(ref pControllerState);
 			return packed_result;
 		}
+#endif
 		bool result = FnTable.GetControllerState(unControllerDeviceIndex,ref pControllerState,unControllerStateSize);
 		return result;
 	}
@@ -1740,6 +1759,7 @@ public class CVRSystem
 	}
 	public bool GetControllerStateWithPose(ETrackingUniverseOrigin eOrigin,uint unControllerDeviceIndex,ref VRControllerState_t pControllerState,uint unControllerStateSize,ref TrackedDevicePose_t pTrackedDevicePose)
 	{
+#if !UNITY_METRO
 		if ((System.Environment.OSVersion.Platform == System.PlatformID.MacOSX) ||
 				(System.Environment.OSVersion.Platform == System.PlatformID.Unix))
 		{
@@ -1752,6 +1772,7 @@ public class CVRSystem
 			state_packed.Unpack(ref pControllerState);
 			return packed_result;
 		}
+#endif
 		bool result = FnTable.GetControllerStateWithPose(eOrigin,unControllerDeviceIndex,ref pControllerState,unControllerStateSize,ref pTrackedDevicePose);
 		return result;
 	}
@@ -2439,6 +2460,15 @@ public class CVRCompositor
 		uint result = FnTable.GetVulkanDeviceExtensionsRequired(pPhysicalDevice,pchValue,unBufferSize);
 		return result;
 	}
+	public void SetExplicitTimingMode(bool bExplicitTimingMode)
+	{
+		FnTable.SetExplicitTimingMode(bExplicitTimingMode);
+	}
+	public EVRCompositorError SubmitExplicitTimingData()
+	{
+		EVRCompositorError result = FnTable.SubmitExplicitTimingData();
+		return result;
+	}
 }
 
 
@@ -2705,6 +2735,7 @@ public class CVROverlay
 	}
 	public bool PollNextOverlayEvent(ulong ulOverlayHandle,ref VREvent_t pEvent,uint uncbVREvent)
 	{
+#if !UNITY_METRO
 		if ((System.Environment.OSVersion.Platform == System.PlatformID.MacOSX) ||
 				(System.Environment.OSVersion.Platform == System.PlatformID.Unix))
 		{
@@ -2717,6 +2748,7 @@ public class CVROverlay
 			event_packed.Unpack(ref pEvent);
 			return packed_result;
 		}
+#endif
 		bool result = FnTable.PollNextOverlayEvent(ulOverlayHandle,ref pEvent,uncbVREvent);
 		return result;
 	}
@@ -2895,6 +2927,10 @@ public class CVROverlay
 		VRMessageOverlayResponse result = FnTable.ShowMessageOverlay(pchText,pchCaption,pchButton0Text,pchButton1Text,pchButton2Text,pchButton3Text);
 		return result;
 	}
+	public void CloseMessageOverlay()
+	{
+		FnTable.CloseMessageOverlay();
+	}
 }
 
 
@@ -2981,6 +3017,7 @@ public class CVRRenderModels
 	}
 	public bool GetComponentState(string pchRenderModelName,string pchComponentName,ref VRControllerState_t pControllerState,ref RenderModel_ControllerMode_State_t pState,ref RenderModel_ComponentState_t pComponentState)
 	{
+#if !UNITY_METRO
 		if ((System.Environment.OSVersion.Platform == System.PlatformID.MacOSX) ||
 				(System.Environment.OSVersion.Platform == System.PlatformID.Unix))
 		{
@@ -2993,6 +3030,7 @@ public class CVRRenderModels
 			state_packed.Unpack(ref pControllerState);
 			return packed_result;
 		}
+#endif
 		bool result = FnTable.GetComponentState(pchRenderModelName,pchComponentName,ref pControllerState,ref pState,ref pComponentState);
 		return result;
 	}
@@ -3344,6 +3382,7 @@ public enum ETrackedDeviceProperty
 	Prop_DriverDirectModeSendsVsyncEvents_Bool = 2043,
 	Prop_DisplayDebugMode_Bool = 2044,
 	Prop_GraphicsAdapterLuid_Uint64 = 2045,
+	Prop_DriverProvidedChaperonePath_String = 2048,
 	Prop_AttachedDeviceId_String = 3000,
 	Prop_SupportedButtons_Uint64 = 3001,
 	Prop_Axis0Type_Int32 = 3002,
@@ -3401,6 +3440,7 @@ public enum EVRSubmitFlags
 	Submit_LensDistortionAlreadyApplied = 1,
 	Submit_GlRenderBuffer = 2,
 	Submit_Reserved = 4,
+	Submit_TextureWithPose = 8,
 }
 public enum EVRState
 {
@@ -3429,6 +3469,8 @@ public enum EVREventType
 	VREvent_WatchdogWakeUpRequested = 109,
 	VREvent_LensDistortionChanged = 110,
 	VREvent_PropertyChanged = 111,
+	VREvent_WirelessDisconnect = 112,
+	VREvent_WirelessReconnect = 113,
 	VREvent_ButtonPress = 200,
 	VREvent_ButtonUnpress = 201,
 	VREvent_ButtonTouch = 202,
@@ -3526,6 +3568,7 @@ public enum EVREventType
 	VREvent_PerformanceTest_DisableCapture = 1601,
 	VREvent_PerformanceTest_FidelityLevel = 1602,
 	VREvent_MessageOverlay_Closed = 1650,
+	VREvent_MessageOverlayCloseRequested = 1651,
 	VREvent_VendorSpecific_Reserved_Start = 10000,
 	VREvent_VendorSpecific_Reserved_End = 19999,
 }
@@ -3683,6 +3726,9 @@ public enum EVRInitError
 	Init_VRDashboardStartupFailed = 134,
 	Init_VRHomeNotFound = 135,
 	Init_VRHomeStartupFailed = 136,
+	Init_RebootingBusy = 137,
+	Init_FirmwareUpdateBusy = 138,
+	Init_FirmwareRecoveryBusy = 139,
 	Driver_Failed = 200,
 	Driver_Unknown = 201,
 	Driver_HmdUnknown = 202,
@@ -3785,6 +3831,7 @@ public enum EVRApplicationError
 	OldApplicationQuitting = 112,
 	TransitionAborted = 113,
 	IsTemplate = 114,
+	SteamVRIsExiting = 115,
 	BufferTooSmall = 200,
 	PropertyNotSet = 201,
 	UnknownProperty = 202,
@@ -3806,6 +3853,7 @@ public enum EVRApplicationProperty
 	IsTemplate_Bool = 61,
 	IsInstanced_Bool = 62,
 	IsInternal_Bool = 63,
+	WantsCompositorPauseInStandby_Bool = 64,
 	LastLaunchTime_Uint64 = 70,
 }
 public enum EVRApplicationTransitionState
@@ -3850,6 +3898,7 @@ public enum EVRCompositorError
 	SharedTexturesNotSupported = 106,
 	IndexOutOfRange = 107,
 	AlreadySubmitted = 108,
+	InvalidBounds = 109,
 }
 public enum VROverlayInputMethod
 {
@@ -4119,6 +4168,10 @@ public enum EVRScreenshotError
 	public float vMin;
 	public float uMax;
 	public float vMax;
+}
+[StructLayout(LayoutKind.Sequential)] public struct VRTextureWithPose_t
+{
+	public HmdMatrix34_t mDeviceToAbsoluteTracking;
 }
 [StructLayout(LayoutKind.Sequential)] public struct VRVulkanTextureData_t
 {
@@ -4601,7 +4654,7 @@ public class OpenVR
 	public const uint k_unControllerStateAxisCount = 5;
 	public const ulong k_ulOverlayHandleInvalid = 0;
 	public const uint k_unScreenshotHandleInvalid = 0;
-	public const string IVRSystem_Version = "IVRSystem_016";
+	public const string IVRSystem_Version = "IVRSystem_017";
 	public const string IVRExtendedDisplay_Version = "IVRExtendedDisplay_001";
 	public const string IVRTrackedCamera_Version = "IVRTrackedCamera_003";
 	public const uint k_unMaxApplicationKeyLength = 128;
@@ -4610,7 +4663,7 @@ public class OpenVR
 	public const string IVRApplications_Version = "IVRApplications_006";
 	public const string IVRChaperone_Version = "IVRChaperone_003";
 	public const string IVRChaperoneSetup_Version = "IVRChaperoneSetup_005";
-	public const string IVRCompositor_Version = "IVRCompositor_020";
+	public const string IVRCompositor_Version = "IVRCompositor_021";
 	public const uint k_unVROverlayMaxKeyLength = 128;
 	public const uint k_unVROverlayMaxNameLength = 128;
 	public const uint k_unMaxOverlayCount = 64;
@@ -4669,6 +4722,7 @@ public class OpenVR
 	public const string k_pch_SteamVR_RetailDemo_Bool = "retailDemo";
 	public const string k_pch_SteamVR_IpdOffset_Float = "ipdOffset";
 	public const string k_pch_SteamVR_AllowSupersampleFiltering_Bool = "allowSupersampleFiltering";
+	public const string k_pch_SteamVR_EnableLinuxVulkanAsync_Bool = "enableLinuxVulkanAsync";
 	public const string k_pch_Lighthouse_Section = "driver_lighthouse";
 	public const string k_pch_Lighthouse_DisableIMU_Bool = "disableimu";
 	public const string k_pch_Lighthouse_UseDisambiguation_String = "usedisambiguation";
@@ -4742,6 +4796,7 @@ public class OpenVR
 	public const string k_pch_Power_TurnOffControllersTimeout_Float = "turnOffControllersTimeout";
 	public const string k_pch_Power_ReturnToWatchdogTimeout_Float = "returnToWatchdogTimeout";
 	public const string k_pch_Power_AutoLaunchSteamVROnButtonPress = "autoLaunchSteamVROnButtonPress";
+	public const string k_pch_Power_PauseCompositorOnStandby_Bool = "pauseCompositorOnStandby";
 	public const string k_pch_Dashboard_Section = "dashboard";
 	public const string k_pch_Dashboard_EnableDashboard_Bool = "enableDashboard";
 	public const string k_pch_Dashboard_ArcadeMode_Bool = "arcadeMode";

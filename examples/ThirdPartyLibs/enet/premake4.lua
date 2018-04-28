@@ -18,6 +18,9 @@
 	includedirs {
 		".","include"
 	}
+    if os.is("Linux") then
+        buildoptions{"-fPIC"}
+    end
 	files {
 		"callbacks.c",
 		"compress.c",

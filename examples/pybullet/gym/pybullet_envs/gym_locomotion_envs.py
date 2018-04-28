@@ -2,23 +2,28 @@ from .scene_stadium import SinglePlayerStadiumScene
 from .env_bases import MJCFBaseBulletEnv
 import numpy as np
 import pybullet as p
-from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid
+from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid, HumanoidFlagrun, HumanoidFlagrunHarder
 
 
 class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 	def __init__(self, robot, render=False):
-		print("WalkerBase::__init__")
+		print("WalkerBase::__init__ start")
 		MJCFBaseBulletEnv.__init__(self, robot, render)
 		
 		self.camera_x = 0
 		self.walk_target_x = 1e3  # kilometer away
 		self.walk_target_y = 0
+		self.stateId=-1
+		
 
 	def create_single_player_scene(self):
 		self.stadium_scene = SinglePlayerStadiumScene(gravity=9.8, timestep=0.0165/4, frame_skip=4)
 		return self.stadium_scene
 
 	def _reset(self):
+		if (self.stateId>=0):
+			#print("restoreState self.stateId:",self.stateId)
+			p.restoreState(self.stateId)
 		
 		r = MJCFBaseBulletEnv._reset(self)
 		p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
@@ -28,6 +33,11 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 		self.ground_ids = set([(self.parts[f].bodies[self.parts[f].bodyIndex], self.parts[f].bodyPartIndex) for f in
 							   self.foot_ground_object_names])
 		p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
+		if (self.stateId<0):
+			self.stateId=p.saveState()
+			#print("saving state self.stateId:",self.stateId)
+			
+		
 		return r
 
 	def move_robot(self, init_x, init_y, init_z):
@@ -132,8 +142,34 @@ class AntBulletEnv(WalkerBaseBulletEnv):
 		WalkerBaseBulletEnv.__init__(self, self.robot)
 
 class HumanoidBulletEnv(WalkerBaseBulletEnv):
-	def __init__(self):
-		self.robot = Humanoid()
+	def __init__(self, robot=Humanoid()):
+		self.robot = robot
 		WalkerBaseBulletEnv.__init__(self, self.robot)
 		self.electricity_cost  = 4.25*WalkerBaseBulletEnv.electricity_cost
 		self.stall_torque_cost = 4.25*WalkerBaseBulletEnv.stall_torque_cost
+
+class HumanoidFlagrunBulletEnv(HumanoidBulletEnv):
+	random_yaw = True
+
+	def __init__(self):
+		self.robot = HumanoidFlagrun()
+		HumanoidBulletEnv.__init__(self, self.robot)
+
+	def create_single_player_scene(self):
+		s = HumanoidBulletEnv.create_single_player_scene(self)
+		s.zero_at_running_strip_start_line = False
+		return s
+
+class HumanoidFlagrunHarderBulletEnv(HumanoidBulletEnv):
+	random_lean = True  # can fall on start
+
+	def __init__(self):
+		self.robot = HumanoidFlagrunHarder()
+		self.electricity_cost /= 4   # don't care that much about electricity, just stand up!
+		HumanoidBulletEnv.__init__(self, self.robot)
+
+	def create_single_player_scene(self):
+		s = HumanoidBulletEnv.create_single_player_scene(self)
+		s.zero_at_running_strip_start_line = False
+		return s
+

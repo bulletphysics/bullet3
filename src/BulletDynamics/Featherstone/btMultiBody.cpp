@@ -115,11 +115,11 @@ btMultiBody::btMultiBody(int n_links,
 		m_linearDamping(0.04f),
 		m_angularDamping(0.04f),
 		m_useGyroTerm(true),
-			m_maxAppliedImpulse(1000.f),
+		m_maxAppliedImpulse(1000.f),
 		m_maxCoordinateVelocity(100.f),
-			m_hasSelfCollision(true),		
+		m_hasSelfCollision(true),		
 		__posUpdated(false),
-			m_dofCount(0),
+		m_dofCount(0),
 		m_posVarCnt(0),
 		m_useRK4(false), 	
 		m_useGlobalVelocities(false),
@@ -136,6 +136,9 @@ btMultiBody::btMultiBody(int n_links,
 
     m_baseForce.setValue(0, 0, 0);
     m_baseTorque.setValue(0, 0, 0);
+
+	clearConstraintForces();
+	clearForcesAndTorques();
 }
 
 btMultiBody::~btMultiBody()
@@ -345,7 +348,10 @@ void btMultiBody::finalizeMultiDof()
 	m_deltaV.resize(6 + m_dofCount);
 	m_realBuf.resize(6 + m_dofCount + m_dofCount*m_dofCount + 6 + m_dofCount);			//m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices + delta-pos vector (6 base "vels" + joint "vels")
 	m_vectorBuf.resize(2 * m_dofCount);													//two 3-vectors (i.e. one six-vector) for each system dof	("h" matrices)
-
+	for (int i=0;i<m_vectorBuf.size();i++)
+	{
+		m_vectorBuf[i].setValue(0,0,0);
+	}
 	updateLinksDofOffsets();
 }
 	
@@ -743,7 +749,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
     // Temporary matrices/vectors -- use scratch space from caller
     // so that we don't have to keep reallocating every frame
 
-    scratch_r.resize(2*m_dofCount + 6);				//multidof? ("Y"s use it and it is used to store qdd) => 2 x m_dofCount
+    scratch_r.resize(2*m_dofCount + 7);				//multidof? ("Y"s use it and it is used to store qdd) => 2 x m_dofCount
     scratch_v.resize(8*num_links + 6);
     scratch_m.resize(4*num_links + 4);
 
@@ -980,7 +986,13 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 			case btMultibodyLink::ePrismatic:
 			case btMultibodyLink::eRevolute:
 			{
-				invDi[0] = 1.0f / D[0];
+				if (D[0]>=SIMD_EPSILON)
+				{
+					invDi[0] = 1.0f / D[0];
+				} else
+				{
+					invDi[0] = 0;
+				}
 				break;
 			}
 			case btMultibodyLink::eSpherical:
@@ -1263,12 +1275,29 @@ void btMultiBody::solveImatrix(const btVector3& rhs_top, const btVector3& rhs_bo
     if (num_links == 0) 
 	{
 		// in the case of 0 m_links (i.e. a plain rigid body, not a multibody) rhs * invI is easier
-        result[0] = rhs_bot[0] / m_baseInertia[0];
-        result[1] = rhs_bot[1] / m_baseInertia[1];
+   
+	if ((m_baseInertia[0] >= SIMD_EPSILON) && (m_baseInertia[1] >= SIMD_EPSILON) && (m_baseInertia[2] >= SIMD_EPSILON))
+	{
+		result[0] = rhs_bot[0] / m_baseInertia[0];
+		result[1] = rhs_bot[1] / m_baseInertia[1];
         result[2] = rhs_bot[2] / m_baseInertia[2];
-        result[3] = rhs_top[0] / m_baseMass;
-        result[4] = rhs_top[1] / m_baseMass;
-        result[5] = rhs_top[2] / m_baseMass;
+	} else
+	{
+		result[0] = 0;
+		result[1] = 0;
+		result[2] = 0;
+	}
+	if (m_baseMass>=SIMD_EPSILON)
+	{
+        	result[3] = rhs_top[0] / m_baseMass;
+        	result[4] = rhs_top[1] / m_baseMass;
+        	result[5] = rhs_top[2] / m_baseMass;
+	} else
+	{
+		result[3] = 0;
+		result[4] = 0;
+		result[5] = 0;
+	}
     } else 
 	{
 		if (!m_cachedInertiaValid)
@@ -1319,9 +1348,21 @@ void btMultiBody::solveImatrix(const btSpatialForceVector &rhs, btSpatialMotionV
     if (num_links == 0) 
 	{
 		// in the case of 0 m_links (i.e. a plain rigid body, not a multibody) rhs * invI is easier
-		result.setAngular(rhs.getAngular() / m_baseInertia);
-		result.setLinear(rhs.getLinear() / m_baseMass);		
-    } else 
+		if ((m_baseInertia[0] >= SIMD_EPSILON) && (m_baseInertia[1] >= SIMD_EPSILON) && (m_baseInertia[2] >= SIMD_EPSILON))
+        	{
+			result.setAngular(rhs.getAngular() / m_baseInertia);       
+        	} else  
+        	{       
+                	result.setAngular(btVector3(0,0,0));
+        	}
+        	if (m_baseMass>=SIMD_EPSILON)
+        	{       
+			result.setLinear(rhs.getLinear() / m_baseMass);               	 	
+        	} else  
+        	{       
+                	result.setLinear(btVector3(0,0,0));
+        	}
+    	} else 
 	{
 		/// Special routine for calculating the inverse of a spatial inertia matrix
 		///the 6x6 matrix is stored as 4 blocks of 3x3 matrices
@@ -1953,7 +1994,11 @@ int	btMultiBody::calculateSerializeBufferSize()	const
 const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* serializer) const
 {
 		btMultiBodyData* mbd = (btMultiBodyData*) dataBuffer;
-		getBaseWorldTransform().serialize(mbd->m_baseWorldTransform);
+		getBasePos().serialize(mbd->m_baseWorldPosition);
+		getWorldToBaseRot().inverse().serialize(mbd->m_baseWorldOrientation);
+		getBaseVel().serialize(mbd->m_baseLinearVelocity);
+		getBaseOmega().serialize(mbd->m_baseAngularVelocity);
+
 		mbd->m_baseMass = this->getBaseMass();
 		getBaseInertia().serialize(mbd->m_baseInertia);
 		{
@@ -1979,6 +2024,12 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 				memPtr->m_posVarCount = getLink(i).m_posVarCount;
 				
 				getLink(i).m_inertiaLocal.serialize(memPtr->m_linkInertia);
+
+				getLink(i).m_absFrameTotVelocity.m_topVec.serialize(memPtr->m_absFrameTotVelocityTop);
+				getLink(i).m_absFrameTotVelocity.m_bottomVec.serialize(memPtr->m_absFrameTotVelocityBottom);
+				getLink(i).m_absFrameLocVelocity.m_topVec.serialize(memPtr->m_absFrameLocVelocityTop);
+				getLink(i).m_absFrameLocVelocity.m_bottomVec.serialize(memPtr->m_absFrameLocVelocityBottom);
+
 				memPtr->m_linkMass = getLink(i).m_mass;
 				memPtr->m_parentIndex = getLink(i).m_parent;
 				memPtr->m_jointDamping = getLink(i).m_jointDamping;
@@ -1988,7 +2039,7 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 				memPtr->m_jointMaxForce = getLink(i).m_jointMaxForce;
 				memPtr->m_jointMaxVelocity = getLink(i).m_jointMaxVelocity;
 
-				getLink(i).m_eVector.serialize(memPtr->m_parentComToThisComOffset);
+				getLink(i).m_eVector.serialize(memPtr->m_parentComToThisPivotOffset);
 				getLink(i).m_dVector.serialize(memPtr->m_thisPivotToThisComOffset);
 				getLink(i).m_zeroRotParentToThis.serialize(memPtr->m_zeroRotParentToThis);
 				btAssert(memPtr->m_dofCount<=3);

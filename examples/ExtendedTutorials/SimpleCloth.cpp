@@ -121,6 +121,7 @@ void SimpleClothExample::createSoftBody(const btScalar s,
 		fixed,true);
 	
 	cloth->getCollisionShape()->setMargin(0.001f);
+  cloth->getCollisionShape()->setUserPointer((void*)cloth);
 	cloth->generateBendingConstraints(2,cloth->appendMaterial());
 	cloth->setTotalMass(10); 
 	//cloth->m_cfg.citerations = 10;

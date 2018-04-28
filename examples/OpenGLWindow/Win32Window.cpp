@@ -413,10 +413,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					sData->m_fullWindowHeight = wr.bottom-wr.top;//LOWORD (lParam) HIWORD (lParam);
 					sData->m_openglViewportWidth = clientRect.right;
 					sData->m_openglViewportHeight = clientRect.bottom;
-					glViewport(0, 0, sData->m_openglViewportWidth, sData->m_openglViewportHeight);
+					
 
 					if (sData->m_resizeCallback)
-						(*sData->m_resizeCallback)(sData->m_openglViewportWidth,sData->m_openglViewportHeight);
+					{
+						glViewport(0, 0, sData->m_openglViewportWidth, sData->m_openglViewportHeight);
+						(*sData->m_resizeCallback)(sData->m_openglViewportWidth, sData->m_openglViewportHeight);
+					}
 					//if (sOpenGLInitialized)
 					//{
 					//	//gDemoApplication->reshape(sWidth,sHeight);
@@ -439,15 +442,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 void Win32Window::setWindowTitle(const char* titleChar)
 {
 	
-	wchar_t  windowTitle[1024];
-	swprintf(windowTitle, 1024, L"%hs", titleChar);
-
 #ifdef _WIN64
-		SetWindowTextW(m_data->m_hWnd, windowTitle);
+		SetWindowTextA(m_data->m_hWnd, titleChar);
 #else
 		DWORD dwResult;
-		SendMessageTimeoutW(m_data->m_hWnd, WM_SETTEXT, 0,
-				reinterpret_cast<LPARAM>(windowTitle),
+		SendMessageTimeout(m_data->m_hWnd, WM_SETTEXT, 0,
+				reinterpret_cast<LPARAM>(titleChar),
 				SMTO_ABORTIFHUNG, 2000, &dwResult);
 #endif
 }

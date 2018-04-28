@@ -4,7 +4,6 @@
 #include <string>
 
 
-
 ///See audio_source element in http://sdformat.org/spec?ver=1.6&elem=link
 struct SDFAudioSource
 {

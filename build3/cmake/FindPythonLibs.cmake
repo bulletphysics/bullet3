@@ -64,7 +64,7 @@ if(EXISTS "${PYTHON_INCLUDE_DIR}" AND EXISTS "${PYTHON_LIBRARY}")
 else()
   set(_PYTHON1_VERSIONS 1.6 1.5)
   set(_PYTHON2_VERSIONS 2.7 2.6 2.5 2.4 2.3 2.2 2.1 2.0)
-  set(_PYTHON3_VERSIONS 3.4 3.3 3.2 3.1 3.0)
+  set(_PYTHON3_VERSIONS 3.6 3.5 3.4 3.3 3.2 3.1 3.0)
 
   unset(_PYTHON_FIND_OTHER_VERSIONS)
   if(PythonLibs_FIND_VERSION)
@@ -124,7 +124,7 @@ else()
     STRING(REGEX REPLACE "^([0-9]+).*$"          "\\1" _VERSION_MAJOR "${_CURRENT_VERSION}")
     STRING(REGEX REPLACE "^[0-9]+\\.([0-9]+).*$" "\\1" _VERSION_MINOR "${_CURRENT_VERSION}")
 
-    set(_PYTHON_NAMES python)
+    set(_PYTHON_NAMES ${PYTHON_EXECUTABLE} python)
 
     if (_CURRENT_VERSION MATCHES "^[0-9]+.*$")
       list(APPEND _PYTHON_NAMES "python${_VERSION_MAJOR}")
@@ -144,7 +144,7 @@ else()
       if(_PYTHON_EXECUTABLE)
 
         EXECUTE_PROCESS(
-          COMMAND ${_PYTHON_EXECUTABLE} "${_FIND_LIB_PYTHON_PY}"
+          COMMAND "${_PYTHON_EXECUTABLE}" "${_FIND_LIB_PYTHON_PY}"
           OUTPUT_VARIABLE _PYTHON_CONFIG
           RESULT_VARIABLE _PYTHON_CONFIG_RESULT
           ERROR_QUIET)
@@ -172,16 +172,17 @@ else()
 
             if(NOT EXISTS "${PYTHON_LIBRARY}")
               set(_PYTHON_SHORT_VERSION_NO_DOT "${_PYTHON_MAJOR_VERSION}${_PYTHON_MINOR_VERSION}")
-              set(_PYTHON_LIBRARY_NAMES python${_PYTHON_SHORT_VERSION} python${_PYTHON_SHORT_VERSION_NO_DOT})
+              set(_PYTHON_LIBRARY_NAMES python${_PYTHON_SHORT_VERSION} python${_PYTHON_SHORT_VERSION_NO_DOT} python${_PYTHON_SHORT_VERSION}m python${_PYTHON_SHORT_VERSION_NO_DOT}m)
               FIND_LIBRARY(PYTHON_LIBRARY
                 NAMES ${_PYTHON_LIBRARY_NAMES}
                 PATH_SUFFIXES
-                python${_PYTHON_SHORT_VERSION}/config
-                python${_PYTHON_SHORT_VERSION_NO_DOT}/config
+                "python${_PYTHON_SHORT_VERSION}/config"
+                "python${_PYTHON_SHORT_VERSION_NO_DOT}/config"
                 PATHS
                 ${_PYTHON_LIBRARY_DIR}
-                ${_PYTHON_PREFIX}/lib $
-                {_PYTHON_PREFIX}/libs
+                ${_PYTHON_PREFIX}/lib
+                ${_PYTHON_PREFIX}/libs
+                ${_PYTHON_LIBRARY_DIR}/x86_64-linux-gnu/
                 NO_DEFAULT_PATH)
 
               if(WIN32)
@@ -254,6 +255,10 @@ set(PYTHON_LIBRARY_DEBUG "${PYTHON_DEBUG_LIBRARY}")
 set(PYTHON_LIBRARY_RELEASE "${PYTHON_LIBRARY}")
 include(${CMAKE_CURRENT_LIST_DIR}/SelectLibraryConfigurations.cmake)
 SELECT_LIBRARY_CONFIGURATIONS(PYTHON)
+
+if(PYTHON_LIBRARY AND NOT PYTHON_LIBRARIES)
+  set(PYTHON_LIBRARIES "${PYTHON_LIBRARY}")
+endif()
 # SELECT_LIBRARY_CONFIGURATIONS() sets ${PREFIX}_FOUND if it has a library.
 # Unset this, this prefix doesn't match the module prefix, they are different
 # for historical reasons.

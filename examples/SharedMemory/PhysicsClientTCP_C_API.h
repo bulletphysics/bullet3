@@ -9,7 +9,7 @@ extern "C" {
 
 
 	///send physics commands using TCP networking
-	b3PhysicsClientHandle b3ConnectPhysicsTCP(const char* hostName, int port);
+B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsTCP(const char* hostName, int port);
 
 
 #ifdef __cplusplus

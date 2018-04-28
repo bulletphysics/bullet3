@@ -2,6 +2,11 @@
 
 #include "SimpleOpenGL3App.h"
 #include "ShapeData.h"
+
+
+#ifdef B3_USE_GLFW
+#include "GLFWOpenGLWindow.h"
+#else
 #ifdef __APPLE__
 #include "MacOpenGLWindow.h"
 #else
@@ -19,6 +24,8 @@
 #endif //BT_USE_EGL
 #endif //_WIN32
 #endif//__APPLE__
+#endif //B3_USE_GLFW
+
 #include <stdio.h>
 
 #include "GLPrimitiveRenderer.h"
@@ -64,6 +71,8 @@ static SimpleOpenGL3App* gApp=0;
 
 static void SimpleResizeCallback( float widthf, float heightf)
 {
+   
+
 	int width = (int)widthf;
 	int height = (int)heightf;
     if (gApp && gApp->m_instancingRenderer)
@@ -278,6 +287,14 @@ struct	MyRenderCallbacks : public RenderCallbacks
 	}
 };
 
+static void printGLString(const char *name, GLenum s) {
+    const char *v = (const char *) glGetString(s);
+  printf("%s = %s\n",name, v);
+}
+
+bool sOpenGLVerbose = true;
+
+
 SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, bool allowRetina)
 {
 	gApp = this;
@@ -301,7 +318,16 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, boo
 
 	m_window->setWindowTitle(title);
 
+	
+
+
 	b3Assert(glGetError() ==GL_NO_ERROR);
+	
+	{
+		printGLString("Version", GL_VERSION);
+		printGLString("Vendor", GL_VENDOR);
+		printGLString("Renderer", GL_RENDERER);
+	}
 
 	glClearColor(	m_backgroundColorRGB[0],
 					m_backgroundColorRGB[1],
@@ -314,21 +340,27 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, boo
     
 	b3Assert(glGetError() ==GL_NO_ERROR);
 
-#ifndef NO_GLEW
+	//gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+	
+
+#ifdef USE_GLEW
 #ifndef __APPLE__
 #ifndef _WIN32
+#ifndef B3_USE_GLFW
     //some Linux implementations need the 'glewExperimental' to be true
     glewExperimental = GL_TRUE;
+#endif //B3_USE_GLFW
 #endif //_WIN32
     
-    
+#ifndef B3_USE_GLFW
     if (glewInit() != GLEW_OK)
         exit(1); // or handle the error in a nicer way
     if (!GLEW_VERSION_2_1)  // check that the machine supports the 2.1 API.
         exit(1); // or handle the error in a nicer way
-    
+#endif //B3_USE_GLFW
 #endif //__APPLE__
-#endif //NO_GLEW
+#endif //USE_GLEW
+
     glGetError();//don't remove this call, it is needed for Ubuntu
 
     b3Assert(glGetError() ==GL_NO_ERROR);

@@ -91,6 +91,8 @@ public:
 
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
 	
+	virtual void getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo);
+
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
 
 	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData);
@@ -98,6 +100,8 @@ public:
 	virtual void getCachedMouseEvents(struct b3MouseEventsData* mouseEventsData);
 
 	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
+
+	virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix);
 
 	//the following APIs are for internal use for visualization:
 	virtual bool connect(struct GUIHelperInterface* guiHelper);

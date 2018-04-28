@@ -259,7 +259,7 @@ struct btPerturbedContactResult : public btManifoldResult
 			btVector3 endPtOrg = pointInWorld + normalOnBInWorld*orgDepth;
 			endPt = (m_unPerturbedTransform*m_transformA.inverse())(endPtOrg);
 			newDepth = (endPt -  pointInWorld).dot(normalOnBInWorld);
-			startPt = endPt+normalOnBInWorld*newDepth;
+			startPt = endPt - normalOnBInWorld*newDepth;
 		} else
 		{
 			endPt = pointInWorld + normalOnBInWorld*orgDepth;

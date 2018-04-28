@@ -1,5 +1,7 @@
 import pybullet as p
+import time
 #p.connect(p.UDP,"192.168.86.100")
+
 
 cid = p.connect(p.SHARED_MEMORY)
 if (cid<0):
@@ -46,6 +48,10 @@ for jointIndex in range (p.getNumJoints(kuka_gripper)):
 
 kuka_cid = p.createConstraint(kuka,   6,  kuka_gripper,0,p.JOINT_FIXED, [0,0,0], [0,0,0.05],[0,0,0])
 
+pr2_cid2 = p.createConstraint(kuka_gripper,4,kuka_gripper,6,jointType=p.JOINT_GEAR,jointAxis =[1,1,1],parentFramePosition=[0,0,0],childFramePosition=[0,0,0])
+p.changeConstraint(pr2_cid2,gearRatio=-1, erp=0.5, relativePositionTarget=0, maxForce=100)
+
+
 objects = [p.loadURDF("jenga/jenga.urdf", 1.300000,-0.700000,0.750000,0.000000,0.707107,0.000000,0.707107)]
 objects = [p.loadURDF("jenga/jenga.urdf", 1.200000,-0.700000,0.750000,0.000000,0.707107,0.000000,0.707107)]
 objects = [p.loadURDF("jenga/jenga.urdf", 1.100000,-0.700000,0.750000,0.000000,0.707107,0.000000,0.707107)]
@@ -80,6 +86,12 @@ p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
 p.setGravity(0.000000,0.000000,0.000000)
 p.setGravity(0,0,-10)
 
-p.stepSimulation()
+##show this for 10 seconds
+#now = time.time()
+#while (time.time() < now+10):
+#	p.stepSimulation()
+p.setRealTimeSimulation(1)
 
+while (1):
+	p.setGravity(0,0,-10)
 p.disconnect()

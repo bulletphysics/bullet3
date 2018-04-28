@@ -14,9 +14,10 @@ subject to the following restrictions:
 */
 
 #include "btBulletXmlWorldImporter.h"
-#include "tinyxml.h"
+#include "tinyxml2.h"
 #include "btBulletDynamicsCommon.h"
 #include "string_split.h"
+using namespace tinyxml2;
 
 struct MyLocalCaster
 {
@@ -43,12 +44,12 @@ btBulletXmlWorldImporter::~btBulletXmlWorldImporter()
 }
 
 #if 0
-static int get_double_attribute_by_name(const TiXmlElement* pElement, const char* attribName,double* value)
+static int get_double_attribute_by_name(const XMLElement* pElement, const char* attribName,double* value)
 {
 	if ( !pElement ) 
 		return 0;
 
-	const TiXmlAttribute* pAttrib=pElement->FirstAttribute();
+	const XMLAttribute* pAttrib=pElement->FirstAttribute();
 	while (pAttrib)
 	{
 		if (pAttrib->Name()==attribName)
@@ -60,16 +61,16 @@ static int get_double_attribute_by_name(const TiXmlElement* pElement, const char
 }
 #endif
 
-static int get_int_attribute_by_name(const TiXmlElement* pElement, const char* attribName,int* value)
+static int get_int_attribute_by_name(const XMLElement* pElement, const char* attribName,int* value)
 {
 	if ( !pElement ) 
 		return 0;
 
-	const TiXmlAttribute* pAttrib=pElement->FirstAttribute();
+	const XMLAttribute* pAttrib=pElement->FirstAttribute();
 	while (pAttrib)
 	{
 		if (!strcmp(pAttrib->Name(),attribName))
-			if (pAttrib->QueryIntValue(value)==TIXML_SUCCESS)
+			if (pAttrib->QueryIntValue(value)==XML_SUCCESS)
 				return 1;
 //		if (pAttrib->QueryDoubleValue(&dval)==TIXML_SUCCESS) printf( " d=%1.1f", dval);
 		pAttrib=pAttrib->Next();
@@ -84,7 +85,7 @@ void stringToFloatArray(const std::string& string, btAlignedObjectArray<float>& 
     bullet_utils::split( pieces, string, " ");
     for ( int i = 0; i < pieces.size(); ++i)
 	{
-		assert(pieces[i]!="");
+		btAssert(pieces[i]!="");
         floats.push_back((float)atof(pieces[i].c_str()));
     }
 	  
@@ -95,7 +96,7 @@ static btVector3FloatData TextToVector3Data(const char* txt)
 	btAssert(txt);
 	btAlignedObjectArray<float> floats;
 	stringToFloatArray(txt, floats);
-	assert(floats.size()==4);
+	btAssert(floats.size()==4);
 
 	btVector3FloatData vec4;
 	vec4.m_floats[0] = floats[0];
@@ -105,13 +106,13 @@ static btVector3FloatData TextToVector3Data(const char* txt)
 	return vec4;
 }
 
-void btBulletXmlWorldImporter::deSerializeVector3FloatData(TiXmlNode* pParent,btAlignedObjectArray<btVector3FloatData>& vectors)
+void btBulletXmlWorldImporter::deSerializeVector3FloatData(XMLNode* pParent,btAlignedObjectArray<btVector3FloatData>& vectors)
 {
-	TiXmlNode* flNode = pParent->FirstChild("m_floats");
+	XMLNode* flNode = pParent->FirstChildElement("m_floats");
 	btAssert(flNode);
-	while (flNode && flNode->FirstChild())
+	while (flNode && flNode->FirstChildElement())
 	{
-		TiXmlText* pText = flNode->FirstChild()->ToText();
+		XMLText* pText = flNode->FirstChildElement()->ToText();
 //		printf("value = %s\n",pText->Value());
 		btVector3FloatData vec4 = TextToVector3Data(pText->Value());
 		vectors.push_back(vec4);
@@ -122,20 +123,20 @@ void btBulletXmlWorldImporter::deSerializeVector3FloatData(TiXmlNode* pParent,bt
 
 
 #define SET_INT_VALUE(xmlnode, targetdata, argname) \
-	btAssert((xmlnode)->FirstChild(#argname) && (xmlnode)->FirstChild(#argname)->ToElement());\
-	if ((xmlnode)->FirstChild(#argname) && (xmlnode)->FirstChild(#argname)->ToElement())\
-		(targetdata)->argname= (int)atof(xmlnode->FirstChild(#argname)->ToElement()->GetText());
+	btAssert((xmlnode)->FirstChildElement(#argname) && (xmlnode)->FirstChildElement(#argname)->ToElement());\
+	if ((xmlnode)->FirstChildElement(#argname) && (xmlnode)->FirstChildElement(#argname)->ToElement())\
+		(targetdata)->argname= (int)atof(xmlnode->FirstChildElement(#argname)->ToElement()->GetText());
 
 
 #define SET_FLOAT_VALUE(xmlnode, targetdata, argname) \
-	btAssert((xmlnode)->FirstChild(#argname) && (xmlnode)->FirstChild(#argname)->ToElement());\
-	if ((xmlnode)->FirstChild(#argname) && (xmlnode)->FirstChild(#argname)->ToElement())\
-		(targetdata)->argname= (float)atof(xmlnode->FirstChild(#argname)->ToElement()->GetText());
+	btAssert((xmlnode)->FirstChildElement(#argname) && (xmlnode)->FirstChildElement(#argname)->ToElement());\
+	if ((xmlnode)->FirstChildElement(#argname) && (xmlnode)->FirstChildElement(#argname)->ToElement())\
+		(targetdata)->argname= (float)atof(xmlnode->FirstChildElement(#argname)->ToElement()->GetText());
 
 
 #define SET_POINTER_VALUE(xmlnode, targetdata, argname, pointertype) \
 	{\
-		TiXmlNode* node = xmlnode->FirstChild(#argname);\
+		XMLNode* node = xmlnode->FirstChildElement(#argname);\
 		btAssert(node);\
 		if (node)\
 		{\
@@ -148,11 +149,11 @@ void btBulletXmlWorldImporter::deSerializeVector3FloatData(TiXmlNode* pParent,bt
 
 #define SET_VECTOR4_VALUE(xmlnode, targetdata, argname) \
 	{\
-		TiXmlNode* flNode = xmlnode->FirstChild(#argname);\
+		XMLNode* flNode = xmlnode->FirstChildElement(#argname);\
 		btAssert(flNode);\
-		if (flNode && flNode->FirstChild())\
+		if (flNode && flNode->FirstChildElement())\
 		{\
-			const char* txt= flNode->FirstChild()->ToElement()->GetText();\
+			const char* txt= flNode->FirstChildElement()->ToElement()->GetText();\
 			btVector3FloatData vec4 = TextToVector3Data(txt);\
 			(targetdata)->argname.m_floats[0] = vec4.m_floats[0];\
 			(targetdata)->argname.m_floats[1] = vec4.m_floats[1];\
@@ -164,22 +165,22 @@ void btBulletXmlWorldImporter::deSerializeVector3FloatData(TiXmlNode* pParent,bt
 
 #define SET_MATRIX33_VALUE(n, targetdata, argname) \
 {\
-	TiXmlNode* xmlnode = n->FirstChild(#argname);\
+	XMLNode* xmlnode = n->FirstChildElement(#argname);\
 	btAssert(xmlnode);\
 	if (xmlnode)\
 	{\
-		TiXmlNode* eleNode = xmlnode->FirstChild("m_el");\
+		XMLNode* eleNode = xmlnode->FirstChildElement("m_el");\
 		btAssert(eleNode);\
-		if (eleNode&& eleNode->FirstChild())\
+		if (eleNode&& eleNode->FirstChildElement())\
 		{\
-			const char* txt= eleNode->FirstChild()->ToElement()->GetText();\
+			const char* txt= eleNode->FirstChildElement()->ToElement()->GetText();\
 			btVector3FloatData vec4 = TextToVector3Data(txt);\
 			(targetdata)->argname.m_el[0].m_floats[0] = vec4.m_floats[0];\
 			(targetdata)->argname.m_el[0].m_floats[1] = vec4.m_floats[1];\
 			(targetdata)->argname.m_el[0].m_floats[2] = vec4.m_floats[2];\
 			(targetdata)->argname.m_el[0].m_floats[3] = vec4.m_floats[3];\
 			\
-			TiXmlNode* n1 = eleNode->FirstChild()->NextSibling();\
+			XMLNode* n1 = eleNode->FirstChildElement()->NextSibling();\
 			btAssert(n1);\
 			if (n1)\
 			{\
@@ -190,7 +191,7 @@ void btBulletXmlWorldImporter::deSerializeVector3FloatData(TiXmlNode* pParent,bt
 				(targetdata)->argname.m_el[1].m_floats[2] = vec4.m_floats[2];\
 				(targetdata)->argname.m_el[1].m_floats[3] = vec4.m_floats[3];\
 			\
-				TiXmlNode* n2 = n1->NextSibling();\
+				XMLNode* n2 = n1->NextSibling();\
 				btAssert(n2);\
 				if (n2)\
 				{\
@@ -208,7 +209,7 @@ void btBulletXmlWorldImporter::deSerializeVector3FloatData(TiXmlNode* pParent,bt
 
 #define SET_TRANSFORM_VALUE(n, targetdata, argname) \
 {\
-	TiXmlNode* trNode = n->FirstChild(#argname);\
+	XMLNode* trNode = n->FirstChildElement(#argname);\
 	btAssert(trNode);\
 	if (trNode)\
 	{\
@@ -218,7 +219,7 @@ void btBulletXmlWorldImporter::deSerializeVector3FloatData(TiXmlNode* pParent,bt
 }\
 
 
-void btBulletXmlWorldImporter::deSerializeCollisionShapeData(TiXmlNode* pParent, btCollisionShapeData* colShapeData)
+void btBulletXmlWorldImporter::deSerializeCollisionShapeData(XMLNode* pParent, btCollisionShapeData* colShapeData)
 {
 		SET_INT_VALUE(pParent,colShapeData,m_shapeType)
 		colShapeData->m_name = 0;
@@ -226,17 +227,17 @@ void btBulletXmlWorldImporter::deSerializeCollisionShapeData(TiXmlNode* pParent,
 
 
 
-void btBulletXmlWorldImporter::deSerializeConvexHullShapeData(TiXmlNode* pParent)
+void btBulletXmlWorldImporter::deSerializeConvexHullShapeData(XMLNode* pParent)
 {
 	MyLocalCaster cast;
 	get_int_attribute_by_name(pParent->ToElement(),"pointer",&cast.m_int);
 	
 	btConvexHullShapeData* convexHullData = (btConvexHullShapeData*)btAlignedAlloc(sizeof(btConvexHullShapeData), 16);
 
-	TiXmlNode* xmlConvexInt = pParent->FirstChild("m_convexInternalShapeData");
+	XMLNode* xmlConvexInt = pParent->FirstChildElement("m_convexInternalShapeData");
 	btAssert(xmlConvexInt);
 
-	TiXmlNode* xmlColShape = xmlConvexInt ->FirstChild("m_collisionShapeData");
+	XMLNode* xmlColShape = xmlConvexInt ->FirstChildElement("m_collisionShapeData");
 	btAssert(xmlColShape);
 
 	deSerializeCollisionShapeData(xmlColShape,&convexHullData->m_convexInternalShapeData.m_collisionShapeData);
@@ -249,7 +250,7 @@ void btBulletXmlWorldImporter::deSerializeConvexHullShapeData(TiXmlNode* pParent
 	//#define SET_POINTER_VALUE(xmlnode, targetdata, argname, pointertype)
 
 	{
-		TiXmlNode* node = pParent->FirstChild("m_unscaledPointsFloatPtr");
+		XMLNode* node = pParent->FirstChildElement("m_unscaledPointsFloatPtr");
 		btAssert(node);
 		if (node)
 		{
@@ -268,7 +269,7 @@ void btBulletXmlWorldImporter::deSerializeConvexHullShapeData(TiXmlNode* pParent
 	m_pointerLookup.insert(cast.m_ptr,convexHullData);
 }
 
-void btBulletXmlWorldImporter::deSerializeCompoundShapeChildData(TiXmlNode* pParent)
+void btBulletXmlWorldImporter::deSerializeCompoundShapeChildData(XMLNode* pParent)
 {
 	MyLocalCaster cast;
 	get_int_attribute_by_name(pParent->ToElement(),"pointer",&cast.m_int);
@@ -276,10 +277,10 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeChildData(TiXmlNode* pPar
 	int numChildren = 0;
 	btAlignedObjectArray<btCompoundShapeChildData>* compoundChildArrayPtr = new btAlignedObjectArray<btCompoundShapeChildData>;
 	{
-		TiXmlNode* transNode = pParent->FirstChild("m_transform");
-		TiXmlNode* colShapeNode = pParent->FirstChild("m_childShape");
-		TiXmlNode* marginNode = pParent->FirstChild("m_childMargin");
-		TiXmlNode* childTypeNode = pParent->FirstChild("m_childShapeType");
+		XMLNode* transNode = pParent->FirstChildElement("m_transform");
+		XMLNode* colShapeNode = pParent->FirstChildElement("m_childShape");
+		XMLNode* marginNode = pParent->FirstChildElement("m_childMargin");
+		XMLNode* childTypeNode = pParent->FirstChildElement("m_childShapeType");
 
 		int i=0;
 		while (transNode && colShapeNode && marginNode && childTypeNode)
@@ -305,10 +306,10 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeChildData(TiXmlNode* pPar
 				compoundChildArrayPtr->at(i).m_childMargin = (float)atof(marginNode->ToElement()->GetText());
 			}
 
-			transNode = transNode->NextSibling("m_transform");
-			colShapeNode = colShapeNode->NextSibling("m_childShape");
-			marginNode = marginNode->NextSibling("m_childMargin");
-			childTypeNode = childTypeNode->NextSibling("m_childShapeType");
+			transNode = transNode->NextSiblingElement("m_transform");
+			colShapeNode = colShapeNode->NextSiblingElement("m_childShape");
+			marginNode = marginNode->NextSiblingElement("m_childMargin");
+			childTypeNode = childTypeNode->NextSiblingElement("m_childShapeType");
 			i++;
 		}
 		
@@ -326,24 +327,24 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeChildData(TiXmlNode* pPar
 	
 }
 
-void btBulletXmlWorldImporter::deSerializeCompoundShapeData(TiXmlNode* pParent)
+void btBulletXmlWorldImporter::deSerializeCompoundShapeData(XMLNode* pParent)
 {
 	MyLocalCaster cast;
 	get_int_attribute_by_name(pParent->ToElement(),"pointer",&cast.m_int);
 
 	btCompoundShapeData* compoundData = (btCompoundShapeData*) btAlignedAlloc(sizeof(btCompoundShapeData),16); 
 
-	TiXmlNode* xmlColShape = pParent ->FirstChild("m_collisionShapeData");
+	XMLNode* xmlColShape = pParent ->FirstChildElement("m_collisionShapeData");
 	btAssert(xmlColShape);
 	deSerializeCollisionShapeData(xmlColShape,&compoundData->m_collisionShapeData);
 	
 	SET_INT_VALUE(pParent, compoundData,m_numChildShapes);
 
-	TiXmlNode* xmlShapeData = pParent->FirstChild("m_collisionShapeData");
+	XMLNode* xmlShapeData = pParent->FirstChildElement("m_collisionShapeData");
 	btAssert(xmlShapeData );
 
 	{
-		TiXmlNode* node = pParent->FirstChild("m_childShapePtr");\
+		XMLNode* node = pParent->FirstChildElement("m_childShapePtr");\
 		btAssert(node);
 		while (node)
 		{
@@ -351,7 +352,7 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeData(TiXmlNode* pParent)
 			MyLocalCaster cast;
 			cast.m_int = (int) atof(txt);
 			compoundData->m_childShapePtr = (btCompoundShapeChildData*) cast.m_ptr;
-			node = node->NextSibling("m_childShapePtr");
+			node = node->NextSiblingElement("m_childShapePtr");
 		}
 		//SET_POINTER_VALUE(xmlColShape, *compoundData,m_childShapePtr,btCompoundShapeChildData*);
 		
@@ -363,14 +364,14 @@ void btBulletXmlWorldImporter::deSerializeCompoundShapeData(TiXmlNode* pParent)
 
 }
 
-void btBulletXmlWorldImporter::deSerializeStaticPlaneShapeData(TiXmlNode* pParent)
+void btBulletXmlWorldImporter::deSerializeStaticPlaneShapeData(XMLNode* pParent)
 {
 	MyLocalCaster cast;
 	get_int_attribute_by_name(pParent->ToElement(),"pointer",&cast.m_int);
 
 	btStaticPlaneShapeData* planeData = (btStaticPlaneShapeData*) btAlignedAlloc(sizeof(btStaticPlaneShapeData),16);
 
-	TiXmlNode* xmlShapeData = pParent->FirstChild("m_collisionShapeData");
+	XMLNode* xmlShapeData = pParent->FirstChildElement("m_collisionShapeData");
 	btAssert(xmlShapeData );
 	deSerializeCollisionShapeData(xmlShapeData,&planeData->m_collisionShapeData);
 
@@ -383,7 +384,7 @@ void btBulletXmlWorldImporter::deSerializeStaticPlaneShapeData(TiXmlNode* pParen
 
 }
 
-void btBulletXmlWorldImporter::deSerializeDynamicsWorldData(TiXmlNode* pParent)
+void btBulletXmlWorldImporter::deSerializeDynamicsWorldData(XMLNode* pParent)
 {
 	btContactSolverInfo solverInfo;
 	//btVector3 gravity(0,0,0);
@@ -393,7 +394,7 @@ void btBulletXmlWorldImporter::deSerializeDynamicsWorldData(TiXmlNode* pParent)
 	//gravity and world info
 }
 
-void btBulletXmlWorldImporter::deSerializeConvexInternalShapeData(TiXmlNode* pParent)
+void btBulletXmlWorldImporter::deSerializeConvexInternalShapeData(XMLNode* pParent)
 {
 	MyLocalCaster cast;
 	get_int_attribute_by_name(pParent->ToElement(),"pointer",&cast.m_int);
@@ -402,7 +403,7 @@ void btBulletXmlWorldImporter::deSerializeConvexInternalShapeData(TiXmlNode* pPa
 	btConvexInternalShapeData* convexShape = (btConvexInternalShapeData*) btAlignedAlloc(sizeof(btConvexInternalShapeData),16);
 	memset(convexShape,0,sizeof(btConvexInternalShapeData));
 
-	TiXmlNode* xmlShapeData = pParent->FirstChild("m_collisionShapeData");
+	XMLNode* xmlShapeData = pParent->FirstChildElement("m_collisionShapeData");
 	btAssert(xmlShapeData );
 
 	deSerializeCollisionShapeData(xmlShapeData,&convexShape->m_collisionShapeData);
@@ -433,7 +434,7 @@ enum btTypedConstraintType
 */
 
 
-void btBulletXmlWorldImporter::deSerializeGeneric6DofConstraintData(TiXmlNode* pParent)
+void btBulletXmlWorldImporter::deSerializeGeneric6DofConstraintData(XMLNode* pParent)
 {
 	MyLocalCaster cast;
 	get_int_attribute_by_name(pParent->ToElement(),"pointer",&cast.m_int);
@@ -441,7 +442,7 @@ void btBulletXmlWorldImporter::deSerializeGeneric6DofConstraintData(TiXmlNode* p
 	btGeneric6DofConstraintData2* dof6Data = (btGeneric6DofConstraintData2*)btAlignedAlloc(sizeof(btGeneric6DofConstraintData2),16);
 
 	
-	TiXmlNode* n = pParent->FirstChild("m_typeConstraintData");
+	XMLNode* n = pParent->FirstChildElement("m_typeConstraintData");
 	if (n)
 	{
 		SET_POINTER_VALUE(n,dof6Data->m_typeConstraintData,m_rbA,btRigidBodyData*);
@@ -473,7 +474,7 @@ void btBulletXmlWorldImporter::deSerializeGeneric6DofConstraintData(TiXmlNode* p
 	m_pointerLookup.insert(cast.m_ptr,dof6Data);
 }
 
-void btBulletXmlWorldImporter::deSerializeRigidBodyFloatData(TiXmlNode* pParent)
+void btBulletXmlWorldImporter::deSerializeRigidBodyFloatData(XMLNode* pParent)
 {
 	MyLocalCaster cast;
 	
@@ -485,7 +486,7 @@ void btBulletXmlWorldImporter::deSerializeRigidBodyFloatData(TiXmlNode* pParent)
 	
 	btRigidBodyData* rbData = (btRigidBodyData*)btAlignedAlloc(sizeof(btRigidBodyData),16);
 	
-	TiXmlNode* n = pParent->FirstChild("m_collisionObjectData");
+	XMLNode* n = pParent->FirstChildElement("m_collisionObjectData");
 
 	if (n)
 	{
@@ -661,14 +662,14 @@ void	btBulletXmlWorldImporter::fixupCollisionDataPointers(btCollisionShapeData* 
 }
 
 
-void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pParent)
+void btBulletXmlWorldImporter::auto_serialize_root_level_children(XMLNode* pParent)
 {
 	int numChildren = 0;
 	btAssert(pParent);
 	if (pParent)
 	{
-		TiXmlNode*pChild; 
-		for ( pChild = pParent->FirstChild(); pChild != 0; pChild = pChild->NextSibling(), numChildren++) 
+		XMLNode*pChild; 
+		for ( pChild = pParent->FirstChildElement(); pChild != 0; pChild = pChild->NextSibling(), numChildren++) 
 		{
 //			printf("child Name=%s\n", pChild->Value());
 			if (!strcmp(pChild->Value(),"btVector3FloatData"))
@@ -848,15 +849,15 @@ void btBulletXmlWorldImporter::auto_serialize_root_level_children(TiXmlNode* pPa
 	}
 }
 
-void btBulletXmlWorldImporter::auto_serialize(TiXmlNode* pParent)
+void btBulletXmlWorldImporter::auto_serialize(XMLNode* pParent)
 {
-//	TiXmlElement* root = pParent->FirstChildElement("bullet_physics");
+//	XMLElement* root = pParent->FirstChildElement("bullet_physics");
 	if (pParent)
 	{
-		TiXmlNode*pChild; 
-		for ( pChild = pParent->FirstChild(); pChild != 0; pChild = pChild->NextSibling()) 
+		XMLNode*pChild; 
+		for ( pChild = pParent->FirstChildElement(); pChild != 0; pChild = pChild->NextSibling()) 
 		{
-			if (pChild->Type()==TiXmlNode::TINYXML_ELEMENT)
+			//if (pChild->Type()==XMLNode::TINYXML_ELEMENT)
 			{
 //				printf("root Name=%s\n", pChild->Value());
 				auto_serialize_root_level_children(pChild);
@@ -873,13 +874,12 @@ void btBulletXmlWorldImporter::auto_serialize(TiXmlNode* pParent)
 
 bool btBulletXmlWorldImporter::loadFile(const char* fileName)
 {
-	TiXmlDocument doc(fileName);
+	XMLDocument doc;
 
-	bool loadOkay = doc.LoadFile();
-	//dump_to_stdout(&doc,0);
 	
-
-	if (loadOkay)
+	XMLError loadOkay = doc.LoadFile(fileName);
+	
+	if (loadOkay==XML_SUCCESS)
 	{
 		if (get_int_attribute_by_name(doc.FirstChildElement()->ToElement(),"version", &m_fileVersion))
 		{

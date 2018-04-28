@@ -62,7 +62,7 @@ defines { "NO_SHARED_MEMORY" }
 includedirs {"..","../../../src", "../../ThirdPartyLibs","../../ThirdPartyLibs/clsocket/src"}
 
 links {
-	"clsocket","Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletDynamics","BulletCollision", "LinearMath", "BussIK"
+	"clsocket","Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletSoftBody", "BulletDynamics","BulletCollision", "LinearMath", "BussIK"
 }
 
 
@@ -73,6 +73,7 @@ links {
         end
         if os.is("Linux") then
                 defines {"_LINUX"}
+                links{"dl"}
         end
         if os.is("MacOSX") then
                 defines {"_DARWIN"}
@@ -88,8 +89,11 @@ myfiles =
 	"../SharedMemoryPublic.h",
 	"../PhysicsServerCommandProcessor.cpp",
 	"../PhysicsServerCommandProcessor.h",
-	"../TinyRendererVisualShapeConverter.cpp",
-	"../TinyRendererVisualShapeConverter.h",
+	"../b3PluginManager.cpp",
+	"../PhysicsDirect.cpp",
+	"../PhysicsClient.cpp",
+  "../plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+	"../plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
 	"../../TinyRenderer/geometry.cpp",
 	"../../TinyRenderer/model.cpp",
 	"../../TinyRenderer/tgaimage.cpp",
@@ -128,10 +132,7 @@ myfiles =
 	"../../Importers/ImportColladaDemo/LoadMeshFromCollada.cpp",
 	"../../Importers/ImportColladaDemo/ColladaGraphicsInstance.h",
 	"../../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp",	
-	"../../ThirdPartyLibs/tinyxml/tinystr.cpp",
-	"../../ThirdPartyLibs/tinyxml/tinyxml.cpp",
-	"../../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
-	"../../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
+	"../../ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
 	"../../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
 	"../../ThirdPartyLibs/stb_image/stb_image.cpp",     
 }

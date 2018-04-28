@@ -11,6 +11,9 @@ end
 	
 	defines { "GWEN_COMPILE_STATIC"  }
 	 defines { "DONT_USE_GLUT"}	
+    if os.is("Linux") then
+        buildoptions{"-fPIC"}
+    end
 	includedirs {
 		".",".."
 	}

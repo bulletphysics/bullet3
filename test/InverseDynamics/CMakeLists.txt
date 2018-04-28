@@ -84,11 +84,8 @@ ENDIF()
         	../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp
         	../../examples/Importers/ImportColladaDemo/ColladaGraphicsInstance.h
         	../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
-
+		../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp
+		
         )
 
 ADD_TEST(Test_BulletInverseForwardDynamics_PASS Test_BulletInverseForwardDynamics)

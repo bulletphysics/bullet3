@@ -46,15 +46,22 @@ def main():
         obs = env.reset()
        
         while 1:
-            time.sleep(0.01)
             a = pi.act(obs)
             obs, r, done, _ = env.step(a)
             score += r
             frame += 1
             distance=5
             yaw = 0
+            time.sleep(1./60.)
             humanPos, humanOrn = p.getBasePositionAndOrientation(torsoId)
-            p.resetDebugVisualizerCamera(distance,yaw,-20,humanPos);
+            camInfo = p.getDebugVisualizerCamera()
+            curTargetPos = camInfo[11]
+            distance=camInfo[10]
+            yaw = camInfo[8]
+            pitch=camInfo[9]
+            targetPos = [0.95*curTargetPos[0]+0.05*humanPos[0],0.95*curTargetPos[1]+0.05*humanPos[1],curTargetPos[2]]
+            p.resetDebugVisualizerCamera(distance,yaw,pitch,targetPos);
+
 
             still_open = env.render("human")
             if still_open==False:

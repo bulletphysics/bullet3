@@ -2,6 +2,47 @@ import pybullet as p
 import time
 import math
 
+
+def drawInertiaBox(parentUid, parentLinkIndex, color):
+	dyn = p.getDynamicsInfo(parentUid, parentLinkIndex)
+	mass=dyn[0]
+	frictionCoeff=dyn[1]
+	inertia = dyn[2]
+	if (mass>0):
+		Ixx = inertia[0]
+		Iyy = inertia[1]
+		Izz = inertia[2]
+		boxScaleX = 0.5*math.sqrt(6*(Izz + Iyy - Ixx) / mass);
+		boxScaleY = 0.5*math.sqrt(6*(Izz + Ixx - Iyy) / mass);
+		boxScaleZ = 0.5*math.sqrt(6*(Ixx + Iyy - Izz) / mass);
+  
+		halfExtents = [boxScaleX,boxScaleY,boxScaleZ]
+		pts = [[halfExtents[0],halfExtents[1],halfExtents[2]],
+				 [-halfExtents[0],halfExtents[1],halfExtents[2]],
+				 [halfExtents[0],-halfExtents[1],halfExtents[2]],
+				 [-halfExtents[0],-halfExtents[1],halfExtents[2]],
+				 [halfExtents[0],halfExtents[1],-halfExtents[2]],
+				 [-halfExtents[0],halfExtents[1],-halfExtents[2]],
+				 [halfExtents[0],-halfExtents[1],-halfExtents[2]],
+				 [-halfExtents[0],-halfExtents[1],-halfExtents[2]]]
+	
+		
+		p.addUserDebugLine(pts[0],pts[1],color,1, parentObjectUniqueId=parentUid, parentLinkIndex = parentLinkIndex)
+		p.addUserDebugLine(pts[1],pts[3],color,1, parentObjectUniqueId=parentUid, parentLinkIndex = parentLinkIndex)
+		p.addUserDebugLine(pts[3],pts[2],color,1, parentObjectUniqueId=parentUid, parentLinkIndex = parentLinkIndex)
+		p.addUserDebugLine(pts[2],pts[0],color,1, parentObjectUniqueId=parentUid, parentLinkIndex = parentLinkIndex)
+	
+		p.addUserDebugLine(pts[0],pts[4],color,1, parentObjectUniqueId=parentUid, parentLinkIndex = parentLinkIndex)
+		p.addUserDebugLine(pts[1],pts[5],color,1, parentObjectUniqueId=parentUid, parentLinkIndex = parentLinkIndex)
+		p.addUserDebugLine(pts[2],pts[6],color,1, parentObjectUniqueId=parentUid, parentLinkIndex = parentLinkIndex)
+		p.addUserDebugLine(pts[3],pts[7],color,1, parentObjectUniqueId=parentUid, parentLinkIndex = parentLinkIndex)
+	
+		p.addUserDebugLine(pts[4+0],pts[4+1],color,1, parentObjectUniqueId=parentUid, parentLinkIndex = parentLinkIndex)
+		p.addUserDebugLine(pts[4+1],pts[4+3],color,1, parentObjectUniqueId=parentUid, parentLinkIndex = parentLinkIndex)
+		p.addUserDebugLine(pts[4+3],pts[4+2],color,1, parentObjectUniqueId=parentUid, parentLinkIndex = parentLinkIndex)
+		p.addUserDebugLine(pts[4+2],pts[4+0],color,1, parentObjectUniqueId=parentUid, parentLinkIndex = parentLinkIndex)
+
+
 toeConstraint = True
 useMaximalCoordinates = False
 useRealTime = 1
@@ -41,9 +82,8 @@ p.setTimeStep(fixedTimeStep)
 
 orn = p.getQuaternionFromEuler([0,0,0.4])
 p.setRealTimeSimulation(0)
-quadruped = p.loadURDF("quadruped/minitaur_v1.urdf",[1,-1,.3],orn,useFixedBase=False, useMaximalCoordinates=useMaximalCoordinates)
+quadruped = p.loadURDF("quadruped/minitaur_v1.urdf",[1,-1,.3],orn,useFixedBase=False, useMaximalCoordinates=useMaximalCoordinates, flags=p.URDF_USE_IMPLICIT_CYLINDER)
 nJoints = p.getNumJoints(quadruped)
-
 
 jointNameToId = {}
 for i in range(nJoints):
@@ -76,12 +116,35 @@ motor_back_leftL_joint = jointNameToId['motor_back_leftL_joint']
 motor_back_leftL_link = jointNameToId['motor_back_leftL_link']
 knee_back_leftL_link = jointNameToId['knee_back_leftL_link']
 
+
+
+
 #fixtorso = p.createConstraint(-1,-1,quadruped,-1,p.JOINT_FIXED,[0,0,0],[0,0,0],[0,0,0])
 
 motordir=[-1,-1,-1,-1,1,1,1,1]
 halfpi = 1.57079632679
 twopi = 4*halfpi
 kneeangle = -2.1834
+
+dyn = p.getDynamicsInfo(quadruped,-1)
+mass=dyn[0]
+friction=dyn[1]
+localInertiaDiagonal = dyn[2]
+
+print("localInertiaDiagonal",localInertiaDiagonal)
+
+#this is a no-op, just to show the API
+p.changeDynamics(quadruped,-1,localInertiaDiagonal=localInertiaDiagonal)
+
+#for i in range (nJoints):
+#	p.changeDynamics(quadruped,i,localInertiaDiagonal=[0.000001,0.000001,0.000001])
+
+
+drawInertiaBox(quadruped,-1, [1,0,0])
+#drawInertiaBox(quadruped,motor_front_rightR_joint, [1,0,0])
+
+for i in range (nJoints):
+	drawInertiaBox(quadruped,i, [0,1,0])
 
 
 if (useMaximalCoordinates):
@@ -187,6 +250,7 @@ t = 0.0
 t_end = t + 15
 ref_time = time.time()
 while (t<t_end):
+	p.setGravity(0,0,-10)
 	if (useRealTime):
 		t = time.time()-ref_time
 	else:

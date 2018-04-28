@@ -6,7 +6,7 @@
 
 This is the official C++ source code repository of the Bullet Physics SDK: real-time collision detection and multi-physics simulation for VR, games, visual effects, robotics, machine learning etc.
 
-New in Bullet 2.85: pybullet Python bindings, improved support for robotics and VR
+New in Bullet 2.85: pybullet Python bindings, improved support for robotics and VR. Use pip install pybullet and see [PyBullet Quickstart Guide](https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA/edit#heading=h.2ye70wns7io3).
 
 The Bullet 2 API will stay default and up-to-date while slowly moving to a new API.
 The steps towards a new API is in a nutshell:
@@ -80,9 +80,9 @@ Depending on your system (Linux 32bit, 64bit or Mac OSX) use one of the followin
 Using premake:
 ```
 	cd build3
-	./premake4_linux gmake --double
-	./premake4_linux64 gmake --double
-	./premake4_osx gmake --double --enable_pybullet
+	./premake4_linux --double gmake
+	./premake4_linux64 --double gmake
+	./premake4_osx --double --enable_pybullet gmake
 ```
 Then
 ```

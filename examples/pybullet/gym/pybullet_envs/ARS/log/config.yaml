@@ -1,0 +1,29 @@
+delta_std: 0.03
+deltas_used: 8
+env: !!python/object/apply:functools.partial
+  args:
+  - &id001 !!python/name:pybullet_envs.minitaur.envs.minitaur_reactive_env.MinitaurReactiveEnv ''
+  state: !!python/tuple
+  - *id001
+  - !!python/tuple []
+  - accurate_motor_model_enabled: true
+    control_latency: 0.02
+    energy_weight: 0.005
+    env_randomizer: null
+    motor_kd: 0.015
+    num_steps_to_log: 1000
+    pd_latency: 0.003
+    remove_default_joint_damping: true
+    render: false
+    urdf_version: rainbow_dash_v0
+  - null
+filter: MeanStdFilter
+num_directions: 8
+num_iterations: 1000
+num_workers: 8
+policy_type: linear
+rollout_length: 1000
+seed: 237
+shift: 0
+step_size: 0.02
+

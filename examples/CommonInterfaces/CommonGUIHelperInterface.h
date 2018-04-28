@@ -44,6 +44,7 @@ struct GUIHelperInterface
 
 	virtual int getShapeIndexFromInstance(int instanceUid){return -1;}	
 	virtual void replaceTexture(int shapeIndex, int textureUid){}
+	virtual void removeTexture(int textureUid) {}
 	
 	
 	virtual Common2dCanvasInterface* get2dCanvasInterface()=0;
@@ -93,13 +94,15 @@ struct GUIHelperInterface
                                   int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
 		  int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied){}
 
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]){}
+	virtual void setProjectiveTexture(bool useProjectiveTexture){}
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) =0;
 	
 	virtual void drawText3D( const char* txt, float posX, float posY, float posZ, float size){}
 	virtual void drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag){}
 	
-	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double orientation[4], const double	textColorRGB[3], double size, double lifeTime, int trackingVisualShapeIndex, int optionFlags){return -1;}
+	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double orientation[4], const double	textColorRGB[3], double size, double lifeTime, int trackingVisualShapeIndex, int optionFlags, int replaceItemUid){return -1;}
 	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime , int trackingVisualShapeIndex){return -1;};
 	virtual int		addUserDebugParameter(const char* txt, double	rangeMin, double	rangeMax, double startValue){return -1;};
 	virtual int		readUserDebugParameter(int itemUniqueId, double* value) { return 0;}
@@ -176,6 +179,14 @@ struct DummyGUIHelper : public GUIHelperInterface
 	{
         if (numPixelsCopied)
             *numPixelsCopied = 0;
+	}
+	
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+	{
+	}
+	
+	virtual void setProjectiveTexture(bool useProjectiveTexture)
+	{
 	}
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) 

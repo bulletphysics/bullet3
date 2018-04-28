@@ -35,7 +35,7 @@
 			if  _OPTIONS["enable_system_opengl"] and (os.isdir("/usr/include") and os.isfile("/usr/include/GL/gl.h")) then
 				links {"GL"}
 			else
-				print("No GL/gl.h found, using dynamic loading of GL using glew")
+				print("No GL/gl.h found, using dynamic loading of GL using glad")
 				defines {"GLEW_INIT_OPENGL11_FUNCTIONS=1"}
 				links {"dl"}
 			end
@@ -50,24 +50,36 @@
 			configuration {"Windows"}
 			defines { "GLEW_STATIC"}
 			includedirs {
-					projectRootDir .. "examples/ThirdPartyLibs/Glew"
+					projectRootDir .. "examples/ThirdPartyLibs/glad"
 			}
-			files { projectRootDir .. "examples/ThirdPartyLibs/Glew/glew.c"}
+			files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c"}
 		end
+		if os.is("MacOSX") then
+			 includedirs {
+                                        projectRootDir .. "examples/ThirdPartyLibs/glad"
+                                }
+                                files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c"}
+		end
+
 		if os.is("Linux") then
 			configuration{"Linux"}
-			if  _OPTIONS["enable_system_opengl"] and (os.isdir("/usr/include") and os.isfile("/usr/include/GL/gl.h") and os.isfile("/usr/include/GL/glew.h"))  then
-				links {"GLEW"}
-				print ("linking against system GLEW")
-			else
-				print("Using static glew and dynamic loading of glx functions")
-			 	defines { "GLEW_STATIC","GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1"}
+				if  _OPTIONS["enable_system_glx"] then --# and (os.isdir("/usr/include") and os.isfile("/usr/include/GL/glx.h")) then
+                                	links{"X11","pthread"}
+					print("Using system GL/glx.h")
+                        	else
+					print("Using glad_glx")
+				 	defines { "GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1"}	
+				 	files { 
+					projectRootDir .. "examples/ThirdPartyLibs/glad/glad_glx.c"}
+				end
+
+				print("Using glad and dynamic loading of GL functions")
+			 	defines { "GLEW_STATIC"}
                         	includedirs {
-                                        projectRootDir .. "examples/ThirdPartyLibs/Glew"
+                                        projectRootDir .. "examples/ThirdPartyLibs/glad"
                         	}
-                        	files { projectRootDir .. "examples/ThirdPartyLibs/Glew/glew.c"}
+                        	files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c"}
 				links {"dl"}
-			end
 
 		end
 		configuration{}

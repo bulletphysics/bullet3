@@ -9,6 +9,6 @@ newmtl Material
   Kd 0.5880 0.5880 0.5880
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
-  map_Kd tex4x4.png
+  map_Kd checker_blue.png
   
   

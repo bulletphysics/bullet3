@@ -15,16 +15,17 @@ class Kuka:
   def __init__(self, urdfRootPath=pybullet_data.getDataPath(), timeStep=0.01):
     self.urdfRootPath = urdfRootPath
     self.timeStep = timeStep
-    
+    self.maxVelocity = .35
     self.maxForce = 200.
-    self.fingerAForce = 6
-    self.fingerBForce = 5.5
-    self.fingerTipForce = 6
+    self.fingerAForce = 2 
+    self.fingerBForce = 2.5
+    self.fingerTipForce = 2
     self.useInverseKinematics = 1
     self.useSimulation = 1
-    self.useNullSpace = 1
+    self.useNullSpace =21
     self.useOrientation = 1
     self.kukaEndEffectorIndex = 6
+    self.kukaGripperIndex = 7
     #lower limits for null space
     self.ll=[-.967,-2 ,-2.96,0.19,-2.96,-2.09,-3.05]
     #upper limits for null space
@@ -34,7 +35,7 @@ class Kuka:
     #restposes for null space
     self.rp=[0,0,0,0.5*math.pi,0,-math.pi*0.5*0.66,0]
     #joint damping coefficents
-    self.jd=[0.1,0.1,0.1,0.1,0.1,0.1,0.1]
+    self.jd=[0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001]
     self.reset()
     
   def reset(self):
@@ -76,7 +77,7 @@ class Kuka:
 
   def getObservation(self):
     observation = []
-    state = p.getLinkState(self.kukaUid,self.kukaEndEffectorIndex)
+    state = p.getLinkState(self.kukaUid,self.kukaGripperIndex)
     pos = state[0]
     orn = state[1]
     euler = p.getEulerFromQuaternion(orn)
@@ -106,13 +107,13 @@ class Kuka:
     
       
       self.endEffectorPos[0] = self.endEffectorPos[0]+dx
-      if (self.endEffectorPos[0]>0.75):
-        self.endEffectorPos[0]=0.75
-      if (self.endEffectorPos[0]<0.45):
-        self.endEffectorPos[0]=0.45
+      if (self.endEffectorPos[0]>0.65):
+        self.endEffectorPos[0]=0.65
+      if (self.endEffectorPos[0]<0.50):
+        self.endEffectorPos[0]=0.50
       self.endEffectorPos[1] = self.endEffectorPos[1]+dy
-      if (self.endEffectorPos[1]<-0.22):
-        self.endEffectorPos[1]=-0.22
+      if (self.endEffectorPos[1]<-0.17):
+        self.endEffectorPos[1]=-0.17
       if (self.endEffectorPos[1]>0.22):
         self.endEffectorPos[1]=0.22
       
@@ -120,10 +121,8 @@ class Kuka:
       #print (self.endEffectorPos[2])
       #print("actualEndEffectorPos[2]")
       #print(actualEndEffectorPos[2])
-      if (dz>0 or actualEndEffectorPos[2]>0.10):
-        self.endEffectorPos[2] = self.endEffectorPos[2]+dz
-      if (actualEndEffectorPos[2]<0.10):
-        self.endEffectorPos[2] = self.endEffectorPos[2]+0.0001
+      #if (dz<0 or actualEndEffectorPos[2]<0.5):
+      self.endEffectorPos[2] = self.endEffectorPos[2]+dz
     
      
       self.endEffectorAngle = self.endEffectorAngle + da
@@ -147,7 +146,7 @@ class Kuka:
       if (self.useSimulation):
         for i in range (self.kukaEndEffectorIndex+1):
           #print(i)
-          p.setJointMotorControl2(bodyIndex=self.kukaUid,jointIndex=i,controlMode=p.POSITION_CONTROL,targetPosition=jointPoses[i],targetVelocity=0,force=self.maxForce,positionGain=0.03,velocityGain=1)
+          p.setJointMotorControl2(bodyUniqueId=self.kukaUid,jointIndex=i,controlMode=p.POSITION_CONTROL,targetPosition=jointPoses[i],targetVelocity=0,force=self.maxForce,maxVelocity=self.maxVelocity, positionGain=0.3,velocityGain=1)
       else:
         #reset the joint state (ignoring all dynamics, not recommended to use during simulation)
         for i in range (self.numJoints):

@@ -86,10 +86,12 @@ typedef unsigned __int64 uint64_t;
 
 	/* Linux-i386, Linux-Alpha, Linux-ppc */
 #include <stdint.h>
+typedef intptr_t btintptr_t;
 
 #elif defined (__APPLE__)
 
 #include <inttypes.h>
+typedef intptr_t btintptr_t;
 
 #elif defined(FREE_WINDOWS)
 
@@ -132,6 +134,7 @@ typedef unsigned __int64 uint64_t;
 #include "BulletCollision/CollisionShapes/btConeShape.h"
 #include "BulletCollision/CollisionShapes/btCapsuleShape.h"
 #include "BulletCollision/CollisionShapes/btTriangleInfoMap.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
@@ -149,6 +152,7 @@ typedef unsigned __int64 uint64_t;
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletSoftBody/btSoftBodyData.h"
 #include "BulletDynamics/Featherstone/btMultiBody.h"
+#include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -180,6 +184,7 @@ char *includefiles[] = {
 	"../../../src/BulletCollision/CollisionShapes/btConeShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btCapsuleShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btTriangleInfoMap.h",
+	"../../../src/BulletCollision/NarrowPhaseCollision/btPersistentManifold.h",
 	"../../../src/BulletCollision/Gimpact/btGImpactShape.h",
 	"../../../src/BulletCollision/CollisionShapes/btConvexHullShape.h",
 	"../../../src/BulletCollision/CollisionDispatch/btCollisionObject.h",
@@ -198,6 +203,7 @@ char *includefiles[] = {
 	
 	"../../../src/BulletSoftBody/btSoftBodyData.h",
 	"../../../src/BulletDynamics/Featherstone/btMultiBody.h",
+	"../../../src/BulletDynamics/Featherstone/btMultiBodyLinkCollider.h",
 	// empty string to indicate end of includefiles
 	""
 };

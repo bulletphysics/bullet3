@@ -169,9 +169,9 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 			{
 				int textureIndex = -1;
 
-				if (meshData.m_textureImage)
+				if (meshData.m_textureImage1)
 				{
-					textureIndex = m_guiHelper->getRenderInterface()->registerTexture(meshData.m_textureImage,meshData.m_textureWidth,meshData.m_textureHeight);
+					textureIndex = m_guiHelper->getRenderInterface()->registerTexture(meshData.m_textureImage1,meshData.m_textureWidth,meshData.m_textureHeight);
 				}
 
 				shapeId = m_guiHelper->getRenderInterface()->registerShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0], 
@@ -195,7 +195,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 					m_internalData->m_depthBuffer,
                     &m_internalData->m_shadowBuffer,
 					&m_internalData->m_segmentationMaskBuffer,
-					m_internalData->m_renderObjects.size());
+					m_internalData->m_renderObjects.size(), -1);
                 
                 meshData.m_gfxShape->m_scaling[0] = scaling[0];
                 meshData.m_gfxShape->m_scaling[1] = scaling[1];
@@ -205,7 +205,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 					ob->registerMeshShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
 						meshData.m_gfxShape->m_numvertices,
 						indices,
-						meshData.m_gfxShape->m_numIndices,color, meshData.m_textureImage,meshData.m_textureWidth,meshData.m_textureHeight);
+						meshData.m_gfxShape->m_numIndices,color, meshData.m_textureImage1,meshData.m_textureWidth,meshData.m_textureHeight);
                 
                 ob->m_localScaling.setValue(scaling[0],scaling[1],scaling[2]);
 						
@@ -214,7 +214,10 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 
 
 				delete meshData.m_gfxShape;
-				delete meshData.m_textureImage;
+				if (!meshData.m_isCached)
+				{
+					delete meshData.m_textureImage1;
+				}
 			}
 		}
 	}

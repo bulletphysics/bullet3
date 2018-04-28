@@ -25,7 +25,7 @@ def callback(lcl, glb):
 
 def main():
   	
-    env = KukaGymEnv(renders=False)
+    env = KukaGymEnv(renders=False, isDiscrete=True)
     model = deepq.models.mlp([64])
     act = deepq.learn(
         env,

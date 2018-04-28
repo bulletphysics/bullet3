@@ -1,7 +1,7 @@
 import gym, gym.spaces, gym.utils, gym.utils.seeding
 import numpy as np
 import pybullet as p
-
+from pkg_resources import parse_version
 
 class MJCFBaseBulletEnv(gym.Env):
 	"""
@@ -18,6 +18,7 @@ class MJCFBaseBulletEnv(gym.Env):
 	def __init__(self, robot, render=False):
 		self.scene = None
 		self.physicsClientId=-1
+		self.ownsPhysicsClient = 0
 		self.camera = Camera()
 		self.isRender = render
 		self.robot = robot
@@ -39,17 +40,24 @@ class MJCFBaseBulletEnv(gym.Env):
 
 	def _reset(self):
 		if (self.physicsClientId<0):
-			self.physicsClientId = p.connect(p.SHARED_MEMORY)
-			if (self.physicsClientId<0):
-				if (self.isRender):
-					self.physicsClientId = p.connect(p.GUI)
-				else:
-					self.physicsClientId = p.connect(p.DIRECT)
-		p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+			conInfo = p.getConnectionInfo()
+			if (conInfo['isConnected']):
+				self.ownsPhysicsClient = False
+
+				self.physicsClientId = 0
+			else:
+				self.ownsPhysicsClient = True
+				self.physicsClientId = p.connect(p.SHARED_MEMORY)
+				if (self.physicsClientId<0):
+					if (self.isRender):
+						self.physicsClientId = p.connect(p.GUI)
+					else:
+						self.physicsClientId = p.connect(p.DIRECT)
+				p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
 
 		if self.scene is None:
 			self.scene = self.create_single_player_scene()
-		if not self.scene.multiplayer:
+		if not self.scene.multiplayer and self.ownsPhysicsClient:
 			self.scene.episode_restart()
 
 		self.robot.scene = self.scene
@@ -62,13 +70,17 @@ class MJCFBaseBulletEnv(gym.Env):
 		self.potential = self.robot.calc_potential()
 		return s
 
-	def _render(self, mode, close):
+	def _render(self, mode, close=False):
 		if (mode=="human"):
 			self.isRender = True
 		if mode != "rgb_array":
 			return np.array([])
-		base_pos = self.robot.body_xyz
-		
+
+		base_pos=[0,0,0]
+		if (hasattr(self,'robot')):
+			if (hasattr(self.robot,'body_xyz')):
+				base_pos = self.robot.body_xyz
+
 		view_matrix = p.computeViewMatrixFromYawPitchRoll(
 			cameraTargetPosition=base_pos,
 			distance=self._cam_dist,
@@ -88,13 +100,27 @@ class MJCFBaseBulletEnv(gym.Env):
 		rgb_array = rgb_array[:, :, :3]
 		return rgb_array
 
+
 	def _close(self):
-		if (self.physicsClientId>=0):
-			p.disconnect(self.physicsClientId)
-			self.physicsClientId = -1
+		if (self.ownsPhysicsClient):
+			if (self.physicsClientId>=0):
+				p.disconnect(self.physicsClientId)
+		self.physicsClientId = -1
 
 	def HUD(self, state, a, done):
 		pass
+
+	# backwards compatibility for gym >= v0.9.x
+	# for extension of this class.
+	def step(self, *args, **kwargs):
+		return self._step(*args, **kwargs)
+
+	if parse_version(gym.__version__)>=parse_version('0.9.6'):
+		close = _close
+		render = _render
+		reset = _reset
+		seed = _seed
+
 
 class Camera:
 	def __init__(self):

@@ -19,7 +19,7 @@ class InvertedPendulum(MJCFBasedRobot):
 		if not np.isfinite(a).all():
 			print("a is inf")
 			a[0] = 0
-		self.slider.set_motor_torque( 100*float(np.clip(a[0], -1, +1)) )
+		self.slider.set_motor_torque(  100*float(np.clip(a[0], -1, +1)) )
 
 	def calc_state(self):
 		self.theta, theta_dot = self.j1.current_position()

@@ -1,5 +1,11 @@
 
-#include "b3RobotSimulatorClientAPI.h"
+#ifdef B3_USE_ROBOTSIM_GUI
+	#include "b3RobotSimulatorClientAPI.h"
+#else
+	#include "b3RobotSimulatorClientAPI_NoGUI.h"
+#endif
+
+
 #include "../Utils/b3Clock.h"
 
 #include <string.h>
@@ -7,11 +13,23 @@
 #include <assert.h>
 #define ASSERT_EQ(a,b) assert((a)==(b));
 #include "MinitaurSetup.h"
+
+
+
 int main(int argc, char* argv[])
 {
+#ifdef B3_USE_ROBOTSIM_GUI
 	b3RobotSimulatorClientAPI* sim = new b3RobotSimulatorClientAPI();
-
-	sim->connect(eCONNECT_GUI);
+	bool isConnected = sim->connect(eCONNECT_GUI);
+#else
+	b3RobotSimulatorClientAPI_NoGUI* sim = new b3RobotSimulatorClientAPI_NoGUI();
+	bool isConnected = sim->connect(eCONNECT_DIRECT);
+#endif
+	if (!isConnected)
+	{
+		printf("Cannot connect\n");
+		return -1;
+	}
 	//Can also use eCONNECT_DIRECT,eCONNECT_SHARED_MEMORY,eCONNECT_UDP,eCONNECT_TCP, for example:
 	//sim->connect(eCONNECT_UDP, "localhost", 1234);
 	sim->configureDebugVisualizer( COV_ENABLE_GUI, 0);
@@ -124,7 +142,7 @@ int main(int argc, char* argv[])
 			b3Vector3 basePos;
 			b3Quaternion baseOrn;
 			sim->getBasePositionAndOrientation(minitaurUid,basePos,baseOrn);
-			sim->resetDebugVisualizerCamera(distance,yaw,20,basePos);
+			sim->resetDebugVisualizerCamera(distance,-20, yaw,basePos);
 		}
 		b3Clock::usleep(1000.*1000.*fixedTimeStep);
 	}

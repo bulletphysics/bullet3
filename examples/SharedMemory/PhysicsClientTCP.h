@@ -2,7 +2,7 @@
 #define PHYSICS_CLIENT_TCP_H
 
 #include "PhysicsDirect.h"
-#include "PhysicsServerCommandProcessor.h"
+#include "PhysicsCommandProcessorInterface.h"
 
 class TcpNetworkedPhysicsProcessor : public PhysicsCommandProcessorInterface
 {
