@@ -128,6 +128,11 @@ void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject, in
 	btVector3	maxAabb;
 	collisionObject->getCollisionShape()->getAabb(trans,minAabb,maxAabb);
 
+	//need to increase the aabb for contact thresholds
+	btVector3 contactThreshold(collisionObject->getContactProcessingThreshold(), collisionObject->getContactProcessingThreshold(), collisionObject->getContactProcessingThreshold());
+	minAabb -= contactThreshold;
+	maxAabb += contactThreshold;
+
 	int type = collisionObject->getCollisionShape()->getShapeType();
 	collisionObject->setBroadphaseHandle( getBroadphase()->createProxy(
 		minAabb,
@@ -151,7 +156,7 @@ void	btCollisionWorld::updateSingleAabb(btCollisionObject* colObj)
 	btVector3 minAabb,maxAabb;
 	colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
 	//need to increase the aabb for contact thresholds
-	btVector3 contactThreshold(gContactBreakingThreshold,gContactBreakingThreshold,gContactBreakingThreshold);
+  btVector3 contactThreshold(colObj->getContactProcessingThreshold(), colObj->getContactProcessingThreshold(), colObj->getContactProcessingThreshold());
 	minAabb -= contactThreshold;
 	maxAabb += contactThreshold;
 
@@ -1270,6 +1275,12 @@ void	btCollisionWorld::contactTest( btCollisionObject* colObj, ContactResultCall
 {
 	btVector3 aabbMin,aabbMax;
 	colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(),aabbMin,aabbMax);
+
+	//need to increase the aabb for contact thresholds
+	btVector3 contactThreshold(colObj->getContactProcessingThreshold(), colObj->getContactProcessingThreshold(), colObj->getContactProcessingThreshold());
+	aabbMin -= contactThreshold;
+	aabbMax += contactThreshold;
+
 	btSingleContactCallback	contactCB(colObj,this,resultCallback);
 	
 	m_broadphasePairCache->aabbTest(aabbMin,aabbMax,contactCB);
@@ -1599,7 +1610,7 @@ void	btCollisionWorld::debugDrawWorld()
 						btVector3 minAabb,maxAabb;
 						btVector3 colorvec = defaultColors.m_aabb;
 						colObj->getCollisionShape()->getAabb(colObj->getWorldTransform(), minAabb,maxAabb);
-						btVector3 contactThreshold(gContactBreakingThreshold,gContactBreakingThreshold,gContactBreakingThreshold);
+						btVector3 contactThreshold(colObj->getContactProcessingThreshold(),colObj->getContactProcessingThreshold(),colObj->getContactProcessingThreshold());
 						minAabb -= contactThreshold;
 						maxAabb += contactThreshold;
 

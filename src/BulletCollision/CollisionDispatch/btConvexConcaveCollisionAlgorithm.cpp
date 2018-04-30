@@ -179,7 +179,7 @@ void	btConvexTriangleCallback::setTimeStepAndCounters(btScalar collisionMarginTr
 	const btCollisionShape* convexShape = static_cast<const btCollisionShape*>(m_convexBodyWrap->getCollisionShape());
 	//CollisionShape* triangleShape = static_cast<btCollisionShape*>(triBody->m_collisionShape);
 	convexShape->getAabb(convexInTriangleSpace,m_aabbMin,m_aabbMax);
-	btScalar extraMargin = collisionMarginTriangle+ resultOut->m_closestPointDistanceThreshold;
+	btScalar extraMargin = collisionMarginTriangle + resultOut->m_closestPointDistanceThreshold + m_convexBodyWrap->getCollisionObject()->getContactProcessingThreshold();
 	
 	btVector3 extra(extraMargin,extraMargin,extraMargin);
 
