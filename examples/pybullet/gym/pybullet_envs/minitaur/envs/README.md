@@ -2,7 +2,7 @@
 
 This folder contains a number of simulated Minitaur environments implemented using pybullet.
 
-The following two environments are used in the RSS paper "Sim-to-Real: Learning Agile Locomotion For Quadruped Robots":
+The following two environments are used in the RSS paper "[Sim-to-Real: Learning Agile Locomotion For Quadruped Robots](https://arxiv.org/abs/1804.10332)":
 * Galloping environment: minitaur_reactive_env.py
 * Trotting  environment:  minitaur_trotting_env.py
 
