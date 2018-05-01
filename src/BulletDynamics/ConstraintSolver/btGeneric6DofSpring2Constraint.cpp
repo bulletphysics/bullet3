@@ -804,7 +804,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 			if (m_rbB.getInvMass()) mB = mB * rrB + 1 / (m_rbB.getInvInertiaTensorWorld() * ax1).length();
 		}
 		btScalar m = mA > mB ? mB : mA;
-		btScalar angularfreq = sqrt(ks / m);
+		btScalar angularfreq = static_cast<btScalar>(sqrt(ks / m));
 
 
 		//limit stiffness (the spring should not be sampled faster that the quarter of its angular frequency)
@@ -1047,7 +1047,7 @@ void btGeneric6DofSpring2Constraint::setServoTarget(int index, btScalar targetOr
 		btScalar target = targetOrg+SIMD_PI;
 		if (1)
 		{
-			btScalar m = target - SIMD_2_PI * floor(target/SIMD_2_PI);
+			btScalar m = target - SIMD_2_PI * static_cast<btScalar>(floor(target/SIMD_2_PI));
 			// handle boundary cases resulted from floating-point cut off:
 			{
 				if (m>=SIMD_2_PI)

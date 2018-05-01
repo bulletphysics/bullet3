@@ -1350,7 +1350,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 	// Draw a small simplex at the center of the object
 	if (getDebugDrawer() && getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawFrames)
 	{
-		getDebugDrawer()->drawTransform(worldTransform,.1);
+		getDebugDrawer()->drawTransform(worldTransform,static_cast<btScalar>(.1));
 	}
 
 	if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
