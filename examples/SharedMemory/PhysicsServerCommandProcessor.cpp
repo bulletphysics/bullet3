@@ -597,7 +597,7 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT	
 					 cmd->m_physSimParamArgs = unused.m_physSimParamArgs;
 					 #else
-					s= s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
 					s = fread(&cmd->m_physSimParamArgs ,sizeof(b3PhysicsSimulationParameters),1,m_file);
 
 					 #endif
@@ -5010,9 +5010,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 													{
 														con->enableMotor(3+limitAxis,true);
 														con->setTargetVelocity(3+limitAxis, qdotTarget);
-														//this is max motor force impulse
-														btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
-														con->setMaxMotorForce(3+limitAxis,torqueImpulse);
+														con->setMaxMotorForce(3+limitAxis, torque);
 													}
 													break;
 												}
@@ -5025,9 +5023,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 														//next one is the maximum velocity to reach target position.
 														//the maximum velocity is limited by maxMotorForce
 														con->setTargetVelocity(3+limitAxis, 100);
-														//this is max motor force impulse
-														btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
-														con->setMaxMotorForce(3+limitAxis,torqueImpulse);
+														con->setMaxMotorForce(3+limitAxis, torque);
 														con->enableMotor(3+limitAxis,true);
 													}
 													break;
@@ -5063,9 +5059,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 												{
 													con->enableMotor(limitAxis,true);
 													con->setTargetVelocity(limitAxis, -qdotTarget);
-													//this is max motor force impulse
-													btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
-													con->setMaxMotorForce(limitAxis,torqueImpulse);
+													con->setMaxMotorForce(limitAxis, torque);
 													break;
 												}
 											case CONTROL_MODE_POSITION_VELOCITY_PD:
@@ -5075,9 +5069,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 													//next one is the maximum velocity to reach target position.
 													//the maximum velocity is limited by maxMotorForce
 													con->setTargetVelocity(limitAxis, 100);
-													//this is max motor force impulse
-													btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
-													con->setMaxMotorForce(limitAxis,torqueImpulse);
+													con->setMaxMotorForce(limitAxis, torque);
 													con->enableMotor(limitAxis,true);
 													break;
 												}

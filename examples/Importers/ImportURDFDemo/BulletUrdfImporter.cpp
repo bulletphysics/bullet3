@@ -21,6 +21,7 @@ subject to the following restrictions:
 #include "../ImportSTLDemo/LoadMeshFromSTL.h"
 #include "../ImportColladaDemo/LoadMeshFromCollada.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"//to create a tesselation of a generic btConvexShape
+#include "BulletCollision/CollisionShapes/btSdfCollisionShape.h"
 #include "../../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include <string>
@@ -509,6 +510,10 @@ bool findExistingMeshFile(
 	{
 		*out_type = UrdfGeometry::FILE_OBJ;
 	}
+	else if (ext == ".cdf")
+	{
+		*out_type = UrdfGeometry::FILE_CDF;
+	}
 	else
 	{
 		b3Warning("%s: invalid mesh filename extension '%s'\n", error_message_prefix.c_str(), ext.c_str());
@@ -662,7 +667,53 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 			shape ->setMargin(gUrdfDefaultCollisionMargin);
             break;
 	}
+	case URDF_GEOM_CDF:
+		{
+			
+			char relativeFileName[1024];
+			char pathPrefix[1024];
+			pathPrefix[0] = 0;
+			if (b3ResourcePath::findResourcePath(collision->m_geometry.m_meshFileName.c_str(), relativeFileName, 1024))
+			{
+				b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+				
 
+				btAlignedObjectArray<char> sdfData;
+				{
+					std::streampos fsize = 0;
+					std::ifstream file(relativeFileName, std::ios::binary);
+					if (file.good())
+					{
+						fsize = file.tellg();
+						file.seekg(0, std::ios::end);
+						fsize = file.tellg() - fsize;
+						file.seekg(0, std::ios::beg);
+						sdfData.resize(fsize);
+						int bytesRead = file.rdbuf()->sgetn(&sdfData[0], fsize);
+						btAssert(bytesRead == fsize);
+						file.close();
+					}
+				}
+
+				if (sdfData.size())
+				{
+					btSdfCollisionShape* sdfShape = new btSdfCollisionShape();
+					bool valid = sdfShape->initializeSDF(&sdfData[0], sdfData.size());
+					btAssert(valid);
+
+					if (valid)
+					{
+						shape = sdfShape;
+					}
+					else
+					{
+						delete sdfShape;
+					}
+
+				}
+			}
+			break;
+		}
 	case URDF_GEOM_MESH:
 	{
 		GLInstanceGraphicsShape* glmesh = 0;

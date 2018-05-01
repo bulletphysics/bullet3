@@ -575,7 +575,7 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 	}
 	 
 	XMLDocument doc;
-	if (!doc.LoadFile(filename))
+	if (doc.LoadFile(filename) != XML_SUCCESS)
 		return;
 
 	//We need units to be in meter, so apply a scaling using the asset/units meter 
