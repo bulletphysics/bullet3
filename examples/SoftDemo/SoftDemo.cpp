@@ -169,7 +169,7 @@ public:
 		for (  int i=0;i<softWorld->getSoftBodyArray().size();i++)
 		{
 			btSoftBody*	psb=(btSoftBody*)softWorld->getSoftBodyArray()[i];
-			if (softWorld->getDebugDrawer() && !(softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
+            //if (softWorld->getDebugDrawer() && !(softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
 			{
 				btSoftBodyHelpers::DrawFrame(psb,softWorld->getDebugDrawer());
 				btSoftBodyHelpers::Draw(psb,softWorld->getDebugDrawer(),softWorld->getDrawFlags());
@@ -524,6 +524,7 @@ static void	Init_Ropes(SoftDemo* pdemo)
 			btVector3(10,0,i*0.25),
 			16,
 			1+2);
+        psb->getCollisionShape()->setUserPointer((void*) psb);
 		psb->m_cfg.piterations		=	4;
 		psb->m_materials[0]->m_kLST	=	0.1+(i/(btScalar)(n-1))*0.9;
 		psb->setTotalMass(20);
@@ -544,6 +545,7 @@ static void	Init_RopeAttach(SoftDemo* pdemo)
 		static btSoftBody* CtorRope(SoftDemo* pdemo,const btVector3& p)
 		{
 			btSoftBody*	psb=btSoftBodyHelpers::CreateRope(pdemo->m_softBodyWorldInfo,p,p+btVector3(10,0,0),8,1);
+            psb->getCollisionShape()->setUserPointer((void*) psb);
 			psb->setTotalMass(50);
 			pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 			return(psb);
@@ -572,6 +574,7 @@ static void	Init_ClothAttach(SoftDemo* pdemo)
 		btVector3(+s,h,-s),
 		btVector3(-s,h,+s),
 		btVector3(+s,h,+s),r,r,4+8,true);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 
 	btTransform startTransform;
@@ -631,6 +634,7 @@ static void	Init_CapsuleCollision(SoftDemo* pdemo)
 		btVector3(+s,h,-s),
 		btVector3(-s,h,+s),
 		btVector3(+s,h,+s),r,r,fixed,true);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 	psb->setTotalMass(0.1);
 
@@ -658,6 +662,7 @@ static void	Init_Collide(SoftDemo* pdemo)
 			btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVertices,
 				&gIndices[0][0],
 				NUM_TRIANGLES);
+            psb->getCollisionShape()->setUserPointer((void*) psb);
 			psb->generateBendingConstraints(2);
 			psb->m_cfg.piterations=2;
 			psb->m_cfg.collisions|=btSoftBody::fCollision::VF_SS;
@@ -691,6 +696,7 @@ static void	Init_Collide2(SoftDemo* pdemo)
 			btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVerticesBunny,
 				&gIndicesBunny[0][0],
 				BUNNY_NUM_TRIANGLES);
+            psb->getCollisionShape()->setUserPointer((void*) psb);
 			btSoftBody::Material*	pm=psb->appendMaterial();
 			pm->m_kLST				=	0.5;
 			pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
@@ -728,6 +734,7 @@ static void	Init_Collide3(SoftDemo* pdemo)
 			btVector3(-s,0,+s),
 			btVector3(+s,0,+s),
 			15,15,1+2+4+8,true);
+        psb->getCollisionShape()->setUserPointer((void*) psb);
 		psb->m_materials[0]->m_kLST	=	0.4;
 		psb->m_cfg.collisions		|=	btSoftBody::fCollision::VF_SS;
 		psb->setTotalMass(150);
@@ -772,6 +779,7 @@ static void	Init_Aero(SoftDemo* pdemo)
 			btVector3(+s,h,+s),
 			segments,segments,
 			0,true);
+        psb->getCollisionShape()->setUserPointer((void*) psb);
 		btSoftBody::Material*	pm=psb->appendMaterial();
 		pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
 		psb->generateBendingConstraints(2,pm);
@@ -814,6 +822,7 @@ static void	Init_Aero2(SoftDemo* pdemo)
 			btVector3(+s,0,+s),
 			segments,segments*3,
 			1+2,true);
+        psb->getCollisionShape()->setUserPointer((void*) psb);
 		
 		psb->getCollisionShape()->setMargin(0.5);
 		btSoftBody::Material* pm=psb->appendMaterial();
@@ -866,6 +875,7 @@ static void	Init_Friction(SoftDemo* pdemo)
 	{
 		const btVector3	p(-ni*ts/2+i*ts,-10+bs,40);
 		btSoftBody*		psb=Ctor_SoftBox(pdemo,p,btVector3(bs,bs,bs));
+        psb->getCollisionShape()->setUserPointer((void*) psb);
 		psb->m_cfg.kDF	=	0.1 * ((i+1)/(btScalar)ni);
 		psb->addVelocity(btVector3(0,0,-10));
 	}
@@ -880,6 +890,7 @@ static void	Init_Pressure(SoftDemo* pdemo)
 	btSoftBody*	psb=btSoftBodyHelpers::CreateEllipsoid(pdemo->m_softBodyWorldInfo,btVector3(35,25,0),
 		btVector3(1,1,1)*3,
 		512);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	psb->m_materials[0]->m_kLST	=	0.1;
 	psb->m_cfg.kDF				=	1;
 	psb->m_cfg.kDP				=	0.001; // fun factor...
@@ -902,6 +913,7 @@ static void	Init_Volume(SoftDemo* pdemo)
 	btSoftBody*	psb=btSoftBodyHelpers::CreateEllipsoid(pdemo->m_softBodyWorldInfo,btVector3(35,25,0),
 		btVector3(1,1,1)*3,
 		512);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	psb->m_materials[0]->m_kLST	=	0.45;
 	psb->m_cfg.kVC				=	20;
 	psb->setTotalMass(50,true);
@@ -936,6 +948,7 @@ static void	Init_Sticks(SoftDemo* pdemo)
 				org+btVector3(hg*0.001,hg,0),
 				sg,
 				1);
+            psb->getCollisionShape()->setUserPointer((void*) psb);
 			psb->m_cfg.kDP		=	0.005;
 			psb->m_cfg.kCHR		=	0.1;
 			for(int i=0;i<3;++i)
@@ -964,6 +977,7 @@ static void	Init_Bending(SoftDemo* pdemo)
 		btVector3(-s,0,+s)};
 	const btScalar	m[]={	0,0,0,1};
 	btSoftBody*		psb=new btSoftBody(&pdemo->m_softBodyWorldInfo,4,x,m);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	psb->appendLink(0,1);
 	psb->appendLink(1,2);
 	psb->appendLink(2,3);
@@ -987,6 +1001,7 @@ static void	Init_Cloth(SoftDemo* pdemo)
 		31,31,
 		//		31,31,
 		1+2+4+8,true);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	
 	psb->getCollisionShape()->setMargin(0.5);
 	btSoftBody::Material* pm=psb->appendMaterial();
@@ -1009,6 +1024,7 @@ static void	Init_Bunny(SoftDemo* pdemo)
 	btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVerticesBunny,
 		&gIndicesBunny[0][0],
 		BUNNY_NUM_TRIANGLES);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	btSoftBody::Material*	pm=psb->appendMaterial();
 	pm->m_kLST				=	0.5;
 	pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
@@ -1032,6 +1048,7 @@ static void	Init_BunnyMatch(SoftDemo* pdemo)
 	btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,	gVerticesBunny,
 		&gIndicesBunny[0][0],
 		BUNNY_NUM_TRIANGLES);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	psb->m_cfg.kDF				=	0.5;
 	psb->m_cfg.kMT				=	0.05;
 	psb->m_cfg.piterations		=	5;
@@ -1052,6 +1069,7 @@ static void	Init_Torus(SoftDemo* pdemo)
 	btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(	pdemo->m_softBodyWorldInfo,	gVertices,
 		&gIndices[0][0],
 		NUM_TRIANGLES);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	psb->generateBendingConstraints(2);
 	psb->m_cfg.piterations=2;
 	psb->randomizeConstraints();
@@ -1075,6 +1093,7 @@ static void	Init_TorusMatch(SoftDemo* pdemo)
 	btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,	gVertices,
 		&gIndices[0][0],
 		NUM_TRIANGLES);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	psb->m_materials[0]->m_kLST	=	0.1;
 	psb->m_cfg.kMT				=	0.05;
 	psb->randomizeConstraints();
@@ -1100,6 +1119,7 @@ static void	Init_Cutting1(SoftDemo* pdemo)
 		btVector3(+s,h,+s),
 		btVector3(-s,h,+s)};
 	btSoftBody*	psb=btSoftBodyHelpers::CreatePatch(pdemo->m_softBodyWorldInfo,p[0],p[1],p[2],p[3],r,r,1+2+4+8,true);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 	psb->m_cfg.piterations=1;
 	pdemo->m_cutting=true;	
@@ -1219,6 +1239,7 @@ static SteerControl	steercontrol_r(-1);
 static void	Init_ClusterDeform(SoftDemo* pdemo)
 {
 	btSoftBody*		psb=Ctor_ClusterTorus(pdemo,btVector3(0,0,0),btVector3(SIMD_PI/2,0,SIMD_HALF_PI));
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	psb->generateClusters(8);
 	psb->m_cfg.kDF=1;
 }
@@ -1234,6 +1255,7 @@ static void	Init_ClusterCollide1(SoftDemo* pdemo)
 		17,17,//9,9,//31,31,
 		1+2+4+8,
 		true);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	btSoftBody::Material* pm=psb->appendMaterial();
 	pm->m_kLST		=	0.4;
 	pm->m_flags		-=	btSoftBody::fMaterial::DebugDraw;
@@ -1267,6 +1289,7 @@ static void	Init_ClusterCollide2(SoftDemo* pdemo)
 			btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(pdemo->m_softBodyWorldInfo,gVertices,
 				&gIndices[0][0],
 				NUM_TRIANGLES);
+            psb->getCollisionShape()->setUserPointer((void*) psb);
 			btSoftBody::Material* pm=psb->appendMaterial();
 			pm->m_flags		-=	btSoftBody::fMaterial::DebugDraw;
 			psb->generateBendingConstraints(2,pm);
@@ -1299,6 +1322,7 @@ static void	Init_ClusterCollide2(SoftDemo* pdemo)
 static void	Init_ClusterSocket(SoftDemo* pdemo)
 {
 	btSoftBody*		psb=Ctor_ClusterTorus(pdemo,btVector3(0,0,0),btVector3(SIMD_PI/2,0,SIMD_HALF_PI));
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	btRigidBody*	prb=Ctor_BigPlate(pdemo,50,8);
 	psb->m_cfg.kDF=1;
 	btSoftBody::LJoint::Specs	lj;
@@ -1310,6 +1334,7 @@ static void	Init_ClusterSocket(SoftDemo* pdemo)
 static void	Init_ClusterHinge(SoftDemo* pdemo)
 {
 	btSoftBody*		psb=Ctor_ClusterTorus(pdemo,btVector3(0,0,0),btVector3(SIMD_PI/2,0,SIMD_HALF_PI));
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	btRigidBody*	prb=Ctor_BigPlate(pdemo,50,8);
 	psb->m_cfg.kDF=1;
 	btSoftBody::AJoint::Specs	aj;
@@ -1324,6 +1349,8 @@ static void	Init_ClusterCombine(SoftDemo* pdemo)
 	btSoftBody*	psb0=Ctor_ClusterTorus(pdemo,btVector3(0,8,0),btVector3(SIMD_PI/2,0,SIMD_HALF_PI),sz);
 	btSoftBody*	psb1=Ctor_ClusterTorus(pdemo,btVector3(0,8,10),btVector3(SIMD_PI/2,0,SIMD_HALF_PI),sz);
 	btSoftBody*	psbs[]={psb0,psb1};
+    psb0->getCollisionShape()->setUserPointer((void*) psb0);
+    psb1->getCollisionShape()->setUserPointer((void*) psb1);
 	for(int j=0;j<2;++j)
 	{
 		psbs[j]->m_cfg.kDF=1;
@@ -1363,6 +1390,11 @@ static void	Init_ClusterCar(SoftDemo* pdemo)
 	btSoftBody*	pfr=Ctor_ClusterTorus(pdemo,wheels[1],btVector3(0,0,SIMD_HALF_PI),btVector3(2,4,2));
 	btSoftBody*	prl=Ctor_ClusterTorus(pdemo,wheels[2],btVector3(0,0,SIMD_HALF_PI),btVector3(2,5,2));
 	btSoftBody*	prr=Ctor_ClusterTorus(pdemo,wheels[3],btVector3(0,0,SIMD_HALF_PI),btVector3(2,5,2));
+    pa->getCollisionShape()->setUserPointer((void*) pa);
+    pfl->getCollisionShape()->setUserPointer((void*) pfl);
+    pfr->getCollisionShape()->setUserPointer((void*) pfr);
+    prl->getCollisionShape()->setUserPointer((void*) prl);
+    prr->getCollisionShape()->setUserPointer((void*) prr);
 
 	pfl->m_cfg.kDF	=
 		pfr->m_cfg.kDF	=
@@ -1429,6 +1461,7 @@ static void	Init_ClusterRobot(SoftDemo* pdemo)
 		static btSoftBody*	CreateBall(SoftDemo* pdemo,const btVector3& pos)
 		{
 			btSoftBody*	psb=btSoftBodyHelpers::CreateEllipsoid(pdemo->m_softBodyWorldInfo,pos,btVector3(1,1,1)*3,512);
+            psb->getCollisionShape()->setUserPointer((void*) psb);
 			psb->m_materials[0]->m_kLST	=	0.45;
 			psb->m_cfg.kVC				=	20;
 			psb->setTotalMass(50,true);
@@ -1465,6 +1498,7 @@ static void	Init_ClusterStackSoft(SoftDemo* pdemo)
 	for(int i=0;i<10;++i)
 	{
 		btSoftBody*	psb=Ctor_ClusterTorus(pdemo,btVector3(0,-9+8.25*i,0),btVector3(0,0,0));
+        psb->getCollisionShape()->setUserPointer((void*) psb);
 		psb->m_cfg.kDF=1;
 	}
 }
@@ -1481,6 +1515,7 @@ static void	Init_ClusterStackMixed(SoftDemo* pdemo)
 		else
 		{
 			btSoftBody*	psb=Ctor_ClusterTorus(pdemo,btVector3(0,-9+4.25*i,0),btVector3(0,0,0));
+            psb->getCollisionShape()->setUserPointer((void*) psb);
 			psb->m_cfg.kDF=1;
 		}
 	}
@@ -1497,6 +1532,7 @@ static void	Init_TetraBunny(SoftDemo* pdemo)
 															0,
 															TetraBunny::getNodes(),
 															false,true,true);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 	psb->rotate(btQuaternion(SIMD_PI/2,0,0));
 	psb->setVolumeMass(150);
@@ -1526,6 +1562,7 @@ static void	Init_TetraCube(SoftDemo* pdemo)
 															0,
 															TetraCube::getNodes(),
 															false,true,true);
+    psb->getCollisionShape()->setUserPointer((void*) psb);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 	psb->scale(btVector3(4,4,4));
 	psb->translate(btVector3(0,5,0));
