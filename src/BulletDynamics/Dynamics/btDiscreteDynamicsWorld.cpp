@@ -842,6 +842,9 @@ public:
 
 		btCollisionObject* otherObj = (btCollisionObject*) proxy0->m_clientObject;
 
+		if(!m_dispatcher->needsCollision(m_me, otherObj))
+			return false;
+
 		//call needsResponse, see http://code.google.com/p/bullet/issues/detail?id=179
 		if (m_dispatcher->needsResponse(m_me,otherObj))
 		{
