@@ -134,6 +134,10 @@ void btMultiBodyGearConstraint::createConstraintRows(btMultiBodyConstraintArray&
 		if (m_erp!=0)
 		{
 			btScalar currentPositionA = m_bodyA->getJointPosMultiDof(m_linkA)[dof];
+			if (m_gearAuxLink >= 0)
+			{
+				currentPositionA -= m_bodyA->getJointPosMultiDof(m_gearAuxLink)[dof];
+			}
 			btScalar currentPositionB = m_gearRatio*m_bodyA->getJointPosMultiDof(m_linkB)[dof];
 			btScalar diff = currentPositionB+currentPositionA;
 			btScalar desiredPositionDiff = this->m_relativePositionTarget;
