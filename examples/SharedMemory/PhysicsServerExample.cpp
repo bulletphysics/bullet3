@@ -756,6 +756,12 @@ public:
 			delete m_debugDraw;
 			m_debugDraw = 0;
 		}
+		
+		for (int i=0;i<m_userDebugParams.size();i++)
+		{
+			delete m_userDebugParams[i];
+		}
+		m_userDebugParams.clear();
 	}
 
 	void setCriticalSection(b3CriticalSection* cs)
