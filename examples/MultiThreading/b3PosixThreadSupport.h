@@ -35,6 +35,7 @@ subject to the following restrictions:
 
 typedef void (*b3PosixThreadFunc)(void* userPtr,void* lsMemory);
 typedef void* (*b3PosixlsMemorySetupFunc)();
+typedef void (*b3PosixlsMemoryReleaseFunc)(void* ptr);
 
 // b3PosixThreadSupport helps to initialize/shutdown libspe2, start/stop SPU tasks and communication
 class b3PosixThreadSupport : public b3ThreadSupportInterface
@@ -55,6 +56,8 @@ public:
 
 		b3PosixThreadFunc	m_userThreadFunc;
 		void*	m_userPtr; //for taskDesc etc
+		b3PosixlsMemoryReleaseFunc m_lsMemoryReleaseFunc;
+
 		void*	m_lsMemory; //initialized using PosixLocalStoreMemorySetupFunc
 
         pthread_t thread;
@@ -83,12 +86,14 @@ public:
 		ThreadConstructionInfo(const char* uniqueName,
 									b3PosixThreadFunc userThreadFunc,
 									b3PosixlsMemorySetupFunc	lsMemoryFunc,
+									b3PosixlsMemoryReleaseFunc        lsMemoryReleaseFunc,
 									int numThreads=1,
 									int threadStackSize=65535
 									)
 									:m_uniqueName(uniqueName),
 									m_userThreadFunc(userThreadFunc),
 									m_lsMemoryFunc(lsMemoryFunc),
+									m_lsMemoryReleaseFunc(lsMemoryReleaseFunc),
 									m_numThreads(numThreads),
 									m_threadStackSize(threadStackSize)
 		{
@@ -98,6 +103,8 @@ public:
 		const char*					m_uniqueName;
 		b3PosixThreadFunc			m_userThreadFunc;
 		b3PosixlsMemorySetupFunc	m_lsMemoryFunc;
+		b3PosixlsMemoryReleaseFunc	m_lsMemoryReleaseFunc;
+
 		int						m_numThreads;
 		int						m_threadStackSize;
 

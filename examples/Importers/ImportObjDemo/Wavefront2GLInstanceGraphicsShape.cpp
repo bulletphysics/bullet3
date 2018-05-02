@@ -2,7 +2,8 @@
 
 #include "../../OpenGLWindow/GLInstancingRenderer.h"
 #include "../../OpenGLWindow/GLInstanceGraphicsShape.h"
-#include "btBulletDynamicsCommon.h"
+//#include "btBulletDynamicsCommon.h"
+#include "LinearMath/btVector3.h"
 #include "../../OpenGLWindow/SimpleOpenGL3App.h"
 #include "Wavefront2GLInstanceGraphicsShape.h"
 #include "../../OpenGLWindow/GLInstancingRenderer.h"

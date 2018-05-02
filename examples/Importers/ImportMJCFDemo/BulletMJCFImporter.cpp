@@ -1032,6 +1032,11 @@ struct BulletMJCFImporterInternalData
 				//todo
 				break;
 			}
+			case URDF_GEOM_CDF:
+			{
+				//todo
+				break;
+			}
 			case URDF_GEOM_CYLINDER:
 			case URDF_GEOM_CAPSULE:
 			{
@@ -2541,6 +2546,11 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes( int linkI
 				}
 				break;
 			}
+			case URDF_GEOM_CDF:
+                        {
+                                //todo
+                                break;
+                        }
 			case URDF_GEOM_UNKNOWN:
                         {
 				break;

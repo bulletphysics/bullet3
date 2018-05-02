@@ -309,7 +309,7 @@ void*	ExampleBrowserMemoryFunc()
 void ExampleBrowserMemoryReleaseFunc(void* ptr)
 {
 	ExampleBrowserThreadLocalStorage* p = (ExampleBrowserThreadLocalStorage*) ptr;
-	delete ptr;
+	delete p;
 }
 
 
