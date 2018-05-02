@@ -277,8 +277,8 @@ void b3PosixThreadSupport::stopThreads()
             destroySem(spuStatus.startSemaphore);
             printf("semaphore destroyed\n");
 		checkPThreadFunction(pthread_join(spuStatus.thread,0));
-
-        }
+        delete spuStatus.m_lsMemory;
+    }
 	printf("destroy main semaphore\n");
     destroySem(m_mainSemaphore);
 	printf("main semaphore destroyed\n");
