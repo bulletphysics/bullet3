@@ -289,7 +289,7 @@ public:
 	/** @brief Set the matrix from euler angles YPR around ZYX axes
 	* @param eulerX Roll about X axis
 	* @param eulerY Pitch around Y axis
-	* @param eulerZ Yaw aboud Z axis
+	* @param eulerZ Yaw about Z axis
 	* 
 	* These angles are used to produce a rotation matrix. The euler
 	* angles are applied in ZYX order. I.e a vector is first rotated 
@@ -514,7 +514,7 @@ public:
 
 
 	/**@brief Get the matrix represented as euler angles around ZYX
-	* @param yaw Yaw around X axis
+	* @param yaw Yaw around Z axis
 	* @param pitch Pitch around Y axis
 	* @param roll around X axis 
 	* @param solution_number Which solution of two possible solutions ( 1 or 2) are possible values*/	
