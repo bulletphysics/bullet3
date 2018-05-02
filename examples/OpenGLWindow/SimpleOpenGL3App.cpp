@@ -295,7 +295,7 @@ static void printGLString(const char *name, GLenum s) {
 bool sOpenGLVerbose = true;
 
 
-SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, bool allowRetina)
+SimpleOpenGL3App::SimpleOpenGL3App(const char* title, int width, int height, bool allowRetina, int maxNumObjectCapacity, int maxShapeCapacityInBytes)
 {
 	gApp = this;
 
@@ -369,7 +369,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, boo
     
     b3Assert(glGetError() ==GL_NO_ERROR);
 
-	m_instancingRenderer = new GLInstancingRenderer(128*1024,128*1024*1024);
+	m_instancingRenderer = new GLInstancingRenderer(maxNumObjectCapacity, maxShapeCapacityInBytes);
 
     m_primRenderer = new GLPrimitiveRenderer(width,height);
     

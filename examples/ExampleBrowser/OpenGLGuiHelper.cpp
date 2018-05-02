@@ -433,10 +433,14 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 	if (collisionShape->getShapeType() == SOFTBODY_SHAPE_PROXYTYPE)
 	{
 		computeSoftBodyVertices(collisionShape, gfxVertices, indices);
-		int shapeId = registerGraphicsShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES,
-											m_data->m_checkedTexture);
-		b3Assert(shapeId >= 0);
-		collisionShape->setUserIndex(shapeId);
+		if (gfxVertices.size() && indices.size())
+		{
+			int shapeId = registerGraphicsShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES,
+												m_data->m_checkedTexture);
+		
+			b3Assert(shapeId >= 0);
+			collisionShape->setUserIndex(shapeId);
+		}
 	}
 	if (collisionShape->getShapeType()==MULTI_SPHERE_SHAPE_PROXYTYPE)
 	{
@@ -1265,6 +1269,11 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 		btCollisionObject* colObj = sortedObjects[i];
 		//btRigidBody* body = btRigidBody::upcast(colObj);
 		//does this also work for btMultiBody/btMultiBodyLinkCollider?
+		btSoftBody* sb = btSoftBody::upcast(colObj);
+		if (sb)
+		{
+			colObj->getCollisionShape()->setUserPointer(sb);
+		}
 		createCollisionShapeGraphicsObject(colObj->getCollisionShape());
 		int colorIndex = colObj->getBroadphaseHandle()->getUid() & 3;
 
@@ -1313,6 +1322,8 @@ void OpenGLGuiHelper::computeSoftBodyVertices(btCollisionShape* collisionShape,
 											  btAlignedObjectArray<GLInstanceVertex>& gfxVertices,
 											  btAlignedObjectArray<int>& indices)
 {
+	if (collisionShape->getUserPointer()==0)
+		return;
 	b3Assert(collisionShape->getUserPointer());
 	btSoftBody* psb = (btSoftBody*)collisionShape->getUserPointer();
 	gfxVertices.resize(psb->m_faces.size() * 3);
