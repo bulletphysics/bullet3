@@ -3551,6 +3551,7 @@ static PyObject* pybullet_getJointStates(PyObject* self, PyObject* args, PyObjec
 					return NULL;
 				}
 			}
+			Py_DECREF(jointIndicesSeq);
 			return resultListJointState;
 		}
 	}
