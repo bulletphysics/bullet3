@@ -70,7 +70,7 @@ class MJCFBaseBulletEnv(gym.Env):
 		self.potential = self.robot.calc_potential()
 		return s
 
-	def _render(self, mode, close):
+	def _render(self, mode, close=False):
 		if (mode=="human"):
 			self.isRender = True
 		if mode != "rgb_array":

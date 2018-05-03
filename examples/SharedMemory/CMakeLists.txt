@@ -77,10 +77,7 @@ SharedMemoryCommands.h
 	../Importers/ImportColladaDemo/LoadMeshFromCollada.cpp
 	../Importers/ImportColladaDemo/ColladaGraphicsInstance.h
 	../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
-	../ThirdPartyLibs/tinyxml/tinystr.cpp
-	../ThirdPartyLibs/tinyxml/tinyxml.cpp
-	../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
-	../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
+	../ThirdPartyLibs/tinyxml2/tinyxml2.cpp
 	../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp
 	../ThirdPartyLibs/stb_image/stb_image.cpp
 	../MultiThreading/b3ThreadSupportInterface.cpp
@@ -214,7 +211,7 @@ IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 
 
-#VR/OpenVR only on Windows and Mac OSX for now
+#VR/OpenVR on Windows and Mac OSX
 IF (WIN32 OR APPLE)
 
 INCLUDE_DIRECTORIES(
@@ -327,5 +324,81 @@ IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
                         SET_TARGET_PROPERTIES(App_PhysicsServer_SharedMemory_VR PROPERTIES  MINSIZEREL_POSTFIX "_MinsizeRel")
                         SET_TARGET_PROPERTIES(App_PhysicsServer_SharedMemory_VR PROPERTIES  RELWITHDEBINFO_POSTFIX "_RelWithDebugInfo")
 ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
+
+#VR/OpenVR on Linux
+ELSE(WIN32 OR APPLE)
+       IF(CMAKE_SIZEOF_VOID_P MATCHES 8)
+                LINK_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/bin/linux64)
+        ELSE()
+                LINK_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/bin/linux32)
+        ENDIF()
+
+        ADD_EXECUTABLE(App_PhysicsServer_SharedMemory_VR
+                ${SharedMemory_SRCS}
+               ../StandaloneMain/hellovr_opengl_main.cpp
+               ../ExampleBrowser/OpenGLGuiHelper.cpp
+               ../ExampleBrowser/GL_ShapeDrawer.cpp
+               ../ExampleBrowser/CollisionShape2TriangleMesh.cpp
+               ../RenderingExamples/TinyVRGui.cpp
+               ../RenderingExamples/TinyVRGui.h
+               ../RenderingExamples/TimeSeriesCanvas.cpp
+               ../RenderingExamples/TimeSeriesFontData.cpp
+               ../MultiThreading/b3PosixThreadSupport.cpp
+               ../MultiThreading/b3PosixThreadSupport.h
+               ../ThirdPartyLibs/openvr/samples/shared/lodepng.cpp
+               ../ThirdPartyLibs/openvr/samples/shared/lodepng.h
+               ../ThirdPartyLibs/openvr/samples/shared/Matrices.cpp
+               ../ThirdPartyLibs/openvr/samples/shared/Matrices.h
+               ../ThirdPartyLibs/openvr/samples/shared/pathtools.cpp
+               ../ThirdPartyLibs/openvr/samples/shared/pathtools.h
+               ../ThirdPartyLibs/openvr/samples/shared/strtools.cpp
+               ../ThirdPartyLibs/openvr/samples/shared/strtools.h
+               ../ThirdPartyLibs/openvr/samples/shared/Vectors.h
+        )
+
+       target_include_directories(App_PhysicsServer_SharedMemory_VR PRIVATE
+                ${BULLET_PHYSICS_SOURCE_DIR}/src
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/headers
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/samples
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/samples/shared
+       )
+
+       target_compile_definitions(App_PhysicsServer_SharedMemory_VR PRIVATE
+               POSIX
+               LINUX
+               BT_ENABLE_VR
+               GLEW_STATIC
+               GLEW_INIT_OPENGL11_FUNCTIONS=1
+               GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1
+       )
+
+       target_compile_options(App_PhysicsServer_SharedMemory_VR PRIVATE
+               -std=c++11
+       )
+
+       target_link_libraries(App_PhysicsServer_SharedMemory_VR PRIVATE
+               openvr_api
+               pthread
+               ${DL}
+               ${OPENGL_gl_LIBRARY}
+               ${OPENGL_glu_LIBRARY}
+               Bullet3Common
+               BulletWorldImporter
+               BulletInverseDynamicsUtils
+               BulletInverseDynamics
+               BulletDynamics
+               BulletCollision
+               LinearMath
+               BussIK
+               OpenGLWindow
+       )
+
+       IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
+               SET_TARGET_PROPERTIES(App_PhysicsServer_SharedMemory_VR PROPERTIES  DEBUG_POSTFIX "_Debug")
+               SET_TARGET_PROPERTIES(App_PhysicsServer_SharedMemory_VR PROPERTIES  MINSIZEREL_POSTFIX "_MinsizeRel")
+               SET_TARGET_PROPERTIES(App_PhysicsServer_SharedMemory_VR PROPERTIES  RELWITHDEBINFO_POSTFIX "_RelWithDebugInfo")
+       ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 
 ENDIF(WIN32 OR APPLE)

@@ -2,6 +2,7 @@ INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src
 	${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
 	${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
+	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/tinyxml2
 )
 
 ADD_LIBRARY(
@@ -10,12 +11,7 @@ ADD_LIBRARY(
 	btBulletXmlWorldImporter.h
 	string_split.cpp
 	string_split.h
-	tinyxml.cpp
-	tinyxml.h
-	tinystr.cpp
-	tinystr.h
-	tinyxmlerror.cpp
-	tinyxmlparser.cpp
+	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp
 )
 
 SET_TARGET_PROPERTIES(BulletXmlWorldImporter  PROPERTIES VERSION ${BULLET_VERSION})

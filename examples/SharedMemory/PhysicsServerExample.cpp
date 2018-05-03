@@ -92,6 +92,7 @@ static void saveCurrentSettingsVR(const btVector3& VRTeleportPos1)
 bool gDebugRenderToggle  = false;
 void	MotionThreadFunc(void* userPtr,void* lsMemory);
 void*	MotionlsMemoryFunc();
+void	MotionlsMemoryReleaseFunc(void* ptr);
 #define MAX_MOTION_NUM_THREADS 1
 enum
 	{
@@ -150,6 +151,7 @@ b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("MotionThreads",
                                                                 MotionThreadFunc,
                                                                 MotionlsMemoryFunc,
+																MotionlsMemoryReleaseFunc,
                                                                 numThreads);
     b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport(constructionInfo);
 
@@ -163,7 +165,7 @@ b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
 
 b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
 {
-	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("MotionThreads",MotionThreadFunc,MotionlsMemoryFunc,numThreads);
+	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("MotionThreads",MotionThreadFunc,MotionlsMemoryFunc,MotionlsMemoryReleaseFunc,numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
 	return threadSupport;
 
@@ -486,6 +488,12 @@ void*	MotionlsMemoryFunc()
 	return new MotionThreadLocalStorage;
 }
 
+void	MotionlsMemoryReleaseFunc(void* ptr)
+{
+	MotionThreadLocalStorage* p = (MotionThreadLocalStorage*) ptr;
+	delete p;
+}
+
 
 
 struct UserDebugDrawLine
@@ -756,6 +764,12 @@ public:
 			delete m_debugDraw;
 			m_debugDraw = 0;
 		}
+		
+		for (int i=0;i<m_userDebugParams.size();i++)
+		{
+			delete m_userDebugParams[i];
+		}
+		m_userDebugParams.clear();
 	}
 
 	void setCriticalSection(b3CriticalSection* cs)

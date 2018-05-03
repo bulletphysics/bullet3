@@ -1,0 +1,93 @@
+// Example borg file to do a parameter sweep.
+//
+// To run:
+//   echo `srcfs get_readonly`-`g4 p | head -1 | awk '{print $2}'`
+//   blaze build -c opt experimental/users/jietan/ARS:ars_server.par
+//   blaze build -c opt experimental/users/jietan/ARS:ars_client.par
+//   borgcfg --skip_confirmation --vars 'base_cl=191950338,my_cl=191950550,label=ars_react_nr01,config=MINITAUR_REACTIVE_CONFIG' experimental/users/jietan/ARS/train_ars.borg reload
+//   borgcfg --skip_confirmation --vars 'base_cl=191950338,my_cl=191950550,label=ars_react_rd01,config=MINITAUR_REACTIVE_RANDOMIZER_CONFIG' experimental/users/jietan/ARS/train_ars.borg reload
+
+
+import '//production/borg/templates/lambda/buildtool_support.borg' as build
+import '//production/borg/templates/lambda/dnsname.borg' as dns
+
+vars = {
+  cell = 'atlanta'
+  charged_user = 'robotics'
+  base_cl = 0
+  my_cl = 0
+  label = external
+  user = real_username()
+  workers = 8
+  config = external
+  cns_home = "/cns/ij-d/home/%user%"
+  logdir = "%cns_home%/experiment/ARS/%label%.%base_cl%.%my_cl%/"
+}
+
+service augmented_random_search {
+  runtime {
+    cell = vars.cell
+  }
+
+  scheduling = {
+    priority = 100
+    batch_quota = {
+      strategy = 'RUN_SOON'
+    }
+    deadline = 3600 * 24
+  }
+  accounting = {
+    charged_user = vars.charged_user
+  }
+  requirements {
+    autopilot = true
+  }
+  params = {
+    mygoogle3 = build.google3dir(myfilename())
+    experiment_dir = 'experimental/users/jietan/ARS/'
+  }
+
+  job ars_server = {
+    runtime {
+      cell = vars.cell
+    }
+    name = real_username() + '_server_' + vars.label
+    replicas = vars.workers
+    binary_path = build.binfile_v2(params.mygoogle3,
+                                   params.experiment_dir + 'ars_server')
+    runfiles = binary_path + '.runfiles/google3/'
+    packages = {
+      package third_party = {
+        directory = runfiles + 'third_party/'
+      }
+    }
+    binary = build.binfile(params.mygoogle3,
+                           params.experiment_dir + 'ars_server.par')
+    args = {
+      server_id = '%task%'
+      config_name = vars.config
+      port = '%port%'
+      run_on_borg = true
+    }
+  }
+  job ars_client = {
+    name = real_username() + '_client_' + vars.label
+    binary_path = build.binfile_v2(params.mygoogle3,
+                                   params.experiment_dir + 'ars_client')
+    runfiles = binary_path + '.runfiles/google3/'
+    packages = {
+      package third_party = {
+        directory = runfiles + 'third_party/'
+      }
+    }
+    binary = build.binfile(params.mygoogle3,
+                           params.experiment_dir + 'ars_client.par')
+    args = {
+      server_address = dns.borg_dns_name(ars_server)
+      num_servers = vars.workers
+      config_name = vars.config
+      logdir = vars.logdir
+      run_on_borg = true
+    }
+  }
+}

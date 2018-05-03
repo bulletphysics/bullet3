@@ -1,7 +1,7 @@
 #ifndef BT_MULTIBODY_WORLD_IMPORTER_H
 #define BT_MULTIBODY_WORLD_IMPORTER_H
 
-#include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
+#include "btBulletWorldImporter.h"
 
 class btMultiBodyWorldImporter : public btBulletWorldImporter
 {

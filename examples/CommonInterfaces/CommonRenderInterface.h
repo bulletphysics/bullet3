@@ -16,6 +16,7 @@ enum
 	B3_CREATE_SHADOWMAP_RENDERMODE,
 	B3_USE_SHADOWMAP_RENDERMODE,
 	B3_USE_SHADOWMAP_RENDERMODE_REFLECTION,
+	B3_USE_SHADOWMAP_RENDERMODE_REFLECTION_PLANE,
 	B3_USE_PROJECTIVE_TEXTURE_RENDERMODE,
 };
 
@@ -76,6 +77,8 @@ struct CommonRenderInterface
     virtual void activateTexture(int textureIndex)=0;
 	virtual void replaceTexture(int shapeIndex, int textureIndex){};
 	virtual void removeTexture(int textureIndex) = 0;
+
+	virtual void setPlaneReflectionShapeIndex(int index) {}
 
 	virtual int getShapeIndexFromInstance(int srcIndex) {return -1;}
 

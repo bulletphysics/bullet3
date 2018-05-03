@@ -21,7 +21,7 @@
 
 void	SampleThreadFunc(void* userPtr,void* lsMemory);
 void*	SamplelsMemoryFunc();
-
+void	SamplelsMemoryReleaseFunc(void* ptr);
 
 #include <stdio.h>
 //#include "BulletMultiThreaded/PlatformDefinitions.h"
@@ -34,6 +34,7 @@ b3ThreadSupportInterface* createThreadSupport(int numThreads)
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("testThreads",
                                                                 SampleThreadFunc,
                                                                 SamplelsMemoryFunc,
+								SamplelsMemoryReleaseFunc,
                                                                 numThreads);
     b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport(constructionInfo);
 
@@ -47,7 +48,7 @@ b3ThreadSupportInterface* createThreadSupport(int numThreads)
 
 b3ThreadSupportInterface* createThreadSupport(int numThreads)
 {
-	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("testThreads",SampleThreadFunc,SamplelsMemoryFunc,numThreads);
+	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("testThreads",SampleThreadFunc,SamplelsMemoryFunc,SamplelsMemoryReleaseFunc,numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
 	return threadSupport;
 
@@ -155,7 +156,11 @@ void*	SamplelsMemoryFunc()
 	return new SampleThreadLocalStorage;
 }
 
-
+void    SamplelsMemoryReleaseFunc(void* ptr)
+{
+	SampleThreadLocalStorage* p = (SampleThreadLocalStorage*) ptr;
+	delete p;
+}
 
 
 

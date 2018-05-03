@@ -313,11 +313,11 @@ void Dof6ConstraintTutorial::initPhysics()
 		#ifdef USE_6DOF2
 			constraint->enableMotor(5,true);
 			constraint->setTargetVelocity(5,3.f);
-			constraint->setMaxMotorForce(5,10.f);
+			constraint->setMaxMotorForce(5,600.f);
 		#else
 			constraint->getRotationalLimitMotor(2)->m_enableMotor = true;
 			constraint->getRotationalLimitMotor(2)->m_targetVelocity = 3.f;
-			constraint->getRotationalLimitMotor(2)->m_maxMotorForce = 10;
+			constraint->getRotationalLimitMotor(2)->m_maxMotorForce = 600.f;
 		#endif
 			constraint->setDbgDrawSize(btScalar(2.f));
 			m_dynamicsWorld->addConstraint(constraint, true);
@@ -348,13 +348,13 @@ void Dof6ConstraintTutorial::initPhysics()
 		#ifdef USE_6DOF2
 			constraint->enableMotor(5,true);
 			constraint->setTargetVelocity(5,3.f);
-			constraint->setMaxMotorForce(5,10.f);
+			constraint->setMaxMotorForce(5,600.f);
 			constraint->setServo(5,true);
 			constraint->setServoTarget(5, M_PI_2);
 		#else
 			constraint->getRotationalLimitMotor(2)->m_enableMotor = true;
 			constraint->getRotationalLimitMotor(2)->m_targetVelocity = 3.f;
-			constraint->getRotationalLimitMotor(2)->m_maxMotorForce = 10;
+			constraint->getRotationalLimitMotor(2)->m_maxMotorForce = 600.f;
 			//servo motor is not implemented in 6dofspring constraint
 		#endif
 			constraint->setDbgDrawSize(btScalar(2.f));

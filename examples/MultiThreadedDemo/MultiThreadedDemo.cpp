@@ -25,10 +25,10 @@ subject to the following restrictions:
 
 
 
-static btScalar gSliderStackRows = 8.0f;
-static btScalar gSliderStackColumns = 6.0f;
-static btScalar gSliderStackHeight = 10.0f;
-static btScalar gSliderStackWidth = 1.0f;
+static btScalar gSliderStackRows = 1.0f;
+static btScalar gSliderStackColumns = 1.0f;
+static btScalar gSliderStackHeight = 15.0f;
+static btScalar gSliderStackWidth = 8.0f;
 static btScalar gSliderGroundHorizontalAmplitude = 0.0f;
 static btScalar gSliderGroundVerticalAmplitude = 0.0f;
 static btScalar gSliderGroundTilt = 0.0f;
@@ -75,6 +75,21 @@ public:
         btScalar tilt = gSliderGroundTilt * SIMD_2_PI / 360.0f;
         return btQuaternion( btVector3( 1.0f, 0.0f, 0.0f ), tilt );
     }
+    struct TestSumBody : public btIParallelSumBody
+    {
+        virtual btScalar sumLoop( int iBegin, int iEnd ) const BT_OVERRIDE
+        {
+            btScalar sum = 0.0f;
+            for (int i = iBegin; i < iEnd; ++i)
+            {
+                if (i > 0)
+                {
+                    sum += 1.0f / btScalar(i);
+                }
+            }
+            return sum;
+        }
+    };
     virtual void stepSimulation( float deltaTime ) BT_OVERRIDE
     {
         if ( m_dynamicsWorld )
@@ -115,6 +130,14 @@ public:
             // always step by 1/60 for benchmarking
             m_dynamicsWorld->stepSimulation( 1.0f / 60.0f, 0 );
         }
+#if 0
+        {
+            // test parallelSum
+            TestSumBody testSumBody;
+            float testSum = btParallelSum( 1, 10000000, 10000, testSumBody );
+            printf( "sum = %f\n", testSum );
+        }
+#endif
     }
 
     virtual void initPhysics() BT_OVERRIDE;

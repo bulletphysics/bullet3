@@ -40,8 +40,8 @@ meshScale=[0.1,0.1,0.1]
 visualShapeId = p.createVisualShape(shapeType=p.GEOM_MESH,fileName="duck.obj", rgbaColor=[1,1,1,1], specularColor=[0.4,.4,0], visualFramePosition=shift, meshScale=meshScale)
 collisionShapeId = p.createCollisionShape(shapeType=p.GEOM_MESH, fileName="duck_vhacd.obj", collisionFramePosition=shift,meshScale=meshScale)
 
-rangex = 32
-rangey = 32
+rangex = 5
+rangey = 5
 for i in range (rangex):
 	for j in range (rangey ):
 		p.createMultiBody(baseMass=1,baseInertialFramePosition=[0,0,0],baseCollisionShapeIndex=collisionShapeId, baseVisualShapeIndex = visualShapeId, basePosition = [((-rangex/2)+i)*meshScale[0]*2,(-rangey/2+j)*meshScale[1]*2,1], useMaximalCoordinates=True)
@@ -65,7 +65,7 @@ while (1):
 			for l in range(len(rayInfo)):
 				hit = rayInfo[l]
 				objectUid = hit[0]
-				if (objectUid>=0):
+				if (objectUid>=1):
 					#p.removeBody(objectUid)
 					p.changeVisualShape(objectUid,-1,rgbaColor=colors[currentColor])
 					currentColor+=1

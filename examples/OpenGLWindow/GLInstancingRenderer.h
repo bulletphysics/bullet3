@@ -39,6 +39,8 @@ class GLInstancingRenderer : public CommonRenderInterface
 	int m_screenHeight;
 	
 	int m_upAxis;
+
+	int m_planeReflectionShapeIndex;
     
     
 	int registerGraphicsInstanceInternal(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
@@ -151,6 +153,8 @@ public:
 	virtual int getTotalNumInstances() const;
 	
 	virtual void enableShadowMap();
+
+	virtual void setPlaneReflectionShapeIndex(int index);
     
 	virtual void clearZBuffer();
 

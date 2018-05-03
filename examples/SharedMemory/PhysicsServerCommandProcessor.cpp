@@ -150,16 +150,16 @@ struct InternalVisualShapeData
 	int m_tinyRendererVisualShapeIndex;
 	int m_OpenGLGraphicsIndex;
 
-	UrdfVisual m_visualShape;
-	btTransform m_localInertiaFrame;
-	std::string m_pathPrefix;
+	b3AlignedObjectArray<UrdfVisual> m_visualShapes;
+	
+	b3AlignedObjectArray<std::string> m_pathPrefixes;
 
 	void clear()
 	{
-		m_tinyRendererVisualShapeIndex = 0;
-		m_OpenGLGraphicsIndex = 0;
-		m_localInertiaFrame.setIdentity();
-		m_pathPrefix = "";
+		m_tinyRendererVisualShapeIndex = -1;
+		m_OpenGLGraphicsIndex = -1;
+		m_visualShapes.clear();
+		m_pathPrefixes.clear();
 	}
 };
 
@@ -482,10 +482,10 @@ struct CommandLogPlayback
 		SharedMemoryCommand unused;
 #endif//BACKWARD_COMPAT
 		bool result = false;
-
+		size_t s = 0;
 		if (m_file)
 		{
-			size_t s = 0;
+			
 			int commandType = -1;
 
 			if (m_fileIs64bit)
@@ -518,8 +518,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 					cmd->m_mjcfArguments = unused.m_mjcfArguments;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_mjcfArguments,sizeof(MjcfArgs),1,m_file);
+					s=fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					s = fread(&cmd->m_mjcfArguments,sizeof(MjcfArgs),1,m_file);
 #endif
 					result=true;
 					break;
@@ -529,8 +529,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 					cmd->m_sdfRequestInfoArgs = unused.m_sdfRequestInfoArgs;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_sdfRequestInfoArgs,sizeof(SdfRequestInfoArgs),1,m_file);					
+					s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					s = fread(&cmd->m_sdfRequestInfoArgs,sizeof(SdfRequestInfoArgs),1,m_file);
 #endif
 					result=true;
 					break;
@@ -540,8 +540,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 					cmd->m_requestVisualShapeDataArguments = unused.m_requestVisualShapeDataArguments;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_requestVisualShapeDataArguments,sizeof(RequestVisualShapeDataArgs),1,m_file);					
+					s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					s = fread(&cmd->m_requestVisualShapeDataArguments,sizeof(RequestVisualShapeDataArgs),1,m_file);
 #endif
 					result=true;
 					break;
@@ -551,8 +551,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 					 cmd->m_urdfArguments = unused.m_urdfArguments;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_urdfArguments,sizeof(UrdfArgs),1,m_file);					
+					 s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					 s = fread(&cmd->m_urdfArguments,sizeof(UrdfArgs),1,m_file);
 #endif
 					result=true;
 					break;
@@ -562,8 +562,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT
 					 cmd->m_initPoseArgs = unused.m_initPoseArgs;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_initPoseArgs,sizeof(InitPoseArgs),1,m_file);					
+					 s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					 s = fread(&cmd->m_initPoseArgs,sizeof(InitPoseArgs),1,m_file);
 
 #endif
 					 result=true;
@@ -574,8 +574,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT					 
 					cmd->m_requestActualStateInformationCommandArgument = unused.m_requestActualStateInformationCommandArgument;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_requestActualStateInformationCommandArgument,sizeof(RequestActualStateArgs),1,m_file);					
+					 s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					 s = fread(&cmd->m_requestActualStateInformationCommandArgument,sizeof(RequestActualStateArgs),1,m_file);
 #endif
 					 result=true;
 					break;
@@ -585,8 +585,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT	
 					 cmd->m_sendDesiredStateCommandArgument = unused.m_sendDesiredStateCommandArgument;
 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_sendDesiredStateCommandArgument ,sizeof(SendDesiredStateArgs),1,m_file);					
+					 s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					 s = fread(&cmd->m_sendDesiredStateCommandArgument ,sizeof(SendDesiredStateArgs),1,m_file);
 
 #endif
 					 result = true;
@@ -597,8 +597,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT	
 					 cmd->m_physSimParamArgs = unused.m_physSimParamArgs;
 					 #else
-					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_physSimParamArgs ,sizeof(b3PhysicsSimulationParameters),1,m_file);					
+					s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					s = fread(&cmd->m_physSimParamArgs ,sizeof(b3PhysicsSimulationParameters),1,m_file);
 
 					 #endif
 					 result = true;
@@ -609,8 +609,8 @@ struct CommandLogPlayback
 #ifdef BACKWARD_COMPAT	
 					 cmd->m_requestContactPointArguments = unused.m_requestContactPointArguments;
 					 #else
-					 fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_requestContactPointArguments ,sizeof(RequestContactDataArgs),1,m_file);					
+					 s = fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					 s = fread(&cmd->m_requestContactPointArguments ,sizeof(RequestContactDataArgs),1,m_file);
 
 					 #endif
 					 result = true;
@@ -1921,10 +1921,13 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 			const InternalVisualShapeHandle* visHandle = m_data->m_userVisualShapeHandles.getHandle(m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]);
 			if (visHandle)
 			{
-				if (visHandle->m_visualShape.m_geometry.m_hasLocalMaterial)
+				for (int i=0;i<visHandle->m_visualShapes.size();i++)
 				{
-					matCol = visHandle->m_visualShape.m_geometry.m_localMaterial.m_matColor;
-					return true;
+					if (visHandle->m_visualShapes[i].m_geometry.m_hasLocalMaterial)
+					{
+						matCol = visHandle->m_visualShapes[i].m_geometry.m_localMaterial.m_matColor;
+						return true;
+					}
 				}
 			}
 		}
@@ -2092,39 +2095,91 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		b3Assert(0);
 	}
 
-	///quick hack: need to rethink the API/dependencies of this
-    virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const
+	virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
 	{
+		int graphicsIndex = -1;
+		double globalScaling = 1.f;//todo!
+		int flags=0;
+		BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(), globalScaling, flags);
+		u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
+		
+		btAlignedObjectArray<GLInstanceVertex> vertices;
+		btAlignedObjectArray<int> indices;
+		btTransform startTrans; startTrans.setIdentity();
+		btAlignedObjectArray<BulletURDFTexture> textures;
+
 		if (m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]>=0)
 		{
-			const InternalVisualShapeHandle* visHandle = m_data->m_userVisualShapeHandles.getHandle(m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]);
+			InternalVisualShapeHandle* visHandle = m_data->m_userVisualShapeHandles.getHandle(m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]);
 			if (visHandle)
 			{
-				
-				return visHandle->m_OpenGLGraphicsIndex;
+				if (visHandle->m_OpenGLGraphicsIndex>=0)
+				{
+					//instancing. assume the inertial frame is identical
+					graphicsIndex = visHandle->m_OpenGLGraphicsIndex;
+				} else
+				{
+					for (int v = 0;v<visHandle->m_visualShapes.size();v++)
+					{
+						u2b.convertURDFToVisualShapeInternal(&visHandle->m_visualShapes[v], pathPrefix, localInertiaFrame.inverse()*visHandle->m_visualShapes[v].m_linkLocalFrame, vertices, indices, textures);
+					}
+			
+					if (vertices.size() && indices.size())
+					{
+						if (1)
+						{
+							int textureIndex = -1;
+							if (textures.size())
+							{
+
+								textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData1, textures[0].m_width, textures[0].m_height);
+							}
+						
+							{
+								B3_PROFILE("registerGraphicsShape");
+								graphicsIndex = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, textureIndex);
+								visHandle->m_OpenGLGraphicsIndex = graphicsIndex;
+							}
+						}
+					}
+				}
 			}
+
 		}
-		return -1;
+		return graphicsIndex;
 	}
     
     virtual void convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj, int bodyUniqueId) const  
 	{
 		//if there is a visual, use it, otherwise convert collision shape back into UrdfCollision...
 
-		
-
-
 		UrdfModel model;// = m_data->m_urdfParser.getModel();
 		UrdfLink link;
-		int colShapeUniqueId = m_createBodyArgs.m_linkCollisionShapeUniqueIds[urdfIndex];
-		if (colShapeUniqueId>=0)
+
+		if (m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]>=0)
 		{
-			InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(colShapeUniqueId);
-			if (handle)
+			const InternalVisualShapeHandle* visHandle = m_data->m_userVisualShapeHandles.getHandle(m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]);
+			if (visHandle)
 			{
-				for (int i=0;i<handle->m_urdfCollisionObjects.size();i++)
+				for (int i=0;i<visHandle->m_visualShapes.size();i++)
 				{
-					link.m_collisionArray.push_back(handle->m_urdfCollisionObjects[i]);
+					link.m_visualArray.push_back(visHandle->m_visualShapes[i]);
+				}
+			}
+		}
+
+		if (link.m_visualArray.size()==0)
+		{
+			int colShapeUniqueId = m_createBodyArgs.m_linkCollisionShapeUniqueIds[urdfIndex];
+			if (colShapeUniqueId>=0)
+			{
+				InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(colShapeUniqueId);
+				if (handle)
+				{
+					for (int i=0;i<handle->m_urdfCollisionObjects.size();i++)
+					{
+						link.m_collisionArray.push_back(handle->m_urdfCollisionObjects[i]);
+					}
 				}
 			}
 		}
@@ -3968,19 +4023,16 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
 	btTransform localInertiaFrame;
 	localInertiaFrame.setIdentity();
-	btTransform childTrans;
-	childTrans.setIdentity();
+	
 	const char* pathPrefix = "";
-
-	btAlignedObjectArray<GLInstanceVertex> vertices;
-	btAlignedObjectArray<int> indices;
-	btTransform startTrans; startTrans.setIdentity();
-	btAlignedObjectArray<BulletURDFTexture> textures;
+	int visualShapeUniqueId = -1;
+	
 	
     UrdfVisual visualShape;	
 	for (int userShapeIndex = 0; userShapeIndex< clientCmd.m_createUserShapeArgs.m_numUserShapes; userShapeIndex++)
 	{
-
+		btTransform childTrans;
+		childTrans.setIdentity();
 		visualShape.m_geometry.m_type = (UrdfGeomTypes)clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_type;
 		char relativeFileName[1024];
 		char pathPrefix[1024];
@@ -4106,41 +4158,23 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 		}
 
 
-		u2b.convertURDFToVisualShapeInternal(&visualShape, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices, textures);
-
-	}
-	
-	if (vertices.size() && indices.size())
-	{
-		if (1)
+		if (visualShapeUniqueId<0)
 		{
-			int textureIndex = -1;
-			if (textures.size())
-			{
-
-				textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData1, textures[0].m_width, textures[0].m_height);
-			}
-			int graphicsIndex = -1;
-			{
-				B3_PROFILE("registerGraphicsShape");
-				graphicsIndex = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, textureIndex);
-				if (graphicsIndex >= 0)
-				{
-					int visualShapeUniqueId = m_data->m_userVisualShapeHandles.allocHandle();
-					InternalVisualShapeHandle* visualHandle = m_data->m_userVisualShapeHandles.getHandle(visualShapeUniqueId);
-					visualHandle->m_OpenGLGraphicsIndex = graphicsIndex;
-					visualHandle->m_tinyRendererVisualShapeIndex = -1;
-					//tinyrenderer doesn't separate shape versus instance, so create it when creating the multibody instance
-					//store needed info for tinyrenderer
-					visualHandle->m_localInertiaFrame = localInertiaFrame;
-					visualHandle->m_visualShape = visualShape;
-					visualHandle->m_pathPrefix = pathPrefix[0] ? pathPrefix : "";
-
-					serverStatusOut.m_createUserShapeResultArgs.m_userShapeUniqueId = visualShapeUniqueId;
-					serverStatusOut.m_type = CMD_CREATE_VISUAL_SHAPE_COMPLETED;
-				}
-			}
+			visualShapeUniqueId = m_data->m_userVisualShapeHandles.allocHandle();
 		}
+		InternalVisualShapeHandle* visualHandle = m_data->m_userVisualShapeHandles.getHandle(visualShapeUniqueId);
+		visualHandle->m_OpenGLGraphicsIndex = -1;
+		visualHandle->m_tinyRendererVisualShapeIndex = -1;
+		//tinyrenderer doesn't separate shape versus instance, so create it when creating the multibody instance
+		//store needed info for tinyrenderer
+		
+		visualShape.m_linkLocalFrame = childTrans;
+		visualHandle->m_visualShapes.push_back(visualShape);
+		visualHandle->m_pathPrefixes.push_back(pathPrefix[0] ? pathPrefix : "");
+		
+		serverStatusOut.m_createUserShapeResultArgs.m_userShapeUniqueId = visualShapeUniqueId;
+		serverStatusOut.m_type = CMD_CREATE_VISUAL_SHAPE_COMPLETED;
+
 	}
 
 	return hasStatus;
@@ -4760,6 +4794,9 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 								}
 								if (hasDesiredVelocity)
 								{
+									//disable velocity clamp in velocity mode
+									motor->setRhsClamp(SIMD_INFINITY);
+									
 									btScalar maxImp = 1000000.f*m_data->m_physicsDeltaTime;
 									if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex]&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
 									{
@@ -4973,9 +5010,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 													{
 														con->enableMotor(3+limitAxis,true);
 														con->setTargetVelocity(3+limitAxis, qdotTarget);
-														//this is max motor force impulse
-														btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
-														con->setMaxMotorForce(3+limitAxis,torqueImpulse);
+														con->setMaxMotorForce(3+limitAxis, torque);
 													}
 													break;
 												}
@@ -4988,9 +5023,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 														//next one is the maximum velocity to reach target position.
 														//the maximum velocity is limited by maxMotorForce
 														con->setTargetVelocity(3+limitAxis, 100);
-														//this is max motor force impulse
-														btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
-														con->setMaxMotorForce(3+limitAxis,torqueImpulse);
+														con->setMaxMotorForce(3+limitAxis, torque);
 														con->enableMotor(3+limitAxis,true);
 													}
 													break;
@@ -5026,9 +5059,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 												{
 													con->enableMotor(limitAxis,true);
 													con->setTargetVelocity(limitAxis, -qdotTarget);
-													//this is max motor force impulse
-													btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
-													con->setMaxMotorForce(limitAxis,torqueImpulse);
+													con->setMaxMotorForce(limitAxis, torque);
 													break;
 												}
 											case CONTROL_MODE_POSITION_VELOCITY_PD:
@@ -5038,9 +5069,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 													//next one is the maximum velocity to reach target position.
 													//the maximum velocity is limited by maxMotorForce
 													con->setTargetVelocity(limitAxis, 100);
-													//this is max motor force impulse
-													btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
-													con->setMaxMotorForce(limitAxis,torqueImpulse);
+													con->setMaxMotorForce(limitAxis, torque);
 													con->enableMotor(limitAxis,true);
 													break;
 												}
@@ -9665,6 +9694,12 @@ void PhysicsServerCommandProcessor::resetSimulation()
 {
 	//clean up all data
 
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	if (m_data && m_data->m_dynamicsWorld)
+	{
+		m_data->m_dynamicsWorld->getWorldInfo().m_sparsesdf.Reset();
+	}
+#endif
 	if (m_data && m_data->m_guiHelper)
 	{
 		m_data->m_guiHelper->removeAllGraphicsInstances();
