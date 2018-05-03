@@ -300,6 +300,45 @@ std::string BulletURDFImporter::getJointName(int linkIndex) const
 	return "";
 }
     
+void  BulletURDFImporter::getMassAndInertia2(int urdfLinkIndex, btScalar& mass, btVector3& localInertiaDiagonal, btTransform& inertialFrame, int flags) const
+{
+	if (flags & CUF_USE_URDF_INERTIA)
+	{
+		getMassAndInertia(urdfLinkIndex, mass, localInertiaDiagonal, inertialFrame);
+	}
+	else
+	{
+		//the link->m_inertia is NOT necessarily aligned with the inertial frame
+		//so an additional transform might need to be computed
+		UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(urdfLinkIndex);
+
+		btAssert(linkPtr);
+		if (linkPtr)
+		{
+			UrdfLink* link = *linkPtr;
+			btScalar linkMass;
+			if (link->m_parentJoint == 0 && m_data->m_urdfParser.getModel().m_overrideFixedBase)
+			{
+				linkMass = 0.f;
+			}
+			else
+			{
+				linkMass = link->m_inertia.m_mass;
+			}
+			mass = linkMass;
+			localInertiaDiagonal.setValue(0,0,0);
+			inertialFrame.setOrigin(link->m_inertia.m_linkLocalFrame.getOrigin());
+			inertialFrame.setBasis(link->m_inertia.m_linkLocalFrame.getBasis());
+		}
+		else
+		{
+			mass = 1.f;
+			localInertiaDiagonal.setValue(1, 1, 1);
+			inertialFrame.setIdentity();
+		}
+	}
+
+}
 
 void  BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const
 {
