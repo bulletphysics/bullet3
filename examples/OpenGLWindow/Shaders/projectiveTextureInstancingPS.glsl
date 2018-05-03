@@ -22,7 +22,7 @@ out vec4 color;
 void main(void)
 {
     vec4 projcoords = TextureMVP * vertexPos;
-    vec2 texturecoords = projcoords.xy/max(projcoords.z,0.1);
+    vec2 texturecoords = projcoords.xy/projcoords.w;
 	vec4 texel = fragment.color*texture(Diffuse,texturecoords);
 	vec3 ct,cf;
 	float intensity,at,af;
