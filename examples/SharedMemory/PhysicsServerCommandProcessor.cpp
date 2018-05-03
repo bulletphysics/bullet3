@@ -9693,10 +9693,13 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,const 
 void PhysicsServerCommandProcessor::resetSimulation()
 {
 	//clean up all data
+
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	if (m_data && m_data->m_dynamicsWorld)
 	{
 		m_data->m_dynamicsWorld->getWorldInfo().m_sparsesdf.Reset();
 	}
+#endif
 	if (m_data && m_data->m_guiHelper)
 	{
 		m_data->m_guiHelper->removeAllGraphicsInstances();

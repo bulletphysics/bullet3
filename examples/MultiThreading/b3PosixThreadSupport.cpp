@@ -251,7 +251,8 @@ void b3PosixThreadSupport::startThreads(ThreadConstructionInfo& threadConstructi
 		spuStatus.m_mainSemaphore = m_mainSemaphore;
 		spuStatus.m_lsMemory = threadConstructionInfo.m_lsMemoryFunc();
 		spuStatus.m_userThreadFunc = threadConstructionInfo.m_userThreadFunc;
-        spuStatus.threadUsed = 0;
+		spuStatus.m_lsMemoryReleaseFunc = threadConstructionInfo.m_lsMemoryReleaseFunc;
+		spuStatus.threadUsed = 0;
 
 		printf("started thread %d \n",i);
 
@@ -277,7 +278,12 @@ void b3PosixThreadSupport::stopThreads()
             destroySem(spuStatus.startSemaphore);
             printf("semaphore destroyed\n");
 		checkPThreadFunction(pthread_join(spuStatus.thread,0));
-        delete spuStatus.m_lsMemory;
+        
+        if (spuStatus.m_lsMemoryReleaseFunc)
+        {
+            spuStatus.m_lsMemoryReleaseFunc( spuStatus.m_lsMemory);
+        }
+        
     }
 	printf("destroy main semaphore\n");
     destroySem(m_mainSemaphore);
