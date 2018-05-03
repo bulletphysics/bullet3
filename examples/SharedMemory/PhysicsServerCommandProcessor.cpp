@@ -2602,7 +2602,7 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 			bodyHandle->m_bodyName = u2b.getBodyName();
             btVector3 localInertiaDiagonal(0,0,0);
             int urdfLinkIndex = u2b.getRootLinkIndex();
-            u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,bodyHandle->m_rootLocalInertialFrame);
+            u2b.getMassAndInertia2(urdfLinkIndex, mass,localInertiaDiagonal,bodyHandle->m_rootLocalInertialFrame,flags);
         }
 
 
@@ -2664,7 +2664,7 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 				btScalar mass;
                 btVector3 localInertiaDiagonal(0,0,0);
                 btTransform localInertialFrame;
-				u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame);
+				u2b.getMassAndInertia2(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame, flags);
 				bodyHandle->m_linkLocalInertialFrames.push_back(localInertialFrame);
 
 				std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
