@@ -38,7 +38,7 @@
 
 #include "OpenGLInclude.h"
 
-#include "third_party/GL/EGL/egl.h"
+#include "third_party/GL/gl/include/EGL/egl.h"
 #include "third_party/GL/gl/include/EGL/eglext.h"
 #include "third_party/GL/gl/include/GL/gl.h"
 
