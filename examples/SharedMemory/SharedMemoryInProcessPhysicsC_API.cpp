@@ -283,7 +283,7 @@ B3_SHARED_API    b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistin
     bool useInprocessMemory = false;
     bool skipGraphicsUpdate = true;
     InProcessPhysicsClientExistingExampleBrowser* cl  = new InProcessPhysicsClientExistingExampleBrowser(guiHelper, useInprocessMemory, skipGraphicsUpdate);
-    
+    cl->setSharedMemoryKey(SHARED_MEMORY_KEY+1);
     cl->connect();
     return (b3PhysicsClientHandle ) cl;
 }
