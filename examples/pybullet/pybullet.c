@@ -397,6 +397,11 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 #endif
 				break;
 			}
+            case eCONNECT_SHARED_MEMORY_SERVER:
+            {
+                sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect2(0);
+                break;
+            }
 			case eCONNECT_DIRECT:
 			{
 				sm = b3ConnectPhysicsDirect();
@@ -591,6 +596,42 @@ static PyObject* pybullet_getConnectionInfo(PyObject* self, PyObject* args, PyOb
 	val = Py_BuildValue("{s:i,s:i}","isConnected", isConnected, "connectionMethod", method);
 	return val;
 
+}
+
+
+static PyObject* pybullet_syncBodyInfo(PyObject* self, PyObject* args, PyObject* keywds)
+{
+    
+    b3PhysicsClientHandle sm = 0;
+    int physicsClientId = 0;
+    static char* kwlist[] = {"physicsClientId", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+    {
+        return NULL;
+    }
+    sm = getPhysicsClient(physicsClientId);
+    if (sm == 0)
+    {
+        PyErr_SetString(SpamError, "Not connected to physics server.");
+        return NULL;
+    }
+   
+    b3SharedMemoryCommandHandle command;
+    b3SharedMemoryStatusHandle statusHandle;
+    int statusType;
+    
+    command = b3InitSyncBodyInfoCommand(sm);
+    statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+    statusType = b3GetStatusType(statusHandle);
+    
+    if (statusType != CMD_SYNC_BODY_INFO_COMPLETED)
+    {
+        PyErr_SetString(SpamError, "Error in syncBodyzInfo command.");
+        return NULL;
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 
@@ -8611,6 +8652,8 @@ static PyMethodDef SpamMethods[] = {
 	"disconnect(physicsClientId=0)\n"
 	 "Disconnect from the physics server."},
 
+   
+    
 	 {"getConnectionInfo", (PyCFunction)pybullet_getConnectionInfo, METH_VARARGS | METH_KEYWORDS,
 	  "getConnectionInfo(physicsClientId=0)\n"
 	  "Return if a given client id is connected, and using what method."},
@@ -8725,6 +8768,10 @@ static PyMethodDef SpamMethods[] = {
 	{"getBodyInfo", (PyCFunction)pybullet_getBodyInfo, METH_VARARGS | METH_KEYWORDS,
 	 "Get the body info, given a body unique id."},
 
+    {"syncBodyInfo", (PyCFunction)pybullet_syncBodyInfo, METH_VARARGS | METH_KEYWORDS,
+        "syncBodyInfo(physicsClientId=0)\n"
+        "Update body and constraint/joint information, in case other clients made changes."},
+    
 	{"removeBody", (PyCFunction)pybullet_removeBody, METH_VARARGS | METH_KEYWORDS,
 	 "Remove a body by its body unique id."},
 
@@ -9113,7 +9160,11 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "TCP", eCONNECT_TCP);        // user read
 	PyModule_AddIntConstant(m, "GUI_SERVER", eCONNECT_GUI_SERVER);        // user read
 	PyModule_AddIntConstant(m, "GUI_MAIN_THREAD", eCONNECT_GUI_MAIN_THREAD);        // user read
+    PyModule_AddIntConstant(m, "SHARED_MEMORY_SERVER", eCONNECT_SHARED_MEMORY_SERVER);        // user read
 
+    PyModule_AddIntConstant(m, "SHARED_MEMORY_KEY", SHARED_MEMORY_KEY);
+    PyModule_AddIntConstant(m, "SHARED_MEMORY_KEY2", SHARED_MEMORY_KEY+1);
+    
 	PyModule_AddIntConstant(m, "JOINT_REVOLUTE", eRevoluteType);        // user read
 	PyModule_AddIntConstant(m, "JOINT_PRISMATIC", ePrismaticType);      // user read
 	PyModule_AddIntConstant(m, "JOINT_SPHERICAL", eSphericalType);      // user read

@@ -708,7 +708,8 @@ public:
 	int m_primitiveType;
 	int m_textureId;
 	int m_instanceId;
-	
+    bool m_skipGraphicsUpdate;
+    
 	void mainThreadRelease()
 	{
 		BT_PROFILE("mainThreadRelease");
@@ -725,7 +726,14 @@ public:
 
 	void workerThreadWait()
 	{
-		BT_PROFILE("workerThreadWait");
+        BT_PROFILE("workerThreadWait");
+
+        if (m_skipGraphicsUpdate)
+        {
+            getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
+            m_cs->unlock();
+            return;
+        }
 		m_cs2->lock();
 		m_cs->unlock();
 		m_cs2->unlock();
@@ -740,7 +748,7 @@ public:
 		}
 	}
 
-	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* app, GUIHelperInterface* guiHelper)
+	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* app, GUIHelperInterface* guiHelper, int skipGraphicsUpdate)
 		:
 	//m_app(app),
 		m_cs(0),
@@ -750,7 +758,10 @@ public:
 		m_debugDraw(0),
 		m_uidGenerator(0),
 		m_texels(0),
-		m_textureId(-1)
+        m_shapeIndex(-1),
+        m_textureId(-1),
+        m_instanceId(-1),
+        m_skipGraphicsUpdate(skipGraphicsUpdate)
 	{
 		m_childGuiHelper = guiHelper;
 
@@ -971,6 +982,7 @@ public:
 		m_getShapeIndex_instance = instance;
 		m_cs->lock();
 		m_cs->setSharedParam(1,eGUIHelperGetShapeIndexFromInstance);
+        getShapeIndex_shapeIndex=-1;
 		workerThreadWait();		
 		return getShapeIndex_shapeIndex;
 	}
@@ -1205,6 +1217,7 @@ public:
 
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugAddText);
+        m_resultUserDebugTextUid=-1;
 		workerThreadWait();
 
 		return m_resultUserDebugTextUid;
@@ -1237,6 +1250,7 @@ public:
 
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugAddParameter);
+        m_userDebugParamUid=-1;
 		workerThreadWait();
 
 		return m_userDebugParamUid;
@@ -1265,6 +1279,7 @@ public:
 		m_tmpLine.m_trackingVisualShapeIndex = trackingVisualShapeIndex;
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugAddLine);
+        m_resultDebugLineUid=-1;
 		workerThreadWait();
 		return m_resultDebugLineUid;
 	}
@@ -1727,9 +1742,6 @@ void	PhysicsServerExample::initPhysics()
 	///for this testing we use Z-axis up
 	int upAxis = 2;
 	m_guiHelper->setUpAxis(upAxis);
-
-
-	
 
 
 	m_threadSupport = createMotionThreadSupport(MAX_MOTION_NUM_THREADS);
@@ -3226,7 +3238,7 @@ extern int gSharedMemoryKey;
 class CommonExampleInterface*    PhysicsServerCreateFuncInternal(struct CommonExampleOptions& options)
 {
 
-	MultiThreadedOpenGLGuiHelper* guiHelperWrapper = new MultiThreadedOpenGLGuiHelper(options.m_guiHelper->getAppInterface(),options.m_guiHelper);
+	MultiThreadedOpenGLGuiHelper* guiHelperWrapper = new MultiThreadedOpenGLGuiHelper(options.m_guiHelper->getAppInterface(),options.m_guiHelper, options.m_skipGraphicsUpdate);
 	
 
   	PhysicsServerExample* example = new PhysicsServerExample(guiHelperWrapper, 
