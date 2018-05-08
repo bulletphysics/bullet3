@@ -22,7 +22,7 @@ CXX_FLAGS += '-DBT_USE_DOUBLE_PRECISION '
 CXX_FLAGS += '-DBT_ENABLE_ENET '
 CXX_FLAGS += '-DBT_ENABLE_CLSOCKET '
 CXX_FLAGS += '-DB3_DUMP_PYTHON_VERSION '
-#CXX_FLAGS += '-DBT_USE_EGL '  # uncomment for EGL (old EGL versions fail)
+CXX_FLAGS += '-DBT_USE_EGL '  # uncomment for EGL (old EGL versions fail)
 
 
 # libraries += [current_python]
