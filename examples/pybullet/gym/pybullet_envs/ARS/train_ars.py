@@ -1,4 +1,4 @@
-"""TODO(jietan): DO NOT SUBMIT without one-line documentation for train_ars.
+"""
 
 blaze build -c opt //experimental/users/jietan/ARS:train_ars
 blaze-bin/experimental/users/jietan/ARS/train_ars \

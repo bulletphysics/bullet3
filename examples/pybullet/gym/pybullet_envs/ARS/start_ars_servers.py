@@ -1,9 +1,8 @@
-"""TODO(jietan): DO NOT SUBMIT without one-line documentation for start_ars_servers.
+"""
 
 blaze build -c opt //experimental/users/jietan/ARS:start_ars_servers
 blaze-bin/experimental/users/jietan/ARS/start_ars_servers
 
-TODO(jietan): DO NOT SUBMIT without a detailed description of start_ars_servers.
 """
 
 from __future__ import absolute_import
