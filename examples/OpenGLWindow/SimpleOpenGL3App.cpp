@@ -296,7 +296,7 @@ static void printGLString(const char *name, GLenum s) {
 bool sOpenGLVerbose = true;
 
 
-SimpleOpenGL3App::SimpleOpenGL3App(const char* title, int width, int height, bool allowRetina, int maxNumObjectCapacity, int maxShapeCapacityInBytes, int windowType, int renderDevice)
+SimpleOpenGL3App::SimpleOpenGL3App(const char* title, int width, int height, bool allowRetina, int windowType, int renderDevice, int maxNumObjectCapacity, int maxShapeCapacityInBytes)
 {
 	gApp = this;
 
