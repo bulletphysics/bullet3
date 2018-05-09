@@ -85,17 +85,21 @@ joint.joint_axis_xyz = [0,0,1]
 #so make sure to insert the joint in the right place, to links/joints match
 ed0.urdfJoints.insert(insertJointIndex,joint)
 
-ed0.saveUrdf("combined.urdf")
 
 print(p0._client)
 print(p1._client)
 print("p0.getNumBodies()=",p0.getNumBodies())
 print("p1.getNumBodies()=",p1.getNumBodies())
 
+
 pgui = bc.BulletClient(connection_mode=pybullet.GUI)
 
 ed0.createMultiBody([0,0,0],pgui._client)
 pgui.setRealTimeSimulation(1)
 
+ed0.saveUrdf("combined.urdf")
+
+
 while (pgui.isConnected()):
+	pgui.getCameraImage(320,200)
 	time.sleep(1./240.)

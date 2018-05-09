@@ -216,7 +216,9 @@ class UrdfEditor(object):
 				prec=precision)
 			file.write(str)
 		if urdfVisual.geom_type == p.GEOM_MESH:
-			str = '\t\t\t\t<mesh filename=\"{}\"/>\n'.format(urdfVisual.geom_meshfilename,\
+			
+			str = '\t\t\t\t<mesh filename=\"{}\" scale=\"{:.{prec}f} {:.{prec}f} {:.{prec}f}\"/>\n'.format(
+			urdfVisual.geom_meshfilename,urdfVisual.geom_meshscale[0],urdfVisual.geom_meshscale[1],urdfVisual.geom_meshscale[2],\
 				prec=precision)
 			file.write(str)
 		if urdfVisual.geom_type == p.GEOM_CYLINDER:
@@ -253,8 +255,8 @@ class UrdfEditor(object):
 				prec=precision)
 			file.write(str)
 		if urdfCollision.geom_type == p.GEOM_MESH:
-			str = '\t\t\t\t<mesh filename=\"{}\"/>\n'.format(urdfCollision.geom_meshfilename,\
-				prec=precision)
+			str = '\t\t\t\t<mesh filename=\"{}\"/> scale=\"{:.{prec}f} {:.{prec}f} {:.{prec}f}\"\n'.format(urdfCollision.geom_meshfilename,\
+				urdfCollision.geom_meshscale[0],urdfCollision.geom_meshscale[1],urdfCollision.geom_meshscale[2],prec=precision)
 			file.write(str)
 		if urdfCollision.geom_type == p.GEOM_CYLINDER:
 			str = '\t\t\t\t<cylinder length=\"{:.{prec}f}\" radius=\"{:.{prec}f}\"/>\n'.format(\
