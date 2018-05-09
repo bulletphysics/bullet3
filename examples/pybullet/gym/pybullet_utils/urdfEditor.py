@@ -308,6 +308,11 @@ class UrdfEditor(object):
 		file.write("\t\t<dynamics damping=\"1.0\" friction=\"0.0001\"/>\n")
 		str = '\t\t<origin xyz=\"{:.{prec}f} {:.{prec}f} {:.{prec}f}\"/>\n'.format(urdfJoint.joint_origin_xyz[0],\
 			urdfJoint.joint_origin_xyz[1],urdfJoint.joint_origin_xyz[2], prec=precision)
+		str = '\t\t<origin rpy=\"{:.{prec}f} {:.{prec}f} {:.{prec}f}\" xyz=\"{:.{prec}f} {:.{prec}f} {:.{prec}f}\"/>\n'.format(urdfJoint.joint_origin_rpy[0],\
+			urdfJoint.joint_origin_rpy[1],urdfJoint.joint_origin_rpy[2],\
+			urdfJoint.joint_origin_xyz[0],\
+			urdfJoint.joint_origin_xyz[1],urdfJoint.joint_origin_xyz[2], prec=precision)
+
 		file.write(str)
 		str = '\t\t<axis xyz=\"{:.{prec}f} {:.{prec}f} {:.{prec}f}\"/>\n'.format(urdfJoint.joint_axis_xyz[0],\
 			urdfJoint.joint_axis_xyz[1],urdfJoint.joint_axis_xyz[2], prec=precision)
@@ -337,6 +342,10 @@ class UrdfEditor(object):
 		if (len(self.urdfLinks)==0):
 			return -1
 
+		#for i in range (len(self.urdfLinks)):
+		#	print("link", i, "=",self.urdfLinks[i].link_name)
+
+
 		base = self.urdfLinks[0]
 
 		#v.tmp_collision_shape_ids=[]
@@ -364,6 +373,7 @@ class UrdfEditor(object):
 			baseOrientationsArray.append(orn)
 
 		if (len(baseShapeTypeArray)):
+			#print("fileNameArray=",fileNameArray)
 			baseCollisionShapeIndex = p.createCollisionShapeArray(shapeTypes=baseShapeTypeArray,
 					radii=baseRadiusArray,
 					halfExtents=baseHalfExtentsArray,
@@ -376,28 +386,34 @@ class UrdfEditor(object):
 
 
 		urdfVisuals = base.urdf_visual_shapes
-		baseVisualShapeIndex = p.createVisualShapeArray(shapeTypes=[v.geom_type for v in urdfVisuals],
-                                                           halfExtents=[[ext * 0.5 for ext in v.geom_extents] for v in urdfVisuals],
-                                                           radii=[v.geom_radius for v in urdfVisuals],
-                                                           lengths=[v.geom_length[0] for v in urdfVisuals],
-                                                           fileNames=[v.geom_meshfilename for v in urdfVisuals],
-                                                           meshScales=[v.geom_meshscale for v in urdfVisuals],
-                                                           rgbaColors=[v.material_rgba for v in urdfVisuals],
-                                                           visualFramePositions=[v.origin_xyz for v in urdfVisuals],
-                                                           visualFrameOrientations=[v.origin_rpy for v in urdfVisuals],
-                                                           physicsClientId=physicsClientId)
-#                 urdfVisual = base.urdf_visual_shapes[0]
-#                 baseVisualShapeIndex = p.createVisualShape(shapeType=urdfVisual.geom_type,
-#                                                                    halfExtents=[ext * 0.5 for ext in urdfVisual.geom_extents],
-#                                                                    radius=urdfVisual.geom_radius,
-#                                                                    length=urdfVisual.geom_length[0],
-#                                                                    fileName=urdfVisual.geom_meshfilename,
-#                                                                    meshScale=urdfVisual.geom_meshscale,
-#                                                                    rgbaColor=urdfVisual.material_rgba,
-#                                                                    visualFramePosition=urdfVisual.origin_xyz,
-#                                                                    visualFrameOrientation=urdfVisual.origin_rpy,
-#                                                                    physicsClientId=physicsClientId)
+		
+		shapeTypes=[v.geom_type for v in urdfVisuals]
+		halfExtents=[[ext * 0.5 for ext in v.geom_extents] for v in urdfVisuals]
+		radii=[v.geom_radius for v in urdfVisuals]
+		lengths=[v.geom_length[0] for v in urdfVisuals]
+		fileNames=[v.geom_meshfilename for v in urdfVisuals]
+		meshScales=[v.geom_meshscale for v in urdfVisuals]
+		rgbaColors=[v.material_rgba for v in urdfVisuals]
+		visualFramePositions=[v.origin_xyz for v in urdfVisuals]
+		visualFrameOrientations=[v.origin_rpy for v in urdfVisuals]                                                       
+		baseVisualShapeIndex = -1
 
+		if (len(shapeTypes)):
+			#print("len(shapeTypes)=",len(shapeTypes))
+			#print("len(halfExtents)=",len(halfExtents))
+			#print("len(radii)=",len(radii))
+			#print("len(lengths)=",len(lengths))
+			#print("len(fileNames)=",len(fileNames))
+			#print("len(meshScales)=",len(meshScales))
+			#print("len(rgbaColors)=",len(rgbaColors))
+			#print("len(visualFramePositions)=",len(visualFramePositions))
+			#print("len(visualFrameOrientations)=",len(visualFrameOrientations))
+			print("fileNames=",fileNames)
+                                                           
+			baseVisualShapeIndex = p.createVisualShapeArray(shapeTypes=shapeTypes,
+						halfExtents=halfExtents,radii=radii,lengths=lengths,fileNames=fileNames,
+						meshScales=meshScales,rgbaColors=rgbaColors,visualFramePositions=visualFramePositions,
+						visualFrameOrientations=visualFrameOrientations,physicsClientId=physicsClientId)
 
 		linkMasses=[]
 		linkCollisionShapeIndices=[]
@@ -454,15 +470,25 @@ class UrdfEditor(object):
 					physicsClientId=physicsClientId)
 
 				urdfVisuals = link.urdf_visual_shapes
-				linkVisualShapeIndex = p.createVisualShapeArray(shapeTypes=[v.geom_type for v in urdfVisuals],
-							halfExtents=[[ext * 0.5 for ext in v.geom_extents] for v in urdfVisuals],
-							radii=[v.geom_radius for v in urdfVisuals],
-							lengths=[v.geom_length[0] for v in urdfVisuals],
-							fileNames=[v.geom_meshfilename for v in urdfVisuals],
-							meshScales=[v.geom_meshscale for v in urdfVisuals],
-							rgbaColors=[v.material_rgba for v in urdfVisuals],
-							visualFramePositions=[v.origin_xyz for v in urdfVisuals],
-							visualFrameOrientations=[v.origin_rpy for v in urdfVisuals],
+				linkVisualShapeIndex = -1
+				shapeTypes=[v.geom_type for v in urdfVisuals]
+				halfExtents=[[ext * 0.5 for ext in v.geom_extents] for v in urdfVisuals]
+				radii=[v.geom_radius for v in urdfVisuals]
+				lengths=[v.geom_length[0] for v in urdfVisuals]
+				fileNames=[v.geom_meshfilename for v in urdfVisuals]
+				meshScales=[v.geom_meshscale for v in urdfVisuals]
+				rgbaColors=[v.material_rgba for v in urdfVisuals]
+				visualFramePositions=[v.origin_xyz for v in urdfVisuals]
+				visualFrameOrientations=[v.origin_rpy for v in urdfVisuals]
+
+				if (len(shapeTypes)):
+					print("fileNames=",fileNames)
+
+					linkVisualShapeIndex = p.createVisualShapeArray(shapeTypes=shapeTypes,
+							halfExtents=halfExtents,radii=radii,lengths=lengths,
+							fileNames=fileNames,meshScales=meshScales,rgbaColors=rgbaColors,
+							visualFramePositions=visualFramePositions,
+							visualFrameOrientations=visualFrameOrientations,
 							physicsClientId=physicsClientId)
 
 			linkMasses.append(linkMass)

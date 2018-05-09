@@ -2,6 +2,7 @@ import pybullet_utils.bullet_client as bc
 import pybullet_utils.urdfEditor as ed
 import pybullet
 import pybullet_data
+import time
 
 p0 = bc.BulletClient(connection_mode=pybullet.DIRECT)
 p0.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -10,18 +11,20 @@ p1 = bc.BulletClient(connection_mode=pybullet.DIRECT)
 p1.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 #can also connect using different modes, GUI, SHARED_MEMORY, TCP, UDP, SHARED_MEMORY_SERVER, GUI_SERVER
-#pgui = bc.BulletClient(connection_mode=pybullet.GUI)
 
-frame = p1.loadURDF("frame1.urdf")
-door = p0.loadURDF("door1.urdf")
+husky = p1.loadURDF("husky/husky.urdf", flags=p0.URDF_USE_IMPLICIT_CYLINDER)
+kuka = p0.loadURDF("kuka_iiwa/model_free_base.urdf", flags=p0.URDF_USE_IMPLICIT_CYLINDER)
 
 ed0 = ed.UrdfEditor()
-ed0.initializeFromBulletBody(frame, p1._client)
+ed0.initializeFromBulletBody(husky, p1._client)
 ed1 = ed.UrdfEditor()
-ed1.initializeFromBulletBody(door, p0._client)
+ed1.initializeFromBulletBody(kuka, p0._client)
+#ed1.saveUrdf("combined.urdf")
+
 
 parentLinkIndex = 0
 childLinkIndex = len(ed0.urdfLinks)
+insertJointIndex = len(ed0.urdfJoints)
 
 #combine all links, and add a joint
 for link in ed1.urdfLinks:
@@ -35,7 +38,7 @@ for joint in ed1.urdfJoints:
 jointPivotXYZInParent = [0.1,0,0.1]
 jointPivotRPYInParent = [0,0,0]
 
-jointPivotXYZInChild = [-0.4,0,-0.4]
+jointPivotXYZInChild = [0,0,0]
 jointPivotRPYInChild = [0,0,0]
 jointPivotQuatInChild = p0.getQuaternionFromEuler(jointPivotRPYInChild)
 invJointPivotXYZInChild, invJointPivotQuatInChild = p0.invertTransform(jointPivotXYZInChild,jointPivotQuatInChild)
@@ -76,7 +79,11 @@ joint.joint_origin_rpy = jointPivotRPYInParent
 joint.joint_axis_xyz = [0,0,1]
 
 
-ed0.urdfJoints.append(joint)
+#the following commented line would crash PyBullet, it messes up the joint indexing/ordering
+#ed0.urdfJoints.append(joint)
+
+#so make sure to insert the joint in the right place, to links/joints match
+ed0.urdfJoints.insert(insertJointIndex,joint)
 
 ed0.saveUrdf("combined.urdf")
 
@@ -85,3 +92,10 @@ print(p1._client)
 print("p0.getNumBodies()=",p0.getNumBodies())
 print("p1.getNumBodies()=",p1.getNumBodies())
 
+pgui = bc.BulletClient(connection_mode=pybullet.GUI)
+
+ed0.createMultiBody([0,0,0],pgui._client)
+pgui.setRealTimeSimulation(1)
+
+while (pgui.isConnected()):
+	time.sleep(1./240.)
