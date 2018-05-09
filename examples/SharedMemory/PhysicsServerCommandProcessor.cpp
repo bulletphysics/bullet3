@@ -2156,9 +2156,9 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		UrdfModel model;// = m_data->m_urdfParser.getModel();
 		UrdfLink link;
 
-		if (m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]>=0)
+		if (m_createBodyArgs.m_linkVisualShapeUniqueIds[urdfIndex]>=0)
 		{
-			const InternalVisualShapeHandle* visHandle = m_data->m_userVisualShapeHandles.getHandle(m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]);
+			const InternalVisualShapeHandle* visHandle = m_data->m_userVisualShapeHandles.getHandle(m_createBodyArgs.m_linkVisualShapeUniqueIds[urdfIndex]);
 			if (visHandle)
 			{
 				for (int i=0;i<visHandle->m_visualShapes.size();i++)
