@@ -8,5 +8,6 @@ p.loadURDF("combined.urdf", useFixedBase=True)
 #	p.setJointMotorControl2(0,j,p.VELOCITY_CONTROL,targetVelocity=0.1)
 p.setRealTimeSimulation(1)
 while (p.isConnected()):
+	p.getCameraImage(320,200)
 	import time
 	time.sleep(1./240.)

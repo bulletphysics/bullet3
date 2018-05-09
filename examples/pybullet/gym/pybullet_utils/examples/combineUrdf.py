@@ -98,4 +98,5 @@ ed0.createMultiBody([0,0,0],pgui._client)
 pgui.setRealTimeSimulation(1)
 
 while (pgui.isConnected()):
+	pgui.getCameraImage(320,200)
 	time.sleep(1./240.)
