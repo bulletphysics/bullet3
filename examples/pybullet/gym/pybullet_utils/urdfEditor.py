@@ -29,7 +29,7 @@ class UrdfVisual(object):
 		self.geom_type = p.GEOM_BOX
 		self.geom_radius = 1
 		self.geom_extents = [7,8,9]
-		self.geom_length=[10]
+		self.geom_length=10
 		self.geom_meshfilename = "meshfile"
 		self.geom_meshscale=[1,1,1]
 		self.material_rgba = [1,0,0,1]
@@ -117,8 +117,8 @@ class UrdfEditor(object):
 			if (v[2]==p.GEOM_SPHERE):
 				urdfCollision.geom_radius = v[3][0]
 			if (v[2]==p.GEOM_MESH):
-                                urdfCollision.geom_meshfilename = v[4].decode("utf-8")
-                                urdfCollision.geom_meshscale = v[3]
+				urdfCollision.geom_meshfilename = v[4].decode("utf-8")
+				urdfCollision.geom_meshscale = v[3]
 			if (v[2]==p.GEOM_CYLINDER):
 				urdfCollision.geom_length=v[3][0]
 				urdfCollision.geom_radius=v[3][1]
@@ -255,7 +255,7 @@ class UrdfEditor(object):
 				prec=precision)
 			file.write(str)
 		if urdfCollision.geom_type == p.GEOM_MESH:
-			str = '\t\t\t\t<mesh filename=\"{}\"/> scale=\"{:.{prec}f} {:.{prec}f} {:.{prec}f}\"\n'.format(urdfCollision.geom_meshfilename,\
+			str = '\t\t\t\t<mesh filename=\"{}\" scale=\"{:.{prec}f} {:.{prec}f} {:.{prec}f}\"/>\n'.format(urdfCollision.geom_meshfilename,\
 				urdfCollision.geom_meshscale[0],urdfCollision.geom_meshscale[1],urdfCollision.geom_meshscale[2],prec=precision)
 			file.write(str)
 		if urdfCollision.geom_type == p.GEOM_CYLINDER:
@@ -339,7 +339,71 @@ class UrdfEditor(object):
 
   	#def addLink(...)
 
-	def createMultiBody(self, basePosition=[0,0,0],physicsClientId=0):
+
+
+
+	def joinUrdf(self, childEditor, parentLinkIndex=0, jointPivotXYZInParent=[0,0,0], jointPivotRPYInParent=[0,0,0], jointPivotXYZInChild=[0,0,0], jointPivotRPYInChild=[0,0,0], parentPhysicsClientId=0, childPhysicsClientId=0):
+
+		childLinkIndex = len(self.urdfLinks)
+		insertJointIndex = len(self.urdfJoints)
+		
+		#combine all links, and add a joint
+
+		for link in childEditor.urdfLinks:
+			self.linkNameToIndex[link.link_name]=len(self.urdfLinks)
+			self.urdfLinks.append(link)
+		for joint in childEditor.urdfJoints:
+			self.urdfJoints.append(joint)
+		#add a new joint between a particular
+
+
+		
+		
+		jointPivotQuatInChild = p.getQuaternionFromEuler(jointPivotRPYInChild)
+		invJointPivotXYZInChild, invJointPivotQuatInChild = p.invertTransform(jointPivotXYZInChild,jointPivotQuatInChild)
+
+		#apply this invJointPivot***InChild to all inertial, visual and collision element in the child link
+		#inertial
+		pos, orn = p.multiplyTransforms(self.urdfLinks[childLinkIndex].urdf_inertial.origin_xyz,p.getQuaternionFromEuler(self.urdfLinks[childLinkIndex].urdf_inertial.origin_rpy),invJointPivotXYZInChild,invJointPivotQuatInChild, physicsClientId=parentPhysicsClientId)
+		self.urdfLinks[childLinkIndex].urdf_inertial.origin_xyz = pos
+		self.urdfLinks[childLinkIndex].urdf_inertial.origin_rpy = p.getEulerFromQuaternion(orn)
+		#all visual
+		for v in self.urdfLinks[childLinkIndex].urdf_visual_shapes:
+			pos, orn = p.multiplyTransforms(v.origin_xyz,p.getQuaternionFromEuler(v.origin_rpy),invJointPivotXYZInChild,invJointPivotQuatInChild)
+			v.origin_xyz = pos
+			v.origin_rpy = p.getEulerFromQuaternion(orn)
+		#all collision
+		for c in self.urdfLinks[childLinkIndex].urdf_collision_shapes:
+			pos, orn = p.multiplyTransforms(c.origin_xyz,p.getQuaternionFromEuler(c.origin_rpy),invJointPivotXYZInChild,invJointPivotQuatInChild)
+			c.origin_xyz = pos
+			c.origin_rpy = p.getEulerFromQuaternion(orn)
+
+
+		childLink = self.urdfLinks[childLinkIndex]
+		parentLink = self.urdfLinks[parentLinkIndex]
+
+		joint = UrdfJoint()
+		joint.link = childLink
+		joint.joint_name = "joint_dummy1"
+		joint.joint_type = p.JOINT_REVOLUTE
+		joint.joint_lower_limit = 0
+		joint.joint_upper_limit = -1
+		joint.parent_name = parentLink.link_name
+		joint.child_name = childLink.link_name
+		joint.joint_origin_xyz = jointPivotXYZInParent
+		joint.joint_origin_rpy = jointPivotRPYInParent
+		joint.joint_axis_xyz = [0,0,1]
+
+		#the following commented line would crash PyBullet, it messes up the joint indexing/ordering
+		#self.urdfJoints.append(joint)
+
+		#so make sure to insert the joint in the right place, to links/joints match
+		self.urdfJoints.insert(insertJointIndex,joint)
+		return joint
+
+
+
+	def createMultiBody(self, basePosition=[0,0,0],baseOrientation=[0,0,0,1], physicsClientId=0):
 		#assume link[0] is base
 		if (len(self.urdfLinks)==0):
 			return -1
@@ -392,12 +456,12 @@ class UrdfEditor(object):
 		shapeTypes=[v.geom_type for v in urdfVisuals]
 		halfExtents=[[ext * 0.5 for ext in v.geom_extents] for v in urdfVisuals]
 		radii=[v.geom_radius for v in urdfVisuals]
-		lengths=[v.geom_length[0] for v in urdfVisuals]
+		lengths=[v.geom_length for v in urdfVisuals]
 		fileNames=[v.geom_meshfilename for v in urdfVisuals]
 		meshScales=[v.geom_meshscale for v in urdfVisuals]
 		rgbaColors=[v.material_rgba for v in urdfVisuals]
 		visualFramePositions=[v.origin_xyz for v in urdfVisuals]
-		visualFrameOrientations=[v.origin_rpy for v in urdfVisuals]                                                       
+		visualFrameOrientations=[p.getQuaternionFromEuler(v.origin_rpy) for v in urdfVisuals]                                                       
 		baseVisualShapeIndex = -1
 
 		if (len(shapeTypes)):
@@ -422,7 +486,7 @@ class UrdfEditor(object):
 		linkVisualShapeIndices=[]
 		linkPositions=[]
 		linkOrientations=[]
-		linkMeshScaleArray=[]
+		
 		linkInertialFramePositions=[]
 		linkInertialFrameOrientations=[]
 		linkParentIndices=[]
@@ -446,6 +510,7 @@ class UrdfEditor(object):
 			linkHalfExtentsArray=[]
 			lengthsArray=[]
 			fileNameArray=[]
+			linkMeshScaleArray=[]
 			linkPositionsArray=[]
 			linkOrientationsArray=[]
 
@@ -470,19 +535,19 @@ class UrdfEditor(object):
 					collisionFramePositions=linkPositionsArray,
 					collisionFrameOrientations=linkOrientationsArray,
 					physicsClientId=physicsClientId)
-
+					
 				urdfVisuals = link.urdf_visual_shapes
 				linkVisualShapeIndex = -1
 				shapeTypes=[v.geom_type for v in urdfVisuals]
 				halfExtents=[[ext * 0.5 for ext in v.geom_extents] for v in urdfVisuals]
 				radii=[v.geom_radius for v in urdfVisuals]
-				lengths=[v.geom_length[0] for v in urdfVisuals]
+				lengths=[v.geom_length for v in urdfVisuals]
 				fileNames=[v.geom_meshfilename for v in urdfVisuals]
 				meshScales=[v.geom_meshscale for v in urdfVisuals]
 				rgbaColors=[v.material_rgba for v in urdfVisuals]
 				visualFramePositions=[v.origin_xyz for v in urdfVisuals]
-				visualFrameOrientations=[v.origin_rpy for v in urdfVisuals]
-
+				visualFrameOrientations=[p.getQuaternionFromEuler(v.origin_rpy) for v in urdfVisuals]
+				
 				if (len(shapeTypes)):
 					print("fileNames=",fileNames)
 
@@ -507,8 +572,9 @@ class UrdfEditor(object):
 					baseCollisionShapeIndex=baseCollisionShapeIndex,
                                         baseVisualShapeIndex=baseVisualShapeIndex,
 					basePosition=basePosition,
+					baseOrientation=baseOrientation,
 					baseInertialFramePosition=base.urdf_inertial.origin_xyz,
-					baseInertialFrameOrientation=base.urdf_inertial.origin_rpy,
+					baseInertialFrameOrientation=p.getQuaternionFromEuler(base.urdf_inertial.origin_rpy),
 					linkMasses=linkMasses,
 					linkCollisionShapeIndices=linkCollisionShapeIndices,
 					linkVisualShapeIndices=linkVisualShapeIndices,

@@ -605,6 +605,10 @@ static PyObject* pybullet_syncBodyInfo(PyObject* self, PyObject* args, PyObject*
     b3PhysicsClientHandle sm = 0;
     int physicsClientId = 0;
     static char* kwlist[] = {"physicsClientId", NULL};
+    b3SharedMemoryCommandHandle command;
+    b3SharedMemoryStatusHandle statusHandle;
+    int statusType;
+
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
     {
         return NULL;
@@ -616,9 +620,6 @@ static PyObject* pybullet_syncBodyInfo(PyObject* self, PyObject* args, PyObject*
         return NULL;
     }
    
-    b3SharedMemoryCommandHandle command;
-    b3SharedMemoryStatusHandle statusHandle;
-    int statusType;
     
     command = b3InitSyncBodyInfoCommand(sm);
     statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
