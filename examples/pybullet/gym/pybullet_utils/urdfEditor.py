@@ -117,8 +117,8 @@ class UrdfEditor(object):
 			if (v[2]==p.GEOM_SPHERE):
 				urdfCollision.geom_radius = v[3][0]
 			if (v[2]==p.GEOM_MESH):
-                                urdfCollision.geom_meshfilename = v[4].decode("utf-8")
-                                urdfCollision.geom_meshscale = v[3]
+				urdfCollision.geom_meshfilename = v[4].decode("utf-8")
+				urdfCollision.geom_meshscale = v[3]
 			if (v[2]==p.GEOM_CYLINDER):
 				urdfCollision.geom_length=v[3][0]
 				urdfCollision.geom_radius=v[3][1]
@@ -255,7 +255,7 @@ class UrdfEditor(object):
 				prec=precision)
 			file.write(str)
 		if urdfCollision.geom_type == p.GEOM_MESH:
-			str = '\t\t\t\t<mesh filename=\"{}\"/> scale=\"{:.{prec}f} {:.{prec}f} {:.{prec}f}\"\n'.format(urdfCollision.geom_meshfilename,\
+			str = '\t\t\t\t<mesh filename=\"{}\" scale=\"{:.{prec}f} {:.{prec}f} {:.{prec}f}\"/>\n'.format(urdfCollision.geom_meshfilename,\
 				urdfCollision.geom_meshscale[0],urdfCollision.geom_meshscale[1],urdfCollision.geom_meshscale[2],prec=precision)
 			file.write(str)
 		if urdfCollision.geom_type == p.GEOM_CYLINDER:
@@ -422,7 +422,7 @@ class UrdfEditor(object):
 		linkVisualShapeIndices=[]
 		linkPositions=[]
 		linkOrientations=[]
-		linkMeshScaleArray=[]
+		
 		linkInertialFramePositions=[]
 		linkInertialFrameOrientations=[]
 		linkParentIndices=[]
@@ -446,6 +446,7 @@ class UrdfEditor(object):
 			linkHalfExtentsArray=[]
 			lengthsArray=[]
 			fileNameArray=[]
+			linkMeshScaleArray=[]
 			linkPositionsArray=[]
 			linkOrientationsArray=[]
 
@@ -470,7 +471,7 @@ class UrdfEditor(object):
 					collisionFramePositions=linkPositionsArray,
 					collisionFrameOrientations=linkOrientationsArray,
 					physicsClientId=physicsClientId)
-
+					
 				urdfVisuals = link.urdf_visual_shapes
 				linkVisualShapeIndex = -1
 				shapeTypes=[v.geom_type for v in urdfVisuals]
