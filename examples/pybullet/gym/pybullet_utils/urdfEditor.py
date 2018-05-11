@@ -474,7 +474,7 @@ class UrdfEditor(object):
 			#print("len(rgbaColors)=",len(rgbaColors))
 			#print("len(visualFramePositions)=",len(visualFramePositions))
 			#print("len(visualFrameOrientations)=",len(visualFrameOrientations))
-			print("fileNames=",fileNames)
+			
                                                            
 			baseVisualShapeIndex = p.createVisualShapeArray(shapeTypes=shapeTypes,
 						halfExtents=halfExtents,radii=radii,lengths=lengths,fileNames=fileNames,
@@ -513,7 +513,7 @@ class UrdfEditor(object):
 			linkMeshScaleArray=[]
 			linkPositionsArray=[]
 			linkOrientationsArray=[]
-
+			
 			for v in link.urdf_collision_shapes:
 				shapeType = v.geom_type
 				linkShapeTypeArray.append(shapeType)
@@ -536,22 +536,22 @@ class UrdfEditor(object):
 					collisionFrameOrientations=linkOrientationsArray,
 					physicsClientId=physicsClientId)
 					
-				urdfVisuals = link.urdf_visual_shapes
-				linkVisualShapeIndex = -1
-				shapeTypes=[v.geom_type for v in urdfVisuals]
-				halfExtents=[[ext * 0.5 for ext in v.geom_extents] for v in urdfVisuals]
-				radii=[v.geom_radius for v in urdfVisuals]
-				lengths=[v.geom_length for v in urdfVisuals]
-				fileNames=[v.geom_meshfilename for v in urdfVisuals]
-				meshScales=[v.geom_meshscale for v in urdfVisuals]
-				rgbaColors=[v.material_rgba for v in urdfVisuals]
-				visualFramePositions=[v.origin_xyz for v in urdfVisuals]
-				visualFrameOrientations=[p.getQuaternionFromEuler(v.origin_rpy) for v in urdfVisuals]
+			urdfVisuals = link.urdf_visual_shapes
+			linkVisualShapeIndex = -1
+			shapeTypes=[v.geom_type for v in urdfVisuals]
+			halfExtents=[[ext * 0.5 for ext in v.geom_extents] for v in urdfVisuals]
+			radii=[v.geom_radius for v in urdfVisuals]
+			lengths=[v.geom_length for v in urdfVisuals]
+			fileNames=[v.geom_meshfilename for v in urdfVisuals]
+			meshScales=[v.geom_meshscale for v in urdfVisuals]
+			rgbaColors=[v.material_rgba for v in urdfVisuals]
+			visualFramePositions=[v.origin_xyz for v in urdfVisuals]
+			visualFrameOrientations=[p.getQuaternionFromEuler(v.origin_rpy) for v in urdfVisuals]
 				
-				if (len(shapeTypes)):
-					print("fileNames=",fileNames)
+			if (len(shapeTypes)):
+				print("fileNames=",fileNames)
 
-					linkVisualShapeIndex = p.createVisualShapeArray(shapeTypes=shapeTypes,
+				linkVisualShapeIndex = p.createVisualShapeArray(shapeTypes=shapeTypes,
 							halfExtents=halfExtents,radii=radii,lengths=lengths,
 							fileNames=fileNames,meshScales=meshScales,rgbaColors=rgbaColors,
 							visualFramePositions=visualFramePositions,

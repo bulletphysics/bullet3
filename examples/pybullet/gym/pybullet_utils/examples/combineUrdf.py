@@ -32,6 +32,7 @@ jointPivotXYZInChild = [0,0,0]
 jointPivotRPYInChild = [0,0,0]
 
 newjoint = ed0.joinUrdf(ed1, parentLinkIndex , jointPivotXYZInParent, jointPivotRPYInParent, jointPivotXYZInChild, jointPivotRPYInChild,  p0._client, p1._client)
+newjoint.joint_type = p0.JOINT_FIXED
 
 ed0.saveUrdf("combined.urdf")
 
@@ -47,5 +48,5 @@ ed0.createMultiBody([0,0,0],orn, pgui._client)
 pgui.setRealTimeSimulation(1)
 
 while (pgui.isConnected()):
-	pgui.getCameraImage(320,200)
+	pgui.getCameraImage(320,200, renderer=pgui.ER_BULLET_HARDWARE_OPENGL)
 	time.sleep(1./240.)
