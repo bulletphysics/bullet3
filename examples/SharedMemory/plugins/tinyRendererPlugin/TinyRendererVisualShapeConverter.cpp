@@ -243,10 +243,13 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 						vertices.push_back(vert);
 					}
 				}
-				btVector3 pole1 = p1 - dir * rad;
-				btVector3 pole2 = p2 + dir * rad;
-				vertices.push_back(pole1);
-				vertices.push_back(pole2);
+				if (visual->m_geometry.m_type==URDF_GEOM_CAPSULE)
+				{
+					btVector3 pole1 = p1 - dir * rad;
+					btVector3 pole2 = p2 + dir * rad;
+					vertices.push_back(pole1);
+					vertices.push_back(pole2);
+				}
 
 			} else {
 				//assume a capsule along the Z-axis, centered at the origin
@@ -260,10 +263,13 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 					vert[2] = -len / 2.;
 					vertices.push_back(vert);
 				}
-				btVector3 pole1(0, 0, + len / 2. + rad);
-				btVector3 pole2(0, 0, - len / 2. - rad);
-				vertices.push_back(pole1);
-				vertices.push_back(pole2);
+				if (visual->m_geometry.m_type==URDF_GEOM_CAPSULE)
+				{
+					btVector3 pole1(0, 0, + len / 2. + rad);
+					btVector3 pole2(0, 0, - len / 2. - rad);
+					vertices.push_back(pole1);
+					vertices.push_back(pole2);
+				}
 			}
 			visualShapeOut.m_localVisualFrame[0] = tr.getOrigin()[0];
 			visualShapeOut.m_localVisualFrame[1] = tr.getOrigin()[1];
@@ -612,6 +618,17 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 						}
 						//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
 						//m_data->m_linkColors.insert(linkIndex,mat->m_rgbaColor);
+					} else
+					{
+						///programmatic created models may have the color in the visual
+						if (vis && vis->m_geometry.m_hasLocalMaterial)
+						{
+							for (int i = 0; i < 4; i++)
+							{
+								rgbaColor[i] = vis->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[i];
+							}
+						}
+
 					}
 				}
 				
