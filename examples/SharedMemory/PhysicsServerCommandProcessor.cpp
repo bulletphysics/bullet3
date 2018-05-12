@@ -70,6 +70,9 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #endif
 
+extern bool gJointFeedbackInWorldSpace;
+extern bool gJointFeedbackInJointFrame;
+
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
 int gVRTrackingObjectUniqueId = -1;
@@ -6623,6 +6626,8 @@ bool PhysicsServerCommandProcessor::processRequestPhysicsSimulationParametersCom
 	return hasStatus;
 }
 
+
+
 bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -6647,6 +6652,12 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_CCD_ALLOWED_PENETRATION)
 	{
 		m_data->m_dynamicsWorld->getDispatchInfo().m_allowedCcdPenetration = clientCmd.m_physSimParamArgs.m_allowedCcdPenetration;
+	}
+	
+	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_JOINT_FEEDBACK_MODE)
+	{
+		gJointFeedbackInWorldSpace = (clientCmd.m_physSimParamArgs.m_jointFeedbackMode&JOINT_FEEDBACK_IN_WORLD_SPACE)!=0;
+		gJointFeedbackInJointFrame = (clientCmd.m_physSimParamArgs.m_jointFeedbackMode&JOINT_FEEDBACK_IN_JOINT_FRAME)!=0;
 	}
 
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DELTA_TIME)

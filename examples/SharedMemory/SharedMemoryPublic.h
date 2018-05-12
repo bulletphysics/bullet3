@@ -714,6 +714,12 @@ enum eStateLoggingFlags
 	STATE_LOG_JOINT_TORQUES = STATE_LOG_JOINT_MOTOR_TORQUES+STATE_LOG_JOINT_USER_TORQUES,
 };
 
+enum eJointFeedbackModes
+{
+	JOINT_FEEDBACK_IN_WORLD_SPACE=1,
+	JOINT_FEEDBACK_IN_JOINT_FRAME=2,
+};
+
 #define B3_MAX_PLUGIN_ARG_SIZE 128
 #define B3_MAX_PLUGIN_ARG_TEXT_LEN 1024
 
@@ -746,6 +752,7 @@ struct b3PhysicsSimulationParameters
 	int m_enableConeFriction;
 	int m_deterministicOverlappingPairs;
 	double m_allowedCcdPenetration;
+	int m_jointFeedbackMode;
 };
 
 
