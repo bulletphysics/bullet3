@@ -7599,7 +7599,7 @@ static PyObject* pybullet_applyExternalTorque(PyObject* self, PyObject* args, Py
 				b3SharedMemoryStatusHandle statusHandle;
 				b3SharedMemoryCommandHandle command =
 					b3ApplyExternalForceCommandInit(sm);
-				b3ApplyExternalTorque(command, objectUniqueId, -1, torque, flags);
+				b3ApplyExternalTorque(command, objectUniqueId, linkIndex, torque, flags);
 				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 			}
 		}
