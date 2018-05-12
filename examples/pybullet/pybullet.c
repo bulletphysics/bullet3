@@ -1156,12 +1156,13 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 	int enableConeFriction = -1;
 	b3PhysicsClientHandle sm = 0;
 	int deterministicOverlappingPairs = -1;
-
+	int jointFeedbackMode =-1;
+	
 	int physicsClientId = 0;
-	static char* kwlist[] = {"fixedTimeStep", "numSolverIterations", "useSplitImpulse", "splitImpulsePenetrationThreshold", "numSubSteps", "collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "enableFileCaching","restitutionVelocityThreshold", "erp", "contactERP", "frictionERP", "enableConeFriction", "deterministicOverlappingPairs", "allowedCcdPenetration", "physicsClientId", NULL};
+	static char* kwlist[] = {"fixedTimeStep", "numSolverIterations", "useSplitImpulse", "splitImpulsePenetrationThreshold", "numSubSteps", "collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "enableFileCaching","restitutionVelocityThreshold", "erp", "contactERP", "frictionERP", "enableConeFriction", "deterministicOverlappingPairs", "allowedCcdPenetration", "jointFeedbackMode", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiidi", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
-									 &collisionFilterMode, &contactBreakingThreshold, &maxNumCmdPer1ms, &enableFileCaching, &restitutionVelocityThreshold, &erp, &contactERP, &frictionERP, &enableConeFriction, &deterministicOverlappingPairs, &allowedCcdPenetration, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiidii", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
+									 &collisionFilterMode, &contactBreakingThreshold, &maxNumCmdPer1ms, &enableFileCaching, &restitutionVelocityThreshold, &erp, &contactERP, &frictionERP, &enableConeFriction, &deterministicOverlappingPairs, &allowedCcdPenetration, &jointFeedbackMode, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1245,7 +1246,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		if (allowedCcdPenetration>=0)
 		{
 			b3PhysicsParameterSetAllowedCcdPenetration(command,allowedCcdPenetration);
-			
+		}
+		if (jointFeedbackMode>=0)
+		{
+			b3PhysicsParameterSetJointFeedbackMode(command,jointFeedbackMode);
 		}
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
@@ -7599,7 +7603,7 @@ static PyObject* pybullet_applyExternalTorque(PyObject* self, PyObject* args, Py
 				b3SharedMemoryStatusHandle statusHandle;
 				b3SharedMemoryCommandHandle command =
 					b3ApplyExternalForceCommandInit(sm);
-				b3ApplyExternalTorque(command, objectUniqueId, -1, torque, flags);
+				b3ApplyExternalTorque(command, objectUniqueId, linkIndex, torque, flags);
 				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 			}
 		}
@@ -9176,6 +9180,9 @@ initpybullet(void)
 	
 	
 	PyModule_AddIntConstant(m, "SENSOR_FORCE_TORQUE", eSensorForceTorqueType);  // user read
+
+	PyModule_AddIntConstant(m, "JOINT_FEEDBACK_IN_WORLD_SPACE", JOINT_FEEDBACK_IN_WORLD_SPACE);  // user read
+	PyModule_AddIntConstant(m, "JOINT_FEEDBACK_IN_JOINT_FRAME", JOINT_FEEDBACK_IN_JOINT_FRAME);  // user read
 
 	PyModule_AddIntConstant(m, "TORQUE_CONTROL", CONTROL_MODE_TORQUE);
 	PyModule_AddIntConstant(m, "VELOCITY_CONTROL",

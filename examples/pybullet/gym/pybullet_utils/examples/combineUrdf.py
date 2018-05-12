@@ -10,6 +10,7 @@ p0.setAdditionalSearchPath(pybullet_data.getDataPath())
 p1 = bc.BulletClient(connection_mode=pybullet.DIRECT)
 p1.setAdditionalSearchPath(pybullet_data.getDataPath())
 
+
 #can also connect using different modes, GUI, SHARED_MEMORY, TCP, UDP, SHARED_MEMORY_SERVER, GUI_SERVER
 
 husky = p1.loadURDF("husky/husky.urdf", flags=p0.URDF_USE_IMPLICIT_CYLINDER)
@@ -42,10 +43,14 @@ print("p0.getNumBodies()=",p0.getNumBodies())
 print("p1.getNumBodies()=",p1.getNumBodies())
 
 pgui = bc.BulletClient(connection_mode=pybullet.GUI)
+pgui.configureDebugVisualizer(pgui.COV_ENABLE_RENDERING, 0)
 
 orn=[0,0,0,1]
 ed0.createMultiBody([0,0,0],orn, pgui._client)
 pgui.setRealTimeSimulation(1)
+
+pgui.configureDebugVisualizer(pgui.COV_ENABLE_RENDERING, 1)
+
 
 while (pgui.isConnected()):
 	pgui.getCameraImage(320,200, renderer=pgui.ER_BULLET_HARDWARE_OPENGL)
