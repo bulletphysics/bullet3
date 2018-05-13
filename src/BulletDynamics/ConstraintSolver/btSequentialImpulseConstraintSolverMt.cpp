@@ -422,9 +422,10 @@ void btSequentialImpulseConstraintSolverMt::internalCollectContactManifoldCached
         btSolverBody* solverBodyA = &m_tmpSolverBodyPool[ solverBodyIdA ];
         btSolverBody* solverBodyB = &m_tmpSolverBodyPool[ solverBodyIdB ];
 
-        ///avoid collision response between two static objects
-        if ( solverBodyA->m_invMass.fuzzyZero() && solverBodyB->m_invMass.fuzzyZero() )
-            break;
+        // A contact manifold between 2 static object should not exist!
+        // check the collision flags of your objects if this assert fires.
+        // Incorrectly set collision object flags can degrade performance in various ways.
+        btAssert( !m_tmpSolverBodyPool[ solverBodyIdA ].m_invMass.isZero() || !m_tmpSolverBodyPool[ solverBodyIdB ].m_invMass.isZero() );
 
         int iContact = 0;
         for ( int j = 0; j < manifold->getNumContacts(); j++ )
