@@ -201,7 +201,8 @@ struct	MotionArgs
 			{
 				m_vrControllerEvents[i].m_buttons[b]=0;
 			}
-
+			m_vrControllerPos[i].setValue(0,0,0);
+			m_vrControllerOrn[i].setValue(0,0,0,1);
 			m_isVrControllerPicking[i] = false;
 			m_isVrControllerDragging[i] = false;
 			m_isVrControllerReleasing[i] = false;
@@ -259,6 +260,8 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 	if (init)
 	{
 
+		unsigned int cachedSharedParam = eMotionIsInitialized;
+
 		args->m_cs->lock();
 		args->m_cs->setSharedParam(0,eMotionIsInitialized);
 		args->m_cs->unlock();
@@ -268,6 +271,8 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 		int numCmdSinceSleep1ms = 0;
 		unsigned long long int prevTime = clock.getTimeMicroseconds();
 		
+		
+
 		do
 		{
 			{
@@ -467,7 +472,11 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				numCmdSinceSleep1ms++;
 			}
 			
-		} while (args->m_cs->getSharedParam(0)!=eRequestTerminateMotion);
+			args->m_cs->lock();
+			cachedSharedParam = args->m_cs->getSharedParam(0);
+			args->m_cs->unlock();
+
+		} while (cachedSharedParam!=eRequestTerminateMotion);
 	} else
 	{
 		args->m_cs->lock();
@@ -1747,6 +1756,8 @@ void	PhysicsServerExample::initPhysics()
 	m_threadSupport = createMotionThreadSupport(MAX_MOTION_NUM_THREADS);
 		
 		
+		m_isConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
+		
 
 		for (int i=0;i<m_threadSupport->getNumTasks();i++)
 		{
@@ -1765,18 +1776,25 @@ void	PhysicsServerExample::initPhysics()
 			m_args[w].m_cs2 = m_threadSupport->createCriticalSection();
 			m_args[w].m_cs3 = m_threadSupport->createCriticalSection();
 			m_args[w].m_csGUI = m_threadSupport->createCriticalSection();
-
+			m_args[w].m_cs->lock();
 			m_args[w].m_cs->setSharedParam(0,eMotionIsUnInitialized);
+			m_args[w].m_cs->unlock();
 			int numMoving = 0;
  			m_args[w].m_positions.resize(numMoving);
 			m_args[w].m_physicsServerPtr = &m_physicsServer;
 			//int index = 0;
 			
 			m_threadSupport->runTask(B3_THREAD_SCHEDULE_TASK, (void*) &this->m_args[w], w);
+			bool isUninitialized = true;	
 			
-			while (m_args[w].m_cs->getSharedParam(0)==eMotionIsUnInitialized)
+			while (isUninitialized)
 			{
+				m_args[w].m_cs->lock();
+				isUninitialized = (m_args[w].m_cs->getSharedParam(0)==eMotionIsUnInitialized);
+				m_args[w].m_cs->unlock();
+#ifdef _WIN32
 				b3Clock::usleep(1000);
+#endif
 			}
 		}
 
@@ -1788,8 +1806,6 @@ void	PhysicsServerExample::initPhysics()
 		
 		m_args[0].m_cs2->lock();
 
-
-		m_isConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
 
 
 
