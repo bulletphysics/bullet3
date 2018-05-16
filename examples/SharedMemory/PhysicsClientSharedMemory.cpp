@@ -1,10 +1,10 @@
 #include "PhysicsClientSharedMemory.h"
 #include "PosixSharedMemory.h"
 #include "Win32SharedMemory.h"
-#include "LinearMath/btAlignedObjectArray.h"
-#include "LinearMath/btVector3.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3Vector3.h"
 #include <string.h>
-
+#include "Bullet3Common/b3HashMap.h"
 #include "Bullet3Common/b3Logging.h"
 #include "../Utils/b3ResourcePath.h"
 #include "../../Extras/Serialize/BulletFileLoader/btBulletFile.h"
@@ -19,7 +19,7 @@
 struct BodyJointInfoCache
 {
 	std::string m_baseName;
-	btAlignedObjectArray<b3JointInfo> m_jointInfo;
+	b3AlignedObjectArray<b3JointInfo> m_jointInfo;
 	std::string m_bodyName;
 };
 
@@ -28,32 +28,32 @@ struct PhysicsClientSharedMemoryInternalData {
 	bool	m_ownsSharedMemory;
     SharedMemoryBlock* m_testBlock1;
    
-	btHashMap<btHashInt,BodyJointInfoCache*> m_bodyJointMap;
-	btHashMap<btHashInt,b3UserConstraint> m_userConstraintInfoMap;
+	b3HashMap<b3HashInt,BodyJointInfoCache*> m_bodyJointMap;
+	b3HashMap<b3HashInt,b3UserConstraint> m_userConstraintInfoMap;
 
-    btAlignedObjectArray<TmpFloat3> m_debugLinesFrom;
-    btAlignedObjectArray<TmpFloat3> m_debugLinesTo;
-    btAlignedObjectArray<TmpFloat3> m_debugLinesColor;
+    b3AlignedObjectArray<TmpFloat3> m_debugLinesFrom;
+    b3AlignedObjectArray<TmpFloat3> m_debugLinesTo;
+    b3AlignedObjectArray<TmpFloat3> m_debugLinesColor;
 
 	int m_cachedCameraPixelsWidth;
 	int m_cachedCameraPixelsHeight;
-	btAlignedObjectArray<unsigned char> m_cachedCameraPixelsRGBA;
-	btAlignedObjectArray<float> m_cachedCameraDepthBuffer;
-	btAlignedObjectArray<int> m_cachedSegmentationMaskBuffer;
+	b3AlignedObjectArray<unsigned char> m_cachedCameraPixelsRGBA;
+	b3AlignedObjectArray<float> m_cachedCameraDepthBuffer;
+	b3AlignedObjectArray<int> m_cachedSegmentationMaskBuffer;
 
-    btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
-	btAlignedObjectArray<b3OverlappingObject> m_cachedOverlappingObjects;
-	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
-	btAlignedObjectArray<b3CollisionShapeData> m_cachedCollisionShapes;
+    b3AlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
+	b3AlignedObjectArray<b3OverlappingObject> m_cachedOverlappingObjects;
+	b3AlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
+	b3AlignedObjectArray<b3CollisionShapeData> m_cachedCollisionShapes;
 
-	btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
-	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
-	btAlignedObjectArray<b3MouseEvent> m_cachedMouseEvents;
-	btAlignedObjectArray<double> m_cachedMassMatrix;
-	btAlignedObjectArray<b3RayHitInfo>	m_raycastHits;
+	b3AlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
+	b3AlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
+	b3AlignedObjectArray<b3MouseEvent> m_cachedMouseEvents;
+	b3AlignedObjectArray<double> m_cachedMassMatrix;
+	b3AlignedObjectArray<b3RayHitInfo>	m_raycastHits;
 
-    btAlignedObjectArray<int> m_bodyIdsRequestInfo;
-	btAlignedObjectArray<int> m_constraintIdsRequestInfo;
+    b3AlignedObjectArray<int> m_bodyIdsRequestInfo;
+	b3AlignedObjectArray<int> m_constraintIdsRequestInfo;
 
     SharedMemoryStatus m_tempBackupServerStatus;
     
