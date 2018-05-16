@@ -747,8 +747,10 @@ struct b3PhysicsSimulationParameters
 	int m_collisionFilterMode;
 	int m_enableFileCaching;
 	double m_restitutionVelocityThreshold;
-	double 	m_defaultNonContactERP;
+	double m_defaultNonContactERP;
 	double m_frictionERP;
+	double m_defaultGlobalCFM;
+	double m_frictionCFM;
 	int m_enableConeFriction;
 	int m_deterministicOverlappingPairs;
 	double m_allowedCcdPenetration;
