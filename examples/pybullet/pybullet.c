@@ -937,6 +937,12 @@ static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyO
 		return NULL;
 	}
 	
+	if ((contactStiffness>=0 && contactDamping <0)||(contactStiffness<0 && contactDamping >=0))
+	{
+		PyErr_SetString(SpamError, "Both contactStiffness and contactDamping needs to be set together.");
+		return NULL;
+	}
+
 	{
 		b3SharedMemoryCommandHandle command = b3InitChangeDynamicsInfo(sm);
 		b3SharedMemoryStatusHandle statusHandle;
