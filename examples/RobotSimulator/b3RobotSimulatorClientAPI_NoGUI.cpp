@@ -1106,6 +1106,72 @@ void b3RobotSimulatorClientAPI_NoGUI::getMouseEvents(b3MouseEventsData* mouseEve
 }
 
 
+bool b3RobotSimulatorClientAPI_NoGUI::getCameraImage(int width, int height, struct b3RobotSimulatorGetCameraImageArgs args, struct b3CameraImageData &imageData)
+{
+	if (!isConnected()) {
+		b3Warning("Not connected");
+		return false;
+	}
+
+	b3SharedMemoryCommandHandle command;
+
+	command = b3InitRequestCameraImage(m_data->m_physicsClientHandle);
+
+	b3RequestCameraImageSetPixelResolution(command, width, height);
+
+	// Check and apply optional arguments
+	if (args.m_viewMatrix && args.m_projectionMatrix) {
+		b3RequestCameraImageSetCameraMatrices(command, args.m_viewMatrix, args.m_projectionMatrix);
+	}
+
+	if (args.m_lightDirection != NULL)	{
+		b3RequestCameraImageSetLightDirection(command, args.m_lightDirection);
+	}
+
+	if (args.m_lightColor != NULL) {
+		b3RequestCameraImageSetLightColor(command, args.m_lightColor);
+	}
+
+	if (args.m_lightDistance>=0) {
+		b3RequestCameraImageSetLightDistance(command, args.m_lightDistance);
+	}
+
+	if (args.m_hasShadow>=0) {
+		b3RequestCameraImageSetShadow(command, args.m_hasShadow);
+	}
+
+	if (args.m_lightAmbientCoeff>=0) {
+		b3RequestCameraImageSetLightAmbientCoeff(command, args.m_lightAmbientCoeff);
+	}
+
+	if (args.m_lightDiffuseCoeff>=0) {
+		b3RequestCameraImageSetLightDiffuseCoeff(command, args.m_lightDiffuseCoeff);
+	}
+
+	if (args.m_lightSpecularCoeff>=0) {
+		b3RequestCameraImageSetLightSpecularCoeff(command, args.m_lightSpecularCoeff);
+	}
+
+	if (args.m_renderer>=0) {
+		b3RequestCameraImageSelectRenderer(command, args.m_renderer);
+	}
+
+	// Actually retrieve the image
+	if (b3CanSubmitCommand(m_data->m_physicsClientHandle)) {
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_CAMERA_IMAGE_COMPLETED) {
+			b3GetCameraImageData(m_data->m_physicsClientHandle, &imageData);
+		}
+	} else {
+		return false;
+	}
+	return true;
+}
+
 bool b3RobotSimulatorClientAPI_NoGUI::calculateInverseDynamics(int bodyUniqueId, double *jointPositions, double *jointVelocities,
 	double *jointAccelerations, double *jointForcesOutput) 
 {

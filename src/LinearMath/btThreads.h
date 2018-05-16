@@ -108,6 +108,17 @@ public:
 };
 
 //
+// btIParallelSumBody -- subclass this to express work that can be done in parallel
+//                       and produces a sum over all loop elements
+//
+class btIParallelSumBody
+{
+public:
+    virtual ~btIParallelSumBody() {}
+    virtual btScalar sumLoop( int iBegin, int iEnd ) const = 0;
+};
+
+//
 // btITaskScheduler -- subclass this to implement a task scheduler that can dispatch work to
 //                     worker threads
 //
@@ -122,6 +133,8 @@ public:
     virtual int getNumThreads() const = 0;
     virtual void setNumThreads( int numThreads ) = 0;
     virtual void parallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body ) = 0;
+    virtual btScalar parallelSum( int iBegin, int iEnd, int grainSize, const btIParallelSumBody& body ) = 0;
+    virtual void sleepWorkerThreadsHint() {}  // hint the task scheduler that we may not be using these threads for a little while
 
     // internal use only
     virtual void activate();
@@ -143,6 +156,9 @@ btITaskScheduler* btGetTaskScheduler();
 // get non-threaded task scheduler (always available)
 btITaskScheduler* btGetSequentialTaskScheduler();
 
+// create a default task scheduler (Win32 or pthreads based)
+btITaskScheduler* btCreateDefaultTaskScheduler();
+
 // get OpenMP task scheduler (if available, otherwise returns null)
 btITaskScheduler* btGetOpenMPTaskScheduler();
 
@@ -155,6 +171,10 @@ btITaskScheduler* btGetPPLTaskScheduler();
 // btParallelFor -- call this to dispatch work like a for-loop
 //                 (iterations may be done out of order, so no dependencies are allowed)
 void btParallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body );
+
+// btParallelSum -- call this to dispatch work like a for-loop, returns the sum of all iterations
+//                 (iterations may be done out of order, so no dependencies are allowed)
+btScalar btParallelSum( int iBegin, int iEnd, int grainSize, const btIParallelSumBody& body );
 
 
 #endif

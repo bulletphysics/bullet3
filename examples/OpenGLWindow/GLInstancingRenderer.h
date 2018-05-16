@@ -39,6 +39,8 @@ class GLInstancingRenderer : public CommonRenderInterface
 	int m_screenHeight;
 	
 	int m_upAxis;
+
+	int m_planeReflectionShapeIndex;
     
     
 	int registerGraphicsInstanceInternal(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
@@ -131,6 +133,8 @@ public:
 	virtual void setLightPosition(const float lightPos[3]);
 	virtual void setLightPosition(const double lightPos[3]);
 	void setLightSpecularIntensity(const float lightSpecularIntensity[3]);
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]);
+	virtual void setProjectiveTexture(bool useProjectiveTexture);
 
 	virtual void	resize(int width, int height);
 	virtual int	getScreenWidth()
@@ -149,6 +153,8 @@ public:
 	virtual int getTotalNumInstances() const;
 	
 	virtual void enableShadowMap();
+
+	virtual void setPlaneReflectionShapeIndex(int index);
     
 	virtual void clearZBuffer();
 

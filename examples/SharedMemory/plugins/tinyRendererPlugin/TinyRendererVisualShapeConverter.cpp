@@ -243,10 +243,13 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 						vertices.push_back(vert);
 					}
 				}
-				btVector3 pole1 = p1 - dir * rad;
-				btVector3 pole2 = p2 + dir * rad;
-				vertices.push_back(pole1);
-				vertices.push_back(pole2);
+				if (visual->m_geometry.m_type==URDF_GEOM_CAPSULE)
+				{
+					btVector3 pole1 = p1 - dir * rad;
+					btVector3 pole2 = p2 + dir * rad;
+					vertices.push_back(pole1);
+					vertices.push_back(pole2);
+				}
 
 			} else {
 				//assume a capsule along the Z-axis, centered at the origin
@@ -260,10 +263,13 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 					vert[2] = -len / 2.;
 					vertices.push_back(vert);
 				}
-				btVector3 pole1(0, 0, + len / 2. + rad);
-				btVector3 pole2(0, 0, - len / 2. - rad);
-				vertices.push_back(pole1);
-				vertices.push_back(pole2);
+				if (visual->m_geometry.m_type==URDF_GEOM_CAPSULE)
+				{
+					btVector3 pole1(0, 0, + len / 2. + rad);
+					btVector3 pole2(0, 0, - len / 2. - rad);
+					vertices.push_back(pole1);
+					vertices.push_back(pole2);
+				}
 			}
 			visualShapeOut.m_localVisualFrame[0] = tr.getOrigin()[0];
 			visualShapeOut.m_localVisualFrame[1] = tr.getOrigin()[1];
@@ -593,7 +599,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 			colorIndex &=3;
 			btVector4 color;
 			color = sColors[colorIndex];
-			float rgbaColor[4] = {color[0],color[1],color[2],color[3]};
+			float rgbaColor[4] = {(float)color[0],(float)color[1],(float)color[2],(float)color[3]};
 			//if (colObj->getCollisionShape()->getShapeType()==STATIC_PLANE_PROXYTYPE)
 			//{
 			//	color.setValue(1,1,1,1);
@@ -612,6 +618,17 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 						}
 						//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
 						//m_data->m_linkColors.insert(linkIndex,mat->m_rgbaColor);
+					} else
+					{
+						///programmatic created models may have the color in the visual
+						if (vis && vis->m_geometry.m_hasLocalMaterial)
+						{
+							for (int i = 0; i < 4; i++)
+							{
+								rgbaColor[i] = vis->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[i];
+							}
+						}
+
 					}
 				}
 				
@@ -773,7 +790,7 @@ void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int lin
 		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
 		if (ptrptr && *ptrptr)
 		{
-			float rgba[4] = {rgbaColor[0], rgbaColor[1], rgbaColor[2], rgbaColor[3]};
+			float rgba[4] = {(float)rgbaColor[0], (float)rgbaColor[1], (float)rgbaColor[2], (float)rgbaColor[3]};
 			TinyRendererObjectArray* visuals = *ptrptr;
 			if ((bodyUniqueId == visuals->m_objectUniqueId) && (linkIndex == visuals->m_linkIndex))
 			{

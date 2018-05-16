@@ -80,7 +80,5 @@ static const char* projectiveTextureInstancingVertexShader= \
 "	vec4 vertexLoc = MVP* vec4((instance_position+localcoord).xyz,1);\n"
 "	gl_Position = vertexLoc;\n"
 "	fragment.color = instance_color;\n"
-"	vec4 projcoords = TextureMVP * vec4((instance_position+localcoord).xyz,1);\n"
-"	vert.texcoord = projcoords.xy/projcoords.z;\n"
 "}\n"
 ;

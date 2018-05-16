@@ -61,6 +61,9 @@ struct OpenGLGuiHelper : public GUIHelperInterface
                                   int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
                                   int startPixelIndex, int destinationWidth, 
                                   int destinationHeight, int* numPixelsCopied);
+	
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]);
+	virtual void setProjectiveTexture(bool useProjectiveTexture);
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) ;
 

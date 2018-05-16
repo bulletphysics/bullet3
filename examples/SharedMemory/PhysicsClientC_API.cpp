@@ -575,6 +575,15 @@ B3_SHARED_API	int b3PhysicsParameterSetAllowedCcdPenetration(b3SharedMemoryComma
 	return 0;
 }
 
+B3_SHARED_API	int b3PhysicsParameterSetJointFeedbackMode(b3SharedMemoryCommandHandle commandHandle, int jointFeedbackMode)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_jointFeedbackMode = jointFeedbackMode;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_JOINT_FEEDBACK_MODE;
+	return 0;
+}
+
 B3_SHARED_API int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -3079,6 +3088,19 @@ B3_SHARED_API void b3RequestCameraImageSetShadow(b3SharedMemoryCommandHandle com
     b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
     command->m_requestPixelDataArguments.m_hasShadow = hasShadow;
     command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_SHADOW;
+}
+
+B3_SHARED_API void b3RequestCameraImageSetProjectiveTextureMatrices(b3SharedMemoryCommandHandle commandHandle, float viewMatrix[16], float projectionMatrix[16])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+	for (int i=0;i<16;i++)
+	{
+		command->m_requestPixelDataArguments.m_projectiveTextureProjectionMatrix[i] = projectionMatrix[i];
+		command->m_requestPixelDataArguments.m_projectiveTextureViewMatrix[i] = viewMatrix[i];
+	}
+	command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_PROJECTIVE_TEXTURE_MATRICES;
 }
 
 B3_SHARED_API void b3ComputePositionFromViewMatrix(const float viewMatrix[16], float cameraPosition[3], float cameraTargetPosition[3], float cameraUp[3])

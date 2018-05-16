@@ -17,7 +17,6 @@ subject to the following restrictions:
 
 ///todo: make this configurable in the gui
 bool useShadowMap = true;// true;//false;//true;
-bool useProjectiveTexture = false;
 int shadowMapWidth= 4096;
 int shadowMapHeight= 4096;
 float shadowMapWorldSize=10;
@@ -225,7 +224,10 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	GLfloat m_projectionMatrix[16];
 	GLfloat m_viewMatrix[16];
+	GLfloat m_projectiveTextureProjectionMatrix[16];
+	GLfloat m_projectiveTextureViewMatrix[16];
 	GLfloat m_viewMatrixInverse[16];
+	bool m_useProjectiveTexture;
 
 	b3Vector3 m_lightPos;
 	b3Vector3 m_lightSpecularIntensity;
@@ -257,8 +259,11 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 			m_projectionMatrix[i]=0;
 			m_viewMatrix[i]=0;
 			m_viewMatrixInverse[i]=0;
+			m_projectiveTextureProjectionMatrix[i]=0;
+			m_projectiveTextureViewMatrix[i]=0;
 		}
 
+		m_useProjectiveTexture = false;
 	}
 
 
@@ -356,7 +361,8 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 	m_textureinitialized(false),
 	m_screenWidth(0),
 	m_screenHeight(0),
-	m_upAxis(1)
+	m_upAxis(1),
+	m_planeReflectionShapeIndex(-1)
 {
 
 	m_data = new InternalDataRenderer;
@@ -503,6 +509,16 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, in
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
+	int shapeIndex = pg->m_shapeIndex;
+	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
+	if (color[3]<1)
+	{
+		gfxObj->m_flags |= eGfxTransparency;
+	} else
+	{
+		gfxObj->m_flags &= ~eGfxTransparency;
+	}
+		
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=float(color[0]);
 	m_data->m_instance_colors_ptr[srcIndex*4+1]=float(color[1]);
 	m_data->m_instance_colors_ptr[srcIndex*4+2]=float(color[2]);
@@ -514,6 +530,16 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
+	int shapeIndex = pg->m_shapeIndex;
+	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
+
+	if (color[3]<1)
+	{
+		gfxObj->m_flags |= eGfxTransparency;
+	} else
+	{
+		gfxObj->m_flags &= ~eGfxTransparency;
+	}
 
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=color[0];
 	m_data->m_instance_colors_ptr[srcIndex*4+1]=color[1];
@@ -1466,6 +1492,20 @@ void GLInstancingRenderer::setLightPosition(const double lightPos[3])
 	m_data->m_lightPos[2] = lightPos[2];
 }
 
+void GLInstancingRenderer::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+{
+	for (int i = 0; i < 16; i++)
+	{
+		m_data->m_projectiveTextureViewMatrix[i] = viewMatrix[i];
+		m_data->m_projectiveTextureProjectionMatrix[i] = projectionMatrix[i];
+	}
+}
+
+void GLInstancingRenderer::setProjectiveTexture(bool useProjectiveTexture)
+{
+	m_data->m_useProjectiveTexture = useProjectiveTexture;
+	useShadowMap = !useProjectiveTexture;
+}
 
 void GLInstancingRenderer::updateCamera(int upAxis)
 {
@@ -1578,14 +1618,44 @@ void GLInstancingRenderer::renderScene()
 	{
 
 		renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
-		//glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-		//renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE_REFLECTION);
+		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+
+		if (m_planeReflectionShapeIndex>=0)
+		{
+			 /* Don't update color or depth. */
+			glDisable(GL_DEPTH_TEST);
+			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		
+			/* Draw 1 into the stencil buffer. */
+			glEnable(GL_STENCIL_TEST);
+			glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+			glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
+
+			/* Now render floor; floor pixels just get their stencil set to 1. */
+			renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE_REFLECTION_PLANE);
+
+			/* Re-enable update of color and depth. */ 
+			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			glEnable(GL_DEPTH_TEST);
+
+			/* Now, only render where stencil is set to 1. */
+			glStencilFunc(GL_EQUAL, 1, 0xffffffff);  /* draw if ==1 */
+			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		
+			//draw the reflection objects
+			renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE_REFLECTION);
+		
+			glDisable(GL_STENCIL_TEST);
+		}
+		
 		renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
 
+		
+
 	}
-	else if (useProjectiveTexture)
+	else if (m_data->m_useProjectiveTexture)
 	{
-		//renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
+		
 		renderSceneInternal(B3_USE_PROJECTIVE_TEXTURE_RENDERMODE);
 	}
 	else
@@ -2022,6 +2092,13 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 {
 	int renderMode=orgRenderMode;
 	bool reflectionPass = false;
+	bool reflectionPlanePass = false;
+
+	if (orgRenderMode==B3_USE_SHADOWMAP_RENDERMODE_REFLECTION_PLANE)
+	{
+		reflectionPlanePass = true;
+		renderMode = B3_USE_SHADOWMAP_RENDERMODE;
+	}
 	if (orgRenderMode==B3_USE_SHADOWMAP_RENDERMODE_REFLECTION)
 	{
 		reflectionPass = true;
@@ -2067,8 +2144,8 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 	//GLfloat depthModelViewMatrix2[4][4];
 	
 	// For projective texture mapping
-	float textureProjectionMatrix[4][4];
-	GLfloat textureModelViewMatrix[4][4];
+	//float textureProjectionMatrix[4][4];
+	//GLfloat textureModelViewMatrix[4][4];
 
 	// Compute the MVP matrix from the light's point of view
 	if (renderMode==B3_CREATE_SHADOWMAP_RENDERMODE)
@@ -2181,7 +2258,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 	// TODO: Expose the projective texture matrix setup. Temporarily set it to be the same as camera view projection matrix.
 	GLfloat textureMVP[16];
-	b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,textureMVP);
+	b3Matrix4x4Mul16(m_data->m_projectiveTextureProjectionMatrix,m_data->m_projectiveTextureViewMatrix,textureMVP);
 
 	//float m_frustumZNear=0.1;
     //float m_frustumZFar=100.f;
@@ -2236,6 +2313,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 		for (int obj=0;obj<m_graphicsInstances.size();obj++)
 		{
 			b3GraphicsInstance* gfxObj = m_graphicsInstances[obj];
+			
 			if (gfxObj->m_numGraphicsInstances)
 			{
 				SortableTransparentInstance inst;
@@ -2282,8 +2360,15 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 	{
 		for (int i=0;i<transparentInstances.size();i++)
 		{
-
+			
 			int shapeIndex = transparentInstances[i].m_shapeIndex;
+
+			//during a reflectionPlanePass, only draw the plane, nothing else
+			if (reflectionPlanePass)
+			{
+				if (shapeIndex!=m_planeReflectionShapeIndex)
+					continue;
+			}
 
 			b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
 
@@ -2322,7 +2407,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 					curBindTexture = m_data->m_defaultTexturehandle;
 				}
 
-	//disable lazy evaluation, it just leads to bugs
+				//disable lazy evaluation, it just leads to bugs
 				//if (lastBindTexture != curBindTexture)
 				{
 					glBindTexture(GL_TEXTURE_2D,curBindTexture);
@@ -2485,6 +2570,8 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 								float MVP[16];
 								if (reflectionPass)
 								{
+									//todo: create an API to select this reflection matrix, to allow
+									//reflection planes different from Z-axis up through (0,0,0)
 									float tmp[16];
 									float reflectionMatrix[16] = {1,0,0,0,
 										0,1,0,0,
@@ -2649,6 +2736,11 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 
 void GLInstancingRenderer::CleanupShaders()
 {
+}
+
+void GLInstancingRenderer::setPlaneReflectionShapeIndex(int index)
+{
+	m_planeReflectionShapeIndex = index;
 }
 
 void GLInstancingRenderer::enableShadowMap()

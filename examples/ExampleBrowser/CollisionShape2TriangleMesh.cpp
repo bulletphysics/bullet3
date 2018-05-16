@@ -185,7 +185,13 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 					}
 				} else
 				{
-					btAssert(0);
+					if (collisionShape->getShapeType()==SDF_SHAPE_PROXYTYPE)
+					{
+						//not yet
+					} else
+					{
+						btAssert(0);
+					}
 				}
 					
 			}

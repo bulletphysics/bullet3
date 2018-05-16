@@ -164,14 +164,11 @@ project "App_BulletExampleBrowser"
 		"../RigidBody/RigidBodySoftContact.cpp",
 		"../ThirdPartyLibs/stb_image/*",
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",
-		"../ThirdPartyLibs/tinyxml/*",
 		"../ThirdPartyLibs/BussIK/*",
 		"../GyroscopicDemo/GyroscopicSetup.cpp",
 		"../GyroscopicDemo/GyroscopicSetup.h",
-        "../ThirdPartyLibs/tinyxml/tinystr.cpp",
-        "../ThirdPartyLibs/tinyxml/tinyxml.cpp",
-        "../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
-        "../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
+    "../ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
+    "../ThirdPartyLibs/tinyxml2/tinyxml2.h",
         }
 if (hasCL and findOpenGL3()) then
 			files {

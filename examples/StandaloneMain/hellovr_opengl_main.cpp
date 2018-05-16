@@ -28,9 +28,12 @@
 
 #include "LinearMath/btIDebugDraw.h"
 int gSharedMemoryKey = -1;
-int  gDebugDrawFlags = 0;
-bool gDisplayDistortion = false;
-bool gDisableDesktopGL = false;
+static int  gDebugDrawFlags = 0;
+static bool gDisplayDistortion = false;
+static bool gDisableDesktopGL = false;
+
+static int maxNumObjectCapacity = 128 * 1024;
+static int maxShapeCapacityInBytes = 128 * 1024 * 1024;
 
 
 #include <stdio.h>
@@ -58,6 +61,9 @@ static vr::VRControllerState_t sPrevStates[vr::k_unMaxTrackedDeviceCount] = { 0 
 #endif
 #ifdef _WIN32
 #include <Windows.h>
+#endif
+#ifdef __linux__
+#define APIENTRY
 #endif
 
 void ThreadSleep( unsigned long nMilliseconds )
@@ -474,7 +480,8 @@ bool CMainApplication::BInit()
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG );
 
 	*/
-	m_app = new SimpleOpenGL3App("SimpleOpenGL3App",m_nWindowWidth,m_nWindowHeight,true);
+	
+	m_app = new SimpleOpenGL3App("SimpleOpenGL3App",m_nWindowWidth,m_nWindowHeight,true, maxNumObjectCapacity, maxShapeCapacityInBytes);
 
 	
 	sGuiPtr = new OpenGLGuiHelper(m_app,false);
@@ -1804,13 +1811,11 @@ void CMainApplication::RenderStereoTargets()
 	}
 
 	glBindFramebuffer( GL_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId );
- 	glViewport(0, 0, m_nRenderWidth, m_nRenderHeight );
  	
-	
-	
 
 	m_app->m_window->startRendering();
-	
+        glViewport(0, 0, m_nRenderWidth, m_nRenderHeight );
+
 
 	RenderScene( vr::Eye_Left );
 
@@ -1863,9 +1868,9 @@ void CMainApplication::RenderStereoTargets()
 	}
 	
 	glBindFramebuffer( GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId );
- 	glViewport(0, 0, m_nRenderWidth, m_nRenderHeight );
  	
 	m_app->m_window->startRendering();
+        glViewport(0, 0, m_nRenderWidth, m_nRenderHeight );
 	
 	RenderScene( vr::Eye_Right );
 	
@@ -2081,6 +2086,7 @@ void CMainApplication::UpdateHMDMatrixPose()
 					case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
 					case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
 					case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
+                                        case vr::TrackedDeviceClass_GenericTracker:    m_rDevClassChar[nDevice] = 'G'; break;
 					default:                                       m_rDevClassChar[nDevice] = '?'; break;
 					}
 				}
@@ -2352,7 +2358,10 @@ int main(int argc, char *argv[])
 		b3ChromeUtilsEnableProfiling();
 	}
 
-	
+	args.GetCmdLineArgument("max_num_object_capacity", maxNumObjectCapacity);
+	args.GetCmdLineArgument("max_shape_capacity_in_bytes", maxShapeCapacityInBytes);
+	args.GetCmdLineArgument("shared_memory_key", gSharedMemoryKey);
+
 #ifdef BT_USE_CUSTOM_PROFILER
 	b3SetCustomEnterProfileZoneFunc(dcEnter);
 	b3SetCustomLeaveProfileZoneFunc(dcLeave);

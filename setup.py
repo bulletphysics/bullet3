@@ -77,10 +77,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/Utils/ChromeTraceUtil.cpp"]\
 +["examples/Utils/b3Clock.cpp"]\
 +["examples/Utils/b3Quickprof.cpp"]\
-+["examples/ThirdPartyLibs/tinyxml/tinystr.cpp"]\
-+["examples/ThirdPartyLibs/tinyxml/tinyxml.cpp"]\
-+["examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp"]\
-+["examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp"]\
++["examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp"]\
 +["examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp"]\
 +["examples/ThirdPartyLibs/stb_image/stb_image.cpp"]\
 +["examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp"]\
@@ -134,6 +131,9 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/LinearMath/btConvexHullComputer.cpp"]\
 +["src/LinearMath/btQuickprof.cpp"]\
 +["src/LinearMath/btThreads.cpp"]\
++["src/LinearMath/TaskScheduler/btTaskScheduler.cpp"]\
++["src/LinearMath/TaskScheduler/btThreadSupportPosix.cpp"]\
++["src/LinearMath/TaskScheduler/btThreadSupportWin32.cpp"]\
 +["src/BulletCollision/BroadphaseCollision/btAxisSweep3.cpp"]\
 +["src/BulletCollision/BroadphaseCollision/btDbvt.cpp"]\
 +["src/BulletCollision/BroadphaseCollision/btOverlappingPairCache.cpp"]\
@@ -216,6 +216,8 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletCollision/CollisionShapes/btTriangleMeshShape.cpp"]\
 +["src/BulletCollision/CollisionShapes/btConvexPointCloudShape.cpp"]\
 +["src/BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btSdfCollisionShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btMiniSDF.cpp"]\
 +["src/BulletCollision/CollisionShapes/btUniformScalingShape.cpp"]\
 +["src/BulletCollision/Gimpact/btContactProcessing.cpp"]\
 +["src/BulletCollision/Gimpact/btGImpactQuantizedBvh.cpp"]\
@@ -233,6 +235,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletDynamics/Dynamics/btSimulationIslandManagerMt.cpp"]\
 +["src/BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.cpp"]\
 +["src/BulletDynamics/Dynamics/btSimpleDynamicsWorld.cpp"]\
++["src/BulletDynamics/ConstraintSolver/btBatchedConstraints.cpp"]\
 +["src/BulletDynamics/ConstraintSolver/btConeTwistConstraint.cpp"]\
 +["src/BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.cpp"]\
 +["src/BulletDynamics/ConstraintSolver/btSliderConstraint.cpp"]\
@@ -249,6 +252,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletDynamics/ConstraintSolver/btPoint2PointConstraint.cpp"]\
 +["src/BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.cpp"]\
 +["src/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.cpp"]\
++["src/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.cpp"]\
 +["src/BulletDynamics/MLCPSolvers/btDantzigLCP.cpp"]\
 +["src/BulletDynamics/MLCPSolvers/btLemkeAlgorithm.cpp"]\
 +["src/BulletDynamics/MLCPSolvers/btMLCPSolver.cpp"]\
@@ -446,7 +450,7 @@ print("-----")
 
 setup(
 	name = 'pybullet',
-	version='1.9.3',
+	version='1.9.6',
 	description='Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and deep reinforcement learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',
@@ -479,4 +483,3 @@ setup(
     packages=[x for x in find_packages('examples/pybullet/gym')],
     package_data = { 'pybullet_data': need_files }
 )
-
