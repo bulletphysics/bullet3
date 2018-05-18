@@ -268,7 +268,8 @@ void b3PosixThreadSupport::stopThreads()
 	for(size_t t=0; t < size_t(m_activeThreadStatus.size()); ++t)
 	{
             b3ThreadStatus&	spuStatus = m_activeThreadStatus[t];
-            printf("%s: Thread %i used: %ld\n", __FUNCTION__, int(t), spuStatus.threadUsed);
+           
+	   // printf("%s: Thread %i used: %ld\n", __FUNCTION__, int(t), spuStatus.threadUsed);
 
 	spuStatus.m_userPtr = 0;
  	checkPThreadFunction(sem_post(spuStatus.startSemaphore));

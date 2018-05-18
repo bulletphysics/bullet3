@@ -260,6 +260,8 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 	if (init)
 	{
 
+		unsigned int cachedSharedParam = eMotionIsInitialized;
+
 		args->m_cs->lock();
 		args->m_cs->setSharedParam(0,eMotionIsInitialized);
 		args->m_cs->unlock();
@@ -269,6 +271,8 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 		int numCmdSinceSleep1ms = 0;
 		unsigned long long int prevTime = clock.getTimeMicroseconds();
 		
+		
+
 		do
 		{
 			{
@@ -468,7 +472,11 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				numCmdSinceSleep1ms++;
 			}
 			
-		} while (args->m_cs->getSharedParam(0)!=eRequestTerminateMotion);
+			args->m_cs->lock();
+			cachedSharedParam = args->m_cs->getSharedParam(0);
+			args->m_cs->unlock();
+
+		} while (cachedSharedParam!=eRequestTerminateMotion);
 	} else
 	{
 		args->m_cs->lock();
@@ -1749,7 +1757,7 @@ void	PhysicsServerExample::initPhysics()
 		
 		
 		m_isConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
-
+		
 
 		for (int i=0;i<m_threadSupport->getNumTasks();i++)
 		{
