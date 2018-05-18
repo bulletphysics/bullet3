@@ -1,7 +1,7 @@
 from .scene_stadium import SinglePlayerStadiumScene
 from .env_bases import MJCFBaseBulletEnv
 import numpy as np
-import pybullet as p
+import pybullet 
 from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid, HumanoidFlagrun, HumanoidFlagrunHarder
 
 
@@ -16,25 +16,25 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 		self.stateId=-1
 		
 
-	def create_single_player_scene(self):
-		self.stadium_scene = SinglePlayerStadiumScene(gravity=9.8, timestep=0.0165/4, frame_skip=4)
+	def create_single_player_scene(self, bullet_client):
+		self.stadium_scene = SinglePlayerStadiumScene(bullet_client, gravity=9.8, timestep=0.0165/4, frame_skip=4)
 		return self.stadium_scene
 
 	def _reset(self):
 		if (self.stateId>=0):
 			#print("restoreState self.stateId:",self.stateId)
-			p.restoreState(self.stateId)
+			self._p.restoreState(self.stateId)
 		
 		r = MJCFBaseBulletEnv._reset(self)
-		p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
+		self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,0)
 
-		self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot.addToScene(
+		self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot.addToScene(self._p,
 			self.stadium_scene.ground_plane_mjcf)
 		self.ground_ids = set([(self.parts[f].bodies[self.parts[f].bodyIndex], self.parts[f].bodyPartIndex) for f in
 							   self.foot_ground_object_names])
-		p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
+		self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,1)
 		if (self.stateId<0):
-			self.stateId=p.saveState()
+			self.stateId=self._p.saveState()
 			#print("saving state self.stateId:",self.stateId)
 			
 		
@@ -155,8 +155,8 @@ class HumanoidFlagrunBulletEnv(HumanoidBulletEnv):
 		self.robot = HumanoidFlagrun()
 		HumanoidBulletEnv.__init__(self, self.robot)
 
-	def create_single_player_scene(self):
-		s = HumanoidBulletEnv.create_single_player_scene(self)
+	def create_single_player_scene(self, bullet_client):
+		s = HumanoidBulletEnv.create_single_player_scene(self, bullet_client)
 		s.zero_at_running_strip_start_line = False
 		return s
 
@@ -168,8 +168,8 @@ class HumanoidFlagrunHarderBulletEnv(HumanoidBulletEnv):
 		self.electricity_cost /= 4   # don't care that much about electricity, just stand up!
 		HumanoidBulletEnv.__init__(self, self.robot)
 
-	def create_single_player_scene(self):
-		s = HumanoidBulletEnv.create_single_player_scene(self)
+	def create_single_player_scene(self, bullet_client):
+		s = HumanoidBulletEnv.create_single_player_scene(self, bullet_client)
 		s.zero_at_running_strip_start_line = False
 		return s
 
