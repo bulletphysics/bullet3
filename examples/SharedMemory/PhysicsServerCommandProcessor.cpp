@@ -70,6 +70,9 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #endif
 
+extern bool gJointFeedbackInWorldSpace;
+extern bool gJointFeedbackInJointFrame;
+
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
 int gVRTrackingObjectUniqueId = -1;
@@ -2156,9 +2159,9 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		UrdfModel model;// = m_data->m_urdfParser.getModel();
 		UrdfLink link;
 
-		if (m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]>=0)
+		if (m_createBodyArgs.m_linkVisualShapeUniqueIds[urdfIndex]>=0)
 		{
-			const InternalVisualShapeHandle* visHandle = m_data->m_userVisualShapeHandles.getHandle(m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]);
+			const InternalVisualShapeHandle* visHandle = m_data->m_userVisualShapeHandles.getHandle(m_createBodyArgs.m_linkVisualShapeUniqueIds[urdfIndex]);
 			if (visHandle)
 			{
 				for (int i=0;i<visHandle->m_visualShapes.size();i++)
@@ -2602,7 +2605,7 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 			bodyHandle->m_bodyName = u2b.getBodyName();
             btVector3 localInertiaDiagonal(0,0,0);
             int urdfLinkIndex = u2b.getRootLinkIndex();
-            u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,bodyHandle->m_rootLocalInertialFrame);
+            u2b.getMassAndInertia2(urdfLinkIndex, mass,localInertiaDiagonal,bodyHandle->m_rootLocalInertialFrame,flags);
         }
 
 
@@ -2664,7 +2667,7 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 				btScalar mass;
                 btVector3 localInertiaDiagonal(0,0,0);
                 btTransform localInertialFrame;
-				u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame);
+				u2b.getMassAndInertia2(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame, flags);
 				bodyHandle->m_linkLocalInertialFrames.push_back(localInertialFrame);
 
 				std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
@@ -6623,6 +6626,8 @@ bool PhysicsServerCommandProcessor::processRequestPhysicsSimulationParametersCom
 	return hasStatus;
 }
 
+
+
 bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -6647,6 +6652,12 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_CCD_ALLOWED_PENETRATION)
 	{
 		m_data->m_dynamicsWorld->getDispatchInfo().m_allowedCcdPenetration = clientCmd.m_physSimParamArgs.m_allowedCcdPenetration;
+	}
+	
+	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_JOINT_FEEDBACK_MODE)
+	{
+		gJointFeedbackInWorldSpace = (clientCmd.m_physSimParamArgs.m_jointFeedbackMode&JOINT_FEEDBACK_IN_WORLD_SPACE)!=0;
+		gJointFeedbackInJointFrame = (clientCmd.m_physSimParamArgs.m_jointFeedbackMode&JOINT_FEEDBACK_IN_JOINT_FRAME)!=0;
 	}
 
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DELTA_TIME)
@@ -6724,7 +6735,16 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
     {
         m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = clientCmd.m_physSimParamArgs.m_frictionERP;
     }
-					
+
+    if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DEFAULT_GLOBAL_CFM)
+    {
+        m_data->m_dynamicsWorld->getSolverInfo().m_globalCfm = clientCmd.m_physSimParamArgs.m_defaultGlobalCFM;
+    }
+
+    if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DEFAULT_FRICTION_CFM)
+    {
+        m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = clientCmd.m_physSimParamArgs.m_frictionCFM;
+    }
 
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD)
     {
@@ -9694,6 +9714,12 @@ void PhysicsServerCommandProcessor::resetSimulation()
 {
 	//clean up all data
 
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	if (m_data && m_data->m_dynamicsWorld)
+	{
+		m_data->m_dynamicsWorld->getWorldInfo().m_sparsesdf.Reset();
+	}
+#endif
 	if (m_data && m_data->m_guiHelper)
 	{
 		m_data->m_guiHelper->removeAllGraphicsInstances();

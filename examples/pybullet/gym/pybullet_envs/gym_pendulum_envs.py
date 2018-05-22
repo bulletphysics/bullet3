@@ -3,7 +3,7 @@ from .env_bases import MJCFBaseBulletEnv
 from robot_pendula import InvertedPendulum, InvertedPendulumSwingup, InvertedDoublePendulum
 import gym, gym.spaces, gym.utils, gym.utils.seeding
 import numpy as np
-import pybullet as p
+import pybullet 
 import os, sys
 
 class InvertedPendulumBulletEnv(MJCFBaseBulletEnv):
@@ -12,8 +12,8 @@ class InvertedPendulumBulletEnv(MJCFBaseBulletEnv):
 		MJCFBaseBulletEnv.__init__(self, self.robot)
 		self.stateId=-1
 
-	def create_single_player_scene(self):
-		return SingleRobotEmptyScene(gravity=9.8, timestep=0.0165, frame_skip=1)
+	def create_single_player_scene(self, bullet_client):
+		return SingleRobotEmptyScene(bullet_client, gravity=9.8, timestep=0.0165, frame_skip=1)
 
 	def _reset(self):
 		if (self.stateId>=0):
@@ -21,7 +21,7 @@ class InvertedPendulumBulletEnv(MJCFBaseBulletEnv):
 			p.restoreState(self.stateId)
 		r = MJCFBaseBulletEnv._reset(self)
 		if (self.stateId<0):
-			self.stateId = p.saveState()
+			self.stateId = self._p.saveState()
 			#print("InvertedPendulumBulletEnv reset self.stateId=",self.stateId)
 		return r
 	
@@ -54,15 +54,15 @@ class InvertedDoublePendulumBulletEnv(MJCFBaseBulletEnv):
 		self.robot = InvertedDoublePendulum()
 		MJCFBaseBulletEnv.__init__(self, self.robot)
 		self.stateId = -1
-	def create_single_player_scene(self):
-		return SingleRobotEmptyScene(gravity=9.8, timestep=0.0165, frame_skip=1)
+	def create_single_player_scene(self, bullet_client):
+		return SingleRobotEmptyScene(bullet_client, gravity=9.8, timestep=0.0165, frame_skip=1)
 
 	def _reset(self):
 		if (self.stateId>=0):
 			p.restoreState(self.stateId)
 		r = MJCFBaseBulletEnv._reset(self)
 		if (self.stateId<0):
-			self.stateId = p.saveState()
+			self.stateId = self._p.saveState()
 		return r
 	
 	def _step(self, a):

@@ -1,6 +1,8 @@
 import gym, gym.spaces, gym.utils, gym.utils.seeding
 import numpy as np
-import pybullet as p
+import pybullet 
+from pybullet_utils import bullet_client
+
 from pkg_resources import parse_version
 
 class MJCFBaseBulletEnv(gym.Env):
@@ -17,7 +19,7 @@ class MJCFBaseBulletEnv(gym.Env):
 
 	def __init__(self, robot, render=False):
 		self.scene = None
-		self.physicsClientId=-1
+		self.physicsClientId = -1
 		self.ownsPhysicsClient = 0
 		self.camera = Camera()
 		self.isRender = render
@@ -40,25 +42,21 @@ class MJCFBaseBulletEnv(gym.Env):
 
 	def _reset(self):
 		if (self.physicsClientId<0):
-			conInfo = p.getConnectionInfo()
-			if (conInfo['isConnected']):
-				self.ownsPhysicsClient = False
+			self.ownsPhysicsClient = True
 
-				self.physicsClientId = 0
+
+			if self.isRender:
+      				self._p = bullet_client.BulletClient(connection_mode=pybullet.GUI)
 			else:
-				self.ownsPhysicsClient = True
-				self.physicsClientId = p.connect(p.SHARED_MEMORY)
-				if (self.physicsClientId<0):
-					if (self.isRender):
-						self.physicsClientId = p.connect(p.GUI)
-					else:
-						self.physicsClientId = p.connect(p.DIRECT)
-				p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+				self._p = bullet_client.BulletClient()
+	
+			self.physicsClientId = self._p._client
+			self._p.configureDebugVisualizer(pybullet.COV_ENABLE_GUI,0)
 
 		if self.scene is None:
-			self.scene = self.create_single_player_scene()
+			self.scene = self.create_single_player_scene(self._p)
 		if not self.scene.multiplayer and self.ownsPhysicsClient:
-			self.scene.episode_restart()
+			self.scene.episode_restart(self._p)
 
 		self.robot.scene = self.scene
 
@@ -66,7 +64,7 @@ class MJCFBaseBulletEnv(gym.Env):
 		self.done = 0
 		self.reward = 0
 		dump = 0
-		s = self.robot.reset()
+		s = self.robot.reset(self._p)
 		self.potential = self.robot.calc_potential()
 		return s
 
@@ -81,20 +79,20 @@ class MJCFBaseBulletEnv(gym.Env):
 			if (hasattr(self.robot,'body_xyz')):
 				base_pos = self.robot.body_xyz
 
-		view_matrix = p.computeViewMatrixFromYawPitchRoll(
+		view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
 			cameraTargetPosition=base_pos,
 			distance=self._cam_dist,
 			yaw=self._cam_yaw,
 			pitch=self._cam_pitch,
 			roll=0,
 			upAxisIndex=2)
-		proj_matrix = p.computeProjectionMatrixFOV(
+		proj_matrix = self._p.computeProjectionMatrixFOV(
 			fov=60, aspect=float(self._render_width)/self._render_height,
 			nearVal=0.1, farVal=100.0)
-		(_, _, px, _, _) = p.getCameraImage(
+		(_, _, px, _, _) = self._p.getCameraImage(
 		width=self._render_width, height=self._render_height, viewMatrix=view_matrix,
 			projectionMatrix=proj_matrix,
-			renderer=p.ER_BULLET_HARDWARE_OPENGL
+			renderer=pybullet.ER_BULLET_HARDWARE_OPENGL
 			)
 		rgb_array = np.array(px)
 		rgb_array = rgb_array[:, :, :3]
@@ -104,7 +102,7 @@ class MJCFBaseBulletEnv(gym.Env):
 	def _close(self):
 		if (self.ownsPhysicsClient):
 			if (self.physicsClientId>=0):
-				p.disconnect(self.physicsClientId)
+				self._p.disconnect()
 		self.physicsClientId = -1
 
 	def HUD(self, state, a, done):
@@ -130,4 +128,4 @@ class Camera:
 		lookat = [x,y,z]
 		distance = 10
 		yaw = 10
-		p.resetDebugVisualizerCamera(distance, yaw, -20, lookat)
+		self._p.resetDebugVisualizerCamera(distance, yaw, -20, lookat)

@@ -241,7 +241,11 @@ struct BulletMJCFImporterInternalData
 		return buf;
 #else
 		char row[1024];
+#ifdef G3_TINYXML2
+		sprintf(row,"unknown line, upgrade tinyxml2 version!");
+#else
 		sprintf(row,"%d",e->GetLineNum());
+#endif
 		std::string str = m_sourceFileName.c_str() + std::string(":") + std::string(row);
 		return str;
 #endif
@@ -1032,6 +1036,11 @@ struct BulletMJCFImporterInternalData
 				//todo
 				break;
 			}
+			case URDF_GEOM_CDF:
+			{
+				//todo
+				break;
+			}
 			case URDF_GEOM_CYLINDER:
 			case URDF_GEOM_CAPSULE:
 			{
@@ -1486,8 +1495,12 @@ bool BulletMJCFImporter::parseMJCFString(const char* xmlText, MJCFErrorLogger* l
 	xml_doc.Parse(xmlText);
 	if (xml_doc.Error())
 	{
+#ifdef G3_TINYXML2
+		logger->reportError("xml reading error (upgrade tinyxml2 version!");
+#else
 		logger->reportError(xml_doc.ErrorStr());
 		xml_doc.ClearError();
+#endif
 		return false;
 	}
 
@@ -2541,6 +2554,11 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes( int linkI
 				}
 				break;
 			}
+			case URDF_GEOM_CDF:
+                        {
+                                //todo
+                                break;
+                        }
 			case URDF_GEOM_UNKNOWN:
                         {
 				break;

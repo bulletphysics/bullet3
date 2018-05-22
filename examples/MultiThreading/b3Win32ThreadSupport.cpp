@@ -289,6 +289,7 @@ void b3Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threa
 		threadStatus.m_threadHandle = handle;
 		threadStatus.m_lsMemory = threadConstructionInfo.m_lsMemoryFunc();
 		threadStatus.m_userThreadFunc = threadConstructionInfo.m_userThreadFunc;
+		threadStatus.m_lsMemoryReleaseFunc = threadConstructionInfo.m_lsMemoryReleaseFunc;
 
 		printf("started %s thread %d with threadHandle %p\n",threadConstructionInfo.m_uniqueName,i,handle);
 		
@@ -312,9 +313,12 @@ void b3Win32ThreadSupport::stopThreads()
 		{
 			WaitForSingleObject(threadStatus.m_eventCompletetHandle, INFINITE);
 		}
-		
-		delete threadStatus.m_lsMemory;
 
+		if (threadStatus.m_lsMemoryReleaseFunc)
+		{
+			threadStatus.m_lsMemoryReleaseFunc(threadStatus.m_lsMemory);
+		}
+		
 		threadStatus.m_userPtr = 0;
 		SetEvent(threadStatus.m_eventStartHandle);
 		WaitForSingleObject(threadStatus.m_eventCompletetHandle, INFINITE);

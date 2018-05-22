@@ -738,23 +738,21 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 {
 #if BT_THREADSAFE
     int solverBodyId = -1;
-    if ( !body.isStaticOrKinematicObject() )
+    bool isRigidBodyType = btRigidBody::upcast( &body ) != NULL;
+    if ( isRigidBodyType && !body.isStaticOrKinematicObject() )
     {
         // dynamic body
         // Dynamic bodies can only be in one island, so it's safe to write to the companionId
         solverBodyId = body.getCompanionId();
         if ( solverBodyId < 0 )
         {
-            if ( btRigidBody* rb = btRigidBody::upcast( &body ) )
-            {
-                solverBodyId = m_tmpSolverBodyPool.size();
-                btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
-                initSolverBody( &solverBody, &body, timeStep );
-                body.setCompanionId( solverBodyId );
-            }
+            solverBodyId = m_tmpSolverBodyPool.size();
+            btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
+            initSolverBody( &solverBody, &body, timeStep );
+            body.setCompanionId( solverBodyId );
         }
     }
-    else if (body.isKinematicObject())
+    else if (isRigidBodyType && body.isKinematicObject())
     {
         //
         // NOTE: must test for kinematic before static because some kinematic objects also
@@ -774,7 +772,6 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
         if ( solverBodyId == INVALID_SOLVER_BODY_ID )
         {
             // create a table entry for this body
-            btRigidBody* rb = btRigidBody::upcast( &body );
             solverBodyId = m_tmpSolverBodyPool.size();
             btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
             initSolverBody( &solverBody, &body, timeStep );
@@ -783,6 +780,8 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
     }
     else
     {
+        // Incorrectly set collision object flags can degrade performance in various ways.
+        btAssert( body.isStaticOrKinematicObject() );
         // all fixed bodies (inf mass) get mapped to a single solver id
         if ( m_fixedBodyId < 0 )
         {
@@ -792,7 +791,7 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
         }
         solverBodyId = m_fixedBodyId;
     }
-    btAssert( solverBodyId < m_tmpSolverBodyPool.size() );
+    btAssert( solverBodyId >= 0 && solverBodyId < m_tmpSolverBodyPool.size() );
 	return solverBodyId;
 #else // BT_THREADSAFE
 

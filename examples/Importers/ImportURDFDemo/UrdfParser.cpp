@@ -1,5 +1,4 @@
 #include "UrdfParser.h"
-
 #include "../../ThirdPartyLibs/tinyxml2/tinyxml2.h"
 #include "urdfStringSplit.h"
 #include "urdfLexicalCast.h"
@@ -436,9 +435,16 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, XMLElement* g, ErrorLogger* l
 			geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("length"));
 		}
 	}
-	else if (type_name == "mesh")
+	else if ((type_name == "mesh") || (type_name == "cdf"))
 	{
-		geom.m_type = URDF_GEOM_MESH;
+		if ((type_name == "cdf"))
+		{
+			geom.m_type = URDF_GEOM_CDF;
+		}
+		else
+		{
+			geom.m_type = URDF_GEOM_MESH;
+		}
 		geom.m_meshScale.setValue(1,1,1);
 		std::string fn;
 
@@ -1497,8 +1503,12 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 	xml_doc.Parse(urdfText);
 	if (xml_doc.Error())
 	{
+#ifdef G3_TINYXML2
+		logger->reportError("xml reading error");
+#else
 		logger->reportError(xml_doc.ErrorStr());
 		xml_doc.ClearError();
+#endif
 		return false;
 	}
 
@@ -1657,9 +1667,13 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
     xml_doc.Parse(sdfText);
     if (xml_doc.Error())
     {
+#ifdef G3_TINYXML2
+		logger->reportError("xml reading error");
+#else
 		logger->reportError(xml_doc.ErrorStr());
         xml_doc.ClearError();
-        return false;
+#endif
+	return false;
     }
 
     XMLElement *sdf_xml = xml_doc.FirstChildElement("sdf");
@@ -1840,8 +1854,12 @@ std::string UrdfParser::sourceFileLocation(XMLElement* e)
 	return buf;
 #else
 	char row[1024];
+#ifdef G3_TINYXML2
+	sprintf(row,"unknown line");
+#else
 	sprintf(row,"%d",e->GetLineNum());
-        std::string str = m_urdf2Model.m_sourceFile.c_str() + std::string(":") + std::string(row);
+#endif
+     	std::string str = m_urdf2Model.m_sourceFile.c_str() + std::string(":") + std::string(row);
         return str;
 #endif
 

@@ -1,5 +1,13 @@
 #include "btMiniSDF.h"
 
+//
+//Based on code from DiscreGrid, https://github.com/InteractiveComputerGraphics/Discregrid
+//example:
+//GenerateSDF.exe -r "32 32 32" -d "-1.6 -1.6 -.6 1.6 1.6 .6" concave_box.obj
+//The MIT License (MIT)
+//
+//Copyright (c) 2017 Dan Koschier
+//
 
 #include <limits.h>
 #include <string.h> //memcpy
@@ -89,7 +97,10 @@ bool btMiniSDF::load(const char* data, int size)
 		std::size_t n_nodes0;
 		ds.read(nodes0);
 		n_nodes0 = nodes0;
-
+		if (n_nodes0 > 1024 * 1024 * 1024)
+		{
+			return m_isValid;
+		}
 		m_nodes.resize(n_nodes0);
 		for (unsigned int i=0;i<n_nodes0;i++)
 		{

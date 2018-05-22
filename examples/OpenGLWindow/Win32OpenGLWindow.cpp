@@ -119,9 +119,9 @@ void	Win32OpenGLWindow::closeWindow()
 void	Win32OpenGLWindow::startRendering()
 {
 		pumpMessage();
-		//don't clear all 3 buffers because some AMD drivers are buggy
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+		
 		
 
 		//glCullFace(GL_BACK);

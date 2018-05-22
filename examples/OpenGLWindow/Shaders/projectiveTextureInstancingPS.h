@@ -18,7 +18,7 @@ static const char* projectiveTextureInstancingFragmentShader= \
 "void main(void)\n"
 "{\n"
 "    vec4 projcoords = TextureMVP * vertexPos;\n"
-"    vec2 texturecoords = projcoords.xy/max(projcoords.z,0.1);\n"
+"    vec2 texturecoords = projcoords.xy/projcoords.w;\n"
 "	vec4 texel = fragment.color*texture(Diffuse,texturecoords);\n"
 "	vec3 ct,cf;\n"
 "	float intensity,at,af;\n"

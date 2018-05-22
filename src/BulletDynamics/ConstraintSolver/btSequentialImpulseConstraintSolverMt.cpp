@@ -317,7 +317,8 @@ int	btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
     // getOrInitSolverBodyThreadsafe -- attempts to be fully threadsafe (however may affect determinism)
     //
     int solverBodyId = -1;
-    if ( !body.isStaticOrKinematicObject() )
+    bool isRigidBodyType = btRigidBody::upcast( &body ) != NULL;
+    if ( isRigidBodyType && !body.isStaticOrKinematicObject() )
     {
         // dynamic body
         // Dynamic bodies can only be in one island, so it's safe to write to the companionId
@@ -329,18 +330,15 @@ int	btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
             solverBodyId = body.getCompanionId();
             if ( solverBodyId < 0 )
             {
-                if ( btRigidBody* rb = btRigidBody::upcast( &body ) )
-                {
-                    solverBodyId = m_tmpSolverBodyPool.size();
-                    btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
-                    initSolverBody( &solverBody, &body, timeStep );
-                    body.setCompanionId( solverBodyId );
-                }
+                solverBodyId = m_tmpSolverBodyPool.size();
+                btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
+                initSolverBody( &solverBody, &body, timeStep );
+                body.setCompanionId( solverBodyId );
             }
             m_bodySolverArrayMutex.unlock();
         }
     }
-    else if (body.isKinematicObject())
+    else if (isRigidBodyType && body.isKinematicObject())
     {
         //
         // NOTE: must test for kinematic before static because some kinematic objects also
@@ -373,7 +371,6 @@ int	btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
             if ( INVALID_SOLVER_BODY_ID == solverBodyId )
             {
                 // create a table entry for this body
-                btRigidBody* rb = btRigidBody::upcast( &body );
                 solverBodyId = m_tmpSolverBodyPool.size();
                 btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
                 initSolverBody( &solverBody, &body, timeStep );
@@ -400,7 +397,7 @@ int	btSequentialImpulseConstraintSolverMt::getOrInitSolverBodyThreadsafe(btColli
         }
         solverBodyId = m_fixedBodyId;
     }
-    btAssert( solverBodyId < m_tmpSolverBodyPool.size() );
+    btAssert( solverBodyId >= 0 && solverBodyId < m_tmpSolverBodyPool.size() );
 	return solverBodyId;
 }
 
@@ -425,9 +422,10 @@ void btSequentialImpulseConstraintSolverMt::internalCollectContactManifoldCached
         btSolverBody* solverBodyA = &m_tmpSolverBodyPool[ solverBodyIdA ];
         btSolverBody* solverBodyB = &m_tmpSolverBodyPool[ solverBodyIdB ];
 
-        ///avoid collision response between two static objects
-        if ( solverBodyA->m_invMass.fuzzyZero() && solverBodyB->m_invMass.fuzzyZero() )
-            break;
+        // A contact manifold between 2 static object should not exist!
+        // check the collision flags of your objects if this assert fires.
+        // Incorrectly set collision object flags can degrade performance in various ways.
+        btAssert( !m_tmpSolverBodyPool[ solverBodyIdA ].m_invMass.isZero() || !m_tmpSolverBodyPool[ solverBodyIdB ].m_invMass.isZero() );
 
         int iContact = 0;
         for ( int j = 0; j < manifold->getNumContacts(); j++ )

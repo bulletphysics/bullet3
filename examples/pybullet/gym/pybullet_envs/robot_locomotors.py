@@ -1,12 +1,12 @@
 from robot_bases import XmlBasedRobot, MJCFBasedRobot, URDFBasedRobot
 import numpy as np
-import pybullet as p
+import pybullet
 import os
 import pybullet_data
 from robot_bases import BodyPart
 
 class WalkerBase(MJCFBasedRobot):
-	def __init__(self, fn, robot_name, action_dim, obs_dim, power):
+	def __init__(self,  fn, robot_name, action_dim, obs_dim, power):
 		MJCFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim)
 		self.power = power
 		self.camera_x = 0
@@ -15,7 +15,8 @@ class WalkerBase(MJCFBasedRobot):
 		self.walk_target_y = 0
 		self.body_xyz=[0,0,0]
 
-	def robot_specific_reset(self):
+	def robot_specific_reset(self, bullet_client):
+		self._p = bullet_client
 		for j in self.ordered_joints:
 			j.reset_current_position(self.np_random.uniform(low=-0.1, high=0.1), 0)
 
@@ -94,13 +95,13 @@ class Walker2D(WalkerBase):
 	foot_list = ["foot", "foot_left"]
 
 	def __init__(self):
-		WalkerBase.__init__(self, "walker2d.xml", "torso", action_dim=6, obs_dim=22, power=0.40)
+		WalkerBase.__init__(self,  "walker2d.xml", "torso", action_dim=6, obs_dim=22, power=0.40)
 
 	def alive_bonus(self, z, pitch):
 		return +1 if z > 0.8 and abs(pitch) < 1.0 else -1
 
-	def robot_specific_reset(self):
-		WalkerBase.robot_specific_reset(self)
+	def robot_specific_reset(self, bullet_client):
+		WalkerBase.robot_specific_reset(self, bullet_client)
 		for n in ["foot_joint", "foot_left_joint"]:
 			self.jdict[n].power_coef = 30.0
 
@@ -115,8 +116,8 @@ class HalfCheetah(WalkerBase):
 		# Use contact other than feet to terminate episode: due to a lot of strange walks using knees
 		return +1 if np.abs(pitch) < 1.0 and not self.feet_contact[1] and not self.feet_contact[2] and not self.feet_contact[4] and not self.feet_contact[5] else -1
 
-	def robot_specific_reset(self):
-		WalkerBase.robot_specific_reset(self)
+	def robot_specific_reset(self, bullet_client):
+		WalkerBase.robot_specific_reset(self, bullet_client)
 		self.jdict["bthigh"].power_coef = 120.0
 		self.jdict["bshin"].power_coef  = 90.0
 		self.jdict["bfoot"].power_coef  = 60.0
@@ -140,11 +141,11 @@ class Humanoid(WalkerBase):
 	foot_list = ["right_foot", "left_foot"]  # "left_hand", "right_hand"
 
 	def __init__(self):
-		WalkerBase.__init__(self, 'humanoid_symmetric.xml', 'torso', action_dim=17, obs_dim=44, power=0.41)
+		WalkerBase.__init__(self,  'humanoid_symmetric.xml', 'torso', action_dim=17, obs_dim=44, power=0.41)
 		# 17 joints, 4 of them important for walking (hip, knee), others may as well be turned off, 17/4 = 4.25
 
-	def robot_specific_reset(self):
-		WalkerBase.robot_specific_reset(self)
+	def robot_specific_reset(self, bullet_client):
+		WalkerBase.robot_specific_reset(self, bullet_client)
 		self.motor_names  = ["abdomen_z", "abdomen_y", "abdomen_x"]
 		self.motor_power  = [100, 100, 100]
 		self.motor_names += ["right_hip_x", "right_hip_z", "right_hip_y", "right_knee"]
@@ -192,29 +193,29 @@ class Humanoid(WalkerBase):
 
 
 
-def get_cube(x, y, z):	
-	body = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"cube_small.urdf"), x, y, z)
-	p.changeDynamics(body,-1, mass=1.2)#match Roboschool
-	part_name, _ = p.getBodyInfo(body, 0)
+def get_cube(_p, x, y, z):	
+	body = _p.loadURDF(os.path.join(pybullet_data.getDataPath(),"cube_small.urdf"), [x, y, z])
+	_p.changeDynamics(body,-1, mass=1.2)#match Roboschool
+	part_name, _ = _p.getBodyInfo(body)
 	part_name = part_name.decode("utf8")
 	bodies = [body]
-	return BodyPart(part_name, bodies, 0, -1)
+	return BodyPart(_p, part_name, bodies, 0, -1)
 
 
-def get_sphere(x, y, z):
-	body = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"sphere2red_nocol.urdf"), x, y, z)
-	part_name, _ = p.getBodyInfo(body, 0)
+def get_sphere(_p, x, y, z):
+	body = _p.loadURDF(os.path.join(pybullet_data.getDataPath(),"sphere2red_nocol.urdf"), [x, y, z])
+	part_name, _ = _p.getBodyInfo(body)
 	part_name = part_name.decode("utf8")
 	bodies = [body]
-	return BodyPart(part_name, bodies, 0, -1)
+	return BodyPart(_p, part_name, bodies, 0, -1)
 
 class HumanoidFlagrun(Humanoid):
 	def __init__(self):
 		Humanoid.__init__(self)
 		self.flag = None
 		
-	def robot_specific_reset(self):
-		Humanoid.robot_specific_reset(self)
+	def robot_specific_reset(self, bullet_client):
+		Humanoid.robot_specific_reset(self, bullet_client)
 		self.flag_reposition()
 
 	def flag_reposition(self):
@@ -228,9 +229,9 @@ class HumanoidFlagrun(Humanoid):
 			#for b in self.flag.bodies:
 			#	print("remove body uid",b)
 			#	p.removeBody(b)
-			p.resetBasePositionAndOrientation(self.flag.bodies[0],[self.walk_target_x, self.walk_target_y, 0.7],[0,0,0,1])
+			self._p.resetBasePositionAndOrientation(self.flag.bodies[0],[self.walk_target_x, self.walk_target_y, 0.7],[0,0,0,1])
 		else:
-			self.flag = get_sphere(self.walk_target_x, self.walk_target_y, 0.7)
+			self.flag = get_sphere(self._p, self.walk_target_x, self.walk_target_y, 0.7)
 		self.flag_timeout = 600/self.scene.frame_skip #match Roboschool 
 
 	def calc_state(self):
@@ -250,14 +251,15 @@ class HumanoidFlagrunHarder(HumanoidFlagrun):
 		self.aggressive_cube = None
 		self.frame = 0
 
-	def robot_specific_reset(self):
-		HumanoidFlagrun.robot_specific_reset(self)
+	def robot_specific_reset(self, bullet_client):
+
+		HumanoidFlagrun.robot_specific_reset(self, bullet_client)
 		
 		self.frame = 0
 		if (self.aggressive_cube):
-			p.resetBasePositionAndOrientation(self.aggressive_cube.bodies[0],[-1.5,0,0.05],[0,0,0,1])
+			self._p.resetBasePositionAndOrientation(self.aggressive_cube.bodies[0],[-1.5,0,0.05],[0,0,0,1])
 		else:
-			self.aggressive_cube = get_cube(-1.5,0,0.05)
+			self.aggressive_cube = get_cube(self._p, -1.5,0,0.05)
 		self.on_ground_frame_counter = 0
 		self.crawl_start_potential = None
 		self.crawl_ignored_potential = 0.0

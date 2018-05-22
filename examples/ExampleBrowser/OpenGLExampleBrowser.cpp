@@ -410,6 +410,14 @@ void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
     if (flag == COV_ENABLE_WIREFRAME)
     {
         visualWireframe = enable;
+		if (visualWireframe)
+		{
+			gDebugDrawFlags |= btIDebugDraw::DBG_DrawWireframe;
+		}
+		else
+		{
+			gDebugDrawFlags &= ~btIDebugDraw::DBG_DrawWireframe;
+		}
     }
 }
 

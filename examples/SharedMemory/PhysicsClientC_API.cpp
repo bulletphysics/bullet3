@@ -575,6 +575,15 @@ B3_SHARED_API	int b3PhysicsParameterSetAllowedCcdPenetration(b3SharedMemoryComma
 	return 0;
 }
 
+B3_SHARED_API	int b3PhysicsParameterSetJointFeedbackMode(b3SharedMemoryCommandHandle commandHandle, int jointFeedbackMode)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_jointFeedbackMode = jointFeedbackMode;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_JOINT_FEEDBACK_MODE;
+	return 0;
+}
+
 B3_SHARED_API int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -638,6 +647,24 @@ B3_SHARED_API	int	b3PhysicsParamSetDefaultFrictionERP(b3SharedMemoryCommandHandl
 	command->m_updateFlags |= SIM_PARAM_UPDATE_DEFAULT_FRICTION_ERP;
 	command->m_physSimParamArgs.m_frictionERP = frictionERP;
 	return 0;
+}
+
+B3_SHARED_API int b3PhysicsParamSetDefaultGlobalCFM(b3SharedMemoryCommandHandle commandHandle, double defaultGlobalCFM)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+    command->m_updateFlags |= SIM_PARAM_UPDATE_DEFAULT_GLOBAL_CFM;
+    command->m_physSimParamArgs.m_defaultGlobalCFM = defaultGlobalCFM;
+    return 0;
+}
+
+B3_SHARED_API int b3PhysicsParamSetDefaultFrictionCFM(b3SharedMemoryCommandHandle commandHandle, double frictionCFM)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+    command->m_updateFlags |= SIM_PARAM_UPDATE_DEFAULT_FRICTION_CFM;
+    command->m_physSimParamArgs.m_frictionCFM = frictionCFM;
+    return 0;
 }
 
 
