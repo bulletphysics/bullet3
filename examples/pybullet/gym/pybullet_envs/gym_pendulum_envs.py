@@ -18,7 +18,7 @@ class InvertedPendulumBulletEnv(MJCFBaseBulletEnv):
 	def _reset(self):
 		if (self.stateId>=0):
 			#print("InvertedPendulumBulletEnv reset p.restoreState(",self.stateId,")")
-			p.restoreState(self.stateId)
+			self._p.restoreState(self.stateId)
 		r = MJCFBaseBulletEnv._reset(self)
 		if (self.stateId<0):
 			self.stateId = self._p.saveState()
@@ -59,7 +59,7 @@ class InvertedDoublePendulumBulletEnv(MJCFBaseBulletEnv):
 
 	def _reset(self):
 		if (self.stateId>=0):
-			p.restoreState(self.stateId)
+			self._p.restoreState(self.stateId)
 		r = MJCFBaseBulletEnv._reset(self)
 		if (self.stateId<0):
 			self.stateId = self._p.saveState()
