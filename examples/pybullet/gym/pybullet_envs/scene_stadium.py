@@ -17,7 +17,7 @@ class StadiumScene(Scene):
 	
 	def episode_restart(self, bullet_client):
 		self._p = bullet_client
-		Scene.episode_restart(self)   # contains cpp_world.clean_everything()
+		Scene.episode_restart(self, bullet_client)   # contains cpp_world.clean_everything()
 		if (self.stadiumLoaded==0):
 			self.stadiumLoaded=1
 			
