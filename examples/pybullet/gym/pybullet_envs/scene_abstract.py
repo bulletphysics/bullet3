@@ -39,7 +39,7 @@ class Scene:
         """
         return not self.multiplayer
 
-    def episode_restart(self):
+    def episode_restart(self, bullet_client):
         "This function gets overridden by specific scene, to reset specific objects into their start positions"
         self.cpp_world.clean_everything()
         #self.cpp_world.test_window_history_reset()
