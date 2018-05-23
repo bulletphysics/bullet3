@@ -164,6 +164,7 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR = 512,
 	CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL = 1024,
 	CHANGE_DYNAMICS_INFO_SET_CCD_SWEPT_SPHERE_RADIUS = 2048,
+	CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD = 4096,
 };
 
 struct ChangeDynamicsInfoArgs
@@ -183,6 +184,7 @@ struct ChangeDynamicsInfoArgs
 	double m_localInertiaDiagonal[3];
 	int m_frictionAnchor;
 	double m_ccdSweptSphereRadius;
+	double m_contactProcessingThreshold;
 };
 
 struct GetDynamicsInfoArgs
@@ -450,6 +452,8 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_JOINT_FEEDBACK_MODE = 262144,
 	SIM_PARAM_UPDATE_DEFAULT_GLOBAL_CFM = 524288,
 	SIM_PARAM_UPDATE_DEFAULT_FRICTION_CFM = 1048576,
+	SIM_PARAM_UPDATE_SOLVER_RESIDULAL_THRESHOLD = 2097152,
+	SIM_PARAM_UPDATE_CONTACT_SLOP = 4194304,
 };
 
 enum EnumLoadSoftBodyUpdateFlags

@@ -861,7 +861,10 @@ void GLInstancingRenderer::rebuildGraphicsInstances()
 	{
 		int srcIndex2 = usedObjects[i];
 		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
-		m_graphicsInstances[pg->m_shapeIndex]->m_tempObjectUids.push_back(srcIndex2);
+		if (pg && pg->m_shapeIndex < m_graphicsInstances.size() && pg->m_shapeIndex >=0)
+		{
+			m_graphicsInstances[pg->m_shapeIndex]->m_tempObjectUids.push_back(srcIndex2);
+		}
 	}
 
 	int curOffset = 0;

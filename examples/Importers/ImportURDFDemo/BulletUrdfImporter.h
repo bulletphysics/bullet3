@@ -52,6 +52,8 @@ public:
 
 	virtual bool getLinkColor2(int linkIndex, UrdfMaterialColor& matCol) const;
 
+	virtual void setLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const;
+
 	virtual bool getLinkContactInfo(int urdflinkIndex, URDFLinkContactInfo& contactInfo ) const;
 	
 	virtual bool getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const;

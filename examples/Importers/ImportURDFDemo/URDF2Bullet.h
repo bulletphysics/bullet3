@@ -3,6 +3,8 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
 #include <string>
+#include "UrdfJointTypes.h"//for UrdfMaterialColor cache
+
 class btVector3;
 class btTransform;
 class btMultiBodyDynamicsWorld;
@@ -26,7 +28,15 @@ enum ConvertURDFFlags {
   CUF_USE_IMPLICIT_CYLINDER=128,
   CUF_GLOBAL_VELOCITIES_MB=256,
   CUF_MJCF_COLORS_FROM_FILE=512,
+  CUF_ENABLE_CACHED_GRAPHICS_SHAPES = 1024,
 };
+
+struct UrdfVisualShapeCache
+{
+	btAlignedObjectArray<UrdfMaterialColor> m_cachedUrdfLinkColors;
+	btAlignedObjectArray<int> m_cachedUrdfLinkVisualShapeIndices;
+};
+
 
 void ConvertURDF2Bullet(const URDFImporterInterface& u2b,
 			MultiBodyCreationInterface& creationCallback,
@@ -34,7 +44,9 @@ void ConvertURDF2Bullet(const URDFImporterInterface& u2b,
 			btMultiBodyDynamicsWorld* world,
 			bool createMultiBody,
 			const char* pathPrefix,
-            int flags = 0);
+            int flags = 0,
+			UrdfVisualShapeCache& cachedLinkGraphicsShapes= UrdfVisualShapeCache()
+			);
 
 
 #endif //_URDF2BULLET_H
