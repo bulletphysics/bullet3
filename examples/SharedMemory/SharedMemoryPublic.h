@@ -681,6 +681,7 @@ enum eURDF_Flags
 	URDF_USE_IMPLICIT_CYLINDER =128,
 	URDF_GLOBAL_VELOCITIES_MB =256,
 	MJCF_COLORS_FROM_FILE=512,
+	URDF_ENABLE_CACHED_GRAPHICS_SHAPES=1024,
 };
 
 enum eUrdfGeomTypes //sync with UrdfParser UrdfGeomTypes
@@ -755,6 +756,8 @@ struct b3PhysicsSimulationParameters
 	int m_deterministicOverlappingPairs;
 	double m_allowedCcdPenetration;
 	int m_jointFeedbackMode;
+	double m_solverResidualThreshold;
+	double m_contactSlop;
 };
 
 

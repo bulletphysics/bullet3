@@ -37,7 +37,7 @@ public:
 	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const { return false;}
 
 	virtual bool getLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const { return false;}
-
+	virtual void setLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const {}
 
 	virtual int getCollisionGroupAndMask(int linkIndex, int& colGroup, int& colMask) const { return 0;}
 	///this API will likely change, don't override it!

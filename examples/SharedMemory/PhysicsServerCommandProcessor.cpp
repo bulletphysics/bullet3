@@ -1484,6 +1484,7 @@ struct SaveStateData
 	btSerializer* m_serializer;
 };
 
+
 struct PhysicsServerCommandProcessorInternalData
 {
 	///handle management
@@ -1581,6 +1582,7 @@ struct PhysicsServerCommandProcessorInternalData
 #endif
 
 	b3HashMap<b3HashString,  char*> m_profileEvents;
+	b3HashMap<b3HashString, UrdfVisualShapeCache> m_cachedVUrdfisualShapes;
 
 	PhysicsServerCommandProcessorInternalData(PhysicsCommandProcessorInterface* proc)
 		:m_pluginManager(proc),
@@ -2618,7 +2620,22 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
         u2b.getRootTransformInWorld(rootTrans);
 		//CUF_RESERVED is a temporary flag, for backward compatibility purposes
 		flags |= CUF_RESERVED;
-		ConvertURDF2Bullet(u2b,creation, rootTrans,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),flags);
+
+		if (flags & CUF_ENABLE_CACHED_GRAPHICS_SHAPES)
+		{
+			{
+				UrdfVisualShapeCache* tmpPtr = m_data->m_cachedVUrdfisualShapes[fileName];
+				if (tmpPtr==0)
+				{
+					m_data->m_cachedVUrdfisualShapes.insert(fileName, UrdfVisualShapeCache());
+				}
+			}
+			UrdfVisualShapeCache* cachedVisualShapesPtr = m_data->m_cachedVUrdfisualShapes[fileName];
+			ConvertURDF2Bullet(u2b, creation, rootTrans, m_data->m_dynamicsWorld, useMultiBody, u2b.getPathPrefix(), flags, cachedVisualShapesPtr);
+		} else
+		{
+			ConvertURDF2Bullet(u2b, creation, rootTrans, m_data->m_dynamicsWorld, useMultiBody, u2b.getPathPrefix(), flags);
+		}
 
 
 
@@ -6483,6 +6500,11 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 				}
 			}
 
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD)
+			{
+				body->m_rigidBody->setContactProcessingThreshold(clientCmd.m_changeDynamicsInfoArgs.m_contactProcessingThreshold);
+			}
+
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CCD_SWEPT_SPHERE_RADIUS)
 			{
 				body->m_rigidBody->setCcdSweptSphereRadius(clientCmd.m_changeDynamicsInfoArgs.m_ccdSweptSphereRadius);
@@ -6696,11 +6718,24 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	{
 		m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = clientCmd.m_physSimParamArgs.m_numSolverIterations;
 	}
+
+	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_SOLVER_RESIDULAL_THRESHOLD)
+	{
+		m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold = clientCmd.m_physSimParamArgs.m_solverResidualThreshold;
+	}
+	
+
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD)
 	{
 		gContactBreakingThreshold = clientCmd.m_physSimParamArgs.m_contactBreakingThreshold;
 	}
-					
+	
+	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_CONTACT_SLOP)
+	{
+		m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = clientCmd.m_physSimParamArgs.m_contactSlop;
+	}
+
+
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_COLLISION_FILTER_MODE)
 	{
 		m_data->m_broadphaseCollisionFilterCallback->m_filterMode = clientCmd.m_physSimParamArgs.m_collisionFilterMode;
@@ -9713,6 +9748,8 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,const 
 void PhysicsServerCommandProcessor::resetSimulation()
 {
 	//clean up all data
+
+	m_data->m_cachedVUrdfisualShapes.clear();
 
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	if (m_data && m_data->m_dynamicsWorld)
