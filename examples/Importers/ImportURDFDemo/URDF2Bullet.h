@@ -3,7 +3,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
 #include <string>
-#include "UrdfJointTypes.h"//for UrdfMaterialColor cache
+#include "URDFJointTypes.h"//for UrdfMaterialColor cache
 
 class btVector3;
 class btTransform;
