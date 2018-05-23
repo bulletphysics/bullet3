@@ -45,7 +45,7 @@ void ConvertURDF2Bullet(const URDFImporterInterface& u2b,
 			bool createMultiBody,
 			const char* pathPrefix,
             int flags = 0,
-			UrdfVisualShapeCache& cachedLinkGraphicsShapes= UrdfVisualShapeCache()
+			UrdfVisualShapeCache* cachedLinkGraphicsShapes= 0
 			);
 
 
