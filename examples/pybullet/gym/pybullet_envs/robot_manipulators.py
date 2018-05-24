@@ -8,7 +8,7 @@ class Reacher(MJCFBasedRobot):
 	def __init__(self):
 		MJCFBasedRobot.__init__(self, 'reacher.xml', 'body0', action_dim=2, obs_dim=9)
 
-	def robot_specific_reset(self):
+	def robot_specific_reset(self, bullet_client):
 		self.jdict["target_x"].reset_current_position(
 			self.np_random.uniform(low=-self.TARG_LIMIT, high=self.TARG_LIMIT), 0)
 		self.jdict["target_y"].reset_current_position(
@@ -56,7 +56,7 @@ class Pusher(MJCFBasedRobot):
 	def __init__(self):
 		MJCFBasedRobot.__init__(self, 'pusher.xml', 'body0', action_dim=7, obs_dim=55)
 
-	def robot_specific_reset(self):
+	def robot_specific_reset(self, bullet_client):
 		# parts
 		self.fingertip = self.parts["fingertip"]
 		self.target = self.parts["target"]
@@ -138,9 +138,9 @@ class Striker(MJCFBasedRobot):
 	max_object_placement_radius = 0.8
 
 	def __init__(self):
-		MJCFBasedRobot.__init__(self, 'lstriker.xml', 'body0', action_dim=7, obs_dim=55)
+		MJCFBasedRobot.__init__(self, 'striker.xml', 'body0', action_dim=7, obs_dim=55)
 
-	def robot_specific_reset(self):
+	def robot_specific_reset(self, bullet_client):
 		# parts
 		self.fingertip = self.parts["fingertip"]
 		self.target = self.parts["target"]
@@ -230,7 +230,7 @@ class Thrower(MJCFBasedRobot):
 	def __init__(self):
 		MJCFBasedRobot.__init__(self, 'thrower.xml', 'body0', action_dim=7, obs_dim=48)
 
-	def robot_specific_reset(self):
+	def robot_specific_reset(self, bullet_client):
 		# parts
 		self.fingertip = self.parts["fingertip"]
 		self.target = self.parts["target"]
