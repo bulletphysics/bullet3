@@ -80,6 +80,7 @@ project ("App_RobotSimulator")
   	includedirs {
                 ".",
                 "../../src",
+		"../../examples/SharedMemory",
                 "../ThirdPartyLibs",
                 }
 

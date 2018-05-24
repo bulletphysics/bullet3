@@ -1,7 +1,7 @@
 #ifndef B3_ROBOT_SIMULATOR_CLIENT_API_H
 #define B3_ROBOT_SIMULATOR_CLIENT_API_H
 
-#include "../SharedMemory/SharedMemoryPublic.h"
+#include "SharedMemoryPublic.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3Transform.h"
