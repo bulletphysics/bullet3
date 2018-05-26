@@ -2,6 +2,7 @@
 INCLUDE_DIRECTORIES(
 		${BULLET_PHYSICS_SOURCE_DIR}/src
 		${BULLET_PHYSICS_SOURCE_DIR}/examples
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/SharedMemory
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
@@ -90,8 +91,8 @@ SET(BulletRobotics_SRCS
 		../../examples/MultiThreading/b3PosixThreadSupport.cpp
 		../../examples/MultiThreading/b3Win32ThreadSupport.cpp
 		../../examples/MultiThreading/b3ThreadSupportInterface.cpp
-		
-
+		../../examples/RobotSimulator/b3RobotSimulatorClientAPI_NoGUI.cpp
+		../../examples/RobotSimulator/b3RobotSimulatorClientAPI_NoGUI.h
 )
 
 IF(BUILD_CLSOCKET)
@@ -99,9 +100,6 @@ IF(BUILD_CLSOCKET)
 ENDIF(BUILD_CLSOCKET)
 
 IF(WIN32)
-	LINK_LIBRARIES(
-		${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-	)
 	IF(BUILD_ENET)
 		ADD_DEFINITIONS(-DWIN32 -DBT_ENABLE_ENET)
 	ENDIF(BUILD_ENET)
@@ -120,7 +118,7 @@ ELSE(WIN32)
 		
 	IF(NOT APPLE)
 		LINK_LIBRARIES(  pthread ${DL} )
-	ENDIF(APPLE)
+	ENDIF(NOT APPLE)
 ENDIF(WIN32)
 
 IF(BUILD_ENET)
@@ -176,6 +174,7 @@ IF (INSTALL_EXTRA_LIBS)
 		../../examples/SharedMemory/PhysicsClientTCP_C_API.h
 		../../examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.h
 		../../examples/SharedMemory/SharedMemoryPublic.h
+		../../examples/RobotSimulator/b3RobotSimulatorClientAPI_NoGUI.h
 		DESTINATION include/bullet
 		)
 	INSTALL(TARGETS

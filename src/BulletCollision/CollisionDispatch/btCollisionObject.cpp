@@ -39,7 +39,7 @@ btCollisionObject::btCollisionObject()
 		m_rollingFriction(0.0f),
         m_spinningFriction(0.f),
 		m_contactDamping(.1),
-		m_contactStiffness(1e4),
+		m_contactStiffness(BT_LARGE_FLOAT),
 		m_internalType(CO_COLLISION_OBJECT),
 		m_userObjectPointer(0),
 		m_userIndex2(-1),
