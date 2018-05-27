@@ -94,7 +94,7 @@ public:
 				m_robotSim.loadURDF("plane.urdf");
 			}
 
-			m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+			m_robotSim.setGravity(btVector3(0,0,-10));
 	
 		}
 
@@ -119,7 +119,7 @@ public:
 				m_robotSim.loadURDF("plane.urdf",args);
 			}
 
-			m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+			m_robotSim.setGravity(btVector3(0,0,-10));
 		}
 	
         if ((m_options & eROBOTIC_LEARN_ROLLING_FRICTION)!=0)
@@ -146,7 +146,7 @@ public:
                 m_robotSim.loadURDF("plane.urdf", args);
             }
 
-			m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+			m_robotSim.setGravity(btVector3(0,0,-10));
 		}
 
 		
