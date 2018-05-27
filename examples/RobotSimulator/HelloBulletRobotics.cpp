@@ -23,11 +23,11 @@ int main(int argc, char* argv[])
 	int r2d2Uid = sim->loadURDF("r2d2.urdf");
 	printf("r2d2 #joints = %d\n", sim->getNumJoints(r2d2Uid));
 
-	b3Vector3 basePosition = b3MakeVector3(0,0,1);
-	b3Quaternion baseOrientation = b3Quaternion(0,0,0,1);
+	btVector3 basePosition = btVector3(0,0,1);
+	btQuaternion baseOrientation = btQuaternion(0,0,0,1);
 
 	sim->resetBasePositionAndOrientation(r2d2Uid, basePosition, baseOrientation);	
-	sim->setGravity(b3MakeVector3(0,0,-10));
+	sim->setGravity(btVector3(0,0,-10));
 	
 	while (sim->isConnected())
 	{
