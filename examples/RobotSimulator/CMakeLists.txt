@@ -1,6 +1,7 @@
 INCLUDE_DIRECTORIES( 
 		${BULLET_PHYSICS_SOURCE_DIR}/src
 		${BULLET_PHYSICS_SOURCE_DIR}/examples
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/SharedMemory
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
@@ -11,8 +12,6 @@ SET(RobotSimulator_SRCS
 RobotSimulatorMain.cpp
 	b3RobotSimulatorClientAPI.cpp
 	b3RobotSimulatorClientAPI.h	
-	b3RobotSimulatorClientAPI_NoGUI.cpp
-	b3RobotSimulatorClientAPI_NoGUI.h	
 	MinitaurSetup.cpp
 	MinitaurSetup.h
 	../../examples/ExampleBrowser/InProcessExampleBrowser.cpp
@@ -71,7 +70,7 @@ SET_TARGET_PROPERTIES(App_RobotSimulator PROPERTIES COMPILE_DEFINITIONS "B3_USE_
 
 IF(WIN32)
 	IF(BUILD_ENET OR BUILD_CLSOCKET)
-		TARGET_LINK_LIBRARIES(App_RobotSimulator ws2_32 )
+		TARGET_LINK_LIBRARIES(App_RobotSimulator ws2_32 Winmm)
 	ENDIF(BUILD_ENET OR BUILD_CLSOCKET)
 ENDIF(WIN32)
 
@@ -86,6 +85,7 @@ TARGET_LINK_LIBRARIES(App_RobotSimulator BulletRobotics BulletExampleBrowserLib 
 INCLUDE_DIRECTORIES( 
 		${BULLET_PHYSICS_SOURCE_DIR}/src
 		${BULLET_PHYSICS_SOURCE_DIR}/examples
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/SharedMemory
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
@@ -93,8 +93,6 @@ INCLUDE_DIRECTORIES(
 
 SET(RobotSimulator_NoGUI_SRCS
 	RobotSimulatorMain.cpp
-	b3RobotSimulatorClientAPI_NoGUI.cpp
-	b3RobotSimulatorClientAPI_NoGUI.h	
 	MinitaurSetup.cpp
 	MinitaurSetup.h
 )
@@ -107,7 +105,7 @@ SET_TARGET_PROPERTIES(App_RobotSimulator_NoGUI PROPERTIES DEBUG_POSTFIX "_d")
 
 IF(WIN32)
 	IF(BUILD_ENET OR BUILD_CLSOCKET)
-		TARGET_LINK_LIBRARIES(App_RobotSimulator_NoGUI ws2_32 )
+		TARGET_LINK_LIBRARIES(App_RobotSimulator_NoGUI ws2_32 Winmm)
 	ENDIF(BUILD_ENET OR BUILD_CLSOCKET)
 ELSE()
 	IF(APPLE)
@@ -123,6 +121,39 @@ TARGET_LINK_LIBRARIES(App_RobotSimulator_NoGUI BulletRobotics BulletFileLoader B
 
 
 
+########
+
+INCLUDE_DIRECTORIES(
+                ${BULLET_PHYSICS_SOURCE_DIR}/src
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/SharedMemory
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
+  )
+
+SET(App_HelloBulletRobotics_SRCS
+        HelloBulletRobotics.cpp
+)
+
+ADD_EXECUTABLE(App_HelloBulletRobotics  ${App_HelloBulletRobotics_SRCS})
+
+SET_TARGET_PROPERTIES(App_HelloBulletRobotics PROPERTIES VERSION ${BULLET_VERSION})
+SET_TARGET_PROPERTIES(App_HelloBulletRobotics PROPERTIES DEBUG_POSTFIX "_d")
+
+
+IF(WIN32)
+        IF(BUILD_ENET OR BUILD_CLSOCKET)
+                TARGET_LINK_LIBRARIES(App_HelloBulletRobotics ws2_32 Winmm)
+        ENDIF(BUILD_ENET OR BUILD_CLSOCKET)
+ELSE()
+        IF(APPLE)
+        ELSE(APPLE)
+                TARGET_LINK_LIBRARIES( App_HelloBulletRobotics pthread ${DL} )
+        ENDIF(APPLE)
+ENDIF(WIN32)
+
+TARGET_LINK_LIBRARIES(App_HelloBulletRobotics BulletRobotics BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath Bullet3Common)
 
 
 

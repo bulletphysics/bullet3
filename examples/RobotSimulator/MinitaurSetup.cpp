@@ -85,8 +85,8 @@ static const char* minitaurURDF="quadruped/minitaur_rainbow_dash_v1.urdf";
 		"motor_back_leftL_bracket_joint",
 	};
 
-	static b3Vector3 KNEE_CONSTRAINT_POINT_LONG = b3MakeVector3(0, 0.0045, 0.088);
-	static b3Vector3 KNEE_CONSTRAINT_POINT_SHORT= b3MakeVector3(0, 0.0045, 0.100);
+	static btVector3 KNEE_CONSTRAINT_POINT_LONG = btVector3(0, 0.0045, 0.088);
+	static btVector3 KNEE_CONSTRAINT_POINT_SHORT= btVector3(0, 0.0045, 0.100);
 #elif defined(MINITAUR_RAINBOWDASH_V0)
 	static const char* minitaurURDF="quadruped/minitaur_rainbow_dash.urdf";
 
@@ -119,8 +119,8 @@ static const char* minitaurURDF="quadruped/minitaur_rainbow_dash_v1.urdf";
 		"motor_front_rightR_joint",//14
 		"knee_front_rightR_joint",//15
 	};
-	static b3Vector3 KNEE_CONSTRAINT_POINT_LONG = b3MakeVector3(0, 0.0045, 0.088);
-	static b3Vector3 KNEE_CONSTRAINT_POINT_SHORT= b3MakeVector3(0, 0.0045, 0.100);
+	static btVector3 KNEE_CONSTRAINT_POINT_LONG = btVector3(0, 0.0045, 0.088);
+	static btVector3 KNEE_CONSTRAINT_POINT_SHORT= btVector3(0, 0.0045, 0.100);
 #elif defined(MINITAUR_V0)
 	static const char* minitaurURDF="quadruped/minitaur.urdf";
 
@@ -153,8 +153,8 @@ static const char* minitaurURDF="quadruped/minitaur_rainbow_dash_v1.urdf";
 		"motor_front_rightR_joint",
 		"knee_front_rightR_link",
 	};
-	static b3Vector3 KNEE_CONSTRAINT_POINT_LONG = b3MakeVector3(0, 0.005, 0.2);
-	static b3Vector3 KNEE_CONSTRAINT_POINT_SHORT= b3MakeVector3(0, 0.01, 0.2);
+	static btVector3 KNEE_CONSTRAINT_POINT_LONG = btVector3(0, 0.005, 0.2);
+	static btVector3 KNEE_CONSTRAINT_POINT_SHORT= btVector3(0, 0.01, 0.2);
 #endif
 
 
@@ -255,7 +255,7 @@ void MinitaurSetup::resetPose(class b3RobotSimulatorClientAPI_NoGUI* sim)
 
 }
 
-int MinitaurSetup::setupMinitaur(class b3RobotSimulatorClientAPI_NoGUI* sim, const b3Vector3& startPos, const b3Quaternion& startOrn)
+int MinitaurSetup::setupMinitaur(class b3RobotSimulatorClientAPI_NoGUI* sim, const btVector3& startPos, const btQuaternion& startOrn)
 {
 	
 	b3RobotSimulatorLoadUrdfFileArgs args;

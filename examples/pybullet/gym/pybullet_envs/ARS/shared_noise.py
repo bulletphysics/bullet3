@@ -1,7 +1,6 @@
-"""TODO(jietan): DO NOT SUBMIT without one-line documentation for shared_noise.
+"""
 Code in this file is copied and adapted from
 https://github.com/ray-project/ray/tree/master/python/ray/rllib/es
-TODO(jietan): DO NOT SUBMIT without a detailed description of shared_noise.
 """
 
 from __future__ import absolute_import

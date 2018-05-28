@@ -668,6 +668,7 @@ enum eCONNECT_METHOD {
   eCONNECT_EXISTING_EXAMPLE_BROWSER=6,
   eCONNECT_GUI_SERVER=7,
   eCONNECT_GUI_MAIN_THREAD=8,
+  eCONNECT_SHARED_MEMORY_SERVER=9,
 };
 
 enum eURDF_Flags
@@ -680,6 +681,7 @@ enum eURDF_Flags
 	URDF_USE_IMPLICIT_CYLINDER =128,
 	URDF_GLOBAL_VELOCITIES_MB =256,
 	MJCF_COLORS_FROM_FILE=512,
+	URDF_ENABLE_CACHED_GRAPHICS_SHAPES=1024,
 };
 
 enum eUrdfGeomTypes //sync with UrdfParser UrdfGeomTypes
@@ -713,6 +715,12 @@ enum eStateLoggingFlags
 	STATE_LOG_JOINT_TORQUES = STATE_LOG_JOINT_MOTOR_TORQUES+STATE_LOG_JOINT_USER_TORQUES,
 };
 
+enum eJointFeedbackModes
+{
+	JOINT_FEEDBACK_IN_WORLD_SPACE=1,
+	JOINT_FEEDBACK_IN_JOINT_FRAME=2,
+};
+
 #define B3_MAX_PLUGIN_ARG_SIZE 128
 #define B3_MAX_PLUGIN_ARG_TEXT_LEN 1024
 
@@ -740,11 +748,16 @@ struct b3PhysicsSimulationParameters
 	int m_collisionFilterMode;
 	int m_enableFileCaching;
 	double m_restitutionVelocityThreshold;
-	double 	m_defaultNonContactERP;
+	double m_defaultNonContactERP;
 	double m_frictionERP;
+	double m_defaultGlobalCFM;
+	double m_frictionCFM;
 	int m_enableConeFriction;
 	int m_deterministicOverlappingPairs;
 	double m_allowedCcdPenetration;
+	int m_jointFeedbackMode;
+	double m_solverResidualThreshold;
+	double m_contactSlop;
 };
 
 

@@ -11,6 +11,8 @@
 #include "../MultiThreading/b3ThreadSupportInterface.h"
 void	UDPThreadFunc(void* userPtr, void* lsMemory);
 void*	UDPlsMemoryFunc();
+void	UDPlsMemoryReleaseFunc(void* ptr);
+
 bool gVerboseNetworkMessagesClient = false;
 
 #ifndef _WIN32
@@ -21,6 +23,7 @@ b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("UDPThread",
 		UDPThreadFunc,
 		UDPlsMemoryFunc,
+		UDPlsMemoryReleaseFunc,
 		numThreads);
 	b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport(constructionInfo);
 
@@ -34,7 +37,7 @@ b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
 
 b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
 {
-	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("UDPThread", UDPThreadFunc, UDPlsMemoryFunc, numThreads);
+	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("UDPThread", UDPThreadFunc, UDPlsMemoryFunc,UDPlsMemoryReleaseFunc, numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
 	return threadSupport;
 
@@ -436,6 +439,11 @@ void*	UDPlsMemoryFunc()
 	return new UDPThreadLocalStorage;
 }
 
+void	UDPlsMemoryReleaseFunc(void* ptr)
+{
+	UDPThreadLocalStorage* p = (UDPThreadLocalStorage*) ptr;
+	delete p;
+}
 
 
 

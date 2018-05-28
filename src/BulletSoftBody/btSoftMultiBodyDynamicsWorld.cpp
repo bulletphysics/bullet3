@@ -157,7 +157,7 @@ void	btSoftMultiBodyDynamicsWorld::removeCollisionObject(btCollisionObject* coll
 
 void	btSoftMultiBodyDynamicsWorld::debugDrawWorld()
 {
-	btDiscreteDynamicsWorld::debugDrawWorld();
+	btMultiBodyDynamicsWorld::debugDrawWorld();
 
 	if (getDebugDrawer())
 	{

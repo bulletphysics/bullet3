@@ -21,6 +21,7 @@ project "App_BulletExampleBrowser"
         includedirs {
                 ".",
                 "../../src",
+		"../../examples/SharedMemory",
                 "../ThirdPartyLibs",
                 }
 

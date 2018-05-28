@@ -52,6 +52,8 @@ public:
 
 	virtual bool getLinkColor2(int linkIndex, UrdfMaterialColor& matCol) const;
 
+	virtual void setLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const;
+
 	virtual bool getLinkContactInfo(int urdflinkIndex, URDFLinkContactInfo& contactInfo ) const;
 	
 	virtual bool getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const;
@@ -59,6 +61,8 @@ public:
     virtual std::string getJointName(int linkIndex) const;
     
     virtual void  getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const;
+	virtual void  getMassAndInertia2(int urdfLinkIndex, btScalar& mass, btVector3& localInertiaDiagonal, btTransform& inertialFrame, int flags) const;
+
 
     virtual bool getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const;
     virtual bool getJointInfo2(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity) const;

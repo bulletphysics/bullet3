@@ -6,11 +6,6 @@
 
 #include<stdio.h>
 #include<stdlib.h>
-#ifdef GLEW_STATIC
-#include "glad/glad.h"
-#else
-#include <GL/glew.h>
-#endif//GLEW_STATIC
 
 #ifdef GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 #include "glad/glad_glx.h"

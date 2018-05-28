@@ -54,7 +54,8 @@ enum UrdfGeomTypes
 	URDF_GEOM_CYLINDER,
 	URDF_GEOM_MESH,
 	URDF_GEOM_PLANE,
-	URDF_GEOM_CAPSULE, //non-standard URDF?
+	URDF_GEOM_CAPSULE, //non-standard URDF
+	URDF_GEOM_CDF,//signed-distance-field, non-standard URDF
 	URDF_GEOM_UNKNOWN, 
 };
 
@@ -79,6 +80,8 @@ struct UrdfGeometry
 		FILE_STL     =1,
 		FILE_COLLADA =2,
 		FILE_OBJ     =3,
+		FILE_CDF = 4,
+
 	};
 	int         m_meshFileType;
 	std::string m_meshFileName;

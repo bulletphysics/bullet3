@@ -111,7 +111,7 @@ public:
 			
 			{
 				m_robotSim.loadURDF("plane.urdf");
-				m_robotSim.setGravity(b3MakeVector3(0,0,0));
+				m_robotSim.setGravity(btVector3(0,0,0));
 			}
 	
 		}

@@ -1,23 +1,23 @@
 #ifndef B3_ROBOT_SIMULATOR_CLIENT_API_H
 #define B3_ROBOT_SIMULATOR_CLIENT_API_H
 
-#include "../SharedMemory/SharedMemoryPublic.h"
-#include "Bullet3Common/b3Vector3.h"
-#include "Bullet3Common/b3Quaternion.h"
-#include "Bullet3Common/b3Transform.h"
-#include "Bullet3Common/b3AlignedObjectArray.h"
+#include "SharedMemoryPublic.h"
+#include "LinearMath/btVector3.h"
+#include "LinearMath/btQuaternion.h"
+#include "LinearMath/btTransform.h"
+#include "LinearMath/btAlignedObjectArray.h"
 
 #include <string>
 
 struct b3RobotSimulatorLoadUrdfFileArgs
 {
-	b3Vector3 m_startPosition;
-	b3Quaternion m_startOrientation;
+	btVector3 m_startPosition;
+	btQuaternion m_startOrientation;
 	bool m_forceOverrideFixedBase;
 	bool m_useMultiBody;
 	int m_flags;
 
-	b3RobotSimulatorLoadUrdfFileArgs(const b3Vector3& startPos, const b3Quaternion& startOrn)
+	b3RobotSimulatorLoadUrdfFileArgs(const btVector3& startPos, const btQuaternion& startOrn)
 		: m_startPosition(startPos),
 		m_startOrientation(startOrn),
 		m_forceOverrideFixedBase(false),
@@ -27,8 +27,8 @@ struct b3RobotSimulatorLoadUrdfFileArgs
 	}
 
 	b3RobotSimulatorLoadUrdfFileArgs()
-		: m_startPosition(b3MakeVector3(0, 0, 0)),
-		m_startOrientation(b3Quaternion(0, 0, 0, 1)),
+		: m_startPosition(btVector3(0, 0, 0)),
+		m_startOrientation(btQuaternion(0, 0, 0, 1)),
 		m_forceOverrideFixedBase(false),
 		m_useMultiBody(true),
 		m_flags(0)
@@ -50,7 +50,7 @@ struct b3RobotSimulatorLoadSdfFileArgs
 
 struct b3RobotSimulatorLoadFileResults
 {
-	b3AlignedObjectArray<int> m_uniqueObjectIds;
+	btAlignedObjectArray<int> m_uniqueObjectIds;
 	b3RobotSimulatorLoadFileResults()
 	{
 	}
@@ -96,11 +96,11 @@ struct b3RobotSimulatorInverseKinematicArgs
 	int m_endEffectorLinkIndex;
 	int m_flags;
 	int m_numDegreeOfFreedom;
-	b3AlignedObjectArray<double> m_lowerLimits;
-	b3AlignedObjectArray<double> m_upperLimits;
-	b3AlignedObjectArray<double> m_jointRanges;
-	b3AlignedObjectArray<double> m_restPoses;
-	b3AlignedObjectArray<double> m_jointDamping;
+	btAlignedObjectArray<double> m_lowerLimits;
+	btAlignedObjectArray<double> m_upperLimits;
+	btAlignedObjectArray<double> m_jointRanges;
+	btAlignedObjectArray<double> m_restPoses;
+	btAlignedObjectArray<double> m_jointDamping;
 
 	b3RobotSimulatorInverseKinematicArgs()
 		: m_bodyUniqueId(-1),
@@ -121,7 +121,7 @@ struct b3RobotSimulatorInverseKinematicArgs
 struct b3RobotSimulatorInverseKinematicsResults
 {
 	int m_bodyUniqueId;
-	b3AlignedObjectArray<double> m_calculatedJointPositions;
+	btAlignedObjectArray<double> m_calculatedJointPositions;
 };
 
 struct b3JointStates2
@@ -129,10 +129,10 @@ struct b3JointStates2
 	int m_bodyUniqueId;
 	int m_numDegreeOfFreedomQ;
 	int m_numDegreeOfFreedomU;
-	b3Transform m_rootLocalInertialFrame;
-	b3AlignedObjectArray<double> m_actualStateQ;
-	b3AlignedObjectArray<double> m_actualStateQdot;
-	b3AlignedObjectArray<double> m_jointReactionForces;
+	btTransform m_rootLocalInertialFrame;
+	btAlignedObjectArray<double> m_actualStateQ;
+	btAlignedObjectArray<double> m_actualStateQdot;
+	btAlignedObjectArray<double> m_jointReactionForces;
 };
 
 
@@ -322,11 +322,11 @@ struct b3RobotSimulatorCreateCollisionShapeArgs
 {
 	int m_shapeType;
 	double m_radius;
-	b3Vector3 m_halfExtents;
+	btVector3 m_halfExtents;
 	double m_height;
 	char* m_fileName;
-	b3Vector3 m_meshScale;
-	b3Vector3 m_planeNormal;
+	btVector3 m_meshScale;
+	btVector3 m_planeNormal;
 	int m_flags;
 	b3RobotSimulatorCreateCollisionShapeArgs()
 		: m_shapeType(-1),
@@ -355,22 +355,22 @@ struct b3RobotSimulatorCreateMultiBodyArgs
 	double m_baseMass;
 	int m_baseCollisionShapeIndex;
 	int m_baseVisualShapeIndex;
-	b3Vector3 m_basePosition;
-	b3Quaternion m_baseOrientation;
-	b3Vector3 m_baseInertialFramePosition;
-	b3Quaternion m_baseInertialFrameOrientation;
+	btVector3 m_basePosition;
+	btQuaternion m_baseOrientation;
+	btVector3 m_baseInertialFramePosition;
+	btQuaternion m_baseInertialFrameOrientation;
 
 	int m_numLinks;
 	double *m_linkMasses;
 	int *m_linkCollisionShapeIndices;
 	int *m_linkVisualShapeIndices;
-	b3Vector3 *m_linkPositions;
-	b3Quaternion *m_linkOrientations;
-	b3Vector3 *m_linkInertialFramePositions;
-	b3Quaternion *m_linkInertialFrameOrientations;
+	btVector3 *m_linkPositions;
+	btQuaternion *m_linkOrientations;
+	btVector3 *m_linkInertialFramePositions;
+	btQuaternion *m_linkInertialFrameOrientations;
 	int *m_linkParentIndices;
 	int *m_linkJointTypes;
-	b3Vector3 *m_linkJointAxes;
+	btVector3 *m_linkJointAxes;
 
 	int m_useMaximalCoordinates;
 
@@ -422,8 +422,8 @@ public:
 
 	void resetSimulation();
 
-	b3Quaternion getQuaternionFromEuler(const b3Vector3& rollPitchYaw);
-	b3Vector3 getEulerFromQuaternion(const b3Quaternion& quat);
+	btQuaternion getQuaternionFromEuler(const btVector3& rollPitchYaw);
+	btVector3 getEulerFromQuaternion(const btQuaternion& quat);
 
 	int loadURDF(const std::string& fileName, const struct b3RobotSimulatorLoadUrdfFileArgs& args = b3RobotSimulatorLoadUrdfFileArgs());
 	bool loadSDF(const std::string& fileName, b3RobotSimulatorLoadFileResults& results, const struct b3RobotSimulatorLoadSdfFileArgs& args = b3RobotSimulatorLoadSdfFileArgs());
@@ -432,11 +432,11 @@ public:
 
 	bool getBodyInfo(int bodyUniqueId, struct b3BodyInfo* bodyInfo);
 
-	bool getBasePositionAndOrientation(int bodyUniqueId, b3Vector3& basePosition, b3Quaternion& baseOrientation) const;
-	bool resetBasePositionAndOrientation(int bodyUniqueId, b3Vector3& basePosition, b3Quaternion& baseOrientation);
+	bool getBasePositionAndOrientation(int bodyUniqueId, btVector3& basePosition, btQuaternion& baseOrientation) const;
+	bool resetBasePositionAndOrientation(int bodyUniqueId, btVector3& basePosition, btQuaternion& baseOrientation);
 
-	bool getBaseVelocity(int bodyUniqueId, b3Vector3& baseLinearVelocity, b3Vector3& baseAngularVelocity) const;
-	bool resetBaseVelocity(int bodyUniqueId, const b3Vector3& linearVelocity, const b3Vector3& angularVelocity) const;
+	bool getBaseVelocity(int bodyUniqueId, btVector3& baseLinearVelocity, btVector3& baseAngularVelocity) const;
+	bool resetBaseVelocity(int bodyUniqueId, const btVector3& linearVelocity, const btVector3& angularVelocity) const;
 
 	int getNumJoints(int bodyUniqueId) const;
 
@@ -468,7 +468,7 @@ public:
 
 	void setInternalSimFlags(int flags);
 
-	void setGravity(const b3Vector3& gravityAcceleration);
+	void setGravity(const btVector3& gravityAcceleration);
 
 	void setTimeStep(double timeStepInSeconds);
 	void setNumSimulationSubSteps(int numSubSteps);
@@ -482,9 +482,9 @@ public:
 	bool getLinkState(int bodyUniqueId, int linkIndex, b3LinkState* linkState);
 
 	void configureDebugVisualizer(enum b3ConfigureDebugVisualizerEnum flag, int enable);
-	void resetDebugVisualizerCamera(double cameraDistance, double cameraPitch, double cameraYaw, const b3Vector3& targetPos);
+	void resetDebugVisualizerCamera(double cameraDistance, double cameraPitch, double cameraYaw, const btVector3& targetPos);
 
-	int startStateLogging(b3StateLoggingType loggingType, const std::string& fileName, const b3AlignedObjectArray<int>& objectUniqueIds=b3AlignedObjectArray<int>(), int maxLogDof = -1);
+	int startStateLogging(b3StateLoggingType loggingType, const std::string& fileName, const btAlignedObjectArray<int>& objectUniqueIds=btAlignedObjectArray<int>(), int maxLogDof = -1);
 	void stopStateLogging(int stateLoggerUniqueId);
 
 	void getVREvents(b3VREventsData* vrEventsData, int deviceTypeFilter);
@@ -520,11 +520,11 @@ public:
 
 	int addUserDebugText(char *text, double *textPosition, struct b3RobotSimulatorAddUserDebugTextArgs &args);
 
-	int addUserDebugText(char *text, b3Vector3 &textPosition, struct b3RobotSimulatorAddUserDebugTextArgs &args);
+	int addUserDebugText(char *text, btVector3 &textPosition, struct b3RobotSimulatorAddUserDebugTextArgs &args);
 
 	int addUserDebugLine(double *fromXYZ, double *toXYZ, struct b3RobotSimulatorAddUserDebugLineArgs &args);
 
-	int addUserDebugLine(b3Vector3 &fromXYZ, b3Vector3 &toXYZ, struct b3RobotSimulatorAddUserDebugLineArgs &args);
+	int addUserDebugLine(btVector3 &fromXYZ, btVector3 &toXYZ, struct b3RobotSimulatorAddUserDebugLineArgs &args);
 
 	bool setJointMotorControlArray(int bodyUniqueId, struct b3RobotSimulatorJointMotorArrayArgs &args);
 
@@ -532,11 +532,11 @@ public:
 
 	bool applyExternalForce(int objectUniqueId, int linkIndex, double *force, double *position, int flags);
 
-	bool applyExternalForce(int objectUniqueId, int linkIndex, b3Vector3 &force, b3Vector3 &position, int flags);
+	bool applyExternalForce(int objectUniqueId, int linkIndex, btVector3 &force, btVector3 &position, int flags);
 
 	bool applyExternalTorque(int objectUniqueId, int linkIndex, double *torque, int flags);
 
-	bool applyExternalTorque(int objectUniqueId, int linkIndex, b3Vector3 &torque, int flags);
+	bool applyExternalTorque(int objectUniqueId, int linkIndex, btVector3 &torque, int flags);
 
 	bool enableJointForceTorqueSensor(int bodyUniqueId, int linkIndex, bool enable);
 
@@ -548,11 +548,11 @@ public:
 
 	bool getOverlappingObjects(double *aabbMin, double *aabbMax, struct b3AABBOverlapData *overlapData);
 
-	bool getOverlappingObjects(b3Vector3 &aabbMin, b3Vector3 &aabbMax, struct b3AABBOverlapData *overlapData);
+	bool getOverlappingObjects(btVector3 &aabbMin, btVector3 &aabbMax, struct b3AABBOverlapData *overlapData);
 
 	bool getAABB(int bodyUniqueId, int linkIndex, double *aabbMin, double *aabbMax);
 
-	bool getAABB(int bodyUniqueId, int linkIndex, b3Vector3 &aabbMin, b3Vector3 &aabbMax);
+	bool getAABB(int bodyUniqueId, int linkIndex, btVector3 &aabbMin, btVector3 &aabbMax);
 
 	int createCollisionShape(int shapeType, struct b3RobotSimulatorCreateCollisionShapeArgs &args);
 

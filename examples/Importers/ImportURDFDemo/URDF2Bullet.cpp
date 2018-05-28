@@ -185,7 +185,7 @@ void ConvertURDF2BulletInternal(
     URDF2BulletCachedData& cache, int urdfLinkIndex,
     const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,
     bool createMultiBody, const char* pathPrefix,
-    int flags = 0)
+    int flags = 0, UrdfVisualShapeCache* cachedLinkGraphicsShapesIn=0, UrdfVisualShapeCache* cachedLinkGraphicsShapesOut=0)
 {
 	B3_PROFILE("ConvertURDF2BulletInternal2");
     //b3Printf("start converting/extracting data from URDF interface\n");
@@ -215,7 +215,7 @@ void ConvertURDF2BulletInternal(
         //b3Printf("urdf parent index = %d\n",urdfParentIndex);
         //b3Printf("mb parent index = %d\n",mbParentIndex);
         parentRigidBody = cache.getRigidBodyFromLink(urdfParentIndex);
-		u2b.getMassAndInertia(urdfParentIndex, parentMass,parentLocalInertiaDiagonal,parentLocalInertialFrame);
+		u2b.getMassAndInertia2(urdfParentIndex, parentMass,parentLocalInertiaDiagonal,parentLocalInertialFrame, flags);
 
     }
 
@@ -223,7 +223,7 @@ void ConvertURDF2BulletInternal(
     btTransform localInertialFrame;
     localInertialFrame.setIdentity();
     btVector3 localInertiaDiagonal(0,0,0);
-    u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame);
+    u2b.getMassAndInertia2(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame, flags);
 
 
 
@@ -273,7 +273,23 @@ void ConvertURDF2BulletInternal(
 	int graphicsIndex;
 	{
 		B3_PROFILE("convertLinkVisualShapes");
-		graphicsIndex = u2b.convertLinkVisualShapes(urdfLinkIndex, pathPrefix, localInertialFrame);
+		if (cachedLinkGraphicsShapesIn && cachedLinkGraphicsShapesIn->m_cachedUrdfLinkVisualShapeIndices.size() > (mbLinkIndex+1))
+		{
+			graphicsIndex = cachedLinkGraphicsShapesIn->m_cachedUrdfLinkVisualShapeIndices[mbLinkIndex+1];
+			UrdfMaterialColor matColor = cachedLinkGraphicsShapesIn->m_cachedUrdfLinkColors[mbLinkIndex + 1];
+			u2b.setLinkColor2(urdfLinkIndex, matColor);
+		}
+		else
+		{
+			graphicsIndex = u2b.convertLinkVisualShapes(urdfLinkIndex, pathPrefix, localInertialFrame);
+			if (cachedLinkGraphicsShapesOut)
+			{
+				cachedLinkGraphicsShapesOut->m_cachedUrdfLinkVisualShapeIndices.push_back(graphicsIndex);
+				UrdfMaterialColor matColor;
+				u2b.getLinkColor2(urdfLinkIndex, matColor);
+				cachedLinkGraphicsShapesOut->m_cachedUrdfLinkColors.push_back(matColor);
+			}
+		}
 	}
 	
 
@@ -594,7 +610,7 @@ void ConvertURDF2BulletInternal(
     {
         int urdfChildLinkIndex = urdfChildIndices[i];
 
-        ConvertURDF2BulletInternal(u2b,creation, cache,urdfChildLinkIndex,linkTransformInWorldSpace,world1,createMultiBody,pathPrefix,flags);
+        ConvertURDF2BulletInternal(u2b,creation, cache,urdfChildLinkIndex,linkTransformInWorldSpace,world1,createMultiBody,pathPrefix,flags, cachedLinkGraphicsShapesIn, cachedLinkGraphicsShapesOut);
     }
 
 }
@@ -602,14 +618,21 @@ void ConvertURDF2Bullet(
     const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation,
     const btTransform& rootTransformInWorldSpace,
     btMultiBodyDynamicsWorld* world1,
-    bool createMultiBody, const char* pathPrefix, int flags)
+    bool createMultiBody, const char* pathPrefix, int flags, UrdfVisualShapeCache* cachedLinkGraphicsShapes)
 {
-    URDF2BulletCachedData cache;
 
+	URDF2BulletCachedData cache;
     InitURDF2BulletCache(u2b,cache);
     int urdfLinkIndex = u2b.getRootLinkIndex();
 	B3_PROFILE("ConvertURDF2Bullet");
-	ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndex,rootTransformInWorldSpace,world1,createMultiBody,pathPrefix,flags);
+	
+	UrdfVisualShapeCache cachedLinkGraphicsShapesOut;
+
+	ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndex,rootTransformInWorldSpace,world1,createMultiBody,pathPrefix,flags, cachedLinkGraphicsShapes, &cachedLinkGraphicsShapesOut);
+	if (cachedLinkGraphicsShapes && cachedLinkGraphicsShapesOut.m_cachedUrdfLinkVisualShapeIndices.size() > cachedLinkGraphicsShapes->m_cachedUrdfLinkVisualShapeIndices.size())
+	{
+		*cachedLinkGraphicsShapes = cachedLinkGraphicsShapesOut;
+	}
 
 	if (world1 && cache.m_bulletMultiBody)
 	{

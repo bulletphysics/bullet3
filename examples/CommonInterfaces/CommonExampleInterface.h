@@ -19,13 +19,15 @@ struct CommonExampleOptions
 	const char* m_fileName;
 	class SharedMemoryInterface* m_sharedMem;
 	CommandProcessorCreationInterface* m_commandProcessorCreation;
-	
+    bool m_skipGraphicsUpdate;
+    
 	CommonExampleOptions(struct GUIHelperInterface*	helper, int option=0)
 		:m_guiHelper(helper),
 		m_option(option),
 		m_fileName(0),
 		m_sharedMem(0),
-		m_commandProcessorCreation(0)
+		m_commandProcessorCreation(0),
+        m_skipGraphicsUpdate(false)
 	{
 	}
 

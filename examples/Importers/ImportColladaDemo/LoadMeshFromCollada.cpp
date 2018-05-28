@@ -188,8 +188,20 @@ void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGrap
 			}
 			vertexSources.insert(vertexId,vs);
 
+			btAlignedObjectArray<XMLElement*> trianglesAndPolylists;
+
 			for (XMLElement* primitive = mesh->FirstChildElement("triangles"); primitive; primitive = primitive->NextSiblingElement("triangles"))
 			{
+				trianglesAndPolylists.push_back(primitive);
+			}
+			for (XMLElement* primitive = mesh->FirstChildElement("polylist"); primitive; primitive = primitive->NextSiblingElement("polylist"))
+			{
+				trianglesAndPolylists.push_back(primitive);
+			}
+
+			for (int i=0;i<trianglesAndPolylists.size();i++)
+			{
+				XMLElement* primitive = trianglesAndPolylists[i];
 				std::string positionSourceName;
 				std::string normalSourceName;
 				int primitiveCount;

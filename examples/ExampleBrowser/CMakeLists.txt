@@ -80,6 +80,7 @@ ENDIF(BUILD_SHARED_LIBS)
 INCLUDE_DIRECTORIES(
         .
         ${BULLET_PHYSICS_SOURCE_DIR}/src
+	${BULLET_PHYSICS_SOURCE_DIR}/examples/SharedMemory
         ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 )
 

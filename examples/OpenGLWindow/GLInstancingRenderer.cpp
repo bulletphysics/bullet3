@@ -861,7 +861,10 @@ void GLInstancingRenderer::rebuildGraphicsInstances()
 	{
 		int srcIndex2 = usedObjects[i];
 		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
-		m_graphicsInstances[pg->m_shapeIndex]->m_tempObjectUids.push_back(srcIndex2);
+		if (pg && pg->m_shapeIndex < m_graphicsInstances.size() && pg->m_shapeIndex >=0)
+		{
+			m_graphicsInstances[pg->m_shapeIndex]->m_tempObjectUids.push_back(srcIndex2);
+		}
 	}
 
 	int curOffset = 0;
@@ -1618,7 +1621,7 @@ void GLInstancingRenderer::renderScene()
 	{
 
 		renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
-		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+		
 
 		if (m_planeReflectionShapeIndex>=0)
 		{

@@ -22,7 +22,13 @@
 #include "third_party/GL/gl/include/GL/gl.h"
 #include "third_party/GL/gl/include/GL/glext.h"
 #else
+
+#ifdef BT_NO_GLAD
 #include <GL/glew.h>
+#else
+#include "glad/glad.h"
+#endif
+
 #endif //NO_GLEW
 #endif //GLEW_STATIC
 #endif//(__APPLE__)

@@ -212,7 +212,6 @@ static int runLengthEncodeConstraintInfo(btBatchedConstraintInfo* outConInfos, i
             ++iSrc;
         }
         conInfo.numConstraintRows = iSrc - conInfo.constraintIndex;
-        btAssert( conInfo.numConstraintRows <= 6 );
         ++iDest;
     }
     return iDest;

@@ -2,7 +2,7 @@
 #include "Win32SharedMemory.h"
 #include "Bullet3Common/b3Logging.h"
 #include "Bullet3Common/b3Scalar.h"
-#include "LinearMath/btAlignedObjectArray.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
 
 #include <windows.h>
 #include <stdio.h>
@@ -29,7 +29,7 @@ struct Win32SharedMemorySegment
 struct Win32SharedMemoryInteralData
 {
 	
-	btAlignedObjectArray<Win32SharedMemorySegment> m_segments;
+	b3AlignedObjectArray<Win32SharedMemorySegment> m_segments;
 
 	Win32SharedMemoryInteralData()
 	{

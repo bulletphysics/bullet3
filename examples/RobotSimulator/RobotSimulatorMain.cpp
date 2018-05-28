@@ -37,15 +37,15 @@ int main(int argc, char* argv[])
 	sim->setTimeOut(10);
 	//syncBodies is only needed when connecting to an existing physics server that has already some bodies
 	sim->syncBodies();
-	b3Scalar fixedTimeStep = 1./240.;
+	btScalar fixedTimeStep = 1./240.;
 
 	sim->setTimeStep(fixedTimeStep);
 
-	b3Quaternion q = sim->getQuaternionFromEuler(b3MakeVector3(0.1,0.2,0.3));
-	b3Vector3 rpy;
+	btQuaternion q = sim->getQuaternionFromEuler(btVector3(0.1,0.2,0.3));
+	btVector3 rpy;
 	rpy = sim->getEulerFromQuaternion(q);
 
-	sim->setGravity(b3MakeVector3(0,0,-9.8));
+	sim->setGravity(btVector3(0,0,-9.8));
 
 	//int blockId = sim->loadURDF("cube.urdf");
 	//b3BodyInfo bodyInfo;
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 	sim->loadURDF("plane.urdf");
 
 	MinitaurSetup minitaur;
-	int minitaurUid = minitaur.setupMinitaur(sim, b3MakeVector3(0,0,.3));
+	int minitaurUid = minitaur.setupMinitaur(sim, btVector3(0,0,.3));
 
 	
 	//b3RobotSimulatorLoadUrdfFileArgs args;
@@ -139,8 +139,8 @@ int main(int argc, char* argv[])
 			static double yaw=0;
 			double distance = 1;
 			yaw+=0.1;
-			b3Vector3 basePos;
-			b3Quaternion baseOrn;
+			btVector3 basePos;
+			btQuaternion baseOrn;
 			sim->getBasePositionAndOrientation(minitaurUid,basePos,baseOrn);
 			sim->resetDebugVisualizerCamera(distance,-20, yaw,basePos);
 		}

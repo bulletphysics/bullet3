@@ -331,6 +331,22 @@ int MultiBodyTree::finalize() {
 		rigid_body.m_parent_pos_parent_body_ref = joint.m_parent_pos_parent_child_ref;
 		rigid_body.m_joint_type = joint.m_type;
 
+		int user_int;
+		if (-1 == m_init_cache->getUserInt(index, &user_int)) {
+			return -1;
+		}
+		if (-1 == m_impl->setUserInt(index, user_int)) {
+			return -1;
+		}
+
+		void* user_ptr;
+		if (-1 == m_init_cache->getUserPtr(index, &user_ptr)) {
+			return -1;
+		}
+		if (-1 == m_impl->setUserPtr(index, user_ptr)) {
+			return -1;
+		}
+
 		// Set joint Jacobians. Note that the dimension is always 3x1 here to avoid variable sized
 		// matrices.
 		switch (rigid_body.m_joint_type) {
