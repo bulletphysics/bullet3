@@ -129,7 +129,7 @@ struct b3RobotSimulatorJointMotorArrayArgs
 	double *m_forces;
 
 	b3RobotSimulatorJointMotorArrayArgs(int controlMode, int numControlledDofs)
-		: m_controlMode(controlMode), m_numControlledDofs(numControlledDofs) {}
+		: m_controlMode(controlMode), m_numControlledDofs(numControlledDofs), m_jointIndices(NULL), m_targetPositions(NULL), m_kps(NULL), m_targetVelocities(NULL), m_kds(NULL), m_forces(NULL) {}
 };
 
 struct b3RobotSimulatorGetCameraImageArgs
