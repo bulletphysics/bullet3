@@ -8756,7 +8756,30 @@ static PyMethodDef SpamMethods[] = {
 	 "Set some internal physics engine parameter, such as cfm or erp etc."},
 
 	 {"getPhysicsEngineParameters", (PyCFunction)pybullet_getPhysicsEngineParameters, METH_VARARGS | METH_KEYWORDS,
-	 "Get the current values of internal physics engine parameters"},
+	 "Get the current values of the internal physics engine parameters.\n"
+	 "\n"
+	 "Args:\n"
+	 "  physicsClientId (int, optional): The unique id of the physics client.\n"
+	 "\n"
+	 "Returns:\n"
+	 "  A dict with the following keys:\n"
+	 "    fixedTimeStep (float): Physics engine timestep in fraction of seconds.\n"
+	 "    numSolverIterations (int): The number of constraint solver iterations.\n"
+	 "    useSplitImpulse (int): Split positional and velocity constraint solving.\n"
+	 "    splitImpulsePenetrationThreshold (float): Contact penetration threshold for applying split impulse.\n"
+	 "    numSubSteps (int): Subdivide the simulation step by numSubSteps.\n"
+	 "    collisionFilterMode (int): 0 for AND, 1 for OR collision filter.\n"
+	 "    contactBreakingThreshold (float): Contact points exceeding this threshold are not processed by the LCP solver.\n"
+	 "    enableFileCaching (int): Enable file caching, such as .obj files.\n"
+	 "    restitutionVelocityThreshold (float): Set restition to zero if the relative velocity is below this threshold.\n"
+	 "    erp (float): Constraint error reduction parameter.\n"
+	 "    contactERP (float): Contact error reduction parameter.\n"
+	 "    frictionERP (float): Friction error reduction parameter.\n"
+	 "    useRealTimeSimulation (int): Enable real time simulation.\n"
+	 "    gravityAccelerationX (float): The X component of the acceleration vector.\n"
+	 "    gravityAccelerationY (float): The Y component of the acceleration vector.\n"
+	 "    gravityAccelerationZ (float): The Z component of the acceleration vector.\n"
+	 },
 
 	{"setInternalSimFlags", (PyCFunction)pybullet_setInternalSimFlags, METH_VARARGS | METH_KEYWORDS,
 	 "This is for experimental purposes, use at own risk, magic may or not happen"},
