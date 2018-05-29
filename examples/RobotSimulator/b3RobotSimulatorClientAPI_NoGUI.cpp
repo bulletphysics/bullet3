@@ -1270,6 +1270,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getDynamicsInfo(int bodyUniqueId, int link
 		status_handle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, cmd_handle);
 		status_type = b3GetStatusType(status_handle);
 		if (status_type == CMD_GET_DYNAMICS_INFO_COMPLETED) {
+			b3GetDynamicsInfo(status_handle, dynamicsInfo);
 			return true;
 		} else {
 			b3Warning("getDynamicsInfo did not complete");
