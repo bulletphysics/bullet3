@@ -1626,6 +1626,10 @@ bool b3RobotSimulatorClientAPI_NoGUI::setPhysicsEngineParameter(struct b3RobotSi
 		b3PhysicsParamSetDefaultFrictionERP(command,args.m_frictionERP);
 	}
 
+	if (args.m_restitutionVelocityThreshold >= 0) {
+		b3PhysicsParamSetSolverResidualThreshold(command, args.m_solverResidualThreshold);
+	}
+
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	return true;
 }
@@ -2060,4 +2064,53 @@ void b3RobotSimulatorClientAPI_NoGUI::setGuiHelper(struct GUIHelperInterface* gu
 struct GUIHelperInterface* b3RobotSimulatorClientAPI_NoGUI::getGuiHelper()
 {
 	return m_data->m_guiHelper;
+}
+
+bool b3RobotSimulatorClientAPI_NoGUI::getCollisionShapeData(int bodyUniqueId, int linkIndex,
+															b3CollisionShapeInformation &collisionShapeInfo)
+{
+	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+	if (sm == 0) {
+		b3Warning("Not connected");
+		return false;
+	}
+	b3SharedMemoryCommandHandle command;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+
+	{
+		command = b3InitRequestCollisionShapeInformation(sm, bodyUniqueId, linkIndex);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusType = b3GetStatusType(statusHandle);
+	}
+
+	btAssert(statusType == CMD_COLLISION_SHAPE_INFO_COMPLETED);
+	if (statusType == CMD_COLLISION_SHAPE_INFO_COMPLETED) {
+		b3GetCollisionShapeInformation(sm, &collisionShapeInfo);
+	}
+	return true;
+}
+
+bool b3RobotSimulatorClientAPI_NoGUI::getVisualShapeData(int bodyUniqueId, b3VisualShapeInformation &visualShapeInfo)
+{
+	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+	if (sm == 0) {
+		b3Warning("Not connected");
+		return false;
+	}
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+
+	{
+		commandHandle = b3InitRequestVisualShapeInformation(sm, bodyUniqueId);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+
+		btAssert(statusType == CMD_VISUAL_SHAPE_INFO_COMPLETED);
+		if (statusType == CMD_VISUAL_SHAPE_INFO_COMPLETED) {
+			b3GetVisualShapeInformation(sm, &visualShapeInfo);
+		}
+		return true;
+	}
 }
