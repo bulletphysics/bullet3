@@ -4513,7 +4513,7 @@ B3_SHARED_API	double b3GetTimeOut(b3PhysicsClientHandle physClient)
 	return -1;
 }
 
-B3_SHARED_API	b3SharedMemoryCommandHandle b3SetAdditionalSearchPath(b3PhysicsClientHandle physClient, char* path)
+B3_SHARED_API	b3SharedMemoryCommandHandle b3SetAdditionalSearchPath(b3PhysicsClientHandle physClient, const char* path)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
