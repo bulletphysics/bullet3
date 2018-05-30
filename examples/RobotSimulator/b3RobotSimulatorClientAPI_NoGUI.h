@@ -152,7 +152,14 @@ struct b3RobotSimulatorJointMotorArrayArgs
 	double *m_forces;
 
 	b3RobotSimulatorJointMotorArrayArgs(int controlMode, int numControlledDofs)
-		: m_controlMode(controlMode), m_numControlledDofs(numControlledDofs)
+		: m_controlMode(controlMode),
+		  m_numControlledDofs(numControlledDofs),
+		  m_jointIndices(NULL),
+		  m_targetPositions(NULL),
+		  m_kps(NULL),
+		  m_targetVelocities(NULL),
+		  m_kds(NULL),
+		  m_forces(NULL)
 	{
 	}
 };
@@ -204,6 +211,7 @@ struct b3RobotSimulatorSetPhysicsEngineParameters
 	double m_erp;
 	double m_contactERP;
 	double m_frictionERP;
+	double m_solverResidualThreshold;
 
 	b3RobotSimulatorSetPhysicsEngineParameters()
 		: m_fixedTimeStep(-1),
@@ -218,7 +226,8 @@ struct b3RobotSimulatorSetPhysicsEngineParameters
 		m_restitutionVelocityThreshold(-1),
 		m_erp(-1),
 		m_contactERP(-1),
-		m_frictionERP(-1)
+		m_frictionERP(-1),
+	  	m_solverResidualThreshold(-1)
 	{}
 };
 
@@ -566,6 +575,10 @@ public:
 	
 	virtual void setGuiHelper(struct GUIHelperInterface* guiHelper);
 	virtual struct GUIHelperInterface* getGuiHelper();
+
+	bool getCollisionShapeData(int bodyUniqueId, int linkIndex, b3CollisionShapeInformation &collisionShapeInfo);
+
+	bool getVisualShapeData(int bodyUniqueId, b3VisualShapeInformation &visualShapeInfo);
 	
 };
 
