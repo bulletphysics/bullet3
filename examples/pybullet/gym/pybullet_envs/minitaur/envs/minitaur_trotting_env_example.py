@@ -9,7 +9,7 @@ import time
 import tensorflow as tf
 from pybullet_envs.minitaur.agents.scripts import utility
 import pybullet_data
-import simple_ppo_agent
+from pybullet_envs.minitaur.envs import simple_ppo_agent
 
 flags = tf.app.flags
 FLAGS = tf.app.flags.FLAGS
