@@ -695,6 +695,9 @@ struct CalculateInverseKinematicsArgs
     double m_jointRange[MAX_DEGREE_OF_FREEDOM];
     double m_restPose[MAX_DEGREE_OF_FREEDOM];
     double m_jointDamping[MAX_DEGREE_OF_FREEDOM];
+	double m_currentPositions[MAX_DEGREE_OF_FREEDOM];
+	int m_maxNumIterations;
+	double m_residualThreshold;
 };
 
 struct CalculateInverseKinematicsResultArgs
