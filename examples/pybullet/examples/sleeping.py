@@ -2,15 +2,15 @@ import pybullet as p
 import time
 useMaximalCoordinates=False
 
-flags = 0#p.URDF_ENABLE_SLEEPING
+flags = p.URDF_ENABLE_SLEEPING
 
 p.connect(p.GUI)
 p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
 
 p.loadURDF("plane100.urdf",flags=flags, useMaximalCoordinates=useMaximalCoordinates)
 #p.loadURDF("cube_small.urdf", [0,0,0.5], flags=flags)
-for k in range (10):
-	for i in range (10):
+for k in range (5):
+	for i in range (5):
 		r2d2=p.loadURDF("r2d2.urdf",[k*2,i*2,1], useMaximalCoordinates=useMaximalCoordinates, flags=p.URDF_ENABLE_CACHED_GRAPHICS_SHAPES+flags)
 		for j in range (p.getNumJoints(r2d2)):
 			p.setJointMotorControl2(r2d2,j,p.VELOCITY_CONTROL,targetVelocity=0)

@@ -33,7 +33,7 @@ class btRigidBody* MyMultiBodyCreator::allocateRigidBody(int urdfLinkIndex, btSc
     btRigidBody::btRigidBodyConstructionInfo rbci(mass, 0, colShape, localInertiaDiagonal);
     rbci.m_startWorldTransform = initialWorldTrans;
     m_rigidBody = new btRigidBody(rbci);
-	m_rigidBody->forceActivationState(DISABLE_DEACTIVATION);
+	
 	
     return m_rigidBody;
 }

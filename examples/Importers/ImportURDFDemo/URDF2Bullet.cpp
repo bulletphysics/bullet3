@@ -337,6 +337,12 @@ void ConvertURDF2BulletInternal(
         if (!createMultiBody)
         {
             btRigidBody* body = creation.allocateRigidBody(urdfLinkIndex, mass, localInertiaDiagonal, inertialFrameInWorldSpace, compoundShape);
+			bool canSleep = (flags & CUF_ENABLE_SLEEPING)!=0;
+			if (!canSleep)
+			{
+				body->forceActivationState(DISABLE_DEACTIVATION);
+			}
+
             linkRigidBody = body;
 
             world1->addRigidBody(body);
