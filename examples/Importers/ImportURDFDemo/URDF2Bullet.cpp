@@ -359,7 +359,7 @@ void ConvertURDF2BulletInternal(
             if (cache.m_bulletMultiBody==0)
             {
                 
-                bool canSleep = false;
+                bool canSleep = (flags & CUF_ENABLE_SLEEPING)!=0;
                 bool isFixedBase = (mass==0);//todo: figure out when base is fixed
                 int totalNumJoints = cache.m_totalNumJoints1;
                 cache.m_bulletMultiBody = creation.allocateMultiBody(urdfLinkIndex, totalNumJoints,mass, localInertiaDiagonal, isFixedBase, canSleep);
