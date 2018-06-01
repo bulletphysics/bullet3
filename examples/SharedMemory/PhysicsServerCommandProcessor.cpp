@@ -9479,23 +9479,26 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 			btMultiBodyLinkCollider* multiCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(rayCallback.m_collisionObject);
 			if (multiCol && multiCol->m_multiBody)
 			{
+				//todo: don't activate 'static' colliders/objects
+				if (!(multiCol->m_multiBody->getNumLinks()==0 && multiCol->m_multiBody->getBaseMass()==0))
+				{
+					m_data->m_prevCanSleep = multiCol->m_multiBody->getCanSleep();
+					multiCol->m_multiBody->setCanSleep(false);
 
-				m_data->m_prevCanSleep = multiCol->m_multiBody->getCanSleep();
-				multiCol->m_multiBody->setCanSleep(false);
+					btVector3 pivotInA = multiCol->m_multiBody->worldPosToLocal(multiCol->m_link, pickPos);
 
-				btVector3 pivotInA = multiCol->m_multiBody->worldPosToLocal(multiCol->m_link, pickPos);
+					btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(multiCol->m_multiBody,multiCol->m_link,0,pivotInA,pickPos);
+					//if you add too much energy to the system, causing high angular velocities, simulation 'explodes'
+					//see also http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?f=4&t=949
+					//so we try to avoid it by clamping the maximum impulse (force) that the mouse pick can apply
+					//it is not satisfying, hopefully we find a better solution (higher order integrator, using joint friction using a zero-velocity target motor with limited force etc?)
+					btScalar scaling=1;
+					p2p->setMaxAppliedImpulse(2*scaling);
 
-				btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(multiCol->m_multiBody,multiCol->m_link,0,pivotInA,pickPos);
-				//if you add too much energy to the system, causing high angular velocities, simulation 'explodes'
-				//see also http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?f=4&t=949
-				//so we try to avoid it by clamping the maximum impulse (force) that the mouse pick can apply
-				//it is not satisfying, hopefully we find a better solution (higher order integrator, using joint friction using a zero-velocity target motor with limited force etc?)
-				btScalar scaling=1;
-				p2p->setMaxAppliedImpulse(2*scaling);
-
-				btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
-				world->addMultiBodyConstraint(p2p);
-				m_data->m_pickingMultiBodyPoint2Point =p2p;
+					btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
+					world->addMultiBodyConstraint(p2p);
+					m_data->m_pickingMultiBodyPoint2Point =p2p;
+				}
 			}
 		}
 
