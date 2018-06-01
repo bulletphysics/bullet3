@@ -2115,4 +2115,3 @@ bool b3RobotSimulatorClientAPI_NoGUI::getVisualShapeData(int bodyUniqueId, b3Vis
 		return true;
 	}
 }
-
