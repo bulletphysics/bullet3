@@ -1516,7 +1516,7 @@ B3_SHARED_API	int	b3CreateBoxCommandSetStartOrientation(b3SharedMemoryCommandHan
     return 0;
 }
 
-B3_SHARED_API	b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physClient, int bodyIndex)
+B3_SHARED_API	b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId)
 {
     
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
@@ -1526,7 +1526,7 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClien
     b3Assert(command);
     command->m_type = CMD_INIT_POSE;
     command->m_updateFlags =0;
-	command->m_initPoseArgs.m_bodyUniqueId = bodyIndex;
+	command->m_initPoseArgs.m_bodyUniqueId = bodyUniqueId;
 	//a bit slow, initialing the full range to zero...
 	for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
     {
@@ -2037,16 +2037,54 @@ B3_SHARED_API int b3GetBodyInfo(b3PhysicsClientHandle physClient, int bodyUnique
 
 
 
-B3_SHARED_API	int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyId)
+B3_SHARED_API	int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyUniqueId)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
-	return cl->getNumJoints(bodyId);
+	return cl->getNumJoints(bodyUniqueId);
 }
 
-B3_SHARED_API	int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointIndex, struct b3JointInfo* info)
+B3_SHARED_API	int	b3ComputeDofCount(b3PhysicsClientHandle physClient, int bodyUniqueId)
+{
+	int nj = b3GetNumJoints(physClient, bodyUniqueId);
+	int j=0;
+	int dofCountOrg = 0;
+	for (j=0;j<nj;j++)
+	{
+		struct b3JointInfo info;
+		b3GetJointInfo(physClient, bodyUniqueId, j, &info);
+		switch (info.m_jointType)
+		{
+		case eRevoluteType:
+			{
+				dofCountOrg+=1;
+				break;
+			}
+		case ePrismaticType:
+			{
+				dofCountOrg+=1;
+				break;
+			}
+		case eSphericalType:
+			{
+				return -1;
+			}
+		case ePlanarType:
+			{
+				return -2;
+			}
+			default:
+			{
+				//fixed joint has 0-dof and at the moment, we don't deal with planar, spherical etc
+			}
+		}
+	}
+	return dofCountOrg;
+}
+
+B3_SHARED_API	int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, struct b3JointInfo* info)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
-	return cl->getJointInfo(bodyIndex, jointIndex, *info);
+	return cl->getJointInfo(bodyUniqueId, jointIndex, *info);
 }
 
 
@@ -2389,7 +2427,7 @@ B3_SHARED_API	int b3ChangeDynamicsInfoSetContactProcessingThreshold(b3SharedMemo
 
 
 
-B3_SHARED_API	b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info)
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyUniqueId, int parentJointIndex, int childBodyUniqueId, int childJointIndex, struct b3JointInfo* info)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
@@ -2400,9 +2438,9 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3Ph
     command->m_type = CMD_USER_CONSTRAINT;
 	command->m_updateFlags = USER_CONSTRAINT_ADD_CONSTRAINT;
 
-    command->m_userConstraintArguments.m_parentBodyIndex = parentBodyIndex;
+    command->m_userConstraintArguments.m_parentBodyIndex = parentBodyUniqueId;
     command->m_userConstraintArguments.m_parentJointIndex = parentJointIndex;
-    command->m_userConstraintArguments.m_childBodyIndex = childBodyIndex;
+    command->m_userConstraintArguments.m_childBodyIndex = childBodyUniqueId;
     command->m_userConstraintArguments.m_childJointIndex = childJointIndex;
     for (int i = 0; i < 7; ++i) {
         command->m_userConstraintArguments.m_parentFrame[i] = info->m_parentFrame[i];
@@ -3742,7 +3780,7 @@ B3_SHARED_API void b3ApplyExternalTorque(b3SharedMemoryCommandHandle commandHand
 
 
 ///compute the forces to achieve an acceleration, given a state q and qdot using inverse dynamics
-B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseDynamicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
+B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseDynamicsCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId,
 	const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
@@ -3753,8 +3791,8 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseDynamicsCommandInit(
 
 	command->m_type = CMD_CALCULATE_INVERSE_DYNAMICS;
 	command->m_updateFlags = 0;
-	command->m_calculateInverseDynamicsArguments.m_bodyUniqueId = bodyIndex;
-	int numJoints = cl->getNumJoints(bodyIndex);
+	command->m_calculateInverseDynamicsArguments.m_bodyUniqueId = bodyUniqueId;
+	int numJoints = cl->getNumJoints(bodyUniqueId);
 	for (int i = 0; i < numJoints;i++)
 	{
 		command->m_calculateInverseDynamicsArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
@@ -3799,7 +3837,7 @@ B3_SHARED_API int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHand
 	return true;
 }
 
-B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateJacobianCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, const double* localPosition, const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations)
+B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateJacobianCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations)
 {
     PhysicsClient* cl = (PhysicsClient*)physClient;
     b3Assert(cl);
@@ -3809,12 +3847,12 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateJacobianCommandInit(b3Physi
     
     command->m_type = CMD_CALCULATE_JACOBIAN;
     command->m_updateFlags = 0;
-    command->m_calculateJacobianArguments.m_bodyUniqueId = bodyIndex;
+    command->m_calculateJacobianArguments.m_bodyUniqueId = bodyUniqueId;
     command->m_calculateJacobianArguments.m_linkIndex = linkIndex;
     command->m_calculateJacobianArguments.m_localPosition[0] = localPosition[0];
     command->m_calculateJacobianArguments.m_localPosition[1] = localPosition[1];
     command->m_calculateJacobianArguments.m_localPosition[2] = localPosition[2];
-    int numJoints = cl->getNumJoints(bodyIndex);
+    int numJoints = cl->getNumJoints(bodyUniqueId);
     for (int i = 0; i < numJoints;i++)
     {
         command->m_calculateJacobianArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
@@ -3859,7 +3897,7 @@ B3_SHARED_API int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, i
     return true;
 }
 
-B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateMassMatrixCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, const double* jointPositionsQ)
+B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateMassMatrixCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, const double* jointPositionsQ)
 {
     PhysicsClient* cl = (PhysicsClient*)physClient;
     b3Assert(cl);
@@ -3869,7 +3907,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateMassMatrixCommandInit(b3Phy
     
     command->m_type = CMD_CALCULATE_MASS_MATRIX;
     command->m_updateFlags = 0;
-    int numJoints = cl->getNumJoints(bodyIndex);
+    int numJoints = cl->getNumJoints(bodyUniqueId);
     for (int i = 0; i < numJoints; i++)
     {
         command->m_calculateMassMatrixArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
@@ -3905,7 +3943,7 @@ B3_SHARED_API int b3GetStatusMassMatrix(b3PhysicsClientHandle physClient, b3Shar
 }
 
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
-B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex)
+B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
@@ -3915,7 +3953,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseKinematicsCommandIni
 
 	command->m_type = CMD_CALCULATE_INVERSE_KINEMATICS;
 	command->m_updateFlags = 0;
-	command->m_calculateInverseKinematicsArguments.m_bodyUniqueId = bodyIndex;
+	command->m_calculateInverseKinematicsArguments.m_bodyUniqueId = bodyUniqueId;
 
 	return (b3SharedMemoryCommandHandle)command;
 
@@ -4006,6 +4044,36 @@ B3_SHARED_API void b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(b3SharedMe
         command->m_calculateInverseKinematicsArguments.m_restPose[i] = restPose[i];
     }
 
+}
+
+B3_SHARED_API	void b3CalculateInverseKinematicsSetCurrentPositions(b3SharedMemoryCommandHandle commandHandle, int numDof, const double* currentJointPositions)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
+    command->m_updateFlags |= IK_HAS_CURRENT_JOINT_POSITIONS;
+	for (int i = 0; i < numDof; ++i)
+    {
+		command->m_calculateInverseKinematicsArguments.m_currentPositions[i] = currentJointPositions[i];
+    }
+}
+
+B3_SHARED_API	void b3CalculateInverseKinematicsSetMaxNumIterations(b3SharedMemoryCommandHandle commandHandle, int maxNumIterations)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
+    command->m_updateFlags |= IK_HAS_MAX_ITERATIONS;
+	command->m_calculateInverseKinematicsArguments.m_maxNumIterations = maxNumIterations;
+}
+
+B3_SHARED_API	void b3CalculateInverseKinematicsSetResidualThreshold(b3SharedMemoryCommandHandle commandHandle, double residualThreshold)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
+    command->m_updateFlags |= IK_HAS_RESIDUAL_THRESHOLD;
+	command->m_calculateInverseKinematicsArguments.m_residualThreshold = residualThreshold;
 }
 
 B3_SHARED_API void b3CalculateInverseKinematicsSetJointDamping(b3SharedMemoryCommandHandle commandHandle, int numDof, const double* jointDampingCoeff)

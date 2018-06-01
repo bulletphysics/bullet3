@@ -24,8 +24,8 @@ ground = p.loadURDF("plane.urdf",[0,0,0], flags=p.URDF_ENABLE_CACHED_GRAPHICS_SH
 p.setPhysicsEngineParameter(solverResidualThreshold=1e-2)
 
 index = 0
-numX = 3 
-numY = 3
+numX = 10 
+numY = 10
 
 for i in range (numX):
 	for j in range (numY):

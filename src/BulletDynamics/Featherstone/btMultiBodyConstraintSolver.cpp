@@ -26,6 +26,7 @@ subject to the following restrictions:
 
 btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btCollisionObject** bodies ,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
+	printf("btSequentialImpulseConstraintSolver::solveSingleIteration\n");
 	btScalar leastSquaredResidual  = btSequentialImpulseConstraintSolver::solveSingleIteration(iteration, bodies ,numBodies,manifoldPtr, numManifolds,constraints,numConstraints,infoGlobal,debugDrawer);
 	
 	//solve featherstone non-contact constraints
@@ -38,6 +39,7 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 
 		btMultiBodySolverConstraint& constraint = m_multiBodyNonContactConstraints[index];
 		
+		printf("m_multiBodyNonContactConstraints resolveSingleConstraintRowGeneric\n");
 		btScalar residual = resolveSingleConstraintRowGeneric(constraint);
 		leastSquaredResidual += residual*residual;
 
@@ -46,7 +48,8 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 		if(constraint.m_multiBodyB) 
 			constraint.m_multiBodyB->setPosUpdated(false);
 	}
-
+	printf("featherstone normal contact\n");
+	printf("numContact=%d\n", m_multiBodyNormalContactConstraints.size());
 	//solve featherstone normal contact
 	for (int j0=0;j0<m_multiBodyNormalContactConstraints.size();j0++)
 	{
@@ -57,6 +60,7 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 
 		if (iteration < infoGlobal.m_numIterations)
 		{
+			printf("featherstone normal contact resolveSingleConstraintRowGeneric\n");
 			residual = resolveSingleConstraintRowGeneric(constraint);
 		}
 
@@ -68,6 +72,7 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 			constraint.m_multiBodyB->setPosUpdated(false);
 	}
 
+	printf("featherstone frictional contact\n");
 	//solve featherstone frictional contact
 	if (infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS && ((infoGlobal.m_solverMode&SOLVER_DISABLE_IMPLICIT_CONE_FRICTION) == 0))
 	{
@@ -158,6 +163,7 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 			}
 		}
 	}
+	printf("end featjerstp\n");
 	return leastSquaredResidual;
 }
 
@@ -203,6 +209,19 @@ btScalar btMultiBodyConstraintSolver::resolveSingleConstraintRowGeneric(const bt
 	int ndofA = 0;
 	int ndofB = 0;
 
+	printf("c.m_solverBodyIdA=%d\n", c.m_solverBodyIdA);
+	printf("c.m_solverBodyIdB=%d\n", c.m_solverBodyIdB);
+
+	printf("c.m_multiBodyA=%p\n", c.m_multiBodyA);
+	printf("c.m_multiBodyB=%p\n", c.m_multiBodyB);
+	printf("c.m_jacAindex=%d\n",c.m_jacAindex);
+	printf("c.m_jacBindex=%d\n",c.m_jacBindex);
+	printf("c.m_deltaVelAindex=%d\n",c.m_deltaVelAindex);
+	printf("c.m_deltaVelBindex=%d\n",c.m_deltaVelBindex);
+	if (c.m_deltaVelAindex>500)
+	{
+		printf("???\n");
+	}
 	if (c.m_multiBodyA)
 	{
 		ndofA = c.m_multiBodyA->getNumDofs() + 6;
@@ -539,7 +558,13 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		}
 		const int ndofA  = multiBodyA->getNumDofs() + 6;
 
+
 		solverConstraint.m_deltaVelAindex = multiBodyA->getCompanionId();
+		if (solverConstraint.m_deltaVelAindex>10000)
+		{
+			printf("????????????????????????????????????????\n");
+			printf("solverConstraint.m_deltaVelAindex==%d\n", solverConstraint.m_deltaVelAindex);
+		}
 
 		if (solverConstraint.m_deltaVelAindex <0)
 		{
@@ -1657,7 +1682,9 @@ void  btMultiBodyConstraintSolver::solveMultiBodyGroup(btCollisionObject** bodie
 	//printf("solveMultiBodyGroup start\n");
 	m_tmpMultiBodyConstraints = multiBodyConstraints;
 	m_tmpNumMultiBodyConstraints = numMultiBodyConstraints;
-	
+
+	printf("m_tmpNumMultiBodyConstraints =%d\n",m_tmpNumMultiBodyConstraints );
+	printf("solveGroup\n");
 	btSequentialImpulseConstraintSolver::solveGroup(bodies,numBodies,manifold,numManifolds,constraints,numConstraints,info,debugDrawer,dispatcher);
 
 	m_tmpMultiBodyConstraints = 0;

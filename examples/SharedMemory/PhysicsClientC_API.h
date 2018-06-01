@@ -104,10 +104,14 @@ B3_SHARED_API	int b3GetBodyUniqueId(b3PhysicsClientHandle physClient, int serial
 B3_SHARED_API	int b3GetBodyInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, struct b3BodyInfo* info);
 
 ///give a unique body index (after loading the body) return the number of joints.
-B3_SHARED_API	int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyId);
+B3_SHARED_API	int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyUniqueId);
+
+///compute the number of degrees of freedom for this body.
+///Return -1 for unsupported spherical joint, -2 for unsupported planar joint.
+B3_SHARED_API	int	b3ComputeDofCount(b3PhysicsClientHandle physClient, int bodyUniqueId);
 
 ///given a body and joint index, return the joint information. See b3JointInfo in SharedMemoryPublic.h
-B3_SHARED_API	int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointIndex, struct b3JointInfo* info);
+B3_SHARED_API	int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, struct b3JointInfo* info);
 
 B3_SHARED_API	b3SharedMemoryCommandHandle b3GetDynamicsInfoCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex);
 ///given a body unique id and link index, return the dynamics information. See b3DynamicsInfo in SharedMemoryPublic.h
@@ -128,7 +132,7 @@ B3_SHARED_API	int b3ChangeDynamicsInfoSetFrictionAnchor(b3SharedMemoryCommandHan
 B3_SHARED_API	int b3ChangeDynamicsInfoSetCcdSweptSphereRadius(b3SharedMemoryCommandHandle commandHandle,int bodyUniqueId,int linkIndex, double ccdSweptSphereRadius);
 B3_SHARED_API	int b3ChangeDynamicsInfoSetContactProcessingThreshold(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double contactProcessingThreshold);
 
-B3_SHARED_API	b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info);
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyUniqueId, int parentJointIndex, int childBodyUniqueId, int childJointIndex, struct b3JointInfo* info);
 
 ///return a unique id for the user constraint, after successful creation, or -1 for an invalid constraint id
 B3_SHARED_API	int b3GetStatusUserConstraintUniqueId(b3SharedMemoryStatusHandle statusHandle);
@@ -350,26 +354,26 @@ B3_SHARED_API	void b3LoadMJCFCommandSetFlags(b3SharedMemoryCommandHandle command
 
 
 ///compute the forces to achieve an acceleration, given a state q and qdot using inverse dynamics
-B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateInverseDynamicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateInverseDynamicsCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId,
 	const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations);
 B3_SHARED_API	int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHandle statusHandle,
 	int* bodyUniqueId,
 	int* dofCount,
 	double* jointForces);
 
-B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateJacobianCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, const double* localPosition, const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations);
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateJacobianCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations);
 B3_SHARED_API	int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle,
 	int* dofCount,
 	double* linearJacobian,
 	double* angularJacobian);
 
-B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateMassMatrixCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, const double* jointPositionsQ);
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateMassMatrixCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, const double* jointPositionsQ);
 ///the mass matrix is stored in column-major layout of size dofCount*dofCount
 B3_SHARED_API	int b3GetStatusMassMatrix(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle,	int* dofCount,	double* massMatrix);
 
 
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
-B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex);
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId);
 B3_SHARED_API	void b3CalculateInverseKinematicsAddTargetPurePosition(b3SharedMemoryCommandHandle commandHandle, int endEffectorLinkIndex, const double targetPosition[/*3*/]);
 B3_SHARED_API	void b3CalculateInverseKinematicsAddTargetPositionWithOrientation(b3SharedMemoryCommandHandle commandHandle, int endEffectorLinkIndex, const double targetPosition[/*3*/], const double targetOrientation[/*4*/]);
 B3_SHARED_API	void b3CalculateInverseKinematicsPosWithNullSpaceVel(b3SharedMemoryCommandHandle commandHandle, int numDof, int endEffectorLinkIndex, const double targetPosition[/*3*/], const double* lowerLimit, const double* upperLimit, const double* jointRange, const double* restPose);
@@ -380,6 +384,11 @@ B3_SHARED_API	int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatu
 	int* bodyUniqueId,
 	int* dofCount,
 	double* jointPositions);
+
+B3_SHARED_API	void b3CalculateInverseKinematicsSetCurrentPositions(b3SharedMemoryCommandHandle commandHandle, int numDof, const double* currentJointPositions);
+B3_SHARED_API	void b3CalculateInverseKinematicsSetMaxNumIterations(b3SharedMemoryCommandHandle commandHandle, int maxNumIterations);
+B3_SHARED_API	void b3CalculateInverseKinematicsSetResidualThreshold(b3SharedMemoryCommandHandle commandHandle, double residualThreshold);
+
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);
 B3_SHARED_API	int	b3LoadSdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody);
@@ -476,7 +485,7 @@ B3_SHARED_API	int	b3CreateBoxCommandSetColorRGBA(b3SharedMemoryCommandHandle com
 ///b3CreatePoseCommandInit will initialize (teleport) the pose of a body/robot. You can individually set the base position,
 ///base orientation and joint angles. This will set all velocities of base and joints to zero.
 ///This is not a robot control command using actuators/joint motors, but manual repositioning the robot.
-B3_SHARED_API	b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physClient, int bodyIndex);
+B3_SHARED_API	b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId);
 B3_SHARED_API	int	b3CreatePoseCommandSetBasePosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ);
 B3_SHARED_API	int	b3CreatePoseCommandSetBaseOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW);
 B3_SHARED_API	int	b3CreatePoseCommandSetBaseLinearVelocity(b3SharedMemoryCommandHandle commandHandle, double linVel[/*3*/]);

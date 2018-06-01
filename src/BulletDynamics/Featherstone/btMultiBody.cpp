@@ -37,7 +37,7 @@ bool gJointFeedbackInJointFrame = false;
 
 namespace {
     const btScalar SLEEP_EPSILON = btScalar(0.05);  // this is a squared velocity (m^2 s^-2)
-    const btScalar SLEEP_TIMEOUT = btScalar(2);     // in seconds
+    const btScalar SLEEP_TIMEOUT = btScalar(0.3);     // in seconds
 }
 
 namespace {
