@@ -1396,7 +1396,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::removeUserDebugItem(int itemUniqueId) {
 }
 
 
-int b3RobotSimulatorClientAPI_NoGUI::addUserDebugText(char *text, double *posXYZ, struct b3RobotSimulatorAddUserDebugTextArgs & args)
+int b3RobotSimulatorClientAPI_NoGUI::addUserDebugText(char *text, double *textPosition, struct b3RobotSimulatorAddUserDebugTextArgs & args)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1407,7 +1407,7 @@ int b3RobotSimulatorClientAPI_NoGUI::addUserDebugText(char *text, double *posXYZ
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
 
-	commandHandle = b3InitUserDebugDrawAddText3D(sm, text, posXYZ, &args.m_colorRGB[0], args.m_size, args.m_lifeTime);
+	commandHandle = b3InitUserDebugDrawAddText3D(sm, text, textPosition, &args.m_colorRGB[0], args.m_size, args.m_lifeTime);
 
 	if (args.m_parentObjectUniqueId>=0) {
 		b3UserDebugItemSetParentObject(commandHandle, args.m_parentObjectUniqueId, args.m_parentLinkIndex);
@@ -1428,12 +1428,12 @@ int b3RobotSimulatorClientAPI_NoGUI::addUserDebugText(char *text, double *posXYZ
 	return -1;
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::addUserDebugText(char *text, btVector3 &posXYZ, struct b3RobotSimulatorAddUserDebugTextArgs & args)
+int b3RobotSimulatorClientAPI_NoGUI::addUserDebugText(char *text, btVector3 &textPosition, struct b3RobotSimulatorAddUserDebugTextArgs & args)
 {
 	double dposXYZ[3];
-	dposXYZ[0] = posXYZ.x();
-	dposXYZ[1] = posXYZ.y();
-	dposXYZ[2] = posXYZ.z();
+	dposXYZ[0] = textPosition.x();
+	dposXYZ[1] = textPosition.y();
+	dposXYZ[2] = textPosition.z();
 
 	return addUserDebugText(text, &dposXYZ[0], args);
 }
