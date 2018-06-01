@@ -1,6 +1,6 @@
 from robot_bases import XmlBasedRobot, MJCFBasedRobot, URDFBasedRobot
 import numpy as np
-import pybullet
+import pybullet 
 import os
 import pybullet_data
 from robot_bases import BodyPart
