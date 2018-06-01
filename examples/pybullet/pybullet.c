@@ -8123,36 +8123,32 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 		double* jointDamping = 0;
 		double* currentPositions = 0;
 		
-		if (numJoints && (szLowerLimits == numJoints) && (szUpperLimits == numJoints) &&
-			(szJointRanges == numJoints) && (szRestPoses == numJoints))
+		if (dofCount && (szLowerLimits == dofCount) && (szUpperLimits == dofCount) &&
+			(szJointRanges == dofCount) && (szRestPoses == dofCount))
 		{
-			int szInBytes = sizeof(double) * numJoints;
+			int szInBytes = sizeof(double) * dofCount;
 			int i;
 			lowerLimits = (double*)malloc(szInBytes);
 			upperLimits = (double*)malloc(szInBytes);
 			jointRanges = (double*)malloc(szInBytes);
 			restPoses = (double*)malloc(szInBytes);
 
-			for (i = 0; i < numJoints; i++)
+			for (i = 0; i < dofCount; i++)
 			{
-				lowerLimits[i] =
-					pybullet_internalGetFloatFromSequence(lowerLimitsObj, i);
-				upperLimits[i] =
-					pybullet_internalGetFloatFromSequence(upperLimitsObj, i);
-				jointRanges[i] =
-					pybullet_internalGetFloatFromSequence(jointRangesObj, i);
-				restPoses[i] =
-					pybullet_internalGetFloatFromSequence(restPosesObj, i);
+				lowerLimits[i] = pybullet_internalGetFloatFromSequence(lowerLimitsObj, i);
+				upperLimits[i] = pybullet_internalGetFloatFromSequence(upperLimitsObj, i);
+				jointRanges[i] = pybullet_internalGetFloatFromSequence(jointRangesObj, i);
+				restPoses[i] =	pybullet_internalGetFloatFromSequence(restPosesObj, i);
 			}
 			hasNullSpace = 1;
 		}
 
 		if (szCurrentPositions > 0)
 		{
-			if (szCurrentPositions < numJoints)
+			if (szCurrentPositions != dofCount)
 			{
 				PyErr_SetString(SpamError,
-								"calculateInverseKinematics the size of input current positions is smaller than the number of joints.");
+								"calculateInverseKinematics the size of input current positions needs to be equal to the number of degrees of freedom.");
 				return NULL;
 			}
 			else
@@ -8170,17 +8166,10 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 
 		if (szJointDamping > 0)
 		{
-			// We allow the number of joint damping values to be larger than
-			// the number of degrees of freedom (DOFs). On the server side, it does
-			// the check and only sets joint damping for all DOFs.
-			// We can use the number of DOFs here when that is exposed. Since the
-			// number of joints is larger than the number of DOFs (we assume the
-			// joint is either fixed joint or one DOF joint), it is safe to use
-			// number of joints here.
-			if (szJointDamping < numJoints)
+			if (szJointDamping != dofCount)
 			{
 				PyErr_SetString(SpamError,
-								"calculateInverseKinematics the size of input joint damping values is smaller than the number of joints.");
+								"calculateInverseKinematics the size of input joint damping values is unequal to the number of degrees of freedom.");
 				return NULL;
 			}
 			else
@@ -8208,7 +8197,7 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 
 			if (hasCurrentPositions)
 			{
-				b3CalculateInverseKinematicsSetCurrentPositions(command, numJoints, currentPositions);
+				b3CalculateInverseKinematicsSetCurrentPositions(command, dofCount, currentPositions);
 			}
 			if (maxNumIterations>0)
 			{
@@ -8223,11 +8212,11 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 			{
 				if (hasOrn)
 				{
-					b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(command, numJoints, endEffectorLinkIndex, pos, ori, lowerLimits, upperLimits, jointRanges, restPoses);
+					b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(command, dofCount, endEffectorLinkIndex, pos, ori, lowerLimits, upperLimits, jointRanges, restPoses);
 				}
 				else
 				{
-					b3CalculateInverseKinematicsPosWithNullSpaceVel(command, numJoints, endEffectorLinkIndex, pos, lowerLimits, upperLimits, jointRanges, restPoses);
+					b3CalculateInverseKinematicsPosWithNullSpaceVel(command, dofCount, endEffectorLinkIndex, pos, lowerLimits, upperLimits, jointRanges, restPoses);
 				}
 			}
 			else
@@ -8244,7 +8233,7 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 
 			if (hasJointDamping)
 			{
-				b3CalculateInverseKinematicsSetJointDamping(command, numJoints, jointDamping);
+				b3CalculateInverseKinematicsSetJointDamping(command, dofCount, jointDamping);
 			}
 			free(currentPositions);
 			free(jointDamping);
