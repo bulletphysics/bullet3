@@ -8166,14 +8166,16 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 
 		if (szJointDamping > 0)
 		{
-			if (szJointDamping != dofCount)
+			if (szJointDamping < dofCount)
 			{
-				PyErr_SetString(SpamError,
-								"calculateInverseKinematics the size of input joint damping values is unequal to the number of degrees of freedom.");
-				return NULL;
+				printf("calculateInverseKinematics: the size of input joint damping values should be equal to the number of degrees of freedom, not using joint damping.");
 			}
 			else
 			{
+				if (szJointDamping != dofCount)
+				{
+					printf("calculateInverseKinematics: the size of input joint damping values should be equal to the number of degrees of freedom, ignoring the additonal values.");
+				}
 				int szInBytes = sizeof(double) * szJointDamping;
 				int i;
 				jointDamping = (double*)malloc(szInBytes);
