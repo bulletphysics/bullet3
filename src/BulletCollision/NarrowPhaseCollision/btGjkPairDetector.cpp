@@ -32,10 +32,10 @@ subject to the following restrictions:
 //must be above the machine epsilon
 #ifdef  BT_USE_DOUBLE_PRECISION
 	#define REL_ERROR2 btScalar(1.0e-12)
-	btScalar gGjkEpaPenetrationTolerance = BT_LARGE_FLOAT;
+	btScalar gGjkEpaPenetrationTolerance = 1.0e-12;
 #else
 	#define REL_ERROR2 btScalar(1.0e-6)
-	btScalar gGjkEpaPenetrationTolerance = BT_LARGE_FLOAT;
+	btScalar gGjkEpaPenetrationTolerance = 0.001;
 #endif
 
 //temp globals, to improve GJK/EPA/penetration calculations
