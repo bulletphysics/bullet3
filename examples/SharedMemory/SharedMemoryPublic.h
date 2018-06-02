@@ -5,7 +5,8 @@
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201801170
+#define SHARED_MEMORY_MAGIC_NUMBER 201806020
+//#define SHARED_MEMORY_MAGIC_NUMBER 201801170
 //#define SHARED_MEMORY_MAGIC_NUMBER 201801080
 //#define SHARED_MEMORY_MAGIC_NUMBER 201801010
 //#define SHARED_MEMORY_MAGIC_NUMBER 201710180
@@ -83,9 +84,14 @@ enum EnumSharedMemoryClientCommand
 	CMD_SAVE_STATE,
 	CMD_RESTORE_STATE,
 	CMD_REQUEST_COLLISION_SHAPE_INFO,
+
+	CMD_SYNC_USER_DATA,
+	CMD_REQUEST_USER_DATA,
+	CMD_ADD_USER_DATA,
+	CMD_REMOVE_USER_DATA,
+
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
-    
 };
 
 enum EnumSharedMemoryServerStatus
@@ -192,6 +198,15 @@ enum EnumSharedMemoryServerStatus
 		CMD_COLLISION_SHAPE_INFO_FAILED,
 		CMD_LOAD_SOFT_BODY_FAILED,
 		CMD_LOAD_SOFT_BODY_COMPLETED,
+
+		CMD_SYNC_USER_DATA_COMPLETED,
+		CMD_SYNC_USER_DATA_FAILED,
+		CMD_REQUEST_USER_DATA_COMPLETED,
+		CMD_REQUEST_USER_DATA_FAILED,
+		CMD_ADD_USER_DATA_COMPLETED,
+		CMD_ADD_USER_DATA_FAILED,
+		CMD_REMOVE_USER_DATA_COMPLETED,
+		CMD_REMOVE_USER_DATA_FAILED,
 		//don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -253,6 +268,27 @@ struct b3JointInfo
 		int m_parentIndex;
 };
 
+
+enum UserDataValueType {
+	// Data represents generic byte array.
+	USER_DATA_VALUE_TYPE_BYTES = 0,
+	// Data represents C-string
+	USER_DATA_VALUE_TYPE_STRING = 1,
+};
+
+struct b3UserDataValue 
+{
+	int m_type;
+	int m_length;
+	char* m_data1;
+};
+
+struct b3UserDataGlobalIdentifier 
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+	int m_userDataId;
+};
 
 struct b3UserConstraint
 {

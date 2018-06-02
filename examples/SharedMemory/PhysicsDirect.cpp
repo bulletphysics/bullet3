@@ -13,11 +13,27 @@
 #include "BodyJointInfoUtility.h"
 #include <string>
 
+#include "SharedMemoryUserData.h"
+
+struct UserDataCache {
+	btHashMap<btHashInt, SharedMemoryUserData> m_userDataMap;
+	btHashMap<btHashString, int> m_keyToUserDataIdMap;
+
+	~UserDataCache() {
+	}
+};
+
 struct BodyJointInfoCache2
 {
 	std::string m_baseName;
 	btAlignedObjectArray<b3JointInfo> m_jointInfo;
 	std::string m_bodyName;
+
+	// Joint index -> user data.
+	btHashMap<btHashInt, UserDataCache> m_jointToUserDataMap;
+
+	~BodyJointInfoCache2() {
+	}
 };
 
 
@@ -651,6 +667,38 @@ void PhysicsDirect::processBodyJointInfo(int bodyUniqueId, const SharedMemorySta
     }
 }
 
+void PhysicsDirect::processAddUserData(const struct SharedMemoryStatus& serverCmd) {
+	const b3UserDataGlobalIdentifier userDataGlobalId = serverCmd.m_userDataResponseArgs.m_userDataGlobalId;
+	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[userDataGlobalId.m_bodyUniqueId];
+	if (bodyJointsPtr && *bodyJointsPtr) 
+	{
+		UserDataCache* userDataCachePtr = (*bodyJointsPtr)->m_jointToUserDataMap[userDataGlobalId.m_linkIndex];
+		if (!userDataCachePtr) 
+		{
+			UserDataCache cache;
+			(*bodyJointsPtr)->m_jointToUserDataMap.insert(userDataGlobalId.m_linkIndex, cache);
+		}
+		userDataCachePtr = (*bodyJointsPtr)->m_jointToUserDataMap[userDataGlobalId.m_linkIndex];
+
+		const char *dataStream = m_data->m_bulletStreamDataServerToClient;
+
+		b3UserDataValue userDataValue;
+		userDataValue.m_type = serverCmd.m_userDataResponseArgs.m_valueType;
+		userDataValue.m_length = serverCmd.m_userDataResponseArgs.m_valueLength;
+		SharedMemoryUserData *userDataPtr = userDataCachePtr->m_userDataMap[userDataGlobalId.m_userDataId];
+		if (userDataPtr) {
+			// Only replace the value.
+			(userDataPtr)->replaceValue(dataStream,serverCmd.m_userDataResponseArgs.m_valueLength,userDataValue.m_type);
+		}
+		else {
+			// Add a new user data entry.
+			(userDataCachePtr)->m_userDataMap.insert(userDataGlobalId.m_userDataId, SharedMemoryUserData(serverCmd.m_userDataResponseArgs.m_key));
+			userDataPtr = (userDataCachePtr)->m_userDataMap[userDataGlobalId.m_userDataId];
+			userDataPtr->replaceValue(dataStream,serverCmd.m_userDataResponseArgs.m_valueLength,userDataValue.m_type);
+		}
+	}
+}
+
 void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd)
 {
 	switch (serverCmd.m_type)
@@ -1056,6 +1104,73 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 	{
 		break;
 	}
+	case CMD_SYNC_USER_DATA_FAILED:
+	{
+		b3Warning("Synchronizing user data failed.");
+		break;
+	}
+	case CMD_ADD_USER_DATA_FAILED:
+	{
+		b3Warning("Adding user data failed (do the specified body and link exist?)");
+		break;
+	}
+	case CMD_REMOVE_USER_DATA_FAILED:
+	{
+		b3Warning("Removing user data failed");
+		break;
+	}
+	case CMD_ADD_USER_DATA_COMPLETED:
+	{
+		processAddUserData(serverCmd);
+		break;
+	}
+	case CMD_SYNC_USER_DATA_COMPLETED:
+	{
+		B3_PROFILE("CMD_SYNC_USER_DATA_COMPLETED");
+		const int numIdentifiers = serverCmd.m_syncUserDataArgs.m_numUserDataIdentifiers;
+		b3UserDataGlobalIdentifier *identifiers = new b3UserDataGlobalIdentifier[numIdentifiers];
+		memcpy(identifiers, &m_data->m_bulletStreamDataServerToClient[0], numIdentifiers * sizeof(b3UserDataGlobalIdentifier));
+
+		for (int i=0; i<numIdentifiers; i++) {
+			m_data->m_tmpInfoRequestCommand.m_type = CMD_REQUEST_USER_DATA;
+			m_data->m_tmpInfoRequestCommand.m_userDataRequestArgs = identifiers[i];
+
+			bool hasStatus = m_data->m_commandProcessor->processCommand(m_data->m_tmpInfoRequestCommand, m_data->m_tmpInfoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+
+			b3Clock clock;
+			double startTime = clock.getTimeInSeconds();
+			double timeOutInSeconds = m_data->m_timeOutInSeconds;
+
+			while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
+			{
+				hasStatus = m_data->m_commandProcessor->receiveStatus(m_data->m_tmpInfoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+			}
+
+			if (hasStatus)
+			{
+				processAddUserData(m_data->m_tmpInfoStatus);
+			}
+		}
+		delete[] identifiers;
+		break;
+	}
+	case CMD_REMOVE_USER_DATA_COMPLETED:
+	{
+		const b3UserDataGlobalIdentifier userDataGlobalId = serverCmd.m_removeUserDataResponseArgs;
+		BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[userDataGlobalId.m_bodyUniqueId];
+		if (bodyJointsPtr && *bodyJointsPtr) {
+			UserDataCache *userDataCachePtr = (*bodyJointsPtr)->m_jointToUserDataMap[userDataGlobalId.m_linkIndex];
+			if (userDataCachePtr) 
+			{
+				SharedMemoryUserData* userDataPtr = (userDataCachePtr)->m_userDataMap[userDataGlobalId.m_userDataId];
+				if (userDataPtr) {
+					(userDataCachePtr)->m_keyToUserDataIdMap.remove((userDataPtr)->m_key.c_str());
+					(userDataCachePtr)->m_userDataMap.remove(userDataGlobalId.m_userDataId);
+				}
+			}
+		}
+		break;
+	}
 	default:
 	{
 		//b3Warning("Unknown server status type");
@@ -1330,4 +1445,72 @@ void PhysicsDirect::setTimeOut(double timeOutInSeconds)
 double PhysicsDirect::getTimeOut() const
 {
 	return m_data->m_timeOutInSeconds;
+}
+
+bool PhysicsDirect::getCachedUserData(int bodyUniqueId, int linkIndex, int userDataId, struct b3UserDataValue &valueOut) const {
+	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+	if (!bodyJointsPtr || !(*bodyJointsPtr)) {
+		return false;
+	}
+	UserDataCache* userDataCachePtr = (*bodyJointsPtr)->m_jointToUserDataMap[linkIndex];
+	if (!userDataCachePtr) 
+	{
+		return false;
+	}
+	SharedMemoryUserData* userDataPtr = (userDataCachePtr)->m_userDataMap[userDataId];
+	if (!userDataPtr) 
+	{
+		return false;
+	}
+	valueOut.m_type = userDataPtr->m_type;
+	valueOut.m_length = userDataPtr->m_bytes.size();
+	valueOut.m_data1 = userDataPtr->m_bytes.size()? &userDataPtr->m_bytes[0] : 0;
+	return true;
+}
+
+int PhysicsDirect::getCachedUserDataId(int bodyUniqueId, int linkIndex, const char *key) const {
+	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+	if (!bodyJointsPtr || !(*bodyJointsPtr)) {
+		return -1;
+	}
+	UserDataCache* userDataCachePtr = (*bodyJointsPtr)->m_jointToUserDataMap[linkIndex];
+	if (!userDataCachePtr) {
+		return -1;
+	}
+	int *userDataId = (userDataCachePtr)->m_keyToUserDataIdMap[key];
+	if (!userDataId) {
+		return -1;
+	}
+	return *userDataId;
+}
+
+int PhysicsDirect::getNumUserData(int bodyUniqueId, int linkIndex) const {
+	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+	if (!bodyJointsPtr || !(*bodyJointsPtr)) {
+		return 0;
+	}
+	UserDataCache* userDataCachePtr = (*bodyJointsPtr)->m_jointToUserDataMap[linkIndex];
+	if (!userDataCachePtr) {
+		return 0;
+	}
+	return (userDataCachePtr)->m_userDataMap.size();
+}
+
+void PhysicsDirect::getUserDataInfo(int bodyUniqueId, int linkIndex, int userDataIndex, const char **keyOut, int *userDataIdOut) const {
+	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+	if (!bodyJointsPtr || !(*bodyJointsPtr)) {
+		*keyOut = 0;
+		*userDataIdOut = -1;
+		return;
+	}
+	UserDataCache* userDataCachePtr = (*bodyJointsPtr)->m_jointToUserDataMap[linkIndex];
+	if (!userDataCachePtr || userDataIndex >= (userDataCachePtr)->m_userDataMap.size()) 
+	{
+		*keyOut = 0;
+		*userDataIdOut = -1;
+		return;
+	}
+	*userDataIdOut = (userDataCachePtr)->m_userDataMap.getKeyAtIndex(userDataIndex).getUid1();
+	SharedMemoryUserData* userDataPtr = (userDataCachePtr)->m_userDataMap.getAtIndex(userDataIndex);
+	*keyOut = (userDataPtr)->m_key.c_str();
 }

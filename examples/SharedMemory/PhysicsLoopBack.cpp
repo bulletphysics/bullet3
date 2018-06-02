@@ -225,3 +225,19 @@ double PhysicsLoopBack::getTimeOut() const
 	return m_data->m_physicsClient->getTimeOut();
 }
 
+bool PhysicsLoopBack::getCachedUserData(int bodyUniqueId, int linkIndex, int userDataId, struct b3UserDataValue &valueOut) const {
+	return m_data->m_physicsClient->getCachedUserData(bodyUniqueId, linkIndex, userDataId, valueOut);
+}
+
+int PhysicsLoopBack::getCachedUserDataId(int bodyUniqueId, int linkIndex, const char *key) const {
+	return m_data->m_physicsClient->getCachedUserDataId(bodyUniqueId, linkIndex, key);
+}
+
+int PhysicsLoopBack::getNumUserData(int bodyUniqueId, int linkIndex) const {
+	return m_data->m_physicsClient->getNumUserData(bodyUniqueId, linkIndex);
+}
+
+void PhysicsLoopBack::getUserDataInfo(int bodyUniqueId, int linkIndex, int userDataIndex, const char **keyOut, int *userDataIdOut) const {
+	m_data->m_physicsClient->getUserDataInfo(bodyUniqueId, linkIndex, userDataIndex, keyOut, userDataIdOut);
+}
+

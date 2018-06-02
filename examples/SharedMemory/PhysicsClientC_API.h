@@ -113,6 +113,17 @@ B3_SHARED_API	int	b3ComputeDofCount(b3PhysicsClientHandle physClient, int bodyUn
 ///given a body and joint index, return the joint information. See b3JointInfo in SharedMemoryPublic.h
 B3_SHARED_API	int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, struct b3JointInfo* info);
 
+///user data handling
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitSyncUserDataCommand(b3PhysicsClientHandle physClient);
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitAddUserDataCommand(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, const char* key, enum UserDataValueType valueType, int valueLength, const void *valueData);
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitRemoveUserDataCommand(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int userDataId);
+
+B3_SHARED_API int b3GetUserData(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int userDataId, struct b3UserDataValue *valueOut);
+B3_SHARED_API int b3GetUserDataId(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, const char *key);
+B3_SHARED_API int b3GetUserDataIdFromStatus(b3SharedMemoryStatusHandle statusHandle);
+B3_SHARED_API int b3GetNumUserData(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex);
+B3_SHARED_API void b3GetUserDataInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int userDataIndex, const char **keyOut, int *userDataIdOut);
+
 B3_SHARED_API	b3SharedMemoryCommandHandle b3GetDynamicsInfoCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex);
 ///given a body unique id and link index, return the dynamics information. See b3DynamicsInfo in SharedMemoryPublic.h
 B3_SHARED_API	int b3GetDynamicsInfo(b3SharedMemoryStatusHandle statusHandle, struct b3DynamicsInfo* info);

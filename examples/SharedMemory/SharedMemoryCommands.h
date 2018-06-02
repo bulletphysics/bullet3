@@ -36,6 +36,7 @@
 #define MAX_SDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
+#define MAX_USER_DATA_KEY_LENGTH MAX_URDF_FILENAME_LENGTH
 
 struct TmpFloat3 
 {
@@ -977,6 +978,32 @@ struct b3StateSerializationArguments
 	int m_stateId;
 };
 
+struct SyncUserDataArgs
+{
+	// User data identifiers stored in m_bulletStreamDataServerToClientRefactor
+	// as as array of b3UserDataGlobalIdentifier objects
+	int m_numUserDataIdentifiers;
+};
+
+struct UserDataResponseArgs
+{
+	b3UserDataGlobalIdentifier m_userDataGlobalId;
+	int m_valueType;
+	int m_valueLength;
+	char m_key[MAX_USER_DATA_KEY_LENGTH];
+	// Value data stored in m_bulletStreamDataServerToClientRefactor.
+};
+
+struct AddUserDataRequestArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+	int m_valueType;
+	int m_valueLength;
+	char m_key[MAX_USER_DATA_KEY_LENGTH];
+	// Value data stored in m_bulletStreamDataServerToClientRefactor.
+};
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -1033,6 +1060,9 @@ struct SharedMemoryCommand
 		struct b3CustomCommand m_customCommandArgs;
 		struct b3StateSerializationArguments m_loadStateArguments;
 		struct RequestCollisionShapeDataArgs m_requestCollisionShapeDataArguments;		
+		struct b3UserDataGlobalIdentifier m_userDataRequestArgs;
+		struct AddUserDataRequestArgs m_addUserDataRequestArgs;
+		struct b3UserDataGlobalIdentifier m_removeUserDataRequestArgs;
     };
 };
 
@@ -1054,11 +1084,6 @@ struct SendOverlappingObjectsArgs
 	int m_numOverlappingObjectsCopied;
 	int m_numRemainingOverlappingObjects;
 };
-
-
-
-
-
 
 struct SharedMemoryStatus
 {
@@ -1110,6 +1135,9 @@ struct SharedMemoryStatus
 		struct b3StateSerializationArguments m_saveStateResultArgs;
 		struct b3LoadSoftBodyResultArgs m_loadSoftBodyResultArguments;
 		struct SendCollisionShapeDataArgs m_sendCollisionShapeArgs;
+		struct SyncUserDataArgs m_syncUserDataArgs;
+		struct UserDataResponseArgs m_userDataResponseArgs;
+		struct b3UserDataGlobalIdentifier m_removeUserDataResponseArgs;
 	};
 };
 
