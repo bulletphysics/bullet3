@@ -485,7 +485,7 @@ void addJointTorque(int i, btScalar Q);
 	}
 	void setCompanionId(int id)
 	{
-		printf("for %p setCompanionId(%d)\n",this, id);
+		//printf("for %p setCompanionId(%d)\n",this, id);
 		m_companionId = id;
 	}
 
