@@ -1414,6 +1414,20 @@ B3_SHARED_API void b3CreateMultiBodyUseMaximalCoordinates(b3SharedMemoryCommandH
 	}
 }
 
+
+B3_SHARED_API	void b3CreateMultiBodySetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_MULTI_BODY);
+	if (command->m_type==CMD_CREATE_MULTI_BODY)
+	{
+		command->m_updateFlags |= MULT_BODY_HAS_FLAGS;
+		command->m_createMultiBodyArgs.m_flags = flags;
+	}
+	
+}
+
 B3_SHARED_API int b3GetStatusMultiBodyUniqueId(b3SharedMemoryStatusHandle statusHandle)
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;

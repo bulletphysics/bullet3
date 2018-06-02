@@ -926,6 +926,7 @@ enum eCreateMultiBodyEnum
 {
 	MULTI_BODY_HAS_BASE=1,
 	MULT_BODY_USE_MAXIMAL_COORDINATES=2,
+	MULT_BODY_HAS_FLAGS=4,
 };
 struct b3CreateMultiBodyArgs
 {
@@ -947,7 +948,7 @@ struct b3CreateMultiBodyArgs
 	int m_linkParentIndices[MAX_CREATE_MULTI_BODY_LINKS];
 	int m_linkJointTypes[MAX_CREATE_MULTI_BODY_LINKS];
 	double m_linkJointAxis[3*MAX_CREATE_MULTI_BODY_LINKS];
-
+	int m_flags;
 	#if 0
 	std::string m_name;
 	std::string m_sourceFile;

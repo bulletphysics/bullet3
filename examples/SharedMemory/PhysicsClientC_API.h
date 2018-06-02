@@ -466,6 +466,8 @@ B3_SHARED_API	int b3CreateMultiBodyLink(b3SharedMemoryCommandHandle commandHandl
 
 //useMaximalCoordinates are disabled by default, enabling them is experimental and not fully supported yet
 B3_SHARED_API	void b3CreateMultiBodyUseMaximalCoordinates(b3SharedMemoryCommandHandle commandHandle);
+B3_SHARED_API	void b3CreateMultiBodySetFlags(b3SharedMemoryCommandHandle commandHandle, int flags);
+
 
 //int b3CreateMultiBodyAddLink(b3SharedMemoryCommandHandle commandHandle, int jointType, int parentLinkIndex, double linkMass, int linkCollisionShapeUnique, int linkVisualShapeUniqueId);
 

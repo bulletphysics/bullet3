@@ -6485,6 +6485,7 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 	int baseCollisionShapeIndex=-1;
 	int baseVisualShapeIndex=-1;
 	int useMaximalCoordinates = 0;
+	int flags = -1;
 	PyObject* basePosObj=0;
 	PyObject* baseOrnObj=0;
 	PyObject* baseInertialFramePositionObj=0;
@@ -6500,21 +6501,22 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 	PyObject* linkJointAxisObj=0;
 	PyObject* linkInertialFramePositionObj=0;
 	PyObject* linkInertialFrameOrientationObj=0;
+		
+	static char* kwlist[] = {
+		"baseMass","baseCollisionShapeIndex","baseVisualShapeIndex","basePosition", "baseOrientation", 
+		"baseInertialFramePosition", "baseInertialFrameOrientation",	"linkMasses","linkCollisionShapeIndices", 
+		"linkVisualShapeIndices","linkPositions", "linkOrientations","linkInertialFramePositions","linkInertialFrameOrientations", 		"linkParentIndices", 
+		"linkJointTypes","linkJointAxis", "useMaximalCoordinates", "flags", "physicsClientId", NULL};
 
-	static char* kwlist[] = {"baseMass","baseCollisionShapeIndex","baseVisualShapeIndex","basePosition", "baseOrientation", "baseInertialFramePosition", "baseInertialFrameOrientation",
-		"linkMasses","linkCollisionShapeIndices", "linkVisualShapeIndices",
-		"linkPositions", "linkOrientations","linkInertialFramePositions","linkInertialFrameOrientations", "linkParentIndices", "linkJointTypes","linkJointAxis", 
-		"useMaximalCoordinates","physicsClientId", NULL};
-
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOOOOOOOOOOOOOii", kwlist, &baseMass,&baseCollisionShapeIndex,&baseVisualShapeIndex,
-				&basePosObj, &baseOrnObj,&baseInertialFramePositionObj, &baseInertialFrameOrientationObj,
-		&linkMassesObj, &linkCollisionShapeIndicesObj, &linkVisualShapeIndicesObj, &linkPositionsObj, &linkOrientationsObj,
-		&linkInertialFramePositionObj, &linkInertialFrameOrientationObj,
-		&linkParentIndicesObj, &linkJointTypesObj,&linkJointAxisObj,
-		&useMaximalCoordinates, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOOOOOOOOOOOOOiii", kwlist, 
+		&baseMass,&baseCollisionShapeIndex,&baseVisualShapeIndex,&basePosObj, &baseOrnObj,
+		&baseInertialFramePositionObj, &baseInertialFrameOrientationObj,&linkMassesObj, &linkCollisionShapeIndicesObj, 
+		&linkVisualShapeIndicesObj, &linkPositionsObj, &linkOrientationsObj,&linkInertialFramePositionObj, &linkInertialFrameOrientationObj,&linkParentIndicesObj, 
+		&linkJointTypesObj,&linkJointAxisObj, &useMaximalCoordinates, &flags, &physicsClientId))
 	{
 		return NULL;
 	}
+
 	sm = getPhysicsClient(physicsClientId);
 	if (sm == 0)
 	{
@@ -6633,6 +6635,10 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 			if (useMaximalCoordinates>0)
 			{
 				b3CreateMultiBodyUseMaximalCoordinates(commandHandle);
+			}
+			if (flags >0)
+			{
+				b3CreateMultiBodySetFlags(commandHandle, flags);
 			}
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 			statusType = b3GetStatusType(statusHandle);
@@ -8172,12 +8178,12 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 			}
 			else
 			{
+				int szInBytes = sizeof(double) * szJointDamping;
+				int i;
 				if (szJointDamping != dofCount)
 				{
 					printf("calculateInverseKinematics: the size of input joint damping values should be equal to the number of degrees of freedom, ignoring the additonal values.");
 				}
-				int szInBytes = sizeof(double) * szJointDamping;
-				int i;
 				jointDamping = (double*)malloc(szInBytes);
 				for (i = 0; i < szJointDamping; i++)
 				{

@@ -5804,6 +5804,12 @@ bool PhysicsServerCommandProcessor::processCreateMultiBodyCommand(const struct S
 		}						
 					
 		int flags = 0;
+
+		if (clientCmd.m_updateFlags & MULT_BODY_HAS_FLAGS)
+		{
+			flags = clientCmd.m_createMultiBodyArgs.m_flags;
+		}
+
 		bool ok = processImportedObjects("memory", bufferServerToClient, bufferSizeInBytes, useMultiBody,  flags, u2b);
 
 		if (ok)
