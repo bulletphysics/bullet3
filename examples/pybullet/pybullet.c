@@ -487,6 +487,21 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 								sNumPhysicsClients++;
 					return  PyInt_FromLong(-1);
 				}
+
+				command = b3InitSyncUserDataCommand(sm);
+				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+				statusType = b3GetStatusType(statusHandle);
+
+				if (statusType != CMD_SYNC_USER_DATA_COMPLETED)
+				{
+					printf("Connection terminated, couldn't get user data\n");
+					b3DisconnectSharedMemory(sm);
+							sm = 0;
+					sPhysicsClients1[freeIndex] = 0;
+								sPhysicsClientsGUI[freeIndex] = 0;
+								sNumPhysicsClients++;
+					return  PyInt_FromLong(-1);
+				}
 			}
 		} else
 		{
@@ -635,6 +650,249 @@ static PyObject* pybullet_syncBodyInfo(PyObject* self, PyObject* args, PyObject*
     return Py_None;
 }
 
+static PyObject* pybullet_syncUserData(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3PhysicsClientHandle sm = 0;
+	int physicsClientId = 0;
+	static char* kwlist[] = {"physicsClientId", NULL};
+	b3SharedMemoryCommandHandle command;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3InitSyncUserDataCommand(sm);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+
+	if (statusType != CMD_SYNC_USER_DATA_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Error in syncUserInfo command.");
+		return NULL;
+	}
+
+	Py_RETURN_NONE;
+}
+
+static PyObject* pybullet_addUserData(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3PhysicsClientHandle sm = 0;
+	int physicsClientId = 0;
+	int bodyUniqueId = -1;
+	int linkIndex = -2;
+	const char* key = "";
+	const char* value = ""; // TODO: Change this to a PyObject and detect the type dynamically.
+
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "key", "value", "physicsClientId", NULL};
+	b3SharedMemoryCommandHandle command;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	int userDataId;
+	int valueLen=-1;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiss|i", kwlist, &bodyUniqueId, &linkIndex, &key, &value, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	valueLen = strlen(value)+1;
+	command = b3InitAddUserDataCommand(sm, bodyUniqueId, linkIndex, key, USER_DATA_VALUE_TYPE_STRING, valueLen, value);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+
+	if (statusType != CMD_ADD_USER_DATA_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Error in addUserData command.");
+		return NULL;
+	}
+
+	userDataId = b3GetUserDataIdFromStatus(statusHandle);
+	return PyInt_FromLong(userDataId);
+}
+
+static PyObject* pybullet_removeUserData(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3PhysicsClientHandle sm = 0;
+	int physicsClientId = 0;
+	int bodyUniqueId = -1;
+	int linkIndex = -1;
+	int userDataId = -1;
+
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "userDataId",  "physicsClientId", NULL};
+	b3SharedMemoryCommandHandle command;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|i", kwlist, &bodyUniqueId, &linkIndex, &userDataId, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3InitRemoveUserDataCommand(sm, bodyUniqueId, linkIndex, userDataId);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+
+	if (statusType != CMD_REMOVE_USER_DATA_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Error in removeUserData command.");
+		Py_RETURN_FALSE;
+	}
+	Py_RETURN_TRUE;
+}
+
+
+static PyObject* pybullet_getUserDataId(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3PhysicsClientHandle sm = 0;
+	int physicsClientId = 0;
+	int bodyUniqueId = -1;
+	int linkIndex = -1;
+	const char* key = "";
+	int userDataId;
+
+	
+
+
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "key",  "physicsClientId", NULL};
+	
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iis|i", kwlist, &bodyUniqueId, &linkIndex, &key, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	userDataId = b3GetUserDataId(sm, bodyUniqueId, linkIndex, key);
+	return PyInt_FromLong(userDataId);
+}
+
+static PyObject* pybullet_getUserData(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3PhysicsClientHandle sm = 0;
+	int physicsClientId = 0;
+	int bodyUniqueId = -1;
+	int linkIndex = -1;
+	int userDataId = -1;
+
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "userDataId",  "physicsClientId", NULL};
+
+
+
+	struct b3UserDataValue value;
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|i", kwlist, &bodyUniqueId, &linkIndex, &userDataId, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+
+	if (!b3GetUserData(sm, bodyUniqueId, linkIndex, userDataId, &value)) {
+		Py_RETURN_NONE;
+	}
+	switch (value.m_type) {
+		case USER_DATA_VALUE_TYPE_STRING:
+			return PyString_FromString((const char *)value.m_data1);
+		default:
+			PyErr_SetString(SpamError, "User data value has unknown type");
+			return NULL;
+	}
+}
+
+static PyObject* pybullet_getNumUserData(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3PhysicsClientHandle sm = 0;
+	int physicsClientId = 0;
+	int bodyUniqueId = -1;
+	int linkIndex = -1;
+
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex",  "physicsClientId", NULL};
+
+
+
+	int numUserData;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist, &bodyUniqueId, &linkIndex, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	numUserData = b3GetNumUserData(sm, bodyUniqueId, linkIndex);
+	return PyInt_FromLong(numUserData);
+}
+
+static PyObject* pybullet_getUserDataInfo(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3PhysicsClientHandle sm = 0;
+	int physicsClientId = 0;
+	int bodyUniqueId = -1;
+	int linkIndex = -1;
+	int userDataIndex = -1;
+
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "userDataIndex", "physicsClientId", NULL};
+
+
+	const char* key = 0;
+	int userDataId = -1;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|i", kwlist, &bodyUniqueId, &linkIndex, &userDataIndex, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	b3GetUserDataInfo(sm, bodyUniqueId, linkIndex, userDataIndex, &key, &userDataId);
+	if (key == 0 || userDataId == -1) {
+		PyErr_SetString(SpamError, "Could not get user data info.");
+		Py_RETURN_NONE;
+	}
+	{
+		PyObject *userDataInfoTuple = PyTuple_New(2);
+		PyTuple_SetItem(userDataInfoTuple, 0, PyInt_FromLong(userDataId));
+		PyTuple_SetItem(userDataInfoTuple, 1, PyString_FromString(key));
+		return userDataInfoTuple;
+	}
+}
 
 static PyObject* pybullet_saveWorld(PyObject* self, PyObject* args, PyObject* keywds)
 {
@@ -6485,6 +6743,7 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 	int baseCollisionShapeIndex=-1;
 	int baseVisualShapeIndex=-1;
 	int useMaximalCoordinates = 0;
+	int flags = -1;
 	PyObject* basePosObj=0;
 	PyObject* baseOrnObj=0;
 	PyObject* baseInertialFramePositionObj=0;
@@ -6500,21 +6759,22 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 	PyObject* linkJointAxisObj=0;
 	PyObject* linkInertialFramePositionObj=0;
 	PyObject* linkInertialFrameOrientationObj=0;
+		
+	static char* kwlist[] = {
+		"baseMass","baseCollisionShapeIndex","baseVisualShapeIndex","basePosition", "baseOrientation", 
+		"baseInertialFramePosition", "baseInertialFrameOrientation",	"linkMasses","linkCollisionShapeIndices", 
+		"linkVisualShapeIndices","linkPositions", "linkOrientations","linkInertialFramePositions","linkInertialFrameOrientations", 		"linkParentIndices", 
+		"linkJointTypes","linkJointAxis", "useMaximalCoordinates", "flags", "physicsClientId", NULL};
 
-	static char* kwlist[] = {"baseMass","baseCollisionShapeIndex","baseVisualShapeIndex","basePosition", "baseOrientation", "baseInertialFramePosition", "baseInertialFrameOrientation",
-		"linkMasses","linkCollisionShapeIndices", "linkVisualShapeIndices",
-		"linkPositions", "linkOrientations","linkInertialFramePositions","linkInertialFrameOrientations", "linkParentIndices", "linkJointTypes","linkJointAxis", 
-		"useMaximalCoordinates","physicsClientId", NULL};
-
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOOOOOOOOOOOOOii", kwlist, &baseMass,&baseCollisionShapeIndex,&baseVisualShapeIndex,
-				&basePosObj, &baseOrnObj,&baseInertialFramePositionObj, &baseInertialFrameOrientationObj,
-		&linkMassesObj, &linkCollisionShapeIndicesObj, &linkVisualShapeIndicesObj, &linkPositionsObj, &linkOrientationsObj,
-		&linkInertialFramePositionObj, &linkInertialFrameOrientationObj,
-		&linkParentIndicesObj, &linkJointTypesObj,&linkJointAxisObj,
-		&useMaximalCoordinates, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOOOOOOOOOOOOOiii", kwlist, 
+		&baseMass,&baseCollisionShapeIndex,&baseVisualShapeIndex,&basePosObj, &baseOrnObj,
+		&baseInertialFramePositionObj, &baseInertialFrameOrientationObj,&linkMassesObj, &linkCollisionShapeIndicesObj, 
+		&linkVisualShapeIndicesObj, &linkPositionsObj, &linkOrientationsObj,&linkInertialFramePositionObj, &linkInertialFrameOrientationObj,&linkParentIndicesObj, 
+		&linkJointTypesObj,&linkJointAxisObj, &useMaximalCoordinates, &flags, &physicsClientId))
 	{
 		return NULL;
 	}
+
 	sm = getPhysicsClient(physicsClientId);
 	if (sm == 0)
 	{
@@ -6633,6 +6893,10 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 			if (useMaximalCoordinates>0)
 			{
 				b3CreateMultiBodyUseMaximalCoordinates(commandHandle);
+			}
+			if (flags >0)
+			{
+				b3CreateMultiBodySetFlags(commandHandle, flags);
 			}
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 			statusType = b3GetStatusType(statusHandle);
@@ -8172,12 +8436,12 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 			}
 			else
 			{
+				int szInBytes = sizeof(double) * szJointDamping;
+				int i;
 				if (szJointDamping != dofCount)
 				{
 					printf("calculateInverseKinematics: the size of input joint damping values should be equal to the number of degrees of freedom, ignoring the additonal values.");
 				}
-				int szInBytes = sizeof(double) * szJointDamping;
-				int i;
 				jointDamping = (double*)malloc(szInBytes);
 				for (i = 0; i < szJointDamping; i++)
 				{
@@ -8821,6 +9085,34 @@ static PyMethodDef SpamMethods[] = {
         "syncBodyInfo(physicsClientId=0)\n"
         "Update body and constraint/joint information, in case other clients made changes."},
     
+	{"syncUserData", (PyCFunction)pybullet_syncUserData, METH_VARARGS | METH_KEYWORDS,
+	 "syncUserData(physicsClientId=0)\n"
+	 "Update user data, in case other clients made changes."},
+
+	{"addUserData", (PyCFunction)pybullet_addUserData, METH_VARARGS | METH_KEYWORDS,
+	 "addUserData(bodyUniqueId, linkIndex, key, value, physicsClientId=0)\n"
+	 "Adds or updates a user data entry to a link. Returns user data identifier."},
+
+	{"getUserData", (PyCFunction)pybullet_getUserData, METH_VARARGS | METH_KEYWORDS,
+	 "getUserData(bodyUniqueId, linkIndex, userDataId, physicsClientId=0)\n"
+	 "Returns the user data value."},
+
+	{"removeUserData", (PyCFunction)pybullet_removeUserData, METH_VARARGS | METH_KEYWORDS,
+	 "removeUserData(bodyUniqueId, linkIndex, userDataId, physicsClientId=0)\n"
+	 "Removes a user data entry."},
+
+	{"getUserDataId", (PyCFunction)pybullet_getUserDataId, METH_VARARGS | METH_KEYWORDS,
+	 "getUserDataId(bodyUniqueId, linkIndex, key, physicsClientId=0)\n"
+	 "Retrieves the userDataId on a link given the key."},
+
+	{"getNumUserData", (PyCFunction)pybullet_getNumUserData, METH_VARARGS | METH_KEYWORDS,
+	 "getNumUserData(bodyUniqueId, linkIndex, physicsClientId=0)\n"
+	 "Retrieves the number of user data entries in a link."},
+
+	{"getUserDataInfo", (PyCFunction)pybullet_getUserDataInfo, METH_VARARGS | METH_KEYWORDS,
+	 "getUserDataInfo(bodyUniqueId, linkIndex, userDataIndex, physicsClientId=0)\n"
+	 "Retrieves the key and the identifier of a user data as (id, key)."},
+
 	{"removeBody", (PyCFunction)pybullet_removeBody, METH_VARARGS | METH_KEYWORDS,
 	 "Remove a body by its body unique id."},
 

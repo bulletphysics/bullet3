@@ -30,6 +30,11 @@ struct btHashString
 		return m_hash;
 	}
 
+	btHashString()
+	{
+		m_string="";
+		m_hash=0;
+	}
 	btHashString(const char* name)
 		:m_string(name)
 	{
