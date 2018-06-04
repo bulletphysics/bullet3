@@ -695,6 +695,7 @@ void PhysicsDirect::processAddUserData(const struct SharedMemoryStatus& serverCm
 			(userDataCachePtr)->m_userDataMap.insert(userDataGlobalId.m_userDataId, SharedMemoryUserData(serverCmd.m_userDataResponseArgs.m_key));
 			userDataPtr = (userDataCachePtr)->m_userDataMap[userDataGlobalId.m_userDataId];
 			userDataPtr->replaceValue(dataStream,serverCmd.m_userDataResponseArgs.m_valueLength,userDataValue.m_type);
+			(userDataCachePtr)->m_keyToUserDataIdMap.insert(serverCmd.m_userDataResponseArgs.m_key, userDataGlobalId.m_userDataId);
 		}
 	}
 }
@@ -1127,6 +1128,15 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 	case CMD_SYNC_USER_DATA_COMPLETED:
 	{
 		B3_PROFILE("CMD_SYNC_USER_DATA_COMPLETED");
+		// Remove all cached user data entries.
+		for(int i=0; i<m_data->m_bodyJointMap.size(); i++)
+		{
+			BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
+			if (bodyJointsPtr && *bodyJointsPtr)
+			{
+				(*bodyJointsPtr)->m_jointToUserDataMap.clear();
+			}
+		}
 		const int numIdentifiers = serverCmd.m_syncUserDataArgs.m_numUserDataIdentifiers;
 		b3UserDataGlobalIdentifier *identifiers = new b3UserDataGlobalIdentifier[numIdentifiers];
 		memcpy(identifiers, &m_data->m_bulletStreamDataServerToClient[0], numIdentifiers * sizeof(b3UserDataGlobalIdentifier));
