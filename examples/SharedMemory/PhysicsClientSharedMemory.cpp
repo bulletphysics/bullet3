@@ -1385,6 +1385,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
 		if (serverCmd.m_type == CMD_SYNC_USER_DATA_COMPLETED) {
 			B3_PROFILE("CMD_SYNC_USER_DATA_COMPLETED");
+			// Remove all cached user data entries.
+			for(int i=0; i<m_data->m_bodyJointMap.size(); i++)
+			{
+				BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
+				if (bodyJointsPtr && *bodyJointsPtr)
+				{
+					(*bodyJointsPtr)->m_jointToUserDataMap.clear();
+				}
+			}
 			const int numIdentifiers = serverCmd.m_syncUserDataArgs.m_numUserDataIdentifiers;
 			if (numIdentifiers > 0) {
 				m_data->m_tempBackupServerStatus = m_data->m_lastServerStatus;

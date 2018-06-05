@@ -17,12 +17,13 @@ subject to the following restrictions:
 #ifndef BT_HASH_MAP_H
 #define BT_HASH_MAP_H
 
+#include <string>
 #include "btAlignedObjectArray.h"
 
 ///very basic hashable string implementation, compatible with btHashMap
 struct btHashString
 {
-	const char* m_string;
+	std::string m_string;
 	unsigned int	m_hash;
 
 	SIMD_FORCE_INLINE	unsigned int getHash()const
@@ -71,7 +72,7 @@ struct btHashString
 	bool equals(const btHashString& other) const
 	{
 		return (m_string == other.m_string) ||
-			(0==portableStringCompare(m_string,other.m_string));
+			(0==portableStringCompare(m_string.c_str(),other.m_string.c_str()));
 
 	}
 
