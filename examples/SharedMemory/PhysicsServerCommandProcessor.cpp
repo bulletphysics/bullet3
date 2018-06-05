@@ -4868,7 +4868,7 @@ bool PhysicsServerCommandProcessor::processRequestUserDataCommand(const struct S
 	if (!userData) {
 		return hasStatus;
 	}
-	btAssert(bufferSizeInBytes >= userData->m_bytes.size())
+    btAssert(bufferSizeInBytes >= userData->m_bytes.size());
 	serverStatusOut.m_userDataResponseArgs.m_userDataGlobalId = clientCmd.m_userDataRequestArgs;
 	serverStatusOut.m_userDataResponseArgs.m_valueType = userData->m_type;
 	serverStatusOut.m_userDataResponseArgs.m_valueLength = userData->m_bytes.size();
