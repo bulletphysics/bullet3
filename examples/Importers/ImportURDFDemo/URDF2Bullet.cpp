@@ -595,11 +595,13 @@ void ConvertURDF2BulletInternal(
 					}
                 } else
                 {
-					//todo: fix the crash it can cause
-					//if (cache.m_bulletMultiBody->getBaseMass()==0)
-					//{
-					//	col->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);//:CF_STATIC_OBJECT);
-					//}
+					if (cache.m_bulletMultiBody->getBaseMass()==0)
+					{
+						//col->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+						col->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+					}
+					
+					
                     cache.m_bulletMultiBody->setBaseCollider(col);
                 }
             }
