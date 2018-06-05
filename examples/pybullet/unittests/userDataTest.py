@@ -11,7 +11,7 @@ class TestUserDataMethods(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
-		TestUserDataMethods.server = bullet_client.BulletClient(connection_mode=pybullet.GUI_SERVER)
+		TestUserDataMethods.server = bullet_client.BulletClient(connection_mode=pybullet.SHARED_MEMORY_SERVER)
 
 	@classmethod
 	def tearDownClass(cls):
