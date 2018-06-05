@@ -1,17 +1,9 @@
 
-//test plugin, can load a URDF file, example usage on a Windows machine:
+//tinyRendererPlugin implements the TinyRenderer as a plugin
+//it is statically linked when using preprocessor #define STATIC_LINK_VR_PLUGIN 
+//otherwise you can dynamically load it using pybullet.loadPlugin
 
-/*
-import pybullet as p
-p.connect(p.GUI)
-pluginUid = p.loadPlugin("E:/develop/bullet3/bin/pybullet_testplugin_vs2010_x64_debug.dll")
-commandUid = 0
-argument = "plane.urdf"
-p.executePluginCommand(pluginUid,commandUid,argument)
-p.unloadPlugin(pluginUid)
-*/
-
-#include "testplugin.h"
+#include "collisionFilterPlugin.h"
 #include "../../SharedMemoryPublic.h"
 #include "../b3PluginContext.h"
 #include <stdio.h>
@@ -41,7 +33,7 @@ B3_SHARED_API int initPlugin_testPlugin(struct b3PluginContext* context)
 
 B3_SHARED_API int preTickPluginCallback_testPlugin(struct b3PluginContext* context)
 {
-	
+	//apply pd control here, apply forces using the PD gains
 	return 0;
 }
 
@@ -55,7 +47,7 @@ B3_SHARED_API int postTickPluginCallback_testPlugin(struct b3PluginContext* cont
 
 B3_SHARED_API int executePluginCommand_testPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
 {
-	
+	//set the PD gains
 	printf("text argument:%s\n",arguments->m_text);
 	printf("int args: [");
 	for (int i=0;i<arguments->m_numInts;i++)

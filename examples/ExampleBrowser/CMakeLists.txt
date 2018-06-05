@@ -175,10 +175,12 @@ SET(BulletExampleBrowser_SRCS
 	../SharedMemory/SharedMemoryCommands.h
 	../SharedMemory/SharedMemoryPublic.h
 	../SharedMemory/b3PluginManager.cpp
+	../SharedMemory/b3RobotSimulatorClientAPI_NoGUI.cpp
+	../SharedMemory/b3RobotSimulatorClientAPI_NoGUI.h
+	../SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp
+	../SharedMemory/b3RobotSimulatorClientAPI_NoDirect.h
 	../RobotSimulator/b3RobotSimulatorClientAPI.cpp
 	../RobotSimulator/b3RobotSimulatorClientAPI.h
-	../RobotSimulator/b3RobotSimulatorClientAPI_NoGUI.cpp
-	../RobotSimulator/b3RobotSimulatorClientAPI_NoGUI.h
 	../BasicDemo/BasicExample.cpp
 	../BasicDemo/BasicExample.h
 	../InverseDynamics/InverseDynamicsExample.cpp

@@ -45,6 +45,9 @@
 #include "../Extras/Serialize/BulletFileLoader/btBulletFile.h"
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 
+#ifdef STATIC_PD_CONTROL_PLUGIN
+#include "plugins/pdControlPlugin/pdControlPlugin.h"
+#endif //STATIC_PD_CONTROL_PLUGIN
 
 #ifdef STATIC_LINK_VR_PLUGIN
 #include "plugins/vrSyncPlugin/vrSyncPlugin.h"
@@ -1647,7 +1650,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btVector3 m_hitPos;
 	btScalar m_oldPickingDist;
 	bool m_prevCanSleep;
-	
+	int m_pdControlPlugin;
 #ifdef B3_ENABLE_TINY_AUDIO
 	b3SoundEngine m_soundEngine;
 #endif
@@ -1679,14 +1682,22 @@ struct PhysicsServerCommandProcessorInternalData
 		m_verboseOutput(false),
 		m_pickedBody(0),
 		m_pickedConstraint(0),
-		m_pickingMultiBodyPoint2Point(0)
+		m_pickingMultiBodyPoint2Point(0),
+		m_pdControlPlugin(-1)
 	{
 
 		{
 			//register static plugins:
 #ifdef STATIC_LINK_VR_PLUGIN
-			m_pluginManager.registerStaticLinkedPlugin("vrSyncPlugin", initPlugin_vrSyncPlugin, exitPlugin_vrSyncPlugin, executePluginCommand_vrSyncPlugin,preTickPluginCallback_vrSyncPlugin,0,0);
+			m_pluginManager.registerStaticLinkedPlugin("vrSyncPlugin", initPlugin_vrSyncPlugin, exitPlugin_vrSyncPlugin, executePluginCommand_vrSyncPlugin, preTickPluginCallback_vrSyncPlugin, 0, 0);
 #endif //STATIC_LINK_VR_PLUGIN
+
+#ifdef STATIC_PD_CONTROL_PLUGIN
+		{
+			m_pdControlPlugin = m_pluginManager.registerStaticLinkedPlugin("pdControlPlugin", initPlugin_pdControlPlugin, exitPlugin_pdControlPlugin, executePluginCommand_pdControlPlugin, preTickPluginCallback_pdControlPlugin, postTickPluginCallback_pdControlPlugin, 0);
+		}
+#endif //STATIC_PD_CONTROL_PLUGIN
+
 
 #ifndef SKIP_STATIC_TINYRENDERER_PLUGIN
 			int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin,0,0,getRenderInterface_tinyRendererPlugin);
@@ -4949,6 +4960,13 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 
 		switch (clientCmd.m_sendDesiredStateCommandArgument.m_controlMode)
 		{
+/*		case CONTROL_MODE_PD:
+		{
+			b3PluginArguments args;
+			m_data->m_pluginManager.executePluginCommand(pdControlPlugin, args);
+			//#p.executePluginCommand(plugin ,"r2d2.urdf", [1,2,3],[50.0,3.3])
+		}
+		*/
 		case CONTROL_MODE_TORQUE:
 			{
 				if (m_data->m_verboseOutput)
