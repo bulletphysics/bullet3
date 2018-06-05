@@ -399,7 +399,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			}
             case eCONNECT_SHARED_MEMORY_SERVER:
             {
-                sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect2(0);
+                sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect2(0, key);
                 break;
             }
 			case eCONNECT_DIRECT:
