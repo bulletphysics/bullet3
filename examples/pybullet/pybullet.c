@@ -680,7 +680,8 @@ static PyObject* pybullet_syncUserData(PyObject* self, PyObject* args, PyObject*
 		return NULL;
 	}
 
-	Py_RETURN_NONE;
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 static PyObject* pybullet_addUserData(PyObject* self, PyObject* args, PyObject* keywds)
@@ -756,9 +757,10 @@ static PyObject* pybullet_removeUserData(PyObject* self, PyObject* args, PyObjec
 	if (statusType != CMD_REMOVE_USER_DATA_COMPLETED)
 	{
 		PyErr_SetString(SpamError, "Error in removeUserData command.");
-		Py_RETURN_FALSE;
+		return NULL;
 	}
-	Py_RETURN_TRUE;
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 
@@ -817,15 +819,17 @@ static PyObject* pybullet_getUserData(PyObject* self, PyObject* args, PyObject* 
 
 
 	if (!b3GetUserData(sm, bodyUniqueId, linkIndex, userDataId, &value)) {
-		Py_RETURN_NONE;
+		
+		PyErr_SetString(SpamError, "Cannot get user data");
+		return NULL;
 	}
-	switch (value.m_type) {
-		case USER_DATA_VALUE_TYPE_STRING:
-			return PyString_FromString((const char *)value.m_data1);
-		default:
-			PyErr_SetString(SpamError, "User data value has unknown type");
-			return NULL;
+	if (value.m_type != USER_DATA_VALUE_TYPE_STRING) 
+	{
+		PyErr_SetString(SpamError, "User data value has unknown type");
+		return NULL;
 	}
+
+	return PyString_FromString((const char *)value.m_data1);
 }
 
 static PyObject* pybullet_getNumUserData(PyObject* self, PyObject* args, PyObject* keywds)
@@ -884,8 +888,9 @@ static PyObject* pybullet_getUserDataInfo(PyObject* self, PyObject* args, PyObje
 	b3GetUserDataInfo(sm, bodyUniqueId, linkIndex, userDataIndex, &key, &userDataId);
 	if (key == 0 || userDataId == -1) {
 		PyErr_SetString(SpamError, "Could not get user data info.");
-		Py_RETURN_NONE;
+		return NULL;
 	}
+
 	{
 		PyObject *userDataInfoTuple = PyTuple_New(2);
 		PyTuple_SetItem(userDataInfoTuple, 0, PyInt_FromLong(userDataId));
