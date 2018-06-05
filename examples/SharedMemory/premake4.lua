@@ -20,6 +20,8 @@ language "C++"
 
 myfiles = 
 {
+	"b3RobotSimulatorClientAPI_NoDirect.cpp",
+	"b3RobotSimulatorClientAPI_NoDirect.h",
 	"IKTrajectoryHelper.cpp",
 	"IKTrajectoryHelper.h",
 	"PhysicsClient.cpp",
@@ -58,6 +60,8 @@ myfiles =
 	"PhysicsServerCommandProcessor.h",
 	"b3PluginManager.cpp",
 	"b3PluginManager.h",
+	"plugins/pdControlPlugin/pdControlPlugin.cpp",
+	"plugins/pdControlPlugin/pdControlPlugin.h",
 	"../OpenGLWindow/SimpleCamera.cpp",
 	"../OpenGLWindow/SimpleCamera.h",
 	"../Importers/ImportURDFDemo/ConvertRigidBodies2MultiBody.h",

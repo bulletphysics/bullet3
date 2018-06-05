@@ -8316,7 +8316,14 @@ static PyObject* pybullet_executePluginCommand(PyObject* self,
 			float val = pybullet_internalGetFloatFromSequence(seqFloatArgs,i);
 			b3CustomCommandExecuteAddFloatArgument(command, val);
 		}
-		
+		if (seqFloatArgs)
+		{
+			Py_DECREF(seqFloatArgs);
+		}
+		if (seqIntArgs)
+		{
+			Py_DECREF(seqIntArgs);
+		}
 	}
 	
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);

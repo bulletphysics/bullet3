@@ -1,5 +1,9 @@
 
 SET(SharedMemory_SRCS
+	plugins/pdControlPlugin/pdControlPlugin.cpp
+	plugins/pdControlPlugin/pdControlPlugin.h
+	b3RobotSimulatorClientAPI_NoDirect.cpp
+	b3RobotSimulatorClientAPI_NoDirect.h
 	IKTrajectoryHelper.cpp
 	IKTrajectoryHelper.h
 	PhysicsClient.cpp

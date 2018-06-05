@@ -49,6 +49,8 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/TinyRenderer/tgaimage.cpp"]\
 +["examples/TinyRenderer/our_gl.cpp"]\
 +["examples/TinyRenderer/TinyRenderer.cpp"]\
++["examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp"]\
++["examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp"]\
 +["examples/SharedMemory/IKTrajectoryHelper.cpp"]\
 +["examples/SharedMemory/InProcessMemory.cpp"]\
 +["examples/SharedMemory/PhysicsClient.cpp"]\

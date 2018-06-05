@@ -1,6 +1,9 @@
 
 myfiles = 
 {
+
+			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",
+			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
 			"../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoGUI.cpp",
 			"../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoGUI.h",
 			"../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp",

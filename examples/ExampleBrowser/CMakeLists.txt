@@ -145,6 +145,8 @@ SET(BulletExampleBrowser_SRCS
 	../TinyRenderer/tgaimage.cpp
 	../TinyRenderer/our_gl.cpp
 	../TinyRenderer/TinyRenderer.cpp
+	../SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp
+	../SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h
 	../SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
 	../SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
 	../SharedMemory/IKTrajectoryHelper.cpp

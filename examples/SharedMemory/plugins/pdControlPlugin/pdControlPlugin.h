@@ -16,14 +16,12 @@ B3_SHARED_API int executePluginCommand_pdControlPlugin(struct b3PluginContext* c
 ///
 enum PDControlCommandEnum
 {
-	eAddPDControl = 1,
-	eSetPDControl = 2,
-	eRemovePDControl = 4,
+	eSetPDControl = 1,
+	eRemovePDControl = 2,
 };
 
 //all the APIs below are optional
 B3_SHARED_API int preTickPluginCallback_pdControlPlugin(struct b3PluginContext* context);
-B3_SHARED_API int postTickPluginCallback_pdControlPlugin(struct b3PluginContext* context);
 
 
 #ifdef __cplusplus

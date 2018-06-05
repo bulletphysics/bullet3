@@ -1,6 +1,5 @@
 #include "b3RobotSimulatorClientAPI_NoDirect.h"
 
-
 #include "PhysicsClientC_API.h"
 #include "b3RobotSimulatorClientAPI_InternalData.h"
 
@@ -35,71 +34,7 @@ b3RobotSimulatorClientAPI_NoDirect::~b3RobotSimulatorClientAPI_NoDirect()
 }
 
 
-bool b3RobotSimulatorClientAPI_NoDirect::connect(int mode, const std::string& hostName, int portOrKey)
-{
-	if (m_data->m_physicsClientHandle)
-	{
-		b3Warning("Already connected, disconnect first.");
-		return false;
-	}
-	b3PhysicsClientHandle sm = 0;
-	int udpPort = 1234;
-	int tcpPort = 6667;
-	int key = SHARED_MEMORY_KEY;
-	bool connected = false;
 
-	switch (mode)
-	{
-	
-	case eCONNECT_DIRECT:
-		{
-			break;
-		}
-	case eCONNECT_SHARED_MEMORY:
-		{
-			if (portOrKey >= 0)
-			{
-				key = portOrKey;
-			}
-			sm = b3ConnectSharedMemory(key);
-			break;
-		}
-	case eCONNECT_UDP:
-		{
-			if (portOrKey >= 0)
-			{
-				udpPort = portOrKey;
-			}
-
-			break;
-		}
-	case eCONNECT_TCP:
-		{
-			if (portOrKey >= 0)
-			{
-				tcpPort = portOrKey;
-			}
-			break;
-		}
-
-	default:
-		{
-			b3Warning("connectPhysicsServer unexpected argument");
-		}
-	};
-
-	if (sm)
-	{
-		m_data->m_physicsClientHandle = sm;
-		if (!b3CanSubmitCommand(m_data->m_physicsClientHandle))
-		{
-			disconnect();
-			return false;
-		}
-		return true;
-	}
-	return false;
-}
 
 bool b3RobotSimulatorClientAPI_NoDirect::isConnected() const
 {

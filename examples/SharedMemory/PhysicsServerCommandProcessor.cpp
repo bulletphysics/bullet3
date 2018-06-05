@@ -45,9 +45,9 @@
 #include "../Extras/Serialize/BulletFileLoader/btBulletFile.h"
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 
-#ifdef STATIC_PD_CONTROL_PLUGIN
+#ifndef SKIP_STATIC_PD_CONTROL_PLUGIN
 #include "plugins/pdControlPlugin/pdControlPlugin.h"
-#endif //STATIC_PD_CONTROL_PLUGIN
+#endif //SKIP_STATIC_PD_CONTROL_PLUGIN
 
 #ifdef STATIC_LINK_VR_PLUGIN
 #include "plugins/vrSyncPlugin/vrSyncPlugin.h"
@@ -105,7 +105,6 @@ struct UrdfLinkNameMapUtil
 	}
 	virtual ~UrdfLinkNameMapUtil()
 	{
-		delete m_memSerializer;
 	}
 };
 
@@ -1599,7 +1598,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 
 	btAlignedObjectArray<btMultiBodyWorldImporter*> m_worldImporters;
-	btAlignedObjectArray<UrdfLinkNameMapUtil*> m_urdfLinkNameMapper;
+
 	btAlignedObjectArray<std::string*> m_strings;
 
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
@@ -1692,11 +1691,11 @@ struct PhysicsServerCommandProcessorInternalData
 			m_pluginManager.registerStaticLinkedPlugin("vrSyncPlugin", initPlugin_vrSyncPlugin, exitPlugin_vrSyncPlugin, executePluginCommand_vrSyncPlugin, preTickPluginCallback_vrSyncPlugin, 0, 0);
 #endif //STATIC_LINK_VR_PLUGIN
 
-#ifdef STATIC_PD_CONTROL_PLUGIN
+#ifndef SKIP_STATIC_PD_CONTROL_PLUGIN
 		{
-			m_pdControlPlugin = m_pluginManager.registerStaticLinkedPlugin("pdControlPlugin", initPlugin_pdControlPlugin, exitPlugin_pdControlPlugin, executePluginCommand_pdControlPlugin, preTickPluginCallback_pdControlPlugin, postTickPluginCallback_pdControlPlugin, 0);
+			m_pdControlPlugin = m_pluginManager.registerStaticLinkedPlugin("pdControlPlugin", initPlugin_pdControlPlugin, exitPlugin_pdControlPlugin, executePluginCommand_pdControlPlugin, preTickPluginCallback_pdControlPlugin, 0, 0);
 		}
-#endif //STATIC_PD_CONTROL_PLUGIN
+#endif //SKIP_STATIC_PD_CONTROL_PLUGIN
 
 
 #ifndef SKIP_STATIC_TINYRENDERER_PLUGIN
@@ -2482,12 +2481,13 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	}
 	m_data->m_worldImporters.clear();
 
+#ifdef ENABLE_LINK_MAPPER
 	for (int i=0;i<m_data->m_urdfLinkNameMapper.size();i++)
 	{
 		delete m_data->m_urdfLinkNameMapper[i];
 	}
 	m_data->m_urdfLinkNameMapper.clear();
-
+#endif //ENABLE_LINK_MAPPER
 
 	for (int i=0;i<m_data->m_strings.size();i++)
 	{
@@ -3010,10 +3010,12 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 	btMultiBody* mb = bodyHandle? bodyHandle->m_multiBody:0;   
     if (mb)
     {
-        UrdfLinkNameMapUtil* util = new UrdfLinkNameMapUtil;
-        m_data->m_urdfLinkNameMapper.push_back(util);
+        UrdfLinkNameMapUtil utilBla;
+		UrdfLinkNameMapUtil* util = &utilBla;
+		btDefaultSerializer ser(bufferSizeInBytes ,(unsigned char*)bufferServerToClient);
+        
         util->m_mb = mb;
-        util->m_memSerializer = new btDefaultSerializer(bufferSizeInBytes ,(unsigned char*)bufferServerToClient);
+        util->m_memSerializer = &ser;
 		util->m_memSerializer->startSerialization();
 
         //disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
@@ -3046,9 +3048,11 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 		btRigidBody* rb = bodyHandle? bodyHandle->m_rigidBody :0;   
 		if (rb)
 		{
-			UrdfLinkNameMapUtil* util = new UrdfLinkNameMapUtil;
-			m_data->m_urdfLinkNameMapper.push_back(util);
-			util->m_memSerializer = new btDefaultSerializer(bufferSizeInBytes ,(unsigned char*)bufferServerToClient);
+			UrdfLinkNameMapUtil utilBla;
+			UrdfLinkNameMapUtil* util = &utilBla;
+			btDefaultSerializer ser(bufferSizeInBytes ,(unsigned char*)bufferServerToClient);
+			
+			util->m_memSerializer = &ser;
 			util->m_memSerializer->startSerialization();
 			util->m_memSerializer->registerNameForPointer(bodyHandle->m_rigidBody,bodyHandle->m_bodyName.c_str());
 			//disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
@@ -6049,10 +6053,8 @@ bool PhysicsServerCommandProcessor::processCreateMultiBodyCommand(const struct S
 				serverStatusOut.m_type = CMD_CREATE_MULTI_BODY_COMPLETED;
 								
 				int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
-				if (m_data->m_urdfLinkNameMapper.size())
-				{
-					serverStatusOut.m_numDataStreamBytes = m_data->m_urdfLinkNameMapper.at(m_data->m_urdfLinkNameMapper.size()-1)->m_memSerializer->getCurrentBufferSize();
-				}
+				serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
+				
 				serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
 				InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 				strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());
@@ -6120,12 +6122,14 @@ bool PhysicsServerCommandProcessor::processLoadURDFCommand(const struct SharedMe
 		serverStatusOut.m_type = CMD_URDF_LOADING_COMPLETED;
                        
 		int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
+		serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
 
-
+#ifdef ENABLE_LINK_MAPPER
 		if (m_data->m_urdfLinkNameMapper.size())
 		{
 			serverStatusOut.m_numDataStreamBytes = m_data->m_urdfLinkNameMapper.at(m_data->m_urdfLinkNameMapper.size()-1)->m_memSerializer->getCurrentBufferSize();
 		}
+#endif
 		serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
 		InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 		strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());

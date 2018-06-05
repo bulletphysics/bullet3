@@ -419,7 +419,8 @@ public:
 	b3RobotSimulatorClientAPI_NoDirect();
 	virtual ~b3RobotSimulatorClientAPI_NoDirect();
 
-	bool connect(int mode, const std::string& hostName = "localhost", int portOrKey = -1);
+	//No 'connect', use setInternalData to bypass the connect method, pass an existing client
+	virtual void setInternalData(struct b3RobotSimulatorClientAPI_InternalData* data);
 
 	void disconnect();
 
@@ -580,7 +581,6 @@ public:
 
 	bool getVisualShapeData(int bodyUniqueId, b3VisualShapeInformation &visualShapeInfo);
 	
-	virtual void setInternalData(struct b3RobotSimulatorClientAPI_InternalData* data);
 
 };
 

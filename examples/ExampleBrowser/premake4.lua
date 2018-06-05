@@ -117,6 +117,8 @@ project "App_BulletExampleBrowser"
 		"../SharedMemory/b3PluginManager.cpp",		
 		"../SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
 		"../SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+		"../SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",
+		"../SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
 		"../SharedMemory/SharedMemoryCommands.h",
 		"../SharedMemory/SharedMemoryPublic.h",
 		"../SharedMemory/b3RobotSimulatorClientAPI_NoGUI.cpp",
