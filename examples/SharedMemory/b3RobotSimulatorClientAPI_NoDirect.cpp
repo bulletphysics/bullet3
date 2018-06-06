@@ -444,7 +444,7 @@ void b3RobotSimulatorClientAPI_NoDirect::setRealTimeSimulation(bool enableRealTi
 	b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(m_data->m_physicsClientHandle);
 	b3SharedMemoryStatusHandle statusHandle;
 
-	ret = b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
+	b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 
