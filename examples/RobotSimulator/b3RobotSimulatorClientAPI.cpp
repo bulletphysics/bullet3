@@ -96,7 +96,6 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 	int udpPort = 1234;
 	int tcpPort = 6667;
 	int key = SHARED_MEMORY_KEY;
-	bool connected = false;
 
 	switch (mode)
 	{
