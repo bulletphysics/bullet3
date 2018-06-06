@@ -548,7 +548,7 @@ public:
 
 	bool applyExternalTorque(int objectUniqueId, int linkIndex, btVector3 &torque, int flags);
 
-	bool enableJointForceTorqueSensor(int bodyUniqueId, int linkIndex, bool enable);
+	bool enableJointForceTorqueSensor(int bodyUniqueId, int jointIndex, bool enable);
 
 	bool getDebugVisualizerCamera(struct b3OpenGLVisualizerCameraInfo *cameraInfo);
 
