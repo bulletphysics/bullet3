@@ -1,20 +1,9 @@
-#include "b3RobotSimulatorClientAPI_NoGUI.h"
+#include "b3RobotSimulatorClientAPI_NoDirect.h"
 
-
-#include "../SharedMemory/PhysicsClientC_API.h"
+#include "PhysicsClientC_API.h"
 #include "b3RobotSimulatorClientAPI_InternalData.h"
 
-#ifdef BT_ENABLE_ENET
-#include "../SharedMemory/PhysicsClientUDP_C_API.h"
-#endif  //PHYSICS_UDP
-
-#ifdef BT_ENABLE_CLSOCKET
-#include "../SharedMemory/PhysicsClientTCP_C_API.h"
-#endif  //PHYSICS_TCP
-
-#include "../SharedMemory/PhysicsDirectC_API.h"
-
-#include "../SharedMemory/SharedMemoryPublic.h"
+#include "SharedMemoryPublic.h"
 #include "Bullet3Common/b3Logging.h"
 
 static void scalarToDouble3(btScalar a[3], double b[3]) 
@@ -27,110 +16,32 @@ static void scalarToDouble3(btScalar a[3], double b[3])
 
 static void scalarToDouble4(btScalar a[4], double b[4]) 
 {
-	for (int i = 0; i < 4; i++) 
+	for (int i = 0; i < 4; i++)
 	{
 		b[i] = a[i];
 	}
 }
 
 
-b3RobotSimulatorClientAPI_NoGUI::b3RobotSimulatorClientAPI_NoGUI()
+b3RobotSimulatorClientAPI_NoDirect::b3RobotSimulatorClientAPI_NoDirect()
 {
 	m_data = new b3RobotSimulatorClientAPI_InternalData();
 }
 
-b3RobotSimulatorClientAPI_NoGUI::~b3RobotSimulatorClientAPI_NoGUI()
+b3RobotSimulatorClientAPI_NoDirect::~b3RobotSimulatorClientAPI_NoDirect()
 {
 	delete m_data;
 }
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::connect(int mode, const std::string& hostName, int portOrKey)
-{
-	if (m_data->m_physicsClientHandle)
-	{
-		b3Warning("Already connected, disconnect first.");
-		return false;
-	}
-	b3PhysicsClientHandle sm = 0;
 
-	int udpPort = 1234;
-	int tcpPort = 6667;
-	int key = SHARED_MEMORY_KEY;
-	bool connected = false;
 
-	switch (mode)
-	{
-	
-	case eCONNECT_DIRECT:
-		{
-			sm = b3ConnectPhysicsDirect();
-			break;
-		}
-	case eCONNECT_SHARED_MEMORY:
-		{
-			if (portOrKey >= 0)
-			{
-				key = portOrKey;
-			}
-			sm = b3ConnectSharedMemory(key);
-			break;
-		}
-	case eCONNECT_UDP:
-		{
-			if (portOrKey >= 0)
-			{
-				udpPort = portOrKey;
-			}
-#ifdef BT_ENABLE_ENET
-
-			sm = b3ConnectPhysicsUDP(hostName.c_str(), udpPort);
-#else
-			b3Warning("UDP is not enabled in this build");
-#endif  //BT_ENABLE_ENET
-
-			break;
-		}
-	case eCONNECT_TCP:
-		{
-			if (portOrKey >= 0)
-			{
-				tcpPort = portOrKey;
-			}
-#ifdef BT_ENABLE_CLSOCKET
-
-			sm = b3ConnectPhysicsTCP(hostName.c_str(), tcpPort);
-#else
-			b3Warning("TCP is not enabled in this pybullet build");
-#endif  //BT_ENABLE_CLSOCKET
-			break;
-		}
-
-	default:
-		{
-			b3Warning("connectPhysicsServer unexpected argument");
-		}
-	};
-
-	if (sm)
-	{
-		m_data->m_physicsClientHandle = sm;
-		if (!b3CanSubmitCommand(m_data->m_physicsClientHandle))
-		{
-			disconnect();
-			return false;
-		}
-		return true;
-	}
-	return false;
-}
-
-bool b3RobotSimulatorClientAPI_NoGUI::isConnected() const
+bool b3RobotSimulatorClientAPI_NoDirect::isConnected() const
 {
 	return (m_data->m_physicsClientHandle != 0);
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::setTimeOut(double timeOutInSec)
+void b3RobotSimulatorClientAPI_NoDirect::setTimeOut(double timeOutInSec)
 {
 	if (!isConnected())
 	{
@@ -142,19 +53,22 @@ void b3RobotSimulatorClientAPI_NoGUI::setTimeOut(double timeOutInSec)
 }
 
 
-void b3RobotSimulatorClientAPI_NoGUI::disconnect()
+void b3RobotSimulatorClientAPI_NoDirect::disconnect()
 {
 	if (!isConnected())
 	{
 		b3Warning("Not connected");
 		return;
 	}
-
+#ifndef BT_DISABLE_PHYSICS_DIRECT
 	b3DisconnectSharedMemory(m_data->m_physicsClientHandle);
 	m_data->m_physicsClientHandle = 0;
+#endif 
+
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::syncBodies()
+
+void b3RobotSimulatorClientAPI_NoDirect::syncBodies()
 {
 	if (!isConnected())
 	{
@@ -171,7 +85,7 @@ void b3RobotSimulatorClientAPI_NoGUI::syncBodies()
 	statusType = b3GetStatusType(statusHandle);
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::resetSimulation()
+void b3RobotSimulatorClientAPI_NoDirect::resetSimulation()
 {
 	if (!isConnected())
 	{
@@ -183,7 +97,7 @@ void b3RobotSimulatorClientAPI_NoGUI::resetSimulation()
 		m_data->m_physicsClientHandle, b3InitResetSimulationCommand(m_data->m_physicsClientHandle));
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::canSubmitCommand() const
+bool b3RobotSimulatorClientAPI_NoDirect::canSubmitCommand() const
 {
 	if (!isConnected())
 	{
@@ -192,7 +106,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::canSubmitCommand() const
 	return (b3CanSubmitCommand(m_data->m_physicsClientHandle) != 0);
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::stepSimulation()
+void b3RobotSimulatorClientAPI_NoDirect::stepSimulation()
 {
 	if (!isConnected())
 	{
@@ -210,7 +124,7 @@ void b3RobotSimulatorClientAPI_NoGUI::stepSimulation()
 	}
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::setGravity(const btVector3& gravityAcceleration)
+void b3RobotSimulatorClientAPI_NoDirect::setGravity(const btVector3& gravityAcceleration)
 {
 	if (!isConnected())
 	{
@@ -226,14 +140,14 @@ void b3RobotSimulatorClientAPI_NoGUI::setGravity(const btVector3& gravityAcceler
 	//	btAssert(b3GetStatusType(statusHandle) == CMD_CLIENT_COMMAND_COMPLETED);
 }
 
-btQuaternion b3RobotSimulatorClientAPI_NoGUI::getQuaternionFromEuler(const btVector3& rollPitchYaw)
+btQuaternion b3RobotSimulatorClientAPI_NoDirect::getQuaternionFromEuler(const btVector3& rollPitchYaw)
 {
 	btQuaternion q;
 	q.setEulerZYX(rollPitchYaw[2],rollPitchYaw[1],rollPitchYaw[0]);
 	return q;
 }
 
-btVector3 b3RobotSimulatorClientAPI_NoGUI::getEulerFromQuaternion(const btQuaternion& quat)
+btVector3 b3RobotSimulatorClientAPI_NoDirect::getEulerFromQuaternion(const btQuaternion& quat)
 {
 	btScalar roll,pitch,yaw;
 	quat.getEulerZYX(yaw,pitch,roll);
@@ -241,7 +155,7 @@ btVector3 b3RobotSimulatorClientAPI_NoGUI::getEulerFromQuaternion(const btQuater
 	return rpy2;
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::loadURDF(const std::string& fileName, const struct b3RobotSimulatorLoadUrdfFileArgs& args)
+int b3RobotSimulatorClientAPI_NoDirect::loadURDF(const std::string& fileName, const struct b3RobotSimulatorLoadUrdfFileArgs& args)
 {
 	int robotUniqueId = -1;
 
@@ -279,7 +193,7 @@ int b3RobotSimulatorClientAPI_NoGUI::loadURDF(const std::string& fileName, const
 	return robotUniqueId;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::loadMJCF(const std::string& fileName, b3RobotSimulatorLoadFileResults& results)
+bool b3RobotSimulatorClientAPI_NoDirect::loadMJCF(const std::string& fileName, b3RobotSimulatorLoadFileResults& results)
 {
 	if (!isConnected())
 	{
@@ -310,7 +224,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::loadMJCF(const std::string& fileName, b3Ro
 	return true;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::loadBullet(const std::string& fileName, b3RobotSimulatorLoadFileResults& results)
+bool b3RobotSimulatorClientAPI_NoDirect::loadBullet(const std::string& fileName, b3RobotSimulatorLoadFileResults& results)
 {
 	if (!isConnected())
 	{
@@ -340,7 +254,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::loadBullet(const std::string& fileName, b3
 	return true;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::loadSDF(const std::string& fileName, b3RobotSimulatorLoadFileResults& results, const struct b3RobotSimulatorLoadSdfFileArgs& args)
+bool b3RobotSimulatorClientAPI_NoDirect::loadSDF(const std::string& fileName, b3RobotSimulatorLoadFileResults& results, const struct b3RobotSimulatorLoadSdfFileArgs& args)
 {
 	if (!isConnected())
 	{
@@ -372,7 +286,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::loadSDF(const std::string& fileName, b3Rob
 	return statusOk;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getBodyInfo(int bodyUniqueId, struct b3BodyInfo* bodyInfo)
+bool b3RobotSimulatorClientAPI_NoDirect::getBodyInfo(int bodyUniqueId, struct b3BodyInfo* bodyInfo)
 {
 	if (!isConnected())
 	{
@@ -384,7 +298,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getBodyInfo(int bodyUniqueId, struct b3Bod
 	return (result != 0);
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getBasePositionAndOrientation(int bodyUniqueId, btVector3& basePosition, btQuaternion& baseOrientation) const
+bool b3RobotSimulatorClientAPI_NoDirect::getBasePositionAndOrientation(int bodyUniqueId, btVector3& basePosition, btQuaternion& baseOrientation) const
 {
 	if (!isConnected())
 	{
@@ -422,7 +336,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getBasePositionAndOrientation(int bodyUniq
 	return true;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::resetBasePositionAndOrientation(int bodyUniqueId, btVector3& basePosition, btQuaternion& baseOrientation)
+bool b3RobotSimulatorClientAPI_NoDirect::resetBasePositionAndOrientation(int bodyUniqueId, btVector3& basePosition, btQuaternion& baseOrientation)
 {
 	if (!isConnected())
 	{
@@ -444,7 +358,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::resetBasePositionAndOrientation(int bodyUn
 	return true;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getBaseVelocity(int bodyUniqueId, btVector3& baseLinearVelocity, btVector3& baseAngularVelocity) const
+bool b3RobotSimulatorClientAPI_NoDirect::getBaseVelocity(int bodyUniqueId, btVector3& baseLinearVelocity, btVector3& baseAngularVelocity) const
 {
 	if (!isConnected())
 	{
@@ -478,7 +392,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getBaseVelocity(int bodyUniqueId, btVector
 	return true;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::resetBaseVelocity(int bodyUniqueId, const btVector3& linearVelocity, const btVector3& angularVelocity) const
+bool b3RobotSimulatorClientAPI_NoDirect::resetBaseVelocity(int bodyUniqueId, const btVector3& linearVelocity, const btVector3& angularVelocity) const
 {
 	if (!isConnected())
 	{
@@ -503,7 +417,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::resetBaseVelocity(int bodyUniqueId, const 
 	return true;
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::setInternalSimFlags(int flags)
+void b3RobotSimulatorClientAPI_NoDirect::setInternalSimFlags(int flags)
 {
 	if (!isConnected())
 	{
@@ -519,7 +433,7 @@ void b3RobotSimulatorClientAPI_NoGUI::setInternalSimFlags(int flags)
 }
 
 
-void b3RobotSimulatorClientAPI_NoGUI::setRealTimeSimulation(bool enableRealTimeSimulation)
+void b3RobotSimulatorClientAPI_NoDirect::setRealTimeSimulation(bool enableRealTimeSimulation)
 {
 	if (!isConnected())
 	{
@@ -537,7 +451,7 @@ void b3RobotSimulatorClientAPI_NoGUI::setRealTimeSimulation(bool enableRealTimeS
 	btAssert(b3GetStatusType(statusHandle) == CMD_CLIENT_COMMAND_COMPLETED);
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::getNumJoints(int bodyUniqueId) const
+int b3RobotSimulatorClientAPI_NoDirect::getNumJoints(int bodyUniqueId) const
 {
 	if (!isConnected())
 	{
@@ -547,7 +461,7 @@ int b3RobotSimulatorClientAPI_NoGUI::getNumJoints(int bodyUniqueId) const
 	return b3GetNumJoints(m_data->m_physicsClientHandle, bodyUniqueId);
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getJointInfo(int bodyUniqueId, int jointIndex, b3JointInfo* jointInfo)
+bool b3RobotSimulatorClientAPI_NoDirect::getJointInfo(int bodyUniqueId, int jointIndex, b3JointInfo* jointInfo)
 {
 	if (!isConnected())
 	{
@@ -557,7 +471,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getJointInfo(int bodyUniqueId, int jointIn
 	return (b3GetJointInfo(m_data->m_physicsClientHandle, bodyUniqueId, jointIndex, jointInfo) != 0);
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::createConstraint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo* jointInfo)
+int b3RobotSimulatorClientAPI_NoDirect::createConstraint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo* jointInfo)
 {
 	if (!isConnected())
 	{
@@ -579,7 +493,7 @@ int b3RobotSimulatorClientAPI_NoGUI::createConstraint(int parentBodyIndex, int p
 	return -1;
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::changeConstraint(int constraintId, b3JointInfo* jointInfo)
+int b3RobotSimulatorClientAPI_NoDirect::changeConstraint(int constraintId, b3JointInfo* jointInfo)
 {
 
 	if (!isConnected())
@@ -608,7 +522,7 @@ int b3RobotSimulatorClientAPI_NoGUI::changeConstraint(int constraintId, b3JointI
 	return statusType;
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::removeConstraint(int constraintId)
+void b3RobotSimulatorClientAPI_NoDirect::removeConstraint(int constraintId)
 {
 	if (!isConnected())
 	{
@@ -621,7 +535,7 @@ void b3RobotSimulatorClientAPI_NoGUI::removeConstraint(int constraintId)
 }
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::getJointState(int bodyUniqueId, int jointIndex, struct b3JointSensorState* state)
+bool b3RobotSimulatorClientAPI_NoDirect::getJointState(int bodyUniqueId, int jointIndex, struct b3JointSensorState* state)
 {
 	if (!isConnected())
 	{
@@ -641,7 +555,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getJointState(int bodyUniqueId, int jointI
 	return false;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getJointStates(int bodyUniqueId, b3JointStates2& state)
+bool b3RobotSimulatorClientAPI_NoDirect::getJointStates(int bodyUniqueId, b3JointStates2& state)
 {
 	if (!isConnected())
 	{
@@ -700,7 +614,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getJointStates(int bodyUniqueId, b3JointSt
 	return false;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::resetJointState(int bodyUniqueId, int jointIndex, double targetValue)
+bool b3RobotSimulatorClientAPI_NoDirect::resetJointState(int bodyUniqueId, int jointIndex, double targetValue)
 {
 	if (!isConnected())
 	{
@@ -726,7 +640,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::resetJointState(int bodyUniqueId, int join
 	return false;
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::setJointMotorControl(int bodyUniqueId, int jointIndex, const b3RobotSimulatorJointMotorArgs& args)
+void b3RobotSimulatorClientAPI_NoDirect::setJointMotorControl(int bodyUniqueId, int jointIndex, const b3RobotSimulatorJointMotorArgs& args)
 {
 	if (!isConnected())
 	{
@@ -781,7 +695,7 @@ void b3RobotSimulatorClientAPI_NoGUI::setJointMotorControl(int bodyUniqueId, int
 	}
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::setNumSolverIterations(int numIterations)
+void b3RobotSimulatorClientAPI_NoDirect::setNumSolverIterations(int numIterations)
 {
 	if (!isConnected())
 	{
@@ -795,7 +709,7 @@ void b3RobotSimulatorClientAPI_NoGUI::setNumSolverIterations(int numIterations)
 	btAssert(b3GetStatusType(statusHandle) == CMD_CLIENT_COMMAND_COMPLETED);
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::setContactBreakingThreshold(double threshold)
+void b3RobotSimulatorClientAPI_NoDirect::setContactBreakingThreshold(double threshold)
 {
 	if (!isConnected())
 	{
@@ -810,7 +724,7 @@ void b3RobotSimulatorClientAPI_NoGUI::setContactBreakingThreshold(double thresho
 }
 
 
-void b3RobotSimulatorClientAPI_NoGUI::setTimeStep(double timeStepInSeconds)
+void b3RobotSimulatorClientAPI_NoDirect::setTimeStep(double timeStepInSeconds)
 {
 	if (!isConnected())
 	{
@@ -825,7 +739,7 @@ void b3RobotSimulatorClientAPI_NoGUI::setTimeStep(double timeStepInSeconds)
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::setNumSimulationSubSteps(int numSubSteps)
+void b3RobotSimulatorClientAPI_NoDirect::setNumSimulationSubSteps(int numSubSteps)
 {
 	if (!isConnected())
 	{
@@ -839,7 +753,7 @@ void b3RobotSimulatorClientAPI_NoGUI::setNumSimulationSubSteps(int numSubSteps)
 	btAssert(b3GetStatusType(statusHandle) == CMD_CLIENT_COMMAND_COMPLETED);
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::calculateInverseKinematics(const struct b3RobotSimulatorInverseKinematicArgs& args, struct b3RobotSimulatorInverseKinematicsResults& results)
+bool b3RobotSimulatorClientAPI_NoDirect::calculateInverseKinematics(const struct b3RobotSimulatorInverseKinematicArgs& args, struct b3RobotSimulatorInverseKinematicsResults& results)
 {
 	if (!isConnected())
 	{
@@ -892,7 +806,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::calculateInverseKinematics(const struct b3
 	return result;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getBodyJacobian(int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositions, const double* jointVelocities, const double* jointAccelerations, double* linearJacobian, double* angularJacobian)
+bool b3RobotSimulatorClientAPI_NoDirect::getBodyJacobian(int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositions, const double* jointVelocities, const double* jointAccelerations, double* linearJacobian, double* angularJacobian)
 {
 	if (!isConnected())
 	{
@@ -912,7 +826,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getBodyJacobian(int bodyUniqueId, int link
 }
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::getLinkState(int bodyUniqueId, int linkIndex, b3LinkState* linkState)
+bool b3RobotSimulatorClientAPI_NoDirect::getLinkState(int bodyUniqueId, int linkIndex, b3LinkState* linkState)
 {
 	bool computeLinkVelocity = true;
 	bool computeForwardKinematics = true;
@@ -920,7 +834,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getLinkState(int bodyUniqueId, int linkInd
 	return getLinkState(bodyUniqueId, linkIndex, computeLinkVelocity, computeForwardKinematics, linkState);
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getLinkState(int bodyUniqueId, int linkIndex, int computeLinkVelocity, int computeForwardKinematics, b3LinkState* linkState)
+bool b3RobotSimulatorClientAPI_NoDirect::getLinkState(int bodyUniqueId, int linkIndex, int computeLinkVelocity, int computeForwardKinematics, b3LinkState* linkState)
 {
 	if (!isConnected()) {
 		b3Warning("Not connected");
@@ -946,7 +860,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getLinkState(int bodyUniqueId, int linkInd
 	return false;
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::configureDebugVisualizer(b3ConfigureDebugVisualizerEnum flag, int enable)
+void b3RobotSimulatorClientAPI_NoDirect::configureDebugVisualizer(b3ConfigureDebugVisualizerEnum flag, int enable)
 {
 	if (!isConnected())
 	{
@@ -958,7 +872,7 @@ void b3RobotSimulatorClientAPI_NoGUI::configureDebugVisualizer(b3ConfigureDebugV
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::getVREvents(b3VREventsData* vrEventsData,int deviceTypeFilter)
+void b3RobotSimulatorClientAPI_NoDirect::getVREvents(b3VREventsData* vrEventsData,int deviceTypeFilter)
 {
 	vrEventsData->m_numControllerEvents = 0;
 	vrEventsData->m_controllerEvents = 0;
@@ -974,7 +888,7 @@ void b3RobotSimulatorClientAPI_NoGUI::getVREvents(b3VREventsData* vrEventsData,i
 	b3GetVREventsData(m_data->m_physicsClientHandle, vrEventsData);
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::getKeyboardEvents(b3KeyboardEventsData* keyboardEventsData)
+void b3RobotSimulatorClientAPI_NoDirect::getKeyboardEvents(b3KeyboardEventsData* keyboardEventsData)
 {
 	keyboardEventsData->m_numKeyboardEvents = 0;
 	keyboardEventsData->m_keyboardEvents = 0;
@@ -989,7 +903,7 @@ void b3RobotSimulatorClientAPI_NoGUI::getKeyboardEvents(b3KeyboardEventsData* ke
 	b3GetKeyboardEventsData(m_data->m_physicsClientHandle, keyboardEventsData);
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::startStateLogging(b3StateLoggingType loggingType, const std::string& fileName, const btAlignedObjectArray<int>& objectUniqueIds, int maxLogDof)
+int b3RobotSimulatorClientAPI_NoDirect::startStateLogging(b3StateLoggingType loggingType, const std::string& fileName, const btAlignedObjectArray<int>& objectUniqueIds, int maxLogDof)
 {
 	if (!isConnected())
 	{
@@ -1024,7 +938,7 @@ int b3RobotSimulatorClientAPI_NoGUI::startStateLogging(b3StateLoggingType loggin
 	return loggingUniqueId;
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::stopStateLogging(int stateLoggerUniqueId)
+void b3RobotSimulatorClientAPI_NoDirect::stopStateLogging(int stateLoggerUniqueId)
 {
 	if (!isConnected())
 	{
@@ -1039,7 +953,7 @@ void b3RobotSimulatorClientAPI_NoGUI::stopStateLogging(int stateLoggerUniqueId)
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::resetDebugVisualizerCamera(double cameraDistance, double cameraPitch, double cameraYaw, const btVector3& targetPos)
+void b3RobotSimulatorClientAPI_NoDirect::resetDebugVisualizerCamera(double cameraDistance, double cameraPitch, double cameraYaw, const btVector3& targetPos)
 {
 	if (!isConnected())
 	{
@@ -1060,7 +974,7 @@ void b3RobotSimulatorClientAPI_NoGUI::resetDebugVisualizerCamera(double cameraDi
 	}
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::submitProfileTiming(const std::string&  profileName, int durationInMicroSeconds)
+void b3RobotSimulatorClientAPI_NoDirect::submitProfileTiming(const std::string&  profileName, int durationInMicroSeconds)
 {
 	if (!isConnected())
 	{
@@ -1076,7 +990,7 @@ void b3RobotSimulatorClientAPI_NoGUI::submitProfileTiming(const std::string&  pr
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::loadSoftBody(const std::string& fileName, double scale, double mass, double collisionMargin)
+void b3RobotSimulatorClientAPI_NoDirect::loadSoftBody(const std::string& fileName, double scale, double mass, double collisionMargin)
 {
 	if (!isConnected())
 	{
@@ -1091,7 +1005,7 @@ void b3RobotSimulatorClientAPI_NoGUI::loadSoftBody(const std::string& fileName, 
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 }
 
-void b3RobotSimulatorClientAPI_NoGUI::getMouseEvents(b3MouseEventsData* mouseEventsData)
+void b3RobotSimulatorClientAPI_NoDirect::getMouseEvents(b3MouseEventsData* mouseEventsData)
 {
 	mouseEventsData->m_numMouseEvents = 0;
 	mouseEventsData->m_mouseEvents = 0;
@@ -1106,7 +1020,7 @@ void b3RobotSimulatorClientAPI_NoGUI::getMouseEvents(b3MouseEventsData* mouseEve
 }
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::getCameraImage(int width, int height, struct b3RobotSimulatorGetCameraImageArgs args, struct b3CameraImageData &imageData)
+bool b3RobotSimulatorClientAPI_NoDirect::getCameraImage(int width, int height, struct b3RobotSimulatorGetCameraImageArgs args, struct b3CameraImageData &imageData)
 {
 	if (!isConnected()) {
 		b3Warning("Not connected");
@@ -1172,7 +1086,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getCameraImage(int width, int height, stru
 	return true;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::calculateInverseDynamics(int bodyUniqueId, double *jointPositions, double *jointVelocities,
+bool b3RobotSimulatorClientAPI_NoDirect::calculateInverseDynamics(int bodyUniqueId, double *jointPositions, double *jointVelocities,
 	double *jointAccelerations, double *jointForcesOutput) 
 {
 	if (!isConnected()) {
@@ -1204,7 +1118,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::calculateInverseDynamics(int bodyUniqueId,
 	return false;
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::getNumBodies() const
+int b3RobotSimulatorClientAPI_NoDirect::getNumBodies() const
 {
 	if (!isConnected()) {
 		b3Warning("Not connected");
@@ -1213,7 +1127,7 @@ int b3RobotSimulatorClientAPI_NoGUI::getNumBodies() const
 	return b3GetNumBodies(m_data->m_physicsClientHandle);
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::getBodyUniqueId(int bodyId) const
+int b3RobotSimulatorClientAPI_NoDirect::getBodyUniqueId(int bodyId) const
 {
 	if (!isConnected()) {
 		b3Warning("Not connected");
@@ -1222,7 +1136,7 @@ int b3RobotSimulatorClientAPI_NoGUI::getBodyUniqueId(int bodyId) const
 	return b3GetBodyUniqueId(m_data->m_physicsClientHandle, bodyId);
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::removeBody(int bodyUniqueId) 
+bool b3RobotSimulatorClientAPI_NoDirect::removeBody(int bodyUniqueId) 
 {
 	if (!isConnected()) {
 		b3Warning("Not connected");
@@ -1246,7 +1160,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::removeBody(int bodyUniqueId)
 	return false;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getDynamicsInfo(int bodyUniqueId, int linkIndex, b3DynamicsInfo *dynamicsInfo) {
+bool b3RobotSimulatorClientAPI_NoDirect::getDynamicsInfo(int bodyUniqueId, int linkIndex, b3DynamicsInfo *dynamicsInfo) {
 	if (!isConnected()) {
 		b3Warning("Not connected");
 		return false;
@@ -1282,7 +1196,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getDynamicsInfo(int bodyUniqueId, int link
 }
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::changeDynamics(int bodyUniqueId, int linkIndex, struct b3RobotSimulatorChangeDynamicsArgs &args)
+bool b3RobotSimulatorClientAPI_NoDirect::changeDynamics(int bodyUniqueId, int linkIndex, struct b3RobotSimulatorChangeDynamicsArgs &args)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1331,7 +1245,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::changeDynamics(int bodyUniqueId, int linkI
 	return true;
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::addUserDebugParameter(char * paramName, double rangeMin, double rangeMax, double startValue) {
+int b3RobotSimulatorClientAPI_NoDirect::addUserDebugParameter(char * paramName, double rangeMin, double rangeMax, double startValue) {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
 		b3Warning("Not connected to physics server.");
@@ -1354,7 +1268,7 @@ int b3RobotSimulatorClientAPI_NoGUI::addUserDebugParameter(char * paramName, dou
 }
 
 
-double b3RobotSimulatorClientAPI_NoGUI::readUserDebugParameter(int itemUniqueId) {
+double b3RobotSimulatorClientAPI_NoDirect::readUserDebugParameter(int itemUniqueId) {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
 		b3Warning("Not connected to physics server.");
@@ -1380,7 +1294,7 @@ double b3RobotSimulatorClientAPI_NoGUI::readUserDebugParameter(int itemUniqueId)
 }
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::removeUserDebugItem(int itemUniqueId) {
+bool b3RobotSimulatorClientAPI_NoDirect::removeUserDebugItem(int itemUniqueId) {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
 		b3Warning("Not connected to physics server.");
@@ -1397,7 +1311,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::removeUserDebugItem(int itemUniqueId) {
 }
 
 
-int b3RobotSimulatorClientAPI_NoGUI::addUserDebugText(char *text, double *textPosition, struct b3RobotSimulatorAddUserDebugTextArgs & args)
+int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(char *text, double *textPosition, struct b3RobotSimulatorAddUserDebugTextArgs & args)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1429,7 +1343,7 @@ int b3RobotSimulatorClientAPI_NoGUI::addUserDebugText(char *text, double *textPo
 	return -1;
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::addUserDebugText(char *text, btVector3 &textPosition, struct b3RobotSimulatorAddUserDebugTextArgs & args)
+int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(char *text, btVector3 &textPosition, struct b3RobotSimulatorAddUserDebugTextArgs & args)
 {
 	double dposXYZ[3];
 	dposXYZ[0] = textPosition.x();
@@ -1439,7 +1353,7 @@ int b3RobotSimulatorClientAPI_NoGUI::addUserDebugText(char *text, btVector3 &tex
 	return addUserDebugText(text, &dposXYZ[0], args);
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::addUserDebugLine(double *fromXYZ, double *toXYZ, struct b3RobotSimulatorAddUserDebugLineArgs & args)
+int b3RobotSimulatorClientAPI_NoDirect::addUserDebugLine(double *fromXYZ, double *toXYZ, struct b3RobotSimulatorAddUserDebugLineArgs & args)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1467,7 +1381,7 @@ int b3RobotSimulatorClientAPI_NoGUI::addUserDebugLine(double *fromXYZ, double *t
 	return -1;
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::addUserDebugLine(btVector3 &fromXYZ, btVector3 &toXYZ, struct b3RobotSimulatorAddUserDebugLineArgs & args)
+int b3RobotSimulatorClientAPI_NoDirect::addUserDebugLine(btVector3 &fromXYZ, btVector3 &toXYZ, struct b3RobotSimulatorAddUserDebugLineArgs & args)
 {
 	double dfromXYZ[3];
 	double dtoXYZ[3];
@@ -1483,7 +1397,7 @@ int b3RobotSimulatorClientAPI_NoGUI::addUserDebugLine(btVector3 &fromXYZ, btVect
 
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::setJointMotorControlArray(int bodyUniqueId, struct b3RobotSimulatorJointMotorArrayArgs &args)
+bool b3RobotSimulatorClientAPI_NoDirect::setJointMotorControlArray(int bodyUniqueId, struct b3RobotSimulatorJointMotorArrayArgs &args)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1565,7 +1479,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::setJointMotorControlArray(int bodyUniqueId
 }
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::setPhysicsEngineParameter(struct b3RobotSimulatorSetPhysicsEngineParameters &args)
+bool b3RobotSimulatorClientAPI_NoDirect::setPhysicsEngineParameter(struct b3RobotSimulatorSetPhysicsEngineParameters &args)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1636,7 +1550,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::setPhysicsEngineParameter(struct b3RobotSi
 }
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::applyExternalForce(int objectUniqueId, int linkIndex, double *force, double *position, int flags) 
+bool b3RobotSimulatorClientAPI_NoDirect::applyExternalForce(int objectUniqueId, int linkIndex, double *force, double *position, int flags) 
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1652,7 +1566,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::applyExternalForce(int objectUniqueId, int
 	return true;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::applyExternalForce(int objectUniqueId, int linkIndex, btVector3 &force, btVector3 &position, int flags)
+bool b3RobotSimulatorClientAPI_NoDirect::applyExternalForce(int objectUniqueId, int linkIndex, btVector3 &force, btVector3 &position, int flags)
 {
 	double dforce[3];
 	double dposition[3];
@@ -1669,7 +1583,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::applyExternalForce(int objectUniqueId, int
 }
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::applyExternalTorque(int objectUniqueId, int linkIndex, double *torque, int flags) 
+bool b3RobotSimulatorClientAPI_NoDirect::applyExternalTorque(int objectUniqueId, int linkIndex, double *torque, int flags) 
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1685,7 +1599,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::applyExternalTorque(int objectUniqueId, in
 	return true;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::applyExternalTorque(int objectUniqueId, int linkIndex, btVector3 &torque, int flags)
+bool b3RobotSimulatorClientAPI_NoDirect::applyExternalTorque(int objectUniqueId, int linkIndex, btVector3 &torque, int flags)
 {
 	double dtorque[3];
 
@@ -1697,7 +1611,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::applyExternalTorque(int objectUniqueId, in
 }
 
 
-bool  b3RobotSimulatorClientAPI_NoGUI::enableJointForceTorqueSensor(int bodyUniqueId, int jointIndex, bool enable)
+bool  b3RobotSimulatorClientAPI_NoDirect::enableJointForceTorqueSensor(int bodyUniqueId, int jointIndex, bool enable)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1723,7 +1637,7 @@ bool  b3RobotSimulatorClientAPI_NoGUI::enableJointForceTorqueSensor(int bodyUniq
 	return false;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getDebugVisualizerCamera(struct b3OpenGLVisualizerCameraInfo *cameraInfo)
+bool b3RobotSimulatorClientAPI_NoDirect::getDebugVisualizerCamera(struct b3OpenGLVisualizerCameraInfo *cameraInfo)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1744,7 +1658,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getDebugVisualizerCamera(struct b3OpenGLVi
 	return false;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getContactPoints(struct b3RobotSimulatorGetContactPointsArgs &args, struct b3ContactInformation *contactInfo)
+bool b3RobotSimulatorClientAPI_NoDirect::getContactPoints(struct b3RobotSimulatorGetContactPointsArgs &args, struct b3ContactInformation *contactInfo)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1780,7 +1694,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getContactPoints(struct b3RobotSimulatorGe
 	return false;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getClosestPoints(struct b3RobotSimulatorGetContactPointsArgs &args, double distance, struct b3ContactInformation *contactInfo)
+bool b3RobotSimulatorClientAPI_NoDirect::getClosestPoints(struct b3RobotSimulatorGetContactPointsArgs &args, double distance, struct b3ContactInformation *contactInfo)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1815,7 +1729,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getClosestPoints(struct b3RobotSimulatorGe
 }
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::getOverlappingObjects(double *aabbMin, double *aabbMax, struct b3AABBOverlapData *overlapData)
+bool b3RobotSimulatorClientAPI_NoDirect::getOverlappingObjects(double *aabbMin, double *aabbMax, struct b3AABBOverlapData *overlapData)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1834,7 +1748,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getOverlappingObjects(double *aabbMin, dou
 }
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::getOverlappingObjects(btVector3 &aabbMin, btVector3 &aabbMax, struct b3AABBOverlapData *overlapData)
+bool b3RobotSimulatorClientAPI_NoDirect::getOverlappingObjects(btVector3 &aabbMin, btVector3 &aabbMax, struct b3AABBOverlapData *overlapData)
 {
 	double daabbMin[3];
 	double daabbMax[3];
@@ -1852,7 +1766,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getOverlappingObjects(btVector3 &aabbMin, 
 
 
 
-bool b3RobotSimulatorClientAPI_NoGUI::getAABB(int bodyUniqueId, int linkIndex, double *aabbMin, double *aabbMax)
+bool b3RobotSimulatorClientAPI_NoDirect::getAABB(int bodyUniqueId, int linkIndex, double *aabbMin, double *aabbMax)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1891,7 +1805,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getAABB(int bodyUniqueId, int linkIndex, d
 	return false;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getAABB(int bodyUniqueId, int linkIndex, btVector3 &aabbMin, btVector3 &aabbMax)
+bool b3RobotSimulatorClientAPI_NoDirect::getAABB(int bodyUniqueId, int linkIndex, btVector3 &aabbMin, btVector3 &aabbMax)
 {
 	double daabbMin[3];
 	double daabbMax[3];
@@ -1910,7 +1824,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getAABB(int bodyUniqueId, int linkIndex, b
 }
 
 
-int b3RobotSimulatorClientAPI_NoGUI::createCollisionShape(int shapeType, struct b3RobotSimulatorCreateCollisionShapeArgs &args)
+int b3RobotSimulatorClientAPI_NoDirect::createCollisionShape(int shapeType, struct b3RobotSimulatorCreateCollisionShapeArgs &args)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1962,7 +1876,7 @@ int b3RobotSimulatorClientAPI_NoGUI::createCollisionShape(int shapeType, struct 
 	return -1;
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::createMultiBody(struct b3RobotSimulatorCreateMultiBodyArgs &args)
+int b3RobotSimulatorClientAPI_NoDirect::createMultiBody(struct b3RobotSimulatorCreateMultiBodyArgs &args)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -2035,7 +1949,7 @@ int b3RobotSimulatorClientAPI_NoGUI::createMultiBody(struct b3RobotSimulatorCrea
 	return -1;
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::getNumConstraints() const
+int b3RobotSimulatorClientAPI_NoDirect::getNumConstraints() const
 {
 	if (!isConnected()) {
 		b3Warning("Not connected");
@@ -2044,7 +1958,7 @@ int b3RobotSimulatorClientAPI_NoGUI::getNumConstraints() const
 	return b3GetNumUserConstraints(m_data->m_physicsClientHandle);
 }
 
-int b3RobotSimulatorClientAPI_NoGUI::getConstraintUniqueId(int serialIndex)
+int b3RobotSimulatorClientAPI_NoDirect::getConstraintUniqueId(int serialIndex)
 {
 	if (!isConnected()) {
 		b3Warning("Not connected");
@@ -2057,17 +1971,24 @@ int b3RobotSimulatorClientAPI_NoGUI::getConstraintUniqueId(int serialIndex)
 
 
 
-void b3RobotSimulatorClientAPI_NoGUI::setGuiHelper(struct GUIHelperInterface* guiHelper)
+void b3RobotSimulatorClientAPI_NoDirect::setGuiHelper(struct GUIHelperInterface* guiHelper)
 {
 	m_data->m_guiHelper = guiHelper;
 }
 
-struct GUIHelperInterface* b3RobotSimulatorClientAPI_NoGUI::getGuiHelper()
+
+struct GUIHelperInterface* b3RobotSimulatorClientAPI_NoDirect::getGuiHelper()
 {
 	return m_data->m_guiHelper;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getCollisionShapeData(int bodyUniqueId, int linkIndex,
+void b3RobotSimulatorClientAPI_NoDirect::setInternalData(struct b3RobotSimulatorClientAPI_InternalData* data)
+{
+	*m_data = *data;
+}
+
+
+bool b3RobotSimulatorClientAPI_NoDirect::getCollisionShapeData(int bodyUniqueId, int linkIndex,
 															b3CollisionShapeInformation &collisionShapeInfo)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
@@ -2092,7 +2013,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::getCollisionShapeData(int bodyUniqueId, in
 	return true;
 }
 
-bool b3RobotSimulatorClientAPI_NoGUI::getVisualShapeData(int bodyUniqueId, b3VisualShapeInformation &visualShapeInfo)
+bool b3RobotSimulatorClientAPI_NoDirect::getVisualShapeData(int bodyUniqueId, b3VisualShapeInformation &visualShapeInfo)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {

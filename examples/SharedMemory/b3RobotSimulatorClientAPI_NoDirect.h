@@ -1,5 +1,9 @@
-#ifndef B3_ROBOT_SIMULATOR_CLIENT_API_H
-#define B3_ROBOT_SIMULATOR_CLIENT_API_H
+#ifndef B3_ROBOT_SIMULATOR_CLIENT_API_NO_DIRECT_H
+#define B3_ROBOT_SIMULATOR_CLIENT_API_NO_DIRECT_H
+
+///The b3RobotSimulatorClientAPI is pretty much the C++ version of pybullet
+///as documented in the pybullet Quickstart Guide
+///https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA
 
 #include "SharedMemoryPublic.h"
 #include "LinearMath/btVector3.h"
@@ -404,11 +408,7 @@ struct b3RobotSimulatorCreateMultiBodyArgs
 };
 
 
-
-///The b3RobotSimulatorClientAPI is pretty much the C++ version of pybullet
-///as documented in the pybullet Quickstart Guide
-///https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA
-class b3RobotSimulatorClientAPI_NoGUI
+class b3RobotSimulatorClientAPI_NoDirect
 {
 protected:
 
@@ -416,10 +416,11 @@ protected:
 
 public:
 	
-	b3RobotSimulatorClientAPI_NoGUI();
-	virtual ~b3RobotSimulatorClientAPI_NoGUI();
+	b3RobotSimulatorClientAPI_NoDirect();
+	virtual ~b3RobotSimulatorClientAPI_NoDirect();
 
-	bool connect(int mode, const std::string& hostName = "localhost", int portOrKey = -1);
+	//No 'connect', use setInternalData to bypass the connect method, pass an existing client
+	virtual void setInternalData(struct b3RobotSimulatorClientAPI_InternalData* data);
 
 	void disconnect();
 
@@ -580,6 +581,9 @@ public:
 
 	bool getVisualShapeData(int bodyUniqueId, b3VisualShapeInformation &visualShapeInfo);
 	
+
 };
 
-#endif  //B3_ROBOT_SIMULATOR_CLIENT_API_H
+
+
+#endif  //B3_ROBOT_SIMULATOR_CLIENT_API_NO_DIRECT_H

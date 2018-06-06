@@ -9,6 +9,12 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(BulletRobotics_SRCS
+		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp
+		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoGUI.cpp
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoGUI.h
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.h
 		../../examples/SharedMemory/IKTrajectoryHelper.cpp
 		../../examples/SharedMemory/IKTrajectoryHelper.h
 		../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
@@ -91,8 +97,6 @@ SET(BulletRobotics_SRCS
 		../../examples/MultiThreading/b3PosixThreadSupport.cpp
 		../../examples/MultiThreading/b3Win32ThreadSupport.cpp
 		../../examples/MultiThreading/b3ThreadSupportInterface.cpp
-		../../examples/RobotSimulator/b3RobotSimulatorClientAPI_NoGUI.cpp
-		../../examples/RobotSimulator/b3RobotSimulatorClientAPI_NoGUI.h
 )
 
 IF(BUILD_CLSOCKET)
@@ -174,7 +178,8 @@ IF (INSTALL_EXTRA_LIBS)
 		../../examples/SharedMemory/PhysicsClientTCP_C_API.h
 		../../examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.h
 		../../examples/SharedMemory/SharedMemoryPublic.h
-		../../examples/RobotSimulator/b3RobotSimulatorClientAPI_NoGUI.h
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoGUI.h
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.h
 		DESTINATION include/bullet
 		)
 	INSTALL(TARGETS

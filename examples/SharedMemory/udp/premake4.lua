@@ -77,6 +77,10 @@ language "C++"
 
 myfiles = 
 {
+	"../plugins/pdControlPlugin/pdControlPlugin.cpp",
+	"../plugins/pdControlPlugin/pdControlPlugin.h",
+	"../b3RobotSimulatorClientAPI_NoDirect.cpp",
+	"../b3RobotSimulatorClientAPI_NoDirect.h",
 	"../IKTrajectoryHelper.cpp",
 	"../IKTrajectoryHelper.h",
 	"../SharedMemoryCommands.h",
@@ -85,6 +89,7 @@ myfiles =
 	"../PhysicsServerCommandProcessor.h",
 	"../b3PluginManager.cpp",
 	"../PhysicsDirect.cpp",
+	"../PhysicsClientC_API.cpp",
 	"../PhysicsClient.cpp",
 	"../plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
 	"../plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
