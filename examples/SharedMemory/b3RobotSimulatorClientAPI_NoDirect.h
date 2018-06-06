@@ -506,7 +506,7 @@ public:
 
 	void getMouseEvents(b3MouseEventsData* mouseEventsData);
 
-	bool getLinkState(int bodyUniqueId, int linkIndex, int computeLinkVelocity, int computeInverseKinematics, b3LinkState* linkState);
+	bool getLinkState(int bodyUniqueId, int linkIndex, int computeLinkVelocity, int computeForwardKinematics, b3LinkState* linkState);
 
 	bool getCameraImage(int width, int height, struct b3RobotSimulatorGetCameraImageArgs args, b3CameraImageData &imageData);
 
