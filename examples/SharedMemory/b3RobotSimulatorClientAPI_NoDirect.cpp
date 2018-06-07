@@ -444,7 +444,7 @@ void b3RobotSimulatorClientAPI_NoDirect::setRealTimeSimulation(bool enableRealTi
 	b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(m_data->m_physicsClientHandle);
 	b3SharedMemoryStatusHandle statusHandle;
 
-	int ret = b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
+	b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 
@@ -531,7 +531,7 @@ void b3RobotSimulatorClientAPI_NoDirect::removeConstraint(int constraintId)
 	}
 	b3SharedMemoryCommandHandle commandHandle = b3InitRemoveUserConstraintCommand(m_data->m_physicsClientHandle, constraintId);
 	b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
-	int statusType = b3GetStatusType(statusHandle);
+	b3GetStatusType(statusHandle);
 }
 
 
@@ -1094,7 +1094,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::calculateInverseDynamics(int bodyUnique
 		return false;
 	}
 
-	int numJoints = b3GetNumJoints(m_data->m_physicsClientHandle, bodyUniqueId);
+	b3GetNumJoints(m_data->m_physicsClientHandle, bodyUniqueId);
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
 	b3SharedMemoryCommandHandle commandHandle = b3CalculateInverseDynamicsCommandInit(m_data->m_physicsClientHandle, bodyUniqueId, jointPositions,
@@ -1404,7 +1404,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::setJointMotorControlArray(int bodyUniqu
 		b3Warning("Not connected to physics server.");
 		return false;
 	}
-	int numJoints = b3GetNumJoints(sm, bodyUniqueId);
+	b3GetNumJoints(sm, bodyUniqueId);
 
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;

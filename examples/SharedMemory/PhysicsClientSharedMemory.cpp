@@ -242,7 +242,6 @@ void PhysicsClientSharedMemory::resetData()
 		BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
 		if (bodyJointsPtr && *bodyJointsPtr)
 		{
-			BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
 			delete (*bodyJointsPtr);
 		}
 	}
