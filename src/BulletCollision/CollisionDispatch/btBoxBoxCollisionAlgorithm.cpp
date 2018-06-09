@@ -26,7 +26,7 @@ btBoxBoxCollisionAlgorithm::btBoxBoxCollisionAlgorithm(btPersistentManifold* mf,
 m_ownManifold(false),
 m_manifoldPtr(mf)
 {
-	if (!m_manifoldPtr && m_dispatcher->needsCollision(body0Wrap->getCollisionObject(),body1Wrap->getCollisionObject()))
+	if (!m_manifoldPtr)
 	{
 		m_manifoldPtr = m_dispatcher->getNewManifold(body0Wrap->getCollisionObject(),body1Wrap->getCollisionObject());
 		m_ownManifold = true;

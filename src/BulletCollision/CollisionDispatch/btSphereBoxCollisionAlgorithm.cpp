@@ -30,7 +30,7 @@ m_isSwapped(isSwapped)
 	const btCollisionObjectWrapper* sphereObjWrap = m_isSwapped? col1Wrap : col0Wrap;
 	const btCollisionObjectWrapper* boxObjWrap = m_isSwapped? col0Wrap : col1Wrap;
 	
-	if (!m_manifoldPtr && m_dispatcher->needsCollision(sphereObjWrap->getCollisionObject(),boxObjWrap->getCollisionObject()))
+	if (!m_manifoldPtr)
 	{
 		m_manifoldPtr = m_dispatcher->getNewManifold(sphereObjWrap->getCollisionObject(),boxObjWrap->getCollisionObject());
 		m_ownManifold = true;

@@ -34,7 +34,7 @@ m_minimumPointsPerturbationThreshold(minimumPointsPerturbationThreshold)
 	const btCollisionObjectWrapper* convexObjWrap = m_isSwapped? col1Wrap : col0Wrap;
 	const btCollisionObjectWrapper* planeObjWrap = m_isSwapped? col0Wrap : col1Wrap;
 
-	if (!m_manifoldPtr && m_dispatcher->needsCollision(convexObjWrap->getCollisionObject(),planeObjWrap->getCollisionObject()))
+	if (!m_manifoldPtr)
 	{
 		m_manifoldPtr = m_dispatcher->getNewManifold(convexObjWrap->getCollisionObject(),planeObjWrap->getCollisionObject());
 		m_ownManifold = true;
