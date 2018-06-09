@@ -582,8 +582,15 @@ public:
 	bool getCollisionShapeData(int bodyUniqueId, int linkIndex, b3CollisionShapeInformation &collisionShapeInfo);
 
 	bool getVisualShapeData(int bodyUniqueId, b3VisualShapeInformation &visualShapeInfo);
-	
 
+	int saveStateToMemory();
+	void restoreStateFromMemory(int stateId);
+
+	int getAPIVersion() const
+	{
+		return SHARED_MEMORY_MAGIC_NUMBER;
+	}
+	void setAdditionalSearchPath(std::string path);
 };
 
 

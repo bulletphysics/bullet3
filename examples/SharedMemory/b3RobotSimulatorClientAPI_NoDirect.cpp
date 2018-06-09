@@ -2013,6 +2013,65 @@ bool b3RobotSimulatorClientAPI_NoDirect::getCollisionShapeData(int bodyUniqueId,
 	return true;
 }
 
+int b3RobotSimulatorClientAPI_NoDirect::saveStateToMemory()
+{
+	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+	if (sm == 0) {
+		b3Warning("Not connected");
+		return false;
+	}
+
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command;
+	
+	int stateId = -1;
+
+	if (sm == 0)
+	{
+		return -1;
+	}
+
+	command = b3SaveStateCommandInit(sm);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+
+	if (statusType != CMD_SAVE_STATE_COMPLETED)
+	{
+		return -1;
+	}
+
+	stateId = b3GetStatusGetStateId(statusHandle);
+	return stateId;
+}
+
+void b3RobotSimulatorClientAPI_NoDirect::restoreStateFromMemory(int stateId)
+{
+	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+	if (sm == 0) {
+		b3Warning("Not connected");
+		return;
+	}
+
+	int statusType;
+	b3SharedMemoryCommandHandle command;
+	b3SharedMemoryStatusHandle statusHandle;
+	int physicsClientId = 0;
+	
+	command = b3LoadStateCommandInit(sm);
+	if (stateId >= 0)
+	{
+		b3LoadStateSetStateId(command, stateId);
+	}
+//	if (fileName)
+//	{
+//		b3LoadStateSetFileName(command, fileName);
+//	}
+
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+}
+
 bool b3RobotSimulatorClientAPI_NoDirect::getVisualShapeData(int bodyUniqueId, b3VisualShapeInformation &visualShapeInfo)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
@@ -2034,5 +2093,22 @@ bool b3RobotSimulatorClientAPI_NoDirect::getVisualShapeData(int bodyUniqueId, b3
 			b3GetVisualShapeInformation(sm, &visualShapeInfo);
 		}
 		return true;
+	}
+}
+
+void b3RobotSimulatorClientAPI_NoDirect::setAdditionalSearchPath(std::string path)
+{
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+	if (sm == 0) {
+		b3Warning("Not connected");
+		return;
+	}
+	if (path.length())
+	{
+		b3SharedMemoryCommandHandle commandHandle;
+		b3SharedMemoryStatusHandle statusHandle;
+		commandHandle = b3SetAdditionalSearchPath(sm, path.c_str());
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	}
 }
