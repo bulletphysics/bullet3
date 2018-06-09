@@ -61,7 +61,7 @@ inline int btGetVersion()
 #endif
 
 #ifdef _WIN32
-	#if defined(__GNC__)
+	#if defined(__GNUC__)
 		#define SIMD_FORCE_INLINE __inline__ __attribute__((always_inline))
 		#define ATTRIBUTE_ALIGNED16(a)  a __attribute__((aligned(16)))
 		#define ATTRIBUTE_ALIGNED64(a)  a __attribute__((aligned(64)))
