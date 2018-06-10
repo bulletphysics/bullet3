@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "btCollisionShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 #include "btTriangleCallback.h"
+#include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 
 /// PHY_ScalarType enumerates possible scalar types.
 /// See the btStridingMeshInterface or btHeightfieldTerrainShape for its use
@@ -46,6 +47,22 @@ public:
 	virtual ~btConcaveShape();
 
 	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const = 0;
+	
+	/**
+	 * \brief Process all triangles for ray casting.
+	 * \details This is a fix for bad code design in bullet. The default implementation
+	 *          forwards to processAllTriangles and can be overloaded.
+	 */
+	virtual void processRaycastAllTriangles( btTriangleRaycastCallback *callback,
+	const btVector3 &raySource, const btVector3 &rayTarget );
+	/**
+	 * \brief Process all triangles for convex shape casting.
+	 * \details This is a fix for bad code design in bullet. The default implementation
+	 *          forwards to processAllTriangles and can be overloaded.
+	 */
+	virtual void processConvexcastAllTriangles( btTriangleConvexcastCallback *callback,
+	const btVector3 &boxSource, const btVector3 &boxTarget,
+	const btVector3 &boxMin, const btVector3 &boxMax );
 
 	virtual btScalar getMargin() const {
 		return m_collisionMargin;

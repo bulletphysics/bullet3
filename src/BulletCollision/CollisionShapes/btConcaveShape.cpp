@@ -25,3 +25,27 @@ btConcaveShape::~btConcaveShape()
 {
 
 }
+
+void btConcaveShape::processRaycastAllTriangles( btTriangleRaycastCallback *callback,
+const btVector3 &raySource, const btVector3 &rayTarget ){
+	btVector3 rayAabbMinLocal = raySource;
+	rayAabbMinLocal.setMin( rayTarget );
+	
+	btVector3 rayAabbMaxLocal = raySource;
+	rayAabbMaxLocal.setMax( rayTarget );
+	
+	processAllTriangles( callback, rayAabbMinLocal, rayAabbMaxLocal );
+}
+
+void btConcaveShape::processConvexcastAllTriangles( btTriangleConvexcastCallback *callback,
+const btVector3 &boxSource, const btVector3 &boxTarget, const btVector3 &boxMin, const btVector3 &boxMax ){
+	btVector3 rayAabbMinLocal = boxSource;
+	rayAabbMinLocal.setMin( boxTarget );
+	rayAabbMinLocal += boxMin;
+	
+	btVector3 rayAabbMaxLocal = boxSource;
+	rayAabbMaxLocal.setMax( boxTarget );
+	rayAabbMaxLocal += boxMax;
+	
+	processAllTriangles( callback, rayAabbMinLocal, rayAabbMaxLocal );
+}

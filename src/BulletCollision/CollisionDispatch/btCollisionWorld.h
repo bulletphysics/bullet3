@@ -186,10 +186,12 @@ public:
 	struct	LocalRayResult
 	{
 		LocalRayResult(const btCollisionObject*	collisionObject, 
+			const btCollisionShape* collisionShape,
 			LocalShapeInfo*	localShapeInfo,
 			const btVector3&		hitNormalLocal,
 			btScalar hitFraction)
 		:m_collisionObject(collisionObject),
+		m_collisionShape(collisionShape),
 		m_localShapeInfo(localShapeInfo),
 		m_hitNormalLocal(hitNormalLocal),
 		m_hitFraction(hitFraction)
@@ -197,6 +199,7 @@ public:
 		}
 
 		const btCollisionObject*		m_collisionObject;
+		const btCollisionShape* m_collisionShape;
 		LocalShapeInfo*			m_localShapeInfo;
 		btVector3				m_hitNormalLocal;
 		btScalar				m_hitFraction;
@@ -208,6 +211,7 @@ public:
 	{
 		btScalar	m_closestHitFraction;
 		const btCollisionObject*		m_collisionObject;
+		const btCollisionShape* m_collisionShape;
 		int	m_collisionFilterGroup;
 		int	m_collisionFilterMask;
 		//@BP Mod - Custom flags, currently used to enable backface culling on tri-meshes, see btRaycastCallback.h. Apply any of the EFlags defined there on m_flags here to invoke.
@@ -224,6 +228,7 @@ public:
 		RayResultCallback()
 			:m_closestHitFraction(btScalar(1.)),
 			m_collisionObject(0),
+			m_collisionShape(0),
 			m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
 			m_collisionFilterMask(btBroadphaseProxy::AllFilter),
 			//@BP Mod
@@ -263,6 +268,7 @@ public:
 			
 			m_closestHitFraction = rayResult.m_hitFraction;
 			m_collisionObject = rayResult.m_collisionObject;
+			m_collisionShape = rayResult.m_collisionShape;
 			if (normalInWorldSpace)
 			{
 				m_hitNormalWorld = rayResult.m_hitNormalLocal;
@@ -296,6 +302,7 @@ public:
 		virtual	btScalar	addSingleResult(LocalRayResult& rayResult,bool normalInWorldSpace)
 		{
 			m_collisionObject = rayResult.m_collisionObject;
+			m_collisionShape = rayResult.m_collisionShape;
 			m_collisionObjects.push_back(rayResult.m_collisionObject);
 			btVector3 hitNormalWorld;
 			if (normalInWorldSpace)
@@ -319,12 +326,14 @@ public:
 	struct LocalConvexResult
 	{
 		LocalConvexResult(const btCollisionObject*	hitCollisionObject, 
+			const btCollisionShape* hitCollisionShape,
 			LocalShapeInfo*	localShapeInfo,
 			const btVector3&		hitNormalLocal,
 			const btVector3&		hitPointLocal,
 			btScalar hitFraction
 			)
 		:m_hitCollisionObject(hitCollisionObject),
+		m_hitCollisionShape(hitCollisionShape),
 		m_localShapeInfo(localShapeInfo),
 		m_hitNormalLocal(hitNormalLocal),
 		m_hitPointLocal(hitPointLocal),
@@ -333,6 +342,7 @@ public:
 		}
 
 		const btCollisionObject*		m_hitCollisionObject;
+		const btCollisionShape* m_hitCollisionShape;
 		LocalShapeInfo*			m_localShapeInfo;
 		btVector3				m_hitNormalLocal;
 		btVector3				m_hitPointLocal;
