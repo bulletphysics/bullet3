@@ -224,6 +224,63 @@ bool b3RobotSimulatorClientAPI_NoDirect::loadMJCF(const std::string& fileName, b
 	return true;
 }
 
+bool b3RobotSimulatorClientAPI_NoDirect::savePythonWorld(const std::string& fileName)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command;
+	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+
+	if (fileName.length()==0)
+	{
+		return false;
+	}
+
+	command = b3SaveWorldCommandInit(m_data->m_physicsClientHandle, fileName.c_str());
+	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType != CMD_SAVE_WORLD_COMPLETED)
+	{
+		return false;
+	}
+	return true;
+}
+
+bool b3RobotSimulatorClientAPI_NoDirect::saveBullet(const std::string& fileName)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command;
+	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+
+	if (fileName.length()==0)
+	{
+		return false;
+	}
+
+	command = b3SaveBulletCommandInit(m_data->m_physicsClientHandle, fileName.c_str());
+	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType != CMD_BULLET_SAVING_COMPLETED)
+	{
+		return false;
+	}
+	return true;
+}
+
+
 bool b3RobotSimulatorClientAPI_NoDirect::loadBullet(const std::string& fileName, b3RobotSimulatorLoadFileResults& results)
 {
 	if (!isConnected())
@@ -534,6 +591,19 @@ void b3RobotSimulatorClientAPI_NoDirect::removeConstraint(int constraintId)
 	b3GetStatusType(statusHandle);
 }
 
+bool b3RobotSimulatorClientAPI_NoDirect::getConstraintInfo(int constraintUniqueId, struct b3UserConstraint& constraintInfo)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}	
+	if (b3GetUserConstraintInfo(m_data->m_physicsClientHandle, constraintUniqueId, &constraintInfo))
+	{
+		return true;
+	}
+	return false;
+}
 
 bool b3RobotSimulatorClientAPI_NoDirect::getJointState(int bodyUniqueId, int jointIndex, struct b3JointSensorState* state)
 {
@@ -1478,8 +1548,34 @@ bool b3RobotSimulatorClientAPI_NoDirect::setJointMotorControlArray(int bodyUniqu
 	return true;
 }
 
+	
+bool b3RobotSimulatorClientAPI_NoDirect::getPhysicsEngineParameters(struct b3RobotSimulatorSetPhysicsEngineParameters &args)
+{
+	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+	if (sm == 0) {
+		b3Warning("Not connected");
+		return false;
+	}
 
-bool b3RobotSimulatorClientAPI_NoDirect::setPhysicsEngineParameter(struct b3RobotSimulatorSetPhysicsEngineParameters &args)
+	{
+		b3SharedMemoryCommandHandle command = b3InitRequestPhysicsParamCommand(sm);
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType!=CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED)
+		{
+			return false;
+		}
+		b3GetStatusPhysicsSimulationParameters(statusHandle,&args);
+	}
+	return true;
+}
+
+
+
+bool b3RobotSimulatorClientAPI_NoDirect::setPhysicsEngineParameter(const struct b3RobotSimulatorSetPhysicsEngineParameters &args)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0) {
@@ -1497,12 +1593,12 @@ bool b3RobotSimulatorClientAPI_NoDirect::setPhysicsEngineParameter(struct b3Robo
 		b3PhysicsParamSetCollisionFilterMode(command, args.m_collisionFilterMode);
 	}
 
-	if (args.m_numSubSteps >= 0)	{
-		b3PhysicsParamSetNumSubSteps(command, args.m_numSubSteps);
+	if (args.m_numSimulationSubSteps >= 0)	{
+		b3PhysicsParamSetNumSubSteps(command, args.m_numSimulationSubSteps);
 	}
 
-	if (args.m_fixedTimeStep >= 0) {
-		b3PhysicsParamSetTimeStep(command, args.m_fixedTimeStep);
+	if (args.m_deltaTime >= 0) {
+		b3PhysicsParamSetTimeStep(command, args.m_deltaTime);
 	}
 
 	if (args.m_useSplitImpulse >= 0) {
@@ -1517,10 +1613,6 @@ bool b3RobotSimulatorClientAPI_NoDirect::setPhysicsEngineParameter(struct b3Robo
 		b3PhysicsParamSetContactBreakingThreshold(command, args.m_contactBreakingThreshold);
 	}
 
-	if (args.m_maxNumCmdPer1ms >= -1) {
-		b3PhysicsParamSetMaxNumCommandsPer1ms(command, args.m_maxNumCmdPer1ms);
-	}
-
 	if (args.m_restitutionVelocityThreshold>=0) {
 		b3PhysicsParamSetRestitutionVelocityThreshold(command, args.m_restitutionVelocityThreshold);
 	}
@@ -1529,12 +1621,12 @@ bool b3RobotSimulatorClientAPI_NoDirect::setPhysicsEngineParameter(struct b3Robo
 		b3PhysicsParamSetEnableFileCaching(command, args.m_enableFileCaching);
 	}
 
-	if (args.m_erp>=0) {
-		b3PhysicsParamSetDefaultNonContactERP(command,args.m_erp);
+	if (args.m_defaultNonContactERP>=0) {
+		b3PhysicsParamSetDefaultNonContactERP(command,args.m_defaultNonContactERP);
 	}
 
-	if (args.m_contactERP>=0) {
-		b3PhysicsParamSetDefaultContactERP(command,args.m_contactERP);
+	if (args.m_defaultContactERP>=0) {
+		b3PhysicsParamSetDefaultContactERP(command,args.m_defaultContactERP);
 	}
 
 	if (args.m_frictionERP >=0) {
