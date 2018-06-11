@@ -78,6 +78,10 @@ public:
 
 	virtual void	processAllOverlappingPairs(btOverlapCallback*,btDispatcher* dispatcher) = 0;
 
+	virtual void    processAllOverlappingPairs(btOverlapCallback* callback,btDispatcher* dispatcher, const struct btDispatcherInfo& dispatchInfo)
+	{
+		processAllOverlappingPairs(callback, dispatcher, dispatchInfo);
+	}
 	virtual btBroadphasePair* findPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) = 0;
 
 	virtual bool	hasDeferredRemoval() = 0;
@@ -143,6 +147,8 @@ public:
 
 	
 	virtual void	processAllOverlappingPairs(btOverlapCallback*,btDispatcher* dispatcher);
+
+    virtual void    processAllOverlappingPairs(btOverlapCallback* callback,btDispatcher* dispatcher, const struct btDispatcherInfo& dispatchInfo);
 
 	virtual btBroadphasePair*	getOverlappingPairArrayPtr()
 	{
