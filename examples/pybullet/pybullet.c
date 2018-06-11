@@ -820,8 +820,8 @@ static PyObject* pybullet_getUserData(PyObject* self, PyObject* args, PyObject* 
 
 	if (!b3GetUserData(sm, bodyUniqueId, linkIndex, userDataId, &value)) {
 		
-		PyErr_SetString(SpamError, "Cannot get user data");
-		return NULL;
+		Py_INCREF(Py_None);
+		return Py_None;
 	}
 	if (value.m_type != USER_DATA_VALUE_TYPE_STRING) 
 	{
