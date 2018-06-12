@@ -47,7 +47,7 @@ struct btDispatcherInfo
 		m_allowedCcdPenetration(btScalar(0.04)),
 		m_useConvexConservativeDistanceUtil(false),
 		m_convexConservativeDistanceThreshold(0.0f),
-		m_deterministicOverlappingPairs(true)
+		m_deterministicOverlappingPairs(false)
 	{
 
 	}

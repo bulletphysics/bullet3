@@ -246,20 +246,16 @@ public:
 
 
 
+
 void	btCollisionDispatcher::dispatchAllCollisionPairs(btOverlappingPairCache* pairCache,const btDispatcherInfo& dispatchInfo,btDispatcher* dispatcher) 
 {
 	//m_blockedForChanges = true;
 
 	btCollisionPairCallback	collisionCallback(dispatchInfo,this);
 
-	if (dispatchInfo.m_deterministicOverlappingPairs)
-	{
-		BT_PROFILE("sortOverlappingPairs");
-		pairCache->sortOverlappingPairs(this);
-	}
-	{
+    {
 		BT_PROFILE("processAllOverlappingPairs");
-		pairCache->processAllOverlappingPairs(&collisionCallback,dispatcher);
+		pairCache->processAllOverlappingPairs(&collisionCallback,dispatcher, dispatchInfo);
 	}
 
 	//m_blockedForChanges = false;

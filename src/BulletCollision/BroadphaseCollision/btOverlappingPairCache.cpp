@@ -395,6 +395,70 @@ void	btHashedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback*
 	}
 }
 
+struct MyPairIndex
+{
+    int m_orgIndex;
+    int m_uidA0;
+    int m_uidA1;
+};
+
+class MyPairIndeSortPredicate
+{
+public:
+    
+    bool operator() ( const MyPairIndex& a, const MyPairIndex& b ) const
+    {
+        const int uidA0 = a.m_uidA0;
+        const int uidB0 = b.m_uidA0;
+        const int uidA1 = a.m_uidA1;
+        const int uidB1 = b.m_uidA1;
+        return uidA0 > uidB0 || (uidA0 == uidB0 && uidA1 > uidB1);
+    }
+};
+
+void    btHashedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback* callback,btDispatcher* dispatcher, const struct btDispatcherInfo& dispatchInfo)
+{
+    if (dispatchInfo.m_deterministicOverlappingPairs)
+    {
+        btBroadphasePairArray& pa = getOverlappingPairArray();
+        btAlignedObjectArray<MyPairIndex> indices;
+        {
+            BT_PROFILE("sortOverlappingPairs");
+            indices.resize(pa.size());
+            for (int i=0;i<indices.size();i++)
+            {
+                const btBroadphasePair& p = pa[i];
+                const int uidA0 = p.m_pProxy0 ? p.m_pProxy0->m_uniqueId : -1;
+                const int uidA1 = p.m_pProxy1 ? p.m_pProxy1->m_uniqueId : -1;
+                
+                indices[i].m_uidA0 = uidA0;
+                indices[i].m_uidA1 = uidA1;
+                indices[i].m_orgIndex = i;
+            }
+            indices.quickSort(MyPairIndeSortPredicate());
+        }
+        {
+            BT_PROFILE("btHashedOverlappingPairCache::processAllOverlappingPairs");
+            int i;
+            for (i=0;i<indices.size();)
+            {
+                btBroadphasePair* pair = &pa[indices[i].m_orgIndex];
+                if (callback->processOverlap(*pair))
+                {
+                    removeOverlappingPair(pair->m_pProxy0,pair->m_pProxy1,dispatcher);
+                } else
+                {
+                    i++;
+                }
+            }
+        }
+    } else
+    {
+        processAllOverlappingPairs(callback, dispatcher);
+    }
+}
+
+
 void	btHashedOverlappingPairCache::sortOverlappingPairs(btDispatcher* dispatcher)
 {
 	///need to keep hashmap in sync with pair address, so rebuild all
