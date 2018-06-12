@@ -611,8 +611,14 @@ B3_SHARED_API	int b3PhysicsParamSetContactSlop(b3SharedMemoryCommandHandle comma
 	return 0;
 }
 
-
-
+B3_SHARED_API	int b3PhysicsParameterSetEnableSAT(b3SharedMemoryCommandHandle commandHandle, int enableSAT)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_enableSAT = enableSAT;
+	command->m_updateFlags |= SIM_PARAM_ENABLE_SAT;
+	return 0;
+}
 
 B3_SHARED_API int b3PhysicsParamSetCollisionFilterMode(b3SharedMemoryCommandHandle commandHandle, int filterMode)
 {

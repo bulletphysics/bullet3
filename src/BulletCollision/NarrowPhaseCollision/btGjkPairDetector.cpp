@@ -19,7 +19,6 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h"
 
 
-
 #if defined(DEBUG) || defined (_DEBUG)
 //#define TEST_NON_VIRTUAL 1
 #include <stdio.h> //for debug printf
@@ -29,14 +28,6 @@ subject to the following restrictions:
 #endif //__SPU__
 #endif
 
-//must be above the machine epsilon
-#ifdef  BT_USE_DOUBLE_PRECISION
-	#define REL_ERROR2 btScalar(1.0e-12)
-	btScalar gGjkEpaPenetrationTolerance = 1.0e-12;
-#else
-	#define REL_ERROR2 btScalar(1.0e-6)
-	btScalar gGjkEpaPenetrationTolerance = 0.001;
-#endif
 
 //temp globals, to improve GJK/EPA/penetration calculations
 int gNumDeepPenetrationChecks = 0;
@@ -136,177 +127,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 
 		m_simplexSolver->reset();
 		
-		for ( ; ; )
-		//while (true)
-		{
-
-			btVector3 seperatingAxisInA = (-m_cachedSeparatingAxis)* input.m_transformA.getBasis();
-			btVector3 seperatingAxisInB = m_cachedSeparatingAxis* input.m_transformB.getBasis();
-
-
-			btVector3 pInA = m_minkowskiA->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInA);
-			btVector3 qInB = m_minkowskiB->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInB);
-
-			btVector3  pWorld = localTransA(pInA);	
-			btVector3  qWorld = localTransB(qInB);
-
-
-			if (check2d)
-			{
-				pWorld[2] = 0.f;
-				qWorld[2] = 0.f;
-			}
-
-			btVector3 w	= pWorld - qWorld;
-			delta = m_cachedSeparatingAxis.dot(w);
-
-			// potential exit, they don't overlap
-			if ((delta > btScalar(0.0)) && (delta * delta > squaredDistance * input.m_maximumDistanceSquared)) 
-			{
-				m_degenerateSimplex = 10;
-				checkSimplex=true;
-				//checkPenetration = false;
-				break;
-			}
-
-			//exit 0: the new point is already in the simplex, or we didn't come any closer
-			if (m_simplexSolver->inSimplex(w))
-			{
-				m_degenerateSimplex = 1;
-				checkSimplex = true;
-				break;
-			}
-			// are we getting any closer ?
-			btScalar f0 = squaredDistance - delta;
-			btScalar f1 = squaredDistance * REL_ERROR2;
-
-			if (f0 <= f1)
-			{
-				if (f0 <= btScalar(0.))
-				{
-					m_degenerateSimplex = 2;
-				} else
-				{
-					m_degenerateSimplex = 11;
-				}
-				checkSimplex = true;
-				break;
-			}
-
-			//add current vertex to simplex
-			m_simplexSolver->addVertex(w, pWorld, qWorld);
-			btVector3 newCachedSeparatingAxis;
-
-			//calculate the closest point to the origin (update vector v)
-			if (!m_simplexSolver->closest(newCachedSeparatingAxis))
-			{
-				m_degenerateSimplex = 3;
-				checkSimplex = true;
-				break;
-			}
-
-			if(newCachedSeparatingAxis.length2()<REL_ERROR2)
-            {
-				m_cachedSeparatingAxis = newCachedSeparatingAxis;
-                m_degenerateSimplex = 6;
-                checkSimplex = true;
-                break;
-            }
-
-			btScalar previousSquaredDistance = squaredDistance;
-			squaredDistance = newCachedSeparatingAxis.length2();
-#if 0
-///warning: this termination condition leads to some problems in 2d test case see Bullet/Demos/Box2dDemo
-			if (squaredDistance>previousSquaredDistance)
-			{
-				m_degenerateSimplex = 7;
-				squaredDistance = previousSquaredDistance;
-                checkSimplex = false;
-                break;
-			}
-#endif //
-			
-
-			//redundant m_simplexSolver->compute_points(pointOnA, pointOnB);
-
-			//are we getting any closer ?
-			if (previousSquaredDistance - squaredDistance <= SIMD_EPSILON * previousSquaredDistance) 
-			{ 
-//				m_simplexSolver->backup_closest(m_cachedSeparatingAxis);
-				checkSimplex = true;
-				m_degenerateSimplex = 12;
-				
-				break;
-			}
-
-			m_cachedSeparatingAxis = newCachedSeparatingAxis;
-
-			  //degeneracy, this is typically due to invalid/uninitialized worldtransforms for a btCollisionObject   
-              if (m_curIter++ > gGjkMaxIter)   
-              {   
-                      #if defined(DEBUG) || defined (_DEBUG)
-
-                              printf("btGjkPairDetector maxIter exceeded:%i\n",m_curIter);   
-                              printf("sepAxis=(%f,%f,%f), squaredDistance = %f, shapeTypeA=%i,shapeTypeB=%i\n",   
-                              m_cachedSeparatingAxis.getX(),   
-                              m_cachedSeparatingAxis.getY(),   
-                              m_cachedSeparatingAxis.getZ(),   
-                              squaredDistance,   
-                              m_minkowskiA->getShapeType(),   
-                              m_minkowskiB->getShapeType());   
-
-                      #endif   
-                      break;   
-
-              } 
-
-
-			bool check = (!m_simplexSolver->fullSimplex());
-			//bool check = (!m_simplexSolver->fullSimplex() && squaredDistance > SIMD_EPSILON * m_simplexSolver->maxVertex());
-
-			if (!check)
-			{
-				//do we need this backup_closest here ?
-//				m_simplexSolver->backup_closest(m_cachedSeparatingAxis);
-				m_degenerateSimplex = 13;
-				break;
-			}
-		}
-
-		if (checkSimplex)
-		{
-			m_simplexSolver->compute_points(pointOnA, pointOnB);
-			normalInB = m_cachedSeparatingAxis;
-
-			btScalar lenSqr =m_cachedSeparatingAxis.length2();
-			
-			//valid normal
-			if (lenSqr < REL_ERROR2)
-			{
-				m_degenerateSimplex = 5;
-			} 
-			if (lenSqr > SIMD_EPSILON*SIMD_EPSILON)
-			{
-				btScalar rlen = btScalar(1.) / btSqrt(lenSqr );
-				normalInB *= rlen; //normalize
-
-				btScalar s = btSqrt(squaredDistance);
-			
-				btAssert(s > btScalar(0.0));
-				pointOnA -= m_cachedSeparatingAxis * (marginA / s);
-				pointOnB += m_cachedSeparatingAxis * (marginB / s);
-				distance = ((btScalar(1.)/rlen) - margin);
-				isValid = true;
-				
-				m_lastUsedMethod = 1;
-			} else
-			{
-				m_lastUsedMethod = 2;
-			}
-		}
-
-		bool catchDegeneratePenetrationCase = 
-			(m_catchDegeneracies && m_penetrationDepthSolver && m_degenerateSimplex && ((distance+margin) < gGjkEpaPenetrationTolerance));
+		bool catchDegeneratePenetrationCase = 1;
 
 		//if (checkPenetration && !isValid)
 		if (checkPenetration && (!isValid || catchDegeneratePenetrationCase ))
@@ -451,13 +272,8 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 			} 
 
 		}
-		output.addContactPoint(
-			normalInB,
-			pointOnB+positionOffset,
-			distance);
-
+		output.addContactPoint( normalInB, pointOnB+positionOffset, distance);
 	}
-
 
 }
 

@@ -6865,6 +6865,8 @@ bool PhysicsServerCommandProcessor::processRequestPhysicsSimulationParametersCom
 	serverCmd.m_simulationParameterResultArgs.m_deltaTime =  m_data->m_physicsDeltaTime;
 	serverCmd.m_simulationParameterResultArgs.m_contactBreakingThreshold = gContactBreakingThreshold;
 	serverCmd.m_simulationParameterResultArgs.m_contactSlop = m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop;
+	serverCmd.m_simulationParameterResultArgs.m_enableSAT = m_data->m_dynamicsWorld->getDispatchInfo().m_enableSatConvex;
+	
 	serverCmd.m_simulationParameterResultArgs.m_defaultGlobalCFM = m_data->m_dynamicsWorld->getSolverInfo().m_globalCfm;
 	serverCmd.m_simulationParameterResultArgs.m_defaultContactERP = m_data->m_dynamicsWorld->getSolverInfo().m_erp2;
 	serverCmd.m_simulationParameterResultArgs.m_defaultNonContactERP = m_data->m_dynamicsWorld->getSolverInfo().m_erp;
@@ -6986,6 +6988,11 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_CONTACT_SLOP)
 	{
 		m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = clientCmd.m_physSimParamArgs.m_contactSlop;
+	}
+
+	if (clientCmd.m_updateFlags&SIM_PARAM_ENABLE_SAT)
+	{
+		m_data->m_dynamicsWorld->getDispatchInfo().m_enableSatConvex = clientCmd.m_physSimParamArgs.m_enableSAT;
 	}
 
 

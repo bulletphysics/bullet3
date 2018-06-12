@@ -797,6 +797,7 @@ struct b3PhysicsSimulationParameters
 	int m_jointFeedbackMode;
 	double m_solverResidualThreshold;
 	double m_contactSlop;
+	int m_enableSAT;
 };
 
 

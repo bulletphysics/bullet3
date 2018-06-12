@@ -317,6 +317,7 @@ B3_SHARED_API	int b3PhysicsParameterSetAllowedCcdPenetration(b3SharedMemoryComma
 B3_SHARED_API	int b3PhysicsParameterSetJointFeedbackMode(b3SharedMemoryCommandHandle commandHandle, int jointFeedbackMode);
 B3_SHARED_API	int b3PhysicsParamSetSolverResidualThreshold(b3SharedMemoryCommandHandle commandHandle, double solverResidualThreshold);
 B3_SHARED_API	int b3PhysicsParamSetContactSlop(b3SharedMemoryCommandHandle commandHandle, double contactSlop);
+B3_SHARED_API	int b3PhysicsParameterSetEnableSAT(b3SharedMemoryCommandHandle commandHandle, int enableSAT);
 
 
 

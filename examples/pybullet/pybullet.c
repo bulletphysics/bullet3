@@ -1434,12 +1434,13 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 	int jointFeedbackMode =-1;
 	double solverResidualThreshold = -1;
 	double contactSlop = -1;
-	
-	int physicsClientId = 0;
-	static char* kwlist[] = {"fixedTimeStep", "numSolverIterations", "useSplitImpulse", "splitImpulsePenetrationThreshold", "numSubSteps", "collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "enableFileCaching","restitutionVelocityThreshold", "erp", "contactERP", "frictionERP", "enableConeFriction", "deterministicOverlappingPairs", "allowedCcdPenetration", "jointFeedbackMode", "solverResidualThreshold", "contactSlop", "physicsClientId", NULL};
+	int enableSAT = -1;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiididdi", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
-									 &collisionFilterMode, &contactBreakingThreshold, &maxNumCmdPer1ms, &enableFileCaching, &restitutionVelocityThreshold, &erp, &contactERP, &frictionERP, &enableConeFriction, &deterministicOverlappingPairs, &allowedCcdPenetration, &jointFeedbackMode, &solverResidualThreshold, &contactSlop, &physicsClientId))
+	int physicsClientId = 0;
+	static char* kwlist[] = {"fixedTimeStep", "numSolverIterations", "useSplitImpulse", "splitImpulsePenetrationThreshold", "numSubSteps", "collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "enableFileCaching","restitutionVelocityThreshold", "erp", "contactERP", "frictionERP", "enableConeFriction", "deterministicOverlappingPairs", "allowedCcdPenetration", "jointFeedbackMode", "solverResidualThreshold", "contactSlop", "enableSAT", "physicsClientId", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiididdii", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
+									 &collisionFilterMode, &contactBreakingThreshold, &maxNumCmdPer1ms, &enableFileCaching, &restitutionVelocityThreshold, &erp, &contactERP, &frictionERP, &enableConeFriction, &deterministicOverlappingPairs, &allowedCcdPenetration, &jointFeedbackMode, &solverResidualThreshold, &contactSlop, &enableSAT, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1540,6 +1541,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 			b3PhysicsParameterSetJointFeedbackMode(command,jointFeedbackMode);
 		}
 
+		if (enableSAT>=0)
+		{
+			b3PhysicsParameterSetEnableSAT(command, enableSAT);
+		}
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	}
 
