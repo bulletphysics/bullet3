@@ -555,8 +555,6 @@ public:
 
 	bool getBodyJacobian(int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositions, const double* jointVelocities, const double* jointAccelerations, double* linearJacobian, double* angularJacobian);
 
-	bool getLinkState(int bodyUniqueId, int linkIndex, b3LinkState* linkState);
-
 	void configureDebugVisualizer(enum b3ConfigureDebugVisualizerEnum flag, int enable);
 	void resetDebugVisualizerCamera(double cameraDistance, double cameraPitch, double cameraYaw, const btVector3& targetPos);
 
