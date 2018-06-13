@@ -210,8 +210,11 @@ struct b3RobotSimulatorSetPhysicsEngineParameters : b3PhysicsSimulationParameter
 	{
 		
 		m_deltaTime=-1;
-		m_gravityAcceleration[3];
-		m_numSimulationSubSteps;
+		m_gravityAcceleration[0] = 0;
+		m_gravityAcceleration[1] = 0;
+		m_gravityAcceleration[2] = 0;
+		
+		m_numSimulationSubSteps=-1;
 		m_numSolverIterations=-1;
 		m_useRealTimeSimulation = -1;
 		m_useSplitImpulse = -1;
