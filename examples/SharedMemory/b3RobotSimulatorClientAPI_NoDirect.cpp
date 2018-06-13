@@ -2182,7 +2182,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::getVisualShapeData(int bodyUniqueId, b3
 	}
 }
 
-void b3RobotSimulatorClientAPI_NoDirect::setAdditionalSearchPath(std::string path)
+void b3RobotSimulatorClientAPI_NoDirect::setAdditionalSearchPath(const std::string& path)
 {
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
