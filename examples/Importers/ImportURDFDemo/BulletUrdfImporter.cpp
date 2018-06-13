@@ -513,6 +513,7 @@ static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t
 
 		convexHull->recalcLocalAabb();
 		convexHull->optimizeConvexHull();
+		convexHull->initializePolyhedralFeatures();
 		compound->addChildShape(identity,convexHull);
 	}
 
@@ -694,6 +695,7 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 			btVector3 extents = collision->m_geometry.m_boxSize;
 			btBoxShape* boxShape = new btBoxShape(extents*0.5f);
 			//btConvexShape* boxShape = new btConeShapeX(extents[2]*0.5,extents[0]*0.5);
+			boxShape->initializePolyhedralFeatures();
             shape = boxShape;
 			shape ->setMargin(gUrdfDefaultCollisionMargin);
             break;
@@ -905,7 +907,7 @@ upAxisMat.setIdentity();
 			BT_PROFILE("convert btConvexHullShape");
 			btConvexHullShape* convexHull = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
 			convexHull->optimizeConvexHull();
-			//convexHull->initializePolyhedralFeatures();
+			convexHull->initializePolyhedralFeatures();
 			convexHull->setMargin(gUrdfDefaultCollisionMargin);
 			convexHull->recalcLocalAabb();
 			//convexHull->setLocalScaling(collision->m_geometry.m_meshScale);

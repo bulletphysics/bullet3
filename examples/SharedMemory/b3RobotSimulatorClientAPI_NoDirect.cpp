@@ -896,13 +896,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::getBodyJacobian(int bodyUniqueId, int l
 }
 
 
-bool b3RobotSimulatorClientAPI_NoDirect::getLinkState(int bodyUniqueId, int linkIndex, b3LinkState* linkState)
-{
-	bool computeLinkVelocity = true;
-	bool computeForwardKinematics = true;
 
-	return getLinkState(bodyUniqueId, linkIndex, computeLinkVelocity, computeForwardKinematics, linkState);
-}
 
 bool b3RobotSimulatorClientAPI_NoDirect::getLinkState(int bodyUniqueId, int linkIndex, int computeLinkVelocity, int computeForwardKinematics, b3LinkState* linkState)
 {

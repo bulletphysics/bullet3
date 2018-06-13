@@ -533,6 +533,8 @@ enum  b3StateLoggingType
 	STATE_LOGGING_COMMANDS = 4,
 	STATE_LOGGING_CONTACT_POINTS = 5,
 	STATE_LOGGING_PROFILE_TIMINGS = 6,
+	STATE_LOGGING_ALL_COMMANDS=7,
+	STATE_REPLAY_ALL_COMMANDS=8,
 };
 
 
@@ -797,6 +799,7 @@ struct b3PhysicsSimulationParameters
 	int m_jointFeedbackMode;
 	double m_solverResidualThreshold;
 	double m_contactSlop;
+	int m_enableSAT;
 };
 
 

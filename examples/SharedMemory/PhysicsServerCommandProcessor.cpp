@@ -1582,9 +1582,11 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<b3MouseEvent> m_mouseEvents;
 
 	CommandLogger* m_commandLogger;
+	int m_commandLoggingUid;
+
 	CommandLogPlayback* m_logPlayback;
-
-
+	int m_logPlaybackUid;
+	
 	btScalar m_physicsDeltaTime;
     btScalar m_numSimulationSubSteps;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
@@ -1661,7 +1663,9 @@ struct PhysicsServerCommandProcessorInternalData
 		:m_pluginManager(proc),
 		m_useRealTimeSimulation(false),
 		m_commandLogger(0),
+		m_commandLoggingUid(-1),
 		m_logPlayback(0),
+		m_logPlaybackUid(-1),
 		m_physicsDeltaTime(1./240.),
         m_numSimulationSubSteps(0),
 		m_userConstraintUIDGenerator(1),
@@ -3090,6 +3094,31 @@ bool PhysicsServerCommandProcessor::processStateLoggingCommand(const struct Shar
 
 	if (clientCmd.m_updateFlags & STATE_LOGGING_START_LOG)
 	{
+		if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_ALL_COMMANDS)
+		{
+			if(m_data->m_commandLogger==0)
+			{
+				enableCommandLogging(true, clientCmd.m_stateLoggingArguments.m_fileName);
+				serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
+				int loggerUid = m_data->m_stateLoggersUniqueId++;
+				m_data->m_commandLoggingUid = loggerUid;
+				serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+			}
+		}
+
+
+		if (clientCmd.m_stateLoggingArguments.m_logType == STATE_REPLAY_ALL_COMMANDS)
+		{
+			if(m_data->m_logPlayback==0)
+			{
+				replayFromLogFile(clientCmd.m_stateLoggingArguments.m_fileName);
+				serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
+				int loggerUid = m_data->m_stateLoggersUniqueId++;
+				m_data->m_logPlaybackUid = loggerUid;
+				serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+			}
+		}
+		
 		if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_PROFILE_TIMINGS)
 		{
 			if (m_data->m_profileTimingLoggingUid<0)
@@ -3168,6 +3197,9 @@ bool PhysicsServerCommandProcessor::processStateLoggingCommand(const struct Shar
 				}
 			}
 		}
+
+		
+
         if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_GENERIC_ROBOT)
         {
             std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
@@ -3245,6 +3277,27 @@ bool PhysicsServerCommandProcessor::processStateLoggingCommand(const struct Shar
 	}
 	if ((clientCmd.m_updateFlags & STATE_LOGGING_STOP_LOG) && clientCmd.m_stateLoggingArguments.m_loggingUniqueId>=0)
 	{
+		
+		if (clientCmd.m_stateLoggingArguments.m_loggingUniqueId == m_data->m_logPlaybackUid)
+		{
+			if(m_data->m_logPlayback)
+			{
+				delete m_data->m_logPlayback;
+				m_data->m_logPlayback = 0;
+				m_data->m_logPlaybackUid = -1;
+			}
+		}
+
+		if (clientCmd.m_stateLoggingArguments.m_loggingUniqueId == m_data->m_commandLoggingUid)
+		{
+			if(m_data->m_commandLogger)
+			{
+				enableCommandLogging(false,0);
+				serverStatusOut.m_type = CMD_STATE_LOGGING_COMPLETED;
+				m_data->m_commandLoggingUid = -1;
+			}
+		}
+
 		if (clientCmd.m_stateLoggingArguments.m_loggingUniqueId == m_data->m_profileTimingLoggingUid)
 		{
 			serverStatusOut.m_type = CMD_STATE_LOGGING_COMPLETED;
@@ -6865,6 +6918,8 @@ bool PhysicsServerCommandProcessor::processRequestPhysicsSimulationParametersCom
 	serverCmd.m_simulationParameterResultArgs.m_deltaTime =  m_data->m_physicsDeltaTime;
 	serverCmd.m_simulationParameterResultArgs.m_contactBreakingThreshold = gContactBreakingThreshold;
 	serverCmd.m_simulationParameterResultArgs.m_contactSlop = m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop;
+	serverCmd.m_simulationParameterResultArgs.m_enableSAT = m_data->m_dynamicsWorld->getDispatchInfo().m_enableSatConvex;
+	
 	serverCmd.m_simulationParameterResultArgs.m_defaultGlobalCFM = m_data->m_dynamicsWorld->getSolverInfo().m_globalCfm;
 	serverCmd.m_simulationParameterResultArgs.m_defaultContactERP = m_data->m_dynamicsWorld->getSolverInfo().m_erp2;
 	serverCmd.m_simulationParameterResultArgs.m_defaultNonContactERP = m_data->m_dynamicsWorld->getSolverInfo().m_erp;
@@ -6986,6 +7041,11 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_CONTACT_SLOP)
 	{
 		m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = clientCmd.m_physSimParamArgs.m_contactSlop;
+	}
+
+	if (clientCmd.m_updateFlags&SIM_PARAM_ENABLE_SAT)
+	{
+		m_data->m_dynamicsWorld->getDispatchInfo().m_enableSatConvex = clientCmd.m_physSimParamArgs.m_enableSAT;
 	}
 
 
