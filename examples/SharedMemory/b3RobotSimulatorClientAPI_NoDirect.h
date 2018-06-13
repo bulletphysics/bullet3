@@ -657,7 +657,7 @@ public:
 	{
 		return SHARED_MEMORY_MAGIC_NUMBER;
 	}
-	void setAdditionalSearchPath(std::string path);
+	void setAdditionalSearchPath(const std::string& path);
 };
 
 
