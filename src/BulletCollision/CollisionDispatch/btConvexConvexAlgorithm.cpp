@@ -603,11 +603,13 @@ void btConvexConvexAlgorithm ::processCollision (const btCollisionObjectWrapper*
 
 				if (useSatSepNormal)
 				{
+#if 0
 					if (0)
 					{
 						//initializePolyhedralFeatures performs a convex hull computation, not needed for a single triangle
 						polyhedronB->initializePolyhedralFeatures();
 					} else
+#endif
 					{
 
 						btVector3 uniqueEdges[3] = {tri->m_vertices1[1]-tri->m_vertices1[0],
