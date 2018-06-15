@@ -102,7 +102,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
     };
     
     // Load EGL functions
-    int egl_version = gladLoadEGLInternalLoader(NULL);
+    int egl_version = gladLoaderLoadEGL(NULL);
     if(!egl_version) {
         fprintf(stderr, "failed to EGL with glad.\n");
         exit(EXIT_FAILURE);
@@ -157,7 +157,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
         exit(EXIT_FAILURE);
     }
 
-    egl_version = gladLoadEGLInternalLoader(m_data->egl_display);
+    egl_version = gladLoaderLoadEGL(m_data->egl_display);
     if (!egl_version) {
         fprintf(stderr, "Unable to reload EGL.\n");
         exit(EXIT_FAILURE);
@@ -187,7 +187,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
         fprintf(stderr, "Didn't get exactly one config, but %d\n", m_data->num_configs);
         exit(EXIT_FAILURE);
     }
-    
+
     m_data->egl_surface = eglCreatePbufferSurface(
                                                   m_data->egl_display, m_data->egl_config, egl_pbuffer_attribs);
     if (m_data->egl_surface == EGL_NO_SURFACE) {
@@ -202,15 +202,20 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
         fprintf(stderr, "Unable to create EGL context (eglError: %d)\n",eglGetError());
         exit(EXIT_FAILURE);
     }
-    
-    eglMakeCurrent(m_data->egl_display, m_data->egl_surface, m_data->egl_surface,
+
+    m_data->success =
+        eglMakeCurrent(m_data->egl_display, m_data->egl_surface, m_data->egl_surface,
                    m_data->egl_context);
-    printf("Finish creating EGL OpenGL window.\n");
-    
-    if (!gladLoadGL(eglGetProcAddress)) {
-        fprintf(stderr, "failed to GL with glad.\n");
+    if (!m_data->success) {
+        fprintf(stderr, "Failed to make context current (eglError: %d)\n", eglGetError());
         exit(EXIT_FAILURE);
     }
+
+    if (!gladLoadGL(eglGetProcAddress)) {
+        fprintf(stderr, "failed to load GL with glad.\n");
+        exit(EXIT_FAILURE);
+    }
+
     const GLubyte* ven = glGetString(GL_VENDOR);
     printf("GL_VENDOR=%s\n", ven);
     

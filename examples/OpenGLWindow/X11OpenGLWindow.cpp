@@ -473,7 +473,7 @@ void X11OpenGLWindow::enableOpenGL()
         glXMakeCurrent(m_data->m_dpy, m_data->m_win, m_data->m_glc);
     }
 
- if(!gladLoadGLInternalLoader()) {
+ if(!gladLoaderLoadGL()) {
                 printf("gladLoadGL failed!\n");
                 exit(-1);
     }
@@ -524,7 +524,7 @@ void    X11OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 
 #ifdef GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 
-       int res=gladLoadGLXInternalLoader(m_data->m_dpy,DefaultScreen(m_data->m_dpy));
+       int res=gladLoaderLoadGLX(m_data->m_dpy,DefaultScreen(m_data->m_dpy));
        if (!res)
        {
                printf("Error in gladLoadGLX\n");
