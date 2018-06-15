@@ -9401,8 +9401,8 @@ static PyMethodDef SpamMethods[] = {
 
 	{"rayTestBatch", (PyCFunction)pybullet_rayTestBatch, METH_VARARGS | METH_KEYWORDS,
 		"Cast a batch of rays and return the result for each of the rays (first object hit, if any. or -1) "
-	 "Takes two arguments (list of from_positions [x,y,z] and a list of to_positions [x,y,z] in Cartesian world coordinates) "
-	 "along with an optional argument numThreads to specify the number of threads to use to compute the ray intersections. "
+	 "Takes two required arguments (list of from_positions [x,y,z] and a list of to_positions [x,y,z] in Cartesian world coordinates) "
+	 "and one optional argument numThreads to specify the number of threads to use to compute the ray intersections for the batch. "
 	 "Specify 0 to let Bullet decide, 1 (default) for single core execution, 2 or more to select the number of threads to use."},
 
 	 { "loadPlugin", (PyCFunction)pybullet_loadPlugin, METH_VARARGS | METH_KEYWORDS,
