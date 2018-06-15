@@ -4828,7 +4828,7 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 	if (numThreads == 0) {
 		// When 0 is specified, Bullet can decide how many threads to use.
 		// About 16 rays per thread seems to work reasonably well.
-		batchRayCaster.castRays(numRays / 32);
+		batchRayCaster.castRays(numRays / 16);
 	} else if (numThreads == 1) {
 		// Sequentially trace all rays:
 		for (int i = 0; i < numRays; i++) {
