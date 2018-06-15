@@ -207,7 +207,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
                    m_data->egl_context);
     printf("Finish creating EGL OpenGL window.\n");
     
-    if (!gladLoadGLInternalLoader()) {
+    if (!gladLoadGL(eglGetProcAddress)) {
         fprintf(stderr, "failed to GL with glad.\n");
         exit(EXIT_FAILURE);
     }
