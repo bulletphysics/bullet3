@@ -14,7 +14,6 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 		self.walk_target_x = 1e3  # kilometer away
 		self.walk_target_y = 0
 		self.stateId=-1
-		self.alive = None
 		
 
 	def create_single_player_scene(self, bullet_client):
@@ -41,11 +40,8 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 		
 		return r
 	
-	def _isDone(self):
-		if self._alive is not None:
-			return self._alive < 0
-		else:
-			return False
+	def _isAlive(self):
+		return self._alive > 0
 
 	def move_robot(self, init_x, init_y, init_z):
 		"Used by multiplayer stadium to move sideways, to another running lane."
@@ -67,8 +63,8 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 
 		state = self.robot.calc_state()  # also calculates self.joints_at_limit
 
-		self.alive = float(self.robot.alive_bonus(state[0]+self.robot.initial_z, self.robot.body_rpy[1]))   # state[0] is body height above ground, body_rpy[1] is pitch
-		done = self._isDone()
+		self._alive = float(self.robot.alive_bonus(state[0]+self.robot.initial_z, self.robot.body_rpy[1]))   # state[0] is body height above ground, body_rpy[1] is pitch
+		done = not self._isAlive()
 		if not np.isfinite(state).all():
 			print("~INF~", state)
 			done = True
@@ -96,7 +92,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 		debugmode=0
 		if(debugmode):
 			print("alive=")
-			print(alive)
+			print(self._alive)
 			print("progress")
 			print(progress)
 			print("electricity_cost")
@@ -143,8 +139,8 @@ class HalfCheetahBulletEnv(WalkerBaseBulletEnv):
 		self.robot = HalfCheetah()
 		WalkerBaseBulletEnv.__init__(self, self.robot)
 		
-	def _isDone(self):
-		return False
+	def _isAlive(self):
+		return True
 
 class AntBulletEnv(WalkerBaseBulletEnv):
 	def __init__(self):
