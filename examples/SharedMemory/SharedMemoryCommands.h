@@ -23,12 +23,6 @@
 	typedef unsigned long long int smUint64_t;
 #endif
 
-#ifdef __APPLE__
-    #define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (512*1024)
-#else
-    #define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (8*1024*1024)
-#endif
-
 #define SHARED_MEMORY_SERVER_TEST_C
 #define MAX_DEGREE_OF_FREEDOM 128
 #define MAX_NUM_SENSORS 256
@@ -37,6 +31,7 @@
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
 #define MAX_USER_DATA_KEY_LENGTH MAX_URDF_FILENAME_LENGTH
+
 
 struct TmpFloat3 
 {
@@ -279,15 +274,19 @@ enum EnumRequestContactDataUpdateFlags
 
 struct RequestRaycastIntersections
 {
+	// The number of threads that Bullet may use to perform the ray casts.
+	// 0: Let Bullet decide
+	// 1: Use a single thread (i.e. no multi-threading)
+	// 2 or more: Number of threads to use.
+	int m_numThreads;
 	int m_numRays;
-	double m_rayFromPositions[MAX_RAY_INTERSECTION_BATCH_SIZE][3];
-	double m_rayToPositions[MAX_RAY_INTERSECTION_BATCH_SIZE][3];
+	// Actual ray data stored in m_bulletStreamDataServerToClientRefactor.
 };
 
 struct SendRaycastHits
 {
 	int m_numRaycastHits;
-	b3RayHitInfo m_rayHits[MAX_RAY_INTERSECTION_BATCH_SIZE];
+	// Actual ray data stored in m_bulletStreamDataServerToClientRefactor.
 };
 
 struct RequestContactDataArgs
@@ -1010,6 +1009,7 @@ struct SharedMemoryCommand
 	int m_type;
 	smUint64_t	m_timeStamp;
 	int	m_sequenceNumber;
+	struct PhysicsClient *m_client;
 	
 	//m_updateFlags is a bit fields to tell which parameters need updating
     //for example m_updateFlags = SIM_PARAM_UPDATE_DELTA_TIME | SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS;

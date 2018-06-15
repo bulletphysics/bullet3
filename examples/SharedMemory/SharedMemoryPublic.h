@@ -5,7 +5,7 @@
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201806020
+#define SHARED_MEMORY_MAGIC_NUMBER 201806150
 //#define SHARED_MEMORY_MAGIC_NUMBER 201801170
 //#define SHARED_MEMORY_MAGIC_NUMBER 201801080
 //#define SHARED_MEMORY_MAGIC_NUMBER 201801010
@@ -17,6 +17,11 @@
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706001
 //#define SHARED_MEMORY_MAGIC_NUMBER 201703024
 
+#ifdef __APPLE__
+    #define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (512*1024)
+#else
+    #define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (8*1024*1024)
+#endif
 
 enum EnumSharedMemoryClientCommand
 {
@@ -408,8 +413,7 @@ enum b3VREventType
 #define MAX_VR_BUTTONS 64
 #define MAX_VR_CONTROLLERS 8
 
-#define MAX_RAY_INTERSECTION_BATCH_SIZE 256
-#define MAX_RAY_HITS MAX_RAY_INTERSECTION_BATCH_SIZE
+
 #define MAX_KEYBOARD_EVENTS 256
 #define MAX_MOUSE_EVENTS 256
 
@@ -544,6 +548,12 @@ struct b3ContactInformation
 	struct b3ContactPointData* m_contactPointData;
 };
 
+struct b3RayData
+{
+  double m_rayFromPosition[3];
+  double m_rayToPosition[3];
+};
+
 struct b3RayHitInfo
 {
 	double m_hitFraction;
@@ -559,7 +569,12 @@ struct b3RaycastInformation
 	struct b3RayHitInfo* m_rayHits;
 };
 
-
+typedef union {
+    struct b3RayData a;
+    struct b3RayHitInfo b;
+} RAY_DATA_UNION;
+#define MAX_RAY_INTERSECTION_BATCH_SIZE SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE / sizeof( RAY_DATA_UNION )
+#define MAX_RAY_HITS MAX_RAY_INTERSECTION_BATCH_SIZE
 #define VISUAL_SHAPE_MAX_PATH_LEN 1024
 
 struct b3VisualShapeData

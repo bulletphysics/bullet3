@@ -4678,16 +4678,17 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 	int statusType;
 	PyObject* rayFromObjList = 0;
 	PyObject* rayToObjList = 0;
+	int numThreads = 1;
 	b3PhysicsClientHandle sm = 0;
 	int sizeFrom = 0;
 	int sizeTo = 0;
 
 
-	static char* kwlist[] = {"rayFromPositions", "rayToPositions", "physicsClientId", NULL};
+	static char* kwlist[] = {"rayFromPositions", "rayToPositions", "numThreads", "physicsClientId", NULL};
 	int physicsClientId = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|i", kwlist,
-									 &rayFromObjList, &rayToObjList, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|ii", kwlist,
+									 &rayFromObjList, &rayToObjList, &numThreads, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -4699,6 +4700,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 
 	
 	commandHandle = b3CreateRaycastBatchCommandInit(sm);
+	b3RaycastBatchSetNumThreads(commandHandle, numThreads);
 
 	
 	if (rayFromObjList)
@@ -4720,7 +4722,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 			{
 				int i;
 
-				if (lenFrom >= MAX_RAY_INTERSECTION_BATCH_SIZE)
+				if (lenFrom > MAX_RAY_INTERSECTION_BATCH_SIZE)
 				{
 					PyErr_SetString(SpamError, "Number of rays exceed the maximum batch size.");
 					Py_DECREF(seqRayFromObj);

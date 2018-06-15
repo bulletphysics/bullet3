@@ -106,6 +106,7 @@ PhysicsDirect::PhysicsDirect(PhysicsCommandProcessorInterface* physSdk, bool pas
 	m_data = new PhysicsDirectInternalData;
 	m_data->m_commandProcessor = physSdk;
 	m_data->m_ownsCommandProcessor = passSdkOwnership;
+	m_data->m_command.m_client = this;
 }
 
 PhysicsDirect::~PhysicsDirect()
@@ -712,9 +713,10 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			b3Printf("Raycast completed");
 		}
 		m_data->m_raycastHits.clear();
+		b3RayHitInfo *rayHits = (b3RayHitInfo *)m_data->m_bulletStreamDataServerToClient;
 		for (int i=0;i<serverCmd.m_raycastHits.m_numRaycastHits;i++)
 		{
-			m_data->m_raycastHits.push_back(serverCmd.m_raycastHits.m_rayHits[i]);
+			m_data->m_raycastHits.push_back(rayHits[i]);
 		}
 		break;
 	}
@@ -1321,6 +1323,10 @@ void PhysicsDirect::setSharedMemoryKey(int key)
 {
 	//m_data->m_physicsServer->setSharedMemoryKey(key);
 	//m_data->m_physicsClient->setSharedMemoryKey(key);
+}
+
+char* PhysicsDirect::getSharedMemoryStreamBuffer() {
+	return m_data->m_bulletStreamDataServerToClient;
 }
 
 void PhysicsDirect::uploadBulletFileToSharedMemory(const char* data, int len)
