@@ -4730,7 +4730,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 			{
 				int i;
 				
-				if (lenFrom > MAX_RAY_INTERSECTION_BATCH_SIZE)
+				if (lenFrom > MAX_RAY_INTERSECTION_BATCH_SIZE_STREAMING)
 				{
 					PyErr_SetString(SpamError, "Number of rays exceed the maximum batch size.");
 					Py_DECREF(seqRayFromObj);
@@ -4748,7 +4748,9 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 					if ((pybullet_internalSetVectord(rayFromObj, rayFromWorld)) &&
 						(pybullet_internalSetVectord(rayToObj, rayToWorld)))
 					{
-						b3RaycastBatchAddRay(sm, commandHandle, rayFromWorld, rayToWorld);	
+						//todo: better to upload all rays at once
+						//b3RaycastBatchAddRay(commandHandle, rayFromWorld, rayToWorld);	
+						b3RaycastBatchAddRays(sm, commandHandle, rayFromWorld, rayToWorld,1);	
 					} else
 					{
 						PyErr_SetString(SpamError, "Items in the from/to positions need to be an [x,y,z] list of 3 floats/doubles");
@@ -9647,7 +9649,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_PARENT", URDF_USE_SELF_COLLISION_EXCLUDE_PARENT);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS", URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS);
 
-	PyModule_AddIntConstant(m, "MAX_RAY_INTERSECTION_BATCH_SIZE", MAX_RAY_INTERSECTION_BATCH_SIZE);
+	PyModule_AddIntConstant(m, "MAX_RAY_INTERSECTION_BATCH_SIZE", MAX_RAY_INTERSECTION_BATCH_SIZE_STREAMING);
 
 	PyModule_AddIntConstant(m, "B3G_F1", B3G_F1);
 	PyModule_AddIntConstant(m, "B3G_F2", B3G_F2);

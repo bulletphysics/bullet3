@@ -1355,22 +1355,22 @@ void PhysicsDirect::uploadBulletFileToSharedMemory(const char* data, int len)
 
 void PhysicsDirect::uploadRaysToSharedMemory(struct SharedMemoryCommand& command, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays)
 {
-	int curNumRays = command.m_requestRaycastIntersections.m_numRays;
-	int newNumRays = curNumRays + numRays;
-	btAssert(newNumRays<MAX_RAY_INTERSECTION_BATCH_SIZE);
+	int curNumStreamingRays = command.m_requestRaycastIntersections.m_numStreamingRays;
+	int newNumRays = curNumStreamingRays + numRays;
+	btAssert(newNumRays<MAX_RAY_INTERSECTION_BATCH_SIZE_STREAMING);
 
-	if (newNumRays<MAX_RAY_INTERSECTION_BATCH_SIZE)
+	if (newNumRays<MAX_RAY_INTERSECTION_BATCH_SIZE_STREAMING)
 	{
 		for (int i=0;i<numRays;i++)
 		{
 			b3RayData* rayDataStream = (b3RayData *)m_data->m_bulletStreamDataServerToClient;
-			rayDataStream[curNumRays+i].m_rayFromPosition[0] = rayFromWorldArray[i*3+0];
-			rayDataStream[curNumRays+i].m_rayFromPosition[1] = rayFromWorldArray[i*3+1];
-			rayDataStream[curNumRays+i].m_rayFromPosition[2] = rayFromWorldArray[i*3+2];
-			rayDataStream[curNumRays+i].m_rayToPosition[0] = rayToWorldArray[i*3+0];
-			rayDataStream[curNumRays+i].m_rayToPosition[1] = rayToWorldArray[i*3+1];
-			rayDataStream[curNumRays+i].m_rayToPosition[2] = rayToWorldArray[i*3+2];
-			command.m_requestRaycastIntersections.m_numRays++;
+			rayDataStream[curNumStreamingRays+i].m_rayFromPosition[0] = rayFromWorldArray[i*3+0];
+			rayDataStream[curNumStreamingRays+i].m_rayFromPosition[1] = rayFromWorldArray[i*3+1];
+			rayDataStream[curNumStreamingRays+i].m_rayFromPosition[2] = rayFromWorldArray[i*3+2];
+			rayDataStream[curNumStreamingRays+i].m_rayToPosition[0] = rayToWorldArray[i*3+0];
+			rayDataStream[curNumStreamingRays+i].m_rayToPosition[1] = rayToWorldArray[i*3+1];
+			rayDataStream[curNumStreamingRays+i].m_rayToPosition[2] = rayToWorldArray[i*3+2];
+			command.m_requestRaycastIntersections.m_numStreamingRays++;
 		}
 
 	}

@@ -2736,13 +2736,19 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3CreateRaycastCommandInit(b3PhysicsCl
     struct SharedMemoryCommand *command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
     command->m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS;
-	command->m_requestRaycastIntersections.m_numRays = 0;
+	command->m_requestRaycastIntersections.m_numCommandRays = 1;
+	command->m_requestRaycastIntersections.m_numStreamingRays = 0;
 	command->m_requestRaycastIntersections.m_numThreads = 1;
 	
-	double rayFrom[3] = {rayFromWorldX,rayFromWorldY,rayFromWorldZ};
-	double rayTo[3] = {rayToWorldX,rayToWorldY,rayToWorldZ};
-	cl->uploadRaysToSharedMemory(*command, rayFrom, rayTo, 1);
-	
+	command->m_requestRaycastIntersections.m_numCommandRays = 1;
+	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayFromPosition[0] = rayFromWorldX;
+	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayFromPosition[1] = rayFromWorldY;
+	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayFromPosition[2] = rayFromWorldZ;
+
+	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayToPosition[0] = rayToWorldX;
+	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayToPosition[1] = rayToWorldY;
+	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayToPosition[2] = rayToWorldZ;
+
     return (b3SharedMemoryCommandHandle)command;
 }
 
@@ -2755,7 +2761,8 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3CreateRaycastBatchCommandInit(b3Phys
     b3Assert(command);
     command->m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS;
 	command->m_updateFlags = 0;
-	command->m_requestRaycastIntersections.m_numRays = 0;
+	command->m_requestRaycastIntersections.m_numCommandRays = 0;
+	command->m_requestRaycastIntersections.m_numStreamingRays = 0;
 	command->m_requestRaycastIntersections.m_numThreads = 1;
 	return (b3SharedMemoryCommandHandle)command;
 }
@@ -2767,18 +2774,26 @@ B3_SHARED_API  void b3RaycastBatchSetNumThreads(b3SharedMemoryCommandHandle comm
 	command->m_requestRaycastIntersections.m_numThreads = numThreads;
 }
 
-B3_SHARED_API void b3RaycastBatchAddRay(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, const double rayFromWorld[3], const double rayToWorld[3])
+B3_SHARED_API void b3RaycastBatchAddRay(b3SharedMemoryCommandHandle commandHandle, const double rayFromWorld[3], const double rayToWorld[3])
 {
-	PhysicsClient* cl = (PhysicsClient* ) physClient;
-    b3Assert(cl);
-
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
 	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
-
 	if (command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS)
 	{
-		cl->uploadRaysToSharedMemory(*command, rayFromWorld, rayToWorld, 1);
+		int numRays = command->m_requestRaycastIntersections.m_numCommandRays;
+		if (numRays<MAX_RAY_INTERSECTION_BATCH_SIZE)
+		{
+			command->m_requestRaycastIntersections.m_fromToRays[numRays].m_rayFromPosition[0] = rayFromWorld[0];
+			command->m_requestRaycastIntersections.m_fromToRays[numRays].m_rayFromPosition[1] = rayFromWorld[1];
+			command->m_requestRaycastIntersections.m_fromToRays[numRays].m_rayFromPosition[2] = rayFromWorld[2];
+
+			command->m_requestRaycastIntersections.m_fromToRays[numRays].m_rayToPosition[0] = rayToWorld[0];
+			command->m_requestRaycastIntersections.m_fromToRays[numRays].m_rayToPosition[1] = rayToWorld[1];
+			command->m_requestRaycastIntersections.m_fromToRays[numRays].m_rayToPosition[2] = rayToWorld[2];
+
+			command->m_requestRaycastIntersections.m_numCommandRays++;
+		}
 	}
 }
 
@@ -2790,7 +2805,7 @@ B3_SHARED_API	void b3RaycastBatchAddRays(b3PhysicsClientHandle physClient, b3Sha
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
 	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
-	b3Assert(numRays<MAX_RAY_INTERSECTION_BATCH_SIZE);
+	b3Assert(numRays<MAX_RAY_INTERSECTION_BATCH_SIZE_STREAMING);
 	if (command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS)
 	{
 		cl->uploadRaysToSharedMemory(*command, rayFromWorldArray, rayToWorldArray, numRays);
