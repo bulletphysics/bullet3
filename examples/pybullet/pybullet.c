@@ -2412,7 +2412,8 @@ static PyObject* pybullet_setJointMotorControl2(PyObject* self, PyObject* args, 
 
 		if ((controlMode != CONTROL_MODE_VELOCITY) &&
 			(controlMode != CONTROL_MODE_TORQUE) &&
-			(controlMode != CONTROL_MODE_POSITION_VELOCITY_PD))
+			(controlMode != CONTROL_MODE_POSITION_VELOCITY_PD) &&
+            (controlMode != CONTROL_MODE_PD))
 		{
 			PyErr_SetString(SpamError, "Illegral control mode.");
 			return NULL;
@@ -2441,6 +2442,7 @@ static PyObject* pybullet_setJointMotorControl2(PyObject* self, PyObject* args, 
 			}
 
 			case CONTROL_MODE_POSITION_VELOCITY_PD:
+            case CONTROL_MODE_PD:
 			{
 				if (maxVelocity>0)
 				{
@@ -9546,6 +9548,8 @@ initpybullet(void)
 							CONTROL_MODE_VELOCITY);  // user read
 	PyModule_AddIntConstant(m, "POSITION_CONTROL",
 							CONTROL_MODE_POSITION_VELOCITY_PD);  // user read
+    PyModule_AddIntConstant(m, "PD_CONTROL",
+                            CONTROL_MODE_PD);  // user read
 
 	PyModule_AddIntConstant(m, "LINK_FRAME", EF_LINK_FRAME);
 	PyModule_AddIntConstant(m, "WORLD_FRAME", EF_WORLD_FRAME);

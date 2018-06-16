@@ -14,20 +14,20 @@ for i in range (p.getNumJoints(pole)):
 desiredPosCartId = p.addUserDebugParameter("desiredPosCart",-10,10,2)
 desiredVelCartId = p.addUserDebugParameter("desiredVelCart",-10,10,0)
 kpCartId = p.addUserDebugParameter("kpCart",0,500,300)
-kdCartId = p.addUserDebugParameter("kpCart",0,300,150)
+kdCartId = p.addUserDebugParameter("kdCart",0,300,150)
 maxForceCartId = p.addUserDebugParameter("maxForceCart",0,5000,1000)
 
 
 desiredPosPoleId = p.addUserDebugParameter("desiredPosPole",-10,10,0)
 desiredVelPoleId = p.addUserDebugParameter("desiredVelPole",-10,10,0)
 kpPoleId = p.addUserDebugParameter("kpPole",0,500,200)
-kdPoleId = p.addUserDebugParameter("kpPole",0,300,100)
+kdPoleId = p.addUserDebugParameter("kdPole",0,300,100)
 maxForcePoleId = p.addUserDebugParameter("maxForcePole",0,5000,1000)
 
 pd = p.loadPlugin("pdControlPlugin")
 
 	
-p.setGravity(0,0,0)
+p.setGravity(0,0,-10)
 
 useRealTimeSim = True
 
@@ -44,7 +44,7 @@ while p.isConnected():
 		kdCart = p.readUserDebugParameter(kdCartId)
 		maxForceCart = p.readUserDebugParameter(maxForceCartId)
 		link = 0
-		p.executePluginCommand(pd,"test",[1, pole, link], [desiredPosCart, desiredVelCart, kdCart, kpCart, maxForceCart])
+		p.setJointMotorControl2(bodyUniqueId=pole,jointIndex=link,controlMode=p.PD_CONTROL,targetPosition=desiredPosCart,targetVelocity=desiredVelCart,force=maxForceCart, positionGain=kpCart, velocityGain=kdCart)
 		
 		desiredPosPole = p.readUserDebugParameter(desiredPosPoleId)
 		desiredVelPole = p.readUserDebugParameter(desiredVelPoleId)
@@ -52,7 +52,7 @@ while p.isConnected():
 		kdPole = p.readUserDebugParameter(kdPoleId)
 		maxForcePole = p.readUserDebugParameter(maxForcePoleId)
 		link = 1
-		p.executePluginCommand(pd,"test",[1, pole, link], [desiredPosPole, desiredVelPole, kdPole, kpPole, maxForcePole])
+		p.setJointMotorControl2(bodyUniqueId=pole,jointIndex=link,controlMode=p.PD_CONTROL,targetPosition=desiredPosPole,targetVelocity=desiredVelPole,force=maxForcePole, positionGain=kpPole, velocityGain=kdPole)
 		
 
 	if (not useRealTimeSim):
