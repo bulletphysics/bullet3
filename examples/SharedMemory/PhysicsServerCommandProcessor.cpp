@@ -1659,6 +1659,8 @@ struct PhysicsServerCommandProcessorInternalData
 	b3HashMap<b3HashString,  char*> m_profileEvents;
 	b3HashMap<b3HashString, UrdfVisualShapeCache> m_cachedVUrdfisualShapes;
 
+	btITaskScheduler* m_scheduler;
+
 	PhysicsServerCommandProcessorInternalData(PhysicsCommandProcessorInterface* proc)
 		:m_pluginManager(proc),
 		m_useRealTimeSimulation(false),
@@ -1686,7 +1688,8 @@ struct PhysicsServerCommandProcessorInternalData
 		m_pickedBody(0),
 		m_pickedConstraint(0),
 		m_pickingMultiBodyPoint2Point(0),
-		m_pdControlPlugin(-1)
+		m_pdControlPlugin(-1),
+		m_scheduler(0)
 	{
 
 		{
@@ -1780,13 +1783,15 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 
 	createEmptyDynamicsWorld();
 
+#ifdef BT_THREADSAFE
 	if (btGetTaskScheduler() == 0) {
-		btITaskScheduler *scheduler = btCreateDefaultTaskScheduler();
-		if (scheduler == 0) {
-			scheduler = btGetSequentialTaskScheduler();
+		m_data->m_scheduler = btCreateDefaultTaskScheduler();
+		if (m_data->m_scheduler == 0) {
+			m_data->m_scheduler = btGetSequentialTaskScheduler();
 		}
-		btSetTaskScheduler(scheduler);
+		btSetTaskScheduler(m_data->m_scheduler);
 	}
+#endif //BT_THREADSAFE
 }
 
 PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
@@ -1802,6 +1807,9 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 		char* event = *m_data->m_profileEvents.getAtIndex(i);
 		delete[] event;
 	}
+	if (m_data->m_scheduler)
+		delete m_data->m_scheduler;
+
 	delete m_data;
 }
 
@@ -4821,10 +4829,11 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 	const int numRays = clientCmd.m_requestRaycastIntersections.m_numRays;
 	const int numThreads = clientCmd.m_requestRaycastIntersections.m_numThreads;
 
-	b3RayData *rayInputBuffer = (b3RayData *)malloc(sizeof(b3RayData) * numRays);
-	memcpy(rayInputBuffer, bufferServerToClient, sizeof(b3RayData) * numRays);
-
-	BatchRayCaster batchRayCaster(m_data->m_dynamicsWorld, rayInputBuffer, (b3RayHitInfo *)bufferServerToClient, numRays);
+	btAlignedObjectArray<b3RayData> rays;
+	rays.resize(numRays);
+	memcpy(&rays[0],bufferServerToClient,numRays*sizeof(b3RayData));
+	
+	BatchRayCaster batchRayCaster(m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo *)bufferServerToClient, numRays);
 	if (numThreads == 0) {
 		// When 0 is specified, Bullet can decide how many threads to use.
 		// About 16 rays per thread seems to work reasonably well.
@@ -4840,7 +4849,6 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 		batchRayCaster.castRays(numThreads);
 	}
 
-	free(rayInputBuffer);
 	serverStatusOut.m_raycastHits.m_numRaycastHits = numRays;
 	serverStatusOut.m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED;
 	return hasStatus;
@@ -6747,6 +6755,26 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 	{
 		btMultiBody* mb = body->m_multiBody;
 
+		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
+		{
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateWakeUp)
+			{
+				mb->wakeUp();
+			}
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateSleep)
+			{
+				mb->goToSleep();
+			}
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateEnableSleeping)
+			{
+				mb->setCanSleep(true);
+			}
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateDisableSleeping)
+			{
+				mb->setCanSleep(false);
+			}
+		}
+
 		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
 		{
 			mb->setLinearDamping(clientCmd.m_changeDynamicsInfoArgs.m_linearDamping);
@@ -6872,6 +6900,27 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 	{
 		if (body && body->m_rigidBody)
 		{
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
+			{
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateEnableSleeping)
+				{
+					body->m_rigidBody->forceActivationState(ACTIVE_TAG);
+				}
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateDisableSleeping)
+				{
+					body->m_rigidBody->forceActivationState(DISABLE_DEACTIVATION);
+				}
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateWakeUp)
+				{
+					body->m_rigidBody->forceActivationState(ACTIVE_TAG);
+				}
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateSleep)
+				{
+					body->m_rigidBody->forceActivationState(ISLAND_SLEEPING);
+				}
+			}
+
+
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
 			{
 				btScalar angDamping = body->m_rigidBody->getAngularDamping();

@@ -275,8 +275,13 @@ if not _OPTIONS["no-enet"] then
 	if os.is("MacOSX") then
 		links{"Cocoa.framework"}
 	end
+
 	
-		
+	if os.is("Linux") then initX11()
+                     links {"pthread"}
+        end
+
+	
 		files {
 			 "HelloBulletRobotics.cpp"
 		}

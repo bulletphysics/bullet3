@@ -12,7 +12,7 @@
 #include "SharedMemoryBlock.h"
 #include "BodyJointInfoUtility.h"
 #include "SharedMemoryUserData.h"
-
+#include "LinearMath/btQuickprof.h"
 
 
 struct UserDataCache 
@@ -41,11 +41,16 @@ struct BodyJointInfoCache
 	}
 };
 
+
+
 struct PhysicsClientSharedMemoryInternalData {
     SharedMemoryInterface* m_sharedMemory;
 	bool	m_ownsSharedMemory;
     SharedMemoryBlock* m_testBlock1;
    
+	btAlignedObjectArray<CProfileSample* > m_profileTimings;
+	btHashMap<btHashString, std::string*> m_profileTimingStringArray;
+
 	btHashMap<btHashInt,BodyJointInfoCache*> m_bodyJointMap;
 	btHashMap<btHashInt,b3UserConstraint> m_userConstraintInfoMap;
 
@@ -216,6 +221,16 @@ PhysicsClientSharedMemory::~PhysicsClientSharedMemory() {
     }
 	resetData();
 
+	for (int i=0;i<m_data->m_profileTimingStringArray.size();i++)
+	{
+		std::string** str = m_data->m_profileTimingStringArray.getAtIndex(i);
+		if (str)
+		{
+			delete *str;
+		}
+	}
+	m_data->m_profileTimingStringArray.clear();
+
 	if (m_data->m_ownsSharedMemory)
 	{
 	    delete m_data->m_sharedMemory;
@@ -234,6 +249,8 @@ void PhysicsClientSharedMemory::removeCachedBody(int bodyUniqueId)
 }
 void PhysicsClientSharedMemory::resetData()
 {
+	
+
 	m_data->m_debugLinesFrom.clear();
 	m_data->m_debugLinesTo.clear();
 	m_data->m_debugLinesColor.clear();
@@ -950,6 +967,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
 				case CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED:
 				{
+					B3_PROFILE("m_raycastHits");
 					if (m_data->m_verboseOutput)
 					{
 						b3Printf("Raycast completed");
@@ -1665,7 +1683,6 @@ bool PhysicsClientSharedMemory::canSubmitCommand() const {
 struct SharedMemoryCommand* PhysicsClientSharedMemory::getAvailableSharedMemoryCommand() {
     static int sequence = 0;
     m_data->m_testBlock1->m_clientCommands[0].m_sequenceNumber = sequence++;
-    m_data->m_testBlock1->m_clientCommands[0].m_client = this;
     return &m_data->m_testBlock1->m_clientCommands[0];
 }
 
@@ -1685,9 +1702,6 @@ bool PhysicsClientSharedMemory::submitClientCommand(const SharedMemoryCommand& c
     return false;
 }
 
-char* PhysicsClientSharedMemory::getSharedMemoryStreamBuffer() {
-  return m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
-}
 
 void PhysicsClientSharedMemory::uploadBulletFileToSharedMemory(const char* data, int len) {
     btAssert(len < SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
@@ -1702,6 +1716,31 @@ void PhysicsClientSharedMemory::uploadBulletFileToSharedMemory(const char* data,
         }
     }
 }
+
+void PhysicsClientSharedMemory::uploadRaysToSharedMemory(struct SharedMemoryCommand& command, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays)
+{
+	int curNumRays = command.m_requestRaycastIntersections.m_numRays;
+	int newNumRays = curNumRays + numRays;
+	btAssert(newNumRays<MAX_RAY_INTERSECTION_BATCH_SIZE);
+
+	if (newNumRays<MAX_RAY_INTERSECTION_BATCH_SIZE)
+	{
+		for (int i=0;i<numRays;i++)
+		{
+			b3RayData* rayDataStream = (b3RayData *)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
+			rayDataStream[curNumRays+i].m_rayFromPosition[0] = rayFromWorldArray[i*3+0];
+			rayDataStream[curNumRays+i].m_rayFromPosition[1] = rayFromWorldArray[i*3+1];
+			rayDataStream[curNumRays+i].m_rayFromPosition[2] = rayFromWorldArray[i*3+2];
+			rayDataStream[curNumRays+i].m_rayToPosition[0] = rayToWorldArray[i*3+0];
+			rayDataStream[curNumRays+i].m_rayToPosition[1] = rayToWorldArray[i*3+1];
+			rayDataStream[curNumRays+i].m_rayToPosition[2] = rayToWorldArray[i*3+2];
+			command.m_requestRaycastIntersections.m_numRays++;
+		}
+
+	}
+}
+
+
 
 void PhysicsClientSharedMemory::getCachedCameraImage(struct b3CameraImageData* cameraData)
 {
@@ -1882,3 +1921,34 @@ void PhysicsClientSharedMemory::getUserDataInfo(int bodyUniqueId, int linkIndex,
 	SharedMemoryUserData *userDataPtr = (userDataCachePtr)->m_userDataMap.getAtIndex(userDataIndex);
 	*keyOut = (userDataPtr)->m_key.c_str();
 }
+
+
+
+
+
+void PhysicsClientSharedMemory::pushProfileTiming(const char* timingName)
+{
+	std::string** strPtr = m_data->m_profileTimingStringArray[timingName];
+	std::string* str = 0;
+	if (strPtr)
+	{
+		str = *strPtr;
+	} else
+	{
+		str = new std::string(timingName);
+		m_data->m_profileTimingStringArray.insert(timingName,str);
+	} 
+	m_data->m_profileTimings.push_back(new CProfileSample(str->c_str()));
+}
+
+
+void PhysicsClientSharedMemory::popProfileTiming()
+{
+	if (m_data->m_profileTimings.size())
+	{
+		CProfileSample* sample = m_data->m_profileTimings[m_data->m_profileTimings.size()-1];
+		m_data->m_profileTimings.pop_back();
+		delete sample;
+	}
+}
+

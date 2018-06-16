@@ -1183,14 +1183,15 @@ static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyO
 	double ccdSweptSphereRadius=-1;
 	int frictionAnchor = -1;
 	double contactProcessingThreshold = -1;
+	int activationState = -1;
 
 	PyObject* localInertiaDiagonalObj=0;
 
 	b3PhysicsClientHandle sm = 0;
 	
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "lateralFriction", "spinningFriction", "rollingFriction","restitution", "linearDamping", "angularDamping", "contactStiffness", "contactDamping", "frictionAnchor", "localInertiaDiagonal", "ccdSweptSphereRadius", "contactProcessingThreshold",  "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|dddddddddiOddi", kwlist, &bodyUniqueId, &linkIndex,&mass, &lateralFriction, &spinningFriction, &rollingFriction, &restitution,&linearDamping, &angularDamping, &contactStiffness, &contactDamping, &frictionAnchor, &localInertiaDiagonalObj, &ccdSweptSphereRadius, &contactProcessingThreshold, &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "lateralFriction", "spinningFriction", "rollingFriction","restitution", "linearDamping", "angularDamping", "contactStiffness", "contactDamping", "frictionAnchor", "localInertiaDiagonal", "ccdSweptSphereRadius", "contactProcessingThreshold",  "activationState", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|dddddddddiOddii", kwlist, &bodyUniqueId, &linkIndex,&mass, &lateralFriction, &spinningFriction, &rollingFriction, &restitution,&linearDamping, &angularDamping, &contactStiffness, &contactDamping, &frictionAnchor, &localInertiaDiagonalObj, &ccdSweptSphereRadius, &contactProcessingThreshold,&activationState,  &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1259,6 +1260,10 @@ static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyO
 		if (ccdSweptSphereRadius>=0)
 		{
 			b3ChangeDynamicsInfoSetCcdSweptSphereRadius(command,bodyUniqueId,linkIndex, ccdSweptSphereRadius);
+		}
+		if (activationState >= 0)
+		{
+			b3ChangeDynamicsInfoSetActivationState(command, bodyUniqueId, activationState);
 		}
 		if (contactProcessingThreshold >= 0)
 		{
@@ -4701,6 +4706,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 	}
 
 	
+	
 	commandHandle = b3CreateRaycastBatchCommandInit(sm);
 	b3RaycastBatchSetNumThreads(commandHandle, numThreads);
 
@@ -4723,7 +4729,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 			} else
 			{
 				int i;
-
+				
 				if (lenFrom > MAX_RAY_INTERSECTION_BATCH_SIZE)
 				{
 					PyErr_SetString(SpamError, "Number of rays exceed the maximum batch size.");
@@ -4731,6 +4737,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 					Py_DECREF(seqRayToObj);
 					return NULL;
 				}
+				b3PushProfileTiming(sm, "extractPythonFromToSequenceToC");
 				for (i = 0; i < lenFrom; i++)
 				{
 					PyObject* rayFromObj = PySequence_GetItem(rayFromObjList,i);
@@ -4741,7 +4748,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 					if ((pybullet_internalSetVectord(rayFromObj, rayFromWorld)) &&
 						(pybullet_internalSetVectord(rayToObj, rayToWorld)))
 					{
-						b3RaycastBatchAddRay(commandHandle, rayFromWorld, rayToWorld);	
+						b3RaycastBatchAddRay(sm, commandHandle, rayFromWorld, rayToWorld);	
 					} else
 					{
 						PyErr_SetString(SpamError, "Items in the from/to positions need to be an [x,y,z] list of 3 floats/doubles");
@@ -4749,11 +4756,13 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 						Py_DECREF(seqRayToObj);
 						Py_DECREF(rayFromObj);
 						Py_DECREF(rayToObj);
+						b3PopProfileTiming(sm);
 						return NULL;
 					}
 					Py_DECREF(rayFromObj);
 					Py_DECREF(rayToObj);
 				}
+				b3PopProfileTiming(sm);
 			}
 		} else
 		{
@@ -4776,8 +4785,9 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 		struct b3RaycastInformation raycastInfo;
 		PyObject* rayHitsObj = 0;
 		int i;
+		b3PushProfileTiming(sm, "convertRaycastInformationToPython");
 		b3GetRaycastInformation(sm, &raycastInfo);
-
+		
 		rayHitsObj = PyTuple_New(raycastInfo.m_numRayHits);
 		for (i = 0; i < raycastInfo.m_numRayHits; i++)
 		{
@@ -4816,6 +4826,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 			}
 			PyTuple_SetItem(rayHitsObj, i, singleHitObj);
 		}
+		b3PopProfileTiming(sm);
 		return rayHitsObj;
 	}
 
@@ -9586,6 +9597,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "STATE_LOGGING_PROFILE_TIMINGS", STATE_LOGGING_PROFILE_TIMINGS);
 	PyModule_AddIntConstant(m, "STATE_LOGGING_ALL_COMMANDS", STATE_LOGGING_ALL_COMMANDS);
 	PyModule_AddIntConstant(m, "STATE_REPLAY_ALL_COMMANDS", STATE_REPLAY_ALL_COMMANDS);
+	PyModule_AddIntConstant(m, "STATE_LOGGING_CUSTOM_TIMER", STATE_LOGGING_CUSTOM_TIMER);
 	
 	PyModule_AddIntConstant(m, "COV_ENABLE_GUI", COV_ENABLE_GUI);
 	PyModule_AddIntConstant(m, "COV_ENABLE_SHADOWS", COV_ENABLE_SHADOWS);
@@ -9625,7 +9637,11 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "URDF_ENABLE_CACHED_GRAPHICS_SHAPES", URDF_ENABLE_CACHED_GRAPHICS_SHAPES);
 	PyModule_AddIntConstant(m, "URDF_ENABLE_SLEEPING", URDF_ENABLE_SLEEPING);
 	PyModule_AddIntConstant(m, "URDF_INITIALIZE_SAT_FEATURES", URDF_INITIALIZE_SAT_FEATURES);
-	
+
+	PyModule_AddIntConstant(m, "ACTIVATION_STATE_ENABLE_SLEEPING", eActivationStateEnableSleeping);
+	PyModule_AddIntConstant(m, "ACTIVATION_STATE_DISABLE_SLEEPING", eActivationStateDisableSleeping);
+	PyModule_AddIntConstant(m, "ACTIVATION_STATE_WAKE_UP", eActivationStateWakeUp);
+	PyModule_AddIntConstant(m, "ACTIVATION_STATE_SLEEP", eActivationStateSleep);
 
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION", URDF_USE_SELF_COLLISION);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_PARENT", URDF_USE_SELF_COLLISION_EXCLUDE_PARENT);

@@ -209,13 +209,19 @@ public:
     }
     ~JobQueue()
     {
-        freeJobMem();
+		exit();
+    }
+	void exit()
+    {
+		freeJobMem();
         if (m_queueLock && m_threadSupport)
         {
             m_threadSupport->deleteCriticalSection(m_queueLock);
             m_queueLock = NULL;
+			m_threadSupport = 0;
         }
-    }
+	}
+
     void init(btThreadSupportInterface* threadSup, btAlignedObjectArray<JobQueue>* contextArray)
     {
         m_threadSupport = threadSup;
@@ -412,11 +418,13 @@ static void WorkerThreadFunc( void* userPtr )
             }
         }
     }
-
-    // go sleep
-    localStorage->m_mutex.lock();
-    localStorage->m_status = WorkerThreadStatus::kSleeping;
-    localStorage->m_mutex.unlock();
+	{
+		BT_PROFILE("sleep");
+		// go sleep
+		localStorage->m_mutex.lock();
+		localStorage->m_status = WorkerThreadStatus::kSleeping;
+		localStorage->m_mutex.unlock();
+	}
 }
 
 
@@ -446,6 +454,12 @@ public:
     virtual ~btTaskSchedulerDefault()
     {
         waitForWorkersToSleep();
+
+		for ( int i = 0; i < m_jobQueues.size(); ++i )
+        {
+            m_jobQueues[i].exit();
+        }
+
         if (m_threadSupport)
         {
             delete m_threadSupport;
@@ -503,7 +517,7 @@ public:
             storage.m_threadId = i;
             storage.m_directive = m_workerDirective;
             storage.m_status = WorkerThreadStatus::kSleeping;
-            storage.m_cooldownTime = 1000; // 1000 microseconds, threads go to sleep after this long if they have nothing to do
+            storage.m_cooldownTime = 100; // 100 microseconds, threads go to sleep after this long if they have nothing to do
             storage.m_clock = &m_clock;
             storage.m_queue = m_perThreadJobQueues[i];
         }

@@ -14,12 +14,15 @@
 #include <string>
 
 #include "SharedMemoryUserData.h"
+#include "LinearMath/btQuickprof.h"
 
 struct UserDataCache {
 	btHashMap<btHashInt, SharedMemoryUserData> m_userDataMap;
 	btHashMap<btHashString, int> m_keyToUserDataIdMap;
 
-	~UserDataCache() {
+	~UserDataCache() 
+	{
+		
 	}
 };
 
@@ -58,6 +61,9 @@ struct PhysicsDirectInternalData
 	btHashMap<btHashInt,BodyJointInfoCache2*> m_bodyJointMap;
     btHashMap<btHashInt,b3UserConstraint> m_userConstraintInfoMap;
 	
+	btAlignedObjectArray<CProfileSample* > m_profileTimings;
+	btHashMap<btHashString, std::string*> m_profileTimingStringArray;
+
 	char    m_bulletStreamDataServerToClient[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];
 	btAlignedObjectArray<double> m_cachedMassMatrix;
 	int m_cachedCameraPixelsWidth;
@@ -106,11 +112,21 @@ PhysicsDirect::PhysicsDirect(PhysicsCommandProcessorInterface* physSdk, bool pas
 	m_data = new PhysicsDirectInternalData;
 	m_data->m_commandProcessor = physSdk;
 	m_data->m_ownsCommandProcessor = passSdkOwnership;
-	m_data->m_command.m_client = this;
+
 }
 
 PhysicsDirect::~PhysicsDirect()
 {
+	for (int i=0;i<m_data->m_profileTimingStringArray.size();i++)
+	{
+		std::string** str = m_data->m_profileTimingStringArray.getAtIndex(i);
+		if (str)
+		{
+			delete *str;
+		}
+	}
+	m_data->m_profileTimingStringArray.clear();
+
 	if (m_data->m_commandProcessor->isConnected())
 	{
 		m_data->m_commandProcessor->disconnect();
@@ -1318,16 +1334,11 @@ bool PhysicsDirect::getJointInfo(int bodyIndex, int jointIndex, struct b3JointIn
     return false;
 }
 
-///todo: move this out of the
+
 void PhysicsDirect::setSharedMemoryKey(int key)
 {
-	//m_data->m_physicsServer->setSharedMemoryKey(key);
-	//m_data->m_physicsClient->setSharedMemoryKey(key);
 }
 
-char* PhysicsDirect::getSharedMemoryStreamBuffer() {
-	return m_data->m_bulletStreamDataServerToClient;
-}
 
 void PhysicsDirect::uploadBulletFileToSharedMemory(const char* data, int len)
 {
@@ -1341,6 +1352,31 @@ void PhysicsDirect::uploadBulletFileToSharedMemory(const char* data, int len)
 	}
 	//m_data->m_physicsClient->uploadBulletFileToSharedMemory(data,len);
 }
+
+void PhysicsDirect::uploadRaysToSharedMemory(struct SharedMemoryCommand& command, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays)
+{
+	int curNumRays = command.m_requestRaycastIntersections.m_numRays;
+	int newNumRays = curNumRays + numRays;
+	btAssert(newNumRays<MAX_RAY_INTERSECTION_BATCH_SIZE);
+
+	if (newNumRays<MAX_RAY_INTERSECTION_BATCH_SIZE)
+	{
+		for (int i=0;i<numRays;i++)
+		{
+			b3RayData* rayDataStream = (b3RayData *)m_data->m_bulletStreamDataServerToClient;
+			rayDataStream[curNumRays+i].m_rayFromPosition[0] = rayFromWorldArray[i*3+0];
+			rayDataStream[curNumRays+i].m_rayFromPosition[1] = rayFromWorldArray[i*3+1];
+			rayDataStream[curNumRays+i].m_rayFromPosition[2] = rayFromWorldArray[i*3+2];
+			rayDataStream[curNumRays+i].m_rayToPosition[0] = rayToWorldArray[i*3+0];
+			rayDataStream[curNumRays+i].m_rayToPosition[1] = rayToWorldArray[i*3+1];
+			rayDataStream[curNumRays+i].m_rayToPosition[2] = rayToWorldArray[i*3+2];
+			command.m_requestRaycastIntersections.m_numRays++;
+		}
+
+	}
+
+}
+
 
 int PhysicsDirect::getNumDebugLines() const
 {
@@ -1529,4 +1565,32 @@ void PhysicsDirect::getUserDataInfo(int bodyUniqueId, int linkIndex, int userDat
 	*userDataIdOut = (userDataCachePtr)->m_userDataMap.getKeyAtIndex(userDataIndex).getUid1();
 	SharedMemoryUserData* userDataPtr = (userDataCachePtr)->m_userDataMap.getAtIndex(userDataIndex);
 	*keyOut = (userDataPtr)->m_key.c_str();
+}
+
+
+
+void PhysicsDirect::pushProfileTiming(const char* timingName)
+{
+	std::string** strPtr = m_data->m_profileTimingStringArray[timingName];
+	std::string* str = 0;
+	if (strPtr)
+	{
+		str = *strPtr;
+	} else
+	{
+		str = new std::string(timingName);
+		m_data->m_profileTimingStringArray.insert(timingName,str);
+	} 
+	m_data->m_profileTimings.push_back(new CProfileSample(str->c_str()));
+}
+
+
+void PhysicsDirect::popProfileTiming()
+{
+	if (m_data->m_profileTimings.size())
+	{
+		CProfileSample* sample = m_data->m_profileTimings[m_data->m_profileTimings.size()-1];
+		m_data->m_profileTimings.pop_back();
+		delete sample;
+	}
 }
