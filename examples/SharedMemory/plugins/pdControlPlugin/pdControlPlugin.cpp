@@ -122,7 +122,6 @@ B3_SHARED_API int executePluginCommand_pdControlPlugin(struct b3PluginContext* c
 		controller.m_maxForce = arguments->m_floats[4];
 		controller.m_objectUniqueId = arguments->m_ints[1];
 		controller.m_linkIndex = arguments->m_ints[2];
-
 		int foundIndex = -1;
 		for (int i = 0; i < obj->m_controllers.size(); i++)
 		{
