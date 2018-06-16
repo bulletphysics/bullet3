@@ -758,6 +758,22 @@ void b3RobotSimulatorClientAPI_NoDirect::setJointMotorControl(int bodyUniqueId, 
 			statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 			break;
 		}
+    case CONTROL_MODE_PD:
+    {
+        b3SharedMemoryCommandHandle command = b3JointControlCommandInit2(m_data->m_physicsClientHandle, bodyUniqueId, CONTROL_MODE_PD);
+        b3JointInfo jointInfo;
+        b3GetJointInfo(m_data->m_physicsClientHandle, bodyUniqueId, jointIndex, &jointInfo);
+        int uIndex = jointInfo.m_uIndex;
+        int qIndex = jointInfo.m_qIndex;
+        
+        b3JointControlSetDesiredPosition(command, qIndex, args.m_targetPosition);
+        b3JointControlSetKp(command, uIndex, args.m_kp);
+        b3JointControlSetDesiredVelocity(command, uIndex, args.m_targetVelocity);
+        b3JointControlSetKd(command, uIndex, args.m_kd);
+        b3JointControlSetMaximumForce(command, uIndex, args.m_maxTorqueValue);
+        statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+        break;
+    }
 	default:
 		{
 			b3Error("Unknown control command in b3RobotSimulationClientAPI::setJointMotorControl");
