@@ -1783,15 +1783,6 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 
 	createEmptyDynamicsWorld();
 
-#ifdef BT_THREADSAFE
-	if (btGetTaskScheduler() == 0) {
-		m_data->m_scheduler = btCreateDefaultTaskScheduler();
-		if (m_data->m_scheduler == 0) {
-			m_data->m_scheduler = btGetSequentialTaskScheduler();
-		}
-		btSetTaskScheduler(m_data->m_scheduler);
-	}
-#endif //BT_THREADSAFE
 }
 
 PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
@@ -4820,6 +4811,19 @@ struct BatchRayCaster : public btIParallelForBody
 	}
 };
 
+void PhysicsServerCommandProcessor::createTaskScheduler()
+{
+#ifdef BT_THREADSAFE
+	if (btGetTaskScheduler() == 0) {
+		m_data->m_scheduler = btCreateDefaultTaskScheduler();
+		if (m_data->m_scheduler == 0) {
+			m_data->m_scheduler = btGetSequentialTaskScheduler();
+		}
+		btSetTaskScheduler(m_data->m_scheduler);
+	}
+#endif //BT_THREADSAFE
+}
+
 bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -4844,6 +4848,7 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 	
 	BatchRayCaster batchRayCaster(m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo *)bufferServerToClient, totalRays);
 	if (numThreads == 0) {
+		createTaskScheduler();
 		// When 0 is specified, Bullet can decide how many threads to use.
 		// About 16 rays per thread seems to work reasonably well.
 		batchRayCaster.castRays(totalRays / 16);
@@ -4853,8 +4858,10 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 			batchRayCaster.processRay(i);
 		}
 	} else {
+		
 		// Otherwise, just use the user-specified number of threads. This is
 		// still limited by the number of virtual cores on the machine.
+		createTaskScheduler();
 		batchRayCaster.castRays(numThreads);
 	}
 
@@ -7251,7 +7258,7 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 
 	if (clientCmd.m_updateFlags&SIM_PARAM_ENABLE_SAT)
 	{
-		m_data->m_dynamicsWorld->getDispatchInfo().m_enableSatConvex = clientCmd.m_physSimParamArgs.m_enableSAT;
+		m_data->m_dynamicsWorld->getDispatchInfo().m_enableSatConvex = clientCmd.m_physSimParamArgs.m_enableSAT!=0;
 	}
 
 
