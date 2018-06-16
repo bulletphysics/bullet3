@@ -1847,6 +1847,7 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 
 void btMultiBody::wakeUp()
 {
+	m_sleepTimer = 0;
     m_awake = true;
 }
 

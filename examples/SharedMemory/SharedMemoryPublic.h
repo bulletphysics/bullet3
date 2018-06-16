@@ -314,6 +314,15 @@ struct b3BodyInfo
 	char m_bodyName[1024]; // for btRigidBody, it does not have a base, but can still have a body name from urdf
 };
 
+
+enum DynamicsActivationState
+{
+	eActivationStateEnableSleeping = 1,
+	eActivationStateDisableSleeping = 2,
+	eActivationStateWakeUp = 4,
+	eActivationStateSleep = 8,
+};
+
 struct b3DynamicsInfo
 {
 	double m_mass;

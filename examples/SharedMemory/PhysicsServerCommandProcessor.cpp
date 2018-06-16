@@ -6599,6 +6599,26 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 	{
 		btMultiBody* mb = body->m_multiBody;
 
+		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
+		{
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateWakeUp)
+			{
+				mb->wakeUp();
+			}
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateSleep)
+			{
+				mb->goToSleep();
+			}
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateEnableSleeping)
+			{
+				mb->setCanSleep(true);
+			}
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateDisableSleeping)
+			{
+				mb->setCanSleep(false);
+			}
+		}
+
 		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
 		{
 			mb->setLinearDamping(clientCmd.m_changeDynamicsInfoArgs.m_linearDamping);
@@ -6724,6 +6744,27 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 	{
 		if (body && body->m_rigidBody)
 		{
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
+			{
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateEnableSleeping)
+				{
+					body->m_rigidBody->forceActivationState(ACTIVE_TAG);
+				}
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateDisableSleeping)
+				{
+					body->m_rigidBody->forceActivationState(DISABLE_DEACTIVATION);
+				}
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateWakeUp)
+				{
+					body->m_rigidBody->forceActivationState(ACTIVE_TAG);
+				}
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState&eActivationStateSleep)
+				{
+					body->m_rigidBody->forceActivationState(ISLAND_SLEEPING);
+				}
+			}
+
+
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
 			{
 				btScalar angDamping = body->m_rigidBody->getAngularDamping();
