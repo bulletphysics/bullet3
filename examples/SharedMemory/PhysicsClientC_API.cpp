@@ -2729,12 +2729,14 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3CreateRaycastCommandInit(b3PhysicsCl
     b3Assert(command);
     command->m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS;
 	command->m_requestRaycastIntersections.m_numRays = 1;
-	command->m_requestRaycastIntersections.m_rayFromPositions[0][0] = rayFromWorldX;
-	command->m_requestRaycastIntersections.m_rayFromPositions[0][1] = rayFromWorldY;
-	command->m_requestRaycastIntersections.m_rayFromPositions[0][2] = rayFromWorldZ;
-	command->m_requestRaycastIntersections.m_rayToPositions[0][0] = rayToWorldX;
-	command->m_requestRaycastIntersections.m_rayToPositions[0][1] = rayToWorldY;
-	command->m_requestRaycastIntersections.m_rayToPositions[0][2] = rayToWorldZ;
+	command->m_requestRaycastIntersections.m_numThreads = 1;
+	b3RayData* rayDataStream = (b3RayData *)cl->getSharedMemoryStreamBuffer();
+	rayDataStream[0].m_rayFromPosition[0] = rayFromWorldX;
+	rayDataStream[0].m_rayFromPosition[1] = rayFromWorldY;
+	rayDataStream[0].m_rayFromPosition[2] = rayFromWorldZ;
+	rayDataStream[0].m_rayToPosition[0] = rayToWorldX;
+	rayDataStream[0].m_rayToPosition[1] = rayToWorldY;
+	rayDataStream[0].m_rayToPosition[2] = rayToWorldZ;
 
     return (b3SharedMemoryCommandHandle)command;
 }
@@ -2749,7 +2751,15 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3CreateRaycastBatchCommandInit(b3Phys
     command->m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS;
 	command->m_updateFlags = 0;
 	command->m_requestRaycastIntersections.m_numRays = 0;
+	command->m_requestRaycastIntersections.m_numThreads = 1;
 	return (b3SharedMemoryCommandHandle)command;
+}
+
+B3_SHARED_API  void b3RaycastBatchSetNumThreads(b3SharedMemoryCommandHandle commandHandle, int numThreads) {
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
+	command->m_requestRaycastIntersections.m_numThreads = numThreads;
 }
 
 B3_SHARED_API void b3RaycastBatchAddRay(b3SharedMemoryCommandHandle commandHandle, const double rayFromWorld[3], const double rayToWorld[3])
@@ -2757,17 +2767,21 @@ B3_SHARED_API void b3RaycastBatchAddRay(b3SharedMemoryCommandHandle commandHandl
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
 	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
+	b3Assert(command->m_client)
+	PhysicsClient *cl = command->m_client;
+	b3Assert(cl);
 	if (command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS)
 	{
 		int numRays = command->m_requestRaycastIntersections.m_numRays;
 		if (numRays<MAX_RAY_INTERSECTION_BATCH_SIZE)
 		{
-			command->m_requestRaycastIntersections.m_rayFromPositions[numRays][0] = rayFromWorld[0];
-			command->m_requestRaycastIntersections.m_rayFromPositions[numRays][1] = rayFromWorld[1];
-			command->m_requestRaycastIntersections.m_rayFromPositions[numRays][2] = rayFromWorld[2];
-			command->m_requestRaycastIntersections.m_rayToPositions[numRays][0] = rayToWorld[0];
-			command->m_requestRaycastIntersections.m_rayToPositions[numRays][1] = rayToWorld[1];
-			command->m_requestRaycastIntersections.m_rayToPositions[numRays][2] = rayToWorld[2];
+			b3RayData* rayDataStream = (b3RayData *)cl->getSharedMemoryStreamBuffer();
+			rayDataStream[numRays].m_rayFromPosition[0] = rayFromWorld[0];
+			rayDataStream[numRays].m_rayFromPosition[1] = rayFromWorld[1];
+			rayDataStream[numRays].m_rayFromPosition[2] = rayFromWorld[2];
+			rayDataStream[numRays].m_rayToPosition[0] = rayToWorld[0];
+			rayDataStream[numRays].m_rayToPosition[1] = rayToWorld[1];
+			rayDataStream[numRays].m_rayToPosition[2] = rayToWorld[2];
 			command->m_requestRaycastIntersections.m_numRays++;
 		}
 	}

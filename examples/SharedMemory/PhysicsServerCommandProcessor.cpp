@@ -1565,7 +1565,7 @@ struct PhysicsServerCommandProcessorInternalData
 	b3ResizablePool< InternalBodyHandle > m_bodyHandles;
 	b3ResizablePool<InternalCollisionShapeHandle> m_userCollisionShapeHandles;
 	b3ResizablePool<InternalVisualShapeHandle> m_userVisualShapeHandles;
-	
+
 
 
 	b3PluginManager m_pluginManager;
@@ -1780,6 +1780,13 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 
 	createEmptyDynamicsWorld();
 
+	if (btGetTaskScheduler() == 0) {
+		btITaskScheduler *scheduler = btCreateDefaultTaskScheduler();
+		if (scheduler == 0) {
+			scheduler = btGetSequentialTaskScheduler();
+		}
+		btSetTaskScheduler(scheduler);
+	}
 }
 
 PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
@@ -4681,31 +4688,87 @@ bool PhysicsServerCommandProcessor::processRequestKeyboardEventsCommand(const st
 	return hasStatus;
 }
 
-bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
-{
-	bool hasStatus = true;
-	BT_PROFILE("CMD_REQUEST_RAY_CAST_INTERSECTIONS");
-	serverStatusOut.m_raycastHits.m_numRaycastHits = 0;
 
-	for (int ray=0;ray<clientCmd.m_requestRaycastIntersections.m_numRays;ray++)
+#if __cplusplus >= 201103L
+#include <atomic>
+
+struct CastSyncInfo {
+	std::atomic<int> m_nextTaskNumber;
+
+	CastSyncInfo() : m_nextTaskNumber(0) {}
+
+	inline int getNextTask() {
+		return m_nextTaskNumber++;
+	}
+};
+#else  // __cplusplus >= 201103L
+struct CastSyncInfo {
+	volatile int m_nextTaskNumber;
+	btSpinMutex m_taskLock;
+
+	CastSyncInfo() : m_nextTaskNumber(0) {}
+
+	inline int getNextTask() {
+		m_taskLock.lock();
+		const int taskNr = m_nextTaskNumber++;
+		m_taskLock.unlock();
+		return taskNr;
+	}
+};
+#endif // __cplusplus >= 201103L
+
+struct BatchRayCaster : public btIParallelForBody
+{
+	CastSyncInfo *m_syncInfo;
+	const btCollisionWorld *m_world;
+	const b3RayData *m_rayInputBuffer;
+	b3RayHitInfo *m_hitInfoOutputBuffer;
+	int m_numRays;
+
+	BatchRayCaster(const btCollisionWorld* world, const b3RayData *rayInputBuffer, b3RayHitInfo *hitInfoOutputBuffer, int numRays)
+		: m_world(world), m_rayInputBuffer(rayInputBuffer), m_hitInfoOutputBuffer(hitInfoOutputBuffer), m_numRays(numRays) {
+		m_syncInfo = new CastSyncInfo;
+	}
+
+	~BatchRayCaster() {
+		delete m_syncInfo;
+	}
+
+	void castRays(int numWorkers) {
+#if BT_THREADSAFE
+		btParallelFor(0, numWorkers, 1, *this);
+#else // BT_THREADSAFE
+		for (int i = 0; i < m_numRays; i++) {
+			processRay(i);
+		}
+#endif // BT_THREADSAFE
+	}
+
+	void forLoop( int iBegin, int iEnd ) const
 	{
-		btVector3 rayFromWorld(clientCmd.m_requestRaycastIntersections.m_rayFromPositions[ray][0],
-			clientCmd.m_requestRaycastIntersections.m_rayFromPositions[ray][1],
-			clientCmd.m_requestRaycastIntersections.m_rayFromPositions[ray][2]);
-		btVector3 rayToWorld(clientCmd.m_requestRaycastIntersections.m_rayToPositions[ray][0],
-			clientCmd.m_requestRaycastIntersections.m_rayToPositions[ray][1],
-			clientCmd.m_requestRaycastIntersections.m_rayToPositions[ray][2]);
+		while(true) {
+			const int taskNr = m_syncInfo->getNextTask();
+			if (taskNr >= m_numRays)
+				return;
+			processRay(taskNr);
+		}
+	}
+
+	void processRay(int ray) const {
+		const double *from = m_rayInputBuffer[ray].m_rayFromPosition;
+		const double *to = m_rayInputBuffer[ray].m_rayToPosition;
+		btVector3 rayFromWorld(from[0], from[1], from[2]);
+		btVector3 rayToWorld(to[0], to[1], to[2]);
 
 		btCollisionWorld::ClosestRayResultCallback rayResultCallback(rayFromWorld,rayToWorld);
 		rayResultCallback.m_flags |= btTriangleRaycastCallback::kF_UseGjkConvexCastRaytest;
 
-		m_data->m_dynamicsWorld->rayTest(rayFromWorld,rayToWorld,rayResultCallback);
-		int rayHits = serverStatusOut.m_raycastHits.m_numRaycastHits;
+		m_world->rayTest(rayFromWorld,rayToWorld,rayResultCallback);
 
+		b3RayHitInfo& hit = m_hitInfoOutputBuffer[ray];
 		if (rayResultCallback.hasHit())
 		{
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitFraction 
-				= rayResultCallback.m_closestHitFraction;
+			hit.m_hitFraction = rayResultCallback.m_closestHitFraction;
 
 			int objectUniqueId = -1;
 			int linkIndex = -1;
@@ -4724,39 +4787,61 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 				}
 			}
 
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitObjectUniqueId 
-				= objectUniqueId;
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitObjectLinkIndex
-				= linkIndex;
+			hit.m_hitObjectUniqueId = objectUniqueId;
+			hit.m_hitObjectLinkIndex = linkIndex;
 
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[0] 
-				= rayResultCallback.m_hitPointWorld[0];
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[1] 
-				= rayResultCallback.m_hitPointWorld[1];
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[2] 
-				= rayResultCallback.m_hitPointWorld[2];
-						
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[0] 
-				= rayResultCallback.m_hitNormalWorld[0]; 
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[1] 
-				= rayResultCallback.m_hitNormalWorld[1]; 
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[2] 
-				= rayResultCallback.m_hitNormalWorld[2]; 
+			hit.m_hitPositionWorld[0] = rayResultCallback.m_hitPointWorld[0];
+			hit.m_hitPositionWorld[1] = rayResultCallback.m_hitPointWorld[1];
+			hit.m_hitPositionWorld[2] = rayResultCallback.m_hitPointWorld[2];
+			hit.m_hitNormalWorld[0] = rayResultCallback.m_hitNormalWorld[0];
+			hit.m_hitNormalWorld[1] = rayResultCallback.m_hitNormalWorld[1];
+			hit.m_hitNormalWorld[2] = rayResultCallback.m_hitNormalWorld[2];
 
 		} else
 		{
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitFraction = 1;
-			serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitObjectUniqueId = -1;
-			serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitObjectLinkIndex = -1;
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[0] = 0;
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[1] = 0;
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[2] = 0;
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[0] = 0;
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[1] = 0;
-			serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[2] = 0;
+			hit.m_hitFraction = 1;
+			hit.m_hitObjectUniqueId = -1;
+			hit.m_hitObjectLinkIndex = -1;
+			hit.m_hitPositionWorld[0] = 0;
+			hit.m_hitPositionWorld[1] = 0;
+			hit.m_hitPositionWorld[2] = 0;
+			hit.m_hitNormalWorld[0] = 0;
+			hit.m_hitNormalWorld[1] = 0;
+			hit.m_hitNormalWorld[2] = 0;
 		}
-		serverStatusOut.m_raycastHits.m_numRaycastHits++;
 	}
+};
+
+bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+	BT_PROFILE("CMD_REQUEST_RAY_CAST_INTERSECTIONS");
+	serverStatusOut.m_raycastHits.m_numRaycastHits = 0;
+
+	const int numRays = clientCmd.m_requestRaycastIntersections.m_numRays;
+	const int numThreads = clientCmd.m_requestRaycastIntersections.m_numThreads;
+
+	b3RayData *rayInputBuffer = (b3RayData *)malloc(sizeof(b3RayData) * numRays);
+	memcpy(rayInputBuffer, bufferServerToClient, sizeof(b3RayData) * numRays);
+
+	BatchRayCaster batchRayCaster(m_data->m_dynamicsWorld, rayInputBuffer, (b3RayHitInfo *)bufferServerToClient, numRays);
+	if (numThreads == 0) {
+		// When 0 is specified, Bullet can decide how many threads to use.
+		// About 16 rays per thread seems to work reasonably well.
+		batchRayCaster.castRays(numRays / 16);
+	} else if (numThreads == 1) {
+		// Sequentially trace all rays:
+		for (int i = 0; i < numRays; i++) {
+			batchRayCaster.processRay(i);
+		}
+	} else {
+		// Otherwise, just use the user-specified number of threads. This is
+		// still limited by the number of virtual cores on the machine.
+		batchRayCaster.castRays(numThreads);
+	}
+
+	free(rayInputBuffer);
+	serverStatusOut.m_raycastHits.m_numRaycastHits = numRays;
 	serverStatusOut.m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED;
 	return hasStatus;
 }

@@ -140,6 +140,10 @@ void PhysicsLoopBack::setSharedMemoryKey(int key)
 	m_data->m_physicsClient->setSharedMemoryKey(key);
 }
 
+char* PhysicsLoopBack::getSharedMemoryStreamBuffer() {
+	return m_data->m_physicsClient->getSharedMemoryStreamBuffer();
+}
+
 void PhysicsLoopBack::uploadBulletFileToSharedMemory(const char* data, int len)
 {
 	m_data->m_physicsClient->uploadBulletFileToSharedMemory(data,len);

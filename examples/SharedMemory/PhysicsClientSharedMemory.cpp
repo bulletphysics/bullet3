@@ -955,9 +955,10 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 						b3Printf("Raycast completed");
 					}
 					m_data->m_raycastHits.clear();
+					b3RayHitInfo *rayHits = (b3RayHitInfo *)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
 					for (int i=0;i<serverCmd.m_raycastHits.m_numRaycastHits;i++)
 					{
-						m_data->m_raycastHits.push_back(serverCmd.m_raycastHits.m_rayHits[i]);
+						m_data->m_raycastHits.push_back(rayHits[i]);
 					}
 					break;
 				}
@@ -1664,6 +1665,7 @@ bool PhysicsClientSharedMemory::canSubmitCommand() const {
 struct SharedMemoryCommand* PhysicsClientSharedMemory::getAvailableSharedMemoryCommand() {
     static int sequence = 0;
     m_data->m_testBlock1->m_clientCommands[0].m_sequenceNumber = sequence++;
+    m_data->m_testBlock1->m_clientCommands[0].m_client = this;
     return &m_data->m_testBlock1->m_clientCommands[0];
 }
 
@@ -1681,6 +1683,10 @@ bool PhysicsClientSharedMemory::submitClientCommand(const SharedMemoryCommand& c
         return true;
     }
     return false;
+}
+
+char* PhysicsClientSharedMemory::getSharedMemoryStreamBuffer() {
+  return m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
 }
 
 void PhysicsClientSharedMemory::uploadBulletFileToSharedMemory(const char* data, int len) {
