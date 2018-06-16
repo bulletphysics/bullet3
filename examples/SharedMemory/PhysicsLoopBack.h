@@ -58,6 +58,7 @@ public:
     virtual void setSharedMemoryKey(int key);
 
     void uploadBulletFileToSharedMemory(const char* data, int len);
+    virtual char* getSharedMemoryStreamBuffer();
 
     virtual int getNumDebugLines() const;
 
