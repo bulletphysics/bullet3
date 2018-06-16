@@ -4826,21 +4826,30 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 	BT_PROFILE("CMD_REQUEST_RAY_CAST_INTERSECTIONS");
 	serverStatusOut.m_raycastHits.m_numRaycastHits = 0;
 
-	const int numRays = clientCmd.m_requestRaycastIntersections.m_numRays;
+	const int numCommandRays = clientCmd.m_requestRaycastIntersections.m_numCommandRays;
+	const int numStreamingRays = clientCmd.m_requestRaycastIntersections.m_numStreamingRays;
 	const int numThreads = clientCmd.m_requestRaycastIntersections.m_numThreads;
 
+	int totalRays = numCommandRays+numStreamingRays;
 	btAlignedObjectArray<b3RayData> rays;
-	rays.resize(numRays);
-	memcpy(&rays[0],bufferServerToClient,numRays*sizeof(b3RayData));
+	rays.resize(totalRays);
+	if (numCommandRays)
+	{
+		memcpy(&rays[0],&clientCmd.m_requestRaycastIntersections.m_fromToRays[0],numCommandRays*sizeof(b3RayData));
+	}
+	if (numStreamingRays)
+	{
+		memcpy(&rays[numCommandRays],bufferServerToClient,numStreamingRays*sizeof(b3RayData));
+	}
 	
-	BatchRayCaster batchRayCaster(m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo *)bufferServerToClient, numRays);
+	BatchRayCaster batchRayCaster(m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo *)bufferServerToClient, totalRays);
 	if (numThreads == 0) {
 		// When 0 is specified, Bullet can decide how many threads to use.
 		// About 16 rays per thread seems to work reasonably well.
-		batchRayCaster.castRays(numRays / 16);
+		batchRayCaster.castRays(totalRays / 16);
 	} else if (numThreads == 1) {
 		// Sequentially trace all rays:
-		for (int i = 0; i < numRays; i++) {
+		for (int i = 0; i < totalRays; i++) {
 			batchRayCaster.processRay(i);
 		}
 	} else {
@@ -4849,7 +4858,7 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 		batchRayCaster.castRays(numThreads);
 	}
 
-	serverStatusOut.m_raycastHits.m_numRaycastHits = numRays;
+	serverStatusOut.m_raycastHits.m_numRaycastHits = totalRays;
 	serverStatusOut.m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED;
 	return hasStatus;
 }

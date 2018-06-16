@@ -287,14 +287,18 @@ struct RequestRaycastIntersections
 	// 1: Use a single thread (i.e. no multi-threading)
 	// 2 or more: Number of threads to use.
 	int m_numThreads;
-	int m_numRays;
-	// Actual ray data stored in m_bulletStreamDataServerToClientRefactor.
+	int m_numCommandRays;
+	//m_numCommandRays command rays are stored in m_fromToRays
+	b3RayData m_fromToRays[MAX_RAY_INTERSECTION_BATCH_SIZE];
+		
+	int m_numStreamingRays;
+	//streaming ray data stored in shared memory streaming part. (size m_numStreamingRays )
 };
 
 struct SendRaycastHits
 {
 	int m_numRaycastHits;
-	// Actual ray data stored in m_bulletStreamDataServerToClientRefactor.
+	// Actual ray result data stored in shared memory streaming part.
 };
 
 struct RequestContactDataArgs
