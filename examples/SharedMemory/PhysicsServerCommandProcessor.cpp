@@ -1659,6 +1659,8 @@ struct PhysicsServerCommandProcessorInternalData
 	b3HashMap<b3HashString,  char*> m_profileEvents;
 	b3HashMap<b3HashString, UrdfVisualShapeCache> m_cachedVUrdfisualShapes;
 
+	btITaskScheduler* m_scheduler;
+
 	PhysicsServerCommandProcessorInternalData(PhysicsCommandProcessorInterface* proc)
 		:m_pluginManager(proc),
 		m_useRealTimeSimulation(false),
@@ -1686,7 +1688,8 @@ struct PhysicsServerCommandProcessorInternalData
 		m_pickedBody(0),
 		m_pickedConstraint(0),
 		m_pickingMultiBodyPoint2Point(0),
-		m_pdControlPlugin(-1)
+		m_pdControlPlugin(-1),
+		m_scheduler(0)
 	{
 
 		{
@@ -1782,11 +1785,11 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 
 #ifdef BT_THREADSAFE
 	if (btGetTaskScheduler() == 0) {
-		btITaskScheduler *scheduler = btCreateDefaultTaskScheduler();
-		if (scheduler == 0) {
-			scheduler = btGetSequentialTaskScheduler();
+		m_data->m_scheduler = btCreateDefaultTaskScheduler();
+		if (m_data->m_scheduler == 0) {
+			m_data->m_scheduler = btGetSequentialTaskScheduler();
 		}
-		btSetTaskScheduler(scheduler);
+		btSetTaskScheduler(m_data->m_scheduler);
 	}
 #endif //BT_THREADSAFE
 }
@@ -1804,6 +1807,9 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 		char* event = *m_data->m_profileEvents.getAtIndex(i);
 		delete[] event;
 	}
+	if (m_data->m_scheduler)
+		delete m_data->m_scheduler;
+
 	delete m_data;
 }
 

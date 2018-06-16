@@ -62,7 +62,7 @@ struct PhysicsDirectInternalData
     btHashMap<btHashInt,b3UserConstraint> m_userConstraintInfoMap;
 	
 	btAlignedObjectArray<CProfileSample* > m_profileTimings;
-	btAlignedObjectArray<std::string* > m_profileTimingStrings;
+	btHashMap<btHashString, std::string*> m_profileTimingStringArray;
 
 	char    m_bulletStreamDataServerToClient[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];
 	btAlignedObjectArray<double> m_cachedMassMatrix;
@@ -117,11 +117,15 @@ PhysicsDirect::PhysicsDirect(PhysicsCommandProcessorInterface* physSdk, bool pas
 
 PhysicsDirect::~PhysicsDirect()
 {
-	for (int i=0;i<m_data->m_profileTimingStrings.size();i++)
+	for (int i=0;i<m_data->m_profileTimingStringArray.size();i++)
 	{
-		delete m_data->m_profileTimingStrings[i];
+		std::string** str = m_data->m_profileTimingStringArray.getAtIndex(i);
+		if (str)
+		{
+			delete *str;
+		}
 	}
-	m_data->m_profileTimingStrings.clear();
+	m_data->m_profileTimingStringArray.clear();
 
 	if (m_data->m_commandProcessor->isConnected())
 	{
@@ -1567,8 +1571,16 @@ void PhysicsDirect::getUserDataInfo(int bodyUniqueId, int linkIndex, int userDat
 
 void PhysicsDirect::pushProfileTiming(const char* timingName)
 {
-	std::string* str = new std::string(timingName);
-	m_data->m_profileTimingStrings.push_back(str);
+	std::string** strPtr = m_data->m_profileTimingStringArray[timingName];
+	std::string* str = 0;
+	if (strPtr)
+	{
+		str = *strPtr;
+	} else
+	{
+		str = new std::string(timingName);
+		m_data->m_profileTimingStringArray.insert(timingName,str);
+	} 
 	m_data->m_profileTimings.push_back(new CProfileSample(str->c_str()));
 }
 

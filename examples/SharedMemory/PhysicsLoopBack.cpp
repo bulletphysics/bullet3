@@ -247,3 +247,11 @@ void PhysicsLoopBack::getUserDataInfo(int bodyUniqueId, int linkIndex, int userD
 	m_data->m_physicsClient->getUserDataInfo(bodyUniqueId, linkIndex, userDataIndex, keyOut, userDataIdOut);
 }
 
+void PhysicsLoopBack::pushProfileTiming(const char* timingName)
+{
+	m_data->m_physicsClient->pushProfileTiming(timingName);
+}
+void PhysicsLoopBack::popProfileTiming()
+{
+	m_data->m_physicsClient->popProfileTiming();
+}

@@ -209,13 +209,19 @@ public:
     }
     ~JobQueue()
     {
-        freeJobMem();
+		exit();
+    }
+	void exit()
+    {
+		freeJobMem();
         if (m_queueLock && m_threadSupport)
         {
             m_threadSupport->deleteCriticalSection(m_queueLock);
             m_queueLock = NULL;
+			m_threadSupport = 0;
         }
-    }
+	}
+
     void init(btThreadSupportInterface* threadSup, btAlignedObjectArray<JobQueue>* contextArray)
     {
         m_threadSupport = threadSup;
@@ -448,6 +454,12 @@ public:
     virtual ~btTaskSchedulerDefault()
     {
         waitForWorkersToSleep();
+
+		for ( int i = 0; i < m_jobQueues.size(); ++i )
+        {
+            m_jobQueues[i].exit();
+        }
+
         if (m_threadSupport)
         {
             delete m_threadSupport;

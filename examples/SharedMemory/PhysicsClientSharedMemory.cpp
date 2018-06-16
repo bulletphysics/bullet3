@@ -49,7 +49,7 @@ struct PhysicsClientSharedMemoryInternalData {
     SharedMemoryBlock* m_testBlock1;
    
 	btAlignedObjectArray<CProfileSample* > m_profileTimings;
-	btAlignedObjectArray<std::string* > m_profileTimingStrings;
+	btHashMap<btHashString, std::string*> m_profileTimingStringArray;
 
 	btHashMap<btHashInt,BodyJointInfoCache*> m_bodyJointMap;
 	btHashMap<btHashInt,b3UserConstraint> m_userConstraintInfoMap;
@@ -221,6 +221,16 @@ PhysicsClientSharedMemory::~PhysicsClientSharedMemory() {
     }
 	resetData();
 
+	for (int i=0;i<m_data->m_profileTimingStringArray.size();i++)
+	{
+		std::string** str = m_data->m_profileTimingStringArray.getAtIndex(i);
+		if (str)
+		{
+			delete *str;
+		}
+	}
+	m_data->m_profileTimingStringArray.clear();
+
 	if (m_data->m_ownsSharedMemory)
 	{
 	    delete m_data->m_sharedMemory;
@@ -239,6 +249,8 @@ void PhysicsClientSharedMemory::removeCachedBody(int bodyUniqueId)
 }
 void PhysicsClientSharedMemory::resetData()
 {
+	
+
 	m_data->m_debugLinesFrom.clear();
 	m_data->m_debugLinesTo.clear();
 	m_data->m_debugLinesColor.clear();
@@ -1916,10 +1928,17 @@ void PhysicsClientSharedMemory::getUserDataInfo(int bodyUniqueId, int linkIndex,
 
 void PhysicsClientSharedMemory::pushProfileTiming(const char* timingName)
 {
-	std::string* str = new std::string(timingName);
-	m_data->m_profileTimingStrings.push_back(str);
+	std::string** strPtr = m_data->m_profileTimingStringArray[timingName];
+	std::string* str = 0;
+	if (strPtr)
+	{
+		str = *strPtr;
+	} else
+	{
+		str = new std::string(timingName);
+		m_data->m_profileTimingStringArray.insert(timingName,str);
+	} 
 	m_data->m_profileTimings.push_back(new CProfileSample(str->c_str()));
-
 }
 
 
