@@ -598,6 +598,9 @@ B3_SHARED_API	int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3ProfileTimingCommandInit(b3PhysicsClientHandle physClient, const char* name);
 B3_SHARED_API	void b3SetProfileTimingDuractionInMicroSeconds(b3SharedMemoryCommandHandle commandHandle, int duration);
 
+B3_SHARED_API	void b3PushProfileTiming(b3PhysicsClientHandle physClient, const char* timingName);
+B3_SHARED_API	void b3PopProfileTiming(b3PhysicsClientHandle physClient);
+
 B3_SHARED_API	void b3SetTimeOut(b3PhysicsClientHandle physClient, double timeOutInSeconds);
 B3_SHARED_API	double b3GetTimeOut(b3PhysicsClientHandle physClient);
 

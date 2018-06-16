@@ -4704,6 +4704,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 	}
 
 	
+	
 	commandHandle = b3CreateRaycastBatchCommandInit(sm);
 	b3RaycastBatchSetNumThreads(commandHandle, numThreads);
 
@@ -4734,6 +4735,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 					Py_DECREF(seqRayToObj);
 					return NULL;
 				}
+				b3PushProfileTiming(sm, "extractPythonFromToSequenceToC");
 				for (i = 0; i < lenFrom; i++)
 				{
 					PyObject* rayFromObj = PySequence_GetItem(rayFromObjList,i);
@@ -4752,11 +4754,13 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 						Py_DECREF(seqRayToObj);
 						Py_DECREF(rayFromObj);
 						Py_DECREF(rayToObj);
+						b3PopProfileTiming(sm);
 						return NULL;
 					}
 					Py_DECREF(rayFromObj);
 					Py_DECREF(rayToObj);
 				}
+				b3PopProfileTiming(sm);
 			}
 		} else
 		{
@@ -4779,8 +4783,9 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 		struct b3RaycastInformation raycastInfo;
 		PyObject* rayHitsObj = 0;
 		int i;
+		b3PushProfileTiming(sm, "convertRaycastInformationToPython");
 		b3GetRaycastInformation(sm, &raycastInfo);
-
+		
 		rayHitsObj = PyTuple_New(raycastInfo.m_numRayHits);
 		for (i = 0; i < raycastInfo.m_numRayHits; i++)
 		{
@@ -4819,6 +4824,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 			}
 			PyTuple_SetItem(rayHitsObj, i, singleHitObj);
 		}
+		b3PopProfileTiming(sm);
 		return rayHitsObj;
 	}
 
@@ -9587,6 +9593,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "STATE_LOGGING_PROFILE_TIMINGS", STATE_LOGGING_PROFILE_TIMINGS);
 	PyModule_AddIntConstant(m, "STATE_LOGGING_ALL_COMMANDS", STATE_LOGGING_ALL_COMMANDS);
 	PyModule_AddIntConstant(m, "STATE_REPLAY_ALL_COMMANDS", STATE_REPLAY_ALL_COMMANDS);
+	PyModule_AddIntConstant(m, "STATE_LOGGING_CUSTOM_TIMER", STATE_LOGGING_CUSTOM_TIMER);
 	
 	PyModule_AddIntConstant(m, "COV_ENABLE_GUI", COV_ENABLE_GUI);
 	PyModule_AddIntConstant(m, "COV_ENABLE_SHADOWS", COV_ENABLE_SHADOWS);

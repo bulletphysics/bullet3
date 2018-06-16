@@ -118,6 +118,9 @@ public:
     virtual int getCachedUserDataId(int bodyUniqueId, int linkIndex, const char *key) const;
     virtual int getNumUserData(int bodyUniqueId, int linkIndex) const;
     virtual void getUserDataInfo(int bodyUniqueId, int linkIndex, int userDataIndex, const char **keyOut, int *userDataIdOut) const;
+	
+	virtual void pushProfileTiming(const char* timingName);
+	virtual void popProfileTiming();
 };
 
 #endif //PHYSICS_DIRECT_H

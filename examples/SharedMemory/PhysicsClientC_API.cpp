@@ -4438,6 +4438,21 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3ProfileTimingCommandInit(b3PhysicsCl
 	return (b3SharedMemoryCommandHandle)command;
 }
 
+B3_SHARED_API	void b3PushProfileTiming(b3PhysicsClientHandle physClient, const char* timingName)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	cl->pushProfileTiming(timingName);
+}
+
+B3_SHARED_API	void b3PopProfileTiming(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	cl->popProfileTiming();
+}
+
+
 B3_SHARED_API void b3SetProfileTimingDuractionInMicroSeconds(b3SharedMemoryCommandHandle commandHandle, int duration)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

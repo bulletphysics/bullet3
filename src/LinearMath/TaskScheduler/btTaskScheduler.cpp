@@ -412,11 +412,13 @@ static void WorkerThreadFunc( void* userPtr )
             }
         }
     }
-
-    // go sleep
-    localStorage->m_mutex.lock();
-    localStorage->m_status = WorkerThreadStatus::kSleeping;
-    localStorage->m_mutex.unlock();
+	{
+		BT_PROFILE("sleep");
+		// go sleep
+		localStorage->m_mutex.lock();
+		localStorage->m_status = WorkerThreadStatus::kSleeping;
+		localStorage->m_mutex.unlock();
+	}
 }
 
 
@@ -503,7 +505,7 @@ public:
             storage.m_threadId = i;
             storage.m_directive = m_workerDirective;
             storage.m_status = WorkerThreadStatus::kSleeping;
-            storage.m_cooldownTime = 1000; // 1000 microseconds, threads go to sleep after this long if they have nothing to do
+            storage.m_cooldownTime = 100; // 100 microseconds, threads go to sleep after this long if they have nothing to do
             storage.m_clock = &m_clock;
             storage.m_queue = m_perThreadJobQueues[i];
         }

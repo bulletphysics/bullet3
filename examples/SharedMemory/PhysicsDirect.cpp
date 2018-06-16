@@ -14,12 +14,15 @@
 #include <string>
 
 #include "SharedMemoryUserData.h"
+#include "LinearMath/btQuickprof.h"
 
 struct UserDataCache {
 	btHashMap<btHashInt, SharedMemoryUserData> m_userDataMap;
 	btHashMap<btHashString, int> m_keyToUserDataIdMap;
 
-	~UserDataCache() {
+	~UserDataCache() 
+	{
+		
 	}
 };
 
@@ -58,6 +61,9 @@ struct PhysicsDirectInternalData
 	btHashMap<btHashInt,BodyJointInfoCache2*> m_bodyJointMap;
     btHashMap<btHashInt,b3UserConstraint> m_userConstraintInfoMap;
 	
+	btAlignedObjectArray<CProfileSample* > m_profileTimings;
+	btAlignedObjectArray<std::string* > m_profileTimingStrings;
+
 	char    m_bulletStreamDataServerToClient[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];
 	btAlignedObjectArray<double> m_cachedMassMatrix;
 	int m_cachedCameraPixelsWidth;
@@ -111,6 +117,12 @@ PhysicsDirect::PhysicsDirect(PhysicsCommandProcessorInterface* physSdk, bool pas
 
 PhysicsDirect::~PhysicsDirect()
 {
+	for (int i=0;i<m_data->m_profileTimingStrings.size();i++)
+	{
+		delete m_data->m_profileTimingStrings[i];
+	}
+	m_data->m_profileTimingStrings.clear();
+
 	if (m_data->m_commandProcessor->isConnected())
 	{
 		m_data->m_commandProcessor->disconnect();
@@ -1529,4 +1541,24 @@ void PhysicsDirect::getUserDataInfo(int bodyUniqueId, int linkIndex, int userDat
 	*userDataIdOut = (userDataCachePtr)->m_userDataMap.getKeyAtIndex(userDataIndex).getUid1();
 	SharedMemoryUserData* userDataPtr = (userDataCachePtr)->m_userDataMap.getAtIndex(userDataIndex);
 	*keyOut = (userDataPtr)->m_key.c_str();
+}
+
+
+
+void PhysicsDirect::pushProfileTiming(const char* timingName)
+{
+	std::string* str = new std::string(timingName);
+	m_data->m_profileTimingStrings.push_back(str);
+	m_data->m_profileTimings.push_back(new CProfileSample(str->c_str()));
+}
+
+
+void PhysicsDirect::popProfileTiming()
+{
+	if (m_data->m_profileTimings.size())
+	{
+		CProfileSample* sample = m_data->m_profileTimings[m_data->m_profileTimings.size()-1];
+		m_data->m_profileTimings.pop_back();
+		delete sample;
+	}
 }

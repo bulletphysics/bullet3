@@ -12,7 +12,7 @@
 #include "SharedMemoryBlock.h"
 #include "BodyJointInfoUtility.h"
 #include "SharedMemoryUserData.h"
-
+#include "LinearMath/btQuickprof.h"
 
 
 struct UserDataCache 
@@ -41,11 +41,16 @@ struct BodyJointInfoCache
 	}
 };
 
+
+
 struct PhysicsClientSharedMemoryInternalData {
     SharedMemoryInterface* m_sharedMemory;
 	bool	m_ownsSharedMemory;
     SharedMemoryBlock* m_testBlock1;
    
+	btAlignedObjectArray<CProfileSample* > m_profileTimings;
+	btAlignedObjectArray<std::string* > m_profileTimingStrings;
+
 	btHashMap<btHashInt,BodyJointInfoCache*> m_bodyJointMap;
 	btHashMap<btHashInt,b3UserConstraint> m_userConstraintInfoMap;
 
@@ -950,6 +955,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
 				case CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED:
 				{
+					B3_PROFILE("m_raycastHits");
 					if (m_data->m_verboseOutput)
 					{
 						b3Printf("Raycast completed");
@@ -1882,3 +1888,27 @@ void PhysicsClientSharedMemory::getUserDataInfo(int bodyUniqueId, int linkIndex,
 	SharedMemoryUserData *userDataPtr = (userDataCachePtr)->m_userDataMap.getAtIndex(userDataIndex);
 	*keyOut = (userDataPtr)->m_key.c_str();
 }
+
+
+
+
+
+void PhysicsClientSharedMemory::pushProfileTiming(const char* timingName)
+{
+	std::string* str = new std::string(timingName);
+	m_data->m_profileTimingStrings.push_back(str);
+	m_data->m_profileTimings.push_back(new CProfileSample(str->c_str()));
+
+}
+
+
+void PhysicsClientSharedMemory::popProfileTiming()
+{
+	if (m_data->m_profileTimings.size())
+	{
+		CProfileSample* sample = m_data->m_profileTimings[m_data->m_profileTimings.size()-1];
+		m_data->m_profileTimings.pop_back();
+		delete sample;
+	}
+}
+

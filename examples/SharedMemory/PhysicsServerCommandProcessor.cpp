@@ -1780,6 +1780,7 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 
 	createEmptyDynamicsWorld();
 
+#ifdef BT_THREADSAFE
 	if (btGetTaskScheduler() == 0) {
 		btITaskScheduler *scheduler = btCreateDefaultTaskScheduler();
 		if (scheduler == 0) {
@@ -1787,6 +1788,7 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 		}
 		btSetTaskScheduler(scheduler);
 	}
+#endif //BT_THREADSAFE
 }
 
 PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
@@ -4821,10 +4823,11 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 	const int numRays = clientCmd.m_requestRaycastIntersections.m_numRays;
 	const int numThreads = clientCmd.m_requestRaycastIntersections.m_numThreads;
 
-	b3RayData *rayInputBuffer = (b3RayData *)malloc(sizeof(b3RayData) * numRays);
-	memcpy(rayInputBuffer, bufferServerToClient, sizeof(b3RayData) * numRays);
-
-	BatchRayCaster batchRayCaster(m_data->m_dynamicsWorld, rayInputBuffer, (b3RayHitInfo *)bufferServerToClient, numRays);
+	btAlignedObjectArray<b3RayData> rays;
+	rays.resize(numRays);
+	memcpy(&rays[0],bufferServerToClient,numRays*sizeof(b3RayData));
+	
+	BatchRayCaster batchRayCaster(m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo *)bufferServerToClient, numRays);
 	if (numThreads == 0) {
 		// When 0 is specified, Bullet can decide how many threads to use.
 		// About 16 rays per thread seems to work reasonably well.
@@ -4840,7 +4843,6 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 		batchRayCaster.castRays(numThreads);
 	}
 
-	free(rayInputBuffer);
 	serverStatusOut.m_raycastHits.m_numRaycastHits = numRays;
 	serverStatusOut.m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED;
 	return hasStatus;
