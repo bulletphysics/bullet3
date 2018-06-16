@@ -140,13 +140,15 @@ void PhysicsLoopBack::setSharedMemoryKey(int key)
 	m_data->m_physicsClient->setSharedMemoryKey(key);
 }
 
-char* PhysicsLoopBack::getSharedMemoryStreamBuffer() {
-	return m_data->m_physicsClient->getSharedMemoryStreamBuffer();
-}
 
 void PhysicsLoopBack::uploadBulletFileToSharedMemory(const char* data, int len)
 {
 	m_data->m_physicsClient->uploadBulletFileToSharedMemory(data,len);
+}
+
+void PhysicsLoopBack::uploadRaysToSharedMemory(struct SharedMemoryCommand& command, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays)
+{
+	m_data->m_physicsClient->uploadRaysToSharedMemory(command, rayFromWorldArray, rayToWorldArray, numRays);
 }
 
 int PhysicsLoopBack::getNumDebugLines() const

@@ -1671,7 +1671,6 @@ bool PhysicsClientSharedMemory::canSubmitCommand() const {
 struct SharedMemoryCommand* PhysicsClientSharedMemory::getAvailableSharedMemoryCommand() {
     static int sequence = 0;
     m_data->m_testBlock1->m_clientCommands[0].m_sequenceNumber = sequence++;
-    m_data->m_testBlock1->m_clientCommands[0].m_client = this;
     return &m_data->m_testBlock1->m_clientCommands[0];
 }
 
@@ -1691,9 +1690,6 @@ bool PhysicsClientSharedMemory::submitClientCommand(const SharedMemoryCommand& c
     return false;
 }
 
-char* PhysicsClientSharedMemory::getSharedMemoryStreamBuffer() {
-  return m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
-}
 
 void PhysicsClientSharedMemory::uploadBulletFileToSharedMemory(const char* data, int len) {
     btAssert(len < SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
@@ -1708,6 +1704,31 @@ void PhysicsClientSharedMemory::uploadBulletFileToSharedMemory(const char* data,
         }
     }
 }
+
+void PhysicsClientSharedMemory::uploadRaysToSharedMemory(struct SharedMemoryCommand& command, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays)
+{
+	int curNumRays = command.m_requestRaycastIntersections.m_numRays;
+	int newNumRays = curNumRays + numRays;
+	btAssert(newNumRays<MAX_RAY_INTERSECTION_BATCH_SIZE);
+
+	if (newNumRays<MAX_RAY_INTERSECTION_BATCH_SIZE)
+	{
+		for (int i=0;i<numRays;i++)
+		{
+			b3RayData* rayDataStream = (b3RayData *)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
+			rayDataStream[curNumRays+i].m_rayFromPosition[0] = rayFromWorldArray[i*3+0];
+			rayDataStream[curNumRays+i].m_rayFromPosition[1] = rayFromWorldArray[i*3+1];
+			rayDataStream[curNumRays+i].m_rayFromPosition[2] = rayFromWorldArray[i*3+2];
+			rayDataStream[curNumRays+i].m_rayToPosition[0] = rayToWorldArray[i*3+0];
+			rayDataStream[curNumRays+i].m_rayToPosition[1] = rayToWorldArray[i*3+1];
+			rayDataStream[curNumRays+i].m_rayToPosition[2] = rayToWorldArray[i*3+2];
+			command.m_requestRaycastIntersections.m_numRays++;
+		}
+
+	}
+}
+
+
 
 void PhysicsClientSharedMemory::getCachedCameraImage(struct b3CameraImageData* cameraData)
 {

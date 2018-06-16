@@ -23,6 +23,12 @@
 	typedef unsigned long long int smUint64_t;
 #endif
 
+#ifdef __APPLE__
+    #define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (512*1024)
+#else
+    #define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (8*1024*1024)
+#endif
+
 #define SHARED_MEMORY_SERVER_TEST_C
 #define MAX_DEGREE_OF_FREEDOM 128
 #define MAX_NUM_SENSORS 256
@@ -1011,7 +1017,7 @@ struct SharedMemoryCommand
 	int m_type;
 	smUint64_t	m_timeStamp;
 	int	m_sequenceNumber;
-	struct PhysicsClient *m_client;
+	
 	
 	//m_updateFlags is a bit fields to tell which parameters need updating
     //for example m_updateFlags = SIM_PARAM_UPDATE_DELTA_TIME | SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS;

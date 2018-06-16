@@ -4729,7 +4729,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 			} else
 			{
 				int i;
-
+				
 				if (lenFrom > MAX_RAY_INTERSECTION_BATCH_SIZE)
 				{
 					PyErr_SetString(SpamError, "Number of rays exceed the maximum batch size.");
@@ -4748,7 +4748,7 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 					if ((pybullet_internalSetVectord(rayFromObj, rayFromWorld)) &&
 						(pybullet_internalSetVectord(rayToObj, rayToWorld)))
 					{
-						b3RaycastBatchAddRay(commandHandle, rayFromWorld, rayToWorld);	
+						b3RaycastBatchAddRay(sm, commandHandle, rayFromWorld, rayToWorld);	
 					} else
 					{
 						PyErr_SetString(SpamError, "Items in the from/to positions need to be an [x,y,z] list of 3 floats/doubles");

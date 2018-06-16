@@ -4,8 +4,11 @@
 #define SHARED_MEMORY_KEY 12347
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
+//Please don't replace an existing magic number:
+//instead, only ADD a new one at the top, comment-out previous one
 
 #define SHARED_MEMORY_MAGIC_NUMBER 201806150
+//#define SHARED_MEMORY_MAGIC_NUMBER 201806020
 //#define SHARED_MEMORY_MAGIC_NUMBER 201801170
 //#define SHARED_MEMORY_MAGIC_NUMBER 201801080
 //#define SHARED_MEMORY_MAGIC_NUMBER 201801010
@@ -17,11 +20,7 @@
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706001
 //#define SHARED_MEMORY_MAGIC_NUMBER 201703024
 
-#ifdef __APPLE__
-    #define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (512*1024)
-#else
-    #define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (8*1024*1024)
-#endif
+
 
 enum EnumSharedMemoryClientCommand
 {
@@ -583,7 +582,7 @@ typedef union {
     struct b3RayData a;
     struct b3RayHitInfo b;
 } RAY_DATA_UNION;
-#define MAX_RAY_INTERSECTION_BATCH_SIZE SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE / sizeof( RAY_DATA_UNION )
+#define MAX_RAY_INTERSECTION_BATCH_SIZE 16*1024
 #define MAX_RAY_HITS MAX_RAY_INTERSECTION_BATCH_SIZE
 #define VISUAL_SHAPE_MAX_PATH_LEN 1024
 

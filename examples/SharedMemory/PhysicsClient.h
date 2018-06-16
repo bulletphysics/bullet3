@@ -43,8 +43,9 @@ public:
     virtual void setSharedMemoryKey(int key) = 0;
 
     virtual void uploadBulletFileToSharedMemory(const char* data, int len) = 0;
-    virtual char* getSharedMemoryStreamBuffer() = 0;
-
+	
+	virtual void uploadRaysToSharedMemory(struct SharedMemoryCommand& command, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays) = 0;
+	
     virtual int getNumDebugLines() const = 0;
 
     virtual const float* getDebugLinesFrom() const = 0;
