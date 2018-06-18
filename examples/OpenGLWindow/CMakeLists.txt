@@ -44,7 +44,7 @@ IF(NOT WIN32 AND NOT APPLE)
 	ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
        	ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
 	ADD_DEFINITIONS("-DDYNAMIC_LOAD_X11_FUNCTIONS=1")
-        SET(OpenGLWindow_SRCS ${OpenGLWindowLinux_CPP}  ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/glx.c ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/gl.c ${OpenGLWindowCommon_CPP} )
+        SET(OpenGLWindow_SRCS ${OpenGLWindowLinux_CPP}  ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/glx_dyn.c ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/gl.c ${OpenGLWindowCommon_CPP} )
 ENDIF()
 
 
