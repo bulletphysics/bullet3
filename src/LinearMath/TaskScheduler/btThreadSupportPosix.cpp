@@ -48,14 +48,14 @@ subject to the following restrictions:
 
 int btGetNumHardwareThreads()
 {
-    return std::thread::hardware_concurrency();
+    return btMin<int>(BT_MAX_THREAD_COUNT, std::thread::hardware_concurrency());
 }
 
 #else
 
 int btGetNumHardwareThreads()
 {
-    return sysconf( _SC_NPROCESSORS_ONLN );
+    return btMin<int>(BT_MAX_THREAD_COUNT, sysconf( _SC_NPROCESSORS_ONLN ));
 }
 
 #endif
@@ -202,6 +202,7 @@ static void *threadFunction( void *argument )
     }
 
     printf( "Thread TERMINATED\n" );
+    return 0;
 }
 
 ///send messages to SPUs

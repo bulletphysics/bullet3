@@ -28,6 +28,8 @@ subject to the following restrictions:
 #define BT_OVERRIDE
 #endif
 
+// Don't set this to larger than 64, without modifying btThreadSupportPosix
+// and btThreadSupportWin32. They use UINT64 bit-masks.
 const unsigned int BT_MAX_THREAD_COUNT = 64;  // only if BT_THREADSAFE is 1
 
 // for internal use only

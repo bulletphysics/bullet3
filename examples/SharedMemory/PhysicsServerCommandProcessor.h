@@ -21,7 +21,7 @@ class PhysicsServerCommandProcessor : public CommandProcessorInterface
 	struct PhysicsServerCommandProcessorInternalData* m_data;
 
 	void resetSimulation();
-	void createTaskScheduler();
+	void createThreadPool();
 
 protected:
 
