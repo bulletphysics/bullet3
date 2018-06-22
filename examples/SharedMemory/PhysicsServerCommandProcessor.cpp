@@ -124,7 +124,7 @@ public:
 	const int numWorkers() const { return m_threadSupportInterface->getNumWorkerThreads(); }
 
 	void runTask(int threadIdx, btThreadSupportInterface::ThreadFunc func, void *arg) {
-		FunctionContext ctx = m_functionContexts[threadIdx];
+		FunctionContext& ctx = m_functionContexts[threadIdx];
 		ctx.func = func;
 		ctx.arg = arg;
 		m_threadSupportInterface->runTask(threadIdx, (void *)&ctx);
