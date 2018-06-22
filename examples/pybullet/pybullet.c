@@ -1466,7 +1466,7 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 			b3PhysicsParamSetNumSolverIterations(command, numSolverIterations);
 		}
 
-		if (solverResidualThreshold)
+		if (solverResidualThreshold>=0)
 		{
 			b3PhysicsParamSetSolverResidualThreshold(command, solverResidualThreshold);
 		}
