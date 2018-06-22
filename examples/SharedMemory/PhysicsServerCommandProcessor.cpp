@@ -4582,13 +4582,21 @@ bool PhysicsServerCommandProcessor::processUserDebugDrawCommand(const struct Sha
 
 	if (clientCmd.m_updateFlags & USER_DEBUG_HAS_LINE)
 	{
+		int replaceItemUid = -1;
+		if (clientCmd.m_updateFlags&USER_DEBUG_HAS_REPLACE_ITEM_UNIQUE_ID)
+		{
+			replaceItemUid = clientCmd.m_userDebugDrawArgs.m_replaceItemUniqueId;
+		}
+		
 		int uid = m_data->m_guiHelper->addUserDebugLine(
 			clientCmd.m_userDebugDrawArgs.m_debugLineFromXYZ,
 			clientCmd.m_userDebugDrawArgs.m_debugLineToXYZ,
 			clientCmd.m_userDebugDrawArgs.m_debugLineColorRGB,
 			clientCmd.m_userDebugDrawArgs.m_lineWidth,
 			clientCmd.m_userDebugDrawArgs.m_lifeTime,
-			trackingVisualShapeIndex);
+			trackingVisualShapeIndex,
+			replaceItemUid
+			);
 
 		if (uid>=0)
 		{

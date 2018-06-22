@@ -75,7 +75,8 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	{
 		return -1;
 	}
-	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime )
+	
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime , int trackingVisualShapeIndex, int replaceItemUid )
 	{
 		return -1;
 	}
