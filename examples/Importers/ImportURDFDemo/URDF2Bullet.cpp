@@ -462,14 +462,28 @@ void ConvertURDF2BulletInternal(
                     {
 
 						btGeneric6DofSpring2Constraint* dof6  = 0;
-						//backwards compatibility
-						if (flags & CUF_RESERVED )
+						if (jointType == URDFRevoluteJoint && jointLowerLimit <= jointUpperLimit)
 						{
-							dof6 = creation.createRevoluteJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+							//backwards compatibility
+							if (flags & CUF_RESERVED )
+							{
+								dof6 = creation.createRevoluteJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+							} else
+							{
+								dof6 = creation.createRevoluteJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody, offsetInB, offsetInA,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+							}
 						} else
 						{
-							dof6 = creation.createRevoluteJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody, offsetInB, offsetInA,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+							//disable joint limits
+							if (flags & CUF_RESERVED )
+							{
+								dof6 = creation.createRevoluteJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB,jointAxisInJointSpace,1,-1);
+							} else
+							{
+								dof6 = creation.createRevoluteJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody, offsetInB, offsetInA,jointAxisInJointSpace,1,-1);
+							}
 						}
+						
 						if (enableConstraints)
                                     world1->addConstraint(dof6,true);
                         //b3Printf("Revolute/Continuous joint\n");
