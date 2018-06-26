@@ -4261,10 +4261,11 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 	double lifeTime = 0.f;
 	int physicsClientId = 0;
 	int debugItemUniqueId = -1;
+	int replaceItemUniqueId = -1;
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"lineFromXYZ", "lineToXYZ", "lineColorRGB", "lineWidth", "lifeTime", "parentObjectUniqueId", "parentLinkIndex", "physicsClientId", NULL};
+	static char* kwlist[] = {"lineFromXYZ", "lineToXYZ", "lineColorRGB", "lineWidth", "lifeTime", "parentObjectUniqueId", "parentLinkIndex", "replaceItemUniqueId", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|Oddiii", kwlist, &lineFromObj, &lineToObj, &lineColorRGBObj, &lineWidth, &lifeTime, &parentObjectUniqueId, &parentLinkIndex, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|Oddiiii", kwlist, &lineFromObj, &lineToObj, &lineColorRGBObj, &lineWidth, &lifeTime, &parentObjectUniqueId, &parentLinkIndex, &replaceItemUniqueId, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -4293,11 +4294,17 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 		res = pybullet_internalSetVectord(lineColorRGBObj, colorRGB);
 	}
 
+	
 	commandHandle = b3InitUserDebugDrawAddLine3D(sm, fromXYZ, toXYZ, colorRGB, lineWidth, lifeTime);
 
 	if (parentObjectUniqueId>=0)
 	{
 		b3UserDebugItemSetParentObject(commandHandle, parentObjectUniqueId,parentLinkIndex);
+	}
+
+	if (replaceItemUniqueId>=0)
+	{
+		b3UserDebugItemSetReplaceItemUniqueId(commandHandle,replaceItemUniqueId);
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);

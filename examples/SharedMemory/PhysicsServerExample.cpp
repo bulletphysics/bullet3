@@ -515,6 +515,7 @@ struct UserDebugDrawLine
 	double m_lifeTime;
 	int m_itemUniqueId;
 	int m_trackingVisualShapeIndex;
+	int m_replaceItemUid;
 };
 
 struct UserDebugParameter
@@ -1275,11 +1276,14 @@ public:
 	btAlignedObjectArray<UserDebugDrawLine> m_userDebugLines;
 	UserDebugDrawLine m_tmpLine;
 	int m_resultDebugLineUid;
-	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime , int trackingVisualShapeIndex)
+	
+	
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime , int trackingVisualShapeIndex, int replaceItemUid)
 	{
 		m_tmpLine.m_lifeTime = lifeTime;
 		m_tmpLine.m_lineWidth = lineWidth;
-		m_tmpLine.m_itemUniqueId = m_uidGenerator++;
+		
+		m_tmpLine.m_itemUniqueId = replaceItemUid<0? m_uidGenerator++ : replaceItemUid;
 		m_tmpLine.m_debugLineFromXYZ[0] = debugLineFromXYZ[0];
 		m_tmpLine.m_debugLineFromXYZ[1] = debugLineFromXYZ[1];
 		m_tmpLine.m_debugLineFromXYZ[2] = debugLineFromXYZ[2];
@@ -1292,6 +1296,7 @@ public:
 		m_tmpLine.m_debugLineColorRGB[1] = debugLineColorRGB[1];
 		m_tmpLine.m_debugLineColorRGB[2] = debugLineColorRGB[2];
 		m_tmpLine.m_trackingVisualShapeIndex = trackingVisualShapeIndex;
+		m_tmpLine.m_replaceItemUid = replaceItemUid;
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugAddLine);
         m_resultDebugLineUid=-1;
@@ -2365,10 +2370,23 @@ void	PhysicsServerExample::updateGraphics()
 	{
 		B3_PROFILE("eGUIUserDebugAddLine");
 
-		m_multiThreadedHelper->m_userDebugLines.push_back(m_multiThreadedHelper->m_tmpLine);
-		m_multiThreadedHelper->m_resultDebugLineUid = m_multiThreadedHelper->m_userDebugLines[m_multiThreadedHelper->m_userDebugLines.size()-1].m_itemUniqueId;
+		if (m_multiThreadedHelper->m_tmpLine.m_replaceItemUid>=0)
+		{
+			for (int i=0;i<m_multiThreadedHelper->m_userDebugLines.size();i++)
+			{
+				if (m_multiThreadedHelper->m_userDebugLines[i].m_itemUniqueId == m_multiThreadedHelper->m_tmpLine.m_replaceItemUid)
+				{
+					m_multiThreadedHelper->m_userDebugLines[i] = m_multiThreadedHelper->m_tmpLine;
+					m_multiThreadedHelper->m_resultDebugLineUid = m_multiThreadedHelper->m_tmpLine.m_replaceItemUid;
+				}
+			}
+		} else
+		{
+			m_multiThreadedHelper->m_userDebugLines.push_back(m_multiThreadedHelper->m_tmpLine);
+			m_multiThreadedHelper->m_resultDebugLineUid = m_multiThreadedHelper->m_userDebugLines[m_multiThreadedHelper->m_userDebugLines.size()-1].m_itemUniqueId;
+		}
 		m_multiThreadedHelper->mainThreadRelease();
-			break;
+		break;
 	}
 	case eGUIUserDebugRemoveItem:
 	{
