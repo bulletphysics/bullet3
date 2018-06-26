@@ -5189,7 +5189,6 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
             }
             
 			b3PluginArguments args;
-            args.m_ints[0] = eSetPDControl;
             args.m_ints[1] = bodyUniqueId;
             //find the joint motors and apply the desired velocity and maximum force/torque
             {
@@ -5242,6 +5241,11 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
                             args.m_ints[2] = link;
                             args.m_numInts = 3;
                             args.m_numFloats = 5;
+                            
+                            args.m_ints[0] = eSetPDControl;
+                            if (args.m_floats[4] < B3_EPSILON) {
+                                args.m_ints[0] = eRemovePDControl;
+                            }
                             m_data->m_pluginManager.executePluginCommand(m_data->m_pdControlPlugin, &args);
                         }
                     }
