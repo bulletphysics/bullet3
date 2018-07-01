@@ -27,8 +27,6 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionConfiguration.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 
-int gNumManifold = 0;
-
 #ifdef BT_DEBUG
 #include <stdio.h>
 #endif
@@ -77,8 +75,6 @@ btCollisionDispatcher::~btCollisionDispatcher()
 
 btPersistentManifold*	btCollisionDispatcher::getNewManifold(const btCollisionObject* body0,const btCollisionObject* body1) 
 { 
-	gNumManifold++;
-	
 	//btAssert(gNumManifold < 65535);
 	
 
@@ -121,7 +117,6 @@ void btCollisionDispatcher::clearManifold(btPersistentManifold* manifold)
 void btCollisionDispatcher::releaseManifold(btPersistentManifold* manifold)
 {
 	
-	gNumManifold--;
 
 	//printf("releaseManifold: gNumManifold %d\n",gNumManifold);
 	clearManifold(manifold);

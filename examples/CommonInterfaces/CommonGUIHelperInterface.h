@@ -201,7 +201,7 @@ struct DummyGUIHelper : public GUIHelperInterface
 	{
 	}
 
-	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime , int trackingVisualShapeIndex)
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime , int trackingVisualShapeIndex, int replaceItemUid)
 	{
 		return -1;
 	}

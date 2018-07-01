@@ -181,8 +181,17 @@ bool TcpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 		}
 		else
 		{
-			sz = sizeof(SharedMemoryCommand);
-            data = (unsigned char*)&clientCmd;
+
+			if (clientCmd.m_type == CMD_REQUEST_VR_EVENTS_DATA)
+			{
+				sz = 3 * sizeof(int) + sizeof(smUint64_t) + 16;
+				data = (unsigned char*)&clientCmd;
+			}
+			else
+			{
+				sz = sizeof(SharedMemoryCommand);
+				data = (unsigned char*)&clientCmd;
+			}
     	}
 						
         m_data->m_tcpSocket.Send((const uint8 *)data,sz);
