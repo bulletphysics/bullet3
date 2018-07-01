@@ -5,6 +5,14 @@
 #include "../SharedMemory/PhysicsClientUDP_C_API.h"
 #endif  //BT_ENABLE_ENET
 
+#ifdef BT_ENABLE_DART
+#include "../SharedMemory/dart/DARTPhysicsC_API.h"
+#endif
+
+#ifdef BT_ENABLE_MUJOCO
+#include "../SharedMemory/mujoco/MuJoCoPhysicsC_API.h"
+#endif
+
 #ifdef BT_ENABLE_CLSOCKET
 #include "../SharedMemory/PhysicsClientTCP_C_API.h"
 #endif  //BT_ENABLE_CLSOCKET
@@ -407,6 +415,22 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				sm = b3ConnectPhysicsDirect();
 				break;
 			}
+#ifdef BT_ENABLE_DART
+			case eCONNECT_DART:
+			{
+				sm = b3ConnectPhysicsDART();
+				break;
+			}
+#endif
+
+#ifdef BT_ENABLE_MUJOCO
+			case eCONNECT_MUJOCO:
+			{
+				sm = b3ConnectPhysicsMuJoCo();
+				break;
+			}
+#endif
+
 			case eCONNECT_SHARED_MEMORY:
 			{
 				sm = b3ConnectSharedMemory(key);
@@ -9549,6 +9573,14 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "GUI_SERVER", eCONNECT_GUI_SERVER);        // user read
 	PyModule_AddIntConstant(m, "GUI_MAIN_THREAD", eCONNECT_GUI_MAIN_THREAD);        // user read
     PyModule_AddIntConstant(m, "SHARED_MEMORY_SERVER", eCONNECT_SHARED_MEMORY_SERVER);        // user read
+#ifdef BT_ENABLE_DART
+	PyModule_AddIntConstant(m, "DART", eCONNECT_DART);        // user read
+#endif
+
+#ifdef BT_ENABLE_MUJOCO
+	PyModule_AddIntConstant(m, "MuJoCo", eCONNECT_MUJOCO);        // user read
+#endif
+
 
     PyModule_AddIntConstant(m, "SHARED_MEMORY_KEY", SHARED_MEMORY_KEY);
     PyModule_AddIntConstant(m, "SHARED_MEMORY_KEY2", SHARED_MEMORY_KEY+1);
