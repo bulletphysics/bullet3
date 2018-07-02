@@ -36,8 +36,11 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <glad/gl.h>
-#include <glad/egl.h>
+#include "OpenGLInclude.h"
+
+#include "EGL/egl.h"
+#include "EGL/eglext.h"
+#include "GL/gl.h"
 
 #include "EGLOpenGLWindow.h"
 

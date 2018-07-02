@@ -394,6 +394,7 @@ if _platform == "linux" or _platform == "linux2":
     CXX_FLAGS += '-DDYNAMIC_LOAD_X11_FUNCTIONS '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
     CXX_FLAGS += '-fno-inline-functions-called-once '
+    CXX_FLAGS += '-fPIC '  # for plugins
     sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
     +["examples/ThirdPartyLibs/glad/gl.c"]\
@@ -438,6 +439,7 @@ else:
     +["examples/ThirdPartyLibs/glad/gl.c"]\
     + sources
 
+
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 
 need_files = []
@@ -458,6 +460,52 @@ print("packages")
 print(find_packages('examples/pybullet/gym'))
 print("-----")
 
+egl_renderer_sources = \
+["examples/SharedMemory/plugins/eglPlugin/eglRendererVisualShapeConverter.cpp"]\
++["examples/SharedMemory/plugins/eglPlugin/eglRendererPlugin.cpp"]\
++["examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp"]\
++["examples/Importers/ImportObjDemo/LoadMeshFromObj.cpp"]\
++["examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp"]\
++["examples/Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp"]\
++["examples/TinyRenderer/geometry.cpp"]\
++["examples/TinyRenderer/model.cpp"]\
++["examples/TinyRenderer/tgaimage.cpp"]\
++["examples/TinyRenderer/our_gl.cpp"]\
++["examples/TinyRenderer/TinyRenderer.cpp"]\
++["examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp"]\
++["examples/ThirdPartyLibs/stb_image/stb_image.cpp"]\
++["examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp"]\
++["examples/OpenGLWindow/SimpleCamera.cpp"]\
++["examples/Utils/b3Clock.cpp"]\
++["examples/Utils/b3ResourcePath.cpp"]\
++["src/BulletCollision/CollisionShapes/btShapeHull.cpp"]\
++["src/BulletCollision/CollisionShapes/btConvexHullShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btBoxShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btSphereShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btPolyhedralConvexShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btConvexShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btCollisionShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btConvexPolyhedron.cpp"]\
++["src/BulletCollision/CollisionShapes/btConvexInternalShape.cpp"]\
++["src/Bullet3Common/b3Logging.cpp"]\
++["src/LinearMath/btAlignedAllocator.cpp"]\
++["src/LinearMath/btGeometryUtil.cpp"]\
++["src/LinearMath/btConvexHull.cpp"]\
++["src/LinearMath/btConvexHullComputer.cpp"]\
++["src/Bullet3Common/b3AlignedAllocator.cpp"] \
++["examples/ThirdPartyLibs/glad/glad.c"]\
++["examples/ThirdPartyLibs/glad/glad_glx.c"] \
++["examples/OpenGLWindow/GLInstancingRenderer.cpp"]\
++["examples/OpenGLWindow/EGLOpenGLWindow.cpp"]\
++["examples/OpenGLWindow/GLRenderToTexture.cpp"]\
+
+
+eglRender = Extension("eglRenderer",
+        sources =  egl_renderer_sources,
+        libraries = libraries,
+        extra_compile_args=(CXX_FLAGS+'-DBT_USE_EGL ').split(),
+        include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
+     )
 setup(
 	name = 'pybullet',
 	version='2.1.3',
@@ -469,7 +517,7 @@ setup(
 	license='zlib',
 	platforms='any',
 	keywords=['game development', 'virtual reality', 'physics simulation', 'robotics', 'collision detection', 'opengl'],
-	ext_modules = [Extension("pybullet",
+        ext_modules = [eglRender, Extension("pybullet",
 	sources =  sources,
 	libraries = libraries,
 	extra_compile_args=CXX_FLAGS.split(),
