@@ -274,6 +274,7 @@ struct b3JointInfo
 
 
 enum UserDataValueType {
+  USER_DATA_VALUE_TYPE_NOT_USET = -1,
 	// Data represents generic byte array.
 	USER_DATA_VALUE_TYPE_BYTES = 0,
 	// Data represents C-string
@@ -285,13 +286,6 @@ struct b3UserDataValue
 	int m_type;
 	int m_length;
 	char* m_data1;
-};
-
-struct b3UserDataGlobalIdentifier 
-{
-	int m_bodyUniqueId;
-	int m_linkIndex;
-	int m_userDataId;
 };
 
 struct b3UserConstraint
