@@ -177,22 +177,30 @@ int main(int argc, char *argv[])
 							SharedMemoryCommand cmd;
                         
 							SharedMemoryCommand* cmdPtr = 0;
-                        
+
+							int type = *(int*)&bytesReceived[0];
+
 							//performance test
 							if (numBytesRec == sizeof(int))
 							{
 								cmdPtr = &cmd;
 								cmd.m_type = *(int*)&bytesReceived[0];
 							}
-
-
-							if (numBytesRec == sizeof(SharedMemoryCommand))
-							{
-								cmdPtr = (SharedMemoryCommand*)&bytesReceived[0];
-							}
 							else
 							{
-								cmdPtr = (SharedMemoryCommand*)&bytesReceived[0];
+
+								if (numBytesRec == sizeof(SharedMemoryCommand))
+								{
+									cmdPtr = (SharedMemoryCommand*)&bytesReceived[0];
+								}
+								else
+								{
+									if (numBytesRec==36)
+									{
+										cmdPtr = &cmd;
+										memcpy(&cmd, &bytesReceived[0], numBytesRec);
+									}
+								}
 							}
 							if (cmdPtr)
 							{
