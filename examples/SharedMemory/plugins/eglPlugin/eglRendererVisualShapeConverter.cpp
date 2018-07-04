@@ -16,6 +16,7 @@ subject to the following restrictions:
 
 
 
+
 #include "../Importers/ImportURDFDemo/URDFImporterInterface.h"
 #include "btBulletCollisionCommon.h"
 #include "../Importers/ImportObjDemo/LoadMeshFromObj.h"
@@ -77,6 +78,9 @@ struct TinyRendererVisualShapeConverterInternalData
 {
     class CommonWindowInterface* m_window;
     class GLInstancingRenderer* m_instancingRenderer;
+    btAlignedObjectArray<unsigned char> m_rgbaPixelBuffer1;
+    btAlignedObjectArray<float> m_depthBuffer1;
+
     btHashMap<btHashInt,TinyRendererObjectArray*> m_swRenderInstances;
 
 	btAlignedObjectArray<b3VisualShapeData> m_visualShapes;
@@ -161,6 +165,8 @@ struct TinyRendererVisualShapeConverterInternalData
             m_instancingRenderer->init();
             m_instancingRenderer->resize(m_swWidth,m_swHeight);
             m_instancingRenderer->InitShaders();
+            m_instancingRenderer->setActiveCamera(&m_camera);
+            m_instancingRenderer->setLightPosition(m_lightDirection);
 	}
 	
 };
@@ -492,13 +498,13 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 			break;
 		} // case mesh
 
-		case URDF_GEOM_PLANE:
+                case URDF_GEOM_PLANE:
                         // TODO: plane in tiny renderer
-			// TODO: export visualShapeOut for external render
-			break;
+                        // TODO: export visualShapeOut for external render
+                        break;
 
-		default:
-		{
+                default:
+                {
 			b3Warning("TinyRenderer: unknown visual geometry type %i\n", visual->m_geometry.m_type);
 		}
 	}
@@ -596,7 +602,9 @@ static btVector4 sColors[4] =
 	//btVector4(1,1,0,1),
 };
 
-
+// If you are getting segfaults in this function it may be ecause you are
+// compliling the plugin with differently from pybullet, try complining the
+// plugin with distutils too.
 void TinyRendererVisualShapeConverter::convertVisualShapes(
 	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
 	const UrdfLink* linkPtr, const UrdfModel* model,
@@ -607,8 +615,6 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 	{
 		bool useVisual;
 		int cnt = 0;
-
-                std::cout << "mvp " << linkPtr->m_visualArray.size() << std::endl;
 
 		if (linkPtr->m_visualArray.size() > 0)
 		{
@@ -636,6 +642,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 			} else {
 				vis = &linkPtr->m_collisionArray[v1];
                         }
+                        // see note at function header
 			btTransform childTrans = vis->m_linkLocalFrame;
 
 			int colorIndex = linkIndex;//colObj? colObj->getBroadphaseHandle()->getUid() & 3 : 0;
@@ -682,7 +689,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 			{
 
 				if (vis && vis->m_geometry.m_hasLocalMaterial)
-				{
+                                {
 					for (int i = 0; i < 4; i++)
 					{
 						rgbaColor[i] = vis->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[i];
@@ -690,7 +697,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 				}
 			}
 			
-			TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+            TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
             if (visualsPtr==0)
             {
                 m_data->m_swRenderInstances.insert(collisionObjectUniqueId, new TinyRendererObjectArray);
@@ -728,7 +735,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 				unsigned char* textureImage1=0;
 				int textureWidth=0;
 				int textureHeight=0;
-				bool isCached = false;
+                                bool isCached = false;
 				if (textures.size())
 				{
 					textureImage1 = textures[0].textureData1;
@@ -745,14 +752,16 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 				}
                 visuals->m_renderObjects.push_back(tinyObj);
 
+                {
+                 B3_PROFILE("m_instancingRenderer register");
+
                 // register mesh to m_instancingRenderer too.
                 int textureIndex =  m_data->m_instancingRenderer->registerTexture(textureImage1, textureWidth, textureHeight);
                 int shapeIndex = m_data->m_instancingRenderer->registerShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(),textureIndex);
-                //m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0]);
-
-
-
-
+                btVector3 scaling(1,1,1);
+                m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0],scaling);
+                m_data->m_instancingRenderer->writeTransforms();
+                }
             }
 			for (int i=0;i<textures.size();i++)
 			{
@@ -826,7 +835,7 @@ int TinyRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int 
 
 void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4])
 {
-    int start = -1;
+    //int start = -1;
     for (int i = 0; i < m_data->m_visualShapes.size(); i++)
     {
         if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId && m_data->m_visualShapes[i].m_linkIndex == linkIndex)
@@ -891,7 +900,7 @@ void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
             m_data->m_segmentationMaskBuffer[x+y*m_data->m_swWidth] = -1;
         }
     }
-    
+
 }
 
 void TinyRendererVisualShapeConverter::render()
@@ -903,10 +912,9 @@ void TinyRendererVisualShapeConverter::render()
     m_data->m_camera.getCameraProjectionMatrix(projMat);
     m_data->m_camera.getCameraViewMatrix(viewMat);
 
-	render(viewMat,projMat);
-
+    B3_PROFILE("m_instancingRenderer render");
     m_data->m_instancingRenderer->renderScene();
-    b3Warning("m_instancingRendere->renderScene");
+
 }    
 
 
@@ -924,174 +932,10 @@ void TinyRendererVisualShapeConverter::syncTransform(int collisionObjectUniqueId
 
 void TinyRendererVisualShapeConverter::render(const float viewMat[16], const float projMat[16])
 {
-    //clear the color buffer
-    TGAColor clearColor;
-    clearColor.bgra[0] = 255;
-    clearColor.bgra[1] = 255;
-    clearColor.bgra[2] = 255;
-    clearColor.bgra[3] = 255;
-    
-	float near = projMat[14]/(projMat[10]-1);
-	float far = projMat[14]/(projMat[10]+1);
-
-	m_data->m_camera.setCameraFrustumNear( near);
-	m_data->m_camera.setCameraFrustumFar(far);
-
-	clearBuffers(clearColor);	
-    
-    ATTRIBUTE_ALIGNED16(btScalar modelMat[16]);
-    
-    
-    btVector3 lightDirWorld(-5,200,-40);
-	if (m_data->m_hasLightDirection)
-	{
-		lightDirWorld = m_data->m_lightDirection;
-	}
-	else
-	{
-		switch (m_data->m_upAxis)
-		{
-		case 1:
-			lightDirWorld = btVector3(-50.f, 100, 30);
-			break;
-		case 2:
-			lightDirWorld = btVector3(-50.f, 30, 100);
-			break;
-		default: {}
-		};
-	}
-    
-    lightDirWorld.normalize();
-    
-    btVector3 lightColor(1.0,1.0,1.0);
-    if (m_data->m_hasLightColor)
-    {
-        lightColor = m_data->m_lightColor;
-    }
-    
-    float lightDistance = 2.0;
-    if (m_data->m_hasLightDistance)
-    {
-        lightDistance = m_data->m_lightDistance;
-    }
-    
-    float lightAmbientCoeff = 0.6;
-    if (m_data->m_hasLightAmbientCoeff)
-    {
-        lightAmbientCoeff = m_data->m_lightAmbientCoeff;
-    }
-    
-    float lightDiffuseCoeff = 0.35;
-    if (m_data->m_hasLightDiffuseCoeff)
-    {
-        lightDiffuseCoeff = m_data->m_lightDiffuseCoeff;
-    }
-    
-    float lightSpecularCoeff = 0.05;
-    if (m_data->m_hasLightSpecularCoeff)
-    {
-        lightSpecularCoeff = m_data->m_lightSpecularCoeff;
-    }
-    
-    if (m_data->m_hasShadow)
-    {
-        for (int n=0;n<m_data->m_swRenderInstances.size();n++)
-        {
-            TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(n);
-            if (0==visualArrayPtr)
-                continue;//can this ever happen?
-            TinyRendererObjectArray* visualArray = *visualArrayPtr;
-            
-            for (int v=0;v<visualArray->m_renderObjects.size();v++)
-            {
-                
-                TinyRenderObjectData* renderObj = visualArray->m_renderObjects[v];
-                
-                
-                //sync the object transform
-				const btTransform& tr = visualArray->m_worldTransform;
-                tr.getOpenGLMatrix(modelMat);
-                
-                for (int i=0;i<4;i++)
-                {
-                    for (int j=0;j<4;j++)
-                    {
-                        
-                        renderObj->m_projectionMatrix[i][j] = projMat[i+4*j];
-                        renderObj->m_modelMatrix[i][j] = modelMat[i+4*j];
-                        renderObj->m_viewMatrix[i][j] = viewMat[i+4*j];
-                    }
-                }
-				renderObj->m_localScaling = visualArray->m_localScaling;
-                renderObj->m_lightDirWorld = lightDirWorld;
-                renderObj->m_lightColor = lightColor;
-                renderObj->m_lightDistance = lightDistance;
-                renderObj->m_lightAmbientCoeff = lightAmbientCoeff;
-                renderObj->m_lightDiffuseCoeff = lightDiffuseCoeff;
-                renderObj->m_lightSpecularCoeff = lightSpecularCoeff;
-                TinyRenderer::renderObjectDepth(*renderObj);
-            }
-        }
-    }
-
-    for (int n=0;n<m_data->m_swRenderInstances.size();n++)
-    {
-        TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(n);
-        if (0==visualArrayPtr)
-            continue;//can this ever happen?
-        TinyRendererObjectArray* visualArray = *visualArrayPtr;
-        
-        
-        for (int v=0;v<visualArray->m_renderObjects.size();v++)
-        {
-            
-            TinyRenderObjectData* renderObj = visualArray->m_renderObjects[v];
-            
-            
-            //sync the object transform
-			const btTransform& tr = visualArray->m_worldTransform;
-            tr.getOpenGLMatrix(modelMat);
-            
-            for (int i=0;i<4;i++)
-            {
-                for (int j=0;j<4;j++)
-                {
-                    
-                    renderObj->m_projectionMatrix[i][j] = projMat[i+4*j];
-                    renderObj->m_modelMatrix[i][j] = modelMat[i+4*j];
-                    renderObj->m_viewMatrix[i][j] = viewMat[i+4*j];
-                }
-            }
-			renderObj->m_localScaling = visualArray->m_localScaling;
-            renderObj->m_lightDirWorld = lightDirWorld;
-            renderObj->m_lightColor = lightColor;
-            renderObj->m_lightDistance = lightDistance;
-            renderObj->m_lightAmbientCoeff = lightAmbientCoeff;
-            renderObj->m_lightDiffuseCoeff = lightDiffuseCoeff;
-            renderObj->m_lightSpecularCoeff = lightSpecularCoeff;
-            TinyRenderer::renderObject(*renderObj);
-        }
-    }
-	//printf("write tga \n");
-	//m_data->m_rgbColorBuffer.write_tga_file("camera.tga");
-//	printf("flipped!\n");
-	m_data->m_rgbColorBuffer.flip_vertically();
-
-	//flip z-buffer and segmentation Buffer
-	{
-		int half = m_data->m_swHeight>>1;
-		for (int j=0; j<half; j++)
-		{
-			unsigned long l1 = j*m_data->m_swWidth;
-			unsigned long l2 = (m_data->m_swHeight-1-j)*m_data->m_swWidth;
-			for (int i=0;i<m_data->m_swWidth;i++)
-			{
-				btSwap(m_data->m_depthBuffer[l1+i],m_data->m_depthBuffer[l2+i]);
-                btSwap(m_data->m_shadowBuffer[l1+i],m_data->m_shadowBuffer[l2+i]);
-				btSwap(m_data->m_segmentationMaskBuffer[l1+i],m_data->m_segmentationMaskBuffer[l2+i]);
-			}
-		}
-	}
+    // This code is very similar to that of
+    // PhysicsServerCommandProcessor::processRequestCameraImageCommand
+    // maybe code from there should be moved.
+    b3Error("not implemeted, use render()");
 }
 
 void TinyRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
@@ -1114,98 +958,130 @@ void TinyRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 		
 }
 
-void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
-                                                            float* depthBuffer, int depthBufferSizeInPixels,
-                                                            int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,
-                                                            int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
-{
-    int w = m_data->m_rgbColorBuffer.get_width();
-    int h = m_data->m_rgbColorBuffer.get_height();
-    
+//copied from OpenGLGuiHelper.cpp
+void TinyRendererVisualShapeConverter::copyCameraImageDataGL(
+        unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
+        float* depthBuffer, int depthBufferSizeInPixels,
+        int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,
+        int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied) {
+
+    int sourceWidth = m_data->m_window->getWidth()*m_data->m_window->getRetinaScale();
+    int sourceHeight  = m_data->m_window->getHeight()*m_data->m_window->getRetinaScale();
+
     if (numPixelsCopied)
         *numPixelsCopied = 0;
-    
-    if (widthPtr)
-        *widthPtr = w;
-    
-    if (heightPtr)
-        *heightPtr = h;
-    
-    int numTotalPixels = w*h;
+
+    int numTotalPixels = (*widthPtr)*(*heightPtr);
     int numRemainingPixels = numTotalPixels - startPixelIndex;
     int numBytesPerPixel = 4;//RGBA
     int numRequestedPixels  = btMin(rgbaBufferSizeInPixels,numRemainingPixels);
     if (numRequestedPixels)
     {
-        for (int i=0;i<numRequestedPixels;i++)
+        if (startPixelIndex==0)
         {
-			if (depthBuffer)
-			{
-                float farPlane = m_data->m_camera.getCameraFrustumFar();
-                float nearPlane = m_data->m_camera.getCameraFrustumNear();
-				
-                                // TinyRenderer returns clip coordinates, transform to eye coordinates first
-				float z_c = -m_data->m_depthBuffer[i+startPixelIndex];
-				// float distance = (farPlane - nearPlane) / (farPlane + nearPlane) * (z_c + 2. * farPlane * nearPlane / (farPlane - nearPlane));
-				                
-                // The depth buffer value is between 0 and 1
-                // float a = farPlane / (farPlane - nearPlane);
-                // float b = farPlane * nearPlane / (nearPlane - farPlane);
-                // depthBuffer[i] = a + b / distance;
+            {
+                BT_PROFILE("copy pixels");
+                btAlignedObjectArray<unsigned char> sourceRgbaPixelBuffer;
+                btAlignedObjectArray<float> sourceDepthBuffer;
+                //copy the image into our local cache
+                sourceRgbaPixelBuffer.resize(sourceWidth*sourceHeight*numBytesPerPixel);
+                sourceDepthBuffer.resize(sourceWidth*sourceHeight);
+                {
+                    BT_PROFILE("getScreenPixels");
+                    int rgbaBufferSizeInPixels = sourceRgbaPixelBuffer.size();
+                    int depthBufferSizeInPixels = sourceDepthBuffer.size();
+                    // Copied from SimpleOpenGL3App::getScreenPixels
+                    b3Assert((sourceWidth*sourceHeight*4) == rgbaBufferSizeInPixels);
+                    //glClear(GL_COLOR_BUFFER_BIT);
+                    b3Warning("EGL\n");
+                    if ((sourceWidth*sourceHeight*4) == rgbaBufferSizeInPixels)  // remove this if
+                    {
+                        glReadPixels(0,0,sourceWidth, sourceHeight, GL_RGBA, GL_UNSIGNED_BYTE, &(sourceRgbaPixelBuffer[0]));
+                        int glstat;
+                        glstat = glGetError();
+                        b3Assert(glstat==GL_NO_ERROR);
+                    }
+                    if ((sourceWidth*sourceHeight*sizeof(float)) == depthBufferSizeInPixels)
+                    {
+                        glReadPixels(0,0,sourceWidth, sourceHeight, GL_DEPTH_COMPONENT, GL_FLOAT, &(sourceDepthBuffer[0]));
+                        int glstat;
+                        glstat = glGetError();
+                        b3Assert(glstat==GL_NO_ERROR);
+                    }
+                }
 
-				// Simply the above expressions
-				depthBuffer[i] = farPlane * (nearPlane + z_c) / (2. * farPlane * nearPlane + farPlane * z_c - nearPlane * z_c);
-			}
-			if (segmentationMaskBuffer)
-            {
-				int segMask = m_data->m_segmentationMaskBuffer[i + startPixelIndex];
-				if ((m_data->m_flags & ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX)==0)
-				{
-					//if we don't explicitly request link index, clear it out
-					//object index are the lower 24bits
-					if (segMask >= 0)
-					{
-						segMask &= ((1 << 24) - 1);
-					}
-				}
-				segmentationMaskBuffer[i] = segMask;
-            }
-			
-            if (pixelsRGBA)
-            {
-                pixelsRGBA[i*numBytesPerPixel] =   m_data->m_rgbColorBuffer.buffer()[(i+startPixelIndex)*3+0];
-                pixelsRGBA[i*numBytesPerPixel+1] = m_data->m_rgbColorBuffer.buffer()[(i+startPixelIndex)*3+1];
-                pixelsRGBA[i*numBytesPerPixel+2] = m_data->m_rgbColorBuffer.buffer()[(i+startPixelIndex)*3+2];
-                pixelsRGBA[i*numBytesPerPixel+3] = 255;
-                
+                m_data->m_rgbaPixelBuffer1.resize((*widthPtr)*(*heightPtr)*numBytesPerPixel);
+                m_data->m_depthBuffer1.resize((*widthPtr)*(*heightPtr));
+                //rescale and flip
+                {
+                    BT_PROFILE("resize and flip");
+                    for (int j=0;j<*heightPtr;j++)
+                    {
+                        for (int i=0;i<*widthPtr;i++)
+                        {
+                            int xIndex = int(float(i)*(float(sourceWidth)/float(*widthPtr)));
+                            int yIndex = int(float(*heightPtr-1-j)*(float(sourceHeight)/float(*heightPtr)));
+                            btClamp(xIndex,0,sourceWidth);
+                            btClamp(yIndex,0,sourceHeight);
+                            int bytesPerPixel = 4; //RGBA
+
+                            int sourcePixelIndex = (xIndex+yIndex*sourceWidth)*bytesPerPixel;
+                            int sourceDepthIndex = xIndex+yIndex*sourceWidth;
+#define COPY4PIXELS 1
+#ifdef COPY4PIXELS
+                            int* dst = (int*)&m_data->m_rgbaPixelBuffer1[(i+j*(*widthPtr))*4+0];
+                            int* src = (int*)&sourceRgbaPixelBuffer[sourcePixelIndex+0];
+                            *dst = *src;
+
+#else
+                            m_data->m_rgbaPixelBuffer1[(i+j*widthPtr)*4+0] = sourceRgbaPixelBuffer[sourcePixelIndex+0];
+                            m_data->m_rgbaPixelBuffer1[(i+j*widthPtr)*4+1] = sourceRgbaPixelBuffer[sourcePixelIndex+1];
+                            m_data->m_rgbaPixelBuffer1[(i+j*widthPtr)*4+2] = sourceRgbaPixelBuffer[sourcePixelIndex+2];
+                            m_data->m_rgbaPixelBuffer1[(i+j*widthPtr)*4+3] = 255;
+#endif
+                            if (depthBuffer)
+                            {
+                                m_data->m_depthBuffer1[i+j*(*widthPtr)] = sourceDepthBuffer[sourceDepthIndex];
+                            }
+                        }
+                    }
+                }
             }
         }
-        
+
+        if (pixelsRGBA)
+        {
+            BT_PROFILE("copy rgba pixels");
+            for (int i=0;i<numRequestedPixels*numBytesPerPixel;i++)
+            {
+                pixelsRGBA[i] = m_data->m_rgbaPixelBuffer1[i+startPixelIndex*numBytesPerPixel];
+            }
+        }
+        if (depthBuffer)
+        {
+            BT_PROFILE("copy depth buffer pixels");
+            for (int i=0;i<numRequestedPixels;i++)
+            {
+                depthBuffer[i] = m_data->m_depthBuffer1[i+startPixelIndex];
+            }
+        }
         if (numPixelsCopied)
+        {
             *numPixelsCopied = numRequestedPixels;
-        
+        }
     }
+}
 
-    // Copied from SimpleOpenGL3App::getScreenPixels
-    int width = m_data->m_instancingRenderer->getScreenWidth();
-    int height =m_data->m_instancingRenderer->getScreenHeight();
-    if ((width*height*4) == rgbaBufferSizeInPixels)
-    {
-        glReadPixels(0,0,width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixelsRGBA);
-                int glstat;
-                glstat = glGetError();
-                b3Assert(glstat==GL_NO_ERROR);
-    }
-    if ((width*height*sizeof(float)) == depthBufferSizeInPixels)
-    {
-        glReadPixels(0,0,width, height, GL_DEPTH_COMPONENT, GL_FLOAT, depthBuffer);
-                int glstat;
-                glstat = glGetError();
-                b3Assert(glstat==GL_NO_ERROR);
-    }
-    b3Warning("instancingRenderer getScreenPixels");
-
-
+void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
+                                                            float* depthBuffer, int depthBufferSizeInPixels,
+                                                            int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,
+                                                            int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
+{
+    B3_PROFILE("copyCameraImageDataGL");
+    copyCameraImageDataGL(pixelsRGBA, rgbaBufferSizeInPixels,
+            depthBuffer,  depthBufferSizeInPixels,
+            segmentationMaskBuffer,  segmentationMaskSizeInPixels,
+            startPixelIndex,  widthPtr, heightPtr, numPixelsCopied);
 }
 
 void TinyRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqueId)

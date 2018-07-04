@@ -38,9 +38,8 @@
 
 #include "OpenGLInclude.h"
 
-#include "EGL/egl.h"
-#include "EGL/eglext.h"
-#include "GL/gl.h"
+#include "glad/egl.h"
+#include "glad/gl.h"
 
 #include "EGLOpenGLWindow.h"
 
@@ -165,8 +164,8 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
         fprintf(stderr, "Unable to reload EGL.\n");
         exit(EXIT_FAILURE);
     }
-    printf("Loaded EGL %d.%d after reload.\n", egl_version / 10,
-           egl_version % 10);
+    printf("Loaded EGL %d.%d after reload.\n", GLAD_VERSION_MAJOR(egl_version),
+           GLAD_VERSION_MINOR(egl_version));
 
 
     m_data->success = eglBindAPI(EGL_OPENGL_API);

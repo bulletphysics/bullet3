@@ -493,17 +493,19 @@ egl_renderer_sources = \
 +["src/LinearMath/btConvexHull.cpp"]\
 +["src/LinearMath/btConvexHullComputer.cpp"]\
 +["src/Bullet3Common/b3AlignedAllocator.cpp"] \
-+["examples/ThirdPartyLibs/glad/glad.c"]\
-+["examples/ThirdPartyLibs/glad/glad_glx.c"] \
++["examples/ThirdPartyLibs/glad/gl.c"]\
++['examples/ThirdPartyLibs/glad/egl.c'] \
++["examples/ThirdPartyLibs/glad/glx_dyn.c"] \
 +["examples/OpenGLWindow/GLInstancingRenderer.cpp"]\
 +["examples/OpenGLWindow/EGLOpenGLWindow.cpp"]\
-+["examples/OpenGLWindow/GLRenderToTexture.cpp"]\
-
++["examples/OpenGLWindow/GLRenderToTexture.cpp"] \
++["examples/OpenGLWindow/LoadShader.cpp"] \
++["src/LinearMath/btQuickprof.cpp"] \
 
 eglRender = Extension("eglRenderer",
         sources =  egl_renderer_sources,
         libraries = libraries,
-        extra_compile_args=(CXX_FLAGS+'-DBT_USE_EGL ').split(),
+        extra_compile_args=(CXX_FLAGS+'-DBT_USE_EGL -DSTB_AGAIN -DB3_DEBUG').split(),
         include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
      )
 setup(

@@ -5,7 +5,8 @@
 
 struct TinyRendererVisualShapeConverter : public UrdfRenderingInterface
 {
-	
+        int frame = 0;
+
         struct TinyRendererVisualShapeConverterInternalData* m_data;
 	
         TinyRendererVisualShapeConverter();
@@ -44,7 +45,8 @@ struct TinyRendererVisualShapeConverter : public UrdfRenderingInterface
 	virtual void setFlags(int flags);
 
 	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
-    
+        void copyCameraImageDataGL(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
+
 	virtual void render();
 	virtual void render(const float viewMat[16], const float projMat[16]);
     
