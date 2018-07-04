@@ -7,7 +7,8 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201806150
+#define SHARED_MEMORY_MAGIC_NUMBER 201807040
+//#define SHARED_MEMORY_MAGIC_NUMBER 201806150
 //#define SHARED_MEMORY_MAGIC_NUMBER 201806020
 //#define SHARED_MEMORY_MAGIC_NUMBER 201801170
 //#define SHARED_MEMORY_MAGIC_NUMBER 201801080
