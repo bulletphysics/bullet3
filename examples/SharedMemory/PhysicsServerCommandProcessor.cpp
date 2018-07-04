@@ -1538,7 +1538,7 @@ struct PhysicsServerCommandProcessorInternalData
 	b3ResizablePool< InternalBodyHandle > m_bodyHandles;
 	b3ResizablePool<InternalCollisionShapeHandle> m_userCollisionShapeHandles;
 	b3ResizablePool<InternalVisualShapeHandle> m_userVisualShapeHandles;
-	b3ResizablePool<b3PoolBodyHandle<SharedMemoryUserData>> m_userDataHandles;
+	b3ResizablePool<b3PoolBodyHandle<SharedMemoryUserData> > m_userDataHandles;
 	btHashMap<SharedMemoryUserDataHashKey, int> m_userDataHandleLookup;
 
 	b3PluginManager m_pluginManager;

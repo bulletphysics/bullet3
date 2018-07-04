@@ -48,15 +48,14 @@ struct SharedMemoryUserData
 	}
 };
 
-class SharedMemoryUserDataHashKey {
-	unsigned int m_hash = 0;
+struct SharedMemoryUserDataHashKey {
+	unsigned int m_hash;
 
 	btHashString m_key;
 	btHashInt m_bodyUniqueId;
 	btHashInt m_linkIndex;
 	btHashInt m_visualShapeIndex;
 
-public:
 	SIMD_FORCE_INLINE	unsigned int getHash()const {
 		return m_hash;
 	}
