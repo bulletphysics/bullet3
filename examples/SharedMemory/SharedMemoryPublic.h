@@ -275,7 +275,6 @@ struct b3JointInfo
 
 
 enum UserDataValueType {
-  USER_DATA_VALUE_TYPE_NOT_USET = -1,
 	// Data represents generic byte array.
 	USER_DATA_VALUE_TYPE_BYTES = 0,
 	// Data represents C-string

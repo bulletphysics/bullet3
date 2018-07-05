@@ -1004,9 +1004,9 @@ struct UserDataRequestArgs {
 struct UserDataResponseArgs
 {
 	int m_userDataId;
-  int m_bodyUniqueId;
-  int m_linkIndex;
-  int m_visualShapeIndex;
+	int m_bodyUniqueId;
+	int m_linkIndex;
+	int m_visualShapeIndex;
 	int m_valueType;
 	int m_valueLength;
 	char m_key[MAX_USER_DATA_KEY_LENGTH];
@@ -1017,7 +1017,7 @@ struct AddUserDataRequestArgs
 {
 	int m_bodyUniqueId;
 	int m_linkIndex;
-  int m_visualShapeIndex;
+	int m_visualShapeIndex;
 	int m_valueType;
 	int m_valueLength;
 	char m_key[MAX_USER_DATA_KEY_LENGTH];
