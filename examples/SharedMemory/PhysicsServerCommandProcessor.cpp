@@ -2719,7 +2719,8 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 	SaveWorldObjectData sd;
 	sd.m_fileName = fileName;
 
-
+    int currentOpenGLTextureIndex = 0;
+    
     for (int m =0; m<u2b.getNumModels();m++)
     {
 
@@ -2885,6 +2886,44 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 			}
 		}
 
+        {
+            int startShapeIndex = 0;
+            
+            if (m_data->m_pluginManager.getRenderInterface())
+            {
+                int totalNumVisualShapes = m_data->m_pluginManager.getRenderInterface()->getNumVisualShapes(bodyUniqueId);
+                //int totalBytesPerVisualShape = sizeof (b3VisualShapeData);
+                //int visualShapeStorage = bufferSizeInBytes / totalBytesPerVisualShape - 1;
+                b3VisualShapeData tmpShape;
+                
+                int remain = totalNumVisualShapes - startShapeIndex;
+                int shapeIndex = startShapeIndex;
+                
+                int success = m_data->m_pluginManager.getRenderInterface()->getVisualShapesData(bodyUniqueId,shapeIndex,&tmpShape);
+                if (success)
+                {
+                    if (tmpShape.m_tinyRendererTextureId>=0)
+                    {
+                        int openglTextureUniqueId = -1;
+                        
+                        //find companion opengl texture unique id and create a 'textureUid'
+                        if (currentOpenGLTextureIndex<u2b.getNumAllocatedTextures())
+                        {
+                            openglTextureUniqueId  = u2b.getAllocatedTexture(currentOpenGLTextureIndex);
+                            currentOpenGLTextureIndex++;
+                        }
+
+                        int texHandle = m_data->m_textureHandles.allocHandle();
+                        InternalTextureHandle* texH = m_data->m_textureHandles.getHandle(texHandle);
+                        if(texH)
+                        {
+                            texH->m_tinyRendererTextureId = tmpShape.m_tinyRendererTextureId;
+                            texH->m_openglTextureId = openglTextureUniqueId;
+                        }
+                    }
+                }
+            }
+        }
     }
 
 	
@@ -2893,8 +2932,16 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 		int texId = u2b.getAllocatedTexture(i);
 		m_data->m_allocatedTextures.push_back(texId);
 	}
-		
 
+    
+/*
+ int texHandle = m_data->m_textureHandles.allocHandle();
+ InternalTextureHandle* texH = m_data->m_textureHandles.getHandle(texHandle);
+ if(texH)
+ {
+ texH->m_tinyRendererTextureId = -1;
+ texH->m_openglTextureId = -1;
+ */
 
 	for (int i=0;i<u2b.getNumAllocatedMeshInterfaces();i++)
 	{
@@ -9284,6 +9331,25 @@ bool PhysicsServerCommandProcessor::processRequestVisualShapeInfoCommand(const s
 			shapeIndex,
 			visualShapeStoragePtr);
 		if (success) {
+            
+            //find the matching texture unique ids.
+            if (visualShapeStoragePtr->m_tinyRendererTextureId>=0)
+            {
+                b3AlignedObjectArray<int> usedHandles;
+                m_data->m_textureHandles.getUsedHandles(usedHandles);
+                
+                for (int i=0;i<usedHandles.size();i++)
+                {
+                    int texHandle =usedHandles[i];
+                    InternalTextureHandle* texH = m_data->m_textureHandles.getHandle(texHandle);
+                    if (texH && (texH->m_tinyRendererTextureId == visualShapeStoragePtr->m_tinyRendererTextureId))
+                    {
+                        visualShapeStoragePtr->m_openglTextureId =texH->m_openglTextureId;
+                        visualShapeStoragePtr->m_textureUniqueId = texHandle;
+                    }
+                }
+            }
+            
 			serverCmd.m_sendVisualShapeArgs.m_numRemainingVisualShapes = remain-1;
 			serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied = 1;
 			serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex = clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
