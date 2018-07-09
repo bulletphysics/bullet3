@@ -2848,7 +2848,7 @@ B3_SHARED_API  b3SharedMemoryCommandHandle b3InitSyncUserDataCommand(b3PhysicsCl
 	return (b3SharedMemoryCommandHandle) command;
 }
 
-B3_SHARED_API  b3SharedMemoryCommandHandle b3InitAddUserDataCommand(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, const char* key, UserDataValueType valueType, int valueLength, const void *valueData) {
+B3_SHARED_API  b3SharedMemoryCommandHandle b3InitAddUserDataCommand(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int visualShapeIndex, const char* key, UserDataValueType valueType, int valueLength, const void *valueData) {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
 	b3Assert(strlen(key) < MAX_USER_DATA_KEY_LENGTH);
 	b3Assert(cl);
@@ -2860,6 +2860,7 @@ B3_SHARED_API  b3SharedMemoryCommandHandle b3InitAddUserDataCommand(b3PhysicsCli
 	command->m_type = CMD_ADD_USER_DATA;
 	command->m_addUserDataRequestArgs.m_bodyUniqueId = bodyUniqueId;
 	command->m_addUserDataRequestArgs.m_linkIndex = linkIndex;
+	command->m_addUserDataRequestArgs.m_visualShapeIndex = visualShapeIndex;
 	command->m_addUserDataRequestArgs.m_valueType = valueType;
 	command->m_addUserDataRequestArgs.m_valueLength = valueLength;
 	strcpy(command->m_addUserDataRequestArgs.m_key, key);
@@ -2868,7 +2869,7 @@ B3_SHARED_API  b3SharedMemoryCommandHandle b3InitAddUserDataCommand(b3PhysicsCli
 	return (b3SharedMemoryCommandHandle) command;
 }
 
-B3_SHARED_API  b3SharedMemoryCommandHandle b3InitRemoveUserDataCommand(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int userDataId) {
+B3_SHARED_API  b3SharedMemoryCommandHandle b3InitRemoveUserDataCommand(b3PhysicsClientHandle physClient, int userDataId) {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
 	b3Assert(cl);
 	b3Assert(cl->canSubmitCommand());
@@ -2876,29 +2877,27 @@ B3_SHARED_API  b3SharedMemoryCommandHandle b3InitRemoveUserDataCommand(b3Physics
 	b3Assert(command);
 
 	command->m_type = CMD_REMOVE_USER_DATA;
-	command->m_removeUserDataRequestArgs.m_bodyUniqueId = bodyUniqueId;
-	command->m_removeUserDataRequestArgs.m_linkIndex = linkIndex;
 	command->m_removeUserDataRequestArgs.m_userDataId = userDataId;
 
 	return (b3SharedMemoryCommandHandle) command;
 }
 
-B3_SHARED_API int b3GetUserData(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int userDataId, struct b3UserDataValue *valueOut)
+B3_SHARED_API int b3GetUserData(b3PhysicsClientHandle physClient, int userDataId, struct b3UserDataValue *valueOut)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	if (cl)
 	{
-		return cl->getCachedUserData(bodyUniqueId, linkIndex, userDataId, *valueOut);
+		return cl->getCachedUserData(userDataId, *valueOut);
 	}
 	return false;
 }
 
-B3_SHARED_API int b3GetUserDataId(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, const char *key)
+B3_SHARED_API int b3GetUserDataId(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int visualShapeIndex, const char *key)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	if (cl)
 	{
-		return cl->getCachedUserDataId(bodyUniqueId, linkIndex, key);
+		return cl->getCachedUserDataId(bodyUniqueId, linkIndex, visualShapeIndex, key);
 	}
 	return -1;
 }
@@ -2909,27 +2908,27 @@ B3_SHARED_API int b3GetUserDataIdFromStatus(b3SharedMemoryStatusHandle statusHan
 	if (status)
 	{
 		btAssert(status->m_type == CMD_ADD_USER_DATA_COMPLETED);
-		return status->m_userDataResponseArgs.m_userDataGlobalId.m_userDataId;
+		return status->m_userDataResponseArgs.m_userDataId;
 	}
 	return -1;
 }
 
-B3_SHARED_API int b3GetNumUserData(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex)
+B3_SHARED_API int b3GetNumUserData(b3PhysicsClientHandle physClient, int bodyUniqueId)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	if (cl)
 	{
-		return cl->getNumUserData(bodyUniqueId, linkIndex);
+		return cl->getNumUserData(bodyUniqueId);
 	}
 	return 0;
 }
 
-B3_SHARED_API void b3GetUserDataInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int userDataIndex, const char **keyOut, int *userDataIdOut)
+B3_SHARED_API void b3GetUserDataInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int userDataIndex, const char **keyOut, int *userDataIdOut, int *linkIndexOut, int *visualShapeIndexOut)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	if (cl)
 	{
-		cl->getUserDataInfo(bodyUniqueId, linkIndex, userDataIndex, keyOut, userDataIdOut);
+		cl->getUserDataInfo(bodyUniqueId, userDataIndex, keyOut, userDataIdOut, linkIndexOut, visualShapeIndexOut);
 	}
 }
 
