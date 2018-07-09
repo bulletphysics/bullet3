@@ -5,6 +5,14 @@
 #include "../SharedMemory/PhysicsClientUDP_C_API.h"
 #endif  //BT_ENABLE_ENET
 
+#ifdef BT_ENABLE_DART
+#include "../SharedMemory/dart/DARTPhysicsC_API.h"
+#endif
+
+#ifdef BT_ENABLE_MUJOCO
+#include "../SharedMemory/mujoco/MuJoCoPhysicsC_API.h"
+#endif
+
 #ifdef BT_ENABLE_CLSOCKET
 #include "../SharedMemory/PhysicsClientTCP_C_API.h"
 #endif  //BT_ENABLE_CLSOCKET
@@ -407,6 +415,22 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				sm = b3ConnectPhysicsDirect();
 				break;
 			}
+#ifdef BT_ENABLE_DART
+			case eCONNECT_DART:
+			{
+				sm = b3ConnectPhysicsDART();
+				break;
+			}
+#endif
+
+#ifdef BT_ENABLE_MUJOCO
+			case eCONNECT_MUJOCO:
+			{
+				sm = b3ConnectPhysicsMuJoCo();
+				break;
+			}
+#endif
+
 			case eCONNECT_SHARED_MEMORY:
 			{
 				sm = b3ConnectSharedMemory(key);
@@ -689,18 +713,19 @@ static PyObject* pybullet_addUserData(PyObject* self, PyObject* args, PyObject* 
 	b3PhysicsClientHandle sm = 0;
 	int physicsClientId = 0;
 	int bodyUniqueId = -1;
-	int linkIndex = -2;
+	int linkIndex = -1;
+	int visualShapeIndex = -1;
 	const char* key = "";
 	const char* value = ""; // TODO: Change this to a PyObject and detect the type dynamically.
 
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "key", "value", "physicsClientId", NULL};
+	static char* kwlist[] = {"bodyUniqueId", "key", "value", "linkIndex", "visualShapeIndex", "physicsClientId", NULL};
 	b3SharedMemoryCommandHandle command;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
 	int userDataId;
 	int valueLen=-1;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiss|i", kwlist, &bodyUniqueId, &linkIndex, &key, &value, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iss|iii", kwlist, &bodyUniqueId, &key, &value, &linkIndex, &visualShapeIndex, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -712,7 +737,7 @@ static PyObject* pybullet_addUserData(PyObject* self, PyObject* args, PyObject* 
 	}
 
 	valueLen = strlen(value)+1;
-	command = b3InitAddUserDataCommand(sm, bodyUniqueId, linkIndex, key, USER_DATA_VALUE_TYPE_STRING, valueLen, value);
+	command = b3InitAddUserDataCommand(sm, bodyUniqueId, linkIndex, visualShapeIndex, key, USER_DATA_VALUE_TYPE_STRING, valueLen, value);
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	statusType = b3GetStatusType(statusHandle);
 
@@ -730,16 +755,14 @@ static PyObject* pybullet_removeUserData(PyObject* self, PyObject* args, PyObjec
 {
 	b3PhysicsClientHandle sm = 0;
 	int physicsClientId = 0;
-	int bodyUniqueId = -1;
-	int linkIndex = -1;
 	int userDataId = -1;
 
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "userDataId",  "physicsClientId", NULL};
+	static char* kwlist[] = {"userDataId",  "physicsClientId", NULL};
 	b3SharedMemoryCommandHandle command;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|i", kwlist, &bodyUniqueId, &linkIndex, &userDataId, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &userDataId, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -750,7 +773,7 @@ static PyObject* pybullet_removeUserData(PyObject* self, PyObject* args, PyObjec
 		return NULL;
 	}
 
-	command = b3InitRemoveUserDataCommand(sm, bodyUniqueId, linkIndex, userDataId);
+	command = b3InitRemoveUserDataCommand(sm, userDataId);
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	statusType = b3GetStatusType(statusHandle);
 
@@ -770,15 +793,16 @@ static PyObject* pybullet_getUserDataId(PyObject* self, PyObject* args, PyObject
 	int physicsClientId = 0;
 	int bodyUniqueId = -1;
 	int linkIndex = -1;
+	int visualShapeIndex = -1;
 	const char* key = "";
 	int userDataId;
 
 	
 
 
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "key",  "physicsClientId", NULL};
+	static char* kwlist[] = {"bodyUniqueId", "key", "linkIndex", "visualShapeIndex", "physicsClientId", NULL};
 	
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iis|i", kwlist, &bodyUniqueId, &linkIndex, &key, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "is|iii", kwlist, &bodyUniqueId, &key, &linkIndex, &visualShapeIndex, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -789,7 +813,7 @@ static PyObject* pybullet_getUserDataId(PyObject* self, PyObject* args, PyObject
 		return NULL;
 	}
 
-	userDataId = b3GetUserDataId(sm, bodyUniqueId, linkIndex, key);
+	userDataId = b3GetUserDataId(sm, bodyUniqueId, linkIndex, visualShapeIndex, key);
 	return PyInt_FromLong(userDataId);
 }
 
@@ -797,16 +821,14 @@ static PyObject* pybullet_getUserData(PyObject* self, PyObject* args, PyObject* 
 {
 	b3PhysicsClientHandle sm = 0;
 	int physicsClientId = 0;
-	int bodyUniqueId = -1;
-	int linkIndex = -1;
 	int userDataId = -1;
 
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "userDataId",  "physicsClientId", NULL};
+	static char* kwlist[] = {"userDataId",  "physicsClientId", NULL};
 
 
 
 	struct b3UserDataValue value;
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|i", kwlist, &bodyUniqueId, &linkIndex, &userDataId, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &userDataId, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -818,7 +840,7 @@ static PyObject* pybullet_getUserData(PyObject* self, PyObject* args, PyObject* 
 	}
 
 
-	if (!b3GetUserData(sm, bodyUniqueId, linkIndex, userDataId, &value)) {
+	if (!b3GetUserData(sm, userDataId, &value)) {
 		
 		Py_INCREF(Py_None);
 		return Py_None;
@@ -837,15 +859,14 @@ static PyObject* pybullet_getNumUserData(PyObject* self, PyObject* args, PyObjec
 	b3PhysicsClientHandle sm = 0;
 	int physicsClientId = 0;
 	int bodyUniqueId = -1;
-	int linkIndex = -1;
 
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex",  "physicsClientId", NULL};
+	static char* kwlist[] = {"bodyUniqueId",  "physicsClientId", NULL};
 
 
 
 	int numUserData;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist, &bodyUniqueId, &linkIndex, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &bodyUniqueId, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -856,7 +877,7 @@ static PyObject* pybullet_getNumUserData(PyObject* self, PyObject* args, PyObjec
 		return NULL;
 	}
 
-	numUserData = b3GetNumUserData(sm, bodyUniqueId, linkIndex);
+	numUserData = b3GetNumUserData(sm, bodyUniqueId);
 	return PyInt_FromLong(numUserData);
 }
 
@@ -865,16 +886,17 @@ static PyObject* pybullet_getUserDataInfo(PyObject* self, PyObject* args, PyObje
 	b3PhysicsClientHandle sm = 0;
 	int physicsClientId = 0;
 	int bodyUniqueId = -1;
-	int linkIndex = -1;
 	int userDataIndex = -1;
+	int linkIndex = -1;
+	int visualShapeIndex = -1;
 
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "userDataIndex", "physicsClientId", NULL};
+	static char* kwlist[] = {"bodyUniqueId", "userDataIndex", "physicsClientId", NULL};
 
 
 	const char* key = 0;
 	int userDataId = -1;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|i", kwlist, &bodyUniqueId, &linkIndex, &userDataIndex, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist, &bodyUniqueId, &userDataIndex, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -885,16 +907,19 @@ static PyObject* pybullet_getUserDataInfo(PyObject* self, PyObject* args, PyObje
 		return NULL;
 	}
 
-	b3GetUserDataInfo(sm, bodyUniqueId, linkIndex, userDataIndex, &key, &userDataId);
+	b3GetUserDataInfo(sm, bodyUniqueId, userDataIndex, &key, &userDataId, &linkIndex, &visualShapeIndex);
 	if (key == 0 || userDataId == -1) {
 		PyErr_SetString(SpamError, "Could not get user data info.");
 		return NULL;
 	}
 
 	{
-		PyObject *userDataInfoTuple = PyTuple_New(2);
+		PyObject *userDataInfoTuple = PyTuple_New(5);
 		PyTuple_SetItem(userDataInfoTuple, 0, PyInt_FromLong(userDataId));
 		PyTuple_SetItem(userDataInfoTuple, 1, PyString_FromString(key));
+		PyTuple_SetItem(userDataInfoTuple, 2, PyInt_FromLong(bodyUniqueId));
+		PyTuple_SetItem(userDataInfoTuple, 3, PyInt_FromLong(linkIndex));
+		PyTuple_SetItem(userDataInfoTuple, 4, PyInt_FromLong(visualShapeIndex));
 		return userDataInfoTuple;
 	}
 }
@@ -5428,8 +5453,10 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 	PyObject* pyResultList = 0;
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"objectUniqueId", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &objectUniqueId, &physicsClientId))
+	int flags=0;
+
+	static char* kwlist[] = {"objectUniqueId", "flags", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|ii", kwlist, &objectUniqueId, &flags, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -5450,7 +5477,9 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 			pyResultList = PyTuple_New(visualShapeInfo.m_numVisualShapes);
 			for (i = 0; i < visualShapeInfo.m_numVisualShapes; i++)
 			{
-				PyObject* visualShapeObList = PyTuple_New(8);
+				int numFields = flags&eVISUAL_SHAPE_DATA_TEXTURE_UNIQUE_IDS ? 9 : 8;
+
+				PyObject* visualShapeObList = PyTuple_New(numFields);
 				PyObject* item;
 				item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_objectUniqueId);
 				PyTuple_SetItem(visualShapeObList, 0, item);
@@ -5510,6 +5539,11 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 					item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_rgbaColor[3]);
 					PyTuple_SetItem(rgba, 3, item);
 					PyTuple_SetItem(visualShapeObList, 7, rgba);
+				}
+				if (flags&eVISUAL_SHAPE_DATA_TEXTURE_UNIQUE_IDS)
+				{
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_textureUniqueId);
+                                	PyTuple_SetItem(visualShapeObList, 8, item);
 				}
 
 				PyTuple_SetItem(pyResultList, i, visualShapeObList);
@@ -9131,28 +9165,28 @@ static PyMethodDef SpamMethods[] = {
 	 "Update user data, in case other clients made changes."},
 
 	{"addUserData", (PyCFunction)pybullet_addUserData, METH_VARARGS | METH_KEYWORDS,
-	 "addUserData(bodyUniqueId, linkIndex, key, value, physicsClientId=0)\n"
-	 "Adds or updates a user data entry to a link. Returns user data identifier."},
+	 "addUserData(bodyUniqueId, key, value, linkIndex=-1, visualShapeIndex=-1, physicsClientId=0)\n"
+	 "Adds or updates a user data entry. Returns user data identifier."},
 
 	{"getUserData", (PyCFunction)pybullet_getUserData, METH_VARARGS | METH_KEYWORDS,
-	 "getUserData(bodyUniqueId, linkIndex, userDataId, physicsClientId=0)\n"
+	 "getUserData(userDataId, physicsClientId=0)\n"
 	 "Returns the user data value."},
 
 	{"removeUserData", (PyCFunction)pybullet_removeUserData, METH_VARARGS | METH_KEYWORDS,
-	 "removeUserData(bodyUniqueId, linkIndex, userDataId, physicsClientId=0)\n"
+	 "removeUserData(userDataId, physicsClientId=0)\n"
 	 "Removes a user data entry."},
 
 	{"getUserDataId", (PyCFunction)pybullet_getUserDataId, METH_VARARGS | METH_KEYWORDS,
-	 "getUserDataId(bodyUniqueId, linkIndex, key, physicsClientId=0)\n"
-	 "Retrieves the userDataId on a link given the key."},
+	 "getUserDataId(bodyUniqueId, key, linkIndex=-1, visualShapeIndex=-1, physicsClientId=0)\n"
+	 "Retrieves the userDataId given the key and optionally link and visual shape index."},
 
 	{"getNumUserData", (PyCFunction)pybullet_getNumUserData, METH_VARARGS | METH_KEYWORDS,
-	 "getNumUserData(bodyUniqueId, linkIndex, physicsClientId=0)\n"
-	 "Retrieves the number of user data entries in a link."},
+	 "getNumUserData(bodyUniqueId physicsClientId=0)\n"
+	 "Retrieves the number of user data entries in a body."},
 
 	{"getUserDataInfo", (PyCFunction)pybullet_getUserDataInfo, METH_VARARGS | METH_KEYWORDS,
-	 "getUserDataInfo(bodyUniqueId, linkIndex, userDataIndex, physicsClientId=0)\n"
-	 "Retrieves the key and the identifier of a user data as (id, key)."},
+	 "getUserDataInfo(bodyUniqueId, userDataIndex, physicsClientId=0)\n"
+	 "Retrieves the key and the identifier of a user data as (userDataId, key, bodyUniqueId, linkIndex, visualShapeIndex)."},
 
 	{"removeBody", (PyCFunction)pybullet_removeBody, METH_VARARGS | METH_KEYWORDS,
 	 "Remove a body by its body unique id."},
@@ -9549,6 +9583,14 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "GUI_SERVER", eCONNECT_GUI_SERVER);        // user read
 	PyModule_AddIntConstant(m, "GUI_MAIN_THREAD", eCONNECT_GUI_MAIN_THREAD);        // user read
     PyModule_AddIntConstant(m, "SHARED_MEMORY_SERVER", eCONNECT_SHARED_MEMORY_SERVER);        // user read
+#ifdef BT_ENABLE_DART
+	PyModule_AddIntConstant(m, "DART", eCONNECT_DART);        // user read
+#endif
+
+#ifdef BT_ENABLE_MUJOCO
+	PyModule_AddIntConstant(m, "MuJoCo", eCONNECT_MUJOCO);        // user read
+#endif
+
 
     PyModule_AddIntConstant(m, "SHARED_MEMORY_KEY", SHARED_MEMORY_KEY);
     PyModule_AddIntConstant(m, "SHARED_MEMORY_KEY2", SHARED_MEMORY_KEY+1);
@@ -9655,6 +9697,8 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION", URDF_USE_SELF_COLLISION);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_PARENT", URDF_USE_SELF_COLLISION_EXCLUDE_PARENT);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS", URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS);
+
+	PyModule_AddIntConstant(m, "VISUAL_SHAPE_DATA_TEXTURE_UNIQUE_IDS", eVISUAL_SHAPE_DATA_TEXTURE_UNIQUE_IDS);
 
 	PyModule_AddIntConstant(m, "MAX_RAY_INTERSECTION_BATCH_SIZE", MAX_RAY_INTERSECTION_BATCH_SIZE_STREAMING);
 

@@ -671,13 +671,15 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 			visualShape.m_rgbaColor[1] = rgbaColor[1];
 			visualShape.m_rgbaColor[2] = rgbaColor[2];
 			visualShape.m_rgbaColor[3] = rgbaColor[3];
+            visualShape.m_openglTextureId = -1;
+            visualShape.m_tinyRendererTextureId = -1;
+            visualShape.m_textureUniqueId = -1;
             
 			{
 				B3_PROFILE("convertURDFToVisualShape");
 				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices, textures, visualShape);
 			}
-			m_data->m_visualShapes.push_back(visualShape);
-
+			
             if (vertices.size() && indices.size())
             {
                 TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer,m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId, linkIndex);
@@ -701,13 +703,15 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 				}
                 visuals->m_renderObjects.push_back(tinyObj);
             }
+            
+            btAssert(textures.size()<=1);
 			for (int i=0;i<textures.size();i++)
 			{
-				if (!textures[i].m_isCached)
-				{
-					free(textures[i].textureData1);
-				}
+                visualShape.m_tinyRendererTextureId = m_data->m_textures.size();
+                m_data->m_textures.push_back(textures[i]);                
 			}
+            m_data->m_visualShapes.push_back(visualShape);
+
 		}
 	}
 }
@@ -1199,13 +1203,13 @@ void TinyRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, in
 				for (int v = 0; v < visualArray->m_renderObjects.size(); v++)
 				{
 					TinyRenderObjectData* renderObj = visualArray->m_renderObjects[v];
+                    
 					if ((shapeIndex < 0) || (shapeIndex == v))
 					{
 						renderObj->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData1, m_data->m_textures[textureUniqueId].m_width, m_data->m_textures[textureUniqueId].m_height);
 					}
 				}
 			}
-
 		}
 	}
 }

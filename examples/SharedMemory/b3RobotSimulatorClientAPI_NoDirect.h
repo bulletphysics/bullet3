@@ -60,6 +60,30 @@ struct b3RobotSimulatorLoadFileResults
 	}
 };
 
+struct b3RobotSimulatorChangeVisualShapeArgs
+{
+    int m_objectUniqueId;
+    int m_linkIndex;
+    int m_shapeIndex;
+    int m_textureUniqueId;
+    btVector4 m_rgbaColor;
+    bool m_hasRgbaColor;
+    btVector3 m_specularColor;
+    bool m_hasSpecularColor;
+    
+    b3RobotSimulatorChangeVisualShapeArgs()
+    :m_objectUniqueId(-1),
+    m_linkIndex(-1),
+    m_shapeIndex(-1),
+    m_textureUniqueId(-1),
+    m_rgbaColor(0,0,0,1),
+    m_hasRgbaColor(false),
+    m_specularColor(1,1,1),
+    m_hasSpecularColor(false)
+    {
+    }
+};
+
 struct b3RobotSimulatorJointMotorArgs
 {
 	int m_controlMode;
@@ -505,6 +529,10 @@ public:
 	bool loadBullet(const std::string& fileName, b3RobotSimulatorLoadFileResults& results);
 	bool saveBullet(const std::string& fileName);
 	
+    int loadTexture(const std::string& fileName);
+    
+    bool changeVisualShape(const struct b3RobotSimulatorChangeVisualShapeArgs& args);
+    
 	bool savePythonWorld(const std::string& fileName);
 	
 	bool getBodyInfo(int bodyUniqueId, struct b3BodyInfo* bodyInfo);
@@ -648,7 +676,7 @@ public:
 
 	bool getCollisionShapeData(int bodyUniqueId, int linkIndex, b3CollisionShapeInformation &collisionShapeInfo);
 
-	bool getVisualShapeData(int bodyUniqueId, b3VisualShapeInformation &visualShapeInfo);
+	bool getVisualShapeData(int bodyUniqueId, struct b3VisualShapeInformation &visualShapeInfo);
 
 	int saveStateToMemory();
 	void restoreStateFromMemory(int stateId);

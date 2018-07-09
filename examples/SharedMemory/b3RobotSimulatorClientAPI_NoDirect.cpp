@@ -155,6 +155,69 @@ btVector3 b3RobotSimulatorClientAPI_NoDirect::getEulerFromQuaternion(const btQua
 	return rpy2;
 }
 
+int b3RobotSimulatorClientAPI_NoDirect::loadTexture(const std::string& fileName)
+{
+    if (!isConnected())
+    {
+        b3Warning("Not connected");
+        return -1;
+    }
+    btAssert(b3CanSubmitCommand(m_data->m_physicsClientHandle));
+
+    b3SharedMemoryCommandHandle commandHandle;
+    b3SharedMemoryStatusHandle statusHandle;
+    int statusType;
+   
+    {
+        commandHandle = b3InitLoadTexture(m_data->m_physicsClientHandle, fileName.c_str());
+        
+        statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+        statusType = b3GetStatusType(statusHandle);
+        if (statusType == CMD_LOAD_TEXTURE_COMPLETED)
+        {
+            return b3GetStatusTextureUniqueId(statusHandle);
+        }
+    }
+    return -1;
+}
+
+
+bool b3RobotSimulatorClientAPI_NoDirect::changeVisualShape(const struct b3RobotSimulatorChangeVisualShapeArgs& args)
+{
+    if (!isConnected())
+    {
+        b3Warning("Not connected");
+        return false;
+    }
+    
+    int objectUniqueId = args.m_objectUniqueId;
+    int jointIndex = args.m_linkIndex;
+    int shapeIndex = args.m_shapeIndex;
+    int textureUniqueId = args.m_textureUniqueId;
+    
+    b3SharedMemoryCommandHandle commandHandle;
+    b3SharedMemoryStatusHandle statusHandle;
+    int statusType;
+    
+    commandHandle = b3InitUpdateVisualShape(m_data->m_physicsClientHandle, objectUniqueId, jointIndex, shapeIndex, textureUniqueId);
+    
+    if (args.m_hasSpecularColor)
+    {
+        double specularColor[3] = {args.m_specularColor[0],args.m_specularColor[1],args.m_specularColor[2]};
+        b3UpdateVisualShapeSpecularColor(commandHandle,specularColor);
+    }
+    if (args.m_hasRgbaColor)
+    {
+        double rgbaColor[4] = {args.m_rgbaColor[0],args.m_rgbaColor[1],args.m_rgbaColor[2],args.m_rgbaColor[3]};
+        b3UpdateVisualShapeRGBAColor(commandHandle,rgbaColor);
+    }
+    
+    statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+    statusType = b3GetStatusType(statusHandle);
+
+    return (statusType == CMD_VISUAL_SHAPE_UPDATE_COMPLETED);
+}
+
 int b3RobotSimulatorClientAPI_NoDirect::loadURDF(const std::string& fileName, const struct b3RobotSimulatorLoadUrdfFileArgs& args)
 {
 	int robotUniqueId = -1;
@@ -2177,7 +2240,8 @@ void b3RobotSimulatorClientAPI_NoDirect::restoreStateFromMemory(int stateId)
 bool b3RobotSimulatorClientAPI_NoDirect::getVisualShapeData(int bodyUniqueId, b3VisualShapeInformation &visualShapeInfo)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
-	if (sm == 0) {
+	if (sm == 0)
+    {
 		b3Warning("Not connected");
 		return false;
 	}
@@ -2185,17 +2249,17 @@ bool b3RobotSimulatorClientAPI_NoDirect::getVisualShapeData(int bodyUniqueId, b3
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
 
-	{
-		commandHandle = b3InitRequestVisualShapeInformation(sm, bodyUniqueId);
-		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
-		statusType = b3GetStatusType(statusHandle);
+    commandHandle = b3InitRequestVisualShapeInformation(sm, bodyUniqueId);
+    statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+    statusType = b3GetStatusType(statusHandle);
 
-		btAssert(statusType == CMD_VISUAL_SHAPE_INFO_COMPLETED);
-		if (statusType == CMD_VISUAL_SHAPE_INFO_COMPLETED) {
-			b3GetVisualShapeInformation(sm, &visualShapeInfo);
-		}
-		return true;
-	}
+    btAssert(statusType == CMD_VISUAL_SHAPE_INFO_COMPLETED);
+    if (statusType == CMD_VISUAL_SHAPE_INFO_COMPLETED)
+    {
+        b3GetVisualShapeInformation(sm, &visualShapeInfo);
+        return true;
+    }
+    return false;
 }
 
 void b3RobotSimulatorClientAPI_NoDirect::setAdditionalSearchPath(const std::string& path)

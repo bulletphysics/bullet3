@@ -1,29 +1,46 @@
-#ifndef PHYSICS_LOOP_BACK_H
-#define PHYSICS_LOOP_BACK_H
-
-//#include "SharedMemoryCommands.h"
+#ifndef DART_PHYSICS_CLIENT_H
+#define DART_PHYSICS_CLIENT_H
 
 
-#include "PhysicsClient.h"
-#include "LinearMath/btVector3.h"
+#include "../PhysicsClient.h"
 
-///todo: the PhysicsClient API was designed with shared memory in mind, 
-///now it become more general we need to move out the shared memory specifics away
-///for example naming [disconnectSharedMemory -> disconnect] [ move setSharedMemoryKey to shared memory specific subclass ]
-
-class PhysicsLoopBack : public PhysicsClient 
+///PhysicsDirect executes the commands directly, without transporting them or having a separate server executing commands
+class DARTPhysicsClient : public PhysicsClient 
 {
-	struct PhysicsLoopBackInternalData* m_data;
+protected:
+
+	struct DARTPhysicsDirectInternalData* m_data;
+
+	bool processDebugLines(const struct SharedMemoryCommand& orgCommand);
+
+	bool processCamera(const struct SharedMemoryCommand& orgCommand);
+
+    bool processContactPointData(const struct SharedMemoryCommand& orgCommand);
+
+	bool processOverlappingObjects(const struct SharedMemoryCommand& orgCommand);
+
+	bool processVisualShapeData(const struct SharedMemoryCommand& orgCommand);
+	
+    void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
+
+	void processAddUserData(const struct SharedMemoryStatus& serverCmd);
+
+	void postProcessStatus(const struct SharedMemoryStatus& serverCmd);
+
+	void resetData();
+
+	void removeCachedBody(int bodyUniqueId);
 
 public:
 
-	PhysicsLoopBack();
+	DARTPhysicsClient(class PhysicsCommandProcessorInterface* physSdk, bool passSdkOwnership);
+    
+    virtual ~DARTPhysicsClient();
 
-	virtual ~PhysicsLoopBack();
-
-	  // return true if connection succesfull, can also check 'isConnected'
+	// return true if connection succesfull, can also check 'isConnected'
+	//it is OK to pass a null pointer for the gui helper
     virtual bool connect();
-
+	
 	////todo: rename to 'disconnect'
     virtual void disconnectSharedMemory();
 
@@ -50,7 +67,7 @@ public:
 
     virtual int getNumUserConstraints() const;
     
-    virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint&info) const;
+    virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint& info) const;
 	
 	virtual int getUserConstraintId(int serialIndex) const;
     
@@ -58,7 +75,7 @@ public:
     virtual void setSharedMemoryKey(int key);
 
     void uploadBulletFileToSharedMemory(const char* data, int len);
-	
+    
 	virtual void uploadRaysToSharedMemory(struct SharedMemoryCommand& command, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays);
 
     virtual int getNumDebugLines() const;
@@ -66,14 +83,15 @@ public:
     virtual const float* getDebugLinesFrom() const;
     virtual const float* getDebugLinesTo() const;
     virtual const float* getDebugLinesColor() const;
-	virtual void getCachedCameraImage(struct b3CameraImageData* cameraData);
-	
-	virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
+
+	virtual void getCachedCameraImage(b3CameraImageData* cameraData);
+
+    virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
 
 	virtual void getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects);
 
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
-
+	
 	virtual void getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo);
 
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
@@ -86,16 +104,21 @@ public:
 
 	virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix);
 
+	//the following APIs are for internal use for visualization:
+	virtual bool connect(struct GUIHelperInterface* guiHelper);
+	virtual void renderScene();
+	virtual void debugDraw(int debugDrawMode);
+
 	virtual void setTimeOut(double timeOutInSeconds);
 	virtual double getTimeOut() const;
 
-	virtual bool getCachedUserData(int userDataId, struct b3UserDataValue &valueOut) const;
-	virtual int getCachedUserDataId(int bodyUniqueId, int linkIndex, int visualShapeIndex, const char *key) const;
-	virtual int getNumUserData(int bodyUniqueId) const;
-	virtual void getUserDataInfo(int bodyUniqueId, int userDataIndex, const char **keyOut, int *userDataIdOut, int *linkIndexOut, int *visualShapeIndexOut) const;
+    virtual bool getCachedUserData(int bodyUniqueId, int linkIndex, int userDataId, struct b3UserDataValue &valueOut) const;
+    virtual int getCachedUserDataId(int bodyUniqueId, int linkIndex, const char *key) const;
+    virtual int getNumUserData(int bodyUniqueId, int linkIndex) const;
+    virtual void getUserDataInfo(int bodyUniqueId, int linkIndex, int userDataIndex, const char **keyOut, int *userDataIdOut) const;
 	
 	virtual void pushProfileTiming(const char* timingName);
 	virtual void popProfileTiming();
 };
 
-#endif //PHYSICS_LOOP_BACK_H
+#endif //DART_PHYSICS__H

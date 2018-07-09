@@ -231,20 +231,20 @@ double PhysicsLoopBack::getTimeOut() const
 	return m_data->m_physicsClient->getTimeOut();
 }
 
-bool PhysicsLoopBack::getCachedUserData(int bodyUniqueId, int linkIndex, int userDataId, struct b3UserDataValue &valueOut) const {
-	return m_data->m_physicsClient->getCachedUserData(bodyUniqueId, linkIndex, userDataId, valueOut);
+bool PhysicsLoopBack::getCachedUserData(int userDataId, struct b3UserDataValue &valueOut)  const {
+	return m_data->m_physicsClient->getCachedUserData(userDataId, valueOut);
 }
 
-int PhysicsLoopBack::getCachedUserDataId(int bodyUniqueId, int linkIndex, const char *key) const {
-	return m_data->m_physicsClient->getCachedUserDataId(bodyUniqueId, linkIndex, key);
+int PhysicsLoopBack::getCachedUserDataId(int bodyUniqueId, int linkIndex, int visualShapeIndex, const char *key) const {
+	return m_data->m_physicsClient->getCachedUserDataId(bodyUniqueId, linkIndex, visualShapeIndex, key);
 }
 
-int PhysicsLoopBack::getNumUserData(int bodyUniqueId, int linkIndex) const {
-	return m_data->m_physicsClient->getNumUserData(bodyUniqueId, linkIndex);
+int PhysicsLoopBack::getNumUserData(int bodyUniqueId) const {
+	return m_data->m_physicsClient->getNumUserData(bodyUniqueId);
 }
 
-void PhysicsLoopBack::getUserDataInfo(int bodyUniqueId, int linkIndex, int userDataIndex, const char **keyOut, int *userDataIdOut) const {
-	m_data->m_physicsClient->getUserDataInfo(bodyUniqueId, linkIndex, userDataIndex, keyOut, userDataIdOut);
+void PhysicsLoopBack::getUserDataInfo(int bodyUniqueId, int userDataIndex, const char **keyOut, int *userDataIdOut, int *linkIndexOut, int *visualShapeIndexOut) const {
+	m_data->m_physicsClient->getUserDataInfo(bodyUniqueId, userDataIndex, keyOut, userDataIdOut, linkIndexOut, visualShapeIndexOut);
 }
 
 void PhysicsLoopBack::pushProfileTiming(const char* timingName)

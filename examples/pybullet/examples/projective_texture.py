@@ -13,8 +13,8 @@ bearStartPos2 = [0,0,0]
 bearStartOrientation2 = p.getQuaternionFromEuler([0,0,0])
 bearId2 = p.loadURDF("teddy_large.urdf",bearStartPos2, bearStartOrientation2)
 textureId = p.loadTexture("checker_grid.jpg")
-p.changeVisualShape(objectUniqueId=0, linkIndex=-1, textureUniqueId=textureId)
-p.changeVisualShape(objectUniqueId=1, linkIndex=-1, textureUniqueId=textureId)
+#p.changeVisualShape(objectUniqueId=0, linkIndex=-1, textureUniqueId=textureId)
+#p.changeVisualShape(objectUniqueId=1, linkIndex=-1, textureUniqueId=textureId)
 
 
 useRealTimeSimulation = 1
