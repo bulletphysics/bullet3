@@ -595,6 +595,11 @@ typedef union {
 #define MAX_RAY_HITS MAX_RAY_INTERSECTION_BATCH_SIZE
 #define VISUAL_SHAPE_MAX_PATH_LEN 1024
 
+enum b3VisualShapeDataFlags
+{
+	eVISUAL_SHAPE_DATA_TEXTURE_UNIQUE_IDS = 1,
+};
+
 struct b3VisualShapeData
 {
 	int m_objectUniqueId;
@@ -605,6 +610,10 @@ struct b3VisualShapeData
     double m_localVisualFrame[7];//pos[3], orn[4]
 	//todo: add more data if necessary (material color etc, although material can be in asset file .obj file)
     double m_rgbaColor[4];
+    int m_tinyRendererTextureId;
+    int m_textureUniqueId;
+    int m_openglTextureId;
+    
 };
 
 struct b3VisualShapeInformation
@@ -743,6 +752,8 @@ enum eCONNECT_METHOD {
   eCONNECT_GUI_SERVER=7,
   eCONNECT_GUI_MAIN_THREAD=8,
   eCONNECT_SHARED_MEMORY_SERVER=9,
+  eCONNECT_DART=10,
+  eCONNECT_MUJOCO=11,
 };
 
 enum eURDF_Flags

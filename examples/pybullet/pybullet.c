@@ -5,6 +5,14 @@
 #include "../SharedMemory/PhysicsClientUDP_C_API.h"
 #endif  //BT_ENABLE_ENET
 
+#ifdef BT_ENABLE_DART
+#include "../SharedMemory/dart/DARTPhysicsC_API.h"
+#endif
+
+#ifdef BT_ENABLE_MUJOCO
+#include "../SharedMemory/mujoco/MuJoCoPhysicsC_API.h"
+#endif
+
 #ifdef BT_ENABLE_CLSOCKET
 #include "../SharedMemory/PhysicsClientTCP_C_API.h"
 #endif  //BT_ENABLE_CLSOCKET
@@ -407,6 +415,22 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				sm = b3ConnectPhysicsDirect();
 				break;
 			}
+#ifdef BT_ENABLE_DART
+			case eCONNECT_DART:
+			{
+				sm = b3ConnectPhysicsDART();
+				break;
+			}
+#endif
+
+#ifdef BT_ENABLE_MUJOCO
+			case eCONNECT_MUJOCO:
+			{
+				sm = b3ConnectPhysicsMuJoCo();
+				break;
+			}
+#endif
+
 			case eCONNECT_SHARED_MEMORY:
 			{
 				sm = b3ConnectSharedMemory(key);
@@ -5428,8 +5452,10 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 	PyObject* pyResultList = 0;
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"objectUniqueId", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &objectUniqueId, &physicsClientId))
+	int flags=0;
+
+	static char* kwlist[] = {"objectUniqueId", "flags", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|ii", kwlist, &objectUniqueId, &flags, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -5450,7 +5476,9 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 			pyResultList = PyTuple_New(visualShapeInfo.m_numVisualShapes);
 			for (i = 0; i < visualShapeInfo.m_numVisualShapes; i++)
 			{
-				PyObject* visualShapeObList = PyTuple_New(8);
+				int numFields = flags&eVISUAL_SHAPE_DATA_TEXTURE_UNIQUE_IDS ? 9 : 8;
+
+				PyObject* visualShapeObList = PyTuple_New(numFields);
 				PyObject* item;
 				item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_objectUniqueId);
 				PyTuple_SetItem(visualShapeObList, 0, item);
@@ -5510,6 +5538,11 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 					item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_rgbaColor[3]);
 					PyTuple_SetItem(rgba, 3, item);
 					PyTuple_SetItem(visualShapeObList, 7, rgba);
+				}
+				if (flags&eVISUAL_SHAPE_DATA_TEXTURE_UNIQUE_IDS)
+				{
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_textureUniqueId);
+                                	PyTuple_SetItem(visualShapeObList, 8, item);
 				}
 
 				PyTuple_SetItem(pyResultList, i, visualShapeObList);
@@ -9549,6 +9582,14 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "GUI_SERVER", eCONNECT_GUI_SERVER);        // user read
 	PyModule_AddIntConstant(m, "GUI_MAIN_THREAD", eCONNECT_GUI_MAIN_THREAD);        // user read
     PyModule_AddIntConstant(m, "SHARED_MEMORY_SERVER", eCONNECT_SHARED_MEMORY_SERVER);        // user read
+#ifdef BT_ENABLE_DART
+	PyModule_AddIntConstant(m, "DART", eCONNECT_DART);        // user read
+#endif
+
+#ifdef BT_ENABLE_MUJOCO
+	PyModule_AddIntConstant(m, "MuJoCo", eCONNECT_MUJOCO);        // user read
+#endif
+
 
     PyModule_AddIntConstant(m, "SHARED_MEMORY_KEY", SHARED_MEMORY_KEY);
     PyModule_AddIntConstant(m, "SHARED_MEMORY_KEY2", SHARED_MEMORY_KEY+1);
@@ -9655,6 +9696,8 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION", URDF_USE_SELF_COLLISION);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_PARENT", URDF_USE_SELF_COLLISION_EXCLUDE_PARENT);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS", URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS);
+
+	PyModule_AddIntConstant(m, "VISUAL_SHAPE_DATA_TEXTURE_UNIQUE_IDS", eVISUAL_SHAPE_DATA_TEXTURE_UNIQUE_IDS);
 
 	PyModule_AddIntConstant(m, "MAX_RAY_INTERSECTION_BATCH_SIZE", MAX_RAY_INTERSECTION_BATCH_SIZE_STREAMING);
 
