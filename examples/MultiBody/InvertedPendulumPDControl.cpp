@@ -268,7 +268,7 @@ btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GU
         btVector3 posr = local_origin[i+1];
     //	float pos[4]={posr.x(),posr.y(),posr.z(),1};
 
-        float quat[4]={-world_to_local[i+1].x(),-world_to_local[i+1].y(),-world_to_local[i+1].z(),world_to_local[i+1].w()};
+		const btScalar quat[4]={-world_to_local[i+1].x(),-world_to_local[i+1].y(),-world_to_local[i+1].z(),world_to_local[i+1].w()};
 		btCollisionShape* shape =0;
 
 		if (i==0)
