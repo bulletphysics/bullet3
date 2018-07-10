@@ -819,8 +819,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
     }
 	else 
 	{
-		const btVector3 baseForce = isConstraintPass? m_baseConstraintForce : m_baseForce;
-		const btVector3 baseTorque = isConstraintPass? m_baseConstraintTorque : m_baseTorque;
+		const btVector3& baseForce = isConstraintPass? m_baseConstraintForce : m_baseForce;
+		const btVector3& baseTorque = isConstraintPass? m_baseConstraintTorque : m_baseTorque;
 		//external forces		
 		zeroAccSpatFrc[0].setVector(-(rot_from_parent[0] * baseTorque), -(rot_from_parent[0] * baseForce));	
 
