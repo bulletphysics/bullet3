@@ -596,12 +596,12 @@ bool CMainApplication::BInit()
 {
 	b3Printf( "GL Error: %s\n", message );
 }
-*/
 
 static void APIENTRY DebugCallback (GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam)
 {
 	b3Printf( "GL Error: %s\n", message );
 }
+*/
 
 //-----------------------------------------------------------------------------
 // Purpose:
