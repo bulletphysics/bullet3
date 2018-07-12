@@ -1367,8 +1367,6 @@ void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, 
 		UrdfLink*const* linkPtr = model.m_links.getAtIndex(urdfIndex);
 		if (linkPtr)
 		{
-                        //(gdb) p *model.m_links.m_valueArray.m_data[0]
-                        std::cout << "mvp " << (*linkPtr)->m_visualArray.size() << std::endl;
                         m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, *linkPtr, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId);
 		}
 	}
