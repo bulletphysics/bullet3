@@ -909,13 +909,13 @@ void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
 void TinyRendererVisualShapeConverter::render()
 {
 
-    ATTRIBUTE_ALIGNED16(float viewMat[16]);
-    ATTRIBUTE_ALIGNED16(float projMat[16]);
-
-    m_data->m_camera.getCameraProjectionMatrix(projMat);
-    m_data->m_camera.getCameraViewMatrix(viewMat);
+    //ATTRIBUTE_ALIGNED16(float viewMat[16]);
+    //ATTRIBUTE_ALIGNED16(float projMat[16]);
+    //m_data->m_camera.getCameraProjectionMatrix(projMat);
+    //m_data->m_camera.getCameraViewMatrix(viewMat);
 
     B3_PROFILE("m_instancingRenderer render");
+    m_data->m_instancingRenderer->updateCamera();
     m_data->m_instancingRenderer->renderScene();
 
 }    
