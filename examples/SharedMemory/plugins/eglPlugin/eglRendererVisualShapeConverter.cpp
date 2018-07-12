@@ -166,6 +166,7 @@ struct TinyRendererVisualShapeConverterInternalData
             m_instancingRenderer->resize(m_swWidth,m_swHeight);
             m_instancingRenderer->InitShaders();
             m_instancingRenderer->setActiveCamera(&m_camera);
+            m_instancingRenderer->updateCamera();
             m_instancingRenderer->setLightPosition(m_lightDirection);
 	}
 	
@@ -875,6 +876,8 @@ void TinyRendererVisualShapeConverter::setUpAxis(int axis)
     m_data->m_upAxis = axis;
     m_data->m_camera.setCameraUpAxis(axis);
     m_data->m_camera.update();
+    m_data->m_instancingRenderer->updateCamera();
+
 }
 void TinyRendererVisualShapeConverter::resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)
 {
@@ -884,7 +887,7 @@ void TinyRendererVisualShapeConverter::resetCamera(float camDist, float yaw, flo
     m_data->m_camera.setCameraTargetPosition(camPosX,camPosY,camPosZ);
     m_data->m_camera.setAspectRatio((float)m_data->m_swWidth/(float)m_data->m_swHeight);
     m_data->m_camera.update();
-
+    m_data->m_instancingRenderer->updateCamera();
 }
 
 void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)

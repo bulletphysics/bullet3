@@ -25,10 +25,10 @@ p.loadSDF(path)
 
 start = time.time()
 
-plot = False
+plot = True
 try:
     for i in range(10):
-        hight, width, img_arr, deept_arr, obj_arr = p.getCameraImage(80,80)
+        hight, width, img_arr, deept_arr, obj_arr = p.getCameraImage(128,128)
         if plot:
             plt.imshow(img_arr[:,:,:3])
             plt.show()
