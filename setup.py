@@ -22,7 +22,7 @@ CXX_FLAGS += '-DBT_USE_DOUBLE_PRECISION '
 CXX_FLAGS += '-DBT_ENABLE_ENET '
 CXX_FLAGS += '-DBT_ENABLE_CLSOCKET '
 CXX_FLAGS += '-DB3_DUMP_PYTHON_VERSION '
-CXX_FLAGS += '-DBT_USE_EGL '  # uncomment for EGL (old EGL versions fail)
+#CXX_FLAGS += '-DBT_USE_EGL '  # uncomment for EGL (old EGL versions fail)
 
 
 # libraries += [current_python]
@@ -395,7 +395,7 @@ if _platform == "linux" or _platform == "linux2":
     sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
     +["examples/ThirdPartyLibs/glad/gl.c"]\
-    +["examples/ThirdPartyLibs/glad/glx_dyn.c"]
+    +["examples/ThirdPartyLibs/glad/glx.c"]
     include_dirs += ["examples/ThirdPartyLibs/optionalX11"]
     if 'BT_USE_EGL' in CXX_FLAGS:
         # linking with bullet's Glew libraries causes segfault
