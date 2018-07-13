@@ -47,6 +47,7 @@ static void printGLString(const char *name, GLenum s) {
   printf("%s = %s\n",name, v);
 }
 
+using namespace std;
 
 struct MyTexture2
 {
@@ -887,7 +888,6 @@ void TinyRendererVisualShapeConverter::resetCamera(float camDist, float yaw, flo
     m_data->m_camera.setCameraTargetPosition(camPosX,camPosY,camPosZ);
     m_data->m_camera.setAspectRatio((float)m_data->m_swWidth/(float)m_data->m_swHeight);
     m_data->m_camera.update();
-    m_data->m_instancingRenderer->updateCamera();
 }
 
 void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
@@ -908,37 +908,39 @@ void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
 
 void TinyRendererVisualShapeConverter::render()
 {
-
-    //ATTRIBUTE_ALIGNED16(float viewMat[16]);
-    //ATTRIBUTE_ALIGNED16(float projMat[16]);
-    //m_data->m_camera.getCameraProjectionMatrix(projMat);
-    //m_data->m_camera.getCameraViewMatrix(viewMat);
-
+    /*
+    ATTRIBUTE_ALIGNED16(float viewMat[16]);
+    ATTRIBUTE_ALIGNED16(float projMat[16]);
+    m_data->m_camera.getCameraProjectionMatrix(projMat);
+    m_data->m_camera.getCameraViewMatrix(viewMat);
+    cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
+    cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
+    cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
+    cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
+    */
     B3_PROFILE("m_instancingRenderer render");
+    m_data->m_instancingRenderer->setActiveCamera(&m_data->m_camera);
     m_data->m_instancingRenderer->updateCamera();
     m_data->m_instancingRenderer->renderScene();
-
-}    
-
-
-void TinyRendererVisualShapeConverter::syncTransform(int collisionObjectUniqueId, const btTransform& worldTransform, const btVector3& localScaling)
-{
-	TinyRendererObjectArray** renderObjPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
-	if (renderObjPtr)
-	{
-		TinyRendererObjectArray* renderObj = *renderObjPtr;
-		renderObj->m_worldTransform = worldTransform;
-		renderObj->m_localScaling = localScaling;
-	}
 }
-
 
 void TinyRendererVisualShapeConverter::render(const float viewMat[16], const float projMat[16])
 {
     // This code is very similar to that of
     // PhysicsServerCommandProcessor::processRequestCameraImageCommand
     // maybe code from there should be moved.
-    b3Error("not implemeted, use render()");
+
+    // Tiny allows rendering with viewMat, projMat explicitly, but
+    // GLInstancingRender calls m_activeCamera, so set this.
+    m_data->m_camera.setVRCamera(viewMat,projMat);
+    m_data->m_instancingRenderer->setActiveCamera(&m_data->m_camera);
+    m_data->m_instancingRenderer->updateCamera();
+    m_data->m_instancingRenderer->renderScene();
+
+    cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
+    cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
+    cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
+    cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
 }
 
 void TinyRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
@@ -1188,4 +1190,15 @@ int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename)
         return registerTexture(image, width, height);
     }
     return -1;
+}
+
+void TinyRendererVisualShapeConverter::syncTransform(int collisionObjectUniqueId, const btTransform& worldTransform, const btVector3& localScaling)
+{
+        TinyRendererObjectArray** renderObjPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+        if (renderObjPtr)
+        {
+                TinyRendererObjectArray* renderObj = *renderObjPtr;
+                renderObj->m_worldTransform = worldTransform;
+                renderObj->m_localScaling = localScaling;
+        }
 }
