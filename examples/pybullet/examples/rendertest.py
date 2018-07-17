@@ -19,8 +19,8 @@ pitch = -10.0
 roll=0
 upAxisIndex = 2
 camDistance = 4
-pixelWidth = 320
-pixelHeight = 200
+pixelWidth = 84 # 320
+pixelHeight = 84 # 200
 nearPlane = 0.01
 farPlane = 100
 fov = 60
@@ -57,7 +57,7 @@ class BulletSim():
     def __exit__(self,*_,**__):
         pybullet.disconnect()
 
-def test(num_runs=100, shadow=1, log=True, plot=False):
+def test(num_runs=300, shadow=1, log=True, plot=False):
     if log:
         logId = pybullet.startStateLogging(pybullet.STATE_LOGGING_PROFILE_TIMINGS, "renderTimings")
 
@@ -102,33 +102,45 @@ def test(num_runs=100, shadow=1, log=True, plot=False):
             #plt.show()
             plt.pause(0.01)
 
-    print("mean: {0} for {1} runs".format(np.mean(times), num_runs))
+    mean_time = float(np.mean(times))
+    print("mean: {0} for {1} runs".format(mean_time, num_runs))
     print("")
     if log:
         pybullet.stopStateLogging(logId)
+    return mean_time
 
 
 
 if __name__ == "__main__":
 
 
+    res = []
+
     with BulletSim(pybullet.DIRECT):
         print("\nTesting DIRECT")
-        test(log=False)
+        mean_time = test(log=False,plot=True)
+        res.append(("tiny",mean_time))
 
 
     with BulletSim(pybullet.DIRECT):
-        plugin_fn = '/home/argusm/lang/bullet3/build/lib.linux-x86_64-3.5/eglRenderer.cpython-35m-x86_64-linux-gnu.so'
+        plugin_fn = os.path.join(pybullet.__file__.split("bullet3")[0],"bullet3/build/lib.linux-x86_64-3.5/eglRenderer.cpython-35m-x86_64-linux-gnu.so")
         plugin = pybullet.loadPlugin(plugin_fn,"_tinyRendererPlugin")
         if plugin < 0:
             print("\nPlugin Failed to load!\n")
             sys.exit()
 
         print("\nTesting DIRECT+OpenGL")
-        test()
+        mean_time = test(log=True)
+        res.append(("plugin",mean_time))
 
     with BulletSim(pybullet.GUI):
         print("\nTesting GUI")
-        test(log=False)
+        mean_time = test(log=False)
+        res.append(("egl",mean_time))
 
+    print()
+    print("rendertest.py")
+    print("back nenv fps fps_tot")
+    for r in res:
+        print(r[0],"\t",1,round(r[1]),"\t",round(r[1]))
 

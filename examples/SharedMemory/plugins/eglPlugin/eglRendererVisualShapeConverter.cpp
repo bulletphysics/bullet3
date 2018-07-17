@@ -143,6 +143,8 @@ struct TinyRendererVisualShapeConverterInternalData
             ci.m_title = "Title";
             ci.m_width = m_swWidth;
             ci.m_height = m_swHeight;
+            ci.m_renderDevice = 0;
+
             m_window->createWindow(ci);
             m_window->setWindowTitle(ci.m_title);
             b3Assert(glGetError() ==GL_NO_ERROR);

@@ -42,18 +42,22 @@ class TestEnv(gym.Env):
         self._render_width = 84
         self._render_height = 84
         # connecting
-        if self._renderer == "tiny":
+        if self._renderer == "tiny" or self._renderer == "plugin":
             optionstring='--width={} --height={}'.format(self._render_width,self._render_height)
             p.connect(p.DIRECT, options=optionstring)
+
+            if self._renderer == "plugin":
+                plugin_fn = os.path.join(p.__file__.split("bullet3")[0],"bullet3/build/lib.linux-x86_64-3.5/eglRenderer.cpython-35m-x86_64-linux-gnu.so")
+                plugin = p.loadPlugin(plugin_fn,"_tinyRendererPlugin")
+                if plugin < 0:
+                    print("\nPlugin Failed to load! Try installing via `pip install -e .`\n")
+                    sys.exit()
+                print("plugin =",plugin)
 
         elif self._renderer == "egl":
             optionstring='--width={} --height={}'.format(self._render_width,self._render_height)
             optionstring += ' --window_backend=2 --render_device=0'
             p.connect(p.GUI, options=optionstring)
-            p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
-            p.configureDebugVisualizer(p.COV_ENABLE_SEGMENTATION_MARK_PREVIEW,0)
-            p.configureDebugVisualizer(p.COV_ENABLE_DEPTH_BUFFER_PREVIEW,0)
-            p.configureDebugVisualizer(p.COV_ENABLE_RGB_BUFFER_PREVIEW,0)
 
         elif self._renderer == "debug":
           #print("Connection: SHARED_MEMORY")
@@ -62,14 +66,11 @@ class TestEnv(gym.Env):
           cid =  p.connect(p.GUI)
           p.resetDebugVisualizerCamera(1.3,180,-41,[0.52,-0.2,-0.33])
 
-        elif self._renderer == "plugin":
-            p.connect(p.DIRECT)
-            plugin_fn = os.path.join(p.__file__.split("bullet3")[0],"bullet3/build/lib.linux-x86_64-3.5/eglRenderer.cpython-35m-x86_64-linux-gnu.so")
-            plugin = p.loadPlugin(plugin_fn,"_tinyRendererPlugin")
-            if plugin < 0:
-                print("\nPlugin Failed to load! Try installing via `pip install -e .`\n")
-                sys.exit()
-            print("plugin =",plugin)
+        p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+        p.configureDebugVisualizer(p.COV_ENABLE_SEGMENTATION_MARK_PREVIEW,0)
+        p.configureDebugVisualizer(p.COV_ENABLE_DEPTH_BUFFER_PREVIEW,0)
+        p.configureDebugVisualizer(p.COV_ENABLE_RGB_BUFFER_PREVIEW,0)
+
 
     def __del__(self):
         p.disconnect()
@@ -129,11 +130,13 @@ if __name__ == "__main__":
     env_id = "TestEnv"
     res = []
 
-    for renderer in ('plugin', 'tiny',  'egl'):
+    for renderer in ('tiny','plugin', 'egl'):
         for i in (1,8):
             tmp = train(env_id,num_env=i,renderer=renderer)
             print(renderer,tmp)
             res.append((renderer,tmp))
     print()
+    print("rendertest_sync.py")
+    print("back nenv fps fps_tot")
     for renderer,i in res:
-        print(renderer, i,i[0]*i[1])
+        print(renderer,'\t', i[0],round(i[1]),'\t',round(i[0]*i[1]))
