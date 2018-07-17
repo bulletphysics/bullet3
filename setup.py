@@ -515,7 +515,7 @@ egl_renderer_sources = \
 +["src/Bullet3Common/b3AlignedAllocator.cpp"] \
 +["examples/ThirdPartyLibs/glad/gl.c"]\
 +['examples/ThirdPartyLibs/glad/egl.c'] \
-+["examples/ThirdPartyLibs/glad/glx_dyn.c"] \
++["examples/ThirdPartyLibs/glad/glx.c"] \
 +["examples/OpenGLWindow/GLInstancingRenderer.cpp"]\
 +["examples/OpenGLWindow/EGLOpenGLWindow.cpp"]\
 +["examples/OpenGLWindow/GLRenderToTexture.cpp"] \
