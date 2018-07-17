@@ -2,12 +2,32 @@
 from setuptools import find_packages
 from sys import platform as _platform
 import sys
-import glob
+from glob import glob
 
 from distutils.core import setup
 from distutils.extension import Extension
 from distutils.util import get_platform
-from glob import glob
+
+
+# monkey-patch for parallel compilation
+import multiprocessing
+import multiprocessing.pool
+def parallelCCompile(self, sources, output_dir=None, macros=None, include_dirs=None, debug=0, extra_preargs=None, extra_postargs=None, depends=None):
+    # those lines are copied from distutils.ccompiler.CCompiler directly
+    macros, objects, extra_postargs, pp_opts, build = self._setup_compile(output_dir, macros, include_dirs, sources, depends, extra_postargs)
+    cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
+    # parallel code
+    N = 2*multiprocessing.cpu_count()# number of parallel compilations
+    def _single_compile(obj):
+        try: src, ext = build[obj]
+        except KeyError: return
+        self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+    # convert to list, imap is evaluated on-demand
+    list(multiprocessing.pool.ThreadPool(N).imap(_single_compile,objects))
+    return objects
+import distutils.ccompiler
+distutils.ccompiler.CCompiler.compile=parallelCCompile
+
 
 #see http://stackoverflow.com/a/8719066/295157
 import os
@@ -508,6 +528,8 @@ eglRender = Extension("eglRenderer",
         extra_compile_args=(CXX_FLAGS+'-DBT_USE_EGL -DSTB_AGAIN -DB3_DEBUG').split(),
         include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
      )
+
+
 setup(
 	name = 'pybullet',
 	version='2.1.3',

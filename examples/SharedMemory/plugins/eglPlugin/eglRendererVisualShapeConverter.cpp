@@ -937,10 +937,10 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     m_data->m_instancingRenderer->updateCamera();
     m_data->m_instancingRenderer->renderScene();
 
-    cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
-    cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
-    cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
-    cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
+    //cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
+    //cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
+    //cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
+    //cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
 }
 
 void TinyRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
@@ -998,7 +998,7 @@ void TinyRendererVisualShapeConverter::copyCameraImageDataGL(
                     // Copied from SimpleOpenGL3App::getScreenPixels
                     b3Assert((sourceWidth*sourceHeight*4) == rgbaBufferSizeInPixels);
                     //glClear(GL_COLOR_BUFFER_BIT);
-                    b3Warning("EGL\n");
+                    //b3Warning("EGL\n");
                     if ((sourceWidth*sourceHeight*4) == rgbaBufferSizeInPixels)  // remove this if
                     {
                         glReadPixels(0,0,sourceWidth, sourceHeight, GL_RGBA, GL_UNSIGNED_BYTE, &(sourceRgbaPixelBuffer[0]));

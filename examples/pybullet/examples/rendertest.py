@@ -37,7 +37,6 @@ class BulletSim():
         print("connecting")
         optionstring='--width={} --height={}'.format(pixelWidth,pixelHeight)
         optionstring += ' --window_backend=2 --render_device=0'
-        #optionstring += ' --window_backend=X11 --render_device=0'
 
         print(self.connection_mode, optionstring,*self.argv)
         cid = pybullet.connect(self.connection_mode, options=optionstring,*self.argv)
@@ -58,7 +57,10 @@ class BulletSim():
     def __exit__(self,*_,**__):
         pybullet.disconnect()
 
-def test(num_runs=100, shadow=1, plot=False):
+def test(num_runs=100, shadow=1, log=True, plot=False):
+    if log:
+        logId = pybullet.startStateLogging(pybullet.STATE_LOGGING_PROFILE_TIMINGS, "renderTimings")
+
     if plot:
         plt.ion()
 
@@ -102,39 +104,31 @@ def test(num_runs=100, shadow=1, plot=False):
 
     print("mean: {0} for {1} runs".format(np.mean(times), num_runs))
     print("")
+    if log:
+        pybullet.stopStateLogging(logId)
+
 
 
 if __name__ == "__main__":
 
-    '''
+
     with BulletSim(pybullet.DIRECT):
-        print("Testing DIRECT w/ shadow")
-        test()
+        print("\nTesting DIRECT")
+        test(log=False)
 
-        print("Testing DIRECT w/o shadow")
-        test(shadow=0)
+
+    with BulletSim(pybullet.DIRECT):
+        plugin_fn = '/home/argusm/lang/bullet3/build/lib.linux-x86_64-3.5/eglRenderer.cpython-35m-x86_64-linux-gnu.so'
+        plugin = pybullet.loadPlugin(plugin_fn,"_tinyRendererPlugin")
+        if plugin < 0:
+            print("\nPlugin Failed to load!\n")
+            sys.exit()
+
+        print("\nTesting DIRECT+OpenGL")
+        test()
 
     with BulletSim(pybullet.GUI):
-        print("Testing GUI")  # could have OpenGL?
-        test()
-
-        print("Testing GUI w/o shadow")  # could have OpenGL?
-        test(shadow=0)
+        print("\nTesting GUI")
+        test(log=False)
 
 
-    server_bin = "../../../build_cmake/examples/ExampleBrowser/App_ExampleBrowser"
-    server_f = lambda : subprocess.run([server_bin],shell=True)
-    server = Process(target=server_f)
-    #server.start()
-    '''
-    
-    with BulletSim(pybullet.GUI):
-        logId = pybullet.startStateLogging(pybullet.STATE_LOGGING_PROFILE_TIMINGS, "renderTimings")
-        print("Testing GUI")
-        test()
-
-        print("Testing GUI w/o shadow")
-        test(shadow=0)
-        pybullet.stopStateLogging(logId)
-		
-    #server.join()
