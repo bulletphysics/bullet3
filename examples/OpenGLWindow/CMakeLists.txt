@@ -47,6 +47,10 @@ IF(NOT WIN32 AND NOT APPLE)
         SET(OpenGLWindow_SRCS ${OpenGLWindowLinux_CPP}  ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/glx.c ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/gl.c ${OpenGLWindowCommon_CPP} )
 ENDIF()
 
+IF(BUILD_EGL)
+    SET(OpenGLWindow_SRCS ${OpenGLWindow_SRCS}  ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/egl.c)
+ENDIF(BUILD_EGL)
+
 
 
 ADD_LIBRARY(OpenGLWindow ${OpenGLWindow_SRCS} ${OpenGLWindow_HDRS})
