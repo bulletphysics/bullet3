@@ -49,9 +49,6 @@ ENDIF()
 
 IF(BUILD_EGL)
     SET(OpenGLWindow_SRCS ${OpenGLWindow_SRCS}  ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/egl.c)
-    IF(APPLE)
-        ADD_DEFINITIONS(-D__APPLE__)
-    ENDIF(APPLE)
 ENDIF(BUILD_EGL)
 
 
