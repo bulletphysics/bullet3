@@ -1,0 +1,17 @@
+FROM ubuntu:xenial
+
+RUN apt-get update -qq
+RUN apt-get install -y \
+    build-essential  \
+    clang \
+    cmake \
+    curl \
+    git \
+    libgl-dev \
+    libglu-dev \
+    libpython3-dev \
+    lsb-release \
+    pkg-config \
+    python3 \
+    software-properties-common \
+    sudo

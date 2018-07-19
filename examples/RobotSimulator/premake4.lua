@@ -1,66 +1,4 @@
 
-myfiles = 
-{
-			"../../examples/SharedMemory/IKTrajectoryHelper.cpp",
-			"../../examples/SharedMemory/IKTrajectoryHelper.h",
-			"../../examples/ExampleBrowser/InProcessExampleBrowser.cpp",
-			"../../examples/SharedMemory/InProcessMemory.cpp",
-			"../../examples/SharedMemory/PhysicsClient.cpp",
-			"../../examples/SharedMemory/PhysicsClient.h",
-			"../../examples/SharedMemory/PhysicsServer.cpp",
-			"../../examples/SharedMemory/PhysicsServer.h",
-			"../../examples/SharedMemory/PhysicsServerExample.cpp",
-			"../../examples/SharedMemory/PhysicsServerExampleBullet2.cpp",
-			"../../examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp",
-			"../../examples/SharedMemory/PhysicsServerSharedMemory.cpp",
-			"../../examples/SharedMemory/PhysicsServerSharedMemory.h",
-			"../../examples/SharedMemory/PhysicsDirect.cpp",
-			"../../examples/SharedMemory/PhysicsDirect.h",
-			"../../examples/SharedMemory/PhysicsDirectC_API.cpp",
-			"../../examples/SharedMemory/PhysicsDirectC_API.h",
-			"../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp",
-			"../../examples/SharedMemory/PhysicsServerCommandProcessor.h",
-			"../../examples/SharedMemory/b3PluginManager.cpp",
-
-			"../../examples/SharedMemory/PhysicsClientSharedMemory.cpp",
-			"../../examples/SharedMemory/PhysicsClientSharedMemory.h",
-			"../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.cpp",
-			"../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.h",
-			"../../examples/SharedMemory/PhysicsClientC_API.cpp",
-			"../../examples/SharedMemory/PhysicsClientC_API.h",
-			"../../examples/SharedMemory/Win32SharedMemory.cpp",
-			"../../examples/SharedMemory/Win32SharedMemory.h",
-			"../../examples/SharedMemory/PosixSharedMemory.cpp",
-			"../../examples/SharedMemory/PosixSharedMemory.h",
-			"../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
-			"../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
-			"../../examples/TinyRenderer/geometry.cpp",
-			"../../examples/TinyRenderer/model.cpp",
-			"../../examples/TinyRenderer/tgaimage.cpp",
-			"../../examples/TinyRenderer/our_gl.cpp",
-			"../../examples/TinyRenderer/TinyRenderer.cpp",
-			"../../examples/Utils/b3ResourcePath.cpp",
-			"../../examples/Utils/b3ResourcePath.h",
-			"../../examples/Utils/RobotLoggingUtil.cpp",
-			"../../examples/Utils/RobotLoggingUtil.h",
-			"../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
-			"../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp",
-			"../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.h",
-			"../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp",
-			"../../examples/Importers/ImportObjDemo/LoadMeshFromObj.cpp",
-			"../../examples/Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp",
-			"../../examples/Importers/ImportMJCFDemo/BulletMJCFImporter.cpp",
-			"../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp",
-			"../../examples/Importers/ImportURDFDemo/MyMultiBodyCreator.cpp",
-			"../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp",
-			"../../examples/Importers/ImportURDFDemo/UrdfParser.cpp",
-			"../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp",
-			"../../examples/MultiThreading/b3PosixThreadSupport.cpp",
-			"../../examples/MultiThreading/b3Win32ThreadSupport.cpp",
-			"../../examples/MultiThreading/b3ThreadSupportInterface.cpp",
-			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
-			"../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",
-}
 
 project ("App_RobotSimulator")
 
@@ -71,9 +9,8 @@ project ("App_RobotSimulator")
 		"../../examples/ThirdPartyLibs"}
 		defines {"B3_USE_ROBOTSIM_GUI", "PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
 
-	hasCL = findOpenCL("clew")
 
-	links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletFileLoader","BulletWorldImporter","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK","Bullet3Common"}
+	links{"BulletRobotics", "BulletExampleBrowserLib", "gwen", "OpenGL_Window","BulletFileLoader","BulletWorldImporter","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
 	initOpenGL()
 	initGlew()
 
@@ -88,17 +25,6 @@ project ("App_RobotSimulator")
 	if os.is("MacOSX") then
 		links{"Cocoa.framework"}
 	end
-
-		if (hasCL) then
-			links {
-				"Bullet3OpenCL_clew",
-				"Bullet3Dynamics",
-				"Bullet3Collision",
-				"Bullet3Geometry",
-				"Bullet3Common",
-			}
-		end
-
 
 
 if not _OPTIONS["no-enet"] then
@@ -191,11 +117,12 @@ if not _OPTIONS["no-enet"] then
 			"RobotSimulatorMain.cpp",
 			"b3RobotSimulatorClientAPI.cpp",
 			"b3RobotSimulatorClientAPI.h",
-			"b3RobotSimulatorClientAPI_NoGUI.cpp",
-			"b3RobotSimulatorClientAPI_NoGUI.h",
 			"MinitaurSetup.cpp",
 			"MinitaurSetup.h",
-			myfiles
+			"../../examples/ExampleBrowser/InProcessExampleBrowser.cpp",
+			"../../examples/SharedMemory/PhysicsServerExample.cpp",
+			"../../examples/SharedMemory/PhysicsServerExampleBullet2.cpp",
+			"../../examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp",
 		}
 
 if (_OPTIONS["enable_static_vr_plugin"]) then
@@ -220,7 +147,7 @@ project ("App_VRGloveHandSimulator")
 
 	hasCL = findOpenCL("clew")
 
-	links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletFileLoader","BulletWorldImporter","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK","Bullet3Common"}
+	links{"BulletRobotics", "BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletFileLoader","BulletWorldImporter","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK","Bullet3Common"}
 	initOpenGL()
 	initGlew()
 
@@ -283,9 +210,7 @@ project ("App_VRGloveHandSimulator")
 			"VRGloveSimulatorMain.cpp",
 			"b3RobotSimulatorClientAPI.cpp",
 			"b3RobotSimulatorClientAPI.h",
-			"b3RobotSimulatorClientAPI_NoGUI.cpp",
-			"b3RobotSimulatorClientAPI_NoGUI.h",
-			myfiles
+			
 		}
 
 if (_OPTIONS["enable_static_vr_plugin"]) then
@@ -296,3 +221,69 @@ end
        		initX11()
 	end
 end
+
+
+project ("App_HelloBulletRobotics")
+
+	language "C++"
+	kind "ConsoleApp"
+
+	links{"BulletRobotics","BulletFileLoader","BulletWorldImporter","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
+	
+  includedirs {
+                ".",
+                "../../src",
+                "../../examples/SharedMemory",
+                "../ThirdPartyLibs",
+                }
+
+if not _OPTIONS["no-enet"] then
+
+		includedirs {"../../examples/ThirdPartyLibs/enet/include"}
+	
+		if os.is("Windows") then 
+			defines { "WIN32" }
+			links {"Ws2_32","Winmm"}
+		end
+		if os.is("Linux") then
+		end
+		if os.is("MacOSX") then
+		end		
+		links {"enet"}		
+		defines {"BT_ENABLE_ENET"}
+	end
+
+	if not _OPTIONS["no-clsocket"] then
+
+		includedirs {"../../examples/ThirdPartyLibs/clsocket/src"}
+
+		if os.is("Windows") then
+    		defines { "WIN32" }
+        links {"Ws2_32","Winmm"}
+    end
+    if os.is("Linux") then
+    	defines {"_LINUX"}
+    end
+		if os.is("MacOSX") then
+    	defines {"_DARWIN"}
+		end
+
+		links {"clsocket"}
+    defines {"BT_ENABLE_CLSOCKET"}
+	end
+
+	if os.is("MacOSX") then
+		links{"Cocoa.framework"}
+	end
+
+	
+	if os.is("Linux") then initX11()
+                     links {"pthread"}
+        end
+
+	
+		files {
+			 "HelloBulletRobotics.cpp"
+		}
+
+

@@ -29,7 +29,7 @@ struct MyClass
 	}
 };
 
-B3_SHARED_API int initPlugin(struct b3PluginContext* context)
+B3_SHARED_API int initPlugin_testPlugin(struct b3PluginContext* context)
 {
 	MyClass* obj = new MyClass();
 	context->m_userPointer = obj;
@@ -39,67 +39,23 @@ B3_SHARED_API int initPlugin(struct b3PluginContext* context)
 }
 
 
-B3_SHARED_API int preTickPluginCallback(struct b3PluginContext* context)
+B3_SHARED_API int preTickPluginCallback_testPlugin(struct b3PluginContext* context)
 {
-	MyClass* obj = (MyClass* )context->m_userPointer;
 	
-	{
-		b3SharedMemoryCommandHandle commandHandle = b3RequestVREventsCommandInit(context->m_physClient);
-		int deviceTypeFilter = VR_DEVICE_CONTROLLER;
-		b3VREventsSetDeviceTypeFilter(commandHandle, deviceTypeFilter);
-
-		b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(context->m_physClient, commandHandle);
-		int statusType = b3GetStatusType(statusHandle);
-		if (statusType == CMD_REQUEST_VR_EVENTS_DATA_COMPLETED)
-		{
-			struct b3VREventsData vrEvents;
-		
-			int i = 0;
-			b3GetVREventsData(context->m_physClient, &vrEvents);
-			if (vrEvents.m_numControllerEvents)
-			{
-				//this is only for a test, normally you wouldn't print to the console at each simulation substep!
-				printf("got %d VR controller events!\n", vrEvents.m_numControllerEvents);
-			}
-		}
-	}
-	{
-		b3KeyboardEventsData keyboardEventsData;
-		b3SharedMemoryCommandHandle	commandHandle = b3RequestKeyboardEventsCommandInit(context->m_physClient);
-		b3SubmitClientCommandAndWaitStatus(context->m_physClient, commandHandle);
-		b3GetKeyboardEventsData(context->m_physClient, &keyboardEventsData);
-		if (keyboardEventsData.m_numKeyboardEvents)
-		{
-			//this is only for a test, normally you wouldn't print to the console at each simulation substep!
-			printf("got %d keyboard events\n", keyboardEventsData.m_numKeyboardEvents);
-		}
-	}
-
-	{
-		b3MouseEventsData mouseEventsData;
-		b3SharedMemoryCommandHandle commandHandle = b3RequestMouseEventsCommandInit(context->m_physClient);
-		b3SubmitClientCommandAndWaitStatus(context->m_physClient, commandHandle);
-		b3GetMouseEventsData(context->m_physClient, &mouseEventsData);
-		if (mouseEventsData.m_numMouseEvents)
-		{
-			//this is only for a test, normally you wouldn't print to the console at each simulation substep!
-			printf("got %d mouse events\n", mouseEventsData.m_numMouseEvents);
-		}
-	}
-
 	return 0;
 }
 
 
-B3_SHARED_API int postTickPluginCallback(struct b3PluginContext* context)
+B3_SHARED_API int postTickPluginCallback_testPlugin(struct b3PluginContext* context)
 {
 	MyClass* obj = (MyClass* )context->m_userPointer;
 	obj->m_testData++;
 	return 0;
 }
 
-B3_SHARED_API int executePluginCommand(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
+B3_SHARED_API int executePluginCommand_testPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
 {
+	
 	printf("text argument:%s\n",arguments->m_text);
 	printf("int args: [");
 	for (int i=0;i<arguments->m_numInts;i++)
@@ -140,7 +96,7 @@ B3_SHARED_API int executePluginCommand(struct b3PluginContext* context, const st
 }
 
 
-B3_SHARED_API void exitPlugin(struct b3PluginContext* context)
+B3_SHARED_API void exitPlugin_testPlugin(struct b3PluginContext* context)
 {
 	MyClass* obj = (MyClass*) context->m_userPointer;
 	delete obj;

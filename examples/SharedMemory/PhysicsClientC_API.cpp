@@ -611,8 +611,14 @@ B3_SHARED_API	int b3PhysicsParamSetContactSlop(b3SharedMemoryCommandHandle comma
 	return 0;
 }
 
-
-
+B3_SHARED_API	int b3PhysicsParameterSetEnableSAT(b3SharedMemoryCommandHandle commandHandle, int enableSAT)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_enableSAT = enableSAT;
+	command->m_updateFlags |= SIM_PARAM_ENABLE_SAT;
+	return 0;
+}
 
 B3_SHARED_API int b3PhysicsParamSetCollisionFilterMode(b3SharedMemoryCommandHandle commandHandle, int filterMode)
 {
@@ -2437,8 +2443,16 @@ B3_SHARED_API	int b3ChangeDynamicsInfoSetContactProcessingThreshold(b3SharedMemo
 	return 0;
 }
 
-
-
+B3_SHARED_API	int b3ChangeDynamicsInfoSetActivationState(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int activationState)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = -1;
+	command->m_changeDynamicsInfoArgs.m_activationState = activationState;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE;
+	return 0;
+}
 
 
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyUniqueId, int parentJointIndex, int childBodyUniqueId, int childJointIndex, struct b3JointInfo* info)
@@ -2722,13 +2736,18 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3CreateRaycastCommandInit(b3PhysicsCl
     struct SharedMemoryCommand *command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
     command->m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS;
-	command->m_requestRaycastIntersections.m_numRays = 1;
-	command->m_requestRaycastIntersections.m_rayFromPositions[0][0] = rayFromWorldX;
-	command->m_requestRaycastIntersections.m_rayFromPositions[0][1] = rayFromWorldY;
-	command->m_requestRaycastIntersections.m_rayFromPositions[0][2] = rayFromWorldZ;
-	command->m_requestRaycastIntersections.m_rayToPositions[0][0] = rayToWorldX;
-	command->m_requestRaycastIntersections.m_rayToPositions[0][1] = rayToWorldY;
-	command->m_requestRaycastIntersections.m_rayToPositions[0][2] = rayToWorldZ;
+	command->m_requestRaycastIntersections.m_numCommandRays = 1;
+	command->m_requestRaycastIntersections.m_numStreamingRays = 0;
+	command->m_requestRaycastIntersections.m_numThreads = 1;
+	
+	command->m_requestRaycastIntersections.m_numCommandRays = 1;
+	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayFromPosition[0] = rayFromWorldX;
+	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayFromPosition[1] = rayFromWorldY;
+	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayFromPosition[2] = rayFromWorldZ;
+
+	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayToPosition[0] = rayToWorldX;
+	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayToPosition[1] = rayToWorldY;
+	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayToPosition[2] = rayToWorldZ;
 
     return (b3SharedMemoryCommandHandle)command;
 }
@@ -2742,8 +2761,17 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3CreateRaycastBatchCommandInit(b3Phys
     b3Assert(command);
     command->m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS;
 	command->m_updateFlags = 0;
-	command->m_requestRaycastIntersections.m_numRays = 0;
+	command->m_requestRaycastIntersections.m_numCommandRays = 0;
+	command->m_requestRaycastIntersections.m_numStreamingRays = 0;
+	command->m_requestRaycastIntersections.m_numThreads = 1;
 	return (b3SharedMemoryCommandHandle)command;
+}
+
+B3_SHARED_API  void b3RaycastBatchSetNumThreads(b3SharedMemoryCommandHandle commandHandle, int numThreads) {
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
+	command->m_requestRaycastIntersections.m_numThreads = numThreads;
 }
 
 B3_SHARED_API void b3RaycastBatchAddRay(b3SharedMemoryCommandHandle commandHandle, const double rayFromWorld[3], const double rayToWorld[3])
@@ -2753,19 +2781,37 @@ B3_SHARED_API void b3RaycastBatchAddRay(b3SharedMemoryCommandHandle commandHandl
 	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
 	if (command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS)
 	{
-		int numRays = command->m_requestRaycastIntersections.m_numRays;
+		int numRays = command->m_requestRaycastIntersections.m_numCommandRays;
 		if (numRays<MAX_RAY_INTERSECTION_BATCH_SIZE)
 		{
-			command->m_requestRaycastIntersections.m_rayFromPositions[numRays][0] = rayFromWorld[0];
-			command->m_requestRaycastIntersections.m_rayFromPositions[numRays][1] = rayFromWorld[1];
-			command->m_requestRaycastIntersections.m_rayFromPositions[numRays][2] = rayFromWorld[2];
-			command->m_requestRaycastIntersections.m_rayToPositions[numRays][0] = rayToWorld[0];
-			command->m_requestRaycastIntersections.m_rayToPositions[numRays][1] = rayToWorld[1];
-			command->m_requestRaycastIntersections.m_rayToPositions[numRays][2] = rayToWorld[2];
-			command->m_requestRaycastIntersections.m_numRays++;
+			command->m_requestRaycastIntersections.m_fromToRays[numRays].m_rayFromPosition[0] = rayFromWorld[0];
+			command->m_requestRaycastIntersections.m_fromToRays[numRays].m_rayFromPosition[1] = rayFromWorld[1];
+			command->m_requestRaycastIntersections.m_fromToRays[numRays].m_rayFromPosition[2] = rayFromWorld[2];
+
+			command->m_requestRaycastIntersections.m_fromToRays[numRays].m_rayToPosition[0] = rayToWorld[0];
+			command->m_requestRaycastIntersections.m_fromToRays[numRays].m_rayToPosition[1] = rayToWorld[1];
+			command->m_requestRaycastIntersections.m_fromToRays[numRays].m_rayToPosition[2] = rayToWorld[2];
+
+			command->m_requestRaycastIntersections.m_numCommandRays++;
 		}
 	}
 }
+
+B3_SHARED_API	void b3RaycastBatchAddRays(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
+	b3Assert(numRays<MAX_RAY_INTERSECTION_BATCH_SIZE_STREAMING);
+	if (command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS)
+	{
+		cl->uploadRaysToSharedMemory(*command, rayFromWorldArray, rayToWorldArray, numRays);
+	}
+}
+
 
 
 B3_SHARED_API void b3GetRaycastInformation(b3PhysicsClientHandle physClient, struct b3RaycastInformation* raycastInfo)
@@ -2802,7 +2848,7 @@ B3_SHARED_API  b3SharedMemoryCommandHandle b3InitSyncUserDataCommand(b3PhysicsCl
 	return (b3SharedMemoryCommandHandle) command;
 }
 
-B3_SHARED_API  b3SharedMemoryCommandHandle b3InitAddUserDataCommand(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, const char* key, UserDataValueType valueType, int valueLength, const void *valueData) {
+B3_SHARED_API  b3SharedMemoryCommandHandle b3InitAddUserDataCommand(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int visualShapeIndex, const char* key, UserDataValueType valueType, int valueLength, const void *valueData) {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
 	b3Assert(strlen(key) < MAX_USER_DATA_KEY_LENGTH);
 	b3Assert(cl);
@@ -2814,6 +2860,7 @@ B3_SHARED_API  b3SharedMemoryCommandHandle b3InitAddUserDataCommand(b3PhysicsCli
 	command->m_type = CMD_ADD_USER_DATA;
 	command->m_addUserDataRequestArgs.m_bodyUniqueId = bodyUniqueId;
 	command->m_addUserDataRequestArgs.m_linkIndex = linkIndex;
+	command->m_addUserDataRequestArgs.m_visualShapeIndex = visualShapeIndex;
 	command->m_addUserDataRequestArgs.m_valueType = valueType;
 	command->m_addUserDataRequestArgs.m_valueLength = valueLength;
 	strcpy(command->m_addUserDataRequestArgs.m_key, key);
@@ -2822,7 +2869,7 @@ B3_SHARED_API  b3SharedMemoryCommandHandle b3InitAddUserDataCommand(b3PhysicsCli
 	return (b3SharedMemoryCommandHandle) command;
 }
 
-B3_SHARED_API  b3SharedMemoryCommandHandle b3InitRemoveUserDataCommand(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int userDataId) {
+B3_SHARED_API  b3SharedMemoryCommandHandle b3InitRemoveUserDataCommand(b3PhysicsClientHandle physClient, int userDataId) {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
 	b3Assert(cl);
 	b3Assert(cl->canSubmitCommand());
@@ -2830,29 +2877,27 @@ B3_SHARED_API  b3SharedMemoryCommandHandle b3InitRemoveUserDataCommand(b3Physics
 	b3Assert(command);
 
 	command->m_type = CMD_REMOVE_USER_DATA;
-	command->m_removeUserDataRequestArgs.m_bodyUniqueId = bodyUniqueId;
-	command->m_removeUserDataRequestArgs.m_linkIndex = linkIndex;
 	command->m_removeUserDataRequestArgs.m_userDataId = userDataId;
 
 	return (b3SharedMemoryCommandHandle) command;
 }
 
-B3_SHARED_API int b3GetUserData(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int userDataId, struct b3UserDataValue *valueOut)
+B3_SHARED_API int b3GetUserData(b3PhysicsClientHandle physClient, int userDataId, struct b3UserDataValue *valueOut)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	if (cl)
 	{
-		return cl->getCachedUserData(bodyUniqueId, linkIndex, userDataId, *valueOut);
+		return cl->getCachedUserData(userDataId, *valueOut);
 	}
 	return false;
 }
 
-B3_SHARED_API int b3GetUserDataId(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, const char *key)
+B3_SHARED_API int b3GetUserDataId(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int visualShapeIndex, const char *key)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	if (cl)
 	{
-		return cl->getCachedUserDataId(bodyUniqueId, linkIndex, key);
+		return cl->getCachedUserDataId(bodyUniqueId, linkIndex, visualShapeIndex, key);
 	}
 	return -1;
 }
@@ -2863,27 +2908,27 @@ B3_SHARED_API int b3GetUserDataIdFromStatus(b3SharedMemoryStatusHandle statusHan
 	if (status)
 	{
 		btAssert(status->m_type == CMD_ADD_USER_DATA_COMPLETED);
-		return status->m_userDataResponseArgs.m_userDataGlobalId.m_userDataId;
+		return status->m_userDataResponseArgs.m_userDataId;
 	}
 	return -1;
 }
 
-B3_SHARED_API int b3GetNumUserData(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex)
+B3_SHARED_API int b3GetNumUserData(b3PhysicsClientHandle physClient, int bodyUniqueId)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	if (cl)
 	{
-		return cl->getNumUserData(bodyUniqueId, linkIndex);
+		return cl->getNumUserData(bodyUniqueId);
 	}
 	return 0;
 }
 
-B3_SHARED_API void b3GetUserDataInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int userDataIndex, const char **keyOut, int *userDataIdOut)
+B3_SHARED_API void b3GetUserDataInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int userDataIndex, const char **keyOut, int *userDataIdOut, int *linkIndexOut, int *visualShapeIndexOut)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	if (cl)
 	{
-		cl->getUserDataInfo(bodyUniqueId, linkIndex, userDataIndex, keyOut, userDataIdOut);
+		cl->getUserDataInfo(bodyUniqueId, userDataIndex, keyOut, userDataIdOut, linkIndexOut, visualShapeIndexOut);
 	}
 }
 
@@ -3017,7 +3062,6 @@ B3_SHARED_API void b3UserDebugItemSetReplaceItemUniqueId(b3SharedMemoryCommandHa
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
 	b3Assert(command->m_type == CMD_USER_DEBUG_DRAW);
-	b3Assert(command->m_updateFlags & USER_DEBUG_HAS_TEXT);
 	command->m_userDebugDrawArgs.m_replaceItemUniqueId = replaceItemUniqueId;
 	command->m_updateFlags |= USER_DEBUG_HAS_REPLACE_ITEM_UNIQUE_ID;
 }
@@ -4409,6 +4453,21 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3ProfileTimingCommandInit(b3PhysicsCl
 	command->m_profile.m_durationInMicroSeconds = 0;
 	return (b3SharedMemoryCommandHandle)command;
 }
+
+B3_SHARED_API	void b3PushProfileTiming(b3PhysicsClientHandle physClient, const char* timingName)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	cl->pushProfileTiming(timingName);
+}
+
+B3_SHARED_API	void b3PopProfileTiming(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	cl->popProfileTiming();
+}
+
 
 B3_SHARED_API void b3SetProfileTimingDuractionInMicroSeconds(b3SharedMemoryCommandHandle commandHandle, int duration)
 {

@@ -119,8 +119,8 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createRevoluteJoint(in
             dof6->setLinearLowerLimit(btVector3(0,0,0));
             dof6->setLinearUpperLimit(btVector3(0,0,0));
 
-            dof6->setAngularUpperLimit(btVector3(-1,0,0));
-            dof6->setAngularLowerLimit(btVector3(1,0,0));
+            dof6->setAngularLowerLimit(btVector3(jointLowerLimit,0,0));
+			dof6->setAngularUpperLimit(btVector3(jointUpperLimit,0,0));
 
             break;
         }
@@ -130,8 +130,9 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createRevoluteJoint(in
             dof6->setLinearLowerLimit(btVector3(0,0,0));
             dof6->setLinearUpperLimit(btVector3(0,0,0));
 
-            dof6->setAngularUpperLimit(btVector3(0,-1,0));
-            dof6->setAngularLowerLimit(btVector3(0,1,0));
+            
+            dof6->setAngularLowerLimit(btVector3(0,jointLowerLimit,0));
+			dof6->setAngularUpperLimit(btVector3(0,jointUpperLimit,0));
             break;
         }
         case 2:
@@ -141,8 +142,9 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createRevoluteJoint(in
             dof6->setLinearLowerLimit(btVector3(0,0,0));
             dof6->setLinearUpperLimit(btVector3(0,0,0));
 
-            dof6->setAngularUpperLimit(btVector3(0,0,-1));
-            dof6->setAngularLowerLimit(btVector3(0,0,1));
+            
+            dof6->setAngularLowerLimit(btVector3(0,0,jointLowerLimit));
+			dof6->setAngularUpperLimit(btVector3(0,0,jointUpperLimit));
 
         }
     };

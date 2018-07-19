@@ -103,6 +103,8 @@ if not _OPTIONS["no-enet"] then
 			"../../examples/TinyRenderer/our_gl.cpp",
 			"../../examples/TinyRenderer/TinyRenderer.cpp",
 			"../../examples/SharedMemory/InProcessMemory.cpp",
+			"../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp",
+			"../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.h",
 			"../../examples/SharedMemory/PhysicsClient.cpp",
 			"../../examples/SharedMemory/PhysicsClient.h",
 			"../../examples/SharedMemory/PhysicsServer.cpp",
@@ -153,6 +155,8 @@ if not _OPTIONS["no-enet"] then
 			"../../examples/MultiThreading/b3PosixThreadSupport.cpp",
 			"../../examples/MultiThreading/b3Win32ThreadSupport.cpp",
 			"../../examples/MultiThreading/b3ThreadSupportInterface.cpp",
+			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",
+			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
 			}
 			
 if (_OPTIONS["enable_static_vr_plugin"]) then

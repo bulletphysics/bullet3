@@ -21,6 +21,7 @@ subject to the following restrictions:
 #include "btSequentialImpulseConstraintSolver.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 
+
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btCpuFeatureUtility.h"
 
@@ -780,8 +781,13 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
     }
     else
     {
+		bool isMultiBodyType = (body.getInternalType()&btCollisionObject::CO_FEATHERSTONE_LINK);
         // Incorrectly set collision object flags can degrade performance in various ways.
-        btAssert( body.isStaticOrKinematicObject() );
+		if (!isMultiBodyType)
+		{
+			btAssert( body.isStaticOrKinematicObject() );
+		}
+        //it could be a multibody link collider
         // all fixed bodies (inf mass) get mapped to a single solver id
         if ( m_fixedBodyId < 0 )
         {

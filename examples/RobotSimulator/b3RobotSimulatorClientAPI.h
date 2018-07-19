@@ -1,7 +1,7 @@
 #ifndef B3_ROBOT_SIMULATOR_CLIENT_API_GUI_H
 #define B3_ROBOT_SIMULATOR_CLIENT_API_GUI_H
 
-#include "b3RobotSimulatorClientAPI_NoGUI.h"
+#include "../SharedMemory/b3RobotSimulatorClientAPI_NoGUI.h"
 
 
 ///The b3RobotSimulatorClientAPI_GUI is pretty much the C++ version of pybullet

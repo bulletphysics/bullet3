@@ -140,9 +140,15 @@ void PhysicsLoopBack::setSharedMemoryKey(int key)
 	m_data->m_physicsClient->setSharedMemoryKey(key);
 }
 
+
 void PhysicsLoopBack::uploadBulletFileToSharedMemory(const char* data, int len)
 {
 	m_data->m_physicsClient->uploadBulletFileToSharedMemory(data,len);
+}
+
+void PhysicsLoopBack::uploadRaysToSharedMemory(struct SharedMemoryCommand& command, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays)
+{
+	m_data->m_physicsClient->uploadRaysToSharedMemory(command, rayFromWorldArray, rayToWorldArray, numRays);
 }
 
 int PhysicsLoopBack::getNumDebugLines() const
@@ -225,19 +231,27 @@ double PhysicsLoopBack::getTimeOut() const
 	return m_data->m_physicsClient->getTimeOut();
 }
 
-bool PhysicsLoopBack::getCachedUserData(int bodyUniqueId, int linkIndex, int userDataId, struct b3UserDataValue &valueOut) const {
-	return m_data->m_physicsClient->getCachedUserData(bodyUniqueId, linkIndex, userDataId, valueOut);
+bool PhysicsLoopBack::getCachedUserData(int userDataId, struct b3UserDataValue &valueOut)  const {
+	return m_data->m_physicsClient->getCachedUserData(userDataId, valueOut);
 }
 
-int PhysicsLoopBack::getCachedUserDataId(int bodyUniqueId, int linkIndex, const char *key) const {
-	return m_data->m_physicsClient->getCachedUserDataId(bodyUniqueId, linkIndex, key);
+int PhysicsLoopBack::getCachedUserDataId(int bodyUniqueId, int linkIndex, int visualShapeIndex, const char *key) const {
+	return m_data->m_physicsClient->getCachedUserDataId(bodyUniqueId, linkIndex, visualShapeIndex, key);
 }
 
-int PhysicsLoopBack::getNumUserData(int bodyUniqueId, int linkIndex) const {
-	return m_data->m_physicsClient->getNumUserData(bodyUniqueId, linkIndex);
+int PhysicsLoopBack::getNumUserData(int bodyUniqueId) const {
+	return m_data->m_physicsClient->getNumUserData(bodyUniqueId);
 }
 
-void PhysicsLoopBack::getUserDataInfo(int bodyUniqueId, int linkIndex, int userDataIndex, const char **keyOut, int *userDataIdOut) const {
-	m_data->m_physicsClient->getUserDataInfo(bodyUniqueId, linkIndex, userDataIndex, keyOut, userDataIdOut);
+void PhysicsLoopBack::getUserDataInfo(int bodyUniqueId, int userDataIndex, const char **keyOut, int *userDataIdOut, int *linkIndexOut, int *visualShapeIndexOut) const {
+	m_data->m_physicsClient->getUserDataInfo(bodyUniqueId, userDataIndex, keyOut, userDataIdOut, linkIndexOut, visualShapeIndexOut);
 }
 
+void PhysicsLoopBack::pushProfileTiming(const char* timingName)
+{
+	m_data->m_physicsClient->pushProfileTiming(timingName);
+}
+void PhysicsLoopBack::popProfileTiming()
+{
+	m_data->m_physicsClient->popProfileTiming();
+}

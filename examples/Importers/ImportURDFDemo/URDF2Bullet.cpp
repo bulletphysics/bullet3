@@ -333,11 +333,12 @@ void ConvertURDF2BulletInternal(
 
         btRigidBody* linkRigidBody = 0;
         btTransform inertialFrameInWorldSpace = linkTransformInWorldSpace*localInertialFrame;
+		bool canSleep = (flags & CUF_ENABLE_SLEEPING)!=0;
 
         if (!createMultiBody)
         {
             btRigidBody* body = creation.allocateRigidBody(urdfLinkIndex, mass, localInertiaDiagonal, inertialFrameInWorldSpace, compoundShape);
-			bool canSleep = (flags & CUF_ENABLE_SLEEPING)!=0;
+			
 			if (!canSleep)
 			{
 				body->forceActivationState(DISABLE_DEACTIVATION);
@@ -365,7 +366,7 @@ void ConvertURDF2BulletInternal(
             if (cache.m_bulletMultiBody==0)
             {
                 
-                bool canSleep = (flags & CUF_ENABLE_SLEEPING)!=0;
+                
                 bool isFixedBase = (mass==0);//todo: figure out when base is fixed
                 int totalNumJoints = cache.m_totalNumJoints1;
                 cache.m_bulletMultiBody = creation.allocateMultiBody(urdfLinkIndex, totalNumJoints,mass, localInertiaDiagonal, isFixedBase, canSleep);
@@ -461,14 +462,28 @@ void ConvertURDF2BulletInternal(
                     {
 
 						btGeneric6DofSpring2Constraint* dof6  = 0;
-						//backwards compatibility
-						if (flags & CUF_RESERVED )
+						if (jointType == URDFRevoluteJoint && jointLowerLimit <= jointUpperLimit)
 						{
-							dof6 = creation.createRevoluteJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+							//backwards compatibility
+							if (flags & CUF_RESERVED )
+							{
+								dof6 = creation.createRevoluteJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+							} else
+							{
+								dof6 = creation.createRevoluteJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody, offsetInB, offsetInA,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+							}
 						} else
 						{
-							dof6 = creation.createRevoluteJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody, offsetInB, offsetInA,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+							//disable joint limits
+							if (flags & CUF_RESERVED )
+							{
+								dof6 = creation.createRevoluteJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB,jointAxisInJointSpace,1,-1);
+							} else
+							{
+								dof6 = creation.createRevoluteJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody, offsetInB, offsetInA,jointAxisInJointSpace,1,-1);
+							}
 						}
+						
 						if (enableConstraints)
                                     world1->addConstraint(dof6,true);
                         //b3Printf("Revolute/Continuous joint\n");
@@ -595,11 +610,16 @@ void ConvertURDF2BulletInternal(
 					}
                 } else
                 {
-					//todo: fix the crash it can cause
-					//if (cache.m_bulletMultiBody->getBaseMass()==0)
-					//{
-					//	col->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);//:CF_STATIC_OBJECT);
-					//}
+					if (canSleep)
+					{
+						if (cache.m_bulletMultiBody->getBaseMass()==0 && cache.m_bulletMultiBody->getNumDofs()==0)
+						{
+							//col->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+							col->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+						}
+					}
+					
+					
                     cache.m_bulletMultiBody->setBaseCollider(col);
                 }
             }

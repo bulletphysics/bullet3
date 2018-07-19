@@ -1,7 +1,7 @@
 #include "b3RobotSimulatorClientAPI.h"
 
 #include "../SharedMemory/PhysicsClientC_API.h"
-#include "b3RobotSimulatorClientAPI_InternalData.h"
+#include "../SharedMemory/b3RobotSimulatorClientAPI_InternalData.h"
 #ifdef BT_ENABLE_ENET
 #include "../SharedMemory/PhysicsClientUDP_C_API.h"
 #endif  //PHYSICS_UDP
@@ -96,7 +96,6 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 	int udpPort = 1234;
 	int tcpPort = 6667;
 	int key = SHARED_MEMORY_KEY;
-	bool connected = false;
 
 	switch (mode)
 	{

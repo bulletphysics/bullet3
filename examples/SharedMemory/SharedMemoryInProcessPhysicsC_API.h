@@ -19,6 +19,8 @@ B3_SHARED_API	b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMain
 B3_SHARED_API	b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(void* guiHelperPtr);
 //create a shared memory physics server, with a DummyGUIHelper (no graphics)
 B3_SHARED_API    b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect2(void* guiHelperPtr);
+//create a shared memory physics server, with a DummyGUIHelper (no graphics) and allow to set shared memory key
+B3_SHARED_API    b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect3(void* guiHelperPtr, int sharedMemoryKey);
 
 ///ignore the following APIs, they are for internal use for example browser
 void b3InProcessRenderSceneInternal(b3PhysicsClientHandle clientHandle);

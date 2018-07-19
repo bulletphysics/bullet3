@@ -151,7 +151,9 @@ public:
             }
             // compute body position and orientation
 			b3LinkState linkState;
-            m_robotSim.getLinkState(0, 6, &linkState);
+			bool computeVelocity=true;
+			bool computeForwardKinematics=true;
+            m_robotSim.getLinkState(0, 6, computeVelocity,computeForwardKinematics, &linkState);
 			
 			m_worldPos.setValue(linkState.m_worldLinkFramePosition[0], linkState.m_worldLinkFramePosition[1], linkState.m_worldLinkFramePosition[2]);
             m_worldOri.setValue(linkState.m_worldLinkFrameOrientation[0], linkState.m_worldLinkFrameOrientation[1], linkState.m_worldLinkFrameOrientation[2], linkState.m_worldLinkFrameOrientation[3]);
