@@ -197,7 +197,7 @@ public:
 	SIMD_FORCE_INLINE btVector3& operator*=(const btScalar& s)
 	{
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
+		__m128	vs = _mm_set_ss(s);	//	(S 0 0 0)
 		vs = bt_pshufd_ps(vs, 0x80);	//	(S S S 0.0)
 		mVec128 = _mm_mul_ps(mVec128, vs);
 #elif defined(BT_USE_NEON)
@@ -218,7 +218,7 @@ public:
 
 #if 0 //defined(BT_USE_SSE_IN_API)
 // this code is not faster !
-		__m128 vs = _mm_load_ss(&s);
+		__m128 vs = _mm_set_ss(s);
 		vs = _mm_div_ss(v1110, vs);
 		vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
 
@@ -505,7 +505,7 @@ public:
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
 		__m128	vrt = _mm_load_ss(&rt);	//	(rt 0 0 0)
 		btScalar s = btScalar(1.0) - rt;
-		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
+		__m128	vs = _mm_set_ss(s);	//	(S 0 0 0)
 		vs = bt_pshufd_ps(vs, 0x80);	//	(S S S 0.0)
 		__m128 r0 = _mm_mul_ps(v0.mVec128, vs);
 		vrt = bt_pshufd_ps(vrt, 0x80);	//	(rt rt rt 0.0)
@@ -532,7 +532,7 @@ public:
 	SIMD_FORCE_INLINE btVector3 lerp(const btVector3& v, const btScalar& t) const 
 	{
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		__m128	vt = _mm_load_ss(&t);	//	(t 0 0 0)
+		__m128	vt = _mm_set_ss(t);	//	(t 0 0 0)
 		vt = bt_pshufd_ps(vt, 0x80);	//	(rt rt rt 0.0)
 		__m128 vl = _mm_sub_ps(v.mVec128, mVec128);
 		vl = _mm_mul_ps(vl, vt);
@@ -743,7 +743,7 @@ public:
         __m128 r = _mm_movelh_ps( b0, b2 );
         r = _mm_add_ps( r, _mm_movehl_ps( b2, b0 ));
         a2 = _mm_and_ps( a2, btvxyzMaskf);
-        r = _mm_add_ps( r, btCastdTo128f (_mm_move_sd( btCastfTo128d(a2), btCastfTo128d(b1) )));
+        r = _mm_add_ps( r, _mm_shuffle_ps(b1, a2, BT_SHUFFLE(0, 1, 2, 3)));
         return btVector3(r);
         
 #elif defined(BT_USE_NEON)
@@ -833,7 +833,7 @@ SIMD_FORCE_INLINE btVector3
 operator*(const btVector3& v, const btScalar& s)
 {
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-	__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
+	__m128	vs = _mm_set_ss(s);	//	(S 0 0 0)
 	vs = bt_pshufd_ps(vs, 0x80);	//	(S S S 0.0)
 	return btVector3(_mm_mul_ps(v.mVec128, vs));
 #elif defined(BT_USE_NEON)
@@ -858,7 +858,7 @@ operator/(const btVector3& v, const btScalar& s)
 	btFullAssert(s != btScalar(0.0));
 #if 0 //defined(BT_USE_SSE_IN_API)
 // this code is not faster !
-	__m128 vs = _mm_load_ss(&s);
+	__m128 vs = _mm_set_ss(s);
     vs = _mm_div_ss(v1110, vs);
 	vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
 
@@ -982,8 +982,8 @@ SIMD_FORCE_INLINE btVector3 btVector3::rotate( const btVector3& wAxis, const btS
 	O = _mm_and_ps(O, btvFFF0fMask);
     btScalar scos = btCos( _angle );
 	
-	__m128 vsin = _mm_load_ss(&ssin);	//	(S 0 0 0)
-    __m128 vcos = _mm_load_ss(&scos);	//	(S 0 0 0)
+	__m128 vsin = _mm_set_ss(ssin);	//	(S 0 0 0)
+    __m128 vcos = _mm_set_ss(scos);	//	(S 0 0 0)
 	
 	__m128 Y = bt_pshufd_ps(O, 0xC9);	//	(Y Z X 0)
 	__m128 Z = bt_pshufd_ps(O, 0xD2);	//	(Z X Y 0)

@@ -171,7 +171,7 @@ public:
 	B3_FORCE_INLINE b3Vector3& operator*=(const b3Scalar& s)
 	{
 #if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
-		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
+		__m128	vs = _mm_set_ss(s);	//	(S 0 0 0)
 		vs = b3_pshufd_ps(vs, 0x80);	//	(S S S 0.0)
 		mVec128 = _mm_mul_ps(mVec128, vs);
 #elif defined(B3_USE_NEON)
@@ -192,7 +192,7 @@ public:
 
 #if 0 //defined(B3_USE_SSE_IN_API)
 // this code is not faster !
-		__m128 vs = _mm_load_ss(&s);
+		__m128 vs = _mm_set_ss(s);
 		vs = _mm_div_ss(b3v1110, vs);
 		vs = b3_pshufd_ps(vs, 0x00);	//	(S S S S)
 
@@ -457,9 +457,9 @@ public:
 	B3_FORCE_INLINE void setInterpolate3(const b3Vector3& v0, const b3Vector3& v1, b3Scalar rt)
 	{
 #if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
-		__m128	vrt = _mm_load_ss(&rt);	//	(rt 0 0 0)
+		__m128	vrt = _mm_set_ss(rt);	//	(rt 0 0 0)
 		b3Scalar s = b3Scalar(1.0) - rt;
-		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
+		__m128	vs = _mm_set_ss(s);	//	(S 0 0 0)
 		vs = b3_pshufd_ps(vs, 0x80);	//	(S S S 0.0)
 		__m128 r0 = _mm_mul_ps(v0.mVec128, vs);
 		vrt = b3_pshufd_ps(vrt, 0x80);	//	(rt rt rt 0.0)
@@ -486,7 +486,7 @@ public:
 	B3_FORCE_INLINE b3Vector3 lerp(const b3Vector3& v, const b3Scalar& t) const
 	{
 #if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
-		__m128	vt = _mm_load_ss(&t);	//	(t 0 0 0)
+		__m128	vt = _mm_set_ss(t);	//	(t 0 0 0)
 		vt = b3_pshufd_ps(vt, 0x80);	//	(rt rt rt 0.0)
 		__m128 vl = _mm_sub_ps(v.mVec128, mVec128);
 		vl = _mm_mul_ps(vl, vt);
@@ -779,7 +779,7 @@ B3_FORCE_INLINE b3Vector3
 operator*(const b3Vector3& v, const b3Scalar& s)
 {
 #if defined(B3_USE_SSE_IN_API) && defined (B3_USE_SSE)
-	__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
+	__m128	vs = _mm_set_ss(s);	//	(S 0 0 0)
 	vs = b3_pshufd_ps(vs, 0x80);	//	(S S S 0.0)
 	return b3MakeVector3(_mm_mul_ps(v.mVec128, vs));
 #elif defined(B3_USE_NEON)
@@ -804,7 +804,7 @@ operator/(const b3Vector3& v, const b3Scalar& s)
 	b3FullAssert(s != b3Scalar(0.0));
 #if 0 //defined(B3_USE_SSE_IN_API)
 // this code is not faster !
-	__m128 vs = _mm_load_ss(&s);
+	__m128 vs = _mm_set_ss(s);
     vs = _mm_div_ss(b3v1110, vs);
 	vs = b3_pshufd_ps(vs, 0x00);	//	(S S S S)
 
@@ -932,8 +932,8 @@ B3_FORCE_INLINE b3Vector3 b3Vector3::rotate( const b3Vector3& wAxis, const b3Sca
 	O = _mm_and_ps(O, b3vFFF0fMask);
     b3Scalar scos = b3Cos( _angle );
 
-	__m128 vsin = _mm_load_ss(&ssin);	//	(S 0 0 0)
-    __m128 vcos = _mm_load_ss(&scos);	//	(S 0 0 0)
+	__m128 vsin = _mm_set_ss(ssin);	//	(S 0 0 0)
+    __m128 vcos = _mm_set_ss(scos);	//	(S 0 0 0)
 
 	__m128 Y = b3_pshufd_ps(O, 0xC9);	//	(Y Z X 0)
 	__m128 Z = b3_pshufd_ps(O, 0xD2);	//	(Z X Y 0)

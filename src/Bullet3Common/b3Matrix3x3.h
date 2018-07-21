@@ -237,7 +237,7 @@ public:
 		Y = b3CastiTo128f(_mm_shuffle_epi32 (NQi, B3_SHUFFLE(3,2,0,3)));	// -W -Z -X -W
 		Z = b3CastiTo128f(_mm_shuffle_epi32 (Qi, B3_SHUFFLE(1,0,1,3)));	//  Y  X  Y  W
 
-		vs = _mm_load_ss(&s);
+		vs = _mm_set_ss(s);
 		V21 = V21 * Y;
 		V31 = V31 * Z;
 
@@ -853,7 +853,7 @@ B3_FORCE_INLINE b3Matrix3x3
 operator*(const b3Matrix3x3& m, const b3Scalar & k)
 {
 #if (defined (B3_USE_SSE_IN_API) && defined (B3_USE_SSE))
-    __m128 vk = b3_splat_ps(_mm_load_ss((float *)&k), 0x80);
+    __m128 vk = b3_splat_ps(_mm_set_ss(k), 0x80);
     return b3Matrix3x3(
                 _mm_mul_ps(m[0].mVec128, vk), 
                 _mm_mul_ps(m[1].mVec128, vk), 

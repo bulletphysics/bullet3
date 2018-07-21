@@ -853,7 +853,7 @@ VECTORMATH_FORCE_INLINE const Matrix4 inverse( const Matrix4 & mat )
 	__m128 mtL3 = _mm_xor_ps(sum,Sign_PNPN);
 
 	// Dividing is FASTER than rcp_nr! (Because rcp_nr causes many register-memory RWs).
-	RDet = _mm_div_ss(_mm_load_ss((float *)&_vmathZERONE), Det); // TODO: just 1.0f?
+	RDet = _mm_div_ss(_mm_set_ss(_vmathZERONE), Det); // TODO: just 1.0f?
 	RDet = _mm_shuffle_ps(RDet,RDet,0x00);
 
 	// Devide the first 12 minterms with the determinant.

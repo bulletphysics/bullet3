@@ -218,7 +218,7 @@ public:
 	btQuaternion& operator*=(const btScalar& s)
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
+		__m128	vs = _mm_set_ss(s);	//	(S 0 0 0)
 		vs = bt_pshufd_ps(vs, 0);	//	(S S S S)
 		mVec128 = _mm_mul_ps(mVec128, vs);
 #elif defined(BT_USE_NEON)
@@ -395,7 +395,7 @@ public:
 	operator*(const btScalar& s) const
 	{
 #if defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-		__m128	vs = _mm_load_ss(&s);	//	(S 0 0 0)
+		__m128	vs = _mm_set_ss(s);	//	(S 0 0 0)
 		vs = bt_pshufd_ps(vs, 0x00);	//	(S S S S)
 		
 		return btQuaternion(_mm_mul_ps(mVec128, vs));
