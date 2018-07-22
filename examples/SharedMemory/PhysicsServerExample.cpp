@@ -2954,9 +2954,9 @@ btVector3	PhysicsServerExample::getRayTo(int x,int y)
 
 	btVector3 hor;
 	hor = rayForward.cross(vertical);
-	hor.normalize();
+	hor.safeNormalize();
 	vertical = hor.cross(rayForward);
-	vertical.normalize();
+	vertical.safeNormalize();
 
 	float tanfov = tanf(0.5f*fov);
 
