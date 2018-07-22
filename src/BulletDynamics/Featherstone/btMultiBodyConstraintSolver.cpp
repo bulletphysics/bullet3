@@ -274,7 +274,8 @@ btScalar btMultiBodyConstraintSolver::resolveSingleConstraintRowGeneric(const bt
 	{
 		bodyB->internalApplyImpulse(c.m_contactNormal2*bodyB->internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
 	}
-	return deltaImpulse;
+    btScalar deltaVel =deltaImpulse/c.m_jacDiagABInv;
+	return deltaVel;
 }
 
 
@@ -453,7 +454,8 @@ btScalar btMultiBodyConstraintSolver::resolveConeFrictionConstraintRows(const bt
 		bodyB->internalApplyImpulse(cB.m_contactNormal2*bodyB->internalGetInvMass(),cB.m_angularComponentB,deltaImpulseB);
 	}
 
-	return deltaImpulseA+deltaImpulseB;
+    btScalar deltaVel =deltaImpulseA/cA.m_jacDiagABInv+deltaImpulseB/cB.m_jacDiagABInv;
+    return deltaVel;
 }
 
 

@@ -27,7 +27,7 @@ class btCollisionObject;
 #include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
 #include "BulletDynamics/ConstraintSolver/btConstraintSolver.h"
 
-typedef btSimdScalar(*btSingleConstraintRowSolver)(btSolverBody&, btSolverBody&, const btSolverConstraint&);
+typedef btScalar(*btSingleConstraintRowSolver)(btSolverBody&, btSolverBody&, const btSolverConstraint&);
 
 ///The btSequentialImpulseConstraintSolver is a fast SIMD implementation of the Projected Gauss Seidel (iterative LCP) method.
 ATTRIBUTE_ALIGNED16(class) btSequentialImpulseConstraintSolver : public btConstraintSolver
@@ -100,12 +100,12 @@ protected:
 
     virtual void convertBodies(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal);
 
-	btSimdScalar	resolveSplitPenetrationSIMD(btSolverBody& bodyA,btSolverBody& bodyB, const btSolverConstraint& contactConstraint)
+	btScalar	resolveSplitPenetrationSIMD(btSolverBody& bodyA,btSolverBody& bodyB, const btSolverConstraint& contactConstraint)
     {
         return m_resolveSplitPenetrationImpulse( bodyA, bodyB, contactConstraint );
     }
 
-	btSimdScalar	resolveSplitPenetrationImpulseCacheFriendly(btSolverBody& bodyA,btSolverBody& bodyB, const btSolverConstraint& contactConstraint)
+	btScalar	resolveSplitPenetrationImpulseCacheFriendly(btSolverBody& bodyA,btSolverBody& bodyB, const btSolverConstraint& contactConstraint)
     {
         return m_resolveSplitPenetrationImpulse( bodyA, bodyB, contactConstraint );
     }
@@ -114,11 +114,11 @@ protected:
 	int		getOrInitSolverBody(btCollisionObject& body,btScalar timeStep);
 	void	initSolverBody(btSolverBody* solverBody, btCollisionObject* collisionObject, btScalar timeStep);
 
-	btSimdScalar	resolveSingleConstraintRowGeneric(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
-	btSimdScalar	resolveSingleConstraintRowGenericSIMD(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
-	btSimdScalar	resolveSingleConstraintRowLowerLimit(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
-	btSimdScalar	resolveSingleConstraintRowLowerLimitSIMD(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
-	btSimdScalar	resolveSplitPenetrationImpulse(btSolverBody& bodyA,btSolverBody& bodyB, const btSolverConstraint& contactConstraint)
+	btScalar	resolveSingleConstraintRowGeneric(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
+	btScalar	resolveSingleConstraintRowGenericSIMD(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
+	btScalar	resolveSingleConstraintRowLowerLimit(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
+	btScalar	resolveSingleConstraintRowLowerLimitSIMD(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
+	btScalar	resolveSplitPenetrationImpulse(btSolverBody& bodyA,btSolverBody& bodyB, const btSolverConstraint& contactConstraint)
     {
         return m_resolveSplitPenetrationImpulse( bodyA, bodyB, contactConstraint );
     }
