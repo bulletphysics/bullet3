@@ -43,11 +43,11 @@ int		gNumSplitImpulseRecoveries = 0;
 //#define VERBOSE_RESIDUAL_PRINTF 1
 ///This is the scalar reference implementation of solving a single constraint row, the innerloop of the Projected Gauss Seidel/Sequential Impulse constraint solver
 ///Below are optional SSE2 and SSE4/FMA3 versions. We assume most hardware has SSE2. For SSE4/FMA3 we perform a CPU feature check.
-static btScalar gResolveSingleConstraintRowGeneric_scalar_reference(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
+static btScalar gResolveSingleConstraintRowGeneric_scalar_reference(btSolverBody& bodyA, btSolverBody& bodyB, const btSolverConstraint& c)
 {
 	btScalar deltaImpulse = c.m_rhs - btScalar(c.m_appliedImpulse)*c.m_cfm;
-	const btScalar deltaVel1Dotn = c.m_contactNormal1.dot(body1.internalGetDeltaLinearVelocity()) + c.m_relpos1CrossNormal.dot(body1.internalGetDeltaAngularVelocity());
-	const btScalar deltaVel2Dotn = c.m_contactNormal2.dot(body2.internalGetDeltaLinearVelocity()) + c.m_relpos2CrossNormal.dot(body2.internalGetDeltaAngularVelocity());
+	const btScalar deltaVel1Dotn = c.m_contactNormal1.dot(bodyA.internalGetDeltaLinearVelocity()) + c.m_relpos1CrossNormal.dot(bodyA.internalGetDeltaAngularVelocity());
+	const btScalar deltaVel2Dotn = c.m_contactNormal2.dot(bodyB.internalGetDeltaLinearVelocity()) + c.m_relpos2CrossNormal.dot(bodyB.internalGetDeltaAngularVelocity());
 
 	//	const btScalar delta_rel_vel	=	deltaVel1Dotn-deltaVel2Dotn;
 	deltaImpulse -= deltaVel1Dotn*c.m_jacDiagABInv;
@@ -69,18 +69,18 @@ static btScalar gResolveSingleConstraintRowGeneric_scalar_reference(btSolverBody
 		c.m_appliedImpulse = sum;
 	}
 
-	body1.internalApplyImpulse(c.m_contactNormal1*body1.internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
-	body2.internalApplyImpulse(c.m_contactNormal2*body2.internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
+	bodyA.internalApplyImpulse(c.m_contactNormal1*bodyA.internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
+	bodyB.internalApplyImpulse(c.m_contactNormal2*bodyB.internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
 
 	return deltaImpulse*(1./c.m_jacDiagABInv);
 }
 
 
-static btScalar gResolveSingleConstraintRowLowerLimit_scalar_reference(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
+static btScalar gResolveSingleConstraintRowLowerLimit_scalar_reference(btSolverBody& bodyA, btSolverBody& bodyB, const btSolverConstraint& c)
 {
 	btScalar deltaImpulse = c.m_rhs - btScalar(c.m_appliedImpulse)*c.m_cfm;
-	const btScalar deltaVel1Dotn = c.m_contactNormal1.dot(body1.internalGetDeltaLinearVelocity()) + c.m_relpos1CrossNormal.dot(body1.internalGetDeltaAngularVelocity());
-	const btScalar deltaVel2Dotn = c.m_contactNormal2.dot(body2.internalGetDeltaLinearVelocity()) + c.m_relpos2CrossNormal.dot(body2.internalGetDeltaAngularVelocity());
+	const btScalar deltaVel1Dotn = c.m_contactNormal1.dot(bodyA.internalGetDeltaLinearVelocity()) + c.m_relpos1CrossNormal.dot(bodyA.internalGetDeltaAngularVelocity());
+	const btScalar deltaVel2Dotn = c.m_contactNormal2.dot(bodyB.internalGetDeltaLinearVelocity()) + c.m_relpos2CrossNormal.dot(bodyB.internalGetDeltaAngularVelocity());
 
 	deltaImpulse -= deltaVel1Dotn*c.m_jacDiagABInv;
 	deltaImpulse -= deltaVel2Dotn*c.m_jacDiagABInv;
@@ -94,8 +94,8 @@ static btScalar gResolveSingleConstraintRowLowerLimit_scalar_reference(btSolverB
 	{
 		c.m_appliedImpulse = sum;
 	}
-	body1.internalApplyImpulse(c.m_contactNormal1*body1.internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
-	body2.internalApplyImpulse(c.m_contactNormal2*body2.internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
+	bodyA.internalApplyImpulse(c.m_contactNormal1*bodyA.internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
+	bodyB.internalApplyImpulse(c.m_contactNormal2*bodyB.internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
 
 	return deltaImpulse*(1./c.m_jacDiagABInv);
 }
@@ -150,14 +150,14 @@ static inline __m128 btSimdDot3( __m128 vec0, __m128 vec1 )
 #endif
 
 // Project Gauss Seidel or the equivalent Sequential Impulse
-static btScalar gResolveSingleConstraintRowGeneric_sse2(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
+static btScalar gResolveSingleConstraintRowGeneric_sse2(btSolverBody& bodyA, btSolverBody& bodyB, const btSolverConstraint& c)
 {
 	__m128 cpAppliedImp = _mm_set1_ps(c.m_appliedImpulse);
 	__m128	lowerLimit1 = _mm_set1_ps(c.m_lowerLimit);
 	__m128	upperLimit1 = _mm_set1_ps(c.m_upperLimit);
 	btSimdScalar deltaImpulse = _mm_sub_ps(_mm_set1_ps(c.m_rhs), _mm_mul_ps(_mm_set1_ps(c.m_appliedImpulse), _mm_set1_ps(c.m_cfm)));
-	__m128 deltaVel1Dotn = _mm_add_ps(btSimdDot3(c.m_contactNormal1.mVec128, body1.internalGetDeltaLinearVelocity().mVec128), btSimdDot3(c.m_relpos1CrossNormal.mVec128, body1.internalGetDeltaAngularVelocity().mVec128));
-	__m128 deltaVel2Dotn = _mm_add_ps(btSimdDot3(c.m_contactNormal2.mVec128, body2.internalGetDeltaLinearVelocity().mVec128), btSimdDot3(c.m_relpos2CrossNormal.mVec128, body2.internalGetDeltaAngularVelocity().mVec128));
+	__m128 deltaVel1Dotn = _mm_add_ps(btSimdDot3(c.m_contactNormal1.mVec128, bodyA.internalGetDeltaLinearVelocity().mVec128), btSimdDot3(c.m_relpos1CrossNormal.mVec128, bodyA.internalGetDeltaAngularVelocity().mVec128));
+	__m128 deltaVel2Dotn = _mm_add_ps(btSimdDot3(c.m_contactNormal2.mVec128, bodyB.internalGetDeltaLinearVelocity().mVec128), btSimdDot3(c.m_relpos2CrossNormal.mVec128, bodyB.internalGetDeltaAngularVelocity().mVec128));
 	deltaImpulse = _mm_sub_ps(deltaImpulse, _mm_mul_ps(deltaVel1Dotn, _mm_set1_ps(c.m_jacDiagABInv)));
 	deltaImpulse = _mm_sub_ps(deltaImpulse, _mm_mul_ps(deltaVel2Dotn, _mm_set1_ps(c.m_jacDiagABInv)));
 	btSimdScalar sum = _mm_add_ps(cpAppliedImp, deltaImpulse);
@@ -170,27 +170,27 @@ static btScalar gResolveSingleConstraintRowGeneric_sse2(btSolverBody& body1, btS
 	__m128 upperMinApplied = _mm_sub_ps(upperLimit1, cpAppliedImp);
 	deltaImpulse = _mm_or_ps(_mm_and_ps(resultUpperLess, deltaImpulse), _mm_andnot_ps(resultUpperLess, upperMinApplied));
 	c.m_appliedImpulse = _mm_or_ps(_mm_and_ps(resultUpperLess, c.m_appliedImpulse), _mm_andnot_ps(resultUpperLess, upperLimit1));
-	__m128	linearComponentA = _mm_mul_ps(c.m_contactNormal1.mVec128, body1.internalGetInvMass().mVec128);
-	__m128	linearComponentB = _mm_mul_ps((c.m_contactNormal2).mVec128, body2.internalGetInvMass().mVec128);
+	__m128	linearComponentA = _mm_mul_ps(c.m_contactNormal1.mVec128, bodyA.internalGetInvMass().mVec128);
+	__m128	linearComponentB = _mm_mul_ps((c.m_contactNormal2).mVec128, bodyB.internalGetInvMass().mVec128);
 	__m128 impulseMagnitude = deltaImpulse;
-	body1.internalGetDeltaLinearVelocity().mVec128 = _mm_add_ps(body1.internalGetDeltaLinearVelocity().mVec128, _mm_mul_ps(linearComponentA, impulseMagnitude));
-	body1.internalGetDeltaAngularVelocity().mVec128 = _mm_add_ps(body1.internalGetDeltaAngularVelocity().mVec128, _mm_mul_ps(c.m_angularComponentA.mVec128, impulseMagnitude));
-	body2.internalGetDeltaLinearVelocity().mVec128 = _mm_add_ps(body2.internalGetDeltaLinearVelocity().mVec128, _mm_mul_ps(linearComponentB, impulseMagnitude));
-	body2.internalGetDeltaAngularVelocity().mVec128 = _mm_add_ps(body2.internalGetDeltaAngularVelocity().mVec128, _mm_mul_ps(c.m_angularComponentB.mVec128, impulseMagnitude));
+	bodyA.internalGetDeltaLinearVelocity().mVec128 = _mm_add_ps(bodyA.internalGetDeltaLinearVelocity().mVec128, _mm_mul_ps(linearComponentA, impulseMagnitude));
+	bodyA.internalGetDeltaAngularVelocity().mVec128 = _mm_add_ps(bodyA.internalGetDeltaAngularVelocity().mVec128, _mm_mul_ps(c.m_angularComponentA.mVec128, impulseMagnitude));
+	bodyB.internalGetDeltaLinearVelocity().mVec128 = _mm_add_ps(bodyB.internalGetDeltaLinearVelocity().mVec128, _mm_mul_ps(linearComponentB, impulseMagnitude));
+	bodyB.internalGetDeltaAngularVelocity().mVec128 = _mm_add_ps(bodyB.internalGetDeltaAngularVelocity().mVec128, _mm_mul_ps(c.m_angularComponentB.mVec128, impulseMagnitude));
 	return  deltaImpulse.m_floats[0]/c.m_jacDiagABInv;
 }
 
 
 // Enhanced version of gResolveSingleConstraintRowGeneric_sse2 with SSE4.1 and FMA3
-static btScalar gResolveSingleConstraintRowGeneric_sse4_1_fma3(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
+static btScalar gResolveSingleConstraintRowGeneric_sse4_1_fma3(btSolverBody& bodyA, btSolverBody& bodyB, const btSolverConstraint& c)
 {
 #if defined (BT_ALLOW_SSE4)
 	__m128 tmp					= _mm_set_ps1(c.m_jacDiagABInv);
 	__m128 deltaImpulse			= _mm_set_ps1(c.m_rhs - btScalar(c.m_appliedImpulse)*c.m_cfm);
 	const __m128 lowerLimit		= _mm_set_ps1(c.m_lowerLimit);
 	const __m128 upperLimit		= _mm_set_ps1(c.m_upperLimit);
-	const __m128 deltaVel1Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal1.mVec128, body1.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos1CrossNormal.mVec128, body1.internalGetDeltaAngularVelocity().mVec128));
-	const __m128 deltaVel2Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal2.mVec128, body2.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos2CrossNormal.mVec128, body2.internalGetDeltaAngularVelocity().mVec128));
+	const __m128 deltaVel1Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal1.mVec128, bodyA.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos1CrossNormal.mVec128, bodyA.internalGetDeltaAngularVelocity().mVec128));
+	const __m128 deltaVel2Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal2.mVec128, bodyB.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos2CrossNormal.mVec128, bodyB.internalGetDeltaAngularVelocity().mVec128));
 	deltaImpulse				= FMNADD(deltaVel1Dotn, tmp, deltaImpulse);
 	deltaImpulse				= FMNADD(deltaVel2Dotn, tmp, deltaImpulse);
 	tmp							= _mm_add_ps(c.m_appliedImpulse, deltaImpulse); // sum
@@ -198,27 +198,27 @@ static btScalar gResolveSingleConstraintRowGeneric_sse4_1_fma3(btSolverBody& bod
 	const __m128 maskUpper		= _mm_cmpgt_ps(upperLimit, tmp);
 	deltaImpulse				= _mm_blendv_ps(_mm_sub_ps(lowerLimit, c.m_appliedImpulse), _mm_blendv_ps(_mm_sub_ps(upperLimit, c.m_appliedImpulse), deltaImpulse, maskUpper), maskLower);
 	c.m_appliedImpulse			= _mm_blendv_ps(lowerLimit, _mm_blendv_ps(upperLimit, tmp, maskUpper), maskLower);
-	body1.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal1.mVec128, body1.internalGetInvMass().mVec128), deltaImpulse, body1.internalGetDeltaLinearVelocity().mVec128);
-	body1.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentA.mVec128, deltaImpulse, body1.internalGetDeltaAngularVelocity().mVec128);
-	body2.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal2.mVec128, body2.internalGetInvMass().mVec128), deltaImpulse, body2.internalGetDeltaLinearVelocity().mVec128);
-	body2.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentB.mVec128, deltaImpulse, body2.internalGetDeltaAngularVelocity().mVec128);
+	bodyA.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal1.mVec128, bodyA.internalGetInvMass().mVec128), deltaImpulse, bodyA.internalGetDeltaLinearVelocity().mVec128);
+	bodyA.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentA.mVec128, deltaImpulse, bodyA.internalGetDeltaAngularVelocity().mVec128);
+	bodyB.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal2.mVec128, bodyB.internalGetInvMass().mVec128), deltaImpulse, bodyB.internalGetDeltaLinearVelocity().mVec128);
+	bodyB.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentB.mVec128, deltaImpulse, bodyB.internalGetDeltaAngularVelocity().mVec128);
 	btSimdScalar deltaImp = deltaImpulse;
 	return deltaImp.m_floats[0]*(1./c.m_jacDiagABInv);
 #else
-	return gResolveSingleConstraintRowGeneric_sse2(body1,body2,c);
+	return gResolveSingleConstraintRowGeneric_sse2(bodyA,bodyB,c);
 #endif
 }
 
 
 
-static btScalar gResolveSingleConstraintRowLowerLimit_sse2(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
+static btScalar gResolveSingleConstraintRowLowerLimit_sse2(btSolverBody& bodyA, btSolverBody& bodyB, const btSolverConstraint& c)
 {
 	__m128 cpAppliedImp = _mm_set1_ps(c.m_appliedImpulse);
 	__m128	lowerLimit1 = _mm_set1_ps(c.m_lowerLimit);
 	__m128	upperLimit1 = _mm_set1_ps(c.m_upperLimit);
 	btSimdScalar deltaImpulse = _mm_sub_ps(_mm_set1_ps(c.m_rhs), _mm_mul_ps(_mm_set1_ps(c.m_appliedImpulse), _mm_set1_ps(c.m_cfm)));
-	__m128 deltaVel1Dotn = _mm_add_ps(btSimdDot3(c.m_contactNormal1.mVec128, body1.internalGetDeltaLinearVelocity().mVec128), btSimdDot3(c.m_relpos1CrossNormal.mVec128, body1.internalGetDeltaAngularVelocity().mVec128));
-	__m128 deltaVel2Dotn = _mm_add_ps(btSimdDot3(c.m_contactNormal2.mVec128, body2.internalGetDeltaLinearVelocity().mVec128), btSimdDot3(c.m_relpos2CrossNormal.mVec128, body2.internalGetDeltaAngularVelocity().mVec128));
+	__m128 deltaVel1Dotn = _mm_add_ps(btSimdDot3(c.m_contactNormal1.mVec128, bodyA.internalGetDeltaLinearVelocity().mVec128), btSimdDot3(c.m_relpos1CrossNormal.mVec128, bodyA.internalGetDeltaAngularVelocity().mVec128));
+	__m128 deltaVel2Dotn = _mm_add_ps(btSimdDot3(c.m_contactNormal2.mVec128, bodyB.internalGetDeltaLinearVelocity().mVec128), btSimdDot3(c.m_relpos2CrossNormal.mVec128, bodyB.internalGetDeltaAngularVelocity().mVec128));
 	deltaImpulse = _mm_sub_ps(deltaImpulse, _mm_mul_ps(deltaVel1Dotn, _mm_set1_ps(c.m_jacDiagABInv)));
 	deltaImpulse = _mm_sub_ps(deltaImpulse, _mm_mul_ps(deltaVel2Dotn, _mm_set1_ps(c.m_jacDiagABInv)));
 	btSimdScalar sum = _mm_add_ps(cpAppliedImp, deltaImpulse);
@@ -228,40 +228,40 @@ static btScalar gResolveSingleConstraintRowLowerLimit_sse2(btSolverBody& body1, 
 	__m128 lowMinApplied = _mm_sub_ps(lowerLimit1, cpAppliedImp);
 	deltaImpulse = _mm_or_ps(_mm_and_ps(resultLowerLess, lowMinApplied), _mm_andnot_ps(resultLowerLess, deltaImpulse));
 	c.m_appliedImpulse = _mm_or_ps(_mm_and_ps(resultLowerLess, lowerLimit1), _mm_andnot_ps(resultLowerLess, sum));
-	__m128	linearComponentA = _mm_mul_ps(c.m_contactNormal1.mVec128, body1.internalGetInvMass().mVec128);
-	__m128	linearComponentB = _mm_mul_ps(c.m_contactNormal2.mVec128, body2.internalGetInvMass().mVec128);
+	__m128	linearComponentA = _mm_mul_ps(c.m_contactNormal1.mVec128, bodyA.internalGetInvMass().mVec128);
+	__m128	linearComponentB = _mm_mul_ps(c.m_contactNormal2.mVec128, bodyB.internalGetInvMass().mVec128);
 	__m128 impulseMagnitude = deltaImpulse;
-	body1.internalGetDeltaLinearVelocity().mVec128 = _mm_add_ps(body1.internalGetDeltaLinearVelocity().mVec128, _mm_mul_ps(linearComponentA, impulseMagnitude));
-	body1.internalGetDeltaAngularVelocity().mVec128 = _mm_add_ps(body1.internalGetDeltaAngularVelocity().mVec128, _mm_mul_ps(c.m_angularComponentA.mVec128, impulseMagnitude));
-	body2.internalGetDeltaLinearVelocity().mVec128 = _mm_add_ps(body2.internalGetDeltaLinearVelocity().mVec128, _mm_mul_ps(linearComponentB, impulseMagnitude));
-	body2.internalGetDeltaAngularVelocity().mVec128 = _mm_add_ps(body2.internalGetDeltaAngularVelocity().mVec128, _mm_mul_ps(c.m_angularComponentB.mVec128, impulseMagnitude));
+	bodyA.internalGetDeltaLinearVelocity().mVec128 = _mm_add_ps(bodyA.internalGetDeltaLinearVelocity().mVec128, _mm_mul_ps(linearComponentA, impulseMagnitude));
+	bodyA.internalGetDeltaAngularVelocity().mVec128 = _mm_add_ps(bodyA.internalGetDeltaAngularVelocity().mVec128, _mm_mul_ps(c.m_angularComponentA.mVec128, impulseMagnitude));
+	bodyB.internalGetDeltaLinearVelocity().mVec128 = _mm_add_ps(bodyB.internalGetDeltaLinearVelocity().mVec128, _mm_mul_ps(linearComponentB, impulseMagnitude));
+	bodyB.internalGetDeltaAngularVelocity().mVec128 = _mm_add_ps(bodyB.internalGetDeltaAngularVelocity().mVec128, _mm_mul_ps(c.m_angularComponentB.mVec128, impulseMagnitude));
 	return  deltaImpulse.m_floats[0]/c.m_jacDiagABInv;
 }
 
 
 // Enhanced version of gResolveSingleConstraintRowGeneric_sse2 with SSE4.1 and FMA3
-static btScalar gResolveSingleConstraintRowLowerLimit_sse4_1_fma3(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
+static btScalar gResolveSingleConstraintRowLowerLimit_sse4_1_fma3(btSolverBody& bodyA, btSolverBody& bodyB, const btSolverConstraint& c)
 {
 #ifdef BT_ALLOW_SSE4
 	__m128 tmp					= _mm_set_ps1(c.m_jacDiagABInv);
 	__m128 deltaImpulse			= _mm_set_ps1(c.m_rhs - btScalar(c.m_appliedImpulse)*c.m_cfm);
 	const __m128 lowerLimit		= _mm_set_ps1(c.m_lowerLimit);
-	const __m128 deltaVel1Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal1.mVec128, body1.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos1CrossNormal.mVec128, body1.internalGetDeltaAngularVelocity().mVec128));
-	const __m128 deltaVel2Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal2.mVec128, body2.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos2CrossNormal.mVec128, body2.internalGetDeltaAngularVelocity().mVec128));
+	const __m128 deltaVel1Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal1.mVec128, bodyA.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos1CrossNormal.mVec128, bodyA.internalGetDeltaAngularVelocity().mVec128));
+	const __m128 deltaVel2Dotn	= _mm_add_ps(DOT_PRODUCT(c.m_contactNormal2.mVec128, bodyB.internalGetDeltaLinearVelocity().mVec128), DOT_PRODUCT(c.m_relpos2CrossNormal.mVec128, bodyB.internalGetDeltaAngularVelocity().mVec128));
 	deltaImpulse				= FMNADD(deltaVel1Dotn, tmp, deltaImpulse);
 	deltaImpulse				= FMNADD(deltaVel2Dotn, tmp, deltaImpulse);
 	tmp							= _mm_add_ps(c.m_appliedImpulse, deltaImpulse);
 	const __m128 mask			= _mm_cmpgt_ps(tmp, lowerLimit);
 	deltaImpulse				= _mm_blendv_ps(_mm_sub_ps(lowerLimit, c.m_appliedImpulse), deltaImpulse, mask);
 	c.m_appliedImpulse			= _mm_blendv_ps(lowerLimit, tmp, mask);
-	body1.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal1.mVec128, body1.internalGetInvMass().mVec128), deltaImpulse, body1.internalGetDeltaLinearVelocity().mVec128);
-	body1.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentA.mVec128, deltaImpulse, body1.internalGetDeltaAngularVelocity().mVec128);
-	body2.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal2.mVec128, body2.internalGetInvMass().mVec128), deltaImpulse, body2.internalGetDeltaLinearVelocity().mVec128);
-	body2.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentB.mVec128, deltaImpulse, body2.internalGetDeltaAngularVelocity().mVec128);
+	bodyA.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal1.mVec128, bodyA.internalGetInvMass().mVec128), deltaImpulse, bodyA.internalGetDeltaLinearVelocity().mVec128);
+	bodyA.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentA.mVec128, deltaImpulse, bodyA.internalGetDeltaAngularVelocity().mVec128);
+	bodyB.internalGetDeltaLinearVelocity().mVec128	= FMADD(_mm_mul_ps(c.m_contactNormal2.mVec128, bodyB.internalGetInvMass().mVec128), deltaImpulse, bodyB.internalGetDeltaLinearVelocity().mVec128);
+	bodyB.internalGetDeltaAngularVelocity().mVec128 = FMADD(c.m_angularComponentB.mVec128, deltaImpulse, bodyB.internalGetDeltaAngularVelocity().mVec128);
 	btSimdScalar deltaImp = deltaImpulse;
 	return deltaImp.m_floats[0]*(1./c.m_jacDiagABInv);
 #else
-	return gResolveSingleConstraintRowLowerLimit_sse2(body1,body2,c);
+	return gResolveSingleConstraintRowLowerLimit_sse2(bodyA,bodyB,c);
 #endif //BT_ALLOW_SSE4
 }
 
@@ -270,32 +270,32 @@ static btScalar gResolveSingleConstraintRowLowerLimit_sse4_1_fma3(btSolverBody& 
 
 
 
-btScalar btSequentialImpulseConstraintSolver::resolveSingleConstraintRowGenericSIMD(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& c)
+btScalar btSequentialImpulseConstraintSolver::resolveSingleConstraintRowGenericSIMD(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& c)
 {
-	return m_resolveSingleConstraintRowGeneric(body1, body2, c);
+	return m_resolveSingleConstraintRowGeneric(bodyA, bodyB, c);
 }
 
 // Project Gauss Seidel or the equivalent Sequential Impulse
-btScalar btSequentialImpulseConstraintSolver::resolveSingleConstraintRowGeneric(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& c)
+btScalar btSequentialImpulseConstraintSolver::resolveSingleConstraintRowGeneric(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& c)
 {
-	return m_resolveSingleConstraintRowGeneric(body1, body2, c);
+	return m_resolveSingleConstraintRowGeneric(bodyA, bodyB, c);
 }
 
-btScalar btSequentialImpulseConstraintSolver::resolveSingleConstraintRowLowerLimitSIMD(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& c)
+btScalar btSequentialImpulseConstraintSolver::resolveSingleConstraintRowLowerLimitSIMD(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& c)
 {
-	return m_resolveSingleConstraintRowLowerLimit(body1, body2, c);
+	return m_resolveSingleConstraintRowLowerLimit(bodyA, bodyB, c);
 }
 
 
-btScalar btSequentialImpulseConstraintSolver::resolveSingleConstraintRowLowerLimit(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& c)
+btScalar btSequentialImpulseConstraintSolver::resolveSingleConstraintRowLowerLimit(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& c)
 {
-	return m_resolveSingleConstraintRowLowerLimit(body1, body2, c);
+	return m_resolveSingleConstraintRowLowerLimit(bodyA, bodyB, c);
 }
 
 
 static btScalar gResolveSplitPenetrationImpulse_scalar_reference(
-        btSolverBody& body1,
-        btSolverBody& body2,
+        btSolverBody& bodyA,
+        btSolverBody& bodyB,
         const btSolverConstraint& c)
 {
 	btScalar deltaImpulse = 0.f;
@@ -304,8 +304,8 @@ static btScalar gResolveSplitPenetrationImpulse_scalar_reference(
         {
 			gNumSplitImpulseRecoveries++;
 			deltaImpulse = c.m_rhsPenetration-btScalar(c.m_appliedPushImpulse)*c.m_cfm;
-			const btScalar deltaVel1Dotn	=	c.m_contactNormal1.dot(body1.internalGetPushVelocity()) 	+ c.m_relpos1CrossNormal.dot(body1.internalGetTurnVelocity());
-			const btScalar deltaVel2Dotn	=	c.m_contactNormal2.dot(body2.internalGetPushVelocity())		+ c.m_relpos2CrossNormal.dot(body2.internalGetTurnVelocity());
+			const btScalar deltaVel1Dotn	=	c.m_contactNormal1.dot(bodyA.internalGetPushVelocity()) 	+ c.m_relpos1CrossNormal.dot(bodyA.internalGetTurnVelocity());
+			const btScalar deltaVel2Dotn	=	c.m_contactNormal2.dot(bodyB.internalGetPushVelocity())		+ c.m_relpos2CrossNormal.dot(bodyB.internalGetTurnVelocity());
 
 			deltaImpulse	-=	deltaVel1Dotn*c.m_jacDiagABInv;
 			deltaImpulse	-=	deltaVel2Dotn*c.m_jacDiagABInv;
@@ -319,13 +319,13 @@ static btScalar gResolveSplitPenetrationImpulse_scalar_reference(
 			{
 				c.m_appliedPushImpulse = sum;
 			}
-			body1.internalApplyPushImpulse(c.m_contactNormal1*body1.internalGetInvMass(),c.m_angularComponentA,deltaImpulse);
-			body2.internalApplyPushImpulse(c.m_contactNormal2*body2.internalGetInvMass(),c.m_angularComponentB,deltaImpulse);
+			bodyA.internalApplyPushImpulse(c.m_contactNormal1*bodyA.internalGetInvMass(),c.m_angularComponentA,deltaImpulse);
+			bodyB.internalApplyPushImpulse(c.m_contactNormal2*bodyB.internalGetInvMass(),c.m_angularComponentB,deltaImpulse);
         }
 		return deltaImpulse*(1./c.m_jacDiagABInv);
 }
 
-static btScalar gResolveSplitPenetrationImpulse_sse2(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& c)
+static btScalar gResolveSplitPenetrationImpulse_sse2(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& c)
 {
 #ifdef USE_SIMD
 	if (!c.m_rhsPenetration)
@@ -337,8 +337,8 @@ static btScalar gResolveSplitPenetrationImpulse_sse2(btSolverBody& body1,btSolve
 	__m128	lowerLimit1 = _mm_set1_ps(c.m_lowerLimit);
 	__m128	upperLimit1 = _mm_set1_ps(c.m_upperLimit);
 	__m128 deltaImpulse = _mm_sub_ps(_mm_set1_ps(c.m_rhsPenetration), _mm_mul_ps(_mm_set1_ps(c.m_appliedPushImpulse),_mm_set1_ps(c.m_cfm)));
-	__m128 deltaVel1Dotn	=	_mm_add_ps(btSimdDot3(c.m_contactNormal1.mVec128,body1.internalGetPushVelocity().mVec128), btSimdDot3(c.m_relpos1CrossNormal.mVec128,body1.internalGetTurnVelocity().mVec128));
-	__m128 deltaVel2Dotn	=	_mm_add_ps(btSimdDot3(c.m_contactNormal2.mVec128,body2.internalGetPushVelocity().mVec128), btSimdDot3(c.m_relpos2CrossNormal.mVec128,body2.internalGetTurnVelocity().mVec128));
+	__m128 deltaVel1Dotn	=	_mm_add_ps(btSimdDot3(c.m_contactNormal1.mVec128,bodyA.internalGetPushVelocity().mVec128), btSimdDot3(c.m_relpos1CrossNormal.mVec128,bodyA.internalGetTurnVelocity().mVec128));
+	__m128 deltaVel2Dotn	=	_mm_add_ps(btSimdDot3(c.m_contactNormal2.mVec128,bodyB.internalGetPushVelocity().mVec128), btSimdDot3(c.m_relpos2CrossNormal.mVec128,bodyB.internalGetTurnVelocity().mVec128));
 	deltaImpulse	=	_mm_sub_ps(deltaImpulse,_mm_mul_ps(deltaVel1Dotn,_mm_set1_ps(c.m_jacDiagABInv)));
 	deltaImpulse	=	_mm_sub_ps(deltaImpulse,_mm_mul_ps(deltaVel2Dotn,_mm_set1_ps(c.m_jacDiagABInv)));
 	btSimdScalar sum = _mm_add_ps(cpAppliedImp,deltaImpulse);
@@ -348,17 +348,17 @@ static btScalar gResolveSplitPenetrationImpulse_sse2(btSolverBody& body1,btSolve
 	__m128 lowMinApplied = _mm_sub_ps(lowerLimit1,cpAppliedImp);
 	deltaImpulse = _mm_or_ps( _mm_and_ps(resultLowerLess, lowMinApplied), _mm_andnot_ps(resultLowerLess, deltaImpulse) );
 	c.m_appliedPushImpulse = _mm_or_ps( _mm_and_ps(resultLowerLess, lowerLimit1), _mm_andnot_ps(resultLowerLess, sum) );
-	__m128	linearComponentA = _mm_mul_ps(c.m_contactNormal1.mVec128,body1.internalGetInvMass().mVec128);
-	__m128	linearComponentB = _mm_mul_ps(c.m_contactNormal2.mVec128,body2.internalGetInvMass().mVec128);
+	__m128	linearComponentA = _mm_mul_ps(c.m_contactNormal1.mVec128,bodyA.internalGetInvMass().mVec128);
+	__m128	linearComponentB = _mm_mul_ps(c.m_contactNormal2.mVec128,bodyB.internalGetInvMass().mVec128);
 	__m128 impulseMagnitude = deltaImpulse;
-	body1.internalGetPushVelocity().mVec128 = _mm_add_ps(body1.internalGetPushVelocity().mVec128,_mm_mul_ps(linearComponentA,impulseMagnitude));
-	body1.internalGetTurnVelocity().mVec128 = _mm_add_ps(body1.internalGetTurnVelocity().mVec128 ,_mm_mul_ps(c.m_angularComponentA.mVec128,impulseMagnitude));
-	body2.internalGetPushVelocity().mVec128 = _mm_add_ps(body2.internalGetPushVelocity().mVec128,_mm_mul_ps(linearComponentB,impulseMagnitude));
-	body2.internalGetTurnVelocity().mVec128 = _mm_add_ps(body2.internalGetTurnVelocity().mVec128 ,_mm_mul_ps(c.m_angularComponentB.mVec128,impulseMagnitude));
+	bodyA.internalGetPushVelocity().mVec128 = _mm_add_ps(bodyA.internalGetPushVelocity().mVec128,_mm_mul_ps(linearComponentA,impulseMagnitude));
+	bodyA.internalGetTurnVelocity().mVec128 = _mm_add_ps(bodyA.internalGetTurnVelocity().mVec128 ,_mm_mul_ps(c.m_angularComponentA.mVec128,impulseMagnitude));
+	bodyB.internalGetPushVelocity().mVec128 = _mm_add_ps(bodyB.internalGetPushVelocity().mVec128,_mm_mul_ps(linearComponentB,impulseMagnitude));
+	bodyB.internalGetTurnVelocity().mVec128 = _mm_add_ps(bodyB.internalGetTurnVelocity().mVec128 ,_mm_mul_ps(c.m_angularComponentB.mVec128,impulseMagnitude));
 	btSimdScalar deltaImp = deltaImpulse;
 	return deltaImp.m_floats[0] * (1. / c.m_jacDiagABInv);
 #else
-	return gResolveSplitPenetrationImpulse_scalar_reference(body1,body2,c);
+	return gResolveSplitPenetrationImpulse_scalar_reference(bodyA,bodyB,c);
 #endif
 }
 
@@ -552,7 +552,7 @@ void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstr
 	btSolverBody& solverBodyB = m_tmpSolverBodyPool[solverBodyIdB];
 
 	btRigidBody* body0 = m_tmpSolverBodyPool[solverBodyIdA].m_originalBody;
-	btRigidBody* body1 = m_tmpSolverBodyPool[solverBodyIdB].m_originalBody;
+	btRigidBody* bodyA = m_tmpSolverBodyPool[solverBodyIdB].m_originalBody;
 
 	solverConstraint.m_solverBodyIdA = solverBodyIdA;
 	solverConstraint.m_solverBodyIdB = solverBodyIdB;
@@ -576,12 +576,12 @@ void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstr
 		solverConstraint.m_angularComponentA .setZero();
 	}
 
-	if (body1)
+	if (bodyA)
 	{
 		solverConstraint.m_contactNormal2 = -normalAxis;
 		btVector3 ftorqueAxis1 = rel_pos2.cross(solverConstraint.m_contactNormal2);
 		solverConstraint.m_relpos2CrossNormal = ftorqueAxis1;
-		solverConstraint.m_angularComponentB = body1->getInvInertiaTensorWorld()*ftorqueAxis1*body1->getAngularFactor();
+		solverConstraint.m_angularComponentB = bodyA->getInvInertiaTensorWorld()*ftorqueAxis1*bodyA->getAngularFactor();
 	} else
 	{
 		solverConstraint.m_contactNormal2.setZero();
@@ -598,10 +598,10 @@ void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstr
 			vec = ( solverConstraint.m_angularComponentA).cross(rel_pos1);
 			denom0 = body0->getInvMass() + normalAxis.dot(vec);
 		}
-		if (body1)
+		if (bodyA)
 		{
 			vec = ( -solverConstraint.m_angularComponentB).cross(rel_pos2);
-			denom1 = body1->getInvMass() + normalAxis.dot(vec);
+			denom1 = bodyA->getInvMass() + normalAxis.dot(vec);
 		}
 		btScalar denom = relaxation/(denom0+denom1);
 		solverConstraint.m_jacDiagABInv = denom;
@@ -613,8 +613,8 @@ void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstr
 		btScalar rel_vel;
 		btScalar vel1Dotn = solverConstraint.m_contactNormal1.dot(body0?solverBodyA.m_linearVelocity+solverBodyA.m_externalForceImpulse:btVector3(0,0,0))
 			+ solverConstraint.m_relpos1CrossNormal.dot(body0?solverBodyA.m_angularVelocity:btVector3(0,0,0));
-		btScalar vel2Dotn = solverConstraint.m_contactNormal2.dot(body1?solverBodyB.m_linearVelocity+solverBodyB.m_externalForceImpulse:btVector3(0,0,0))
-			+ solverConstraint.m_relpos2CrossNormal.dot(body1?solverBodyB.m_angularVelocity:btVector3(0,0,0));
+		btScalar vel2Dotn = solverConstraint.m_contactNormal2.dot(bodyA?solverBodyB.m_linearVelocity+solverBodyB.m_externalForceImpulse:btVector3(0,0,0))
+			+ solverConstraint.m_relpos2CrossNormal.dot(bodyA?solverBodyB.m_angularVelocity:btVector3(0,0,0));
 
 		rel_vel = vel1Dotn+vel2Dotn;
 
@@ -666,7 +666,7 @@ void btSequentialImpulseConstraintSolver::setupTorsionalFrictionConstraint(	btSo
 	btSolverBody& solverBodyB = m_tmpSolverBodyPool[solverBodyIdB];
 
 	btRigidBody* body0 = m_tmpSolverBodyPool[solverBodyIdA].m_originalBody;
-	btRigidBody* body1 = m_tmpSolverBodyPool[solverBodyIdB].m_originalBody;
+	btRigidBody* bodyA = m_tmpSolverBodyPool[solverBodyIdB].m_originalBody;
 
 	solverConstraint.m_solverBodyIdA = solverBodyIdA;
 	solverConstraint.m_solverBodyIdB = solverBodyIdB;
@@ -685,13 +685,13 @@ void btSequentialImpulseConstraintSolver::setupTorsionalFrictionConstraint(	btSo
 	{
 		btVector3 ftorqueAxis1 = normalAxis1;
 		solverConstraint.m_relpos2CrossNormal = ftorqueAxis1;
-		solverConstraint.m_angularComponentB = body1 ? body1->getInvInertiaTensorWorld()*ftorqueAxis1*body1->getAngularFactor() : btVector3(0,0,0);
+		solverConstraint.m_angularComponentB = bodyA ? bodyA->getInvInertiaTensorWorld()*ftorqueAxis1*bodyA->getAngularFactor() : btVector3(0,0,0);
 	}
 
 
 	{
 		btVector3 iMJaA = body0?body0->getInvInertiaTensorWorld()*solverConstraint.m_relpos1CrossNormal:btVector3(0,0,0);
-		btVector3 iMJaB = body1?body1->getInvInertiaTensorWorld()*solverConstraint.m_relpos2CrossNormal:btVector3(0,0,0);
+		btVector3 iMJaB = bodyA?bodyA->getInvInertiaTensorWorld()*solverConstraint.m_relpos2CrossNormal:btVector3(0,0,0);
 		btScalar sum = 0;
 		sum += iMJaA.dot(solverConstraint.m_relpos1CrossNormal);
 		sum += iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
@@ -704,8 +704,8 @@ void btSequentialImpulseConstraintSolver::setupTorsionalFrictionConstraint(	btSo
 		btScalar rel_vel;
 		btScalar vel1Dotn = solverConstraint.m_contactNormal1.dot(body0?solverBodyA.m_linearVelocity+solverBodyA.m_externalForceImpulse:btVector3(0,0,0))
 			+ solverConstraint.m_relpos1CrossNormal.dot(body0?solverBodyA.m_angularVelocity:btVector3(0,0,0));
-		btScalar vel2Dotn = solverConstraint.m_contactNormal2.dot(body1?solverBodyB.m_linearVelocity+solverBodyB.m_externalForceImpulse:btVector3(0,0,0))
-			+ solverConstraint.m_relpos2CrossNormal.dot(body1?solverBodyB.m_angularVelocity:btVector3(0,0,0));
+		btScalar vel2Dotn = solverConstraint.m_contactNormal2.dot(bodyA?solverBodyB.m_linearVelocity+solverBodyB.m_externalForceImpulse:btVector3(0,0,0))
+			+ solverConstraint.m_relpos2CrossNormal.dot(bodyA?solverBodyB.m_angularVelocity:btVector3(0,0,0));
 
 		rel_vel = vel1Dotn+vel2Dotn;
 
