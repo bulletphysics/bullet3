@@ -35,7 +35,7 @@ int User2InternalIndex::buildMapping() {
             user_root_index = current_root_index;
         } else {
             if (user_root_index != current_root_index) {
-                error_message("multiple roots (at least) %d and %d\n", user_root_index,
+                bt_id_error_message("multiple roots (at least) %d and %d\n", user_root_index,
                               current_root_index);
                 return -1;
             }
@@ -75,7 +75,7 @@ int User2InternalIndex::user2internal(const int user, int *internal) const {
         *internal = it->second;
         return 0;
     } else {
-        error_message("no user index %d\n", user);
+        bt_id_error_message("no user index %d\n", user);
         return -1;
     }
 }
@@ -92,7 +92,7 @@ int User2InternalIndex::internal2user(const int internal, int *user) const {
         *user = it->second;
         return 0;
     } else {
-        error_message("no internal index %d\n", internal);
+        bt_id_error_message("no internal index %d\n", internal);
         return -1;
     }
 }

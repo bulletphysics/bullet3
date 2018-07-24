@@ -6,7 +6,7 @@ btMultiBodyTreeCreator::btMultiBodyTreeCreator() : m_initialized(false) {}
 
 int btMultiBodyTreeCreator::createFromBtMultiBody(const btMultiBody *btmb, const bool verbose) {
     if (0x0 == btmb) {
-        error_message("cannot create MultiBodyTree from null pointer\n");
+        bt_id_error_message("cannot create MultiBodyTree from null pointer\n");
         return -1;
     }
 
@@ -184,10 +184,10 @@ int btMultiBodyTreeCreator::createFromBtMultiBody(const btMultiBody *btmb, const
                 link.parent_r_parent_body_ref(2) = bt_link.m_eVector[2];
                 break;
             case btMultibodyLink::eSpherical:
-                error_message("spherical joints not implemented\n");
+                bt_id_error_message("spherical joints not implemented\n");
                 return -1;
             case btMultibodyLink::ePlanar:
-                error_message("planar joints not implemented\n");
+                bt_id_error_message("planar joints not implemented\n");
                 return -1;
             case btMultibodyLink::eFixed:
                 link.joint_type = FIXED;
@@ -203,7 +203,7 @@ int btMultiBodyTreeCreator::createFromBtMultiBody(const btMultiBody *btmb, const
                 link.parent_r_parent_body_ref(2) = bt_link.m_eVector[2];
                 break;
             default:
-                error_message("unknown btMultiBody::eFeatherstoneJointType %d\n",
+                bt_id_error_message("unknown btMultiBody::eFeatherstoneJointType %d\n",
                               bt_link.m_jointType);
                 return -1;
         }
@@ -231,7 +231,7 @@ int btMultiBodyTreeCreator::createFromBtMultiBody(const btMultiBody *btmb, const
 
 int btMultiBodyTreeCreator::getNumBodies(int *num_bodies) const {
     if (false == m_initialized) {
-        error_message("btMultiBody not converted yet\n");
+        bt_id_error_message("btMultiBody not converted yet\n");
         return -1;
     }
 
@@ -245,12 +245,12 @@ int btMultiBodyTreeCreator::getBody(const int body_index, int *parent_index, Joi
                                     vec3 *body_r_body_com, mat33 *body_I_body, int *user_int,
                                     void **user_ptr) const {
     if (false == m_initialized) {
-        error_message("MultiBodyTree not created yet\n");
+        bt_id_error_message("MultiBodyTree not created yet\n");
         return -1;
     }
 
     if (body_index < 0 || body_index >= static_cast<int>(m_data.size())) {
-        error_message("index out of range (got %d but only %zu bodies)\n", body_index,
+        bt_id_error_message("index out of range (got %d but only %zu bodies)\n", body_index,
                       m_data.size());
         return -1;
     }
