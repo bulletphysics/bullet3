@@ -38,6 +38,7 @@ struct b3Plugin
 	
 	PFN_TICK m_preTickFunc;
 	PFN_TICK m_postTickFunc;
+	PFN_TICK m_tickPluginFunc;
 
 	PFN_GET_RENDER_INTERFACE m_getRendererFunc;
 	
@@ -52,6 +53,7 @@ struct b3Plugin
 		m_executeCommandFunc(0),
 		m_preTickFunc(0),
 		m_postTickFunc(0),
+		m_tickPluginFunc(0),
 		m_getRendererFunc(0),
 		m_userPointer(0)
 	{
@@ -83,10 +85,12 @@ struct b3PluginManagerInternalData
 	b3AlignedObjectArray<b3KeyboardEvent> m_keyEvents;
 	b3AlignedObjectArray<b3VRControllerEvent> m_vrEvents;
 	b3AlignedObjectArray<b3MouseEvent> m_mouseEvents;
+	b3AlignedObjectArray<b3Notification> m_notifications[2];
+	int m_activeNotificationsBufferIndex;
 	int m_activeRendererPluginUid;
 
 	b3PluginManagerInternalData()
-		:m_activeRendererPluginUid(-1)
+		:m_activeRendererPluginUid(-1), m_activeNotificationsBufferIndex(0)
 	{
 	}
 };
@@ -140,6 +144,11 @@ void b3PluginManager::clearEvents()
 	m_data->m_mouseEvents.resize(0);
 }
 
+void b3PluginManager::addNotification(const struct b3Notification& notification)
+{
+	m_data->m_notifications[m_data->m_activeNotificationsBufferIndex].push_back(notification);
+}
+
 int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 {
 	int pluginUniqueId = -1;
@@ -165,6 +174,7 @@ int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 			std::string executePluginCommandStr = std::string("executePluginCommand") + postFix;
 			std::string preTickPluginCallbackStr = std::string("preTickPluginCallback") + postFix;
 			std::string postTickPluginCallback = std::string("postTickPluginCallback") + postFix;
+			std::string tickPluginStr = std::string("tickPlugin") + postFix;
 			std::string getRendererStr = std::string("getRenderInterface") + postFix;
 			
 			plugin->m_initFunc = (PFN_INIT)B3_DYNLIB_IMPORT(pluginHandle, initStr.c_str());
@@ -172,6 +182,7 @@ int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 			plugin->m_executeCommandFunc = (PFN_EXECUTE)B3_DYNLIB_IMPORT(pluginHandle, executePluginCommandStr.c_str());
 			plugin->m_preTickFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, preTickPluginCallbackStr.c_str());
 			plugin->m_postTickFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, postTickPluginCallback.c_str());
+			plugin->m_tickPluginFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, tickPluginStr.c_str());
 			plugin->m_getRendererFunc =  (PFN_GET_RENDER_INTERFACE)B3_DYNLIB_IMPORT(pluginHandle, getRendererStr.c_str());
 			
 			if (plugin->m_initFunc && plugin->m_exitFunc && plugin->m_executeCommandFunc)
@@ -236,7 +247,7 @@ void b3PluginManager::unloadPlugin(int pluginUniqueId)
 	b3PluginHandle* plugin = m_data->m_plugins.getHandle(pluginUniqueId);
 	if (plugin)
 	{
-		b3PluginContext context;
+		b3PluginContext context = {0};
 		context.m_userPointer = plugin->m_userPointer;
 		context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
 
@@ -266,7 +277,7 @@ void b3PluginManager::tickPlugins(double timeStep, bool isPreTick)
 		PFN_TICK  tick = isPreTick? plugin->m_preTickFunc : plugin->m_postTickFunc;
 		if (tick)
 		{
-			b3PluginContext context;
+			b3PluginContext context = {0};
 			context.m_userPointer = plugin->m_userPointer;
 			context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
 			context.m_numMouseEvents = m_data->m_mouseEvents.size();
@@ -281,6 +292,39 @@ void b3PluginManager::tickPlugins(double timeStep, bool isPreTick)
 	}
 }
 
+void b3PluginManager::tickPlugins()
+{
+	b3AlignedObjectArray<b3Notification> &notifications = m_data->m_notifications[m_data->m_activeNotificationsBufferIndex];
+	// Swap notification buffers.
+	m_data->m_activeNotificationsBufferIndex = 1 - m_data->m_activeNotificationsBufferIndex;
+
+	for (int i=0;i<m_data->m_pluginMap.size();i++)
+	{
+		int* pluginUidPtr = m_data->m_pluginMap.getAtIndex(i);
+		b3PluginHandle* plugin = 0;
+
+		if (pluginUidPtr)
+		{
+			int pluginUid = *pluginUidPtr;
+			plugin = m_data->m_plugins.getHandle(pluginUid);
+		}
+		else
+		{
+			continue;
+		}
+
+		if (plugin->m_tickPluginFunc) {
+			b3PluginContext context = {0};
+			context.m_userPointer = plugin->m_userPointer;
+			context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
+			context.m_numNotifications = notifications.size();
+			context.m_notifications = notifications.size() ? &notifications[0] : 0;
+			plugin->m_tickPluginFunc(&context);
+		}
+	}
+	notifications.clear();
+}
+
 int b3PluginManager::executePluginCommand(int pluginUniqueId, const b3PluginArguments* arguments)
 {
 	int result = -1;
@@ -288,15 +332,9 @@ int b3PluginManager::executePluginCommand(int pluginUniqueId, const b3PluginArgu
 	b3PluginHandle* plugin = m_data->m_plugins.getHandle(pluginUniqueId);
 	if (plugin)
 	{
-		b3PluginContext context;
+		b3PluginContext context = {0};
 		context.m_userPointer = plugin->m_userPointer;
 		context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
-		context.m_numMouseEvents = 0;
-		context.m_mouseEvents = 0;
-		context.m_numKeyEvents = 0;
-		context.m_keyEvents = 0;
-		context.m_numVRControllerEvents = 0;
-		context.m_vrControllerEvents = 0;
 
 		result = plugin->m_executeCommandFunc(&context, arguments);
 		plugin->m_userPointer = context.m_userPointer;
@@ -329,15 +367,9 @@ int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT
 	m_data->m_pluginMap.insert(pluginPath, pluginUniqueId);
 
 	{
-		b3PluginContext context;
+		b3PluginContext context = {0};
 		context.m_userPointer = 0;
 		context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
-		context.m_numMouseEvents = 0;
-		context.m_mouseEvents = 0;
-		context.m_numKeyEvents = 0;
-		context.m_keyEvents = 0;
-		context.m_numVRControllerEvents = 0;
-		context.m_vrControllerEvents = 0;
 
 		int result = pluginHandle->m_initFunc(&context);
 		pluginHandle->m_userPointer = context.m_userPointer;
@@ -359,15 +391,9 @@ UrdfRenderingInterface* b3PluginManager::getRenderInterface()
 		b3PluginHandle* plugin = m_data->m_plugins.getHandle(m_data->m_activeRendererPluginUid);
 		if (plugin)
 		{
-			b3PluginContext context;
+			b3PluginContext context = {0};
 			context.m_userPointer = plugin->m_userPointer;
 			context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
-			context.m_numMouseEvents = 0;
-			context.m_mouseEvents = 0;
-			context.m_numKeyEvents = 0;
-			context.m_keyEvents = 0;
-			context.m_numVRControllerEvents = 0;
-			context.m_vrControllerEvents = 0;
 
 			renderer = plugin->m_getRendererFunc(&context);
 		}

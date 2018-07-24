@@ -471,6 +471,8 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				args->m_physicsServerPtr->processClientCommands();
 				numCmdSinceSleep1ms++;
 			}
+
+			args->m_physicsServerPtr->tickPlugins();
 			
 			args->m_cs->lock();
 			cachedSharedParam = args->m_cs->getSharedParam(0);

@@ -16,6 +16,8 @@ struct b3PluginContext
 	int m_numKeyEvents;
 	const struct b3MouseEvent* m_mouseEvents;
 	int m_numMouseEvents;
+	const struct b3Notification* m_notifications;
+	int m_numNotifications;
 };
 
 

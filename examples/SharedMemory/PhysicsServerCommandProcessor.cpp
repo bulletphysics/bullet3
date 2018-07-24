@@ -1902,6 +1902,10 @@ void PhysicsServerCommandProcessor::processCollisionForces(btScalar timeStep)
 #endif//B3_ENABLE_TINY_AUDIO
 }
 
+void PhysicsServerCommandProcessor::tickPlugins() {
+  m_data->m_pluginManager.tickPlugins();
+}
+
 void PhysicsServerCommandProcessor::tickPlugins(btScalar timeStep, bool isPreTick)
 {
 	m_data->m_pluginManager.tickPlugins(timeStep, isPreTick);
@@ -2855,6 +2859,11 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
                 }
             }
         }
+
+        b3Notification notification;
+        notification.m_notificationType = BODY_ADDED;
+        notification.m_bodyArgs.m_bodyUniqueId = bodyUniqueId;
+        m_data->m_pluginManager.addNotification(notification);
     }
 
 	
@@ -5108,6 +5117,11 @@ bool PhysicsServerCommandProcessor::processAddUserDataCommand(const struct Share
 	serverStatusOut.m_userDataResponseArgs.m_valueType = clientCmd.m_addUserDataRequestArgs.m_valueType;
 	strcpy(serverStatusOut.m_userDataResponseArgs.m_key, clientCmd.m_addUserDataRequestArgs.m_key);
 
+	b3Notification notification;
+	notification.m_notificationType = USER_DATA_ADDED;
+	notification.m_userDataArgs.m_userDataId = userDataHandle;
+	m_data->m_pluginManager.addNotification(notification);
+
 	// Keep bufferServerToClient as-is.
 	return hasStatus;
 }
@@ -5134,6 +5148,12 @@ bool PhysicsServerCommandProcessor::processRemoveUserDataCommand(const struct Sh
 
 	serverStatusOut.m_removeUserDataResponseArgs = clientCmd.m_removeUserDataRequestArgs;
 	serverStatusOut.m_type = CMD_REMOVE_USER_DATA_COMPLETED;
+
+	b3Notification notification;
+	notification.m_notificationType = USER_DATA_REMOVED;
+	notification.m_userDataArgs.m_userDataId = clientCmd.m_removeUserDataRequestArgs.m_userDataId;
+	m_data->m_pluginManager.addNotification(notification);
+
 	return hasStatus;
 }
 
@@ -6481,6 +6501,11 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				bodyHandle->m_softBody = psb;
 				serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
 				serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_COMPLETED;
+
+				b3Notification notification;
+				notification.m_notificationType = BODY_ADDED;
+				notification.m_bodyArgs.m_bodyUniqueId = bodyUniqueId;
+				m_data->m_pluginManager.addNotification(notification);
 			}
 		}
 	}
@@ -6741,17 +6766,25 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 
 	btScalar deltaTimeScaled = m_data->m_physicsDeltaTime*simTimeScalingFactor;
 
+	int numSteps = 0;
 	if (m_data->m_numSimulationSubSteps > 0)
 	{
-		m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, m_data->m_numSimulationSubSteps, m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps);
+		numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, m_data->m_numSimulationSubSteps, m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps);
 	}
 	else
 	{
-		m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, 0);
+		numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, 0);
+	}
+
+	if (numSteps > 0)
+	{
+		addTransformChangedNotifications();
 	}
 
 	SharedMemoryStatus& serverCmd =serverStatusOut;
 	serverCmd.m_type = CMD_STEP_FORWARD_SIMULATION_COMPLETED;
+
+
 	return hasStatus;
 
 }
@@ -7049,6 +7082,13 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					
 	SharedMemoryStatus& serverCmd =serverStatusOut;
 	serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+
+	b3Notification notification;
+	notification.m_notificationType = LINK_DYNAMICS_CHANGED;
+	notification.m_linkArgs.m_bodyUniqueId = bodyUniqueId;
+	notification.m_linkArgs.m_linkIndex = linkIndex;
+	m_data->m_pluginManager.addNotification(notification);
+
 	return hasStatus;					
 }
 
@@ -7657,6 +7697,11 @@ bool PhysicsServerCommandProcessor::processCreateRigidBodyCommand(const struct S
 	rb->setUserIndex2(bodyUniqueId);
 	bodyHandle->m_rootLocalInertialFrame.setIdentity();
 	bodyHandle->m_rigidBody = rb;
+
+	b3Notification notification;
+	notification.m_notificationType = BODY_ADDED;
+	notification.m_bodyArgs.m_bodyUniqueId = bodyUniqueId;
+	m_data->m_pluginManager.addNotification(notification);
 	
 	return hasStatus;
 }
@@ -8257,6 +8302,14 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 		
 	}
 	m_data->m_guiHelper->setVisualizerFlag(COV_ENABLE_SYNC_RENDERING_INTERNAL,1);
+
+	for (int i=0;i<serverCmd.m_removeObjectArgs.m_numBodies;i++)
+	{
+		b3Notification notification;
+		notification.m_notificationType = BODY_REMOVED;
+		notification.m_bodyArgs.m_bodyUniqueId = serverCmd.m_removeObjectArgs.m_bodyUniqueIds[i];
+		m_data->m_pluginManager.addNotification(notification);
+	}
 	
     return hasStatus;
 }
@@ -9419,7 +9472,15 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 	}
 	
 	serverCmd.m_type = CMD_VISUAL_SHAPE_UPDATE_COMPLETED;
-    return hasStatus;
+
+	b3Notification notification;
+	notification.m_notificationType = VISUAL_SHAPE_CHANGED;
+	notification.m_visualShapeArgs.m_bodyUniqueId = clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId;
+	notification.m_visualShapeArgs.m_linkIndex = clientCmd.m_updateVisualShapeDataArguments.m_jointIndex;
+	notification.m_visualShapeArgs.m_visualShapeIndex = clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex;
+	m_data->m_pluginManager.addNotification(notification);
+
+	return hasStatus;
 }
 
 bool PhysicsServerCommandProcessor::processChangeTextureCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
@@ -9640,6 +9701,11 @@ bool PhysicsServerCommandProcessor::processLoadBulletCommand(const struct Shared
 							serverStatusOut.m_sdfLoadedArgs.m_numBodies++;
 							serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[i] = bodyUniqueId;
 						}
+
+						b3Notification notification;
+						notification.m_notificationType = BODY_ADDED;
+						notification.m_bodyArgs.m_bodyUniqueId = bodyUniqueId;
+						m_data->m_pluginManager.addNotification(notification);
 					}
 				}
 			}
@@ -10439,11 +10505,59 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,const 
 		{
 			gNumSteps = numSteps;
 			gDtInSec = dtInSec;
+
+			addTransformChangedNotifications();
 		}
 	}
 }
 
+b3Notification createTransformChangedNotification(int bodyUniqueId, int linkIndex, const btCollisionObject* colObj)
+{
+	b3Notification notification;
+	notification.m_notificationType = TRANSFORM_CHANGED;
+	notification.m_transformChangeArgs.m_bodyUniqueId = bodyUniqueId;
+	notification.m_transformChangeArgs.m_linkIndex = linkIndex;
 
+	const btTransform &tr = colObj->getWorldTransform();
+	notification.m_transformChangeArgs.m_worldPosition[0] = tr.getOrigin()[0];
+	notification.m_transformChangeArgs.m_worldPosition[1] = tr.getOrigin()[1];
+	notification.m_transformChangeArgs.m_worldPosition[2] = tr.getOrigin()[2];
+
+	notification.m_transformChangeArgs.m_worldRotation[0] = tr.getRotation()[0];
+	notification.m_transformChangeArgs.m_worldRotation[1] = tr.getRotation()[1];
+	notification.m_transformChangeArgs.m_worldRotation[2] = tr.getRotation()[2];
+	notification.m_transformChangeArgs.m_worldRotation[3] = tr.getRotation()[3];
+
+	const btVector3 &scaling = colObj->getCollisionShape()->getLocalScaling();
+	notification.m_transformChangeArgs.m_localScaling[0] = scaling[0];
+	notification.m_transformChangeArgs.m_localScaling[1] = scaling[1];
+	notification.m_transformChangeArgs.m_localScaling[2] = scaling[2];
+	return notification;
+}
+
+void PhysicsServerCommandProcessor::addTransformChangedNotifications()
+{
+	b3AlignedObjectArray<int> usedHandles;
+	m_data->m_bodyHandles.getUsedHandles(usedHandles);
+	for (int i=0;i<usedHandles.size();i++) {
+		int bodyUniqueId = usedHandles[i];
+		InternalBodyData *bodyData = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+		if (!bodyData) {
+			continue;
+		}
+		if (bodyData->m_multiBody && bodyData->m_multiBody->isAwake()) {
+			btMultiBody *mb = bodyData->m_multiBody;
+			m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, -1, mb->getBaseCollider()));
+
+			for (int linkIndex=0;linkIndex < mb->getNumLinks(); linkIndex++) {
+				m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, linkIndex, mb->getLinkCollider(linkIndex)));
+			}
+		}
+		else if (bodyData->m_rigidBody && bodyData->m_rigidBody->isActive()) {
+			m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, -1, bodyData->m_rigidBody));
+		}
+	}
+}
 
 void PhysicsServerCommandProcessor::resetSimulation()
 {
@@ -10490,6 +10604,10 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	m_data->m_userDataHandles.exitHandles();
 	m_data->m_userDataHandles.initHandles();
 	m_data->m_userDataHandleLookup.clear();
+
+	b3Notification notification;
+	notification.m_notificationType = SIMULATION_RESET;
+	m_data->m_pluginManager.addNotification(notification);
 }
 
 

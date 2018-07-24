@@ -32,6 +32,8 @@ public:
 	virtual void enableRealTimeSimulation(bool enableRealTimeSim);
 	virtual bool isRealTimeSimulationEnabled() const;
 
+	virtual void tickPlugins();
+
 	//bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
 
 	
