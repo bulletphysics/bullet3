@@ -1694,7 +1694,7 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 			if (iteration < constraint.m_overrideNumSolverIterations)
 			{
 				btScalar residual = resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[constraint.m_solverBodyIdA],m_tmpSolverBodyPool[constraint.m_solverBodyIdB],constraint);
-				leastSquaresResidual += residual*residual;
+				leastSquaresResidual = btMax(leastSquaresResidual, residual*residual);
 			}
 		}
 
@@ -1725,7 +1725,7 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 					{
 						const btSolverConstraint& solveManifold = m_tmpSolverContactConstraintPool[m_orderTmpConstraintPool[c]];
 						btScalar residual = resolveSingleConstraintRowLowerLimit(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
-						leastSquaresResidual += residual*residual;
+						leastSquaresResidual = btMax(leastSquaresResidual, residual*residual);
 
 						totalImpulse = solveManifold.m_appliedImpulse;
 					}
@@ -1742,7 +1742,7 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 								solveManifold.m_upperLimit = solveManifold.m_friction*totalImpulse;
 
 								btScalar residual = resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
-								leastSquaresResidual += residual*residual;
+								leastSquaresResidual = btMax(leastSquaresResidual, residual*residual);
 							}
 						}
 
@@ -1757,7 +1757,7 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 								solveManifold.m_upperLimit = solveManifold.m_friction*totalImpulse;
 
 								btScalar residual = resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
-								leastSquaresResidual += residual*residual;
+								leastSquaresResidual = btMax(leastSquaresResidual, residual*residual);
 							}
 						}
 					}
@@ -1774,7 +1774,7 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 				{
 					const btSolverConstraint& solveManifold = m_tmpSolverContactConstraintPool[m_orderTmpConstraintPool[j]];
 					btScalar residual = resolveSingleConstraintRowLowerLimit(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
-					leastSquaresResidual += residual*residual;
+					leastSquaresResidual = btMax(leastSquaresResidual, residual*residual);
 				}
 
 
@@ -1793,7 +1793,7 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 						solveManifold.m_upperLimit = solveManifold.m_friction*totalImpulse;
 
 						btScalar residual = resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
-						leastSquaresResidual += residual*residual;
+						leastSquaresResidual = btMax(leastSquaresResidual, residual*residual);
 					}
 				}
 			}
@@ -1815,7 +1815,7 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 						rollingFrictionConstraint.m_upperLimit = rollingFrictionMagnitude;
 
 						btScalar residual = resolveSingleConstraintRowGeneric(m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdA],m_tmpSolverBodyPool[rollingFrictionConstraint.m_solverBodyIdB],rollingFrictionConstraint);
-						leastSquaresResidual += residual*residual;
+						leastSquaresResidual = btMax(leastSquaresResidual, residual*residual);
 					}
 				}
 
@@ -1843,7 +1843,7 @@ void btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySplitImpulseIte
 						const btSolverConstraint& solveManifold = m_tmpSolverContactConstraintPool[m_orderTmpConstraintPool[j]];
 
 						btScalar residual = resolveSplitPenetrationImpulse(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
-						leastSquaresResidual += residual*residual;
+						leastSquaresResidual = btMax(leastSquaresResidual, residual*residual);
 					}
 				}
 				if (leastSquaresResidual <= infoGlobal.m_leastSquaresResidualThreshold || iteration>=(infoGlobal.m_numIterations-1))
