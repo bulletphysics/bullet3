@@ -48,7 +48,7 @@ int CoilCreator::getBody(int body_index, int* parent_index, JointType* joint_typ
                          vec3* body_axis_of_motion, idScalar* mass, vec3* body_r_body_com,
                          mat33* body_I_body, int* user_int, void** user_ptr) const {
     if (body_index < 0 || body_index >= m_num_bodies) {
-        error_message("invalid body index %d\n", body_index);
+        bt_id_error_message("invalid body index %d\n", body_index);
         return -1;
     }
     *parent_index = m_parent[body_index];

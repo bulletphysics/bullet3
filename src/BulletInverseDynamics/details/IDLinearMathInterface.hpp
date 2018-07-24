@@ -78,7 +78,7 @@ inline vecx operator+(const vecx& a, const vecx& b) {
 	vecx result(a.size());
 	// TODO: error handling for a.size() != b.size()??
 	if (a.size() != b.size()) {
-		error_message("size missmatch. a.size()= %d, b.size()= %d\n", a.size(), b.size());
+		bt_id_error_message("size missmatch. a.size()= %d, b.size()= %d\n", a.size(), b.size());
 		abort();
 	}
 	for (int i = 0; i < a.size(); i++) {
@@ -92,7 +92,7 @@ inline vecx operator-(const vecx& a, const vecx& b) {
 	vecx result(a.size());
 	// TODO: error handling for a.size() != b.size()??
 	if (a.size() != b.size()) {
-		error_message("size missmatch. a.size()= %d, b.size()= %d\n", a.size(), b.size());
+		bt_id_error_message("size missmatch. a.size()= %d, b.size()= %d\n", a.size(), b.size());
 		abort();
 	}
 	for (int i = 0; i < a.size(); i++) {
@@ -121,7 +121,7 @@ public:
     }
     void operator=(const mat3x& rhs) {
 	if (m_cols != rhs.m_cols) {
-            error_message("size missmatch, cols= %d but rhs.cols= %d\n", cols(), rhs.cols());
+            bt_id_error_message("size missmatch, cols= %d but rhs.cols= %d\n", cols(), rhs.cols());
             abort();
 	}
         for(int i=0;i<rows();i++) {
@@ -139,7 +139,7 @@ public:
 inline vec3 operator*(const mat3x& a, const vecx& b) {
     vec3 result;
     if (a.cols() != b.size()) {
-        error_message("size missmatch. a.cols()= %d, b.size()= %d\n", a.cols(), b.size());
+        bt_id_error_message("size missmatch. a.cols()= %d, b.size()= %d\n", a.cols(), b.size());
         abort();
     }
     result(0)=0.0;

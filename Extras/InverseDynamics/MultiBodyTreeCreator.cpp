@@ -17,7 +17,7 @@ MultiBodyTree* CreateMultiBodyTree(const MultiBodyTreeCreator& creator) {
 
     MultiBodyTree* tree = new MultiBodyTree();
     if (0x0 == tree) {
-        error_message("cannot allocate tree\n");
+        bt_id_error_message("cannot allocate tree\n");
         return 0x0;
     }
 
@@ -26,7 +26,7 @@ MultiBodyTree* CreateMultiBodyTree(const MultiBodyTreeCreator& creator) {
 
     // get number of bodies in the system
     if (-1 == creator.getNumBodies(&num_bodies)) {
-        error_message("getting body indices\n");
+        bt_id_error_message("getting body indices\n");
         delete tree;
         return 0x0;
     }
@@ -38,7 +38,7 @@ MultiBodyTree* CreateMultiBodyTree(const MultiBodyTreeCreator& creator) {
             creator.getBody(index, &parent_index, &joint_type, &body_r_parent_body_ref,
                             &body_R_parent_ref, &body_axis_of_motion, &mass, &body_r_body_com,
                             &body_I_body, &user_int, &user_ptr)) {
-            error_message("getting data for body %d\n", index);
+            bt_id_error_message("getting data for body %d\n", index);
             delete tree;
             return 0x0;
         }
@@ -47,14 +47,14 @@ MultiBodyTree* CreateMultiBodyTree(const MultiBodyTreeCreator& creator) {
             tree->addBody(index, parent_index, joint_type, body_r_parent_body_ref,
                           body_R_parent_ref, body_axis_of_motion, mass, body_r_body_com,
                           body_I_body, user_int, user_ptr)) {
-            error_message("adding body %d\n", index);
+            bt_id_error_message("adding body %d\n", index);
             delete tree;
             return 0x0;
         }
     }
     // finalize initialization
     if (-1 == tree->finalize()) {
-        error_message("building system\n");
+        bt_id_error_message("building system\n");
         delete tree;
         return 0x0;
     }

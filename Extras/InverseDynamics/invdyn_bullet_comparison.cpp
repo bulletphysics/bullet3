@@ -12,11 +12,11 @@ namespace btInverseDynamics {
 int compareInverseAndForwardDynamics(vecx &q, vecx &u, vecx &dot_u, btVector3 &gravity, bool verbose,
                                      btMultiBody *btmb, MultiBodyTree *id_tree, double *pos_error,
                                      double *acc_error) {
-// call function and return -1 if it does, printing an error_message
+// call function and return -1 if it does, printing an bt_id_error_message
 #define RETURN_ON_FAILURE(x)                                                                       \
     do {                                                                                           \
         if (-1 == x) {                                                                             \
-            error_message("calling " #x "\n");                                                     \
+            bt_id_error_message("calling " #x "\n");                                                     \
             return -1;                                                                             \
         }                                                                                          \
     } while (0)
@@ -75,13 +75,13 @@ int compareInverseAndForwardDynamics(vecx &q, vecx &u, vecx &dot_u, btVector3 &g
     }
     // sanity check
     if (q_index != q.size()) {
-        error_message("error in number of dofs for btMultibody and MultiBodyTree\n");
+        bt_id_error_message("error in number of dofs for btMultibody and MultiBodyTree\n");
         return -1;
     }
 
     // run inverse dynamics to determine joint_forces for given q, u, dot_u
     if (-1 == id_tree->calculateInverseDynamics(q, u, dot_u, &joint_forces)) {
-        error_message("calculating inverse dynamics\n");
+        bt_id_error_message("calculating inverse dynamics\n");
         return -1;
     }
 
@@ -143,7 +143,7 @@ int compareInverseAndForwardDynamics(vecx &q, vecx &u, vecx &dot_u, btVector3 &g
 
     // sanity check
     if (q_index != q.size()) {
-        error_message("error in number of dofs for btMultibody and MultiBodyTree\n");
+        bt_id_error_message("error in number of dofs for btMultibody and MultiBodyTree\n");
         return -1;
     }
 
@@ -223,12 +223,12 @@ int compareInverseAndForwardDynamics(vecx &q, vecx &u, vecx &dot_u, btVector3 &g
     {
         mat33 world_T_body;
         if (-1 == id_tree->getBodyTransform(0, &world_T_body)) {
-            error_message("getting transform for body %d\n", 0);
+            bt_id_error_message("getting transform for body %d\n", 0);
             return -1;
         }
         vec3 world_com;
         if (-1 == id_tree->getBodyCoM(0, &world_com)) {
-            error_message("getting com for body %d\n", 0);
+            bt_id_error_message("getting com for body %d\n", 0);
             return -1;
         }
         if (verbose) {
@@ -261,11 +261,11 @@ int compareInverseAndForwardDynamics(vecx &q, vecx &u, vecx &dot_u, btVector3 &g
         vec3 id_world_com;
 
         if (-1 == id_tree->getBodyTransform(l + 1, &id_world_T_body)) {
-            error_message("getting transform for body %d\n", l);
+            bt_id_error_message("getting transform for body %d\n", l);
             return -1;
         }
         if (-1 == id_tree->getBodyCoM(l + 1, &id_world_com)) {
-            error_message("getting com for body %d\n", l);
+            bt_id_error_message("getting com for body %d\n", l);
             return -1;
         }
         if (verbose) {
