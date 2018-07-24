@@ -115,10 +115,10 @@ public:
 	virtual void setTimeOut(double timeOutInSeconds);
 	virtual double getTimeOut() const;
 
-    virtual bool getCachedUserData(int bodyUniqueId, int linkIndex, int userDataId, struct b3UserDataValue &valueOut) const;
-    virtual int getCachedUserDataId(int bodyUniqueId, int linkIndex, const char *key) const;
-    virtual int getNumUserData(int bodyUniqueId, int linkIndex) const;
-    virtual void getUserDataInfo(int bodyUniqueId, int linkIndex, int userDataIndex, const char **keyOut, int *userDataIdOut) const;
+	virtual bool getCachedUserData(int userDataId, struct b3UserDataValue &valueOut) const;
+	virtual int getCachedUserDataId(int bodyUniqueId, int linkIndex, int visualShapeIndex, const char *key) const;
+	virtual int getNumUserData(int bodyUniqueId) const;
+	virtual void getUserDataInfo(int bodyUniqueId, int userDataIndex, const char **keyOut, int *userDataIdOut, int *linkIndexOut, int *visualShapeIndexOut) const;
 	
 	virtual void pushProfileTiming(const char* timingName);
 	virtual void popProfileTiming();

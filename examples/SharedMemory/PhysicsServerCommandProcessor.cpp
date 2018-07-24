@@ -222,72 +222,6 @@ struct InternalCollisionShapeData
 
 #include "SharedMemoryUserData.h"
 
-/**
- * Holds all custom user data entries for a link.
- */
-struct InternalLinkUserData {
-	// Used to look up user data entry handles for string keys.
-	btHashMap<btHashString, int> m_keyToHandleMap;
-	b3ResizablePool<b3PoolBodyHandle<SharedMemoryUserData> > m_userData;
-
-	// Adds or replaces a user data entry. 
-	// Returns the user data handle.
-	const int add(const char* key, const char* bytes, int len, int type) 
-	{
-		// If an entry with the key already exists, just update the value.
-		int userDataId = getUserDataId(key);
-		if (userDataId != -1) {
-			SharedMemoryUserData* userData = m_userData.getHandle(userDataId);
-			b3Assert(userData);
-			userData->replaceValue(bytes, len, type);
-			return userDataId;
-		}
-
-		userDataId = m_userData.allocHandle();
-		SharedMemoryUserData* userData = m_userData.getHandle(userDataId);
-		userData->m_key = key;
-		userData->replaceValue(bytes, len, type);
-		m_keyToHandleMap.insert(userData->m_key.c_str(), userDataId);
-		return userDataId;
-	}
-
-	// Returns the user data handle for a specified key or -1 if not found.
-	const int getUserDataId(const char* key) const 
-	{
-		const int* userDataIdPtr = m_keyToHandleMap.find(key);
-		if (userDataIdPtr) 
-		{
-			return *userDataIdPtr;
-		}
-		return -1;
-	}
-
-	// Removes a user data entry given the handle.
-	// Returns true when the entry was removed, false otherwise.
-	const bool remove(int userDataId) 
-	{
-		const SharedMemoryUserData* userData = m_userData.getHandle(userDataId);
-		if (!userData) 
-		{
-			return false;
-		}
-		m_keyToHandleMap.remove(userData->m_key.c_str());
-		m_userData.freeHandle(userDataId);
-		return true;
-	}
-
-	// Returns the user data given the user data id. null otherwise.
-	const SharedMemoryUserData* getUserData(const int userDataId) const 
-	{
-	    return m_userData.getHandle(userDataId);
-	}
-
-	void getUserDataIds(b3AlignedObjectArray<int> &userDataIds) const 
-	{
-		m_userData.getUsedHandles(userDataIds);
-	}
-};
-
 struct InternalBodyData
 {
 	btMultiBody* m_multiBody;
@@ -303,7 +237,7 @@ struct InternalBodyData
 	btAlignedObjectArray<btGeneric6DofSpring2Constraint*> m_rigidBodyJoints;
 	btAlignedObjectArray<std::string> m_rigidBodyJointNames;
 	btAlignedObjectArray<std::string> m_rigidBodyLinkNames;
-	btHashMap<btHashInt, InternalLinkUserData*> m_linkUserDataMap;
+	btAlignedObjectArray<int> m_userDataHandles;
 	
 #ifdef B3_ENABLE_TINY_AUDIO
 	b3HashMap<btHashInt, SDFAudioSource> m_audioSources;
@@ -328,10 +262,7 @@ struct InternalBodyData
 		m_rigidBodyJoints.clear();
 		m_rigidBodyJointNames.clear();
 		m_rigidBodyLinkNames.clear();
-		for(int i=0; i<m_linkUserDataMap.size(); i++) {
-			delete *m_linkUserDataMap.getAtIndex(i);
-		}
-		m_linkUserDataMap.clear();
+		m_userDataHandles.clear();
 	}
 
 };
@@ -1607,8 +1538,8 @@ struct PhysicsServerCommandProcessorInternalData
 	b3ResizablePool< InternalBodyHandle > m_bodyHandles;
 	b3ResizablePool<InternalCollisionShapeHandle> m_userCollisionShapeHandles;
 	b3ResizablePool<InternalVisualShapeHandle> m_userVisualShapeHandles;
-
-
+	b3ResizablePool<b3PoolBodyHandle<SharedMemoryUserData> > m_userDataHandles;
+	btHashMap<SharedMemoryUserDataHashKey, int> m_userDataHandleLookup;
 
 	b3PluginManager m_pluginManager;
 
@@ -5089,34 +5020,11 @@ bool PhysicsServerCommandProcessor::processSyncUserDataCommand(const struct Shar
 	bool hasStatus = true;
 	BT_PROFILE("CMD_SYNC_USER_DATA");
 
-	b3UserDataGlobalIdentifier *userDataIdentifiers = (b3UserDataGlobalIdentifier *)bufferServerToClient;
-	int numIdentifiers = 0;
-	b3AlignedObjectArray<int> bodyHandles;
-	m_data->m_bodyHandles.getUsedHandles(bodyHandles);
-	for (int i=0; i<bodyHandles.size(); i++) {
-		int bodyHandle = bodyHandles[i];
-		InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyHandle);
-		if (!body) {
-			continue;
-		}
-		for (int j=0; j<body->m_linkUserDataMap.size(); j++) {
-			const int linkIndex = body->m_linkUserDataMap.getKeyAtIndex(j).getUid1();
-			InternalLinkUserData **userDataPtr = body->m_linkUserDataMap.getAtIndex(j);
-			if (!userDataPtr) {
-				continue;
-			}
-			b3AlignedObjectArray<int> userDataIds;
-			(*userDataPtr)->getUserDataIds(userDataIds);
-			for (int k=0; k<userDataIds.size(); k++) {
-				b3UserDataGlobalIdentifier &identifier = userDataIdentifiers[numIdentifiers++];
-				identifier.m_bodyUniqueId = bodyHandle;
-				identifier.m_linkIndex = linkIndex;
-				identifier.m_userDataId = userDataIds[k];
-			}
-		}
-	}
+	b3AlignedObjectArray<int> userDataHandles;
+	m_data->m_userDataHandles.getUsedHandles(userDataHandles);
+	memcpy(bufferServerToClient, &userDataHandles[0], sizeof(int) * userDataHandles.size());
 
-	serverStatusOut.m_syncUserDataArgs.m_numUserDataIdentifiers = numIdentifiers;
+	serverStatusOut.m_syncUserDataArgs.m_numUserDataIdentifiers = userDataHandles.size();
 	serverStatusOut.m_type = CMD_SYNC_USER_DATA_COMPLETED;
 	return hasStatus;
 }
@@ -5127,21 +5035,16 @@ bool PhysicsServerCommandProcessor::processRequestUserDataCommand(const struct S
 	BT_PROFILE("CMD_REQUEST_USER_DATA");
 	serverStatusOut.m_type = CMD_REQUEST_USER_DATA_FAILED;
 
-	InternalBodyData *body = m_data->m_bodyHandles.getHandle(clientCmd.m_userDataRequestArgs.m_bodyUniqueId);
-	if (!body) {
-		return hasStatus;
-	}
-	const int linkIndex = clientCmd.m_userDataRequestArgs.m_linkIndex;
-	InternalLinkUserData **userDataPtr = body->m_linkUserDataMap[linkIndex];
-	if (!userDataPtr) {
-		return hasStatus;
-	}
-	const SharedMemoryUserData *userData = (*userDataPtr)->getUserData(clientCmd.m_userDataRequestArgs.m_userDataId);
+	SharedMemoryUserData *userData = m_data->m_userDataHandles.getHandle(clientCmd.m_userDataRequestArgs.m_userDataId);
 	if (!userData) {
 		return hasStatus;
 	}
-    btAssert(bufferSizeInBytes >= userData->m_bytes.size());
-	serverStatusOut.m_userDataResponseArgs.m_userDataGlobalId = clientCmd.m_userDataRequestArgs;
+
+	btAssert(bufferSizeInBytes >= userData->m_bytes.size());
+	serverStatusOut.m_userDataResponseArgs.m_userDataId = clientCmd.m_userDataRequestArgs.m_userDataId;
+	serverStatusOut.m_userDataResponseArgs.m_bodyUniqueId = userData->m_bodyUniqueId;
+	serverStatusOut.m_userDataResponseArgs.m_linkIndex = userData->m_linkIndex;
+	serverStatusOut.m_userDataResponseArgs.m_visualShapeIndex = userData->m_visualShapeIndex;
 	serverStatusOut.m_userDataResponseArgs.m_valueType = userData->m_type;
 	serverStatusOut.m_userDataResponseArgs.m_valueLength = userData->m_bytes.size();
 	serverStatusOut.m_type = CMD_REQUEST_USER_DATA_COMPLETED;
@@ -5164,27 +5067,43 @@ bool PhysicsServerCommandProcessor::processAddUserDataCommand(const struct Share
 	{
 		return hasStatus;
 	}
-	
+
 	InternalBodyData *body = m_data->m_bodyHandles.getHandle(clientCmd.m_addUserDataRequestArgs.m_bodyUniqueId);
 	if (!body) {
 		return hasStatus;
 	}
-	const int linkIndex = clientCmd.m_addUserDataRequestArgs.m_linkIndex;
-	InternalLinkUserData **userDataPtr = body->m_linkUserDataMap[linkIndex];
-	if (!userDataPtr) {
-		InternalLinkUserData *userData = new InternalLinkUserData;
-		userDataPtr = &userData;
-		body->m_linkUserDataMap.insert(linkIndex, userData);
+	
+	SharedMemoryUserDataHashKey userDataIdentifier(
+		clientCmd.m_addUserDataRequestArgs.m_key,
+		clientCmd.m_addUserDataRequestArgs.m_bodyUniqueId,
+		clientCmd.m_addUserDataRequestArgs.m_linkIndex,
+		clientCmd.m_addUserDataRequestArgs.m_visualShapeIndex);
+
+	int* userDataHandlePtr = m_data->m_userDataHandleLookup.find(userDataIdentifier);
+	int userDataHandle = userDataHandlePtr ? *userDataHandlePtr : m_data->m_userDataHandles.allocHandle();
+
+	SharedMemoryUserData *userData = m_data->m_userDataHandles.getHandle(userDataHandle);
+	if (!userData) {
+		return hasStatus;
 	}
 
-	const int userDataId = (*userDataPtr)->add(clientCmd.m_addUserDataRequestArgs.m_key,
-		 bufferServerToClient,clientCmd.m_addUserDataRequestArgs.m_valueLength,
+	if (!userDataHandlePtr) {
+		userData->m_key = clientCmd.m_addUserDataRequestArgs.m_key;
+		userData->m_bodyUniqueId = clientCmd.m_addUserDataRequestArgs.m_bodyUniqueId;
+		userData->m_linkIndex = clientCmd.m_addUserDataRequestArgs.m_linkIndex;
+		userData->m_visualShapeIndex = clientCmd.m_addUserDataRequestArgs.m_visualShapeIndex;
+		m_data->m_userDataHandleLookup.insert(userDataIdentifier, userDataHandle);
+		body->m_userDataHandles.push_back(userDataHandle);
+	}
+	userData->replaceValue(bufferServerToClient,
+		clientCmd.m_addUserDataRequestArgs.m_valueLength,
 		clientCmd.m_addUserDataRequestArgs.m_valueType);
 
 	serverStatusOut.m_type = CMD_ADD_USER_DATA_COMPLETED;
-	serverStatusOut.m_userDataResponseArgs.m_userDataGlobalId.m_userDataId = userDataId;
-	serverStatusOut.m_userDataResponseArgs.m_userDataGlobalId.m_bodyUniqueId = clientCmd.m_addUserDataRequestArgs.m_bodyUniqueId;
-	serverStatusOut.m_userDataResponseArgs.m_userDataGlobalId.m_linkIndex = clientCmd.m_addUserDataRequestArgs.m_linkIndex;
+	serverStatusOut.m_userDataResponseArgs.m_userDataId = userDataHandle;
+	serverStatusOut.m_userDataResponseArgs.m_bodyUniqueId = clientCmd.m_addUserDataRequestArgs.m_bodyUniqueId;
+	serverStatusOut.m_userDataResponseArgs.m_linkIndex = clientCmd.m_addUserDataRequestArgs.m_linkIndex;
+	serverStatusOut.m_userDataResponseArgs.m_visualShapeIndex = clientCmd.m_addUserDataRequestArgs.m_visualShapeIndex;
 	serverStatusOut.m_userDataResponseArgs.m_valueLength = clientCmd.m_addUserDataRequestArgs.m_valueLength;
 	serverStatusOut.m_userDataResponseArgs.m_valueType = clientCmd.m_addUserDataRequestArgs.m_valueType;
 	strcpy(serverStatusOut.m_userDataResponseArgs.m_key, clientCmd.m_addUserDataRequestArgs.m_key);
@@ -5199,19 +5118,20 @@ bool PhysicsServerCommandProcessor::processRemoveUserDataCommand(const struct Sh
 	BT_PROFILE("CMD_REMOVE_USER_DATA");
 	serverStatusOut.m_type = CMD_REMOVE_USER_DATA_FAILED;
 
-	InternalBodyData *body = m_data->m_bodyHandles.getHandle(clientCmd.m_removeUserDataRequestArgs.m_bodyUniqueId);
+	SharedMemoryUserData *userData = m_data->m_userDataHandles.getHandle(clientCmd.m_removeUserDataRequestArgs.m_userDataId);
+	if (!userData) {
+		return hasStatus;
+	}
+
+	InternalBodyData *body = m_data->m_bodyHandles.getHandle(userData->m_bodyUniqueId);
 	if (!body) {
 		return hasStatus;
 	}
-	const int linkIndex = clientCmd.m_removeUserDataRequestArgs.m_linkIndex;
-	InternalLinkUserData **userDataPtr = body->m_linkUserDataMap[linkIndex];
-	if (!userDataPtr) {
-		return hasStatus;
-	}
-	const bool removed = (*userDataPtr)->remove(clientCmd.m_removeUserDataRequestArgs.m_userDataId);
-	if (!removed) {
-		return hasStatus;
-	}
+	body->m_userDataHandles.remove(clientCmd.m_removeUserDataRequestArgs.m_userDataId);
+
+	m_data->m_userDataHandleLookup.remove(SharedMemoryUserDataHashKey(userData));
+	m_data->m_userDataHandles.freeHandle(clientCmd.m_removeUserDataRequestArgs.m_userDataId);
+
 	serverStatusOut.m_removeUserDataResponseArgs = clientCmd.m_removeUserDataRequestArgs;
 	serverStatusOut.m_type = CMD_REMOVE_USER_DATA_COMPLETED;
 	return hasStatus;
@@ -8325,6 +8245,12 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				bodyHandle->m_rigidBody=0;
 				serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
 			}
+			for (int i=0; i < bodyHandle->m_userDataHandles.size(); i++) {
+				int userDataHandle = bodyHandle->m_userDataHandles[i];
+				SharedMemoryUserData *userData = m_data->m_userDataHandles.getHandle(userDataHandle);
+				m_data->m_userDataHandleLookup.remove(SharedMemoryUserDataHashKey(userData));
+				m_data->m_userDataHandles.freeHandle(userDataHandle);
+			}
 			m_data->m_bodyHandles.freeHandle(bodyUniqueId);
 		}
 
@@ -10561,6 +10487,9 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	m_data->m_userCollisionShapeHandles.exitHandles();
 	m_data->m_userCollisionShapeHandles.initHandles();
 
+	m_data->m_userDataHandles.exitHandles();
+	m_data->m_userDataHandles.initHandles();
+	m_data->m_userDataHandleLookup.clear();
 }
 
 
