@@ -1218,7 +1218,7 @@ bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& comman
 	if (m_data->m_ownsCommandProcessor)
 	{
 		CommandProcessorInterface *commandProcessor = (CommandProcessorInterface *)m_data->m_commandProcessor;
-		commandProcessor->tickPlugins();
+		commandProcessor->reportNotifications();
 	}
 	/*if (hasStatus)
 	{

@@ -44,7 +44,7 @@ public:
 	virtual void enableRealTimeSimulation(bool enableRealTimeSim)=0;
 	virtual bool isRealTimeSimulationEnabled() const=0;
 
-	virtual void tickPlugins() = 0;
+	virtual void reportNotifications() = 0;
 
 	virtual void enableCommandLogging(bool enable, const char* fileName)=0;
 	virtual void replayFromLogFile(const char* fileName)=0;

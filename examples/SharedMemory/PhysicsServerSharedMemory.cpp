@@ -242,9 +242,9 @@ bool PhysicsServerSharedMemory::isRealTimeSimulationEnabled() const
 	return m_data->m_commandProcessor->isRealTimeSimulationEnabled();
 }
 
-void PhysicsServerSharedMemory::tickPlugins()
+void PhysicsServerSharedMemory::reportNotifications()
 {
-	m_data->m_commandProcessor->tickPlugins();
+	m_data->m_commandProcessor->reportNotifications();
 }
 
 void PhysicsServerSharedMemory::processClientCommands()

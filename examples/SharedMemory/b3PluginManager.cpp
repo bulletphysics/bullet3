@@ -38,7 +38,7 @@ struct b3Plugin
 	
 	PFN_TICK m_preTickFunc;
 	PFN_TICK m_postTickFunc;
-	PFN_TICK m_tickPluginFunc;
+	PFN_TICK m_processNotificationsFunc;
 
 	PFN_GET_RENDER_INTERFACE m_getRendererFunc;
 	
@@ -53,7 +53,7 @@ struct b3Plugin
 		m_executeCommandFunc(0),
 		m_preTickFunc(0),
 		m_postTickFunc(0),
-		m_tickPluginFunc(0),
+		m_processNotificationsFunc(0),
 		m_getRendererFunc(0),
 		m_userPointer(0)
 	{
@@ -90,7 +90,7 @@ struct b3PluginManagerInternalData
 	int m_activeRendererPluginUid;
 
 	b3PluginManagerInternalData()
-		:m_activeRendererPluginUid(-1), m_activeNotificationsBufferIndex(0)
+		:m_activeNotificationsBufferIndex(0), m_activeRendererPluginUid(-1)
 	{
 	}
 };
@@ -174,15 +174,15 @@ int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 			std::string executePluginCommandStr = std::string("executePluginCommand") + postFix;
 			std::string preTickPluginCallbackStr = std::string("preTickPluginCallback") + postFix;
 			std::string postTickPluginCallback = std::string("postTickPluginCallback") + postFix;
-			std::string tickPluginStr = std::string("tickPlugin") + postFix;
+			std::string processNotificationsStr = std::string("processNotifications") + postFix;
 			std::string getRendererStr = std::string("getRenderInterface") + postFix;
-			
+
 			plugin->m_initFunc = (PFN_INIT)B3_DYNLIB_IMPORT(pluginHandle, initStr.c_str());
 			plugin->m_exitFunc = (PFN_EXIT)B3_DYNLIB_IMPORT(pluginHandle, exitStr.c_str());
 			plugin->m_executeCommandFunc = (PFN_EXECUTE)B3_DYNLIB_IMPORT(pluginHandle, executePluginCommandStr.c_str());
 			plugin->m_preTickFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, preTickPluginCallbackStr.c_str());
 			plugin->m_postTickFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, postTickPluginCallback.c_str());
-			plugin->m_tickPluginFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, tickPluginStr.c_str());
+			plugin->m_processNotificationsFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, processNotificationsStr.c_str());
 			plugin->m_getRendererFunc =  (PFN_GET_RENDER_INTERFACE)B3_DYNLIB_IMPORT(pluginHandle, getRendererStr.c_str());
 			
 			if (plugin->m_initFunc && plugin->m_exitFunc && plugin->m_executeCommandFunc)
@@ -292,9 +292,14 @@ void b3PluginManager::tickPlugins(double timeStep, bool isPreTick)
 	}
 }
 
-void b3PluginManager::tickPlugins()
+void b3PluginManager::reportNotifications()
 {
 	b3AlignedObjectArray<b3Notification> &notifications = m_data->m_notifications[m_data->m_activeNotificationsBufferIndex];
+	if (notifications.size() == 0)
+	{
+		return;
+	}
+
 	// Swap notification buffers.
 	m_data->m_activeNotificationsBufferIndex = 1 - m_data->m_activeNotificationsBufferIndex;
 
@@ -313,13 +318,13 @@ void b3PluginManager::tickPlugins()
 			continue;
 		}
 
-		if (plugin->m_tickPluginFunc) {
+		if (plugin->m_processNotificationsFunc) {
 			b3PluginContext context = {0};
 			context.m_userPointer = plugin->m_userPointer;
 			context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
 			context.m_numNotifications = notifications.size();
 			context.m_notifications = notifications.size() ? &notifications[0] : 0;
-			plugin->m_tickPluginFunc(&context);
+			plugin->m_processNotificationsFunc(&context);
 		}
 	}
 	notifications.clear();

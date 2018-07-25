@@ -1902,8 +1902,8 @@ void PhysicsServerCommandProcessor::processCollisionForces(btScalar timeStep)
 #endif//B3_ENABLE_TINY_AUDIO
 }
 
-void PhysicsServerCommandProcessor::tickPlugins() {
-  m_data->m_pluginManager.tickPlugins();
+void PhysicsServerCommandProcessor::reportNotifications() {
+  m_data->m_pluginManager.reportNotifications();
 }
 
 void PhysicsServerCommandProcessor::tickPlugins(btScalar timeStep, bool isPreTick)

@@ -155,7 +155,7 @@ public:
 	virtual void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
 
 	//logging of object states (position etc)
-	virtual void tickPlugins();
+	virtual void reportNotifications();
 	void tickPlugins(btScalar timeStep, bool isPreTick);
 	void logObjectStates(btScalar timeStep);
 	void processCollisionForces(btScalar timeStep);
