@@ -93,6 +93,7 @@ myfiles =
 	"../PhysicsDirect.cpp",
 	"../PhysicsClientC_API.cpp",
 	"../PhysicsClient.cpp",
+	"../plugins/collisionFilterPlugin/collisionFilterPlugin.cpp",
 	"../plugins/pdControlPlugin/pdControlPlugin.cpp",
 	"../plugins/pdControlPlugin/pdControlPlugin.h",
 	"../b3RobotSimulatorClientAPI_NoDirect.cpp",

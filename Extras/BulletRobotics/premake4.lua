@@ -81,6 +81,7 @@ if not _OPTIONS["no-enet"] then
 
 
 		files {
+		"../../examples/SharedMemory/plugins/collisionFilterPlugin/collisionFilterPlugin.cpp",
 		"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",
 		"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
 		"../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoGUI.cpp",

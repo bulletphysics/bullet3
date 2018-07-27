@@ -4,6 +4,7 @@
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "Bullet3Common/b3Logging.h"
+#include <stdio.h>
 
 struct btTiming
 {
@@ -155,13 +156,13 @@ struct btTimings
 	int m_activeBuffer;
 	btAlignedObjectArray<btTiming> m_timings[1];
 };
-#ifndef BT_NO_PROFILE
+//#ifndef BT_NO_PROFILE
 btTimings gTimings[BT_QUICKPROF_MAX_THREAD_COUNT];
 #define MAX_NESTING 1024
 int gStackDepths[BT_QUICKPROF_MAX_THREAD_COUNT] = { 0 };
 const char* gFuncNames[BT_QUICKPROF_MAX_THREAD_COUNT][MAX_NESTING];
 unsigned long long int gStartTimes[BT_QUICKPROF_MAX_THREAD_COUNT][MAX_NESTING];
-#endif
+//#endif
 
 btClock clk;
 

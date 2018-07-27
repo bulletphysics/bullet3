@@ -8,22 +8,22 @@
 #include "../b3PluginContext.h"
 #include <stdio.h>
 
-struct MyClass
+struct CollisionFilterMyClass
 {
 	int m_testData;
 
-	MyClass()
+	CollisionFilterMyClass()
 		:m_testData(42)
 	{
 	}
-	virtual ~MyClass()
+	virtual ~CollisionFilterMyClass()
 	{
 	}
 };
 
-B3_SHARED_API int initPlugin_testPlugin(struct b3PluginContext* context)
+B3_SHARED_API int initPlugin_collisionFilterPlugin(struct b3PluginContext* context)
 {
-	MyClass* obj = new MyClass();
+	CollisionFilterMyClass* obj = new CollisionFilterMyClass();
 	context->m_userPointer = obj;
 
 	printf("hi!\n");
@@ -31,21 +31,21 @@ B3_SHARED_API int initPlugin_testPlugin(struct b3PluginContext* context)
 }
 
 
-B3_SHARED_API int preTickPluginCallback_testPlugin(struct b3PluginContext* context)
+B3_SHARED_API int preTickPluginCallback_collisionFilterPlugin(struct b3PluginContext* context)
 {
 	//apply pd control here, apply forces using the PD gains
 	return 0;
 }
 
 
-B3_SHARED_API int postTickPluginCallback_testPlugin(struct b3PluginContext* context)
+B3_SHARED_API int postTickPluginCallback_collisionFilterPlugin(struct b3PluginContext* context)
 {
-	MyClass* obj = (MyClass* )context->m_userPointer;
+	CollisionFilterMyClass* obj = (CollisionFilterMyClass* )context->m_userPointer;
 	obj->m_testData++;
 	return 0;
 }
 
-B3_SHARED_API int executePluginCommand_testPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
+B3_SHARED_API int executePluginCommand_collisionFilterPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
 {
 	//set the PD gains
 	printf("text argument:%s\n",arguments->m_text);
@@ -69,7 +69,7 @@ B3_SHARED_API int executePluginCommand_testPlugin(struct b3PluginContext* contex
 	}
 	printf("]\n");
 
-	MyClass* obj = (MyClass*) context->m_userPointer;
+	CollisionFilterMyClass* obj = (CollisionFilterMyClass*) context->m_userPointer;
 	
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType = -1;
@@ -88,9 +88,9 @@ B3_SHARED_API int executePluginCommand_testPlugin(struct b3PluginContext* contex
 }
 
 
-B3_SHARED_API void exitPlugin_testPlugin(struct b3PluginContext* context)
+B3_SHARED_API void exitPlugin_collisionFilterPlugin(struct b3PluginContext* context)
 {
-	MyClass* obj = (MyClass*) context->m_userPointer;
+	CollisionFilterMyClass* obj = (CollisionFilterMyClass*) context->m_userPointer;
 	delete obj;
 	context->m_userPointer = 0;
 

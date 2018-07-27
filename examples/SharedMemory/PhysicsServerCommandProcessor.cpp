@@ -46,6 +46,10 @@
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include "LinearMath/TaskScheduler/btThreadSupportInterface.h"
 
+#ifndef SKIP_COLLISION_FILTER_PLUGIN
+#include "plugins/collisionFilterPlugin/collisionFilterPlugin.h"
+#endif
+
 #ifndef SKIP_STATIC_PD_CONTROL_PLUGIN
 #include "plugins/pdControlPlugin/pdControlPlugin.h"
 #endif //SKIP_STATIC_PD_CONTROL_PLUGIN
@@ -1625,6 +1629,8 @@ struct PhysicsServerCommandProcessorInternalData
 	btScalar m_oldPickingDist;
 	bool m_prevCanSleep;
 	int m_pdControlPlugin;
+	int m_collisionFilterPlugin;
+
 #ifdef B3_ENABLE_TINY_AUDIO
 	b3SoundEngine m_soundEngine;
 #endif
@@ -1662,6 +1668,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_pickedConstraint(0),
 		m_pickingMultiBodyPoint2Point(0),
 		m_pdControlPlugin(-1),
+		m_collisionFilterPlugin(-1),
 		m_threadPool(0)
 	{
 
@@ -1677,6 +1684,11 @@ struct PhysicsServerCommandProcessorInternalData
 		}
 #endif //SKIP_STATIC_PD_CONTROL_PLUGIN
 
+#ifndef SKIP_COLLISION_FILTER_PLUGIN
+	{
+		m_collisionFilterPlugin = m_pluginManager.registerStaticLinkedPlugin("collisionFilterPlugin", initPlugin_collisionFilterPlugin, exitPlugin_collisionFilterPlugin, executePluginCommand_collisionFilterPlugin, 0,0,0);
+	}
+#endif
 
 #ifndef SKIP_STATIC_TINYRENDERER_PLUGIN
 			int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin,0,0,getRenderInterface_tinyRendererPlugin);
