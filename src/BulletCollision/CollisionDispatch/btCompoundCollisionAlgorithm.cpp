@@ -156,10 +156,12 @@ public:
 			btCollisionObjectWrapper compoundWrap(this->m_compoundColObjWrap,childShape,m_compoundColObjWrap->getCollisionObject(),newChildWorldTrans,-1,index);
 			
 			btCollisionAlgorithm* algo = 0;
+			bool allocatedAlgorithm = false;
 
 			if (m_resultOut->m_closestPointDistanceThreshold > 0)
 			{
 				algo = m_dispatcher->findAlgorithm(&compoundWrap, m_otherObjWrap, 0, BT_CLOSEST_POINT_ALGORITHMS);
+				allocatedAlgorithm = true;
 			}
 			else
 			{
@@ -204,7 +206,11 @@ public:
 			{
 				m_resultOut->setBody1Wrap(tmpWrap);
 			}
-			
+			if(allocatedAlgorithm)
+			{
+				algo->~btCollisionAlgorithm();
+				m_dispatcher->freeCollisionAlgorithm(algo);
+ 			}
 		}
 	}
 	void		Process(const btDbvtNode* leaf)

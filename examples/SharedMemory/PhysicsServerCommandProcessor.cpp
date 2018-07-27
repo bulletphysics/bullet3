@@ -5022,8 +5022,10 @@ bool PhysicsServerCommandProcessor::processSyncUserDataCommand(const struct Shar
 
 	b3AlignedObjectArray<int> userDataHandles;
 	m_data->m_userDataHandles.getUsedHandles(userDataHandles);
-	memcpy(bufferServerToClient, &userDataHandles[0], sizeof(int) * userDataHandles.size());
-
+	if (userDataHandles.size())
+	{
+		memcpy(bufferServerToClient, &userDataHandles[0], sizeof(int) * userDataHandles.size());
+	}
 	serverStatusOut.m_syncUserDataArgs.m_numUserDataIdentifiers = userDataHandles.size();
 	serverStatusOut.m_type = CMD_SYNC_USER_DATA_COMPLETED;
 	return hasStatus;
