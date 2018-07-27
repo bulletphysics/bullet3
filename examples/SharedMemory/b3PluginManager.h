@@ -18,6 +18,9 @@ class b3PluginManager
 		void addEvents(const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents);
 		void clearEvents();
 
+		void addNotification(const struct b3Notification& notification);
+		void reportNotifications();
+
 		void tickPlugins(double timeStep, bool isPreTick);
 
 		int registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc,PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc, PFN_GET_RENDER_INTERFACE getRendererFunc);

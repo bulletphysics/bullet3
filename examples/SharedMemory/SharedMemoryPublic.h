@@ -500,6 +500,61 @@ struct b3MouseEventsData
 	struct b3MouseEvent* m_mouseEvents;
 };
 
+enum b3NotificationType {
+	SIMULATION_RESET = 0,
+	BODY_ADDED = 1,
+	BODY_REMOVED = 2,
+	USER_DATA_ADDED = 3,
+	USER_DATA_REMOVED = 4,
+	LINK_DYNAMICS_CHANGED = 5,
+	VISUAL_SHAPE_CHANGED = 6,
+	TRANSFORM_CHANGED = 7,
+};
+
+struct b3BodyNotificationArgs
+{
+	int m_bodyUniqueId;
+};
+
+struct b3UserDataNotificationArgs
+{
+	int m_userDataId;
+};
+
+struct b3LinkNotificationArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+};
+
+struct b3VisualShapeNotificationArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+	int m_visualShapeIndex;
+};
+
+struct b3TransformChangeNotificationArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+	double m_worldPosition[3];
+	double m_worldRotation[4];
+	double m_localScaling[3];
+};
+
+struct b3Notification
+{
+	int m_notificationType;
+	union {
+		struct b3BodyNotificationArgs m_bodyArgs;
+		struct b3UserDataNotificationArgs m_userDataArgs;
+		struct b3LinkNotificationArgs m_linkArgs;
+		struct b3VisualShapeNotificationArgs m_visualShapeArgs;
+		struct b3TransformChangeNotificationArgs m_transformChangeArgs;
+	};
+};
+
 struct b3ContactPointData
 {
 //todo: expose some contact flags, such as telling which fields below are valid

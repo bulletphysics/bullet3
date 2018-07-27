@@ -1214,6 +1214,12 @@ bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& comman
 
 	bool hasStatus = m_data->m_commandProcessor->processCommand(command,m_data->m_serverStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 	m_data->m_hasStatus = hasStatus;
+
+	if (m_data->m_ownsCommandProcessor)
+	{
+		CommandProcessorInterface *commandProcessor = (CommandProcessorInterface *)m_data->m_commandProcessor;
+		commandProcessor->reportNotifications();
+	}
 	/*if (hasStatus)
 	{
 		postProcessStatus(m_data->m_serverStatus);
