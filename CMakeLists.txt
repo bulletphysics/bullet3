@@ -329,6 +329,10 @@ OPTION(BUILD_ENET "Set when you want to build apps with enet UDP networking supp
 OPTION(BUILD_CLSOCKET "Set when you want to build apps with enet TCP networking support" ON)
 
 
+IF(WIN32)
+	SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Shared Libs" FORCE)
+ENDIF(WIN32)
+	
 IF(BUILD_PYBULLET)
 	FIND_PACKAGE(PythonLibs)
 
