@@ -729,11 +729,9 @@ unsigned int btQuickprofGetCurrentThreadIndex2() {
 
 void	btEnterProfileZoneDefault(const char* name)
 {
-	CProfileManager::Start_Profile( name ); 
 }
 void	btLeaveProfileZoneDefault()
 {
-	CProfileManager::Stop_Profile(); 
 }
 
 

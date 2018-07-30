@@ -65,12 +65,10 @@ btLeaveProfileZoneFunc* btGetCurrentLeaveProfileZoneFunc();
 void btSetCustomEnterProfileZoneFunc(btEnterProfileZoneFunc* enterFunc);
 void btSetCustomLeaveProfileZoneFunc(btLeaveProfileZoneFunc* leaveFunc);
 
-#ifndef BT_ENABLE_PROFILE
+#ifndef BT_NO_PROFILE // FIX redefinition
 //To disable built-in profiling, please comment out next line
-#ifndef BT_NO_PROFILE
-#define BT_NO_PROFILE 1
+//#define BT_NO_PROFILE 1
 #endif //BT_NO_PROFILE
-#endif //BT_ENABLE_PROFILE
 
 const unsigned int BT_QUICKPROF_MAX_THREAD_COUNT = 64;
 
