@@ -173,10 +173,28 @@ public:
 		sqy = m_floats[1] * m_floats[1];
 		sqz = m_floats[2] * m_floats[2];
 		squ = m_floats[3] * m_floats[3];
-		rollX = btAtan2(2 * (m_floats[1] * m_floats[2] + m_floats[3] * m_floats[0]), squ - sqx - sqy + sqz);
-		sarg = btScalar(-2.) * (m_floats[0] * m_floats[2] - m_floats[3] * m_floats[1]);
-		pitchY = sarg <= btScalar(-1.0) ? btScalar(-0.5) * SIMD_PI: (sarg >= btScalar(1.0) ? btScalar(0.5) * SIMD_PI : btAsin(sarg));
-		yawZ = btAtan2(2 * (m_floats[0] * m_floats[1] + m_floats[3] * m_floats[2]), squ + sqx - sqy - sqz);
+	    sarg = btScalar(-2.) * (m_floats[0] * m_floats[2] - m_floats[3] * m_floats[1]);
+		
+		// If the pitch angle is PI/2 or -PI/2, we can only compute
+		// the sum roll + yaw.  However, any combination that gives
+		// the right sum will produce the correct orientation, so we
+		// set rollX = 0 and compute yawZ.
+		if (sarg <= -btScalar(0.99999))
+		{
+			pitchY = btScalar(-0.5)*SIMD_PI;
+			rollX  = 0;
+			yawZ   = btScalar(2) * btAtan2(m_floats[0],-m_floats[1]);
+		} else if (sarg >= btScalar(0.99999))
+		{
+			pitchY = btScalar(0.5)*SIMD_PI;
+			rollX  = 0;
+			yawZ   = btScalar(2) * btAtan2(-m_floats[0], m_floats[1]);
+		} else
+		{
+			pitchY = btAsin(sarg);
+			rollX = btAtan2(2 * (m_floats[1] * m_floats[2] + m_floats[3] * m_floats[0]), squ - sqx - sqy + sqz);
+			yawZ = btAtan2(2 * (m_floats[0] * m_floats[1] + m_floats[3] * m_floats[2]), squ + sqx - sqy - sqz);
+		}
 	}
 
   /**@brief Add two quaternions
