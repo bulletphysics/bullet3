@@ -7,7 +7,8 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201807040
+#define SHARED_MEMORY_MAGIC_NUMBER 201809010
+//#define SHARED_MEMORY_MAGIC_NUMBER 201807040
 //#define SHARED_MEMORY_MAGIC_NUMBER 201806150
 //#define SHARED_MEMORY_MAGIC_NUMBER 201806020
 //#define SHARED_MEMORY_MAGIC_NUMBER 201801170
@@ -509,6 +510,7 @@ enum b3NotificationType {
 	LINK_DYNAMICS_CHANGED = 5,
 	VISUAL_SHAPE_CHANGED = 6,
 	TRANSFORM_CHANGED = 7,
+	SIMULATION_STEPPED = 8,
 };
 
 struct b3BodyNotificationArgs
