@@ -10539,6 +10539,10 @@ b3Notification createTransformChangedNotification(int bodyUniqueId, int linkInde
 
 void PhysicsServerCommandProcessor::addTransformChangedNotifications()
 {
+	b3Notification notification;
+	notification.m_notificationType = SIMULATION_STEPPED;
+	m_data->m_pluginManager.addNotification(notification);
+
 	b3AlignedObjectArray<int> usedHandles;
 	m_data->m_bodyHandles.getUsedHandles(usedHandles);
 	for (int i=0;i<usedHandles.size();i++) {
