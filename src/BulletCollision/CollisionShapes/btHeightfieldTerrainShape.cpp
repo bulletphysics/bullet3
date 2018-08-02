@@ -278,7 +278,7 @@ void btHeightfieldTerrainShape::quantizeWithClamp(int* out, const btVector3& poi
     - convert input aabb to a range of heightfield grid points (quantize)
     - iterate over all triangles in that subset of the grid
  */
-void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const
 {
 	// scale down the input aabb's so they are in local (non-scaled) coordinates
 	btVector3	localAabbMin = aabbMin*btVector3(1.f/m_localScaling[0],1.f/m_localScaling[1],1.f/m_localScaling[2]);

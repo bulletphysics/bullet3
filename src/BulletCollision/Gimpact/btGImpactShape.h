@@ -284,7 +284,7 @@ public:
 	/*!
 	It gives the triangles in local space
 	*/
-	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const
 	{
         (void) callback; (void) aabbMin; (void) aabbMax;
 	}
@@ -874,7 +874,7 @@ public:
     	return (int)m_primitive_manager.m_part;
     }
 
-	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const;
 	virtual void	processAllTrianglesRay(btTriangleCallback* callback,const btVector3& rayFrom,const btVector3& rayTo) const;
 };
 
@@ -1130,7 +1130,7 @@ public:
 	/*!
 	It gives the triangles in local space
 	*/
-	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const;
 
 	virtual void	processAllTrianglesRay (btTriangleCallback* callback,const btVector3& rayFrom,const btVector3& rayTo) const;
 

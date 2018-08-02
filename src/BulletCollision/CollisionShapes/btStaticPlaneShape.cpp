@@ -55,7 +55,7 @@ void btStaticPlaneShape::getAabb(const btTransform& t,btVector3& aabbMin,btVecto
 
 
 
-void	btStaticPlaneShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btStaticPlaneShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const
 {
 
 	btVector3 halfExtents = (aabbMax - aabbMin) * btScalar(0.5);

@@ -752,7 +752,7 @@ void		GL_ShapeDrawer::drawShadow(btScalar* m,const btVector3& extrusion,const bt
 		GlDrawcallback drawCallback;
 		drawCallback.m_wireframe = false;
 
-		concaveMesh->processAllTriangles(&drawCallback,worldBoundsMin,worldBoundsMax);
+		concaveMesh->processAllTriangles(&drawCallback,worldBoundsMin,worldBoundsMax,NULL);
 
 	}
 	glPopMatrix();

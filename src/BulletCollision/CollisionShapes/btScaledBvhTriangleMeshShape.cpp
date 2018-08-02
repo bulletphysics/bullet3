@@ -51,7 +51,7 @@ public:
 	}
 };
 
-void	btScaledBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btScaledBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const
 {
 	btScaledTriangleCallback scaledCallback(callback,m_localScaling);
 	
@@ -70,7 +70,7 @@ void	btScaledBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callb
 	scaledAabbMax[3] = 0.f;
 	
 	
-	m_bvhTriMeshShape->processAllTriangles(&scaledCallback,scaledAabbMin,scaledAabbMax);
+	m_bvhTriMeshShape->processAllTriangles(&scaledCallback,scaledAabbMin,scaledAabbMax,otherObject);
 }
 
 

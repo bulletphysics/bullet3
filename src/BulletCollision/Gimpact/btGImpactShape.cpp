@@ -224,7 +224,7 @@ void btGImpactMeshShapePart::processAllTrianglesRay(btTriangleCallback* callback
 	unlockChildShapes();
 }
 
-void btGImpactMeshShapePart::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void btGImpactMeshShapePart::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const
 {
 	lockChildShapes();
 	btAABB box;
@@ -252,12 +252,12 @@ void btGImpactMeshShapePart::processAllTriangles(btTriangleCallback* callback,co
 
 }
 
-void btGImpactMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void btGImpactMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const
 {
 	int i = m_mesh_parts.size();
 	while(i--)
 	{
-		m_mesh_parts[i]->processAllTriangles(callback,aabbMin,aabbMax);
+		m_mesh_parts[i]->processAllTriangles(callback,aabbMin,aabbMax,otherObject);
 	}
 }
 

@@ -485,7 +485,7 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 				btVector3 rayAabbMaxLocal = rayFromLocal;
 				rayAabbMaxLocal.setMax(rayToLocal);
 
-				concaveShape->processAllTriangles(&rcb,rayAabbMinLocal,rayAabbMaxLocal);
+				concaveShape->processAllTriangles(&rcb,rayAabbMinLocal,rayAabbMaxLocal,NULL);
 			}
 		} else {
 			//			BT_PROFILE("rayTestCompound");
@@ -821,7 +821,7 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 					rayAabbMaxLocal.setMax(convexToLocal);
 					rayAabbMinLocal += boxMinLocal;
 					rayAabbMaxLocal += boxMaxLocal;
-					concaveShape->processAllTriangles(&tccb,rayAabbMinLocal,rayAabbMaxLocal);
+					concaveShape->processAllTriangles(&tccb,rayAabbMinLocal,rayAabbMaxLocal,colObjWrap->getCollisionObject());
 				}
 			}
 		} else {
@@ -1503,7 +1503,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
                     btVector3 aabbMin(btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT),btScalar(-BT_LARGE_FLOAT));
 
                     DebugDrawcallback drawCallback(getDebugDrawer(),worldTransform,color);
-                    concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax);
+                    concaveMesh->processAllTriangles(&drawCallback,aabbMin,aabbMax,NULL);
 
                 }
 

@@ -58,7 +58,7 @@ public:
 		return "Empty";
 	}
 
-	virtual void processAllTriangles(btTriangleCallback* ,const btVector3& ,const btVector3& ) const
+	virtual void processAllTriangles(btTriangleCallback* ,const btVector3& ,const btVector3& ,const btCollisionObject* otherObject ) const
 	{
 	}
 

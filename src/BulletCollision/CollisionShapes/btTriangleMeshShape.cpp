@@ -141,7 +141,7 @@ const btVector3& btTriangleMeshShape::getLocalScaling() const
 
 
 
-void	btTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const
 {
 		struct FilteredCallback : public btInternalTriangleIndexCallback
 	{
@@ -197,7 +197,7 @@ btVector3 btTriangleMeshShape::localGetSupportingVertex(const btVector3& vec) co
 
 	btVector3 aabbMax(btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT),btScalar(BT_LARGE_FLOAT));
 	
-	processAllTriangles(&supportCallback,-aabbMax,aabbMax);
+	processAllTriangles(&supportCallback,-aabbMax,aabbMax,NULL);
 		
 	supportVertex = supportCallback.GetSupportVertexLocal();
 
