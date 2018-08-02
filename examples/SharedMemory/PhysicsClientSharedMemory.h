@@ -54,6 +54,8 @@ public:
     virtual void setSharedMemoryKey(int key);
 
     virtual void uploadBulletFileToSharedMemory(const char* data, int len);
+    
+	virtual void uploadRaysToSharedMemory(struct SharedMemoryCommand& command, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays);
 
     virtual int getNumDebugLines() const;
 
@@ -68,6 +70,8 @@ public:
 
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
 
+	virtual void getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo);
+
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
 
 	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData);
@@ -76,9 +80,18 @@ public:
 
 	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
 
+	virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix);
+
 	virtual void setTimeOut(double timeOutInSeconds);
 	virtual double getTimeOut() const;
 
+	virtual bool getCachedUserData(int userDataId, struct b3UserDataValue &valueOut) const;
+	virtual int getCachedUserDataId(int bodyUniqueId, int linkIndex, int visualShapeIndex, const char *key) const;
+	virtual int getNumUserData(int bodyUniqueId) const;
+	virtual void getUserDataInfo(int bodyUniqueId, int userDataIndex, const char **keyOut, int *userDataIdOut, int *linkIndexOut, int *visualShapeIndexOut) const;
+
+	virtual void pushProfileTiming(const char* timingName);
+	virtual void popProfileTiming();
 };
 
 #endif  // BT_PHYSICS_CLIENT_API_H

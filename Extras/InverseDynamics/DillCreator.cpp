@@ -32,7 +32,7 @@ DillCreator::DillCreator(int level)
     const idScalar alpha_DH = 0.0;
 
     if (-1 == recurseDill(m_level, parent, d_DH, a_DH, alpha_DH)) {
-        error_message("recurseDill failed\n");
+        bt_id_error_message("recurseDill failed\n");
         abort();
     }
 }
@@ -49,7 +49,7 @@ int DillCreator::getBody(const int body_index, int* parent_index, JointType* joi
                          vec3* body_axis_of_motion, idScalar* mass, vec3* body_r_body_com,
                          mat33* body_I_body, int* user_int, void** user_ptr) const {
     if (body_index < 0 || body_index >= m_num_bodies) {
-        error_message("invalid body index %d\n", body_index);
+        bt_id_error_message("invalid body index %d\n", body_index);
         return -1;
     }
     *parent_index = m_parent[body_index];
@@ -69,12 +69,12 @@ int DillCreator::getBody(const int body_index, int* parent_index, JointType* joi
 int DillCreator::recurseDill(const int level, const int parent, const idScalar d_DH_in,
                              const idScalar a_DH_in, const idScalar alpha_DH_in) {
     if (level < 0) {
-        error_message("invalid level parameter (%d)\n", level);
+        bt_id_error_message("invalid level parameter (%d)\n", level);
         return -1;
     }
 
     if (m_current_body >= m_num_bodies || m_current_body < 0) {
-        error_message("invalid body parameter (%d, num_bodies: %d)\n", m_current_body,
+        bt_id_error_message("invalid body parameter (%d, num_bodies: %d)\n", m_current_body,
                       m_num_bodies);
         return -1;
     }

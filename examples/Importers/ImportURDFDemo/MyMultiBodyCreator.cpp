@@ -25,6 +25,8 @@ m_guiHelper(guiHelper)
     m_mb2urdfLink.resize(totalNumJoints+1,-2);
 
     m_bulletMultiBody = new btMultiBody(totalNumJoints,mass,localInertiaDiagonal,isFixedBase,canSleep);
+	//if (canSleep)
+	//	m_bulletMultiBody->goToSleep();
     return m_bulletMultiBody;
 }
 
@@ -33,7 +35,7 @@ class btRigidBody* MyMultiBodyCreator::allocateRigidBody(int urdfLinkIndex, btSc
     btRigidBody::btRigidBodyConstructionInfo rbci(mass, 0, colShape, localInertiaDiagonal);
     rbci.m_startWorldTransform = initialWorldTrans;
     m_rigidBody = new btRigidBody(rbci);
-	m_rigidBody->forceActivationState(DISABLE_DEACTIVATION);
+	
 	
     return m_rigidBody;
 }
@@ -117,8 +119,8 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createRevoluteJoint(in
             dof6->setLinearLowerLimit(btVector3(0,0,0));
             dof6->setLinearUpperLimit(btVector3(0,0,0));
 
-            dof6->setAngularUpperLimit(btVector3(-1,0,0));
-            dof6->setAngularLowerLimit(btVector3(1,0,0));
+            dof6->setAngularLowerLimit(btVector3(jointLowerLimit,0,0));
+			dof6->setAngularUpperLimit(btVector3(jointUpperLimit,0,0));
 
             break;
         }
@@ -128,8 +130,9 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createRevoluteJoint(in
             dof6->setLinearLowerLimit(btVector3(0,0,0));
             dof6->setLinearUpperLimit(btVector3(0,0,0));
 
-            dof6->setAngularUpperLimit(btVector3(0,-1,0));
-            dof6->setAngularLowerLimit(btVector3(0,1,0));
+            
+            dof6->setAngularLowerLimit(btVector3(0,jointLowerLimit,0));
+			dof6->setAngularUpperLimit(btVector3(0,jointUpperLimit,0));
             break;
         }
         case 2:
@@ -139,8 +142,9 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createRevoluteJoint(in
             dof6->setLinearLowerLimit(btVector3(0,0,0));
             dof6->setLinearUpperLimit(btVector3(0,0,0));
 
-            dof6->setAngularUpperLimit(btVector3(0,0,-1));
-            dof6->setAngularLowerLimit(btVector3(0,0,1));
+            
+            dof6->setAngularLowerLimit(btVector3(0,0,jointLowerLimit));
+			dof6->setAngularUpperLimit(btVector3(0,0,jointUpperLimit));
 
         }
     };

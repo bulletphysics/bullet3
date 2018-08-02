@@ -1,14 +1,16 @@
 	project "BulletXmlWorldImporter"
 		
 	kind "StaticLib"
-	targetdir "../../lib"
+	--targetdir "../../lib"
 	includedirs {
 		"../BulletWorldImporter",
 		"../BulletFileLoader",
-		"../../../src"
+		"../../../src",
+		"../../../examples/ThirdPartyLibs/tinyxml2"
 	}
 	 
 	files {
 		"**.cpp",
-		"**.h"
+		"**.h",
+		"../../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
 	}

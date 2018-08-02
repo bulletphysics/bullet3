@@ -25,7 +25,9 @@ protected:
 	bool processVisualShapeData(const struct SharedMemoryCommand& orgCommand);
 	
     void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
-    
+
+	void processAddUserData(const struct SharedMemoryStatus& serverCmd);
+
 	void postProcessStatus(const struct SharedMemoryStatus& serverCmd);
 
 	void resetData();
@@ -76,6 +78,8 @@ public:
     virtual void setSharedMemoryKey(int key);
 
     void uploadBulletFileToSharedMemory(const char* data, int len);
+    
+	virtual void uploadRaysToSharedMemory(struct SharedMemoryCommand& command, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays);
 
     virtual int getNumDebugLines() const;
 
@@ -91,6 +95,8 @@ public:
 
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
 	
+	virtual void getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo);
+
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
 
 	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData);
@@ -99,6 +105,8 @@ public:
 
 	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
 
+	virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix);
+
 	//the following APIs are for internal use for visualization:
 	virtual bool connect(struct GUIHelperInterface* guiHelper);
 	virtual void renderScene();
@@ -106,6 +114,14 @@ public:
 
 	virtual void setTimeOut(double timeOutInSeconds);
 	virtual double getTimeOut() const;
+
+	virtual bool getCachedUserData(int userDataId, struct b3UserDataValue &valueOut) const;
+	virtual int getCachedUserDataId(int bodyUniqueId, int linkIndex, int visualShapeIndex, const char *key) const;
+	virtual int getNumUserData(int bodyUniqueId) const;
+	virtual void getUserDataInfo(int bodyUniqueId, int userDataIndex, const char **keyOut, int *userDataIdOut, int *linkIndexOut, int *visualShapeIndexOut) const;
+	
+	virtual void pushProfileTiming(const char* timingName);
+	virtual void popProfileTiming();
 };
 
 #endif //PHYSICS_DIRECT_H

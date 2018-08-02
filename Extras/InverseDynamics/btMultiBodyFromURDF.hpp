@@ -44,7 +44,7 @@ public:
     void init() {
         this->createEmptyDynamicsWorld();
         m_dynamicsWorld->setGravity(m_gravity);
-        BulletURDFImporter urdf_importer(&m_nogfx,0,1);
+        BulletURDFImporter urdf_importer(&m_nogfx,0,1,0);
         URDFImporterInterface &u2b(urdf_importer);
         bool loadOk = u2b.loadURDF(m_filename.c_str(), m_base_fixed);
 

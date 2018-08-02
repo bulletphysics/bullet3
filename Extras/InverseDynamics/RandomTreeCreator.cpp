@@ -47,7 +47,7 @@ int RandomTreeCreator::getBody(const int body_index, int* parent_index, JointTyp
             *joint_type = FLOATING;
             break;
         default:
-            error_message("randomInt() result out of range\n");
+            bt_id_error_message("randomInt() result out of range\n");
             return -1;
     }
 

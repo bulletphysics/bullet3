@@ -1,6 +1,9 @@
 import pybullet as p
 import time
-p.connect(p.GUI)
+
+cid = p.connect(p.SHARED_MEMORY)
+if (cid<0):
+	p.connect(p.GUI)
 p.loadURDF("plane.urdf")
 kuka = p.loadURDF("kuka_iiwa/model.urdf")
 p.addUserDebugText("tip", [0,0,0.1],textColorRGB=[1,0,0],textSize=1.5,parentObjectUniqueId=kuka, parentLinkIndex=6)

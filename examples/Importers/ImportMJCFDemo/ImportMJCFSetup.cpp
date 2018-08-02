@@ -119,9 +119,10 @@ ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, 
 		
 		if (gMCFJFileNameArray.size()==0)
 		{
+			gMCFJFileNameArray.push_back("mjcf/humanoid.xml");
+
 			gMCFJFileNameArray.push_back("MPL/MPL.xml");
 
-			gMCFJFileNameArray.push_back("mjcf/humanoid.xml");
 			gMCFJFileNameArray.push_back("mjcf/inverted_pendulum.xml");
 			gMCFJFileNameArray.push_back("mjcf/ant.xml");
 			gMCFJFileNameArray.push_back("mjcf/hello_mjcf.xml");
@@ -198,7 +199,7 @@ void ImportMJCFSetup::initPhysics()
 	//@todo also use the modified collision filter for raycast and other collision related queries
 	m_filterCallback->m_filterMode = FILTER_GROUPAMASKB_OR_GROUPBMASKA2;
 	
-	//m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
+	//m_dynamicsWorld->getSolverInfo().m_numIterations = 50;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(
 		btIDebugDraw::DBG_DrawConstraints
@@ -215,7 +216,8 @@ void ImportMJCFSetup::initPhysics()
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
 
-	BulletMJCFImporter importer(m_guiHelper, 0);
+	int flags=0;
+	BulletMJCFImporter importer(m_guiHelper, 0,flags);
 	MyMJCFLogger logger;
 	bool result = importer.loadMJCF(m_fileName,&logger);
 	if (result)
@@ -255,6 +257,8 @@ void ImportMJCFSetup::initPhysics()
 				s->registerNameForPointer(name->c_str(),name->c_str());
 #endif//TEST_MULTIBODY_SERIALIZATION
 				mb->setBaseName(name->c_str());
+				mb->getBaseCollider()->setCollisionFlags(mb->getBaseCollider()->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+
 				//create motors for each btMultiBody joint
 				int numLinks = mb->getNumLinks();
 				for (int i=0;i<numLinks;i++)
@@ -270,10 +274,11 @@ void ImportMJCFSetup::initPhysics()
 #endif//TEST_MULTIBODY_SERIALIZATION
 					m_nameMemory.push_back(jointName);
 					m_nameMemory.push_back(linkName);
+					mb->getLinkCollider(i)->setCollisionFlags(mb->getBaseCollider()->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
 
 					mb->getLink(i).m_linkName = linkName->c_str();
 					mb->getLink(i).m_jointName = jointName->c_str();
-							
+					m_data->m_mb = mb;
 					if (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute
 					    ||mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::ePrismatic
 					)
@@ -363,7 +368,16 @@ void ImportMJCFSetup::stepSimulation(float deltaTime)
         {
 			if (m_data->m_jointMotors[i])
 			{
-				m_data->m_jointMotors[i]->setPositionTarget(m_data->m_motorTargetPositions[i]);
+				btScalar pos = m_data->m_motorTargetPositions[i];
+
+				int link = m_data->m_jointMotors[i]->getLinkA();
+				btScalar lowerLimit = m_data->m_mb->getLink(link).m_jointLowerLimit;
+				btScalar upperLimit = m_data->m_mb->getLink(link).m_jointUpperLimit;
+				if (lowerLimit < upperLimit)
+				{
+					btClamp(pos, lowerLimit, upperLimit);
+				}
+				m_data->m_jointMotors[i]->setPositionTarget(pos);
 			}
 			if (m_data->m_generic6DofJointMotors[i])
 			{

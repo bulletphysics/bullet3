@@ -18,6 +18,8 @@
 
 void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory);
 void*	ExampleBrowserMemoryFunc();
+void ExampleBrowserMemoryReleaseFunc(void* ptr);
+
 
 #include <stdio.h>
 //#include "BulletMultiThreaded/PlatformDefinitions.h"
@@ -42,6 +44,7 @@ static b3ThreadSupportInterface* createExampleBrowserThreadSupport(int numThread
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("testThreads",
                                                                 ExampleBrowserThreadFunc,
                                                                 ExampleBrowserMemoryFunc,
+																ExampleBrowserMemoryReleaseFunc,
                                                                 numThreads);
     b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport(constructionInfo);
 
@@ -56,7 +59,7 @@ static b3ThreadSupportInterface* createExampleBrowserThreadSupport(int numThread
 
 b3ThreadSupportInterface* createExampleBrowserThreadSupport(int numThreads)
 {
-	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("testThreads",ExampleBrowserThreadFunc,ExampleBrowserMemoryFunc,numThreads);
+	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("testThreads",ExampleBrowserThreadFunc,ExampleBrowserMemoryFunc,ExampleBrowserMemoryReleaseFunc,numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
 	return threadSupport;
 
@@ -303,6 +306,12 @@ void*	ExampleBrowserMemoryFunc()
 	return new ExampleBrowserThreadLocalStorage;
 }
 
+void ExampleBrowserMemoryReleaseFunc(void* ptr)
+{
+	ExampleBrowserThreadLocalStorage* p = (ExampleBrowserThreadLocalStorage*) ptr;
+	delete p;
+}
+
 
 
 
@@ -391,7 +400,7 @@ void btShutDownExampleBrowser(btInProcessExampleBrowserInternalData* data)
                         } else
                         {
 //                              printf("polling..");
-							b3Clock::usleep(1000);
+							b3Clock::usleep(0);
                         }
                 };
 

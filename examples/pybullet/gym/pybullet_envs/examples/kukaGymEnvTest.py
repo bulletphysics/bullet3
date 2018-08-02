@@ -9,7 +9,7 @@ import time
 
 def main():
 
-	environment = KukaGymEnv(renders=True)
+	environment = KukaGymEnv(renders=True,isDiscrete=False, maxSteps = 10000000)
 	
 	  
 	motorsIds=[]
@@ -19,10 +19,10 @@ def main():
 	#motorsIds.append(environment._p.addUserDebugParameter("yaw",-3.14,3.14,0))
 	#motorsIds.append(environment._p.addUserDebugParameter("fingerAngle",0,0.3,.3))
 	
-	dv = 0.001
+	dv = 0.01 
 	motorsIds.append(environment._p.addUserDebugParameter("posX",-dv,dv,0))
 	motorsIds.append(environment._p.addUserDebugParameter("posY",-dv,dv,0))
-	motorsIds.append(environment._p.addUserDebugParameter("posZ",-dv,dv,-dv))
+	motorsIds.append(environment._p.addUserDebugParameter("posZ",-dv,dv,0))
 	motorsIds.append(environment._p.addUserDebugParameter("yaw",-dv,dv,0))
 	motorsIds.append(environment._p.addUserDebugParameter("fingerAngle",0,0.3,.3))
 	

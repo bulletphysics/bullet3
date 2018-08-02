@@ -2,16 +2,23 @@
 INCLUDE_DIRECTORIES(
 		${BULLET_PHYSICS_SOURCE_DIR}/src
 		${BULLET_PHYSICS_SOURCE_DIR}/examples
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/SharedMemory
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
 )
 
 SET(BulletRobotics_SRCS
+		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp
+		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoGUI.cpp
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoGUI.h
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.h
 		../../examples/SharedMemory/IKTrajectoryHelper.cpp
 		../../examples/SharedMemory/IKTrajectoryHelper.h
-		../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp
-		../../examples/SharedMemory/TinyRendererVisualShapeConverter.h
+		../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
+		../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
 		../../examples/OpenGLWindow/SimpleCamera.cpp
 		../../examples/OpenGLWindow/SimpleCamera.h
 		../../examples/TinyRenderer/geometry.cpp
@@ -59,10 +66,7 @@ SET(BulletRobotics_SRCS
 		../../examples/Utils/b3ReferenceFrameHelper.hpp
 		../../examples/Utils/ChromeTraceUtil.cpp
 
-		../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
+		../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp
 
 		../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
 		../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.h
@@ -93,8 +97,6 @@ SET(BulletRobotics_SRCS
 		../../examples/MultiThreading/b3PosixThreadSupport.cpp
 		../../examples/MultiThreading/b3Win32ThreadSupport.cpp
 		../../examples/MultiThreading/b3ThreadSupportInterface.cpp
-		
-
 )
 
 IF(BUILD_CLSOCKET)
@@ -102,9 +104,6 @@ IF(BUILD_CLSOCKET)
 ENDIF(BUILD_CLSOCKET)
 
 IF(WIN32)
-	LINK_LIBRARIES(
-		${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-	)
 	IF(BUILD_ENET)
 		ADD_DEFINITIONS(-DWIN32 -DBT_ENABLE_ENET)
 	ENDIF(BUILD_ENET)
@@ -120,6 +119,10 @@ ELSE(WIN32)
 	IF(BUILD_CLSOCKET)	
 		ADD_DEFINITIONS(${OSDEF})
 	ENDIF(BUILD_CLSOCKET)
+		
+	IF(NOT APPLE)
+		LINK_LIBRARIES(  pthread ${DL} )
+	ENDIF(NOT APPLE)
 ENDIF(WIN32)
 
 IF(BUILD_ENET)
@@ -175,6 +178,8 @@ IF (INSTALL_EXTRA_LIBS)
 		../../examples/SharedMemory/PhysicsClientTCP_C_API.h
 		../../examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.h
 		../../examples/SharedMemory/SharedMemoryPublic.h
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoGUI.h
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.h
 		DESTINATION include/bullet
 		)
 	INSTALL(TARGETS

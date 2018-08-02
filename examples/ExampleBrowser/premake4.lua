@@ -3,7 +3,11 @@ project "App_BulletExampleBrowser"
         language "C++"
 
         kind "ConsoleApp"
-
+        
+        if os.is("Linux") then
+	        buildoptions{"-fPIC"}
+	    end
+        
         hasCL = findOpenCL("clew")
 
         if (hasCL) then
@@ -17,6 +21,7 @@ project "App_BulletExampleBrowser"
         includedirs {
                 ".",
                 "../../src",
+		"../../examples/SharedMemory",
                 "../ThirdPartyLibs",
                 }
 
@@ -110,10 +115,16 @@ project "App_BulletExampleBrowser"
 		"../SharedMemory/PhysicsServerCommandProcessor.cpp",
 		"../SharedMemory/PhysicsServerCommandProcessor.h",
 		"../SharedMemory/b3PluginManager.cpp",		
-		"../SharedMemory/TinyRendererVisualShapeConverter.cpp",
-		"../SharedMemory/TinyRendererVisualShapeConverter.h",
+		"../SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
+		"../SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+		"../SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",
+		"../SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
 		"../SharedMemory/SharedMemoryCommands.h",
 		"../SharedMemory/SharedMemoryPublic.h",
+		"../SharedMemory/b3RobotSimulatorClientAPI_NoGUI.cpp",
+		"../SharedMemory/b3RobotSimulatorClientAPI_NoGUI.h",		
+		"../SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp",
+		"../SharedMemory/b3RobotSimulatorClientAPI_NoDirect.h",		
 		"../MultiThreading/MultiThreadingExample.cpp",
 		"../MultiThreading/b3PosixThreadSupport.cpp",
 		"../MultiThreading/b3Win32ThreadSupport.cpp",
@@ -158,14 +169,11 @@ project "App_BulletExampleBrowser"
 		"../RigidBody/RigidBodySoftContact.cpp",
 		"../ThirdPartyLibs/stb_image/*",
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",
-		"../ThirdPartyLibs/tinyxml/*",
 		"../ThirdPartyLibs/BussIK/*",
 		"../GyroscopicDemo/GyroscopicSetup.cpp",
 		"../GyroscopicDemo/GyroscopicSetup.h",
-        "../ThirdPartyLibs/tinyxml/tinystr.cpp",
-        "../ThirdPartyLibs/tinyxml/tinyxml.cpp",
-        "../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
-        "../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
+    "../ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
+    "../ThirdPartyLibs/tinyxml2/tinyxml2.h",
         }
 if (hasCL and findOpenGL3()) then
 			files {
@@ -175,6 +183,11 @@ if (hasCL and findOpenGL3()) then
 				"../OpenCL/rigidbody/GpuRigidBodyDemo.cpp",
 			}
 		end
+		
+if (_OPTIONS["enable_static_vr_plugin"]) then
+		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 if os.is("Linux") then
         initX11()
 end
@@ -202,6 +215,10 @@ project "BulletExampleBrowserLib"
                 "../../src",
                 "../ThirdPartyLibs",
                 }
+                
+        if os.is("Linux") then
+            buildoptions{"-fPIC"}
+        end
 
 	if _OPTIONS["lua"] then
 		includedirs{"../ThirdPartyLibs/lua-5.2.3/src"}

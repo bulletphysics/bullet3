@@ -7,17 +7,17 @@ namespace btInverseDynamics {
 int writeGraphvizDotFile(const MultiBodyTree* tree, const MultiBodyNameMap* map,
                          const char* filename) {
     if (0x0 == tree) {
-        error_message("tree pointer is null\n");
+        bt_id_error_message("tree pointer is null\n");
         return -1;
     }
     if (0x0 == filename) {
-        error_message("filename is null\n");
+        bt_id_error_message("filename is null\n");
         return -1;
     }
 
     FILE* fp = fopen(filename, "w");
     if (NULL == fp) {
-        error_message("cannot open file %s for writing\n", filename);
+        bt_id_error_message("cannot open file %s for writing\n", filename);
         return -1;
     }
     fprintf(fp, "// to generate postscript file, run dot -Tps %s -o %s.ps\n"
@@ -29,7 +29,7 @@ int writeGraphvizDotFile(const MultiBodyTree* tree, const MultiBodyNameMap* map,
         std::string name;
         if (0x0 != map) {
             if (-1 == map->getBodyName(body, &name)) {
-                error_message("can't get name of body %d\n", body);
+                bt_id_error_message("can't get name of body %d\n", body);
                 return -1;
             }
             fprintf(fp, "              %d [label=\"%d/%s\"];\n", body, body, name.c_str());
@@ -40,15 +40,15 @@ int writeGraphvizDotFile(const MultiBodyTree* tree, const MultiBodyNameMap* map,
         const char* joint_type;
         int qi;
         if (-1 == tree->getParentIndex(body, &parent)) {
-            error_message("indexing error\n");
+            bt_id_error_message("indexing error\n");
             return -1;
         }
         if (-1 == tree->getJointTypeStr(body, &joint_type)) {
-            error_message("indexing error\n");
+            bt_id_error_message("indexing error\n");
             return -1;
         }
         if (-1 == tree->getDoFOffset(body, &qi)) {
-            error_message("indexing error\n");
+            bt_id_error_message("indexing error\n");
             return -1;
         }
         if (-1 != parent) {

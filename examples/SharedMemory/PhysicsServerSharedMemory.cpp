@@ -12,7 +12,8 @@
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "SharedMemoryBlock.h"
 
-#include "PhysicsServerCommandProcessor.h"
+
+#include "PhysicsCommandProcessorInterface.h"
 
 //number of shared memory blocks == number of simultaneous connections
 #define MAX_SHARED_MEMORY_BLOCKS 2
@@ -169,7 +170,7 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
                 }
             } else
             {
-                b3Error("Cannot connect to shared memory");
+                //b3Error("Cannot connect to shared memory");
                 m_data->m_areConnected[block] = false;
             }
         } while (counter++ < 10 && !m_data->m_areConnected[block]);
@@ -241,7 +242,10 @@ bool PhysicsServerSharedMemory::isRealTimeSimulationEnabled() const
 	return m_data->m_commandProcessor->isRealTimeSimulationEnabled();
 }
 
-
+void PhysicsServerSharedMemory::reportNotifications()
+{
+	m_data->m_commandProcessor->reportNotifications();
+}
 
 void PhysicsServerSharedMemory::processClientCommands()
 {

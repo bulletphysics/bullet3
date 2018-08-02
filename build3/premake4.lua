@@ -30,6 +30,12 @@
 
 	newoption
 	{
+		trigger = "enable_system_glx",
+		description = "Try to link against system glx instead of using glad_glx (default)"
+	}
+
+	newoption
+	{
 		trigger = "enable_system_opengl",
 		description = "Try to link and use the system OpenGL headers version instead of dynamically loading OpenGL (dlopen is default)"
 	}
@@ -44,6 +50,13 @@
 		trigger = "enable_system_x11",
 		description = "Try to link and use system X11 headers instead of dynamically loading X11 (dlopen is default)"
 	}
+
+	newoption
+	{
+		trigger = "enable_static_vr_plugin",
+		description = "Statically link vr plugin (in examples/SharedMemory/plugins/vrSyncPlugin)"
+	}
+
 
 	newoption
 	{
@@ -169,6 +182,14 @@ end
 		trigger = "audio",
 		description = "Enable audio"
 	}
+	newoption
+	{
+		trigger = "enable_multithreading",
+		description = "enable CPU multithreading for bullet2 libs"
+	}
+	if _OPTIONS["enable_multithreading"] then
+		defines {"BT_THREADSAFE=1"}
+	end
 	if _OPTIONS["double"] then
 		defines {"BT_USE_DOUBLE_PRECISION"}
 	end
@@ -276,6 +297,9 @@ end
 	if not _OPTIONS["glfw_lib_name"] then
 		_OPTIONS["glfw_lib_name"] = default_glfw_lib_name
 	end	
+
+	
+
 	newoption
     {
 			trigger     = "glfw_include_dir",
@@ -328,6 +352,10 @@ end
 			return true
 		end
 		function initGlew()
+		end
+		function initX11()
+		links {"X11", "dl","pthread"}
+
 		end
 		
 	else

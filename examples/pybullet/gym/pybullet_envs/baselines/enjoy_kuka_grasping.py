@@ -12,7 +12,7 @@ from baselines import deepq
 
 def main():
     
-    env = KukaGymEnv(renders=True)
+    env = KukaGymEnv(renders=True, isDiscrete=True)
     act = deepq.load("kuka_model.pkl")
     print(act)
     while True:

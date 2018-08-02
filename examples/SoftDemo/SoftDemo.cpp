@@ -169,7 +169,7 @@ public:
 		for (  int i=0;i<softWorld->getSoftBodyArray().size();i++)
 		{
 			btSoftBody*	psb=(btSoftBody*)softWorld->getSoftBodyArray()[i];
-			if (softWorld->getDebugDrawer() && !(softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
+			//if (softWorld->getDebugDrawer() && !(softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
 			{
 				btSoftBodyHelpers::DrawFrame(psb,softWorld->getDebugDrawer());
 				btSoftBodyHelpers::Draw(psb,softWorld->getDebugDrawer(),softWorld->getDrawFlags());
@@ -291,10 +291,6 @@ void SoftDemo::createStack( btCollisionShape* boxShape, float halfCubeSize, int 
 
 
 ////////////////////////////////////
-
-extern int gNumManifold;
-extern int gOverlappingPairs;
-
 ///for mouse picking
 void pickingPreTickCallback (btDynamicsWorld *world, btScalar timeStep)
 {
@@ -1727,13 +1723,6 @@ void SoftDemo::clientMoveAndDisplay()
 	btProfiler::endBlock("render"); 
 #endif 
 	glFlush();
-	//some additional debugging info
-#ifdef PRINT_CONTACT_STATISTICS
-	printf("num manifolds: %i\n",gNumManifold);
-	printf("num gOverlappingPairs: %i\n",gOverlappingPairs);
-	
-#endif //PRINT_CONTACT_STATISTICS
-
 
 	swapBuffers();
 

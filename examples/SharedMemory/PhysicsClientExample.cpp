@@ -22,8 +22,9 @@ struct MyMotorInfo2
     int     m_qIndex;
 };
 
-static int camVisualizerWidth = 320;//1024/3;
-static int camVisualizerHeight = 240;//768/3;
+
+static int camVisualizerWidth = 228;//1024/3;
+static int camVisualizerHeight = 192;//768/3;
 
 enum CustomCommands
 {
@@ -758,10 +759,10 @@ void	PhysicsClientExample::initPhysics()
 		m_canvas = m_guiHelper->get2dCanvasInterface();
 		if (m_canvas)
 		{
-		    
-			m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",camVisualizerWidth, camVisualizerHeight);
-			m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",camVisualizerWidth, camVisualizerHeight);
-			m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",camVisualizerWidth, camVisualizerHeight);
+		   	 m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",camVisualizerWidth, camVisualizerHeight, 8,55);
+                        m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",camVisualizerWidth, camVisualizerHeight,8,75+camVisualizerHeight);
+                        m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",camVisualizerWidth, camVisualizerHeight,8,95+camVisualizerHeight*2);
+
 
 			for (int i=0;i<camVisualizerWidth;i++)
 			{
@@ -939,8 +940,11 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
                                                         btVector4(32,255,255,255)};
                                 if (segmentationMask>=0)
                                 {
-                                    btVector4 rgb = palette[segmentationMask&3];
-                                     m_canvas->setPixel(m_canvasSegMaskIndex,i,j,
+									int obIndex = segmentationMask&((1<<24)-1);
+									int linkIndex = (segmentationMask>>24)-1;
+									
+									btVector4 rgb = palette[(obIndex+linkIndex)&3];
+									m_canvas->setPixel(m_canvasSegMaskIndex,i,j,
                                         rgb.x(),
                                         rgb.y(),
                                         rgb.z(), 255); //alpha set to 255

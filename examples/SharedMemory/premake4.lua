@@ -10,13 +10,18 @@ end
 includedirs {".","../../src", "../ThirdPartyLibs"}
 
 links {
-	"Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletDynamics","BulletCollision", "LinearMath", "BussIK"
+	"BulletSoftBody", "Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletDynamics","BulletCollision", "LinearMath", "BussIK"
 }
+if os.is("Linux") then
+    links{"dl"}
+end
 
 language "C++"
 
 myfiles = 
 {
+	"b3RobotSimulatorClientAPI_NoDirect.cpp",
+	"b3RobotSimulatorClientAPI_NoDirect.h",
 	"IKTrajectoryHelper.cpp",
 	"IKTrajectoryHelper.h",
 	"PhysicsClient.cpp",
@@ -55,13 +60,8 @@ myfiles =
 	"PhysicsServerCommandProcessor.h",
 	"b3PluginManager.cpp",
 	"b3PluginManager.h",
-	"TinyRendererVisualShapeConverter.cpp",
-	"TinyRendererVisualShapeConverter.h",
-	"../TinyRenderer/geometry.cpp",
-	"../TinyRenderer/model.cpp",
-	"../TinyRenderer/tgaimage.cpp",
-	"../TinyRenderer/our_gl.cpp",
-	"../TinyRenderer/TinyRenderer.cpp",
+	"plugins/pdControlPlugin/pdControlPlugin.cpp",
+	"plugins/pdControlPlugin/pdControlPlugin.h",
 	"../OpenGLWindow/SimpleCamera.cpp",
 	"../OpenGLWindow/SimpleCamera.h",
 	"../Importers/ImportURDFDemo/ConvertRigidBodies2MultiBody.h",
@@ -95,20 +95,37 @@ myfiles =
 	"../Importers/ImportColladaDemo/LoadMeshFromCollada.cpp",
 	"../Importers/ImportColladaDemo/ColladaGraphicsInstance.h",
 	"../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp",	
-	"../ThirdPartyLibs/tinyxml/tinystr.cpp",
-	"../ThirdPartyLibs/tinyxml/tinyxml.cpp",
-	"../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
-	"../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
+	"../ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
 	"../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
 	"../ThirdPartyLibs/stb_image/stb_image.cpp",     
 
 }
+
 
 files {
 	myfiles,
 	"main.cpp",
 }
 
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	defines("STATIC_LINK_VR_PLUGIN")
+	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
+if (not _OPTIONS["disable_static_tinyrenderer_plugin"]) then
+	files 
+		{
+		"plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+		"plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
+		"../TinyRenderer/geometry.cpp",
+		"../TinyRenderer/model.cpp",
+		"../TinyRenderer/tgaimage.cpp",
+		"../TinyRenderer/our_gl.cpp",
+		"../TinyRenderer/TinyRenderer.cpp"
+		}
+else
+	defines("SKIP_STATIC_TINYRENDERER_PLUGIN")
+end
 
 files {
 		"../MultiThreading/b3ThreadSupportInterface.cpp",
@@ -157,7 +174,7 @@ defines {"B3_USE_STANDALONE_EXAMPLE"}
 includedirs {"../../src", "../ThirdPartyLibs"}
 
 links {
-        "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision", "LinearMath", "OpenGL_Window","Bullet3Common","BussIK"
+       "BulletSoftBody",  "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision", "LinearMath", "OpenGL_Window","Bullet3Common","BussIK"
 }
 	initOpenGL()
   initGlew()
@@ -194,6 +211,21 @@ language "C++"
 		
 	end
 
+if (not _OPTIONS["disable_static_tinyrenderer_plugin"]) then
+	files 
+		{
+		"plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+		"plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
+		"../TinyRenderer/geometry.cpp",
+		"../TinyRenderer/model.cpp",
+		"../TinyRenderer/tgaimage.cpp",
+		"../TinyRenderer/our_gl.cpp",
+		"../TinyRenderer/TinyRenderer.cpp"
+		}
+else
+	defines("SKIP_STATIC_TINYRENDERER_PLUGIN")
+end
+
 
 files {
         myfiles,
@@ -202,6 +234,11 @@ files {
 				"../ExampleBrowser/GL_ShapeDrawer.cpp",
 				"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
 }
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	defines("STATIC_LINK_VR_PLUGIN")
+	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 
 if os.is("Linux") then initX11() end
 
@@ -323,7 +360,7 @@ if os.is("Windows") then
 		}
 						
 	links {
-		"BulletInverseDynamicsUtils", "BulletInverseDynamics","Bullet3Common",	"BulletDynamics","BulletCollision", "LinearMath","OpenGL_Window","openvr_api","BussIK"
+		"BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics","Bullet3Common",	"BulletDynamics","BulletCollision", "LinearMath","OpenGL_Window","openvr_api","BussIK"
 	}
 	
 	
@@ -333,7 +370,22 @@ if os.is("Windows") then
 		initOpenGL()
 	  initGlew()
 	
-	
+	if (not _OPTIONS["disable_static_tinyrenderer_plugin"]) then
+	files 
+		{
+		"plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+		"plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
+		"../TinyRenderer/geometry.cpp",
+		"../TinyRenderer/model.cpp",
+		"../TinyRenderer/tgaimage.cpp",
+		"../TinyRenderer/our_gl.cpp",
+		"../TinyRenderer/TinyRenderer.cpp"
+		}
+else
+	defines("SKIP_STATIC_TINYRENDERER_PLUGIN")
+end
+
+
 	files
 	{
 		myfiles,
@@ -353,6 +405,11 @@ if os.is("Windows") then
 					"../ThirdPartyLibs/openvr/samples/shared/pathtools.h",
 					"../ThirdPartyLibs/openvr/samples/shared/Vectors.h",
 	}
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	defines("STATIC_LINK_VR_PLUGIN")
+	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 	if os.is("Windows") then 
 		configuration {"x32"}
 			libdirs {"../ThirdPartyLibs/openvr/lib/win32"}
@@ -410,5 +467,9 @@ include "udp"
 include "tcp"
 include "plugins/testPlugin"
 include "plugins/vrSyncPlugin"
+include "plugins/tinyRendererPlugin"
+
+include "plugins/pdControlPlugin"
+include "plugins/collisionFilterPlugin"
 
 

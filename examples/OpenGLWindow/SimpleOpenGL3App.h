@@ -16,7 +16,8 @@ struct SimpleOpenGL3App : public CommonGraphicsApp
 	class GLInstancingRenderer* m_instancingRenderer;
 	virtual void setBackgroundColor(float red, float green, float blue);
 
-	SimpleOpenGL3App(const char* title, int width,int height, bool allowRetina=true);
+	SimpleOpenGL3App(const char* title, int width,int height, bool allowRetina=true, int maxNumObjectCapacity = 128 * 1024, int maxShapeCapacityInBytes = 128 * 1024 * 1024);
+
 	virtual ~SimpleOpenGL3App();
 
 	virtual int	registerCubeShape(float halfExtentsX=1.f,float halfExtentsY=1.f, float halfExtentsZ = 1.f, int textureIndex = -1,  float textureScaling = 1);

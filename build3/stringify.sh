@@ -62,6 +62,8 @@ eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWin
 
 eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/useShadowMapInstancingPS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/useShadowMapInstancingPS.h" --stringname="useShadowMapInstancingFragmentShader" stringify'
 eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/useShadowMapInstancingVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/useShadowMapInstancingVS.h" --stringname="useShadowMapInstancingVertexShader" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/projectiveTextureInstancingPS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/projectiveTextureInstancingPS.h" --stringname="projectiveTextureInstancingFragmentShader" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/projectiveTextureInstancingVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/projectiveTextureInstancingVS.h" --stringname="projectiveTextureInstancingVertexShader" stringify'
 eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenCL/broadphase/pairsKernel.cl" --headerfile="../examples/OpenCL/broadphase/pairsKernel.h" --stringname="pairsKernelsCL" stringify'
 
 

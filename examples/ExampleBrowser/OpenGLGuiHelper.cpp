@@ -6,12 +6,11 @@
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "Bullet3Common/b3Scalar.h"
 #include "CollisionShape2TriangleMesh.h"
+#include "BulletSoftBody/btSoftBodyHelpers.h"
 
 #include "../OpenGLWindow/ShapeData.h"
 
 #include "../OpenGLWindow/SimpleCamera.h"
-#include "../OpenGLWindow/GLInstanceGraphicsShape.h"
-
 
 #define BT_LINE_BATCH_SIZE 512
 
@@ -292,6 +291,15 @@ int	OpenGLGuiHelper::registerTexture(const unsigned char* texels, int width, int
 	return textureId;
 }
 
+
+void OpenGLGuiHelper::removeTexture(int textureUid)
+{
+	m_data->m_glApp->m_renderer->removeTexture(textureUid);
+}
+
+
+
+
 void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height)
 {
 	bool flipPixelsY = true;
@@ -301,6 +309,15 @@ void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* rg
 
 int OpenGLGuiHelper::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
 {
+	if (textureId == -2)
+	{
+		if (m_data->m_checkedTextureGrey<0)
+		{
+			m_data->m_checkedTextureGrey = createCheckeredTexture(192, 192, 192);
+		}
+		textureId = m_data->m_checkedTextureGrey;
+	}
+
 	int shapeId = m_data->m_glApp->m_renderer->registerShape(vertices, numvertices,indices,numIndices,primitiveType, textureId);
 	return shapeId;
 }
@@ -412,6 +429,18 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 	int strideInBytes = 9*sizeof(float);
 	//if (collisionShape->getShapeType()==BOX_SHAPE_PROXYTYPE)
 	{
+	}
+	if (collisionShape->getShapeType() == SOFTBODY_SHAPE_PROXYTYPE)
+	{
+		computeSoftBodyVertices(collisionShape, gfxVertices, indices);
+		if (gfxVertices.size() && indices.size())
+		{
+			int shapeId = registerGraphicsShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES,
+												m_data->m_checkedTexture);
+		
+			b3Assert(shapeId >= 0);
+			collisionShape->setUserIndex(shapeId);
+		}
 	}
 	if (collisionShape->getShapeType()==MULTI_SPHERE_SHAPE_PROXYTYPE)
 	{
@@ -905,8 +934,16 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 		B3_PROFILE("write all InstanceTransformToCPU");
 		for (int i = 0; i<numCollisionObjects; i++)
 		{
-			B3_PROFILE("writeSingleInstanceTransformToCPU");
+			//B3_PROFILE("writeSingleInstanceTransformToCPU");
 			btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
+			btCollisionShape* collisionShape = colObj->getCollisionShape();
+			if (collisionShape->getShapeType()==SOFTBODY_SHAPE_PROXYTYPE && collisionShape->getUserIndex() >=0) {
+				btAlignedObjectArray<GLInstanceVertex> gfxVertices;
+				btAlignedObjectArray<int> indices;
+				computeSoftBodyVertices(collisionShape, gfxVertices, indices);
+				m_data->m_glApp->m_renderer->updateShape(collisionShape->getUserIndex(), &gfxVertices[0].xyzw[0]);
+				continue;
+			}
 			btVector3 pos = colObj->getWorldTransform().getOrigin();
 			btQuaternion orn = colObj->getWorldTransform().getRotation();
 			int index = colObj->getUserIndex();
@@ -993,6 +1030,10 @@ void	OpenGLGuiHelper::setVisualizerFlagCallback(VisualizerFlagCallback callback)
 
 void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
 {
+	if (getRenderInterface() && flag==16)//COV_ENABLE_PLANAR_REFLECTION
+	{
+		getRenderInterface()->setPlaneReflectionShapeIndex(enable);
+	}
 	if (m_data->m_visualizerFlagCallback)
 		(m_data->m_visualizerFlagCallback)(flag,enable);
 }
@@ -1019,12 +1060,10 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
 		getRenderInterface()->getActiveCamera()->getCameraUpVector(camUp);
 		getRenderInterface()->getActiveCamera()->getCameraForwardVector(camForward);
-		float frustumNearPlane =     getRenderInterface()->getActiveCamera()->getCameraFrustumNear();
-		float frustumFarPlane =     getRenderInterface()->getActiveCamera()->getCameraFrustumFar();
-
+		
 		float top = 1.f;
 		float bottom = -1.f;
-		float tanFov = (top-bottom)*0.5f / frustumNearPlane;
+		float tanFov = (top-bottom)*0.5f / 1;
 		float fov = btScalar(2.0) * btAtan(tanFov);
 		btVector3 camPos,camTarget;
 		getRenderInterface()->getActiveCamera()->getCameraPosition(camPos);
@@ -1046,7 +1085,7 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		float tanfov = tanf(0.5f*fov);
 		hori *= 2.f * farPlane * tanfov;
 		vertical *= 2.f * farPlane * tanfov;
-		btScalar aspect =  *width / *height;
+		btScalar aspect =  float(*width) / float(*height);
 		hori*=aspect;
 		//compute 'hor' and 'vert' vectors, useful to generate raytracer rays
 		hor[0] = hori[0];
@@ -1067,6 +1106,15 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 	return false;
 }
 
+void OpenGLGuiHelper::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+{
+	m_data->m_glApp->m_renderer->setProjectiveTextureMatrices(viewMatrix, projectionMatrix);
+}
+
+void OpenGLGuiHelper::setProjectiveTexture(bool useProjectiveTexture)
+{
+	m_data->m_glApp->m_renderer->setProjectiveTexture(useProjectiveTexture);
+}
 
 void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
                                           unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
@@ -1221,6 +1269,11 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 		btCollisionObject* colObj = sortedObjects[i];
 		//btRigidBody* body = btRigidBody::upcast(colObj);
 		//does this also work for btMultiBody/btMultiBodyLinkCollider?
+		btSoftBody* sb = btSoftBody::upcast(colObj);
+		if (sb)
+		{
+			colObj->getCollisionShape()->setUserPointer(sb);
+		}
 		createCollisionShapeGraphicsObject(colObj->getCollisionShape());
 		int colorIndex = colObj->getBroadphaseHandle()->getUid() & 3;
 
@@ -1262,5 +1315,37 @@ void	OpenGLGuiHelper::dumpFramesToVideo(const char* mp4FileName)
 	if (m_data->m_glApp)
 	{
 		m_data->m_glApp->dumpFramesToVideo(mp4FileName);
+	}
+}
+
+void OpenGLGuiHelper::computeSoftBodyVertices(btCollisionShape* collisionShape,
+											  btAlignedObjectArray<GLInstanceVertex>& gfxVertices,
+											  btAlignedObjectArray<int>& indices)
+{
+	if (collisionShape->getUserPointer()==0)
+		return;
+	b3Assert(collisionShape->getUserPointer());
+	btSoftBody* psb = (btSoftBody*)collisionShape->getUserPointer();
+	gfxVertices.resize(psb->m_faces.size() * 3);
+	int i, j, k;
+	for (i = 0; i < psb->m_faces.size(); i++)  // Foreach face
+	{
+		for (k = 0; k < 3; k++)  // Foreach vertex on a face
+		{
+			int currentIndex = i * 3 + k;
+			for (int j = 0; j < 3; j++)
+			{
+				gfxVertices[currentIndex].xyzw[j] = psb->m_faces[i].m_n[k]->m_x[j];
+			}
+			for (int j = 0; j < 3; j++)
+			{
+				gfxVertices[currentIndex].normal[j] = psb->m_faces[i].m_n[k]->m_n[j];
+			}
+			for (int j = 0; j < 2; j++)
+			{
+				gfxVertices[currentIndex].uv[j] = 0.5;  //we don't have UV info...
+			}
+			indices.push_back(currentIndex);
+		}
 	}
 }

@@ -21,11 +21,12 @@ subject to the following restrictions:
 #include "../ImportSTLDemo/LoadMeshFromSTL.h"
 #include "../ImportColladaDemo/LoadMeshFromCollada.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"//to create a tesselation of a generic btConvexShape
+#include "BulletCollision/CollisionShapes/btSdfCollisionShape.h"
 #include "../../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include <string>
 #include "../../Utils/b3ResourcePath.h"
-
+#include "URDF2Bullet.h"//for flags 
 #include "../ImportMeshUtility/b3ImportMeshUtility.h"
 
 static btScalar gUrdfDefaultCollisionMargin = 0.001;
@@ -35,12 +36,6 @@ static btScalar gUrdfDefaultCollisionMargin = 0.001;
 #include <list>
 #include "UrdfParser.h"
 
-struct MyTexture
-{
-	int m_width;
-	int m_height;
-	unsigned char* textureData;
-};
 
 
 ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
@@ -54,9 +49,13 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 	int m_bodyId;
 	btHashMap<btHashInt,UrdfMaterialColor> m_linkColors;
     btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
+	btAlignedObjectArray<int> m_allocatedTextures;
 	mutable btAlignedObjectArray<btTriangleMesh*> m_allocatedMeshInterfaces;
-	
-	LinkVisualShapesConverter* m_customVisualShapesConverter;
+	btHashMap<btHashPtr, UrdfCollision> m_bulletCollisionShape2UrdfCollision;
+
+	UrdfRenderingInterface* m_customVisualShapesConverter;
+	bool m_enableTinyRenderer;
+	int m_flags;
 
 	void setSourceFile(const std::string& relativeFileName, const std::string& prefix)
 	{
@@ -68,7 +67,9 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 
 	BulletURDFInternalData()
 	{
+		m_enableTinyRenderer = true;
 		m_pathPrefix[0] = 0;
+		m_flags=0;
 	}
 
 	void setGlobalScaling(btScalar scaling)
@@ -83,10 +84,11 @@ void BulletURDFImporter::printTree()
 //	btAssert(0);
 }
 
-BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, double globalScaling)
+BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, double globalScaling, int flags)
 {
 	m_data = new BulletURDFInternalData;
 	m_data->setGlobalScaling(globalScaling);
+	m_data->m_flags = flags;
 	m_data->m_guiHelper = helper;
 	m_data->m_customVisualShapesConverter = customConverter;
 
@@ -298,6 +300,45 @@ std::string BulletURDFImporter::getJointName(int linkIndex) const
 	return "";
 }
     
+void  BulletURDFImporter::getMassAndInertia2(int urdfLinkIndex, btScalar& mass, btVector3& localInertiaDiagonal, btTransform& inertialFrame, int flags) const
+{
+	if (flags & CUF_USE_URDF_INERTIA)
+	{
+		getMassAndInertia(urdfLinkIndex, mass, localInertiaDiagonal, inertialFrame);
+	}
+	else
+	{
+		//the link->m_inertia is NOT necessarily aligned with the inertial frame
+		//so an additional transform might need to be computed
+		UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(urdfLinkIndex);
+
+		btAssert(linkPtr);
+		if (linkPtr)
+		{
+			UrdfLink* link = *linkPtr;
+			btScalar linkMass;
+			if (link->m_parentJoint == 0 && m_data->m_urdfParser.getModel().m_overrideFixedBase)
+			{
+				linkMass = 0.f;
+			}
+			else
+			{
+				linkMass = link->m_inertia.m_mass;
+			}
+			mass = linkMass;
+			localInertiaDiagonal.setValue(0,0,0);
+			inertialFrame.setOrigin(link->m_inertia.m_linkLocalFrame.getOrigin());
+			inertialFrame.setBasis(link->m_inertia.m_linkLocalFrame.getBasis());
+		}
+		else
+		{
+			mass = 1.f;
+			localInertiaDiagonal.setValue(1, 1, 1);
+			inertialFrame.setIdentity();
+		}
+	}
+
+}
 
 void  BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const
 {
@@ -433,7 +474,7 @@ bool BulletURDFImporter::getRootTransformInWorld(btTransform& rootTransformInWor
     return true;
 }
 
-static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
+static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale, int flags)
 {
 	B3_PROFILE("createConvexHullFromShapes");
 	btCompoundShape* compound = new btCompoundShape();
@@ -472,6 +513,11 @@ static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t
 
 		convexHull->recalcLocalAabb();
 		convexHull->optimizeConvexHull();
+		if (flags & CUF_INITIALIZE_SAT_FEATURES)
+		{
+			convexHull->initializePolyhedralFeatures();
+		}
+
 		compound->addChildShape(identity,convexHull);
 	}
 
@@ -507,6 +553,10 @@ bool findExistingMeshFile(
 	else if (ext==".obj")
 	{
 		*out_type = UrdfGeometry::FILE_OBJ;
+	}
+	else if (ext == ".cdf")
+	{
+		*out_type = UrdfGeometry::FILE_CDF;
 	}
 	else
 	{
@@ -573,6 +623,17 @@ bool findExistingMeshFile(
 	}
 }
 
+int BulletURDFImporter::getUrdfFromCollisionShape(const btCollisionShape* collisionShape, UrdfCollision& collision) const
+{
+	UrdfCollision* col = m_data->m_bulletCollisionShape2UrdfCollision.find(collisionShape);
+	if (col)
+	{
+		collision = *col;
+		return 1;
+	}
+	return 0;
+}
+
 btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfCollision* collision, const char* urdfPathPrefix) const
 {
 	BT_PROFILE("convertURDFToCollisionShape");
@@ -603,32 +664,37 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
         case URDF_GEOM_CYLINDER:
         {
 			btScalar cylRadius = collision->m_geometry.m_capsuleRadius;
-			btScalar cylLength = collision->m_geometry.m_capsuleHeight;
-			
-            btAlignedObjectArray<btVector3> vertices;
-            //int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
-            int numSteps = 32;
-            for (int i=0;i<numSteps;i++)
-            {
+			btScalar cylHalfLength = 0.5*collision->m_geometry.m_capsuleHeight;
+			if (m_data->m_flags & CUF_USE_IMPLICIT_CYLINDER)
+			{
+				btVector3 halfExtents(cylRadius,cylRadius, cylHalfLength);
+				btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
+				shape = cylZShape;
+			} else
+			{
+				btAlignedObjectArray<btVector3> vertices;
+				//int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
+				int numSteps = 32;
+				for (int i=0;i<numSteps;i++)
+				{
 
-                btVector3 vert(cylRadius*btSin(SIMD_2_PI*(float(i)/numSteps)),cylRadius*btCos(SIMD_2_PI*(float(i)/numSteps)),cylLength/2.);
-                vertices.push_back(vert);
-                vert[2] = -cylLength/2.;
-                vertices.push_back(vert);
+					btVector3 vert(cylRadius*btSin(SIMD_2_PI*(float(i)/numSteps)),cylRadius*btCos(SIMD_2_PI*(float(i)/numSteps)),cylHalfLength);
+					vertices.push_back(vert);
+					vert[2] = -cylHalfLength;
+					vertices.push_back(vert);
 
-            }
-            btConvexHullShape* convexHull = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
-            convexHull->setMargin(gUrdfDefaultCollisionMargin);
-			convexHull->initializePolyhedralFeatures();
-			convexHull->optimizeConvexHull();
-			
-			//btConvexShape* cylZShape = new btConeShapeZ(cyl->radius,cyl->length);//(vexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
-            
-            //btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length/2.);
-            //btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
-            
-
-            shape = convexHull;
+				}
+				btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+				cylZShape->setMargin(gUrdfDefaultCollisionMargin);
+				cylZShape->recalcLocalAabb();
+				if (m_data->m_flags & CUF_INITIALIZE_SAT_FEATURES)
+				{
+					cylZShape->initializePolyhedralFeatures();
+				}
+				cylZShape->optimizeConvexHull();
+				shape = cylZShape;
+			}
+           
             break;
         }
         case URDF_GEOM_BOX:
@@ -636,6 +702,10 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 			btVector3 extents = collision->m_geometry.m_boxSize;
 			btBoxShape* boxShape = new btBoxShape(extents*0.5f);
 			//btConvexShape* boxShape = new btConeShapeX(extents[2]*0.5,extents[0]*0.5);
+			if (m_data->m_flags & CUF_INITIALIZE_SAT_FEATURES)
+			{
+				boxShape->initializePolyhedralFeatures();
+			}
             shape = boxShape;
 			shape ->setMargin(gUrdfDefaultCollisionMargin);
             break;
@@ -648,7 +718,53 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 			shape ->setMargin(gUrdfDefaultCollisionMargin);
             break;
 	}
+	case URDF_GEOM_CDF:
+		{
+			
+			char relativeFileName[1024];
+			char pathPrefix[1024];
+			pathPrefix[0] = 0;
+			if (b3ResourcePath::findResourcePath(collision->m_geometry.m_meshFileName.c_str(), relativeFileName, 1024))
+			{
+				b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+				
 
+				btAlignedObjectArray<char> sdfData;
+				{
+					std::streampos fsize = 0;
+					std::ifstream file(relativeFileName, std::ios::binary);
+					if (file.good())
+					{
+						fsize = file.tellg();
+						file.seekg(0, std::ios::end);
+						fsize = file.tellg() - fsize;
+						file.seekg(0, std::ios::beg);
+						sdfData.resize(fsize);
+						int bytesRead = file.rdbuf()->sgetn(&sdfData[0], fsize);
+						btAssert(bytesRead == fsize);
+						file.close();
+					}
+				}
+
+				if (sdfData.size())
+				{
+					btSdfCollisionShape* sdfShape = new btSdfCollisionShape();
+					bool valid = sdfShape->initializeSDF(&sdfData[0], sdfData.size());
+					btAssert(valid);
+
+					if (valid)
+					{
+						shape = sdfShape;
+					}
+					else
+					{
+						delete sdfShape;
+					}
+
+				}
+			}
+			break;
+		}
 	case URDF_GEOM_MESH:
 	{
 		GLInstanceGraphicsShape* glmesh = 0;
@@ -673,7 +789,8 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 				std::string err = tinyobj::LoadObj(shapes, collision->m_geometry.m_meshFileName.c_str());
 				//create a convex hull for each shape, and store it in a btCompoundShape
 
-				shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
+				shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale, m_data->m_flags);
+				m_data->m_bulletCollisionShape2UrdfCollision.insert(shape, *collision);
 				return shape;
 			}
 			break;
@@ -800,8 +917,12 @@ upAxisMat.setIdentity();
 			BT_PROFILE("convert btConvexHullShape");
 			btConvexHullShape* convexHull = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
 			convexHull->optimizeConvexHull();
-			//convexHull->initializePolyhedralFeatures();
+			if (m_data->m_flags & CUF_INITIALIZE_SAT_FEATURES)
+			{
+				convexHull->initializePolyhedralFeatures();
+			}
 			convexHull->setMargin(gUrdfDefaultCollisionMargin);
+			convexHull->recalcLocalAabb();
 			//convexHull->setLocalScaling(collision->m_geometry.m_meshScale);
 			shape = convexHull;
 		}
@@ -814,11 +935,15 @@ upAxisMat.setIdentity();
 		b3Warning("Error: unknown collision geometry type %i\n", collision->m_geometry.m_type);
 		
 	}
+	if (shape && collision->m_geometry.m_type==URDF_GEOM_MESH)
+	{
+		m_data->m_bulletCollisionShape2UrdfCollision.insert(shape, *collision);
+	}
 	return shape;
 }
 
 
-static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture>& texturesOut)
+void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<BulletURDFTexture>& texturesOut) const
 {
 	BT_PROFILE("convertURDFToVisualShapeInternal");
 
@@ -849,6 +974,7 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 
 			btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
 			cylZShape->setMargin(gUrdfDefaultCollisionMargin);
+			cylZShape->recalcLocalAabb();
 			convexColShape = cylZShape;
 			break;
 		}
@@ -882,12 +1008,13 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData))
 					{
 
-						if (meshData.m_textureImage)
+						if (meshData.m_textureImage1)
 						{
-							MyTexture texData;
+							BulletURDFTexture texData;
 							texData.m_width = meshData.m_textureWidth;
 							texData.m_height = meshData.m_textureHeight;
-							texData.textureData = meshData.m_textureImage;
+							texData.textureData1 = meshData.m_textureImage1;
+							texData.m_isCached = meshData.m_isCached;
 							texturesOut.push_back(texData);
 						}
 						glmesh = meshData.m_gfxShape;
@@ -1099,7 +1226,7 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
     btAlignedObjectArray<GLInstanceVertex> vertices;
 	btAlignedObjectArray<int> indices;
 	btTransform startTrans; startTrans.setIdentity();
-	btAlignedObjectArray<MyTexture> textures;
+	btAlignedObjectArray<BulletURDFTexture> textures;
 	
     const UrdfModel& model = m_data->m_urdfParser.getModel();
 	UrdfLink* const* linkPtr = model.m_links.getAtIndex(linkIndex);
@@ -1141,9 +1268,16 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 			if (textures.size())
 			{
 				
-				textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData,textures[0].m_width,textures[0].m_height);
+				textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData1,textures[0].m_width,textures[0].m_height);
+				if (textureIndex >= 0)
+				{
+					m_data->m_allocatedTextures.push_back(textureIndex);
+				}
 			}
-			graphicsIndex = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(),B3_GL_TRIANGLES,textureIndex);
+			{
+				B3_PROFILE("registerGraphicsShape");
+				graphicsIndex = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, textureIndex);
+			}
 			
 		}
 	}
@@ -1151,7 +1285,11 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 	//delete textures
 	for (int i=0;i<textures.size();i++)
 	{
-		free( textures[i].textureData);
+		B3_PROFILE("free textureData");
+		if (!textures[i].m_isCached)
+		{
+			free( textures[i].textureData1);
+		}
 	}
 	return graphicsIndex;
 }
@@ -1177,6 +1315,11 @@ bool BulletURDFImporter::getLinkColor2(int linkIndex, UrdfMaterialColor& matCol)
 		return true;
 	}
 	return false;
+}
+
+void BulletURDFImporter::setLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const
+{
+	m_data->m_linkColors.insert(linkIndex, matCol);
 }
 
 bool BulletURDFImporter::getLinkContactInfo(int urdflinkIndex, URDFLinkContactInfo& contactInfo ) const
@@ -1206,16 +1349,21 @@ bool BulletURDFImporter::getLinkAudioSource(int linkIndex, SDFAudioSource& audio
 	return false;
 }
 
+void BulletURDFImporter::setEnableTinyRenderer(bool enable)
+{
+	m_data->m_enableTinyRenderer = enable;
+}
+
 
 void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj, int bodyUniqueId) const
 {
-  	if (m_data->m_customVisualShapesConverter)
+  	if (m_data->m_enableTinyRenderer && m_data->m_customVisualShapesConverter)
 	{
 		const UrdfModel& model = m_data->m_urdfParser.getModel();
 		UrdfLink*const* linkPtr = model.m_links.getAtIndex(urdfIndex);
 		if (linkPtr)
 		{
-			m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, *linkPtr, &model, colObj, bodyUniqueId);
+			m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, *linkPtr, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId);
 		}
 	}
 }
@@ -1237,9 +1385,20 @@ int BulletURDFImporter::getNumAllocatedMeshInterfaces() const
 }
 
 
+
 btStridingMeshInterface* BulletURDFImporter::getAllocatedMeshInterface(int index)
 {
     return m_data->m_allocatedMeshInterfaces[index];
+}
+
+int BulletURDFImporter::getNumAllocatedTextures() const
+{
+	return m_data->m_allocatedTextures.size();
+}
+
+int BulletURDFImporter::getAllocatedTexture(int index) const
+{
+	return m_data->m_allocatedTextures[index];
 }
 
 

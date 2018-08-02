@@ -20,7 +20,8 @@ subject to the following restrictions:
 #include <stdio.h> //fopen
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include <string>
-#include "../../ThirdPartyLibs/tinyxml/tinyxml.h"
+#include "../../ThirdPartyLibs/tinyxml2/tinyxml2.h"
+using namespace tinyxml2;
 
 #include "Bullet3Common/b3FileUtils.h"
 #include "LinearMath/btHashMap.h"
@@ -90,14 +91,14 @@ void tokenize(const std::string& str, AddToken& tokenAdder, const std::string& d
 }
 
 
-void	readFloatArray(TiXmlElement* source, btAlignedObjectArray<float>& floatArray, int& componentStride) 
+void	readFloatArray(XMLElement* source, btAlignedObjectArray<float>& floatArray, int& componentStride) 
 {
 	int numVals, stride;
-	TiXmlElement* array = source->FirstChildElement("float_array");
+	XMLElement* array = source->FirstChildElement("float_array");
 	if(array) 
 	{
 		componentStride = 1;
-		if (source->FirstChildElement("technique_common")->FirstChildElement("accessor")->QueryIntAttribute("stride", &stride)!= TIXML_NO_ATTRIBUTE)
+		if (source->FirstChildElement("technique_common")->FirstChildElement("accessor")->QueryIntAttribute("stride", &stride)!= XML_NO_ATTRIBUTE)
 		{
 			componentStride = stride;
 		}
@@ -140,11 +141,11 @@ btVector4 getVector4FromXmlText(const char* text)
 }
 
 
-void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, btHashMap<btHashString,int>& name2Shape, float extraScaling) 
+void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, btHashMap<btHashString,int>& name2Shape, float extraScaling) 
 {
-	btHashMap<btHashString,TiXmlElement* > allSources;
+	btHashMap<btHashString,XMLElement* > allSources;
 	btHashMap<btHashString,VertexSource> vertexSources;
-	for(TiXmlElement* geometry = doc.RootElement()->FirstChildElement("library_geometries")->FirstChildElement("geometry");
+	for(XMLElement* geometry = doc.RootElement()->FirstChildElement("library_geometries")->FirstChildElement("geometry");
 			geometry != NULL; geometry = geometry->NextSiblingElement("geometry")) 
 	{
 		btAlignedObjectArray<btVector3> vertexPositions;
@@ -152,11 +153,11 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 		btAlignedObjectArray<int> indices;
 
 		const char* geometryName = geometry->Attribute("id");
-		for (TiXmlElement* mesh = geometry->FirstChildElement("mesh");(mesh != NULL); mesh = mesh->NextSiblingElement("mesh")) 
+		for (XMLElement* mesh = geometry->FirstChildElement("mesh");(mesh != NULL); mesh = mesh->NextSiblingElement("mesh")) 
 		{
-			TiXmlElement* vertices2 = mesh->FirstChildElement("vertices");
+			XMLElement* vertices2 = mesh->FirstChildElement("vertices");
 			
-			for (TiXmlElement* source = mesh->FirstChildElement("source");source != NULL;source = source->NextSiblingElement("source")) 
+			for (XMLElement* source = mesh->FirstChildElement("source");source != NULL;source = source->NextSiblingElement("source")) 
 			{
 				const char* srcId= source->Attribute("id");
 //				printf("source id=%s\n",srcId);
@@ -165,7 +166,7 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 			const char* vertexId = vertices2->Attribute("id");
 			//printf("vertices id=%s\n",vertexId);
 			VertexSource vs;
-			for(TiXmlElement* input = vertices2->FirstChildElement("input");input != NULL;input = input->NextSiblingElement("input")) 
+			for(XMLElement* input = vertices2->FirstChildElement("input");input != NULL;input = input->NextSiblingElement("input")) 
 			{
 				const char* sem = input->Attribute("semantic");
 				std::string semName(sem);
@@ -187,8 +188,20 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 			}
 			vertexSources.insert(vertexId,vs);
 
-			for (TiXmlElement* primitive = mesh->FirstChildElement("triangles"); primitive; primitive = primitive->NextSiblingElement("triangles"))
+			btAlignedObjectArray<XMLElement*> trianglesAndPolylists;
+
+			for (XMLElement* primitive = mesh->FirstChildElement("triangles"); primitive; primitive = primitive->NextSiblingElement("triangles"))
 			{
+				trianglesAndPolylists.push_back(primitive);
+			}
+			for (XMLElement* primitive = mesh->FirstChildElement("polylist"); primitive; primitive = primitive->NextSiblingElement("polylist"))
+			{
+				trianglesAndPolylists.push_back(primitive);
+			}
+
+			for (int i=0;i<trianglesAndPolylists.size();i++)
+			{
+				XMLElement* primitive = trianglesAndPolylists[i];
 				std::string positionSourceName;
 				std::string normalSourceName;
 				int primitiveCount;
@@ -199,7 +212,7 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 				int numIndices = 0;
 				{
 
-					for (TiXmlElement* input = primitive->FirstChildElement("input");input != NULL;input = input->NextSiblingElement("input")) 
+					for (XMLElement* input = primitive->FirstChildElement("input");input != NULL;input = input->NextSiblingElement("input")) 
 					{
 						const char* sem = input->Attribute("semantic");
 						std::string semName(sem);
@@ -241,7 +254,7 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 				}
 				btAlignedObjectArray<float> positionFloatArray;
 				int posStride=1;
-				TiXmlElement** sourcePtr = allSources[positionSourceName.c_str()];
+				XMLElement** sourcePtr = allSources[positionSourceName.c_str()];
 				if (sourcePtr)
 				{
 					readFloatArray(*sourcePtr,positionFloatArray, posStride);
@@ -334,7 +347,7 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 	}//for each geometry
 }
 
-void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,  const btMatrix4x4& parentTransMat)
+void readNodeHierarchy(XMLElement* node,btHashMap<btHashString,int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,  const btMatrix4x4& parentTransMat)
 {
 	
 	
@@ -343,7 +356,7 @@ void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shap
 
 	///todo(erwincoumans) we probably have to read the elements 'translate', 'scale', 'rotate' and 'matrix' in-order and accumulate them...
 	{
-		for (TiXmlElement* transElem = node->FirstChildElement("matrix");transElem;transElem=node->NextSiblingElement("matrix"))
+		for (XMLElement* transElem = node->FirstChildElement("matrix");transElem;transElem=node->NextSiblingElement("matrix"))
 		{
 			if (transElem->GetText())
 			{
@@ -367,7 +380,7 @@ void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shap
 	}
 
 	{
-		for (TiXmlElement* transElem = node->FirstChildElement("translate");transElem;transElem=node->NextSiblingElement("translate"))
+		for (XMLElement* transElem = node->FirstChildElement("translate");transElem;transElem=node->NextSiblingElement("translate"))
 		{
 			if (transElem->GetText())
 			{
@@ -381,7 +394,7 @@ void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shap
 		}
 	}
 	{
-		for(TiXmlElement* scaleElem = node->FirstChildElement("scale");
+		for(XMLElement* scaleElem = node->FirstChildElement("scale");
 				scaleElem!= NULL; scaleElem= node->NextSiblingElement("scale")) 
 		{
 			if (scaleElem->GetText())
@@ -394,7 +407,7 @@ void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shap
 		}
 	}
 	{
-		for(TiXmlElement* rotateElem = node->FirstChildElement("rotate");
+		for(XMLElement* rotateElem = node->FirstChildElement("rotate");
 				rotateElem!= NULL; rotateElem= node->NextSiblingElement("rotate")) 
 		{
 			if (rotateElem->GetText())
@@ -411,7 +424,7 @@ void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shap
 	
 	nodeTrans = parentTransMat*nodeTrans;
 	
-	for (TiXmlElement* instanceGeom = node->FirstChildElement("instance_geometry");
+	for (XMLElement* instanceGeom = node->FirstChildElement("instance_geometry");
 				instanceGeom!=0;
 				instanceGeom=instanceGeom->NextSiblingElement("instance_geometry"))
 	{
@@ -432,22 +445,22 @@ void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shap
 		}
 	}
 
-	for(TiXmlElement* childNode = node->FirstChildElement("node");
+	for(XMLElement* childNode = node->FirstChildElement("node");
 			childNode!= NULL; childNode = childNode->NextSiblingElement("node")) 
 	{
 		readNodeHierarchy(childNode,name2Shape,visualShapeInstances, nodeTrans);
 	}
 }
-void readVisualSceneInstanceGeometries(TiXmlDocument& doc, btHashMap<btHashString,int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances)
+void readVisualSceneInstanceGeometries(XMLDocument& doc, btHashMap<btHashString,int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances)
 {
-	btHashMap<btHashString,TiXmlElement* > allVisualScenes;
+	btHashMap<btHashString,XMLElement* > allVisualScenes;
 
-	TiXmlElement* libVisualScenes = doc.RootElement()->FirstChildElement("library_visual_scenes");
+	XMLElement* libVisualScenes = doc.RootElement()->FirstChildElement("library_visual_scenes");
 	if (libVisualScenes==0)
 		return;
 
 	{
-		for(TiXmlElement* scene = libVisualScenes->FirstChildElement("visual_scene");
+		for(XMLElement* scene = libVisualScenes->FirstChildElement("visual_scene");
 				scene != NULL; scene = scene->NextSiblingElement("visual_scene")) 
 		{
 			const char* sceneName = scene->Attribute("id");
@@ -455,16 +468,16 @@ void readVisualSceneInstanceGeometries(TiXmlDocument& doc, btHashMap<btHashStrin
 		}
 	}
 
-	TiXmlElement* scene = 0;
+	XMLElement* scene = 0;
 	{
-		TiXmlElement* scenes = doc.RootElement()->FirstChildElement("scene");
+		XMLElement* scenes = doc.RootElement()->FirstChildElement("scene");
 		if (scenes)
 		{
-			TiXmlElement* instanceSceneReference = scenes->FirstChildElement("instance_visual_scene");
+			XMLElement* instanceSceneReference = scenes->FirstChildElement("instance_visual_scene");
 			if (instanceSceneReference)
 			{
 				const char* instanceSceneUrl = instanceSceneReference->Attribute("url");
-				TiXmlElement** sceneInstancePtr = allVisualScenes[instanceSceneUrl+1];//skip #
+				XMLElement** sceneInstancePtr = allVisualScenes[instanceSceneUrl+1];//skip #
 				if (sceneInstancePtr)
 				{
 					scene = *sceneInstancePtr;
@@ -475,7 +488,7 @@ void readVisualSceneInstanceGeometries(TiXmlDocument& doc, btHashMap<btHashStrin
 
 	if (scene)
 	{
-		for(TiXmlElement* node = scene->FirstChildElement("node");
+		for(XMLElement* node = scene->FirstChildElement("node");
 			node != NULL; node = node->NextSiblingElement("node")) 
 		{
 			btMatrix4x4 identity;
@@ -488,11 +501,11 @@ void readVisualSceneInstanceGeometries(TiXmlDocument& doc, btHashMap<btHashStrin
 	}
 }
 
-void getUnitMeterScalingAndUpAxisTransform(TiXmlDocument& doc, btTransform& tr, float& unitMeterScaling, int clientUpAxis)
+void getUnitMeterScalingAndUpAxisTransform(XMLDocument& doc, btTransform& tr, float& unitMeterScaling, int clientUpAxis)
 {
 	///todo(erwincoumans) those up-axis transformations have been quickly coded without rigorous testing
 	
-	TiXmlElement* unitMeter = doc.RootElement()->FirstChildElement("asset")->FirstChildElement("unit");
+	XMLElement* unitMeter = doc.RootElement()->FirstChildElement("asset")->FirstChildElement("unit");
 	if (unitMeter)
 	{
 		const char* meterText = unitMeter->Attribute("meter");
@@ -500,7 +513,7 @@ void getUnitMeterScalingAndUpAxisTransform(TiXmlDocument& doc, btTransform& tr, 
 		unitMeterScaling = atof(meterText);
 	}
 
-	TiXmlElement* upAxisElem = doc.RootElement()->FirstChildElement("asset")->FirstChildElement("up_axis");
+	XMLElement* upAxisElem = doc.RootElement()->FirstChildElement("asset")->FirstChildElement("up_axis");
 	if (upAxisElem)
 	{
 		switch (clientUpAxis)
@@ -573,8 +586,8 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 		return;
 	}
 	 
-	TiXmlDocument doc(filename);
-	if (!doc.LoadFile())
+	XMLDocument doc;
+	if (doc.LoadFile(filename) != XML_SUCCESS)
 		return;
 
 	//We need units to be in meter, so apply a scaling using the asset/units meter 

@@ -26,6 +26,7 @@ subject to the following restrictions:
 
 typedef void (*b3Win32ThreadFunc)(void* userPtr,void* lsMemory);
 typedef void* (*b3Win32lsMemorySetupFunc)();
+typedef void (*b3Win32lsMemoryReleaseFunc)(void*);
 
 
 ///b3Win32ThreadSupport helps to initialize/shutdown libspe2, start/stop SPU tasks and communication
@@ -42,6 +43,8 @@ public:
 		b3Win32ThreadFunc	m_userThreadFunc;
 		void*	m_userPtr; //for taskDesc etc
 		void*	m_lsMemory; //initialized using Win32LocalStoreMemorySetupFunc
+
+		b3Win32lsMemoryReleaseFunc  m_lsMemoryReleaseFunc;
 
 		void*	m_threadHandle; //this one is calling 'Win32ThreadFunc'
 
@@ -67,12 +70,14 @@ public:
 		Win32ThreadConstructionInfo(const char* uniqueName,
 									b3Win32ThreadFunc userThreadFunc,
 									b3Win32lsMemorySetupFunc	lsMemoryFunc,
+									b3Win32lsMemoryReleaseFunc  lsMemoryReleaseFunc,
 									int numThreads=1,
 									int threadStackSize=65535
 									)
 									:m_uniqueName(uniqueName),
 									m_userThreadFunc(userThreadFunc),
 									m_lsMemoryFunc(lsMemoryFunc),
+									m_lsMemoryReleaseFunc(lsMemoryReleaseFunc),
 									m_numThreads(numThreads),
 									m_threadStackSize(threadStackSize),
 									m_priority(0)
@@ -83,6 +88,7 @@ public:
 		const char*				m_uniqueName;
 		b3Win32ThreadFunc			m_userThreadFunc;
 		b3Win32lsMemorySetupFunc	m_lsMemoryFunc;
+		b3Win32lsMemoryReleaseFunc  m_lsMemoryReleaseFunc;
 		int						m_numThreads;
 		int						m_threadStackSize;
 		int						m_priority;

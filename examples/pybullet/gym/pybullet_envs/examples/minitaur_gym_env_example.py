@@ -1,6 +1,12 @@
 r"""An example to run of the minitaur gym environment with sine gaits.
 """
 
+import os
+import inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 import math
 import numpy as np
 from pybullet_envs.bullet import minitaur_gym_env
@@ -44,9 +50,9 @@ def MotorOverheatExample():
       motor_kd=0.00,
       on_rack=False)
 
-  action = [2.0] * 8
+  action = [.0] * 8
   for i in range(8):
-    action[i] = 2.0 - 0.5 * (-1 if i % 2 == 0 else 1) * (-1 if i < 4 else 1)
+    action[i] = .0 - 0.1 * (-1 if i % 2 == 0 else 1) * (-1 if i < 4 else 1)
 
   steps = 500
   actions_and_observations = []
@@ -112,9 +118,9 @@ def SinePolicyExample():
       on_rack=False)
   sum_reward = 0
   steps = 20000
-  amplitude_1_bound = 0.5
-  amplitude_2_bound = 0.5
-  speed = 40
+  amplitude_1_bound = 0.1
+  amplitude_2_bound = 0.1
+  speed = 1
 
   for step_counter in range(steps):
     time_step = 0.01
@@ -124,9 +130,9 @@ def SinePolicyExample():
     amplitude2 = amplitude_2_bound
     steering_amplitude = 0
     if t < 10:
-      steering_amplitude = 0.5
+      steering_amplitude = 0.1
     elif t < 20:
-      steering_amplitude = -0.5
+      steering_amplitude = -0.1
     else:
       steering_amplitude = 0
 

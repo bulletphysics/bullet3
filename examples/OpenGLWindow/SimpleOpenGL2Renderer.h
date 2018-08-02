@@ -55,7 +55,7 @@ public:
 	virtual int	registerTexture(const unsigned char* texels, int width, int height, bool flipTexelsY);
 	virtual void	updateTexture(int textureIndex, const unsigned char* texels, bool flipTexelsY);
     virtual void	activateTexture(int textureIndex);
-
+	virtual void removeTexture(int textureIndex);
 
     virtual int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling);
     

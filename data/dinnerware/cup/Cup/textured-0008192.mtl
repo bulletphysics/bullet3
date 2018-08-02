@@ -1,0 +1,4 @@
+newmtl material_0
+# shader_type beckmann
+map_Kd textured-0008192-diffuse_map.jpg
+

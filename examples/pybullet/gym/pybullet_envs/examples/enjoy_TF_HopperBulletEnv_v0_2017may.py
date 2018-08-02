@@ -6,7 +6,6 @@ os.sys.path.insert(0,parentdir)
 
 import gym
 import numpy as np
-import pybullet as p
 import pybullet_envs
 import time
 
@@ -35,14 +34,6 @@ def main():
     
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
     env.reset()
-    for i in range (p.getNumBodies()):
-        print(p.getBodyInfo(i))
-        if (p.getBodyInfo(i)[1].decode() == "hopper"):
-           torsoId=i
-           print("found torso")
-           print(p.getNumJoints(torsoId))
-           for j in range (p.getNumJoints(torsoId)):
-              print(p.getJointInfo(torsoId,j))#LinkState(torsoId,j))
     while 1:
         frame = 0
         score = 0
@@ -51,15 +42,12 @@ def main():
         obs = env.reset()
     
         while 1:
-            time.sleep(0.01)
+            time.sleep(1./60.)
             a = pi.act(obs)
             obs, r, done, _ = env.step(a)
             score += r
             frame += 1
-            distance=5
-            yaw = 0
-            humanPos = p.getLinkState(torsoId,4)[0]
-            p.resetDebugVisualizerCamera(distance,yaw,-20,humanPos);
+
 
             still_open = env.render("human")
             if still_open==False:

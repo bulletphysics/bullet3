@@ -56,7 +56,8 @@ premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/
 premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/useShadowMapInstancingPS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/useShadowMapInstancingPS.h" --stringname="useShadowMapInstancingFragmentShader" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/useShadowMapInstancingVS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/useShadowMapInstancingVS.h" --stringname="useShadowMapInstancingVertexShader" stringify
 
-
+premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/projectiveTextureInstancingPS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/projectiveTextureInstancingPS.h" --stringname="projectiveTextureInstancingFragmentShader" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/projectiveTextureInstancingVS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/projectiveTextureInstancingVS.h" --stringname="projectiveTextureInstancingVertexShader" stringify
 
 
 premake4 --file=stringifyKernel.lua --kernelfile="../Demos3/GpuDemos/broadphase/pairsKernel.cl" --headerfile="../Demos3/GpuDemos/broadphase/pairsKernel.h" --stringname="pairsKernelsCL" stringify

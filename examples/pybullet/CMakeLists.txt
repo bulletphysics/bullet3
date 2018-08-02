@@ -15,11 +15,17 @@ ENDIF()
 
 SET(pybullet_SRCS
 	pybullet.c
+		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp
+		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp
+		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.h
 		../../examples/SharedMemory/IKTrajectoryHelper.cpp
 		../../examples/SharedMemory/IKTrajectoryHelper.h
 		../../examples/ExampleBrowser/InProcessExampleBrowser.cpp
-		../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp
-		../../examples/SharedMemory/TinyRendererVisualShapeConverter.h
+		../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
+		../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.h
+		../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
+		../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.h
 		../../examples/OpenGLWindow/SimpleCamera.cpp
 		../../examples/OpenGLWindow/SimpleCamera.h
 		../../examples/TinyRenderer/geometry.cpp
@@ -62,10 +68,7 @@ SET(pybullet_SRCS
 		../../examples/Utils/RobotLoggingUtil.cpp
 		../../examples/Utils/RobotLoggingUtil.h
 		
-		../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
-		../../examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
+		../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp
 		../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
 		../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.h
 		../../examples/ThirdPartyLibs/stb_image/stb_image.cpp

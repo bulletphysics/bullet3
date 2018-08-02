@@ -26,16 +26,16 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 OPTION(USE_DOUBLE_PRECISION "Use double precision"	OFF)
 OPTION(USE_GRAPHICAL_BENCHMARK "Use Graphical Benchmark" ON)
 OPTION(BUILD_SHARED_LIBS "Use shared libraries" OFF)
-OPTION(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD "Use btSoftMultiBodyDynamicsWorld" OFF)
+OPTION(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD "Use btSoftMultiBodyDynamicsWorld" ON)
 
-OPTION(BULLET2_USE_THREAD_LOCKS "Build Bullet 2 libraries with mutex locking around certain operations (required for multi-threading)" OFF)
-IF (BULLET2_USE_THREAD_LOCKS)
+OPTION(BULLET2_MULTITHREADING "Build Bullet 2 libraries with mutex locking around certain operations (required for multi-threading)" OFF)
+IF (BULLET2_MULTITHREADING)
     OPTION(BULLET2_USE_OPEN_MP_MULTITHREADING "Build Bullet 2 with support for multi-threading with OpenMP (requires a compiler with OpenMP support)" OFF)
     OPTION(BULLET2_USE_TBB_MULTITHREADING "Build Bullet 2 with support for multi-threading with Intel Threading Building Blocks (requires the TBB library to be already installed)" OFF)
     IF (MSVC)
         OPTION(BULLET2_USE_PPL_MULTITHREADING "Build Bullet 2 with support for multi-threading with Microsoft Parallel Patterns Library (requires MSVC compiler)" OFF)
     ENDIF (MSVC)
-ENDIF (BULLET2_USE_THREAD_LOCKS)
+ENDIF (BULLET2_MULTITHREADING)
 
 
 IF(NOT WIN32)
@@ -108,7 +108,7 @@ IF(MSVC)
 	IF (CMAKE_CL_64)
 	  ADD_DEFINITIONS(-D_WIN64)
 	ELSE()
-	  OPTION(USE_MSVC_SSE "Use MSVC /arch:sse option"	ON)
+	  OPTION(USE_MSVC_SSE "Use MSVC /arch:sse option"	OFF)
 	  option(USE_MSVC_SSE2 "Compile your program with SSE2 instructions" ON)
 
 	  IF (USE_MSVC_SSE)
@@ -217,20 +217,23 @@ ADD_DEFINITIONS( -DBT_USE_DOUBLE_PRECISION)
 SET( BULLET_DOUBLE_DEF "-DBT_USE_DOUBLE_PRECISION")
 ENDIF (USE_DOUBLE_PRECISION)
 
-IF (USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD)
-ADD_DEFINITIONS(-DUSE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD)
-ENDIF (USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD)
+IF (NOT USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD)
+ADD_DEFINITIONS(-DSKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD)
+ENDIF ()
 
 IF(USE_GRAPHICAL_BENCHMARK)
 ADD_DEFINITIONS( -DUSE_GRAPHICAL_BENCHMARK)
 ENDIF (USE_GRAPHICAL_BENCHMARK)
 
-IF(BULLET2_USE_THREAD_LOCKS)
+IF(BULLET2_MULTITHREADING)
 	ADD_DEFINITIONS( -DBT_THREADSAFE=1 )
 	IF (NOT MSVC)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 	ENDIF (NOT MSVC)
-ENDIF (BULLET2_USE_THREAD_LOCKS)
+	IF (NOT WIN32)
+		LINK_LIBRARIES( pthread )
+	ENDIF (NOT WIN32)
+ENDIF (BULLET2_MULTITHREADING)
 
 IF (BULLET2_USE_OPEN_MP_MULTITHREADING)
     ADD_DEFINITIONS("-DBT_USE_OPENMP=1")
@@ -301,25 +304,26 @@ IF (APPLE)
 ENDIF()
 
 OPTION(BUILD_BULLET3 "Set when you want to build Bullet 3" ON)
+
 # Optional Python configuration
-# builds pybullet automatically if all the requirements are met
-SET(PYTHON_VERSION_PYBULLET "" CACHE STRING "Python version pybullet will use.")
-SET(Python_ADDITIONAL_VERSIONS 3 3.6 3.5 3.4 3.3 3.2 3.1 3.0 2.7 2.7.12 2.7.10 2.7.3 )
-SET_PROPERTY(CACHE PYTHON_VERSION_PYBULLET PROPERTY STRINGS ${Python_ADDITIONAL_VERSIONS})
-SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build3/cmake ${CMAKE_MODULE_PATH})
-OPTION(EXACT_PYTHON_VERSION "Require Python and match PYTHON_VERSION_PYBULLET exactly, e.g. 2.7.12" OFF)
-IF(EXACT_PYTHON_VERSION)
-  set(EXACT_PYTHON_VERSION_FLAG EXACT REQUIRED)
-ENDIF(EXACT_PYTHON_VERSION)
-# first find the python interpreter
-FIND_PACKAGE(PythonInterp ${PYTHON_VERSION_PYBULLET} ${EXACT_PYTHON_VERSION_FLAG})
-# python library should exactly match that of the interpreter
-FIND_PACKAGE(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
-SET(DEFAULT_BUILD_PYBULLET OFF)
-IF(PYTHONLIBS_FOUND)
-	SET(DEFAULT_BUILD_PYBULLET ON)
-ENDIF(PYTHONLIBS_FOUND)
-OPTION(BUILD_PYBULLET "Set when you want to build pybullet (Python bindings for Bullet)" ${DEFAULT_BUILD_PYBULLET})
+# Will not probe environment for Python configuration (which can abort the
+# build process) unless you explicitly turn on BUILD_PYBULLET.
+OPTION(BUILD_PYBULLET "Set when you want to build pybullet (Python bindings for Bullet)" OFF)
+IF(BUILD_PYBULLET)
+	SET(PYTHON_VERSION_PYBULLET "" CACHE STRING "Python version pybullet will use.")
+	SET(Python_ADDITIONAL_VERSIONS 3 3.6 3.5 3.4 3.3 3.2 3.1 3.0 2.7 2.7.12 2.7.10 2.7.3 )
+	SET_PROPERTY(CACHE PYTHON_VERSION_PYBULLET PROPERTY STRINGS ${Python_ADDITIONAL_VERSIONS})
+	SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build3/cmake ${CMAKE_MODULE_PATH})
+	OPTION(EXACT_PYTHON_VERSION "Require Python and match PYTHON_VERSION_PYBULLET exactly, e.g. 2.7.12" OFF)
+	IF(EXACT_PYTHON_VERSION)
+	    set(EXACT_PYTHON_VERSION_FLAG EXACT REQUIRED)
+	ENDIF(EXACT_PYTHON_VERSION)
+	# first find the python interpreter
+	FIND_PACKAGE(PythonInterp ${PYTHON_VERSION_PYBULLET} ${EXACT_PYTHON_VERSION_FLAG})
+	# python library should exactly match that of the interpreter
+	# the following can result in fatal error if you don't have the right python configuration
+	FIND_PACKAGE(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+ENDIF(BUILD_PYBULLET)
 
 OPTION(BUILD_ENET "Set when you want to build apps with enet UDP networking support" ON)
 OPTION(BUILD_CLSOCKET "Set when you want to build apps with enet TCP networking support" ON)

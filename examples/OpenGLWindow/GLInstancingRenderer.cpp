@@ -33,7 +33,9 @@ float shadowMapWorldSize=10;
 #else
 #ifndef __APPLE__
 #ifndef glVertexAttribDivisor
+
 #ifndef NO_GLEW
+
 #define glVertexAttribDivisor glVertexAttribDivisorARB
 #endif //NO_GLEW
 #endif //glVertexAttribDivisor
@@ -72,6 +74,8 @@ float shadowMapWorldSize=10;
 #include "Shaders/createShadowMapInstancingPS.h"
 #include "Shaders/useShadowMapInstancingVS.h"
 #include "Shaders/useShadowMapInstancingPS.h"
+#include "Shaders/projectiveTextureInstancingVS.h"
+#include "Shaders/projectiveTextureInstancingPS.h"
 #include "Shaders/linesPS.h"
 #include "Shaders/linesVS.h"
 
@@ -132,7 +136,7 @@ struct b3GraphicsInstance
 	int m_numIndices;
 	int m_numVertices;
 
-	
+
 	int m_numGraphicsInstances;
 	b3AlignedObjectArray<int> m_tempObjectUids;
 	int m_instanceOffset;
@@ -217,10 +221,13 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	SimpleCamera	m_defaultCamera1;
     CommonCameraInterface* m_activeCamera;
-    
+
 	GLfloat m_projectionMatrix[16];
 	GLfloat m_viewMatrix[16];
+	GLfloat m_projectiveTextureProjectionMatrix[16];
+	GLfloat m_projectiveTextureViewMatrix[16];
 	GLfloat m_viewMatrixInverse[16];
+	bool m_useProjectiveTexture;
 
 	b3Vector3 m_lightPos;
 	b3Vector3 m_lightSpecularIntensity;
@@ -230,9 +237,9 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	GLRenderToTexture*	m_shadowMap;
 	GLuint				m_shadowTexture;
-	
+
 	GLuint				m_renderFrameBuffer;
-	
+
 
 
 	b3ResizablePool< b3PublicGraphicsInstance> m_publicGraphicsInstances;
@@ -252,11 +259,14 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 			m_projectionMatrix[i]=0;
 			m_viewMatrix[i]=0;
 			m_viewMatrixInverse[i]=0;
+			m_projectiveTextureProjectionMatrix[i]=0;
+			m_projectiveTextureViewMatrix[i]=0;
 		}
 
+		m_useProjectiveTexture = false;
 	}
 
-	
+
 
 };
 
@@ -279,6 +289,7 @@ static GLuint	triangleIndexVbo=0;
 static GLuint               linesShader;        // The line renderer
 static GLuint               useShadowMapInstancingShader;        // The shadow instancing renderer
 static GLuint               createShadowMapInstancingShader;        // The shadow instancing renderer
+static GLuint				projectiveTextureInstancingShader;        // The projective texture instancing renderer
 static GLuint               instancingShader;        // The instancing renderer
 static GLuint               instancingShaderPointSprite;        // The point sprite instancing renderer
 
@@ -316,6 +327,20 @@ static GLint	useShadow_shadowMap = 0;
 
 static GLint	createShadow_depthMVP=0;
 
+static GLint	projectiveTexture_ViewMatrixInverse=0;
+static GLint	projectiveTexture_ModelViewMatrix=0;
+static GLint	projectiveTexture_lightSpecularIntensity = 0;
+static GLint	projectiveTexture_materialSpecularColor = 0;
+static GLint	projectiveTexture_MVP=0;
+static GLint	projectiveTexture_lightPosIn=0;
+static GLint	projectiveTexture_cameraPositionIn = 0;
+static GLint	projectiveTexture_materialShininessIn = 0;
+
+static GLint	projectiveTexture_ProjectionMatrix=0;
+static GLint	projectiveTexture_TextureMVP=0;
+static GLint    projectiveTexture_uniform_texture_diffuse = 0;
+static GLint	projectiveTexture_shadowMap = 0;
+
 static GLint	ModelViewMatrix=0;
 static GLint	ProjectionMatrix=0;
 static GLint	regularLightDirIn=0;
@@ -336,7 +361,8 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 	m_textureinitialized(false),
 	m_screenWidth(0),
 	m_screenHeight(0),
-	m_upAxis(1)
+	m_upAxis(1),
+	m_planeReflectionShapeIndex(-1)
 {
 
 	m_data = new InternalDataRenderer;
@@ -471,7 +497,7 @@ void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int srcIndex2, flo
 	position[0] = m_data->m_instance_positions_ptr[srcIndex*4+0];
 	position[1] = m_data->m_instance_positions_ptr[srcIndex*4+1];
 	position[2] = m_data->m_instance_positions_ptr[srcIndex*4+2];
-	
+
 	orientation[0] = m_data->m_instance_quaternion_ptr[srcIndex*4+0];
 	orientation[1] = m_data->m_instance_quaternion_ptr[srcIndex*4+1];
 	orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
@@ -483,6 +509,16 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, in
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
+	int shapeIndex = pg->m_shapeIndex;
+	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
+	if (color[3]<1)
+	{
+		gfxObj->m_flags |= eGfxTransparency;
+	} else
+	{
+		gfxObj->m_flags &= ~eGfxTransparency;
+	}
+		
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=float(color[0]);
 	m_data->m_instance_colors_ptr[srcIndex*4+1]=float(color[1]);
 	m_data->m_instance_colors_ptr[srcIndex*4+2]=float(color[2]);
@@ -494,6 +530,16 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
+	int shapeIndex = pg->m_shapeIndex;
+	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
+
+	if (color[3]<1)
+	{
+		gfxObj->m_flags |= eGfxTransparency;
+	} else
+	{
+		gfxObj->m_flags &= ~eGfxTransparency;
+	}
 
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=color[0];
 	m_data->m_instance_colors_ptr[srcIndex*4+1]=color[1];
@@ -640,11 +686,11 @@ void GLInstancingRenderer::writeTransforms()
 		//B3_PROFILE("b3Assert(glGetError() 2");
 		b3Assert(glGetError() ==GL_NO_ERROR);
 	}
-	
+
 
 #ifdef B3_DEBUG
 	{
-		
+
 		//B3_PROFILE("m_data->m_totalNumInstances == totalNumInstances");
 
 		int totalNumInstances= 0;
@@ -693,8 +739,8 @@ void GLInstancingRenderer::writeTransforms()
 	{
 
 
-		
-		
+
+
 
 		for (int k=0;k<m_graphicsInstances.size();k++)
 		{
@@ -703,7 +749,7 @@ void GLInstancingRenderer::writeTransforms()
 
 
 
-			
+
 
 			char* base = orgBase;
 
@@ -815,7 +861,10 @@ void GLInstancingRenderer::rebuildGraphicsInstances()
 	{
 		int srcIndex2 = usedObjects[i];
 		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
-		m_graphicsInstances[pg->m_shapeIndex]->m_tempObjectUids.push_back(srcIndex2);
+		if (pg && pg->m_shapeIndex < m_graphicsInstances.size() && pg->m_shapeIndex >=0)
+		{
+			m_graphicsInstances[pg->m_shapeIndex]->m_tempObjectUids.push_back(srcIndex2);
+		}
 	}
 
 	int curOffset = 0;
@@ -831,7 +880,7 @@ void GLInstancingRenderer::rebuildGraphicsInstances()
 			curOffset++;
 			int objectUniqueId = m_graphicsInstances[i]->m_tempObjectUids[g];
 			b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(objectUniqueId);
-			
+
 			registerGraphicsInstanceInternal(objectUniqueId,pg->m_position,pg->m_orientation,pg->m_color,pg->m_scale);
 		}
 	}
@@ -857,7 +906,7 @@ int GLInstancingRenderer::registerGraphicsInstanceInternal(int newUid, const flo
 //	b3Assert(pg);
 //	int objectIndex = pg->m_internalInstanceIndex;
 
-	
+
 
 	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
 	int index = gfxObj->m_numGraphicsInstances + gfxObj->m_instanceOffset;
@@ -942,13 +991,23 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 	return newUid;
 }
 
+void GLInstancingRenderer::removeTexture(int textureIndex)
+{
+	if ((textureIndex >= 0) && (textureIndex < m_data->m_textureHandles.size()))
+	{
+		InternalTextureHandle& h = m_data->m_textureHandles[textureIndex];
+		glDeleteTextures(1, &h.m_glTexture);
+	}
+}
 
 int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY)
 {
+	
+	B3_PROFILE("GLInstancingRenderer::registerTexture");
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	glActiveTexture(GL_TEXTURE0);
 	int textureIndex = m_data->m_textureHandles.size();
-  //  const GLubyte*	image= (const GLubyte*)texels;	
+  //  const GLubyte*	image= (const GLubyte*)texels;
 	GLuint textureHandle;
 	glGenTextures(1,(GLuint*)&textureHandle);
 	glBindTexture(GL_TEXTURE_2D,textureHandle);
@@ -963,6 +1022,7 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
 	m_data->m_textureHandles.push_back(h);
 	if (texels)
 	{
+		B3_PROFILE("updateTexture");
 		updateTexture(textureIndex, texels, flipPixelsY);
 	}
 	return textureIndex;
@@ -985,6 +1045,7 @@ void    GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
 
 void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY)
 {
+	B3_PROFILE("updateTexture");
     if ((textureIndex>=0) && (textureIndex < m_data->m_textureHandles.size()))
     {
         glActiveTexture(GL_TEXTURE0);
@@ -995,13 +1056,14 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
 
 		if (flipPixelsY)
 		{
+			B3_PROFILE("flipPixelsY");
 			//textures need to be flipped for OpenGL...
 			b3AlignedObjectArray<unsigned char> flippedTexels;
 			flippedTexels.resize(h.m_width* h.m_height * 3);
 
-			for (int i = 0; i < h.m_width; i++)
+			for (int j = 0; j < h.m_height; j++)
 			{
-				for (int j = 0; j < h.m_height; j++)
+				for (int i = 0; i < h.m_width; i++)
 				{
 					flippedTexels[(i + j*h.m_width) * 3] =      texels[(i + (h.m_height - 1 -j )*h.m_width) * 3];
 					flippedTexels[(i + j*h.m_width) * 3+1] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
@@ -1017,6 +1079,7 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
         b3Assert(glGetError() ==GL_NO_ERROR);
 		if (h.m_enableFiltering)
 		{
+			B3_PROFILE("glGenerateMipmap");
 	        glGenerateMipmap(GL_TEXTURE_2D);
 		}
         b3Assert(glGetError() ==GL_NO_ERROR);
@@ -1026,7 +1089,7 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
 void GLInstancingRenderer::activateTexture(int textureIndex)
 {
     glActiveTexture(GL_TEXTURE0);
-    
+
     if (textureIndex>=0 && textureIndex < m_data->m_textureHandles.size())
     {
         glBindTexture(GL_TEXTURE_2D,m_data->m_textureHandles[textureIndex].m_glTexture);
@@ -1042,11 +1105,17 @@ void GLInstancingRenderer::updateShape(int shapeIndex, const float* vertices)
 	int numvertices = gfxObj->m_numVertices;
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
-	char* dest=  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_WRITE_ONLY);//GL_WRITE_ONLY
 	int vertexStrideInBytes = 9*sizeof(float);
 	int sz = numvertices*vertexStrideInBytes;
+#if 0
+	char* dest=  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_WRITE_ONLY);//GL_WRITE_ONLY
 	memcpy(dest+vertexStrideInBytes*gfxObj->m_vertexArrayOffset,vertices,sz);
 	glUnmapBuffer( GL_ARRAY_BUFFER);
+#else
+	glBufferSubData(	GL_ARRAY_BUFFER,vertexStrideInBytes*gfxObj->m_vertexArrayOffset,sz,
+ 						vertices);
+#endif
+
 }
 
 int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
@@ -1076,7 +1145,7 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	gfxObj->m_numVertices = numvertices;
 
 
-	
+
 	int vertexStrideInBytes = 9*sizeof(float);
 	int sz = numvertices*vertexStrideInBytes;
 	int totalUsed = vertexStrideInBytes*gfxObj->m_vertexArrayOffset+sz;
@@ -1091,10 +1160,10 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 #if 0
 
 	char* dest=  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_WRITE_ONLY);//GL_WRITE_ONLY
-	
-	
+
+
 #ifdef B3_DEBUG
-	
+
 #endif//B3_DEBUG
 
 	memcpy(dest+vertexStrideInBytes*gfxObj->m_vertexArrayOffset,vertices,sz);
@@ -1137,13 +1206,13 @@ void GLInstancingRenderer::InitShaders()
 
 	{
 		triangleShaderProgram = gltLoadShaderPair(triangleVertexShaderText,triangleFragmentShader);
-		
+
 		//triangle_vpos_location = glGetAttribLocation(triangleShaderProgram, "vPos");
 		//triangle_vUV_location = glGetAttribLocation(triangleShaderProgram, "vUV");
 
 		triangle_mvp_location = glGetUniformLocation(triangleShaderProgram, "MVP");
 		triangle_vcol_location = glGetUniformLocation(triangleShaderProgram, "vCol");
-	
+
 		glLinkProgram(triangleShaderProgram);
 		glUseProgram(triangleShaderProgram);
 
@@ -1202,7 +1271,24 @@ void GLInstancingRenderer::InitShaders()
 	glGetIntegerv(GL_SMOOTH_LINE_WIDTH_RANGE, lineWidthRange);
 
 
-
+	projectiveTextureInstancingShader = gltLoadShaderPair(projectiveTextureInstancingVertexShader,projectiveTextureInstancingFragmentShader);
+	
+	glLinkProgram(projectiveTextureInstancingShader);
+	glUseProgram(projectiveTextureInstancingShader);
+	projectiveTexture_ViewMatrixInverse = glGetUniformLocation(projectiveTextureInstancingShader, "ViewMatrixInverse");
+	projectiveTexture_ModelViewMatrix = glGetUniformLocation(projectiveTextureInstancingShader, "ModelViewMatrix");
+	projectiveTexture_lightSpecularIntensity = glGetUniformLocation(projectiveTextureInstancingShader, "lightSpecularIntensityIn");
+	projectiveTexture_materialSpecularColor = glGetUniformLocation(projectiveTextureInstancingShader, "materialSpecularColorIn");
+	projectiveTexture_MVP = 		glGetUniformLocation(projectiveTextureInstancingShader, "MVP");
+	projectiveTexture_ProjectionMatrix = glGetUniformLocation(projectiveTextureInstancingShader, "ProjectionMatrix");
+	projectiveTexture_TextureMVP = glGetUniformLocation(projectiveTextureInstancingShader, "TextureMVP");
+	projectiveTexture_uniform_texture_diffuse = glGetUniformLocation(projectiveTextureInstancingShader, "Diffuse");
+	projectiveTexture_shadowMap = glGetUniformLocation(projectiveTextureInstancingShader,"shadowMap");
+	projectiveTexture_lightPosIn = glGetUniformLocation(projectiveTextureInstancingShader,"lightPosIn");
+	projectiveTexture_cameraPositionIn = glGetUniformLocation(projectiveTextureInstancingShader,"cameraPositionIn");
+	projectiveTexture_materialShininessIn = glGetUniformLocation(projectiveTextureInstancingShader,"materialShininessIn");
+	
+	glUseProgram(0);
 
 	useShadowMapInstancingShader = gltLoadShaderPair(useShadowMapInstancingVertexShader,useShadowMapInstancingFragmentShader);
 
@@ -1409,6 +1495,20 @@ void GLInstancingRenderer::setLightPosition(const double lightPos[3])
 	m_data->m_lightPos[2] = lightPos[2];
 }
 
+void GLInstancingRenderer::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+{
+	for (int i = 0; i < 16; i++)
+	{
+		m_data->m_projectiveTextureViewMatrix[i] = viewMatrix[i];
+		m_data->m_projectiveTextureProjectionMatrix[i] = projectionMatrix[i];
+	}
+}
+
+void GLInstancingRenderer::setProjectiveTexture(bool useProjectiveTexture)
+{
+	m_data->m_useProjectiveTexture = useProjectiveTexture;
+	useShadowMap = !useProjectiveTexture;
+}
 
 void GLInstancingRenderer::updateCamera(int upAxis)
 {
@@ -1423,7 +1523,7 @@ void GLInstancingRenderer::updateCamera(int upAxis)
     m_data->m_activeCamera->getCameraViewMatrix(m_data->m_viewMatrix);
 	b3Scalar viewMat[16];
 	b3Scalar viewMatInverse[16];
-	
+
 	for (int i=0;i<16;i++)
 	{
 		viewMat[i] = m_data->m_viewMatrix[i];
@@ -1521,10 +1621,47 @@ void GLInstancingRenderer::renderScene()
 	{
 
 		renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
-		//glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+		
+
+		if (m_planeReflectionShapeIndex>=0)
+		{
+			 /* Don't update color or depth. */
+			glDisable(GL_DEPTH_TEST);
+			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		
+			/* Draw 1 into the stencil buffer. */
+			glEnable(GL_STENCIL_TEST);
+			glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+			glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
+
+			/* Now render floor; floor pixels just get their stencil set to 1. */
+			renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE_REFLECTION_PLANE);
+
+			/* Re-enable update of color and depth. */ 
+			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			glEnable(GL_DEPTH_TEST);
+
+			/* Now, only render where stencil is set to 1. */
+			glStencilFunc(GL_EQUAL, 1, 0xffffffff);  /* draw if ==1 */
+			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		
+			//draw the reflection objects
+			renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE_REFLECTION);
+		
+			glDisable(GL_STENCIL_TEST);
+		}
+		
 		renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
 
-	} else
+		
+
+	}
+	else if (m_data->m_useProjectiveTexture)
+	{
+		
+		renderSceneInternal(B3_USE_PROJECTIVE_TEXTURE_RENDERMODE);
+	}
+	else
 	{
 		renderSceneInternal();
 	}
@@ -1676,7 +1813,7 @@ void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], floa
 	b3Quaternion orn(worldOrientation[0],worldOrientation[1],worldOrientation[2],worldOrientation[3]);
 	b3Vector3 pos = b3MakeVector3(worldPosition[0],worldPosition[1],worldPosition[2]);
 
-	
+
 	b3Transform worldTrans(orn,pos);
 	b3Scalar worldMatUnk[16];
 	worldTrans.getOpenGLMatrix(worldMatUnk);
@@ -1694,7 +1831,7 @@ void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], floa
 
 	glUniform3f(triangle_vcol_location,colorRGBA[0],colorRGBA[1],colorRGBA[2]);
 	checkError("glUniform3f");
-	
+
 	glBindVertexArray(triangleVertexArrayObject);
 	checkError("glBindVertexArray");
 
@@ -1709,15 +1846,15 @@ void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], floa
 	PointerCaster uvCast;
 	uvCast.m_baseIndex = 8*sizeof(float);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GfxVertexFormat0), posCast.m_pointer);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GfxVertexFormat0), uvCast.m_pointer);		
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GfxVertexFormat0), uvCast.m_pointer);
 	checkError("glVertexAttribPointer");
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	
+
 	glVertexAttribDivisor(0,0);
 	glVertexAttribDivisor(1,0);
 	checkError("glVertexAttribDivisor");
-	
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleIndexVbo);
 	int indexBufferSizeInBytes = numIndices*sizeof(int);
 
@@ -1869,7 +2006,7 @@ void GLInstancingRenderer::drawLine(const double fromIn[4], const double toIn[4]
 }
 void GLInstancingRenderer::drawLine(const float from[4], const float to[4], const float color[4], float lineWidth)
 {
-		
+
 	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -1936,31 +2073,49 @@ void GLInstancingRenderer::drawLine(const float from[4], const float to[4], cons
 	glUseProgram(0);
 }
 
-struct SortableTransparentInstance
+B3_ATTRIBUTE_ALIGNED16(struct) SortableTransparentInstance
 {
+	b3Scalar m_projection;
+
 	int m_shapeIndex;
 	int m_instanceId;
-	b3Vector3 m_centerPosition;
 };
 
-struct TransparentDistanceSortPredicate
+B3_ATTRIBUTE_ALIGNED16(struct) TransparentDistanceSortPredicate
 {
-	b3Vector3 m_camForwardVec;
 
-	inline bool operator() (const SortableTransparentInstance& a, const SortableTransparentInstance& b) const 
+	inline bool operator() (const SortableTransparentInstance& a, const SortableTransparentInstance& b) const
 	{
-		b3Scalar projA = a.m_centerPosition.dot(m_camForwardVec);
-		b3Scalar projB = b.m_centerPosition.dot(m_camForwardVec);
-		return (projA > projB);
+
+		return (a.m_projection > b.m_projection);
 	}
 };
 
-void GLInstancingRenderer::renderSceneInternal(int renderMode)
+void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 {
+	int renderMode=orgRenderMode;
+	bool reflectionPass = false;
+	bool reflectionPlanePass = false;
 
+	if (orgRenderMode==B3_USE_SHADOWMAP_RENDERMODE_REFLECTION_PLANE)
+	{
+		reflectionPlanePass = true;
+		renderMode = B3_USE_SHADOWMAP_RENDERMODE;
+	}
+	if (orgRenderMode==B3_USE_SHADOWMAP_RENDERMODE_REFLECTION)
+	{
+		reflectionPass = true;
+		renderMode = B3_USE_SHADOWMAP_RENDERMODE;
+	}
+	
 	if (!useShadowMap)
 	{
 		renderMode = B3_DEFAULT_RENDERMODE;
+	}
+	
+	if (orgRenderMode==B3_USE_PROJECTIVE_TEXTURE_RENDERMODE)
+	{
+		renderMode = B3_USE_PROJECTIVE_TEXTURE_RENDERMODE;
 	}
 
 //	glEnable(GL_DEPTH_TEST);
@@ -1990,6 +2145,10 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	float depthProjectionMatrix[4][4];
 	GLfloat depthModelViewMatrix[4][4];
 	//GLfloat depthModelViewMatrix2[4][4];
+	
+	// For projective texture mapping
+	//float textureProjectionMatrix[4][4];
+	//GLfloat textureModelViewMatrix[4][4];
 
 	// Compute the MVP matrix from the light's point of view
 	if (renderMode==B3_CREATE_SHADOWMAP_RENDERMODE)
@@ -2011,7 +2170,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 #else//OLD_SHADOWMAP_INIT
 			//Reduce size of shadowMap if glTexImage2D call fails as may happen in some cases
 			//https://github.com/bulletphysics/bullet3/issues/40
-			
+
 			int size;
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
 			if (size < shadowMapWidth){
@@ -2022,8 +2181,8 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 			}
 			GLuint err;
 			do {
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 
-					shadowMapWidth, shadowMapHeight, 
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16,
+					shadowMapWidth, shadowMapHeight,
 					0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 				err = glGetError();
 				if (err!=GL_NO_ERROR){
@@ -2072,13 +2231,14 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	b3CreateOrtho(-shadowMapWorldSize,shadowMapWorldSize,-shadowMapWorldSize,shadowMapWorldSize,1,300,depthProjectionMatrix);//-14,14,-14,14,1,200, depthProjectionMatrix);
 	float depthViewMatrix[4][4];
 	b3Vector3 center = b3MakeVector3(0,0,0);
+	m_data->m_activeCamera->getCameraTargetPosition(center);
 	//float upf[3];
 	//m_data->m_activeCamera->getCameraUpVector(upf);
 	b3Vector3 up, lightFwd;
 	b3Vector3 lightDir = m_data->m_lightPos.normalized();
 	b3PlaneSpace1(lightDir,up,lightFwd);
 //	b3Vector3 up = b3MakeVector3(upf[0],upf[1],upf[2]);
-	b3CreateLookAt(m_data->m_lightPos,center,up,&depthViewMatrix[0][0]);
+	b3CreateLookAt(m_data->m_lightPos+center,center,up,&depthViewMatrix[0][0]);
 	//b3CreateLookAt(lightPos,m_data->m_cameraTargetPosition,b3Vector3(0,1,0),(float*)depthModelViewMatrix2);
 
 	GLfloat depthModelMatrix[4][4];
@@ -2099,6 +2259,9 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	GLfloat depthBiasMVP[4][4];
 	b3Matrix4x4Mul(biasMatrix,depthMVP,depthBiasMVP);
 
+	// TODO: Expose the projective texture matrix setup. Temporarily set it to be the same as camera view projection matrix.
+	GLfloat textureMVP[16];
+	b3Matrix4x4Mul16(m_data->m_projectiveTextureProjectionMatrix,m_data->m_projectiveTextureViewMatrix,textureMVP);
 
 	//float m_frustumZNear=0.1;
     //float m_frustumZFar=100.f;
@@ -2136,41 +2299,52 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 	{
 		totalNumInstances+=m_graphicsInstances[i]->m_numGraphicsInstances;
 	}
-	
+
 	b3AlignedObjectArray<SortableTransparentInstance> transparentInstances;
-	
 	{
 		int curOffset = 0;
 		//GLuint lastBindTexture = 0;
 
 		transparentInstances.reserve(totalNumInstances);
 
+		float fwd[3];
+		m_data->m_activeCamera->getCameraForwardVector(fwd);
+		b3Vector3 camForwardVec;
+		camForwardVec.setValue(fwd[0],fwd[1],fwd[2]);
+
+
 		for (int obj=0;obj<m_graphicsInstances.size();obj++)
 		{
 			b3GraphicsInstance* gfxObj = m_graphicsInstances[obj];
+			
 			if (gfxObj->m_numGraphicsInstances)
 			{
 				SortableTransparentInstance inst;
-									
+
 				inst.m_shapeIndex = obj;
-			
-			
+
+
 				if ((gfxObj->m_flags&eGfxTransparency)==0)
 				{
 					inst.m_instanceId = curOffset;
-					inst.m_centerPosition.setValue(m_data->m_instance_positions_ptr[inst.m_instanceId*4+0],
+					b3Vector3 centerPosition;
+					centerPosition.setValue(m_data->m_instance_positions_ptr[inst.m_instanceId*4+0],
 								m_data->m_instance_positions_ptr[inst.m_instanceId*4+1],
 								m_data->m_instance_positions_ptr[inst.m_instanceId*4+2]);
-					inst.m_centerPosition *= -1;//reverse sort opaque instances
+					centerPosition *= -1;//reverse sort opaque instances
+					inst.m_projection = centerPosition.dot(camForwardVec);
 					transparentInstances.push_back(inst);
 				} else
 				{
 					for (int i=0;i<gfxObj->m_numGraphicsInstances;i++)
 					{
 						inst.m_instanceId = curOffset+i;
-						inst.m_centerPosition.setValue(m_data->m_instance_positions_ptr[inst.m_instanceId*4+0],
+						b3Vector3 centerPosition;
+
+						centerPosition.setValue(m_data->m_instance_positions_ptr[inst.m_instanceId*4+0],
 										m_data->m_instance_positions_ptr[inst.m_instanceId*4+1],
 										m_data->m_instance_positions_ptr[inst.m_instanceId*4+2]);
+						inst.m_projection = centerPosition.dot(camForwardVec);
 						transparentInstances.push_back(inst);
 					}
 				}
@@ -2178,33 +2352,39 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 			}
 		}
 		TransparentDistanceSortPredicate sorter;
-		float fwd[3];
-		m_data->m_activeCamera->getCameraForwardVector(fwd);
-		sorter.m_camForwardVec.setValue(fwd[0],fwd[1],fwd[2]);
+
 		transparentInstances.quickSort(sorter);
+
 	}
 
-	
+
 	//two passes: first for opaque instances, second for transparent ones.
 	for (int pass = 0; pass<2;pass++)
 	{
 		for (int i=0;i<transparentInstances.size();i++)
 		{
-
+			
 			int shapeIndex = transparentInstances[i].m_shapeIndex;
 
+			//during a reflectionPlanePass, only draw the plane, nothing else
+			if (reflectionPlanePass)
+			{
+				if (shapeIndex!=m_planeReflectionShapeIndex)
+					continue;
+			}
+
 			b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
-			
+
 			//only draw stuff (opaque/transparent) if it is the right pass
 			int drawThisPass = (pass==0) == ((gfxObj->m_flags&eGfxTransparency)==0);
 
 			//transparent objects don't cast shadows (to simplify things)
-			if (gfxObj->m_flags&eGfxTransparency) 
+			if (gfxObj->m_flags&eGfxTransparency)
 			{
 				if (renderMode==B3_CREATE_SHADOWMAP_RENDERMODE)
 					drawThisPass = 0;
 			}
-			
+
 			if (drawThisPass && gfxObj->m_numGraphicsInstances)
 			{
 				glActiveTexture(GL_TEXTURE0);
@@ -2230,7 +2410,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 					curBindTexture = m_data->m_defaultTexturehandle;
 				}
 
-	//disable lazy evaluation, it just leads to bugs
+				//disable lazy evaluation, it just leads to bugs
 				//if (lastBindTexture != curBindTexture)
 				{
 					glBindTexture(GL_TEXTURE_2D,curBindTexture);
@@ -2330,7 +2510,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 								glUseProgram(instancingShader);
 								glUniformMatrix4fv(ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 								glUniformMatrix4fv(ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
-							
+
 								b3Vector3 gLightDir = m_data->m_lightPos;
 								gLightDir.normalize();
 								glUniform3f(regularLightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
@@ -2339,7 +2519,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 
 								if ( gfxObj->m_flags&eGfxTransparency)
 								{
-									
+
 									int instanceId = transparentInstances[i].m_instanceId;
 									glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes));
 									glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE));
@@ -2347,18 +2527,18 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 									glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*3*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE));
 
 									glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-									
+
 								} else
 								{
 									glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 								}
-                            
+
 								if ( gfxObj->m_flags&eGfxTransparency)
 								{
 									glDisable (GL_BLEND);
 									glDepthMask(true);
 								}
-								
+
 								break;
 							}
 							case B3_CREATE_SHADOWMAP_RENDERMODE:
@@ -2377,20 +2557,38 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 									glEnable (GL_BLEND);
 									glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 								}
-                            
+
 								glUseProgram(useShadowMapInstancingShader);
 								glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
-								glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
-								glUniformMatrix4fv(useShadow_ViewMatrixInverse, 1, false, &m_data->m_viewMatrixInverse[0]);
-								glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
+								//glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
+								//glUniformMatrix4fv(useShadow_ViewMatrixInverse, 1, false, &m_data->m_viewMatrix[0]);
+								//glUniformMatrix4fv(useShadow_ViewMatrixInverse, 1, false, &m_data->m_viewMatrixInverse[0]);
+								//glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
 
 								glUniform3f(useShadow_lightSpecularIntensity, m_data->m_lightSpecularIntensity[0],m_data->m_lightSpecularIntensity[1],m_data->m_lightSpecularIntensity[2]);
 								glUniform3f(useShadow_materialSpecularColor, gfxObj->m_materialSpecularColor[0],gfxObj->m_materialSpecularColor[1],gfxObj->m_materialSpecularColor[2]);
 
-							
+
 
 								float MVP[16];
-								b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,MVP);
+								if (reflectionPass)
+								{
+									//todo: create an API to select this reflection matrix, to allow
+									//reflection planes different from Z-axis up through (0,0,0)
+									float tmp[16];
+									float reflectionMatrix[16] = {1,0,0,0,
+										0,1,0,0,
+										0,0,-1,0,
+										0,0,0,1};
+									glCullFace(GL_FRONT);
+									b3Matrix4x4Mul16(m_data->m_viewMatrix,reflectionMatrix,tmp);
+									b3Matrix4x4Mul16(m_data->m_projectionMatrix,tmp,MVP);
+								} else
+								{
+									b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,MVP);
+									glCullFace(GL_BACK);
+								}
+
 								glUniformMatrix4fv(useShadow_MVP, 1, false, &MVP[0]);
 								//gLightDir.normalize();
 								glUniform3f(useShadow_lightPosIn,m_data->m_lightPos[0],m_data->m_lightPos[1],m_data->m_lightPos[2]);
@@ -2398,14 +2596,14 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 								m_data->m_activeCamera->getCameraPosition(camPos);
 								glUniform3f(useShadow_cameraPositionIn,camPos[0],camPos[1],camPos[2]);
 								glUniform1f(useShadow_materialShininessIn,gfxObj->m_materialShinyNess);
-						
+
 								glUniformMatrix4fv(useShadow_DepthBiasModelViewMatrix, 1, false, &depthBiasMVP[0][0]);
 								glActiveTexture(GL_TEXTURE1);
 								glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
 								glUniform1i(useShadow_shadowMap,1);
-							
+
 								//sort transparent objects
-							
+
 								//gfxObj->m_instanceOffset
 
 								if ( gfxObj->m_flags&eGfxTransparency)
@@ -2420,7 +2618,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 								{
 									glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 								}
-                            
+
 								if ( gfxObj->m_flags&eGfxTransparency)
 								{
 									glDisable (GL_BLEND);
@@ -2429,6 +2627,70 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 								glActiveTexture(GL_TEXTURE1);
 								glBindTexture(GL_TEXTURE_2D,0);
 
+								glActiveTexture(GL_TEXTURE0);
+								glBindTexture(GL_TEXTURE_2D,0);
+								break;
+							}
+							case B3_USE_PROJECTIVE_TEXTURE_RENDERMODE:
+							{
+								if ( gfxObj->m_flags&eGfxTransparency)
+								{
+									glDepthMask(false);
+									glEnable (GL_BLEND);
+									glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+								}
+								
+								glUseProgram(projectiveTextureInstancingShader);
+								glUniformMatrix4fv(projectiveTexture_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
+								glUniform3f(projectiveTexture_lightSpecularIntensity, m_data->m_lightSpecularIntensity[0],m_data->m_lightSpecularIntensity[1],m_data->m_lightSpecularIntensity[2]);
+								glUniform3f(projectiveTexture_materialSpecularColor, gfxObj->m_materialSpecularColor[0],gfxObj->m_materialSpecularColor[1],gfxObj->m_materialSpecularColor[2]);
+								
+								float MVP[16];
+								if (reflectionPass)
+								{
+									float tmp[16];
+									float reflectionMatrix[16] = {1,0,0,0,
+										0,1,0,0,
+										0,0,-1,0,
+										0,0,0,1};
+									glCullFace(GL_FRONT);
+									b3Matrix4x4Mul16(m_data->m_viewMatrix,reflectionMatrix,tmp);
+									b3Matrix4x4Mul16(m_data->m_projectionMatrix,tmp,MVP);
+								} else
+								{
+									b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,MVP);
+									glCullFace(GL_BACK);
+								}
+								
+								glUniformMatrix4fv(projectiveTexture_MVP, 1, false, &MVP[0]);
+								glUniform3f(projectiveTexture_lightPosIn,m_data->m_lightPos[0],m_data->m_lightPos[1],m_data->m_lightPos[2]);
+								float camPos[3];
+								m_data->m_activeCamera->getCameraPosition(camPos);
+								glUniform3f(projectiveTexture_cameraPositionIn,camPos[0],camPos[1],camPos[2]);
+								glUniform1f(projectiveTexture_materialShininessIn,gfxObj->m_materialShinyNess);
+								
+								glUniformMatrix4fv(projectiveTexture_TextureMVP, 1, false, &textureMVP[0]);
+								
+								//sort transparent objects
+								if ( gfxObj->m_flags&eGfxTransparency)
+								{
+									int instanceId = transparentInstances[i].m_instanceId;
+									glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes));
+									glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE));
+									glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE));
+									glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*3*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE));
+									glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+								} else
+								{
+									glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
+								}
+								
+								if ( gfxObj->m_flags&eGfxTransparency)
+								{
+									glDisable (GL_BLEND);
+									glDepthMask(true);
+								}
+								
 								glActiveTexture(GL_TEXTURE0);
 								glBindTexture(GL_TEXTURE_2D,0);
 								break;
@@ -2477,6 +2739,11 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 
 void GLInstancingRenderer::CleanupShaders()
 {
+}
+
+void GLInstancingRenderer::setPlaneReflectionShapeIndex(int index)
+{
+	m_planeReflectionShapeIndex = index;
 }
 
 void GLInstancingRenderer::enableShadowMap()

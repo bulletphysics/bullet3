@@ -3,6 +3,9 @@
 	includedirs {
 		"..",
 	}
+    if os.is("Linux") then
+        buildoptions{"-fPIC"}
+    end
 	files {
 		"Dynamics/*.cpp",
                 "Dynamics/*.h",

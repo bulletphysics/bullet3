@@ -7,7 +7,8 @@ struct b3ImportMeshData
 {
 	struct GLInstanceGraphicsShape* m_gfxShape;
 
-	unsigned char* m_textureImage;//in 3 component 8-bit RGB data
+	unsigned char* m_textureImage1;//in 3 component 8-bit RGB data
+	bool m_isCached;
 	int m_textureWidth;
 	int m_textureHeight;
 };

@@ -1,0 +1,54 @@
+!!python/object/new:pybullet_envs.minitaur.agents.tools.attr_dict.AttrDict
+dictitems:
+  algorithm: !!python/name:pybullet_envs.minitaur.agents.ppo.algorithm.PPOAlgorithm ''
+  discount: 0.9868209124499899
+  env: !!python/object/apply:functools.partial
+    args:
+    - &id001 !!python/name:pybullet_envs.minitaur.envs.minitaur_reactive_env.MinitaurReactiveEnv ''
+    state: !!python/tuple
+    - *id001
+    - !!python/tuple []
+    - accurate_motor_model_enabled: true
+      control_latency: 0.02
+      energy_weight: 0.005
+      env_randomizer: null
+      motor_kd: 0.015
+      num_steps_to_log: 1000
+      pd_latency: 0.003
+      remove_default_joint_damping: true
+      render: false
+      urdf_version: rainbow_dash_v0
+    - null
+  eval_episodes: 25
+  init_logstd: -1.1579536194508315
+  init_mean_factor: 0.3084392491563408
+  kl_cutoff_coef: 1000
+  kl_cutoff_factor: 2
+  kl_init_penalty: 1
+  kl_target: 0.01
+  logdir: /cns/ij-d/home/jietan/experiment/minitaur_vizier_study_ppo/minreact_nonexp_nr_02_186515603_186518344/333
+  max_length: 1000
+  network: !!python/name:pybullet_envs.minitaur.agents.scripts.networks.ForwardGaussianPolicy ''
+  network_config: {}
+  num_agents: 25
+  policy_layers: !!python/tuple
+  - 114
+  - 45
+  policy_lr: 0.00023516695218031146
+  policy_optimizer: AdamOptimizer
+  steps: 7000000.0
+  update_epochs_policy: 25
+  update_epochs_value: 25
+  update_every: 25
+  use_gpu: false
+  value_layers: !!python/tuple
+  - 170
+  - 78
+  value_lr: 0.00031014032715987193
+  value_optimizer: AdamOptimizer
+  weight_summaries:
+    all: .*
+    policy: .*/policy/.*
+    value: .*/value/.*
+state:
+  _mutable: false

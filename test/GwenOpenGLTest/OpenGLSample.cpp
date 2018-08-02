@@ -331,7 +331,7 @@ int main()
 
     int majorGlVersion, minorGlVersion;
 
-    if (!sscanf((const char*)glGetString(GL_VERSION), "%d.%d", &majorGlVersion, &minorGlVersion)==2)
+    if (!(sscanf((const char*)glGetString(GL_VERSION), "%d.%d", &majorGlVersion, &minorGlVersion)==2))
     {
         printf("Exit: Error cannot extract OpenGL version from GL_VERSION string\n");
         exit(0);
@@ -355,9 +355,8 @@ int main()
 #ifndef __APPLE__
 #ifndef _WIN32
     //we need glewExperimental on Linux
-    glewExperimental = GL_TRUE;
 #endif // _WIN32
-        glewInit();
+	gladLoadGL();
 #endif
 #endif //B3_USE_GLFW
     //we ned to call glGetError twice, because of some Ubuntu/Intel/OpenGL issue

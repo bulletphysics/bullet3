@@ -6,7 +6,6 @@ os.sys.path.insert(0,parentdir)
 
 import gym
 import numpy as np
-import pybullet as p
 import pybullet_envs
 import time
 
@@ -33,12 +32,6 @@ def main():
     env.render(mode="human")
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
     env.reset()
-    torsoId = -1
-    for i in range (p.getNumBodies()):
-        print(p.getBodyInfo(i))
-        if (p.getBodyInfo(i)[0].decode() == "torso"):
-           torsoId=i
-           print("found humanoid torso")
     while 1:
         frame = 0
         score = 0
@@ -46,15 +39,11 @@ def main():
         obs = env.reset()
        
         while 1:
-            time.sleep(0.01)
             a = pi.act(obs)
             obs, r, done, _ = env.step(a)
             score += r
             frame += 1
-            distance=5
-            yaw = 0
-            humanPos, humanOrn = p.getBasePositionAndOrientation(torsoId)
-            p.resetDebugVisualizerCamera(distance,yaw,-20,humanPos);
+            time.sleep(1./60.)
 
             still_open = env.render("human")
             if still_open==False:

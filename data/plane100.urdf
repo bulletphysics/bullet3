@@ -18,7 +18,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-	 	<box size="10 10 0.001"/>
+	 	<box size="200 200 0.001"/>
       </geometry>
     </collision>
   </link>

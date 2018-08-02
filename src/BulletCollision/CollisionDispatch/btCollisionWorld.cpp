@@ -21,6 +21,7 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h" //for raycasting
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h" //for raycasting
+#include "BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.h" //for raycasting
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
@@ -406,6 +407,22 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 				BridgeTriangleRaycastCallback rcb(rayFromLocal,rayToLocal,&resultCallback,collisionObjectWrap->getCollisionObject(),triangleMesh,colObjWorldTransform);
 				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
 				triangleMesh->performRaycast(&rcb,rayFromLocal,rayToLocal);
+			}
+			else if (collisionShape->getShapeType() == SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE)
+			{
+				///optimized version for btScaledBvhTriangleMeshShape
+				btScaledBvhTriangleMeshShape* scaledTriangleMesh = (btScaledBvhTriangleMeshShape*)collisionShape;
+				btBvhTriangleMeshShape* triangleMesh = (btBvhTriangleMeshShape*)scaledTriangleMesh->getChildShape();
+
+				//scale the ray positions
+				btVector3 scale = scaledTriangleMesh->getLocalScaling();
+				btVector3 rayFromLocalScaled = rayFromLocal / scale;
+				btVector3 rayToLocalScaled = rayToLocal / scale;
+				
+				//perform raycast in the underlying btBvhTriangleMeshShape
+				BridgeTriangleRaycastCallback rcb(rayFromLocalScaled, rayToLocalScaled, &resultCallback, collisionObjectWrap->getCollisionObject(), triangleMesh, colObjWorldTransform);
+				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
+				triangleMesh->performRaycast(&rcb, rayFromLocalScaled, rayToLocalScaled);
 			}
 			else
 			{
@@ -1629,9 +1646,31 @@ void	btCollisionWorld::serializeCollisionObjects(btSerializer* serializer)
 	for (i=0;i<m_collisionObjects.size();i++)
 	{
 		btCollisionObject* colObj = m_collisionObjects[i];
-		if ((colObj->getInternalType() == btCollisionObject::CO_COLLISION_OBJECT) || (colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK))
+		if (colObj->getInternalType() == btCollisionObject::CO_COLLISION_OBJECT)
 		{
 			colObj->serializeSingleObject(serializer);
+		}
+	}
+}
+
+
+
+void btCollisionWorld::serializeContactManifolds(btSerializer* serializer)
+{
+	if (serializer->getSerializationFlags() & BT_SERIALIZE_CONTACT_MANIFOLDS)
+	{
+		int numManifolds = getDispatcher()->getNumManifolds();
+		for (int i = 0; i < numManifolds; i++)
+		{
+			const btPersistentManifold* manifold = getDispatcher()->getInternalManifoldPointer()[i];
+			//don't serialize empty manifolds, they just take space 
+			//(may have to do it anyway if it destroys determinism)
+			if (manifold->getNumContacts() == 0)
+				continue;
+
+			btChunk* chunk = serializer->allocate(manifold->calculateSerializeBufferSize(), 1);
+			const char* structType = manifold->serialize(manifold, chunk->m_oldPtr, serializer);
+			serializer->finalizeChunk(chunk, structType, BT_CONTACTMANIFOLD_CODE, (void*)manifold);
 		}
 	}
 }
@@ -1643,6 +1682,8 @@ void	btCollisionWorld::serialize(btSerializer* serializer)
 	serializer->startSerialization();
 	
 	serializeCollisionObjects(serializer);
+
+	serializeContactManifolds(serializer);
 	
 	serializer->finishSerialization();
 }

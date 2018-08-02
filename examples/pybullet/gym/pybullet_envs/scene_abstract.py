@@ -1,6 +1,6 @@
 import sys, os
 sys.path.append(os.path.dirname(__file__))
-import pybullet as p
+import pybullet 
 
 import gym
 
@@ -8,13 +8,14 @@ import gym
 class Scene:
     "A base class for single- and multiplayer scenes"
 
-    def __init__(self, gravity, timestep, frame_skip):
+    def __init__(self, bullet_client, gravity, timestep, frame_skip):
+        self._p = bullet_client
         self.np_random, seed = gym.utils.seeding.np_random(None)
         self.timestep = timestep
         self.frame_skip = frame_skip
 
         self.dt = self.timestep * self.frame_skip
-        self.cpp_world = World(gravity, timestep, frame_skip)
+        self.cpp_world = World(self._p, gravity, timestep, frame_skip)
 
         self.test_window_still_open = True  # or never opened
         self.human_render_detected = False  # if user wants render("human"), we open test window
@@ -38,7 +39,7 @@ class Scene:
         """
         return not self.multiplayer
 
-    def episode_restart(self):
+    def episode_restart(self, bullet_client):
         "This function gets overridden by specific scene, to reset specific objects into their start positions"
         self.cpp_world.clean_everything()
         #self.cpp_world.test_window_history_reset()
@@ -55,19 +56,23 @@ class SingleRobotEmptyScene(Scene):
 
 class World:
 
-	def __init__(self, gravity, timestep, frame_skip):
+	def __init__(self, bullet_client, gravity, timestep, frame_skip):
+		self._p = bullet_client
 		self.gravity = gravity
 		self.timestep = timestep
 		self.frame_skip = frame_skip
+		self.numSolverIterations = 5
 		self.clean_everything()
-
+		
+		
 	def clean_everything(self):
-		p.resetSimulation()
-		p.setGravity(0, 0, -self.gravity)
-		p.setDefaultContactERP(0.9)
-		p.setPhysicsEngineParameter(fixedTimeStep=self.timestep*self.frame_skip, numSolverIterations=5, numSubSteps=self.frame_skip)
+		#p.resetSimulation()
+		self._p.setGravity(0, 0, -self.gravity)
+		self._p.setDefaultContactERP(0.9)
+		#print("self.numSolverIterations=",self.numSolverIterations)
+		self._p.setPhysicsEngineParameter(fixedTimeStep=self.timestep*self.frame_skip, numSolverIterations=self.numSolverIterations, numSubSteps=self.frame_skip)
 
 	def step(self, frame_skip):
-		p.stepSimulation()
+		self._p.stepSimulation()
 
 

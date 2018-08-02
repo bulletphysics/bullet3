@@ -176,9 +176,18 @@ void btBulletFile::parseData()
 					//	listID->push_back((bStructHandle*)id);
 				}
 
+				if (dataChunk.code == BT_CONTACTMANIFOLD_CODE)
+				{
+					m_contactManifolds.push_back((bStructHandle*)id);
+				}
 				if (dataChunk.code == BT_MULTIBODY_CODE)
 				{
 					m_multiBodies.push_back((bStructHandle*)id);
+				}
+
+				if (dataChunk.code == BT_MB_LINKCOLLIDER_CODE)
+				{
+					m_multiBodyLinkColliders.push_back((bStructHandle*)id);
 				}
 
 				if (dataChunk.code == BT_SOFTBODY_CODE)

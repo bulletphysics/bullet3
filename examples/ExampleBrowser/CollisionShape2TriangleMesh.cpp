@@ -139,7 +139,7 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 				btConvexShape* convex = (btConvexShape*)collisionShape;
 				{
 					btShapeHull* hull = new btShapeHull(convex);
-					hull->buildHull(0.0);
+					hull->buildHull(0.0, 1);
 
 					{
 						//int strideInBytes = 9*sizeof(float);
@@ -185,7 +185,13 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 					}
 				} else
 				{
-					btAssert(0);
+					if (collisionShape->getShapeType()==SDF_SHAPE_PROXYTYPE)
+					{
+						//not yet
+					} else
+					{
+						btAssert(0);
+					}
 				}
 					
 			}

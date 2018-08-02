@@ -14,6 +14,7 @@ project ("App_PhysicsServerSharedMemoryBridgeUDP")
 		links {"Ws2_32","Winmm"}
 	end
 	if os.is("Linux") then
+	    links{"dl"}
 	end
 	if os.is("MacOSX") then
 	end		
@@ -61,18 +62,25 @@ defines { "NO_SHARED_MEMORY" }
 includedirs {"..","../../../src", "../../ThirdPartyLibs","../../ThirdPartyLibs/enet/include"}
 
 links {
-	"enet","Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletDynamics","BulletCollision", "LinearMath", "BussIK"
+	"enet","Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletSoftBody",  "BulletDynamics","BulletCollision", "LinearMath", "BussIK"
 }
 
 if os.is("Windows") then 
 	defines { "WIN32" }
 	links {"Ws2_32","Winmm"}
 end
+	if os.is("Linux") then
+	    links{"dl"}
+	end
 
 language "C++"
 
 myfiles = 
 {
+	"../plugins/pdControlPlugin/pdControlPlugin.cpp",
+	"../plugins/pdControlPlugin/pdControlPlugin.h",
+	"../b3RobotSimulatorClientAPI_NoDirect.cpp",
+	"../b3RobotSimulatorClientAPI_NoDirect.h",
 	"../IKTrajectoryHelper.cpp",
 	"../IKTrajectoryHelper.h",
 	"../SharedMemoryCommands.h",
@@ -81,9 +89,10 @@ myfiles =
 	"../PhysicsServerCommandProcessor.h",
 	"../b3PluginManager.cpp",
 	"../PhysicsDirect.cpp",
+	"../PhysicsClientC_API.cpp",
 	"../PhysicsClient.cpp",
-	"../TinyRendererVisualShapeConverter.cpp",
-	"../TinyRendererVisualShapeConverter.h",
+	"../plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+	"../plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
 	"../../TinyRenderer/geometry.cpp",
 	"../../TinyRenderer/model.cpp",
 	"../../TinyRenderer/tgaimage.cpp",
@@ -122,10 +131,7 @@ myfiles =
 	"../../Importers/ImportColladaDemo/LoadMeshFromCollada.cpp",
 	"../../Importers/ImportColladaDemo/ColladaGraphicsInstance.h",
 	"../../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp",	
-	"../../ThirdPartyLibs/tinyxml/tinystr.cpp",
-	"../../ThirdPartyLibs/tinyxml/tinyxml.cpp",
-	"../../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
-	"../../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
+	"../../ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
 	"../../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
 	"../../ThirdPartyLibs/stb_image/stb_image.cpp",     
 }

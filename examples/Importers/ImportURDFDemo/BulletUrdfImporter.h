@@ -3,7 +3,15 @@
 
 #include "URDFImporterInterface.h"
 
-#include "LinkVisualShapesConverter.h"
+#include "UrdfRenderingInterface.h"
+
+struct BulletURDFTexture
+{
+	int m_width;
+	int m_height;
+	unsigned char* textureData1;
+	bool m_isCached;
+};
 
 
 ///BulletURDFImporter can deal with URDF and (soon) SDF files
@@ -15,7 +23,7 @@ class BulletURDFImporter : public URDFImporterInterface
 
 public:
 
-	BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, double globalScaling=1);
+	BulletURDFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, double globalScaling=1, int flags=0);
 
 	virtual ~BulletURDFImporter();
 
@@ -44,6 +52,8 @@ public:
 
 	virtual bool getLinkColor2(int linkIndex, UrdfMaterialColor& matCol) const;
 
+	virtual void setLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const;
+
 	virtual bool getLinkContactInfo(int urdflinkIndex, URDFLinkContactInfo& contactInfo ) const;
 	
 	virtual bool getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const;
@@ -51,6 +61,8 @@ public:
     virtual std::string getJointName(int linkIndex) const;
     
     virtual void  getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const;
+	virtual void  getMassAndInertia2(int urdfLinkIndex, btScalar& mass, btVector3& localInertiaDiagonal, btTransform& inertialFrame, int flags) const;
+
 
     virtual bool getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const;
     virtual bool getJointInfo2(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity) const;
@@ -64,6 +76,8 @@ public:
 
 	class btCollisionShape* convertURDFToCollisionShape(const struct UrdfCollision* collision, const char* urdfPathPrefix) const;
 
+	virtual int getUrdfFromCollisionShape(const btCollisionShape* collisionShape, UrdfCollision& collision) const;
+
     ///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
     
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const;
@@ -73,6 +87,13 @@ public:
 
 	virtual int getNumAllocatedMeshInterfaces() const;
 	virtual class btStridingMeshInterface* getAllocatedMeshInterface(int index);
+
+	virtual int getNumAllocatedTextures() const;
+	virtual int getAllocatedTexture(int index) const;
+	
+	virtual void setEnableTinyRenderer(bool enable);
+	void convertURDFToVisualShapeInternal(const struct UrdfVisual* visual, const char* urdfPathPrefix, const class btTransform& visualTransform, btAlignedObjectArray<struct GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<struct BulletURDFTexture>& texturesOut) const;
+
 
 };
 

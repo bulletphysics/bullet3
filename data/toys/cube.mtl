@@ -1,0 +1,11 @@
+# Blender MTL File: 'shape_sort.blend'
+# Material Count: 1
+
+newmtl Material.002
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.017444 0.640000 0.032216
+Ks 0.034126 0.500000 0.031333
+Ni 1.000000
+d 1.000000
+illum 2

@@ -6,7 +6,7 @@ namespace btInverseDynamics {
 #define CHECK_NULLPTR()                                                                            \
     do {                                                                                           \
         if (m_reference == 0x0) {                                                                      \
-            error_message("m_reference == 0x0\n");                                                     \
+            bt_id_error_message("m_reference == 0x0\n");                                                     \
             return -1;                                                                             \
         }                                                                                          \
     } while (0)
@@ -14,7 +14,7 @@ namespace btInverseDynamics {
 #define TRY(x)                                                                                     \
     do {                                                                                           \
         if (x == -1) {                                                                             \
-            error_message("error calling " #x "\n");                                               \
+            bt_id_error_message("error calling " #x "\n");                                               \
             return -1;                                                                             \
         }                                                                                          \
     } while (0)

@@ -4,10 +4,9 @@ import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0,parentdir)
-
+import pybullet
 import gym
 import numpy as np
-import pybullet as p
 import pybullet_envs
 import time
 
@@ -29,26 +28,21 @@ class SmallReactivePolicy:
         return x
 
 def main():
+    pybullet.connect(pybullet.DIRECT)
     env = gym.make("AntBulletEnv-v0")
     env.render(mode="human")
     
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
     env.reset()
-    torsoId = -1
-    for i in range (p.getNumBodies()):
-        print(p.getBodyInfo(i))
-        if (p.getBodyInfo(i)[0].decode() == "torso"):
-           torsoId=i
-           print("found torso")
 
     while 1:
         frame = 0
         score = 0
         restart_delay = 0
         obs = env.reset()
-     
+        
         while 1:
-            time.sleep(0.01)
+            time.sleep(1./60.)
             a = pi.act(obs)
             obs, r, done, _ = env.step(a)
             #print("reward")
@@ -57,8 +51,6 @@ def main():
             frame += 1
             distance=5
             yaw = 0
-            humanPos, humanOrn = p.getBasePositionAndOrientation(torsoId)
-            p.resetDebugVisualizerCamera(distance,yaw,-20,humanPos);
 
             still_open = env.render("human")
             if still_open==False:

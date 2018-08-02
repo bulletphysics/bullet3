@@ -1,0 +1,11 @@
+ <!--
+ MuJoCo MJCF test file. See http://mujoco.org/book/index.html
+  -->
+<mujoco>
+   <worldbody>
+      <body pos="0 0 0">
+         <joint type="free"/>
+         <geom name="sphere_geom" size="0.05" type="sphere"/>
+      </body>
+   </worldbody>
+</mujoco>

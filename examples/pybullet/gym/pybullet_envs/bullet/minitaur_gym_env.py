@@ -20,6 +20,7 @@ from . import minitaur
 import os
 import pybullet_data
 from . import minitaur_env_randomizer
+from pkg_resources import parse_version
 
 NUM_SUBSTEPS = 5
 NUM_MOTORS = 8
@@ -176,7 +177,9 @@ class MinitaurBulletEnv(gym.Env):
       self._pybullet_client.setPhysicsEngineParameter(
           numSolverIterations=int(self._num_bullet_solver_iterations))
       self._pybullet_client.setTimeStep(self._time_step)
-      self._pybullet_client.loadURDF("%s/plane.urdf" % self._urdf_root)
+      plane = self._pybullet_client.loadURDF("%s/plane.urdf" % self._urdf_root)
+      self._pybullet_client.changeVisualShape(plane,-1,rgbaColor=[1,1,1,0.9])
+      self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_PLANAR_REFLECTION,0)
       self._pybullet_client.setGravity(0, 0, -10)
       acc_motor = self._accurate_motor_model_enabled
       motor_protect = self._motor_overheat_protection
@@ -251,8 +254,16 @@ class MinitaurBulletEnv(gym.Env):
       if time_to_sleep > 0:
         time.sleep(time_to_sleep)
       base_pos = self.minitaur.GetBasePosition()
+      camInfo = self._pybullet_client.getDebugVisualizerCamera()
+      curTargetPos = camInfo[11]
+      distance=camInfo[10]
+      yaw = camInfo[8]
+      pitch=camInfo[9]
+      targetPos = [0.95*curTargetPos[0]+0.05*base_pos[0],0.95*curTargetPos[1]+0.05*base_pos[1],curTargetPos[2]]
+           
+           
       self._pybullet_client.resetDebugVisualizerCamera(
-          self._cam_dist, self._cam_yaw, self._cam_pitch, base_pos)
+          distance, yaw, pitch, base_pos)
     action = self._transform_action_to_motor_command(action)
     for _ in range(self._action_repeat):
       self.minitaur.ApplyAction(action)
@@ -376,3 +387,9 @@ class MinitaurBulletEnv(gym.Env):
           scale=self._observation_noise_stdev, size=observation.shape) *
                       self.minitaur.GetObservationUpperBound())
     return observation
+
+  if parse_version(gym.__version__)>=parse_version('0.9.6'):
+    render = _render
+    reset = _reset
+    seed = _seed
+    step = _step

@@ -26,7 +26,12 @@ class GripperGraspExample : public CommonExampleInterface
 	b3RobotSimulatorClientAPI m_robotSim;
 	int m_options;
     int m_gripperIndex;
-    
+	double m_time;
+	b3Vector3 m_targetPos;
+	b3Vector3 m_worldPos;
+	b3Vector4 m_targetOri;
+	b3Vector4 m_worldOri;
+	
  	b3AlignedObjectArray<int> m_movingInstances;
 	enum
 	{
@@ -135,7 +140,7 @@ public:
             {
                 m_robotSim.loadURDF("plane.urdf");
             }
-            m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+            m_robotSim.setGravity(btVector3(0,0,-10));
             m_robotSim.setNumSimulationSubSteps(4);
         }
 
@@ -176,7 +181,7 @@ public:
                 m_robotSim.loadURDF("plane.urdf");
                 
             }
-            m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+            m_robotSim.setGravity(btVector3(0,0,-10));
             m_robotSim.setNumSimulationSubSteps(4);
         }
         
@@ -236,7 +241,7 @@ public:
             {
                 m_robotSim.loadURDF("plane.urdf");
             }
-            m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+            m_robotSim.setGravity(btVector3(0,0,-10));
             
             b3JointInfo revoluteJoint1;
             revoluteJoint1.m_parentFrame[0] = -0.055;
@@ -330,8 +335,8 @@ public:
                 m_robotSim.loadURDF("plane.urdf", args);
                 
             }
-            m_robotSim.setGravity(b3MakeVector3(0,0,-10));
-            m_robotSim.loadBunny(0.1,0.1,0.02);
+            m_robotSim.setGravity(btVector3(0,0,-10));
+            m_robotSim.loadSoftBody("bunny.obj",0.1,0.1,0.02);
             
             b3JointInfo revoluteJoint1;
             revoluteJoint1.m_parentFrame[0] = -0.055;
@@ -379,11 +384,11 @@ public:
         {
             {
                 b3RobotSimulatorLoadUrdfFileArgs args;
-                args.m_startPosition.setValue(0,1.0,2.0);
-                args.m_startOrientation.setEulerZYX(0,0,1.57);
-                args.m_forceOverrideFixedBase = false;
+				args.m_startPosition.setValue(-0.5,0,0.1);
+				args.m_startOrientation.setEulerZYX(0,0,0);
+				args.m_forceOverrideFixedBase = true;
                 args.m_useMultiBody = true;
-                int kukaId = m_robotSim.loadURDF("kuka_iiwa/model_free_base.urdf", args);
+                int kukaId = m_robotSim.loadURDF("kuka_iiwa/model.urdf", args);
                 
                 int numJoints = m_robotSim.getNumJoints(kukaId);
                 b3Printf("numJoints = %d",numJoints);
@@ -394,7 +399,7 @@ public:
                     m_robotSim.getJointInfo(kukaId,i,&jointInfo);
                     b3Printf("joint[%d].m_jointName=%s",i,jointInfo.m_jointName);
                     b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
-                    controlArgs.m_maxTorqueValue = 0.0;
+                    controlArgs.m_maxTorqueValue = 500.0;
                     m_robotSim.setJointMotorControl(kukaId,i,controlArgs);
                 }
             }
@@ -406,8 +411,8 @@ public:
                 args.m_useMultiBody = false;
                 m_robotSim.loadURDF("plane.urdf", args);
             }
-            m_robotSim.setGravity(b3MakeVector3(0,0,-10));
-            m_robotSim.loadBunny(0.5,10.0,0.1);
+            m_robotSim.setGravity(btVector3(0,0,-10));
+            m_robotSim.loadSoftBody("bunny.obj",0.3,10.0,0.1);
         }
     }
     virtual void    exitPhysics()
@@ -467,7 +472,124 @@ public:
                 m_robotSim.setJointMotorControl(m_gripperIndex,fingerJointIndices[i],controlArgs);
             }
         }
-        
+		
+		if ((m_options & eSOFTBODY_MULTIBODY_COUPLING)!=0)
+		{
+			float dt = deltaTime;
+			btClamp(dt,0.0001f,0.01f);
+			
+			m_time+=dt;
+			m_targetPos.setValue(0, 0, 0.5+0.2*b3Cos( m_time));
+			m_targetOri.setValue(0, 1.0, 0, 0);
+			
+			
+			int numJoints = m_robotSim.getNumJoints(0);
+			
+			if (numJoints==7)
+			{
+				double q_current[7]={0,0,0,0,0,0,0};
+				
+				b3JointStates2 jointStates;
+				
+				if (m_robotSim.getJointStates(0,jointStates))
+				{
+					//skip the base positions (7 values)
+					b3Assert(7+numJoints == jointStates.m_numDegreeOfFreedomQ);
+					for (int i=0;i<numJoints;i++)
+					{
+						q_current[i] = jointStates.m_actualStateQ[i+7];
+					}
+				}
+				// compute body position and orientation
+				b3LinkState linkState;
+				bool computeVelocity=true;
+				bool computeForwardKinematics=true;
+				m_robotSim.getLinkState(0, 6, computeVelocity,computeForwardKinematics, &linkState);
+				
+				
+				m_worldPos.setValue(linkState.m_worldLinkFramePosition[0], linkState.m_worldLinkFramePosition[1], linkState.m_worldLinkFramePosition[2]);
+				m_worldOri.setValue(linkState.m_worldLinkFrameOrientation[0], linkState.m_worldLinkFrameOrientation[1], linkState.m_worldLinkFrameOrientation[2], linkState.m_worldLinkFrameOrientation[3]);
+				
+				b3Vector3DoubleData targetPosDataOut;
+				m_targetPos.serializeDouble(targetPosDataOut);
+				b3Vector3DoubleData worldPosDataOut;
+				m_worldPos.serializeDouble(worldPosDataOut);
+				b3Vector3DoubleData targetOriDataOut;
+				m_targetOri.serializeDouble(targetOriDataOut);
+				b3Vector3DoubleData worldOriDataOut;
+				m_worldOri.serializeDouble(worldOriDataOut);
+				
+				
+				b3RobotSimulatorInverseKinematicArgs ikargs;
+				b3RobotSimulatorInverseKinematicsResults ikresults;
+				
+				ikargs.m_bodyUniqueId = 0;
+				//			ikargs.m_currentJointPositions = q_current;
+				//			ikargs.m_numPositions = 7;
+				ikargs.m_endEffectorTargetPosition[0] = targetPosDataOut.m_floats[0];
+				ikargs.m_endEffectorTargetPosition[1] = targetPosDataOut.m_floats[1];
+				ikargs.m_endEffectorTargetPosition[2] = targetPosDataOut.m_floats[2];
+				
+				ikargs.m_flags |= B3_HAS_IK_TARGET_ORIENTATION/* + B3_HAS_NULL_SPACE_VELOCITY*/;
+				
+				ikargs.m_endEffectorTargetOrientation[0] = targetOriDataOut.m_floats[0];
+				ikargs.m_endEffectorTargetOrientation[1] = targetOriDataOut.m_floats[1];
+				ikargs.m_endEffectorTargetOrientation[2] = targetOriDataOut.m_floats[2];
+				ikargs.m_endEffectorTargetOrientation[3] = targetOriDataOut.m_floats[3];
+				ikargs.m_endEffectorLinkIndex = 6;
+				
+				// Settings based on default KUKA arm setting
+				ikargs.m_lowerLimits.resize(numJoints);
+				ikargs.m_upperLimits.resize(numJoints);
+				ikargs.m_jointRanges.resize(numJoints);
+				ikargs.m_restPoses.resize(numJoints);
+				ikargs.m_lowerLimits[0] = -2.32;
+				ikargs.m_lowerLimits[1] = -1.6;
+				ikargs.m_lowerLimits[2] = -2.32;
+				ikargs.m_lowerLimits[3] = -1.6;
+				ikargs.m_lowerLimits[4] = -2.32;
+				ikargs.m_lowerLimits[5] = -1.6;
+				ikargs.m_lowerLimits[6] = -2.4;
+				ikargs.m_upperLimits[0] = 2.32;
+				ikargs.m_upperLimits[1] = 1.6;
+				ikargs.m_upperLimits[2] = 2.32;
+				ikargs.m_upperLimits[3] = 1.6;
+				ikargs.m_upperLimits[4] = 2.32;
+				ikargs.m_upperLimits[5] = 1.6;
+				ikargs.m_upperLimits[6] = 2.4;
+				ikargs.m_jointRanges[0] = 5.8;
+				ikargs.m_jointRanges[1] = 4;
+				ikargs.m_jointRanges[2] = 5.8;
+				ikargs.m_jointRanges[3] = 4;
+				ikargs.m_jointRanges[4] = 5.8;
+				ikargs.m_jointRanges[5] = 4;
+				ikargs.m_jointRanges[6] = 6;
+				ikargs.m_restPoses[0] = 0;
+				ikargs.m_restPoses[1] = 0;
+				ikargs.m_restPoses[2] = 0;
+				ikargs.m_restPoses[3] = SIMD_HALF_PI;
+				ikargs.m_restPoses[4] = 0;
+				ikargs.m_restPoses[5] = -SIMD_HALF_PI*0.66;
+				ikargs.m_restPoses[6] = 0;
+				ikargs.m_numDegreeOfFreedom = numJoints;
+				
+				if (m_robotSim.calculateInverseKinematics(ikargs,ikresults))
+				{
+					//copy the IK result to the desired state of the motor/actuator
+					for (int i=0;i<numJoints;i++)
+					{
+						b3RobotSimulatorJointMotorArgs t(CONTROL_MODE_POSITION_VELOCITY_PD);
+						t.m_targetPosition = ikresults.m_calculatedJointPositions[i];
+						t.m_maxTorqueValue = 100.0;
+						t.m_kp= 1.0;
+						t.m_targetVelocity = 0;
+						t.m_kd = 1.0;
+						m_robotSim.setJointMotorControl(0,i,t);
+					}
+				}
+			}
+		}
+		
 		m_robotSim.stepSimulation();
     }
     virtual void	renderScene()
@@ -481,7 +603,7 @@ public:
 	
     virtual bool	mouseMoveCallback(float x,float y)
     {
-		return m_robotSim.mouseMoveCallback(x,y);   
+		return m_robotSim.mouseMoveCallback(x,y);
     }
     virtual bool	mouseButtonCallback(int button, int state, float x, float y)
     {
@@ -489,9 +611,9 @@ public:
     }
     virtual bool	keyboardCallback(int key, int state)
     {
-        return false;   
+        return false;
     }
-    
+	
 	virtual void resetCamera()
 	{
 		float dist = 1.5;

@@ -328,6 +328,7 @@ void InitMaterial(material_t& material) {
     material.emission[i] = 0.f;
   }
   material.shininess = 1.f;
+  material.transparency = 1.f;
 }
 
 std::string LoadMtl (
@@ -464,6 +465,20 @@ std::string LoadMtl (
       material.shininess = parseFloat(token);
       continue;
     }
+
+	// transparency
+	if (token[0] == 'T' && token[1] == 'r' && isSpace(token[2])) {
+		token += 2;
+		material.transparency = parseFloat(token);
+		continue;
+	}
+
+	// transparency
+	if (token[0] == 'd' && isSpace(token[1])) {
+		token += 1;
+		material.transparency = parseFloat(token);
+		continue;
+	}
 
     // ambient texture
     if ((0 == strncmp(token, "map_Ka", 6)) && isSpace(token[6])) {
