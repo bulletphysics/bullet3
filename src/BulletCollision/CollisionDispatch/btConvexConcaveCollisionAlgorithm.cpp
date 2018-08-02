@@ -216,7 +216,7 @@ void btConvexConcaveCollisionAlgorithm::processCollision (const btCollisionObjec
 
 			m_btConvexTriangleCallback.m_manifoldPtr->setBodies(convexBodyWrap->getCollisionObject(),triBodyWrap->getCollisionObject());
 
-			concaveShape->processAllTriangles( &m_btConvexTriangleCallback,m_btConvexTriangleCallback.getAabbMin(),m_btConvexTriangleCallback.getAabbMax());
+			concaveShape->processAllTriangles( &m_btConvexTriangleCallback,m_btConvexTriangleCallback.getAabbMin(),m_btConvexTriangleCallback.getAabbMax(),convexBodyWrap->getCollisionObject());
 			
 			resultOut->refreshContactPoints();
 
@@ -329,7 +329,7 @@ btScalar btConvexConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionObj
 		
 		if (triangleMesh)
 		{
-			triangleMesh->processAllTriangles(&raycastCallback,rayAabbMin,rayAabbMax);
+			triangleMesh->processAllTriangles(&raycastCallback,rayAabbMin,rayAabbMax,convexbody);
 		}
 	
 

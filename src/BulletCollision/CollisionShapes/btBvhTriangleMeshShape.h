@@ -67,7 +67,7 @@ public:
 	void performRaycast (btTriangleCallback* callback, const btVector3& raySource, const btVector3& rayTarget);
 	void performConvexcast (btTriangleCallback* callback, const btVector3& boxSource, const btVector3& boxTarget, const btVector3& boxMin, const btVector3& boxMax);
 
-	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const;
 
 	void	refitTree(const btVector3& aabbMin,const btVector3& aabbMax);
 

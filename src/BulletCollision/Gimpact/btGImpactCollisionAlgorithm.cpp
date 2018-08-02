@@ -861,7 +861,7 @@ void btGImpactCollisionAlgorithm::gimpact_vs_concave(
 	btVector3 minAABB,maxAABB;
 	shape0->getAabb(gimpactInConcaveSpace,minAABB,maxAABB);
 
-	shape1->processAllTriangles(&tricallback,minAABB,maxAABB);
+	shape1->processAllTriangles(&tricallback,minAABB,maxAABB,body0Wrap->getCollisionObject());
 
 }
 

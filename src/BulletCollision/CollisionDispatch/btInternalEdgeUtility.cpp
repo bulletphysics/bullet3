@@ -372,7 +372,7 @@ void btGenerateInternalEdgeInfo (btBvhTriangleMeshShape*trimeshShape, btTriangle
 			connectivityProcessor.m_triangleVerticesA = &triangleVerts[0];
 			connectivityProcessor.m_triangleInfoMap  = triangleInfoMap;
 
-			trimeshShape->processAllTriangles(&connectivityProcessor,aabbMin,aabbMax);
+			trimeshShape->processAllTriangles(&connectivityProcessor,aabbMin,aabbMax,NULL);
 		}
 
 	}

@@ -31,6 +31,7 @@ typedef enum PHY_ScalarType {
 	PHY_UCHAR
 } PHY_ScalarType;
 
+ATTRIBUTE_ALIGNED16(class)	btCollisionObject;
 ///The btConcaveShape class provides an interface for non-moving (static) concave shapes.
 ///It has been implemented by the btStaticPlaneShape, btBvhTriangleMeshShape and btHeightfieldTerrainShape.
 ATTRIBUTE_ALIGNED16(class) btConcaveShape : public btCollisionShape
@@ -45,7 +46,7 @@ public:
 
 	virtual ~btConcaveShape();
 
-	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const = 0;
+	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const = 0;
 
 	virtual btScalar getMargin() const {
 		return m_collisionMargin;

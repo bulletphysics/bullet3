@@ -229,12 +229,12 @@ void	btBvhTriangleMeshShape::performConvexcast (btTriangleCallback* callback, co
 }
 
 //perform bvh tree traversal and report overlapping triangles to 'callback'
-void	btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btBvhTriangleMeshShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const
 {
 
 #ifdef DISABLE_BVH
 	//brute force traverse all triangles
-	btTriangleMeshShape::processAllTriangles(callback,aabbMin,aabbMax);
+	btTriangleMeshShape::processAllTriangles(callback,aabbMin,aabbMax,otherObject);
 #else
 
 	//first get all the nodes

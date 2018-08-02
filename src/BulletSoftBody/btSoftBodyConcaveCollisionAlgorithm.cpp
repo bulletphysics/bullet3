@@ -215,6 +215,7 @@ void btSoftBodyConcaveCollisionAlgorithm::processCollision (const btCollisionObj
 
 	//btCollisionObject* convexBody = m_isSwapped ? body1 : body0;
 	const btCollisionObjectWrapper* triBody = m_isSwapped ? body0Wrap : body1Wrap;
+	const btCollisionObjectWrapper* otherBody = m_isSwapped ? body1Wrap : body0Wrap;
 
 	if (triBody->getCollisionShape()->isConcave())
 	{
@@ -231,7 +232,7 @@ void btSoftBodyConcaveCollisionAlgorithm::processCollision (const btCollisionObj
 			m_btSoftBodyTriangleCallback.setTimeStepAndCounters(collisionMarginTriangle,triBody,dispatchInfo,resultOut);
 
 		
-			concaveShape->processAllTriangles( &m_btSoftBodyTriangleCallback,m_btSoftBodyTriangleCallback.getAabbMin(),m_btSoftBodyTriangleCallback.getAabbMax());
+			concaveShape->processAllTriangles( &m_btSoftBodyTriangleCallback,m_btSoftBodyTriangleCallback.getAabbMin(),m_btSoftBodyTriangleCallback.getAabbMax(),otherBody->getCollisionObject());
 
 			//	resultOut->refreshContactPoints();
 
@@ -341,7 +342,7 @@ btScalar btSoftBodyConcaveCollisionAlgorithm::calculateTimeOfImpact(btCollisionO
 
 		if (triangleMesh)
 		{
-			triangleMesh->processAllTriangles(&raycastCallback,rayAabbMin,rayAabbMax);
+			triangleMesh->processAllTriangles(&raycastCallback,rayAabbMin,rayAabbMax,convexbody);
 		}
 
 
