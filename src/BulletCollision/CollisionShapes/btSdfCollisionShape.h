@@ -22,7 +22,7 @@ public:
 	virtual void	setMargin(btScalar margin);
 	virtual btScalar	getMargin() const;
 
-	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
+	virtual void	processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const;
 
 	bool queryPoint(const btVector3& ptInSDF, btScalar& distOut, btVector3& normal);
 };

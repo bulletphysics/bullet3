@@ -78,7 +78,7 @@ btScalar	btSdfCollisionShape::getMargin() const
 	return m_data->m_margin;
 }
 
-void	btSdfCollisionShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
+void	btSdfCollisionShape::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax,const btCollisionObject* otherObject) const
 {
 	//not yet
 }
