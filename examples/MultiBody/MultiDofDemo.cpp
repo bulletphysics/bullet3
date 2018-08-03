@@ -2,8 +2,13 @@
 #include "../OpenGLWindow/SimpleOpenGL3App.h"
 #include "btBulletDynamicsCommon.h"
 
+#include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
+#include "BulletDynamics/MLCPSolvers/btLemkeSolver.h"
+#include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
+
 #include "BulletDynamics/Featherstone/btMultiBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
+#include "BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLink.h"
@@ -40,7 +45,6 @@ public:
 		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
-
 	btMultiBody* createFeatherstoneMultiBody_testMultiDof(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition, const btVector3 &baseHalfExtents, const btVector3 &linkHalfExtents, bool spherical = false, bool floating = false);
 	void addColliders_testMultiDof(btMultiBody *pMultiBody, btMultiBodyDynamicsWorld *pWorld, const btVector3 &baseHalfExtents, const btVector3 &linkHalfExtents);
 	void addBoxes_testMultiDof();
@@ -52,6 +56,7 @@ static bool g_floatingBase = false;
 static bool g_firstInit = true;
 static float scaling = 0.4f;
 static float friction = 1.;
+static int g_constraintSolverType = 0;
 #define ARRAY_SIZE_X 5
 #define ARRAY_SIZE_Y 5
 #define ARRAY_SIZE_Z 5
@@ -104,8 +109,37 @@ void	MultiDofDemo::initPhysics()
 
 	m_broadphase = new btDbvtBroadphase();
 
-	//Use the btMultiBodyConstraintSolver for Featherstone btMultiBody support
-	btMultiBodyConstraintSolver* sol = new btMultiBodyConstraintSolver;
+	if (g_constraintSolverType == 4)
+	{
+		g_constraintSolverType = 0;
+		g_floatingBase = !g_floatingBase;
+	}
+
+	btMultiBodyConstraintSolver* sol;
+	btMLCPSolverInterface* mlcp;
+	switch (g_constraintSolverType++)
+	{
+		case 0:
+			sol = new btMultiBodyConstraintSolver;
+			b3Printf("Constraint Solver: Sequential Impulse");
+			break;
+		case 1:
+			mlcp = new btSolveProjectedGaussSeidel();
+			sol = new btMultiBodyMLCPConstraintSolver(mlcp);
+			b3Printf("Constraint Solver: MLCP + PGS");
+			break;
+		case 2:
+			mlcp = new btDantzigSolver();
+			sol = new btMultiBodyMLCPConstraintSolver(mlcp);
+			b3Printf("Constraint Solver: MLCP + Dantzig");
+			break;
+		default:
+			mlcp = new btLemkeSolver();
+			sol = new btMultiBodyMLCPConstraintSolver(mlcp);
+			b3Printf("Constraint Solver: MLCP + Lemke");
+			break;
+	}
+
 	m_solver = sol;
 
 	//use btMultiBodyDynamicsWorld for Featherstone btMultiBody support
@@ -144,7 +178,6 @@ void	MultiDofDemo::initPhysics()
 	btMultiBody* mbC = createFeatherstoneMultiBody_testMultiDof(world, numLinks, btVector3(-0.4f, 3.f, 0.f), linkHalfExtents, baseHalfExtents, spherical, g_floatingBase);	
 	//mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm		
 
-	g_floatingBase = ! g_floatingBase;
 	mbC->setCanSleep(canSleep);	
 	mbC->setHasSelfCollision(selfCollide);
 	mbC->setUseGyroTerm(gyro);
