@@ -967,12 +967,11 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 			//
 			Y[m_links[i].m_dofOffset + dof] = m_links[i].m_jointTorque[dof]
 			- m_links[i].m_axes[dof].dot(zeroAccSpatFrc[i+1])
-			- spatCoriolisAcc[i].dot(hDof)
-			;
+			- spatCoriolisAcc[i].dot(hDof);
 
 		}
  		for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)
-		}
+		{	
 			btScalar *D_row = &D[dof * m_links[i].m_dofCount];
 			for(int dof2 = 0; dof2 < m_links[i].m_dofCount; ++dof2)
 			{
