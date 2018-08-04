@@ -970,6 +970,9 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 			- spatCoriolisAcc[i].dot(hDof)
 			;
 
+		}
+ 		for(int dof = 0; dof < m_links[i].m_dofCount; ++dof)
+		}
 			btScalar *D_row = &D[dof * m_links[i].m_dofCount];
 			for(int dof2 = 0; dof2 < m_links[i].m_dofCount; ++dof2)
 			{

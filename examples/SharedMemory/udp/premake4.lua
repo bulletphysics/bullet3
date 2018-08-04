@@ -77,6 +77,7 @@ language "C++"
 
 myfiles = 
 {
+	"../plugins/collisionFilterPlugin/collisionFilterPlugin.cpp",
 	"../plugins/pdControlPlugin/pdControlPlugin.cpp",
 	"../plugins/pdControlPlugin/pdControlPlugin.h",
 	"../b3RobotSimulatorClientAPI_NoDirect.cpp",

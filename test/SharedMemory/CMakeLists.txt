@@ -29,6 +29,7 @@ ENDIF()
 	ADD_EXECUTABLE(Test_PhysicsClientServer
 		gtestwrap.cpp
 		../../examples/SharedMemory/PhysicsClient.cpp
+		../../examples/SharedMemory/plugins/collisionFilterPlugin/collisionFilterPlugin.cpp
 		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp
 		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h
 		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp

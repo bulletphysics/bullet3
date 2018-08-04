@@ -60,6 +60,7 @@ myfiles =
 	"PhysicsServerCommandProcessor.h",
 	"b3PluginManager.cpp",
 	"b3PluginManager.h",
+	"plugins/collisionFilterPlugin/collisionFilterPlugin.cpp",
 	"plugins/pdControlPlugin/pdControlPlugin.cpp",
 	"plugins/pdControlPlugin/pdControlPlugin.h",
 	"../OpenGLWindow/SimpleCamera.cpp",
@@ -471,5 +472,4 @@ include "plugins/tinyRendererPlugin"
 
 include "plugins/pdControlPlugin"
 include "plugins/collisionFilterPlugin"
-
 

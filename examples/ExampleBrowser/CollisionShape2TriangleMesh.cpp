@@ -158,7 +158,7 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 							btVector3 pos1 =parentTransform*hull->getVertexPointer()[index1];
 							btVector3 pos2 =parentTransform*hull->getVertexPointer()[index2];
 							triNormal = (pos1-pos0).cross(pos2-pos0);
-							triNormal.normalize();
+							triNormal.safeNormalize();
 
 							for (int v=0;v<3;v++)
 							{
