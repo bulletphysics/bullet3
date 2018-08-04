@@ -781,7 +781,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
     // hhat is NOT stored for the base (but ahat is)    
 	btSpatialForceVector * h = (btSpatialForceVector *)(m_dofCount > 0 ? &m_vectorBuf[0] : 0);
 	btSpatialMotionVector * spatAcc = (btSpatialMotionVector *)v_ptr;
-	// v_ptr += num_links * 2 + 2;  // Disabled since v_ptr is not used in the rest of the code
+	v_ptr += num_links * 2 + 2; 
 	//
     // Y_i, invD_i
     btScalar * invD = m_dofCount > 0 ? &m_realBuf[6 + m_dofCount] : 0;
