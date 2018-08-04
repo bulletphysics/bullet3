@@ -31,15 +31,16 @@ SET(BulletDynamics_SRCS
 	Vehicle/btRaycastVehicle.cpp
 	Vehicle/btWheelInfo.cpp
 	Featherstone/btMultiBody.cpp
+	Featherstone/btMultiBodyConstraint.cpp
 	Featherstone/btMultiBodyConstraintSolver.cpp
 	Featherstone/btMultiBodyDynamicsWorld.cpp
-	Featherstone/btMultiBodyJointLimitConstraint.cpp
-	Featherstone/btMultiBodyConstraint.cpp
-	Featherstone/btMultiBodyPoint2Point.cpp
 	Featherstone/btMultiBodyFixedConstraint.cpp
-	Featherstone/btMultiBodySliderConstraint.cpp
-	Featherstone/btMultiBodyJointMotor.cpp
 	Featherstone/btMultiBodyGearConstraint.cpp
+	Featherstone/btMultiBodyJointLimitConstraint.cpp
+	Featherstone/btMultiBodyJointMotor.cpp
+	Featherstone/btMultiBodyMLCPConstraintSolver.cpp
+	Featherstone/btMultiBodyPoint2Point.cpp
+	Featherstone/btMultiBodySliderConstraint.cpp
 	MLCPSolvers/btDantzigLCP.cpp
 	MLCPSolvers/btMLCPSolver.cpp
 	MLCPSolvers/btLemkeAlgorithm.cpp
@@ -90,19 +91,19 @@ SET(Vehicle_HDRS
 
 SET(Featherstone_HDRS
 	Featherstone/btMultiBody.h
+	Featherstone/btMultiBodyConstraint.h
 	Featherstone/btMultiBodyConstraintSolver.h
 	Featherstone/btMultiBodyDynamicsWorld.h
+	Featherstone/btMultiBodyFixedConstraint.h
+	Featherstone/btMultiBodyGearConstraint.h
+	Featherstone/btMultiBodyJointLimitConstraint.h
+	Featherstone/btMultiBodyJointMotor.h
 	Featherstone/btMultiBodyLink.h
 	Featherstone/btMultiBodyLinkCollider.h
-	Featherstone/btMultiBodySolverConstraint.h
-	Featherstone/btMultiBodyConstraint.h
-	Featherstone/btMultiBodyJointLimitConstraint.h
-	Featherstone/btMultiBodyConstraint.h
+	Featherstone/btMultiBodyMLCPConstraintSolver.h
 	Featherstone/btMultiBodyPoint2Point.h
-	Featherstone/btMultiBodyFixedConstraint.h
 	Featherstone/btMultiBodySliderConstraint.h
-	Featherstone/btMultiBodyJointMotor.h
-	Featherstone/btMultiBodyGearConstraint.h	
+	Featherstone/btMultiBodySolverConstraint.h
 )
 
 SET(MLCPSolvers_HDRS
