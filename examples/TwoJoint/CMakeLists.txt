@@ -10,6 +10,7 @@ INCLUDE_DIRECTORIES(
 
 SET(RobotSimulator_SRCS
 		TwoJointMain.cpp
+		../../examples/SharedMemory/plugins/collisionFilterPlugin/collisionFilterPlugin.cpp
 		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp
 		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h
 		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp

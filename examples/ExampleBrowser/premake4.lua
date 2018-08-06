@@ -115,6 +115,7 @@ project "App_BulletExampleBrowser"
 		"../SharedMemory/PhysicsServerCommandProcessor.cpp",
 		"../SharedMemory/PhysicsServerCommandProcessor.h",
 		"../SharedMemory/b3PluginManager.cpp",		
+		"../SharedMemory/plugins/collisionFilterPlugin/collisionFilterPlugin.cpp",
 		"../SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
 		"../SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
 		"../SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",

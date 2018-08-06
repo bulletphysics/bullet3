@@ -155,6 +155,7 @@ if not _OPTIONS["no-enet"] then
 			"../../examples/MultiThreading/b3PosixThreadSupport.cpp",
 			"../../examples/MultiThreading/b3Win32ThreadSupport.cpp",
 			"../../examples/MultiThreading/b3ThreadSupportInterface.cpp",
+			"../../examples/SharedMemory/plugins/collisionFilterPlugin/collisionFilterPlugin.cpp",
 			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",
 			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
 			}

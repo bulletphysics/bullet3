@@ -4,6 +4,7 @@
 #ifdef BT_ENABLE_ENET
 #include "../SharedMemory/PhysicsClientUDP_C_API.h"
 #endif  //BT_ENABLE_ENET
+#define PYBULLET_PI (3.1415926535897932384626433832795029)
 
 #ifdef BT_ENABLE_DART
 #include "../SharedMemory/dart/DARTPhysicsC_API.h"
@@ -8239,13 +8240,28 @@ static PyObject* pybullet_getEulerFromQuaternion(PyObject* self,
 		sqy = quat[1] * quat[1];
 		sqz = quat[2] * quat[2];
 		squ = quat[3] * quat[3];
-		rpy[0] = atan2(2 * (quat[1] * quat[2] + quat[3] * quat[0]),
-					   squ - sqx - sqy + sqz);
 		sarg = -2 * (quat[0] * quat[2] - quat[3] * quat[1]);
-		rpy[1] = sarg <= -1.0 ? -0.5 * 3.141592538
-							  : (sarg >= 1.0 ? 0.5 * 3.141592538 : asin(sarg));
-		rpy[2] = atan2(2 * (quat[0] * quat[1] + quat[3] * quat[2]),
-					   squ + sqx - sqy - sqz);
+		
+		// If the pitch angle is PI/2 or -PI/2, we can only compute
+		// the sum roll + yaw.  However, any combination that gives
+		// the right sum will produce the correct orientation, so we
+		// set rollX = 0 and compute yawZ.
+		if (sarg <= -0.99999)
+		{
+			rpy[0]  = 0;
+			rpy[1] = -0.5*PYBULLET_PI;
+			rpy[2]   = 2 * atan2(quat[0],-quat[1]);
+		} else if (sarg >= 0.99999)
+		{
+			rpy[0]  = 0;
+			rpy[1] = 0.5*PYBULLET_PI;
+			rpy[2]   = 2 * atan2(-quat[0], quat[1]);
+		} else
+		{
+			rpy[0] = atan2(2 * (quat[1] * quat[2] + quat[3] * quat[0]), squ - sqx - sqy + sqz);
+			rpy[1] = asin(sarg);
+			rpy[2] = atan2(2 * (quat[0] * quat[1] + quat[3] * quat[2]), squ + sqx - sqy - sqz);
+		}
 		{
 			PyObject* pylist;
 			int i;
