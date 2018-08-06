@@ -23,6 +23,32 @@ ENDIF (NOT CMAKE_BUILD_TYPE)
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 #MESSAGE("CMAKE_CXX_FLAGS_DEBUG="+${CMAKE_CXX_FLAGS_DEBUG})
 
+#===============================================================================
+# Automatic code formatting setup
+#===============================================================================
+DEFINE_PROPERTY(GLOBAL PROPERTY CODE_FORMATTING_SOURCES
+  BRIEF_DOCS "Source files that are automatically formatted by clang-format."
+  FULL_DOCS "Source files that are automatically formatted by clang-format."
+)
+FUNCTION(format_add_sources)
+  FOREACH(source ${ARGN})
+    IF(IS_ABSOLUTE "${source}")
+      SET(source_abs "${source}")
+    ELSE()
+      GET_FILENAME_COMPONENT(source_abs
+        "${CMAKE_CURRENT_LIST_DIR}/${source}" ABSOLUTE)
+    ENDIF()
+    IF(EXISTS "${source_abs}")
+      SET_PROPERTY(GLOBAL APPEND PROPERTY CODE_FORMATTING_SOURCES "${source_abs}")
+    ELSE()
+      MESSAGE(FATAL_ERROR
+        "Source file '${source}' does not exist at absolute path"
+        " '${source_abs}'. This should never happen. Did you recently delete"
+        " this file or modify 'CMAKE_CURRENT_LIST_DIR'")
+    ENDIF()
+  ENDFOREACH()
+ENDFUNCTION()
+
 OPTION(USE_DOUBLE_PRECISION "Use double precision"	OFF)
 OPTION(USE_GRAPHICAL_BENCHMARK "Use Graphical Benchmark" ON)
 OPTION(BUILD_SHARED_LIBS "Use shared libraries" OFF)
@@ -478,3 +504,37 @@ IF (INSTALL_CMAKE_FILES)
 		DESTINATION ${BULLET_CONFIG_CMAKE_PATH}
 	)
 ENDIF (INSTALL_CMAKE_FILES)
+
+#===============================================================================
+# Automatic code formatting using clang-format.
+#===============================================================================
+FIND_PROGRAM(
+  CLANG_FORMAT_EXECUTABLE
+  NAMES clang-format-3.8
+)
+# We only support one specific ClangFormat version because different versions
+# result in different code formatting with the same configuration. ClangFormat
+# 3.8 is chosen since it's the latest version supported by Ubuntu Trusty.
+IF (CLANG_FORMAT_EXECUTABLE)
+  GET_PROPERTY(formatting_files GLOBAL PROPERTY CODE_FORMATTING_SOURCES)
+  LIST(LENGTH formatting_files formatting_files_length)
+
+  IF (formatting_files)
+    ADD_CUSTOM_TARGET(format
+        COMMAND ${CMAKE_COMMAND} -E echo "Formatting code style of "
+            "${formatting_files_length} files... "
+        COMMAND ${CLANG_FORMAT_EXECUTABLE} -style=file -i ${formatting_files}
+        COMMAND ${CMAKE_COMMAND} -E echo "Done."
+        DEPENDS ${CLANG_FORMAT_EXECUTABLE}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+  ELSE()
+    ADD_CUSTOM_TARGET(format
+        COMMAND ${CMAKE_COMMAND} -E echo "No file to format code style."
+    )
+  ENDIF()
+ELSE()
+  MESSAGE(STATUS "Looking for clang-format - NOT found, please install "
+      "clang-format to enable automatic code formatting"
+  )
+ENDIF()
