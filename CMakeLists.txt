@@ -528,9 +528,21 @@ IF (CLANG_FORMAT_EXECUTABLE)
         DEPENDS ${CLANG_FORMAT_EXECUTABLE}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     )
+    ADD_CUSTOM_TARGET(check-format
+        COMMAND ${CMAKE_COMMAND} -E echo "Checking code style of"
+            "${formatting_files_length} files... "
+        COMMAND ${CMAKE_SOURCE_DIR}/tools/check_format.sh
+            ${CLANG_FORMAT_EXECUTABLE} ${formatting_files}
+        COMMAND ${CMAKE_COMMAND} -E echo "Done."
+        DEPENDS ${CLANG_FORMAT_EXECUTABLE}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
   ELSE()
     ADD_CUSTOM_TARGET(format
         COMMAND ${CMAKE_COMMAND} -E echo "No file to format code style."
+    )
+    ADD_CUSTOM_TARGET(check-format
+        COMMAND ${CMAKE_COMMAND} -E echo "No file to check code style."
     )
   ENDIF()
 ELSE()
