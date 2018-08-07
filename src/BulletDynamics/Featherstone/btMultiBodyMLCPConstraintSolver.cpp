@@ -106,8 +106,9 @@ static btScalar computeConstraintMatrixDiagElementMultiBody(
 		const btSolverBody* solverBodyB = &solverBodyPool[solverBodyIdB];
 		const btScalar invMassB = solverBodyB->m_originalBody ? solverBodyB->m_originalBody->getInvMass() : 0.0;
 		ret += computeDeltaVelocityInConstraintSpace(
-			constraint.m_relpos1CrossNormal, invMassB,
-			constraint.m_angularComponentA);
+			constraint.m_relpos2CrossNormal,
+			invMassB,
+			constraint.m_angularComponentB);
 	}
 
 	return ret;
