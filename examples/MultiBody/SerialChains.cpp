@@ -3,7 +3,6 @@
 #include "btBulletDynamicsCommon.h"
 
 #include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
-#include "BulletDynamics/MLCPSolvers/btLemkeSolver.h"
 #include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
 
 #include "BulletDynamics/Featherstone/btMultiBody.h"
@@ -89,7 +88,7 @@ void SerialChains::initPhysics()
 
 	m_broadphase = new btDbvtBroadphase();
 
-	if (g_constraintSolverType == 4)
+	if (g_constraintSolverType == 3)
 	{
 		g_constraintSolverType = 0;
 		g_fixedBase = !g_fixedBase;
@@ -107,15 +106,10 @@ void SerialChains::initPhysics()
 			m_solver = new btMultiBodyMLCPConstraintSolver(mlcp);
 			b3Printf("Constraint Solver: MLCP + PGS");
 			break;
-		case 2:
+		default:
 			mlcp = new btDantzigSolver();
 			m_solver = new btMultiBodyMLCPConstraintSolver(mlcp);
 			b3Printf("Constraint Solver: MLCP + Dantzig");
-			break;
-		default:
-			mlcp = new btLemkeSolver();
-			m_solver = new btMultiBodyMLCPConstraintSolver(mlcp);
-			b3Printf("Constraint Solver: MLCP + Lemke");
 			break;
 	}
 
@@ -123,6 +117,7 @@ void SerialChains::initPhysics()
 	m_dynamicsWorld = world;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
+	m_dynamicsWorld->getSolverInfo().m_globalCfm = btScalar(1e-4); //todo: what value is good?
 
 	///create a few basic rigid bodies
 	btVector3 groundHalfExtents(50, 50, 50);
