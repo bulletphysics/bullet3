@@ -336,7 +336,8 @@ public:
 		if (m_inverseMass != btScalar(0.))
 		{
 			applyCentralImpulse(impulse);
-			if (m_angularFactor)
+			// test evaluates m_angularFactor as (float*)operator()  which is always non-zero
+			//if (m_angularFactor)
 			{
 				applyTorqueImpulse(rel_pos.cross(impulse*m_linearFactor));
 			}
