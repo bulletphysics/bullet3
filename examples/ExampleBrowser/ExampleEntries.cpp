@@ -29,6 +29,7 @@
 #include "../MultiBody/MultiBodyConstraintFeedback.h"
 #include "../MultiBody/MultiDofDemo.h"
 #include "../MultiBody/InvertedPendulumPDControl.h"
+#include "../MultiBody/SerialChains.h"
 #include "../RigidBody/RigidBodySoftContact.h"
 #include "../VoronoiFracture/VoronoiFractureDemo.h"
 #include "../SoftDemo/SoftDemo.h"
@@ -130,13 +131,14 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.",RigidBodySoftContactCreateFunc),
 
 	ExampleEntry(0,"MultiBody"),
-	ExampleEntry(1,"MultiDofCreateFunc","Create a basic btMultiBody with 3-DOF spherical joints (mobilizers). The demo uses a fixed base or a floating base at restart.", MultiDofCreateFunc),
+	ExampleEntry(1,"MultiDof","Create a basic btMultiBody with 3-DOF spherical joints (mobilizers). The demo uses a fixed base or a floating base at restart.", MultiDofCreateFunc),
 	ExampleEntry(1,"TestJointTorque","Apply a torque to a btMultiBody with 1-DOF joints (mobilizers). This setup is similar to API/TestHingeTorque.", TestJointTorqueCreateFunc),
 	ExampleEntry(1,"TestPendulum","Simulate a pendulum using btMultiBody with a constant joint torque applied. The same code is also used as a unit test comparing Bullet with the numerical solution of second-order non-linear differential equation stored in pendulum_gold.h", TestPendulumCreateFunc),
 
 	ExampleEntry(1,"Constraint Feedback", "The example shows how to receive joint reaction forces in a btMultiBody. Also the applied impulse is available for a btMultiBodyJointMotor", MultiBodyConstraintFeedbackCreateFunc),
 	ExampleEntry(1,"Inverted Pendulum PD","Keep an inverted pendulum up using open loop PD control", InvertedPendulumPDControlCreateFunc),
 	ExampleEntry(1,"MultiBody Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.",MultiBodySoftContactCreateFunc,0),
+	ExampleEntry(1,"Serial Chains", "Show colliding two serial chains using different constraint solvers.", SerialChainsCreateFunc,0),
 
 	ExampleEntry(0,"Physics Client-Server"),
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory. You can connect to the server using pybullet, a PhysicsClient or a UDP/TCP Bridge.",
