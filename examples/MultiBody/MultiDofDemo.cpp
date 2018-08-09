@@ -148,6 +148,7 @@ void	MultiDofDemo::initPhysics()
 //	m_dynamicsWorld->setDebugDrawer(&gDebugDraw);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
+	m_dynamicsWorld->getSolverInfo().m_globalCfm = 1e-3;
 
 	///create a few basic rigid bodies
 	btVector3 groundHalfExtents(50,50,50);
@@ -169,7 +170,7 @@ void	MultiDofDemo::initPhysics()
 	int numLinks = 5;
 	bool spherical = true;					//set it ot false -to use 1DoF hinges instead of 3DoF sphericals		
 	bool multibodyOnly = false;
-	bool canSleep = true;
+	bool canSleep = false;
 	bool selfCollide = true;
     bool multibodyConstraint = false;
 	btVector3 linkHalfExtents(0.05, 0.37, 0.1);

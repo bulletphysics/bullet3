@@ -327,7 +327,7 @@ void b3PluginManager::reportNotifications()
 			plugin->m_processNotificationsFunc(&context);
 		}
 	}
-	notifications.clear();
+	notifications.resize(0);
 }
 
 int b3PluginManager::executePluginCommand(int pluginUniqueId, const b3PluginArguments* arguments)
