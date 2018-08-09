@@ -1,0 +1,8 @@
+This package contains the description (mechanical, kinematic, visual,
+etc.) of the KUKA LWR robot. The files in this package are parsed and used by
+a variety of other components. Most users will not interact directly
+with this package.</description>
+
+<maintainer email="konradb3@gmail.com">Konrad Banachowicz</maintainer>
+
+<license>BSD</license>
