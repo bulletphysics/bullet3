@@ -23,9 +23,16 @@ subject to the following restrictions:
 
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "BulletDynamics/MLCPSolvers/btBGSSolver.h"
+#include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
+#include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
+#include "BulletDynamics/MLCPSolvers/btLemkeSolver.h"
+#include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
+#include "Bullet3Common/b3Logging.h"
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 
+static int g_constraintSolverType = 0;
 
 struct BasicExample : public CommonRigidBodyBase
 {
@@ -51,6 +58,42 @@ void BasicExample::initPhysics()
 	m_guiHelper->setUpAxis(1);
 
 	createEmptyDynamicsWorld();
+
+	if (g_constraintSolverType == 4)
+	{
+		g_constraintSolverType = 0;
+	}
+
+	btMLCPSolverInterface* mlcp;
+	btSequentialImpulseConstraintSolver* sol;
+	switch (g_constraintSolverType++)
+	{
+		case 0:
+			sol = new btSequentialImpulseConstraintSolver;
+			// TODO: Uncommenting b3Printf causesundefined reference to `b3OutputPrintfVarArgsInternal`
+			// b3Printf("Constraint Solver: Sequential Impulse");
+			break;
+		case 1:
+			mlcp = new btSolveProjectedGaussSeidel();
+			sol = new btBGSSolver(mlcp);
+			// TODO: Uncommenting b3Printf causesundefined reference to `b3OutputPrintfVarArgsInternal`
+			// b3Printf("Constraint Solver: BGS + PGS");
+			break;
+		case 2:
+			mlcp = new btDantzigSolver();
+			sol = new btBGSSolver(mlcp);
+			// TODO: Uncommenting b3Printf causesundefined reference to `b3OutputPrintfVarArgsInternal`
+			// b3Printf("Constraint Solver: BGS + Dantzig");
+			break;
+		default:
+			mlcp = new btLemkeSolver();
+			sol = new btBGSSolver(mlcp);
+			// TODO: Uncommenting b3Printf causesundefined reference to `b3OutputPrintfVarArgsInternal`
+			// b3Printf("Constraint Solver: BGS + Lemke");
+			break;
+	}
+	m_dynamicsWorld->setConstraintSolver(sol);
+
 	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
