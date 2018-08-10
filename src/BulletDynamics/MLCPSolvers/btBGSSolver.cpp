@@ -358,18 +358,18 @@ btScalar btBGSSolver::solveSingleIteration(int iteration, btCollisionObject** /*
 
 static btScalar clampDeltaImpulse(btScalar deltaImpulse, btSolverConstraint& c, int limitDependencies, const btAlignedObjectArray<btSolverConstraint*>& allConstraintPtrArray)
 {
-	const btScalar sum = c.m_appliedImpulse + deltaImpulse;
+	const btScalar sum = btScalar(c.m_appliedImpulse) + deltaImpulse;
 
 	if (limitDependencies == -1)
 	{
 		if (sum < c.m_lowerLimit)
 		{
-			deltaImpulse = c.m_lowerLimit - c.m_appliedImpulse;
+			deltaImpulse = c.m_lowerLimit - btScalar(c.m_appliedImpulse);
 			c.m_appliedImpulse = c.m_lowerLimit;
 		}
 		else if (sum > c.m_upperLimit)
 		{
-			deltaImpulse = c.m_upperLimit - c.m_appliedImpulse;
+			deltaImpulse = c.m_upperLimit - btScalar(c.m_appliedImpulse);
 			c.m_appliedImpulse = c.m_upperLimit;
 		}
 		else
@@ -390,12 +390,12 @@ static btScalar clampDeltaImpulse(btScalar deltaImpulse, btSolverConstraint& c, 
 			// This clamping is necessary for the two cases: (1) round off error or (2) failure of the LCP solver.
 			if (sum < lowerLimit)
 			{
-				deltaImpulse = lowerLimit - c.m_appliedImpulse;
+				deltaImpulse = lowerLimit - btScalar(c.m_appliedImpulse);
 				c.m_appliedImpulse = lowerLimit;
 			}
 			else if (sum > upperLimit)
 			{
-				deltaImpulse = upperLimit - c.m_appliedImpulse;
+				deltaImpulse = upperLimit - btScalar(c.m_appliedImpulse);
 				c.m_appliedImpulse = upperLimit;
 			}
 			else
@@ -410,18 +410,18 @@ static btScalar clampDeltaImpulse(btScalar deltaImpulse, btSolverConstraint& c, 
 
 static btScalar clampDeltaPushImpulse(btScalar deltaPushImpulse, const btSolverConstraint& c, int limitDependencies, const btAlignedObjectArray<btSolverConstraint*>& allConstraintPtrArray)
 {
-	const btScalar sum = c.m_appliedPushImpulse + deltaPushImpulse;
+	const btScalar sum = btScalar(c.m_appliedPushImpulse) + deltaPushImpulse;
 
 	if (limitDependencies == -1)
 	{
 		if (sum < c.m_lowerLimit)
 		{
-			deltaPushImpulse = c.m_lowerLimit - c.m_appliedPushImpulse;
+			deltaPushImpulse = c.m_lowerLimit - btScalar(c.m_appliedPushImpulse);
 			c.m_appliedPushImpulse = c.m_lowerLimit;
 		}
 		else if (sum > c.m_upperLimit)
 		{
-			deltaPushImpulse = c.m_upperLimit - c.m_appliedPushImpulse;
+			deltaPushImpulse = c.m_upperLimit - btScalar(c.m_appliedPushImpulse);
 			c.m_appliedPushImpulse = c.m_upperLimit;
 		}
 		else
@@ -442,12 +442,12 @@ static btScalar clampDeltaPushImpulse(btScalar deltaPushImpulse, const btSolverC
 			// This clamping is necessary for the two cases: (1) round off error or (2) failure of the LCP solver.
 			if (sum < lowerLimit)
 			{
-				deltaPushImpulse = lowerLimit - c.m_appliedPushImpulse;
+				deltaPushImpulse = lowerLimit - btScalar(c.m_appliedPushImpulse);
 				c.m_appliedPushImpulse = lowerLimit;
 			}
 			else if (sum > upperLimit)
 			{
-				deltaPushImpulse = upperLimit - c.m_appliedPushImpulse;
+				deltaPushImpulse = upperLimit - btScalar(c.m_appliedPushImpulse);
 				c.m_appliedPushImpulse = upperLimit;
 			}
 			else
@@ -516,8 +516,8 @@ btScalar btBGSSolver::solveMLCPBlock(int index, const btContactSolverInfo& infoG
 		// Normal contact constraint
 		if (fIndex == -1)
 		{
-			lo[i] = btMin(c.m_lowerLimit - c.m_appliedImpulse, c.m_lowerLimit);
-			hi[i] = btMax(c.m_upperLimit - c.m_appliedImpulse, c.m_upperLimit);
+			lo[i] = btMin(c.m_lowerLimit - btScalar(c.m_appliedImpulse), c.m_lowerLimit);
+			hi[i] = btMax(c.m_upperLimit - btScalar(c.m_appliedImpulse), c.m_upperLimit);
 		}
 		// Friction or torsional friction constraints
 		else
@@ -526,7 +526,7 @@ btScalar btBGSSolver::solveMLCPBlock(int index, const btContactSolverInfo& infoG
 			const btScalar appliedNormalImpulse = normalContactConst.m_appliedImpulse;
 			if (!btFuzzyZero(appliedNormalImpulse))
 			{
-				const btScalar appliedFriction = c.m_appliedImpulse / appliedNormalImpulse;
+				const btScalar appliedFriction = btScalar(c.m_appliedImpulse) / appliedNormalImpulse;
 				lo[i] = btMin(c.m_lowerLimit - appliedFriction, c.m_lowerLimit);
 				hi[i] = btMax(c.m_upperLimit - appliedFriction, c.m_upperLimit);
 			}
