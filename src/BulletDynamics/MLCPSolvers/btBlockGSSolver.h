@@ -32,7 +32,7 @@ subject to the following restrictions:
 ///
 /// The expected performance is somewhere between btSequentialImpulseConstraintSolver and btMLCPSolver in terms of
 /// speed and accuracy.
-class btBGSSolver : public btSequentialImpulseConstraintSolver
+class btBlockGSSolver : public btSequentialImpulseConstraintSolver
 {
 protected:
 	/// Data struct for MLCP block
@@ -107,10 +107,10 @@ public:
 	/// Constructor
 	///
 	/// \param[in] solver MLCP solver. Assumed it's not null.
-	btBGSSolver(btMLCPSolverInterface* solver);
+	btBlockGSSolver(btMLCPSolverInterface* solver);
 
 	/// Destructor
-	virtual ~btBGSSolver();
+	virtual ~btBlockGSSolver();
 
 	/// Sets MLCP solver. Assumed it's not null.
 	void setMLCPSolver(btMLCPSolverInterface* solver);

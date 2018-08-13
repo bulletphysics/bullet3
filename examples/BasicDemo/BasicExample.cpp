@@ -23,7 +23,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btAlignedObjectArray.h"
-#include "BulletDynamics/MLCPSolvers/btBGSSolver.h"
+#include "BulletDynamics/MLCPSolvers/btBlockGSSolver.h"
 #include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
 #include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
 #include "BulletDynamics/MLCPSolvers/btLemkeSolver.h"
@@ -75,19 +75,19 @@ void BasicExample::initPhysics()
 			break;
 		case 1:
 			mlcp = new btSolveProjectedGaussSeidel();
-			sol = new btBGSSolver(mlcp);
+			sol = new btBlockGSSolver(mlcp);
 			// TODO: Uncommenting b3Printf causesundefined reference to `b3OutputPrintfVarArgsInternal`
 			// b3Printf("Constraint Solver: BGS + PGS");
 			break;
 		case 2:
 			mlcp = new btDantzigSolver();
-			sol = new btBGSSolver(mlcp);
+			sol = new btBlockGSSolver(mlcp);
 			// TODO: Uncommenting b3Printf causesundefined reference to `b3OutputPrintfVarArgsInternal`
 			// b3Printf("Constraint Solver: BGS + Dantzig");
 			break;
 		default:
 			mlcp = new btLemkeSolver();
-			sol = new btBGSSolver(mlcp);
+			sol = new btBlockGSSolver(mlcp);
 			// TODO: Uncommenting b3Printf causesundefined reference to `b3OutputPrintfVarArgsInternal`
 			// b3Printf("Constraint Solver: BGS + Lemke");
 			break;

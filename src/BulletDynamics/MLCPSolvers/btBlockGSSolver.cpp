@@ -13,7 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "btBGSSolver.h"
+#include "btBlockGSSolver.h"
 
 #include <string>
 #include "LinearMath/btMatrixX.h"
@@ -131,7 +131,7 @@ static btScalar computeConstraintMatrixOffDiagElementRigidBody(
 	return ret;
 }
 
-btScalar btBGSSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
+btScalar btBlockGSSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
 {
 	const btScalar val = btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
 
@@ -151,7 +151,7 @@ btScalar btBGSSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, i
 	return val;
 }
 
-void btBGSSolver::setupContactConstraintMLCPBlock(int normalContactIndex, int numFrictionPerContact, const btContactSolverInfo& infoGlobal)
+void btBlockGSSolver::setupContactConstraintMLCPBlock(int normalContactIndex, int numFrictionPerContact, const btContactSolverInfo& infoGlobal)
 {
 	btAssert(0 <= normalContactIndex);
 	btAssert(normalContactIndex < m_mlcpArray.size());
@@ -189,7 +189,7 @@ void btBGSSolver::setupContactConstraintMLCPBlock(int normalContactIndex, int nu
 		bSplit.resize(numConstraints);
 		bSplit.setZero();
 
-		// Just resize is required. The values are set by btBGSSolver::solveDiagonalBlock()
+		// Just resize is required. The values are set by btBlockGSSolver::solveDiagonalBlock()
 		lo.resize(numConstraints);
 		hi.resize(numConstraints);
 
@@ -272,7 +272,7 @@ void btBGSSolver::setupContactConstraintMLCPBlock(int normalContactIndex, int nu
 	}
 }
 
-btScalar btBGSSolver::solveSingleIteration(int iteration, btCollisionObject** /*bodies*/, int /*numBodies*/, btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* /*debugDrawer*/)
+btScalar btBlockGSSolver::solveSingleIteration(int iteration, btCollisionObject** /*bodies*/, int /*numBodies*/, btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* /*debugDrawer*/)
 {
 	BT_PROFILE("solveSingleIteration");
 	btScalar squaredResidual = btScalar(0);
@@ -460,7 +460,7 @@ static btScalar clampDeltaPushImpulse(btScalar deltaPushImpulse, const btSolverC
 	return deltaPushImpulse;
 }
 
-btScalar btBGSSolver::solveMLCPBlock(int index, const btContactSolverInfo& infoGlobal)
+btScalar btBlockGSSolver::solveMLCPBlock(int index, const btContactSolverInfo& infoGlobal)
 {
 	btAssert(index >= 0);
 	btAssert(index < m_mlcpArray.size());
@@ -598,35 +598,35 @@ btScalar btBGSSolver::solveMLCPBlock(int index, const btContactSolverInfo& infoG
 	return squaredResidual;
 }
 
-btBGSSolver::btBGSSolver(btMLCPSolverInterface* solver)
+btBlockGSSolver::btBlockGSSolver(btMLCPSolverInterface* solver)
 	: m_defaultSolver(solver),
 	  m_fallback(0)
 {
 	btAssert(solver);
 }
 
-btBGSSolver::~btBGSSolver()
+btBlockGSSolver::~btBlockGSSolver()
 {
 	// Do nothing
 }
 
-void btBGSSolver::setMLCPSolver(btMLCPSolverInterface* solver)
+void btBlockGSSolver::setMLCPSolver(btMLCPSolverInterface* solver)
 {
 	btAssert(solver);
 	m_defaultSolver = solver;
 }
 
-int btBGSSolver::getNumFallbacks() const
+int btBlockGSSolver::getNumFallbacks() const
 {
 	return m_fallback;
 }
 
-void btBGSSolver::setNumFallbacks(int num)
+void btBlockGSSolver::setNumFallbacks(int num)
 {
 	m_fallback = num;
 }
 
-btConstraintSolverType btBGSSolver::getSolverType() const
+btConstraintSolverType btBlockGSSolver::getSolverType() const
 {
 	return BT_BGS_SOLVER;
 }
