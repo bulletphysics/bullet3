@@ -53,6 +53,7 @@
 #include "../RoboticsLearning/KukaGraspExample.h"
 #include "../RoboticsLearning/GripperGraspExample.h"
 #include "../InverseKinematics/InverseKinematicsExample.h"
+#include "../ConstraintSolvers/Boxes.h"
 
 #ifdef B3_ENABLE_TINY_AUDIO
 #include "../TinyAudio/TinyAudioExample.h"
@@ -139,6 +140,9 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Inverted Pendulum PD","Keep an inverted pendulum up using open loop PD control", InvertedPendulumPDControlCreateFunc),
 	ExampleEntry(1,"MultiBody Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.",MultiBodySoftContactCreateFunc,0),
 	ExampleEntry(1,"Serial Chains", "Show colliding two serial chains using different constraint solvers.", SerialChainsCreateFunc,0),
+
+	ExampleEntry(0,"Constraint Solvers"),
+	ExampleEntry(1,"Boxes","Create some rigid bodies using box collision shapes. This is identical to \"Basic Example\" except you can test different constraint solvers.", BoxesCreateFunc),
 
 	ExampleEntry(0,"Physics Client-Server"),
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory. You can connect to the server using pybullet, a PhysicsClient or a UDP/TCP Bridge.",
