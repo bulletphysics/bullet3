@@ -1252,7 +1252,6 @@ SIMD_FORCE_INLINE void	btSwapScalarEndian(const btScalar& sourceVal, btScalar& d
 #else
 	unsigned char* dest = (unsigned char*) &destVal;
 	const unsigned char* src  = (const unsigned char*) &sourceVal;
-
 	dest[0] = src[3];
     dest[1] = src[2];
     dest[2] = src[1];
