@@ -112,13 +112,12 @@ enum b3RobotSimulatorInverseKinematicsFlags
 	B3_HAS_IK_TARGET_ORIENTATION = 1,
 	B3_HAS_NULL_SPACE_VELOCITY = 2,
 	B3_HAS_JOINT_DAMPING = 4,
+  B3_HAS_CURRENT_POSITIONS = 8,
 };
 
 struct b3RobotSimulatorInverseKinematicArgs
 {
 	int m_bodyUniqueId;
-	//	double* m_currentJointPositions;
-	//	int m_numPositions;
 	double m_endEffectorTargetPosition[3];
 	double m_endEffectorTargetOrientation[4];
 	int m_endEffectorLinkIndex;
@@ -129,6 +128,7 @@ struct b3RobotSimulatorInverseKinematicArgs
 	btAlignedObjectArray<double> m_jointRanges;
 	btAlignedObjectArray<double> m_restPoses;
 	btAlignedObjectArray<double> m_jointDamping;
+  btAlignedObjectArray<double> m_currentJointPositions;
 
 	b3RobotSimulatorInverseKinematicArgs()
 		: m_bodyUniqueId(-1),
