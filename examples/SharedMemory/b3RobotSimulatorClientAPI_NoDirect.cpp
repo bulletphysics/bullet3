@@ -935,6 +935,10 @@ bool b3RobotSimulatorClientAPI_NoDirect::calculateInverseKinematics(const struct
 		b3CalculateInverseKinematicsSetJointDamping(command, args.m_numDegreeOfFreedom, &args.m_jointDamping[0]);
 	}
 
+  if (args.m_flags & B3_HAS_CURRENT_POSITIONS) {
+    b3CalculateInverseKinematicsSetCurrentPositions(command, args.m_numDegreeOfFreedom, &args.m_currentJointPositions[0]);
+  }
+
 	b3SharedMemoryStatusHandle statusHandle;
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 
