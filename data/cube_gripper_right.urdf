@@ -1,4 +1,4 @@
-<?xml version="0.0" ?>
+<?xml version="1.0" ?>
 <robot name="cube_gripper_right.urdf">
   <link name="world">
   </link>
