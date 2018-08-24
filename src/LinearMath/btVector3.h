@@ -1238,9 +1238,9 @@ public:
 ///btSwapVector3Endian swaps vector endianness, useful for network and cross-platform serialization
 SIMD_FORCE_INLINE void	btSwapScalarEndian(const btScalar& sourceVal, btScalar& destVal)
 {
-	#ifdef BT_USE_DOUBLE_PRECISION
+#ifdef BT_USE_DOUBLE_PRECISION
 	unsigned char* dest = (unsigned char*) &destVal;
-	unsigned char* src  = (unsigned char*) &sourceVal;
+	const unsigned char* src  = (const unsigned char*) &sourceVal;
 	dest[0] = src[7];
     dest[1] = src[6];
     dest[2] = src[5];
@@ -1251,7 +1251,7 @@ SIMD_FORCE_INLINE void	btSwapScalarEndian(const btScalar& sourceVal, btScalar& d
     dest[7] = src[0];
 #else
 	unsigned char* dest = (unsigned char*) &destVal;
-	unsigned char* src  = (unsigned char*) &sourceVal;
+	const unsigned char* src  = (const unsigned char*) &sourceVal;
 	dest[0] = src[3];
     dest[1] = src[2];
     dest[2] = src[1];
