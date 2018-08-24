@@ -8,6 +8,10 @@
 
 #include "BulletCollision/CollisionDispatch/btInternalEdgeUtility.h"
 
+#include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
+#include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
+#include "BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.h"
+
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
@@ -1599,6 +1603,7 @@ struct PhysicsServerCommandProcessorInternalData
     btMultiBodyDynamicsWorld* m_dynamicsWorld;
 #endif
     
+    int m_constraintSolverType;
 	SharedMemoryDebugDrawer*		m_remoteDebugDrawer;
     
 	btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
@@ -1657,6 +1662,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_solver(0),
 		m_collisionConfiguration(0),
 		m_dynamicsWorld(0),
+        m_constraintSolverType(-1),
 		m_remoteDebugDrawer(0),
 		m_stateLoggersUniqueId(0),
 		m_profileTimingLoggingUid(-1),
@@ -2340,6 +2346,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 
 void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 {
+    m_data->m_constraintSolverType=eConstraintSolverLCP_SI;
     ///collision configuration contains default setup for memory, collision setup
     //m_collisionConfiguration->setConvexConvexMultipointIterations();
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
@@ -7348,7 +7355,60 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	{
 		m_data->m_dynamicsWorld->getDispatchInfo().m_enableSatConvex = clientCmd.m_physSimParamArgs.m_enableSAT!=0;
 	}
+    if (clientCmd.m_updateFlags&SIM_PARAM_CONSTRAINT_SOLVER_TYPE)
+    {
+        //check if the current type is different from requested one
+        if (m_data->m_constraintSolverType!=clientCmd.m_physSimParamArgs.m_constraintSolverType)
+        {
+            m_data->m_constraintSolverType =clientCmd.m_physSimParamArgs.m_constraintSolverType;
+            
+            btConstraintSolver* oldSolver = m_data->m_dynamicsWorld->getConstraintSolver();
+           
+            btMultiBodyConstraintSolver* newSolver = 0;
+            
+            switch (clientCmd.m_physSimParamArgs.m_constraintSolverType)
+            {
+                case eConstraintSolverLCP_SI:
+                {
+                    newSolver = new btMultiBodyConstraintSolver;
+                    b3Printf("PyBullet: Constraint Solver: btMultiBodyConstraintSolver\n");
+                    break;
+                }
+                case eConstraintSolverLCP_PGS:
+                {
+                    btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel();
+                    newSolver = new btMultiBodyMLCPConstraintSolver(mlcp);
+                    b3Printf("PyBullet: Constraint Solver: MLCP + PGS\n");
+                    break;
+                }
+                case eConstraintSolverLCP_DANTZIG:
+                {
+                   btDantzigSolver* mlcp = new btDantzigSolver();
+                    newSolver = new btMultiBodyMLCPConstraintSolver(mlcp);
+                    b3Printf("PyBullet: Constraint Solver: MLCP + Dantzig\n");
+                    break;
+                }
+                case eConstraintSolverLCP_BLOCK_PGS:
+                {
+                    break;
+                }
+                default:
+                {
+                    
+                }
+            };
 
+            if (newSolver)
+            {
+                delete oldSolver;
+                
+                m_data->m_dynamicsWorld->setMultiBodyConstraintSolver(newSolver);
+                m_data->m_solver = newSolver;
+                printf("switched solver\n");
+            }
+            
+        }
+    }
 
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_COLLISION_FILTER_MODE)
 	{

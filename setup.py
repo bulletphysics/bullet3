@@ -261,6 +261,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletDynamics/MLCPSolvers/btMLCPSolver.cpp"]\
 +["src/BulletDynamics/Featherstone/btMultiBody.cpp"]\
 +["src/BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.cpp"]\
++["src/BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.cpp"]\
 +["src/BulletDynamics/Featherstone/btMultiBodyJointMotor.cpp"]\
 +["src/BulletDynamics/Featherstone/btMultiBodyGearConstraint.cpp"]\
 +["src/BulletDynamics/Featherstone/btMultiBodyConstraint.cpp"]\
@@ -453,7 +454,7 @@ print("-----")
 
 setup(
 	name = 'pybullet',
-	version='2.1.2',
+	version='2.1.3',
 	description='Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and deep reinforcement learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',

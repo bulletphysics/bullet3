@@ -897,7 +897,17 @@ struct b3PhysicsSimulationParameters
 	double m_solverResidualThreshold;
 	double m_contactSlop;
 	int m_enableSAT;
+    int m_constraintSolverType;
 };
 
+enum eConstraintSolverTypes
+{
+        eConstraintSolverLCP_SI=1,
+        eConstraintSolverLCP_PGS,
+        eConstraintSolverLCP_DANTZIG,
+        eConstraintSolverLCP_LEMKE,
+        eConstraintSolverLCP_NNCG,
+        eConstraintSolverLCP_BLOCK_PGS,
+};
 
 #endif//SHARED_MEMORY_PUBLIC_H

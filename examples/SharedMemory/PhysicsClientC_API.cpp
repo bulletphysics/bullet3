@@ -620,6 +620,16 @@ B3_SHARED_API	int b3PhysicsParameterSetEnableSAT(b3SharedMemoryCommandHandle com
 	return 0;
 }
 
+B3_SHARED_API    int b3PhysicsParameterSetConstraintSolverType(b3SharedMemoryCommandHandle commandHandle, int constraintSolverType)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+    command->m_physSimParamArgs.m_constraintSolverType = constraintSolverType;
+    command->m_updateFlags |= SIM_PARAM_CONSTRAINT_SOLVER_TYPE;
+    return 0;
+}
+
+
 B3_SHARED_API int b3PhysicsParamSetCollisionFilterMode(b3SharedMemoryCommandHandle commandHandle, int filterMode)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

@@ -25,8 +25,6 @@ B3_SHARED_API int initPlugin_collisionFilterPlugin(struct b3PluginContext* conte
 {
 	CollisionFilterMyClass* obj = new CollisionFilterMyClass();
 	context->m_userPointer = obj;
-
-	printf("hi!\n");
 	return SHARED_MEMORY_MAGIC_NUMBER;
 }
 
@@ -93,6 +91,4 @@ B3_SHARED_API void exitPlugin_collisionFilterPlugin(struct b3PluginContext* cont
 	CollisionFilterMyClass* obj = (CollisionFilterMyClass*) context->m_userPointer;
 	delete obj;
 	context->m_userPointer = 0;
-
-	printf("bye!\n");
 }

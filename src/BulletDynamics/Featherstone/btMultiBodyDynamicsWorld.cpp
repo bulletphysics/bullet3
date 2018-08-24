@@ -277,7 +277,11 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 		m_multiBodyConstraints.resize(0);
 	}
 
-	
+    void    setMultiBodyConstraintSolver(btMultiBodyConstraintSolver* solver)
+    {
+        m_solver = solver;
+    }
+    
 	virtual	void	processIsland(btCollisionObject** bodies,int numBodies,btPersistentManifold**	manifolds,int numManifolds, int islandId)
 	{
 		if (islandId<0)
@@ -392,6 +396,22 @@ btMultiBodyDynamicsWorld::btMultiBodyDynamicsWorld(btDispatcher* dispatcher,btBr
 btMultiBodyDynamicsWorld::~btMultiBodyDynamicsWorld ()
 {
 	delete m_solverMultiBodyIslandCallback;
+}
+
+void    btMultiBodyDynamicsWorld::setMultiBodyConstraintSolver(btMultiBodyConstraintSolver* solver)
+{
+    m_multiBodyConstraintSolver = solver;
+    m_solverMultiBodyIslandCallback->setMultiBodyConstraintSolver(solver);
+    btDiscreteDynamicsWorld::setConstraintSolver(solver);
+}
+
+void    btMultiBodyDynamicsWorld::setConstraintSolver(btConstraintSolver* solver)
+{
+    if (solver->getSolverType()==BT_MULTIBODY_SOLVER)
+    {
+        m_multiBodyConstraintSolver = (btMultiBodyConstraintSolver*)solver;
+    }
+    btDiscreteDynamicsWorld::setConstraintSolver(solver);
 }
 
 void	btMultiBodyDynamicsWorld::forwardKinematics()
