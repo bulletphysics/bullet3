@@ -1417,23 +1417,31 @@ static PyObject* pybullet_getPhysicsEngineParameters(PyObject* self, PyObject* a
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
-		if (statusType!=CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED)
+		if (statusType != CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED)
 		{
 			PyErr_SetString(SpamError, "Couldn't get physics simulation parameters.");
 			return NULL;
 		}
-		b3GetStatusPhysicsSimulationParameters(statusHandle,&params);
+		b3GetStatusPhysicsSimulationParameters(statusHandle, &params);
 
 		//for now, return a subset, expose more/all on request
-		val = Py_BuildValue("{s:d,s:i,s:i,s:i,s:d,s:d,s:d}",
-						"fixedTimeStep", params.m_deltaTime, 
-						"numSubSteps", params.m_numSimulationSubSteps, 
-						"numSolverIterations", params.m_numSolverIterations,
-						"useRealTimeSimulation", params.m_useRealTimeSimulation,
-						"gravityAccelerationX", params.m_gravityAcceleration[0],
-						"gravityAccelerationY", params.m_gravityAcceleration[1],
-						"gravityAccelerationZ", params.m_gravityAcceleration[2]
-						);
+		val = Py_BuildValue("{s:d, s:i, s:i, s:d, s:i, s:i, s:d, s:i, s:d, s:d, s:d, s:d, s:i, s:d, s:d, s:d}",
+							"fixedTimeStep", params.m_deltaTime,
+							"numSolverIterations", params.m_numSolverIterations,
+							"useSplitImpulse", params.m_useSplitImpulse,
+							"splitImpulsePenetrationThreshold", params.m_splitImpulsePenetrationThreshold,
+							"numSubSteps", params.m_numSimulationSubSteps,
+							"collisionFilterMode", params.m_collisionFilterMode,
+							"contactBreakingThreshold", params.m_contactBreakingThreshold,
+							"enableFileCaching", params.m_enableFileCaching,
+							"restitutionVelocityThreshold", params.m_restitutionVelocityThreshold,
+							"erp", params.m_defaultNonContactERP,
+							"contactERP", params.m_defaultContactERP,
+							"frictionERP", params.m_frictionERP,
+							"useRealTimeSimulation", params.m_useRealTimeSimulation,
+							"gravityAccelerationX", params.m_gravityAcceleration[0],
+							"gravityAccelerationY", params.m_gravityAcceleration[1],
+							"gravityAccelerationZ", params.m_gravityAcceleration[2]);
 		return val;
 	}
 	//"fixedTimeStep", "numSolverIterations", "useSplitImpulse", "splitImpulsePenetrationThreshold", "numSubSteps", "collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "enableFileCaching","restitutionVelocityThreshold", "erp", "contactERP", "frictionERP", 
@@ -9110,7 +9118,30 @@ static PyMethodDef SpamMethods[] = {
 	 "Set some internal physics engine parameter, such as cfm or erp etc."},
 
 	 {"getPhysicsEngineParameters", (PyCFunction)pybullet_getPhysicsEngineParameters, METH_VARARGS | METH_KEYWORDS,
-	 "Get the current values of internal physics engine parameters"},
+	 "Get the current values of the internal physics engine parameters.\n"
+	 "\n"
+	 "Args:\n"
+	 "  physicsClientId (int, optional): The unique id of the physics client.\n"
+	 "\n"
+	 "Returns:\n"
+	 "  A dict with the following keys:\n"
+	 "    fixedTimeStep (float): Physics engine timestep in fraction of seconds.\n"
+	 "    numSolverIterations (int): The number of constraint solver iterations.\n"
+	 "    useSplitImpulse (int): Split positional and velocity constraint solving.\n"
+	 "    splitImpulsePenetrationThreshold (float): Contact penetration threshold for applying split impulse.\n"
+	 "    numSubSteps (int): Subdivide the simulation step by numSubSteps.\n"
+	 "    collisionFilterMode (int): 0 for AND, 1 for OR collision filter.\n"
+	 "    contactBreakingThreshold (float): Contact points exceeding this threshold are not processed by the LCP solver.\n"
+	 "    enableFileCaching (int): Enable file caching, such as .obj files.\n"
+	 "    restitutionVelocityThreshold (float): Set restition to zero if the relative velocity is below this threshold.\n"
+	 "    erp (float): Constraint error reduction parameter.\n"
+	 "    contactERP (float): Contact error reduction parameter.\n"
+	 "    frictionERP (float): Friction error reduction parameter.\n"
+	 "    useRealTimeSimulation (int): Enable real time simulation.\n"
+	 "    gravityAccelerationX (float): The X component of the acceleration vector.\n"
+	 "    gravityAccelerationY (float): The Y component of the acceleration vector.\n"
+	 "    gravityAccelerationZ (float): The Z component of the acceleration vector.\n"
+	 },
 
 	{"setInternalSimFlags", (PyCFunction)pybullet_setInternalSimFlags, METH_VARARGS | METH_KEYWORDS,
 	 "This is for experimental purposes, use at own risk, magic may or not happen"},
