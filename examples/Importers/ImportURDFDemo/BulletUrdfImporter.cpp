@@ -564,9 +564,13 @@ bool findExistingMeshFile(
 		return false;
 	}
 
-	std::string drop_it = "package://";
-	if (fn.substr(0, drop_it.length())==drop_it)
-		fn = fn.substr(drop_it.length());
+	std::string drop_it_pack = "package://";
+	std::string drop_it_model = "model://";
+	if (fn.substr(0, drop_it_pack.length())==drop_it_pack)
+		fn = fn.substr(drop_it_pack.length());
+        else if (fn.substr(0, drop_it_model.length())==drop_it_model)
+		fn = fn.substr(drop_it_model.length());
+
 
 	std::list<std::string> shorter;
 	shorter.push_back("../..");
