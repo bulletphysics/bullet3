@@ -898,6 +898,7 @@ struct b3PhysicsSimulationParameters
 	double m_contactSlop;
 	int m_enableSAT;
     int m_constraintSolverType;
+	int m_minimumSolverIslandSize;
 };
 
 enum eConstraintSolverTypes

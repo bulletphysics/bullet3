@@ -1353,6 +1353,10 @@ bool b3RobotSimulatorClientAPI_NoDirect::changeDynamics(int bodyUniqueId, int li
 	b3SharedMemoryCommandHandle command = b3InitChangeDynamicsInfo(sm);
 	b3SharedMemoryStatusHandle statusHandle;
 
+	if (args.m_activationState >= 0)
+	{
+		b3ChangeDynamicsInfoSetActivationState(command, bodyUniqueId,args.m_activationState);
+	}
 	if (args.m_mass >= 0) {
 		b3ChangeDynamicsInfoSetMass(command, bodyUniqueId, linkIndex, args.m_mass);
 	}
@@ -1712,6 +1716,15 @@ bool b3RobotSimulatorClientAPI_NoDirect::setPhysicsEngineParameter(const struct 
 
 	if (args.m_solverResidualThreshold >= 0) {
 		b3PhysicsParamSetSolverResidualThreshold(command, args.m_solverResidualThreshold);
+	}
+
+	if (args.m_constraintSolverType >= 0)
+	{
+		b3PhysicsParameterSetConstraintSolverType(command, args.m_constraintSolverType);
+	}
+	if (args.m_minimumSolverIslandSize >= 0)
+	{
+		b3PhysicsParameterSetMinimumSolverIslandSize(command, args.m_minimumSolverIslandSize);
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);

@@ -352,7 +352,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 				for (i=0;i<numCurMultiBodyConstraints;i++)
 					m_multiBodyConstraints.push_back(startMultiBodyConstraint[i]);
 				
-				if ((m_constraints.size()+m_manifolds.size())>m_solverInfo->m_minimumSolverBatchSize)
+				if ((m_multiBodyConstraints.size()+m_constraints.size()+m_manifolds.size())>m_solverInfo->m_minimumSolverBatchSize)
 				{
 					processConstraints();
 				} else

@@ -2390,6 +2390,8 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = 0.2;//need to check if there are artifacts with frictionERP
 	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.00001;
 	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 50;
+	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 0;
+	gDbvtMargin = btScalar(0.001);//1mm
 	m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold = 1e-7;
 //	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 2;
 	//todo: islands/constraints are buggy in btMultiBodyDynamicsWorld! (performance + see slipping grasp)

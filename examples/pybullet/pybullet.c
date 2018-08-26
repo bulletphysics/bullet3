@@ -1469,12 +1469,14 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
     int constraintSolverType=-1;
     double globalCFM = -1;
     
+	int minimumSolverIslandSize = -1;
+	
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"fixedTimeStep", "numSolverIterations", "useSplitImpulse", "splitImpulsePenetrationThreshold", "numSubSteps", "collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "enableFileCaching","restitutionVelocityThreshold", "erp", "contactERP", "frictionERP", "enableConeFriction", "deterministicOverlappingPairs", "allowedCcdPenetration", "jointFeedbackMode", "solverResidualThreshold", "contactSlop", "enableSAT", "constraintSolverType", "globalCFM", "physicsClientId", NULL};
+	static char* kwlist[] = {"fixedTimeStep", "numSolverIterations", "useSplitImpulse", "splitImpulsePenetrationThreshold", "numSubSteps", "collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "enableFileCaching","restitutionVelocityThreshold", "erp", "contactERP", "frictionERP", "enableConeFriction", "deterministicOverlappingPairs", "allowedCcdPenetration", "jointFeedbackMode", "solverResidualThreshold", "contactSlop", "enableSAT", "constraintSolverType", "globalCFM", "minimumSolverIslandSize", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiididdiidi", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
-									 &collisionFilterMode, &contactBreakingThreshold, &maxNumCmdPer1ms, &enableFileCaching, &restitutionVelocityThreshold, &erp, &contactERP, &frictionERP, &enableConeFriction, &deterministicOverlappingPairs, &allowedCcdPenetration, &jointFeedbackMode, &solverResidualThreshold, &contactSlop, &enableSAT, &constraintSolverType, &globalCFM, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiididdiiddi", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
+									 &collisionFilterMode, &contactBreakingThreshold, &maxNumCmdPer1ms, &enableFileCaching, &restitutionVelocityThreshold, &erp, &contactERP, &frictionERP, &enableConeFriction, &deterministicOverlappingPairs, &allowedCcdPenetration, &jointFeedbackMode, &solverResidualThreshold, &contactSlop, &enableSAT, &constraintSolverType, &globalCFM, &minimumSolverIslandSize, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1494,6 +1496,12 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		{
 			b3PhysicsParamSetNumSolverIterations(command, numSolverIterations);
 		}
+
+		if (minimumSolverIslandSize >= 0)
+		{
+			b3PhysicsParameterSetMinimumSolverIslandSize(command, minimumSolverIslandSize);
+		}
+
 
 		if (solverResidualThreshold>=0)
 		{
