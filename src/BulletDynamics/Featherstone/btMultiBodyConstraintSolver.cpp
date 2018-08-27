@@ -1406,6 +1406,7 @@ void btMultiBodyConstraintSolver::convertContacts(btPersistentManifold** manifol
 
 btScalar btMultiBodyConstraintSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer,btDispatcher* dispatcher)
 {
+	//printf("btMultiBodyConstraintSolver::solveGroup: numBodies=%d, numConstraints=%d\n", numBodies, numConstraints);
 	return btSequentialImpulseConstraintSolver::solveGroup(bodies,numBodies,manifold,numManifolds,constraints,numConstraints,info,debugDrawer,dispatcher);
 }
 
@@ -1656,6 +1657,8 @@ btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlyFinish(btCollisionO
 
 void  btMultiBodyConstraintSolver::solveMultiBodyGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,btMultiBodyConstraint** multiBodyConstraints, int numMultiBodyConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer,btDispatcher* dispatcher)
 {
+	//printf("solveMultiBodyGroup: numBodies=%d, numConstraints=%d, numManifolds=%d, numMultiBodyConstraints=%d\n", numBodies, numConstraints, numManifolds, numMultiBodyConstraints);
+
 	//printf("solveMultiBodyGroup start\n");
 	m_tmpMultiBodyConstraints = multiBodyConstraints;
 	m_tmpNumMultiBodyConstraints = numMultiBodyConstraints;

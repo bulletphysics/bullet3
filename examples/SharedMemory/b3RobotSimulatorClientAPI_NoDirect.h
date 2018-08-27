@@ -268,7 +268,8 @@ struct b3RobotSimulatorSetPhysicsEngineParameters : b3PhysicsSimulationParameter
 		
 		m_frictionERP=-1;
 	  	m_solverResidualThreshold=-1;
-
+		m_constraintSolverType = -1;
+		m_minimumSolverIslandSize = -1;
 		
 	}
 };
@@ -285,6 +286,7 @@ struct b3RobotSimulatorChangeDynamicsArgs
 	double m_contactStiffness;
 	double m_contactDamping;
 	int m_frictionAnchor;
+	int m_activationState;
 
 	b3RobotSimulatorChangeDynamicsArgs()
 		: m_mass(-1),
@@ -296,7 +298,8 @@ struct b3RobotSimulatorChangeDynamicsArgs
 		m_angularDamping(-1),
 		m_contactStiffness(-1),
 		m_contactDamping(-1),
-		m_frictionAnchor(-1)
+		m_frictionAnchor(-1),
+		m_activationState(-1)
 	{}
 };
 

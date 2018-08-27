@@ -2365,9 +2365,11 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	
 	m_data->m_pairCache->setOverlapFilterCallback(m_data->m_broadphaseCollisionFilterCallback);
 
-	//int maxProxies = 32768;
+	int maxProxies = 32768;
 	//m_data->m_broadphase = new btSimpleBroadphase(maxProxies, m_data->m_pairCache);
-    m_data->m_broadphase = new btDbvtBroadphase(m_data->m_pairCache);
+	btDbvtBroadphase* bv = new btDbvtBroadphase(m_data->m_pairCache);
+	bv->setVelocityPrediction(0);
+	m_data->m_broadphase = bv;
     
 
     m_data->m_solver = new btMultiBodyConstraintSolver;
@@ -2390,6 +2392,8 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = 0.2;//need to check if there are artifacts with frictionERP
 	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.00001;
 	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 50;
+	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 0;
+	gDbvtMargin = btScalar(0);
 	m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold = 1e-7;
 //	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 2;
 	//todo: islands/constraints are buggy in btMultiBodyDynamicsWorld! (performance + see slipping grasp)

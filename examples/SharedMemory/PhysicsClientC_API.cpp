@@ -629,6 +629,15 @@ B3_SHARED_API    int b3PhysicsParameterSetConstraintSolverType(b3SharedMemoryCom
     return 0;
 }
 
+B3_SHARED_API    int b3PhysicsParameterSetMinimumSolverIslandSize(b3SharedMemoryCommandHandle commandHandle, int minimumSolverIslandSize)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_minimumSolverIslandSize = minimumSolverIslandSize;
+	command->m_updateFlags |= SIM_PARAM_CONSTRAINT_MIN_SOLVER_ISLAND_SIZE;
+	return 0;
+}
+
 
 B3_SHARED_API int b3PhysicsParamSetCollisionFilterMode(b3SharedMemoryCommandHandle commandHandle, int filterMode)
 {

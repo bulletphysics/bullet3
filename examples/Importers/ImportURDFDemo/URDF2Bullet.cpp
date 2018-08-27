@@ -610,9 +610,10 @@ void ConvertURDF2BulletInternal(
 					}
                 } else
                 {
-					if (canSleep)
+//					if (canSleep)
 					{
-						if (cache.m_bulletMultiBody->getBaseMass()==0 && cache.m_bulletMultiBody->getNumDofs()==0)
+						if (cache.m_bulletMultiBody->getBaseMass()==0)
+							//&& cache.m_bulletMultiBody->getNumDofs()==0)
 						{
 							//col->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
 							col->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
