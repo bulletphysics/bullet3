@@ -455,8 +455,6 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 	m_solverMultiBodyIslandCallback->setup(&solverInfo,constraintsPtr,m_sortedConstraints.size(),sortedMultiBodyConstraints,m_sortedMultiBodyConstraints.size(), getDebugDrawer());
 	m_constraintSolver->prepareSolve(getCollisionWorld()->getNumCollisionObjects(), getCollisionWorld()->getDispatcher()->getNumManifolds());
 	
-	/// solve all the constraints for this island
-	m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(),getCollisionWorld(),m_solverMultiBodyIslandCallback);
 
 #ifndef BT_USE_VIRTUAL_CLEARFORCES_AND_GRAVITY
 	{
@@ -691,7 +689,9 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		}
 	}
 
-	
+	/// solve all the constraints for this island
+	m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
+
 
 	m_solverMultiBodyIslandCallback->processConstraints();
 	

@@ -2365,7 +2365,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	
 	m_data->m_pairCache->setOverlapFilterCallback(m_data->m_broadphaseCollisionFilterCallback);
 
-	int maxProxies = 32768;
+	//int maxProxies = 32768;
 	//m_data->m_broadphase = new btSimpleBroadphase(maxProxies, m_data->m_pairCache);
 	btDbvtBroadphase* bv = new btDbvtBroadphase(m_data->m_pairCache);
 	bv->setVelocityPrediction(0);
