@@ -478,6 +478,12 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		if (m_pickedConstraint)
 		{
 			m_dynamicsWorld->removeConstraint(m_pickedConstraint);
+
+			if (m_pickedBody)
+			{
+				m_pickedBody->forceActivationState(ACTIVE_TAG);
+				m_pickedBody->activate(true);
+			}
 			delete m_pickedConstraint;
 			m_pickedConstraint = 0;
 			m_pickedBody = 0;
