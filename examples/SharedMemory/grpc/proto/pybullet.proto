@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.pybullet_grpc";
+option java_outer_classname = "PyBulletProto";
+option objc_class_prefix = "PBG";
+
+
+package pybullet_grpc;
+
+service PyBulletAPI {
+  // Sends a greeting
+  rpc SubmitCommand (PyBulletCommand) returns (PyBulletStatus) {}
+}
+
+
+message vec3
+{
+	double x=1;
+	double y=2;
+	double z=3;
+};
+
+message quat4
+{
+	double x=1;
+	double y=2;
+	double z=3;
+	double w=4;
+};
+
+
+message TerminateServerCommand
+{
+	string exitReason=1;
+};
+
+message StepSimulationCommand
+{
+};
+
+message LoadUrdfCommand {
+	string urdfFileName=1;
+	vec3 initialPosition=2;
+	quat4 initialOrientation=3;
+	//for why oneof here, see the sad decision here:
+	//https://github.com/protocolbuffers/protobuf/issues/1606
+	oneof hasUseMultiBody	{		int32  useMultiBody=4;	}
+	oneof hasUseFixedBase{	bool useFixedBase=5;	}
+	int32 urdfFlags=6;
+	oneof hasGlobalScaling {	double globalScaling=7;
+	}
+};
+
+message LoadUrdfStatus {
+	int32 objectUniqueId=1;
+}
+
+
+
+
+// The request message containing the command
+message PyBulletCommand {
+  int32 commandType=1;
+  
+  oneof commands {
+    LoadUrdfCommand loadUrdfCommand = 3;
+    TerminateServerCommand terminateServerCommand=4;
+		StepSimulationCommand stepSimulationCommand= 5;
+  }
+
+  
+}
+
+// The response message containing the status
+message PyBulletStatus {
+  int32 statusType=1;
+  
+  oneof status
+  {
+  	LoadUrdfStatus urdfStatus = 2;
+  }
+}
+
+

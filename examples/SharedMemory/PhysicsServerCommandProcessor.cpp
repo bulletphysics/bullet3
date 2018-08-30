@@ -3008,8 +3008,10 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 
 
 bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
-                             bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes, int flags, btScalar globalScaling)
+                             bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes, int orgFlags, btScalar globalScaling)
 {
+	//clear the LOAD_SDF_FILE=1 bit, which is reserved for internal use of loadSDF command.
+	int flags = orgFlags & ~1;
 	m_data->m_sdfRecentLoadedBodies.clear();
 	*bodyUniqueIdPtr = -1;
 
