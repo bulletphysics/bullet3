@@ -460,7 +460,7 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 	}
 	else
 	{
-		if (colObj0Wrap->getCollisionObject()->getCollisionShape()->getShapeType()==_TRIANGLE_MESH_SHAPE_PROXYTYPE)
+		if (colObj0Wrap->getCollisionObject()->getCollisionShape()->getShapeType()==TRIANGLE_MESH_SHAPE_PROXYTYPE)
 		{
 			trimesh = (btBvhTriangleMeshShape*)colObj0Wrap->getCollisionObject()->getCollisionShape();
 		}
