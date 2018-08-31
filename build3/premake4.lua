@@ -69,6 +69,13 @@
 		trigger = "midi",
 		description = "Use Midi controller to control parameters"
 	}
+	
+	newoption
+	{
+		trigger = "grpc",
+		description = "Build GRPC server/client features for PyBullet/BulletRobotics"
+	}
+	
 
 -- _OPTIONS["midi"] = "1";
 

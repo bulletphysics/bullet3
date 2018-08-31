@@ -53,32 +53,6 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3SaveWorldCommandInit(b3PhysicsClient
 	return (b3SharedMemoryCommandHandle) command;
 }
 
-B3_SHARED_API b3SharedMemoryCommandHandle b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
-{
-    PhysicsClient* cl = (PhysicsClient* ) physClient;
-    b3Assert(cl);
-    b3Assert(cl->canSubmitCommand());
-    
-	if (cl->canSubmitCommand())
-	{
-		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
-		b3Assert(command);
-		command->m_type = CMD_LOAD_URDF;
-		int len = strlen(urdfFileName);
-		if (len < MAX_URDF_FILENAME_LENGTH)
-		{
-			strcpy(command->m_urdfArguments.m_urdfFileName, urdfFileName);
-		}
-		else
-		{
-			command->m_urdfArguments.m_urdfFileName[0] = 0;
-		}
-		command->m_updateFlags = URDF_ARGS_FILE_NAME;
-
-		return (b3SharedMemoryCommandHandle)command;
-	}
-	return 0;
-}
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3LoadBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName)
 {
@@ -309,6 +283,56 @@ B3_SHARED_API int b3LoadSoftBodySetCollisionMargin(b3SharedMemoryCommandHandle c
     command->m_updateFlags |= LOAD_SOFT_BODY_UPDATE_COLLISION_MARGIN;
     return 0;
 }
+
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_LOAD_URDF;
+		int len = strlen(urdfFileName);
+		if (len < MAX_URDF_FILENAME_LENGTH)
+		{
+			strcpy(command->m_urdfArguments.m_urdfFileName, urdfFileName);
+		}
+		else
+		{
+			command->m_urdfArguments.m_urdfFileName[0] = 0;
+		}
+		command->m_updateFlags = URDF_ARGS_FILE_NAME;
+
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3LoadUrdfCommandInit2(b3SharedMemoryCommandHandle commandHandle, const char* urdfFileName)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	
+	command->m_type = CMD_LOAD_URDF;
+	int len = strlen(urdfFileName);
+	if (len < MAX_URDF_FILENAME_LENGTH)
+	{
+		strcpy(command->m_urdfArguments.m_urdfFileName, urdfFileName);
+	}
+	else
+	{
+		command->m_urdfArguments.m_urdfFileName[0] = 0;
+	}
+	command->m_updateFlags = URDF_ARGS_FILE_NAME;
+
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+
 
 B3_SHARED_API int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody)
 {
@@ -720,10 +744,17 @@ B3_SHARED_API  b3SharedMemoryCommandHandle b3InitStepSimulationCommand(b3Physics
     b3Assert(cl->canSubmitCommand());
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
+	return b3InitStepSimulationCommand2((b3SharedMemoryCommandHandle)command);
+}
+
+B3_SHARED_API b3SharedMemoryCommandHandle	b3InitStepSimulationCommand2(b3SharedMemoryCommandHandle commandHandle)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	command->m_type = CMD_STEP_FORWARD_SIMULATION;
 	command->m_updateFlags = 0;
-	 return (b3SharedMemoryCommandHandle) command;
+	return (b3SharedMemoryCommandHandle)command;
 }
+
 
 B3_SHARED_API b3SharedMemoryCommandHandle     b3InitResetSimulationCommand(b3PhysicsClientHandle physClient)
 {

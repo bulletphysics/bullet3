@@ -338,13 +338,14 @@ B3_SHARED_API	int b3PhysicsParamSetInternalSimFlags(b3SharedMemoryCommandHandle 
 
 
 B3_SHARED_API b3SharedMemoryCommandHandle	b3InitStepSimulationCommand(b3PhysicsClientHandle physClient);
+B3_SHARED_API b3SharedMemoryCommandHandle	b3InitStepSimulationCommand2(b3SharedMemoryCommandHandle commandHandle);
 
 B3_SHARED_API b3SharedMemoryCommandHandle	b3InitResetSimulationCommand(b3PhysicsClientHandle physClient);
 
 ///Load a robot from a URDF file. Status type will CMD_URDF_LOADING_COMPLETED.
 ///Access the robot from the unique body index, through b3GetStatusBodyIndex(statusHandle);
 B3_SHARED_API b3SharedMemoryCommandHandle	b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName);
-
+B3_SHARED_API b3SharedMemoryCommandHandle b3LoadUrdfCommandInit2(b3SharedMemoryCommandHandle commandHandle, const char* urdfFileName);
 B3_SHARED_API int	b3LoadUrdfCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ);
 B3_SHARED_API int	b3LoadUrdfCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW);
 B3_SHARED_API int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody);
