@@ -21,7 +21,7 @@
     
     typedef void*                   B3_DYNLIB_HANDLE;
 
-    #define B3_DYNLIB_OPEN(path)  dlopen(path, RTLD_NOW | RTLD_GLOBAL)
+    #define B3_DYNLIB_OPEN(path)  dlmopen(LM_ID_NEWLM, path, RTLD_LAZY)
     #define B3_DYNLIB_CLOSE       dlclose
     #define B3_DYNLIB_IMPORT      dlsym
 #endif
