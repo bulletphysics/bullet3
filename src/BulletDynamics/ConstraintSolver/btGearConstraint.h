@@ -51,11 +51,11 @@ public:
 	///internal method used by the constraint solver, don't use them directly
 	virtual void getInfo2 (btConstraintInfo2* info);
 
-	void setAxisA(btVector3& axisA) 
+	void setAxisA(const btVector3& axisA) 
 	{
 		m_axisInA = axisA;
 	}
-	void setAxisB(btVector3& axisB)
+	void setAxisB(const btVector3& axisB)
 	{
 		m_axisInB = axisB;
 	}

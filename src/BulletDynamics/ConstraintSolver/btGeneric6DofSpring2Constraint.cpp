@@ -310,9 +310,9 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 	case RO_XYZ :
 		{
 			//Is this the "line of nodes" calculation choosing planes YZ (B coordinate system) and xy (A coordinate system)? (http://en.wikipedia.org/wiki/Euler_angles)
-			//The two planes are non-homologous, so this is a Tait–Bryan angle formalism and not a proper Euler
+			//The two planes are non-homologous, so this is a TaitÂ–Bryan angle formalism and not a proper Euler
 			//Extrinsic rotations are equal to the reversed order intrinsic rotations so the above xyz extrinsic rotations (axes are fixed) are the same as the zy'x" intrinsic rotations (axes are refreshed after each rotation)
-			//that is why xy and YZ planes are chosen (this will describe a zy'x" intrinsic rotation) (see the figure on the left at http://en.wikipedia.org/wiki/Euler_angles under Tait–Bryan angles)
+			//that is why xy and YZ planes are chosen (this will describe a zy'x" intrinsic rotation) (see the figure on the left at http://en.wikipedia.org/wiki/Euler_angles under TaitÂ–Bryan angles)
 			// x' = Nperp = N.cross(axis2)
 			// y' = N = axis2.cross(axis0)	
 			// z' = z
@@ -1093,6 +1093,15 @@ void btGeneric6DofSpring2Constraint::enableSpring(int index, bool onOff)
 		m_angularLimits[index - 3] .m_enableSpring = onOff;
 }
 
+bool btGeneric6DofSpring2Constraint::isSpringEnabled(int index) const
+{
+    btAssert((index >= 0) && (index < 6));
+	if (index<3)
+		return m_linearLimits.m_enableSpring[index];
+	else
+		return m_angularLimits[index - 3] .m_enableSpring;
+}
+
 void btGeneric6DofSpring2Constraint::setStiffness(int index, btScalar stiffness, bool limitIfNeeded)
 {
 	btAssert((index >= 0) && (index < 6));
@@ -1105,6 +1114,16 @@ void btGeneric6DofSpring2Constraint::setStiffness(int index, btScalar stiffness,
 	}
 }
 
+btScalar btGeneric6DofSpring2Constraint::getStiffness(int index) const
+{
+    btAssert((index >= 0) && (index < 6));
+	if (index<3) {
+		return m_linearLimits.m_springStiffness[index];
+	} else {
+		return m_angularLimits[index - 3].m_springStiffness;
+	}
+}
+
 void btGeneric6DofSpring2Constraint::setDamping(int index, btScalar damping, bool limitIfNeeded)
 {
 	btAssert((index >= 0) && (index < 6));
@@ -1114,6 +1133,16 @@ void btGeneric6DofSpring2Constraint::setDamping(int index, btScalar damping, boo
 	} else {
 		m_angularLimits[index - 3].m_springDamping = damping;
 		m_angularLimits[index - 3].m_springDampingLimited = limitIfNeeded;
+	}
+}
+
+btScalar btGeneric6DofSpring2Constraint::getDamping(int index) const
+{
+    btAssert((index >= 0) && (index < 6));
+	if (index<3) {
+		return m_linearLimits.m_springDamping[index];
+	} else {
+		return m_angularLimits[index - 3].m_springDamping;
 	}
 }
 
@@ -1146,6 +1175,14 @@ void btGeneric6DofSpring2Constraint::setEquilibriumPoint(int index, btScalar val
 		m_angularLimits[index - 3] .m_equilibriumPoint = val;
 }
 
+btScalar btGeneric6DofSpring2Constraint::getEquilibriumPoint(int index) const
+{
+    btAssert((index >= 0) && (index < 6));
+	if (index<3)
+		return m_linearLimits.m_equilibriumPoint[index];
+	else
+		return m_angularLimits[index - 3] .m_equilibriumPoint;
+}
 
 //////////////////////////// btRotationalLimitMotor2 ////////////////////////////////////
 

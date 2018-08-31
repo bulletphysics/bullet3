@@ -47,9 +47,19 @@ public:
 	virtual void	setLocalScaling(const btVector3& scaling);
 	virtual const btVector3& getLocalScaling() const;
 	
-	const btVector3&	getPlaneNormal() const
+	void setPlaneNormal(const btVector3& normal)
+	{
+		m_planeNormal = normal.normalized();
+	}
+	
+	const btVector3& getPlaneNormal() const
 	{
 		return	m_planeNormal;
+	}
+	
+	void setPlaneConstant(const btScalar constant)
+	{
+		m_planeConstant = constant;
 	}
 
 	const btScalar&	getPlaneConstant() const
