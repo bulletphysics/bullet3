@@ -21,7 +21,11 @@
     
     typedef void*                   B3_DYNLIB_HANDLE;
 
+#ifdef __APPLE__
     #define B3_DYNLIB_OPEN(path)  dlopen(path, RTLD_NOW | RTLD_GLOBAL)
+#else
+    #define B3_DYNLIB_OPEN(path)  dlmopen(LM_ID_NEWLM, path, RTLD_LAZY)
+#endif
     #define B3_DYNLIB_CLOSE       dlclose
     #define B3_DYNLIB_IMPORT      dlsym
 #endif
