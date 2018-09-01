@@ -7,22 +7,58 @@ import grpc
 import pybullet_pb2
 import pybullet_pb2_grpc
 
+#todo: how to add this?
+MJCF_COLORS_FROM_FILE = 512
 
 def run():
-  channel = grpc.insecure_channel('localhost:50051')
-  stub = pybullet_pb2_grpc.PyBulletAPIStub(channel)
-  response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(loadUrdfCommand=pybullet_pb2.LoadUrdfCommand(urdfFileName="plane.urdf", initialPosition=pybullet_pb2.vec3(x=0,y=0,z=0), useMultiBody=False, useFixedBase=True, globalScaling=2, urdfFlags = 1)))
-  print("PyBullet client received: " , response.statusType)
-  print("URDF objectid =", response.urdfStatus.objectUniqueId)
-  
+	print("grpc.insecure_channel")
+	channel = grpc.insecure_channel('localhost:50051')
+	print("pybullet_pb2_grpc.PyBulletAPIStub")
+	stub = pybullet_pb2_grpc.PyBulletAPIStub(channel)
+	response=0
+
+	print("submit LoadSdfCommand")
+	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(loadSdfCommand=pybullet_pb2.LoadSdfCommand(fileName="two_cubes.sdf", useMultiBody=True, globalScaling=2)))
+	print("PyBullet client received: " , response)
 	
-  response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(stepSimulationCommand=pybullet_pb2.StepSimulationCommand()))
-  print("PyBullet client received: " , response.statusType)
+
+	print("submit LoadMjcfCommand")
+	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(loadMjcfCommand=pybullet_pb2.LoadMjcfCommand(fileName="mjcf/humanoid.xml",flags=MJCF_COLORS_FROM_FILE)))
+	print("PyBullet client received: " , response)
+
+	
+	print("submit LoadUrdfCommand ")
+	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(loadUrdfCommand=pybullet_pb2.LoadUrdfCommand(fileName="door.urdf", initialPosition=pybullet_pb2.vec3(x=0,y=0,z=0), useMultiBody=True, useFixedBase=True, globalScaling=2, flags = 1)))
+	print("PyBullet client received: " , response)
+	bodyUniqueId = response.urdfStatus.bodyUniqueId
+	
+	print("submit ChangeDynamicsCommand ")
+	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(changeDynamicsCommand=pybullet_pb2.ChangeDynamicsCommand(bodyUniqueId=bodyUniqueId, linkIndex=-1, mass=10)))
+	print("PyBullet client received: " , response)
+	
+	print("submit GetDynamicsCommand ")
+	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(getDynamicsCommand=pybullet_pb2.GetDynamicsCommand(bodyUniqueId=bodyUniqueId, linkIndex=-1)))
+	print("PyBullet client received: " , response)
+
+	print("submit InitPoseCommand")
+	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(initPoseCommand=pybullet_pb2.InitPoseCommand(bodyUniqueId=bodyUniqueId, initialStateQ=[1,2,3],hasInitialStateQ=[1,1,1])))
+	print("PyBullet client received: " , response)
+	
+	print("submit RequestActualStateCommand")
+	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(requestActualStateCommand=pybullet_pb2.RequestActualStateCommand(bodyUniqueId=bodyUniqueId, computeForwardKinematics=True, computeLinkVelocities=True )))
+	print("PyBullet client received: " , response)
+	
+	
+		
+	#for i in range (1000):
+	#		print("submit StepSimulationCommand: ", i)
+	#		response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(stepSimulationCommand=pybullet_pb2.StepSimulationCommand()))
+	#		print("PyBullet client received: " , response.statusType)
   
-  
-  #response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(terminateServerCommand=pybullet_pb2.TerminateServerCommand()))
-  #print("PyBullet client received: " , response.statusType)
+  #print("TerminateServerCommand")
+	#response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(terminateServerCommand=pybullet_pb2.TerminateServerCommand()))
+	#print("PyBullet client received: " , response.statusType)
 
 
 if __name__ == '__main__':
-  run()
+	run()

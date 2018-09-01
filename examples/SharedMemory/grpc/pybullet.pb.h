@@ -30,18 +30,48 @@
 #include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
 namespace pybullet_grpc {
+class ChangeDynamicsCommand;
+class ChangeDynamicsCommandDefaultTypeInternal;
+extern ChangeDynamicsCommandDefaultTypeInternal _ChangeDynamicsCommand_default_instance_;
+class GetDynamicsCommand;
+class GetDynamicsCommandDefaultTypeInternal;
+extern GetDynamicsCommandDefaultTypeInternal _GetDynamicsCommand_default_instance_;
+class GetDynamicsStatus;
+class GetDynamicsStatusDefaultTypeInternal;
+extern GetDynamicsStatusDefaultTypeInternal _GetDynamicsStatus_default_instance_;
+class InitPoseCommand;
+class InitPoseCommandDefaultTypeInternal;
+extern InitPoseCommandDefaultTypeInternal _InitPoseCommand_default_instance_;
+class LoadMjcfCommand;
+class LoadMjcfCommandDefaultTypeInternal;
+extern LoadMjcfCommandDefaultTypeInternal _LoadMjcfCommand_default_instance_;
+class LoadSdfCommand;
+class LoadSdfCommandDefaultTypeInternal;
+extern LoadSdfCommandDefaultTypeInternal _LoadSdfCommand_default_instance_;
 class LoadUrdfCommand;
 class LoadUrdfCommandDefaultTypeInternal;
 extern LoadUrdfCommandDefaultTypeInternal _LoadUrdfCommand_default_instance_;
 class LoadUrdfStatus;
 class LoadUrdfStatusDefaultTypeInternal;
 extern LoadUrdfStatusDefaultTypeInternal _LoadUrdfStatus_default_instance_;
+class MjcfLoadedStatus;
+class MjcfLoadedStatusDefaultTypeInternal;
+extern MjcfLoadedStatusDefaultTypeInternal _MjcfLoadedStatus_default_instance_;
 class PyBulletCommand;
 class PyBulletCommandDefaultTypeInternal;
 extern PyBulletCommandDefaultTypeInternal _PyBulletCommand_default_instance_;
 class PyBulletStatus;
 class PyBulletStatusDefaultTypeInternal;
 extern PyBulletStatusDefaultTypeInternal _PyBulletStatus_default_instance_;
+class RequestActualStateCommand;
+class RequestActualStateCommandDefaultTypeInternal;
+extern RequestActualStateCommandDefaultTypeInternal _RequestActualStateCommand_default_instance_;
+class SdfLoadedStatus;
+class SdfLoadedStatusDefaultTypeInternal;
+extern SdfLoadedStatusDefaultTypeInternal _SdfLoadedStatus_default_instance_;
+class SendActualStateStatus;
+class SendActualStateStatusDefaultTypeInternal;
+extern SendActualStateStatusDefaultTypeInternal _SendActualStateStatus_default_instance_;
 class StepSimulationCommand;
 class StepSimulationCommandDefaultTypeInternal;
 extern StepSimulationCommandDefaultTypeInternal _StepSimulationCommand_default_instance_;
@@ -521,19 +551,19 @@ class LoadUrdfCommand : public ::google::protobuf::Message /* @@protoc_insertion
 
   // accessors -------------------------------------------------------
 
-  // string urdfFileName = 1;
-  void clear_urdffilename();
-  static const int kUrdfFileNameFieldNumber = 1;
-  const ::std::string& urdffilename() const;
-  void set_urdffilename(const ::std::string& value);
+  // string fileName = 1;
+  void clear_filename();
+  static const int kFileNameFieldNumber = 1;
+  const ::std::string& filename() const;
+  void set_filename(const ::std::string& value);
   #if LANG_CXX11
-  void set_urdffilename(::std::string&& value);
+  void set_filename(::std::string&& value);
   #endif
-  void set_urdffilename(const char* value);
-  void set_urdffilename(const char* value, size_t size);
-  ::std::string* mutable_urdffilename();
-  ::std::string* release_urdffilename();
-  void set_allocated_urdffilename(::std::string* urdffilename);
+  void set_filename(const char* value);
+  void set_filename(const char* value, size_t size);
+  ::std::string* mutable_filename();
+  ::std::string* release_filename();
+  void set_allocated_filename(::std::string* filename);
 
   // .pybullet_grpc.vec3 initialPosition = 2;
   bool has_initialposition() const;
@@ -553,11 +583,11 @@ class LoadUrdfCommand : public ::google::protobuf::Message /* @@protoc_insertion
   ::pybullet_grpc::quat4* release_initialorientation();
   void set_allocated_initialorientation(::pybullet_grpc::quat4* initialorientation);
 
-  // int32 urdfFlags = 6;
-  void clear_urdfflags();
-  static const int kUrdfFlagsFieldNumber = 6;
-  ::google::protobuf::int32 urdfflags() const;
-  void set_urdfflags(::google::protobuf::int32 value);
+  // int32 flags = 6;
+  void clear_flags();
+  static const int kFlagsFieldNumber = 6;
+  ::google::protobuf::int32 flags() const;
+  void set_flags(::google::protobuf::int32 value);
 
   // int32 useMultiBody = 4;
   private:
@@ -608,10 +638,10 @@ class LoadUrdfCommand : public ::google::protobuf::Message /* @@protoc_insertion
   inline void clear_has_hasGlobalScaling();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::internal::ArenaStringPtr urdffilename_;
+  ::google::protobuf::internal::ArenaStringPtr filename_;
   ::pybullet_grpc::vec3* initialposition_;
   ::pybullet_grpc::quat4* initialorientation_;
-  ::google::protobuf::int32 urdfflags_;
+  ::google::protobuf::int32 flags_;
   union HasUseMultiBodyUnion {
     HasUseMultiBodyUnion() {}
     ::google::protobuf::int32 usemultibody_;
@@ -698,17 +728,1583 @@ class LoadUrdfStatus : public ::google::protobuf::Message /* @@protoc_insertion_
 
   // accessors -------------------------------------------------------
 
-  // int32 objectUniqueId = 1;
-  void clear_objectuniqueid();
-  static const int kObjectUniqueIdFieldNumber = 1;
-  ::google::protobuf::int32 objectuniqueid() const;
-  void set_objectuniqueid(::google::protobuf::int32 value);
+  // int32 bodyUniqueId = 1;
+  void clear_bodyuniqueid();
+  static const int kBodyUniqueIdFieldNumber = 1;
+  ::google::protobuf::int32 bodyuniqueid() const;
+  void set_bodyuniqueid(::google::protobuf::int32 value);
 
   // @@protoc_insertion_point(class_scope:pybullet_grpc.LoadUrdfStatus)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::int32 objectuniqueid_;
+  ::google::protobuf::int32 bodyuniqueid_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class LoadSdfCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.LoadSdfCommand) */ {
+ public:
+  LoadSdfCommand();
+  virtual ~LoadSdfCommand();
+
+  LoadSdfCommand(const LoadSdfCommand& from);
+
+  inline LoadSdfCommand& operator=(const LoadSdfCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const LoadSdfCommand& default_instance();
+
+  enum HasUseMultiBodyCase {
+    kUseMultiBody = 2,
+    HASUSEMULTIBODY_NOT_SET = 0,
+  };
+
+  enum HasGlobalScalingCase {
+    kGlobalScaling = 3,
+    HASGLOBALSCALING_NOT_SET = 0,
+  };
+
+  static inline const LoadSdfCommand* internal_default_instance() {
+    return reinterpret_cast<const LoadSdfCommand*>(
+               &_LoadSdfCommand_default_instance_);
+  }
+
+  void Swap(LoadSdfCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline LoadSdfCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  LoadSdfCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const LoadSdfCommand& from);
+  void MergeFrom(const LoadSdfCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(LoadSdfCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string fileName = 1;
+  void clear_filename();
+  static const int kFileNameFieldNumber = 1;
+  const ::std::string& filename() const;
+  void set_filename(const ::std::string& value);
+  #if LANG_CXX11
+  void set_filename(::std::string&& value);
+  #endif
+  void set_filename(const char* value);
+  void set_filename(const char* value, size_t size);
+  ::std::string* mutable_filename();
+  ::std::string* release_filename();
+  void set_allocated_filename(::std::string* filename);
+
+  // int32 useMultiBody = 2;
+  private:
+  bool has_usemultibody() const;
+  public:
+  void clear_usemultibody();
+  static const int kUseMultiBodyFieldNumber = 2;
+  ::google::protobuf::int32 usemultibody() const;
+  void set_usemultibody(::google::protobuf::int32 value);
+
+  // double globalScaling = 3;
+  private:
+  bool has_globalscaling() const;
+  public:
+  void clear_globalscaling();
+  static const int kGlobalScalingFieldNumber = 3;
+  double globalscaling() const;
+  void set_globalscaling(double value);
+
+  HasUseMultiBodyCase hasUseMultiBody_case() const;
+  HasGlobalScalingCase hasGlobalScaling_case() const;
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.LoadSdfCommand)
+ private:
+  void set_has_usemultibody();
+  void set_has_globalscaling();
+
+  inline bool has_hasUseMultiBody() const;
+  void clear_hasUseMultiBody();
+  inline void clear_has_hasUseMultiBody();
+
+  inline bool has_hasGlobalScaling() const;
+  void clear_hasGlobalScaling();
+  inline void clear_has_hasGlobalScaling();
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr filename_;
+  union HasUseMultiBodyUnion {
+    HasUseMultiBodyUnion() {}
+    ::google::protobuf::int32 usemultibody_;
+  } hasUseMultiBody_;
+  union HasGlobalScalingUnion {
+    HasGlobalScalingUnion() {}
+    double globalscaling_;
+  } hasGlobalScaling_;
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _oneof_case_[2];
+
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class SdfLoadedStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.SdfLoadedStatus) */ {
+ public:
+  SdfLoadedStatus();
+  virtual ~SdfLoadedStatus();
+
+  SdfLoadedStatus(const SdfLoadedStatus& from);
+
+  inline SdfLoadedStatus& operator=(const SdfLoadedStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SdfLoadedStatus& default_instance();
+
+  static inline const SdfLoadedStatus* internal_default_instance() {
+    return reinterpret_cast<const SdfLoadedStatus*>(
+               &_SdfLoadedStatus_default_instance_);
+  }
+
+  void Swap(SdfLoadedStatus* other);
+
+  // implements Message ----------------------------------------------
+
+  inline SdfLoadedStatus* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  SdfLoadedStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const SdfLoadedStatus& from);
+  void MergeFrom(const SdfLoadedStatus& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(SdfLoadedStatus* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated int32 bodyUniqueIds = 2;
+  int bodyuniqueids_size() const;
+  void clear_bodyuniqueids();
+  static const int kBodyUniqueIdsFieldNumber = 2;
+  ::google::protobuf::int32 bodyuniqueids(int index) const;
+  void set_bodyuniqueids(int index, ::google::protobuf::int32 value);
+  void add_bodyuniqueids(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      bodyuniqueids() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_bodyuniqueids();
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.SdfLoadedStatus)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > bodyuniqueids_;
+  mutable int _bodyuniqueids_cached_byte_size_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class LoadMjcfCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.LoadMjcfCommand) */ {
+ public:
+  LoadMjcfCommand();
+  virtual ~LoadMjcfCommand();
+
+  LoadMjcfCommand(const LoadMjcfCommand& from);
+
+  inline LoadMjcfCommand& operator=(const LoadMjcfCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const LoadMjcfCommand& default_instance();
+
+  static inline const LoadMjcfCommand* internal_default_instance() {
+    return reinterpret_cast<const LoadMjcfCommand*>(
+               &_LoadMjcfCommand_default_instance_);
+  }
+
+  void Swap(LoadMjcfCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline LoadMjcfCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  LoadMjcfCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const LoadMjcfCommand& from);
+  void MergeFrom(const LoadMjcfCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(LoadMjcfCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string fileName = 1;
+  void clear_filename();
+  static const int kFileNameFieldNumber = 1;
+  const ::std::string& filename() const;
+  void set_filename(const ::std::string& value);
+  #if LANG_CXX11
+  void set_filename(::std::string&& value);
+  #endif
+  void set_filename(const char* value);
+  void set_filename(const char* value, size_t size);
+  ::std::string* mutable_filename();
+  ::std::string* release_filename();
+  void set_allocated_filename(::std::string* filename);
+
+  // int32 flags = 2;
+  void clear_flags();
+  static const int kFlagsFieldNumber = 2;
+  ::google::protobuf::int32 flags() const;
+  void set_flags(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.LoadMjcfCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr filename_;
+  ::google::protobuf::int32 flags_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class MjcfLoadedStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.MjcfLoadedStatus) */ {
+ public:
+  MjcfLoadedStatus();
+  virtual ~MjcfLoadedStatus();
+
+  MjcfLoadedStatus(const MjcfLoadedStatus& from);
+
+  inline MjcfLoadedStatus& operator=(const MjcfLoadedStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MjcfLoadedStatus& default_instance();
+
+  static inline const MjcfLoadedStatus* internal_default_instance() {
+    return reinterpret_cast<const MjcfLoadedStatus*>(
+               &_MjcfLoadedStatus_default_instance_);
+  }
+
+  void Swap(MjcfLoadedStatus* other);
+
+  // implements Message ----------------------------------------------
+
+  inline MjcfLoadedStatus* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  MjcfLoadedStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const MjcfLoadedStatus& from);
+  void MergeFrom(const MjcfLoadedStatus& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(MjcfLoadedStatus* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated int32 bodyUniqueIds = 2;
+  int bodyuniqueids_size() const;
+  void clear_bodyuniqueids();
+  static const int kBodyUniqueIdsFieldNumber = 2;
+  ::google::protobuf::int32 bodyuniqueids(int index) const;
+  void set_bodyuniqueids(int index, ::google::protobuf::int32 value);
+  void add_bodyuniqueids(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      bodyuniqueids() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_bodyuniqueids();
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.MjcfLoadedStatus)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > bodyuniqueids_;
+  mutable int _bodyuniqueids_cached_byte_size_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class ChangeDynamicsCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.ChangeDynamicsCommand) */ {
+ public:
+  ChangeDynamicsCommand();
+  virtual ~ChangeDynamicsCommand();
+
+  ChangeDynamicsCommand(const ChangeDynamicsCommand& from);
+
+  inline ChangeDynamicsCommand& operator=(const ChangeDynamicsCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ChangeDynamicsCommand& default_instance();
+
+  enum HasMassCase {
+    kMass = 3,
+    HASMASS_NOT_SET = 0,
+  };
+
+  enum HasLateralFrictionCase {
+    kLateralFriction = 5,
+    HASLATERALFRICTION_NOT_SET = 0,
+  };
+
+  enum HasSpinningFrictionCase {
+    kSpinningFriction = 6,
+    HASSPINNINGFRICTION_NOT_SET = 0,
+  };
+
+  enum HasRollingFrictionCase {
+    kRollingFriction = 7,
+    HASROLLINGFRICTION_NOT_SET = 0,
+  };
+
+  enum HasRestitutionCase {
+    kRestitution = 8,
+    HASRESTITUTION_NOT_SET = 0,
+  };
+
+  enum HaslinearDampingCase {
+    kLinearDamping = 9,
+    HASLINEARDAMPING_NOT_SET = 0,
+  };
+
+  enum HasangularDampingCase {
+    kAngularDamping = 10,
+    HASANGULARDAMPING_NOT_SET = 0,
+  };
+
+  enum HasContactStiffnessCase {
+    kContactStiffness = 11,
+    HASCONTACTSTIFFNESS_NOT_SET = 0,
+  };
+
+  enum HasContactDampingCase {
+    kContactDamping = 12,
+    HASCONTACTDAMPING_NOT_SET = 0,
+  };
+
+  enum HasLocalInertiaDiagonalCase {
+    kLocalInertiaDiagonal = 13,
+    HASLOCALINERTIADIAGONAL_NOT_SET = 0,
+  };
+
+  enum HasFrictionAnchorCase {
+    kFrictionAnchor = 14,
+    HASFRICTIONANCHOR_NOT_SET = 0,
+  };
+
+  enum HasccdSweptSphereRadiusCase {
+    kCcdSweptSphereRadius = 15,
+    HASCCDSWEPTSPHERERADIUS_NOT_SET = 0,
+  };
+
+  enum HasContactProcessingThresholdCase {
+    kContactProcessingThreshold = 16,
+    HASCONTACTPROCESSINGTHRESHOLD_NOT_SET = 0,
+  };
+
+  enum HasActivationStateCase {
+    kActivationState = 17,
+    HASACTIVATIONSTATE_NOT_SET = 0,
+  };
+
+  static inline const ChangeDynamicsCommand* internal_default_instance() {
+    return reinterpret_cast<const ChangeDynamicsCommand*>(
+               &_ChangeDynamicsCommand_default_instance_);
+  }
+
+  void Swap(ChangeDynamicsCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline ChangeDynamicsCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  ChangeDynamicsCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const ChangeDynamicsCommand& from);
+  void MergeFrom(const ChangeDynamicsCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(ChangeDynamicsCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 bodyUniqueId = 1;
+  void clear_bodyuniqueid();
+  static const int kBodyUniqueIdFieldNumber = 1;
+  ::google::protobuf::int32 bodyuniqueid() const;
+  void set_bodyuniqueid(::google::protobuf::int32 value);
+
+  // int32 linkIndex = 2;
+  void clear_linkindex();
+  static const int kLinkIndexFieldNumber = 2;
+  ::google::protobuf::int32 linkindex() const;
+  void set_linkindex(::google::protobuf::int32 value);
+
+  // double mass = 3;
+  private:
+  bool has_mass() const;
+  public:
+  void clear_mass();
+  static const int kMassFieldNumber = 3;
+  double mass() const;
+  void set_mass(double value);
+
+  // double lateralFriction = 5;
+  private:
+  bool has_lateralfriction() const;
+  public:
+  void clear_lateralfriction();
+  static const int kLateralFrictionFieldNumber = 5;
+  double lateralfriction() const;
+  void set_lateralfriction(double value);
+
+  // double spinningFriction = 6;
+  private:
+  bool has_spinningfriction() const;
+  public:
+  void clear_spinningfriction();
+  static const int kSpinningFrictionFieldNumber = 6;
+  double spinningfriction() const;
+  void set_spinningfriction(double value);
+
+  // double rollingFriction = 7;
+  private:
+  bool has_rollingfriction() const;
+  public:
+  void clear_rollingfriction();
+  static const int kRollingFrictionFieldNumber = 7;
+  double rollingfriction() const;
+  void set_rollingfriction(double value);
+
+  // double restitution = 8;
+  private:
+  bool has_restitution() const;
+  public:
+  void clear_restitution();
+  static const int kRestitutionFieldNumber = 8;
+  double restitution() const;
+  void set_restitution(double value);
+
+  // double linearDamping = 9;
+  private:
+  bool has_lineardamping() const;
+  public:
+  void clear_lineardamping();
+  static const int kLinearDampingFieldNumber = 9;
+  double lineardamping() const;
+  void set_lineardamping(double value);
+
+  // double angularDamping = 10;
+  private:
+  bool has_angulardamping() const;
+  public:
+  void clear_angulardamping();
+  static const int kAngularDampingFieldNumber = 10;
+  double angulardamping() const;
+  void set_angulardamping(double value);
+
+  // double contactStiffness = 11;
+  private:
+  bool has_contactstiffness() const;
+  public:
+  void clear_contactstiffness();
+  static const int kContactStiffnessFieldNumber = 11;
+  double contactstiffness() const;
+  void set_contactstiffness(double value);
+
+  // double contactDamping = 12;
+  private:
+  bool has_contactdamping() const;
+  public:
+  void clear_contactdamping();
+  static const int kContactDampingFieldNumber = 12;
+  double contactdamping() const;
+  void set_contactdamping(double value);
+
+  // .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+  bool has_localinertiadiagonal() const;
+  void clear_localinertiadiagonal();
+  static const int kLocalInertiaDiagonalFieldNumber = 13;
+  const ::pybullet_grpc::vec3& localinertiadiagonal() const;
+  ::pybullet_grpc::vec3* mutable_localinertiadiagonal();
+  ::pybullet_grpc::vec3* release_localinertiadiagonal();
+  void set_allocated_localinertiadiagonal(::pybullet_grpc::vec3* localinertiadiagonal);
+
+  // int32 frictionAnchor = 14;
+  private:
+  bool has_frictionanchor() const;
+  public:
+  void clear_frictionanchor();
+  static const int kFrictionAnchorFieldNumber = 14;
+  ::google::protobuf::int32 frictionanchor() const;
+  void set_frictionanchor(::google::protobuf::int32 value);
+
+  // double ccdSweptSphereRadius = 15;
+  private:
+  bool has_ccdsweptsphereradius() const;
+  public:
+  void clear_ccdsweptsphereradius();
+  static const int kCcdSweptSphereRadiusFieldNumber = 15;
+  double ccdsweptsphereradius() const;
+  void set_ccdsweptsphereradius(double value);
+
+  // double contactProcessingThreshold = 16;
+  private:
+  bool has_contactprocessingthreshold() const;
+  public:
+  void clear_contactprocessingthreshold();
+  static const int kContactProcessingThresholdFieldNumber = 16;
+  double contactprocessingthreshold() const;
+  void set_contactprocessingthreshold(double value);
+
+  // int32 activationState = 17;
+  private:
+  bool has_activationstate() const;
+  public:
+  void clear_activationstate();
+  static const int kActivationStateFieldNumber = 17;
+  ::google::protobuf::int32 activationstate() const;
+  void set_activationstate(::google::protobuf::int32 value);
+
+  HasMassCase hasMass_case() const;
+  HasLateralFrictionCase hasLateralFriction_case() const;
+  HasSpinningFrictionCase hasSpinningFriction_case() const;
+  HasRollingFrictionCase hasRollingFriction_case() const;
+  HasRestitutionCase hasRestitution_case() const;
+  HaslinearDampingCase haslinearDamping_case() const;
+  HasangularDampingCase hasangularDamping_case() const;
+  HasContactStiffnessCase hasContactStiffness_case() const;
+  HasContactDampingCase hasContactDamping_case() const;
+  HasLocalInertiaDiagonalCase hasLocalInertiaDiagonal_case() const;
+  HasFrictionAnchorCase hasFrictionAnchor_case() const;
+  HasccdSweptSphereRadiusCase hasccdSweptSphereRadius_case() const;
+  HasContactProcessingThresholdCase hasContactProcessingThreshold_case() const;
+  HasActivationStateCase hasActivationState_case() const;
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.ChangeDynamicsCommand)
+ private:
+  void set_has_mass();
+  void set_has_lateralfriction();
+  void set_has_spinningfriction();
+  void set_has_rollingfriction();
+  void set_has_restitution();
+  void set_has_lineardamping();
+  void set_has_angulardamping();
+  void set_has_contactstiffness();
+  void set_has_contactdamping();
+  void set_has_localinertiadiagonal();
+  void set_has_frictionanchor();
+  void set_has_ccdsweptsphereradius();
+  void set_has_contactprocessingthreshold();
+  void set_has_activationstate();
+
+  inline bool has_hasMass() const;
+  void clear_hasMass();
+  inline void clear_has_hasMass();
+
+  inline bool has_hasLateralFriction() const;
+  void clear_hasLateralFriction();
+  inline void clear_has_hasLateralFriction();
+
+  inline bool has_hasSpinningFriction() const;
+  void clear_hasSpinningFriction();
+  inline void clear_has_hasSpinningFriction();
+
+  inline bool has_hasRollingFriction() const;
+  void clear_hasRollingFriction();
+  inline void clear_has_hasRollingFriction();
+
+  inline bool has_hasRestitution() const;
+  void clear_hasRestitution();
+  inline void clear_has_hasRestitution();
+
+  inline bool has_haslinearDamping() const;
+  void clear_haslinearDamping();
+  inline void clear_has_haslinearDamping();
+
+  inline bool has_hasangularDamping() const;
+  void clear_hasangularDamping();
+  inline void clear_has_hasangularDamping();
+
+  inline bool has_hasContactStiffness() const;
+  void clear_hasContactStiffness();
+  inline void clear_has_hasContactStiffness();
+
+  inline bool has_hasContactDamping() const;
+  void clear_hasContactDamping();
+  inline void clear_has_hasContactDamping();
+
+  inline bool has_hasLocalInertiaDiagonal() const;
+  void clear_hasLocalInertiaDiagonal();
+  inline void clear_has_hasLocalInertiaDiagonal();
+
+  inline bool has_hasFrictionAnchor() const;
+  void clear_hasFrictionAnchor();
+  inline void clear_has_hasFrictionAnchor();
+
+  inline bool has_hasccdSweptSphereRadius() const;
+  void clear_hasccdSweptSphereRadius();
+  inline void clear_has_hasccdSweptSphereRadius();
+
+  inline bool has_hasContactProcessingThreshold() const;
+  void clear_hasContactProcessingThreshold();
+  inline void clear_has_hasContactProcessingThreshold();
+
+  inline bool has_hasActivationState() const;
+  void clear_hasActivationState();
+  inline void clear_has_hasActivationState();
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 bodyuniqueid_;
+  ::google::protobuf::int32 linkindex_;
+  union HasMassUnion {
+    HasMassUnion() {}
+    double mass_;
+  } hasMass_;
+  union HasLateralFrictionUnion {
+    HasLateralFrictionUnion() {}
+    double lateralfriction_;
+  } hasLateralFriction_;
+  union HasSpinningFrictionUnion {
+    HasSpinningFrictionUnion() {}
+    double spinningfriction_;
+  } hasSpinningFriction_;
+  union HasRollingFrictionUnion {
+    HasRollingFrictionUnion() {}
+    double rollingfriction_;
+  } hasRollingFriction_;
+  union HasRestitutionUnion {
+    HasRestitutionUnion() {}
+    double restitution_;
+  } hasRestitution_;
+  union HaslinearDampingUnion {
+    HaslinearDampingUnion() {}
+    double lineardamping_;
+  } haslinearDamping_;
+  union HasangularDampingUnion {
+    HasangularDampingUnion() {}
+    double angulardamping_;
+  } hasangularDamping_;
+  union HasContactStiffnessUnion {
+    HasContactStiffnessUnion() {}
+    double contactstiffness_;
+  } hasContactStiffness_;
+  union HasContactDampingUnion {
+    HasContactDampingUnion() {}
+    double contactdamping_;
+  } hasContactDamping_;
+  union HasLocalInertiaDiagonalUnion {
+    HasLocalInertiaDiagonalUnion() {}
+    ::pybullet_grpc::vec3* localinertiadiagonal_;
+  } hasLocalInertiaDiagonal_;
+  union HasFrictionAnchorUnion {
+    HasFrictionAnchorUnion() {}
+    ::google::protobuf::int32 frictionanchor_;
+  } hasFrictionAnchor_;
+  union HasccdSweptSphereRadiusUnion {
+    HasccdSweptSphereRadiusUnion() {}
+    double ccdsweptsphereradius_;
+  } hasccdSweptSphereRadius_;
+  union HasContactProcessingThresholdUnion {
+    HasContactProcessingThresholdUnion() {}
+    double contactprocessingthreshold_;
+  } hasContactProcessingThreshold_;
+  union HasActivationStateUnion {
+    HasActivationStateUnion() {}
+    ::google::protobuf::int32 activationstate_;
+  } hasActivationState_;
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _oneof_case_[14];
+
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class GetDynamicsCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.GetDynamicsCommand) */ {
+ public:
+  GetDynamicsCommand();
+  virtual ~GetDynamicsCommand();
+
+  GetDynamicsCommand(const GetDynamicsCommand& from);
+
+  inline GetDynamicsCommand& operator=(const GetDynamicsCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GetDynamicsCommand& default_instance();
+
+  static inline const GetDynamicsCommand* internal_default_instance() {
+    return reinterpret_cast<const GetDynamicsCommand*>(
+               &_GetDynamicsCommand_default_instance_);
+  }
+
+  void Swap(GetDynamicsCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline GetDynamicsCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  GetDynamicsCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const GetDynamicsCommand& from);
+  void MergeFrom(const GetDynamicsCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(GetDynamicsCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 bodyUniqueId = 1;
+  void clear_bodyuniqueid();
+  static const int kBodyUniqueIdFieldNumber = 1;
+  ::google::protobuf::int32 bodyuniqueid() const;
+  void set_bodyuniqueid(::google::protobuf::int32 value);
+
+  // int32 linkIndex = 2;
+  void clear_linkindex();
+  static const int kLinkIndexFieldNumber = 2;
+  ::google::protobuf::int32 linkindex() const;
+  void set_linkindex(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.GetDynamicsCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 bodyuniqueid_;
+  ::google::protobuf::int32 linkindex_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class GetDynamicsStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.GetDynamicsStatus) */ {
+ public:
+  GetDynamicsStatus();
+  virtual ~GetDynamicsStatus();
+
+  GetDynamicsStatus(const GetDynamicsStatus& from);
+
+  inline GetDynamicsStatus& operator=(const GetDynamicsStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GetDynamicsStatus& default_instance();
+
+  static inline const GetDynamicsStatus* internal_default_instance() {
+    return reinterpret_cast<const GetDynamicsStatus*>(
+               &_GetDynamicsStatus_default_instance_);
+  }
+
+  void Swap(GetDynamicsStatus* other);
+
+  // implements Message ----------------------------------------------
+
+  inline GetDynamicsStatus* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  GetDynamicsStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const GetDynamicsStatus& from);
+  void MergeFrom(const GetDynamicsStatus& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(GetDynamicsStatus* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+  bool has_localinertiadiagonal() const;
+  void clear_localinertiadiagonal();
+  static const int kLocalInertiaDiagonalFieldNumber = 13;
+  const ::pybullet_grpc::vec3& localinertiadiagonal() const;
+  ::pybullet_grpc::vec3* mutable_localinertiadiagonal();
+  ::pybullet_grpc::vec3* release_localinertiadiagonal();
+  void set_allocated_localinertiadiagonal(::pybullet_grpc::vec3* localinertiadiagonal);
+
+  // double mass = 3;
+  void clear_mass();
+  static const int kMassFieldNumber = 3;
+  double mass() const;
+  void set_mass(double value);
+
+  // double lateralFriction = 5;
+  void clear_lateralfriction();
+  static const int kLateralFrictionFieldNumber = 5;
+  double lateralfriction() const;
+  void set_lateralfriction(double value);
+
+  // double spinningFriction = 6;
+  void clear_spinningfriction();
+  static const int kSpinningFrictionFieldNumber = 6;
+  double spinningfriction() const;
+  void set_spinningfriction(double value);
+
+  // double rollingFriction = 7;
+  void clear_rollingfriction();
+  static const int kRollingFrictionFieldNumber = 7;
+  double rollingfriction() const;
+  void set_rollingfriction(double value);
+
+  // double restitution = 8;
+  void clear_restitution();
+  static const int kRestitutionFieldNumber = 8;
+  double restitution() const;
+  void set_restitution(double value);
+
+  // double linearDamping = 9;
+  void clear_lineardamping();
+  static const int kLinearDampingFieldNumber = 9;
+  double lineardamping() const;
+  void set_lineardamping(double value);
+
+  // double angularDamping = 10;
+  void clear_angulardamping();
+  static const int kAngularDampingFieldNumber = 10;
+  double angulardamping() const;
+  void set_angulardamping(double value);
+
+  // double contactStiffness = 11;
+  void clear_contactstiffness();
+  static const int kContactStiffnessFieldNumber = 11;
+  double contactstiffness() const;
+  void set_contactstiffness(double value);
+
+  // double contactDamping = 12;
+  void clear_contactdamping();
+  static const int kContactDampingFieldNumber = 12;
+  double contactdamping() const;
+  void set_contactdamping(double value);
+
+  // double ccdSweptSphereRadius = 15;
+  void clear_ccdsweptsphereradius();
+  static const int kCcdSweptSphereRadiusFieldNumber = 15;
+  double ccdsweptsphereradius() const;
+  void set_ccdsweptsphereradius(double value);
+
+  // int32 frictionAnchor = 14;
+  void clear_frictionanchor();
+  static const int kFrictionAnchorFieldNumber = 14;
+  ::google::protobuf::int32 frictionanchor() const;
+  void set_frictionanchor(::google::protobuf::int32 value);
+
+  // int32 activationState = 17;
+  void clear_activationstate();
+  static const int kActivationStateFieldNumber = 17;
+  ::google::protobuf::int32 activationstate() const;
+  void set_activationstate(::google::protobuf::int32 value);
+
+  // double contactProcessingThreshold = 16;
+  void clear_contactprocessingthreshold();
+  static const int kContactProcessingThresholdFieldNumber = 16;
+  double contactprocessingthreshold() const;
+  void set_contactprocessingthreshold(double value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.GetDynamicsStatus)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::pybullet_grpc::vec3* localinertiadiagonal_;
+  double mass_;
+  double lateralfriction_;
+  double spinningfriction_;
+  double rollingfriction_;
+  double restitution_;
+  double lineardamping_;
+  double angulardamping_;
+  double contactstiffness_;
+  double contactdamping_;
+  double ccdsweptsphereradius_;
+  ::google::protobuf::int32 frictionanchor_;
+  ::google::protobuf::int32 activationstate_;
+  double contactprocessingthreshold_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class InitPoseCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.InitPoseCommand) */ {
+ public:
+  InitPoseCommand();
+  virtual ~InitPoseCommand();
+
+  InitPoseCommand(const InitPoseCommand& from);
+
+  inline InitPoseCommand& operator=(const InitPoseCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const InitPoseCommand& default_instance();
+
+  static inline const InitPoseCommand* internal_default_instance() {
+    return reinterpret_cast<const InitPoseCommand*>(
+               &_InitPoseCommand_default_instance_);
+  }
+
+  void Swap(InitPoseCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline InitPoseCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  InitPoseCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const InitPoseCommand& from);
+  void MergeFrom(const InitPoseCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(InitPoseCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated int32 hasInitialStateQ = 2;
+  int hasinitialstateq_size() const;
+  void clear_hasinitialstateq();
+  static const int kHasInitialStateQFieldNumber = 2;
+  ::google::protobuf::int32 hasinitialstateq(int index) const;
+  void set_hasinitialstateq(int index, ::google::protobuf::int32 value);
+  void add_hasinitialstateq(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      hasinitialstateq() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_hasinitialstateq();
+
+  // repeated double initialStateQ = 3;
+  int initialstateq_size() const;
+  void clear_initialstateq();
+  static const int kInitialStateQFieldNumber = 3;
+  double initialstateq(int index) const;
+  void set_initialstateq(int index, double value);
+  void add_initialstateq(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      initialstateq() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_initialstateq();
+
+  // repeated int32 hasInitialStateQdot = 4;
+  int hasinitialstateqdot_size() const;
+  void clear_hasinitialstateqdot();
+  static const int kHasInitialStateQdotFieldNumber = 4;
+  ::google::protobuf::int32 hasinitialstateqdot(int index) const;
+  void set_hasinitialstateqdot(int index, ::google::protobuf::int32 value);
+  void add_hasinitialstateqdot(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      hasinitialstateqdot() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_hasinitialstateqdot();
+
+  // repeated double initialStateQdot = 5;
+  int initialstateqdot_size() const;
+  void clear_initialstateqdot();
+  static const int kInitialStateQdotFieldNumber = 5;
+  double initialstateqdot(int index) const;
+  void set_initialstateqdot(int index, double value);
+  void add_initialstateqdot(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      initialstateqdot() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_initialstateqdot();
+
+  // int32 bodyUniqueId = 1;
+  void clear_bodyuniqueid();
+  static const int kBodyUniqueIdFieldNumber = 1;
+  ::google::protobuf::int32 bodyuniqueid() const;
+  void set_bodyuniqueid(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.InitPoseCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > hasinitialstateq_;
+  mutable int _hasinitialstateq_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > initialstateq_;
+  mutable int _initialstateq_cached_byte_size_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > hasinitialstateqdot_;
+  mutable int _hasinitialstateqdot_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > initialstateqdot_;
+  mutable int _initialstateqdot_cached_byte_size_;
+  ::google::protobuf::int32 bodyuniqueid_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class RequestActualStateCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.RequestActualStateCommand) */ {
+ public:
+  RequestActualStateCommand();
+  virtual ~RequestActualStateCommand();
+
+  RequestActualStateCommand(const RequestActualStateCommand& from);
+
+  inline RequestActualStateCommand& operator=(const RequestActualStateCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RequestActualStateCommand& default_instance();
+
+  static inline const RequestActualStateCommand* internal_default_instance() {
+    return reinterpret_cast<const RequestActualStateCommand*>(
+               &_RequestActualStateCommand_default_instance_);
+  }
+
+  void Swap(RequestActualStateCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline RequestActualStateCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  RequestActualStateCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const RequestActualStateCommand& from);
+  void MergeFrom(const RequestActualStateCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(RequestActualStateCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 bodyUniqueId = 1;
+  void clear_bodyuniqueid();
+  static const int kBodyUniqueIdFieldNumber = 1;
+  ::google::protobuf::int32 bodyuniqueid() const;
+  void set_bodyuniqueid(::google::protobuf::int32 value);
+
+  // bool computeForwardKinematics = 2;
+  void clear_computeforwardkinematics();
+  static const int kComputeForwardKinematicsFieldNumber = 2;
+  bool computeforwardkinematics() const;
+  void set_computeforwardkinematics(bool value);
+
+  // bool computeLinkVelocities = 3;
+  void clear_computelinkvelocities();
+  static const int kComputeLinkVelocitiesFieldNumber = 3;
+  bool computelinkvelocities() const;
+  void set_computelinkvelocities(bool value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.RequestActualStateCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 bodyuniqueid_;
+  bool computeforwardkinematics_;
+  bool computelinkvelocities_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class SendActualStateStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.SendActualStateStatus) */ {
+ public:
+  SendActualStateStatus();
+  virtual ~SendActualStateStatus();
+
+  SendActualStateStatus(const SendActualStateStatus& from);
+
+  inline SendActualStateStatus& operator=(const SendActualStateStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SendActualStateStatus& default_instance();
+
+  static inline const SendActualStateStatus* internal_default_instance() {
+    return reinterpret_cast<const SendActualStateStatus*>(
+               &_SendActualStateStatus_default_instance_);
+  }
+
+  void Swap(SendActualStateStatus* other);
+
+  // implements Message ----------------------------------------------
+
+  inline SendActualStateStatus* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  SendActualStateStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const SendActualStateStatus& from);
+  void MergeFrom(const SendActualStateStatus& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(SendActualStateStatus* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated double rootLocalInertialFrame = 5;
+  int rootlocalinertialframe_size() const;
+  void clear_rootlocalinertialframe();
+  static const int kRootLocalInertialFrameFieldNumber = 5;
+  double rootlocalinertialframe(int index) const;
+  void set_rootlocalinertialframe(int index, double value);
+  void add_rootlocalinertialframe(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      rootlocalinertialframe() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_rootlocalinertialframe();
+
+  // repeated double actualStateQ = 6;
+  int actualstateq_size() const;
+  void clear_actualstateq();
+  static const int kActualStateQFieldNumber = 6;
+  double actualstateq(int index) const;
+  void set_actualstateq(int index, double value);
+  void add_actualstateq(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      actualstateq() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_actualstateq();
+
+  // repeated double actualStateQdot = 7;
+  int actualstateqdot_size() const;
+  void clear_actualstateqdot();
+  static const int kActualStateQdotFieldNumber = 7;
+  double actualstateqdot(int index) const;
+  void set_actualstateqdot(int index, double value);
+  void add_actualstateqdot(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      actualstateqdot() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_actualstateqdot();
+
+  // repeated double jointReactionForces = 8;
+  int jointreactionforces_size() const;
+  void clear_jointreactionforces();
+  static const int kJointReactionForcesFieldNumber = 8;
+  double jointreactionforces(int index) const;
+  void set_jointreactionforces(int index, double value);
+  void add_jointreactionforces(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      jointreactionforces() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_jointreactionforces();
+
+  // repeated double jointMotorForce = 9;
+  int jointmotorforce_size() const;
+  void clear_jointmotorforce();
+  static const int kJointMotorForceFieldNumber = 9;
+  double jointmotorforce(int index) const;
+  void set_jointmotorforce(int index, double value);
+  void add_jointmotorforce(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      jointmotorforce() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_jointmotorforce();
+
+  // repeated double linkState = 10;
+  int linkstate_size() const;
+  void clear_linkstate();
+  static const int kLinkStateFieldNumber = 10;
+  double linkstate(int index) const;
+  void set_linkstate(int index, double value);
+  void add_linkstate(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      linkstate() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_linkstate();
+
+  // repeated double linkWorldVelocities = 11;
+  int linkworldvelocities_size() const;
+  void clear_linkworldvelocities();
+  static const int kLinkWorldVelocitiesFieldNumber = 11;
+  double linkworldvelocities(int index) const;
+  void set_linkworldvelocities(int index, double value);
+  void add_linkworldvelocities(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      linkworldvelocities() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_linkworldvelocities();
+
+  // repeated double linkLocalInertialFrames = 12;
+  int linklocalinertialframes_size() const;
+  void clear_linklocalinertialframes();
+  static const int kLinkLocalInertialFramesFieldNumber = 12;
+  double linklocalinertialframes(int index) const;
+  void set_linklocalinertialframes(int index, double value);
+  void add_linklocalinertialframes(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      linklocalinertialframes() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_linklocalinertialframes();
+
+  // int32 bodyUniqueId = 1;
+  void clear_bodyuniqueid();
+  static const int kBodyUniqueIdFieldNumber = 1;
+  ::google::protobuf::int32 bodyuniqueid() const;
+  void set_bodyuniqueid(::google::protobuf::int32 value);
+
+  // int32 numLinks = 2;
+  void clear_numlinks();
+  static const int kNumLinksFieldNumber = 2;
+  ::google::protobuf::int32 numlinks() const;
+  void set_numlinks(::google::protobuf::int32 value);
+
+  // int32 numDegreeOfFreedomQ = 3;
+  void clear_numdegreeoffreedomq();
+  static const int kNumDegreeOfFreedomQFieldNumber = 3;
+  ::google::protobuf::int32 numdegreeoffreedomq() const;
+  void set_numdegreeoffreedomq(::google::protobuf::int32 value);
+
+  // int32 numDegreeOfFreedomU = 4;
+  void clear_numdegreeoffreedomu();
+  static const int kNumDegreeOfFreedomUFieldNumber = 4;
+  ::google::protobuf::int32 numdegreeoffreedomu() const;
+  void set_numdegreeoffreedomu(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.SendActualStateStatus)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedField< double > rootlocalinertialframe_;
+  mutable int _rootlocalinertialframe_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > actualstateq_;
+  mutable int _actualstateq_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > actualstateqdot_;
+  mutable int _actualstateqdot_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > jointreactionforces_;
+  mutable int _jointreactionforces_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > jointmotorforce_;
+  mutable int _jointmotorforce_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > linkstate_;
+  mutable int _linkstate_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > linkworldvelocities_;
+  mutable int _linkworldvelocities_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > linklocalinertialframes_;
+  mutable int _linklocalinertialframes_cached_byte_size_;
+  ::google::protobuf::int32 bodyuniqueid_;
+  ::google::protobuf::int32 numlinks_;
+  ::google::protobuf::int32 numdegreeoffreedomq_;
+  ::google::protobuf::int32 numdegreeoffreedomu_;
   mutable int _cached_size_;
   friend struct  protobuf_pybullet_2eproto::TableStruct;
 };
@@ -733,6 +2329,12 @@ class PyBulletCommand : public ::google::protobuf::Message /* @@protoc_insertion
     kLoadUrdfCommand = 3,
     kTerminateServerCommand = 4,
     kStepSimulationCommand = 5,
+    kLoadSdfCommand = 6,
+    kLoadMjcfCommand = 7,
+    kChangeDynamicsCommand = 8,
+    kGetDynamicsCommand = 9,
+    kInitPoseCommand = 10,
+    kRequestActualStateCommand = 11,
     COMMANDS_NOT_SET = 0,
   };
 
@@ -821,12 +2423,72 @@ class PyBulletCommand : public ::google::protobuf::Message /* @@protoc_insertion
   ::pybullet_grpc::StepSimulationCommand* release_stepsimulationcommand();
   void set_allocated_stepsimulationcommand(::pybullet_grpc::StepSimulationCommand* stepsimulationcommand);
 
+  // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+  bool has_loadsdfcommand() const;
+  void clear_loadsdfcommand();
+  static const int kLoadSdfCommandFieldNumber = 6;
+  const ::pybullet_grpc::LoadSdfCommand& loadsdfcommand() const;
+  ::pybullet_grpc::LoadSdfCommand* mutable_loadsdfcommand();
+  ::pybullet_grpc::LoadSdfCommand* release_loadsdfcommand();
+  void set_allocated_loadsdfcommand(::pybullet_grpc::LoadSdfCommand* loadsdfcommand);
+
+  // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+  bool has_loadmjcfcommand() const;
+  void clear_loadmjcfcommand();
+  static const int kLoadMjcfCommandFieldNumber = 7;
+  const ::pybullet_grpc::LoadMjcfCommand& loadmjcfcommand() const;
+  ::pybullet_grpc::LoadMjcfCommand* mutable_loadmjcfcommand();
+  ::pybullet_grpc::LoadMjcfCommand* release_loadmjcfcommand();
+  void set_allocated_loadmjcfcommand(::pybullet_grpc::LoadMjcfCommand* loadmjcfcommand);
+
+  // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+  bool has_changedynamicscommand() const;
+  void clear_changedynamicscommand();
+  static const int kChangeDynamicsCommandFieldNumber = 8;
+  const ::pybullet_grpc::ChangeDynamicsCommand& changedynamicscommand() const;
+  ::pybullet_grpc::ChangeDynamicsCommand* mutable_changedynamicscommand();
+  ::pybullet_grpc::ChangeDynamicsCommand* release_changedynamicscommand();
+  void set_allocated_changedynamicscommand(::pybullet_grpc::ChangeDynamicsCommand* changedynamicscommand);
+
+  // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+  bool has_getdynamicscommand() const;
+  void clear_getdynamicscommand();
+  static const int kGetDynamicsCommandFieldNumber = 9;
+  const ::pybullet_grpc::GetDynamicsCommand& getdynamicscommand() const;
+  ::pybullet_grpc::GetDynamicsCommand* mutable_getdynamicscommand();
+  ::pybullet_grpc::GetDynamicsCommand* release_getdynamicscommand();
+  void set_allocated_getdynamicscommand(::pybullet_grpc::GetDynamicsCommand* getdynamicscommand);
+
+  // .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+  bool has_initposecommand() const;
+  void clear_initposecommand();
+  static const int kInitPoseCommandFieldNumber = 10;
+  const ::pybullet_grpc::InitPoseCommand& initposecommand() const;
+  ::pybullet_grpc::InitPoseCommand* mutable_initposecommand();
+  ::pybullet_grpc::InitPoseCommand* release_initposecommand();
+  void set_allocated_initposecommand(::pybullet_grpc::InitPoseCommand* initposecommand);
+
+  // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+  bool has_requestactualstatecommand() const;
+  void clear_requestactualstatecommand();
+  static const int kRequestActualStateCommandFieldNumber = 11;
+  const ::pybullet_grpc::RequestActualStateCommand& requestactualstatecommand() const;
+  ::pybullet_grpc::RequestActualStateCommand* mutable_requestactualstatecommand();
+  ::pybullet_grpc::RequestActualStateCommand* release_requestactualstatecommand();
+  void set_allocated_requestactualstatecommand(::pybullet_grpc::RequestActualStateCommand* requestactualstatecommand);
+
   CommandsCase commands_case() const;
   // @@protoc_insertion_point(class_scope:pybullet_grpc.PyBulletCommand)
  private:
   void set_has_loadurdfcommand();
   void set_has_terminateservercommand();
   void set_has_stepsimulationcommand();
+  void set_has_loadsdfcommand();
+  void set_has_loadmjcfcommand();
+  void set_has_changedynamicscommand();
+  void set_has_getdynamicscommand();
+  void set_has_initposecommand();
+  void set_has_requestactualstatecommand();
 
   inline bool has_commands() const;
   void clear_commands();
@@ -839,6 +2501,12 @@ class PyBulletCommand : public ::google::protobuf::Message /* @@protoc_insertion
     ::pybullet_grpc::LoadUrdfCommand* loadurdfcommand_;
     ::pybullet_grpc::TerminateServerCommand* terminateservercommand_;
     ::pybullet_grpc::StepSimulationCommand* stepsimulationcommand_;
+    ::pybullet_grpc::LoadSdfCommand* loadsdfcommand_;
+    ::pybullet_grpc::LoadMjcfCommand* loadmjcfcommand_;
+    ::pybullet_grpc::ChangeDynamicsCommand* changedynamicscommand_;
+    ::pybullet_grpc::GetDynamicsCommand* getdynamicscommand_;
+    ::pybullet_grpc::InitPoseCommand* initposecommand_;
+    ::pybullet_grpc::RequestActualStateCommand* requestactualstatecommand_;
   } commands_;
   mutable int _cached_size_;
   ::google::protobuf::uint32 _oneof_case_[1];
@@ -864,6 +2532,10 @@ class PyBulletStatus : public ::google::protobuf::Message /* @@protoc_insertion_
 
   enum StatusCase {
     kUrdfStatus = 2,
+    kSdfStatus = 3,
+    kMjcfStatus = 4,
+    kGetDynamicsStatus = 5,
+    kActualStateStatus = 6,
     STATUS_NOT_SET = 0,
   };
 
@@ -934,10 +2606,50 @@ class PyBulletStatus : public ::google::protobuf::Message /* @@protoc_insertion_
   ::pybullet_grpc::LoadUrdfStatus* release_urdfstatus();
   void set_allocated_urdfstatus(::pybullet_grpc::LoadUrdfStatus* urdfstatus);
 
+  // .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+  bool has_sdfstatus() const;
+  void clear_sdfstatus();
+  static const int kSdfStatusFieldNumber = 3;
+  const ::pybullet_grpc::SdfLoadedStatus& sdfstatus() const;
+  ::pybullet_grpc::SdfLoadedStatus* mutable_sdfstatus();
+  ::pybullet_grpc::SdfLoadedStatus* release_sdfstatus();
+  void set_allocated_sdfstatus(::pybullet_grpc::SdfLoadedStatus* sdfstatus);
+
+  // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+  bool has_mjcfstatus() const;
+  void clear_mjcfstatus();
+  static const int kMjcfStatusFieldNumber = 4;
+  const ::pybullet_grpc::MjcfLoadedStatus& mjcfstatus() const;
+  ::pybullet_grpc::MjcfLoadedStatus* mutable_mjcfstatus();
+  ::pybullet_grpc::MjcfLoadedStatus* release_mjcfstatus();
+  void set_allocated_mjcfstatus(::pybullet_grpc::MjcfLoadedStatus* mjcfstatus);
+
+  // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+  bool has_getdynamicsstatus() const;
+  void clear_getdynamicsstatus();
+  static const int kGetDynamicsStatusFieldNumber = 5;
+  const ::pybullet_grpc::GetDynamicsStatus& getdynamicsstatus() const;
+  ::pybullet_grpc::GetDynamicsStatus* mutable_getdynamicsstatus();
+  ::pybullet_grpc::GetDynamicsStatus* release_getdynamicsstatus();
+  void set_allocated_getdynamicsstatus(::pybullet_grpc::GetDynamicsStatus* getdynamicsstatus);
+
+  // .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+  bool has_actualstatestatus() const;
+  void clear_actualstatestatus();
+  static const int kActualStateStatusFieldNumber = 6;
+  const ::pybullet_grpc::SendActualStateStatus& actualstatestatus() const;
+  ::pybullet_grpc::SendActualStateStatus* mutable_actualstatestatus();
+  ::pybullet_grpc::SendActualStateStatus* release_actualstatestatus();
+  void set_allocated_actualstatestatus(::pybullet_grpc::SendActualStateStatus* actualstatestatus);
+
   StatusCase status_case() const;
   // @@protoc_insertion_point(class_scope:pybullet_grpc.PyBulletStatus)
  private:
   void set_has_urdfstatus();
+  void set_has_sdfstatus();
+  void set_has_mjcfstatus();
+  void set_has_getdynamicsstatus();
+  void set_has_actualstatestatus();
 
   inline bool has_status() const;
   void clear_status();
@@ -948,6 +2660,10 @@ class PyBulletStatus : public ::google::protobuf::Message /* @@protoc_insertion_
   union StatusUnion {
     StatusUnion() {}
     ::pybullet_grpc::LoadUrdfStatus* urdfstatus_;
+    ::pybullet_grpc::SdfLoadedStatus* sdfstatus_;
+    ::pybullet_grpc::MjcfLoadedStatus* mjcfstatus_;
+    ::pybullet_grpc::GetDynamicsStatus* getdynamicsstatus_;
+    ::pybullet_grpc::SendActualStateStatus* actualstatestatus_;
   } status_;
   mutable int _cached_size_;
   ::google::protobuf::uint32 _oneof_case_[1];
@@ -1128,56 +2844,56 @@ inline void TerminateServerCommand::set_allocated_exitreason(::std::string* exit
 
 // LoadUrdfCommand
 
-// string urdfFileName = 1;
-inline void LoadUrdfCommand::clear_urdffilename() {
-  urdffilename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+// string fileName = 1;
+inline void LoadUrdfCommand::clear_filename() {
+  filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& LoadUrdfCommand::urdffilename() const {
-  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfCommand.urdfFileName)
-  return urdffilename_.GetNoArena();
+inline const ::std::string& LoadUrdfCommand::filename() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfCommand.fileName)
+  return filename_.GetNoArena();
 }
-inline void LoadUrdfCommand::set_urdffilename(const ::std::string& value) {
+inline void LoadUrdfCommand::set_filename(const ::std::string& value) {
   
-  urdffilename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfCommand.urdfFileName)
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfCommand.fileName)
 }
 #if LANG_CXX11
-inline void LoadUrdfCommand::set_urdffilename(::std::string&& value) {
+inline void LoadUrdfCommand::set_filename(::std::string&& value) {
   
-  urdffilename_.SetNoArena(
+  filename_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.LoadUrdfCommand.urdfFileName)
+  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.LoadUrdfCommand.fileName)
 }
 #endif
-inline void LoadUrdfCommand::set_urdffilename(const char* value) {
+inline void LoadUrdfCommand::set_filename(const char* value) {
   
-  urdffilename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:pybullet_grpc.LoadUrdfCommand.urdfFileName)
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.LoadUrdfCommand.fileName)
 }
-inline void LoadUrdfCommand::set_urdffilename(const char* value, size_t size) {
+inline void LoadUrdfCommand::set_filename(const char* value, size_t size) {
   
-  urdffilename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.LoadUrdfCommand.urdfFileName)
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.LoadUrdfCommand.fileName)
 }
-inline ::std::string* LoadUrdfCommand::mutable_urdffilename() {
+inline ::std::string* LoadUrdfCommand::mutable_filename() {
   
-  // @@protoc_insertion_point(field_mutable:pybullet_grpc.LoadUrdfCommand.urdfFileName)
-  return urdffilename_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.LoadUrdfCommand.fileName)
+  return filename_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* LoadUrdfCommand::release_urdffilename() {
-  // @@protoc_insertion_point(field_release:pybullet_grpc.LoadUrdfCommand.urdfFileName)
+inline ::std::string* LoadUrdfCommand::release_filename() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.LoadUrdfCommand.fileName)
   
-  return urdffilename_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  return filename_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void LoadUrdfCommand::set_allocated_urdffilename(::std::string* urdffilename) {
-  if (urdffilename != NULL) {
+inline void LoadUrdfCommand::set_allocated_filename(::std::string* filename) {
+  if (filename != NULL) {
     
   } else {
     
   }
-  urdffilename_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), urdffilename);
-  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.LoadUrdfCommand.urdfFileName)
+  filename_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), filename);
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.LoadUrdfCommand.fileName)
 }
 
 // .pybullet_grpc.vec3 initialPosition = 2;
@@ -1316,18 +3032,18 @@ inline void LoadUrdfCommand::set_usefixedbase(bool value) {
   // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfCommand.useFixedBase)
 }
 
-// int32 urdfFlags = 6;
-inline void LoadUrdfCommand::clear_urdfflags() {
-  urdfflags_ = 0;
+// int32 flags = 6;
+inline void LoadUrdfCommand::clear_flags() {
+  flags_ = 0;
 }
-inline ::google::protobuf::int32 LoadUrdfCommand::urdfflags() const {
-  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfCommand.urdfFlags)
-  return urdfflags_;
+inline ::google::protobuf::int32 LoadUrdfCommand::flags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfCommand.flags)
+  return flags_;
 }
-inline void LoadUrdfCommand::set_urdfflags(::google::protobuf::int32 value) {
+inline void LoadUrdfCommand::set_flags(::google::protobuf::int32 value) {
   
-  urdfflags_ = value;
-  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfCommand.urdfFlags)
+  flags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfCommand.flags)
 }
 
 // double globalScaling = 7;
@@ -1390,18 +3106,1612 @@ inline LoadUrdfCommand::HasGlobalScalingCase LoadUrdfCommand::hasGlobalScaling_c
 
 // LoadUrdfStatus
 
-// int32 objectUniqueId = 1;
-inline void LoadUrdfStatus::clear_objectuniqueid() {
-  objectuniqueid_ = 0;
+// int32 bodyUniqueId = 1;
+inline void LoadUrdfStatus::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
 }
-inline ::google::protobuf::int32 LoadUrdfStatus::objectuniqueid() const {
-  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfStatus.objectUniqueId)
-  return objectuniqueid_;
+inline ::google::protobuf::int32 LoadUrdfStatus::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfStatus.bodyUniqueId)
+  return bodyuniqueid_;
 }
-inline void LoadUrdfStatus::set_objectuniqueid(::google::protobuf::int32 value) {
+inline void LoadUrdfStatus::set_bodyuniqueid(::google::protobuf::int32 value) {
   
-  objectuniqueid_ = value;
-  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfStatus.objectUniqueId)
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfStatus.bodyUniqueId)
+}
+
+// -------------------------------------------------------------------
+
+// LoadSdfCommand
+
+// string fileName = 1;
+inline void LoadSdfCommand::clear_filename() {
+  filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& LoadSdfCommand::filename() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadSdfCommand.fileName)
+  return filename_.GetNoArena();
+}
+inline void LoadSdfCommand::set_filename(const ::std::string& value) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadSdfCommand.fileName)
+}
+#if LANG_CXX11
+inline void LoadSdfCommand::set_filename(::std::string&& value) {
+  
+  filename_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.LoadSdfCommand.fileName)
+}
+#endif
+inline void LoadSdfCommand::set_filename(const char* value) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.LoadSdfCommand.fileName)
+}
+inline void LoadSdfCommand::set_filename(const char* value, size_t size) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.LoadSdfCommand.fileName)
+}
+inline ::std::string* LoadSdfCommand::mutable_filename() {
+  
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.LoadSdfCommand.fileName)
+  return filename_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* LoadSdfCommand::release_filename() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.LoadSdfCommand.fileName)
+  
+  return filename_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void LoadSdfCommand::set_allocated_filename(::std::string* filename) {
+  if (filename != NULL) {
+    
+  } else {
+    
+  }
+  filename_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), filename);
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.LoadSdfCommand.fileName)
+}
+
+// int32 useMultiBody = 2;
+inline bool LoadSdfCommand::has_usemultibody() const {
+  return hasUseMultiBody_case() == kUseMultiBody;
+}
+inline void LoadSdfCommand::set_has_usemultibody() {
+  _oneof_case_[0] = kUseMultiBody;
+}
+inline void LoadSdfCommand::clear_usemultibody() {
+  if (has_usemultibody()) {
+    hasUseMultiBody_.usemultibody_ = 0;
+    clear_has_hasUseMultiBody();
+  }
+}
+inline ::google::protobuf::int32 LoadSdfCommand::usemultibody() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadSdfCommand.useMultiBody)
+  if (has_usemultibody()) {
+    return hasUseMultiBody_.usemultibody_;
+  }
+  return 0;
+}
+inline void LoadSdfCommand::set_usemultibody(::google::protobuf::int32 value) {
+  if (!has_usemultibody()) {
+    clear_hasUseMultiBody();
+    set_has_usemultibody();
+  }
+  hasUseMultiBody_.usemultibody_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadSdfCommand.useMultiBody)
+}
+
+// double globalScaling = 3;
+inline bool LoadSdfCommand::has_globalscaling() const {
+  return hasGlobalScaling_case() == kGlobalScaling;
+}
+inline void LoadSdfCommand::set_has_globalscaling() {
+  _oneof_case_[1] = kGlobalScaling;
+}
+inline void LoadSdfCommand::clear_globalscaling() {
+  if (has_globalscaling()) {
+    hasGlobalScaling_.globalscaling_ = 0;
+    clear_has_hasGlobalScaling();
+  }
+}
+inline double LoadSdfCommand::globalscaling() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadSdfCommand.globalScaling)
+  if (has_globalscaling()) {
+    return hasGlobalScaling_.globalscaling_;
+  }
+  return 0;
+}
+inline void LoadSdfCommand::set_globalscaling(double value) {
+  if (!has_globalscaling()) {
+    clear_hasGlobalScaling();
+    set_has_globalscaling();
+  }
+  hasGlobalScaling_.globalscaling_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadSdfCommand.globalScaling)
+}
+
+inline bool LoadSdfCommand::has_hasUseMultiBody() const {
+  return hasUseMultiBody_case() != HASUSEMULTIBODY_NOT_SET;
+}
+inline void LoadSdfCommand::clear_has_hasUseMultiBody() {
+  _oneof_case_[0] = HASUSEMULTIBODY_NOT_SET;
+}
+inline bool LoadSdfCommand::has_hasGlobalScaling() const {
+  return hasGlobalScaling_case() != HASGLOBALSCALING_NOT_SET;
+}
+inline void LoadSdfCommand::clear_has_hasGlobalScaling() {
+  _oneof_case_[1] = HASGLOBALSCALING_NOT_SET;
+}
+inline LoadSdfCommand::HasUseMultiBodyCase LoadSdfCommand::hasUseMultiBody_case() const {
+  return LoadSdfCommand::HasUseMultiBodyCase(_oneof_case_[0]);
+}
+inline LoadSdfCommand::HasGlobalScalingCase LoadSdfCommand::hasGlobalScaling_case() const {
+  return LoadSdfCommand::HasGlobalScalingCase(_oneof_case_[1]);
+}
+// -------------------------------------------------------------------
+
+// SdfLoadedStatus
+
+// repeated int32 bodyUniqueIds = 2;
+inline int SdfLoadedStatus::bodyuniqueids_size() const {
+  return bodyuniqueids_.size();
+}
+inline void SdfLoadedStatus::clear_bodyuniqueids() {
+  bodyuniqueids_.Clear();
+}
+inline ::google::protobuf::int32 SdfLoadedStatus::bodyuniqueids(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SdfLoadedStatus.bodyUniqueIds)
+  return bodyuniqueids_.Get(index);
+}
+inline void SdfLoadedStatus::set_bodyuniqueids(int index, ::google::protobuf::int32 value) {
+  bodyuniqueids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SdfLoadedStatus.bodyUniqueIds)
+}
+inline void SdfLoadedStatus::add_bodyuniqueids(::google::protobuf::int32 value) {
+  bodyuniqueids_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SdfLoadedStatus.bodyUniqueIds)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+SdfLoadedStatus::bodyuniqueids() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SdfLoadedStatus.bodyUniqueIds)
+  return bodyuniqueids_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+SdfLoadedStatus::mutable_bodyuniqueids() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SdfLoadedStatus.bodyUniqueIds)
+  return &bodyuniqueids_;
+}
+
+// -------------------------------------------------------------------
+
+// LoadMjcfCommand
+
+// string fileName = 1;
+inline void LoadMjcfCommand::clear_filename() {
+  filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& LoadMjcfCommand::filename() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadMjcfCommand.fileName)
+  return filename_.GetNoArena();
+}
+inline void LoadMjcfCommand::set_filename(const ::std::string& value) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadMjcfCommand.fileName)
+}
+#if LANG_CXX11
+inline void LoadMjcfCommand::set_filename(::std::string&& value) {
+  
+  filename_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.LoadMjcfCommand.fileName)
+}
+#endif
+inline void LoadMjcfCommand::set_filename(const char* value) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.LoadMjcfCommand.fileName)
+}
+inline void LoadMjcfCommand::set_filename(const char* value, size_t size) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.LoadMjcfCommand.fileName)
+}
+inline ::std::string* LoadMjcfCommand::mutable_filename() {
+  
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.LoadMjcfCommand.fileName)
+  return filename_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* LoadMjcfCommand::release_filename() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.LoadMjcfCommand.fileName)
+  
+  return filename_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void LoadMjcfCommand::set_allocated_filename(::std::string* filename) {
+  if (filename != NULL) {
+    
+  } else {
+    
+  }
+  filename_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), filename);
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.LoadMjcfCommand.fileName)
+}
+
+// int32 flags = 2;
+inline void LoadMjcfCommand::clear_flags() {
+  flags_ = 0;
+}
+inline ::google::protobuf::int32 LoadMjcfCommand::flags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadMjcfCommand.flags)
+  return flags_;
+}
+inline void LoadMjcfCommand::set_flags(::google::protobuf::int32 value) {
+  
+  flags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadMjcfCommand.flags)
+}
+
+// -------------------------------------------------------------------
+
+// MjcfLoadedStatus
+
+// repeated int32 bodyUniqueIds = 2;
+inline int MjcfLoadedStatus::bodyuniqueids_size() const {
+  return bodyuniqueids_.size();
+}
+inline void MjcfLoadedStatus::clear_bodyuniqueids() {
+  bodyuniqueids_.Clear();
+}
+inline ::google::protobuf::int32 MjcfLoadedStatus::bodyuniqueids(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.MjcfLoadedStatus.bodyUniqueIds)
+  return bodyuniqueids_.Get(index);
+}
+inline void MjcfLoadedStatus::set_bodyuniqueids(int index, ::google::protobuf::int32 value) {
+  bodyuniqueids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.MjcfLoadedStatus.bodyUniqueIds)
+}
+inline void MjcfLoadedStatus::add_bodyuniqueids(::google::protobuf::int32 value) {
+  bodyuniqueids_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.MjcfLoadedStatus.bodyUniqueIds)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+MjcfLoadedStatus::bodyuniqueids() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.MjcfLoadedStatus.bodyUniqueIds)
+  return bodyuniqueids_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+MjcfLoadedStatus::mutable_bodyuniqueids() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.MjcfLoadedStatus.bodyUniqueIds)
+  return &bodyuniqueids_;
+}
+
+// -------------------------------------------------------------------
+
+// ChangeDynamicsCommand
+
+// int32 bodyUniqueId = 1;
+inline void ChangeDynamicsCommand::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+inline ::google::protobuf::int32 ChangeDynamicsCommand::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.bodyUniqueId)
+  return bodyuniqueid_;
+}
+inline void ChangeDynamicsCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.bodyUniqueId)
+}
+
+// int32 linkIndex = 2;
+inline void ChangeDynamicsCommand::clear_linkindex() {
+  linkindex_ = 0;
+}
+inline ::google::protobuf::int32 ChangeDynamicsCommand::linkindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.linkIndex)
+  return linkindex_;
+}
+inline void ChangeDynamicsCommand::set_linkindex(::google::protobuf::int32 value) {
+  
+  linkindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.linkIndex)
+}
+
+// double mass = 3;
+inline bool ChangeDynamicsCommand::has_mass() const {
+  return hasMass_case() == kMass;
+}
+inline void ChangeDynamicsCommand::set_has_mass() {
+  _oneof_case_[0] = kMass;
+}
+inline void ChangeDynamicsCommand::clear_mass() {
+  if (has_mass()) {
+    hasMass_.mass_ = 0;
+    clear_has_hasMass();
+  }
+}
+inline double ChangeDynamicsCommand::mass() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.mass)
+  if (has_mass()) {
+    return hasMass_.mass_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_mass(double value) {
+  if (!has_mass()) {
+    clear_hasMass();
+    set_has_mass();
+  }
+  hasMass_.mass_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.mass)
+}
+
+// double lateralFriction = 5;
+inline bool ChangeDynamicsCommand::has_lateralfriction() const {
+  return hasLateralFriction_case() == kLateralFriction;
+}
+inline void ChangeDynamicsCommand::set_has_lateralfriction() {
+  _oneof_case_[1] = kLateralFriction;
+}
+inline void ChangeDynamicsCommand::clear_lateralfriction() {
+  if (has_lateralfriction()) {
+    hasLateralFriction_.lateralfriction_ = 0;
+    clear_has_hasLateralFriction();
+  }
+}
+inline double ChangeDynamicsCommand::lateralfriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.lateralFriction)
+  if (has_lateralfriction()) {
+    return hasLateralFriction_.lateralfriction_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_lateralfriction(double value) {
+  if (!has_lateralfriction()) {
+    clear_hasLateralFriction();
+    set_has_lateralfriction();
+  }
+  hasLateralFriction_.lateralfriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.lateralFriction)
+}
+
+// double spinningFriction = 6;
+inline bool ChangeDynamicsCommand::has_spinningfriction() const {
+  return hasSpinningFriction_case() == kSpinningFriction;
+}
+inline void ChangeDynamicsCommand::set_has_spinningfriction() {
+  _oneof_case_[2] = kSpinningFriction;
+}
+inline void ChangeDynamicsCommand::clear_spinningfriction() {
+  if (has_spinningfriction()) {
+    hasSpinningFriction_.spinningfriction_ = 0;
+    clear_has_hasSpinningFriction();
+  }
+}
+inline double ChangeDynamicsCommand::spinningfriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.spinningFriction)
+  if (has_spinningfriction()) {
+    return hasSpinningFriction_.spinningfriction_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_spinningfriction(double value) {
+  if (!has_spinningfriction()) {
+    clear_hasSpinningFriction();
+    set_has_spinningfriction();
+  }
+  hasSpinningFriction_.spinningfriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.spinningFriction)
+}
+
+// double rollingFriction = 7;
+inline bool ChangeDynamicsCommand::has_rollingfriction() const {
+  return hasRollingFriction_case() == kRollingFriction;
+}
+inline void ChangeDynamicsCommand::set_has_rollingfriction() {
+  _oneof_case_[3] = kRollingFriction;
+}
+inline void ChangeDynamicsCommand::clear_rollingfriction() {
+  if (has_rollingfriction()) {
+    hasRollingFriction_.rollingfriction_ = 0;
+    clear_has_hasRollingFriction();
+  }
+}
+inline double ChangeDynamicsCommand::rollingfriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.rollingFriction)
+  if (has_rollingfriction()) {
+    return hasRollingFriction_.rollingfriction_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_rollingfriction(double value) {
+  if (!has_rollingfriction()) {
+    clear_hasRollingFriction();
+    set_has_rollingfriction();
+  }
+  hasRollingFriction_.rollingfriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.rollingFriction)
+}
+
+// double restitution = 8;
+inline bool ChangeDynamicsCommand::has_restitution() const {
+  return hasRestitution_case() == kRestitution;
+}
+inline void ChangeDynamicsCommand::set_has_restitution() {
+  _oneof_case_[4] = kRestitution;
+}
+inline void ChangeDynamicsCommand::clear_restitution() {
+  if (has_restitution()) {
+    hasRestitution_.restitution_ = 0;
+    clear_has_hasRestitution();
+  }
+}
+inline double ChangeDynamicsCommand::restitution() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.restitution)
+  if (has_restitution()) {
+    return hasRestitution_.restitution_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_restitution(double value) {
+  if (!has_restitution()) {
+    clear_hasRestitution();
+    set_has_restitution();
+  }
+  hasRestitution_.restitution_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.restitution)
+}
+
+// double linearDamping = 9;
+inline bool ChangeDynamicsCommand::has_lineardamping() const {
+  return haslinearDamping_case() == kLinearDamping;
+}
+inline void ChangeDynamicsCommand::set_has_lineardamping() {
+  _oneof_case_[5] = kLinearDamping;
+}
+inline void ChangeDynamicsCommand::clear_lineardamping() {
+  if (has_lineardamping()) {
+    haslinearDamping_.lineardamping_ = 0;
+    clear_has_haslinearDamping();
+  }
+}
+inline double ChangeDynamicsCommand::lineardamping() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.linearDamping)
+  if (has_lineardamping()) {
+    return haslinearDamping_.lineardamping_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_lineardamping(double value) {
+  if (!has_lineardamping()) {
+    clear_haslinearDamping();
+    set_has_lineardamping();
+  }
+  haslinearDamping_.lineardamping_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.linearDamping)
+}
+
+// double angularDamping = 10;
+inline bool ChangeDynamicsCommand::has_angulardamping() const {
+  return hasangularDamping_case() == kAngularDamping;
+}
+inline void ChangeDynamicsCommand::set_has_angulardamping() {
+  _oneof_case_[6] = kAngularDamping;
+}
+inline void ChangeDynamicsCommand::clear_angulardamping() {
+  if (has_angulardamping()) {
+    hasangularDamping_.angulardamping_ = 0;
+    clear_has_hasangularDamping();
+  }
+}
+inline double ChangeDynamicsCommand::angulardamping() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.angularDamping)
+  if (has_angulardamping()) {
+    return hasangularDamping_.angulardamping_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_angulardamping(double value) {
+  if (!has_angulardamping()) {
+    clear_hasangularDamping();
+    set_has_angulardamping();
+  }
+  hasangularDamping_.angulardamping_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.angularDamping)
+}
+
+// double contactStiffness = 11;
+inline bool ChangeDynamicsCommand::has_contactstiffness() const {
+  return hasContactStiffness_case() == kContactStiffness;
+}
+inline void ChangeDynamicsCommand::set_has_contactstiffness() {
+  _oneof_case_[7] = kContactStiffness;
+}
+inline void ChangeDynamicsCommand::clear_contactstiffness() {
+  if (has_contactstiffness()) {
+    hasContactStiffness_.contactstiffness_ = 0;
+    clear_has_hasContactStiffness();
+  }
+}
+inline double ChangeDynamicsCommand::contactstiffness() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.contactStiffness)
+  if (has_contactstiffness()) {
+    return hasContactStiffness_.contactstiffness_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_contactstiffness(double value) {
+  if (!has_contactstiffness()) {
+    clear_hasContactStiffness();
+    set_has_contactstiffness();
+  }
+  hasContactStiffness_.contactstiffness_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.contactStiffness)
+}
+
+// double contactDamping = 12;
+inline bool ChangeDynamicsCommand::has_contactdamping() const {
+  return hasContactDamping_case() == kContactDamping;
+}
+inline void ChangeDynamicsCommand::set_has_contactdamping() {
+  _oneof_case_[8] = kContactDamping;
+}
+inline void ChangeDynamicsCommand::clear_contactdamping() {
+  if (has_contactdamping()) {
+    hasContactDamping_.contactdamping_ = 0;
+    clear_has_hasContactDamping();
+  }
+}
+inline double ChangeDynamicsCommand::contactdamping() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.contactDamping)
+  if (has_contactdamping()) {
+    return hasContactDamping_.contactdamping_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_contactdamping(double value) {
+  if (!has_contactdamping()) {
+    clear_hasContactDamping();
+    set_has_contactdamping();
+  }
+  hasContactDamping_.contactdamping_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.contactDamping)
+}
+
+// .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+inline bool ChangeDynamicsCommand::has_localinertiadiagonal() const {
+  return hasLocalInertiaDiagonal_case() == kLocalInertiaDiagonal;
+}
+inline void ChangeDynamicsCommand::set_has_localinertiadiagonal() {
+  _oneof_case_[9] = kLocalInertiaDiagonal;
+}
+inline void ChangeDynamicsCommand::clear_localinertiadiagonal() {
+  if (has_localinertiadiagonal()) {
+    delete hasLocalInertiaDiagonal_.localinertiadiagonal_;
+    clear_has_hasLocalInertiaDiagonal();
+  }
+}
+inline  const ::pybullet_grpc::vec3& ChangeDynamicsCommand::localinertiadiagonal() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.localInertiaDiagonal)
+  return has_localinertiadiagonal()
+      ? *hasLocalInertiaDiagonal_.localinertiadiagonal_
+      : ::pybullet_grpc::vec3::default_instance();
+}
+inline ::pybullet_grpc::vec3* ChangeDynamicsCommand::mutable_localinertiadiagonal() {
+  if (!has_localinertiadiagonal()) {
+    clear_hasLocalInertiaDiagonal();
+    set_has_localinertiadiagonal();
+    hasLocalInertiaDiagonal_.localinertiadiagonal_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.ChangeDynamicsCommand.localInertiaDiagonal)
+  return hasLocalInertiaDiagonal_.localinertiadiagonal_;
+}
+inline ::pybullet_grpc::vec3* ChangeDynamicsCommand::release_localinertiadiagonal() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.ChangeDynamicsCommand.localInertiaDiagonal)
+  if (has_localinertiadiagonal()) {
+    clear_has_hasLocalInertiaDiagonal();
+    ::pybullet_grpc::vec3* temp = hasLocalInertiaDiagonal_.localinertiadiagonal_;
+    hasLocalInertiaDiagonal_.localinertiadiagonal_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void ChangeDynamicsCommand::set_allocated_localinertiadiagonal(::pybullet_grpc::vec3* localinertiadiagonal) {
+  clear_hasLocalInertiaDiagonal();
+  if (localinertiadiagonal) {
+    set_has_localinertiadiagonal();
+    hasLocalInertiaDiagonal_.localinertiadiagonal_ = localinertiadiagonal;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.ChangeDynamicsCommand.localInertiaDiagonal)
+}
+
+// int32 frictionAnchor = 14;
+inline bool ChangeDynamicsCommand::has_frictionanchor() const {
+  return hasFrictionAnchor_case() == kFrictionAnchor;
+}
+inline void ChangeDynamicsCommand::set_has_frictionanchor() {
+  _oneof_case_[10] = kFrictionAnchor;
+}
+inline void ChangeDynamicsCommand::clear_frictionanchor() {
+  if (has_frictionanchor()) {
+    hasFrictionAnchor_.frictionanchor_ = 0;
+    clear_has_hasFrictionAnchor();
+  }
+}
+inline ::google::protobuf::int32 ChangeDynamicsCommand::frictionanchor() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.frictionAnchor)
+  if (has_frictionanchor()) {
+    return hasFrictionAnchor_.frictionanchor_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_frictionanchor(::google::protobuf::int32 value) {
+  if (!has_frictionanchor()) {
+    clear_hasFrictionAnchor();
+    set_has_frictionanchor();
+  }
+  hasFrictionAnchor_.frictionanchor_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.frictionAnchor)
+}
+
+// double ccdSweptSphereRadius = 15;
+inline bool ChangeDynamicsCommand::has_ccdsweptsphereradius() const {
+  return hasccdSweptSphereRadius_case() == kCcdSweptSphereRadius;
+}
+inline void ChangeDynamicsCommand::set_has_ccdsweptsphereradius() {
+  _oneof_case_[11] = kCcdSweptSphereRadius;
+}
+inline void ChangeDynamicsCommand::clear_ccdsweptsphereradius() {
+  if (has_ccdsweptsphereradius()) {
+    hasccdSweptSphereRadius_.ccdsweptsphereradius_ = 0;
+    clear_has_hasccdSweptSphereRadius();
+  }
+}
+inline double ChangeDynamicsCommand::ccdsweptsphereradius() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.ccdSweptSphereRadius)
+  if (has_ccdsweptsphereradius()) {
+    return hasccdSweptSphereRadius_.ccdsweptsphereradius_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_ccdsweptsphereradius(double value) {
+  if (!has_ccdsweptsphereradius()) {
+    clear_hasccdSweptSphereRadius();
+    set_has_ccdsweptsphereradius();
+  }
+  hasccdSweptSphereRadius_.ccdsweptsphereradius_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.ccdSweptSphereRadius)
+}
+
+// double contactProcessingThreshold = 16;
+inline bool ChangeDynamicsCommand::has_contactprocessingthreshold() const {
+  return hasContactProcessingThreshold_case() == kContactProcessingThreshold;
+}
+inline void ChangeDynamicsCommand::set_has_contactprocessingthreshold() {
+  _oneof_case_[12] = kContactProcessingThreshold;
+}
+inline void ChangeDynamicsCommand::clear_contactprocessingthreshold() {
+  if (has_contactprocessingthreshold()) {
+    hasContactProcessingThreshold_.contactprocessingthreshold_ = 0;
+    clear_has_hasContactProcessingThreshold();
+  }
+}
+inline double ChangeDynamicsCommand::contactprocessingthreshold() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.contactProcessingThreshold)
+  if (has_contactprocessingthreshold()) {
+    return hasContactProcessingThreshold_.contactprocessingthreshold_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_contactprocessingthreshold(double value) {
+  if (!has_contactprocessingthreshold()) {
+    clear_hasContactProcessingThreshold();
+    set_has_contactprocessingthreshold();
+  }
+  hasContactProcessingThreshold_.contactprocessingthreshold_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.contactProcessingThreshold)
+}
+
+// int32 activationState = 17;
+inline bool ChangeDynamicsCommand::has_activationstate() const {
+  return hasActivationState_case() == kActivationState;
+}
+inline void ChangeDynamicsCommand::set_has_activationstate() {
+  _oneof_case_[13] = kActivationState;
+}
+inline void ChangeDynamicsCommand::clear_activationstate() {
+  if (has_activationstate()) {
+    hasActivationState_.activationstate_ = 0;
+    clear_has_hasActivationState();
+  }
+}
+inline ::google::protobuf::int32 ChangeDynamicsCommand::activationstate() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.activationState)
+  if (has_activationstate()) {
+    return hasActivationState_.activationstate_;
+  }
+  return 0;
+}
+inline void ChangeDynamicsCommand::set_activationstate(::google::protobuf::int32 value) {
+  if (!has_activationstate()) {
+    clear_hasActivationState();
+    set_has_activationstate();
+  }
+  hasActivationState_.activationstate_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.activationState)
+}
+
+inline bool ChangeDynamicsCommand::has_hasMass() const {
+  return hasMass_case() != HASMASS_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasMass() {
+  _oneof_case_[0] = HASMASS_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_hasLateralFriction() const {
+  return hasLateralFriction_case() != HASLATERALFRICTION_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasLateralFriction() {
+  _oneof_case_[1] = HASLATERALFRICTION_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_hasSpinningFriction() const {
+  return hasSpinningFriction_case() != HASSPINNINGFRICTION_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasSpinningFriction() {
+  _oneof_case_[2] = HASSPINNINGFRICTION_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_hasRollingFriction() const {
+  return hasRollingFriction_case() != HASROLLINGFRICTION_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasRollingFriction() {
+  _oneof_case_[3] = HASROLLINGFRICTION_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_hasRestitution() const {
+  return hasRestitution_case() != HASRESTITUTION_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasRestitution() {
+  _oneof_case_[4] = HASRESTITUTION_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_haslinearDamping() const {
+  return haslinearDamping_case() != HASLINEARDAMPING_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_haslinearDamping() {
+  _oneof_case_[5] = HASLINEARDAMPING_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_hasangularDamping() const {
+  return hasangularDamping_case() != HASANGULARDAMPING_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasangularDamping() {
+  _oneof_case_[6] = HASANGULARDAMPING_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_hasContactStiffness() const {
+  return hasContactStiffness_case() != HASCONTACTSTIFFNESS_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasContactStiffness() {
+  _oneof_case_[7] = HASCONTACTSTIFFNESS_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_hasContactDamping() const {
+  return hasContactDamping_case() != HASCONTACTDAMPING_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasContactDamping() {
+  _oneof_case_[8] = HASCONTACTDAMPING_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_hasLocalInertiaDiagonal() const {
+  return hasLocalInertiaDiagonal_case() != HASLOCALINERTIADIAGONAL_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasLocalInertiaDiagonal() {
+  _oneof_case_[9] = HASLOCALINERTIADIAGONAL_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_hasFrictionAnchor() const {
+  return hasFrictionAnchor_case() != HASFRICTIONANCHOR_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasFrictionAnchor() {
+  _oneof_case_[10] = HASFRICTIONANCHOR_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_hasccdSweptSphereRadius() const {
+  return hasccdSweptSphereRadius_case() != HASCCDSWEPTSPHERERADIUS_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasccdSweptSphereRadius() {
+  _oneof_case_[11] = HASCCDSWEPTSPHERERADIUS_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_hasContactProcessingThreshold() const {
+  return hasContactProcessingThreshold_case() != HASCONTACTPROCESSINGTHRESHOLD_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasContactProcessingThreshold() {
+  _oneof_case_[12] = HASCONTACTPROCESSINGTHRESHOLD_NOT_SET;
+}
+inline bool ChangeDynamicsCommand::has_hasActivationState() const {
+  return hasActivationState_case() != HASACTIVATIONSTATE_NOT_SET;
+}
+inline void ChangeDynamicsCommand::clear_has_hasActivationState() {
+  _oneof_case_[13] = HASACTIVATIONSTATE_NOT_SET;
+}
+inline ChangeDynamicsCommand::HasMassCase ChangeDynamicsCommand::hasMass_case() const {
+  return ChangeDynamicsCommand::HasMassCase(_oneof_case_[0]);
+}
+inline ChangeDynamicsCommand::HasLateralFrictionCase ChangeDynamicsCommand::hasLateralFriction_case() const {
+  return ChangeDynamicsCommand::HasLateralFrictionCase(_oneof_case_[1]);
+}
+inline ChangeDynamicsCommand::HasSpinningFrictionCase ChangeDynamicsCommand::hasSpinningFriction_case() const {
+  return ChangeDynamicsCommand::HasSpinningFrictionCase(_oneof_case_[2]);
+}
+inline ChangeDynamicsCommand::HasRollingFrictionCase ChangeDynamicsCommand::hasRollingFriction_case() const {
+  return ChangeDynamicsCommand::HasRollingFrictionCase(_oneof_case_[3]);
+}
+inline ChangeDynamicsCommand::HasRestitutionCase ChangeDynamicsCommand::hasRestitution_case() const {
+  return ChangeDynamicsCommand::HasRestitutionCase(_oneof_case_[4]);
+}
+inline ChangeDynamicsCommand::HaslinearDampingCase ChangeDynamicsCommand::haslinearDamping_case() const {
+  return ChangeDynamicsCommand::HaslinearDampingCase(_oneof_case_[5]);
+}
+inline ChangeDynamicsCommand::HasangularDampingCase ChangeDynamicsCommand::hasangularDamping_case() const {
+  return ChangeDynamicsCommand::HasangularDampingCase(_oneof_case_[6]);
+}
+inline ChangeDynamicsCommand::HasContactStiffnessCase ChangeDynamicsCommand::hasContactStiffness_case() const {
+  return ChangeDynamicsCommand::HasContactStiffnessCase(_oneof_case_[7]);
+}
+inline ChangeDynamicsCommand::HasContactDampingCase ChangeDynamicsCommand::hasContactDamping_case() const {
+  return ChangeDynamicsCommand::HasContactDampingCase(_oneof_case_[8]);
+}
+inline ChangeDynamicsCommand::HasLocalInertiaDiagonalCase ChangeDynamicsCommand::hasLocalInertiaDiagonal_case() const {
+  return ChangeDynamicsCommand::HasLocalInertiaDiagonalCase(_oneof_case_[9]);
+}
+inline ChangeDynamicsCommand::HasFrictionAnchorCase ChangeDynamicsCommand::hasFrictionAnchor_case() const {
+  return ChangeDynamicsCommand::HasFrictionAnchorCase(_oneof_case_[10]);
+}
+inline ChangeDynamicsCommand::HasccdSweptSphereRadiusCase ChangeDynamicsCommand::hasccdSweptSphereRadius_case() const {
+  return ChangeDynamicsCommand::HasccdSweptSphereRadiusCase(_oneof_case_[11]);
+}
+inline ChangeDynamicsCommand::HasContactProcessingThresholdCase ChangeDynamicsCommand::hasContactProcessingThreshold_case() const {
+  return ChangeDynamicsCommand::HasContactProcessingThresholdCase(_oneof_case_[12]);
+}
+inline ChangeDynamicsCommand::HasActivationStateCase ChangeDynamicsCommand::hasActivationState_case() const {
+  return ChangeDynamicsCommand::HasActivationStateCase(_oneof_case_[13]);
+}
+// -------------------------------------------------------------------
+
+// GetDynamicsCommand
+
+// int32 bodyUniqueId = 1;
+inline void GetDynamicsCommand::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+inline ::google::protobuf::int32 GetDynamicsCommand::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsCommand.bodyUniqueId)
+  return bodyuniqueid_;
+}
+inline void GetDynamicsCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsCommand.bodyUniqueId)
+}
+
+// int32 linkIndex = 2;
+inline void GetDynamicsCommand::clear_linkindex() {
+  linkindex_ = 0;
+}
+inline ::google::protobuf::int32 GetDynamicsCommand::linkindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsCommand.linkIndex)
+  return linkindex_;
+}
+inline void GetDynamicsCommand::set_linkindex(::google::protobuf::int32 value) {
+  
+  linkindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsCommand.linkIndex)
+}
+
+// -------------------------------------------------------------------
+
+// GetDynamicsStatus
+
+// double mass = 3;
+inline void GetDynamicsStatus::clear_mass() {
+  mass_ = 0;
+}
+inline double GetDynamicsStatus::mass() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.mass)
+  return mass_;
+}
+inline void GetDynamicsStatus::set_mass(double value) {
+  
+  mass_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.mass)
+}
+
+// double lateralFriction = 5;
+inline void GetDynamicsStatus::clear_lateralfriction() {
+  lateralfriction_ = 0;
+}
+inline double GetDynamicsStatus::lateralfriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.lateralFriction)
+  return lateralfriction_;
+}
+inline void GetDynamicsStatus::set_lateralfriction(double value) {
+  
+  lateralfriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.lateralFriction)
+}
+
+// double spinningFriction = 6;
+inline void GetDynamicsStatus::clear_spinningfriction() {
+  spinningfriction_ = 0;
+}
+inline double GetDynamicsStatus::spinningfriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.spinningFriction)
+  return spinningfriction_;
+}
+inline void GetDynamicsStatus::set_spinningfriction(double value) {
+  
+  spinningfriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.spinningFriction)
+}
+
+// double rollingFriction = 7;
+inline void GetDynamicsStatus::clear_rollingfriction() {
+  rollingfriction_ = 0;
+}
+inline double GetDynamicsStatus::rollingfriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.rollingFriction)
+  return rollingfriction_;
+}
+inline void GetDynamicsStatus::set_rollingfriction(double value) {
+  
+  rollingfriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.rollingFriction)
+}
+
+// double restitution = 8;
+inline void GetDynamicsStatus::clear_restitution() {
+  restitution_ = 0;
+}
+inline double GetDynamicsStatus::restitution() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.restitution)
+  return restitution_;
+}
+inline void GetDynamicsStatus::set_restitution(double value) {
+  
+  restitution_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.restitution)
+}
+
+// double linearDamping = 9;
+inline void GetDynamicsStatus::clear_lineardamping() {
+  lineardamping_ = 0;
+}
+inline double GetDynamicsStatus::lineardamping() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.linearDamping)
+  return lineardamping_;
+}
+inline void GetDynamicsStatus::set_lineardamping(double value) {
+  
+  lineardamping_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.linearDamping)
+}
+
+// double angularDamping = 10;
+inline void GetDynamicsStatus::clear_angulardamping() {
+  angulardamping_ = 0;
+}
+inline double GetDynamicsStatus::angulardamping() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.angularDamping)
+  return angulardamping_;
+}
+inline void GetDynamicsStatus::set_angulardamping(double value) {
+  
+  angulardamping_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.angularDamping)
+}
+
+// double contactStiffness = 11;
+inline void GetDynamicsStatus::clear_contactstiffness() {
+  contactstiffness_ = 0;
+}
+inline double GetDynamicsStatus::contactstiffness() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.contactStiffness)
+  return contactstiffness_;
+}
+inline void GetDynamicsStatus::set_contactstiffness(double value) {
+  
+  contactstiffness_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.contactStiffness)
+}
+
+// double contactDamping = 12;
+inline void GetDynamicsStatus::clear_contactdamping() {
+  contactdamping_ = 0;
+}
+inline double GetDynamicsStatus::contactdamping() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.contactDamping)
+  return contactdamping_;
+}
+inline void GetDynamicsStatus::set_contactdamping(double value) {
+  
+  contactdamping_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.contactDamping)
+}
+
+// .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+inline bool GetDynamicsStatus::has_localinertiadiagonal() const {
+  return this != internal_default_instance() && localinertiadiagonal_ != NULL;
+}
+inline void GetDynamicsStatus::clear_localinertiadiagonal() {
+  if (GetArenaNoVirtual() == NULL && localinertiadiagonal_ != NULL) delete localinertiadiagonal_;
+  localinertiadiagonal_ = NULL;
+}
+inline const ::pybullet_grpc::vec3& GetDynamicsStatus::localinertiadiagonal() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.localInertiaDiagonal)
+  return localinertiadiagonal_ != NULL ? *localinertiadiagonal_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+inline ::pybullet_grpc::vec3* GetDynamicsStatus::mutable_localinertiadiagonal() {
+  
+  if (localinertiadiagonal_ == NULL) {
+    localinertiadiagonal_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.GetDynamicsStatus.localInertiaDiagonal)
+  return localinertiadiagonal_;
+}
+inline ::pybullet_grpc::vec3* GetDynamicsStatus::release_localinertiadiagonal() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.GetDynamicsStatus.localInertiaDiagonal)
+  
+  ::pybullet_grpc::vec3* temp = localinertiadiagonal_;
+  localinertiadiagonal_ = NULL;
+  return temp;
+}
+inline void GetDynamicsStatus::set_allocated_localinertiadiagonal(::pybullet_grpc::vec3* localinertiadiagonal) {
+  delete localinertiadiagonal_;
+  localinertiadiagonal_ = localinertiadiagonal;
+  if (localinertiadiagonal) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.GetDynamicsStatus.localInertiaDiagonal)
+}
+
+// int32 frictionAnchor = 14;
+inline void GetDynamicsStatus::clear_frictionanchor() {
+  frictionanchor_ = 0;
+}
+inline ::google::protobuf::int32 GetDynamicsStatus::frictionanchor() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.frictionAnchor)
+  return frictionanchor_;
+}
+inline void GetDynamicsStatus::set_frictionanchor(::google::protobuf::int32 value) {
+  
+  frictionanchor_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.frictionAnchor)
+}
+
+// double ccdSweptSphereRadius = 15;
+inline void GetDynamicsStatus::clear_ccdsweptsphereradius() {
+  ccdsweptsphereradius_ = 0;
+}
+inline double GetDynamicsStatus::ccdsweptsphereradius() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.ccdSweptSphereRadius)
+  return ccdsweptsphereradius_;
+}
+inline void GetDynamicsStatus::set_ccdsweptsphereradius(double value) {
+  
+  ccdsweptsphereradius_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.ccdSweptSphereRadius)
+}
+
+// double contactProcessingThreshold = 16;
+inline void GetDynamicsStatus::clear_contactprocessingthreshold() {
+  contactprocessingthreshold_ = 0;
+}
+inline double GetDynamicsStatus::contactprocessingthreshold() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.contactProcessingThreshold)
+  return contactprocessingthreshold_;
+}
+inline void GetDynamicsStatus::set_contactprocessingthreshold(double value) {
+  
+  contactprocessingthreshold_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.contactProcessingThreshold)
+}
+
+// int32 activationState = 17;
+inline void GetDynamicsStatus::clear_activationstate() {
+  activationstate_ = 0;
+}
+inline ::google::protobuf::int32 GetDynamicsStatus::activationstate() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.activationState)
+  return activationstate_;
+}
+inline void GetDynamicsStatus::set_activationstate(::google::protobuf::int32 value) {
+  
+  activationstate_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.activationState)
+}
+
+// -------------------------------------------------------------------
+
+// InitPoseCommand
+
+// int32 bodyUniqueId = 1;
+inline void InitPoseCommand::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+inline ::google::protobuf::int32 InitPoseCommand::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.InitPoseCommand.bodyUniqueId)
+  return bodyuniqueid_;
+}
+inline void InitPoseCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.bodyUniqueId)
+}
+
+// repeated int32 hasInitialStateQ = 2;
+inline int InitPoseCommand::hasinitialstateq_size() const {
+  return hasinitialstateq_.size();
+}
+inline void InitPoseCommand::clear_hasinitialstateq() {
+  hasinitialstateq_.Clear();
+}
+inline ::google::protobuf::int32 InitPoseCommand::hasinitialstateq(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.InitPoseCommand.hasInitialStateQ)
+  return hasinitialstateq_.Get(index);
+}
+inline void InitPoseCommand::set_hasinitialstateq(int index, ::google::protobuf::int32 value) {
+  hasinitialstateq_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.hasInitialStateQ)
+}
+inline void InitPoseCommand::add_hasinitialstateq(::google::protobuf::int32 value) {
+  hasinitialstateq_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.InitPoseCommand.hasInitialStateQ)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+InitPoseCommand::hasinitialstateq() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.InitPoseCommand.hasInitialStateQ)
+  return hasinitialstateq_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+InitPoseCommand::mutable_hasinitialstateq() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.InitPoseCommand.hasInitialStateQ)
+  return &hasinitialstateq_;
+}
+
+// repeated double initialStateQ = 3;
+inline int InitPoseCommand::initialstateq_size() const {
+  return initialstateq_.size();
+}
+inline void InitPoseCommand::clear_initialstateq() {
+  initialstateq_.Clear();
+}
+inline double InitPoseCommand::initialstateq(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.InitPoseCommand.initialStateQ)
+  return initialstateq_.Get(index);
+}
+inline void InitPoseCommand::set_initialstateq(int index, double value) {
+  initialstateq_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.initialStateQ)
+}
+inline void InitPoseCommand::add_initialstateq(double value) {
+  initialstateq_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.InitPoseCommand.initialStateQ)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+InitPoseCommand::initialstateq() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.InitPoseCommand.initialStateQ)
+  return initialstateq_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+InitPoseCommand::mutable_initialstateq() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.InitPoseCommand.initialStateQ)
+  return &initialstateq_;
+}
+
+// repeated int32 hasInitialStateQdot = 4;
+inline int InitPoseCommand::hasinitialstateqdot_size() const {
+  return hasinitialstateqdot_.size();
+}
+inline void InitPoseCommand::clear_hasinitialstateqdot() {
+  hasinitialstateqdot_.Clear();
+}
+inline ::google::protobuf::int32 InitPoseCommand::hasinitialstateqdot(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.InitPoseCommand.hasInitialStateQdot)
+  return hasinitialstateqdot_.Get(index);
+}
+inline void InitPoseCommand::set_hasinitialstateqdot(int index, ::google::protobuf::int32 value) {
+  hasinitialstateqdot_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.hasInitialStateQdot)
+}
+inline void InitPoseCommand::add_hasinitialstateqdot(::google::protobuf::int32 value) {
+  hasinitialstateqdot_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.InitPoseCommand.hasInitialStateQdot)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+InitPoseCommand::hasinitialstateqdot() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.InitPoseCommand.hasInitialStateQdot)
+  return hasinitialstateqdot_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+InitPoseCommand::mutable_hasinitialstateqdot() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.InitPoseCommand.hasInitialStateQdot)
+  return &hasinitialstateqdot_;
+}
+
+// repeated double initialStateQdot = 5;
+inline int InitPoseCommand::initialstateqdot_size() const {
+  return initialstateqdot_.size();
+}
+inline void InitPoseCommand::clear_initialstateqdot() {
+  initialstateqdot_.Clear();
+}
+inline double InitPoseCommand::initialstateqdot(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.InitPoseCommand.initialStateQdot)
+  return initialstateqdot_.Get(index);
+}
+inline void InitPoseCommand::set_initialstateqdot(int index, double value) {
+  initialstateqdot_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.initialStateQdot)
+}
+inline void InitPoseCommand::add_initialstateqdot(double value) {
+  initialstateqdot_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.InitPoseCommand.initialStateQdot)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+InitPoseCommand::initialstateqdot() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.InitPoseCommand.initialStateQdot)
+  return initialstateqdot_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+InitPoseCommand::mutable_initialstateqdot() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.InitPoseCommand.initialStateQdot)
+  return &initialstateqdot_;
+}
+
+// -------------------------------------------------------------------
+
+// RequestActualStateCommand
+
+// int32 bodyUniqueId = 1;
+inline void RequestActualStateCommand::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+inline ::google::protobuf::int32 RequestActualStateCommand::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestActualStateCommand.bodyUniqueId)
+  return bodyuniqueid_;
+}
+inline void RequestActualStateCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestActualStateCommand.bodyUniqueId)
+}
+
+// bool computeForwardKinematics = 2;
+inline void RequestActualStateCommand::clear_computeforwardkinematics() {
+  computeforwardkinematics_ = false;
+}
+inline bool RequestActualStateCommand::computeforwardkinematics() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestActualStateCommand.computeForwardKinematics)
+  return computeforwardkinematics_;
+}
+inline void RequestActualStateCommand::set_computeforwardkinematics(bool value) {
+  
+  computeforwardkinematics_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestActualStateCommand.computeForwardKinematics)
+}
+
+// bool computeLinkVelocities = 3;
+inline void RequestActualStateCommand::clear_computelinkvelocities() {
+  computelinkvelocities_ = false;
+}
+inline bool RequestActualStateCommand::computelinkvelocities() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestActualStateCommand.computeLinkVelocities)
+  return computelinkvelocities_;
+}
+inline void RequestActualStateCommand::set_computelinkvelocities(bool value) {
+  
+  computelinkvelocities_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestActualStateCommand.computeLinkVelocities)
+}
+
+// -------------------------------------------------------------------
+
+// SendActualStateStatus
+
+// int32 bodyUniqueId = 1;
+inline void SendActualStateStatus::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+inline ::google::protobuf::int32 SendActualStateStatus::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.bodyUniqueId)
+  return bodyuniqueid_;
+}
+inline void SendActualStateStatus::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.bodyUniqueId)
+}
+
+// int32 numLinks = 2;
+inline void SendActualStateStatus::clear_numlinks() {
+  numlinks_ = 0;
+}
+inline ::google::protobuf::int32 SendActualStateStatus::numlinks() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.numLinks)
+  return numlinks_;
+}
+inline void SendActualStateStatus::set_numlinks(::google::protobuf::int32 value) {
+  
+  numlinks_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.numLinks)
+}
+
+// int32 numDegreeOfFreedomQ = 3;
+inline void SendActualStateStatus::clear_numdegreeoffreedomq() {
+  numdegreeoffreedomq_ = 0;
+}
+inline ::google::protobuf::int32 SendActualStateStatus::numdegreeoffreedomq() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.numDegreeOfFreedomQ)
+  return numdegreeoffreedomq_;
+}
+inline void SendActualStateStatus::set_numdegreeoffreedomq(::google::protobuf::int32 value) {
+  
+  numdegreeoffreedomq_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.numDegreeOfFreedomQ)
+}
+
+// int32 numDegreeOfFreedomU = 4;
+inline void SendActualStateStatus::clear_numdegreeoffreedomu() {
+  numdegreeoffreedomu_ = 0;
+}
+inline ::google::protobuf::int32 SendActualStateStatus::numdegreeoffreedomu() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.numDegreeOfFreedomU)
+  return numdegreeoffreedomu_;
+}
+inline void SendActualStateStatus::set_numdegreeoffreedomu(::google::protobuf::int32 value) {
+  
+  numdegreeoffreedomu_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.numDegreeOfFreedomU)
+}
+
+// repeated double rootLocalInertialFrame = 5;
+inline int SendActualStateStatus::rootlocalinertialframe_size() const {
+  return rootlocalinertialframe_.size();
+}
+inline void SendActualStateStatus::clear_rootlocalinertialframe() {
+  rootlocalinertialframe_.Clear();
+}
+inline double SendActualStateStatus::rootlocalinertialframe(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.rootLocalInertialFrame)
+  return rootlocalinertialframe_.Get(index);
+}
+inline void SendActualStateStatus::set_rootlocalinertialframe(int index, double value) {
+  rootlocalinertialframe_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.rootLocalInertialFrame)
+}
+inline void SendActualStateStatus::add_rootlocalinertialframe(double value) {
+  rootlocalinertialframe_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.rootLocalInertialFrame)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::rootlocalinertialframe() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.rootLocalInertialFrame)
+  return rootlocalinertialframe_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_rootlocalinertialframe() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.rootLocalInertialFrame)
+  return &rootlocalinertialframe_;
+}
+
+// repeated double actualStateQ = 6;
+inline int SendActualStateStatus::actualstateq_size() const {
+  return actualstateq_.size();
+}
+inline void SendActualStateStatus::clear_actualstateq() {
+  actualstateq_.Clear();
+}
+inline double SendActualStateStatus::actualstateq(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.actualStateQ)
+  return actualstateq_.Get(index);
+}
+inline void SendActualStateStatus::set_actualstateq(int index, double value) {
+  actualstateq_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.actualStateQ)
+}
+inline void SendActualStateStatus::add_actualstateq(double value) {
+  actualstateq_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.actualStateQ)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::actualstateq() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.actualStateQ)
+  return actualstateq_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_actualstateq() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.actualStateQ)
+  return &actualstateq_;
+}
+
+// repeated double actualStateQdot = 7;
+inline int SendActualStateStatus::actualstateqdot_size() const {
+  return actualstateqdot_.size();
+}
+inline void SendActualStateStatus::clear_actualstateqdot() {
+  actualstateqdot_.Clear();
+}
+inline double SendActualStateStatus::actualstateqdot(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.actualStateQdot)
+  return actualstateqdot_.Get(index);
+}
+inline void SendActualStateStatus::set_actualstateqdot(int index, double value) {
+  actualstateqdot_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.actualStateQdot)
+}
+inline void SendActualStateStatus::add_actualstateqdot(double value) {
+  actualstateqdot_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.actualStateQdot)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::actualstateqdot() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.actualStateQdot)
+  return actualstateqdot_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_actualstateqdot() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.actualStateQdot)
+  return &actualstateqdot_;
+}
+
+// repeated double jointReactionForces = 8;
+inline int SendActualStateStatus::jointreactionforces_size() const {
+  return jointreactionforces_.size();
+}
+inline void SendActualStateStatus::clear_jointreactionforces() {
+  jointreactionforces_.Clear();
+}
+inline double SendActualStateStatus::jointreactionforces(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.jointReactionForces)
+  return jointreactionforces_.Get(index);
+}
+inline void SendActualStateStatus::set_jointreactionforces(int index, double value) {
+  jointreactionforces_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.jointReactionForces)
+}
+inline void SendActualStateStatus::add_jointreactionforces(double value) {
+  jointreactionforces_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.jointReactionForces)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::jointreactionforces() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.jointReactionForces)
+  return jointreactionforces_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_jointreactionforces() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.jointReactionForces)
+  return &jointreactionforces_;
+}
+
+// repeated double jointMotorForce = 9;
+inline int SendActualStateStatus::jointmotorforce_size() const {
+  return jointmotorforce_.size();
+}
+inline void SendActualStateStatus::clear_jointmotorforce() {
+  jointmotorforce_.Clear();
+}
+inline double SendActualStateStatus::jointmotorforce(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.jointMotorForce)
+  return jointmotorforce_.Get(index);
+}
+inline void SendActualStateStatus::set_jointmotorforce(int index, double value) {
+  jointmotorforce_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.jointMotorForce)
+}
+inline void SendActualStateStatus::add_jointmotorforce(double value) {
+  jointmotorforce_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.jointMotorForce)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::jointmotorforce() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.jointMotorForce)
+  return jointmotorforce_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_jointmotorforce() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.jointMotorForce)
+  return &jointmotorforce_;
+}
+
+// repeated double linkState = 10;
+inline int SendActualStateStatus::linkstate_size() const {
+  return linkstate_.size();
+}
+inline void SendActualStateStatus::clear_linkstate() {
+  linkstate_.Clear();
+}
+inline double SendActualStateStatus::linkstate(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.linkState)
+  return linkstate_.Get(index);
+}
+inline void SendActualStateStatus::set_linkstate(int index, double value) {
+  linkstate_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.linkState)
+}
+inline void SendActualStateStatus::add_linkstate(double value) {
+  linkstate_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.linkState)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::linkstate() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.linkState)
+  return linkstate_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_linkstate() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.linkState)
+  return &linkstate_;
+}
+
+// repeated double linkWorldVelocities = 11;
+inline int SendActualStateStatus::linkworldvelocities_size() const {
+  return linkworldvelocities_.size();
+}
+inline void SendActualStateStatus::clear_linkworldvelocities() {
+  linkworldvelocities_.Clear();
+}
+inline double SendActualStateStatus::linkworldvelocities(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.linkWorldVelocities)
+  return linkworldvelocities_.Get(index);
+}
+inline void SendActualStateStatus::set_linkworldvelocities(int index, double value) {
+  linkworldvelocities_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.linkWorldVelocities)
+}
+inline void SendActualStateStatus::add_linkworldvelocities(double value) {
+  linkworldvelocities_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.linkWorldVelocities)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::linkworldvelocities() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.linkWorldVelocities)
+  return linkworldvelocities_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_linkworldvelocities() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.linkWorldVelocities)
+  return &linkworldvelocities_;
+}
+
+// repeated double linkLocalInertialFrames = 12;
+inline int SendActualStateStatus::linklocalinertialframes_size() const {
+  return linklocalinertialframes_.size();
+}
+inline void SendActualStateStatus::clear_linklocalinertialframes() {
+  linklocalinertialframes_.Clear();
+}
+inline double SendActualStateStatus::linklocalinertialframes(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.linkLocalInertialFrames)
+  return linklocalinertialframes_.Get(index);
+}
+inline void SendActualStateStatus::set_linklocalinertialframes(int index, double value) {
+  linklocalinertialframes_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.linkLocalInertialFrames)
+}
+inline void SendActualStateStatus::add_linklocalinertialframes(double value) {
+  linklocalinertialframes_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.linkLocalInertialFrames)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::linklocalinertialframes() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.linkLocalInertialFrames)
+  return linklocalinertialframes_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_linklocalinertialframes() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.linkLocalInertialFrames)
+  return &linklocalinertialframes_;
 }
 
 // -------------------------------------------------------------------
@@ -1566,6 +4876,294 @@ inline void PyBulletCommand::set_allocated_stepsimulationcommand(::pybullet_grpc
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.stepSimulationCommand)
 }
 
+// .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+inline bool PyBulletCommand::has_loadsdfcommand() const {
+  return commands_case() == kLoadSdfCommand;
+}
+inline void PyBulletCommand::set_has_loadsdfcommand() {
+  _oneof_case_[0] = kLoadSdfCommand;
+}
+inline void PyBulletCommand::clear_loadsdfcommand() {
+  if (has_loadsdfcommand()) {
+    delete commands_.loadsdfcommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::LoadSdfCommand& PyBulletCommand::loadsdfcommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.loadSdfCommand)
+  return has_loadsdfcommand()
+      ? *commands_.loadsdfcommand_
+      : ::pybullet_grpc::LoadSdfCommand::default_instance();
+}
+inline ::pybullet_grpc::LoadSdfCommand* PyBulletCommand::mutable_loadsdfcommand() {
+  if (!has_loadsdfcommand()) {
+    clear_commands();
+    set_has_loadsdfcommand();
+    commands_.loadsdfcommand_ = new ::pybullet_grpc::LoadSdfCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.loadSdfCommand)
+  return commands_.loadsdfcommand_;
+}
+inline ::pybullet_grpc::LoadSdfCommand* PyBulletCommand::release_loadsdfcommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.loadSdfCommand)
+  if (has_loadsdfcommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::LoadSdfCommand* temp = commands_.loadsdfcommand_;
+    commands_.loadsdfcommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_loadsdfcommand(::pybullet_grpc::LoadSdfCommand* loadsdfcommand) {
+  clear_commands();
+  if (loadsdfcommand) {
+    set_has_loadsdfcommand();
+    commands_.loadsdfcommand_ = loadsdfcommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.loadSdfCommand)
+}
+
+// .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+inline bool PyBulletCommand::has_loadmjcfcommand() const {
+  return commands_case() == kLoadMjcfCommand;
+}
+inline void PyBulletCommand::set_has_loadmjcfcommand() {
+  _oneof_case_[0] = kLoadMjcfCommand;
+}
+inline void PyBulletCommand::clear_loadmjcfcommand() {
+  if (has_loadmjcfcommand()) {
+    delete commands_.loadmjcfcommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::LoadMjcfCommand& PyBulletCommand::loadmjcfcommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.loadMjcfCommand)
+  return has_loadmjcfcommand()
+      ? *commands_.loadmjcfcommand_
+      : ::pybullet_grpc::LoadMjcfCommand::default_instance();
+}
+inline ::pybullet_grpc::LoadMjcfCommand* PyBulletCommand::mutable_loadmjcfcommand() {
+  if (!has_loadmjcfcommand()) {
+    clear_commands();
+    set_has_loadmjcfcommand();
+    commands_.loadmjcfcommand_ = new ::pybullet_grpc::LoadMjcfCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.loadMjcfCommand)
+  return commands_.loadmjcfcommand_;
+}
+inline ::pybullet_grpc::LoadMjcfCommand* PyBulletCommand::release_loadmjcfcommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.loadMjcfCommand)
+  if (has_loadmjcfcommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::LoadMjcfCommand* temp = commands_.loadmjcfcommand_;
+    commands_.loadmjcfcommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_loadmjcfcommand(::pybullet_grpc::LoadMjcfCommand* loadmjcfcommand) {
+  clear_commands();
+  if (loadmjcfcommand) {
+    set_has_loadmjcfcommand();
+    commands_.loadmjcfcommand_ = loadmjcfcommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.loadMjcfCommand)
+}
+
+// .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+inline bool PyBulletCommand::has_changedynamicscommand() const {
+  return commands_case() == kChangeDynamicsCommand;
+}
+inline void PyBulletCommand::set_has_changedynamicscommand() {
+  _oneof_case_[0] = kChangeDynamicsCommand;
+}
+inline void PyBulletCommand::clear_changedynamicscommand() {
+  if (has_changedynamicscommand()) {
+    delete commands_.changedynamicscommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::ChangeDynamicsCommand& PyBulletCommand::changedynamicscommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.changeDynamicsCommand)
+  return has_changedynamicscommand()
+      ? *commands_.changedynamicscommand_
+      : ::pybullet_grpc::ChangeDynamicsCommand::default_instance();
+}
+inline ::pybullet_grpc::ChangeDynamicsCommand* PyBulletCommand::mutable_changedynamicscommand() {
+  if (!has_changedynamicscommand()) {
+    clear_commands();
+    set_has_changedynamicscommand();
+    commands_.changedynamicscommand_ = new ::pybullet_grpc::ChangeDynamicsCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.changeDynamicsCommand)
+  return commands_.changedynamicscommand_;
+}
+inline ::pybullet_grpc::ChangeDynamicsCommand* PyBulletCommand::release_changedynamicscommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.changeDynamicsCommand)
+  if (has_changedynamicscommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::ChangeDynamicsCommand* temp = commands_.changedynamicscommand_;
+    commands_.changedynamicscommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_changedynamicscommand(::pybullet_grpc::ChangeDynamicsCommand* changedynamicscommand) {
+  clear_commands();
+  if (changedynamicscommand) {
+    set_has_changedynamicscommand();
+    commands_.changedynamicscommand_ = changedynamicscommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.changeDynamicsCommand)
+}
+
+// .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+inline bool PyBulletCommand::has_getdynamicscommand() const {
+  return commands_case() == kGetDynamicsCommand;
+}
+inline void PyBulletCommand::set_has_getdynamicscommand() {
+  _oneof_case_[0] = kGetDynamicsCommand;
+}
+inline void PyBulletCommand::clear_getdynamicscommand() {
+  if (has_getdynamicscommand()) {
+    delete commands_.getdynamicscommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::GetDynamicsCommand& PyBulletCommand::getdynamicscommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.getDynamicsCommand)
+  return has_getdynamicscommand()
+      ? *commands_.getdynamicscommand_
+      : ::pybullet_grpc::GetDynamicsCommand::default_instance();
+}
+inline ::pybullet_grpc::GetDynamicsCommand* PyBulletCommand::mutable_getdynamicscommand() {
+  if (!has_getdynamicscommand()) {
+    clear_commands();
+    set_has_getdynamicscommand();
+    commands_.getdynamicscommand_ = new ::pybullet_grpc::GetDynamicsCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.getDynamicsCommand)
+  return commands_.getdynamicscommand_;
+}
+inline ::pybullet_grpc::GetDynamicsCommand* PyBulletCommand::release_getdynamicscommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.getDynamicsCommand)
+  if (has_getdynamicscommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::GetDynamicsCommand* temp = commands_.getdynamicscommand_;
+    commands_.getdynamicscommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_getdynamicscommand(::pybullet_grpc::GetDynamicsCommand* getdynamicscommand) {
+  clear_commands();
+  if (getdynamicscommand) {
+    set_has_getdynamicscommand();
+    commands_.getdynamicscommand_ = getdynamicscommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.getDynamicsCommand)
+}
+
+// .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+inline bool PyBulletCommand::has_initposecommand() const {
+  return commands_case() == kInitPoseCommand;
+}
+inline void PyBulletCommand::set_has_initposecommand() {
+  _oneof_case_[0] = kInitPoseCommand;
+}
+inline void PyBulletCommand::clear_initposecommand() {
+  if (has_initposecommand()) {
+    delete commands_.initposecommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::InitPoseCommand& PyBulletCommand::initposecommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.initPoseCommand)
+  return has_initposecommand()
+      ? *commands_.initposecommand_
+      : ::pybullet_grpc::InitPoseCommand::default_instance();
+}
+inline ::pybullet_grpc::InitPoseCommand* PyBulletCommand::mutable_initposecommand() {
+  if (!has_initposecommand()) {
+    clear_commands();
+    set_has_initposecommand();
+    commands_.initposecommand_ = new ::pybullet_grpc::InitPoseCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.initPoseCommand)
+  return commands_.initposecommand_;
+}
+inline ::pybullet_grpc::InitPoseCommand* PyBulletCommand::release_initposecommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.initPoseCommand)
+  if (has_initposecommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::InitPoseCommand* temp = commands_.initposecommand_;
+    commands_.initposecommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_initposecommand(::pybullet_grpc::InitPoseCommand* initposecommand) {
+  clear_commands();
+  if (initposecommand) {
+    set_has_initposecommand();
+    commands_.initposecommand_ = initposecommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.initPoseCommand)
+}
+
+// .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+inline bool PyBulletCommand::has_requestactualstatecommand() const {
+  return commands_case() == kRequestActualStateCommand;
+}
+inline void PyBulletCommand::set_has_requestactualstatecommand() {
+  _oneof_case_[0] = kRequestActualStateCommand;
+}
+inline void PyBulletCommand::clear_requestactualstatecommand() {
+  if (has_requestactualstatecommand()) {
+    delete commands_.requestactualstatecommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::RequestActualStateCommand& PyBulletCommand::requestactualstatecommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.requestActualStateCommand)
+  return has_requestactualstatecommand()
+      ? *commands_.requestactualstatecommand_
+      : ::pybullet_grpc::RequestActualStateCommand::default_instance();
+}
+inline ::pybullet_grpc::RequestActualStateCommand* PyBulletCommand::mutable_requestactualstatecommand() {
+  if (!has_requestactualstatecommand()) {
+    clear_commands();
+    set_has_requestactualstatecommand();
+    commands_.requestactualstatecommand_ = new ::pybullet_grpc::RequestActualStateCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.requestActualStateCommand)
+  return commands_.requestactualstatecommand_;
+}
+inline ::pybullet_grpc::RequestActualStateCommand* PyBulletCommand::release_requestactualstatecommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.requestActualStateCommand)
+  if (has_requestactualstatecommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::RequestActualStateCommand* temp = commands_.requestactualstatecommand_;
+    commands_.requestactualstatecommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_requestactualstatecommand(::pybullet_grpc::RequestActualStateCommand* requestactualstatecommand) {
+  clear_commands();
+  if (requestactualstatecommand) {
+    set_has_requestactualstatecommand();
+    commands_.requestactualstatecommand_ = requestactualstatecommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.requestActualStateCommand)
+}
+
 inline bool PyBulletCommand::has_commands() const {
   return commands_case() != COMMANDS_NOT_SET;
 }
@@ -1641,6 +5239,198 @@ inline void PyBulletStatus::set_allocated_urdfstatus(::pybullet_grpc::LoadUrdfSt
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.urdfStatus)
 }
 
+// .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+inline bool PyBulletStatus::has_sdfstatus() const {
+  return status_case() == kSdfStatus;
+}
+inline void PyBulletStatus::set_has_sdfstatus() {
+  _oneof_case_[0] = kSdfStatus;
+}
+inline void PyBulletStatus::clear_sdfstatus() {
+  if (has_sdfstatus()) {
+    delete status_.sdfstatus_;
+    clear_has_status();
+  }
+}
+inline  const ::pybullet_grpc::SdfLoadedStatus& PyBulletStatus::sdfstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.sdfStatus)
+  return has_sdfstatus()
+      ? *status_.sdfstatus_
+      : ::pybullet_grpc::SdfLoadedStatus::default_instance();
+}
+inline ::pybullet_grpc::SdfLoadedStatus* PyBulletStatus::mutable_sdfstatus() {
+  if (!has_sdfstatus()) {
+    clear_status();
+    set_has_sdfstatus();
+    status_.sdfstatus_ = new ::pybullet_grpc::SdfLoadedStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.sdfStatus)
+  return status_.sdfstatus_;
+}
+inline ::pybullet_grpc::SdfLoadedStatus* PyBulletStatus::release_sdfstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.sdfStatus)
+  if (has_sdfstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::SdfLoadedStatus* temp = status_.sdfstatus_;
+    status_.sdfstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletStatus::set_allocated_sdfstatus(::pybullet_grpc::SdfLoadedStatus* sdfstatus) {
+  clear_status();
+  if (sdfstatus) {
+    set_has_sdfstatus();
+    status_.sdfstatus_ = sdfstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.sdfStatus)
+}
+
+// .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+inline bool PyBulletStatus::has_mjcfstatus() const {
+  return status_case() == kMjcfStatus;
+}
+inline void PyBulletStatus::set_has_mjcfstatus() {
+  _oneof_case_[0] = kMjcfStatus;
+}
+inline void PyBulletStatus::clear_mjcfstatus() {
+  if (has_mjcfstatus()) {
+    delete status_.mjcfstatus_;
+    clear_has_status();
+  }
+}
+inline  const ::pybullet_grpc::MjcfLoadedStatus& PyBulletStatus::mjcfstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.mjcfStatus)
+  return has_mjcfstatus()
+      ? *status_.mjcfstatus_
+      : ::pybullet_grpc::MjcfLoadedStatus::default_instance();
+}
+inline ::pybullet_grpc::MjcfLoadedStatus* PyBulletStatus::mutable_mjcfstatus() {
+  if (!has_mjcfstatus()) {
+    clear_status();
+    set_has_mjcfstatus();
+    status_.mjcfstatus_ = new ::pybullet_grpc::MjcfLoadedStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.mjcfStatus)
+  return status_.mjcfstatus_;
+}
+inline ::pybullet_grpc::MjcfLoadedStatus* PyBulletStatus::release_mjcfstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.mjcfStatus)
+  if (has_mjcfstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::MjcfLoadedStatus* temp = status_.mjcfstatus_;
+    status_.mjcfstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletStatus::set_allocated_mjcfstatus(::pybullet_grpc::MjcfLoadedStatus* mjcfstatus) {
+  clear_status();
+  if (mjcfstatus) {
+    set_has_mjcfstatus();
+    status_.mjcfstatus_ = mjcfstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.mjcfStatus)
+}
+
+// .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+inline bool PyBulletStatus::has_getdynamicsstatus() const {
+  return status_case() == kGetDynamicsStatus;
+}
+inline void PyBulletStatus::set_has_getdynamicsstatus() {
+  _oneof_case_[0] = kGetDynamicsStatus;
+}
+inline void PyBulletStatus::clear_getdynamicsstatus() {
+  if (has_getdynamicsstatus()) {
+    delete status_.getdynamicsstatus_;
+    clear_has_status();
+  }
+}
+inline  const ::pybullet_grpc::GetDynamicsStatus& PyBulletStatus::getdynamicsstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.getDynamicsStatus)
+  return has_getdynamicsstatus()
+      ? *status_.getdynamicsstatus_
+      : ::pybullet_grpc::GetDynamicsStatus::default_instance();
+}
+inline ::pybullet_grpc::GetDynamicsStatus* PyBulletStatus::mutable_getdynamicsstatus() {
+  if (!has_getdynamicsstatus()) {
+    clear_status();
+    set_has_getdynamicsstatus();
+    status_.getdynamicsstatus_ = new ::pybullet_grpc::GetDynamicsStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.getDynamicsStatus)
+  return status_.getdynamicsstatus_;
+}
+inline ::pybullet_grpc::GetDynamicsStatus* PyBulletStatus::release_getdynamicsstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.getDynamicsStatus)
+  if (has_getdynamicsstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::GetDynamicsStatus* temp = status_.getdynamicsstatus_;
+    status_.getdynamicsstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletStatus::set_allocated_getdynamicsstatus(::pybullet_grpc::GetDynamicsStatus* getdynamicsstatus) {
+  clear_status();
+  if (getdynamicsstatus) {
+    set_has_getdynamicsstatus();
+    status_.getdynamicsstatus_ = getdynamicsstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.getDynamicsStatus)
+}
+
+// .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+inline bool PyBulletStatus::has_actualstatestatus() const {
+  return status_case() == kActualStateStatus;
+}
+inline void PyBulletStatus::set_has_actualstatestatus() {
+  _oneof_case_[0] = kActualStateStatus;
+}
+inline void PyBulletStatus::clear_actualstatestatus() {
+  if (has_actualstatestatus()) {
+    delete status_.actualstatestatus_;
+    clear_has_status();
+  }
+}
+inline  const ::pybullet_grpc::SendActualStateStatus& PyBulletStatus::actualstatestatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.actualStateStatus)
+  return has_actualstatestatus()
+      ? *status_.actualstatestatus_
+      : ::pybullet_grpc::SendActualStateStatus::default_instance();
+}
+inline ::pybullet_grpc::SendActualStateStatus* PyBulletStatus::mutable_actualstatestatus() {
+  if (!has_actualstatestatus()) {
+    clear_status();
+    set_has_actualstatestatus();
+    status_.actualstatestatus_ = new ::pybullet_grpc::SendActualStateStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.actualStateStatus)
+  return status_.actualstatestatus_;
+}
+inline ::pybullet_grpc::SendActualStateStatus* PyBulletStatus::release_actualstatestatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.actualStateStatus)
+  if (has_actualstatestatus()) {
+    clear_has_status();
+    ::pybullet_grpc::SendActualStateStatus* temp = status_.actualstatestatus_;
+    status_.actualstatestatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletStatus::set_allocated_actualstatestatus(::pybullet_grpc::SendActualStateStatus* actualstatestatus) {
+  clear_status();
+  if (actualstatestatus) {
+    set_has_actualstatestatus();
+    status_.actualstatestatus_ = actualstatestatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.actualStateStatus)
+}
+
 inline bool PyBulletStatus::has_status() const {
   return status_case() != STATUS_NOT_SET;
 }
@@ -1651,6 +5441,26 @@ inline PyBulletStatus::StatusCase PyBulletStatus::status_case() const {
   return PyBulletStatus::StatusCase(_oneof_case_[0]);
 }
 #endif  // !PROTOBUF_INLINE_NOT_IN_HEADERS
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

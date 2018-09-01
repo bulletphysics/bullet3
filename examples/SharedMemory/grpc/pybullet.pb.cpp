@@ -34,15 +34,63 @@ class LoadUrdfCommandDefaultTypeInternal : public ::google::protobuf::internal::
 } _LoadUrdfCommand_default_instance_;
 class LoadUrdfStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<LoadUrdfStatus> {
 } _LoadUrdfStatus_default_instance_;
+class LoadSdfCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<LoadSdfCommand> {
+  public:
+  ::google::protobuf::int32 usemultibody_;
+  double globalscaling_;
+} _LoadSdfCommand_default_instance_;
+class SdfLoadedStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<SdfLoadedStatus> {
+} _SdfLoadedStatus_default_instance_;
+class LoadMjcfCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<LoadMjcfCommand> {
+} _LoadMjcfCommand_default_instance_;
+class MjcfLoadedStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<MjcfLoadedStatus> {
+} _MjcfLoadedStatus_default_instance_;
+class ChangeDynamicsCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<ChangeDynamicsCommand> {
+  public:
+  double mass_;
+  double lateralfriction_;
+  double spinningfriction_;
+  double rollingfriction_;
+  double restitution_;
+  double lineardamping_;
+  double angulardamping_;
+  double contactstiffness_;
+  double contactdamping_;
+  const ::pybullet_grpc::vec3* localinertiadiagonal_;
+  ::google::protobuf::int32 frictionanchor_;
+  double ccdsweptsphereradius_;
+  double contactprocessingthreshold_;
+  ::google::protobuf::int32 activationstate_;
+} _ChangeDynamicsCommand_default_instance_;
+class GetDynamicsCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<GetDynamicsCommand> {
+} _GetDynamicsCommand_default_instance_;
+class GetDynamicsStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<GetDynamicsStatus> {
+} _GetDynamicsStatus_default_instance_;
+class InitPoseCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<InitPoseCommand> {
+} _InitPoseCommand_default_instance_;
+class RequestActualStateCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<RequestActualStateCommand> {
+} _RequestActualStateCommand_default_instance_;
+class SendActualStateStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<SendActualStateStatus> {
+} _SendActualStateStatus_default_instance_;
 class PyBulletCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<PyBulletCommand> {
   public:
   const ::pybullet_grpc::LoadUrdfCommand* loadurdfcommand_;
   const ::pybullet_grpc::TerminateServerCommand* terminateservercommand_;
   const ::pybullet_grpc::StepSimulationCommand* stepsimulationcommand_;
+  const ::pybullet_grpc::LoadSdfCommand* loadsdfcommand_;
+  const ::pybullet_grpc::LoadMjcfCommand* loadmjcfcommand_;
+  const ::pybullet_grpc::ChangeDynamicsCommand* changedynamicscommand_;
+  const ::pybullet_grpc::GetDynamicsCommand* getdynamicscommand_;
+  const ::pybullet_grpc::InitPoseCommand* initposecommand_;
+  const ::pybullet_grpc::RequestActualStateCommand* requestactualstatecommand_;
 } _PyBulletCommand_default_instance_;
 class PyBulletStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<PyBulletStatus> {
   public:
   const ::pybullet_grpc::LoadUrdfStatus* urdfstatus_;
+  const ::pybullet_grpc::SdfLoadedStatus* sdfstatus_;
+  const ::pybullet_grpc::MjcfLoadedStatus* mjcfstatus_;
+  const ::pybullet_grpc::GetDynamicsStatus* getdynamicsstatus_;
+  const ::pybullet_grpc::SendActualStateStatus* actualstatestatus_;
 } _PyBulletStatus_default_instance_;
 
 namespace protobuf_pybullet_2eproto {
@@ -50,7 +98,7 @@ namespace protobuf_pybullet_2eproto {
 
 namespace {
 
-::google::protobuf::Metadata file_level_metadata[8];
+::google::protobuf::Metadata file_level_metadata[18];
 
 }  // namespace
 
@@ -83,12 +131,12 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfCommand, _internal_metadata_),
   ~0u,  // no _extensions_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfCommand, _oneof_case_[0]),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfCommand, urdffilename_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfCommand, filename_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfCommand, initialposition_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfCommand, initialorientation_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_LoadUrdfCommand_default_instance_), usemultibody_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_LoadUrdfCommand_default_instance_), usefixedbase_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfCommand, urdfflags_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfCommand, flags_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_LoadUrdfCommand_default_instance_), globalscaling_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfCommand, hasUseMultiBody_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfCommand, hasUseFixedBase_),
@@ -97,7 +145,122 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfStatus, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfStatus, objectuniqueid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfStatus, bodyuniqueid_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadSdfCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadSdfCommand, _oneof_case_[0]),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadSdfCommand, filename_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_LoadSdfCommand_default_instance_), usemultibody_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_LoadSdfCommand_default_instance_), globalscaling_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadSdfCommand, hasUseMultiBody_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadSdfCommand, hasGlobalScaling_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SdfLoadedStatus, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SdfLoadedStatus, bodyuniqueids_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadMjcfCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadMjcfCommand, filename_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadMjcfCommand, flags_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MjcfLoadedStatus, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MjcfLoadedStatus, bodyuniqueids_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, _oneof_case_[0]),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, bodyuniqueid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, linkindex_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), mass_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), lateralfriction_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), spinningfriction_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), rollingfriction_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), restitution_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), lineardamping_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), angulardamping_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), contactstiffness_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), contactdamping_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), localinertiadiagonal_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), frictionanchor_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), ccdsweptsphereradius_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), contactprocessingthreshold_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_ChangeDynamicsCommand_default_instance_), activationstate_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasMass_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasLateralFriction_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasSpinningFriction_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasRollingFriction_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasRestitution_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, haslinearDamping_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasangularDamping_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasContactStiffness_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasContactDamping_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasLocalInertiaDiagonal_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasFrictionAnchor_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasccdSweptSphereRadius_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasContactProcessingThreshold_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChangeDynamicsCommand, hasActivationState_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsCommand, bodyuniqueid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsCommand, linkindex_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, mass_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, lateralfriction_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, spinningfriction_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, rollingfriction_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, restitution_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, lineardamping_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, angulardamping_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, contactstiffness_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, contactdamping_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, localinertiadiagonal_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, frictionanchor_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, ccdsweptsphereradius_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, contactprocessingthreshold_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetDynamicsStatus, activationstate_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InitPoseCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InitPoseCommand, bodyuniqueid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InitPoseCommand, hasinitialstateq_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InitPoseCommand, initialstateq_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InitPoseCommand, hasinitialstateqdot_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InitPoseCommand, initialstateqdot_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestActualStateCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestActualStateCommand, bodyuniqueid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestActualStateCommand, computeforwardkinematics_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestActualStateCommand, computelinkvelocities_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, bodyuniqueid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, numlinks_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, numdegreeoffreedomq_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, numdegreeoffreedomu_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, rootlocalinertialframe_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, actualstateq_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, actualstateqdot_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, jointreactionforces_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, jointmotorforce_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, linkstate_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, linkworldvelocities_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, linklocalinertialframes_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletCommand, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -106,6 +269,12 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), loadurdfcommand_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), terminateservercommand_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), stepsimulationcommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), loadsdfcommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), loadmjcfcommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), changedynamicscommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), getdynamicscommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), initposecommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), requestactualstatecommand_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletCommand, commands_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletStatus, _internal_metadata_),
@@ -113,6 +282,10 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletStatus, _oneof_case_[0]),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletStatus, statustype_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), urdfstatus_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), sdfstatus_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), mjcfstatus_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), getdynamicsstatus_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), actualstatestatus_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletStatus, status_),
 };
 
@@ -123,8 +296,18 @@ static const ::google::protobuf::internal::MigrationSchema schemas[] = {
   { 20, -1, sizeof(StepSimulationCommand)},
   { 24, -1, sizeof(LoadUrdfCommand)},
   { 38, -1, sizeof(LoadUrdfStatus)},
-  { 43, -1, sizeof(PyBulletCommand)},
-  { 52, -1, sizeof(PyBulletStatus)},
+  { 43, -1, sizeof(LoadSdfCommand)},
+  { 52, -1, sizeof(SdfLoadedStatus)},
+  { 57, -1, sizeof(LoadMjcfCommand)},
+  { 63, -1, sizeof(MjcfLoadedStatus)},
+  { 68, -1, sizeof(ChangeDynamicsCommand)},
+  { 102, -1, sizeof(GetDynamicsCommand)},
+  { 108, -1, sizeof(GetDynamicsStatus)},
+  { 126, -1, sizeof(InitPoseCommand)},
+  { 135, -1, sizeof(RequestActualStateCommand)},
+  { 142, -1, sizeof(SendActualStateStatus)},
+  { 158, -1, sizeof(PyBulletCommand)},
+  { 173, -1, sizeof(PyBulletStatus)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -134,6 +317,16 @@ static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&_StepSimulationCommand_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_LoadUrdfCommand_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_LoadUrdfStatus_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_LoadSdfCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_SdfLoadedStatus_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_LoadMjcfCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_MjcfLoadedStatus_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_ChangeDynamicsCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_GetDynamicsCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_GetDynamicsStatus_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_InitPoseCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_RequestActualStateCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_SendActualStateStatus_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_PyBulletCommand_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_PyBulletStatus_default_instance_),
 };
@@ -156,7 +349,7 @@ void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) GOOGLE_ATTRIBUTE_COLD;
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 8);
+  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 18);
 }
 
 }  // namespace
@@ -174,10 +367,30 @@ void TableStruct::Shutdown() {
   delete file_level_metadata[4].reflection;
   _LoadUrdfStatus_default_instance_.Shutdown();
   delete file_level_metadata[5].reflection;
-  _PyBulletCommand_default_instance_.Shutdown();
+  _LoadSdfCommand_default_instance_.Shutdown();
   delete file_level_metadata[6].reflection;
-  _PyBulletStatus_default_instance_.Shutdown();
+  _SdfLoadedStatus_default_instance_.Shutdown();
   delete file_level_metadata[7].reflection;
+  _LoadMjcfCommand_default_instance_.Shutdown();
+  delete file_level_metadata[8].reflection;
+  _MjcfLoadedStatus_default_instance_.Shutdown();
+  delete file_level_metadata[9].reflection;
+  _ChangeDynamicsCommand_default_instance_.Shutdown();
+  delete file_level_metadata[10].reflection;
+  _GetDynamicsCommand_default_instance_.Shutdown();
+  delete file_level_metadata[11].reflection;
+  _GetDynamicsStatus_default_instance_.Shutdown();
+  delete file_level_metadata[12].reflection;
+  _InitPoseCommand_default_instance_.Shutdown();
+  delete file_level_metadata[13].reflection;
+  _RequestActualStateCommand_default_instance_.Shutdown();
+  delete file_level_metadata[14].reflection;
+  _SendActualStateStatus_default_instance_.Shutdown();
+  delete file_level_metadata[15].reflection;
+  _PyBulletCommand_default_instance_.Shutdown();
+  delete file_level_metadata[16].reflection;
+  _PyBulletStatus_default_instance_.Shutdown();
+  delete file_level_metadata[17].reflection;
 }
 
 void TableStruct::InitDefaultsImpl() {
@@ -190,6 +403,16 @@ void TableStruct::InitDefaultsImpl() {
   _StepSimulationCommand_default_instance_.DefaultConstruct();
   _LoadUrdfCommand_default_instance_.DefaultConstruct();
   _LoadUrdfStatus_default_instance_.DefaultConstruct();
+  _LoadSdfCommand_default_instance_.DefaultConstruct();
+  _SdfLoadedStatus_default_instance_.DefaultConstruct();
+  _LoadMjcfCommand_default_instance_.DefaultConstruct();
+  _MjcfLoadedStatus_default_instance_.DefaultConstruct();
+  _ChangeDynamicsCommand_default_instance_.DefaultConstruct();
+  _GetDynamicsCommand_default_instance_.DefaultConstruct();
+  _GetDynamicsStatus_default_instance_.DefaultConstruct();
+  _InitPoseCommand_default_instance_.DefaultConstruct();
+  _RequestActualStateCommand_default_instance_.DefaultConstruct();
+  _SendActualStateStatus_default_instance_.DefaultConstruct();
   _PyBulletCommand_default_instance_.DefaultConstruct();
   _PyBulletStatus_default_instance_.DefaultConstruct();
   _LoadUrdfCommand_default_instance_.get_mutable()->initialposition_ = const_cast< ::pybullet_grpc::vec3*>(
@@ -199,14 +422,53 @@ void TableStruct::InitDefaultsImpl() {
   _LoadUrdfCommand_default_instance_.usemultibody_ = 0;
   _LoadUrdfCommand_default_instance_.usefixedbase_ = false;
   _LoadUrdfCommand_default_instance_.globalscaling_ = 0;
+  _LoadSdfCommand_default_instance_.usemultibody_ = 0;
+  _LoadSdfCommand_default_instance_.globalscaling_ = 0;
+  _ChangeDynamicsCommand_default_instance_.mass_ = 0;
+  _ChangeDynamicsCommand_default_instance_.lateralfriction_ = 0;
+  _ChangeDynamicsCommand_default_instance_.spinningfriction_ = 0;
+  _ChangeDynamicsCommand_default_instance_.rollingfriction_ = 0;
+  _ChangeDynamicsCommand_default_instance_.restitution_ = 0;
+  _ChangeDynamicsCommand_default_instance_.lineardamping_ = 0;
+  _ChangeDynamicsCommand_default_instance_.angulardamping_ = 0;
+  _ChangeDynamicsCommand_default_instance_.contactstiffness_ = 0;
+  _ChangeDynamicsCommand_default_instance_.contactdamping_ = 0;
+  _ChangeDynamicsCommand_default_instance_.localinertiadiagonal_ = const_cast< ::pybullet_grpc::vec3*>(
+      ::pybullet_grpc::vec3::internal_default_instance());
+  _ChangeDynamicsCommand_default_instance_.frictionanchor_ = 0;
+  _ChangeDynamicsCommand_default_instance_.ccdsweptsphereradius_ = 0;
+  _ChangeDynamicsCommand_default_instance_.contactprocessingthreshold_ = 0;
+  _ChangeDynamicsCommand_default_instance_.activationstate_ = 0;
+  _GetDynamicsStatus_default_instance_.get_mutable()->localinertiadiagonal_ = const_cast< ::pybullet_grpc::vec3*>(
+      ::pybullet_grpc::vec3::internal_default_instance());
   _PyBulletCommand_default_instance_.loadurdfcommand_ = const_cast< ::pybullet_grpc::LoadUrdfCommand*>(
       ::pybullet_grpc::LoadUrdfCommand::internal_default_instance());
   _PyBulletCommand_default_instance_.terminateservercommand_ = const_cast< ::pybullet_grpc::TerminateServerCommand*>(
       ::pybullet_grpc::TerminateServerCommand::internal_default_instance());
   _PyBulletCommand_default_instance_.stepsimulationcommand_ = const_cast< ::pybullet_grpc::StepSimulationCommand*>(
       ::pybullet_grpc::StepSimulationCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.loadsdfcommand_ = const_cast< ::pybullet_grpc::LoadSdfCommand*>(
+      ::pybullet_grpc::LoadSdfCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.loadmjcfcommand_ = const_cast< ::pybullet_grpc::LoadMjcfCommand*>(
+      ::pybullet_grpc::LoadMjcfCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.changedynamicscommand_ = const_cast< ::pybullet_grpc::ChangeDynamicsCommand*>(
+      ::pybullet_grpc::ChangeDynamicsCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.getdynamicscommand_ = const_cast< ::pybullet_grpc::GetDynamicsCommand*>(
+      ::pybullet_grpc::GetDynamicsCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.initposecommand_ = const_cast< ::pybullet_grpc::InitPoseCommand*>(
+      ::pybullet_grpc::InitPoseCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.requestactualstatecommand_ = const_cast< ::pybullet_grpc::RequestActualStateCommand*>(
+      ::pybullet_grpc::RequestActualStateCommand::internal_default_instance());
   _PyBulletStatus_default_instance_.urdfstatus_ = const_cast< ::pybullet_grpc::LoadUrdfStatus*>(
       ::pybullet_grpc::LoadUrdfStatus::internal_default_instance());
+  _PyBulletStatus_default_instance_.sdfstatus_ = const_cast< ::pybullet_grpc::SdfLoadedStatus*>(
+      ::pybullet_grpc::SdfLoadedStatus::internal_default_instance());
+  _PyBulletStatus_default_instance_.mjcfstatus_ = const_cast< ::pybullet_grpc::MjcfLoadedStatus*>(
+      ::pybullet_grpc::MjcfLoadedStatus::internal_default_instance());
+  _PyBulletStatus_default_instance_.getdynamicsstatus_ = const_cast< ::pybullet_grpc::GetDynamicsStatus*>(
+      ::pybullet_grpc::GetDynamicsStatus::internal_default_instance());
+  _PyBulletStatus_default_instance_.actualstatestatus_ = const_cast< ::pybullet_grpc::SendActualStateStatus*>(
+      ::pybullet_grpc::SendActualStateStatus::internal_default_instance());
 }
 
 void InitDefaults() {
@@ -220,31 +482,99 @@ void AddDescriptorsImpl() {
       "\t\n\001x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\022\t\n\001z\030\003 \001(\001\"3\n\005quat"
       "4\022\t\n\001x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\022\t\n\001z\030\003 \001(\001\022\t\n\001w\030"
       "\004 \001(\001\",\n\026TerminateServerCommand\022\022\n\nexitR"
-      "eason\030\001 \001(\t\"\027\n\025StepSimulationCommand\"\235\002\n"
-      "\017LoadUrdfCommand\022\024\n\014urdfFileName\030\001 \001(\t\022,"
-      "\n\017initialPosition\030\002 \001(\0132\023.pybullet_grpc."
-      "vec3\0220\n\022initialOrientation\030\003 \001(\0132\024.pybul"
-      "let_grpc.quat4\022\026\n\014useMultiBody\030\004 \001(\005H\000\022\026"
-      "\n\014useFixedBase\030\005 \001(\010H\001\022\021\n\turdfFlags\030\006 \001("
-      "\005\022\027\n\rglobalScaling\030\007 \001(\001H\002B\021\n\017hasUseMult"
-      "iBodyB\021\n\017hasUseFixedBaseB\022\n\020hasGlobalSca"
-      "ling\"(\n\016LoadUrdfStatus\022\026\n\016objectUniqueId"
-      "\030\001 \001(\005\"\375\001\n\017PyBulletCommand\022\023\n\013commandTyp"
-      "e\030\001 \001(\005\0229\n\017loadUrdfCommand\030\003 \001(\0132\036.pybul"
-      "let_grpc.LoadUrdfCommandH\000\022G\n\026terminateS"
-      "erverCommand\030\004 \001(\0132%.pybullet_grpc.Termi"
-      "nateServerCommandH\000\022E\n\025stepSimulationCom"
-      "mand\030\005 \001(\0132$.pybullet_grpc.StepSimulatio"
-      "nCommandH\000B\n\n\010commands\"c\n\016PyBulletStatus"
-      "\022\022\n\nstatusType\030\001 \001(\005\0223\n\nurdfStatus\030\002 \001(\013"
-      "2\035.pybullet_grpc.LoadUrdfStatusH\000B\010\n\006sta"
-      "tus2_\n\013PyBulletAPI\022P\n\rSubmitCommand\022\036.py"
-      "bullet_grpc.PyBulletCommand\032\035.pybullet_g"
-      "rpc.PyBulletStatus\"\000B.\n\025io.grpc.pybullet"
-      "_grpcB\rPyBulletProtoP\001\242\002\003PBGb\006proto3"
+      "eason\030\001 \001(\t\"\027\n\025StepSimulationCommand\"\225\002\n"
+      "\017LoadUrdfCommand\022\020\n\010fileName\030\001 \001(\t\022,\n\017in"
+      "itialPosition\030\002 \001(\0132\023.pybullet_grpc.vec3"
+      "\0220\n\022initialOrientation\030\003 \001(\0132\024.pybullet_"
+      "grpc.quat4\022\026\n\014useMultiBody\030\004 \001(\005H\000\022\026\n\014us"
+      "eFixedBase\030\005 \001(\010H\001\022\r\n\005flags\030\006 \001(\005\022\027\n\rglo"
+      "balScaling\030\007 \001(\001H\002B\021\n\017hasUseMultiBodyB\021\n"
+      "\017hasUseFixedBaseB\022\n\020hasGlobalScaling\"&\n\016"
+      "LoadUrdfStatus\022\024\n\014bodyUniqueId\030\001 \001(\005\"z\n\016"
+      "LoadSdfCommand\022\020\n\010fileName\030\001 \001(\t\022\026\n\014useM"
+      "ultiBody\030\002 \001(\005H\000\022\027\n\rglobalScaling\030\003 \001(\001H"
+      "\001B\021\n\017hasUseMultiBodyB\022\n\020hasGlobalScaling"
+      "\"(\n\017SdfLoadedStatus\022\025\n\rbodyUniqueIds\030\002 \003"
+      "(\005\"2\n\017LoadMjcfCommand\022\020\n\010fileName\030\001 \001(\t\022"
+      "\r\n\005flags\030\002 \001(\005\")\n\020MjcfLoadedStatus\022\025\n\rbo"
+      "dyUniqueIds\030\002 \003(\005\"\211\006\n\025ChangeDynamicsComm"
+      "and\022\024\n\014bodyUniqueId\030\001 \001(\005\022\021\n\tlinkIndex\030\002"
+      " \001(\005\022\016\n\004mass\030\003 \001(\001H\000\022\031\n\017lateralFriction\030"
+      "\005 \001(\001H\001\022\032\n\020spinningFriction\030\006 \001(\001H\002\022\031\n\017r"
+      "ollingFriction\030\007 \001(\001H\003\022\025\n\013restitution\030\010 "
+      "\001(\001H\004\022\027\n\rlinearDamping\030\t \001(\001H\005\022\030\n\016angula"
+      "rDamping\030\n \001(\001H\006\022\032\n\020contactStiffness\030\013 \001"
+      "(\001H\007\022\030\n\016contactDamping\030\014 \001(\001H\010\0223\n\024localI"
+      "nertiaDiagonal\030\r \001(\0132\023.pybullet_grpc.vec"
+      "3H\t\022\030\n\016frictionAnchor\030\016 \001(\005H\n\022\036\n\024ccdSwep"
+      "tSphereRadius\030\017 \001(\001H\013\022$\n\032contactProcessi"
+      "ngThreshold\030\020 \001(\001H\014\022\031\n\017activationState\030\021"
+      " \001(\005H\rB\t\n\007hasMassB\024\n\022hasLateralFrictionB"
+      "\025\n\023hasSpinningFrictionB\024\n\022hasRollingFric"
+      "tionB\020\n\016hasRestitutionB\022\n\020haslinearDampi"
+      "ngB\023\n\021hasangularDampingB\025\n\023hasContactSti"
+      "ffnessB\023\n\021hasContactDampingB\031\n\027hasLocalI"
+      "nertiaDiagonalB\023\n\021hasFrictionAnchorB\031\n\027h"
+      "asccdSweptSphereRadiusB\037\n\035hasContactProc"
+      "essingThresholdB\024\n\022hasActivationState\"=\n"
+      "\022GetDynamicsCommand\022\024\n\014bodyUniqueId\030\001 \001("
+      "\005\022\021\n\tlinkIndex\030\002 \001(\005\"\211\003\n\021GetDynamicsStat"
+      "us\022\014\n\004mass\030\003 \001(\001\022\027\n\017lateralFriction\030\005 \001("
+      "\001\022\030\n\020spinningFriction\030\006 \001(\001\022\027\n\017rollingFr"
+      "iction\030\007 \001(\001\022\023\n\013restitution\030\010 \001(\001\022\025\n\rlin"
+      "earDamping\030\t \001(\001\022\026\n\016angularDamping\030\n \001(\001"
+      "\022\030\n\020contactStiffness\030\013 \001(\001\022\026\n\016contactDam"
+      "ping\030\014 \001(\001\0221\n\024localInertiaDiagonal\030\r \001(\013"
+      "2\023.pybullet_grpc.vec3\022\026\n\016frictionAnchor\030"
+      "\016 \001(\005\022\034\n\024ccdSweptSphereRadius\030\017 \001(\001\022\"\n\032c"
+      "ontactProcessingThreshold\030\020 \001(\001\022\027\n\017activ"
+      "ationState\030\021 \001(\005\"\217\001\n\017InitPoseCommand\022\024\n\014"
+      "bodyUniqueId\030\001 \001(\005\022\030\n\020hasInitialStateQ\030\002"
+      " \003(\005\022\025\n\rinitialStateQ\030\003 \003(\001\022\033\n\023hasInitia"
+      "lStateQdot\030\004 \003(\005\022\030\n\020initialStateQdot\030\005 \003"
+      "(\001\"r\n\031RequestActualStateCommand\022\024\n\014bodyU"
+      "niqueId\030\001 \001(\005\022 \n\030computeForwardKinematic"
+      "s\030\002 \001(\010\022\035\n\025computeLinkVelocities\030\003 \001(\010\"\317"
+      "\002\n\025SendActualStateStatus\022\024\n\014bodyUniqueId"
+      "\030\001 \001(\005\022\020\n\010numLinks\030\002 \001(\005\022\033\n\023numDegreeOfF"
+      "reedomQ\030\003 \001(\005\022\033\n\023numDegreeOfFreedomU\030\004 \001"
+      "(\005\022\036\n\026rootLocalInertialFrame\030\005 \003(\001\022\024\n\014ac"
+      "tualStateQ\030\006 \003(\001\022\027\n\017actualStateQdot\030\007 \003("
+      "\001\022\033\n\023jointReactionForces\030\010 \003(\001\022\027\n\017jointM"
+      "otorForce\030\t \003(\001\022\021\n\tlinkState\030\n \003(\001\022\033\n\023li"
+      "nkWorldVelocities\030\013 \003(\001\022\037\n\027linkLocalIner"
+      "tialFrames\030\014 \003(\001\"\203\005\n\017PyBulletCommand\022\023\n\013"
+      "commandType\030\001 \001(\005\0229\n\017loadUrdfCommand\030\003 \001"
+      "(\0132\036.pybullet_grpc.LoadUrdfCommandH\000\022G\n\026"
+      "terminateServerCommand\030\004 \001(\0132%.pybullet_"
+      "grpc.TerminateServerCommandH\000\022E\n\025stepSim"
+      "ulationCommand\030\005 \001(\0132$.pybullet_grpc.Ste"
+      "pSimulationCommandH\000\0227\n\016loadSdfCommand\030\006"
+      " \001(\0132\035.pybullet_grpc.LoadSdfCommandH\000\0229\n"
+      "\017loadMjcfCommand\030\007 \001(\0132\036.pybullet_grpc.L"
+      "oadMjcfCommandH\000\022E\n\025changeDynamicsComman"
+      "d\030\010 \001(\0132$.pybullet_grpc.ChangeDynamicsCo"
+      "mmandH\000\022\?\n\022getDynamicsCommand\030\t \001(\0132!.py"
+      "bullet_grpc.GetDynamicsCommandH\000\0229\n\017init"
+      "PoseCommand\030\n \001(\0132\036.pybullet_grpc.InitPo"
+      "seCommandH\000\022M\n\031requestActualStateCommand"
+      "\030\013 \001(\0132(.pybullet_grpc.RequestActualStat"
+      "eCommandH\000B\n\n\010commands\"\321\002\n\016PyBulletStatu"
+      "s\022\022\n\nstatusType\030\001 \001(\005\0223\n\nurdfStatus\030\002 \001("
+      "\0132\035.pybullet_grpc.LoadUrdfStatusH\000\0223\n\tsd"
+      "fStatus\030\003 \001(\0132\036.pybullet_grpc.SdfLoadedS"
+      "tatusH\000\0225\n\nmjcfStatus\030\004 \001(\0132\037.pybullet_g"
+      "rpc.MjcfLoadedStatusH\000\022=\n\021getDynamicsSta"
+      "tus\030\005 \001(\0132 .pybullet_grpc.GetDynamicsSta"
+      "tusH\000\022A\n\021actualStateStatus\030\006 \001(\0132$.pybul"
+      "let_grpc.SendActualStateStatusH\000B\010\n\006stat"
+      "us2_\n\013PyBulletAPI\022P\n\rSubmitCommand\022\036.pyb"
+      "ullet_grpc.PyBulletCommand\032\035.pybullet_gr"
+      "pc.PyBulletStatus\"\000B.\n\025io.grpc.pybullet_"
+      "grpcB\rPyBulletProtoP\001\242\002\003PBGb\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 1036);
+      descriptor, 3755);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "pybullet.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
@@ -1405,12 +1735,12 @@ void StepSimulationCommand::InternalSwap(StepSimulationCommand* other) {
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int LoadUrdfCommand::kUrdfFileNameFieldNumber;
+const int LoadUrdfCommand::kFileNameFieldNumber;
 const int LoadUrdfCommand::kInitialPositionFieldNumber;
 const int LoadUrdfCommand::kInitialOrientationFieldNumber;
 const int LoadUrdfCommand::kUseMultiBodyFieldNumber;
 const int LoadUrdfCommand::kUseFixedBaseFieldNumber;
-const int LoadUrdfCommand::kUrdfFlagsFieldNumber;
+const int LoadUrdfCommand::kFlagsFieldNumber;
 const int LoadUrdfCommand::kGlobalScalingFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
@@ -1427,9 +1757,9 @@ LoadUrdfCommand::LoadUrdfCommand(const LoadUrdfCommand& from)
       _internal_metadata_(NULL),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  urdffilename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.urdffilename().size() > 0) {
-    urdffilename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.urdffilename_);
+  filename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.filename().size() > 0) {
+    filename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.filename_);
   }
   if (from.has_initialposition()) {
     initialposition_ = new ::pybullet_grpc::vec3(*from.initialposition_);
@@ -1441,7 +1771,7 @@ LoadUrdfCommand::LoadUrdfCommand(const LoadUrdfCommand& from)
   } else {
     initialorientation_ = NULL;
   }
-  urdfflags_ = from.urdfflags_;
+  flags_ = from.flags_;
   clear_has_hasUseMultiBody();
   switch (from.hasUseMultiBody_case()) {
     case kUseMultiBody: {
@@ -1476,9 +1806,9 @@ LoadUrdfCommand::LoadUrdfCommand(const LoadUrdfCommand& from)
 }
 
 void LoadUrdfCommand::SharedCtor() {
-  urdffilename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(&initialposition_, 0, reinterpret_cast<char*>(&urdfflags_) -
-    reinterpret_cast<char*>(&initialposition_) + sizeof(urdfflags_));
+  filename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(&initialposition_, 0, reinterpret_cast<char*>(&flags_) -
+    reinterpret_cast<char*>(&initialposition_) + sizeof(flags_));
   clear_has_hasUseMultiBody();
   clear_has_hasUseFixedBase();
   clear_has_hasGlobalScaling();
@@ -1491,7 +1821,7 @@ LoadUrdfCommand::~LoadUrdfCommand() {
 }
 
 void LoadUrdfCommand::SharedDtor() {
-  urdffilename_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  filename_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) {
     delete initialposition_;
   }
@@ -1577,7 +1907,7 @@ void LoadUrdfCommand::clear_hasGlobalScaling() {
 
 void LoadUrdfCommand::Clear() {
 // @@protoc_insertion_point(message_clear_start:pybullet_grpc.LoadUrdfCommand)
-  urdffilename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   if (GetArenaNoVirtual() == NULL && initialposition_ != NULL) {
     delete initialposition_;
   }
@@ -1586,7 +1916,7 @@ void LoadUrdfCommand::Clear() {
     delete initialorientation_;
   }
   initialorientation_ = NULL;
-  urdfflags_ = 0;
+  flags_ = 0;
   clear_hasUseMultiBody();
   clear_hasUseFixedBase();
   clear_hasGlobalScaling();
@@ -1602,15 +1932,15 @@ bool LoadUrdfCommand::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // string urdfFileName = 1;
+      // string fileName = 1;
       case 1: {
         if (tag == 10u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_urdffilename()));
+                input, this->mutable_filename()));
           DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-            this->urdffilename().data(), this->urdffilename().length(),
+            this->filename().data(), this->filename().length(),
             ::google::protobuf::internal::WireFormatLite::PARSE,
-            "pybullet_grpc.LoadUrdfCommand.urdfFileName"));
+            "pybullet_grpc.LoadUrdfCommand.fileName"));
         } else {
           goto handle_unusual;
         }
@@ -1667,13 +1997,13 @@ bool LoadUrdfCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // int32 urdfFlags = 6;
+      // int32 flags = 6;
       case 6: {
         if (tag == 48u) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
-                 input, &urdfflags_)));
+                 input, &flags_)));
         } else {
           goto handle_unusual;
         }
@@ -1718,14 +2048,14 @@ failure:
 void LoadUrdfCommand::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:pybullet_grpc.LoadUrdfCommand)
-  // string urdfFileName = 1;
-  if (this->urdffilename().size() > 0) {
+  // string fileName = 1;
+  if (this->filename().size() > 0) {
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->urdffilename().data(), this->urdffilename().length(),
+      this->filename().data(), this->filename().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "pybullet_grpc.LoadUrdfCommand.urdfFileName");
+      "pybullet_grpc.LoadUrdfCommand.fileName");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->urdffilename(), output);
+      1, this->filename(), output);
   }
 
   // .pybullet_grpc.vec3 initialPosition = 2;
@@ -1750,9 +2080,9 @@ void LoadUrdfCommand::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(5, this->usefixedbase(), output);
   }
 
-  // int32 urdfFlags = 6;
-  if (this->urdfflags() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(6, this->urdfflags(), output);
+  // int32 flags = 6;
+  if (this->flags() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(6, this->flags(), output);
   }
 
   // double globalScaling = 7;
@@ -1767,15 +2097,15 @@ void LoadUrdfCommand::SerializeWithCachedSizes(
     bool deterministic, ::google::protobuf::uint8* target) const {
   (void)deterministic;  // Unused
   // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.LoadUrdfCommand)
-  // string urdfFileName = 1;
-  if (this->urdffilename().size() > 0) {
+  // string fileName = 1;
+  if (this->filename().size() > 0) {
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->urdffilename().data(), this->urdffilename().length(),
+      this->filename().data(), this->filename().length(),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "pybullet_grpc.LoadUrdfCommand.urdfFileName");
+      "pybullet_grpc.LoadUrdfCommand.fileName");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->urdffilename(), target);
+        1, this->filename(), target);
   }
 
   // .pybullet_grpc.vec3 initialPosition = 2;
@@ -1802,9 +2132,9 @@ void LoadUrdfCommand::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(5, this->usefixedbase(), target);
   }
 
-  // int32 urdfFlags = 6;
-  if (this->urdfflags() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(6, this->urdfflags(), target);
+  // int32 flags = 6;
+  if (this->flags() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(6, this->flags(), target);
   }
 
   // double globalScaling = 7;
@@ -1820,11 +2150,11 @@ size_t LoadUrdfCommand::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.LoadUrdfCommand)
   size_t total_size = 0;
 
-  // string urdfFileName = 1;
-  if (this->urdffilename().size() > 0) {
+  // string fileName = 1;
+  if (this->filename().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->urdffilename());
+        this->filename());
   }
 
   // .pybullet_grpc.vec3 initialPosition = 2;
@@ -1841,11 +2171,11 @@ size_t LoadUrdfCommand::ByteSizeLong() const {
         *this->initialorientation_);
   }
 
-  // int32 urdfFlags = 6;
-  if (this->urdfflags() != 0) {
+  // int32 flags = 6;
+  if (this->flags() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->urdfflags());
+        this->flags());
   }
 
   switch (hasUseMultiBody_case()) {
@@ -1906,9 +2236,9 @@ void LoadUrdfCommand::MergeFrom(const LoadUrdfCommand& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.LoadUrdfCommand)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from.urdffilename().size() > 0) {
+  if (from.filename().size() > 0) {
 
-    urdffilename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.urdffilename_);
+    filename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.filename_);
   }
   if (from.has_initialposition()) {
     mutable_initialposition()->::pybullet_grpc::vec3::MergeFrom(from.initialposition());
@@ -1916,8 +2246,8 @@ void LoadUrdfCommand::MergeFrom(const LoadUrdfCommand& from) {
   if (from.has_initialorientation()) {
     mutable_initialorientation()->::pybullet_grpc::quat4::MergeFrom(from.initialorientation());
   }
-  if (from.urdfflags() != 0) {
-    set_urdfflags(from.urdfflags());
+  if (from.flags() != 0) {
+    set_flags(from.flags());
   }
   switch (from.hasUseMultiBody_case()) {
     case kUseMultiBody: {
@@ -1971,10 +2301,10 @@ void LoadUrdfCommand::Swap(LoadUrdfCommand* other) {
   InternalSwap(other);
 }
 void LoadUrdfCommand::InternalSwap(LoadUrdfCommand* other) {
-  urdffilename_.Swap(&other->urdffilename_);
+  filename_.Swap(&other->filename_);
   std::swap(initialposition_, other->initialposition_);
   std::swap(initialorientation_, other->initialorientation_);
-  std::swap(urdfflags_, other->urdfflags_);
+  std::swap(flags_, other->flags_);
   std::swap(hasUseMultiBody_, other->hasUseMultiBody_);
   std::swap(_oneof_case_[0], other->_oneof_case_[0]);
   std::swap(hasUseFixedBase_, other->hasUseFixedBase_);
@@ -1992,56 +2322,56 @@ void LoadUrdfCommand::InternalSwap(LoadUrdfCommand* other) {
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // LoadUrdfCommand
 
-// string urdfFileName = 1;
-void LoadUrdfCommand::clear_urdffilename() {
-  urdffilename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+// string fileName = 1;
+void LoadUrdfCommand::clear_filename() {
+  filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-const ::std::string& LoadUrdfCommand::urdffilename() const {
-  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfCommand.urdfFileName)
-  return urdffilename_.GetNoArena();
+const ::std::string& LoadUrdfCommand::filename() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfCommand.fileName)
+  return filename_.GetNoArena();
 }
-void LoadUrdfCommand::set_urdffilename(const ::std::string& value) {
+void LoadUrdfCommand::set_filename(const ::std::string& value) {
   
-  urdffilename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfCommand.urdfFileName)
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfCommand.fileName)
 }
 #if LANG_CXX11
-void LoadUrdfCommand::set_urdffilename(::std::string&& value) {
+void LoadUrdfCommand::set_filename(::std::string&& value) {
   
-  urdffilename_.SetNoArena(
+  filename_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.LoadUrdfCommand.urdfFileName)
+  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.LoadUrdfCommand.fileName)
 }
 #endif
-void LoadUrdfCommand::set_urdffilename(const char* value) {
+void LoadUrdfCommand::set_filename(const char* value) {
   
-  urdffilename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:pybullet_grpc.LoadUrdfCommand.urdfFileName)
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.LoadUrdfCommand.fileName)
 }
-void LoadUrdfCommand::set_urdffilename(const char* value, size_t size) {
+void LoadUrdfCommand::set_filename(const char* value, size_t size) {
   
-  urdffilename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.LoadUrdfCommand.urdfFileName)
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.LoadUrdfCommand.fileName)
 }
-::std::string* LoadUrdfCommand::mutable_urdffilename() {
+::std::string* LoadUrdfCommand::mutable_filename() {
   
-  // @@protoc_insertion_point(field_mutable:pybullet_grpc.LoadUrdfCommand.urdfFileName)
-  return urdffilename_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.LoadUrdfCommand.fileName)
+  return filename_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-::std::string* LoadUrdfCommand::release_urdffilename() {
-  // @@protoc_insertion_point(field_release:pybullet_grpc.LoadUrdfCommand.urdfFileName)
+::std::string* LoadUrdfCommand::release_filename() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.LoadUrdfCommand.fileName)
   
-  return urdffilename_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  return filename_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-void LoadUrdfCommand::set_allocated_urdffilename(::std::string* urdffilename) {
-  if (urdffilename != NULL) {
+void LoadUrdfCommand::set_allocated_filename(::std::string* filename) {
+  if (filename != NULL) {
     
   } else {
     
   }
-  urdffilename_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), urdffilename);
-  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.LoadUrdfCommand.urdfFileName)
+  filename_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), filename);
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.LoadUrdfCommand.fileName)
 }
 
 // .pybullet_grpc.vec3 initialPosition = 2;
@@ -2180,18 +2510,18 @@ void LoadUrdfCommand::set_usefixedbase(bool value) {
   // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfCommand.useFixedBase)
 }
 
-// int32 urdfFlags = 6;
-void LoadUrdfCommand::clear_urdfflags() {
-  urdfflags_ = 0;
+// int32 flags = 6;
+void LoadUrdfCommand::clear_flags() {
+  flags_ = 0;
 }
-::google::protobuf::int32 LoadUrdfCommand::urdfflags() const {
-  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfCommand.urdfFlags)
-  return urdfflags_;
+::google::protobuf::int32 LoadUrdfCommand::flags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfCommand.flags)
+  return flags_;
 }
-void LoadUrdfCommand::set_urdfflags(::google::protobuf::int32 value) {
+void LoadUrdfCommand::set_flags(::google::protobuf::int32 value) {
   
-  urdfflags_ = value;
-  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfCommand.urdfFlags)
+  flags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfCommand.flags)
 }
 
 // double globalScaling = 7;
@@ -2255,7 +2585,7 @@ LoadUrdfCommand::HasGlobalScalingCase LoadUrdfCommand::hasGlobalScaling_case() c
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int LoadUrdfStatus::kObjectUniqueIdFieldNumber;
+const int LoadUrdfStatus::kBodyUniqueIdFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 LoadUrdfStatus::LoadUrdfStatus()
@@ -2271,12 +2601,12 @@ LoadUrdfStatus::LoadUrdfStatus(const LoadUrdfStatus& from)
       _internal_metadata_(NULL),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  objectuniqueid_ = from.objectuniqueid_;
+  bodyuniqueid_ = from.bodyuniqueid_;
   // @@protoc_insertion_point(copy_constructor:pybullet_grpc.LoadUrdfStatus)
 }
 
 void LoadUrdfStatus::SharedCtor() {
-  objectuniqueid_ = 0;
+  bodyuniqueid_ = 0;
   _cached_size_ = 0;
 }
 
@@ -2313,7 +2643,7 @@ LoadUrdfStatus* LoadUrdfStatus::New(::google::protobuf::Arena* arena) const {
 
 void LoadUrdfStatus::Clear() {
 // @@protoc_insertion_point(message_clear_start:pybullet_grpc.LoadUrdfStatus)
-  objectuniqueid_ = 0;
+  bodyuniqueid_ = 0;
 }
 
 bool LoadUrdfStatus::MergePartialFromCodedStream(
@@ -2326,13 +2656,13 @@ bool LoadUrdfStatus::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // int32 objectUniqueId = 1;
+      // int32 bodyUniqueId = 1;
       case 1: {
         if (tag == 8u) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
-                 input, &objectuniqueid_)));
+                 input, &bodyuniqueid_)));
         } else {
           goto handle_unusual;
         }
@@ -2363,9 +2693,9 @@ failure:
 void LoadUrdfStatus::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:pybullet_grpc.LoadUrdfStatus)
-  // int32 objectUniqueId = 1;
-  if (this->objectuniqueid() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->objectuniqueid(), output);
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->bodyuniqueid(), output);
   }
 
   // @@protoc_insertion_point(serialize_end:pybullet_grpc.LoadUrdfStatus)
@@ -2375,9 +2705,9 @@ void LoadUrdfStatus::SerializeWithCachedSizes(
     bool deterministic, ::google::protobuf::uint8* target) const {
   (void)deterministic;  // Unused
   // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.LoadUrdfStatus)
-  // int32 objectUniqueId = 1;
-  if (this->objectuniqueid() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->objectuniqueid(), target);
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->bodyuniqueid(), target);
   }
 
   // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.LoadUrdfStatus)
@@ -2388,11 +2718,11 @@ size_t LoadUrdfStatus::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.LoadUrdfStatus)
   size_t total_size = 0;
 
-  // int32 objectUniqueId = 1;
-  if (this->objectuniqueid() != 0) {
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->objectuniqueid());
+        this->bodyuniqueid());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -2421,8 +2751,8 @@ void LoadUrdfStatus::MergeFrom(const LoadUrdfStatus& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.LoadUrdfStatus)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from.objectuniqueid() != 0) {
-    set_objectuniqueid(from.objectuniqueid());
+  if (from.bodyuniqueid() != 0) {
+    set_bodyuniqueid(from.bodyuniqueid());
   }
 }
 
@@ -2449,7 +2779,7 @@ void LoadUrdfStatus::Swap(LoadUrdfStatus* other) {
   InternalSwap(other);
 }
 void LoadUrdfStatus::InternalSwap(LoadUrdfStatus* other) {
-  std::swap(objectuniqueid_, other->objectuniqueid_);
+  std::swap(bodyuniqueid_, other->bodyuniqueid_);
   std::swap(_cached_size_, other->_cached_size_);
 }
 
@@ -2461,18 +2791,6417 @@ void LoadUrdfStatus::InternalSwap(LoadUrdfStatus* other) {
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // LoadUrdfStatus
 
-// int32 objectUniqueId = 1;
-void LoadUrdfStatus::clear_objectuniqueid() {
-  objectuniqueid_ = 0;
+// int32 bodyUniqueId = 1;
+void LoadUrdfStatus::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
 }
-::google::protobuf::int32 LoadUrdfStatus::objectuniqueid() const {
-  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfStatus.objectUniqueId)
-  return objectuniqueid_;
+::google::protobuf::int32 LoadUrdfStatus::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfStatus.bodyUniqueId)
+  return bodyuniqueid_;
 }
-void LoadUrdfStatus::set_objectuniqueid(::google::protobuf::int32 value) {
+void LoadUrdfStatus::set_bodyuniqueid(::google::protobuf::int32 value) {
   
-  objectuniqueid_ = value;
-  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfStatus.objectUniqueId)
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfStatus.bodyUniqueId)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int LoadSdfCommand::kFileNameFieldNumber;
+const int LoadSdfCommand::kUseMultiBodyFieldNumber;
+const int LoadSdfCommand::kGlobalScalingFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+LoadSdfCommand::LoadSdfCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.LoadSdfCommand)
+}
+LoadSdfCommand::LoadSdfCommand(const LoadSdfCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  filename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.filename().size() > 0) {
+    filename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.filename_);
+  }
+  clear_has_hasUseMultiBody();
+  switch (from.hasUseMultiBody_case()) {
+    case kUseMultiBody: {
+      set_usemultibody(from.usemultibody());
+      break;
+    }
+    case HASUSEMULTIBODY_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasGlobalScaling();
+  switch (from.hasGlobalScaling_case()) {
+    case kGlobalScaling: {
+      set_globalscaling(from.globalscaling());
+      break;
+    }
+    case HASGLOBALSCALING_NOT_SET: {
+      break;
+    }
+  }
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.LoadSdfCommand)
+}
+
+void LoadSdfCommand::SharedCtor() {
+  filename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  clear_has_hasUseMultiBody();
+  clear_has_hasGlobalScaling();
+  _cached_size_ = 0;
+}
+
+LoadSdfCommand::~LoadSdfCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.LoadSdfCommand)
+  SharedDtor();
+}
+
+void LoadSdfCommand::SharedDtor() {
+  filename_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (has_hasUseMultiBody()) {
+    clear_hasUseMultiBody();
+  }
+  if (has_hasGlobalScaling()) {
+    clear_hasGlobalScaling();
+  }
+}
+
+void LoadSdfCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* LoadSdfCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[6].descriptor;
+}
+
+const LoadSdfCommand& LoadSdfCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+LoadSdfCommand* LoadSdfCommand::New(::google::protobuf::Arena* arena) const {
+  LoadSdfCommand* n = new LoadSdfCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void LoadSdfCommand::clear_hasUseMultiBody() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.LoadSdfCommand)
+  switch (hasUseMultiBody_case()) {
+    case kUseMultiBody: {
+      // No need to clear
+      break;
+    }
+    case HASUSEMULTIBODY_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[0] = HASUSEMULTIBODY_NOT_SET;
+}
+
+void LoadSdfCommand::clear_hasGlobalScaling() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.LoadSdfCommand)
+  switch (hasGlobalScaling_case()) {
+    case kGlobalScaling: {
+      // No need to clear
+      break;
+    }
+    case HASGLOBALSCALING_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[1] = HASGLOBALSCALING_NOT_SET;
+}
+
+
+void LoadSdfCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.LoadSdfCommand)
+  filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  clear_hasUseMultiBody();
+  clear_hasGlobalScaling();
+}
+
+bool LoadSdfCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.LoadSdfCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // string fileName = 1;
+      case 1: {
+        if (tag == 10u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_filename()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->filename().data(), this->filename().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "pybullet_grpc.LoadSdfCommand.fileName"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 useMultiBody = 2;
+      case 2: {
+        if (tag == 16u) {
+          clear_hasUseMultiBody();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &hasUseMultiBody_.usemultibody_)));
+          set_has_usemultibody();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double globalScaling = 3;
+      case 3: {
+        if (tag == 25u) {
+          clear_hasGlobalScaling();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &hasGlobalScaling_.globalscaling_)));
+          set_has_globalscaling();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.LoadSdfCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.LoadSdfCommand)
+  return false;
+#undef DO_
+}
+
+void LoadSdfCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.LoadSdfCommand)
+  // string fileName = 1;
+  if (this->filename().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->filename().data(), this->filename().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "pybullet_grpc.LoadSdfCommand.fileName");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->filename(), output);
+  }
+
+  // int32 useMultiBody = 2;
+  if (has_usemultibody()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->usemultibody(), output);
+  }
+
+  // double globalScaling = 3;
+  if (has_globalscaling()) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(3, this->globalscaling(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.LoadSdfCommand)
+}
+
+::google::protobuf::uint8* LoadSdfCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.LoadSdfCommand)
+  // string fileName = 1;
+  if (this->filename().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->filename().data(), this->filename().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "pybullet_grpc.LoadSdfCommand.fileName");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->filename(), target);
+  }
+
+  // int32 useMultiBody = 2;
+  if (has_usemultibody()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->usemultibody(), target);
+  }
+
+  // double globalScaling = 3;
+  if (has_globalscaling()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(3, this->globalscaling(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.LoadSdfCommand)
+  return target;
+}
+
+size_t LoadSdfCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.LoadSdfCommand)
+  size_t total_size = 0;
+
+  // string fileName = 1;
+  if (this->filename().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->filename());
+  }
+
+  switch (hasUseMultiBody_case()) {
+    // int32 useMultiBody = 2;
+    case kUseMultiBody: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->usemultibody());
+      break;
+    }
+    case HASUSEMULTIBODY_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasGlobalScaling_case()) {
+    // double globalScaling = 3;
+    case kGlobalScaling: {
+      total_size += 1 + 8;
+      break;
+    }
+    case HASGLOBALSCALING_NOT_SET: {
+      break;
+    }
+  }
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void LoadSdfCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.LoadSdfCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const LoadSdfCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const LoadSdfCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.LoadSdfCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.LoadSdfCommand)
+    MergeFrom(*source);
+  }
+}
+
+void LoadSdfCommand::MergeFrom(const LoadSdfCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.LoadSdfCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.filename().size() > 0) {
+
+    filename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.filename_);
+  }
+  switch (from.hasUseMultiBody_case()) {
+    case kUseMultiBody: {
+      set_usemultibody(from.usemultibody());
+      break;
+    }
+    case HASUSEMULTIBODY_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasGlobalScaling_case()) {
+    case kGlobalScaling: {
+      set_globalscaling(from.globalscaling());
+      break;
+    }
+    case HASGLOBALSCALING_NOT_SET: {
+      break;
+    }
+  }
+}
+
+void LoadSdfCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.LoadSdfCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void LoadSdfCommand::CopyFrom(const LoadSdfCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.LoadSdfCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool LoadSdfCommand::IsInitialized() const {
+  return true;
+}
+
+void LoadSdfCommand::Swap(LoadSdfCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void LoadSdfCommand::InternalSwap(LoadSdfCommand* other) {
+  filename_.Swap(&other->filename_);
+  std::swap(hasUseMultiBody_, other->hasUseMultiBody_);
+  std::swap(_oneof_case_[0], other->_oneof_case_[0]);
+  std::swap(hasGlobalScaling_, other->hasGlobalScaling_);
+  std::swap(_oneof_case_[1], other->_oneof_case_[1]);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata LoadSdfCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[6];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// LoadSdfCommand
+
+// string fileName = 1;
+void LoadSdfCommand::clear_filename() {
+  filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& LoadSdfCommand::filename() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadSdfCommand.fileName)
+  return filename_.GetNoArena();
+}
+void LoadSdfCommand::set_filename(const ::std::string& value) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadSdfCommand.fileName)
+}
+#if LANG_CXX11
+void LoadSdfCommand::set_filename(::std::string&& value) {
+  
+  filename_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.LoadSdfCommand.fileName)
+}
+#endif
+void LoadSdfCommand::set_filename(const char* value) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.LoadSdfCommand.fileName)
+}
+void LoadSdfCommand::set_filename(const char* value, size_t size) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.LoadSdfCommand.fileName)
+}
+::std::string* LoadSdfCommand::mutable_filename() {
+  
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.LoadSdfCommand.fileName)
+  return filename_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* LoadSdfCommand::release_filename() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.LoadSdfCommand.fileName)
+  
+  return filename_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void LoadSdfCommand::set_allocated_filename(::std::string* filename) {
+  if (filename != NULL) {
+    
+  } else {
+    
+  }
+  filename_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), filename);
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.LoadSdfCommand.fileName)
+}
+
+// int32 useMultiBody = 2;
+bool LoadSdfCommand::has_usemultibody() const {
+  return hasUseMultiBody_case() == kUseMultiBody;
+}
+void LoadSdfCommand::set_has_usemultibody() {
+  _oneof_case_[0] = kUseMultiBody;
+}
+void LoadSdfCommand::clear_usemultibody() {
+  if (has_usemultibody()) {
+    hasUseMultiBody_.usemultibody_ = 0;
+    clear_has_hasUseMultiBody();
+  }
+}
+::google::protobuf::int32 LoadSdfCommand::usemultibody() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadSdfCommand.useMultiBody)
+  if (has_usemultibody()) {
+    return hasUseMultiBody_.usemultibody_;
+  }
+  return 0;
+}
+void LoadSdfCommand::set_usemultibody(::google::protobuf::int32 value) {
+  if (!has_usemultibody()) {
+    clear_hasUseMultiBody();
+    set_has_usemultibody();
+  }
+  hasUseMultiBody_.usemultibody_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadSdfCommand.useMultiBody)
+}
+
+// double globalScaling = 3;
+bool LoadSdfCommand::has_globalscaling() const {
+  return hasGlobalScaling_case() == kGlobalScaling;
+}
+void LoadSdfCommand::set_has_globalscaling() {
+  _oneof_case_[1] = kGlobalScaling;
+}
+void LoadSdfCommand::clear_globalscaling() {
+  if (has_globalscaling()) {
+    hasGlobalScaling_.globalscaling_ = 0;
+    clear_has_hasGlobalScaling();
+  }
+}
+double LoadSdfCommand::globalscaling() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadSdfCommand.globalScaling)
+  if (has_globalscaling()) {
+    return hasGlobalScaling_.globalscaling_;
+  }
+  return 0;
+}
+void LoadSdfCommand::set_globalscaling(double value) {
+  if (!has_globalscaling()) {
+    clear_hasGlobalScaling();
+    set_has_globalscaling();
+  }
+  hasGlobalScaling_.globalscaling_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadSdfCommand.globalScaling)
+}
+
+bool LoadSdfCommand::has_hasUseMultiBody() const {
+  return hasUseMultiBody_case() != HASUSEMULTIBODY_NOT_SET;
+}
+void LoadSdfCommand::clear_has_hasUseMultiBody() {
+  _oneof_case_[0] = HASUSEMULTIBODY_NOT_SET;
+}
+bool LoadSdfCommand::has_hasGlobalScaling() const {
+  return hasGlobalScaling_case() != HASGLOBALSCALING_NOT_SET;
+}
+void LoadSdfCommand::clear_has_hasGlobalScaling() {
+  _oneof_case_[1] = HASGLOBALSCALING_NOT_SET;
+}
+LoadSdfCommand::HasUseMultiBodyCase LoadSdfCommand::hasUseMultiBody_case() const {
+  return LoadSdfCommand::HasUseMultiBodyCase(_oneof_case_[0]);
+}
+LoadSdfCommand::HasGlobalScalingCase LoadSdfCommand::hasGlobalScaling_case() const {
+  return LoadSdfCommand::HasGlobalScalingCase(_oneof_case_[1]);
+}
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int SdfLoadedStatus::kBodyUniqueIdsFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+SdfLoadedStatus::SdfLoadedStatus()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.SdfLoadedStatus)
+}
+SdfLoadedStatus::SdfLoadedStatus(const SdfLoadedStatus& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      bodyuniqueids_(from.bodyuniqueids_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.SdfLoadedStatus)
+}
+
+void SdfLoadedStatus::SharedCtor() {
+  _cached_size_ = 0;
+}
+
+SdfLoadedStatus::~SdfLoadedStatus() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.SdfLoadedStatus)
+  SharedDtor();
+}
+
+void SdfLoadedStatus::SharedDtor() {
+}
+
+void SdfLoadedStatus::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SdfLoadedStatus::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[7].descriptor;
+}
+
+const SdfLoadedStatus& SdfLoadedStatus::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+SdfLoadedStatus* SdfLoadedStatus::New(::google::protobuf::Arena* arena) const {
+  SdfLoadedStatus* n = new SdfLoadedStatus;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void SdfLoadedStatus::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.SdfLoadedStatus)
+  bodyuniqueids_.Clear();
+}
+
+bool SdfLoadedStatus::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.SdfLoadedStatus)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated int32 bodyUniqueIds = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, this->mutable_bodyuniqueids())));
+        } else if (tag == 16u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 1, 18u, input, this->mutable_bodyuniqueids())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.SdfLoadedStatus)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.SdfLoadedStatus)
+  return false;
+#undef DO_
+}
+
+void SdfLoadedStatus::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.SdfLoadedStatus)
+  // repeated int32 bodyUniqueIds = 2;
+  if (this->bodyuniqueids_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(2, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_bodyuniqueids_cached_byte_size_);
+  }
+  for (int i = 0; i < this->bodyuniqueids_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32NoTag(
+      this->bodyuniqueids(i), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.SdfLoadedStatus)
+}
+
+::google::protobuf::uint8* SdfLoadedStatus::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.SdfLoadedStatus)
+  // repeated int32 bodyUniqueIds = 2;
+  if (this->bodyuniqueids_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      2,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _bodyuniqueids_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->bodyuniqueids_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt32NoTagToArray(this->bodyuniqueids(i), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.SdfLoadedStatus)
+  return target;
+}
+
+size_t SdfLoadedStatus::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.SdfLoadedStatus)
+  size_t total_size = 0;
+
+  // repeated int32 bodyUniqueIds = 2;
+  {
+    size_t data_size = ::google::protobuf::internal::WireFormatLite::
+      Int32Size(this->bodyuniqueids_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _bodyuniqueids_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void SdfLoadedStatus::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.SdfLoadedStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  const SdfLoadedStatus* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const SdfLoadedStatus>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.SdfLoadedStatus)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.SdfLoadedStatus)
+    MergeFrom(*source);
+  }
+}
+
+void SdfLoadedStatus::MergeFrom(const SdfLoadedStatus& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.SdfLoadedStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  bodyuniqueids_.MergeFrom(from.bodyuniqueids_);
+}
+
+void SdfLoadedStatus::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.SdfLoadedStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void SdfLoadedStatus::CopyFrom(const SdfLoadedStatus& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.SdfLoadedStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SdfLoadedStatus::IsInitialized() const {
+  return true;
+}
+
+void SdfLoadedStatus::Swap(SdfLoadedStatus* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void SdfLoadedStatus::InternalSwap(SdfLoadedStatus* other) {
+  bodyuniqueids_.UnsafeArenaSwap(&other->bodyuniqueids_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata SdfLoadedStatus::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[7];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// SdfLoadedStatus
+
+// repeated int32 bodyUniqueIds = 2;
+int SdfLoadedStatus::bodyuniqueids_size() const {
+  return bodyuniqueids_.size();
+}
+void SdfLoadedStatus::clear_bodyuniqueids() {
+  bodyuniqueids_.Clear();
+}
+::google::protobuf::int32 SdfLoadedStatus::bodyuniqueids(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SdfLoadedStatus.bodyUniqueIds)
+  return bodyuniqueids_.Get(index);
+}
+void SdfLoadedStatus::set_bodyuniqueids(int index, ::google::protobuf::int32 value) {
+  bodyuniqueids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SdfLoadedStatus.bodyUniqueIds)
+}
+void SdfLoadedStatus::add_bodyuniqueids(::google::protobuf::int32 value) {
+  bodyuniqueids_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SdfLoadedStatus.bodyUniqueIds)
+}
+const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+SdfLoadedStatus::bodyuniqueids() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SdfLoadedStatus.bodyUniqueIds)
+  return bodyuniqueids_;
+}
+::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+SdfLoadedStatus::mutable_bodyuniqueids() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SdfLoadedStatus.bodyUniqueIds)
+  return &bodyuniqueids_;
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int LoadMjcfCommand::kFileNameFieldNumber;
+const int LoadMjcfCommand::kFlagsFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+LoadMjcfCommand::LoadMjcfCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.LoadMjcfCommand)
+}
+LoadMjcfCommand::LoadMjcfCommand(const LoadMjcfCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  filename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.filename().size() > 0) {
+    filename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.filename_);
+  }
+  flags_ = from.flags_;
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.LoadMjcfCommand)
+}
+
+void LoadMjcfCommand::SharedCtor() {
+  filename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  flags_ = 0;
+  _cached_size_ = 0;
+}
+
+LoadMjcfCommand::~LoadMjcfCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.LoadMjcfCommand)
+  SharedDtor();
+}
+
+void LoadMjcfCommand::SharedDtor() {
+  filename_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+
+void LoadMjcfCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* LoadMjcfCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[8].descriptor;
+}
+
+const LoadMjcfCommand& LoadMjcfCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+LoadMjcfCommand* LoadMjcfCommand::New(::google::protobuf::Arena* arena) const {
+  LoadMjcfCommand* n = new LoadMjcfCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void LoadMjcfCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.LoadMjcfCommand)
+  filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  flags_ = 0;
+}
+
+bool LoadMjcfCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.LoadMjcfCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // string fileName = 1;
+      case 1: {
+        if (tag == 10u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_filename()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->filename().data(), this->filename().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "pybullet_grpc.LoadMjcfCommand.fileName"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 flags = 2;
+      case 2: {
+        if (tag == 16u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &flags_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.LoadMjcfCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.LoadMjcfCommand)
+  return false;
+#undef DO_
+}
+
+void LoadMjcfCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.LoadMjcfCommand)
+  // string fileName = 1;
+  if (this->filename().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->filename().data(), this->filename().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "pybullet_grpc.LoadMjcfCommand.fileName");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->filename(), output);
+  }
+
+  // int32 flags = 2;
+  if (this->flags() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->flags(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.LoadMjcfCommand)
+}
+
+::google::protobuf::uint8* LoadMjcfCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.LoadMjcfCommand)
+  // string fileName = 1;
+  if (this->filename().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->filename().data(), this->filename().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "pybullet_grpc.LoadMjcfCommand.fileName");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->filename(), target);
+  }
+
+  // int32 flags = 2;
+  if (this->flags() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->flags(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.LoadMjcfCommand)
+  return target;
+}
+
+size_t LoadMjcfCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.LoadMjcfCommand)
+  size_t total_size = 0;
+
+  // string fileName = 1;
+  if (this->filename().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->filename());
+  }
+
+  // int32 flags = 2;
+  if (this->flags() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->flags());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void LoadMjcfCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.LoadMjcfCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const LoadMjcfCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const LoadMjcfCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.LoadMjcfCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.LoadMjcfCommand)
+    MergeFrom(*source);
+  }
+}
+
+void LoadMjcfCommand::MergeFrom(const LoadMjcfCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.LoadMjcfCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.filename().size() > 0) {
+
+    filename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.filename_);
+  }
+  if (from.flags() != 0) {
+    set_flags(from.flags());
+  }
+}
+
+void LoadMjcfCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.LoadMjcfCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void LoadMjcfCommand::CopyFrom(const LoadMjcfCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.LoadMjcfCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool LoadMjcfCommand::IsInitialized() const {
+  return true;
+}
+
+void LoadMjcfCommand::Swap(LoadMjcfCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void LoadMjcfCommand::InternalSwap(LoadMjcfCommand* other) {
+  filename_.Swap(&other->filename_);
+  std::swap(flags_, other->flags_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata LoadMjcfCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[8];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// LoadMjcfCommand
+
+// string fileName = 1;
+void LoadMjcfCommand::clear_filename() {
+  filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& LoadMjcfCommand::filename() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadMjcfCommand.fileName)
+  return filename_.GetNoArena();
+}
+void LoadMjcfCommand::set_filename(const ::std::string& value) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadMjcfCommand.fileName)
+}
+#if LANG_CXX11
+void LoadMjcfCommand::set_filename(::std::string&& value) {
+  
+  filename_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.LoadMjcfCommand.fileName)
+}
+#endif
+void LoadMjcfCommand::set_filename(const char* value) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.LoadMjcfCommand.fileName)
+}
+void LoadMjcfCommand::set_filename(const char* value, size_t size) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.LoadMjcfCommand.fileName)
+}
+::std::string* LoadMjcfCommand::mutable_filename() {
+  
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.LoadMjcfCommand.fileName)
+  return filename_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* LoadMjcfCommand::release_filename() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.LoadMjcfCommand.fileName)
+  
+  return filename_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void LoadMjcfCommand::set_allocated_filename(::std::string* filename) {
+  if (filename != NULL) {
+    
+  } else {
+    
+  }
+  filename_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), filename);
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.LoadMjcfCommand.fileName)
+}
+
+// int32 flags = 2;
+void LoadMjcfCommand::clear_flags() {
+  flags_ = 0;
+}
+::google::protobuf::int32 LoadMjcfCommand::flags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadMjcfCommand.flags)
+  return flags_;
+}
+void LoadMjcfCommand::set_flags(::google::protobuf::int32 value) {
+  
+  flags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadMjcfCommand.flags)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int MjcfLoadedStatus::kBodyUniqueIdsFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+MjcfLoadedStatus::MjcfLoadedStatus()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.MjcfLoadedStatus)
+}
+MjcfLoadedStatus::MjcfLoadedStatus(const MjcfLoadedStatus& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      bodyuniqueids_(from.bodyuniqueids_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.MjcfLoadedStatus)
+}
+
+void MjcfLoadedStatus::SharedCtor() {
+  _cached_size_ = 0;
+}
+
+MjcfLoadedStatus::~MjcfLoadedStatus() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.MjcfLoadedStatus)
+  SharedDtor();
+}
+
+void MjcfLoadedStatus::SharedDtor() {
+}
+
+void MjcfLoadedStatus::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* MjcfLoadedStatus::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[9].descriptor;
+}
+
+const MjcfLoadedStatus& MjcfLoadedStatus::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+MjcfLoadedStatus* MjcfLoadedStatus::New(::google::protobuf::Arena* arena) const {
+  MjcfLoadedStatus* n = new MjcfLoadedStatus;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void MjcfLoadedStatus::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.MjcfLoadedStatus)
+  bodyuniqueids_.Clear();
+}
+
+bool MjcfLoadedStatus::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.MjcfLoadedStatus)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated int32 bodyUniqueIds = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, this->mutable_bodyuniqueids())));
+        } else if (tag == 16u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 1, 18u, input, this->mutable_bodyuniqueids())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.MjcfLoadedStatus)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.MjcfLoadedStatus)
+  return false;
+#undef DO_
+}
+
+void MjcfLoadedStatus::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.MjcfLoadedStatus)
+  // repeated int32 bodyUniqueIds = 2;
+  if (this->bodyuniqueids_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(2, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_bodyuniqueids_cached_byte_size_);
+  }
+  for (int i = 0; i < this->bodyuniqueids_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32NoTag(
+      this->bodyuniqueids(i), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.MjcfLoadedStatus)
+}
+
+::google::protobuf::uint8* MjcfLoadedStatus::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.MjcfLoadedStatus)
+  // repeated int32 bodyUniqueIds = 2;
+  if (this->bodyuniqueids_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      2,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _bodyuniqueids_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->bodyuniqueids_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt32NoTagToArray(this->bodyuniqueids(i), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.MjcfLoadedStatus)
+  return target;
+}
+
+size_t MjcfLoadedStatus::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.MjcfLoadedStatus)
+  size_t total_size = 0;
+
+  // repeated int32 bodyUniqueIds = 2;
+  {
+    size_t data_size = ::google::protobuf::internal::WireFormatLite::
+      Int32Size(this->bodyuniqueids_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _bodyuniqueids_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void MjcfLoadedStatus::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.MjcfLoadedStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  const MjcfLoadedStatus* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const MjcfLoadedStatus>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.MjcfLoadedStatus)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.MjcfLoadedStatus)
+    MergeFrom(*source);
+  }
+}
+
+void MjcfLoadedStatus::MergeFrom(const MjcfLoadedStatus& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.MjcfLoadedStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  bodyuniqueids_.MergeFrom(from.bodyuniqueids_);
+}
+
+void MjcfLoadedStatus::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.MjcfLoadedStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void MjcfLoadedStatus::CopyFrom(const MjcfLoadedStatus& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.MjcfLoadedStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool MjcfLoadedStatus::IsInitialized() const {
+  return true;
+}
+
+void MjcfLoadedStatus::Swap(MjcfLoadedStatus* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void MjcfLoadedStatus::InternalSwap(MjcfLoadedStatus* other) {
+  bodyuniqueids_.UnsafeArenaSwap(&other->bodyuniqueids_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata MjcfLoadedStatus::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[9];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// MjcfLoadedStatus
+
+// repeated int32 bodyUniqueIds = 2;
+int MjcfLoadedStatus::bodyuniqueids_size() const {
+  return bodyuniqueids_.size();
+}
+void MjcfLoadedStatus::clear_bodyuniqueids() {
+  bodyuniqueids_.Clear();
+}
+::google::protobuf::int32 MjcfLoadedStatus::bodyuniqueids(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.MjcfLoadedStatus.bodyUniqueIds)
+  return bodyuniqueids_.Get(index);
+}
+void MjcfLoadedStatus::set_bodyuniqueids(int index, ::google::protobuf::int32 value) {
+  bodyuniqueids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.MjcfLoadedStatus.bodyUniqueIds)
+}
+void MjcfLoadedStatus::add_bodyuniqueids(::google::protobuf::int32 value) {
+  bodyuniqueids_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.MjcfLoadedStatus.bodyUniqueIds)
+}
+const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+MjcfLoadedStatus::bodyuniqueids() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.MjcfLoadedStatus.bodyUniqueIds)
+  return bodyuniqueids_;
+}
+::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+MjcfLoadedStatus::mutable_bodyuniqueids() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.MjcfLoadedStatus.bodyUniqueIds)
+  return &bodyuniqueids_;
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int ChangeDynamicsCommand::kBodyUniqueIdFieldNumber;
+const int ChangeDynamicsCommand::kLinkIndexFieldNumber;
+const int ChangeDynamicsCommand::kMassFieldNumber;
+const int ChangeDynamicsCommand::kLateralFrictionFieldNumber;
+const int ChangeDynamicsCommand::kSpinningFrictionFieldNumber;
+const int ChangeDynamicsCommand::kRollingFrictionFieldNumber;
+const int ChangeDynamicsCommand::kRestitutionFieldNumber;
+const int ChangeDynamicsCommand::kLinearDampingFieldNumber;
+const int ChangeDynamicsCommand::kAngularDampingFieldNumber;
+const int ChangeDynamicsCommand::kContactStiffnessFieldNumber;
+const int ChangeDynamicsCommand::kContactDampingFieldNumber;
+const int ChangeDynamicsCommand::kLocalInertiaDiagonalFieldNumber;
+const int ChangeDynamicsCommand::kFrictionAnchorFieldNumber;
+const int ChangeDynamicsCommand::kCcdSweptSphereRadiusFieldNumber;
+const int ChangeDynamicsCommand::kContactProcessingThresholdFieldNumber;
+const int ChangeDynamicsCommand::kActivationStateFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+ChangeDynamicsCommand::ChangeDynamicsCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.ChangeDynamicsCommand)
+}
+ChangeDynamicsCommand::ChangeDynamicsCommand(const ChangeDynamicsCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&bodyuniqueid_, &from.bodyuniqueid_,
+    reinterpret_cast<char*>(&linkindex_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(linkindex_));
+  clear_has_hasMass();
+  switch (from.hasMass_case()) {
+    case kMass: {
+      set_mass(from.mass());
+      break;
+    }
+    case HASMASS_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasLateralFriction();
+  switch (from.hasLateralFriction_case()) {
+    case kLateralFriction: {
+      set_lateralfriction(from.lateralfriction());
+      break;
+    }
+    case HASLATERALFRICTION_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasSpinningFriction();
+  switch (from.hasSpinningFriction_case()) {
+    case kSpinningFriction: {
+      set_spinningfriction(from.spinningfriction());
+      break;
+    }
+    case HASSPINNINGFRICTION_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasRollingFriction();
+  switch (from.hasRollingFriction_case()) {
+    case kRollingFriction: {
+      set_rollingfriction(from.rollingfriction());
+      break;
+    }
+    case HASROLLINGFRICTION_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasRestitution();
+  switch (from.hasRestitution_case()) {
+    case kRestitution: {
+      set_restitution(from.restitution());
+      break;
+    }
+    case HASRESTITUTION_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_haslinearDamping();
+  switch (from.haslinearDamping_case()) {
+    case kLinearDamping: {
+      set_lineardamping(from.lineardamping());
+      break;
+    }
+    case HASLINEARDAMPING_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasangularDamping();
+  switch (from.hasangularDamping_case()) {
+    case kAngularDamping: {
+      set_angulardamping(from.angulardamping());
+      break;
+    }
+    case HASANGULARDAMPING_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasContactStiffness();
+  switch (from.hasContactStiffness_case()) {
+    case kContactStiffness: {
+      set_contactstiffness(from.contactstiffness());
+      break;
+    }
+    case HASCONTACTSTIFFNESS_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasContactDamping();
+  switch (from.hasContactDamping_case()) {
+    case kContactDamping: {
+      set_contactdamping(from.contactdamping());
+      break;
+    }
+    case HASCONTACTDAMPING_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasLocalInertiaDiagonal();
+  switch (from.hasLocalInertiaDiagonal_case()) {
+    case kLocalInertiaDiagonal: {
+      mutable_localinertiadiagonal()->::pybullet_grpc::vec3::MergeFrom(from.localinertiadiagonal());
+      break;
+    }
+    case HASLOCALINERTIADIAGONAL_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasFrictionAnchor();
+  switch (from.hasFrictionAnchor_case()) {
+    case kFrictionAnchor: {
+      set_frictionanchor(from.frictionanchor());
+      break;
+    }
+    case HASFRICTIONANCHOR_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasccdSweptSphereRadius();
+  switch (from.hasccdSweptSphereRadius_case()) {
+    case kCcdSweptSphereRadius: {
+      set_ccdsweptsphereradius(from.ccdsweptsphereradius());
+      break;
+    }
+    case HASCCDSWEPTSPHERERADIUS_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasContactProcessingThreshold();
+  switch (from.hasContactProcessingThreshold_case()) {
+    case kContactProcessingThreshold: {
+      set_contactprocessingthreshold(from.contactprocessingthreshold());
+      break;
+    }
+    case HASCONTACTPROCESSINGTHRESHOLD_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_hasActivationState();
+  switch (from.hasActivationState_case()) {
+    case kActivationState: {
+      set_activationstate(from.activationstate());
+      break;
+    }
+    case HASACTIVATIONSTATE_NOT_SET: {
+      break;
+    }
+  }
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.ChangeDynamicsCommand)
+}
+
+void ChangeDynamicsCommand::SharedCtor() {
+  ::memset(&bodyuniqueid_, 0, reinterpret_cast<char*>(&linkindex_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(linkindex_));
+  clear_has_hasMass();
+  clear_has_hasLateralFriction();
+  clear_has_hasSpinningFriction();
+  clear_has_hasRollingFriction();
+  clear_has_hasRestitution();
+  clear_has_haslinearDamping();
+  clear_has_hasangularDamping();
+  clear_has_hasContactStiffness();
+  clear_has_hasContactDamping();
+  clear_has_hasLocalInertiaDiagonal();
+  clear_has_hasFrictionAnchor();
+  clear_has_hasccdSweptSphereRadius();
+  clear_has_hasContactProcessingThreshold();
+  clear_has_hasActivationState();
+  _cached_size_ = 0;
+}
+
+ChangeDynamicsCommand::~ChangeDynamicsCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.ChangeDynamicsCommand)
+  SharedDtor();
+}
+
+void ChangeDynamicsCommand::SharedDtor() {
+  if (has_hasMass()) {
+    clear_hasMass();
+  }
+  if (has_hasLateralFriction()) {
+    clear_hasLateralFriction();
+  }
+  if (has_hasSpinningFriction()) {
+    clear_hasSpinningFriction();
+  }
+  if (has_hasRollingFriction()) {
+    clear_hasRollingFriction();
+  }
+  if (has_hasRestitution()) {
+    clear_hasRestitution();
+  }
+  if (has_haslinearDamping()) {
+    clear_haslinearDamping();
+  }
+  if (has_hasangularDamping()) {
+    clear_hasangularDamping();
+  }
+  if (has_hasContactStiffness()) {
+    clear_hasContactStiffness();
+  }
+  if (has_hasContactDamping()) {
+    clear_hasContactDamping();
+  }
+  if (has_hasLocalInertiaDiagonal()) {
+    clear_hasLocalInertiaDiagonal();
+  }
+  if (has_hasFrictionAnchor()) {
+    clear_hasFrictionAnchor();
+  }
+  if (has_hasccdSweptSphereRadius()) {
+    clear_hasccdSweptSphereRadius();
+  }
+  if (has_hasContactProcessingThreshold()) {
+    clear_hasContactProcessingThreshold();
+  }
+  if (has_hasActivationState()) {
+    clear_hasActivationState();
+  }
+}
+
+void ChangeDynamicsCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ChangeDynamicsCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[10].descriptor;
+}
+
+const ChangeDynamicsCommand& ChangeDynamicsCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+ChangeDynamicsCommand* ChangeDynamicsCommand::New(::google::protobuf::Arena* arena) const {
+  ChangeDynamicsCommand* n = new ChangeDynamicsCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void ChangeDynamicsCommand::clear_hasMass() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasMass_case()) {
+    case kMass: {
+      // No need to clear
+      break;
+    }
+    case HASMASS_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[0] = HASMASS_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_hasLateralFriction() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasLateralFriction_case()) {
+    case kLateralFriction: {
+      // No need to clear
+      break;
+    }
+    case HASLATERALFRICTION_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[1] = HASLATERALFRICTION_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_hasSpinningFriction() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasSpinningFriction_case()) {
+    case kSpinningFriction: {
+      // No need to clear
+      break;
+    }
+    case HASSPINNINGFRICTION_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[2] = HASSPINNINGFRICTION_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_hasRollingFriction() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasRollingFriction_case()) {
+    case kRollingFriction: {
+      // No need to clear
+      break;
+    }
+    case HASROLLINGFRICTION_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[3] = HASROLLINGFRICTION_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_hasRestitution() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasRestitution_case()) {
+    case kRestitution: {
+      // No need to clear
+      break;
+    }
+    case HASRESTITUTION_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[4] = HASRESTITUTION_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_haslinearDamping() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (haslinearDamping_case()) {
+    case kLinearDamping: {
+      // No need to clear
+      break;
+    }
+    case HASLINEARDAMPING_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[5] = HASLINEARDAMPING_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_hasangularDamping() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasangularDamping_case()) {
+    case kAngularDamping: {
+      // No need to clear
+      break;
+    }
+    case HASANGULARDAMPING_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[6] = HASANGULARDAMPING_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_hasContactStiffness() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasContactStiffness_case()) {
+    case kContactStiffness: {
+      // No need to clear
+      break;
+    }
+    case HASCONTACTSTIFFNESS_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[7] = HASCONTACTSTIFFNESS_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_hasContactDamping() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasContactDamping_case()) {
+    case kContactDamping: {
+      // No need to clear
+      break;
+    }
+    case HASCONTACTDAMPING_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[8] = HASCONTACTDAMPING_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_hasLocalInertiaDiagonal() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasLocalInertiaDiagonal_case()) {
+    case kLocalInertiaDiagonal: {
+      delete hasLocalInertiaDiagonal_.localinertiadiagonal_;
+      break;
+    }
+    case HASLOCALINERTIADIAGONAL_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[9] = HASLOCALINERTIADIAGONAL_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_hasFrictionAnchor() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasFrictionAnchor_case()) {
+    case kFrictionAnchor: {
+      // No need to clear
+      break;
+    }
+    case HASFRICTIONANCHOR_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[10] = HASFRICTIONANCHOR_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_hasccdSweptSphereRadius() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasccdSweptSphereRadius_case()) {
+    case kCcdSweptSphereRadius: {
+      // No need to clear
+      break;
+    }
+    case HASCCDSWEPTSPHERERADIUS_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[11] = HASCCDSWEPTSPHERERADIUS_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_hasContactProcessingThreshold() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasContactProcessingThreshold_case()) {
+    case kContactProcessingThreshold: {
+      // No need to clear
+      break;
+    }
+    case HASCONTACTPROCESSINGTHRESHOLD_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[12] = HASCONTACTPROCESSINGTHRESHOLD_NOT_SET;
+}
+
+void ChangeDynamicsCommand::clear_hasActivationState() {
+// @@protoc_insertion_point(one_of_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  switch (hasActivationState_case()) {
+    case kActivationState: {
+      // No need to clear
+      break;
+    }
+    case HASACTIVATIONSTATE_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[13] = HASACTIVATIONSTATE_NOT_SET;
+}
+
+
+void ChangeDynamicsCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.ChangeDynamicsCommand)
+  ::memset(&bodyuniqueid_, 0, reinterpret_cast<char*>(&linkindex_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(linkindex_));
+  clear_hasMass();
+  clear_hasLateralFriction();
+  clear_hasSpinningFriction();
+  clear_hasRollingFriction();
+  clear_hasRestitution();
+  clear_haslinearDamping();
+  clear_hasangularDamping();
+  clear_hasContactStiffness();
+  clear_hasContactDamping();
+  clear_hasLocalInertiaDiagonal();
+  clear_hasFrictionAnchor();
+  clear_hasccdSweptSphereRadius();
+  clear_hasContactProcessingThreshold();
+  clear_hasActivationState();
+}
+
+bool ChangeDynamicsCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.ChangeDynamicsCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(16383u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 bodyUniqueId = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &bodyuniqueid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 linkIndex = 2;
+      case 2: {
+        if (tag == 16u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &linkindex_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double mass = 3;
+      case 3: {
+        if (tag == 25u) {
+          clear_hasMass();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &hasMass_.mass_)));
+          set_has_mass();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double lateralFriction = 5;
+      case 5: {
+        if (tag == 41u) {
+          clear_hasLateralFriction();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &hasLateralFriction_.lateralfriction_)));
+          set_has_lateralfriction();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double spinningFriction = 6;
+      case 6: {
+        if (tag == 49u) {
+          clear_hasSpinningFriction();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &hasSpinningFriction_.spinningfriction_)));
+          set_has_spinningfriction();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double rollingFriction = 7;
+      case 7: {
+        if (tag == 57u) {
+          clear_hasRollingFriction();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &hasRollingFriction_.rollingfriction_)));
+          set_has_rollingfriction();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double restitution = 8;
+      case 8: {
+        if (tag == 65u) {
+          clear_hasRestitution();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &hasRestitution_.restitution_)));
+          set_has_restitution();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double linearDamping = 9;
+      case 9: {
+        if (tag == 73u) {
+          clear_haslinearDamping();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &haslinearDamping_.lineardamping_)));
+          set_has_lineardamping();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double angularDamping = 10;
+      case 10: {
+        if (tag == 81u) {
+          clear_hasangularDamping();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &hasangularDamping_.angulardamping_)));
+          set_has_angulardamping();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double contactStiffness = 11;
+      case 11: {
+        if (tag == 89u) {
+          clear_hasContactStiffness();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &hasContactStiffness_.contactstiffness_)));
+          set_has_contactstiffness();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double contactDamping = 12;
+      case 12: {
+        if (tag == 97u) {
+          clear_hasContactDamping();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &hasContactDamping_.contactdamping_)));
+          set_has_contactdamping();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+      case 13: {
+        if (tag == 106u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_localinertiadiagonal()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 frictionAnchor = 14;
+      case 14: {
+        if (tag == 112u) {
+          clear_hasFrictionAnchor();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &hasFrictionAnchor_.frictionanchor_)));
+          set_has_frictionanchor();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double ccdSweptSphereRadius = 15;
+      case 15: {
+        if (tag == 121u) {
+          clear_hasccdSweptSphereRadius();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &hasccdSweptSphereRadius_.ccdsweptsphereradius_)));
+          set_has_ccdsweptsphereradius();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double contactProcessingThreshold = 16;
+      case 16: {
+        if (tag == 129u) {
+          clear_hasContactProcessingThreshold();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &hasContactProcessingThreshold_.contactprocessingthreshold_)));
+          set_has_contactprocessingthreshold();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 activationState = 17;
+      case 17: {
+        if (tag == 136u) {
+          clear_hasActivationState();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &hasActivationState_.activationstate_)));
+          set_has_activationstate();
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.ChangeDynamicsCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.ChangeDynamicsCommand)
+  return false;
+#undef DO_
+}
+
+void ChangeDynamicsCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.ChangeDynamicsCommand)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->bodyuniqueid(), output);
+  }
+
+  // int32 linkIndex = 2;
+  if (this->linkindex() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->linkindex(), output);
+  }
+
+  // double mass = 3;
+  if (has_mass()) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(3, this->mass(), output);
+  }
+
+  // double lateralFriction = 5;
+  if (has_lateralfriction()) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(5, this->lateralfriction(), output);
+  }
+
+  // double spinningFriction = 6;
+  if (has_spinningfriction()) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(6, this->spinningfriction(), output);
+  }
+
+  // double rollingFriction = 7;
+  if (has_rollingfriction()) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(7, this->rollingfriction(), output);
+  }
+
+  // double restitution = 8;
+  if (has_restitution()) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(8, this->restitution(), output);
+  }
+
+  // double linearDamping = 9;
+  if (has_lineardamping()) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(9, this->lineardamping(), output);
+  }
+
+  // double angularDamping = 10;
+  if (has_angulardamping()) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(10, this->angulardamping(), output);
+  }
+
+  // double contactStiffness = 11;
+  if (has_contactstiffness()) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(11, this->contactstiffness(), output);
+  }
+
+  // double contactDamping = 12;
+  if (has_contactdamping()) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(12, this->contactdamping(), output);
+  }
+
+  // .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+  if (has_localinertiadiagonal()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      13, *hasLocalInertiaDiagonal_.localinertiadiagonal_, output);
+  }
+
+  // int32 frictionAnchor = 14;
+  if (has_frictionanchor()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(14, this->frictionanchor(), output);
+  }
+
+  // double ccdSweptSphereRadius = 15;
+  if (has_ccdsweptsphereradius()) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(15, this->ccdsweptsphereradius(), output);
+  }
+
+  // double contactProcessingThreshold = 16;
+  if (has_contactprocessingthreshold()) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(16, this->contactprocessingthreshold(), output);
+  }
+
+  // int32 activationState = 17;
+  if (has_activationstate()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(17, this->activationstate(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.ChangeDynamicsCommand)
+}
+
+::google::protobuf::uint8* ChangeDynamicsCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.ChangeDynamicsCommand)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->bodyuniqueid(), target);
+  }
+
+  // int32 linkIndex = 2;
+  if (this->linkindex() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->linkindex(), target);
+  }
+
+  // double mass = 3;
+  if (has_mass()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(3, this->mass(), target);
+  }
+
+  // double lateralFriction = 5;
+  if (has_lateralfriction()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(5, this->lateralfriction(), target);
+  }
+
+  // double spinningFriction = 6;
+  if (has_spinningfriction()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(6, this->spinningfriction(), target);
+  }
+
+  // double rollingFriction = 7;
+  if (has_rollingfriction()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(7, this->rollingfriction(), target);
+  }
+
+  // double restitution = 8;
+  if (has_restitution()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(8, this->restitution(), target);
+  }
+
+  // double linearDamping = 9;
+  if (has_lineardamping()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(9, this->lineardamping(), target);
+  }
+
+  // double angularDamping = 10;
+  if (has_angulardamping()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(10, this->angulardamping(), target);
+  }
+
+  // double contactStiffness = 11;
+  if (has_contactstiffness()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(11, this->contactstiffness(), target);
+  }
+
+  // double contactDamping = 12;
+  if (has_contactdamping()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(12, this->contactdamping(), target);
+  }
+
+  // .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+  if (has_localinertiadiagonal()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        13, *hasLocalInertiaDiagonal_.localinertiadiagonal_, false, target);
+  }
+
+  // int32 frictionAnchor = 14;
+  if (has_frictionanchor()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(14, this->frictionanchor(), target);
+  }
+
+  // double ccdSweptSphereRadius = 15;
+  if (has_ccdsweptsphereradius()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(15, this->ccdsweptsphereradius(), target);
+  }
+
+  // double contactProcessingThreshold = 16;
+  if (has_contactprocessingthreshold()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(16, this->contactprocessingthreshold(), target);
+  }
+
+  // int32 activationState = 17;
+  if (has_activationstate()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(17, this->activationstate(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.ChangeDynamicsCommand)
+  return target;
+}
+
+size_t ChangeDynamicsCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.ChangeDynamicsCommand)
+  size_t total_size = 0;
+
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->bodyuniqueid());
+  }
+
+  // int32 linkIndex = 2;
+  if (this->linkindex() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->linkindex());
+  }
+
+  switch (hasMass_case()) {
+    // double mass = 3;
+    case kMass: {
+      total_size += 1 + 8;
+      break;
+    }
+    case HASMASS_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasLateralFriction_case()) {
+    // double lateralFriction = 5;
+    case kLateralFriction: {
+      total_size += 1 + 8;
+      break;
+    }
+    case HASLATERALFRICTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasSpinningFriction_case()) {
+    // double spinningFriction = 6;
+    case kSpinningFriction: {
+      total_size += 1 + 8;
+      break;
+    }
+    case HASSPINNINGFRICTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasRollingFriction_case()) {
+    // double rollingFriction = 7;
+    case kRollingFriction: {
+      total_size += 1 + 8;
+      break;
+    }
+    case HASROLLINGFRICTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasRestitution_case()) {
+    // double restitution = 8;
+    case kRestitution: {
+      total_size += 1 + 8;
+      break;
+    }
+    case HASRESTITUTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (haslinearDamping_case()) {
+    // double linearDamping = 9;
+    case kLinearDamping: {
+      total_size += 1 + 8;
+      break;
+    }
+    case HASLINEARDAMPING_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasangularDamping_case()) {
+    // double angularDamping = 10;
+    case kAngularDamping: {
+      total_size += 1 + 8;
+      break;
+    }
+    case HASANGULARDAMPING_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasContactStiffness_case()) {
+    // double contactStiffness = 11;
+    case kContactStiffness: {
+      total_size += 1 + 8;
+      break;
+    }
+    case HASCONTACTSTIFFNESS_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasContactDamping_case()) {
+    // double contactDamping = 12;
+    case kContactDamping: {
+      total_size += 1 + 8;
+      break;
+    }
+    case HASCONTACTDAMPING_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasLocalInertiaDiagonal_case()) {
+    // .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+    case kLocalInertiaDiagonal: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *hasLocalInertiaDiagonal_.localinertiadiagonal_);
+      break;
+    }
+    case HASLOCALINERTIADIAGONAL_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasFrictionAnchor_case()) {
+    // int32 frictionAnchor = 14;
+    case kFrictionAnchor: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->frictionanchor());
+      break;
+    }
+    case HASFRICTIONANCHOR_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasccdSweptSphereRadius_case()) {
+    // double ccdSweptSphereRadius = 15;
+    case kCcdSweptSphereRadius: {
+      total_size += 1 + 8;
+      break;
+    }
+    case HASCCDSWEPTSPHERERADIUS_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasContactProcessingThreshold_case()) {
+    // double contactProcessingThreshold = 16;
+    case kContactProcessingThreshold: {
+      total_size += 2 + 8;
+      break;
+    }
+    case HASCONTACTPROCESSINGTHRESHOLD_NOT_SET: {
+      break;
+    }
+  }
+  switch (hasActivationState_case()) {
+    // int32 activationState = 17;
+    case kActivationState: {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->activationstate());
+      break;
+    }
+    case HASACTIVATIONSTATE_NOT_SET: {
+      break;
+    }
+  }
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void ChangeDynamicsCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.ChangeDynamicsCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const ChangeDynamicsCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const ChangeDynamicsCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.ChangeDynamicsCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.ChangeDynamicsCommand)
+    MergeFrom(*source);
+  }
+}
+
+void ChangeDynamicsCommand::MergeFrom(const ChangeDynamicsCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.ChangeDynamicsCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.bodyuniqueid() != 0) {
+    set_bodyuniqueid(from.bodyuniqueid());
+  }
+  if (from.linkindex() != 0) {
+    set_linkindex(from.linkindex());
+  }
+  switch (from.hasMass_case()) {
+    case kMass: {
+      set_mass(from.mass());
+      break;
+    }
+    case HASMASS_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasLateralFriction_case()) {
+    case kLateralFriction: {
+      set_lateralfriction(from.lateralfriction());
+      break;
+    }
+    case HASLATERALFRICTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasSpinningFriction_case()) {
+    case kSpinningFriction: {
+      set_spinningfriction(from.spinningfriction());
+      break;
+    }
+    case HASSPINNINGFRICTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasRollingFriction_case()) {
+    case kRollingFriction: {
+      set_rollingfriction(from.rollingfriction());
+      break;
+    }
+    case HASROLLINGFRICTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasRestitution_case()) {
+    case kRestitution: {
+      set_restitution(from.restitution());
+      break;
+    }
+    case HASRESTITUTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.haslinearDamping_case()) {
+    case kLinearDamping: {
+      set_lineardamping(from.lineardamping());
+      break;
+    }
+    case HASLINEARDAMPING_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasangularDamping_case()) {
+    case kAngularDamping: {
+      set_angulardamping(from.angulardamping());
+      break;
+    }
+    case HASANGULARDAMPING_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasContactStiffness_case()) {
+    case kContactStiffness: {
+      set_contactstiffness(from.contactstiffness());
+      break;
+    }
+    case HASCONTACTSTIFFNESS_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasContactDamping_case()) {
+    case kContactDamping: {
+      set_contactdamping(from.contactdamping());
+      break;
+    }
+    case HASCONTACTDAMPING_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasLocalInertiaDiagonal_case()) {
+    case kLocalInertiaDiagonal: {
+      mutable_localinertiadiagonal()->::pybullet_grpc::vec3::MergeFrom(from.localinertiadiagonal());
+      break;
+    }
+    case HASLOCALINERTIADIAGONAL_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasFrictionAnchor_case()) {
+    case kFrictionAnchor: {
+      set_frictionanchor(from.frictionanchor());
+      break;
+    }
+    case HASFRICTIONANCHOR_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasccdSweptSphereRadius_case()) {
+    case kCcdSweptSphereRadius: {
+      set_ccdsweptsphereradius(from.ccdsweptsphereradius());
+      break;
+    }
+    case HASCCDSWEPTSPHERERADIUS_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasContactProcessingThreshold_case()) {
+    case kContactProcessingThreshold: {
+      set_contactprocessingthreshold(from.contactprocessingthreshold());
+      break;
+    }
+    case HASCONTACTPROCESSINGTHRESHOLD_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.hasActivationState_case()) {
+    case kActivationState: {
+      set_activationstate(from.activationstate());
+      break;
+    }
+    case HASACTIVATIONSTATE_NOT_SET: {
+      break;
+    }
+  }
+}
+
+void ChangeDynamicsCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.ChangeDynamicsCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ChangeDynamicsCommand::CopyFrom(const ChangeDynamicsCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.ChangeDynamicsCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ChangeDynamicsCommand::IsInitialized() const {
+  return true;
+}
+
+void ChangeDynamicsCommand::Swap(ChangeDynamicsCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void ChangeDynamicsCommand::InternalSwap(ChangeDynamicsCommand* other) {
+  std::swap(bodyuniqueid_, other->bodyuniqueid_);
+  std::swap(linkindex_, other->linkindex_);
+  std::swap(hasMass_, other->hasMass_);
+  std::swap(_oneof_case_[0], other->_oneof_case_[0]);
+  std::swap(hasLateralFriction_, other->hasLateralFriction_);
+  std::swap(_oneof_case_[1], other->_oneof_case_[1]);
+  std::swap(hasSpinningFriction_, other->hasSpinningFriction_);
+  std::swap(_oneof_case_[2], other->_oneof_case_[2]);
+  std::swap(hasRollingFriction_, other->hasRollingFriction_);
+  std::swap(_oneof_case_[3], other->_oneof_case_[3]);
+  std::swap(hasRestitution_, other->hasRestitution_);
+  std::swap(_oneof_case_[4], other->_oneof_case_[4]);
+  std::swap(haslinearDamping_, other->haslinearDamping_);
+  std::swap(_oneof_case_[5], other->_oneof_case_[5]);
+  std::swap(hasangularDamping_, other->hasangularDamping_);
+  std::swap(_oneof_case_[6], other->_oneof_case_[6]);
+  std::swap(hasContactStiffness_, other->hasContactStiffness_);
+  std::swap(_oneof_case_[7], other->_oneof_case_[7]);
+  std::swap(hasContactDamping_, other->hasContactDamping_);
+  std::swap(_oneof_case_[8], other->_oneof_case_[8]);
+  std::swap(hasLocalInertiaDiagonal_, other->hasLocalInertiaDiagonal_);
+  std::swap(_oneof_case_[9], other->_oneof_case_[9]);
+  std::swap(hasFrictionAnchor_, other->hasFrictionAnchor_);
+  std::swap(_oneof_case_[10], other->_oneof_case_[10]);
+  std::swap(hasccdSweptSphereRadius_, other->hasccdSweptSphereRadius_);
+  std::swap(_oneof_case_[11], other->_oneof_case_[11]);
+  std::swap(hasContactProcessingThreshold_, other->hasContactProcessingThreshold_);
+  std::swap(_oneof_case_[12], other->_oneof_case_[12]);
+  std::swap(hasActivationState_, other->hasActivationState_);
+  std::swap(_oneof_case_[13], other->_oneof_case_[13]);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata ChangeDynamicsCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[10];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// ChangeDynamicsCommand
+
+// int32 bodyUniqueId = 1;
+void ChangeDynamicsCommand::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+::google::protobuf::int32 ChangeDynamicsCommand::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.bodyUniqueId)
+  return bodyuniqueid_;
+}
+void ChangeDynamicsCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.bodyUniqueId)
+}
+
+// int32 linkIndex = 2;
+void ChangeDynamicsCommand::clear_linkindex() {
+  linkindex_ = 0;
+}
+::google::protobuf::int32 ChangeDynamicsCommand::linkindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.linkIndex)
+  return linkindex_;
+}
+void ChangeDynamicsCommand::set_linkindex(::google::protobuf::int32 value) {
+  
+  linkindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.linkIndex)
+}
+
+// double mass = 3;
+bool ChangeDynamicsCommand::has_mass() const {
+  return hasMass_case() == kMass;
+}
+void ChangeDynamicsCommand::set_has_mass() {
+  _oneof_case_[0] = kMass;
+}
+void ChangeDynamicsCommand::clear_mass() {
+  if (has_mass()) {
+    hasMass_.mass_ = 0;
+    clear_has_hasMass();
+  }
+}
+double ChangeDynamicsCommand::mass() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.mass)
+  if (has_mass()) {
+    return hasMass_.mass_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_mass(double value) {
+  if (!has_mass()) {
+    clear_hasMass();
+    set_has_mass();
+  }
+  hasMass_.mass_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.mass)
+}
+
+// double lateralFriction = 5;
+bool ChangeDynamicsCommand::has_lateralfriction() const {
+  return hasLateralFriction_case() == kLateralFriction;
+}
+void ChangeDynamicsCommand::set_has_lateralfriction() {
+  _oneof_case_[1] = kLateralFriction;
+}
+void ChangeDynamicsCommand::clear_lateralfriction() {
+  if (has_lateralfriction()) {
+    hasLateralFriction_.lateralfriction_ = 0;
+    clear_has_hasLateralFriction();
+  }
+}
+double ChangeDynamicsCommand::lateralfriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.lateralFriction)
+  if (has_lateralfriction()) {
+    return hasLateralFriction_.lateralfriction_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_lateralfriction(double value) {
+  if (!has_lateralfriction()) {
+    clear_hasLateralFriction();
+    set_has_lateralfriction();
+  }
+  hasLateralFriction_.lateralfriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.lateralFriction)
+}
+
+// double spinningFriction = 6;
+bool ChangeDynamicsCommand::has_spinningfriction() const {
+  return hasSpinningFriction_case() == kSpinningFriction;
+}
+void ChangeDynamicsCommand::set_has_spinningfriction() {
+  _oneof_case_[2] = kSpinningFriction;
+}
+void ChangeDynamicsCommand::clear_spinningfriction() {
+  if (has_spinningfriction()) {
+    hasSpinningFriction_.spinningfriction_ = 0;
+    clear_has_hasSpinningFriction();
+  }
+}
+double ChangeDynamicsCommand::spinningfriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.spinningFriction)
+  if (has_spinningfriction()) {
+    return hasSpinningFriction_.spinningfriction_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_spinningfriction(double value) {
+  if (!has_spinningfriction()) {
+    clear_hasSpinningFriction();
+    set_has_spinningfriction();
+  }
+  hasSpinningFriction_.spinningfriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.spinningFriction)
+}
+
+// double rollingFriction = 7;
+bool ChangeDynamicsCommand::has_rollingfriction() const {
+  return hasRollingFriction_case() == kRollingFriction;
+}
+void ChangeDynamicsCommand::set_has_rollingfriction() {
+  _oneof_case_[3] = kRollingFriction;
+}
+void ChangeDynamicsCommand::clear_rollingfriction() {
+  if (has_rollingfriction()) {
+    hasRollingFriction_.rollingfriction_ = 0;
+    clear_has_hasRollingFriction();
+  }
+}
+double ChangeDynamicsCommand::rollingfriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.rollingFriction)
+  if (has_rollingfriction()) {
+    return hasRollingFriction_.rollingfriction_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_rollingfriction(double value) {
+  if (!has_rollingfriction()) {
+    clear_hasRollingFriction();
+    set_has_rollingfriction();
+  }
+  hasRollingFriction_.rollingfriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.rollingFriction)
+}
+
+// double restitution = 8;
+bool ChangeDynamicsCommand::has_restitution() const {
+  return hasRestitution_case() == kRestitution;
+}
+void ChangeDynamicsCommand::set_has_restitution() {
+  _oneof_case_[4] = kRestitution;
+}
+void ChangeDynamicsCommand::clear_restitution() {
+  if (has_restitution()) {
+    hasRestitution_.restitution_ = 0;
+    clear_has_hasRestitution();
+  }
+}
+double ChangeDynamicsCommand::restitution() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.restitution)
+  if (has_restitution()) {
+    return hasRestitution_.restitution_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_restitution(double value) {
+  if (!has_restitution()) {
+    clear_hasRestitution();
+    set_has_restitution();
+  }
+  hasRestitution_.restitution_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.restitution)
+}
+
+// double linearDamping = 9;
+bool ChangeDynamicsCommand::has_lineardamping() const {
+  return haslinearDamping_case() == kLinearDamping;
+}
+void ChangeDynamicsCommand::set_has_lineardamping() {
+  _oneof_case_[5] = kLinearDamping;
+}
+void ChangeDynamicsCommand::clear_lineardamping() {
+  if (has_lineardamping()) {
+    haslinearDamping_.lineardamping_ = 0;
+    clear_has_haslinearDamping();
+  }
+}
+double ChangeDynamicsCommand::lineardamping() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.linearDamping)
+  if (has_lineardamping()) {
+    return haslinearDamping_.lineardamping_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_lineardamping(double value) {
+  if (!has_lineardamping()) {
+    clear_haslinearDamping();
+    set_has_lineardamping();
+  }
+  haslinearDamping_.lineardamping_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.linearDamping)
+}
+
+// double angularDamping = 10;
+bool ChangeDynamicsCommand::has_angulardamping() const {
+  return hasangularDamping_case() == kAngularDamping;
+}
+void ChangeDynamicsCommand::set_has_angulardamping() {
+  _oneof_case_[6] = kAngularDamping;
+}
+void ChangeDynamicsCommand::clear_angulardamping() {
+  if (has_angulardamping()) {
+    hasangularDamping_.angulardamping_ = 0;
+    clear_has_hasangularDamping();
+  }
+}
+double ChangeDynamicsCommand::angulardamping() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.angularDamping)
+  if (has_angulardamping()) {
+    return hasangularDamping_.angulardamping_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_angulardamping(double value) {
+  if (!has_angulardamping()) {
+    clear_hasangularDamping();
+    set_has_angulardamping();
+  }
+  hasangularDamping_.angulardamping_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.angularDamping)
+}
+
+// double contactStiffness = 11;
+bool ChangeDynamicsCommand::has_contactstiffness() const {
+  return hasContactStiffness_case() == kContactStiffness;
+}
+void ChangeDynamicsCommand::set_has_contactstiffness() {
+  _oneof_case_[7] = kContactStiffness;
+}
+void ChangeDynamicsCommand::clear_contactstiffness() {
+  if (has_contactstiffness()) {
+    hasContactStiffness_.contactstiffness_ = 0;
+    clear_has_hasContactStiffness();
+  }
+}
+double ChangeDynamicsCommand::contactstiffness() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.contactStiffness)
+  if (has_contactstiffness()) {
+    return hasContactStiffness_.contactstiffness_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_contactstiffness(double value) {
+  if (!has_contactstiffness()) {
+    clear_hasContactStiffness();
+    set_has_contactstiffness();
+  }
+  hasContactStiffness_.contactstiffness_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.contactStiffness)
+}
+
+// double contactDamping = 12;
+bool ChangeDynamicsCommand::has_contactdamping() const {
+  return hasContactDamping_case() == kContactDamping;
+}
+void ChangeDynamicsCommand::set_has_contactdamping() {
+  _oneof_case_[8] = kContactDamping;
+}
+void ChangeDynamicsCommand::clear_contactdamping() {
+  if (has_contactdamping()) {
+    hasContactDamping_.contactdamping_ = 0;
+    clear_has_hasContactDamping();
+  }
+}
+double ChangeDynamicsCommand::contactdamping() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.contactDamping)
+  if (has_contactdamping()) {
+    return hasContactDamping_.contactdamping_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_contactdamping(double value) {
+  if (!has_contactdamping()) {
+    clear_hasContactDamping();
+    set_has_contactdamping();
+  }
+  hasContactDamping_.contactdamping_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.contactDamping)
+}
+
+// .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+bool ChangeDynamicsCommand::has_localinertiadiagonal() const {
+  return hasLocalInertiaDiagonal_case() == kLocalInertiaDiagonal;
+}
+void ChangeDynamicsCommand::set_has_localinertiadiagonal() {
+  _oneof_case_[9] = kLocalInertiaDiagonal;
+}
+void ChangeDynamicsCommand::clear_localinertiadiagonal() {
+  if (has_localinertiadiagonal()) {
+    delete hasLocalInertiaDiagonal_.localinertiadiagonal_;
+    clear_has_hasLocalInertiaDiagonal();
+  }
+}
+ const ::pybullet_grpc::vec3& ChangeDynamicsCommand::localinertiadiagonal() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.localInertiaDiagonal)
+  return has_localinertiadiagonal()
+      ? *hasLocalInertiaDiagonal_.localinertiadiagonal_
+      : ::pybullet_grpc::vec3::default_instance();
+}
+::pybullet_grpc::vec3* ChangeDynamicsCommand::mutable_localinertiadiagonal() {
+  if (!has_localinertiadiagonal()) {
+    clear_hasLocalInertiaDiagonal();
+    set_has_localinertiadiagonal();
+    hasLocalInertiaDiagonal_.localinertiadiagonal_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.ChangeDynamicsCommand.localInertiaDiagonal)
+  return hasLocalInertiaDiagonal_.localinertiadiagonal_;
+}
+::pybullet_grpc::vec3* ChangeDynamicsCommand::release_localinertiadiagonal() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.ChangeDynamicsCommand.localInertiaDiagonal)
+  if (has_localinertiadiagonal()) {
+    clear_has_hasLocalInertiaDiagonal();
+    ::pybullet_grpc::vec3* temp = hasLocalInertiaDiagonal_.localinertiadiagonal_;
+    hasLocalInertiaDiagonal_.localinertiadiagonal_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void ChangeDynamicsCommand::set_allocated_localinertiadiagonal(::pybullet_grpc::vec3* localinertiadiagonal) {
+  clear_hasLocalInertiaDiagonal();
+  if (localinertiadiagonal) {
+    set_has_localinertiadiagonal();
+    hasLocalInertiaDiagonal_.localinertiadiagonal_ = localinertiadiagonal;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.ChangeDynamicsCommand.localInertiaDiagonal)
+}
+
+// int32 frictionAnchor = 14;
+bool ChangeDynamicsCommand::has_frictionanchor() const {
+  return hasFrictionAnchor_case() == kFrictionAnchor;
+}
+void ChangeDynamicsCommand::set_has_frictionanchor() {
+  _oneof_case_[10] = kFrictionAnchor;
+}
+void ChangeDynamicsCommand::clear_frictionanchor() {
+  if (has_frictionanchor()) {
+    hasFrictionAnchor_.frictionanchor_ = 0;
+    clear_has_hasFrictionAnchor();
+  }
+}
+::google::protobuf::int32 ChangeDynamicsCommand::frictionanchor() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.frictionAnchor)
+  if (has_frictionanchor()) {
+    return hasFrictionAnchor_.frictionanchor_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_frictionanchor(::google::protobuf::int32 value) {
+  if (!has_frictionanchor()) {
+    clear_hasFrictionAnchor();
+    set_has_frictionanchor();
+  }
+  hasFrictionAnchor_.frictionanchor_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.frictionAnchor)
+}
+
+// double ccdSweptSphereRadius = 15;
+bool ChangeDynamicsCommand::has_ccdsweptsphereradius() const {
+  return hasccdSweptSphereRadius_case() == kCcdSweptSphereRadius;
+}
+void ChangeDynamicsCommand::set_has_ccdsweptsphereradius() {
+  _oneof_case_[11] = kCcdSweptSphereRadius;
+}
+void ChangeDynamicsCommand::clear_ccdsweptsphereradius() {
+  if (has_ccdsweptsphereradius()) {
+    hasccdSweptSphereRadius_.ccdsweptsphereradius_ = 0;
+    clear_has_hasccdSweptSphereRadius();
+  }
+}
+double ChangeDynamicsCommand::ccdsweptsphereradius() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.ccdSweptSphereRadius)
+  if (has_ccdsweptsphereradius()) {
+    return hasccdSweptSphereRadius_.ccdsweptsphereradius_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_ccdsweptsphereradius(double value) {
+  if (!has_ccdsweptsphereradius()) {
+    clear_hasccdSweptSphereRadius();
+    set_has_ccdsweptsphereradius();
+  }
+  hasccdSweptSphereRadius_.ccdsweptsphereradius_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.ccdSweptSphereRadius)
+}
+
+// double contactProcessingThreshold = 16;
+bool ChangeDynamicsCommand::has_contactprocessingthreshold() const {
+  return hasContactProcessingThreshold_case() == kContactProcessingThreshold;
+}
+void ChangeDynamicsCommand::set_has_contactprocessingthreshold() {
+  _oneof_case_[12] = kContactProcessingThreshold;
+}
+void ChangeDynamicsCommand::clear_contactprocessingthreshold() {
+  if (has_contactprocessingthreshold()) {
+    hasContactProcessingThreshold_.contactprocessingthreshold_ = 0;
+    clear_has_hasContactProcessingThreshold();
+  }
+}
+double ChangeDynamicsCommand::contactprocessingthreshold() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.contactProcessingThreshold)
+  if (has_contactprocessingthreshold()) {
+    return hasContactProcessingThreshold_.contactprocessingthreshold_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_contactprocessingthreshold(double value) {
+  if (!has_contactprocessingthreshold()) {
+    clear_hasContactProcessingThreshold();
+    set_has_contactprocessingthreshold();
+  }
+  hasContactProcessingThreshold_.contactprocessingthreshold_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.contactProcessingThreshold)
+}
+
+// int32 activationState = 17;
+bool ChangeDynamicsCommand::has_activationstate() const {
+  return hasActivationState_case() == kActivationState;
+}
+void ChangeDynamicsCommand::set_has_activationstate() {
+  _oneof_case_[13] = kActivationState;
+}
+void ChangeDynamicsCommand::clear_activationstate() {
+  if (has_activationstate()) {
+    hasActivationState_.activationstate_ = 0;
+    clear_has_hasActivationState();
+  }
+}
+::google::protobuf::int32 ChangeDynamicsCommand::activationstate() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ChangeDynamicsCommand.activationState)
+  if (has_activationstate()) {
+    return hasActivationState_.activationstate_;
+  }
+  return 0;
+}
+void ChangeDynamicsCommand::set_activationstate(::google::protobuf::int32 value) {
+  if (!has_activationstate()) {
+    clear_hasActivationState();
+    set_has_activationstate();
+  }
+  hasActivationState_.activationstate_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ChangeDynamicsCommand.activationState)
+}
+
+bool ChangeDynamicsCommand::has_hasMass() const {
+  return hasMass_case() != HASMASS_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasMass() {
+  _oneof_case_[0] = HASMASS_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_hasLateralFriction() const {
+  return hasLateralFriction_case() != HASLATERALFRICTION_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasLateralFriction() {
+  _oneof_case_[1] = HASLATERALFRICTION_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_hasSpinningFriction() const {
+  return hasSpinningFriction_case() != HASSPINNINGFRICTION_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasSpinningFriction() {
+  _oneof_case_[2] = HASSPINNINGFRICTION_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_hasRollingFriction() const {
+  return hasRollingFriction_case() != HASROLLINGFRICTION_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasRollingFriction() {
+  _oneof_case_[3] = HASROLLINGFRICTION_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_hasRestitution() const {
+  return hasRestitution_case() != HASRESTITUTION_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasRestitution() {
+  _oneof_case_[4] = HASRESTITUTION_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_haslinearDamping() const {
+  return haslinearDamping_case() != HASLINEARDAMPING_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_haslinearDamping() {
+  _oneof_case_[5] = HASLINEARDAMPING_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_hasangularDamping() const {
+  return hasangularDamping_case() != HASANGULARDAMPING_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasangularDamping() {
+  _oneof_case_[6] = HASANGULARDAMPING_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_hasContactStiffness() const {
+  return hasContactStiffness_case() != HASCONTACTSTIFFNESS_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasContactStiffness() {
+  _oneof_case_[7] = HASCONTACTSTIFFNESS_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_hasContactDamping() const {
+  return hasContactDamping_case() != HASCONTACTDAMPING_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasContactDamping() {
+  _oneof_case_[8] = HASCONTACTDAMPING_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_hasLocalInertiaDiagonal() const {
+  return hasLocalInertiaDiagonal_case() != HASLOCALINERTIADIAGONAL_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasLocalInertiaDiagonal() {
+  _oneof_case_[9] = HASLOCALINERTIADIAGONAL_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_hasFrictionAnchor() const {
+  return hasFrictionAnchor_case() != HASFRICTIONANCHOR_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasFrictionAnchor() {
+  _oneof_case_[10] = HASFRICTIONANCHOR_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_hasccdSweptSphereRadius() const {
+  return hasccdSweptSphereRadius_case() != HASCCDSWEPTSPHERERADIUS_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasccdSweptSphereRadius() {
+  _oneof_case_[11] = HASCCDSWEPTSPHERERADIUS_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_hasContactProcessingThreshold() const {
+  return hasContactProcessingThreshold_case() != HASCONTACTPROCESSINGTHRESHOLD_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasContactProcessingThreshold() {
+  _oneof_case_[12] = HASCONTACTPROCESSINGTHRESHOLD_NOT_SET;
+}
+bool ChangeDynamicsCommand::has_hasActivationState() const {
+  return hasActivationState_case() != HASACTIVATIONSTATE_NOT_SET;
+}
+void ChangeDynamicsCommand::clear_has_hasActivationState() {
+  _oneof_case_[13] = HASACTIVATIONSTATE_NOT_SET;
+}
+ChangeDynamicsCommand::HasMassCase ChangeDynamicsCommand::hasMass_case() const {
+  return ChangeDynamicsCommand::HasMassCase(_oneof_case_[0]);
+}
+ChangeDynamicsCommand::HasLateralFrictionCase ChangeDynamicsCommand::hasLateralFriction_case() const {
+  return ChangeDynamicsCommand::HasLateralFrictionCase(_oneof_case_[1]);
+}
+ChangeDynamicsCommand::HasSpinningFrictionCase ChangeDynamicsCommand::hasSpinningFriction_case() const {
+  return ChangeDynamicsCommand::HasSpinningFrictionCase(_oneof_case_[2]);
+}
+ChangeDynamicsCommand::HasRollingFrictionCase ChangeDynamicsCommand::hasRollingFriction_case() const {
+  return ChangeDynamicsCommand::HasRollingFrictionCase(_oneof_case_[3]);
+}
+ChangeDynamicsCommand::HasRestitutionCase ChangeDynamicsCommand::hasRestitution_case() const {
+  return ChangeDynamicsCommand::HasRestitutionCase(_oneof_case_[4]);
+}
+ChangeDynamicsCommand::HaslinearDampingCase ChangeDynamicsCommand::haslinearDamping_case() const {
+  return ChangeDynamicsCommand::HaslinearDampingCase(_oneof_case_[5]);
+}
+ChangeDynamicsCommand::HasangularDampingCase ChangeDynamicsCommand::hasangularDamping_case() const {
+  return ChangeDynamicsCommand::HasangularDampingCase(_oneof_case_[6]);
+}
+ChangeDynamicsCommand::HasContactStiffnessCase ChangeDynamicsCommand::hasContactStiffness_case() const {
+  return ChangeDynamicsCommand::HasContactStiffnessCase(_oneof_case_[7]);
+}
+ChangeDynamicsCommand::HasContactDampingCase ChangeDynamicsCommand::hasContactDamping_case() const {
+  return ChangeDynamicsCommand::HasContactDampingCase(_oneof_case_[8]);
+}
+ChangeDynamicsCommand::HasLocalInertiaDiagonalCase ChangeDynamicsCommand::hasLocalInertiaDiagonal_case() const {
+  return ChangeDynamicsCommand::HasLocalInertiaDiagonalCase(_oneof_case_[9]);
+}
+ChangeDynamicsCommand::HasFrictionAnchorCase ChangeDynamicsCommand::hasFrictionAnchor_case() const {
+  return ChangeDynamicsCommand::HasFrictionAnchorCase(_oneof_case_[10]);
+}
+ChangeDynamicsCommand::HasccdSweptSphereRadiusCase ChangeDynamicsCommand::hasccdSweptSphereRadius_case() const {
+  return ChangeDynamicsCommand::HasccdSweptSphereRadiusCase(_oneof_case_[11]);
+}
+ChangeDynamicsCommand::HasContactProcessingThresholdCase ChangeDynamicsCommand::hasContactProcessingThreshold_case() const {
+  return ChangeDynamicsCommand::HasContactProcessingThresholdCase(_oneof_case_[12]);
+}
+ChangeDynamicsCommand::HasActivationStateCase ChangeDynamicsCommand::hasActivationState_case() const {
+  return ChangeDynamicsCommand::HasActivationStateCase(_oneof_case_[13]);
+}
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int GetDynamicsCommand::kBodyUniqueIdFieldNumber;
+const int GetDynamicsCommand::kLinkIndexFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+GetDynamicsCommand::GetDynamicsCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.GetDynamicsCommand)
+}
+GetDynamicsCommand::GetDynamicsCommand(const GetDynamicsCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&bodyuniqueid_, &from.bodyuniqueid_,
+    reinterpret_cast<char*>(&linkindex_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(linkindex_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.GetDynamicsCommand)
+}
+
+void GetDynamicsCommand::SharedCtor() {
+  ::memset(&bodyuniqueid_, 0, reinterpret_cast<char*>(&linkindex_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(linkindex_));
+  _cached_size_ = 0;
+}
+
+GetDynamicsCommand::~GetDynamicsCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.GetDynamicsCommand)
+  SharedDtor();
+}
+
+void GetDynamicsCommand::SharedDtor() {
+}
+
+void GetDynamicsCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* GetDynamicsCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[11].descriptor;
+}
+
+const GetDynamicsCommand& GetDynamicsCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+GetDynamicsCommand* GetDynamicsCommand::New(::google::protobuf::Arena* arena) const {
+  GetDynamicsCommand* n = new GetDynamicsCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void GetDynamicsCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.GetDynamicsCommand)
+  ::memset(&bodyuniqueid_, 0, reinterpret_cast<char*>(&linkindex_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(linkindex_));
+}
+
+bool GetDynamicsCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.GetDynamicsCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 bodyUniqueId = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &bodyuniqueid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 linkIndex = 2;
+      case 2: {
+        if (tag == 16u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &linkindex_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.GetDynamicsCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.GetDynamicsCommand)
+  return false;
+#undef DO_
+}
+
+void GetDynamicsCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.GetDynamicsCommand)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->bodyuniqueid(), output);
+  }
+
+  // int32 linkIndex = 2;
+  if (this->linkindex() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->linkindex(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.GetDynamicsCommand)
+}
+
+::google::protobuf::uint8* GetDynamicsCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.GetDynamicsCommand)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->bodyuniqueid(), target);
+  }
+
+  // int32 linkIndex = 2;
+  if (this->linkindex() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->linkindex(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.GetDynamicsCommand)
+  return target;
+}
+
+size_t GetDynamicsCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.GetDynamicsCommand)
+  size_t total_size = 0;
+
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->bodyuniqueid());
+  }
+
+  // int32 linkIndex = 2;
+  if (this->linkindex() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->linkindex());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void GetDynamicsCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.GetDynamicsCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const GetDynamicsCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const GetDynamicsCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.GetDynamicsCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.GetDynamicsCommand)
+    MergeFrom(*source);
+  }
+}
+
+void GetDynamicsCommand::MergeFrom(const GetDynamicsCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.GetDynamicsCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.bodyuniqueid() != 0) {
+    set_bodyuniqueid(from.bodyuniqueid());
+  }
+  if (from.linkindex() != 0) {
+    set_linkindex(from.linkindex());
+  }
+}
+
+void GetDynamicsCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.GetDynamicsCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void GetDynamicsCommand::CopyFrom(const GetDynamicsCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.GetDynamicsCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool GetDynamicsCommand::IsInitialized() const {
+  return true;
+}
+
+void GetDynamicsCommand::Swap(GetDynamicsCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void GetDynamicsCommand::InternalSwap(GetDynamicsCommand* other) {
+  std::swap(bodyuniqueid_, other->bodyuniqueid_);
+  std::swap(linkindex_, other->linkindex_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata GetDynamicsCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[11];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// GetDynamicsCommand
+
+// int32 bodyUniqueId = 1;
+void GetDynamicsCommand::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+::google::protobuf::int32 GetDynamicsCommand::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsCommand.bodyUniqueId)
+  return bodyuniqueid_;
+}
+void GetDynamicsCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsCommand.bodyUniqueId)
+}
+
+// int32 linkIndex = 2;
+void GetDynamicsCommand::clear_linkindex() {
+  linkindex_ = 0;
+}
+::google::protobuf::int32 GetDynamicsCommand::linkindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsCommand.linkIndex)
+  return linkindex_;
+}
+void GetDynamicsCommand::set_linkindex(::google::protobuf::int32 value) {
+  
+  linkindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsCommand.linkIndex)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int GetDynamicsStatus::kMassFieldNumber;
+const int GetDynamicsStatus::kLateralFrictionFieldNumber;
+const int GetDynamicsStatus::kSpinningFrictionFieldNumber;
+const int GetDynamicsStatus::kRollingFrictionFieldNumber;
+const int GetDynamicsStatus::kRestitutionFieldNumber;
+const int GetDynamicsStatus::kLinearDampingFieldNumber;
+const int GetDynamicsStatus::kAngularDampingFieldNumber;
+const int GetDynamicsStatus::kContactStiffnessFieldNumber;
+const int GetDynamicsStatus::kContactDampingFieldNumber;
+const int GetDynamicsStatus::kLocalInertiaDiagonalFieldNumber;
+const int GetDynamicsStatus::kFrictionAnchorFieldNumber;
+const int GetDynamicsStatus::kCcdSweptSphereRadiusFieldNumber;
+const int GetDynamicsStatus::kContactProcessingThresholdFieldNumber;
+const int GetDynamicsStatus::kActivationStateFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+GetDynamicsStatus::GetDynamicsStatus()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.GetDynamicsStatus)
+}
+GetDynamicsStatus::GetDynamicsStatus(const GetDynamicsStatus& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_localinertiadiagonal()) {
+    localinertiadiagonal_ = new ::pybullet_grpc::vec3(*from.localinertiadiagonal_);
+  } else {
+    localinertiadiagonal_ = NULL;
+  }
+  ::memcpy(&mass_, &from.mass_,
+    reinterpret_cast<char*>(&contactprocessingthreshold_) -
+    reinterpret_cast<char*>(&mass_) + sizeof(contactprocessingthreshold_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.GetDynamicsStatus)
+}
+
+void GetDynamicsStatus::SharedCtor() {
+  ::memset(&localinertiadiagonal_, 0, reinterpret_cast<char*>(&contactprocessingthreshold_) -
+    reinterpret_cast<char*>(&localinertiadiagonal_) + sizeof(contactprocessingthreshold_));
+  _cached_size_ = 0;
+}
+
+GetDynamicsStatus::~GetDynamicsStatus() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.GetDynamicsStatus)
+  SharedDtor();
+}
+
+void GetDynamicsStatus::SharedDtor() {
+  if (this != internal_default_instance()) {
+    delete localinertiadiagonal_;
+  }
+}
+
+void GetDynamicsStatus::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* GetDynamicsStatus::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[12].descriptor;
+}
+
+const GetDynamicsStatus& GetDynamicsStatus::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+GetDynamicsStatus* GetDynamicsStatus::New(::google::protobuf::Arena* arena) const {
+  GetDynamicsStatus* n = new GetDynamicsStatus;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void GetDynamicsStatus::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.GetDynamicsStatus)
+  if (GetArenaNoVirtual() == NULL && localinertiadiagonal_ != NULL) {
+    delete localinertiadiagonal_;
+  }
+  localinertiadiagonal_ = NULL;
+  ::memset(&mass_, 0, reinterpret_cast<char*>(&contactprocessingthreshold_) -
+    reinterpret_cast<char*>(&mass_) + sizeof(contactprocessingthreshold_));
+}
+
+bool GetDynamicsStatus::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.GetDynamicsStatus)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(16383u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // double mass = 3;
+      case 3: {
+        if (tag == 25u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &mass_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double lateralFriction = 5;
+      case 5: {
+        if (tag == 41u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &lateralfriction_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double spinningFriction = 6;
+      case 6: {
+        if (tag == 49u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &spinningfriction_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double rollingFriction = 7;
+      case 7: {
+        if (tag == 57u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &rollingfriction_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double restitution = 8;
+      case 8: {
+        if (tag == 65u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &restitution_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double linearDamping = 9;
+      case 9: {
+        if (tag == 73u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &lineardamping_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double angularDamping = 10;
+      case 10: {
+        if (tag == 81u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &angulardamping_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double contactStiffness = 11;
+      case 11: {
+        if (tag == 89u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &contactstiffness_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double contactDamping = 12;
+      case 12: {
+        if (tag == 97u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &contactdamping_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+      case 13: {
+        if (tag == 106u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_localinertiadiagonal()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 frictionAnchor = 14;
+      case 14: {
+        if (tag == 112u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &frictionanchor_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double ccdSweptSphereRadius = 15;
+      case 15: {
+        if (tag == 121u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &ccdsweptsphereradius_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double contactProcessingThreshold = 16;
+      case 16: {
+        if (tag == 129u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &contactprocessingthreshold_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 activationState = 17;
+      case 17: {
+        if (tag == 136u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &activationstate_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.GetDynamicsStatus)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.GetDynamicsStatus)
+  return false;
+#undef DO_
+}
+
+void GetDynamicsStatus::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.GetDynamicsStatus)
+  // double mass = 3;
+  if (this->mass() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(3, this->mass(), output);
+  }
+
+  // double lateralFriction = 5;
+  if (this->lateralfriction() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(5, this->lateralfriction(), output);
+  }
+
+  // double spinningFriction = 6;
+  if (this->spinningfriction() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(6, this->spinningfriction(), output);
+  }
+
+  // double rollingFriction = 7;
+  if (this->rollingfriction() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(7, this->rollingfriction(), output);
+  }
+
+  // double restitution = 8;
+  if (this->restitution() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(8, this->restitution(), output);
+  }
+
+  // double linearDamping = 9;
+  if (this->lineardamping() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(9, this->lineardamping(), output);
+  }
+
+  // double angularDamping = 10;
+  if (this->angulardamping() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(10, this->angulardamping(), output);
+  }
+
+  // double contactStiffness = 11;
+  if (this->contactstiffness() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(11, this->contactstiffness(), output);
+  }
+
+  // double contactDamping = 12;
+  if (this->contactdamping() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(12, this->contactdamping(), output);
+  }
+
+  // .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+  if (this->has_localinertiadiagonal()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      13, *this->localinertiadiagonal_, output);
+  }
+
+  // int32 frictionAnchor = 14;
+  if (this->frictionanchor() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(14, this->frictionanchor(), output);
+  }
+
+  // double ccdSweptSphereRadius = 15;
+  if (this->ccdsweptsphereradius() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(15, this->ccdsweptsphereradius(), output);
+  }
+
+  // double contactProcessingThreshold = 16;
+  if (this->contactprocessingthreshold() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(16, this->contactprocessingthreshold(), output);
+  }
+
+  // int32 activationState = 17;
+  if (this->activationstate() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(17, this->activationstate(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.GetDynamicsStatus)
+}
+
+::google::protobuf::uint8* GetDynamicsStatus::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.GetDynamicsStatus)
+  // double mass = 3;
+  if (this->mass() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(3, this->mass(), target);
+  }
+
+  // double lateralFriction = 5;
+  if (this->lateralfriction() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(5, this->lateralfriction(), target);
+  }
+
+  // double spinningFriction = 6;
+  if (this->spinningfriction() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(6, this->spinningfriction(), target);
+  }
+
+  // double rollingFriction = 7;
+  if (this->rollingfriction() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(7, this->rollingfriction(), target);
+  }
+
+  // double restitution = 8;
+  if (this->restitution() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(8, this->restitution(), target);
+  }
+
+  // double linearDamping = 9;
+  if (this->lineardamping() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(9, this->lineardamping(), target);
+  }
+
+  // double angularDamping = 10;
+  if (this->angulardamping() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(10, this->angulardamping(), target);
+  }
+
+  // double contactStiffness = 11;
+  if (this->contactstiffness() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(11, this->contactstiffness(), target);
+  }
+
+  // double contactDamping = 12;
+  if (this->contactdamping() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(12, this->contactdamping(), target);
+  }
+
+  // .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+  if (this->has_localinertiadiagonal()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        13, *this->localinertiadiagonal_, false, target);
+  }
+
+  // int32 frictionAnchor = 14;
+  if (this->frictionanchor() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(14, this->frictionanchor(), target);
+  }
+
+  // double ccdSweptSphereRadius = 15;
+  if (this->ccdsweptsphereradius() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(15, this->ccdsweptsphereradius(), target);
+  }
+
+  // double contactProcessingThreshold = 16;
+  if (this->contactprocessingthreshold() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(16, this->contactprocessingthreshold(), target);
+  }
+
+  // int32 activationState = 17;
+  if (this->activationstate() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(17, this->activationstate(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.GetDynamicsStatus)
+  return target;
+}
+
+size_t GetDynamicsStatus::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.GetDynamicsStatus)
+  size_t total_size = 0;
+
+  // .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+  if (this->has_localinertiadiagonal()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->localinertiadiagonal_);
+  }
+
+  // double mass = 3;
+  if (this->mass() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double lateralFriction = 5;
+  if (this->lateralfriction() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double spinningFriction = 6;
+  if (this->spinningfriction() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double rollingFriction = 7;
+  if (this->rollingfriction() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double restitution = 8;
+  if (this->restitution() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double linearDamping = 9;
+  if (this->lineardamping() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double angularDamping = 10;
+  if (this->angulardamping() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double contactStiffness = 11;
+  if (this->contactstiffness() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double contactDamping = 12;
+  if (this->contactdamping() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double ccdSweptSphereRadius = 15;
+  if (this->ccdsweptsphereradius() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // int32 frictionAnchor = 14;
+  if (this->frictionanchor() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->frictionanchor());
+  }
+
+  // int32 activationState = 17;
+  if (this->activationstate() != 0) {
+    total_size += 2 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->activationstate());
+  }
+
+  // double contactProcessingThreshold = 16;
+  if (this->contactprocessingthreshold() != 0) {
+    total_size += 2 + 8;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void GetDynamicsStatus::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.GetDynamicsStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  const GetDynamicsStatus* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const GetDynamicsStatus>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.GetDynamicsStatus)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.GetDynamicsStatus)
+    MergeFrom(*source);
+  }
+}
+
+void GetDynamicsStatus::MergeFrom(const GetDynamicsStatus& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.GetDynamicsStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_localinertiadiagonal()) {
+    mutable_localinertiadiagonal()->::pybullet_grpc::vec3::MergeFrom(from.localinertiadiagonal());
+  }
+  if (from.mass() != 0) {
+    set_mass(from.mass());
+  }
+  if (from.lateralfriction() != 0) {
+    set_lateralfriction(from.lateralfriction());
+  }
+  if (from.spinningfriction() != 0) {
+    set_spinningfriction(from.spinningfriction());
+  }
+  if (from.rollingfriction() != 0) {
+    set_rollingfriction(from.rollingfriction());
+  }
+  if (from.restitution() != 0) {
+    set_restitution(from.restitution());
+  }
+  if (from.lineardamping() != 0) {
+    set_lineardamping(from.lineardamping());
+  }
+  if (from.angulardamping() != 0) {
+    set_angulardamping(from.angulardamping());
+  }
+  if (from.contactstiffness() != 0) {
+    set_contactstiffness(from.contactstiffness());
+  }
+  if (from.contactdamping() != 0) {
+    set_contactdamping(from.contactdamping());
+  }
+  if (from.ccdsweptsphereradius() != 0) {
+    set_ccdsweptsphereradius(from.ccdsweptsphereradius());
+  }
+  if (from.frictionanchor() != 0) {
+    set_frictionanchor(from.frictionanchor());
+  }
+  if (from.activationstate() != 0) {
+    set_activationstate(from.activationstate());
+  }
+  if (from.contactprocessingthreshold() != 0) {
+    set_contactprocessingthreshold(from.contactprocessingthreshold());
+  }
+}
+
+void GetDynamicsStatus::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.GetDynamicsStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void GetDynamicsStatus::CopyFrom(const GetDynamicsStatus& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.GetDynamicsStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool GetDynamicsStatus::IsInitialized() const {
+  return true;
+}
+
+void GetDynamicsStatus::Swap(GetDynamicsStatus* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void GetDynamicsStatus::InternalSwap(GetDynamicsStatus* other) {
+  std::swap(localinertiadiagonal_, other->localinertiadiagonal_);
+  std::swap(mass_, other->mass_);
+  std::swap(lateralfriction_, other->lateralfriction_);
+  std::swap(spinningfriction_, other->spinningfriction_);
+  std::swap(rollingfriction_, other->rollingfriction_);
+  std::swap(restitution_, other->restitution_);
+  std::swap(lineardamping_, other->lineardamping_);
+  std::swap(angulardamping_, other->angulardamping_);
+  std::swap(contactstiffness_, other->contactstiffness_);
+  std::swap(contactdamping_, other->contactdamping_);
+  std::swap(ccdsweptsphereradius_, other->ccdsweptsphereradius_);
+  std::swap(frictionanchor_, other->frictionanchor_);
+  std::swap(activationstate_, other->activationstate_);
+  std::swap(contactprocessingthreshold_, other->contactprocessingthreshold_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata GetDynamicsStatus::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[12];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// GetDynamicsStatus
+
+// double mass = 3;
+void GetDynamicsStatus::clear_mass() {
+  mass_ = 0;
+}
+double GetDynamicsStatus::mass() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.mass)
+  return mass_;
+}
+void GetDynamicsStatus::set_mass(double value) {
+  
+  mass_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.mass)
+}
+
+// double lateralFriction = 5;
+void GetDynamicsStatus::clear_lateralfriction() {
+  lateralfriction_ = 0;
+}
+double GetDynamicsStatus::lateralfriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.lateralFriction)
+  return lateralfriction_;
+}
+void GetDynamicsStatus::set_lateralfriction(double value) {
+  
+  lateralfriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.lateralFriction)
+}
+
+// double spinningFriction = 6;
+void GetDynamicsStatus::clear_spinningfriction() {
+  spinningfriction_ = 0;
+}
+double GetDynamicsStatus::spinningfriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.spinningFriction)
+  return spinningfriction_;
+}
+void GetDynamicsStatus::set_spinningfriction(double value) {
+  
+  spinningfriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.spinningFriction)
+}
+
+// double rollingFriction = 7;
+void GetDynamicsStatus::clear_rollingfriction() {
+  rollingfriction_ = 0;
+}
+double GetDynamicsStatus::rollingfriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.rollingFriction)
+  return rollingfriction_;
+}
+void GetDynamicsStatus::set_rollingfriction(double value) {
+  
+  rollingfriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.rollingFriction)
+}
+
+// double restitution = 8;
+void GetDynamicsStatus::clear_restitution() {
+  restitution_ = 0;
+}
+double GetDynamicsStatus::restitution() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.restitution)
+  return restitution_;
+}
+void GetDynamicsStatus::set_restitution(double value) {
+  
+  restitution_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.restitution)
+}
+
+// double linearDamping = 9;
+void GetDynamicsStatus::clear_lineardamping() {
+  lineardamping_ = 0;
+}
+double GetDynamicsStatus::lineardamping() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.linearDamping)
+  return lineardamping_;
+}
+void GetDynamicsStatus::set_lineardamping(double value) {
+  
+  lineardamping_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.linearDamping)
+}
+
+// double angularDamping = 10;
+void GetDynamicsStatus::clear_angulardamping() {
+  angulardamping_ = 0;
+}
+double GetDynamicsStatus::angulardamping() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.angularDamping)
+  return angulardamping_;
+}
+void GetDynamicsStatus::set_angulardamping(double value) {
+  
+  angulardamping_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.angularDamping)
+}
+
+// double contactStiffness = 11;
+void GetDynamicsStatus::clear_contactstiffness() {
+  contactstiffness_ = 0;
+}
+double GetDynamicsStatus::contactstiffness() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.contactStiffness)
+  return contactstiffness_;
+}
+void GetDynamicsStatus::set_contactstiffness(double value) {
+  
+  contactstiffness_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.contactStiffness)
+}
+
+// double contactDamping = 12;
+void GetDynamicsStatus::clear_contactdamping() {
+  contactdamping_ = 0;
+}
+double GetDynamicsStatus::contactdamping() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.contactDamping)
+  return contactdamping_;
+}
+void GetDynamicsStatus::set_contactdamping(double value) {
+  
+  contactdamping_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.contactDamping)
+}
+
+// .pybullet_grpc.vec3 localInertiaDiagonal = 13;
+bool GetDynamicsStatus::has_localinertiadiagonal() const {
+  return this != internal_default_instance() && localinertiadiagonal_ != NULL;
+}
+void GetDynamicsStatus::clear_localinertiadiagonal() {
+  if (GetArenaNoVirtual() == NULL && localinertiadiagonal_ != NULL) delete localinertiadiagonal_;
+  localinertiadiagonal_ = NULL;
+}
+const ::pybullet_grpc::vec3& GetDynamicsStatus::localinertiadiagonal() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.localInertiaDiagonal)
+  return localinertiadiagonal_ != NULL ? *localinertiadiagonal_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+::pybullet_grpc::vec3* GetDynamicsStatus::mutable_localinertiadiagonal() {
+  
+  if (localinertiadiagonal_ == NULL) {
+    localinertiadiagonal_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.GetDynamicsStatus.localInertiaDiagonal)
+  return localinertiadiagonal_;
+}
+::pybullet_grpc::vec3* GetDynamicsStatus::release_localinertiadiagonal() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.GetDynamicsStatus.localInertiaDiagonal)
+  
+  ::pybullet_grpc::vec3* temp = localinertiadiagonal_;
+  localinertiadiagonal_ = NULL;
+  return temp;
+}
+void GetDynamicsStatus::set_allocated_localinertiadiagonal(::pybullet_grpc::vec3* localinertiadiagonal) {
+  delete localinertiadiagonal_;
+  localinertiadiagonal_ = localinertiadiagonal;
+  if (localinertiadiagonal) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.GetDynamicsStatus.localInertiaDiagonal)
+}
+
+// int32 frictionAnchor = 14;
+void GetDynamicsStatus::clear_frictionanchor() {
+  frictionanchor_ = 0;
+}
+::google::protobuf::int32 GetDynamicsStatus::frictionanchor() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.frictionAnchor)
+  return frictionanchor_;
+}
+void GetDynamicsStatus::set_frictionanchor(::google::protobuf::int32 value) {
+  
+  frictionanchor_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.frictionAnchor)
+}
+
+// double ccdSweptSphereRadius = 15;
+void GetDynamicsStatus::clear_ccdsweptsphereradius() {
+  ccdsweptsphereradius_ = 0;
+}
+double GetDynamicsStatus::ccdsweptsphereradius() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.ccdSweptSphereRadius)
+  return ccdsweptsphereradius_;
+}
+void GetDynamicsStatus::set_ccdsweptsphereradius(double value) {
+  
+  ccdsweptsphereradius_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.ccdSweptSphereRadius)
+}
+
+// double contactProcessingThreshold = 16;
+void GetDynamicsStatus::clear_contactprocessingthreshold() {
+  contactprocessingthreshold_ = 0;
+}
+double GetDynamicsStatus::contactprocessingthreshold() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.contactProcessingThreshold)
+  return contactprocessingthreshold_;
+}
+void GetDynamicsStatus::set_contactprocessingthreshold(double value) {
+  
+  contactprocessingthreshold_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.contactProcessingThreshold)
+}
+
+// int32 activationState = 17;
+void GetDynamicsStatus::clear_activationstate() {
+  activationstate_ = 0;
+}
+::google::protobuf::int32 GetDynamicsStatus::activationstate() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.GetDynamicsStatus.activationState)
+  return activationstate_;
+}
+void GetDynamicsStatus::set_activationstate(::google::protobuf::int32 value) {
+  
+  activationstate_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.GetDynamicsStatus.activationState)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int InitPoseCommand::kBodyUniqueIdFieldNumber;
+const int InitPoseCommand::kHasInitialStateQFieldNumber;
+const int InitPoseCommand::kInitialStateQFieldNumber;
+const int InitPoseCommand::kHasInitialStateQdotFieldNumber;
+const int InitPoseCommand::kInitialStateQdotFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+InitPoseCommand::InitPoseCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.InitPoseCommand)
+}
+InitPoseCommand::InitPoseCommand(const InitPoseCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      hasinitialstateq_(from.hasinitialstateq_),
+      initialstateq_(from.initialstateq_),
+      hasinitialstateqdot_(from.hasinitialstateqdot_),
+      initialstateqdot_(from.initialstateqdot_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  bodyuniqueid_ = from.bodyuniqueid_;
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.InitPoseCommand)
+}
+
+void InitPoseCommand::SharedCtor() {
+  bodyuniqueid_ = 0;
+  _cached_size_ = 0;
+}
+
+InitPoseCommand::~InitPoseCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.InitPoseCommand)
+  SharedDtor();
+}
+
+void InitPoseCommand::SharedDtor() {
+}
+
+void InitPoseCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* InitPoseCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[13].descriptor;
+}
+
+const InitPoseCommand& InitPoseCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+InitPoseCommand* InitPoseCommand::New(::google::protobuf::Arena* arena) const {
+  InitPoseCommand* n = new InitPoseCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void InitPoseCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.InitPoseCommand)
+  hasinitialstateq_.Clear();
+  initialstateq_.Clear();
+  hasinitialstateqdot_.Clear();
+  initialstateqdot_.Clear();
+  bodyuniqueid_ = 0;
+}
+
+bool InitPoseCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.InitPoseCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 bodyUniqueId = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &bodyuniqueid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated int32 hasInitialStateQ = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, this->mutable_hasinitialstateq())));
+        } else if (tag == 16u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 1, 18u, input, this->mutable_hasinitialstateq())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double initialStateQ = 3;
+      case 3: {
+        if (tag == 26u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_initialstateq())));
+        } else if (tag == 25u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 26u, input, this->mutable_initialstateq())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated int32 hasInitialStateQdot = 4;
+      case 4: {
+        if (tag == 34u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, this->mutable_hasinitialstateqdot())));
+        } else if (tag == 32u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 1, 34u, input, this->mutable_hasinitialstateqdot())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double initialStateQdot = 5;
+      case 5: {
+        if (tag == 42u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_initialstateqdot())));
+        } else if (tag == 41u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 42u, input, this->mutable_initialstateqdot())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.InitPoseCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.InitPoseCommand)
+  return false;
+#undef DO_
+}
+
+void InitPoseCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.InitPoseCommand)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->bodyuniqueid(), output);
+  }
+
+  // repeated int32 hasInitialStateQ = 2;
+  if (this->hasinitialstateq_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(2, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_hasinitialstateq_cached_byte_size_);
+  }
+  for (int i = 0; i < this->hasinitialstateq_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32NoTag(
+      this->hasinitialstateq(i), output);
+  }
+
+  // repeated double initialStateQ = 3;
+  if (this->initialstateq_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(3, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_initialstateq_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->initialstateq().data(), this->initialstateq_size(), output);
+  }
+
+  // repeated int32 hasInitialStateQdot = 4;
+  if (this->hasinitialstateqdot_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(4, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_hasinitialstateqdot_cached_byte_size_);
+  }
+  for (int i = 0; i < this->hasinitialstateqdot_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32NoTag(
+      this->hasinitialstateqdot(i), output);
+  }
+
+  // repeated double initialStateQdot = 5;
+  if (this->initialstateqdot_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(5, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_initialstateqdot_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->initialstateqdot().data(), this->initialstateqdot_size(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.InitPoseCommand)
+}
+
+::google::protobuf::uint8* InitPoseCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.InitPoseCommand)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->bodyuniqueid(), target);
+  }
+
+  // repeated int32 hasInitialStateQ = 2;
+  if (this->hasinitialstateq_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      2,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _hasinitialstateq_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->hasinitialstateq_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt32NoTagToArray(this->hasinitialstateq(i), target);
+  }
+
+  // repeated double initialStateQ = 3;
+  if (this->initialstateq_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      3,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _initialstateq_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->initialstateq_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->initialstateq(i), target);
+  }
+
+  // repeated int32 hasInitialStateQdot = 4;
+  if (this->hasinitialstateqdot_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      4,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _hasinitialstateqdot_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->hasinitialstateqdot_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt32NoTagToArray(this->hasinitialstateqdot(i), target);
+  }
+
+  // repeated double initialStateQdot = 5;
+  if (this->initialstateqdot_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      5,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _initialstateqdot_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->initialstateqdot_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->initialstateqdot(i), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.InitPoseCommand)
+  return target;
+}
+
+size_t InitPoseCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.InitPoseCommand)
+  size_t total_size = 0;
+
+  // repeated int32 hasInitialStateQ = 2;
+  {
+    size_t data_size = ::google::protobuf::internal::WireFormatLite::
+      Int32Size(this->hasinitialstateq_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _hasinitialstateq_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double initialStateQ = 3;
+  {
+    unsigned int count = this->initialstateq_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _initialstateq_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated int32 hasInitialStateQdot = 4;
+  {
+    size_t data_size = ::google::protobuf::internal::WireFormatLite::
+      Int32Size(this->hasinitialstateqdot_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _hasinitialstateqdot_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double initialStateQdot = 5;
+  {
+    unsigned int count = this->initialstateqdot_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _initialstateqdot_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->bodyuniqueid());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void InitPoseCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.InitPoseCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const InitPoseCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const InitPoseCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.InitPoseCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.InitPoseCommand)
+    MergeFrom(*source);
+  }
+}
+
+void InitPoseCommand::MergeFrom(const InitPoseCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.InitPoseCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  hasinitialstateq_.MergeFrom(from.hasinitialstateq_);
+  initialstateq_.MergeFrom(from.initialstateq_);
+  hasinitialstateqdot_.MergeFrom(from.hasinitialstateqdot_);
+  initialstateqdot_.MergeFrom(from.initialstateqdot_);
+  if (from.bodyuniqueid() != 0) {
+    set_bodyuniqueid(from.bodyuniqueid());
+  }
+}
+
+void InitPoseCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.InitPoseCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void InitPoseCommand::CopyFrom(const InitPoseCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.InitPoseCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool InitPoseCommand::IsInitialized() const {
+  return true;
+}
+
+void InitPoseCommand::Swap(InitPoseCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void InitPoseCommand::InternalSwap(InitPoseCommand* other) {
+  hasinitialstateq_.UnsafeArenaSwap(&other->hasinitialstateq_);
+  initialstateq_.UnsafeArenaSwap(&other->initialstateq_);
+  hasinitialstateqdot_.UnsafeArenaSwap(&other->hasinitialstateqdot_);
+  initialstateqdot_.UnsafeArenaSwap(&other->initialstateqdot_);
+  std::swap(bodyuniqueid_, other->bodyuniqueid_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata InitPoseCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[13];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// InitPoseCommand
+
+// int32 bodyUniqueId = 1;
+void InitPoseCommand::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+::google::protobuf::int32 InitPoseCommand::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.InitPoseCommand.bodyUniqueId)
+  return bodyuniqueid_;
+}
+void InitPoseCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.bodyUniqueId)
+}
+
+// repeated int32 hasInitialStateQ = 2;
+int InitPoseCommand::hasinitialstateq_size() const {
+  return hasinitialstateq_.size();
+}
+void InitPoseCommand::clear_hasinitialstateq() {
+  hasinitialstateq_.Clear();
+}
+::google::protobuf::int32 InitPoseCommand::hasinitialstateq(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.InitPoseCommand.hasInitialStateQ)
+  return hasinitialstateq_.Get(index);
+}
+void InitPoseCommand::set_hasinitialstateq(int index, ::google::protobuf::int32 value) {
+  hasinitialstateq_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.hasInitialStateQ)
+}
+void InitPoseCommand::add_hasinitialstateq(::google::protobuf::int32 value) {
+  hasinitialstateq_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.InitPoseCommand.hasInitialStateQ)
+}
+const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+InitPoseCommand::hasinitialstateq() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.InitPoseCommand.hasInitialStateQ)
+  return hasinitialstateq_;
+}
+::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+InitPoseCommand::mutable_hasinitialstateq() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.InitPoseCommand.hasInitialStateQ)
+  return &hasinitialstateq_;
+}
+
+// repeated double initialStateQ = 3;
+int InitPoseCommand::initialstateq_size() const {
+  return initialstateq_.size();
+}
+void InitPoseCommand::clear_initialstateq() {
+  initialstateq_.Clear();
+}
+double InitPoseCommand::initialstateq(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.InitPoseCommand.initialStateQ)
+  return initialstateq_.Get(index);
+}
+void InitPoseCommand::set_initialstateq(int index, double value) {
+  initialstateq_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.initialStateQ)
+}
+void InitPoseCommand::add_initialstateq(double value) {
+  initialstateq_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.InitPoseCommand.initialStateQ)
+}
+const ::google::protobuf::RepeatedField< double >&
+InitPoseCommand::initialstateq() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.InitPoseCommand.initialStateQ)
+  return initialstateq_;
+}
+::google::protobuf::RepeatedField< double >*
+InitPoseCommand::mutable_initialstateq() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.InitPoseCommand.initialStateQ)
+  return &initialstateq_;
+}
+
+// repeated int32 hasInitialStateQdot = 4;
+int InitPoseCommand::hasinitialstateqdot_size() const {
+  return hasinitialstateqdot_.size();
+}
+void InitPoseCommand::clear_hasinitialstateqdot() {
+  hasinitialstateqdot_.Clear();
+}
+::google::protobuf::int32 InitPoseCommand::hasinitialstateqdot(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.InitPoseCommand.hasInitialStateQdot)
+  return hasinitialstateqdot_.Get(index);
+}
+void InitPoseCommand::set_hasinitialstateqdot(int index, ::google::protobuf::int32 value) {
+  hasinitialstateqdot_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.hasInitialStateQdot)
+}
+void InitPoseCommand::add_hasinitialstateqdot(::google::protobuf::int32 value) {
+  hasinitialstateqdot_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.InitPoseCommand.hasInitialStateQdot)
+}
+const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+InitPoseCommand::hasinitialstateqdot() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.InitPoseCommand.hasInitialStateQdot)
+  return hasinitialstateqdot_;
+}
+::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+InitPoseCommand::mutable_hasinitialstateqdot() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.InitPoseCommand.hasInitialStateQdot)
+  return &hasinitialstateqdot_;
+}
+
+// repeated double initialStateQdot = 5;
+int InitPoseCommand::initialstateqdot_size() const {
+  return initialstateqdot_.size();
+}
+void InitPoseCommand::clear_initialstateqdot() {
+  initialstateqdot_.Clear();
+}
+double InitPoseCommand::initialstateqdot(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.InitPoseCommand.initialStateQdot)
+  return initialstateqdot_.Get(index);
+}
+void InitPoseCommand::set_initialstateqdot(int index, double value) {
+  initialstateqdot_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.initialStateQdot)
+}
+void InitPoseCommand::add_initialstateqdot(double value) {
+  initialstateqdot_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.InitPoseCommand.initialStateQdot)
+}
+const ::google::protobuf::RepeatedField< double >&
+InitPoseCommand::initialstateqdot() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.InitPoseCommand.initialStateQdot)
+  return initialstateqdot_;
+}
+::google::protobuf::RepeatedField< double >*
+InitPoseCommand::mutable_initialstateqdot() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.InitPoseCommand.initialStateQdot)
+  return &initialstateqdot_;
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int RequestActualStateCommand::kBodyUniqueIdFieldNumber;
+const int RequestActualStateCommand::kComputeForwardKinematicsFieldNumber;
+const int RequestActualStateCommand::kComputeLinkVelocitiesFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+RequestActualStateCommand::RequestActualStateCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.RequestActualStateCommand)
+}
+RequestActualStateCommand::RequestActualStateCommand(const RequestActualStateCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&bodyuniqueid_, &from.bodyuniqueid_,
+    reinterpret_cast<char*>(&computelinkvelocities_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(computelinkvelocities_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.RequestActualStateCommand)
+}
+
+void RequestActualStateCommand::SharedCtor() {
+  ::memset(&bodyuniqueid_, 0, reinterpret_cast<char*>(&computelinkvelocities_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(computelinkvelocities_));
+  _cached_size_ = 0;
+}
+
+RequestActualStateCommand::~RequestActualStateCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.RequestActualStateCommand)
+  SharedDtor();
+}
+
+void RequestActualStateCommand::SharedDtor() {
+}
+
+void RequestActualStateCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RequestActualStateCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[14].descriptor;
+}
+
+const RequestActualStateCommand& RequestActualStateCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+RequestActualStateCommand* RequestActualStateCommand::New(::google::protobuf::Arena* arena) const {
+  RequestActualStateCommand* n = new RequestActualStateCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void RequestActualStateCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.RequestActualStateCommand)
+  ::memset(&bodyuniqueid_, 0, reinterpret_cast<char*>(&computelinkvelocities_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(computelinkvelocities_));
+}
+
+bool RequestActualStateCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.RequestActualStateCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 bodyUniqueId = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &bodyuniqueid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // bool computeForwardKinematics = 2;
+      case 2: {
+        if (tag == 16u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &computeforwardkinematics_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // bool computeLinkVelocities = 3;
+      case 3: {
+        if (tag == 24u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &computelinkvelocities_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.RequestActualStateCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.RequestActualStateCommand)
+  return false;
+#undef DO_
+}
+
+void RequestActualStateCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.RequestActualStateCommand)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->bodyuniqueid(), output);
+  }
+
+  // bool computeForwardKinematics = 2;
+  if (this->computeforwardkinematics() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->computeforwardkinematics(), output);
+  }
+
+  // bool computeLinkVelocities = 3;
+  if (this->computelinkvelocities() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->computelinkvelocities(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.RequestActualStateCommand)
+}
+
+::google::protobuf::uint8* RequestActualStateCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.RequestActualStateCommand)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->bodyuniqueid(), target);
+  }
+
+  // bool computeForwardKinematics = 2;
+  if (this->computeforwardkinematics() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->computeforwardkinematics(), target);
+  }
+
+  // bool computeLinkVelocities = 3;
+  if (this->computelinkvelocities() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->computelinkvelocities(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.RequestActualStateCommand)
+  return target;
+}
+
+size_t RequestActualStateCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.RequestActualStateCommand)
+  size_t total_size = 0;
+
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->bodyuniqueid());
+  }
+
+  // bool computeForwardKinematics = 2;
+  if (this->computeforwardkinematics() != 0) {
+    total_size += 1 + 1;
+  }
+
+  // bool computeLinkVelocities = 3;
+  if (this->computelinkvelocities() != 0) {
+    total_size += 1 + 1;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RequestActualStateCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.RequestActualStateCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const RequestActualStateCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const RequestActualStateCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.RequestActualStateCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.RequestActualStateCommand)
+    MergeFrom(*source);
+  }
+}
+
+void RequestActualStateCommand::MergeFrom(const RequestActualStateCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.RequestActualStateCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.bodyuniqueid() != 0) {
+    set_bodyuniqueid(from.bodyuniqueid());
+  }
+  if (from.computeforwardkinematics() != 0) {
+    set_computeforwardkinematics(from.computeforwardkinematics());
+  }
+  if (from.computelinkvelocities() != 0) {
+    set_computelinkvelocities(from.computelinkvelocities());
+  }
+}
+
+void RequestActualStateCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.RequestActualStateCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RequestActualStateCommand::CopyFrom(const RequestActualStateCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.RequestActualStateCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RequestActualStateCommand::IsInitialized() const {
+  return true;
+}
+
+void RequestActualStateCommand::Swap(RequestActualStateCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void RequestActualStateCommand::InternalSwap(RequestActualStateCommand* other) {
+  std::swap(bodyuniqueid_, other->bodyuniqueid_);
+  std::swap(computeforwardkinematics_, other->computeforwardkinematics_);
+  std::swap(computelinkvelocities_, other->computelinkvelocities_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata RequestActualStateCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[14];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// RequestActualStateCommand
+
+// int32 bodyUniqueId = 1;
+void RequestActualStateCommand::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+::google::protobuf::int32 RequestActualStateCommand::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestActualStateCommand.bodyUniqueId)
+  return bodyuniqueid_;
+}
+void RequestActualStateCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestActualStateCommand.bodyUniqueId)
+}
+
+// bool computeForwardKinematics = 2;
+void RequestActualStateCommand::clear_computeforwardkinematics() {
+  computeforwardkinematics_ = false;
+}
+bool RequestActualStateCommand::computeforwardkinematics() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestActualStateCommand.computeForwardKinematics)
+  return computeforwardkinematics_;
+}
+void RequestActualStateCommand::set_computeforwardkinematics(bool value) {
+  
+  computeforwardkinematics_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestActualStateCommand.computeForwardKinematics)
+}
+
+// bool computeLinkVelocities = 3;
+void RequestActualStateCommand::clear_computelinkvelocities() {
+  computelinkvelocities_ = false;
+}
+bool RequestActualStateCommand::computelinkvelocities() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestActualStateCommand.computeLinkVelocities)
+  return computelinkvelocities_;
+}
+void RequestActualStateCommand::set_computelinkvelocities(bool value) {
+  
+  computelinkvelocities_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestActualStateCommand.computeLinkVelocities)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int SendActualStateStatus::kBodyUniqueIdFieldNumber;
+const int SendActualStateStatus::kNumLinksFieldNumber;
+const int SendActualStateStatus::kNumDegreeOfFreedomQFieldNumber;
+const int SendActualStateStatus::kNumDegreeOfFreedomUFieldNumber;
+const int SendActualStateStatus::kRootLocalInertialFrameFieldNumber;
+const int SendActualStateStatus::kActualStateQFieldNumber;
+const int SendActualStateStatus::kActualStateQdotFieldNumber;
+const int SendActualStateStatus::kJointReactionForcesFieldNumber;
+const int SendActualStateStatus::kJointMotorForceFieldNumber;
+const int SendActualStateStatus::kLinkStateFieldNumber;
+const int SendActualStateStatus::kLinkWorldVelocitiesFieldNumber;
+const int SendActualStateStatus::kLinkLocalInertialFramesFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+SendActualStateStatus::SendActualStateStatus()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.SendActualStateStatus)
+}
+SendActualStateStatus::SendActualStateStatus(const SendActualStateStatus& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      rootlocalinertialframe_(from.rootlocalinertialframe_),
+      actualstateq_(from.actualstateq_),
+      actualstateqdot_(from.actualstateqdot_),
+      jointreactionforces_(from.jointreactionforces_),
+      jointmotorforce_(from.jointmotorforce_),
+      linkstate_(from.linkstate_),
+      linkworldvelocities_(from.linkworldvelocities_),
+      linklocalinertialframes_(from.linklocalinertialframes_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&bodyuniqueid_, &from.bodyuniqueid_,
+    reinterpret_cast<char*>(&numdegreeoffreedomu_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(numdegreeoffreedomu_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.SendActualStateStatus)
+}
+
+void SendActualStateStatus::SharedCtor() {
+  ::memset(&bodyuniqueid_, 0, reinterpret_cast<char*>(&numdegreeoffreedomu_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(numdegreeoffreedomu_));
+  _cached_size_ = 0;
+}
+
+SendActualStateStatus::~SendActualStateStatus() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.SendActualStateStatus)
+  SharedDtor();
+}
+
+void SendActualStateStatus::SharedDtor() {
+}
+
+void SendActualStateStatus::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SendActualStateStatus::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[15].descriptor;
+}
+
+const SendActualStateStatus& SendActualStateStatus::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+SendActualStateStatus* SendActualStateStatus::New(::google::protobuf::Arena* arena) const {
+  SendActualStateStatus* n = new SendActualStateStatus;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void SendActualStateStatus::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.SendActualStateStatus)
+  rootlocalinertialframe_.Clear();
+  actualstateq_.Clear();
+  actualstateqdot_.Clear();
+  jointreactionforces_.Clear();
+  jointmotorforce_.Clear();
+  linkstate_.Clear();
+  linkworldvelocities_.Clear();
+  linklocalinertialframes_.Clear();
+  ::memset(&bodyuniqueid_, 0, reinterpret_cast<char*>(&numdegreeoffreedomu_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(numdegreeoffreedomu_));
+}
+
+bool SendActualStateStatus::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.SendActualStateStatus)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 bodyUniqueId = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &bodyuniqueid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 numLinks = 2;
+      case 2: {
+        if (tag == 16u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &numlinks_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 numDegreeOfFreedomQ = 3;
+      case 3: {
+        if (tag == 24u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &numdegreeoffreedomq_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 numDegreeOfFreedomU = 4;
+      case 4: {
+        if (tag == 32u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &numdegreeoffreedomu_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double rootLocalInertialFrame = 5;
+      case 5: {
+        if (tag == 42u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_rootlocalinertialframe())));
+        } else if (tag == 41u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 42u, input, this->mutable_rootlocalinertialframe())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double actualStateQ = 6;
+      case 6: {
+        if (tag == 50u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_actualstateq())));
+        } else if (tag == 49u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 50u, input, this->mutable_actualstateq())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double actualStateQdot = 7;
+      case 7: {
+        if (tag == 58u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_actualstateqdot())));
+        } else if (tag == 57u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 58u, input, this->mutable_actualstateqdot())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double jointReactionForces = 8;
+      case 8: {
+        if (tag == 66u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_jointreactionforces())));
+        } else if (tag == 65u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 66u, input, this->mutable_jointreactionforces())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double jointMotorForce = 9;
+      case 9: {
+        if (tag == 74u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_jointmotorforce())));
+        } else if (tag == 73u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 74u, input, this->mutable_jointmotorforce())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double linkState = 10;
+      case 10: {
+        if (tag == 82u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_linkstate())));
+        } else if (tag == 81u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 82u, input, this->mutable_linkstate())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double linkWorldVelocities = 11;
+      case 11: {
+        if (tag == 90u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_linkworldvelocities())));
+        } else if (tag == 89u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 90u, input, this->mutable_linkworldvelocities())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double linkLocalInertialFrames = 12;
+      case 12: {
+        if (tag == 98u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_linklocalinertialframes())));
+        } else if (tag == 97u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 98u, input, this->mutable_linklocalinertialframes())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.SendActualStateStatus)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.SendActualStateStatus)
+  return false;
+#undef DO_
+}
+
+void SendActualStateStatus::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.SendActualStateStatus)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->bodyuniqueid(), output);
+  }
+
+  // int32 numLinks = 2;
+  if (this->numlinks() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->numlinks(), output);
+  }
+
+  // int32 numDegreeOfFreedomQ = 3;
+  if (this->numdegreeoffreedomq() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->numdegreeoffreedomq(), output);
+  }
+
+  // int32 numDegreeOfFreedomU = 4;
+  if (this->numdegreeoffreedomu() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->numdegreeoffreedomu(), output);
+  }
+
+  // repeated double rootLocalInertialFrame = 5;
+  if (this->rootlocalinertialframe_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(5, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_rootlocalinertialframe_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->rootlocalinertialframe().data(), this->rootlocalinertialframe_size(), output);
+  }
+
+  // repeated double actualStateQ = 6;
+  if (this->actualstateq_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(6, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_actualstateq_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->actualstateq().data(), this->actualstateq_size(), output);
+  }
+
+  // repeated double actualStateQdot = 7;
+  if (this->actualstateqdot_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(7, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_actualstateqdot_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->actualstateqdot().data(), this->actualstateqdot_size(), output);
+  }
+
+  // repeated double jointReactionForces = 8;
+  if (this->jointreactionforces_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(8, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_jointreactionforces_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->jointreactionforces().data(), this->jointreactionforces_size(), output);
+  }
+
+  // repeated double jointMotorForce = 9;
+  if (this->jointmotorforce_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(9, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_jointmotorforce_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->jointmotorforce().data(), this->jointmotorforce_size(), output);
+  }
+
+  // repeated double linkState = 10;
+  if (this->linkstate_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(10, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_linkstate_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->linkstate().data(), this->linkstate_size(), output);
+  }
+
+  // repeated double linkWorldVelocities = 11;
+  if (this->linkworldvelocities_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(11, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_linkworldvelocities_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->linkworldvelocities().data(), this->linkworldvelocities_size(), output);
+  }
+
+  // repeated double linkLocalInertialFrames = 12;
+  if (this->linklocalinertialframes_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(12, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_linklocalinertialframes_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->linklocalinertialframes().data(), this->linklocalinertialframes_size(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.SendActualStateStatus)
+}
+
+::google::protobuf::uint8* SendActualStateStatus::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.SendActualStateStatus)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->bodyuniqueid(), target);
+  }
+
+  // int32 numLinks = 2;
+  if (this->numlinks() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->numlinks(), target);
+  }
+
+  // int32 numDegreeOfFreedomQ = 3;
+  if (this->numdegreeoffreedomq() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->numdegreeoffreedomq(), target);
+  }
+
+  // int32 numDegreeOfFreedomU = 4;
+  if (this->numdegreeoffreedomu() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->numdegreeoffreedomu(), target);
+  }
+
+  // repeated double rootLocalInertialFrame = 5;
+  if (this->rootlocalinertialframe_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      5,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _rootlocalinertialframe_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->rootlocalinertialframe_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->rootlocalinertialframe(i), target);
+  }
+
+  // repeated double actualStateQ = 6;
+  if (this->actualstateq_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      6,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _actualstateq_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->actualstateq_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->actualstateq(i), target);
+  }
+
+  // repeated double actualStateQdot = 7;
+  if (this->actualstateqdot_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      7,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _actualstateqdot_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->actualstateqdot_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->actualstateqdot(i), target);
+  }
+
+  // repeated double jointReactionForces = 8;
+  if (this->jointreactionforces_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      8,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _jointreactionforces_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->jointreactionforces_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->jointreactionforces(i), target);
+  }
+
+  // repeated double jointMotorForce = 9;
+  if (this->jointmotorforce_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      9,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _jointmotorforce_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->jointmotorforce_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->jointmotorforce(i), target);
+  }
+
+  // repeated double linkState = 10;
+  if (this->linkstate_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      10,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _linkstate_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->linkstate_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->linkstate(i), target);
+  }
+
+  // repeated double linkWorldVelocities = 11;
+  if (this->linkworldvelocities_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      11,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _linkworldvelocities_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->linkworldvelocities_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->linkworldvelocities(i), target);
+  }
+
+  // repeated double linkLocalInertialFrames = 12;
+  if (this->linklocalinertialframes_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      12,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _linklocalinertialframes_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->linklocalinertialframes_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->linklocalinertialframes(i), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.SendActualStateStatus)
+  return target;
+}
+
+size_t SendActualStateStatus::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.SendActualStateStatus)
+  size_t total_size = 0;
+
+  // repeated double rootLocalInertialFrame = 5;
+  {
+    unsigned int count = this->rootlocalinertialframe_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _rootlocalinertialframe_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double actualStateQ = 6;
+  {
+    unsigned int count = this->actualstateq_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _actualstateq_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double actualStateQdot = 7;
+  {
+    unsigned int count = this->actualstateqdot_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _actualstateqdot_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double jointReactionForces = 8;
+  {
+    unsigned int count = this->jointreactionforces_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _jointreactionforces_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double jointMotorForce = 9;
+  {
+    unsigned int count = this->jointmotorforce_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _jointmotorforce_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double linkState = 10;
+  {
+    unsigned int count = this->linkstate_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _linkstate_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double linkWorldVelocities = 11;
+  {
+    unsigned int count = this->linkworldvelocities_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _linkworldvelocities_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double linkLocalInertialFrames = 12;
+  {
+    unsigned int count = this->linklocalinertialframes_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _linklocalinertialframes_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->bodyuniqueid());
+  }
+
+  // int32 numLinks = 2;
+  if (this->numlinks() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->numlinks());
+  }
+
+  // int32 numDegreeOfFreedomQ = 3;
+  if (this->numdegreeoffreedomq() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->numdegreeoffreedomq());
+  }
+
+  // int32 numDegreeOfFreedomU = 4;
+  if (this->numdegreeoffreedomu() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->numdegreeoffreedomu());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void SendActualStateStatus::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.SendActualStateStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  const SendActualStateStatus* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const SendActualStateStatus>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.SendActualStateStatus)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.SendActualStateStatus)
+    MergeFrom(*source);
+  }
+}
+
+void SendActualStateStatus::MergeFrom(const SendActualStateStatus& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.SendActualStateStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  rootlocalinertialframe_.MergeFrom(from.rootlocalinertialframe_);
+  actualstateq_.MergeFrom(from.actualstateq_);
+  actualstateqdot_.MergeFrom(from.actualstateqdot_);
+  jointreactionforces_.MergeFrom(from.jointreactionforces_);
+  jointmotorforce_.MergeFrom(from.jointmotorforce_);
+  linkstate_.MergeFrom(from.linkstate_);
+  linkworldvelocities_.MergeFrom(from.linkworldvelocities_);
+  linklocalinertialframes_.MergeFrom(from.linklocalinertialframes_);
+  if (from.bodyuniqueid() != 0) {
+    set_bodyuniqueid(from.bodyuniqueid());
+  }
+  if (from.numlinks() != 0) {
+    set_numlinks(from.numlinks());
+  }
+  if (from.numdegreeoffreedomq() != 0) {
+    set_numdegreeoffreedomq(from.numdegreeoffreedomq());
+  }
+  if (from.numdegreeoffreedomu() != 0) {
+    set_numdegreeoffreedomu(from.numdegreeoffreedomu());
+  }
+}
+
+void SendActualStateStatus::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.SendActualStateStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void SendActualStateStatus::CopyFrom(const SendActualStateStatus& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.SendActualStateStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SendActualStateStatus::IsInitialized() const {
+  return true;
+}
+
+void SendActualStateStatus::Swap(SendActualStateStatus* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void SendActualStateStatus::InternalSwap(SendActualStateStatus* other) {
+  rootlocalinertialframe_.UnsafeArenaSwap(&other->rootlocalinertialframe_);
+  actualstateq_.UnsafeArenaSwap(&other->actualstateq_);
+  actualstateqdot_.UnsafeArenaSwap(&other->actualstateqdot_);
+  jointreactionforces_.UnsafeArenaSwap(&other->jointreactionforces_);
+  jointmotorforce_.UnsafeArenaSwap(&other->jointmotorforce_);
+  linkstate_.UnsafeArenaSwap(&other->linkstate_);
+  linkworldvelocities_.UnsafeArenaSwap(&other->linkworldvelocities_);
+  linklocalinertialframes_.UnsafeArenaSwap(&other->linklocalinertialframes_);
+  std::swap(bodyuniqueid_, other->bodyuniqueid_);
+  std::swap(numlinks_, other->numlinks_);
+  std::swap(numdegreeoffreedomq_, other->numdegreeoffreedomq_);
+  std::swap(numdegreeoffreedomu_, other->numdegreeoffreedomu_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata SendActualStateStatus::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[15];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// SendActualStateStatus
+
+// int32 bodyUniqueId = 1;
+void SendActualStateStatus::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+::google::protobuf::int32 SendActualStateStatus::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.bodyUniqueId)
+  return bodyuniqueid_;
+}
+void SendActualStateStatus::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.bodyUniqueId)
+}
+
+// int32 numLinks = 2;
+void SendActualStateStatus::clear_numlinks() {
+  numlinks_ = 0;
+}
+::google::protobuf::int32 SendActualStateStatus::numlinks() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.numLinks)
+  return numlinks_;
+}
+void SendActualStateStatus::set_numlinks(::google::protobuf::int32 value) {
+  
+  numlinks_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.numLinks)
+}
+
+// int32 numDegreeOfFreedomQ = 3;
+void SendActualStateStatus::clear_numdegreeoffreedomq() {
+  numdegreeoffreedomq_ = 0;
+}
+::google::protobuf::int32 SendActualStateStatus::numdegreeoffreedomq() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.numDegreeOfFreedomQ)
+  return numdegreeoffreedomq_;
+}
+void SendActualStateStatus::set_numdegreeoffreedomq(::google::protobuf::int32 value) {
+  
+  numdegreeoffreedomq_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.numDegreeOfFreedomQ)
+}
+
+// int32 numDegreeOfFreedomU = 4;
+void SendActualStateStatus::clear_numdegreeoffreedomu() {
+  numdegreeoffreedomu_ = 0;
+}
+::google::protobuf::int32 SendActualStateStatus::numdegreeoffreedomu() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.numDegreeOfFreedomU)
+  return numdegreeoffreedomu_;
+}
+void SendActualStateStatus::set_numdegreeoffreedomu(::google::protobuf::int32 value) {
+  
+  numdegreeoffreedomu_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.numDegreeOfFreedomU)
+}
+
+// repeated double rootLocalInertialFrame = 5;
+int SendActualStateStatus::rootlocalinertialframe_size() const {
+  return rootlocalinertialframe_.size();
+}
+void SendActualStateStatus::clear_rootlocalinertialframe() {
+  rootlocalinertialframe_.Clear();
+}
+double SendActualStateStatus::rootlocalinertialframe(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.rootLocalInertialFrame)
+  return rootlocalinertialframe_.Get(index);
+}
+void SendActualStateStatus::set_rootlocalinertialframe(int index, double value) {
+  rootlocalinertialframe_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.rootLocalInertialFrame)
+}
+void SendActualStateStatus::add_rootlocalinertialframe(double value) {
+  rootlocalinertialframe_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.rootLocalInertialFrame)
+}
+const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::rootlocalinertialframe() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.rootLocalInertialFrame)
+  return rootlocalinertialframe_;
+}
+::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_rootlocalinertialframe() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.rootLocalInertialFrame)
+  return &rootlocalinertialframe_;
+}
+
+// repeated double actualStateQ = 6;
+int SendActualStateStatus::actualstateq_size() const {
+  return actualstateq_.size();
+}
+void SendActualStateStatus::clear_actualstateq() {
+  actualstateq_.Clear();
+}
+double SendActualStateStatus::actualstateq(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.actualStateQ)
+  return actualstateq_.Get(index);
+}
+void SendActualStateStatus::set_actualstateq(int index, double value) {
+  actualstateq_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.actualStateQ)
+}
+void SendActualStateStatus::add_actualstateq(double value) {
+  actualstateq_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.actualStateQ)
+}
+const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::actualstateq() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.actualStateQ)
+  return actualstateq_;
+}
+::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_actualstateq() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.actualStateQ)
+  return &actualstateq_;
+}
+
+// repeated double actualStateQdot = 7;
+int SendActualStateStatus::actualstateqdot_size() const {
+  return actualstateqdot_.size();
+}
+void SendActualStateStatus::clear_actualstateqdot() {
+  actualstateqdot_.Clear();
+}
+double SendActualStateStatus::actualstateqdot(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.actualStateQdot)
+  return actualstateqdot_.Get(index);
+}
+void SendActualStateStatus::set_actualstateqdot(int index, double value) {
+  actualstateqdot_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.actualStateQdot)
+}
+void SendActualStateStatus::add_actualstateqdot(double value) {
+  actualstateqdot_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.actualStateQdot)
+}
+const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::actualstateqdot() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.actualStateQdot)
+  return actualstateqdot_;
+}
+::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_actualstateqdot() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.actualStateQdot)
+  return &actualstateqdot_;
+}
+
+// repeated double jointReactionForces = 8;
+int SendActualStateStatus::jointreactionforces_size() const {
+  return jointreactionforces_.size();
+}
+void SendActualStateStatus::clear_jointreactionforces() {
+  jointreactionforces_.Clear();
+}
+double SendActualStateStatus::jointreactionforces(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.jointReactionForces)
+  return jointreactionforces_.Get(index);
+}
+void SendActualStateStatus::set_jointreactionforces(int index, double value) {
+  jointreactionforces_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.jointReactionForces)
+}
+void SendActualStateStatus::add_jointreactionforces(double value) {
+  jointreactionforces_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.jointReactionForces)
+}
+const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::jointreactionforces() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.jointReactionForces)
+  return jointreactionforces_;
+}
+::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_jointreactionforces() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.jointReactionForces)
+  return &jointreactionforces_;
+}
+
+// repeated double jointMotorForce = 9;
+int SendActualStateStatus::jointmotorforce_size() const {
+  return jointmotorforce_.size();
+}
+void SendActualStateStatus::clear_jointmotorforce() {
+  jointmotorforce_.Clear();
+}
+double SendActualStateStatus::jointmotorforce(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.jointMotorForce)
+  return jointmotorforce_.Get(index);
+}
+void SendActualStateStatus::set_jointmotorforce(int index, double value) {
+  jointmotorforce_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.jointMotorForce)
+}
+void SendActualStateStatus::add_jointmotorforce(double value) {
+  jointmotorforce_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.jointMotorForce)
+}
+const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::jointmotorforce() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.jointMotorForce)
+  return jointmotorforce_;
+}
+::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_jointmotorforce() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.jointMotorForce)
+  return &jointmotorforce_;
+}
+
+// repeated double linkState = 10;
+int SendActualStateStatus::linkstate_size() const {
+  return linkstate_.size();
+}
+void SendActualStateStatus::clear_linkstate() {
+  linkstate_.Clear();
+}
+double SendActualStateStatus::linkstate(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.linkState)
+  return linkstate_.Get(index);
+}
+void SendActualStateStatus::set_linkstate(int index, double value) {
+  linkstate_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.linkState)
+}
+void SendActualStateStatus::add_linkstate(double value) {
+  linkstate_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.linkState)
+}
+const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::linkstate() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.linkState)
+  return linkstate_;
+}
+::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_linkstate() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.linkState)
+  return &linkstate_;
+}
+
+// repeated double linkWorldVelocities = 11;
+int SendActualStateStatus::linkworldvelocities_size() const {
+  return linkworldvelocities_.size();
+}
+void SendActualStateStatus::clear_linkworldvelocities() {
+  linkworldvelocities_.Clear();
+}
+double SendActualStateStatus::linkworldvelocities(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.linkWorldVelocities)
+  return linkworldvelocities_.Get(index);
+}
+void SendActualStateStatus::set_linkworldvelocities(int index, double value) {
+  linkworldvelocities_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.linkWorldVelocities)
+}
+void SendActualStateStatus::add_linkworldvelocities(double value) {
+  linkworldvelocities_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.linkWorldVelocities)
+}
+const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::linkworldvelocities() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.linkWorldVelocities)
+  return linkworldvelocities_;
+}
+::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_linkworldvelocities() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.linkWorldVelocities)
+  return &linkworldvelocities_;
+}
+
+// repeated double linkLocalInertialFrames = 12;
+int SendActualStateStatus::linklocalinertialframes_size() const {
+  return linklocalinertialframes_.size();
+}
+void SendActualStateStatus::clear_linklocalinertialframes() {
+  linklocalinertialframes_.Clear();
+}
+double SendActualStateStatus::linklocalinertialframes(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SendActualStateStatus.linkLocalInertialFrames)
+  return linklocalinertialframes_.Get(index);
+}
+void SendActualStateStatus::set_linklocalinertialframes(int index, double value) {
+  linklocalinertialframes_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SendActualStateStatus.linkLocalInertialFrames)
+}
+void SendActualStateStatus::add_linklocalinertialframes(double value) {
+  linklocalinertialframes_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SendActualStateStatus.linkLocalInertialFrames)
+}
+const ::google::protobuf::RepeatedField< double >&
+SendActualStateStatus::linklocalinertialframes() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SendActualStateStatus.linkLocalInertialFrames)
+  return linklocalinertialframes_;
+}
+::google::protobuf::RepeatedField< double >*
+SendActualStateStatus::mutable_linklocalinertialframes() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SendActualStateStatus.linkLocalInertialFrames)
+  return &linklocalinertialframes_;
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -2484,6 +9213,12 @@ const int PyBulletCommand::kCommandTypeFieldNumber;
 const int PyBulletCommand::kLoadUrdfCommandFieldNumber;
 const int PyBulletCommand::kTerminateServerCommandFieldNumber;
 const int PyBulletCommand::kStepSimulationCommandFieldNumber;
+const int PyBulletCommand::kLoadSdfCommandFieldNumber;
+const int PyBulletCommand::kLoadMjcfCommandFieldNumber;
+const int PyBulletCommand::kChangeDynamicsCommandFieldNumber;
+const int PyBulletCommand::kGetDynamicsCommandFieldNumber;
+const int PyBulletCommand::kInitPoseCommandFieldNumber;
+const int PyBulletCommand::kRequestActualStateCommandFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 PyBulletCommand::PyBulletCommand()
@@ -2512,6 +9247,30 @@ PyBulletCommand::PyBulletCommand(const PyBulletCommand& from)
     }
     case kStepSimulationCommand: {
       mutable_stepsimulationcommand()->::pybullet_grpc::StepSimulationCommand::MergeFrom(from.stepsimulationcommand());
+      break;
+    }
+    case kLoadSdfCommand: {
+      mutable_loadsdfcommand()->::pybullet_grpc::LoadSdfCommand::MergeFrom(from.loadsdfcommand());
+      break;
+    }
+    case kLoadMjcfCommand: {
+      mutable_loadmjcfcommand()->::pybullet_grpc::LoadMjcfCommand::MergeFrom(from.loadmjcfcommand());
+      break;
+    }
+    case kChangeDynamicsCommand: {
+      mutable_changedynamicscommand()->::pybullet_grpc::ChangeDynamicsCommand::MergeFrom(from.changedynamicscommand());
+      break;
+    }
+    case kGetDynamicsCommand: {
+      mutable_getdynamicscommand()->::pybullet_grpc::GetDynamicsCommand::MergeFrom(from.getdynamicscommand());
+      break;
+    }
+    case kInitPoseCommand: {
+      mutable_initposecommand()->::pybullet_grpc::InitPoseCommand::MergeFrom(from.initposecommand());
+      break;
+    }
+    case kRequestActualStateCommand: {
+      mutable_requestactualstatecommand()->::pybullet_grpc::RequestActualStateCommand::MergeFrom(from.requestactualstatecommand());
       break;
     }
     case COMMANDS_NOT_SET: {
@@ -2545,7 +9304,7 @@ void PyBulletCommand::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* PyBulletCommand::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[6].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[16].descriptor;
 }
 
 const PyBulletCommand& PyBulletCommand::default_instance() {
@@ -2574,6 +9333,30 @@ void PyBulletCommand::clear_commands() {
     }
     case kStepSimulationCommand: {
       delete commands_.stepsimulationcommand_;
+      break;
+    }
+    case kLoadSdfCommand: {
+      delete commands_.loadsdfcommand_;
+      break;
+    }
+    case kLoadMjcfCommand: {
+      delete commands_.loadmjcfcommand_;
+      break;
+    }
+    case kChangeDynamicsCommand: {
+      delete commands_.changedynamicscommand_;
+      break;
+    }
+    case kGetDynamicsCommand: {
+      delete commands_.getdynamicscommand_;
+      break;
+    }
+    case kInitPoseCommand: {
+      delete commands_.initposecommand_;
+      break;
+    }
+    case kRequestActualStateCommand: {
+      delete commands_.requestactualstatecommand_;
       break;
     }
     case COMMANDS_NOT_SET: {
@@ -2646,6 +9429,72 @@ bool PyBulletCommand::MergePartialFromCodedStream(
         break;
       }
 
+      // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+      case 6: {
+        if (tag == 50u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_loadsdfcommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+      case 7: {
+        if (tag == 58u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_loadmjcfcommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+      case 8: {
+        if (tag == 66u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_changedynamicscommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+      case 9: {
+        if (tag == 74u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_getdynamicscommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+      case 10: {
+        if (tag == 82u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_initposecommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+      case 11: {
+        if (tag == 90u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_requestactualstatecommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0 ||
@@ -2693,6 +9542,42 @@ void PyBulletCommand::SerializeWithCachedSizes(
       5, *commands_.stepsimulationcommand_, output);
   }
 
+  // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+  if (has_loadsdfcommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      6, *commands_.loadsdfcommand_, output);
+  }
+
+  // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+  if (has_loadmjcfcommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      7, *commands_.loadmjcfcommand_, output);
+  }
+
+  // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+  if (has_changedynamicscommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      8, *commands_.changedynamicscommand_, output);
+  }
+
+  // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+  if (has_getdynamicscommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      9, *commands_.getdynamicscommand_, output);
+  }
+
+  // .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+  if (has_initposecommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      10, *commands_.initposecommand_, output);
+  }
+
+  // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+  if (has_requestactualstatecommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      11, *commands_.requestactualstatecommand_, output);
+  }
+
   // @@protoc_insertion_point(serialize_end:pybullet_grpc.PyBulletCommand)
 }
 
@@ -2724,6 +9609,48 @@ void PyBulletCommand::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
         5, *commands_.stepsimulationcommand_, false, target);
+  }
+
+  // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+  if (has_loadsdfcommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        6, *commands_.loadsdfcommand_, false, target);
+  }
+
+  // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+  if (has_loadmjcfcommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        7, *commands_.loadmjcfcommand_, false, target);
+  }
+
+  // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+  if (has_changedynamicscommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        8, *commands_.changedynamicscommand_, false, target);
+  }
+
+  // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+  if (has_getdynamicscommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        9, *commands_.getdynamicscommand_, false, target);
+  }
+
+  // .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+  if (has_initposecommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        10, *commands_.initposecommand_, false, target);
+  }
+
+  // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+  if (has_requestactualstatecommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        11, *commands_.requestactualstatecommand_, false, target);
   }
 
   // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.PyBulletCommand)
@@ -2761,6 +9688,48 @@ size_t PyBulletCommand::ByteSizeLong() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *commands_.stepsimulationcommand_);
+      break;
+    }
+    // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+    case kLoadSdfCommand: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.loadsdfcommand_);
+      break;
+    }
+    // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+    case kLoadMjcfCommand: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.loadmjcfcommand_);
+      break;
+    }
+    // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+    case kChangeDynamicsCommand: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.changedynamicscommand_);
+      break;
+    }
+    // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+    case kGetDynamicsCommand: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.getdynamicscommand_);
+      break;
+    }
+    // .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+    case kInitPoseCommand: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.initposecommand_);
+      break;
+    }
+    // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+    case kRequestActualStateCommand: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.requestactualstatecommand_);
       break;
     }
     case COMMANDS_NOT_SET: {
@@ -2809,6 +9778,30 @@ void PyBulletCommand::MergeFrom(const PyBulletCommand& from) {
       mutable_stepsimulationcommand()->::pybullet_grpc::StepSimulationCommand::MergeFrom(from.stepsimulationcommand());
       break;
     }
+    case kLoadSdfCommand: {
+      mutable_loadsdfcommand()->::pybullet_grpc::LoadSdfCommand::MergeFrom(from.loadsdfcommand());
+      break;
+    }
+    case kLoadMjcfCommand: {
+      mutable_loadmjcfcommand()->::pybullet_grpc::LoadMjcfCommand::MergeFrom(from.loadmjcfcommand());
+      break;
+    }
+    case kChangeDynamicsCommand: {
+      mutable_changedynamicscommand()->::pybullet_grpc::ChangeDynamicsCommand::MergeFrom(from.changedynamicscommand());
+      break;
+    }
+    case kGetDynamicsCommand: {
+      mutable_getdynamicscommand()->::pybullet_grpc::GetDynamicsCommand::MergeFrom(from.getdynamicscommand());
+      break;
+    }
+    case kInitPoseCommand: {
+      mutable_initposecommand()->::pybullet_grpc::InitPoseCommand::MergeFrom(from.initposecommand());
+      break;
+    }
+    case kRequestActualStateCommand: {
+      mutable_requestactualstatecommand()->::pybullet_grpc::RequestActualStateCommand::MergeFrom(from.requestactualstatecommand());
+      break;
+    }
     case COMMANDS_NOT_SET: {
       break;
     }
@@ -2846,7 +9839,7 @@ void PyBulletCommand::InternalSwap(PyBulletCommand* other) {
 
 ::google::protobuf::Metadata PyBulletCommand::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[6];
+  return protobuf_pybullet_2eproto::file_level_metadata[16];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -3010,6 +10003,294 @@ void PyBulletCommand::set_allocated_stepsimulationcommand(::pybullet_grpc::StepS
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.stepSimulationCommand)
 }
 
+// .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+bool PyBulletCommand::has_loadsdfcommand() const {
+  return commands_case() == kLoadSdfCommand;
+}
+void PyBulletCommand::set_has_loadsdfcommand() {
+  _oneof_case_[0] = kLoadSdfCommand;
+}
+void PyBulletCommand::clear_loadsdfcommand() {
+  if (has_loadsdfcommand()) {
+    delete commands_.loadsdfcommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::LoadSdfCommand& PyBulletCommand::loadsdfcommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.loadSdfCommand)
+  return has_loadsdfcommand()
+      ? *commands_.loadsdfcommand_
+      : ::pybullet_grpc::LoadSdfCommand::default_instance();
+}
+::pybullet_grpc::LoadSdfCommand* PyBulletCommand::mutable_loadsdfcommand() {
+  if (!has_loadsdfcommand()) {
+    clear_commands();
+    set_has_loadsdfcommand();
+    commands_.loadsdfcommand_ = new ::pybullet_grpc::LoadSdfCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.loadSdfCommand)
+  return commands_.loadsdfcommand_;
+}
+::pybullet_grpc::LoadSdfCommand* PyBulletCommand::release_loadsdfcommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.loadSdfCommand)
+  if (has_loadsdfcommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::LoadSdfCommand* temp = commands_.loadsdfcommand_;
+    commands_.loadsdfcommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_loadsdfcommand(::pybullet_grpc::LoadSdfCommand* loadsdfcommand) {
+  clear_commands();
+  if (loadsdfcommand) {
+    set_has_loadsdfcommand();
+    commands_.loadsdfcommand_ = loadsdfcommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.loadSdfCommand)
+}
+
+// .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+bool PyBulletCommand::has_loadmjcfcommand() const {
+  return commands_case() == kLoadMjcfCommand;
+}
+void PyBulletCommand::set_has_loadmjcfcommand() {
+  _oneof_case_[0] = kLoadMjcfCommand;
+}
+void PyBulletCommand::clear_loadmjcfcommand() {
+  if (has_loadmjcfcommand()) {
+    delete commands_.loadmjcfcommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::LoadMjcfCommand& PyBulletCommand::loadmjcfcommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.loadMjcfCommand)
+  return has_loadmjcfcommand()
+      ? *commands_.loadmjcfcommand_
+      : ::pybullet_grpc::LoadMjcfCommand::default_instance();
+}
+::pybullet_grpc::LoadMjcfCommand* PyBulletCommand::mutable_loadmjcfcommand() {
+  if (!has_loadmjcfcommand()) {
+    clear_commands();
+    set_has_loadmjcfcommand();
+    commands_.loadmjcfcommand_ = new ::pybullet_grpc::LoadMjcfCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.loadMjcfCommand)
+  return commands_.loadmjcfcommand_;
+}
+::pybullet_grpc::LoadMjcfCommand* PyBulletCommand::release_loadmjcfcommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.loadMjcfCommand)
+  if (has_loadmjcfcommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::LoadMjcfCommand* temp = commands_.loadmjcfcommand_;
+    commands_.loadmjcfcommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_loadmjcfcommand(::pybullet_grpc::LoadMjcfCommand* loadmjcfcommand) {
+  clear_commands();
+  if (loadmjcfcommand) {
+    set_has_loadmjcfcommand();
+    commands_.loadmjcfcommand_ = loadmjcfcommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.loadMjcfCommand)
+}
+
+// .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+bool PyBulletCommand::has_changedynamicscommand() const {
+  return commands_case() == kChangeDynamicsCommand;
+}
+void PyBulletCommand::set_has_changedynamicscommand() {
+  _oneof_case_[0] = kChangeDynamicsCommand;
+}
+void PyBulletCommand::clear_changedynamicscommand() {
+  if (has_changedynamicscommand()) {
+    delete commands_.changedynamicscommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::ChangeDynamicsCommand& PyBulletCommand::changedynamicscommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.changeDynamicsCommand)
+  return has_changedynamicscommand()
+      ? *commands_.changedynamicscommand_
+      : ::pybullet_grpc::ChangeDynamicsCommand::default_instance();
+}
+::pybullet_grpc::ChangeDynamicsCommand* PyBulletCommand::mutable_changedynamicscommand() {
+  if (!has_changedynamicscommand()) {
+    clear_commands();
+    set_has_changedynamicscommand();
+    commands_.changedynamicscommand_ = new ::pybullet_grpc::ChangeDynamicsCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.changeDynamicsCommand)
+  return commands_.changedynamicscommand_;
+}
+::pybullet_grpc::ChangeDynamicsCommand* PyBulletCommand::release_changedynamicscommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.changeDynamicsCommand)
+  if (has_changedynamicscommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::ChangeDynamicsCommand* temp = commands_.changedynamicscommand_;
+    commands_.changedynamicscommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_changedynamicscommand(::pybullet_grpc::ChangeDynamicsCommand* changedynamicscommand) {
+  clear_commands();
+  if (changedynamicscommand) {
+    set_has_changedynamicscommand();
+    commands_.changedynamicscommand_ = changedynamicscommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.changeDynamicsCommand)
+}
+
+// .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+bool PyBulletCommand::has_getdynamicscommand() const {
+  return commands_case() == kGetDynamicsCommand;
+}
+void PyBulletCommand::set_has_getdynamicscommand() {
+  _oneof_case_[0] = kGetDynamicsCommand;
+}
+void PyBulletCommand::clear_getdynamicscommand() {
+  if (has_getdynamicscommand()) {
+    delete commands_.getdynamicscommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::GetDynamicsCommand& PyBulletCommand::getdynamicscommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.getDynamicsCommand)
+  return has_getdynamicscommand()
+      ? *commands_.getdynamicscommand_
+      : ::pybullet_grpc::GetDynamicsCommand::default_instance();
+}
+::pybullet_grpc::GetDynamicsCommand* PyBulletCommand::mutable_getdynamicscommand() {
+  if (!has_getdynamicscommand()) {
+    clear_commands();
+    set_has_getdynamicscommand();
+    commands_.getdynamicscommand_ = new ::pybullet_grpc::GetDynamicsCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.getDynamicsCommand)
+  return commands_.getdynamicscommand_;
+}
+::pybullet_grpc::GetDynamicsCommand* PyBulletCommand::release_getdynamicscommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.getDynamicsCommand)
+  if (has_getdynamicscommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::GetDynamicsCommand* temp = commands_.getdynamicscommand_;
+    commands_.getdynamicscommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_getdynamicscommand(::pybullet_grpc::GetDynamicsCommand* getdynamicscommand) {
+  clear_commands();
+  if (getdynamicscommand) {
+    set_has_getdynamicscommand();
+    commands_.getdynamicscommand_ = getdynamicscommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.getDynamicsCommand)
+}
+
+// .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+bool PyBulletCommand::has_initposecommand() const {
+  return commands_case() == kInitPoseCommand;
+}
+void PyBulletCommand::set_has_initposecommand() {
+  _oneof_case_[0] = kInitPoseCommand;
+}
+void PyBulletCommand::clear_initposecommand() {
+  if (has_initposecommand()) {
+    delete commands_.initposecommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::InitPoseCommand& PyBulletCommand::initposecommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.initPoseCommand)
+  return has_initposecommand()
+      ? *commands_.initposecommand_
+      : ::pybullet_grpc::InitPoseCommand::default_instance();
+}
+::pybullet_grpc::InitPoseCommand* PyBulletCommand::mutable_initposecommand() {
+  if (!has_initposecommand()) {
+    clear_commands();
+    set_has_initposecommand();
+    commands_.initposecommand_ = new ::pybullet_grpc::InitPoseCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.initPoseCommand)
+  return commands_.initposecommand_;
+}
+::pybullet_grpc::InitPoseCommand* PyBulletCommand::release_initposecommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.initPoseCommand)
+  if (has_initposecommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::InitPoseCommand* temp = commands_.initposecommand_;
+    commands_.initposecommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_initposecommand(::pybullet_grpc::InitPoseCommand* initposecommand) {
+  clear_commands();
+  if (initposecommand) {
+    set_has_initposecommand();
+    commands_.initposecommand_ = initposecommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.initPoseCommand)
+}
+
+// .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+bool PyBulletCommand::has_requestactualstatecommand() const {
+  return commands_case() == kRequestActualStateCommand;
+}
+void PyBulletCommand::set_has_requestactualstatecommand() {
+  _oneof_case_[0] = kRequestActualStateCommand;
+}
+void PyBulletCommand::clear_requestactualstatecommand() {
+  if (has_requestactualstatecommand()) {
+    delete commands_.requestactualstatecommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::RequestActualStateCommand& PyBulletCommand::requestactualstatecommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.requestActualStateCommand)
+  return has_requestactualstatecommand()
+      ? *commands_.requestactualstatecommand_
+      : ::pybullet_grpc::RequestActualStateCommand::default_instance();
+}
+::pybullet_grpc::RequestActualStateCommand* PyBulletCommand::mutable_requestactualstatecommand() {
+  if (!has_requestactualstatecommand()) {
+    clear_commands();
+    set_has_requestactualstatecommand();
+    commands_.requestactualstatecommand_ = new ::pybullet_grpc::RequestActualStateCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.requestActualStateCommand)
+  return commands_.requestactualstatecommand_;
+}
+::pybullet_grpc::RequestActualStateCommand* PyBulletCommand::release_requestactualstatecommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.requestActualStateCommand)
+  if (has_requestactualstatecommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::RequestActualStateCommand* temp = commands_.requestactualstatecommand_;
+    commands_.requestactualstatecommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_requestactualstatecommand(::pybullet_grpc::RequestActualStateCommand* requestactualstatecommand) {
+  clear_commands();
+  if (requestactualstatecommand) {
+    set_has_requestactualstatecommand();
+    commands_.requestactualstatecommand_ = requestactualstatecommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.requestActualStateCommand)
+}
+
 bool PyBulletCommand::has_commands() const {
   return commands_case() != COMMANDS_NOT_SET;
 }
@@ -3026,6 +10307,10 @@ PyBulletCommand::CommandsCase PyBulletCommand::commands_case() const {
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int PyBulletStatus::kStatusTypeFieldNumber;
 const int PyBulletStatus::kUrdfStatusFieldNumber;
+const int PyBulletStatus::kSdfStatusFieldNumber;
+const int PyBulletStatus::kMjcfStatusFieldNumber;
+const int PyBulletStatus::kGetDynamicsStatusFieldNumber;
+const int PyBulletStatus::kActualStateStatusFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 PyBulletStatus::PyBulletStatus()
@@ -3046,6 +10331,22 @@ PyBulletStatus::PyBulletStatus(const PyBulletStatus& from)
   switch (from.status_case()) {
     case kUrdfStatus: {
       mutable_urdfstatus()->::pybullet_grpc::LoadUrdfStatus::MergeFrom(from.urdfstatus());
+      break;
+    }
+    case kSdfStatus: {
+      mutable_sdfstatus()->::pybullet_grpc::SdfLoadedStatus::MergeFrom(from.sdfstatus());
+      break;
+    }
+    case kMjcfStatus: {
+      mutable_mjcfstatus()->::pybullet_grpc::MjcfLoadedStatus::MergeFrom(from.mjcfstatus());
+      break;
+    }
+    case kGetDynamicsStatus: {
+      mutable_getdynamicsstatus()->::pybullet_grpc::GetDynamicsStatus::MergeFrom(from.getdynamicsstatus());
+      break;
+    }
+    case kActualStateStatus: {
+      mutable_actualstatestatus()->::pybullet_grpc::SendActualStateStatus::MergeFrom(from.actualstatestatus());
       break;
     }
     case STATUS_NOT_SET: {
@@ -3079,7 +10380,7 @@ void PyBulletStatus::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* PyBulletStatus::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[7].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[17].descriptor;
 }
 
 const PyBulletStatus& PyBulletStatus::default_instance() {
@@ -3100,6 +10401,22 @@ void PyBulletStatus::clear_status() {
   switch (status_case()) {
     case kUrdfStatus: {
       delete status_.urdfstatus_;
+      break;
+    }
+    case kSdfStatus: {
+      delete status_.sdfstatus_;
+      break;
+    }
+    case kMjcfStatus: {
+      delete status_.mjcfstatus_;
+      break;
+    }
+    case kGetDynamicsStatus: {
+      delete status_.getdynamicsstatus_;
+      break;
+    }
+    case kActualStateStatus: {
+      delete status_.actualstatestatus_;
       break;
     }
     case STATUS_NOT_SET: {
@@ -3150,6 +10467,50 @@ bool PyBulletStatus::MergePartialFromCodedStream(
         break;
       }
 
+      // .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+      case 3: {
+        if (tag == 26u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_sdfstatus()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+      case 4: {
+        if (tag == 34u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_mjcfstatus()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+      case 5: {
+        if (tag == 42u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_getdynamicsstatus()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+      case 6: {
+        if (tag == 50u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_actualstatestatus()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0 ||
@@ -3185,6 +10546,30 @@ void PyBulletStatus::SerializeWithCachedSizes(
       2, *status_.urdfstatus_, output);
   }
 
+  // .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+  if (has_sdfstatus()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, *status_.sdfstatus_, output);
+  }
+
+  // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+  if (has_mjcfstatus()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      4, *status_.mjcfstatus_, output);
+  }
+
+  // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+  if (has_getdynamicsstatus()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, *status_.getdynamicsstatus_, output);
+  }
+
+  // .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+  if (has_actualstatestatus()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      6, *status_.actualstatestatus_, output);
+  }
+
   // @@protoc_insertion_point(serialize_end:pybullet_grpc.PyBulletStatus)
 }
 
@@ -3202,6 +10587,34 @@ void PyBulletStatus::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
         2, *status_.urdfstatus_, false, target);
+  }
+
+  // .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+  if (has_sdfstatus()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        3, *status_.sdfstatus_, false, target);
+  }
+
+  // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+  if (has_mjcfstatus()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        4, *status_.mjcfstatus_, false, target);
+  }
+
+  // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+  if (has_getdynamicsstatus()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        5, *status_.getdynamicsstatus_, false, target);
+  }
+
+  // .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+  if (has_actualstatestatus()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        6, *status_.actualstatestatus_, false, target);
   }
 
   // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.PyBulletStatus)
@@ -3225,6 +10638,34 @@ size_t PyBulletStatus::ByteSizeLong() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *status_.urdfstatus_);
+      break;
+    }
+    // .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+    case kSdfStatus: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *status_.sdfstatus_);
+      break;
+    }
+    // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+    case kMjcfStatus: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *status_.mjcfstatus_);
+      break;
+    }
+    // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+    case kGetDynamicsStatus: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *status_.getdynamicsstatus_);
+      break;
+    }
+    // .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+    case kActualStateStatus: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *status_.actualstatestatus_);
       break;
     }
     case STATUS_NOT_SET: {
@@ -3265,6 +10706,22 @@ void PyBulletStatus::MergeFrom(const PyBulletStatus& from) {
       mutable_urdfstatus()->::pybullet_grpc::LoadUrdfStatus::MergeFrom(from.urdfstatus());
       break;
     }
+    case kSdfStatus: {
+      mutable_sdfstatus()->::pybullet_grpc::SdfLoadedStatus::MergeFrom(from.sdfstatus());
+      break;
+    }
+    case kMjcfStatus: {
+      mutable_mjcfstatus()->::pybullet_grpc::MjcfLoadedStatus::MergeFrom(from.mjcfstatus());
+      break;
+    }
+    case kGetDynamicsStatus: {
+      mutable_getdynamicsstatus()->::pybullet_grpc::GetDynamicsStatus::MergeFrom(from.getdynamicsstatus());
+      break;
+    }
+    case kActualStateStatus: {
+      mutable_actualstatestatus()->::pybullet_grpc::SendActualStateStatus::MergeFrom(from.actualstatestatus());
+      break;
+    }
     case STATUS_NOT_SET: {
       break;
     }
@@ -3302,7 +10759,7 @@ void PyBulletStatus::InternalSwap(PyBulletStatus* other) {
 
 ::google::protobuf::Metadata PyBulletStatus::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[7];
+  return protobuf_pybullet_2eproto::file_level_metadata[17];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -3368,6 +10825,198 @@ void PyBulletStatus::set_allocated_urdfstatus(::pybullet_grpc::LoadUrdfStatus* u
     status_.urdfstatus_ = urdfstatus;
   }
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.urdfStatus)
+}
+
+// .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+bool PyBulletStatus::has_sdfstatus() const {
+  return status_case() == kSdfStatus;
+}
+void PyBulletStatus::set_has_sdfstatus() {
+  _oneof_case_[0] = kSdfStatus;
+}
+void PyBulletStatus::clear_sdfstatus() {
+  if (has_sdfstatus()) {
+    delete status_.sdfstatus_;
+    clear_has_status();
+  }
+}
+ const ::pybullet_grpc::SdfLoadedStatus& PyBulletStatus::sdfstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.sdfStatus)
+  return has_sdfstatus()
+      ? *status_.sdfstatus_
+      : ::pybullet_grpc::SdfLoadedStatus::default_instance();
+}
+::pybullet_grpc::SdfLoadedStatus* PyBulletStatus::mutable_sdfstatus() {
+  if (!has_sdfstatus()) {
+    clear_status();
+    set_has_sdfstatus();
+    status_.sdfstatus_ = new ::pybullet_grpc::SdfLoadedStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.sdfStatus)
+  return status_.sdfstatus_;
+}
+::pybullet_grpc::SdfLoadedStatus* PyBulletStatus::release_sdfstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.sdfStatus)
+  if (has_sdfstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::SdfLoadedStatus* temp = status_.sdfstatus_;
+    status_.sdfstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletStatus::set_allocated_sdfstatus(::pybullet_grpc::SdfLoadedStatus* sdfstatus) {
+  clear_status();
+  if (sdfstatus) {
+    set_has_sdfstatus();
+    status_.sdfstatus_ = sdfstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.sdfStatus)
+}
+
+// .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+bool PyBulletStatus::has_mjcfstatus() const {
+  return status_case() == kMjcfStatus;
+}
+void PyBulletStatus::set_has_mjcfstatus() {
+  _oneof_case_[0] = kMjcfStatus;
+}
+void PyBulletStatus::clear_mjcfstatus() {
+  if (has_mjcfstatus()) {
+    delete status_.mjcfstatus_;
+    clear_has_status();
+  }
+}
+ const ::pybullet_grpc::MjcfLoadedStatus& PyBulletStatus::mjcfstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.mjcfStatus)
+  return has_mjcfstatus()
+      ? *status_.mjcfstatus_
+      : ::pybullet_grpc::MjcfLoadedStatus::default_instance();
+}
+::pybullet_grpc::MjcfLoadedStatus* PyBulletStatus::mutable_mjcfstatus() {
+  if (!has_mjcfstatus()) {
+    clear_status();
+    set_has_mjcfstatus();
+    status_.mjcfstatus_ = new ::pybullet_grpc::MjcfLoadedStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.mjcfStatus)
+  return status_.mjcfstatus_;
+}
+::pybullet_grpc::MjcfLoadedStatus* PyBulletStatus::release_mjcfstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.mjcfStatus)
+  if (has_mjcfstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::MjcfLoadedStatus* temp = status_.mjcfstatus_;
+    status_.mjcfstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletStatus::set_allocated_mjcfstatus(::pybullet_grpc::MjcfLoadedStatus* mjcfstatus) {
+  clear_status();
+  if (mjcfstatus) {
+    set_has_mjcfstatus();
+    status_.mjcfstatus_ = mjcfstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.mjcfStatus)
+}
+
+// .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+bool PyBulletStatus::has_getdynamicsstatus() const {
+  return status_case() == kGetDynamicsStatus;
+}
+void PyBulletStatus::set_has_getdynamicsstatus() {
+  _oneof_case_[0] = kGetDynamicsStatus;
+}
+void PyBulletStatus::clear_getdynamicsstatus() {
+  if (has_getdynamicsstatus()) {
+    delete status_.getdynamicsstatus_;
+    clear_has_status();
+  }
+}
+ const ::pybullet_grpc::GetDynamicsStatus& PyBulletStatus::getdynamicsstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.getDynamicsStatus)
+  return has_getdynamicsstatus()
+      ? *status_.getdynamicsstatus_
+      : ::pybullet_grpc::GetDynamicsStatus::default_instance();
+}
+::pybullet_grpc::GetDynamicsStatus* PyBulletStatus::mutable_getdynamicsstatus() {
+  if (!has_getdynamicsstatus()) {
+    clear_status();
+    set_has_getdynamicsstatus();
+    status_.getdynamicsstatus_ = new ::pybullet_grpc::GetDynamicsStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.getDynamicsStatus)
+  return status_.getdynamicsstatus_;
+}
+::pybullet_grpc::GetDynamicsStatus* PyBulletStatus::release_getdynamicsstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.getDynamicsStatus)
+  if (has_getdynamicsstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::GetDynamicsStatus* temp = status_.getdynamicsstatus_;
+    status_.getdynamicsstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletStatus::set_allocated_getdynamicsstatus(::pybullet_grpc::GetDynamicsStatus* getdynamicsstatus) {
+  clear_status();
+  if (getdynamicsstatus) {
+    set_has_getdynamicsstatus();
+    status_.getdynamicsstatus_ = getdynamicsstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.getDynamicsStatus)
+}
+
+// .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+bool PyBulletStatus::has_actualstatestatus() const {
+  return status_case() == kActualStateStatus;
+}
+void PyBulletStatus::set_has_actualstatestatus() {
+  _oneof_case_[0] = kActualStateStatus;
+}
+void PyBulletStatus::clear_actualstatestatus() {
+  if (has_actualstatestatus()) {
+    delete status_.actualstatestatus_;
+    clear_has_status();
+  }
+}
+ const ::pybullet_grpc::SendActualStateStatus& PyBulletStatus::actualstatestatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.actualStateStatus)
+  return has_actualstatestatus()
+      ? *status_.actualstatestatus_
+      : ::pybullet_grpc::SendActualStateStatus::default_instance();
+}
+::pybullet_grpc::SendActualStateStatus* PyBulletStatus::mutable_actualstatestatus() {
+  if (!has_actualstatestatus()) {
+    clear_status();
+    set_has_actualstatestatus();
+    status_.actualstatestatus_ = new ::pybullet_grpc::SendActualStateStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.actualStateStatus)
+  return status_.actualstatestatus_;
+}
+::pybullet_grpc::SendActualStateStatus* PyBulletStatus::release_actualstatestatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.actualStateStatus)
+  if (has_actualstatestatus()) {
+    clear_has_status();
+    ::pybullet_grpc::SendActualStateStatus* temp = status_.actualstatestatus_;
+    status_.actualstatestatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletStatus::set_allocated_actualstatestatus(::pybullet_grpc::SendActualStateStatus* actualstatestatus) {
+  clear_status();
+  if (actualstatestatus) {
+    set_has_actualstatestatus();
+    status_.actualstatestatus_ = actualstatestatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.actualStateStatus)
 }
 
 bool PyBulletStatus::has_status() const {

@@ -1,5 +1,8 @@
 syntax = "proto3";
 
+//for why oneof everywhere, see the sad decision here:
+//https://github.com/protocolbuffers/protobuf/issues/1606
+
 option java_multiple_files = true;
 option java_package = "io.grpc.pybullet_grpc";
 option java_outer_classname = "PyBulletProto";
@@ -40,22 +43,132 @@ message StepSimulationCommand
 };
 
 message LoadUrdfCommand {
-	string urdfFileName=1;
+	string fileName=1;
 	vec3 initialPosition=2;
 	quat4 initialOrientation=3;
 	//for why oneof here, see the sad decision here:
 	//https://github.com/protocolbuffers/protobuf/issues/1606
 	oneof hasUseMultiBody	{		int32  useMultiBody=4;	}
 	oneof hasUseFixedBase{	bool useFixedBase=5;	}
-	int32 urdfFlags=6;
+	int32 flags=6;
 	oneof hasGlobalScaling {	double globalScaling=7;
 	}
 };
-
 message LoadUrdfStatus {
-	int32 objectUniqueId=1;
+	int32 bodyUniqueId=1;
 }
 
+
+
+message LoadSdfCommand {
+	string fileName=1;
+	oneof hasUseMultiBody	{		int32  useMultiBody=2;	}
+	oneof hasGlobalScaling {	double globalScaling=3;
+	}
+};
+
+message SdfLoadedStatus
+{
+    repeated int32 bodyUniqueIds=2;
+}
+
+message LoadMjcfCommand {
+	string fileName=1;
+	int32 flags=2;
+	
+};
+
+message MjcfLoadedStatus
+{
+    repeated int32 bodyUniqueIds=2;
+}
+
+
+message ChangeDynamicsCommand
+{
+	int32 bodyUniqueId=1;
+	int32 linkIndex=2;
+	
+	oneof hasMass { double mass=3;}
+	oneof hasLateralFriction { double lateralFriction=5;}
+	oneof hasSpinningFriction {double spinningFriction=6;}
+	oneof hasRollingFriction {double rollingFriction=7;}
+	oneof hasRestitution { double restitution=8;}
+	oneof haslinearDamping { double linearDamping=9;}
+	oneof hasangularDamping { double angularDamping=10;}
+	oneof hasContactStiffness { double contactStiffness=11;}
+	oneof hasContactDamping { double contactDamping=12;}
+	oneof hasLocalInertiaDiagonal { vec3 localInertiaDiagonal=13;}
+	oneof hasFrictionAnchor { int32 frictionAnchor=14;}
+	oneof hasccdSweptSphereRadius { double ccdSweptSphereRadius=15;}
+	oneof hasContactProcessingThreshold { double contactProcessingThreshold=16;}
+	oneof hasActivationState { int32 activationState=17;}
+};
+
+message GetDynamicsCommand
+{
+	int32 bodyUniqueId=1;
+	int32 linkIndex=2;
+};
+
+message GetDynamicsStatus
+{
+	double mass=3;
+	double lateralFriction=5;
+	double spinningFriction=6;
+	double rollingFriction=7;
+	double restitution=8;
+	double linearDamping=9;
+	double angularDamping=10;
+	double contactStiffness=11;
+	double contactDamping=12;
+	vec3 localInertiaDiagonal=13;
+	int32 frictionAnchor=14;
+	double ccdSweptSphereRadius=15;
+	double contactProcessingThreshold=16;
+	int32 activationState=17;
+};
+
+
+message InitPoseCommand
+{
+	int32 bodyUniqueId=1;
+	repeated int32 hasInitialStateQ=2;
+	repeated double initialStateQ=3;
+	repeated int32 hasInitialStateQdot=4;
+	repeated double initialStateQdot=5;
+};
+
+
+message RequestActualStateCommand
+{
+	int32 bodyUniqueId=1;
+	bool computeForwardKinematics=2;
+	bool computeLinkVelocities=3;
+};
+
+message SendActualStateStatus
+{
+	int32 bodyUniqueId=1;
+	int32 numLinks=2;
+	int32 numDegreeOfFreedomQ=3;
+	int32 numDegreeOfFreedomU=4;
+
+	repeated double rootLocalInertialFrame=5;
+   
+	//actual state is only written by the server, read-only access by client is expected
+	repeated double actualStateQ=6;
+	repeated double actualStateQdot=7;
+
+	//measured 6DOF force/torque sensors: force[x,y,z] and torque[x,y,z]
+	repeated double jointReactionForces=8;
+
+	repeated double jointMotorForce=9;
+    
+	repeated double linkState=10;
+	repeated double linkWorldVelocities=11;//linear velocity and angular velocity in world space (x/y/z each).
+	repeated double linkLocalInertialFrames=12;
+};
 
 
 
@@ -67,8 +180,13 @@ message PyBulletCommand {
     LoadUrdfCommand loadUrdfCommand = 3;
     TerminateServerCommand terminateServerCommand=4;
 		StepSimulationCommand stepSimulationCommand= 5;
+		LoadSdfCommand loadSdfCommand=6;
+		LoadMjcfCommand loadMjcfCommand=7;
+		ChangeDynamicsCommand changeDynamicsCommand=8;
+		GetDynamicsCommand getDynamicsCommand=9;
+		InitPoseCommand initPoseCommand=10;
+		RequestActualStateCommand requestActualStateCommand=11;
   }
-
   
 }
 
@@ -79,6 +197,10 @@ message PyBulletStatus {
   oneof status
   {
   	LoadUrdfStatus urdfStatus = 2;
+  	SdfLoadedStatus sdfStatus = 3;
+  	MjcfLoadedStatus mjcfStatus = 4;
+  	GetDynamicsStatus getDynamicsStatus = 5;
+  	SendActualStateStatus actualStateStatus = 6;
   }
 }
 

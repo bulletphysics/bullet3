@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='pybullet.proto',
   package='pybullet_grpc',
   syntax='proto3',
-  serialized_pb=_b('\n\x0epybullet.proto\x12\rpybullet_grpc\"\'\n\x04vec3\x12\t\n\x01x\x18\x01 \x01(\x01\x12\t\n\x01y\x18\x02 \x01(\x01\x12\t\n\x01z\x18\x03 \x01(\x01\"3\n\x05quat4\x12\t\n\x01x\x18\x01 \x01(\x01\x12\t\n\x01y\x18\x02 \x01(\x01\x12\t\n\x01z\x18\x03 \x01(\x01\x12\t\n\x01w\x18\x04 \x01(\x01\",\n\x16TerminateServerCommand\x12\x12\n\nexitReason\x18\x01 \x01(\t\"\x17\n\x15StepSimulationCommand\"\x9d\x02\n\x0fLoadUrdfCommand\x12\x14\n\x0curdfFileName\x18\x01 \x01(\t\x12,\n\x0finitialPosition\x18\x02 \x01(\x0b\x32\x13.pybullet_grpc.vec3\x12\x30\n\x12initialOrientation\x18\x03 \x01(\x0b\x32\x14.pybullet_grpc.quat4\x12\x16\n\x0cuseMultiBody\x18\x04 \x01(\x05H\x00\x12\x16\n\x0cuseFixedBase\x18\x05 \x01(\x08H\x01\x12\x11\n\turdfFlags\x18\x06 \x01(\x05\x12\x17\n\rglobalScaling\x18\x07 \x01(\x01H\x02\x42\x11\n\x0fhasUseMultiBodyB\x11\n\x0fhasUseFixedBaseB\x12\n\x10hasGlobalScaling\"(\n\x0eLoadUrdfStatus\x12\x16\n\x0eobjectUniqueId\x18\x01 \x01(\x05\"\xfd\x01\n\x0fPyBulletCommand\x12\x13\n\x0b\x63ommandType\x18\x01 \x01(\x05\x12\x39\n\x0floadUrdfCommand\x18\x03 \x01(\x0b\x32\x1e.pybullet_grpc.LoadUrdfCommandH\x00\x12G\n\x16terminateServerCommand\x18\x04 \x01(\x0b\x32%.pybullet_grpc.TerminateServerCommandH\x00\x12\x45\n\x15stepSimulationCommand\x18\x05 \x01(\x0b\x32$.pybullet_grpc.StepSimulationCommandH\x00\x42\n\n\x08\x63ommands\"c\n\x0ePyBulletStatus\x12\x12\n\nstatusType\x18\x01 \x01(\x05\x12\x33\n\nurdfStatus\x18\x02 \x01(\x0b\x32\x1d.pybullet_grpc.LoadUrdfStatusH\x00\x42\x08\n\x06status2_\n\x0bPyBulletAPI\x12P\n\rSubmitCommand\x12\x1e.pybullet_grpc.PyBulletCommand\x1a\x1d.pybullet_grpc.PyBulletStatus\"\x00\x42.\n\x15io.grpc.pybullet_grpcB\rPyBulletProtoP\x01\xa2\x02\x03PBGb\x06proto3')
+  serialized_pb=_b('\n\x0epybullet.proto\x12\rpybullet_grpc\"\'\n\x04vec3\x12\t\n\x01x\x18\x01 \x01(\x01\x12\t\n\x01y\x18\x02 \x01(\x01\x12\t\n\x01z\x18\x03 \x01(\x01\"3\n\x05quat4\x12\t\n\x01x\x18\x01 \x01(\x01\x12\t\n\x01y\x18\x02 \x01(\x01\x12\t\n\x01z\x18\x03 \x01(\x01\x12\t\n\x01w\x18\x04 \x01(\x01\",\n\x16TerminateServerCommand\x12\x12\n\nexitReason\x18\x01 \x01(\t\"\x17\n\x15StepSimulationCommand\"\x95\x02\n\x0fLoadUrdfCommand\x12\x10\n\x08\x66ileName\x18\x01 \x01(\t\x12,\n\x0finitialPosition\x18\x02 \x01(\x0b\x32\x13.pybullet_grpc.vec3\x12\x30\n\x12initialOrientation\x18\x03 \x01(\x0b\x32\x14.pybullet_grpc.quat4\x12\x16\n\x0cuseMultiBody\x18\x04 \x01(\x05H\x00\x12\x16\n\x0cuseFixedBase\x18\x05 \x01(\x08H\x01\x12\r\n\x05\x66lags\x18\x06 \x01(\x05\x12\x17\n\rglobalScaling\x18\x07 \x01(\x01H\x02\x42\x11\n\x0fhasUseMultiBodyB\x11\n\x0fhasUseFixedBaseB\x12\n\x10hasGlobalScaling\"&\n\x0eLoadUrdfStatus\x12\x14\n\x0c\x62odyUniqueId\x18\x01 \x01(\x05\"z\n\x0eLoadSdfCommand\x12\x10\n\x08\x66ileName\x18\x01 \x01(\t\x12\x16\n\x0cuseMultiBody\x18\x02 \x01(\x05H\x00\x12\x17\n\rglobalScaling\x18\x03 \x01(\x01H\x01\x42\x11\n\x0fhasUseMultiBodyB\x12\n\x10hasGlobalScaling\"(\n\x0fSdfLoadedStatus\x12\x15\n\rbodyUniqueIds\x18\x02 \x03(\x05\"2\n\x0fLoadMjcfCommand\x12\x10\n\x08\x66ileName\x18\x01 \x01(\t\x12\r\n\x05\x66lags\x18\x02 \x01(\x05\")\n\x10MjcfLoadedStatus\x12\x15\n\rbodyUniqueIds\x18\x02 \x03(\x05\"\x89\x06\n\x15\x43hangeDynamicsCommand\x12\x14\n\x0c\x62odyUniqueId\x18\x01 \x01(\x05\x12\x11\n\tlinkIndex\x18\x02 \x01(\x05\x12\x0e\n\x04mass\x18\x03 \x01(\x01H\x00\x12\x19\n\x0flateralFriction\x18\x05 \x01(\x01H\x01\x12\x1a\n\x10spinningFriction\x18\x06 \x01(\x01H\x02\x12\x19\n\x0frollingFriction\x18\x07 \x01(\x01H\x03\x12\x15\n\x0brestitution\x18\x08 \x01(\x01H\x04\x12\x17\n\rlinearDamping\x18\t \x01(\x01H\x05\x12\x18\n\x0e\x61ngularDamping\x18\n \x01(\x01H\x06\x12\x1a\n\x10\x63ontactStiffness\x18\x0b \x01(\x01H\x07\x12\x18\n\x0e\x63ontactDamping\x18\x0c \x01(\x01H\x08\x12\x33\n\x14localInertiaDiagonal\x18\r \x01(\x0b\x32\x13.pybullet_grpc.vec3H\t\x12\x18\n\x0e\x66rictionAnchor\x18\x0e \x01(\x05H\n\x12\x1e\n\x14\x63\x63\x64SweptSphereRadius\x18\x0f \x01(\x01H\x0b\x12$\n\x1a\x63ontactProcessingThreshold\x18\x10 \x01(\x01H\x0c\x12\x19\n\x0f\x61\x63tivationState\x18\x11 \x01(\x05H\rB\t\n\x07hasMassB\x14\n\x12hasLateralFrictionB\x15\n\x13hasSpinningFrictionB\x14\n\x12hasRollingFrictionB\x10\n\x0ehasRestitutionB\x12\n\x10haslinearDampingB\x13\n\x11hasangularDampingB\x15\n\x13hasContactStiffnessB\x13\n\x11hasContactDampingB\x19\n\x17hasLocalInertiaDiagonalB\x13\n\x11hasFrictionAnchorB\x19\n\x17hasccdSweptSphereRadiusB\x1f\n\x1dhasContactProcessingThresholdB\x14\n\x12hasActivationState\"=\n\x12GetDynamicsCommand\x12\x14\n\x0c\x62odyUniqueId\x18\x01 \x01(\x05\x12\x11\n\tlinkIndex\x18\x02 \x01(\x05\"\x89\x03\n\x11GetDynamicsStatus\x12\x0c\n\x04mass\x18\x03 \x01(\x01\x12\x17\n\x0flateralFriction\x18\x05 \x01(\x01\x12\x18\n\x10spinningFriction\x18\x06 \x01(\x01\x12\x17\n\x0frollingFriction\x18\x07 \x01(\x01\x12\x13\n\x0brestitution\x18\x08 \x01(\x01\x12\x15\n\rlinearDamping\x18\t \x01(\x01\x12\x16\n\x0e\x61ngularDamping\x18\n \x01(\x01\x12\x18\n\x10\x63ontactStiffness\x18\x0b \x01(\x01\x12\x16\n\x0e\x63ontactDamping\x18\x0c \x01(\x01\x12\x31\n\x14localInertiaDiagonal\x18\r \x01(\x0b\x32\x13.pybullet_grpc.vec3\x12\x16\n\x0e\x66rictionAnchor\x18\x0e \x01(\x05\x12\x1c\n\x14\x63\x63\x64SweptSphereRadius\x18\x0f \x01(\x01\x12\"\n\x1a\x63ontactProcessingThreshold\x18\x10 \x01(\x01\x12\x17\n\x0f\x61\x63tivationState\x18\x11 \x01(\x05\"\x8f\x01\n\x0fInitPoseCommand\x12\x14\n\x0c\x62odyUniqueId\x18\x01 \x01(\x05\x12\x18\n\x10hasInitialStateQ\x18\x02 \x03(\x05\x12\x15\n\rinitialStateQ\x18\x03 \x03(\x01\x12\x1b\n\x13hasInitialStateQdot\x18\x04 \x03(\x05\x12\x18\n\x10initialStateQdot\x18\x05 \x03(\x01\"r\n\x19RequestActualStateCommand\x12\x14\n\x0c\x62odyUniqueId\x18\x01 \x01(\x05\x12 \n\x18\x63omputeForwardKinematics\x18\x02 \x01(\x08\x12\x1d\n\x15\x63omputeLinkVelocities\x18\x03 \x01(\x08\"\xcf\x02\n\x15SendActualStateStatus\x12\x14\n\x0c\x62odyUniqueId\x18\x01 \x01(\x05\x12\x10\n\x08numLinks\x18\x02 \x01(\x05\x12\x1b\n\x13numDegreeOfFreedomQ\x18\x03 \x01(\x05\x12\x1b\n\x13numDegreeOfFreedomU\x18\x04 \x01(\x05\x12\x1e\n\x16rootLocalInertialFrame\x18\x05 \x03(\x01\x12\x14\n\x0c\x61\x63tualStateQ\x18\x06 \x03(\x01\x12\x17\n\x0f\x61\x63tualStateQdot\x18\x07 \x03(\x01\x12\x1b\n\x13jointReactionForces\x18\x08 \x03(\x01\x12\x17\n\x0fjointMotorForce\x18\t \x03(\x01\x12\x11\n\tlinkState\x18\n \x03(\x01\x12\x1b\n\x13linkWorldVelocities\x18\x0b \x03(\x01\x12\x1f\n\x17linkLocalInertialFrames\x18\x0c \x03(\x01\"\x83\x05\n\x0fPyBulletCommand\x12\x13\n\x0b\x63ommandType\x18\x01 \x01(\x05\x12\x39\n\x0floadUrdfCommand\x18\x03 \x01(\x0b\x32\x1e.pybullet_grpc.LoadUrdfCommandH\x00\x12G\n\x16terminateServerCommand\x18\x04 \x01(\x0b\x32%.pybullet_grpc.TerminateServerCommandH\x00\x12\x45\n\x15stepSimulationCommand\x18\x05 \x01(\x0b\x32$.pybullet_grpc.StepSimulationCommandH\x00\x12\x37\n\x0eloadSdfCommand\x18\x06 \x01(\x0b\x32\x1d.pybullet_grpc.LoadSdfCommandH\x00\x12\x39\n\x0floadMjcfCommand\x18\x07 \x01(\x0b\x32\x1e.pybullet_grpc.LoadMjcfCommandH\x00\x12\x45\n\x15\x63hangeDynamicsCommand\x18\x08 \x01(\x0b\x32$.pybullet_grpc.ChangeDynamicsCommandH\x00\x12?\n\x12getDynamicsCommand\x18\t \x01(\x0b\x32!.pybullet_grpc.GetDynamicsCommandH\x00\x12\x39\n\x0finitPoseCommand\x18\n \x01(\x0b\x32\x1e.pybullet_grpc.InitPoseCommandH\x00\x12M\n\x19requestActualStateCommand\x18\x0b \x01(\x0b\x32(.pybullet_grpc.RequestActualStateCommandH\x00\x42\n\n\x08\x63ommands\"\xd1\x02\n\x0ePyBulletStatus\x12\x12\n\nstatusType\x18\x01 \x01(\x05\x12\x33\n\nurdfStatus\x18\x02 \x01(\x0b\x32\x1d.pybullet_grpc.LoadUrdfStatusH\x00\x12\x33\n\tsdfStatus\x18\x03 \x01(\x0b\x32\x1e.pybullet_grpc.SdfLoadedStatusH\x00\x12\x35\n\nmjcfStatus\x18\x04 \x01(\x0b\x32\x1f.pybullet_grpc.MjcfLoadedStatusH\x00\x12=\n\x11getDynamicsStatus\x18\x05 \x01(\x0b\x32 .pybullet_grpc.GetDynamicsStatusH\x00\x12\x41\n\x11\x61\x63tualStateStatus\x18\x06 \x01(\x0b\x32$.pybullet_grpc.SendActualStateStatusH\x00\x42\x08\n\x06status2_\n\x0bPyBulletAPI\x12P\n\rSubmitCommand\x12\x1e.pybullet_grpc.PyBulletCommand\x1a\x1d.pybullet_grpc.PyBulletStatus\"\x00\x42.\n\x15io.grpc.pybullet_grpcB\rPyBulletProtoP\x01\xa2\x02\x03PBGb\x06proto3')
 )
 
 
@@ -185,7 +185,7 @@ _LOADURDFCOMMAND = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='urdfFileName', full_name='pybullet_grpc.LoadUrdfCommand.urdfFileName', index=0,
+      name='fileName', full_name='pybullet_grpc.LoadUrdfCommand.fileName', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -220,7 +220,7 @@ _LOADURDFCOMMAND = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='urdfFlags', full_name='pybullet_grpc.LoadUrdfCommand.urdfFlags', index=5,
+      name='flags', full_name='pybullet_grpc.LoadUrdfCommand.flags', index=5,
       number=6, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -255,7 +255,7 @@ _LOADURDFCOMMAND = _descriptor.Descriptor(
       index=2, containing_type=None, fields=[]),
   ],
   serialized_start=199,
-  serialized_end=484,
+  serialized_end=476,
 )
 
 
@@ -267,7 +267,7 @@ _LOADURDFSTATUS = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='objectUniqueId', full_name='pybullet_grpc.LoadUrdfStatus.objectUniqueId', index=0,
+      name='bodyUniqueId', full_name='pybullet_grpc.LoadUrdfStatus.bodyUniqueId', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -285,8 +285,709 @@ _LOADURDFSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=486,
-  serialized_end=526,
+  serialized_start=478,
+  serialized_end=516,
+)
+
+
+_LOADSDFCOMMAND = _descriptor.Descriptor(
+  name='LoadSdfCommand',
+  full_name='pybullet_grpc.LoadSdfCommand',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='fileName', full_name='pybullet_grpc.LoadSdfCommand.fileName', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='useMultiBody', full_name='pybullet_grpc.LoadSdfCommand.useMultiBody', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='globalScaling', full_name='pybullet_grpc.LoadSdfCommand.globalScaling', index=2,
+      number=3, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='hasUseMultiBody', full_name='pybullet_grpc.LoadSdfCommand.hasUseMultiBody',
+      index=0, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasGlobalScaling', full_name='pybullet_grpc.LoadSdfCommand.hasGlobalScaling',
+      index=1, containing_type=None, fields=[]),
+  ],
+  serialized_start=518,
+  serialized_end=640,
+)
+
+
+_SDFLOADEDSTATUS = _descriptor.Descriptor(
+  name='SdfLoadedStatus',
+  full_name='pybullet_grpc.SdfLoadedStatus',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='bodyUniqueIds', full_name='pybullet_grpc.SdfLoadedStatus.bodyUniqueIds', index=0,
+      number=2, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=642,
+  serialized_end=682,
+)
+
+
+_LOADMJCFCOMMAND = _descriptor.Descriptor(
+  name='LoadMjcfCommand',
+  full_name='pybullet_grpc.LoadMjcfCommand',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='fileName', full_name='pybullet_grpc.LoadMjcfCommand.fileName', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='flags', full_name='pybullet_grpc.LoadMjcfCommand.flags', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=684,
+  serialized_end=734,
+)
+
+
+_MJCFLOADEDSTATUS = _descriptor.Descriptor(
+  name='MjcfLoadedStatus',
+  full_name='pybullet_grpc.MjcfLoadedStatus',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='bodyUniqueIds', full_name='pybullet_grpc.MjcfLoadedStatus.bodyUniqueIds', index=0,
+      number=2, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=736,
+  serialized_end=777,
+)
+
+
+_CHANGEDYNAMICSCOMMAND = _descriptor.Descriptor(
+  name='ChangeDynamicsCommand',
+  full_name='pybullet_grpc.ChangeDynamicsCommand',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='bodyUniqueId', full_name='pybullet_grpc.ChangeDynamicsCommand.bodyUniqueId', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='linkIndex', full_name='pybullet_grpc.ChangeDynamicsCommand.linkIndex', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='mass', full_name='pybullet_grpc.ChangeDynamicsCommand.mass', index=2,
+      number=3, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='lateralFriction', full_name='pybullet_grpc.ChangeDynamicsCommand.lateralFriction', index=3,
+      number=5, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='spinningFriction', full_name='pybullet_grpc.ChangeDynamicsCommand.spinningFriction', index=4,
+      number=6, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='rollingFriction', full_name='pybullet_grpc.ChangeDynamicsCommand.rollingFriction', index=5,
+      number=7, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='restitution', full_name='pybullet_grpc.ChangeDynamicsCommand.restitution', index=6,
+      number=8, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='linearDamping', full_name='pybullet_grpc.ChangeDynamicsCommand.linearDamping', index=7,
+      number=9, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='angularDamping', full_name='pybullet_grpc.ChangeDynamicsCommand.angularDamping', index=8,
+      number=10, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='contactStiffness', full_name='pybullet_grpc.ChangeDynamicsCommand.contactStiffness', index=9,
+      number=11, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='contactDamping', full_name='pybullet_grpc.ChangeDynamicsCommand.contactDamping', index=10,
+      number=12, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='localInertiaDiagonal', full_name='pybullet_grpc.ChangeDynamicsCommand.localInertiaDiagonal', index=11,
+      number=13, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='frictionAnchor', full_name='pybullet_grpc.ChangeDynamicsCommand.frictionAnchor', index=12,
+      number=14, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='ccdSweptSphereRadius', full_name='pybullet_grpc.ChangeDynamicsCommand.ccdSweptSphereRadius', index=13,
+      number=15, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='contactProcessingThreshold', full_name='pybullet_grpc.ChangeDynamicsCommand.contactProcessingThreshold', index=14,
+      number=16, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='activationState', full_name='pybullet_grpc.ChangeDynamicsCommand.activationState', index=15,
+      number=17, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='hasMass', full_name='pybullet_grpc.ChangeDynamicsCommand.hasMass',
+      index=0, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasLateralFriction', full_name='pybullet_grpc.ChangeDynamicsCommand.hasLateralFriction',
+      index=1, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasSpinningFriction', full_name='pybullet_grpc.ChangeDynamicsCommand.hasSpinningFriction',
+      index=2, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasRollingFriction', full_name='pybullet_grpc.ChangeDynamicsCommand.hasRollingFriction',
+      index=3, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasRestitution', full_name='pybullet_grpc.ChangeDynamicsCommand.hasRestitution',
+      index=4, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='haslinearDamping', full_name='pybullet_grpc.ChangeDynamicsCommand.haslinearDamping',
+      index=5, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasangularDamping', full_name='pybullet_grpc.ChangeDynamicsCommand.hasangularDamping',
+      index=6, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasContactStiffness', full_name='pybullet_grpc.ChangeDynamicsCommand.hasContactStiffness',
+      index=7, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasContactDamping', full_name='pybullet_grpc.ChangeDynamicsCommand.hasContactDamping',
+      index=8, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasLocalInertiaDiagonal', full_name='pybullet_grpc.ChangeDynamicsCommand.hasLocalInertiaDiagonal',
+      index=9, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasFrictionAnchor', full_name='pybullet_grpc.ChangeDynamicsCommand.hasFrictionAnchor',
+      index=10, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasccdSweptSphereRadius', full_name='pybullet_grpc.ChangeDynamicsCommand.hasccdSweptSphereRadius',
+      index=11, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasContactProcessingThreshold', full_name='pybullet_grpc.ChangeDynamicsCommand.hasContactProcessingThreshold',
+      index=12, containing_type=None, fields=[]),
+    _descriptor.OneofDescriptor(
+      name='hasActivationState', full_name='pybullet_grpc.ChangeDynamicsCommand.hasActivationState',
+      index=13, containing_type=None, fields=[]),
+  ],
+  serialized_start=780,
+  serialized_end=1557,
+)
+
+
+_GETDYNAMICSCOMMAND = _descriptor.Descriptor(
+  name='GetDynamicsCommand',
+  full_name='pybullet_grpc.GetDynamicsCommand',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='bodyUniqueId', full_name='pybullet_grpc.GetDynamicsCommand.bodyUniqueId', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='linkIndex', full_name='pybullet_grpc.GetDynamicsCommand.linkIndex', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1559,
+  serialized_end=1620,
+)
+
+
+_GETDYNAMICSSTATUS = _descriptor.Descriptor(
+  name='GetDynamicsStatus',
+  full_name='pybullet_grpc.GetDynamicsStatus',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='mass', full_name='pybullet_grpc.GetDynamicsStatus.mass', index=0,
+      number=3, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='lateralFriction', full_name='pybullet_grpc.GetDynamicsStatus.lateralFriction', index=1,
+      number=5, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='spinningFriction', full_name='pybullet_grpc.GetDynamicsStatus.spinningFriction', index=2,
+      number=6, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='rollingFriction', full_name='pybullet_grpc.GetDynamicsStatus.rollingFriction', index=3,
+      number=7, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='restitution', full_name='pybullet_grpc.GetDynamicsStatus.restitution', index=4,
+      number=8, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='linearDamping', full_name='pybullet_grpc.GetDynamicsStatus.linearDamping', index=5,
+      number=9, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='angularDamping', full_name='pybullet_grpc.GetDynamicsStatus.angularDamping', index=6,
+      number=10, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='contactStiffness', full_name='pybullet_grpc.GetDynamicsStatus.contactStiffness', index=7,
+      number=11, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='contactDamping', full_name='pybullet_grpc.GetDynamicsStatus.contactDamping', index=8,
+      number=12, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='localInertiaDiagonal', full_name='pybullet_grpc.GetDynamicsStatus.localInertiaDiagonal', index=9,
+      number=13, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='frictionAnchor', full_name='pybullet_grpc.GetDynamicsStatus.frictionAnchor', index=10,
+      number=14, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='ccdSweptSphereRadius', full_name='pybullet_grpc.GetDynamicsStatus.ccdSweptSphereRadius', index=11,
+      number=15, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='contactProcessingThreshold', full_name='pybullet_grpc.GetDynamicsStatus.contactProcessingThreshold', index=12,
+      number=16, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='activationState', full_name='pybullet_grpc.GetDynamicsStatus.activationState', index=13,
+      number=17, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1623,
+  serialized_end=2016,
+)
+
+
+_INITPOSECOMMAND = _descriptor.Descriptor(
+  name='InitPoseCommand',
+  full_name='pybullet_grpc.InitPoseCommand',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='bodyUniqueId', full_name='pybullet_grpc.InitPoseCommand.bodyUniqueId', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='hasInitialStateQ', full_name='pybullet_grpc.InitPoseCommand.hasInitialStateQ', index=1,
+      number=2, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='initialStateQ', full_name='pybullet_grpc.InitPoseCommand.initialStateQ', index=2,
+      number=3, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='hasInitialStateQdot', full_name='pybullet_grpc.InitPoseCommand.hasInitialStateQdot', index=3,
+      number=4, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='initialStateQdot', full_name='pybullet_grpc.InitPoseCommand.initialStateQdot', index=4,
+      number=5, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2019,
+  serialized_end=2162,
+)
+
+
+_REQUESTACTUALSTATECOMMAND = _descriptor.Descriptor(
+  name='RequestActualStateCommand',
+  full_name='pybullet_grpc.RequestActualStateCommand',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='bodyUniqueId', full_name='pybullet_grpc.RequestActualStateCommand.bodyUniqueId', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='computeForwardKinematics', full_name='pybullet_grpc.RequestActualStateCommand.computeForwardKinematics', index=1,
+      number=2, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='computeLinkVelocities', full_name='pybullet_grpc.RequestActualStateCommand.computeLinkVelocities', index=2,
+      number=3, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2164,
+  serialized_end=2278,
+)
+
+
+_SENDACTUALSTATESTATUS = _descriptor.Descriptor(
+  name='SendActualStateStatus',
+  full_name='pybullet_grpc.SendActualStateStatus',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='bodyUniqueId', full_name='pybullet_grpc.SendActualStateStatus.bodyUniqueId', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='numLinks', full_name='pybullet_grpc.SendActualStateStatus.numLinks', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='numDegreeOfFreedomQ', full_name='pybullet_grpc.SendActualStateStatus.numDegreeOfFreedomQ', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='numDegreeOfFreedomU', full_name='pybullet_grpc.SendActualStateStatus.numDegreeOfFreedomU', index=3,
+      number=4, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='rootLocalInertialFrame', full_name='pybullet_grpc.SendActualStateStatus.rootLocalInertialFrame', index=4,
+      number=5, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='actualStateQ', full_name='pybullet_grpc.SendActualStateStatus.actualStateQ', index=5,
+      number=6, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='actualStateQdot', full_name='pybullet_grpc.SendActualStateStatus.actualStateQdot', index=6,
+      number=7, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='jointReactionForces', full_name='pybullet_grpc.SendActualStateStatus.jointReactionForces', index=7,
+      number=8, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='jointMotorForce', full_name='pybullet_grpc.SendActualStateStatus.jointMotorForce', index=8,
+      number=9, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='linkState', full_name='pybullet_grpc.SendActualStateStatus.linkState', index=9,
+      number=10, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='linkWorldVelocities', full_name='pybullet_grpc.SendActualStateStatus.linkWorldVelocities', index=10,
+      number=11, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='linkLocalInertialFrames', full_name='pybullet_grpc.SendActualStateStatus.linkLocalInertialFrames', index=11,
+      number=12, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2281,
+  serialized_end=2616,
 )
 
 
@@ -325,6 +1026,48 @@ _PYBULLETCOMMAND = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='loadSdfCommand', full_name='pybullet_grpc.PyBulletCommand.loadSdfCommand', index=4,
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='loadMjcfCommand', full_name='pybullet_grpc.PyBulletCommand.loadMjcfCommand', index=5,
+      number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='changeDynamicsCommand', full_name='pybullet_grpc.PyBulletCommand.changeDynamicsCommand', index=6,
+      number=8, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='getDynamicsCommand', full_name='pybullet_grpc.PyBulletCommand.getDynamicsCommand', index=7,
+      number=9, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='initPoseCommand', full_name='pybullet_grpc.PyBulletCommand.initPoseCommand', index=8,
+      number=10, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='requestActualStateCommand', full_name='pybullet_grpc.PyBulletCommand.requestActualStateCommand', index=9,
+      number=11, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -340,8 +1083,8 @@ _PYBULLETCOMMAND = _descriptor.Descriptor(
       name='commands', full_name='pybullet_grpc.PyBulletCommand.commands',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=529,
-  serialized_end=782,
+  serialized_start=2619,
+  serialized_end=3262,
 )
 
 
@@ -366,6 +1109,34 @@ _PYBULLETSTATUS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='sdfStatus', full_name='pybullet_grpc.PyBulletStatus.sdfStatus', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='mjcfStatus', full_name='pybullet_grpc.PyBulletStatus.mjcfStatus', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='getDynamicsStatus', full_name='pybullet_grpc.PyBulletStatus.getDynamicsStatus', index=4,
+      number=5, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='actualStateStatus', full_name='pybullet_grpc.PyBulletStatus.actualStateStatus', index=5,
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -381,8 +1152,8 @@ _PYBULLETSTATUS = _descriptor.Descriptor(
       name='status', full_name='pybullet_grpc.PyBulletStatus.status',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=784,
-  serialized_end=883,
+  serialized_start=3265,
+  serialized_end=3602,
 )
 
 _LOADURDFCOMMAND.fields_by_name['initialPosition'].message_type = _VEC3
@@ -396,9 +1167,65 @@ _LOADURDFCOMMAND.fields_by_name['useFixedBase'].containing_oneof = _LOADURDFCOMM
 _LOADURDFCOMMAND.oneofs_by_name['hasGlobalScaling'].fields.append(
   _LOADURDFCOMMAND.fields_by_name['globalScaling'])
 _LOADURDFCOMMAND.fields_by_name['globalScaling'].containing_oneof = _LOADURDFCOMMAND.oneofs_by_name['hasGlobalScaling']
+_LOADSDFCOMMAND.oneofs_by_name['hasUseMultiBody'].fields.append(
+  _LOADSDFCOMMAND.fields_by_name['useMultiBody'])
+_LOADSDFCOMMAND.fields_by_name['useMultiBody'].containing_oneof = _LOADSDFCOMMAND.oneofs_by_name['hasUseMultiBody']
+_LOADSDFCOMMAND.oneofs_by_name['hasGlobalScaling'].fields.append(
+  _LOADSDFCOMMAND.fields_by_name['globalScaling'])
+_LOADSDFCOMMAND.fields_by_name['globalScaling'].containing_oneof = _LOADSDFCOMMAND.oneofs_by_name['hasGlobalScaling']
+_CHANGEDYNAMICSCOMMAND.fields_by_name['localInertiaDiagonal'].message_type = _VEC3
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasMass'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['mass'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['mass'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasMass']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasLateralFriction'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['lateralFriction'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['lateralFriction'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasLateralFriction']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasSpinningFriction'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['spinningFriction'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['spinningFriction'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasSpinningFriction']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasRollingFriction'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['rollingFriction'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['rollingFriction'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasRollingFriction']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasRestitution'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['restitution'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['restitution'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasRestitution']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['haslinearDamping'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['linearDamping'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['linearDamping'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['haslinearDamping']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasangularDamping'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['angularDamping'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['angularDamping'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasangularDamping']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasContactStiffness'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['contactStiffness'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['contactStiffness'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasContactStiffness']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasContactDamping'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['contactDamping'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['contactDamping'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasContactDamping']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasLocalInertiaDiagonal'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['localInertiaDiagonal'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['localInertiaDiagonal'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasLocalInertiaDiagonal']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasFrictionAnchor'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['frictionAnchor'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['frictionAnchor'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasFrictionAnchor']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasccdSweptSphereRadius'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['ccdSweptSphereRadius'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['ccdSweptSphereRadius'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasccdSweptSphereRadius']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasContactProcessingThreshold'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['contactProcessingThreshold'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['contactProcessingThreshold'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasContactProcessingThreshold']
+_CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasActivationState'].fields.append(
+  _CHANGEDYNAMICSCOMMAND.fields_by_name['activationState'])
+_CHANGEDYNAMICSCOMMAND.fields_by_name['activationState'].containing_oneof = _CHANGEDYNAMICSCOMMAND.oneofs_by_name['hasActivationState']
+_GETDYNAMICSSTATUS.fields_by_name['localInertiaDiagonal'].message_type = _VEC3
 _PYBULLETCOMMAND.fields_by_name['loadUrdfCommand'].message_type = _LOADURDFCOMMAND
 _PYBULLETCOMMAND.fields_by_name['terminateServerCommand'].message_type = _TERMINATESERVERCOMMAND
 _PYBULLETCOMMAND.fields_by_name['stepSimulationCommand'].message_type = _STEPSIMULATIONCOMMAND
+_PYBULLETCOMMAND.fields_by_name['loadSdfCommand'].message_type = _LOADSDFCOMMAND
+_PYBULLETCOMMAND.fields_by_name['loadMjcfCommand'].message_type = _LOADMJCFCOMMAND
+_PYBULLETCOMMAND.fields_by_name['changeDynamicsCommand'].message_type = _CHANGEDYNAMICSCOMMAND
+_PYBULLETCOMMAND.fields_by_name['getDynamicsCommand'].message_type = _GETDYNAMICSCOMMAND
+_PYBULLETCOMMAND.fields_by_name['initPoseCommand'].message_type = _INITPOSECOMMAND
+_PYBULLETCOMMAND.fields_by_name['requestActualStateCommand'].message_type = _REQUESTACTUALSTATECOMMAND
 _PYBULLETCOMMAND.oneofs_by_name['commands'].fields.append(
   _PYBULLETCOMMAND.fields_by_name['loadUrdfCommand'])
 _PYBULLETCOMMAND.fields_by_name['loadUrdfCommand'].containing_oneof = _PYBULLETCOMMAND.oneofs_by_name['commands']
@@ -408,16 +1235,60 @@ _PYBULLETCOMMAND.fields_by_name['terminateServerCommand'].containing_oneof = _PY
 _PYBULLETCOMMAND.oneofs_by_name['commands'].fields.append(
   _PYBULLETCOMMAND.fields_by_name['stepSimulationCommand'])
 _PYBULLETCOMMAND.fields_by_name['stepSimulationCommand'].containing_oneof = _PYBULLETCOMMAND.oneofs_by_name['commands']
+_PYBULLETCOMMAND.oneofs_by_name['commands'].fields.append(
+  _PYBULLETCOMMAND.fields_by_name['loadSdfCommand'])
+_PYBULLETCOMMAND.fields_by_name['loadSdfCommand'].containing_oneof = _PYBULLETCOMMAND.oneofs_by_name['commands']
+_PYBULLETCOMMAND.oneofs_by_name['commands'].fields.append(
+  _PYBULLETCOMMAND.fields_by_name['loadMjcfCommand'])
+_PYBULLETCOMMAND.fields_by_name['loadMjcfCommand'].containing_oneof = _PYBULLETCOMMAND.oneofs_by_name['commands']
+_PYBULLETCOMMAND.oneofs_by_name['commands'].fields.append(
+  _PYBULLETCOMMAND.fields_by_name['changeDynamicsCommand'])
+_PYBULLETCOMMAND.fields_by_name['changeDynamicsCommand'].containing_oneof = _PYBULLETCOMMAND.oneofs_by_name['commands']
+_PYBULLETCOMMAND.oneofs_by_name['commands'].fields.append(
+  _PYBULLETCOMMAND.fields_by_name['getDynamicsCommand'])
+_PYBULLETCOMMAND.fields_by_name['getDynamicsCommand'].containing_oneof = _PYBULLETCOMMAND.oneofs_by_name['commands']
+_PYBULLETCOMMAND.oneofs_by_name['commands'].fields.append(
+  _PYBULLETCOMMAND.fields_by_name['initPoseCommand'])
+_PYBULLETCOMMAND.fields_by_name['initPoseCommand'].containing_oneof = _PYBULLETCOMMAND.oneofs_by_name['commands']
+_PYBULLETCOMMAND.oneofs_by_name['commands'].fields.append(
+  _PYBULLETCOMMAND.fields_by_name['requestActualStateCommand'])
+_PYBULLETCOMMAND.fields_by_name['requestActualStateCommand'].containing_oneof = _PYBULLETCOMMAND.oneofs_by_name['commands']
 _PYBULLETSTATUS.fields_by_name['urdfStatus'].message_type = _LOADURDFSTATUS
+_PYBULLETSTATUS.fields_by_name['sdfStatus'].message_type = _SDFLOADEDSTATUS
+_PYBULLETSTATUS.fields_by_name['mjcfStatus'].message_type = _MJCFLOADEDSTATUS
+_PYBULLETSTATUS.fields_by_name['getDynamicsStatus'].message_type = _GETDYNAMICSSTATUS
+_PYBULLETSTATUS.fields_by_name['actualStateStatus'].message_type = _SENDACTUALSTATESTATUS
 _PYBULLETSTATUS.oneofs_by_name['status'].fields.append(
   _PYBULLETSTATUS.fields_by_name['urdfStatus'])
 _PYBULLETSTATUS.fields_by_name['urdfStatus'].containing_oneof = _PYBULLETSTATUS.oneofs_by_name['status']
+_PYBULLETSTATUS.oneofs_by_name['status'].fields.append(
+  _PYBULLETSTATUS.fields_by_name['sdfStatus'])
+_PYBULLETSTATUS.fields_by_name['sdfStatus'].containing_oneof = _PYBULLETSTATUS.oneofs_by_name['status']
+_PYBULLETSTATUS.oneofs_by_name['status'].fields.append(
+  _PYBULLETSTATUS.fields_by_name['mjcfStatus'])
+_PYBULLETSTATUS.fields_by_name['mjcfStatus'].containing_oneof = _PYBULLETSTATUS.oneofs_by_name['status']
+_PYBULLETSTATUS.oneofs_by_name['status'].fields.append(
+  _PYBULLETSTATUS.fields_by_name['getDynamicsStatus'])
+_PYBULLETSTATUS.fields_by_name['getDynamicsStatus'].containing_oneof = _PYBULLETSTATUS.oneofs_by_name['status']
+_PYBULLETSTATUS.oneofs_by_name['status'].fields.append(
+  _PYBULLETSTATUS.fields_by_name['actualStateStatus'])
+_PYBULLETSTATUS.fields_by_name['actualStateStatus'].containing_oneof = _PYBULLETSTATUS.oneofs_by_name['status']
 DESCRIPTOR.message_types_by_name['vec3'] = _VEC3
 DESCRIPTOR.message_types_by_name['quat4'] = _QUAT4
 DESCRIPTOR.message_types_by_name['TerminateServerCommand'] = _TERMINATESERVERCOMMAND
 DESCRIPTOR.message_types_by_name['StepSimulationCommand'] = _STEPSIMULATIONCOMMAND
 DESCRIPTOR.message_types_by_name['LoadUrdfCommand'] = _LOADURDFCOMMAND
 DESCRIPTOR.message_types_by_name['LoadUrdfStatus'] = _LOADURDFSTATUS
+DESCRIPTOR.message_types_by_name['LoadSdfCommand'] = _LOADSDFCOMMAND
+DESCRIPTOR.message_types_by_name['SdfLoadedStatus'] = _SDFLOADEDSTATUS
+DESCRIPTOR.message_types_by_name['LoadMjcfCommand'] = _LOADMJCFCOMMAND
+DESCRIPTOR.message_types_by_name['MjcfLoadedStatus'] = _MJCFLOADEDSTATUS
+DESCRIPTOR.message_types_by_name['ChangeDynamicsCommand'] = _CHANGEDYNAMICSCOMMAND
+DESCRIPTOR.message_types_by_name['GetDynamicsCommand'] = _GETDYNAMICSCOMMAND
+DESCRIPTOR.message_types_by_name['GetDynamicsStatus'] = _GETDYNAMICSSTATUS
+DESCRIPTOR.message_types_by_name['InitPoseCommand'] = _INITPOSECOMMAND
+DESCRIPTOR.message_types_by_name['RequestActualStateCommand'] = _REQUESTACTUALSTATECOMMAND
+DESCRIPTOR.message_types_by_name['SendActualStateStatus'] = _SENDACTUALSTATESTATUS
 DESCRIPTOR.message_types_by_name['PyBulletCommand'] = _PYBULLETCOMMAND
 DESCRIPTOR.message_types_by_name['PyBulletStatus'] = _PYBULLETSTATUS
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -464,6 +1335,76 @@ LoadUrdfStatus = _reflection.GeneratedProtocolMessageType('LoadUrdfStatus', (_me
   ))
 _sym_db.RegisterMessage(LoadUrdfStatus)
 
+LoadSdfCommand = _reflection.GeneratedProtocolMessageType('LoadSdfCommand', (_message.Message,), dict(
+  DESCRIPTOR = _LOADSDFCOMMAND,
+  __module__ = 'pybullet_pb2'
+  # @@protoc_insertion_point(class_scope:pybullet_grpc.LoadSdfCommand)
+  ))
+_sym_db.RegisterMessage(LoadSdfCommand)
+
+SdfLoadedStatus = _reflection.GeneratedProtocolMessageType('SdfLoadedStatus', (_message.Message,), dict(
+  DESCRIPTOR = _SDFLOADEDSTATUS,
+  __module__ = 'pybullet_pb2'
+  # @@protoc_insertion_point(class_scope:pybullet_grpc.SdfLoadedStatus)
+  ))
+_sym_db.RegisterMessage(SdfLoadedStatus)
+
+LoadMjcfCommand = _reflection.GeneratedProtocolMessageType('LoadMjcfCommand', (_message.Message,), dict(
+  DESCRIPTOR = _LOADMJCFCOMMAND,
+  __module__ = 'pybullet_pb2'
+  # @@protoc_insertion_point(class_scope:pybullet_grpc.LoadMjcfCommand)
+  ))
+_sym_db.RegisterMessage(LoadMjcfCommand)
+
+MjcfLoadedStatus = _reflection.GeneratedProtocolMessageType('MjcfLoadedStatus', (_message.Message,), dict(
+  DESCRIPTOR = _MJCFLOADEDSTATUS,
+  __module__ = 'pybullet_pb2'
+  # @@protoc_insertion_point(class_scope:pybullet_grpc.MjcfLoadedStatus)
+  ))
+_sym_db.RegisterMessage(MjcfLoadedStatus)
+
+ChangeDynamicsCommand = _reflection.GeneratedProtocolMessageType('ChangeDynamicsCommand', (_message.Message,), dict(
+  DESCRIPTOR = _CHANGEDYNAMICSCOMMAND,
+  __module__ = 'pybullet_pb2'
+  # @@protoc_insertion_point(class_scope:pybullet_grpc.ChangeDynamicsCommand)
+  ))
+_sym_db.RegisterMessage(ChangeDynamicsCommand)
+
+GetDynamicsCommand = _reflection.GeneratedProtocolMessageType('GetDynamicsCommand', (_message.Message,), dict(
+  DESCRIPTOR = _GETDYNAMICSCOMMAND,
+  __module__ = 'pybullet_pb2'
+  # @@protoc_insertion_point(class_scope:pybullet_grpc.GetDynamicsCommand)
+  ))
+_sym_db.RegisterMessage(GetDynamicsCommand)
+
+GetDynamicsStatus = _reflection.GeneratedProtocolMessageType('GetDynamicsStatus', (_message.Message,), dict(
+  DESCRIPTOR = _GETDYNAMICSSTATUS,
+  __module__ = 'pybullet_pb2'
+  # @@protoc_insertion_point(class_scope:pybullet_grpc.GetDynamicsStatus)
+  ))
+_sym_db.RegisterMessage(GetDynamicsStatus)
+
+InitPoseCommand = _reflection.GeneratedProtocolMessageType('InitPoseCommand', (_message.Message,), dict(
+  DESCRIPTOR = _INITPOSECOMMAND,
+  __module__ = 'pybullet_pb2'
+  # @@protoc_insertion_point(class_scope:pybullet_grpc.InitPoseCommand)
+  ))
+_sym_db.RegisterMessage(InitPoseCommand)
+
+RequestActualStateCommand = _reflection.GeneratedProtocolMessageType('RequestActualStateCommand', (_message.Message,), dict(
+  DESCRIPTOR = _REQUESTACTUALSTATECOMMAND,
+  __module__ = 'pybullet_pb2'
+  # @@protoc_insertion_point(class_scope:pybullet_grpc.RequestActualStateCommand)
+  ))
+_sym_db.RegisterMessage(RequestActualStateCommand)
+
+SendActualStateStatus = _reflection.GeneratedProtocolMessageType('SendActualStateStatus', (_message.Message,), dict(
+  DESCRIPTOR = _SENDACTUALSTATESTATUS,
+  __module__ = 'pybullet_pb2'
+  # @@protoc_insertion_point(class_scope:pybullet_grpc.SendActualStateStatus)
+  ))
+_sym_db.RegisterMessage(SendActualStateStatus)
+
 PyBulletCommand = _reflection.GeneratedProtocolMessageType('PyBulletCommand', (_message.Message,), dict(
   DESCRIPTOR = _PYBULLETCOMMAND,
   __module__ = 'pybullet_pb2'
@@ -488,8 +1429,8 @@ _PYBULLETAPI = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=885,
-  serialized_end=980,
+  serialized_start=3604,
+  serialized_end=3699,
   methods=[
   _descriptor.MethodDescriptor(
     name='SubmitCommand',

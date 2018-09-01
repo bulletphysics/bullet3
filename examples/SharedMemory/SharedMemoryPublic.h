@@ -334,6 +334,13 @@ struct b3DynamicsInfo
 	double m_restitution;
 	double m_contactStiffness;
 	double m_contactDamping;
+	int m_activationState;
+	double m_angularDamping;
+	double m_linearDamping;
+	double m_ccdSweptSphereRadius;
+	double m_contactProcessingThreshold;
+	int m_frictionAnchor;
+
 };
 
 // copied from btMultiBodyLink.h
