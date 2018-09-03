@@ -68,7 +68,7 @@ struct TinyRendererVisualShapeConverterInternalData
     btHashMap<btHashInt,TinyRendererObjectArray*> m_swRenderInstances;
 
     // Maps bodyUniqueId to a list of visual shapes belonging to the body.
-    btHashMap<btHashInt,btAlignedObjectArray<b3VisualShapeData>> m_visualShapesMap;
+    btHashMap<btHashInt,btAlignedObjectArray<b3VisualShapeData> > m_visualShapesMap;
     
    	int m_upAxis;
 	int m_swWidth;
