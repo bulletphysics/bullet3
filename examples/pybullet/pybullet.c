@@ -8400,7 +8400,7 @@ static PyObject* pybullet_executePluginCommand(PyObject* self,
 		PyObject* seqIntArgs = intArgs?PySequence_Fast(intArgs, "expected a sequence"):0;
 		PyObject* seqFloatArgs = floatArgs?PySequence_Fast(floatArgs, "expected a sequence"):0;
 		int numIntArgs = seqIntArgs?PySequence_Size(intArgs):0;
-		int numFloatArgs = seqIntArgs?PySequence_Size(floatArgs):0;
+		int numFloatArgs = seqFloatArgs?PySequence_Size(floatArgs):0;
 		int i;
 		for (i=0;i<numIntArgs;i++)
 		{
