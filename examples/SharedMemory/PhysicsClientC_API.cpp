@@ -495,11 +495,18 @@ B3_SHARED_API	b3SharedMemoryCommandHandle     b3InitPhysicsParamCommand(b3Physic
 	b3Assert(cl->canSubmitCommand());
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
+	return b3InitPhysicsParamCommand2((b3SharedMemoryCommandHandle) command);
+}
+
+B3_SHARED_API	b3SharedMemoryCommandHandle     b3InitPhysicsParamCommand2(b3SharedMemoryCommandHandle commandHandle)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	command->m_type = CMD_SEND_PHYSICS_SIMULATION_PARAMETERS;
 	command->m_updateFlags = 0;
 
-    return (b3SharedMemoryCommandHandle) command;
+	return (b3SharedMemoryCommandHandle)command;
 }
+
 B3_SHARED_API	int     b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx,double gravy, double gravz)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -778,12 +785,20 @@ B3_SHARED_API b3SharedMemoryCommandHandle     b3InitResetSimulationCommand(b3Phy
     b3Assert(cl->canSubmitCommand());
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
-    command->m_type = CMD_RESET_SIMULATION;
-    command->m_updateFlags = 0;
-
-     return (b3SharedMemoryCommandHandle) command;
-
+	return b3InitResetSimulationCommand2((b3SharedMemoryCommandHandle)command);
+    
 }
+
+B3_SHARED_API b3SharedMemoryCommandHandle     b3InitResetSimulationCommand2(b3SharedMemoryCommandHandle commandHandle)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	command->m_type = CMD_RESET_SIMULATION;
+	command->m_updateFlags = 0;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+
 
 
 B3_SHARED_API	b3SharedMemoryCommandHandle  b3JointControlCommandInit(b3PhysicsClientHandle physClient, int controlMode)
@@ -798,15 +813,22 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3JointControlCommandInit2( b3PhysicsC
     b3Assert(cl->canSubmitCommand());
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
+	return b3JointControlCommandInit2Internal((b3SharedMemoryCommandHandle)command, bodyUniqueId, controlMode);
+	
+}
+
+B3_SHARED_API	b3SharedMemoryCommandHandle b3JointControlCommandInit2Internal(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int controlMode)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	command->m_type = CMD_SEND_DESIRED_STATE;
-    command->m_sendDesiredStateCommandArgument.m_controlMode = controlMode;
+	command->m_sendDesiredStateCommandArgument.m_controlMode = controlMode;
 	command->m_sendDesiredStateCommandArgument.m_bodyUniqueId = bodyUniqueId;
 	command->m_updateFlags = 0;
-    for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
-    {
-        command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[i] = 0;
-    }
-    return (b3SharedMemoryCommandHandle) command;
+	for (int i = 0; i<MAX_DEGREE_OF_FREEDOM; i++)
+	{
+		command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[i] = 0;
+	}
+	return (b3SharedMemoryCommandHandle)command;
 }
 
 B3_SHARED_API int b3JointControlSetDesiredPosition(b3SharedMemoryCommandHandle commandHandle, int qIndex, double value)
@@ -2055,7 +2077,7 @@ B3_SHARED_API int b3GetStatusActualState2(b3SharedMemoryStatusHandle statusHandl
 	{
 		*linkWorldVelocities = args.m_linkWorldVelocities;
 	}
-	
+	return 1;
 }
 
 B3_SHARED_API int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
@@ -2634,23 +2656,29 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3Ph
     b3Assert(cl->canSubmitCommand());
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
-    
-    command->m_type = CMD_USER_CONSTRAINT;
+	return b3InitCreateUserConstraintCommand2((b3SharedMemoryCommandHandle)command, parentBodyUniqueId, parentJointIndex, childBodyUniqueId, childJointIndex, info);
+  
+}
+
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand2(b3SharedMemoryCommandHandle commandHandle, int parentBodyUniqueId, int parentJointIndex, int childBodyUniqueId, int childJointIndex, struct b3JointInfo* info)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	command->m_type = CMD_USER_CONSTRAINT;
 	command->m_updateFlags = USER_CONSTRAINT_ADD_CONSTRAINT;
 
-    command->m_userConstraintArguments.m_parentBodyIndex = parentBodyUniqueId;
-    command->m_userConstraintArguments.m_parentJointIndex = parentJointIndex;
-    command->m_userConstraintArguments.m_childBodyIndex = childBodyUniqueId;
-    command->m_userConstraintArguments.m_childJointIndex = childJointIndex;
-    for (int i = 0; i < 7; ++i) {
-        command->m_userConstraintArguments.m_parentFrame[i] = info->m_parentFrame[i];
-        command->m_userConstraintArguments.m_childFrame[i] = info->m_childFrame[i];
-    }
-    for (int i = 0; i < 3; ++i) {
-        command->m_userConstraintArguments.m_jointAxis[i] = info->m_jointAxis[i];
-    }
-    command->m_userConstraintArguments.m_jointType = info->m_jointType;
-    return (b3SharedMemoryCommandHandle)command;
+	command->m_userConstraintArguments.m_parentBodyIndex = parentBodyUniqueId;
+	command->m_userConstraintArguments.m_parentJointIndex = parentJointIndex;
+	command->m_userConstraintArguments.m_childBodyIndex = childBodyUniqueId;
+	command->m_userConstraintArguments.m_childJointIndex = childJointIndex;
+	for (int i = 0; i < 7; ++i) {
+		command->m_userConstraintArguments.m_parentFrame[i] = info->m_parentFrame[i];
+		command->m_userConstraintArguments.m_childFrame[i] = info->m_childFrame[i];
+	}
+	for (int i = 0; i < 3; ++i) {
+		command->m_userConstraintArguments.m_jointAxis[i] = info->m_jointAxis[i];
+	}
+	command->m_userConstraintArguments.m_jointType = info->m_jointType;
+	return (b3SharedMemoryCommandHandle)command;
 }
 
 B3_SHARED_API	b3SharedMemoryCommandHandle  b3InitChangeUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId)
@@ -3392,10 +3420,16 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClie
     b3Assert(cl->canSubmitCommand());
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
-    command->m_type =CMD_REQUEST_CAMERA_IMAGE_DATA;
+	return b3InitRequestCameraImage2((b3SharedMemoryCommandHandle)command);
+}
+
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCameraImage2(b3SharedMemoryCommandHandle commandHandle)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	command->m_type = CMD_REQUEST_CAMERA_IMAGE_DATA;
 	command->m_requestPixelDataArguments.m_startPixelIndex = 0;
-    command->m_updateFlags = 0;//REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL;
-    return (b3SharedMemoryCommandHandle) command;
+	command->m_updateFlags = 0;//REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL;
+	return (b3SharedMemoryCommandHandle)command;
 }
 
 B3_SHARED_API void b3RequestCameraImageSelectRenderer(b3SharedMemoryCommandHandle commandHandle, int renderer)
@@ -4559,7 +4593,13 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3RequestKeyboardEventsCommandInit(b3P
 	b3Assert(cl->canSubmitCommand());
 	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
+	return b3RequestKeyboardEventsCommandInit2((b3SharedMemoryCommandHandle)command);
+	
+}
 
+B3_SHARED_API b3SharedMemoryCommandHandle b3RequestKeyboardEventsCommandInit2(b3SharedMemoryCommandHandle commandHandle)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	command->m_type = CMD_REQUEST_KEYBOARD_EVENTS_DATA;
 	command->m_updateFlags = 0;
 
@@ -4836,10 +4876,16 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3InitConfigureOpenGLVisualizer(b3Phys
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
     
-    command->m_type = CMD_CONFIGURE_OPENGL_VISUALIZER;
-    command->m_updateFlags = 0;
-    
-    return (b3SharedMemoryCommandHandle)command;
+	return b3InitConfigureOpenGLVisualizer2((b3SharedMemoryCommandHandle)command);
+}
+
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitConfigureOpenGLVisualizer2(b3SharedMemoryCommandHandle commandHandle)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	command->m_type = CMD_CONFIGURE_OPENGL_VISUALIZER;
+	command->m_updateFlags = 0;
+
+	return (b3SharedMemoryCommandHandle)command;
 }
 
 B3_SHARED_API void b3ConfigureOpenGLVisualizerSetVisualizationFlags(b3SharedMemoryCommandHandle commandHandle, int flag, int enabled)

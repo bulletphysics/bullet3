@@ -32,6 +32,7 @@ public:
 
 	virtual void setTimeOut(double timeOutInSeconds);
 
+	virtual void reportNotifications() {}
 };
 
 

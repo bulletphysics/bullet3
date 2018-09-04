@@ -33,6 +33,15 @@ namespace pybullet_grpc {
 class ChangeDynamicsCommand;
 class ChangeDynamicsCommandDefaultTypeInternal;
 extern ChangeDynamicsCommandDefaultTypeInternal _ChangeDynamicsCommand_default_instance_;
+class CheckVersionCommand;
+class CheckVersionCommandDefaultTypeInternal;
+extern CheckVersionCommandDefaultTypeInternal _CheckVersionCommand_default_instance_;
+class CheckVersionStatus;
+class CheckVersionStatusDefaultTypeInternal;
+extern CheckVersionStatusDefaultTypeInternal _CheckVersionStatus_default_instance_;
+class ConfigureOpenGLVisualizerCommand;
+class ConfigureOpenGLVisualizerCommandDefaultTypeInternal;
+extern ConfigureOpenGLVisualizerCommandDefaultTypeInternal _ConfigureOpenGLVisualizerCommand_default_instance_;
 class GetDynamicsCommand;
 class GetDynamicsCommandDefaultTypeInternal;
 extern GetDynamicsCommandDefaultTypeInternal _GetDynamicsCommand_default_instance_;
@@ -42,6 +51,15 @@ extern GetDynamicsStatusDefaultTypeInternal _GetDynamicsStatus_default_instance_
 class InitPoseCommand;
 class InitPoseCommandDefaultTypeInternal;
 extern InitPoseCommandDefaultTypeInternal _InitPoseCommand_default_instance_;
+class JointMotorControlCommand;
+class JointMotorControlCommandDefaultTypeInternal;
+extern JointMotorControlCommandDefaultTypeInternal _JointMotorControlCommand_default_instance_;
+class KeyboardEvent;
+class KeyboardEventDefaultTypeInternal;
+extern KeyboardEventDefaultTypeInternal _KeyboardEvent_default_instance_;
+class KeyboardEventsStatus;
+class KeyboardEventsStatusDefaultTypeInternal;
+extern KeyboardEventsStatusDefaultTypeInternal _KeyboardEventsStatus_default_instance_;
 class LoadMjcfCommand;
 class LoadMjcfCommandDefaultTypeInternal;
 extern LoadMjcfCommandDefaultTypeInternal _LoadMjcfCommand_default_instance_;
@@ -57,6 +75,12 @@ extern LoadUrdfStatusDefaultTypeInternal _LoadUrdfStatus_default_instance_;
 class MjcfLoadedStatus;
 class MjcfLoadedStatusDefaultTypeInternal;
 extern MjcfLoadedStatusDefaultTypeInternal _MjcfLoadedStatus_default_instance_;
+class PhysicsSimulationParameters;
+class PhysicsSimulationParametersDefaultTypeInternal;
+extern PhysicsSimulationParametersDefaultTypeInternal _PhysicsSimulationParameters_default_instance_;
+class PhysicsSimulationParametersCommand;
+class PhysicsSimulationParametersCommandDefaultTypeInternal;
+extern PhysicsSimulationParametersCommandDefaultTypeInternal _PhysicsSimulationParametersCommand_default_instance_;
 class PyBulletCommand;
 class PyBulletCommandDefaultTypeInternal;
 extern PyBulletCommandDefaultTypeInternal _PyBulletCommand_default_instance_;
@@ -66,6 +90,21 @@ extern PyBulletStatusDefaultTypeInternal _PyBulletStatus_default_instance_;
 class RequestActualStateCommand;
 class RequestActualStateCommandDefaultTypeInternal;
 extern RequestActualStateCommandDefaultTypeInternal _RequestActualStateCommand_default_instance_;
+class RequestBodyInfoCommand;
+class RequestBodyInfoCommandDefaultTypeInternal;
+extern RequestBodyInfoCommandDefaultTypeInternal _RequestBodyInfoCommand_default_instance_;
+class RequestBodyInfoStatus;
+class RequestBodyInfoStatusDefaultTypeInternal;
+extern RequestBodyInfoStatusDefaultTypeInternal _RequestBodyInfoStatus_default_instance_;
+class RequestCameraImageCommand;
+class RequestCameraImageCommandDefaultTypeInternal;
+extern RequestCameraImageCommandDefaultTypeInternal _RequestCameraImageCommand_default_instance_;
+class RequestCameraImageStatus;
+class RequestCameraImageStatusDefaultTypeInternal;
+extern RequestCameraImageStatusDefaultTypeInternal _RequestCameraImageStatus_default_instance_;
+class RequestKeyboardEventsCommand;
+class RequestKeyboardEventsCommandDefaultTypeInternal;
+extern RequestKeyboardEventsCommandDefaultTypeInternal _RequestKeyboardEventsCommand_default_instance_;
 class SdfLoadedStatus;
 class SdfLoadedStatusDefaultTypeInternal;
 extern SdfLoadedStatusDefaultTypeInternal _SdfLoadedStatus_default_instance_;
@@ -75,15 +114,39 @@ extern SendActualStateStatusDefaultTypeInternal _SendActualStateStatus_default_i
 class StepSimulationCommand;
 class StepSimulationCommandDefaultTypeInternal;
 extern StepSimulationCommandDefaultTypeInternal _StepSimulationCommand_default_instance_;
+class SyncBodiesCommand;
+class SyncBodiesCommandDefaultTypeInternal;
+extern SyncBodiesCommandDefaultTypeInternal _SyncBodiesCommand_default_instance_;
+class SyncBodiesStatus;
+class SyncBodiesStatusDefaultTypeInternal;
+extern SyncBodiesStatusDefaultTypeInternal _SyncBodiesStatus_default_instance_;
 class TerminateServerCommand;
 class TerminateServerCommandDefaultTypeInternal;
 extern TerminateServerCommandDefaultTypeInternal _TerminateServerCommand_default_instance_;
+class UserConstraintCommand;
+class UserConstraintCommandDefaultTypeInternal;
+extern UserConstraintCommandDefaultTypeInternal _UserConstraintCommand_default_instance_;
+class UserConstraintStateStatus;
+class UserConstraintStateStatusDefaultTypeInternal;
+extern UserConstraintStateStatusDefaultTypeInternal _UserConstraintStateStatus_default_instance_;
+class UserConstraintStatus;
+class UserConstraintStatusDefaultTypeInternal;
+extern UserConstraintStatusDefaultTypeInternal _UserConstraintStatus_default_instance_;
+class matrix4x4;
+class matrix4x4DefaultTypeInternal;
+extern matrix4x4DefaultTypeInternal _matrix4x4_default_instance_;
 class quat4;
 class quat4DefaultTypeInternal;
 extern quat4DefaultTypeInternal _quat4_default_instance_;
+class transform;
+class transformDefaultTypeInternal;
+extern transformDefaultTypeInternal _transform_default_instance_;
 class vec3;
 class vec3DefaultTypeInternal;
 extern vec3DefaultTypeInternal _vec3_default_instance_;
+class vec4;
+class vec4DefaultTypeInternal;
+extern vec4DefaultTypeInternal _vec4_default_instance_;
 }  // namespace pybullet_grpc
 
 namespace pybullet_grpc {
@@ -302,6 +365,462 @@ class quat4 : public ::google::protobuf::Message /* @@protoc_insertion_point(cla
 };
 // -------------------------------------------------------------------
 
+class vec4 : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.vec4) */ {
+ public:
+  vec4();
+  virtual ~vec4();
+
+  vec4(const vec4& from);
+
+  inline vec4& operator=(const vec4& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const vec4& default_instance();
+
+  static inline const vec4* internal_default_instance() {
+    return reinterpret_cast<const vec4*>(
+               &_vec4_default_instance_);
+  }
+
+  void Swap(vec4* other);
+
+  // implements Message ----------------------------------------------
+
+  inline vec4* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  vec4* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const vec4& from);
+  void MergeFrom(const vec4& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(vec4* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // double x = 1;
+  void clear_x();
+  static const int kXFieldNumber = 1;
+  double x() const;
+  void set_x(double value);
+
+  // double y = 2;
+  void clear_y();
+  static const int kYFieldNumber = 2;
+  double y() const;
+  void set_y(double value);
+
+  // double z = 3;
+  void clear_z();
+  static const int kZFieldNumber = 3;
+  double z() const;
+  void set_z(double value);
+
+  // double w = 4;
+  void clear_w();
+  static const int kWFieldNumber = 4;
+  double w() const;
+  void set_w(double value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.vec4)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  double x_;
+  double y_;
+  double z_;
+  double w_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class transform : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.transform) */ {
+ public:
+  transform();
+  virtual ~transform();
+
+  transform(const transform& from);
+
+  inline transform& operator=(const transform& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const transform& default_instance();
+
+  static inline const transform* internal_default_instance() {
+    return reinterpret_cast<const transform*>(
+               &_transform_default_instance_);
+  }
+
+  void Swap(transform* other);
+
+  // implements Message ----------------------------------------------
+
+  inline transform* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  transform* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const transform& from);
+  void MergeFrom(const transform& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(transform* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .pybullet_grpc.vec3 origin = 1;
+  bool has_origin() const;
+  void clear_origin();
+  static const int kOriginFieldNumber = 1;
+  const ::pybullet_grpc::vec3& origin() const;
+  ::pybullet_grpc::vec3* mutable_origin();
+  ::pybullet_grpc::vec3* release_origin();
+  void set_allocated_origin(::pybullet_grpc::vec3* origin);
+
+  // .pybullet_grpc.quat4 orientation = 2;
+  bool has_orientation() const;
+  void clear_orientation();
+  static const int kOrientationFieldNumber = 2;
+  const ::pybullet_grpc::quat4& orientation() const;
+  ::pybullet_grpc::quat4* mutable_orientation();
+  ::pybullet_grpc::quat4* release_orientation();
+  void set_allocated_orientation(::pybullet_grpc::quat4* orientation);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.transform)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::pybullet_grpc::vec3* origin_;
+  ::pybullet_grpc::quat4* orientation_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class matrix4x4 : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.matrix4x4) */ {
+ public:
+  matrix4x4();
+  virtual ~matrix4x4();
+
+  matrix4x4(const matrix4x4& from);
+
+  inline matrix4x4& operator=(const matrix4x4& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const matrix4x4& default_instance();
+
+  static inline const matrix4x4* internal_default_instance() {
+    return reinterpret_cast<const matrix4x4*>(
+               &_matrix4x4_default_instance_);
+  }
+
+  void Swap(matrix4x4* other);
+
+  // implements Message ----------------------------------------------
+
+  inline matrix4x4* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  matrix4x4* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const matrix4x4& from);
+  void MergeFrom(const matrix4x4& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(matrix4x4* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated double elems = 1;
+  int elems_size() const;
+  void clear_elems();
+  static const int kElemsFieldNumber = 1;
+  double elems(int index) const;
+  void set_elems(int index, double value);
+  void add_elems(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      elems() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_elems();
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.matrix4x4)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedField< double > elems_;
+  mutable int _elems_cached_byte_size_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class CheckVersionCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.CheckVersionCommand) */ {
+ public:
+  CheckVersionCommand();
+  virtual ~CheckVersionCommand();
+
+  CheckVersionCommand(const CheckVersionCommand& from);
+
+  inline CheckVersionCommand& operator=(const CheckVersionCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CheckVersionCommand& default_instance();
+
+  static inline const CheckVersionCommand* internal_default_instance() {
+    return reinterpret_cast<const CheckVersionCommand*>(
+               &_CheckVersionCommand_default_instance_);
+  }
+
+  void Swap(CheckVersionCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline CheckVersionCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  CheckVersionCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const CheckVersionCommand& from);
+  void MergeFrom(const CheckVersionCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(CheckVersionCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 clientVersion = 1;
+  void clear_clientversion();
+  static const int kClientVersionFieldNumber = 1;
+  ::google::protobuf::int32 clientversion() const;
+  void set_clientversion(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.CheckVersionCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 clientversion_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class CheckVersionStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.CheckVersionStatus) */ {
+ public:
+  CheckVersionStatus();
+  virtual ~CheckVersionStatus();
+
+  CheckVersionStatus(const CheckVersionStatus& from);
+
+  inline CheckVersionStatus& operator=(const CheckVersionStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CheckVersionStatus& default_instance();
+
+  static inline const CheckVersionStatus* internal_default_instance() {
+    return reinterpret_cast<const CheckVersionStatus*>(
+               &_CheckVersionStatus_default_instance_);
+  }
+
+  void Swap(CheckVersionStatus* other);
+
+  // implements Message ----------------------------------------------
+
+  inline CheckVersionStatus* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  CheckVersionStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const CheckVersionStatus& from);
+  void MergeFrom(const CheckVersionStatus& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(CheckVersionStatus* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 serverVersion = 1;
+  void clear_serverversion();
+  static const int kServerVersionFieldNumber = 1;
+  ::google::protobuf::int32 serverversion() const;
+  void set_serverversion(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.CheckVersionStatus)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 serverversion_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
 class TerminateServerCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.TerminateServerCommand) */ {
  public:
   TerminateServerCommand();
@@ -464,6 +983,367 @@ class StepSimulationCommand : public ::google::protobuf::Message /* @@protoc_ins
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class SyncBodiesCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.SyncBodiesCommand) */ {
+ public:
+  SyncBodiesCommand();
+  virtual ~SyncBodiesCommand();
+
+  SyncBodiesCommand(const SyncBodiesCommand& from);
+
+  inline SyncBodiesCommand& operator=(const SyncBodiesCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SyncBodiesCommand& default_instance();
+
+  static inline const SyncBodiesCommand* internal_default_instance() {
+    return reinterpret_cast<const SyncBodiesCommand*>(
+               &_SyncBodiesCommand_default_instance_);
+  }
+
+  void Swap(SyncBodiesCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline SyncBodiesCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  SyncBodiesCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const SyncBodiesCommand& from);
+  void MergeFrom(const SyncBodiesCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(SyncBodiesCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.SyncBodiesCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class SyncBodiesStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.SyncBodiesStatus) */ {
+ public:
+  SyncBodiesStatus();
+  virtual ~SyncBodiesStatus();
+
+  SyncBodiesStatus(const SyncBodiesStatus& from);
+
+  inline SyncBodiesStatus& operator=(const SyncBodiesStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SyncBodiesStatus& default_instance();
+
+  static inline const SyncBodiesStatus* internal_default_instance() {
+    return reinterpret_cast<const SyncBodiesStatus*>(
+               &_SyncBodiesStatus_default_instance_);
+  }
+
+  void Swap(SyncBodiesStatus* other);
+
+  // implements Message ----------------------------------------------
+
+  inline SyncBodiesStatus* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  SyncBodiesStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const SyncBodiesStatus& from);
+  void MergeFrom(const SyncBodiesStatus& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(SyncBodiesStatus* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated int32 bodyUniqueIds = 1;
+  int bodyuniqueids_size() const;
+  void clear_bodyuniqueids();
+  static const int kBodyUniqueIdsFieldNumber = 1;
+  ::google::protobuf::int32 bodyuniqueids(int index) const;
+  void set_bodyuniqueids(int index, ::google::protobuf::int32 value);
+  void add_bodyuniqueids(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      bodyuniqueids() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_bodyuniqueids();
+
+  // repeated int32 userConstraintUniqueIds = 2;
+  int userconstraintuniqueids_size() const;
+  void clear_userconstraintuniqueids();
+  static const int kUserConstraintUniqueIdsFieldNumber = 2;
+  ::google::protobuf::int32 userconstraintuniqueids(int index) const;
+  void set_userconstraintuniqueids(int index, ::google::protobuf::int32 value);
+  void add_userconstraintuniqueids(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      userconstraintuniqueids() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_userconstraintuniqueids();
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.SyncBodiesStatus)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > bodyuniqueids_;
+  mutable int _bodyuniqueids_cached_byte_size_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > userconstraintuniqueids_;
+  mutable int _userconstraintuniqueids_cached_byte_size_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class RequestBodyInfoCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.RequestBodyInfoCommand) */ {
+ public:
+  RequestBodyInfoCommand();
+  virtual ~RequestBodyInfoCommand();
+
+  RequestBodyInfoCommand(const RequestBodyInfoCommand& from);
+
+  inline RequestBodyInfoCommand& operator=(const RequestBodyInfoCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RequestBodyInfoCommand& default_instance();
+
+  static inline const RequestBodyInfoCommand* internal_default_instance() {
+    return reinterpret_cast<const RequestBodyInfoCommand*>(
+               &_RequestBodyInfoCommand_default_instance_);
+  }
+
+  void Swap(RequestBodyInfoCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline RequestBodyInfoCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  RequestBodyInfoCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const RequestBodyInfoCommand& from);
+  void MergeFrom(const RequestBodyInfoCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(RequestBodyInfoCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 bodyUniqueId = 1;
+  void clear_bodyuniqueid();
+  static const int kBodyUniqueIdFieldNumber = 1;
+  ::google::protobuf::int32 bodyuniqueid() const;
+  void set_bodyuniqueid(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.RequestBodyInfoCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 bodyuniqueid_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class RequestBodyInfoStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.RequestBodyInfoStatus) */ {
+ public:
+  RequestBodyInfoStatus();
+  virtual ~RequestBodyInfoStatus();
+
+  RequestBodyInfoStatus(const RequestBodyInfoStatus& from);
+
+  inline RequestBodyInfoStatus& operator=(const RequestBodyInfoStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RequestBodyInfoStatus& default_instance();
+
+  static inline const RequestBodyInfoStatus* internal_default_instance() {
+    return reinterpret_cast<const RequestBodyInfoStatus*>(
+               &_RequestBodyInfoStatus_default_instance_);
+  }
+
+  void Swap(RequestBodyInfoStatus* other);
+
+  // implements Message ----------------------------------------------
+
+  inline RequestBodyInfoStatus* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  RequestBodyInfoStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const RequestBodyInfoStatus& from);
+  void MergeFrom(const RequestBodyInfoStatus& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(RequestBodyInfoStatus* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string bodyName = 2;
+  void clear_bodyname();
+  static const int kBodyNameFieldNumber = 2;
+  const ::std::string& bodyname() const;
+  void set_bodyname(const ::std::string& value);
+  #if LANG_CXX11
+  void set_bodyname(::std::string&& value);
+  #endif
+  void set_bodyname(const char* value);
+  void set_bodyname(const char* value, size_t size);
+  ::std::string* mutable_bodyname();
+  ::std::string* release_bodyname();
+  void set_allocated_bodyname(::std::string* bodyname);
+
+  // int32 bodyUniqueId = 1;
+  void clear_bodyuniqueid();
+  static const int kBodyUniqueIdFieldNumber = 1;
+  ::google::protobuf::int32 bodyuniqueid() const;
+  void set_bodyuniqueid(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.RequestBodyInfoStatus)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr bodyname_;
+  ::google::protobuf::int32 bodyuniqueid_;
   mutable int _cached_size_;
   friend struct  protobuf_pybullet_2eproto::TableStruct;
 };
@@ -728,6 +1608,34 @@ class LoadUrdfStatus : public ::google::protobuf::Message /* @@protoc_insertion_
 
   // accessors -------------------------------------------------------
 
+  // string bodyName = 2;
+  void clear_bodyname();
+  static const int kBodyNameFieldNumber = 2;
+  const ::std::string& bodyname() const;
+  void set_bodyname(const ::std::string& value);
+  #if LANG_CXX11
+  void set_bodyname(::std::string&& value);
+  #endif
+  void set_bodyname(const char* value);
+  void set_bodyname(const char* value, size_t size);
+  ::std::string* mutable_bodyname();
+  ::std::string* release_bodyname();
+  void set_allocated_bodyname(::std::string* bodyname);
+
+  // string fileName = 3;
+  void clear_filename();
+  static const int kFileNameFieldNumber = 3;
+  const ::std::string& filename() const;
+  void set_filename(const ::std::string& value);
+  #if LANG_CXX11
+  void set_filename(::std::string&& value);
+  #endif
+  void set_filename(const char* value);
+  void set_filename(const char* value, size_t size);
+  ::std::string* mutable_filename();
+  ::std::string* release_filename();
+  void set_allocated_filename(::std::string* filename);
+
   // int32 bodyUniqueId = 1;
   void clear_bodyuniqueid();
   static const int kBodyUniqueIdFieldNumber = 1;
@@ -738,6 +1646,8 @@ class LoadUrdfStatus : public ::google::protobuf::Message /* @@protoc_insertion_
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr bodyname_;
+  ::google::protobuf::internal::ArenaStringPtr filename_;
   ::google::protobuf::int32 bodyuniqueid_;
   mutable int _cached_size_;
   friend struct  protobuf_pybullet_2eproto::TableStruct;
@@ -1925,10 +2835,10 @@ class InitPoseCommand : public ::google::protobuf::Message /* @@protoc_insertion
 
   // accessors -------------------------------------------------------
 
-  // repeated int32 hasInitialStateQ = 2;
+  // repeated int32 hasInitialStateQ = 3;
   int hasinitialstateq_size() const;
   void clear_hasinitialstateq();
-  static const int kHasInitialStateQFieldNumber = 2;
+  static const int kHasInitialStateQFieldNumber = 3;
   ::google::protobuf::int32 hasinitialstateq(int index) const;
   void set_hasinitialstateq(int index, ::google::protobuf::int32 value);
   void add_hasinitialstateq(::google::protobuf::int32 value);
@@ -1937,10 +2847,10 @@ class InitPoseCommand : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_hasinitialstateq();
 
-  // repeated double initialStateQ = 3;
+  // repeated double initialStateQ = 4;
   int initialstateq_size() const;
   void clear_initialstateq();
-  static const int kInitialStateQFieldNumber = 3;
+  static const int kInitialStateQFieldNumber = 4;
   double initialstateq(int index) const;
   void set_initialstateq(int index, double value);
   void add_initialstateq(double value);
@@ -1949,10 +2859,10 @@ class InitPoseCommand : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::RepeatedField< double >*
       mutable_initialstateq();
 
-  // repeated int32 hasInitialStateQdot = 4;
+  // repeated int32 hasInitialStateQdot = 5;
   int hasinitialstateqdot_size() const;
   void clear_hasinitialstateqdot();
-  static const int kHasInitialStateQdotFieldNumber = 4;
+  static const int kHasInitialStateQdotFieldNumber = 5;
   ::google::protobuf::int32 hasinitialstateqdot(int index) const;
   void set_hasinitialstateqdot(int index, ::google::protobuf::int32 value);
   void add_hasinitialstateqdot(::google::protobuf::int32 value);
@@ -1961,10 +2871,10 @@ class InitPoseCommand : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_hasinitialstateqdot();
 
-  // repeated double initialStateQdot = 5;
+  // repeated double initialStateQdot = 6;
   int initialstateqdot_size() const;
   void clear_initialstateqdot();
-  static const int kInitialStateQdotFieldNumber = 5;
+  static const int kInitialStateQdotFieldNumber = 6;
   double initialstateqdot(int index) const;
   void set_initialstateqdot(int index, double value);
   void add_initialstateqdot(double value);
@@ -1979,6 +2889,12 @@ class InitPoseCommand : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::int32 bodyuniqueid() const;
   void set_bodyuniqueid(::google::protobuf::int32 value);
 
+  // int32 updateflags = 2;
+  void clear_updateflags();
+  static const int kUpdateflagsFieldNumber = 2;
+  ::google::protobuf::int32 updateflags() const;
+  void set_updateflags(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:pybullet_grpc.InitPoseCommand)
  private:
 
@@ -1992,6 +2908,7 @@ class InitPoseCommand : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::RepeatedField< double > initialstateqdot_;
   mutable int _initialstateqdot_cached_byte_size_;
   ::google::protobuf::int32 bodyuniqueid_;
+  ::google::protobuf::int32 updateflags_;
   mutable int _cached_size_;
   friend struct  protobuf_pybullet_2eproto::TableStruct;
 };
@@ -2310,6 +3227,1638 @@ class SendActualStateStatus : public ::google::protobuf::Message /* @@protoc_ins
 };
 // -------------------------------------------------------------------
 
+class ConfigureOpenGLVisualizerCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.ConfigureOpenGLVisualizerCommand) */ {
+ public:
+  ConfigureOpenGLVisualizerCommand();
+  virtual ~ConfigureOpenGLVisualizerCommand();
+
+  ConfigureOpenGLVisualizerCommand(const ConfigureOpenGLVisualizerCommand& from);
+
+  inline ConfigureOpenGLVisualizerCommand& operator=(const ConfigureOpenGLVisualizerCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ConfigureOpenGLVisualizerCommand& default_instance();
+
+  static inline const ConfigureOpenGLVisualizerCommand* internal_default_instance() {
+    return reinterpret_cast<const ConfigureOpenGLVisualizerCommand*>(
+               &_ConfigureOpenGLVisualizerCommand_default_instance_);
+  }
+
+  void Swap(ConfigureOpenGLVisualizerCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline ConfigureOpenGLVisualizerCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  ConfigureOpenGLVisualizerCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const ConfigureOpenGLVisualizerCommand& from);
+  void MergeFrom(const ConfigureOpenGLVisualizerCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(ConfigureOpenGLVisualizerCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .pybullet_grpc.vec3 cameraTargetPosition = 5;
+  bool has_cameratargetposition() const;
+  void clear_cameratargetposition();
+  static const int kCameraTargetPositionFieldNumber = 5;
+  const ::pybullet_grpc::vec3& cameratargetposition() const;
+  ::pybullet_grpc::vec3* mutable_cameratargetposition();
+  ::pybullet_grpc::vec3* release_cameratargetposition();
+  void set_allocated_cameratargetposition(::pybullet_grpc::vec3* cameratargetposition);
+
+  // double cameraDistance = 2;
+  void clear_cameradistance();
+  static const int kCameraDistanceFieldNumber = 2;
+  double cameradistance() const;
+  void set_cameradistance(double value);
+
+  // double cameraPitch = 3;
+  void clear_camerapitch();
+  static const int kCameraPitchFieldNumber = 3;
+  double camerapitch() const;
+  void set_camerapitch(double value);
+
+  // int32 updateFlags = 1;
+  void clear_updateflags();
+  static const int kUpdateFlagsFieldNumber = 1;
+  ::google::protobuf::int32 updateflags() const;
+  void set_updateflags(::google::protobuf::int32 value);
+
+  // int32 setFlag = 6;
+  void clear_setflag();
+  static const int kSetFlagFieldNumber = 6;
+  ::google::protobuf::int32 setflag() const;
+  void set_setflag(::google::protobuf::int32 value);
+
+  // double cameraYaw = 4;
+  void clear_camerayaw();
+  static const int kCameraYawFieldNumber = 4;
+  double camerayaw() const;
+  void set_camerayaw(double value);
+
+  // int32 setEnabled = 7;
+  void clear_setenabled();
+  static const int kSetEnabledFieldNumber = 7;
+  ::google::protobuf::int32 setenabled() const;
+  void set_setenabled(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::pybullet_grpc::vec3* cameratargetposition_;
+  double cameradistance_;
+  double camerapitch_;
+  ::google::protobuf::int32 updateflags_;
+  ::google::protobuf::int32 setflag_;
+  double camerayaw_;
+  ::google::protobuf::int32 setenabled_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class PhysicsSimulationParameters : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.PhysicsSimulationParameters) */ {
+ public:
+  PhysicsSimulationParameters();
+  virtual ~PhysicsSimulationParameters();
+
+  PhysicsSimulationParameters(const PhysicsSimulationParameters& from);
+
+  inline PhysicsSimulationParameters& operator=(const PhysicsSimulationParameters& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PhysicsSimulationParameters& default_instance();
+
+  static inline const PhysicsSimulationParameters* internal_default_instance() {
+    return reinterpret_cast<const PhysicsSimulationParameters*>(
+               &_PhysicsSimulationParameters_default_instance_);
+  }
+
+  void Swap(PhysicsSimulationParameters* other);
+
+  // implements Message ----------------------------------------------
+
+  inline PhysicsSimulationParameters* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  PhysicsSimulationParameters* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const PhysicsSimulationParameters& from);
+  void MergeFrom(const PhysicsSimulationParameters& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(PhysicsSimulationParameters* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .pybullet_grpc.vec3 gravityAcceleration = 2;
+  bool has_gravityacceleration() const;
+  void clear_gravityacceleration();
+  static const int kGravityAccelerationFieldNumber = 2;
+  const ::pybullet_grpc::vec3& gravityacceleration() const;
+  ::pybullet_grpc::vec3* mutable_gravityacceleration();
+  ::pybullet_grpc::vec3* release_gravityacceleration();
+  void set_allocated_gravityacceleration(::pybullet_grpc::vec3* gravityacceleration);
+
+  // double deltaTime = 1;
+  void clear_deltatime();
+  static const int kDeltaTimeFieldNumber = 1;
+  double deltatime() const;
+  void set_deltatime(double value);
+
+  // int32 numSimulationSubSteps = 3;
+  void clear_numsimulationsubsteps();
+  static const int kNumSimulationSubStepsFieldNumber = 3;
+  ::google::protobuf::int32 numsimulationsubsteps() const;
+  void set_numsimulationsubsteps(::google::protobuf::int32 value);
+
+  // int32 numSolverIterations = 4;
+  void clear_numsolveriterations();
+  static const int kNumSolverIterationsFieldNumber = 4;
+  ::google::protobuf::int32 numsolveriterations() const;
+  void set_numsolveriterations(::google::protobuf::int32 value);
+
+  // int32 useRealTimeSimulation = 5;
+  void clear_userealtimesimulation();
+  static const int kUseRealTimeSimulationFieldNumber = 5;
+  ::google::protobuf::int32 userealtimesimulation() const;
+  void set_userealtimesimulation(::google::protobuf::int32 value);
+
+  // int32 useSplitImpulse = 6;
+  void clear_usesplitimpulse();
+  static const int kUseSplitImpulseFieldNumber = 6;
+  ::google::protobuf::int32 usesplitimpulse() const;
+  void set_usesplitimpulse(::google::protobuf::int32 value);
+
+  // double splitImpulsePenetrationThreshold = 7;
+  void clear_splitimpulsepenetrationthreshold();
+  static const int kSplitImpulsePenetrationThresholdFieldNumber = 7;
+  double splitimpulsepenetrationthreshold() const;
+  void set_splitimpulsepenetrationthreshold(double value);
+
+  // double contactBreakingThreshold = 8;
+  void clear_contactbreakingthreshold();
+  static const int kContactBreakingThresholdFieldNumber = 8;
+  double contactbreakingthreshold() const;
+  void set_contactbreakingthreshold(double value);
+
+  // double defaultContactERP = 10;
+  void clear_defaultcontacterp();
+  static const int kDefaultContactERPFieldNumber = 10;
+  double defaultcontacterp() const;
+  void set_defaultcontacterp(double value);
+
+  // int32 internalSimFlags = 9;
+  void clear_internalsimflags();
+  static const int kInternalSimFlagsFieldNumber = 9;
+  ::google::protobuf::int32 internalsimflags() const;
+  void set_internalsimflags(::google::protobuf::int32 value);
+
+  // int32 collisionFilterMode = 11;
+  void clear_collisionfiltermode();
+  static const int kCollisionFilterModeFieldNumber = 11;
+  ::google::protobuf::int32 collisionfiltermode() const;
+  void set_collisionfiltermode(::google::protobuf::int32 value);
+
+  // double restitutionVelocityThreshold = 13;
+  void clear_restitutionvelocitythreshold();
+  static const int kRestitutionVelocityThresholdFieldNumber = 13;
+  double restitutionvelocitythreshold() const;
+  void set_restitutionvelocitythreshold(double value);
+
+  // double defaultNonContactERP = 14;
+  void clear_defaultnoncontacterp();
+  static const int kDefaultNonContactERPFieldNumber = 14;
+  double defaultnoncontacterp() const;
+  void set_defaultnoncontacterp(double value);
+
+  // double frictionERP = 15;
+  void clear_frictionerp();
+  static const int kFrictionERPFieldNumber = 15;
+  double frictionerp() const;
+  void set_frictionerp(double value);
+
+  // int32 enableFileCaching = 12;
+  void clear_enablefilecaching();
+  static const int kEnableFileCachingFieldNumber = 12;
+  ::google::protobuf::int32 enablefilecaching() const;
+  void set_enablefilecaching(::google::protobuf::int32 value);
+
+  // int32 enableConeFriction = 18;
+  void clear_enableconefriction();
+  static const int kEnableConeFrictionFieldNumber = 18;
+  ::google::protobuf::int32 enableconefriction() const;
+  void set_enableconefriction(::google::protobuf::int32 value);
+
+  // double defaultGlobalCFM = 16;
+  void clear_defaultglobalcfm();
+  static const int kDefaultGlobalCFMFieldNumber = 16;
+  double defaultglobalcfm() const;
+  void set_defaultglobalcfm(double value);
+
+  // double frictionCFM = 17;
+  void clear_frictioncfm();
+  static const int kFrictionCFMFieldNumber = 17;
+  double frictioncfm() const;
+  void set_frictioncfm(double value);
+
+  // double allowedCcdPenetration = 20;
+  void clear_allowedccdpenetration();
+  static const int kAllowedCcdPenetrationFieldNumber = 20;
+  double allowedccdpenetration() const;
+  void set_allowedccdpenetration(double value);
+
+  // int32 deterministicOverlappingPairs = 19;
+  void clear_deterministicoverlappingpairs();
+  static const int kDeterministicOverlappingPairsFieldNumber = 19;
+  ::google::protobuf::int32 deterministicoverlappingpairs() const;
+  void set_deterministicoverlappingpairs(::google::protobuf::int32 value);
+
+  // int32 jointFeedbackMode = 21;
+  void clear_jointfeedbackmode();
+  static const int kJointFeedbackModeFieldNumber = 21;
+  ::google::protobuf::int32 jointfeedbackmode() const;
+  void set_jointfeedbackmode(::google::protobuf::int32 value);
+
+  // double solverResidualThreshold = 22;
+  void clear_solverresidualthreshold();
+  static const int kSolverResidualThresholdFieldNumber = 22;
+  double solverresidualthreshold() const;
+  void set_solverresidualthreshold(double value);
+
+  // double contactSlop = 23;
+  void clear_contactslop();
+  static const int kContactSlopFieldNumber = 23;
+  double contactslop() const;
+  void set_contactslop(double value);
+
+  // int32 enableSAT = 24;
+  void clear_enablesat();
+  static const int kEnableSATFieldNumber = 24;
+  ::google::protobuf::int32 enablesat() const;
+  void set_enablesat(::google::protobuf::int32 value);
+
+  // int32 constraintSolverType = 25;
+  void clear_constraintsolvertype();
+  static const int kConstraintSolverTypeFieldNumber = 25;
+  ::google::protobuf::int32 constraintsolvertype() const;
+  void set_constraintsolvertype(::google::protobuf::int32 value);
+
+  // int32 minimumSolverIslandSize = 26;
+  void clear_minimumsolverislandsize();
+  static const int kMinimumSolverIslandSizeFieldNumber = 26;
+  ::google::protobuf::int32 minimumsolverislandsize() const;
+  void set_minimumsolverislandsize(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.PhysicsSimulationParameters)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::pybullet_grpc::vec3* gravityacceleration_;
+  double deltatime_;
+  ::google::protobuf::int32 numsimulationsubsteps_;
+  ::google::protobuf::int32 numsolveriterations_;
+  ::google::protobuf::int32 userealtimesimulation_;
+  ::google::protobuf::int32 usesplitimpulse_;
+  double splitimpulsepenetrationthreshold_;
+  double contactbreakingthreshold_;
+  double defaultcontacterp_;
+  ::google::protobuf::int32 internalsimflags_;
+  ::google::protobuf::int32 collisionfiltermode_;
+  double restitutionvelocitythreshold_;
+  double defaultnoncontacterp_;
+  double frictionerp_;
+  ::google::protobuf::int32 enablefilecaching_;
+  ::google::protobuf::int32 enableconefriction_;
+  double defaultglobalcfm_;
+  double frictioncfm_;
+  double allowedccdpenetration_;
+  ::google::protobuf::int32 deterministicoverlappingpairs_;
+  ::google::protobuf::int32 jointfeedbackmode_;
+  double solverresidualthreshold_;
+  double contactslop_;
+  ::google::protobuf::int32 enablesat_;
+  ::google::protobuf::int32 constraintsolvertype_;
+  ::google::protobuf::int32 minimumsolverislandsize_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class PhysicsSimulationParametersCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.PhysicsSimulationParametersCommand) */ {
+ public:
+  PhysicsSimulationParametersCommand();
+  virtual ~PhysicsSimulationParametersCommand();
+
+  PhysicsSimulationParametersCommand(const PhysicsSimulationParametersCommand& from);
+
+  inline PhysicsSimulationParametersCommand& operator=(const PhysicsSimulationParametersCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PhysicsSimulationParametersCommand& default_instance();
+
+  static inline const PhysicsSimulationParametersCommand* internal_default_instance() {
+    return reinterpret_cast<const PhysicsSimulationParametersCommand*>(
+               &_PhysicsSimulationParametersCommand_default_instance_);
+  }
+
+  void Swap(PhysicsSimulationParametersCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline PhysicsSimulationParametersCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  PhysicsSimulationParametersCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const PhysicsSimulationParametersCommand& from);
+  void MergeFrom(const PhysicsSimulationParametersCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(PhysicsSimulationParametersCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .pybullet_grpc.PhysicsSimulationParameters params = 2;
+  bool has_params() const;
+  void clear_params();
+  static const int kParamsFieldNumber = 2;
+  const ::pybullet_grpc::PhysicsSimulationParameters& params() const;
+  ::pybullet_grpc::PhysicsSimulationParameters* mutable_params();
+  ::pybullet_grpc::PhysicsSimulationParameters* release_params();
+  void set_allocated_params(::pybullet_grpc::PhysicsSimulationParameters* params);
+
+  // int32 updateFlags = 1;
+  void clear_updateflags();
+  static const int kUpdateFlagsFieldNumber = 1;
+  ::google::protobuf::int32 updateflags() const;
+  void set_updateflags(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.PhysicsSimulationParametersCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::pybullet_grpc::PhysicsSimulationParameters* params_;
+  ::google::protobuf::int32 updateflags_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class JointMotorControlCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.JointMotorControlCommand) */ {
+ public:
+  JointMotorControlCommand();
+  virtual ~JointMotorControlCommand();
+
+  JointMotorControlCommand(const JointMotorControlCommand& from);
+
+  inline JointMotorControlCommand& operator=(const JointMotorControlCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const JointMotorControlCommand& default_instance();
+
+  static inline const JointMotorControlCommand* internal_default_instance() {
+    return reinterpret_cast<const JointMotorControlCommand*>(
+               &_JointMotorControlCommand_default_instance_);
+  }
+
+  void Swap(JointMotorControlCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline JointMotorControlCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  JointMotorControlCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const JointMotorControlCommand& from);
+  void MergeFrom(const JointMotorControlCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(JointMotorControlCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated double Kp = 4;
+  int kp_size() const;
+  void clear_kp();
+  static const int kKpFieldNumber = 4;
+  double kp(int index) const;
+  void set_kp(int index, double value);
+  void add_kp(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      kp() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_kp();
+
+  // repeated double Kd = 5;
+  int kd_size() const;
+  void clear_kd();
+  static const int kKdFieldNumber = 5;
+  double kd(int index) const;
+  void set_kd(int index, double value);
+  void add_kd(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      kd() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_kd();
+
+  // repeated double maxVelocity = 6;
+  int maxvelocity_size() const;
+  void clear_maxvelocity();
+  static const int kMaxVelocityFieldNumber = 6;
+  double maxvelocity(int index) const;
+  void set_maxvelocity(int index, double value);
+  void add_maxvelocity(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      maxvelocity() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_maxvelocity();
+
+  // repeated int32 hasDesiredStateFlags = 7;
+  int hasdesiredstateflags_size() const;
+  void clear_hasdesiredstateflags();
+  static const int kHasDesiredStateFlagsFieldNumber = 7;
+  ::google::protobuf::int32 hasdesiredstateflags(int index) const;
+  void set_hasdesiredstateflags(int index, ::google::protobuf::int32 value);
+  void add_hasdesiredstateflags(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      hasdesiredstateflags() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_hasdesiredstateflags();
+
+  // repeated double desiredStateQ = 8;
+  int desiredstateq_size() const;
+  void clear_desiredstateq();
+  static const int kDesiredStateQFieldNumber = 8;
+  double desiredstateq(int index) const;
+  void set_desiredstateq(int index, double value);
+  void add_desiredstateq(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      desiredstateq() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_desiredstateq();
+
+  // repeated double desiredStateQdot = 9;
+  int desiredstateqdot_size() const;
+  void clear_desiredstateqdot();
+  static const int kDesiredStateQdotFieldNumber = 9;
+  double desiredstateqdot(int index) const;
+  void set_desiredstateqdot(int index, double value);
+  void add_desiredstateqdot(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      desiredstateqdot() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_desiredstateqdot();
+
+  // repeated double desiredStateForceTorque = 10;
+  int desiredstateforcetorque_size() const;
+  void clear_desiredstateforcetorque();
+  static const int kDesiredStateForceTorqueFieldNumber = 10;
+  double desiredstateforcetorque(int index) const;
+  void set_desiredstateforcetorque(int index, double value);
+  void add_desiredstateforcetorque(double value);
+  const ::google::protobuf::RepeatedField< double >&
+      desiredstateforcetorque() const;
+  ::google::protobuf::RepeatedField< double >*
+      mutable_desiredstateforcetorque();
+
+  // int32 bodyUniqueId = 1;
+  void clear_bodyuniqueid();
+  static const int kBodyUniqueIdFieldNumber = 1;
+  ::google::protobuf::int32 bodyuniqueid() const;
+  void set_bodyuniqueid(::google::protobuf::int32 value);
+
+  // int32 controlMode = 2;
+  void clear_controlmode();
+  static const int kControlModeFieldNumber = 2;
+  ::google::protobuf::int32 controlmode() const;
+  void set_controlmode(::google::protobuf::int32 value);
+
+  // int32 updateFlags = 3;
+  void clear_updateflags();
+  static const int kUpdateFlagsFieldNumber = 3;
+  ::google::protobuf::int32 updateflags() const;
+  void set_updateflags(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.JointMotorControlCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedField< double > kp_;
+  mutable int _kp_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > kd_;
+  mutable int _kd_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > maxvelocity_;
+  mutable int _maxvelocity_cached_byte_size_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > hasdesiredstateflags_;
+  mutable int _hasdesiredstateflags_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > desiredstateq_;
+  mutable int _desiredstateq_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > desiredstateqdot_;
+  mutable int _desiredstateqdot_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > desiredstateforcetorque_;
+  mutable int _desiredstateforcetorque_cached_byte_size_;
+  ::google::protobuf::int32 bodyuniqueid_;
+  ::google::protobuf::int32 controlmode_;
+  ::google::protobuf::int32 updateflags_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class UserConstraintCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.UserConstraintCommand) */ {
+ public:
+  UserConstraintCommand();
+  virtual ~UserConstraintCommand();
+
+  UserConstraintCommand(const UserConstraintCommand& from);
+
+  inline UserConstraintCommand& operator=(const UserConstraintCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const UserConstraintCommand& default_instance();
+
+  static inline const UserConstraintCommand* internal_default_instance() {
+    return reinterpret_cast<const UserConstraintCommand*>(
+               &_UserConstraintCommand_default_instance_);
+  }
+
+  void Swap(UserConstraintCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline UserConstraintCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  UserConstraintCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const UserConstraintCommand& from);
+  void MergeFrom(const UserConstraintCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(UserConstraintCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .pybullet_grpc.transform parentFrame = 5;
+  bool has_parentframe() const;
+  void clear_parentframe();
+  static const int kParentFrameFieldNumber = 5;
+  const ::pybullet_grpc::transform& parentframe() const;
+  ::pybullet_grpc::transform* mutable_parentframe();
+  ::pybullet_grpc::transform* release_parentframe();
+  void set_allocated_parentframe(::pybullet_grpc::transform* parentframe);
+
+  // .pybullet_grpc.transform childFrame = 6;
+  bool has_childframe() const;
+  void clear_childframe();
+  static const int kChildFrameFieldNumber = 6;
+  const ::pybullet_grpc::transform& childframe() const;
+  ::pybullet_grpc::transform* mutable_childframe();
+  ::pybullet_grpc::transform* release_childframe();
+  void set_allocated_childframe(::pybullet_grpc::transform* childframe);
+
+  // .pybullet_grpc.vec3 jointAxis = 7;
+  bool has_jointaxis() const;
+  void clear_jointaxis();
+  static const int kJointAxisFieldNumber = 7;
+  const ::pybullet_grpc::vec3& jointaxis() const;
+  ::pybullet_grpc::vec3* mutable_jointaxis();
+  ::pybullet_grpc::vec3* release_jointaxis();
+  void set_allocated_jointaxis(::pybullet_grpc::vec3* jointaxis);
+
+  // int32 parentBodyIndex = 1;
+  void clear_parentbodyindex();
+  static const int kParentBodyIndexFieldNumber = 1;
+  ::google::protobuf::int32 parentbodyindex() const;
+  void set_parentbodyindex(::google::protobuf::int32 value);
+
+  // int32 parentJointIndex = 2;
+  void clear_parentjointindex();
+  static const int kParentJointIndexFieldNumber = 2;
+  ::google::protobuf::int32 parentjointindex() const;
+  void set_parentjointindex(::google::protobuf::int32 value);
+
+  // int32 childBodyIndex = 3;
+  void clear_childbodyindex();
+  static const int kChildBodyIndexFieldNumber = 3;
+  ::google::protobuf::int32 childbodyindex() const;
+  void set_childbodyindex(::google::protobuf::int32 value);
+
+  // int32 childJointIndex = 4;
+  void clear_childjointindex();
+  static const int kChildJointIndexFieldNumber = 4;
+  ::google::protobuf::int32 childjointindex() const;
+  void set_childjointindex(::google::protobuf::int32 value);
+
+  // double maxAppliedForce = 9;
+  void clear_maxappliedforce();
+  static const int kMaxAppliedForceFieldNumber = 9;
+  double maxappliedforce() const;
+  void set_maxappliedforce(double value);
+
+  // int32 jointType = 8;
+  void clear_jointtype();
+  static const int kJointTypeFieldNumber = 8;
+  ::google::protobuf::int32 jointtype() const;
+  void set_jointtype(::google::protobuf::int32 value);
+
+  // int32 userConstraintUniqueId = 10;
+  void clear_userconstraintuniqueid();
+  static const int kUserConstraintUniqueIdFieldNumber = 10;
+  ::google::protobuf::int32 userconstraintuniqueid() const;
+  void set_userconstraintuniqueid(::google::protobuf::int32 value);
+
+  // double gearRatio = 11;
+  void clear_gearratio();
+  static const int kGearRatioFieldNumber = 11;
+  double gearratio() const;
+  void set_gearratio(double value);
+
+  // double relativePositionTarget = 13;
+  void clear_relativepositiontarget();
+  static const int kRelativePositionTargetFieldNumber = 13;
+  double relativepositiontarget() const;
+  void set_relativepositiontarget(double value);
+
+  // int32 gearAuxLink = 12;
+  void clear_gearauxlink();
+  static const int kGearAuxLinkFieldNumber = 12;
+  ::google::protobuf::int32 gearauxlink() const;
+  void set_gearauxlink(::google::protobuf::int32 value);
+
+  // int32 updateFlags = 15;
+  void clear_updateflags();
+  static const int kUpdateFlagsFieldNumber = 15;
+  ::google::protobuf::int32 updateflags() const;
+  void set_updateflags(::google::protobuf::int32 value);
+
+  // double erp = 14;
+  void clear_erp();
+  static const int kErpFieldNumber = 14;
+  double erp() const;
+  void set_erp(double value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.UserConstraintCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::pybullet_grpc::transform* parentframe_;
+  ::pybullet_grpc::transform* childframe_;
+  ::pybullet_grpc::vec3* jointaxis_;
+  ::google::protobuf::int32 parentbodyindex_;
+  ::google::protobuf::int32 parentjointindex_;
+  ::google::protobuf::int32 childbodyindex_;
+  ::google::protobuf::int32 childjointindex_;
+  double maxappliedforce_;
+  ::google::protobuf::int32 jointtype_;
+  ::google::protobuf::int32 userconstraintuniqueid_;
+  double gearratio_;
+  double relativepositiontarget_;
+  ::google::protobuf::int32 gearauxlink_;
+  ::google::protobuf::int32 updateflags_;
+  double erp_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class UserConstraintStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.UserConstraintStatus) */ {
+ public:
+  UserConstraintStatus();
+  virtual ~UserConstraintStatus();
+
+  UserConstraintStatus(const UserConstraintStatus& from);
+
+  inline UserConstraintStatus& operator=(const UserConstraintStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const UserConstraintStatus& default_instance();
+
+  static inline const UserConstraintStatus* internal_default_instance() {
+    return reinterpret_cast<const UserConstraintStatus*>(
+               &_UserConstraintStatus_default_instance_);
+  }
+
+  void Swap(UserConstraintStatus* other);
+
+  // implements Message ----------------------------------------------
+
+  inline UserConstraintStatus* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  UserConstraintStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const UserConstraintStatus& from);
+  void MergeFrom(const UserConstraintStatus& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(UserConstraintStatus* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // double maxAppliedForce = 9;
+  void clear_maxappliedforce();
+  static const int kMaxAppliedForceFieldNumber = 9;
+  double maxappliedforce() const;
+  void set_maxappliedforce(double value);
+
+  // int32 userConstraintUniqueId = 10;
+  void clear_userconstraintuniqueid();
+  static const int kUserConstraintUniqueIdFieldNumber = 10;
+  ::google::protobuf::int32 userconstraintuniqueid() const;
+  void set_userconstraintuniqueid(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.UserConstraintStatus)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  double maxappliedforce_;
+  ::google::protobuf::int32 userconstraintuniqueid_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class UserConstraintStateStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.UserConstraintStateStatus) */ {
+ public:
+  UserConstraintStateStatus();
+  virtual ~UserConstraintStateStatus();
+
+  UserConstraintStateStatus(const UserConstraintStateStatus& from);
+
+  inline UserConstraintStateStatus& operator=(const UserConstraintStateStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const UserConstraintStateStatus& default_instance();
+
+  static inline const UserConstraintStateStatus* internal_default_instance() {
+    return reinterpret_cast<const UserConstraintStateStatus*>(
+               &_UserConstraintStateStatus_default_instance_);
+  }
+
+  void Swap(UserConstraintStateStatus* other);
+
+  // implements Message ----------------------------------------------
+
+  inline UserConstraintStateStatus* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  UserConstraintStateStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const UserConstraintStateStatus& from);
+  void MergeFrom(const UserConstraintStateStatus& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(UserConstraintStateStatus* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .pybullet_grpc.vec3 appliedConstraintForcesLinear = 1;
+  bool has_appliedconstraintforceslinear() const;
+  void clear_appliedconstraintforceslinear();
+  static const int kAppliedConstraintForcesLinearFieldNumber = 1;
+  const ::pybullet_grpc::vec3& appliedconstraintforceslinear() const;
+  ::pybullet_grpc::vec3* mutable_appliedconstraintforceslinear();
+  ::pybullet_grpc::vec3* release_appliedconstraintforceslinear();
+  void set_allocated_appliedconstraintforceslinear(::pybullet_grpc::vec3* appliedconstraintforceslinear);
+
+  // .pybullet_grpc.vec3 appliedConstraintForcesAngular = 2;
+  bool has_appliedconstraintforcesangular() const;
+  void clear_appliedconstraintforcesangular();
+  static const int kAppliedConstraintForcesAngularFieldNumber = 2;
+  const ::pybullet_grpc::vec3& appliedconstraintforcesangular() const;
+  ::pybullet_grpc::vec3* mutable_appliedconstraintforcesangular();
+  ::pybullet_grpc::vec3* release_appliedconstraintforcesangular();
+  void set_allocated_appliedconstraintforcesangular(::pybullet_grpc::vec3* appliedconstraintforcesangular);
+
+  // int32 numDofs = 3;
+  void clear_numdofs();
+  static const int kNumDofsFieldNumber = 3;
+  ::google::protobuf::int32 numdofs() const;
+  void set_numdofs(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.UserConstraintStateStatus)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::pybullet_grpc::vec3* appliedconstraintforceslinear_;
+  ::pybullet_grpc::vec3* appliedconstraintforcesangular_;
+  ::google::protobuf::int32 numdofs_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class RequestKeyboardEventsCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.RequestKeyboardEventsCommand) */ {
+ public:
+  RequestKeyboardEventsCommand();
+  virtual ~RequestKeyboardEventsCommand();
+
+  RequestKeyboardEventsCommand(const RequestKeyboardEventsCommand& from);
+
+  inline RequestKeyboardEventsCommand& operator=(const RequestKeyboardEventsCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RequestKeyboardEventsCommand& default_instance();
+
+  static inline const RequestKeyboardEventsCommand* internal_default_instance() {
+    return reinterpret_cast<const RequestKeyboardEventsCommand*>(
+               &_RequestKeyboardEventsCommand_default_instance_);
+  }
+
+  void Swap(RequestKeyboardEventsCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline RequestKeyboardEventsCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  RequestKeyboardEventsCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const RequestKeyboardEventsCommand& from);
+  void MergeFrom(const RequestKeyboardEventsCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(RequestKeyboardEventsCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.RequestKeyboardEventsCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class KeyboardEvent : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.KeyboardEvent) */ {
+ public:
+  KeyboardEvent();
+  virtual ~KeyboardEvent();
+
+  KeyboardEvent(const KeyboardEvent& from);
+
+  inline KeyboardEvent& operator=(const KeyboardEvent& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const KeyboardEvent& default_instance();
+
+  static inline const KeyboardEvent* internal_default_instance() {
+    return reinterpret_cast<const KeyboardEvent*>(
+               &_KeyboardEvent_default_instance_);
+  }
+
+  void Swap(KeyboardEvent* other);
+
+  // implements Message ----------------------------------------------
+
+  inline KeyboardEvent* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  KeyboardEvent* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const KeyboardEvent& from);
+  void MergeFrom(const KeyboardEvent& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(KeyboardEvent* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 keyCode = 1;
+  void clear_keycode();
+  static const int kKeyCodeFieldNumber = 1;
+  ::google::protobuf::int32 keycode() const;
+  void set_keycode(::google::protobuf::int32 value);
+
+  // int32 keyState = 2;
+  void clear_keystate();
+  static const int kKeyStateFieldNumber = 2;
+  ::google::protobuf::int32 keystate() const;
+  void set_keystate(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.KeyboardEvent)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 keycode_;
+  ::google::protobuf::int32 keystate_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class KeyboardEventsStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.KeyboardEventsStatus) */ {
+ public:
+  KeyboardEventsStatus();
+  virtual ~KeyboardEventsStatus();
+
+  KeyboardEventsStatus(const KeyboardEventsStatus& from);
+
+  inline KeyboardEventsStatus& operator=(const KeyboardEventsStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const KeyboardEventsStatus& default_instance();
+
+  static inline const KeyboardEventsStatus* internal_default_instance() {
+    return reinterpret_cast<const KeyboardEventsStatus*>(
+               &_KeyboardEventsStatus_default_instance_);
+  }
+
+  void Swap(KeyboardEventsStatus* other);
+
+  // implements Message ----------------------------------------------
+
+  inline KeyboardEventsStatus* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  KeyboardEventsStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const KeyboardEventsStatus& from);
+  void MergeFrom(const KeyboardEventsStatus& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(KeyboardEventsStatus* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .pybullet_grpc.KeyboardEvent keyboardEvents = 1;
+  int keyboardevents_size() const;
+  void clear_keyboardevents();
+  static const int kKeyboardEventsFieldNumber = 1;
+  const ::pybullet_grpc::KeyboardEvent& keyboardevents(int index) const;
+  ::pybullet_grpc::KeyboardEvent* mutable_keyboardevents(int index);
+  ::pybullet_grpc::KeyboardEvent* add_keyboardevents();
+  ::google::protobuf::RepeatedPtrField< ::pybullet_grpc::KeyboardEvent >*
+      mutable_keyboardevents();
+  const ::google::protobuf::RepeatedPtrField< ::pybullet_grpc::KeyboardEvent >&
+      keyboardevents() const;
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.KeyboardEventsStatus)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::pybullet_grpc::KeyboardEvent > keyboardevents_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class RequestCameraImageCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.RequestCameraImageCommand) */ {
+ public:
+  RequestCameraImageCommand();
+  virtual ~RequestCameraImageCommand();
+
+  RequestCameraImageCommand(const RequestCameraImageCommand& from);
+
+  inline RequestCameraImageCommand& operator=(const RequestCameraImageCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RequestCameraImageCommand& default_instance();
+
+  static inline const RequestCameraImageCommand* internal_default_instance() {
+    return reinterpret_cast<const RequestCameraImageCommand*>(
+               &_RequestCameraImageCommand_default_instance_);
+  }
+
+  void Swap(RequestCameraImageCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline RequestCameraImageCommand* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  RequestCameraImageCommand* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const RequestCameraImageCommand& from);
+  void MergeFrom(const RequestCameraImageCommand& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(RequestCameraImageCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .pybullet_grpc.matrix4x4 viewMatrix = 3;
+  bool has_viewmatrix() const;
+  void clear_viewmatrix();
+  static const int kViewMatrixFieldNumber = 3;
+  const ::pybullet_grpc::matrix4x4& viewmatrix() const;
+  ::pybullet_grpc::matrix4x4* mutable_viewmatrix();
+  ::pybullet_grpc::matrix4x4* release_viewmatrix();
+  void set_allocated_viewmatrix(::pybullet_grpc::matrix4x4* viewmatrix);
+
+  // .pybullet_grpc.matrix4x4 projectionMatrix = 4;
+  bool has_projectionmatrix() const;
+  void clear_projectionmatrix();
+  static const int kProjectionMatrixFieldNumber = 4;
+  const ::pybullet_grpc::matrix4x4& projectionmatrix() const;
+  ::pybullet_grpc::matrix4x4* mutable_projectionmatrix();
+  ::pybullet_grpc::matrix4x4* release_projectionmatrix();
+  void set_allocated_projectionmatrix(::pybullet_grpc::matrix4x4* projectionmatrix);
+
+  // .pybullet_grpc.vec3 lightDirection = 8;
+  bool has_lightdirection() const;
+  void clear_lightdirection();
+  static const int kLightDirectionFieldNumber = 8;
+  const ::pybullet_grpc::vec3& lightdirection() const;
+  ::pybullet_grpc::vec3* mutable_lightdirection();
+  ::pybullet_grpc::vec3* release_lightdirection();
+  void set_allocated_lightdirection(::pybullet_grpc::vec3* lightdirection);
+
+  // .pybullet_grpc.vec3 lightColor = 9;
+  bool has_lightcolor() const;
+  void clear_lightcolor();
+  static const int kLightColorFieldNumber = 9;
+  const ::pybullet_grpc::vec3& lightcolor() const;
+  ::pybullet_grpc::vec3* mutable_lightcolor();
+  ::pybullet_grpc::vec3* release_lightcolor();
+  void set_allocated_lightcolor(::pybullet_grpc::vec3* lightcolor);
+
+  // .pybullet_grpc.matrix4x4 projectiveTextureViewMatrix = 15;
+  bool has_projectivetextureviewmatrix() const;
+  void clear_projectivetextureviewmatrix();
+  static const int kProjectiveTextureViewMatrixFieldNumber = 15;
+  const ::pybullet_grpc::matrix4x4& projectivetextureviewmatrix() const;
+  ::pybullet_grpc::matrix4x4* mutable_projectivetextureviewmatrix();
+  ::pybullet_grpc::matrix4x4* release_projectivetextureviewmatrix();
+  void set_allocated_projectivetextureviewmatrix(::pybullet_grpc::matrix4x4* projectivetextureviewmatrix);
+
+  // .pybullet_grpc.matrix4x4 projectiveTextureProjectionMatrix = 16;
+  bool has_projectivetextureprojectionmatrix() const;
+  void clear_projectivetextureprojectionmatrix();
+  static const int kProjectiveTextureProjectionMatrixFieldNumber = 16;
+  const ::pybullet_grpc::matrix4x4& projectivetextureprojectionmatrix() const;
+  ::pybullet_grpc::matrix4x4* mutable_projectivetextureprojectionmatrix();
+  ::pybullet_grpc::matrix4x4* release_projectivetextureprojectionmatrix();
+  void set_allocated_projectivetextureprojectionmatrix(::pybullet_grpc::matrix4x4* projectivetextureprojectionmatrix);
+
+  // int32 updateFlags = 1;
+  void clear_updateflags();
+  static const int kUpdateFlagsFieldNumber = 1;
+  ::google::protobuf::int32 updateflags() const;
+  void set_updateflags(::google::protobuf::int32 value);
+
+  // int32 cameraFlags = 2;
+  void clear_cameraflags();
+  static const int kCameraFlagsFieldNumber = 2;
+  ::google::protobuf::int32 cameraflags() const;
+  void set_cameraflags(::google::protobuf::int32 value);
+
+  // int32 startPixelIndex = 5;
+  void clear_startpixelindex();
+  static const int kStartPixelIndexFieldNumber = 5;
+  ::google::protobuf::int32 startpixelindex() const;
+  void set_startpixelindex(::google::protobuf::int32 value);
+
+  // int32 pixelWidth = 6;
+  void clear_pixelwidth();
+  static const int kPixelWidthFieldNumber = 6;
+  ::google::protobuf::int32 pixelwidth() const;
+  void set_pixelwidth(::google::protobuf::int32 value);
+
+  // double lightDistance = 10;
+  void clear_lightdistance();
+  static const int kLightDistanceFieldNumber = 10;
+  double lightdistance() const;
+  void set_lightdistance(double value);
+
+  // int32 pixelHeight = 7;
+  void clear_pixelheight();
+  static const int kPixelHeightFieldNumber = 7;
+  ::google::protobuf::int32 pixelheight() const;
+  void set_pixelheight(::google::protobuf::int32 value);
+
+  // int32 hasShadow = 14;
+  void clear_hasshadow();
+  static const int kHasShadowFieldNumber = 14;
+  ::google::protobuf::int32 hasshadow() const;
+  void set_hasshadow(::google::protobuf::int32 value);
+
+  // double lightAmbientCoeff = 11;
+  void clear_lightambientcoeff();
+  static const int kLightAmbientCoeffFieldNumber = 11;
+  double lightambientcoeff() const;
+  void set_lightambientcoeff(double value);
+
+  // double lightDiffuseCoeff = 12;
+  void clear_lightdiffusecoeff();
+  static const int kLightDiffuseCoeffFieldNumber = 12;
+  double lightdiffusecoeff() const;
+  void set_lightdiffusecoeff(double value);
+
+  // double lightSpecularCoeff = 13;
+  void clear_lightspecularcoeff();
+  static const int kLightSpecularCoeffFieldNumber = 13;
+  double lightspecularcoeff() const;
+  void set_lightspecularcoeff(double value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.RequestCameraImageCommand)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::pybullet_grpc::matrix4x4* viewmatrix_;
+  ::pybullet_grpc::matrix4x4* projectionmatrix_;
+  ::pybullet_grpc::vec3* lightdirection_;
+  ::pybullet_grpc::vec3* lightcolor_;
+  ::pybullet_grpc::matrix4x4* projectivetextureviewmatrix_;
+  ::pybullet_grpc::matrix4x4* projectivetextureprojectionmatrix_;
+  ::google::protobuf::int32 updateflags_;
+  ::google::protobuf::int32 cameraflags_;
+  ::google::protobuf::int32 startpixelindex_;
+  ::google::protobuf::int32 pixelwidth_;
+  double lightdistance_;
+  ::google::protobuf::int32 pixelheight_;
+  ::google::protobuf::int32 hasshadow_;
+  double lightambientcoeff_;
+  double lightdiffusecoeff_;
+  double lightspecularcoeff_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class RequestCameraImageStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.RequestCameraImageStatus) */ {
+ public:
+  RequestCameraImageStatus();
+  virtual ~RequestCameraImageStatus();
+
+  RequestCameraImageStatus(const RequestCameraImageStatus& from);
+
+  inline RequestCameraImageStatus& operator=(const RequestCameraImageStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RequestCameraImageStatus& default_instance();
+
+  static inline const RequestCameraImageStatus* internal_default_instance() {
+    return reinterpret_cast<const RequestCameraImageStatus*>(
+               &_RequestCameraImageStatus_default_instance_);
+  }
+
+  void Swap(RequestCameraImageStatus* other);
+
+  // implements Message ----------------------------------------------
+
+  inline RequestCameraImageStatus* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  RequestCameraImageStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const RequestCameraImageStatus& from);
+  void MergeFrom(const RequestCameraImageStatus& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(RequestCameraImageStatus* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // int32 imageWidth = 1;
+  void clear_imagewidth();
+  static const int kImageWidthFieldNumber = 1;
+  ::google::protobuf::int32 imagewidth() const;
+  void set_imagewidth(::google::protobuf::int32 value);
+
+  // int32 imageHeight = 2;
+  void clear_imageheight();
+  static const int kImageHeightFieldNumber = 2;
+  ::google::protobuf::int32 imageheight() const;
+  void set_imageheight(::google::protobuf::int32 value);
+
+  // int32 startingPixelIndex = 3;
+  void clear_startingpixelindex();
+  static const int kStartingPixelIndexFieldNumber = 3;
+  ::google::protobuf::int32 startingpixelindex() const;
+  void set_startingpixelindex(::google::protobuf::int32 value);
+
+  // int32 numPixelsCopied = 4;
+  void clear_numpixelscopied();
+  static const int kNumPixelsCopiedFieldNumber = 4;
+  ::google::protobuf::int32 numpixelscopied() const;
+  void set_numpixelscopied(::google::protobuf::int32 value);
+
+  // int32 numRemainingPixels = 5;
+  void clear_numremainingpixels();
+  static const int kNumRemainingPixelsFieldNumber = 5;
+  ::google::protobuf::int32 numremainingpixels() const;
+  void set_numremainingpixels(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pybullet_grpc.RequestCameraImageStatus)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::int32 imagewidth_;
+  ::google::protobuf::int32 imageheight_;
+  ::google::protobuf::int32 startingpixelindex_;
+  ::google::protobuf::int32 numpixelscopied_;
+  ::google::protobuf::int32 numremainingpixels_;
+  mutable int _cached_size_;
+  friend struct  protobuf_pybullet_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
 class PyBulletCommand : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pybullet_grpc.PyBulletCommand) */ {
  public:
   PyBulletCommand();
@@ -2326,15 +4875,24 @@ class PyBulletCommand : public ::google::protobuf::Message /* @@protoc_insertion
   static const PyBulletCommand& default_instance();
 
   enum CommandsCase {
-    kLoadUrdfCommand = 3,
-    kTerminateServerCommand = 4,
-    kStepSimulationCommand = 5,
-    kLoadSdfCommand = 6,
-    kLoadMjcfCommand = 7,
-    kChangeDynamicsCommand = 8,
-    kGetDynamicsCommand = 9,
-    kInitPoseCommand = 10,
-    kRequestActualStateCommand = 11,
+    kLoadUrdfCommand = 4,
+    kTerminateServerCommand = 5,
+    kStepSimulationCommand = 6,
+    kLoadSdfCommand = 7,
+    kLoadMjcfCommand = 8,
+    kChangeDynamicsCommand = 9,
+    kGetDynamicsCommand = 10,
+    kInitPoseCommand = 11,
+    kRequestActualStateCommand = 12,
+    kConfigureOpenGLVisualizerCommand = 13,
+    kSyncBodiesCommand = 14,
+    kRequestBodyInfoCommand = 15,
+    kSetPhysicsSimulationParametersCommand = 16,
+    kJointMotorControlCommand = 17,
+    kUserConstraintCommand = 18,
+    kCheckVersionCommand = 19,
+    kRequestKeyboardEventsCommand = 20,
+    kRequestCameraImageCommand = 21,
     COMMANDS_NOT_SET = 0,
   };
 
@@ -2390,92 +4948,205 @@ class PyBulletCommand : public ::google::protobuf::Message /* @@protoc_insertion
 
   // accessors -------------------------------------------------------
 
+  // repeated bytes binaryBlob = 2;
+  int binaryblob_size() const;
+  void clear_binaryblob();
+  static const int kBinaryBlobFieldNumber = 2;
+  const ::std::string& binaryblob(int index) const;
+  ::std::string* mutable_binaryblob(int index);
+  void set_binaryblob(int index, const ::std::string& value);
+  void set_binaryblob(int index, const char* value);
+  void set_binaryblob(int index, const void* value, size_t size);
+  ::std::string* add_binaryblob();
+  void add_binaryblob(const ::std::string& value);
+  void add_binaryblob(const char* value);
+  void add_binaryblob(const void* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& binaryblob() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_binaryblob();
+
+  // repeated bytes unknownCommandBinaryBlob = 3;
+  int unknowncommandbinaryblob_size() const;
+  void clear_unknowncommandbinaryblob();
+  static const int kUnknownCommandBinaryBlobFieldNumber = 3;
+  const ::std::string& unknowncommandbinaryblob(int index) const;
+  ::std::string* mutable_unknowncommandbinaryblob(int index);
+  void set_unknowncommandbinaryblob(int index, const ::std::string& value);
+  void set_unknowncommandbinaryblob(int index, const char* value);
+  void set_unknowncommandbinaryblob(int index, const void* value, size_t size);
+  ::std::string* add_unknowncommandbinaryblob();
+  void add_unknowncommandbinaryblob(const ::std::string& value);
+  void add_unknowncommandbinaryblob(const char* value);
+  void add_unknowncommandbinaryblob(const void* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& unknowncommandbinaryblob() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_unknowncommandbinaryblob();
+
   // int32 commandType = 1;
   void clear_commandtype();
   static const int kCommandTypeFieldNumber = 1;
   ::google::protobuf::int32 commandtype() const;
   void set_commandtype(::google::protobuf::int32 value);
 
-  // .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 3;
+  // .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 4;
   bool has_loadurdfcommand() const;
   void clear_loadurdfcommand();
-  static const int kLoadUrdfCommandFieldNumber = 3;
+  static const int kLoadUrdfCommandFieldNumber = 4;
   const ::pybullet_grpc::LoadUrdfCommand& loadurdfcommand() const;
   ::pybullet_grpc::LoadUrdfCommand* mutable_loadurdfcommand();
   ::pybullet_grpc::LoadUrdfCommand* release_loadurdfcommand();
   void set_allocated_loadurdfcommand(::pybullet_grpc::LoadUrdfCommand* loadurdfcommand);
 
-  // .pybullet_grpc.TerminateServerCommand terminateServerCommand = 4;
+  // .pybullet_grpc.TerminateServerCommand terminateServerCommand = 5;
   bool has_terminateservercommand() const;
   void clear_terminateservercommand();
-  static const int kTerminateServerCommandFieldNumber = 4;
+  static const int kTerminateServerCommandFieldNumber = 5;
   const ::pybullet_grpc::TerminateServerCommand& terminateservercommand() const;
   ::pybullet_grpc::TerminateServerCommand* mutable_terminateservercommand();
   ::pybullet_grpc::TerminateServerCommand* release_terminateservercommand();
   void set_allocated_terminateservercommand(::pybullet_grpc::TerminateServerCommand* terminateservercommand);
 
-  // .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 5;
+  // .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 6;
   bool has_stepsimulationcommand() const;
   void clear_stepsimulationcommand();
-  static const int kStepSimulationCommandFieldNumber = 5;
+  static const int kStepSimulationCommandFieldNumber = 6;
   const ::pybullet_grpc::StepSimulationCommand& stepsimulationcommand() const;
   ::pybullet_grpc::StepSimulationCommand* mutable_stepsimulationcommand();
   ::pybullet_grpc::StepSimulationCommand* release_stepsimulationcommand();
   void set_allocated_stepsimulationcommand(::pybullet_grpc::StepSimulationCommand* stepsimulationcommand);
 
-  // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+  // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 7;
   bool has_loadsdfcommand() const;
   void clear_loadsdfcommand();
-  static const int kLoadSdfCommandFieldNumber = 6;
+  static const int kLoadSdfCommandFieldNumber = 7;
   const ::pybullet_grpc::LoadSdfCommand& loadsdfcommand() const;
   ::pybullet_grpc::LoadSdfCommand* mutable_loadsdfcommand();
   ::pybullet_grpc::LoadSdfCommand* release_loadsdfcommand();
   void set_allocated_loadsdfcommand(::pybullet_grpc::LoadSdfCommand* loadsdfcommand);
 
-  // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+  // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 8;
   bool has_loadmjcfcommand() const;
   void clear_loadmjcfcommand();
-  static const int kLoadMjcfCommandFieldNumber = 7;
+  static const int kLoadMjcfCommandFieldNumber = 8;
   const ::pybullet_grpc::LoadMjcfCommand& loadmjcfcommand() const;
   ::pybullet_grpc::LoadMjcfCommand* mutable_loadmjcfcommand();
   ::pybullet_grpc::LoadMjcfCommand* release_loadmjcfcommand();
   void set_allocated_loadmjcfcommand(::pybullet_grpc::LoadMjcfCommand* loadmjcfcommand);
 
-  // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+  // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 9;
   bool has_changedynamicscommand() const;
   void clear_changedynamicscommand();
-  static const int kChangeDynamicsCommandFieldNumber = 8;
+  static const int kChangeDynamicsCommandFieldNumber = 9;
   const ::pybullet_grpc::ChangeDynamicsCommand& changedynamicscommand() const;
   ::pybullet_grpc::ChangeDynamicsCommand* mutable_changedynamicscommand();
   ::pybullet_grpc::ChangeDynamicsCommand* release_changedynamicscommand();
   void set_allocated_changedynamicscommand(::pybullet_grpc::ChangeDynamicsCommand* changedynamicscommand);
 
-  // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+  // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 10;
   bool has_getdynamicscommand() const;
   void clear_getdynamicscommand();
-  static const int kGetDynamicsCommandFieldNumber = 9;
+  static const int kGetDynamicsCommandFieldNumber = 10;
   const ::pybullet_grpc::GetDynamicsCommand& getdynamicscommand() const;
   ::pybullet_grpc::GetDynamicsCommand* mutable_getdynamicscommand();
   ::pybullet_grpc::GetDynamicsCommand* release_getdynamicscommand();
   void set_allocated_getdynamicscommand(::pybullet_grpc::GetDynamicsCommand* getdynamicscommand);
 
-  // .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+  // .pybullet_grpc.InitPoseCommand initPoseCommand = 11;
   bool has_initposecommand() const;
   void clear_initposecommand();
-  static const int kInitPoseCommandFieldNumber = 10;
+  static const int kInitPoseCommandFieldNumber = 11;
   const ::pybullet_grpc::InitPoseCommand& initposecommand() const;
   ::pybullet_grpc::InitPoseCommand* mutable_initposecommand();
   ::pybullet_grpc::InitPoseCommand* release_initposecommand();
   void set_allocated_initposecommand(::pybullet_grpc::InitPoseCommand* initposecommand);
 
-  // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+  // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 12;
   bool has_requestactualstatecommand() const;
   void clear_requestactualstatecommand();
-  static const int kRequestActualStateCommandFieldNumber = 11;
+  static const int kRequestActualStateCommandFieldNumber = 12;
   const ::pybullet_grpc::RequestActualStateCommand& requestactualstatecommand() const;
   ::pybullet_grpc::RequestActualStateCommand* mutable_requestactualstatecommand();
   ::pybullet_grpc::RequestActualStateCommand* release_requestactualstatecommand();
   void set_allocated_requestactualstatecommand(::pybullet_grpc::RequestActualStateCommand* requestactualstatecommand);
+
+  // .pybullet_grpc.ConfigureOpenGLVisualizerCommand configureOpenGLVisualizerCommand = 13;
+  bool has_configureopenglvisualizercommand() const;
+  void clear_configureopenglvisualizercommand();
+  static const int kConfigureOpenGLVisualizerCommandFieldNumber = 13;
+  const ::pybullet_grpc::ConfigureOpenGLVisualizerCommand& configureopenglvisualizercommand() const;
+  ::pybullet_grpc::ConfigureOpenGLVisualizerCommand* mutable_configureopenglvisualizercommand();
+  ::pybullet_grpc::ConfigureOpenGLVisualizerCommand* release_configureopenglvisualizercommand();
+  void set_allocated_configureopenglvisualizercommand(::pybullet_grpc::ConfigureOpenGLVisualizerCommand* configureopenglvisualizercommand);
+
+  // .pybullet_grpc.SyncBodiesCommand syncBodiesCommand = 14;
+  bool has_syncbodiescommand() const;
+  void clear_syncbodiescommand();
+  static const int kSyncBodiesCommandFieldNumber = 14;
+  const ::pybullet_grpc::SyncBodiesCommand& syncbodiescommand() const;
+  ::pybullet_grpc::SyncBodiesCommand* mutable_syncbodiescommand();
+  ::pybullet_grpc::SyncBodiesCommand* release_syncbodiescommand();
+  void set_allocated_syncbodiescommand(::pybullet_grpc::SyncBodiesCommand* syncbodiescommand);
+
+  // .pybullet_grpc.RequestBodyInfoCommand requestBodyInfoCommand = 15;
+  bool has_requestbodyinfocommand() const;
+  void clear_requestbodyinfocommand();
+  static const int kRequestBodyInfoCommandFieldNumber = 15;
+  const ::pybullet_grpc::RequestBodyInfoCommand& requestbodyinfocommand() const;
+  ::pybullet_grpc::RequestBodyInfoCommand* mutable_requestbodyinfocommand();
+  ::pybullet_grpc::RequestBodyInfoCommand* release_requestbodyinfocommand();
+  void set_allocated_requestbodyinfocommand(::pybullet_grpc::RequestBodyInfoCommand* requestbodyinfocommand);
+
+  // .pybullet_grpc.PhysicsSimulationParametersCommand setPhysicsSimulationParametersCommand = 16;
+  bool has_setphysicssimulationparameterscommand() const;
+  void clear_setphysicssimulationparameterscommand();
+  static const int kSetPhysicsSimulationParametersCommandFieldNumber = 16;
+  const ::pybullet_grpc::PhysicsSimulationParametersCommand& setphysicssimulationparameterscommand() const;
+  ::pybullet_grpc::PhysicsSimulationParametersCommand* mutable_setphysicssimulationparameterscommand();
+  ::pybullet_grpc::PhysicsSimulationParametersCommand* release_setphysicssimulationparameterscommand();
+  void set_allocated_setphysicssimulationparameterscommand(::pybullet_grpc::PhysicsSimulationParametersCommand* setphysicssimulationparameterscommand);
+
+  // .pybullet_grpc.JointMotorControlCommand jointMotorControlCommand = 17;
+  bool has_jointmotorcontrolcommand() const;
+  void clear_jointmotorcontrolcommand();
+  static const int kJointMotorControlCommandFieldNumber = 17;
+  const ::pybullet_grpc::JointMotorControlCommand& jointmotorcontrolcommand() const;
+  ::pybullet_grpc::JointMotorControlCommand* mutable_jointmotorcontrolcommand();
+  ::pybullet_grpc::JointMotorControlCommand* release_jointmotorcontrolcommand();
+  void set_allocated_jointmotorcontrolcommand(::pybullet_grpc::JointMotorControlCommand* jointmotorcontrolcommand);
+
+  // .pybullet_grpc.UserConstraintCommand userConstraintCommand = 18;
+  bool has_userconstraintcommand() const;
+  void clear_userconstraintcommand();
+  static const int kUserConstraintCommandFieldNumber = 18;
+  const ::pybullet_grpc::UserConstraintCommand& userconstraintcommand() const;
+  ::pybullet_grpc::UserConstraintCommand* mutable_userconstraintcommand();
+  ::pybullet_grpc::UserConstraintCommand* release_userconstraintcommand();
+  void set_allocated_userconstraintcommand(::pybullet_grpc::UserConstraintCommand* userconstraintcommand);
+
+  // .pybullet_grpc.CheckVersionCommand checkVersionCommand = 19;
+  bool has_checkversioncommand() const;
+  void clear_checkversioncommand();
+  static const int kCheckVersionCommandFieldNumber = 19;
+  const ::pybullet_grpc::CheckVersionCommand& checkversioncommand() const;
+  ::pybullet_grpc::CheckVersionCommand* mutable_checkversioncommand();
+  ::pybullet_grpc::CheckVersionCommand* release_checkversioncommand();
+  void set_allocated_checkversioncommand(::pybullet_grpc::CheckVersionCommand* checkversioncommand);
+
+  // .pybullet_grpc.RequestKeyboardEventsCommand requestKeyboardEventsCommand = 20;
+  bool has_requestkeyboardeventscommand() const;
+  void clear_requestkeyboardeventscommand();
+  static const int kRequestKeyboardEventsCommandFieldNumber = 20;
+  const ::pybullet_grpc::RequestKeyboardEventsCommand& requestkeyboardeventscommand() const;
+  ::pybullet_grpc::RequestKeyboardEventsCommand* mutable_requestkeyboardeventscommand();
+  ::pybullet_grpc::RequestKeyboardEventsCommand* release_requestkeyboardeventscommand();
+  void set_allocated_requestkeyboardeventscommand(::pybullet_grpc::RequestKeyboardEventsCommand* requestkeyboardeventscommand);
+
+  // .pybullet_grpc.RequestCameraImageCommand requestCameraImageCommand = 21;
+  bool has_requestcameraimagecommand() const;
+  void clear_requestcameraimagecommand();
+  static const int kRequestCameraImageCommandFieldNumber = 21;
+  const ::pybullet_grpc::RequestCameraImageCommand& requestcameraimagecommand() const;
+  ::pybullet_grpc::RequestCameraImageCommand* mutable_requestcameraimagecommand();
+  ::pybullet_grpc::RequestCameraImageCommand* release_requestcameraimagecommand();
+  void set_allocated_requestcameraimagecommand(::pybullet_grpc::RequestCameraImageCommand* requestcameraimagecommand);
 
   CommandsCase commands_case() const;
   // @@protoc_insertion_point(class_scope:pybullet_grpc.PyBulletCommand)
@@ -2489,12 +5160,23 @@ class PyBulletCommand : public ::google::protobuf::Message /* @@protoc_insertion
   void set_has_getdynamicscommand();
   void set_has_initposecommand();
   void set_has_requestactualstatecommand();
+  void set_has_configureopenglvisualizercommand();
+  void set_has_syncbodiescommand();
+  void set_has_requestbodyinfocommand();
+  void set_has_setphysicssimulationparameterscommand();
+  void set_has_jointmotorcontrolcommand();
+  void set_has_userconstraintcommand();
+  void set_has_checkversioncommand();
+  void set_has_requestkeyboardeventscommand();
+  void set_has_requestcameraimagecommand();
 
   inline bool has_commands() const;
   void clear_commands();
   inline void clear_has_commands();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> binaryblob_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> unknowncommandbinaryblob_;
   ::google::protobuf::int32 commandtype_;
   union CommandsUnion {
     CommandsUnion() {}
@@ -2507,6 +5189,15 @@ class PyBulletCommand : public ::google::protobuf::Message /* @@protoc_insertion
     ::pybullet_grpc::GetDynamicsCommand* getdynamicscommand_;
     ::pybullet_grpc::InitPoseCommand* initposecommand_;
     ::pybullet_grpc::RequestActualStateCommand* requestactualstatecommand_;
+    ::pybullet_grpc::ConfigureOpenGLVisualizerCommand* configureopenglvisualizercommand_;
+    ::pybullet_grpc::SyncBodiesCommand* syncbodiescommand_;
+    ::pybullet_grpc::RequestBodyInfoCommand* requestbodyinfocommand_;
+    ::pybullet_grpc::PhysicsSimulationParametersCommand* setphysicssimulationparameterscommand_;
+    ::pybullet_grpc::JointMotorControlCommand* jointmotorcontrolcommand_;
+    ::pybullet_grpc::UserConstraintCommand* userconstraintcommand_;
+    ::pybullet_grpc::CheckVersionCommand* checkversioncommand_;
+    ::pybullet_grpc::RequestKeyboardEventsCommand* requestkeyboardeventscommand_;
+    ::pybullet_grpc::RequestCameraImageCommand* requestcameraimagecommand_;
   } commands_;
   mutable int _cached_size_;
   ::google::protobuf::uint32 _oneof_case_[1];
@@ -2531,11 +5222,19 @@ class PyBulletStatus : public ::google::protobuf::Message /* @@protoc_insertion_
   static const PyBulletStatus& default_instance();
 
   enum StatusCase {
-    kUrdfStatus = 2,
-    kSdfStatus = 3,
-    kMjcfStatus = 4,
-    kGetDynamicsStatus = 5,
-    kActualStateStatus = 6,
+    kUrdfStatus = 4,
+    kSdfStatus = 5,
+    kMjcfStatus = 6,
+    kGetDynamicsStatus = 7,
+    kActualStateStatus = 8,
+    kSyncBodiesStatus = 9,
+    kRequestBodyInfoStatus = 10,
+    kRequestPhysicsSimulationParametersStatus = 11,
+    kCheckVersionStatus = 12,
+    kUserConstraintStatus = 13,
+    kUserConstraintStateStatus = 14,
+    kKeyboardEventsStatus = 15,
+    kRequestCameraImageStatus = 16,
     STATUS_NOT_SET = 0,
   };
 
@@ -2591,56 +5290,160 @@ class PyBulletStatus : public ::google::protobuf::Message /* @@protoc_insertion_
 
   // accessors -------------------------------------------------------
 
+  // repeated bytes binaryBlob = 2;
+  int binaryblob_size() const;
+  void clear_binaryblob();
+  static const int kBinaryBlobFieldNumber = 2;
+  const ::std::string& binaryblob(int index) const;
+  ::std::string* mutable_binaryblob(int index);
+  void set_binaryblob(int index, const ::std::string& value);
+  void set_binaryblob(int index, const char* value);
+  void set_binaryblob(int index, const void* value, size_t size);
+  ::std::string* add_binaryblob();
+  void add_binaryblob(const ::std::string& value);
+  void add_binaryblob(const char* value);
+  void add_binaryblob(const void* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& binaryblob() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_binaryblob();
+
+  // repeated bytes unknownStatusBinaryBlob = 3;
+  int unknownstatusbinaryblob_size() const;
+  void clear_unknownstatusbinaryblob();
+  static const int kUnknownStatusBinaryBlobFieldNumber = 3;
+  const ::std::string& unknownstatusbinaryblob(int index) const;
+  ::std::string* mutable_unknownstatusbinaryblob(int index);
+  void set_unknownstatusbinaryblob(int index, const ::std::string& value);
+  void set_unknownstatusbinaryblob(int index, const char* value);
+  void set_unknownstatusbinaryblob(int index, const void* value, size_t size);
+  ::std::string* add_unknownstatusbinaryblob();
+  void add_unknownstatusbinaryblob(const ::std::string& value);
+  void add_unknownstatusbinaryblob(const char* value);
+  void add_unknownstatusbinaryblob(const void* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& unknownstatusbinaryblob() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_unknownstatusbinaryblob();
+
   // int32 statusType = 1;
   void clear_statustype();
   static const int kStatusTypeFieldNumber = 1;
   ::google::protobuf::int32 statustype() const;
   void set_statustype(::google::protobuf::int32 value);
 
-  // .pybullet_grpc.LoadUrdfStatus urdfStatus = 2;
+  // .pybullet_grpc.LoadUrdfStatus urdfStatus = 4;
   bool has_urdfstatus() const;
   void clear_urdfstatus();
-  static const int kUrdfStatusFieldNumber = 2;
+  static const int kUrdfStatusFieldNumber = 4;
   const ::pybullet_grpc::LoadUrdfStatus& urdfstatus() const;
   ::pybullet_grpc::LoadUrdfStatus* mutable_urdfstatus();
   ::pybullet_grpc::LoadUrdfStatus* release_urdfstatus();
   void set_allocated_urdfstatus(::pybullet_grpc::LoadUrdfStatus* urdfstatus);
 
-  // .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+  // .pybullet_grpc.SdfLoadedStatus sdfStatus = 5;
   bool has_sdfstatus() const;
   void clear_sdfstatus();
-  static const int kSdfStatusFieldNumber = 3;
+  static const int kSdfStatusFieldNumber = 5;
   const ::pybullet_grpc::SdfLoadedStatus& sdfstatus() const;
   ::pybullet_grpc::SdfLoadedStatus* mutable_sdfstatus();
   ::pybullet_grpc::SdfLoadedStatus* release_sdfstatus();
   void set_allocated_sdfstatus(::pybullet_grpc::SdfLoadedStatus* sdfstatus);
 
-  // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+  // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 6;
   bool has_mjcfstatus() const;
   void clear_mjcfstatus();
-  static const int kMjcfStatusFieldNumber = 4;
+  static const int kMjcfStatusFieldNumber = 6;
   const ::pybullet_grpc::MjcfLoadedStatus& mjcfstatus() const;
   ::pybullet_grpc::MjcfLoadedStatus* mutable_mjcfstatus();
   ::pybullet_grpc::MjcfLoadedStatus* release_mjcfstatus();
   void set_allocated_mjcfstatus(::pybullet_grpc::MjcfLoadedStatus* mjcfstatus);
 
-  // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+  // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 7;
   bool has_getdynamicsstatus() const;
   void clear_getdynamicsstatus();
-  static const int kGetDynamicsStatusFieldNumber = 5;
+  static const int kGetDynamicsStatusFieldNumber = 7;
   const ::pybullet_grpc::GetDynamicsStatus& getdynamicsstatus() const;
   ::pybullet_grpc::GetDynamicsStatus* mutable_getdynamicsstatus();
   ::pybullet_grpc::GetDynamicsStatus* release_getdynamicsstatus();
   void set_allocated_getdynamicsstatus(::pybullet_grpc::GetDynamicsStatus* getdynamicsstatus);
 
-  // .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+  // .pybullet_grpc.SendActualStateStatus actualStateStatus = 8;
   bool has_actualstatestatus() const;
   void clear_actualstatestatus();
-  static const int kActualStateStatusFieldNumber = 6;
+  static const int kActualStateStatusFieldNumber = 8;
   const ::pybullet_grpc::SendActualStateStatus& actualstatestatus() const;
   ::pybullet_grpc::SendActualStateStatus* mutable_actualstatestatus();
   ::pybullet_grpc::SendActualStateStatus* release_actualstatestatus();
   void set_allocated_actualstatestatus(::pybullet_grpc::SendActualStateStatus* actualstatestatus);
+
+  // .pybullet_grpc.SyncBodiesStatus syncBodiesStatus = 9;
+  bool has_syncbodiesstatus() const;
+  void clear_syncbodiesstatus();
+  static const int kSyncBodiesStatusFieldNumber = 9;
+  const ::pybullet_grpc::SyncBodiesStatus& syncbodiesstatus() const;
+  ::pybullet_grpc::SyncBodiesStatus* mutable_syncbodiesstatus();
+  ::pybullet_grpc::SyncBodiesStatus* release_syncbodiesstatus();
+  void set_allocated_syncbodiesstatus(::pybullet_grpc::SyncBodiesStatus* syncbodiesstatus);
+
+  // .pybullet_grpc.RequestBodyInfoStatus requestBodyInfoStatus = 10;
+  bool has_requestbodyinfostatus() const;
+  void clear_requestbodyinfostatus();
+  static const int kRequestBodyInfoStatusFieldNumber = 10;
+  const ::pybullet_grpc::RequestBodyInfoStatus& requestbodyinfostatus() const;
+  ::pybullet_grpc::RequestBodyInfoStatus* mutable_requestbodyinfostatus();
+  ::pybullet_grpc::RequestBodyInfoStatus* release_requestbodyinfostatus();
+  void set_allocated_requestbodyinfostatus(::pybullet_grpc::RequestBodyInfoStatus* requestbodyinfostatus);
+
+  // .pybullet_grpc.PhysicsSimulationParameters requestPhysicsSimulationParametersStatus = 11;
+  bool has_requestphysicssimulationparametersstatus() const;
+  void clear_requestphysicssimulationparametersstatus();
+  static const int kRequestPhysicsSimulationParametersStatusFieldNumber = 11;
+  const ::pybullet_grpc::PhysicsSimulationParameters& requestphysicssimulationparametersstatus() const;
+  ::pybullet_grpc::PhysicsSimulationParameters* mutable_requestphysicssimulationparametersstatus();
+  ::pybullet_grpc::PhysicsSimulationParameters* release_requestphysicssimulationparametersstatus();
+  void set_allocated_requestphysicssimulationparametersstatus(::pybullet_grpc::PhysicsSimulationParameters* requestphysicssimulationparametersstatus);
+
+  // .pybullet_grpc.CheckVersionStatus checkVersionStatus = 12;
+  bool has_checkversionstatus() const;
+  void clear_checkversionstatus();
+  static const int kCheckVersionStatusFieldNumber = 12;
+  const ::pybullet_grpc::CheckVersionStatus& checkversionstatus() const;
+  ::pybullet_grpc::CheckVersionStatus* mutable_checkversionstatus();
+  ::pybullet_grpc::CheckVersionStatus* release_checkversionstatus();
+  void set_allocated_checkversionstatus(::pybullet_grpc::CheckVersionStatus* checkversionstatus);
+
+  // .pybullet_grpc.UserConstraintStatus userConstraintStatus = 13;
+  bool has_userconstraintstatus() const;
+  void clear_userconstraintstatus();
+  static const int kUserConstraintStatusFieldNumber = 13;
+  const ::pybullet_grpc::UserConstraintStatus& userconstraintstatus() const;
+  ::pybullet_grpc::UserConstraintStatus* mutable_userconstraintstatus();
+  ::pybullet_grpc::UserConstraintStatus* release_userconstraintstatus();
+  void set_allocated_userconstraintstatus(::pybullet_grpc::UserConstraintStatus* userconstraintstatus);
+
+  // .pybullet_grpc.UserConstraintStateStatus userConstraintStateStatus = 14;
+  bool has_userconstraintstatestatus() const;
+  void clear_userconstraintstatestatus();
+  static const int kUserConstraintStateStatusFieldNumber = 14;
+  const ::pybullet_grpc::UserConstraintStateStatus& userconstraintstatestatus() const;
+  ::pybullet_grpc::UserConstraintStateStatus* mutable_userconstraintstatestatus();
+  ::pybullet_grpc::UserConstraintStateStatus* release_userconstraintstatestatus();
+  void set_allocated_userconstraintstatestatus(::pybullet_grpc::UserConstraintStateStatus* userconstraintstatestatus);
+
+  // .pybullet_grpc.KeyboardEventsStatus keyboardEventsStatus = 15;
+  bool has_keyboardeventsstatus() const;
+  void clear_keyboardeventsstatus();
+  static const int kKeyboardEventsStatusFieldNumber = 15;
+  const ::pybullet_grpc::KeyboardEventsStatus& keyboardeventsstatus() const;
+  ::pybullet_grpc::KeyboardEventsStatus* mutable_keyboardeventsstatus();
+  ::pybullet_grpc::KeyboardEventsStatus* release_keyboardeventsstatus();
+  void set_allocated_keyboardeventsstatus(::pybullet_grpc::KeyboardEventsStatus* keyboardeventsstatus);
+
+  // .pybullet_grpc.RequestCameraImageStatus requestCameraImageStatus = 16;
+  bool has_requestcameraimagestatus() const;
+  void clear_requestcameraimagestatus();
+  static const int kRequestCameraImageStatusFieldNumber = 16;
+  const ::pybullet_grpc::RequestCameraImageStatus& requestcameraimagestatus() const;
+  ::pybullet_grpc::RequestCameraImageStatus* mutable_requestcameraimagestatus();
+  ::pybullet_grpc::RequestCameraImageStatus* release_requestcameraimagestatus();
+  void set_allocated_requestcameraimagestatus(::pybullet_grpc::RequestCameraImageStatus* requestcameraimagestatus);
 
   StatusCase status_case() const;
   // @@protoc_insertion_point(class_scope:pybullet_grpc.PyBulletStatus)
@@ -2650,12 +5453,22 @@ class PyBulletStatus : public ::google::protobuf::Message /* @@protoc_insertion_
   void set_has_mjcfstatus();
   void set_has_getdynamicsstatus();
   void set_has_actualstatestatus();
+  void set_has_syncbodiesstatus();
+  void set_has_requestbodyinfostatus();
+  void set_has_requestphysicssimulationparametersstatus();
+  void set_has_checkversionstatus();
+  void set_has_userconstraintstatus();
+  void set_has_userconstraintstatestatus();
+  void set_has_keyboardeventsstatus();
+  void set_has_requestcameraimagestatus();
 
   inline bool has_status() const;
   void clear_status();
   inline void clear_has_status();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> binaryblob_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> unknownstatusbinaryblob_;
   ::google::protobuf::int32 statustype_;
   union StatusUnion {
     StatusUnion() {}
@@ -2664,6 +5477,14 @@ class PyBulletStatus : public ::google::protobuf::Message /* @@protoc_insertion_
     ::pybullet_grpc::MjcfLoadedStatus* mjcfstatus_;
     ::pybullet_grpc::GetDynamicsStatus* getdynamicsstatus_;
     ::pybullet_grpc::SendActualStateStatus* actualstatestatus_;
+    ::pybullet_grpc::SyncBodiesStatus* syncbodiesstatus_;
+    ::pybullet_grpc::RequestBodyInfoStatus* requestbodyinfostatus_;
+    ::pybullet_grpc::PhysicsSimulationParameters* requestphysicssimulationparametersstatus_;
+    ::pybullet_grpc::CheckVersionStatus* checkversionstatus_;
+    ::pybullet_grpc::UserConstraintStatus* userconstraintstatus_;
+    ::pybullet_grpc::UserConstraintStateStatus* userconstraintstatestatus_;
+    ::pybullet_grpc::KeyboardEventsStatus* keyboardeventsstatus_;
+    ::pybullet_grpc::RequestCameraImageStatus* requestcameraimagestatus_;
   } status_;
   mutable int _cached_size_;
   ::google::protobuf::uint32 _oneof_case_[1];
@@ -2782,6 +5603,218 @@ inline void quat4::set_w(double value) {
 
 // -------------------------------------------------------------------
 
+// vec4
+
+// double x = 1;
+inline void vec4::clear_x() {
+  x_ = 0;
+}
+inline double vec4::x() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.vec4.x)
+  return x_;
+}
+inline void vec4::set_x(double value) {
+  
+  x_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.vec4.x)
+}
+
+// double y = 2;
+inline void vec4::clear_y() {
+  y_ = 0;
+}
+inline double vec4::y() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.vec4.y)
+  return y_;
+}
+inline void vec4::set_y(double value) {
+  
+  y_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.vec4.y)
+}
+
+// double z = 3;
+inline void vec4::clear_z() {
+  z_ = 0;
+}
+inline double vec4::z() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.vec4.z)
+  return z_;
+}
+inline void vec4::set_z(double value) {
+  
+  z_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.vec4.z)
+}
+
+// double w = 4;
+inline void vec4::clear_w() {
+  w_ = 0;
+}
+inline double vec4::w() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.vec4.w)
+  return w_;
+}
+inline void vec4::set_w(double value) {
+  
+  w_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.vec4.w)
+}
+
+// -------------------------------------------------------------------
+
+// transform
+
+// .pybullet_grpc.vec3 origin = 1;
+inline bool transform::has_origin() const {
+  return this != internal_default_instance() && origin_ != NULL;
+}
+inline void transform::clear_origin() {
+  if (GetArenaNoVirtual() == NULL && origin_ != NULL) delete origin_;
+  origin_ = NULL;
+}
+inline const ::pybullet_grpc::vec3& transform::origin() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.transform.origin)
+  return origin_ != NULL ? *origin_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+inline ::pybullet_grpc::vec3* transform::mutable_origin() {
+  
+  if (origin_ == NULL) {
+    origin_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.transform.origin)
+  return origin_;
+}
+inline ::pybullet_grpc::vec3* transform::release_origin() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.transform.origin)
+  
+  ::pybullet_grpc::vec3* temp = origin_;
+  origin_ = NULL;
+  return temp;
+}
+inline void transform::set_allocated_origin(::pybullet_grpc::vec3* origin) {
+  delete origin_;
+  origin_ = origin;
+  if (origin) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.transform.origin)
+}
+
+// .pybullet_grpc.quat4 orientation = 2;
+inline bool transform::has_orientation() const {
+  return this != internal_default_instance() && orientation_ != NULL;
+}
+inline void transform::clear_orientation() {
+  if (GetArenaNoVirtual() == NULL && orientation_ != NULL) delete orientation_;
+  orientation_ = NULL;
+}
+inline const ::pybullet_grpc::quat4& transform::orientation() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.transform.orientation)
+  return orientation_ != NULL ? *orientation_
+                         : *::pybullet_grpc::quat4::internal_default_instance();
+}
+inline ::pybullet_grpc::quat4* transform::mutable_orientation() {
+  
+  if (orientation_ == NULL) {
+    orientation_ = new ::pybullet_grpc::quat4;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.transform.orientation)
+  return orientation_;
+}
+inline ::pybullet_grpc::quat4* transform::release_orientation() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.transform.orientation)
+  
+  ::pybullet_grpc::quat4* temp = orientation_;
+  orientation_ = NULL;
+  return temp;
+}
+inline void transform::set_allocated_orientation(::pybullet_grpc::quat4* orientation) {
+  delete orientation_;
+  orientation_ = orientation;
+  if (orientation) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.transform.orientation)
+}
+
+// -------------------------------------------------------------------
+
+// matrix4x4
+
+// repeated double elems = 1;
+inline int matrix4x4::elems_size() const {
+  return elems_.size();
+}
+inline void matrix4x4::clear_elems() {
+  elems_.Clear();
+}
+inline double matrix4x4::elems(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.matrix4x4.elems)
+  return elems_.Get(index);
+}
+inline void matrix4x4::set_elems(int index, double value) {
+  elems_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.matrix4x4.elems)
+}
+inline void matrix4x4::add_elems(double value) {
+  elems_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.matrix4x4.elems)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+matrix4x4::elems() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.matrix4x4.elems)
+  return elems_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+matrix4x4::mutable_elems() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.matrix4x4.elems)
+  return &elems_;
+}
+
+// -------------------------------------------------------------------
+
+// CheckVersionCommand
+
+// int32 clientVersion = 1;
+inline void CheckVersionCommand::clear_clientversion() {
+  clientversion_ = 0;
+}
+inline ::google::protobuf::int32 CheckVersionCommand::clientversion() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.CheckVersionCommand.clientVersion)
+  return clientversion_;
+}
+inline void CheckVersionCommand::set_clientversion(::google::protobuf::int32 value) {
+  
+  clientversion_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.CheckVersionCommand.clientVersion)
+}
+
+// -------------------------------------------------------------------
+
+// CheckVersionStatus
+
+// int32 serverVersion = 1;
+inline void CheckVersionStatus::clear_serverversion() {
+  serverversion_ = 0;
+}
+inline ::google::protobuf::int32 CheckVersionStatus::serverversion() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.CheckVersionStatus.serverVersion)
+  return serverversion_;
+}
+inline void CheckVersionStatus::set_serverversion(::google::protobuf::int32 value) {
+  
+  serverversion_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.CheckVersionStatus.serverVersion)
+}
+
+// -------------------------------------------------------------------
+
 // TerminateServerCommand
 
 // string exitReason = 1;
@@ -2839,6 +5872,162 @@ inline void TerminateServerCommand::set_allocated_exitreason(::std::string* exit
 // -------------------------------------------------------------------
 
 // StepSimulationCommand
+
+// -------------------------------------------------------------------
+
+// SyncBodiesCommand
+
+// -------------------------------------------------------------------
+
+// SyncBodiesStatus
+
+// repeated int32 bodyUniqueIds = 1;
+inline int SyncBodiesStatus::bodyuniqueids_size() const {
+  return bodyuniqueids_.size();
+}
+inline void SyncBodiesStatus::clear_bodyuniqueids() {
+  bodyuniqueids_.Clear();
+}
+inline ::google::protobuf::int32 SyncBodiesStatus::bodyuniqueids(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SyncBodiesStatus.bodyUniqueIds)
+  return bodyuniqueids_.Get(index);
+}
+inline void SyncBodiesStatus::set_bodyuniqueids(int index, ::google::protobuf::int32 value) {
+  bodyuniqueids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SyncBodiesStatus.bodyUniqueIds)
+}
+inline void SyncBodiesStatus::add_bodyuniqueids(::google::protobuf::int32 value) {
+  bodyuniqueids_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SyncBodiesStatus.bodyUniqueIds)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+SyncBodiesStatus::bodyuniqueids() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SyncBodiesStatus.bodyUniqueIds)
+  return bodyuniqueids_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+SyncBodiesStatus::mutable_bodyuniqueids() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SyncBodiesStatus.bodyUniqueIds)
+  return &bodyuniqueids_;
+}
+
+// repeated int32 userConstraintUniqueIds = 2;
+inline int SyncBodiesStatus::userconstraintuniqueids_size() const {
+  return userconstraintuniqueids_.size();
+}
+inline void SyncBodiesStatus::clear_userconstraintuniqueids() {
+  userconstraintuniqueids_.Clear();
+}
+inline ::google::protobuf::int32 SyncBodiesStatus::userconstraintuniqueids(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SyncBodiesStatus.userConstraintUniqueIds)
+  return userconstraintuniqueids_.Get(index);
+}
+inline void SyncBodiesStatus::set_userconstraintuniqueids(int index, ::google::protobuf::int32 value) {
+  userconstraintuniqueids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SyncBodiesStatus.userConstraintUniqueIds)
+}
+inline void SyncBodiesStatus::add_userconstraintuniqueids(::google::protobuf::int32 value) {
+  userconstraintuniqueids_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SyncBodiesStatus.userConstraintUniqueIds)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+SyncBodiesStatus::userconstraintuniqueids() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SyncBodiesStatus.userConstraintUniqueIds)
+  return userconstraintuniqueids_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+SyncBodiesStatus::mutable_userconstraintuniqueids() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SyncBodiesStatus.userConstraintUniqueIds)
+  return &userconstraintuniqueids_;
+}
+
+// -------------------------------------------------------------------
+
+// RequestBodyInfoCommand
+
+// int32 bodyUniqueId = 1;
+inline void RequestBodyInfoCommand::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+inline ::google::protobuf::int32 RequestBodyInfoCommand::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestBodyInfoCommand.bodyUniqueId)
+  return bodyuniqueid_;
+}
+inline void RequestBodyInfoCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestBodyInfoCommand.bodyUniqueId)
+}
+
+// -------------------------------------------------------------------
+
+// RequestBodyInfoStatus
+
+// int32 bodyUniqueId = 1;
+inline void RequestBodyInfoStatus::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+inline ::google::protobuf::int32 RequestBodyInfoStatus::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestBodyInfoStatus.bodyUniqueId)
+  return bodyuniqueid_;
+}
+inline void RequestBodyInfoStatus::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestBodyInfoStatus.bodyUniqueId)
+}
+
+// string bodyName = 2;
+inline void RequestBodyInfoStatus::clear_bodyname() {
+  bodyname_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& RequestBodyInfoStatus::bodyname() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+  return bodyname_.GetNoArena();
+}
+inline void RequestBodyInfoStatus::set_bodyname(const ::std::string& value) {
+  
+  bodyname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+}
+#if LANG_CXX11
+inline void RequestBodyInfoStatus::set_bodyname(::std::string&& value) {
+  
+  bodyname_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+}
+#endif
+inline void RequestBodyInfoStatus::set_bodyname(const char* value) {
+  
+  bodyname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+}
+inline void RequestBodyInfoStatus::set_bodyname(const char* value, size_t size) {
+  
+  bodyname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+}
+inline ::std::string* RequestBodyInfoStatus::mutable_bodyname() {
+  
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+  return bodyname_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* RequestBodyInfoStatus::release_bodyname() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+  
+  return bodyname_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void RequestBodyInfoStatus::set_allocated_bodyname(::std::string* bodyname) {
+  if (bodyname != NULL) {
+    
+  } else {
+    
+  }
+  bodyname_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), bodyname);
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+}
 
 // -------------------------------------------------------------------
 
@@ -3118,6 +6307,110 @@ inline void LoadUrdfStatus::set_bodyuniqueid(::google::protobuf::int32 value) {
   
   bodyuniqueid_ = value;
   // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfStatus.bodyUniqueId)
+}
+
+// string bodyName = 2;
+inline void LoadUrdfStatus::clear_bodyname() {
+  bodyname_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& LoadUrdfStatus::bodyname() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfStatus.bodyName)
+  return bodyname_.GetNoArena();
+}
+inline void LoadUrdfStatus::set_bodyname(const ::std::string& value) {
+  
+  bodyname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfStatus.bodyName)
+}
+#if LANG_CXX11
+inline void LoadUrdfStatus::set_bodyname(::std::string&& value) {
+  
+  bodyname_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.LoadUrdfStatus.bodyName)
+}
+#endif
+inline void LoadUrdfStatus::set_bodyname(const char* value) {
+  
+  bodyname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.LoadUrdfStatus.bodyName)
+}
+inline void LoadUrdfStatus::set_bodyname(const char* value, size_t size) {
+  
+  bodyname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.LoadUrdfStatus.bodyName)
+}
+inline ::std::string* LoadUrdfStatus::mutable_bodyname() {
+  
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.LoadUrdfStatus.bodyName)
+  return bodyname_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* LoadUrdfStatus::release_bodyname() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.LoadUrdfStatus.bodyName)
+  
+  return bodyname_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void LoadUrdfStatus::set_allocated_bodyname(::std::string* bodyname) {
+  if (bodyname != NULL) {
+    
+  } else {
+    
+  }
+  bodyname_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), bodyname);
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.LoadUrdfStatus.bodyName)
+}
+
+// string fileName = 3;
+inline void LoadUrdfStatus::clear_filename() {
+  filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& LoadUrdfStatus::filename() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfStatus.fileName)
+  return filename_.GetNoArena();
+}
+inline void LoadUrdfStatus::set_filename(const ::std::string& value) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfStatus.fileName)
+}
+#if LANG_CXX11
+inline void LoadUrdfStatus::set_filename(::std::string&& value) {
+  
+  filename_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.LoadUrdfStatus.fileName)
+}
+#endif
+inline void LoadUrdfStatus::set_filename(const char* value) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.LoadUrdfStatus.fileName)
+}
+inline void LoadUrdfStatus::set_filename(const char* value, size_t size) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.LoadUrdfStatus.fileName)
+}
+inline ::std::string* LoadUrdfStatus::mutable_filename() {
+  
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.LoadUrdfStatus.fileName)
+  return filename_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* LoadUrdfStatus::release_filename() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.LoadUrdfStatus.fileName)
+  
+  return filename_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void LoadUrdfStatus::set_allocated_filename(::std::string* filename) {
+  if (filename != NULL) {
+    
+  } else {
+    
+  }
+  filename_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), filename);
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.LoadUrdfStatus.fileName)
 }
 
 // -------------------------------------------------------------------
@@ -4248,7 +7541,21 @@ inline void InitPoseCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.bodyUniqueId)
 }
 
-// repeated int32 hasInitialStateQ = 2;
+// int32 updateflags = 2;
+inline void InitPoseCommand::clear_updateflags() {
+  updateflags_ = 0;
+}
+inline ::google::protobuf::int32 InitPoseCommand::updateflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.InitPoseCommand.updateflags)
+  return updateflags_;
+}
+inline void InitPoseCommand::set_updateflags(::google::protobuf::int32 value) {
+  
+  updateflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.updateflags)
+}
+
+// repeated int32 hasInitialStateQ = 3;
 inline int InitPoseCommand::hasinitialstateq_size() const {
   return hasinitialstateq_.size();
 }
@@ -4278,7 +7585,7 @@ InitPoseCommand::mutable_hasinitialstateq() {
   return &hasinitialstateq_;
 }
 
-// repeated double initialStateQ = 3;
+// repeated double initialStateQ = 4;
 inline int InitPoseCommand::initialstateq_size() const {
   return initialstateq_.size();
 }
@@ -4308,7 +7615,7 @@ InitPoseCommand::mutable_initialstateq() {
   return &initialstateq_;
 }
 
-// repeated int32 hasInitialStateQdot = 4;
+// repeated int32 hasInitialStateQdot = 5;
 inline int InitPoseCommand::hasinitialstateqdot_size() const {
   return hasinitialstateqdot_.size();
 }
@@ -4338,7 +7645,7 @@ InitPoseCommand::mutable_hasinitialstateqdot() {
   return &hasinitialstateqdot_;
 }
 
-// repeated double initialStateQdot = 5;
+// repeated double initialStateQdot = 6;
 inline int InitPoseCommand::initialstateqdot_size() const {
   return initialstateqdot_.size();
 }
@@ -4716,6 +8023,1778 @@ SendActualStateStatus::mutable_linklocalinertialframes() {
 
 // -------------------------------------------------------------------
 
+// ConfigureOpenGLVisualizerCommand
+
+// int32 updateFlags = 1;
+inline void ConfigureOpenGLVisualizerCommand::clear_updateflags() {
+  updateflags_ = 0;
+}
+inline ::google::protobuf::int32 ConfigureOpenGLVisualizerCommand::updateflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.updateFlags)
+  return updateflags_;
+}
+inline void ConfigureOpenGLVisualizerCommand::set_updateflags(::google::protobuf::int32 value) {
+  
+  updateflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ConfigureOpenGLVisualizerCommand.updateFlags)
+}
+
+// double cameraDistance = 2;
+inline void ConfigureOpenGLVisualizerCommand::clear_cameradistance() {
+  cameradistance_ = 0;
+}
+inline double ConfigureOpenGLVisualizerCommand::cameradistance() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraDistance)
+  return cameradistance_;
+}
+inline void ConfigureOpenGLVisualizerCommand::set_cameradistance(double value) {
+  
+  cameradistance_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraDistance)
+}
+
+// double cameraPitch = 3;
+inline void ConfigureOpenGLVisualizerCommand::clear_camerapitch() {
+  camerapitch_ = 0;
+}
+inline double ConfigureOpenGLVisualizerCommand::camerapitch() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraPitch)
+  return camerapitch_;
+}
+inline void ConfigureOpenGLVisualizerCommand::set_camerapitch(double value) {
+  
+  camerapitch_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraPitch)
+}
+
+// double cameraYaw = 4;
+inline void ConfigureOpenGLVisualizerCommand::clear_camerayaw() {
+  camerayaw_ = 0;
+}
+inline double ConfigureOpenGLVisualizerCommand::camerayaw() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraYaw)
+  return camerayaw_;
+}
+inline void ConfigureOpenGLVisualizerCommand::set_camerayaw(double value) {
+  
+  camerayaw_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraYaw)
+}
+
+// .pybullet_grpc.vec3 cameraTargetPosition = 5;
+inline bool ConfigureOpenGLVisualizerCommand::has_cameratargetposition() const {
+  return this != internal_default_instance() && cameratargetposition_ != NULL;
+}
+inline void ConfigureOpenGLVisualizerCommand::clear_cameratargetposition() {
+  if (GetArenaNoVirtual() == NULL && cameratargetposition_ != NULL) delete cameratargetposition_;
+  cameratargetposition_ = NULL;
+}
+inline const ::pybullet_grpc::vec3& ConfigureOpenGLVisualizerCommand::cameratargetposition() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraTargetPosition)
+  return cameratargetposition_ != NULL ? *cameratargetposition_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+inline ::pybullet_grpc::vec3* ConfigureOpenGLVisualizerCommand::mutable_cameratargetposition() {
+  
+  if (cameratargetposition_ == NULL) {
+    cameratargetposition_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraTargetPosition)
+  return cameratargetposition_;
+}
+inline ::pybullet_grpc::vec3* ConfigureOpenGLVisualizerCommand::release_cameratargetposition() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraTargetPosition)
+  
+  ::pybullet_grpc::vec3* temp = cameratargetposition_;
+  cameratargetposition_ = NULL;
+  return temp;
+}
+inline void ConfigureOpenGLVisualizerCommand::set_allocated_cameratargetposition(::pybullet_grpc::vec3* cameratargetposition) {
+  delete cameratargetposition_;
+  cameratargetposition_ = cameratargetposition;
+  if (cameratargetposition) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraTargetPosition)
+}
+
+// int32 setFlag = 6;
+inline void ConfigureOpenGLVisualizerCommand::clear_setflag() {
+  setflag_ = 0;
+}
+inline ::google::protobuf::int32 ConfigureOpenGLVisualizerCommand::setflag() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.setFlag)
+  return setflag_;
+}
+inline void ConfigureOpenGLVisualizerCommand::set_setflag(::google::protobuf::int32 value) {
+  
+  setflag_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ConfigureOpenGLVisualizerCommand.setFlag)
+}
+
+// int32 setEnabled = 7;
+inline void ConfigureOpenGLVisualizerCommand::clear_setenabled() {
+  setenabled_ = 0;
+}
+inline ::google::protobuf::int32 ConfigureOpenGLVisualizerCommand::setenabled() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.setEnabled)
+  return setenabled_;
+}
+inline void ConfigureOpenGLVisualizerCommand::set_setenabled(::google::protobuf::int32 value) {
+  
+  setenabled_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ConfigureOpenGLVisualizerCommand.setEnabled)
+}
+
+// -------------------------------------------------------------------
+
+// PhysicsSimulationParameters
+
+// double deltaTime = 1;
+inline void PhysicsSimulationParameters::clear_deltatime() {
+  deltatime_ = 0;
+}
+inline double PhysicsSimulationParameters::deltatime() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.deltaTime)
+  return deltatime_;
+}
+inline void PhysicsSimulationParameters::set_deltatime(double value) {
+  
+  deltatime_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.deltaTime)
+}
+
+// .pybullet_grpc.vec3 gravityAcceleration = 2;
+inline bool PhysicsSimulationParameters::has_gravityacceleration() const {
+  return this != internal_default_instance() && gravityacceleration_ != NULL;
+}
+inline void PhysicsSimulationParameters::clear_gravityacceleration() {
+  if (GetArenaNoVirtual() == NULL && gravityacceleration_ != NULL) delete gravityacceleration_;
+  gravityacceleration_ = NULL;
+}
+inline const ::pybullet_grpc::vec3& PhysicsSimulationParameters::gravityacceleration() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.gravityAcceleration)
+  return gravityacceleration_ != NULL ? *gravityacceleration_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+inline ::pybullet_grpc::vec3* PhysicsSimulationParameters::mutable_gravityacceleration() {
+  
+  if (gravityacceleration_ == NULL) {
+    gravityacceleration_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PhysicsSimulationParameters.gravityAcceleration)
+  return gravityacceleration_;
+}
+inline ::pybullet_grpc::vec3* PhysicsSimulationParameters::release_gravityacceleration() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PhysicsSimulationParameters.gravityAcceleration)
+  
+  ::pybullet_grpc::vec3* temp = gravityacceleration_;
+  gravityacceleration_ = NULL;
+  return temp;
+}
+inline void PhysicsSimulationParameters::set_allocated_gravityacceleration(::pybullet_grpc::vec3* gravityacceleration) {
+  delete gravityacceleration_;
+  gravityacceleration_ = gravityacceleration;
+  if (gravityacceleration) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PhysicsSimulationParameters.gravityAcceleration)
+}
+
+// int32 numSimulationSubSteps = 3;
+inline void PhysicsSimulationParameters::clear_numsimulationsubsteps() {
+  numsimulationsubsteps_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::numsimulationsubsteps() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.numSimulationSubSteps)
+  return numsimulationsubsteps_;
+}
+inline void PhysicsSimulationParameters::set_numsimulationsubsteps(::google::protobuf::int32 value) {
+  
+  numsimulationsubsteps_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.numSimulationSubSteps)
+}
+
+// int32 numSolverIterations = 4;
+inline void PhysicsSimulationParameters::clear_numsolveriterations() {
+  numsolveriterations_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::numsolveriterations() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.numSolverIterations)
+  return numsolveriterations_;
+}
+inline void PhysicsSimulationParameters::set_numsolveriterations(::google::protobuf::int32 value) {
+  
+  numsolveriterations_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.numSolverIterations)
+}
+
+// int32 useRealTimeSimulation = 5;
+inline void PhysicsSimulationParameters::clear_userealtimesimulation() {
+  userealtimesimulation_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::userealtimesimulation() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.useRealTimeSimulation)
+  return userealtimesimulation_;
+}
+inline void PhysicsSimulationParameters::set_userealtimesimulation(::google::protobuf::int32 value) {
+  
+  userealtimesimulation_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.useRealTimeSimulation)
+}
+
+// int32 useSplitImpulse = 6;
+inline void PhysicsSimulationParameters::clear_usesplitimpulse() {
+  usesplitimpulse_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::usesplitimpulse() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.useSplitImpulse)
+  return usesplitimpulse_;
+}
+inline void PhysicsSimulationParameters::set_usesplitimpulse(::google::protobuf::int32 value) {
+  
+  usesplitimpulse_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.useSplitImpulse)
+}
+
+// double splitImpulsePenetrationThreshold = 7;
+inline void PhysicsSimulationParameters::clear_splitimpulsepenetrationthreshold() {
+  splitimpulsepenetrationthreshold_ = 0;
+}
+inline double PhysicsSimulationParameters::splitimpulsepenetrationthreshold() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.splitImpulsePenetrationThreshold)
+  return splitimpulsepenetrationthreshold_;
+}
+inline void PhysicsSimulationParameters::set_splitimpulsepenetrationthreshold(double value) {
+  
+  splitimpulsepenetrationthreshold_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.splitImpulsePenetrationThreshold)
+}
+
+// double contactBreakingThreshold = 8;
+inline void PhysicsSimulationParameters::clear_contactbreakingthreshold() {
+  contactbreakingthreshold_ = 0;
+}
+inline double PhysicsSimulationParameters::contactbreakingthreshold() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.contactBreakingThreshold)
+  return contactbreakingthreshold_;
+}
+inline void PhysicsSimulationParameters::set_contactbreakingthreshold(double value) {
+  
+  contactbreakingthreshold_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.contactBreakingThreshold)
+}
+
+// int32 internalSimFlags = 9;
+inline void PhysicsSimulationParameters::clear_internalsimflags() {
+  internalsimflags_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::internalsimflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.internalSimFlags)
+  return internalsimflags_;
+}
+inline void PhysicsSimulationParameters::set_internalsimflags(::google::protobuf::int32 value) {
+  
+  internalsimflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.internalSimFlags)
+}
+
+// double defaultContactERP = 10;
+inline void PhysicsSimulationParameters::clear_defaultcontacterp() {
+  defaultcontacterp_ = 0;
+}
+inline double PhysicsSimulationParameters::defaultcontacterp() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.defaultContactERP)
+  return defaultcontacterp_;
+}
+inline void PhysicsSimulationParameters::set_defaultcontacterp(double value) {
+  
+  defaultcontacterp_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.defaultContactERP)
+}
+
+// int32 collisionFilterMode = 11;
+inline void PhysicsSimulationParameters::clear_collisionfiltermode() {
+  collisionfiltermode_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::collisionfiltermode() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.collisionFilterMode)
+  return collisionfiltermode_;
+}
+inline void PhysicsSimulationParameters::set_collisionfiltermode(::google::protobuf::int32 value) {
+  
+  collisionfiltermode_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.collisionFilterMode)
+}
+
+// int32 enableFileCaching = 12;
+inline void PhysicsSimulationParameters::clear_enablefilecaching() {
+  enablefilecaching_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::enablefilecaching() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.enableFileCaching)
+  return enablefilecaching_;
+}
+inline void PhysicsSimulationParameters::set_enablefilecaching(::google::protobuf::int32 value) {
+  
+  enablefilecaching_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.enableFileCaching)
+}
+
+// double restitutionVelocityThreshold = 13;
+inline void PhysicsSimulationParameters::clear_restitutionvelocitythreshold() {
+  restitutionvelocitythreshold_ = 0;
+}
+inline double PhysicsSimulationParameters::restitutionvelocitythreshold() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.restitutionVelocityThreshold)
+  return restitutionvelocitythreshold_;
+}
+inline void PhysicsSimulationParameters::set_restitutionvelocitythreshold(double value) {
+  
+  restitutionvelocitythreshold_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.restitutionVelocityThreshold)
+}
+
+// double defaultNonContactERP = 14;
+inline void PhysicsSimulationParameters::clear_defaultnoncontacterp() {
+  defaultnoncontacterp_ = 0;
+}
+inline double PhysicsSimulationParameters::defaultnoncontacterp() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.defaultNonContactERP)
+  return defaultnoncontacterp_;
+}
+inline void PhysicsSimulationParameters::set_defaultnoncontacterp(double value) {
+  
+  defaultnoncontacterp_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.defaultNonContactERP)
+}
+
+// double frictionERP = 15;
+inline void PhysicsSimulationParameters::clear_frictionerp() {
+  frictionerp_ = 0;
+}
+inline double PhysicsSimulationParameters::frictionerp() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.frictionERP)
+  return frictionerp_;
+}
+inline void PhysicsSimulationParameters::set_frictionerp(double value) {
+  
+  frictionerp_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.frictionERP)
+}
+
+// double defaultGlobalCFM = 16;
+inline void PhysicsSimulationParameters::clear_defaultglobalcfm() {
+  defaultglobalcfm_ = 0;
+}
+inline double PhysicsSimulationParameters::defaultglobalcfm() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.defaultGlobalCFM)
+  return defaultglobalcfm_;
+}
+inline void PhysicsSimulationParameters::set_defaultglobalcfm(double value) {
+  
+  defaultglobalcfm_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.defaultGlobalCFM)
+}
+
+// double frictionCFM = 17;
+inline void PhysicsSimulationParameters::clear_frictioncfm() {
+  frictioncfm_ = 0;
+}
+inline double PhysicsSimulationParameters::frictioncfm() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.frictionCFM)
+  return frictioncfm_;
+}
+inline void PhysicsSimulationParameters::set_frictioncfm(double value) {
+  
+  frictioncfm_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.frictionCFM)
+}
+
+// int32 enableConeFriction = 18;
+inline void PhysicsSimulationParameters::clear_enableconefriction() {
+  enableconefriction_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::enableconefriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.enableConeFriction)
+  return enableconefriction_;
+}
+inline void PhysicsSimulationParameters::set_enableconefriction(::google::protobuf::int32 value) {
+  
+  enableconefriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.enableConeFriction)
+}
+
+// int32 deterministicOverlappingPairs = 19;
+inline void PhysicsSimulationParameters::clear_deterministicoverlappingpairs() {
+  deterministicoverlappingpairs_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::deterministicoverlappingpairs() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.deterministicOverlappingPairs)
+  return deterministicoverlappingpairs_;
+}
+inline void PhysicsSimulationParameters::set_deterministicoverlappingpairs(::google::protobuf::int32 value) {
+  
+  deterministicoverlappingpairs_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.deterministicOverlappingPairs)
+}
+
+// double allowedCcdPenetration = 20;
+inline void PhysicsSimulationParameters::clear_allowedccdpenetration() {
+  allowedccdpenetration_ = 0;
+}
+inline double PhysicsSimulationParameters::allowedccdpenetration() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.allowedCcdPenetration)
+  return allowedccdpenetration_;
+}
+inline void PhysicsSimulationParameters::set_allowedccdpenetration(double value) {
+  
+  allowedccdpenetration_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.allowedCcdPenetration)
+}
+
+// int32 jointFeedbackMode = 21;
+inline void PhysicsSimulationParameters::clear_jointfeedbackmode() {
+  jointfeedbackmode_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::jointfeedbackmode() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.jointFeedbackMode)
+  return jointfeedbackmode_;
+}
+inline void PhysicsSimulationParameters::set_jointfeedbackmode(::google::protobuf::int32 value) {
+  
+  jointfeedbackmode_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.jointFeedbackMode)
+}
+
+// double solverResidualThreshold = 22;
+inline void PhysicsSimulationParameters::clear_solverresidualthreshold() {
+  solverresidualthreshold_ = 0;
+}
+inline double PhysicsSimulationParameters::solverresidualthreshold() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.solverResidualThreshold)
+  return solverresidualthreshold_;
+}
+inline void PhysicsSimulationParameters::set_solverresidualthreshold(double value) {
+  
+  solverresidualthreshold_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.solverResidualThreshold)
+}
+
+// double contactSlop = 23;
+inline void PhysicsSimulationParameters::clear_contactslop() {
+  contactslop_ = 0;
+}
+inline double PhysicsSimulationParameters::contactslop() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.contactSlop)
+  return contactslop_;
+}
+inline void PhysicsSimulationParameters::set_contactslop(double value) {
+  
+  contactslop_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.contactSlop)
+}
+
+// int32 enableSAT = 24;
+inline void PhysicsSimulationParameters::clear_enablesat() {
+  enablesat_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::enablesat() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.enableSAT)
+  return enablesat_;
+}
+inline void PhysicsSimulationParameters::set_enablesat(::google::protobuf::int32 value) {
+  
+  enablesat_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.enableSAT)
+}
+
+// int32 constraintSolverType = 25;
+inline void PhysicsSimulationParameters::clear_constraintsolvertype() {
+  constraintsolvertype_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::constraintsolvertype() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.constraintSolverType)
+  return constraintsolvertype_;
+}
+inline void PhysicsSimulationParameters::set_constraintsolvertype(::google::protobuf::int32 value) {
+  
+  constraintsolvertype_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.constraintSolverType)
+}
+
+// int32 minimumSolverIslandSize = 26;
+inline void PhysicsSimulationParameters::clear_minimumsolverislandsize() {
+  minimumsolverislandsize_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParameters::minimumsolverislandsize() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.minimumSolverIslandSize)
+  return minimumsolverislandsize_;
+}
+inline void PhysicsSimulationParameters::set_minimumsolverislandsize(::google::protobuf::int32 value) {
+  
+  minimumsolverislandsize_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.minimumSolverIslandSize)
+}
+
+// -------------------------------------------------------------------
+
+// PhysicsSimulationParametersCommand
+
+// int32 updateFlags = 1;
+inline void PhysicsSimulationParametersCommand::clear_updateflags() {
+  updateflags_ = 0;
+}
+inline ::google::protobuf::int32 PhysicsSimulationParametersCommand::updateflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParametersCommand.updateFlags)
+  return updateflags_;
+}
+inline void PhysicsSimulationParametersCommand::set_updateflags(::google::protobuf::int32 value) {
+  
+  updateflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParametersCommand.updateFlags)
+}
+
+// .pybullet_grpc.PhysicsSimulationParameters params = 2;
+inline bool PhysicsSimulationParametersCommand::has_params() const {
+  return this != internal_default_instance() && params_ != NULL;
+}
+inline void PhysicsSimulationParametersCommand::clear_params() {
+  if (GetArenaNoVirtual() == NULL && params_ != NULL) delete params_;
+  params_ = NULL;
+}
+inline const ::pybullet_grpc::PhysicsSimulationParameters& PhysicsSimulationParametersCommand::params() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParametersCommand.params)
+  return params_ != NULL ? *params_
+                         : *::pybullet_grpc::PhysicsSimulationParameters::internal_default_instance();
+}
+inline ::pybullet_grpc::PhysicsSimulationParameters* PhysicsSimulationParametersCommand::mutable_params() {
+  
+  if (params_ == NULL) {
+    params_ = new ::pybullet_grpc::PhysicsSimulationParameters;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PhysicsSimulationParametersCommand.params)
+  return params_;
+}
+inline ::pybullet_grpc::PhysicsSimulationParameters* PhysicsSimulationParametersCommand::release_params() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PhysicsSimulationParametersCommand.params)
+  
+  ::pybullet_grpc::PhysicsSimulationParameters* temp = params_;
+  params_ = NULL;
+  return temp;
+}
+inline void PhysicsSimulationParametersCommand::set_allocated_params(::pybullet_grpc::PhysicsSimulationParameters* params) {
+  delete params_;
+  params_ = params;
+  if (params) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PhysicsSimulationParametersCommand.params)
+}
+
+// -------------------------------------------------------------------
+
+// JointMotorControlCommand
+
+// int32 bodyUniqueId = 1;
+inline void JointMotorControlCommand::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+inline ::google::protobuf::int32 JointMotorControlCommand::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.bodyUniqueId)
+  return bodyuniqueid_;
+}
+inline void JointMotorControlCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.bodyUniqueId)
+}
+
+// int32 controlMode = 2;
+inline void JointMotorControlCommand::clear_controlmode() {
+  controlmode_ = 0;
+}
+inline ::google::protobuf::int32 JointMotorControlCommand::controlmode() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.controlMode)
+  return controlmode_;
+}
+inline void JointMotorControlCommand::set_controlmode(::google::protobuf::int32 value) {
+  
+  controlmode_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.controlMode)
+}
+
+// int32 updateFlags = 3;
+inline void JointMotorControlCommand::clear_updateflags() {
+  updateflags_ = 0;
+}
+inline ::google::protobuf::int32 JointMotorControlCommand::updateflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.updateFlags)
+  return updateflags_;
+}
+inline void JointMotorControlCommand::set_updateflags(::google::protobuf::int32 value) {
+  
+  updateflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.updateFlags)
+}
+
+// repeated double Kp = 4;
+inline int JointMotorControlCommand::kp_size() const {
+  return kp_.size();
+}
+inline void JointMotorControlCommand::clear_kp() {
+  kp_.Clear();
+}
+inline double JointMotorControlCommand::kp(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.Kp)
+  return kp_.Get(index);
+}
+inline void JointMotorControlCommand::set_kp(int index, double value) {
+  kp_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.Kp)
+}
+inline void JointMotorControlCommand::add_kp(double value) {
+  kp_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.Kp)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+JointMotorControlCommand::kp() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.Kp)
+  return kp_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+JointMotorControlCommand::mutable_kp() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.Kp)
+  return &kp_;
+}
+
+// repeated double Kd = 5;
+inline int JointMotorControlCommand::kd_size() const {
+  return kd_.size();
+}
+inline void JointMotorControlCommand::clear_kd() {
+  kd_.Clear();
+}
+inline double JointMotorControlCommand::kd(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.Kd)
+  return kd_.Get(index);
+}
+inline void JointMotorControlCommand::set_kd(int index, double value) {
+  kd_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.Kd)
+}
+inline void JointMotorControlCommand::add_kd(double value) {
+  kd_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.Kd)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+JointMotorControlCommand::kd() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.Kd)
+  return kd_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+JointMotorControlCommand::mutable_kd() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.Kd)
+  return &kd_;
+}
+
+// repeated double maxVelocity = 6;
+inline int JointMotorControlCommand::maxvelocity_size() const {
+  return maxvelocity_.size();
+}
+inline void JointMotorControlCommand::clear_maxvelocity() {
+  maxvelocity_.Clear();
+}
+inline double JointMotorControlCommand::maxvelocity(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.maxVelocity)
+  return maxvelocity_.Get(index);
+}
+inline void JointMotorControlCommand::set_maxvelocity(int index, double value) {
+  maxvelocity_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.maxVelocity)
+}
+inline void JointMotorControlCommand::add_maxvelocity(double value) {
+  maxvelocity_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.maxVelocity)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+JointMotorControlCommand::maxvelocity() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.maxVelocity)
+  return maxvelocity_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+JointMotorControlCommand::mutable_maxvelocity() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.maxVelocity)
+  return &maxvelocity_;
+}
+
+// repeated int32 hasDesiredStateFlags = 7;
+inline int JointMotorControlCommand::hasdesiredstateflags_size() const {
+  return hasdesiredstateflags_.size();
+}
+inline void JointMotorControlCommand::clear_hasdesiredstateflags() {
+  hasdesiredstateflags_.Clear();
+}
+inline ::google::protobuf::int32 JointMotorControlCommand::hasdesiredstateflags(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.hasDesiredStateFlags)
+  return hasdesiredstateflags_.Get(index);
+}
+inline void JointMotorControlCommand::set_hasdesiredstateflags(int index, ::google::protobuf::int32 value) {
+  hasdesiredstateflags_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.hasDesiredStateFlags)
+}
+inline void JointMotorControlCommand::add_hasdesiredstateflags(::google::protobuf::int32 value) {
+  hasdesiredstateflags_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.hasDesiredStateFlags)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+JointMotorControlCommand::hasdesiredstateflags() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.hasDesiredStateFlags)
+  return hasdesiredstateflags_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+JointMotorControlCommand::mutable_hasdesiredstateflags() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.hasDesiredStateFlags)
+  return &hasdesiredstateflags_;
+}
+
+// repeated double desiredStateQ = 8;
+inline int JointMotorControlCommand::desiredstateq_size() const {
+  return desiredstateq_.size();
+}
+inline void JointMotorControlCommand::clear_desiredstateq() {
+  desiredstateq_.Clear();
+}
+inline double JointMotorControlCommand::desiredstateq(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.desiredStateQ)
+  return desiredstateq_.Get(index);
+}
+inline void JointMotorControlCommand::set_desiredstateq(int index, double value) {
+  desiredstateq_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.desiredStateQ)
+}
+inline void JointMotorControlCommand::add_desiredstateq(double value) {
+  desiredstateq_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.desiredStateQ)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+JointMotorControlCommand::desiredstateq() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.desiredStateQ)
+  return desiredstateq_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+JointMotorControlCommand::mutable_desiredstateq() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.desiredStateQ)
+  return &desiredstateq_;
+}
+
+// repeated double desiredStateQdot = 9;
+inline int JointMotorControlCommand::desiredstateqdot_size() const {
+  return desiredstateqdot_.size();
+}
+inline void JointMotorControlCommand::clear_desiredstateqdot() {
+  desiredstateqdot_.Clear();
+}
+inline double JointMotorControlCommand::desiredstateqdot(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.desiredStateQdot)
+  return desiredstateqdot_.Get(index);
+}
+inline void JointMotorControlCommand::set_desiredstateqdot(int index, double value) {
+  desiredstateqdot_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.desiredStateQdot)
+}
+inline void JointMotorControlCommand::add_desiredstateqdot(double value) {
+  desiredstateqdot_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.desiredStateQdot)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+JointMotorControlCommand::desiredstateqdot() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.desiredStateQdot)
+  return desiredstateqdot_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+JointMotorControlCommand::mutable_desiredstateqdot() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.desiredStateQdot)
+  return &desiredstateqdot_;
+}
+
+// repeated double desiredStateForceTorque = 10;
+inline int JointMotorControlCommand::desiredstateforcetorque_size() const {
+  return desiredstateforcetorque_.size();
+}
+inline void JointMotorControlCommand::clear_desiredstateforcetorque() {
+  desiredstateforcetorque_.Clear();
+}
+inline double JointMotorControlCommand::desiredstateforcetorque(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.desiredStateForceTorque)
+  return desiredstateforcetorque_.Get(index);
+}
+inline void JointMotorControlCommand::set_desiredstateforcetorque(int index, double value) {
+  desiredstateforcetorque_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.desiredStateForceTorque)
+}
+inline void JointMotorControlCommand::add_desiredstateforcetorque(double value) {
+  desiredstateforcetorque_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.desiredStateForceTorque)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+JointMotorControlCommand::desiredstateforcetorque() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.desiredStateForceTorque)
+  return desiredstateforcetorque_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+JointMotorControlCommand::mutable_desiredstateforcetorque() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.desiredStateForceTorque)
+  return &desiredstateforcetorque_;
+}
+
+// -------------------------------------------------------------------
+
+// UserConstraintCommand
+
+// int32 parentBodyIndex = 1;
+inline void UserConstraintCommand::clear_parentbodyindex() {
+  parentbodyindex_ = 0;
+}
+inline ::google::protobuf::int32 UserConstraintCommand::parentbodyindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.parentBodyIndex)
+  return parentbodyindex_;
+}
+inline void UserConstraintCommand::set_parentbodyindex(::google::protobuf::int32 value) {
+  
+  parentbodyindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.parentBodyIndex)
+}
+
+// int32 parentJointIndex = 2;
+inline void UserConstraintCommand::clear_parentjointindex() {
+  parentjointindex_ = 0;
+}
+inline ::google::protobuf::int32 UserConstraintCommand::parentjointindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.parentJointIndex)
+  return parentjointindex_;
+}
+inline void UserConstraintCommand::set_parentjointindex(::google::protobuf::int32 value) {
+  
+  parentjointindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.parentJointIndex)
+}
+
+// int32 childBodyIndex = 3;
+inline void UserConstraintCommand::clear_childbodyindex() {
+  childbodyindex_ = 0;
+}
+inline ::google::protobuf::int32 UserConstraintCommand::childbodyindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.childBodyIndex)
+  return childbodyindex_;
+}
+inline void UserConstraintCommand::set_childbodyindex(::google::protobuf::int32 value) {
+  
+  childbodyindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.childBodyIndex)
+}
+
+// int32 childJointIndex = 4;
+inline void UserConstraintCommand::clear_childjointindex() {
+  childjointindex_ = 0;
+}
+inline ::google::protobuf::int32 UserConstraintCommand::childjointindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.childJointIndex)
+  return childjointindex_;
+}
+inline void UserConstraintCommand::set_childjointindex(::google::protobuf::int32 value) {
+  
+  childjointindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.childJointIndex)
+}
+
+// .pybullet_grpc.transform parentFrame = 5;
+inline bool UserConstraintCommand::has_parentframe() const {
+  return this != internal_default_instance() && parentframe_ != NULL;
+}
+inline void UserConstraintCommand::clear_parentframe() {
+  if (GetArenaNoVirtual() == NULL && parentframe_ != NULL) delete parentframe_;
+  parentframe_ = NULL;
+}
+inline const ::pybullet_grpc::transform& UserConstraintCommand::parentframe() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.parentFrame)
+  return parentframe_ != NULL ? *parentframe_
+                         : *::pybullet_grpc::transform::internal_default_instance();
+}
+inline ::pybullet_grpc::transform* UserConstraintCommand::mutable_parentframe() {
+  
+  if (parentframe_ == NULL) {
+    parentframe_ = new ::pybullet_grpc::transform;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.UserConstraintCommand.parentFrame)
+  return parentframe_;
+}
+inline ::pybullet_grpc::transform* UserConstraintCommand::release_parentframe() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.UserConstraintCommand.parentFrame)
+  
+  ::pybullet_grpc::transform* temp = parentframe_;
+  parentframe_ = NULL;
+  return temp;
+}
+inline void UserConstraintCommand::set_allocated_parentframe(::pybullet_grpc::transform* parentframe) {
+  delete parentframe_;
+  parentframe_ = parentframe;
+  if (parentframe) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.UserConstraintCommand.parentFrame)
+}
+
+// .pybullet_grpc.transform childFrame = 6;
+inline bool UserConstraintCommand::has_childframe() const {
+  return this != internal_default_instance() && childframe_ != NULL;
+}
+inline void UserConstraintCommand::clear_childframe() {
+  if (GetArenaNoVirtual() == NULL && childframe_ != NULL) delete childframe_;
+  childframe_ = NULL;
+}
+inline const ::pybullet_grpc::transform& UserConstraintCommand::childframe() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.childFrame)
+  return childframe_ != NULL ? *childframe_
+                         : *::pybullet_grpc::transform::internal_default_instance();
+}
+inline ::pybullet_grpc::transform* UserConstraintCommand::mutable_childframe() {
+  
+  if (childframe_ == NULL) {
+    childframe_ = new ::pybullet_grpc::transform;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.UserConstraintCommand.childFrame)
+  return childframe_;
+}
+inline ::pybullet_grpc::transform* UserConstraintCommand::release_childframe() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.UserConstraintCommand.childFrame)
+  
+  ::pybullet_grpc::transform* temp = childframe_;
+  childframe_ = NULL;
+  return temp;
+}
+inline void UserConstraintCommand::set_allocated_childframe(::pybullet_grpc::transform* childframe) {
+  delete childframe_;
+  childframe_ = childframe;
+  if (childframe) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.UserConstraintCommand.childFrame)
+}
+
+// .pybullet_grpc.vec3 jointAxis = 7;
+inline bool UserConstraintCommand::has_jointaxis() const {
+  return this != internal_default_instance() && jointaxis_ != NULL;
+}
+inline void UserConstraintCommand::clear_jointaxis() {
+  if (GetArenaNoVirtual() == NULL && jointaxis_ != NULL) delete jointaxis_;
+  jointaxis_ = NULL;
+}
+inline const ::pybullet_grpc::vec3& UserConstraintCommand::jointaxis() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.jointAxis)
+  return jointaxis_ != NULL ? *jointaxis_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+inline ::pybullet_grpc::vec3* UserConstraintCommand::mutable_jointaxis() {
+  
+  if (jointaxis_ == NULL) {
+    jointaxis_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.UserConstraintCommand.jointAxis)
+  return jointaxis_;
+}
+inline ::pybullet_grpc::vec3* UserConstraintCommand::release_jointaxis() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.UserConstraintCommand.jointAxis)
+  
+  ::pybullet_grpc::vec3* temp = jointaxis_;
+  jointaxis_ = NULL;
+  return temp;
+}
+inline void UserConstraintCommand::set_allocated_jointaxis(::pybullet_grpc::vec3* jointaxis) {
+  delete jointaxis_;
+  jointaxis_ = jointaxis;
+  if (jointaxis) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.UserConstraintCommand.jointAxis)
+}
+
+// int32 jointType = 8;
+inline void UserConstraintCommand::clear_jointtype() {
+  jointtype_ = 0;
+}
+inline ::google::protobuf::int32 UserConstraintCommand::jointtype() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.jointType)
+  return jointtype_;
+}
+inline void UserConstraintCommand::set_jointtype(::google::protobuf::int32 value) {
+  
+  jointtype_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.jointType)
+}
+
+// double maxAppliedForce = 9;
+inline void UserConstraintCommand::clear_maxappliedforce() {
+  maxappliedforce_ = 0;
+}
+inline double UserConstraintCommand::maxappliedforce() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.maxAppliedForce)
+  return maxappliedforce_;
+}
+inline void UserConstraintCommand::set_maxappliedforce(double value) {
+  
+  maxappliedforce_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.maxAppliedForce)
+}
+
+// int32 userConstraintUniqueId = 10;
+inline void UserConstraintCommand::clear_userconstraintuniqueid() {
+  userconstraintuniqueid_ = 0;
+}
+inline ::google::protobuf::int32 UserConstraintCommand::userconstraintuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.userConstraintUniqueId)
+  return userconstraintuniqueid_;
+}
+inline void UserConstraintCommand::set_userconstraintuniqueid(::google::protobuf::int32 value) {
+  
+  userconstraintuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.userConstraintUniqueId)
+}
+
+// double gearRatio = 11;
+inline void UserConstraintCommand::clear_gearratio() {
+  gearratio_ = 0;
+}
+inline double UserConstraintCommand::gearratio() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.gearRatio)
+  return gearratio_;
+}
+inline void UserConstraintCommand::set_gearratio(double value) {
+  
+  gearratio_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.gearRatio)
+}
+
+// int32 gearAuxLink = 12;
+inline void UserConstraintCommand::clear_gearauxlink() {
+  gearauxlink_ = 0;
+}
+inline ::google::protobuf::int32 UserConstraintCommand::gearauxlink() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.gearAuxLink)
+  return gearauxlink_;
+}
+inline void UserConstraintCommand::set_gearauxlink(::google::protobuf::int32 value) {
+  
+  gearauxlink_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.gearAuxLink)
+}
+
+// double relativePositionTarget = 13;
+inline void UserConstraintCommand::clear_relativepositiontarget() {
+  relativepositiontarget_ = 0;
+}
+inline double UserConstraintCommand::relativepositiontarget() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.relativePositionTarget)
+  return relativepositiontarget_;
+}
+inline void UserConstraintCommand::set_relativepositiontarget(double value) {
+  
+  relativepositiontarget_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.relativePositionTarget)
+}
+
+// double erp = 14;
+inline void UserConstraintCommand::clear_erp() {
+  erp_ = 0;
+}
+inline double UserConstraintCommand::erp() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.erp)
+  return erp_;
+}
+inline void UserConstraintCommand::set_erp(double value) {
+  
+  erp_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.erp)
+}
+
+// int32 updateFlags = 15;
+inline void UserConstraintCommand::clear_updateflags() {
+  updateflags_ = 0;
+}
+inline ::google::protobuf::int32 UserConstraintCommand::updateflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.updateFlags)
+  return updateflags_;
+}
+inline void UserConstraintCommand::set_updateflags(::google::protobuf::int32 value) {
+  
+  updateflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.updateFlags)
+}
+
+// -------------------------------------------------------------------
+
+// UserConstraintStatus
+
+// double maxAppliedForce = 9;
+inline void UserConstraintStatus::clear_maxappliedforce() {
+  maxappliedforce_ = 0;
+}
+inline double UserConstraintStatus::maxappliedforce() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintStatus.maxAppliedForce)
+  return maxappliedforce_;
+}
+inline void UserConstraintStatus::set_maxappliedforce(double value) {
+  
+  maxappliedforce_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintStatus.maxAppliedForce)
+}
+
+// int32 userConstraintUniqueId = 10;
+inline void UserConstraintStatus::clear_userconstraintuniqueid() {
+  userconstraintuniqueid_ = 0;
+}
+inline ::google::protobuf::int32 UserConstraintStatus::userconstraintuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintStatus.userConstraintUniqueId)
+  return userconstraintuniqueid_;
+}
+inline void UserConstraintStatus::set_userconstraintuniqueid(::google::protobuf::int32 value) {
+  
+  userconstraintuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintStatus.userConstraintUniqueId)
+}
+
+// -------------------------------------------------------------------
+
+// UserConstraintStateStatus
+
+// .pybullet_grpc.vec3 appliedConstraintForcesLinear = 1;
+inline bool UserConstraintStateStatus::has_appliedconstraintforceslinear() const {
+  return this != internal_default_instance() && appliedconstraintforceslinear_ != NULL;
+}
+inline void UserConstraintStateStatus::clear_appliedconstraintforceslinear() {
+  if (GetArenaNoVirtual() == NULL && appliedconstraintforceslinear_ != NULL) delete appliedconstraintforceslinear_;
+  appliedconstraintforceslinear_ = NULL;
+}
+inline const ::pybullet_grpc::vec3& UserConstraintStateStatus::appliedconstraintforceslinear() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesLinear)
+  return appliedconstraintforceslinear_ != NULL ? *appliedconstraintforceslinear_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+inline ::pybullet_grpc::vec3* UserConstraintStateStatus::mutable_appliedconstraintforceslinear() {
+  
+  if (appliedconstraintforceslinear_ == NULL) {
+    appliedconstraintforceslinear_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesLinear)
+  return appliedconstraintforceslinear_;
+}
+inline ::pybullet_grpc::vec3* UserConstraintStateStatus::release_appliedconstraintforceslinear() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesLinear)
+  
+  ::pybullet_grpc::vec3* temp = appliedconstraintforceslinear_;
+  appliedconstraintforceslinear_ = NULL;
+  return temp;
+}
+inline void UserConstraintStateStatus::set_allocated_appliedconstraintforceslinear(::pybullet_grpc::vec3* appliedconstraintforceslinear) {
+  delete appliedconstraintforceslinear_;
+  appliedconstraintforceslinear_ = appliedconstraintforceslinear;
+  if (appliedconstraintforceslinear) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesLinear)
+}
+
+// .pybullet_grpc.vec3 appliedConstraintForcesAngular = 2;
+inline bool UserConstraintStateStatus::has_appliedconstraintforcesangular() const {
+  return this != internal_default_instance() && appliedconstraintforcesangular_ != NULL;
+}
+inline void UserConstraintStateStatus::clear_appliedconstraintforcesangular() {
+  if (GetArenaNoVirtual() == NULL && appliedconstraintforcesangular_ != NULL) delete appliedconstraintforcesangular_;
+  appliedconstraintforcesangular_ = NULL;
+}
+inline const ::pybullet_grpc::vec3& UserConstraintStateStatus::appliedconstraintforcesangular() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesAngular)
+  return appliedconstraintforcesangular_ != NULL ? *appliedconstraintforcesangular_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+inline ::pybullet_grpc::vec3* UserConstraintStateStatus::mutable_appliedconstraintforcesangular() {
+  
+  if (appliedconstraintforcesangular_ == NULL) {
+    appliedconstraintforcesangular_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesAngular)
+  return appliedconstraintforcesangular_;
+}
+inline ::pybullet_grpc::vec3* UserConstraintStateStatus::release_appliedconstraintforcesangular() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesAngular)
+  
+  ::pybullet_grpc::vec3* temp = appliedconstraintforcesangular_;
+  appliedconstraintforcesangular_ = NULL;
+  return temp;
+}
+inline void UserConstraintStateStatus::set_allocated_appliedconstraintforcesangular(::pybullet_grpc::vec3* appliedconstraintforcesangular) {
+  delete appliedconstraintforcesangular_;
+  appliedconstraintforcesangular_ = appliedconstraintforcesangular;
+  if (appliedconstraintforcesangular) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesAngular)
+}
+
+// int32 numDofs = 3;
+inline void UserConstraintStateStatus::clear_numdofs() {
+  numdofs_ = 0;
+}
+inline ::google::protobuf::int32 UserConstraintStateStatus::numdofs() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintStateStatus.numDofs)
+  return numdofs_;
+}
+inline void UserConstraintStateStatus::set_numdofs(::google::protobuf::int32 value) {
+  
+  numdofs_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintStateStatus.numDofs)
+}
+
+// -------------------------------------------------------------------
+
+// RequestKeyboardEventsCommand
+
+// -------------------------------------------------------------------
+
+// KeyboardEvent
+
+// int32 keyCode = 1;
+inline void KeyboardEvent::clear_keycode() {
+  keycode_ = 0;
+}
+inline ::google::protobuf::int32 KeyboardEvent::keycode() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.KeyboardEvent.keyCode)
+  return keycode_;
+}
+inline void KeyboardEvent::set_keycode(::google::protobuf::int32 value) {
+  
+  keycode_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.KeyboardEvent.keyCode)
+}
+
+// int32 keyState = 2;
+inline void KeyboardEvent::clear_keystate() {
+  keystate_ = 0;
+}
+inline ::google::protobuf::int32 KeyboardEvent::keystate() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.KeyboardEvent.keyState)
+  return keystate_;
+}
+inline void KeyboardEvent::set_keystate(::google::protobuf::int32 value) {
+  
+  keystate_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.KeyboardEvent.keyState)
+}
+
+// -------------------------------------------------------------------
+
+// KeyboardEventsStatus
+
+// repeated .pybullet_grpc.KeyboardEvent keyboardEvents = 1;
+inline int KeyboardEventsStatus::keyboardevents_size() const {
+  return keyboardevents_.size();
+}
+inline void KeyboardEventsStatus::clear_keyboardevents() {
+  keyboardevents_.Clear();
+}
+inline const ::pybullet_grpc::KeyboardEvent& KeyboardEventsStatus::keyboardevents(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.KeyboardEventsStatus.keyboardEvents)
+  return keyboardevents_.Get(index);
+}
+inline ::pybullet_grpc::KeyboardEvent* KeyboardEventsStatus::mutable_keyboardevents(int index) {
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.KeyboardEventsStatus.keyboardEvents)
+  return keyboardevents_.Mutable(index);
+}
+inline ::pybullet_grpc::KeyboardEvent* KeyboardEventsStatus::add_keyboardevents() {
+  // @@protoc_insertion_point(field_add:pybullet_grpc.KeyboardEventsStatus.keyboardEvents)
+  return keyboardevents_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::pybullet_grpc::KeyboardEvent >*
+KeyboardEventsStatus::mutable_keyboardevents() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.KeyboardEventsStatus.keyboardEvents)
+  return &keyboardevents_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::pybullet_grpc::KeyboardEvent >&
+KeyboardEventsStatus::keyboardevents() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.KeyboardEventsStatus.keyboardEvents)
+  return keyboardevents_;
+}
+
+// -------------------------------------------------------------------
+
+// RequestCameraImageCommand
+
+// int32 updateFlags = 1;
+inline void RequestCameraImageCommand::clear_updateflags() {
+  updateflags_ = 0;
+}
+inline ::google::protobuf::int32 RequestCameraImageCommand::updateflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.updateFlags)
+  return updateflags_;
+}
+inline void RequestCameraImageCommand::set_updateflags(::google::protobuf::int32 value) {
+  
+  updateflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.updateFlags)
+}
+
+// int32 cameraFlags = 2;
+inline void RequestCameraImageCommand::clear_cameraflags() {
+  cameraflags_ = 0;
+}
+inline ::google::protobuf::int32 RequestCameraImageCommand::cameraflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.cameraFlags)
+  return cameraflags_;
+}
+inline void RequestCameraImageCommand::set_cameraflags(::google::protobuf::int32 value) {
+  
+  cameraflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.cameraFlags)
+}
+
+// .pybullet_grpc.matrix4x4 viewMatrix = 3;
+inline bool RequestCameraImageCommand::has_viewmatrix() const {
+  return this != internal_default_instance() && viewmatrix_ != NULL;
+}
+inline void RequestCameraImageCommand::clear_viewmatrix() {
+  if (GetArenaNoVirtual() == NULL && viewmatrix_ != NULL) delete viewmatrix_;
+  viewmatrix_ = NULL;
+}
+inline const ::pybullet_grpc::matrix4x4& RequestCameraImageCommand::viewmatrix() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.viewMatrix)
+  return viewmatrix_ != NULL ? *viewmatrix_
+                         : *::pybullet_grpc::matrix4x4::internal_default_instance();
+}
+inline ::pybullet_grpc::matrix4x4* RequestCameraImageCommand::mutable_viewmatrix() {
+  
+  if (viewmatrix_ == NULL) {
+    viewmatrix_ = new ::pybullet_grpc::matrix4x4;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestCameraImageCommand.viewMatrix)
+  return viewmatrix_;
+}
+inline ::pybullet_grpc::matrix4x4* RequestCameraImageCommand::release_viewmatrix() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestCameraImageCommand.viewMatrix)
+  
+  ::pybullet_grpc::matrix4x4* temp = viewmatrix_;
+  viewmatrix_ = NULL;
+  return temp;
+}
+inline void RequestCameraImageCommand::set_allocated_viewmatrix(::pybullet_grpc::matrix4x4* viewmatrix) {
+  delete viewmatrix_;
+  viewmatrix_ = viewmatrix;
+  if (viewmatrix) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestCameraImageCommand.viewMatrix)
+}
+
+// .pybullet_grpc.matrix4x4 projectionMatrix = 4;
+inline bool RequestCameraImageCommand::has_projectionmatrix() const {
+  return this != internal_default_instance() && projectionmatrix_ != NULL;
+}
+inline void RequestCameraImageCommand::clear_projectionmatrix() {
+  if (GetArenaNoVirtual() == NULL && projectionmatrix_ != NULL) delete projectionmatrix_;
+  projectionmatrix_ = NULL;
+}
+inline const ::pybullet_grpc::matrix4x4& RequestCameraImageCommand::projectionmatrix() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.projectionMatrix)
+  return projectionmatrix_ != NULL ? *projectionmatrix_
+                         : *::pybullet_grpc::matrix4x4::internal_default_instance();
+}
+inline ::pybullet_grpc::matrix4x4* RequestCameraImageCommand::mutable_projectionmatrix() {
+  
+  if (projectionmatrix_ == NULL) {
+    projectionmatrix_ = new ::pybullet_grpc::matrix4x4;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestCameraImageCommand.projectionMatrix)
+  return projectionmatrix_;
+}
+inline ::pybullet_grpc::matrix4x4* RequestCameraImageCommand::release_projectionmatrix() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestCameraImageCommand.projectionMatrix)
+  
+  ::pybullet_grpc::matrix4x4* temp = projectionmatrix_;
+  projectionmatrix_ = NULL;
+  return temp;
+}
+inline void RequestCameraImageCommand::set_allocated_projectionmatrix(::pybullet_grpc::matrix4x4* projectionmatrix) {
+  delete projectionmatrix_;
+  projectionmatrix_ = projectionmatrix;
+  if (projectionmatrix) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestCameraImageCommand.projectionMatrix)
+}
+
+// int32 startPixelIndex = 5;
+inline void RequestCameraImageCommand::clear_startpixelindex() {
+  startpixelindex_ = 0;
+}
+inline ::google::protobuf::int32 RequestCameraImageCommand::startpixelindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.startPixelIndex)
+  return startpixelindex_;
+}
+inline void RequestCameraImageCommand::set_startpixelindex(::google::protobuf::int32 value) {
+  
+  startpixelindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.startPixelIndex)
+}
+
+// int32 pixelWidth = 6;
+inline void RequestCameraImageCommand::clear_pixelwidth() {
+  pixelwidth_ = 0;
+}
+inline ::google::protobuf::int32 RequestCameraImageCommand::pixelwidth() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.pixelWidth)
+  return pixelwidth_;
+}
+inline void RequestCameraImageCommand::set_pixelwidth(::google::protobuf::int32 value) {
+  
+  pixelwidth_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.pixelWidth)
+}
+
+// int32 pixelHeight = 7;
+inline void RequestCameraImageCommand::clear_pixelheight() {
+  pixelheight_ = 0;
+}
+inline ::google::protobuf::int32 RequestCameraImageCommand::pixelheight() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.pixelHeight)
+  return pixelheight_;
+}
+inline void RequestCameraImageCommand::set_pixelheight(::google::protobuf::int32 value) {
+  
+  pixelheight_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.pixelHeight)
+}
+
+// .pybullet_grpc.vec3 lightDirection = 8;
+inline bool RequestCameraImageCommand::has_lightdirection() const {
+  return this != internal_default_instance() && lightdirection_ != NULL;
+}
+inline void RequestCameraImageCommand::clear_lightdirection() {
+  if (GetArenaNoVirtual() == NULL && lightdirection_ != NULL) delete lightdirection_;
+  lightdirection_ = NULL;
+}
+inline const ::pybullet_grpc::vec3& RequestCameraImageCommand::lightdirection() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.lightDirection)
+  return lightdirection_ != NULL ? *lightdirection_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+inline ::pybullet_grpc::vec3* RequestCameraImageCommand::mutable_lightdirection() {
+  
+  if (lightdirection_ == NULL) {
+    lightdirection_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestCameraImageCommand.lightDirection)
+  return lightdirection_;
+}
+inline ::pybullet_grpc::vec3* RequestCameraImageCommand::release_lightdirection() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestCameraImageCommand.lightDirection)
+  
+  ::pybullet_grpc::vec3* temp = lightdirection_;
+  lightdirection_ = NULL;
+  return temp;
+}
+inline void RequestCameraImageCommand::set_allocated_lightdirection(::pybullet_grpc::vec3* lightdirection) {
+  delete lightdirection_;
+  lightdirection_ = lightdirection;
+  if (lightdirection) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestCameraImageCommand.lightDirection)
+}
+
+// .pybullet_grpc.vec3 lightColor = 9;
+inline bool RequestCameraImageCommand::has_lightcolor() const {
+  return this != internal_default_instance() && lightcolor_ != NULL;
+}
+inline void RequestCameraImageCommand::clear_lightcolor() {
+  if (GetArenaNoVirtual() == NULL && lightcolor_ != NULL) delete lightcolor_;
+  lightcolor_ = NULL;
+}
+inline const ::pybullet_grpc::vec3& RequestCameraImageCommand::lightcolor() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.lightColor)
+  return lightcolor_ != NULL ? *lightcolor_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+inline ::pybullet_grpc::vec3* RequestCameraImageCommand::mutable_lightcolor() {
+  
+  if (lightcolor_ == NULL) {
+    lightcolor_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestCameraImageCommand.lightColor)
+  return lightcolor_;
+}
+inline ::pybullet_grpc::vec3* RequestCameraImageCommand::release_lightcolor() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestCameraImageCommand.lightColor)
+  
+  ::pybullet_grpc::vec3* temp = lightcolor_;
+  lightcolor_ = NULL;
+  return temp;
+}
+inline void RequestCameraImageCommand::set_allocated_lightcolor(::pybullet_grpc::vec3* lightcolor) {
+  delete lightcolor_;
+  lightcolor_ = lightcolor;
+  if (lightcolor) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestCameraImageCommand.lightColor)
+}
+
+// double lightDistance = 10;
+inline void RequestCameraImageCommand::clear_lightdistance() {
+  lightdistance_ = 0;
+}
+inline double RequestCameraImageCommand::lightdistance() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.lightDistance)
+  return lightdistance_;
+}
+inline void RequestCameraImageCommand::set_lightdistance(double value) {
+  
+  lightdistance_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.lightDistance)
+}
+
+// double lightAmbientCoeff = 11;
+inline void RequestCameraImageCommand::clear_lightambientcoeff() {
+  lightambientcoeff_ = 0;
+}
+inline double RequestCameraImageCommand::lightambientcoeff() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.lightAmbientCoeff)
+  return lightambientcoeff_;
+}
+inline void RequestCameraImageCommand::set_lightambientcoeff(double value) {
+  
+  lightambientcoeff_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.lightAmbientCoeff)
+}
+
+// double lightDiffuseCoeff = 12;
+inline void RequestCameraImageCommand::clear_lightdiffusecoeff() {
+  lightdiffusecoeff_ = 0;
+}
+inline double RequestCameraImageCommand::lightdiffusecoeff() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.lightDiffuseCoeff)
+  return lightdiffusecoeff_;
+}
+inline void RequestCameraImageCommand::set_lightdiffusecoeff(double value) {
+  
+  lightdiffusecoeff_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.lightDiffuseCoeff)
+}
+
+// double lightSpecularCoeff = 13;
+inline void RequestCameraImageCommand::clear_lightspecularcoeff() {
+  lightspecularcoeff_ = 0;
+}
+inline double RequestCameraImageCommand::lightspecularcoeff() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.lightSpecularCoeff)
+  return lightspecularcoeff_;
+}
+inline void RequestCameraImageCommand::set_lightspecularcoeff(double value) {
+  
+  lightspecularcoeff_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.lightSpecularCoeff)
+}
+
+// int32 hasShadow = 14;
+inline void RequestCameraImageCommand::clear_hasshadow() {
+  hasshadow_ = 0;
+}
+inline ::google::protobuf::int32 RequestCameraImageCommand::hasshadow() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.hasShadow)
+  return hasshadow_;
+}
+inline void RequestCameraImageCommand::set_hasshadow(::google::protobuf::int32 value) {
+  
+  hasshadow_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.hasShadow)
+}
+
+// .pybullet_grpc.matrix4x4 projectiveTextureViewMatrix = 15;
+inline bool RequestCameraImageCommand::has_projectivetextureviewmatrix() const {
+  return this != internal_default_instance() && projectivetextureviewmatrix_ != NULL;
+}
+inline void RequestCameraImageCommand::clear_projectivetextureviewmatrix() {
+  if (GetArenaNoVirtual() == NULL && projectivetextureviewmatrix_ != NULL) delete projectivetextureviewmatrix_;
+  projectivetextureviewmatrix_ = NULL;
+}
+inline const ::pybullet_grpc::matrix4x4& RequestCameraImageCommand::projectivetextureviewmatrix() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.projectiveTextureViewMatrix)
+  return projectivetextureviewmatrix_ != NULL ? *projectivetextureviewmatrix_
+                         : *::pybullet_grpc::matrix4x4::internal_default_instance();
+}
+inline ::pybullet_grpc::matrix4x4* RequestCameraImageCommand::mutable_projectivetextureviewmatrix() {
+  
+  if (projectivetextureviewmatrix_ == NULL) {
+    projectivetextureviewmatrix_ = new ::pybullet_grpc::matrix4x4;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestCameraImageCommand.projectiveTextureViewMatrix)
+  return projectivetextureviewmatrix_;
+}
+inline ::pybullet_grpc::matrix4x4* RequestCameraImageCommand::release_projectivetextureviewmatrix() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestCameraImageCommand.projectiveTextureViewMatrix)
+  
+  ::pybullet_grpc::matrix4x4* temp = projectivetextureviewmatrix_;
+  projectivetextureviewmatrix_ = NULL;
+  return temp;
+}
+inline void RequestCameraImageCommand::set_allocated_projectivetextureviewmatrix(::pybullet_grpc::matrix4x4* projectivetextureviewmatrix) {
+  delete projectivetextureviewmatrix_;
+  projectivetextureviewmatrix_ = projectivetextureviewmatrix;
+  if (projectivetextureviewmatrix) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestCameraImageCommand.projectiveTextureViewMatrix)
+}
+
+// .pybullet_grpc.matrix4x4 projectiveTextureProjectionMatrix = 16;
+inline bool RequestCameraImageCommand::has_projectivetextureprojectionmatrix() const {
+  return this != internal_default_instance() && projectivetextureprojectionmatrix_ != NULL;
+}
+inline void RequestCameraImageCommand::clear_projectivetextureprojectionmatrix() {
+  if (GetArenaNoVirtual() == NULL && projectivetextureprojectionmatrix_ != NULL) delete projectivetextureprojectionmatrix_;
+  projectivetextureprojectionmatrix_ = NULL;
+}
+inline const ::pybullet_grpc::matrix4x4& RequestCameraImageCommand::projectivetextureprojectionmatrix() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.projectiveTextureProjectionMatrix)
+  return projectivetextureprojectionmatrix_ != NULL ? *projectivetextureprojectionmatrix_
+                         : *::pybullet_grpc::matrix4x4::internal_default_instance();
+}
+inline ::pybullet_grpc::matrix4x4* RequestCameraImageCommand::mutable_projectivetextureprojectionmatrix() {
+  
+  if (projectivetextureprojectionmatrix_ == NULL) {
+    projectivetextureprojectionmatrix_ = new ::pybullet_grpc::matrix4x4;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestCameraImageCommand.projectiveTextureProjectionMatrix)
+  return projectivetextureprojectionmatrix_;
+}
+inline ::pybullet_grpc::matrix4x4* RequestCameraImageCommand::release_projectivetextureprojectionmatrix() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestCameraImageCommand.projectiveTextureProjectionMatrix)
+  
+  ::pybullet_grpc::matrix4x4* temp = projectivetextureprojectionmatrix_;
+  projectivetextureprojectionmatrix_ = NULL;
+  return temp;
+}
+inline void RequestCameraImageCommand::set_allocated_projectivetextureprojectionmatrix(::pybullet_grpc::matrix4x4* projectivetextureprojectionmatrix) {
+  delete projectivetextureprojectionmatrix_;
+  projectivetextureprojectionmatrix_ = projectivetextureprojectionmatrix;
+  if (projectivetextureprojectionmatrix) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestCameraImageCommand.projectiveTextureProjectionMatrix)
+}
+
+// -------------------------------------------------------------------
+
+// RequestCameraImageStatus
+
+// int32 imageWidth = 1;
+inline void RequestCameraImageStatus::clear_imagewidth() {
+  imagewidth_ = 0;
+}
+inline ::google::protobuf::int32 RequestCameraImageStatus::imagewidth() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageStatus.imageWidth)
+  return imagewidth_;
+}
+inline void RequestCameraImageStatus::set_imagewidth(::google::protobuf::int32 value) {
+  
+  imagewidth_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageStatus.imageWidth)
+}
+
+// int32 imageHeight = 2;
+inline void RequestCameraImageStatus::clear_imageheight() {
+  imageheight_ = 0;
+}
+inline ::google::protobuf::int32 RequestCameraImageStatus::imageheight() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageStatus.imageHeight)
+  return imageheight_;
+}
+inline void RequestCameraImageStatus::set_imageheight(::google::protobuf::int32 value) {
+  
+  imageheight_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageStatus.imageHeight)
+}
+
+// int32 startingPixelIndex = 3;
+inline void RequestCameraImageStatus::clear_startingpixelindex() {
+  startingpixelindex_ = 0;
+}
+inline ::google::protobuf::int32 RequestCameraImageStatus::startingpixelindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageStatus.startingPixelIndex)
+  return startingpixelindex_;
+}
+inline void RequestCameraImageStatus::set_startingpixelindex(::google::protobuf::int32 value) {
+  
+  startingpixelindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageStatus.startingPixelIndex)
+}
+
+// int32 numPixelsCopied = 4;
+inline void RequestCameraImageStatus::clear_numpixelscopied() {
+  numpixelscopied_ = 0;
+}
+inline ::google::protobuf::int32 RequestCameraImageStatus::numpixelscopied() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageStatus.numPixelsCopied)
+  return numpixelscopied_;
+}
+inline void RequestCameraImageStatus::set_numpixelscopied(::google::protobuf::int32 value) {
+  
+  numpixelscopied_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageStatus.numPixelsCopied)
+}
+
+// int32 numRemainingPixels = 5;
+inline void RequestCameraImageStatus::clear_numremainingpixels() {
+  numremainingpixels_ = 0;
+}
+inline ::google::protobuf::int32 RequestCameraImageStatus::numremainingpixels() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageStatus.numRemainingPixels)
+  return numremainingpixels_;
+}
+inline void RequestCameraImageStatus::set_numremainingpixels(::google::protobuf::int32 value) {
+  
+  numremainingpixels_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageStatus.numRemainingPixels)
+}
+
+// -------------------------------------------------------------------
+
 // PyBulletCommand
 
 // int32 commandType = 1;
@@ -4732,7 +9811,117 @@ inline void PyBulletCommand::set_commandtype(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:pybullet_grpc.PyBulletCommand.commandType)
 }
 
-// .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 3;
+// repeated bytes binaryBlob = 2;
+inline int PyBulletCommand::binaryblob_size() const {
+  return binaryblob_.size();
+}
+inline void PyBulletCommand::clear_binaryblob() {
+  binaryblob_.Clear();
+}
+inline const ::std::string& PyBulletCommand::binaryblob(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.binaryBlob)
+  return binaryblob_.Get(index);
+}
+inline ::std::string* PyBulletCommand::mutable_binaryblob(int index) {
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.binaryBlob)
+  return binaryblob_.Mutable(index);
+}
+inline void PyBulletCommand::set_binaryblob(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PyBulletCommand.binaryBlob)
+  binaryblob_.Mutable(index)->assign(value);
+}
+inline void PyBulletCommand::set_binaryblob(int index, const char* value) {
+  binaryblob_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.PyBulletCommand.binaryBlob)
+}
+inline void PyBulletCommand::set_binaryblob(int index, const void* value, size_t size) {
+  binaryblob_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.PyBulletCommand.binaryBlob)
+}
+inline ::std::string* PyBulletCommand::add_binaryblob() {
+  // @@protoc_insertion_point(field_add_mutable:pybullet_grpc.PyBulletCommand.binaryBlob)
+  return binaryblob_.Add();
+}
+inline void PyBulletCommand::add_binaryblob(const ::std::string& value) {
+  binaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.PyBulletCommand.binaryBlob)
+}
+inline void PyBulletCommand::add_binaryblob(const char* value) {
+  binaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:pybullet_grpc.PyBulletCommand.binaryBlob)
+}
+inline void PyBulletCommand::add_binaryblob(const void* value, size_t size) {
+  binaryblob_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:pybullet_grpc.PyBulletCommand.binaryBlob)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+PyBulletCommand::binaryblob() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.PyBulletCommand.binaryBlob)
+  return binaryblob_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+PyBulletCommand::mutable_binaryblob() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.PyBulletCommand.binaryBlob)
+  return &binaryblob_;
+}
+
+// repeated bytes unknownCommandBinaryBlob = 3;
+inline int PyBulletCommand::unknowncommandbinaryblob_size() const {
+  return unknowncommandbinaryblob_.size();
+}
+inline void PyBulletCommand::clear_unknowncommandbinaryblob() {
+  unknowncommandbinaryblob_.Clear();
+}
+inline const ::std::string& PyBulletCommand::unknowncommandbinaryblob(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+  return unknowncommandbinaryblob_.Get(index);
+}
+inline ::std::string* PyBulletCommand::mutable_unknowncommandbinaryblob(int index) {
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+  return unknowncommandbinaryblob_.Mutable(index);
+}
+inline void PyBulletCommand::set_unknowncommandbinaryblob(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+  unknowncommandbinaryblob_.Mutable(index)->assign(value);
+}
+inline void PyBulletCommand::set_unknowncommandbinaryblob(int index, const char* value) {
+  unknowncommandbinaryblob_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+}
+inline void PyBulletCommand::set_unknowncommandbinaryblob(int index, const void* value, size_t size) {
+  unknowncommandbinaryblob_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+}
+inline ::std::string* PyBulletCommand::add_unknowncommandbinaryblob() {
+  // @@protoc_insertion_point(field_add_mutable:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+  return unknowncommandbinaryblob_.Add();
+}
+inline void PyBulletCommand::add_unknowncommandbinaryblob(const ::std::string& value) {
+  unknowncommandbinaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+}
+inline void PyBulletCommand::add_unknowncommandbinaryblob(const char* value) {
+  unknowncommandbinaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+}
+inline void PyBulletCommand::add_unknowncommandbinaryblob(const void* value, size_t size) {
+  unknowncommandbinaryblob_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+PyBulletCommand::unknowncommandbinaryblob() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+  return unknowncommandbinaryblob_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+PyBulletCommand::mutable_unknowncommandbinaryblob() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+  return &unknowncommandbinaryblob_;
+}
+
+// .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 4;
 inline bool PyBulletCommand::has_loadurdfcommand() const {
   return commands_case() == kLoadUrdfCommand;
 }
@@ -4780,7 +9969,7 @@ inline void PyBulletCommand::set_allocated_loadurdfcommand(::pybullet_grpc::Load
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.loadUrdfCommand)
 }
 
-// .pybullet_grpc.TerminateServerCommand terminateServerCommand = 4;
+// .pybullet_grpc.TerminateServerCommand terminateServerCommand = 5;
 inline bool PyBulletCommand::has_terminateservercommand() const {
   return commands_case() == kTerminateServerCommand;
 }
@@ -4828,7 +10017,7 @@ inline void PyBulletCommand::set_allocated_terminateservercommand(::pybullet_grp
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.terminateServerCommand)
 }
 
-// .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 5;
+// .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 6;
 inline bool PyBulletCommand::has_stepsimulationcommand() const {
   return commands_case() == kStepSimulationCommand;
 }
@@ -4876,7 +10065,7 @@ inline void PyBulletCommand::set_allocated_stepsimulationcommand(::pybullet_grpc
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.stepSimulationCommand)
 }
 
-// .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+// .pybullet_grpc.LoadSdfCommand loadSdfCommand = 7;
 inline bool PyBulletCommand::has_loadsdfcommand() const {
   return commands_case() == kLoadSdfCommand;
 }
@@ -4924,7 +10113,7 @@ inline void PyBulletCommand::set_allocated_loadsdfcommand(::pybullet_grpc::LoadS
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.loadSdfCommand)
 }
 
-// .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+// .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 8;
 inline bool PyBulletCommand::has_loadmjcfcommand() const {
   return commands_case() == kLoadMjcfCommand;
 }
@@ -4972,7 +10161,7 @@ inline void PyBulletCommand::set_allocated_loadmjcfcommand(::pybullet_grpc::Load
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.loadMjcfCommand)
 }
 
-// .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+// .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 9;
 inline bool PyBulletCommand::has_changedynamicscommand() const {
   return commands_case() == kChangeDynamicsCommand;
 }
@@ -5020,7 +10209,7 @@ inline void PyBulletCommand::set_allocated_changedynamicscommand(::pybullet_grpc
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.changeDynamicsCommand)
 }
 
-// .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+// .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 10;
 inline bool PyBulletCommand::has_getdynamicscommand() const {
   return commands_case() == kGetDynamicsCommand;
 }
@@ -5068,7 +10257,7 @@ inline void PyBulletCommand::set_allocated_getdynamicscommand(::pybullet_grpc::G
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.getDynamicsCommand)
 }
 
-// .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+// .pybullet_grpc.InitPoseCommand initPoseCommand = 11;
 inline bool PyBulletCommand::has_initposecommand() const {
   return commands_case() == kInitPoseCommand;
 }
@@ -5116,7 +10305,7 @@ inline void PyBulletCommand::set_allocated_initposecommand(::pybullet_grpc::Init
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.initPoseCommand)
 }
 
-// .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+// .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 12;
 inline bool PyBulletCommand::has_requestactualstatecommand() const {
   return commands_case() == kRequestActualStateCommand;
 }
@@ -5164,6 +10353,438 @@ inline void PyBulletCommand::set_allocated_requestactualstatecommand(::pybullet_
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.requestActualStateCommand)
 }
 
+// .pybullet_grpc.ConfigureOpenGLVisualizerCommand configureOpenGLVisualizerCommand = 13;
+inline bool PyBulletCommand::has_configureopenglvisualizercommand() const {
+  return commands_case() == kConfigureOpenGLVisualizerCommand;
+}
+inline void PyBulletCommand::set_has_configureopenglvisualizercommand() {
+  _oneof_case_[0] = kConfigureOpenGLVisualizerCommand;
+}
+inline void PyBulletCommand::clear_configureopenglvisualizercommand() {
+  if (has_configureopenglvisualizercommand()) {
+    delete commands_.configureopenglvisualizercommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::ConfigureOpenGLVisualizerCommand& PyBulletCommand::configureopenglvisualizercommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.configureOpenGLVisualizerCommand)
+  return has_configureopenglvisualizercommand()
+      ? *commands_.configureopenglvisualizercommand_
+      : ::pybullet_grpc::ConfigureOpenGLVisualizerCommand::default_instance();
+}
+inline ::pybullet_grpc::ConfigureOpenGLVisualizerCommand* PyBulletCommand::mutable_configureopenglvisualizercommand() {
+  if (!has_configureopenglvisualizercommand()) {
+    clear_commands();
+    set_has_configureopenglvisualizercommand();
+    commands_.configureopenglvisualizercommand_ = new ::pybullet_grpc::ConfigureOpenGLVisualizerCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.configureOpenGLVisualizerCommand)
+  return commands_.configureopenglvisualizercommand_;
+}
+inline ::pybullet_grpc::ConfigureOpenGLVisualizerCommand* PyBulletCommand::release_configureopenglvisualizercommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.configureOpenGLVisualizerCommand)
+  if (has_configureopenglvisualizercommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::ConfigureOpenGLVisualizerCommand* temp = commands_.configureopenglvisualizercommand_;
+    commands_.configureopenglvisualizercommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_configureopenglvisualizercommand(::pybullet_grpc::ConfigureOpenGLVisualizerCommand* configureopenglvisualizercommand) {
+  clear_commands();
+  if (configureopenglvisualizercommand) {
+    set_has_configureopenglvisualizercommand();
+    commands_.configureopenglvisualizercommand_ = configureopenglvisualizercommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.configureOpenGLVisualizerCommand)
+}
+
+// .pybullet_grpc.SyncBodiesCommand syncBodiesCommand = 14;
+inline bool PyBulletCommand::has_syncbodiescommand() const {
+  return commands_case() == kSyncBodiesCommand;
+}
+inline void PyBulletCommand::set_has_syncbodiescommand() {
+  _oneof_case_[0] = kSyncBodiesCommand;
+}
+inline void PyBulletCommand::clear_syncbodiescommand() {
+  if (has_syncbodiescommand()) {
+    delete commands_.syncbodiescommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::SyncBodiesCommand& PyBulletCommand::syncbodiescommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.syncBodiesCommand)
+  return has_syncbodiescommand()
+      ? *commands_.syncbodiescommand_
+      : ::pybullet_grpc::SyncBodiesCommand::default_instance();
+}
+inline ::pybullet_grpc::SyncBodiesCommand* PyBulletCommand::mutable_syncbodiescommand() {
+  if (!has_syncbodiescommand()) {
+    clear_commands();
+    set_has_syncbodiescommand();
+    commands_.syncbodiescommand_ = new ::pybullet_grpc::SyncBodiesCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.syncBodiesCommand)
+  return commands_.syncbodiescommand_;
+}
+inline ::pybullet_grpc::SyncBodiesCommand* PyBulletCommand::release_syncbodiescommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.syncBodiesCommand)
+  if (has_syncbodiescommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::SyncBodiesCommand* temp = commands_.syncbodiescommand_;
+    commands_.syncbodiescommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_syncbodiescommand(::pybullet_grpc::SyncBodiesCommand* syncbodiescommand) {
+  clear_commands();
+  if (syncbodiescommand) {
+    set_has_syncbodiescommand();
+    commands_.syncbodiescommand_ = syncbodiescommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.syncBodiesCommand)
+}
+
+// .pybullet_grpc.RequestBodyInfoCommand requestBodyInfoCommand = 15;
+inline bool PyBulletCommand::has_requestbodyinfocommand() const {
+  return commands_case() == kRequestBodyInfoCommand;
+}
+inline void PyBulletCommand::set_has_requestbodyinfocommand() {
+  _oneof_case_[0] = kRequestBodyInfoCommand;
+}
+inline void PyBulletCommand::clear_requestbodyinfocommand() {
+  if (has_requestbodyinfocommand()) {
+    delete commands_.requestbodyinfocommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::RequestBodyInfoCommand& PyBulletCommand::requestbodyinfocommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.requestBodyInfoCommand)
+  return has_requestbodyinfocommand()
+      ? *commands_.requestbodyinfocommand_
+      : ::pybullet_grpc::RequestBodyInfoCommand::default_instance();
+}
+inline ::pybullet_grpc::RequestBodyInfoCommand* PyBulletCommand::mutable_requestbodyinfocommand() {
+  if (!has_requestbodyinfocommand()) {
+    clear_commands();
+    set_has_requestbodyinfocommand();
+    commands_.requestbodyinfocommand_ = new ::pybullet_grpc::RequestBodyInfoCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.requestBodyInfoCommand)
+  return commands_.requestbodyinfocommand_;
+}
+inline ::pybullet_grpc::RequestBodyInfoCommand* PyBulletCommand::release_requestbodyinfocommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.requestBodyInfoCommand)
+  if (has_requestbodyinfocommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::RequestBodyInfoCommand* temp = commands_.requestbodyinfocommand_;
+    commands_.requestbodyinfocommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_requestbodyinfocommand(::pybullet_grpc::RequestBodyInfoCommand* requestbodyinfocommand) {
+  clear_commands();
+  if (requestbodyinfocommand) {
+    set_has_requestbodyinfocommand();
+    commands_.requestbodyinfocommand_ = requestbodyinfocommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.requestBodyInfoCommand)
+}
+
+// .pybullet_grpc.PhysicsSimulationParametersCommand setPhysicsSimulationParametersCommand = 16;
+inline bool PyBulletCommand::has_setphysicssimulationparameterscommand() const {
+  return commands_case() == kSetPhysicsSimulationParametersCommand;
+}
+inline void PyBulletCommand::set_has_setphysicssimulationparameterscommand() {
+  _oneof_case_[0] = kSetPhysicsSimulationParametersCommand;
+}
+inline void PyBulletCommand::clear_setphysicssimulationparameterscommand() {
+  if (has_setphysicssimulationparameterscommand()) {
+    delete commands_.setphysicssimulationparameterscommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::PhysicsSimulationParametersCommand& PyBulletCommand::setphysicssimulationparameterscommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.setPhysicsSimulationParametersCommand)
+  return has_setphysicssimulationparameterscommand()
+      ? *commands_.setphysicssimulationparameterscommand_
+      : ::pybullet_grpc::PhysicsSimulationParametersCommand::default_instance();
+}
+inline ::pybullet_grpc::PhysicsSimulationParametersCommand* PyBulletCommand::mutable_setphysicssimulationparameterscommand() {
+  if (!has_setphysicssimulationparameterscommand()) {
+    clear_commands();
+    set_has_setphysicssimulationparameterscommand();
+    commands_.setphysicssimulationparameterscommand_ = new ::pybullet_grpc::PhysicsSimulationParametersCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.setPhysicsSimulationParametersCommand)
+  return commands_.setphysicssimulationparameterscommand_;
+}
+inline ::pybullet_grpc::PhysicsSimulationParametersCommand* PyBulletCommand::release_setphysicssimulationparameterscommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.setPhysicsSimulationParametersCommand)
+  if (has_setphysicssimulationparameterscommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::PhysicsSimulationParametersCommand* temp = commands_.setphysicssimulationparameterscommand_;
+    commands_.setphysicssimulationparameterscommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_setphysicssimulationparameterscommand(::pybullet_grpc::PhysicsSimulationParametersCommand* setphysicssimulationparameterscommand) {
+  clear_commands();
+  if (setphysicssimulationparameterscommand) {
+    set_has_setphysicssimulationparameterscommand();
+    commands_.setphysicssimulationparameterscommand_ = setphysicssimulationparameterscommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.setPhysicsSimulationParametersCommand)
+}
+
+// .pybullet_grpc.JointMotorControlCommand jointMotorControlCommand = 17;
+inline bool PyBulletCommand::has_jointmotorcontrolcommand() const {
+  return commands_case() == kJointMotorControlCommand;
+}
+inline void PyBulletCommand::set_has_jointmotorcontrolcommand() {
+  _oneof_case_[0] = kJointMotorControlCommand;
+}
+inline void PyBulletCommand::clear_jointmotorcontrolcommand() {
+  if (has_jointmotorcontrolcommand()) {
+    delete commands_.jointmotorcontrolcommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::JointMotorControlCommand& PyBulletCommand::jointmotorcontrolcommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.jointMotorControlCommand)
+  return has_jointmotorcontrolcommand()
+      ? *commands_.jointmotorcontrolcommand_
+      : ::pybullet_grpc::JointMotorControlCommand::default_instance();
+}
+inline ::pybullet_grpc::JointMotorControlCommand* PyBulletCommand::mutable_jointmotorcontrolcommand() {
+  if (!has_jointmotorcontrolcommand()) {
+    clear_commands();
+    set_has_jointmotorcontrolcommand();
+    commands_.jointmotorcontrolcommand_ = new ::pybullet_grpc::JointMotorControlCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.jointMotorControlCommand)
+  return commands_.jointmotorcontrolcommand_;
+}
+inline ::pybullet_grpc::JointMotorControlCommand* PyBulletCommand::release_jointmotorcontrolcommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.jointMotorControlCommand)
+  if (has_jointmotorcontrolcommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::JointMotorControlCommand* temp = commands_.jointmotorcontrolcommand_;
+    commands_.jointmotorcontrolcommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_jointmotorcontrolcommand(::pybullet_grpc::JointMotorControlCommand* jointmotorcontrolcommand) {
+  clear_commands();
+  if (jointmotorcontrolcommand) {
+    set_has_jointmotorcontrolcommand();
+    commands_.jointmotorcontrolcommand_ = jointmotorcontrolcommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.jointMotorControlCommand)
+}
+
+// .pybullet_grpc.UserConstraintCommand userConstraintCommand = 18;
+inline bool PyBulletCommand::has_userconstraintcommand() const {
+  return commands_case() == kUserConstraintCommand;
+}
+inline void PyBulletCommand::set_has_userconstraintcommand() {
+  _oneof_case_[0] = kUserConstraintCommand;
+}
+inline void PyBulletCommand::clear_userconstraintcommand() {
+  if (has_userconstraintcommand()) {
+    delete commands_.userconstraintcommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::UserConstraintCommand& PyBulletCommand::userconstraintcommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.userConstraintCommand)
+  return has_userconstraintcommand()
+      ? *commands_.userconstraintcommand_
+      : ::pybullet_grpc::UserConstraintCommand::default_instance();
+}
+inline ::pybullet_grpc::UserConstraintCommand* PyBulletCommand::mutable_userconstraintcommand() {
+  if (!has_userconstraintcommand()) {
+    clear_commands();
+    set_has_userconstraintcommand();
+    commands_.userconstraintcommand_ = new ::pybullet_grpc::UserConstraintCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.userConstraintCommand)
+  return commands_.userconstraintcommand_;
+}
+inline ::pybullet_grpc::UserConstraintCommand* PyBulletCommand::release_userconstraintcommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.userConstraintCommand)
+  if (has_userconstraintcommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::UserConstraintCommand* temp = commands_.userconstraintcommand_;
+    commands_.userconstraintcommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_userconstraintcommand(::pybullet_grpc::UserConstraintCommand* userconstraintcommand) {
+  clear_commands();
+  if (userconstraintcommand) {
+    set_has_userconstraintcommand();
+    commands_.userconstraintcommand_ = userconstraintcommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.userConstraintCommand)
+}
+
+// .pybullet_grpc.CheckVersionCommand checkVersionCommand = 19;
+inline bool PyBulletCommand::has_checkversioncommand() const {
+  return commands_case() == kCheckVersionCommand;
+}
+inline void PyBulletCommand::set_has_checkversioncommand() {
+  _oneof_case_[0] = kCheckVersionCommand;
+}
+inline void PyBulletCommand::clear_checkversioncommand() {
+  if (has_checkversioncommand()) {
+    delete commands_.checkversioncommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::CheckVersionCommand& PyBulletCommand::checkversioncommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.checkVersionCommand)
+  return has_checkversioncommand()
+      ? *commands_.checkversioncommand_
+      : ::pybullet_grpc::CheckVersionCommand::default_instance();
+}
+inline ::pybullet_grpc::CheckVersionCommand* PyBulletCommand::mutable_checkversioncommand() {
+  if (!has_checkversioncommand()) {
+    clear_commands();
+    set_has_checkversioncommand();
+    commands_.checkversioncommand_ = new ::pybullet_grpc::CheckVersionCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.checkVersionCommand)
+  return commands_.checkversioncommand_;
+}
+inline ::pybullet_grpc::CheckVersionCommand* PyBulletCommand::release_checkversioncommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.checkVersionCommand)
+  if (has_checkversioncommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::CheckVersionCommand* temp = commands_.checkversioncommand_;
+    commands_.checkversioncommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_checkversioncommand(::pybullet_grpc::CheckVersionCommand* checkversioncommand) {
+  clear_commands();
+  if (checkversioncommand) {
+    set_has_checkversioncommand();
+    commands_.checkversioncommand_ = checkversioncommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.checkVersionCommand)
+}
+
+// .pybullet_grpc.RequestKeyboardEventsCommand requestKeyboardEventsCommand = 20;
+inline bool PyBulletCommand::has_requestkeyboardeventscommand() const {
+  return commands_case() == kRequestKeyboardEventsCommand;
+}
+inline void PyBulletCommand::set_has_requestkeyboardeventscommand() {
+  _oneof_case_[0] = kRequestKeyboardEventsCommand;
+}
+inline void PyBulletCommand::clear_requestkeyboardeventscommand() {
+  if (has_requestkeyboardeventscommand()) {
+    delete commands_.requestkeyboardeventscommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::RequestKeyboardEventsCommand& PyBulletCommand::requestkeyboardeventscommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.requestKeyboardEventsCommand)
+  return has_requestkeyboardeventscommand()
+      ? *commands_.requestkeyboardeventscommand_
+      : ::pybullet_grpc::RequestKeyboardEventsCommand::default_instance();
+}
+inline ::pybullet_grpc::RequestKeyboardEventsCommand* PyBulletCommand::mutable_requestkeyboardeventscommand() {
+  if (!has_requestkeyboardeventscommand()) {
+    clear_commands();
+    set_has_requestkeyboardeventscommand();
+    commands_.requestkeyboardeventscommand_ = new ::pybullet_grpc::RequestKeyboardEventsCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.requestKeyboardEventsCommand)
+  return commands_.requestkeyboardeventscommand_;
+}
+inline ::pybullet_grpc::RequestKeyboardEventsCommand* PyBulletCommand::release_requestkeyboardeventscommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.requestKeyboardEventsCommand)
+  if (has_requestkeyboardeventscommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::RequestKeyboardEventsCommand* temp = commands_.requestkeyboardeventscommand_;
+    commands_.requestkeyboardeventscommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_requestkeyboardeventscommand(::pybullet_grpc::RequestKeyboardEventsCommand* requestkeyboardeventscommand) {
+  clear_commands();
+  if (requestkeyboardeventscommand) {
+    set_has_requestkeyboardeventscommand();
+    commands_.requestkeyboardeventscommand_ = requestkeyboardeventscommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.requestKeyboardEventsCommand)
+}
+
+// .pybullet_grpc.RequestCameraImageCommand requestCameraImageCommand = 21;
+inline bool PyBulletCommand::has_requestcameraimagecommand() const {
+  return commands_case() == kRequestCameraImageCommand;
+}
+inline void PyBulletCommand::set_has_requestcameraimagecommand() {
+  _oneof_case_[0] = kRequestCameraImageCommand;
+}
+inline void PyBulletCommand::clear_requestcameraimagecommand() {
+  if (has_requestcameraimagecommand()) {
+    delete commands_.requestcameraimagecommand_;
+    clear_has_commands();
+  }
+}
+inline  const ::pybullet_grpc::RequestCameraImageCommand& PyBulletCommand::requestcameraimagecommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.requestCameraImageCommand)
+  return has_requestcameraimagecommand()
+      ? *commands_.requestcameraimagecommand_
+      : ::pybullet_grpc::RequestCameraImageCommand::default_instance();
+}
+inline ::pybullet_grpc::RequestCameraImageCommand* PyBulletCommand::mutable_requestcameraimagecommand() {
+  if (!has_requestcameraimagecommand()) {
+    clear_commands();
+    set_has_requestcameraimagecommand();
+    commands_.requestcameraimagecommand_ = new ::pybullet_grpc::RequestCameraImageCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.requestCameraImageCommand)
+  return commands_.requestcameraimagecommand_;
+}
+inline ::pybullet_grpc::RequestCameraImageCommand* PyBulletCommand::release_requestcameraimagecommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.requestCameraImageCommand)
+  if (has_requestcameraimagecommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::RequestCameraImageCommand* temp = commands_.requestcameraimagecommand_;
+    commands_.requestcameraimagecommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletCommand::set_allocated_requestcameraimagecommand(::pybullet_grpc::RequestCameraImageCommand* requestcameraimagecommand) {
+  clear_commands();
+  if (requestcameraimagecommand) {
+    set_has_requestcameraimagecommand();
+    commands_.requestcameraimagecommand_ = requestcameraimagecommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.requestCameraImageCommand)
+}
+
 inline bool PyBulletCommand::has_commands() const {
   return commands_case() != COMMANDS_NOT_SET;
 }
@@ -5191,7 +10812,117 @@ inline void PyBulletStatus::set_statustype(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:pybullet_grpc.PyBulletStatus.statusType)
 }
 
-// .pybullet_grpc.LoadUrdfStatus urdfStatus = 2;
+// repeated bytes binaryBlob = 2;
+inline int PyBulletStatus::binaryblob_size() const {
+  return binaryblob_.size();
+}
+inline void PyBulletStatus::clear_binaryblob() {
+  binaryblob_.Clear();
+}
+inline const ::std::string& PyBulletStatus::binaryblob(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.binaryBlob)
+  return binaryblob_.Get(index);
+}
+inline ::std::string* PyBulletStatus::mutable_binaryblob(int index) {
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.binaryBlob)
+  return binaryblob_.Mutable(index);
+}
+inline void PyBulletStatus::set_binaryblob(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PyBulletStatus.binaryBlob)
+  binaryblob_.Mutable(index)->assign(value);
+}
+inline void PyBulletStatus::set_binaryblob(int index, const char* value) {
+  binaryblob_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.PyBulletStatus.binaryBlob)
+}
+inline void PyBulletStatus::set_binaryblob(int index, const void* value, size_t size) {
+  binaryblob_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.PyBulletStatus.binaryBlob)
+}
+inline ::std::string* PyBulletStatus::add_binaryblob() {
+  // @@protoc_insertion_point(field_add_mutable:pybullet_grpc.PyBulletStatus.binaryBlob)
+  return binaryblob_.Add();
+}
+inline void PyBulletStatus::add_binaryblob(const ::std::string& value) {
+  binaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.PyBulletStatus.binaryBlob)
+}
+inline void PyBulletStatus::add_binaryblob(const char* value) {
+  binaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:pybullet_grpc.PyBulletStatus.binaryBlob)
+}
+inline void PyBulletStatus::add_binaryblob(const void* value, size_t size) {
+  binaryblob_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:pybullet_grpc.PyBulletStatus.binaryBlob)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+PyBulletStatus::binaryblob() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.PyBulletStatus.binaryBlob)
+  return binaryblob_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+PyBulletStatus::mutable_binaryblob() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.PyBulletStatus.binaryBlob)
+  return &binaryblob_;
+}
+
+// repeated bytes unknownStatusBinaryBlob = 3;
+inline int PyBulletStatus::unknownstatusbinaryblob_size() const {
+  return unknownstatusbinaryblob_.size();
+}
+inline void PyBulletStatus::clear_unknownstatusbinaryblob() {
+  unknownstatusbinaryblob_.Clear();
+}
+inline const ::std::string& PyBulletStatus::unknownstatusbinaryblob(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+  return unknownstatusbinaryblob_.Get(index);
+}
+inline ::std::string* PyBulletStatus::mutable_unknownstatusbinaryblob(int index) {
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+  return unknownstatusbinaryblob_.Mutable(index);
+}
+inline void PyBulletStatus::set_unknownstatusbinaryblob(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+  unknownstatusbinaryblob_.Mutable(index)->assign(value);
+}
+inline void PyBulletStatus::set_unknownstatusbinaryblob(int index, const char* value) {
+  unknownstatusbinaryblob_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+}
+inline void PyBulletStatus::set_unknownstatusbinaryblob(int index, const void* value, size_t size) {
+  unknownstatusbinaryblob_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+}
+inline ::std::string* PyBulletStatus::add_unknownstatusbinaryblob() {
+  // @@protoc_insertion_point(field_add_mutable:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+  return unknownstatusbinaryblob_.Add();
+}
+inline void PyBulletStatus::add_unknownstatusbinaryblob(const ::std::string& value) {
+  unknownstatusbinaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+}
+inline void PyBulletStatus::add_unknownstatusbinaryblob(const char* value) {
+  unknownstatusbinaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+}
+inline void PyBulletStatus::add_unknownstatusbinaryblob(const void* value, size_t size) {
+  unknownstatusbinaryblob_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+PyBulletStatus::unknownstatusbinaryblob() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+  return unknownstatusbinaryblob_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+PyBulletStatus::mutable_unknownstatusbinaryblob() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+  return &unknownstatusbinaryblob_;
+}
+
+// .pybullet_grpc.LoadUrdfStatus urdfStatus = 4;
 inline bool PyBulletStatus::has_urdfstatus() const {
   return status_case() == kUrdfStatus;
 }
@@ -5239,7 +10970,7 @@ inline void PyBulletStatus::set_allocated_urdfstatus(::pybullet_grpc::LoadUrdfSt
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.urdfStatus)
 }
 
-// .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+// .pybullet_grpc.SdfLoadedStatus sdfStatus = 5;
 inline bool PyBulletStatus::has_sdfstatus() const {
   return status_case() == kSdfStatus;
 }
@@ -5287,7 +11018,7 @@ inline void PyBulletStatus::set_allocated_sdfstatus(::pybullet_grpc::SdfLoadedSt
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.sdfStatus)
 }
 
-// .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+// .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 6;
 inline bool PyBulletStatus::has_mjcfstatus() const {
   return status_case() == kMjcfStatus;
 }
@@ -5335,7 +11066,7 @@ inline void PyBulletStatus::set_allocated_mjcfstatus(::pybullet_grpc::MjcfLoaded
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.mjcfStatus)
 }
 
-// .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+// .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 7;
 inline bool PyBulletStatus::has_getdynamicsstatus() const {
   return status_case() == kGetDynamicsStatus;
 }
@@ -5383,7 +11114,7 @@ inline void PyBulletStatus::set_allocated_getdynamicsstatus(::pybullet_grpc::Get
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.getDynamicsStatus)
 }
 
-// .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+// .pybullet_grpc.SendActualStateStatus actualStateStatus = 8;
 inline bool PyBulletStatus::has_actualstatestatus() const {
   return status_case() == kActualStateStatus;
 }
@@ -5431,6 +11162,390 @@ inline void PyBulletStatus::set_allocated_actualstatestatus(::pybullet_grpc::Sen
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.actualStateStatus)
 }
 
+// .pybullet_grpc.SyncBodiesStatus syncBodiesStatus = 9;
+inline bool PyBulletStatus::has_syncbodiesstatus() const {
+  return status_case() == kSyncBodiesStatus;
+}
+inline void PyBulletStatus::set_has_syncbodiesstatus() {
+  _oneof_case_[0] = kSyncBodiesStatus;
+}
+inline void PyBulletStatus::clear_syncbodiesstatus() {
+  if (has_syncbodiesstatus()) {
+    delete status_.syncbodiesstatus_;
+    clear_has_status();
+  }
+}
+inline  const ::pybullet_grpc::SyncBodiesStatus& PyBulletStatus::syncbodiesstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.syncBodiesStatus)
+  return has_syncbodiesstatus()
+      ? *status_.syncbodiesstatus_
+      : ::pybullet_grpc::SyncBodiesStatus::default_instance();
+}
+inline ::pybullet_grpc::SyncBodiesStatus* PyBulletStatus::mutable_syncbodiesstatus() {
+  if (!has_syncbodiesstatus()) {
+    clear_status();
+    set_has_syncbodiesstatus();
+    status_.syncbodiesstatus_ = new ::pybullet_grpc::SyncBodiesStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.syncBodiesStatus)
+  return status_.syncbodiesstatus_;
+}
+inline ::pybullet_grpc::SyncBodiesStatus* PyBulletStatus::release_syncbodiesstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.syncBodiesStatus)
+  if (has_syncbodiesstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::SyncBodiesStatus* temp = status_.syncbodiesstatus_;
+    status_.syncbodiesstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletStatus::set_allocated_syncbodiesstatus(::pybullet_grpc::SyncBodiesStatus* syncbodiesstatus) {
+  clear_status();
+  if (syncbodiesstatus) {
+    set_has_syncbodiesstatus();
+    status_.syncbodiesstatus_ = syncbodiesstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.syncBodiesStatus)
+}
+
+// .pybullet_grpc.RequestBodyInfoStatus requestBodyInfoStatus = 10;
+inline bool PyBulletStatus::has_requestbodyinfostatus() const {
+  return status_case() == kRequestBodyInfoStatus;
+}
+inline void PyBulletStatus::set_has_requestbodyinfostatus() {
+  _oneof_case_[0] = kRequestBodyInfoStatus;
+}
+inline void PyBulletStatus::clear_requestbodyinfostatus() {
+  if (has_requestbodyinfostatus()) {
+    delete status_.requestbodyinfostatus_;
+    clear_has_status();
+  }
+}
+inline  const ::pybullet_grpc::RequestBodyInfoStatus& PyBulletStatus::requestbodyinfostatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.requestBodyInfoStatus)
+  return has_requestbodyinfostatus()
+      ? *status_.requestbodyinfostatus_
+      : ::pybullet_grpc::RequestBodyInfoStatus::default_instance();
+}
+inline ::pybullet_grpc::RequestBodyInfoStatus* PyBulletStatus::mutable_requestbodyinfostatus() {
+  if (!has_requestbodyinfostatus()) {
+    clear_status();
+    set_has_requestbodyinfostatus();
+    status_.requestbodyinfostatus_ = new ::pybullet_grpc::RequestBodyInfoStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.requestBodyInfoStatus)
+  return status_.requestbodyinfostatus_;
+}
+inline ::pybullet_grpc::RequestBodyInfoStatus* PyBulletStatus::release_requestbodyinfostatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.requestBodyInfoStatus)
+  if (has_requestbodyinfostatus()) {
+    clear_has_status();
+    ::pybullet_grpc::RequestBodyInfoStatus* temp = status_.requestbodyinfostatus_;
+    status_.requestbodyinfostatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletStatus::set_allocated_requestbodyinfostatus(::pybullet_grpc::RequestBodyInfoStatus* requestbodyinfostatus) {
+  clear_status();
+  if (requestbodyinfostatus) {
+    set_has_requestbodyinfostatus();
+    status_.requestbodyinfostatus_ = requestbodyinfostatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.requestBodyInfoStatus)
+}
+
+// .pybullet_grpc.PhysicsSimulationParameters requestPhysicsSimulationParametersStatus = 11;
+inline bool PyBulletStatus::has_requestphysicssimulationparametersstatus() const {
+  return status_case() == kRequestPhysicsSimulationParametersStatus;
+}
+inline void PyBulletStatus::set_has_requestphysicssimulationparametersstatus() {
+  _oneof_case_[0] = kRequestPhysicsSimulationParametersStatus;
+}
+inline void PyBulletStatus::clear_requestphysicssimulationparametersstatus() {
+  if (has_requestphysicssimulationparametersstatus()) {
+    delete status_.requestphysicssimulationparametersstatus_;
+    clear_has_status();
+  }
+}
+inline  const ::pybullet_grpc::PhysicsSimulationParameters& PyBulletStatus::requestphysicssimulationparametersstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.requestPhysicsSimulationParametersStatus)
+  return has_requestphysicssimulationparametersstatus()
+      ? *status_.requestphysicssimulationparametersstatus_
+      : ::pybullet_grpc::PhysicsSimulationParameters::default_instance();
+}
+inline ::pybullet_grpc::PhysicsSimulationParameters* PyBulletStatus::mutable_requestphysicssimulationparametersstatus() {
+  if (!has_requestphysicssimulationparametersstatus()) {
+    clear_status();
+    set_has_requestphysicssimulationparametersstatus();
+    status_.requestphysicssimulationparametersstatus_ = new ::pybullet_grpc::PhysicsSimulationParameters;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.requestPhysicsSimulationParametersStatus)
+  return status_.requestphysicssimulationparametersstatus_;
+}
+inline ::pybullet_grpc::PhysicsSimulationParameters* PyBulletStatus::release_requestphysicssimulationparametersstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.requestPhysicsSimulationParametersStatus)
+  if (has_requestphysicssimulationparametersstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::PhysicsSimulationParameters* temp = status_.requestphysicssimulationparametersstatus_;
+    status_.requestphysicssimulationparametersstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletStatus::set_allocated_requestphysicssimulationparametersstatus(::pybullet_grpc::PhysicsSimulationParameters* requestphysicssimulationparametersstatus) {
+  clear_status();
+  if (requestphysicssimulationparametersstatus) {
+    set_has_requestphysicssimulationparametersstatus();
+    status_.requestphysicssimulationparametersstatus_ = requestphysicssimulationparametersstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.requestPhysicsSimulationParametersStatus)
+}
+
+// .pybullet_grpc.CheckVersionStatus checkVersionStatus = 12;
+inline bool PyBulletStatus::has_checkversionstatus() const {
+  return status_case() == kCheckVersionStatus;
+}
+inline void PyBulletStatus::set_has_checkversionstatus() {
+  _oneof_case_[0] = kCheckVersionStatus;
+}
+inline void PyBulletStatus::clear_checkversionstatus() {
+  if (has_checkversionstatus()) {
+    delete status_.checkversionstatus_;
+    clear_has_status();
+  }
+}
+inline  const ::pybullet_grpc::CheckVersionStatus& PyBulletStatus::checkversionstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.checkVersionStatus)
+  return has_checkversionstatus()
+      ? *status_.checkversionstatus_
+      : ::pybullet_grpc::CheckVersionStatus::default_instance();
+}
+inline ::pybullet_grpc::CheckVersionStatus* PyBulletStatus::mutable_checkversionstatus() {
+  if (!has_checkversionstatus()) {
+    clear_status();
+    set_has_checkversionstatus();
+    status_.checkversionstatus_ = new ::pybullet_grpc::CheckVersionStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.checkVersionStatus)
+  return status_.checkversionstatus_;
+}
+inline ::pybullet_grpc::CheckVersionStatus* PyBulletStatus::release_checkversionstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.checkVersionStatus)
+  if (has_checkversionstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::CheckVersionStatus* temp = status_.checkversionstatus_;
+    status_.checkversionstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletStatus::set_allocated_checkversionstatus(::pybullet_grpc::CheckVersionStatus* checkversionstatus) {
+  clear_status();
+  if (checkversionstatus) {
+    set_has_checkversionstatus();
+    status_.checkversionstatus_ = checkversionstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.checkVersionStatus)
+}
+
+// .pybullet_grpc.UserConstraintStatus userConstraintStatus = 13;
+inline bool PyBulletStatus::has_userconstraintstatus() const {
+  return status_case() == kUserConstraintStatus;
+}
+inline void PyBulletStatus::set_has_userconstraintstatus() {
+  _oneof_case_[0] = kUserConstraintStatus;
+}
+inline void PyBulletStatus::clear_userconstraintstatus() {
+  if (has_userconstraintstatus()) {
+    delete status_.userconstraintstatus_;
+    clear_has_status();
+  }
+}
+inline  const ::pybullet_grpc::UserConstraintStatus& PyBulletStatus::userconstraintstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.userConstraintStatus)
+  return has_userconstraintstatus()
+      ? *status_.userconstraintstatus_
+      : ::pybullet_grpc::UserConstraintStatus::default_instance();
+}
+inline ::pybullet_grpc::UserConstraintStatus* PyBulletStatus::mutable_userconstraintstatus() {
+  if (!has_userconstraintstatus()) {
+    clear_status();
+    set_has_userconstraintstatus();
+    status_.userconstraintstatus_ = new ::pybullet_grpc::UserConstraintStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.userConstraintStatus)
+  return status_.userconstraintstatus_;
+}
+inline ::pybullet_grpc::UserConstraintStatus* PyBulletStatus::release_userconstraintstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.userConstraintStatus)
+  if (has_userconstraintstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::UserConstraintStatus* temp = status_.userconstraintstatus_;
+    status_.userconstraintstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletStatus::set_allocated_userconstraintstatus(::pybullet_grpc::UserConstraintStatus* userconstraintstatus) {
+  clear_status();
+  if (userconstraintstatus) {
+    set_has_userconstraintstatus();
+    status_.userconstraintstatus_ = userconstraintstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.userConstraintStatus)
+}
+
+// .pybullet_grpc.UserConstraintStateStatus userConstraintStateStatus = 14;
+inline bool PyBulletStatus::has_userconstraintstatestatus() const {
+  return status_case() == kUserConstraintStateStatus;
+}
+inline void PyBulletStatus::set_has_userconstraintstatestatus() {
+  _oneof_case_[0] = kUserConstraintStateStatus;
+}
+inline void PyBulletStatus::clear_userconstraintstatestatus() {
+  if (has_userconstraintstatestatus()) {
+    delete status_.userconstraintstatestatus_;
+    clear_has_status();
+  }
+}
+inline  const ::pybullet_grpc::UserConstraintStateStatus& PyBulletStatus::userconstraintstatestatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.userConstraintStateStatus)
+  return has_userconstraintstatestatus()
+      ? *status_.userconstraintstatestatus_
+      : ::pybullet_grpc::UserConstraintStateStatus::default_instance();
+}
+inline ::pybullet_grpc::UserConstraintStateStatus* PyBulletStatus::mutable_userconstraintstatestatus() {
+  if (!has_userconstraintstatestatus()) {
+    clear_status();
+    set_has_userconstraintstatestatus();
+    status_.userconstraintstatestatus_ = new ::pybullet_grpc::UserConstraintStateStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.userConstraintStateStatus)
+  return status_.userconstraintstatestatus_;
+}
+inline ::pybullet_grpc::UserConstraintStateStatus* PyBulletStatus::release_userconstraintstatestatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.userConstraintStateStatus)
+  if (has_userconstraintstatestatus()) {
+    clear_has_status();
+    ::pybullet_grpc::UserConstraintStateStatus* temp = status_.userconstraintstatestatus_;
+    status_.userconstraintstatestatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletStatus::set_allocated_userconstraintstatestatus(::pybullet_grpc::UserConstraintStateStatus* userconstraintstatestatus) {
+  clear_status();
+  if (userconstraintstatestatus) {
+    set_has_userconstraintstatestatus();
+    status_.userconstraintstatestatus_ = userconstraintstatestatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.userConstraintStateStatus)
+}
+
+// .pybullet_grpc.KeyboardEventsStatus keyboardEventsStatus = 15;
+inline bool PyBulletStatus::has_keyboardeventsstatus() const {
+  return status_case() == kKeyboardEventsStatus;
+}
+inline void PyBulletStatus::set_has_keyboardeventsstatus() {
+  _oneof_case_[0] = kKeyboardEventsStatus;
+}
+inline void PyBulletStatus::clear_keyboardeventsstatus() {
+  if (has_keyboardeventsstatus()) {
+    delete status_.keyboardeventsstatus_;
+    clear_has_status();
+  }
+}
+inline  const ::pybullet_grpc::KeyboardEventsStatus& PyBulletStatus::keyboardeventsstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.keyboardEventsStatus)
+  return has_keyboardeventsstatus()
+      ? *status_.keyboardeventsstatus_
+      : ::pybullet_grpc::KeyboardEventsStatus::default_instance();
+}
+inline ::pybullet_grpc::KeyboardEventsStatus* PyBulletStatus::mutable_keyboardeventsstatus() {
+  if (!has_keyboardeventsstatus()) {
+    clear_status();
+    set_has_keyboardeventsstatus();
+    status_.keyboardeventsstatus_ = new ::pybullet_grpc::KeyboardEventsStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.keyboardEventsStatus)
+  return status_.keyboardeventsstatus_;
+}
+inline ::pybullet_grpc::KeyboardEventsStatus* PyBulletStatus::release_keyboardeventsstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.keyboardEventsStatus)
+  if (has_keyboardeventsstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::KeyboardEventsStatus* temp = status_.keyboardeventsstatus_;
+    status_.keyboardeventsstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletStatus::set_allocated_keyboardeventsstatus(::pybullet_grpc::KeyboardEventsStatus* keyboardeventsstatus) {
+  clear_status();
+  if (keyboardeventsstatus) {
+    set_has_keyboardeventsstatus();
+    status_.keyboardeventsstatus_ = keyboardeventsstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.keyboardEventsStatus)
+}
+
+// .pybullet_grpc.RequestCameraImageStatus requestCameraImageStatus = 16;
+inline bool PyBulletStatus::has_requestcameraimagestatus() const {
+  return status_case() == kRequestCameraImageStatus;
+}
+inline void PyBulletStatus::set_has_requestcameraimagestatus() {
+  _oneof_case_[0] = kRequestCameraImageStatus;
+}
+inline void PyBulletStatus::clear_requestcameraimagestatus() {
+  if (has_requestcameraimagestatus()) {
+    delete status_.requestcameraimagestatus_;
+    clear_has_status();
+  }
+}
+inline  const ::pybullet_grpc::RequestCameraImageStatus& PyBulletStatus::requestcameraimagestatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.requestCameraImageStatus)
+  return has_requestcameraimagestatus()
+      ? *status_.requestcameraimagestatus_
+      : ::pybullet_grpc::RequestCameraImageStatus::default_instance();
+}
+inline ::pybullet_grpc::RequestCameraImageStatus* PyBulletStatus::mutable_requestcameraimagestatus() {
+  if (!has_requestcameraimagestatus()) {
+    clear_status();
+    set_has_requestcameraimagestatus();
+    status_.requestcameraimagestatus_ = new ::pybullet_grpc::RequestCameraImageStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.requestCameraImageStatus)
+  return status_.requestcameraimagestatus_;
+}
+inline ::pybullet_grpc::RequestCameraImageStatus* PyBulletStatus::release_requestcameraimagestatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.requestCameraImageStatus)
+  if (has_requestcameraimagestatus()) {
+    clear_has_status();
+    ::pybullet_grpc::RequestCameraImageStatus* temp = status_.requestcameraimagestatus_;
+    status_.requestcameraimagestatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void PyBulletStatus::set_allocated_requestcameraimagestatus(::pybullet_grpc::RequestCameraImageStatus* requestcameraimagestatus) {
+  clear_status();
+  if (requestcameraimagestatus) {
+    set_has_requestcameraimagestatus();
+    status_.requestcameraimagestatus_ = requestcameraimagestatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.requestCameraImageStatus)
+}
+
 inline bool PyBulletStatus::has_status() const {
   return status_case() != STATUS_NOT_SET;
 }
@@ -5441,6 +11556,48 @@ inline PyBulletStatus::StatusCase PyBulletStatus::status_case() const {
   return PyBulletStatus::StatusCase(_oneof_case_[0]);
 }
 #endif  // !PROTOBUF_INLINE_NOT_IN_HEADERS
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

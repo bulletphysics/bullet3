@@ -53,12 +53,12 @@ public:
 	}
 
 	
-	void Run(MyCommandProcessor* comProc) {
-		std::string server_address("0.0.0.0:50051");
+	void Run(MyCommandProcessor* comProc, const std::string& hostNamePort) {
+		
 
 		ServerBuilder builder;
 		// Listen on the given address without any authentication mechanism.
-		builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+		builder.AddListeningPort(hostNamePort, grpc::InsecureServerCredentials());
 		// Register "service_" as the instance through which we'll communicate with
 		// clients. In this case it corresponds to an *asynchronous* service.
 		builder.RegisterService(&service_);
@@ -67,7 +67,7 @@ public:
 		cq_ = builder.AddCompletionQueue();
 		// Finally assemble the server.
 		server_ = builder.BuildAndStart();
-		std::cout << "Server listening on " << server_address << std::endl;
+		std::cout << "Server listening on " << hostNamePort << std::endl;
 
 		// Proceed to the server's main loop.
 		HandleRpcs(comProc);
@@ -121,41 +121,49 @@ private:
 				
 				m_status.set_statustype(CMD_UNKNOWN_COMMAND_FLUSHED);
 				
-				cmdPtr = convertGRPCAndSubmitCommand(m_command, cmd);
-								
-
-				if (cmdPtr)
+				
+				if (m_command.has_checkversioncommand())
 				{
-					bool hasStatus = m_comProc->processCommand(*cmdPtr, serverStatus, &buffer[0], buffer.size());
-					double timeOutInSeconds = 10;
-					b3Clock clock;
-					double startTimeSeconds = clock.getTimeInSeconds();
-					double curTimeSeconds = clock.getTimeInSeconds();
+					m_status.set_statustype(CMD_CLIENT_COMMAND_COMPLETED);
+					m_status.mutable_checkversionstatus()->set_serverversion(SHARED_MEMORY_MAGIC_NUMBER);
+				}
+				else
+				{
+					cmdPtr = convertGRPCToBulletCommand(m_command, cmd);
 
-					while ((!hasStatus) && ((curTimeSeconds - startTimeSeconds) <timeOutInSeconds))
+
+					if (cmdPtr)
 					{
-						hasStatus = m_comProc->receiveStatus(serverStatus, &buffer[0], buffer.size());
-						curTimeSeconds = clock.getTimeInSeconds();
+						bool hasStatus = m_comProc->processCommand(*cmdPtr, serverStatus, &buffer[0], buffer.size());
+						double timeOutInSeconds = 10;
+						b3Clock clock;
+						double startTimeSeconds = clock.getTimeInSeconds();
+						double curTimeSeconds = clock.getTimeInSeconds();
+
+						while ((!hasStatus) && ((curTimeSeconds - startTimeSeconds) < timeOutInSeconds))
+						{
+							hasStatus = m_comProc->receiveStatus(serverStatus, &buffer[0], buffer.size());
+							curTimeSeconds = clock.getTimeInSeconds();
+						}
+						if (gVerboseNetworkMessagesServer)
+						{
+							//printf("buffer.size = %d\n", buffer.size());
+							printf("serverStatus.m_numDataStreamBytes = %d\n", serverStatus.m_numDataStreamBytes);
+						}
+						if (hasStatus)
+						{
+							b3AlignedObjectArray<unsigned char> packetData;
+							unsigned char* statBytes = (unsigned char*)&serverStatus;
+
+							convertStatusToGRPC(serverStatus, &buffer[0], buffer.size(), m_status);
+						}
 					}
-					if (gVerboseNetworkMessagesServer)
+
+					if (m_command.has_terminateservercommand())
 					{
-						//printf("buffer.size = %d\n", buffer.size());
-						printf("serverStatus.m_numDataStreamBytes = %d\n", serverStatus.m_numDataStreamBytes);
-					}
-					if (hasStatus)
-					{
-						b3AlignedObjectArray<unsigned char> packetData;
-						unsigned char* statBytes = (unsigned char*)&serverStatus;
-						
-						convertStatusToGRPC(serverStatus, &buffer[0], buffer.size(), m_status);
+						status_ = TERMINATE;
 					}
 				}
-
-				if (m_command.has_terminateservercommand())
-				{
-					status_ = TERMINATE;
-				}
-
 				
 				// And we are done! Let the gRPC runtime know we've finished, using the
 				// memory address of this instance as the uniquely identifying tag for
@@ -245,6 +253,8 @@ int main(int argc, char** argv)
 
 	int port = 6667;
 	parseArgs.GetCmdLineArgument("port", port);
+	std::string hostName = "localhost";
+	std::string hostNamePort = hostName + ":" + std::to_string(port);
 
 	gVerboseNetworkMessagesServer = parseArgs.CheckCmdLineFlag("verbose");
 
@@ -263,7 +273,7 @@ int main(int argc, char** argv)
 	{
 		ServerImpl server;
 
-		server.Run(sm);
+		server.Run(sm, hostNamePort);
 	}
 	else
 	{

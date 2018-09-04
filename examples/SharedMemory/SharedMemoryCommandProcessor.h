@@ -31,6 +31,7 @@ public:
 	void setSharedMemoryKey(int key);
 	virtual void setTimeOut(double timeOutInSeconds);
 
+	virtual void reportNotifications() {}
 };
 
 #endif //SHARED_MEMORY_COMMAND_PROCESSOR_H

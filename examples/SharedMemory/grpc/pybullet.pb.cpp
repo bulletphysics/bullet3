@@ -22,10 +22,28 @@ class vec3DefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyC
 } _vec3_default_instance_;
 class quat4DefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<quat4> {
 } _quat4_default_instance_;
+class vec4DefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<vec4> {
+} _vec4_default_instance_;
+class transformDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<transform> {
+} _transform_default_instance_;
+class matrix4x4DefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<matrix4x4> {
+} _matrix4x4_default_instance_;
+class CheckVersionCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<CheckVersionCommand> {
+} _CheckVersionCommand_default_instance_;
+class CheckVersionStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<CheckVersionStatus> {
+} _CheckVersionStatus_default_instance_;
 class TerminateServerCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<TerminateServerCommand> {
 } _TerminateServerCommand_default_instance_;
 class StepSimulationCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<StepSimulationCommand> {
 } _StepSimulationCommand_default_instance_;
+class SyncBodiesCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<SyncBodiesCommand> {
+} _SyncBodiesCommand_default_instance_;
+class SyncBodiesStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<SyncBodiesStatus> {
+} _SyncBodiesStatus_default_instance_;
+class RequestBodyInfoCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<RequestBodyInfoCommand> {
+} _RequestBodyInfoCommand_default_instance_;
+class RequestBodyInfoStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<RequestBodyInfoStatus> {
+} _RequestBodyInfoStatus_default_instance_;
 class LoadUrdfCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<LoadUrdfCommand> {
   public:
   ::google::protobuf::int32 usemultibody_;
@@ -72,6 +90,30 @@ class RequestActualStateCommandDefaultTypeInternal : public ::google::protobuf::
 } _RequestActualStateCommand_default_instance_;
 class SendActualStateStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<SendActualStateStatus> {
 } _SendActualStateStatus_default_instance_;
+class ConfigureOpenGLVisualizerCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<ConfigureOpenGLVisualizerCommand> {
+} _ConfigureOpenGLVisualizerCommand_default_instance_;
+class PhysicsSimulationParametersDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<PhysicsSimulationParameters> {
+} _PhysicsSimulationParameters_default_instance_;
+class PhysicsSimulationParametersCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<PhysicsSimulationParametersCommand> {
+} _PhysicsSimulationParametersCommand_default_instance_;
+class JointMotorControlCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<JointMotorControlCommand> {
+} _JointMotorControlCommand_default_instance_;
+class UserConstraintCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<UserConstraintCommand> {
+} _UserConstraintCommand_default_instance_;
+class UserConstraintStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<UserConstraintStatus> {
+} _UserConstraintStatus_default_instance_;
+class UserConstraintStateStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<UserConstraintStateStatus> {
+} _UserConstraintStateStatus_default_instance_;
+class RequestKeyboardEventsCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<RequestKeyboardEventsCommand> {
+} _RequestKeyboardEventsCommand_default_instance_;
+class KeyboardEventDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<KeyboardEvent> {
+} _KeyboardEvent_default_instance_;
+class KeyboardEventsStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<KeyboardEventsStatus> {
+} _KeyboardEventsStatus_default_instance_;
+class RequestCameraImageCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<RequestCameraImageCommand> {
+} _RequestCameraImageCommand_default_instance_;
+class RequestCameraImageStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<RequestCameraImageStatus> {
+} _RequestCameraImageStatus_default_instance_;
 class PyBulletCommandDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<PyBulletCommand> {
   public:
   const ::pybullet_grpc::LoadUrdfCommand* loadurdfcommand_;
@@ -83,6 +125,15 @@ class PyBulletCommandDefaultTypeInternal : public ::google::protobuf::internal::
   const ::pybullet_grpc::GetDynamicsCommand* getdynamicscommand_;
   const ::pybullet_grpc::InitPoseCommand* initposecommand_;
   const ::pybullet_grpc::RequestActualStateCommand* requestactualstatecommand_;
+  const ::pybullet_grpc::ConfigureOpenGLVisualizerCommand* configureopenglvisualizercommand_;
+  const ::pybullet_grpc::SyncBodiesCommand* syncbodiescommand_;
+  const ::pybullet_grpc::RequestBodyInfoCommand* requestbodyinfocommand_;
+  const ::pybullet_grpc::PhysicsSimulationParametersCommand* setphysicssimulationparameterscommand_;
+  const ::pybullet_grpc::JointMotorControlCommand* jointmotorcontrolcommand_;
+  const ::pybullet_grpc::UserConstraintCommand* userconstraintcommand_;
+  const ::pybullet_grpc::CheckVersionCommand* checkversioncommand_;
+  const ::pybullet_grpc::RequestKeyboardEventsCommand* requestkeyboardeventscommand_;
+  const ::pybullet_grpc::RequestCameraImageCommand* requestcameraimagecommand_;
 } _PyBulletCommand_default_instance_;
 class PyBulletStatusDefaultTypeInternal : public ::google::protobuf::internal::ExplicitlyConstructed<PyBulletStatus> {
   public:
@@ -91,6 +142,14 @@ class PyBulletStatusDefaultTypeInternal : public ::google::protobuf::internal::E
   const ::pybullet_grpc::MjcfLoadedStatus* mjcfstatus_;
   const ::pybullet_grpc::GetDynamicsStatus* getdynamicsstatus_;
   const ::pybullet_grpc::SendActualStateStatus* actualstatestatus_;
+  const ::pybullet_grpc::SyncBodiesStatus* syncbodiesstatus_;
+  const ::pybullet_grpc::RequestBodyInfoStatus* requestbodyinfostatus_;
+  const ::pybullet_grpc::PhysicsSimulationParameters* requestphysicssimulationparametersstatus_;
+  const ::pybullet_grpc::CheckVersionStatus* checkversionstatus_;
+  const ::pybullet_grpc::UserConstraintStatus* userconstraintstatus_;
+  const ::pybullet_grpc::UserConstraintStateStatus* userconstraintstatestatus_;
+  const ::pybullet_grpc::KeyboardEventsStatus* keyboardeventsstatus_;
+  const ::pybullet_grpc::RequestCameraImageStatus* requestcameraimagestatus_;
 } _PyBulletStatus_default_instance_;
 
 namespace protobuf_pybullet_2eproto {
@@ -98,7 +157,7 @@ namespace protobuf_pybullet_2eproto {
 
 namespace {
 
-::google::protobuf::Metadata file_level_metadata[18];
+::google::protobuf::Metadata file_level_metadata[39];
 
 }  // namespace
 
@@ -119,6 +178,35 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(quat4, z_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(quat4, w_),
   ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(vec4, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(vec4, x_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(vec4, y_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(vec4, z_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(vec4, w_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(transform, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(transform, origin_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(transform, orientation_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(matrix4x4, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(matrix4x4, elems_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CheckVersionCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CheckVersionCommand, clientversion_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CheckVersionStatus, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CheckVersionStatus, serverversion_),
+  ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(TerminateServerCommand, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -127,6 +215,27 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StepSimulationCommand, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SyncBodiesCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SyncBodiesStatus, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SyncBodiesStatus, bodyuniqueids_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SyncBodiesStatus, userconstraintuniqueids_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestBodyInfoCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestBodyInfoCommand, bodyuniqueid_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestBodyInfoStatus, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestBodyInfoStatus, bodyuniqueid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestBodyInfoStatus, bodyname_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfCommand, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -146,6 +255,8 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfStatus, bodyuniqueid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfStatus, bodyname_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadUrdfStatus, filename_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LoadSdfCommand, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -234,6 +345,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InitPoseCommand, bodyuniqueid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InitPoseCommand, updateflags_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InitPoseCommand, hasinitialstateq_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InitPoseCommand, initialstateq_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(InitPoseCommand, hasinitialstateqdot_),
@@ -262,10 +374,149 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, linkworldvelocities_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendActualStateStatus, linklocalinertialframes_),
   ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConfigureOpenGLVisualizerCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConfigureOpenGLVisualizerCommand, updateflags_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConfigureOpenGLVisualizerCommand, cameradistance_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConfigureOpenGLVisualizerCommand, camerapitch_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConfigureOpenGLVisualizerCommand, camerayaw_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConfigureOpenGLVisualizerCommand, cameratargetposition_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConfigureOpenGLVisualizerCommand, setflag_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConfigureOpenGLVisualizerCommand, setenabled_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, deltatime_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, gravityacceleration_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, numsimulationsubsteps_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, numsolveriterations_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, userealtimesimulation_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, usesplitimpulse_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, splitimpulsepenetrationthreshold_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, contactbreakingthreshold_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, internalsimflags_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, defaultcontacterp_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, collisionfiltermode_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, enablefilecaching_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, restitutionvelocitythreshold_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, defaultnoncontacterp_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, frictionerp_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, defaultglobalcfm_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, frictioncfm_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, enableconefriction_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, deterministicoverlappingpairs_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, allowedccdpenetration_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, jointfeedbackmode_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, solverresidualthreshold_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, contactslop_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, enablesat_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, constraintsolvertype_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParameters, minimumsolverislandsize_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParametersCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParametersCommand, updateflags_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PhysicsSimulationParametersCommand, params_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JointMotorControlCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JointMotorControlCommand, bodyuniqueid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JointMotorControlCommand, controlmode_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JointMotorControlCommand, updateflags_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JointMotorControlCommand, kp_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JointMotorControlCommand, kd_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JointMotorControlCommand, maxvelocity_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JointMotorControlCommand, hasdesiredstateflags_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JointMotorControlCommand, desiredstateq_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JointMotorControlCommand, desiredstateqdot_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JointMotorControlCommand, desiredstateforcetorque_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, parentbodyindex_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, parentjointindex_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, childbodyindex_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, childjointindex_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, parentframe_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, childframe_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, jointaxis_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, jointtype_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, maxappliedforce_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, userconstraintuniqueid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, gearratio_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, gearauxlink_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, relativepositiontarget_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, erp_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintCommand, updateflags_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintStatus, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintStatus, maxappliedforce_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintStatus, userconstraintuniqueid_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintStateStatus, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintStateStatus, appliedconstraintforceslinear_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintStateStatus, appliedconstraintforcesangular_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UserConstraintStateStatus, numdofs_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestKeyboardEventsCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KeyboardEvent, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KeyboardEvent, keycode_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KeyboardEvent, keystate_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KeyboardEventsStatus, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KeyboardEventsStatus, keyboardevents_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, updateflags_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, cameraflags_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, viewmatrix_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, projectionmatrix_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, startpixelindex_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, pixelwidth_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, pixelheight_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, lightdirection_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, lightcolor_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, lightdistance_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, lightambientcoeff_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, lightdiffusecoeff_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, lightspecularcoeff_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, hasshadow_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, projectivetextureviewmatrix_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageCommand, projectivetextureprojectionmatrix_),
+  ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageStatus, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageStatus, imagewidth_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageStatus, imageheight_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageStatus, startingpixelindex_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageStatus, numpixelscopied_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RequestCameraImageStatus, numremainingpixels_),
+  ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletCommand, _internal_metadata_),
   ~0u,  // no _extensions_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletCommand, _oneof_case_[0]),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletCommand, commandtype_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletCommand, binaryblob_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletCommand, unknowncommandbinaryblob_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), loadurdfcommand_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), terminateservercommand_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), stepsimulationcommand_),
@@ -275,46 +526,95 @@ const ::google::protobuf::uint32 TableStruct::offsets[] = {
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), getdynamicscommand_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), initposecommand_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), requestactualstatecommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), configureopenglvisualizercommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), syncbodiescommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), requestbodyinfocommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), setphysicssimulationparameterscommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), jointmotorcontrolcommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), userconstraintcommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), checkversioncommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), requestkeyboardeventscommand_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletCommand_default_instance_), requestcameraimagecommand_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletCommand, commands_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletStatus, _internal_metadata_),
   ~0u,  // no _extensions_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletStatus, _oneof_case_[0]),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletStatus, statustype_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletStatus, binaryblob_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletStatus, unknownstatusbinaryblob_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), urdfstatus_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), sdfstatus_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), mjcfstatus_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), getdynamicsstatus_),
   PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), actualstatestatus_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), syncbodiesstatus_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), requestbodyinfostatus_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), requestphysicssimulationparametersstatus_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), checkversionstatus_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), userconstraintstatus_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), userconstraintstatestatus_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), keyboardeventsstatus_),
+  PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET((&_PyBulletStatus_default_instance_), requestcameraimagestatus_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PyBulletStatus, status_),
 };
 
 static const ::google::protobuf::internal::MigrationSchema schemas[] = {
   { 0, -1, sizeof(vec3)},
   { 7, -1, sizeof(quat4)},
-  { 15, -1, sizeof(TerminateServerCommand)},
-  { 20, -1, sizeof(StepSimulationCommand)},
-  { 24, -1, sizeof(LoadUrdfCommand)},
-  { 38, -1, sizeof(LoadUrdfStatus)},
-  { 43, -1, sizeof(LoadSdfCommand)},
-  { 52, -1, sizeof(SdfLoadedStatus)},
-  { 57, -1, sizeof(LoadMjcfCommand)},
-  { 63, -1, sizeof(MjcfLoadedStatus)},
-  { 68, -1, sizeof(ChangeDynamicsCommand)},
-  { 102, -1, sizeof(GetDynamicsCommand)},
-  { 108, -1, sizeof(GetDynamicsStatus)},
-  { 126, -1, sizeof(InitPoseCommand)},
-  { 135, -1, sizeof(RequestActualStateCommand)},
-  { 142, -1, sizeof(SendActualStateStatus)},
-  { 158, -1, sizeof(PyBulletCommand)},
-  { 173, -1, sizeof(PyBulletStatus)},
+  { 15, -1, sizeof(vec4)},
+  { 23, -1, sizeof(transform)},
+  { 29, -1, sizeof(matrix4x4)},
+  { 34, -1, sizeof(CheckVersionCommand)},
+  { 39, -1, sizeof(CheckVersionStatus)},
+  { 44, -1, sizeof(TerminateServerCommand)},
+  { 49, -1, sizeof(StepSimulationCommand)},
+  { 53, -1, sizeof(SyncBodiesCommand)},
+  { 57, -1, sizeof(SyncBodiesStatus)},
+  { 63, -1, sizeof(RequestBodyInfoCommand)},
+  { 68, -1, sizeof(RequestBodyInfoStatus)},
+  { 74, -1, sizeof(LoadUrdfCommand)},
+  { 88, -1, sizeof(LoadUrdfStatus)},
+  { 95, -1, sizeof(LoadSdfCommand)},
+  { 104, -1, sizeof(SdfLoadedStatus)},
+  { 109, -1, sizeof(LoadMjcfCommand)},
+  { 115, -1, sizeof(MjcfLoadedStatus)},
+  { 120, -1, sizeof(ChangeDynamicsCommand)},
+  { 154, -1, sizeof(GetDynamicsCommand)},
+  { 160, -1, sizeof(GetDynamicsStatus)},
+  { 178, -1, sizeof(InitPoseCommand)},
+  { 188, -1, sizeof(RequestActualStateCommand)},
+  { 195, -1, sizeof(SendActualStateStatus)},
+  { 211, -1, sizeof(ConfigureOpenGLVisualizerCommand)},
+  { 222, -1, sizeof(PhysicsSimulationParameters)},
+  { 252, -1, sizeof(PhysicsSimulationParametersCommand)},
+  { 258, -1, sizeof(JointMotorControlCommand)},
+  { 272, -1, sizeof(UserConstraintCommand)},
+  { 291, -1, sizeof(UserConstraintStatus)},
+  { 297, -1, sizeof(UserConstraintStateStatus)},
+  { 304, -1, sizeof(RequestKeyboardEventsCommand)},
+  { 308, -1, sizeof(KeyboardEvent)},
+  { 314, -1, sizeof(KeyboardEventsStatus)},
+  { 319, -1, sizeof(RequestCameraImageCommand)},
+  { 339, -1, sizeof(RequestCameraImageStatus)},
+  { 348, -1, sizeof(PyBulletCommand)},
+  { 374, -1, sizeof(PyBulletStatus)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&_vec3_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_quat4_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_vec4_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_transform_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_matrix4x4_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_CheckVersionCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_CheckVersionStatus_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_TerminateServerCommand_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_StepSimulationCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_SyncBodiesCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_SyncBodiesStatus_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_RequestBodyInfoCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_RequestBodyInfoStatus_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_LoadUrdfCommand_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_LoadUrdfStatus_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_LoadSdfCommand_default_instance_),
@@ -327,6 +627,18 @@ static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&_InitPoseCommand_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_RequestActualStateCommand_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_SendActualStateStatus_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_ConfigureOpenGLVisualizerCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_PhysicsSimulationParameters_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_PhysicsSimulationParametersCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_JointMotorControlCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_UserConstraintCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_UserConstraintStatus_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_UserConstraintStateStatus_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_RequestKeyboardEventsCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_KeyboardEvent_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_KeyboardEventsStatus_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_RequestCameraImageCommand_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&_RequestCameraImageStatus_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_PyBulletCommand_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&_PyBulletStatus_default_instance_),
 };
@@ -349,7 +661,7 @@ void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) GOOGLE_ATTRIBUTE_COLD;
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 18);
+  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 39);
 }
 
 }  // namespace
@@ -359,38 +671,80 @@ void TableStruct::Shutdown() {
   delete file_level_metadata[0].reflection;
   _quat4_default_instance_.Shutdown();
   delete file_level_metadata[1].reflection;
-  _TerminateServerCommand_default_instance_.Shutdown();
+  _vec4_default_instance_.Shutdown();
   delete file_level_metadata[2].reflection;
-  _StepSimulationCommand_default_instance_.Shutdown();
+  _transform_default_instance_.Shutdown();
   delete file_level_metadata[3].reflection;
-  _LoadUrdfCommand_default_instance_.Shutdown();
+  _matrix4x4_default_instance_.Shutdown();
   delete file_level_metadata[4].reflection;
-  _LoadUrdfStatus_default_instance_.Shutdown();
+  _CheckVersionCommand_default_instance_.Shutdown();
   delete file_level_metadata[5].reflection;
-  _LoadSdfCommand_default_instance_.Shutdown();
+  _CheckVersionStatus_default_instance_.Shutdown();
   delete file_level_metadata[6].reflection;
-  _SdfLoadedStatus_default_instance_.Shutdown();
+  _TerminateServerCommand_default_instance_.Shutdown();
   delete file_level_metadata[7].reflection;
-  _LoadMjcfCommand_default_instance_.Shutdown();
+  _StepSimulationCommand_default_instance_.Shutdown();
   delete file_level_metadata[8].reflection;
-  _MjcfLoadedStatus_default_instance_.Shutdown();
+  _SyncBodiesCommand_default_instance_.Shutdown();
   delete file_level_metadata[9].reflection;
-  _ChangeDynamicsCommand_default_instance_.Shutdown();
+  _SyncBodiesStatus_default_instance_.Shutdown();
   delete file_level_metadata[10].reflection;
-  _GetDynamicsCommand_default_instance_.Shutdown();
+  _RequestBodyInfoCommand_default_instance_.Shutdown();
   delete file_level_metadata[11].reflection;
-  _GetDynamicsStatus_default_instance_.Shutdown();
+  _RequestBodyInfoStatus_default_instance_.Shutdown();
   delete file_level_metadata[12].reflection;
-  _InitPoseCommand_default_instance_.Shutdown();
+  _LoadUrdfCommand_default_instance_.Shutdown();
   delete file_level_metadata[13].reflection;
-  _RequestActualStateCommand_default_instance_.Shutdown();
+  _LoadUrdfStatus_default_instance_.Shutdown();
   delete file_level_metadata[14].reflection;
-  _SendActualStateStatus_default_instance_.Shutdown();
+  _LoadSdfCommand_default_instance_.Shutdown();
   delete file_level_metadata[15].reflection;
-  _PyBulletCommand_default_instance_.Shutdown();
+  _SdfLoadedStatus_default_instance_.Shutdown();
   delete file_level_metadata[16].reflection;
-  _PyBulletStatus_default_instance_.Shutdown();
+  _LoadMjcfCommand_default_instance_.Shutdown();
   delete file_level_metadata[17].reflection;
+  _MjcfLoadedStatus_default_instance_.Shutdown();
+  delete file_level_metadata[18].reflection;
+  _ChangeDynamicsCommand_default_instance_.Shutdown();
+  delete file_level_metadata[19].reflection;
+  _GetDynamicsCommand_default_instance_.Shutdown();
+  delete file_level_metadata[20].reflection;
+  _GetDynamicsStatus_default_instance_.Shutdown();
+  delete file_level_metadata[21].reflection;
+  _InitPoseCommand_default_instance_.Shutdown();
+  delete file_level_metadata[22].reflection;
+  _RequestActualStateCommand_default_instance_.Shutdown();
+  delete file_level_metadata[23].reflection;
+  _SendActualStateStatus_default_instance_.Shutdown();
+  delete file_level_metadata[24].reflection;
+  _ConfigureOpenGLVisualizerCommand_default_instance_.Shutdown();
+  delete file_level_metadata[25].reflection;
+  _PhysicsSimulationParameters_default_instance_.Shutdown();
+  delete file_level_metadata[26].reflection;
+  _PhysicsSimulationParametersCommand_default_instance_.Shutdown();
+  delete file_level_metadata[27].reflection;
+  _JointMotorControlCommand_default_instance_.Shutdown();
+  delete file_level_metadata[28].reflection;
+  _UserConstraintCommand_default_instance_.Shutdown();
+  delete file_level_metadata[29].reflection;
+  _UserConstraintStatus_default_instance_.Shutdown();
+  delete file_level_metadata[30].reflection;
+  _UserConstraintStateStatus_default_instance_.Shutdown();
+  delete file_level_metadata[31].reflection;
+  _RequestKeyboardEventsCommand_default_instance_.Shutdown();
+  delete file_level_metadata[32].reflection;
+  _KeyboardEvent_default_instance_.Shutdown();
+  delete file_level_metadata[33].reflection;
+  _KeyboardEventsStatus_default_instance_.Shutdown();
+  delete file_level_metadata[34].reflection;
+  _RequestCameraImageCommand_default_instance_.Shutdown();
+  delete file_level_metadata[35].reflection;
+  _RequestCameraImageStatus_default_instance_.Shutdown();
+  delete file_level_metadata[36].reflection;
+  _PyBulletCommand_default_instance_.Shutdown();
+  delete file_level_metadata[37].reflection;
+  _PyBulletStatus_default_instance_.Shutdown();
+  delete file_level_metadata[38].reflection;
 }
 
 void TableStruct::InitDefaultsImpl() {
@@ -399,8 +753,17 @@ void TableStruct::InitDefaultsImpl() {
   ::google::protobuf::internal::InitProtobufDefaults();
   _vec3_default_instance_.DefaultConstruct();
   _quat4_default_instance_.DefaultConstruct();
+  _vec4_default_instance_.DefaultConstruct();
+  _transform_default_instance_.DefaultConstruct();
+  _matrix4x4_default_instance_.DefaultConstruct();
+  _CheckVersionCommand_default_instance_.DefaultConstruct();
+  _CheckVersionStatus_default_instance_.DefaultConstruct();
   _TerminateServerCommand_default_instance_.DefaultConstruct();
   _StepSimulationCommand_default_instance_.DefaultConstruct();
+  _SyncBodiesCommand_default_instance_.DefaultConstruct();
+  _SyncBodiesStatus_default_instance_.DefaultConstruct();
+  _RequestBodyInfoCommand_default_instance_.DefaultConstruct();
+  _RequestBodyInfoStatus_default_instance_.DefaultConstruct();
   _LoadUrdfCommand_default_instance_.DefaultConstruct();
   _LoadUrdfStatus_default_instance_.DefaultConstruct();
   _LoadSdfCommand_default_instance_.DefaultConstruct();
@@ -413,8 +776,24 @@ void TableStruct::InitDefaultsImpl() {
   _InitPoseCommand_default_instance_.DefaultConstruct();
   _RequestActualStateCommand_default_instance_.DefaultConstruct();
   _SendActualStateStatus_default_instance_.DefaultConstruct();
+  _ConfigureOpenGLVisualizerCommand_default_instance_.DefaultConstruct();
+  _PhysicsSimulationParameters_default_instance_.DefaultConstruct();
+  _PhysicsSimulationParametersCommand_default_instance_.DefaultConstruct();
+  _JointMotorControlCommand_default_instance_.DefaultConstruct();
+  _UserConstraintCommand_default_instance_.DefaultConstruct();
+  _UserConstraintStatus_default_instance_.DefaultConstruct();
+  _UserConstraintStateStatus_default_instance_.DefaultConstruct();
+  _RequestKeyboardEventsCommand_default_instance_.DefaultConstruct();
+  _KeyboardEvent_default_instance_.DefaultConstruct();
+  _KeyboardEventsStatus_default_instance_.DefaultConstruct();
+  _RequestCameraImageCommand_default_instance_.DefaultConstruct();
+  _RequestCameraImageStatus_default_instance_.DefaultConstruct();
   _PyBulletCommand_default_instance_.DefaultConstruct();
   _PyBulletStatus_default_instance_.DefaultConstruct();
+  _transform_default_instance_.get_mutable()->origin_ = const_cast< ::pybullet_grpc::vec3*>(
+      ::pybullet_grpc::vec3::internal_default_instance());
+  _transform_default_instance_.get_mutable()->orientation_ = const_cast< ::pybullet_grpc::quat4*>(
+      ::pybullet_grpc::quat4::internal_default_instance());
   _LoadUrdfCommand_default_instance_.get_mutable()->initialposition_ = const_cast< ::pybullet_grpc::vec3*>(
       ::pybullet_grpc::vec3::internal_default_instance());
   _LoadUrdfCommand_default_instance_.get_mutable()->initialorientation_ = const_cast< ::pybullet_grpc::quat4*>(
@@ -441,6 +820,34 @@ void TableStruct::InitDefaultsImpl() {
   _ChangeDynamicsCommand_default_instance_.activationstate_ = 0;
   _GetDynamicsStatus_default_instance_.get_mutable()->localinertiadiagonal_ = const_cast< ::pybullet_grpc::vec3*>(
       ::pybullet_grpc::vec3::internal_default_instance());
+  _ConfigureOpenGLVisualizerCommand_default_instance_.get_mutable()->cameratargetposition_ = const_cast< ::pybullet_grpc::vec3*>(
+      ::pybullet_grpc::vec3::internal_default_instance());
+  _PhysicsSimulationParameters_default_instance_.get_mutable()->gravityacceleration_ = const_cast< ::pybullet_grpc::vec3*>(
+      ::pybullet_grpc::vec3::internal_default_instance());
+  _PhysicsSimulationParametersCommand_default_instance_.get_mutable()->params_ = const_cast< ::pybullet_grpc::PhysicsSimulationParameters*>(
+      ::pybullet_grpc::PhysicsSimulationParameters::internal_default_instance());
+  _UserConstraintCommand_default_instance_.get_mutable()->parentframe_ = const_cast< ::pybullet_grpc::transform*>(
+      ::pybullet_grpc::transform::internal_default_instance());
+  _UserConstraintCommand_default_instance_.get_mutable()->childframe_ = const_cast< ::pybullet_grpc::transform*>(
+      ::pybullet_grpc::transform::internal_default_instance());
+  _UserConstraintCommand_default_instance_.get_mutable()->jointaxis_ = const_cast< ::pybullet_grpc::vec3*>(
+      ::pybullet_grpc::vec3::internal_default_instance());
+  _UserConstraintStateStatus_default_instance_.get_mutable()->appliedconstraintforceslinear_ = const_cast< ::pybullet_grpc::vec3*>(
+      ::pybullet_grpc::vec3::internal_default_instance());
+  _UserConstraintStateStatus_default_instance_.get_mutable()->appliedconstraintforcesangular_ = const_cast< ::pybullet_grpc::vec3*>(
+      ::pybullet_grpc::vec3::internal_default_instance());
+  _RequestCameraImageCommand_default_instance_.get_mutable()->viewmatrix_ = const_cast< ::pybullet_grpc::matrix4x4*>(
+      ::pybullet_grpc::matrix4x4::internal_default_instance());
+  _RequestCameraImageCommand_default_instance_.get_mutable()->projectionmatrix_ = const_cast< ::pybullet_grpc::matrix4x4*>(
+      ::pybullet_grpc::matrix4x4::internal_default_instance());
+  _RequestCameraImageCommand_default_instance_.get_mutable()->lightdirection_ = const_cast< ::pybullet_grpc::vec3*>(
+      ::pybullet_grpc::vec3::internal_default_instance());
+  _RequestCameraImageCommand_default_instance_.get_mutable()->lightcolor_ = const_cast< ::pybullet_grpc::vec3*>(
+      ::pybullet_grpc::vec3::internal_default_instance());
+  _RequestCameraImageCommand_default_instance_.get_mutable()->projectivetextureviewmatrix_ = const_cast< ::pybullet_grpc::matrix4x4*>(
+      ::pybullet_grpc::matrix4x4::internal_default_instance());
+  _RequestCameraImageCommand_default_instance_.get_mutable()->projectivetextureprojectionmatrix_ = const_cast< ::pybullet_grpc::matrix4x4*>(
+      ::pybullet_grpc::matrix4x4::internal_default_instance());
   _PyBulletCommand_default_instance_.loadurdfcommand_ = const_cast< ::pybullet_grpc::LoadUrdfCommand*>(
       ::pybullet_grpc::LoadUrdfCommand::internal_default_instance());
   _PyBulletCommand_default_instance_.terminateservercommand_ = const_cast< ::pybullet_grpc::TerminateServerCommand*>(
@@ -459,6 +866,24 @@ void TableStruct::InitDefaultsImpl() {
       ::pybullet_grpc::InitPoseCommand::internal_default_instance());
   _PyBulletCommand_default_instance_.requestactualstatecommand_ = const_cast< ::pybullet_grpc::RequestActualStateCommand*>(
       ::pybullet_grpc::RequestActualStateCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.configureopenglvisualizercommand_ = const_cast< ::pybullet_grpc::ConfigureOpenGLVisualizerCommand*>(
+      ::pybullet_grpc::ConfigureOpenGLVisualizerCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.syncbodiescommand_ = const_cast< ::pybullet_grpc::SyncBodiesCommand*>(
+      ::pybullet_grpc::SyncBodiesCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.requestbodyinfocommand_ = const_cast< ::pybullet_grpc::RequestBodyInfoCommand*>(
+      ::pybullet_grpc::RequestBodyInfoCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.setphysicssimulationparameterscommand_ = const_cast< ::pybullet_grpc::PhysicsSimulationParametersCommand*>(
+      ::pybullet_grpc::PhysicsSimulationParametersCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.jointmotorcontrolcommand_ = const_cast< ::pybullet_grpc::JointMotorControlCommand*>(
+      ::pybullet_grpc::JointMotorControlCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.userconstraintcommand_ = const_cast< ::pybullet_grpc::UserConstraintCommand*>(
+      ::pybullet_grpc::UserConstraintCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.checkversioncommand_ = const_cast< ::pybullet_grpc::CheckVersionCommand*>(
+      ::pybullet_grpc::CheckVersionCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.requestkeyboardeventscommand_ = const_cast< ::pybullet_grpc::RequestKeyboardEventsCommand*>(
+      ::pybullet_grpc::RequestKeyboardEventsCommand::internal_default_instance());
+  _PyBulletCommand_default_instance_.requestcameraimagecommand_ = const_cast< ::pybullet_grpc::RequestCameraImageCommand*>(
+      ::pybullet_grpc::RequestCameraImageCommand::internal_default_instance());
   _PyBulletStatus_default_instance_.urdfstatus_ = const_cast< ::pybullet_grpc::LoadUrdfStatus*>(
       ::pybullet_grpc::LoadUrdfStatus::internal_default_instance());
   _PyBulletStatus_default_instance_.sdfstatus_ = const_cast< ::pybullet_grpc::SdfLoadedStatus*>(
@@ -469,6 +894,22 @@ void TableStruct::InitDefaultsImpl() {
       ::pybullet_grpc::GetDynamicsStatus::internal_default_instance());
   _PyBulletStatus_default_instance_.actualstatestatus_ = const_cast< ::pybullet_grpc::SendActualStateStatus*>(
       ::pybullet_grpc::SendActualStateStatus::internal_default_instance());
+  _PyBulletStatus_default_instance_.syncbodiesstatus_ = const_cast< ::pybullet_grpc::SyncBodiesStatus*>(
+      ::pybullet_grpc::SyncBodiesStatus::internal_default_instance());
+  _PyBulletStatus_default_instance_.requestbodyinfostatus_ = const_cast< ::pybullet_grpc::RequestBodyInfoStatus*>(
+      ::pybullet_grpc::RequestBodyInfoStatus::internal_default_instance());
+  _PyBulletStatus_default_instance_.requestphysicssimulationparametersstatus_ = const_cast< ::pybullet_grpc::PhysicsSimulationParameters*>(
+      ::pybullet_grpc::PhysicsSimulationParameters::internal_default_instance());
+  _PyBulletStatus_default_instance_.checkversionstatus_ = const_cast< ::pybullet_grpc::CheckVersionStatus*>(
+      ::pybullet_grpc::CheckVersionStatus::internal_default_instance());
+  _PyBulletStatus_default_instance_.userconstraintstatus_ = const_cast< ::pybullet_grpc::UserConstraintStatus*>(
+      ::pybullet_grpc::UserConstraintStatus::internal_default_instance());
+  _PyBulletStatus_default_instance_.userconstraintstatestatus_ = const_cast< ::pybullet_grpc::UserConstraintStateStatus*>(
+      ::pybullet_grpc::UserConstraintStateStatus::internal_default_instance());
+  _PyBulletStatus_default_instance_.keyboardeventsstatus_ = const_cast< ::pybullet_grpc::KeyboardEventsStatus*>(
+      ::pybullet_grpc::KeyboardEventsStatus::internal_default_instance());
+  _PyBulletStatus_default_instance_.requestcameraimagestatus_ = const_cast< ::pybullet_grpc::RequestCameraImageStatus*>(
+      ::pybullet_grpc::RequestCameraImageStatus::internal_default_instance());
 }
 
 void InitDefaults() {
@@ -481,100 +922,223 @@ void AddDescriptorsImpl() {
       "\n\016pybullet.proto\022\rpybullet_grpc\"\'\n\004vec3\022"
       "\t\n\001x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\022\t\n\001z\030\003 \001(\001\"3\n\005quat"
       "4\022\t\n\001x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\022\t\n\001z\030\003 \001(\001\022\t\n\001w\030"
-      "\004 \001(\001\",\n\026TerminateServerCommand\022\022\n\nexitR"
-      "eason\030\001 \001(\t\"\027\n\025StepSimulationCommand\"\225\002\n"
-      "\017LoadUrdfCommand\022\020\n\010fileName\030\001 \001(\t\022,\n\017in"
-      "itialPosition\030\002 \001(\0132\023.pybullet_grpc.vec3"
-      "\0220\n\022initialOrientation\030\003 \001(\0132\024.pybullet_"
-      "grpc.quat4\022\026\n\014useMultiBody\030\004 \001(\005H\000\022\026\n\014us"
-      "eFixedBase\030\005 \001(\010H\001\022\r\n\005flags\030\006 \001(\005\022\027\n\rglo"
-      "balScaling\030\007 \001(\001H\002B\021\n\017hasUseMultiBodyB\021\n"
-      "\017hasUseFixedBaseB\022\n\020hasGlobalScaling\"&\n\016"
-      "LoadUrdfStatus\022\024\n\014bodyUniqueId\030\001 \001(\005\"z\n\016"
-      "LoadSdfCommand\022\020\n\010fileName\030\001 \001(\t\022\026\n\014useM"
-      "ultiBody\030\002 \001(\005H\000\022\027\n\rglobalScaling\030\003 \001(\001H"
-      "\001B\021\n\017hasUseMultiBodyB\022\n\020hasGlobalScaling"
-      "\"(\n\017SdfLoadedStatus\022\025\n\rbodyUniqueIds\030\002 \003"
-      "(\005\"2\n\017LoadMjcfCommand\022\020\n\010fileName\030\001 \001(\t\022"
-      "\r\n\005flags\030\002 \001(\005\")\n\020MjcfLoadedStatus\022\025\n\rbo"
-      "dyUniqueIds\030\002 \003(\005\"\211\006\n\025ChangeDynamicsComm"
-      "and\022\024\n\014bodyUniqueId\030\001 \001(\005\022\021\n\tlinkIndex\030\002"
-      " \001(\005\022\016\n\004mass\030\003 \001(\001H\000\022\031\n\017lateralFriction\030"
-      "\005 \001(\001H\001\022\032\n\020spinningFriction\030\006 \001(\001H\002\022\031\n\017r"
-      "ollingFriction\030\007 \001(\001H\003\022\025\n\013restitution\030\010 "
-      "\001(\001H\004\022\027\n\rlinearDamping\030\t \001(\001H\005\022\030\n\016angula"
-      "rDamping\030\n \001(\001H\006\022\032\n\020contactStiffness\030\013 \001"
-      "(\001H\007\022\030\n\016contactDamping\030\014 \001(\001H\010\0223\n\024localI"
-      "nertiaDiagonal\030\r \001(\0132\023.pybullet_grpc.vec"
-      "3H\t\022\030\n\016frictionAnchor\030\016 \001(\005H\n\022\036\n\024ccdSwep"
-      "tSphereRadius\030\017 \001(\001H\013\022$\n\032contactProcessi"
-      "ngThreshold\030\020 \001(\001H\014\022\031\n\017activationState\030\021"
-      " \001(\005H\rB\t\n\007hasMassB\024\n\022hasLateralFrictionB"
-      "\025\n\023hasSpinningFrictionB\024\n\022hasRollingFric"
-      "tionB\020\n\016hasRestitutionB\022\n\020haslinearDampi"
-      "ngB\023\n\021hasangularDampingB\025\n\023hasContactSti"
-      "ffnessB\023\n\021hasContactDampingB\031\n\027hasLocalI"
-      "nertiaDiagonalB\023\n\021hasFrictionAnchorB\031\n\027h"
-      "asccdSweptSphereRadiusB\037\n\035hasContactProc"
-      "essingThresholdB\024\n\022hasActivationState\"=\n"
-      "\022GetDynamicsCommand\022\024\n\014bodyUniqueId\030\001 \001("
-      "\005\022\021\n\tlinkIndex\030\002 \001(\005\"\211\003\n\021GetDynamicsStat"
-      "us\022\014\n\004mass\030\003 \001(\001\022\027\n\017lateralFriction\030\005 \001("
-      "\001\022\030\n\020spinningFriction\030\006 \001(\001\022\027\n\017rollingFr"
-      "iction\030\007 \001(\001\022\023\n\013restitution\030\010 \001(\001\022\025\n\rlin"
-      "earDamping\030\t \001(\001\022\026\n\016angularDamping\030\n \001(\001"
-      "\022\030\n\020contactStiffness\030\013 \001(\001\022\026\n\016contactDam"
-      "ping\030\014 \001(\001\0221\n\024localInertiaDiagonal\030\r \001(\013"
-      "2\023.pybullet_grpc.vec3\022\026\n\016frictionAnchor\030"
-      "\016 \001(\005\022\034\n\024ccdSweptSphereRadius\030\017 \001(\001\022\"\n\032c"
-      "ontactProcessingThreshold\030\020 \001(\001\022\027\n\017activ"
-      "ationState\030\021 \001(\005\"\217\001\n\017InitPoseCommand\022\024\n\014"
-      "bodyUniqueId\030\001 \001(\005\022\030\n\020hasInitialStateQ\030\002"
-      " \003(\005\022\025\n\rinitialStateQ\030\003 \003(\001\022\033\n\023hasInitia"
-      "lStateQdot\030\004 \003(\005\022\030\n\020initialStateQdot\030\005 \003"
-      "(\001\"r\n\031RequestActualStateCommand\022\024\n\014bodyU"
-      "niqueId\030\001 \001(\005\022 \n\030computeForwardKinematic"
-      "s\030\002 \001(\010\022\035\n\025computeLinkVelocities\030\003 \001(\010\"\317"
-      "\002\n\025SendActualStateStatus\022\024\n\014bodyUniqueId"
-      "\030\001 \001(\005\022\020\n\010numLinks\030\002 \001(\005\022\033\n\023numDegreeOfF"
-      "reedomQ\030\003 \001(\005\022\033\n\023numDegreeOfFreedomU\030\004 \001"
-      "(\005\022\036\n\026rootLocalInertialFrame\030\005 \003(\001\022\024\n\014ac"
-      "tualStateQ\030\006 \003(\001\022\027\n\017actualStateQdot\030\007 \003("
-      "\001\022\033\n\023jointReactionForces\030\010 \003(\001\022\027\n\017jointM"
-      "otorForce\030\t \003(\001\022\021\n\tlinkState\030\n \003(\001\022\033\n\023li"
-      "nkWorldVelocities\030\013 \003(\001\022\037\n\027linkLocalIner"
-      "tialFrames\030\014 \003(\001\"\203\005\n\017PyBulletCommand\022\023\n\013"
-      "commandType\030\001 \001(\005\0229\n\017loadUrdfCommand\030\003 \001"
-      "(\0132\036.pybullet_grpc.LoadUrdfCommandH\000\022G\n\026"
-      "terminateServerCommand\030\004 \001(\0132%.pybullet_"
-      "grpc.TerminateServerCommandH\000\022E\n\025stepSim"
-      "ulationCommand\030\005 \001(\0132$.pybullet_grpc.Ste"
-      "pSimulationCommandH\000\0227\n\016loadSdfCommand\030\006"
-      " \001(\0132\035.pybullet_grpc.LoadSdfCommandH\000\0229\n"
-      "\017loadMjcfCommand\030\007 \001(\0132\036.pybullet_grpc.L"
-      "oadMjcfCommandH\000\022E\n\025changeDynamicsComman"
-      "d\030\010 \001(\0132$.pybullet_grpc.ChangeDynamicsCo"
-      "mmandH\000\022\?\n\022getDynamicsCommand\030\t \001(\0132!.py"
-      "bullet_grpc.GetDynamicsCommandH\000\0229\n\017init"
-      "PoseCommand\030\n \001(\0132\036.pybullet_grpc.InitPo"
-      "seCommandH\000\022M\n\031requestActualStateCommand"
-      "\030\013 \001(\0132(.pybullet_grpc.RequestActualStat"
-      "eCommandH\000B\n\n\010commands\"\321\002\n\016PyBulletStatu"
-      "s\022\022\n\nstatusType\030\001 \001(\005\0223\n\nurdfStatus\030\002 \001("
-      "\0132\035.pybullet_grpc.LoadUrdfStatusH\000\0223\n\tsd"
-      "fStatus\030\003 \001(\0132\036.pybullet_grpc.SdfLoadedS"
-      "tatusH\000\0225\n\nmjcfStatus\030\004 \001(\0132\037.pybullet_g"
-      "rpc.MjcfLoadedStatusH\000\022=\n\021getDynamicsSta"
-      "tus\030\005 \001(\0132 .pybullet_grpc.GetDynamicsSta"
-      "tusH\000\022A\n\021actualStateStatus\030\006 \001(\0132$.pybul"
-      "let_grpc.SendActualStateStatusH\000B\010\n\006stat"
-      "us2_\n\013PyBulletAPI\022P\n\rSubmitCommand\022\036.pyb"
-      "ullet_grpc.PyBulletCommand\032\035.pybullet_gr"
-      "pc.PyBulletStatus\"\000B.\n\025io.grpc.pybullet_"
-      "grpcB\rPyBulletProtoP\001\242\002\003PBGb\006proto3"
+      "\004 \001(\001\"2\n\004vec4\022\t\n\001x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\022\t\n\001z"
+      "\030\003 \001(\001\022\t\n\001w\030\004 \001(\001\"[\n\ttransform\022#\n\006origin"
+      "\030\001 \001(\0132\023.pybullet_grpc.vec3\022)\n\013orientati"
+      "on\030\002 \001(\0132\024.pybullet_grpc.quat4\"\032\n\tmatrix"
+      "4x4\022\r\n\005elems\030\001 \003(\001\",\n\023CheckVersionComman"
+      "d\022\025\n\rclientVersion\030\001 \001(\005\"+\n\022CheckVersion"
+      "Status\022\025\n\rserverVersion\030\001 \001(\005\",\n\026Termina"
+      "teServerCommand\022\022\n\nexitReason\030\001 \001(\t\"\027\n\025S"
+      "tepSimulationCommand\"\023\n\021SyncBodiesComman"
+      "d\"J\n\020SyncBodiesStatus\022\025\n\rbodyUniqueIds\030\001"
+      " \003(\005\022\037\n\027userConstraintUniqueIds\030\002 \003(\005\".\n"
+      "\026RequestBodyInfoCommand\022\024\n\014bodyUniqueId\030"
+      "\001 \001(\005\"\?\n\025RequestBodyInfoStatus\022\024\n\014bodyUn"
+      "iqueId\030\001 \001(\005\022\020\n\010bodyName\030\002 \001(\t\"\225\002\n\017LoadU"
+      "rdfCommand\022\020\n\010fileName\030\001 \001(\t\022,\n\017initialP"
+      "osition\030\002 \001(\0132\023.pybullet_grpc.vec3\0220\n\022in"
+      "itialOrientation\030\003 \001(\0132\024.pybullet_grpc.q"
+      "uat4\022\026\n\014useMultiBody\030\004 \001(\005H\000\022\026\n\014useFixed"
+      "Base\030\005 \001(\010H\001\022\r\n\005flags\030\006 \001(\005\022\027\n\rglobalSca"
+      "ling\030\007 \001(\001H\002B\021\n\017hasUseMultiBodyB\021\n\017hasUs"
+      "eFixedBaseB\022\n\020hasGlobalScaling\"J\n\016LoadUr"
+      "dfStatus\022\024\n\014bodyUniqueId\030\001 \001(\005\022\020\n\010bodyNa"
+      "me\030\002 \001(\t\022\020\n\010fileName\030\003 \001(\t\"z\n\016LoadSdfCom"
+      "mand\022\020\n\010fileName\030\001 \001(\t\022\026\n\014useMultiBody\030\002"
+      " \001(\005H\000\022\027\n\rglobalScaling\030\003 \001(\001H\001B\021\n\017hasUs"
+      "eMultiBodyB\022\n\020hasGlobalScaling\"(\n\017SdfLoa"
+      "dedStatus\022\025\n\rbodyUniqueIds\030\002 \003(\005\"2\n\017Load"
+      "MjcfCommand\022\020\n\010fileName\030\001 \001(\t\022\r\n\005flags\030\002"
+      " \001(\005\")\n\020MjcfLoadedStatus\022\025\n\rbodyUniqueId"
+      "s\030\002 \003(\005\"\211\006\n\025ChangeDynamicsCommand\022\024\n\014bod"
+      "yUniqueId\030\001 \001(\005\022\021\n\tlinkIndex\030\002 \001(\005\022\016\n\004ma"
+      "ss\030\003 \001(\001H\000\022\031\n\017lateralFriction\030\005 \001(\001H\001\022\032\n"
+      "\020spinningFriction\030\006 \001(\001H\002\022\031\n\017rollingFric"
+      "tion\030\007 \001(\001H\003\022\025\n\013restitution\030\010 \001(\001H\004\022\027\n\rl"
+      "inearDamping\030\t \001(\001H\005\022\030\n\016angularDamping\030\n"
+      " \001(\001H\006\022\032\n\020contactStiffness\030\013 \001(\001H\007\022\030\n\016co"
+      "ntactDamping\030\014 \001(\001H\010\0223\n\024localInertiaDiag"
+      "onal\030\r \001(\0132\023.pybullet_grpc.vec3H\t\022\030\n\016fri"
+      "ctionAnchor\030\016 \001(\005H\n\022\036\n\024ccdSweptSphereRad"
+      "ius\030\017 \001(\001H\013\022$\n\032contactProcessingThreshol"
+      "d\030\020 \001(\001H\014\022\031\n\017activationState\030\021 \001(\005H\rB\t\n\007"
+      "hasMassB\024\n\022hasLateralFrictionB\025\n\023hasSpin"
+      "ningFrictionB\024\n\022hasRollingFrictionB\020\n\016ha"
+      "sRestitutionB\022\n\020haslinearDampingB\023\n\021hasa"
+      "ngularDampingB\025\n\023hasContactStiffnessB\023\n\021"
+      "hasContactDampingB\031\n\027hasLocalInertiaDiag"
+      "onalB\023\n\021hasFrictionAnchorB\031\n\027hasccdSwept"
+      "SphereRadiusB\037\n\035hasContactProcessingThre"
+      "sholdB\024\n\022hasActivationState\"=\n\022GetDynami"
+      "csCommand\022\024\n\014bodyUniqueId\030\001 \001(\005\022\021\n\tlinkI"
+      "ndex\030\002 \001(\005\"\211\003\n\021GetDynamicsStatus\022\014\n\004mass"
+      "\030\003 \001(\001\022\027\n\017lateralFriction\030\005 \001(\001\022\030\n\020spinn"
+      "ingFriction\030\006 \001(\001\022\027\n\017rollingFriction\030\007 \001"
+      "(\001\022\023\n\013restitution\030\010 \001(\001\022\025\n\rlinearDamping"
+      "\030\t \001(\001\022\026\n\016angularDamping\030\n \001(\001\022\030\n\020contac"
+      "tStiffness\030\013 \001(\001\022\026\n\016contactDamping\030\014 \001(\001"
+      "\0221\n\024localInertiaDiagonal\030\r \001(\0132\023.pybulle"
+      "t_grpc.vec3\022\026\n\016frictionAnchor\030\016 \001(\005\022\034\n\024c"
+      "cdSweptSphereRadius\030\017 \001(\001\022\"\n\032contactProc"
+      "essingThreshold\030\020 \001(\001\022\027\n\017activationState"
+      "\030\021 \001(\005\"\244\001\n\017InitPoseCommand\022\024\n\014bodyUnique"
+      "Id\030\001 \001(\005\022\023\n\013updateflags\030\002 \001(\005\022\030\n\020hasInit"
+      "ialStateQ\030\003 \003(\005\022\025\n\rinitialStateQ\030\004 \003(\001\022\033"
+      "\n\023hasInitialStateQdot\030\005 \003(\005\022\030\n\020initialSt"
+      "ateQdot\030\006 \003(\001\"r\n\031RequestActualStateComma"
+      "nd\022\024\n\014bodyUniqueId\030\001 \001(\005\022 \n\030computeForwa"
+      "rdKinematics\030\002 \001(\010\022\035\n\025computeLinkVelocit"
+      "ies\030\003 \001(\010\"\317\002\n\025SendActualStateStatus\022\024\n\014b"
+      "odyUniqueId\030\001 \001(\005\022\020\n\010numLinks\030\002 \001(\005\022\033\n\023n"
+      "umDegreeOfFreedomQ\030\003 \001(\005\022\033\n\023numDegreeOfF"
+      "reedomU\030\004 \001(\005\022\036\n\026rootLocalInertialFrame\030"
+      "\005 \003(\001\022\024\n\014actualStateQ\030\006 \003(\001\022\027\n\017actualSta"
+      "teQdot\030\007 \003(\001\022\033\n\023jointReactionForces\030\010 \003("
+      "\001\022\027\n\017jointMotorForce\030\t \003(\001\022\021\n\tlinkState\030"
+      "\n \003(\001\022\033\n\023linkWorldVelocities\030\013 \003(\001\022\037\n\027li"
+      "nkLocalInertialFrames\030\014 \003(\001\"\317\001\n Configur"
+      "eOpenGLVisualizerCommand\022\023\n\013updateFlags\030"
+      "\001 \001(\005\022\026\n\016cameraDistance\030\002 \001(\001\022\023\n\013cameraP"
+      "itch\030\003 \001(\001\022\021\n\tcameraYaw\030\004 \001(\001\0221\n\024cameraT"
+      "argetPosition\030\005 \001(\0132\023.pybullet_grpc.vec3"
+      "\022\017\n\007setFlag\030\006 \001(\005\022\022\n\nsetEnabled\030\007 \001(\005\"\234\006"
+      "\n\033PhysicsSimulationParameters\022\021\n\tdeltaTi"
+      "me\030\001 \001(\001\0220\n\023gravityAcceleration\030\002 \001(\0132\023."
+      "pybullet_grpc.vec3\022\035\n\025numSimulationSubSt"
+      "eps\030\003 \001(\005\022\033\n\023numSolverIterations\030\004 \001(\005\022\035"
+      "\n\025useRealTimeSimulation\030\005 \001(\005\022\027\n\017useSpli"
+      "tImpulse\030\006 \001(\005\022(\n splitImpulsePenetratio"
+      "nThreshold\030\007 \001(\001\022 \n\030contactBreakingThres"
+      "hold\030\010 \001(\001\022\030\n\020internalSimFlags\030\t \001(\005\022\031\n\021"
+      "defaultContactERP\030\n \001(\001\022\033\n\023collisionFilt"
+      "erMode\030\013 \001(\005\022\031\n\021enableFileCaching\030\014 \001(\005\022"
+      "$\n\034restitutionVelocityThreshold\030\r \001(\001\022\034\n"
+      "\024defaultNonContactERP\030\016 \001(\001\022\023\n\013frictionE"
+      "RP\030\017 \001(\001\022\030\n\020defaultGlobalCFM\030\020 \001(\001\022\023\n\013fr"
+      "ictionCFM\030\021 \001(\001\022\032\n\022enableConeFriction\030\022 "
+      "\001(\005\022%\n\035deterministicOverlappingPairs\030\023 \001"
+      "(\005\022\035\n\025allowedCcdPenetration\030\024 \001(\001\022\031\n\021joi"
+      "ntFeedbackMode\030\025 \001(\005\022\037\n\027solverResidualTh"
+      "reshold\030\026 \001(\001\022\023\n\013contactSlop\030\027 \001(\001\022\021\n\ten"
+      "ableSAT\030\030 \001(\005\022\034\n\024constraintSolverType\030\031 "
+      "\001(\005\022\037\n\027minimumSolverIslandSize\030\032 \001(\005\"u\n\""
+      "PhysicsSimulationParametersCommand\022\023\n\013up"
+      "dateFlags\030\001 \001(\005\022:\n\006params\030\002 \001(\0132*.pybull"
+      "et_grpc.PhysicsSimulationParameters\"\367\001\n\030"
+      "JointMotorControlCommand\022\024\n\014bodyUniqueId"
+      "\030\001 \001(\005\022\023\n\013controlMode\030\002 \001(\005\022\023\n\013updateFla"
+      "gs\030\003 \001(\005\022\n\n\002Kp\030\004 \003(\001\022\n\n\002Kd\030\005 \003(\001\022\023\n\013maxV"
+      "elocity\030\006 \003(\001\022\034\n\024hasDesiredStateFlags\030\007 "
+      "\003(\005\022\025\n\rdesiredStateQ\030\010 \003(\001\022\030\n\020desiredSta"
+      "teQdot\030\t \003(\001\022\037\n\027desiredStateForceTorque\030"
+      "\n \003(\001\"\266\003\n\025UserConstraintCommand\022\027\n\017paren"
+      "tBodyIndex\030\001 \001(\005\022\030\n\020parentJointIndex\030\002 \001"
+      "(\005\022\026\n\016childBodyIndex\030\003 \001(\005\022\027\n\017childJoint"
+      "Index\030\004 \001(\005\022-\n\013parentFrame\030\005 \001(\0132\030.pybul"
+      "let_grpc.transform\022,\n\nchildFrame\030\006 \001(\0132\030"
+      ".pybullet_grpc.transform\022&\n\tjointAxis\030\007 "
+      "\001(\0132\023.pybullet_grpc.vec3\022\021\n\tjointType\030\010 "
+      "\001(\005\022\027\n\017maxAppliedForce\030\t \001(\001\022\036\n\026userCons"
+      "traintUniqueId\030\n \001(\005\022\021\n\tgearRatio\030\013 \001(\001\022"
+      "\023\n\013gearAuxLink\030\014 \001(\005\022\036\n\026relativePosition"
+      "Target\030\r \001(\001\022\013\n\003erp\030\016 \001(\001\022\023\n\013updateFlags"
+      "\030\017 \001(\005\"O\n\024UserConstraintStatus\022\027\n\017maxApp"
+      "liedForce\030\t \001(\001\022\036\n\026userConstraintUniqueI"
+      "d\030\n \001(\005\"\245\001\n\031UserConstraintStateStatus\022:\n"
+      "\035appliedConstraintForcesLinear\030\001 \001(\0132\023.p"
+      "ybullet_grpc.vec3\022;\n\036appliedConstraintFo"
+      "rcesAngular\030\002 \001(\0132\023.pybullet_grpc.vec3\022\017"
+      "\n\007numDofs\030\003 \001(\005\"\036\n\034RequestKeyboardEvents"
+      "Command\"2\n\rKeyboardEvent\022\017\n\007keyCode\030\001 \001("
+      "\005\022\020\n\010keyState\030\002 \001(\005\"L\n\024KeyboardEventsSta"
+      "tus\0224\n\016keyboardEvents\030\001 \003(\0132\034.pybullet_g"
+      "rpc.KeyboardEvent\"\277\004\n\031RequestCameraImage"
+      "Command\022\023\n\013updateFlags\030\001 \001(\005\022\023\n\013cameraFl"
+      "ags\030\002 \001(\005\022,\n\nviewMatrix\030\003 \001(\0132\030.pybullet"
+      "_grpc.matrix4x4\0222\n\020projectionMatrix\030\004 \001("
+      "\0132\030.pybullet_grpc.matrix4x4\022\027\n\017startPixe"
+      "lIndex\030\005 \001(\005\022\022\n\npixelWidth\030\006 \001(\005\022\023\n\013pixe"
+      "lHeight\030\007 \001(\005\022+\n\016lightDirection\030\010 \001(\0132\023."
+      "pybullet_grpc.vec3\022\'\n\nlightColor\030\t \001(\0132\023"
+      ".pybullet_grpc.vec3\022\025\n\rlightDistance\030\n \001"
+      "(\001\022\031\n\021lightAmbientCoeff\030\013 \001(\001\022\031\n\021lightDi"
+      "ffuseCoeff\030\014 \001(\001\022\032\n\022lightSpecularCoeff\030\r"
+      " \001(\001\022\021\n\thasShadow\030\016 \001(\005\022=\n\033projectiveTex"
+      "tureViewMatrix\030\017 \001(\0132\030.pybullet_grpc.mat"
+      "rix4x4\022C\n!projectiveTextureProjectionMat"
+      "rix\030\020 \001(\0132\030.pybullet_grpc.matrix4x4\"\224\001\n\030"
+      "RequestCameraImageStatus\022\022\n\nimageWidth\030\001"
+      " \001(\005\022\023\n\013imageHeight\030\002 \001(\005\022\032\n\022startingPix"
+      "elIndex\030\003 \001(\005\022\027\n\017numPixelsCopied\030\004 \001(\005\022\032"
+      "\n\022numRemainingPixels\030\005 \001(\005\"\375\n\n\017PyBulletC"
+      "ommand\022\023\n\013commandType\030\001 \001(\005\022\022\n\nbinaryBlo"
+      "b\030\002 \003(\014\022 \n\030unknownCommandBinaryBlob\030\003 \003("
+      "\014\0229\n\017loadUrdfCommand\030\004 \001(\0132\036.pybullet_gr"
+      "pc.LoadUrdfCommandH\000\022G\n\026terminateServerC"
+      "ommand\030\005 \001(\0132%.pybullet_grpc.TerminateSe"
+      "rverCommandH\000\022E\n\025stepSimulationCommand\030\006"
+      " \001(\0132$.pybullet_grpc.StepSimulationComma"
+      "ndH\000\0227\n\016loadSdfCommand\030\007 \001(\0132\035.pybullet_"
+      "grpc.LoadSdfCommandH\000\0229\n\017loadMjcfCommand"
+      "\030\010 \001(\0132\036.pybullet_grpc.LoadMjcfCommandH\000"
+      "\022E\n\025changeDynamicsCommand\030\t \001(\0132$.pybull"
+      "et_grpc.ChangeDynamicsCommandH\000\022\?\n\022getDy"
+      "namicsCommand\030\n \001(\0132!.pybullet_grpc.GetD"
+      "ynamicsCommandH\000\0229\n\017initPoseCommand\030\013 \001("
+      "\0132\036.pybullet_grpc.InitPoseCommandH\000\022M\n\031r"
+      "equestActualStateCommand\030\014 \001(\0132(.pybulle"
+      "t_grpc.RequestActualStateCommandH\000\022[\n co"
+      "nfigureOpenGLVisualizerCommand\030\r \001(\0132/.p"
+      "ybullet_grpc.ConfigureOpenGLVisualizerCo"
+      "mmandH\000\022=\n\021syncBodiesCommand\030\016 \001(\0132 .pyb"
+      "ullet_grpc.SyncBodiesCommandH\000\022G\n\026reques"
+      "tBodyInfoCommand\030\017 \001(\0132%.pybullet_grpc.R"
+      "equestBodyInfoCommandH\000\022b\n%setPhysicsSim"
+      "ulationParametersCommand\030\020 \001(\01321.pybulle"
+      "t_grpc.PhysicsSimulationParametersComman"
+      "dH\000\022K\n\030jointMotorControlCommand\030\021 \001(\0132\'."
+      "pybullet_grpc.JointMotorControlCommandH\000"
+      "\022E\n\025userConstraintCommand\030\022 \001(\0132$.pybull"
+      "et_grpc.UserConstraintCommandH\000\022A\n\023check"
+      "VersionCommand\030\023 \001(\0132\".pybullet_grpc.Che"
+      "ckVersionCommandH\000\022S\n\034requestKeyboardEve"
+      "ntsCommand\030\024 \001(\0132+.pybullet_grpc.Request"
+      "KeyboardEventsCommandH\000\022M\n\031requestCamera"
+      "ImageCommand\030\025 \001(\0132(.pybullet_grpc.Reque"
+      "stCameraImageCommandH\000B\n\n\010commands\"\321\007\n\016P"
+      "yBulletStatus\022\022\n\nstatusType\030\001 \001(\005\022\022\n\nbin"
+      "aryBlob\030\002 \003(\014\022\037\n\027unknownStatusBinaryBlob"
+      "\030\003 \003(\014\0223\n\nurdfStatus\030\004 \001(\0132\035.pybullet_gr"
+      "pc.LoadUrdfStatusH\000\0223\n\tsdfStatus\030\005 \001(\0132\036"
+      ".pybullet_grpc.SdfLoadedStatusH\000\0225\n\nmjcf"
+      "Status\030\006 \001(\0132\037.pybullet_grpc.MjcfLoadedS"
+      "tatusH\000\022=\n\021getDynamicsStatus\030\007 \001(\0132 .pyb"
+      "ullet_grpc.GetDynamicsStatusH\000\022A\n\021actual"
+      "StateStatus\030\010 \001(\0132$.pybullet_grpc.SendAc"
+      "tualStateStatusH\000\022;\n\020syncBodiesStatus\030\t "
+      "\001(\0132\037.pybullet_grpc.SyncBodiesStatusH\000\022E"
+      "\n\025requestBodyInfoStatus\030\n \001(\0132$.pybullet"
+      "_grpc.RequestBodyInfoStatusH\000\022^\n(request"
+      "PhysicsSimulationParametersStatus\030\013 \001(\0132"
+      "*.pybullet_grpc.PhysicsSimulationParamet"
+      "ersH\000\022\?\n\022checkVersionStatus\030\014 \001(\0132!.pybu"
+      "llet_grpc.CheckVersionStatusH\000\022C\n\024userCo"
+      "nstraintStatus\030\r \001(\0132#.pybullet_grpc.Use"
+      "rConstraintStatusH\000\022M\n\031userConstraintSta"
+      "teStatus\030\016 \001(\0132(.pybullet_grpc.UserConst"
+      "raintStateStatusH\000\022C\n\024keyboardEventsStat"
+      "us\030\017 \001(\0132#.pybullet_grpc.KeyboardEventsS"
+      "tatusH\000\022K\n\030requestCameraImageStatus\030\020 \001("
+      "\0132\'.pybullet_grpc.RequestCameraImageStat"
+      "usH\000B\010\n\006status2_\n\013PyBulletAPI\022P\n\rSubmitC"
+      "ommand\022\036.pybullet_grpc.PyBulletCommand\032\035"
+      ".pybullet_grpc.PyBulletStatus\"\000B.\n\025io.gr"
+      "pc.pybullet_grpcB\rPyBulletProtoP\001\242\002\003PBGb"
+      "\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 3755);
+      descriptor, 8647);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "pybullet.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&TableStruct::Shutdown);
@@ -1286,6 +1850,1434 @@ void quat4::set_w(double value) {
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int vec4::kXFieldNumber;
+const int vec4::kYFieldNumber;
+const int vec4::kZFieldNumber;
+const int vec4::kWFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+vec4::vec4()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.vec4)
+}
+vec4::vec4(const vec4& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&x_, &from.x_,
+    reinterpret_cast<char*>(&w_) -
+    reinterpret_cast<char*>(&x_) + sizeof(w_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.vec4)
+}
+
+void vec4::SharedCtor() {
+  ::memset(&x_, 0, reinterpret_cast<char*>(&w_) -
+    reinterpret_cast<char*>(&x_) + sizeof(w_));
+  _cached_size_ = 0;
+}
+
+vec4::~vec4() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.vec4)
+  SharedDtor();
+}
+
+void vec4::SharedDtor() {
+}
+
+void vec4::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* vec4::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[2].descriptor;
+}
+
+const vec4& vec4::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+vec4* vec4::New(::google::protobuf::Arena* arena) const {
+  vec4* n = new vec4;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void vec4::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.vec4)
+  ::memset(&x_, 0, reinterpret_cast<char*>(&w_) -
+    reinterpret_cast<char*>(&x_) + sizeof(w_));
+}
+
+bool vec4::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.vec4)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // double x = 1;
+      case 1: {
+        if (tag == 9u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &x_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double y = 2;
+      case 2: {
+        if (tag == 17u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &y_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double z = 3;
+      case 3: {
+        if (tag == 25u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &z_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double w = 4;
+      case 4: {
+        if (tag == 33u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &w_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.vec4)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.vec4)
+  return false;
+#undef DO_
+}
+
+void vec4::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.vec4)
+  // double x = 1;
+  if (this->x() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(1, this->x(), output);
+  }
+
+  // double y = 2;
+  if (this->y() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(2, this->y(), output);
+  }
+
+  // double z = 3;
+  if (this->z() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(3, this->z(), output);
+  }
+
+  // double w = 4;
+  if (this->w() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(4, this->w(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.vec4)
+}
+
+::google::protobuf::uint8* vec4::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.vec4)
+  // double x = 1;
+  if (this->x() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(1, this->x(), target);
+  }
+
+  // double y = 2;
+  if (this->y() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(2, this->y(), target);
+  }
+
+  // double z = 3;
+  if (this->z() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(3, this->z(), target);
+  }
+
+  // double w = 4;
+  if (this->w() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(4, this->w(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.vec4)
+  return target;
+}
+
+size_t vec4::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.vec4)
+  size_t total_size = 0;
+
+  // double x = 1;
+  if (this->x() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double y = 2;
+  if (this->y() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double z = 3;
+  if (this->z() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double w = 4;
+  if (this->w() != 0) {
+    total_size += 1 + 8;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void vec4::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.vec4)
+  GOOGLE_DCHECK_NE(&from, this);
+  const vec4* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const vec4>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.vec4)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.vec4)
+    MergeFrom(*source);
+  }
+}
+
+void vec4::MergeFrom(const vec4& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.vec4)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.x() != 0) {
+    set_x(from.x());
+  }
+  if (from.y() != 0) {
+    set_y(from.y());
+  }
+  if (from.z() != 0) {
+    set_z(from.z());
+  }
+  if (from.w() != 0) {
+    set_w(from.w());
+  }
+}
+
+void vec4::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.vec4)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void vec4::CopyFrom(const vec4& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.vec4)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool vec4::IsInitialized() const {
+  return true;
+}
+
+void vec4::Swap(vec4* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void vec4::InternalSwap(vec4* other) {
+  std::swap(x_, other->x_);
+  std::swap(y_, other->y_);
+  std::swap(z_, other->z_);
+  std::swap(w_, other->w_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata vec4::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[2];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// vec4
+
+// double x = 1;
+void vec4::clear_x() {
+  x_ = 0;
+}
+double vec4::x() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.vec4.x)
+  return x_;
+}
+void vec4::set_x(double value) {
+  
+  x_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.vec4.x)
+}
+
+// double y = 2;
+void vec4::clear_y() {
+  y_ = 0;
+}
+double vec4::y() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.vec4.y)
+  return y_;
+}
+void vec4::set_y(double value) {
+  
+  y_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.vec4.y)
+}
+
+// double z = 3;
+void vec4::clear_z() {
+  z_ = 0;
+}
+double vec4::z() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.vec4.z)
+  return z_;
+}
+void vec4::set_z(double value) {
+  
+  z_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.vec4.z)
+}
+
+// double w = 4;
+void vec4::clear_w() {
+  w_ = 0;
+}
+double vec4::w() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.vec4.w)
+  return w_;
+}
+void vec4::set_w(double value) {
+  
+  w_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.vec4.w)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int transform::kOriginFieldNumber;
+const int transform::kOrientationFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+transform::transform()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.transform)
+}
+transform::transform(const transform& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_origin()) {
+    origin_ = new ::pybullet_grpc::vec3(*from.origin_);
+  } else {
+    origin_ = NULL;
+  }
+  if (from.has_orientation()) {
+    orientation_ = new ::pybullet_grpc::quat4(*from.orientation_);
+  } else {
+    orientation_ = NULL;
+  }
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.transform)
+}
+
+void transform::SharedCtor() {
+  ::memset(&origin_, 0, reinterpret_cast<char*>(&orientation_) -
+    reinterpret_cast<char*>(&origin_) + sizeof(orientation_));
+  _cached_size_ = 0;
+}
+
+transform::~transform() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.transform)
+  SharedDtor();
+}
+
+void transform::SharedDtor() {
+  if (this != internal_default_instance()) {
+    delete origin_;
+  }
+  if (this != internal_default_instance()) {
+    delete orientation_;
+  }
+}
+
+void transform::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* transform::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[3].descriptor;
+}
+
+const transform& transform::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+transform* transform::New(::google::protobuf::Arena* arena) const {
+  transform* n = new transform;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void transform::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.transform)
+  if (GetArenaNoVirtual() == NULL && origin_ != NULL) {
+    delete origin_;
+  }
+  origin_ = NULL;
+  if (GetArenaNoVirtual() == NULL && orientation_ != NULL) {
+    delete orientation_;
+  }
+  orientation_ = NULL;
+}
+
+bool transform::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.transform)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // .pybullet_grpc.vec3 origin = 1;
+      case 1: {
+        if (tag == 10u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_origin()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.quat4 orientation = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_orientation()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.transform)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.transform)
+  return false;
+#undef DO_
+}
+
+void transform::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.transform)
+  // .pybullet_grpc.vec3 origin = 1;
+  if (this->has_origin()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, *this->origin_, output);
+  }
+
+  // .pybullet_grpc.quat4 orientation = 2;
+  if (this->has_orientation()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, *this->orientation_, output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.transform)
+}
+
+::google::protobuf::uint8* transform::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.transform)
+  // .pybullet_grpc.vec3 origin = 1;
+  if (this->has_origin()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        1, *this->origin_, false, target);
+  }
+
+  // .pybullet_grpc.quat4 orientation = 2;
+  if (this->has_orientation()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        2, *this->orientation_, false, target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.transform)
+  return target;
+}
+
+size_t transform::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.transform)
+  size_t total_size = 0;
+
+  // .pybullet_grpc.vec3 origin = 1;
+  if (this->has_origin()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->origin_);
+  }
+
+  // .pybullet_grpc.quat4 orientation = 2;
+  if (this->has_orientation()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->orientation_);
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void transform::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.transform)
+  GOOGLE_DCHECK_NE(&from, this);
+  const transform* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const transform>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.transform)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.transform)
+    MergeFrom(*source);
+  }
+}
+
+void transform::MergeFrom(const transform& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.transform)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_origin()) {
+    mutable_origin()->::pybullet_grpc::vec3::MergeFrom(from.origin());
+  }
+  if (from.has_orientation()) {
+    mutable_orientation()->::pybullet_grpc::quat4::MergeFrom(from.orientation());
+  }
+}
+
+void transform::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.transform)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void transform::CopyFrom(const transform& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.transform)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool transform::IsInitialized() const {
+  return true;
+}
+
+void transform::Swap(transform* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void transform::InternalSwap(transform* other) {
+  std::swap(origin_, other->origin_);
+  std::swap(orientation_, other->orientation_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata transform::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[3];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// transform
+
+// .pybullet_grpc.vec3 origin = 1;
+bool transform::has_origin() const {
+  return this != internal_default_instance() && origin_ != NULL;
+}
+void transform::clear_origin() {
+  if (GetArenaNoVirtual() == NULL && origin_ != NULL) delete origin_;
+  origin_ = NULL;
+}
+const ::pybullet_grpc::vec3& transform::origin() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.transform.origin)
+  return origin_ != NULL ? *origin_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+::pybullet_grpc::vec3* transform::mutable_origin() {
+  
+  if (origin_ == NULL) {
+    origin_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.transform.origin)
+  return origin_;
+}
+::pybullet_grpc::vec3* transform::release_origin() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.transform.origin)
+  
+  ::pybullet_grpc::vec3* temp = origin_;
+  origin_ = NULL;
+  return temp;
+}
+void transform::set_allocated_origin(::pybullet_grpc::vec3* origin) {
+  delete origin_;
+  origin_ = origin;
+  if (origin) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.transform.origin)
+}
+
+// .pybullet_grpc.quat4 orientation = 2;
+bool transform::has_orientation() const {
+  return this != internal_default_instance() && orientation_ != NULL;
+}
+void transform::clear_orientation() {
+  if (GetArenaNoVirtual() == NULL && orientation_ != NULL) delete orientation_;
+  orientation_ = NULL;
+}
+const ::pybullet_grpc::quat4& transform::orientation() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.transform.orientation)
+  return orientation_ != NULL ? *orientation_
+                         : *::pybullet_grpc::quat4::internal_default_instance();
+}
+::pybullet_grpc::quat4* transform::mutable_orientation() {
+  
+  if (orientation_ == NULL) {
+    orientation_ = new ::pybullet_grpc::quat4;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.transform.orientation)
+  return orientation_;
+}
+::pybullet_grpc::quat4* transform::release_orientation() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.transform.orientation)
+  
+  ::pybullet_grpc::quat4* temp = orientation_;
+  orientation_ = NULL;
+  return temp;
+}
+void transform::set_allocated_orientation(::pybullet_grpc::quat4* orientation) {
+  delete orientation_;
+  orientation_ = orientation;
+  if (orientation) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.transform.orientation)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int matrix4x4::kElemsFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+matrix4x4::matrix4x4()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.matrix4x4)
+}
+matrix4x4::matrix4x4(const matrix4x4& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      elems_(from.elems_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.matrix4x4)
+}
+
+void matrix4x4::SharedCtor() {
+  _cached_size_ = 0;
+}
+
+matrix4x4::~matrix4x4() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.matrix4x4)
+  SharedDtor();
+}
+
+void matrix4x4::SharedDtor() {
+}
+
+void matrix4x4::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* matrix4x4::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[4].descriptor;
+}
+
+const matrix4x4& matrix4x4::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+matrix4x4* matrix4x4::New(::google::protobuf::Arena* arena) const {
+  matrix4x4* n = new matrix4x4;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void matrix4x4::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.matrix4x4)
+  elems_.Clear();
+}
+
+bool matrix4x4::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.matrix4x4)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated double elems = 1;
+      case 1: {
+        if (tag == 10u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_elems())));
+        } else if (tag == 9u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 10u, input, this->mutable_elems())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.matrix4x4)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.matrix4x4)
+  return false;
+#undef DO_
+}
+
+void matrix4x4::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.matrix4x4)
+  // repeated double elems = 1;
+  if (this->elems_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(1, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_elems_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->elems().data(), this->elems_size(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.matrix4x4)
+}
+
+::google::protobuf::uint8* matrix4x4::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.matrix4x4)
+  // repeated double elems = 1;
+  if (this->elems_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      1,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _elems_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->elems_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->elems(i), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.matrix4x4)
+  return target;
+}
+
+size_t matrix4x4::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.matrix4x4)
+  size_t total_size = 0;
+
+  // repeated double elems = 1;
+  {
+    unsigned int count = this->elems_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _elems_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void matrix4x4::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.matrix4x4)
+  GOOGLE_DCHECK_NE(&from, this);
+  const matrix4x4* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const matrix4x4>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.matrix4x4)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.matrix4x4)
+    MergeFrom(*source);
+  }
+}
+
+void matrix4x4::MergeFrom(const matrix4x4& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.matrix4x4)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  elems_.MergeFrom(from.elems_);
+}
+
+void matrix4x4::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.matrix4x4)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void matrix4x4::CopyFrom(const matrix4x4& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.matrix4x4)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool matrix4x4::IsInitialized() const {
+  return true;
+}
+
+void matrix4x4::Swap(matrix4x4* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void matrix4x4::InternalSwap(matrix4x4* other) {
+  elems_.UnsafeArenaSwap(&other->elems_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata matrix4x4::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[4];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// matrix4x4
+
+// repeated double elems = 1;
+int matrix4x4::elems_size() const {
+  return elems_.size();
+}
+void matrix4x4::clear_elems() {
+  elems_.Clear();
+}
+double matrix4x4::elems(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.matrix4x4.elems)
+  return elems_.Get(index);
+}
+void matrix4x4::set_elems(int index, double value) {
+  elems_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.matrix4x4.elems)
+}
+void matrix4x4::add_elems(double value) {
+  elems_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.matrix4x4.elems)
+}
+const ::google::protobuf::RepeatedField< double >&
+matrix4x4::elems() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.matrix4x4.elems)
+  return elems_;
+}
+::google::protobuf::RepeatedField< double >*
+matrix4x4::mutable_elems() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.matrix4x4.elems)
+  return &elems_;
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int CheckVersionCommand::kClientVersionFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+CheckVersionCommand::CheckVersionCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.CheckVersionCommand)
+}
+CheckVersionCommand::CheckVersionCommand(const CheckVersionCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  clientversion_ = from.clientversion_;
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.CheckVersionCommand)
+}
+
+void CheckVersionCommand::SharedCtor() {
+  clientversion_ = 0;
+  _cached_size_ = 0;
+}
+
+CheckVersionCommand::~CheckVersionCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.CheckVersionCommand)
+  SharedDtor();
+}
+
+void CheckVersionCommand::SharedDtor() {
+}
+
+void CheckVersionCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* CheckVersionCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[5].descriptor;
+}
+
+const CheckVersionCommand& CheckVersionCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+CheckVersionCommand* CheckVersionCommand::New(::google::protobuf::Arena* arena) const {
+  CheckVersionCommand* n = new CheckVersionCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void CheckVersionCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.CheckVersionCommand)
+  clientversion_ = 0;
+}
+
+bool CheckVersionCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.CheckVersionCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 clientVersion = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &clientversion_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.CheckVersionCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.CheckVersionCommand)
+  return false;
+#undef DO_
+}
+
+void CheckVersionCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.CheckVersionCommand)
+  // int32 clientVersion = 1;
+  if (this->clientversion() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->clientversion(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.CheckVersionCommand)
+}
+
+::google::protobuf::uint8* CheckVersionCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.CheckVersionCommand)
+  // int32 clientVersion = 1;
+  if (this->clientversion() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->clientversion(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.CheckVersionCommand)
+  return target;
+}
+
+size_t CheckVersionCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.CheckVersionCommand)
+  size_t total_size = 0;
+
+  // int32 clientVersion = 1;
+  if (this->clientversion() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->clientversion());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void CheckVersionCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.CheckVersionCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const CheckVersionCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const CheckVersionCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.CheckVersionCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.CheckVersionCommand)
+    MergeFrom(*source);
+  }
+}
+
+void CheckVersionCommand::MergeFrom(const CheckVersionCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.CheckVersionCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.clientversion() != 0) {
+    set_clientversion(from.clientversion());
+  }
+}
+
+void CheckVersionCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.CheckVersionCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void CheckVersionCommand::CopyFrom(const CheckVersionCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.CheckVersionCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool CheckVersionCommand::IsInitialized() const {
+  return true;
+}
+
+void CheckVersionCommand::Swap(CheckVersionCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void CheckVersionCommand::InternalSwap(CheckVersionCommand* other) {
+  std::swap(clientversion_, other->clientversion_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata CheckVersionCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[5];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// CheckVersionCommand
+
+// int32 clientVersion = 1;
+void CheckVersionCommand::clear_clientversion() {
+  clientversion_ = 0;
+}
+::google::protobuf::int32 CheckVersionCommand::clientversion() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.CheckVersionCommand.clientVersion)
+  return clientversion_;
+}
+void CheckVersionCommand::set_clientversion(::google::protobuf::int32 value) {
+  
+  clientversion_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.CheckVersionCommand.clientVersion)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int CheckVersionStatus::kServerVersionFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+CheckVersionStatus::CheckVersionStatus()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.CheckVersionStatus)
+}
+CheckVersionStatus::CheckVersionStatus(const CheckVersionStatus& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  serverversion_ = from.serverversion_;
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.CheckVersionStatus)
+}
+
+void CheckVersionStatus::SharedCtor() {
+  serverversion_ = 0;
+  _cached_size_ = 0;
+}
+
+CheckVersionStatus::~CheckVersionStatus() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.CheckVersionStatus)
+  SharedDtor();
+}
+
+void CheckVersionStatus::SharedDtor() {
+}
+
+void CheckVersionStatus::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* CheckVersionStatus::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[6].descriptor;
+}
+
+const CheckVersionStatus& CheckVersionStatus::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+CheckVersionStatus* CheckVersionStatus::New(::google::protobuf::Arena* arena) const {
+  CheckVersionStatus* n = new CheckVersionStatus;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void CheckVersionStatus::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.CheckVersionStatus)
+  serverversion_ = 0;
+}
+
+bool CheckVersionStatus::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.CheckVersionStatus)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 serverVersion = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &serverversion_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.CheckVersionStatus)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.CheckVersionStatus)
+  return false;
+#undef DO_
+}
+
+void CheckVersionStatus::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.CheckVersionStatus)
+  // int32 serverVersion = 1;
+  if (this->serverversion() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->serverversion(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.CheckVersionStatus)
+}
+
+::google::protobuf::uint8* CheckVersionStatus::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.CheckVersionStatus)
+  // int32 serverVersion = 1;
+  if (this->serverversion() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->serverversion(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.CheckVersionStatus)
+  return target;
+}
+
+size_t CheckVersionStatus::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.CheckVersionStatus)
+  size_t total_size = 0;
+
+  // int32 serverVersion = 1;
+  if (this->serverversion() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->serverversion());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void CheckVersionStatus::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.CheckVersionStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  const CheckVersionStatus* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const CheckVersionStatus>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.CheckVersionStatus)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.CheckVersionStatus)
+    MergeFrom(*source);
+  }
+}
+
+void CheckVersionStatus::MergeFrom(const CheckVersionStatus& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.CheckVersionStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.serverversion() != 0) {
+    set_serverversion(from.serverversion());
+  }
+}
+
+void CheckVersionStatus::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.CheckVersionStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void CheckVersionStatus::CopyFrom(const CheckVersionStatus& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.CheckVersionStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool CheckVersionStatus::IsInitialized() const {
+  return true;
+}
+
+void CheckVersionStatus::Swap(CheckVersionStatus* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void CheckVersionStatus::InternalSwap(CheckVersionStatus* other) {
+  std::swap(serverversion_, other->serverversion_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata CheckVersionStatus::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[6];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// CheckVersionStatus
+
+// int32 serverVersion = 1;
+void CheckVersionStatus::clear_serverversion() {
+  serverversion_ = 0;
+}
+::google::protobuf::int32 CheckVersionStatus::serverversion() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.CheckVersionStatus.serverVersion)
+  return serverversion_;
+}
+void CheckVersionStatus::set_serverversion(::google::protobuf::int32 value) {
+  
+  serverversion_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.CheckVersionStatus.serverVersion)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int TerminateServerCommand::kExitReasonFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
@@ -1330,7 +3322,7 @@ void TerminateServerCommand::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* TerminateServerCommand::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[2].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[7].descriptor;
 }
 
 const TerminateServerCommand& TerminateServerCommand::default_instance() {
@@ -1504,7 +3496,7 @@ void TerminateServerCommand::InternalSwap(TerminateServerCommand* other) {
 
 ::google::protobuf::Metadata TerminateServerCommand::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[2];
+  return protobuf_pybullet_2eproto::file_level_metadata[7];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -1604,7 +3596,7 @@ void StepSimulationCommand::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* StepSimulationCommand::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[3].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[8].descriptor;
 }
 
 const StepSimulationCommand& StepSimulationCommand::default_instance() {
@@ -1724,11 +3716,1090 @@ void StepSimulationCommand::InternalSwap(StepSimulationCommand* other) {
 
 ::google::protobuf::Metadata StepSimulationCommand::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[3];
+  return protobuf_pybullet_2eproto::file_level_metadata[8];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // StepSimulationCommand
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+SyncBodiesCommand::SyncBodiesCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.SyncBodiesCommand)
+}
+SyncBodiesCommand::SyncBodiesCommand(const SyncBodiesCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.SyncBodiesCommand)
+}
+
+void SyncBodiesCommand::SharedCtor() {
+  _cached_size_ = 0;
+}
+
+SyncBodiesCommand::~SyncBodiesCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.SyncBodiesCommand)
+  SharedDtor();
+}
+
+void SyncBodiesCommand::SharedDtor() {
+}
+
+void SyncBodiesCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SyncBodiesCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[9].descriptor;
+}
+
+const SyncBodiesCommand& SyncBodiesCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+SyncBodiesCommand* SyncBodiesCommand::New(::google::protobuf::Arena* arena) const {
+  SyncBodiesCommand* n = new SyncBodiesCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void SyncBodiesCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.SyncBodiesCommand)
+}
+
+bool SyncBodiesCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.SyncBodiesCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+  handle_unusual:
+    if (tag == 0 ||
+        ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+        ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+      goto success;
+    }
+    DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.SyncBodiesCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.SyncBodiesCommand)
+  return false;
+#undef DO_
+}
+
+void SyncBodiesCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.SyncBodiesCommand)
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.SyncBodiesCommand)
+}
+
+::google::protobuf::uint8* SyncBodiesCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.SyncBodiesCommand)
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.SyncBodiesCommand)
+  return target;
+}
+
+size_t SyncBodiesCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.SyncBodiesCommand)
+  size_t total_size = 0;
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void SyncBodiesCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.SyncBodiesCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const SyncBodiesCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const SyncBodiesCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.SyncBodiesCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.SyncBodiesCommand)
+    MergeFrom(*source);
+  }
+}
+
+void SyncBodiesCommand::MergeFrom(const SyncBodiesCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.SyncBodiesCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+}
+
+void SyncBodiesCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.SyncBodiesCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void SyncBodiesCommand::CopyFrom(const SyncBodiesCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.SyncBodiesCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SyncBodiesCommand::IsInitialized() const {
+  return true;
+}
+
+void SyncBodiesCommand::Swap(SyncBodiesCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void SyncBodiesCommand::InternalSwap(SyncBodiesCommand* other) {
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata SyncBodiesCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[9];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// SyncBodiesCommand
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int SyncBodiesStatus::kBodyUniqueIdsFieldNumber;
+const int SyncBodiesStatus::kUserConstraintUniqueIdsFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+SyncBodiesStatus::SyncBodiesStatus()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.SyncBodiesStatus)
+}
+SyncBodiesStatus::SyncBodiesStatus(const SyncBodiesStatus& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      bodyuniqueids_(from.bodyuniqueids_),
+      userconstraintuniqueids_(from.userconstraintuniqueids_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.SyncBodiesStatus)
+}
+
+void SyncBodiesStatus::SharedCtor() {
+  _cached_size_ = 0;
+}
+
+SyncBodiesStatus::~SyncBodiesStatus() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.SyncBodiesStatus)
+  SharedDtor();
+}
+
+void SyncBodiesStatus::SharedDtor() {
+}
+
+void SyncBodiesStatus::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SyncBodiesStatus::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[10].descriptor;
+}
+
+const SyncBodiesStatus& SyncBodiesStatus::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+SyncBodiesStatus* SyncBodiesStatus::New(::google::protobuf::Arena* arena) const {
+  SyncBodiesStatus* n = new SyncBodiesStatus;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void SyncBodiesStatus::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.SyncBodiesStatus)
+  bodyuniqueids_.Clear();
+  userconstraintuniqueids_.Clear();
+}
+
+bool SyncBodiesStatus::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.SyncBodiesStatus)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated int32 bodyUniqueIds = 1;
+      case 1: {
+        if (tag == 10u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, this->mutable_bodyuniqueids())));
+        } else if (tag == 8u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 1, 10u, input, this->mutable_bodyuniqueids())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated int32 userConstraintUniqueIds = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, this->mutable_userconstraintuniqueids())));
+        } else if (tag == 16u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 1, 18u, input, this->mutable_userconstraintuniqueids())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.SyncBodiesStatus)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.SyncBodiesStatus)
+  return false;
+#undef DO_
+}
+
+void SyncBodiesStatus::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.SyncBodiesStatus)
+  // repeated int32 bodyUniqueIds = 1;
+  if (this->bodyuniqueids_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(1, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_bodyuniqueids_cached_byte_size_);
+  }
+  for (int i = 0; i < this->bodyuniqueids_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32NoTag(
+      this->bodyuniqueids(i), output);
+  }
+
+  // repeated int32 userConstraintUniqueIds = 2;
+  if (this->userconstraintuniqueids_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(2, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_userconstraintuniqueids_cached_byte_size_);
+  }
+  for (int i = 0; i < this->userconstraintuniqueids_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32NoTag(
+      this->userconstraintuniqueids(i), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.SyncBodiesStatus)
+}
+
+::google::protobuf::uint8* SyncBodiesStatus::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.SyncBodiesStatus)
+  // repeated int32 bodyUniqueIds = 1;
+  if (this->bodyuniqueids_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      1,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _bodyuniqueids_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->bodyuniqueids_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt32NoTagToArray(this->bodyuniqueids(i), target);
+  }
+
+  // repeated int32 userConstraintUniqueIds = 2;
+  if (this->userconstraintuniqueids_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      2,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _userconstraintuniqueids_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->userconstraintuniqueids_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt32NoTagToArray(this->userconstraintuniqueids(i), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.SyncBodiesStatus)
+  return target;
+}
+
+size_t SyncBodiesStatus::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.SyncBodiesStatus)
+  size_t total_size = 0;
+
+  // repeated int32 bodyUniqueIds = 1;
+  {
+    size_t data_size = ::google::protobuf::internal::WireFormatLite::
+      Int32Size(this->bodyuniqueids_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _bodyuniqueids_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated int32 userConstraintUniqueIds = 2;
+  {
+    size_t data_size = ::google::protobuf::internal::WireFormatLite::
+      Int32Size(this->userconstraintuniqueids_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _userconstraintuniqueids_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void SyncBodiesStatus::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.SyncBodiesStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  const SyncBodiesStatus* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const SyncBodiesStatus>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.SyncBodiesStatus)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.SyncBodiesStatus)
+    MergeFrom(*source);
+  }
+}
+
+void SyncBodiesStatus::MergeFrom(const SyncBodiesStatus& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.SyncBodiesStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  bodyuniqueids_.MergeFrom(from.bodyuniqueids_);
+  userconstraintuniqueids_.MergeFrom(from.userconstraintuniqueids_);
+}
+
+void SyncBodiesStatus::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.SyncBodiesStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void SyncBodiesStatus::CopyFrom(const SyncBodiesStatus& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.SyncBodiesStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SyncBodiesStatus::IsInitialized() const {
+  return true;
+}
+
+void SyncBodiesStatus::Swap(SyncBodiesStatus* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void SyncBodiesStatus::InternalSwap(SyncBodiesStatus* other) {
+  bodyuniqueids_.UnsafeArenaSwap(&other->bodyuniqueids_);
+  userconstraintuniqueids_.UnsafeArenaSwap(&other->userconstraintuniqueids_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata SyncBodiesStatus::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[10];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// SyncBodiesStatus
+
+// repeated int32 bodyUniqueIds = 1;
+int SyncBodiesStatus::bodyuniqueids_size() const {
+  return bodyuniqueids_.size();
+}
+void SyncBodiesStatus::clear_bodyuniqueids() {
+  bodyuniqueids_.Clear();
+}
+::google::protobuf::int32 SyncBodiesStatus::bodyuniqueids(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SyncBodiesStatus.bodyUniqueIds)
+  return bodyuniqueids_.Get(index);
+}
+void SyncBodiesStatus::set_bodyuniqueids(int index, ::google::protobuf::int32 value) {
+  bodyuniqueids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SyncBodiesStatus.bodyUniqueIds)
+}
+void SyncBodiesStatus::add_bodyuniqueids(::google::protobuf::int32 value) {
+  bodyuniqueids_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SyncBodiesStatus.bodyUniqueIds)
+}
+const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+SyncBodiesStatus::bodyuniqueids() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SyncBodiesStatus.bodyUniqueIds)
+  return bodyuniqueids_;
+}
+::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+SyncBodiesStatus::mutable_bodyuniqueids() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SyncBodiesStatus.bodyUniqueIds)
+  return &bodyuniqueids_;
+}
+
+// repeated int32 userConstraintUniqueIds = 2;
+int SyncBodiesStatus::userconstraintuniqueids_size() const {
+  return userconstraintuniqueids_.size();
+}
+void SyncBodiesStatus::clear_userconstraintuniqueids() {
+  userconstraintuniqueids_.Clear();
+}
+::google::protobuf::int32 SyncBodiesStatus::userconstraintuniqueids(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.SyncBodiesStatus.userConstraintUniqueIds)
+  return userconstraintuniqueids_.Get(index);
+}
+void SyncBodiesStatus::set_userconstraintuniqueids(int index, ::google::protobuf::int32 value) {
+  userconstraintuniqueids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.SyncBodiesStatus.userConstraintUniqueIds)
+}
+void SyncBodiesStatus::add_userconstraintuniqueids(::google::protobuf::int32 value) {
+  userconstraintuniqueids_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.SyncBodiesStatus.userConstraintUniqueIds)
+}
+const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+SyncBodiesStatus::userconstraintuniqueids() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.SyncBodiesStatus.userConstraintUniqueIds)
+  return userconstraintuniqueids_;
+}
+::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+SyncBodiesStatus::mutable_userconstraintuniqueids() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.SyncBodiesStatus.userConstraintUniqueIds)
+  return &userconstraintuniqueids_;
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int RequestBodyInfoCommand::kBodyUniqueIdFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+RequestBodyInfoCommand::RequestBodyInfoCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.RequestBodyInfoCommand)
+}
+RequestBodyInfoCommand::RequestBodyInfoCommand(const RequestBodyInfoCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  bodyuniqueid_ = from.bodyuniqueid_;
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.RequestBodyInfoCommand)
+}
+
+void RequestBodyInfoCommand::SharedCtor() {
+  bodyuniqueid_ = 0;
+  _cached_size_ = 0;
+}
+
+RequestBodyInfoCommand::~RequestBodyInfoCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.RequestBodyInfoCommand)
+  SharedDtor();
+}
+
+void RequestBodyInfoCommand::SharedDtor() {
+}
+
+void RequestBodyInfoCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RequestBodyInfoCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[11].descriptor;
+}
+
+const RequestBodyInfoCommand& RequestBodyInfoCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+RequestBodyInfoCommand* RequestBodyInfoCommand::New(::google::protobuf::Arena* arena) const {
+  RequestBodyInfoCommand* n = new RequestBodyInfoCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void RequestBodyInfoCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.RequestBodyInfoCommand)
+  bodyuniqueid_ = 0;
+}
+
+bool RequestBodyInfoCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.RequestBodyInfoCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 bodyUniqueId = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &bodyuniqueid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.RequestBodyInfoCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.RequestBodyInfoCommand)
+  return false;
+#undef DO_
+}
+
+void RequestBodyInfoCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.RequestBodyInfoCommand)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->bodyuniqueid(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.RequestBodyInfoCommand)
+}
+
+::google::protobuf::uint8* RequestBodyInfoCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.RequestBodyInfoCommand)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->bodyuniqueid(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.RequestBodyInfoCommand)
+  return target;
+}
+
+size_t RequestBodyInfoCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.RequestBodyInfoCommand)
+  size_t total_size = 0;
+
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->bodyuniqueid());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RequestBodyInfoCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.RequestBodyInfoCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const RequestBodyInfoCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const RequestBodyInfoCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.RequestBodyInfoCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.RequestBodyInfoCommand)
+    MergeFrom(*source);
+  }
+}
+
+void RequestBodyInfoCommand::MergeFrom(const RequestBodyInfoCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.RequestBodyInfoCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.bodyuniqueid() != 0) {
+    set_bodyuniqueid(from.bodyuniqueid());
+  }
+}
+
+void RequestBodyInfoCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.RequestBodyInfoCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RequestBodyInfoCommand::CopyFrom(const RequestBodyInfoCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.RequestBodyInfoCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RequestBodyInfoCommand::IsInitialized() const {
+  return true;
+}
+
+void RequestBodyInfoCommand::Swap(RequestBodyInfoCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void RequestBodyInfoCommand::InternalSwap(RequestBodyInfoCommand* other) {
+  std::swap(bodyuniqueid_, other->bodyuniqueid_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata RequestBodyInfoCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[11];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// RequestBodyInfoCommand
+
+// int32 bodyUniqueId = 1;
+void RequestBodyInfoCommand::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+::google::protobuf::int32 RequestBodyInfoCommand::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestBodyInfoCommand.bodyUniqueId)
+  return bodyuniqueid_;
+}
+void RequestBodyInfoCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestBodyInfoCommand.bodyUniqueId)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int RequestBodyInfoStatus::kBodyUniqueIdFieldNumber;
+const int RequestBodyInfoStatus::kBodyNameFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+RequestBodyInfoStatus::RequestBodyInfoStatus()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.RequestBodyInfoStatus)
+}
+RequestBodyInfoStatus::RequestBodyInfoStatus(const RequestBodyInfoStatus& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  bodyname_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.bodyname().size() > 0) {
+    bodyname_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.bodyname_);
+  }
+  bodyuniqueid_ = from.bodyuniqueid_;
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.RequestBodyInfoStatus)
+}
+
+void RequestBodyInfoStatus::SharedCtor() {
+  bodyname_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  bodyuniqueid_ = 0;
+  _cached_size_ = 0;
+}
+
+RequestBodyInfoStatus::~RequestBodyInfoStatus() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.RequestBodyInfoStatus)
+  SharedDtor();
+}
+
+void RequestBodyInfoStatus::SharedDtor() {
+  bodyname_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+
+void RequestBodyInfoStatus::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RequestBodyInfoStatus::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[12].descriptor;
+}
+
+const RequestBodyInfoStatus& RequestBodyInfoStatus::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+RequestBodyInfoStatus* RequestBodyInfoStatus::New(::google::protobuf::Arena* arena) const {
+  RequestBodyInfoStatus* n = new RequestBodyInfoStatus;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void RequestBodyInfoStatus::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.RequestBodyInfoStatus)
+  bodyname_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  bodyuniqueid_ = 0;
+}
+
+bool RequestBodyInfoStatus::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.RequestBodyInfoStatus)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 bodyUniqueId = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &bodyuniqueid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // string bodyName = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_bodyname()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->bodyname().data(), this->bodyname().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "pybullet_grpc.RequestBodyInfoStatus.bodyName"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.RequestBodyInfoStatus)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.RequestBodyInfoStatus)
+  return false;
+#undef DO_
+}
+
+void RequestBodyInfoStatus::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.RequestBodyInfoStatus)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->bodyuniqueid(), output);
+  }
+
+  // string bodyName = 2;
+  if (this->bodyname().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->bodyname().data(), this->bodyname().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "pybullet_grpc.RequestBodyInfoStatus.bodyName");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      2, this->bodyname(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.RequestBodyInfoStatus)
+}
+
+::google::protobuf::uint8* RequestBodyInfoStatus::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.RequestBodyInfoStatus)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->bodyuniqueid(), target);
+  }
+
+  // string bodyName = 2;
+  if (this->bodyname().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->bodyname().data(), this->bodyname().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "pybullet_grpc.RequestBodyInfoStatus.bodyName");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->bodyname(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.RequestBodyInfoStatus)
+  return target;
+}
+
+size_t RequestBodyInfoStatus::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.RequestBodyInfoStatus)
+  size_t total_size = 0;
+
+  // string bodyName = 2;
+  if (this->bodyname().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->bodyname());
+  }
+
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->bodyuniqueid());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RequestBodyInfoStatus::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.RequestBodyInfoStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  const RequestBodyInfoStatus* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const RequestBodyInfoStatus>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.RequestBodyInfoStatus)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.RequestBodyInfoStatus)
+    MergeFrom(*source);
+  }
+}
+
+void RequestBodyInfoStatus::MergeFrom(const RequestBodyInfoStatus& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.RequestBodyInfoStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.bodyname().size() > 0) {
+
+    bodyname_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.bodyname_);
+  }
+  if (from.bodyuniqueid() != 0) {
+    set_bodyuniqueid(from.bodyuniqueid());
+  }
+}
+
+void RequestBodyInfoStatus::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.RequestBodyInfoStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RequestBodyInfoStatus::CopyFrom(const RequestBodyInfoStatus& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.RequestBodyInfoStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RequestBodyInfoStatus::IsInitialized() const {
+  return true;
+}
+
+void RequestBodyInfoStatus::Swap(RequestBodyInfoStatus* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void RequestBodyInfoStatus::InternalSwap(RequestBodyInfoStatus* other) {
+  bodyname_.Swap(&other->bodyname_);
+  std::swap(bodyuniqueid_, other->bodyuniqueid_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata RequestBodyInfoStatus::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[12];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// RequestBodyInfoStatus
+
+// int32 bodyUniqueId = 1;
+void RequestBodyInfoStatus::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+::google::protobuf::int32 RequestBodyInfoStatus::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestBodyInfoStatus.bodyUniqueId)
+  return bodyuniqueid_;
+}
+void RequestBodyInfoStatus::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestBodyInfoStatus.bodyUniqueId)
+}
+
+// string bodyName = 2;
+void RequestBodyInfoStatus::clear_bodyname() {
+  bodyname_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& RequestBodyInfoStatus::bodyname() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+  return bodyname_.GetNoArena();
+}
+void RequestBodyInfoStatus::set_bodyname(const ::std::string& value) {
+  
+  bodyname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+}
+#if LANG_CXX11
+void RequestBodyInfoStatus::set_bodyname(::std::string&& value) {
+  
+  bodyname_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+}
+#endif
+void RequestBodyInfoStatus::set_bodyname(const char* value) {
+  
+  bodyname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+}
+void RequestBodyInfoStatus::set_bodyname(const char* value, size_t size) {
+  
+  bodyname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+}
+::std::string* RequestBodyInfoStatus::mutable_bodyname() {
+  
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+  return bodyname_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* RequestBodyInfoStatus::release_bodyname() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+  
+  return bodyname_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void RequestBodyInfoStatus::set_allocated_bodyname(::std::string* bodyname) {
+  if (bodyname != NULL) {
+    
+  } else {
+    
+  }
+  bodyname_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), bodyname);
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestBodyInfoStatus.bodyName)
+}
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
 
@@ -1846,7 +4917,7 @@ void LoadUrdfCommand::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* LoadUrdfCommand::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[4].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[13].descriptor;
 }
 
 const LoadUrdfCommand& LoadUrdfCommand::default_instance() {
@@ -2316,7 +5387,7 @@ void LoadUrdfCommand::InternalSwap(LoadUrdfCommand* other) {
 
 ::google::protobuf::Metadata LoadUrdfCommand::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[4];
+  return protobuf_pybullet_2eproto::file_level_metadata[13];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -2586,6 +5657,8 @@ LoadUrdfCommand::HasGlobalScalingCase LoadUrdfCommand::hasGlobalScaling_case() c
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int LoadUrdfStatus::kBodyUniqueIdFieldNumber;
+const int LoadUrdfStatus::kBodyNameFieldNumber;
+const int LoadUrdfStatus::kFileNameFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 LoadUrdfStatus::LoadUrdfStatus()
@@ -2601,11 +5674,21 @@ LoadUrdfStatus::LoadUrdfStatus(const LoadUrdfStatus& from)
       _internal_metadata_(NULL),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  bodyname_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.bodyname().size() > 0) {
+    bodyname_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.bodyname_);
+  }
+  filename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.filename().size() > 0) {
+    filename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.filename_);
+  }
   bodyuniqueid_ = from.bodyuniqueid_;
   // @@protoc_insertion_point(copy_constructor:pybullet_grpc.LoadUrdfStatus)
 }
 
 void LoadUrdfStatus::SharedCtor() {
+  bodyname_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  filename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   bodyuniqueid_ = 0;
   _cached_size_ = 0;
 }
@@ -2616,6 +5699,8 @@ LoadUrdfStatus::~LoadUrdfStatus() {
 }
 
 void LoadUrdfStatus::SharedDtor() {
+  bodyname_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  filename_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 
 void LoadUrdfStatus::SetCachedSize(int size) const {
@@ -2625,7 +5710,7 @@ void LoadUrdfStatus::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* LoadUrdfStatus::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[5].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[14].descriptor;
 }
 
 const LoadUrdfStatus& LoadUrdfStatus::default_instance() {
@@ -2643,6 +5728,8 @@ LoadUrdfStatus* LoadUrdfStatus::New(::google::protobuf::Arena* arena) const {
 
 void LoadUrdfStatus::Clear() {
 // @@protoc_insertion_point(message_clear_start:pybullet_grpc.LoadUrdfStatus)
+  bodyname_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   bodyuniqueid_ = 0;
 }
 
@@ -2663,6 +5750,36 @@ bool LoadUrdfStatus::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, &bodyuniqueid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // string bodyName = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_bodyname()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->bodyname().data(), this->bodyname().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "pybullet_grpc.LoadUrdfStatus.bodyName"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // string fileName = 3;
+      case 3: {
+        if (tag == 26u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_filename()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->filename().data(), this->filename().length(),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "pybullet_grpc.LoadUrdfStatus.fileName"));
         } else {
           goto handle_unusual;
         }
@@ -2698,6 +5815,26 @@ void LoadUrdfStatus::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->bodyuniqueid(), output);
   }
 
+  // string bodyName = 2;
+  if (this->bodyname().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->bodyname().data(), this->bodyname().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "pybullet_grpc.LoadUrdfStatus.bodyName");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      2, this->bodyname(), output);
+  }
+
+  // string fileName = 3;
+  if (this->filename().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->filename().data(), this->filename().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "pybullet_grpc.LoadUrdfStatus.fileName");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      3, this->filename(), output);
+  }
+
   // @@protoc_insertion_point(serialize_end:pybullet_grpc.LoadUrdfStatus)
 }
 
@@ -2710,6 +5847,28 @@ void LoadUrdfStatus::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->bodyuniqueid(), target);
   }
 
+  // string bodyName = 2;
+  if (this->bodyname().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->bodyname().data(), this->bodyname().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "pybullet_grpc.LoadUrdfStatus.bodyName");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->bodyname(), target);
+  }
+
+  // string fileName = 3;
+  if (this->filename().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->filename().data(), this->filename().length(),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "pybullet_grpc.LoadUrdfStatus.fileName");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        3, this->filename(), target);
+  }
+
   // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.LoadUrdfStatus)
   return target;
 }
@@ -2717,6 +5876,20 @@ void LoadUrdfStatus::SerializeWithCachedSizes(
 size_t LoadUrdfStatus::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.LoadUrdfStatus)
   size_t total_size = 0;
+
+  // string bodyName = 2;
+  if (this->bodyname().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->bodyname());
+  }
+
+  // string fileName = 3;
+  if (this->filename().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->filename());
+  }
 
   // int32 bodyUniqueId = 1;
   if (this->bodyuniqueid() != 0) {
@@ -2751,6 +5924,14 @@ void LoadUrdfStatus::MergeFrom(const LoadUrdfStatus& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.LoadUrdfStatus)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.bodyname().size() > 0) {
+
+    bodyname_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.bodyname_);
+  }
+  if (from.filename().size() > 0) {
+
+    filename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.filename_);
+  }
   if (from.bodyuniqueid() != 0) {
     set_bodyuniqueid(from.bodyuniqueid());
   }
@@ -2779,13 +5960,15 @@ void LoadUrdfStatus::Swap(LoadUrdfStatus* other) {
   InternalSwap(other);
 }
 void LoadUrdfStatus::InternalSwap(LoadUrdfStatus* other) {
+  bodyname_.Swap(&other->bodyname_);
+  filename_.Swap(&other->filename_);
   std::swap(bodyuniqueid_, other->bodyuniqueid_);
   std::swap(_cached_size_, other->_cached_size_);
 }
 
 ::google::protobuf::Metadata LoadUrdfStatus::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[5];
+  return protobuf_pybullet_2eproto::file_level_metadata[14];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -2803,6 +5986,110 @@ void LoadUrdfStatus::set_bodyuniqueid(::google::protobuf::int32 value) {
   
   bodyuniqueid_ = value;
   // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfStatus.bodyUniqueId)
+}
+
+// string bodyName = 2;
+void LoadUrdfStatus::clear_bodyname() {
+  bodyname_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& LoadUrdfStatus::bodyname() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfStatus.bodyName)
+  return bodyname_.GetNoArena();
+}
+void LoadUrdfStatus::set_bodyname(const ::std::string& value) {
+  
+  bodyname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfStatus.bodyName)
+}
+#if LANG_CXX11
+void LoadUrdfStatus::set_bodyname(::std::string&& value) {
+  
+  bodyname_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.LoadUrdfStatus.bodyName)
+}
+#endif
+void LoadUrdfStatus::set_bodyname(const char* value) {
+  
+  bodyname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.LoadUrdfStatus.bodyName)
+}
+void LoadUrdfStatus::set_bodyname(const char* value, size_t size) {
+  
+  bodyname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.LoadUrdfStatus.bodyName)
+}
+::std::string* LoadUrdfStatus::mutable_bodyname() {
+  
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.LoadUrdfStatus.bodyName)
+  return bodyname_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* LoadUrdfStatus::release_bodyname() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.LoadUrdfStatus.bodyName)
+  
+  return bodyname_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void LoadUrdfStatus::set_allocated_bodyname(::std::string* bodyname) {
+  if (bodyname != NULL) {
+    
+  } else {
+    
+  }
+  bodyname_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), bodyname);
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.LoadUrdfStatus.bodyName)
+}
+
+// string fileName = 3;
+void LoadUrdfStatus::clear_filename() {
+  filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+const ::std::string& LoadUrdfStatus::filename() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.LoadUrdfStatus.fileName)
+  return filename_.GetNoArena();
+}
+void LoadUrdfStatus::set_filename(const ::std::string& value) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.LoadUrdfStatus.fileName)
+}
+#if LANG_CXX11
+void LoadUrdfStatus::set_filename(::std::string&& value) {
+  
+  filename_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:pybullet_grpc.LoadUrdfStatus.fileName)
+}
+#endif
+void LoadUrdfStatus::set_filename(const char* value) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.LoadUrdfStatus.fileName)
+}
+void LoadUrdfStatus::set_filename(const char* value, size_t size) {
+  
+  filename_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.LoadUrdfStatus.fileName)
+}
+::std::string* LoadUrdfStatus::mutable_filename() {
+  
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.LoadUrdfStatus.fileName)
+  return filename_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+::std::string* LoadUrdfStatus::release_filename() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.LoadUrdfStatus.fileName)
+  
+  return filename_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+void LoadUrdfStatus::set_allocated_filename(::std::string* filename) {
+  if (filename != NULL) {
+    
+  } else {
+    
+  }
+  filename_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), filename);
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.LoadUrdfStatus.fileName)
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -2884,7 +6171,7 @@ void LoadSdfCommand::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* LoadSdfCommand::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[6].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[15].descriptor;
 }
 
 const LoadSdfCommand& LoadSdfCommand::default_instance() {
@@ -3181,7 +6468,7 @@ void LoadSdfCommand::InternalSwap(LoadSdfCommand* other) {
 
 ::google::protobuf::Metadata LoadSdfCommand::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[6];
+  return protobuf_pybullet_2eproto::file_level_metadata[15];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -3359,7 +6646,7 @@ void SdfLoadedStatus::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* SdfLoadedStatus::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[7].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[16].descriptor;
 }
 
 const SdfLoadedStatus& SdfLoadedStatus::default_instance() {
@@ -3542,7 +6829,7 @@ void SdfLoadedStatus::InternalSwap(SdfLoadedStatus* other) {
 
 ::google::protobuf::Metadata SdfLoadedStatus::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[7];
+  return protobuf_pybullet_2eproto::file_level_metadata[16];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -3630,7 +6917,7 @@ void LoadMjcfCommand::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* LoadMjcfCommand::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[8].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[17].descriptor;
 }
 
 const LoadMjcfCommand& LoadMjcfCommand::default_instance() {
@@ -3839,7 +7126,7 @@ void LoadMjcfCommand::InternalSwap(LoadMjcfCommand* other) {
 
 ::google::protobuf::Metadata LoadMjcfCommand::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[8];
+  return protobuf_pybullet_2eproto::file_level_metadata[17];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -3955,7 +7242,7 @@ void MjcfLoadedStatus::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* MjcfLoadedStatus::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[9].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[18].descriptor;
 }
 
 const MjcfLoadedStatus& MjcfLoadedStatus::default_instance() {
@@ -4138,7 +7425,7 @@ void MjcfLoadedStatus::InternalSwap(MjcfLoadedStatus* other) {
 
 ::google::protobuf::Metadata MjcfLoadedStatus::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[9];
+  return protobuf_pybullet_2eproto::file_level_metadata[18];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -4433,7 +7720,7 @@ void ChangeDynamicsCommand::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* ChangeDynamicsCommand::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[10].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[19].descriptor;
 }
 
 const ChangeDynamicsCommand& ChangeDynamicsCommand::default_instance() {
@@ -5475,7 +8762,7 @@ void ChangeDynamicsCommand::InternalSwap(ChangeDynamicsCommand* other) {
 
 ::google::protobuf::Metadata ChangeDynamicsCommand::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[10];
+  return protobuf_pybullet_2eproto::file_level_metadata[19];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -6109,7 +9396,7 @@ void GetDynamicsCommand::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* GetDynamicsCommand::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[11].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[20].descriptor;
 }
 
 const GetDynamicsCommand& GetDynamicsCommand::default_instance() {
@@ -6304,7 +9591,7 @@ void GetDynamicsCommand::InternalSwap(GetDynamicsCommand* other) {
 
 ::google::protobuf::Metadata GetDynamicsCommand::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[11];
+  return protobuf_pybullet_2eproto::file_level_metadata[20];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -6407,7 +9694,7 @@ void GetDynamicsStatus::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* GetDynamicsStatus::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[12].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[21].descriptor;
 }
 
 const GetDynamicsStatus& GetDynamicsStatus::default_instance() {
@@ -6993,7 +10280,7 @@ void GetDynamicsStatus::InternalSwap(GetDynamicsStatus* other) {
 
 ::google::protobuf::Metadata GetDynamicsStatus::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[12];
+  return protobuf_pybullet_2eproto::file_level_metadata[21];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -7226,6 +10513,7 @@ void GetDynamicsStatus::set_activationstate(::google::protobuf::int32 value) {
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int InitPoseCommand::kBodyUniqueIdFieldNumber;
+const int InitPoseCommand::kUpdateflagsFieldNumber;
 const int InitPoseCommand::kHasInitialStateQFieldNumber;
 const int InitPoseCommand::kInitialStateQFieldNumber;
 const int InitPoseCommand::kHasInitialStateQdotFieldNumber;
@@ -7249,12 +10537,15 @@ InitPoseCommand::InitPoseCommand(const InitPoseCommand& from)
       initialstateqdot_(from.initialstateqdot_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  bodyuniqueid_ = from.bodyuniqueid_;
+  ::memcpy(&bodyuniqueid_, &from.bodyuniqueid_,
+    reinterpret_cast<char*>(&updateflags_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(updateflags_));
   // @@protoc_insertion_point(copy_constructor:pybullet_grpc.InitPoseCommand)
 }
 
 void InitPoseCommand::SharedCtor() {
-  bodyuniqueid_ = 0;
+  ::memset(&bodyuniqueid_, 0, reinterpret_cast<char*>(&updateflags_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(updateflags_));
   _cached_size_ = 0;
 }
 
@@ -7273,7 +10564,7 @@ void InitPoseCommand::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* InitPoseCommand::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[13].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[22].descriptor;
 }
 
 const InitPoseCommand& InitPoseCommand::default_instance() {
@@ -7295,7 +10586,8 @@ void InitPoseCommand::Clear() {
   initialstateq_.Clear();
   hasinitialstateqdot_.Clear();
   initialstateqdot_.Clear();
-  bodyuniqueid_ = 0;
+  ::memset(&bodyuniqueid_, 0, reinterpret_cast<char*>(&updateflags_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(updateflags_));
 }
 
 bool InitPoseCommand::MergePartialFromCodedStream(
@@ -7321,64 +10613,77 @@ bool InitPoseCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // repeated int32 hasInitialStateQ = 2;
+      // int32 updateflags = 2;
       case 2: {
-        if (tag == 18u) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+        if (tag == 16u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
-                 input, this->mutable_hasinitialstateq())));
-        } else if (tag == 16u) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
-                 1, 18u, input, this->mutable_hasinitialstateq())));
+                 input, &updateflags_)));
         } else {
           goto handle_unusual;
         }
         break;
       }
 
-      // repeated double initialStateQ = 3;
+      // repeated int32 hasInitialStateQ = 3;
       case 3: {
         if (tag == 26u) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 input, this->mutable_initialstateq())));
-        } else if (tag == 25u) {
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, this->mutable_hasinitialstateq())));
+        } else if (tag == 24u) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 1, 26u, input, this->mutable_initialstateq())));
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 1, 26u, input, this->mutable_hasinitialstateq())));
         } else {
           goto handle_unusual;
         }
         break;
       }
 
-      // repeated int32 hasInitialStateQdot = 4;
+      // repeated double initialStateQ = 4;
       case 4: {
         if (tag == 34u) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
-                 input, this->mutable_hasinitialstateqdot())));
-        } else if (tag == 32u) {
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_initialstateq())));
+        } else if (tag == 33u) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
-                 1, 34u, input, this->mutable_hasinitialstateqdot())));
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 34u, input, this->mutable_initialstateq())));
         } else {
           goto handle_unusual;
         }
         break;
       }
 
-      // repeated double initialStateQdot = 5;
+      // repeated int32 hasInitialStateQdot = 5;
       case 5: {
         if (tag == 42u) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, this->mutable_hasinitialstateqdot())));
+        } else if (tag == 40u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 1, 42u, input, this->mutable_hasinitialstateqdot())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double initialStateQdot = 6;
+      case 6: {
+        if (tag == 50u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
                  input, this->mutable_initialstateqdot())));
-        } else if (tag == 41u) {
+        } else if (tag == 49u) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 1, 42u, input, this->mutable_initialstateqdot())));
+                 1, 50u, input, this->mutable_initialstateqdot())));
         } else {
           goto handle_unusual;
         }
@@ -7414,9 +10719,14 @@ void InitPoseCommand::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->bodyuniqueid(), output);
   }
 
-  // repeated int32 hasInitialStateQ = 2;
+  // int32 updateflags = 2;
+  if (this->updateflags() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->updateflags(), output);
+  }
+
+  // repeated int32 hasInitialStateQ = 3;
   if (this->hasinitialstateq_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(2, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    ::google::protobuf::internal::WireFormatLite::WriteTag(3, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
     output->WriteVarint32(_hasinitialstateq_cached_byte_size_);
   }
   for (int i = 0; i < this->hasinitialstateq_size(); i++) {
@@ -7424,17 +10734,17 @@ void InitPoseCommand::SerializeWithCachedSizes(
       this->hasinitialstateq(i), output);
   }
 
-  // repeated double initialStateQ = 3;
+  // repeated double initialStateQ = 4;
   if (this->initialstateq_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(3, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    ::google::protobuf::internal::WireFormatLite::WriteTag(4, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
     output->WriteVarint32(_initialstateq_cached_byte_size_);
     ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
       this->initialstateq().data(), this->initialstateq_size(), output);
   }
 
-  // repeated int32 hasInitialStateQdot = 4;
+  // repeated int32 hasInitialStateQdot = 5;
   if (this->hasinitialstateqdot_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(4, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    ::google::protobuf::internal::WireFormatLite::WriteTag(5, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
     output->WriteVarint32(_hasinitialstateqdot_cached_byte_size_);
   }
   for (int i = 0; i < this->hasinitialstateqdot_size(); i++) {
@@ -7442,9 +10752,9 @@ void InitPoseCommand::SerializeWithCachedSizes(
       this->hasinitialstateqdot(i), output);
   }
 
-  // repeated double initialStateQdot = 5;
+  // repeated double initialStateQdot = 6;
   if (this->initialstateqdot_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(5, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    ::google::protobuf::internal::WireFormatLite::WriteTag(6, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
     output->WriteVarint32(_initialstateqdot_cached_byte_size_);
     ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
       this->initialstateqdot().data(), this->initialstateqdot_size(), output);
@@ -7462,10 +10772,15 @@ void InitPoseCommand::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->bodyuniqueid(), target);
   }
 
-  // repeated int32 hasInitialStateQ = 2;
+  // int32 updateflags = 2;
+  if (this->updateflags() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->updateflags(), target);
+  }
+
+  // repeated int32 hasInitialStateQ = 3;
   if (this->hasinitialstateq_size() > 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
-      2,
+      3,
       ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
       target);
     target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
@@ -7476,10 +10791,10 @@ void InitPoseCommand::SerializeWithCachedSizes(
       WriteInt32NoTagToArray(this->hasinitialstateq(i), target);
   }
 
-  // repeated double initialStateQ = 3;
+  // repeated double initialStateQ = 4;
   if (this->initialstateq_size() > 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
-      3,
+      4,
       ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
       target);
     target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
@@ -7490,10 +10805,10 @@ void InitPoseCommand::SerializeWithCachedSizes(
       WriteDoubleNoTagToArray(this->initialstateq(i), target);
   }
 
-  // repeated int32 hasInitialStateQdot = 4;
+  // repeated int32 hasInitialStateQdot = 5;
   if (this->hasinitialstateqdot_size() > 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
-      4,
+      5,
       ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
       target);
     target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
@@ -7504,10 +10819,10 @@ void InitPoseCommand::SerializeWithCachedSizes(
       WriteInt32NoTagToArray(this->hasinitialstateqdot(i), target);
   }
 
-  // repeated double initialStateQdot = 5;
+  // repeated double initialStateQdot = 6;
   if (this->initialstateqdot_size() > 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
-      5,
+      6,
       ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
       target);
     target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
@@ -7526,7 +10841,7 @@ size_t InitPoseCommand::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.InitPoseCommand)
   size_t total_size = 0;
 
-  // repeated int32 hasInitialStateQ = 2;
+  // repeated int32 hasInitialStateQ = 3;
   {
     size_t data_size = ::google::protobuf::internal::WireFormatLite::
       Int32Size(this->hasinitialstateq_);
@@ -7541,7 +10856,7 @@ size_t InitPoseCommand::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated double initialStateQ = 3;
+  // repeated double initialStateQ = 4;
   {
     unsigned int count = this->initialstateq_size();
     size_t data_size = 8UL * count;
@@ -7556,7 +10871,7 @@ size_t InitPoseCommand::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated int32 hasInitialStateQdot = 4;
+  // repeated int32 hasInitialStateQdot = 5;
   {
     size_t data_size = ::google::protobuf::internal::WireFormatLite::
       Int32Size(this->hasinitialstateqdot_);
@@ -7571,7 +10886,7 @@ size_t InitPoseCommand::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // repeated double initialStateQdot = 5;
+  // repeated double initialStateQdot = 6;
   {
     unsigned int count = this->initialstateqdot_size();
     size_t data_size = 8UL * count;
@@ -7591,6 +10906,13 @@ size_t InitPoseCommand::ByteSizeLong() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::Int32Size(
         this->bodyuniqueid());
+  }
+
+  // int32 updateflags = 2;
+  if (this->updateflags() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->updateflags());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -7626,6 +10948,9 @@ void InitPoseCommand::MergeFrom(const InitPoseCommand& from) {
   if (from.bodyuniqueid() != 0) {
     set_bodyuniqueid(from.bodyuniqueid());
   }
+  if (from.updateflags() != 0) {
+    set_updateflags(from.updateflags());
+  }
 }
 
 void InitPoseCommand::CopyFrom(const ::google::protobuf::Message& from) {
@@ -7656,12 +10981,13 @@ void InitPoseCommand::InternalSwap(InitPoseCommand* other) {
   hasinitialstateqdot_.UnsafeArenaSwap(&other->hasinitialstateqdot_);
   initialstateqdot_.UnsafeArenaSwap(&other->initialstateqdot_);
   std::swap(bodyuniqueid_, other->bodyuniqueid_);
+  std::swap(updateflags_, other->updateflags_);
   std::swap(_cached_size_, other->_cached_size_);
 }
 
 ::google::protobuf::Metadata InitPoseCommand::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[13];
+  return protobuf_pybullet_2eproto::file_level_metadata[22];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -7681,7 +11007,21 @@ void InitPoseCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.bodyUniqueId)
 }
 
-// repeated int32 hasInitialStateQ = 2;
+// int32 updateflags = 2;
+void InitPoseCommand::clear_updateflags() {
+  updateflags_ = 0;
+}
+::google::protobuf::int32 InitPoseCommand::updateflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.InitPoseCommand.updateflags)
+  return updateflags_;
+}
+void InitPoseCommand::set_updateflags(::google::protobuf::int32 value) {
+  
+  updateflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.InitPoseCommand.updateflags)
+}
+
+// repeated int32 hasInitialStateQ = 3;
 int InitPoseCommand::hasinitialstateq_size() const {
   return hasinitialstateq_.size();
 }
@@ -7711,7 +11051,7 @@ InitPoseCommand::mutable_hasinitialstateq() {
   return &hasinitialstateq_;
 }
 
-// repeated double initialStateQ = 3;
+// repeated double initialStateQ = 4;
 int InitPoseCommand::initialstateq_size() const {
   return initialstateq_.size();
 }
@@ -7741,7 +11081,7 @@ InitPoseCommand::mutable_initialstateq() {
   return &initialstateq_;
 }
 
-// repeated int32 hasInitialStateQdot = 4;
+// repeated int32 hasInitialStateQdot = 5;
 int InitPoseCommand::hasinitialstateqdot_size() const {
   return hasinitialstateqdot_.size();
 }
@@ -7771,7 +11111,7 @@ InitPoseCommand::mutable_hasinitialstateqdot() {
   return &hasinitialstateqdot_;
 }
 
-// repeated double initialStateQdot = 5;
+// repeated double initialStateQdot = 6;
 int InitPoseCommand::initialstateqdot_size() const {
   return initialstateqdot_.size();
 }
@@ -7851,7 +11191,7 @@ void RequestActualStateCommand::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* RequestActualStateCommand::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[14].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[23].descriptor;
 }
 
 const RequestActualStateCommand& RequestActualStateCommand::default_instance() {
@@ -8076,7 +11416,7 @@ void RequestActualStateCommand::InternalSwap(RequestActualStateCommand* other) {
 
 ::google::protobuf::Metadata RequestActualStateCommand::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[14];
+  return protobuf_pybullet_2eproto::file_level_metadata[23];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -8191,7 +11531,7 @@ void SendActualStateStatus::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* SendActualStateStatus::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[15].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[24].descriptor;
 }
 
 const SendActualStateStatus& SendActualStateStatus::default_instance() {
@@ -8902,7 +12242,7 @@ void SendActualStateStatus::InternalSwap(SendActualStateStatus* other) {
 
 ::google::protobuf::Metadata SendActualStateStatus::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[15];
+  return protobuf_pybullet_2eproto::file_level_metadata[24];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -9209,7 +12549,7287 @@ SendActualStateStatus::mutable_linklocalinertialframes() {
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int ConfigureOpenGLVisualizerCommand::kUpdateFlagsFieldNumber;
+const int ConfigureOpenGLVisualizerCommand::kCameraDistanceFieldNumber;
+const int ConfigureOpenGLVisualizerCommand::kCameraPitchFieldNumber;
+const int ConfigureOpenGLVisualizerCommand::kCameraYawFieldNumber;
+const int ConfigureOpenGLVisualizerCommand::kCameraTargetPositionFieldNumber;
+const int ConfigureOpenGLVisualizerCommand::kSetFlagFieldNumber;
+const int ConfigureOpenGLVisualizerCommand::kSetEnabledFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+ConfigureOpenGLVisualizerCommand::ConfigureOpenGLVisualizerCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+}
+ConfigureOpenGLVisualizerCommand::ConfigureOpenGLVisualizerCommand(const ConfigureOpenGLVisualizerCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_cameratargetposition()) {
+    cameratargetposition_ = new ::pybullet_grpc::vec3(*from.cameratargetposition_);
+  } else {
+    cameratargetposition_ = NULL;
+  }
+  ::memcpy(&cameradistance_, &from.cameradistance_,
+    reinterpret_cast<char*>(&setenabled_) -
+    reinterpret_cast<char*>(&cameradistance_) + sizeof(setenabled_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+}
+
+void ConfigureOpenGLVisualizerCommand::SharedCtor() {
+  ::memset(&cameratargetposition_, 0, reinterpret_cast<char*>(&setenabled_) -
+    reinterpret_cast<char*>(&cameratargetposition_) + sizeof(setenabled_));
+  _cached_size_ = 0;
+}
+
+ConfigureOpenGLVisualizerCommand::~ConfigureOpenGLVisualizerCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  SharedDtor();
+}
+
+void ConfigureOpenGLVisualizerCommand::SharedDtor() {
+  if (this != internal_default_instance()) {
+    delete cameratargetposition_;
+  }
+}
+
+void ConfigureOpenGLVisualizerCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ConfigureOpenGLVisualizerCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[25].descriptor;
+}
+
+const ConfigureOpenGLVisualizerCommand& ConfigureOpenGLVisualizerCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+ConfigureOpenGLVisualizerCommand* ConfigureOpenGLVisualizerCommand::New(::google::protobuf::Arena* arena) const {
+  ConfigureOpenGLVisualizerCommand* n = new ConfigureOpenGLVisualizerCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void ConfigureOpenGLVisualizerCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  if (GetArenaNoVirtual() == NULL && cameratargetposition_ != NULL) {
+    delete cameratargetposition_;
+  }
+  cameratargetposition_ = NULL;
+  ::memset(&cameradistance_, 0, reinterpret_cast<char*>(&setenabled_) -
+    reinterpret_cast<char*>(&cameradistance_) + sizeof(setenabled_));
+}
+
+bool ConfigureOpenGLVisualizerCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 updateFlags = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &updateflags_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double cameraDistance = 2;
+      case 2: {
+        if (tag == 17u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &cameradistance_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double cameraPitch = 3;
+      case 3: {
+        if (tag == 25u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &camerapitch_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double cameraYaw = 4;
+      case 4: {
+        if (tag == 33u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &camerayaw_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.vec3 cameraTargetPosition = 5;
+      case 5: {
+        if (tag == 42u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_cameratargetposition()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 setFlag = 6;
+      case 6: {
+        if (tag == 48u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &setflag_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 setEnabled = 7;
+      case 7: {
+        if (tag == 56u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &setenabled_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  return false;
+#undef DO_
+}
+
+void ConfigureOpenGLVisualizerCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  // int32 updateFlags = 1;
+  if (this->updateflags() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->updateflags(), output);
+  }
+
+  // double cameraDistance = 2;
+  if (this->cameradistance() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(2, this->cameradistance(), output);
+  }
+
+  // double cameraPitch = 3;
+  if (this->camerapitch() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(3, this->camerapitch(), output);
+  }
+
+  // double cameraYaw = 4;
+  if (this->camerayaw() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(4, this->camerayaw(), output);
+  }
+
+  // .pybullet_grpc.vec3 cameraTargetPosition = 5;
+  if (this->has_cameratargetposition()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, *this->cameratargetposition_, output);
+  }
+
+  // int32 setFlag = 6;
+  if (this->setflag() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(6, this->setflag(), output);
+  }
+
+  // int32 setEnabled = 7;
+  if (this->setenabled() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(7, this->setenabled(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+}
+
+::google::protobuf::uint8* ConfigureOpenGLVisualizerCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  // int32 updateFlags = 1;
+  if (this->updateflags() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->updateflags(), target);
+  }
+
+  // double cameraDistance = 2;
+  if (this->cameradistance() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(2, this->cameradistance(), target);
+  }
+
+  // double cameraPitch = 3;
+  if (this->camerapitch() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(3, this->camerapitch(), target);
+  }
+
+  // double cameraYaw = 4;
+  if (this->camerayaw() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(4, this->camerayaw(), target);
+  }
+
+  // .pybullet_grpc.vec3 cameraTargetPosition = 5;
+  if (this->has_cameratargetposition()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        5, *this->cameratargetposition_, false, target);
+  }
+
+  // int32 setFlag = 6;
+  if (this->setflag() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(6, this->setflag(), target);
+  }
+
+  // int32 setEnabled = 7;
+  if (this->setenabled() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(7, this->setenabled(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  return target;
+}
+
+size_t ConfigureOpenGLVisualizerCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  size_t total_size = 0;
+
+  // .pybullet_grpc.vec3 cameraTargetPosition = 5;
+  if (this->has_cameratargetposition()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->cameratargetposition_);
+  }
+
+  // double cameraDistance = 2;
+  if (this->cameradistance() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double cameraPitch = 3;
+  if (this->camerapitch() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // int32 updateFlags = 1;
+  if (this->updateflags() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->updateflags());
+  }
+
+  // int32 setFlag = 6;
+  if (this->setflag() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->setflag());
+  }
+
+  // double cameraYaw = 4;
+  if (this->camerayaw() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // int32 setEnabled = 7;
+  if (this->setenabled() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->setenabled());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void ConfigureOpenGLVisualizerCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const ConfigureOpenGLVisualizerCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const ConfigureOpenGLVisualizerCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+    MergeFrom(*source);
+  }
+}
+
+void ConfigureOpenGLVisualizerCommand::MergeFrom(const ConfigureOpenGLVisualizerCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_cameratargetposition()) {
+    mutable_cameratargetposition()->::pybullet_grpc::vec3::MergeFrom(from.cameratargetposition());
+  }
+  if (from.cameradistance() != 0) {
+    set_cameradistance(from.cameradistance());
+  }
+  if (from.camerapitch() != 0) {
+    set_camerapitch(from.camerapitch());
+  }
+  if (from.updateflags() != 0) {
+    set_updateflags(from.updateflags());
+  }
+  if (from.setflag() != 0) {
+    set_setflag(from.setflag());
+  }
+  if (from.camerayaw() != 0) {
+    set_camerayaw(from.camerayaw());
+  }
+  if (from.setenabled() != 0) {
+    set_setenabled(from.setenabled());
+  }
+}
+
+void ConfigureOpenGLVisualizerCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ConfigureOpenGLVisualizerCommand::CopyFrom(const ConfigureOpenGLVisualizerCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.ConfigureOpenGLVisualizerCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ConfigureOpenGLVisualizerCommand::IsInitialized() const {
+  return true;
+}
+
+void ConfigureOpenGLVisualizerCommand::Swap(ConfigureOpenGLVisualizerCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void ConfigureOpenGLVisualizerCommand::InternalSwap(ConfigureOpenGLVisualizerCommand* other) {
+  std::swap(cameratargetposition_, other->cameratargetposition_);
+  std::swap(cameradistance_, other->cameradistance_);
+  std::swap(camerapitch_, other->camerapitch_);
+  std::swap(updateflags_, other->updateflags_);
+  std::swap(setflag_, other->setflag_);
+  std::swap(camerayaw_, other->camerayaw_);
+  std::swap(setenabled_, other->setenabled_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata ConfigureOpenGLVisualizerCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[25];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// ConfigureOpenGLVisualizerCommand
+
+// int32 updateFlags = 1;
+void ConfigureOpenGLVisualizerCommand::clear_updateflags() {
+  updateflags_ = 0;
+}
+::google::protobuf::int32 ConfigureOpenGLVisualizerCommand::updateflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.updateFlags)
+  return updateflags_;
+}
+void ConfigureOpenGLVisualizerCommand::set_updateflags(::google::protobuf::int32 value) {
+  
+  updateflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ConfigureOpenGLVisualizerCommand.updateFlags)
+}
+
+// double cameraDistance = 2;
+void ConfigureOpenGLVisualizerCommand::clear_cameradistance() {
+  cameradistance_ = 0;
+}
+double ConfigureOpenGLVisualizerCommand::cameradistance() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraDistance)
+  return cameradistance_;
+}
+void ConfigureOpenGLVisualizerCommand::set_cameradistance(double value) {
+  
+  cameradistance_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraDistance)
+}
+
+// double cameraPitch = 3;
+void ConfigureOpenGLVisualizerCommand::clear_camerapitch() {
+  camerapitch_ = 0;
+}
+double ConfigureOpenGLVisualizerCommand::camerapitch() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraPitch)
+  return camerapitch_;
+}
+void ConfigureOpenGLVisualizerCommand::set_camerapitch(double value) {
+  
+  camerapitch_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraPitch)
+}
+
+// double cameraYaw = 4;
+void ConfigureOpenGLVisualizerCommand::clear_camerayaw() {
+  camerayaw_ = 0;
+}
+double ConfigureOpenGLVisualizerCommand::camerayaw() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraYaw)
+  return camerayaw_;
+}
+void ConfigureOpenGLVisualizerCommand::set_camerayaw(double value) {
+  
+  camerayaw_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraYaw)
+}
+
+// .pybullet_grpc.vec3 cameraTargetPosition = 5;
+bool ConfigureOpenGLVisualizerCommand::has_cameratargetposition() const {
+  return this != internal_default_instance() && cameratargetposition_ != NULL;
+}
+void ConfigureOpenGLVisualizerCommand::clear_cameratargetposition() {
+  if (GetArenaNoVirtual() == NULL && cameratargetposition_ != NULL) delete cameratargetposition_;
+  cameratargetposition_ = NULL;
+}
+const ::pybullet_grpc::vec3& ConfigureOpenGLVisualizerCommand::cameratargetposition() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraTargetPosition)
+  return cameratargetposition_ != NULL ? *cameratargetposition_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+::pybullet_grpc::vec3* ConfigureOpenGLVisualizerCommand::mutable_cameratargetposition() {
+  
+  if (cameratargetposition_ == NULL) {
+    cameratargetposition_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraTargetPosition)
+  return cameratargetposition_;
+}
+::pybullet_grpc::vec3* ConfigureOpenGLVisualizerCommand::release_cameratargetposition() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraTargetPosition)
+  
+  ::pybullet_grpc::vec3* temp = cameratargetposition_;
+  cameratargetposition_ = NULL;
+  return temp;
+}
+void ConfigureOpenGLVisualizerCommand::set_allocated_cameratargetposition(::pybullet_grpc::vec3* cameratargetposition) {
+  delete cameratargetposition_;
+  cameratargetposition_ = cameratargetposition;
+  if (cameratargetposition) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.ConfigureOpenGLVisualizerCommand.cameraTargetPosition)
+}
+
+// int32 setFlag = 6;
+void ConfigureOpenGLVisualizerCommand::clear_setflag() {
+  setflag_ = 0;
+}
+::google::protobuf::int32 ConfigureOpenGLVisualizerCommand::setflag() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.setFlag)
+  return setflag_;
+}
+void ConfigureOpenGLVisualizerCommand::set_setflag(::google::protobuf::int32 value) {
+  
+  setflag_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ConfigureOpenGLVisualizerCommand.setFlag)
+}
+
+// int32 setEnabled = 7;
+void ConfigureOpenGLVisualizerCommand::clear_setenabled() {
+  setenabled_ = 0;
+}
+::google::protobuf::int32 ConfigureOpenGLVisualizerCommand::setenabled() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.ConfigureOpenGLVisualizerCommand.setEnabled)
+  return setenabled_;
+}
+void ConfigureOpenGLVisualizerCommand::set_setenabled(::google::protobuf::int32 value) {
+  
+  setenabled_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.ConfigureOpenGLVisualizerCommand.setEnabled)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int PhysicsSimulationParameters::kDeltaTimeFieldNumber;
+const int PhysicsSimulationParameters::kGravityAccelerationFieldNumber;
+const int PhysicsSimulationParameters::kNumSimulationSubStepsFieldNumber;
+const int PhysicsSimulationParameters::kNumSolverIterationsFieldNumber;
+const int PhysicsSimulationParameters::kUseRealTimeSimulationFieldNumber;
+const int PhysicsSimulationParameters::kUseSplitImpulseFieldNumber;
+const int PhysicsSimulationParameters::kSplitImpulsePenetrationThresholdFieldNumber;
+const int PhysicsSimulationParameters::kContactBreakingThresholdFieldNumber;
+const int PhysicsSimulationParameters::kInternalSimFlagsFieldNumber;
+const int PhysicsSimulationParameters::kDefaultContactERPFieldNumber;
+const int PhysicsSimulationParameters::kCollisionFilterModeFieldNumber;
+const int PhysicsSimulationParameters::kEnableFileCachingFieldNumber;
+const int PhysicsSimulationParameters::kRestitutionVelocityThresholdFieldNumber;
+const int PhysicsSimulationParameters::kDefaultNonContactERPFieldNumber;
+const int PhysicsSimulationParameters::kFrictionERPFieldNumber;
+const int PhysicsSimulationParameters::kDefaultGlobalCFMFieldNumber;
+const int PhysicsSimulationParameters::kFrictionCFMFieldNumber;
+const int PhysicsSimulationParameters::kEnableConeFrictionFieldNumber;
+const int PhysicsSimulationParameters::kDeterministicOverlappingPairsFieldNumber;
+const int PhysicsSimulationParameters::kAllowedCcdPenetrationFieldNumber;
+const int PhysicsSimulationParameters::kJointFeedbackModeFieldNumber;
+const int PhysicsSimulationParameters::kSolverResidualThresholdFieldNumber;
+const int PhysicsSimulationParameters::kContactSlopFieldNumber;
+const int PhysicsSimulationParameters::kEnableSATFieldNumber;
+const int PhysicsSimulationParameters::kConstraintSolverTypeFieldNumber;
+const int PhysicsSimulationParameters::kMinimumSolverIslandSizeFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+PhysicsSimulationParameters::PhysicsSimulationParameters()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.PhysicsSimulationParameters)
+}
+PhysicsSimulationParameters::PhysicsSimulationParameters(const PhysicsSimulationParameters& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_gravityacceleration()) {
+    gravityacceleration_ = new ::pybullet_grpc::vec3(*from.gravityacceleration_);
+  } else {
+    gravityacceleration_ = NULL;
+  }
+  ::memcpy(&deltatime_, &from.deltatime_,
+    reinterpret_cast<char*>(&minimumsolverislandsize_) -
+    reinterpret_cast<char*>(&deltatime_) + sizeof(minimumsolverislandsize_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.PhysicsSimulationParameters)
+}
+
+void PhysicsSimulationParameters::SharedCtor() {
+  ::memset(&gravityacceleration_, 0, reinterpret_cast<char*>(&minimumsolverislandsize_) -
+    reinterpret_cast<char*>(&gravityacceleration_) + sizeof(minimumsolverislandsize_));
+  _cached_size_ = 0;
+}
+
+PhysicsSimulationParameters::~PhysicsSimulationParameters() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.PhysicsSimulationParameters)
+  SharedDtor();
+}
+
+void PhysicsSimulationParameters::SharedDtor() {
+  if (this != internal_default_instance()) {
+    delete gravityacceleration_;
+  }
+}
+
+void PhysicsSimulationParameters::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* PhysicsSimulationParameters::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[26].descriptor;
+}
+
+const PhysicsSimulationParameters& PhysicsSimulationParameters::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+PhysicsSimulationParameters* PhysicsSimulationParameters::New(::google::protobuf::Arena* arena) const {
+  PhysicsSimulationParameters* n = new PhysicsSimulationParameters;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void PhysicsSimulationParameters::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.PhysicsSimulationParameters)
+  if (GetArenaNoVirtual() == NULL && gravityacceleration_ != NULL) {
+    delete gravityacceleration_;
+  }
+  gravityacceleration_ = NULL;
+  ::memset(&deltatime_, 0, reinterpret_cast<char*>(&minimumsolverislandsize_) -
+    reinterpret_cast<char*>(&deltatime_) + sizeof(minimumsolverislandsize_));
+}
+
+bool PhysicsSimulationParameters::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.PhysicsSimulationParameters)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(16383u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // double deltaTime = 1;
+      case 1: {
+        if (tag == 9u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &deltatime_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.vec3 gravityAcceleration = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_gravityacceleration()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 numSimulationSubSteps = 3;
+      case 3: {
+        if (tag == 24u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &numsimulationsubsteps_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 numSolverIterations = 4;
+      case 4: {
+        if (tag == 32u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &numsolveriterations_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 useRealTimeSimulation = 5;
+      case 5: {
+        if (tag == 40u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &userealtimesimulation_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 useSplitImpulse = 6;
+      case 6: {
+        if (tag == 48u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &usesplitimpulse_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double splitImpulsePenetrationThreshold = 7;
+      case 7: {
+        if (tag == 57u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &splitimpulsepenetrationthreshold_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double contactBreakingThreshold = 8;
+      case 8: {
+        if (tag == 65u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &contactbreakingthreshold_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 internalSimFlags = 9;
+      case 9: {
+        if (tag == 72u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &internalsimflags_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double defaultContactERP = 10;
+      case 10: {
+        if (tag == 81u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &defaultcontacterp_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 collisionFilterMode = 11;
+      case 11: {
+        if (tag == 88u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &collisionfiltermode_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 enableFileCaching = 12;
+      case 12: {
+        if (tag == 96u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &enablefilecaching_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double restitutionVelocityThreshold = 13;
+      case 13: {
+        if (tag == 105u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &restitutionvelocitythreshold_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double defaultNonContactERP = 14;
+      case 14: {
+        if (tag == 113u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &defaultnoncontacterp_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double frictionERP = 15;
+      case 15: {
+        if (tag == 121u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &frictionerp_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double defaultGlobalCFM = 16;
+      case 16: {
+        if (tag == 129u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &defaultglobalcfm_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double frictionCFM = 17;
+      case 17: {
+        if (tag == 137u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &frictioncfm_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 enableConeFriction = 18;
+      case 18: {
+        if (tag == 144u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &enableconefriction_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 deterministicOverlappingPairs = 19;
+      case 19: {
+        if (tag == 152u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &deterministicoverlappingpairs_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double allowedCcdPenetration = 20;
+      case 20: {
+        if (tag == 161u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &allowedccdpenetration_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 jointFeedbackMode = 21;
+      case 21: {
+        if (tag == 168u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &jointfeedbackmode_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double solverResidualThreshold = 22;
+      case 22: {
+        if (tag == 177u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &solverresidualthreshold_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double contactSlop = 23;
+      case 23: {
+        if (tag == 185u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &contactslop_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 enableSAT = 24;
+      case 24: {
+        if (tag == 192u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &enablesat_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 constraintSolverType = 25;
+      case 25: {
+        if (tag == 200u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &constraintsolvertype_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 minimumSolverIslandSize = 26;
+      case 26: {
+        if (tag == 208u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &minimumsolverislandsize_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.PhysicsSimulationParameters)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.PhysicsSimulationParameters)
+  return false;
+#undef DO_
+}
+
+void PhysicsSimulationParameters::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.PhysicsSimulationParameters)
+  // double deltaTime = 1;
+  if (this->deltatime() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(1, this->deltatime(), output);
+  }
+
+  // .pybullet_grpc.vec3 gravityAcceleration = 2;
+  if (this->has_gravityacceleration()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, *this->gravityacceleration_, output);
+  }
+
+  // int32 numSimulationSubSteps = 3;
+  if (this->numsimulationsubsteps() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->numsimulationsubsteps(), output);
+  }
+
+  // int32 numSolverIterations = 4;
+  if (this->numsolveriterations() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->numsolveriterations(), output);
+  }
+
+  // int32 useRealTimeSimulation = 5;
+  if (this->userealtimesimulation() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(5, this->userealtimesimulation(), output);
+  }
+
+  // int32 useSplitImpulse = 6;
+  if (this->usesplitimpulse() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(6, this->usesplitimpulse(), output);
+  }
+
+  // double splitImpulsePenetrationThreshold = 7;
+  if (this->splitimpulsepenetrationthreshold() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(7, this->splitimpulsepenetrationthreshold(), output);
+  }
+
+  // double contactBreakingThreshold = 8;
+  if (this->contactbreakingthreshold() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(8, this->contactbreakingthreshold(), output);
+  }
+
+  // int32 internalSimFlags = 9;
+  if (this->internalsimflags() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(9, this->internalsimflags(), output);
+  }
+
+  // double defaultContactERP = 10;
+  if (this->defaultcontacterp() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(10, this->defaultcontacterp(), output);
+  }
+
+  // int32 collisionFilterMode = 11;
+  if (this->collisionfiltermode() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(11, this->collisionfiltermode(), output);
+  }
+
+  // int32 enableFileCaching = 12;
+  if (this->enablefilecaching() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(12, this->enablefilecaching(), output);
+  }
+
+  // double restitutionVelocityThreshold = 13;
+  if (this->restitutionvelocitythreshold() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(13, this->restitutionvelocitythreshold(), output);
+  }
+
+  // double defaultNonContactERP = 14;
+  if (this->defaultnoncontacterp() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(14, this->defaultnoncontacterp(), output);
+  }
+
+  // double frictionERP = 15;
+  if (this->frictionerp() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(15, this->frictionerp(), output);
+  }
+
+  // double defaultGlobalCFM = 16;
+  if (this->defaultglobalcfm() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(16, this->defaultglobalcfm(), output);
+  }
+
+  // double frictionCFM = 17;
+  if (this->frictioncfm() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(17, this->frictioncfm(), output);
+  }
+
+  // int32 enableConeFriction = 18;
+  if (this->enableconefriction() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(18, this->enableconefriction(), output);
+  }
+
+  // int32 deterministicOverlappingPairs = 19;
+  if (this->deterministicoverlappingpairs() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(19, this->deterministicoverlappingpairs(), output);
+  }
+
+  // double allowedCcdPenetration = 20;
+  if (this->allowedccdpenetration() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(20, this->allowedccdpenetration(), output);
+  }
+
+  // int32 jointFeedbackMode = 21;
+  if (this->jointfeedbackmode() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(21, this->jointfeedbackmode(), output);
+  }
+
+  // double solverResidualThreshold = 22;
+  if (this->solverresidualthreshold() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(22, this->solverresidualthreshold(), output);
+  }
+
+  // double contactSlop = 23;
+  if (this->contactslop() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(23, this->contactslop(), output);
+  }
+
+  // int32 enableSAT = 24;
+  if (this->enablesat() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(24, this->enablesat(), output);
+  }
+
+  // int32 constraintSolverType = 25;
+  if (this->constraintsolvertype() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(25, this->constraintsolvertype(), output);
+  }
+
+  // int32 minimumSolverIslandSize = 26;
+  if (this->minimumsolverislandsize() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(26, this->minimumsolverislandsize(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.PhysicsSimulationParameters)
+}
+
+::google::protobuf::uint8* PhysicsSimulationParameters::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.PhysicsSimulationParameters)
+  // double deltaTime = 1;
+  if (this->deltatime() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(1, this->deltatime(), target);
+  }
+
+  // .pybullet_grpc.vec3 gravityAcceleration = 2;
+  if (this->has_gravityacceleration()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        2, *this->gravityacceleration_, false, target);
+  }
+
+  // int32 numSimulationSubSteps = 3;
+  if (this->numsimulationsubsteps() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->numsimulationsubsteps(), target);
+  }
+
+  // int32 numSolverIterations = 4;
+  if (this->numsolveriterations() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->numsolveriterations(), target);
+  }
+
+  // int32 useRealTimeSimulation = 5;
+  if (this->userealtimesimulation() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(5, this->userealtimesimulation(), target);
+  }
+
+  // int32 useSplitImpulse = 6;
+  if (this->usesplitimpulse() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(6, this->usesplitimpulse(), target);
+  }
+
+  // double splitImpulsePenetrationThreshold = 7;
+  if (this->splitimpulsepenetrationthreshold() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(7, this->splitimpulsepenetrationthreshold(), target);
+  }
+
+  // double contactBreakingThreshold = 8;
+  if (this->contactbreakingthreshold() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(8, this->contactbreakingthreshold(), target);
+  }
+
+  // int32 internalSimFlags = 9;
+  if (this->internalsimflags() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(9, this->internalsimflags(), target);
+  }
+
+  // double defaultContactERP = 10;
+  if (this->defaultcontacterp() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(10, this->defaultcontacterp(), target);
+  }
+
+  // int32 collisionFilterMode = 11;
+  if (this->collisionfiltermode() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(11, this->collisionfiltermode(), target);
+  }
+
+  // int32 enableFileCaching = 12;
+  if (this->enablefilecaching() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(12, this->enablefilecaching(), target);
+  }
+
+  // double restitutionVelocityThreshold = 13;
+  if (this->restitutionvelocitythreshold() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(13, this->restitutionvelocitythreshold(), target);
+  }
+
+  // double defaultNonContactERP = 14;
+  if (this->defaultnoncontacterp() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(14, this->defaultnoncontacterp(), target);
+  }
+
+  // double frictionERP = 15;
+  if (this->frictionerp() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(15, this->frictionerp(), target);
+  }
+
+  // double defaultGlobalCFM = 16;
+  if (this->defaultglobalcfm() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(16, this->defaultglobalcfm(), target);
+  }
+
+  // double frictionCFM = 17;
+  if (this->frictioncfm() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(17, this->frictioncfm(), target);
+  }
+
+  // int32 enableConeFriction = 18;
+  if (this->enableconefriction() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(18, this->enableconefriction(), target);
+  }
+
+  // int32 deterministicOverlappingPairs = 19;
+  if (this->deterministicoverlappingpairs() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(19, this->deterministicoverlappingpairs(), target);
+  }
+
+  // double allowedCcdPenetration = 20;
+  if (this->allowedccdpenetration() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(20, this->allowedccdpenetration(), target);
+  }
+
+  // int32 jointFeedbackMode = 21;
+  if (this->jointfeedbackmode() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(21, this->jointfeedbackmode(), target);
+  }
+
+  // double solverResidualThreshold = 22;
+  if (this->solverresidualthreshold() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(22, this->solverresidualthreshold(), target);
+  }
+
+  // double contactSlop = 23;
+  if (this->contactslop() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(23, this->contactslop(), target);
+  }
+
+  // int32 enableSAT = 24;
+  if (this->enablesat() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(24, this->enablesat(), target);
+  }
+
+  // int32 constraintSolverType = 25;
+  if (this->constraintsolvertype() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(25, this->constraintsolvertype(), target);
+  }
+
+  // int32 minimumSolverIslandSize = 26;
+  if (this->minimumsolverislandsize() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(26, this->minimumsolverislandsize(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.PhysicsSimulationParameters)
+  return target;
+}
+
+size_t PhysicsSimulationParameters::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.PhysicsSimulationParameters)
+  size_t total_size = 0;
+
+  // .pybullet_grpc.vec3 gravityAcceleration = 2;
+  if (this->has_gravityacceleration()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->gravityacceleration_);
+  }
+
+  // double deltaTime = 1;
+  if (this->deltatime() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // int32 numSimulationSubSteps = 3;
+  if (this->numsimulationsubsteps() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->numsimulationsubsteps());
+  }
+
+  // int32 numSolverIterations = 4;
+  if (this->numsolveriterations() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->numsolveriterations());
+  }
+
+  // int32 useRealTimeSimulation = 5;
+  if (this->userealtimesimulation() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->userealtimesimulation());
+  }
+
+  // int32 useSplitImpulse = 6;
+  if (this->usesplitimpulse() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->usesplitimpulse());
+  }
+
+  // double splitImpulsePenetrationThreshold = 7;
+  if (this->splitimpulsepenetrationthreshold() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double contactBreakingThreshold = 8;
+  if (this->contactbreakingthreshold() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double defaultContactERP = 10;
+  if (this->defaultcontacterp() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // int32 internalSimFlags = 9;
+  if (this->internalsimflags() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->internalsimflags());
+  }
+
+  // int32 collisionFilterMode = 11;
+  if (this->collisionfiltermode() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->collisionfiltermode());
+  }
+
+  // double restitutionVelocityThreshold = 13;
+  if (this->restitutionvelocitythreshold() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double defaultNonContactERP = 14;
+  if (this->defaultnoncontacterp() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double frictionERP = 15;
+  if (this->frictionerp() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // int32 enableFileCaching = 12;
+  if (this->enablefilecaching() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->enablefilecaching());
+  }
+
+  // int32 enableConeFriction = 18;
+  if (this->enableconefriction() != 0) {
+    total_size += 2 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->enableconefriction());
+  }
+
+  // double defaultGlobalCFM = 16;
+  if (this->defaultglobalcfm() != 0) {
+    total_size += 2 + 8;
+  }
+
+  // double frictionCFM = 17;
+  if (this->frictioncfm() != 0) {
+    total_size += 2 + 8;
+  }
+
+  // double allowedCcdPenetration = 20;
+  if (this->allowedccdpenetration() != 0) {
+    total_size += 2 + 8;
+  }
+
+  // int32 deterministicOverlappingPairs = 19;
+  if (this->deterministicoverlappingpairs() != 0) {
+    total_size += 2 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->deterministicoverlappingpairs());
+  }
+
+  // int32 jointFeedbackMode = 21;
+  if (this->jointfeedbackmode() != 0) {
+    total_size += 2 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->jointfeedbackmode());
+  }
+
+  // double solverResidualThreshold = 22;
+  if (this->solverresidualthreshold() != 0) {
+    total_size += 2 + 8;
+  }
+
+  // double contactSlop = 23;
+  if (this->contactslop() != 0) {
+    total_size += 2 + 8;
+  }
+
+  // int32 enableSAT = 24;
+  if (this->enablesat() != 0) {
+    total_size += 2 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->enablesat());
+  }
+
+  // int32 constraintSolverType = 25;
+  if (this->constraintsolvertype() != 0) {
+    total_size += 2 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->constraintsolvertype());
+  }
+
+  // int32 minimumSolverIslandSize = 26;
+  if (this->minimumsolverislandsize() != 0) {
+    total_size += 2 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->minimumsolverislandsize());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void PhysicsSimulationParameters::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.PhysicsSimulationParameters)
+  GOOGLE_DCHECK_NE(&from, this);
+  const PhysicsSimulationParameters* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const PhysicsSimulationParameters>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.PhysicsSimulationParameters)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.PhysicsSimulationParameters)
+    MergeFrom(*source);
+  }
+}
+
+void PhysicsSimulationParameters::MergeFrom(const PhysicsSimulationParameters& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.PhysicsSimulationParameters)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_gravityacceleration()) {
+    mutable_gravityacceleration()->::pybullet_grpc::vec3::MergeFrom(from.gravityacceleration());
+  }
+  if (from.deltatime() != 0) {
+    set_deltatime(from.deltatime());
+  }
+  if (from.numsimulationsubsteps() != 0) {
+    set_numsimulationsubsteps(from.numsimulationsubsteps());
+  }
+  if (from.numsolveriterations() != 0) {
+    set_numsolveriterations(from.numsolveriterations());
+  }
+  if (from.userealtimesimulation() != 0) {
+    set_userealtimesimulation(from.userealtimesimulation());
+  }
+  if (from.usesplitimpulse() != 0) {
+    set_usesplitimpulse(from.usesplitimpulse());
+  }
+  if (from.splitimpulsepenetrationthreshold() != 0) {
+    set_splitimpulsepenetrationthreshold(from.splitimpulsepenetrationthreshold());
+  }
+  if (from.contactbreakingthreshold() != 0) {
+    set_contactbreakingthreshold(from.contactbreakingthreshold());
+  }
+  if (from.defaultcontacterp() != 0) {
+    set_defaultcontacterp(from.defaultcontacterp());
+  }
+  if (from.internalsimflags() != 0) {
+    set_internalsimflags(from.internalsimflags());
+  }
+  if (from.collisionfiltermode() != 0) {
+    set_collisionfiltermode(from.collisionfiltermode());
+  }
+  if (from.restitutionvelocitythreshold() != 0) {
+    set_restitutionvelocitythreshold(from.restitutionvelocitythreshold());
+  }
+  if (from.defaultnoncontacterp() != 0) {
+    set_defaultnoncontacterp(from.defaultnoncontacterp());
+  }
+  if (from.frictionerp() != 0) {
+    set_frictionerp(from.frictionerp());
+  }
+  if (from.enablefilecaching() != 0) {
+    set_enablefilecaching(from.enablefilecaching());
+  }
+  if (from.enableconefriction() != 0) {
+    set_enableconefriction(from.enableconefriction());
+  }
+  if (from.defaultglobalcfm() != 0) {
+    set_defaultglobalcfm(from.defaultglobalcfm());
+  }
+  if (from.frictioncfm() != 0) {
+    set_frictioncfm(from.frictioncfm());
+  }
+  if (from.allowedccdpenetration() != 0) {
+    set_allowedccdpenetration(from.allowedccdpenetration());
+  }
+  if (from.deterministicoverlappingpairs() != 0) {
+    set_deterministicoverlappingpairs(from.deterministicoverlappingpairs());
+  }
+  if (from.jointfeedbackmode() != 0) {
+    set_jointfeedbackmode(from.jointfeedbackmode());
+  }
+  if (from.solverresidualthreshold() != 0) {
+    set_solverresidualthreshold(from.solverresidualthreshold());
+  }
+  if (from.contactslop() != 0) {
+    set_contactslop(from.contactslop());
+  }
+  if (from.enablesat() != 0) {
+    set_enablesat(from.enablesat());
+  }
+  if (from.constraintsolvertype() != 0) {
+    set_constraintsolvertype(from.constraintsolvertype());
+  }
+  if (from.minimumsolverislandsize() != 0) {
+    set_minimumsolverislandsize(from.minimumsolverislandsize());
+  }
+}
+
+void PhysicsSimulationParameters::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.PhysicsSimulationParameters)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void PhysicsSimulationParameters::CopyFrom(const PhysicsSimulationParameters& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.PhysicsSimulationParameters)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool PhysicsSimulationParameters::IsInitialized() const {
+  return true;
+}
+
+void PhysicsSimulationParameters::Swap(PhysicsSimulationParameters* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void PhysicsSimulationParameters::InternalSwap(PhysicsSimulationParameters* other) {
+  std::swap(gravityacceleration_, other->gravityacceleration_);
+  std::swap(deltatime_, other->deltatime_);
+  std::swap(numsimulationsubsteps_, other->numsimulationsubsteps_);
+  std::swap(numsolveriterations_, other->numsolveriterations_);
+  std::swap(userealtimesimulation_, other->userealtimesimulation_);
+  std::swap(usesplitimpulse_, other->usesplitimpulse_);
+  std::swap(splitimpulsepenetrationthreshold_, other->splitimpulsepenetrationthreshold_);
+  std::swap(contactbreakingthreshold_, other->contactbreakingthreshold_);
+  std::swap(defaultcontacterp_, other->defaultcontacterp_);
+  std::swap(internalsimflags_, other->internalsimflags_);
+  std::swap(collisionfiltermode_, other->collisionfiltermode_);
+  std::swap(restitutionvelocitythreshold_, other->restitutionvelocitythreshold_);
+  std::swap(defaultnoncontacterp_, other->defaultnoncontacterp_);
+  std::swap(frictionerp_, other->frictionerp_);
+  std::swap(enablefilecaching_, other->enablefilecaching_);
+  std::swap(enableconefriction_, other->enableconefriction_);
+  std::swap(defaultglobalcfm_, other->defaultglobalcfm_);
+  std::swap(frictioncfm_, other->frictioncfm_);
+  std::swap(allowedccdpenetration_, other->allowedccdpenetration_);
+  std::swap(deterministicoverlappingpairs_, other->deterministicoverlappingpairs_);
+  std::swap(jointfeedbackmode_, other->jointfeedbackmode_);
+  std::swap(solverresidualthreshold_, other->solverresidualthreshold_);
+  std::swap(contactslop_, other->contactslop_);
+  std::swap(enablesat_, other->enablesat_);
+  std::swap(constraintsolvertype_, other->constraintsolvertype_);
+  std::swap(minimumsolverislandsize_, other->minimumsolverislandsize_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata PhysicsSimulationParameters::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[26];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// PhysicsSimulationParameters
+
+// double deltaTime = 1;
+void PhysicsSimulationParameters::clear_deltatime() {
+  deltatime_ = 0;
+}
+double PhysicsSimulationParameters::deltatime() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.deltaTime)
+  return deltatime_;
+}
+void PhysicsSimulationParameters::set_deltatime(double value) {
+  
+  deltatime_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.deltaTime)
+}
+
+// .pybullet_grpc.vec3 gravityAcceleration = 2;
+bool PhysicsSimulationParameters::has_gravityacceleration() const {
+  return this != internal_default_instance() && gravityacceleration_ != NULL;
+}
+void PhysicsSimulationParameters::clear_gravityacceleration() {
+  if (GetArenaNoVirtual() == NULL && gravityacceleration_ != NULL) delete gravityacceleration_;
+  gravityacceleration_ = NULL;
+}
+const ::pybullet_grpc::vec3& PhysicsSimulationParameters::gravityacceleration() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.gravityAcceleration)
+  return gravityacceleration_ != NULL ? *gravityacceleration_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+::pybullet_grpc::vec3* PhysicsSimulationParameters::mutable_gravityacceleration() {
+  
+  if (gravityacceleration_ == NULL) {
+    gravityacceleration_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PhysicsSimulationParameters.gravityAcceleration)
+  return gravityacceleration_;
+}
+::pybullet_grpc::vec3* PhysicsSimulationParameters::release_gravityacceleration() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PhysicsSimulationParameters.gravityAcceleration)
+  
+  ::pybullet_grpc::vec3* temp = gravityacceleration_;
+  gravityacceleration_ = NULL;
+  return temp;
+}
+void PhysicsSimulationParameters::set_allocated_gravityacceleration(::pybullet_grpc::vec3* gravityacceleration) {
+  delete gravityacceleration_;
+  gravityacceleration_ = gravityacceleration;
+  if (gravityacceleration) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PhysicsSimulationParameters.gravityAcceleration)
+}
+
+// int32 numSimulationSubSteps = 3;
+void PhysicsSimulationParameters::clear_numsimulationsubsteps() {
+  numsimulationsubsteps_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::numsimulationsubsteps() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.numSimulationSubSteps)
+  return numsimulationsubsteps_;
+}
+void PhysicsSimulationParameters::set_numsimulationsubsteps(::google::protobuf::int32 value) {
+  
+  numsimulationsubsteps_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.numSimulationSubSteps)
+}
+
+// int32 numSolverIterations = 4;
+void PhysicsSimulationParameters::clear_numsolveriterations() {
+  numsolveriterations_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::numsolveriterations() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.numSolverIterations)
+  return numsolveriterations_;
+}
+void PhysicsSimulationParameters::set_numsolveriterations(::google::protobuf::int32 value) {
+  
+  numsolveriterations_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.numSolverIterations)
+}
+
+// int32 useRealTimeSimulation = 5;
+void PhysicsSimulationParameters::clear_userealtimesimulation() {
+  userealtimesimulation_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::userealtimesimulation() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.useRealTimeSimulation)
+  return userealtimesimulation_;
+}
+void PhysicsSimulationParameters::set_userealtimesimulation(::google::protobuf::int32 value) {
+  
+  userealtimesimulation_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.useRealTimeSimulation)
+}
+
+// int32 useSplitImpulse = 6;
+void PhysicsSimulationParameters::clear_usesplitimpulse() {
+  usesplitimpulse_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::usesplitimpulse() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.useSplitImpulse)
+  return usesplitimpulse_;
+}
+void PhysicsSimulationParameters::set_usesplitimpulse(::google::protobuf::int32 value) {
+  
+  usesplitimpulse_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.useSplitImpulse)
+}
+
+// double splitImpulsePenetrationThreshold = 7;
+void PhysicsSimulationParameters::clear_splitimpulsepenetrationthreshold() {
+  splitimpulsepenetrationthreshold_ = 0;
+}
+double PhysicsSimulationParameters::splitimpulsepenetrationthreshold() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.splitImpulsePenetrationThreshold)
+  return splitimpulsepenetrationthreshold_;
+}
+void PhysicsSimulationParameters::set_splitimpulsepenetrationthreshold(double value) {
+  
+  splitimpulsepenetrationthreshold_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.splitImpulsePenetrationThreshold)
+}
+
+// double contactBreakingThreshold = 8;
+void PhysicsSimulationParameters::clear_contactbreakingthreshold() {
+  contactbreakingthreshold_ = 0;
+}
+double PhysicsSimulationParameters::contactbreakingthreshold() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.contactBreakingThreshold)
+  return contactbreakingthreshold_;
+}
+void PhysicsSimulationParameters::set_contactbreakingthreshold(double value) {
+  
+  contactbreakingthreshold_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.contactBreakingThreshold)
+}
+
+// int32 internalSimFlags = 9;
+void PhysicsSimulationParameters::clear_internalsimflags() {
+  internalsimflags_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::internalsimflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.internalSimFlags)
+  return internalsimflags_;
+}
+void PhysicsSimulationParameters::set_internalsimflags(::google::protobuf::int32 value) {
+  
+  internalsimflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.internalSimFlags)
+}
+
+// double defaultContactERP = 10;
+void PhysicsSimulationParameters::clear_defaultcontacterp() {
+  defaultcontacterp_ = 0;
+}
+double PhysicsSimulationParameters::defaultcontacterp() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.defaultContactERP)
+  return defaultcontacterp_;
+}
+void PhysicsSimulationParameters::set_defaultcontacterp(double value) {
+  
+  defaultcontacterp_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.defaultContactERP)
+}
+
+// int32 collisionFilterMode = 11;
+void PhysicsSimulationParameters::clear_collisionfiltermode() {
+  collisionfiltermode_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::collisionfiltermode() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.collisionFilterMode)
+  return collisionfiltermode_;
+}
+void PhysicsSimulationParameters::set_collisionfiltermode(::google::protobuf::int32 value) {
+  
+  collisionfiltermode_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.collisionFilterMode)
+}
+
+// int32 enableFileCaching = 12;
+void PhysicsSimulationParameters::clear_enablefilecaching() {
+  enablefilecaching_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::enablefilecaching() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.enableFileCaching)
+  return enablefilecaching_;
+}
+void PhysicsSimulationParameters::set_enablefilecaching(::google::protobuf::int32 value) {
+  
+  enablefilecaching_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.enableFileCaching)
+}
+
+// double restitutionVelocityThreshold = 13;
+void PhysicsSimulationParameters::clear_restitutionvelocitythreshold() {
+  restitutionvelocitythreshold_ = 0;
+}
+double PhysicsSimulationParameters::restitutionvelocitythreshold() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.restitutionVelocityThreshold)
+  return restitutionvelocitythreshold_;
+}
+void PhysicsSimulationParameters::set_restitutionvelocitythreshold(double value) {
+  
+  restitutionvelocitythreshold_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.restitutionVelocityThreshold)
+}
+
+// double defaultNonContactERP = 14;
+void PhysicsSimulationParameters::clear_defaultnoncontacterp() {
+  defaultnoncontacterp_ = 0;
+}
+double PhysicsSimulationParameters::defaultnoncontacterp() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.defaultNonContactERP)
+  return defaultnoncontacterp_;
+}
+void PhysicsSimulationParameters::set_defaultnoncontacterp(double value) {
+  
+  defaultnoncontacterp_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.defaultNonContactERP)
+}
+
+// double frictionERP = 15;
+void PhysicsSimulationParameters::clear_frictionerp() {
+  frictionerp_ = 0;
+}
+double PhysicsSimulationParameters::frictionerp() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.frictionERP)
+  return frictionerp_;
+}
+void PhysicsSimulationParameters::set_frictionerp(double value) {
+  
+  frictionerp_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.frictionERP)
+}
+
+// double defaultGlobalCFM = 16;
+void PhysicsSimulationParameters::clear_defaultglobalcfm() {
+  defaultglobalcfm_ = 0;
+}
+double PhysicsSimulationParameters::defaultglobalcfm() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.defaultGlobalCFM)
+  return defaultglobalcfm_;
+}
+void PhysicsSimulationParameters::set_defaultglobalcfm(double value) {
+  
+  defaultglobalcfm_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.defaultGlobalCFM)
+}
+
+// double frictionCFM = 17;
+void PhysicsSimulationParameters::clear_frictioncfm() {
+  frictioncfm_ = 0;
+}
+double PhysicsSimulationParameters::frictioncfm() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.frictionCFM)
+  return frictioncfm_;
+}
+void PhysicsSimulationParameters::set_frictioncfm(double value) {
+  
+  frictioncfm_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.frictionCFM)
+}
+
+// int32 enableConeFriction = 18;
+void PhysicsSimulationParameters::clear_enableconefriction() {
+  enableconefriction_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::enableconefriction() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.enableConeFriction)
+  return enableconefriction_;
+}
+void PhysicsSimulationParameters::set_enableconefriction(::google::protobuf::int32 value) {
+  
+  enableconefriction_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.enableConeFriction)
+}
+
+// int32 deterministicOverlappingPairs = 19;
+void PhysicsSimulationParameters::clear_deterministicoverlappingpairs() {
+  deterministicoverlappingpairs_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::deterministicoverlappingpairs() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.deterministicOverlappingPairs)
+  return deterministicoverlappingpairs_;
+}
+void PhysicsSimulationParameters::set_deterministicoverlappingpairs(::google::protobuf::int32 value) {
+  
+  deterministicoverlappingpairs_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.deterministicOverlappingPairs)
+}
+
+// double allowedCcdPenetration = 20;
+void PhysicsSimulationParameters::clear_allowedccdpenetration() {
+  allowedccdpenetration_ = 0;
+}
+double PhysicsSimulationParameters::allowedccdpenetration() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.allowedCcdPenetration)
+  return allowedccdpenetration_;
+}
+void PhysicsSimulationParameters::set_allowedccdpenetration(double value) {
+  
+  allowedccdpenetration_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.allowedCcdPenetration)
+}
+
+// int32 jointFeedbackMode = 21;
+void PhysicsSimulationParameters::clear_jointfeedbackmode() {
+  jointfeedbackmode_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::jointfeedbackmode() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.jointFeedbackMode)
+  return jointfeedbackmode_;
+}
+void PhysicsSimulationParameters::set_jointfeedbackmode(::google::protobuf::int32 value) {
+  
+  jointfeedbackmode_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.jointFeedbackMode)
+}
+
+// double solverResidualThreshold = 22;
+void PhysicsSimulationParameters::clear_solverresidualthreshold() {
+  solverresidualthreshold_ = 0;
+}
+double PhysicsSimulationParameters::solverresidualthreshold() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.solverResidualThreshold)
+  return solverresidualthreshold_;
+}
+void PhysicsSimulationParameters::set_solverresidualthreshold(double value) {
+  
+  solverresidualthreshold_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.solverResidualThreshold)
+}
+
+// double contactSlop = 23;
+void PhysicsSimulationParameters::clear_contactslop() {
+  contactslop_ = 0;
+}
+double PhysicsSimulationParameters::contactslop() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.contactSlop)
+  return contactslop_;
+}
+void PhysicsSimulationParameters::set_contactslop(double value) {
+  
+  contactslop_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.contactSlop)
+}
+
+// int32 enableSAT = 24;
+void PhysicsSimulationParameters::clear_enablesat() {
+  enablesat_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::enablesat() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.enableSAT)
+  return enablesat_;
+}
+void PhysicsSimulationParameters::set_enablesat(::google::protobuf::int32 value) {
+  
+  enablesat_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.enableSAT)
+}
+
+// int32 constraintSolverType = 25;
+void PhysicsSimulationParameters::clear_constraintsolvertype() {
+  constraintsolvertype_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::constraintsolvertype() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.constraintSolverType)
+  return constraintsolvertype_;
+}
+void PhysicsSimulationParameters::set_constraintsolvertype(::google::protobuf::int32 value) {
+  
+  constraintsolvertype_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.constraintSolverType)
+}
+
+// int32 minimumSolverIslandSize = 26;
+void PhysicsSimulationParameters::clear_minimumsolverislandsize() {
+  minimumsolverislandsize_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParameters::minimumsolverislandsize() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParameters.minimumSolverIslandSize)
+  return minimumsolverislandsize_;
+}
+void PhysicsSimulationParameters::set_minimumsolverislandsize(::google::protobuf::int32 value) {
+  
+  minimumsolverislandsize_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParameters.minimumSolverIslandSize)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int PhysicsSimulationParametersCommand::kUpdateFlagsFieldNumber;
+const int PhysicsSimulationParametersCommand::kParamsFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+PhysicsSimulationParametersCommand::PhysicsSimulationParametersCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.PhysicsSimulationParametersCommand)
+}
+PhysicsSimulationParametersCommand::PhysicsSimulationParametersCommand(const PhysicsSimulationParametersCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_params()) {
+    params_ = new ::pybullet_grpc::PhysicsSimulationParameters(*from.params_);
+  } else {
+    params_ = NULL;
+  }
+  updateflags_ = from.updateflags_;
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.PhysicsSimulationParametersCommand)
+}
+
+void PhysicsSimulationParametersCommand::SharedCtor() {
+  ::memset(&params_, 0, reinterpret_cast<char*>(&updateflags_) -
+    reinterpret_cast<char*>(&params_) + sizeof(updateflags_));
+  _cached_size_ = 0;
+}
+
+PhysicsSimulationParametersCommand::~PhysicsSimulationParametersCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.PhysicsSimulationParametersCommand)
+  SharedDtor();
+}
+
+void PhysicsSimulationParametersCommand::SharedDtor() {
+  if (this != internal_default_instance()) {
+    delete params_;
+  }
+}
+
+void PhysicsSimulationParametersCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* PhysicsSimulationParametersCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[27].descriptor;
+}
+
+const PhysicsSimulationParametersCommand& PhysicsSimulationParametersCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+PhysicsSimulationParametersCommand* PhysicsSimulationParametersCommand::New(::google::protobuf::Arena* arena) const {
+  PhysicsSimulationParametersCommand* n = new PhysicsSimulationParametersCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void PhysicsSimulationParametersCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.PhysicsSimulationParametersCommand)
+  if (GetArenaNoVirtual() == NULL && params_ != NULL) {
+    delete params_;
+  }
+  params_ = NULL;
+  updateflags_ = 0;
+}
+
+bool PhysicsSimulationParametersCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.PhysicsSimulationParametersCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 updateFlags = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &updateflags_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.PhysicsSimulationParameters params = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_params()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.PhysicsSimulationParametersCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.PhysicsSimulationParametersCommand)
+  return false;
+#undef DO_
+}
+
+void PhysicsSimulationParametersCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.PhysicsSimulationParametersCommand)
+  // int32 updateFlags = 1;
+  if (this->updateflags() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->updateflags(), output);
+  }
+
+  // .pybullet_grpc.PhysicsSimulationParameters params = 2;
+  if (this->has_params()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, *this->params_, output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.PhysicsSimulationParametersCommand)
+}
+
+::google::protobuf::uint8* PhysicsSimulationParametersCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.PhysicsSimulationParametersCommand)
+  // int32 updateFlags = 1;
+  if (this->updateflags() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->updateflags(), target);
+  }
+
+  // .pybullet_grpc.PhysicsSimulationParameters params = 2;
+  if (this->has_params()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        2, *this->params_, false, target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.PhysicsSimulationParametersCommand)
+  return target;
+}
+
+size_t PhysicsSimulationParametersCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.PhysicsSimulationParametersCommand)
+  size_t total_size = 0;
+
+  // .pybullet_grpc.PhysicsSimulationParameters params = 2;
+  if (this->has_params()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->params_);
+  }
+
+  // int32 updateFlags = 1;
+  if (this->updateflags() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->updateflags());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void PhysicsSimulationParametersCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.PhysicsSimulationParametersCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const PhysicsSimulationParametersCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const PhysicsSimulationParametersCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.PhysicsSimulationParametersCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.PhysicsSimulationParametersCommand)
+    MergeFrom(*source);
+  }
+}
+
+void PhysicsSimulationParametersCommand::MergeFrom(const PhysicsSimulationParametersCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.PhysicsSimulationParametersCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_params()) {
+    mutable_params()->::pybullet_grpc::PhysicsSimulationParameters::MergeFrom(from.params());
+  }
+  if (from.updateflags() != 0) {
+    set_updateflags(from.updateflags());
+  }
+}
+
+void PhysicsSimulationParametersCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.PhysicsSimulationParametersCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void PhysicsSimulationParametersCommand::CopyFrom(const PhysicsSimulationParametersCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.PhysicsSimulationParametersCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool PhysicsSimulationParametersCommand::IsInitialized() const {
+  return true;
+}
+
+void PhysicsSimulationParametersCommand::Swap(PhysicsSimulationParametersCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void PhysicsSimulationParametersCommand::InternalSwap(PhysicsSimulationParametersCommand* other) {
+  std::swap(params_, other->params_);
+  std::swap(updateflags_, other->updateflags_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata PhysicsSimulationParametersCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[27];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// PhysicsSimulationParametersCommand
+
+// int32 updateFlags = 1;
+void PhysicsSimulationParametersCommand::clear_updateflags() {
+  updateflags_ = 0;
+}
+::google::protobuf::int32 PhysicsSimulationParametersCommand::updateflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParametersCommand.updateFlags)
+  return updateflags_;
+}
+void PhysicsSimulationParametersCommand::set_updateflags(::google::protobuf::int32 value) {
+  
+  updateflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PhysicsSimulationParametersCommand.updateFlags)
+}
+
+// .pybullet_grpc.PhysicsSimulationParameters params = 2;
+bool PhysicsSimulationParametersCommand::has_params() const {
+  return this != internal_default_instance() && params_ != NULL;
+}
+void PhysicsSimulationParametersCommand::clear_params() {
+  if (GetArenaNoVirtual() == NULL && params_ != NULL) delete params_;
+  params_ = NULL;
+}
+const ::pybullet_grpc::PhysicsSimulationParameters& PhysicsSimulationParametersCommand::params() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PhysicsSimulationParametersCommand.params)
+  return params_ != NULL ? *params_
+                         : *::pybullet_grpc::PhysicsSimulationParameters::internal_default_instance();
+}
+::pybullet_grpc::PhysicsSimulationParameters* PhysicsSimulationParametersCommand::mutable_params() {
+  
+  if (params_ == NULL) {
+    params_ = new ::pybullet_grpc::PhysicsSimulationParameters;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PhysicsSimulationParametersCommand.params)
+  return params_;
+}
+::pybullet_grpc::PhysicsSimulationParameters* PhysicsSimulationParametersCommand::release_params() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PhysicsSimulationParametersCommand.params)
+  
+  ::pybullet_grpc::PhysicsSimulationParameters* temp = params_;
+  params_ = NULL;
+  return temp;
+}
+void PhysicsSimulationParametersCommand::set_allocated_params(::pybullet_grpc::PhysicsSimulationParameters* params) {
+  delete params_;
+  params_ = params;
+  if (params) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PhysicsSimulationParametersCommand.params)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int JointMotorControlCommand::kBodyUniqueIdFieldNumber;
+const int JointMotorControlCommand::kControlModeFieldNumber;
+const int JointMotorControlCommand::kUpdateFlagsFieldNumber;
+const int JointMotorControlCommand::kKpFieldNumber;
+const int JointMotorControlCommand::kKdFieldNumber;
+const int JointMotorControlCommand::kMaxVelocityFieldNumber;
+const int JointMotorControlCommand::kHasDesiredStateFlagsFieldNumber;
+const int JointMotorControlCommand::kDesiredStateQFieldNumber;
+const int JointMotorControlCommand::kDesiredStateQdotFieldNumber;
+const int JointMotorControlCommand::kDesiredStateForceTorqueFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+JointMotorControlCommand::JointMotorControlCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.JointMotorControlCommand)
+}
+JointMotorControlCommand::JointMotorControlCommand(const JointMotorControlCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      kp_(from.kp_),
+      kd_(from.kd_),
+      maxvelocity_(from.maxvelocity_),
+      hasdesiredstateflags_(from.hasdesiredstateflags_),
+      desiredstateq_(from.desiredstateq_),
+      desiredstateqdot_(from.desiredstateqdot_),
+      desiredstateforcetorque_(from.desiredstateforcetorque_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&bodyuniqueid_, &from.bodyuniqueid_,
+    reinterpret_cast<char*>(&updateflags_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(updateflags_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.JointMotorControlCommand)
+}
+
+void JointMotorControlCommand::SharedCtor() {
+  ::memset(&bodyuniqueid_, 0, reinterpret_cast<char*>(&updateflags_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(updateflags_));
+  _cached_size_ = 0;
+}
+
+JointMotorControlCommand::~JointMotorControlCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.JointMotorControlCommand)
+  SharedDtor();
+}
+
+void JointMotorControlCommand::SharedDtor() {
+}
+
+void JointMotorControlCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* JointMotorControlCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[28].descriptor;
+}
+
+const JointMotorControlCommand& JointMotorControlCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+JointMotorControlCommand* JointMotorControlCommand::New(::google::protobuf::Arena* arena) const {
+  JointMotorControlCommand* n = new JointMotorControlCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void JointMotorControlCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.JointMotorControlCommand)
+  kp_.Clear();
+  kd_.Clear();
+  maxvelocity_.Clear();
+  hasdesiredstateflags_.Clear();
+  desiredstateq_.Clear();
+  desiredstateqdot_.Clear();
+  desiredstateforcetorque_.Clear();
+  ::memset(&bodyuniqueid_, 0, reinterpret_cast<char*>(&updateflags_) -
+    reinterpret_cast<char*>(&bodyuniqueid_) + sizeof(updateflags_));
+}
+
+bool JointMotorControlCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.JointMotorControlCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 bodyUniqueId = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &bodyuniqueid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 controlMode = 2;
+      case 2: {
+        if (tag == 16u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &controlmode_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 updateFlags = 3;
+      case 3: {
+        if (tag == 24u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &updateflags_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double Kp = 4;
+      case 4: {
+        if (tag == 34u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_kp())));
+        } else if (tag == 33u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 34u, input, this->mutable_kp())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double Kd = 5;
+      case 5: {
+        if (tag == 42u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_kd())));
+        } else if (tag == 41u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 42u, input, this->mutable_kd())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double maxVelocity = 6;
+      case 6: {
+        if (tag == 50u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_maxvelocity())));
+        } else if (tag == 49u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 50u, input, this->mutable_maxvelocity())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated int32 hasDesiredStateFlags = 7;
+      case 7: {
+        if (tag == 58u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, this->mutable_hasdesiredstateflags())));
+        } else if (tag == 56u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 1, 58u, input, this->mutable_hasdesiredstateflags())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double desiredStateQ = 8;
+      case 8: {
+        if (tag == 66u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_desiredstateq())));
+        } else if (tag == 65u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 66u, input, this->mutable_desiredstateq())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double desiredStateQdot = 9;
+      case 9: {
+        if (tag == 74u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_desiredstateqdot())));
+        } else if (tag == 73u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 74u, input, this->mutable_desiredstateqdot())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated double desiredStateForceTorque = 10;
+      case 10: {
+        if (tag == 82u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_desiredstateforcetorque())));
+        } else if (tag == 81u) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 82u, input, this->mutable_desiredstateforcetorque())));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.JointMotorControlCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.JointMotorControlCommand)
+  return false;
+#undef DO_
+}
+
+void JointMotorControlCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.JointMotorControlCommand)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->bodyuniqueid(), output);
+  }
+
+  // int32 controlMode = 2;
+  if (this->controlmode() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->controlmode(), output);
+  }
+
+  // int32 updateFlags = 3;
+  if (this->updateflags() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->updateflags(), output);
+  }
+
+  // repeated double Kp = 4;
+  if (this->kp_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(4, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_kp_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->kp().data(), this->kp_size(), output);
+  }
+
+  // repeated double Kd = 5;
+  if (this->kd_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(5, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_kd_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->kd().data(), this->kd_size(), output);
+  }
+
+  // repeated double maxVelocity = 6;
+  if (this->maxvelocity_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(6, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_maxvelocity_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->maxvelocity().data(), this->maxvelocity_size(), output);
+  }
+
+  // repeated int32 hasDesiredStateFlags = 7;
+  if (this->hasdesiredstateflags_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(7, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_hasdesiredstateflags_cached_byte_size_);
+  }
+  for (int i = 0; i < this->hasdesiredstateflags_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32NoTag(
+      this->hasdesiredstateflags(i), output);
+  }
+
+  // repeated double desiredStateQ = 8;
+  if (this->desiredstateq_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(8, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_desiredstateq_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->desiredstateq().data(), this->desiredstateq_size(), output);
+  }
+
+  // repeated double desiredStateQdot = 9;
+  if (this->desiredstateqdot_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(9, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_desiredstateqdot_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->desiredstateqdot().data(), this->desiredstateqdot_size(), output);
+  }
+
+  // repeated double desiredStateForceTorque = 10;
+  if (this->desiredstateforcetorque_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(10, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_desiredstateforcetorque_cached_byte_size_);
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleArray(
+      this->desiredstateforcetorque().data(), this->desiredstateforcetorque_size(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.JointMotorControlCommand)
+}
+
+::google::protobuf::uint8* JointMotorControlCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.JointMotorControlCommand)
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->bodyuniqueid(), target);
+  }
+
+  // int32 controlMode = 2;
+  if (this->controlmode() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->controlmode(), target);
+  }
+
+  // int32 updateFlags = 3;
+  if (this->updateflags() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->updateflags(), target);
+  }
+
+  // repeated double Kp = 4;
+  if (this->kp_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      4,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _kp_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->kp_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->kp(i), target);
+  }
+
+  // repeated double Kd = 5;
+  if (this->kd_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      5,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _kd_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->kd_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->kd(i), target);
+  }
+
+  // repeated double maxVelocity = 6;
+  if (this->maxvelocity_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      6,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _maxvelocity_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->maxvelocity_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->maxvelocity(i), target);
+  }
+
+  // repeated int32 hasDesiredStateFlags = 7;
+  if (this->hasdesiredstateflags_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      7,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _hasdesiredstateflags_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->hasdesiredstateflags_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteInt32NoTagToArray(this->hasdesiredstateflags(i), target);
+  }
+
+  // repeated double desiredStateQ = 8;
+  if (this->desiredstateq_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      8,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _desiredstateq_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->desiredstateq_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->desiredstateq(i), target);
+  }
+
+  // repeated double desiredStateQdot = 9;
+  if (this->desiredstateqdot_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      9,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _desiredstateqdot_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->desiredstateqdot_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->desiredstateqdot(i), target);
+  }
+
+  // repeated double desiredStateForceTorque = 10;
+  if (this->desiredstateforcetorque_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      10,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _desiredstateforcetorque_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->desiredstateforcetorque_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->desiredstateforcetorque(i), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.JointMotorControlCommand)
+  return target;
+}
+
+size_t JointMotorControlCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.JointMotorControlCommand)
+  size_t total_size = 0;
+
+  // repeated double Kp = 4;
+  {
+    unsigned int count = this->kp_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _kp_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double Kd = 5;
+  {
+    unsigned int count = this->kd_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _kd_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double maxVelocity = 6;
+  {
+    unsigned int count = this->maxvelocity_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _maxvelocity_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated int32 hasDesiredStateFlags = 7;
+  {
+    size_t data_size = ::google::protobuf::internal::WireFormatLite::
+      Int32Size(this->hasdesiredstateflags_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _hasdesiredstateflags_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double desiredStateQ = 8;
+  {
+    unsigned int count = this->desiredstateq_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _desiredstateq_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double desiredStateQdot = 9;
+  {
+    unsigned int count = this->desiredstateqdot_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _desiredstateqdot_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double desiredStateForceTorque = 10;
+  {
+    unsigned int count = this->desiredstateforcetorque_size();
+    size_t data_size = 8UL * count;
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    int cached_size = ::google::protobuf::internal::ToCachedSize(data_size);
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _desiredstateforcetorque_cached_byte_size_ = cached_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // int32 bodyUniqueId = 1;
+  if (this->bodyuniqueid() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->bodyuniqueid());
+  }
+
+  // int32 controlMode = 2;
+  if (this->controlmode() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->controlmode());
+  }
+
+  // int32 updateFlags = 3;
+  if (this->updateflags() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->updateflags());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void JointMotorControlCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.JointMotorControlCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const JointMotorControlCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const JointMotorControlCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.JointMotorControlCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.JointMotorControlCommand)
+    MergeFrom(*source);
+  }
+}
+
+void JointMotorControlCommand::MergeFrom(const JointMotorControlCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.JointMotorControlCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  kp_.MergeFrom(from.kp_);
+  kd_.MergeFrom(from.kd_);
+  maxvelocity_.MergeFrom(from.maxvelocity_);
+  hasdesiredstateflags_.MergeFrom(from.hasdesiredstateflags_);
+  desiredstateq_.MergeFrom(from.desiredstateq_);
+  desiredstateqdot_.MergeFrom(from.desiredstateqdot_);
+  desiredstateforcetorque_.MergeFrom(from.desiredstateforcetorque_);
+  if (from.bodyuniqueid() != 0) {
+    set_bodyuniqueid(from.bodyuniqueid());
+  }
+  if (from.controlmode() != 0) {
+    set_controlmode(from.controlmode());
+  }
+  if (from.updateflags() != 0) {
+    set_updateflags(from.updateflags());
+  }
+}
+
+void JointMotorControlCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.JointMotorControlCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void JointMotorControlCommand::CopyFrom(const JointMotorControlCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.JointMotorControlCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool JointMotorControlCommand::IsInitialized() const {
+  return true;
+}
+
+void JointMotorControlCommand::Swap(JointMotorControlCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void JointMotorControlCommand::InternalSwap(JointMotorControlCommand* other) {
+  kp_.UnsafeArenaSwap(&other->kp_);
+  kd_.UnsafeArenaSwap(&other->kd_);
+  maxvelocity_.UnsafeArenaSwap(&other->maxvelocity_);
+  hasdesiredstateflags_.UnsafeArenaSwap(&other->hasdesiredstateflags_);
+  desiredstateq_.UnsafeArenaSwap(&other->desiredstateq_);
+  desiredstateqdot_.UnsafeArenaSwap(&other->desiredstateqdot_);
+  desiredstateforcetorque_.UnsafeArenaSwap(&other->desiredstateforcetorque_);
+  std::swap(bodyuniqueid_, other->bodyuniqueid_);
+  std::swap(controlmode_, other->controlmode_);
+  std::swap(updateflags_, other->updateflags_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata JointMotorControlCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[28];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// JointMotorControlCommand
+
+// int32 bodyUniqueId = 1;
+void JointMotorControlCommand::clear_bodyuniqueid() {
+  bodyuniqueid_ = 0;
+}
+::google::protobuf::int32 JointMotorControlCommand::bodyuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.bodyUniqueId)
+  return bodyuniqueid_;
+}
+void JointMotorControlCommand::set_bodyuniqueid(::google::protobuf::int32 value) {
+  
+  bodyuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.bodyUniqueId)
+}
+
+// int32 controlMode = 2;
+void JointMotorControlCommand::clear_controlmode() {
+  controlmode_ = 0;
+}
+::google::protobuf::int32 JointMotorControlCommand::controlmode() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.controlMode)
+  return controlmode_;
+}
+void JointMotorControlCommand::set_controlmode(::google::protobuf::int32 value) {
+  
+  controlmode_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.controlMode)
+}
+
+// int32 updateFlags = 3;
+void JointMotorControlCommand::clear_updateflags() {
+  updateflags_ = 0;
+}
+::google::protobuf::int32 JointMotorControlCommand::updateflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.updateFlags)
+  return updateflags_;
+}
+void JointMotorControlCommand::set_updateflags(::google::protobuf::int32 value) {
+  
+  updateflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.updateFlags)
+}
+
+// repeated double Kp = 4;
+int JointMotorControlCommand::kp_size() const {
+  return kp_.size();
+}
+void JointMotorControlCommand::clear_kp() {
+  kp_.Clear();
+}
+double JointMotorControlCommand::kp(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.Kp)
+  return kp_.Get(index);
+}
+void JointMotorControlCommand::set_kp(int index, double value) {
+  kp_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.Kp)
+}
+void JointMotorControlCommand::add_kp(double value) {
+  kp_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.Kp)
+}
+const ::google::protobuf::RepeatedField< double >&
+JointMotorControlCommand::kp() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.Kp)
+  return kp_;
+}
+::google::protobuf::RepeatedField< double >*
+JointMotorControlCommand::mutable_kp() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.Kp)
+  return &kp_;
+}
+
+// repeated double Kd = 5;
+int JointMotorControlCommand::kd_size() const {
+  return kd_.size();
+}
+void JointMotorControlCommand::clear_kd() {
+  kd_.Clear();
+}
+double JointMotorControlCommand::kd(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.Kd)
+  return kd_.Get(index);
+}
+void JointMotorControlCommand::set_kd(int index, double value) {
+  kd_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.Kd)
+}
+void JointMotorControlCommand::add_kd(double value) {
+  kd_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.Kd)
+}
+const ::google::protobuf::RepeatedField< double >&
+JointMotorControlCommand::kd() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.Kd)
+  return kd_;
+}
+::google::protobuf::RepeatedField< double >*
+JointMotorControlCommand::mutable_kd() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.Kd)
+  return &kd_;
+}
+
+// repeated double maxVelocity = 6;
+int JointMotorControlCommand::maxvelocity_size() const {
+  return maxvelocity_.size();
+}
+void JointMotorControlCommand::clear_maxvelocity() {
+  maxvelocity_.Clear();
+}
+double JointMotorControlCommand::maxvelocity(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.maxVelocity)
+  return maxvelocity_.Get(index);
+}
+void JointMotorControlCommand::set_maxvelocity(int index, double value) {
+  maxvelocity_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.maxVelocity)
+}
+void JointMotorControlCommand::add_maxvelocity(double value) {
+  maxvelocity_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.maxVelocity)
+}
+const ::google::protobuf::RepeatedField< double >&
+JointMotorControlCommand::maxvelocity() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.maxVelocity)
+  return maxvelocity_;
+}
+::google::protobuf::RepeatedField< double >*
+JointMotorControlCommand::mutable_maxvelocity() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.maxVelocity)
+  return &maxvelocity_;
+}
+
+// repeated int32 hasDesiredStateFlags = 7;
+int JointMotorControlCommand::hasdesiredstateflags_size() const {
+  return hasdesiredstateflags_.size();
+}
+void JointMotorControlCommand::clear_hasdesiredstateflags() {
+  hasdesiredstateflags_.Clear();
+}
+::google::protobuf::int32 JointMotorControlCommand::hasdesiredstateflags(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.hasDesiredStateFlags)
+  return hasdesiredstateflags_.Get(index);
+}
+void JointMotorControlCommand::set_hasdesiredstateflags(int index, ::google::protobuf::int32 value) {
+  hasdesiredstateflags_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.hasDesiredStateFlags)
+}
+void JointMotorControlCommand::add_hasdesiredstateflags(::google::protobuf::int32 value) {
+  hasdesiredstateflags_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.hasDesiredStateFlags)
+}
+const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+JointMotorControlCommand::hasdesiredstateflags() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.hasDesiredStateFlags)
+  return hasdesiredstateflags_;
+}
+::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+JointMotorControlCommand::mutable_hasdesiredstateflags() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.hasDesiredStateFlags)
+  return &hasdesiredstateflags_;
+}
+
+// repeated double desiredStateQ = 8;
+int JointMotorControlCommand::desiredstateq_size() const {
+  return desiredstateq_.size();
+}
+void JointMotorControlCommand::clear_desiredstateq() {
+  desiredstateq_.Clear();
+}
+double JointMotorControlCommand::desiredstateq(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.desiredStateQ)
+  return desiredstateq_.Get(index);
+}
+void JointMotorControlCommand::set_desiredstateq(int index, double value) {
+  desiredstateq_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.desiredStateQ)
+}
+void JointMotorControlCommand::add_desiredstateq(double value) {
+  desiredstateq_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.desiredStateQ)
+}
+const ::google::protobuf::RepeatedField< double >&
+JointMotorControlCommand::desiredstateq() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.desiredStateQ)
+  return desiredstateq_;
+}
+::google::protobuf::RepeatedField< double >*
+JointMotorControlCommand::mutable_desiredstateq() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.desiredStateQ)
+  return &desiredstateq_;
+}
+
+// repeated double desiredStateQdot = 9;
+int JointMotorControlCommand::desiredstateqdot_size() const {
+  return desiredstateqdot_.size();
+}
+void JointMotorControlCommand::clear_desiredstateqdot() {
+  desiredstateqdot_.Clear();
+}
+double JointMotorControlCommand::desiredstateqdot(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.desiredStateQdot)
+  return desiredstateqdot_.Get(index);
+}
+void JointMotorControlCommand::set_desiredstateqdot(int index, double value) {
+  desiredstateqdot_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.desiredStateQdot)
+}
+void JointMotorControlCommand::add_desiredstateqdot(double value) {
+  desiredstateqdot_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.desiredStateQdot)
+}
+const ::google::protobuf::RepeatedField< double >&
+JointMotorControlCommand::desiredstateqdot() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.desiredStateQdot)
+  return desiredstateqdot_;
+}
+::google::protobuf::RepeatedField< double >*
+JointMotorControlCommand::mutable_desiredstateqdot() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.desiredStateQdot)
+  return &desiredstateqdot_;
+}
+
+// repeated double desiredStateForceTorque = 10;
+int JointMotorControlCommand::desiredstateforcetorque_size() const {
+  return desiredstateforcetorque_.size();
+}
+void JointMotorControlCommand::clear_desiredstateforcetorque() {
+  desiredstateforcetorque_.Clear();
+}
+double JointMotorControlCommand::desiredstateforcetorque(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.JointMotorControlCommand.desiredStateForceTorque)
+  return desiredstateforcetorque_.Get(index);
+}
+void JointMotorControlCommand::set_desiredstateforcetorque(int index, double value) {
+  desiredstateforcetorque_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pybullet_grpc.JointMotorControlCommand.desiredStateForceTorque)
+}
+void JointMotorControlCommand::add_desiredstateforcetorque(double value) {
+  desiredstateforcetorque_.Add(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.JointMotorControlCommand.desiredStateForceTorque)
+}
+const ::google::protobuf::RepeatedField< double >&
+JointMotorControlCommand::desiredstateforcetorque() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.JointMotorControlCommand.desiredStateForceTorque)
+  return desiredstateforcetorque_;
+}
+::google::protobuf::RepeatedField< double >*
+JointMotorControlCommand::mutable_desiredstateforcetorque() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.JointMotorControlCommand.desiredStateForceTorque)
+  return &desiredstateforcetorque_;
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int UserConstraintCommand::kParentBodyIndexFieldNumber;
+const int UserConstraintCommand::kParentJointIndexFieldNumber;
+const int UserConstraintCommand::kChildBodyIndexFieldNumber;
+const int UserConstraintCommand::kChildJointIndexFieldNumber;
+const int UserConstraintCommand::kParentFrameFieldNumber;
+const int UserConstraintCommand::kChildFrameFieldNumber;
+const int UserConstraintCommand::kJointAxisFieldNumber;
+const int UserConstraintCommand::kJointTypeFieldNumber;
+const int UserConstraintCommand::kMaxAppliedForceFieldNumber;
+const int UserConstraintCommand::kUserConstraintUniqueIdFieldNumber;
+const int UserConstraintCommand::kGearRatioFieldNumber;
+const int UserConstraintCommand::kGearAuxLinkFieldNumber;
+const int UserConstraintCommand::kRelativePositionTargetFieldNumber;
+const int UserConstraintCommand::kErpFieldNumber;
+const int UserConstraintCommand::kUpdateFlagsFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+UserConstraintCommand::UserConstraintCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.UserConstraintCommand)
+}
+UserConstraintCommand::UserConstraintCommand(const UserConstraintCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_parentframe()) {
+    parentframe_ = new ::pybullet_grpc::transform(*from.parentframe_);
+  } else {
+    parentframe_ = NULL;
+  }
+  if (from.has_childframe()) {
+    childframe_ = new ::pybullet_grpc::transform(*from.childframe_);
+  } else {
+    childframe_ = NULL;
+  }
+  if (from.has_jointaxis()) {
+    jointaxis_ = new ::pybullet_grpc::vec3(*from.jointaxis_);
+  } else {
+    jointaxis_ = NULL;
+  }
+  ::memcpy(&parentbodyindex_, &from.parentbodyindex_,
+    reinterpret_cast<char*>(&erp_) -
+    reinterpret_cast<char*>(&parentbodyindex_) + sizeof(erp_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.UserConstraintCommand)
+}
+
+void UserConstraintCommand::SharedCtor() {
+  ::memset(&parentframe_, 0, reinterpret_cast<char*>(&erp_) -
+    reinterpret_cast<char*>(&parentframe_) + sizeof(erp_));
+  _cached_size_ = 0;
+}
+
+UserConstraintCommand::~UserConstraintCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.UserConstraintCommand)
+  SharedDtor();
+}
+
+void UserConstraintCommand::SharedDtor() {
+  if (this != internal_default_instance()) {
+    delete parentframe_;
+  }
+  if (this != internal_default_instance()) {
+    delete childframe_;
+  }
+  if (this != internal_default_instance()) {
+    delete jointaxis_;
+  }
+}
+
+void UserConstraintCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* UserConstraintCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[29].descriptor;
+}
+
+const UserConstraintCommand& UserConstraintCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+UserConstraintCommand* UserConstraintCommand::New(::google::protobuf::Arena* arena) const {
+  UserConstraintCommand* n = new UserConstraintCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void UserConstraintCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.UserConstraintCommand)
+  if (GetArenaNoVirtual() == NULL && parentframe_ != NULL) {
+    delete parentframe_;
+  }
+  parentframe_ = NULL;
+  if (GetArenaNoVirtual() == NULL && childframe_ != NULL) {
+    delete childframe_;
+  }
+  childframe_ = NULL;
+  if (GetArenaNoVirtual() == NULL && jointaxis_ != NULL) {
+    delete jointaxis_;
+  }
+  jointaxis_ = NULL;
+  ::memset(&parentbodyindex_, 0, reinterpret_cast<char*>(&erp_) -
+    reinterpret_cast<char*>(&parentbodyindex_) + sizeof(erp_));
+}
+
+bool UserConstraintCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.UserConstraintCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 parentBodyIndex = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &parentbodyindex_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 parentJointIndex = 2;
+      case 2: {
+        if (tag == 16u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &parentjointindex_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 childBodyIndex = 3;
+      case 3: {
+        if (tag == 24u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &childbodyindex_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 childJointIndex = 4;
+      case 4: {
+        if (tag == 32u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &childjointindex_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.transform parentFrame = 5;
+      case 5: {
+        if (tag == 42u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_parentframe()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.transform childFrame = 6;
+      case 6: {
+        if (tag == 50u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_childframe()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.vec3 jointAxis = 7;
+      case 7: {
+        if (tag == 58u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_jointaxis()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 jointType = 8;
+      case 8: {
+        if (tag == 64u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &jointtype_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double maxAppliedForce = 9;
+      case 9: {
+        if (tag == 73u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &maxappliedforce_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 userConstraintUniqueId = 10;
+      case 10: {
+        if (tag == 80u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &userconstraintuniqueid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double gearRatio = 11;
+      case 11: {
+        if (tag == 89u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &gearratio_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 gearAuxLink = 12;
+      case 12: {
+        if (tag == 96u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &gearauxlink_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double relativePositionTarget = 13;
+      case 13: {
+        if (tag == 105u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &relativepositiontarget_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double erp = 14;
+      case 14: {
+        if (tag == 113u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &erp_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 updateFlags = 15;
+      case 15: {
+        if (tag == 120u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &updateflags_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.UserConstraintCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.UserConstraintCommand)
+  return false;
+#undef DO_
+}
+
+void UserConstraintCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.UserConstraintCommand)
+  // int32 parentBodyIndex = 1;
+  if (this->parentbodyindex() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->parentbodyindex(), output);
+  }
+
+  // int32 parentJointIndex = 2;
+  if (this->parentjointindex() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->parentjointindex(), output);
+  }
+
+  // int32 childBodyIndex = 3;
+  if (this->childbodyindex() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->childbodyindex(), output);
+  }
+
+  // int32 childJointIndex = 4;
+  if (this->childjointindex() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->childjointindex(), output);
+  }
+
+  // .pybullet_grpc.transform parentFrame = 5;
+  if (this->has_parentframe()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, *this->parentframe_, output);
+  }
+
+  // .pybullet_grpc.transform childFrame = 6;
+  if (this->has_childframe()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      6, *this->childframe_, output);
+  }
+
+  // .pybullet_grpc.vec3 jointAxis = 7;
+  if (this->has_jointaxis()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      7, *this->jointaxis_, output);
+  }
+
+  // int32 jointType = 8;
+  if (this->jointtype() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(8, this->jointtype(), output);
+  }
+
+  // double maxAppliedForce = 9;
+  if (this->maxappliedforce() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(9, this->maxappliedforce(), output);
+  }
+
+  // int32 userConstraintUniqueId = 10;
+  if (this->userconstraintuniqueid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(10, this->userconstraintuniqueid(), output);
+  }
+
+  // double gearRatio = 11;
+  if (this->gearratio() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(11, this->gearratio(), output);
+  }
+
+  // int32 gearAuxLink = 12;
+  if (this->gearauxlink() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(12, this->gearauxlink(), output);
+  }
+
+  // double relativePositionTarget = 13;
+  if (this->relativepositiontarget() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(13, this->relativepositiontarget(), output);
+  }
+
+  // double erp = 14;
+  if (this->erp() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(14, this->erp(), output);
+  }
+
+  // int32 updateFlags = 15;
+  if (this->updateflags() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(15, this->updateflags(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.UserConstraintCommand)
+}
+
+::google::protobuf::uint8* UserConstraintCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.UserConstraintCommand)
+  // int32 parentBodyIndex = 1;
+  if (this->parentbodyindex() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->parentbodyindex(), target);
+  }
+
+  // int32 parentJointIndex = 2;
+  if (this->parentjointindex() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->parentjointindex(), target);
+  }
+
+  // int32 childBodyIndex = 3;
+  if (this->childbodyindex() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->childbodyindex(), target);
+  }
+
+  // int32 childJointIndex = 4;
+  if (this->childjointindex() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->childjointindex(), target);
+  }
+
+  // .pybullet_grpc.transform parentFrame = 5;
+  if (this->has_parentframe()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        5, *this->parentframe_, false, target);
+  }
+
+  // .pybullet_grpc.transform childFrame = 6;
+  if (this->has_childframe()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        6, *this->childframe_, false, target);
+  }
+
+  // .pybullet_grpc.vec3 jointAxis = 7;
+  if (this->has_jointaxis()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        7, *this->jointaxis_, false, target);
+  }
+
+  // int32 jointType = 8;
+  if (this->jointtype() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(8, this->jointtype(), target);
+  }
+
+  // double maxAppliedForce = 9;
+  if (this->maxappliedforce() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(9, this->maxappliedforce(), target);
+  }
+
+  // int32 userConstraintUniqueId = 10;
+  if (this->userconstraintuniqueid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(10, this->userconstraintuniqueid(), target);
+  }
+
+  // double gearRatio = 11;
+  if (this->gearratio() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(11, this->gearratio(), target);
+  }
+
+  // int32 gearAuxLink = 12;
+  if (this->gearauxlink() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(12, this->gearauxlink(), target);
+  }
+
+  // double relativePositionTarget = 13;
+  if (this->relativepositiontarget() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(13, this->relativepositiontarget(), target);
+  }
+
+  // double erp = 14;
+  if (this->erp() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(14, this->erp(), target);
+  }
+
+  // int32 updateFlags = 15;
+  if (this->updateflags() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(15, this->updateflags(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.UserConstraintCommand)
+  return target;
+}
+
+size_t UserConstraintCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.UserConstraintCommand)
+  size_t total_size = 0;
+
+  // .pybullet_grpc.transform parentFrame = 5;
+  if (this->has_parentframe()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->parentframe_);
+  }
+
+  // .pybullet_grpc.transform childFrame = 6;
+  if (this->has_childframe()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->childframe_);
+  }
+
+  // .pybullet_grpc.vec3 jointAxis = 7;
+  if (this->has_jointaxis()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->jointaxis_);
+  }
+
+  // int32 parentBodyIndex = 1;
+  if (this->parentbodyindex() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->parentbodyindex());
+  }
+
+  // int32 parentJointIndex = 2;
+  if (this->parentjointindex() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->parentjointindex());
+  }
+
+  // int32 childBodyIndex = 3;
+  if (this->childbodyindex() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->childbodyindex());
+  }
+
+  // int32 childJointIndex = 4;
+  if (this->childjointindex() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->childjointindex());
+  }
+
+  // double maxAppliedForce = 9;
+  if (this->maxappliedforce() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // int32 jointType = 8;
+  if (this->jointtype() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->jointtype());
+  }
+
+  // int32 userConstraintUniqueId = 10;
+  if (this->userconstraintuniqueid() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->userconstraintuniqueid());
+  }
+
+  // double gearRatio = 11;
+  if (this->gearratio() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double relativePositionTarget = 13;
+  if (this->relativepositiontarget() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // int32 gearAuxLink = 12;
+  if (this->gearauxlink() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->gearauxlink());
+  }
+
+  // int32 updateFlags = 15;
+  if (this->updateflags() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->updateflags());
+  }
+
+  // double erp = 14;
+  if (this->erp() != 0) {
+    total_size += 1 + 8;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void UserConstraintCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.UserConstraintCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const UserConstraintCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const UserConstraintCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.UserConstraintCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.UserConstraintCommand)
+    MergeFrom(*source);
+  }
+}
+
+void UserConstraintCommand::MergeFrom(const UserConstraintCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.UserConstraintCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_parentframe()) {
+    mutable_parentframe()->::pybullet_grpc::transform::MergeFrom(from.parentframe());
+  }
+  if (from.has_childframe()) {
+    mutable_childframe()->::pybullet_grpc::transform::MergeFrom(from.childframe());
+  }
+  if (from.has_jointaxis()) {
+    mutable_jointaxis()->::pybullet_grpc::vec3::MergeFrom(from.jointaxis());
+  }
+  if (from.parentbodyindex() != 0) {
+    set_parentbodyindex(from.parentbodyindex());
+  }
+  if (from.parentjointindex() != 0) {
+    set_parentjointindex(from.parentjointindex());
+  }
+  if (from.childbodyindex() != 0) {
+    set_childbodyindex(from.childbodyindex());
+  }
+  if (from.childjointindex() != 0) {
+    set_childjointindex(from.childjointindex());
+  }
+  if (from.maxappliedforce() != 0) {
+    set_maxappliedforce(from.maxappliedforce());
+  }
+  if (from.jointtype() != 0) {
+    set_jointtype(from.jointtype());
+  }
+  if (from.userconstraintuniqueid() != 0) {
+    set_userconstraintuniqueid(from.userconstraintuniqueid());
+  }
+  if (from.gearratio() != 0) {
+    set_gearratio(from.gearratio());
+  }
+  if (from.relativepositiontarget() != 0) {
+    set_relativepositiontarget(from.relativepositiontarget());
+  }
+  if (from.gearauxlink() != 0) {
+    set_gearauxlink(from.gearauxlink());
+  }
+  if (from.updateflags() != 0) {
+    set_updateflags(from.updateflags());
+  }
+  if (from.erp() != 0) {
+    set_erp(from.erp());
+  }
+}
+
+void UserConstraintCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.UserConstraintCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void UserConstraintCommand::CopyFrom(const UserConstraintCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.UserConstraintCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool UserConstraintCommand::IsInitialized() const {
+  return true;
+}
+
+void UserConstraintCommand::Swap(UserConstraintCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void UserConstraintCommand::InternalSwap(UserConstraintCommand* other) {
+  std::swap(parentframe_, other->parentframe_);
+  std::swap(childframe_, other->childframe_);
+  std::swap(jointaxis_, other->jointaxis_);
+  std::swap(parentbodyindex_, other->parentbodyindex_);
+  std::swap(parentjointindex_, other->parentjointindex_);
+  std::swap(childbodyindex_, other->childbodyindex_);
+  std::swap(childjointindex_, other->childjointindex_);
+  std::swap(maxappliedforce_, other->maxappliedforce_);
+  std::swap(jointtype_, other->jointtype_);
+  std::swap(userconstraintuniqueid_, other->userconstraintuniqueid_);
+  std::swap(gearratio_, other->gearratio_);
+  std::swap(relativepositiontarget_, other->relativepositiontarget_);
+  std::swap(gearauxlink_, other->gearauxlink_);
+  std::swap(updateflags_, other->updateflags_);
+  std::swap(erp_, other->erp_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata UserConstraintCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[29];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// UserConstraintCommand
+
+// int32 parentBodyIndex = 1;
+void UserConstraintCommand::clear_parentbodyindex() {
+  parentbodyindex_ = 0;
+}
+::google::protobuf::int32 UserConstraintCommand::parentbodyindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.parentBodyIndex)
+  return parentbodyindex_;
+}
+void UserConstraintCommand::set_parentbodyindex(::google::protobuf::int32 value) {
+  
+  parentbodyindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.parentBodyIndex)
+}
+
+// int32 parentJointIndex = 2;
+void UserConstraintCommand::clear_parentjointindex() {
+  parentjointindex_ = 0;
+}
+::google::protobuf::int32 UserConstraintCommand::parentjointindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.parentJointIndex)
+  return parentjointindex_;
+}
+void UserConstraintCommand::set_parentjointindex(::google::protobuf::int32 value) {
+  
+  parentjointindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.parentJointIndex)
+}
+
+// int32 childBodyIndex = 3;
+void UserConstraintCommand::clear_childbodyindex() {
+  childbodyindex_ = 0;
+}
+::google::protobuf::int32 UserConstraintCommand::childbodyindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.childBodyIndex)
+  return childbodyindex_;
+}
+void UserConstraintCommand::set_childbodyindex(::google::protobuf::int32 value) {
+  
+  childbodyindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.childBodyIndex)
+}
+
+// int32 childJointIndex = 4;
+void UserConstraintCommand::clear_childjointindex() {
+  childjointindex_ = 0;
+}
+::google::protobuf::int32 UserConstraintCommand::childjointindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.childJointIndex)
+  return childjointindex_;
+}
+void UserConstraintCommand::set_childjointindex(::google::protobuf::int32 value) {
+  
+  childjointindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.childJointIndex)
+}
+
+// .pybullet_grpc.transform parentFrame = 5;
+bool UserConstraintCommand::has_parentframe() const {
+  return this != internal_default_instance() && parentframe_ != NULL;
+}
+void UserConstraintCommand::clear_parentframe() {
+  if (GetArenaNoVirtual() == NULL && parentframe_ != NULL) delete parentframe_;
+  parentframe_ = NULL;
+}
+const ::pybullet_grpc::transform& UserConstraintCommand::parentframe() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.parentFrame)
+  return parentframe_ != NULL ? *parentframe_
+                         : *::pybullet_grpc::transform::internal_default_instance();
+}
+::pybullet_grpc::transform* UserConstraintCommand::mutable_parentframe() {
+  
+  if (parentframe_ == NULL) {
+    parentframe_ = new ::pybullet_grpc::transform;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.UserConstraintCommand.parentFrame)
+  return parentframe_;
+}
+::pybullet_grpc::transform* UserConstraintCommand::release_parentframe() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.UserConstraintCommand.parentFrame)
+  
+  ::pybullet_grpc::transform* temp = parentframe_;
+  parentframe_ = NULL;
+  return temp;
+}
+void UserConstraintCommand::set_allocated_parentframe(::pybullet_grpc::transform* parentframe) {
+  delete parentframe_;
+  parentframe_ = parentframe;
+  if (parentframe) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.UserConstraintCommand.parentFrame)
+}
+
+// .pybullet_grpc.transform childFrame = 6;
+bool UserConstraintCommand::has_childframe() const {
+  return this != internal_default_instance() && childframe_ != NULL;
+}
+void UserConstraintCommand::clear_childframe() {
+  if (GetArenaNoVirtual() == NULL && childframe_ != NULL) delete childframe_;
+  childframe_ = NULL;
+}
+const ::pybullet_grpc::transform& UserConstraintCommand::childframe() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.childFrame)
+  return childframe_ != NULL ? *childframe_
+                         : *::pybullet_grpc::transform::internal_default_instance();
+}
+::pybullet_grpc::transform* UserConstraintCommand::mutable_childframe() {
+  
+  if (childframe_ == NULL) {
+    childframe_ = new ::pybullet_grpc::transform;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.UserConstraintCommand.childFrame)
+  return childframe_;
+}
+::pybullet_grpc::transform* UserConstraintCommand::release_childframe() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.UserConstraintCommand.childFrame)
+  
+  ::pybullet_grpc::transform* temp = childframe_;
+  childframe_ = NULL;
+  return temp;
+}
+void UserConstraintCommand::set_allocated_childframe(::pybullet_grpc::transform* childframe) {
+  delete childframe_;
+  childframe_ = childframe;
+  if (childframe) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.UserConstraintCommand.childFrame)
+}
+
+// .pybullet_grpc.vec3 jointAxis = 7;
+bool UserConstraintCommand::has_jointaxis() const {
+  return this != internal_default_instance() && jointaxis_ != NULL;
+}
+void UserConstraintCommand::clear_jointaxis() {
+  if (GetArenaNoVirtual() == NULL && jointaxis_ != NULL) delete jointaxis_;
+  jointaxis_ = NULL;
+}
+const ::pybullet_grpc::vec3& UserConstraintCommand::jointaxis() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.jointAxis)
+  return jointaxis_ != NULL ? *jointaxis_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+::pybullet_grpc::vec3* UserConstraintCommand::mutable_jointaxis() {
+  
+  if (jointaxis_ == NULL) {
+    jointaxis_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.UserConstraintCommand.jointAxis)
+  return jointaxis_;
+}
+::pybullet_grpc::vec3* UserConstraintCommand::release_jointaxis() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.UserConstraintCommand.jointAxis)
+  
+  ::pybullet_grpc::vec3* temp = jointaxis_;
+  jointaxis_ = NULL;
+  return temp;
+}
+void UserConstraintCommand::set_allocated_jointaxis(::pybullet_grpc::vec3* jointaxis) {
+  delete jointaxis_;
+  jointaxis_ = jointaxis;
+  if (jointaxis) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.UserConstraintCommand.jointAxis)
+}
+
+// int32 jointType = 8;
+void UserConstraintCommand::clear_jointtype() {
+  jointtype_ = 0;
+}
+::google::protobuf::int32 UserConstraintCommand::jointtype() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.jointType)
+  return jointtype_;
+}
+void UserConstraintCommand::set_jointtype(::google::protobuf::int32 value) {
+  
+  jointtype_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.jointType)
+}
+
+// double maxAppliedForce = 9;
+void UserConstraintCommand::clear_maxappliedforce() {
+  maxappliedforce_ = 0;
+}
+double UserConstraintCommand::maxappliedforce() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.maxAppliedForce)
+  return maxappliedforce_;
+}
+void UserConstraintCommand::set_maxappliedforce(double value) {
+  
+  maxappliedforce_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.maxAppliedForce)
+}
+
+// int32 userConstraintUniqueId = 10;
+void UserConstraintCommand::clear_userconstraintuniqueid() {
+  userconstraintuniqueid_ = 0;
+}
+::google::protobuf::int32 UserConstraintCommand::userconstraintuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.userConstraintUniqueId)
+  return userconstraintuniqueid_;
+}
+void UserConstraintCommand::set_userconstraintuniqueid(::google::protobuf::int32 value) {
+  
+  userconstraintuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.userConstraintUniqueId)
+}
+
+// double gearRatio = 11;
+void UserConstraintCommand::clear_gearratio() {
+  gearratio_ = 0;
+}
+double UserConstraintCommand::gearratio() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.gearRatio)
+  return gearratio_;
+}
+void UserConstraintCommand::set_gearratio(double value) {
+  
+  gearratio_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.gearRatio)
+}
+
+// int32 gearAuxLink = 12;
+void UserConstraintCommand::clear_gearauxlink() {
+  gearauxlink_ = 0;
+}
+::google::protobuf::int32 UserConstraintCommand::gearauxlink() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.gearAuxLink)
+  return gearauxlink_;
+}
+void UserConstraintCommand::set_gearauxlink(::google::protobuf::int32 value) {
+  
+  gearauxlink_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.gearAuxLink)
+}
+
+// double relativePositionTarget = 13;
+void UserConstraintCommand::clear_relativepositiontarget() {
+  relativepositiontarget_ = 0;
+}
+double UserConstraintCommand::relativepositiontarget() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.relativePositionTarget)
+  return relativepositiontarget_;
+}
+void UserConstraintCommand::set_relativepositiontarget(double value) {
+  
+  relativepositiontarget_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.relativePositionTarget)
+}
+
+// double erp = 14;
+void UserConstraintCommand::clear_erp() {
+  erp_ = 0;
+}
+double UserConstraintCommand::erp() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.erp)
+  return erp_;
+}
+void UserConstraintCommand::set_erp(double value) {
+  
+  erp_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.erp)
+}
+
+// int32 updateFlags = 15;
+void UserConstraintCommand::clear_updateflags() {
+  updateflags_ = 0;
+}
+::google::protobuf::int32 UserConstraintCommand::updateflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintCommand.updateFlags)
+  return updateflags_;
+}
+void UserConstraintCommand::set_updateflags(::google::protobuf::int32 value) {
+  
+  updateflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintCommand.updateFlags)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int UserConstraintStatus::kMaxAppliedForceFieldNumber;
+const int UserConstraintStatus::kUserConstraintUniqueIdFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+UserConstraintStatus::UserConstraintStatus()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.UserConstraintStatus)
+}
+UserConstraintStatus::UserConstraintStatus(const UserConstraintStatus& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&maxappliedforce_, &from.maxappliedforce_,
+    reinterpret_cast<char*>(&userconstraintuniqueid_) -
+    reinterpret_cast<char*>(&maxappliedforce_) + sizeof(userconstraintuniqueid_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.UserConstraintStatus)
+}
+
+void UserConstraintStatus::SharedCtor() {
+  ::memset(&maxappliedforce_, 0, reinterpret_cast<char*>(&userconstraintuniqueid_) -
+    reinterpret_cast<char*>(&maxappliedforce_) + sizeof(userconstraintuniqueid_));
+  _cached_size_ = 0;
+}
+
+UserConstraintStatus::~UserConstraintStatus() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.UserConstraintStatus)
+  SharedDtor();
+}
+
+void UserConstraintStatus::SharedDtor() {
+}
+
+void UserConstraintStatus::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* UserConstraintStatus::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[30].descriptor;
+}
+
+const UserConstraintStatus& UserConstraintStatus::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+UserConstraintStatus* UserConstraintStatus::New(::google::protobuf::Arena* arena) const {
+  UserConstraintStatus* n = new UserConstraintStatus;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void UserConstraintStatus::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.UserConstraintStatus)
+  ::memset(&maxappliedforce_, 0, reinterpret_cast<char*>(&userconstraintuniqueid_) -
+    reinterpret_cast<char*>(&maxappliedforce_) + sizeof(userconstraintuniqueid_));
+}
+
+bool UserConstraintStatus::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.UserConstraintStatus)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // double maxAppliedForce = 9;
+      case 9: {
+        if (tag == 73u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &maxappliedforce_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 userConstraintUniqueId = 10;
+      case 10: {
+        if (tag == 80u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &userconstraintuniqueid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.UserConstraintStatus)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.UserConstraintStatus)
+  return false;
+#undef DO_
+}
+
+void UserConstraintStatus::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.UserConstraintStatus)
+  // double maxAppliedForce = 9;
+  if (this->maxappliedforce() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(9, this->maxappliedforce(), output);
+  }
+
+  // int32 userConstraintUniqueId = 10;
+  if (this->userconstraintuniqueid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(10, this->userconstraintuniqueid(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.UserConstraintStatus)
+}
+
+::google::protobuf::uint8* UserConstraintStatus::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.UserConstraintStatus)
+  // double maxAppliedForce = 9;
+  if (this->maxappliedforce() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(9, this->maxappliedforce(), target);
+  }
+
+  // int32 userConstraintUniqueId = 10;
+  if (this->userconstraintuniqueid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(10, this->userconstraintuniqueid(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.UserConstraintStatus)
+  return target;
+}
+
+size_t UserConstraintStatus::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.UserConstraintStatus)
+  size_t total_size = 0;
+
+  // double maxAppliedForce = 9;
+  if (this->maxappliedforce() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // int32 userConstraintUniqueId = 10;
+  if (this->userconstraintuniqueid() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->userconstraintuniqueid());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void UserConstraintStatus::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.UserConstraintStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  const UserConstraintStatus* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const UserConstraintStatus>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.UserConstraintStatus)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.UserConstraintStatus)
+    MergeFrom(*source);
+  }
+}
+
+void UserConstraintStatus::MergeFrom(const UserConstraintStatus& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.UserConstraintStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.maxappliedforce() != 0) {
+    set_maxappliedforce(from.maxappliedforce());
+  }
+  if (from.userconstraintuniqueid() != 0) {
+    set_userconstraintuniqueid(from.userconstraintuniqueid());
+  }
+}
+
+void UserConstraintStatus::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.UserConstraintStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void UserConstraintStatus::CopyFrom(const UserConstraintStatus& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.UserConstraintStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool UserConstraintStatus::IsInitialized() const {
+  return true;
+}
+
+void UserConstraintStatus::Swap(UserConstraintStatus* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void UserConstraintStatus::InternalSwap(UserConstraintStatus* other) {
+  std::swap(maxappliedforce_, other->maxappliedforce_);
+  std::swap(userconstraintuniqueid_, other->userconstraintuniqueid_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata UserConstraintStatus::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[30];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// UserConstraintStatus
+
+// double maxAppliedForce = 9;
+void UserConstraintStatus::clear_maxappliedforce() {
+  maxappliedforce_ = 0;
+}
+double UserConstraintStatus::maxappliedforce() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintStatus.maxAppliedForce)
+  return maxappliedforce_;
+}
+void UserConstraintStatus::set_maxappliedforce(double value) {
+  
+  maxappliedforce_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintStatus.maxAppliedForce)
+}
+
+// int32 userConstraintUniqueId = 10;
+void UserConstraintStatus::clear_userconstraintuniqueid() {
+  userconstraintuniqueid_ = 0;
+}
+::google::protobuf::int32 UserConstraintStatus::userconstraintuniqueid() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintStatus.userConstraintUniqueId)
+  return userconstraintuniqueid_;
+}
+void UserConstraintStatus::set_userconstraintuniqueid(::google::protobuf::int32 value) {
+  
+  userconstraintuniqueid_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintStatus.userConstraintUniqueId)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int UserConstraintStateStatus::kAppliedConstraintForcesLinearFieldNumber;
+const int UserConstraintStateStatus::kAppliedConstraintForcesAngularFieldNumber;
+const int UserConstraintStateStatus::kNumDofsFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+UserConstraintStateStatus::UserConstraintStateStatus()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.UserConstraintStateStatus)
+}
+UserConstraintStateStatus::UserConstraintStateStatus(const UserConstraintStateStatus& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_appliedconstraintforceslinear()) {
+    appliedconstraintforceslinear_ = new ::pybullet_grpc::vec3(*from.appliedconstraintforceslinear_);
+  } else {
+    appliedconstraintforceslinear_ = NULL;
+  }
+  if (from.has_appliedconstraintforcesangular()) {
+    appliedconstraintforcesangular_ = new ::pybullet_grpc::vec3(*from.appliedconstraintforcesangular_);
+  } else {
+    appliedconstraintforcesangular_ = NULL;
+  }
+  numdofs_ = from.numdofs_;
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.UserConstraintStateStatus)
+}
+
+void UserConstraintStateStatus::SharedCtor() {
+  ::memset(&appliedconstraintforceslinear_, 0, reinterpret_cast<char*>(&numdofs_) -
+    reinterpret_cast<char*>(&appliedconstraintforceslinear_) + sizeof(numdofs_));
+  _cached_size_ = 0;
+}
+
+UserConstraintStateStatus::~UserConstraintStateStatus() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.UserConstraintStateStatus)
+  SharedDtor();
+}
+
+void UserConstraintStateStatus::SharedDtor() {
+  if (this != internal_default_instance()) {
+    delete appliedconstraintforceslinear_;
+  }
+  if (this != internal_default_instance()) {
+    delete appliedconstraintforcesangular_;
+  }
+}
+
+void UserConstraintStateStatus::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* UserConstraintStateStatus::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[31].descriptor;
+}
+
+const UserConstraintStateStatus& UserConstraintStateStatus::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+UserConstraintStateStatus* UserConstraintStateStatus::New(::google::protobuf::Arena* arena) const {
+  UserConstraintStateStatus* n = new UserConstraintStateStatus;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void UserConstraintStateStatus::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.UserConstraintStateStatus)
+  if (GetArenaNoVirtual() == NULL && appliedconstraintforceslinear_ != NULL) {
+    delete appliedconstraintforceslinear_;
+  }
+  appliedconstraintforceslinear_ = NULL;
+  if (GetArenaNoVirtual() == NULL && appliedconstraintforcesangular_ != NULL) {
+    delete appliedconstraintforcesangular_;
+  }
+  appliedconstraintforcesangular_ = NULL;
+  numdofs_ = 0;
+}
+
+bool UserConstraintStateStatus::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.UserConstraintStateStatus)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // .pybullet_grpc.vec3 appliedConstraintForcesLinear = 1;
+      case 1: {
+        if (tag == 10u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_appliedconstraintforceslinear()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.vec3 appliedConstraintForcesAngular = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_appliedconstraintforcesangular()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 numDofs = 3;
+      case 3: {
+        if (tag == 24u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &numdofs_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.UserConstraintStateStatus)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.UserConstraintStateStatus)
+  return false;
+#undef DO_
+}
+
+void UserConstraintStateStatus::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.UserConstraintStateStatus)
+  // .pybullet_grpc.vec3 appliedConstraintForcesLinear = 1;
+  if (this->has_appliedconstraintforceslinear()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, *this->appliedconstraintforceslinear_, output);
+  }
+
+  // .pybullet_grpc.vec3 appliedConstraintForcesAngular = 2;
+  if (this->has_appliedconstraintforcesangular()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, *this->appliedconstraintforcesangular_, output);
+  }
+
+  // int32 numDofs = 3;
+  if (this->numdofs() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->numdofs(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.UserConstraintStateStatus)
+}
+
+::google::protobuf::uint8* UserConstraintStateStatus::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.UserConstraintStateStatus)
+  // .pybullet_grpc.vec3 appliedConstraintForcesLinear = 1;
+  if (this->has_appliedconstraintforceslinear()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        1, *this->appliedconstraintforceslinear_, false, target);
+  }
+
+  // .pybullet_grpc.vec3 appliedConstraintForcesAngular = 2;
+  if (this->has_appliedconstraintforcesangular()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        2, *this->appliedconstraintforcesangular_, false, target);
+  }
+
+  // int32 numDofs = 3;
+  if (this->numdofs() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->numdofs(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.UserConstraintStateStatus)
+  return target;
+}
+
+size_t UserConstraintStateStatus::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.UserConstraintStateStatus)
+  size_t total_size = 0;
+
+  // .pybullet_grpc.vec3 appliedConstraintForcesLinear = 1;
+  if (this->has_appliedconstraintforceslinear()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->appliedconstraintforceslinear_);
+  }
+
+  // .pybullet_grpc.vec3 appliedConstraintForcesAngular = 2;
+  if (this->has_appliedconstraintforcesangular()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->appliedconstraintforcesangular_);
+  }
+
+  // int32 numDofs = 3;
+  if (this->numdofs() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->numdofs());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void UserConstraintStateStatus::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.UserConstraintStateStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  const UserConstraintStateStatus* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const UserConstraintStateStatus>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.UserConstraintStateStatus)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.UserConstraintStateStatus)
+    MergeFrom(*source);
+  }
+}
+
+void UserConstraintStateStatus::MergeFrom(const UserConstraintStateStatus& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.UserConstraintStateStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_appliedconstraintforceslinear()) {
+    mutable_appliedconstraintforceslinear()->::pybullet_grpc::vec3::MergeFrom(from.appliedconstraintforceslinear());
+  }
+  if (from.has_appliedconstraintforcesangular()) {
+    mutable_appliedconstraintforcesangular()->::pybullet_grpc::vec3::MergeFrom(from.appliedconstraintforcesangular());
+  }
+  if (from.numdofs() != 0) {
+    set_numdofs(from.numdofs());
+  }
+}
+
+void UserConstraintStateStatus::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.UserConstraintStateStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void UserConstraintStateStatus::CopyFrom(const UserConstraintStateStatus& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.UserConstraintStateStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool UserConstraintStateStatus::IsInitialized() const {
+  return true;
+}
+
+void UserConstraintStateStatus::Swap(UserConstraintStateStatus* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void UserConstraintStateStatus::InternalSwap(UserConstraintStateStatus* other) {
+  std::swap(appliedconstraintforceslinear_, other->appliedconstraintforceslinear_);
+  std::swap(appliedconstraintforcesangular_, other->appliedconstraintforcesangular_);
+  std::swap(numdofs_, other->numdofs_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata UserConstraintStateStatus::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[31];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// UserConstraintStateStatus
+
+// .pybullet_grpc.vec3 appliedConstraintForcesLinear = 1;
+bool UserConstraintStateStatus::has_appliedconstraintforceslinear() const {
+  return this != internal_default_instance() && appliedconstraintforceslinear_ != NULL;
+}
+void UserConstraintStateStatus::clear_appliedconstraintforceslinear() {
+  if (GetArenaNoVirtual() == NULL && appliedconstraintforceslinear_ != NULL) delete appliedconstraintforceslinear_;
+  appliedconstraintforceslinear_ = NULL;
+}
+const ::pybullet_grpc::vec3& UserConstraintStateStatus::appliedconstraintforceslinear() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesLinear)
+  return appliedconstraintforceslinear_ != NULL ? *appliedconstraintforceslinear_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+::pybullet_grpc::vec3* UserConstraintStateStatus::mutable_appliedconstraintforceslinear() {
+  
+  if (appliedconstraintforceslinear_ == NULL) {
+    appliedconstraintforceslinear_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesLinear)
+  return appliedconstraintforceslinear_;
+}
+::pybullet_grpc::vec3* UserConstraintStateStatus::release_appliedconstraintforceslinear() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesLinear)
+  
+  ::pybullet_grpc::vec3* temp = appliedconstraintforceslinear_;
+  appliedconstraintforceslinear_ = NULL;
+  return temp;
+}
+void UserConstraintStateStatus::set_allocated_appliedconstraintforceslinear(::pybullet_grpc::vec3* appliedconstraintforceslinear) {
+  delete appliedconstraintforceslinear_;
+  appliedconstraintforceslinear_ = appliedconstraintforceslinear;
+  if (appliedconstraintforceslinear) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesLinear)
+}
+
+// .pybullet_grpc.vec3 appliedConstraintForcesAngular = 2;
+bool UserConstraintStateStatus::has_appliedconstraintforcesangular() const {
+  return this != internal_default_instance() && appliedconstraintforcesangular_ != NULL;
+}
+void UserConstraintStateStatus::clear_appliedconstraintforcesangular() {
+  if (GetArenaNoVirtual() == NULL && appliedconstraintforcesangular_ != NULL) delete appliedconstraintforcesangular_;
+  appliedconstraintforcesangular_ = NULL;
+}
+const ::pybullet_grpc::vec3& UserConstraintStateStatus::appliedconstraintforcesangular() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesAngular)
+  return appliedconstraintforcesangular_ != NULL ? *appliedconstraintforcesangular_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+::pybullet_grpc::vec3* UserConstraintStateStatus::mutable_appliedconstraintforcesangular() {
+  
+  if (appliedconstraintforcesangular_ == NULL) {
+    appliedconstraintforcesangular_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesAngular)
+  return appliedconstraintforcesangular_;
+}
+::pybullet_grpc::vec3* UserConstraintStateStatus::release_appliedconstraintforcesangular() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesAngular)
+  
+  ::pybullet_grpc::vec3* temp = appliedconstraintforcesangular_;
+  appliedconstraintforcesangular_ = NULL;
+  return temp;
+}
+void UserConstraintStateStatus::set_allocated_appliedconstraintforcesangular(::pybullet_grpc::vec3* appliedconstraintforcesangular) {
+  delete appliedconstraintforcesangular_;
+  appliedconstraintforcesangular_ = appliedconstraintforcesangular;
+  if (appliedconstraintforcesangular) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.UserConstraintStateStatus.appliedConstraintForcesAngular)
+}
+
+// int32 numDofs = 3;
+void UserConstraintStateStatus::clear_numdofs() {
+  numdofs_ = 0;
+}
+::google::protobuf::int32 UserConstraintStateStatus::numdofs() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.UserConstraintStateStatus.numDofs)
+  return numdofs_;
+}
+void UserConstraintStateStatus::set_numdofs(::google::protobuf::int32 value) {
+  
+  numdofs_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.UserConstraintStateStatus.numDofs)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+RequestKeyboardEventsCommand::RequestKeyboardEventsCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.RequestKeyboardEventsCommand)
+}
+RequestKeyboardEventsCommand::RequestKeyboardEventsCommand(const RequestKeyboardEventsCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.RequestKeyboardEventsCommand)
+}
+
+void RequestKeyboardEventsCommand::SharedCtor() {
+  _cached_size_ = 0;
+}
+
+RequestKeyboardEventsCommand::~RequestKeyboardEventsCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.RequestKeyboardEventsCommand)
+  SharedDtor();
+}
+
+void RequestKeyboardEventsCommand::SharedDtor() {
+}
+
+void RequestKeyboardEventsCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RequestKeyboardEventsCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[32].descriptor;
+}
+
+const RequestKeyboardEventsCommand& RequestKeyboardEventsCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+RequestKeyboardEventsCommand* RequestKeyboardEventsCommand::New(::google::protobuf::Arena* arena) const {
+  RequestKeyboardEventsCommand* n = new RequestKeyboardEventsCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void RequestKeyboardEventsCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.RequestKeyboardEventsCommand)
+}
+
+bool RequestKeyboardEventsCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.RequestKeyboardEventsCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+  handle_unusual:
+    if (tag == 0 ||
+        ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+        ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+      goto success;
+    }
+    DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.RequestKeyboardEventsCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.RequestKeyboardEventsCommand)
+  return false;
+#undef DO_
+}
+
+void RequestKeyboardEventsCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.RequestKeyboardEventsCommand)
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.RequestKeyboardEventsCommand)
+}
+
+::google::protobuf::uint8* RequestKeyboardEventsCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.RequestKeyboardEventsCommand)
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.RequestKeyboardEventsCommand)
+  return target;
+}
+
+size_t RequestKeyboardEventsCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.RequestKeyboardEventsCommand)
+  size_t total_size = 0;
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RequestKeyboardEventsCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.RequestKeyboardEventsCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const RequestKeyboardEventsCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const RequestKeyboardEventsCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.RequestKeyboardEventsCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.RequestKeyboardEventsCommand)
+    MergeFrom(*source);
+  }
+}
+
+void RequestKeyboardEventsCommand::MergeFrom(const RequestKeyboardEventsCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.RequestKeyboardEventsCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+}
+
+void RequestKeyboardEventsCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.RequestKeyboardEventsCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RequestKeyboardEventsCommand::CopyFrom(const RequestKeyboardEventsCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.RequestKeyboardEventsCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RequestKeyboardEventsCommand::IsInitialized() const {
+  return true;
+}
+
+void RequestKeyboardEventsCommand::Swap(RequestKeyboardEventsCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void RequestKeyboardEventsCommand::InternalSwap(RequestKeyboardEventsCommand* other) {
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata RequestKeyboardEventsCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[32];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// RequestKeyboardEventsCommand
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int KeyboardEvent::kKeyCodeFieldNumber;
+const int KeyboardEvent::kKeyStateFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+KeyboardEvent::KeyboardEvent()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.KeyboardEvent)
+}
+KeyboardEvent::KeyboardEvent(const KeyboardEvent& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&keycode_, &from.keycode_,
+    reinterpret_cast<char*>(&keystate_) -
+    reinterpret_cast<char*>(&keycode_) + sizeof(keystate_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.KeyboardEvent)
+}
+
+void KeyboardEvent::SharedCtor() {
+  ::memset(&keycode_, 0, reinterpret_cast<char*>(&keystate_) -
+    reinterpret_cast<char*>(&keycode_) + sizeof(keystate_));
+  _cached_size_ = 0;
+}
+
+KeyboardEvent::~KeyboardEvent() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.KeyboardEvent)
+  SharedDtor();
+}
+
+void KeyboardEvent::SharedDtor() {
+}
+
+void KeyboardEvent::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* KeyboardEvent::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[33].descriptor;
+}
+
+const KeyboardEvent& KeyboardEvent::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+KeyboardEvent* KeyboardEvent::New(::google::protobuf::Arena* arena) const {
+  KeyboardEvent* n = new KeyboardEvent;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void KeyboardEvent::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.KeyboardEvent)
+  ::memset(&keycode_, 0, reinterpret_cast<char*>(&keystate_) -
+    reinterpret_cast<char*>(&keycode_) + sizeof(keystate_));
+}
+
+bool KeyboardEvent::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.KeyboardEvent)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 keyCode = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &keycode_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 keyState = 2;
+      case 2: {
+        if (tag == 16u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &keystate_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.KeyboardEvent)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.KeyboardEvent)
+  return false;
+#undef DO_
+}
+
+void KeyboardEvent::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.KeyboardEvent)
+  // int32 keyCode = 1;
+  if (this->keycode() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->keycode(), output);
+  }
+
+  // int32 keyState = 2;
+  if (this->keystate() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->keystate(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.KeyboardEvent)
+}
+
+::google::protobuf::uint8* KeyboardEvent::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.KeyboardEvent)
+  // int32 keyCode = 1;
+  if (this->keycode() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->keycode(), target);
+  }
+
+  // int32 keyState = 2;
+  if (this->keystate() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->keystate(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.KeyboardEvent)
+  return target;
+}
+
+size_t KeyboardEvent::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.KeyboardEvent)
+  size_t total_size = 0;
+
+  // int32 keyCode = 1;
+  if (this->keycode() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->keycode());
+  }
+
+  // int32 keyState = 2;
+  if (this->keystate() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->keystate());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void KeyboardEvent::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.KeyboardEvent)
+  GOOGLE_DCHECK_NE(&from, this);
+  const KeyboardEvent* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const KeyboardEvent>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.KeyboardEvent)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.KeyboardEvent)
+    MergeFrom(*source);
+  }
+}
+
+void KeyboardEvent::MergeFrom(const KeyboardEvent& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.KeyboardEvent)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.keycode() != 0) {
+    set_keycode(from.keycode());
+  }
+  if (from.keystate() != 0) {
+    set_keystate(from.keystate());
+  }
+}
+
+void KeyboardEvent::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.KeyboardEvent)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void KeyboardEvent::CopyFrom(const KeyboardEvent& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.KeyboardEvent)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool KeyboardEvent::IsInitialized() const {
+  return true;
+}
+
+void KeyboardEvent::Swap(KeyboardEvent* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void KeyboardEvent::InternalSwap(KeyboardEvent* other) {
+  std::swap(keycode_, other->keycode_);
+  std::swap(keystate_, other->keystate_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata KeyboardEvent::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[33];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// KeyboardEvent
+
+// int32 keyCode = 1;
+void KeyboardEvent::clear_keycode() {
+  keycode_ = 0;
+}
+::google::protobuf::int32 KeyboardEvent::keycode() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.KeyboardEvent.keyCode)
+  return keycode_;
+}
+void KeyboardEvent::set_keycode(::google::protobuf::int32 value) {
+  
+  keycode_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.KeyboardEvent.keyCode)
+}
+
+// int32 keyState = 2;
+void KeyboardEvent::clear_keystate() {
+  keystate_ = 0;
+}
+::google::protobuf::int32 KeyboardEvent::keystate() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.KeyboardEvent.keyState)
+  return keystate_;
+}
+void KeyboardEvent::set_keystate(::google::protobuf::int32 value) {
+  
+  keystate_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.KeyboardEvent.keyState)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int KeyboardEventsStatus::kKeyboardEventsFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+KeyboardEventsStatus::KeyboardEventsStatus()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.KeyboardEventsStatus)
+}
+KeyboardEventsStatus::KeyboardEventsStatus(const KeyboardEventsStatus& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      keyboardevents_(from.keyboardevents_),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.KeyboardEventsStatus)
+}
+
+void KeyboardEventsStatus::SharedCtor() {
+  _cached_size_ = 0;
+}
+
+KeyboardEventsStatus::~KeyboardEventsStatus() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.KeyboardEventsStatus)
+  SharedDtor();
+}
+
+void KeyboardEventsStatus::SharedDtor() {
+}
+
+void KeyboardEventsStatus::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* KeyboardEventsStatus::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[34].descriptor;
+}
+
+const KeyboardEventsStatus& KeyboardEventsStatus::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+KeyboardEventsStatus* KeyboardEventsStatus::New(::google::protobuf::Arena* arena) const {
+  KeyboardEventsStatus* n = new KeyboardEventsStatus;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void KeyboardEventsStatus::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.KeyboardEventsStatus)
+  keyboardevents_.Clear();
+}
+
+bool KeyboardEventsStatus::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.KeyboardEventsStatus)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated .pybullet_grpc.KeyboardEvent keyboardEvents = 1;
+      case 1: {
+        if (tag == 10u) {
+          DO_(input->IncrementRecursionDepth());
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtualNoRecursionDepth(
+                input, add_keyboardevents()));
+        } else {
+          goto handle_unusual;
+        }
+        input->UnsafeDecrementRecursionDepth();
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.KeyboardEventsStatus)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.KeyboardEventsStatus)
+  return false;
+#undef DO_
+}
+
+void KeyboardEventsStatus::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.KeyboardEventsStatus)
+  // repeated .pybullet_grpc.KeyboardEvent keyboardEvents = 1;
+  for (unsigned int i = 0, n = this->keyboardevents_size(); i < n; i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->keyboardevents(i), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.KeyboardEventsStatus)
+}
+
+::google::protobuf::uint8* KeyboardEventsStatus::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.KeyboardEventsStatus)
+  // repeated .pybullet_grpc.KeyboardEvent keyboardEvents = 1;
+  for (unsigned int i = 0, n = this->keyboardevents_size(); i < n; i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        1, this->keyboardevents(i), false, target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.KeyboardEventsStatus)
+  return target;
+}
+
+size_t KeyboardEventsStatus::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.KeyboardEventsStatus)
+  size_t total_size = 0;
+
+  // repeated .pybullet_grpc.KeyboardEvent keyboardEvents = 1;
+  {
+    unsigned int count = this->keyboardevents_size();
+    total_size += 1UL * count;
+    for (unsigned int i = 0; i < count; i++) {
+      total_size +=
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->keyboardevents(i));
+    }
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void KeyboardEventsStatus::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.KeyboardEventsStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  const KeyboardEventsStatus* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const KeyboardEventsStatus>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.KeyboardEventsStatus)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.KeyboardEventsStatus)
+    MergeFrom(*source);
+  }
+}
+
+void KeyboardEventsStatus::MergeFrom(const KeyboardEventsStatus& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.KeyboardEventsStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  keyboardevents_.MergeFrom(from.keyboardevents_);
+}
+
+void KeyboardEventsStatus::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.KeyboardEventsStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void KeyboardEventsStatus::CopyFrom(const KeyboardEventsStatus& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.KeyboardEventsStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool KeyboardEventsStatus::IsInitialized() const {
+  return true;
+}
+
+void KeyboardEventsStatus::Swap(KeyboardEventsStatus* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void KeyboardEventsStatus::InternalSwap(KeyboardEventsStatus* other) {
+  keyboardevents_.UnsafeArenaSwap(&other->keyboardevents_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata KeyboardEventsStatus::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[34];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// KeyboardEventsStatus
+
+// repeated .pybullet_grpc.KeyboardEvent keyboardEvents = 1;
+int KeyboardEventsStatus::keyboardevents_size() const {
+  return keyboardevents_.size();
+}
+void KeyboardEventsStatus::clear_keyboardevents() {
+  keyboardevents_.Clear();
+}
+const ::pybullet_grpc::KeyboardEvent& KeyboardEventsStatus::keyboardevents(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.KeyboardEventsStatus.keyboardEvents)
+  return keyboardevents_.Get(index);
+}
+::pybullet_grpc::KeyboardEvent* KeyboardEventsStatus::mutable_keyboardevents(int index) {
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.KeyboardEventsStatus.keyboardEvents)
+  return keyboardevents_.Mutable(index);
+}
+::pybullet_grpc::KeyboardEvent* KeyboardEventsStatus::add_keyboardevents() {
+  // @@protoc_insertion_point(field_add:pybullet_grpc.KeyboardEventsStatus.keyboardEvents)
+  return keyboardevents_.Add();
+}
+::google::protobuf::RepeatedPtrField< ::pybullet_grpc::KeyboardEvent >*
+KeyboardEventsStatus::mutable_keyboardevents() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.KeyboardEventsStatus.keyboardEvents)
+  return &keyboardevents_;
+}
+const ::google::protobuf::RepeatedPtrField< ::pybullet_grpc::KeyboardEvent >&
+KeyboardEventsStatus::keyboardevents() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.KeyboardEventsStatus.keyboardEvents)
+  return keyboardevents_;
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int RequestCameraImageCommand::kUpdateFlagsFieldNumber;
+const int RequestCameraImageCommand::kCameraFlagsFieldNumber;
+const int RequestCameraImageCommand::kViewMatrixFieldNumber;
+const int RequestCameraImageCommand::kProjectionMatrixFieldNumber;
+const int RequestCameraImageCommand::kStartPixelIndexFieldNumber;
+const int RequestCameraImageCommand::kPixelWidthFieldNumber;
+const int RequestCameraImageCommand::kPixelHeightFieldNumber;
+const int RequestCameraImageCommand::kLightDirectionFieldNumber;
+const int RequestCameraImageCommand::kLightColorFieldNumber;
+const int RequestCameraImageCommand::kLightDistanceFieldNumber;
+const int RequestCameraImageCommand::kLightAmbientCoeffFieldNumber;
+const int RequestCameraImageCommand::kLightDiffuseCoeffFieldNumber;
+const int RequestCameraImageCommand::kLightSpecularCoeffFieldNumber;
+const int RequestCameraImageCommand::kHasShadowFieldNumber;
+const int RequestCameraImageCommand::kProjectiveTextureViewMatrixFieldNumber;
+const int RequestCameraImageCommand::kProjectiveTextureProjectionMatrixFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+RequestCameraImageCommand::RequestCameraImageCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.RequestCameraImageCommand)
+}
+RequestCameraImageCommand::RequestCameraImageCommand(const RequestCameraImageCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_viewmatrix()) {
+    viewmatrix_ = new ::pybullet_grpc::matrix4x4(*from.viewmatrix_);
+  } else {
+    viewmatrix_ = NULL;
+  }
+  if (from.has_projectionmatrix()) {
+    projectionmatrix_ = new ::pybullet_grpc::matrix4x4(*from.projectionmatrix_);
+  } else {
+    projectionmatrix_ = NULL;
+  }
+  if (from.has_lightdirection()) {
+    lightdirection_ = new ::pybullet_grpc::vec3(*from.lightdirection_);
+  } else {
+    lightdirection_ = NULL;
+  }
+  if (from.has_lightcolor()) {
+    lightcolor_ = new ::pybullet_grpc::vec3(*from.lightcolor_);
+  } else {
+    lightcolor_ = NULL;
+  }
+  if (from.has_projectivetextureviewmatrix()) {
+    projectivetextureviewmatrix_ = new ::pybullet_grpc::matrix4x4(*from.projectivetextureviewmatrix_);
+  } else {
+    projectivetextureviewmatrix_ = NULL;
+  }
+  if (from.has_projectivetextureprojectionmatrix()) {
+    projectivetextureprojectionmatrix_ = new ::pybullet_grpc::matrix4x4(*from.projectivetextureprojectionmatrix_);
+  } else {
+    projectivetextureprojectionmatrix_ = NULL;
+  }
+  ::memcpy(&updateflags_, &from.updateflags_,
+    reinterpret_cast<char*>(&lightspecularcoeff_) -
+    reinterpret_cast<char*>(&updateflags_) + sizeof(lightspecularcoeff_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.RequestCameraImageCommand)
+}
+
+void RequestCameraImageCommand::SharedCtor() {
+  ::memset(&viewmatrix_, 0, reinterpret_cast<char*>(&lightspecularcoeff_) -
+    reinterpret_cast<char*>(&viewmatrix_) + sizeof(lightspecularcoeff_));
+  _cached_size_ = 0;
+}
+
+RequestCameraImageCommand::~RequestCameraImageCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.RequestCameraImageCommand)
+  SharedDtor();
+}
+
+void RequestCameraImageCommand::SharedDtor() {
+  if (this != internal_default_instance()) {
+    delete viewmatrix_;
+  }
+  if (this != internal_default_instance()) {
+    delete projectionmatrix_;
+  }
+  if (this != internal_default_instance()) {
+    delete lightdirection_;
+  }
+  if (this != internal_default_instance()) {
+    delete lightcolor_;
+  }
+  if (this != internal_default_instance()) {
+    delete projectivetextureviewmatrix_;
+  }
+  if (this != internal_default_instance()) {
+    delete projectivetextureprojectionmatrix_;
+  }
+}
+
+void RequestCameraImageCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RequestCameraImageCommand::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[35].descriptor;
+}
+
+const RequestCameraImageCommand& RequestCameraImageCommand::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+RequestCameraImageCommand* RequestCameraImageCommand::New(::google::protobuf::Arena* arena) const {
+  RequestCameraImageCommand* n = new RequestCameraImageCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void RequestCameraImageCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.RequestCameraImageCommand)
+  if (GetArenaNoVirtual() == NULL && viewmatrix_ != NULL) {
+    delete viewmatrix_;
+  }
+  viewmatrix_ = NULL;
+  if (GetArenaNoVirtual() == NULL && projectionmatrix_ != NULL) {
+    delete projectionmatrix_;
+  }
+  projectionmatrix_ = NULL;
+  if (GetArenaNoVirtual() == NULL && lightdirection_ != NULL) {
+    delete lightdirection_;
+  }
+  lightdirection_ = NULL;
+  if (GetArenaNoVirtual() == NULL && lightcolor_ != NULL) {
+    delete lightcolor_;
+  }
+  lightcolor_ = NULL;
+  if (GetArenaNoVirtual() == NULL && projectivetextureviewmatrix_ != NULL) {
+    delete projectivetextureviewmatrix_;
+  }
+  projectivetextureviewmatrix_ = NULL;
+  if (GetArenaNoVirtual() == NULL && projectivetextureprojectionmatrix_ != NULL) {
+    delete projectivetextureprojectionmatrix_;
+  }
+  projectivetextureprojectionmatrix_ = NULL;
+  ::memset(&updateflags_, 0, reinterpret_cast<char*>(&lightspecularcoeff_) -
+    reinterpret_cast<char*>(&updateflags_) + sizeof(lightspecularcoeff_));
+}
+
+bool RequestCameraImageCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.RequestCameraImageCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(16383u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 updateFlags = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &updateflags_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 cameraFlags = 2;
+      case 2: {
+        if (tag == 16u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &cameraflags_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.matrix4x4 viewMatrix = 3;
+      case 3: {
+        if (tag == 26u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_viewmatrix()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.matrix4x4 projectionMatrix = 4;
+      case 4: {
+        if (tag == 34u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_projectionmatrix()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 startPixelIndex = 5;
+      case 5: {
+        if (tag == 40u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &startpixelindex_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 pixelWidth = 6;
+      case 6: {
+        if (tag == 48u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &pixelwidth_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 pixelHeight = 7;
+      case 7: {
+        if (tag == 56u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &pixelheight_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.vec3 lightDirection = 8;
+      case 8: {
+        if (tag == 66u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_lightdirection()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.vec3 lightColor = 9;
+      case 9: {
+        if (tag == 74u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_lightcolor()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double lightDistance = 10;
+      case 10: {
+        if (tag == 81u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &lightdistance_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double lightAmbientCoeff = 11;
+      case 11: {
+        if (tag == 89u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &lightambientcoeff_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double lightDiffuseCoeff = 12;
+      case 12: {
+        if (tag == 97u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &lightdiffusecoeff_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // double lightSpecularCoeff = 13;
+      case 13: {
+        if (tag == 105u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &lightspecularcoeff_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 hasShadow = 14;
+      case 14: {
+        if (tag == 112u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &hasshadow_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.matrix4x4 projectiveTextureViewMatrix = 15;
+      case 15: {
+        if (tag == 122u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_projectivetextureviewmatrix()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.matrix4x4 projectiveTextureProjectionMatrix = 16;
+      case 16: {
+        if (tag == 130u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_projectivetextureprojectionmatrix()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.RequestCameraImageCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.RequestCameraImageCommand)
+  return false;
+#undef DO_
+}
+
+void RequestCameraImageCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.RequestCameraImageCommand)
+  // int32 updateFlags = 1;
+  if (this->updateflags() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->updateflags(), output);
+  }
+
+  // int32 cameraFlags = 2;
+  if (this->cameraflags() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->cameraflags(), output);
+  }
+
+  // .pybullet_grpc.matrix4x4 viewMatrix = 3;
+  if (this->has_viewmatrix()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, *this->viewmatrix_, output);
+  }
+
+  // .pybullet_grpc.matrix4x4 projectionMatrix = 4;
+  if (this->has_projectionmatrix()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      4, *this->projectionmatrix_, output);
+  }
+
+  // int32 startPixelIndex = 5;
+  if (this->startpixelindex() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(5, this->startpixelindex(), output);
+  }
+
+  // int32 pixelWidth = 6;
+  if (this->pixelwidth() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(6, this->pixelwidth(), output);
+  }
+
+  // int32 pixelHeight = 7;
+  if (this->pixelheight() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(7, this->pixelheight(), output);
+  }
+
+  // .pybullet_grpc.vec3 lightDirection = 8;
+  if (this->has_lightdirection()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      8, *this->lightdirection_, output);
+  }
+
+  // .pybullet_grpc.vec3 lightColor = 9;
+  if (this->has_lightcolor()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      9, *this->lightcolor_, output);
+  }
+
+  // double lightDistance = 10;
+  if (this->lightdistance() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(10, this->lightdistance(), output);
+  }
+
+  // double lightAmbientCoeff = 11;
+  if (this->lightambientcoeff() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(11, this->lightambientcoeff(), output);
+  }
+
+  // double lightDiffuseCoeff = 12;
+  if (this->lightdiffusecoeff() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(12, this->lightdiffusecoeff(), output);
+  }
+
+  // double lightSpecularCoeff = 13;
+  if (this->lightspecularcoeff() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(13, this->lightspecularcoeff(), output);
+  }
+
+  // int32 hasShadow = 14;
+  if (this->hasshadow() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(14, this->hasshadow(), output);
+  }
+
+  // .pybullet_grpc.matrix4x4 projectiveTextureViewMatrix = 15;
+  if (this->has_projectivetextureviewmatrix()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      15, *this->projectivetextureviewmatrix_, output);
+  }
+
+  // .pybullet_grpc.matrix4x4 projectiveTextureProjectionMatrix = 16;
+  if (this->has_projectivetextureprojectionmatrix()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      16, *this->projectivetextureprojectionmatrix_, output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.RequestCameraImageCommand)
+}
+
+::google::protobuf::uint8* RequestCameraImageCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.RequestCameraImageCommand)
+  // int32 updateFlags = 1;
+  if (this->updateflags() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->updateflags(), target);
+  }
+
+  // int32 cameraFlags = 2;
+  if (this->cameraflags() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->cameraflags(), target);
+  }
+
+  // .pybullet_grpc.matrix4x4 viewMatrix = 3;
+  if (this->has_viewmatrix()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        3, *this->viewmatrix_, false, target);
+  }
+
+  // .pybullet_grpc.matrix4x4 projectionMatrix = 4;
+  if (this->has_projectionmatrix()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        4, *this->projectionmatrix_, false, target);
+  }
+
+  // int32 startPixelIndex = 5;
+  if (this->startpixelindex() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(5, this->startpixelindex(), target);
+  }
+
+  // int32 pixelWidth = 6;
+  if (this->pixelwidth() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(6, this->pixelwidth(), target);
+  }
+
+  // int32 pixelHeight = 7;
+  if (this->pixelheight() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(7, this->pixelheight(), target);
+  }
+
+  // .pybullet_grpc.vec3 lightDirection = 8;
+  if (this->has_lightdirection()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        8, *this->lightdirection_, false, target);
+  }
+
+  // .pybullet_grpc.vec3 lightColor = 9;
+  if (this->has_lightcolor()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        9, *this->lightcolor_, false, target);
+  }
+
+  // double lightDistance = 10;
+  if (this->lightdistance() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(10, this->lightdistance(), target);
+  }
+
+  // double lightAmbientCoeff = 11;
+  if (this->lightambientcoeff() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(11, this->lightambientcoeff(), target);
+  }
+
+  // double lightDiffuseCoeff = 12;
+  if (this->lightdiffusecoeff() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(12, this->lightdiffusecoeff(), target);
+  }
+
+  // double lightSpecularCoeff = 13;
+  if (this->lightspecularcoeff() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(13, this->lightspecularcoeff(), target);
+  }
+
+  // int32 hasShadow = 14;
+  if (this->hasshadow() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(14, this->hasshadow(), target);
+  }
+
+  // .pybullet_grpc.matrix4x4 projectiveTextureViewMatrix = 15;
+  if (this->has_projectivetextureviewmatrix()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        15, *this->projectivetextureviewmatrix_, false, target);
+  }
+
+  // .pybullet_grpc.matrix4x4 projectiveTextureProjectionMatrix = 16;
+  if (this->has_projectivetextureprojectionmatrix()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        16, *this->projectivetextureprojectionmatrix_, false, target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.RequestCameraImageCommand)
+  return target;
+}
+
+size_t RequestCameraImageCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.RequestCameraImageCommand)
+  size_t total_size = 0;
+
+  // .pybullet_grpc.matrix4x4 viewMatrix = 3;
+  if (this->has_viewmatrix()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->viewmatrix_);
+  }
+
+  // .pybullet_grpc.matrix4x4 projectionMatrix = 4;
+  if (this->has_projectionmatrix()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->projectionmatrix_);
+  }
+
+  // .pybullet_grpc.vec3 lightDirection = 8;
+  if (this->has_lightdirection()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->lightdirection_);
+  }
+
+  // .pybullet_grpc.vec3 lightColor = 9;
+  if (this->has_lightcolor()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->lightcolor_);
+  }
+
+  // .pybullet_grpc.matrix4x4 projectiveTextureViewMatrix = 15;
+  if (this->has_projectivetextureviewmatrix()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->projectivetextureviewmatrix_);
+  }
+
+  // .pybullet_grpc.matrix4x4 projectiveTextureProjectionMatrix = 16;
+  if (this->has_projectivetextureprojectionmatrix()) {
+    total_size += 2 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->projectivetextureprojectionmatrix_);
+  }
+
+  // int32 updateFlags = 1;
+  if (this->updateflags() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->updateflags());
+  }
+
+  // int32 cameraFlags = 2;
+  if (this->cameraflags() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->cameraflags());
+  }
+
+  // int32 startPixelIndex = 5;
+  if (this->startpixelindex() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->startpixelindex());
+  }
+
+  // int32 pixelWidth = 6;
+  if (this->pixelwidth() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->pixelwidth());
+  }
+
+  // double lightDistance = 10;
+  if (this->lightdistance() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // int32 pixelHeight = 7;
+  if (this->pixelheight() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->pixelheight());
+  }
+
+  // int32 hasShadow = 14;
+  if (this->hasshadow() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->hasshadow());
+  }
+
+  // double lightAmbientCoeff = 11;
+  if (this->lightambientcoeff() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double lightDiffuseCoeff = 12;
+  if (this->lightdiffusecoeff() != 0) {
+    total_size += 1 + 8;
+  }
+
+  // double lightSpecularCoeff = 13;
+  if (this->lightspecularcoeff() != 0) {
+    total_size += 1 + 8;
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RequestCameraImageCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.RequestCameraImageCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const RequestCameraImageCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const RequestCameraImageCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.RequestCameraImageCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.RequestCameraImageCommand)
+    MergeFrom(*source);
+  }
+}
+
+void RequestCameraImageCommand::MergeFrom(const RequestCameraImageCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.RequestCameraImageCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_viewmatrix()) {
+    mutable_viewmatrix()->::pybullet_grpc::matrix4x4::MergeFrom(from.viewmatrix());
+  }
+  if (from.has_projectionmatrix()) {
+    mutable_projectionmatrix()->::pybullet_grpc::matrix4x4::MergeFrom(from.projectionmatrix());
+  }
+  if (from.has_lightdirection()) {
+    mutable_lightdirection()->::pybullet_grpc::vec3::MergeFrom(from.lightdirection());
+  }
+  if (from.has_lightcolor()) {
+    mutable_lightcolor()->::pybullet_grpc::vec3::MergeFrom(from.lightcolor());
+  }
+  if (from.has_projectivetextureviewmatrix()) {
+    mutable_projectivetextureviewmatrix()->::pybullet_grpc::matrix4x4::MergeFrom(from.projectivetextureviewmatrix());
+  }
+  if (from.has_projectivetextureprojectionmatrix()) {
+    mutable_projectivetextureprojectionmatrix()->::pybullet_grpc::matrix4x4::MergeFrom(from.projectivetextureprojectionmatrix());
+  }
+  if (from.updateflags() != 0) {
+    set_updateflags(from.updateflags());
+  }
+  if (from.cameraflags() != 0) {
+    set_cameraflags(from.cameraflags());
+  }
+  if (from.startpixelindex() != 0) {
+    set_startpixelindex(from.startpixelindex());
+  }
+  if (from.pixelwidth() != 0) {
+    set_pixelwidth(from.pixelwidth());
+  }
+  if (from.lightdistance() != 0) {
+    set_lightdistance(from.lightdistance());
+  }
+  if (from.pixelheight() != 0) {
+    set_pixelheight(from.pixelheight());
+  }
+  if (from.hasshadow() != 0) {
+    set_hasshadow(from.hasshadow());
+  }
+  if (from.lightambientcoeff() != 0) {
+    set_lightambientcoeff(from.lightambientcoeff());
+  }
+  if (from.lightdiffusecoeff() != 0) {
+    set_lightdiffusecoeff(from.lightdiffusecoeff());
+  }
+  if (from.lightspecularcoeff() != 0) {
+    set_lightspecularcoeff(from.lightspecularcoeff());
+  }
+}
+
+void RequestCameraImageCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.RequestCameraImageCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RequestCameraImageCommand::CopyFrom(const RequestCameraImageCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.RequestCameraImageCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RequestCameraImageCommand::IsInitialized() const {
+  return true;
+}
+
+void RequestCameraImageCommand::Swap(RequestCameraImageCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void RequestCameraImageCommand::InternalSwap(RequestCameraImageCommand* other) {
+  std::swap(viewmatrix_, other->viewmatrix_);
+  std::swap(projectionmatrix_, other->projectionmatrix_);
+  std::swap(lightdirection_, other->lightdirection_);
+  std::swap(lightcolor_, other->lightcolor_);
+  std::swap(projectivetextureviewmatrix_, other->projectivetextureviewmatrix_);
+  std::swap(projectivetextureprojectionmatrix_, other->projectivetextureprojectionmatrix_);
+  std::swap(updateflags_, other->updateflags_);
+  std::swap(cameraflags_, other->cameraflags_);
+  std::swap(startpixelindex_, other->startpixelindex_);
+  std::swap(pixelwidth_, other->pixelwidth_);
+  std::swap(lightdistance_, other->lightdistance_);
+  std::swap(pixelheight_, other->pixelheight_);
+  std::swap(hasshadow_, other->hasshadow_);
+  std::swap(lightambientcoeff_, other->lightambientcoeff_);
+  std::swap(lightdiffusecoeff_, other->lightdiffusecoeff_);
+  std::swap(lightspecularcoeff_, other->lightspecularcoeff_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata RequestCameraImageCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[35];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// RequestCameraImageCommand
+
+// int32 updateFlags = 1;
+void RequestCameraImageCommand::clear_updateflags() {
+  updateflags_ = 0;
+}
+::google::protobuf::int32 RequestCameraImageCommand::updateflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.updateFlags)
+  return updateflags_;
+}
+void RequestCameraImageCommand::set_updateflags(::google::protobuf::int32 value) {
+  
+  updateflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.updateFlags)
+}
+
+// int32 cameraFlags = 2;
+void RequestCameraImageCommand::clear_cameraflags() {
+  cameraflags_ = 0;
+}
+::google::protobuf::int32 RequestCameraImageCommand::cameraflags() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.cameraFlags)
+  return cameraflags_;
+}
+void RequestCameraImageCommand::set_cameraflags(::google::protobuf::int32 value) {
+  
+  cameraflags_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.cameraFlags)
+}
+
+// .pybullet_grpc.matrix4x4 viewMatrix = 3;
+bool RequestCameraImageCommand::has_viewmatrix() const {
+  return this != internal_default_instance() && viewmatrix_ != NULL;
+}
+void RequestCameraImageCommand::clear_viewmatrix() {
+  if (GetArenaNoVirtual() == NULL && viewmatrix_ != NULL) delete viewmatrix_;
+  viewmatrix_ = NULL;
+}
+const ::pybullet_grpc::matrix4x4& RequestCameraImageCommand::viewmatrix() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.viewMatrix)
+  return viewmatrix_ != NULL ? *viewmatrix_
+                         : *::pybullet_grpc::matrix4x4::internal_default_instance();
+}
+::pybullet_grpc::matrix4x4* RequestCameraImageCommand::mutable_viewmatrix() {
+  
+  if (viewmatrix_ == NULL) {
+    viewmatrix_ = new ::pybullet_grpc::matrix4x4;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestCameraImageCommand.viewMatrix)
+  return viewmatrix_;
+}
+::pybullet_grpc::matrix4x4* RequestCameraImageCommand::release_viewmatrix() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestCameraImageCommand.viewMatrix)
+  
+  ::pybullet_grpc::matrix4x4* temp = viewmatrix_;
+  viewmatrix_ = NULL;
+  return temp;
+}
+void RequestCameraImageCommand::set_allocated_viewmatrix(::pybullet_grpc::matrix4x4* viewmatrix) {
+  delete viewmatrix_;
+  viewmatrix_ = viewmatrix;
+  if (viewmatrix) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestCameraImageCommand.viewMatrix)
+}
+
+// .pybullet_grpc.matrix4x4 projectionMatrix = 4;
+bool RequestCameraImageCommand::has_projectionmatrix() const {
+  return this != internal_default_instance() && projectionmatrix_ != NULL;
+}
+void RequestCameraImageCommand::clear_projectionmatrix() {
+  if (GetArenaNoVirtual() == NULL && projectionmatrix_ != NULL) delete projectionmatrix_;
+  projectionmatrix_ = NULL;
+}
+const ::pybullet_grpc::matrix4x4& RequestCameraImageCommand::projectionmatrix() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.projectionMatrix)
+  return projectionmatrix_ != NULL ? *projectionmatrix_
+                         : *::pybullet_grpc::matrix4x4::internal_default_instance();
+}
+::pybullet_grpc::matrix4x4* RequestCameraImageCommand::mutable_projectionmatrix() {
+  
+  if (projectionmatrix_ == NULL) {
+    projectionmatrix_ = new ::pybullet_grpc::matrix4x4;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestCameraImageCommand.projectionMatrix)
+  return projectionmatrix_;
+}
+::pybullet_grpc::matrix4x4* RequestCameraImageCommand::release_projectionmatrix() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestCameraImageCommand.projectionMatrix)
+  
+  ::pybullet_grpc::matrix4x4* temp = projectionmatrix_;
+  projectionmatrix_ = NULL;
+  return temp;
+}
+void RequestCameraImageCommand::set_allocated_projectionmatrix(::pybullet_grpc::matrix4x4* projectionmatrix) {
+  delete projectionmatrix_;
+  projectionmatrix_ = projectionmatrix;
+  if (projectionmatrix) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestCameraImageCommand.projectionMatrix)
+}
+
+// int32 startPixelIndex = 5;
+void RequestCameraImageCommand::clear_startpixelindex() {
+  startpixelindex_ = 0;
+}
+::google::protobuf::int32 RequestCameraImageCommand::startpixelindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.startPixelIndex)
+  return startpixelindex_;
+}
+void RequestCameraImageCommand::set_startpixelindex(::google::protobuf::int32 value) {
+  
+  startpixelindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.startPixelIndex)
+}
+
+// int32 pixelWidth = 6;
+void RequestCameraImageCommand::clear_pixelwidth() {
+  pixelwidth_ = 0;
+}
+::google::protobuf::int32 RequestCameraImageCommand::pixelwidth() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.pixelWidth)
+  return pixelwidth_;
+}
+void RequestCameraImageCommand::set_pixelwidth(::google::protobuf::int32 value) {
+  
+  pixelwidth_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.pixelWidth)
+}
+
+// int32 pixelHeight = 7;
+void RequestCameraImageCommand::clear_pixelheight() {
+  pixelheight_ = 0;
+}
+::google::protobuf::int32 RequestCameraImageCommand::pixelheight() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.pixelHeight)
+  return pixelheight_;
+}
+void RequestCameraImageCommand::set_pixelheight(::google::protobuf::int32 value) {
+  
+  pixelheight_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.pixelHeight)
+}
+
+// .pybullet_grpc.vec3 lightDirection = 8;
+bool RequestCameraImageCommand::has_lightdirection() const {
+  return this != internal_default_instance() && lightdirection_ != NULL;
+}
+void RequestCameraImageCommand::clear_lightdirection() {
+  if (GetArenaNoVirtual() == NULL && lightdirection_ != NULL) delete lightdirection_;
+  lightdirection_ = NULL;
+}
+const ::pybullet_grpc::vec3& RequestCameraImageCommand::lightdirection() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.lightDirection)
+  return lightdirection_ != NULL ? *lightdirection_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+::pybullet_grpc::vec3* RequestCameraImageCommand::mutable_lightdirection() {
+  
+  if (lightdirection_ == NULL) {
+    lightdirection_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestCameraImageCommand.lightDirection)
+  return lightdirection_;
+}
+::pybullet_grpc::vec3* RequestCameraImageCommand::release_lightdirection() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestCameraImageCommand.lightDirection)
+  
+  ::pybullet_grpc::vec3* temp = lightdirection_;
+  lightdirection_ = NULL;
+  return temp;
+}
+void RequestCameraImageCommand::set_allocated_lightdirection(::pybullet_grpc::vec3* lightdirection) {
+  delete lightdirection_;
+  lightdirection_ = lightdirection;
+  if (lightdirection) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestCameraImageCommand.lightDirection)
+}
+
+// .pybullet_grpc.vec3 lightColor = 9;
+bool RequestCameraImageCommand::has_lightcolor() const {
+  return this != internal_default_instance() && lightcolor_ != NULL;
+}
+void RequestCameraImageCommand::clear_lightcolor() {
+  if (GetArenaNoVirtual() == NULL && lightcolor_ != NULL) delete lightcolor_;
+  lightcolor_ = NULL;
+}
+const ::pybullet_grpc::vec3& RequestCameraImageCommand::lightcolor() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.lightColor)
+  return lightcolor_ != NULL ? *lightcolor_
+                         : *::pybullet_grpc::vec3::internal_default_instance();
+}
+::pybullet_grpc::vec3* RequestCameraImageCommand::mutable_lightcolor() {
+  
+  if (lightcolor_ == NULL) {
+    lightcolor_ = new ::pybullet_grpc::vec3;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestCameraImageCommand.lightColor)
+  return lightcolor_;
+}
+::pybullet_grpc::vec3* RequestCameraImageCommand::release_lightcolor() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestCameraImageCommand.lightColor)
+  
+  ::pybullet_grpc::vec3* temp = lightcolor_;
+  lightcolor_ = NULL;
+  return temp;
+}
+void RequestCameraImageCommand::set_allocated_lightcolor(::pybullet_grpc::vec3* lightcolor) {
+  delete lightcolor_;
+  lightcolor_ = lightcolor;
+  if (lightcolor) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestCameraImageCommand.lightColor)
+}
+
+// double lightDistance = 10;
+void RequestCameraImageCommand::clear_lightdistance() {
+  lightdistance_ = 0;
+}
+double RequestCameraImageCommand::lightdistance() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.lightDistance)
+  return lightdistance_;
+}
+void RequestCameraImageCommand::set_lightdistance(double value) {
+  
+  lightdistance_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.lightDistance)
+}
+
+// double lightAmbientCoeff = 11;
+void RequestCameraImageCommand::clear_lightambientcoeff() {
+  lightambientcoeff_ = 0;
+}
+double RequestCameraImageCommand::lightambientcoeff() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.lightAmbientCoeff)
+  return lightambientcoeff_;
+}
+void RequestCameraImageCommand::set_lightambientcoeff(double value) {
+  
+  lightambientcoeff_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.lightAmbientCoeff)
+}
+
+// double lightDiffuseCoeff = 12;
+void RequestCameraImageCommand::clear_lightdiffusecoeff() {
+  lightdiffusecoeff_ = 0;
+}
+double RequestCameraImageCommand::lightdiffusecoeff() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.lightDiffuseCoeff)
+  return lightdiffusecoeff_;
+}
+void RequestCameraImageCommand::set_lightdiffusecoeff(double value) {
+  
+  lightdiffusecoeff_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.lightDiffuseCoeff)
+}
+
+// double lightSpecularCoeff = 13;
+void RequestCameraImageCommand::clear_lightspecularcoeff() {
+  lightspecularcoeff_ = 0;
+}
+double RequestCameraImageCommand::lightspecularcoeff() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.lightSpecularCoeff)
+  return lightspecularcoeff_;
+}
+void RequestCameraImageCommand::set_lightspecularcoeff(double value) {
+  
+  lightspecularcoeff_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.lightSpecularCoeff)
+}
+
+// int32 hasShadow = 14;
+void RequestCameraImageCommand::clear_hasshadow() {
+  hasshadow_ = 0;
+}
+::google::protobuf::int32 RequestCameraImageCommand::hasshadow() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.hasShadow)
+  return hasshadow_;
+}
+void RequestCameraImageCommand::set_hasshadow(::google::protobuf::int32 value) {
+  
+  hasshadow_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageCommand.hasShadow)
+}
+
+// .pybullet_grpc.matrix4x4 projectiveTextureViewMatrix = 15;
+bool RequestCameraImageCommand::has_projectivetextureviewmatrix() const {
+  return this != internal_default_instance() && projectivetextureviewmatrix_ != NULL;
+}
+void RequestCameraImageCommand::clear_projectivetextureviewmatrix() {
+  if (GetArenaNoVirtual() == NULL && projectivetextureviewmatrix_ != NULL) delete projectivetextureviewmatrix_;
+  projectivetextureviewmatrix_ = NULL;
+}
+const ::pybullet_grpc::matrix4x4& RequestCameraImageCommand::projectivetextureviewmatrix() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.projectiveTextureViewMatrix)
+  return projectivetextureviewmatrix_ != NULL ? *projectivetextureviewmatrix_
+                         : *::pybullet_grpc::matrix4x4::internal_default_instance();
+}
+::pybullet_grpc::matrix4x4* RequestCameraImageCommand::mutable_projectivetextureviewmatrix() {
+  
+  if (projectivetextureviewmatrix_ == NULL) {
+    projectivetextureviewmatrix_ = new ::pybullet_grpc::matrix4x4;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestCameraImageCommand.projectiveTextureViewMatrix)
+  return projectivetextureviewmatrix_;
+}
+::pybullet_grpc::matrix4x4* RequestCameraImageCommand::release_projectivetextureviewmatrix() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestCameraImageCommand.projectiveTextureViewMatrix)
+  
+  ::pybullet_grpc::matrix4x4* temp = projectivetextureviewmatrix_;
+  projectivetextureviewmatrix_ = NULL;
+  return temp;
+}
+void RequestCameraImageCommand::set_allocated_projectivetextureviewmatrix(::pybullet_grpc::matrix4x4* projectivetextureviewmatrix) {
+  delete projectivetextureviewmatrix_;
+  projectivetextureviewmatrix_ = projectivetextureviewmatrix;
+  if (projectivetextureviewmatrix) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestCameraImageCommand.projectiveTextureViewMatrix)
+}
+
+// .pybullet_grpc.matrix4x4 projectiveTextureProjectionMatrix = 16;
+bool RequestCameraImageCommand::has_projectivetextureprojectionmatrix() const {
+  return this != internal_default_instance() && projectivetextureprojectionmatrix_ != NULL;
+}
+void RequestCameraImageCommand::clear_projectivetextureprojectionmatrix() {
+  if (GetArenaNoVirtual() == NULL && projectivetextureprojectionmatrix_ != NULL) delete projectivetextureprojectionmatrix_;
+  projectivetextureprojectionmatrix_ = NULL;
+}
+const ::pybullet_grpc::matrix4x4& RequestCameraImageCommand::projectivetextureprojectionmatrix() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageCommand.projectiveTextureProjectionMatrix)
+  return projectivetextureprojectionmatrix_ != NULL ? *projectivetextureprojectionmatrix_
+                         : *::pybullet_grpc::matrix4x4::internal_default_instance();
+}
+::pybullet_grpc::matrix4x4* RequestCameraImageCommand::mutable_projectivetextureprojectionmatrix() {
+  
+  if (projectivetextureprojectionmatrix_ == NULL) {
+    projectivetextureprojectionmatrix_ = new ::pybullet_grpc::matrix4x4;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.RequestCameraImageCommand.projectiveTextureProjectionMatrix)
+  return projectivetextureprojectionmatrix_;
+}
+::pybullet_grpc::matrix4x4* RequestCameraImageCommand::release_projectivetextureprojectionmatrix() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.RequestCameraImageCommand.projectiveTextureProjectionMatrix)
+  
+  ::pybullet_grpc::matrix4x4* temp = projectivetextureprojectionmatrix_;
+  projectivetextureprojectionmatrix_ = NULL;
+  return temp;
+}
+void RequestCameraImageCommand::set_allocated_projectivetextureprojectionmatrix(::pybullet_grpc::matrix4x4* projectivetextureprojectionmatrix) {
+  delete projectivetextureprojectionmatrix_;
+  projectivetextureprojectionmatrix_ = projectivetextureprojectionmatrix;
+  if (projectivetextureprojectionmatrix) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.RequestCameraImageCommand.projectiveTextureProjectionMatrix)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int RequestCameraImageStatus::kImageWidthFieldNumber;
+const int RequestCameraImageStatus::kImageHeightFieldNumber;
+const int RequestCameraImageStatus::kStartingPixelIndexFieldNumber;
+const int RequestCameraImageStatus::kNumPixelsCopiedFieldNumber;
+const int RequestCameraImageStatus::kNumRemainingPixelsFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+RequestCameraImageStatus::RequestCameraImageStatus()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
+    protobuf_pybullet_2eproto::InitDefaults();
+  }
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.RequestCameraImageStatus)
+}
+RequestCameraImageStatus::RequestCameraImageStatus(const RequestCameraImageStatus& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL),
+      _cached_size_(0) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&imagewidth_, &from.imagewidth_,
+    reinterpret_cast<char*>(&numremainingpixels_) -
+    reinterpret_cast<char*>(&imagewidth_) + sizeof(numremainingpixels_));
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.RequestCameraImageStatus)
+}
+
+void RequestCameraImageStatus::SharedCtor() {
+  ::memset(&imagewidth_, 0, reinterpret_cast<char*>(&numremainingpixels_) -
+    reinterpret_cast<char*>(&imagewidth_) + sizeof(numremainingpixels_));
+  _cached_size_ = 0;
+}
+
+RequestCameraImageStatus::~RequestCameraImageStatus() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.RequestCameraImageStatus)
+  SharedDtor();
+}
+
+void RequestCameraImageStatus::SharedDtor() {
+}
+
+void RequestCameraImageStatus::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RequestCameraImageStatus::descriptor() {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[36].descriptor;
+}
+
+const RequestCameraImageStatus& RequestCameraImageStatus::default_instance() {
+  protobuf_pybullet_2eproto::InitDefaults();
+  return *internal_default_instance();
+}
+
+RequestCameraImageStatus* RequestCameraImageStatus::New(::google::protobuf::Arena* arena) const {
+  RequestCameraImageStatus* n = new RequestCameraImageStatus;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void RequestCameraImageStatus::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.RequestCameraImageStatus)
+  ::memset(&imagewidth_, 0, reinterpret_cast<char*>(&numremainingpixels_) -
+    reinterpret_cast<char*>(&imagewidth_) + sizeof(numremainingpixels_));
+}
+
+bool RequestCameraImageStatus::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.RequestCameraImageStatus)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 imageWidth = 1;
+      case 1: {
+        if (tag == 8u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &imagewidth_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 imageHeight = 2;
+      case 2: {
+        if (tag == 16u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &imageheight_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 startingPixelIndex = 3;
+      case 3: {
+        if (tag == 24u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &startingpixelindex_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 numPixelsCopied = 4;
+      case 4: {
+        if (tag == 32u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &numpixelscopied_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 numRemainingPixels = 5;
+      case 5: {
+        if (tag == 40u) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &numremainingpixels_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(input, tag));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.RequestCameraImageStatus)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.RequestCameraImageStatus)
+  return false;
+#undef DO_
+}
+
+void RequestCameraImageStatus::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.RequestCameraImageStatus)
+  // int32 imageWidth = 1;
+  if (this->imagewidth() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->imagewidth(), output);
+  }
+
+  // int32 imageHeight = 2;
+  if (this->imageheight() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->imageheight(), output);
+  }
+
+  // int32 startingPixelIndex = 3;
+  if (this->startingpixelindex() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->startingpixelindex(), output);
+  }
+
+  // int32 numPixelsCopied = 4;
+  if (this->numpixelscopied() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->numpixelscopied(), output);
+  }
+
+  // int32 numRemainingPixels = 5;
+  if (this->numremainingpixels() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(5, this->numremainingpixels(), output);
+  }
+
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.RequestCameraImageStatus)
+}
+
+::google::protobuf::uint8* RequestCameraImageStatus::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic;  // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.RequestCameraImageStatus)
+  // int32 imageWidth = 1;
+  if (this->imagewidth() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->imagewidth(), target);
+  }
+
+  // int32 imageHeight = 2;
+  if (this->imageheight() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->imageheight(), target);
+  }
+
+  // int32 startingPixelIndex = 3;
+  if (this->startingpixelindex() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->startingpixelindex(), target);
+  }
+
+  // int32 numPixelsCopied = 4;
+  if (this->numpixelscopied() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->numpixelscopied(), target);
+  }
+
+  // int32 numRemainingPixels = 5;
+  if (this->numremainingpixels() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(5, this->numremainingpixels(), target);
+  }
+
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.RequestCameraImageStatus)
+  return target;
+}
+
+size_t RequestCameraImageStatus::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.RequestCameraImageStatus)
+  size_t total_size = 0;
+
+  // int32 imageWidth = 1;
+  if (this->imagewidth() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->imagewidth());
+  }
+
+  // int32 imageHeight = 2;
+  if (this->imageheight() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->imageheight());
+  }
+
+  // int32 startingPixelIndex = 3;
+  if (this->startingpixelindex() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->startingpixelindex());
+  }
+
+  // int32 numPixelsCopied = 4;
+  if (this->numpixelscopied() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->numpixelscopied());
+  }
+
+  // int32 numRemainingPixels = 5;
+  if (this->numremainingpixels() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->numremainingpixels());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = cached_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RequestCameraImageStatus::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.RequestCameraImageStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  const RequestCameraImageStatus* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const RequestCameraImageStatus>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.RequestCameraImageStatus)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.RequestCameraImageStatus)
+    MergeFrom(*source);
+  }
+}
+
+void RequestCameraImageStatus::MergeFrom(const RequestCameraImageStatus& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.RequestCameraImageStatus)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.imagewidth() != 0) {
+    set_imagewidth(from.imagewidth());
+  }
+  if (from.imageheight() != 0) {
+    set_imageheight(from.imageheight());
+  }
+  if (from.startingpixelindex() != 0) {
+    set_startingpixelindex(from.startingpixelindex());
+  }
+  if (from.numpixelscopied() != 0) {
+    set_numpixelscopied(from.numpixelscopied());
+  }
+  if (from.numremainingpixels() != 0) {
+    set_numremainingpixels(from.numremainingpixels());
+  }
+}
+
+void RequestCameraImageStatus::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.RequestCameraImageStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RequestCameraImageStatus::CopyFrom(const RequestCameraImageStatus& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.RequestCameraImageStatus)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RequestCameraImageStatus::IsInitialized() const {
+  return true;
+}
+
+void RequestCameraImageStatus::Swap(RequestCameraImageStatus* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void RequestCameraImageStatus::InternalSwap(RequestCameraImageStatus* other) {
+  std::swap(imagewidth_, other->imagewidth_);
+  std::swap(imageheight_, other->imageheight_);
+  std::swap(startingpixelindex_, other->startingpixelindex_);
+  std::swap(numpixelscopied_, other->numpixelscopied_);
+  std::swap(numremainingpixels_, other->numremainingpixels_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata RequestCameraImageStatus::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_pybullet_2eproto::file_level_metadata[36];
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// RequestCameraImageStatus
+
+// int32 imageWidth = 1;
+void RequestCameraImageStatus::clear_imagewidth() {
+  imagewidth_ = 0;
+}
+::google::protobuf::int32 RequestCameraImageStatus::imagewidth() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageStatus.imageWidth)
+  return imagewidth_;
+}
+void RequestCameraImageStatus::set_imagewidth(::google::protobuf::int32 value) {
+  
+  imagewidth_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageStatus.imageWidth)
+}
+
+// int32 imageHeight = 2;
+void RequestCameraImageStatus::clear_imageheight() {
+  imageheight_ = 0;
+}
+::google::protobuf::int32 RequestCameraImageStatus::imageheight() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageStatus.imageHeight)
+  return imageheight_;
+}
+void RequestCameraImageStatus::set_imageheight(::google::protobuf::int32 value) {
+  
+  imageheight_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageStatus.imageHeight)
+}
+
+// int32 startingPixelIndex = 3;
+void RequestCameraImageStatus::clear_startingpixelindex() {
+  startingpixelindex_ = 0;
+}
+::google::protobuf::int32 RequestCameraImageStatus::startingpixelindex() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageStatus.startingPixelIndex)
+  return startingpixelindex_;
+}
+void RequestCameraImageStatus::set_startingpixelindex(::google::protobuf::int32 value) {
+  
+  startingpixelindex_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageStatus.startingPixelIndex)
+}
+
+// int32 numPixelsCopied = 4;
+void RequestCameraImageStatus::clear_numpixelscopied() {
+  numpixelscopied_ = 0;
+}
+::google::protobuf::int32 RequestCameraImageStatus::numpixelscopied() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageStatus.numPixelsCopied)
+  return numpixelscopied_;
+}
+void RequestCameraImageStatus::set_numpixelscopied(::google::protobuf::int32 value) {
+  
+  numpixelscopied_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageStatus.numPixelsCopied)
+}
+
+// int32 numRemainingPixels = 5;
+void RequestCameraImageStatus::clear_numremainingpixels() {
+  numremainingpixels_ = 0;
+}
+::google::protobuf::int32 RequestCameraImageStatus::numremainingpixels() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.RequestCameraImageStatus.numRemainingPixels)
+  return numremainingpixels_;
+}
+void RequestCameraImageStatus::set_numremainingpixels(::google::protobuf::int32 value) {
+  
+  numremainingpixels_ = value;
+  // @@protoc_insertion_point(field_set:pybullet_grpc.RequestCameraImageStatus.numRemainingPixels)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int PyBulletCommand::kCommandTypeFieldNumber;
+const int PyBulletCommand::kBinaryBlobFieldNumber;
+const int PyBulletCommand::kUnknownCommandBinaryBlobFieldNumber;
 const int PyBulletCommand::kLoadUrdfCommandFieldNumber;
 const int PyBulletCommand::kTerminateServerCommandFieldNumber;
 const int PyBulletCommand::kStepSimulationCommandFieldNumber;
@@ -9219,6 +19839,15 @@ const int PyBulletCommand::kChangeDynamicsCommandFieldNumber;
 const int PyBulletCommand::kGetDynamicsCommandFieldNumber;
 const int PyBulletCommand::kInitPoseCommandFieldNumber;
 const int PyBulletCommand::kRequestActualStateCommandFieldNumber;
+const int PyBulletCommand::kConfigureOpenGLVisualizerCommandFieldNumber;
+const int PyBulletCommand::kSyncBodiesCommandFieldNumber;
+const int PyBulletCommand::kRequestBodyInfoCommandFieldNumber;
+const int PyBulletCommand::kSetPhysicsSimulationParametersCommandFieldNumber;
+const int PyBulletCommand::kJointMotorControlCommandFieldNumber;
+const int PyBulletCommand::kUserConstraintCommandFieldNumber;
+const int PyBulletCommand::kCheckVersionCommandFieldNumber;
+const int PyBulletCommand::kRequestKeyboardEventsCommandFieldNumber;
+const int PyBulletCommand::kRequestCameraImageCommandFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 PyBulletCommand::PyBulletCommand()
@@ -9232,6 +19861,8 @@ PyBulletCommand::PyBulletCommand()
 PyBulletCommand::PyBulletCommand(const PyBulletCommand& from)
   : ::google::protobuf::Message(),
       _internal_metadata_(NULL),
+      binaryblob_(from.binaryblob_),
+      unknowncommandbinaryblob_(from.unknowncommandbinaryblob_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   commandtype_ = from.commandtype_;
@@ -9273,6 +19904,42 @@ PyBulletCommand::PyBulletCommand(const PyBulletCommand& from)
       mutable_requestactualstatecommand()->::pybullet_grpc::RequestActualStateCommand::MergeFrom(from.requestactualstatecommand());
       break;
     }
+    case kConfigureOpenGLVisualizerCommand: {
+      mutable_configureopenglvisualizercommand()->::pybullet_grpc::ConfigureOpenGLVisualizerCommand::MergeFrom(from.configureopenglvisualizercommand());
+      break;
+    }
+    case kSyncBodiesCommand: {
+      mutable_syncbodiescommand()->::pybullet_grpc::SyncBodiesCommand::MergeFrom(from.syncbodiescommand());
+      break;
+    }
+    case kRequestBodyInfoCommand: {
+      mutable_requestbodyinfocommand()->::pybullet_grpc::RequestBodyInfoCommand::MergeFrom(from.requestbodyinfocommand());
+      break;
+    }
+    case kSetPhysicsSimulationParametersCommand: {
+      mutable_setphysicssimulationparameterscommand()->::pybullet_grpc::PhysicsSimulationParametersCommand::MergeFrom(from.setphysicssimulationparameterscommand());
+      break;
+    }
+    case kJointMotorControlCommand: {
+      mutable_jointmotorcontrolcommand()->::pybullet_grpc::JointMotorControlCommand::MergeFrom(from.jointmotorcontrolcommand());
+      break;
+    }
+    case kUserConstraintCommand: {
+      mutable_userconstraintcommand()->::pybullet_grpc::UserConstraintCommand::MergeFrom(from.userconstraintcommand());
+      break;
+    }
+    case kCheckVersionCommand: {
+      mutable_checkversioncommand()->::pybullet_grpc::CheckVersionCommand::MergeFrom(from.checkversioncommand());
+      break;
+    }
+    case kRequestKeyboardEventsCommand: {
+      mutable_requestkeyboardeventscommand()->::pybullet_grpc::RequestKeyboardEventsCommand::MergeFrom(from.requestkeyboardeventscommand());
+      break;
+    }
+    case kRequestCameraImageCommand: {
+      mutable_requestcameraimagecommand()->::pybullet_grpc::RequestCameraImageCommand::MergeFrom(from.requestcameraimagecommand());
+      break;
+    }
     case COMMANDS_NOT_SET: {
       break;
     }
@@ -9304,7 +19971,7 @@ void PyBulletCommand::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* PyBulletCommand::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[16].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[37].descriptor;
 }
 
 const PyBulletCommand& PyBulletCommand::default_instance() {
@@ -9359,6 +20026,42 @@ void PyBulletCommand::clear_commands() {
       delete commands_.requestactualstatecommand_;
       break;
     }
+    case kConfigureOpenGLVisualizerCommand: {
+      delete commands_.configureopenglvisualizercommand_;
+      break;
+    }
+    case kSyncBodiesCommand: {
+      delete commands_.syncbodiescommand_;
+      break;
+    }
+    case kRequestBodyInfoCommand: {
+      delete commands_.requestbodyinfocommand_;
+      break;
+    }
+    case kSetPhysicsSimulationParametersCommand: {
+      delete commands_.setphysicssimulationparameterscommand_;
+      break;
+    }
+    case kJointMotorControlCommand: {
+      delete commands_.jointmotorcontrolcommand_;
+      break;
+    }
+    case kUserConstraintCommand: {
+      delete commands_.userconstraintcommand_;
+      break;
+    }
+    case kCheckVersionCommand: {
+      delete commands_.checkversioncommand_;
+      break;
+    }
+    case kRequestKeyboardEventsCommand: {
+      delete commands_.requestkeyboardeventscommand_;
+      break;
+    }
+    case kRequestCameraImageCommand: {
+      delete commands_.requestcameraimagecommand_;
+      break;
+    }
     case COMMANDS_NOT_SET: {
       break;
     }
@@ -9369,6 +20072,8 @@ void PyBulletCommand::clear_commands() {
 
 void PyBulletCommand::Clear() {
 // @@protoc_insertion_point(message_clear_start:pybullet_grpc.PyBulletCommand)
+  binaryblob_.Clear();
+  unknowncommandbinaryblob_.Clear();
   commandtype_ = 0;
   clear_commands();
 }
@@ -9379,7 +20084,7 @@ bool PyBulletCommand::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:pybullet_grpc.PyBulletCommand)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(16383u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
@@ -9396,9 +20101,31 @@ bool PyBulletCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 3;
+      // repeated bytes binaryBlob = 2;
+      case 2: {
+        if (tag == 18u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->add_binaryblob()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated bytes unknownCommandBinaryBlob = 3;
       case 3: {
         if (tag == 26u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->add_unknowncommandbinaryblob()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 4;
+      case 4: {
+        if (tag == 34u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_loadurdfcommand()));
         } else {
@@ -9407,9 +20134,9 @@ bool PyBulletCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.TerminateServerCommand terminateServerCommand = 4;
-      case 4: {
-        if (tag == 34u) {
+      // .pybullet_grpc.TerminateServerCommand terminateServerCommand = 5;
+      case 5: {
+        if (tag == 42u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_terminateservercommand()));
         } else {
@@ -9418,9 +20145,9 @@ bool PyBulletCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 5;
-      case 5: {
-        if (tag == 42u) {
+      // .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 6;
+      case 6: {
+        if (tag == 50u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_stepsimulationcommand()));
         } else {
@@ -9429,9 +20156,9 @@ bool PyBulletCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
-      case 6: {
-        if (tag == 50u) {
+      // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 7;
+      case 7: {
+        if (tag == 58u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_loadsdfcommand()));
         } else {
@@ -9440,9 +20167,9 @@ bool PyBulletCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
-      case 7: {
-        if (tag == 58u) {
+      // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 8;
+      case 8: {
+        if (tag == 66u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_loadmjcfcommand()));
         } else {
@@ -9451,9 +20178,9 @@ bool PyBulletCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
-      case 8: {
-        if (tag == 66u) {
+      // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 9;
+      case 9: {
+        if (tag == 74u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_changedynamicscommand()));
         } else {
@@ -9462,9 +20189,9 @@ bool PyBulletCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
-      case 9: {
-        if (tag == 74u) {
+      // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 10;
+      case 10: {
+        if (tag == 82u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_getdynamicscommand()));
         } else {
@@ -9473,9 +20200,9 @@ bool PyBulletCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
-      case 10: {
-        if (tag == 82u) {
+      // .pybullet_grpc.InitPoseCommand initPoseCommand = 11;
+      case 11: {
+        if (tag == 90u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_initposecommand()));
         } else {
@@ -9484,11 +20211,110 @@ bool PyBulletCommand::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
-      case 11: {
-        if (tag == 90u) {
+      // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 12;
+      case 12: {
+        if (tag == 98u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_requestactualstatecommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.ConfigureOpenGLVisualizerCommand configureOpenGLVisualizerCommand = 13;
+      case 13: {
+        if (tag == 106u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_configureopenglvisualizercommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.SyncBodiesCommand syncBodiesCommand = 14;
+      case 14: {
+        if (tag == 114u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_syncbodiescommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.RequestBodyInfoCommand requestBodyInfoCommand = 15;
+      case 15: {
+        if (tag == 122u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_requestbodyinfocommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.PhysicsSimulationParametersCommand setPhysicsSimulationParametersCommand = 16;
+      case 16: {
+        if (tag == 130u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_setphysicssimulationparameterscommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.JointMotorControlCommand jointMotorControlCommand = 17;
+      case 17: {
+        if (tag == 138u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_jointmotorcontrolcommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.UserConstraintCommand userConstraintCommand = 18;
+      case 18: {
+        if (tag == 146u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_userconstraintcommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.CheckVersionCommand checkVersionCommand = 19;
+      case 19: {
+        if (tag == 154u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_checkversioncommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.RequestKeyboardEventsCommand requestKeyboardEventsCommand = 20;
+      case 20: {
+        if (tag == 162u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_requestkeyboardeventscommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.RequestCameraImageCommand requestCameraImageCommand = 21;
+      case 21: {
+        if (tag == 170u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_requestcameraimagecommand()));
         } else {
           goto handle_unusual;
         }
@@ -9524,58 +20350,124 @@ void PyBulletCommand::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->commandtype(), output);
   }
 
-  // .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 3;
+  // repeated bytes binaryBlob = 2;
+  for (int i = 0; i < this->binaryblob_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytes(
+      2, this->binaryblob(i), output);
+  }
+
+  // repeated bytes unknownCommandBinaryBlob = 3;
+  for (int i = 0; i < this->unknowncommandbinaryblob_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytes(
+      3, this->unknowncommandbinaryblob(i), output);
+  }
+
+  // .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 4;
   if (has_loadurdfcommand()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, *commands_.loadurdfcommand_, output);
+      4, *commands_.loadurdfcommand_, output);
   }
 
-  // .pybullet_grpc.TerminateServerCommand terminateServerCommand = 4;
+  // .pybullet_grpc.TerminateServerCommand terminateServerCommand = 5;
   if (has_terminateservercommand()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, *commands_.terminateservercommand_, output);
+      5, *commands_.terminateservercommand_, output);
   }
 
-  // .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 5;
+  // .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 6;
   if (has_stepsimulationcommand()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, *commands_.stepsimulationcommand_, output);
+      6, *commands_.stepsimulationcommand_, output);
   }
 
-  // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+  // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 7;
   if (has_loadsdfcommand()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, *commands_.loadsdfcommand_, output);
+      7, *commands_.loadsdfcommand_, output);
   }
 
-  // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+  // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 8;
   if (has_loadmjcfcommand()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      7, *commands_.loadmjcfcommand_, output);
+      8, *commands_.loadmjcfcommand_, output);
   }
 
-  // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+  // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 9;
   if (has_changedynamicscommand()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      8, *commands_.changedynamicscommand_, output);
+      9, *commands_.changedynamicscommand_, output);
   }
 
-  // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+  // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 10;
   if (has_getdynamicscommand()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      9, *commands_.getdynamicscommand_, output);
+      10, *commands_.getdynamicscommand_, output);
   }
 
-  // .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+  // .pybullet_grpc.InitPoseCommand initPoseCommand = 11;
   if (has_initposecommand()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      10, *commands_.initposecommand_, output);
+      11, *commands_.initposecommand_, output);
   }
 
-  // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+  // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 12;
   if (has_requestactualstatecommand()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      11, *commands_.requestactualstatecommand_, output);
+      12, *commands_.requestactualstatecommand_, output);
+  }
+
+  // .pybullet_grpc.ConfigureOpenGLVisualizerCommand configureOpenGLVisualizerCommand = 13;
+  if (has_configureopenglvisualizercommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      13, *commands_.configureopenglvisualizercommand_, output);
+  }
+
+  // .pybullet_grpc.SyncBodiesCommand syncBodiesCommand = 14;
+  if (has_syncbodiescommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      14, *commands_.syncbodiescommand_, output);
+  }
+
+  // .pybullet_grpc.RequestBodyInfoCommand requestBodyInfoCommand = 15;
+  if (has_requestbodyinfocommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      15, *commands_.requestbodyinfocommand_, output);
+  }
+
+  // .pybullet_grpc.PhysicsSimulationParametersCommand setPhysicsSimulationParametersCommand = 16;
+  if (has_setphysicssimulationparameterscommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      16, *commands_.setphysicssimulationparameterscommand_, output);
+  }
+
+  // .pybullet_grpc.JointMotorControlCommand jointMotorControlCommand = 17;
+  if (has_jointmotorcontrolcommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      17, *commands_.jointmotorcontrolcommand_, output);
+  }
+
+  // .pybullet_grpc.UserConstraintCommand userConstraintCommand = 18;
+  if (has_userconstraintcommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      18, *commands_.userconstraintcommand_, output);
+  }
+
+  // .pybullet_grpc.CheckVersionCommand checkVersionCommand = 19;
+  if (has_checkversioncommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      19, *commands_.checkversioncommand_, output);
+  }
+
+  // .pybullet_grpc.RequestKeyboardEventsCommand requestKeyboardEventsCommand = 20;
+  if (has_requestkeyboardeventscommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      20, *commands_.requestkeyboardeventscommand_, output);
+  }
+
+  // .pybullet_grpc.RequestCameraImageCommand requestCameraImageCommand = 21;
+  if (has_requestcameraimagecommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      21, *commands_.requestcameraimagecommand_, output);
   }
 
   // @@protoc_insertion_point(serialize_end:pybullet_grpc.PyBulletCommand)
@@ -9590,67 +20482,142 @@ void PyBulletCommand::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->commandtype(), target);
   }
 
-  // .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 3;
+  // repeated bytes binaryBlob = 2;
+  for (int i = 0; i < this->binaryblob_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteBytesToArray(2, this->binaryblob(i), target);
+  }
+
+  // repeated bytes unknownCommandBinaryBlob = 3;
+  for (int i = 0; i < this->unknowncommandbinaryblob_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteBytesToArray(3, this->unknowncommandbinaryblob(i), target);
+  }
+
+  // .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 4;
   if (has_loadurdfcommand()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        3, *commands_.loadurdfcommand_, false, target);
+        4, *commands_.loadurdfcommand_, false, target);
   }
 
-  // .pybullet_grpc.TerminateServerCommand terminateServerCommand = 4;
+  // .pybullet_grpc.TerminateServerCommand terminateServerCommand = 5;
   if (has_terminateservercommand()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        4, *commands_.terminateservercommand_, false, target);
+        5, *commands_.terminateservercommand_, false, target);
   }
 
-  // .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 5;
+  // .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 6;
   if (has_stepsimulationcommand()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        5, *commands_.stepsimulationcommand_, false, target);
+        6, *commands_.stepsimulationcommand_, false, target);
   }
 
-  // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+  // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 7;
   if (has_loadsdfcommand()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        6, *commands_.loadsdfcommand_, false, target);
+        7, *commands_.loadsdfcommand_, false, target);
   }
 
-  // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+  // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 8;
   if (has_loadmjcfcommand()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        7, *commands_.loadmjcfcommand_, false, target);
+        8, *commands_.loadmjcfcommand_, false, target);
   }
 
-  // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+  // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 9;
   if (has_changedynamicscommand()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        8, *commands_.changedynamicscommand_, false, target);
+        9, *commands_.changedynamicscommand_, false, target);
   }
 
-  // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+  // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 10;
   if (has_getdynamicscommand()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        9, *commands_.getdynamicscommand_, false, target);
+        10, *commands_.getdynamicscommand_, false, target);
   }
 
-  // .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+  // .pybullet_grpc.InitPoseCommand initPoseCommand = 11;
   if (has_initposecommand()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        10, *commands_.initposecommand_, false, target);
+        11, *commands_.initposecommand_, false, target);
   }
 
-  // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+  // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 12;
   if (has_requestactualstatecommand()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        11, *commands_.requestactualstatecommand_, false, target);
+        12, *commands_.requestactualstatecommand_, false, target);
+  }
+
+  // .pybullet_grpc.ConfigureOpenGLVisualizerCommand configureOpenGLVisualizerCommand = 13;
+  if (has_configureopenglvisualizercommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        13, *commands_.configureopenglvisualizercommand_, false, target);
+  }
+
+  // .pybullet_grpc.SyncBodiesCommand syncBodiesCommand = 14;
+  if (has_syncbodiescommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        14, *commands_.syncbodiescommand_, false, target);
+  }
+
+  // .pybullet_grpc.RequestBodyInfoCommand requestBodyInfoCommand = 15;
+  if (has_requestbodyinfocommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        15, *commands_.requestbodyinfocommand_, false, target);
+  }
+
+  // .pybullet_grpc.PhysicsSimulationParametersCommand setPhysicsSimulationParametersCommand = 16;
+  if (has_setphysicssimulationparameterscommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        16, *commands_.setphysicssimulationparameterscommand_, false, target);
+  }
+
+  // .pybullet_grpc.JointMotorControlCommand jointMotorControlCommand = 17;
+  if (has_jointmotorcontrolcommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        17, *commands_.jointmotorcontrolcommand_, false, target);
+  }
+
+  // .pybullet_grpc.UserConstraintCommand userConstraintCommand = 18;
+  if (has_userconstraintcommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        18, *commands_.userconstraintcommand_, false, target);
+  }
+
+  // .pybullet_grpc.CheckVersionCommand checkVersionCommand = 19;
+  if (has_checkversioncommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        19, *commands_.checkversioncommand_, false, target);
+  }
+
+  // .pybullet_grpc.RequestKeyboardEventsCommand requestKeyboardEventsCommand = 20;
+  if (has_requestkeyboardeventscommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        20, *commands_.requestkeyboardeventscommand_, false, target);
+  }
+
+  // .pybullet_grpc.RequestCameraImageCommand requestCameraImageCommand = 21;
+  if (has_requestcameraimagecommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        21, *commands_.requestcameraimagecommand_, false, target);
   }
 
   // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.PyBulletCommand)
@@ -9661,6 +20628,22 @@ size_t PyBulletCommand::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.PyBulletCommand)
   size_t total_size = 0;
 
+  // repeated bytes binaryBlob = 2;
+  total_size += 1 *
+      ::google::protobuf::internal::FromIntSize(this->binaryblob_size());
+  for (int i = 0; i < this->binaryblob_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::BytesSize(
+      this->binaryblob(i));
+  }
+
+  // repeated bytes unknownCommandBinaryBlob = 3;
+  total_size += 1 *
+      ::google::protobuf::internal::FromIntSize(this->unknowncommandbinaryblob_size());
+  for (int i = 0; i < this->unknowncommandbinaryblob_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::BytesSize(
+      this->unknowncommandbinaryblob(i));
+  }
+
   // int32 commandType = 1;
   if (this->commandtype() != 0) {
     total_size += 1 +
@@ -9669,67 +20652,130 @@ size_t PyBulletCommand::ByteSizeLong() const {
   }
 
   switch (commands_case()) {
-    // .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 3;
+    // .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 4;
     case kLoadUrdfCommand: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *commands_.loadurdfcommand_);
       break;
     }
-    // .pybullet_grpc.TerminateServerCommand terminateServerCommand = 4;
+    // .pybullet_grpc.TerminateServerCommand terminateServerCommand = 5;
     case kTerminateServerCommand: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *commands_.terminateservercommand_);
       break;
     }
-    // .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 5;
+    // .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 6;
     case kStepSimulationCommand: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *commands_.stepsimulationcommand_);
       break;
     }
-    // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+    // .pybullet_grpc.LoadSdfCommand loadSdfCommand = 7;
     case kLoadSdfCommand: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *commands_.loadsdfcommand_);
       break;
     }
-    // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+    // .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 8;
     case kLoadMjcfCommand: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *commands_.loadmjcfcommand_);
       break;
     }
-    // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+    // .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 9;
     case kChangeDynamicsCommand: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *commands_.changedynamicscommand_);
       break;
     }
-    // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+    // .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 10;
     case kGetDynamicsCommand: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *commands_.getdynamicscommand_);
       break;
     }
-    // .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+    // .pybullet_grpc.InitPoseCommand initPoseCommand = 11;
     case kInitPoseCommand: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *commands_.initposecommand_);
       break;
     }
-    // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+    // .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 12;
     case kRequestActualStateCommand: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *commands_.requestactualstatecommand_);
+      break;
+    }
+    // .pybullet_grpc.ConfigureOpenGLVisualizerCommand configureOpenGLVisualizerCommand = 13;
+    case kConfigureOpenGLVisualizerCommand: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.configureopenglvisualizercommand_);
+      break;
+    }
+    // .pybullet_grpc.SyncBodiesCommand syncBodiesCommand = 14;
+    case kSyncBodiesCommand: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.syncbodiescommand_);
+      break;
+    }
+    // .pybullet_grpc.RequestBodyInfoCommand requestBodyInfoCommand = 15;
+    case kRequestBodyInfoCommand: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.requestbodyinfocommand_);
+      break;
+    }
+    // .pybullet_grpc.PhysicsSimulationParametersCommand setPhysicsSimulationParametersCommand = 16;
+    case kSetPhysicsSimulationParametersCommand: {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.setphysicssimulationparameterscommand_);
+      break;
+    }
+    // .pybullet_grpc.JointMotorControlCommand jointMotorControlCommand = 17;
+    case kJointMotorControlCommand: {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.jointmotorcontrolcommand_);
+      break;
+    }
+    // .pybullet_grpc.UserConstraintCommand userConstraintCommand = 18;
+    case kUserConstraintCommand: {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.userconstraintcommand_);
+      break;
+    }
+    // .pybullet_grpc.CheckVersionCommand checkVersionCommand = 19;
+    case kCheckVersionCommand: {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.checkversioncommand_);
+      break;
+    }
+    // .pybullet_grpc.RequestKeyboardEventsCommand requestKeyboardEventsCommand = 20;
+    case kRequestKeyboardEventsCommand: {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.requestkeyboardeventscommand_);
+      break;
+    }
+    // .pybullet_grpc.RequestCameraImageCommand requestCameraImageCommand = 21;
+    case kRequestCameraImageCommand: {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *commands_.requestcameraimagecommand_);
       break;
     }
     case COMMANDS_NOT_SET: {
@@ -9762,6 +20808,8 @@ void PyBulletCommand::MergeFrom(const PyBulletCommand& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.PyBulletCommand)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  binaryblob_.MergeFrom(from.binaryblob_);
+  unknowncommandbinaryblob_.MergeFrom(from.unknowncommandbinaryblob_);
   if (from.commandtype() != 0) {
     set_commandtype(from.commandtype());
   }
@@ -9802,6 +20850,42 @@ void PyBulletCommand::MergeFrom(const PyBulletCommand& from) {
       mutable_requestactualstatecommand()->::pybullet_grpc::RequestActualStateCommand::MergeFrom(from.requestactualstatecommand());
       break;
     }
+    case kConfigureOpenGLVisualizerCommand: {
+      mutable_configureopenglvisualizercommand()->::pybullet_grpc::ConfigureOpenGLVisualizerCommand::MergeFrom(from.configureopenglvisualizercommand());
+      break;
+    }
+    case kSyncBodiesCommand: {
+      mutable_syncbodiescommand()->::pybullet_grpc::SyncBodiesCommand::MergeFrom(from.syncbodiescommand());
+      break;
+    }
+    case kRequestBodyInfoCommand: {
+      mutable_requestbodyinfocommand()->::pybullet_grpc::RequestBodyInfoCommand::MergeFrom(from.requestbodyinfocommand());
+      break;
+    }
+    case kSetPhysicsSimulationParametersCommand: {
+      mutable_setphysicssimulationparameterscommand()->::pybullet_grpc::PhysicsSimulationParametersCommand::MergeFrom(from.setphysicssimulationparameterscommand());
+      break;
+    }
+    case kJointMotorControlCommand: {
+      mutable_jointmotorcontrolcommand()->::pybullet_grpc::JointMotorControlCommand::MergeFrom(from.jointmotorcontrolcommand());
+      break;
+    }
+    case kUserConstraintCommand: {
+      mutable_userconstraintcommand()->::pybullet_grpc::UserConstraintCommand::MergeFrom(from.userconstraintcommand());
+      break;
+    }
+    case kCheckVersionCommand: {
+      mutable_checkversioncommand()->::pybullet_grpc::CheckVersionCommand::MergeFrom(from.checkversioncommand());
+      break;
+    }
+    case kRequestKeyboardEventsCommand: {
+      mutable_requestkeyboardeventscommand()->::pybullet_grpc::RequestKeyboardEventsCommand::MergeFrom(from.requestkeyboardeventscommand());
+      break;
+    }
+    case kRequestCameraImageCommand: {
+      mutable_requestcameraimagecommand()->::pybullet_grpc::RequestCameraImageCommand::MergeFrom(from.requestcameraimagecommand());
+      break;
+    }
     case COMMANDS_NOT_SET: {
       break;
     }
@@ -9831,6 +20915,8 @@ void PyBulletCommand::Swap(PyBulletCommand* other) {
   InternalSwap(other);
 }
 void PyBulletCommand::InternalSwap(PyBulletCommand* other) {
+  binaryblob_.UnsafeArenaSwap(&other->binaryblob_);
+  unknowncommandbinaryblob_.UnsafeArenaSwap(&other->unknowncommandbinaryblob_);
   std::swap(commandtype_, other->commandtype_);
   std::swap(commands_, other->commands_);
   std::swap(_oneof_case_[0], other->_oneof_case_[0]);
@@ -9839,7 +20925,7 @@ void PyBulletCommand::InternalSwap(PyBulletCommand* other) {
 
 ::google::protobuf::Metadata PyBulletCommand::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[16];
+  return protobuf_pybullet_2eproto::file_level_metadata[37];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -9859,7 +20945,117 @@ void PyBulletCommand::set_commandtype(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:pybullet_grpc.PyBulletCommand.commandType)
 }
 
-// .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 3;
+// repeated bytes binaryBlob = 2;
+int PyBulletCommand::binaryblob_size() const {
+  return binaryblob_.size();
+}
+void PyBulletCommand::clear_binaryblob() {
+  binaryblob_.Clear();
+}
+const ::std::string& PyBulletCommand::binaryblob(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.binaryBlob)
+  return binaryblob_.Get(index);
+}
+::std::string* PyBulletCommand::mutable_binaryblob(int index) {
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.binaryBlob)
+  return binaryblob_.Mutable(index);
+}
+void PyBulletCommand::set_binaryblob(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PyBulletCommand.binaryBlob)
+  binaryblob_.Mutable(index)->assign(value);
+}
+void PyBulletCommand::set_binaryblob(int index, const char* value) {
+  binaryblob_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.PyBulletCommand.binaryBlob)
+}
+void PyBulletCommand::set_binaryblob(int index, const void* value, size_t size) {
+  binaryblob_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.PyBulletCommand.binaryBlob)
+}
+::std::string* PyBulletCommand::add_binaryblob() {
+  // @@protoc_insertion_point(field_add_mutable:pybullet_grpc.PyBulletCommand.binaryBlob)
+  return binaryblob_.Add();
+}
+void PyBulletCommand::add_binaryblob(const ::std::string& value) {
+  binaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.PyBulletCommand.binaryBlob)
+}
+void PyBulletCommand::add_binaryblob(const char* value) {
+  binaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:pybullet_grpc.PyBulletCommand.binaryBlob)
+}
+void PyBulletCommand::add_binaryblob(const void* value, size_t size) {
+  binaryblob_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:pybullet_grpc.PyBulletCommand.binaryBlob)
+}
+const ::google::protobuf::RepeatedPtrField< ::std::string>&
+PyBulletCommand::binaryblob() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.PyBulletCommand.binaryBlob)
+  return binaryblob_;
+}
+::google::protobuf::RepeatedPtrField< ::std::string>*
+PyBulletCommand::mutable_binaryblob() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.PyBulletCommand.binaryBlob)
+  return &binaryblob_;
+}
+
+// repeated bytes unknownCommandBinaryBlob = 3;
+int PyBulletCommand::unknowncommandbinaryblob_size() const {
+  return unknowncommandbinaryblob_.size();
+}
+void PyBulletCommand::clear_unknowncommandbinaryblob() {
+  unknowncommandbinaryblob_.Clear();
+}
+const ::std::string& PyBulletCommand::unknowncommandbinaryblob(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+  return unknowncommandbinaryblob_.Get(index);
+}
+::std::string* PyBulletCommand::mutable_unknowncommandbinaryblob(int index) {
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+  return unknowncommandbinaryblob_.Mutable(index);
+}
+void PyBulletCommand::set_unknowncommandbinaryblob(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+  unknowncommandbinaryblob_.Mutable(index)->assign(value);
+}
+void PyBulletCommand::set_unknowncommandbinaryblob(int index, const char* value) {
+  unknowncommandbinaryblob_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+}
+void PyBulletCommand::set_unknowncommandbinaryblob(int index, const void* value, size_t size) {
+  unknowncommandbinaryblob_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+}
+::std::string* PyBulletCommand::add_unknowncommandbinaryblob() {
+  // @@protoc_insertion_point(field_add_mutable:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+  return unknowncommandbinaryblob_.Add();
+}
+void PyBulletCommand::add_unknowncommandbinaryblob(const ::std::string& value) {
+  unknowncommandbinaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+}
+void PyBulletCommand::add_unknowncommandbinaryblob(const char* value) {
+  unknowncommandbinaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+}
+void PyBulletCommand::add_unknowncommandbinaryblob(const void* value, size_t size) {
+  unknowncommandbinaryblob_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+}
+const ::google::protobuf::RepeatedPtrField< ::std::string>&
+PyBulletCommand::unknowncommandbinaryblob() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+  return unknowncommandbinaryblob_;
+}
+::google::protobuf::RepeatedPtrField< ::std::string>*
+PyBulletCommand::mutable_unknowncommandbinaryblob() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.PyBulletCommand.unknownCommandBinaryBlob)
+  return &unknowncommandbinaryblob_;
+}
+
+// .pybullet_grpc.LoadUrdfCommand loadUrdfCommand = 4;
 bool PyBulletCommand::has_loadurdfcommand() const {
   return commands_case() == kLoadUrdfCommand;
 }
@@ -9907,7 +21103,7 @@ void PyBulletCommand::set_allocated_loadurdfcommand(::pybullet_grpc::LoadUrdfCom
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.loadUrdfCommand)
 }
 
-// .pybullet_grpc.TerminateServerCommand terminateServerCommand = 4;
+// .pybullet_grpc.TerminateServerCommand terminateServerCommand = 5;
 bool PyBulletCommand::has_terminateservercommand() const {
   return commands_case() == kTerminateServerCommand;
 }
@@ -9955,7 +21151,7 @@ void PyBulletCommand::set_allocated_terminateservercommand(::pybullet_grpc::Term
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.terminateServerCommand)
 }
 
-// .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 5;
+// .pybullet_grpc.StepSimulationCommand stepSimulationCommand = 6;
 bool PyBulletCommand::has_stepsimulationcommand() const {
   return commands_case() == kStepSimulationCommand;
 }
@@ -10003,7 +21199,7 @@ void PyBulletCommand::set_allocated_stepsimulationcommand(::pybullet_grpc::StepS
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.stepSimulationCommand)
 }
 
-// .pybullet_grpc.LoadSdfCommand loadSdfCommand = 6;
+// .pybullet_grpc.LoadSdfCommand loadSdfCommand = 7;
 bool PyBulletCommand::has_loadsdfcommand() const {
   return commands_case() == kLoadSdfCommand;
 }
@@ -10051,7 +21247,7 @@ void PyBulletCommand::set_allocated_loadsdfcommand(::pybullet_grpc::LoadSdfComma
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.loadSdfCommand)
 }
 
-// .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 7;
+// .pybullet_grpc.LoadMjcfCommand loadMjcfCommand = 8;
 bool PyBulletCommand::has_loadmjcfcommand() const {
   return commands_case() == kLoadMjcfCommand;
 }
@@ -10099,7 +21295,7 @@ void PyBulletCommand::set_allocated_loadmjcfcommand(::pybullet_grpc::LoadMjcfCom
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.loadMjcfCommand)
 }
 
-// .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 8;
+// .pybullet_grpc.ChangeDynamicsCommand changeDynamicsCommand = 9;
 bool PyBulletCommand::has_changedynamicscommand() const {
   return commands_case() == kChangeDynamicsCommand;
 }
@@ -10147,7 +21343,7 @@ void PyBulletCommand::set_allocated_changedynamicscommand(::pybullet_grpc::Chang
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.changeDynamicsCommand)
 }
 
-// .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 9;
+// .pybullet_grpc.GetDynamicsCommand getDynamicsCommand = 10;
 bool PyBulletCommand::has_getdynamicscommand() const {
   return commands_case() == kGetDynamicsCommand;
 }
@@ -10195,7 +21391,7 @@ void PyBulletCommand::set_allocated_getdynamicscommand(::pybullet_grpc::GetDynam
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.getDynamicsCommand)
 }
 
-// .pybullet_grpc.InitPoseCommand initPoseCommand = 10;
+// .pybullet_grpc.InitPoseCommand initPoseCommand = 11;
 bool PyBulletCommand::has_initposecommand() const {
   return commands_case() == kInitPoseCommand;
 }
@@ -10243,7 +21439,7 @@ void PyBulletCommand::set_allocated_initposecommand(::pybullet_grpc::InitPoseCom
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.initPoseCommand)
 }
 
-// .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 11;
+// .pybullet_grpc.RequestActualStateCommand requestActualStateCommand = 12;
 bool PyBulletCommand::has_requestactualstatecommand() const {
   return commands_case() == kRequestActualStateCommand;
 }
@@ -10291,6 +21487,438 @@ void PyBulletCommand::set_allocated_requestactualstatecommand(::pybullet_grpc::R
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.requestActualStateCommand)
 }
 
+// .pybullet_grpc.ConfigureOpenGLVisualizerCommand configureOpenGLVisualizerCommand = 13;
+bool PyBulletCommand::has_configureopenglvisualizercommand() const {
+  return commands_case() == kConfigureOpenGLVisualizerCommand;
+}
+void PyBulletCommand::set_has_configureopenglvisualizercommand() {
+  _oneof_case_[0] = kConfigureOpenGLVisualizerCommand;
+}
+void PyBulletCommand::clear_configureopenglvisualizercommand() {
+  if (has_configureopenglvisualizercommand()) {
+    delete commands_.configureopenglvisualizercommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::ConfigureOpenGLVisualizerCommand& PyBulletCommand::configureopenglvisualizercommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.configureOpenGLVisualizerCommand)
+  return has_configureopenglvisualizercommand()
+      ? *commands_.configureopenglvisualizercommand_
+      : ::pybullet_grpc::ConfigureOpenGLVisualizerCommand::default_instance();
+}
+::pybullet_grpc::ConfigureOpenGLVisualizerCommand* PyBulletCommand::mutable_configureopenglvisualizercommand() {
+  if (!has_configureopenglvisualizercommand()) {
+    clear_commands();
+    set_has_configureopenglvisualizercommand();
+    commands_.configureopenglvisualizercommand_ = new ::pybullet_grpc::ConfigureOpenGLVisualizerCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.configureOpenGLVisualizerCommand)
+  return commands_.configureopenglvisualizercommand_;
+}
+::pybullet_grpc::ConfigureOpenGLVisualizerCommand* PyBulletCommand::release_configureopenglvisualizercommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.configureOpenGLVisualizerCommand)
+  if (has_configureopenglvisualizercommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::ConfigureOpenGLVisualizerCommand* temp = commands_.configureopenglvisualizercommand_;
+    commands_.configureopenglvisualizercommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_configureopenglvisualizercommand(::pybullet_grpc::ConfigureOpenGLVisualizerCommand* configureopenglvisualizercommand) {
+  clear_commands();
+  if (configureopenglvisualizercommand) {
+    set_has_configureopenglvisualizercommand();
+    commands_.configureopenglvisualizercommand_ = configureopenglvisualizercommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.configureOpenGLVisualizerCommand)
+}
+
+// .pybullet_grpc.SyncBodiesCommand syncBodiesCommand = 14;
+bool PyBulletCommand::has_syncbodiescommand() const {
+  return commands_case() == kSyncBodiesCommand;
+}
+void PyBulletCommand::set_has_syncbodiescommand() {
+  _oneof_case_[0] = kSyncBodiesCommand;
+}
+void PyBulletCommand::clear_syncbodiescommand() {
+  if (has_syncbodiescommand()) {
+    delete commands_.syncbodiescommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::SyncBodiesCommand& PyBulletCommand::syncbodiescommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.syncBodiesCommand)
+  return has_syncbodiescommand()
+      ? *commands_.syncbodiescommand_
+      : ::pybullet_grpc::SyncBodiesCommand::default_instance();
+}
+::pybullet_grpc::SyncBodiesCommand* PyBulletCommand::mutable_syncbodiescommand() {
+  if (!has_syncbodiescommand()) {
+    clear_commands();
+    set_has_syncbodiescommand();
+    commands_.syncbodiescommand_ = new ::pybullet_grpc::SyncBodiesCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.syncBodiesCommand)
+  return commands_.syncbodiescommand_;
+}
+::pybullet_grpc::SyncBodiesCommand* PyBulletCommand::release_syncbodiescommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.syncBodiesCommand)
+  if (has_syncbodiescommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::SyncBodiesCommand* temp = commands_.syncbodiescommand_;
+    commands_.syncbodiescommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_syncbodiescommand(::pybullet_grpc::SyncBodiesCommand* syncbodiescommand) {
+  clear_commands();
+  if (syncbodiescommand) {
+    set_has_syncbodiescommand();
+    commands_.syncbodiescommand_ = syncbodiescommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.syncBodiesCommand)
+}
+
+// .pybullet_grpc.RequestBodyInfoCommand requestBodyInfoCommand = 15;
+bool PyBulletCommand::has_requestbodyinfocommand() const {
+  return commands_case() == kRequestBodyInfoCommand;
+}
+void PyBulletCommand::set_has_requestbodyinfocommand() {
+  _oneof_case_[0] = kRequestBodyInfoCommand;
+}
+void PyBulletCommand::clear_requestbodyinfocommand() {
+  if (has_requestbodyinfocommand()) {
+    delete commands_.requestbodyinfocommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::RequestBodyInfoCommand& PyBulletCommand::requestbodyinfocommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.requestBodyInfoCommand)
+  return has_requestbodyinfocommand()
+      ? *commands_.requestbodyinfocommand_
+      : ::pybullet_grpc::RequestBodyInfoCommand::default_instance();
+}
+::pybullet_grpc::RequestBodyInfoCommand* PyBulletCommand::mutable_requestbodyinfocommand() {
+  if (!has_requestbodyinfocommand()) {
+    clear_commands();
+    set_has_requestbodyinfocommand();
+    commands_.requestbodyinfocommand_ = new ::pybullet_grpc::RequestBodyInfoCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.requestBodyInfoCommand)
+  return commands_.requestbodyinfocommand_;
+}
+::pybullet_grpc::RequestBodyInfoCommand* PyBulletCommand::release_requestbodyinfocommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.requestBodyInfoCommand)
+  if (has_requestbodyinfocommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::RequestBodyInfoCommand* temp = commands_.requestbodyinfocommand_;
+    commands_.requestbodyinfocommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_requestbodyinfocommand(::pybullet_grpc::RequestBodyInfoCommand* requestbodyinfocommand) {
+  clear_commands();
+  if (requestbodyinfocommand) {
+    set_has_requestbodyinfocommand();
+    commands_.requestbodyinfocommand_ = requestbodyinfocommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.requestBodyInfoCommand)
+}
+
+// .pybullet_grpc.PhysicsSimulationParametersCommand setPhysicsSimulationParametersCommand = 16;
+bool PyBulletCommand::has_setphysicssimulationparameterscommand() const {
+  return commands_case() == kSetPhysicsSimulationParametersCommand;
+}
+void PyBulletCommand::set_has_setphysicssimulationparameterscommand() {
+  _oneof_case_[0] = kSetPhysicsSimulationParametersCommand;
+}
+void PyBulletCommand::clear_setphysicssimulationparameterscommand() {
+  if (has_setphysicssimulationparameterscommand()) {
+    delete commands_.setphysicssimulationparameterscommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::PhysicsSimulationParametersCommand& PyBulletCommand::setphysicssimulationparameterscommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.setPhysicsSimulationParametersCommand)
+  return has_setphysicssimulationparameterscommand()
+      ? *commands_.setphysicssimulationparameterscommand_
+      : ::pybullet_grpc::PhysicsSimulationParametersCommand::default_instance();
+}
+::pybullet_grpc::PhysicsSimulationParametersCommand* PyBulletCommand::mutable_setphysicssimulationparameterscommand() {
+  if (!has_setphysicssimulationparameterscommand()) {
+    clear_commands();
+    set_has_setphysicssimulationparameterscommand();
+    commands_.setphysicssimulationparameterscommand_ = new ::pybullet_grpc::PhysicsSimulationParametersCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.setPhysicsSimulationParametersCommand)
+  return commands_.setphysicssimulationparameterscommand_;
+}
+::pybullet_grpc::PhysicsSimulationParametersCommand* PyBulletCommand::release_setphysicssimulationparameterscommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.setPhysicsSimulationParametersCommand)
+  if (has_setphysicssimulationparameterscommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::PhysicsSimulationParametersCommand* temp = commands_.setphysicssimulationparameterscommand_;
+    commands_.setphysicssimulationparameterscommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_setphysicssimulationparameterscommand(::pybullet_grpc::PhysicsSimulationParametersCommand* setphysicssimulationparameterscommand) {
+  clear_commands();
+  if (setphysicssimulationparameterscommand) {
+    set_has_setphysicssimulationparameterscommand();
+    commands_.setphysicssimulationparameterscommand_ = setphysicssimulationparameterscommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.setPhysicsSimulationParametersCommand)
+}
+
+// .pybullet_grpc.JointMotorControlCommand jointMotorControlCommand = 17;
+bool PyBulletCommand::has_jointmotorcontrolcommand() const {
+  return commands_case() == kJointMotorControlCommand;
+}
+void PyBulletCommand::set_has_jointmotorcontrolcommand() {
+  _oneof_case_[0] = kJointMotorControlCommand;
+}
+void PyBulletCommand::clear_jointmotorcontrolcommand() {
+  if (has_jointmotorcontrolcommand()) {
+    delete commands_.jointmotorcontrolcommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::JointMotorControlCommand& PyBulletCommand::jointmotorcontrolcommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.jointMotorControlCommand)
+  return has_jointmotorcontrolcommand()
+      ? *commands_.jointmotorcontrolcommand_
+      : ::pybullet_grpc::JointMotorControlCommand::default_instance();
+}
+::pybullet_grpc::JointMotorControlCommand* PyBulletCommand::mutable_jointmotorcontrolcommand() {
+  if (!has_jointmotorcontrolcommand()) {
+    clear_commands();
+    set_has_jointmotorcontrolcommand();
+    commands_.jointmotorcontrolcommand_ = new ::pybullet_grpc::JointMotorControlCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.jointMotorControlCommand)
+  return commands_.jointmotorcontrolcommand_;
+}
+::pybullet_grpc::JointMotorControlCommand* PyBulletCommand::release_jointmotorcontrolcommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.jointMotorControlCommand)
+  if (has_jointmotorcontrolcommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::JointMotorControlCommand* temp = commands_.jointmotorcontrolcommand_;
+    commands_.jointmotorcontrolcommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_jointmotorcontrolcommand(::pybullet_grpc::JointMotorControlCommand* jointmotorcontrolcommand) {
+  clear_commands();
+  if (jointmotorcontrolcommand) {
+    set_has_jointmotorcontrolcommand();
+    commands_.jointmotorcontrolcommand_ = jointmotorcontrolcommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.jointMotorControlCommand)
+}
+
+// .pybullet_grpc.UserConstraintCommand userConstraintCommand = 18;
+bool PyBulletCommand::has_userconstraintcommand() const {
+  return commands_case() == kUserConstraintCommand;
+}
+void PyBulletCommand::set_has_userconstraintcommand() {
+  _oneof_case_[0] = kUserConstraintCommand;
+}
+void PyBulletCommand::clear_userconstraintcommand() {
+  if (has_userconstraintcommand()) {
+    delete commands_.userconstraintcommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::UserConstraintCommand& PyBulletCommand::userconstraintcommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.userConstraintCommand)
+  return has_userconstraintcommand()
+      ? *commands_.userconstraintcommand_
+      : ::pybullet_grpc::UserConstraintCommand::default_instance();
+}
+::pybullet_grpc::UserConstraintCommand* PyBulletCommand::mutable_userconstraintcommand() {
+  if (!has_userconstraintcommand()) {
+    clear_commands();
+    set_has_userconstraintcommand();
+    commands_.userconstraintcommand_ = new ::pybullet_grpc::UserConstraintCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.userConstraintCommand)
+  return commands_.userconstraintcommand_;
+}
+::pybullet_grpc::UserConstraintCommand* PyBulletCommand::release_userconstraintcommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.userConstraintCommand)
+  if (has_userconstraintcommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::UserConstraintCommand* temp = commands_.userconstraintcommand_;
+    commands_.userconstraintcommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_userconstraintcommand(::pybullet_grpc::UserConstraintCommand* userconstraintcommand) {
+  clear_commands();
+  if (userconstraintcommand) {
+    set_has_userconstraintcommand();
+    commands_.userconstraintcommand_ = userconstraintcommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.userConstraintCommand)
+}
+
+// .pybullet_grpc.CheckVersionCommand checkVersionCommand = 19;
+bool PyBulletCommand::has_checkversioncommand() const {
+  return commands_case() == kCheckVersionCommand;
+}
+void PyBulletCommand::set_has_checkversioncommand() {
+  _oneof_case_[0] = kCheckVersionCommand;
+}
+void PyBulletCommand::clear_checkversioncommand() {
+  if (has_checkversioncommand()) {
+    delete commands_.checkversioncommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::CheckVersionCommand& PyBulletCommand::checkversioncommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.checkVersionCommand)
+  return has_checkversioncommand()
+      ? *commands_.checkversioncommand_
+      : ::pybullet_grpc::CheckVersionCommand::default_instance();
+}
+::pybullet_grpc::CheckVersionCommand* PyBulletCommand::mutable_checkversioncommand() {
+  if (!has_checkversioncommand()) {
+    clear_commands();
+    set_has_checkversioncommand();
+    commands_.checkversioncommand_ = new ::pybullet_grpc::CheckVersionCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.checkVersionCommand)
+  return commands_.checkversioncommand_;
+}
+::pybullet_grpc::CheckVersionCommand* PyBulletCommand::release_checkversioncommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.checkVersionCommand)
+  if (has_checkversioncommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::CheckVersionCommand* temp = commands_.checkversioncommand_;
+    commands_.checkversioncommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_checkversioncommand(::pybullet_grpc::CheckVersionCommand* checkversioncommand) {
+  clear_commands();
+  if (checkversioncommand) {
+    set_has_checkversioncommand();
+    commands_.checkversioncommand_ = checkversioncommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.checkVersionCommand)
+}
+
+// .pybullet_grpc.RequestKeyboardEventsCommand requestKeyboardEventsCommand = 20;
+bool PyBulletCommand::has_requestkeyboardeventscommand() const {
+  return commands_case() == kRequestKeyboardEventsCommand;
+}
+void PyBulletCommand::set_has_requestkeyboardeventscommand() {
+  _oneof_case_[0] = kRequestKeyboardEventsCommand;
+}
+void PyBulletCommand::clear_requestkeyboardeventscommand() {
+  if (has_requestkeyboardeventscommand()) {
+    delete commands_.requestkeyboardeventscommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::RequestKeyboardEventsCommand& PyBulletCommand::requestkeyboardeventscommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.requestKeyboardEventsCommand)
+  return has_requestkeyboardeventscommand()
+      ? *commands_.requestkeyboardeventscommand_
+      : ::pybullet_grpc::RequestKeyboardEventsCommand::default_instance();
+}
+::pybullet_grpc::RequestKeyboardEventsCommand* PyBulletCommand::mutable_requestkeyboardeventscommand() {
+  if (!has_requestkeyboardeventscommand()) {
+    clear_commands();
+    set_has_requestkeyboardeventscommand();
+    commands_.requestkeyboardeventscommand_ = new ::pybullet_grpc::RequestKeyboardEventsCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.requestKeyboardEventsCommand)
+  return commands_.requestkeyboardeventscommand_;
+}
+::pybullet_grpc::RequestKeyboardEventsCommand* PyBulletCommand::release_requestkeyboardeventscommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.requestKeyboardEventsCommand)
+  if (has_requestkeyboardeventscommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::RequestKeyboardEventsCommand* temp = commands_.requestkeyboardeventscommand_;
+    commands_.requestkeyboardeventscommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_requestkeyboardeventscommand(::pybullet_grpc::RequestKeyboardEventsCommand* requestkeyboardeventscommand) {
+  clear_commands();
+  if (requestkeyboardeventscommand) {
+    set_has_requestkeyboardeventscommand();
+    commands_.requestkeyboardeventscommand_ = requestkeyboardeventscommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.requestKeyboardEventsCommand)
+}
+
+// .pybullet_grpc.RequestCameraImageCommand requestCameraImageCommand = 21;
+bool PyBulletCommand::has_requestcameraimagecommand() const {
+  return commands_case() == kRequestCameraImageCommand;
+}
+void PyBulletCommand::set_has_requestcameraimagecommand() {
+  _oneof_case_[0] = kRequestCameraImageCommand;
+}
+void PyBulletCommand::clear_requestcameraimagecommand() {
+  if (has_requestcameraimagecommand()) {
+    delete commands_.requestcameraimagecommand_;
+    clear_has_commands();
+  }
+}
+ const ::pybullet_grpc::RequestCameraImageCommand& PyBulletCommand::requestcameraimagecommand() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletCommand.requestCameraImageCommand)
+  return has_requestcameraimagecommand()
+      ? *commands_.requestcameraimagecommand_
+      : ::pybullet_grpc::RequestCameraImageCommand::default_instance();
+}
+::pybullet_grpc::RequestCameraImageCommand* PyBulletCommand::mutable_requestcameraimagecommand() {
+  if (!has_requestcameraimagecommand()) {
+    clear_commands();
+    set_has_requestcameraimagecommand();
+    commands_.requestcameraimagecommand_ = new ::pybullet_grpc::RequestCameraImageCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletCommand.requestCameraImageCommand)
+  return commands_.requestcameraimagecommand_;
+}
+::pybullet_grpc::RequestCameraImageCommand* PyBulletCommand::release_requestcameraimagecommand() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletCommand.requestCameraImageCommand)
+  if (has_requestcameraimagecommand()) {
+    clear_has_commands();
+    ::pybullet_grpc::RequestCameraImageCommand* temp = commands_.requestcameraimagecommand_;
+    commands_.requestcameraimagecommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletCommand::set_allocated_requestcameraimagecommand(::pybullet_grpc::RequestCameraImageCommand* requestcameraimagecommand) {
+  clear_commands();
+  if (requestcameraimagecommand) {
+    set_has_requestcameraimagecommand();
+    commands_.requestcameraimagecommand_ = requestcameraimagecommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.requestCameraImageCommand)
+}
+
 bool PyBulletCommand::has_commands() const {
   return commands_case() != COMMANDS_NOT_SET;
 }
@@ -10306,11 +21934,21 @@ PyBulletCommand::CommandsCase PyBulletCommand::commands_case() const {
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int PyBulletStatus::kStatusTypeFieldNumber;
+const int PyBulletStatus::kBinaryBlobFieldNumber;
+const int PyBulletStatus::kUnknownStatusBinaryBlobFieldNumber;
 const int PyBulletStatus::kUrdfStatusFieldNumber;
 const int PyBulletStatus::kSdfStatusFieldNumber;
 const int PyBulletStatus::kMjcfStatusFieldNumber;
 const int PyBulletStatus::kGetDynamicsStatusFieldNumber;
 const int PyBulletStatus::kActualStateStatusFieldNumber;
+const int PyBulletStatus::kSyncBodiesStatusFieldNumber;
+const int PyBulletStatus::kRequestBodyInfoStatusFieldNumber;
+const int PyBulletStatus::kRequestPhysicsSimulationParametersStatusFieldNumber;
+const int PyBulletStatus::kCheckVersionStatusFieldNumber;
+const int PyBulletStatus::kUserConstraintStatusFieldNumber;
+const int PyBulletStatus::kUserConstraintStateStatusFieldNumber;
+const int PyBulletStatus::kKeyboardEventsStatusFieldNumber;
+const int PyBulletStatus::kRequestCameraImageStatusFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 PyBulletStatus::PyBulletStatus()
@@ -10324,6 +21962,8 @@ PyBulletStatus::PyBulletStatus()
 PyBulletStatus::PyBulletStatus(const PyBulletStatus& from)
   : ::google::protobuf::Message(),
       _internal_metadata_(NULL),
+      binaryblob_(from.binaryblob_),
+      unknownstatusbinaryblob_(from.unknownstatusbinaryblob_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   statustype_ = from.statustype_;
@@ -10347,6 +21987,38 @@ PyBulletStatus::PyBulletStatus(const PyBulletStatus& from)
     }
     case kActualStateStatus: {
       mutable_actualstatestatus()->::pybullet_grpc::SendActualStateStatus::MergeFrom(from.actualstatestatus());
+      break;
+    }
+    case kSyncBodiesStatus: {
+      mutable_syncbodiesstatus()->::pybullet_grpc::SyncBodiesStatus::MergeFrom(from.syncbodiesstatus());
+      break;
+    }
+    case kRequestBodyInfoStatus: {
+      mutable_requestbodyinfostatus()->::pybullet_grpc::RequestBodyInfoStatus::MergeFrom(from.requestbodyinfostatus());
+      break;
+    }
+    case kRequestPhysicsSimulationParametersStatus: {
+      mutable_requestphysicssimulationparametersstatus()->::pybullet_grpc::PhysicsSimulationParameters::MergeFrom(from.requestphysicssimulationparametersstatus());
+      break;
+    }
+    case kCheckVersionStatus: {
+      mutable_checkversionstatus()->::pybullet_grpc::CheckVersionStatus::MergeFrom(from.checkversionstatus());
+      break;
+    }
+    case kUserConstraintStatus: {
+      mutable_userconstraintstatus()->::pybullet_grpc::UserConstraintStatus::MergeFrom(from.userconstraintstatus());
+      break;
+    }
+    case kUserConstraintStateStatus: {
+      mutable_userconstraintstatestatus()->::pybullet_grpc::UserConstraintStateStatus::MergeFrom(from.userconstraintstatestatus());
+      break;
+    }
+    case kKeyboardEventsStatus: {
+      mutable_keyboardeventsstatus()->::pybullet_grpc::KeyboardEventsStatus::MergeFrom(from.keyboardeventsstatus());
+      break;
+    }
+    case kRequestCameraImageStatus: {
+      mutable_requestcameraimagestatus()->::pybullet_grpc::RequestCameraImageStatus::MergeFrom(from.requestcameraimagestatus());
       break;
     }
     case STATUS_NOT_SET: {
@@ -10380,7 +22052,7 @@ void PyBulletStatus::SetCachedSize(int size) const {
 }
 const ::google::protobuf::Descriptor* PyBulletStatus::descriptor() {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[17].descriptor;
+  return protobuf_pybullet_2eproto::file_level_metadata[38].descriptor;
 }
 
 const PyBulletStatus& PyBulletStatus::default_instance() {
@@ -10419,6 +22091,38 @@ void PyBulletStatus::clear_status() {
       delete status_.actualstatestatus_;
       break;
     }
+    case kSyncBodiesStatus: {
+      delete status_.syncbodiesstatus_;
+      break;
+    }
+    case kRequestBodyInfoStatus: {
+      delete status_.requestbodyinfostatus_;
+      break;
+    }
+    case kRequestPhysicsSimulationParametersStatus: {
+      delete status_.requestphysicssimulationparametersstatus_;
+      break;
+    }
+    case kCheckVersionStatus: {
+      delete status_.checkversionstatus_;
+      break;
+    }
+    case kUserConstraintStatus: {
+      delete status_.userconstraintstatus_;
+      break;
+    }
+    case kUserConstraintStateStatus: {
+      delete status_.userconstraintstatestatus_;
+      break;
+    }
+    case kKeyboardEventsStatus: {
+      delete status_.keyboardeventsstatus_;
+      break;
+    }
+    case kRequestCameraImageStatus: {
+      delete status_.requestcameraimagestatus_;
+      break;
+    }
     case STATUS_NOT_SET: {
       break;
     }
@@ -10429,6 +22133,8 @@ void PyBulletStatus::clear_status() {
 
 void PyBulletStatus::Clear() {
 // @@protoc_insertion_point(message_clear_start:pybullet_grpc.PyBulletStatus)
+  binaryblob_.Clear();
+  unknownstatusbinaryblob_.Clear();
   statustype_ = 0;
   clear_status();
 }
@@ -10439,7 +22145,7 @@ bool PyBulletStatus::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:pybullet_grpc.PyBulletStatus)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(16383u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
@@ -10456,9 +22162,31 @@ bool PyBulletStatus::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.LoadUrdfStatus urdfStatus = 2;
+      // repeated bytes binaryBlob = 2;
       case 2: {
         if (tag == 18u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->add_binaryblob()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated bytes unknownStatusBinaryBlob = 3;
+      case 3: {
+        if (tag == 26u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->add_unknownstatusbinaryblob()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.LoadUrdfStatus urdfStatus = 4;
+      case 4: {
+        if (tag == 34u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_urdfstatus()));
         } else {
@@ -10467,9 +22195,9 @@ bool PyBulletStatus::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
-      case 3: {
-        if (tag == 26u) {
+      // .pybullet_grpc.SdfLoadedStatus sdfStatus = 5;
+      case 5: {
+        if (tag == 42u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_sdfstatus()));
         } else {
@@ -10478,9 +22206,9 @@ bool PyBulletStatus::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
-      case 4: {
-        if (tag == 34u) {
+      // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 6;
+      case 6: {
+        if (tag == 50u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_mjcfstatus()));
         } else {
@@ -10489,9 +22217,9 @@ bool PyBulletStatus::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
-      case 5: {
-        if (tag == 42u) {
+      // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 7;
+      case 7: {
+        if (tag == 58u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_getdynamicsstatus()));
         } else {
@@ -10500,11 +22228,99 @@ bool PyBulletStatus::MergePartialFromCodedStream(
         break;
       }
 
-      // .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
-      case 6: {
-        if (tag == 50u) {
+      // .pybullet_grpc.SendActualStateStatus actualStateStatus = 8;
+      case 8: {
+        if (tag == 66u) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_actualstatestatus()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.SyncBodiesStatus syncBodiesStatus = 9;
+      case 9: {
+        if (tag == 74u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_syncbodiesstatus()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.RequestBodyInfoStatus requestBodyInfoStatus = 10;
+      case 10: {
+        if (tag == 82u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_requestbodyinfostatus()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.PhysicsSimulationParameters requestPhysicsSimulationParametersStatus = 11;
+      case 11: {
+        if (tag == 90u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_requestphysicssimulationparametersstatus()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.CheckVersionStatus checkVersionStatus = 12;
+      case 12: {
+        if (tag == 98u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_checkversionstatus()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.UserConstraintStatus userConstraintStatus = 13;
+      case 13: {
+        if (tag == 106u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_userconstraintstatus()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.UserConstraintStateStatus userConstraintStateStatus = 14;
+      case 14: {
+        if (tag == 114u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_userconstraintstatestatus()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.KeyboardEventsStatus keyboardEventsStatus = 15;
+      case 15: {
+        if (tag == 122u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_keyboardeventsstatus()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .pybullet_grpc.RequestCameraImageStatus requestCameraImageStatus = 16;
+      case 16: {
+        if (tag == 130u) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_requestcameraimagestatus()));
         } else {
           goto handle_unusual;
         }
@@ -10540,34 +22356,94 @@ void PyBulletStatus::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->statustype(), output);
   }
 
-  // .pybullet_grpc.LoadUrdfStatus urdfStatus = 2;
+  // repeated bytes binaryBlob = 2;
+  for (int i = 0; i < this->binaryblob_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytes(
+      2, this->binaryblob(i), output);
+  }
+
+  // repeated bytes unknownStatusBinaryBlob = 3;
+  for (int i = 0; i < this->unknownstatusbinaryblob_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytes(
+      3, this->unknownstatusbinaryblob(i), output);
+  }
+
+  // .pybullet_grpc.LoadUrdfStatus urdfStatus = 4;
   if (has_urdfstatus()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, *status_.urdfstatus_, output);
+      4, *status_.urdfstatus_, output);
   }
 
-  // .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+  // .pybullet_grpc.SdfLoadedStatus sdfStatus = 5;
   if (has_sdfstatus()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, *status_.sdfstatus_, output);
+      5, *status_.sdfstatus_, output);
   }
 
-  // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+  // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 6;
   if (has_mjcfstatus()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, *status_.mjcfstatus_, output);
+      6, *status_.mjcfstatus_, output);
   }
 
-  // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+  // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 7;
   if (has_getdynamicsstatus()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, *status_.getdynamicsstatus_, output);
+      7, *status_.getdynamicsstatus_, output);
   }
 
-  // .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+  // .pybullet_grpc.SendActualStateStatus actualStateStatus = 8;
   if (has_actualstatestatus()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, *status_.actualstatestatus_, output);
+      8, *status_.actualstatestatus_, output);
+  }
+
+  // .pybullet_grpc.SyncBodiesStatus syncBodiesStatus = 9;
+  if (has_syncbodiesstatus()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      9, *status_.syncbodiesstatus_, output);
+  }
+
+  // .pybullet_grpc.RequestBodyInfoStatus requestBodyInfoStatus = 10;
+  if (has_requestbodyinfostatus()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      10, *status_.requestbodyinfostatus_, output);
+  }
+
+  // .pybullet_grpc.PhysicsSimulationParameters requestPhysicsSimulationParametersStatus = 11;
+  if (has_requestphysicssimulationparametersstatus()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      11, *status_.requestphysicssimulationparametersstatus_, output);
+  }
+
+  // .pybullet_grpc.CheckVersionStatus checkVersionStatus = 12;
+  if (has_checkversionstatus()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      12, *status_.checkversionstatus_, output);
+  }
+
+  // .pybullet_grpc.UserConstraintStatus userConstraintStatus = 13;
+  if (has_userconstraintstatus()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      13, *status_.userconstraintstatus_, output);
+  }
+
+  // .pybullet_grpc.UserConstraintStateStatus userConstraintStateStatus = 14;
+  if (has_userconstraintstatestatus()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      14, *status_.userconstraintstatestatus_, output);
+  }
+
+  // .pybullet_grpc.KeyboardEventsStatus keyboardEventsStatus = 15;
+  if (has_keyboardeventsstatus()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      15, *status_.keyboardeventsstatus_, output);
+  }
+
+  // .pybullet_grpc.RequestCameraImageStatus requestCameraImageStatus = 16;
+  if (has_requestcameraimagestatus()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      16, *status_.requestcameraimagestatus_, output);
   }
 
   // @@protoc_insertion_point(serialize_end:pybullet_grpc.PyBulletStatus)
@@ -10582,39 +22458,107 @@ void PyBulletStatus::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->statustype(), target);
   }
 
-  // .pybullet_grpc.LoadUrdfStatus urdfStatus = 2;
+  // repeated bytes binaryBlob = 2;
+  for (int i = 0; i < this->binaryblob_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteBytesToArray(2, this->binaryblob(i), target);
+  }
+
+  // repeated bytes unknownStatusBinaryBlob = 3;
+  for (int i = 0; i < this->unknownstatusbinaryblob_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteBytesToArray(3, this->unknownstatusbinaryblob(i), target);
+  }
+
+  // .pybullet_grpc.LoadUrdfStatus urdfStatus = 4;
   if (has_urdfstatus()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        2, *status_.urdfstatus_, false, target);
+        4, *status_.urdfstatus_, false, target);
   }
 
-  // .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+  // .pybullet_grpc.SdfLoadedStatus sdfStatus = 5;
   if (has_sdfstatus()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        3, *status_.sdfstatus_, false, target);
+        5, *status_.sdfstatus_, false, target);
   }
 
-  // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+  // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 6;
   if (has_mjcfstatus()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        4, *status_.mjcfstatus_, false, target);
+        6, *status_.mjcfstatus_, false, target);
   }
 
-  // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+  // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 7;
   if (has_getdynamicsstatus()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        5, *status_.getdynamicsstatus_, false, target);
+        7, *status_.getdynamicsstatus_, false, target);
   }
 
-  // .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+  // .pybullet_grpc.SendActualStateStatus actualStateStatus = 8;
   if (has_actualstatestatus()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageNoVirtualToArray(
-        6, *status_.actualstatestatus_, false, target);
+        8, *status_.actualstatestatus_, false, target);
+  }
+
+  // .pybullet_grpc.SyncBodiesStatus syncBodiesStatus = 9;
+  if (has_syncbodiesstatus()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        9, *status_.syncbodiesstatus_, false, target);
+  }
+
+  // .pybullet_grpc.RequestBodyInfoStatus requestBodyInfoStatus = 10;
+  if (has_requestbodyinfostatus()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        10, *status_.requestbodyinfostatus_, false, target);
+  }
+
+  // .pybullet_grpc.PhysicsSimulationParameters requestPhysicsSimulationParametersStatus = 11;
+  if (has_requestphysicssimulationparametersstatus()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        11, *status_.requestphysicssimulationparametersstatus_, false, target);
+  }
+
+  // .pybullet_grpc.CheckVersionStatus checkVersionStatus = 12;
+  if (has_checkversionstatus()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        12, *status_.checkversionstatus_, false, target);
+  }
+
+  // .pybullet_grpc.UserConstraintStatus userConstraintStatus = 13;
+  if (has_userconstraintstatus()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        13, *status_.userconstraintstatus_, false, target);
+  }
+
+  // .pybullet_grpc.UserConstraintStateStatus userConstraintStateStatus = 14;
+  if (has_userconstraintstatestatus()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        14, *status_.userconstraintstatestatus_, false, target);
+  }
+
+  // .pybullet_grpc.KeyboardEventsStatus keyboardEventsStatus = 15;
+  if (has_keyboardeventsstatus()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        15, *status_.keyboardeventsstatus_, false, target);
+  }
+
+  // .pybullet_grpc.RequestCameraImageStatus requestCameraImageStatus = 16;
+  if (has_requestcameraimagestatus()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageNoVirtualToArray(
+        16, *status_.requestcameraimagestatus_, false, target);
   }
 
   // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.PyBulletStatus)
@@ -10625,6 +22569,22 @@ size_t PyBulletStatus::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.PyBulletStatus)
   size_t total_size = 0;
 
+  // repeated bytes binaryBlob = 2;
+  total_size += 1 *
+      ::google::protobuf::internal::FromIntSize(this->binaryblob_size());
+  for (int i = 0; i < this->binaryblob_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::BytesSize(
+      this->binaryblob(i));
+  }
+
+  // repeated bytes unknownStatusBinaryBlob = 3;
+  total_size += 1 *
+      ::google::protobuf::internal::FromIntSize(this->unknownstatusbinaryblob_size());
+  for (int i = 0; i < this->unknownstatusbinaryblob_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::BytesSize(
+      this->unknownstatusbinaryblob(i));
+  }
+
   // int32 statusType = 1;
   if (this->statustype() != 0) {
     total_size += 1 +
@@ -10633,39 +22593,95 @@ size_t PyBulletStatus::ByteSizeLong() const {
   }
 
   switch (status_case()) {
-    // .pybullet_grpc.LoadUrdfStatus urdfStatus = 2;
+    // .pybullet_grpc.LoadUrdfStatus urdfStatus = 4;
     case kUrdfStatus: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *status_.urdfstatus_);
       break;
     }
-    // .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+    // .pybullet_grpc.SdfLoadedStatus sdfStatus = 5;
     case kSdfStatus: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *status_.sdfstatus_);
       break;
     }
-    // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+    // .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 6;
     case kMjcfStatus: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *status_.mjcfstatus_);
       break;
     }
-    // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+    // .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 7;
     case kGetDynamicsStatus: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *status_.getdynamicsstatus_);
       break;
     }
-    // .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+    // .pybullet_grpc.SendActualStateStatus actualStateStatus = 8;
     case kActualStateStatus: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *status_.actualstatestatus_);
+      break;
+    }
+    // .pybullet_grpc.SyncBodiesStatus syncBodiesStatus = 9;
+    case kSyncBodiesStatus: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *status_.syncbodiesstatus_);
+      break;
+    }
+    // .pybullet_grpc.RequestBodyInfoStatus requestBodyInfoStatus = 10;
+    case kRequestBodyInfoStatus: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *status_.requestbodyinfostatus_);
+      break;
+    }
+    // .pybullet_grpc.PhysicsSimulationParameters requestPhysicsSimulationParametersStatus = 11;
+    case kRequestPhysicsSimulationParametersStatus: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *status_.requestphysicssimulationparametersstatus_);
+      break;
+    }
+    // .pybullet_grpc.CheckVersionStatus checkVersionStatus = 12;
+    case kCheckVersionStatus: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *status_.checkversionstatus_);
+      break;
+    }
+    // .pybullet_grpc.UserConstraintStatus userConstraintStatus = 13;
+    case kUserConstraintStatus: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *status_.userconstraintstatus_);
+      break;
+    }
+    // .pybullet_grpc.UserConstraintStateStatus userConstraintStateStatus = 14;
+    case kUserConstraintStateStatus: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *status_.userconstraintstatestatus_);
+      break;
+    }
+    // .pybullet_grpc.KeyboardEventsStatus keyboardEventsStatus = 15;
+    case kKeyboardEventsStatus: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *status_.keyboardeventsstatus_);
+      break;
+    }
+    // .pybullet_grpc.RequestCameraImageStatus requestCameraImageStatus = 16;
+    case kRequestCameraImageStatus: {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *status_.requestcameraimagestatus_);
       break;
     }
     case STATUS_NOT_SET: {
@@ -10698,6 +22714,8 @@ void PyBulletStatus::MergeFrom(const PyBulletStatus& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.PyBulletStatus)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  binaryblob_.MergeFrom(from.binaryblob_);
+  unknownstatusbinaryblob_.MergeFrom(from.unknownstatusbinaryblob_);
   if (from.statustype() != 0) {
     set_statustype(from.statustype());
   }
@@ -10720,6 +22738,38 @@ void PyBulletStatus::MergeFrom(const PyBulletStatus& from) {
     }
     case kActualStateStatus: {
       mutable_actualstatestatus()->::pybullet_grpc::SendActualStateStatus::MergeFrom(from.actualstatestatus());
+      break;
+    }
+    case kSyncBodiesStatus: {
+      mutable_syncbodiesstatus()->::pybullet_grpc::SyncBodiesStatus::MergeFrom(from.syncbodiesstatus());
+      break;
+    }
+    case kRequestBodyInfoStatus: {
+      mutable_requestbodyinfostatus()->::pybullet_grpc::RequestBodyInfoStatus::MergeFrom(from.requestbodyinfostatus());
+      break;
+    }
+    case kRequestPhysicsSimulationParametersStatus: {
+      mutable_requestphysicssimulationparametersstatus()->::pybullet_grpc::PhysicsSimulationParameters::MergeFrom(from.requestphysicssimulationparametersstatus());
+      break;
+    }
+    case kCheckVersionStatus: {
+      mutable_checkversionstatus()->::pybullet_grpc::CheckVersionStatus::MergeFrom(from.checkversionstatus());
+      break;
+    }
+    case kUserConstraintStatus: {
+      mutable_userconstraintstatus()->::pybullet_grpc::UserConstraintStatus::MergeFrom(from.userconstraintstatus());
+      break;
+    }
+    case kUserConstraintStateStatus: {
+      mutable_userconstraintstatestatus()->::pybullet_grpc::UserConstraintStateStatus::MergeFrom(from.userconstraintstatestatus());
+      break;
+    }
+    case kKeyboardEventsStatus: {
+      mutable_keyboardeventsstatus()->::pybullet_grpc::KeyboardEventsStatus::MergeFrom(from.keyboardeventsstatus());
+      break;
+    }
+    case kRequestCameraImageStatus: {
+      mutable_requestcameraimagestatus()->::pybullet_grpc::RequestCameraImageStatus::MergeFrom(from.requestcameraimagestatus());
       break;
     }
     case STATUS_NOT_SET: {
@@ -10751,6 +22801,8 @@ void PyBulletStatus::Swap(PyBulletStatus* other) {
   InternalSwap(other);
 }
 void PyBulletStatus::InternalSwap(PyBulletStatus* other) {
+  binaryblob_.UnsafeArenaSwap(&other->binaryblob_);
+  unknownstatusbinaryblob_.UnsafeArenaSwap(&other->unknownstatusbinaryblob_);
   std::swap(statustype_, other->statustype_);
   std::swap(status_, other->status_);
   std::swap(_oneof_case_[0], other->_oneof_case_[0]);
@@ -10759,7 +22811,7 @@ void PyBulletStatus::InternalSwap(PyBulletStatus* other) {
 
 ::google::protobuf::Metadata PyBulletStatus::GetMetadata() const {
   protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
-  return protobuf_pybullet_2eproto::file_level_metadata[17];
+  return protobuf_pybullet_2eproto::file_level_metadata[38];
 }
 
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
@@ -10779,7 +22831,117 @@ void PyBulletStatus::set_statustype(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:pybullet_grpc.PyBulletStatus.statusType)
 }
 
-// .pybullet_grpc.LoadUrdfStatus urdfStatus = 2;
+// repeated bytes binaryBlob = 2;
+int PyBulletStatus::binaryblob_size() const {
+  return binaryblob_.size();
+}
+void PyBulletStatus::clear_binaryblob() {
+  binaryblob_.Clear();
+}
+const ::std::string& PyBulletStatus::binaryblob(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.binaryBlob)
+  return binaryblob_.Get(index);
+}
+::std::string* PyBulletStatus::mutable_binaryblob(int index) {
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.binaryBlob)
+  return binaryblob_.Mutable(index);
+}
+void PyBulletStatus::set_binaryblob(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PyBulletStatus.binaryBlob)
+  binaryblob_.Mutable(index)->assign(value);
+}
+void PyBulletStatus::set_binaryblob(int index, const char* value) {
+  binaryblob_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.PyBulletStatus.binaryBlob)
+}
+void PyBulletStatus::set_binaryblob(int index, const void* value, size_t size) {
+  binaryblob_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.PyBulletStatus.binaryBlob)
+}
+::std::string* PyBulletStatus::add_binaryblob() {
+  // @@protoc_insertion_point(field_add_mutable:pybullet_grpc.PyBulletStatus.binaryBlob)
+  return binaryblob_.Add();
+}
+void PyBulletStatus::add_binaryblob(const ::std::string& value) {
+  binaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.PyBulletStatus.binaryBlob)
+}
+void PyBulletStatus::add_binaryblob(const char* value) {
+  binaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:pybullet_grpc.PyBulletStatus.binaryBlob)
+}
+void PyBulletStatus::add_binaryblob(const void* value, size_t size) {
+  binaryblob_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:pybullet_grpc.PyBulletStatus.binaryBlob)
+}
+const ::google::protobuf::RepeatedPtrField< ::std::string>&
+PyBulletStatus::binaryblob() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.PyBulletStatus.binaryBlob)
+  return binaryblob_;
+}
+::google::protobuf::RepeatedPtrField< ::std::string>*
+PyBulletStatus::mutable_binaryblob() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.PyBulletStatus.binaryBlob)
+  return &binaryblob_;
+}
+
+// repeated bytes unknownStatusBinaryBlob = 3;
+int PyBulletStatus::unknownstatusbinaryblob_size() const {
+  return unknownstatusbinaryblob_.size();
+}
+void PyBulletStatus::clear_unknownstatusbinaryblob() {
+  unknownstatusbinaryblob_.Clear();
+}
+const ::std::string& PyBulletStatus::unknownstatusbinaryblob(int index) const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+  return unknownstatusbinaryblob_.Get(index);
+}
+::std::string* PyBulletStatus::mutable_unknownstatusbinaryblob(int index) {
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+  return unknownstatusbinaryblob_.Mutable(index);
+}
+void PyBulletStatus::set_unknownstatusbinaryblob(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+  unknownstatusbinaryblob_.Mutable(index)->assign(value);
+}
+void PyBulletStatus::set_unknownstatusbinaryblob(int index, const char* value) {
+  unknownstatusbinaryblob_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+}
+void PyBulletStatus::set_unknownstatusbinaryblob(int index, const void* value, size_t size) {
+  unknownstatusbinaryblob_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+}
+::std::string* PyBulletStatus::add_unknownstatusbinaryblob() {
+  // @@protoc_insertion_point(field_add_mutable:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+  return unknownstatusbinaryblob_.Add();
+}
+void PyBulletStatus::add_unknownstatusbinaryblob(const ::std::string& value) {
+  unknownstatusbinaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+}
+void PyBulletStatus::add_unknownstatusbinaryblob(const char* value) {
+  unknownstatusbinaryblob_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+}
+void PyBulletStatus::add_unknownstatusbinaryblob(const void* value, size_t size) {
+  unknownstatusbinaryblob_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+}
+const ::google::protobuf::RepeatedPtrField< ::std::string>&
+PyBulletStatus::unknownstatusbinaryblob() const {
+  // @@protoc_insertion_point(field_list:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+  return unknownstatusbinaryblob_;
+}
+::google::protobuf::RepeatedPtrField< ::std::string>*
+PyBulletStatus::mutable_unknownstatusbinaryblob() {
+  // @@protoc_insertion_point(field_mutable_list:pybullet_grpc.PyBulletStatus.unknownStatusBinaryBlob)
+  return &unknownstatusbinaryblob_;
+}
+
+// .pybullet_grpc.LoadUrdfStatus urdfStatus = 4;
 bool PyBulletStatus::has_urdfstatus() const {
   return status_case() == kUrdfStatus;
 }
@@ -10827,7 +22989,7 @@ void PyBulletStatus::set_allocated_urdfstatus(::pybullet_grpc::LoadUrdfStatus* u
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.urdfStatus)
 }
 
-// .pybullet_grpc.SdfLoadedStatus sdfStatus = 3;
+// .pybullet_grpc.SdfLoadedStatus sdfStatus = 5;
 bool PyBulletStatus::has_sdfstatus() const {
   return status_case() == kSdfStatus;
 }
@@ -10875,7 +23037,7 @@ void PyBulletStatus::set_allocated_sdfstatus(::pybullet_grpc::SdfLoadedStatus* s
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.sdfStatus)
 }
 
-// .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 4;
+// .pybullet_grpc.MjcfLoadedStatus mjcfStatus = 6;
 bool PyBulletStatus::has_mjcfstatus() const {
   return status_case() == kMjcfStatus;
 }
@@ -10923,7 +23085,7 @@ void PyBulletStatus::set_allocated_mjcfstatus(::pybullet_grpc::MjcfLoadedStatus*
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.mjcfStatus)
 }
 
-// .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 5;
+// .pybullet_grpc.GetDynamicsStatus getDynamicsStatus = 7;
 bool PyBulletStatus::has_getdynamicsstatus() const {
   return status_case() == kGetDynamicsStatus;
 }
@@ -10971,7 +23133,7 @@ void PyBulletStatus::set_allocated_getdynamicsstatus(::pybullet_grpc::GetDynamic
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.getDynamicsStatus)
 }
 
-// .pybullet_grpc.SendActualStateStatus actualStateStatus = 6;
+// .pybullet_grpc.SendActualStateStatus actualStateStatus = 8;
 bool PyBulletStatus::has_actualstatestatus() const {
   return status_case() == kActualStateStatus;
 }
@@ -11017,6 +23179,390 @@ void PyBulletStatus::set_allocated_actualstatestatus(::pybullet_grpc::SendActual
     status_.actualstatestatus_ = actualstatestatus;
   }
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.actualStateStatus)
+}
+
+// .pybullet_grpc.SyncBodiesStatus syncBodiesStatus = 9;
+bool PyBulletStatus::has_syncbodiesstatus() const {
+  return status_case() == kSyncBodiesStatus;
+}
+void PyBulletStatus::set_has_syncbodiesstatus() {
+  _oneof_case_[0] = kSyncBodiesStatus;
+}
+void PyBulletStatus::clear_syncbodiesstatus() {
+  if (has_syncbodiesstatus()) {
+    delete status_.syncbodiesstatus_;
+    clear_has_status();
+  }
+}
+ const ::pybullet_grpc::SyncBodiesStatus& PyBulletStatus::syncbodiesstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.syncBodiesStatus)
+  return has_syncbodiesstatus()
+      ? *status_.syncbodiesstatus_
+      : ::pybullet_grpc::SyncBodiesStatus::default_instance();
+}
+::pybullet_grpc::SyncBodiesStatus* PyBulletStatus::mutable_syncbodiesstatus() {
+  if (!has_syncbodiesstatus()) {
+    clear_status();
+    set_has_syncbodiesstatus();
+    status_.syncbodiesstatus_ = new ::pybullet_grpc::SyncBodiesStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.syncBodiesStatus)
+  return status_.syncbodiesstatus_;
+}
+::pybullet_grpc::SyncBodiesStatus* PyBulletStatus::release_syncbodiesstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.syncBodiesStatus)
+  if (has_syncbodiesstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::SyncBodiesStatus* temp = status_.syncbodiesstatus_;
+    status_.syncbodiesstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletStatus::set_allocated_syncbodiesstatus(::pybullet_grpc::SyncBodiesStatus* syncbodiesstatus) {
+  clear_status();
+  if (syncbodiesstatus) {
+    set_has_syncbodiesstatus();
+    status_.syncbodiesstatus_ = syncbodiesstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.syncBodiesStatus)
+}
+
+// .pybullet_grpc.RequestBodyInfoStatus requestBodyInfoStatus = 10;
+bool PyBulletStatus::has_requestbodyinfostatus() const {
+  return status_case() == kRequestBodyInfoStatus;
+}
+void PyBulletStatus::set_has_requestbodyinfostatus() {
+  _oneof_case_[0] = kRequestBodyInfoStatus;
+}
+void PyBulletStatus::clear_requestbodyinfostatus() {
+  if (has_requestbodyinfostatus()) {
+    delete status_.requestbodyinfostatus_;
+    clear_has_status();
+  }
+}
+ const ::pybullet_grpc::RequestBodyInfoStatus& PyBulletStatus::requestbodyinfostatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.requestBodyInfoStatus)
+  return has_requestbodyinfostatus()
+      ? *status_.requestbodyinfostatus_
+      : ::pybullet_grpc::RequestBodyInfoStatus::default_instance();
+}
+::pybullet_grpc::RequestBodyInfoStatus* PyBulletStatus::mutable_requestbodyinfostatus() {
+  if (!has_requestbodyinfostatus()) {
+    clear_status();
+    set_has_requestbodyinfostatus();
+    status_.requestbodyinfostatus_ = new ::pybullet_grpc::RequestBodyInfoStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.requestBodyInfoStatus)
+  return status_.requestbodyinfostatus_;
+}
+::pybullet_grpc::RequestBodyInfoStatus* PyBulletStatus::release_requestbodyinfostatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.requestBodyInfoStatus)
+  if (has_requestbodyinfostatus()) {
+    clear_has_status();
+    ::pybullet_grpc::RequestBodyInfoStatus* temp = status_.requestbodyinfostatus_;
+    status_.requestbodyinfostatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletStatus::set_allocated_requestbodyinfostatus(::pybullet_grpc::RequestBodyInfoStatus* requestbodyinfostatus) {
+  clear_status();
+  if (requestbodyinfostatus) {
+    set_has_requestbodyinfostatus();
+    status_.requestbodyinfostatus_ = requestbodyinfostatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.requestBodyInfoStatus)
+}
+
+// .pybullet_grpc.PhysicsSimulationParameters requestPhysicsSimulationParametersStatus = 11;
+bool PyBulletStatus::has_requestphysicssimulationparametersstatus() const {
+  return status_case() == kRequestPhysicsSimulationParametersStatus;
+}
+void PyBulletStatus::set_has_requestphysicssimulationparametersstatus() {
+  _oneof_case_[0] = kRequestPhysicsSimulationParametersStatus;
+}
+void PyBulletStatus::clear_requestphysicssimulationparametersstatus() {
+  if (has_requestphysicssimulationparametersstatus()) {
+    delete status_.requestphysicssimulationparametersstatus_;
+    clear_has_status();
+  }
+}
+ const ::pybullet_grpc::PhysicsSimulationParameters& PyBulletStatus::requestphysicssimulationparametersstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.requestPhysicsSimulationParametersStatus)
+  return has_requestphysicssimulationparametersstatus()
+      ? *status_.requestphysicssimulationparametersstatus_
+      : ::pybullet_grpc::PhysicsSimulationParameters::default_instance();
+}
+::pybullet_grpc::PhysicsSimulationParameters* PyBulletStatus::mutable_requestphysicssimulationparametersstatus() {
+  if (!has_requestphysicssimulationparametersstatus()) {
+    clear_status();
+    set_has_requestphysicssimulationparametersstatus();
+    status_.requestphysicssimulationparametersstatus_ = new ::pybullet_grpc::PhysicsSimulationParameters;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.requestPhysicsSimulationParametersStatus)
+  return status_.requestphysicssimulationparametersstatus_;
+}
+::pybullet_grpc::PhysicsSimulationParameters* PyBulletStatus::release_requestphysicssimulationparametersstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.requestPhysicsSimulationParametersStatus)
+  if (has_requestphysicssimulationparametersstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::PhysicsSimulationParameters* temp = status_.requestphysicssimulationparametersstatus_;
+    status_.requestphysicssimulationparametersstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletStatus::set_allocated_requestphysicssimulationparametersstatus(::pybullet_grpc::PhysicsSimulationParameters* requestphysicssimulationparametersstatus) {
+  clear_status();
+  if (requestphysicssimulationparametersstatus) {
+    set_has_requestphysicssimulationparametersstatus();
+    status_.requestphysicssimulationparametersstatus_ = requestphysicssimulationparametersstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.requestPhysicsSimulationParametersStatus)
+}
+
+// .pybullet_grpc.CheckVersionStatus checkVersionStatus = 12;
+bool PyBulletStatus::has_checkversionstatus() const {
+  return status_case() == kCheckVersionStatus;
+}
+void PyBulletStatus::set_has_checkversionstatus() {
+  _oneof_case_[0] = kCheckVersionStatus;
+}
+void PyBulletStatus::clear_checkversionstatus() {
+  if (has_checkversionstatus()) {
+    delete status_.checkversionstatus_;
+    clear_has_status();
+  }
+}
+ const ::pybullet_grpc::CheckVersionStatus& PyBulletStatus::checkversionstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.checkVersionStatus)
+  return has_checkversionstatus()
+      ? *status_.checkversionstatus_
+      : ::pybullet_grpc::CheckVersionStatus::default_instance();
+}
+::pybullet_grpc::CheckVersionStatus* PyBulletStatus::mutable_checkversionstatus() {
+  if (!has_checkversionstatus()) {
+    clear_status();
+    set_has_checkversionstatus();
+    status_.checkversionstatus_ = new ::pybullet_grpc::CheckVersionStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.checkVersionStatus)
+  return status_.checkversionstatus_;
+}
+::pybullet_grpc::CheckVersionStatus* PyBulletStatus::release_checkversionstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.checkVersionStatus)
+  if (has_checkversionstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::CheckVersionStatus* temp = status_.checkversionstatus_;
+    status_.checkversionstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletStatus::set_allocated_checkversionstatus(::pybullet_grpc::CheckVersionStatus* checkversionstatus) {
+  clear_status();
+  if (checkversionstatus) {
+    set_has_checkversionstatus();
+    status_.checkversionstatus_ = checkversionstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.checkVersionStatus)
+}
+
+// .pybullet_grpc.UserConstraintStatus userConstraintStatus = 13;
+bool PyBulletStatus::has_userconstraintstatus() const {
+  return status_case() == kUserConstraintStatus;
+}
+void PyBulletStatus::set_has_userconstraintstatus() {
+  _oneof_case_[0] = kUserConstraintStatus;
+}
+void PyBulletStatus::clear_userconstraintstatus() {
+  if (has_userconstraintstatus()) {
+    delete status_.userconstraintstatus_;
+    clear_has_status();
+  }
+}
+ const ::pybullet_grpc::UserConstraintStatus& PyBulletStatus::userconstraintstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.userConstraintStatus)
+  return has_userconstraintstatus()
+      ? *status_.userconstraintstatus_
+      : ::pybullet_grpc::UserConstraintStatus::default_instance();
+}
+::pybullet_grpc::UserConstraintStatus* PyBulletStatus::mutable_userconstraintstatus() {
+  if (!has_userconstraintstatus()) {
+    clear_status();
+    set_has_userconstraintstatus();
+    status_.userconstraintstatus_ = new ::pybullet_grpc::UserConstraintStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.userConstraintStatus)
+  return status_.userconstraintstatus_;
+}
+::pybullet_grpc::UserConstraintStatus* PyBulletStatus::release_userconstraintstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.userConstraintStatus)
+  if (has_userconstraintstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::UserConstraintStatus* temp = status_.userconstraintstatus_;
+    status_.userconstraintstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletStatus::set_allocated_userconstraintstatus(::pybullet_grpc::UserConstraintStatus* userconstraintstatus) {
+  clear_status();
+  if (userconstraintstatus) {
+    set_has_userconstraintstatus();
+    status_.userconstraintstatus_ = userconstraintstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.userConstraintStatus)
+}
+
+// .pybullet_grpc.UserConstraintStateStatus userConstraintStateStatus = 14;
+bool PyBulletStatus::has_userconstraintstatestatus() const {
+  return status_case() == kUserConstraintStateStatus;
+}
+void PyBulletStatus::set_has_userconstraintstatestatus() {
+  _oneof_case_[0] = kUserConstraintStateStatus;
+}
+void PyBulletStatus::clear_userconstraintstatestatus() {
+  if (has_userconstraintstatestatus()) {
+    delete status_.userconstraintstatestatus_;
+    clear_has_status();
+  }
+}
+ const ::pybullet_grpc::UserConstraintStateStatus& PyBulletStatus::userconstraintstatestatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.userConstraintStateStatus)
+  return has_userconstraintstatestatus()
+      ? *status_.userconstraintstatestatus_
+      : ::pybullet_grpc::UserConstraintStateStatus::default_instance();
+}
+::pybullet_grpc::UserConstraintStateStatus* PyBulletStatus::mutable_userconstraintstatestatus() {
+  if (!has_userconstraintstatestatus()) {
+    clear_status();
+    set_has_userconstraintstatestatus();
+    status_.userconstraintstatestatus_ = new ::pybullet_grpc::UserConstraintStateStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.userConstraintStateStatus)
+  return status_.userconstraintstatestatus_;
+}
+::pybullet_grpc::UserConstraintStateStatus* PyBulletStatus::release_userconstraintstatestatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.userConstraintStateStatus)
+  if (has_userconstraintstatestatus()) {
+    clear_has_status();
+    ::pybullet_grpc::UserConstraintStateStatus* temp = status_.userconstraintstatestatus_;
+    status_.userconstraintstatestatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletStatus::set_allocated_userconstraintstatestatus(::pybullet_grpc::UserConstraintStateStatus* userconstraintstatestatus) {
+  clear_status();
+  if (userconstraintstatestatus) {
+    set_has_userconstraintstatestatus();
+    status_.userconstraintstatestatus_ = userconstraintstatestatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.userConstraintStateStatus)
+}
+
+// .pybullet_grpc.KeyboardEventsStatus keyboardEventsStatus = 15;
+bool PyBulletStatus::has_keyboardeventsstatus() const {
+  return status_case() == kKeyboardEventsStatus;
+}
+void PyBulletStatus::set_has_keyboardeventsstatus() {
+  _oneof_case_[0] = kKeyboardEventsStatus;
+}
+void PyBulletStatus::clear_keyboardeventsstatus() {
+  if (has_keyboardeventsstatus()) {
+    delete status_.keyboardeventsstatus_;
+    clear_has_status();
+  }
+}
+ const ::pybullet_grpc::KeyboardEventsStatus& PyBulletStatus::keyboardeventsstatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.keyboardEventsStatus)
+  return has_keyboardeventsstatus()
+      ? *status_.keyboardeventsstatus_
+      : ::pybullet_grpc::KeyboardEventsStatus::default_instance();
+}
+::pybullet_grpc::KeyboardEventsStatus* PyBulletStatus::mutable_keyboardeventsstatus() {
+  if (!has_keyboardeventsstatus()) {
+    clear_status();
+    set_has_keyboardeventsstatus();
+    status_.keyboardeventsstatus_ = new ::pybullet_grpc::KeyboardEventsStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.keyboardEventsStatus)
+  return status_.keyboardeventsstatus_;
+}
+::pybullet_grpc::KeyboardEventsStatus* PyBulletStatus::release_keyboardeventsstatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.keyboardEventsStatus)
+  if (has_keyboardeventsstatus()) {
+    clear_has_status();
+    ::pybullet_grpc::KeyboardEventsStatus* temp = status_.keyboardeventsstatus_;
+    status_.keyboardeventsstatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletStatus::set_allocated_keyboardeventsstatus(::pybullet_grpc::KeyboardEventsStatus* keyboardeventsstatus) {
+  clear_status();
+  if (keyboardeventsstatus) {
+    set_has_keyboardeventsstatus();
+    status_.keyboardeventsstatus_ = keyboardeventsstatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.keyboardEventsStatus)
+}
+
+// .pybullet_grpc.RequestCameraImageStatus requestCameraImageStatus = 16;
+bool PyBulletStatus::has_requestcameraimagestatus() const {
+  return status_case() == kRequestCameraImageStatus;
+}
+void PyBulletStatus::set_has_requestcameraimagestatus() {
+  _oneof_case_[0] = kRequestCameraImageStatus;
+}
+void PyBulletStatus::clear_requestcameraimagestatus() {
+  if (has_requestcameraimagestatus()) {
+    delete status_.requestcameraimagestatus_;
+    clear_has_status();
+  }
+}
+ const ::pybullet_grpc::RequestCameraImageStatus& PyBulletStatus::requestcameraimagestatus() const {
+  // @@protoc_insertion_point(field_get:pybullet_grpc.PyBulletStatus.requestCameraImageStatus)
+  return has_requestcameraimagestatus()
+      ? *status_.requestcameraimagestatus_
+      : ::pybullet_grpc::RequestCameraImageStatus::default_instance();
+}
+::pybullet_grpc::RequestCameraImageStatus* PyBulletStatus::mutable_requestcameraimagestatus() {
+  if (!has_requestcameraimagestatus()) {
+    clear_status();
+    set_has_requestcameraimagestatus();
+    status_.requestcameraimagestatus_ = new ::pybullet_grpc::RequestCameraImageStatus;
+  }
+  // @@protoc_insertion_point(field_mutable:pybullet_grpc.PyBulletStatus.requestCameraImageStatus)
+  return status_.requestcameraimagestatus_;
+}
+::pybullet_grpc::RequestCameraImageStatus* PyBulletStatus::release_requestcameraimagestatus() {
+  // @@protoc_insertion_point(field_release:pybullet_grpc.PyBulletStatus.requestCameraImageStatus)
+  if (has_requestcameraimagestatus()) {
+    clear_has_status();
+    ::pybullet_grpc::RequestCameraImageStatus* temp = status_.requestcameraimagestatus_;
+    status_.requestcameraimagestatus_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void PyBulletStatus::set_allocated_requestcameraimagestatus(::pybullet_grpc::RequestCameraImageStatus* requestcameraimagestatus) {
+  clear_status();
+  if (requestcameraimagestatus) {
+    set_has_requestcameraimagestatus();
+    status_.requestcameraimagestatus_ = requestcameraimagestatus;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletStatus.requestCameraImageStatus)
 }
 
 bool PyBulletStatus::has_status() const {

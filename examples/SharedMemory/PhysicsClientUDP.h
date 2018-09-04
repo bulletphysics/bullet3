@@ -31,6 +31,8 @@ public:
 	virtual void setGuiHelper(struct GUIHelperInterface* guiHelper);
 
 	virtual void setTimeOut(double timeOutInSeconds);
+
+	virtual void reportNotifications() {}
 };
 
 

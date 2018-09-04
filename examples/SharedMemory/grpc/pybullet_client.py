@@ -12,10 +12,22 @@ MJCF_COLORS_FROM_FILE = 512
 
 def run():
 	print("grpc.insecure_channel")
-	channel = grpc.insecure_channel('localhost:50051')
+	channel = grpc.insecure_channel('localhost:6667')
 	print("pybullet_pb2_grpc.PyBulletAPIStub")
 	stub = pybullet_pb2_grpc.PyBulletAPIStub(channel)
 	response=0
+
+	print("submit CheckVersionCommand")
+	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(checkVersionCommand=pybullet_pb2.CheckVersionCommand(clientVersion=123)))
+	print("PyBullet client received: " , response)
+
+
+	print("submit LoadUrdfCommand ")
+	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(loadUrdfCommand=pybullet_pb2.LoadUrdfCommand(fileName="door.urdf", initialPosition=pybullet_pb2.vec3(x=0,y=0,z=0), useMultiBody=True, useFixedBase=True, globalScaling=2, flags = 1)))
+	print("PyBullet client received: " , response)
+	bodyUniqueId = response.urdfStatus.bodyUniqueId
+	
+	
 
 	print("submit LoadSdfCommand")
 	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(loadSdfCommand=pybullet_pb2.LoadSdfCommand(fileName="two_cubes.sdf", useMultiBody=True, globalScaling=2)))
@@ -27,10 +39,6 @@ def run():
 	print("PyBullet client received: " , response)
 
 	
-	print("submit LoadUrdfCommand ")
-	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(loadUrdfCommand=pybullet_pb2.LoadUrdfCommand(fileName="door.urdf", initialPosition=pybullet_pb2.vec3(x=0,y=0,z=0), useMultiBody=True, useFixedBase=True, globalScaling=2, flags = 1)))
-	print("PyBullet client received: " , response)
-	bodyUniqueId = response.urdfStatus.bodyUniqueId
 	
 	print("submit ChangeDynamicsCommand ")
 	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(changeDynamicsCommand=pybullet_pb2.ChangeDynamicsCommand(bodyUniqueId=bodyUniqueId, linkIndex=-1, mass=10)))
