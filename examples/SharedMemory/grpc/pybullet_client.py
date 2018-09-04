@@ -58,10 +58,10 @@ def run():
 	
 	
 		
-	#for i in range (1000):
-	#		print("submit StepSimulationCommand: ", i)
-	#		response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(stepSimulationCommand=pybullet_pb2.StepSimulationCommand()))
-	#		print("PyBullet client received: " , response.statusType)
+	for i in range (1000):
+			print("submit StepSimulationCommand: ", i)
+			response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(stepSimulationCommand=pybullet_pb2.StepSimulationCommand()))
+			print("PyBullet client received: " , response.statusType)
   
   #print("TerminateServerCommand")
 	#response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(terminateServerCommand=pybullet_pb2.TerminateServerCommand()))

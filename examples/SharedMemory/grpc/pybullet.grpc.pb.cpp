@@ -5,14 +5,14 @@
 #include "pybullet.pb.h"
 #include "pybullet.grpc.pb.h"
 
-#include <grpc++/impl/codegen/async_stream.h>
-#include <grpc++/impl/codegen/async_unary_call.h>
-#include <grpc++/impl/codegen/channel_interface.h>
-#include <grpc++/impl/codegen/client_unary_call.h>
-#include <grpc++/impl/codegen/method_handler_impl.h>
-#include <grpc++/impl/codegen/rpc_service_method.h>
-#include <grpc++/impl/codegen/service_type.h>
-#include <grpc++/impl/codegen/sync_stream.h>
+#include <grpcpp/impl/codegen/async_stream.h>
+#include <grpcpp/impl/codegen/async_unary_call.h>
+#include <grpcpp/impl/codegen/channel_interface.h>
+#include <grpcpp/impl/codegen/client_unary_call.h>
+#include <grpcpp/impl/codegen/method_handler_impl.h>
+#include <grpcpp/impl/codegen/rpc_service_method.h>
+#include <grpcpp/impl/codegen/service_type.h>
+#include <grpcpp/impl/codegen/sync_stream.h>
 namespace pybullet_grpc {
 
 static const char* PyBulletAPI_method_names[] = {
@@ -20,27 +20,32 @@ static const char* PyBulletAPI_method_names[] = {
 };
 
 std::unique_ptr< PyBulletAPI::Stub> PyBulletAPI::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
+  (void)options;
   std::unique_ptr< PyBulletAPI::Stub> stub(new PyBulletAPI::Stub(channel));
   return stub;
 }
 
 PyBulletAPI::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel)
-  : channel_(channel), rpcmethod_SubmitCommand_(PyBulletAPI_method_names[0], ::grpc::RpcMethod::NORMAL_RPC, channel)
+  : channel_(channel), rpcmethod_SubmitCommand_(PyBulletAPI_method_names[0], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status PyBulletAPI::Stub::SubmitCommand(::grpc::ClientContext* context, const ::pybullet_grpc::PyBulletCommand& request, ::pybullet_grpc::PyBulletStatus* response) {
-  return ::grpc::BlockingUnaryCall(channel_.get(), rpcmethod_SubmitCommand_, context, request, response);
+  return ::grpc::internal::BlockingUnaryCall(channel_.get(), rpcmethod_SubmitCommand_, context, request, response);
 }
 
 ::grpc::ClientAsyncResponseReader< ::pybullet_grpc::PyBulletStatus>* PyBulletAPI::Stub::AsyncSubmitCommandRaw(::grpc::ClientContext* context, const ::pybullet_grpc::PyBulletCommand& request, ::grpc::CompletionQueue* cq) {
-  return new ::grpc::ClientAsyncResponseReader< ::pybullet_grpc::PyBulletStatus>(channel_.get(), cq, rpcmethod_SubmitCommand_, context, request);
+  return ::grpc::internal::ClientAsyncResponseReaderFactory< ::pybullet_grpc::PyBulletStatus>::Create(channel_.get(), cq, rpcmethod_SubmitCommand_, context, request, true);
+}
+
+::grpc::ClientAsyncResponseReader< ::pybullet_grpc::PyBulletStatus>* PyBulletAPI::Stub::PrepareAsyncSubmitCommandRaw(::grpc::ClientContext* context, const ::pybullet_grpc::PyBulletCommand& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderFactory< ::pybullet_grpc::PyBulletStatus>::Create(channel_.get(), cq, rpcmethod_SubmitCommand_, context, request, false);
 }
 
 PyBulletAPI::Service::Service() {
-  AddMethod(new ::grpc::RpcServiceMethod(
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
       PyBulletAPI_method_names[0],
-      ::grpc::RpcMethod::NORMAL_RPC,
-      new ::grpc::RpcMethodHandler< PyBulletAPI::Service, ::pybullet_grpc::PyBulletCommand, ::pybullet_grpc::PyBulletStatus>(
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< PyBulletAPI::Service, ::pybullet_grpc::PyBulletCommand, ::pybullet_grpc::PyBulletStatus>(
           std::mem_fn(&PyBulletAPI::Service::SubmitCommand), this)));
 }
 

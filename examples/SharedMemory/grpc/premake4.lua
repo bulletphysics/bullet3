@@ -7,21 +7,8 @@ project ("App_PhysicsServerSharedMemoryBridgeGRPC")
 	
 	includedirs {"../../ThirdPartyLibs/clsocket/src","../../../src",".."}
 		
+	initGRPC()
 
-	if os.is("Windows") then
-          defines { "WIN32", "_WIN32_WINNT=0x0600" }
-          includedirs {"../../ThirdPartyLibs/grpc/include"}
-          libdirs {"../../ThirdPartyLibs/grpc/lib/win64"}
-          links {"grpc","grpc++","grpc++_reflection","gpr",
-          "libprotobufd","crypto","ssl","zlibstaticd","Ws2_32","Winmm"  }
-        end
-        if os.is("Linux") then
-                defines {"_LINUX"}
-        end
-        if os.is("MacOSX") then
-                defines {"_DARWIN"}
-        end
-			
 		links {
 			"BulletFileLoader",
 			"Bullet3Common", 
@@ -30,12 +17,6 @@ project ("App_PhysicsServerSharedMemoryBridgeGRPC")
 	
 	files {
 		"main.cpp",
-		"ConvertGRPCBullet.cpp",
-		"ConvertGRPCBullet.h",
-		"pybullet.grpc.pb.cpp",
-		"pybullet.grpc.pb.h",
-		"pybullet.pb.cpp",
-		"pybullet.pb.h",
 		"../PhysicsClient.cpp",
 		"../PhysicsClient.h",
 		"../PhysicsDirect.cpp",
@@ -73,21 +54,8 @@ links {
 }
 
 
+	initGRPC()
 
-	if os.is("Windows") then
-          defines { "WIN32", "_WIN32_WINNT=0x0600" }
-          includedirs {"../../ThirdPartyLibs/grpc/include"}
-          libdirs {"../../ThirdPartyLibs/grpc/lib/win64"}
-          links {"grpc","grpc++","grpc++_reflection","gpr",
-          "libprotobufd","crypto","ssl","zlibstaticd","Ws2_32","Winmm"  }
-        end
-        if os.is("Linux") then
-                defines {"_LINUX"}
-                links{"dl"}
-        end
-        if os.is("MacOSX") then
-                defines {"_DARWIN"}
-        end
 
 language "C++"
 
@@ -156,11 +124,5 @@ myfiles =
 files {
 	myfiles,
 	"main.cpp",
-	"ConvertGRPCBullet.cpp",
-	"ConvertGRPCBullet.h",
-	"pybullet.grpc.pb.cpp",
-	"pybullet.grpc.pb.h",
-	"pybullet.pb.cpp",
-	"pybullet.pb.h",
 }
 

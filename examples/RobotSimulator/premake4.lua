@@ -9,6 +9,16 @@ project ("App_RobotSimulator")
 		"../../examples/ThirdPartyLibs"}
 		defines {"B3_USE_ROBOTSIM_GUI", "PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
 
+		if _OPTIONS["enable_grpc"] then
+			initGRPC()
+			files {
+			"../../examples/SharedMemory/PhysicsClientGRPC.cpp",
+                        "../../examples/SharedMemory/PhysicsClientGRPC.h",
+                        "../../examples/SharedMemory/PhysicsClientGRPC_C_API.cpp",
+                        "../../examples/SharedMemory/PhysicsClientGRPC_C_API.h",
+			}
+		end
+
 
 	links{"BulletRobotics", "BulletExampleBrowserLib", "gwen", "OpenGL_Window","BulletFileLoader","BulletWorldImporter","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
 	initOpenGL()
