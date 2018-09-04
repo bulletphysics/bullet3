@@ -439,7 +439,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 #ifdef BT_ENABLE_GRPC
 				sm = b3ConnectPhysicsGRPC(hostName.c_str(), tcpPort);
 #else
-				b3Warning("GRPC is not enabled in this pybullet build");
+				PyErr_SetString(SpamError, "GRPC is not enabled in this pybullet build");
 #endif
 				break;
 		}

@@ -10,7 +10,7 @@
 #include "pybullet.grpc.pb.h"
 #include "LinearMath/btMinMax.h"
 
-//#define ALLOW_GRPC_COMMAND_CONVERSION
+#define ALLOW_GRPC_COMMAND_CONVERSION
 #define ALLOW_GRPC_STATUS_CONVERSION
 
 using grpc::Server;
@@ -483,7 +483,7 @@ pybullet_grpc::PyBulletCommand* convertBulletToGRPCCommand(const struct SharedMe
 	if (0 == grpcCmdPtr)
 	{
 		grpcCmdPtr = &grpcCommand;
-		printf("Warning: slow fallback of convertBulletToGRPCCommand (%d)", clientCmd.m_type);
+		//printf("Warning: slow fallback of convertBulletToGRPCCommand (%d)", clientCmd.m_type);
 		//convert an unknown command as binary blob
 		int sz = sizeof(SharedMemoryCommand);
 		if (sz > 0)
@@ -559,7 +559,7 @@ SharedMemoryCommand* convertGRPCToBulletCommand(const PyBulletCommand& grpcComma
 			{
 				memcpy(&cmd, data, numBytes);
 			}
-			printf("slow fallback on command type %d\n", cmd.m_type);
+			//printf("slow fallback on command type %d\n", cmd.m_type);
 		}
 		else
 		{
@@ -1491,7 +1491,7 @@ bool convertGRPCToStatus(const PyBulletStatus& grpcReply, SharedMemoryStatus& se
 			{
 				if (grpcReply.unknownstatusbinaryblob_size() == 1)
 				{
-					printf("convertStatusToGRPC: slow fallback status (%d), slow fallback", grpcReply.statustype());
+					//printf("convertStatusToGRPC: slow fallback status (%d), slow fallback", grpcReply.statustype());
 
 					const char* data = grpcReply.unknownstatusbinaryblob().Get(0).c_str();
 					int numBytes = grpcReply.unknownstatusbinaryblob().Get(0).size();
@@ -1501,7 +1501,7 @@ bool convertGRPCToStatus(const PyBulletStatus& grpcReply, SharedMemoryStatus& se
 					{
 						memcpy(&serverStatus, data, numBytes);
 					}
-					printf("slow fallback on command type %d\n", serverStatus.m_type);
+					//printf("slow fallback on command type %d\n", serverStatus.m_type);
 					btAssert(grpcReply.statustype() == serverStatus.m_type);
 					converted = true;
 				}
@@ -1822,7 +1822,7 @@ bool convertStatusToGRPC(const SharedMemoryStatus& serverStatus, char* bufferSer
 	default:
 	{
 #endif //ALLOW_GRPC_STATUS_CONVERSION
-		printf("convertStatusToGRPC: unknown status (%d), slow fallback", serverStatus.m_type);
+		//printf("convertStatusToGRPC: unknown status (%d), slow fallback", serverStatus.m_type);
 		int sz = sizeof(SharedMemoryStatus);
 		grpcReply.add_unknownstatusbinaryblob((const char*)&serverStatus, sz);
 		converted = true;
