@@ -33,25 +33,26 @@ struct BasicExample : public CommonRigidBodyBase
 		:CommonRigidBodyBase(helper)
 	{
 	}
-	virtual ~BasicExample(){}
-	virtual void initPhysics();
-	virtual void renderScene();
-	void resetCamera()
-	{
-		float dist = 4;
-		float pitch = -35;
-		float yaw = 52;
-		float targetPos[3]={0,0,0};
-		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
-	}
+
+	void initPhysics();
+	void resetCamera();
 };
+
+void BasicExample::resetCamera()
+{
+	float dist = 4;
+	float pitch = -35;
+	float yaw = 52;
+	float targetPos[3]={0,0,0};
+	m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
+}
 
 void BasicExample::initPhysics()
 {
 	m_guiHelper->setUpAxis(1);
 
 	createEmptyDynamicsWorld();
-	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
+
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
 	if (m_dynamicsWorld->getDebugDrawer())
@@ -59,11 +60,7 @@ void BasicExample::initPhysics()
 
 	///create a few basic rigid bodies
 	btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-	
 
-	//groundShape->initializePolyhedralFeatures();
-	//btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
-	
 	m_collisionShapes.push_back(groundShape);
 
 	btTransform groundTransform;
@@ -81,7 +78,6 @@ void BasicExample::initPhysics()
 		// Re-using the same collision is better for memory usage and performance
 
 		btBoxShape* colShape = createBoxShape(btVector3(.1,.1,.1));
-		
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
@@ -99,7 +95,6 @@ void BasicExample::initPhysics()
 		if (isDynamic)
 			colShape->calculateLocalInertia(mass,localInertia);
 
-
 		for (int k=0;k<ARRAY_SIZE_Y;k++)
 		{
 			for (int i=0;i<ARRAY_SIZE_X;i++)
@@ -111,32 +106,14 @@ void BasicExample::initPhysics()
 										btScalar(2+.2*k),
 										btScalar(0.2*j)));
 
-			
 					createRigidBody(mass,startTransform,colShape);
-					
-
 				}
 			}
 		}
 	}
 
-	
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
-	
 }
-
-
-void BasicExample::renderScene()
-{
-	CommonRigidBodyBase::renderScene();
-	
-}
-
-
-
-
-
-
 
 CommonExampleInterface*    BasicExampleCreateFunc(CommonExampleOptions& options)
 {
@@ -144,8 +121,4 @@ CommonExampleInterface*    BasicExampleCreateFunc(CommonExampleOptions& options)
 
 }
 
-
 B3_STANDALONE_EXAMPLE(BasicExampleCreateFunc)
-
-
-
