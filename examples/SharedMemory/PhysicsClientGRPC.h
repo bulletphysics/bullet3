@@ -1,18 +1,18 @@
-#ifndef PHYSICS_CLIENT_UDP_H
-#define PHYSICS_CLIENT_UDP_H
+#ifndef PHYSICS_CLIENT_GRPC_H
+#define PHYSICS_CLIENT_GRPC_H
 
 #include "PhysicsDirect.h"
 #include "PhysicsCommandProcessorInterface.h"
 
-class UdpNetworkedPhysicsProcessor : public PhysicsCommandProcessorInterface
+class GRPCNetworkedPhysicsProcessor : public PhysicsCommandProcessorInterface
 {
 
-	struct UdpNetworkedInternalData* m_data;
+	struct GRPCNetworkedInternalData* m_data;
 
 public:
-	UdpNetworkedPhysicsProcessor(const char* hostName, int port);
+	GRPCNetworkedPhysicsProcessor(const char* hostName, int port);
 
-	virtual ~UdpNetworkedPhysicsProcessor();
+	virtual ~GRPCNetworkedPhysicsProcessor();
 
 	virtual bool connect();
 
@@ -33,8 +33,9 @@ public:
 	virtual void setTimeOut(double timeOutInSeconds);
 
 	virtual void reportNotifications() {}
+
 };
 
 
-#endif //PHYSICS_CLIENT_UDP_H
+#endif //PHYSICS_CLIENT_GRPC_H
 

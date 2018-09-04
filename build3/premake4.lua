@@ -201,6 +201,10 @@ end
 		defines {"BT_USE_DOUBLE_PRECISION"}
 	end
 
+	if _OPTIONS["grpc"] then
+		defines {"BT_ENABLE_GRPC"}
+	end
+	
 	configurations {"Release", "Debug"}
 	configuration "Release"
 		flags { "Optimize", "EnableSSE2","StaticRuntime", "NoMinimalRebuild", "FloatFast"}

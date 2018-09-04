@@ -14,6 +14,9 @@
 #include "../SharedMemory/mujoco/MuJoCoPhysicsC_API.h"
 #endif
 
+#ifdef BT_ENABLE_GRPC
+#include "../SharedMemory/PhysicsClientGRPC_C_API.h"
+#endif
 #ifdef BT_ENABLE_CLSOCKET
 #include "../SharedMemory/PhysicsClientTCP_C_API.h"
 #endif  //BT_ENABLE_CLSOCKET
@@ -431,7 +434,15 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				break;
 			}
 #endif
-
+			case eCONNECT_GRPC:
+			{
+#ifdef BT_ENABLE_GRPC
+				sm = b3ConnectPhysicsGRPC(hostName.c_str(), tcpPort);
+#else
+				PyErr_SetString(SpamError, "GRPC is not enabled in this pybullet build");
+#endif
+				break;
+		}
 			case eCONNECT_SHARED_MEMORY:
 			{
 				sm = b3ConnectSharedMemory(key);
@@ -9624,6 +9635,9 @@ initpybullet(void)
 
 #ifdef BT_ENABLE_MUJOCO
 	PyModule_AddIntConstant(m, "MuJoCo", eCONNECT_MUJOCO);        // user read
+#endif
+#ifdef BT_ENABLE_GRPC
+	PyModule_AddIntConstant(m, "GRPC", eCONNECT_GRPC);        // user read
 #endif
 
 

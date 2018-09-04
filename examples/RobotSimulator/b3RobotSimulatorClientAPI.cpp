@@ -17,6 +17,9 @@
 #include "../SharedMemory/SharedMemoryPublic.h"
 #include "Bullet3Common/b3Logging.h"
 
+#ifdef BT_ENABLE_GRPC
+#include "../SharedMemory/PhysicsClientGRPC_C_API.h"
+#endif
 
 b3RobotSimulatorClientAPI::b3RobotSimulatorClientAPI()
 {
@@ -170,7 +173,15 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 #endif  //BT_ENABLE_CLSOCKET
 			break;
 		}
-
+	case eCONNECT_GRPC:
+	{
+#ifdef BT_ENABLE_GRPC
+		sm = b3ConnectPhysicsGRPC(hostName.c_str(), tcpPort);
+#else
+		b3Warning("GRPC is not enabled in this pybullet build");
+#endif
+		break;
+	}
 	default:
 		{
 			b3Warning("connectPhysicsServer unexpected argument");

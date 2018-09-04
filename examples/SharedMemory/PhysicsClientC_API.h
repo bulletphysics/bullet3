@@ -85,6 +85,20 @@ B3_SHARED_API	int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle
                            const double* actualStateQdot[],
                            const double* jointReactionForces[]);
 
+B3_SHARED_API int b3GetStatusActualState2(b3SharedMemoryStatusHandle statusHandle,
+	int* bodyUniqueId,
+	int* numLinks,
+	int* numDegreeOfFreedomQ,
+	int* numDegreeOfFreedomU,
+	const double* rootLocalInertialFrame[],
+	const double* actualStateQ[],
+	const double* actualStateQdot[],
+	const double* jointReactionForces[],
+	const double* linkLocalInertialFrames[],
+	const double* jointMotorForces[],
+	const double* linkStates[],
+	const double* linkWorldVelocities[]);
+
 
 B3_SHARED_API	b3SharedMemoryCommandHandle b3RequestCollisionInfoCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId);
 B3_SHARED_API	int b3GetStatusAABB(b3SharedMemoryStatusHandle statusHandle, int linkIndex, double aabbMin[/*3*/], double aabbMax[/*3*/]);
@@ -125,10 +139,14 @@ B3_SHARED_API int b3GetNumUserData(b3PhysicsClientHandle physClient, int bodyUni
 B3_SHARED_API void b3GetUserDataInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int userDataIndex, const char **keyOut, int *userDataIdOut, int *linkIndexOut, int *visualShapeIndexOut);
 
 B3_SHARED_API	b3SharedMemoryCommandHandle b3GetDynamicsInfoCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex);
+B3_SHARED_API	b3SharedMemoryCommandHandle b3GetDynamicsInfoCommandInit2(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex);
+
 ///given a body unique id and link index, return the dynamics information. See b3DynamicsInfo in SharedMemoryPublic.h
 B3_SHARED_API	int b3GetDynamicsInfo(b3SharedMemoryStatusHandle statusHandle, struct b3DynamicsInfo* info);
 	
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitChangeDynamicsInfo(b3PhysicsClientHandle physClient);
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitChangeDynamicsInfo2(b3SharedMemoryCommandHandle commandHandle);
+
 B3_SHARED_API	int b3ChangeDynamicsInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double mass);
 B3_SHARED_API	int b3ChangeDynamicsInfoSetLocalInertiaDiagonal(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double localInertiaDiagonal[]);
 
@@ -145,6 +163,7 @@ B3_SHARED_API	int b3ChangeDynamicsInfoSetContactProcessingThreshold(b3SharedMemo
 B3_SHARED_API	int b3ChangeDynamicsInfoSetActivationState(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int activationState);
 
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyUniqueId, int parentJointIndex, int childBodyUniqueId, int childJointIndex, struct b3JointInfo* info);
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand2(b3SharedMemoryCommandHandle commandHandle, int parentBodyUniqueId, int parentJointIndex, int childBodyUniqueId, int childJointIndex, struct b3JointInfo* info);
 
 ///return a unique id for the user constraint, after successful creation, or -1 for an invalid constraint id
 B3_SHARED_API	int b3GetStatusUserConstraintUniqueId(b3SharedMemoryStatusHandle statusHandle);
@@ -181,6 +200,7 @@ B3_SHARED_API	void    b3GetDebugLines(b3PhysicsClientHandle physClient, struct b
     
 ///configure the 3D OpenGL debug visualizer (enable/disable GUI widgets, shadows, position camera etc)
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitConfigureOpenGLVisualizer(b3PhysicsClientHandle physClient);
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitConfigureOpenGLVisualizer2(b3SharedMemoryCommandHandle commandHandle);
 B3_SHARED_API	void b3ConfigureOpenGLVisualizerSetVisualizationFlags(b3SharedMemoryCommandHandle commandHandle, int flag, int enabled);
 B3_SHARED_API	void b3ConfigureOpenGLVisualizerSetViewMatrix(b3SharedMemoryCommandHandle commandHandle, float cameraDistance, float cameraPitch, float cameraYaw, const float cameraTargetPosition[/*3*/]);
 
@@ -216,6 +236,7 @@ B3_SHARED_API	int b3GetDebugItemUniqueId(b3SharedMemoryStatusHandle statusHandle
 
 ///request an image from a simulated camera, using a software renderer.
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physClient);
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCameraImage2(b3SharedMemoryCommandHandle commandHandle);
 B3_SHARED_API	void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHandle, float viewMatrix[/*16*/], float projectionMatrix[/*16*/]);
 B3_SHARED_API	void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandHandle commandHandle, int width, int height );
 B3_SHARED_API	void b3RequestCameraImageSetLightDirection(b3SharedMemoryCommandHandle commandHandle, const float lightDirection[/*3*/]);
@@ -295,6 +316,7 @@ B3_SHARED_API	void b3UpdateVisualShapeSpecularColor(b3SharedMemoryCommandHandle 
 
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient);
+B3_SHARED_API	b3SharedMemoryCommandHandle     b3InitPhysicsParamCommand2(b3SharedMemoryCommandHandle commandHandle);
 B3_SHARED_API	int	b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx,double gravy, double gravz);
 B3_SHARED_API	int	b3PhysicsParamSetTimeStep(b3SharedMemoryCommandHandle commandHandle, double timeStep);
 B3_SHARED_API	int	b3PhysicsParamSetDefaultContactERP(b3SharedMemoryCommandHandle commandHandle, double defaultContactERP);
@@ -341,6 +363,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle	b3InitStepSimulationCommand(b3PhysicsC
 B3_SHARED_API b3SharedMemoryCommandHandle	b3InitStepSimulationCommand2(b3SharedMemoryCommandHandle commandHandle);
 
 B3_SHARED_API b3SharedMemoryCommandHandle	b3InitResetSimulationCommand(b3PhysicsClientHandle physClient);
+B3_SHARED_API b3SharedMemoryCommandHandle   b3InitResetSimulationCommand2(b3SharedMemoryCommandHandle commandHandle);
 
 ///Load a robot from a URDF file. Status type will CMD_URDF_LOADING_COMPLETED.
 ///Access the robot from the unique body index, through b3GetStatusBodyIndex(statusHandle);
@@ -367,6 +390,7 @@ B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadBulletCommandInit(b3PhysicsClien
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3SaveBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadMJCFCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadMJCFCommandInit2(b3SharedMemoryCommandHandle commandHandle, const char* fileName);
 B3_SHARED_API	void b3LoadMJCFCommandSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags);
 
 
@@ -408,6 +432,8 @@ B3_SHARED_API	void b3CalculateInverseKinematicsSetResidualThreshold(b3SharedMemo
 
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadSdfCommandInit2(b3SharedMemoryCommandHandle commandHandle, const char* sdfFileName);
+
 B3_SHARED_API	int	b3LoadSdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody);
 B3_SHARED_API	int	b3LoadSdfCommandSetUseGlobalScaling(b3SharedMemoryCommandHandle commandHandle, double globalScaling);
 
@@ -423,6 +449,7 @@ B3_SHARED_API	b3SharedMemoryCommandHandle  b3JointControlCommandInit(b3PhysicsCl
 ///Set joint motor control variables such as desired position/angle, desired velocity,
 ///applied joint forces, dependent on the control mode (CONTROL_MODE_VELOCITY or CONTROL_MODE_TORQUE)
 B3_SHARED_API	b3SharedMemoryCommandHandle  b3JointControlCommandInit2(b3PhysicsClientHandle physClient, int bodyUniqueId, int controlMode);
+B3_SHARED_API	b3SharedMemoryCommandHandle b3JointControlCommandInit2Internal(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int controlMode);
 
 ///Only use when controlMode is CONTROL_MODE_POSITION_VELOCITY_PD
 B3_SHARED_API	int b3JointControlSetDesiredPosition(b3SharedMemoryCommandHandle commandHandle, int qIndex, double value);
@@ -505,6 +532,8 @@ B3_SHARED_API	int	b3CreateBoxCommandSetColorRGBA(b3SharedMemoryCommandHandle com
 ///base orientation and joint angles. This will set all velocities of base and joints to zero.
 ///This is not a robot control command using actuators/joint motors, but manual repositioning the robot.
 B3_SHARED_API	b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId);
+B3_SHARED_API	b3SharedMemoryCommandHandle b3CreatePoseCommandInit2(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId);
+
 B3_SHARED_API	int	b3CreatePoseCommandSetBasePosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ);
 B3_SHARED_API	int	b3CreatePoseCommandSetBaseOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW);
 B3_SHARED_API	int	b3CreatePoseCommandSetBaseLinearVelocity(b3SharedMemoryCommandHandle commandHandle, double linVel[/*3*/]);
@@ -512,6 +541,9 @@ B3_SHARED_API	int	b3CreatePoseCommandSetBaseAngularVelocity(b3SharedMemoryComman
 
 B3_SHARED_API	int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHandle, int numJointPositions, const double* jointPositions);
 B3_SHARED_API	int	b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle,  int jointIndex, double jointPosition);
+
+B3_SHARED_API	int	b3CreatePoseCommandSetQ(b3SharedMemoryCommandHandle commandHandle, int numJointPositions, const double* q, const int* hasQ);
+B3_SHARED_API	int	b3CreatePoseCommandSetQdots(b3SharedMemoryCommandHandle commandHandle, int numJointVelocities, const double* qDots, const int* hasQdots);
 
 B3_SHARED_API	int	b3CreatePoseCommandSetJointVelocities(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle,  int numJointVelocities, const double* jointVelocities);
 B3_SHARED_API	int	b3CreatePoseCommandSetJointVelocity(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle,  int jointIndex, double jointVelocity);
@@ -525,6 +557,8 @@ B3_SHARED_API	int b3CreateSensorEnable6DofJointForceTorqueSensor(b3SharedMemoryC
 B3_SHARED_API	int b3CreateSensorEnableIMUForLink(b3SharedMemoryCommandHandle commandHandle, int linkIndex, int enable);
 
 B3_SHARED_API	b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandle physClient,int bodyUniqueId);
+B3_SHARED_API	b3SharedMemoryCommandHandle b3RequestActualStateCommandInit2(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId);
+
 B3_SHARED_API	int b3RequestActualStateCommandComputeLinkVelocity(b3SharedMemoryCommandHandle commandHandle, int computeLinkVelocity);
 B3_SHARED_API	int b3RequestActualStateCommandComputeForwardKinematics(b3SharedMemoryCommandHandle commandHandle, int computeForwardKinematics);
 
@@ -581,6 +615,7 @@ B3_SHARED_API	int b3SetVRCameraTrackingObject(b3SharedMemoryCommandHandle comman
 B3_SHARED_API	int b3SetVRCameraTrackingObjectFlag(b3SharedMemoryCommandHandle commandHandle, int flag);
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3RequestKeyboardEventsCommandInit(b3PhysicsClientHandle physClient);
+B3_SHARED_API b3SharedMemoryCommandHandle b3RequestKeyboardEventsCommandInit2(b3SharedMemoryCommandHandle commandHandle);
 B3_SHARED_API	void b3GetKeyboardEventsData(b3PhysicsClientHandle physClient, struct b3KeyboardEventsData* keyboardEventsData);
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3RequestMouseEventsCommandInit(b3PhysicsClientHandle physClient);

@@ -7148,6 +7148,21 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 		if (linkIndex == -1)
 		{
 			serverCmd.m_dynamicsInfo.m_mass = mb->getBaseMass();
+			if (mb->getBaseCollider())
+			{
+				serverCmd.m_dynamicsInfo.m_activationState = mb->getBaseCollider()->getActivationState();
+				serverCmd.m_dynamicsInfo.m_contactProcessingThreshold = mb->getBaseCollider()->getContactProcessingThreshold();
+				serverCmd.m_dynamicsInfo.m_ccdSweptSphereRadius = mb->getBaseCollider()->getCcdSweptSphereRadius();
+				serverCmd.m_dynamicsInfo.m_frictionAnchor = mb->getBaseCollider()->getCollisionFlags()&btCollisionObject::CF_HAS_FRICTION_ANCHOR;
+
+			}
+			else
+			{
+				serverCmd.m_dynamicsInfo.m_activationState = 0;
+				serverCmd.m_dynamicsInfo.m_contactProcessingThreshold = 0;
+				serverCmd.m_dynamicsInfo.m_ccdSweptSphereRadius = 0;
+				serverCmd.m_dynamicsInfo.m_frictionAnchor = 0;
+			}
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[0] = mb->getBaseInertia()[0];
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[1] = mb->getBaseInertia()[1];
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[2] = mb->getBaseInertia()[2];
@@ -7161,6 +7176,9 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 			serverCmd.m_dynamicsInfo.m_localInertialFrame[5] = body->m_rootLocalInertialFrame.getRotation()[2];
 			serverCmd.m_dynamicsInfo.m_localInertialFrame[6] = body->m_rootLocalInertialFrame.getRotation()[3];
 		
+			serverCmd.m_dynamicsInfo.m_angularDamping = body->m_multiBody->getAngularDamping();
+			serverCmd.m_dynamicsInfo.m_linearDamping = body->m_multiBody->getLinearDamping();
+
 			serverCmd.m_dynamicsInfo.m_restitution = mb->getBaseCollider()->getRestitution();
 			serverCmd.m_dynamicsInfo.m_rollingFrictionCoeff = mb->getBaseCollider()->getRollingFriction();
 			serverCmd.m_dynamicsInfo.m_spinningFrictionCoeff = mb->getBaseCollider()->getSpinningFriction();
@@ -7179,6 +7197,22 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 		else
 		{
 			serverCmd.m_dynamicsInfo.m_mass = mb->getLinkMass(linkIndex);
+			
+			if (mb->getLinkCollider(linkIndex))
+			{
+				serverCmd.m_dynamicsInfo.m_activationState = mb->getLinkCollider(linkIndex)->getActivationState();
+				serverCmd.m_dynamicsInfo.m_contactProcessingThreshold = mb->getLinkCollider(linkIndex)->getContactProcessingThreshold();
+				serverCmd.m_dynamicsInfo.m_ccdSweptSphereRadius = mb->getLinkCollider(linkIndex)->getCcdSweptSphereRadius();
+				serverCmd.m_dynamicsInfo.m_frictionAnchor = mb->getLinkCollider(linkIndex)->getCollisionFlags()&btCollisionObject::CF_HAS_FRICTION_ANCHOR;
+			}
+			else
+			{
+				serverCmd.m_dynamicsInfo.m_activationState = 0;
+				serverCmd.m_dynamicsInfo.m_contactProcessingThreshold = 0;
+				serverCmd.m_dynamicsInfo.m_ccdSweptSphereRadius = 0;
+				serverCmd.m_dynamicsInfo.m_frictionAnchor = 0;
+			}
+
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[0] = mb->getLinkInertia(linkIndex)[0];
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[1] = mb->getLinkInertia(linkIndex)[1];
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[2] = mb->getLinkInertia(linkIndex)[2];
@@ -7190,6 +7224,9 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 			serverCmd.m_dynamicsInfo.m_localInertialFrame[4] = body->m_linkLocalInertialFrames[linkIndex].getRotation()[1];
 			serverCmd.m_dynamicsInfo.m_localInertialFrame[5] = body->m_linkLocalInertialFrames[linkIndex].getRotation()[2];
 			serverCmd.m_dynamicsInfo.m_localInertialFrame[6] = body->m_linkLocalInertialFrames[linkIndex].getRotation()[3];
+
+			serverCmd.m_dynamicsInfo.m_angularDamping = body->m_multiBody->getAngularDamping();
+			serverCmd.m_dynamicsInfo.m_linearDamping = body->m_multiBody->getLinearDamping();
 
 			if (mb->getLinkCollider(linkIndex))
 			{

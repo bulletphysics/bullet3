@@ -7,7 +7,8 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201809010
+#define SHARED_MEMORY_MAGIC_NUMBER 2018090300
+//#define SHARED_MEMORY_MAGIC_NUMBER 201809010
 //#define SHARED_MEMORY_MAGIC_NUMBER 201807040
 //#define SHARED_MEMORY_MAGIC_NUMBER 201806150
 //#define SHARED_MEMORY_MAGIC_NUMBER 201806020
@@ -26,6 +27,7 @@
 
 enum EnumSharedMemoryClientCommand
 {
+	CMD_INVALID=0,
     CMD_LOAD_SDF,
 	CMD_LOAD_URDF,
 	CMD_LOAD_BULLET,
@@ -334,6 +336,13 @@ struct b3DynamicsInfo
 	double m_restitution;
 	double m_contactStiffness;
 	double m_contactDamping;
+	int m_activationState;
+	double m_angularDamping;
+	double m_linearDamping;
+	double m_ccdSweptSphereRadius;
+	double m_contactProcessingThreshold;
+	int m_frictionAnchor;
+
 };
 
 // copied from btMultiBodyLink.h
@@ -805,6 +814,7 @@ enum eCONNECT_METHOD {
   eCONNECT_SHARED_MEMORY_SERVER=9,
   eCONNECT_DART=10,
   eCONNECT_MUJOCO=11,
+  eCONNECT_GRPC=12,
 };
 
 enum eURDF_Flags

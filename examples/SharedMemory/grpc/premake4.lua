@@ -10,8 +10,10 @@ project ("App_PhysicsServerSharedMemoryBridgeGRPC")
 
 	if os.is("Windows") then
           defines { "WIN32", "_WIN32_WINNT=0x0600" }
+          includedirs {"../../ThirdPartyLibs/grpc/include"}
+          libdirs {"../../ThirdPartyLibs/grpc/lib/win64"}
           links {"grpc","grpc++","grpc++_reflection","gpr",
-          "libprotobuf","crypto","ssl","zlibstaticd","Ws2_32","Winmm"  }
+          "libprotobufd","crypto","ssl","zlibstaticd","Ws2_32","Winmm"  }
         end
         if os.is("Linux") then
                 defines {"_LINUX"}
@@ -28,6 +30,12 @@ project ("App_PhysicsServerSharedMemoryBridgeGRPC")
 	
 	files {
 		"main.cpp",
+		"ConvertGRPCBullet.cpp",
+		"ConvertGRPCBullet.h",
+		"pybullet.grpc.pb.cpp",
+		"pybullet.grpc.pb.h",
+		"pybullet.pb.cpp",
+		"pybullet.pb.h",
 		"../PhysicsClient.cpp",
 		"../PhysicsClient.h",
 		"../PhysicsDirect.cpp",
@@ -68,8 +76,10 @@ links {
 
 	if os.is("Windows") then
           defines { "WIN32", "_WIN32_WINNT=0x0600" }
+          includedirs {"../../ThirdPartyLibs/grpc/include"}
+          libdirs {"../../ThirdPartyLibs/grpc/lib/win64"}
           links {"grpc","grpc++","grpc++_reflection","gpr",
-          "libprotobuf","crypto","ssl","zlibstaticd","Ws2_32","Winmm"  }
+          "libprotobufd","crypto","ssl","zlibstaticd","Ws2_32","Winmm"  }
         end
         if os.is("Linux") then
                 defines {"_LINUX"}
@@ -146,5 +156,11 @@ myfiles =
 files {
 	myfiles,
 	"main.cpp",
+	"ConvertGRPCBullet.cpp",
+	"ConvertGRPCBullet.h",
+	"pybullet.grpc.pb.cpp",
+	"pybullet.grpc.pb.h",
+	"pybullet.pb.cpp",
+	"pybullet.pb.h",
 }
 

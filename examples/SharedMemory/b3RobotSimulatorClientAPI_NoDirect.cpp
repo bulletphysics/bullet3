@@ -789,10 +789,13 @@ void b3RobotSimulatorClientAPI_NoDirect::setJointMotorControl(int bodyUniqueId, 
 			b3JointInfo jointInfo;
 			b3GetJointInfo(m_data->m_physicsClientHandle, bodyUniqueId, jointIndex, &jointInfo);
 			int uIndex = jointInfo.m_uIndex;
-			b3JointControlSetKd(command, uIndex, args.m_kd);
-			b3JointControlSetDesiredVelocity(command, uIndex, args.m_targetVelocity);
-			b3JointControlSetMaximumForce(command, uIndex, args.m_maxTorqueValue);
-			statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+			if (uIndex >= 0)
+			{
+				b3JointControlSetKd(command, uIndex, args.m_kd);
+				b3JointControlSetDesiredVelocity(command, uIndex, args.m_targetVelocity);
+				b3JointControlSetMaximumForce(command, uIndex, args.m_maxTorqueValue);
+				statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+			}
 			break;
 		}
 	case CONTROL_MODE_POSITION_VELOCITY_PD:
@@ -817,8 +820,11 @@ void b3RobotSimulatorClientAPI_NoDirect::setJointMotorControl(int bodyUniqueId, 
 			b3JointInfo jointInfo;
 			b3GetJointInfo(m_data->m_physicsClientHandle, bodyUniqueId, jointIndex, &jointInfo);
 			int uIndex = jointInfo.m_uIndex;
-			b3JointControlSetDesiredForceTorque(command, uIndex, args.m_maxTorqueValue);
-			statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+			if (uIndex >= 0)
+			{
+				b3JointControlSetDesiredForceTorque(command, uIndex, args.m_maxTorqueValue);
+				statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+			}
 			break;
 		}
     case CONTROL_MODE_PD:
