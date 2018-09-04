@@ -67,7 +67,8 @@ struct TinyRendererVisualShapeConverterInternalData
 	
     btHashMap<btHashInt,TinyRendererObjectArray*> m_swRenderInstances;
 
-	btAlignedObjectArray<b3VisualShapeData> m_visualShapes;
+    // Maps bodyUniqueId to a list of visual shapes belonging to the body.
+    btHashMap<btHashInt,btAlignedObjectArray<b3VisualShapeData> > m_visualShapesMap;
     
    	int m_upAxis;
 	int m_swWidth;
@@ -710,82 +711,56 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
                 visualShape.m_tinyRendererTextureId = m_data->m_textures.size();
                 m_data->m_textures.push_back(textures[i]);                
 			}
-            m_data->m_visualShapes.push_back(visualShape);
-
+			btAlignedObjectArray<b3VisualShapeData>* shapes = m_data->m_visualShapesMap[visualShape.m_objectUniqueId];
+			if (!shapes) {
+				m_data->m_visualShapesMap.insert(visualShape.m_objectUniqueId, btAlignedObjectArray<b3VisualShapeData>());
+				shapes = m_data->m_visualShapesMap[visualShape.m_objectUniqueId];
+				
+			}
+			shapes->push_back(visualShape);
 		}
 	}
 }
 
 int TinyRendererVisualShapeConverter::getNumVisualShapes(int bodyUniqueId)
 {
-	int start = -1;
-	//find first one, then count how many
-	for (int i = 0; i < m_data->m_visualShapes.size(); i++)
-	{
-		if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId)
-		{
-			start = i;
-			break;
-		}
+	btAlignedObjectArray<b3VisualShapeData>* shapes = m_data->m_visualShapesMap[bodyUniqueId];
+	if (shapes) {
+		return shapes->size();
 	}
-	int count = 0;
-
-	if (start >= 0)
-	{
-		for (int i = start; i < m_data->m_visualShapes.size(); i++)
-		{
-			if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId)
-			{
-				count++;
-			}
-			else
-			{
-				//storage of each visual shape for a given body unique id assumed to be contiguous
-				break;
-			}
-		}
-	}
-	return count;
+	return 0;
 }
 
 int TinyRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData)
 {
-	int start = -1;
-	//find first one, then count how many
-	for (int i = 0; i < m_data->m_visualShapes.size(); i++)
-	{
-		if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId)
-		{
-			start = i;
-			break;
-		}
+	btAlignedObjectArray<b3VisualShapeData>* shapes = m_data->m_visualShapesMap[bodyUniqueId];
+	if (!shapes) {
+		return 0;
 	}
-	//int count = 0;
-
-	if (start >= 0)
-	{
-		if (start + shapeIndex < m_data->m_visualShapes.size())
-		{
-			*shapeData = m_data->m_visualShapes[start + shapeIndex];
-			return 1;
-		}
+	if (shapes->size() <= shapeIndex) {
+		return 0;
 	}
-	return 0;
+	*shapeData = shapes->at(shapeIndex);
+	return 1;
 }
 
 
 
 void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4])
 {
+	btAlignedObjectArray<b3VisualShapeData>* shapes = m_data->m_visualShapesMap[bodyUniqueId];
+	if (!shapes) {
+		return;
+	}
     int start = -1;
-    for (int i = 0; i < m_data->m_visualShapes.size(); i++)
+    for (int i = 0; i < shapes->size(); i++)
     {
-        if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId && m_data->m_visualShapes[i].m_linkIndex == linkIndex)
+        if (shapes->at(i).m_linkIndex == linkIndex)
         {
-			m_data->m_visualShapes[i].m_rgbaColor[0] = rgbaColor[0];
-			m_data->m_visualShapes[i].m_rgbaColor[1] = rgbaColor[1];
-			m_data->m_visualShapes[i].m_rgbaColor[2] = rgbaColor[2];
-			m_data->m_visualShapes[i].m_rgbaColor[3] = rgbaColor[3];
+			shapes->at(i).m_rgbaColor[0] = rgbaColor[0];
+			shapes->at(i).m_rgbaColor[1] = rgbaColor[1];
+			shapes->at(i).m_rgbaColor[2] = rgbaColor[2];
+			shapes->at(i).m_rgbaColor[3] = rgbaColor[3];
 		}
     }
     
@@ -1143,6 +1118,7 @@ void TinyRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniq
 		TinyRendererObjectArray* ptr = *ptrptr;
 		if (ptr)
 		{
+			m_data->m_visualShapesMap.remove(ptr->m_objectUniqueId);
 			for (int o=0;o<ptr->m_renderObjects.size();o++)
 			{
 				delete ptr->m_renderObjects[o];
@@ -1182,7 +1158,7 @@ void TinyRendererVisualShapeConverter::resetAll()
 	}
 	m_data->m_textures.clear();
 	m_data->m_swRenderInstances.clear();
-	m_data->m_visualShapes.clear();
+	m_data->m_visualShapesMap.clear();
 }
 
 
