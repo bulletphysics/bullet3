@@ -510,6 +510,10 @@ SharedMemoryCommand* convertGRPCToBulletCommand(const PyBulletCommand& grpcComma
 		{
 			cmd.m_type = CMD_CHANGE_DYNAMICS_INFO;
 		}
+		if (grpcCommand.has_resetsimulationcommand())
+		{
+			cmd.m_type = CMD_RESET_SIMULATION;
+		}
 		if (grpcCommand.has_loadurdfcommand())
 		{
 			cmd.m_type = CMD_LOAD_URDF;

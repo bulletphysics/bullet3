@@ -126,7 +126,7 @@
 
 	if _OPTIONS["enable_grpc"] then
 	function initGRPC()
-			 buildoptions { "-std=c++11", "-stdlib=libc++" }
+			 buildoptions { "-std=c++11" }
 
 			 defines {"BT_ENABLE_GRPC"}
 
@@ -137,7 +137,7 @@
                         libdirs {
                                 _OPTIONS["grpc_lib_dir"], _OPTIONS["protobuf_lib_dir"],
                         }
-                        links { "grpc","grpc++", "grpc++_reflection", "gpr", "protobuf"}
+                        links { "grpc","grpc++", "grpc++_reflection", "gpr", "protobuf", "dl"}
                         files { projectRootDir .. "examples/SharedMemory/grpc/ConvertGRPCBullet.cpp",
                 		projectRootDir .. "examples/SharedMemory/grpc/ConvertGRPCBullet.h",
                 		projectRootDir .. "examples/SharedMemory/grpc/pybullet.grpc.pb.cpp",
