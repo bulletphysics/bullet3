@@ -62,8 +62,9 @@ def run():
 	print("PyBullet client received: " , response)
 	
 	
-		
-	for i in range (1000):
+        i=0
+        while(True):
+                        i=i+1
 			print("submit StepSimulationCommand: ", i)
 			response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(stepSimulationCommand=pybullet_pb2.StepSimulationCommand()))
 			print("PyBullet client received: " , response.statusType)
