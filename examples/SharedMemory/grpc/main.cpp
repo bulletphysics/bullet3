@@ -135,6 +135,7 @@ private:
 					if (cmdPtr)
 					{
 						bool hasStatus = m_comProc->processCommand(*cmdPtr, serverStatus, &buffer[0], buffer.size());
+						m_comProc->reportNotifications();
 						double timeOutInSeconds = 10;
 						b3Clock clock;
 						double startTimeSeconds = clock.getTimeInSeconds();
