@@ -22,7 +22,7 @@ CXX_FLAGS += '-DBT_USE_DOUBLE_PRECISION '
 CXX_FLAGS += '-DBT_ENABLE_ENET '
 CXX_FLAGS += '-DBT_ENABLE_CLSOCKET '
 CXX_FLAGS += '-DB3_DUMP_PYTHON_VERSION '
-
+#CXX_FLAGS += '-DBT_USE_EGL '  # uncomment for EGL (old EGL versions fail)
 
 
 # libraries += [current_python]
@@ -386,28 +386,34 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/ThirdPartyLibs/Gwen/Renderers/OpenGL_DebugFont.cpp"]\
 
 if _platform == "linux" or _platform == "linux2":
-    libraries = ['dl','pthread']
+    libraries += ['dl','pthread']
     CXX_FLAGS += '-D_LINUX '
     CXX_FLAGS += '-DGLEW_STATIC '
     CXX_FLAGS += '-DGLEW_INIT_OPENGL11_FUNCTIONS=1 '
     CXX_FLAGS += '-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1 '
     CXX_FLAGS += '-DDYNAMIC_LOAD_X11_FUNCTIONS '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
-    CXX_FLAGS += '-fno-inline-functions-called-once'
+    CXX_FLAGS += '-fno-inline-functions-called-once '
     sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/glad/glad.c"]\
-    +["examples/ThirdPartyLibs/glad/glad_glx.c"]
+    +["examples/ThirdPartyLibs/glad/gl.c"]\
+    +["examples/ThirdPartyLibs/glad/glx.c"]
     include_dirs += ["examples/ThirdPartyLibs/optionalX11"]
+    if 'BT_USE_EGL' in CXX_FLAGS:
+        # linking with bullet's Glew libraries causes segfault
+        # for some reason.
+        sources += ['examples/ThirdPartyLibs/glad/egl.c']
+        sources += ['examples/OpenGLWindow/EGLOpenGLWindow.cpp']
+
 elif _platform == "win32":
     print("win32!")
-    libraries = ['Ws2_32','Winmm','User32','Opengl32','kernel32','glu32','Gdi32','Comdlg32']
+    libraries += ['Ws2_32','Winmm','User32','Opengl32','kernel32','glu32','Gdi32','Comdlg32']
     CXX_FLAGS += '-DWIN32 '
     CXX_FLAGS += '-DGLEW_STATIC '
     sources = sources + ["examples/ThirdPartyLibs/enet/win32.c"]\
     +["examples/OpenGLWindow/Win32Window.cpp"]\
     +["examples/OpenGLWindow/Win32OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/glad/glad.c"]
+    +["examples/ThirdPartyLibs/glad/gl.c"]
 elif _platform == "darwin":
     print("darwin!")
     os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
@@ -417,11 +423,11 @@ elif _platform == "darwin":
 #    CXX_FLAGS += '-framework Cocoa '
     sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/MacOpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/glad/glad.c"]\
+    +["examples/ThirdPartyLibs/glad/gl.c"]\
     +["examples/OpenGLWindow/MacOpenGLWindowObjC.m"]
 else:
     print("bsd!")
-    libraries = ['GL','GLEW','pthread']
+    libraries += ['GL','GLEW','pthread']
     os.environ['LDFLAGS'] = '-L/usr/X11R6/lib'
     CXX_FLAGS += '-D_BSD '
     CXX_FLAGS += '-I/usr/X11R6/include '
@@ -429,7 +435,7 @@ else:
     CXX_FLAGS += '-fno-inline-functions-called-once'
     sources = ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/glad/glad.c"]\
+    +["examples/ThirdPartyLibs/glad/gl.c"]\
     + sources
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
@@ -463,7 +469,7 @@ setup(
 	license='zlib',
 	platforms='any',
 	keywords=['game development', 'virtual reality', 'physics simulation', 'robotics', 'collision detection', 'opengl'],
-	ext_modules = [Extension("pybullet", 
+	ext_modules = [Extension("pybullet",
 	sources =  sources,
 	libraries = libraries,
 	extra_compile_args=CXX_FLAGS.split(),

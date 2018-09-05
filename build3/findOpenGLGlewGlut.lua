@@ -52,13 +52,13 @@
 			includedirs {
 					projectRootDir .. "examples/ThirdPartyLibs/glad"
 			}
-			files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c"}
+			files { projectRootDir .. "examples/ThirdPartyLibs/glad/gl.c"}
 		end
 		if os.is("MacOSX") then
 			 includedirs {
                                         projectRootDir .. "examples/ThirdPartyLibs/glad"
                                 }
-                                files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c"}
+                                files { projectRootDir .. "examples/ThirdPartyLibs/glad/gl.c"}
 		end
 
 		if os.is("Linux") then
@@ -70,7 +70,7 @@
 					print("Using glad_glx")
 				 	defines { "GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1"}	
 				 	files { 
-					projectRootDir .. "examples/ThirdPartyLibs/glad/glad_glx.c"}
+					projectRootDir .. "examples/ThirdPartyLibs/glad/glx.c"}
 				end
 
 				print("Using glad and dynamic loading of GL functions")
@@ -78,7 +78,8 @@
                         	includedirs {
                                         projectRootDir .. "examples/ThirdPartyLibs/glad"
                         	}
-                        	files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c"}
+                        	files { projectRootDir .. "examples/ThirdPartyLibs/glad/gl.c",
+					projectRootDir .. "examples/ThirdPartyLibs/glad/glx.c"}
 				links {"dl"}
 
 		end

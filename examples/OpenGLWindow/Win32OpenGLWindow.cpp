@@ -84,8 +84,8 @@ void	Win32OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 	//VideoDriver = video::createOpenGLDriver(CreationParams, FileSystem, this);
 	enableOpenGL();
 
-	if(!gladLoadGL()) {
-        printf("gladLoadGL failed!\n");
+        if(!gladLoaderLoadGL()) {
+        printf("gladLoaderLoadGL failed!\n");
 		exit(-1);
     }
 
