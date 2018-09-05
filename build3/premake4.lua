@@ -72,10 +72,81 @@
 	
 	newoption
 	{
-		trigger = "grpc",
+		trigger = "enable_grpc",
 		description = "Build GRPC server/client features for PyBullet/BulletRobotics"
-	}
 	
+	}
+
+	if os.is("Linux") then
+                default_grpc_include_dir = "usr/local/include/GRPC"
+                default_grpc_lib_dir = "/usr/local/lib/"
+	end
+
+	if os.is("macosx") then
+                default_grpc_include_dir = "/usr/local/Cellar/grpc/1.14.1/include"
+                default_grpc_lib_dir = "/usr/local/Cellar/grpc/1.14.1/lib"
+		default_protobuf_include_dir = "/usr/local/Cellar/protobuf/3.6.0/include/"
+                default_protobuf_lib_dir = "/usr/local/Cellar/protobuf/3.6.0/lib"
+	end
+
+	if os.is("Windows") then
+                default_grpc_include_dir = "c:/grpc/include"
+                default_grpc_lib_dir = "c:/grpc/lib"
+	end
+	
+	newoption
+	{
+                        trigger     = "grpc_include_dir",
+                        value       = default_grpc_include_dir,
+                        description = "(optional) GRPC include directory"
+	}
+
+	newoption
+	{
+                        trigger     = "grpc_lib_dir",
+                        value       = default_grpc_lib_dir,
+                        description = "(optional) GRPC library directory "
+	}
+
+
+	newoption
+        {
+                        trigger     = "protobuf_include_dir",
+                        value       = default_protobuf_include_dir,
+                        description = "(optional) protobuf include directory"
+        }
+
+        newoption
+        {
+                        trigger     = "protobuf_lib_dir",
+                        value       = default_protobuf_lib_dir,
+                        description = "(optional) protobuf library directory "
+        }
+
+
+	if _OPTIONS["enable_grpc"] then
+	function initGRPC()
+			 buildoptions { "-std=c++11", "-stdlib=libc++" }
+
+			 defines {"BT_ENABLE_GRPC"}
+
+                        includedirs {
+                                _OPTIONS["grpc_include_dir"], _OPTIONS["protobuf_include_dir"],
+                        }
+
+                        libdirs {
+                                _OPTIONS["grpc_lib_dir"], _OPTIONS["protobuf_lib_dir"],
+                        }
+                        links { "grpc","grpc++", "grpc++_reflection", "gpr", "protobuf"}
+                        files { projectRootDir .. "examples/SharedMemory/grpc/ConvertGRPCBullet.cpp",
+                		projectRootDir .. "examples/SharedMemory/grpc/ConvertGRPCBullet.h",
+                		projectRootDir .. "examples/SharedMemory/grpc/pybullet.grpc.pb.cpp",
+                		projectRootDir .. "examples/SharedMemory/grpc/pybullet.grpc.pb.h",
+                		projectRootDir .. "examples/SharedMemory/grpc/pybullet.pb.cpp",
+                		projectRootDir .. "examples/SharedMemory/grpc/pybullet.pb.h", }
+                end
+
+	end
 
 -- _OPTIONS["midi"] = "1";
 
@@ -201,10 +272,6 @@ end
 		defines {"BT_USE_DOUBLE_PRECISION"}
 	end
 
-	if _OPTIONS["grpc"] then
-		defines {"BT_ENABLE_GRPC"}
-	end
-	
 	configurations {"Release", "Debug"}
 	configuration "Release"
 		flags { "Optimize", "EnableSSE2","StaticRuntime", "NoMinimalRebuild", "FloatFast"}
@@ -299,6 +366,9 @@ if os.is("Windows") then
 		default_glfw_lib_name = "glfw3"
 end
 
+	
+
+	
 	if not _OPTIONS["glfw_lib_dir"] then
 		_OPTIONS["glfw_lib_dir"] = default_glfw_lib_dir
 	end
@@ -341,8 +411,6 @@ end
     
 	if _OPTIONS["enable_glfw"] then
 		defines {"B3_USE_GLFW"}
-		
-			
 		
 		function initOpenGL()
 		includedirs {

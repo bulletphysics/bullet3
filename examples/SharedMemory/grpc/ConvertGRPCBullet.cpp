@@ -546,6 +546,7 @@ SharedMemoryCommand* convertGRPCToBulletCommand(const PyBulletCommand& grpcComma
 
 	}
 
+
 	int sz = grpcCommand.unknowncommandbinaryblob_size();
 	if (sz)
 	{
@@ -571,7 +572,7 @@ SharedMemoryCommand* convertGRPCToBulletCommand(const PyBulletCommand& grpcComma
 
 	if (cmdPtr == 0)
 	{
-		switch (grpcCommand.commandtype())
+		switch (cmd.m_type)
 		{
 
 		case CMD_RESET_SIMULATION:
@@ -1244,7 +1245,7 @@ SharedMemoryCommand* convertGRPCToBulletCommand(const PyBulletCommand& grpcComma
 			printf("unknown convertGRPCToBulletCommand");
 			assert(0);
 		}
-		}
+	}
 	}
 
 

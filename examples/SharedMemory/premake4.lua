@@ -474,6 +474,6 @@ include "plugins/tinyRendererPlugin"
 include "plugins/pdControlPlugin"
 include "plugins/collisionFilterPlugin"
 
-if _OPTIONS["grpc"] then
+if _OPTIONS["enable_grpc"] then
 		include "grpc"
 end
