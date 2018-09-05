@@ -35,6 +35,7 @@ extern PROTOBUF_INTERNAL_EXPORT_protobuf_pybullet_2eproto ::google::protobuf::in
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_pybullet_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_RequestBodyInfoStatus;
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_pybullet_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_RequestCameraImageStatus;
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_pybullet_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_RequestKeyboardEventsCommand;
+extern PROTOBUF_INTERNAL_EXPORT_protobuf_pybullet_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_ResetSimulationCommand;
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_pybullet_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_SdfLoadedStatus;
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_pybullet_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_SendActualStateStatus;
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_pybullet_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_StepSimulationCommand;
@@ -262,6 +263,11 @@ class RequestCameraImageStatusDefaultTypeInternal {
   ::google::protobuf::internal::ExplicitlyConstructed<RequestCameraImageStatus>
       _instance;
 } _RequestCameraImageStatus_default_instance_;
+class ResetSimulationCommandDefaultTypeInternal {
+ public:
+  ::google::protobuf::internal::ExplicitlyConstructed<ResetSimulationCommand>
+      _instance;
+} _ResetSimulationCommand_default_instance_;
 class PyBulletCommandDefaultTypeInternal {
  public:
   ::google::protobuf::internal::ExplicitlyConstructed<PyBulletCommand>
@@ -284,6 +290,7 @@ class PyBulletCommandDefaultTypeInternal {
   const ::pybullet_grpc::CheckVersionCommand* checkversioncommand_;
   const ::pybullet_grpc::RequestKeyboardEventsCommand* requestkeyboardeventscommand_;
   const ::pybullet_grpc::RequestCameraImageCommand* requestcameraimagecommand_;
+  const ::pybullet_grpc::ResetSimulationCommand* resetsimulationcommand_;
 } _PyBulletCommand_default_instance_;
 class PyBulletStatusDefaultTypeInternal {
  public:
@@ -838,6 +845,20 @@ static void InitDefaultsRequestCameraImageStatus() {
 ::google::protobuf::internal::SCCInfo<0> scc_info_RequestCameraImageStatus =
     {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsRequestCameraImageStatus}, {}};
 
+static void InitDefaultsResetSimulationCommand() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::pybullet_grpc::_ResetSimulationCommand_default_instance_;
+    new (ptr) ::pybullet_grpc::ResetSimulationCommand();
+    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::pybullet_grpc::ResetSimulationCommand::InitAsDefaultInstance();
+}
+
+::google::protobuf::internal::SCCInfo<0> scc_info_ResetSimulationCommand =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsResetSimulationCommand}, {}};
+
 static void InitDefaultsPyBulletCommand() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -849,8 +870,8 @@ static void InitDefaultsPyBulletCommand() {
   ::pybullet_grpc::PyBulletCommand::InitAsDefaultInstance();
 }
 
-::google::protobuf::internal::SCCInfo<18> scc_info_PyBulletCommand =
-    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 18, InitDefaultsPyBulletCommand}, {
+::google::protobuf::internal::SCCInfo<19> scc_info_PyBulletCommand =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 19, InitDefaultsPyBulletCommand}, {
       &protobuf_pybullet_2eproto::scc_info_LoadUrdfCommand.base,
       &protobuf_pybullet_2eproto::scc_info_TerminateServerCommand.base,
       &protobuf_pybullet_2eproto::scc_info_StepSimulationCommand.base,
@@ -868,7 +889,8 @@ static void InitDefaultsPyBulletCommand() {
       &protobuf_pybullet_2eproto::scc_info_UserConstraintCommand.base,
       &protobuf_pybullet_2eproto::scc_info_CheckVersionCommand.base,
       &protobuf_pybullet_2eproto::scc_info_RequestKeyboardEventsCommand.base,
-      &protobuf_pybullet_2eproto::scc_info_RequestCameraImageCommand.base,}};
+      &protobuf_pybullet_2eproto::scc_info_RequestCameraImageCommand.base,
+      &protobuf_pybullet_2eproto::scc_info_ResetSimulationCommand.base,}};
 
 static void InitDefaultsPyBulletStatus() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -935,11 +957,12 @@ void InitDefaults() {
   ::google::protobuf::internal::InitSCC(&scc_info_KeyboardEventsStatus.base);
   ::google::protobuf::internal::InitSCC(&scc_info_RequestCameraImageCommand.base);
   ::google::protobuf::internal::InitSCC(&scc_info_RequestCameraImageStatus.base);
+  ::google::protobuf::internal::InitSCC(&scc_info_ResetSimulationCommand.base);
   ::google::protobuf::internal::InitSCC(&scc_info_PyBulletCommand.base);
   ::google::protobuf::internal::InitSCC(&scc_info_PyBulletStatus.base);
 }
 
-::google::protobuf::Metadata file_level_metadata[39];
+::google::protobuf::Metadata file_level_metadata[40];
 
 const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
@@ -1328,6 +1351,11 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::pybullet_grpc::RequestCameraImageStatus, numpixelscopied_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::pybullet_grpc::RequestCameraImageStatus, numremainingpixels_),
   ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::pybullet_grpc::ResetSimulationCommand, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::pybullet_grpc::PyBulletCommand, _internal_metadata_),
   ~0u,  // no _extensions_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::pybullet_grpc::PyBulletCommand, _oneof_case_[0]),
@@ -1353,6 +1381,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   offsetof(::pybullet_grpc::PyBulletCommandDefaultTypeInternal, checkversioncommand_),
   offsetof(::pybullet_grpc::PyBulletCommandDefaultTypeInternal, requestkeyboardeventscommand_),
   offsetof(::pybullet_grpc::PyBulletCommandDefaultTypeInternal, requestcameraimagecommand_),
+  offsetof(::pybullet_grpc::PyBulletCommandDefaultTypeInternal, resetsimulationcommand_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::pybullet_grpc::PyBulletCommand, commands_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::pybullet_grpc::PyBulletStatus, _internal_metadata_),
@@ -1415,8 +1444,9 @@ static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROT
   { 348, -1, sizeof(::pybullet_grpc::KeyboardEventsStatus)},
   { 354, -1, sizeof(::pybullet_grpc::RequestCameraImageCommand)},
   { 375, -1, sizeof(::pybullet_grpc::RequestCameraImageStatus)},
-  { 385, -1, sizeof(::pybullet_grpc::PyBulletCommand)},
-  { 412, -1, sizeof(::pybullet_grpc::PyBulletStatus)},
+  { 385, -1, sizeof(::pybullet_grpc::ResetSimulationCommand)},
+  { 390, -1, sizeof(::pybullet_grpc::PyBulletCommand)},
+  { 418, -1, sizeof(::pybullet_grpc::PyBulletStatus)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -1457,6 +1487,7 @@ static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&::pybullet_grpc::_KeyboardEventsStatus_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::pybullet_grpc::_RequestCameraImageCommand_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::pybullet_grpc::_RequestCameraImageStatus_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&::pybullet_grpc::_ResetSimulationCommand_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::pybullet_grpc::_PyBulletCommand_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::pybullet_grpc::_PyBulletStatus_default_instance_),
 };
@@ -1476,7 +1507,7 @@ void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) GOOGLE_PROTOBUF_ATTRIBUTE_COLD;
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 39);
+  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 40);
 }
 
 void AddDescriptorsImpl() {
@@ -1634,74 +1665,76 @@ void AddDescriptorsImpl() {
       "RequestCameraImageStatus\022\022\n\nimageWidth\030\001"
       " \001(\005\022\023\n\013imageHeight\030\002 \001(\005\022\032\n\022startingPix"
       "elIndex\030\003 \001(\005\022\027\n\017numPixelsCopied\030\004 \001(\005\022\032"
-      "\n\022numRemainingPixels\030\005 \001(\005\"\375\n\n\017PyBulletC"
-      "ommand\022\023\n\013commandType\030\001 \001(\005\022\022\n\nbinaryBlo"
-      "b\030\002 \003(\014\022 \n\030unknownCommandBinaryBlob\030\003 \003("
-      "\014\0229\n\017loadUrdfCommand\030\004 \001(\0132\036.pybullet_gr"
-      "pc.LoadUrdfCommandH\000\022G\n\026terminateServerC"
-      "ommand\030\005 \001(\0132%.pybullet_grpc.TerminateSe"
-      "rverCommandH\000\022E\n\025stepSimulationCommand\030\006"
-      " \001(\0132$.pybullet_grpc.StepSimulationComma"
-      "ndH\000\0227\n\016loadSdfCommand\030\007 \001(\0132\035.pybullet_"
-      "grpc.LoadSdfCommandH\000\0229\n\017loadMjcfCommand"
-      "\030\010 \001(\0132\036.pybullet_grpc.LoadMjcfCommandH\000"
-      "\022E\n\025changeDynamicsCommand\030\t \001(\0132$.pybull"
-      "et_grpc.ChangeDynamicsCommandH\000\022\?\n\022getDy"
-      "namicsCommand\030\n \001(\0132!.pybullet_grpc.GetD"
-      "ynamicsCommandH\000\0229\n\017initPoseCommand\030\013 \001("
-      "\0132\036.pybullet_grpc.InitPoseCommandH\000\022M\n\031r"
-      "equestActualStateCommand\030\014 \001(\0132(.pybulle"
-      "t_grpc.RequestActualStateCommandH\000\022[\n co"
-      "nfigureOpenGLVisualizerCommand\030\r \001(\0132/.p"
-      "ybullet_grpc.ConfigureOpenGLVisualizerCo"
-      "mmandH\000\022=\n\021syncBodiesCommand\030\016 \001(\0132 .pyb"
-      "ullet_grpc.SyncBodiesCommandH\000\022G\n\026reques"
-      "tBodyInfoCommand\030\017 \001(\0132%.pybullet_grpc.R"
-      "equestBodyInfoCommandH\000\022b\n%setPhysicsSim"
-      "ulationParametersCommand\030\020 \001(\01321.pybulle"
-      "t_grpc.PhysicsSimulationParametersComman"
-      "dH\000\022K\n\030jointMotorControlCommand\030\021 \001(\0132\'."
-      "pybullet_grpc.JointMotorControlCommandH\000"
-      "\022E\n\025userConstraintCommand\030\022 \001(\0132$.pybull"
-      "et_grpc.UserConstraintCommandH\000\022A\n\023check"
-      "VersionCommand\030\023 \001(\0132\".pybullet_grpc.Che"
-      "ckVersionCommandH\000\022S\n\034requestKeyboardEve"
-      "ntsCommand\030\024 \001(\0132+.pybullet_grpc.Request"
-      "KeyboardEventsCommandH\000\022M\n\031requestCamera"
-      "ImageCommand\030\025 \001(\0132(.pybullet_grpc.Reque"
-      "stCameraImageCommandH\000B\n\n\010commands\"\321\007\n\016P"
-      "yBulletStatus\022\022\n\nstatusType\030\001 \001(\005\022\022\n\nbin"
-      "aryBlob\030\002 \003(\014\022\037\n\027unknownStatusBinaryBlob"
-      "\030\003 \003(\014\0223\n\nurdfStatus\030\004 \001(\0132\035.pybullet_gr"
-      "pc.LoadUrdfStatusH\000\0223\n\tsdfStatus\030\005 \001(\0132\036"
-      ".pybullet_grpc.SdfLoadedStatusH\000\0225\n\nmjcf"
-      "Status\030\006 \001(\0132\037.pybullet_grpc.MjcfLoadedS"
-      "tatusH\000\022=\n\021getDynamicsStatus\030\007 \001(\0132 .pyb"
-      "ullet_grpc.GetDynamicsStatusH\000\022A\n\021actual"
-      "StateStatus\030\010 \001(\0132$.pybullet_grpc.SendAc"
-      "tualStateStatusH\000\022;\n\020syncBodiesStatus\030\t "
-      "\001(\0132\037.pybullet_grpc.SyncBodiesStatusH\000\022E"
-      "\n\025requestBodyInfoStatus\030\n \001(\0132$.pybullet"
-      "_grpc.RequestBodyInfoStatusH\000\022^\n(request"
-      "PhysicsSimulationParametersStatus\030\013 \001(\0132"
-      "*.pybullet_grpc.PhysicsSimulationParamet"
-      "ersH\000\022\?\n\022checkVersionStatus\030\014 \001(\0132!.pybu"
-      "llet_grpc.CheckVersionStatusH\000\022C\n\024userCo"
-      "nstraintStatus\030\r \001(\0132#.pybullet_grpc.Use"
-      "rConstraintStatusH\000\022M\n\031userConstraintSta"
-      "teStatus\030\016 \001(\0132(.pybullet_grpc.UserConst"
-      "raintStateStatusH\000\022C\n\024keyboardEventsStat"
-      "us\030\017 \001(\0132#.pybullet_grpc.KeyboardEventsS"
-      "tatusH\000\022K\n\030requestCameraImageStatus\030\020 \001("
-      "\0132\'.pybullet_grpc.RequestCameraImageStat"
-      "usH\000B\010\n\006status2_\n\013PyBulletAPI\022P\n\rSubmitC"
-      "ommand\022\036.pybullet_grpc.PyBulletCommand\032\035"
-      ".pybullet_grpc.PyBulletStatus\"\000B.\n\025io.gr"
-      "pc.pybullet_grpcB\rPyBulletProtoP\001\242\002\003PBGb"
-      "\006proto3"
+      "\n\022numRemainingPixels\030\005 \001(\005\"\030\n\026ResetSimul"
+      "ationCommand\"\306\013\n\017PyBulletCommand\022\023\n\013comm"
+      "andType\030\001 \001(\005\022\022\n\nbinaryBlob\030\002 \003(\014\022 \n\030unk"
+      "nownCommandBinaryBlob\030\003 \003(\014\0229\n\017loadUrdfC"
+      "ommand\030\004 \001(\0132\036.pybullet_grpc.LoadUrdfCom"
+      "mandH\000\022G\n\026terminateServerCommand\030\005 \001(\0132%"
+      ".pybullet_grpc.TerminateServerCommandH\000\022"
+      "E\n\025stepSimulationCommand\030\006 \001(\0132$.pybulle"
+      "t_grpc.StepSimulationCommandH\000\0227\n\016loadSd"
+      "fCommand\030\007 \001(\0132\035.pybullet_grpc.LoadSdfCo"
+      "mmandH\000\0229\n\017loadMjcfCommand\030\010 \001(\0132\036.pybul"
+      "let_grpc.LoadMjcfCommandH\000\022E\n\025changeDyna"
+      "micsCommand\030\t \001(\0132$.pybullet_grpc.Change"
+      "DynamicsCommandH\000\022\?\n\022getDynamicsCommand\030"
+      "\n \001(\0132!.pybullet_grpc.GetDynamicsCommand"
+      "H\000\0229\n\017initPoseCommand\030\013 \001(\0132\036.pybullet_g"
+      "rpc.InitPoseCommandH\000\022M\n\031requestActualSt"
+      "ateCommand\030\014 \001(\0132(.pybullet_grpc.Request"
+      "ActualStateCommandH\000\022[\n configureOpenGLV"
+      "isualizerCommand\030\r \001(\0132/.pybullet_grpc.C"
+      "onfigureOpenGLVisualizerCommandH\000\022=\n\021syn"
+      "cBodiesCommand\030\016 \001(\0132 .pybullet_grpc.Syn"
+      "cBodiesCommandH\000\022G\n\026requestBodyInfoComma"
+      "nd\030\017 \001(\0132%.pybullet_grpc.RequestBodyInfo"
+      "CommandH\000\022b\n%setPhysicsSimulationParamet"
+      "ersCommand\030\020 \001(\01321.pybullet_grpc.Physics"
+      "SimulationParametersCommandH\000\022K\n\030jointMo"
+      "torControlCommand\030\021 \001(\0132\'.pybullet_grpc."
+      "JointMotorControlCommandH\000\022E\n\025userConstr"
+      "aintCommand\030\022 \001(\0132$.pybullet_grpc.UserCo"
+      "nstraintCommandH\000\022A\n\023checkVersionCommand"
+      "\030\023 \001(\0132\".pybullet_grpc.CheckVersionComma"
+      "ndH\000\022S\n\034requestKeyboardEventsCommand\030\024 \001"
+      "(\0132+.pybullet_grpc.RequestKeyboardEvents"
+      "CommandH\000\022M\n\031requestCameraImageCommand\030\025"
+      " \001(\0132(.pybullet_grpc.RequestCameraImageC"
+      "ommandH\000\022G\n\026resetSimulationCommand\030\026 \001(\013"
+      "2%.pybullet_grpc.ResetSimulationCommandH"
+      "\000B\n\n\010commands\"\321\007\n\016PyBulletStatus\022\022\n\nstat"
+      "usType\030\001 \001(\005\022\022\n\nbinaryBlob\030\002 \003(\014\022\037\n\027unkn"
+      "ownStatusBinaryBlob\030\003 \003(\014\0223\n\nurdfStatus\030"
+      "\004 \001(\0132\035.pybullet_grpc.LoadUrdfStatusH\000\0223"
+      "\n\tsdfStatus\030\005 \001(\0132\036.pybullet_grpc.SdfLoa"
+      "dedStatusH\000\0225\n\nmjcfStatus\030\006 \001(\0132\037.pybull"
+      "et_grpc.MjcfLoadedStatusH\000\022=\n\021getDynamic"
+      "sStatus\030\007 \001(\0132 .pybullet_grpc.GetDynamic"
+      "sStatusH\000\022A\n\021actualStateStatus\030\010 \001(\0132$.p"
+      "ybullet_grpc.SendActualStateStatusH\000\022;\n\020"
+      "syncBodiesStatus\030\t \001(\0132\037.pybullet_grpc.S"
+      "yncBodiesStatusH\000\022E\n\025requestBodyInfoStat"
+      "us\030\n \001(\0132$.pybullet_grpc.RequestBodyInfo"
+      "StatusH\000\022^\n(requestPhysicsSimulationPara"
+      "metersStatus\030\013 \001(\0132*.pybullet_grpc.Physi"
+      "csSimulationParametersH\000\022\?\n\022checkVersion"
+      "Status\030\014 \001(\0132!.pybullet_grpc.CheckVersio"
+      "nStatusH\000\022C\n\024userConstraintStatus\030\r \001(\0132"
+      "#.pybullet_grpc.UserConstraintStatusH\000\022M"
+      "\n\031userConstraintStateStatus\030\016 \001(\0132(.pybu"
+      "llet_grpc.UserConstraintStateStatusH\000\022C\n"
+      "\024keyboardEventsStatus\030\017 \001(\0132#.pybullet_g"
+      "rpc.KeyboardEventsStatusH\000\022K\n\030requestCam"
+      "eraImageStatus\030\020 \001(\0132\'.pybullet_grpc.Req"
+      "uestCameraImageStatusH\000B\010\n\006status2_\n\013PyB"
+      "ulletAPI\022P\n\rSubmitCommand\022\036.pybullet_grp"
+      "c.PyBulletCommand\032\035.pybullet_grpc.PyBull"
+      "etStatus\"\000B.\n\025io.grpc.pybullet_grpcB\rPyB"
+      "ulletProtoP\001\242\002\003PBGb\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 8647);
+      descriptor, 8746);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "pybullet.proto", &protobuf_RegisterTypes);
 }
@@ -16978,6 +17011,185 @@ void RequestCameraImageStatus::InternalSwap(RequestCameraImageStatus* other) {
 
 // ===================================================================
 
+void ResetSimulationCommand::InitAsDefaultInstance() {
+}
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+ResetSimulationCommand::ResetSimulationCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  ::google::protobuf::internal::InitSCC(
+      &protobuf_pybullet_2eproto::scc_info_ResetSimulationCommand.base);
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:pybullet_grpc.ResetSimulationCommand)
+}
+ResetSimulationCommand::ResetSimulationCommand(const ResetSimulationCommand& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:pybullet_grpc.ResetSimulationCommand)
+}
+
+void ResetSimulationCommand::SharedCtor() {
+}
+
+ResetSimulationCommand::~ResetSimulationCommand() {
+  // @@protoc_insertion_point(destructor:pybullet_grpc.ResetSimulationCommand)
+  SharedDtor();
+}
+
+void ResetSimulationCommand::SharedDtor() {
+}
+
+void ResetSimulationCommand::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const ::google::protobuf::Descriptor* ResetSimulationCommand::descriptor() {
+  ::protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return ::protobuf_pybullet_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
+}
+
+const ResetSimulationCommand& ResetSimulationCommand::default_instance() {
+  ::google::protobuf::internal::InitSCC(&protobuf_pybullet_2eproto::scc_info_ResetSimulationCommand.base);
+  return *internal_default_instance();
+}
+
+
+void ResetSimulationCommand::Clear() {
+// @@protoc_insertion_point(message_clear_start:pybullet_grpc.ResetSimulationCommand)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _internal_metadata_.Clear();
+}
+
+bool ResetSimulationCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:pybullet_grpc.ResetSimulationCommand)
+  for (;;) {
+    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+  handle_unusual:
+    if (tag == 0) {
+      goto success;
+    }
+    DO_(::google::protobuf::internal::WireFormat::SkipField(
+          input, tag, _internal_metadata_.mutable_unknown_fields()));
+  }
+success:
+  // @@protoc_insertion_point(parse_success:pybullet_grpc.ResetSimulationCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:pybullet_grpc.ResetSimulationCommand)
+  return false;
+#undef DO_
+}
+
+void ResetSimulationCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:pybullet_grpc.ResetSimulationCommand)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  }
+  // @@protoc_insertion_point(serialize_end:pybullet_grpc.ResetSimulationCommand)
+}
+
+::google::protobuf::uint8* ResetSimulationCommand::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic; // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:pybullet_grpc.ResetSimulationCommand)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pybullet_grpc.ResetSimulationCommand)
+  return target;
+}
+
+size_t ResetSimulationCommand::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pybullet_grpc.ResetSimulationCommand)
+  size_t total_size = 0;
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+  }
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void ResetSimulationCommand::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:pybullet_grpc.ResetSimulationCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  const ResetSimulationCommand* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const ResetSimulationCommand>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:pybullet_grpc.ResetSimulationCommand)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:pybullet_grpc.ResetSimulationCommand)
+    MergeFrom(*source);
+  }
+}
+
+void ResetSimulationCommand::MergeFrom(const ResetSimulationCommand& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:pybullet_grpc.ResetSimulationCommand)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+}
+
+void ResetSimulationCommand::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:pybullet_grpc.ResetSimulationCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ResetSimulationCommand::CopyFrom(const ResetSimulationCommand& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pybullet_grpc.ResetSimulationCommand)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ResetSimulationCommand::IsInitialized() const {
+  return true;
+}
+
+void ResetSimulationCommand::Swap(ResetSimulationCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void ResetSimulationCommand::InternalSwap(ResetSimulationCommand* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+}
+
+::google::protobuf::Metadata ResetSimulationCommand::GetMetadata() const {
+  protobuf_pybullet_2eproto::protobuf_AssignDescriptorsOnce();
+  return ::protobuf_pybullet_2eproto::file_level_metadata[kIndexInFileMessages];
+}
+
+
+// ===================================================================
+
 void PyBulletCommand::InitAsDefaultInstance() {
   ::pybullet_grpc::_PyBulletCommand_default_instance_.loadurdfcommand_ = const_cast< ::pybullet_grpc::LoadUrdfCommand*>(
       ::pybullet_grpc::LoadUrdfCommand::internal_default_instance());
@@ -17015,6 +17227,8 @@ void PyBulletCommand::InitAsDefaultInstance() {
       ::pybullet_grpc::RequestKeyboardEventsCommand::internal_default_instance());
   ::pybullet_grpc::_PyBulletCommand_default_instance_.requestcameraimagecommand_ = const_cast< ::pybullet_grpc::RequestCameraImageCommand*>(
       ::pybullet_grpc::RequestCameraImageCommand::internal_default_instance());
+  ::pybullet_grpc::_PyBulletCommand_default_instance_.resetsimulationcommand_ = const_cast< ::pybullet_grpc::ResetSimulationCommand*>(
+      ::pybullet_grpc::ResetSimulationCommand::internal_default_instance());
 }
 void PyBulletCommand::set_allocated_loadurdfcommand(::pybullet_grpc::LoadUrdfCommand* loadurdfcommand) {
   ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
@@ -17268,6 +17482,20 @@ void PyBulletCommand::set_allocated_requestcameraimagecommand(::pybullet_grpc::R
   }
   // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.requestCameraImageCommand)
 }
+void PyBulletCommand::set_allocated_resetsimulationcommand(::pybullet_grpc::ResetSimulationCommand* resetsimulationcommand) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  clear_commands();
+  if (resetsimulationcommand) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      resetsimulationcommand = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, resetsimulationcommand, submessage_arena);
+    }
+    set_has_resetsimulationcommand();
+    commands_.resetsimulationcommand_ = resetsimulationcommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:pybullet_grpc.PyBulletCommand.resetSimulationCommand)
+}
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int PyBulletCommand::kCommandTypeFieldNumber;
 const int PyBulletCommand::kBinaryBlobFieldNumber;
@@ -17290,6 +17518,7 @@ const int PyBulletCommand::kUserConstraintCommandFieldNumber;
 const int PyBulletCommand::kCheckVersionCommandFieldNumber;
 const int PyBulletCommand::kRequestKeyboardEventsCommandFieldNumber;
 const int PyBulletCommand::kRequestCameraImageCommandFieldNumber;
+const int PyBulletCommand::kResetSimulationCommandFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 PyBulletCommand::PyBulletCommand()
@@ -17378,6 +17607,10 @@ PyBulletCommand::PyBulletCommand(const PyBulletCommand& from)
     }
     case kRequestCameraImageCommand: {
       mutable_requestcameraimagecommand()->::pybullet_grpc::RequestCameraImageCommand::MergeFrom(from.requestcameraimagecommand());
+      break;
+    }
+    case kResetSimulationCommand: {
+      mutable_resetsimulationcommand()->::pybullet_grpc::ResetSimulationCommand::MergeFrom(from.resetsimulationcommand());
       break;
     }
     case COMMANDS_NOT_SET: {
@@ -17490,6 +17723,10 @@ void PyBulletCommand::clear_commands() {
     }
     case kRequestCameraImageCommand: {
       delete commands_.requestcameraimagecommand_;
+      break;
+    }
+    case kResetSimulationCommand: {
+      delete commands_.resetsimulationcommand_;
       break;
     }
     case COMMANDS_NOT_SET: {
@@ -17777,6 +18014,18 @@ bool PyBulletCommand::MergePartialFromCodedStream(
         break;
       }
 
+      // .pybullet_grpc.ResetSimulationCommand resetSimulationCommand = 22;
+      case 22: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(178u /* 178 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+               input, mutable_resetsimulationcommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -17926,6 +18175,12 @@ void PyBulletCommand::SerializeWithCachedSizes(
   if (has_requestcameraimagecommand()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       21, this->_internal_requestcameraimagecommand(), output);
+  }
+
+  // .pybullet_grpc.ResetSimulationCommand resetSimulationCommand = 22;
+  if (has_resetsimulationcommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      22, this->_internal_resetsimulationcommand(), output);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -18083,6 +18338,13 @@ void PyBulletCommand::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
         21, this->_internal_requestcameraimagecommand(), deterministic, target);
+  }
+
+  // .pybullet_grpc.ResetSimulationCommand resetSimulationCommand = 22;
+  if (has_resetsimulationcommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        22, this->_internal_resetsimulationcommand(), deterministic, target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -18252,6 +18514,13 @@ size_t PyBulletCommand::ByteSizeLong() const {
           *commands_.requestcameraimagecommand_);
       break;
     }
+    // .pybullet_grpc.ResetSimulationCommand resetSimulationCommand = 22;
+    case kResetSimulationCommand: {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::MessageSize(
+          *commands_.resetsimulationcommand_);
+      break;
+    }
     case COMMANDS_NOT_SET: {
       break;
     }
@@ -18359,6 +18628,10 @@ void PyBulletCommand::MergeFrom(const PyBulletCommand& from) {
     }
     case kRequestCameraImageCommand: {
       mutable_requestcameraimagecommand()->::pybullet_grpc::RequestCameraImageCommand::MergeFrom(from.requestcameraimagecommand());
+      break;
+    }
+    case kResetSimulationCommand: {
+      mutable_resetsimulationcommand()->::pybullet_grpc::ResetSimulationCommand::MergeFrom(from.resetsimulationcommand());
       break;
     }
     case COMMANDS_NOT_SET: {
@@ -19643,6 +19916,9 @@ template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::pybullet_grpc::RequestCameraImag
 }
 template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::pybullet_grpc::RequestCameraImageStatus* Arena::CreateMaybeMessage< ::pybullet_grpc::RequestCameraImageStatus >(Arena* arena) {
   return Arena::CreateInternal< ::pybullet_grpc::RequestCameraImageStatus >(arena);
+}
+template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::pybullet_grpc::ResetSimulationCommand* Arena::CreateMaybeMessage< ::pybullet_grpc::ResetSimulationCommand >(Arena* arena) {
+  return Arena::CreateInternal< ::pybullet_grpc::ResetSimulationCommand >(arena);
 }
 template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::pybullet_grpc::PyBulletCommand* Arena::CreateMaybeMessage< ::pybullet_grpc::PyBulletCommand >(Arena* arena) {
   return Arena::CreateInternal< ::pybullet_grpc::PyBulletCommand >(arena);

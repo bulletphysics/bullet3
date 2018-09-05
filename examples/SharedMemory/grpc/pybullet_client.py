@@ -22,6 +22,11 @@ def run():
 	print("PyBullet client received: " , response)
 
 
+        print("submit_ResetSimulationCommand")
+        response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(resetSimulationCommand=pybullet_pb2.ResetSimulationCommand()))
+        print("PyBullet client received: ", response)
+
+
 	print("submit LoadUrdfCommand ")
 	response = stub.SubmitCommand(pybullet_pb2.PyBulletCommand(loadUrdfCommand=pybullet_pb2.LoadUrdfCommand(fileName="door.urdf", initialPosition=pybullet_pb2.vec3(x=0,y=0,z=0), useMultiBody=True, useFixedBase=True, globalScaling=2, flags = 1)))
 	print("PyBullet client received: " , response)

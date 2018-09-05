@@ -397,6 +397,9 @@ message RequestCameraImageStatus
 	int32 numRemainingPixels=5;
 };
 
+message ResetSimulationCommand
+{
+};
 
 // The request message containing the command
 message PyBulletCommand {
@@ -426,6 +429,7 @@ message PyBulletCommand {
 		CheckVersionCommand checkVersionCommand=19;
 		RequestKeyboardEventsCommand requestKeyboardEventsCommand=20;
 		RequestCameraImageCommand requestCameraImageCommand=21;
+		ResetSimulationCommand resetSimulationCommand=22;
   }
   
   
