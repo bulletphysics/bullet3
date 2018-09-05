@@ -1139,15 +1139,10 @@ public:
 	btScalar	getW() const { return m_floats[3];}
 
 
-		SIMD_FORCE_INLINE int maxAxis4() const
+	SIMD_FORCE_INLINE int maxAxis4() const
 	{
-		int maxIndex = -1;
-		btScalar maxVal = btScalar(-BT_LARGE_FLOAT);
-		if (m_floats[0] > maxVal)
-		{
-			maxIndex = 0;
-			maxVal = m_floats[0];
-		}
+		int maxIndex = 0;
+		btScalar maxVal = m_floats[0];
 		if (m_floats[1] > maxVal)
 		{
 			maxIndex = 1;
@@ -1162,20 +1157,14 @@ public:
 		{
 			maxIndex = 3;
 		}
-
 		return maxIndex;
 	}
 
 
 	SIMD_FORCE_INLINE int minAxis4() const
 	{
-		int minIndex = -1;
-		btScalar minVal = btScalar(BT_LARGE_FLOAT);
-		if (m_floats[0] < minVal)
-		{
-			minIndex = 0;
-			minVal = m_floats[0];
-		}
+		int minIndex = 0;
+		btScalar minVal = m_floats[0];
 		if (m_floats[1] < minVal)
 		{
 			minIndex = 1;
@@ -1184,13 +1173,12 @@ public:
 		if (m_floats[2] < minVal)
 		{
 			minIndex = 2;
-			minVal =m_floats[2];
+			minVal = m_floats[2];
 		}
 		if (m_floats[3] < minVal)
 		{
 			minIndex = 3;
 		}
-		
 		return minIndex;
 	}
 
