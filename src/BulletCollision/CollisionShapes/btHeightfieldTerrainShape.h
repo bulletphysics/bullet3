@@ -160,7 +160,7 @@ public:
 	virtual const btVector3& getLocalScaling() const;
 	
 	//debugging
-	virtual const char*	getName()const {return "HEIGHTFIELD";}
+	virtual const char*	getName()const {return "HeightfieldTerrain";}
 
 };
 

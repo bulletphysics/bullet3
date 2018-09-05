@@ -78,7 +78,7 @@ public:
 
 
 	//debugging
-	virtual const char*	getName()const {return "TRIANGLEMESH";}
+	virtual const char*	getName()const {return "TriangleMesh";}
 
 	
 

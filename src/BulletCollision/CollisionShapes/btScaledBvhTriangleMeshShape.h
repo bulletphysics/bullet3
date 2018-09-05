@@ -57,7 +57,7 @@ public:
 	}
 
 	//debugging
-	virtual const char*	getName()const {return "SCALEDBVHTRIANGLEMESH";}
+	virtual const char*	getName()const {return "ScaledBVHTriangleMesh";}
 
 	virtual	int	calculateSerializeBufferSize() const;
 
