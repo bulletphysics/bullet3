@@ -476,4 +476,5 @@ include "plugins/collisionFilterPlugin"
 
 if _OPTIONS["enable_grpc"] then
 		include "grpc"
+		include "plugins/grpcPlugin"
 end

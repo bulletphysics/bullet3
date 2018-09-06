@@ -18,6 +18,9 @@ struct b3PluginContext
 	int m_numMouseEvents;
 	const struct b3Notification* m_notifications;
 	int m_numNotifications;
+	
+	//only used for grpc/processClientCommands
+	class PhysicsCommandProcessorInterface* m_rpcCommandProcessorInterface;
 };
 
 

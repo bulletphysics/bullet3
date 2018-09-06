@@ -5,7 +5,7 @@ project ("App_PhysicsServerSharedMemoryBridgeGRPC")
 			
 	kind "ConsoleApp"
 	
-	includedirs {"../../ThirdPartyLibs/clsocket/src","../../../src",".."}
+	includedirs {"../../../src",".."}
 		
 	initGRPC()
 

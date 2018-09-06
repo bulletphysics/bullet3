@@ -60,6 +60,9 @@ public:
 
 	virtual const btQuaternion& getVRTeleportOrientation() const=0;
 	virtual void setVRTeleportOrientation(const btQuaternion& vrReleportOrn)=0;
+
+	virtual void processClientCommands() = 0;
+	
 };
 
 #endif //PHYSICS_COMMAND_PROCESSOR_INTERFACE_H

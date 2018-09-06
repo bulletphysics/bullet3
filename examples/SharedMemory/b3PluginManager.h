@@ -3,6 +3,13 @@
 
 #include "plugins/b3PluginAPI.h"
 
+enum b3PluginManagerTickMode
+{
+	B3_PRE_TICK_MODE=1,
+	B3_POST_TICK_MODE,
+	B3_PROCESS_CLIENT_COMMANDS_TICK,
+};
+
 class b3PluginManager
 {
 	struct b3PluginManagerInternalData* m_data;
@@ -20,11 +27,10 @@ class b3PluginManager
 
 		void addNotification(const struct b3Notification& notification);
 		void reportNotifications();
-
-		void tickPlugins(double timeStep, bool isPreTick);
-
-		int registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc,PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc, PFN_GET_RENDER_INTERFACE getRendererFunc);
 		
+		void tickPlugins(double timeStep, b3PluginManagerTickMode tickMode);
+
+		int registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc, PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc, PFN_GET_RENDER_INTERFACE getRendererFunc, PFN_TICK processClientCommandsFunc);
 		void selectPluginRenderer(int pluginUniqueId);
 		UrdfRenderingInterface* getRenderInterface();
 };
