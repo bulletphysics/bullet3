@@ -3,6 +3,17 @@
 project ("pybullet")
 		language "C++"
 		kind "SharedLib"
+
+		if _OPTIONS["enable_grpc"] then
+				initGRPC()
+				
+				 files {
+                  "../../examples/SharedMemory/PhysicsClientGRPC.cpp",
+                  "../../examples/SharedMemory/PhysicsClientGRPC.h",
+                  "../../examples/SharedMemory/PhysicsClientGRPC_C_API.cpp",
+                  "../../examples/SharedMemory/PhysicsClientGRPC_C_API.h",
+                }
+		end
 		
 		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}

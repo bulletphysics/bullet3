@@ -155,6 +155,11 @@ bool GRPCNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComm
 		
 		//convert grpc status to Bullet status
 		bool convertedOk = convertGRPCToStatus(status, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+		if (!convertedOk)
+		{
+			disconnect();
+			
+		}
 		return convertedOk;
 
 	}

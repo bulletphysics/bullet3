@@ -54,6 +54,11 @@
 #include "plugins/collisionFilterPlugin/collisionFilterPlugin.h"
 #endif
 
+
+#ifdef ENABLE_STATIC_GRPC_PLUGIN
+#include "plugins/grpcPlugin/grpcPlugin.h"
+#endif //ENABLE_STATIC_GRPC_PLUGIN
+
 #ifndef SKIP_STATIC_PD_CONTROL_PLUGIN
 #include "plugins/pdControlPlugin/pdControlPlugin.h"
 #endif //SKIP_STATIC_PD_CONTROL_PLUGIN
@@ -1635,6 +1640,7 @@ struct PhysicsServerCommandProcessorInternalData
 	bool m_prevCanSleep;
 	int m_pdControlPlugin;
 	int m_collisionFilterPlugin;
+	int m_grpcPlugin;
 
 #ifdef B3_ENABLE_TINY_AUDIO
 	b3SoundEngine m_soundEngine;
@@ -1675,29 +1681,37 @@ struct PhysicsServerCommandProcessorInternalData
 		m_pickingMultiBodyPoint2Point(0),
 		m_pdControlPlugin(-1),
 		m_collisionFilterPlugin(-1),
+		m_grpcPlugin(-1),
 		m_threadPool(0)
 	{
 
 		{
 			//register static plugins:
 #ifdef STATIC_LINK_VR_PLUGIN
-			m_pluginManager.registerStaticLinkedPlugin("vrSyncPlugin", initPlugin_vrSyncPlugin, exitPlugin_vrSyncPlugin, executePluginCommand_vrSyncPlugin, preTickPluginCallback_vrSyncPlugin, 0, 0);
+			m_pluginManager.registerStaticLinkedPlugin("vrSyncPlugin", initPlugin_vrSyncPlugin, exitPlugin_vrSyncPlugin, executePluginCommand_vrSyncPlugin, preTickPluginCallback_vrSyncPlugin, 0, 0,0);
 #endif //STATIC_LINK_VR_PLUGIN
 
 #ifndef SKIP_STATIC_PD_CONTROL_PLUGIN
 		{
-			m_pdControlPlugin = m_pluginManager.registerStaticLinkedPlugin("pdControlPlugin", initPlugin_pdControlPlugin, exitPlugin_pdControlPlugin, executePluginCommand_pdControlPlugin, preTickPluginCallback_pdControlPlugin, 0, 0);
+			m_pdControlPlugin = m_pluginManager.registerStaticLinkedPlugin("pdControlPlugin", initPlugin_pdControlPlugin, exitPlugin_pdControlPlugin, executePluginCommand_pdControlPlugin, preTickPluginCallback_pdControlPlugin, 0, 0,0);
 		}
 #endif //SKIP_STATIC_PD_CONTROL_PLUGIN
 
 #ifndef SKIP_COLLISION_FILTER_PLUGIN
 	{
-		m_collisionFilterPlugin = m_pluginManager.registerStaticLinkedPlugin("collisionFilterPlugin", initPlugin_collisionFilterPlugin, exitPlugin_collisionFilterPlugin, executePluginCommand_collisionFilterPlugin, 0,0,0);
+		m_collisionFilterPlugin = m_pluginManager.registerStaticLinkedPlugin("collisionFilterPlugin", initPlugin_collisionFilterPlugin, exitPlugin_collisionFilterPlugin, executePluginCommand_collisionFilterPlugin, 0,0,0,0);
 	}
 #endif
 
+#ifdef ENABLE_STATIC_GRPC_PLUGIN
+	{
+		m_grpcPlugin = m_pluginManager.registerStaticLinkedPlugin("grpcPlugin", initPlugin_grpcPlugin, exitPlugin_grpcPlugin, executePluginCommand_grpcPlugin, 0, 0, 0,processClientCommands_grpcPlugin);
+	}
+#endif //ENABLE_STATIC_GRPC_PLUGIN
+
+
 #ifndef SKIP_STATIC_TINYRENDERER_PLUGIN
-			int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin,0,0,getRenderInterface_tinyRendererPlugin);
+			int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin,0,0,getRenderInterface_tinyRendererPlugin,0);
 			m_pluginManager.selectPluginRenderer(renderPluginId);
 #endif
 		}
@@ -1799,8 +1813,8 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 void preTickCallback(btDynamicsWorld *world, btScalar timeStep)
 {
 	PhysicsServerCommandProcessor* proc = (PhysicsServerCommandProcessor*) world->getWorldUserInfo();
-	bool isPreTick = true;
-	proc->tickPlugins(timeStep, isPreTick);
+	
+	proc->tickPlugins(timeStep, true);
 }
 
 void logCallback(btDynamicsWorld *world, btScalar timeStep)
@@ -1810,8 +1824,7 @@ void logCallback(btDynamicsWorld *world, btScalar timeStep)
 	proc->processCollisionForces(timeStep);
 	proc->logObjectStates(timeStep);
 	
-	bool isPreTick = false;
-	proc->tickPlugins(timeStep, isPreTick);
+	proc->tickPlugins(timeStep, false);
 }
 
 bool MyContactAddedCallback(btManifoldPoint& cp,	const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
@@ -1920,13 +1933,21 @@ void PhysicsServerCommandProcessor::processCollisionForces(btScalar timeStep)
 #endif//B3_ENABLE_TINY_AUDIO
 }
 
-void PhysicsServerCommandProcessor::reportNotifications() {
+void PhysicsServerCommandProcessor::processClientCommands()
+{
+	m_data->m_pluginManager.tickPlugins(0, B3_PROCESS_CLIENT_COMMANDS_TICK);
+}
+
+
+void PhysicsServerCommandProcessor::reportNotifications() 
+{
   m_data->m_pluginManager.reportNotifications();
 }
 
 void PhysicsServerCommandProcessor::tickPlugins(btScalar timeStep, bool isPreTick)
 {
-	m_data->m_pluginManager.tickPlugins(timeStep, isPreTick);
+	b3PluginManagerTickMode tickMode = isPreTick ? B3_PRE_TICK_MODE : B3_POST_TICK_MODE;
+	m_data->m_pluginManager.tickPlugins(timeStep, tickMode);
 	if (!isPreTick)
 	{
 		//clear events after each postTick, so we don't receive events multiple ticks
@@ -9900,6 +9921,7 @@ bool PhysicsServerCommandProcessor::processSaveBulletCommand(const struct Shared
 	serverCmd.m_type = CMD_BULLET_SAVING_FAILED;
 	return hasStatus;
 }
+
 
 bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes )
 {

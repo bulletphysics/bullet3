@@ -2397,9 +2397,9 @@ B3_SHARED_API	void b3CustomCommandExecutePluginCommand(b3SharedMemoryCommandHand
 		command->m_customCommandArgs.m_arguments.m_numFloats = 0;
 		command->m_customCommandArgs.m_arguments.m_text[0] = 0;
 
-		int len = strlen(textArguments);
+		int len = textArguments ? strlen(textArguments) : 0;
 
-		if (len<MAX_FILENAME_LENGTH)
+		if (len && len<MAX_FILENAME_LENGTH)
 		{
 			strcpy(command->m_customCommandArgs.m_arguments.m_text, textArguments);
 		}

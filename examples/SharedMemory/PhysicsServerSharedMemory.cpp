@@ -249,6 +249,8 @@ void PhysicsServerSharedMemory::reportNotifications()
 
 void PhysicsServerSharedMemory::processClientCommands()
 {
+	m_data->m_commandProcessor->processClientCommands();
+
     for (int block = 0;block<MAX_SHARED_MEMORY_BLOCKS;block++)
     {
         
