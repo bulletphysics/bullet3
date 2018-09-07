@@ -179,7 +179,7 @@
 			end
 
       includedirs {
-             projectRootDir .. "examples/SharedMemory", _OPTIONS["grpc_include_dir"], _OPTIONS["protobuf_include_dir"],
+             projectRootDir .. "examples", _OPTIONS["grpc_include_dir"], _OPTIONS["protobuf_include_dir"],
       }
 
 			if os.is("Windows") then
@@ -198,12 +198,13 @@
 			end
       
       links { "grpc","grpc++", "grpc++_reflection", "gpr", "protobuf"}
-      files { projectRootDir .. "examples/SharedMemory/grpc/ConvertGRPCBullet.cpp",
+      files { 
+      projectRootDir .. "examples/SharedMemory/grpc/ConvertGRPCBullet.cpp",
 			projectRootDir .. "examples/SharedMemory/grpc/ConvertGRPCBullet.h",
-			projectRootDir .. "examples/SharedMemory/grpc/pybullet.grpc.pb.cpp",
-			projectRootDir .. "examples/SharedMemory/grpc/pybullet.grpc.pb.h",
-			projectRootDir .. "examples/SharedMemory/grpc/pybullet.pb.cpp",
-			projectRootDir .. "examples/SharedMemory/grpc/pybullet.pb.h", }
+			projectRootDir .. "examples/SharedMemory/grpc/proto/pybullet.grpc.pb.cpp",
+			projectRootDir .. "examples/SharedMemory/grpc/proto/pybullet.grpc.pb.h",
+			projectRootDir .. "examples/SharedMemory/grpc/proto/pybullet.pb.cpp",
+			projectRootDir .. "examples/SharedMemory/grpc/proto/pybullet.pb.h", }
 		end
 
 	end

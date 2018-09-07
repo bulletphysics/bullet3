@@ -28,7 +28,7 @@ typedef SharedMemoryCommandProcessor MyCommandProcessor;
 #include <grpc++/grpc++.h>
 #include <grpc/support/log.h>
 
-#include "pybullet.grpc.pb.h"
+#include "proto/pybullet.grpc.pb.h"
 
 
 using grpc::Server;
@@ -67,7 +67,7 @@ public:
 		cq_ = builder.AddCompletionQueue();
 		// Finally assemble the server.
 		server_ = builder.BuildAndStart();
-		std::cout << "Server listening on " << hostNamePort << std::endl;
+		std::cout << "Standalone Bullet Physics GRPC server listening on " << hostNamePort << std::endl;
 
 		// Proceed to the server's main loop.
 		HandleRpcs(comProc);

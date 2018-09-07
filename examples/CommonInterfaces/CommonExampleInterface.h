@@ -5,6 +5,7 @@
 
 struct CommandProcessorCreationInterface
 {
+	virtual ~CommandProcessorCreationInterface() {}
 	virtual class CommandProcessorInterface* createCommandProcessor()=0;
 	virtual void deleteCommandProcessor(CommandProcessorInterface*)=0;
 };
