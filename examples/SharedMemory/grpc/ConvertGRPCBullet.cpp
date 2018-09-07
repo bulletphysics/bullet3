@@ -1,13 +1,13 @@
 #include "ConvertGRPCBullet.h"
-#include "PhysicsClientC_API.h"
-#include "SharedMemoryCommands.h"
+#include "SharedMemory/PhysicsClientC_API.h"
+#include "SharedMemory/SharedMemoryCommands.h"
 #include <memory>
 #include <iostream>
 #include <string>
 #include <thread>
 #include <grpc++/grpc++.h>
 #include <grpc/support/log.h>
-#include "pybullet.grpc.pb.h"
+#include "SharedMemory/grpc/proto/pybullet.grpc.pb.h"
 #include "LinearMath/btMinMax.h"
 
 #define ALLOW_GRPC_COMMAND_CONVERSION
@@ -21,7 +21,6 @@ using grpc::ServerCompletionQueue;
 using grpc::Status;
 using pybullet_grpc::PyBulletCommand;
 using pybullet_grpc::PyBulletStatus;
-using pybullet_grpc::PyBulletAPI;
 
 pybullet_grpc::PyBulletCommand* convertBulletToGRPCCommand(const struct SharedMemoryCommand& clientCmd, pybullet_grpc::PyBulletCommand& grpcCommand)
 {
@@ -472,7 +471,7 @@ pybullet_grpc::PyBulletCommand* convertBulletToGRPCCommand(const struct SharedMe
 
 		default:
 		{
-			printf("convertBulletToGRPCCommand: Unknown command\n");
+			//printf("convertBulletToGRPCCommand: Unknown command\n");
 			//assert(0);
 			
 		}
@@ -568,7 +567,7 @@ SharedMemoryCommand* convertGRPCToBulletCommand(const PyBulletCommand& grpcComma
 		}
 		else
 		{
-			printf("Ignore unexpected unknowncommandbinaryblob\n");
+			printf("Error: Ignore unexpected unknowncommandbinaryblob\n");
 		}
 		cmdPtr = &cmd;
 	}
@@ -1276,7 +1275,7 @@ bool convertGRPCToStatus(const PyBulletStatus& grpcReply, SharedMemoryStatus& se
 			
 			const char* data = grpcReply.binaryblob().Get(0).c_str();
 			int numBytes = grpcReply.binaryblob().Get(0).size();
-			printf("copied binary blob of %d bytes\n", numBytes);
+			//printf("copied binary blob of %d bytes\n", numBytes);
 			memcpy(bufferServerToClient, data, numBytes);
 			serverStatus.m_numDataStreamBytes = numBytes;
 		}

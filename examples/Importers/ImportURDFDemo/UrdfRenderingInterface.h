@@ -12,6 +12,7 @@ class btTransform;
 ///bullet3\examples\SharedMemory\plugins\tinyRendererPlugin\TinyRendererVisualShapeConverter.cpp
 struct UrdfRenderingInterface
 	{
+		virtual ~UrdfRenderingInterface() {}
 	///given a URDF link, convert all visual shapes into internal renderer (loading graphics meshes, textures etc)
 	///use the collisionObjectUid as a unique identifier to synchronize the world transform and to remove the visual shape.
 	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUid, int bodyUniqueId) =0;

@@ -12,6 +12,7 @@
 
 struct ErrorLogger
 {
+	virtual ~ErrorLogger(){}
 	virtual void reportError(const char* error)=0;
 	virtual void reportWarning(const char* warning)=0;
 	virtual void printMessage(const char* msg)=0;

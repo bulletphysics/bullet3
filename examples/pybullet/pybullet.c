@@ -9599,8 +9599,12 @@ PyInit_pybullet(void)
 #ifdef BT_USE_EGL
 initpybullet_egl(void)
 #else
+#ifdef BT_PYBULLET_GRPC
+initpybullet_grpc(void)
+#else
 initpybullet(void)
 #endif //BT_USE_EGL
+#endif //BT_PYBULLET_GRPC
 #endif
 {
 	PyObject* m;
@@ -9610,8 +9614,12 @@ initpybullet(void)
 #ifdef BT_USE_EGL
 	m = Py_InitModule3("pybullet_egl", SpamMethods, "Python bindings for Bullet");
 #else
+#ifdef BT_PYBULLET_GRPC
+	m = Py_InitModule3("pybullet_grpc", SpamMethods, "Python bindings for Bullet");
+#else
 	m = Py_InitModule3("pybullet", SpamMethods, "Python bindings for Bullet");
 #endif //BT_USE_EGL
+#endif //BT_PYBULLET_GRPC
 #endif
 
 #if PY_MAJOR_VERSION >= 3
