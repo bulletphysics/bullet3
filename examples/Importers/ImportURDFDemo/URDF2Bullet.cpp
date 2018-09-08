@@ -599,10 +599,11 @@ void ConvertURDF2BulletInternal(
 
                 if (mbLinkIndex>=0) //???? double-check +/- 1
                 {
+					
                     cache.m_bulletMultiBody->getLink(mbLinkIndex).m_collider=col;
-					if (flags&CUF_USE_SELF_COLLISION_EXCLUDE_PARENT)
+					if (flags&CUF_USE_SELF_COLLISION_INCLUDE_PARENT)
 					{
-						cache.m_bulletMultiBody->getLink(mbLinkIndex).m_flags |= BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION;
+						cache.m_bulletMultiBody->getLink(mbLinkIndex).m_flags &= ~BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION;
 					}
 					if (flags&CUF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
 					{
