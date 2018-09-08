@@ -1,6 +1,6 @@
 #ifdef BT_ENABLE_GRPC
 #include "PhysicsClientGRPC.h"
-#include "grpc/pybullet.grpc.pb.h"
+#include "SharedMemory/grpc/proto/pybullet.grpc.pb.h"
 #include <grpc++/grpc++.h>
 using grpc::Channel;
 #include <stdio.h>
@@ -12,8 +12,9 @@ using grpc::Channel;
 #include <string>
 #include "Bullet3Common/b3Logging.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
-#include "grpc/ConvertGRPCBullet.h"
+#include "SharedMemory/grpc/ConvertGRPCBullet.h"
 
+using pybullet_grpc::PyBulletAPI;
 
 static unsigned int b3DeserializeInt2(const unsigned char* input)
 {
@@ -27,7 +28,7 @@ bool gVerboseNetworkMessagesClient3 = false;
 struct	GRPCNetworkedInternalData
 {
 	std::shared_ptr<grpc::Channel> m_grpcChannel;
-	std::unique_ptr< pybullet_grpc::PyBulletAPI::Stub> m_stub;
+	std::unique_ptr< PyBulletAPI::Stub> m_stub;
 	
 
 	bool		m_isConnected;
@@ -70,7 +71,7 @@ struct	GRPCNetworkedInternalData
 		m_grpcChannel  = grpc::CreateChannel(
 			hostport, grpc::InsecureChannelCredentials());
 
-		m_stub = pybullet_grpc::PyBulletAPI::NewStub(m_grpcChannel);
+		m_stub = PyBulletAPI::NewStub(m_grpcChannel);
 
 		
 		

@@ -1,22 +1,21 @@
 
-//tinyRendererPlugin implements the TinyRenderer as a plugin
-//it is statically linked when using preprocessor #define STATIC_LINK_VR_PLUGIN 
-//otherwise you can dynamically load it using pybullet.loadPlugin
+///grpcPlugin add a GRPC server to any PyBullet/BulletRobotics
+///physics server. You can connect using PyBullet connect.GRPC method
 
 #include "grpcPlugin.h"
-#include "../../SharedMemoryPublic.h"
+#include "SharedMemory/SharedMemoryPublic.h"
 #include "../b3PluginContext.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
-#include "SharedMemoryCommands.h"
-#include "PhysicsCommandProcessorInterface.h"
+#include "SharedMemory/SharedMemoryCommands.h"
+#include "SharedMemory/PhysicsCommandProcessorInterface.h"
 
 #include <stdio.h>
 
 #include <grpc++/grpc++.h>
 #include <grpc/support/log.h>
 #include "../../../Utils/b3Clock.h"
-#include "../../grpc/pybullet.grpc.pb.h"
-#include "../../grpc/ConvertGRPCBullet.h"
+#include "SharedMemory/grpc/proto/pybullet.grpc.pb.h"
+#include "SharedMemory/grpc/ConvertGRPCBullet.h"
 using grpc::Server;
 using grpc::ServerAsyncResponseWriter;
 using grpc::ServerBuilder;
@@ -28,7 +27,7 @@ using pybullet_grpc::PyBulletStatus;
 using pybullet_grpc::PyBulletAPI;
 
 
-bool gVerboseNetworkMessagesServer4 = true;
+bool gVerboseNetworkMessagesServer4 = false;
 
 
 class ServerImpl final {
@@ -64,7 +63,7 @@ public:
 		cq_ = m_builder.AddCompletionQueue();
 		// Finally assemble the server.
 		server_ = m_builder.BuildAndStart();
-		std::cout << "Server listening on " << hostNamePort << std::endl;
+		std::cout << "grpcPlugin Bullet Physics GRPC server listening on " << hostNamePort << std::endl;
 
 		// Proceed to the server's main loop.
 		InitRpcs(comProc);
@@ -314,7 +313,7 @@ B3_SHARED_API int executePluginCommand_grpcPlugin(struct b3PluginContext* contex
 	
 	grpcMyClass* obj = (grpcMyClass*)context->m_userPointer;
 	
-	if (arguments->m_text && strlen(arguments->m_text))
+	if (strlen(arguments->m_text))
 	{
 		if (!obj->m_grpcInitialized && context->m_rpcCommandProcessorInterface)
 		{
