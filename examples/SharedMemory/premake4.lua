@@ -474,6 +474,10 @@ include "plugins/tinyRendererPlugin"
 include "plugins/pdControlPlugin"
 include "plugins/collisionFilterPlugin"
 
+if _OPTIONS["enable_egl"] then
+		include "plugins/eglPlugin"
+end
+
 if _OPTIONS["enable_grpc"] then
 		include "grpc"
 		include "plugins/grpcPlugin"
