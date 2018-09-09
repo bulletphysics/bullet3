@@ -1542,8 +1542,9 @@ void GLInstancingRenderer::updateCamera(int upAxis)
 
 
 
-
-//#define STB_IMAGE_WRITE_IMPLEMENTATION
+#ifdef STB_AGAIN  // first defn in examples/OpenGLWindow/opengl_fontstashcallbacks.cpp
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif  //STB_AGAIN
 #include "stb_image/stb_image_write.h"
 void writeTextureToPng(int textureWidth, int textureHeight, const char* fileName, int numComponents)
 {

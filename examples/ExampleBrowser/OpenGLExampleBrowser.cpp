@@ -118,6 +118,8 @@ static b3AlignedObjectArray<const char*> allNames;
 static float gFixedTimeStep = 0;
 bool gAllowRetina = true;
 bool gDisableDemoSelection = false;
+int gRenderDevice = -1;
+int gWindowBackend = 0;
 static class ExampleEntries* gAllExamples=0;
 bool sUseOpenGL2 = false;
 #ifndef USE_OPENGL3
@@ -922,6 +924,8 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 #ifndef NO_OPENGL3
     SimpleOpenGL3App* simpleApp=0;
     sUseOpenGL2 = args.CheckCmdLineFlag("opengl2");
+    args.GetCmdLineArgument("render_device", gRenderDevice);
+    args.GetCmdLineArgument("window_backend", gWindowBackend);
 #else
 	sUseOpenGL2 = true;
 #endif
@@ -951,7 +955,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
     {
 		char title[1024];
 		sprintf(title,"%s using OpenGL3+ %s %s", appTitle,glContext, optMode);
-        simpleApp = new SimpleOpenGL3App(title,width,height, gAllowRetina);
+        simpleApp = new SimpleOpenGL3App(title,width,height, gAllowRetina, gWindowBackend, gRenderDevice);
         s_app = simpleApp;
     }
 #endif

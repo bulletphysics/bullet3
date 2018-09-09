@@ -2,12 +2,32 @@
 from setuptools import find_packages
 from sys import platform as _platform
 import sys
-import glob
+from glob import glob
 
 from distutils.core import setup
 from distutils.extension import Extension
 from distutils.util import get_platform
-from glob import glob
+
+
+# monkey-patch for parallel compilation
+import multiprocessing
+import multiprocessing.pool
+def parallelCCompile(self, sources, output_dir=None, macros=None, include_dirs=None, debug=0, extra_preargs=None, extra_postargs=None, depends=None):
+    # those lines are copied from distutils.ccompiler.CCompiler directly
+    macros, objects, extra_postargs, pp_opts, build = self._setup_compile(output_dir, macros, include_dirs, sources, depends, extra_postargs)
+    cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
+    # parallel code
+    N = 2*multiprocessing.cpu_count()# number of parallel compilations
+    def _single_compile(obj):
+        try: src, ext = build[obj]
+        except KeyError: return
+        self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+    # convert to list, imap is evaluated on-demand
+    list(multiprocessing.pool.ThreadPool(N).imap(_single_compile,objects))
+    return objects
+import distutils.ccompiler
+distutils.ccompiler.CCompiler.compile=parallelCCompile
+
 
 #see http://stackoverflow.com/a/8719066/295157
 import os
@@ -22,7 +42,7 @@ CXX_FLAGS += '-DBT_USE_DOUBLE_PRECISION '
 CXX_FLAGS += '-DBT_ENABLE_ENET '
 CXX_FLAGS += '-DBT_ENABLE_CLSOCKET '
 CXX_FLAGS += '-DB3_DUMP_PYTHON_VERSION '
-
+CXX_FLAGS += '-DBT_USE_EGL '  # uncomment for EGL (old EGL versions fail)
 
 
 # libraries += [current_python]
@@ -386,28 +406,35 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/ThirdPartyLibs/Gwen/Renderers/OpenGL_DebugFont.cpp"]\
 
 if _platform == "linux" or _platform == "linux2":
-    libraries = ['dl','pthread']
+    libraries += ['dl','pthread']
     CXX_FLAGS += '-D_LINUX '
     CXX_FLAGS += '-DGLEW_STATIC '
     CXX_FLAGS += '-DGLEW_INIT_OPENGL11_FUNCTIONS=1 '
     CXX_FLAGS += '-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1 '
     CXX_FLAGS += '-DDYNAMIC_LOAD_X11_FUNCTIONS '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
-    CXX_FLAGS += '-fno-inline-functions-called-once'
+    CXX_FLAGS += '-fno-inline-functions-called-once '
+    CXX_FLAGS += '-fPIC '  # for plugins
     sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/glad/glad.c"]\
-    +["examples/ThirdPartyLibs/glad/glad_glx.c"]
+    +["examples/ThirdPartyLibs/glad/gl.c"]\
+    +["examples/ThirdPartyLibs/glad/glx.c"]
     include_dirs += ["examples/ThirdPartyLibs/optionalX11"]
+    if 'BT_USE_EGL' in CXX_FLAGS:
+        # linking with bullet's Glew libraries causes segfault
+        # for some reason.
+        sources += ['examples/ThirdPartyLibs/glad/egl.c']
+        sources += ['examples/OpenGLWindow/EGLOpenGLWindow.cpp']
+
 elif _platform == "win32":
     print("win32!")
-    libraries = ['Ws2_32','Winmm','User32','Opengl32','kernel32','glu32','Gdi32','Comdlg32']
+    libraries += ['Ws2_32','Winmm','User32','Opengl32','kernel32','glu32','Gdi32','Comdlg32']
     CXX_FLAGS += '-DWIN32 '
     CXX_FLAGS += '-DGLEW_STATIC '
     sources = sources + ["examples/ThirdPartyLibs/enet/win32.c"]\
     +["examples/OpenGLWindow/Win32Window.cpp"]\
     +["examples/OpenGLWindow/Win32OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/glad/glad.c"]
+    +["examples/ThirdPartyLibs/glad/gl.c"]
 elif _platform == "darwin":
     print("darwin!")
     os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
@@ -417,11 +444,11 @@ elif _platform == "darwin":
 #    CXX_FLAGS += '-framework Cocoa '
     sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/MacOpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/glad/glad.c"]\
+    +["examples/ThirdPartyLibs/glad/gl.c"]\
     +["examples/OpenGLWindow/MacOpenGLWindowObjC.m"]
 else:
     print("bsd!")
-    libraries = ['GL','GLEW','pthread']
+    libraries += ['GL','GLEW','pthread']
     os.environ['LDFLAGS'] = '-L/usr/X11R6/lib'
     CXX_FLAGS += '-D_BSD '
     CXX_FLAGS += '-I/usr/X11R6/include '
@@ -429,8 +456,9 @@ else:
     CXX_FLAGS += '-fno-inline-functions-called-once'
     sources = ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/glad/glad.c"]\
+    +["examples/ThirdPartyLibs/glad/gl.c"]\
     + sources
+
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -452,6 +480,56 @@ print("packages")
 print(find_packages('examples/pybullet/gym'))
 print("-----")
 
+egl_renderer_sources = \
+["examples/SharedMemory/plugins/eglPlugin/eglRendererVisualShapeConverter.cpp"]\
++["examples/SharedMemory/plugins/eglPlugin/eglRendererPlugin.cpp"]\
++["examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp"]\
++["examples/Importers/ImportObjDemo/LoadMeshFromObj.cpp"]\
++["examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp"]\
++["examples/Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp"]\
++["examples/TinyRenderer/geometry.cpp"]\
++["examples/TinyRenderer/model.cpp"]\
++["examples/TinyRenderer/tgaimage.cpp"]\
++["examples/TinyRenderer/our_gl.cpp"]\
++["examples/TinyRenderer/TinyRenderer.cpp"]\
++["examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp"]\
++["examples/ThirdPartyLibs/stb_image/stb_image.cpp"]\
++["examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp"]\
++["examples/OpenGLWindow/SimpleCamera.cpp"]\
++["examples/Utils/b3Clock.cpp"]\
++["examples/Utils/b3ResourcePath.cpp"]\
++["src/BulletCollision/CollisionShapes/btShapeHull.cpp"]\
++["src/BulletCollision/CollisionShapes/btConvexHullShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btBoxShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btSphereShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btPolyhedralConvexShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btConvexShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btCollisionShape.cpp"]\
++["src/BulletCollision/CollisionShapes/btConvexPolyhedron.cpp"]\
++["src/BulletCollision/CollisionShapes/btConvexInternalShape.cpp"]\
++["src/Bullet3Common/b3Logging.cpp"]\
++["src/LinearMath/btAlignedAllocator.cpp"]\
++["src/LinearMath/btGeometryUtil.cpp"]\
++["src/LinearMath/btConvexHull.cpp"]\
++["src/LinearMath/btConvexHullComputer.cpp"]\
++["src/Bullet3Common/b3AlignedAllocator.cpp"] \
++["examples/ThirdPartyLibs/glad/gl.c"]\
++['examples/ThirdPartyLibs/glad/egl.c'] \
++["examples/ThirdPartyLibs/glad/glx.c"] \
++["examples/OpenGLWindow/GLInstancingRenderer.cpp"]\
++["examples/OpenGLWindow/EGLOpenGLWindow.cpp"]\
++["examples/OpenGLWindow/GLRenderToTexture.cpp"] \
++["examples/OpenGLWindow/LoadShader.cpp"] \
++["src/LinearMath/btQuickprof.cpp"] \
+
+eglRender = Extension("eglRenderer",
+        sources =  egl_renderer_sources,
+        libraries = libraries,
+        extra_compile_args=(CXX_FLAGS+'-DBT_USE_EGL -DSTB_AGAIN -DB3_DEBUG').split(),
+        include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
+     )
+
+
 setup(
 	name = 'pybullet',
 	version='2.1.4',
@@ -463,7 +541,7 @@ setup(
 	license='zlib',
 	platforms='any',
 	keywords=['game development', 'virtual reality', 'physics simulation', 'robotics', 'collision detection', 'opengl'],
-	ext_modules = [Extension("pybullet", 
+        ext_modules = [eglRender, Extension("pybullet",
 	sources =  sources,
 	libraries = libraries,
 	extra_compile_args=CXX_FLAGS.split(),

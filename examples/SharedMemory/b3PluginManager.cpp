@@ -245,7 +245,13 @@ int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 		}
 		else
 		{
+
 			b3Warning("Warning: couldn't load plugin %s\n", pluginPath);
+                        #ifdef _WIN32
+                        #else
+                            b3Warning("Error: %s\n", dlerror() );
+                        #endif
+
 		}
 		if (!ok)
 		{
