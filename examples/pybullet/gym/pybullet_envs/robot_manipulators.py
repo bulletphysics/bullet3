@@ -105,7 +105,7 @@ class Pusher(MJCFBasedRobot):
 		self.shoulder_lift_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 		self.upper_arm_roll_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 		self.elbow_flex_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
-		self.upper_arm_roll_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
+		self.forearm_roll_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 		self.wrist_flex_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 		self.wrist_roll_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 
@@ -115,7 +115,7 @@ class Pusher(MJCFBasedRobot):
 		self.shoulder_lift_joint.set_motor_torque(0.05 * float(np.clip(a[1], -1, +1)))
 		self.upper_arm_roll_joint.set_motor_torque(0.05 * float(np.clip(a[2], -1, +1)))
 		self.elbow_flex_joint.set_motor_torque(0.05 * float(np.clip(a[3], -1, +1)))
-		self.upper_arm_roll_joint.set_motor_torque(0.05 * float(np.clip(a[4], -1, +1)))
+		self.forearm_roll_joint.set_motor_torque(0.05 * float(np.clip(a[4], -1, +1)))
 		self.wrist_flex_joint.set_motor_torque(0.05 * float(np.clip(a[5], -1, +1)))
 		self.wrist_roll_joint.set_motor_torque(0.05 * float(np.clip(a[6], -1, +1)))
 
@@ -165,7 +165,7 @@ class Striker(MJCFBasedRobot):
 		self.shoulder_lift_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 		self.upper_arm_roll_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 		self.elbow_flex_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
-		self.upper_arm_roll_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
+		self.forearm_roll_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 		self.wrist_flex_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 		self.wrist_roll_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 
@@ -205,7 +205,7 @@ class Striker(MJCFBasedRobot):
 		self.shoulder_lift_joint.set_motor_torque(0.05 * float(np.clip(a[1], -1, +1)))
 		self.upper_arm_roll_joint.set_motor_torque(0.05 * float(np.clip(a[2], -1, +1)))
 		self.elbow_flex_joint.set_motor_torque(0.05 * float(np.clip(a[3], -1, +1)))
-		self.upper_arm_roll_joint.set_motor_torque(0.05 * float(np.clip(a[4], -1, +1)))
+		self.forearm_roll_joint.set_motor_torque(0.05 * float(np.clip(a[4], -1, +1)))
 		self.wrist_flex_joint.set_motor_torque(0.05 * float(np.clip(a[5], -1, +1)))
 		self.wrist_roll_joint.set_motor_torque(0.05 * float(np.clip(a[6], -1, +1)))
 
@@ -254,7 +254,7 @@ class Thrower(MJCFBasedRobot):
 		self.shoulder_lift_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 		self.upper_arm_roll_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 		self.elbow_flex_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
-		self.upper_arm_roll_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
+		self.forearm_roll_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 		self.wrist_flex_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 		self.wrist_roll_joint.reset_current_position(self.np_random.uniform(low=-3.14, high=3.14), 0)
 
@@ -294,7 +294,7 @@ class Thrower(MJCFBasedRobot):
 		self.shoulder_lift_joint.set_motor_torque(0.05 * float(np.clip(a[1], -1, +1)))
 		self.upper_arm_roll_joint.set_motor_torque(0.05 * float(np.clip(a[2], -1, +1)))
 		self.elbow_flex_joint.set_motor_torque(0.05 * float(np.clip(a[3], -1, +1)))
-		self.upper_arm_roll_joint.set_motor_torque(0.05 * float(np.clip(a[4], -1, +1)))
+		self.forearm_roll_joint.set_motor_torque(0.05 * float(np.clip(a[4], -1, +1)))
 		self.wrist_flex_joint.set_motor_torque(0.05 * float(np.clip(a[5], -1, +1)))
 		self.wrist_roll_joint.set_motor_torque(0.05 * float(np.clip(a[6], -1, +1)))
 
