@@ -526,7 +526,7 @@ eglRender = Extension("eglRenderer",
         sources =  egl_renderer_sources,
         libraries = libraries,
         extra_compile_args=(CXX_FLAGS+'-DBT_USE_EGL -DSTB_AGAIN -DB3_DEBUG').split(),
-        include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
+        include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
      )
 
 
