@@ -69,19 +69,6 @@ typedef unsigned __int16 uint16_t;
 typedef unsigned __int32 uint32_t;
 typedef unsigned __int64 uint64_t;
 
-#ifndef _INTPTR_T_DEFINED
-	#ifdef _WIN64
-	typedef __int64 btintptr_t;
-	#else
-	typedef long btintptr_t;
-	#endif
-	
-#else
-	typedef intptr_t btintptr_t;
-#endif
-
-
-
 #elif defined(__linux__) || defined(__NetBSD__)
 
 	/* Linux-i386, Linux-Alpha, Linux-ppc */
@@ -103,6 +90,15 @@ typedef intptr_t btintptr_t;
 #include <sys/types.h>
 
 #endif /* ifdef platform for types */
+
+// _INTPTR_T_DEFINED comes from original macro while INTPTR_MIN and INTPTR_MAX come from newer c++ standards
+#if defined(INTPTR_MIN) || defined(INTPTR_MAX) || defined(_INTPTR_T_DEFINED)
+	typedef intptr_t btintptr_t;
+#elif defined(_WIN64)
+	typedef __int64 btintptr_t;
+#else
+	typedef long btintptr_t;
+#endif
 
 #ifdef __cplusplus
 }
