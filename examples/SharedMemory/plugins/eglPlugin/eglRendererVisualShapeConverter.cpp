@@ -13,10 +13,6 @@ subject to the following restrictions:
 
 
 #include "eglRendererVisualShapeConverter.h"
-
-
-
-
 #include "../Importers/ImportURDFDemo/URDFImporterInterface.h"
 #include "btBulletCollisionCommon.h"
 #include "../Importers/ImportObjDemo/LoadMeshFromObj.h"
@@ -251,7 +247,8 @@ void EGLRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff)
     m_data->m_hasLightSpecularCoeff = true;
 }
 
-void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
+///todo: merge into single file with TinyRendererVisualShapeConverter
+static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
 {
 
 	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
@@ -737,8 +734,8 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
             visualShape.m_rgbaColor[2] = rgbaColor[2];
             visualShape.m_rgbaColor[3] = rgbaColor[3];
             {
-                    B3_PROFILE("convertURDFToVisualShape");
-                    convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices, textures, visualShape);
+                    B3_PROFILE("convertURDFToVisualShape2");
+                    convertURDFToVisualShape2(vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices, textures, visualShape);
             }
             m_data->m_visualShapes.push_back(visualShape);
 

@@ -4,6 +4,11 @@
 #include "ShapeData.h"
 
 
+#ifdef BT_USE_EGL
+#include "EGLOpenGLWindow.h"
+#else
+#endif //BT_USE_EGL
+
 #ifdef B3_USE_GLFW
 #include "GLFWOpenGLWindow.h"
 #else
@@ -19,10 +24,6 @@
 //let's cross the fingers it is Linux/X11
 #include "X11OpenGLWindow.h"
 #define BT_USE_X11  // for runtime backend selection, move to build?
-#ifdef BT_USE_EGL
-#include "EGLOpenGLWindow.h"
-#else
-#endif //BT_USE_EGL
 #endif //_WIN32
 #endif//__APPLE__
 #endif //B3_USE_GLFW
