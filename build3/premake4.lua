@@ -77,6 +77,7 @@
 	newoption
 	{
 		trigger = "enable_egl",
+		value       = false,
 		description = "Build an experimental eglPlugin"
 	}
 
