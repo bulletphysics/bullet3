@@ -62,6 +62,7 @@ struct TinyRendererObjectArray
   btAlignedObjectArray<  TinyRenderObjectData*> m_renderObjects;
   int m_objectUniqueId;
   int m_linkIndex;
+  int m_graphicsInstanceId;
   btTransform m_worldTransform;
   btVector3 m_localScaling;
 
@@ -763,7 +764,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
                 int textureIndex =  m_data->m_instancingRenderer->registerTexture(textureImage1, textureWidth, textureHeight);
                 int shapeIndex = m_data->m_instancingRenderer->registerShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(),textureIndex);
                 btVector3 scaling(1,1,1);
-                m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0],scaling);
+                visuals->m_graphicsInstanceId = m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0],scaling);
                 m_data->m_instancingRenderer->writeTransforms();
                 }
             }
@@ -920,6 +921,8 @@ void TinyRendererVisualShapeConverter::render()
     cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
     cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
     */
+    m_data->m_instancingRenderer->writeTransforms();
+
     B3_PROFILE("m_instancingRenderer render");
     m_data->m_instancingRenderer->setActiveCamera(&m_data->m_camera);
     m_data->m_instancingRenderer->updateCamera();
@@ -932,6 +935,7 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     // PhysicsServerCommandProcessor::processRequestCameraImageCommand
     // maybe code from there should be moved.
 
+    m_data->m_instancingRenderer->writeTransforms();
     // Tiny allows rendering with viewMat, projMat explicitly, but
     // GLInstancingRender calls m_activeCamera, so set this.
     m_data->m_camera.setVRCamera(viewMat,projMat);
@@ -1202,5 +1206,8 @@ void TinyRendererVisualShapeConverter::syncTransform(int collisionObjectUniqueId
                 TinyRendererObjectArray* renderObj = *renderObjPtr;
                 renderObj->m_worldTransform = worldTransform;
                 renderObj->m_localScaling = localScaling;
+                btVector3 pos = worldTransform.getOrigin();
+                btQuaternion orn = worldTransform.getRotation();
+                m_data->m_instancingRenderer->writeSingleInstanceTransformToCPU(pos, orn, renderObj->m_graphicsInstanceId);
         }
 }
