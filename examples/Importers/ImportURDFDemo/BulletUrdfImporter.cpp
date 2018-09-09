@@ -1367,7 +1367,7 @@ void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, 
 		UrdfLink*const* linkPtr = model.m_links.getAtIndex(urdfIndex);
 		if (linkPtr)
 		{
-			m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, *linkPtr, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId);
+                        m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, *linkPtr, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId);
 		}
 	}
 }

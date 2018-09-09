@@ -3,7 +3,6 @@
 
 #ifdef BT_USE_EGL
 
-#define b3gDefaultOpenGLWindow EGLOpenGLWindow
 
 #include "../CommonInterfaces/CommonWindowInterface.h"
 

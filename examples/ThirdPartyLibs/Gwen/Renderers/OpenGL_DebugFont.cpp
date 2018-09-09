@@ -6,7 +6,7 @@
 
 #include <math.h>
 #ifdef B3_USE_GLFW
-#include "glad/glad.h"
+#include "glad/gl.h"
 #include <GLFW/glfw3.h>
 #else
 
@@ -15,7 +15,7 @@
 	#include <OpenGL/gl.h>
 #else
 #ifdef GLEW_STATIC
-#include "glad/glad.h"
+#include "glad/gl.h"
 #else
 #ifdef NO_GLEW
 #define GL_GLEXT_LEGACY

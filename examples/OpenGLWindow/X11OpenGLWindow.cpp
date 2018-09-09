@@ -6,9 +6,14 @@
 
 #include<stdio.h>
 #include<stdlib.h>
+#ifdef GLEW_STATIC
+#include "glad/gl.h"
+#else
+#include <GL/glew.h>
+#endif//GLEW_STATIC
 
 #ifdef GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
-#include "glad/glad_glx.h"
+#include "glad/glx.h"
 #else
 #include <GL/glx.h>
 #endif // GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
@@ -369,7 +374,7 @@ void X11OpenGLWindow::enableOpenGL()
 
   GLXContext ctx = 0;
 
-  // Install an X error handler so the application won't exit if GL 3.0
+  // Install an X error handler so the application won't exit if GL 3.3
   // context allocation fails.
   //
   // Note this error handler is global.  All display connections in all threads
@@ -389,12 +394,12 @@ void X11OpenGLWindow::enableOpenGL()
     ctx = glXCreateNewContext( m_data->m_dpy, m_data->m_bestFbc, GLX_RGBA_TYPE, 0, True );
   }
 
-  // If it does, try to get a GL 3.0 context!
+  // If it does, try to get a GL 3.3 context!
   else
   {
 	 int context_attribs[] = {
           GLX_CONTEXT_MAJOR_VERSION_ARB ,3,
-          GLX_CONTEXT_MINOR_VERSION_ARB, 2,
+          GLX_CONTEXT_MINOR_VERSION_ARB, 3,
           GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB,
           GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,None
      };
@@ -415,10 +420,10 @@ void X11OpenGLWindow::enableOpenGL()
     // Sync to ensure any errors generated are processed.
     MyXSync( m_data->m_dpy, False );
     if ( !ctxErrorOccurred && ctx )
-      printf( "Created GL 3.0 context\n" );
+      printf( "Created GL 3.3 context\n" );
     else
     {
-      // Couldn't create GL 3.0 context.  Fall back to old-style 2.x context.
+      // Couldn't create GL 3.3 context.  Fall back to old-style 2.x context.
       // When a context version below 3.0 is requested, implementations will
       // return the newest context version compatible with OpenGL versions less
       // than version 3.0.
@@ -429,7 +434,7 @@ void X11OpenGLWindow::enableOpenGL()
 
       ctxErrorOccurred = false;
 
-      printf( "Failed to create GL 3.0 context"
+      printf( "Failed to create GL 3.3 context"
               " ... using old-style GLX context\n" );
       ctx = glXCreateContextAttribsARB( m_data->m_dpy, m_data->m_bestFbc, 0,
                                         True, context_attribs );
@@ -468,7 +473,7 @@ void X11OpenGLWindow::enableOpenGL()
         glXMakeCurrent(m_data->m_dpy, m_data->m_win, m_data->m_glc);
     }
 
- if(!gladLoadGL()) {
+ if(!gladLoaderLoadGL()) {
                 printf("gladLoadGL failed!\n");
                 exit(-1);
     }
@@ -519,12 +524,13 @@ void    X11OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 
 #ifdef GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS
 
-	int res=gladLoadGLX(m_data->m_dpy,DefaultScreen(m_data->m_dpy));
-	if (!res)
-	{
-		printf("Error in gladLoadGLX\n");
-		exit(0);
-	}
+       int res=gladLoaderLoadGLX(m_data->m_dpy,DefaultScreen(m_data->m_dpy));
+       if (!res)
+       {
+               printf("Error in gladLoadGLX\n");
+               exit(0);
+       }
+
 #endif
 
 
