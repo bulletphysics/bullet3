@@ -43,7 +43,7 @@ CXX_FLAGS += '-DBT_ENABLE_ENET '
 CXX_FLAGS += '-DBT_ENABLE_CLSOCKET '
 CXX_FLAGS += '-DB3_DUMP_PYTHON_VERSION '
 CXX_FLAGS += '-DSTATIC_EGLRENDERER_PLUGIN ' #comment to disable static egl plugin
-CXX_FLAGS += '-DBT_USE_EGL '  # uncomment for EGL (old EGL versions fail)
+
 
 
 
@@ -412,9 +412,10 @@ if 'STATIC_EGLRENDERER_PLUGIN' in CXX_FLAGS:
     sources += ['examples/SharedMemory/plugins/eglPlugin/eglRendererPlugin.cpp']\
     + ['examples/SharedMemory/plugins/eglPlugin/eglRendererVisualShapeConverter.cpp']
 
-
 if _platform == "linux" or _platform == "linux2":
+    print("linux!")
     libraries += ['dl','pthread']
+    CXX_FLAGS += '-DBT_USE_EGL '
     CXX_FLAGS += '-D_LINUX '
     CXX_FLAGS += '-DGLEW_STATIC '
     CXX_FLAGS += '-DGLEW_INIT_OPENGL11_FUNCTIONS=1 '
@@ -430,8 +431,8 @@ if _platform == "linux" or _platform == "linux2":
     if 'BT_USE_EGL' in CXX_FLAGS:
         # linking with bullet's Glew libraries causes segfault
         # for some reason.
-        sources += ['examples/ThirdPartyLibs/glad/egl.c']
-        sources += ['examples/OpenGLWindow/EGLOpenGLWindow.cpp']
+        sources += ['examples/ThirdPartyLibs/glad/egl.c']\
+        + ['examples/OpenGLWindow/EGLOpenGLWindow.cpp']
 
 elif _platform == "win32":
     print("win32!")
@@ -503,7 +504,7 @@ setup(
 	sources =  sources,
 	libraries = libraries,
 	extra_compile_args=CXX_FLAGS.split(),
-	include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
+	include_dirs = include_dirs + ["src","examples", "examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
      ) ],
      classifiers=['Development Status :: 5 - Production/Stable',
                    'License :: OSI Approved :: zlib/libpng License',

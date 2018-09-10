@@ -161,6 +161,8 @@ struct EGLRendererVisualShapeConverterInternalData
             glClearColor(.7f, .7f, .8f, 1.f);
 
             m_window->startRendering();
+			
+
 
             b3Assert(glGetError() ==GL_NO_ERROR);
 
@@ -170,21 +172,34 @@ struct EGLRendererVisualShapeConverterInternalData
             int maxNumObjectCapacity = 128 * 1024;
             int maxShapeCapacityInBytes = 128 * 1024 * 1024;
             m_instancingRenderer = new GLInstancingRenderer(maxNumObjectCapacity, maxShapeCapacityInBytes);
+			b3Assert(glGetError() ==GL_NO_ERROR);
             m_instancingRenderer->init();
+			b3Assert(glGetError() ==GL_NO_ERROR);
             m_instancingRenderer->resize(m_swWidth,m_swHeight);
             m_instancingRenderer->InitShaders();
+			b3Assert(glGetError() ==GL_NO_ERROR);
             m_instancingRenderer->setActiveCamera(&m_camera);
+			b3Assert(glGetError() ==GL_NO_ERROR);
             m_instancingRenderer->updateCamera();
+			b3Assert(glGetError() ==GL_NO_ERROR);
             m_instancingRenderer->setLightPosition(m_lightDirection);
+			m_window->endRendering();
 	}
 	
+	virtual ~EGLRendererVisualShapeConverterInternalData()
+	{
+		delete m_instancingRenderer;
+		m_window->closeWindow();
+		delete m_window;
+	}
+
 };
 
 
 
 EGLRendererVisualShapeConverter::EGLRendererVisualShapeConverter()
 {
-        m_data = new EGLRendererVisualShapeConverterInternalData();
+	m_data = new EGLRendererVisualShapeConverterInternalData();
 	
 	float dist = 1.5;
 	float pitch = -10;

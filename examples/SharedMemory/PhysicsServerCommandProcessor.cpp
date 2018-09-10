@@ -1715,16 +1715,18 @@ struct PhysicsServerCommandProcessorInternalData
 #endif //ENABLE_STATIC_GRPC_PLUGIN
 
 #ifdef STATIC_EGLRENDERER_PLUGIN
-{
-		int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("eglRendererPlugin", initPlugin_eglRendererPlugin, exitPlugin_eglRendererPlugin, executePluginCommand_eglRendererPlugin,0,0,getRenderInterface_eglRendererPlugin,0);
+	{
+		bool initPlugin = false;
+		int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("eglRendererPlugin", initPlugin_eglRendererPlugin, exitPlugin_eglRendererPlugin, executePluginCommand_eglRendererPlugin,0,0,getRenderInterface_eglRendererPlugin,0, initPlugin);
 		m_pluginManager.selectPluginRenderer(renderPluginId);
-}
+	}
 #endif//STATIC_EGLRENDERER_PLUGIN
 
 
 
 #ifndef SKIP_STATIC_TINYRENDERER_PLUGIN
 	{
+
 			int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin,0,0,getRenderInterface_tinyRendererPlugin,0);
 			m_pluginManager.selectPluginRenderer(renderPluginId);
 	}

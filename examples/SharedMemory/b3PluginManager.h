@@ -30,7 +30,7 @@ class b3PluginManager
 		
 		void tickPlugins(double timeStep, b3PluginManagerTickMode tickMode);
 
-		int registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc, PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc, PFN_GET_RENDER_INTERFACE getRendererFunc, PFN_TICK processClientCommandsFunc);
+		int registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc, PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc, PFN_GET_RENDER_INTERFACE getRendererFunc, PFN_TICK processClientCommandsFunc, bool initPlugin=true);
 		void selectPluginRenderer(int pluginUniqueId);
 		UrdfRenderingInterface* getRenderInterface();
 };
