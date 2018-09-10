@@ -19,8 +19,8 @@ pitch = -10.0
 roll=0
 upAxisIndex = 2
 camDistance = 4
-pixelWidth = 320
-pixelHeight =  200
+pixelWidth = 84
+pixelHeight =  84
 nearPlane = 0.01
 farPlane = 100
 fov = 60
@@ -66,14 +66,14 @@ class BulletSim():
     def __exit__(self,*_,**__):
         pybullet.disconnect()
 
-def test(num_runs=100, shadow=1, log=True, plot=False):
+def test(num_runs=300, shadow=1, log=True, plot=False):
     if log:
         logId = pybullet.startStateLogging(pybullet.STATE_LOGGING_PROFILE_TIMINGS, "renderTimings")
 
     if plot:
         plt.ion()
 
-        img = np.random.rand(200, 320)
+        img = np.random.rand(pixelWidth, pixelHeight)
         #img = [tandard_normal((50,100))
         image = plt.imshow(img,interpolation='none',animated=True,label="blah")
         ax = plt.gca()
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
     with BulletSim(pybullet.DIRECT,render_mode='DIRECT/egl'):
         print("DIRECT/elg load in context")
-        mean_time = test(log=False,plot=True)
+        mean_time = test(log=False,plot=False)
         res.append(("DIRECT/egl",mean_time))
 
     with BulletSim(pybullet.DIRECT):
@@ -134,23 +134,22 @@ if __name__ == "__main__":
             print("\nPlugin Failed to load!\n")
             sys.exit()
 
-        mean_time = test(log=False,plot=True)
+        mean_time = test(log=False,plot=False)
         res.append(("DIRECT/egl",mean_time))
 
 
-    '''
     with BulletSim(pybullet.DIRECT):
         print("\nTesting DIRECT")
-        mean_time = test(log=False,plot=False)
+        mean_time = test(log=True,plot=False)
         res.append(("DIRECT/tiny",mean_time))
 
     with BulletSim(pybullet.GUI):
         print("\nTesting GUI")
         mean_time = test(log=False)
         res.append(("GUI/egl",mean_time))
-    '''
+
     print()
-    print("rendertest.py")
+    print("rendertest.py size: {}x{}px".format(pixelWidth,pixelHeight))
     print("back nenv fps fps_tot")
     for r in res:
         print(r[0],"\t",1,round(r[1]),"\t",round(r[1]))

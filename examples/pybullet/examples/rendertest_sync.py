@@ -22,8 +22,8 @@ pitch = -10.0
 roll=0
 upAxisIndex = 2
 camDistance = 4
-pixelWidth = 320
-pixelHeight = 200
+pixelWidth = 84
+pixelHeight = 84
 nearPlane = 0.01
 farPlane = 100
 fov = 60
@@ -39,8 +39,8 @@ class TestEnv(gym.Env):
         # how we want to show
         assert renderer in ('DIRECT/tiny', 'DIRECT/egl', 'GUI/egl','GUI/debug')
         self._renderer = renderer
-        self._render_width = 84
-        self._render_height = 84
+        self._render_width = pixelWidth
+        self._render_height = pixelHeight
         # connecting
         if self._renderer == "DIRECT/tiny" or self._renderer == "DIRECT/egl":
             optionstring='--width={} --height={}'.format(self._render_width,self._render_height)
@@ -94,7 +94,7 @@ class TestEnv(gym.Env):
     def seed(self, seed=None):
       pass
 
-def train(env_id, num_timesteps=100, seed=0,num_env=2,renderer='tiny'):
+def train(env_id, num_timesteps=300, seed=0,num_env=2,renderer='tiny'):
     def make_env(rank):
         def _thunk():
             if env_id == "TestEnv":
@@ -135,7 +135,7 @@ if __name__ == "__main__":
             print(renderer,tmp)
             res.append((renderer,tmp))
     print()
-    print("rendertest_sync.py")
+    print("rendertest_sync.py size: {}x{}px".format(pixelWidth,pixelHeight))
     print("back nenv fps fps_tot")
     for renderer,i in res:
         print(renderer,'\t', i[0],round(i[1]),'\t',round(i[0]*i[1]))
