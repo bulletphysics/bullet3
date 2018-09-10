@@ -13,10 +13,6 @@ subject to the following restrictions:
 
 
 #include "eglRendererVisualShapeConverter.h"
-
-
-
-
 #include "../Importers/ImportURDFDemo/URDFImporterInterface.h"
 #include "btBulletCollisionCommon.h"
 #include "../Importers/ImportObjDemo/LoadMeshFromObj.h"
@@ -38,9 +34,21 @@ subject to the following restrictions:
 #include "stb_image/stb_image.h"
 
 
-#include "../OpenGLWindow/EGLOpenGLWindow.h"
-#include "../OpenGLWindow/GLInstancingRenderer.h"
-#include "../OpenGLWindow/GLRenderToTexture.h"
+#ifdef _WIN32
+#include "OpenGLWindow/Win32OpenGLWindow.h"
+typedef Win32OpenGLWindow DefaultOpenGLWindow;
+#else
+#ifdef BT_USE_EGL
+#include "OpenGLWindow/EGLOpenGLWindow.h"
+typedef EGLOpenGLWindow DefaultOpenGLWindow;
+#else
+#include "OpenGLWindow/X11OpenGLWindow.h"
+typedef X11OpenGLWindow DefaultOpenGLWindow;
+#endif
+#endif
+
+#include "OpenGLWindow/GLInstancingRenderer.h"
+#include "OpenGLWindow/GLRenderToTexture.h"
 
 static void printGLString(const char *name, GLenum s) {
     const char *v = (const char *) glGetString(s);
@@ -62,6 +70,7 @@ struct TinyRendererObjectArray
   btAlignedObjectArray<  TinyRenderObjectData*> m_renderObjects;
   int m_objectUniqueId;
   int m_linkIndex;
+  int m_graphicsInstanceId;
   btTransform m_worldTransform;
   btVector3 m_localScaling;
 
@@ -69,13 +78,14 @@ struct TinyRendererObjectArray
   {
 	  m_worldTransform.setIdentity();
 	  m_localScaling.setValue(1,1,1);
+	  m_graphicsInstanceId = -1;
   }
 };
 
 #define START_WIDTH 640
 #define START_HEIGHT 480
 
-struct TinyRendererVisualShapeConverterInternalData
+struct EGLRendererVisualShapeConverterInternalData
 {
     class CommonWindowInterface* m_window;
     class GLInstancingRenderer* m_instancingRenderer;
@@ -111,7 +121,7 @@ struct TinyRendererVisualShapeConverterInternalData
 	SimpleCamera m_camera;
 	
 	
-	TinyRendererVisualShapeConverterInternalData()
+	EGLRendererVisualShapeConverterInternalData()
 	:m_upAxis(2),
 	m_swWidth(START_WIDTH),
 	m_swHeight(START_HEIGHT),
@@ -137,7 +147,7 @@ struct TinyRendererVisualShapeConverterInternalData
 
             // OpenGL window
             bool allowRetina=true;
-            m_window = new EGLOpenGLWindow();
+            m_window = new DefaultOpenGLWindow();
             m_window->setAllowRetina(allowRetina);
             b3gWindowConstructionInfo ci;
             ci.m_title = "Title";
@@ -156,6 +166,8 @@ struct TinyRendererVisualShapeConverterInternalData
             glClearColor(.7f, .7f, .8f, 1.f);
 
             m_window->startRendering();
+			
+
 
             b3Assert(glGetError() ==GL_NO_ERROR);
 
@@ -165,21 +177,34 @@ struct TinyRendererVisualShapeConverterInternalData
             int maxNumObjectCapacity = 128 * 1024;
             int maxShapeCapacityInBytes = 128 * 1024 * 1024;
             m_instancingRenderer = new GLInstancingRenderer(maxNumObjectCapacity, maxShapeCapacityInBytes);
+			b3Assert(glGetError() ==GL_NO_ERROR);
             m_instancingRenderer->init();
+			b3Assert(glGetError() ==GL_NO_ERROR);
             m_instancingRenderer->resize(m_swWidth,m_swHeight);
             m_instancingRenderer->InitShaders();
+			b3Assert(glGetError() ==GL_NO_ERROR);
             m_instancingRenderer->setActiveCamera(&m_camera);
+			b3Assert(glGetError() ==GL_NO_ERROR);
             m_instancingRenderer->updateCamera();
+			b3Assert(glGetError() ==GL_NO_ERROR);
             m_instancingRenderer->setLightPosition(m_lightDirection);
+			m_window->endRendering();
 	}
 	
+	virtual ~EGLRendererVisualShapeConverterInternalData()
+	{
+		delete m_instancingRenderer;
+		m_window->closeWindow();
+		delete m_window;
+	}
+
 };
 
 
 
-TinyRendererVisualShapeConverter::TinyRendererVisualShapeConverter()
+EGLRendererVisualShapeConverter::EGLRendererVisualShapeConverter()
 {
-        m_data = new TinyRendererVisualShapeConverterInternalData();
+	m_data = new EGLRendererVisualShapeConverterInternalData();
 	
 	float dist = 1.5;
 	float pitch = -10;
@@ -190,59 +215,60 @@ TinyRendererVisualShapeConverter::TinyRendererVisualShapeConverter()
 
 
 }
-TinyRendererVisualShapeConverter::~TinyRendererVisualShapeConverter()
+EGLRendererVisualShapeConverter::~EGLRendererVisualShapeConverter()
 {
 	resetAll();
 	delete m_data;
 }
 	
-void TinyRendererVisualShapeConverter::setLightDirection(float x, float y, float z)
+void EGLRendererVisualShapeConverter::setLightDirection(float x, float y, float z)
 {
 	m_data->m_lightDirection.setValue(x, y, z);
 	m_data->m_hasLightDirection = true;
 }
 
-void TinyRendererVisualShapeConverter::setLightColor(float x, float y, float z)
+void EGLRendererVisualShapeConverter::setLightColor(float x, float y, float z)
 {
     m_data->m_lightColor.setValue(x, y, z);
     m_data->m_hasLightColor = true;
 }
 
-void TinyRendererVisualShapeConverter::setLightDistance(float dist)
+void EGLRendererVisualShapeConverter::setLightDistance(float dist)
 {
     m_data->m_lightDistance = dist;
     m_data->m_hasLightDistance = true;
 }
 
-void TinyRendererVisualShapeConverter::setShadow(bool hasShadow)
+void EGLRendererVisualShapeConverter::setShadow(bool hasShadow)
 {
     m_data->m_hasShadow = hasShadow;
 }
-void TinyRendererVisualShapeConverter::setFlags(int flags)
+void EGLRendererVisualShapeConverter::setFlags(int flags)
 {
 	m_data->m_flags = flags;
 }
 
 
-void TinyRendererVisualShapeConverter::setLightAmbientCoeff(float ambientCoeff)
+void EGLRendererVisualShapeConverter::setLightAmbientCoeff(float ambientCoeff)
 {
     m_data->m_lightAmbientCoeff = ambientCoeff;
     m_data->m_hasLightAmbientCoeff = true;
 }
 
-void TinyRendererVisualShapeConverter::setLightDiffuseCoeff(float diffuseCoeff)
+void EGLRendererVisualShapeConverter::setLightDiffuseCoeff(float diffuseCoeff)
 {
     m_data->m_lightDiffuseCoeff = diffuseCoeff;
     m_data->m_hasLightDiffuseCoeff = true;
 }
 
-void TinyRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff)
+void EGLRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff)
 {
     m_data->m_lightSpecularCoeff = specularCoeff;
     m_data->m_hasLightSpecularCoeff = true;
 }
 
-void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
+///todo: merge into single file with TinyRendererVisualShapeConverter
+static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
 {
 
 	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
@@ -609,7 +635,7 @@ static btVector4 sColors[4] =
 // If you are getting segfaults in this function it may be ecause you are
 // compliling the plugin with differently from pybullet, try complining the
 // plugin with distutils too.
-void TinyRendererVisualShapeConverter::convertVisualShapes(
+void EGLRendererVisualShapeConverter::convertVisualShapes(
 	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
 	const UrdfLink* linkPtr, const UrdfModel* model,
 	int collisionObjectUniqueId, int bodyUniqueId)
@@ -728,8 +754,8 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
             visualShape.m_rgbaColor[2] = rgbaColor[2];
             visualShape.m_rgbaColor[3] = rgbaColor[3];
             {
-                    B3_PROFILE("convertURDFToVisualShape");
-                    convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices, textures, visualShape);
+                    B3_PROFILE("convertURDFToVisualShape2");
+                    convertURDFToVisualShape2(vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices, textures, visualShape);
             }
             m_data->m_visualShapes.push_back(visualShape);
 
@@ -739,14 +765,17 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 				unsigned char* textureImage1=0;
 				int textureWidth=0;
 				int textureHeight=0;
-                                bool isCached = false;
+				bool isCached = false;
+				int textureIndex = -1;
+
 				if (textures.size())
 				{
 					textureImage1 = textures[0].textureData1;
 					textureWidth = textures[0].m_width;
 					textureHeight = textures[0].m_height;
 					isCached = textures[0].m_isCached;
-                                }
+					textureIndex =  m_data->m_instancingRenderer->registerTexture(textureImage1, textureWidth, textureHeight);
+                }
 				
 				{
 					B3_PROFILE("registerMeshShape");
@@ -760,10 +789,11 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
                  B3_PROFILE("m_instancingRenderer register");
 
                 // register mesh to m_instancingRenderer too.
-                int textureIndex =  m_data->m_instancingRenderer->registerTexture(textureImage1, textureWidth, textureHeight);
-                int shapeIndex = m_data->m_instancingRenderer->registerShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(),textureIndex);
+                
+                int shapeIndex = m_data->m_instancingRenderer->registerShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(),B3_GL_TRIANGLES, textureIndex);
                 btVector3 scaling(1,1,1);
-                m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0],scaling);
+				visuals->m_graphicsInstanceId = m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0],scaling);
+	
                 m_data->m_instancingRenderer->writeTransforms();
                 }
             }
@@ -778,7 +808,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 	}
 }
 
-int TinyRendererVisualShapeConverter::getNumVisualShapes(int bodyUniqueId)
+int EGLRendererVisualShapeConverter::getNumVisualShapes(int bodyUniqueId)
 {
 	int start = -1;
 	//find first one, then count how many
@@ -810,7 +840,7 @@ int TinyRendererVisualShapeConverter::getNumVisualShapes(int bodyUniqueId)
 	return count;
 }
 
-int TinyRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData)
+int EGLRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData)
 {
 	int start = -1;
 	//find first one, then count how many
@@ -837,7 +867,7 @@ int TinyRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int 
 
 
 
-void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4])
+void EGLRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4])
 {
     //int start = -1;
     for (int i = 0; i < m_data->m_visualShapes.size(); i++)
@@ -874,7 +904,7 @@ void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int lin
 
 
 
-void TinyRendererVisualShapeConverter::setUpAxis(int axis)
+void EGLRendererVisualShapeConverter::setUpAxis(int axis)
 {
     m_data->m_upAxis = axis;
     m_data->m_camera.setCameraUpAxis(axis);
@@ -882,7 +912,7 @@ void TinyRendererVisualShapeConverter::setUpAxis(int axis)
     m_data->m_instancingRenderer->updateCamera();
 
 }
-void TinyRendererVisualShapeConverter::resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)
+void EGLRendererVisualShapeConverter::resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)
 {
     m_data->m_camera.setCameraDistance(camDist);
     m_data->m_camera.setCameraPitch(pitch);
@@ -892,7 +922,7 @@ void TinyRendererVisualShapeConverter::resetCamera(float camDist, float yaw, flo
     m_data->m_camera.update();
 }
 
-void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
+void EGLRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
 {
 	float farPlane = m_data->m_camera.getCameraFrustumFar();
     for(int y=0;y<m_data->m_swHeight;++y)
@@ -908,8 +938,10 @@ void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
 
 }
 
-void TinyRendererVisualShapeConverter::render()
+void EGLRendererVisualShapeConverter::render()
 {
+	m_data->m_window->endRendering();
+	m_data->m_window->startRendering();
     /*
     ATTRIBUTE_ALIGNED16(float viewMat[16]);
     ATTRIBUTE_ALIGNED16(float projMat[16]);
@@ -920,13 +952,21 @@ void TinyRendererVisualShapeConverter::render()
     cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
     cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
     */
+	
     B3_PROFILE("m_instancingRenderer render");
-    m_data->m_instancingRenderer->setActiveCamera(&m_data->m_camera);
-    m_data->m_instancingRenderer->updateCamera();
+	m_data->m_instancingRenderer->writeTransforms();
+	if (m_data->m_hasLightDirection)
+	{
+		m_data->m_instancingRenderer->setLightPosition(m_data->m_lightDirection);
+	}
+	m_data->m_instancingRenderer->setActiveCamera(&m_data->m_camera);
+	m_data->m_instancingRenderer->updateCamera(m_data->m_upAxis);
+
     m_data->m_instancingRenderer->renderScene();
+
 }
 
-void TinyRendererVisualShapeConverter::render(const float viewMat[16], const float projMat[16])
+void EGLRendererVisualShapeConverter::render(const float viewMat[16], const float projMat[16])
 {
     // This code is very similar to that of
     // PhysicsServerCommandProcessor::processRequestCameraImageCommand
@@ -934,10 +974,10 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 
     // Tiny allows rendering with viewMat, projMat explicitly, but
     // GLInstancingRender calls m_activeCamera, so set this.
-    m_data->m_camera.setVRCamera(viewMat,projMat);
-    m_data->m_instancingRenderer->setActiveCamera(&m_data->m_camera);
-    m_data->m_instancingRenderer->updateCamera();
-    m_data->m_instancingRenderer->renderScene();
+	
+	m_data->m_camera.setVRCamera(viewMat,projMat);
+
+	render();
 
     //cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
     //cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
@@ -945,14 +985,14 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     //cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
 }
 
-void TinyRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
+void EGLRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
 {
     width = m_data->m_swWidth;
     height = m_data->m_swHeight;
 }
 
 
-void TinyRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
+void EGLRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 {
 	m_data->m_swWidth = width;
 	m_data->m_swHeight = height;
@@ -966,7 +1006,7 @@ void TinyRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 }
 
 //copied from OpenGLGuiHelper.cpp
-void TinyRendererVisualShapeConverter::copyCameraImageDataGL(
+void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
         unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
         float* depthBuffer, int depthBufferSizeInPixels,
         int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,
@@ -1079,7 +1119,7 @@ void TinyRendererVisualShapeConverter::copyCameraImageDataGL(
     }
 }
 
-void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
+void EGLRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
                                                             float* depthBuffer, int depthBufferSizeInPixels,
                                                             int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,
                                                             int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
@@ -1091,7 +1131,7 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
             startPixelIndex,  widthPtr, heightPtr, numPixelsCopied);
 }
 
-void TinyRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqueId)
+void EGLRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqueId)
 {
 	TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances[collisionObjectUniqueId];
 	if (ptrptr && *ptrptr)
@@ -1110,7 +1150,7 @@ void TinyRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniq
 }
 
 
-void TinyRendererVisualShapeConverter::resetAll()
+void EGLRendererVisualShapeConverter::resetAll()
 {
 	for (int i=0;i<m_data->m_swRenderInstances.size();i++)
 	{
@@ -1142,7 +1182,7 @@ void TinyRendererVisualShapeConverter::resetAll()
 }
 
 
-void TinyRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
+void EGLRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
 	btAssert(textureUniqueId < m_data->m_textures.size());
 	if (textureUniqueId >= 0 && textureUniqueId < m_data->m_textures.size())
@@ -1170,7 +1210,7 @@ void TinyRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, in
 	}
 }
 
-int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int width, int height)
+int EGLRendererVisualShapeConverter::registerTexture(unsigned char* texels, int width, int height)
 {
     MyTexture2 texData;
     texData.m_width = width;
@@ -1181,7 +1221,7 @@ int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int
     return m_data->m_textures.size()-1;
 }
 
-int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename)
+int EGLRendererVisualShapeConverter::loadTextureFile(const char* filename)
 {
 	B3_PROFILE("loadTextureFile");
     int width,height,n;
@@ -1194,7 +1234,7 @@ int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename)
     return -1;
 }
 
-void TinyRendererVisualShapeConverter::syncTransform(int collisionObjectUniqueId, const btTransform& worldTransform, const btVector3& localScaling)
+void EGLRendererVisualShapeConverter::syncTransform(int collisionObjectUniqueId, const btTransform& worldTransform, const btVector3& localScaling)
 {
         TinyRendererObjectArray** renderObjPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
         if (renderObjPtr)
@@ -1202,5 +1242,11 @@ void TinyRendererVisualShapeConverter::syncTransform(int collisionObjectUniqueId
                 TinyRendererObjectArray* renderObj = *renderObjPtr;
                 renderObj->m_worldTransform = worldTransform;
                 renderObj->m_localScaling = localScaling;
+				if (renderObj->m_graphicsInstanceId>=0)
+				{
+					btVector3 pos = worldTransform.getOrigin();
+					btQuaternion orn = worldTransform.getRotation();
+					m_data->m_instancingRenderer->writeSingleInstanceTransformToCPU(pos, orn, renderObj->m_graphicsInstanceId);
+				}
         }
 }

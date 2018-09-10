@@ -30,11 +30,12 @@
 
 #ifdef BT_USE_EGL
 
-#include <pthread.h>
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+
 
 #include "OpenGLInclude.h"
 
@@ -213,7 +214,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
         exit(EXIT_FAILURE);
     }
 
-    if (!gladLoadGL(eglGetProcAddress)) {
+    if (!gladLoadGL((GLADloadfunc) eglGetProcAddress)) {
         fprintf(stderr, "failed to load GL with glad.\n");
         exit(EXIT_FAILURE);
     }
@@ -228,8 +229,8 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
     const GLubyte* sl = glGetString(GL_SHADING_LANGUAGE_VERSION);
     printf("GL_SHADING_LANGUAGE_VERSION=%s\n", sl);
     
-    int i = pthread_getconcurrency();
-    printf("pthread_getconcurrency()=%d\n", i);
+    //int i = pthread_getconcurrency();
+    //printf("pthread_getconcurrency()=%d\n", i);
 }
 
 void EGLOpenGLWindow::closeWindow() {

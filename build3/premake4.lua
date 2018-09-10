@@ -73,6 +73,15 @@
 		description = "Use Midi controller to control parameters"
 	}
 	
+	
+	newoption
+	{
+		trigger = "enable_egl",
+		value       = false,
+		description = "Build an experimental eglPlugin"
+	}
+
+	
 	newoption
 	{
 		trigger = "enable_grpc",
@@ -143,6 +152,13 @@
 	
 	if not _OPTIONS["protobuf_lib_dir"] then
 		_OPTIONS["protobuf_lib_dir"] = default_protobuf_lib_dir
+	end	
+	
+
+	if _OPTIONS["enable_egl"] then
+		function initEGL()
+			defines {"BT_USE_EGL"}
+		end
 	end	
 	
 	

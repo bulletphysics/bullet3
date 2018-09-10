@@ -1,29 +1,33 @@
+#using the eglRendererPlugin (hardware OpenGL acceleration)
+#using EGL on Linux and default OpenGL window on Win32.
 
-#testrender.py is a bit slower than testrender_np.py: pixels are copied from C to Python one by one
+#make sure to compile pybullet with PYBULLET_USE_NUMPY enabled
+#otherwise use testrender.py (slower but compatible without numpy)
+#you can also use GUI mode, for faster OpenGL rendering (instead of TinyRender CPU)
 
-
-import matplotlib.pyplot as plt 
+import numpy as np
+import matplotlib.pyplot as plt
 import pybullet
 import time
 
+
 plt.ion()
 
-img = [[1,2,3]*50]*100#np.random.rand(200, 320)
+img = np.random.rand(200, 320)
 #img = [tandard_normal((50,100))
 image = plt.imshow(img,interpolation='none',animated=True,label="blah")
 ax = plt.gca()
-
-
+    
 pybullet.connect(pybullet.DIRECT)
 
-#pybullet.loadPlugin("eglRendererPlugin")
+pybullet.loadPlugin("eglRendererPlugin")
 pybullet.loadURDF("plane.urdf",[0,0,-1])
 pybullet.loadURDF("r2d2.urdf")
 
-pybullet.setGravity(0,0,-10)
 camTargetPos = [0,0,0]
 cameraUp = [0,0,1]
 cameraPos = [1,1,1]
+pybullet.setGravity(0,0,-10)
 
 pitch = -10.0
 
@@ -38,10 +42,11 @@ farPlane = 100
 fov = 60
 
 main_start = time.time()
-while(1): 
-  for yaw in range (0,360,10) :
+while (1):
+  for yaw in range (0,360,10):
     pybullet.stepSimulation()
     start = time.time()
+    
     viewMatrix = pybullet.computeViewMatrixFromYawPitchRoll(camTargetPos, camDistance, yaw, pitch, roll, upAxisIndex)
     aspect = pixelWidth / pixelHeight;
     projectionMatrix = pybullet.computeProjectionMatrixFOV(fov, aspect, nearPlane, farPlane);
@@ -53,18 +58,27 @@ while(1):
     h=img_arr[1] #height of the image, in pixels
     rgb=img_arr[2] #color data RGB
     dep=img_arr[3] #depth data
-    #print(rgb)
+
     print ('width = %d height = %d' % (w,h))
 
-    #note that sending the data using imshow to matplotlib is really slow, so we use set_data
+    #note that sending the data to matplotlib is really slow
 
-    #plt.imshow(rgb,interpolation='none')
-    image.set_data(rgb)
+    #reshape is not needed
+    #np_img_arr = np.reshape(rgb, (h, w, 4))
+    #np_img_arr = np_img_arr*(1./255.)
+    
+    #show
+    #plt.imshow(np_img_arr,interpolation='none',extent=(0,1600,0,1200))
+    #image = plt.imshow(np_img_arr,interpolation='none',animated=True,label="blah")
+
+    image.set_data(rgb)#np_img_arr)
     ax.plot([0])
     #plt.draw()
     #plt.show()
     plt.pause(0.01)
+    #image.draw()
     
+
 main_stop = time.time()
 
 print ("Total time %f" % (main_stop - main_start))

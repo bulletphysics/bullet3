@@ -34,6 +34,7 @@ struct b3Plugin
 {
 	B3_DYNLIB_HANDLE m_pluginHandle;
 	bool m_ownsPluginHandle;
+	bool m_isInitialized;
 	std::string m_pluginPath;
 	int m_pluginUniqueId;
 	PFN_INIT m_initFunc;
@@ -52,6 +53,7 @@ struct b3Plugin
 	b3Plugin()
 		:m_pluginHandle(0),
 		m_ownsPluginHandle(false),
+		m_isInitialized(false),
 		m_pluginUniqueId(-1),
 		m_initFunc(0),
 		m_exitFunc(0),
@@ -80,6 +82,7 @@ struct b3Plugin
 		m_processClientCommandsFunc = 0;
 		m_getRendererFunc = 0;
 		m_userPointer = 0;
+		m_isInitialized = false;
 	}
 };
 
@@ -171,8 +174,20 @@ int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 	int* pluginUidPtr = m_data->m_pluginMap.find(pluginPath);
 	if (pluginUidPtr)
 	{
+		
 		//already loaded
 		pluginUniqueId = *pluginUidPtr;
+		b3PluginHandle* plugin = m_data->m_plugins.getHandle(pluginUniqueId);
+		if (!plugin->m_isInitialized)
+		{
+			b3PluginContext context = {0};
+			context.m_userPointer = 0;
+			context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
+			context.m_rpcCommandProcessorInterface = m_data->m_rpcCommandProcessorInterface;
+			int result = plugin->m_initFunc(&context);
+			plugin->m_isInitialized = true;
+			plugin->m_userPointer = context.m_userPointer;
+		}
 	}
 	else
 	{
@@ -211,16 +226,18 @@ int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 
 			if (plugin->m_initFunc && plugin->m_exitFunc && plugin->m_executeCommandFunc)
 			{
-
+				
 				b3PluginContext context;
 				context.m_userPointer = plugin->m_userPointer;
 				context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
 				context.m_rpcCommandProcessorInterface = m_data->m_rpcCommandProcessorInterface;
 				int version = plugin->m_initFunc(&context);
+				plugin->m_isInitialized = true;
 				//keep the user pointer persistent
 				plugin->m_userPointer = context.m_userPointer;
 				if (version == SHARED_MEMORY_MAGIC_NUMBER)
 				{
+					
 					ok = true;
 					plugin->m_ownsPluginHandle = true;
 					plugin->m_pluginHandle = pluginHandle;
@@ -286,7 +303,12 @@ void b3PluginManager::unloadPlugin(int pluginUniqueId)
 		context.m_userPointer = plugin->m_userPointer;
 		context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
 
-		plugin->m_exitFunc(&context);
+		if (plugin->m_isInitialized)
+		{
+			plugin->m_exitFunc(&context);
+			plugin->m_userPointer = 0;
+			plugin->m_isInitialized = false;
+		}
 		m_data->m_pluginMap.remove(plugin->m_pluginPath.c_str());
 		m_data->m_plugins.freeHandle(pluginUniqueId);
 	}
@@ -411,7 +433,7 @@ int b3PluginManager::executePluginCommand(int pluginUniqueId, const b3PluginArgu
 }
 
 
-int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc,PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc, PFN_GET_RENDER_INTERFACE getRendererFunc, PFN_TICK processClientCommandsFunc)
+int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc,PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc, PFN_GET_RENDER_INTERFACE getRendererFunc, PFN_TICK processClientCommandsFunc, bool initPlugin)
 {
 
 	b3Plugin orgPlugin;
@@ -440,12 +462,14 @@ int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT
 
 	m_data->m_pluginMap.insert(pluginPath, pluginUniqueId);
 
+	if (initPlugin)
 	{
 		b3PluginContext context = {0};
 		context.m_userPointer = 0;
 		context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
 		context.m_rpcCommandProcessorInterface = m_data->m_rpcCommandProcessorInterface;
 		int result = pluginHandle->m_initFunc(&context);
+		pluginHandle->m_isInitialized = true;
 		pluginHandle->m_userPointer = context.m_userPointer;
 	}
 	return pluginUniqueId;

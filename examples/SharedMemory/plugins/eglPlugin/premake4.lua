@@ -3,25 +3,36 @@
 project ("pybullet_eglRendererPlugin")
 		language "C++"
 		kind "SharedLib"
+		initEGL()
 		
 		includedirs {".","../../../../src", "../../../../examples",
-		"../../../ThirdPartyLibs"}
-		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
+		"../../../ThirdPartyLibs", "../../examples/ThirdPartyLibs/glad"}
+		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER", "STB_AGAIN"}
 	hasCL = findOpenCL("clew")
 
 	links{"BulletCollision", "Bullet3Common", "LinearMath"}
 
+	initOpenGL()
+
+	if os.is("Windows") then
+		files {"../../../OpenGLWindow/Win32OpenGLWindow.cpp",
+		"../../../OpenGLWindow/Win32GLWindow.cpp",}
+		
+	end
 	if os.is("MacOSX") then
 --		targetextension {"so"}
-		links{"Cocoa.framework","Python"}
+		links{"Cocoa.framework"}
 	end
 
+  if os.is("Linux") then
+  		files {"../../../ThirdPartyLibs/glad/glx.c",}
+  end
 
 		files {
 			"eglRendererPlugin.cpp",
 			"eglRendererPlugin.h",
-			"TinyRendererVisualShapeConverter.cpp",
-			"TinyRendererVisualShapeConverter.h",
+			"eglRendererVisualShapeConverter.cpp",
+			"eglRendererVisualShapeConverter.h",
 			"../../../Importers/ImportColladaDemo/LoadMeshFromCollada.cpp",
 			"../../../Importers/ImportColladaDemo/LoadMeshFromCollada.h",
 			"../../../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
@@ -35,14 +46,22 @@ project ("pybullet_eglRendererPlugin")
 			"../../../TinyRenderer/our_gl.cpp",
 			"../../../TinyRenderer/tgaimage.cpp",
 			"../../../TinyRenderer/TinyRenderer.cpp",
-			"../../../ThirdPartyLibs/Wavefront/egl_obj_loader.cpp",
-			"../../../ThirdPartyLibs/Wavefront/egl_obj_loader.h",
+			"../../../ThirdPartyLibs/glad/gl.c",
+			"../../../ThirdPartyLibs/glad/egl.c",
+			"../../../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp",
+			"../../../ThirdPartyLibs/Wavefront/tiny_obj_loader.h",
 			"../../../ThirdPartyLibs/stb_image/stb_image.cpp",
 			"../../../ThirdPartyLibs/stb_image/stb_image.h",
-			"../../../ThirdPartyLibs/eglxml2/eglxml2.cpp",
-			"../../../ThirdPartyLibs/eglxml2/eglxml2.h",
+			"../../../ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
+			"../../../ThirdPartyLibs/tinyxml2/tinyxml2.h",
 			"../../../OpenGLWindow/SimpleCamera.cpp",
 			"../../../OpenGLWindow/SimpleCamera.h",
+			"../../../OpenGLWindow/GLInstancingRenderer.cpp",
+			"../../../OpenGLWindow/GLInstancingRenderer.h",
+			"../../../OpenGLWindow/LoadShader.cpp",
+			"../../../OpenGLWindow/LoadShader.h",
+			"../../../OpenGLWindow/GLRenderToTexture.cpp",
+			"../../../OpenGLWindow/GLRenderToTexture.h",
 			"../../../Utils/b3Clock.cpp",
 			"../../../Utils/b3Clock.h",
 			"../../../Utils/b3ResourcePath.cpp",

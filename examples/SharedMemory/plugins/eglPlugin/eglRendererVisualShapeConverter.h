@@ -3,15 +3,14 @@
 
 #include "../../../Importers/ImportURDFDemo/UrdfRenderingInterface.h"
 
-struct TinyRendererVisualShapeConverter : public UrdfRenderingInterface
+struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 {
-        int frame = 0;
-
-        struct TinyRendererVisualShapeConverterInternalData* m_data;
+        
+	struct EGLRendererVisualShapeConverterInternalData* m_data;
 	
-        TinyRendererVisualShapeConverter();
+	EGLRendererVisualShapeConverter();
 	
-        virtual ~TinyRendererVisualShapeConverter();
+	virtual ~EGLRendererVisualShapeConverter();
 	
 	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int shapeUid, int objectIndex);
 	
