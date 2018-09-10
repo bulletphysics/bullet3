@@ -38,8 +38,13 @@ subject to the following restrictions:
 #include "OpenGLWindow/Win32OpenGLWindow.h"
 typedef Win32OpenGLWindow DefaultOpenGLWindow;
 #else
+#ifdef BT_USE_EGL
 #include "OpenGLWindow/EGLOpenGLWindow.h"
 typedef EGLOpenGLWindow DefaultOpenGLWindow;
+#else
+#include "OpenGLWindow/X11OpenGLWindow.h"
+typedef X11OpenGLWindow DefaultOpenGLWindow;
+#endif
 #endif
 
 #include "OpenGLWindow/GLInstancingRenderer.h"
@@ -935,6 +940,8 @@ void EGLRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
 
 void EGLRendererVisualShapeConverter::render()
 {
+	m_data->m_window->endRendering();
+	m_data->m_window->startRendering();
     /*
     ATTRIBUTE_ALIGNED16(float viewMat[16]);
     ATTRIBUTE_ALIGNED16(float projMat[16]);
@@ -956,8 +963,6 @@ void EGLRendererVisualShapeConverter::render()
 	m_data->m_instancingRenderer->updateCamera(m_data->m_upAxis);
 
     m_data->m_instancingRenderer->renderScene();
-	m_data->m_window->endRendering();
-	m_data->m_window->startRendering();
 
 }
 

@@ -9596,7 +9596,7 @@ PyMODINIT_FUNC
 #if PY_MAJOR_VERSION >= 3
 PyInit_pybullet(void)
 #else
-#ifdef BT_USE_EGL
+#ifdef BT_USE_EGL2
 initpybullet_egl(void)
 #else
 #ifdef BT_PYBULLET_GRPC

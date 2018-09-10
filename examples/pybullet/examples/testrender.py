@@ -15,6 +15,8 @@ ax = plt.gca()
 
 
 pybullet.connect(pybullet.DIRECT)
+
+#pybullet.loadPlugin("eglRendererPlugin")
 pybullet.loadURDF("plane.urdf",[0,0,-1])
 pybullet.loadURDF("r2d2.urdf")
 
