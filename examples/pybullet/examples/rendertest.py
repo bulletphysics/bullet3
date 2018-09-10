@@ -122,10 +122,10 @@ def test(num_runs=300, shadow=1, log=True, plot=False):
 if __name__ == "__main__":
     res = []
 
-    with BulletSim(pybullet.DIRECT,render_mode='DIRECT/egl'):
-        print("DIRECT/elg load in context")
-        mean_time = test(log=False,plot=False)
-        res.append(("DIRECT/egl",mean_time))
+    with BulletSim(pybullet.DIRECT):
+        print("\nTesting DIRECT")
+        mean_time = test(log=True,plot=False)
+        res.append(("DIRECT/tiny",mean_time))
 
     with BulletSim(pybullet.DIRECT):
         print("DIRECT/egl  load out context")
@@ -133,15 +133,13 @@ if __name__ == "__main__":
         if plugin < 0:
             print("\nPlugin Failed to load!\n")
             sys.exit()
+        mean_time = test(log=False,plot=False)
+        #res.append(("DIRECT/egl*",mean_time))
 
+    with BulletSim(pybullet.DIRECT,render_mode='DIRECT/egl'):
+        print("DIRECT/elg load in context")
         mean_time = test(log=False,plot=False)
         res.append(("DIRECT/egl",mean_time))
-
-
-    with BulletSim(pybullet.DIRECT):
-        print("\nTesting DIRECT")
-        mean_time = test(log=True,plot=False)
-        res.append(("DIRECT/tiny",mean_time))
 
     with BulletSim(pybullet.GUI):
         print("\nTesting GUI")

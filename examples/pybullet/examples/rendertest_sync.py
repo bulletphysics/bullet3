@@ -15,6 +15,8 @@ import pybullet as p
 from itertools import cycle
 import numpy as np
 
+from matplotlib import pyplot as plt
+
 camTargetPos = [0,0,0]
 cameraUp = [0,0,1]
 cameraPos = [1,1,1]
@@ -75,7 +77,11 @@ class TestEnv(gym.Env):
         p.disconnect()
 
     def reset(self):
-        pass
+        p.resetSimulation()
+        p.loadURDF("plane.urdf",[0,0,-1])
+        p.loadURDF("r2d2.urdf")
+        p.loadURDF("duck_vhacd.urdf")
+        p.setGravity(0,0,-10)
 
     def step(self,action):
         p.stepSimulation()
@@ -94,7 +100,7 @@ class TestEnv(gym.Env):
     def seed(self, seed=None):
       pass
 
-def train(env_id, num_timesteps=300, seed=0,num_env=2,renderer='tiny'):
+def train(env_id, num_timesteps=300, seed=0,num_env=2,renderer='tiny',ax=None,image=None):
     def make_env(rank):
         def _thunk():
             if env_id == "TestEnv":
@@ -114,7 +120,13 @@ def train(env_id, num_timesteps=300, seed=0,num_env=2,renderer='tiny'):
     start = time.time()
     for i in range(num_timesteps):
         action = [env.action_space.sample() for _ in range(num_env)]
-        env.step(action)
+        res = env.step(action)
+        if ax:
+            rgb = res[0][0,:,:,:3]
+            image.set_data(rgb)#np_img_arr)
+            ax.plot([0])
+            plt.pause(0.01)
+
     stop = time.time()
     duration = (stop - start)
     if (duration):
@@ -127,11 +139,22 @@ def train(env_id, num_timesteps=300, seed=0,num_env=2,renderer='tiny'):
 
 if __name__ == "__main__":
     env_id = "TestEnv"
-    res = []
 
+    plot = False
+    if plot:
+        plt.ion()
+        img = np.random.rand(200, 320)
+        #img = [tandard_normal((50,100))
+        image = plt.imshow(img,interpolation='none',animated=True,label="blah")
+        ax = plt.gca()
+    else:
+        ax = None
+        image =None
+
+    res = []
     for renderer in ('DIRECT/tiny','DIRECT/egl', 'GUI/egl'):
         for i in (1,8):
-            tmp = train(env_id,num_env=i,renderer=renderer)
+            tmp = train(env_id,num_env=i,renderer=renderer,ax=ax,image=image)
             print(renderer,tmp)
             res.append((renderer,tmp))
     print()
