@@ -122,7 +122,6 @@ struct TinyRendererVisualShapeConverterInternalData
 	
 	virtual ~TinyRendererVisualShapeConverterInternalData()
 	{
-		printf("~TinyRendererVisualShapeConverterInternalData()\n");
 	}
 };
 
