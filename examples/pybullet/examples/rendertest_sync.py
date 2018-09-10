@@ -37,29 +37,28 @@ class TestEnv(gym.Env):
         self.iter = cycle(range(0,360,10))
 
         # how we want to show
-        assert renderer in ('tiny', 'egl', 'debug','plugin')
+        assert renderer in ('DIRECT/tiny', 'DIRECT/egl', 'GUI/egl','GUI/debug')
         self._renderer = renderer
         self._render_width = 84
         self._render_height = 84
         # connecting
-        if self._renderer == "tiny" or self._renderer == "plugin":
+        if self._renderer == "DIRECT/tiny" or self._renderer == "DIRECT/egl":
             optionstring='--width={} --height={}'.format(self._render_width,self._render_height)
             p.connect(p.DIRECT, options=optionstring)
 
-            if self._renderer == "plugin":
-                plugin_fn = os.path.join(p.__file__.split("bullet3")[0],"bullet3/build/lib.linux-x86_64-3.5/eglRenderer.cpython-35m-x86_64-linux-gnu.so")
-                plugin = p.loadPlugin(plugin_fn,"_tinyRendererPlugin")
+            if self._renderer == "DIRECT/egl":
+                plugin = p.loadPlugin("eglRendererPlugin")
                 if plugin < 0:
                     print("\nPlugin Failed to load! Try installing via `pip install -e .`\n")
                     sys.exit()
                 print("plugin =",plugin)
 
-        elif self._renderer == "egl":
+        elif self._renderer == "GUI/egl":
             optionstring='--width={} --height={}'.format(self._render_width,self._render_height)
             optionstring += ' --window_backend=2 --render_device=0'
             p.connect(p.GUI, options=optionstring)
 
-        elif self._renderer == "debug":
+        elif self._renderer == "GUI/debug":
           #print("Connection: SHARED_MEMORY")
           #cid = p.connect(p.SHARED_MEMORY)
           #if (cid<0):
@@ -95,7 +94,7 @@ class TestEnv(gym.Env):
     def seed(self, seed=None):
       pass
 
-def train(env_id, num_timesteps=300, seed=0,num_env=2,renderer='tiny'):
+def train(env_id, num_timesteps=100, seed=0,num_env=2,renderer='tiny'):
     def make_env(rank):
         def _thunk():
             if env_id == "TestEnv":
@@ -130,7 +129,7 @@ if __name__ == "__main__":
     env_id = "TestEnv"
     res = []
 
-    for renderer in ('tiny','plugin', 'egl'):
+    for renderer in ('DIRECT/tiny','DIRECT/egl', 'GUI/egl'):
         for i in (1,8):
             tmp = train(env_id,num_env=i,renderer=renderer)
             print(renderer,tmp)
