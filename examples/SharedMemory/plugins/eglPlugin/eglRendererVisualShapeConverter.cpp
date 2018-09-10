@@ -33,7 +33,10 @@ subject to the following restrictions:
 #include "../TinyRenderer/model.h"
 #include "stb_image/stb_image.h"
 
-
+#ifdef __APPLE__
+#include "OpenGLWindow/MacOpenGLWindow.h"
+typedef MacOpenGLWindow DefaultOpenGLWindow;
+#else
 #ifdef _WIN32
 #include "OpenGLWindow/Win32OpenGLWindow.h"
 typedef Win32OpenGLWindow DefaultOpenGLWindow;
@@ -44,8 +47,9 @@ typedef EGLOpenGLWindow DefaultOpenGLWindow;
 #else
 #include "OpenGLWindow/X11OpenGLWindow.h"
 typedef X11OpenGLWindow DefaultOpenGLWindow;
-#endif
-#endif
+#endif//BT_USE_EGL
+#endif// _WIN32
+#endif //__APPLE__
 
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "OpenGLWindow/GLRenderToTexture.h"
