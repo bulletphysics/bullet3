@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pybullet
 import time
-
+import pkgutil
 
 plt.ion()
 
@@ -20,7 +20,9 @@ ax = plt.gca()
     
 pybullet.connect(pybullet.DIRECT)
 
-pybullet.loadPlugin("eglRendererPlugin")
+egl = pkgutil.get_loader('eglRenderer')
+
+pybullet.loadPlugin(egl.get_filename(), "_eglRendererPlugin")
 pybullet.loadURDF("plane.urdf",[0,0,-1])
 pybullet.loadURDF("r2d2.urdf")
 

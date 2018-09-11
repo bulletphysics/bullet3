@@ -182,7 +182,7 @@ project "App_BulletExampleBrowser"
 		"../MultiBody/MultiBodyConstraintFeedback.cpp",
 		"../MultiBody/InvertedPendulumPDControl.cpp",
 		"../RigidBody/RigidBodySoftContact.cpp",
-		"../ThirdPartyLibs/stb_image/*",
+		"../ThirdPartyLibs/stb_image/stb_image.cpp",
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",
 		"../ThirdPartyLibs/BussIK/*",
 		"../GyroscopicDemo/GyroscopicSetup.cpp",

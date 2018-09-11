@@ -18,13 +18,13 @@
     #define B3_DYNLIB_IMPORT  GetProcAddress
 #else
     #include <dlfcn.h>
-    
+
     typedef void*                   B3_DYNLIB_HANDLE;
 
-#ifdef __APPLE__
-    #define B3_DYNLIB_OPEN(path)  dlopen(path, RTLD_NOW | RTLD_GLOBAL)
-#else
+#ifdef B3_USE_DLMOPEN
     #define B3_DYNLIB_OPEN(path)  dlmopen(LM_ID_NEWLM, path, RTLD_LAZY)
+#else
+    #define B3_DYNLIB_OPEN(path)  dlopen(path, RTLD_NOW | RTLD_GLOBAL)
 #endif
     #define B3_DYNLIB_CLOSE       dlclose
     #define B3_DYNLIB_IMPORT      dlsym
@@ -40,16 +40,16 @@ struct b3Plugin
 	PFN_INIT m_initFunc;
 	PFN_EXIT m_exitFunc;
 	PFN_EXECUTE m_executeCommandFunc;
-	
+
 	PFN_TICK m_preTickFunc;
 	PFN_TICK m_postTickFunc;
 	PFN_TICK m_processNotificationsFunc;
 	PFN_TICK m_processClientCommandsFunc;
 
 	PFN_GET_RENDER_INTERFACE m_getRendererFunc;
-	
+
 	void* m_userPointer;
-	
+
 	b3Plugin()
 		:m_pluginHandle(0),
 		m_ownsPluginHandle(false),
@@ -332,7 +332,7 @@ void b3PluginManager::tickPlugins(double timeStep, b3PluginManagerTickMode tickM
 		{
 			continue;
 		}
-		
+
 		PFN_TICK  tick = 0;
 		switch (tickMode)
 		{
@@ -355,7 +355,7 @@ void b3PluginManager::tickPlugins(double timeStep, b3PluginManagerTickMode tickM
 			{
 			}
 		}
-		
+
 		if (tick)
 		{
 			b3PluginContext context = { 0 };
@@ -437,7 +437,7 @@ int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT
 {
 
 	b3Plugin orgPlugin;
-	
+
 	int pluginUniqueId = m_data->m_plugins.allocHandle();
 	b3PluginHandle* pluginHandle = m_data->m_plugins.getHandle(pluginUniqueId);
 	pluginHandle->m_pluginHandle = 0;
@@ -453,7 +453,7 @@ int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT
 	pluginHandle->m_pluginHandle = 0;
 	pluginHandle->m_pluginPath = pluginPath;
 	pluginHandle->m_userPointer = 0;
-	
+
 
 	if (pluginHandle->m_processNotificationsFunc)
 	{

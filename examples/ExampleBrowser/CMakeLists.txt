@@ -344,7 +344,7 @@ SET(BulletExampleBrowser_SRCS
 
 	../ThirdPartyLibs/stb_image/stb_image.cpp
 	../ThirdPartyLibs/stb_image/stb_image.h
-	
+	../ThirdPartyLibs/stb_image/stb_image_write.cpp
 	../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
 	
 	../ThirdPartyLibs/tinyxml2/tinyxml2.cpp
