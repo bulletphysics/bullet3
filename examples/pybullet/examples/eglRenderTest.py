@@ -4,7 +4,7 @@ import time
 import pkgutil
 egl = pkgutil.get_loader('eglRenderer')
 
-p.connect(p.SHARED_MEMORY_SERVER)
+p.connect(p.DIRECT)
 
 plugin = p.loadPlugin(egl.get_filename(), "_eglRendererPlugin")
 print("plugin=",plugin)

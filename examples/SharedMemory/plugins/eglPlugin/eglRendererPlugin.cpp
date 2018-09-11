@@ -69,6 +69,8 @@ PyInit_eglRenderer(void)
 initeglRenderer(void)
 #endif
 {
+#if PY_MAJOR_VERSION >= 3
 	return 0;
+#endif
 }
 #endif //EGL_ADD_PYTHON_INIT
