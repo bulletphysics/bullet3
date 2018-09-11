@@ -465,6 +465,9 @@ if _platform == "linux" or _platform == "linux2":
     +["examples/ThirdPartyLibs/glad/gl.c"]
     
     include_dirs += ["examples/ThirdPartyLibs/optionalX11"]
+    sources = sources + ["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
+    + ["examples/ThirdPartyLibs/glad/glx.c"]
+
     if 'BT_USE_EGL' in CXX_FLAGS:
         # linking with bullet's Glew libraries causes segfault
         # for some reason.
@@ -474,8 +477,6 @@ if _platform == "linux" or _platform == "linux2":
         +["examples/OpenGLWindow/EGLOpenGLWindow.cpp"]\
         +['examples/ThirdPartyLibs/glad/egl.c']
     else:
-        sources = sources + ["examples/ThirdPartyLibs/glad/glx.c"]\
-        +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]
         egl_renderer_sources = egl_renderer_sources\
         +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
         +["examples/ThirdPartyLibs/glad/glx.c"]
