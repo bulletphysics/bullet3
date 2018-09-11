@@ -356,7 +356,7 @@ int main()
 #ifndef _WIN32
     //we need glewExperimental on Linux
 #endif // _WIN32
-	gladLoadGLInternalLoader();
+		gladLoaderLoadGL();
 #endif
 #endif //B3_USE_GLFW
     //we ned to call glGetError twice, because of some Ubuntu/Intel/OpenGL issue

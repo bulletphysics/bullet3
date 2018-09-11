@@ -795,7 +795,7 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
                 // register mesh to m_instancingRenderer too.
                 
                 int shapeIndex = m_data->m_instancingRenderer->registerShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(),B3_GL_TRIANGLES, textureIndex);
-                btVector3 scaling(1,1,1);
+                double scaling[3]={1,1,1};
 				visuals->m_graphicsInstanceId = m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0],scaling);
 	
                 m_data->m_instancingRenderer->writeTransforms();

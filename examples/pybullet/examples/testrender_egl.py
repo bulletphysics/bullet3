@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pybullet
 import time
-
+import pkgutil
 
 plt.ion()
 
@@ -20,7 +20,9 @@ ax = plt.gca()
     
 pybullet.connect(pybullet.DIRECT)
 
-pybullet.loadPlugin("eglRendererPlugin")
+egl = pkgutil.get_loader('eglRenderer')
+
+pybullet.loadPlugin(egl.get_filename(), "_eglRendererPlugin")
 pybullet.loadURDF("plane.urdf",[0,0,-1])
 pybullet.loadURDF("r2d2.urdf")
 
@@ -64,14 +66,14 @@ while (1):
     #note that sending the data to matplotlib is really slow
 
     #reshape is not needed
-    #np_img_arr = np.reshape(rgb, (h, w, 4))
-    #np_img_arr = np_img_arr*(1./255.)
+    np_img_arr = np.reshape(rgb, (h, w, 4))
+    np_img_arr = np_img_arr*(1./255.)
     
     #show
     #plt.imshow(np_img_arr,interpolation='none',extent=(0,1600,0,1200))
     #image = plt.imshow(np_img_arr,interpolation='none',animated=True,label="blah")
 
-    image.set_data(rgb)#np_img_arr)
+    image.set_data(np_img_arr)
     ax.plot([0])
     #plt.draw()
     #plt.show()

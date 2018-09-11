@@ -1,4 +1,12 @@
 
+#ifdef EGL_ADD_PYTHON_INIT
+#if defined(__APPLE__) && (!defined(B3_NO_PYTHON_FRAMEWORK))
+#include <Python/Python.h>
+#else
+#include <Python.h>
+#endif
+#endif //EGL_ADD_PYTHON_INIT
+
 //eglRenderer plugin
 
 //see Bullet/examples/pybullet/examples/eglRendererTest.py
@@ -52,3 +60,17 @@ B3_SHARED_API struct UrdfRenderingInterface* getRenderInterface_eglRendererPlugi
 	return &obj->m_renderer;
 }
 
+
+#ifdef EGL_ADD_PYTHON_INIT
+PyMODINIT_FUNC
+#if PY_MAJOR_VERSION >= 3
+PyInit_eglRenderer(void)
+#else
+initeglRenderer(void)
+#endif
+{
+#if PY_MAJOR_VERSION >= 3
+	return 0;
+#endif
+}
+#endif //EGL_ADD_PYTHON_INIT

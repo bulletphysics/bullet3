@@ -6,7 +6,7 @@ project ("pybullet_eglRendererPlugin")
 		initEGL()
 		
 		includedirs {".","../../../../src", "../../../../examples",
-		"../../../ThirdPartyLibs", "../../examples/ThirdPartyLibs/glad"}
+		"../../../ThirdPartyLibs", "../../../ThirdPartyLibs/glad"}
 		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER", "STB_AGAIN"}
 	hasCL = findOpenCL("clew")
 
@@ -25,7 +25,8 @@ project ("pybullet_eglRendererPlugin")
 	end
 
   if os.is("Linux") then
-  		files {"../../../ThirdPartyLibs/glad/glx.c",}
+	  files {"../../../OpenGLWindow/EGLOpenGLWindow.cpp"}
+
   end
 
 		files {
