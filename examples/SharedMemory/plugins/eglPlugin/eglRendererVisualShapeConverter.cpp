@@ -52,7 +52,7 @@ typedef X11OpenGLWindow DefaultOpenGLWindow;
 
 static void printGLString(const char *name, GLenum s) {
     const char *v = (const char *) glGetString(s);
-    printf("%s = %s\n",name, v);
+  printf("%s = %s\n",name, v);
 }
 
 using namespace std;
@@ -91,30 +91,32 @@ struct EGLRendererVisualShapeConverterInternalData
     class GLInstancingRenderer* m_instancingRenderer;
     btAlignedObjectArray<unsigned char> m_rgbaPixelBuffer1;
     btAlignedObjectArray<float> m_depthBuffer1;
+
     btHashMap<btHashInt,TinyRendererObjectArray*> m_swRenderInstances;
+
 	btAlignedObjectArray<b3VisualShapeData> m_visualShapes;
     
    	int m_upAxis;
 	int m_swWidth;
 	int m_swHeight;
 	TGAImage m_rgbColorBuffer;
-	b3AlignedObjectArray<MyTexture2> m_textures;
+        b3AlignedObjectArray<MyTexture2> m_textures;
 	b3AlignedObjectArray<float> m_depthBuffer;
-	b3AlignedObjectArray<float> m_shadowBuffer;
+        b3AlignedObjectArray<float> m_shadowBuffer;
 	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
 	btVector3 m_lightDirection;
 	bool m_hasLightDirection;
-	btVector3 m_lightColor;
-	bool m_hasLightColor;
-	float m_lightDistance;
-	bool m_hasLightDistance;
-	float m_lightAmbientCoeff;
-	bool m_hasLightAmbientCoeff;
-	float m_lightDiffuseCoeff;
-	bool m_hasLightDiffuseCoeff;
-	float m_lightSpecularCoeff;
-	bool m_hasLightSpecularCoeff;
-	bool m_hasShadow;
+        btVector3 m_lightColor;
+        bool m_hasLightColor;
+        float m_lightDistance;
+        bool m_hasLightDistance;
+        float m_lightAmbientCoeff;
+        bool m_hasLightAmbientCoeff;
+        float m_lightDiffuseCoeff;
+        bool m_hasLightDiffuseCoeff;
+        float m_lightSpecularCoeff;
+        bool m_hasLightSpecularCoeff;
+        bool m_hasShadow;
 	int m_flags;
 	SimpleCamera m_camera;
 	
@@ -139,9 +141,9 @@ struct EGLRendererVisualShapeConverterInternalData
 	m_hasShadow(false),
 	m_flags(0)
 	{
-		m_depthBuffer.resize(m_swWidth*m_swHeight);
-		m_shadowBuffer.resize(m_swWidth*m_swHeight);
-		m_segmentationMaskBuffer.resize(m_swWidth*m_swHeight,-1);
+	    m_depthBuffer.resize(m_swWidth*m_swHeight);
+            m_shadowBuffer.resize(m_swWidth*m_swHeight);
+	    m_segmentationMaskBuffer.resize(m_swWidth*m_swHeight,-1);
 
             // OpenGL window
             bool allowRetina=true;
@@ -163,11 +165,15 @@ struct EGLRendererVisualShapeConverterInternalData
             }
             glClearColor(.7f, .7f, .8f, 1.f);
 
-            m_window->startRendering();			
-            b3Assert(glGetError() ==GL_NO_ERROR);
-            glGetError();//don't remove this call, it is needed for Ubuntu
+            m_window->startRendering();
+			
+
+
             b3Assert(glGetError() ==GL_NO_ERROR);
 
+
+            glGetError();//don't remove this call, it is needed for Ubuntu
+            b3Assert(glGetError() ==GL_NO_ERROR);
             int maxNumObjectCapacity = 128 * 1024;
             int maxShapeCapacityInBytes = 128 * 1024 * 1024;
             m_instancingRenderer = new GLInstancingRenderer(maxNumObjectCapacity, maxShapeCapacityInBytes);
@@ -191,6 +197,7 @@ struct EGLRendererVisualShapeConverterInternalData
 		m_window->closeWindow();
 		delete m_window;
 	}
+
 };
 
 
@@ -205,8 +212,9 @@ EGLRendererVisualShapeConverter::EGLRendererVisualShapeConverter()
 	float targetPos[3]={0,0,0};
 	m_data->m_camera.setCameraUpAxis(m_data->m_upAxis);
 	resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
-}
 
+
+}
 EGLRendererVisualShapeConverter::~EGLRendererVisualShapeConverter()
 {
 	resetAll();
@@ -235,11 +243,11 @@ void EGLRendererVisualShapeConverter::setShadow(bool hasShadow)
 {
     m_data->m_hasShadow = hasShadow;
 }
-
 void EGLRendererVisualShapeConverter::setFlags(int flags)
 {
 	m_data->m_flags = flags;
 }
+
 
 void EGLRendererVisualShapeConverter::setLightAmbientCoeff(float ambientCoeff)
 {
@@ -262,6 +270,7 @@ void EGLRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff)
 ///todo: merge into single file with TinyRendererVisualShapeConverter
 static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
 {
+
 	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
 	visualShapeOut.m_dimensions[0] = 0;
 	visualShapeOut.m_dimensions[1] = 0;
@@ -619,6 +628,7 @@ static btVector4 sColors[4] =
 	btVector4(244./256.,194./256.,13./256.,1),
 	btVector4(219./256.,50./256.,54./256.,1),
 	btVector4(72./256.,133./256.,237./256.,1),
+
 	//btVector4(1,1,0,1),
 };
 
@@ -703,6 +713,7 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
 
 					}
 				}
+				
 			}
 			else
 			{
@@ -778,6 +789,7 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
                  B3_PROFILE("m_instancingRenderer register");
 
                 // register mesh to m_instancingRenderer too.
+                
                 int shapeIndex = m_data->m_instancingRenderer->registerShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(),B3_GL_TRIANGLES, textureIndex);
                 btVector3 scaling(1,1,1);
 				visuals->m_graphicsInstanceId = m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0],scaling);
@@ -923,13 +935,24 @@ void EGLRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
             m_data->m_segmentationMaskBuffer[x+y*m_data->m_swWidth] = -1;
         }
     }
+
 }
 
 void EGLRendererVisualShapeConverter::render()
 {
 	m_data->m_window->endRendering();
 	m_data->m_window->startRendering();
-
+    /*
+    ATTRIBUTE_ALIGNED16(float viewMat[16]);
+    ATTRIBUTE_ALIGNED16(float projMat[16]);
+    m_data->m_camera.getCameraProjectionMatrix(projMat);
+    m_data->m_camera.getCameraViewMatrix(viewMat);
+    cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
+    cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
+    cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
+    cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
+    */
+	
     B3_PROFILE("m_instancingRenderer render");
 	m_data->m_instancingRenderer->writeTransforms();
 	if (m_data->m_hasLightDirection)
@@ -945,10 +968,21 @@ void EGLRendererVisualShapeConverter::render()
 
 void EGLRendererVisualShapeConverter::render(const float viewMat[16], const float projMat[16])
 {
+    // This code is very similar to that of
+    // PhysicsServerCommandProcessor::processRequestCameraImageCommand
+    // maybe code from there should be moved.
+
     // Tiny allows rendering with viewMat, projMat explicitly, but
-    // GLInstancingRender calls m_activeCamera, so set this.   
+    // GLInstancingRender calls m_activeCamera, so set this.
+	
 	m_data->m_camera.setVRCamera(viewMat,projMat);
+
 	render();
+
+    //cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
+    //cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
+    //cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
+    //cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
 }
 
 void EGLRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
@@ -956,6 +990,7 @@ void EGLRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
     width = m_data->m_swWidth;
     height = m_data->m_swHeight;
 }
+
 
 void EGLRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 {
@@ -980,6 +1015,7 @@ void EGLRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
         m_data->m_segmentationMaskBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
         m_data->m_rgbColorBuffer = TGAImage(width, height, TGAImage::RGB);
     }
+		
 }
 
 //copied from OpenGLGuiHelper.cpp
@@ -1020,7 +1056,6 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
                     //b3Warning("EGL\n");
                     if ((sourceWidth*sourceHeight*4) == rgbaBufferSizeInPixels)  // remove this if
                     {
-                        BT_PROFILE("getScreenPixels RGB");
                         glReadPixels(0,0,sourceWidth, sourceHeight, GL_RGBA, GL_UNSIGNED_BYTE, &(sourceRgbaPixelBuffer[0]));
                         int glstat;
                         glstat = glGetError();
@@ -1028,7 +1063,6 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
                     }
                     if ((sourceWidth*sourceHeight*sizeof(float)) == depthBufferSizeInPixels)
                     {
-                        BT_PROFILE("getScreenPixels Depth");
                         glReadPixels(0,0,sourceWidth, sourceHeight, GL_DEPTH_COMPONENT, GL_FLOAT, &(sourceDepthBuffer[0]));
                         int glstat;
                         glstat = glGetError();
@@ -1159,6 +1193,7 @@ void EGLRendererVisualShapeConverter::resetAll()
 	m_data->m_swRenderInstances.clear();
 	m_data->m_visualShapes.clear();
 }
+
 
 void EGLRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
