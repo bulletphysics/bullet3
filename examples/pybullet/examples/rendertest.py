@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
     with BulletSim(pybullet.DIRECT):
         print("\nTesting DIRECT")
-        mean_time = test(log=True,plot=False)
+        mean_time = test(log=False,plot=False)
         res.append(("DIRECT/tiny",mean_time))
 
     with BulletSim(pybullet.DIRECT):
@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
     with BulletSim(pybullet.DIRECT,render_mode='DIRECT/egl'):
         print("DIRECT/elg load in context")
-        mean_time = test(log=False,plot=False)
+        mean_time = test(log=True,plot=False)
         res.append(("DIRECT/egl",mean_time))
 
     with BulletSim(pybullet.GUI):
