@@ -699,6 +699,23 @@ struct CalculateMassMatrixResultArgs
 	int m_dofCount;
 };
 
+enum b3EnumCollisionFilterFlags
+{
+    B3_COLLISION_FILTER_PAIR=1,
+	B3_COLLISION_FILTER_GROUP_MASK=2,
+};
+
+struct b3CollisionFilterArgs
+{
+	int m_bodyUniqueIdA;
+	int m_bodyUniqueIdB;
+	int m_linkIndexA;
+	int m_linkIndexB;
+	int m_enableCollision;
+	int m_collisionFilterGroup;
+	int m_collisionFilterMask;
+};
+
 struct CalculateInverseKinematicsArgs
 {
 	int m_bodyUniqueId;
@@ -1087,6 +1104,7 @@ struct SharedMemoryCommand
 		struct UserDataRequestArgs m_userDataRequestArgs;
 		struct AddUserDataRequestArgs m_addUserDataRequestArgs;
 		struct UserDataRequestArgs m_removeUserDataRequestArgs;
+		struct b3CollisionFilterArgs m_collisionFilterArgs;
     };
 };
 

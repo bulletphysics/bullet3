@@ -32,6 +32,7 @@ extern "C" {
 	typedef B3_API_ENTRY int (B3_API_CALL * PFN_TICK)(struct b3PluginContext* context);
 
 	typedef B3_API_ENTRY struct UrdfRenderingInterface* (B3_API_CALL * PFN_GET_RENDER_INTERFACE)(struct b3PluginContext* context);
+	typedef B3_API_ENTRY struct b3PluginCollisionInterface* (B3_API_CALL * PFN_GET_COLLISION_INTERFACE)(struct b3PluginContext* context);
 	
 
 #ifdef __cplusplus

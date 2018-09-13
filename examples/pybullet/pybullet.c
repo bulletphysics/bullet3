@@ -5860,6 +5860,82 @@ static PyObject* MyConvertContactPoint(struct b3ContactInformation* contactPoint
 	return pyResultList;
 }
 
+
+
+static PyObject* pybullet_setCollisionFilterGroupMask(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	int bodyUniqueIdA=-1;
+	int linkIndexA =-2;
+	
+	int collisionFilterGroup=-1;
+	int collisionFilterMask = -1;
+
+	b3SharedMemoryCommandHandle	 commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+
+	static char* kwlist[] = {"bodyUniqueId", "linkIndexA","collisionFilterGroup", "collisionFilterMask" , "physicsClientId", NULL};
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiii|i", kwlist,
+		&bodyUniqueIdA, &linkIndexA, &collisionFilterGroup, &collisionFilterMask, &physicsClientId))
+		return NULL;
+	
+	commandHandle =	b3CollisionFilterCommandInit(sm);
+	b3SetCollisionFilterGroupMask(commandHandle, bodyUniqueIdA,linkIndexA,collisionFilterGroup, collisionFilterMask);
+	
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+static PyObject* pybullet_setCollisionFilterPair(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	int bodyUniqueIdA=-1;
+	int bodyUniqueIdB=-1;
+	int linkIndexA =-2;
+	int linkIndexB =-2;
+	int enableCollision = -1;
+	b3SharedMemoryCommandHandle	 commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+
+	static char* kwlist[] = {"bodyUniqueIdA", "bodyUniqueIdB","linkIndexA","linkIndexB",  "enableCollision", "physicsClientId", NULL};
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiiii|i", kwlist,
+		&bodyUniqueIdA, &bodyUniqueIdB,&linkIndexA, &linkIndexB, &enableCollision, &physicsClientId))
+		return NULL;
+	
+	commandHandle =	b3CollisionFilterCommandInit(sm);
+	b3SetCollisionFilterPair(commandHandle, bodyUniqueIdA,bodyUniqueIdB, linkIndexA, linkIndexB, enableCollision);
+	
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject* pybullet_getOverlappingObjects(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	PyObject *aabbMinOb = 0, *aabbMaxOb = 0;
@@ -9378,6 +9454,14 @@ static PyMethodDef SpamMethods[] = {
 	 "axis-aligned bounding box volume (AABB)."
 	 "Input are two vectors defining the AABB in world space [min_x,min_y,min_z],[max_x,max_y,max_z]."},
 
+	 {"setCollisionFilterPair", (PyCFunction)pybullet_setCollisionFilterPair, METH_VARARGS | METH_KEYWORDS,
+	 "Enable or disable collision detection between two object links."
+	 "Input are two object unique ids and two link indices and an enum"
+	 "to enable or disable collisions."},
+	 
+	 {"setCollisionFilterGroupMask", (PyCFunction)pybullet_setCollisionFilterGroupMask, METH_VARARGS | METH_KEYWORDS,
+	 "Set the collision filter group and the mask for a body."},
+	 
 	{"addUserDebugLine", (PyCFunction)pybullet_addUserDebugLine, METH_VARARGS | METH_KEYWORDS,
 	 "Add a user debug draw line with lineFrom[3], lineTo[3], lineColorRGB[3], lineWidth, lifeTime. "
 	 "A lifeTime of 0 means permanent until removed. Returns a unique id for the user debug item."},

@@ -488,6 +488,9 @@ public:
 
 	virtual void	addCollisionObject(btCollisionObject* collisionObject, int collisionFilterGroup=btBroadphaseProxy::DefaultFilter, int collisionFilterMask=btBroadphaseProxy::AllFilter);
 
+	virtual void	refreshBroadphaseProxy(btCollisionObject* collisionObject);
+
+
 	btCollisionObjectArray& getCollisionObjectArray()
 	{
 		return m_collisionObjects;

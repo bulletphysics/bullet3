@@ -571,6 +571,24 @@ bool UrdfParser::parseCollision(UrdfCollision& collision, XMLElement* config, Er
 		return false;
 	}
 	
+	{
+		const char* group_char = config->Attribute("group");
+		if (group_char)
+		{
+			collision.m_flags |= URDF_HAS_COLLISION_GROUP;
+			collision.m_collisionGroup = urdfLexicalCast<int>(group_char);
+		}
+	}
+
+	{
+		const char* mask_char = config->Attribute("mask");
+		if (mask_char)
+		{
+			collision.m_flags |= URDF_HAS_COLLISION_MASK;
+			collision.m_collisionMask = urdfLexicalCast<int>(mask_char);
+		}
+	}
+
 	
 	const char *name_char = config->Attribute("name");
 	if (name_char)

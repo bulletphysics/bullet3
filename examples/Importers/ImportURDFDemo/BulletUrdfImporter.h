@@ -63,7 +63,7 @@ public:
     virtual void  getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const;
 	virtual void  getMassAndInertia2(int urdfLinkIndex, btScalar& mass, btVector3& localInertiaDiagonal, btTransform& inertialFrame, int flags) const;
 
-
+	
     virtual bool getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const;
     virtual bool getJointInfo2(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity) const;
 
@@ -81,6 +81,8 @@ public:
     ///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
     
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const;
+
+	virtual int getCollisionGroupAndMask(int linkIndex, int& colGroup, int& colMask) const;
     
     virtual int getNumAllocatedCollisionShapes() const;
     virtual class btCollisionShape* getAllocatedCollisionShape(int index);
