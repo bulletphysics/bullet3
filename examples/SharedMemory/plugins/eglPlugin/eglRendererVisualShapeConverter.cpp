@@ -998,16 +998,13 @@ void EGLRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
         m_data->m_swWidth = width;
         m_data->m_swHeight = height;
 
-        // close existing window and create new one
-        //TODO(max): this causes a segfault:
-        //m_data->m_window->getResizeCallback()(width, height);
-        m_data->m_window->closeWindow();
+        // update current window
         b3gWindowConstructionInfo ci;
         ci.m_title = "Title";
         ci.m_width = width;
         ci.m_height = height;
         ci.m_renderDevice = 0;
-        m_data->m_window->createWindow(ci);
+        m_data->m_window->updateWindow(ci);
 
         m_data->m_instancingRenderer->resize(width,height);
         m_data->m_depthBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);

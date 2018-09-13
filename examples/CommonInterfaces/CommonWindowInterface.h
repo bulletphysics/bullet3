@@ -2,7 +2,7 @@
 #define B3G_WINDOW_INTERFACE_H
 
 #include "CommonCallbacks.h"
-
+#include "../../src/Bullet3Common/b3Logging.h"
 
 struct b3gWindowConstructionInfo
 {
@@ -46,7 +46,11 @@ class CommonWindowInterface
 		}
 
 		virtual	void	createWindow(const b3gWindowConstructionInfo& ci)=0;
-		
+
+	    virtual	void	updateWindow(const b3gWindowConstructionInfo& ci){
+		    b3Error("updateWindow not implemented");
+	    }
+
 		virtual void	closeWindow()=0;
 
 		virtual void	runMainLoop()=0;

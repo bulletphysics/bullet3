@@ -27,7 +27,7 @@
 //    distribution.
 //
 //========================================================================
-
+#define BT_USE_EGL
 #ifdef BT_USE_EGL
 
 
@@ -72,7 +72,8 @@ struct EGLInternalData2 {
     m_wheelCallback(0),
     m_resizeCallback(0),
     m_mouseButtonCallback(0),
-    m_mouseMoveCallback(0) {}
+    m_mouseMoveCallback(0),
+    egl_surface(NULL) {}
 };
 
 EGLOpenGLWindow::EGLOpenGLWindow() { m_data = new EGLInternalData2(); }
@@ -80,29 +81,7 @@ EGLOpenGLWindow::EGLOpenGLWindow() { m_data = new EGLInternalData2(); }
 EGLOpenGLWindow::~EGLOpenGLWindow() { delete m_data; }
 
 void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
-    m_data->m_windowWidth = ci.m_width;
-    m_data->m_windowHeight = ci.m_height;
-    
-    m_data->m_renderDevice = ci.m_renderDevice;
 
-    EGLint egl_config_attribs[] = {EGL_RED_SIZE,
-        8,
-        EGL_GREEN_SIZE,
-        8,
-        EGL_BLUE_SIZE,
-        8,
-        EGL_DEPTH_SIZE,
-        8,
-        EGL_SURFACE_TYPE,
-        EGL_PBUFFER_BIT,
-        EGL_RENDERABLE_TYPE,
-        EGL_OPENGL_BIT,
-        EGL_NONE};
-    
-    EGLint egl_pbuffer_attribs[] = {
-        EGL_WIDTH, m_data->m_windowWidth, EGL_HEIGHT, m_data->m_windowHeight,
-        EGL_NONE,
-    };
     
     // Load EGL functions
     int egl_version = gladLoaderLoadEGL(NULL);
@@ -110,6 +89,9 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
         fprintf(stderr, "failed to EGL with glad.\n");
         exit(EXIT_FAILURE);
     };
+
+    // desired device
+    m_data->m_renderDevice = ci.m_renderDevice;
 
     // Query EGL Devices
     const int max_devices = 32;
@@ -177,6 +159,15 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
         exit(EXIT_FAILURE);
     }
 
+    EGLint egl_config_attribs[] = {
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_DEPTH_SIZE, 8,
+        EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE};
+
     m_data->success =
     eglChooseConfig(m_data->egl_display, egl_config_attribs,
                     &m_data->egl_config, 1, &m_data->num_configs);
@@ -191,18 +182,25 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
         exit(EXIT_FAILURE);
     }
 
-    m_data->egl_surface = eglCreatePbufferSurface(
-                                                  m_data->egl_display, m_data->egl_config, egl_pbuffer_attribs);
-    if (m_data->egl_surface == EGL_NO_SURFACE) {
-        fprintf(stderr, "Unable to create EGL surface (eglError: %d)\n", eglGetError());
-        exit(EXIT_FAILURE);
-    }
-
-
     m_data->egl_context = eglCreateContext(
                                            m_data->egl_display, m_data->egl_config, EGL_NO_CONTEXT, NULL);
     if (!m_data->egl_context) {
         fprintf(stderr, "Unable to create EGL context (eglError: %d)\n",eglGetError());
+        exit(EXIT_FAILURE);
+    }
+
+    /*
+    // specify buffer size
+    m_data->m_windowWidth = ci.m_width;
+    m_data->m_windowHeight = ci.m_height;
+    EGLint egl_pbuffer_attribs[] = {
+        EGL_WIDTH, m_data->m_windowWidth, EGL_HEIGHT, m_data->m_windowHeight,
+        EGL_NONE,
+    };
+    m_data->egl_surface = eglCreatePbufferSurface(
+                                                  m_data->egl_display, m_data->egl_config, egl_pbuffer_attribs);
+    if (m_data->egl_surface == EGL_NO_SURFACE) {
+        fprintf(stderr, "Unable to create EGL surface (eglError: %d)\n", eglGetError());
         exit(EXIT_FAILURE);
     }
 
@@ -213,25 +211,66 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
         fprintf(stderr, "Failed to make context current (eglError: %d)\n", eglGetError());
         exit(EXIT_FAILURE);
     }
+    */
+    updateWindow(ci);
 
+    // load GL and test
     if (!gladLoadGL((GLADloadfunc) eglGetProcAddress)) {
         fprintf(stderr, "failed to load GL with glad.\n");
         exit(EXIT_FAILURE);
     }
-
     const GLubyte* ven = glGetString(GL_VENDOR);
     printf("GL_VENDOR=%s\n", ven);
-    
     const GLubyte* ren = glGetString(GL_RENDERER);
     printf("GL_RENDERER=%s\n", ren);
     const GLubyte* ver = glGetString(GL_VERSION);
     printf("GL_VERSION=%s\n", ver);
     const GLubyte* sl = glGetString(GL_SHADING_LANGUAGE_VERSION);
     printf("GL_SHADING_LANGUAGE_VERSION=%s\n", sl);
-    
+
     //int i = pthread_getconcurrency();
     //printf("pthread_getconcurrency()=%d\n", i);
 }
+
+void EGLOpenGLWindow::updateWindow(const b3gWindowConstructionInfo& ci) {
+    if(m_data->m_renderDevice  != ci.m_renderDevice) {
+        fprintf(stderr, "can't change window backend.\n");  // not implemented
+        exit(EXIT_FAILURE);
+    }
+
+    // skip if right size
+    if (m_data->m_windowWidth ==  ci.m_width and m_data->m_windowHeight == ci.m_height) {
+        return;
+    }
+
+    if (m_data->egl_surface) {
+        eglDestroySurface(m_data->egl_display, m_data->egl_surface);
+        m_data->egl_surface = NULL;
+    }
+
+    m_data->m_windowWidth = ci.m_width;
+    m_data->m_windowHeight = ci.m_height;
+    EGLint egl_pbuffer_attribs[] = {
+        EGL_WIDTH, m_data->m_windowWidth, EGL_HEIGHT, m_data->m_windowHeight,
+        EGL_NONE,
+    };
+    m_data->egl_surface = eglCreatePbufferSurface(m_data->egl_display,
+                                                  m_data->egl_config,
+                                                  egl_pbuffer_attribs);
+    if (m_data->egl_surface == EGL_NO_SURFACE) {
+        fprintf(stderr, "Unable to create EGL surface (eglError: %d)\n", eglGetError());
+        exit(EXIT_FAILURE);
+    }
+
+    m_data->success =
+        eglMakeCurrent(m_data->egl_display, m_data->egl_surface, m_data->egl_surface,
+                   m_data->egl_context);
+    if (!m_data->success) {
+        fprintf(stderr, "Failed to make context current (eglError: %d)\n", eglGetError());
+        exit(EXIT_FAILURE);
+    }
+}
+
 
 void EGLOpenGLWindow::closeWindow() {
     eglMakeCurrent(m_data->egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE,
@@ -318,5 +357,6 @@ int EGLOpenGLWindow::getHeight() const { return m_data->m_windowHeight; }
 int EGLOpenGLWindow::fileOpenDialog(char* fileName, int maxFileNameLength) {
     return 0;
 }
+
 
 #endif  // BT_USE_EGL
