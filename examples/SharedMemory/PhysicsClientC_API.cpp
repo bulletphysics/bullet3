@@ -4303,6 +4303,51 @@ B3_SHARED_API int b3GetStatusMassMatrix(b3PhysicsClientHandle physClient, b3Shar
     return true;
 }
 
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3CollisionFilterCommandInit(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_COLLISION_FILTER;
+	command->m_collisionFilterArgs.m_bodyUniqueIdA = -1;
+	command->m_collisionFilterArgs.m_bodyUniqueIdB = -1;
+	command->m_collisionFilterArgs.m_linkIndexA = -2;
+	command->m_collisionFilterArgs.m_linkIndexB = -2;
+	command->m_collisionFilterArgs.m_enableCollision = 0;
+	command->m_updateFlags = 0;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+B3_SHARED_API	void	b3SetCollisionFilterPair(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdA,
+	int bodyUniqueIdB, int linkIndexA, int linkIndexB, int enableCollision)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_COLLISION_FILTER);
+	command->m_updateFlags = B3_COLLISION_FILTER_PAIR;
+	command->m_collisionFilterArgs.m_bodyUniqueIdA = bodyUniqueIdA;
+	command->m_collisionFilterArgs.m_bodyUniqueIdB = bodyUniqueIdB;
+	command->m_collisionFilterArgs.m_linkIndexA = linkIndexA;
+	command->m_collisionFilterArgs.m_linkIndexB = linkIndexB;
+	command->m_collisionFilterArgs.m_enableCollision = enableCollision;
+}
+
+B3_SHARED_API	void	b3SetCollisionFilterGroupMask(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdA,
+	int linkIndexA, int collisionFilterGroup, int collisionFilterMask)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_COLLISION_FILTER);
+	command->m_updateFlags = B3_COLLISION_FILTER_GROUP_MASK;
+	command->m_collisionFilterArgs.m_bodyUniqueIdA = bodyUniqueIdA;
+	command->m_collisionFilterArgs.m_linkIndexA = linkIndexA;
+	command->m_collisionFilterArgs.m_collisionFilterGroup = collisionFilterGroup;
+	command->m_collisionFilterArgs.m_collisionFilterMask = collisionFilterMask;
+}
+
+
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
 B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId)
 {

@@ -1405,7 +1405,31 @@ int BulletURDFImporter::getAllocatedTexture(int index) const
 	return m_data->m_allocatedTextures[index];
 }
 
-
+int BulletURDFImporter::getCollisionGroupAndMask(int linkIndex, int& colGroup, int& colMask) const
+{
+	int result = 0;
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	btAssert(linkPtr);
+	if (linkPtr)
+	{
+		UrdfLink* link = *linkPtr;
+		for (int v=0;v<link->m_collisionArray.size();v++)
+		{
+			const UrdfCollision& col = link->m_collisionArray[v];
+			if (col.m_flags & URDF_HAS_COLLISION_GROUP)
+			{
+				colGroup = col.m_collisionGroup;
+				result |= URDF_HAS_COLLISION_GROUP;
+			}
+			if (col.m_flags & URDF_HAS_COLLISION_MASK)
+			{
+				colMask = col.m_collisionMask;
+				result |= URDF_HAS_COLLISION_MASK;
+			}
+		}
+	}
+	return result;
+}
 
  class btCompoundShape* BulletURDFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
 {

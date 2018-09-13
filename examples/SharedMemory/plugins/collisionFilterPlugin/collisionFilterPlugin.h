@@ -14,9 +14,7 @@ B3_SHARED_API void exitPlugin_collisionFilterPlugin(struct b3PluginContext* cont
 B3_SHARED_API int executePluginCommand_collisionFilterPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments);
 
 //all the APIs below are optional
-B3_SHARED_API int preTickPluginCallback_collisionFilterPlugin(struct b3PluginContext* context);
-B3_SHARED_API int postTickPluginCallback_collisionFilterPlugin(struct b3PluginContext* context);
-
+B3_SHARED_API struct b3PluginCollisionInterface* getCollisionInterface_collisionFilterPlugin(struct b3PluginContext* context);
 
 #ifdef __cplusplus
 };

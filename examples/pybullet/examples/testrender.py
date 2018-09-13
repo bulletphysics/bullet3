@@ -5,6 +5,7 @@
 import matplotlib.pyplot as plt 
 import pybullet
 import time
+import numpy as np #to reshape for matplotlib
 
 plt.ion()
 
@@ -59,7 +60,13 @@ while(1):
     #note that sending the data using imshow to matplotlib is really slow, so we use set_data
 
     #plt.imshow(rgb,interpolation='none')
-    image.set_data(rgb)
+
+
+    #reshape is needed
+    np_img_arr = np.reshape(rgb, (h, w, 4))
+    np_img_arr = np_img_arr*(1./255.)
+
+    image.set_data(np_img_arr)
     ax.plot([0])
     #plt.draw()
     #plt.show()

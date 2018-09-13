@@ -107,7 +107,34 @@ btCollisionWorld::~btCollisionWorld()
 
 
 
+void	btCollisionWorld::refreshBroadphaseProxy(btCollisionObject* collisionObject)
+{
+	if (collisionObject->getBroadphaseHandle())
+	{
+		int collisionFilterGroup = collisionObject->getBroadphaseHandle()->m_collisionFilterGroup;
+		int collisionFilterMask = collisionObject->getBroadphaseHandle()->m_collisionFilterMask;
+		
+		
+		getBroadphase()->destroyProxy(collisionObject->getBroadphaseHandle(),getDispatcher());
+		
+			//calculate new AABB
+		btTransform trans = collisionObject->getWorldTransform();
 
+		btVector3	minAabb;
+		btVector3	maxAabb;
+		collisionObject->getCollisionShape()->getAabb(trans,minAabb,maxAabb);
+
+		int type = collisionObject->getCollisionShape()->getShapeType();
+		collisionObject->setBroadphaseHandle( getBroadphase()->createProxy(
+			minAabb,
+			maxAabb,
+			type,
+			collisionObject,
+			collisionFilterGroup,
+			collisionFilterMask,
+			m_dispatcher1))	;
+	}
+}
 
 void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject, int collisionFilterGroup, int collisionFilterMask)
 {

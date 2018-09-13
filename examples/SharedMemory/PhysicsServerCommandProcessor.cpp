@@ -1,6 +1,6 @@
 #include "PhysicsServerCommandProcessor.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
-
+#include "plugins/b3PluginCollisionInterface.h"
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
@@ -751,18 +751,16 @@ struct MyBroadphaseCallback : public btBroadphaseAabbCallback
 
 
 
-enum MyFilterModes
-{
-	FILTER_GROUPAMASKB_AND_GROUPBMASKA=0,
-	FILTER_GROUPAMASKB_OR_GROUPBMASKA
-};
+
 
 struct MyOverlapFilterCallback : public btOverlapFilterCallback
 {
 	int m_filterMode;
-	
-	MyOverlapFilterCallback()
-	:m_filterMode(FILTER_GROUPAMASKB_AND_GROUPBMASKA)
+	b3PluginManager* m_pluginManager;
+
+	MyOverlapFilterCallback(b3PluginManager* pluginManager)
+	:m_filterMode(B3_FILTER_GROUPAMASKB_AND_GROUPBMASKA),
+	m_pluginManager(pluginManager)
 	{
 	}
 	
@@ -771,20 +769,60 @@ struct MyOverlapFilterCallback : public btOverlapFilterCallback
 	// return true when pairs need collision
 	virtual bool	needBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
 	{
-		if (m_filterMode==FILTER_GROUPAMASKB_AND_GROUPBMASKA)
+		b3PluginCollisionInterface* collisionInterface = m_pluginManager->getCollisionInterface();
+
+		if (collisionInterface && collisionInterface->getNumRules())
 		{
-			bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
-			collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
-			return collides;
-		}
+
+			int objectUniqueIdB=-1, linkIndexB=-1;
+			btCollisionObject* colObjB = (btCollisionObject*)proxy1->m_clientObject;
+			btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(colObjB);
+			if (mblB)
+			{
+				objectUniqueIdB = mblB->m_multiBody->getUserIndex2();
+				linkIndexB = mblB->m_link;
+			} else
+			{
+				objectUniqueIdB = colObjB->getUserIndex2();
+				linkIndexB = -1;
+			}
+			int objectUniqueIdA = -1, linkIndexA = -1;
+			btCollisionObject* colObjA = (btCollisionObject*)proxy0->m_clientObject;
+			btMultiBodyLinkCollider* mblA = btMultiBodyLinkCollider::upcast(colObjA);
+			if (mblA)
+			{
+				objectUniqueIdA = mblA->m_multiBody->getUserIndex2();
+				linkIndexA = mblA->m_link;
+			} else
+			{
+				objectUniqueIdA = colObjA->getUserIndex2();
+				linkIndexA = -1;
+			}
+			int collisionFilterGroupA = proxy0->m_collisionFilterGroup;
+			int collisionFilterMaskA = proxy0->m_collisionFilterMask;
+			int collisionFilterGroupB = proxy1->m_collisionFilterGroup;
+			int collisionFilterMaskB = proxy1->m_collisionFilterMask;
+
+			return collisionInterface->needsBroadphaseCollision(objectUniqueIdA, linkIndexA, 
+					collisionFilterGroupA,collisionFilterMaskA,
+					objectUniqueIdB, linkIndexB,collisionFilterGroupB,collisionFilterMaskB, m_filterMode);
+		} else
+		{
+			if (m_filterMode==B3_FILTER_GROUPAMASKB_AND_GROUPBMASKA)
+			{
+				bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
+				collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+				return collides;
+			}
 		
-		if (m_filterMode==FILTER_GROUPAMASKB_OR_GROUPBMASKA)
-		{
-			bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
-			collides = collides || (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
-			return collides;
+			if (m_filterMode==B3_FILTER_GROUPAMASKB_OR_GROUPBMASKA)
+			{
+				bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
+				collides = collides || (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+				return collides;
+			}
+			return false;
 		}
-		return false;
 	}
 };
 
@@ -1698,26 +1736,27 @@ struct PhysicsServerCommandProcessorInternalData
 
 #ifndef SKIP_STATIC_PD_CONTROL_PLUGIN
 		{
-			m_pdControlPlugin = m_pluginManager.registerStaticLinkedPlugin("pdControlPlugin", initPlugin_pdControlPlugin, exitPlugin_pdControlPlugin, executePluginCommand_pdControlPlugin, preTickPluginCallback_pdControlPlugin, 0, 0,0);
+			m_pdControlPlugin = m_pluginManager.registerStaticLinkedPlugin("pdControlPlugin", initPlugin_pdControlPlugin, exitPlugin_pdControlPlugin, executePluginCommand_pdControlPlugin, preTickPluginCallback_pdControlPlugin, 0, 0,0, 0);
 		}
 #endif //SKIP_STATIC_PD_CONTROL_PLUGIN
 
 #ifndef SKIP_COLLISION_FILTER_PLUGIN
 	{
-		m_collisionFilterPlugin = m_pluginManager.registerStaticLinkedPlugin("collisionFilterPlugin", initPlugin_collisionFilterPlugin, exitPlugin_collisionFilterPlugin, executePluginCommand_collisionFilterPlugin, 0,0,0,0);
+		m_collisionFilterPlugin = m_pluginManager.registerStaticLinkedPlugin("collisionFilterPlugin", initPlugin_collisionFilterPlugin, exitPlugin_collisionFilterPlugin, executePluginCommand_collisionFilterPlugin, 0,0,0,0, getCollisionInterface_collisionFilterPlugin);
+		m_pluginManager.selectCollisionPlugin(m_collisionFilterPlugin);
 	}
 #endif
 
 #ifdef ENABLE_STATIC_GRPC_PLUGIN
 	{
-		m_grpcPlugin = m_pluginManager.registerStaticLinkedPlugin("grpcPlugin", initPlugin_grpcPlugin, exitPlugin_grpcPlugin, executePluginCommand_grpcPlugin, 0, 0, 0,processClientCommands_grpcPlugin);
+		m_grpcPlugin = m_pluginManager.registerStaticLinkedPlugin("grpcPlugin", initPlugin_grpcPlugin, exitPlugin_grpcPlugin, executePluginCommand_grpcPlugin, 0, 0, 0,processClientCommands_grpcPlugin,0);
 	}
 #endif //ENABLE_STATIC_GRPC_PLUGIN
 
 #ifdef STATIC_EGLRENDERER_PLUGIN
 	{
 		bool initPlugin = false;
-		int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("eglRendererPlugin", initPlugin_eglRendererPlugin, exitPlugin_eglRendererPlugin, executePluginCommand_eglRendererPlugin,0,0,getRenderInterface_eglRendererPlugin,0, initPlugin);
+		int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("eglRendererPlugin", initPlugin_eglRendererPlugin, exitPlugin_eglRendererPlugin, executePluginCommand_eglRendererPlugin,0,0,getRenderInterface_eglRendererPlugin,0, 0, initPlugin);
 		m_pluginManager.selectPluginRenderer(renderPluginId);
 	}
 #endif//STATIC_EGLRENDERER_PLUGIN
@@ -1727,7 +1766,7 @@ struct PhysicsServerCommandProcessorInternalData
 #ifndef SKIP_STATIC_TINYRENDERER_PLUGIN
 	{
 
-			int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin,0,0,getRenderInterface_tinyRendererPlugin,0);
+			int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin,0,0,getRenderInterface_tinyRendererPlugin,0,0);
 			m_pluginManager.selectPluginRenderer(renderPluginId);
 	}
 #endif
@@ -2382,6 +2421,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 };
 
 
+
 void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 {
     m_data->m_constraintSolverType=eConstraintSolverLCP_SI;
@@ -2396,8 +2436,8 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
     m_data->m_dispatcher = new	btCollisionDispatcher(m_data->m_collisionConfiguration);
     
 
-	m_data->m_broadphaseCollisionFilterCallback = new MyOverlapFilterCallback();
-	m_data->m_broadphaseCollisionFilterCallback->m_filterMode = FILTER_GROUPAMASKB_OR_GROUPBMASKA;
+	m_data->m_broadphaseCollisionFilterCallback = new MyOverlapFilterCallback(&m_data->m_pluginManager);
+	m_data->m_broadphaseCollisionFilterCallback->m_filterMode = B3_FILTER_GROUPAMASKB_OR_GROUPBMASKA;
 	
 	m_data->m_pairCache = new btHashedOverlappingPairCache();
 	
@@ -2431,10 +2471,9 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.00001;
 	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 50;
 	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 0;
+	m_data->m_dynamicsWorld->getSolverInfo().m_warmstartingFactor = 0.1;
 	gDbvtMargin = btScalar(0);
 	m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold = 1e-7;
-//	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 2;
-	//todo: islands/constraints are buggy in btMultiBodyDynamicsWorld! (performance + see slipping grasp)
 
 	if (m_data->m_guiHelper)
 	{
@@ -5190,6 +5229,97 @@ bool PhysicsServerCommandProcessor::processAddUserDataCommand(const struct Share
 	// Keep bufferServerToClient as-is.
 	return hasStatus;
 }
+
+bool PhysicsServerCommandProcessor::processCollisionFilterCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	serverStatusOut.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+	b3PluginCollisionInterface* collisionInterface = m_data->m_pluginManager.getCollisionInterface();
+	if (collisionInterface)
+	{
+		if (clientCmd.m_updateFlags & B3_COLLISION_FILTER_PAIR)
+		{
+			collisionInterface ->setBroadphaseCollisionFilter(clientCmd.m_collisionFilterArgs.m_bodyUniqueIdA,
+				clientCmd.m_collisionFilterArgs.m_bodyUniqueIdB,
+				clientCmd.m_collisionFilterArgs.m_linkIndexA,
+				clientCmd.m_collisionFilterArgs.m_linkIndexB,
+				clientCmd.m_collisionFilterArgs.m_enableCollision);
+
+			btAlignedObjectArray<InternalBodyData*> bodies;
+
+			//now also 'refresh' the broadphase collision pairs involved
+			if (clientCmd.m_collisionFilterArgs.m_bodyUniqueIdA>=0)
+			{
+				bodies.push_back(m_data->m_bodyHandles.getHandle(clientCmd.m_collisionFilterArgs.m_bodyUniqueIdA));
+			}
+			if (clientCmd.m_collisionFilterArgs.m_bodyUniqueIdB>=0)
+			{
+				bodies.push_back(m_data->m_bodyHandles.getHandle(clientCmd.m_collisionFilterArgs.m_bodyUniqueIdB));
+			}
+			for (int i=0;i<bodies.size();i++)
+			{
+				InternalBodyData* body = bodies[i];
+				if (body)
+				{
+					if (body->m_multiBody)
+					{
+
+						if (body->m_multiBody->getBaseCollider())
+						{
+							m_data->m_dynamicsWorld->refreshBroadphaseProxy(body->m_multiBody->getBaseCollider());
+						}
+						for (int i=0;i<body->m_multiBody->getNumLinks();i++)
+						{
+							if (body->m_multiBody->getLinkCollider(i))
+							{
+								m_data->m_dynamicsWorld->refreshBroadphaseProxy(body->m_multiBody->getLinkCollider(i));
+							}
+						}
+					}
+					else
+					{
+						//btRigidBody case
+						if (body->m_rigidBody)
+						{
+							m_data->m_dynamicsWorld->refreshBroadphaseProxy(body->m_rigidBody);
+						}
+					}
+				} 
+			}
+		}
+		if (clientCmd.m_updateFlags & B3_COLLISION_FILTER_GROUP_MASK)
+		{
+			InternalBodyData* body = m_data->m_bodyHandles.getHandle(clientCmd.m_collisionFilterArgs.m_bodyUniqueIdA);
+			btCollisionObject* colObj = 0;
+			if (body->m_multiBody)
+			{
+				if (clientCmd.m_collisionFilterArgs.m_linkIndexA)
+				{
+					colObj = body->m_multiBody->getBaseCollider();
+				} else
+				{
+					if (clientCmd.m_collisionFilterArgs.m_linkIndexA>=0 && clientCmd.m_collisionFilterArgs.m_linkIndexA< body->m_multiBody->getNumLinks())
+					{
+						colObj = body->m_multiBody->getLinkCollider(clientCmd.m_collisionFilterArgs.m_linkIndexA);
+					}
+				}
+			} else
+			{
+				if (body->m_rigidBody)
+				{
+					colObj = body->m_rigidBody;
+				}
+			}
+			if (colObj)
+			{
+				colObj->getBroadphaseHandle()->m_collisionFilterGroup = clientCmd.m_collisionFilterArgs.m_collisionFilterGroup;
+				colObj->getBroadphaseHandle()->m_collisionFilterMask = clientCmd.m_collisionFilterArgs.m_collisionFilterMask;
+				m_data->m_dynamicsWorld->refreshBroadphaseProxy(colObj);
+			}
+		}
+	}
+	return true;
+}
+			
 
 bool PhysicsServerCommandProcessor::processRemoveUserDataCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
@@ -10288,6 +10418,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processRemoveUserDataCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
+	case CMD_COLLISION_FILTER:
+		{
+			hasStatus = processCollisionFilterCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
 	default:
 		{
 			BT_PROFILE("CMD_UNKNOWN");
@@ -10742,6 +10877,12 @@ void PhysicsServerCommandProcessor::resetSimulation()
 		{
 			m_data->m_pluginManager.getRenderInterface()->resetAll();
 		}
+
+		if (m_data->m_pluginManager.getCollisionInterface())
+		{
+			m_data->m_pluginManager.getCollisionInterface()->resetAll();
+		}
+
 		for (int i = 0; i < m_data->m_savedStates.size(); i++)
 		{
 			delete m_data->m_savedStates[i].m_bulletFile;

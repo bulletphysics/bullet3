@@ -97,6 +97,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_USER_DATA,
 	CMD_ADD_USER_DATA,
 	CMD_REMOVE_USER_DATA,
+	CMD_COLLISION_FILTER,
 
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,

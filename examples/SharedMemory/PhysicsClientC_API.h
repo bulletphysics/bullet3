@@ -431,6 +431,13 @@ B3_SHARED_API	void b3CalculateInverseKinematicsSetMaxNumIterations(b3SharedMemor
 B3_SHARED_API	void b3CalculateInverseKinematicsSetResidualThreshold(b3SharedMemoryCommandHandle commandHandle, double residualThreshold);
 
 
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3CollisionFilterCommandInit(b3PhysicsClientHandle physClient);
+B3_SHARED_API	void	b3SetCollisionFilterPair(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdA,
+	int bodyUniqueIdB, int linkIndexA, int linkIndexB, int enableCollision);
+B3_SHARED_API	void	b3SetCollisionFilterGroupMask(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdA,
+	int linkIndexA, int collisionFilterGroup, int collisionFilterMask);
+	
+
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadSdfCommandInit2(b3SharedMemoryCommandHandle commandHandle, const char* sdfFileName);
 
