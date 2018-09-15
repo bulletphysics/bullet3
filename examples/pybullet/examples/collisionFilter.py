@@ -14,4 +14,5 @@ p.setCollisionFilterPair(planeId, cubeId,-1,-1,enableCollision )
 p.setRealTimeSimulation(1)
 p.setGravity(0,0,-10)
 while (p.isConnected()):
-	time.sleep(1)
+	time.sleep(1./240.)
+	p.setGravity(0,0,-10)

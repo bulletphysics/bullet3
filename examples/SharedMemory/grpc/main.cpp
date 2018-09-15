@@ -28,7 +28,7 @@ typedef SharedMemoryCommandProcessor MyCommandProcessor;
 #include <grpc++/grpc++.h>
 #include <grpc/support/log.h>
 
-#include "proto/pybullet.grpc.pb.h"
+#include "SharedMemory/grpc/proto/pybullet.grpc.pb.h"
 
 
 using grpc::Server;

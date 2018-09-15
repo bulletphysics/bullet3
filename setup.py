@@ -42,7 +42,6 @@ CXX_FLAGS += '-DBT_USE_DOUBLE_PRECISION '
 CXX_FLAGS += '-DBT_ENABLE_ENET '
 CXX_FLAGS += '-DBT_ENABLE_CLSOCKET '
 CXX_FLAGS += '-DB3_DUMP_PYTHON_VERSION '
-CXX_FLAGS += '-DBT_USE_EGL '
 
 EGL_CXX_FLAGS = ''
 
@@ -451,6 +450,10 @@ egl_renderer_sources = \
 +["examples/OpenGLWindow/LoadShader.cpp"] \
 +["src/LinearMath/btQuickprof.cpp"]
 
+if 'BT_USE_EGL' in CXX_FLAGS:
+    sources += ['examples/ThirdPartyLibs/glad/egl.c']
+    sources += ['examples/OpenGLWindow/EGLOpenGLWindow.cpp']
+
 if _platform == "linux" or _platform == "linux2":
     libraries = ['dl','pthread']
     CXX_FLAGS += '-D_LINUX '
@@ -468,9 +471,6 @@ if _platform == "linux" or _platform == "linux2":
     +["examples/ThirdPartyLibs/glad/gl.c"]\
     +["examples/ThirdPartyLibs/glad/glx.c"]
     include_dirs += ["examples/ThirdPartyLibs/optionalX11"]
-    if 'BT_USE_EGL' in CXX_FLAGS:
-        sources += ['examples/ThirdPartyLibs/glad/egl.c']
-        sources += ['examples/OpenGLWindow/EGLOpenGLWindow.cpp']
 
     if 'BT_USE_EGL' in EGL_CXX_FLAGS:
         egl_renderer_sources = egl_renderer_sources\
@@ -545,7 +545,7 @@ eglRender = Extension("eglRenderer",
 
 setup(
 	name = 'pybullet',
-	version='2.1.5',
+	version='2.1.6',
 	description='Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and deep reinforcement learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',
