@@ -1824,6 +1824,8 @@ void PhysicsServerCommandProcessor::setGuiHelper(struct GUIHelperInterface* guiH
 		guiHelper->createPhysicsDebugDrawer(m_data->m_dynamicsWorld);
 	} else
 	{
+		//state loggers use guiHelper, so remove them before the guiHelper is deleted
+		deleteStateLoggers();
 		if (m_data->m_guiHelper && m_data->m_dynamicsWorld && m_data->m_dynamicsWorld->getDebugDrawer())
 		{
 

@@ -390,6 +390,13 @@ void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
 	{
 		gEnableRenderLoop = (enable!=0);
 	}
+
+	if (flag == COV_ENABLE_SINGLE_STEP_RENDERING)
+    {
+        singleStepSimulation = true;
+    }
+
+
     if (flag == COV_ENABLE_SHADOWS)
     {
         useShadowMap = enable;
