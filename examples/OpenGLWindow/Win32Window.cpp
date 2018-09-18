@@ -446,9 +446,13 @@ void Win32Window::setWindowTitle(const char* titleChar)
 		SetWindowTextA(m_data->m_hWnd, titleChar);
 #else
 		DWORD dwResult;
+		int wideCharCount = MultiByteToWideChar(CP_UTF8, 0, titleChar, -1, NULL, 0);
+		wchar_t *wideTitleString = new wchar_t[wideCharCount];
+		MultiByteToWideChar(CP_UTF8, 0, titleChar, -1, wideTitleString, wideCharCount);
 		SendMessageTimeout(m_data->m_hWnd, WM_SETTEXT, 0,
-				reinterpret_cast<LPARAM>(titleChar),
+				reinterpret_cast<LPARAM>(wideTitleString),
 				SMTO_ABORTIFHUNG, 2000, &dwResult);
+		delete[] wideTitleString;
 #endif
 }
 
