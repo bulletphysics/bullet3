@@ -13,21 +13,16 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-
 #include <cuda_runtime_api.h>
-#include <NvInfer.h>
-
-using namespace nvinfer1;
-
-#include "stb_image/stb_image_write.h"
 #include <cuda_gl_interop.h>
 
-//#define DEBUG_TENSORRT_INFERENCE
+#include <NvInfer.h>
+using namespace nvinfer1;
 
+//#define DEBUG_TENSORRT_INFERENCE
+#ifdef DEBUG_TENSORRT_INFERENCE
+#include "stb_image/stb_image_write.h"
+#endif // DEBUG_TENSORRT_INFERENCE
 
 class GLTensorRTLogger : public nvinfer1::ILogger
 {
