@@ -42,26 +42,24 @@ class GLTensorRTLogger : public nvinfer1::ILogger
 
 struct EGLRendererTensorRT
 {
-	/** \brief Initializes a TensorRT inference engine from .uff or .plan model
-   * files.
-    * \param modelFileName a path to .uff or .plan model
-    * \param modelInputLayer a name of a input layer. Should be float32, in
-   * range of 0..1, shaped (height, width, 3).
-    * \param modelOutputLayers a list of output layer names, trailing with zero.
-   * Supports only float32 layer outputs.
-    * \param width expected width of the input layer (and image).
-    * \param height expected height of the input layer.
-    * \param kBatchSize process a batch of width x height images. Expected
-   * rendered input is width x (height*kBatchSize).
-    * This initializes a TensorRT inference engine from .uff or .plan model
-   * files.
-    * Please refer to TensorRT documentation and examples to create such files.
-    *
-    * Hint: Use uff.from_tensorflow() and uff_to_plan to convert TensorFlow
-   * models.
-    *
-    * Usage:
-    */
+	/** \brief Initializes a TensorRT inference engine from .uff or .plan model files.
+	* \param modelFileName a path to .uff or .plan model
+	* \param modelInputLayer a name of a input layer. Should be float32, in
+	* range of 0..1, shaped (height, width, 3).
+	* \param modelOutputLayers a list of output layer names, trailing with zero.
+	* Supports only float32 layer outputs.
+	* \param width expected width of the input layer (and image).
+	* \param height expected height of the input layer.
+	* \param kBatchSize process a batch of width x height images. Expected
+	* rendered input is width x (height*kBatchSize).
+	* This initializes a TensorRT inference engine from .uff or .plan model files.
+	* Please refer to TensorRT documentation and examples to create such files.
+	*
+	* Hint: Use uff.from_tensorflow() and uff_to_plan to convert TensorFlow
+	* models.
+	*
+	* Usage:
+	*/
 	EGLRendererTensorRT(const char *modelFileName, const char *modelInputLayer,
 						const char **modelOutputLayers, int width, int height,
 						int kBatchSize = 1);
@@ -72,8 +70,7 @@ struct EGLRendererTensorRT
 	unsigned int pbo;
 	cudaGraphicsResource_t pboRes;
 
-	/// CUDA / TensorRT memory, used to store output layer before transfering to
-	/// CPU
+	/// CUDA / TensorRT memory, used to store output layer before transferring to CPU
 	void *outputDataDevice;
 	nvinfer1::ICudaEngine *engine;
 
@@ -91,16 +88,16 @@ struct EGLRendererTensorRT
 	void uninitTensorRTEngine();
 
 	/** \brief Transfers pixels from GL to CUDA, executes TensorRT engine and
-   * outputs the result to outputBuffer.
-    * \param outputBuffer, a pointer to CPU memory
-    * \param outputBufferSizeInBytes buffer size in bytes.
-    *
-    */
+	* outputs the result to outputBuffer.
+	* \param outputBuffer, a pointer to CPU memory
+	* \param outputBufferSizeInBytes buffer size in bytes.
+	*
+	*/
 	size_t copyCameraImageFeatures(float *outputBuffer,
 								   size_t outputBufferSizeInBytes);
 
 	/** Returns tensor size, in elements.
-   */
+	*/
 	size_t size(nvinfer1::Dims shape)
 	{
 		size_t size = shape.nbDims > 0 ? 1 : 0;
