@@ -54,6 +54,13 @@ typedef X11OpenGLWindow DefaultOpenGLWindow;
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "OpenGLWindow/GLRenderToTexture.h"
 
+#define BT_USE_TENSOR_RT
+
+#ifdef BT_USE_TENSOR_RT
+#include "eglRendererTensorRT.cpp"
+#endif // BT_USE_TENSOR_RT
+
+
 static void printGLString(const char *name, GLenum s) {
     const char *v = (const char *) glGetString(s);
   printf("%s = %s\n",name, v);
@@ -193,10 +200,19 @@ struct EGLRendererVisualShapeConverterInternalData
 			b3Assert(glGetError() ==GL_NO_ERROR);
             m_instancingRenderer->setLightPosition(m_lightDirection);
 			m_window->endRendering();
+
+#ifdef BT_USE_TENSOR_RT
+            int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
+            int height = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
+            m_tensorRT = new EGLRendererTensorRT(width, height);
+#endif // BT_USE_TENSOR_RT
 	}
 	
 	virtual ~EGLRendererVisualShapeConverterInternalData()
 	{
+#ifdef BT_USE_TENSOR_RT
+		delete m_tensorRT;
+#endif // BT_USE_TENSOR_RT
 		delete m_instancingRenderer;
 		m_window->closeWindow();
 		delete m_window;
