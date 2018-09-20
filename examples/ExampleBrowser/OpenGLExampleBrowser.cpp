@@ -393,7 +393,15 @@ void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
 
 	if (flag == COV_ENABLE_SINGLE_STEP_RENDERING)
     {
-        singleStepSimulation = true;
+		if (enable)
+		{
+			gEnableRenderLoop = false;
+			singleStepSimulation = true;
+		} else
+		{
+			gEnableRenderLoop = true;
+			singleStepSimulation = false;
+		}
     }
 
 
@@ -1235,7 +1243,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
 {
     b3ChromeUtilsEnableProfiling();
 
-    if (!gEnableRenderLoop)
+    if (!gEnableRenderLoop && !singleStepSimulation)
     {
         sCurrentDemo->updateGraphics();
 		return;

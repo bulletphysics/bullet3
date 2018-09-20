@@ -67,7 +67,11 @@ struct	GRPCNetworkedInternalData
 	{
 		if (m_isConnected)
 			return true;
-		std::string hostport = m_hostName + ':' + std::to_string(m_port);
+		std::string hostport = m_hostName;
+		if (m_port >= 0)
+		{
+			hostport += ':' + std::to_string(m_port);
+		}
 		m_grpcChannel  = grpc::CreateChannel(
 			hostport, grpc::InsecureChannelCredentials());
 

@@ -137,6 +137,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperGetShapeIndexFromInstance,
 	eGUIHelperChangeTexture,
 	eGUIHelperRemoveTexture,
+	eGUIHelperSetVisualizerFlagCheckRenderedFrame,
 };
 
 
@@ -940,7 +941,9 @@ public:
 
 	int m_visualizerFlag;
 	int m_visualizerEnable;
-	 void setVisualizerFlag(int flag, int enable)
+	int m_renderedFrames;
+
+	void setVisualizerFlag(int flag, int enable)
     {
 		m_visualizerFlag = flag;
 		m_visualizerEnable = enable;
@@ -1358,12 +1361,15 @@ class PhysicsServerExample : public SharedMemoryCommon
 	int m_canvasRGBIndex;
 	int m_canvasDepthIndex;
 	int m_canvasSegMaskIndex;
+	
 
 //	int m_options;
 	
 #ifdef BT_ENABLE_VR
 	TinyVRGui* m_tinyVrGui;
 #endif
+
+	int m_renderedFrames;
 
 public:
 
@@ -1723,6 +1729,7 @@ m_canvasSegMaskIndex(-1)
 #ifdef BT_ENABLE_VR
 ,m_tinyVrGui(0)
 #endif
+,m_renderedFrames(0)
 {
 
 	m_multiThreadedHelper = helper;
@@ -2066,11 +2073,29 @@ void	PhysicsServerExample::updateGraphics()
 			gEnableDefaultMousePicking = (enable!=0);
 		}
 
+		m_multiThreadedHelper->m_renderedFrames = m_renderedFrames;
+
 		m_multiThreadedHelper->m_childGuiHelper->setVisualizerFlag(m_multiThreadedHelper->m_visualizerFlag,m_multiThreadedHelper->m_visualizerEnable);
-		m_multiThreadedHelper->mainThreadRelease();
+
+		//postpone the release until an actual frame is rendered
+		if (flag == COV_ENABLE_SINGLE_STEP_RENDERING)
+		{
+			m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperSetVisualizerFlagCheckRenderedFrame);
+		} else
+		{
+			m_multiThreadedHelper->mainThreadRelease();
+		}
 		break;
     }
-
+	
+	case eGUIHelperSetVisualizerFlagCheckRenderedFrame:
+	{
+		if (m_renderedFrames!=m_multiThreadedHelper->m_renderedFrames)
+		{
+			m_multiThreadedHelper->mainThreadRelease();
+		}
+		break;
+	}
 
 	case eGUIHelperRegisterGraphicsInstance:
 	{
@@ -2732,6 +2757,8 @@ void PhysicsServerExample::drawUserDebugLines()
 
 void PhysicsServerExample::renderScene()
 {
+	m_renderedFrames++;
+
 	btTransform vrTrans;
 
 
@@ -2893,12 +2920,14 @@ void PhysicsServerExample::renderScene()
 
 	drawUserDebugLines();
 
-
+	
 	//m_args[0].m_cs->unlock();
 }
 
 void    PhysicsServerExample::physicsDebugDraw(int debugDrawFlags)
 {
+	m_renderedFrames++;
+
 	if (gEnableSyncPhysicsRendering)
 	{
 		m_physicsServer.syncPhysicsToGraphics();
