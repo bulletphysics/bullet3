@@ -145,6 +145,11 @@ EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 
 		INetworkDefinition *network = builder->createNetwork();
 		IUffParser *parser = createUffParser();
+	    parser->registerInput(modelInputLayer, DimsCHW(3, height, width), UffInputOrder::kNCHW);
+
+		for (const char **modelOutputLayer = modelOutputLayers; *modelOutputLayer; modelOutputLayer++)
+			parser->registerOutput(*modelOutputLayer);
+
 		if (network == 0 || parser == 0)
 		{
 			b3Error(
@@ -229,13 +234,13 @@ EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 	// make sure that that rendering is the same size as the network input
 	Dims inputDims = engine->getBindingDimensions(m_inputBindingIndex);
 	if (m_width != inputDims.d[1] || m_height != inputDims.d[2] ||
-		3 != inputDims.d[3])
+		3 != inputDims.d[0])
 	{
 		b3Error(
 			"Error rendered image is %d x %d x %d and inference engine expects "
 			"%d x %d x %d.\n",
 			m_width, m_height, 3, inputDims.d[1], inputDims.d[2],
-			inputDims.d[3]);
+			inputDims.d[0]);
 		uninitTensorRTEngine();
 		return;
 	}
