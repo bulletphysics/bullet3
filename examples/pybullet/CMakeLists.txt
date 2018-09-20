@@ -1,11 +1,18 @@
+SET(CMAKE_CXX_STANDARD 11)
+FIND_PACKAGE(CUDA)
+
+ADD_DEFINITIONS(-DSTATIC_EGLRENDERER_PLUGIN)
+ADD_DEFINITIONS(-DSKIP_STATIC_TINYRENDERER_PLUGIN)
 
 INCLUDE_DIRECTORIES( 
 		${BULLET_PHYSICS_SOURCE_DIR}/src
 		${BULLET_PHYSICS_SOURCE_DIR}/examples
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
-                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad
 		${PYTHON_INCLUDE_DIRS}
+		${CUDA_INCLUDE_DIRS}
   )
 IF(BUILD_PYBULLET_NUMPY)
 	INCLUDE_DIRECTORIES(
@@ -23,10 +30,14 @@ SET(pybullet_SRCS
 		../../examples/SharedMemory/IKTrajectoryHelper.cpp
 		../../examples/SharedMemory/IKTrajectoryHelper.h
 		../../examples/ExampleBrowser/InProcessExampleBrowser.cpp
-		../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
-		../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.h
-		../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
-		../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.h
+#		../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
+#		../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.h
+#		../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
+#		../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.h
+        ../../examples/SharedMemory/plugins/eglPlugin/eglRendererPlugin.cpp
+        ../../examples/SharedMemory/plugins/eglPlugin/eglRendererPlugin.h
+        ../../examples/SharedMemory/plugins/eglPlugin/eglRendererVisualShapeConverter.cpp
+        ../../examples/SharedMemory/plugins/eglPlugin/eglRendererVisualShapeConverter.h
 		../../examples/OpenGLWindow/SimpleCamera.cpp
 		../../examples/OpenGLWindow/SimpleCamera.h
 		../../examples/TinyRenderer/geometry.cpp
@@ -166,6 +177,6 @@ ENDIF(WIN32)
 
 
 
-TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common ${PYTHON_LIBRARIES})
+TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common ${PYTHON_LIBRARIES} ${CUDA_CUDART_LIBRARY} nvinfer nvparsers)
 
 

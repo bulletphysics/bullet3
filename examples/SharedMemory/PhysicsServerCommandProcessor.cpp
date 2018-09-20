@@ -67,7 +67,6 @@
 #include "plugins/vrSyncPlugin/vrSyncPlugin.h"
 #endif
 
-
 #ifdef STATIC_EGLRENDERER_PLUGIN
 #include "plugins/eglPlugin/eglRendererPlugin.h"
 #endif//STATIC_EGLRENDERER_PLUGIN
@@ -1716,7 +1715,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 #ifdef STATIC_EGLRENDERER_PLUGIN
 	{
-		bool initPlugin = false;
+		bool initPlugin = true;
 		int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("eglRendererPlugin", initPlugin_eglRendererPlugin, exitPlugin_eglRendererPlugin, executePluginCommand_eglRendererPlugin,0,0,getRenderInterface_eglRendererPlugin,0, initPlugin);
 		m_pluginManager.selectPluginRenderer(renderPluginId);
 	}

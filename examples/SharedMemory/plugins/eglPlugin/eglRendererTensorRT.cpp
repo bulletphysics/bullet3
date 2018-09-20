@@ -18,25 +18,31 @@ misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
 
+
 #include <cuda_gl_interop.h>
 #include <cuda_runtime_api.h>
 
 #include <NvInfer.h>
+#include <NvUffParser.h>
 using namespace nvinfer1;
+using namespace nvuffparser;
 
-//#define DEBUG_TENSORRT_INFERENCE
+#define DEBUG_TENSORRT_INFERENCE
 #ifdef DEBUG_TENSORRT_INFERENCE
+#include <algorithm>
 #include "stb_image/stb_image_write.h"
 #endif  // DEBUG_TENSORRT_INFERENCE
 
 class GLTensorRTLogger : public nvinfer1::ILogger
 {
-	void log(Severity severity, const char *msg) override
+	void log(Severity severity, const char *msg)
 	{
-#ifndef DEBUG_TENSORRT_INFERENCE
 		if (severity != Severity::kINFO && severity != Severity::kWARNING)
+			b3Error("GLTensorRTLogger: %d %s\n", severity, msg);
+#ifdef DEBUG_TENSORRT_INFERENCE
+		else
+			b3Warning("GLTensorRTLogger: %d %s\n", severity, msg);
 #endif  // DEBUG_TENSORRT_INFERENCE
-			b3Error("GLTensorRTLogger: %s %s\n", severity, msg);
 	}
 };
 
@@ -63,8 +69,14 @@ struct EGLRendererTensorRT
 	EGLRendererTensorRT(const char *modelFileName, const char *modelInputLayer,
 						const char **modelOutputLayers, int width, int height,
 						int kBatchSize = 1);
+
+	~EGLRendererTensorRT();
+
 	int m_width, m_height;
 	int m_kBatchSize;
+
+	/// output size in bytes (incl. batch calc.)
+	int m_totalOutputSize;
 
 	/// PBO (pixels to attach to TensorRT)
 	unsigned int pbo;
@@ -85,6 +97,10 @@ struct EGLRendererTensorRT
 	// binding indexes
 	btAlignedObjectArray<void *> bindings;
 
+	// Index into bindings array (for the input layer)
+	int m_inputBindingIndex;
+
+
 	void uninitTensorRTEngine();
 
 	/** \brief Transfers pixels from GL to CUDA, executes TensorRT engine and
@@ -95,6 +111,7 @@ struct EGLRendererTensorRT
 	*/
 	size_t copyCameraImageFeatures(float *outputBuffer,
 								   size_t outputBufferSizeInBytes);
+
 
 	/** Returns tensor size, in elements.
 	*/
@@ -107,14 +124,15 @@ struct EGLRendererTensorRT
 	}
 };
 
-void EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
+EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 											  const char *modelInputLayer,
 											  const char **modelOutputLayers,
 											  int width, int height,
 											  int kBatchSize)
-	: m_width(width_), m_height(height_), m_kBatchSize(kBatchSize_), pbo(0), pboRes(0), outputDataDevice(0), engine(0), context(0), totalOutputSize(0)
+	: m_width(width), m_height(height), m_kBatchSize(kBatchSize), m_totalOutputSize(0),
+	  pbo(0), pboRes(0), outputDataDevice(0), engine(0), context(0), m_inputBindingIndex(0)
 {
-	if (endswith(modelFileName, ".uff"))
+	//if (endswith(modelFileName, ".uff"))
 	{
 		IBuilder *builder = createInferBuilder(gLogger);
 		if (builder == 0)
@@ -155,6 +173,7 @@ void EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 		network->destroy();
 		builder->destroy();
 	}
+	/*
 	else if (endswith(modelFileName, ".plan"))
 	{
 		IRuntime *runtime = createInferRuntime(gLogger);
@@ -172,7 +191,7 @@ void EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 			"and uff_to_plan utility.\n",
 			modelFileName);
 		return;
-	}
+	}*/
 
 	// we should have a TensorRT engine by now, complain and abort if we don't
 	if (!engine)
@@ -183,8 +202,8 @@ void EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 		return;
 	}
 
-	// create execution context to store intermediate activation values. TODO:
-	// support for multiple contexts
+	// create execution context to store intermediate activation values.
+	// TODO: support for multiple contexts
 	context = engine->createExecutionContext();
 	if (!context)
 	{
@@ -196,8 +215,8 @@ void EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 	}
 
 	// get the input dimensions of the network
-	int inputBindingIndex = engine->getBindingIndex(modelInputLayer);
-	if (inputBindingIndex < 0)
+	m_inputBindingIndex = engine->getBindingIndex(modelInputLayer);
+	if (m_inputBindingIndex < 0)
 	{
 		b3Error(
 			"Failed to bind input to TensorRT engine. Please check that %s "
@@ -208,7 +227,7 @@ void EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 	}
 
 	// make sure that that rendering is the same size as the network input
-	Dims inputDims = engine->getBindingDimensions(inputBindingIndex);
+	Dims inputDims = engine->getBindingDimensions(m_inputBindingIndex);
 	if (m_width != inputDims.d[1] || m_height != inputDims.d[2] ||
 		3 != inputDims.d[3])
 	{
@@ -221,9 +240,9 @@ void EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 		return;
 	}
 
-	bindings.resize(inputBindingIndex + 1);
+	bindings.resize(m_inputBindingIndex + 1);
 
-	// get the output dimensions of the network, calculate totalOutputSize
+	// get the output dimensions of the network, calculate m_totalOutputSize
 	for (const char **modelOutputLayer = modelOutputLayers; *modelOutputLayer;
 		 modelOutputLayer++)
 	{
@@ -238,43 +257,44 @@ void EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 			return;
 		}
 
-		// Initialize output bindings with an offset to outputDataDevice
-		bindings.resize(max(inputBindingIndex, outputBindingIndex) + 1);
-		bindings[outputBindingIndex] = outputDataDevice;
-
-		Dims outputDims = engine->getBindingDimensions(outputBindingIndex);
-		size_t numOutput = size(outputDims);
-		totalOutputSize += size(outputDims) * sizeof(float) * m_kBatchSize;
+		size_t numOutput = size(engine->getBindingDimensions(outputBindingIndex));
+		m_totalOutputSize += numOutput * sizeof(float) * m_kBatchSize;
 	}
 
 	// Allocate CUDA memory for output buffer
-	cudaMalloc(&outputDataDevice, totalOutputSize);
+	cudaMalloc(&outputDataDevice, m_totalOutputSize);
 	if (outputDataDevice == 0)
 	{
 		b3Error(
 			"Failed to allocate %d bytes of CUDA memory for the TensorRT "
 			"engine. Please make sure sufficient CUDA memory is available.\n",
-			totalOutputSize);
+			m_totalOutputSize);
 		uninitTensorRTEngine();
 		return;
 	}
 
 	// Update bindings (containing offset) to a correct memory pointer
+	size_t currentOutputPos = 0;
 	for (const char **modelOutputLayer = modelOutputLayers; *modelOutputLayer;
 		 modelOutputLayer++)
 	{
 		int outputBindingIndex = engine->getBindingIndex(*modelOutputLayer);
-		bindings[outputBindingIndex] =
-			outputDataDevice + bindings[outputBindingIndex];
-		if (bindings[outputBindingIndex] > outputDataDevice + totalOutputSize)
+		if(outputBindingIndex >= bindings.size())
+			bindings.resize(outputBindingIndex + 1);
+
+		bindings[outputBindingIndex] = (char *)outputDataDevice + currentOutputPos;
+		if (bindings[outputBindingIndex] > (char *)outputDataDevice + m_totalOutputSize)
 		{
 			b3Error(
 				"Duplicate or erroneous output binding index is encountered in "
 				"the TensorRT output specification.\n",
-				totalOutputSize);
+				m_totalOutputSize);
 			uninitTensorRTEngine();
 			return;
 		}
+
+		size_t numOutput = size(engine->getBindingDimensions(outputBindingIndex));
+		currentOutputPos += numOutput * sizeof(float) * m_kBatchSize;
 	}
 
 	// we need to initialize PBO, but can't do it yet, because GL is not yet
@@ -303,18 +323,18 @@ void EGLRendererTensorRT::uninitTensorRTEngine()
 	}
 }
 
-void EGLRendererTensorRT::~EGLRendererTensorRT() { uninitTensorRTEngine(); }
+EGLRendererTensorRT::~EGLRendererTensorRT() { uninitTensorRTEngine(); }
 
 size_t
 EGLRendererTensorRT::copyCameraImageFeatures(float *outputBuffer,
-											 int outputBufferSizeInBytes)
+											 size_t outputBufferSizeInBytes)
 {
-	if (totalOutputSize > outputBufferSizeInBytes)
+	if (m_totalOutputSize > outputBufferSizeInBytes)
 	{
 		b3Error(
 			"Error during rendering-inferencing, CPU buffer size to store "
 			"output features is too small. Expected %d, provided %d\n",
-			totalOutputSize, outputBufferSizeInBytest);
+			m_totalOutputSize, outputBufferSizeInBytes);
 		return 0;
 	}
 
@@ -323,11 +343,10 @@ EGLRendererTensorRT::copyCameraImageFeatures(float *outputBuffer,
 	{
 		glGenBuffers(1, &pbo);
 		glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo);
-		verifyGL();
 		glBufferData(GL_PIXEL_PACK_BUFFER,
 					 3 * (m_width * m_height * sizeof(GLfloat)), NULL,
 					 GL_DYNAMIC_READ);
-		verifyGL();
+
 		if (glGetError() != GL_NO_ERROR)
 		{
 			b3Error(
@@ -339,8 +358,7 @@ EGLRendererTensorRT::copyCameraImageFeatures(float *outputBuffer,
 
 		// Register buffer to CUDA memory
 		if (cudaGraphicsGLRegisterBuffer(&pboRes, pbo,
-										 cudaGraphicsRegisterFlagsReadOnly) !=
-			0)
+										 cudaGraphicsRegisterFlagsReadOnly) != 0)
 		{  // cudaGraphicsMapFlagsWriteDiscard
 			b3Error(
 				"Error during registering GL buffer in CUDA, rendered image size "
@@ -352,11 +370,9 @@ EGLRendererTensorRT::copyCameraImageFeatures(float *outputBuffer,
 	else
 	{
 		glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo);
-		verifyGL();
 		glBufferData(GL_PIXEL_PACK_BUFFER,
 					 3 * (m_width * m_height * sizeof(GLfloat)), NULL,
 					 GL_DYNAMIC_READ);
-		verifyGL();
 		if (glGetError() != GL_NO_ERROR)
 		{
 			b3Error(
@@ -401,9 +417,9 @@ EGLRendererTensorRT::copyCameraImageFeatures(float *outputBuffer,
 		return 0;
 	}
 
-	// Fill TensorRT device bindings, see inputBindingIndex. outputBindingIndexes
+	// Fill TensorRT device bindings, see m_inputBindingIndex. outputBindingIndexes
 	// are already set in the init
-	bindings[inputBindingIndex] = (void *)inputDataDevice;
+	bindings[m_inputBindingIndex] = (void *)inputDataDevice;
 
 	// Run Inference
 	if (!context->execute(m_kBatchSize, &bindings[0]))
@@ -449,21 +465,21 @@ EGLRendererTensorRT::copyCameraImageFeatures(float *outputBuffer,
 	cudaGraphicsUnmapResources(1, &pboRes);
 
 	// Transfer TensorRT output to CPU
-	cudaMemcpy(outputBuffer, outputDataDevice, totalOutputSize,
+	cudaMemcpy(outputBuffer, outputDataDevice, m_totalOutputSize,
 			   cudaMemcpyDeviceToHost);
 
 #ifdef DEBUG_TENSORRT_INFERENCE
 	// copy output to host and print activations (useful for debugging)
-	float *outputDataHost = (float *)malloc(totalOutputSize);
-	memset(outputDataHost, 0, totalOutputSize);
-	cudaMemcpy(outputDataHost, outputDataDevice, totalOutputSize,
+	float *outputDataHost = (float *)malloc(m_totalOutputSize);
+	memset(outputDataHost, 0, m_totalOutputSize);
+	cudaMemcpy(outputDataHost, outputDataDevice, m_totalOutputSize,
 			   cudaMemcpyDeviceToHost);
 
 	// 905:0.520552 633:0.028283 808:0.017819 316:0.015341 906:0.014210
 	printf("\n");
 	for (int i = 0; i < 5; i++)
 	{
-		int max_i = std::max_element(outputDataHost, outputDataHost + numOutput) -
+		int max_i = std::max_element(outputDataHost, outputDataHost + m_totalOutputSize / sizeof(float)) -
 					outputDataHost;
 		printf("%d:%f ", max_i, outputDataHost[max_i]);
 		outputDataHost[max_i] = 0;

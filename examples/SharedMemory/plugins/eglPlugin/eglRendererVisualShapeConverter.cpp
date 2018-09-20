@@ -93,8 +93,8 @@ struct TinyRendererObjectArray
   }
 };
 
-#define START_WIDTH 640
-#define START_HEIGHT 480
+#define START_WIDTH 160
+#define START_HEIGHT 160
 
 struct EGLRendererVisualShapeConverterInternalData
 {
@@ -130,7 +130,10 @@ struct EGLRendererVisualShapeConverterInternalData
         bool m_hasShadow;
 	int m_flags;
 	SimpleCamera m_camera;
-	
+
+#ifdef BT_USE_TENSOR_RT
+	EGLRendererTensorRT *m_tensorRT;
+#endif // BT_USE_TENSOR_RT
 	
 	EGLRendererVisualShapeConverterInternalData()
 	:m_upAxis(2),
@@ -204,7 +207,10 @@ struct EGLRendererVisualShapeConverterInternalData
 #ifdef BT_USE_TENSOR_RT
             int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
             int height = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
-            m_tensorRT = new EGLRendererTensorRT(width, height);
+            const char *outputLayers[] = {"internal/Squeezenet/Predictions/Reshape_1", 0};
+
+            m_tensorRT = new EGLRendererTensorRT("/models/squeezenet_01_160res_5x5_0.75.uff",
+            									 "input", outputLayers, width, height);
 #endif // BT_USE_TENSOR_RT
 	}
 	
@@ -1149,6 +1155,10 @@ void EGLRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsR
             depthBuffer,  depthBufferSizeInPixels,
             segmentationMaskBuffer,  segmentationMaskSizeInPixels,
             startPixelIndex,  widthPtr, heightPtr, numPixelsCopied);
+
+#ifdef BT_USE_TENSOR_RT
+    m_data->m_tensorRT->copyCameraImageFeatures(depthBuffer, depthBufferSizeInPixels * sizeof(float));
+#endif //
 }
 
 void EGLRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqueId)
