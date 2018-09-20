@@ -255,7 +255,11 @@ int main(int argc, char** argv)
 	int port = 6667;
 	parseArgs.GetCmdLineArgument("port", port);
 	std::string hostName = "localhost";
-	std::string hostNamePort = hostName + ":" + std::to_string(port);
+	std::string hostNamePort = hostName;
+	if (port>=0)
+	{
+		hostNamePort += ":" + std::to_string(port);
+	}
 
 	gVerboseNetworkMessagesServer = parseArgs.CheckCmdLineFlag("verbose");
 

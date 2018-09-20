@@ -330,6 +330,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 		int key = SHARED_MEMORY_KEY;
 		int udpPort = 1234;
 		int tcpPort = 6667;
+		int grpcPort = -1;
 		int argc = 0;
 		char** argv=0;
 
@@ -352,6 +353,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				{
 					udpPort = port;
 					tcpPort = port;
+					grpcPort = port;
 				}
 			}
 		}
@@ -437,7 +439,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			case eCONNECT_GRPC:
 			{
 #ifdef BT_ENABLE_GRPC
-				sm = b3ConnectPhysicsGRPC(hostName, tcpPort);
+				sm = b3ConnectPhysicsGRPC(hostName, grpcPort);
 #else
 				PyErr_SetString(SpamError, "GRPC is not enabled in this pybullet build");
 #endif
