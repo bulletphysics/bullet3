@@ -2858,6 +2858,22 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRemoveBodyCommand(b3PhysicsClien
 	return (b3SharedMemoryCommandHandle)command;
 }
 
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRemoveCollisionShapeCommand(b3PhysicsClientHandle physClient, int collisionShapeId)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    
+    command->m_type = CMD_REMOVE_BODY;
+	command->m_updateFlags = 0;
+	command->m_removeObjectArgs.m_numBodies = 0;
+	command->m_removeObjectArgs.m_numUserConstraints = 0;
+	command->m_removeObjectArgs.m_numUserCollisionShapes = 1;
+	command->m_removeObjectArgs.m_userCollisionShapes[0] = collisionShapeId;
+	return (b3SharedMemoryCommandHandle)command;
+}
 B3_SHARED_API int b3GetStatusUserConstraintUniqueId(b3SharedMemoryStatusHandle statusHandle)
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;

@@ -496,6 +496,8 @@ B3_SHARED_API	void b3CreateCollisionSetFlag(b3SharedMemoryCommandHandle commandH
 B3_SHARED_API	void b3CreateCollisionShapeSetChildTransform(b3SharedMemoryCommandHandle commandHandle,int shapeIndex, double childPosition[/*3*/], double childOrientation[/*4*/]);
 B3_SHARED_API	int b3GetStatusCollisionShapeUniqueId(b3SharedMemoryStatusHandle statusHandle);
 
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRemoveCollisionShapeCommand(b3PhysicsClientHandle physClient, int collisionShapeId);
+
 B3_SHARED_API	b3SharedMemoryCommandHandle b3CreateVisualShapeCommandInit(b3PhysicsClientHandle physClient);
 B3_SHARED_API	int b3CreateVisualShapeAddSphere(b3SharedMemoryCommandHandle commandHandle,double radius);
 B3_SHARED_API	int b3CreateVisualShapeAddBox(b3SharedMemoryCommandHandle commandHandle,double halfExtents[/*3*/]);

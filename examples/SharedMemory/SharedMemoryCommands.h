@@ -615,6 +615,8 @@ struct b3ObjectArgs
     int m_bodyUniqueIds[MAX_SDF_BODIES];
 	int m_numUserConstraints;
 	int m_userConstraintUniqueIds[MAX_SDF_BODIES];
+	int m_numUserCollisionShapes;
+	int m_userCollisionShapes[MAX_SDF_BODIES];
 };
 
 struct b3Profile

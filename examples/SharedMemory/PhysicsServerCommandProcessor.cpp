@@ -232,9 +232,16 @@ struct InternalCollisionShapeData
 {
 	btCollisionShape* m_collisionShape;
 	b3AlignedObjectArray<UrdfCollision> m_urdfCollisionObjects;
+	int m_used;
+	InternalCollisionShapeData()
+		:m_collisionShape(0),
+		m_used(0)
+	{
+	}
 	void clear()
 	{
 		m_collisionShape=0;
+		m_used = 0;
 	}
 };
 
@@ -2383,6 +2390,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 			InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(colShapeUniqueId);
 			if (handle && handle->m_collisionShape)
 			{
+				handle->m_used++;
 				if (handle->m_collisionShape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
 				{
 					btCompoundShape* childCompound = (btCompoundShape*)handle->m_collisionShape;
@@ -6270,6 +6278,7 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 						clientCmd.m_requestContactPointArguments.m_collisionShapeOrientationA[3]);
 				}
 				InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(collisionShapeA);
+				
 				if (handle && handle->m_collisionShape)
 				{
 					colObA.setCollisionShape(handle->m_collisionShape);
@@ -6280,6 +6289,9 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 					colObA.setWorldTransform(tr);
 					setA.push_back(&colObA);
 					setALinkIndex.push_back(-2);
+				} else
+				{
+					b3Warning("collisionShapeA provided is not valid.");
 				}
 			}
 			if (collisionShapeB>=0)
@@ -6311,6 +6323,9 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 					colObB.setWorldTransform(tr);
 					setB.push_back(&colObB);
 					setBLinkIndex.push_back(-2);
+				} else
+				{
+					b3Warning("collisionShapeB provided is not valid.");
 				}
 			}
 
@@ -6436,10 +6451,8 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 							m_cachedContactPoints.push_back(pt);
 						}
 						return 1;
-
 					}
 				};
-
 
 				MyContactResultCallback cb(m_data->m_cachedContactPoints);
 
@@ -8663,9 +8676,50 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 			}
 			m_data->m_bodyHandles.freeHandle(bodyUniqueId);
 		}
-
-		
 	}
+	for (int i=0;i<clientCmd.m_removeObjectArgs.m_numUserCollisionShapes;i++)
+	{
+		int removeCollisionShapeId = clientCmd.m_removeObjectArgs.m_userCollisionShapes[i];
+		InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(removeCollisionShapeId);
+		if (handle && handle->m_collisionShape)
+		{
+			if (handle->m_used)
+			{
+				b3Warning("Don't remove collision shape: it is used.");
+			}
+			else
+			{
+				b3Warning("TODO: dealloc");
+				int foundIndex = -1;
+				
+				for (int i=0;i<m_data->m_worldImporters.size();i++)
+				{
+					btMultiBodyWorldImporter* importer = m_data->m_worldImporters[i];
+					for (int c=0;c<importer->getNumCollisionShapes();c++)
+					{
+						if (importer->getCollisionShapeByIndex(c) == handle->m_collisionShape)
+						{
+							if ( (importer->getNumRigidBodies()==0)&&
+								(importer->getNumConstraints()==0))
+							{
+								foundIndex=i;
+								break;
+							}
+						}
+					}
+				}
+				if (foundIndex>=0)
+				{
+					btMultiBodyWorldImporter* importer = m_data->m_worldImporters[i];
+					m_data->m_worldImporters.removeAtIndex(foundIndex);
+					delete importer;
+					m_data->m_userCollisionShapeHandles.freeHandle(removeCollisionShapeId);
+				}
+			}
+		}
+	}
+	
+	
 	m_data->m_guiHelper->setVisualizerFlag(COV_ENABLE_SYNC_RENDERING_INTERNAL,1);
 
 	for (int i=0;i<serverCmd.m_removeObjectArgs.m_numBodies;i++)
