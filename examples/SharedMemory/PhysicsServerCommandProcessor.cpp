@@ -1693,6 +1693,7 @@ struct PhysicsServerCommandProcessorInternalData
 	b3HashMap<b3HashString, UrdfVisualShapeCache> m_cachedVUrdfisualShapes;
 
 	b3ThreadPool* m_threadPool;
+	btScalar m_defaultCollisionMargin;
 
 	PhysicsServerCommandProcessorInternalData(PhysicsCommandProcessorInterface* proc)
 		:m_pluginManager(proc),
@@ -1725,7 +1726,8 @@ struct PhysicsServerCommandProcessorInternalData
 		m_pdControlPlugin(-1),
 		m_collisionFilterPlugin(-1),
 		m_grpcPlugin(-1),
-		m_threadPool(0)
+		m_threadPool(0),
+		m_defaultCollisionMargin(0.001)
 	{
 
 		{
@@ -3965,8 +3967,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 {
 	bool hasStatus = true;
 	serverStatusOut.m_type = CMD_CREATE_COLLISION_SHAPE_FAILED;
-	btScalar defaultCollisionMargin = 0.001;
-
+	
 	btMultiBodyWorldImporter* worldImporter = new btMultiBodyWorldImporter(m_data->m_dynamicsWorld);
 
 	btCollisionShape* shape = 0;
@@ -3977,6 +3978,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 	if (clientCmd.m_createUserShapeArgs.m_numUserShapes>1)
 	{
 		compound = worldImporter->createCompoundShape();
+		compound ->setMargin(m_data->m_defaultCollisionMargin);
 	}
 	for (int i = 0; i < clientCmd.m_createUserShapeArgs.m_numUserShapes; i++)
 	{
@@ -4015,6 +4017,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 		{
 			double radius = clientCmd.m_createUserShapeArgs.m_shapes[i].m_sphereRadius;
 			shape = worldImporter->createSphereShape(radius);
+			shape->setMargin(m_data->m_defaultCollisionMargin);
 			if (compound)
 			{
 				compound->addChildShape(childTransform, shape);
@@ -4031,6 +4034,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 				clientCmd.m_createUserShapeArgs.m_shapes[i].m_boxHalfExtents[1],
 				clientCmd.m_createUserShapeArgs.m_shapes[i].m_boxHalfExtents[2]);
 			shape = worldImporter->createBoxShape(halfExtents);
+			shape->setMargin(m_data->m_defaultCollisionMargin);
 			if (compound)
 			{
 				compound->addChildShape(childTransform, shape);
@@ -4043,6 +4047,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 		{
 			shape = worldImporter->createCapsuleShapeZ(clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius,
 				clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight);
+			shape->setMargin(m_data->m_defaultCollisionMargin);
 			if (compound)
 			{
 				compound->addChildShape(childTransform, shape);
@@ -4057,6 +4062,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 		{
 			shape = worldImporter->createCylinderShapeZ(clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius,
 				0.5*clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight);
+			shape->setMargin(m_data->m_defaultCollisionMargin);
 			if (compound)
 			{
 				compound->addChildShape(childTransform, shape);
@@ -4074,6 +4080,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 				clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[2]);
 
 			shape = worldImporter->createPlaneShape(planeNormal, 0);
+			shape->setMargin(m_data->m_defaultCollisionMargin);
 			if (compound)
 			{
 				compound->addChildShape(childTransform, shape);
@@ -4145,12 +4152,12 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 						{
 							compound = worldImporter->createCompoundShape();
 						}
-						compound->setMargin(defaultCollisionMargin);
+						compound->setMargin(m_data->m_defaultCollisionMargin);
 
 						for (int s = 0; s < (int)shapes.size(); s++)
 						{
 							btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
-							convexHull->setMargin(defaultCollisionMargin);
+							convexHull->setMargin(m_data->m_defaultCollisionMargin);
 							tinyobj::shape_t& shape = shapes[s];
 							int faceCount = shape.mesh.indices.size();
 
@@ -4253,6 +4260,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 						if (compound)
 						{
 							compound->addChildShape(childTransform, shape);
+							shape->setMargin(m_data->m_defaultCollisionMargin);
 						}
 					}
 					delete glmesh;
@@ -4265,11 +4273,11 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 					{
 						compound = worldImporter->createCompoundShape();
 					}
-					compound->setMargin(defaultCollisionMargin);
+					compound->setMargin(m_data->m_defaultCollisionMargin);
 
 					{
 						btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
-						convexHull->setMargin(defaultCollisionMargin);
+						convexHull->setMargin(m_data->m_defaultCollisionMargin);
 
 						for (int v = 0; v < convertedVerts.size(); v++)
 						{
@@ -6235,7 +6243,77 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 			btAlignedObjectArray<btCollisionObject*> setB;
 			btAlignedObjectArray<int> setALinkIndex;
 			btAlignedObjectArray<int> setBLinkIndex;
-								
+		
+			btCollisionObject colObA;
+			btCollisionObject colObB;
+			
+			int collisionShapeA = (clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_A) ? 
+				clientCmd.m_requestContactPointArguments.m_collisionShapeA : -1;
+			int collisionShapeB = (clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_B) ? 
+				clientCmd.m_requestContactPointArguments.m_collisionShapeB : -1;
+
+			if (collisionShapeA>=0)
+			{
+				btVector3 posA(0,0,0);
+				if (clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_POSITION_A)
+				{
+					posA.setValue(clientCmd.m_requestContactPointArguments.m_collisionShapePositionA[0],
+						clientCmd.m_requestContactPointArguments.m_collisionShapePositionA[1],
+						clientCmd.m_requestContactPointArguments.m_collisionShapePositionA[2]);
+				}
+				btQuaternion ornA(0,0,0,1);
+				if (clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_ORIENTATION_A)
+				{
+					ornA.setValue(clientCmd.m_requestContactPointArguments.m_collisionShapeOrientationA[0],
+						clientCmd.m_requestContactPointArguments.m_collisionShapeOrientationA[1],
+						clientCmd.m_requestContactPointArguments.m_collisionShapeOrientationA[2],
+						clientCmd.m_requestContactPointArguments.m_collisionShapeOrientationA[3]);
+				}
+				InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(collisionShapeA);
+				if (handle && handle->m_collisionShape)
+				{
+					colObA.setCollisionShape(handle->m_collisionShape);
+					btTransform tr;
+					tr.setIdentity();
+					tr.setOrigin(posA);
+					tr.setRotation(ornA);
+					colObA.setWorldTransform(tr);
+					setA.push_back(&colObA);
+					setALinkIndex.push_back(-2);
+				}
+			}
+			if (collisionShapeB>=0)
+			{
+				btVector3 posB(0,0,0);
+				if (clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_POSITION_B)
+				{
+					posB.setValue(clientCmd.m_requestContactPointArguments.m_collisionShapePositionB[0],
+						clientCmd.m_requestContactPointArguments.m_collisionShapePositionB[1],
+						clientCmd.m_requestContactPointArguments.m_collisionShapePositionB[2]);
+				}
+				btQuaternion ornB(0,0,0,1);
+				if (clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_ORIENTATION_B)
+				{
+					ornB.setValue(clientCmd.m_requestContactPointArguments.m_collisionShapeOrientationB[0],
+						clientCmd.m_requestContactPointArguments.m_collisionShapeOrientationB[1],
+						clientCmd.m_requestContactPointArguments.m_collisionShapeOrientationB[2],
+						clientCmd.m_requestContactPointArguments.m_collisionShapeOrientationB[3]);
+				}
+
+				InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(collisionShapeB);
+				if (handle && handle->m_collisionShape)
+				{
+					colObB.setCollisionShape(handle->m_collisionShape);
+					btTransform tr;
+					tr.setIdentity();
+					tr.setOrigin(posB);
+					tr.setRotation(ornB);
+					colObB.setWorldTransform(tr);
+					setB.push_back(&colObB);
+					setBLinkIndex.push_back(-2);
+				}
+			}
+
 			if (bodyUniqueIdA >= 0)
 			{
 				InternalBodyData* bodyA = m_data->m_bodyHandles.getHandle(bodyUniqueIdA);

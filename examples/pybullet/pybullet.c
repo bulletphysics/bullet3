@@ -6002,6 +6002,17 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 	int bodyUniqueIdB = -1;
 	int linkIndexA = -2;
 	int linkIndexB = -2;
+	int collisionShapeA = -1;
+	int collisionShapeB = -1;
+
+	PyObject* collisionShapePositionAObj = 0;
+	PyObject* collisionShapeOrientationAObj = 0;
+	double collisionShapePositionA[3]={0,0,0};
+	double collisionShapeOrientationA[4]={0,0,0,1};
+	PyObject* collisionShapePositionBObj = 0;
+	PyObject* collisionShapeOrientationBObj = 0;
+	double collisionShapePositionB[3]={0,0,0};
+	double collisionShapeOrientationB[4]={0,0,0,1};
 
 	double distanceThreshold = 0.f;
 
@@ -6011,10 +6022,14 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 	int statusType;
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"bodyA", "bodyB", "distance", "linkIndexA", "linkIndexB", "physicsClientId", NULL};
+	static char* kwlist[] = {"bodyA", "bodyB", "distance", "linkIndexA", "linkIndexB", "collisionShapeA","collisionShapeB", "collisionShapePositionA","collisionShapePositionB","collisionShapeOrientationA","collisionShapeOrientationB","physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iid|iii", kwlist,
-									 &bodyUniqueIdA, &bodyUniqueIdB, &distanceThreshold, &linkIndexA, &linkIndexB, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iid|iiiiOOOOi", kwlist,
+									 &bodyUniqueIdA, &bodyUniqueIdB, &distanceThreshold, &linkIndexA, &linkIndexB, 
+									 &collisionShapeA, &collisionShapeB,
+									 &collisionShapePositionAObj,&collisionShapePositionBObj,
+									 &collisionShapeOrientationA,&collisionShapeOrientationBObj,
+									 &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -6025,8 +6040,14 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 	}
 
 	commandHandle = b3InitClosestDistanceQuery(sm);
-	b3SetClosestDistanceFilterBodyA(commandHandle, bodyUniqueIdA);
-	b3SetClosestDistanceFilterBodyB(commandHandle, bodyUniqueIdB);
+	if (bodyUniqueIdA>=0)
+	{
+		b3SetClosestDistanceFilterBodyA(commandHandle, bodyUniqueIdA);
+	}
+	if (bodyUniqueIdB>=0)
+	{
+		b3SetClosestDistanceFilterBodyB(commandHandle, bodyUniqueIdB);
+	}
 	b3SetClosestDistanceThreshold(commandHandle, distanceThreshold);
 	if (linkIndexA >= -1)
 	{
@@ -6035,6 +6056,34 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 	if (linkIndexB >= -1)
 	{
 		b3SetClosestDistanceFilterLinkB(commandHandle, linkIndexB);
+	}
+	if (collisionShapeA>=0)
+	{
+		b3SetClosestDistanceFilterCollisionShapeA(commandHandle, collisionShapeA);
+	}
+	if (collisionShapeB>=0)
+	{
+		b3SetClosestDistanceFilterCollisionShapeB(commandHandle, collisionShapeB);
+	}
+	if (collisionShapePositionAObj)
+	{
+		pybullet_internalSetVectord(collisionShapePositionAObj,collisionShapePositionA);
+		b3SetClosestDistanceFilterCollisionShapePositionA(commandHandle, collisionShapePositionA);
+	}
+	if (collisionShapePositionBObj)
+	{
+		pybullet_internalSetVectord(collisionShapePositionBObj,collisionShapePositionB);
+		b3SetClosestDistanceFilterCollisionShapePositionB(commandHandle, collisionShapePositionB);
+	}
+	if (collisionShapeOrientationAObj)
+	{
+		pybullet_internalSetVector4d(collisionShapeOrientationAObj,collisionShapeOrientationA);
+		b3SetClosestDistanceFilterCollisionShapeOrientationA(commandHandle, collisionShapeOrientationA);
+	}
+	if (collisionShapeOrientationBObj)
+	{
+		pybullet_internalSetVector4d(collisionShapeOrientationBObj,collisionShapeOrientationB);
+		b3SetClosestDistanceFilterCollisionShapeOrientationB(commandHandle, collisionShapeOrientationB);
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);

@@ -278,6 +278,14 @@ enum EnumRequestContactDataUpdateFlags
 	CMD_REQUEST_CONTACT_POINT_HAS_CLOSEST_DISTANCE_THRESHOLD=2,
 	CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER = 4,
 	CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER = 8,
+
+	CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_A = 16,
+	CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_B = 32,
+	CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_POSITION_A = 64,
+	CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_POSITION_B = 128,
+	CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_ORIENTATION_A= 256,
+	CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_ORIENTATION_B= 512,
+
 };
 
 struct RequestRaycastIntersections
@@ -309,6 +317,14 @@ struct RequestContactDataArgs
 	int m_linkIndexAIndexFilter;
 	int m_linkIndexBIndexFilter;
 	double m_closestDistanceThreshold;
+
+	int m_collisionShapeA;
+	int m_collisionShapeB;
+	double m_collisionShapePositionA[3];
+	double m_collisionShapePositionB[3];
+	double m_collisionShapeOrientationA[4];
+	double m_collisionShapeOrientationB[4];
+	
 	int m_mode;
 };
 
