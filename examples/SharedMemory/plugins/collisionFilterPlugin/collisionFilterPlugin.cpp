@@ -62,6 +62,13 @@ struct DefaultPluginCollisionInterface : public b3PluginCollisionInterface
 			b3Swap(keyValue.m_objectUniqueIdA,keyValue.m_objectUniqueIdB);
 			b3Swap(keyValue.m_linkIndexA,keyValue.m_linkIndexB);
 		}
+		if (objectUniqueIdA==objectUniqueIdB)
+		{
+			if (keyValue.m_linkIndexA>keyValue.m_linkIndexB)
+			{
+				b3Swap(keyValue.m_linkIndexA,keyValue.m_linkIndexB);
+			}
+		}
 
 		m_customCollisionFilters.insert(keyValue,keyValue);
 		
@@ -82,6 +89,13 @@ struct DefaultPluginCollisionInterface : public b3PluginCollisionInterface
 		{
 			b3Swap(keyValue.m_objectUniqueIdA,keyValue.m_objectUniqueIdB);
 			b3Swap(keyValue.m_linkIndexA,keyValue.m_linkIndexB);
+		}
+		if (objectUniqueIdA==objectUniqueIdB)
+		{
+			if (keyValue.m_linkIndexA>keyValue.m_linkIndexB)
+			{
+				b3Swap(keyValue.m_linkIndexA,keyValue.m_linkIndexB);
+			}
 		}
 
 		m_customCollisionFilters.remove(keyValue);
@@ -115,6 +129,13 @@ struct DefaultPluginCollisionInterface : public b3PluginCollisionInterface
 		{
 			b3Swap(keyValue.m_objectUniqueIdA,keyValue.m_objectUniqueIdB);
 			b3Swap(keyValue.m_linkIndexA,keyValue.m_linkIndexB);
+		}
+		if (objectUniqueIdA==objectUniqueIdB)
+		{
+			if (keyValue.m_linkIndexA>keyValue.m_linkIndexB)
+			{
+				b3Swap(keyValue.m_linkIndexA,keyValue.m_linkIndexB);
+			}
 		}
 
 		b3CustomCollisionFilter* filter = m_customCollisionFilters.find(keyValue);
