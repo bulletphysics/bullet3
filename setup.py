@@ -42,7 +42,7 @@ CXX_FLAGS += '-DBT_USE_DOUBLE_PRECISION '
 CXX_FLAGS += '-DBT_ENABLE_ENET '
 CXX_FLAGS += '-DBT_ENABLE_CLSOCKET '
 CXX_FLAGS += '-DB3_DUMP_PYTHON_VERSION '
-
+CXX_FLAGS += '-DEGL_ADD_PYTHON_INIT '
 EGL_CXX_FLAGS = ''
 
 
@@ -535,12 +535,26 @@ print("packages")
 print(find_packages('examples/pybullet/gym'))
 print("-----")
 
-eglRender = Extension("eglRenderer",
-        sources =  egl_renderer_sources,
+extensions = []
+
+pybullet_ext = Extension("pybullet",
+        sources =  sources,
         libraries = libraries,
-        extra_compile_args=(CXX_FLAGS+EGL_CXX_FLAGS ).split(),
-        include_dirs = include_dirs + ["src","examples", "examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
+        extra_compile_args=CXX_FLAGS.split(),
+        include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
      )
+extensions.append(pybullet_ext)
+
+
+if 'BT_USE_EGL' in EGL_CXX_FLAGS:
+
+	eglRender = Extension("eglRenderer",
+        	sources =  egl_renderer_sources,
+        	libraries = libraries,
+        	extra_compile_args=(CXX_FLAGS+EGL_CXX_FLAGS ).split(),
+        	include_dirs = include_dirs + ["src","examples", "examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"])
+
+	extensions.append(eglRender)
 
 
 setup(
@@ -554,13 +568,8 @@ setup(
 	license='zlib',
 	platforms='any',
 	keywords=['game development', 'virtual reality', 'physics simulation', 'robotics', 'collision detection', 'opengl'],
-	ext_modules = [eglRender, Extension("pybullet",
-	sources =  sources,
-	libraries = libraries,
-	extra_compile_args=CXX_FLAGS.split(),
-	include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
-     ) ],
-     classifiers=['Development Status :: 5 - Production/Stable',
+	ext_modules = extensions,
+	classifiers=['Development Status :: 5 - Production/Stable',
                    'License :: OSI Approved :: zlib/libpng License',
                    'Operating System :: Microsoft :: Windows',
                    'Operating System :: POSIX :: Linux',
