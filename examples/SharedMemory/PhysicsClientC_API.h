@@ -290,6 +290,15 @@ B3_SHARED_API	void b3SetClosestDistanceFilterLinkA(b3SharedMemoryCommandHandle c
 B3_SHARED_API	void b3SetClosestDistanceFilterBodyB(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdB);
 B3_SHARED_API	void b3SetClosestDistanceFilterLinkB(b3SharedMemoryCommandHandle commandHandle, int linkIndexB);
 B3_SHARED_API	void b3SetClosestDistanceThreshold(b3SharedMemoryCommandHandle commandHandle, double distance);
+
+B3_SHARED_API	void b3SetClosestDistanceFilterCollisionShapeA(b3SharedMemoryCommandHandle commandHandle, int collisionShapeA);
+B3_SHARED_API	void b3SetClosestDistanceFilterCollisionShapeB(b3SharedMemoryCommandHandle commandHandle, int collisionShapeB);
+B3_SHARED_API	void b3SetClosestDistanceFilterCollisionShapePositionA(b3SharedMemoryCommandHandle commandHandle, double collisionShapePositionA[/*3*/]);
+B3_SHARED_API	void b3SetClosestDistanceFilterCollisionShapePositionB(b3SharedMemoryCommandHandle commandHandle, double collisionShapePositionB[/*3*/]);
+B3_SHARED_API	void b3SetClosestDistanceFilterCollisionShapeOrientationA(b3SharedMemoryCommandHandle commandHandle, double collisionShapeOrientationA[/*4*/]);
+B3_SHARED_API	void b3SetClosestDistanceFilterCollisionShapeOrientationB(b3SharedMemoryCommandHandle commandHandle, double collisionShapeOrientationB[/*4*/]);
+
+
 B3_SHARED_API	void b3GetClosestPointInformation(b3PhysicsClientHandle physClient, struct b3ContactInformation* contactPointInfo);
 
 ///get all the bodies that touch a given axis aligned bounding box specified in world space (min and max coordinates)
@@ -486,6 +495,8 @@ B3_SHARED_API	int b3CreateCollisionShapeAddMesh(b3SharedMemoryCommandHandle comm
 B3_SHARED_API	void b3CreateCollisionSetFlag(b3SharedMemoryCommandHandle commandHandle,int shapeIndex, int flags);
 B3_SHARED_API	void b3CreateCollisionShapeSetChildTransform(b3SharedMemoryCommandHandle commandHandle,int shapeIndex, double childPosition[/*3*/], double childOrientation[/*4*/]);
 B3_SHARED_API	int b3GetStatusCollisionShapeUniqueId(b3SharedMemoryStatusHandle statusHandle);
+
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRemoveCollisionShapeCommand(b3PhysicsClientHandle physClient, int collisionShapeId);
 
 B3_SHARED_API	b3SharedMemoryCommandHandle b3CreateVisualShapeCommandInit(b3PhysicsClientHandle physClient);
 B3_SHARED_API	int b3CreateVisualShapeAddSphere(b3SharedMemoryCommandHandle commandHandle,double radius);

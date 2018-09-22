@@ -2858,6 +2858,22 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRemoveBodyCommand(b3PhysicsClien
 	return (b3SharedMemoryCommandHandle)command;
 }
 
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRemoveCollisionShapeCommand(b3PhysicsClientHandle physClient, int collisionShapeId)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    
+    command->m_type = CMD_REMOVE_BODY;
+	command->m_updateFlags = 0;
+	command->m_removeObjectArgs.m_numBodies = 0;
+	command->m_removeObjectArgs.m_numUserConstraints = 0;
+	command->m_removeObjectArgs.m_numUserCollisionShapes = 1;
+	command->m_removeObjectArgs.m_userCollisionShapes[0] = collisionShapeId;
+	return (b3SharedMemoryCommandHandle)command;
+}
 B3_SHARED_API int b3GetStatusUserConstraintUniqueId(b3SharedMemoryStatusHandle statusHandle)
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
@@ -3883,9 +3899,75 @@ B3_SHARED_API void b3SetClosestDistanceThreshold(b3SharedMemoryCommandHandle com
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
 	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
-	command->m_updateFlags += CMD_REQUEST_CONTACT_POINT_HAS_CLOSEST_DISTANCE_THRESHOLD;
+	command->m_updateFlags |= CMD_REQUEST_CONTACT_POINT_HAS_CLOSEST_DISTANCE_THRESHOLD;
 	command->m_requestContactPointArguments.m_closestDistanceThreshold = distance;
 }
+
+B3_SHARED_API	void b3SetClosestDistanceFilterCollisionShapeA(b3SharedMemoryCommandHandle commandHandle, int collisionShapeA)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags |= CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_A;
+	command->m_requestContactPointArguments.m_collisionShapeA = collisionShapeA;
+}
+
+B3_SHARED_API	void b3SetClosestDistanceFilterCollisionShapeB(b3SharedMemoryCommandHandle commandHandle, int collisionShapeB)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags |= CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_B;
+	command->m_requestContactPointArguments.m_collisionShapeB = collisionShapeB;
+}
+
+B3_SHARED_API	void b3SetClosestDistanceFilterCollisionShapePositionA(b3SharedMemoryCommandHandle commandHandle, double collisionShapePositionA[/*3*/])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags |= CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_POSITION_A;
+	command->m_requestContactPointArguments.m_collisionShapePositionA[0] = collisionShapePositionA[0];
+	command->m_requestContactPointArguments.m_collisionShapePositionA[1] = collisionShapePositionA[1];
+	command->m_requestContactPointArguments.m_collisionShapePositionA[2] = collisionShapePositionA[2];
+}
+
+B3_SHARED_API	void b3SetClosestDistanceFilterCollisionShapePositionB(b3SharedMemoryCommandHandle commandHandle, double collisionShapePositionB[/*3*/])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags |= CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_POSITION_B;
+	command->m_requestContactPointArguments.m_collisionShapePositionB[0] = collisionShapePositionB[0];
+	command->m_requestContactPointArguments.m_collisionShapePositionB[1] = collisionShapePositionB[1];
+	command->m_requestContactPointArguments.m_collisionShapePositionB[2] = collisionShapePositionB[2];
+}
+
+B3_SHARED_API	void b3SetClosestDistanceFilterCollisionShapeOrientationA(b3SharedMemoryCommandHandle commandHandle, double collisionShapeOrientationA[/*4*/])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags |= CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_ORIENTATION_A;
+	command->m_requestContactPointArguments.m_collisionShapeOrientationA[0] = collisionShapeOrientationA[0];
+	command->m_requestContactPointArguments.m_collisionShapeOrientationA[1] = collisionShapeOrientationA[1];
+	command->m_requestContactPointArguments.m_collisionShapeOrientationA[2] = collisionShapeOrientationA[2];
+	command->m_requestContactPointArguments.m_collisionShapeOrientationA[3] = collisionShapeOrientationA[3];
+}
+
+
+B3_SHARED_API	void b3SetClosestDistanceFilterCollisionShapeOrientationB(b3SharedMemoryCommandHandle commandHandle, double collisionShapeOrientationB[/*4*/])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags |= CMD_REQUEST_CONTACT_POINT_HAS_COLLISION_SHAPE_ORIENTATION_B;
+	command->m_requestContactPointArguments.m_collisionShapeOrientationB[0] = collisionShapeOrientationB[0];
+	command->m_requestContactPointArguments.m_collisionShapeOrientationB[1] = collisionShapeOrientationB[1];
+	command->m_requestContactPointArguments.m_collisionShapeOrientationB[2] = collisionShapeOrientationB[2];
+	command->m_requestContactPointArguments.m_collisionShapeOrientationB[3] = collisionShapeOrientationB[3];
+}
+
 
 
 ///get all the bodies that touch a given axis aligned bounding box specified in world space (min and max coordinates)
