@@ -19,8 +19,8 @@ pitch = -10.0
 roll=0
 upAxisIndex = 2
 camDistance = 4
-pixelWidth = 84 # 320
-pixelHeight = 84 # 200
+pixelWidth = 84
+pixelHeight =  84
 nearPlane = 0.01
 farPlane = 100
 fov = 60
@@ -29,8 +29,9 @@ import matplotlib.pyplot as plt
 
 
 class BulletSim():
-    def __init__(self, connection_mode, *argv):
+    def __init__(self, connection_mode, render_mode=None, *argv):
         self.connection_mode = connection_mode
+        self.render_mode = render_mode
         self.argv = argv
 
     def __enter__(self):
@@ -40,6 +41,7 @@ class BulletSim():
 
         print(self.connection_mode, optionstring,*self.argv)
         cid = pybullet.connect(self.connection_mode, options=optionstring,*self.argv)
+
         if cid < 0:
             raise ValueError
         print("connected")
@@ -48,11 +50,18 @@ class BulletSim():
         pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_DEPTH_BUFFER_PREVIEW,0)
         pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_RGB_BUFFER_PREVIEW,0)
 
+        if self.render_mode == "DIRECT/egl":
+            plugin = pybullet.loadPlugin("eglRendererPlugin")
+            if plugin < 0:
+                print("\nPlugin Failed to load!\n")
+                sys.exit()
+
         pybullet.resetSimulation()
         pybullet.loadURDF("plane.urdf",[0,0,-1])
         pybullet.loadURDF("r2d2.urdf")
         pybullet.loadURDF("duck_vhacd.urdf")
         pybullet.setGravity(0,0,-10)
+
 
     def __exit__(self,*_,**__):
         pybullet.disconnect()
@@ -64,7 +73,7 @@ def test(num_runs=300, shadow=1, log=True, plot=False):
     if plot:
         plt.ion()
 
-        img = np.random.rand(200, 320)
+        img = np.random.rand(pixelWidth, pixelHeight)
         #img = [tandard_normal((50,100))
         image = plt.imshow(img,interpolation='none',animated=True,label="blah")
         ax = plt.gca()
@@ -85,11 +94,11 @@ def test(num_runs=300, shadow=1, log=True, plot=False):
         stop = time.time()
         duration = (stop - start)
         if (duration):
-        	fps = 1./duration
-        	#print("fps=",fps)
+            fps = 1./duration
+            #print("fps=",fps)
         else:
-        	fps=0
-        	#print("fps=",fps)
+            fps=0
+            #print("fps=",fps)
         #print("duraction=",duration)
         #print("fps=",fps)
         times[i] = fps
@@ -110,37 +119,35 @@ def test(num_runs=300, shadow=1, log=True, plot=False):
     return mean_time
 
 
-
 if __name__ == "__main__":
-
-
     res = []
 
     with BulletSim(pybullet.DIRECT):
         print("\nTesting DIRECT")
-        mean_time = test(log=False,plot=True)
-        res.append(("tiny",mean_time))
-
+        mean_time = test(log=False,plot=False)
+        res.append(("DIRECT/tiny",mean_time))
 
     with BulletSim(pybullet.DIRECT):
-        plugin_fn = os.path.join(pybullet.__file__.split("bullet3")[0],"bullet3/build/lib.linux-x86_64-3.5/eglRenderer.cpython-35m-x86_64-linux-gnu.so")
-        plugin = pybullet.loadPlugin(plugin_fn,"_tinyRendererPlugin")
+        print("DIRECT/egl  load out context")
+        plugin = pybullet.loadPlugin("eglRendererPlugin")
         if plugin < 0:
             print("\nPlugin Failed to load!\n")
             sys.exit()
+        mean_time = test(log=False,plot=False)
+        #res.append(("DIRECT/egl*",mean_time))
 
-        print("\nTesting DIRECT+OpenGL")
-        mean_time = test(log=True)
-        res.append(("plugin",mean_time))
+    with BulletSim(pybullet.DIRECT,render_mode='DIRECT/egl'):
+        print("DIRECT/elg load in context")
+        mean_time = test(log=True,plot=False)
+        res.append(("DIRECT/egl",mean_time))
 
     with BulletSim(pybullet.GUI):
         print("\nTesting GUI")
         mean_time = test(log=False)
-        res.append(("egl",mean_time))
+        res.append(("GUI/egl",mean_time))
 
     print()
-    print("rendertest.py")
+    print("rendertest.py size: {}x{}px".format(pixelWidth,pixelHeight))
     print("back nenv fps fps_tot")
     for r in res:
         print(r[0],"\t",1,round(r[1]),"\t",round(r[1]))
-

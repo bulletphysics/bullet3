@@ -15,6 +15,8 @@ import pybullet as p
 from itertools import cycle
 import numpy as np
 
+from matplotlib import pyplot as plt
+
 camTargetPos = [0,0,0]
 cameraUp = [0,0,1]
 cameraPos = [1,1,1]
@@ -22,8 +24,8 @@ pitch = -10.0
 roll=0
 upAxisIndex = 2
 camDistance = 4
-pixelWidth = 320
-pixelHeight = 200
+pixelWidth = 84
+pixelHeight = 84
 nearPlane = 0.01
 farPlane = 100
 fov = 60
@@ -37,29 +39,28 @@ class TestEnv(gym.Env):
         self.iter = cycle(range(0,360,10))
 
         # how we want to show
-        assert renderer in ('tiny', 'egl', 'debug','plugin')
+        assert renderer in ('DIRECT/tiny', 'DIRECT/egl', 'GUI/egl','GUI/debug')
         self._renderer = renderer
-        self._render_width = 84
-        self._render_height = 84
+        self._render_width = pixelWidth
+        self._render_height = pixelHeight
         # connecting
-        if self._renderer == "tiny" or self._renderer == "plugin":
+        if self._renderer == "DIRECT/tiny" or self._renderer == "DIRECT/egl":
             optionstring='--width={} --height={}'.format(self._render_width,self._render_height)
             p.connect(p.DIRECT, options=optionstring)
 
-            if self._renderer == "plugin":
-                plugin_fn = os.path.join(p.__file__.split("bullet3")[0],"bullet3/build/lib.linux-x86_64-3.5/eglRenderer.cpython-35m-x86_64-linux-gnu.so")
-                plugin = p.loadPlugin(plugin_fn,"_tinyRendererPlugin")
+            if self._renderer == "DIRECT/egl":
+                plugin = p.loadPlugin("eglRendererPlugin")
                 if plugin < 0:
                     print("\nPlugin Failed to load! Try installing via `pip install -e .`\n")
                     sys.exit()
                 print("plugin =",plugin)
 
-        elif self._renderer == "egl":
+        elif self._renderer == "GUI/egl":
             optionstring='--width={} --height={}'.format(self._render_width,self._render_height)
             optionstring += ' --window_backend=2 --render_device=0'
             p.connect(p.GUI, options=optionstring)
 
-        elif self._renderer == "debug":
+        elif self._renderer == "GUI/debug":
           #print("Connection: SHARED_MEMORY")
           #cid = p.connect(p.SHARED_MEMORY)
           #if (cid<0):
@@ -76,7 +77,11 @@ class TestEnv(gym.Env):
         p.disconnect()
 
     def reset(self):
-        pass
+        p.resetSimulation()
+        p.loadURDF("plane.urdf",[0,0,-1])
+        p.loadURDF("r2d2.urdf")
+        p.loadURDF("duck_vhacd.urdf")
+        p.setGravity(0,0,-10)
 
     def step(self,action):
         p.stepSimulation()
@@ -95,7 +100,7 @@ class TestEnv(gym.Env):
     def seed(self, seed=None):
       pass
 
-def train(env_id, num_timesteps=300, seed=0,num_env=2,renderer='tiny'):
+def train(env_id, num_timesteps=300, seed=0,num_env=2,renderer='tiny',ax=None,image=None):
     def make_env(rank):
         def _thunk():
             if env_id == "TestEnv":
@@ -115,7 +120,13 @@ def train(env_id, num_timesteps=300, seed=0,num_env=2,renderer='tiny'):
     start = time.time()
     for i in range(num_timesteps):
         action = [env.action_space.sample() for _ in range(num_env)]
-        env.step(action)
+        res = env.step(action)
+        if ax:
+            rgb = res[0][0,:,:,:3]
+            image.set_data(rgb)#np_img_arr)
+            ax.plot([0])
+            plt.pause(0.01)
+
     stop = time.time()
     duration = (stop - start)
     if (duration):
@@ -128,15 +139,26 @@ def train(env_id, num_timesteps=300, seed=0,num_env=2,renderer='tiny'):
 
 if __name__ == "__main__":
     env_id = "TestEnv"
-    res = []
 
-    for renderer in ('tiny','plugin', 'egl'):
+    plot = False
+    if plot:
+        plt.ion()
+        img = np.random.rand(200, 320)
+        #img = [tandard_normal((50,100))
+        image = plt.imshow(img,interpolation='none',animated=True,label="blah")
+        ax = plt.gca()
+    else:
+        ax = None
+        image =None
+
+    res = []
+    for renderer in ('DIRECT/tiny','DIRECT/egl', 'GUI/egl'):
         for i in (1,8):
-            tmp = train(env_id,num_env=i,renderer=renderer)
+            tmp = train(env_id,num_env=i,renderer=renderer,ax=ax,image=image)
             print(renderer,tmp)
             res.append((renderer,tmp))
     print()
-    print("rendertest_sync.py")
+    print("rendertest_sync.py size: {}x{}px".format(pixelWidth,pixelHeight))
     print("back nenv fps fps_tot")
     for renderer,i in res:
         print(renderer,'\t', i[0],round(i[1]),'\t',round(i[0]*i[1]))

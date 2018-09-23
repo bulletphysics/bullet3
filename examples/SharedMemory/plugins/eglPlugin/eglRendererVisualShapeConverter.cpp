@@ -998,14 +998,24 @@ void EGLRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
 
 void EGLRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 {
-	m_data->m_swWidth = width;
-	m_data->m_swHeight = height;
+    if (m_data->m_swWidth != width or m_data->m_swHeight != height) {
+        m_data->m_swWidth = width;
+        m_data->m_swHeight = height;
 
-	m_data->m_depthBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
-    m_data->m_shadowBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
-	m_data->m_segmentationMaskBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
-	m_data->m_rgbColorBuffer = TGAImage(width, height, TGAImage::RGB);
-	
+        // update current window
+        b3gWindowConstructionInfo ci;
+        ci.m_title = "Title";
+        ci.m_width = width;
+        ci.m_height = height;
+        ci.m_renderDevice = 0;
+        m_data->m_window->updateWindow(ci);
+
+        m_data->m_instancingRenderer->resize(width,height);
+        m_data->m_depthBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
+        m_data->m_shadowBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
+        m_data->m_segmentationMaskBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
+        m_data->m_rgbColorBuffer = TGAImage(width, height, TGAImage::RGB);
+    }
 		
 }
 

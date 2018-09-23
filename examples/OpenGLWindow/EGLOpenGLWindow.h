@@ -24,7 +24,8 @@ public:
     }
     
     virtual	void	createWindow(const b3gWindowConstructionInfo& ci);
-    
+    virtual	void	updateWindow(const b3gWindowConstructionInfo& ci);
+
     virtual void	closeWindow();
     
     virtual void	runMainLoop();
