@@ -9,14 +9,14 @@
 #define BulletTest_Test_qtmul_h
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C"
+{
 #endif
 
-int Test_qtmul(void);
+	int Test_qtmul(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-    
 #endif

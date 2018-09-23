@@ -9,14 +9,14 @@
 #define BulletTest_Test_mindot_h
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C"
+{
 #endif
-    
-    int Test_mindot(void);
-    
+
+	int Test_mindot(void);
+
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

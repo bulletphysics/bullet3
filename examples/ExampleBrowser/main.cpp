@@ -19,9 +19,8 @@
 
 static double gMinUpdateTimeMicroSecs = 1000.;
 
-
-static bool interrupted=false;
-static OpenGLExampleBrowser* sExampleBrowser=0;
+static bool interrupted = false;
+static OpenGLExampleBrowser* sExampleBrowser = 0;
 
 #ifndef _WIN32
 #include <signal.h>
@@ -29,55 +28,56 @@ static OpenGLExampleBrowser* sExampleBrowser=0;
 #include <unistd.h>
 static void cleanup(int signo)
 {
-
-    if (!interrupted) {  // this is the second time, we're hanging somewhere
-        b3Printf("Aborting and deleting SharedMemoryCommon object");
-        delete sExampleBrowser;
+	if (!interrupted)
+	{  // this is the second time, we're hanging somewhere
+		b3Printf("Aborting and deleting SharedMemoryCommon object");
+		delete sExampleBrowser;
 		sleep(1);
 		sExampleBrowser = 0;
-        errx(EXIT_FAILURE, "aborted example on signal %d", signo);
-    } else
-    {
+		errx(EXIT_FAILURE, "aborted example on signal %d", signo);
+	}
+	else
+	{
 		b3Printf("no action");
 		exit(EXIT_FAILURE);
-    }
-    interrupted = true;
-    warnx("caught signal %d", signo);
+	}
+	interrupted = true;
+	warnx("caught signal %d", signo);
 }
-#endif//_WIN32
+#endif  //_WIN32
 
 int main(int argc, char* argv[])
 {
-
 #ifndef _WIN32
-    struct sigaction action;
-    memset(&action, 0x0, sizeof(action));
-    action.sa_handler = cleanup;
-    static const int signos[] = { SIGHUP, SIGINT, SIGQUIT, SIGABRT, SIGSEGV, SIGPIPE, SIGTERM };
-    for (int ii(0); ii < sizeof(signos) / sizeof(*signos); ++ii) {
-        if (0 != sigaction(signos[ii], &action, NULL)) {
-            err(EXIT_FAILURE, "signal %d", signos[ii]);
-        }
-    }
+	struct sigaction action;
+	memset(&action, 0x0, sizeof(action));
+	action.sa_handler = cleanup;
+	static const int signos[] = {SIGHUP, SIGINT, SIGQUIT, SIGABRT, SIGSEGV, SIGPIPE, SIGTERM};
+	for (int ii(0); ii < sizeof(signos) / sizeof(*signos); ++ii)
+	{
+		if (0 != sigaction(signos[ii], &action, NULL))
+		{
+			err(EXIT_FAILURE, "signal %d", signos[ii]);
+		}
+	}
 #endif
 
 	{
 		b3CommandLineArgs args(argc, argv);
 		b3Clock clock;
-		args.GetCmdLineArgument("minUpdateTimeMicroSecs",gMinUpdateTimeMicroSecs);
+		args.GetCmdLineArgument("minUpdateTimeMicroSecs", gMinUpdateTimeMicroSecs);
 
 		ExampleEntriesAll examples;
 		examples.initExampleEntries();
 
 		OpenGLExampleBrowser* exampleBrowser = new OpenGLExampleBrowser(&examples);
-		sExampleBrowser = exampleBrowser;//for <CTRL-C> etc, cleanup shared memory
+		sExampleBrowser = exampleBrowser;  //for <CTRL-C> etc, cleanup shared memory
 		bool init = exampleBrowser->init(argc, argv);
 		exampleBrowser->registerFileImporter(".urdf", ImportURDFCreateFunc);
 		exampleBrowser->registerFileImporter(".sdf", ImportSDFCreateFunc);
 		exampleBrowser->registerFileImporter(".obj", ImportObjCreateFunc);
 		exampleBrowser->registerFileImporter(".stl", ImportSTLCreateFunc);
 		exampleBrowser->registerFileImporter(".bullet", SerializeBulletCreateFunc);
-
 
 		clock.reset();
 		if (init)
@@ -89,10 +89,11 @@ int main(int argc, char* argv[])
 				{
 					deltaTimeInSeconds = 0.1;
 				}
-				if (deltaTimeInSeconds < (gMinUpdateTimeMicroSecs/1e6))
+				if (deltaTimeInSeconds < (gMinUpdateTimeMicroSecs / 1e6))
 				{
-					b3Clock::usleep(gMinUpdateTimeMicroSecs/10.);
-				} else
+					b3Clock::usleep(gMinUpdateTimeMicroSecs / 10.);
+				}
+				else
 				{
 					clock.reset();
 					exampleBrowser->update(deltaTimeInSeconds);
@@ -100,13 +101,12 @@ int main(int argc, char* argv[])
 			} while (!exampleBrowser->requestedExit() && !interrupted);
 		}
 		delete exampleBrowser;
-
 	}
-	
+
 #ifdef BT_DEBUG_MEMORY_ALLOCATIONS
 	int numBytesLeaked = btDumpMemoryLeaks();
-	btAssert(numBytesLeaked==0);
-#endif//BT_DEBUG_MEMORY_ALLOCATIONS
-	
+	btAssert(numBytesLeaked == 0);
+#endif  //BT_DEBUG_MEMORY_ALLOCATIONS
+
 	return 0;
 }

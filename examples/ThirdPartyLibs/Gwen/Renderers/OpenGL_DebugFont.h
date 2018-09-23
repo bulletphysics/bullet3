@@ -10,67 +10,58 @@
 #include "../ThirdPartyLibs/Gwen/Gwen.h"
 #include "../ThirdPartyLibs/Gwen/Renderers/OpenGL.h"
 
-void	restoreOpenGLState();
-void	saveOpenGLState(int screenWidth, int screenHeight);
+void restoreOpenGLState();
+void saveOpenGLState(int screenWidth, int screenHeight);
 
-
-namespace Gwen 
+namespace Gwen
 {
-	namespace Renderer 
+namespace Renderer
+{
+class OpenGL_DebugFont : public Gwen::Renderer::Base
+{
+	float m_retinaScale;
+
+public:
+	struct Vertex
 	{
+		float x, y, z;
+		float u, v;
+		unsigned char r, g, b, a;
+	};
 
-		class OpenGL_DebugFont : public Gwen::Renderer::Base
-		{
-            float m_retinaScale;
-            
-			public:
+	static const int MaxVerts = 1024;
 
-					struct Vertex
-				{
-					float x, y, z;
-					float u, v;
-					unsigned char r, g, b, a;
-				};
+	OpenGL_DebugFont(float retinaScale);
+	~OpenGL_DebugFont();
 
-					
-					static const int	MaxVerts = 1024;
-            
-				OpenGL_DebugFont(float retinaScale);
-				~OpenGL_DebugFont();
+	void RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text);
+	Gwen::Point MeasureText(Gwen::Font* pFont, const Gwen::UnicodeString& text);
 
-				void RenderText( Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text );
-				Gwen::Point MeasureText( Gwen::Font* pFont, const Gwen::UnicodeString& text );
-				
-				virtual void Begin();
-				virtual void End();
+	virtual void Begin();
+	virtual void End();
 
-				virtual void SetDrawColor( Gwen::Color color );
-				virtual void DrawFilledRect( Gwen::Rect rect );
-				void DrawTexturedRect( Gwen::Texture* pTexture, Gwen::Rect rect, float u1, float v1, float u2, float v2 );
-		
+	virtual void SetDrawColor(Gwen::Color color);
+	virtual void DrawFilledRect(Gwen::Rect rect);
+	void DrawTexturedRect(Gwen::Texture* pTexture, Gwen::Rect rect, float u1, float v1, float u2, float v2);
 
-				void StartClip();
-				void EndClip();
-			
-				void Flush();
-				void AddVert( int x, int y, float u = 0.0f , float v = 0.0f );
+	void StartClip();
+	void EndClip();
 
-				virtual void Resize(int width, int height) {}
+	void Flush();
+	void AddVert(int x, int y, float u = 0.0f, float v = 0.0f);
 
+	virtual void Resize(int width, int height) {}
 
-			protected:
+protected:
+	Gwen::Texture* m_pFontTexture;
+	float m_fFontScale[2];
+	float m_fLetterSpacing;
 
-				Gwen::Texture*	m_pFontTexture;
-				float			m_fFontScale[2];
-				float			m_fLetterSpacing;
+	Gwen::Color m_Color;
+	int m_iVertNum;
+	Vertex m_Vertices[MaxVerts];
+};
 
-			
-				Gwen::Color			m_Color;
-				int					m_iVertNum;
-				Vertex				m_Vertices[ MaxVerts ];
-
-		};
-
-	}
-}
+}  // namespace Renderer
+}  // namespace Gwen
 #endif

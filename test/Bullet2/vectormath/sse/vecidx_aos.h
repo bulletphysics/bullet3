@@ -30,51 +30,53 @@
 #ifndef _VECTORMATH_VECIDX_AOS_H
 #define _VECTORMATH_VECIDX_AOS_H
 
-
 #include "floatInVec.h"
 
-namespace Vectormath {
-namespace Aos {
-
+namespace Vectormath
+{
+namespace Aos
+{
 //-----------------------------------------------------------------------------
-// VecIdx 
-// Used in setting elements of Vector3, Vector4, Point3, or Quat with the 
+// VecIdx
+// Used in setting elements of Vector3, Vector4, Point3, or Quat with the
 // subscripting operator.
 //
 
-VM_ATTRIBUTE_ALIGNED_CLASS16 (class) VecIdx
+VM_ATTRIBUTE_ALIGNED_CLASS16(class)
+VecIdx
 {
 private:
-   __m128 &ref;
-   int i;
-public:
-    inline VecIdx( __m128& vec, int idx ): ref(vec) { i = idx; }
+	__m128 &ref;
+	int i;
 
-    // implicitly casts to float unless _VECTORMATH_NO_SCALAR_CAST defined
-    // in which case, implicitly casts to floatInVec, and one must call
-    // getAsFloat to convert to float.
-    //
+public:
+	inline VecIdx(__m128 & vec, int idx) : ref(vec) { i = idx; }
+
+	// implicitly casts to float unless _VECTORMATH_NO_SCALAR_CAST defined
+	// in which case, implicitly casts to floatInVec, and one must call
+	// getAsFloat to convert to float.
+	//
 #ifdef _VECTORMATH_NO_SCALAR_CAST
-    inline operator floatInVec() const;
-    inline float getAsFloat() const;
+	inline operator floatInVec() const;
+	inline float getAsFloat() const;
 #else
-    inline operator float() const;
+	inline operator float() const;
 #endif
 
-    inline float operator =( float scalar );
-    inline floatInVec operator =( const floatInVec &scalar );
-    inline floatInVec operator =( const VecIdx& scalar );
-    inline floatInVec operator *=( float scalar );
-    inline floatInVec operator *=( const floatInVec &scalar );
-    inline floatInVec operator /=( float scalar );
-    inline floatInVec operator /=( const floatInVec &scalar );
-    inline floatInVec operator +=( float scalar );
-    inline floatInVec operator +=( const floatInVec &scalar );
-    inline floatInVec operator -=( float scalar );
-    inline floatInVec operator -=( const floatInVec &scalar );
+	inline float operator=(float scalar);
+	inline floatInVec operator=(const floatInVec &scalar);
+	inline floatInVec operator=(const VecIdx &scalar);
+	inline floatInVec operator*=(float scalar);
+	inline floatInVec operator*=(const floatInVec &scalar);
+	inline floatInVec operator/=(float scalar);
+	inline floatInVec operator/=(const floatInVec &scalar);
+	inline floatInVec operator+=(float scalar);
+	inline floatInVec operator+=(const floatInVec &scalar);
+	inline floatInVec operator-=(float scalar);
+	inline floatInVec operator-=(const floatInVec &scalar);
 };
 
-} // namespace Aos
-} // namespace Vectormath
+}  // namespace Aos
+}  // namespace Vectormath
 
 #endif

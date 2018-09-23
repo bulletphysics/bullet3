@@ -4,16 +4,15 @@
 #include "PhysicsClientC_API.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-
 	///send physics commands using UDP networking
-B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsUDP(const char* hostName, int port);
-
+	B3_SHARED_API b3PhysicsClientHandle b3ConnectPhysicsUDP(const char* hostName, int port);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //PHYSICS_CLIENT_UDP_C_API_H
+#endif  //PHYSICS_CLIENT_UDP_C_API_H

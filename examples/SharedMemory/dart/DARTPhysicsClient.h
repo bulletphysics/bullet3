@@ -1,27 +1,25 @@
 #ifndef DART_PHYSICS_CLIENT_H
 #define DART_PHYSICS_CLIENT_H
 
-
 #include "../PhysicsClient.h"
 
 ///PhysicsDirect executes the commands directly, without transporting them or having a separate server executing commands
-class DARTPhysicsClient : public PhysicsClient 
+class DARTPhysicsClient : public PhysicsClient
 {
 protected:
-
 	struct DARTPhysicsDirectInternalData* m_data;
 
 	bool processDebugLines(const struct SharedMemoryCommand& orgCommand);
 
 	bool processCamera(const struct SharedMemoryCommand& orgCommand);
 
-    bool processContactPointData(const struct SharedMemoryCommand& orgCommand);
+	bool processContactPointData(const struct SharedMemoryCommand& orgCommand);
 
 	bool processOverlappingObjects(const struct SharedMemoryCommand& orgCommand);
 
 	bool processVisualShapeData(const struct SharedMemoryCommand& orgCommand);
-	
-    void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
+
+	void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
 
 	void processAddUserData(const struct SharedMemoryStatus& serverCmd);
 
@@ -32,28 +30,27 @@ protected:
 	void removeCachedBody(int bodyUniqueId);
 
 public:
-
 	DARTPhysicsClient(class PhysicsCommandProcessorInterface* physSdk, bool passSdkOwnership);
-    
-    virtual ~DARTPhysicsClient();
+
+	virtual ~DARTPhysicsClient();
 
 	// return true if connection succesfull, can also check 'isConnected'
 	//it is OK to pass a null pointer for the gui helper
-    virtual bool connect();
-	
+	virtual bool connect();
+
 	////todo: rename to 'disconnect'
-    virtual void disconnectSharedMemory();
+	virtual void disconnectSharedMemory();
 
-    virtual bool isConnected() const;
+	virtual bool isConnected() const;
 
-    // return non-null if there is a status, nullptr otherwise
-    virtual const  SharedMemoryStatus* processServerStatus();
+	// return non-null if there is a status, nullptr otherwise
+	virtual const SharedMemoryStatus* processServerStatus();
 
-    virtual  SharedMemoryCommand* getAvailableSharedMemoryCommand();
+	virtual SharedMemoryCommand* getAvailableSharedMemoryCommand();
 
-    virtual bool canSubmitCommand() const;
+	virtual bool canSubmitCommand() const;
 
-    virtual bool submitClientCommand(const struct SharedMemoryCommand& command);
+	virtual bool submitClientCommand(const struct SharedMemoryCommand& command);
 
 	virtual int getNumBodies() const;
 
@@ -61,37 +58,37 @@ public:
 
 	virtual bool getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const;
 
-    virtual int getNumJoints(int bodyIndex) const;
+	virtual int getNumJoints(int bodyIndex) const;
 
-    virtual bool getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const;
+	virtual bool getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const;
 
-    virtual int getNumUserConstraints() const;
-    
-    virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint& info) const;
-	
+	virtual int getNumUserConstraints() const;
+
+	virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint& info) const;
+
 	virtual int getUserConstraintId(int serialIndex) const;
-    
-	///todo: move this out of the
-    virtual void setSharedMemoryKey(int key);
 
-    void uploadBulletFileToSharedMemory(const char* data, int len);
-    
+	///todo: move this out of the
+	virtual void setSharedMemoryKey(int key);
+
+	void uploadBulletFileToSharedMemory(const char* data, int len);
+
 	virtual void uploadRaysToSharedMemory(struct SharedMemoryCommand& command, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays);
 
-    virtual int getNumDebugLines() const;
+	virtual int getNumDebugLines() const;
 
-    virtual const float* getDebugLinesFrom() const;
-    virtual const float* getDebugLinesTo() const;
-    virtual const float* getDebugLinesColor() const;
+	virtual const float* getDebugLinesFrom() const;
+	virtual const float* getDebugLinesTo() const;
+	virtual const float* getDebugLinesColor() const;
 
 	virtual void getCachedCameraImage(b3CameraImageData* cameraData);
 
-    virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
+	virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
 
 	virtual void getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects);
 
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
-	
+
 	virtual void getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo);
 
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
@@ -112,13 +109,13 @@ public:
 	virtual void setTimeOut(double timeOutInSeconds);
 	virtual double getTimeOut() const;
 
-    virtual bool getCachedUserData(int bodyUniqueId, int linkIndex, int userDataId, struct b3UserDataValue &valueOut) const;
-    virtual int getCachedUserDataId(int bodyUniqueId, int linkIndex, const char *key) const;
-    virtual int getNumUserData(int bodyUniqueId, int linkIndex) const;
-    virtual void getUserDataInfo(int bodyUniqueId, int linkIndex, int userDataIndex, const char **keyOut, int *userDataIdOut) const;
-	
+	virtual bool getCachedUserData(int bodyUniqueId, int linkIndex, int userDataId, struct b3UserDataValue& valueOut) const;
+	virtual int getCachedUserDataId(int bodyUniqueId, int linkIndex, const char* key) const;
+	virtual int getNumUserData(int bodyUniqueId, int linkIndex) const;
+	virtual void getUserDataInfo(int bodyUniqueId, int linkIndex, int userDataIndex, const char** keyOut, int* userDataIdOut) const;
+
 	virtual void pushProfileTiming(const char* timingName);
 	virtual void popProfileTiming();
 };
 
-#endif //DART_PHYSICS__H
+#endif  //DART_PHYSICS__H

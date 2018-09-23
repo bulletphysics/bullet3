@@ -15,8 +15,6 @@ subject to the following restrictions:
 #ifndef FRACTURE_DEMO_H
 #define FRACTURE_DEMO_H
 
-class CommonExampleInterface*    FractureDemoCreateFunc(struct CommonExampleOptions& options);
+class CommonExampleInterface* FractureDemoCreateFunc(struct CommonExampleOptions& options);
 
-
-#endif //FRACTURE_DEMO_H
-
+#endif  //FRACTURE_DEMO_H

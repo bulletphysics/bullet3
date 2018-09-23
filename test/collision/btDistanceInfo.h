@@ -20,11 +20,10 @@ subject to the following restrictions:
 
 struct btDistanceInfo
 {
-	btVector3	m_pointOnA;
-	btVector3	m_pointOnB;
-	btVector3	m_normalBtoA;
-	btScalar	m_distance;
+	btVector3 m_pointOnA;
+	btVector3 m_pointOnB;
+	btVector3 m_normalBtoA;
+	btScalar m_distance;
 };
 
-#endif //BT_DISTANCE_INFO_H
-
+#endif  //BT_DISTANCE_INFO_H

@@ -1,5 +1,5 @@
 #ifndef _B3_RESOURCE_PATH_H
-#define _B3_RESOURCE_PATH_H 
+#define _B3_RESOURCE_PATH_H
 
 #include <string>
 
@@ -11,4 +11,3 @@ public:
 	static void setAdditionalSearchPath(const char* path);
 };
 #endif
-

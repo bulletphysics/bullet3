@@ -1,8 +1,6 @@
 #ifndef CD_WAVEFRONT_OBJ_H
 
-
 #define CD_WAVEFRONT_OBJ_H
-
 
 /*----------------------------------------------------------------------
 		Copyright (c) 2004 Open Dynamics Framework Group
@@ -38,25 +36,22 @@
 // http://www.amillionpixels.us
 //
 
-
 namespace ConvexDecomposition
 {
-
 class WavefrontObj
 {
 public:
+	WavefrontObj(void);
+	~WavefrontObj(void);
 
-  WavefrontObj(void);
-  ~WavefrontObj(void);
+	unsigned int loadObj(const char *fname);  // load a wavefront obj returns number of triangles that were loaded.  Data is persists until the class is destructed.
 
-	unsigned int loadObj(const char *fname); // load a wavefront obj returns number of triangles that were loaded.  Data is persists until the class is destructed.
-
-  int	          mVertexCount;
-  int	          mTriCount;
-  int          *mIndices;
-  float        *mVertices;
+	int mVertexCount;
+	int mTriCount;
+	int *mIndices;
+	float *mVertices;
 };
 
-}
+}  // namespace ConvexDecomposition
 
 #endif

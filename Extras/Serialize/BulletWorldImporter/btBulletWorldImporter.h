@@ -13,56 +13,40 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #ifndef BULLET_WORLD_IMPORTER_H
 #define BULLET_WORLD_IMPORTER_H
 
-
 #include "btWorldImporter.h"
-
 
 class btBulletFile;
 
-
-
-
 namespace bParse
 {
-	class btBulletFile;
-	
+class btBulletFile;
+
 };
-
-
 
 ///The btBulletWorldImporter is a starting point to import .bullet files.
 ///note that not all data is converted yet. You are expected to override or modify this class.
 ///See Bullet/Demos/SerializeDemo for a derived class that extract btSoftBody objects too.
 class btBulletWorldImporter : public btWorldImporter
 {
-
-
 public:
-	
-	btBulletWorldImporter(btDynamicsWorld* world=0);
+	btBulletWorldImporter(btDynamicsWorld* world = 0);
 
 	virtual ~btBulletWorldImporter();
 
-	///if you pass a valid preSwapFilenameOut, it will save a new file with a different endianness 
+	///if you pass a valid preSwapFilenameOut, it will save a new file with a different endianness
 	///this pre-swapped file can be loaded without swapping on a target platform of different endianness
-	bool	loadFile(const char* fileName, const char* preSwapFilenameOut=0);
+	bool loadFile(const char* fileName, const char* preSwapFilenameOut = 0);
 
 	///the memoryBuffer might be modified (for example if endian swaps are necessary)
-	bool	loadFileFromMemory(char *memoryBuffer, int len);
+	bool loadFileFromMemory(char* memoryBuffer, int len);
 
-	bool	loadFileFromMemory(bParse::btBulletFile* file);
+	bool loadFileFromMemory(bParse::btBulletFile* file);
 
 	//call make sure bulletFile2 has been parsed, either using btBulletFile::parse or btBulletWorldImporter::loadFileFromMemory
-	virtual	bool	convertAllObjects(bParse::btBulletFile* file);
-
-	
-
-
+	virtual bool convertAllObjects(bParse::btBulletFile* file);
 };
 
-#endif //BULLET_WORLD_IMPORTER_H
-
+#endif  //BULLET_WORLD_IMPORTER_H

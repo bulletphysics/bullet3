@@ -12,40 +12,37 @@
 #include "Gwen/Controls/Base.h"
 #include "Gwen/Skin.h"
 
-namespace Gwen 
+namespace Gwen
 {
-	namespace Controls
-	{
-		/*
+namespace Controls
+{
+/*
 
 		TODO!
 
 		*/
 
-		class ToolBarStrip : public Base
-		{
-			GWEN_CONTROL_INLINE( ToolBarStrip, Base )
-			{
-				SetPadding( Padding( 2, 2, 2, 2 ) );
-			}
-
-			virtual void Render( Skin::Base* skin )
-			{
-				skin->DrawMenuStrip( this );
-			}
-
-			virtual void RenderUnder( Skin::Base* skin )
-			{
-
-			}
-
-			virtual void Layout( Skin::Base* skin )
-			{
-
-			}
-
-		};
+class ToolBarStrip : public Base
+{
+	GWEN_CONTROL_INLINE(ToolBarStrip, Base)
+	{
+		SetPadding(Padding(2, 2, 2, 2));
 	}
 
-}
+	virtual void Render(Skin::Base* skin)
+	{
+		skin->DrawMenuStrip(this);
+	}
+
+	virtual void RenderUnder(Skin::Base* skin)
+	{
+	}
+
+	virtual void Layout(Skin::Base* skin)
+	{
+	}
+};
+}  // namespace Controls
+
+}  // namespace Gwen
 #endif

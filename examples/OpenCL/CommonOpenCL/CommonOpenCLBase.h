@@ -1,7 +1,6 @@
 #ifndef COMMON_MULTI_BODY_SETUP_H
 #define COMMON_MULTI_BODY_SETUP_H
 
-
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
@@ -15,14 +14,12 @@
 
 struct CommonOpenCLBase : public CommonExampleInterface
 {
-
 	struct GUIHelperInterface* m_guiHelper;
-	struct GpuDemoInternalData*	m_clData;
+	struct GpuDemoInternalData* m_clData;
 
-
-	CommonOpenCLBase (GUIHelperInterface* helper)
-	:m_guiHelper(helper),
-	m_clData(0)
+	CommonOpenCLBase(GUIHelperInterface* helper)
+		: m_guiHelper(helper),
+		  m_clData(0)
 	{
 		m_clData = new GpuDemoInternalData();
 	}
@@ -37,56 +34,44 @@ struct CommonOpenCLBase : public CommonExampleInterface
 	{
 	}
 
-
-	
-
-	
 	virtual void initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 	{
-//	void* glCtx=0;
-//	void* glDC = 0;
-	
-	
-    
-	int ciErrNum = 0;
+		//	void* glCtx=0;
+		//	void* glDC = 0;
 
-	cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
-	//if (gAllowCpuOpenCL)
-	//	deviceType = CL_DEVICE_TYPE_ALL;
+		int ciErrNum = 0;
 
-	
-	
-	//	if (useInterop)
-	//	{
-	//		m_data->m_clContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
-	//	} else
-	{
-		m_clData->m_clContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, 0,0,preferredDeviceIndex, preferredPlatformIndex,&m_clData->m_platformId);
-	}
-	
-	
-	oclCHECKERROR(ciErrNum, CL_SUCCESS);
-	
-	int numDev = b3OpenCLUtils::getNumDevices(m_clData->m_clContext);
-	
-	if (numDev>0)
-	{
-		m_clData->m_clDevice= b3OpenCLUtils::getDevice(m_clData->m_clContext,0);
-		m_clData->m_clQueue = clCreateCommandQueue(m_clData->m_clContext, m_clData->m_clDevice, 0, &ciErrNum);
+		cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
+		//if (gAllowCpuOpenCL)
+		//	deviceType = CL_DEVICE_TYPE_ALL;
+
+		//	if (useInterop)
+		//	{
+		//		m_data->m_clContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, glCtx, glDC);
+		//	} else
+		{
+			m_clData->m_clContext = b3OpenCLUtils::createContextFromType(deviceType, &ciErrNum, 0, 0, preferredDeviceIndex, preferredPlatformIndex, &m_clData->m_platformId);
+		}
+
 		oclCHECKERROR(ciErrNum, CL_SUCCESS);
-        
-        
-		b3OpenCLDeviceInfo info;
-		b3OpenCLUtils::getDeviceInfo(m_clData->m_clDevice,&info);
-		m_clData->m_clDeviceName = info.m_deviceName;
-		m_clData->m_clInitialized = true;
-		
-	}
+
+		int numDev = b3OpenCLUtils::getNumDevices(m_clData->m_clContext);
+
+		if (numDev > 0)
+		{
+			m_clData->m_clDevice = b3OpenCLUtils::getDevice(m_clData->m_clContext, 0);
+			m_clData->m_clQueue = clCreateCommandQueue(m_clData->m_clContext, m_clData->m_clDevice, 0, &ciErrNum);
+			oclCHECKERROR(ciErrNum, CL_SUCCESS);
+
+			b3OpenCLDeviceInfo info;
+			b3OpenCLUtils::getDeviceInfo(m_clData->m_clDevice, &info);
+			m_clData->m_clDeviceName = info.m_deviceName;
+			m_clData->m_clInitialized = true;
+		}
 	}
 
 	virtual void exitCL()
 	{
-
 		if (m_clData && m_clData->m_clInitialized)
 		{
 			clReleaseCommandQueue(m_clData->m_clQueue);
@@ -94,8 +79,6 @@ struct CommonOpenCLBase : public CommonExampleInterface
 			m_clData->m_clInitialized = false;
 		}
 	}
-
-
 
 	virtual void renderScene()
 	{
@@ -105,40 +88,35 @@ struct CommonOpenCLBase : public CommonExampleInterface
 		}
 	}
 
-    virtual void    physicsDebugDraw(int debugDrawFlags)
-    {
-     	
-
-    }
-
-	virtual bool	keyboardCallback(int key, int state)
+	virtual void physicsDebugDraw(int debugDrawFlags)
 	{
-		return false;//don't handle this key
 	}
 
+	virtual bool keyboardCallback(int key, int state)
+	{
+		return false;  //don't handle this key
+	}
 
-
-	virtual bool	mouseMoveCallback(float x,float y)
+	virtual bool mouseMoveCallback(float x, float y)
 	{
 		return false;
 	}
 
-	virtual bool	mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int button, int state, float x, float y)
 	{
 		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
-		
+
 		if (!renderer)
 		{
 			b3Assert(0);
 			return false;
 		}
-		
+
 		CommonWindowInterface* window = m_guiHelper->getAppInterface()->m_window;
 
-	
-		if (state==1)
+		if (state == 1)
 		{
-			if(button==0 && (!window->isModifierKeyPressed(B3G_ALT) && !window->isModifierKeyPressed(B3G_CONTROL) ))
+			if (button == 0 && (!window->isModifierKeyPressed(B3G_ALT) && !window->isModifierKeyPressed(B3G_CONTROL)))
 			{
 				/*btVector3 camPos;
 				renderer->getActiveCamera()->getCameraPosition(camPos);
@@ -148,14 +126,13 @@ struct CommonOpenCLBase : public CommonExampleInterface
 
 				pickBody(rayFrom, rayTo);
 				*/
-
-
 			}
-		} else
+		}
+		else
 		{
-			if (button==0)
+			if (button == 0)
 			{
-//				removePickingConstraint();
+				//				removePickingConstraint();
 				//remove p2p
 			}
 		}
@@ -163,9 +140,6 @@ struct CommonOpenCLBase : public CommonExampleInterface
 		//printf("button=%d, state=%d\n",button,state);
 		return false;
 	}
+};
 
-
-	};
-
-#endif //COMMON_MULTI_BODY_SETUP_H
-
+#endif  //COMMON_MULTI_BODY_SETUP_H

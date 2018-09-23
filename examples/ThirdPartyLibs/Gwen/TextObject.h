@@ -13,53 +13,52 @@
 
 namespace Gwen
 {
-	class TextObject
+class TextObject
+{
+public:
+	TextObject() {}
+
+	TextObject(const Gwen::String& text)
 	{
-		public:
+		*this = text;
+	}
 
-			TextObject(){}
+	TextObject(const char* text)
+	{
+		*this = Gwen::String(text);
+	}
 
-			TextObject( const Gwen::String& text )
-			{
-				*this = text;
-			}
+	TextObject(const wchar_t* text)
+	{
+		*this = Gwen::UnicodeString(text);
+	}
 
-			TextObject( const char* text )
-			{
-				*this = Gwen::String( text );
-			}
+	TextObject(const Gwen::UnicodeString& unicode)
+	{
+		*this = unicode;
+	}
 
-			TextObject( const wchar_t* text )
-			{
-				*this = Gwen::UnicodeString( text );
-			}
+	void operator=(const Gwen::String& str)
+	{
+		m_Data = Gwen::Utility::StringToUnicode(str);
+	}
 
-			TextObject( const Gwen::UnicodeString& unicode )
-			{
-				*this = unicode;
-			}
-			
-			void operator = ( const Gwen::String& str )
-			{
-				m_Data = Gwen::Utility::StringToUnicode( str );
-			}
+	void operator=(const Gwen::UnicodeString& unicodeStr)
+	{
+		m_Data = unicodeStr;
+	}
 
-			void operator = ( const Gwen::UnicodeString& unicodeStr )
-			{
-				m_Data = unicodeStr;
-			}
-			
-			Gwen::String Get() const
-			{
-				return Gwen::Utility::UnicodeToString( m_Data );
-			}
+	Gwen::String Get() const
+	{
+		return Gwen::Utility::UnicodeToString(m_Data);
+	}
 
-			const Gwen::UnicodeString& GetUnicode() const
-			{
-				return m_Data;
-			}
+	const Gwen::UnicodeString& GetUnicode() const
+	{
+		return m_Data;
+	}
 
-			Gwen::UnicodeString m_Data;
-	};
-}
+	Gwen::UnicodeString m_Data;
+};
+}  // namespace Gwen
 #endif

@@ -13,7 +13,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #include "btConvexConvexMprAlgorithm.h"
 
 //#include <stdio.h>
@@ -23,8 +22,6 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
 
 #include "BulletCollision/CollisionShapes/btTriangleShape.h"
-
-
 
 #include "BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
@@ -36,8 +33,6 @@ subject to the following restrictions:
 #include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
-
-
 
 #include "BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
@@ -58,24 +53,20 @@ bool gUseMprCollisionFunction = true;
 
 btConvexConvexMprAlgorithm::CreateFunc::CreateFunc()
 {
-
 }
 
-btConvexConvexMprAlgorithm::CreateFunc::~CreateFunc() 
-{ 
+btConvexConvexMprAlgorithm::CreateFunc::~CreateFunc()
+{
 }
 
-btConvexConvexMprAlgorithm::btConvexConvexMprAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap)
-: btActivatingCollisionAlgorithm(ci,body0Wrap,body1Wrap),
-m_ownManifold (false),
-m_manifoldPtr(mf)
+btConvexConvexMprAlgorithm::btConvexConvexMprAlgorithm(btPersistentManifold* mf, const btCollisionAlgorithmConstructionInfo& ci, const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap)
+	: btActivatingCollisionAlgorithm(ci, body0Wrap, body1Wrap),
+	  m_ownManifold(false),
+	  m_manifoldPtr(mf)
 {
 	(void)body0Wrap;
 	(void)body1Wrap;
 }
-
-
-
 
 btConvexConvexMprAlgorithm::~btConvexConvexMprAlgorithm()
 {
@@ -86,23 +77,21 @@ btConvexConvexMprAlgorithm::~btConvexConvexMprAlgorithm()
 	}
 }
 
-
 btVector3 btBulletShapeSupportFunc(const void* shapeAptr, const btVector3& dir, bool includeMargin)
 {
-	btConvexShape* shape = (btConvexShape*) shapeAptr;
+	btConvexShape* shape = (btConvexShape*)shapeAptr;
 	if (includeMargin)
 	{
 		return shape->localGetSupportingVertex(dir);
 	}
-	
+
 	return shape->localGetSupportingVertexWithoutMargin(dir);
 }
 
 btVector3 btBulletShapeCenterFunc(const void* shapeAptr)
 {
-	return btVector3(0,0,0);
+	return btVector3(0, 0, 0);
 }
-
 
 struct btMprConvexWrap
 {
@@ -132,46 +121,42 @@ struct btMprConvexWrap
 
 struct btMyDistanceInfo
 {
-	btVector3	m_pointOnA;
-	btVector3	m_pointOnB;
-	btVector3	m_normalBtoA;
-	btScalar	m_distance;
+	btVector3 m_pointOnA;
+	btVector3 m_pointOnB;
+	btVector3 m_normalBtoA;
+	btScalar m_distance;
 };
 
 //
 // Convex-Convex collision algorithm
 //
-void btConvexConvexMprAlgorithm ::processCollision (const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+void btConvexConvexMprAlgorithm ::processCollision(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut)
 {
-
 	if (!m_manifoldPtr)
 	{
 		//swapped?
-		m_manifoldPtr = m_dispatcher->getNewManifold(body0Wrap->getCollisionObject(),body1Wrap->getCollisionObject());
+		m_manifoldPtr = m_dispatcher->getNewManifold(body0Wrap->getCollisionObject(), body1Wrap->getCollisionObject());
 		m_ownManifold = true;
 	}
 	resultOut->setPersistentManifold(m_manifoldPtr);
 
 	//comment-out next line to test multi-contact generation
 	//resultOut->getPersistentManifold()->clearManifold();
-	
 
 	const btConvexShape* min0 = static_cast<const btConvexShape*>(body0Wrap->getCollisionShape());
 	const btConvexShape* min1 = static_cast<const btConvexShape*>(body1Wrap->getCollisionShape());
 
-	btVector3  normalOnB;
-	btVector3  pointOnBWorld;
+	btVector3 normalOnB;
+	btVector3 pointOnBWorld;
 
 	btGjkPairDetector::ClosestPointInput input;
 
 	btVoronoiSimplexSolver vs;
 	btGjkEpaPenetrationDepthSolver epa;
-	
-	
+
 	if (gUseMprCollisionFunction)
 	{
-
-		btMprConvexWrap a,b;
+		btMprConvexWrap a, b;
 		a.m_worldTrans = body0Wrap->getWorldTransform();
 		b.m_worldTrans = body1Wrap->getWorldTransform();
 		a.m_convex = (const btConvexShape*)body0Wrap->getCollisionShape();
@@ -180,17 +165,17 @@ void btConvexConvexMprAlgorithm ::processCollision (const btCollisionObjectWrapp
 		simplexSolver.reset();
 		btGjkCollisionDescription colDesc;
 		btMyDistanceInfo distInfo;
-		int res = btComputeGjkDistance(a,b,colDesc,&distInfo);
-		if (res==0)
+		int res = btComputeGjkDistance(a, b, colDesc, &distInfo);
+		if (res == 0)
 		{
-			   //printf("use GJK results in distance %f\n",distInfo.m_distance);
-		} else
+			//printf("use GJK results in distance %f\n",distInfo.m_distance);
+		}
+		else
 		{
 			btMprCollisionDescription mprDesc;
-			res = btComputeMprPenetration(a,b,mprDesc, &distInfo);
+			res = btComputeMprPenetration(a, b, mprDesc, &distInfo);
 
 			//printf("use MPR results in distance %f\n",distInfo.m_distance);
-
 		}
 		if (res == 0)
 		{
@@ -201,7 +186,7 @@ void btConvexConvexMprAlgorithm ::processCollision (const btCollisionObjectWrapp
 				distInfo.m_pointOnB[0], distInfo.m_pointOnB[1], distInfo.m_pointOnB[2]);
 #endif
 
-			if (distInfo.m_distance<=0)
+			if (distInfo.m_distance <= 0)
 			{
 				resultOut->addContactPoint(distInfo.m_normalBtoA, distInfo.m_pointOnB, distInfo.m_distance);
 			}
@@ -212,7 +197,6 @@ void btConvexConvexMprAlgorithm ::processCollision (const btCollisionObjectWrapp
 			//ASSERT_NEAR(computedA.y(),distInfo.m_pointOnA.y(),abs_error);
 			//ASSERT_NEAR(computedA.z(),distInfo.m_pointOnA.z(),abs_error);
 		}
-
 
 #if 0
 		btCollisionDescription colDesc;
@@ -244,10 +228,10 @@ void btConvexConvexMprAlgorithm ::processCollision (const btCollisionObjectWrapp
 		int	btComputeGjkEpaPenetration(min0, min1, &colDesc, &distInfo);
 		*/
 #endif
-	} else
+	}
+	else
 	{
-
-		btGjkPairDetector	gjkPairDetector(min0,min1,&vs,&epa);//m_simplexSolver,m_pdSolver);
+		btGjkPairDetector gjkPairDetector(min0, min1, &vs, &epa);  //m_simplexSolver,m_pdSolver);
 		//TODO: if (dispatchInfo.m_useContinuous)
 		gjkPairDetector.setMinkowskiA(min0);
 		gjkPairDetector.setMinkowskiB(min1);
@@ -259,30 +243,26 @@ void btConvexConvexMprAlgorithm ::processCollision (const btCollisionObjectWrapp
 			//} else
 			//{
 			input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold();
-	//		}
+			//		}
 
-			input.m_maximumDistanceSquared*= input.m_maximumDistanceSquared;
+			input.m_maximumDistanceSquared *= input.m_maximumDistanceSquared;
 		}
 
 		input.m_transformA = body0Wrap->getWorldTransform();
 		input.m_transformB = body1Wrap->getWorldTransform();
 
-
-		gjkPairDetector.getClosestPoints(input,*resultOut,dispatchInfo.m_debugDraw);
+		gjkPairDetector.getClosestPoints(input, *resultOut, dispatchInfo.m_debugDraw);
 	}
 	if (m_ownManifold)
 	{
 		resultOut->refreshContactPoints();
 	}
-
 }
 
-
-btScalar	btConvexConvexMprAlgorithm::calculateTimeOfImpact(btCollisionObject* col0,btCollisionObject* col1,const btDispatcherInfo& dispatchInfo,btManifoldResult* resultOut)
+btScalar btConvexConvexMprAlgorithm::calculateTimeOfImpact(btCollisionObject* col0, btCollisionObject* col1, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut)
 {
 	(void)resultOut;
 	(void)dispatchInfo;
 	btAssert(0);
 	return 0;
 }
-

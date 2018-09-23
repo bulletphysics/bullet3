@@ -12,25 +12,23 @@
 #include "Gwen/Controls/Base.h"
 #include "Gwen/Skin.h"
 
-namespace Gwen 
+namespace Gwen
 {
-	namespace ControlsInternal
+namespace ControlsInternal
+{
+class GWEN_EXPORT Highlight : public Controls::Base
+{
+public:
+	GWEN_CONTROL_INLINE(Highlight, Controls::Base)
 	{
-		class GWEN_EXPORT Highlight : public Controls::Base
-		{
-			public:
-
-				GWEN_CONTROL_INLINE( Highlight, Controls::Base )
-				{
-
-				}
-
-				void Render( Skin::Base* skin )
-				{
-					skin->DrawHighlight( this );
-				}
-		};
 	}
 
-}
+	void Render(Skin::Base* skin)
+	{
+		skin->DrawHighlight(this);
+	}
+};
+}  // namespace ControlsInternal
+
+}  // namespace Gwen
 #endif

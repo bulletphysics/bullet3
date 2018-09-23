@@ -12,20 +12,18 @@
 
 enum B3_SOUND_SOURCE_TYPE
 {
-	B3_SOUND_SOURCE_SINE_OSCILLATOR=1,
+	B3_SOUND_SOURCE_SINE_OSCILLATOR = 1,
 	B3_SOUND_SOURCE_SAW_OSCILLATOR,
 	B3_SOUND_SOURCE_WAV_FILE,
 };
 
-
 #ifdef __cplusplus
-extern "C" { 
+extern "C"
+{
 #endif
-
-
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif///B3_SOUND_C_API_H
+#endif  ///B3_SOUND_C_API_H

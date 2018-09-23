@@ -21,41 +21,39 @@ subject to the following restrictions:
 
 using namespace bParse;
 
-
 // ----------------------------------------------------- //
 bMain::bMain(bBlenderFile *filePtr, const char *baseName, int fileVersion)
-	:	mFP(filePtr),
-		mVersion(fileVersion),
-		mName(baseName)	
+	: mFP(filePtr),
+	  mVersion(fileVersion),
+	  mName(baseName)
 {
-	mData.insert(ID_SCE,bListBasePtr());
-	mData.insert(ID_LI,bListBasePtr());
-	mData.insert(ID_OB,bListBasePtr());
-	mData.insert(ID_ME,bListBasePtr());
-	mData.insert(ID_CU,bListBasePtr());
-	mData.insert(ID_MB,bListBasePtr());
-	mData.insert(ID_MA,bListBasePtr());
-	mData.insert(ID_TE,bListBasePtr());
-	mData.insert(ID_IM,bListBasePtr());
-	mData.insert(ID_WV,bListBasePtr());
-	mData.insert(ID_LT,bListBasePtr());
-	mData.insert(ID_LA,bListBasePtr());
-	mData.insert(ID_CA,bListBasePtr());
-	mData.insert(ID_IP,bListBasePtr());
-	mData.insert(ID_KE,bListBasePtr());
-	mData.insert(ID_WO,bListBasePtr());
-	mData.insert(ID_SCR,bListBasePtr());
-	mData.insert(ID_VF,bListBasePtr());
-	mData.insert(ID_TXT,bListBasePtr());
-	mData.insert(ID_SO,bListBasePtr());
-	mData.insert(ID_GR,bListBasePtr());
-	mData.insert(ID_AR,bListBasePtr());
-	mData.insert(ID_AC,bListBasePtr());
-	mData.insert(ID_NT,bListBasePtr());
-	mData.insert(ID_BR,bListBasePtr());
+	mData.insert(ID_SCE, bListBasePtr());
+	mData.insert(ID_LI, bListBasePtr());
+	mData.insert(ID_OB, bListBasePtr());
+	mData.insert(ID_ME, bListBasePtr());
+	mData.insert(ID_CU, bListBasePtr());
+	mData.insert(ID_MB, bListBasePtr());
+	mData.insert(ID_MA, bListBasePtr());
+	mData.insert(ID_TE, bListBasePtr());
+	mData.insert(ID_IM, bListBasePtr());
+	mData.insert(ID_WV, bListBasePtr());
+	mData.insert(ID_LT, bListBasePtr());
+	mData.insert(ID_LA, bListBasePtr());
+	mData.insert(ID_CA, bListBasePtr());
+	mData.insert(ID_IP, bListBasePtr());
+	mData.insert(ID_KE, bListBasePtr());
+	mData.insert(ID_WO, bListBasePtr());
+	mData.insert(ID_SCR, bListBasePtr());
+	mData.insert(ID_VF, bListBasePtr());
+	mData.insert(ID_TXT, bListBasePtr());
+	mData.insert(ID_SO, bListBasePtr());
+	mData.insert(ID_GR, bListBasePtr());
+	mData.insert(ID_AR, bListBasePtr());
+	mData.insert(ID_AC, bListBasePtr());
+	mData.insert(ID_NT, bListBasePtr());
+	mData.insert(ID_BR, bListBasePtr());
 	mData.insert(ID_SCRIPT, bListBasePtr());
 }
-
 
 // ----------------------------------------------------- //
 bMain::~bMain()
@@ -63,9 +61,9 @@ bMain::~bMain()
 	// allocated data blocks!
 
 	int sz = mPool.size();
-	for (int i=0;i<sz;i++)
+	for (int i = 0; i < sz; i++)
 	{
-		delete [] mPool[i];
+		delete[] mPool[i];
 	}
 }
 
@@ -85,30 +83,25 @@ const char *bMain::getName()
 void bMain::addDatablock(void *allocated)
 {
 	assert(allocated);
-	mPool.push_back((bStructHandle*)allocated);
+	mPool.push_back((bStructHandle *)allocated);
 }
-
-
-
 
 // ------------------------------------------------------------//
 void bMain::linkList(void *listBasePtr)
 {
-
-	struct ListBase // local Blender::ListBase
+	struct ListBase  // local Blender::ListBase
 	{
 		void *first;
 		void *last;
 	};
 
-	struct Link // local Blender::Link
+	struct Link  // local Blender::Link
 	{
 		void *next;
 		void *prev;
 	};
 
-
-	ListBase *base = (ListBase*)listBasePtr;
+	ListBase *base = (ListBase *)listBasePtr;
 
 	if (!base || !base->first)
 		return;
@@ -121,18 +114,18 @@ void bMain::linkList(void *listBasePtr)
 	}
 
 	void *prev = 0;
-	Link *l = (Link*)base->first;
+	Link *l = (Link *)base->first;
 	while (l)
 	{
 		l->next = mFP->findLibPointer(l->next);
 		l->prev = l->next;
 		prev = l->next;
-		l = (Link*)l->next;
+		l = (Link *)l->next;
 	}
 }
 
 // ------------------------------------------------------------//
-bListBasePtr* bMain::getListBasePtr(int listBaseCode)
+bListBasePtr *bMain::getListBasePtr(int listBaseCode)
 {
 	bListBasePtr *ptr = _findCode(listBaseCode);
 	if (!ptr)
@@ -143,11 +136,9 @@ bListBasePtr* bMain::getListBasePtr(int listBaseCode)
 // ------------------------------------------------------------//
 bListBasePtr *bMain::_findCode(int code)
 {
-	
-	bListBasePtr* lbPtr = mData.find(code);
+	bListBasePtr *lbPtr = mData.find(code);
 	return lbPtr;
 }
-
 
 // ------------------------------------------------------------//
 bListBasePtr *bMain::getScene()
@@ -193,8 +184,6 @@ bListBasePtr *bMain::getCurve()
 	return ptr;
 }
 
-
-
 // ------------------------------------------------------------//
 bListBasePtr *bMain::getMball()
 {
@@ -221,7 +210,6 @@ bListBasePtr *bMain::getTex()
 		return 0;
 	return ptr;
 }
-
 
 // ------------------------------------------------------------//
 bListBasePtr *bMain::getImage()
@@ -295,7 +283,6 @@ bListBasePtr *bMain::getWorld()
 	return ptr;
 }
 
-
 // ------------------------------------------------------------//
 bListBasePtr *bMain::getScreen()
 {
@@ -368,7 +355,6 @@ bListBasePtr *bMain::getAction()
 	return ptr;
 }
 
-
 // ------------------------------------------------------------//
 bListBasePtr *bMain::getNodetree()
 {
@@ -386,7 +372,5 @@ bListBasePtr *bMain::getBrush()
 		return 0;
 	return ptr;
 }
-
-
 
 //eof

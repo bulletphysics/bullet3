@@ -13,27 +13,23 @@
 #include "Gwen/Skin.h"
 #include "Gwen/Controls/Dragger.h"
 
-
-namespace Gwen 
+namespace Gwen
 {
-	namespace ControlsInternal
-	{
-		class GWEN_EXPORT Resizer : public Dragger
-		{
-			public:
+namespace ControlsInternal
+{
+class GWEN_EXPORT Resizer : public Dragger
+{
+public:
+	GWEN_CONTROL(Resizer, Dragger);
 
-				GWEN_CONTROL( Resizer, Dragger );
+	virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
+	virtual void SetResizeDir(int dir);
 
-				virtual void OnMouseMoved( int x, int y, int deltaX, int deltaY );
-				virtual void SetResizeDir( int dir );
+	Event::Caller onResize;
 
-				Event::Caller	onResize;
-
-			protected:
-
-				int		m_iResizeDir;
-				
-		};
-	}
-}
+protected:
+	int m_iResizeDir;
+};
+}  // namespace ControlsInternal
+}  // namespace Gwen
 #endif

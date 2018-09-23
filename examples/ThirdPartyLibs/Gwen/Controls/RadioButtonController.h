@@ -12,37 +12,33 @@
 #include "Gwen/Controls/Label.h"
 #include "Gwen/Controls/RadioButton.h"
 
-
-namespace Gwen 
+namespace Gwen
 {
-	namespace Controls
-	{
+namespace Controls
+{
+class GWEN_EXPORT RadioButtonController : public Base
+{
+public:
+	GWEN_CONTROL(RadioButtonController, Base);
 
-		class GWEN_EXPORT RadioButtonController : public Base
-		{
-			public:
+	virtual void Render(Skin::Base* /*skin*/){};
+	virtual void OnRadioClicked(Base* pFromPanel);
 
-				GWEN_CONTROL( RadioButtonController, Base );
+	virtual void OnChange();
 
-				virtual void Render( Skin::Base* /*skin*/ ){};
-				virtual void OnRadioClicked( Base* pFromPanel );
+	virtual LabeledRadioButton* AddOption(const Gwen::String& strText, const Gwen::String& strOptionName = "");
+	virtual LabeledRadioButton* AddOption(const Gwen::UnicodeString& strText, const Gwen::String& strOptionName = "");
 
-				virtual void OnChange();
+	virtual LabeledRadioButton* GetSelected() { return m_Selected; }
 
-				virtual LabeledRadioButton* AddOption( const Gwen::String& strText, const Gwen::String& strOptionName = "" );
-				virtual LabeledRadioButton* AddOption( const Gwen::UnicodeString& strText, const Gwen::String& strOptionName = "" );
+	virtual String GetSelectedName() { return m_Selected->GetName(); }
+	virtual UnicodeString GetSelectedLabel() { return m_Selected->GetLabel()->GetText(); }
 
-				virtual LabeledRadioButton*	GetSelected(){ return m_Selected; }
+	Event::Caller onSelectionChange;
 
-				virtual String GetSelectedName(){ return m_Selected->GetName(); }
-				virtual UnicodeString GetSelectedLabel(){ return m_Selected->GetLabel()->GetText(); }
-
-				Event::Caller		onSelectionChange;
-
-			private:
-
-				LabeledRadioButton* m_Selected;
-		};
-	}
-}
+private:
+	LabeledRadioButton* m_Selected;
+};
+}  // namespace Controls
+}  // namespace Gwen
 #endif

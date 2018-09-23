@@ -7,24 +7,23 @@
 struct MinitaurLogValue
 {
 	MinitaurLogValue()
-	:m_intVal(0xcdcdcdcd)
+		: m_intVal(0xcdcdcdcd)
 	{
 	}
 	MinitaurLogValue(int iv)
-	:m_intVal(iv)
+		: m_intVal(iv)
 	{
 	}
 	MinitaurLogValue(float fv)
-		:m_floatVal(fv)
+		: m_floatVal(fv)
 	{
 	}
 	MinitaurLogValue(char fv)
-		:m_charVal(fv)
+		: m_charVal(fv)
 	{
 	}
 
-	union
-	{
+	union {
 		char m_charVal;
 		int m_intVal;
 		float m_floatVal;
@@ -51,4 +50,4 @@ FILE* createMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::stri
 void appendMinitaurLogData(FILE* f, std::string& structTypes, const MinitaurLogRecord& logData);
 void closeMinitaurLogFile(FILE* f);
 
-#endif //ROBOT_LOGGING_UTIL_H
+#endif  //ROBOT_LOGGING_UTIL_H

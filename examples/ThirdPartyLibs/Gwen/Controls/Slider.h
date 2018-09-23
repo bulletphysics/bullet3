@@ -14,75 +14,87 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/Skin.h"
 
-namespace Gwen 
+namespace Gwen
 {
-	namespace ControlsInternal
-	{
-		class GWEN_EXPORT SliderBar : public ControlsInternal::Dragger
-		{
-			GWEN_CONTROL( SliderBar, ControlsInternal::Dragger );
+namespace ControlsInternal
+{
+class GWEN_EXPORT SliderBar : public ControlsInternal::Dragger
+{
+	GWEN_CONTROL(SliderBar, ControlsInternal::Dragger);
 
-			virtual void Render( Skin::Base* skin );
-		};
+	virtual void Render(Skin::Base* skin);
+};
+}  // namespace ControlsInternal
+
+namespace Controls
+{
+class GWEN_EXPORT Slider : public Base
+{
+	GWEN_CONTROL(Slider, Base);
+
+	virtual void Render(Skin::Base* skin) = 0;
+	virtual void Layout(Skin::Base* skin);
+
+	virtual void SetClampToNotches(bool bClamp) { m_bClampToNotches = bClamp; }
+
+	virtual void SetNotchCount(int num) { m_iNumNotches = num; }
+	virtual int GetNotchCount() { return m_iNumNotches; }
+
+	virtual void SetRange(float fMin, float fMax);
+	virtual float GetRangeMin() const
+	{
+		return m_fMin;
+	}
+	virtual float GetRangeMax() const
+	{
+		return m_fMax;
+	}
+	virtual float GetValue();
+	virtual void SetValue(float val, bool forceUpdate = true);
+
+	virtual float CalculateValue();
+	virtual void OnMoved(Controls::Base* control);
+
+	virtual void OnMouseClickLeft(int /*x*/, int /*y*/, bool /*bDown*/){};
+
+	virtual bool OnKeyRight(bool bDown)
+	{
+		if (bDown) SetValue(GetValue() + 1, true);
+		return true;
+	}
+	virtual bool OnKeyLeft(bool bDown)
+	{
+		if (bDown) SetValue(GetValue() - 1, true);
+		return true;
+	}
+	virtual bool OnKeyUp(bool bDown)
+	{
+		if (bDown) SetValue(GetValue() + 1, true);
+		return true;
+	}
+	virtual bool OnKeyDown(bool bDown)
+	{
+		if (bDown) SetValue(GetValue() - 1, true);
+		return true;
 	}
 
-	namespace Controls
-	{
+	virtual void RenderFocus(Gwen::Skin::Base* skin);
 
-		class GWEN_EXPORT Slider : public Base
-		{
-				GWEN_CONTROL( Slider, Base );
+	Gwen::Event::Caller onValueChanged;
 
-				virtual void Render( Skin::Base* skin ) = 0;
-				virtual void Layout( Skin::Base* skin );
+protected:
+	virtual void SetValueInternal(float fVal);
+	virtual void UpdateBarFromValue() = 0;
 
-				virtual void SetClampToNotches( bool bClamp ) { m_bClampToNotches = bClamp; }
+	ControlsInternal::SliderBar* m_SliderBar;
+	bool m_bClampToNotches;
+	int m_iNumNotches;
+	float m_fValue;
 
-				virtual void SetNotchCount( int num ) { m_iNumNotches = num; }
-				virtual int GetNotchCount() { return m_iNumNotches; }
+	float m_fMin;
+	float m_fMax;
+};
+}  // namespace Controls
 
-				virtual void SetRange( float fMin, float fMax );
-				virtual float GetRangeMin() const
-				{
-					return m_fMin;
-				}
-				virtual float GetRangeMax() const
-				{
-					return m_fMax;
-				}
-				virtual float GetValue();
-				virtual void SetValue( float val, bool forceUpdate = true );
-
-				virtual float CalculateValue();
-				virtual void OnMoved( Controls::Base * control );
-
-				virtual void OnMouseClickLeft( int /*x*/, int /*y*/, bool /*bDown*/ ){};
-
-				virtual bool OnKeyRight( bool bDown )	{	if ( bDown ) SetValue( GetValue() + 1, true ); return true; }
-				virtual bool OnKeyLeft( bool bDown )	{	if ( bDown ) SetValue( GetValue() - 1, true ); return true; }
-				virtual bool OnKeyUp( bool bDown )		{	if ( bDown ) SetValue( GetValue() + 1, true ); return true; }
-				virtual bool OnKeyDown( bool bDown )	{	if ( bDown ) SetValue( GetValue() - 1, true ); return true; }
-
-				virtual void RenderFocus( Gwen::Skin::Base* skin);
-				
-				Gwen::Event::Caller	onValueChanged;
-
-			protected:
-
-				virtual void SetValueInternal( float fVal );
-				virtual void UpdateBarFromValue() = 0;
-
-				ControlsInternal::SliderBar * m_SliderBar;
-				bool m_bClampToNotches;
-				int m_iNumNotches;
-				float m_fValue;
-
-				float m_fMin;
-				float m_fMax;
-				
-		};
-	}
-
-
-}
+}  // namespace Gwen
 #endif

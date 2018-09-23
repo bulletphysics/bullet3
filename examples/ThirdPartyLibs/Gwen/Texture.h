@@ -15,43 +15,43 @@
 
 namespace Gwen
 {
-	//
-	// Texture
-	//
-	struct Texture
+//
+// Texture
+//
+struct Texture
+{
+	TextObject name;
+	void* data;
+	int m_intData;
+
+	bool failed;
+	int width;
+	int height;
+
+	Texture()
 	{
-		TextObject	name;
-		void*	data;
-		int m_intData;
-		
-		bool	failed;
-		int		width;
-		int		height;
+		data = NULL;
+		m_intData = 0;
+		width = 4;
+		height = 4;
+		failed = false;
+	}
 
-		Texture()
-		{
-			data = NULL;
-			m_intData = 0;
-			width = 4;
-			height = 4;
-			failed = false;
-		}
+	~Texture()
+	{
+	}
 
-		~Texture()
-		{
-		}
+	void Load(const TextObject& str, Gwen::Renderer::Base* render)
+	{
+		name = str;
+		render->LoadTexture(this);
+	}
 
-		void Load( const TextObject& str, Gwen::Renderer::Base* render )
-		{
-			name = str;
-			render->LoadTexture( this );
-		}
+	void Release(Gwen::Renderer::Base* render)
+	{
+		render->FreeTexture(this);
+	}
+};
 
-		void Release( Gwen::Renderer::Base* render )
-		{
-			render->FreeTexture( this );
-		}
-	};
-
-}
+}  // namespace Gwen
 #endif

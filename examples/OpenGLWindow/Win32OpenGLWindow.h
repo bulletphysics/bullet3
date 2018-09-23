@@ -13,11 +13,8 @@ subject to the following restrictions:
 */
 //Originally written by Erwin Coumans
 
-
 #ifndef _WIN32_OPENGL_RENDER_MANAGER_H
 #define _WIN32_OPENGL_RENDER_MANAGER_H
-
-
 
 #include "Win32Window.h"
 
@@ -27,38 +24,33 @@ class Win32OpenGLWindow : public Win32Window
 {
 	bool m_OpenGLInitialized;
 
-	protected:
-		
-		
+protected:
 	void enableOpenGL();
-		
+
 	void disableOpenGL();
 
 public:
-
 	Win32OpenGLWindow();
 
 	virtual ~Win32OpenGLWindow();
 
-	virtual	void	createWindow(const b3gWindowConstructionInfo& ci);
-	
-	virtual	void	closeWindow();
+	virtual void createWindow(const b3gWindowConstructionInfo& ci);
 
-	virtual	void	startRendering();
+	virtual void closeWindow();
 
-	virtual	void	renderAllObjects();
+	virtual void startRendering();
 
-	virtual	void	endRendering();
+	virtual void renderAllObjects();
 
-	virtual float getRetinaScale() const {return 1.f;}
-	virtual void setAllowRetina(bool /*allowRetina*/) {};
+	virtual void endRendering();
 
-	virtual int   getWidth() const;
-	virtual int   getHeight() const;
+	virtual float getRetinaScale() const { return 1.f; }
+	virtual void setAllowRetina(bool /*allowRetina*/){};
+
+	virtual int getWidth() const;
+	virtual int getHeight() const;
 
 	virtual int fileOpenDialog(char* fileName, int maxFileNameLength);
 };
 
-
-
-#endif //_WIN32_OPENGL_RENDER_MANAGER_H
+#endif  //_WIN32_OPENGL_RENDER_MANAGER_H

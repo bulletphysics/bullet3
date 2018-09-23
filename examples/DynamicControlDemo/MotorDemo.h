@@ -13,11 +13,9 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #ifndef MOTORDEMO_H
 #define MOTORDEMO_H
 
-class CommonExampleInterface*    MotorControlCreateFunc(struct CommonExampleOptions& options);
-
+class CommonExampleInterface* MotorControlCreateFunc(struct CommonExampleOptions& options);
 
 #endif

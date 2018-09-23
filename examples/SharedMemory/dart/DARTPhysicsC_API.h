@@ -6,15 +6,16 @@
 #include "../PhysicsClientC_API.h"
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C"
+{
 #endif
 
-//think more about naming. The b3ConnectPhysicsLoopback
-B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsDART();
+	//think more about naming. The b3ConnectPhysicsLoopback
+	B3_SHARED_API b3PhysicsClientHandle b3ConnectPhysicsDART();
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //BT_ENABLE_DART
-#endif //DART_PHYSICS_C_API_H
+#endif  //BT_ENABLE_DART
+#endif  //DART_PHYSICS_C_API_H

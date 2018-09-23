@@ -13,22 +13,18 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/Skin.h"
 
-
-namespace Gwen 
+namespace Gwen
 {
-	namespace Controls
-	{
+namespace Controls
+{
+class GWEN_EXPORT GroupBox : public Label
+{
+public:
+	GWEN_CONTROL(GroupBox, Label);
 
-		class GWEN_EXPORT GroupBox : public Label
-		{
-			public:
-
-				GWEN_CONTROL( GroupBox, Label );
-
-				virtual void Render( Skin::Base* skin );
-				virtual void Layout( Skin::Base* skin );
-
-		};
-	}
-}
+	virtual void Render(Skin::Base* skin);
+	virtual void Layout(Skin::Base* skin);
+};
+}  // namespace Controls
+}  // namespace Gwen
 #endif

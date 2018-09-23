@@ -4,7 +4,6 @@
 	See license in Gwen.h
 */
 
-
 #include "Gwen/Gwen.h"
 #include "Gwen/Skin.h"
 #include "Gwen/Controls/TabControl.h"
@@ -13,190 +12,183 @@
 #include "Gwen/Controls/WindowControl.h"
 #include "Gwen/Controls/ScrollBarButton.h"
 
-
 namespace Gwen
 {
-	namespace Controls
+namespace Controls
+{
+class TabControlInner : public Base
+{
+public:
+	GWEN_CONTROL_INLINE(TabControlInner, Base)
 	{
-		class TabControlInner : public Base
-		{
-			public:
+		m_ButtonRect = Gwen::Rect(0, 0, 0, 0);
+	}
 
-				GWEN_CONTROL_INLINE( TabControlInner, Base )
-				{
-					m_ButtonRect = Gwen::Rect( 0, 0, 0, 0 );
-				}
+	void Render(Skin::Base* skin)
+	{
+		skin->DrawTabControl(this, m_ButtonRect);
+	}
 
-				void Render( Skin::Base* skin )
-				{
-					skin->DrawTabControl( this, m_ButtonRect );
-				}
+	void UpdateCurrentButton(Gwen::Rect rct)
+	{
+		m_ButtonRect = rct;
+	}
 
-				void UpdateCurrentButton( Gwen::Rect rct )
-				{
-					m_ButtonRect = rct;
-				}
-
-				Gwen::Rect m_ButtonRect;
-		};
-	};
+	Gwen::Rect m_ButtonRect;
 };
+};  // namespace Controls
+};  // namespace Gwen
 
 using namespace Gwen;
 using namespace Gwen::Controls;
 
-GWEN_CONTROL_CONSTRUCTOR( TabControl )
+GWEN_CONTROL_CONSTRUCTOR(TabControl)
 {
 	m_iScrollOffset = 0;
 
 	m_pCurrentButton = NULL;
 
-	m_TabStrip = new TabStrip( this );
-	m_TabStrip->Dock( Pos::Top );
-	m_TabStrip->SetWidth( 100 );
-	m_TabStrip->SetHeight( 20 );
+	m_TabStrip = new TabStrip(this);
+	m_TabStrip->Dock(Pos::Top);
+	m_TabStrip->SetWidth(100);
+	m_TabStrip->SetHeight(20);
 
 	// Make this some special control?
-	m_pScroll[0] = new ControlsInternal::ScrollBarButton( this );
+	m_pScroll[0] = new ControlsInternal::ScrollBarButton(this);
 	m_pScroll[0]->SetDirectionLeft();
-	m_pScroll[0]->onPress.Add( this, &TabControl::ScrollPressLeft );
-	m_pScroll[0]->SetSize( 14, 16 );
+	m_pScroll[0]->onPress.Add(this, &TabControl::ScrollPressLeft);
+	m_pScroll[0]->SetSize(14, 16);
 
-	m_pScroll[1] = new ControlsInternal::ScrollBarButton( this );
+	m_pScroll[1] = new ControlsInternal::ScrollBarButton(this);
 	m_pScroll[1]->SetDirectionRight();
-	m_pScroll[1]->onPress.Add( this, &TabControl::ScrollPressRight );
-	m_pScroll[1]->SetSize( 14, 16 );
+	m_pScroll[1]->onPress.Add(this, &TabControl::ScrollPressRight);
+	m_pScroll[1]->SetSize(14, 16);
 
-	m_InnerPanel = new TabControlInner( this );
-	m_InnerPanel->Dock( Pos::Fill );	
+	m_InnerPanel = new TabControlInner(this);
+	m_InnerPanel->Dock(Pos::Fill);
 
-	SetTabable( false );
+	SetTabable(false);
 }
 
-
-
-TabButton* TabControl::AddPage( const UnicodeString& strText, Controls::Base* pPage )
+TabButton* TabControl::AddPage(const UnicodeString& strText, Controls::Base* pPage)
 {
-	if ( !pPage )
+	if (!pPage)
 	{
-		pPage = new Base( this );
+		pPage = new Base(this);
 	}
 	else
 	{
-		pPage->SetParent( this );
+		pPage->SetParent(this);
 	}
 
-	TabButton* pButton = new TabButton( m_TabStrip );
-		pButton->SetText( strText );
-		pButton->SetPage( pPage );
-		pButton->SetTabable( false );
+	TabButton* pButton = new TabButton(m_TabStrip);
+	pButton->SetText(strText);
+	pButton->SetPage(pPage);
+	pButton->SetTabable(false);
 
-	AddPage( pButton );
+	AddPage(pButton);
 	return pButton;
 }
 
-void TabControl::AddPage( TabButton* pButton )
+void TabControl::AddPage(TabButton* pButton)
 {
 	Base* pPage = pButton->GetPage();
-		pPage->SetParent( this );
-		pPage->SetHidden( true );
-		pPage->SetMargin( Margin( 6, 6, 6, 6 ) );
-		pPage->Dock( Pos::Fill );
+	pPage->SetParent(this);
+	pPage->SetHidden(true);
+	pPage->SetMargin(Margin(6, 6, 6, 6));
+	pPage->Dock(Pos::Fill);
 
-	pButton->SetParent( m_TabStrip );
-	pButton->Dock( Pos::Left );
+	pButton->SetParent(m_TabStrip);
+	pButton->Dock(Pos::Left);
 	pButton->SizeToContents();
-	if ( pButton->GetTabControl() ) pButton->onPress.RemoveHandler( pButton->GetTabControl() );
-	pButton->SetTabControl( this );
-	pButton->onPress.Add( this, &TabControl::OnTabPressed );
+	if (pButton->GetTabControl()) pButton->onPress.RemoveHandler(pButton->GetTabControl());
+	pButton->SetTabControl(this);
+	pButton->onPress.Add(this, &TabControl::OnTabPressed);
 
-
-
-	if ( !m_pCurrentButton )
+	if (!m_pCurrentButton)
 	{
 		pButton->OnPress();
 	}
 
-	onAddTab.Call( this );
+	onAddTab.Call(this);
 
 	Invalidate();
 }
 
-void TabControl::OnTabPressed( Controls::Base* control )
+void TabControl::OnTabPressed(Controls::Base* control)
 {
 	if (!control)
 		return;
 
 	TabButton* pButton = control->DynamicCastTabButton();
-	if ( !pButton ) return;
+	if (!pButton) return;
 
 	Base* pPage = pButton->GetPage();
-	if ( !pPage ) return;
+	if (!pPage) return;
 
-	if ( m_pCurrentButton == pButton)
+	if (m_pCurrentButton == pButton)
 		return;
 
-	if ( m_pCurrentButton )
+	if (m_pCurrentButton)
 	{
 		Base* pPage = m_pCurrentButton->GetPage();
-		if ( pPage )
+		if (pPage)
 		{
-			pPage->SetHidden( true );
+			pPage->SetHidden(true);
 		}
 		m_pCurrentButton = NULL;
 	}
 
 	m_pCurrentButton = pButton;
 
-	pPage->SetHidden( false );
-	
+	pPage->SetHidden(false);
+
 	m_TabStrip->Invalidate();
-	Invalidate();	
+	Invalidate();
 }
 
-void TabControl::PostLayout( Skin::Base* skin )
+void TabControl::PostLayout(Skin::Base* skin)
 {
-	BaseClass::PostLayout( skin );
+	BaseClass::PostLayout(skin);
 
 	HandleOverflow();
 
-	if ( m_TabStrip->Hidden() )
+	if (m_TabStrip->Hidden())
 	{
-		m_InnerPanel->DynamicCastTabControlInner()->UpdateCurrentButton( Gwen::Rect( 0, 0, 0, 0 ) );
+		m_InnerPanel->DynamicCastTabControlInner()->UpdateCurrentButton(Gwen::Rect(0, 0, 0, 0));
 	}
-	else if ( m_pCurrentButton )
+	else if (m_pCurrentButton)
 	{
 		Gwen::Rect rct;
 
-		Gwen::Point p = m_pCurrentButton->LocalPosToCanvas( Gwen::Point( 0, 0 ) );
-		p = m_InnerPanel->CanvasPosToLocal( p );
+		Gwen::Point p = m_pCurrentButton->LocalPosToCanvas(Gwen::Point(0, 0));
+		p = m_InnerPanel->CanvasPosToLocal(p);
 
-		rct = Gwen::Rect( p.x+1, p.y+1, m_pCurrentButton->Width()-2, m_pCurrentButton->Height()-2 );
-		m_InnerPanel->DynamicCastTabControlInner()->UpdateCurrentButton( rct );
+		rct = Gwen::Rect(p.x + 1, p.y + 1, m_pCurrentButton->Width() - 2, m_pCurrentButton->Height() - 2);
+		m_InnerPanel->DynamicCastTabControlInner()->UpdateCurrentButton(rct);
 	}
-	
 }
 
-void TabControl::OnLoseTab( TabButton* pButton )
+void TabControl::OnLoseTab(TabButton* pButton)
 {
-	if ( m_pCurrentButton == pButton )
+	if (m_pCurrentButton == pButton)
 		m_pCurrentButton = NULL;
 
 	//TODO: Select a tab if any exist.
 
-	onLoseTab.Call( this );
+	onLoseTab.Call(this);
 
-	Invalidate();	
+	Invalidate();
 }
 
-int TabControl::TabCount( void )
+int TabControl::TabCount(void)
 {
 	return m_TabStrip->NumChildren();
 }
 
-void TabControl::SetTabStripPosition( int iDock )
+void TabControl::SetTabStripPosition(int iDock)
 {
-	m_TabStrip->SetTabPosition( iDock );
+	m_TabStrip->SetTabPosition(iDock);
 }
 
 bool TabControl::DoesAllowDrag()
@@ -210,18 +202,18 @@ void TabControl::HandleOverflow()
 
 	// Only enable the scrollers if the tabs are at the top.
 	// This is a limitation we should explore.
-	// Really TabControl should have derivitives for tabs placed elsewhere where we could specialize 
+	// Really TabControl should have derivitives for tabs placed elsewhere where we could specialize
 	// some functions like this for each direction.
 	bool bNeeded = TabsSize.x > Width() && m_TabStrip->GetDock() == Pos::Top;
 
-	m_pScroll[0]->SetHidden( !bNeeded );
-	m_pScroll[1]->SetHidden( !bNeeded );
+	m_pScroll[0]->SetHidden(!bNeeded);
+	m_pScroll[1]->SetHidden(!bNeeded);
 
-	if ( !bNeeded ) return;
+	if (!bNeeded) return;
 
-	m_iScrollOffset = Gwen::Clamp( m_iScrollOffset, 0, TabsSize.x - Width() + 32 );
+	m_iScrollOffset = Gwen::Clamp(m_iScrollOffset, 0, TabsSize.x - Width() + 32);
 
-	#if 0
+#if 0
 		//
 		// This isn't frame rate independent. 
 		// Could be better. Get rid of m_iScrollOffset and just use m_TabStrip->GetMargin().left ?
@@ -230,20 +222,20 @@ void TabControl::HandleOverflow()
 		//
 		m_TabStrip->SetMargin( Margin( Gwen::Approach( m_TabStrip->GetMargin().left, m_iScrollOffset * -1, 2 ), 0, 0, 0 ) );
 		InvalidateParent();
-	#else
-		m_TabStrip->SetMargin( Margin( m_iScrollOffset * -1, 0, 0, 0 ) );
-	#endif 
+#else
+	m_TabStrip->SetMargin(Margin(m_iScrollOffset * -1, 0, 0, 0));
+#endif
 
-	m_pScroll[0]->SetPos( Width() - 30 , 5 );
-	m_pScroll[1]->SetPos( m_pScroll[0]->Right(), 5 );
+	m_pScroll[0]->SetPos(Width() - 30, 5);
+	m_pScroll[1]->SetPos(m_pScroll[0]->Right(), 5);
 }
 
-void TabControl::ScrollPressLeft( Base* pFrom )
+void TabControl::ScrollPressLeft(Base* pFrom)
 {
 	m_iScrollOffset -= 120;
 }
 
-void TabControl::ScrollPressRight( Base* pFrom )
+void TabControl::ScrollPressRight(Base* pFrom)
 {
 	m_iScrollOffset += 120;
 }

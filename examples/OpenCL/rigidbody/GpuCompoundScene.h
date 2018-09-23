@@ -6,9 +6,8 @@
 class GpuCompoundScene : public GpuRigidBodyDemo
 {
 public:
-
-	GpuCompoundScene(){}
-	virtual ~GpuCompoundScene(){}
+	GpuCompoundScene() {}
+	virtual ~GpuCompoundScene() {}
 	virtual const char* getName()
 	{
 		return "CompoundOnSphere";
@@ -23,16 +22,13 @@ public:
 	virtual void setupScene(const ConstructionInfo& ci);
 
 	virtual void createStaticEnvironment(const ConstructionInfo& ci);
-
 };
-
 
 class GpuCompoundPlaneScene : public GpuCompoundScene
 {
 public:
-
-	GpuCompoundPlaneScene(){}
-	virtual ~GpuCompoundPlaneScene(){}
+	GpuCompoundPlaneScene() {}
+	virtual ~GpuCompoundPlaneScene() {}
 	virtual const char* getName()
 	{
 		return "CompoundOnPlane";
@@ -45,6 +41,5 @@ public:
 	}
 
 	virtual void createStaticEnvironment(const ConstructionInfo& ci);
-
 };
-#endif //GPU_COMPOUND_SCENE_H
+#endif  //GPU_COMPOUND_SCENE_H

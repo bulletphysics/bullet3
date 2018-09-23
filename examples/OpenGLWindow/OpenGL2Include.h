@@ -13,7 +13,6 @@ subject to the following restrictions:
 */
 //Originally written by Erwin Coumans
 
-
 #ifndef __OPENGL_INCLUDE_H
 #define __OPENGL_INCLUDE_H
 
@@ -28,8 +27,8 @@ subject to the following restrictions:
 #include <GLFW/glfw3.h>
 #else
 #include "glad/gl.h"
-#endif //B3_USE_GLFW
-#endif //BT_NO_GLAD
+#endif  //B3_USE_GLFW
+#endif  //BT_NO_GLAD
 
 //disable glGetError
 //#undef glGetError
@@ -46,5 +45,4 @@ subject to the following restrictions:
 //
 //#endif //__linux
 
-#endif //__OPENGL_INCLUDE_H
-
+#endif  //__OPENGL_INCLUDE_H

@@ -51,7 +51,7 @@
 #endif
 
 #ifndef EGLAPIENTRY
-#define EGLAPIENTRY  KHRONOS_APIENTRY
+#define EGLAPIENTRY KHRONOS_APIENTRY
 #endif
 #define EGLAPIENTRYP EGLAPIENTRY*
 
@@ -73,42 +73,42 @@
 #endif
 #include <windows.h>
 
-typedef HDC     EGLNativeDisplayType;
+typedef HDC EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
-typedef HWND    EGLNativeWindowType;
+typedef HWND EGLNativeWindowType;
 
-#elif defined(__WINSCW__) || defined(__SYMBIAN32__)  /* Symbian */
+#elif defined(__WINSCW__) || defined(__SYMBIAN32__) /* Symbian */
 
-typedef int   EGLNativeDisplayType;
+typedef int EGLNativeDisplayType;
 typedef void *EGLNativeWindowType;
 typedef void *EGLNativePixmapType;
 
 #elif defined(WL_EGL_PLATFORM)
 
-typedef struct wl_display     *EGLNativeDisplayType;
-typedef struct wl_egl_pixmap  *EGLNativePixmapType;
-typedef struct wl_egl_window  *EGLNativeWindowType;
+typedef struct wl_display *EGLNativeDisplayType;
+typedef struct wl_egl_pixmap *EGLNativePixmapType;
+typedef struct wl_egl_window *EGLNativeWindowType;
 
 #elif defined(__GBM__)
 
-typedef struct gbm_device  *EGLNativeDisplayType;
-typedef struct gbm_bo      *EGLNativePixmapType;
-typedef void               *EGLNativeWindowType;
+typedef struct gbm_device *EGLNativeDisplayType;
+typedef struct gbm_bo *EGLNativePixmapType;
+typedef void *EGLNativeWindowType;
 
 #elif defined(__ANDROID__) || defined(ANDROID)
 
 struct ANativeWindow;
 struct egl_native_pixmap_t;
 
-typedef struct ANativeWindow*           EGLNativeWindowType;
-typedef struct egl_native_pixmap_t*     EGLNativePixmapType;
-typedef void*                           EGLNativeDisplayType;
+typedef struct ANativeWindow* EGLNativeWindowType;
+typedef struct egl_native_pixmap_t* EGLNativePixmapType;
+typedef void* EGLNativeDisplayType;
 
 #elif defined(__unix__) || defined(__APPLE__)
 
 #if defined(MESA_EGL_NO_X11_HEADERS)
 
-typedef void            *EGLNativeDisplayType;
+typedef void *EGLNativeDisplayType;
 typedef khronos_uintptr_t EGLNativePixmapType;
 typedef khronos_uintptr_t EGLNativeWindowType;
 
@@ -119,16 +119,16 @@ typedef khronos_uintptr_t EGLNativeWindowType;
 #include <X11/Xutil.h>
 
 typedef Display *EGLNativeDisplayType;
-typedef Pixmap   EGLNativePixmapType;
-typedef Window   EGLNativeWindowType;
+typedef Pixmap EGLNativePixmapType;
+typedef Window EGLNativeWindowType;
 
 #endif /* MESA_EGL_NO_X11_HEADERS */
 
 #elif __HAIKU__
 #include <kernel/image.h>
-typedef void				*EGLNativeDisplayType;
-typedef khronos_uintptr_t	 EGLNativePixmapType;
-typedef khronos_uintptr_t	 EGLNativeWindowType;
+typedef void *EGLNativeDisplayType;
+typedef khronos_uintptr_t EGLNativePixmapType;
+typedef khronos_uintptr_t EGLNativeWindowType;
 
 #else
 #error "Platform not recognized"
@@ -136,9 +136,8 @@ typedef khronos_uintptr_t	 EGLNativeWindowType;
 
 /* EGL 1.2 types, renamed for consistency in EGL 1.3 */
 typedef EGLNativeDisplayType NativeDisplayType;
-typedef EGLNativePixmapType  NativePixmapType;
-typedef EGLNativeWindowType  NativeWindowType;
-
+typedef EGLNativePixmapType NativePixmapType;
+typedef EGLNativeWindowType NativeWindowType;
 
 /* Define EGLint. This must be a signed integral type large enough to contain
  * all legal attribute names and values passed into and out of EGL, whether
@@ -149,12 +148,11 @@ typedef EGLNativeWindowType  NativeWindowType;
  */
 typedef khronos_int32_t EGLint;
 
-
 /* C++ / C typecast macros for special EGL handle values */
 #if defined(__cplusplus)
 #define EGL_CAST(type, value) (static_cast<type>(value))
 #else
-#define EGL_CAST(type, value) ((type) (value))
+#define EGL_CAST(type, value) ((type)(value))
 #endif
 
 #endif /* __eglplatform_h */

@@ -43,165 +43,166 @@
 
 #include "windows.h"
 
-namespace serial {
-
+namespace serial
+{
+using std::invalid_argument;
 using std::string;
 using std::wstring;
-using std::invalid_argument;
 
-using serial::SerialException;
 using serial::IOException;
+using serial::SerialException;
 
-class serial::Serial::SerialImpl {
+class serial::Serial::SerialImpl
+{
 public:
-  SerialImpl (const string &port,
-              unsigned long baudrate,
-              bytesize_t bytesize,
-              parity_t parity,
-              stopbits_t stopbits,
-              flowcontrol_t flowcontrol);
+	SerialImpl(const string &port,
+			   unsigned long baudrate,
+			   bytesize_t bytesize,
+			   parity_t parity,
+			   stopbits_t stopbits,
+			   flowcontrol_t flowcontrol);
 
-  virtual ~SerialImpl ();
+	virtual ~SerialImpl();
 
-  void
-  open ();
+	void
+	open();
 
-  void
-  close ();
+	void
+	close();
 
-  bool
-  isOpen () const;
+	bool
+	isOpen() const;
 
-  size_t
-  available ();
-  
-  bool
-  waitReadable (uint32_t timeout);
+	size_t
+	available();
 
-  void
-  waitByteTimes (size_t count);
+	bool
+	waitReadable(uint32_t timeout);
 
-  size_t
-  read (uint8_t *buf, size_t size = 1);
+	void
+	waitByteTimes(size_t count);
 
-  size_t
-  write (const uint8_t *data, size_t length);
+	size_t
+	read(uint8_t *buf, size_t size = 1);
 
-  void
-  flush ();
+	size_t
+	write(const uint8_t *data, size_t length);
 
-  void
-  flushInput ();
+	void
+	flush();
 
-  void
-  flushOutput ();
+	void
+	flushInput();
 
-  void
-  sendBreak (int duration);
+	void
+	flushOutput();
 
-  void
-  setBreak (bool level);
+	void
+	sendBreak(int duration);
 
-  void
-  setRTS (bool level);
+	void
+	setBreak(bool level);
 
-  void
-  setDTR (bool level);
+	void
+	setRTS(bool level);
 
-  bool
-  waitForChange ();
+	void
+	setDTR(bool level);
 
-  bool
-  getCTS ();
+	bool
+	waitForChange();
 
-  bool
-  getDSR ();
+	bool
+	getCTS();
 
-  bool
-  getRI ();
+	bool
+	getDSR();
 
-  bool
-  getCD ();
+	bool
+	getRI();
 
-  void
-  setPort (const string &port);
+	bool
+	getCD();
 
-  string
-  getPort () const;
+	void
+	setPort(const string &port);
 
-  void
-  setTimeout (Timeout &timeout);
+	string
+	getPort() const;
 
-  Timeout
-  getTimeout () const;
+	void
+	setTimeout(Timeout &timeout);
 
-  void
-  setBaudrate (unsigned long baudrate);
+	Timeout
+	getTimeout() const;
 
-  unsigned long
-  getBaudrate () const;
+	void
+	setBaudrate(unsigned long baudrate);
 
-  void
-  setBytesize (bytesize_t bytesize);
+	unsigned long
+	getBaudrate() const;
 
-  bytesize_t
-  getBytesize () const;
+	void
+	setBytesize(bytesize_t bytesize);
 
-  void
-  setParity (parity_t parity);
+	bytesize_t
+	getBytesize() const;
 
-  parity_t
-  getParity () const;
+	void
+	setParity(parity_t parity);
 
-  void
-  setStopbits (stopbits_t stopbits);
+	parity_t
+	getParity() const;
 
-  stopbits_t
-  getStopbits () const;
+	void
+	setStopbits(stopbits_t stopbits);
 
-  void
-  setFlowcontrol (flowcontrol_t flowcontrol);
+	stopbits_t
+	getStopbits() const;
 
-  flowcontrol_t
-  getFlowcontrol () const;
+	void
+	setFlowcontrol(flowcontrol_t flowcontrol);
 
-  void
-  readLock ();
+	flowcontrol_t
+	getFlowcontrol() const;
 
-  void
-  readUnlock ();
+	void
+	readLock();
 
-  void
-  writeLock ();
+	void
+	readUnlock();
 
-  void
-  writeUnlock ();
+	void
+	writeLock();
+
+	void
+	writeUnlock();
 
 protected:
-  void reconfigurePort ();
+	void reconfigurePort();
 
 private:
-  wstring port_;               // Path to the file descriptor
-  HANDLE fd_;
+	wstring port_;  // Path to the file descriptor
+	HANDLE fd_;
 
-  bool is_open_;
+	bool is_open_;
 
-  Timeout timeout_;           // Timeout for read operations
-  unsigned long baudrate_;    // Baudrate
+	Timeout timeout_;         // Timeout for read operations
+	unsigned long baudrate_;  // Baudrate
 
-  parity_t parity_;           // Parity
-  bytesize_t bytesize_;       // Size of the bytes
-  stopbits_t stopbits_;       // Stop Bits
-  flowcontrol_t flowcontrol_; // Flow Control
+	parity_t parity_;            // Parity
+	bytesize_t bytesize_;        // Size of the bytes
+	stopbits_t stopbits_;        // Stop Bits
+	flowcontrol_t flowcontrol_;  // Flow Control
 
-  // Mutex used to lock the read functions
-  HANDLE read_mutex;
-  // Mutex used to lock the write functions
-  HANDLE write_mutex;
+	// Mutex used to lock the read functions
+	HANDLE read_mutex;
+	// Mutex used to lock the write functions
+	HANDLE write_mutex;
 };
 
-}
+}  // namespace serial
 
-#endif // SERIAL_IMPL_WINDOWS_H
+#endif  // SERIAL_IMPL_WINDOWS_H
 
-#endif // if defined(_WIN32)
+#endif  // if defined(_WIN32)

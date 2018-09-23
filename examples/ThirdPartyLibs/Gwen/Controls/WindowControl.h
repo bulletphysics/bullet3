@@ -18,46 +18,43 @@
 #include "Gwen/Controls/Modal.h"
 #include "Gwen/Skin.h"
 
-
-namespace Gwen 
+namespace Gwen
 {
-	namespace Controls
-	{
-		class GWEN_EXPORT WindowControl : public ResizableControl
-		{
-			public:
+namespace Controls
+{
+class GWEN_EXPORT WindowControl : public ResizableControl
+{
+public:
+	GWEN_CONTROL(WindowControl, ResizableControl);
 
-				GWEN_CONTROL( WindowControl, ResizableControl );
+	virtual ~WindowControl();
+	virtual void Render(Skin::Base* skin);
+	virtual void RenderUnder(Skin::Base* skin);
 
-				virtual ~WindowControl();
-				virtual void Render( Skin::Base* skin );
-				virtual void RenderUnder( Skin::Base* skin );
+	virtual void SetTitle(Gwen::UnicodeString title);
+	virtual void SetTitle(Gwen::String title) { SetTitle(Gwen::Utility::StringToUnicode(title)); }
+	virtual void SetClosable(bool closeable);
 
-				virtual void SetTitle( Gwen::UnicodeString title );
-				virtual void SetTitle( Gwen::String title ){ SetTitle( Gwen::Utility::StringToUnicode( title ) ); }
-				virtual void SetClosable(bool closeable);
+	virtual void Touch();
+	bool IsOnTop();
 
-				virtual void Touch();
-				bool IsOnTop();
+	virtual void SetHidden(bool hidden);
 
-				virtual void SetHidden(bool hidden);
+	void CloseButtonPressed(Gwen::Controls::Base* pFromPanel);
+	void RenderFocus(Gwen::Skin::Base* skin);
+	void SetDeleteOnClose(bool b) { m_bDeleteOnClose = b; }
+	void MakeModal(bool invisible = false);
 
-				void CloseButtonPressed( Gwen::Controls::Base* pFromPanel );
-				void RenderFocus( Gwen::Skin::Base* skin );
-				void SetDeleteOnClose( bool b ){ m_bDeleteOnClose = b; }
-				void MakeModal(bool invisible = false);
+protected:
+	ControlsInternal::Dragger* m_TitleBar;
+	Label* m_Title;
+	Button* m_CloseButton;
 
-			protected:
+	bool m_bInFocus;
+	bool m_bDeleteOnClose;
 
-				ControlsInternal::Dragger* m_TitleBar;
-				Label* m_Title;
-				Button* m_CloseButton;
-
-				bool m_bInFocus;
-				bool m_bDeleteOnClose;
-
-				ControlsInternal::Modal* m_Modal;
-		};
-	}
-}
+	ControlsInternal::Modal* m_Modal;
+};
+}  // namespace Controls
+}  // namespace Gwen
 #endif

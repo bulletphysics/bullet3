@@ -7,9 +7,8 @@
 
 #include "SharedMemoryCommandProcessor.h"
 
-
 PhysicsClientSharedMemory2::PhysicsClientSharedMemory2(SharedMemoryCommandProcessor* proc)
-	:PhysicsDirect(proc,false)
+	: PhysicsDirect(proc, false)
 {
 	m_proc = proc;
 }
@@ -24,4 +23,3 @@ void PhysicsClientSharedMemory2::setSharedMemoryInterface(class SharedMemoryInte
 		m_proc->setSharedMemoryInterface(sharedMem);
 	}
 }
-

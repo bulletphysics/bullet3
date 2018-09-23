@@ -4,16 +4,15 @@
 #include "PhysicsClientC_API.h"
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C"
+{
 #endif
 
+	///think more about naming. The b3ConnectPhysicsLoopback
+	b3PhysicsClientHandle b3ConnectPhysicsLoopback(int key);
 
-///think more about naming. The b3ConnectPhysicsLoopback
-b3PhysicsClientHandle b3ConnectPhysicsLoopback(int key);
-
-    
 #ifdef __cplusplus
 }
 #endif
 
-#endif //PHYSICS_LOOPBACK_C_API_H
+#endif  //PHYSICS_LOOPBACK_C_API_H

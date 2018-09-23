@@ -4,7 +4,7 @@
 using namespace Gwen;
 using namespace Controls;
 
-GWEN_CONTROL_CONSTRUCTOR( PanelListPanel )
+GWEN_CONTROL_CONSTRUCTOR(PanelListPanel)
 {
 	m_bVertical = false;
 	m_bSizeToChildren = true;
@@ -13,7 +13,7 @@ GWEN_CONTROL_CONSTRUCTOR( PanelListPanel )
 	m_bWrapping = true;
 }
 
-void PanelListPanel::Render( Gwen::Skin::Base* /*skin*/ )
+void PanelListPanel::Render(Gwen::Skin::Base* /*skin*/)
 {
 }
 
@@ -22,17 +22,17 @@ Gwen::Point PanelListPanel::GetBiggestChildSize()
 	int width = 0;
 	int height = 0;
 
-	for ( Base::List::iterator it = Children.begin(); it != Children.end(); ++it )
+	for (Base::List::iterator it = Children.begin(); it != Children.end(); ++it)
 	{
 		Controls::Base* pChild = *it;
-		if ( pChild->Width() > width )
+		if (pChild->Width() > width)
 			width = pChild->Width();
 
-		if ( pChild->Height() > height )
+		if (pChild->Height() > height)
 			height = pChild->Height();
 	}
 
-	return Gwen::Point( width, height );
+	return Gwen::Point(width, height);
 }
 
 void PanelListPanel::DoVerticalLayout()
@@ -45,11 +45,11 @@ void PanelListPanel::DoVerticalLayout()
 
 	Gwen::Point childSize = GetBiggestChildSize();
 	//Lay my children out accordingly
-	for ( Base::List::iterator it = Children.begin(); it != Children.end(); ++it )
+	for (Base::List::iterator it = Children.begin(); it != Children.end(); ++it)
 	{
 		Controls::Base* pChild = *it;
 		testWrap = lastPanelY + m_iControlSpacing + childSize.y;
-		if ( m_bWrapping && testWrap > Height() - GetPadding().bottom )
+		if (m_bWrapping && testWrap > Height() - GetPadding().bottom)
 		{
 			panelY = GetPadding().top;
 			panelX = GetPadding().left + panelWidth + m_iLineSpacing;
@@ -61,16 +61,16 @@ void PanelListPanel::DoVerticalLayout()
 			lastPanelY = testWrap;
 		}
 
-		pChild->SetPos( panelX, panelY );
+		pChild->SetPos(panelX, panelY);
 
-		if (pChild->X() + childSize.x > panelWidth )
+		if (pChild->X() + childSize.x > panelWidth)
 			panelWidth = pChild->X() + childSize.x;
 	}
 
-	if ( m_bSizeToChildren )
+	if (m_bSizeToChildren)
 	{
 		Gwen::Point childrenSizeTotal = ChildrenSize();
-		SetSize( childrenSizeTotal.x, Height());
+		SetSize(childrenSizeTotal.x, Height());
 	}
 }
 
@@ -84,40 +84,40 @@ void PanelListPanel::DoHorizontalLayout()
 
 	Gwen::Point childSize = GetBiggestChildSize();
 
-	for ( Base::List::iterator it = Children.begin(); it != Children.end(); ++it )
+	for (Base::List::iterator it = Children.begin(); it != Children.end(); ++it)
 	{
 		Controls::Base* pChild = *it;
 
-			testWrap = lastPanelX + m_iControlSpacing + childSize.x;
-			if ( m_bWrapping && testWrap > Width() - GetPadding().right )
-			{
-				panelX = GetPadding().left;
-				panelY = GetPadding().top + panelHeight + m_iLineSpacing;
-				lastPanelX = panelX + m_iControlSpacing + childSize.x;
-			}
-			else
-			{
-				panelX = lastPanelX;
-				lastPanelX = testWrap;
-			}
+		testWrap = lastPanelX + m_iControlSpacing + childSize.x;
+		if (m_bWrapping && testWrap > Width() - GetPadding().right)
+		{
+			panelX = GetPadding().left;
+			panelY = GetPadding().top + panelHeight + m_iLineSpacing;
+			lastPanelX = panelX + m_iControlSpacing + childSize.x;
+		}
+		else
+		{
+			panelX = lastPanelX;
+			lastPanelX = testWrap;
+		}
 
-			pChild->SetPos( panelX, panelY );
+		pChild->SetPos(panelX, panelY);
 
-			if (pChild->Y() + childSize.y > panelHeight )
-				panelHeight = pChild->Y() + childSize.y;
+		if (pChild->Y() + childSize.y > panelHeight)
+			panelHeight = pChild->Y() + childSize.y;
 	}
 
-	if ( m_bSizeToChildren )
+	if (m_bSizeToChildren)
 	{
 		Gwen::Point childrenSizeTotal = ChildrenSize();
-		SetSize( Width(), childrenSizeTotal.y);
+		SetSize(Width(), childrenSizeTotal.y);
 	}
 }
 
-void PanelListPanel::Layout( Skin::Base* skin )
+void PanelListPanel::Layout(Skin::Base* skin)
 {
-	BaseClass::Layout( skin );
-	if (	IsHorizontalLayout() )
+	BaseClass::Layout(skin);
+	if (IsHorizontalLayout())
 		DoHorizontalLayout();
 	else
 		DoVerticalLayout();
