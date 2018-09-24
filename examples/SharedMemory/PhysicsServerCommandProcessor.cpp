@@ -6062,7 +6062,13 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 							pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
 						}
 						pt.m_normalForce = srcPt.getAppliedImpulse() / m_data->m_physicsDeltaTime;
-						//                                    pt.m_linearFrictionForce = srcPt.m_appliedImpulseLateral1;
+						pt.m_linearFrictionForce1 = srcPt.m_appliedImpulseLateral1 / m_data->m_physicsDeltaTime;
+						pt.m_linearFrictionForce2 = srcPt.m_appliedImpulseLateral2 / m_data->m_physicsDeltaTime;
+						for (int j = 0; j < 3; j++)
+						{
+							pt.m_linearFrictionDirection1[j] = srcPt.m_lateralFrictionDir1[j];
+							pt.m_linearFrictionDirection2[j] = srcPt.m_lateralFrictionDir2[j];
+						}
 						m_data->m_cachedContactPoints.push_back(pt);
 					}
 				}
@@ -6287,7 +6293,13 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 									pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
 								}
 								pt.m_normalForce = srcPt.getAppliedImpulse() / m_deltaTime;
-								//                                    pt.m_linearFrictionForce = srcPt.m_appliedImpulseLateral1;
+								pt.m_linearFrictionForce1 = srcPt.m_appliedImpulseLateral1 / m_deltaTime;
+								pt.m_linearFrictionForce2 = srcPt.m_appliedImpulseLateral2 / m_deltaTime;
+								for (int j = 0; j < 3; j++)
+								{
+									pt.m_linearFrictionDirection1[j] = srcPt.m_lateralFrictionDir1[j];
+									pt.m_linearFrictionDirection2[j] = srcPt.m_lateralFrictionDir2[j];
+								}
 								m_cachedContactPoints.push_back(pt);
 							}
 							return 1;

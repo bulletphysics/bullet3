@@ -5754,6 +5754,10 @@ static PyObject* MyConvertContactPoint(struct b3ContactInformation* contactPoint
 	 8		double m_contactDistance;//negative number is penetration, positive
 	 is distance.
 	 9		double m_normalForce;
+	 10     double m_linearFrictionForce1;
+	 11     double double m_linearFrictionDirection1[3];
+	 12     double m_linearFrictionForce2;
+	 13     double double m_linearFrictionDirection2[3];
 	 */
 
 	int i;
@@ -5761,7 +5765,7 @@ static PyObject* MyConvertContactPoint(struct b3ContactInformation* contactPoint
 	PyObject* pyResultList = PyTuple_New(contactPointPtr->m_numContactPoints);
 	for (i = 0; i < contactPointPtr->m_numContactPoints; i++)
 	{
-		PyObject* contactObList = PyTuple_New(10);  // see above 10 fields
+		PyObject* contactObList = PyTuple_New(14);  // see above 10 fields
 		PyObject* item;
 		item =
 			PyInt_FromLong(contactPointPtr->m_contactPointData[i].m_contactFlags);
@@ -5831,6 +5835,44 @@ static PyObject* MyConvertContactPoint(struct b3ContactInformation* contactPoint
 		item = PyFloat_FromDouble(
 			contactPointPtr->m_contactPointData[i].m_normalForce);
 		PyTuple_SetItem(contactObList, 9, item);
+
+		item = PyFloat_FromDouble(
+			contactPointPtr->m_contactPointData[i].m_linearFrictionForce1);
+		PyTuple_SetItem(contactObList, 10, item);
+
+		{
+			PyObject* posAObj = PyTuple_New(3);
+
+			item = PyFloat_FromDouble(
+				contactPointPtr->m_contactPointData[i].m_linearFrictionDirection1[0]);
+			PyTuple_SetItem(posAObj, 0, item);
+			item = PyFloat_FromDouble(
+				contactPointPtr->m_contactPointData[i].m_linearFrictionDirection1[1]);
+			PyTuple_SetItem(posAObj, 1, item);
+			item = PyFloat_FromDouble(
+				contactPointPtr->m_contactPointData[i].m_linearFrictionDirection1[2]);
+			PyTuple_SetItem(posAObj, 2, item);
+			PyTuple_SetItem(contactObList, 11, posAObj);
+		}
+
+		item = PyFloat_FromDouble(
+			contactPointPtr->m_contactPointData[i].m_linearFrictionForce2);
+		PyTuple_SetItem(contactObList, 12, item);
+
+		{
+			PyObject* posAObj = PyTuple_New(3);
+
+			item = PyFloat_FromDouble(
+				contactPointPtr->m_contactPointData[i].m_linearFrictionDirection2[0]);
+			PyTuple_SetItem(posAObj, 0, item);
+			item = PyFloat_FromDouble(
+				contactPointPtr->m_contactPointData[i].m_linearFrictionDirection2[1]);
+			PyTuple_SetItem(posAObj, 1, item);
+			item = PyFloat_FromDouble(
+				contactPointPtr->m_contactPointData[i].m_linearFrictionDirection2[2]);
+			PyTuple_SetItem(posAObj, 2, item);
+			PyTuple_SetItem(contactObList, 13, posAObj);
+		}
 
 		PyTuple_SetItem(pyResultList, i, contactObList);
 	}
