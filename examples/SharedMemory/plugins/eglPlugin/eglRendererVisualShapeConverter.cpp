@@ -61,7 +61,7 @@ static void printGLString(const char* name, GLenum s)
 
 using namespace std;
 
-struct MyTexture2
+struct MyTexture3
 {
 	unsigned char* textureData1;
 	int m_width;
@@ -69,7 +69,7 @@ struct MyTexture2
 	bool m_isCached;
 };
 
-struct TinyRendererObjectArray
+struct EGLRendererObjectArray
 {
 	btAlignedObjectArray<TinyRenderObjectData*> m_renderObjects;
 	int m_objectUniqueId;
@@ -78,7 +78,7 @@ struct TinyRendererObjectArray
 	btTransform m_worldTransform;
 	btVector3 m_localScaling;
 
-	TinyRendererObjectArray()
+	EGLRendererObjectArray()
 	{
 		m_worldTransform.setIdentity();
 		m_localScaling.setValue(1, 1, 1);
@@ -96,7 +96,7 @@ struct EGLRendererVisualShapeConverterInternalData
 	btAlignedObjectArray<unsigned char> m_rgbaPixelBuffer1;
 	btAlignedObjectArray<float> m_depthBuffer1;
 
-	btHashMap<btHashInt, TinyRendererObjectArray*> m_swRenderInstances;
+	btHashMap<btHashInt, EGLRendererObjectArray*> m_swRenderInstances;
 
 	btAlignedObjectArray<b3VisualShapeData> m_visualShapes;
 
@@ -104,7 +104,7 @@ struct EGLRendererVisualShapeConverterInternalData
 	int m_swWidth;
 	int m_swHeight;
 	TGAImage m_rgbColorBuffer;
-	b3AlignedObjectArray<MyTexture2> m_textures;
+	b3AlignedObjectArray<MyTexture3> m_textures;
 	b3AlignedObjectArray<float> m_depthBuffer;
 	b3AlignedObjectArray<float> m_shadowBuffer;
 	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
@@ -262,7 +262,7 @@ void EGLRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff)
 }
 
 ///todo: merge into single file with TinyRendererVisualShapeConverter
-static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
+static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture3>& texturesOut, b3VisualShapeData& visualShapeOut)
 {
 	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
 	visualShapeOut.m_dimensions[0] = 0;
@@ -406,7 +406,7 @@ static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfP
 					{
 						if (meshData.m_textureImage1)
 						{
-							MyTexture2 texData;
+							MyTexture3 texData;
 							texData.m_width = meshData.m_textureWidth;
 							texData.m_height = meshData.m_textureHeight;
 							texData.textureData1 = meshData.m_textureImage1;
@@ -523,7 +523,7 @@ static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfP
 		}  // case mesh
 
 		case URDF_GEOM_PLANE:
-			// TODO: plane in tiny renderer
+			// TODO: plane in egl renderer
 			// TODO: export visualShapeOut for external render
 			break;
 
@@ -647,7 +647,7 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
 
 		for (int v1 = 0; v1 < cnt; v1++)
 		{
-			btAlignedObjectArray<MyTexture2> textures;
+			btAlignedObjectArray<MyTexture3> textures;
 			btAlignedObjectArray<GLInstanceVertex> vertices;
 			btAlignedObjectArray<int> indices;
 			btTransform startTrans;
@@ -716,15 +716,15 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
 				}
 			}
 
-			TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+			EGLRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
 			if (visualsPtr == 0)
 			{
-				m_data->m_swRenderInstances.insert(collisionObjectUniqueId, new TinyRendererObjectArray);
+				m_data->m_swRenderInstances.insert(collisionObjectUniqueId, new EGLRendererObjectArray);
 			}
 			visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
 
 			btAssert(visualsPtr);
-			TinyRendererObjectArray* visuals = *visualsPtr;
+			EGLRendererObjectArray* visuals = *visualsPtr;
 			visuals->m_objectUniqueId = bodyUniqueId;
 			visuals->m_linkIndex = linkIndex;
 
@@ -870,11 +870,11 @@ void EGLRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int link
 
 	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
 	{
-		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
+		EGLRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
 		if (ptrptr && *ptrptr)
 		{
 			float rgba[4] = {(float)rgbaColor[0], (float)rgbaColor[1], (float)rgbaColor[2], (float)rgbaColor[3]};
-			TinyRendererObjectArray* visuals = *ptrptr;
+			EGLRendererObjectArray* visuals = *ptrptr;
 			if ((bodyUniqueId == visuals->m_objectUniqueId) && (linkIndex == visuals->m_linkIndex))
 			{
 				for (int q = 0; q < visuals->m_renderObjects.size(); q++)
@@ -1112,10 +1112,10 @@ void EGLRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsR
 
 void EGLRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqueId)
 {
-	TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+	EGLRendererObjectArray** ptrptr = m_data->m_swRenderInstances[collisionObjectUniqueId];
 	if (ptrptr && *ptrptr)
 	{
-		TinyRendererObjectArray* ptr = *ptrptr;
+		EGLRendererObjectArray* ptr = *ptrptr;
 		if (ptr)
 		{
 			for (int o = 0; o < ptr->m_renderObjects.size(); o++)
@@ -1132,10 +1132,10 @@ void EGLRendererVisualShapeConverter::resetAll()
 {
 	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
 	{
-		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
+		EGLRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
 		if (ptrptr && *ptrptr)
 		{
-			TinyRendererObjectArray* ptr = *ptrptr;
+			EGLRendererObjectArray* ptr = *ptrptr;
 			if (ptr)
 			{
 				for (int o = 0; o < ptr->m_renderObjects.size(); o++)
@@ -1166,10 +1166,10 @@ void EGLRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int
 	{
 		for (int n = 0; n < m_data->m_swRenderInstances.size(); n++)
 		{
-			TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(n);
+			EGLRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(n);
 			if (0 == visualArrayPtr)
 				continue;  //can this ever happen?
-			TinyRendererObjectArray* visualArray = *visualArrayPtr;
+			EGLRendererObjectArray* visualArray = *visualArrayPtr;
 
 			if (visualArray->m_objectUniqueId == objectUniqueId && visualArray->m_linkIndex == jointIndex)
 			{
@@ -1188,7 +1188,7 @@ void EGLRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int
 
 int EGLRendererVisualShapeConverter::registerTexture(unsigned char* texels, int width, int height)
 {
-	MyTexture2 texData;
+	MyTexture3 texData;
 	texData.m_width = width;
 	texData.m_height = height;
 	texData.textureData1 = texels;
@@ -1212,10 +1212,10 @@ int EGLRendererVisualShapeConverter::loadTextureFile(const char* filename)
 
 void EGLRendererVisualShapeConverter::syncTransform(int collisionObjectUniqueId, const btTransform& worldTransform, const btVector3& localScaling)
 {
-	TinyRendererObjectArray** renderObjPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+	EGLRendererObjectArray** renderObjPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
 	if (renderObjPtr)
 	{
-		TinyRendererObjectArray* renderObj = *renderObjPtr;
+		EGLRendererObjectArray* renderObj = *renderObjPtr;
 		renderObj->m_worldTransform = worldTransform;
 		renderObj->m_localScaling = localScaling;
 		if (renderObj->m_graphicsInstanceId >= 0)
