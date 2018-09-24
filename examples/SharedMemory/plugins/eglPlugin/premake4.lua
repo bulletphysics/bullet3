@@ -16,7 +16,7 @@ project ("pybullet_eglRendererPlugin")
 
 	if os.is("Windows") then
 		files {"../../../OpenGLWindow/Win32OpenGLWindow.cpp",
-		"../../../OpenGLWindow/Win32GLWindow.cpp",}
+		"../../../OpenGLWindow/Win32Window.cpp",}
 		
 	end
 	if os.is("MacOSX") then
@@ -53,6 +53,7 @@ project ("pybullet_eglRendererPlugin")
 			"../../../ThirdPartyLibs/Wavefront/tiny_obj_loader.h",
 			"../../../ThirdPartyLibs/stb_image/stb_image.cpp",
 			"../../../ThirdPartyLibs/stb_image/stb_image.h",
+			"../../../ThirdPartyLibs/stb_image/stb_image_write.cpp",
 			"../../../ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
 			"../../../ThirdPartyLibs/tinyxml2/tinyxml2.h",
 			"../../../OpenGLWindow/SimpleCamera.cpp",
