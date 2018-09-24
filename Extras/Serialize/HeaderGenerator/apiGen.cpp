@@ -36,12 +36,10 @@ typedef std::map<bString, bString> bStringMap;
 typedef std::vector<class bVariable> bVariableList;
 typedef std::vector<bString> bStringList;
 
-
 ///////////////////////////////////////////////////////////////////////////////
 static FILE *dump = 0;
-static bDNA *mDNA =0;
+static bDNA *mDNA = 0;
 static bStringMap mStructs;
-
 
 ///////////////////////////////////////////////////////////////////////////////
 class bVariable
@@ -50,10 +48,8 @@ public:
 	bVariable();
 	~bVariable();
 
-
 	bString dataType;
 	bString variableName;
-
 
 	bString functionName;
 	bString classCtor;
@@ -61,7 +57,6 @@ public:
 	bString memberVariable;
 	bString memberDataType;
 	bString functionArgs;
-
 
 	void initialize(bString dataType, bString variable, bStringMap refDataTable);
 
@@ -103,26 +98,25 @@ bool dataTypeStandard(bString dataType)
 void writeTemplate(short *structData)
 {
 	bString type = mDNA->getType(structData[0]);
-	bString className=type;
-	bString prefix = isBulletFile? "bullet_" : "blender_";
-	
-	int thisLen = structData[1];
-	structData+=2;
+	bString className = type;
+	bString prefix = isBulletFile ? "bullet_" : "blender_";
 
-	bString fileName = prefix+type;
+	int thisLen = structData[1];
+	structData += 2;
+
+	bString fileName = prefix + type;
 
 	bVariableList dataTypes;
 	bStringMap includeFiles;
 
-
-	for (int dataVal =0; dataVal<thisLen; dataVal++, structData+=2)
+	for (int dataVal = 0; dataVal < thisLen; dataVal++, structData += 2)
 	{
 		bString dataType = mDNA->getType(structData[0]);
 		bString dataName = mDNA->getName(structData[1]);
 		{
 			bString newDataType = "";
 			bString newDataName = "";
-			
+
 			bStringMap::iterator addB = mStructs.find(dataType);
 			if (addB != mStructs.end())
 			{
@@ -130,7 +124,7 @@ void writeTemplate(short *structData)
 				newDataName = dataName;
 			}
 
-			else 
+			else
 			{
 				if (dataTypeStandard(dataType))
 				{
@@ -148,8 +142,7 @@ void writeTemplate(short *structData)
 					if (dataName[0] != '*')
 					{
 					}
-
-				} 
+				}
 			}
 
 			if (!newDataType.empty() && !newDataName.empty())
@@ -160,20 +153,18 @@ void writeTemplate(short *structData)
 			}
 		}
 
-
 		bStringMap::iterator include = mStructs.find(dataType);
 		if (include != mStructs.end())
 		{
-			if (dataName[0] != '*') 
+			if (dataName[0] != '*')
 			{
-				if (includeFiles.find(dataType)== includeFiles.end())
+				if (includeFiles.find(dataType) == includeFiles.end())
 				{
-					includeFiles[dataType]=prefix+dataType;
+					includeFiles[dataType] = prefix + dataType;
 				}
 			}
 		}
 	}
-
 
 	fprintf(dump, "###############################################################\n");
 	fprintf(dump, "%s = bStructClass()\n", fileName.c_str());
@@ -181,7 +172,7 @@ void writeTemplate(short *structData)
 	fprintf(dump, "%s.filename = '%s'\n", fileName.c_str(), fileName.c_str());
 
 	bVariableList::iterator vars = dataTypes.begin();
-	while (vars!= dataTypes.end())
+	while (vars != dataTypes.end())
 	{
 		fprintf(dump, "%s.dataTypes.append('%s %s')\n", fileName.c_str(), vars->dataType.c_str(), vars->variableName.c_str());
 		vars++;
@@ -196,31 +187,26 @@ void writeTemplate(short *structData)
 	fprintf(dump, "DataTypeList.append(%s)\n", fileName.c_str());
 }
 
+///////////////////////////////////////////////////////////////////////////////
+char data[] = {
+	"\n"
+	"class bStructClass:\n"
+	"    def __init__(self):\n"
+	"       self.name = \"\";\n"
+	"       self.filename = \"\";\n"
+	"       self.includes = []\n"
+	"       self.dataTypes = []\n"
+	"\n\n"
+	"DataTypeList = []\n"};
 
 ///////////////////////////////////////////////////////////////////////////////
-char data[]={
-"\n"
-"class bStructClass:\n"
-"    def __init__(self):\n"
-"       self.name = \"\";\n"
-"       self.filename = \"\";\n"
-"       self.includes = []\n"
-"       self.dataTypes = []\n"
-"\n\n"
-"DataTypeList = []\n"
-};
-
-
-///////////////////////////////////////////////////////////////////////////////
-int main(int argc,char** argv)
+int main(int argc, char **argv)
 {
 	using namespace bParse;
 	dump = fopen("dump.py", "w");
 
-
 	if (!dump) return 0;
 	fprintf(dump, "%s\n", data);
-
 
 #if 0
 	char* filename = "../../../../data/r2d2_multibody.bullet";
@@ -275,73 +261,65 @@ int main(int argc,char** argv)
 #else
 	isBulletFile = true;
 	bool swap = false;
-	char* memBuf = sBulletDNAstr;
+	char *memBuf = sBulletDNAstr;
 	int len = sBulletDNAlen;
 #endif
 
-
 	char *blenderData = memBuf;
-	int sdnaPos=0;
+	int sdnaPos = 0;
 	int mDataStart = 12;
 
 	char *tempBuffer = blenderData;
-	for (int i=0; i<len; i++)
+	for (int i = 0; i < len; i++)
 	{
 		// looking for the data's starting position
 		// and the start of SDNA decls
 
-		if (!mDataStart && strncmp(tempBuffer, "REND", 4)==0)
+		if (!mDataStart && strncmp(tempBuffer, "REND", 4) == 0)
 			mDataStart = i;
-		if (!sdnaPos && strncmp(tempBuffer, "SDNA", 4)==0)
+		if (!sdnaPos && strncmp(tempBuffer, "SDNA", 4) == 0)
 			sdnaPos = i;
 
 		if (mDataStart && sdnaPos) break;
 		tempBuffer++;
 	}
 
-	
-
-	FILE* fpdna = fopen("dnaString.txt","w");
+	FILE *fpdna = fopen("dnaString.txt", "w");
 	char buf[1024];
 
-	for (int i=0;i<len-sdnaPos;i++)
+	for (int i = 0; i < len - sdnaPos; i++)
 	{
-		int dnaval = (memBuf+sdnaPos)[i];
+		int dnaval = (memBuf + sdnaPos)[i];
 
-		if ((i%32)==0)
+		if ((i % 32) == 0)
 		{
-			sprintf(buf,"%d,\n",dnaval);
-			
-		} else
-		{
-			sprintf(buf,"%d,",dnaval);
+			sprintf(buf, "%d,\n", dnaval);
 		}
-		
-		
-		fwrite(buf,strlen(buf),1,fpdna);
+		else
+		{
+			sprintf(buf, "%d,", dnaval);
+		}
+
+		fwrite(buf, strlen(buf), 1, fpdna);
 	}
 
 	fclose(fpdna);
 
-
-
 	mDNA = new bDNA();
 	//mDNA->initMemory();
-	
-	mDNA->init(memBuf+sdnaPos, len-sdnaPos, swap);
-	
 
-	for (int i=0; i<mDNA->getNumStructs(); i++)
+	mDNA->init(memBuf + sdnaPos, len - sdnaPos, swap);
+
+	for (int i = 0; i < mDNA->getNumStructs(); i++)
 	{
 		short *structData = mDNA->getStruct(i);
 		bString type = mDNA->getType(structData[0]);
 
 		bString className = type;
-		mStructs[type]=className;
+		mStructs[type] = className;
 	}
 
-
-	for (int i=0; i<mDNA->getNumStructs(); i++)
+	for (int i = 0; i < mDNA->getNumStructs(); i++)
 	{
 		short *structData = mDNA->getStruct(i);
 		writeTemplate(structData);
@@ -353,23 +331,22 @@ int main(int argc,char** argv)
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-
 ///////////////////////////////////////////////////////////////////////////////
-int _getArraySize(char* str)
+int _getArraySize(char *str)
 {
-	int a, mul=1;
-	char stri[100], *cp=0;
+	int a, mul = 1;
+	char stri[100], *cp = 0;
 	int len = (int)strlen(str);
 
-	memcpy(stri, str, len+1);
-	for (a=0; a<len; a++)
+	memcpy(stri, str, len + 1);
+	for (a = 0; a < len; a++)
 	{
-		if (str[a]== '[')
-			cp= &(stri[a+1]);
-		else if ( str[a]==']' && cp)
+		if (str[a] == '[')
+			cp = &(stri[a + 1]);
+		else if (str[a] == ']' && cp)
 		{
-			stri[a]= 0;
-			mul*= atoi(cp);
+			stri[a] = 0;
+			mul *= atoi(cp);
 		}
 	}
 	return mul;
@@ -377,26 +354,25 @@ int _getArraySize(char* str)
 
 ///////////////////////////////////////////////////////////////////////////////
 bVariable::bVariable()
-	:	dataType("invalid"),
-		variableName("invalid"),
-		functionName(""),
-		classCtor(""),
-		memberVariable(""),
-		memberDataType(""),
-		functionArgs(""),
-		isPtr(false),
-		isFunctionPtr(false),
-		isPtrToPtr(false),
-		isArray(false),
-		isCharArray(false),
-		isListBase(false),
-		isPadding(false),
-		isCommentedOut(false),
-		isGeneratedType(false),
-		isbString(false)
+	: dataType("invalid"),
+	  variableName("invalid"),
+	  functionName(""),
+	  classCtor(""),
+	  memberVariable(""),
+	  memberDataType(""),
+	  functionArgs(""),
+	  isPtr(false),
+	  isFunctionPtr(false),
+	  isPtrToPtr(false),
+	  isArray(false),
+	  isCharArray(false),
+	  isListBase(false),
+	  isPadding(false),
+	  isCommentedOut(false),
+	  isGeneratedType(false),
+	  isbString(false)
 {
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 bVariable::~bVariable()
@@ -404,7 +380,6 @@ bVariable::~bVariable()
 	dataType.clear();
 	variableName.clear();
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 void bVariable::initialize(bString type, bString variable, bStringMap refDataTable)
@@ -422,7 +397,7 @@ void bVariable::initialize(bString type, bString variable, bStringMap refDataTab
 		if (variableName[1] == '*')
 			isFunctionPtr = true;
 
-	if (variableName[variableName.size()-1] == ']')
+	if (variableName[variableName.size() - 1] == ']')
 	{
 		isArray = true;
 		if (type == "char")
@@ -434,13 +409,12 @@ void bVariable::initialize(bString type, bString variable, bStringMap refDataTab
 
 	if (variableName[0] == 'p')
 	{
-		bString sub = variableName.substr(0,3);
+		bString sub = variableName.substr(0, 3);
 		if (sub == "pad")
 			isPadding = true;
 	}
 	if (dataType[0] == '/' && dataType[1] == '/')
 		isCommentedOut = true;
-
 
 	if (refDataTable.find(dataType) != refDataTable.end())
 		isGeneratedType = true;
@@ -450,13 +424,13 @@ void bVariable::initialize(bString type, bString variable, bStringMap refDataTab
 		// replace valid float arrays
 		if (dataType == "float" && isArray)
 		{
-			int size = _getArraySize((char*)variableName.c_str());
-			if (size==3)
+			int size = _getArraySize((char *)variableName.c_str());
+			if (size == 3)
 			{
 				dataType = "vec3f";
 				variableName = variableName.substr(0, variableName.find_first_of("["));
 			}
-			if (size==4)
+			if (size == 4)
 			{
 				dataType = "vec4f";
 				variableName = variableName.substr(0, variableName.find_first_of("["));

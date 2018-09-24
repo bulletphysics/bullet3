@@ -4,5 +4,4 @@
 	See license in Gwen.h
 */
 
-
 #include "Gwen/Controls/ImagePanel.h"

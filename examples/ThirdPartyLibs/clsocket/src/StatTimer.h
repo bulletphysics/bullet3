@@ -46,21 +46,21 @@
 #include <string.h>
 
 #if WIN32
-  #include <winsock2.h>
-  #include <time.h>
+#include <winsock2.h>
+#include <time.h>
 #endif
 
 #ifdef _LINUX
-  #include <stdio.h>
-  #include <sys/time.h>
+#include <stdio.h>
+#include <sys/time.h>
 #endif
 
 #include "Host.h"
 
 #if defined(WIN32)
-  #define GET_CLOCK_COUNT(x) QueryPerformanceCounter((LARGE_INTEGER *)x)
+#define GET_CLOCK_COUNT(x) QueryPerformanceCounter((LARGE_INTEGER *)x)
 #else
-  #define GET_CLOCK_COUNT(x) gettimeofday(x, NULL)
+#define GET_CLOCK_COUNT(x) gettimeofday(x, NULL)
 #endif
 
 #define MILLISECONDS_CONVERSION 1000
@@ -68,47 +68,43 @@
 
 /// Class to abstract socket communications in a cross platform manner.
 /// This class is designed
-class CStatTimer {
+class CStatTimer
+{
 public:
-    CStatTimer()
-    {
-    };
+	CStatTimer(){};
 
-    ~CStatTimer()
-    {
-    };
+	~CStatTimer(){};
 
-    void Initialize()
-    {
-        memset(&m_startTime, 0, sizeof(struct timeval));
-        memset(&m_endTime, 0, sizeof(struct timeval));
-    };
+	void Initialize()
+	{
+		memset(&m_startTime, 0, sizeof(struct timeval));
+		memset(&m_endTime, 0, sizeof(struct timeval));
+	};
 
-    struct timeval GetStartTime() { return m_startTime; };
-    void SetStartTime() { GET_CLOCK_COUNT(&m_startTime); };
+	struct timeval GetStartTime() { return m_startTime; };
+	void SetStartTime() { GET_CLOCK_COUNT(&m_startTime); };
 
-    struct timeval GetEndTime() { return m_endTime; };
-    void SetEndTime() { GET_CLOCK_COUNT(&m_endTime); };
+	struct timeval GetEndTime() { return m_endTime; };
+	void SetEndTime() { GET_CLOCK_COUNT(&m_endTime); };
 
-    uint32 GetMilliSeconds() { return (CalcTotalUSec() / MILLISECONDS_CONVERSION); };
-    uint32 GetMicroSeconds() { return (CalcTotalUSec()); };
-    uint32 GetSeconds() { return (CalcTotalUSec() / MICROSECONDS_CONVERSION); };
+	uint32 GetMilliSeconds() { return (CalcTotalUSec() / MILLISECONDS_CONVERSION); };
+	uint32 GetMicroSeconds() { return (CalcTotalUSec()); };
+	uint32 GetSeconds() { return (CalcTotalUSec() / MICROSECONDS_CONVERSION); };
 
-    uint32 GetCurrentTime()
-    {
-        struct timeval tmpTime;
-        GET_CLOCK_COUNT(&tmpTime);
-        return ((tmpTime.tv_sec * MICROSECONDS_CONVERSION) + tmpTime.tv_usec);
-    };
+	uint32 GetCurrentTime()
+	{
+		struct timeval tmpTime;
+		GET_CLOCK_COUNT(&tmpTime);
+		return ((tmpTime.tv_sec * MICROSECONDS_CONVERSION) + tmpTime.tv_usec);
+	};
 
 private:
-    uint32 CalcTotalUSec() { return (((m_endTime.tv_sec - m_startTime.tv_sec) * MICROSECONDS_CONVERSION) +
-                                    (m_endTime.tv_usec - m_startTime.tv_usec)); };
-
+	uint32 CalcTotalUSec() { return (((m_endTime.tv_sec - m_startTime.tv_sec) * MICROSECONDS_CONVERSION) +
+									 (m_endTime.tv_usec - m_startTime.tv_usec)); };
 
 private:
-    struct timeval  m_startTime;
-    struct timeval  m_endTime;
+	struct timeval m_startTime;
+	struct timeval m_endTime;
 };
 
-#endif // __CSTATTIMER_H__
+#endif  // __CSTATTIMER_H__

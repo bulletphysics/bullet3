@@ -36,8 +36,6 @@
 // http://www.amillionpixels.us
 //
 
-
-
-void computeBestFitOBB(unsigned int vcount,const float *points,unsigned int pstride,float *sides,float *matrix);
+void computeBestFitOBB(unsigned int vcount, const float *points, unsigned int pstride, float *sides, float *matrix);
 
 #endif

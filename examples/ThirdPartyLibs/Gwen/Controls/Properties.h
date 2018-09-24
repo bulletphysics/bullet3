@@ -16,62 +16,54 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/Skin.h"
 
-
-namespace Gwen 
+namespace Gwen
 {
-	namespace Controls
-	{
+namespace Controls
+{
+class PropertyRow;
 
-		class PropertyRow;
+class GWEN_EXPORT Properties : public Base
+{
+public:
+	GWEN_CONTROL(Properties, Base);
 
-		class GWEN_EXPORT Properties : public Base
-		{
-			public:
+	virtual void PostLayout(Gwen::Skin::Base* skin);
 
-				GWEN_CONTROL( Properties, Base );
+	PropertyRow* Add(const UnicodeString& text, const UnicodeString& value = L"");
+	PropertyRow* Add(const String& text, const String& value = "");
+	PropertyRow* Add(const UnicodeString& text, Property::Base* pProp);
+	PropertyRow* Add(const String& text, Property::Base* pProp);
 
-				virtual void PostLayout( Gwen::Skin::Base* skin );
+	virtual int GetSplitWidth();
 
-				PropertyRow* Add( const UnicodeString& text, const UnicodeString& value = L"" );
-				PropertyRow* Add( const String& text, const String& value = "" );
-				PropertyRow* Add( const UnicodeString& text, Property::Base* pProp );
-				PropertyRow* Add( const String& text, Property::Base* pProp );
+	virtual void Clear();
 
-				virtual int GetSplitWidth();
+protected:
+	virtual void OnSplitterMoved(Controls::Base* control);
 
-				virtual void Clear();
+	Controls::SplitterBar* m_SplitterBar;
+};
 
-			protected:
+class GWEN_EXPORT PropertyRow : public Base
+{
+public:
+	GWEN_CONTROL(PropertyRow, Base);
 
-				virtual void OnSplitterMoved( Controls::Base * control );
+	virtual Label* GetLabel() { return m_Label; }
+	virtual void SetProperty(Property::Base* prop);
+	virtual Property::Base* GetProperty() { return m_Property; }
 
-				Controls::SplitterBar*	m_SplitterBar;
+	virtual void Layout(Gwen::Skin::Base* skin);
+	virtual void Render(Gwen::Skin::Base* skin);
 
-		};
+	Event::Caller onChange;
 
-		class GWEN_EXPORT PropertyRow : public Base
-		{
-			public:
+protected:
+	void OnPropertyValueChanged(Gwen::Controls::Base* control);
 
-				GWEN_CONTROL( PropertyRow, Base );
-
-				virtual Label* GetLabel(){ return m_Label; }
-				virtual void SetProperty( Property::Base* prop );
-				virtual Property::Base* GetProperty(){ return m_Property; }
-
-				virtual void Layout( Gwen::Skin::Base* skin );
-				virtual void Render( Gwen::Skin::Base* skin );
-
-				Event::Caller	onChange;
-
-			protected:
-
-				void OnPropertyValueChanged( Gwen::Controls::Base* control );
-
-				Label*		m_Label;
-				Property::Base*	m_Property;
-
-		};
-	}
-}
+	Label* m_Label;
+	Property::Base* m_Property;
+};
+}  // namespace Controls
+}  // namespace Gwen
 #endif

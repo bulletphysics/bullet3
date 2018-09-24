@@ -25,45 +25,45 @@ in this Software without prior written authorization from The Open Group.
  */
 
 #ifndef _XFUNCS_H_
-# define _XFUNCS_H_
+#define _XFUNCS_H_
 
-# include <X11/Xosdefs.h>
+#include <X11/Xosdefs.h>
 
 /* the old Xfuncs.h, for pre-R6 */
-# if !(defined(XFree86LOADER) && defined(IN_MODULE))
+#if !(defined(XFree86LOADER) && defined(IN_MODULE))
 
-#  ifdef X_USEBFUNCS
+#ifdef X_USEBFUNCS
 void bcopy();
 void bzero();
 int bcmp();
-#  else
-#   if defined(SYSV) && !defined(__SCO__) && !defined(__sun) && !defined(__UNIXWARE__)
-#    include <memory.h>
+#else
+#if defined(SYSV) && !defined(__SCO__) && !defined(__sun) && !defined(__UNIXWARE__)
+#include <memory.h>
 void bcopy();
-#    define bzero(b,len) memset(b, 0, len)
-#    define bcmp(b1,b2,len) memcmp(b1, b2, len)
-#   else
-#    include <string.h>
-#    if defined(__SCO__) || defined(__sun) || defined(__UNIXWARE__) || defined(__CYGWIN__)
-#     include <strings.h>
-#    endif
-#    define _XFUNCS_H_INCLUDED_STRING_H
-#   endif
-#  endif /* X_USEBFUNCS */
+#define bzero(b, len) memset(b, 0, len)
+#define bcmp(b1, b2, len) memcmp(b1, b2, len)
+#else
+#include <string.h>
+#if defined(__SCO__) || defined(__sun) || defined(__UNIXWARE__) || defined(__CYGWIN__)
+#include <strings.h>
+#endif
+#define _XFUNCS_H_INCLUDED_STRING_H
+#endif
+#endif /* X_USEBFUNCS */
 
 /* the new Xfuncs.h */
 
 /* the ANSI C way */
-#  ifndef _XFUNCS_H_INCLUDED_STRING_H
-#   include <string.h>
-#  endif
-#  undef bzero
-#  define bzero(b,len) memset(b,0,len)
+#ifndef _XFUNCS_H_INCLUDED_STRING_H
+#include <string.h>
+#endif
+#undef bzero
+#define bzero(b, len) memset(b, 0, len)
 
-#  if defined WIN32 && defined __MINGW32__
-#   define bcopy(b1,b2,len) memmove(b2, b1, (size_t)(len))
-#  endif
+#if defined WIN32 && defined __MINGW32__
+#define bcopy(b1, b2, len) memmove(b2, b1, (size_t)(len))
+#endif
 
-# endif /* !(defined(XFree86LOADER) && defined(IN_MODULE)) */
+#endif /* !(defined(XFree86LOADER) && defined(IN_MODULE)) */
 
 #endif /* _XFUNCS_H_ */

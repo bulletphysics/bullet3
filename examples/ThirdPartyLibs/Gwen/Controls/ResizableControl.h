@@ -16,40 +16,36 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/Skin.h"
 
-namespace Gwen 
+namespace Gwen
 {
-	namespace Controls
-	{
-		class GWEN_EXPORT ResizableControl : public Base
-		{
-			public:
+namespace Controls
+{
+class GWEN_EXPORT ResizableControl : public Base
+{
+public:
+	GWEN_CONTROL(ResizableControl, Base);
 
-				GWEN_CONTROL( ResizableControl, Base );
+	virtual void SetClampMovement(bool shouldClamp) { m_bClampMovement = shouldClamp; }
+	virtual bool GetClampMovement() { return m_bClampMovement; }
 
-				virtual void SetClampMovement( bool shouldClamp ) { m_bClampMovement = shouldClamp; }
-				virtual bool GetClampMovement() { return m_bClampMovement; }
+	virtual void SetMinimumSize(const Gwen::Point& minSize) { m_MinimumSize = minSize; }
+	virtual Gwen::Point GetMinimumSize() { return m_MinimumSize; }
 
-				virtual void SetMinimumSize( const Gwen::Point& minSize ) { m_MinimumSize = minSize; }
-				virtual Gwen::Point GetMinimumSize() { return m_MinimumSize; }
+	virtual void DisableResizing();
 
-				virtual void DisableResizing();
+	virtual bool SetBounds(int x, int y, int w, int h);
 
-				virtual bool SetBounds( int x, int y, int w, int h );
+	virtual void OnResized(){};
 
-				virtual void OnResized(){};
+	Event::Caller onResize;
 
-				Event::Caller	onResize;
+protected:
+	void OnResizedInternal(Controls::Base* pControl);
 
-			protected:
-
-				void OnResizedInternal( Controls::Base* pControl );
-
-				Gwen::Point m_MinimumSize;
-				bool m_bClampMovement;
-				bool m_bResizable;
-
-				
-		};
-	}
-}
+	Gwen::Point m_MinimumSize;
+	bool m_bClampMovement;
+	bool m_bResizable;
+};
+}  // namespace Controls
+}  // namespace Gwen
 #endif

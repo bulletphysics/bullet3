@@ -20,8 +20,8 @@ subject to the following restrictions:
 /// June 2010
 /// New: critical section/barriers and non-blocking polling for completion
 
-void	SampleThreadFunc(void* userPtr,void* lsMemory);
-void*	SamplelsMemoryFunc();
+void SampleThreadFunc(void* userPtr, void* lsMemory);
+void* SamplelsMemoryFunc();
 
 #include <stdio.h>
 //#include "BulletMultiThreaded/PlatformDefinitions.h"
@@ -32,34 +32,29 @@ void*	SamplelsMemoryFunc();
 b3ThreadSupportInterface* createThreadSupport(int numThreads)
 {
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("testThreads",
-                                                                SampleThreadFunc,
-                                                                SamplelsMemoryFunc,
-                                                                numThreads);
-    b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport(constructionInfo);
+																  SampleThreadFunc,
+																  SamplelsMemoryFunc,
+																  numThreads);
+	b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport(constructionInfo);
 
 	return threadSupport;
-
 }
 
-
-#elif defined( _WIN32)
+#elif defined(_WIN32)
 #include "b3Win32ThreadSupport.h"
 
 b3ThreadSupportInterface* createThreadSupport(int numThreads)
 {
-	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("testThreads",SampleThreadFunc,SamplelsMemoryFunc,numThreads);
+	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("testThreads", SampleThreadFunc, SamplelsMemoryFunc, numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
 	return threadSupport;
-
 }
 #endif
 
-
-
-struct	SampleArgs
+struct SampleArgs
 {
 	SampleArgs()
-		:m_fakeWork(1)
+		: m_fakeWork(1)
 	{
 	}
 	b3CriticalSection* m_cs;
@@ -71,104 +66,90 @@ struct SampleThreadLocalStorage
 	int threadId;
 };
 
-
-void	SampleThreadFunc(void* userPtr,void* lsMemory)
+void SampleThreadFunc(void* userPtr, void* lsMemory)
 {
 	printf("thread started\n");
 
-	SampleThreadLocalStorage* localStorage = (SampleThreadLocalStorage*) lsMemory;
+	SampleThreadLocalStorage* localStorage = (SampleThreadLocalStorage*)lsMemory;
 
-	SampleArgs* args = (SampleArgs*) userPtr;
+	SampleArgs* args = (SampleArgs*)userPtr;
 	int workLeft = true;
 	while (workLeft)
 	{
 		args->m_cs->lock();
 		int count = args->m_cs->getSharedParam(0);
-		args->m_cs->setSharedParam(0,count-1);
+		args->m_cs->setSharedParam(0, count - 1);
 		args->m_cs->unlock();
-		if (count>0)
+		if (count > 0)
 		{
-			printf("thread %d processed number %d\n",localStorage->threadId, count);
+			printf("thread %d processed number %d\n", localStorage->threadId, count);
 		}
 		//do some fake work
-		for (int i=0;i<1000000;i++)
-			args->m_fakeWork = b3Scalar(1.21)*args->m_fakeWork;
-		workLeft = count>0;
+		for (int i = 0; i < 1000000; i++)
+			args->m_fakeWork = b3Scalar(1.21) * args->m_fakeWork;
+		workLeft = count > 0;
 	}
 	printf("finished\n");
 	//do nothing
 }
 
-
-void*	SamplelsMemoryFunc()
+void* SamplelsMemoryFunc()
 {
 	//don't create local store memory, just return 0
 	return new SampleThreadLocalStorage;
 }
 
-
-
-
-
-
-
-
-
-
-int main(int argc,char** argv)
+int main(int argc, char** argv)
 {
 	int numThreads = 8;
 
 	b3ThreadSupportInterface* threadSupport = createThreadSupport(numThreads);
 
-
-
-	for (int i=0;i<threadSupport->getNumTasks();i++)
+	for (int i = 0; i < threadSupport->getNumTasks(); i++)
 	{
 		SampleThreadLocalStorage* storage = (SampleThreadLocalStorage*)threadSupport->getThreadLocalMemory(i);
 		b3Assert(storage);
 		storage->threadId = i;
 	}
 
-
-	SampleArgs	args;
+	SampleArgs args;
 	args.m_cs = threadSupport->createCriticalSection();
-	args.m_cs->setSharedParam(0,100);
+	args.m_cs->setSharedParam(0, 100);
 
-
-	int arg0,arg1;
+	int arg0, arg1;
 	int i;
-	for (i=0;i<numThreads;i++)
+	for (i = 0; i < numThreads; i++)
 	{
-		threadSupport->runTask(B3_THREAD_SCHEDULE_TASK, (void*) &args, i);
+		threadSupport->runTask(B3_THREAD_SCHEDULE_TASK, (void*)&args, i);
 	}
 
-	bool blockingWait =false;
+	bool blockingWait = false;
 	if (blockingWait)
 	{
-		for (i=0;i<numThreads;i++)
+		for (i = 0; i < numThreads; i++)
 		{
-			threadSupport->waitForResponse(&arg0,&arg1);
-			printf("finished waiting for response: %d %d\n", arg0,arg1);
+			threadSupport->waitForResponse(&arg0, &arg1);
+			printf("finished waiting for response: %d %d\n", arg0, arg1);
 		}
-	} else
+	}
+	else
 	{
 		int numActiveThreads = numThreads;
 		while (numActiveThreads)
 		{
-			if (threadSupport->isTaskCompleted(&arg0,&arg1,0))
+			if (threadSupport->isTaskCompleted(&arg0, &arg1, 0))
 			{
 				numActiveThreads--;
-				printf("numActiveThreads = %d\n",numActiveThreads);
-
-			} else
+				printf("numActiveThreads = %d\n", numActiveThreads);
+			}
+			else
 			{
-//				printf("polling..");
+				//				printf("polling..");
 			}
 		};
 	}
 
-    printf("stopping threads\n");
+	printf("stopping threads\n");
 
 	delete threadSupport;
 	printf("Press ENTER to quit\n");

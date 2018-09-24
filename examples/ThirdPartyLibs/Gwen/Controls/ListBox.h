@@ -12,56 +12,52 @@
 #include "Gwen/Controls/Layout/Table.h"
 #include "Gwen/Controls/ScrollControl.h"
 
-
-namespace Gwen 
+namespace Gwen
 {
-	namespace Controls
-	{
-		class ScrollControl;
+namespace Controls
+{
+class ScrollControl;
 
-		class GWEN_EXPORT ListBox : public Base
-		{
-			public:
-				
-				GWEN_CONTROL( ListBox, Base );
+class GWEN_EXPORT ListBox : public Base
+{
+public:
+	GWEN_CONTROL(ListBox, Base);
 
-				typedef std::list<Layout::TableRow*> Rows;
+	typedef std::list<Layout::TableRow*> Rows;
 
-				Layout::TableRow* AddItem( const String& strLabel, const String& strName = "" );
-				Layout::TableRow* AddItem( const UnicodeString& strLabel, const String& strName = "" );
+	Layout::TableRow* AddItem(const String& strLabel, const String& strName = "");
+	Layout::TableRow* AddItem(const UnicodeString& strLabel, const String& strName = "");
 
-				void Render( Skin::Base* skin );
+	void Render(Skin::Base* skin);
 
-				void UnselectAll();
+	void UnselectAll();
 
-				void SetColumnCount( int iCount ) { m_Table->SetColumnCount( iCount ); }
+	void SetColumnCount(int iCount) { m_Table->SetColumnCount(iCount); }
 
-				void SetAllowMultiSelect( bool bMultiSelect ){ m_bMultiSelect = bMultiSelect; }
-				bool AllowMultiSelect() const { return m_bMultiSelect; }
+	void SetAllowMultiSelect(bool bMultiSelect) { m_bMultiSelect = bMultiSelect; }
+	bool AllowMultiSelect() const { return m_bMultiSelect; }
 
-				const ListBox::Rows& GetSelectedRows(){ return m_SelectedRows; }
-				Layout::TableRow* GetSelectedRow();
+	const ListBox::Rows& GetSelectedRows() { return m_SelectedRows; }
+	Layout::TableRow* GetSelectedRow();
 
-				Gwen::Controls::ScrollControl* Scroller() { return m_ScrollControl; }
+	Gwen::Controls::ScrollControl* Scroller() { return m_ScrollControl; }
 
-				void OnChildBoundsChanged( Gwen::Rect oldChildBounds, Base* pChild );
-				
-				Gwen::Event::Caller	onRowSelected;
+	void OnChildBoundsChanged(Gwen::Rect oldChildBounds, Base* pChild);
 
-				Controls::Layout::Table* GetTable() { return m_Table; }
-				virtual void Clear();
+	Gwen::Event::Caller onRowSelected;
 
-			protected:
+	Controls::Layout::Table* GetTable() { return m_Table; }
+	virtual void Clear();
 
-				
-				void OnRowSelected( Base* pControl );
-				
-				Controls::Layout::Table*		m_Table;
-				ListBox::Rows					m_SelectedRows;
-				Controls::ScrollControl*		m_ScrollControl;
+protected:
+	void OnRowSelected(Base* pControl);
 
-				bool m_bMultiSelect;
-		};
-	}
-}
+	Controls::Layout::Table* m_Table;
+	ListBox::Rows m_SelectedRows;
+	Controls::ScrollControl* m_ScrollControl;
+
+	bool m_bMultiSelect;
+};
+}  // namespace Controls
+}  // namespace Gwen
 #endif

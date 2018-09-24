@@ -12,13 +12,12 @@ typedef PhysicsServerCommandProcessor MyCommandProcessor;
 #else
 #include "SharedMemoryCommandProcessor.h"
 typedef SharedMemoryCommandProcessor MyCommandProcessor;
-#endif //NO_SHARED_MEMORY
+#endif  //NO_SHARED_MEMORY
 
 #include "SharedMemoryCommands.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "PhysicsServerCommandProcessor.h"
 #include "../Utils/b3Clock.h"
-
 
 #include <memory>
 #include <iostream>
@@ -30,32 +29,31 @@ typedef SharedMemoryCommandProcessor MyCommandProcessor;
 
 #include "SharedMemory/grpc/proto/pybullet.grpc.pb.h"
 
-
 using grpc::Server;
 using grpc::ServerAsyncResponseWriter;
 using grpc::ServerBuilder;
-using grpc::ServerContext;
 using grpc::ServerCompletionQueue;
+using grpc::ServerContext;
 using grpc::Status;
+using pybullet_grpc::PyBulletAPI;
 using pybullet_grpc::PyBulletCommand;
 using pybullet_grpc::PyBulletStatus;
-using pybullet_grpc::PyBulletAPI;
 
 bool gVerboseNetworkMessagesServer = true;
 #include "ConvertGRPCBullet.h"
 
-class ServerImpl final {
+class ServerImpl final
+{
 public:
-	~ServerImpl() {
+	~ServerImpl()
+	{
 		server_->Shutdown();
 		// Always shutdown the completion queue after the server.
 		cq_->Shutdown();
 	}
 
-	
-	void Run(MyCommandProcessor* comProc, const std::string& hostNamePort) {
-		
-
+	void Run(MyCommandProcessor* comProc, const std::string& hostNamePort)
+	{
 		ServerBuilder builder;
 		// Listen on the given address without any authentication mechanism.
 		builder.AddListeningPort(hostNamePort, grpc::InsecureServerCredentials());
@@ -75,21 +73,31 @@ public:
 
 private:
 	// Class encompasing the state and logic needed to serve a request.
-	class CallData {
+	class CallData
+	{
 	public:
 		// Take in the "service" instance (in this case representing an asynchronous
 		// server) and the completion queue "cq" used for asynchronous communication
 		// with the gRPC runtime.
 		CallData(PyBulletAPI::AsyncService* service, ServerCompletionQueue* cq, MyCommandProcessor* comProc)
-			: service_(service), cq_(cq), responder_(&ctx_), status_(CREATE) , m_finished(false), m_comProc(comProc){
+			: service_(service), cq_(cq), responder_(&ctx_), status_(CREATE), m_finished(false), m_comProc(comProc)
+		{
 			// Invoke the serving logic right away.
 			Proceed();
 		}
 
-		enum CallStatus { CREATE, PROCESS, FINISH, TERMINATE };
+		enum CallStatus
+		{
+			CREATE,
+			PROCESS,
+			FINISH,
+			TERMINATE
+		};
 
-		CallStatus Proceed() {
-			if (status_ == CREATE) {
+		CallStatus Proceed()
+		{
+			if (status_ == CREATE)
+			{
 				// Make this instance progress to the PROCESS state.
 				status_ = PROCESS;
 
@@ -98,12 +106,12 @@ private:
 				// the tag uniquely identifying the request (so that different CallData
 				// instances can serve different requests concurrently), in this case
 				// the memory address of this CallData instance.
-				
-				
+
 				service_->RequestSubmitCommand(&ctx_, &m_command, &responder_, cq_, cq_,
-					this);
+											   this);
 			}
-			else if (status_ == PROCESS) {
+			else if (status_ == PROCESS)
+			{
 				// Spawn a new CallData instance to serve new clients while we process
 				// the one for this CallData. The instance will deallocate itself as
 				// part of its FINISH state.
@@ -118,10 +126,9 @@ private:
 				buffer.resize(SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 				SharedMemoryCommand cmd;
 				SharedMemoryCommand* cmdPtr = 0;
-				
+
 				m_status.set_statustype(CMD_UNKNOWN_COMMAND_FLUSHED);
-				
-				
+
 				if (m_command.has_checkversioncommand())
 				{
 					m_status.set_statustype(CMD_CLIENT_COMMAND_COMPLETED);
@@ -130,7 +137,6 @@ private:
 				else
 				{
 					cmdPtr = convertGRPCToBulletCommand(m_command, cmd);
-
 
 					if (cmdPtr)
 					{
@@ -165,14 +171,15 @@ private:
 						status_ = TERMINATE;
 					}
 				}
-				
+
 				// And we are done! Let the gRPC runtime know we've finished, using the
 				// memory address of this instance as the uniquely identifying tag for
 				// the event.
-				
+
 				responder_.Finish(m_status, Status::OK, this);
 			}
-			else {
+			else
+			{
 				GPR_ASSERT(status_ == FINISH);
 				// Once in the FINISH state, deallocate ourselves (CallData).
 				delete this;
@@ -200,16 +207,17 @@ private:
 		ServerAsyncResponseWriter<PyBulletStatus> responder_;
 
 		// Let's implement a tiny state machine with the following states.
-		
+
 		CallStatus status_;  // The current serving state.
-		
+
 		bool m_finished;
-		
-		MyCommandProcessor* m_comProc; //physics server command processor
+
+		MyCommandProcessor* m_comProc;  //physics server command processor
 	};
 
 	// This can be run in multiple threads if needed.
-	void HandleRpcs(MyCommandProcessor* comProc) {
+	void HandleRpcs(MyCommandProcessor* comProc)
+	{
 		// Spawn a new CallData instance to serve new clients.
 		new CallData(&service_, cq_.get(), comProc);
 		void* tag;  // uniquely identifies a request.
@@ -218,13 +226,14 @@ private:
 
 		CallData::CallStatus status = CallData::CallStatus::CREATE;
 
-		while (status!= CallData::CallStatus::TERMINATE) {
+		while (status != CallData::CallStatus::TERMINATE)
+		{
 			// Block waiting to read the next event from the completion queue. The
 			// event is uniquely identified by its tag, which in this case is the
 			// memory address of a CallData instance.
 			// The return value of Next should always be checked. This return value
 			// tells us whether there is any kind of event or cq_ is shutting down.
-			
+
 			grpc::CompletionQueue::NextStatus nextStatus = cq_->AsyncNext(&tag, &ok, gpr_now(GPR_CLOCK_MONOTONIC));
 			if (nextStatus == grpc::CompletionQueue::NextStatus::GOT_EVENT)
 			{
@@ -235,15 +244,13 @@ private:
 		}
 	}
 
-	
 	std::unique_ptr<ServerCompletionQueue> cq_;
 	PyBulletAPI::AsyncService service_;
 	std::unique_ptr<Server> server_;
 };
 
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
-
 	b3CommandLineArgs parseArgs(argc, argv);
 	b3Clock clock;
 	double timeOutInSeconds = 10;
@@ -256,7 +263,7 @@ int main(int argc, char** argv)
 	parseArgs.GetCmdLineArgument("port", port);
 	std::string hostName = "localhost";
 	std::string hostNamePort = hostName;
-	if (port>=0)
+	if (port >= 0)
 	{
 		hostNamePort += ":" + std::to_string(port);
 	}
@@ -269,7 +276,7 @@ int main(int argc, char** argv)
 	{
 		sm->setSharedMemoryKey(key);
 	}
-#endif//NO_SHARED_MEMORY
+#endif  //NO_SHARED_MEMORY
 
 	bool isPhysicsClientConnected = sm->connect();
 	bool exitRequested = false;
@@ -289,5 +296,3 @@ int main(int argc, char** argv)
 
 	return 0;
 }
-
-

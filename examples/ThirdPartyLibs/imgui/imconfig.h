@@ -3,7 +3,7 @@
 // Most options (memory allocation, clipboard callbacks, etc.) can be set at runtime via the ImGuiIO structure - ImGui::GetIO().
 //-----------------------------------------------------------------------------
 // A) You may edit imconfig.h (and not overwrite it when updating imgui, or maintain a patch/branch with your modifications to imconfig.h)
-// B) or add configuration directives in your own file and compile with #define IMGUI_USER_CONFIG "myfilename.h" 
+// B) or add configuration directives in your own file and compile with #define IMGUI_USER_CONFIG "myfilename.h"
 // Note that options such as IMGUI_API, IM_VEC2_CLASS_EXTRA or ImDrawIdx needs to be defined consistently everywhere you include imgui.h, not only for the imgui*.cpp compilation units.
 //-----------------------------------------------------------------------------
 

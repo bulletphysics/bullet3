@@ -7,7 +7,6 @@
 class EmptyBrowser : public ExampleBrowserInterface
 {
 public:
-
 	EmptyExample m_emptyExample;
 
 	virtual CommonExampleInterface* getCurrentExample()
@@ -35,4 +34,4 @@ public:
 	}
 };
 
-#endif //EMPTY_BROWSER
+#endif  //EMPTY_BROWSER

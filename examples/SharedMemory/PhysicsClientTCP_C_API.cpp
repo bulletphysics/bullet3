@@ -4,9 +4,8 @@
 #include "PhysicsDirect.h"
 #include <stdio.h>
 
-B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsTCP(const char* hostName, int port)
+B3_SHARED_API b3PhysicsClientHandle b3ConnectPhysicsTCP(const char* hostName, int port)
 {
-
 	TcpNetworkedPhysicsProcessor* tcp = new TcpNetworkedPhysicsProcessor(hostName, port);
 
 	PhysicsDirect* direct = new PhysicsDirect(tcp, true);
@@ -20,10 +19,6 @@ B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsTCP(const char* hostName, in
 	else
 	{
 		printf("b3ConnectPhysicsTCP connection failed.\n");
-
 	}
 	return (b3PhysicsClientHandle)direct;
 }
-
-
-

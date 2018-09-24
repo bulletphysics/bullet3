@@ -7,72 +7,66 @@
 
 class X11OpenGLWindow : public CommonWindowInterface
 {
-
-	struct InternalData2*   m_data;
-        bool m_OpenGLInitialized;
+	struct InternalData2* m_data;
+	bool m_OpenGLInitialized;
 	bool m_requestedExit;
 
 protected:
+	void enableOpenGL();
 
-        void enableOpenGL();
+	void disableOpenGL();
 
-        void disableOpenGL();
+	void pumpMessage();
 
-        void pumpMessage();
-
-        int getAsciiCodeFromVirtualKeycode(int orgCode);
+	int getAsciiCodeFromVirtualKeycode(int orgCode);
 
 public:
+	X11OpenGLWindow();
 
-        X11OpenGLWindow();
+	virtual ~X11OpenGLWindow();
 
-        virtual ~X11OpenGLWindow();
+	virtual void createWindow(const b3gWindowConstructionInfo& ci);
 
-        virtual void    createWindow(const b3gWindowConstructionInfo& ci);
+	virtual void closeWindow();
 
-        virtual void    closeWindow();
+	virtual void startRendering();
 
-        virtual void    startRendering();
+	virtual void renderAllObjects();
 
-        virtual void    renderAllObjects();
+	virtual void endRendering();
 
-        virtual void    endRendering();
+	virtual float getRetinaScale() const { return 1.f; }
+	virtual void setAllowRetina(bool /*allowRetina*/){};
 
-        virtual float getRetinaScale() const {return 1.f;}
-	virtual void setAllowRetina(bool /*allowRetina*/) {};
+	virtual void runMainLoop();
+	virtual float getTimeInSeconds();
 
-	virtual void    runMainLoop();
-        virtual float   getTimeInSeconds();
-
-        virtual bool    requestedExit() const;
-        virtual void    setRequestExit() ;
+	virtual bool requestedExit() const;
+	virtual void setRequestExit();
 
 	virtual bool isModifierKeyPressed(int key);
 
-        virtual void setMouseMoveCallback(b3MouseMoveCallback   mouseCallback);
-        virtual void setMouseButtonCallback(b3MouseButtonCallback       mouseCallback);
-        virtual void setResizeCallback(b3ResizeCallback resizeCallback);
-        virtual void setWheelCallback(b3WheelCallback wheelCallback);
-        virtual void setKeyboardCallback( b3KeyboardCallback    keyboardCallback);
+	virtual void setMouseMoveCallback(b3MouseMoveCallback mouseCallback);
+	virtual void setMouseButtonCallback(b3MouseButtonCallback mouseCallback);
+	virtual void setResizeCallback(b3ResizeCallback resizeCallback);
+	virtual void setWheelCallback(b3WheelCallback wheelCallback);
+	virtual void setKeyboardCallback(b3KeyboardCallback keyboardCallback);
 
-		virtual b3MouseMoveCallback getMouseMoveCallback();
-		virtual b3MouseButtonCallback getMouseButtonCallback();
-		virtual b3ResizeCallback getResizeCallback();
-		virtual b3WheelCallback getWheelCallback();
-		virtual b3KeyboardCallback      getKeyboardCallback();
+	virtual b3MouseMoveCallback getMouseMoveCallback();
+	virtual b3MouseButtonCallback getMouseButtonCallback();
+	virtual b3ResizeCallback getResizeCallback();
+	virtual b3WheelCallback getWheelCallback();
+	virtual b3KeyboardCallback getKeyboardCallback();
 
-        virtual void setRenderCallback( b3RenderCallback renderCallback);
+	virtual void setRenderCallback(b3RenderCallback renderCallback);
 
-        virtual void setWindowTitle(const char* title);
+	virtual void setWindowTitle(const char* title);
 
-        virtual int   getWidth() const;
+	virtual int getWidth() const;
 
-        virtual int   getHeight() const;
+	virtual int getHeight() const;
 
 	int fileOpenDialog(char* filename, int maxNameLength);
 };
 
-
-
 #endif
-

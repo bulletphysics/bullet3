@@ -1,6 +1,6 @@
 #include "PhysicsClientTCP.h"
 
-#include "ActiveSocket.h" 
+#include "ActiveSocket.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -12,8 +12,6 @@
 #include "Bullet3Common/b3Logging.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
-
-
 unsigned int b3DeserializeInt2(const unsigned char* input)
 {
 	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];
@@ -21,21 +19,19 @@ unsigned int b3DeserializeInt2(const unsigned char* input)
 }
 bool gVerboseNetworkMessagesClient2 = false;
 
-
-struct	TcpNetworkedInternalData
+struct TcpNetworkedInternalData
 {
-    /*
+	/*
 	ENetHost*	m_client;
 	ENetAddress	m_address;
 	ENetPeer*	m_peer;
 	ENetEvent 	m_event;
      */
-    CActiveSocket m_tcpSocket;
-    
-	bool		m_isConnected;
+	CActiveSocket m_tcpSocket;
+
+	bool m_isConnected;
 
 	TcpNetworkedInternalData* m_tcpInternalData;
-	
 
 	SharedMemoryCommand m_clientCmd;
 	bool m_hasCommand;
@@ -50,12 +46,10 @@ struct	TcpNetworkedInternalData
 	double m_timeOutInSeconds;
 
 	TcpNetworkedInternalData()
-		:
-		m_isConnected(false),
-		m_hasCommand(false),
-		m_timeOutInSeconds(60)
+		: m_isConnected(false),
+		  m_hasCommand(false),
+		  m_timeOutInSeconds(60)
 	{
-
 	}
 
 	bool connectTCP()
@@ -63,17 +57,17 @@ struct	TcpNetworkedInternalData
 		if (m_isConnected)
 			return true;
 
-        m_tcpSocket.Initialize();
-        
-        m_isConnected = m_tcpSocket.Open(m_hostName.c_str(),m_port);
-        if (m_isConnected)
+		m_tcpSocket.Initialize();
+
+		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), m_port);
+		if (m_isConnected)
 		{
-			m_tcpSocket.SetSendTimeout(m_timeOutInSeconds,0);
-			m_tcpSocket.SetReceiveTimeout(m_timeOutInSeconds,0);
+			m_tcpSocket.SetSendTimeout(m_timeOutInSeconds, 0);
+			m_tcpSocket.SetReceiveTimeout(m_timeOutInSeconds, 0);
 		}
 		int key = SHARED_MEMORY_MAGIC_NUMBER;
-		m_tcpSocket.Send((uint8*)&key,4);
-		
+		m_tcpSocket.Send((uint8*)&key, 4);
+
 		return m_isConnected;
 	}
 
@@ -82,10 +76,10 @@ struct	TcpNetworkedInternalData
 		bool hasStatus = false;
 
 		//int serviceResult = enet_host_service(m_client, &m_event, 0);
-        int maxLen = 4 + sizeof(SharedMemoryStatus)+SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
-        
-        int rBytes = m_tcpSocket.Receive(maxLen);
-		if (rBytes<=0)
+		int maxLen = 4 + sizeof(SharedMemoryStatus) + SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
+
+		int rBytes = m_tcpSocket.Receive(maxLen);
+		if (rBytes <= 0)
 			return false;
 
 		//append to tmp buffer
@@ -93,17 +87,16 @@ struct	TcpNetworkedInternalData
 
 		unsigned char* d2 = (unsigned char*)m_tcpSocket.GetData();
 
-
 		int curSize = m_tempBuffer.size();
-		m_tempBuffer.resize(curSize+rBytes);
-		for (int i=0;i<rBytes;i++)
+		m_tempBuffer.resize(curSize + rBytes);
+		for (int i = 0; i < rBytes; i++)
 		{
-			m_tempBuffer[curSize+i] = d2[i];
+			m_tempBuffer[curSize + i] = d2[i];
 		}
 
 		int packetSizeInBytes = -1;
 
-		if (m_tempBuffer.size()>=4)
+		if (m_tempBuffer.size() >= 4)
 		{
 			packetSizeInBytes = b3DeserializeInt2(&m_tempBuffer[0]);
 		}
@@ -127,7 +120,6 @@ struct	TcpNetworkedInternalData
 			}
 			else
 			{
-
 				m_lastStatus = *statPtr;
 				int streamOffsetInBytes = 4 + sizeof(SharedMemoryStatus);
 				int numStreamBytes = packetSizeInBytes - streamOffsetInBytes;
@@ -141,9 +133,7 @@ struct	TcpNetworkedInternalData
 		}
 		return hasStatus;
 	}
-
 };
-
 
 TcpNetworkedPhysicsProcessor::TcpNetworkedPhysicsProcessor(const char* hostName, int port)
 {
@@ -153,7 +143,6 @@ TcpNetworkedPhysicsProcessor::TcpNetworkedPhysicsProcessor(const char* hostName,
 		m_data->m_hostName = hostName;
 	}
 	m_data->m_port = port;
-
 }
 
 TcpNetworkedPhysicsProcessor::~TcpNetworkedPhysicsProcessor()
@@ -164,24 +153,23 @@ TcpNetworkedPhysicsProcessor::~TcpNetworkedPhysicsProcessor()
 
 bool TcpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
-	if(gVerboseNetworkMessagesClient2)
+	if (gVerboseNetworkMessagesClient2)
 	{
 		printf("PhysicsClientTCP::processCommand\n");
 	}
 
 	{
 		int sz = 0;
-        unsigned char* data = 0;
-        m_data->m_tempBuffer.clear();
+		unsigned char* data = 0;
+		m_data->m_tempBuffer.clear();
 
 		if (clientCmd.m_type == CMD_STEP_FORWARD_SIMULATION)
 		{
 			sz = sizeof(int);
-            data = (unsigned char*) &clientCmd.m_type;
+			data = (unsigned char*)&clientCmd.m_type;
 		}
 		else
 		{
-
 			if (clientCmd.m_type == CMD_REQUEST_VR_EVENTS_DATA)
 			{
 				sz = 3 * sizeof(int) + sizeof(smUint64_t) + 16;
@@ -192,11 +180,10 @@ bool TcpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 				sz = sizeof(SharedMemoryCommand);
 				data = (unsigned char*)&clientCmd;
 			}
-    	}
-						
-        m_data->m_tcpSocket.Send((const uint8 *)data,sz);
+		}
 
-	}                    
+		m_data->m_tcpSocket.Send((const uint8*)data, sz);
+	}
 
 	return false;
 }
@@ -226,20 +213,16 @@ bool TcpNetworkedPhysicsProcessor::receiveStatus(struct SharedMemoryStatus& serv
 		{
 			printf("Error: steam buffer overflow\n");
 		}
-
 	}
 
-	
 	return hasStatus;
-
 }
-
 
 void TcpNetworkedPhysicsProcessor::renderScene(int renderFlags)
 {
 }
 
-void   TcpNetworkedPhysicsProcessor::physicsDebugDraw(int debugDrawFlags)
+void TcpNetworkedPhysicsProcessor::physicsDebugDraw(int debugDrawFlags)
 {
 }
 
@@ -252,7 +235,6 @@ bool TcpNetworkedPhysicsProcessor::isConnected() const
 	return m_data->m_isConnected;
 }
 
-
 bool TcpNetworkedPhysicsProcessor::connect()
 {
 	bool isConnected = m_data->connectTCP();
@@ -261,17 +243,13 @@ bool TcpNetworkedPhysicsProcessor::connect()
 
 void TcpNetworkedPhysicsProcessor::disconnect()
 {
-	const char msg[16]="disconnect";
-	m_data->m_tcpSocket.Send((const uint8 *)msg,10);
+	const char msg[16] = "disconnect";
+	m_data->m_tcpSocket.Send((const uint8*)msg, 10);
 	m_data->m_tcpSocket.Close();
 	m_data->m_isConnected = false;
 }
-
 
 void TcpNetworkedPhysicsProcessor::setTimeOut(double timeOutInSeconds)
 {
 	m_data->m_timeOutInSeconds = timeOutInSeconds;
 }
-
-
-

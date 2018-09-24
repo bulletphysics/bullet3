@@ -9,11 +9,12 @@
 #define BulletTest_Test_quat_aos_neon_h
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C"
+{
 #endif
-    
-    int Test_quat_aos_neon(void);
-    
+
+	int Test_quat_aos_neon(void);
+
 #ifdef __cplusplus
 }
 #endif

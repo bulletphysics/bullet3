@@ -20,9 +20,7 @@ subject to the following restrictions:
 *
 */
 
-
 #include <math.h>
-
 
 #include "LinearR3.h"
 #include "MathMisc.h"
@@ -37,9 +35,9 @@ Node::Node(const VectorR3& attach, const VectorR3& v, double size, Purpose purpo
 	Node::purpose = purpose;
 	seqNumJoint = -1;
 	seqNumEffector = -1;
-	Node::attach = attach;		// Global attachment point when joints are at zero angle
-	r.Set(0.0, 0.0, 0.0);		// r will be updated when this node is inserted into tree
-	Node::v = v;				// Rotation axis when joints at zero angles
+	Node::attach = attach;  // Global attachment point when joints are at zero angle
+	r.Set(0.0, 0.0, 0.0);   // r will be updated when this node is inserted into tree
+	Node::v = v;            // Rotation axis when joints at zero angles
 	theta = 0.0;
 	Node::minTheta = minTheta;
 	Node::maxTheta = maxTheta;
@@ -52,9 +50,10 @@ void Node::ComputeS(void)
 {
 	Node* y = this->realparent;
 	Node* w = this;
-	s = r;							// Initialize to local (relative) position
-	while ( y ) {
-		s.Rotate( y->theta, y->v );
+	s = r;  // Initialize to local (relative) position
+	while (y)
+	{
+		s.Rotate(y->theta, y->v);
 		y = y->realparent;
 		w = w->realparent;
 		s += w->r;
@@ -65,14 +64,13 @@ void Node::ComputeS(void)
 void Node::ComputeW(void)
 {
 	Node* y = this->realparent;
-	w = v;							// Initialize to local rotation axis
-	while (y) {
+	w = v;  // Initialize to local rotation axis
+	while (y)
+	{
 		w.Rotate(y->theta, y->v);
 		y = y->realparent;
 	}
 }
-
-
 
 void Node::PrintNode()
 {
@@ -82,7 +80,6 @@ void Node::PrintNode()
 	cerr << "w : (" << w << ")\n";
 	cerr << "realparent : " << realparent->seqNumJoint << "\n";
 }
-
 
 void Node::InitNode()
 {

@@ -14,19 +14,18 @@ struct MyGraphInput
 	const char* m_name;
 	const char* m_texName;
 	MyGraphInput(struct GwenInternalData* data)
-	:m_data(data),
-	m_xPos(0),
-	m_yPos(0),
-	m_width(400),
-	m_height(400),
-	m_borderWidth(0),
-	m_name("GraphWindow"),
-	m_texName(0)
+		: m_data(data),
+		  m_xPos(0),
+		  m_yPos(0),
+		  m_width(400),
+		  m_height(400),
+		  m_borderWidth(0),
+		  m_name("GraphWindow"),
+		  m_texName(0)
 	{
 	}
 };
 class MyGraphWindow* setupTextureWindow(const MyGraphInput& input);
 void destroyTextureWindow(MyGraphWindow* window);
 
-
-#endif //GWEN_TEXTURE_WINDOW_H
+#endif  //GWEN_TEXTURE_WINDOW_H

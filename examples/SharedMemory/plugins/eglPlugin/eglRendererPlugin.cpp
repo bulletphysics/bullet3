@@ -5,7 +5,7 @@
 #else
 #include <Python.h>
 #endif
-#endif //EGL_ADD_PYTHON_INIT
+#endif  //EGL_ADD_PYTHON_INIT
 
 //eglRenderer plugin
 
@@ -18,11 +18,8 @@
 #include "../b3PluginContext.h"
 #include <stdio.h>
 
-
-
 struct EGLRendererPluginClass
 {
-	
 	EGLRendererVisualShapeConverter m_renderer;
 	EGLRendererPluginClass()
 	{
@@ -39,16 +36,14 @@ B3_SHARED_API int initPlugin_eglRendererPlugin(struct b3PluginContext* context)
 	return SHARED_MEMORY_MAGIC_NUMBER;
 }
 
-
 B3_SHARED_API int executePluginCommand_eglRendererPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
 {
-		return -1;
+	return -1;
 }
-
 
 B3_SHARED_API void exitPlugin_eglRendererPlugin(struct b3PluginContext* context)
 {
-	EGLRendererPluginClass* obj = (EGLRendererPluginClass*) context->m_userPointer;
+	EGLRendererPluginClass* obj = (EGLRendererPluginClass*)context->m_userPointer;
 	delete obj;
 	context->m_userPointer = 0;
 }
@@ -56,33 +51,28 @@ B3_SHARED_API void exitPlugin_eglRendererPlugin(struct b3PluginContext* context)
 //all the APIs below are optional
 B3_SHARED_API struct UrdfRenderingInterface* getRenderInterface_eglRendererPlugin(struct b3PluginContext* context)
 {
-	EGLRendererPluginClass* obj = (EGLRendererPluginClass*) context->m_userPointer;
+	EGLRendererPluginClass* obj = (EGLRendererPluginClass*)context->m_userPointer;
 	return &obj->m_renderer;
 }
-
 
 #ifdef EGL_ADD_PYTHON_INIT
 
 static PyMethodDef eglMethods[] = {
-  {NULL, NULL, 0, NULL} /* Sentinel */
+	{NULL, NULL, 0, NULL} /* Sentinel */
 };
 
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef moduledef = {
-        PyModuleDef_HEAD_INIT, "eglRenderer", /* m_name */
-        "eglRenderer for PyBullet "
-        , /* m_doc */
-        -1,            /* m_size */
-        eglMethods,   /* m_methods */
-        NULL,          /* m_reload */
-        NULL,          /* m_traverse */
-        NULL,          /* m_clear */
-        NULL,          /* m_free */
+	PyModuleDef_HEAD_INIT, "eglRenderer", /* m_name */
+	"eglRenderer for PyBullet ",          /* m_doc */
+	-1,                                   /* m_size */
+	eglMethods,                           /* m_methods */
+	NULL,                                 /* m_reload */
+	NULL,                                 /* m_traverse */
+	NULL,                                 /* m_clear */
+	NULL,                                 /* m_free */
 };
 #endif
-
-
-
 
 PyMODINIT_FUNC
 #if PY_MAJOR_VERSION >= 3
@@ -91,20 +81,17 @@ PyInit_eglRenderer(void)
 initeglRenderer(void)
 #endif
 {
-
- PyObject* m;
+	PyObject* m;
 #if PY_MAJOR_VERSION >= 3
-        m = PyModule_Create(&moduledef);
+	m = PyModule_Create(&moduledef);
 #else
-        m = Py_InitModule3("eglRenderer", eglMethods, "eglRenderer for PyBullet");
+	m = Py_InitModule3("eglRenderer", eglMethods, "eglRenderer for PyBullet");
 #endif
 
 #if PY_MAJOR_VERSION >= 3
-        if (m == NULL) return m;
+	if (m == NULL) return m;
 #else
-        if (m == NULL) return;
+	if (m == NULL) return;
 #endif
-
-
 }
-#endif //EGL_ADD_PYTHON_INIT
+#endif  //EGL_ADD_PYTHON_INIT

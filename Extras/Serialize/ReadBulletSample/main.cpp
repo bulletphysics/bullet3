@@ -13,7 +13,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #include <stdio.h>
 #include "../BulletFileLoader/btBulletFile.h"
 #include "BulletDataExtractor.h"
@@ -25,39 +24,37 @@ subject to the following restrictions:
 
 int main(int argc, char** argv)
 {
-	const char* fileName="testFile.bullet";
+	const char* fileName = "testFile.bullet";
 	bool verboseDumpAllTypes = false;
 
 	bParse::btBulletFile* bulletFile2 = new bParse::btBulletFile(fileName);
 
-	bool ok = (bulletFile2->getFlags()& bParse::FD_OK)!=0;
-	
+	bool ok = (bulletFile2->getFlags() & bParse::FD_OK) != 0;
+
 	if (ok)
 		bulletFile2->parse(verboseDumpAllTypes);
 	else
 	{
-		printf("Error loading file %s.\n",fileName);
+		printf("Error loading file %s.\n", fileName);
 		exit(0);
 	}
-	ok = (bulletFile2->getFlags()& bParse::FD_OK)!=0;
+	ok = (bulletFile2->getFlags() & bParse::FD_OK) != 0;
 	if (!ok)
 	{
-		printf("Error parsing file %s.\n",fileName);
+		printf("Error parsing file %s.\n", fileName);
 		exit(0);
 	}
-	
+
 	if (verboseDumpAllTypes)
 	{
 		bulletFile2->dumpChunks(bulletFile2->getFileDNA());
 	}
 
-
 	btBulletDataExtractor extractor;
-	
+
 	extractor.convertAllObjects(bulletFile2);
 
 	delete bulletFile2;
 
 	return 0;
 }
-

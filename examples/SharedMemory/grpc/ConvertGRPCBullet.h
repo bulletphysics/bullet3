@@ -6,9 +6,9 @@
 
 namespace pybullet_grpc
 {
-	class PyBulletCommand;
-	class PyBulletStatus;
-};
+class PyBulletCommand;
+class PyBulletStatus;
+};  // namespace pybullet_grpc
 
 struct SharedMemoryCommand* convertGRPCToBulletCommand(const pybullet_grpc::PyBulletCommand& grpcCommand, struct SharedMemoryCommand& cmd);
 
@@ -18,4 +18,4 @@ bool convertGRPCToStatus(const pybullet_grpc::PyBulletStatus& grpcReply, struct 
 
 bool convertStatusToGRPC(const struct SharedMemoryStatus& serverStatus, char* bufferServerToClient, int bufferSizeInBytes, pybullet_grpc::PyBulletStatus& grpcReply);
 
-#endif //BT_CONVERT_GRPC_BULLET_H
+#endif  //BT_CONVERT_GRPC_BULLET_H

@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-///work-in-progress 
+///work-in-progress
 ///This ReadBulletSample is kept as simple as possible without dependencies to the Bullet SDK.
 ///It can be used to load .bullet data for other physics SDKs
 ///For a more complete example how to load and convert Bullet data using the Bullet SDK check out
@@ -22,8 +22,8 @@ enum LocalBroadphaseNativeTypes
 	CONVEX_HULL_SHAPE_PROXYTYPE,
 	CONVEX_POINT_CLOUD_SHAPE_PROXYTYPE,
 	CUSTOM_POLYHEDRAL_SHAPE_TYPE,
-//implicit convex shapes
-IMPLICIT_CONVEX_SHAPES_START_HERE,
+	//implicit convex shapes
+	IMPLICIT_CONVEX_SHAPES_START_HERE,
 	SPHERE_SHAPE_PROXYTYPE,
 	MULTI_SPHERE_SHAPE_PROXYTYPE,
 	CAPSULE_SHAPE_PROXYTYPE,
@@ -36,8 +36,8 @@ IMPLICIT_CONVEX_SHAPES_START_HERE,
 	BOX_2D_SHAPE_PROXYTYPE,
 	CONVEX_2D_SHAPE_PROXYTYPE,
 	CUSTOM_CONVEX_SHAPE_TYPE,
-//concave shapes
-CONCAVE_SHAPES_START_HERE,
+	//concave shapes
+	CONCAVE_SHAPES_START_HERE,
 	//keep all the convex shapetype below here, for the check IsConvexShape in broadphase proxy!
 	TRIANGLE_MESH_SHAPE_PROXYTYPE,
 	SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE,
@@ -45,15 +45,15 @@ CONCAVE_SHAPES_START_HERE,
 	FAST_CONCAVE_MESH_PROXYTYPE,
 	//terrain
 	TERRAIN_SHAPE_PROXYTYPE,
-///Used for GIMPACT Trimesh integration
+	///Used for GIMPACT Trimesh integration
 	GIMPACT_SHAPE_PROXYTYPE,
-///Multimaterial mesh
-    MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE,
-	
+	///Multimaterial mesh
+	MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE,
+
 	EMPTY_SHAPE_PROXYTYPE,
 	STATIC_PLANE_PROXYTYPE,
 	CUSTOM_CONCAVE_SHAPE_TYPE,
-CONCAVE_SHAPES_END_HERE,
+	CONCAVE_SHAPES_END_HERE,
 
 	COMPOUND_SHAPE_PROXYTYPE,
 
@@ -63,7 +63,7 @@ CONCAVE_SHAPES_END_HERE,
 	INVALID_SHAPE_PROXYTYPE,
 
 	MAX_BROADPHASE_COLLISION_TYPES
-	
+
 };
 
 btBulletDataExtractor::btBulletDataExtractor()
@@ -78,28 +78,25 @@ void btBulletDataExtractor::convertAllObjects(bParse::btBulletFile* bulletFile2)
 {
 	int i;
 
-	for (i=0;i<bulletFile2->m_collisionShapes.size();i++)
+	for (i = 0; i < bulletFile2->m_collisionShapes.size(); i++)
 	{
 		btCollisionShapeData* shapeData = (btCollisionShapeData*)bulletFile2->m_collisionShapes[i];
 		if (shapeData->m_name)
 			printf("converting shape %s\n", shapeData->m_name);
 		void* shape = convertCollisionShape(shapeData);
 	}
-
 }
 
-
-
-void* btBulletDataExtractor::convertCollisionShape(  btCollisionShapeData* shapeData  )
+void* btBulletDataExtractor::convertCollisionShape(btCollisionShapeData* shapeData)
 {
 	void* shape = 0;
 
 	switch (shapeData->m_shapeType)
-		{
-	case STATIC_PLANE_PROXYTYPE:
+	{
+		case STATIC_PLANE_PROXYTYPE:
 		{
 			btStaticPlaneShapeData* planeData = (btStaticPlaneShapeData*)shapeData;
-			void* shape = createPlaneShape(planeData->m_planeNormal,planeData->m_planeConstant, planeData->m_localScaling);
+			void* shape = createPlaneShape(planeData->m_planeNormal, planeData->m_planeConstant, planeData->m_localScaling);
 			break;
 		}
 
@@ -109,21 +106,21 @@ void* btBulletDataExtractor::convertCollisionShape(  btCollisionShapeData* shape
 		case SPHERE_SHAPE_PROXYTYPE:
 		case MULTI_SPHERE_SHAPE_PROXYTYPE:
 		case CONVEX_HULL_SHAPE_PROXYTYPE:
+		{
+			btConvexInternalShapeData* bsd = (btConvexInternalShapeData*)shapeData;
+
+			switch (shapeData->m_shapeType)
 			{
-				btConvexInternalShapeData* bsd = (btConvexInternalShapeData*)shapeData;
-				
-				switch (shapeData->m_shapeType)
+				case BOX_SHAPE_PROXYTYPE:
 				{
-					case BOX_SHAPE_PROXYTYPE:
-						{
-							shape = createBoxShape(bsd->m_implicitShapeDimensions, bsd->m_localScaling,bsd->m_collisionMargin);
-							break;
-						}
-					case SPHERE_SHAPE_PROXYTYPE:
-						{
-							shape = createSphereShape(bsd->m_implicitShapeDimensions.m_floats[0],bsd->m_localScaling, bsd->m_collisionMargin);
-							break;
-						}
+					shape = createBoxShape(bsd->m_implicitShapeDimensions, bsd->m_localScaling, bsd->m_collisionMargin);
+					break;
+				}
+				case SPHERE_SHAPE_PROXYTYPE:
+				{
+					shape = createSphereShape(bsd->m_implicitShapeDimensions.m_floats[0], bsd->m_localScaling, bsd->m_collisionMargin);
+					break;
+				}
 #if 0
 					case CAPSULE_SHAPE_PROXYTYPE:
 						{
@@ -221,14 +218,14 @@ void* btBulletDataExtractor::convertCollisionShape(  btCollisionShapeData* shape
 						}
 #endif
 
-					default:
-						{
-							printf("error: cannot create shape type (%d)\n",shapeData->m_shapeType);
-						}
+				default:
+				{
+					printf("error: cannot create shape type (%d)\n", shapeData->m_shapeType);
 				}
-
-				break;
 			}
+
+			break;
+		}
 #if 0
 		case TRIANGLE_MESH_SHAPE_PROXYTYPE:
 		{
@@ -257,7 +254,7 @@ void* btBulletDataExtractor::convertCollisionShape(  btCollisionShapeData* shape
 
 #ifdef USE_INTERNAL_EDGE_UTILITY
 				gContactAddedCallback = btAdjustInternalEdgeContactsCallback;
-#endif //USE_INTERNAL_EDGE_UTILITY
+#endif  //USE_INTERNAL_EDGE_UTILITY
 
 			}
 
@@ -313,33 +310,30 @@ void* btBulletDataExtractor::convertCollisionShape(  btCollisionShapeData* shape
 			{
 				return 0;
 			}
-#endif 
+#endif
 		default:
-			{
-				printf("unsupported shape type (%d)\n",shapeData->m_shapeType);
-			}
+		{
+			printf("unsupported shape type (%d)\n", shapeData->m_shapeType);
 		}
+	}
 
-		return shape;
-	
+	return shape;
 }
 
-void* btBulletDataExtractor::createBoxShape( const Bullet::btVector3FloatData& halfDimensions, const Bullet::btVector3FloatData& localScaling, float collisionMargin)
+void* btBulletDataExtractor::createBoxShape(const Bullet::btVector3FloatData& halfDimensions, const Bullet::btVector3FloatData& localScaling, float collisionMargin)
 {
-	printf("createBoxShape with halfDimensions %f,%f,%f\n",halfDimensions.m_floats[0], halfDimensions.m_floats[1],halfDimensions.m_floats[2]);
+	printf("createBoxShape with halfDimensions %f,%f,%f\n", halfDimensions.m_floats[0], halfDimensions.m_floats[1], halfDimensions.m_floats[2]);
 	return 0;
 }
 
-void* btBulletDataExtractor::createSphereShape( float radius, const Bullet::btVector3FloatData& localScaling, float collisionMargin)
+void* btBulletDataExtractor::createSphereShape(float radius, const Bullet::btVector3FloatData& localScaling, float collisionMargin)
 {
-	printf("createSphereShape with radius %f\n",radius);
+	printf("createSphereShape with radius %f\n", radius);
 	return 0;
 }
 
-
-void* btBulletDataExtractor::createPlaneShape( const btVector3FloatData& planeNormal, float planeConstant, const Bullet::btVector3FloatData& localScaling)
+void* btBulletDataExtractor::createPlaneShape(const btVector3FloatData& planeNormal, float planeConstant, const Bullet::btVector3FloatData& localScaling)
 {
-	printf("createPlaneShape with normal %f,%f,%f and planeConstant\n",planeNormal.m_floats[0], planeNormal.m_floats[1],planeNormal.m_floats[2],planeConstant);
+	printf("createPlaneShape with normal %f,%f,%f and planeConstant\n", planeNormal.m_floats[0], planeNormal.m_floats[1], planeNormal.m_floats[2], planeConstant);
 	return 0;
 }
-

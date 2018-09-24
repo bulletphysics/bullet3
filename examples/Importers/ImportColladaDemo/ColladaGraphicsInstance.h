@@ -23,13 +23,13 @@ subject to the following restrictions:
 struct ColladaGraphicsInstance
 {
 	ColladaGraphicsInstance()
-		:m_shapeIndex(-1)
+		: m_shapeIndex(-1)
 	{
 		m_worldTransform.setIdentity();
 	}
-	btMatrix4x4	m_worldTransform;
-	int m_shapeIndex;//could be index into array of GLInstanceGraphicsShape
+	btMatrix4x4 m_worldTransform;
+	int m_shapeIndex;  //could be index into array of GLInstanceGraphicsShape
 	float m_color[4];
 };
 
-#endif //COLLADA_GRAPHICS_INSTANCE_H
+#endif  //COLLADA_GRAPHICS_INSTANCE_H

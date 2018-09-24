@@ -21,7 +21,7 @@ struct MyClass
 	int m_testData;
 
 	MyClass()
-		:m_testData(42)
+		: m_testData(42)
 	{
 	}
 	virtual ~MyClass()
@@ -38,47 +38,43 @@ B3_SHARED_API int initPlugin_testPlugin(struct b3PluginContext* context)
 	return SHARED_MEMORY_MAGIC_NUMBER;
 }
 
-
 B3_SHARED_API int preTickPluginCallback_testPlugin(struct b3PluginContext* context)
 {
-	
 	return 0;
 }
 
-
 B3_SHARED_API int postTickPluginCallback_testPlugin(struct b3PluginContext* context)
 {
-	MyClass* obj = (MyClass* )context->m_userPointer;
+	MyClass* obj = (MyClass*)context->m_userPointer;
 	obj->m_testData++;
 	return 0;
 }
 
 B3_SHARED_API int executePluginCommand_testPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
 {
-	
-	printf("text argument:%s\n",arguments->m_text);
+	printf("text argument:%s\n", arguments->m_text);
 	printf("int args: [");
-	for (int i=0;i<arguments->m_numInts;i++)
+	for (int i = 0; i < arguments->m_numInts; i++)
 	{
 		printf("%d", arguments->m_ints[i]);
-		if ((i+1)<arguments->m_numInts)
+		if ((i + 1) < arguments->m_numInts)
 		{
 			printf(",");
 		}
 	}
 	printf("]\nfloat args: [");
-	for (int i=0;i<arguments->m_numFloats;i++)
+	for (int i = 0; i < arguments->m_numFloats; i++)
 	{
 		printf("%f", arguments->m_floats[i]);
-		if ((i+1)<arguments->m_numFloats)
+		if ((i + 1) < arguments->m_numFloats)
 		{
 			printf(",");
 		}
 	}
 	printf("]\n");
 
-	MyClass* obj = (MyClass*) context->m_userPointer;
-	
+	MyClass* obj = (MyClass*)context->m_userPointer;
+
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType = -1;
 	int bodyUniqueId = -1;
@@ -90,15 +86,14 @@ B3_SHARED_API int executePluginCommand_testPlugin(struct b3PluginContext* contex
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType == CMD_URDF_LOADING_COMPLETED)
 	{
-		bodyUniqueId = b3GetStatusBodyIndex(statusHandle);	
+		bodyUniqueId = b3GetStatusBodyIndex(statusHandle);
 	}
 	return bodyUniqueId;
 }
 
-
 B3_SHARED_API void exitPlugin_testPlugin(struct b3PluginContext* context)
 {
-	MyClass* obj = (MyClass*) context->m_userPointer;
+	MyClass* obj = (MyClass*)context->m_userPointer;
 	delete obj;
 	context->m_userPointer = 0;
 

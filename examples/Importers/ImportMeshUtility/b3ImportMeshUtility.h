@@ -7,7 +7,7 @@ struct b3ImportMeshData
 {
 	struct GLInstanceGraphicsShape* m_gfxShape;
 
-	unsigned char* m_textureImage1;//in 3 component 8-bit RGB data
+	unsigned char* m_textureImage1;  //in 3 component 8-bit RGB data
 	bool m_isCached;
 	int m_textureWidth;
 	int m_textureHeight;
@@ -16,11 +16,7 @@ struct b3ImportMeshData
 class b3ImportMeshUtility
 {
 public:
-
-static bool loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData);
-
+	static bool loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData);
 };
 
-
-#endif //B3_IMPORT_MESH_UTILITY_H
-
+#endif  //B3_IMPORT_MESH_UTILITY_H

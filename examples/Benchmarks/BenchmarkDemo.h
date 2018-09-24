@@ -15,9 +15,6 @@ subject to the following restrictions:
 #ifndef BENCHMARK_EXAMPLE_H
 #define BENCHMARK_EXAMPLE_H
 
-class CommonExampleInterface*    BenchmarkCreateFunc(struct CommonExampleOptions& options);
+class CommonExampleInterface* BenchmarkCreateFunc(struct CommonExampleOptions& options);
 
-
-
-#endif //BENCHMARK_EXAMPLE_H
-
+#endif  //BENCHMARK_EXAMPLE_H

@@ -12,6 +12,4 @@
 #include "MultiBodyNameMap.hpp"
 #include "User2InternalIndex.hpp"
 
-#endif//BULLET_INVERSE_DYNAMICS_UTILS_COMMON_H
-
-
+#endif  //BULLET_INVERSE_DYNAMICS_UTILS_COMMON_H

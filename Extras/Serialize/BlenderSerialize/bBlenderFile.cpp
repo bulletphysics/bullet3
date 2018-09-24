@@ -27,32 +27,27 @@ extern int DNAlen;
 extern unsigned char DNAstr64[];
 extern int DNAlen64;
 
-
 using namespace bParse;
 
-bBlenderFile::bBlenderFile(const char* fileName)
-:bFile(fileName, "BLENDER")
+bBlenderFile::bBlenderFile(const char *fileName)
+	: bFile(fileName, "BLENDER")
 {
-	mMain= new bMain(this, fileName, mVersion);
+	mMain = new bMain(this, fileName, mVersion);
 }
-
-
 
 bBlenderFile::bBlenderFile(char *memoryBuffer, int len)
-:bFile(memoryBuffer,len, "BLENDER"),
-mMain(0)
+	: bFile(memoryBuffer, len, "BLENDER"),
+	  mMain(0)
 {
-	mMain= new bMain(this, "memoryBuf", mVersion);
+	mMain = new bMain(this, "memoryBuf", mVersion);
 }
-
 
 bBlenderFile::~bBlenderFile()
 {
 	delete mMain;
 }
 
-
-bMain* bBlenderFile::getMain()
+bMain *bBlenderFile::getMain()
 {
 	return mMain;
 }
@@ -60,19 +55,16 @@ bMain* bBlenderFile::getMain()
 // ----------------------------------------------------- //
 void bBlenderFile::parseData()
 {
-//	printf ("Building datablocks\n");
-//	printf ("Chunk size = %d\n",CHUNK_HEADER_LEN);
-//	printf ("File chunk size = %d\n", ChunkUtils::getOffset(mFlags));
+	//	printf ("Building datablocks\n");
+	//	printf ("Chunk size = %d\n",CHUNK_HEADER_LEN);
+	//	printf ("File chunk size = %d\n", ChunkUtils::getOffset(mFlags));
 
-	const bool swap = (mFlags&FD_ENDIAN_SWAP)!=0;
-	
+	const bool swap = (mFlags & FD_ENDIAN_SWAP) != 0;
 
-
-	char *dataPtr = mFileBuffer+mDataStart;
+	char *dataPtr = mFileBuffer + mDataStart;
 
 	bChunkInd dataChunk;
 	dataChunk.code = 0;
-
 
 	//dataPtr += ChunkUtils::getNextBlock(&dataChunk, dataPtr, mFlags);
 	int seek = getNextBlock(&dataChunk, dataPtr, mFlags);
@@ -81,54 +73,45 @@ void bBlenderFile::parseData()
 
 	while (dataChunk.code != DNA1)
 	{
-		
-
-
-
 		// one behind
 		if (dataChunk.code == SDNA) break;
 		//if (dataChunk.code == DNA1) break;
 
 		// same as (BHEAD+DATA dependency)
-		dataPtrHead = dataPtr+ChunkUtils::getOffset(mFlags);
+		dataPtrHead = dataPtr + ChunkUtils::getOffset(mFlags);
 		char *id = readStruct(dataPtrHead, dataChunk);
 
 		// lookup maps
 		if (id)
 		{
-            m_chunkPtrPtrMap.insert(dataChunk.oldPtr, dataChunk);
-			mLibPointers.insert(dataChunk.oldPtr, (bStructHandle*)id);
+			m_chunkPtrPtrMap.insert(dataChunk.oldPtr, dataChunk);
+			mLibPointers.insert(dataChunk.oldPtr, (bStructHandle *)id);
 
 			m_chunks.push_back(dataChunk);
 			// block it
 			bListBasePtr *listID = mMain->getListBasePtr(dataChunk.code);
 			if (listID)
-				listID->push_back((bStructHandle*)id);
+				listID->push_back((bStructHandle *)id);
 		}
 
 		if (dataChunk.code == GLOB)
 		{
-			m_glob = (bStructHandle*) id;
+			m_glob = (bStructHandle *)id;
 		}
 
 		// next please!
 		dataPtr += seek;
 
-		seek =  getNextBlock(&dataChunk, dataPtr, mFlags);
+		seek = getNextBlock(&dataChunk, dataPtr, mFlags);
 		if (seek < 0)
 			break;
 	}
-
 }
 
-void	bBlenderFile::addDataBlock(char* dataBlock)
+void bBlenderFile::addDataBlock(char *dataBlock)
 {
 	mMain->addDatablock(dataBlock);
 }
-
-
-
-
 
 // 32 && 64 bit versions
 extern unsigned char DNAstr[];
@@ -137,88 +120,87 @@ extern int DNAlen;
 //unsigned char DNAstr[]={0};
 //int DNAlen=0;
 
-
 extern unsigned char DNAstr64[];
 extern int DNAlen64;
 
-
-void	bBlenderFile::writeDNA(FILE* fp)
+void bBlenderFile::writeDNA(FILE *fp)
 {
-
 	bChunkInd dataChunk;
 	dataChunk.code = DNA1;
 	dataChunk.dna_nr = 0;
 	dataChunk.nr = 1;
-	
+
 	if (VOID_IS_8)
 	{
 		dataChunk.len = DNAlen64;
 		dataChunk.oldPtr = DNAstr64;
-		fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
-		fwrite(DNAstr64, DNAlen64,1,fp);
+		fwrite(&dataChunk, sizeof(bChunkInd), 1, fp);
+		fwrite(DNAstr64, DNAlen64, 1, fp);
 	}
 	else
 	{
 		dataChunk.len = DNAlen;
 		dataChunk.oldPtr = DNAstr;
-		fwrite(&dataChunk,sizeof(bChunkInd),1,fp);
-		fwrite(DNAstr, DNAlen,1,fp);
+		fwrite(&dataChunk, sizeof(bChunkInd), 1, fp);
+		fwrite(DNAstr, DNAlen, 1, fp);
 	}
 }
 
-void	bBlenderFile::parse(int verboseMode)
+void bBlenderFile::parse(int verboseMode)
 {
 	if (VOID_IS_8)
 	{
-		parseInternal(verboseMode,(char*)DNAstr64,DNAlen64);
+		parseInternal(verboseMode, (char *)DNAstr64, DNAlen64);
 	}
 	else
 	{
-		parseInternal(verboseMode,(char*)DNAstr,DNAlen);
+		parseInternal(verboseMode, (char *)DNAstr, DNAlen);
 	}
 }
 
 // experimental
-int		bBlenderFile::write(const char* fileName, bool fixupPointers)
+int bBlenderFile::write(const char *fileName, bool fixupPointers)
 {
 	FILE *fp = fopen(fileName, "wb");
 	if (fp)
 	{
-		char header[SIZEOFBLENDERHEADER] ;
+		char header[SIZEOFBLENDERHEADER];
 		memcpy(header, m_headerString, 7);
-		int endian= 1;
-		endian= ((char*)&endian)[0];
+		int endian = 1;
+		endian = ((char *)&endian)[0];
 
 		if (endian)
 		{
 			header[7] = '_';
-		} else
+		}
+		else
 		{
 			header[7] = '-';
 		}
 		if (VOID_IS_8)
 		{
-			header[8]='V';
-		} else
+			header[8] = 'V';
+		}
+		else
 		{
-			header[8]='v';
+			header[8] = 'v';
 		}
 
 		header[9] = '2';
 		header[10] = '4';
 		header[11] = '9';
-		
-		fwrite(header,SIZEOFBLENDERHEADER,1,fp);
+
+		fwrite(header, SIZEOFBLENDERHEADER, 1, fp);
 
 		writeChunks(fp, fixupPointers);
 
 		writeDNA(fp);
 
 		fclose(fp);
-		
-	} else
+	}
+	else
 	{
-		printf("Error: cannot open file %s for writing\n",fileName);
+		printf("Error: cannot open file %s for writing\n", fileName);
 		return 0;
 	}
 	return 1;

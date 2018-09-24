@@ -5,7 +5,6 @@
 
 class SharedMemoryCommandProcessor : public PhysicsCommandProcessorInterface
 {
-
 	struct SharedMemoryCommandProcessorInternalData* m_data;
 
 public:
@@ -24,7 +23,7 @@ public:
 	virtual bool receiveStatus(struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
 
 	virtual void renderScene(int renderFlags);
-	virtual void   physicsDebugDraw(int debugDrawFlags);
+	virtual void physicsDebugDraw(int debugDrawFlags);
 	virtual void setGuiHelper(struct GUIHelperInterface* guiHelper);
 
 	void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
@@ -34,5 +33,4 @@ public:
 	virtual void reportNotifications() {}
 };
 
-#endif //SHARED_MEMORY_COMMAND_PROCESSOR_H
-
+#endif  //SHARED_MEMORY_COMMAND_PROCESSOR_H

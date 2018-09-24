@@ -4,13 +4,14 @@
 #include "PhysicsClientC_API.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-B3_SHARED_API b3PhysicsClientHandle b3ConnectSharedMemory(int key);
+	B3_SHARED_API b3PhysicsClientHandle b3ConnectSharedMemory(int key);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //PHYSICS_CLIENT_SHARED_MEMORY_H
+#endif  //PHYSICS_CLIENT_SHARED_MEMORY_H

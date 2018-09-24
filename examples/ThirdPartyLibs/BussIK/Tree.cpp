@@ -31,9 +31,6 @@ subject to the following restrictions:
 #include <iostream>
 using namespace std;
 
-
-
-
 #include "LinearR3.h"
 #include "Tree.h"
 #include "Node.h"
@@ -46,25 +43,26 @@ Tree::Tree()
 
 void Tree::SetSeqNum(Node* node)
 {
-	switch (node->purpose) {
-	case JOINT:
-		node->seqNumJoint = nJoint++;
-		node->seqNumEffector = -1;
-		break;
-	case EFFECTOR:
-		node->seqNumJoint = -1;
-		node->seqNumEffector = nEffector++;
-		break;
+	switch (node->purpose)
+	{
+		case JOINT:
+			node->seqNumJoint = nJoint++;
+			node->seqNumEffector = -1;
+			break;
+		case EFFECTOR:
+			node->seqNumJoint = -1;
+			node->seqNumEffector = nEffector++;
+			break;
 	}
 }
 
 void Tree::InsertRoot(Node* root)
 {
-	assert( nNode==0 );
+	assert(nNode == 0);
 	nNode++;
 	Tree::root = root;
 	root->r = root->attach;
-	assert( !(root->left || root->right) );
+	assert(!(root->left || root->right));
 	SetSeqNum(root);
 }
 
@@ -75,7 +73,7 @@ void Tree::InsertLeftChild(Node* parent, Node* child)
 	parent->left = child;
 	child->realparent = parent;
 	child->r = child->attach - child->realparent->attach;
-	assert( !(child->left || child->right) );
+	assert(!(child->left || child->right));
 	SetSeqNum(child);
 }
 
@@ -86,7 +84,7 @@ void Tree::InsertRightSibling(Node* parent, Node* child)
 	parent->right = child;
 	child->realparent = parent->realparent;
 	child->r = child->attach - child->realparent->attach;
-	assert( !(child->left || child->right) );
+	assert(!(child->left || child->right));
 	SetSeqNum(child);
 }
 
@@ -94,24 +92,30 @@ void Tree::InsertRightSibling(Node* parent, Node* child)
 Node* Tree::SearchJoint(Node* node, int index)
 {
 	Node* ret;
-	if (node != 0) {
-		if (node->seqNumJoint == index) {
+	if (node != 0)
+	{
+		if (node->seqNumJoint == index)
+		{
 			return node;
-		} else {
-			if ((ret = SearchJoint(node->left, index))) {
+		}
+		else
+		{
+			if ((ret = SearchJoint(node->left, index)))
+			{
 				return ret;
 			}
-			if ((ret = SearchJoint(node->right, index))) {
+			if ((ret = SearchJoint(node->right, index)))
+			{
 				return ret;
 			}
 			return NULL;
 		}
-	} 
-	else {
+	}
+	else
+	{
 		return NULL;
 	}
 }
-
 
 // Get the joint with the index value
 Node* Tree::GetJoint(int index)
@@ -123,23 +127,30 @@ Node* Tree::GetJoint(int index)
 Node* Tree::SearchEffector(Node* node, int index)
 {
 	Node* ret;
-	if (node != 0) {
-		if (node->seqNumEffector == index) {
+	if (node != 0)
+	{
+		if (node->seqNumEffector == index)
+		{
 			return node;
-		} else {
-			if ((ret = SearchEffector(node->left, index))) {
+		}
+		else
+		{
+			if ((ret = SearchEffector(node->left, index)))
+			{
 				return ret;
 			}
-			if ((ret = SearchEffector(node->right, index))) {
+			if ((ret = SearchEffector(node->right, index)))
+			{
 				return ret;
 			}
 			return NULL;
 		}
-	} else {
+	}
+	else
+	{
 		return NULL;
 	}
 }
-
 
 // Get the end effector for the index value
 Node* Tree::GetEffector(int index)
@@ -152,12 +163,13 @@ const VectorR3& Tree::GetEffectorPosition(int index)
 {
 	Node* effector = GetEffector(index);
 	assert(effector);
-	return (effector->s);  
+	return (effector->s);
 }
 
 void Tree::ComputeTree(Node* node)
 {
-	if (node != 0) {
+	if (node != 0)
+	{
 		node->ComputeS();
 		node->ComputeW();
 		ComputeTree(node->left);
@@ -166,30 +178,31 @@ void Tree::ComputeTree(Node* node)
 }
 
 void Tree::Compute(void)
-{ 
-	ComputeTree(root); 
+{
+	ComputeTree(root);
 }
-
 
 void Tree::PrintTree(Node* node)
 {
-	if (node != 0) {
+	if (node != 0)
+	{
 		node->PrintNode();
 		PrintTree(node->left);
 		PrintTree(node->right);
 	}
 }
 
-void Tree::Print(void) 
-{ 
-	PrintTree(root);  
+void Tree::Print(void)
+{
+	PrintTree(root);
 	cout << "\n";
 }
 
 // Recursively initialize tree below the node
 void Tree::InitTree(Node* node)
 {
-	if (node != 0) {
+	if (node != 0)
+	{
 		node->InitNode();
 		InitTree(node->left);
 		InitTree(node->right);
@@ -204,7 +217,8 @@ void Tree::Init(void)
 
 void Tree::UnFreezeTree(Node* node)
 {
-	if (node != 0) {
+	if (node != 0)
+	{
 		node->UnFreeze();
 		UnFreezeTree(node->left);
 		UnFreezeTree(node->right);

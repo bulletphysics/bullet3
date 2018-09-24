@@ -3,29 +3,28 @@
 
 #define MSTRINGIFY(A) #A
 
-
 const char* urdf_char2 = MSTRINGIFY(
-                                   <robot name="test_robot">
-                                   <link name="link1" />
-                                   <link name="link2" />
-                                   <link name="link3" />
-                                   <link name="link4" />
-                                   
-                                   <joint name="joint1" type="continuous">
-                                   <parent link="link1"/>
-                                   <child link="link2"/>
-                                   </joint>
-                                   
-                                   <joint name="joint2" type="continuous">
-                                   <parent link="link1"/>
-                                   <child link="link3"/>
-                                   </joint>
-                                   
-                                   <joint name="joint3" type="continuous">
-                                   <parent link="link3"/>
-                                   <child link="link4"/>
-                                   </joint>
-                                   </robot>);
+	<robot name = "test_robot">
+	<link name = "link1" />
+	<link name = "link2" />
+	<link name = "link3" />
+	<link name = "link4" />
+
+	<joint name = "joint1" type = "continuous">
+	<parent link = "link1" />
+	<child link = "link2" />
+	</ joint>
+
+	<joint name = "joint2" type = "continuous">
+	<parent link = "link1" />
+	<child link = "link3" />
+	</ joint>
+
+	<joint name = "joint3" type = "continuous">
+	<parent link = "link3" />
+	<child link = "link4" />
+	</ joint>
+	</ robot>);
 
 const char* urdf_char1 = MSTRINGIFY(
                                    <?xml version="1.0"?>
@@ -821,5 +820,4 @@ const char* urdf_char = MSTRINGIFY(
 
 );
 
-#endif //URDF_SAMPLES_H
-
+#endif  //URDF_SAMPLES_H

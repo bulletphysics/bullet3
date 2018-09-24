@@ -16,77 +16,69 @@ subject to the following restrictions:
 #ifndef __BCHUNK_H__
 #define __BCHUNK_H__
 
-#if defined (_WIN32) && ! defined (__MINGW32__)
-	#define long64 __int64
-#elif defined (__MINGW32__)	
-	#include <stdint.h>
-	#define long64 int64_t
+#if defined(_WIN32) && !defined(__MINGW32__)
+#define long64 __int64
+#elif defined(__MINGW32__)
+#include <stdint.h>
+#define long64 int64_t
 #else
-	#define long64 long long
+#define long64 long long
 #endif
 
-
-namespace bParse {
-
-
-	// ----------------------------------------------------- //
-	class bChunkPtr4
-	{
-	public:
-		bChunkPtr4(){}
-		int code;
-		int len;
-		union
-		{
-			int m_uniqueInt;
-		};
-		int dna_nr;
-		int nr;
+namespace bParse
+{
+// ----------------------------------------------------- //
+class bChunkPtr4
+{
+public:
+	bChunkPtr4() {}
+	int code;
+	int len;
+	union {
+		int m_uniqueInt;
 	};
+	int dna_nr;
+	int nr;
+};
 
-	// ----------------------------------------------------- //
-	class bChunkPtr8
-	{
-	public:
-		bChunkPtr8(){}
-		int code,  len;
-		union
-		{
-			long64 oldPrev;
-			int	m_uniqueInts[2];
-		};
-		int dna_nr, nr;
+// ----------------------------------------------------- //
+class bChunkPtr8
+{
+public:
+	bChunkPtr8() {}
+	int code, len;
+	union {
+		long64 oldPrev;
+		int m_uniqueInts[2];
 	};
+	int dna_nr, nr;
+};
 
-	// ----------------------------------------------------- //
-	class bChunkInd
-	{
-	public:
-		bChunkInd(){}
-		int code, len;
-		void *oldPtr;
-		int dna_nr, nr;
-	};
+// ----------------------------------------------------- //
+class bChunkInd
+{
+public:
+	bChunkInd() {}
+	int code, len;
+	void *oldPtr;
+	int dna_nr, nr;
+};
 
+// ----------------------------------------------------- //
+class ChunkUtils
+{
+public:
+	// file chunk offset
+	static int getOffset(int flags);
 
-	// ----------------------------------------------------- //
-	class ChunkUtils
-	{
-	public:
-		
-		// file chunk offset
-		static int getOffset(int flags);
+	// endian utils
+	static short swapShort(short sht);
+	static int swapInt(int inte);
+	static long64 swapLong64(long64 lng);
+};
 
-		// endian utils
-		static short swapShort(short sht);
-		static int swapInt(int inte);
-		static long64 swapLong64(long64 lng);
+const int CHUNK_HEADER_LEN = ((sizeof(bChunkInd)));
+const bool VOID_IS_8 = ((sizeof(void *) == 8));
+}  // namespace bParse
 
-	};
-
-
-	const int CHUNK_HEADER_LEN = ((sizeof(bChunkInd)));
-	const bool VOID_IS_8 = ((sizeof(void*)==8));
-}
-
-#endif//__BCHUNK_H__
+#endif  //__BCHUNK_H__

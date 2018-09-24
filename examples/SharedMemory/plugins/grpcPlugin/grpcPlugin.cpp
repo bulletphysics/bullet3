@@ -19,24 +19,23 @@
 using grpc::Server;
 using grpc::ServerAsyncResponseWriter;
 using grpc::ServerBuilder;
-using grpc::ServerContext;
 using grpc::ServerCompletionQueue;
+using grpc::ServerContext;
 using grpc::Status;
+using pybullet_grpc::PyBulletAPI;
 using pybullet_grpc::PyBulletCommand;
 using pybullet_grpc::PyBulletStatus;
-using pybullet_grpc::PyBulletAPI;
-
 
 bool gVerboseNetworkMessagesServer4 = false;
 
-
-class ServerImpl final {
+class ServerImpl final
+{
 public:
-
 	ServerImpl()
 	{
 	}
-	~ServerImpl() {
+	~ServerImpl()
+	{
 		Exit();
 	}
 
@@ -51,8 +50,8 @@ public:
 		}
 	}
 
-	void Init(PhysicsCommandProcessorInterface* comProc, const std::string& hostNamePort) {
-
+	void Init(PhysicsCommandProcessorInterface* comProc, const std::string& hostNamePort)
+	{
 		// Listen on the given address without any authentication mechanism.
 		m_builder.AddListeningPort(hostNamePort, grpc::InsecureServerCredentials());
 		// Register "service_" as the instance through which we'll communicate with
@@ -72,7 +71,6 @@ public:
 	// This can be run in multiple threads if needed.
 	bool HandleSingleRpc()
 	{
-
 		CallData::CallStatus status = CallData::CallStatus::CREATE;
 
 		{
@@ -98,21 +96,31 @@ public:
 
 private:
 	// Class encompasing the state and logic needed to serve a request.
-	class CallData {
+	class CallData
+	{
 	public:
 		// Take in the "service" instance (in this case representing an asynchronous
 		// server) and the completion queue "cq" used for asynchronous communication
 		// with the gRPC runtime.
 		CallData(PyBulletAPI::AsyncService* service, ServerCompletionQueue* cq, PhysicsCommandProcessorInterface* comProc)
-			: service_(service), cq_(cq), responder_(&ctx_), status_(CREATE), m_finished(false), m_comProc(comProc) {
+			: service_(service), cq_(cq), responder_(&ctx_), status_(CREATE), m_finished(false), m_comProc(comProc)
+		{
 			// Invoke the serving logic right away.
 			Proceed();
 		}
 
-		enum CallStatus { CREATE, PROCESS, FINISH, TERMINATE };
+		enum CallStatus
+		{
+			CREATE,
+			PROCESS,
+			FINISH,
+			TERMINATE
+		};
 
-		CallStatus Proceed() {
-			if (status_ == CREATE) {
+		CallStatus Proceed()
+		{
+			if (status_ == CREATE)
+			{
 				// Make this instance progress to the PROCESS state.
 				status_ = PROCESS;
 
@@ -122,11 +130,11 @@ private:
 				// instances can serve different requests concurrently), in this case
 				// the memory address of this CallData instance.
 
-
 				service_->RequestSubmitCommand(&ctx_, &m_command, &responder_, cq_, cq_,
-					this);
+											   this);
 			}
-			else if (status_ == PROCESS) {
+			else if (status_ == PROCESS)
+			{
 				// Spawn a new CallData instance to serve new clients while we process
 				// the one for this CallData. The instance will deallocate itself as
 				// part of its FINISH state.
@@ -144,7 +152,6 @@ private:
 
 				m_status.set_statustype(CMD_UNKNOWN_COMMAND_FLUSHED);
 
-
 				if (m_command.has_checkversioncommand())
 				{
 					m_status.set_statustype(CMD_CLIENT_COMMAND_COMPLETED);
@@ -154,11 +161,10 @@ private:
 				{
 					cmdPtr = convertGRPCToBulletCommand(m_command, cmd);
 
-
 					if (cmdPtr)
 					{
 						bool hasStatus = m_comProc->processCommand(*cmdPtr, serverStatus, &buffer[0], buffer.size());
-						
+
 						double timeOutInSeconds = 10;
 						b3Clock clock;
 						double startTimeSeconds = clock.getTimeInSeconds();
@@ -196,7 +202,8 @@ private:
 
 				responder_.Finish(m_status, Status::OK, this);
 			}
-			else {
+			else
+			{
 				GPR_ASSERT(status_ == FINISH);
 				// Once in the FINISH state, deallocate ourselves (CallData).
 				delete this;
@@ -215,8 +222,6 @@ private:
 		// client.
 		ServerContext ctx_;
 
-		
-
 		// What we get from the client.
 		PyBulletCommand m_command;
 		// What we send back to the client.
@@ -231,16 +236,15 @@ private:
 
 		bool m_finished;
 
-		PhysicsCommandProcessorInterface* m_comProc; //physics server command processor
+		PhysicsCommandProcessorInterface* m_comProc;  //physics server command processor
 	};
 
 	// This can be run in multiple threads if needed.
-	void InitRpcs(PhysicsCommandProcessorInterface* comProc) 
+	void InitRpcs(PhysicsCommandProcessorInterface* comProc)
 	{
 		// Spawn a new CallData instance to serve new clients.
 		new CallData(&service_, cq_.get(), comProc);
 	}
-	
 
 	ServerBuilder m_builder;
 	std::unique_ptr<ServerCompletionQueue> cq_;
@@ -248,19 +252,18 @@ private:
 	std::unique_ptr<Server> server_;
 };
 
-
 struct grpcMyClass
 {
 	int m_testData;
-	
+
 	ServerImpl m_grpcServer;
 	bool m_grpcInitialized;
 	bool m_grpcTerminated;
 
 	grpcMyClass()
-		:m_testData(42),
-		m_grpcInitialized(false),
-		m_grpcTerminated(false)
+		: m_testData(42),
+		  m_grpcInitialized(false),
+		  m_grpcTerminated(false)
 	{
 	}
 	virtual ~grpcMyClass()
@@ -272,11 +275,9 @@ B3_SHARED_API int initPlugin_grpcPlugin(struct b3PluginContext* context)
 {
 	grpcMyClass* obj = new grpcMyClass();
 	context->m_userPointer = obj;
-	
 
 	return SHARED_MEMORY_MAGIC_NUMBER;
 }
-
 
 B3_SHARED_API int preTickPluginCallback_grpcPlugin(struct b3PluginContext* context)
 {
@@ -287,32 +288,32 @@ B3_SHARED_API int preTickPluginCallback_grpcPlugin(struct b3PluginContext* conte
 B3_SHARED_API int processClientCommands_grpcPlugin(struct b3PluginContext* context)
 {
 	grpcMyClass* obj = (grpcMyClass*)context->m_userPointer;
-		
+
 	if (obj->m_grpcInitialized && !obj->m_grpcTerminated)
 	{
 		obj->m_grpcTerminated = obj->m_grpcServer.HandleSingleRpc();
 	}
-	
+
 	obj->m_testData++;
 	return 0;
 }
 
 B3_SHARED_API int postTickPluginCallback_grpcPlugin(struct b3PluginContext* context)
 {
-	grpcMyClass* obj = (grpcMyClass* )context->m_userPointer;
+	grpcMyClass* obj = (grpcMyClass*)context->m_userPointer;
 	obj->m_testData++;
 	return 0;
 }
 
 B3_SHARED_API int executePluginCommand_grpcPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
 {
-	///3 cases: 
+	///3 cases:
 	/// 1: send a non-empty string to start the GRPC server
 	/// 2: send some integer n, to call n times to HandleSingleRpc
 	/// 3: send nothing to terminate the GRPC server
-	
+
 	grpcMyClass* obj = (grpcMyClass*)context->m_userPointer;
-	
+
 	if (strlen(arguments->m_text))
 	{
 		if (!obj->m_grpcInitialized && context->m_rpcCommandProcessorInterface)
@@ -339,14 +340,13 @@ B3_SHARED_API int executePluginCommand_grpcPlugin(struct b3PluginContext* contex
 			obj->m_grpcInitialized = false;
 		}
 	}
-	
+
 	return 0;
 }
 
-
 B3_SHARED_API void exitPlugin_grpcPlugin(struct b3PluginContext* context)
 {
-	grpcMyClass* obj = (grpcMyClass*) context->m_userPointer;
+	grpcMyClass* obj = (grpcMyClass*)context->m_userPointer;
 	obj->m_grpcServer.Exit();
 	delete obj;
 	context->m_userPointer = 0;

@@ -8,7 +8,7 @@
 
 class b3WriteWavFile
 {
-	void incrementFrame( void );
+	void incrementFrame(void);
 	void flush();
 
 	struct b3WriteWavFileInternalData* m_data;
@@ -16,17 +16,14 @@ class b3WriteWavFile
 	void flushData(int bufferSize);
 
 public:
-
 	b3WriteWavFile();
 	virtual ~b3WriteWavFile();
 
-	bool setWavFile(std::string fileName, int sampleRate, int numChannels, bool useDoublePrecision=true);
+	bool setWavFile(std::string fileName, int sampleRate, int numChannels, bool useDoublePrecision = true);
 
 	void closeWavFile();
 
-	void tick( double* values, int numValues );
-	
-
+	void tick(double* values, int numValues);
 };
 
 #endif  //B3_WRITE_WAV_FILE_H

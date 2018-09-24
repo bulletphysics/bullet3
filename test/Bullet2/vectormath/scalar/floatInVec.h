@@ -17,8 +17,8 @@ subject to the following restrictions:
 #define _FLOATINVEC_H
 
 #include <math.h>
-namespace Vectormath {
-
+namespace Vectormath
+{
 class boolInVec;
 
 //--------------------------------------------------------------------------------------------------
@@ -30,120 +30,117 @@ class boolInVec;
 class floatInVec
 {
 private:
-    float mData;
+	float mData;
 
 public:
-    // Default constructor; does no initialization
-    //
-    inline floatInVec( ) { };
+	// Default constructor; does no initialization
+	//
+	inline floatInVec(){};
 
-    // Construct from a value converted from bool
-    //
-    inline floatInVec(boolInVec vec);
+	// Construct from a value converted from bool
+	//
+	inline floatInVec(boolInVec vec);
 
-    // Explicit cast from float
-    //
-    explicit inline floatInVec(float scalar);
+	// Explicit cast from float
+	//
+	explicit inline floatInVec(float scalar);
 
-    // Explicit cast to float
-    //
-    inline float getAsFloat() const;
+	// Explicit cast to float
+	//
+	inline float getAsFloat() const;
 
 #ifndef _VECTORMATH_NO_SCALAR_CAST
-    // Implicit cast to float
-    //
-    inline operator float() const;
+	// Implicit cast to float
+	//
+	inline operator float() const;
 #endif
 
-    // Post increment (add 1.0f)
-    //
-    inline const floatInVec operator ++ (int);
+	// Post increment (add 1.0f)
+	//
+	inline const floatInVec operator++(int);
 
-    // Post decrement (subtract 1.0f)
-    //
-    inline const floatInVec operator -- (int);
+	// Post decrement (subtract 1.0f)
+	//
+	inline const floatInVec operator--(int);
 
-    // Pre increment (add 1.0f)
-    //
-    inline floatInVec& operator ++ ();
+	// Pre increment (add 1.0f)
+	//
+	inline floatInVec& operator++();
 
-    // Pre decrement (subtract 1.0f)
-    //
-    inline floatInVec& operator -- ();
+	// Pre decrement (subtract 1.0f)
+	//
+	inline floatInVec& operator--();
 
-    // Negation operator
-    //
-    inline const floatInVec operator - () const;
+	// Negation operator
+	//
+	inline const floatInVec operator-() const;
 
-    // Assignment operator
-    //
-    inline floatInVec& operator = (floatInVec vec);
+	// Assignment operator
+	//
+	inline floatInVec& operator=(floatInVec vec);
 
-    // Multiplication assignment operator
-    //
-    inline floatInVec& operator *= (floatInVec vec);
+	// Multiplication assignment operator
+	//
+	inline floatInVec& operator*=(floatInVec vec);
 
-    // Division assignment operator
-    //
-    inline floatInVec& operator /= (floatInVec vec);
+	// Division assignment operator
+	//
+	inline floatInVec& operator/=(floatInVec vec);
 
-    // Addition assignment operator
-    //
-    inline floatInVec& operator += (floatInVec vec);
+	// Addition assignment operator
+	//
+	inline floatInVec& operator+=(floatInVec vec);
 
-    // Subtraction assignment operator
-    //
-    inline floatInVec& operator -= (floatInVec vec);
-
+	// Subtraction assignment operator
+	//
+	inline floatInVec& operator-=(floatInVec vec);
 };
 
 // Multiplication operator
 //
-inline const floatInVec operator * (floatInVec vec0, floatInVec vec1);
+inline const floatInVec operator*(floatInVec vec0, floatInVec vec1);
 
 // Division operator
 //
-inline const floatInVec operator / (floatInVec vec0, floatInVec vec1);
+inline const floatInVec operator/(floatInVec vec0, floatInVec vec1);
 
 // Addition operator
 //
-inline const floatInVec operator + (floatInVec vec0, floatInVec vec1);
+inline const floatInVec operator+(floatInVec vec0, floatInVec vec1);
 
 // Subtraction operator
 //
-inline const floatInVec operator - (floatInVec vec0, floatInVec vec1);
+inline const floatInVec operator-(floatInVec vec0, floatInVec vec1);
 
 // Less than operator
 //
-inline const boolInVec operator < (floatInVec vec0, floatInVec vec1);
+inline const boolInVec operator<(floatInVec vec0, floatInVec vec1);
 
 // Less than or equal operator
 //
-inline const boolInVec operator <= (floatInVec vec0, floatInVec vec1);
+inline const boolInVec operator<=(floatInVec vec0, floatInVec vec1);
 
 // Greater than operator
 //
-inline const boolInVec operator > (floatInVec vec0, floatInVec vec1);
+inline const boolInVec operator>(floatInVec vec0, floatInVec vec1);
 
 // Greater than or equal operator
 //
-inline const boolInVec operator >= (floatInVec vec0, floatInVec vec1);
+inline const boolInVec operator>=(floatInVec vec0, floatInVec vec1);
 
 // Equal operator
 //
-inline const boolInVec operator == (floatInVec vec0, floatInVec vec1);
+inline const boolInVec operator==(floatInVec vec0, floatInVec vec1);
 
 // Not equal operator
 //
-inline const boolInVec operator != (floatInVec vec0, floatInVec vec1);
+inline const boolInVec operator!=(floatInVec vec0, floatInVec vec1);
 
 // Conditionally select between two values
 //
 inline const floatInVec select(floatInVec vec0, floatInVec vec1, boolInVec select_vec1);
 
-
-} // namespace Vectormath
-
+}  // namespace Vectormath
 
 //--------------------------------------------------------------------------------------------------
 // floatInVec implementation
@@ -151,193 +148,168 @@ inline const floatInVec select(floatInVec vec0, floatInVec vec1, boolInVec selec
 
 #include "boolInVec.h"
 
-namespace Vectormath {
-
-inline
-floatInVec::floatInVec(boolInVec vec)
+namespace Vectormath
 {
-    mData = float(vec.getAsBool());
+inline floatInVec::floatInVec(boolInVec vec)
+{
+	mData = float(vec.getAsBool());
 }
 
-inline
-floatInVec::floatInVec(float scalar)
+inline floatInVec::floatInVec(float scalar)
 {
-    mData = scalar;
+	mData = scalar;
 }
 
-inline
-float
+inline float
 floatInVec::getAsFloat() const
 {
-    return mData;
+	return mData;
 }
 
 #ifndef _VECTORMATH_NO_SCALAR_CAST
-inline
-floatInVec::operator float() const
+inline floatInVec::operator float() const
 {
-    return getAsFloat();
+	return getAsFloat();
 }
 #endif
 
-inline
-const floatInVec
-floatInVec::operator ++ (int)
+inline const floatInVec
+floatInVec::operator++(int)
 {
-    float olddata = mData;
-    operator ++();
-    return floatInVec(olddata);
+	float olddata = mData;
+	operator++();
+	return floatInVec(olddata);
 }
 
-inline
-const floatInVec
-floatInVec::operator -- (int)
+inline const floatInVec
+floatInVec::operator--(int)
 {
-    float olddata = mData;
-    operator --();
-    return floatInVec(olddata);
+	float olddata = mData;
+	operator--();
+	return floatInVec(olddata);
 }
 
-inline
-floatInVec&
-floatInVec::operator ++ ()
+inline floatInVec&
+floatInVec::operator++()
 {
-    *this += floatInVec(1.0f);
-    return *this;
+	*this += floatInVec(1.0f);
+	return *this;
 }
 
-inline
-floatInVec&
-floatInVec::operator -- ()
+inline floatInVec&
+floatInVec::operator--()
 {
-    *this -= floatInVec(1.0f);
-    return *this;
+	*this -= floatInVec(1.0f);
+	return *this;
 }
 
-inline
-const floatInVec
-floatInVec::operator - () const
+inline const floatInVec
+floatInVec::operator-() const
 {
-    return floatInVec(-mData);
+	return floatInVec(-mData);
 }
 
-inline
-floatInVec&
-floatInVec::operator = (floatInVec vec)
+inline floatInVec&
+floatInVec::operator=(floatInVec vec)
 {
-    mData = vec.mData;
-    return *this;
+	mData = vec.mData;
+	return *this;
 }
 
-inline
-floatInVec&
-floatInVec::operator *= (floatInVec vec)
+inline floatInVec&
+floatInVec::operator*=(floatInVec vec)
 {
-    *this = *this * vec;
-    return *this;
+	*this = *this * vec;
+	return *this;
 }
 
-inline
-floatInVec&
-floatInVec::operator /= (floatInVec vec)
+inline floatInVec&
+floatInVec::operator/=(floatInVec vec)
 {
-    *this = *this / vec;
-    return *this;
+	*this = *this / vec;
+	return *this;
 }
 
-inline
-floatInVec&
-floatInVec::operator += (floatInVec vec)
+inline floatInVec&
+floatInVec::operator+=(floatInVec vec)
 {
-    *this = *this + vec;
-    return *this;
+	*this = *this + vec;
+	return *this;
 }
 
-inline
-floatInVec&
-floatInVec::operator -= (floatInVec vec)
+inline floatInVec&
+floatInVec::operator-=(floatInVec vec)
 {
-    *this = *this - vec;
-    return *this;
+	*this = *this - vec;
+	return *this;
 }
 
-inline
-const floatInVec
-operator * (floatInVec vec0, floatInVec vec1)
+inline const floatInVec
+operator*(floatInVec vec0, floatInVec vec1)
 {
-    return floatInVec(vec0.getAsFloat() * vec1.getAsFloat());
+	return floatInVec(vec0.getAsFloat() * vec1.getAsFloat());
 }
 
-inline
-const floatInVec
-operator / (floatInVec num, floatInVec den)
+inline const floatInVec
+operator/(floatInVec num, floatInVec den)
 {
-    return floatInVec(num.getAsFloat() / den.getAsFloat());
+	return floatInVec(num.getAsFloat() / den.getAsFloat());
 }
 
-inline
-const floatInVec
-operator + (floatInVec vec0, floatInVec vec1)
+inline const floatInVec
+operator+(floatInVec vec0, floatInVec vec1)
 {
-    return floatInVec(vec0.getAsFloat() + vec1.getAsFloat());
+	return floatInVec(vec0.getAsFloat() + vec1.getAsFloat());
 }
 
-inline
-const floatInVec
-operator - (floatInVec vec0, floatInVec vec1)
+inline const floatInVec
+operator-(floatInVec vec0, floatInVec vec1)
 {
-    return floatInVec(vec0.getAsFloat() - vec1.getAsFloat());
+	return floatInVec(vec0.getAsFloat() - vec1.getAsFloat());
 }
 
-inline
-const boolInVec
-operator < (floatInVec vec0, floatInVec vec1)
+inline const boolInVec
+operator<(floatInVec vec0, floatInVec vec1)
 {
-    return boolInVec(vec0.getAsFloat() < vec1.getAsFloat());
+	return boolInVec(vec0.getAsFloat() < vec1.getAsFloat());
 }
 
-inline
-const boolInVec
-operator <= (floatInVec vec0, floatInVec vec1)
+inline const boolInVec
+operator<=(floatInVec vec0, floatInVec vec1)
 {
-    return !(vec0 > vec1);
+	return !(vec0 > vec1);
 }
 
-inline
-const boolInVec
-operator > (floatInVec vec0, floatInVec vec1)
+inline const boolInVec
+operator>(floatInVec vec0, floatInVec vec1)
 {
-    return boolInVec(vec0.getAsFloat() > vec1.getAsFloat());
+	return boolInVec(vec0.getAsFloat() > vec1.getAsFloat());
 }
 
-inline
-const boolInVec
-operator >= (floatInVec vec0, floatInVec vec1)
+inline const boolInVec
+operator>=(floatInVec vec0, floatInVec vec1)
 {
-    return !(vec0 < vec1);
+	return !(vec0 < vec1);
 }
 
-inline
-const boolInVec
-operator == (floatInVec vec0, floatInVec vec1)
+inline const boolInVec
+operator==(floatInVec vec0, floatInVec vec1)
 {
-    return boolInVec(vec0.getAsFloat() == vec1.getAsFloat());
+	return boolInVec(vec0.getAsFloat() == vec1.getAsFloat());
 }
 
-inline
-const boolInVec
-operator != (floatInVec vec0, floatInVec vec1)
+inline const boolInVec
+operator!=(floatInVec vec0, floatInVec vec1)
 {
-    return !(vec0 == vec1);
+	return !(vec0 == vec1);
 }
 
-inline
-const floatInVec
+inline const floatInVec
 select(floatInVec vec0, floatInVec vec1, boolInVec select_vec1)
 {
-    return (select_vec1.getAsBool() == 0) ? vec0 : vec1;
+	return (select_vec1.getAsBool() == 0) ? vec0 : vec1;
 }
 
-} // namespace Vectormath
+}  // namespace Vectormath
 
-#endif // floatInVec_h
+#endif  // floatInVec_h

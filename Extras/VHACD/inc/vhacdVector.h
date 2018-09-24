@@ -18,86 +18,89 @@
 #include <iostream>
 #include <math.h>
 
-namespace VHACD {
+namespace VHACD
+{
 //!    Vector dim 3.
 template <typename T>
-class Vec3 {
+class Vec3
+{
 public:
-    T& operator[](size_t i) { return m_data[i]; }
-    const T& operator[](size_t i) const { return m_data[i]; }
-    T& X();
-    T& Y();
-    T& Z();
-    const T& X() const;
-    const T& Y() const;
-    const T& Z() const;
-    void Normalize();
-    T GetNorm() const;
-    void operator=(const Vec3& rhs);
-    void operator+=(const Vec3& rhs);
-    void operator-=(const Vec3& rhs);
-    void operator-=(T a);
-    void operator+=(T a);
-    void operator/=(T a);
-    void operator*=(T a);
-    Vec3 operator^(const Vec3& rhs) const;
-    T operator*(const Vec3& rhs) const;
-    Vec3 operator+(const Vec3& rhs) const;
-    Vec3 operator-(const Vec3& rhs) const;
-    Vec3 operator-() const;
-    Vec3 operator*(T rhs) const;
-    Vec3 operator/(T rhs) const;
-    bool operator<(const Vec3& rhs) const;
-    bool operator>(const Vec3& rhs) const;
-    Vec3();
-    Vec3(T a);
-    Vec3(T x, T y, T z);
-    Vec3(const Vec3& rhs);
-    /*virtual*/ ~Vec3(void);
+	T& operator[](size_t i) { return m_data[i]; }
+	const T& operator[](size_t i) const { return m_data[i]; }
+	T& X();
+	T& Y();
+	T& Z();
+	const T& X() const;
+	const T& Y() const;
+	const T& Z() const;
+	void Normalize();
+	T GetNorm() const;
+	void operator=(const Vec3& rhs);
+	void operator+=(const Vec3& rhs);
+	void operator-=(const Vec3& rhs);
+	void operator-=(T a);
+	void operator+=(T a);
+	void operator/=(T a);
+	void operator*=(T a);
+	Vec3 operator^(const Vec3& rhs) const;
+	T operator*(const Vec3& rhs) const;
+	Vec3 operator+(const Vec3& rhs) const;
+	Vec3 operator-(const Vec3& rhs) const;
+	Vec3 operator-() const;
+	Vec3 operator*(T rhs) const;
+	Vec3 operator/(T rhs) const;
+	bool operator<(const Vec3& rhs) const;
+	bool operator>(const Vec3& rhs) const;
+	Vec3();
+	Vec3(T a);
+	Vec3(T x, T y, T z);
+	Vec3(const Vec3& rhs);
+	/*virtual*/ ~Vec3(void);
 
 private:
-    T m_data[3];
+	T m_data[3];
 };
 //!    Vector dim 2.
 template <typename T>
-class Vec2 {
+class Vec2
+{
 public:
-    T& operator[](size_t i) { return m_data[i]; }
-    const T& operator[](size_t i) const { return m_data[i]; }
-    T& X();
-    T& Y();
-    const T& X() const;
-    const T& Y() const;
-    void Normalize();
-    T GetNorm() const;
-    void operator=(const Vec2& rhs);
-    void operator+=(const Vec2& rhs);
-    void operator-=(const Vec2& rhs);
-    void operator-=(T a);
-    void operator+=(T a);
-    void operator/=(T a);
-    void operator*=(T a);
-    T operator^(const Vec2& rhs) const;
-    T operator*(const Vec2& rhs) const;
-    Vec2 operator+(const Vec2& rhs) const;
-    Vec2 operator-(const Vec2& rhs) const;
-    Vec2 operator-() const;
-    Vec2 operator*(T rhs) const;
-    Vec2 operator/(T rhs) const;
-    Vec2();
-    Vec2(T a);
-    Vec2(T x, T y);
-    Vec2(const Vec2& rhs);
-    /*virtual*/ ~Vec2(void);
+	T& operator[](size_t i) { return m_data[i]; }
+	const T& operator[](size_t i) const { return m_data[i]; }
+	T& X();
+	T& Y();
+	const T& X() const;
+	const T& Y() const;
+	void Normalize();
+	T GetNorm() const;
+	void operator=(const Vec2& rhs);
+	void operator+=(const Vec2& rhs);
+	void operator-=(const Vec2& rhs);
+	void operator-=(T a);
+	void operator+=(T a);
+	void operator/=(T a);
+	void operator*=(T a);
+	T operator^(const Vec2& rhs) const;
+	T operator*(const Vec2& rhs) const;
+	Vec2 operator+(const Vec2& rhs) const;
+	Vec2 operator-(const Vec2& rhs) const;
+	Vec2 operator-() const;
+	Vec2 operator*(T rhs) const;
+	Vec2 operator/(T rhs) const;
+	Vec2();
+	Vec2(T a);
+	Vec2(T x, T y);
+	Vec2(const Vec2& rhs);
+	/*virtual*/ ~Vec2(void);
 
 private:
-    T m_data[2];
+	T m_data[2];
 };
 
 template <typename T>
 const bool Colinear(const Vec3<T>& a, const Vec3<T>& b, const Vec3<T>& c);
 template <typename T>
 const T ComputeVolume4(const Vec3<T>& a, const Vec3<T>& b, const Vec3<T>& c, const Vec3<T>& d);
-}
-#include "vhacdVector.inl" // template implementation
+}  // namespace VHACD
+#include "vhacdVector.inl"  // template implementation
 #endif

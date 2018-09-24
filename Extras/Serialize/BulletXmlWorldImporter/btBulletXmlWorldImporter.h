@@ -22,7 +22,7 @@ class btDynamicsWorld;
 
 namespace tinyxml2
 {
-	class XMLNode;
+class XMLNode;
 };
 
 struct btConvexInternalShapeData;
@@ -37,58 +37,53 @@ struct btRigidBodyFloatData;
 struct btTypedConstraintFloatData;
 #define btTypedConstraintData2 btTypedConstraintFloatData
 #define btRigidBodyData btRigidBodyFloatData
-#endif//BT_USE_DOUBLE_PRECISION
-
+#endif  //BT_USE_DOUBLE_PRECISION
 
 struct btCompoundShapeChildData;
 
 #include "LinearMath/btAlignedObjectArray.h"
 #include "btWorldImporter.h"
 
-
-
 class btBulletXmlWorldImporter : public btWorldImporter
 {
-
 protected:
-	btAlignedObjectArray<btCollisionShapeData*>			m_collisionShapeData;
-	btAlignedObjectArray<btAlignedObjectArray<btCompoundShapeChildData>* >		m_compoundShapeChildDataArrays;
-	btAlignedObjectArray<btRigidBodyData*>				m_rigidBodyData;
-	btAlignedObjectArray<btTypedConstraintData2*>		m_constraintData;
-	btHashMap<btHashPtr,void*>							m_pointerLookup;
-	int													m_fileVersion;
-	bool												m_fileOk;
+	btAlignedObjectArray<btCollisionShapeData*> m_collisionShapeData;
+	btAlignedObjectArray<btAlignedObjectArray<btCompoundShapeChildData>*> m_compoundShapeChildDataArrays;
+	btAlignedObjectArray<btRigidBodyData*> m_rigidBodyData;
+	btAlignedObjectArray<btTypedConstraintData2*> m_constraintData;
+	btHashMap<btHashPtr, void*> m_pointerLookup;
+	int m_fileVersion;
+	bool m_fileOk;
 
 	void auto_serialize_root_level_children(tinyxml2::XMLNode* pParent);
 	void auto_serialize(tinyxml2::XMLNode* pParent);
 
-	void deSerializeVector3FloatData(tinyxml2::XMLNode* pParent,btAlignedObjectArray<btVector3FloatData>& vectors);
+	void deSerializeVector3FloatData(tinyxml2::XMLNode* pParent, btAlignedObjectArray<btVector3FloatData>& vectors);
 
-	void	fixupCollisionDataPointers(btCollisionShapeData* shapeData);
-	void	fixupConstraintData(btTypedConstraintData2* tcd);
+	void fixupCollisionDataPointers(btCollisionShapeData* shapeData);
+	void fixupConstraintData(btTypedConstraintData2* tcd);
 
 	//collision shapes data
-	void deSerializeCollisionShapeData(tinyxml2::XMLNode* pParent,btCollisionShapeData* colShapeData);
+	void deSerializeCollisionShapeData(tinyxml2::XMLNode* pParent, btCollisionShapeData* colShapeData);
 	void deSerializeConvexInternalShapeData(tinyxml2::XMLNode* pParent);
 	void deSerializeStaticPlaneShapeData(tinyxml2::XMLNode* pParent);
 	void deSerializeCompoundShapeData(tinyxml2::XMLNode* pParent);
 	void deSerializeCompoundShapeChildData(tinyxml2::XMLNode* pParent);
 	void deSerializeConvexHullShapeData(tinyxml2::XMLNode* pParent);
 	void deSerializeDynamicsWorldData(tinyxml2::XMLNode* parent);
-	
+
 	///bodies
 	void deSerializeRigidBodyFloatData(tinyxml2::XMLNode* pParent);
 
 	///constraints
 	void deSerializeGeneric6DofConstraintData(tinyxml2::XMLNode* pParent);
 
-	public:
-		btBulletXmlWorldImporter(btDynamicsWorld* world);
+public:
+	btBulletXmlWorldImporter(btDynamicsWorld* world);
 
-		virtual ~btBulletXmlWorldImporter();
-		
-		bool loadFile(const char* fileName);
+	virtual ~btBulletXmlWorldImporter();
 
+	bool loadFile(const char* fileName);
 };
 
-#endif //BT_BULLET_XML_WORLD_IMPORTER_H
+#endif  //BT_BULLET_XML_WORLD_IMPORTER_H

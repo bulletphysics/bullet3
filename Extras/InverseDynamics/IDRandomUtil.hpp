@@ -1,7 +1,8 @@
 #ifndef ID_RANDOM_UTIL_HPP_
 #define ID_RANDOM_UTIL_HPP_
 #include "BulletInverseDynamics/IDConfig.hpp"
-namespace btInverseDynamics {
+namespace btInverseDynamics
+{
 /// seed random number generator using time()
 void randomInit();
 /// seed random number generator with identical value to get repeatable results
@@ -32,5 +33,5 @@ vec3 randomInertiaPrincipal();
 mat33 randomInertiaMatrix();
 /// generate a random unit vector
 vec3 randomAxis();
-}
+}  // namespace btInverseDynamics
 #endif

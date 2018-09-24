@@ -12,20 +12,15 @@ struct SharedMemLines
 	btVector3 m_color;
 };
 
-
-
 ///todo: naming. Perhaps PhysicsSdkCommandprocessor?
 class PhysicsServerCommandProcessor : public CommandProcessorInterface
 {
-
 	struct PhysicsServerCommandProcessorInternalData* m_data;
 
 	void resetSimulation();
 	void createThreadPool();
 
 protected:
-
-
 	bool processStateLoggingCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
 	bool processRequestCameraImageCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
 	bool processSaveWorldCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
@@ -95,13 +90,13 @@ protected:
 	bool loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags, btScalar globalScaling);
 
 	bool loadUrdf(const char* fileName, const class btVector3& pos, const class btQuaternion& orn,
-		bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes, int flags, btScalar globalScaling);
+				  bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes, int flags, btScalar globalScaling);
 
 	bool loadMjcf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags);
 
 	bool processImportedObjects(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags, class URDFImporterInterface& u2b);
 
-	bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
+	bool supportsJointMotor(class btMultiBody* body, int linkIndex);
 
 	int createBodyInfoStream(int bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes);
 	void deleteCachedInverseDynamicsBodies();
@@ -112,7 +107,7 @@ public:
 	PhysicsServerCommandProcessor();
 	virtual ~PhysicsServerCommandProcessor();
 
-	void	createJointMotors(class btMultiBody* body);
+	void createJointMotors(class btMultiBody* body);
 
 	virtual void createEmptyDynamicsWorld();
 	virtual void deleteDynamicsWorld();
@@ -137,10 +132,9 @@ public:
 	};
 
 	virtual void renderScene(int renderFlags);
-	virtual void   physicsDebugDraw(int debugDrawFlags);
+	virtual void physicsDebugDraw(int debugDrawFlags);
 	virtual void setGuiHelper(struct GUIHelperInterface* guiHelper);
 	virtual void syncPhysicsToGraphics();
-
 
 	//@todo(erwincoumans) Should we have shared memory commands for picking objects?
 	///The pickBody method will try to pick the first body along a ray, return true if succeeds, false otherwise
@@ -151,7 +145,7 @@ public:
 	//logging /playback the shared memory commands
 	virtual void enableCommandLogging(bool enable, const char* fileName);
 	virtual void replayFromLogFile(const char* fileName);
-	virtual void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
+	virtual void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes);
 
 	//logging of object states (position etc)
 	virtual void reportNotifications();
@@ -160,7 +154,7 @@ public:
 	void logObjectStates(btScalar timeStep);
 	void processCollisionForces(btScalar timeStep);
 
-	virtual void stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents);
+	virtual void stepSimulationRealTime(double dtInSec, const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents);
 
 	virtual void enableRealTimeSimulation(bool enableRealTimeSim);
 	virtual bool isRealTimeSimulationEnabled() const;
@@ -179,4 +173,4 @@ private:
 	void addTransformChangedNotifications();
 };
 
-#endif //PHYSICS_SERVER_COMMAND_PROCESSOR_H
+#endif  //PHYSICS_SERVER_COMMAND_PROCESSOR_H

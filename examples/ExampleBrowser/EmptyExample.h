@@ -6,27 +6,22 @@
 class EmptyExample : public CommonExampleInterface
 {
 public:
-
 	EmptyExample() {}
-	virtual ~EmptyExample(){}
+	virtual ~EmptyExample() {}
 
 	static CommonExampleInterface* CreateFunc(struct CommonExampleOptions& /* unusedOptions*/)
 	{
 		return new EmptyExample;
 	}
 
-	virtual void    initPhysics(){}
-	virtual void    exitPhysics(){}
-	virtual void	stepSimulation(float deltaTime){}
-	virtual void	renderScene(){}
-	virtual void	physicsDebugDraw(int debugFlags){}
-	virtual bool	mouseMoveCallback(float x,float y){ return false;}
-	virtual bool	mouseButtonCallback(int button, int state, float x, float y){return false;}
-	virtual bool	keyboardCallback(int key, int state){return false;}
-
+	virtual void initPhysics() {}
+	virtual void exitPhysics() {}
+	virtual void stepSimulation(float deltaTime) {}
+	virtual void renderScene() {}
+	virtual void physicsDebugDraw(int debugFlags) {}
+	virtual bool mouseMoveCallback(float x, float y) { return false; }
+	virtual bool mouseButtonCallback(int button, int state, float x, float y) { return false; }
+	virtual bool keyboardCallback(int key, int state) { return false; }
 };
 
- 
-
-#endif //EMPTY_EXAMPLE_H
-
+#endif  //EMPTY_EXAMPLE_H

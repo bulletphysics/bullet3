@@ -19,103 +19,105 @@
 #define VHACD_VERSION_MAJOR 2
 #define VHACD_VERSION_MINOR 2
 
-namespace VHACD {
-class IVHACD {
+namespace VHACD
+{
+class IVHACD
+{
 public:
-    class IUserCallback {
-    public:
-        virtual ~IUserCallback(){};
-        virtual void Update(const double overallProgress,
-            const double stageProgress,
-            const double operationProgress,
-            const char* const stage,
-            const char* const operation)
-            = 0;
-    };
+	class IUserCallback
+	{
+	public:
+		virtual ~IUserCallback(){};
+		virtual void Update(const double overallProgress,
+							const double stageProgress,
+							const double operationProgress,
+							const char* const stage,
+							const char* const operation) = 0;
+	};
 
-    class IUserLogger {
-    public:
-        virtual ~IUserLogger(){};
-        virtual void Log(const char* const msg) = 0;
-    };
+	class IUserLogger
+	{
+	public:
+		virtual ~IUserLogger(){};
+		virtual void Log(const char* const msg) = 0;
+	};
 
-    class ConvexHull {
-    public:
-        double* m_points;
-        int* m_triangles;
-        unsigned int m_nPoints;
-        unsigned int m_nTriangles;
-    };
+	class ConvexHull
+	{
+	public:
+		double* m_points;
+		int* m_triangles;
+		unsigned int m_nPoints;
+		unsigned int m_nTriangles;
+	};
 
-    class Parameters {
-    public:
-        Parameters(void) { Init(); }
-        void Init(void)
-        {
-            m_resolution = 1000000;
-            m_depth = 20;
-            m_concavity = 0.001;
-            m_planeDownsampling = 4;
-            m_convexhullDownsampling = 4;
-            m_alpha = 0.05;
-            m_beta = 0.05;
-            m_gamma = 0.0005;
-            m_pca = 0;
-            m_mode = 0; // 0: voxel-based (recommended), 1: tetrahedron-based
-            m_maxNumVerticesPerCH = 64;
-            m_minVolumePerCH = 0.0001;
-            m_callback = 0;
-            m_logger = 0;
-            m_convexhullApproximation = true;
-            m_oclAcceleration = true;
-        }
-        double m_concavity;
-        double m_alpha;
-        double m_beta;
-        double m_gamma;
-        double m_minVolumePerCH;
-        IUserCallback* m_callback;
-        IUserLogger* m_logger;
-        unsigned int m_resolution;
-        unsigned int m_maxNumVerticesPerCH;
-        int m_depth;
-        int m_planeDownsampling;
-        int m_convexhullDownsampling;
-        int m_pca;
-        int m_mode;
-        int m_convexhullApproximation;
-        int m_oclAcceleration;
-    };
+	class Parameters
+	{
+	public:
+		Parameters(void) { Init(); }
+		void Init(void)
+		{
+			m_resolution = 1000000;
+			m_depth = 20;
+			m_concavity = 0.001;
+			m_planeDownsampling = 4;
+			m_convexhullDownsampling = 4;
+			m_alpha = 0.05;
+			m_beta = 0.05;
+			m_gamma = 0.0005;
+			m_pca = 0;
+			m_mode = 0;  // 0: voxel-based (recommended), 1: tetrahedron-based
+			m_maxNumVerticesPerCH = 64;
+			m_minVolumePerCH = 0.0001;
+			m_callback = 0;
+			m_logger = 0;
+			m_convexhullApproximation = true;
+			m_oclAcceleration = true;
+		}
+		double m_concavity;
+		double m_alpha;
+		double m_beta;
+		double m_gamma;
+		double m_minVolumePerCH;
+		IUserCallback* m_callback;
+		IUserLogger* m_logger;
+		unsigned int m_resolution;
+		unsigned int m_maxNumVerticesPerCH;
+		int m_depth;
+		int m_planeDownsampling;
+		int m_convexhullDownsampling;
+		int m_pca;
+		int m_mode;
+		int m_convexhullApproximation;
+		int m_oclAcceleration;
+	};
 
-    virtual void Cancel() = 0;
-    virtual bool Compute(const float* const points,
-        const unsigned int stridePoints,
-        const unsigned int countPoints,
-        const int* const triangles,
-        const unsigned int strideTriangles,
-        const unsigned int countTriangles,
-        const Parameters& params)
-        = 0;
-    virtual bool Compute(const double* const points,
-        const unsigned int stridePoints,
-        const unsigned int countPoints,
-        const int* const triangles,
-        const unsigned int strideTriangles,
-        const unsigned int countTriangles,
-        const Parameters& params)
-        = 0;
-    virtual unsigned int GetNConvexHulls() const = 0;
-    virtual void GetConvexHull(const unsigned int index, ConvexHull& ch) const = 0;
-    virtual void Clean(void) = 0; // release internally allocated memory
-    virtual void Release(void) = 0; // release IVHACD
-    virtual bool OCLInit(void* const oclDevice,
-        IUserLogger* const logger = 0)
-        = 0;
-    virtual bool OCLRelease(IUserLogger* const logger = 0) = 0;
+	virtual void Cancel() = 0;
+	virtual bool Compute(const float* const points,
+						 const unsigned int stridePoints,
+						 const unsigned int countPoints,
+						 const int* const triangles,
+						 const unsigned int strideTriangles,
+						 const unsigned int countTriangles,
+						 const Parameters& params) = 0;
+	virtual bool Compute(const double* const points,
+						 const unsigned int stridePoints,
+						 const unsigned int countPoints,
+						 const int* const triangles,
+						 const unsigned int strideTriangles,
+						 const unsigned int countTriangles,
+						 const Parameters& params) = 0;
+	virtual unsigned int GetNConvexHulls() const = 0;
+	virtual void GetConvexHull(const unsigned int index, ConvexHull& ch) const = 0;
+	virtual void Clean(void) = 0;    // release internally allocated memory
+	virtual void Release(void) = 0;  // release IVHACD
+	virtual bool OCLInit(void* const oclDevice,
+						 IUserLogger* const logger = 0) = 0;
+	virtual bool OCLRelease(IUserLogger* const logger = 0) = 0;
 
 protected:
-    virtual ~IVHACD(void) {}
+	virtual ~IVHACD(void) {}
 };
 IVHACD* CreateVHACD(void);
-}
-#endif // VHACD_H
+}  // namespace VHACD
+#endif  // VHACD_H

@@ -6,7 +6,6 @@
 
 class TcpNetworkedPhysicsProcessor : public PhysicsCommandProcessorInterface
 {
-
 	struct TcpNetworkedInternalData* m_data;
 
 public:
@@ -19,14 +18,14 @@ public:
 	virtual void disconnect();
 
 	virtual bool isConnected() const;
-	
+
 	virtual bool processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
 
 	virtual bool receiveStatus(struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
 
 	virtual void renderScene(int renderFlags);
 
-	virtual void   physicsDebugDraw(int debugDrawFlags);
+	virtual void physicsDebugDraw(int debugDrawFlags);
 
 	virtual void setGuiHelper(struct GUIHelperInterface* guiHelper);
 
@@ -35,6 +34,4 @@ public:
 	virtual void reportNotifications() {}
 };
 
-
-#endif //PHYSICS_CLIENT_TCP_H
-
+#endif  //PHYSICS_CLIENT_TCP_H

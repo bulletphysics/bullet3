@@ -4,16 +4,15 @@
 #include "PhysicsClientC_API.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-
-///send physics commands using GRPC connection
-B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsGRPC(const char* hostName, int port);
-
+	///send physics commands using GRPC connection
+	B3_SHARED_API b3PhysicsClientHandle b3ConnectPhysicsGRPC(const char* hostName, int port);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //PHYSICS_CLIENT_GRPC_C_API_H
+#endif  //PHYSICS_CLIENT_GRPC_C_API_H

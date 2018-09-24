@@ -3,4 +3,4 @@
 
 extern unsigned char sTimeSeriesFontData[];
 
-#endif//TIME_SERIES_FONT_DATA_H
+#endif  //TIME_SERIES_FONT_DATA_H
