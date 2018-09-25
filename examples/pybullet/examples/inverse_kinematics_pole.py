@@ -16,7 +16,7 @@ p.resetBasePositionAndOrientation(sawyerId,[0,0,0],[0,0,0,1])
 sawyerEndEffectorIndex = 3
 numJoints = p.getNumJoints(sawyerId)
 #joint damping coefficents
-jd=[0.01,0.01,0.01,0.01]
+jd=[0.1,0.1,0.1,0.1]
 
 p.setGravity(0,0,0)
 t=0.
@@ -41,7 +41,7 @@ while 1:
 	
 	for i in range (1):
 		pos = [2.*math.cos(t),2.*math.cos(t),0.+2.*math.sin(t)]
-		jointPoses = p.calculateInverseKinematics(sawyerId,sawyerEndEffectorIndex,pos,jointDamping=jd,solver=ikSolver)
+		jointPoses = p.calculateInverseKinematics(sawyerId,sawyerEndEffectorIndex,pos,jointDamping=jd,solver=ikSolver, maxNumIterations=100)
 
 		#reset the joint state (ignoring all dynamics, not recommended to use during simulation)
 		for i in range (numJoints):
