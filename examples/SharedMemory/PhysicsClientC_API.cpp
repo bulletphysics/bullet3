@@ -3805,7 +3805,7 @@ B3_SHARED_API void b3SetClosestDistanceFilterCollisionShapeB(b3SharedMemoryComma
 	command->m_requestContactPointArguments.m_collisionShapeB = collisionShapeB;
 }
 
-B3_SHARED_API void b3SetClosestDistanceFilterCollisionShapePositionA(b3SharedMemoryCommandHandle commandHandle, double collisionShapePositionA[/*3*/])
+B3_SHARED_API void b3SetClosestDistanceFilterCollisionShapePositionA(b3SharedMemoryCommandHandle commandHandle, const double collisionShapePositionA[/*3*/])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command);
@@ -3816,7 +3816,7 @@ B3_SHARED_API void b3SetClosestDistanceFilterCollisionShapePositionA(b3SharedMem
 	command->m_requestContactPointArguments.m_collisionShapePositionA[2] = collisionShapePositionA[2];
 }
 
-B3_SHARED_API void b3SetClosestDistanceFilterCollisionShapePositionB(b3SharedMemoryCommandHandle commandHandle, double collisionShapePositionB[/*3*/])
+B3_SHARED_API void b3SetClosestDistanceFilterCollisionShapePositionB(b3SharedMemoryCommandHandle commandHandle, const double collisionShapePositionB[/*3*/])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command);
@@ -3827,7 +3827,7 @@ B3_SHARED_API void b3SetClosestDistanceFilterCollisionShapePositionB(b3SharedMem
 	command->m_requestContactPointArguments.m_collisionShapePositionB[2] = collisionShapePositionB[2];
 }
 
-B3_SHARED_API void b3SetClosestDistanceFilterCollisionShapeOrientationA(b3SharedMemoryCommandHandle commandHandle, double collisionShapeOrientationA[/*4*/])
+B3_SHARED_API void b3SetClosestDistanceFilterCollisionShapeOrientationA(b3SharedMemoryCommandHandle commandHandle, const double collisionShapeOrientationA[/*4*/])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command);
@@ -3839,7 +3839,7 @@ B3_SHARED_API void b3SetClosestDistanceFilterCollisionShapeOrientationA(b3Shared
 	command->m_requestContactPointArguments.m_collisionShapeOrientationA[3] = collisionShapeOrientationA[3];
 }
 
-B3_SHARED_API void b3SetClosestDistanceFilterCollisionShapeOrientationB(b3SharedMemoryCommandHandle commandHandle, double collisionShapeOrientationB[/*4*/])
+B3_SHARED_API void b3SetClosestDistanceFilterCollisionShapeOrientationB(b3SharedMemoryCommandHandle commandHandle, const double collisionShapeOrientationB[/*4*/])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command);
