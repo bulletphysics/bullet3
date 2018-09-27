@@ -27,7 +27,7 @@
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 #include "Bullet3Common/b3HashMap.h"
 #include "../Utils/ChromeTraceUtil.h"
-#include "stb_image/stb_image.h"
+#include "third_party/stblib/stb_image.h"
 #include "BulletInverseDynamics/MultiBodyTree.hpp"
 #include "IKTrajectoryHelper.h"
 #include "btBulletDynamicsCommon.h"
@@ -1990,7 +1990,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 	{
 	}
 
-	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false)
+	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false, int flags = 0)
 	{
 		b3Assert(0);
 		return false;
@@ -3014,7 +3014,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
 	BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(), globalScaling, flags);
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
-	bool loadOk = u2b.loadURDF(fileName, useFixedBase);
+	bool loadOk = u2b.loadURDF(fileName, useFixedBase, flags);
 
 	if (loadOk)
 	{
