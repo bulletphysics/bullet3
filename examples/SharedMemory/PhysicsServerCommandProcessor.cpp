@@ -10651,14 +10651,13 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec, const
 	}
 }
 
-b3Notification createTransformChangedNotification(int bodyUniqueId, int linkIndex, const btCollisionObject* colObj)
+b3Notification createTransformChangedNotification(int bodyUniqueId, int linkIndex, const btTransform& tr, const btCollisionObject* colObj)
 {
 	b3Notification notification;
 	notification.m_notificationType = TRANSFORM_CHANGED;
 	notification.m_transformChangeArgs.m_bodyUniqueId = bodyUniqueId;
 	notification.m_transformChangeArgs.m_linkIndex = linkIndex;
 
-	const btTransform& tr = colObj->getWorldTransform();
 	notification.m_transformChangeArgs.m_worldPosition[0] = tr.getOrigin()[0];
 	notification.m_transformChangeArgs.m_worldPosition[1] = tr.getOrigin()[1];
 	notification.m_transformChangeArgs.m_worldPosition[2] = tr.getOrigin()[2];
@@ -10694,16 +10693,18 @@ void PhysicsServerCommandProcessor::addTransformChangedNotifications()
 		if (bodyData->m_multiBody && bodyData->m_multiBody->isAwake())
 		{
 			btMultiBody* mb = bodyData->m_multiBody;
-			m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, -1, mb->getBaseCollider()));
+			btTransform tr = mb->getBaseWorldTransform() * bodyData->m_rootLocalInertialFrame.inverse();
+			m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, -1, tr, mb->getBaseCollider()));
 
 			for (int linkIndex = 0; linkIndex < mb->getNumLinks(); linkIndex++)
 			{
-				m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, linkIndex, mb->getLinkCollider(linkIndex)));
+				btTransform tr = mb->getLink(linkIndex).m_cachedWorldTransform * bodyData->m_linkLocalInertialFrames[linkIndex].inverse();
+				m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, linkIndex, tr, mb->getLinkCollider(linkIndex)));
 			}
 		}
 		else if (bodyData->m_rigidBody && bodyData->m_rigidBody->isActive())
 		{
-			m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, -1, bodyData->m_rigidBody));
+			m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, -1, bodyData->m_rigidBody->getWorldTransform(), bodyData->m_rigidBody));
 		}
 	}
 }
