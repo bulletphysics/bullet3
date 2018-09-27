@@ -5676,7 +5676,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 							}
 						}
 					}  //fi
-					//break;
+					   //break;
 				}
 			}
 		}  //if (body && body->m_rigidBody)
