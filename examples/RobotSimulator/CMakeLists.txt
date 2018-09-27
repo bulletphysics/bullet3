@@ -26,13 +26,6 @@ IF(BUILD_CLSOCKET)
  ADD_DEFINITIONS(-DBT_ENABLE_CLSOCKET)
 ENDIF(BUILD_CLSOCKET)
 
-IF(WIN32)
-	LINK_LIBRARIES(
-		${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-	)
-ENDIF(WIN32)
-
-
 
 #some code to support OpenGL and Glew cross platform
 IF (WIN32)
@@ -67,18 +60,13 @@ SET_TARGET_PROPERTIES(App_RobotSimulator PROPERTIES DEBUG_POSTFIX "_d")
 SET_TARGET_PROPERTIES(App_RobotSimulator PROPERTIES COMPILE_DEFINITIONS "B3_USE_ROBOTSIM_GUI")
 
 
+TARGET_LINK_LIBRARIES(App_RobotSimulator BulletRobotics BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen Bullet3Common)
 
 IF(WIN32)
 	IF(BUILD_ENET OR BUILD_CLSOCKET)
 		TARGET_LINK_LIBRARIES(App_RobotSimulator ws2_32 Winmm)
 	ENDIF(BUILD_ENET OR BUILD_CLSOCKET)
 ENDIF(WIN32)
-
-TARGET_LINK_LIBRARIES(App_RobotSimulator BulletRobotics BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen Bullet3Common)
-
-
-
-
 
 
 
@@ -103,6 +91,8 @@ SET_TARGET_PROPERTIES(App_RobotSimulator_NoGUI PROPERTIES VERSION ${BULLET_VERSI
 SET_TARGET_PROPERTIES(App_RobotSimulator_NoGUI PROPERTIES DEBUG_POSTFIX "_d")
 
 
+TARGET_LINK_LIBRARIES(App_RobotSimulator_NoGUI BulletRobotics BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath Bullet3Common)
+
 IF(WIN32)
 	IF(BUILD_ENET OR BUILD_CLSOCKET)
 		TARGET_LINK_LIBRARIES(App_RobotSimulator_NoGUI ws2_32 Winmm)
@@ -113,11 +103,6 @@ ELSE()
 		TARGET_LINK_LIBRARIES( App_RobotSimulator_NoGUI pthread ${DL} )
 	ENDIF(APPLE)
 ENDIF(WIN32)
-
-TARGET_LINK_LIBRARIES(App_RobotSimulator_NoGUI BulletRobotics BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath Bullet3Common)
-
-
-
 
 
 
@@ -142,6 +127,8 @@ SET_TARGET_PROPERTIES(App_HelloBulletRobotics PROPERTIES VERSION ${BULLET_VERSIO
 SET_TARGET_PROPERTIES(App_HelloBulletRobotics PROPERTIES DEBUG_POSTFIX "_d")
 
 
+TARGET_LINK_LIBRARIES(App_HelloBulletRobotics BulletRobotics BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath Bullet3Common)
+
 IF(WIN32)
         IF(BUILD_ENET OR BUILD_CLSOCKET)
                 TARGET_LINK_LIBRARIES(App_HelloBulletRobotics ws2_32 Winmm)
@@ -153,9 +140,10 @@ ELSE()
         ENDIF(APPLE)
 ENDIF(WIN32)
 
-TARGET_LINK_LIBRARIES(App_HelloBulletRobotics BulletRobotics BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath Bullet3Common)
 
-
+IF(WIN32)
+	TARGET_LINK_LIBRARIES(App_RobotSimulator ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+ENDIF(WIN32)
 
 
 
