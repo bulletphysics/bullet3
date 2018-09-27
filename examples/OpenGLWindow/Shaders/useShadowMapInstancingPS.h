@@ -12,7 +12,6 @@ static const char* useShadowMapInstancingFragmentShader= \
 "} vert;\n"
 "uniform sampler2D Diffuse;\n"
 "uniform sampler2DShadow shadowMap;\n"
-"uniform mat4 ViewMatrixInverse;\n"
 "in vec3 lightPos,cameraPosition, normal,ambient;\n"
 "in vec4 ShadowCoord;\n"
 "in vec4 vertexPos;\n"

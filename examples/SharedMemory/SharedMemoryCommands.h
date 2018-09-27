@@ -254,6 +254,27 @@ struct RequestPixelDataArgs
 	float m_projectiveTextureProjectionMatrix[16];
 };
 
+
+#define MAX_CAMERA_ARRAY_SIZE 16
+struct RequestCameraArrayPixelDataArgs
+{
+	float m_viewMatrices[MAX_CAMERA_ARRAY_SIZE][16];
+	float m_projectionMatrices[MAX_CAMERA_ARRAY_SIZE][16];
+	int m_cameraArraySize;
+	int m_pixelWidth;
+	int m_pixelHeight;
+	int m_featureLength;
+	float m_lightDirection[3];
+    float m_lightColor[3];
+    float m_lightDistance;
+    float m_lightAmbientCoeff;
+    float m_lightDiffuseCoeff;
+    float m_lightSpecularCoeff;
+    int m_hasShadow;
+	int m_flags;
+};
+
+
 enum EnumRequestPixelDataUpdateFlags
 {
 	REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES=1,
@@ -389,6 +410,18 @@ struct SendPixelDataArgs
     int m_numPixelsCopied;
     int m_numRemainingPixels;
 };
+
+struct SendCameraArrayPixelDataArgs
+{
+	int m_cameraArraySize;
+	int m_imageWidth;
+	int m_imageHeight;
+	int m_featureLength;
+
+    int m_numPixelsCopied;
+    int m_numFeaturesCopied;
+};
+
 
 struct PickBodyArgs
 {
@@ -1056,6 +1089,7 @@ struct SharedMemoryCommand
         struct CreateBoxShapeArgs m_createBoxShapeArguments;
 		struct RequestDebugLinesArgs m_requestDebugLinesArguments;
 		struct RequestPixelDataArgs m_requestPixelDataArguments;
+		struct RequestCameraArrayPixelDataArgs m_requestCameraArrayPixelDataArguments;
 		struct PickBodyArgs m_pickBodyArguments;
         struct ExternalForceArgs m_externalForceArguments;
 		struct CalculateInverseDynamicsArgs m_calculateInverseDynamicsArguments;
@@ -1131,6 +1165,7 @@ struct SharedMemoryStatus
 		struct SendActualStateArgs m_sendActualStateArgs;
 		struct SendDebugLinesArgs m_sendDebugLinesArgs;
 		struct SendPixelDataArgs m_sendPixelDataArguments;
+		struct SendCameraArrayPixelDataArgs m_sendCameraArrayPixelDataArguments;
 		struct RigidBodyCreateArgs m_rigidBodyCreateArgs;
 		struct CalculateInverseDynamicsResultArgs m_inverseDynamicsResultArgs;
         struct CalculateJacobianResultArgs m_jacobianResultArgs;

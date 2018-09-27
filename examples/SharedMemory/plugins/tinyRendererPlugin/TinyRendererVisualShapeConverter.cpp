@@ -1020,6 +1020,18 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 	}
 }
 
+void TinyRendererVisualShapeConverter::getCameraArraySize(int &cameraArraySize)
+{
+	cameraArraySize = 0;
+	b3Warning("TinyRenderer: getCameraArraySize is not implemented\n");
+}
+
+void TinyRendererVisualShapeConverter::setCameraArraySize(int cameraArraySize)
+{
+	b3Warning("TinyRenderer: setCameraArraySize is not implemented, attempt to set to %d\n", cameraArraySize);
+}
+
+
 void TinyRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
 {
     width = m_data->m_swWidth;
@@ -1112,6 +1124,18 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
         
     }    
 }
+
+void TinyRendererVisualShapeConverter::copyCameraArrayImageData(unsigned char* pixelsRGB, int rgbaBufferSizeInPixels, float* featuresBuffer, int featuresBufferSizeInPixels, int *cameraArraySizePtr, int* widthPtr, int* heightPtr, int* numPixelsCopied, int* numFeaturesCopied)
+{
+	b3Warning("TinyRenderer: copyCameraArrayImageData is not implemented\n");
+}
+
+
+void TinyRendererVisualShapeConverter::renderCameraArray(const float (*viewMat)[16], const float (*projMat)[16])
+{
+	b3Warning("TinyRenderer: renderCameraArray is not implemented\n");
+}
+
 
 void TinyRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqueId)
 {

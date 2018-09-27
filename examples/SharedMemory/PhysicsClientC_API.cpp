@@ -3781,6 +3781,7 @@ B3_SHARED_API void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandH
 	command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT;	
 }
 
+
 B3_SHARED_API void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
@@ -3789,6 +3790,8 @@ B3_SHARED_API void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct
 		cl->getCachedCameraImage(imageData);
 	}
 }
+
+
 
 ///request an contact point information
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestContactPointInformation(b3PhysicsClientHandle physClient)

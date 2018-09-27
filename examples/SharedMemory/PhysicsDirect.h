@@ -18,6 +18,8 @@ protected:
 
 	bool processCamera(const struct SharedMemoryCommand& orgCommand);
 
+	bool processCameraArray(const struct SharedMemoryCommand& orgCommand);
+
     bool processContactPointData(const struct SharedMemoryCommand& orgCommand);
 
 	bool processOverlappingObjects(const struct SharedMemoryCommand& orgCommand);
@@ -87,7 +89,9 @@ public:
     virtual const float* getDebugLinesTo() const;
     virtual const float* getDebugLinesColor() const;
 
-	virtual void getCachedCameraImage(b3CameraImageData* cameraData);
+	virtual void getCachedCameraImage(struct b3CameraImageData* cameraData);
+
+	virtual void getCachedCameraArrayImage(struct b3CameraArrayImageData* cameraData);
 
     virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
 

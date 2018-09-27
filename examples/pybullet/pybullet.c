@@ -7445,6 +7445,143 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	return Py_None;
 }
 
+/// Render an array (max 16) of images from the current timestep of the simulation, width, height are required, other args are optional
+// getCameraArrayImage(cameraArraySize, w, h, viewMatrices[cameraArraySize][16], projection[cameraArraySize][16], lightDir[3], lightColor[3], lightDist, hasShadow, lightAmbientCoeff, lightDiffuseCoeff, lightSpecularCoeff, renderer)
+static PyObject* pybullet_getCameraArrayImage(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	/// request an image from a simulated camera, using  hardware renderer.
+	PyObject *viewMatrices = 0, *projectionMatrices = 0, *lightDirObj = 0, *lightColorObj = 0, *objProjectiveTextureView = 0, *objProjectiveTextureProj = 0;
+	int cameraArraySize, width, height;
+	float lightDir[3];
+	float lightColor[3];
+	float lightDist = -1;
+	int hasShadow = -1;
+	float lightAmbientCoeff = -1;
+	float lightDiffuseCoeff = -1;
+	float lightSpecularCoeff = -1;
+	int flags = -1;
+	int renderer = -1;
+	// inialize cmd
+	b3SharedMemoryCommandHandle command;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	// set camera resolution, optionally view, projection matrix, light direction, light color, light distance, shadow
+	static char* kwlist[] = {"cameraArraySize", "width", "height", "viewMatrices", "projectionMatrices", "lightDirection", "lightColor", "lightDistance", "shadow", "lightAmbientCoeff", "lightDiffuseCoeff", "lightSpecularCoeff", "renderer", "flags", "physicsClientId", NULL};
+
+#ifndef PYBULLET_USE_NUMPY
+	PyErr_SetString(SpamError, "getCameraArrayImage is not supported without NumPy enabled.");
+	return NULL;
+#endif  //!PYBULLET_USE_NUMPY
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|OOOOfifffiii", kwlist, &cameraArraySize, &width, &height, &viewMatrices, &projectionMatrices, &lightDirObj, &lightColorObj, &lightDist, &hasShadow, &lightAmbientCoeff, &lightDiffuseCoeff, &lightSpecularCoeff, &renderer, &flags, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3InitRequestCameraArrayImage(sm);
+	b3RequestCameraArrayImageSetPixelResolution(command, cameraArraySize, width, height);
+
+	// set camera matrices only if set matrix function succeeds
+	if (viewMatrices && projectionMatrices)
+	{
+		b3RequestCameraArrayImageSetCameraMatrices(command, cameraArraySize, PyArray_DATA(viewMatrices), PyArray_DATA(projectionMatrices));
+	}
+	else
+	{
+		PyErr_SetString(SpamError, "Projection and View matrices are not set.");
+		return NULL;
+	}
+	//set light direction only if function succeeds
+	if (lightDirObj && pybullet_internalSetVector(lightDirObj, lightDir))
+	{
+		b3RequestCameraArrayImageSetLightDirection(command, lightDir);
+	}
+	//set light color only if function succeeds
+	if (pybullet_internalSetVector(lightColorObj, lightColor))
+	{
+		b3RequestCameraArrayImageSetLightColor(command, lightColor);
+	}
+	if (lightDist>=0)
+	{
+		b3RequestCameraArrayImageSetLightDistance(command, lightDist);
+	}
+
+	if (hasShadow>=0)
+	{
+		b3RequestCameraArrayImageSetShadow(command, hasShadow);
+	}
+	if (lightAmbientCoeff>=0)
+	{
+		b3RequestCameraArrayImageSetLightAmbientCoeff(command, lightAmbientCoeff);
+	}
+	if (lightDiffuseCoeff>=0)
+	{
+		b3RequestCameraArrayImageSetLightDiffuseCoeff(command, lightDiffuseCoeff);
+	}
+
+	if (lightSpecularCoeff>=0)
+	{
+		b3RequestCameraArrayImageSetLightSpecularCoeff(command, lightSpecularCoeff);
+	}
+
+	if (b3CanSubmitCommand(sm))
+	{
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_CAMERA_ARRAY_IMAGE_COMPLETED)
+		{
+			PyObject* pyResultList;  // store 5 elements in this result: cameraArraySize,
+									 //                                  width, height, rgb,
+									 // 								 featureLength, features
+			struct b3CameraArrayImageData imageData;
+
+			// store 6 elements in this result: batch, width, height, rgbData, features
+			PyObject* pyRGB;
+			PyObject* pyFeat;
+
+			int bytesPerPixel = 3;  // Red, Green, Blue, 8 bit values
+			b3GetCameraArrayImageData(sm, &imageData);
+
+			npy_intp rgb_dims[4] = {imageData.m_cameraArraySize, imageData.m_pixelHeight, imageData.m_pixelWidth, bytesPerPixel};
+			npy_intp feat_dims[2] = {imageData.m_cameraArraySize, imageData.m_featureLength};
+
+			pyResultList = PyTuple_New(8);
+
+			PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_cameraArraySize));
+			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelWidth));
+			PyTuple_SetItem(pyResultList, 2, PyInt_FromLong(imageData.m_pixelHeight));
+
+			pyRGB = PyArray_SimpleNew(4, rgb_dims, NPY_UINT8);
+			pyFeat = PyArray_SimpleNew(2, feat_dims, NPY_INT32);
+
+			memcpy(PyArray_DATA(pyRGB), imageData.m_rgbColorData,
+					imageData.m_cameraArraySize * imageData.m_pixelHeight * imageData.m_pixelWidth * bytesPerPixel);
+			PyTuple_SetItem(pyResultList, 3, pyRGB);
+
+			PyTuple_SetItem(pyResultList, 4, PyInt_FromLong(imageData.m_featureLength));
+
+			memcpy(PyArray_DATA(pyFeat), imageData.m_featureValues,
+					imageData.m_cameraArraySize * imageData.m_featureLength * sizeof(float));
+			PyTuple_SetItem(pyResultList, 5, pyFeat);
+			return pyResultList;
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+
 static PyObject* pybullet_computeViewMatrix(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	PyObject* camEyeObj = 0;
@@ -9346,6 +9483,12 @@ static PyMethodDef SpamMethods[] = {
 #ifdef PYBULLET_USE_NUMPY
 	 " as NumPy arrays"
 #endif
+	},
+
+	{"getCameraArrayImage", (PyCFunction)pybullet_getCameraArrayImage, METH_VARARGS | METH_KEYWORDS,
+	 "Render an array of images (given the array size, pixel resolution width, height, cameras viewMatrices "
+	 ", projectionMatrices, lightDirection, lightColor, lightDistance, shadow, lightAmbientCoeff, lightDiffuseCoeff, lightSpecularCoeff, and renderer), and return the "
+	 "8-8-8bit RGB pixel data, floating point depth values, segmentation and feature calculations as NumPy arrays"
 	},
 
 	{ "isNumpyEnabled", (PyCFunction)pybullet_isNumpyEnabled, METH_VARARGS | METH_KEYWORDS,

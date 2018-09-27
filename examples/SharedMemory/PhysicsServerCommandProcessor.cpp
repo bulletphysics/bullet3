@@ -3659,6 +3659,121 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 	return hasStatus;
 }
 
+bool PhysicsServerCommandProcessor::processRequestCameraArrayImageCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+	BT_PROFILE("CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA");
+	int cameraArraySize = clientCmd.m_requestCameraArrayPixelDataArguments.m_cameraArraySize;
+	int width = clientCmd.m_requestCameraArrayPixelDataArguments.m_pixelWidth;
+	int height = clientCmd.m_requestCameraArrayPixelDataArguments.m_pixelHeight;
+	int featureLength = clientCmd.m_requestCameraArrayPixelDataArguments.m_featureLength;
+	int numPixelsCopied = 0, numFeaturesCopied = 0;
+
+	if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT)!=0)
+	{
+		if (m_data->m_pluginManager.getRenderInterface())
+		{
+			m_data->m_pluginManager.getRenderInterface()->setCameraArraySize(
+														clientCmd.m_requestCameraArrayPixelDataArguments.m_cameraArraySize);
+
+			m_data->m_pluginManager.getRenderInterface()->setWidthAndHeight(
+														clientCmd.m_requestCameraArrayPixelDataArguments.m_pixelWidth,
+														clientCmd.m_requestCameraArrayPixelDataArguments.m_pixelHeight
+														);
+		}
+	}
+	int flags = 0;
+	if (clientCmd.m_updateFlags&REQUEST_PIXEL_ARGS_HAS_FLAGS)
+	{
+		flags = clientCmd.m_requestCameraArrayPixelDataArguments.m_flags;
+	}
+	if (m_data->m_pluginManager.getRenderInterface())
+	{
+		m_data->m_pluginManager.getRenderInterface()->setFlags(flags);
+	}
+
+	int numTotalPixels = cameraArraySize * width * height;
+	int numTotalFeatures = cameraArraySize * featureLength;
+	int totalBytes = numTotalPixels*3 + numTotalFeatures * 4;
+
+	unsigned char* pixelRGB = (unsigned char*)bufferServerToClient;
+	float* featuresBuffer = (float*)(bufferServerToClient + numTotalPixels*3);
+
+	serverStatusOut.m_numDataStreamBytes = totalBytes;
+
+	if (!m_data->m_pluginManager.getRenderInterface()) {
+		b3Error("getCameraArrayImage: No valid render plugin");
+		return false;
+	}
+
+	//   printf("-------------------------------\nRendering\n");
+
+	if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION) != 0)
+	{
+		m_data->m_pluginManager.getRenderInterface()->setLightDirection(clientCmd.m_requestCameraArrayPixelDataArguments.m_lightDirection[0], clientCmd.m_requestCameraArrayPixelDataArguments.m_lightDirection[1], clientCmd.m_requestCameraArrayPixelDataArguments.m_lightDirection[2]);
+	}
+
+	if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_LIGHT_COLOR) != 0)
+	{
+		m_data->m_pluginManager.getRenderInterface()->setLightColor(clientCmd.m_requestCameraArrayPixelDataArguments.m_lightColor[0], clientCmd.m_requestCameraArrayPixelDataArguments.m_lightColor[1], clientCmd.m_requestCameraArrayPixelDataArguments.m_lightColor[2]);
+	}
+
+	if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE) != 0)
+	{
+		m_data->m_pluginManager.getRenderInterface()->setLightDistance(clientCmd.m_requestCameraArrayPixelDataArguments.m_lightDistance);
+	}
+
+	if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_SHADOW) != 0)
+	{
+		m_data->m_pluginManager.getRenderInterface()->setShadow((clientCmd.m_requestCameraArrayPixelDataArguments.m_hasShadow!=0));
+	}
+
+	if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_AMBIENT_COEFF) != 0)
+	{
+		m_data->m_pluginManager.getRenderInterface()->setLightAmbientCoeff(clientCmd.m_requestCameraArrayPixelDataArguments.m_lightAmbientCoeff);
+	}
+
+	if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_DIFFUSE_COEFF) != 0)
+	{
+		m_data->m_pluginManager.getRenderInterface()->setLightDiffuseCoeff(clientCmd.m_requestCameraArrayPixelDataArguments.m_lightDiffuseCoeff);
+	}
+
+	if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_SPECULAR_COEFF) != 0)
+	{
+		m_data->m_pluginManager.getRenderInterface()->setLightSpecularCoeff(clientCmd.m_requestCameraArrayPixelDataArguments.m_lightSpecularCoeff);
+	}
+
+	for (int i=0;i<m_data->m_dynamicsWorld->getNumCollisionObjects();i++)
+	{
+		const btCollisionObject* colObj = m_data->m_dynamicsWorld->getCollisionObjectArray()[i];
+		m_data->m_pluginManager.getRenderInterface()->syncTransform(colObj->getBroadphaseHandle()->getUid(),colObj->getWorldTransform(),colObj->getCollisionShape()->getLocalScaling());
+	}
+
+	if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
+	{
+		m_data->m_pluginManager.getRenderInterface()->renderCameraArray(
+											clientCmd.m_requestCameraArrayPixelDataArguments.m_viewMatrices,
+											clientCmd.m_requestCameraArrayPixelDataArguments.m_projectionMatrices);
+	} else
+	{
+		b3Error("getCameraArrayImage: No valid camera matrices");
+		return false;
+	}
+
+	m_data->m_pluginManager.getRenderInterface()->copyCameraArrayImageData(pixelRGB, numTotalPixels,
+				featuresBuffer, numTotalFeatures, &cameraArraySize,&width,&height,&numPixelsCopied, &numFeaturesCopied);
+
+	serverStatusOut.m_type = CMD_CAMERA_ARRAY_IMAGE_COMPLETED;
+
+	serverStatusOut.m_sendCameraArrayPixelDataArguments.m_cameraArraySize = cameraArraySize;
+	serverStatusOut.m_sendCameraArrayPixelDataArguments.m_numPixelsCopied = numPixelsCopied;
+	serverStatusOut.m_sendCameraArrayPixelDataArguments.m_numFeaturesCopied = numFeaturesCopied;
+	serverStatusOut.m_sendCameraArrayPixelDataArguments.m_imageWidth = width;
+	serverStatusOut.m_sendCameraArrayPixelDataArguments.m_imageHeight= height;
+	return hasStatus;
+}
+
+
 bool PhysicsServerCommandProcessor::processSaveWorldCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = false;
@@ -10001,6 +10116,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 	case CMD_REQUEST_CAMERA_IMAGE_DATA:
 		{
 			hasStatus = processRequestCameraImageCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
+	case CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA:
+		{
+			hasStatus = processRequestCameraArrayImageCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
 	case CMD_SYNC_BODY_INFO:

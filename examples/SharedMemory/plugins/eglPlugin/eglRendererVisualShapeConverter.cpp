@@ -54,7 +54,7 @@ typedef X11OpenGLWindow DefaultOpenGLWindow;
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "OpenGLWindow/GLRenderToTexture.h"
 
-#define BT_USE_TENSOR_RT
+//#define BT_USE_TENSOR_RT
 
 #ifdef BT_USE_TENSOR_RT
 #include "eglRendererTensorRT.cpp"
@@ -94,7 +94,7 @@ struct TinyRendererObjectArray
 };
 
 #define START_WIDTH 160
-#define START_HEIGHT 160
+#define START_HEIGHT 160*16
 
 struct EGLRendererVisualShapeConverterInternalData
 {
@@ -108,6 +108,7 @@ struct EGLRendererVisualShapeConverterInternalData
 	btAlignedObjectArray<b3VisualShapeData> m_visualShapes;
     
    	int m_upAxis;
+	int m_batchSize;
 	int m_swWidth;
 	int m_swHeight;
 	TGAImage m_rgbColorBuffer;
@@ -137,6 +138,7 @@ struct EGLRendererVisualShapeConverterInternalData
 	
 	EGLRendererVisualShapeConverterInternalData()
 	:m_upAxis(2),
+	m_batchSize(1),
 	m_swWidth(START_WIDTH),
 	m_swHeight(START_HEIGHT),
 	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB),
@@ -156,7 +158,7 @@ struct EGLRendererVisualShapeConverterInternalData
 	m_flags(0)
 	{
 	    m_depthBuffer.resize(m_swWidth*m_swHeight);
-            m_shadowBuffer.resize(m_swWidth*m_swHeight);
+        m_shadowBuffer.resize(m_swWidth*m_swHeight);
 	    m_segmentationMaskBuffer.resize(m_swWidth*m_swHeight,-1);
 
             // OpenGL window
@@ -944,7 +946,7 @@ void EGLRendererVisualShapeConverter::resetCamera(float camDist, float yaw, floa
     m_data->m_camera.setCameraPitch(pitch);
     m_data->m_camera.setCameraYaw(yaw);
     m_data->m_camera.setCameraTargetPosition(camPosX,camPosY,camPosZ);
-    m_data->m_camera.setAspectRatio((float)m_data->m_swWidth/(float)m_data->m_swHeight);
+    m_data->m_camera.setAspectRatio((float)m_data->m_swWidth/((float)(m_data->m_swHeight/m_data->m_batchSize)));
     m_data->m_camera.update();
 }
 
@@ -1010,6 +1012,26 @@ void EGLRendererVisualShapeConverter::render(const float viewMat[16], const floa
     //cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
     //cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
 }
+
+void EGLRendererVisualShapeConverter::renderCameraArray(const float (*viewMat)[16], const float (*projMat)[16])
+{
+    // This code is very similar to that of
+    // PhysicsServerCommandProcessor::processRequestCameraImageCommand
+    // maybe code from there should be moved.
+
+    // Tiny allows rendering with viewMat, projMat explicitly, but
+    // GLInstancingRender calls m_activeCamera, so set this.
+
+	//m_data->m_camera.setVRCamera(viewMat,projMat);
+
+	render();
+
+    //cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
+    //cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
+    //cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
+    //cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
+}
+
 
 void EGLRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
 {

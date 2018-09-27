@@ -46,7 +46,13 @@ struct UrdfRenderingInterface
 	
 	///remove all visual shapes.
 	virtual void resetAll()=0;
+
+	///return the frame buffer width and height for the renderer
+	virtual void getCameraArraySize(int &cameraArraySize)=0;
 	
+	///set the frame buffer width and height for the renderer
+	virtual void setCameraArraySize(int cameraArraySize)=0;
+
 	///return the frame buffer width and height for the renderer
 	virtual void getWidthAndHeight(int& width, int& height)=0;
 	
@@ -80,12 +86,18 @@ struct UrdfRenderingInterface
 	///provide the image pixels as a part of a stream.
 	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)=0;
 	
+	///provide the camera array image pixels as a part of a stream.
+	virtual void copyCameraArrayImageData(unsigned char* pixelsRGB, int rgbaBufferSizeInPixels, float* featuresBuffer, int featuresBufferSizeInPixels, int *cameraArraySizePtr, int* widthPtr, int* heightPtr, int* numPixelsCopied, int* numFeaturesCopied)=0;
+
 	///render an image, using some arbitraty view and projection matrix
 	virtual void render()=0;
 	
 	///render an image using the provided view and projection matrix
 	virtual void render(const float viewMat[16], const float projMat[16])=0;
-	
+
+	///render an image using the provided view and projection matrix
+	virtual void renderCameraArray(const float (*viewMat)[16], const float (*projMat)[16]) = 0;
+
 	///load a texture from file, in png or other popular/supported format
 	virtual int loadTextureFile(const char* filename)=0;
 	

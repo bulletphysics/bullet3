@@ -8,6 +8,7 @@ extern "C" {
 #endif//__cplusplus
 
 GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg);
+GLuint gltLoadShaderTriple(const char *szVertexProg, const char *szGeometryProg, const char *szFragmentProg);
 
 #ifdef __cplusplus
 }

@@ -55,12 +55,17 @@ struct PhysicsDirectInternalData
 
 	char    m_bulletStreamDataServerToClient[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];
 	btAlignedObjectArray<double> m_cachedMassMatrix;
+	int m_cachedCameraArraySize;
 	int m_cachedCameraPixelsWidth;
 	int m_cachedCameraPixelsHeight;
+	int m_cachedCameraFeatureLength;
 	btAlignedObjectArray<unsigned char> m_cachedCameraPixelsRGBA;
 	btAlignedObjectArray<float> m_cachedCameraDepthBuffer;
 	btAlignedObjectArray<int> m_cachedSegmentationMask;
-	
+
+	unsigned char *m_ptrCameraArrayPixelsRGB;
+	float *m_ptrCameraArrayFeatures;
+
     btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
 	btAlignedObjectArray<b3OverlappingObject> m_cachedOverlappingObjects;
 
@@ -84,9 +89,13 @@ struct PhysicsDirectInternalData
 	PhysicsDirectInternalData()
 		:m_hasStatus(false),
 		m_verboseOutput(false),
+		m_cachedCameraArraySize(0),
 		m_cachedCameraPixelsWidth(0),
 		m_cachedCameraPixelsHeight(0),
+		m_cachedCameraFeatureLength(0),
 		m_commandProcessor(NULL),
+		m_ptrCameraArrayPixelsRGB(0),
+		m_ptrCameraArrayFeatures(0),
 		m_ownsCommandProcessor(false),
 		m_timeOutInSeconds(1e30)
 	{
@@ -605,6 +614,51 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 		}
 	}  while (serverCmd.m_sendPixelDataArguments.m_numRemainingPixels > 0 && serverCmd.m_sendPixelDataArguments.m_numPixelsCopied);
 	
+	return m_data->m_hasStatus;
+
+
+}
+
+// NOTE: using pointers to shared memory here, to avoid yet another byte-by-byte memory copy
+bool PhysicsDirect::processCameraArray(const struct SharedMemoryCommand& orgCommand)
+{
+	SharedMemoryCommand command = orgCommand;
+
+	const SharedMemoryStatus& serverCmd = m_data->m_serverStatus;
+	bool hasStatus = m_data->m_commandProcessor->processCommand(command,m_data->m_serverStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+
+	b3Clock clock;
+	double startTime = clock.getTimeInSeconds();
+	double timeOutInSeconds = m_data->m_timeOutInSeconds;
+
+	while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
+	{
+		const  SharedMemoryStatus* stat = processServerStatus();
+		if (stat)
+		{
+			hasStatus = true;
+		}
+	}
+
+	m_data->m_hasStatus = hasStatus;
+	if (hasStatus)
+	{
+		btAssert(m_data->m_serverStatus.m_type == CMD_CAMERA_ARRAY_IMAGE_COMPLETED);
+
+		if (m_data->m_verboseOutput)
+		{
+			b3Printf("Camera array image OK\n");
+		}
+
+		int numBytesPerPixel = 3; //RGB
+		m_data->m_ptrCameraArrayPixelsRGB = (unsigned char*)&(m_data->m_bulletStreamDataServerToClient[0]);
+		m_data->m_ptrCameraArrayFeatures = (float*)&(m_data->m_bulletStreamDataServerToClient[serverCmd.m_sendCameraArrayPixelDataArguments.m_numPixelsCopied*numBytesPerPixel]);
+		m_data->m_cachedCameraArraySize = serverCmd.m_sendCameraArrayPixelDataArguments.m_cameraArraySize;
+		m_data->m_cachedCameraPixelsWidth = serverCmd.m_sendCameraArrayPixelDataArguments.m_imageWidth;
+		m_data->m_cachedCameraPixelsHeight = serverCmd.m_sendCameraArrayPixelDataArguments.m_imageHeight;
+		m_data->m_cachedCameraFeatureLength = serverCmd.m_sendCameraArrayPixelDataArguments.m_featureLength;
+	}
+
 	return m_data->m_hasStatus;
 
 
@@ -1399,7 +1453,7 @@ const float* PhysicsDirect::getDebugLinesColor() const
 	return 0;
 }
 
-void PhysicsDirect::getCachedCameraImage(b3CameraImageData* cameraData)
+void PhysicsDirect::getCachedCameraImage(struct b3CameraImageData* cameraData)
 {
 	if (cameraData)
 	{
@@ -1410,6 +1464,18 @@ void PhysicsDirect::getCachedCameraImage(b3CameraImageData* cameraData)
 		cameraData->m_segmentationMaskValues = m_data->m_cachedSegmentationMask.size()? &m_data->m_cachedSegmentationMask[0] : 0;
 	}
 }
+
+void PhysicsDirect::getCachedCameraArrayImage(struct b3CameraArrayImageData* cameraData)
+{
+	if (cameraData)
+	{
+		cameraData->m_pixelWidth = m_data->m_cachedCameraPixelsWidth;
+		cameraData->m_pixelHeight = m_data->m_cachedCameraPixelsHeight;
+		cameraData->m_rgbColorData = m_data->m_ptrCameraArrayPixelsRGB;
+		cameraData->m_featureValues = m_data->m_ptrCameraArrayFeatures;
+	}
+}
+
 
 void PhysicsDirect::getCachedContactPointInformation(struct b3ContactInformation* contactPointData)
 {

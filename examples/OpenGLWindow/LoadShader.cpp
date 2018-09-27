@@ -15,27 +15,25 @@ void gltLoadShaderSrc(const char *szShaderSrc, GLuint shader)
 }
 
 
-GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
+GLuint gltLoadShaderTriple(const char *szVertexProg, const char *szGeometryProg, const char *szFragmentProg)
 {
 
   assert(glGetError()==GL_NO_ERROR);
 
 	// Temporary Shader objects
-	GLuint hVertexShader;
-	GLuint hFragmentShader;
+	GLuint hVertexShader = 0;
+	GLuint hGeometryShader = 0;
+	GLuint hFragmentShader = 0;
 	GLuint hReturn = 0;
 	GLint testVal;
 
-	// Create shader objects
+	// Create shader object
 	hVertexShader = glCreateShader(GL_VERTEX_SHADER);
-	hFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
 	gltLoadShaderSrc(szVertexProg, hVertexShader);
-	gltLoadShaderSrc(szFragmentProg, hFragmentShader);
 
-	// Compile them
+	// Compile it
 	glCompileShader(hVertexShader);
-  assert(glGetError()==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
 
 	glGetShaderiv(hVertexShader, GL_COMPILE_STATUS, &testVal);
 	if(testVal == GL_FALSE)
@@ -46,11 +44,37 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
         assert(0);
         return 0;
 		glDeleteShader(hVertexShader);
-		glDeleteShader(hFragmentShader);
 		return (GLuint)NULL;
 	}
 
-  assert(glGetError()==GL_NO_ERROR);
+	assert(glGetError()==GL_NO_ERROR);
+
+	if(szGeometryProg)
+	{
+		hGeometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+		gltLoadShaderSrc(szGeometryProg, hGeometryShader);
+
+		glCompileShader(hGeometryShader);
+		assert(glGetError()==GL_NO_ERROR);
+
+		glGetShaderiv(hGeometryShader, GL_COMPILE_STATUS, &testVal);
+		if(testVal == GL_FALSE)
+		{
+			char temp[256] = "";
+			glGetShaderInfoLog( hGeometryShader, 256, NULL, temp);
+			fprintf( stderr, "Compile failed:\n%s\n", temp);
+			assert(0);
+			exit(EXIT_FAILURE);
+			glDeleteShader(hVertexShader);
+			glDeleteShader(hGeometryShader);
+			return (GLuint)NULL;
+		}
+
+		assert(glGetError()==GL_NO_ERROR);
+	}
+
+	hFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	gltLoadShaderSrc(szFragmentProg, hFragmentShader);
 
     glCompileShader(hFragmentShader);
     assert(glGetError()==GL_NO_ERROR);
@@ -64,11 +88,11 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
         assert(0);
         exit(EXIT_FAILURE);
 		glDeleteShader(hVertexShader);
+		if(szGeometryProg) glDeleteShader(hGeometryShader);
 		glDeleteShader(hFragmentShader);
 		return (GLuint)NULL;
 	}
 
-    assert(glGetError()==GL_NO_ERROR);
 
 	// Check for errors
 
@@ -78,12 +102,14 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 	// Link them - assuming it works...
 	hReturn = glCreateProgram();
 	glAttachShader(hReturn, hVertexShader);
+	if(szGeometryProg) glAttachShader(hReturn, hGeometryShader);
 	glAttachShader(hReturn, hFragmentShader);
 
 	glLinkProgram(hReturn);
 
 	// These are no longer needed
 	glDeleteShader(hVertexShader);
+	if(szGeometryProg) glDeleteShader(hGeometryShader);
 	glDeleteShader(hFragmentShader);
 
 	// Make sure link worked too
@@ -106,6 +132,12 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 	}
 
 	return hReturn;
+}
+
+
+GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
+{
+	gltLoadShaderTriple(szVertexProg, 0, szFragmentProg);
 }
 
 

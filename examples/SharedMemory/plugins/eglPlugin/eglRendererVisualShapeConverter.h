@@ -32,6 +32,8 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual void resetAll();
 
+	virtual void getCameraArraySize(int &cameraArraySize);
+	virtual void setCameraArraySize(int cameraArraySize);
 	virtual void getWidthAndHeight(int& width, int& height);
 	virtual void setWidthAndHeight(int width, int height);
 	virtual void setLightDirection(float x, float y, float z);
@@ -44,10 +46,13 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 	virtual void setFlags(int flags);
 
 	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
-        void copyCameraImageDataGL(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
+    void copyCameraImageDataGL(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
+
+	virtual void copyCameraArrayImageData(unsigned char* pixelsRGB, int rgbaBufferSizeInPixels, float* featuresBuffer, int featuresBufferSizeInPixels, int *cameraArraySizePtr, int* widthPtr, int* heightPtr, int* numPixelsCopied, int* numFeaturesCopied);
 
 	virtual void render();
 	virtual void render(const float viewMat[16], const float projMat[16]);
+	virtual void renderCameraArray(const float (*viewMat)[16], const float (*projMat)[16]);
     
 	virtual int loadTextureFile(const char* filename);
 	virtual int registerTexture(unsigned char* texels, int width, int height);

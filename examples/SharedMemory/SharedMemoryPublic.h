@@ -97,6 +97,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_USER_DATA,
 	CMD_ADD_USER_DATA,
 	CMD_REMOVE_USER_DATA,
+    CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA,
 
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
@@ -215,6 +216,9 @@ enum EnumSharedMemoryServerStatus
 		CMD_ADD_USER_DATA_FAILED,
 		CMD_REMOVE_USER_DATA_COMPLETED,
 		CMD_REMOVE_USER_DATA_FAILED,
+
+        CMD_CAMERA_ARRAY_IMAGE_COMPLETED,
+        CMD_CAMERA_ARRAY_IMAGE_FAILED,
 		//don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -387,6 +391,17 @@ struct b3CameraImageData
 	const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
 	const int* m_segmentationMaskValues;//m_pixelWidth*m_pixelHeight ints
 };
+
+struct b3CameraArrayImageData
+{
+	int m_cameraArraySize;
+	int m_pixelWidth;
+	int m_pixelHeight;
+	int m_featureLength;
+	const unsigned char* m_rgbColorData;    // m_cameraArraySize * m_pixelHeight * m_pixelWidth * 3 bytes
+	const float* m_featureValues; 		// m_cameraArraySize * m_featureLength floats
+};
+
 
 struct b3OpenGLVisualizerCameraInfo
 {
