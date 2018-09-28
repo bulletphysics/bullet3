@@ -108,7 +108,7 @@ struct EGLRendererVisualShapeConverterInternalData
 	btAlignedObjectArray<b3VisualShapeData> m_visualShapes;
     
    	int m_upAxis;
-	int m_batchSize;
+	int m_swCameraArraySize;
 	int m_swWidth;
 	int m_swHeight;
 	TGAImage m_rgbColorBuffer;
@@ -138,7 +138,7 @@ struct EGLRendererVisualShapeConverterInternalData
 	
 	EGLRendererVisualShapeConverterInternalData()
 	:m_upAxis(2),
-	m_batchSize(1),
+	m_swCameraArraySize(1),
 	m_swWidth(START_WIDTH),
 	m_swHeight(START_HEIGHT),
 	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB),
@@ -946,7 +946,7 @@ void EGLRendererVisualShapeConverter::resetCamera(float camDist, float yaw, floa
     m_data->m_camera.setCameraPitch(pitch);
     m_data->m_camera.setCameraYaw(yaw);
     m_data->m_camera.setCameraTargetPosition(camPosX,camPosY,camPosZ);
-    m_data->m_camera.setAspectRatio((float)m_data->m_swWidth/((float)(m_data->m_swHeight/m_data->m_batchSize)));
+    m_data->m_camera.setAspectRatio((float)m_data->m_swWidth/((float)(m_data->m_swHeight)));
     m_data->m_camera.update();
 }
 
@@ -1030,6 +1030,17 @@ void EGLRendererVisualShapeConverter::renderCameraArray(const float (*viewMat)[1
     //cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
     //cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
     //cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
+}
+
+
+void EGLRendererVisualShapeConverter::getCameraArraySize(int &cameraArraySize)
+{
+    cameraArraySize = m_data->m_swCameraArraySize;
+}
+
+void EGLRendererVisualShapeConverter::setCameraArraySize(int cameraArraySize)
+{
+	m_data->m_swCameraArraySize = cameraArraySize;
 }
 
 
@@ -1182,6 +1193,28 @@ void EGLRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsR
     m_data->m_tensorRT->copyCameraImageFeatures(depthBuffer, depthBufferSizeInPixels * sizeof(float));
 #endif //
 }
+
+
+void EGLRendererVisualShapeConverter::copyCameraArrayImageData(unsigned char* pixelsRGB, int rgbaBufferSizeInPixels,
+									float* featuresBuffer, int featuresBufferSizeInFloats,
+									int *cameraArraySizePtr, int* widthPtr, int* heightPtr,
+									int* numPixelsCopied, int* numFeaturesCopied)
+{
+
+#ifdef BT_USE_TENSOR_RT
+    m_data->m_tensorRT->copyCameraImageFeatures(featuresBuffer, featuresBufferSizeInPixels * sizeof(float));
+	*numFeaturesCopied = m_data->m_swCameraArraySize * m_data->m_tensorRT->getFeatureLength() ;
+#else // BT_USE_TENSOR_RT
+	*numFeaturesCopied = 0;
+#endif //
+
+	*cameraArraySizePtr = m_data->m_swCameraArraySize;
+	*widthPtr = m_data->m_swWidth;
+	*heightPtr = m_data->m_swHeight;
+	*numPixelsCopied = m_data->m_swCameraArraySize * m_data->m_swWidth * m_data->m_swHeight;
+}
+
+
 
 void EGLRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqueId)
 {

@@ -3504,6 +3504,15 @@ B3_SHARED_API void b3RequestCameraImageSetLightDistance(b3SharedMemoryCommandHan
     command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE;
 }
 
+B3_SHARED_API void b3RequestCameraArrayImageSetLightDistance(b3SharedMemoryCommandHandle commandHandle, float lightDistance)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA);
+    command->m_requestCameraArrayPixelDataArguments.m_lightDistance = lightDistance;
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE;
+}
+
 B3_SHARED_API void b3RequestCameraImageSetLightAmbientCoeff(b3SharedMemoryCommandHandle commandHandle, float lightAmbientCoeff)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

@@ -78,6 +78,9 @@ struct EGLRendererTensorRT
 	/// output size in bytes (incl. batch calc.)
 	int m_totalOutputSize;
 
+	// feature length in floats
+	int m_featureLength;
+
 	/// PBO (pixels to attach to TensorRT)
 	unsigned int pbo;
 	cudaGraphicsResource_t pboRes;
@@ -101,6 +104,11 @@ struct EGLRendererTensorRT
 	int m_inputBindingIndex;
 
 
+	int getFeatureLength()
+	{
+		return m_featureLength;
+	}
+
 	void uninitTensorRTEngine();
 
 	/** \brief Transfers pixels from GL to CUDA, executes TensorRT engine and
@@ -115,7 +123,7 @@ struct EGLRendererTensorRT
 
 	/** Returns tensor size, in elements.
 	*/
-	size_t size(nvinfer1::Dims shape)
+	static size_t size(nvinfer1::Dims shape)
 	{
 		size_t size = shape.nbDims > 0 ? 1 : 0;
 		for (int i = 0; i < shape.nbDims; i++)
@@ -129,7 +137,7 @@ EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 											  const char **modelOutputLayers,
 											  int width, int height,
 											  int kBatchSize)
-	: m_width(width), m_height(height), m_kBatchSize(kBatchSize), m_totalOutputSize(0),
+	: m_width(width), m_height(height), m_kBatchSize(kBatchSize), m_totalOutputSize(0), m_featureLength(0),
 	  pbo(0), pboRes(0), outputDataDevice(0), engine(0), context(0), m_inputBindingIndex(0)
 {
 	//if (endswith(modelFileName, ".uff"))
@@ -247,7 +255,7 @@ EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 
 	bindings.resize(m_inputBindingIndex + 1);
 
-	// get the output dimensions of the network, calculate m_totalOutputSize
+	// get the output dimensions of the network, calculate m_totalOutputSize, m_featureLength
 	for (const char **modelOutputLayer = modelOutputLayers; *modelOutputLayer;
 		 modelOutputLayer++)
 	{
@@ -263,6 +271,7 @@ EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 		}
 
 		size_t numOutput = size(engine->getBindingDimensions(outputBindingIndex));
+		m_featureLength += numOutput;
 		m_totalOutputSize += numOutput * sizeof(float) * m_kBatchSize;
 	}
 

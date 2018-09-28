@@ -169,7 +169,7 @@ const char *szGeometryProg =
 
 
 static InternalDataRenderer* sData2;
-
+bool useShadowMap;
 GLint lineWidthRange[2]={1,1};
 
 enum
@@ -1244,6 +1244,36 @@ void GLInstancingRenderer::setActiveCamera(CommonCameraInterface* cam)
 {
 	m_data->m_activeCamera = cam;
 }
+
+void GLInstancingRenderer::updateCamera(int upAxis)
+{
+	b3Warning("updateCamera is not supported");
+}
+
+
+void GLInstancingRenderer::setProjectiveTexture(bool)
+{
+	b3Warning("setProjectiveTexture is not supported");
+}
+
+void GLInstancingRenderer::renderSceneInternal(int)
+{
+	b3Warning("renderSceneInternal is not supported");
+}
+
+void GLInstancingRenderer::setProjectiveTextureMatrices(float const*, float const*)
+{
+	b3Warning("setProjectiveTextureMatrices is not supported");
+}
+
+void GLInstancingRenderer::enableShadowMap()
+{
+	useShadowMap = false;
+	b3Warning("enableShadowMap is not supported");
+}
+
+
+
 
 void GLInstancingRenderer::setLightSpecularIntensity(const float lightSpecularIntensity[3])
 {

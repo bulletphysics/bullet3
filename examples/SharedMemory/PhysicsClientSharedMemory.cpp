@@ -44,11 +44,14 @@ struct PhysicsClientSharedMemoryInternalData {
     btAlignedObjectArray<TmpFloat3> m_debugLinesTo;
     btAlignedObjectArray<TmpFloat3> m_debugLinesColor;
 
+	int m_cachedCameraArraySize;
 	int m_cachedCameraPixelsWidth;
 	int m_cachedCameraPixelsHeight;
+	int m_cachedCameraFeatureLength;
 	btAlignedObjectArray<unsigned char> m_cachedCameraPixelsRGBA;
 	btAlignedObjectArray<float> m_cachedCameraDepthBuffer;
 	btAlignedObjectArray<int> m_cachedSegmentationMaskBuffer;
+	btAlignedObjectArray<float> m_cachedCameraFeatures;
 
     btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
 	btAlignedObjectArray<b3OverlappingObject> m_cachedOverlappingObjects;
@@ -86,8 +89,10 @@ struct PhysicsClientSharedMemoryInternalData {
         : m_sharedMemory(0),
 		  m_ownsSharedMemory(false),
           m_testBlock1(0),
+		  m_cachedCameraArraySize(0),
 		  m_cachedCameraPixelsWidth(0),
 		  m_cachedCameraPixelsHeight(0),
+		  m_cachedCameraFeatureLength(0),
 		  m_counter(0),		  
           m_isConnected(false),
           m_waitingForServer(false),
@@ -940,11 +945,23 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
                 break;
             } 
-            
+
+            case CMD_CAMERA_ARRAY_IMAGE_COMPLETED:
+            {
+                b3Warning("Camera array image, not implemented\n");
+                break;
+            }
+
             case CMD_CAMERA_IMAGE_FAILED:
             {
 				B3_PROFILE("CMD_CAMERA_IMAGE_FAILED");
                b3Warning("Camera image FAILED\n");
+                break;
+            }
+            case CMD_CAMERA_ARRAY_IMAGE_FAILED:
+            {
+				B3_PROFILE("CMD_CAMERA_ARRAY_IMAGE_FAILED");
+               b3Warning("Camera array image FAILED\n");
                 break;
             }
 			case CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED:
@@ -1736,6 +1753,17 @@ void PhysicsClientSharedMemory::getCachedCameraImage(struct b3CameraImageData* c
 	cameraData->m_rgbColorData = m_data->m_cachedCameraPixelsRGBA.size() ? &m_data->m_cachedCameraPixelsRGBA[0] : 0;
 	cameraData->m_segmentationMaskValues = m_data->m_cachedSegmentationMaskBuffer.size()?&m_data->m_cachedSegmentationMaskBuffer[0] : 0;
 }
+
+void PhysicsClientSharedMemory::getCachedCameraArrayImage(struct b3CameraArrayImageData* cameraArrayData)
+{
+	cameraArrayData->m_cameraArraySize = m_data->m_cachedCameraArraySize;
+	cameraArrayData->m_pixelWidth = m_data->m_cachedCameraPixelsWidth;
+	cameraArrayData->m_pixelHeight = m_data->m_cachedCameraPixelsHeight;
+	cameraArrayData->m_featureLength = m_data->m_cachedCameraFeatureLength;
+	cameraArrayData->m_rgbColorData = m_data->m_cachedCameraPixelsRGBA.size() ? &m_data->m_cachedCameraPixelsRGBA[0] : 0;
+	cameraArrayData->m_featureValues = m_data->m_cachedCameraFeatures.size() ? &m_data->m_cachedCameraFeatures[0] : 0;
+}
+
 
 void PhysicsClientSharedMemory::getCachedContactPointInformation(struct b3ContactInformation* contactPointData)
 {
