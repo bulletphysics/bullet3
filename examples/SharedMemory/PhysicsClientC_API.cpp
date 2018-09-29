@@ -3504,15 +3504,6 @@ B3_SHARED_API void b3RequestCameraImageSetLightDistance(b3SharedMemoryCommandHan
     command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE;
 }
 
-B3_SHARED_API void b3RequestCameraArrayImageSetLightDistance(b3SharedMemoryCommandHandle commandHandle, float lightDistance)
-{
-    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-    b3Assert(command);
-    b3Assert(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA);
-    command->m_requestCameraArrayPixelDataArguments.m_lightDistance = lightDistance;
-    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE;
-}
-
 B3_SHARED_API void b3RequestCameraImageSetLightAmbientCoeff(b3SharedMemoryCommandHandle commandHandle, float lightAmbientCoeff)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -3585,6 +3576,148 @@ B3_SHARED_API void b3ComputePositionFromViewMatrix(const float viewMatrix[16], f
 	cameraUp[1] = u[1];
 	cameraUp[2] = u[2];
 }
+
+///request an image from a simulated camera array.
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCameraArrayImage(b3PhysicsClientHandle physClient)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+	return b3InitRequestCameraArrayImage2((b3SharedMemoryCommandHandle)command);
+}
+
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCameraArrayImage2(b3SharedMemoryCommandHandle commandHandle)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	command->m_type = CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA;
+	command->m_updateFlags = 0;//REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+B3_SHARED_API void b3RequestCameraArrayImageSelectRenderer(b3SharedMemoryCommandHandle commandHandle, int renderer)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA);
+    b3Assert(renderer>(1<<15));
+	if (renderer>(1<<15))
+	{
+	    command->m_updateFlags |= renderer;
+	}
+}
+
+B3_SHARED_API	void b3RequestCameraArrayImageSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA);
+	if(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA)
+	{
+		command->m_requestCameraArrayPixelDataArguments.m_flags = flags;
+		command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_FLAGS;
+	}
+}
+
+B3_SHARED_API void b3RequestCameraArrayImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHandle,
+					int cameraArraySize, float (*viewMatrices)[16], float (*projectionMatrices)[16])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA);
+    for (int j = 0; j < cameraArraySize && j < MAX_CAMERA_ARRAY_SIZE; j++)
+    	for (int i=0;i<16;i++)
+    	{
+    		command->m_requestCameraArrayPixelDataArguments.m_projectionMatrices[j][i] = projectionMatrices[j][i];
+    		command->m_requestCameraArrayPixelDataArguments.m_viewMatrices[j][i] = viewMatrices[j][i];
+    	}
+	command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
+}
+
+B3_SHARED_API void b3RequestCameraArrayImageSetLightDirection(b3SharedMemoryCommandHandle commandHandle, const float lightDirection[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA);
+	for (int i = 0; i<3; i++)
+	{
+		command->m_requestCameraArrayPixelDataArguments.m_lightDirection[i] = lightDirection[i];
+	}
+	command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION;
+}
+
+B3_SHARED_API void b3RequestCameraArrayImageSetLightColor(b3SharedMemoryCommandHandle commandHandle, const float lightColor[3])
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA);
+    for (int i = 0; i<3; i++)
+    {
+        command->m_requestCameraArrayPixelDataArguments.m_lightColor[i] = lightColor[i];
+    }
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_COLOR;
+}
+
+B3_SHARED_API void b3RequestCameraArrayImageSetLightDistance(b3SharedMemoryCommandHandle commandHandle, float lightDistance)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA);
+    command->m_requestCameraArrayPixelDataArguments.m_lightDistance = lightDistance;
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE;
+}
+
+B3_SHARED_API void b3RequestCameraArrayImageSetLightAmbientCoeff(b3SharedMemoryCommandHandle commandHandle, float lightAmbientCoeff)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA);
+    command->m_requestCameraArrayPixelDataArguments.m_lightAmbientCoeff = lightAmbientCoeff;
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_AMBIENT_COEFF;
+}
+
+B3_SHARED_API void b3RequestCameraArrayImageSetLightDiffuseCoeff(b3SharedMemoryCommandHandle commandHandle, float lightDiffuseCoeff)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA);
+    command->m_requestCameraArrayPixelDataArguments.m_lightDiffuseCoeff = lightDiffuseCoeff;
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_DIFFUSE_COEFF;
+}
+
+B3_SHARED_API void b3RequestCameraArrayImageSetLightSpecularCoeff(b3SharedMemoryCommandHandle commandHandle, float lightSpecularCoeff)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA);
+    command->m_requestCameraArrayPixelDataArguments.m_lightSpecularCoeff = lightSpecularCoeff;
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_SPECULAR_COEFF;
+}
+
+B3_SHARED_API void b3RequestCameraArrayImageSetPixelResolution(b3SharedMemoryCommandHandle commandHandle, int cameraArraySize, int width, int height )
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA);
+	command->m_requestCameraArrayPixelDataArguments.m_cameraArraySize = cameraArraySize;
+	command->m_requestCameraArrayPixelDataArguments.m_pixelWidth = width;
+	command->m_requestCameraArrayPixelDataArguments.m_pixelHeight = height;
+	command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT;
+}
+
+
+B3_SHARED_API void b3GetCameraArrayImageData(b3PhysicsClientHandle physClient, struct b3CameraArrayImageData* imageData)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	if (cl)
+	{
+		cl->getCachedCameraArrayImage(imageData);
+	}
+}
+
+
+
 
 B3_SHARED_API void b3ComputeViewMatrixFromPositions(const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3], float viewMatrix[16])
 {

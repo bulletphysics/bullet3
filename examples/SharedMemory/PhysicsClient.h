@@ -54,6 +54,8 @@ public:
 
 	virtual void getCachedCameraImage(struct b3CameraImageData* cameraData)=0;
 	
+	virtual void getCachedCameraArrayImage(struct b3CameraArrayImageData* cameraData)=0;
+
 	virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData)=0;
 	
 	virtual void getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects) = 0;

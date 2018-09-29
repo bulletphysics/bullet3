@@ -7512,10 +7512,6 @@ static PyObject* pybullet_getCameraArrayImage(PyObject* self, PyObject* args, Py
 		b3RequestCameraArrayImageSetLightDistance(command, lightDist);
 	}
 
-	if (hasShadow>=0)
-	{
-		b3RequestCameraArrayImageSetShadow(command, hasShadow);
-	}
 	if (lightAmbientCoeff>=0)
 	{
 		b3RequestCameraArrayImageSetLightAmbientCoeff(command, lightAmbientCoeff);

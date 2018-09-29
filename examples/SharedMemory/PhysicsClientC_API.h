@@ -253,6 +253,7 @@ B3_SHARED_API	void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct
 
 ///request an image from a simulated camera array, using a software renderer.
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCameraArrayImage(b3PhysicsClientHandle physClient);
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCameraArrayImage2(b3SharedMemoryCommandHandle commandHandle);
 B3_SHARED_API	void b3RequestCameraArrayImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHandle, int cameraArraySize, float (*viewMatrices)[16], float (*projectionMatrices)[16]);
 B3_SHARED_API	void b3RequestCameraArrayImageSetPixelResolution(b3SharedMemoryCommandHandle commandHandle, int cameraArraySize, int width, int height );
 B3_SHARED_API	void b3RequestCameraArrayImageSetLightDirection(b3SharedMemoryCommandHandle commandHandle, const float lightDirection[/*3*/]);
@@ -261,10 +262,7 @@ B3_SHARED_API	void b3RequestCameraArrayImageSetLightDistance(b3SharedMemoryComma
 B3_SHARED_API	void b3RequestCameraArrayImageSetLightAmbientCoeff(b3SharedMemoryCommandHandle commandHandle, float lightAmbientCoeff);
 B3_SHARED_API	void b3RequestCameraArrayImageSetLightDiffuseCoeff(b3SharedMemoryCommandHandle commandHandle, float lightDiffuseCoeff);
 B3_SHARED_API	void b3RequestCameraArrayImageSetLightSpecularCoeff(b3SharedMemoryCommandHandle commandHandle, float lightSpecularCoeff);
-B3_SHARED_API	void b3RequestCameraArrayImageSetShadow(b3SharedMemoryCommandHandle commandHandle, int hasShadow);
-B3_SHARED_API	void b3RequestCameraArrayImageSelectRenderer(b3SharedMemoryCommandHandle commandHandle, int renderer);
 B3_SHARED_API	void b3RequestCameraArrayImageSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags);
-
 B3_SHARED_API	void b3GetCameraArrayImageData(b3PhysicsClientHandle physClient, struct b3CameraArrayImageData* imageData);
 
 	
