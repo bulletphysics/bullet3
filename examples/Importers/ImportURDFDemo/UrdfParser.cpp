@@ -1436,6 +1436,72 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, XMLElement* config, ErrorLogger* l
 	return true;
 }
 
+bool UrdfParser::parseSensor(UrdfModel& model, UrdfLink& link, UrdfJoint& joint, XMLElement* config, ErrorLogger* logger)
+{
+	// Sensors are mapped to Links with a Fixed Joints connecting to the parents.
+	// They has no extent or mass so they will work with the existing
+	// model without affecting the system.
+	logger->reportError("Adding Sensor ");
+	const char* sensorName = config->Attribute("name");
+	if (!sensorName)
+	{
+		logger->reportError("Sensor with no name");
+		return false;
+	}
+
+	logger->reportError(sensorName);
+	link.m_name = sensorName;
+	link.m_linkTransformInWorld.setIdentity();
+	link.m_inertia.m_mass = 0.f;
+	link.m_inertia.m_linkLocalFrame.setIdentity();
+	link.m_inertia.m_ixx = 0.f;
+	link.m_inertia.m_iyy = 0.f;
+	link.m_inertia.m_izz = 0.f;
+
+	// Get Parent Link
+	XMLElement* parent_xml = config->FirstChildElement("parent");
+	if (parent_xml)
+	{
+		if (m_parseSDF)
+		{
+			joint.m_parentLinkName = std::string(parent_xml->GetText());
+		}
+		else
+		{
+			const char* pname = parent_xml->Attribute("link");
+			if (!pname)
+			{
+				logger->reportError("no parent link name specified for sensor. this might be the root?");
+				logger->reportError(joint.m_name.c_str());
+				return false;
+			}
+			else
+			{
+				joint.m_parentLinkName = std::string(pname);
+			}
+		}
+	}
+
+	joint.m_name = std::string(sensorName).append("_Joint");
+	joint.m_childLinkName = sensorName;
+	joint.m_type = URDFFixedJoint;
+	joint.m_localJointAxis.setValue(0, 0, 0);
+
+	// Get transform from Parent Link to Joint Frame
+	XMLElement* origin_xml = config->FirstChildElement("origin");
+	if (origin_xml)
+	{
+		if (!parseTransform(joint.m_parentLinkToJointTransform, origin_xml, logger))
+		{
+			logger->reportError("Malformed origin element for sensor:");
+			logger->reportError(joint.m_name.c_str());
+			return false;
+		}
+	}
+
+	return true;
+}
+
 bool UrdfParser::initTreeAndRoot(UrdfModel& model, ErrorLogger* logger)
 {
 	// every link has children links and joints, but no parents, so we create a
@@ -1516,7 +1582,7 @@ bool UrdfParser::initTreeAndRoot(UrdfModel& model, ErrorLogger* logger)
 	return true;
 }
 
-bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceFixedBase)
+bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceFixedBase, bool parseSensors)
 {
 	XMLDocument xml_doc;
 	xml_doc.Parse(urdfText);
@@ -1645,6 +1711,54 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 			delete joint;
 			return false;
 		}
+	}
+
+	if (parseSensors)
+	{
+		// Get all Sensor Elements.
+		for (XMLElement* sensor_xml = robot_xml->FirstChildElement("sensor"); sensor_xml; sensor_xml = sensor_xml->NextSiblingElement("sensor"))
+		{
+			UrdfLink* sensor = new UrdfLink;
+			UrdfJoint* sensor_joint = new UrdfJoint;
+
+			if (parseSensor(m_urdf2Model, *sensor, *sensor_joint, sensor_xml, logger))
+			{
+				if (m_urdf2Model.m_links.find(sensor->m_name.c_str()))
+				{
+					logger->reportError("Sensor name is not unique, sensor and link names in the same model have to be unique");
+					logger->reportError(sensor->m_name.c_str());
+					delete sensor;
+					delete sensor_joint;
+					return false;
+				}
+				else if (m_urdf2Model.m_joints.find(sensor_joint->m_name.c_str()))
+				{
+					logger->reportError("Sensor Joint name is not unique, joint names in the same model have to be unique");
+					logger->reportError(sensor_joint->m_name.c_str());
+					delete sensor;
+					delete sensor_joint;
+					return false;
+				}
+				else
+				{
+					m_urdf2Model.m_links.insert(sensor->m_name.c_str(), sensor);
+					m_urdf2Model.m_joints.insert(sensor_joint->m_name.c_str(), sensor_joint);
+				}
+			}
+			else
+			{
+				logger->reportError("failed to parse sensor");
+				delete sensor;
+				delete sensor_joint;
+				return false;
+			}
+		}
+	}
+
+	if (m_urdf2Model.m_links.size() == 0)
+	{
+		logger->reportWarning("No links found in URDF file");
+		return false;
 	}
 
 	bool ok(initTreeAndRoot(m_urdf2Model, logger));

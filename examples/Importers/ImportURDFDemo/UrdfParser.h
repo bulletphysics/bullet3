@@ -267,6 +267,7 @@ protected:
 	bool parseJointDynamics(UrdfJoint& joint, tinyxml2::XMLElement* config, ErrorLogger* logger);
 	bool parseJoint(UrdfJoint& joint, tinyxml2::XMLElement* config, ErrorLogger* logger);
 	bool parseLink(UrdfModel& model, UrdfLink& link, tinyxml2::XMLElement* config, ErrorLogger* logger);
+	bool parseSensor(UrdfModel& model, UrdfLink& link, UrdfJoint& joint, tinyxml2::XMLElement* config, ErrorLogger* logger);
 
 public:
 	UrdfParser();
@@ -285,7 +286,13 @@ public:
 		m_urdfScaling = scaling;
 	}
 
-	bool loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceFixedBase);
+	bool loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceFixedBase, bool parseSensors);
+
+	bool loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceFixedBase)
+	{
+		return loadUrdf(urdfText, logger, forceFixedBase, false);
+	}
+
 	bool loadSDF(const char* sdfText, ErrorLogger* logger);
 
 	int getNumModels() const
