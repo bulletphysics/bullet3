@@ -117,7 +117,7 @@ struct BulletErrorLogger : public ErrorLogger
 	}
 };
 
-bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
+bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase, int flags)
 {
 	if (strlen(fileName) == 0)
 		return false;
@@ -155,7 +155,7 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 
 	BulletErrorLogger loggie;
 	m_data->m_urdfParser.setParseSDF(false);
-	bool result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase);
+	bool result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase, (flags & CUF_PARSE_SENSORS));
 
 	return result;
 }

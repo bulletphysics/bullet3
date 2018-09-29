@@ -14,7 +14,7 @@ using grpc::Channel;
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "SharedMemory/grpc/ConvertGRPCBullet.h"
 
-using pybullet_grpc::PyBulletAPI;
+using pybullet_grpc::grpc::PyBulletAPI;
 
 static unsigned int b3DeserializeInt2(const unsigned char* input)
 {
