@@ -1726,7 +1726,6 @@ struct PhysicsServerCommandProcessorInternalData
 			}
 #endif  //ENABLE_STATIC_GRPC_PLUGIN
 
-
 #ifdef STATIC_EGLRENDERER_PLUGIN
 			{
 				bool initPlugin = false;
@@ -1735,15 +1734,12 @@ struct PhysicsServerCommandProcessorInternalData
 			}
 #endif  //STATIC_EGLRENDERER_PLUGIN
 
-
 #ifndef SKIP_STATIC_TINYRENDERER_PLUGIN
 			{
 				int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin, 0, 0, getRenderInterface_tinyRendererPlugin, 0, 0);
 				m_pluginManager.selectPluginRenderer(renderPluginId);
 			}
 #endif
-
-
 		}
 
 		m_vrControllerEvents.init();
@@ -2743,30 +2739,27 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 		if (mb)
 			mb->setUserIndex2(bodyUniqueId);
 
-
-
 		if (mb)
 		{
 			bodyHandle->m_multiBody = mb;
 
 			m_data->m_sdfRecentLoadedBodies.push_back(bodyUniqueId);
 
-			 
 			int segmentationMask = bodyUniqueId;
-			
+
 			{
 				int graphicsIndex = -1;
 				if (mb->getBaseCollider())
 				{
 					graphicsIndex = mb->getBaseCollider()->getUserIndex();
 				}
-				if (graphicsIndex>=0)
+				if (graphicsIndex >= 0)
 				{
-					if (m_data->m_graphicsIndexToSegmentationMask.size()<(graphicsIndex+1))
+					if (m_data->m_graphicsIndexToSegmentationMask.size() < (graphicsIndex + 1))
 					{
-						m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex+1);
+						m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex + 1);
 					}
-					m_data->m_graphicsIndexToSegmentationMask[graphicsIndex]= segmentationMask;
+					m_data->m_graphicsIndexToSegmentationMask[graphicsIndex] = segmentationMask;
 				}
 			}
 
@@ -2811,20 +2804,20 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 					int graphicsIndex = -1;
 					if (mb->getLinkCollider(i))
 					{
-							graphicsIndex = mb->getLinkCollider(i)->getUserIndex();
+						graphicsIndex = mb->getLinkCollider(i)->getUserIndex();
 					}
-					if (graphicsIndex>=0)
+					if (graphicsIndex >= 0)
 					{
 						int linkIndex = i;
-						if (m_data->m_graphicsIndexToSegmentationMask.size()<(graphicsIndex+1))
+						if (m_data->m_graphicsIndexToSegmentationMask.size() < (graphicsIndex + 1))
 						{
-							m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex+1);
+							m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex + 1);
 						}
 						int segmentationMask = bodyUniqueId + ((linkIndex + 1) << 24);
-						m_data->m_graphicsIndexToSegmentationMask[graphicsIndex]= segmentationMask;
+						m_data->m_graphicsIndexToSegmentationMask[graphicsIndex] = segmentationMask;
 					}
 				}
-				
+
 				std::string* jointName = new std::string(u2b.getJointName(urdfLinkIndex).c_str());
 				m_data->m_strings.push_back(jointName);
 
@@ -2860,13 +2853,13 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 				{
 					graphicsIndex = rb->getUserIndex();
 				}
-				if (graphicsIndex>=0)
+				if (graphicsIndex >= 0)
 				{
-					if (m_data->m_graphicsIndexToSegmentationMask.size()<(graphicsIndex+1))
+					if (m_data->m_graphicsIndexToSegmentationMask.size() < (graphicsIndex + 1))
 					{
-						m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex+1);
+						m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex + 1);
 					}
-					m_data->m_graphicsIndexToSegmentationMask[graphicsIndex]= segmentationMask;
+					m_data->m_graphicsIndexToSegmentationMask[graphicsIndex] = segmentationMask;
 				}
 			}
 
@@ -3524,9 +3517,9 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 				this->m_data->m_guiHelper->setProjectiveTexture(false);
 			}
 
-			if ((flags & (ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX + ER_SEGMENTATION_MASK))==0)
+			if ((flags & (ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX + ER_SEGMENTATION_MASK)) == 0)
 			{
-				segmentationMaskBuffer=0;
+				segmentationMaskBuffer = 0;
 			}
 			m_data->m_guiHelper->copyCameraImageData(viewMat,
 													 projMat, pixelRGBA, numRequestedPixels,
@@ -3540,11 +3533,11 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 
 				if (segmentationMaskBuffer)
 				{
-					for (int i=0;i<numPixelsCopied;i++)
+					for (int i = 0; i < numPixelsCopied; i++)
 					{
 						int graphicsSegMask = segmentationMaskBuffer[i];
 						int segMask = -1;
-						if ((graphicsSegMask >= 0) && (graphicsSegMask<m_data->m_graphicsIndexToSegmentationMask.size()))
+						if ((graphicsSegMask >= 0) && (graphicsSegMask < m_data->m_graphicsIndexToSegmentationMask.size()))
 						{
 							segMask = m_data->m_graphicsIndexToSegmentationMask[graphicsSegMask];
 						}
@@ -3557,9 +3550,7 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 						}
 						segmentationMaskBuffer[i] = segMask;
 					}
-					
 				}
-
 
 				handled = true;
 				m_data->m_guiHelper->debugDisplayCameraImageData(viewMat,
@@ -5767,7 +5758,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 							}
 						}
 					}  //fi
-					   //break;
+					//break;
 				}
 			}
 		}  //if (body && body->m_rigidBody)

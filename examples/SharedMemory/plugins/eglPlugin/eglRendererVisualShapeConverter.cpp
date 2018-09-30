@@ -100,7 +100,6 @@ struct EGLRendererVisualShapeConverterInternalData
 	btAlignedObjectArray<unsigned char> m_segmentationMaskSourceRgbaPixelBuffer;
 	btAlignedObjectArray<float> m_segmentationMaskSourceDepthBuffer;
 
-	
 	btAlignedObjectArray<int> m_graphicsIndexToSegmentationMask;
 	btHashMap<btHashInt, EGLRendererObjectArray*> m_swRenderInstances;
 
@@ -795,17 +794,15 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
 					int segmentationMask = bodyUniqueId + ((linkIndex + 1) << 24);
 					{
 						int graphicsIndex = visuals->m_graphicsInstanceId;
-						if (graphicsIndex>=0)
+						if (graphicsIndex >= 0)
 						{
-							if (m_data->m_graphicsIndexToSegmentationMask.size()<(graphicsIndex+1))
+							if (m_data->m_graphicsIndexToSegmentationMask.size() < (graphicsIndex + 1))
 							{
-								m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex+1);
+								m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex + 1);
 							}
-							m_data->m_graphicsIndexToSegmentationMask[graphicsIndex]= segmentationMask;
+							m_data->m_graphicsIndexToSegmentationMask[graphicsIndex] = segmentationMask;
 						}
 					}
-
-
 
 					m_data->m_instancingRenderer->writeTransforms();
 				}
@@ -998,10 +995,8 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 
 	int destinationWidth = *widthPtr;
 	int destinationHeight = *heightPtr;
-	int sourceWidth = btMin(destinationWidth, (int)( m_data->m_window->getWidth() * m_data->m_window->getRetinaScale()));
+	int sourceWidth = btMin(destinationWidth, (int)(m_data->m_window->getWidth() * m_data->m_window->getRetinaScale()));
 	int sourceHeight = btMin(destinationHeight, (int)(m_data->m_window->getHeight() * m_data->m_window->getRetinaScale()));
-
-	
 
 	int numTotalPixels = (*widthPtr) * (*heightPtr);
 	int numRemainingPixels = numTotalPixels - startPixelIndex;
@@ -1009,10 +1004,9 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 	int numRequestedPixels = btMin(rgbaBufferSizeInPixels, numRemainingPixels);
 	if (numRequestedPixels)
 	{
-		
-		if (startPixelIndex==0)
+		if (startPixelIndex == 0)
 		{
-			glViewport(0,0,sourceWidth,sourceHeight);
+			glViewport(0, 0, sourceWidth, sourceHeight);
 			m_data->m_window->endRendering();
 			m_data->m_window->startRendering();
 			/*
@@ -1042,7 +1036,7 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 			{
 				{
 					BT_PROFILE("copy pixels");
-		
+
 					//copy the image into our local cache
 					m_data->m_sourceRgbaPixelBuffer.resize(sourceWidth * sourceHeight * numBytesPerPixel);
 					m_data->m_sourceDepthBuffer.resize(sourceWidth * sourceHeight);
@@ -1069,12 +1063,9 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 							b3Assert(glstat == GL_NO_ERROR);
 						}
 					}
-
-			
 				}
 			}
 
-	
 			m_data->m_rgbaPixelBuffer1.resize((*widthPtr) * (*heightPtr) * numBytesPerPixel);
 			m_data->m_depthBuffer1.resize((*widthPtr) * (*heightPtr));
 			//rescale and flip
@@ -1116,14 +1107,14 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 			{
 				{
 					m_data->m_window->startRendering();
-				
+
 					BT_PROFILE("renderScene");
 					m_data->m_instancingRenderer->renderSceneInternal(B3_SEGMENTATION_MASK_RENDERMODE);
 				}
 
 				{
 					BT_PROFILE("copy pixels");
-				
+
 					//copy the image into our local cache
 					m_data->m_segmentationMaskSourceRgbaPixelBuffer.resize(sourceWidth * sourceHeight * numBytesPerPixel);
 					m_data->m_segmentationMaskSourceDepthBuffer.resize(sourceWidth * sourceHeight);
@@ -1141,14 +1132,11 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 							glstat = glGetError();
 							b3Assert(glstat == GL_NO_ERROR);
 						}
-
-
 					}
 				}
 			}
 
-			
-			m_data->m_segmentationMaskBuffer.resize(destinationWidth * destinationHeight,-1);
+			m_data->m_segmentationMaskBuffer.resize(destinationWidth * destinationHeight, -1);
 
 			//rescale and flip
 			{
@@ -1168,11 +1156,12 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 						if (segmentationMaskBuffer)
 						{
 							float depth = m_data->m_segmentationMaskSourceDepthBuffer[sourceDepthIndex];
-							if (depth<1)
+							if (depth < 1)
 							{
-								int segMask = m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 0]+256*(m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 1])+256*256*(m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 2]);
+								int segMask = m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 0] + 256 * (m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 1]) + 256 * 256 * (m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 2]);
 								m_data->m_segmentationMaskBuffer[i + j * destinationWidth] = segMask;
-							} else
+							}
+							else
 							{
 								m_data->m_segmentationMaskBuffer[i + j * destinationWidth] = -1;
 							}
@@ -1180,8 +1169,7 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 					}
 				}
 			}
-			glViewport(0,0,m_data->m_window->getWidth() * m_data->m_window->getRetinaScale(),m_data->m_window->getHeight() * m_data->m_window->getRetinaScale());
-
+			glViewport(0, 0, m_data->m_window->getWidth() * m_data->m_window->getRetinaScale(), m_data->m_window->getHeight() * m_data->m_window->getRetinaScale());
 		}
 		if (pixelsRGBA)
 		{
@@ -1204,10 +1192,9 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 			BT_PROFILE("copy segmentation mask buffer pixels");
 			for (int i = 0; i < numRequestedPixels; i++)
 			{
-
 				int graphicsIndexSegMask = m_data->m_segmentationMaskBuffer[i + startPixelIndex];
 				int segMask = -1;
-				if (graphicsIndexSegMask>=0 && graphicsIndexSegMask< m_data->m_graphicsIndexToSegmentationMask.size())
+				if (graphicsIndexSegMask >= 0 && graphicsIndexSegMask < m_data->m_graphicsIndexToSegmentationMask.size())
 				{
 					segMask = m_data->m_graphicsIndexToSegmentationMask[graphicsIndexSegMask];
 				}
@@ -1227,8 +1214,6 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 			*numPixelsCopied = numRequestedPixels;
 		}
 	}
-
-	
 }
 
 void EGLRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,

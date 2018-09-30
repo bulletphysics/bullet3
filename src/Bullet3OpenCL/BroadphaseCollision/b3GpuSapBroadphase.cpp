@@ -1227,7 +1227,7 @@ void b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 		m_overlappingPairs.resize(numPairs);
 
 	}  //B3_PROFILE("GPU_RADIX SORT");
-	//init3dSap();
+	   //init3dSap();
 }
 
 void b3GpuSapBroadphase::writeAabbsToGpu()

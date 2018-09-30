@@ -66,23 +66,23 @@ struct SimpleInternalData
 	int m_customViewPortWidth;
 	int m_customViewPortHeight;
 	SimpleInternalData()
-		:m_fontTextureId(0),
-		m_largeFontTextureId(0),
-		m_fontStash(0),
-		m_fontStash2(0),
-		m_renderCallbacks(0),
-		m_renderCallbacks2(0),
-		m_droidRegular(0),
-		m_droidRegular2(0),
-		m_frameDumpPngFileName(0),
-		m_ffmpegFile(0),
-		m_renderTexture(0),
-		m_userPointer(0),
-		m_upAxis(0),
-		m_customViewPortWidth(-1),
-		m_customViewPortHeight(-1)
-		{
-		}
+		: m_fontTextureId(0),
+		  m_largeFontTextureId(0),
+		  m_fontStash(0),
+		  m_fontStash2(0),
+		  m_renderCallbacks(0),
+		  m_renderCallbacks2(0),
+		  m_droidRegular(0),
+		  m_droidRegular2(0),
+		  m_frameDumpPngFileName(0),
+		  m_ffmpegFile(0),
+		  m_renderTexture(0),
+		  m_userPointer(0),
+		  m_upAxis(0),
+		  m_customViewPortWidth(-1),
+		  m_customViewPortHeight(-1)
+	{
+	}
 };
 
 static SimpleOpenGL3App* gApp = 0;
@@ -308,7 +308,6 @@ SimpleOpenGL3App::SimpleOpenGL3App(const char* title, int width, int height, boo
 	gApp = this;
 
 	m_data = new SimpleInternalData;
-	
 
 	if (windowType == 0)
 	{
@@ -925,24 +924,24 @@ SimpleOpenGL3App::~SimpleOpenGL3App()
 	delete m_data;
 }
 
-
 void SimpleOpenGL3App::setViewport(int width, int height)
 {
-	m_data->m_customViewPortWidth=width;
-	m_data->m_customViewPortHeight=height;
-	if (width>=0)
+	m_data->m_customViewPortWidth = width;
+	m_data->m_customViewPortHeight = height;
+	if (width >= 0)
 	{
-		glViewport(0,0,width,height);
-	} else
+		glViewport(0, 0, width, height);
+	}
+	else
 	{
-		glViewport(0,0,m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth(),m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight());
+		glViewport(0, 0, m_window->getRetinaScale() * m_instancingRenderer->getScreenWidth(), m_window->getRetinaScale() * m_instancingRenderer->getScreenHeight());
 	}
 }
 
 void SimpleOpenGL3App::getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes, float* depthBuffer, int depthBufferSizeInBytes)
 {
-	int width = m_data->m_customViewPortWidth>=0? m_data->m_customViewPortWidth : (int)m_window->getRetinaScale() * m_instancingRenderer->getScreenWidth();
-	int height = m_data->m_customViewPortHeight >=0? m_data->m_customViewPortHeight: (int)m_window->getRetinaScale() * m_instancingRenderer->getScreenHeight();
+	int width = m_data->m_customViewPortWidth >= 0 ? m_data->m_customViewPortWidth : (int)m_window->getRetinaScale() * m_instancingRenderer->getScreenWidth();
+	int height = m_data->m_customViewPortHeight >= 0 ? m_data->m_customViewPortHeight : (int)m_window->getRetinaScale() * m_instancingRenderer->getScreenHeight();
 
 	b3Assert((width * height * 4) == bufferSizeInBytes);
 	if ((width * height * 4) == bufferSizeInBytes)

@@ -139,7 +139,7 @@ struct btSparseSdf
 		nqueries = 1;
 		nprobes = 1;
 		++puid;  ///@todo: Reset puid's when int range limit is reached	*/
-		/* else setup a priority list...						*/
+				 /* else setup a priority list...						*/
 	}
 	//
 	int RemoveReferences(btCollisionShape* pcs)
