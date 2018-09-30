@@ -82,6 +82,7 @@ struct CommonGraphicsApp
 	virtual void dumpFramesToVideo(const char* mp4Filename) {}
 
 	virtual void getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes, float* depthBuffer, int depthBufferSizeInBytes) {}
+	virtual void setViewport(int width, int height) {}
 
 	virtual void getBackgroundColor(float* red, float* green, float* blue) const
 	{

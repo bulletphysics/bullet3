@@ -292,9 +292,9 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 			}
 			break;
 		}
-#endif  //SUPPORT_GIMPACT_SHAPE_IMPORT                                                                        \
-		//The btCapsuleShape* API has issue passing the margin/scaling/halfextents unmodified through the API \
-		//so deal with this
+#endif      //SUPPORT_GIMPACT_SHAPE_IMPORT
+			//The btCapsuleShape* API has issue passing the margin/scaling/halfextents unmodified through the API
+			//so deal with this
 		case CAPSULE_SHAPE_PROXYTYPE:
 		{
 			btCapsuleShapeData* capData = (btCapsuleShapeData*)shapeData;

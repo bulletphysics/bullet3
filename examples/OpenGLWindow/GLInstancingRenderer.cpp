@@ -19,6 +19,25 @@ bool useShadowMap = true;  // true;//false;//true;
 int shadowMapWidth = 4096;
 int shadowMapHeight = 4096;
 float shadowMapWorldSize = 10;
+#include <stdio.h>
+
+struct caster2
+{
+	void setInt(int v)
+	{
+		i = v;
+	}
+	float getFloat()
+	{
+		float v = ((float)i) + .25;
+		return v;
+	}
+
+	union {
+		int i;
+		float f;
+	};
+};
 
 #define MAX_POINTS_IN_BATCH 1024
 #define MAX_LINES_IN_BATCH 1024
@@ -75,6 +94,10 @@ float shadowMapWorldSize = 10;
 #include "Shaders/useShadowMapInstancingPS.h"
 #include "Shaders/projectiveTextureInstancingVS.h"
 #include "Shaders/projectiveTextureInstancingPS.h"
+
+#include "Shaders/segmentationMaskInstancingVS.h"
+#include "Shaders/segmentationMaskInstancingPS.h"
+
 #include "Shaders/linesPS.h"
 #include "Shaders/linesVS.h"
 
@@ -261,8 +284,10 @@ static GLuint linesShader;                        // The line renderer
 static GLuint useShadowMapInstancingShader;       // The shadow instancing renderer
 static GLuint createShadowMapInstancingShader;    // The shadow instancing renderer
 static GLuint projectiveTextureInstancingShader;  // The projective texture instancing renderer
-static GLuint instancingShader;                   // The instancing renderer
-static GLuint instancingShaderPointSprite;        // The point sprite instancing renderer
+static GLuint segmentationMaskInstancingShader;   // The segmentation mask instancing renderer
+
+static GLuint instancingShader;             // The instancing renderer
+static GLuint instancingShaderPointSprite;  // The point sprite instancing renderer
 
 //static bool                 done = false;
 
@@ -312,6 +337,9 @@ static GLint ModelViewMatrix = 0;
 static GLint ProjectionMatrix = 0;
 static GLint regularLightDirIn = 0;
 
+static GLint segmentationMaskModelViewMatrix = 0;
+static GLint segmentationMaskProjectionMatrix = 0;
+
 static GLint uniform_texture_diffuse = 0;
 
 static GLint screenWidthPointSprite = 0;
@@ -338,7 +366,7 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 	m_data->m_instance_positions_ptr.resize(m_data->m_maxNumObjectCapacity * 4);
 	m_data->m_instance_quaternion_ptr.resize(m_data->m_maxNumObjectCapacity * 4);
 	m_data->m_instance_colors_ptr.resize(m_data->m_maxNumObjectCapacity * 4);
-	m_data->m_instance_scale_ptr.resize(m_data->m_maxNumObjectCapacity * 3);
+	m_data->m_instance_scale_ptr.resize(m_data->m_maxNumObjectCapacity * 4);
 }
 
 void GLInstancingRenderer::removeAllInstances()
@@ -506,9 +534,12 @@ void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const float* scale, int
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
-	m_data->m_instance_scale_ptr[srcIndex * 3 + 0] = scale[0];
-	m_data->m_instance_scale_ptr[srcIndex * 3 + 1] = scale[1];
-	m_data->m_instance_scale_ptr[srcIndex * 3 + 2] = scale[2];
+	m_data->m_instance_scale_ptr[srcIndex * 4 + 0] = scale[0];
+	m_data->m_instance_scale_ptr[srcIndex * 4 + 1] = scale[1];
+	m_data->m_instance_scale_ptr[srcIndex * 4 + 2] = scale[2];
+	caster2 c;
+	c.setInt(srcIndex2);
+	m_data->m_instance_scale_ptr[srcIndex * 4 + 3] = c.getFloat();
 }
 
 void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const double* specular, int srcIndex2)
@@ -570,9 +601,12 @@ void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const double* scale, in
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
-	m_data->m_instance_scale_ptr[srcIndex * 3 + 0] = scale[0];
-	m_data->m_instance_scale_ptr[srcIndex * 3 + 1] = scale[1];
-	m_data->m_instance_scale_ptr[srcIndex * 3 + 2] = scale[2];
+	m_data->m_instance_scale_ptr[srcIndex * 4 + 0] = scale[0];
+	m_data->m_instance_scale_ptr[srcIndex * 4 + 1] = scale[1];
+	m_data->m_instance_scale_ptr[srcIndex * 4 + 2] = scale[2];
+	caster2 c;
+	c.setInt(srcIndex2);
+	m_data->m_instance_scale_ptr[srcIndex * 4 + 3] = c.getFloat();
 }
 
 void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, float* orientation, int objectUniqueId)
@@ -675,7 +709,7 @@ void GLInstancingRenderer::writeTransforms()
 		}
 		{
 			//			B3_PROFILE("glBufferSubData scale");
-			glBufferSubData(GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE + ORIENTATION_BUFFER_SIZE + COLOR_BUFFER_SIZE, m_data->m_totalNumInstances * sizeof(float) * 3,
+			glBufferSubData(GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE + ORIENTATION_BUFFER_SIZE + COLOR_BUFFER_SIZE, m_data->m_totalNumInstances * sizeof(float) * 4,
 							&m_data->m_instance_scale_ptr[0]);
 		}
 	}
@@ -718,9 +752,10 @@ void GLInstancingRenderer::writeTransforms()
 				colors[srcIndex * 4 + 2] = m_data->m_instance_colors_ptr[srcIndex * 4 + 2];
 				colors[srcIndex * 4 + 3] = m_data->m_instance_colors_ptr[srcIndex * 4 + 3];
 
-				scaling[srcIndex * 3] = m_data->m_instance_scale_ptr[srcIndex * 3];
-				scaling[srcIndex * 3 + 1] = m_data->m_instance_scale_ptr[srcIndex * 3 + 1];
-				scaling[srcIndex * 3 + 2] = m_data->m_instance_scale_ptr[srcIndex * 3 + 2];
+				scaling[srcIndex * 4] = m_data->m_instance_scale_ptr[srcIndex * 4];
+				scaling[srcIndex * 4 + 1] = m_data->m_instance_scale_ptr[srcIndex * 4 + 1];
+				scaling[srcIndex * 4 + 2] = m_data->m_instance_scale_ptr[srcIndex * 4 + 2];
+				scaling[srcIndex * 4 + 3] = m_data->m_instance_scale_ptr[srcIndex * 4 + 3];
 			}
 		}
 	}
@@ -782,9 +817,10 @@ void GLInstancingRenderer::rebuildGraphicsInstances()
 		pg->m_color[1] = m_data->m_instance_colors_ptr[srcIndex * 4 + 1];
 		pg->m_color[2] = m_data->m_instance_colors_ptr[srcIndex * 4 + 2];
 		pg->m_color[3] = m_data->m_instance_colors_ptr[srcIndex * 4 + 3];
-		pg->m_scale[0] = m_data->m_instance_scale_ptr[srcIndex * 3 + 0];
-		pg->m_scale[1] = m_data->m_instance_scale_ptr[srcIndex * 3 + 1];
-		pg->m_scale[2] = m_data->m_instance_scale_ptr[srcIndex * 3 + 2];
+		pg->m_scale[0] = m_data->m_instance_scale_ptr[srcIndex * 4 + 0];
+		pg->m_scale[1] = m_data->m_instance_scale_ptr[srcIndex * 4 + 1];
+		pg->m_scale[2] = m_data->m_instance_scale_ptr[srcIndex * 4 + 2];
+		pg->m_scale[3] = m_data->m_instance_scale_ptr[srcIndex * 4 + 3];
 	}
 	for (int i = 0; i < m_graphicsInstances.size(); i++)
 	{
@@ -861,9 +897,12 @@ int GLInstancingRenderer::registerGraphicsInstanceInternal(int newUid, const flo
 		m_data->m_instance_colors_ptr[index * 4 + 2] = color[2];
 		m_data->m_instance_colors_ptr[index * 4 + 3] = color[3];
 
-		m_data->m_instance_scale_ptr[index * 3] = scaling[0];
-		m_data->m_instance_scale_ptr[index * 3 + 1] = scaling[1];
-		m_data->m_instance_scale_ptr[index * 3 + 2] = scaling[2];
+		m_data->m_instance_scale_ptr[index * 4] = scaling[0];
+		m_data->m_instance_scale_ptr[index * 4 + 1] = scaling[1];
+		m_data->m_instance_scale_ptr[index * 4 + 2] = scaling[2];
+		caster2 c;
+		c.setInt(newUid);
+		m_data->m_instance_scale_ptr[index * 4 + 3] = c.getFloat();
 
 		if (color[3] < 1 && color[3] > 0)
 		{
@@ -912,9 +951,12 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 		m_data->m_instance_colors_ptr[srcIndex * 4 + 2] = color[2];
 		m_data->m_instance_colors_ptr[srcIndex * 4 + 3] = color[3];
 
-		m_data->m_instance_scale_ptr[srcIndex * 3 + 0] = scaling[0];
-		m_data->m_instance_scale_ptr[srcIndex * 3 + 1] = scaling[1];
-		m_data->m_instance_scale_ptr[srcIndex * 3 + 2] = scaling[2];
+		m_data->m_instance_scale_ptr[srcIndex * 4 + 0] = scaling[0];
+		m_data->m_instance_scale_ptr[srcIndex * 4 + 1] = scaling[1];
+		m_data->m_instance_scale_ptr[srcIndex * 4 + 2] = scaling[2];
+		caster2 c;
+		c.setInt(newUid);
+		m_data->m_instance_scale_ptr[srcIndex * 4 + 3] = c.getFloat();
 
 		rebuildGraphicsInstances();
 	}
@@ -1124,7 +1166,7 @@ void GLInstancingRenderer::InitShaders()
 	int POSITION_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity * sizeof(float) * 4);
 	int ORIENTATION_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity * sizeof(float) * 4);
 	int COLOR_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity * sizeof(float) * 4);
-	int SCALE_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity * sizeof(float) * 3);
+	int SCALE_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity * sizeof(float) * 4);
 
 	{
 		triangleShaderProgram = gltLoadShaderPair(triangleVertexShaderText, triangleFragmentShader);
@@ -1232,6 +1274,15 @@ void GLInstancingRenderer::InitShaders()
 	glLinkProgram(createShadowMapInstancingShader);
 	glUseProgram(createShadowMapInstancingShader);
 	createShadow_depthMVP = glGetUniformLocation(createShadowMapInstancingShader, "depthMVP");
+
+	glUseProgram(0);
+
+	segmentationMaskInstancingShader = gltLoadShaderPair(segmentationMaskInstancingVertexShader, segmentationMaskInstancingFragmentShader);
+	glLinkProgram(segmentationMaskInstancingShader);
+	glUseProgram(segmentationMaskInstancingShader);
+
+	segmentationMaskModelViewMatrix = glGetUniformLocation(segmentationMaskInstancingShader, "ModelViewMatrix");
+	segmentationMaskProjectionMatrix = glGetUniformLocation(segmentationMaskInstancingShader, "ProjectionMatrix");
 
 	glUseProgram(0);
 
@@ -1413,7 +1464,6 @@ void GLInstancingRenderer::setProjectiveTextureMatrices(const float viewMatrix[1
 void GLInstancingRenderer::setProjectiveTexture(bool useProjectiveTexture)
 {
 	m_data->m_useProjectiveTexture = useProjectiveTexture;
-	useShadowMap = !useProjectiveTexture;
 }
 
 void GLInstancingRenderer::updateCamera(int upAxis)
@@ -1510,47 +1560,50 @@ void GLInstancingRenderer::renderScene()
 
 	//glFlush();
 
-	if (useShadowMap)
-	{
-		renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
-
-		if (m_planeReflectionShapeIndex >= 0)
-		{
-			/* Don't update color or depth. */
-			glDisable(GL_DEPTH_TEST);
-			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-			/* Draw 1 into the stencil buffer. */
-			glEnable(GL_STENCIL_TEST);
-			glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-			glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
-
-			/* Now render floor; floor pixels just get their stencil set to 1. */
-			renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE_REFLECTION_PLANE);
-
-			/* Re-enable update of color and depth. */
-			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-			glEnable(GL_DEPTH_TEST);
-
-			/* Now, only render where stencil is set to 1. */
-			glStencilFunc(GL_EQUAL, 1, 0xffffffff); /* draw if ==1 */
-			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-			//draw the reflection objects
-			renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE_REFLECTION);
-
-			glDisable(GL_STENCIL_TEST);
-		}
-
-		renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
-	}
-	else if (m_data->m_useProjectiveTexture)
+	if (m_data->m_useProjectiveTexture)
 	{
 		renderSceneInternal(B3_USE_PROJECTIVE_TEXTURE_RENDERMODE);
 	}
 	else
 	{
-		renderSceneInternal();
+		if (useShadowMap)
+		{
+			renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
+
+			if (m_planeReflectionShapeIndex >= 0)
+			{
+				/* Don't update color or depth. */
+				glDisable(GL_DEPTH_TEST);
+				glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+				/* Draw 1 into the stencil buffer. */
+				glEnable(GL_STENCIL_TEST);
+				glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+				glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
+
+				/* Now render floor; floor pixels just get their stencil set to 1. */
+				renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE_REFLECTION_PLANE);
+
+				/* Re-enable update of color and depth. */
+				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				glEnable(GL_DEPTH_TEST);
+
+				/* Now, only render where stencil is set to 1. */
+				glStencilFunc(GL_EQUAL, 1, 0xffffffff); /* draw if ==1 */
+				glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+				//draw the reflection objects
+				renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE_REFLECTION);
+
+				glDisable(GL_STENCIL_TEST);
+			}
+
+			renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
+		}
+		else
+		{
+			renderSceneInternal();
+		}
 	}
 }
 
@@ -1970,7 +2023,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 	if (!useShadowMap)
 	{
-		renderMode = B3_DEFAULT_RENDERMODE;
+		renderMode = orgRenderMode;
 	}
 
 	if (orgRenderMode == B3_USE_PROJECTIVE_TEXTURE_RENDERMODE)
@@ -2281,8 +2334,11 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 				PointerCaster vertex;
 				vertex.m_baseIndex = gfxObj->m_vertexArrayOffset * vertexStride;
 
+				//vertex position
 				glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), vertex.m_pointer);
+				//instance_position
 				glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(transparentInstances[i].m_instanceId * 4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes));
+				//instance_quaternion
 				glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(transparentInstances[i].m_instanceId * 4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE));
 
 				PointerCaster uv;
@@ -2293,8 +2349,10 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 				glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), uv.m_pointer);
 				glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), normal.m_pointer);
+				//instance_color
 				glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(transparentInstances[i].m_instanceId * 4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE + ORIENTATION_BUFFER_SIZE));
-				glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(transparentInstances[i].m_instanceId * 3 * sizeof(float) + m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE + ORIENTATION_BUFFER_SIZE + COLOR_BUFFER_SIZE));
+				//instance_scale
+				glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(transparentInstances[i].m_instanceId * 4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes + POSITION_BUFFER_SIZE + ORIENTATION_BUFFER_SIZE + COLOR_BUFFER_SIZE));
 
 				glEnableVertexAttribArray(0);
 				glEnableVertexAttribArray(1);
@@ -2341,6 +2399,15 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 					{
 						switch (renderMode)
 						{
+							case B3_SEGMENTATION_MASK_RENDERMODE:
+							{
+								glUseProgram(segmentationMaskInstancingShader);
+								glUniformMatrix4fv(segmentationMaskProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
+								glUniformMatrix4fv(segmentationMaskModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
+								glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
+
+								break;
+							}
 							case B3_DEFAULT_RENDERMODE:
 							{
 								if (gfxObj->m_flags & eGfxTransparency)

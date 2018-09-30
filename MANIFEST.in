@@ -7,6 +7,6 @@ recursive-include src *.h
 recursive-include src *.hpp
 recursive-include examples/pybullet/gym *.*
 include examples/ThirdPartyLibs/enet/unix.c
-include examples/OpenGLWindow/*.cpp
+include examples/OpenGLWindow/*.*
 recursive-include examples/ThirdPartyLibs/glad *.*
 include examples/ThirdPartyLibs/enet/win32.c

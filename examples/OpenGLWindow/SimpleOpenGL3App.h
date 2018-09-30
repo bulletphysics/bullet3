@@ -24,7 +24,8 @@ struct SimpleOpenGL3App : public CommonGraphicsApp
 	virtual void registerGrid(int xres, int yres, float color0[4], float color1[4]);
 	void dumpNextFrameToPng(const char* pngFilename);
 	void dumpFramesToVideo(const char* mp4Filename);
-	void getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes, float* depthBuffer, int depthBufferSizeInBytes);
+	virtual void getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes, float* depthBuffer, int depthBufferSizeInBytes);
+	virtual void setViewport(int width, int height);
 
 	void drawGrid(DrawGridData data = DrawGridData());
 	virtual void setUpAxis(int axis);

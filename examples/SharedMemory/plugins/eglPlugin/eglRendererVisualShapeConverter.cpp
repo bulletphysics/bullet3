@@ -31,6 +31,7 @@ subject to the following restrictions:
 #include "../SharedMemory/SharedMemoryPublic.h"  //for b3VisualShapeData
 #include "../TinyRenderer/model.h"
 #include "stb_image/stb_image.h"
+#include "LinearMath/btMinMax.h"
 
 #ifdef __APPLE__
 #include "OpenGLWindow/MacOpenGLWindow.h"
@@ -96,6 +97,11 @@ struct EGLRendererVisualShapeConverterInternalData
 	btAlignedObjectArray<unsigned char> m_rgbaPixelBuffer1;
 	btAlignedObjectArray<float> m_depthBuffer1;
 
+	btAlignedObjectArray<unsigned char> m_segmentationMaskSourceRgbaPixelBuffer;
+	btAlignedObjectArray<float> m_segmentationMaskSourceDepthBuffer;
+
+	
+	btAlignedObjectArray<int> m_graphicsIndexToSegmentationMask;
 	btHashMap<btHashInt, EGLRendererObjectArray*> m_swRenderInstances;
 
 	btAlignedObjectArray<b3VisualShapeData> m_visualShapes;
@@ -103,6 +109,9 @@ struct EGLRendererVisualShapeConverterInternalData
 	int m_upAxis;
 	int m_swWidth;
 	int m_swHeight;
+	btAlignedObjectArray<unsigned char> m_sourceRgbaPixelBuffer;
+	btAlignedObjectArray<float> m_sourceDepthBuffer;
+
 	TGAImage m_rgbColorBuffer;
 	b3AlignedObjectArray<MyTexture3> m_textures;
 	b3AlignedObjectArray<float> m_depthBuffer;
@@ -783,6 +792,21 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
 					double scaling[3] = {1, 1, 1};
 					visuals->m_graphicsInstanceId = m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0], scaling);
 
+					int segmentationMask = bodyUniqueId + ((linkIndex + 1) << 24);
+					{
+						int graphicsIndex = visuals->m_graphicsInstanceId;
+						if (graphicsIndex>=0)
+						{
+							if (m_data->m_graphicsIndexToSegmentationMask.size()<(graphicsIndex+1))
+							{
+								m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex+1);
+							}
+							m_data->m_graphicsIndexToSegmentationMask[graphicsIndex]= segmentationMask;
+						}
+					}
+
+
+
 					m_data->m_instancingRenderer->writeTransforms();
 				}
 			}
@@ -923,29 +947,7 @@ void EGLRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
 
 void EGLRendererVisualShapeConverter::render()
 {
-	m_data->m_window->endRendering();
-	m_data->m_window->startRendering();
-	/*
-    ATTRIBUTE_ALIGNED16(float viewMat[16]);
-    ATTRIBUTE_ALIGNED16(float projMat[16]);
-    m_data->m_camera.getCameraProjectionMatrix(projMat);
-    m_data->m_camera.getCameraViewMatrix(viewMat);
-    cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
-    cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
-    cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
-    cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
-    */
-
-	B3_PROFILE("m_instancingRenderer render");
-	m_data->m_instancingRenderer->writeTransforms();
-	if (m_data->m_hasLightDirection)
-	{
-		m_data->m_instancingRenderer->setLightPosition(m_data->m_lightDirection);
-	}
-	m_data->m_instancingRenderer->setActiveCamera(&m_data->m_camera);
-	m_data->m_instancingRenderer->updateCamera(m_data->m_upAxis);
-
-	m_data->m_instancingRenderer->renderScene();
+	//mode the the actual render code inside 'copyImageData' since we need to know the width/height
 }
 
 void EGLRendererVisualShapeConverter::render(const float viewMat[16], const float projMat[16])
@@ -991,11 +993,15 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 	int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,
 	int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
 {
-	int sourceWidth = m_data->m_window->getWidth() * m_data->m_window->getRetinaScale();
-	int sourceHeight = m_data->m_window->getHeight() * m_data->m_window->getRetinaScale();
-
 	if (numPixelsCopied)
 		*numPixelsCopied = 0;
+
+	int destinationWidth = *widthPtr;
+	int destinationHeight = *heightPtr;
+	int sourceWidth = btMin(destinationWidth, (int)( m_data->m_window->getWidth() * m_data->m_window->getRetinaScale()));
+	int sourceHeight = btMin(destinationHeight, (int)(m_data->m_window->getHeight() * m_data->m_window->getRetinaScale()));
+
+	
 
 	int numTotalPixels = (*widthPtr) * (*heightPtr);
 	int numRemainingPixels = numTotalPixels - startPixelIndex;
@@ -1003,78 +1009,180 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 	int numRequestedPixels = btMin(rgbaBufferSizeInPixels, numRemainingPixels);
 	if (numRequestedPixels)
 	{
-		if (startPixelIndex == 0)
+		
+		if (startPixelIndex==0)
 		{
+			glViewport(0,0,sourceWidth,sourceHeight);
+			m_data->m_window->endRendering();
+			m_data->m_window->startRendering();
+			/*
+			ATTRIBUTE_ALIGNED16(float viewMat[16]);
+			ATTRIBUTE_ALIGNED16(float projMat[16]);
+			m_data->m_camera.getCameraProjectionMatrix(projMat);
+			m_data->m_camera.getCameraViewMatrix(viewMat);
+			cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
+			cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
+			cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
+			cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
+			*/
+
+			B3_PROFILE("m_instancingRenderer render");
+			m_data->m_instancingRenderer->writeTransforms();
+			if (m_data->m_hasLightDirection)
 			{
-				BT_PROFILE("copy pixels");
-				btAlignedObjectArray<unsigned char> sourceRgbaPixelBuffer;
-				btAlignedObjectArray<float> sourceDepthBuffer;
-				//copy the image into our local cache
-				sourceRgbaPixelBuffer.resize(sourceWidth * sourceHeight * numBytesPerPixel);
-				sourceDepthBuffer.resize(sourceWidth * sourceHeight);
-				{
-					BT_PROFILE("getScreenPixels");
-					int rgbaBufferSizeInPixels = sourceRgbaPixelBuffer.size();
-					int depthBufferSizeInPixels = sourceDepthBuffer.size();
-					// Copied from SimpleOpenGL3App::getScreenPixels
-					b3Assert((sourceWidth * sourceHeight * 4) == rgbaBufferSizeInPixels);
-					//glClear(GL_COLOR_BUFFER_BIT);
-					//b3Warning("EGL\n");
-					if ((sourceWidth * sourceHeight * 4) == rgbaBufferSizeInPixels)  // remove this if
-					{
-						glReadPixels(0, 0, sourceWidth, sourceHeight, GL_RGBA, GL_UNSIGNED_BYTE, &(sourceRgbaPixelBuffer[0]));
-						int glstat;
-						glstat = glGetError();
-						b3Assert(glstat == GL_NO_ERROR);
-					}
-					if ((sourceWidth * sourceHeight * sizeof(float)) == depthBufferSizeInPixels)
-					{
-						glReadPixels(0, 0, sourceWidth, sourceHeight, GL_DEPTH_COMPONENT, GL_FLOAT, &(sourceDepthBuffer[0]));
-						int glstat;
-						glstat = glGetError();
-						b3Assert(glstat == GL_NO_ERROR);
-					}
-				}
+				m_data->m_instancingRenderer->setLightPosition(m_data->m_lightDirection);
+			}
+			m_data->m_instancingRenderer->setActiveCamera(&m_data->m_camera);
+			m_data->m_instancingRenderer->updateCamera(m_data->m_upAxis);
 
-				m_data->m_rgbaPixelBuffer1.resize((*widthPtr) * (*heightPtr) * numBytesPerPixel);
-				m_data->m_depthBuffer1.resize((*widthPtr) * (*heightPtr));
-				//rescale and flip
+			m_data->m_instancingRenderer->renderScene();
+
+			int numBytesPerPixel = 4;  //RGBA
+
+			{
 				{
-					BT_PROFILE("resize and flip");
-					for (int j = 0; j < *heightPtr; j++)
+					BT_PROFILE("copy pixels");
+		
+					//copy the image into our local cache
+					m_data->m_sourceRgbaPixelBuffer.resize(sourceWidth * sourceHeight * numBytesPerPixel);
+					m_data->m_sourceDepthBuffer.resize(sourceWidth * sourceHeight);
 					{
-						for (int i = 0; i < *widthPtr; i++)
+						BT_PROFILE("getScreenPixels");
+						int rgbaBufferSizeInPixels = m_data->m_sourceRgbaPixelBuffer.size();
+						int depthBufferSizeInPixels = m_data->m_sourceDepthBuffer.size();
+						// Copied from SimpleOpenGL3App::getScreenPixels
+						b3Assert((sourceWidth * sourceHeight * 4) == rgbaBufferSizeInPixels);
+						//glClear(GL_COLOR_BUFFER_BIT);
+						//b3Warning("EGL\n");
+						if ((sourceWidth * sourceHeight * 4) == rgbaBufferSizeInPixels)  // remove this if
 						{
-							int xIndex = int(float(i) * (float(sourceWidth) / float(*widthPtr)));
-							int yIndex = int(float(*heightPtr - 1 - j) * (float(sourceHeight) / float(*heightPtr)));
-							btClamp(xIndex, 0, sourceWidth);
-							btClamp(yIndex, 0, sourceHeight);
-							int bytesPerPixel = 4;  //RGBA
+							glReadPixels(0, 0, sourceWidth, sourceHeight, GL_RGBA, GL_UNSIGNED_BYTE, &(m_data->m_sourceRgbaPixelBuffer[0]));
+							int glstat;
+							glstat = glGetError();
+							b3Assert(glstat == GL_NO_ERROR);
+						}
+						if ((sourceWidth * sourceHeight * sizeof(float)) == depthBufferSizeInPixels)
+						{
+							glReadPixels(0, 0, sourceWidth, sourceHeight, GL_DEPTH_COMPONENT, GL_FLOAT, &(m_data->m_sourceDepthBuffer[0]));
+							int glstat;
+							glstat = glGetError();
+							b3Assert(glstat == GL_NO_ERROR);
+						}
+					}
 
-							int sourcePixelIndex = (xIndex + yIndex * sourceWidth) * bytesPerPixel;
-							int sourceDepthIndex = xIndex + yIndex * sourceWidth;
+			
+				}
+			}
+
+	
+			m_data->m_rgbaPixelBuffer1.resize((*widthPtr) * (*heightPtr) * numBytesPerPixel);
+			m_data->m_depthBuffer1.resize((*widthPtr) * (*heightPtr));
+			//rescale and flip
+			{
+				BT_PROFILE("resize and flip");
+				for (int j = 0; j < *heightPtr; j++)
+				{
+					for (int i = 0; i < *widthPtr; i++)
+					{
+						int xIndex = int(float(i) * (float(sourceWidth) / float(*widthPtr)));
+						int yIndex = int(float(*heightPtr - 1 - j) * (float(sourceHeight) / float(*heightPtr)));
+						btClamp(xIndex, 0, sourceWidth);
+						btClamp(yIndex, 0, sourceHeight);
+						int bytesPerPixel = 4;  //RGBA
+
+						int sourcePixelIndex = (xIndex + yIndex * sourceWidth) * bytesPerPixel;
+						int sourceDepthIndex = xIndex + yIndex * sourceWidth;
 #define COPY4PIXELS 1
 #ifdef COPY4PIXELS
-							int* dst = (int*)&m_data->m_rgbaPixelBuffer1[(i + j * (*widthPtr)) * 4 + 0];
-							int* src = (int*)&sourceRgbaPixelBuffer[sourcePixelIndex + 0];
-							*dst = *src;
+						int* dst = (int*)&m_data->m_rgbaPixelBuffer1[(i + j * (*widthPtr)) * 4 + 0];
+						int* src = (int*)&m_data->m_sourceRgbaPixelBuffer[sourcePixelIndex + 0];
+						*dst = *src;
 
 #else
-							m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 0] = sourceRgbaPixelBuffer[sourcePixelIndex + 0];
-							m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 1] = sourceRgbaPixelBuffer[sourcePixelIndex + 1];
-							m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 2] = sourceRgbaPixelBuffer[sourcePixelIndex + 2];
-							m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 3] = 255;
+						m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 0] = sourceRgbaPixelBuffer[sourcePixelIndex + 0];
+						m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 1] = sourceRgbaPixelBuffer[sourcePixelIndex + 1];
+						m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 2] = sourceRgbaPixelBuffer[sourcePixelIndex + 2];
+						m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 3] = 255;
 #endif
-							if (depthBuffer)
+						if (depthBuffer)
+						{
+							m_data->m_depthBuffer1[i + j * (*widthPtr)] = m_data->m_sourceDepthBuffer[sourceDepthIndex];
+						}
+					}
+				}
+			}
+
+			if (segmentationMaskBuffer)
+			{
+				{
+					m_data->m_window->startRendering();
+				
+					BT_PROFILE("renderScene");
+					m_data->m_instancingRenderer->renderSceneInternal(B3_SEGMENTATION_MASK_RENDERMODE);
+				}
+
+				{
+					BT_PROFILE("copy pixels");
+				
+					//copy the image into our local cache
+					m_data->m_segmentationMaskSourceRgbaPixelBuffer.resize(sourceWidth * sourceHeight * numBytesPerPixel);
+					m_data->m_segmentationMaskSourceDepthBuffer.resize(sourceWidth * sourceHeight);
+					{
+						BT_PROFILE("getScreenPixels");
+						{
+							glReadPixels(0, 0, sourceWidth, sourceHeight, GL_DEPTH_COMPONENT, GL_FLOAT, &(m_data->m_segmentationMaskSourceDepthBuffer[0]));
+							int glstat;
+							glstat = glGetError();
+							b3Assert(glstat == GL_NO_ERROR);
+						}
+						{
+							glReadPixels(0, 0, sourceWidth, sourceHeight, GL_RGBA, GL_UNSIGNED_BYTE, &(m_data->m_segmentationMaskSourceRgbaPixelBuffer[0]));
+							int glstat;
+							glstat = glGetError();
+							b3Assert(glstat == GL_NO_ERROR);
+						}
+
+
+					}
+				}
+			}
+
+			
+			m_data->m_segmentationMaskBuffer.resize(destinationWidth * destinationHeight,-1);
+
+			//rescale and flip
+			{
+				BT_PROFILE("resize and flip");
+				for (int j = 0; j < destinationHeight; j++)
+				{
+					for (int i = 0; i < destinationWidth; i++)
+					{
+						int xIndex = int(float(i) * (float(sourceWidth) / float(destinationWidth)));
+						int yIndex = int(float(destinationHeight - 1 - j) * (float(sourceHeight) / float(destinationHeight)));
+						btClamp(xIndex, 0, sourceWidth);
+						btClamp(yIndex, 0, sourceHeight);
+						int bytesPerPixel = 4;  //RGBA
+						int sourcePixelIndex = (xIndex + yIndex * sourceWidth) * bytesPerPixel;
+						int sourceDepthIndex = xIndex + yIndex * sourceWidth;
+
+						if (segmentationMaskBuffer)
+						{
+							float depth = m_data->m_segmentationMaskSourceDepthBuffer[sourceDepthIndex];
+							if (depth<1)
 							{
-								m_data->m_depthBuffer1[i + j * (*widthPtr)] = sourceDepthBuffer[sourceDepthIndex];
+								int segMask = m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 0]+256*(m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 1])+256*256*(m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 2]);
+								m_data->m_segmentationMaskBuffer[i + j * destinationWidth] = segMask;
+							} else
+							{
+								m_data->m_segmentationMaskBuffer[i + j * destinationWidth] = -1;
 							}
 						}
 					}
 				}
 			}
-		}
+			glViewport(0,0,m_data->m_window->getWidth() * m_data->m_window->getRetinaScale(),m_data->m_window->getHeight() * m_data->m_window->getRetinaScale());
 
+		}
 		if (pixelsRGBA)
 		{
 			BT_PROFILE("copy rgba pixels");
@@ -1091,11 +1199,36 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 				depthBuffer[i] = m_data->m_depthBuffer1[i + startPixelIndex];
 			}
 		}
+		if (segmentationMaskBuffer)
+		{
+			BT_PROFILE("copy segmentation mask buffer pixels");
+			for (int i = 0; i < numRequestedPixels; i++)
+			{
+
+				int graphicsIndexSegMask = m_data->m_segmentationMaskBuffer[i + startPixelIndex];
+				int segMask = -1;
+				if (graphicsIndexSegMask>=0 && graphicsIndexSegMask< m_data->m_graphicsIndexToSegmentationMask.size())
+				{
+					segMask = m_data->m_graphicsIndexToSegmentationMask[graphicsIndexSegMask];
+				}
+				if ((m_data->m_flags & ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX) == 0)
+				{
+					if (segMask >= 0)
+					{
+						segMask &= ((1 << 24) - 1);
+					}
+				}
+				segmentationMaskBuffer[i] = segMask;
+			}
+		}
+
 		if (numPixelsCopied)
 		{
 			*numPixelsCopied = numRequestedPixels;
 		}
 	}
+
+	
 }
 
 void EGLRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
@@ -1157,6 +1290,7 @@ void EGLRendererVisualShapeConverter::resetAll()
 	m_data->m_textures.clear();
 	m_data->m_swRenderInstances.clear();
 	m_data->m_visualShapes.clear();
+	m_data->m_graphicsIndexToSegmentationMask.clear();
 }
 
 void EGLRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)

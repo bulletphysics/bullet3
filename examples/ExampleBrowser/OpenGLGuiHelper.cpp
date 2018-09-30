@@ -202,6 +202,7 @@ struct OpenGLGuiHelperInternalData
 
 	btAlignedObjectArray<unsigned char> m_rgbaPixelBuffer1;
 	btAlignedObjectArray<float> m_depthBuffer1;
+	btAlignedObjectArray<int> m_segmentationMaskBuffer;
 	btHashMap<MyHashShape, int> m_hashShapes;
 
 	VisualizerFlagCallback m_visualizerFlagCallback;
@@ -990,7 +991,7 @@ void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
 		getRenderInterface()->setPlaneReflectionShapeIndex(enable);
 	}
 	if (m_data->m_visualizerFlagCallback)
-		(m_data->m_visualizerFlagCallback)(flag, enable);
+		(m_data->m_visualizerFlagCallback)(flag, enable!=0);
 }
 
 void OpenGLGuiHelper::resetCamera(float camDist, float yaw, float pitch, float camPosX, float camPosY, float camPosZ)
@@ -1070,6 +1071,7 @@ void OpenGLGuiHelper::setProjectiveTexture(bool useProjectiveTexture)
 	m_data->m_glApp->m_renderer->setProjectiveTexture(useProjectiveTexture);
 }
 
+
 void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],
 										  unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
 										  float* depthBuffer, int depthBufferSizeInPixels,
@@ -1077,8 +1079,11 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 										  int startPixelIndex, int destinationWidth,
 										  int destinationHeight, int* numPixelsCopied)
 {
-	int sourceWidth = m_data->m_glApp->m_window->getWidth() * m_data->m_glApp->m_window->getRetinaScale();
-	int sourceHeight = m_data->m_glApp->m_window->getHeight() * m_data->m_glApp->m_window->getRetinaScale();
+	
+	
+	int sourceWidth = btMin(destinationWidth, (int)(m_data->m_glApp->m_window->getWidth() * m_data->m_glApp->m_window->getRetinaScale()));
+	int sourceHeight = btMin(destinationHeight, (int)(m_data->m_glApp->m_window->getHeight() * m_data->m_glApp->m_window->getRetinaScale()));
+	m_data->m_glApp->setViewport(sourceWidth, sourceHeight);
 
 	if (numPixelsCopied)
 		*numPixelsCopied = 0;
@@ -1099,8 +1104,7 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 				BT_PROFILE("renderScene");
 				getRenderInterface()->renderScene();
 			}
-			getRenderInterface()->setActiveCamera(oldCam);
-
+			
 			{
 				BT_PROFILE("copy pixels");
 				btAlignedObjectArray<unsigned char> sourceRgbaPixelBuffer;
@@ -1151,6 +1155,65 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 				}
 			}
 
+			//segmentation mask
+
+			if (segmentationMaskBuffer)
+			{
+				{
+					m_data->m_glApp->m_window->startRendering();
+					BT_PROFILE("renderScene");
+					getRenderInterface()->renderSceneInternal(B3_SEGMENTATION_MASK_RENDERMODE);
+				}
+			
+				{
+					BT_PROFILE("copy pixels");
+					btAlignedObjectArray<unsigned char> sourceRgbaPixelBuffer;
+					btAlignedObjectArray<float> sourceDepthBuffer;
+					//copy the image into our local cache
+					sourceRgbaPixelBuffer.resize(sourceWidth * sourceHeight * numBytesPerPixel);
+					sourceDepthBuffer.resize(sourceWidth * sourceHeight);
+					{
+						BT_PROFILE("getScreenPixelsSegmentationMask");
+						m_data->m_glApp->getScreenPixels(&(sourceRgbaPixelBuffer[0]), sourceRgbaPixelBuffer.size(), &sourceDepthBuffer[0], sizeof(float) * sourceDepthBuffer.size());
+					}
+					m_data->m_segmentationMaskBuffer.resize(destinationWidth * destinationHeight,-1);
+
+					//rescale and flip
+					{
+						BT_PROFILE("resize and flip segmentation mask");
+						for (int j = 0; j < destinationHeight; j++)
+						{
+							for (int i = 0; i < destinationWidth; i++)
+							{
+								int xIndex = int(float(i) * (float(sourceWidth) / float(destinationWidth)));
+								int yIndex = int(float(destinationHeight - 1 - j) * (float(sourceHeight) / float(destinationHeight)));
+								btClamp(xIndex, 0, sourceWidth);
+								btClamp(yIndex, 0, sourceHeight);
+								int bytesPerPixel = 4;  //RGBA
+								int sourcePixelIndex = (xIndex + yIndex * sourceWidth) * bytesPerPixel;
+								int sourceDepthIndex = xIndex + yIndex * sourceWidth;
+
+								if (segmentationMaskBuffer)
+								{
+									float depth = sourceDepthBuffer[sourceDepthIndex];
+									if (depth<1)
+									{
+										int segMask = sourceRgbaPixelBuffer[sourcePixelIndex + 0]+256*(sourceRgbaPixelBuffer[sourcePixelIndex + 1])+256*256*(sourceRgbaPixelBuffer[sourcePixelIndex + 2]);
+										m_data->m_segmentationMaskBuffer[i + j * destinationWidth] = segMask;
+									} else
+									{
+										m_data->m_segmentationMaskBuffer[i + j * destinationWidth] = -1;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+
+			getRenderInterface()->setActiveCamera(oldCam);
+
 			if (1)
 			{
 				getRenderInterface()->getActiveCamera()->disableVRCamera();
@@ -1159,6 +1222,8 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 				getRenderInterface()->updateCamera(dg.upAxis);
 				m_data->m_glApp->m_window->startRendering();
 			}
+			
+
 		}
 		if (pixelsRGBA)
 		{
@@ -1178,9 +1243,19 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 				depthBuffer[i] = m_data->m_depthBuffer1[i + startPixelIndex];
 			}
 		}
+		if (segmentationMaskBuffer)
+		{
+			BT_PROFILE("copy segmentation mask pixels");
+			for (int i = 0; i < numRequestedPixels; i++)
+			{
+				segmentationMaskBuffer[i] = m_data->m_segmentationMaskBuffer[i + startPixelIndex];
+			}
+		}
 		if (numPixelsCopied)
 			*numPixelsCopied = numRequestedPixels;
 	}
+		
+	m_data->m_glApp->setViewport(-1,-1);
 }
 
 struct MyConvertPointerSizeT
@@ -1271,10 +1346,10 @@ void OpenGLGuiHelper::computeSoftBodyVertices(btCollisionShape* collisionShape,
 	b3Assert(collisionShape->getUserPointer());
 	btSoftBody* psb = (btSoftBody*)collisionShape->getUserPointer();
 	gfxVertices.resize(psb->m_faces.size() * 3);
-	int i, j, k;
-	for (i = 0; i < psb->m_faces.size(); i++)  // Foreach face
+	
+	for (int i = 0; i < psb->m_faces.size(); i++)  // Foreach face
 	{
-		for (k = 0; k < 3; k++)  // Foreach vertex on a face
+		for (int k = 0; k < 3; k++)  // Foreach vertex on a face
 		{
 			int currentIndex = i * 3 + k;
 			for (int j = 0; j < 3; j++)
