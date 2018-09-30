@@ -1631,6 +1631,7 @@ struct PhysicsServerCommandProcessorInternalData
 	MyBroadphaseCallback m_cachedOverlappingObjects;
 
 	btAlignedObjectArray<int> m_sdfRecentLoadedBodies;
+	btAlignedObjectArray<int> m_graphicsIndexToSegmentationMask;
 
 	btAlignedObjectArray<InternalStateLogger*> m_stateLoggers;
 	int m_stateLoggersUniqueId;
@@ -1725,6 +1726,7 @@ struct PhysicsServerCommandProcessorInternalData
 			}
 #endif  //ENABLE_STATIC_GRPC_PLUGIN
 
+
 #ifdef STATIC_EGLRENDERER_PLUGIN
 			{
 				bool initPlugin = false;
@@ -1733,12 +1735,15 @@ struct PhysicsServerCommandProcessorInternalData
 			}
 #endif  //STATIC_EGLRENDERER_PLUGIN
 
+
 #ifndef SKIP_STATIC_TINYRENDERER_PLUGIN
 			{
 				int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin, 0, 0, getRenderInterface_tinyRendererPlugin, 0, 0);
 				m_pluginManager.selectPluginRenderer(renderPluginId);
 			}
 #endif
+
+
 		}
 
 		m_vrControllerEvents.init();
@@ -2607,6 +2612,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	m_data->m_meshInterfaces.clear();
 	m_data->m_collisionShapes.clear();
 	m_data->m_bulletCollisionShape2UrdfCollision.clear();
+	m_data->m_graphicsIndexToSegmentationMask.clear();
 
 	delete m_data->m_dynamicsWorld;
 	m_data->m_dynamicsWorld = 0;
@@ -2737,11 +2743,32 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 		if (mb)
 			mb->setUserIndex2(bodyUniqueId);
 
+
+
 		if (mb)
 		{
 			bodyHandle->m_multiBody = mb;
 
 			m_data->m_sdfRecentLoadedBodies.push_back(bodyUniqueId);
+
+			 
+			int segmentationMask = bodyUniqueId;
+			
+			{
+				int graphicsIndex = -1;
+				if (mb->getBaseCollider())
+				{
+					graphicsIndex = mb->getBaseCollider()->getUserIndex();
+				}
+				if (graphicsIndex>=0)
+				{
+					if (m_data->m_graphicsIndexToSegmentationMask.size()<(graphicsIndex+1))
+					{
+						m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex+1);
+					}
+					m_data->m_graphicsIndexToSegmentationMask[graphicsIndex]= segmentationMask;
+				}
+			}
 
 			createJointMotors(mb);
 
@@ -2780,6 +2807,24 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 
 				mb->getLink(i).m_linkName = linkName->c_str();
 
+				{
+					int graphicsIndex = -1;
+					if (mb->getLinkCollider(i))
+					{
+							graphicsIndex = mb->getLinkCollider(i)->getUserIndex();
+					}
+					if (graphicsIndex>=0)
+					{
+						int linkIndex = i;
+						if (m_data->m_graphicsIndexToSegmentationMask.size()<(graphicsIndex+1))
+						{
+							m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex+1);
+						}
+						int segmentationMask = bodyUniqueId + ((linkIndex + 1) << 24);
+						m_data->m_graphicsIndexToSegmentationMask[graphicsIndex]= segmentationMask;
+					}
+				}
+				
 				std::string* jointName = new std::string(u2b.getJointName(urdfLinkIndex).c_str());
 				m_data->m_strings.push_back(jointName);
 
@@ -2808,6 +2853,23 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 		}
 		else
 		{
+			int segmentationMask = bodyUniqueId;
+			if (rb)
+			{
+				int graphicsIndex = -1;
+				{
+					graphicsIndex = rb->getUserIndex();
+				}
+				if (graphicsIndex>=0)
+				{
+					if (m_data->m_graphicsIndexToSegmentationMask.size()<(graphicsIndex+1))
+					{
+						m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex+1);
+					}
+					m_data->m_graphicsIndexToSegmentationMask[graphicsIndex]= segmentationMask;
+				}
+			}
+
 			//b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
 			bodyHandle->m_rigidBody = rb;
 			rb->setUserIndex2(bodyUniqueId);
@@ -3462,6 +3524,10 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 				this->m_data->m_guiHelper->setProjectiveTexture(false);
 			}
 
+			if ((flags & (ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX + ER_SEGMENTATION_MASK))==0)
+			{
+				segmentationMaskBuffer=0;
+			}
 			m_data->m_guiHelper->copyCameraImageData(viewMat,
 													 projMat, pixelRGBA, numRequestedPixels,
 													 depthBuffer, numRequestedPixels,
@@ -3470,11 +3536,36 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 
 			if (numPixelsCopied > 0)
 			{
+				//convert segmentation mask
+
+				if (segmentationMaskBuffer)
+				{
+					for (int i=0;i<numPixelsCopied;i++)
+					{
+						int graphicsSegMask = segmentationMaskBuffer[i];
+						int segMask = -1;
+						if ((graphicsSegMask >= 0) && (graphicsSegMask<m_data->m_graphicsIndexToSegmentationMask.size()))
+						{
+							segMask = m_data->m_graphicsIndexToSegmentationMask[graphicsSegMask];
+						}
+						if ((flags & ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX) == 0)
+						{
+							if (segMask >= 0)
+							{
+								segMask &= ((1 << 24) - 1);
+							}
+						}
+						segmentationMaskBuffer[i] = segMask;
+					}
+					
+				}
+
+
 				handled = true;
 				m_data->m_guiHelper->debugDisplayCameraImageData(viewMat,
 																 projMat, pixelRGBA, numRequestedPixels,
 																 depthBuffer, numRequestedPixels,
-																 0, numRequestedPixels,
+																 segmentationMaskBuffer, numRequestedPixels,
 																 startPixelIndex, width, height, &numPixelsCopied);
 			}
 		}
@@ -8459,6 +8550,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 			m_data->m_bodyHandles.freeHandle(bodyUniqueId);
 		}
 	}
+
 	for (int i = 0; i < clientCmd.m_removeObjectArgs.m_numUserCollisionShapes; i++)
 	{
 		int removeCollisionShapeId = clientCmd.m_removeObjectArgs.m_userCollisionShapes[i];
@@ -8492,7 +8584,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				}
 				if (foundIndex >= 0)
 				{
-					btMultiBodyWorldImporter* importer = m_data->m_worldImporters[i];
+					btMultiBodyWorldImporter* importer = m_data->m_worldImporters[foundIndex];
 					m_data->m_worldImporters.removeAtIndex(foundIndex);
 					delete importer;
 					m_data->m_userCollisionShapeHandles.freeHandle(removeCollisionShapeId);

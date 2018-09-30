@@ -4849,7 +4849,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitConfigureOpenGLVisualizer(b3Phys
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
-	b3Assert(cl->canSubmitCommand());
+	//b3Assert(cl->canSubmitCommand());
 	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
 

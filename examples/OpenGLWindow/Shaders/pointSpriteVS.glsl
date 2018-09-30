@@ -8,7 +8,7 @@ layout (location = 1) in vec4 instance_position;
 layout (location = 3) in vec2 uvcoords;
 layout (location = 4) in vec3 vertexnormal;
 layout (location = 5) in vec4 instance_color;
-layout (location = 6) in vec3 instance_scale;
+layout (location = 6) in vec4 instance_scale_obUid;
 
 
 uniform float screenWidth = 700.f;
@@ -38,7 +38,7 @@ void main(void)
 	vec3 posEye = vec3(ModelViewMatrix * vec4(instance_position.xyz, 1.0));
    float dist = length(posEye);
 	float pointRadius = 1.f;
-    gl_PointSize = instance_scale.x * pointRadius * (screenWidth / dist);
+    gl_PointSize = instance_scale_obUid.x * pointRadius * (screenWidth / dist);
 
 	gl_Position = vertexPos;
 	

@@ -8,7 +8,7 @@ static const char* createShadowMapInstancingVertexShader =
 	"layout (location = 3) in vec2 uvcoords;\n"
 	"layout (location = 4) in vec3 vertexnormal;\n"
 	"layout (location = 5) in vec4 instance_color;\n"
-	"layout (location = 6) in vec3 instance_scale;\n"
+	"layout (location = 6) in vec4 instance_scale_obUid;\n"
 	"uniform mat4 depthMVP;\n"
 	"vec4 quatMul ( in vec4 q1, in vec4 q2 )\n"
 	"{\n"
@@ -41,7 +41,7 @@ static const char* createShadowMapInstancingVertexShader =
 	"void main(void)\n"
 	"{\n"
 	"	vec4 q = instance_quaternion;\n"
-	"	vec4 localcoord = quatRotate3( position.xyz*instance_scale,q);\n"
+	"	vec4 localcoord = quatRotate3( position.xyz*instance_scale_obUid.xyz,q);\n"
 	"	vec4 vertexPos = depthMVP * vec4( (instance_position+localcoord).xyz,1);\n"
 	"	gl_Position = vertexPos;\n"
 	"}\n";
