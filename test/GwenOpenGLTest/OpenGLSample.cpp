@@ -347,8 +347,8 @@ int main()
 #endif  // _WIN32
 		gladLoaderLoadGL();
 #endif
-#endif  //B3_USE_GLFW
-		//we ned to call glGetError twice, because of some Ubuntu/Intel/OpenGL issue
+#endif  //B3_USE_GLFW \
+	//we ned to call glGetError twice, because of some Ubuntu/Intel/OpenGL issue
 
 		GLuint err = glGetError();
 		err = glGetError();
