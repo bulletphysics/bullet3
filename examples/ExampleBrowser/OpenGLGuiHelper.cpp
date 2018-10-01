@@ -991,7 +991,7 @@ void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
 		getRenderInterface()->setPlaneReflectionShapeIndex(enable);
 	}
 	if (m_data->m_visualizerFlagCallback)
-		(m_data->m_visualizerFlagCallback)(flag, enable!=0);
+		(m_data->m_visualizerFlagCallback)(flag, enable != 0);
 }
 
 void OpenGLGuiHelper::resetCamera(float camDist, float yaw, float pitch, float camPosX, float camPosY, float camPosZ)
@@ -1071,7 +1071,6 @@ void OpenGLGuiHelper::setProjectiveTexture(bool useProjectiveTexture)
 	m_data->m_glApp->m_renderer->setProjectiveTexture(useProjectiveTexture);
 }
 
-
 void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],
 										  unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
 										  float* depthBuffer, int depthBufferSizeInPixels,
@@ -1079,8 +1078,6 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 										  int startPixelIndex, int destinationWidth,
 										  int destinationHeight, int* numPixelsCopied)
 {
-	
-	
 	int sourceWidth = btMin(destinationWidth, (int)(m_data->m_glApp->m_window->getWidth() * m_data->m_glApp->m_window->getRetinaScale()));
 	int sourceHeight = btMin(destinationHeight, (int)(m_data->m_glApp->m_window->getHeight() * m_data->m_glApp->m_window->getRetinaScale()));
 	m_data->m_glApp->setViewport(sourceWidth, sourceHeight);
@@ -1104,7 +1101,7 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 				BT_PROFILE("renderScene");
 				getRenderInterface()->renderScene();
 			}
-			
+
 			{
 				BT_PROFILE("copy pixels");
 				btAlignedObjectArray<unsigned char> sourceRgbaPixelBuffer;
@@ -1164,7 +1161,7 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 					BT_PROFILE("renderScene");
 					getRenderInterface()->renderSceneInternal(B3_SEGMENTATION_MASK_RENDERMODE);
 				}
-			
+
 				{
 					BT_PROFILE("copy pixels");
 					btAlignedObjectArray<unsigned char> sourceRgbaPixelBuffer;
@@ -1176,7 +1173,7 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 						BT_PROFILE("getScreenPixelsSegmentationMask");
 						m_data->m_glApp->getScreenPixels(&(sourceRgbaPixelBuffer[0]), sourceRgbaPixelBuffer.size(), &sourceDepthBuffer[0], sizeof(float) * sourceDepthBuffer.size());
 					}
-					m_data->m_segmentationMaskBuffer.resize(destinationWidth * destinationHeight,-1);
+					m_data->m_segmentationMaskBuffer.resize(destinationWidth * destinationHeight, -1);
 
 					//rescale and flip
 					{
@@ -1196,11 +1193,12 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 								if (segmentationMaskBuffer)
 								{
 									float depth = sourceDepthBuffer[sourceDepthIndex];
-									if (depth<1)
+									if (depth < 1)
 									{
-										int segMask = sourceRgbaPixelBuffer[sourcePixelIndex + 0]+256*(sourceRgbaPixelBuffer[sourcePixelIndex + 1])+256*256*(sourceRgbaPixelBuffer[sourcePixelIndex + 2]);
+										int segMask = sourceRgbaPixelBuffer[sourcePixelIndex + 0] + 256 * (sourceRgbaPixelBuffer[sourcePixelIndex + 1]) + 256 * 256 * (sourceRgbaPixelBuffer[sourcePixelIndex + 2]);
 										m_data->m_segmentationMaskBuffer[i + j * destinationWidth] = segMask;
-									} else
+									}
+									else
 									{
 										m_data->m_segmentationMaskBuffer[i + j * destinationWidth] = -1;
 									}
@@ -1210,7 +1208,6 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 					}
 				}
 			}
-
 
 			getRenderInterface()->setActiveCamera(oldCam);
 
@@ -1222,8 +1219,6 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 				getRenderInterface()->updateCamera(dg.upAxis);
 				m_data->m_glApp->m_window->startRendering();
 			}
-			
-
 		}
 		if (pixelsRGBA)
 		{
@@ -1254,8 +1249,8 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 		if (numPixelsCopied)
 			*numPixelsCopied = numRequestedPixels;
 	}
-		
-	m_data->m_glApp->setViewport(-1,-1);
+
+	m_data->m_glApp->setViewport(-1, -1);
 }
 
 struct MyConvertPointerSizeT
@@ -1346,7 +1341,7 @@ void OpenGLGuiHelper::computeSoftBodyVertices(btCollisionShape* collisionShape,
 	b3Assert(collisionShape->getUserPointer());
 	btSoftBody* psb = (btSoftBody*)collisionShape->getUserPointer();
 	gfxVertices.resize(psb->m_faces.size() * 3);
-	
+
 	for (int i = 0; i < psb->m_faces.size(); i++)  // Foreach face
 	{
 		for (int k = 0; k < 3; k++)  // Foreach vertex on a face

@@ -967,7 +967,7 @@ Last column is added as the position
 		GREAL len;                                                        \
                                                                           \
 		/* do nothing if off-diagonals are zero and diagonals are 	\
-    * equal */     \
+    * equal */      \
 		if ((m[0][1] != 0.0) || (m[1][0] != 0.0) || (m[0][0] != m[1][1])) \
 		{                                                                 \
 			p[0] = m[1][1] * v[0] - m[1][0] * v[1];                       \
