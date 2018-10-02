@@ -8577,6 +8577,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				{
 					btMultiBodyWorldImporter* importer = m_data->m_worldImporters[foundIndex];
 					m_data->m_worldImporters.removeAtIndex(foundIndex);
+					importer->deleteAllData();
 					delete importer;
 					m_data->m_userCollisionShapeHandles.freeHandle(removeCollisionShapeId);
 					serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
