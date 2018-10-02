@@ -248,7 +248,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 	printf("GL_VERSION=%s\n", ver);
 	const GLubyte* sl = glGetString(GL_SHADING_LANGUAGE_VERSION);
 	printf("GL_SHADING_LANGUAGE_VERSION=%s\n", sl);
-
+	glViewport(0,0,m_data->m_windowWidth, m_data->m_windowHeight);
 	//int i = pthread_getconcurrency();
 	//printf("pthread_getconcurrency()=%d\n", i);
 }
@@ -273,7 +273,6 @@ void EGLOpenGLWindow::setRequestExit() {}
 void EGLOpenGLWindow::startRendering()
 {
 	// printf("EGL window start rendering.\n");
-	glViewport(0, 0, m_data->m_windowWidth, m_data->m_windowHeight);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 }

@@ -1006,19 +1006,9 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 	{
 		if (startPixelIndex == 0)
 		{
-			glViewport(0, 0, sourceWidth, sourceHeight);
+			glViewport(0,0, sourceWidth, sourceHeight);	
 			m_data->m_window->endRendering();
 			m_data->m_window->startRendering();
-			/*
-			ATTRIBUTE_ALIGNED16(float viewMat[16]);
-			ATTRIBUTE_ALIGNED16(float projMat[16]);
-			m_data->m_camera.getCameraProjectionMatrix(projMat);
-			m_data->m_camera.getCameraViewMatrix(viewMat);
-			cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
-			cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
-			cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
-			cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
-			*/
 
 			B3_PROFILE("m_instancingRenderer render");
 			m_data->m_instancingRenderer->writeTransforms();
