@@ -995,7 +995,7 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 
 	int destinationWidth = *widthPtr;
 	int destinationHeight = *heightPtr;
-	int sourceWidth = btMin(destinationWidth, (int)(m_data->m_window->getWidth() * m_data->m_window->getRetinaScale()));
+	int sourceWidth =  btMin(destinationWidth, (int)(m_data->m_window->getWidth() * m_data->m_window->getRetinaScale()));
 	int sourceHeight = btMin(destinationHeight, (int)(m_data->m_window->getHeight() * m_data->m_window->getRetinaScale()));
 
 	int numTotalPixels = (*widthPtr) * (*heightPtr);
@@ -1006,10 +1006,9 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 	{
 		if (startPixelIndex == 0)
 		{
-			glViewport(0,0, sourceWidth, sourceHeight);	
 			m_data->m_window->endRendering();
 			m_data->m_window->startRendering();
-
+			glViewport(0,0, sourceWidth, sourceHeight); 
 			B3_PROFILE("m_instancingRenderer render");
 			m_data->m_instancingRenderer->writeTransforms();
 			if (m_data->m_hasLightDirection)
@@ -1097,7 +1096,7 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 			{
 				{
 					m_data->m_window->startRendering();
-
+					glViewport(0,0, sourceWidth, sourceHeight); 
 					BT_PROFILE("renderScene");
 					m_data->m_instancingRenderer->renderSceneInternal(B3_SEGMENTATION_MASK_RENDERMODE);
 				}
@@ -1266,6 +1265,7 @@ void EGLRendererVisualShapeConverter::resetAll()
 	m_data->m_swRenderInstances.clear();
 	m_data->m_visualShapes.clear();
 	m_data->m_graphicsIndexToSegmentationMask.clear();
+	m_data->m_instancingRenderer->removeAllInstances();
 }
 
 void EGLRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
