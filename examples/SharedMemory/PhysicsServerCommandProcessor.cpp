@@ -3964,7 +3964,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 									  clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[1],
 									  clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[2]);
 
-				shape = worldImporter->createPlaneShape(planeNormal, 0);
+				shape = worldImporter->createPlaneShape(planeNormal, clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeConstant);
 				shape->setMargin(m_data->m_defaultCollisionMargin);
 				if (compound)
 				{
