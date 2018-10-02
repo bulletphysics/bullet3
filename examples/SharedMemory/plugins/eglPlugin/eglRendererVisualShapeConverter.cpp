@@ -1265,6 +1265,7 @@ void EGLRendererVisualShapeConverter::resetAll()
 	m_data->m_swRenderInstances.clear();
 	m_data->m_visualShapes.clear();
 	m_data->m_graphicsIndexToSegmentationMask.clear();
+	m_data->m_instancingRenderer->removeAllInstances();
 }
 
 void EGLRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
