@@ -21,8 +21,10 @@ ax = plt.gca()
 pybullet.connect(pybullet.DIRECT)
 
 egl = pkgutil.get_loader('eglRenderer')
-
-pybullet.loadPlugin(egl.get_filename(), "_eglRendererPlugin")
+if (egl):
+	pybullet.loadPlugin(egl.get_filename(), "_eglRendererPlugin")
+else:
+	pybullet.loadPlugin("eglRendererPlugin")
 pybullet.loadURDF("plane.urdf",[0,0,-1])
 pybullet.loadURDF("r2d2.urdf")
 
@@ -52,7 +54,7 @@ while (1):
     viewMatrix = pybullet.computeViewMatrixFromYawPitchRoll(camTargetPos, camDistance, yaw, pitch, roll, upAxisIndex)
     aspect = pixelWidth / pixelHeight;
     projectionMatrix = pybullet.computeProjectionMatrixFOV(fov, aspect, nearPlane, farPlane);
-    img_arr = pybullet.getCameraImage(pixelWidth, pixelHeight, viewMatrix,projectionMatrix, shadow=1,lightDirection=[1,1,1],renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
+    img_arr = pybullet.getCameraImage(pixelWidth, pixelHeight, viewMatrix,projectionMatrix, shadow=1,flags=pybullet.ER_SEGMENTATION_MASK, lightDirection=[1,1,1],renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
     stop = time.time()
     print ("renderImage %f" % (stop - start))
 

@@ -1158,6 +1158,7 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 			{
 				{
 					m_data->m_glApp->m_window->startRendering();
+					m_data->m_glApp->setViewport(sourceWidth, sourceHeight);
 					BT_PROFILE("renderScene");
 					getRenderInterface()->renderSceneInternal(B3_SEGMENTATION_MASK_RENDERMODE);
 				}
