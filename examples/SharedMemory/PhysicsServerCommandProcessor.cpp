@@ -8496,6 +8496,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 					m_data->m_worldImporters.removeAtIndex(foundIndex);
 					delete importer;
 					m_data->m_userCollisionShapeHandles.freeHandle(removeCollisionShapeId);
+					serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
 				}
 			}
 		}
