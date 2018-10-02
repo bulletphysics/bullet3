@@ -23,7 +23,7 @@ public:
 
 	virtual ~BulletURDFImporter();
 
-	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false, int flags = 0);
+	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false);
 
 	//warning: some quick test to load SDF: we 'activate' a model, so we can re-use URDF code path
 	virtual bool loadSDF(const char* fileName, bool forceFixedBase = false);

@@ -34,7 +34,7 @@ public:
 
 	virtual bool loadMJCF(const char* fileName, MJCFErrorLogger* logger, bool forceFixedBase = false);
 
-	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false, int flags = 0)
+	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false)
 	{
 		return false;
 	}
