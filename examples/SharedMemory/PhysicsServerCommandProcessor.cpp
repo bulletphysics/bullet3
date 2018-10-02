@@ -1991,7 +1991,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 	{
 	}
 
-	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false, int flags = 0)
+	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false)
 	{
 		b3Assert(0);
 		return false;
@@ -3069,7 +3069,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
 	BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(), globalScaling, flags);
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
-	bool loadOk = u2b.loadURDF(fileName, useFixedBase, flags);
+	bool loadOk = u2b.loadURDF(fileName, useFixedBase);
 
 	if (loadOk)
 	{

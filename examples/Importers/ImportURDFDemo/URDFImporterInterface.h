@@ -12,7 +12,7 @@ class URDFImporterInterface
 public:
 	virtual ~URDFImporterInterface() {}
 
-	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false, int flags = 0) = 0;
+	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false) = 0;
 
 	virtual bool loadSDF(const char* fileName, bool forceFixedBase = false) { return false; }
 
