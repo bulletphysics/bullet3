@@ -1018,6 +1018,8 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
+	glBufferSubData(	GL_ARRAY_BUFFER,vertexStrideInBytes*gfxObj->m_vertexArrayOffset,sz,
+ 						vertices);
 	glGenBuffers(1, &gfxObj->m_index_vbo);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gfxObj->m_index_vbo);
@@ -1247,29 +1249,29 @@ void GLInstancingRenderer::setActiveCamera(CommonCameraInterface* cam)
 
 void GLInstancingRenderer::updateCamera(int upAxis)
 {
-	b3Warning("updateCamera is not supported");
+	b3Warning("WARNING: updateCamera is not supported\n");
 }
 
 
 void GLInstancingRenderer::setProjectiveTexture(bool)
 {
-	b3Warning("setProjectiveTexture is not supported");
+	b3Warning("WARNING: setProjectiveTexture is not supported\n");
 }
 
 void GLInstancingRenderer::renderSceneInternal(int)
 {
-	b3Warning("renderSceneInternal is not supported");
+	b3Warning("WARNING: renderSceneInternal is not supported\n");
 }
 
 void GLInstancingRenderer::setProjectiveTextureMatrices(float const*, float const*)
 {
-	b3Warning("setProjectiveTextureMatrices is not supported");
+	b3Warning("WARNING: setProjectiveTextureMatrices is not supported\n");
 }
 
 void GLInstancingRenderer::enableShadowMap()
 {
 	useShadowMap = false;
-	b3Warning("enableShadowMap is not supported");
+	b3Warning("WARNING: enableShadowMap is not supported\n");
 }
 
 
@@ -1721,6 +1723,13 @@ void GLInstancingRenderer::renderScene()
 	float projectionMatrix[16], viewMatrix[16];
 	m_data->m_activeCamera->getCameraProjectionMatrix(projectionMatrix);
 	m_data->m_activeCamera->getCameraViewMatrix(viewMatrix);
+
+	printf("void GLInstancingRenderer::renderScene()\n");
+    printf("%f %f %f %f\n", viewMatrix[4*0 + 0], viewMatrix[4*0+1], viewMatrix[4*0+2], viewMatrix[4*0+3]);
+    printf("%f %f %f %f\n", viewMatrix[4*1 + 0], viewMatrix[4*1+1], viewMatrix[4*1+2], viewMatrix[4*1+3]);
+    printf("%f %f %f %f\n", viewMatrix[4*2 + 0], viewMatrix[4*2+1], viewMatrix[4*2+2], viewMatrix[4*2+3]);
+    printf("%f %f %f %f\n", viewMatrix[4*3 + 0], viewMatrix[4*3+1], viewMatrix[4*3+2], viewMatrix[4*3+3]);
+
 
 	//we need to get the viewport dims, because on Apple Retina the viewport dimension is different from screenWidth
 	GLint dims[4];

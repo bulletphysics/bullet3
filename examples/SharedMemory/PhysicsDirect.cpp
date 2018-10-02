@@ -622,6 +622,7 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 // NOTE: using pointers to shared memory here, to avoid yet another byte-by-byte memory copy
 bool PhysicsDirect::processCameraArray(const struct SharedMemoryCommand& orgCommand)
 {
+	printf("PhysicsDirect::processCameraArray\n");
 	SharedMemoryCommand command = orgCommand;
 
 	const SharedMemoryStatus& serverCmd = m_data->m_serverStatus;
@@ -657,6 +658,11 @@ bool PhysicsDirect::processCameraArray(const struct SharedMemoryCommand& orgComm
 		m_data->m_cachedCameraPixelsWidth = serverCmd.m_sendCameraArrayPixelDataArguments.m_imageWidth;
 		m_data->m_cachedCameraPixelsHeight = serverCmd.m_sendCameraArrayPixelDataArguments.m_imageHeight;
 		m_data->m_cachedCameraFeatureLength = serverCmd.m_sendCameraArrayPixelDataArguments.m_featureLength;
+
+		printf("PhysicsDirect::processCameraArray, %d x %d x %d, m_cachedCameraFeatureLength = %d\n",
+				m_data->m_cachedCameraArraySize, m_data->m_cachedCameraPixelsWidth, m_data->m_cachedCameraPixelsHeight,
+				m_data->m_cachedCameraFeatureLength);
+
 	}
 
 	return m_data->m_hasStatus;
@@ -1252,6 +1258,10 @@ bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& comman
 	{
 		return processCamera(command);
 	}
+	if (command.m_type==CMD_REQUEST_CAMERA_ARRAY_IMAGE_DATA)
+	{
+		return processCameraArray(command);
+	}
     if (command.m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION)
     {
         return processContactPointData(command);
@@ -1467,10 +1477,16 @@ void PhysicsDirect::getCachedCameraImage(struct b3CameraImageData* cameraData)
 
 void PhysicsDirect::getCachedCameraArrayImage(struct b3CameraArrayImageData* cameraData)
 {
+	printf("PhysicsDirect::getCachedCameraArrayImage - TODO: check implementation.\n");
 	if (cameraData)
 	{
+		printf("PhysicsDirect, RGB DATA: %d %d %d\n", m_data->m_ptrCameraArrayPixelsRGB[0],
+				m_data->m_ptrCameraArrayPixelsRGB[1], m_data->m_ptrCameraArrayPixelsRGB[2]);
+
+		cameraData->m_cameraArraySize = m_data->m_cachedCameraArraySize;
 		cameraData->m_pixelWidth = m_data->m_cachedCameraPixelsWidth;
 		cameraData->m_pixelHeight = m_data->m_cachedCameraPixelsHeight;
+		cameraData->m_featureLength = m_data->m_cachedCameraFeatureLength;
 		cameraData->m_rgbColorData = m_data->m_ptrCameraArrayPixelsRGB;
 		cameraData->m_featureValues = m_data->m_ptrCameraArrayFeatures;
 	}

@@ -94,7 +94,7 @@ struct TinyRendererObjectArray
 };
 
 #define START_WIDTH 160
-#define START_HEIGHT 160*16
+#define START_HEIGHT 160
 
 struct EGLRendererVisualShapeConverterInternalData
 {
@@ -1013,8 +1013,15 @@ void EGLRendererVisualShapeConverter::render(const float viewMat[16], const floa
     //cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
 }
 
-void EGLRendererVisualShapeConverter::renderCameraArray(const float (*viewMat)[16], const float (*projMat)[16])
+void EGLRendererVisualShapeConverter::renderCameraArray(const float (*viewMatrices)[16], const float (*projMatrices)[16])
 {
+	printf("renderCameraArray(), %d x %d x %d\n", m_data->m_swCameraArraySize, m_data->m_swWidth, m_data->m_swHeight);
+	const float *viewMat = viewMatrices[0];
+    printf("%f %f %f %f\n", viewMat[4*0 + 0], viewMat[4*0+1], viewMat[4*0+2], viewMat[4*0+3]);
+    printf("%f %f %f %f\n", viewMat[4*1 + 0], viewMat[4*1+1], viewMat[4*1+2], viewMat[4*1+3]);
+    printf("%f %f %f %f\n", viewMat[4*2 + 0], viewMat[4*2+1], viewMat[4*2+2], viewMat[4*2+3]);
+    printf("%f %f %f %f\n", viewMat[4*3 + 0], viewMat[4*3+1], viewMat[4*3+2], viewMat[4*3+3]);
+
     // This code is very similar to that of
     // PhysicsServerCommandProcessor::processRequestCameraImageCommand
     // maybe code from there should be moved.
@@ -1022,14 +1029,12 @@ void EGLRendererVisualShapeConverter::renderCameraArray(const float (*viewMat)[1
     // Tiny allows rendering with viewMat, projMat explicitly, but
     // GLInstancingRender calls m_activeCamera, so set this.
 
-	//m_data->m_camera.setVRCamera(viewMat,projMat);
+    printf("renderCameraArray() - NOTE - ONLY FIRST MATRIX IS SET - THIS IS A BUG\n");
+	m_data->m_camera.setVRCamera(viewMatrices[0],projMatrices[0]);
 
 	render();
+	printf("renderCameraArray() - done\n");
 
-    //cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
-    //cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
-    //cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
-    //cout<<viewMat[4*3 + 0]<<" "<<viewMat[4*3+1]<<" "<<viewMat[4*3+2]<<" "<<viewMat[4*3+3] << endl;
 }
 
 
@@ -1200,6 +1205,8 @@ void EGLRendererVisualShapeConverter::copyCameraArrayImageData(unsigned char* pi
 									int *cameraArraySizePtr, int* widthPtr, int* heightPtr,
 									int* numPixelsCopied, int* numFeaturesCopied)
 {
+	printf("copyCameraArrayImageData(), rgbaBufferSizeInPixels = %d, featuresBufferSizeInFloats = %d\n",
+			rgbaBufferSizeInPixels, featuresBufferSizeInFloats);
 
 #ifdef BT_USE_TENSOR_RT
     m_data->m_tensorRT->copyCameraImageFeatures(featuresBuffer, featuresBufferSizeInPixels * sizeof(float));
@@ -1207,6 +1214,9 @@ void EGLRendererVisualShapeConverter::copyCameraArrayImageData(unsigned char* pi
 #else // BT_USE_TENSOR_RT
 	*numFeaturesCopied = 0;
 #endif //
+
+    glReadPixels(0,0,m_data->m_swWidth, m_data->m_swHeight, GL_RGB, GL_UNSIGNED_BYTE, &(pixelsRGB[0]));
+
 
 	*cameraArraySizePtr = m_data->m_swCameraArraySize;
 	*widthPtr = m_data->m_swWidth;

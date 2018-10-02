@@ -948,6 +948,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
             case CMD_CAMERA_ARRAY_IMAGE_COMPLETED:
             {
+        		printf("PhysicsClientSharedMemory - CMD_CAMERA_ARRAY_IMAGE_COMPLETED, not implemented\n");
                 b3Warning("Camera array image, not implemented\n");
                 break;
             }
@@ -1756,6 +1757,8 @@ void PhysicsClientSharedMemory::getCachedCameraImage(struct b3CameraImageData* c
 
 void PhysicsClientSharedMemory::getCachedCameraArrayImage(struct b3CameraArrayImageData* cameraArrayData)
 {
+	printf("PhysicsClientSharedMemory::getCachedCameraArrayImage - TODO: check implementation.\n");
+
 	cameraArrayData->m_cameraArraySize = m_data->m_cachedCameraArraySize;
 	cameraArrayData->m_pixelWidth = m_data->m_cachedCameraPixelsWidth;
 	cameraArrayData->m_pixelHeight = m_data->m_cachedCameraPixelsHeight;

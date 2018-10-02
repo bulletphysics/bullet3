@@ -7483,12 +7483,17 @@ static PyObject* pybullet_getCameraArrayImage(PyObject* self, PyObject* args, Py
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
+	printf("b3RequestCameraArrayImageSetPixelResolution(, %d, %d, %d)\n", cameraArraySize, width, height);
 
 	command = b3InitRequestCameraArrayImage(sm);
 	b3RequestCameraArrayImageSetPixelResolution(command, cameraArraySize, width, height);
 
 	// set camera matrices only if set matrix function succeeds
-	if (viewMatrices && projectionMatrices)
+	if (	viewMatrices && projectionMatrices
+		&&
+			PyArray_Check(viewMatrices) && PyArray_Check(projectionMatrices)
+
+			)  // TODO: add check NPY_FLOAT
 	{
 		b3RequestCameraArrayImageSetCameraMatrices(command, cameraArraySize, PyArray_DATA(viewMatrices), PyArray_DATA(projectionMatrices));
 	}
@@ -7497,6 +7502,7 @@ static PyObject* pybullet_getCameraArrayImage(PyObject* self, PyObject* args, Py
 		PyErr_SetString(SpamError, "Projection and View matrices are not set.");
 		return NULL;
 	}
+	printf("3\n");
 	//set light direction only if function succeeds
 	if (lightDirObj && pybullet_internalSetVector(lightDirObj, lightDir))
 	{
@@ -7525,6 +7531,7 @@ static PyObject* pybullet_getCameraArrayImage(PyObject* self, PyObject* args, Py
 	{
 		b3RequestCameraArrayImageSetLightSpecularCoeff(command, lightSpecularCoeff);
 	}
+	printf("5\n");
 
 	if (b3CanSubmitCommand(sm))
 	{
@@ -7546,32 +7553,55 @@ static PyObject* pybullet_getCameraArrayImage(PyObject* self, PyObject* args, Py
 
 			int bytesPerPixel = 3;  // Red, Green, Blue, 8 bit values
 			b3GetCameraArrayImageData(sm, &imageData);
-
+			printf("%d x %d x %d x %d\n", imageData.m_cameraArraySize, imageData.m_pixelHeight, imageData.m_pixelWidth, bytesPerPixel);
+			printf("%d x %d\n", imageData.m_cameraArraySize, imageData.m_featureLength);
 			npy_intp rgb_dims[4] = {imageData.m_cameraArraySize, imageData.m_pixelHeight, imageData.m_pixelWidth, bytesPerPixel};
 			npy_intp feat_dims[2] = {imageData.m_cameraArraySize, imageData.m_featureLength};
 
-			pyResultList = PyTuple_New(8);
+			pyResultList = PyTuple_New(6);
 
 			PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_cameraArraySize));
 			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelWidth));
 			PyTuple_SetItem(pyResultList, 2, PyInt_FromLong(imageData.m_pixelHeight));
 
-			pyRGB = PyArray_SimpleNew(4, rgb_dims, NPY_UINT8);
 			pyFeat = PyArray_SimpleNew(2, feat_dims, NPY_INT32);
+			printf("9\n");
 
-			memcpy(PyArray_DATA(pyRGB), imageData.m_rgbColorData,
-					imageData.m_cameraArraySize * imageData.m_pixelHeight * imageData.m_pixelWidth * bytesPerPixel);
+			// RGB
+			if(imageData.m_cameraArraySize && imageData.m_pixelHeight && imageData.m_pixelWidth && bytesPerPixel)
+			{
+				printf("RGB DATA: %d %d %d\n", imageData.m_rgbColorData[0], imageData.m_rgbColorData[1], imageData.m_rgbColorData[2]);
+				pyRGB = PyArray_SimpleNew(4, rgb_dims, NPY_UINT8);
+				memcpy(PyArray_DATA(pyRGB), imageData.m_rgbColorData,
+						imageData.m_cameraArraySize * imageData.m_pixelHeight * imageData.m_pixelWidth * bytesPerPixel);
+			}
+			else
+			{
+				Py_INCREF(Py_None);
+				pyRGB = Py_None;
+			}
 			PyTuple_SetItem(pyResultList, 3, pyRGB);
 
+			// Features
 			PyTuple_SetItem(pyResultList, 4, PyInt_FromLong(imageData.m_featureLength));
-
-			memcpy(PyArray_DATA(pyFeat), imageData.m_featureValues,
-					imageData.m_cameraArraySize * imageData.m_featureLength * sizeof(float));
+			if(imageData.m_cameraArraySize && imageData.m_featureLength)
+			{
+				printf("Features DATA: %f %f %f\n", imageData.m_featureValues[0], imageData.m_featureValues[1], imageData.m_featureValues[2]);
+				memcpy(PyArray_DATA(pyFeat), imageData.m_featureValues,
+						imageData.m_cameraArraySize * imageData.m_featureLength * sizeof(float));
+			}
+			else
+			{
+				Py_INCREF(Py_None);
+				pyFeat = Py_None;
+			}
 			PyTuple_SetItem(pyResultList, 5, pyFeat);
+			printf("10\n");
 			return pyResultList;
 		}
 	}
 
+	printf("11\n");
 	Py_INCREF(Py_None);
 	return Py_None;
 }

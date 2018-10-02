@@ -3633,6 +3633,14 @@ B3_SHARED_API void b3RequestCameraArrayImageSetCameraMatrices(b3SharedMemoryComm
     		command->m_requestCameraArrayPixelDataArguments.m_viewMatrices[j][i] = viewMatrices[j][i];
     	}
 	command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
+
+	const float *viewMat = viewMatrices[0];
+	printf("b3RequestCameraArrayImageSetCameraMatrices, cameraArraySize = %d\n", cameraArraySize);
+    printf("%f %f %f %f\n", viewMat[4*0 + 0], viewMat[4*0+1], viewMat[4*0+2], viewMat[4*0+3]);
+    printf("%f %f %f %f\n", viewMat[4*1 + 0], viewMat[4*1+1], viewMat[4*1+2], viewMat[4*1+3]);
+    printf("%f %f %f %f\n", viewMat[4*2 + 0], viewMat[4*2+1], viewMat[4*2+2], viewMat[4*2+3]);
+    printf("%f %f %f %f\n", viewMat[4*3 + 0], viewMat[4*3+1], viewMat[4*3+2], viewMat[4*3+3]);
+
 }
 
 B3_SHARED_API void b3RequestCameraArrayImageSetLightDirection(b3SharedMemoryCommandHandle commandHandle, const float lightDirection[3])
