@@ -56,6 +56,9 @@ eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWin
 eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/pointSpriteVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/pointSpriteVS.h" --stringname="pointSpriteVertexShader" stringify'
 eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/pointSpritePS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/pointSpritePS.h" --stringname="pointSpriteFragmentShader" stringify'
 
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/cameraArrayInstancingVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/cameraArrayInstancingVS.h" --stringname="cameraArrayInstancingVertexShader" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/cameraArrayInstancingPS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/cameraArrayInstancingPS.h" --stringname="cameraArrayInstancingFragmentShader" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/cameraArrayInstancingG.glsl" --headerfile="../examples/OpenGLWindow/Shaders/cameraArrayInstancingG.h" --stringname="cameraArrayInstancingGeometryShader" stringify'
 
 eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/createShadowMapInstancingPS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/createShadowMapInstancingPS.h" --stringname="createShadowMapInstancingFragmentShader" stringify'
 eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/createShadowMapInstancingVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/createShadowMapInstancingVS.h" --stringname="createShadowMapInstancingVertexShader" stringify'

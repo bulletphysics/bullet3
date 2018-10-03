@@ -70,6 +70,9 @@ float shadowMapWorldSize=10;
 #include "Shaders/pointSpritePS.h"
 #include "Shaders/instancingVS.h"
 #include "Shaders/instancingPS.h"
+#include "Shaders/cameraArrayInstancingG.h"
+#include "Shaders/cameraArrayInstancingVS.h"
+#include "Shaders/cameraArrayInstancingPS.h"
 #include "Shaders/createShadowMapInstancingVS.h"
 #include "Shaders/createShadowMapInstancingPS.h"
 #include "Shaders/useShadowMapInstancingVS.h"
@@ -1333,6 +1336,15 @@ void GLInstancingRenderer::InitShaders()
 
 	glUseProgram(0);
 
+	cameraArray_instancingShader = gltLoadShaderPair(cameraArrayInstancingVertexShader,cameraArrayInstancingFragmentShader);
+	glLinkProgram(cameraArray_instancingShader);
+	glUseProgram(cameraArray_instancingShader);
+	cameraArray_ModelViewMatrix = glGetUniformLocation(cameraArray_instancingShader, "ModelViewMatrix");
+	cameraArray_ProjectionMatrix = glGetUniformLocation(cameraArray_instancingShader, "ProjectionMatrix");
+	cameraArray_uniform_texture_diffuse = glGetUniformLocation(cameraArray_instancingShader, "Diffuse");
+	cameraArray_regularLightDirIn  = glGetUniformLocation(cameraArray_instancingShader,"lightDirIn");
+
+	glUseProgram(0);
 	//GLuint offset = 0;
 
 	glGenBuffers(1, &m_data->m_vbo);
@@ -2860,6 +2872,8 @@ void GLInstancingRenderer::renderSceneCameraArray(const float (*viewMatrices)[16
 
 				if (gfxObj->m_primitiveType==B3_GL_POINTS)
 				{
+					b3Warning("Uh-oh. cameraArray_instancingShaderPointSprite needs love and a pull request.");
+					/*
 					glUseProgram(instancingShaderPointSprite);
 					glUniformMatrix4fv(ProjectionMatrixPointSprite, 1, false, &projectionMatrix[0]);
 					glUniformMatrix4fv(ModelViewMatrixPointSprite, 1, false, &viewMatrix[0]);
@@ -2871,9 +2885,10 @@ void GLInstancingRenderer::renderSceneCameraArray(const float (*viewMatrices)[16
 #endif
 					glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 					glDrawElementsInstanced(GL_POINTS, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
+					*/
 				} else
 				{
-					glUseProgram(instancingShader);
+					glUseProgram(cameraArray_instancingShader);
 					glUniformMatrix4fv(ProjectionMatrix, 1, false, &projectionMatrix[0]);
 					glUniformMatrix4fv(ModelViewMatrix, 1, false, &viewMatrix[0]);
 

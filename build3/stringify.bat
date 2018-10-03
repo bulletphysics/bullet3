@@ -49,6 +49,10 @@ premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/
 premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/pointSpriteVS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/pointSpriteVS.h" --stringname="pointSpriteVertexShader" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/pointSpritePS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/pointSpritePS.h" --stringname="pointSpriteFragmentShader" stringify
 
+premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/cameraArrayInstancingVS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/cameraArrayInstancingVS.h" --stringname="cameraArrayInstancingVertexShader" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/cameraArrayInstancingPS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/cameraArrayInstancingPS.h" --stringname="cameraArrayInstancingFragmentShader" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/cameraArrayInstancingG.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/cameraArrayInstancingG.h" --stringname="cameraArrayInstancingGeometryShader" stringify
+
 
 premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/createShadowMapInstancingPS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/createShadowMapInstancingPS.h" --stringname="createShadowMapInstancingFragmentShader" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/createShadowMapInstancingVS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/createShadowMapInstancingVS.h" --stringname="createShadowMapInstancingVertexShader" stringify

@@ -4,6 +4,9 @@ rem @echo off
 
 premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/instancingVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/instancingVS.h" --stringname="instancingVertexShader" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/instancingPS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/instancingPS.h" --stringname="instancingFragmentShader" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/cameraArrayInstancingVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/cameraArrayInstancingVS.h" --stringname="cameraArrayInstancingVertexShader" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/cameraArrayInstancingPS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/cameraArrayInstancingPS.h" --stringname="cameraArrayInstancingFragmentShader" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/cameraArrayInstancingG.glsl" --headerfile="../examples/OpenGLWindow/Shaders/cameraArrayInstancingG.h" --stringname="cameraArrayInstancingGeometryShader" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/pointSpriteVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/pointSpriteVS.h" --stringname="pointSpriteVertexShader" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/pointSpritePS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/pointSpritePS.h" --stringname="pointSpriteFragmentShader" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/createShadowMapInstancingPS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/createShadowMapInstancingPS.h" --stringname="createShadowMapInstancingFragmentShader" stringify
