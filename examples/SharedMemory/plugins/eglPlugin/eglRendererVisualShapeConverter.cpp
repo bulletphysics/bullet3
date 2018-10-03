@@ -138,7 +138,7 @@ struct EGLRendererVisualShapeConverterInternalData
 	
 	EGLRendererVisualShapeConverterInternalData()
 	:m_upAxis(2),
-	m_swCameraArraySize(1),
+	m_swCameraArraySize(MAX_CAMERA_ARRAY_SIZE),
 	m_swWidth(START_WIDTH),
 	m_swHeight(START_HEIGHT),
 	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB),
@@ -196,6 +196,7 @@ struct EGLRendererVisualShapeConverterInternalData
 			b3Assert(glGetError() ==GL_NO_ERROR);
             m_instancingRenderer->init();
 			b3Assert(glGetError() ==GL_NO_ERROR);
+            m_instancingRenderer->resizeCameraArray(m_swCameraArraySize,m_swWidth,m_swHeight);
             m_instancingRenderer->resize(m_swWidth,m_swHeight);
             m_instancingRenderer->InitShaders();
 			b3Assert(glGetError() ==GL_NO_ERROR);
@@ -1218,7 +1219,8 @@ void EGLRendererVisualShapeConverter::copyCameraArrayImageData(unsigned char* pi
 	*numFeaturesCopied = 0;
 #endif //
 
-    glReadPixels(0,0,m_data->m_swWidth, m_data->m_swHeight, GL_RGB, GL_UNSIGNED_BYTE, &(pixelsRGB[0]));
+    glViewport(0,0,m_data->m_swWidth, m_data->m_swHeight * m_data->m_swCameraArraySize);
+    glReadPixels(0,0,m_data->m_swWidth, m_data->m_swHeight * m_data->m_swCameraArraySize, GL_RGB, GL_UNSIGNED_BYTE, &(pixelsRGB[0]));
 
 
 	*cameraArraySizePtr = m_data->m_swCameraArraySize;

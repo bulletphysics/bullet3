@@ -1,4 +1,3 @@
-#version 330
 precision highp float;
 
 
@@ -10,20 +9,18 @@ layout (location = 4) in vec3 vertexnormal;
 layout (location = 5) in vec4 instance_color;
 layout (location = 6) in vec3 instance_scale;
 
-
-uniform mat4 ModelViewMatrix;
-uniform mat4 ProjectionMatrix;
-uniform vec3 lightDirIn;
-
 out Fragment
 {
      vec4 color;
-} fragment;
+} fragment_;
 
 out Vert
 {
+	vec4 pos;
 	vec2 texcoord;
-} vert;
+} vert_;
+
+out vec3 lightDir_,normal_,ambient_;
 
 
 vec4 quatMul ( in vec4 q1, in vec4 q2 )
@@ -56,24 +53,18 @@ vec4 quatRotate ( in vec4 p, in vec4 q )
     return quatMul ( temp, vec4 ( -q.x, -q.y, -q.z, q.w ) );
 }
 
-out vec3 lightDir,normal,ambient;
-
 void main(void)
 {
 	vec4 q = instance_quaternion;
-	ambient = vec3(0.5,.5,0.5);
+	ambient_ = vec3(0.5,.5,0.5);
 	
 	vec4 worldNormal =  (quatRotate3( vertexnormal,q));
-	normal = normalize(worldNormal).xyz;
-	
-	lightDir = lightDirIn;
+	normal_ = normalize(worldNormal).xyz;
 	
 	vec4 localcoord = quatRotate3( position.xyz*instance_scale,q);
-	vec4 vertexPos = ProjectionMatrix * ModelViewMatrix *(instance_position+localcoord);
-
-	gl_Position = vertexPos;
 	
-	fragment.color = instance_color;
-	vert.texcoord = uvcoords;
+	fragment_.color = instance_color;
+	vert_.pos = instance_position+localcoord;
+	vert_.texcoord = uvcoords;
 }
 

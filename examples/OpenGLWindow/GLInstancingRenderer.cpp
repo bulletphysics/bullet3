@@ -27,6 +27,8 @@ float shadowMapWorldSize=10;
 
 #include "OpenGLInclude.h"
 #include "../CommonInterfaces/CommonWindowInterface.h"
+#include "../SharedMemory/SharedMemoryPublic.h"//for b3VisualShapeData
+
 //#include "Bullet3Common/b3MinMax.h"
 #ifdef B3_USE_GLFW
 
@@ -1208,7 +1210,7 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 
 void GLInstancingRenderer::InitShaders()
 {
-
+printf("->>>>>>>>>>>>>>>>> Calling InitShaders, m_cameraArraySize = %d\n", m_cameraArraySize);
 	int POSITION_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
 	int ORIENTATION_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
 	int COLOR_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
@@ -1342,7 +1344,12 @@ void GLInstancingRenderer::InitShaders()
 
 	glUseProgram(0);
 
-	cameraArray_instancingShader = gltLoadShaderPair(cameraArrayInstancingVertexShader,cameraArrayInstancingFragmentShader);
+	char cameraArray_instancingHdr[64];
+	snprintf(cameraArray_instancingHdr, sizeof(cameraArray_instancingHdr),
+			"#version 400\n"
+			"#define cameraArraySize %d\n", m_cameraArraySize);;
+	cameraArray_instancingShader = gltLoadShaderTriple(cameraArray_instancingHdr,
+			cameraArrayInstancingVertexShader,cameraArrayInstancingGeometryShader, cameraArrayInstancingFragmentShader);
 	glLinkProgram(cameraArray_instancingShader);
 	glUseProgram(cameraArray_instancingShader);
 	cameraArray_ModelViewMatrix = glGetUniformLocation(cameraArray_instancingShader, "ModelViewMatrix");
@@ -1473,7 +1480,7 @@ void	GLInstancingRenderer::resize(int width, int height)
 	m_screenWidth = width;
 	m_screenHeight = height;
 	//*(char *)0 = 0;
-	printf("------------------ > resize call!\n");
+	printf("------------------ > resize call, width = %d height = %d!\n", width, height);
 }
 
 void	GLInstancingRenderer::resizeCameraArray(int cameraArraySize, int width, int height)
@@ -1481,7 +1488,18 @@ void	GLInstancingRenderer::resizeCameraArray(int cameraArraySize, int width, int
 	m_cameraArraySize = cameraArraySize;
 	m_screenWidth = width;
 	m_screenHeight = height;
-	printf("------------------ > resizeCameraArray call!\n");
+
+	GLfloat v[MAX_CAMERA_ARRAY_SIZE * 4];
+	for(int i = 0; i < cameraArraySize; i++)
+	{
+		v[i * 4 + 0] = 0.0;			// left
+		v[i * 4 + 1] = i * height;	// bottom
+		v[i * 4 + 2] = width;
+		v[i * 4 + 3] = height;
+	}
+	glViewportArrayv(0, cameraArraySize, v);
+
+	printf("------------------ > resizeCameraArray, cameraArraySize = %d, width = %d height = %d!\n", cameraArraySize, width, height);
 }
 
 
@@ -2905,8 +2923,8 @@ void GLInstancingRenderer::renderSceneCameraArray(const float (*viewMatrices)[16
 				} else
 				{
 					glUseProgram(cameraArray_instancingShader);
-					glUniformMatrix4fv(cameraArray_ProjectionMatrix, 1, false, projectionMatrices[0]);
-					glUniformMatrix4fv(cameraArray_ModelViewMatrix, 1, false, viewMatrices[0]);
+					glUniformMatrix4fv(cameraArray_ProjectionMatrix, m_cameraArraySize, false, projectionMatrices[0]);
+					glUniformMatrix4fv(cameraArray_ModelViewMatrix, m_cameraArraySize, false, viewMatrices[0]);
 
 					b3Vector3 gLightDir = m_data->m_lightPos;
 					gLightDir.normalize();

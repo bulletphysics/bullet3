@@ -255,7 +255,6 @@ struct RequestPixelDataArgs
 };
 
 
-#define MAX_CAMERA_ARRAY_SIZE 16
 struct RequestCameraArrayPixelDataArgs
 {
 	float m_viewMatrices[MAX_CAMERA_ARRAY_SIZE][16];
