@@ -1020,13 +1020,13 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 	}
 }
 
-void TinyRendererVisualShapeConverter::getCameraArraySize(int &cameraArraySize)
+void TinyRendererVisualShapeConverter::getCameraArraySize(int &cameraArraySize, int& width, int& height)
 {
 	cameraArraySize = 0;
 	b3Warning("TinyRenderer: getCameraArraySize is not implemented\n");
 }
 
-void TinyRendererVisualShapeConverter::setCameraArraySize(int cameraArraySize)
+void TinyRendererVisualShapeConverter::setCameraArraySize(int cameraArraySize, int width, int height)
 {
 	b3Warning("TinyRenderer: setCameraArraySize is not implemented, attempt to set to %d\n", cameraArraySize);
 }

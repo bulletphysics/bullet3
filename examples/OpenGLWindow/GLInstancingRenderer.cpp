@@ -368,6 +368,7 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 	:
 	m_textureenabled(true),
 	m_textureinitialized(false),
+	m_cameraArraySize(0),
 	m_screenWidth(0),
 	m_screenHeight(0),
 	m_upAxis(1),
@@ -1471,6 +1472,16 @@ void	GLInstancingRenderer::resize(int width, int height)
 {
 	m_screenWidth = width;
 	m_screenHeight = height;
+	//*(char *)0 = 0;
+	printf("------------------ > resize call!\n");
+}
+
+void	GLInstancingRenderer::resizeCameraArray(int cameraArraySize, int width, int height)
+{
+	m_cameraArraySize = cameraArraySize;
+	m_screenWidth = width;
+	m_screenHeight = height;
+	printf("------------------ > resizeCameraArray call!\n");
 }
 
 
@@ -2894,8 +2905,8 @@ void GLInstancingRenderer::renderSceneCameraArray(const float (*viewMatrices)[16
 				} else
 				{
 					glUseProgram(cameraArray_instancingShader);
-					glUniformMatrix4fv(cameraArray_ProjectionMatrix, 1, false, &projectionMatrix[0]);
-					glUniformMatrix4fv(cameraArray_ModelViewMatrix, 1, false, &viewMatrix[0]);
+					glUniformMatrix4fv(cameraArray_ProjectionMatrix, 1, false, projectionMatrices[0]);
+					glUniformMatrix4fv(cameraArray_ModelViewMatrix, 1, false, viewMatrices[0]);
 
 					b3Vector3 gLightDir = m_data->m_lightPos;
 					gLightDir.normalize();

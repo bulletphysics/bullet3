@@ -47,11 +47,11 @@ struct UrdfRenderingInterface
 	///remove all visual shapes.
 	virtual void resetAll()=0;
 
-	///return the frame buffer width and height for the renderer
-	virtual void getCameraArraySize(int &cameraArraySize)=0;
+	///return the camera array size and an instance width and height for the renderer
+	virtual void getCameraArraySize(int &cameraArraySize, int& width, int& height)=0;
 	
-	///set the frame buffer width and height for the renderer
-	virtual void setCameraArraySize(int cameraArraySize)=0;
+	///set the camera array size, and an instance width and height for the renderer
+	virtual void setCameraArraySize(int cameraArraySize, int width, int height)=0;
 
 	///return the frame buffer width and height for the renderer
 	virtual void getWidthAndHeight(int& width, int& height)=0;

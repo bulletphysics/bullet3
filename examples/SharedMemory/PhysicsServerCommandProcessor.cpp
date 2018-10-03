@@ -3674,9 +3674,7 @@ bool PhysicsServerCommandProcessor::processRequestCameraArrayImageCommand(const 
 		if (m_data->m_pluginManager.getRenderInterface())
 		{
 			m_data->m_pluginManager.getRenderInterface()->setCameraArraySize(
-														clientCmd.m_requestCameraArrayPixelDataArguments.m_cameraArraySize);
-
-			m_data->m_pluginManager.getRenderInterface()->setWidthAndHeight(
+														clientCmd.m_requestCameraArrayPixelDataArguments.m_cameraArraySize,
 														clientCmd.m_requestCameraArrayPixelDataArguments.m_pixelWidth,
 														clientCmd.m_requestCameraArrayPixelDataArguments.m_pixelHeight
 														);

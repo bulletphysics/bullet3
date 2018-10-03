@@ -29,6 +29,7 @@ public:
 	virtual void setLightPosition(const double lightPos[3]);
 
 
+	virtual void	resizeCameraArray(int cameraArraySize, int width, int height);
 	virtual void	resize(int width, int height);
 
     virtual void removeAllInstances();

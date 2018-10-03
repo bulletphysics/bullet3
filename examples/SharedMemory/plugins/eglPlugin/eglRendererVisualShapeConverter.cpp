@@ -1037,14 +1037,20 @@ void EGLRendererVisualShapeConverter::renderCameraArray(const float (*viewMatric
 }
 
 
-void EGLRendererVisualShapeConverter::getCameraArraySize(int &cameraArraySize)
+void EGLRendererVisualShapeConverter::getCameraArraySize(int &cameraArraySize, int& width, int& height)
 {
     cameraArraySize = m_data->m_swCameraArraySize;
+    width = m_data->m_swWidth;
+    height = m_data->m_swHeight;
 }
 
-void EGLRendererVisualShapeConverter::setCameraArraySize(int cameraArraySize)
+void EGLRendererVisualShapeConverter::setCameraArraySize(int cameraArraySize, int width, int height)
 {
 	m_data->m_swCameraArraySize = cameraArraySize;
+	m_data->m_swWidth = width;
+	m_data->m_swHeight = height;
+
+	m_data->m_instancingRenderer->resizeCameraArray(cameraArraySize, width, height);
 }
 
 
@@ -1064,8 +1070,6 @@ void EGLRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
     m_data->m_shadowBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
 	m_data->m_segmentationMaskBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
 	m_data->m_rgbColorBuffer = TGAImage(width, height, TGAImage::RGB);
-	
-		
 }
 
 //copied from OpenGLGuiHelper.cpp

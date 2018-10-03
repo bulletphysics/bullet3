@@ -35,6 +35,7 @@ class GLInstancingRenderer : public CommonRenderInterface
 	bool m_textureenabled;
 	bool m_textureinitialized;
 
+	int m_cameraArraySize;
 	int m_screenWidth;
 	int m_screenHeight;
 	
@@ -137,6 +138,7 @@ public:
 	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]);
 	virtual void setProjectiveTexture(bool useProjectiveTexture);
 
+	virtual void	resizeCameraArray(int cameraArraySize, int width, int height);
 	virtual void	resize(int width, int height);
 	virtual int	getScreenWidth()
 	{

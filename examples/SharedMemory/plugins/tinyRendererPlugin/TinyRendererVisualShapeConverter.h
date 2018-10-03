@@ -32,8 +32,8 @@ struct TinyRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual void resetAll();
 
-	virtual void getCameraArraySize(int &cameraArraySize);
-	virtual void setCameraArraySize(int cameraArraySize);
+	virtual void getCameraArraySize(int &cameraArraySize, int& width, int& height);
+	virtual void setCameraArraySize(int cameraArraySize, int width, int height);
 	virtual void getWidthAndHeight(int& width, int& height);
 	virtual void setWidthAndHeight(int width, int height);
 	virtual void setLightDirection(float x, float y, float z);

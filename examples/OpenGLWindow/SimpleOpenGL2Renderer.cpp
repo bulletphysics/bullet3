@@ -631,6 +631,13 @@ void SimpleOpenGL2Renderer::writeTransforms()
 {
 }
 
+void	SimpleOpenGL2Renderer::resizeCameraArray(int cameraArraySize, int width, int height)
+{
+	b3Warning("SimpleOpenGL2Renderer::resizeCameraArray(cameraArraySize, ...) is not implemented, cameraArraySize = %d\n", cameraArraySize);
+	m_data->m_width = width;
+	m_data->m_height = height;
+}
+
 void	SimpleOpenGL2Renderer::resize(int width, int height)
 {
 	m_data->m_width = width;
