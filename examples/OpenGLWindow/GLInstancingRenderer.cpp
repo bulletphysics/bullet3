@@ -296,6 +296,7 @@ static GLuint               createShadowMapInstancingShader;        // The shado
 static GLuint				projectiveTextureInstancingShader;        // The projective texture instancing renderer
 static GLuint               instancingShader;        // The instancing renderer
 static GLuint               instancingShaderPointSprite;        // The point sprite instancing renderer
+static GLuint               cameraArray_instancingShader;        // The instancing renderer
 
 
 
@@ -348,9 +349,13 @@ static GLint	projectiveTexture_shadowMap = 0;
 static GLint	ModelViewMatrix=0;
 static GLint	ProjectionMatrix=0;
 static GLint	regularLightDirIn=0;
-
-
 static GLint	uniform_texture_diffuse = 0;
+
+static GLint	cameraArray_ModelViewMatrix=0;
+static GLint	cameraArray_ProjectionMatrix=0;
+static GLint	cameraArray_regularLightDirIn=0;
+static GLint	cameraArray_uniform_texture_diffuse = 0;
+
 
 static GLint	screenWidthPointSprite=0;
 static GLint	ModelViewMatrixPointSprite=0;
@@ -2889,13 +2894,13 @@ void GLInstancingRenderer::renderSceneCameraArray(const float (*viewMatrices)[16
 				} else
 				{
 					glUseProgram(cameraArray_instancingShader);
-					glUniformMatrix4fv(ProjectionMatrix, 1, false, &projectionMatrix[0]);
-					glUniformMatrix4fv(ModelViewMatrix, 1, false, &viewMatrix[0]);
+					glUniformMatrix4fv(cameraArray_ProjectionMatrix, 1, false, &projectionMatrix[0]);
+					glUniformMatrix4fv(cameraArray_ModelViewMatrix, 1, false, &viewMatrix[0]);
 
 					b3Vector3 gLightDir = m_data->m_lightPos;
 					gLightDir.normalize();
-					glUniform3f(regularLightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
-					glUniform1i(uniform_texture_diffuse, 0);
+					glUniform3f(cameraArray_regularLightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
+					glUniform1i(cameraArray_uniform_texture_diffuse, 0);
 					glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 				}
 			}
