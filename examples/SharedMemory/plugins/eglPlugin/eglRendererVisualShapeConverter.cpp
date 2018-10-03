@@ -1022,17 +1022,16 @@ void EGLRendererVisualShapeConverter::renderCameraArray(const float (*viewMatric
     printf("%f %f %f %f\n", viewMat[4*2 + 0], viewMat[4*2+1], viewMat[4*2+2], viewMat[4*2+3]);
     printf("%f %f %f %f\n", viewMat[4*3 + 0], viewMat[4*3+1], viewMat[4*3+2], viewMat[4*3+3]);
 
-    // This code is very similar to that of
-    // PhysicsServerCommandProcessor::processRequestCameraImageCommand
-    // maybe code from there should be moved.
+	m_data->m_window->endRendering();
+	m_data->m_window->startRendering();
 
-    // Tiny allows rendering with viewMat, projMat explicitly, but
-    // GLInstancingRender calls m_activeCamera, so set this.
-
-    printf("renderCameraArray() - NOTE - ONLY FIRST MATRIX IS SET - THIS IS A BUG\n");
-	m_data->m_camera.setVRCamera(viewMatrices[0],projMatrices[0]);
-
-	render();
+    B3_PROFILE("m_instancingRenderer render");
+	m_data->m_instancingRenderer->writeTransforms();
+	if (m_data->m_hasLightDirection)
+	{
+		m_data->m_instancingRenderer->setLightPosition(m_data->m_lightDirection);
+	}
+    m_data->m_instancingRenderer->renderSceneCameraArray(viewMatrices, projMatrices);
 	printf("renderCameraArray() - done\n");
 
 }

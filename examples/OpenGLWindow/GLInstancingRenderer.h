@@ -54,6 +54,7 @@ public:
 	virtual void init();
 
 	virtual void renderScene();
+	virtual void renderSceneCameraArray(const float (*viewMatrices)[16], const float (*projectionMatrices)[16]);
 	virtual void renderSceneInternal(int orgRenderMode=B3_DEFAULT_RENDERMODE);
 
 	void InitShaders();
