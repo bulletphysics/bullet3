@@ -54,7 +54,7 @@ typedef X11OpenGLWindow DefaultOpenGLWindow;
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "OpenGLWindow/GLRenderToTexture.h"
 
-//#define BT_USE_TENSOR_RT
+#define BT_USE_TENSOR_RT
 
 #ifdef BT_USE_TENSOR_RT
 #include "eglRendererTensorRT.cpp"
@@ -168,7 +168,7 @@ struct EGLRendererVisualShapeConverterInternalData
             b3gWindowConstructionInfo ci;
             ci.m_title = "Title";
             ci.m_width = m_swWidth;
-            ci.m_height = m_swHeight;
+            ci.m_height = m_swHeight * m_swCameraArraySize;
             ci.m_renderDevice = 0;
 
             m_window->createWindow(ci);
@@ -208,12 +208,12 @@ struct EGLRendererVisualShapeConverterInternalData
 			m_window->endRendering();
 
 #ifdef BT_USE_TENSOR_RT
-            int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
-            int height = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
+            // int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
+            // int height = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
             const char *outputLayers[] = {"internal/Squeezenet/Predictions/Reshape_1", 0};
 
             m_tensorRT = new EGLRendererTensorRT("/models/squeezenet_01_160res_5x5_0.75.uff",
-            									 "input", outputLayers, width, height);
+            						"input", outputLayers, m_swWidth, m_swHeight, m_swCameraArraySize);
 #endif // BT_USE_TENSOR_RT
 	}
 	
@@ -1016,24 +1016,24 @@ void EGLRendererVisualShapeConverter::render(const float viewMat[16], const floa
 
 void EGLRendererVisualShapeConverter::renderCameraArray(const float (*viewMatrices)[16], const float (*projMatrices)[16])
 {
-	printf("renderCameraArray(), %d x %d x %d\n", m_data->m_swCameraArraySize, m_data->m_swWidth, m_data->m_swHeight);
+	// printf("renderCameraArray(), %d x %d x %d\n", m_data->m_swCameraArraySize, m_data->m_swWidth, m_data->m_swHeight);
 	const float *viewMat = viewMatrices[0];
-    printf("%f %f %f %f\n", viewMat[4*0 + 0], viewMat[4*0+1], viewMat[4*0+2], viewMat[4*0+3]);
-    printf("%f %f %f %f\n", viewMat[4*1 + 0], viewMat[4*1+1], viewMat[4*1+2], viewMat[4*1+3]);
-    printf("%f %f %f %f\n", viewMat[4*2 + 0], viewMat[4*2+1], viewMat[4*2+2], viewMat[4*2+3]);
-    printf("%f %f %f %f\n", viewMat[4*3 + 0], viewMat[4*3+1], viewMat[4*3+2], viewMat[4*3+3]);
+    // printf("%f %f %f %f\n", viewMat[4*0 + 0], viewMat[4*0+1], viewMat[4*0+2], viewMat[4*0+3]);
+	// printf("%f %f %f %f\n", viewMat[4*1 + 0], viewMat[4*1+1], viewMat[4*1+2], viewMat[4*1+3]);
+	// printf("%f %f %f %f\n", viewMat[4*2 + 0], viewMat[4*2+1], viewMat[4*2+2], viewMat[4*2+3]);
+	// printf("%f %f %f %f\n", viewMat[4*3 + 0], viewMat[4*3+1], viewMat[4*3+2], viewMat[4*3+3]);
 
 	m_data->m_window->endRendering();
 	m_data->m_window->startRendering();
 
-    B3_PROFILE("m_instancingRenderer render");
+	    B3_PROFILE("m_instancingRenderer render");
 	m_data->m_instancingRenderer->writeTransforms();
 	if (m_data->m_hasLightDirection)
 	{
 		m_data->m_instancingRenderer->setLightPosition(m_data->m_lightDirection);
 	}
     m_data->m_instancingRenderer->renderSceneCameraArray(viewMatrices, projMatrices);
-	printf("renderCameraArray() - done\n");
+    // printf("renderCameraArray() - done\n");
 
 }
 
@@ -1197,10 +1197,6 @@ void EGLRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsR
             depthBuffer,  depthBufferSizeInPixels,
             segmentationMaskBuffer,  segmentationMaskSizeInPixels,
             startPixelIndex,  widthPtr, heightPtr, numPixelsCopied);
-
-#ifdef BT_USE_TENSOR_RT
-    m_data->m_tensorRT->copyCameraImageFeatures(depthBuffer, depthBufferSizeInPixels * sizeof(float));
-#endif //
 }
 
 
@@ -1210,16 +1206,15 @@ void EGLRendererVisualShapeConverter::copyCameraArrayImageData(unsigned char* pi
 									int* numPixelsCopied, int* numFeaturesCopied)
 {
 	printf("copyCameraArrayImageData(), rgbaBufferSizeInPixels = %d, featuresBufferSizeInFloats = %d\n",
-			rgbaBufferSizeInPixels, featuresBufferSizeInFloats);
+	 		rgbaBufferSizeInPixels, featuresBufferSizeInFloats);
 
 #ifdef BT_USE_TENSOR_RT
-    m_data->m_tensorRT->copyCameraImageFeatures(featuresBuffer, featuresBufferSizeInPixels * sizeof(float));
+    m_data->m_tensorRT->copyCameraImageFeatures(featuresBuffer, featuresBufferSizeInFloats * sizeof(float));
 	*numFeaturesCopied = m_data->m_swCameraArraySize * m_data->m_tensorRT->getFeatureLength() ;
 #else // BT_USE_TENSOR_RT
 	*numFeaturesCopied = 0;
 #endif //
 
-    glViewport(0,0,m_data->m_swWidth, m_data->m_swHeight * m_data->m_swCameraArraySize);
     glReadPixels(0,0,m_data->m_swWidth, m_data->m_swHeight * m_data->m_swCameraArraySize, GL_RGB, GL_UNSIGNED_BYTE, &(pixelsRGB[0]));
 
 
@@ -1279,6 +1274,7 @@ void EGLRendererVisualShapeConverter::resetAll()
 	m_data->m_textures.clear();
 	m_data->m_swRenderInstances.clear();
 	m_data->m_visualShapes.clear();
+	m_data->m_instancingRenderer->removeAllInstances();
 }
 
 

@@ -1210,7 +1210,7 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 
 void GLInstancingRenderer::InitShaders()
 {
-printf("->>>>>>>>>>>>>>>>> Calling InitShaders, m_cameraArraySize = %d\n", m_cameraArraySize);
+	// printf("->>>>>>>>>>>>>>>>> Calling InitShaders, m_cameraArraySize = %d\n", m_cameraArraySize);
 	int POSITION_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
 	int ORIENTATION_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
 	int COLOR_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
@@ -1480,7 +1480,7 @@ void	GLInstancingRenderer::resize(int width, int height)
 	m_screenWidth = width;
 	m_screenHeight = height;
 	//*(char *)0 = 0;
-	printf("------------------ > resize call, width = %d height = %d!\n", width, height);
+	// printf("------------------ > resize call, width = %d height = %d!\n", width, height);
 }
 
 void	GLInstancingRenderer::resizeCameraArray(int cameraArraySize, int width, int height)
@@ -1489,17 +1489,7 @@ void	GLInstancingRenderer::resizeCameraArray(int cameraArraySize, int width, int
 	m_screenWidth = width;
 	m_screenHeight = height;
 
-	GLfloat v[MAX_CAMERA_ARRAY_SIZE * 4];
-	for(int i = 0; i < cameraArraySize; i++)
-	{
-		v[i * 4 + 0] = 0.0;			// left
-		v[i * 4 + 1] = i * height;	// bottom
-		v[i * 4 + 2] = width;
-		v[i * 4 + 3] = height;
-	}
-	glViewportArrayv(0, cameraArraySize, v);
-
-	printf("------------------ > resizeCameraArray, cameraArraySize = %d, width = %d height = %d!\n", cameraArraySize, width, height);
+	// printf("------------------ > resizeCameraArray, cameraArraySize = %d, width = %d height = %d!\n", cameraArraySize, width, height);
 }
 
 
@@ -2786,18 +2776,31 @@ void GLInstancingRenderer::renderSceneCameraArray(const float (*viewMatrices)[16
 	const float *viewMatrix = viewMatrices[0];
 	const float *projectionMatrix = projectionMatrices[0];
 
-	printf("void GLInstancingRenderer::renderSceneCameraArray()\n");
-    printf("%f %f %f %f\n", viewMatrix[4*0 + 0], viewMatrix[4*0+1], viewMatrix[4*0+2], viewMatrix[4*0+3]);
-    printf("%f %f %f %f\n", viewMatrix[4*1 + 0], viewMatrix[4*1+1], viewMatrix[4*1+2], viewMatrix[4*1+3]);
-    printf("%f %f %f %f\n", viewMatrix[4*2 + 0], viewMatrix[4*2+1], viewMatrix[4*2+2], viewMatrix[4*2+3]);
-    printf("%f %f %f %f\n", viewMatrix[4*3 + 0], viewMatrix[4*3+1], viewMatrix[4*3+2], viewMatrix[4*3+3]);
+	// printf("void GLInstancingRenderer::renderSceneCameraArray()\n");
+	// printf("%f %f %f %f\n", viewMatrix[4*0 + 0], viewMatrix[4*0+1], viewMatrix[4*0+2], viewMatrix[4*0+3]);
+	// printf("%f %f %f %f\n", viewMatrix[4*1 + 0], viewMatrix[4*1+1], viewMatrix[4*1+2], viewMatrix[4*1+3]);
+	// printf("%f %f %f %f\n", viewMatrix[4*2 + 0], viewMatrix[4*2+1], viewMatrix[4*2+2], viewMatrix[4*2+3]);
+	// printf("%f %f %f %f\n", viewMatrix[4*3 + 0], viewMatrix[4*3+1], viewMatrix[4*3+2], viewMatrix[4*3+3]);
 
 
 	//we need to get the viewport dims, because on Apple Retina the viewport dimension is different from screenWidth
-	GLint dims[4];
-	glGetIntegerv(GL_VIEWPORT, dims);
+	// GLint dims[4];
+	// glGetIntegerv(GL_VIEWPORT, dims);
 
-	B3_PROFILE("GLInstancingRenderer::RenderScene");
+	GLfloat v[MAX_CAMERA_ARRAY_SIZE * 4];
+	for(int i = 0; i < m_cameraArraySize; i++)
+	{
+		v[i * 4 + 0] = 0;					// left
+		v[i * 4 + 1] = i * m_screenHeight;	// bottom
+		v[i * 4 + 2] = m_screenWidth;
+		v[i * 4 + 3] = m_screenHeight;
+	}
+	glViewportArrayv(0, m_cameraArraySize, v);
+    b3Assert(glGetError() ==GL_NO_ERROR);
+
+
+
+	B3_PROFILE("GLInstancingRenderer::RenderSceneCameraArray");
 	{
 		B3_PROFILE("init");
 		init();
@@ -2953,6 +2956,9 @@ void GLInstancingRenderer::renderSceneCameraArray(const float (*viewMatrices)[16
 
 	glDisable(GL_CULL_FACE);
 	b3Assert(glGetError() ==GL_NO_ERROR);
+
+    glViewport(0,0,m_screenWidth, m_screenHeight * m_cameraArraySize);
+
 }
 
 

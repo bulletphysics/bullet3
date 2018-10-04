@@ -255,7 +255,7 @@ B3_SHARED_API	void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCameraArrayImage(b3PhysicsClientHandle physClient);
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCameraArrayImage2(b3SharedMemoryCommandHandle commandHandle);
 B3_SHARED_API	void b3RequestCameraArrayImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHandle, int cameraArraySize, float (*viewMatrices)[16], float (*projectionMatrices)[16]);
-B3_SHARED_API	void b3RequestCameraArrayImageSetPixelResolution(b3SharedMemoryCommandHandle commandHandle, int cameraArraySize, int width, int height );
+B3_SHARED_API	void b3RequestCameraArrayImageSetResolution(b3SharedMemoryCommandHandle commandHandle, int cameraArraySize, int width, int height, int featureLength);
 B3_SHARED_API	void b3RequestCameraArrayImageSetLightDirection(b3SharedMemoryCommandHandle commandHandle, const float lightDirection[/*3*/]);
 B3_SHARED_API	void b3RequestCameraArrayImageSetLightColor(b3SharedMemoryCommandHandle commandHandle, const float lightColor[/*3*/]);
 B3_SHARED_API	void b3RequestCameraArrayImageSetLightDistance(b3SharedMemoryCommandHandle commandHandle, float lightDistance);

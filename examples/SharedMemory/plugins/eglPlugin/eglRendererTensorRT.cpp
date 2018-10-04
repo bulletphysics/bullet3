@@ -143,6 +143,9 @@ EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 	//if (endswith(modelFileName, ".uff"))
 	{
 		IBuilder *builder = createInferBuilder(gLogger);
+		builder->setMaxBatchSize(kBatchSize);
+		builder->setMaxWorkspaceSize(1 << 20);
+
 		if (builder == 0)
 		{
 			b3Error(
@@ -358,7 +361,7 @@ EGLRendererTensorRT::copyCameraImageFeatures(float *outputBuffer,
 		glGenBuffers(1, &pbo);
 		glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo);
 		glBufferData(GL_PIXEL_PACK_BUFFER,
-					 3 * (m_width * m_height * sizeof(GLfloat)), NULL,
+					 3 * (m_kBatchSize * m_width * m_height * sizeof(GLfloat)), NULL,
 					 GL_DYNAMIC_READ);
 
 		if (glGetError() != GL_NO_ERROR)
@@ -366,7 +369,7 @@ EGLRendererTensorRT::copyCameraImageFeatures(float *outputBuffer,
 			b3Error(
 				"Error during rendering-inferencing, rendered image size is "
 				"invalid (?) (should be %dx%dx3).\n",
-				m_width, m_height);
+				m_height * m_kBatchSize, m_width);
 			return 0;
 		}
 
@@ -377,7 +380,7 @@ EGLRendererTensorRT::copyCameraImageFeatures(float *outputBuffer,
 			b3Error(
 				"Error during registering GL buffer in CUDA, rendered image size "
 				"is invalid (?) (should be %dx%dx3).\n",
-				m_width, m_height);
+				m_height * m_kBatchSize, m_width);
 			return 0;
 		}
 	}
@@ -385,14 +388,14 @@ EGLRendererTensorRT::copyCameraImageFeatures(float *outputBuffer,
 	{
 		glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo);
 		glBufferData(GL_PIXEL_PACK_BUFFER,
-					 3 * (m_width * m_height * sizeof(GLfloat)), NULL,
+					 3 * (m_kBatchSize * m_width * m_height * sizeof(GLfloat)), NULL,
 					 GL_DYNAMIC_READ);
 		if (glGetError() != GL_NO_ERROR)
 		{
 			b3Error(
 				"Error during rendering-inferencing, rendered image size is "
 				"invalid (should be %dx%dx3).",
-				m_width, m_height);
+				m_height * m_kBatchSize, m_width);
 			return 0;
 		}
 	}
@@ -407,7 +410,7 @@ EGLRendererTensorRT::copyCameraImageFeatures(float *outputBuffer,
 		b3Error(
 			"Error during rendering-inferencing, rendered image size is "
 			"invalid (should be %dx%dx3).",
-			m_width, m_height);
+			m_height * m_kBatchSize, m_width);
 		return 0;
 	}
 

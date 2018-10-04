@@ -622,7 +622,7 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 // NOTE: using pointers to shared memory here, to avoid yet another byte-by-byte memory copy
 bool PhysicsDirect::processCameraArray(const struct SharedMemoryCommand& orgCommand)
 {
-	printf("PhysicsDirect::processCameraArray\n");
+	// printf("PhysicsDirect::processCameraArray\n");
 	SharedMemoryCommand command = orgCommand;
 
 	const SharedMemoryStatus& serverCmd = m_data->m_serverStatus;
@@ -659,9 +659,9 @@ bool PhysicsDirect::processCameraArray(const struct SharedMemoryCommand& orgComm
 		m_data->m_cachedCameraPixelsHeight = serverCmd.m_sendCameraArrayPixelDataArguments.m_imageHeight;
 		m_data->m_cachedCameraFeatureLength = serverCmd.m_sendCameraArrayPixelDataArguments.m_featureLength;
 
-		printf("PhysicsDirect::processCameraArray, %d x %d x %d, m_cachedCameraFeatureLength = %d\n",
-				m_data->m_cachedCameraArraySize, m_data->m_cachedCameraPixelsWidth, m_data->m_cachedCameraPixelsHeight,
-				m_data->m_cachedCameraFeatureLength);
+		// printf("PhysicsDirect::processCameraArray, %d x %d x %d, m_cachedCameraFeatureLength = %d\n",
+		//		m_data->m_cachedCameraArraySize, m_data->m_cachedCameraPixelsWidth, m_data->m_cachedCameraPixelsHeight,
+		//		m_data->m_cachedCameraFeatureLength);
 
 	}
 
@@ -1477,11 +1477,11 @@ void PhysicsDirect::getCachedCameraImage(struct b3CameraImageData* cameraData)
 
 void PhysicsDirect::getCachedCameraArrayImage(struct b3CameraArrayImageData* cameraData)
 {
-	printf("PhysicsDirect::getCachedCameraArrayImage - TODO: check implementation.\n");
+	// printf("PhysicsDirect::getCachedCameraArrayImage - TODO: check implementation.\n");
 	if (cameraData)
 	{
-		printf("PhysicsDirect, RGB DATA: %d %d %d\n", m_data->m_ptrCameraArrayPixelsRGB[0],
-				m_data->m_ptrCameraArrayPixelsRGB[1], m_data->m_ptrCameraArrayPixelsRGB[2]);
+		// printf("PhysicsDirect, RGB DATA: %d %d %d\n", m_data->m_ptrCameraArrayPixelsRGB[0],
+		//		m_data->m_ptrCameraArrayPixelsRGB[1], m_data->m_ptrCameraArrayPixelsRGB[2]);
 
 		cameraData->m_cameraArraySize = m_data->m_cachedCameraArraySize;
 		cameraData->m_pixelWidth = m_data->m_cachedCameraPixelsWidth;
