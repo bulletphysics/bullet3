@@ -3517,7 +3517,7 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 				this->m_data->m_guiHelper->setProjectiveTexture(false);
 			}
 
-			if ((flags & (ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX + ER_SEGMENTATION_MASK)) == 0)
+			if ((flags & ER_NO_SEGMENTATION_MASK) != 0)
 			{
 				segmentationMaskBuffer = 0;
 			}
