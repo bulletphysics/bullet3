@@ -145,6 +145,9 @@ EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 		IBuilder *builder = createInferBuilder(gLogger);
 		builder->setMaxBatchSize(kBatchSize);
 		builder->setMaxWorkspaceSize(kWorkspaceSize);
+		// builder->allowGPUFallback(true);
+		// builder->setFp16Mode(true);
+		// builder->setDefaultDeviceType(DeviceType::kDLA);
 
 		if (builder == 0)
 		{
