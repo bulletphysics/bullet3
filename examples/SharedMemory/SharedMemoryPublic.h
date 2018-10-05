@@ -746,7 +746,7 @@ enum EnumRendererAuxFlags
 {
 	ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX = 1,
 	ER_USE_PROJECTIVE_TEXTURE = 2,
-	ER_SEGMENTATION_MASK = 4,
+	ER_NO_SEGMENTATION_MASK = 4,
 };
 
 ///flags to pick the IK solver and other options
