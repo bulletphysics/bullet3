@@ -87,7 +87,7 @@ struct UrdfRenderingInterface
 	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)=0;
 	
 	///provide the camera array image pixels as a part of a stream.
-	virtual void copyCameraArrayImageData(unsigned char* pixelsRGB, int rgbaBufferSizeInPixels, float* featuresBuffer, int featuresBufferSizeInFloats, int *cameraArraySizePtr, int* widthPtr, int* heightPtr, int* numPixelsCopied, int* numFeaturesCopied)=0;
+	virtual void copyCameraArrayImageData(unsigned char* pixelsRGB, int rgbaBufferSizeInPixels, float* featuresBuffer, int featuresBufferSizeInFloats, int *cameraArraySizePtr, int* widthPtr, int* heightPtr, int *featureLength, int* numPixelsCopied, int* numFeaturesCopied)=0;
 
 	///render an image, using some arbitraty view and projection matrix
 	virtual void render()=0;

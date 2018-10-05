@@ -27,7 +27,7 @@ misrepresented as being the original software.
 using namespace nvinfer1;
 using namespace nvuffparser;
 
-#define DEBUG_TENSORRT_INFERENCE
+//#define DEBUG_TENSORRT_INFERENCE
 #ifdef DEBUG_TENSORRT_INFERENCE
 #include <algorithm>
 #include "stb_image/stb_image_write.h"
@@ -68,7 +68,7 @@ struct EGLRendererTensorRT
 	*/
 	EGLRendererTensorRT(const char *modelFileName, const char *modelInputLayer,
 						const char **modelOutputLayers, int width, int height,
-						int kBatchSize = 1);
+						int kBatchSize = 1, int kWorkspaceSize = 1 << 26);
 
 	~EGLRendererTensorRT();
 
@@ -136,7 +136,7 @@ EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 											  const char *modelInputLayer,
 											  const char **modelOutputLayers,
 											  int width, int height,
-											  int kBatchSize)
+											  int kBatchSize, int kWorkspaceSize)
 	: m_width(width), m_height(height), m_kBatchSize(kBatchSize), m_totalOutputSize(0), m_featureLength(0),
 	  pbo(0), pboRes(0), outputDataDevice(0), engine(0), context(0), m_inputBindingIndex(0)
 {
@@ -144,7 +144,7 @@ EGLRendererTensorRT::EGLRendererTensorRT(const char *modelFileName,
 	{
 		IBuilder *builder = createInferBuilder(gLogger);
 		builder->setMaxBatchSize(kBatchSize);
-		builder->setMaxWorkspaceSize(1 << 20);
+		builder->setMaxWorkspaceSize(kWorkspaceSize);
 
 		if (builder == 0)
 		{

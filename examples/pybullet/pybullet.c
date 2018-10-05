@@ -7562,7 +7562,7 @@ static PyObject* pybullet_getCameraArrayImage(PyObject* self, PyObject* args, Py
 			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelWidth));
 			PyTuple_SetItem(pyResultList, 2, PyInt_FromLong(imageData.m_pixelHeight));
 
-			pyFeat = PyArray_SimpleNew(2, feat_dims, NPY_INT32);
+			pyFeat = PyArray_SimpleNew(2, feat_dims, NPY_FLOAT32);
 
 			// RGB
 			if(imageData.m_cameraArraySize && imageData.m_pixelHeight && imageData.m_pixelWidth && bytesPerPixel)
@@ -7583,7 +7583,7 @@ static PyObject* pybullet_getCameraArrayImage(PyObject* self, PyObject* args, Py
 			PyTuple_SetItem(pyResultList, 4, PyInt_FromLong(imageData.m_featureLength));
 			if(imageData.m_cameraArraySize && imageData.m_featureLength)
 			{
-				printf("Features DATA: %f %f %f\n", imageData.m_featureValues[0], imageData.m_featureValues[1], imageData.m_featureValues[2]);
+				// printf("Features DATA: %f %f %f\n", imageData.m_featureValues[0], imageData.m_featureValues[1], imageData.m_featureValues[2]);
 				memcpy(PyArray_DATA(pyFeat), imageData.m_featureValues,
 						imageData.m_cameraArraySize * imageData.m_featureLength * sizeof(float));
 			}

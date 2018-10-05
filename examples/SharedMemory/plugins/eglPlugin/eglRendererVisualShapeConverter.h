@@ -48,7 +48,7 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
     void copyCameraImageDataGL(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
 
-	virtual void copyCameraArrayImageData(unsigned char* pixelsRGB, int rgbaBufferSizeInPixels, float* featuresBuffer, int featuresBufferSizeInFloats, int *cameraArraySizePtr, int* widthPtr, int* heightPtr, int* numPixelsCopied, int* numFeaturesCopied);
+	virtual void copyCameraArrayImageData(unsigned char* pixelsRGB, int rgbaBufferSizeInPixels, float* featuresBuffer, int featuresBufferSizeInFloats, int *cameraArraySizePtr, int* widthPtr, int* heightPtr, int *featureLengthPtr, int* numPixelsCopied, int* numFeaturesCopied);
 
 	virtual void render();
 	virtual void render(const float viewMat[16], const float projMat[16]);

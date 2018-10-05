@@ -1202,17 +1202,19 @@ void EGLRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsR
 
 void EGLRendererVisualShapeConverter::copyCameraArrayImageData(unsigned char* pixelsRGB, int rgbaBufferSizeInPixels,
 									float* featuresBuffer, int featuresBufferSizeInFloats,
-									int *cameraArraySizePtr, int* widthPtr, int* heightPtr,
+									int *cameraArraySizePtr, int* widthPtr, int* heightPtr, int *featureLengthPtr,
 									int* numPixelsCopied, int* numFeaturesCopied)
 {
-	printf("copyCameraArrayImageData(), rgbaBufferSizeInPixels = %d, featuresBufferSizeInFloats = %d\n",
-	 		rgbaBufferSizeInPixels, featuresBufferSizeInFloats);
+	// printf("copyCameraArrayImageData(), rgbaBufferSizeInPixels = %d, featuresBufferSizeInFloats = %d\n",
+	// 		rgbaBufferSizeInPixels, featuresBufferSizeInFloats);
 
 #ifdef BT_USE_TENSOR_RT
     m_data->m_tensorRT->copyCameraImageFeatures(featuresBuffer, featuresBufferSizeInFloats * sizeof(float));
 	*numFeaturesCopied = m_data->m_swCameraArraySize * m_data->m_tensorRT->getFeatureLength() ;
+	*featureLengthPtr = m_data->m_tensorRT->getFeatureLength();
 #else // BT_USE_TENSOR_RT
 	*numFeaturesCopied = 0;
+	*featureLengthPtr = 0
 #endif //
 
     glReadPixels(0,0,m_data->m_swWidth, m_data->m_swHeight * m_data->m_swCameraArraySize, GL_RGB, GL_UNSIGNED_BYTE, &(pixelsRGB[0]));

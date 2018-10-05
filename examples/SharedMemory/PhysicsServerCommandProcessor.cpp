@@ -3759,7 +3759,7 @@ bool PhysicsServerCommandProcessor::processRequestCameraArrayImageCommand(const 
 	}
 
 	m_data->m_pluginManager.getRenderInterface()->copyCameraArrayImageData(pixelRGB, numTotalPixels,
-				featuresBuffer, numTotalFeatures, &cameraArraySize,&width,&height,&numPixelsCopied, &numFeaturesCopied);
+				featuresBuffer, numTotalFeatures, &cameraArraySize,&width,&height,&featureLength,&numPixelsCopied, &numFeaturesCopied);
 
 	serverStatusOut.m_type = CMD_CAMERA_ARRAY_IMAGE_COMPLETED;
 
@@ -3768,7 +3768,8 @@ bool PhysicsServerCommandProcessor::processRequestCameraArrayImageCommand(const 
 	serverStatusOut.m_sendCameraArrayPixelDataArguments.m_numFeaturesCopied = numFeaturesCopied;
 	serverStatusOut.m_sendCameraArrayPixelDataArguments.m_imageWidth = width;
 	serverStatusOut.m_sendCameraArrayPixelDataArguments.m_imageHeight= height;
-	// printf("CMD_CAMERA_ARRAY_IMAGE_COMPLETED, %d x %d x %d, numPixelsCopied = %d, numFeaturesCopied = %d\n",
+	serverStatusOut.m_sendCameraArrayPixelDataArguments.m_featureLength = featureLength ;
+	//printf("CMD_CAMERA_ARRAY_IMAGE_COMPLETED, %d x %d x %d, numPixelsCopied = %d, numFeaturesCopied = %d\n",
 	//		cameraArraySize, width, height,  numPixelsCopied, numFeaturesCopied);
 	return hasStatus;
 }

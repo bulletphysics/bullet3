@@ -1125,7 +1125,7 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
     }    
 }
 
-void TinyRendererVisualShapeConverter::copyCameraArrayImageData(unsigned char* pixelsRGB, int rgbaBufferSizeInPixels, float* featuresBuffer, int featuresBufferSizeInPixels, int *cameraArraySizePtr, int* widthPtr, int* heightPtr, int* numPixelsCopied, int* numFeaturesCopied)
+void TinyRendererVisualShapeConverter::copyCameraArrayImageData(unsigned char* pixelsRGB, int rgbaBufferSizeInPixels, float* featuresBuffer, int featuresBufferSizeInPixels, int *cameraArraySizePtr, int* widthPtr, int* heightPtr, int *featureLengthPtr, int* numPixelsCopied, int* numFeaturesCopied)
 {
 	b3Warning("TinyRenderer: copyCameraArrayImageData is not implemented\n");
 }
