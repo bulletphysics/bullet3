@@ -984,6 +984,16 @@ void EGLRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 	m_data->m_rgbColorBuffer = TGAImage(width, height, TGAImage::RGB);
 }
 
+void EGLRendererVisualShapeConverter::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+{
+	m_data->m_instancingRenderer->setProjectiveTextureMatrices(viewMatrix,projectionMatrix);
+}
+
+void EGLRendererVisualShapeConverter::setProjectiveTexture(bool useProjectiveTexture)
+{
+	m_data->m_instancingRenderer->setProjectiveTexture(useProjectiveTexture);
+}
+
 //copied from OpenGLGuiHelper.cpp
 void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 	unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
