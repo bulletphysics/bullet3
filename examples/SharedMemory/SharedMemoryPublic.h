@@ -572,13 +572,10 @@ struct b3ContactPointData
 
 	double m_normalForce;
 
-	//todo: expose the friction forces as well
-	//    double m_linearFrictionDirection0[3];
-	//    double m_linearFrictionForce0;
-	//    double m_linearFrictionDirection1[3];
-	//    double m_linearFrictionForce1;
-	//    double m_angularFrictionDirection[3];
-	//    double m_angularFrictionForce;
+	double m_linearFrictionForce1;
+	double m_linearFrictionForce2;
+	double m_linearFrictionDirection1[3];
+	double m_linearFrictionDirection2[3];
 };
 
 enum
