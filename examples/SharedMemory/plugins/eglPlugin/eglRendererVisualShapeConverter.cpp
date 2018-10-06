@@ -87,8 +87,8 @@ struct EGLRendererObjectArray
 	}
 };
 
-#define START_WIDTH 640
-#define START_HEIGHT 480
+#define START_WIDTH 2560
+#define START_HEIGHT 2048
 
 struct EGLRendererVisualShapeConverterInternalData
 {
@@ -886,6 +886,7 @@ void EGLRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int link
 			m_data->m_visualShapes[i].m_rgbaColor[1] = rgbaColor[1];
 			m_data->m_visualShapes[i].m_rgbaColor[2] = rgbaColor[2];
 			m_data->m_visualShapes[i].m_rgbaColor[3] = rgbaColor[3];
+			m_data->m_instancingRenderer->writeSingleInstanceColorToCPU(rgbaColor,i);
 		}
 	}
 
@@ -983,6 +984,16 @@ void EGLRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 	m_data->m_rgbColorBuffer = TGAImage(width, height, TGAImage::RGB);
 }
 
+void EGLRendererVisualShapeConverter::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+{
+	m_data->m_instancingRenderer->setProjectiveTextureMatrices(viewMatrix,projectionMatrix);
+}
+
+void EGLRendererVisualShapeConverter::setProjectiveTexture(bool useProjectiveTexture)
+{
+	m_data->m_instancingRenderer->setProjectiveTexture(useProjectiveTexture);
+}
+
 //copied from OpenGLGuiHelper.cpp
 void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 	unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
@@ -1044,7 +1055,7 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 							glstat = glGetError();
 							b3Assert(glstat == GL_NO_ERROR);
 						}
-						if ((sourceWidth * sourceHeight * sizeof(float)) == depthBufferSizeInPixels)
+						if ((sourceWidth * sourceHeight) == depthBufferSizeInPixels)
 						{
 							glReadPixels(0, 0, sourceWidth, sourceHeight, GL_DEPTH_COMPONENT, GL_FLOAT, &(m_data->m_sourceDepthBuffer[0]));
 							int glstat;

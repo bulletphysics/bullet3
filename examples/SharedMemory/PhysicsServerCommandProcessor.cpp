@@ -3645,10 +3645,38 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 
 			if (m_data->m_pluginManager.getRenderInterface())
 			{
+				if ((flags & ER_USE_PROJECTIVE_TEXTURE) != 0)
+				{
+					m_data->m_pluginManager.getRenderInterface()->setProjectiveTexture(true);
+					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_PROJECTIVE_TEXTURE_MATRICES) != 0)
+					{
+						for (int i = 0; i < 16; i++)
+						{
+							projTextureViewMat[i] = clientCmd.m_requestPixelDataArguments.m_projectiveTextureViewMatrix[i];
+							projTextureProjMat[i] = clientCmd.m_requestPixelDataArguments.m_projectiveTextureProjectionMatrix[i];
+						}
+					}
+					else  // If no specified matrices for projective texture, then use the camera matrices.
+					{
+						for (int i = 0; i < 16; i++)
+						{
+							projTextureViewMat[i] = viewMat[i];
+							projTextureProjMat[i] = projMat[i];
+						}
+					}
+					m_data->m_pluginManager.getRenderInterface()->setProjectiveTextureMatrices(projTextureViewMat, projTextureProjMat);
+				}
+				else
+				{
+					m_data->m_pluginManager.getRenderInterface()->setProjectiveTexture(false);
+				}
+
+
 				m_data->m_pluginManager.getRenderInterface()->copyCameraImageData(pixelRGBA, numRequestedPixels,
 																				  depthBuffer, numRequestedPixels,
 																				  segmentationMaskBuffer, numRequestedPixels,
 																				  startPixelIndex, &width, &height, &numPixelsCopied);
+				m_data->m_pluginManager.getRenderInterface()->setProjectiveTexture(false);
 			}
 
 			m_data->m_guiHelper->debugDisplayCameraImageData(clientCmd.m_requestPixelDataArguments.m_viewMatrix,

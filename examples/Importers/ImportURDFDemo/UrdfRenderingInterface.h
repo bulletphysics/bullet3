@@ -91,6 +91,9 @@ struct UrdfRenderingInterface
 
 	///register a texture using an in-memory pixel buffer of a given width and height
 	virtual int registerTexture(unsigned char* texels, int width, int height) = 0;
+
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]) {}
+	virtual void setProjectiveTexture(bool useProjectiveTexture) {}
 };
 
 #endif  //LINK_VISUAL_SHAPES_CONVERTER_H

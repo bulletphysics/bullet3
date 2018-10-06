@@ -15,4 +15,5 @@ while (1):
 	blue = p.readUserDebugParameter(blueSlider)
 	alpha = p.readUserDebugParameter(alphaSlider)
 	p.changeVisualShape(sphereUid,-1,rgbaColor=[red,green,blue,alpha])
+	p.getCameraImage(320,200,flags=p.ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX, renderer=p.ER_BULLET_HARDWARE_OPENGL)
 	time.sleep(0.01)
