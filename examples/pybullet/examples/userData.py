@@ -3,7 +3,7 @@ import time
 from pybullet_utils import bullet_client
 
 
-server = bullet_client.BulletClient(connection_mode=pb.GUI_SERVER)
+server = bullet_client.BulletClient(connection_mode=pb.SHARED_MEMORY_SERVER)
 
 
 print ("Connecting to bullet server")
