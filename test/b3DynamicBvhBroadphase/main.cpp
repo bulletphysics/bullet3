@@ -12,7 +12,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #include <stdio.h>
 
 #include "Bullet3Common/b3Vector3.h"
@@ -26,57 +25,57 @@ int g_nFailed = 0;
 bool g_testFailed = 0;
 
 #define TEST_INIT g_testFailed = 0;
-#define TEST_ASSERT(x) if( !(x) ){g_testFailed = 1;}
-#define TEST_REPORT(testName) printf("[%s] %s\n",(g_testFailed)?"X":"O", testName); if(g_testFailed) g_nFailed++; else g_nPassed++;
-
-
+#define TEST_ASSERT(x)    \
+	if (!(x))             \
+	{                     \
+		g_testFailed = 1; \
+	}
+#define TEST_REPORT(testName)                                  \
+	printf("[%s] %s\n", (g_testFailed) ? "X" : "O", testName); \
+	if (g_testFailed)                                          \
+		g_nFailed++;                                           \
+	else                                                       \
+		g_nPassed++;
 
 inline void broadphaseTest()
 {
 	TEST_INIT;
 
 	b3DynamicBvhBroadphase* bp = new b3DynamicBvhBroadphase(2);
-	
-	int group=1;
-	int mask=1;
-	b3Vector3 aabbMin(0,0,0);
-	b3Vector3 aabbMax(1,1,1);
+
+	int group = 1;
+	int mask = 1;
+	b3Vector3 aabbMin(0, 0, 0);
+	b3Vector3 aabbMax(1, 1, 1);
 	int userId = 0;
-	bp->createProxy(aabbMin,aabbMax,userId++,0,group,mask);
+	bp->createProxy(aabbMin, aabbMax, userId++, 0, group, mask);
 
-	aabbMin.setValue(1,1,1);
-	aabbMax.setValue(2,2,2);
+	aabbMin.setValue(1, 1, 1);
+	aabbMax.setValue(2, 2, 2);
 
-	
-	bp->createProxy(aabbMin,aabbMax,userId++,0,group,mask);
-	
+	bp->createProxy(aabbMin, aabbMax, userId++, 0, group, mask);
 
 	bp->calculateOverlappingPairs();
-	
+
 	int numOverlap = bp->getOverlappingPairCache()->getNumOverlappingPairs();
-	
-	
-	TEST_ASSERT(numOverlap==1);
+
+	TEST_ASSERT(numOverlap == 1);
 
 	delete bp;
 
-	TEST_REPORT( "broadphaseTest" );
+	TEST_REPORT("broadphaseTest");
 }
 
 int main(int argc, char** argv)
 {
-
-
 	broadphaseTest();
 
-	printf("%d tests passed\n",g_nPassed, g_nFailed);
+	printf("%d tests passed\n", g_nPassed, g_nFailed);
 	if (g_nFailed)
 	{
-		printf("%d tests failed\n",g_nFailed);
+		printf("%d tests failed\n", g_nFailed);
 	}
 	printf("End, press <enter>\n");
 
 	getchar();
-
 }
-

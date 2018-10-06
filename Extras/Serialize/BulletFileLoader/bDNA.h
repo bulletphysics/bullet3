@@ -16,95 +16,86 @@ subject to the following restrictions:
 #ifndef __BDNA_H__
 #define __BDNA_H__
 
-
 #include "bCommon.h"
 
-namespace bParse {
+namespace bParse
+{
+struct bNameInfo
+{
+	char *m_name;
+	bool m_isPointer;
+	int m_dim0;
+	int m_dim1;
+};
 
-	struct	bNameInfo
+class bDNA
+{
+public:
+	bDNA();
+	~bDNA();
+
+	void init(char *data, int len, bool swap = false);
+
+	int getArraySize(char *str);
+	int getArraySizeNew(short name)
 	{
-		char*	m_name;
-		bool	m_isPointer;
-		int		m_dim0;
-		int		m_dim1;
+		const bNameInfo &nameInfo = m_Names[name];
+		return nameInfo.m_dim0 * nameInfo.m_dim1;
+	}
+	int getElementSize(short type, short name)
+	{
+		const bNameInfo &nameInfo = m_Names[name];
+		int size = nameInfo.m_isPointer ? mPtrLen * nameInfo.m_dim0 * nameInfo.m_dim1 : mTlens[type] * nameInfo.m_dim0 * nameInfo.m_dim1;
+		return size;
+	}
+
+	int getNumNames() const
+	{
+		return m_Names.size();
+	}
+
+	char *getName(int ind);
+	char *getType(int ind);
+	short *getStruct(int ind);
+	short getLength(int ind);
+	int getReverseType(short type);
+	int getReverseType(const char *type);
+
+	int getNumStructs();
+
+	//
+	bool lessThan(bDNA *other);
+
+	void initCmpFlags(bDNA *memDNA);
+	bool flagNotEqual(int dna_nr);
+	bool flagEqual(int dna_nr);
+	bool flagNone(int dna_nr);
+
+	int getPointerSize();
+
+	void dumpTypeDefinitions();
+
+private:
+	enum FileDNAFlags
+	{
+		FDF_NONE = 0,
+		FDF_STRUCT_NEQU,
+		FDF_STRUCT_EQU
 	};
 
-	class bDNA
-	{
-	public:
-		bDNA();
-		~bDNA();
+	void initRecurseCmpFlags(int i);
 
-		void init(char *data, int len, bool swap=false);
+	btAlignedObjectArray<int> mCMPFlags;
 
-		int getArraySize(char* str);
-		int getArraySizeNew(short name)
-		{
-			const bNameInfo& nameInfo = m_Names[name];
-			return nameInfo.m_dim0*nameInfo.m_dim1;
-		}
-		int getElementSize(short type, short name)
-		{
-			const bNameInfo& nameInfo = m_Names[name];
-			int size = nameInfo.m_isPointer ? mPtrLen*nameInfo.m_dim0*nameInfo.m_dim1 : mTlens[type]*nameInfo.m_dim0*nameInfo.m_dim1;
-			return size;
-		}
+	btAlignedObjectArray<bNameInfo> m_Names;
+	btAlignedObjectArray<char *> mTypes;
+	btAlignedObjectArray<short *> mStructs;
+	btAlignedObjectArray<short> mTlens;
+	btHashMap<btHashInt, int> mStructReverse;
+	btHashMap<btHashString, int> mTypeLookup;
 
-		int	getNumNames() const
-		{
-			return m_Names.size();
-		}
+	int mPtrLen;
+};
+}  // namespace bParse
 
-		char *getName(int ind);
-		char *getType(int ind);
-		short *getStruct(int ind);
-		short getLength(int ind);
-		int getReverseType(short type);
-		int getReverseType(const char *type);
-
-
-		int getNumStructs();
-
-		//
-		bool lessThan(bDNA* other);
-
-		void initCmpFlags(bDNA *memDNA);
-		bool flagNotEqual(int dna_nr);
-		bool flagEqual(int dna_nr);
-		bool flagNone(int dna_nr);
-
-
-		int getPointerSize();
-
-		void	dumpTypeDefinitions();
-
-	
-	private:
-		enum FileDNAFlags
-		{
-			FDF_NONE=0,
-			FDF_STRUCT_NEQU,
-			FDF_STRUCT_EQU
-		};
-
-		void initRecurseCmpFlags(int i);
-
-		btAlignedObjectArray<int>			mCMPFlags;
-
-		btAlignedObjectArray<bNameInfo>			m_Names;
-		btAlignedObjectArray<char*>			mTypes;
-		btAlignedObjectArray<short*>			mStructs;
-		btAlignedObjectArray<short>			mTlens;
-		btHashMap<btHashInt, int>			mStructReverse;
-		btHashMap<btHashString,int>	mTypeLookup;
-
-		int							mPtrLen;
-		
-
-
-
-	};
-}
-
-
-#endif//__BDNA_H__
+#endif  //__BDNA_H__

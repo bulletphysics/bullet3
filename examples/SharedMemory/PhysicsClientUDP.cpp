@@ -9,9 +9,9 @@
 #include <string>
 #include "Bullet3Common/b3Logging.h"
 #include "../MultiThreading/b3ThreadSupportInterface.h"
-void	UDPThreadFunc(void* userPtr, void* lsMemory);
-void*	UDPlsMemoryFunc();
-void	UDPlsMemoryReleaseFunc(void* ptr);
+void UDPThreadFunc(void* userPtr, void* lsMemory);
+void* UDPlsMemoryFunc();
+void UDPlsMemoryReleaseFunc(void* ptr);
 
 bool gVerboseNetworkMessagesClient = false;
 
@@ -21,37 +21,30 @@ bool gVerboseNetworkMessagesClient = false;
 b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
 {
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("UDPThread",
-		UDPThreadFunc,
-		UDPlsMemoryFunc,
-		UDPlsMemoryReleaseFunc,
-		numThreads);
+																  UDPThreadFunc,
+																  UDPlsMemoryFunc,
+																  UDPlsMemoryReleaseFunc,
+																  numThreads);
 	b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport(constructionInfo);
 
 	return threadSupport;
-
 }
 
-
-#elif defined( _WIN32)
+#elif defined(_WIN32)
 #include "../MultiThreading/b3Win32ThreadSupport.h"
 
 b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
 {
-	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("UDPThread", UDPThreadFunc, UDPlsMemoryFunc,UDPlsMemoryReleaseFunc, numThreads);
+	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("UDPThread", UDPThreadFunc, UDPlsMemoryFunc, UDPlsMemoryReleaseFunc, numThreads);
 	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
 	return threadSupport;
-
 }
 #endif
-
-
 
 struct UDPThreadLocalStorage
 {
 	int threadId;
 };
-
-
 
 unsigned int b3DeserializeInt(const unsigned char* input)
 {
@@ -59,25 +52,24 @@ unsigned int b3DeserializeInt(const unsigned char* input)
 	return tmp;
 }
 
-struct	UdpNetworkedInternalData
+struct UdpNetworkedInternalData
 {
-	ENetHost*	m_client;
-	ENetAddress	m_address;
-	ENetPeer*	m_peer;
-	ENetEvent 	m_event;
-	bool		m_isConnected;
+	ENetHost* m_client;
+	ENetAddress m_address;
+	ENetPeer* m_peer;
+	ENetEvent m_event;
+	bool m_isConnected;
 
 	b3ThreadSupportInterface* m_threadSupport;
 
 	b3CriticalSection* m_cs;
 
 	UdpNetworkedInternalData* m_udpInternalData;
-	
 
 	SharedMemoryCommand m_clientCmd;
 	bool m_hasCommand;
 
-	bool		m_hasStatus;
+	bool m_hasStatus;
 	SharedMemoryStatus m_lastStatus;
 	b3AlignedObjectArray<char> m_stream;
 
@@ -86,15 +78,14 @@ struct	UdpNetworkedInternalData
 	double m_timeOutInSeconds;
 
 	UdpNetworkedInternalData()
-		:m_client(0),
-		m_peer(0),
-		m_isConnected(false),
-		m_threadSupport(0),
-		m_hasCommand(false),
-		m_hasStatus(false),
-		m_timeOutInSeconds(60)
+		: m_client(0),
+		  m_peer(0),
+		  m_isConnected(false),
+		  m_threadSupport(0),
+		  m_hasCommand(false),
+		  m_hasStatus(false),
+		  m_timeOutInSeconds(60)
 	{
-
 	}
 
 	bool connectUDP()
@@ -102,23 +93,21 @@ struct	UdpNetworkedInternalData
 		if (m_isConnected)
 			return true;
 
-
-
 		if (enet_initialize() != 0)
 		{
 			fprintf(stderr, "Error initialising enet");
-			
-			exit(EXIT_FAILURE);
 
+			exit(EXIT_FAILURE);
 		}
 
-		m_client = enet_host_create(NULL, /* create a client host */
-			1,    /* number of clients */
-			2,    /* number of channels */
-			57600 / 8,    /* incoming bandwith */
-			14400 / 8);   /* outgoing bandwith */
+		m_client = enet_host_create(NULL,       /* create a client host */
+									1,          /* number of clients */
+									2,          /* number of channels */
+									57600 / 8,  /* incoming bandwith */
+									14400 / 8); /* outgoing bandwith */
 
-		if (m_client == NULL) {
+		if (m_client == NULL)
+		{
 			fprintf(stderr, "Could not create client host");
 			return false;
 		}
@@ -127,18 +116,18 @@ struct	UdpNetworkedInternalData
 		m_address.port = m_port;
 
 		m_peer = enet_host_connect(m_client,
-			&m_address,    /* address to connect to */
-			2,           /* number of channels */
-			0);          /* user data supplied to
+								   &m_address, /* address to connect to */
+								   2,          /* number of channels */
+								   0);         /* user data supplied to
 						 the receiving host */
 
-		if (m_peer == NULL) {
-			fprintf(stderr, "No available peers for initiating an ENet "
-				"connection.\n");
+		if (m_peer == NULL)
+		{
+			fprintf(stderr,
+					"No available peers for initiating an ENet "
+					"connection.\n");
 			return false;
-
 		}
-
 
 		/* Try to connect to server within 5 seconds */
 		if (enet_host_service(m_client, &m_event, 5000) > 0 &&
@@ -157,45 +146,45 @@ struct	UdpNetworkedInternalData
 			return false;
 		}
 
-
 		int serviceResult = enet_host_service(m_client, &m_event, 0);
 
 		if (serviceResult > 0)
 		{
 			switch (m_event.type)
 			{
-			case ENET_EVENT_TYPE_CONNECT:
-				printf("A new client connected from %x:%u.\n",
-					m_event.peer->address.host,
-					m_event.peer->address.port);
-				m_event.peer->data = (void*)"New User";
-				break;
+				case ENET_EVENT_TYPE_CONNECT:
+					printf("A new client connected from %x:%u.\n",
+						   m_event.peer->address.host,
+						   m_event.peer->address.port);
+					m_event.peer->data = (void*)"New User";
+					break;
 
-			case ENET_EVENT_TYPE_RECEIVE:
-				
-				if (gVerboseNetworkMessagesClient)
-				{
-					printf("A packet of length %lu containing '%s' was "
-						"received from %s on channel %u.\n",
-						m_event.packet->dataLength,
-						(char*)m_event.packet->data,
-						(char*)m_event.peer->data,
-						m_event.channelID);
-				}
-				/* Clean up the packet now that we're done using it.
-				> */
-				enet_packet_destroy(m_event.packet);
+				case ENET_EVENT_TYPE_RECEIVE:
 
-				break;
-
-			case ENET_EVENT_TYPE_DISCONNECT:
-				printf("%s disconnected.\n", (char*)m_event.peer->data);
-
-				break;
-			default:
+					if (gVerboseNetworkMessagesClient)
 					{
-						printf("unknown event type: %d.\n", m_event.type);
+						printf(
+							"A packet of length %lu containing '%s' was "
+							"received from %s on channel %u.\n",
+							m_event.packet->dataLength,
+							(char*)m_event.packet->data,
+							(char*)m_event.peer->data,
+							m_event.channelID);
 					}
+					/* Clean up the packet now that we're done using it.
+				> */
+					enet_packet_destroy(m_event.packet);
+
+					break;
+
+				case ENET_EVENT_TYPE_DISCONNECT:
+					printf("%s disconnected.\n", (char*)m_event.peer->data);
+
+					break;
+				default:
+				{
+					printf("unknown event type: %d.\n", m_event.type);
+				}
 			}
 		}
 		else if (serviceResult > 0)
@@ -218,67 +207,66 @@ struct	UdpNetworkedInternalData
 		{
 			switch (m_event.type)
 			{
-			case ENET_EVENT_TYPE_CONNECT:
-				printf("A new client connected from %x:%u.\n",
-					m_event.peer->address.host,
-					m_event.peer->address.port);
+				case ENET_EVENT_TYPE_CONNECT:
+					printf("A new client connected from %x:%u.\n",
+						   m_event.peer->address.host,
+						   m_event.peer->address.port);
 
-				m_event.peer->data = (void*)"New User";
-				break;
+					m_event.peer->data = (void*)"New User";
+					break;
 
-			case ENET_EVENT_TYPE_RECEIVE:
-			{
-				if (gVerboseNetworkMessagesClient)
+				case ENET_EVENT_TYPE_RECEIVE:
 				{
-					printf("A packet of length %lu containing '%s' was "
-						"received from %s on channel %u.\n",
-						m_event.packet->dataLength,
-						(char*)m_event.packet->data,
-						(char*)m_event.peer->data,
-						m_event.channelID);
-				}
-
-				int packetSizeInBytes = b3DeserializeInt(m_event.packet->data);
-
-				if (packetSizeInBytes == m_event.packet->dataLength)
-				{
-
-					SharedMemoryStatus* statPtr = (SharedMemoryStatus*)&m_event.packet->data[4];
-					if (statPtr->m_type == CMD_STEP_FORWARD_SIMULATION_COMPLETED)
+					if (gVerboseNetworkMessagesClient)
 					{
-						SharedMemoryStatus dummy;
-						dummy.m_type = CMD_STEP_FORWARD_SIMULATION_COMPLETED;
-						m_lastStatus = dummy;
-						m_stream.resize(0);
+						printf(
+							"A packet of length %lu containing '%s' was "
+							"received from %s on channel %u.\n",
+							m_event.packet->dataLength,
+							(char*)m_event.packet->data,
+							(char*)m_event.peer->data,
+							m_event.channelID);
+					}
+
+					int packetSizeInBytes = b3DeserializeInt(m_event.packet->data);
+
+					if (packetSizeInBytes == m_event.packet->dataLength)
+					{
+						SharedMemoryStatus* statPtr = (SharedMemoryStatus*)&m_event.packet->data[4];
+						if (statPtr->m_type == CMD_STEP_FORWARD_SIMULATION_COMPLETED)
+						{
+							SharedMemoryStatus dummy;
+							dummy.m_type = CMD_STEP_FORWARD_SIMULATION_COMPLETED;
+							m_lastStatus = dummy;
+							m_stream.resize(0);
+						}
+						else
+						{
+							m_lastStatus = *statPtr;
+							int streamOffsetInBytes = 4 + sizeof(SharedMemoryStatus);
+							int numStreamBytes = packetSizeInBytes - streamOffsetInBytes;
+							m_stream.resize(numStreamBytes);
+							for (int i = 0; i < numStreamBytes; i++)
+							{
+								m_stream[i] = m_event.packet->data[i + streamOffsetInBytes];
+							}
+						}
 					}
 					else
 					{
-
-						m_lastStatus = *statPtr;
-						int streamOffsetInBytes = 4 + sizeof(SharedMemoryStatus);
-						int numStreamBytes = packetSizeInBytes - streamOffsetInBytes;
-						m_stream.resize(numStreamBytes);
-						for (int i = 0; i < numStreamBytes; i++)
-						{
-							m_stream[i] = m_event.packet->data[i + streamOffsetInBytes];
-						}
+						printf("unknown status message received\n");
 					}
+					enet_packet_destroy(m_event.packet);
+					hasStatus = true;
+					break;
 				}
-				else
+				case ENET_EVENT_TYPE_DISCONNECT:
 				{
-					printf("unknown status message received\n");
-				}
-				enet_packet_destroy(m_event.packet);
-				hasStatus = true;
-				break;
-			}
-			case ENET_EVENT_TYPE_DISCONNECT:
-			{
-				printf("%s disconnected.\n", (char*)m_event.peer->data);
+					printf("%s disconnected.\n", (char*)m_event.peer->data);
 
-				break;
-			}
-			default:
+					break;
+				}
+				default:
 				{
 					printf("unknown event type: %d.\n", m_event.type);
 				}
@@ -291,7 +279,6 @@ struct	UdpNetworkedInternalData
 
 		return hasStatus;
 	}
-
 };
 
 enum UDPThreadEnums
@@ -302,8 +289,6 @@ enum UDPThreadEnums
 	eUDPInitializationFailed,
 	eUDPHasTerminated
 };
-
-
 
 enum UDPCommandEnums
 {
@@ -316,23 +301,21 @@ enum UDPCommandEnums
 
 };
 
-void	UDPThreadFunc(void* userPtr, void* lsMemory)
+void UDPThreadFunc(void* userPtr, void* lsMemory)
 {
 	printf("UDPThreadFunc thread started\n");
-//	UDPThreadLocalStorage* localStorage = (UDPThreadLocalStorage*)lsMemory;
+	//	UDPThreadLocalStorage* localStorage = (UDPThreadLocalStorage*)lsMemory;
 
 	UdpNetworkedInternalData* args = (UdpNetworkedInternalData*)userPtr;
-//	int workLeft = true;
+	//	int workLeft = true;
 	b3Clock clock;
 	clock.reset();
 	bool init = true;
 	if (init)
 	{
-
 		args->m_cs->lock();
 		args->m_cs->setSharedParam(0, eUDPIsInitialized);
 		args->m_cs->unlock();
-
 
 		double deltaTimeInSeconds = 0;
 
@@ -343,7 +326,6 @@ void	UDPThreadFunc(void* userPtr, void* lsMemory)
 			deltaTimeInSeconds += double(clock.getTimeMicroseconds()) / 1000000.;
 
 			{
-			
 				clock.reset();
 				deltaTimeInSeconds = 0.f;
 				switch (args->m_cs->getSharedParam(1))
@@ -363,21 +345,19 @@ void	UDPThreadFunc(void* userPtr, void* lsMemory)
 					}
 					default:
 					{
-					}				
+					}
 				};
 
 				if (args->m_isConnected)
 				{
-
 					args->m_cs->lock();
 					bool hasCommand = args->m_hasCommand;
 					args->m_cs->unlock();
 
-
 					if (hasCommand)
 					{
 						int sz = 0;
-						ENetPacket *packet = 0;
+						ENetPacket* packet = 0;
 
 						if (args->m_clientCmd.m_type == CMD_STEP_FORWARD_SIMULATION)
 						{
@@ -396,7 +376,6 @@ void	UDPThreadFunc(void* userPtr, void* lsMemory)
 						args->m_cs->unlock();
 					}
 
-
 					bool hasNewStatus = args->checkData();
 					if (hasNewStatus)
 					{
@@ -414,7 +393,6 @@ void	UDPThreadFunc(void* userPtr, void* lsMemory)
 						}
 					}
 				}
-
 			}
 
 		} while (args->m_cs->getSharedParam(0) != eUDPRequestTerminate);
@@ -426,29 +404,20 @@ void	UDPThreadFunc(void* userPtr, void* lsMemory)
 		args->m_cs->unlock();
 	}
 
-
 	printf("finished\n");
-
 }
 
-
-
-void*	UDPlsMemoryFunc()
+void* UDPlsMemoryFunc()
 {
 	//don't create local store memory, just return 0
 	return new UDPThreadLocalStorage;
 }
 
-void	UDPlsMemoryReleaseFunc(void* ptr)
+void UDPlsMemoryReleaseFunc(void* ptr)
 {
-	UDPThreadLocalStorage* p = (UDPThreadLocalStorage*) ptr;
+	UDPThreadLocalStorage* p = (UDPThreadLocalStorage*)ptr;
 	delete p;
 }
-
-
-
-
-
 
 UdpNetworkedPhysicsProcessor::UdpNetworkedPhysicsProcessor(const char* hostName, int port)
 {
@@ -458,7 +427,6 @@ UdpNetworkedPhysicsProcessor::UdpNetworkedPhysicsProcessor(const char* hostName,
 		m_data->m_hostName = hostName;
 	}
 	m_data->m_port = port;
-
 }
 
 UdpNetworkedPhysicsProcessor::~UdpNetworkedPhysicsProcessor()
@@ -469,12 +437,12 @@ UdpNetworkedPhysicsProcessor::~UdpNetworkedPhysicsProcessor()
 
 bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
-	if(gVerboseNetworkMessagesClient)
+	if (gVerboseNetworkMessagesClient)
 	{
 		printf("PhysicsClientUDP::processCommand\n");
 	}
-//	int sz = sizeof(SharedMemoryCommand);
-	
+	//	int sz = sizeof(SharedMemoryCommand);
+
 	b3Clock clock;
 	double startTime = clock.getTimeInSeconds();
 	double timeOutInSeconds = m_data->m_timeOutInSeconds;
@@ -484,7 +452,7 @@ bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 	m_data->m_hasCommand = true;
 	m_data->m_cs->unlock();
 
-	while ((m_data->m_hasCommand) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
+	while ((m_data->m_hasCommand) && (clock.getTimeInSeconds() - startTime < timeOutInSeconds))
 	{
 		b3Clock::usleep(0);
 	}
@@ -542,17 +510,14 @@ bool UdpNetworkedPhysicsProcessor::receiveStatus(struct SharedMemoryStatus& serv
 		m_data->m_cs->unlock();
 	}
 
-	
 	return hasStatus;
-
 }
-
 
 void UdpNetworkedPhysicsProcessor::renderScene(int renderFlags)
 {
 }
 
-void   UdpNetworkedPhysicsProcessor::physicsDebugDraw(int debugDrawFlags)
+void UdpNetworkedPhysicsProcessor::physicsDebugDraw(int debugDrawFlags)
 {
 }
 
@@ -565,16 +530,15 @@ bool UdpNetworkedPhysicsProcessor::isConnected() const
 	return m_data->m_isConnected;
 }
 
-
 bool UdpNetworkedPhysicsProcessor::connect()
 {
-	if (m_data->m_threadSupport==0)
+	if (m_data->m_threadSupport == 0)
 	{
 		m_data->m_threadSupport = createUDPThreadSupport(1);
-	
+
 		m_data->m_cs = m_data->m_threadSupport->createCriticalSection();
 		m_data->m_cs->setSharedParam(0, eUDPIsUnInitialized);
-		m_data->m_threadSupport->runTask(B3_THREAD_SCHEDULE_TASK, (void*) m_data, 0);
+		m_data->m_threadSupport->runTask(B3_THREAD_SCHEDULE_TASK, (void*)m_data, 0);
 
 		while (m_data->m_cs->getSharedParam(0) == eUDPIsUnInitialized)
 		{
@@ -589,7 +553,6 @@ bool UdpNetworkedPhysicsProcessor::connect()
 		{
 			b3Clock::usleep(1000);
 		}
-
 	}
 	unsigned int sharedParam = m_data->m_cs->getSharedParam(1);
 	bool isConnected = (sharedParam == eUDP_Connected);
@@ -626,9 +589,6 @@ void UdpNetworkedPhysicsProcessor::disconnect()
 		m_data->m_threadSupport = 0;
 		m_data->m_isConnected = false;
 	}
-
-
-
 }
 
 void UdpNetworkedPhysicsProcessor::setTimeOut(double timeOutInSeconds)

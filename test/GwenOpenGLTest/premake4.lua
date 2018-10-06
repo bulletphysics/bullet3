@@ -41,6 +41,7 @@
  		"../../examples/OpenGLWindow/opengl_fontstashcallbacks.h",
 		"../../examples/Utils/b3Clock.cpp",
 		"../../examples/Utils/b3Clock.h",
+		"../../examples/ThirdPartyLibs/stb_image/stb_image_write.cpp",
 		"**.cpp",
 		"**.h",
 	}

@@ -18,10 +18,9 @@ subject to the following restrictions:
 
 enum KukaGraspExampleOptions
 {
-	eKUKA_GRASP_DLS_IK=1,
+	eKUKA_GRASP_DLS_IK = 1,
 };
 
-class CommonExampleInterface*    KukaGraspExampleCreateFunc(struct CommonExampleOptions& options);
+class CommonExampleInterface* KukaGraspExampleCreateFunc(struct CommonExampleOptions& options);
 
-
-#endif //KUKA_GRASP_EXAMPLE_H
+#endif  //KUKA_GRASP_EXAMPLE_H

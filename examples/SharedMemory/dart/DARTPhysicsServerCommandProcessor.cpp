@@ -1,13 +1,11 @@
 #include "DARTPhysicsServerCommandProcessor.h"
 
-
 DARTPhysicsServerCommandProcessor::DARTPhysicsServerCommandProcessor()
 {
 }
-	
+
 DARTPhysicsServerCommandProcessor::~DARTPhysicsServerCommandProcessor()
 {
-
 }
 
 bool DARTPhysicsServerCommandProcessor::connect()
@@ -17,7 +15,6 @@ bool DARTPhysicsServerCommandProcessor::connect()
 
 void DARTPhysicsServerCommandProcessor::disconnect()
 {
-	
 }
 
 bool DARTPhysicsServerCommandProcessor::isConnected() const
@@ -34,6 +31,3 @@ bool DARTPhysicsServerCommandProcessor::receiveStatus(struct SharedMemoryStatus&
 {
 	return false;
 }
-
-	
-

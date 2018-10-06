@@ -3,9 +3,9 @@
 
 enum EnumMultiThreadingExampleTypes
 {
-	SINGLE_SIM_THREAD=0,
+	SINGLE_SIM_THREAD = 0,
 };
 
-class	CommonExampleInterface*    MultiThreadingExampleCreateFunc(struct CommonExampleOptions& options);
+class CommonExampleInterface* MultiThreadingExampleCreateFunc(struct CommonExampleOptions& options);
 
-#endif //MULTI_THREADING_EXAMPLE_H
+#endif  //MULTI_THREADING_EXAMPLE_H

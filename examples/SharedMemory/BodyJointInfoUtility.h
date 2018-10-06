@@ -5,9 +5,9 @@
 
 namespace Bullet
 {
-	class btMultiBodyDoubleData;
-	class btMultiBodyFloatData;
-};
+class btMultiBodyDoubleData;
+class btMultiBodyFloatData;
+};  // namespace Bullet
 
 inline char* strDup(const char* const str)
 {
@@ -18,11 +18,12 @@ inline char* strDup(const char* const str)
 #endif
 }
 
-template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb, U* bodyJoints, bool verboseOutput)
+template <typename T, typename U>
+void addJointInfoFromMultiBodyData(const T* mb, U* bodyJoints, bool verboseOutput)
 {
-	if (mb->m_baseName) 
+	if (mb->m_baseName)
 	{
-		if (verboseOutput) 
+		if (verboseOutput)
 		{
 			b3Printf("mb->m_baseName = %s\n", mb->m_baseName);
 		}
@@ -30,7 +31,7 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 	int qOffset = 7;
 	int uOffset = 6;
 
-	for (int link = 0; link < mb->m_numLinks; link++) 
+	for (int link = 0; link < mb->m_numLinks; link++)
 	{
 		{
 			b3JointInfo info;
@@ -43,20 +44,23 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 			info.m_uIndex =
 				(0 < mb->m_links[link].m_dofCount) ? uOffset : -1;
 
-			if (mb->m_links[link].m_linkName) {
-				if (verboseOutput) {
+			if (mb->m_links[link].m_linkName)
+			{
+				if (verboseOutput)
+				{
 					b3Printf("mb->m_links[%d].m_linkName = %s\n", link,
-								mb->m_links[link].m_linkName);
+							 mb->m_links[link].m_linkName);
 				}
-				strcpy(info.m_linkName,mb->m_links[link].m_linkName);
-				
+				strcpy(info.m_linkName, mb->m_links[link].m_linkName);
 			}
-			if (mb->m_links[link].m_jointName) {
-				if (verboseOutput) {
+			if (mb->m_links[link].m_jointName)
+			{
+				if (verboseOutput)
+				{
 					b3Printf("mb->m_links[%d].m_jointName = %s\n", link,
-								mb->m_links[link].m_jointName);
+							 mb->m_links[link].m_jointName);
 				}
-				strcpy(info.m_jointName,mb->m_links[link].m_jointName);
+				strcpy(info.m_jointName, mb->m_links[link].m_jointName);
 				//info.m_jointName = strDup(mb->m_links[link].m_jointName);
 			}
 
@@ -67,7 +71,7 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 			info.m_jointUpperLimit = mb->m_links[link].m_jointUpperLimit;
 			info.m_jointMaxForce = mb->m_links[link].m_jointMaxForce;
 			info.m_jointMaxVelocity = mb->m_links[link].m_jointMaxVelocity;
-			
+
 			info.m_parentFrame[0] = mb->m_links[link].m_parentComToThisPivotOffset.m_floats[0];
 			info.m_parentFrame[1] = mb->m_links[link].m_parentComToThisPivotOffset.m_floats[1];
 			info.m_parentFrame[2] = mb->m_links[link].m_parentComToThisPivotOffset.m_floats[2];
@@ -95,7 +99,8 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 			}
 
 			if ((mb->m_links[link].m_jointType == eRevoluteType) ||
-				(mb->m_links[link].m_jointType == ePrismaticType)) {
+				(mb->m_links[link].m_jointType == ePrismaticType))
+			{
 				info.m_flags |= JOINT_HAS_MOTORIZED_POWER;
 			}
 			bodyJoints->m_jointInfo.push_back(info);
@@ -103,9 +108,6 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 		qOffset += mb->m_links[link].m_posVarCount;
 		uOffset += mb->m_links[link].m_dofCount;
 	}
-	
 }
 
-
-
-#endif //BODY_JOINT_INFO_UTILITY_H
+#endif  //BODY_JOINT_INFO_UTILITY_H

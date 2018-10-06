@@ -16,15 +16,15 @@ subject to the following restrictions:
 #ifndef SPHERE_SPHERE_COLLISION_H
 #define SPHERE_SPHERE_COLLISION_H
 
-#include "LinearMath/btTransform.h" // Note that btVector3 might be double precision...
+#include "LinearMath/btTransform.h"  // Note that btVector3 might be double precision...
 #include "btDistanceInfo.h"
 
 struct btSphereSphereCollisionDescription
 {
-    btTransform m_sphereTransformA;
-    btTransform m_sphereTransformB;
-    btScalar    m_radiusA;
-    btScalar    m_radiusB;
+	btTransform m_sphereTransformA;
+	btTransform m_sphereTransformB;
+	btScalar m_radiusA;
+	btScalar m_radiusB;
 };
 
 ///compute the distance between two spheres, where the distance is zero when the spheres are touching
@@ -32,26 +32,23 @@ struct btSphereSphereCollisionDescription
 ///point A and pointB are witness points, and normalOnB points from sphere B to sphere A
 inline int btComputeSphereSphereCollision(const btSphereSphereCollisionDescription& input, btDistanceInfo* distInfo)
 {
+	btVector3 diff = input.m_sphereTransformA.getOrigin() - input.m_sphereTransformB.getOrigin();
+	btScalar len = diff.length();
+	btScalar radiusA = input.m_radiusA;
+	btScalar radiusB = input.m_radiusB;
 
-    btVector3 diff = input.m_sphereTransformA.getOrigin()-  input.m_sphereTransformB.getOrigin();
-    btScalar len = diff.length();
-    btScalar radiusA = input.m_radiusA;
-    btScalar radiusB = input.m_radiusB;
-    
-    ///distance (negative means penetration)
-    btScalar dist = len - (radiusA+radiusB);
-    btVector3 normalOnSurfaceB(1,0,0);
-    if (len > SIMD_EPSILON)
-    {
-        normalOnSurfaceB = diff / len;
-    }
-    distInfo->m_distance = dist;
-    distInfo->m_normalBtoA = normalOnSurfaceB;
-    distInfo->m_pointOnA = input.m_sphereTransformA.getOrigin()-input.m_radiusA*normalOnSurfaceB;
-    distInfo->m_pointOnB = input.m_sphereTransformB.getOrigin()+input.m_radiusB*normalOnSurfaceB;
-    return 0;//sphere-sphere cannot fail
+	///distance (negative means penetration)
+	btScalar dist = len - (radiusA + radiusB);
+	btVector3 normalOnSurfaceB(1, 0, 0);
+	if (len > SIMD_EPSILON)
+	{
+		normalOnSurfaceB = diff / len;
+	}
+	distInfo->m_distance = dist;
+	distInfo->m_normalBtoA = normalOnSurfaceB;
+	distInfo->m_pointOnA = input.m_sphereTransformA.getOrigin() - input.m_radiusA * normalOnSurfaceB;
+	distInfo->m_pointOnB = input.m_sphereTransformB.getOrigin() + input.m_radiusB * normalOnSurfaceB;
+	return 0;  //sphere-sphere cannot fail
 }
 
-#endif //SPHERE_SPHERE_COLLISION_H
-
-
+#endif  //SPHERE_SPHERE_COLLISION_H

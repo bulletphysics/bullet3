@@ -18,18 +18,14 @@ struct Bullet2CommandProcessorCreation : public CommandProcessorCreationInterfac
 	}
 };
 
-
 static Bullet2CommandProcessorCreation sBullet2CommandCreator;
 
-CommonExampleInterface*    PhysicsServerCreateFuncBullet2(struct CommonExampleOptions& options)
+CommonExampleInterface* PhysicsServerCreateFuncBullet2(struct CommonExampleOptions& options)
 {
 	options.m_commandProcessorCreation = &sBullet2CommandCreator;
-	
+
 	CommonExampleInterface* example = PhysicsServerCreateFuncInternal(options);
 	return example;
-
 }
 
 B3_STANDALONE_EXAMPLE(PhysicsServerCreateFuncBullet2)
-
-

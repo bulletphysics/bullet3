@@ -4,7 +4,6 @@
 	See license in Gwen.h
 */
 
-
 #include "Gwen/Gwen.h"
 #include "Gwen/Controls/Menu.h"
 #include "Gwen/Skin.h"
@@ -13,107 +12,102 @@
 using namespace Gwen;
 using namespace Gwen::Controls;
 
-
-
-
-GWEN_CONTROL_CONSTRUCTOR( Menu )
+GWEN_CONTROL_CONSTRUCTOR(Menu)
 {
-	SetBounds( 0, 0, 10, 10 );
-	SetPadding( Padding( 2, 2, 2, 2 ) );
+	SetBounds(0, 0, 10, 10);
+	SetPadding(Padding(2, 2, 2, 2));
 
-	SetDisableIconMargin( false );
+	SetDisableIconMargin(false);
 
-	SetAutoHideBars( true );
-	SetScroll( false, true );
+	SetAutoHideBars(true);
+	SetScroll(false, true);
 }
 
-
-void Menu::Render( Skin::Base* skin )
+void Menu::Render(Skin::Base* skin)
 {
-	skin->DrawMenu( this, IconMarginDisabled() );
+	skin->DrawMenu(this, IconMarginDisabled());
 }
 
-void Menu::RenderUnder( Skin::Base* skin )
+void Menu::RenderUnder(Skin::Base* skin)
 {
-	BaseClass::RenderUnder( skin );
-	skin->DrawShadow( this );
+	BaseClass::RenderUnder(skin);
+	skin->DrawShadow(this);
 }
 
-void Menu::Layout( Skin::Base* skin )
+void Menu::Layout(Skin::Base* skin)
 {
 	int childrenHeight = 0;
-	for ( Base::List::iterator it = m_InnerPanel->Children.begin(); it != m_InnerPanel->Children.end(); ++it )
+	for (Base::List::iterator it = m_InnerPanel->Children.begin(); it != m_InnerPanel->Children.end(); ++it)
 	{
 		Base* pChild = (*it);
-		if ( !pChild )
+		if (!pChild)
 			continue;
 
 		childrenHeight += pChild->Height();
 	}
 
-	if ( Y() + childrenHeight > GetCanvas()->Height() )
+	if (Y() + childrenHeight > GetCanvas()->Height())
 		childrenHeight = GetCanvas()->Height() - Y();
 
-	SetSize( Width(), childrenHeight );
+	SetSize(Width(), childrenHeight);
 
-	BaseClass::Layout( skin );
+	BaseClass::Layout(skin);
 }
 
-MenuItem* Menu::AddItem( const Gwen::UnicodeString& strName, const UnicodeString& strIconName, Gwen::Event::Handler* pHandler, Gwen::Event::Handler::Function fn )
+MenuItem* Menu::AddItem(const Gwen::UnicodeString& strName, const UnicodeString& strIconName, Gwen::Event::Handler* pHandler, Gwen::Event::Handler::Function fn)
 {
-	MenuItem* pItem = new MenuItem( this );
-		pItem->SetText( strName );
-		pItem->SetImage( strIconName );
+	MenuItem* pItem = new MenuItem(this);
+	pItem->SetText(strName);
+	pItem->SetImage(strIconName);
 
-		if ( fn && pHandler )
-		{
-			pItem->onMenuItemSelected.Add( pHandler, fn );
-		}
-		
-		OnAddItem( pItem );
+	if (fn && pHandler)
+	{
+		pItem->onMenuItemSelected.Add(pHandler, fn);
+	}
+
+	OnAddItem(pItem);
 
 	return pItem;
 }
 
-void Menu::OnAddItem( MenuItem* item )
+void Menu::OnAddItem(MenuItem* item)
 {
-	item->Dock( Pos::Top );
-	item->SetTextPadding( Padding( IconMarginDisabled() ? 0 : 24, 0, 16, 0 ) );
-	item->SetPadding( Padding( 4, 4, 4, 4 ) );
+	item->Dock(Pos::Top);
+	item->SetTextPadding(Padding(IconMarginDisabled() ? 0 : 24, 0, 16, 0));
+	item->SetPadding(Padding(4, 4, 4, 4));
 	item->SizeToContents();
-	item->SetAlignment( Pos::CenterV | Pos::Left );
-	item->onHoverEnter.Add( this, &Menu::OnHoverItem );
+	item->SetAlignment(Pos::CenterV | Pos::Left);
+	item->onHoverEnter.Add(this, &Menu::OnHoverItem);
 
 	// Do this here - after Top Docking these values mean nothing in layout
 	int w = item->Width() + 10 + 32;
-	if ( w < Width() ) w = Width();
-	SetSize( w, Height() );
+	if (w < Width()) w = Width();
+	SetSize(w, Height());
 }
 
 void Menu::ClearItems()
 {
-	for ( Base::List::iterator it = m_InnerPanel->Children.begin(); it != m_InnerPanel->Children.end(); ++it )
+	for (Base::List::iterator it = m_InnerPanel->Children.begin(); it != m_InnerPanel->Children.end(); ++it)
 	{
 		Base* pChild = *it;
 
-		if ( !pChild ) continue;
+		if (!pChild) continue;
 		pChild->DelayedDelete();
 	}
 }
 
-MenuItem* Menu::AddItem( const Gwen::String& strName, const String& strIconName, Gwen::Event::Handler* pHandler, Gwen::Event::Handler::Function fn )
+MenuItem* Menu::AddItem(const Gwen::String& strName, const String& strIconName, Gwen::Event::Handler* pHandler, Gwen::Event::Handler::Function fn)
 {
-	return AddItem( Gwen::Utility::StringToUnicode( strName ), Gwen::Utility::StringToUnicode( strIconName ), pHandler, fn );
+	return AddItem(Gwen::Utility::StringToUnicode(strName), Gwen::Utility::StringToUnicode(strIconName), pHandler, fn);
 }
-
 
 void Menu::CloseAll()
 {
-	for ( Base::List::iterator it = m_InnerPanel->Children.begin(); it != m_InnerPanel->Children.end(); ++it )
+	for (Base::List::iterator it = m_InnerPanel->Children.begin(); it != m_InnerPanel->Children.end(); ++it)
 	{
 		Base* pChild = *it;
 		MenuItem* pItem = pChild->DynamicCastMenuItem();
-		if ( !pItem ) continue;
+		if (!pItem) continue;
 
 		pItem->CloseMenu();
 	}
@@ -121,26 +115,26 @@ void Menu::CloseAll()
 
 bool Menu::IsMenuOpen()
 {
-	for ( Base::List::iterator it = m_InnerPanel->Children.begin(); it != m_InnerPanel->Children.end(); ++it )
+	for (Base::List::iterator it = m_InnerPanel->Children.begin(); it != m_InnerPanel->Children.end(); ++it)
 	{
 		Base* pChild = *it;
 		MenuItem* pItem = pChild->DynamicCastMenuItem();
-		if ( !pItem ) continue;
+		if (!pItem) continue;
 
-		if ( pItem->IsMenuOpen() )
+		if (pItem->IsMenuOpen())
 			return true;
 	}
 
 	return false;
 }
 
-void Menu::OnHoverItem( Gwen::Controls::Base* pControl )
+void Menu::OnHoverItem(Gwen::Controls::Base* pControl)
 {
-	if ( !ShouldHoverOpenMenu() ) return;
+	if (!ShouldHoverOpenMenu()) return;
 
 	MenuItem* pItem = pControl->DynamicCastMenuItem();
 	if (!pItem) return;
-	if ( pItem->IsMenuOpen() ) return;
+	if (pItem->IsMenuOpen()) return;
 
 	CloseAll();
 	pItem->OpenMenu();
@@ -148,7 +142,7 @@ void Menu::OnHoverItem( Gwen::Controls::Base* pControl )
 
 void Menu::Close()
 {
-	SetHidden( true );
+	SetHidden(true);
 }
 
 void Menu::CloseMenus()
@@ -161,12 +155,12 @@ void Menu::CloseMenus()
 
 void Menu::AddDivider()
 {
-	MenuDivider* divider = new MenuDivider( this );
-	divider->Dock( Pos::Top );
-	divider->SetMargin( Margin( IconMarginDisabled() ? 0 : 24, 0, 4, 0 ) );
+	MenuDivider* divider = new MenuDivider(this);
+	divider->Dock(Pos::Top);
+	divider->SetMargin(Margin(IconMarginDisabled() ? 0 : 24, 0, 4, 0));
 }
 
-void MenuDivider::Render( Gwen::Skin::Base* skin )
+void MenuDivider::Render(Gwen::Skin::Base* skin)
 {
-	skin->DrawMenuDivider( this );
+	skin->DrawMenuDivider(this);
 }

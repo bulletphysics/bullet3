@@ -4,7 +4,6 @@
 	See license in Gwen.h
 */
 
-
 #include "Gwen/Gwen.h"
 #include "Gwen/Skin.h"
 #include "Gwen/Controls/DockedTabControl.h"
@@ -15,51 +14,50 @@
 using namespace Gwen;
 using namespace Gwen::Controls;
 
-GWEN_CONTROL_CONSTRUCTOR( DockedTabControl )
+GWEN_CONTROL_CONSTRUCTOR(DockedTabControl)
 {
 	m_WindowControl = NULL;
 
-	Dock( Pos::Fill );
+	Dock(Pos::Fill);
 
-	m_pTitleBar = new TabTitleBar( this );
-	m_pTitleBar->Dock( Pos::Top );
-	m_pTitleBar->SetHidden( true );
-
+	m_pTitleBar = new TabTitleBar(this);
+	m_pTitleBar->Dock(Pos::Top);
+	m_pTitleBar->SetHidden(true);
 }
 
-void DockedTabControl::Layout( Skin::Base* skin )
+void DockedTabControl::Layout(Skin::Base* skin)
 {
-	GetTabStrip()->SetHidden( TabCount() <= 1 );
+	GetTabStrip()->SetHidden(TabCount() <= 1);
 	UpdateTitleBar();
-	BaseClass::Layout( skin );
+	BaseClass::Layout(skin);
 }
 
 void DockedTabControl::UpdateTitleBar()
-{	
-	if ( !GetCurrentButton() ) return;
+{
+	if (!GetCurrentButton()) return;
 
-	m_pTitleBar->UpdateFromTab( GetCurrentButton() );
+	m_pTitleBar->UpdateFromTab(GetCurrentButton());
 }
 
-void DockedTabControl::DragAndDrop_StartDragging( Gwen::DragAndDrop::Package* pPackage, int x, int y )
+void DockedTabControl::DragAndDrop_StartDragging(Gwen::DragAndDrop::Package* pPackage, int x, int y)
 {
-	BaseClass::DragAndDrop_StartDragging( pPackage, x, y );
+	BaseClass::DragAndDrop_StartDragging(pPackage, x, y);
 
-	SetHidden( true );
+	SetHidden(true);
 	// This hiding our parent thing is kind of lousy.
-	GetParent()->SetHidden( true );
+	GetParent()->SetHidden(true);
 }
 
-void DockedTabControl::DragAndDrop_EndDragging( bool bSuccess, int /*x*/, int /*y*/ )
+void DockedTabControl::DragAndDrop_EndDragging(bool bSuccess, int /*x*/, int /*y*/)
 {
-	SetHidden( false );
+	SetHidden(false);
 
-	if ( !bSuccess )
+	if (!bSuccess)
 	{
-		GetParent()->SetHidden( false );
+		GetParent()->SetHidden(false);
 	}
 
-/*
+	/*
 	if ( !bSuccess )
 	{
 		// Create our window control
@@ -77,15 +75,15 @@ void DockedTabControl::DragAndDrop_EndDragging( bool bSuccess, int /*x*/, int /*
 	*/
 }
 
-void DockedTabControl::MoveTabsTo( DockedTabControl* pTarget )
+void DockedTabControl::MoveTabsTo(DockedTabControl* pTarget)
 {
 	Base::List Children = GetTabStrip()->Children;
 	for (Base::List::iterator iter = Children.begin(); iter != Children.end(); ++iter)
 	{
 		TabButton* pButton = (*iter)->DynamicCastTabButton();
-		if ( !pButton ) continue;
+		if (!pButton) continue;
 
-		pTarget->AddPage( pButton );
+		pTarget->AddPage(pButton);
 	}
 
 	Invalidate();

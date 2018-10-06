@@ -10,51 +10,47 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/BaseRender.h"
 
-namespace Gwen 
+namespace Gwen
 {
-	namespace Renderer 
+namespace Renderer
+{
+class OpenGL : public Gwen::Renderer::Base
+{
+public:
+	struct Vertex
 	{
+		float x, y, z;
+		float u, v;
+		unsigned char r, g, b, a;
+	};
 
-		class OpenGL : public Gwen::Renderer::Base
-		{
-			public:
+	OpenGL();
+	~OpenGL();
 
-				struct Vertex
-				{
-					float x, y, z;
-					float u, v;
-					unsigned char r, g, b, a;
-				};
+	virtual void Begin();
+	virtual void End();
 
-				OpenGL();
-				~OpenGL();
+	virtual void SetDrawColor(Gwen::Color color);
+	virtual void DrawFilledRect(Gwen::Rect rect);
 
-				virtual void Begin();
-				virtual void End();
+	void StartClip();
+	void EndClip();
 
-				virtual void SetDrawColor( Gwen::Color color );
-				virtual void DrawFilledRect( Gwen::Rect rect );
+	void DrawTexturedRect(Gwen::Texture* pTexture, Gwen::Rect pTargetRect, float u1 = 0.0f, float v1 = 0.0f, float u2 = 1.0f, float v2 = 1.0f);
+	void LoadTexture(Gwen::Texture* pTexture);
+	void FreeTexture(Gwen::Texture* pTexture);
 
-				void StartClip();
-				void EndClip();
+protected:
+	static const int MaxVerts = 1024;
 
-				void DrawTexturedRect( Gwen::Texture* pTexture, Gwen::Rect pTargetRect, float u1=0.0f, float v1=0.0f, float u2=1.0f, float v2=1.0f );
-				void LoadTexture( Gwen::Texture* pTexture );
-				void FreeTexture( Gwen::Texture* pTexture );
+	void Flush();
+	void AddVert(int x, int y, float u = 0.0f, float v = 0.0f);
 
-			protected:
+	Gwen::Color m_Color;
+	int m_iVertNum;
+	Vertex m_Vertices[MaxVerts];
+};
 
-				static const int	MaxVerts = 1024;
-
-
-				void Flush();
-				void AddVert( int x, int y, float u = 0.0f , float v = 0.0f );
-
-				Gwen::Color			m_Color;
-				int					m_iVertNum;
-				Vertex				m_Vertices[ MaxVerts ];
-		};
-
-	}
-}
+}  // namespace Renderer
+}  // namespace Gwen
 #endif

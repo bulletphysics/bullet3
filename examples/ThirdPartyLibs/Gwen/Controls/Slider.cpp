@@ -4,7 +4,6 @@
 	See license in Gwen.h
 */
 
-
 #include <math.h>
 #include "Gwen/Controls/Slider.h"
 
@@ -12,24 +11,23 @@ using namespace Gwen;
 using namespace Gwen::Controls;
 using namespace Gwen::ControlsInternal;
 
-GWEN_CONTROL_CONSTRUCTOR( SliderBar )
+GWEN_CONTROL_CONSTRUCTOR(SliderBar)
 {
-	SetTarget( this );
-	RestrictToParent( true );
+	SetTarget(this);
+	RestrictToParent(true);
 }
 
-void SliderBar::Render( Skin::Base* skin )
+void SliderBar::Render(Skin::Base* skin)
 {
-	skin->DrawButton( this, m_bDepressed, IsHovered() );
+	skin->DrawButton(this, m_bDepressed, IsHovered());
 }
 
-
-Slider::Slider( Controls::Base* pParent ) : BaseClass( pParent )
+Slider::Slider(Controls::Base* pParent) : BaseClass(pParent)
 {
-	SetBounds( Gwen::Rect( 0, 0, 32, 128) );
+	SetBounds(Gwen::Rect(0, 0, 32, 128));
 
-	m_SliderBar = new SliderBar( this );
-	m_SliderBar->onDragged.Add( this, &Slider::OnMoved );
+	m_SliderBar = new SliderBar(this);
+	m_SliderBar->onDragged.Add(this, &Slider::OnMoved);
 
 	m_fMin = 0.0f;
 	m_fMax = 1.0f;
@@ -38,18 +36,17 @@ Slider::Slider( Controls::Base* pParent ) : BaseClass( pParent )
 	m_iNumNotches = 5;
 	m_fValue = 0.0f;
 
-	SetTabable( true );
-
+	SetTabable(true);
 }
 
-void Slider::OnMoved( Controls::Base * /*control*/ )
+void Slider::OnMoved(Controls::Base* /*control*/)
 {
-	SetValueInternal( CalculateValue() );
+	SetValueInternal(CalculateValue());
 }
 
-void Slider::Layout( Skin::Base* skin )
+void Slider::Layout(Skin::Base* skin)
 {
-	BaseClass::Layout( skin );
+	BaseClass::Layout(skin);
 }
 
 float Slider::CalculateValue()
@@ -57,31 +54,31 @@ float Slider::CalculateValue()
 	return 0;
 }
 
-void Slider::SetValue( float val, bool /*forceUpdate*/ ) 
+void Slider::SetValue(float val, bool /*forceUpdate*/)
 {
 	if (val < m_fMin) val = m_fMin;
 	if (val > m_fMax) val = m_fMax;
 	// Normalize Value
 	val = (val - m_fMin) / (m_fMax - m_fMin);
-	SetValueInternal( val );
+	SetValueInternal(val);
 	Redraw();
 }
 
-void Slider::SetValueInternal( float val )
+void Slider::SetValueInternal(float val)
 {
-	if ( m_bClampToNotches )
+	if (m_bClampToNotches)
 	{
-		val = floor( (val * (float)m_iNumNotches) + 0.5f );
-		val /= (float) m_iNumNotches;
+		val = floor((val * (float)m_iNumNotches) + 0.5f);
+		val /= (float)m_iNumNotches;
 	}
 
-	if ( m_fValue != val )
+	if (m_fValue != val)
 	{
 		m_fValue = val;
-		onValueChanged.Call( this );
+		onValueChanged.Call(this);
 	}
 
-	UpdateBarFromValue();	
+	UpdateBarFromValue();
 }
 
 float Slider::GetValue()
@@ -89,16 +86,16 @@ float Slider::GetValue()
 	return m_fMin + (m_fValue * (m_fMax - m_fMin));
 }
 
-void Slider::SetRange( float fMin, float fMax )
+void Slider::SetRange(float fMin, float fMax)
 {
 	m_fMin = fMin;
 	m_fMax = fMax;
 }
 
-void Slider::RenderFocus( Gwen::Skin::Base* skin )
+void Slider::RenderFocus(Gwen::Skin::Base* skin)
 {
-	if ( Gwen::KeyboardFocus != this ) return;
-	if ( !IsTabable() ) return;
+	if (Gwen::KeyboardFocus != this) return;
+	if (!IsTabable()) return;
 
-	skin->DrawKeyboardHighlight( this, GetRenderBounds(), 0 );
+	skin->DrawKeyboardHighlight(this, GetRenderBounds(), 0);
 }

@@ -17,7 +17,6 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-
 	/* Bind the server to the default localhost.     */
 	/* A specific host address can be specified by   */
 	/* enet_address_set_host (& address, "x.x.x.x"); */
@@ -26,17 +25,16 @@ int main(int argc, char *argv[])
 	address.port = 1234;
 
 	server = enet_host_create(&address,
-		32,   /* number of clients */
-		2,    /* number of channels */
-		0,    /* Any incoming bandwith */
-		0);   /* Any outgoing bandwith */
+							  32, /* number of clients */
+							  2,  /* number of channels */
+							  0,  /* Any incoming bandwith */
+							  0); /* Any outgoing bandwith */
 
 	if (server == NULL)
 	{
 		puts("Could not create server host");
 		exit(EXIT_FAILURE);
 	}
-
 
 	while (true)
 	{
@@ -50,42 +48,42 @@ int main(int argc, char *argv[])
 
 			if (serviceResult > 0)
 			{
-
 				switch (event.type)
 				{
-				case ENET_EVENT_TYPE_CONNECT:
-					printf("A new client connected from %x:%u.\n",
-						event.peer->address.host,
-						event.peer->address.port);
+					case ENET_EVENT_TYPE_CONNECT:
+						printf("A new client connected from %x:%u.\n",
+							   event.peer->address.host,
+							   event.peer->address.port);
 
-					/* Store any relevant client information here. */
-					event.peer->data = (void*)"Client information";
+						/* Store any relevant client information here. */
+						event.peer->data = (void *)"Client information";
 
-					break;
+						break;
 
-				case ENET_EVENT_TYPE_RECEIVE:
-					printf("A packet of length %lu containing '%s' was "
-						"received from %s on channel %u.\n",
-						event.packet->dataLength,
-						event.packet->data,
-						event.peer->data,
-						event.channelID);
+					case ENET_EVENT_TYPE_RECEIVE:
+						printf(
+							"A packet of length %lu containing '%s' was "
+							"received from %s on channel %u.\n",
+							event.packet->dataLength,
+							event.packet->data,
+							event.peer->data,
+							event.channelID);
 
-					/* Tell all clients about this message */
-					enet_host_broadcast(server, 0, event.packet);
+						/* Tell all clients about this message */
+						enet_host_broadcast(server, 0, event.packet);
 
-					break;
+						break;
 
-				case ENET_EVENT_TYPE_DISCONNECT:
-					printf("%s disconnected.\n", event.peer->data);
+					case ENET_EVENT_TYPE_DISCONNECT:
+						printf("%s disconnected.\n", event.peer->data);
 
-					/* Reset the peer's client information. */
+						/* Reset the peer's client information. */
 
-					event.peer->data = NULL;
+						event.peer->data = NULL;
 
-					break;
-				case ENET_EVENT_TYPE_NONE:
-					break;
+						break;
+					case ENET_EVENT_TYPE_NONE:
+						break;
 				}
 			}
 			else if (serviceResult > 0)
@@ -94,12 +92,10 @@ int main(int argc, char *argv[])
 				exit(EXIT_FAILURE);
 			}
 		}
-
 	}
 
 	enet_host_destroy(server);
 	enet_deinitialize();
 
 	return 0;
-
 }

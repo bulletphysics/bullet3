@@ -10,27 +10,25 @@
 
 #include "Gwen/Controls/Button.h"
 
-namespace Gwen 
+namespace Gwen
 {
-	namespace ControlsInternal
-	{
-		class GWEN_EXPORT ScrollBarButton : public Controls::Button
-		{
-			public:
+namespace ControlsInternal
+{
+class GWEN_EXPORT ScrollBarButton : public Controls::Button
+{
+public:
+	GWEN_CONTROL(ScrollBarButton, Controls::Button);
 
-				GWEN_CONTROL( ScrollBarButton, Controls::Button );
+	void Render(Skin::Base* skin);
 
-				void Render( Skin::Base* skin );
+	void SetDirectionUp();
+	void SetDirectionDown();
+	void SetDirectionLeft();
+	void SetDirectionRight();
 
-				void SetDirectionUp();
-				void SetDirectionDown();
-				void SetDirectionLeft();
-				void SetDirectionRight();
-
-			protected:
-
-				int m_iDirection;
-		};
-	}
-}
+protected:
+	int m_iDirection;
+};
+}  // namespace ControlsInternal
+}  // namespace Gwen
 #endif

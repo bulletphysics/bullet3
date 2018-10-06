@@ -13,7 +13,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #ifndef BT_CONVEX_CAST_H
 #define BT_CONVEX_CAST_H
 
@@ -27,47 +26,46 @@ class btMinkowskiSumShape;
 class btConvexCast
 {
 public:
-
-
 	virtual ~btConvexCast();
 
 	///RayResult stores the closest result
 	/// alternatively, add a callback method to decide about closest/all results
-	struct	CastResult
+	struct CastResult
 	{
 		//virtual bool	addRayResult(const btVector3& normal,btScalar	fraction) = 0;
-				
-		virtual void	DebugDraw(btScalar	fraction) {(void)fraction;}
-		virtual void	drawCoordSystem(const btTransform& trans) {(void)trans;}
-		virtual void	reportFailure(int errNo, int numIterations) {(void)errNo;(void)numIterations;}
+
+		virtual void DebugDraw(btScalar fraction) { (void)fraction; }
+		virtual void drawCoordSystem(const btTransform& trans) { (void)trans; }
+		virtual void reportFailure(int errNo, int numIterations)
+		{
+			(void)errNo;
+			(void)numIterations;
+		}
 		CastResult()
-			:m_fraction(btScalar(BT_LARGE_FLOAT)),
-			m_debugDrawer(0),
-			m_allowedPenetration(btScalar(0))
+			: m_fraction(btScalar(BT_LARGE_FLOAT)),
+			  m_debugDrawer(0),
+			  m_allowedPenetration(btScalar(0))
 		{
 		}
 
+		virtual ~CastResult(){};
 
-		virtual ~CastResult() {};
-
-		btTransform	m_hitTransformA;
-		btTransform	m_hitTransformB;
-		btVector3	m_normal;
-		btVector3   m_hitPoint;
-		btScalar	m_fraction; //input and output
+		btTransform m_hitTransformA;
+		btTransform m_hitTransformB;
+		btVector3 m_normal;
+		btVector3 m_hitPoint;
+		btScalar m_fraction;  //input and output
 		btIDebugDraw* m_debugDrawer;
-		btScalar	m_allowedPenetration;
-
+		btScalar m_allowedPenetration;
 	};
 
-
 	/// cast a convex against another convex object
-	virtual bool	calcTimeOfImpact(
-					const btTransform& fromA,
-					const btTransform& toA,
-					const btTransform& fromB,
-					const btTransform& toB,
-					CastResult& result) = 0;
+	virtual bool calcTimeOfImpact(
+		const btTransform& fromA,
+		const btTransform& toA,
+		const btTransform& fromB,
+		const btTransform& toB,
+		CastResult& result) = 0;
 };
 
-#endif //BT_CONVEX_CAST_H
+#endif  //BT_CONVEX_CAST_H

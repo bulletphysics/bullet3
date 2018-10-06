@@ -3,14 +3,13 @@
 
 class SharedMemoryInterface
 {
-	public:
+public:
 	virtual ~SharedMemoryInterface()
 	{
 	}
-	
-	virtual void*	allocateSharedMemory(int key, int size, bool allowCreation) =0;
-	virtual void releaseSharedMemory(int key, int size) =0;
+
+	virtual void* allocateSharedMemory(int key, int size, bool allowCreation) = 0;
+	virtual void releaseSharedMemory(int key, int size) = 0;
 };
 
 #endif
-

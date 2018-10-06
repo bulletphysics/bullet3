@@ -5,7 +5,6 @@
 
 class MuJoCoPhysicsServerCommandProcessor : public PhysicsCommandProcessorInterface
 {
-
 	struct MuJoCoPhysicsServerCommandProcessorInternalData* m_data;
 
 	bool processSyncBodyInfoCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
@@ -22,7 +21,7 @@ class MuJoCoPhysicsServerCommandProcessor : public PhysicsCommandProcessorInterf
 
 public:
 	MuJoCoPhysicsServerCommandProcessor();
-	
+
 	virtual ~MuJoCoPhysicsServerCommandProcessor();
 
 	virtual bool connect();
@@ -35,11 +34,10 @@ public:
 
 	virtual bool receiveStatus(struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
 
-	virtual void renderScene(int renderFlags){}
-	virtual void   physicsDebugDraw(int debugDrawFlags){}
-	virtual void setGuiHelper(struct GUIHelperInterface* guiHelper){}
-	virtual void setTimeOut(double timeOutInSeconds){}
-
+	virtual void renderScene(int renderFlags) {}
+	virtual void physicsDebugDraw(int debugDrawFlags) {}
+	virtual void setGuiHelper(struct GUIHelperInterface* guiHelper) {}
+	virtual void setTimeOut(double timeOutInSeconds) {}
 };
 
-#endif //MUJOCO_PHYSICS_COMMAND_PROCESSOR_H
+#endif  //MUJOCO_PHYSICS_COMMAND_PROCESSOR_H

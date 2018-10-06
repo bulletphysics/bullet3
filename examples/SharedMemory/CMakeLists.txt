@@ -388,8 +388,6 @@ ELSE(WIN32 OR APPLE)
                openvr_api
                pthread
                ${DL}
-               ${OPENGL_gl_LIBRARY}
-               ${OPENGL_glu_LIBRARY}
                Bullet3Common
                BulletWorldImporter
                BulletInverseDynamicsUtils

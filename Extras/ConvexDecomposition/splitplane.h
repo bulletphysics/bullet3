@@ -39,21 +39,17 @@
 // http://www.amillionpixels.us
 //
 
-
-
 namespace ConvexDecomposition
 {
-
 class ConvexDecompInterface;
 
 bool computeSplitPlane(unsigned int vcount,
-                       const float *vertices,
-                       unsigned int tcount,
-                       const unsigned int *indices,
-                       ConvexDecompInterface *callback,
-                       float *plane);
+					   const float *vertices,
+					   unsigned int tcount,
+					   const unsigned int *indices,
+					   ConvexDecompInterface *callback,
+					   float *plane);
 
-
-}
+}  // namespace ConvexDecomposition
 
 #endif

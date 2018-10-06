@@ -2,6 +2,12 @@
 rem @echo off
 
 
+
+
+premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/segmentationMaskInstancingVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/segmentationMaskInstancingVS.h" --stringname="segmentationMaskInstancingVertexShader" stringify
+premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/segmentationMaskInstancingPS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/segmentationMaskInstancingPS.h" --stringname="segmentationMaskInstancingFragmentShader" stringify
+
+
 premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/instancingVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/instancingVS.h" --stringname="instancingVertexShader" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/instancingPS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/instancingPS.h" --stringname="instancingFragmentShader" stringify
 premake4 --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/pointSpriteVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/pointSpriteVS.h" --stringname="pointSpriteVertexShader" stringify

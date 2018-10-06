@@ -12,7 +12,6 @@ public:
 	virtual ~PhysicsClientSharedMemory2();
 
 	void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
-
 };
 
-#endif //PHYSICS_CLIENT_SHARED_MEMORY2_H
+#endif  //PHYSICS_CLIENT_SHARED_MEMORY2_H

@@ -10,12 +10,11 @@ struct PhysicsLoopBackInternalData
 	PhysicsClientSharedMemory* m_physicsClient;
 	PhysicsServerSharedMemory* m_physicsServer;
 	DummyGUIHelper m_noGfx;
-	
 
 	PhysicsLoopBackInternalData()
-		:m_commandProcessor(0),
-		m_physicsClient(0),
-		m_physicsServer(0)
+		: m_commandProcessor(0),
+		  m_physicsClient(0),
+		  m_physicsServer(0)
 	{
 	}
 };
@@ -39,7 +38,7 @@ static Bullet2CommandProcessorCreation2 sB2Proc;
 PhysicsLoopBack::PhysicsLoopBack()
 {
 	m_data = new PhysicsLoopBackInternalData;
-	m_data->m_physicsServer = new PhysicsServerSharedMemory(&sB2Proc, 0,0);
+	m_data->m_physicsServer = new PhysicsServerSharedMemory(&sB2Proc, 0, 0);
 	m_data->m_physicsClient = new PhysicsClientSharedMemory();
 }
 
@@ -50,7 +49,6 @@ PhysicsLoopBack::~PhysicsLoopBack()
 	delete m_data->m_commandProcessor;
 	delete m_data;
 }
-
 
 // return true if connection succesfull, can also check 'isConnected'
 bool PhysicsLoopBack::connect()
@@ -73,7 +71,7 @@ bool PhysicsLoopBack::isConnected() const
 }
 
 // return non-null if there is a status, nullptr otherwise
-const  SharedMemoryStatus* PhysicsLoopBack::processServerStatus()
+const SharedMemoryStatus* PhysicsLoopBack::processServerStatus()
 {
 	m_data->m_physicsServer->processClientCommands();
 	return m_data->m_physicsClient->processServerStatus();
@@ -91,7 +89,7 @@ bool PhysicsLoopBack::canSubmitCommand() const
 
 bool PhysicsLoopBack::submitClientCommand(const struct SharedMemoryCommand& command)
 {
-	return  m_data->m_physicsClient->submitClientCommand(command);
+	return m_data->m_physicsClient->submitClientCommand(command);
 }
 
 int PhysicsLoopBack::getNumBodies() const
@@ -116,16 +114,16 @@ int PhysicsLoopBack::getNumJoints(int bodyIndex) const
 
 bool PhysicsLoopBack::getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const
 {
-	return m_data->m_physicsClient->getJointInfo(bodyIndex,jointIndex,info);
+	return m_data->m_physicsClient->getJointInfo(bodyIndex, jointIndex, info);
 }
 
 int PhysicsLoopBack::getNumUserConstraints() const
 {
-    return m_data->m_physicsClient->getNumUserConstraints();
+	return m_data->m_physicsClient->getNumUserConstraints();
 }
-int PhysicsLoopBack::getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint&info) const
+int PhysicsLoopBack::getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint& info) const
 {
-    return m_data->m_physicsClient->getUserConstraintInfo( constraintUniqueId, info);
+	return m_data->m_physicsClient->getUserConstraintInfo(constraintUniqueId, info);
 }
 
 int PhysicsLoopBack::getUserConstraintId(int serialIndex) const
@@ -140,10 +138,9 @@ void PhysicsLoopBack::setSharedMemoryKey(int key)
 	m_data->m_physicsClient->setSharedMemoryKey(key);
 }
 
-
 void PhysicsLoopBack::uploadBulletFileToSharedMemory(const char* data, int len)
 {
-	m_data->m_physicsClient->uploadBulletFileToSharedMemory(data,len);
+	m_data->m_physicsClient->uploadBulletFileToSharedMemory(data, len);
 }
 
 void PhysicsLoopBack::uploadRaysToSharedMemory(struct SharedMemoryCommand& command, const double* rayFromWorldArray, const double* rayToWorldArray, int numRays)
@@ -178,7 +175,7 @@ void PhysicsLoopBack::getCachedCameraImage(struct b3CameraImageData* cameraData)
 
 void PhysicsLoopBack::getCachedContactPointInformation(struct b3ContactInformation* contactPointData)
 {
-    return m_data->m_physicsClient->getCachedContactPointInformation(contactPointData);
+	return m_data->m_physicsClient->getCachedContactPointInformation(contactPointData);
 }
 
 void PhysicsLoopBack::getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo)
@@ -190,7 +187,6 @@ void PhysicsLoopBack::getCachedCollisionShapeInformation(struct b3CollisionShape
 {
 	return m_data->m_physicsClient->getCachedCollisionShapeInformation(collisionShapesInfo);
 }
-
 
 void PhysicsLoopBack::getCachedVREvents(struct b3VREventsData* vrEventsData)
 {
@@ -219,7 +215,7 @@ void PhysicsLoopBack::getCachedRaycastHits(struct b3RaycastInformation* raycastH
 
 void PhysicsLoopBack::getCachedMassMatrix(int dofCountCheck, double* massMatrix)
 {
-	m_data->m_physicsClient->getCachedMassMatrix(dofCountCheck,massMatrix);
+	m_data->m_physicsClient->getCachedMassMatrix(dofCountCheck, massMatrix);
 }
 
 void PhysicsLoopBack::setTimeOut(double timeOutInSeconds)
@@ -231,19 +227,23 @@ double PhysicsLoopBack::getTimeOut() const
 	return m_data->m_physicsClient->getTimeOut();
 }
 
-bool PhysicsLoopBack::getCachedUserData(int userDataId, struct b3UserDataValue &valueOut)  const {
+bool PhysicsLoopBack::getCachedUserData(int userDataId, struct b3UserDataValue& valueOut) const
+{
 	return m_data->m_physicsClient->getCachedUserData(userDataId, valueOut);
 }
 
-int PhysicsLoopBack::getCachedUserDataId(int bodyUniqueId, int linkIndex, int visualShapeIndex, const char *key) const {
+int PhysicsLoopBack::getCachedUserDataId(int bodyUniqueId, int linkIndex, int visualShapeIndex, const char* key) const
+{
 	return m_data->m_physicsClient->getCachedUserDataId(bodyUniqueId, linkIndex, visualShapeIndex, key);
 }
 
-int PhysicsLoopBack::getNumUserData(int bodyUniqueId) const {
+int PhysicsLoopBack::getNumUserData(int bodyUniqueId) const
+{
 	return m_data->m_physicsClient->getNumUserData(bodyUniqueId);
 }
 
-void PhysicsLoopBack::getUserDataInfo(int bodyUniqueId, int userDataIndex, const char **keyOut, int *userDataIdOut, int *linkIndexOut, int *visualShapeIndexOut) const {
+void PhysicsLoopBack::getUserDataInfo(int bodyUniqueId, int userDataIndex, const char** keyOut, int* userDataIdOut, int* linkIndexOut, int* visualShapeIndexOut) const
+{
 	m_data->m_physicsClient->getUserDataInfo(bodyUniqueId, userDataIndex, keyOut, userDataIdOut, linkIndexOut, visualShapeIndexOut);
 }
 

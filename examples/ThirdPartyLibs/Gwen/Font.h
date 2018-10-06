@@ -15,38 +15,35 @@
 
 namespace Gwen
 {
+struct Font
+{
+	typedef std::list<Font*> List;
 
-	struct Font
+	Font()
 	{
-		typedef std::list<Font*>	List;
+		data = NULL;
 
-		Font()
-		{
-			data = NULL;
+		facename = L"Arial";
+		size = 10;
 
-			facename = L"Arial";
-			size = 10;
+		dropshadow = false;
+		bold = false;
+	}
 
-			dropshadow = false;
-			bold = false;
+	UnicodeString facename;
+	float size;
+	bool bold;
+	bool dropshadow;
 
-		}
+	// This should be set by the renderer
+	// if it tries to use a font where it's
+	// NULL.
+	void* data;
 
-		UnicodeString	facename;
-		float size;
-		bool  bold;
-		bool dropshadow;
+	// This is the real font size, after it's
+	// been scaled by Render->Scale()
+	float realsize;
+};
 
-		// This should be set by the renderer
-		// if it tries to use a font where it's
-		// NULL.
-		void*	data;
-
-		// This is the real font size, after it's
-		// been scaled by Render->Scale()
-		float realsize;
-		
-	};
-
-} //namespace Gwen
+}  //namespace Gwen
 #endif

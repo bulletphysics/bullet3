@@ -30,6 +30,10 @@ else:
                                robot_base, robot_orientation, useFixedBase=True)
 
 
+bullet.changeDynamics(id_robot,-1,linearDamping=0, angularDamping=0)
+bullet.changeDynamics(id_robot,0,linearDamping=0, angularDamping=0)
+bullet.changeDynamics(id_robot,1,linearDamping=0, angularDamping=0)
+
 jointTypeNames = ["JOINT_REVOLUTE", "JOINT_PRISMATIC","JOINT_SPHERICAL","JOINT_PLANAR","JOINT_FIXED","JOINT_POINT2POINT","JOINT_GEAR"]
     
 # Disable the motors for torque control:

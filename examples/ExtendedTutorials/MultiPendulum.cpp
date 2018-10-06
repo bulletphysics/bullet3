@@ -15,7 +15,7 @@
 
 #include "MultiPendulum.h"
 
-#include <vector> // TODO: Should I use another data structure?
+#include <vector>  // TODO: Should I use another data structure?
 #include <iterator>
 
 #include "btBulletDynamicsCommon.h"
@@ -24,80 +24,84 @@
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
-static btScalar gPendulaQty = 2; //TODO: This would actually be an Integer, but the Slider does not like integers, so I floor it when changed
+static btScalar gPendulaQty = 2;  //TODO: This would actually be an Integer, but the Slider does not like integers, so I floor it when changed
 
-static btScalar gDisplacedPendula = 1; //TODO: This is an int as well
+static btScalar gDisplacedPendula = 1;  //TODO: This is an int as well
 
-static btScalar gPendulaRestitution = 1; // Default pendulum restitution is 1 to restore all force
+static btScalar gPendulaRestitution = 1;  // Default pendulum restitution is 1 to restore all force
 
-static btScalar gSphereRadius = 1; // The sphere radius
+static btScalar gSphereRadius = 1;  // The sphere radius
 
 static btScalar gCurrentPendulumLength = 8;
 
-static btScalar gInitialPendulumLength = 8; // Default pendulum length (distance between two spheres)
+static btScalar gInitialPendulumLength = 8;  // Default pendulum length (distance between two spheres)
 
-static btScalar gDisplacementForce = 30; // The default force with which we move the pendulum
+static btScalar gDisplacementForce = 30;  // The default force with which we move the pendulum
 
-static btScalar gForceScalar = 0; // default force scalar to apply a displacement
+static btScalar gForceScalar = 0;  // default force scalar to apply a displacement
 
-struct MultiPendulumExample: public CommonRigidBodyBase {
-	MultiPendulumExample(struct GUIHelperInterface* helper) :
-		CommonRigidBodyBase(helper) {
+struct MultiPendulumExample : public CommonRigidBodyBase
+{
+	MultiPendulumExample(struct GUIHelperInterface* helper) : CommonRigidBodyBase(helper)
+	{
 	}
 
-	virtual ~MultiPendulumExample() {
+	virtual ~MultiPendulumExample()
+	{
 	}
 
-	virtual void initPhysics(); // build a multi pendulum
-	virtual void renderScene(); // render the scene to screen
-	virtual void createMultiPendulum(btSphereShape* colShape, btScalar pendulaQty, const btVector3& position, btScalar length, btScalar mass); // create a multi pendulum at the indicated x and y position, the specified number of pendula formed into a chain, each with indicated length and mass
-	virtual void changePendulaLength(btScalar length); // change the pendulum length
-	virtual void changePendulaRestitution(btScalar restitution); // change the pendula restitution
-	virtual void stepSimulation(float deltaTime); // step the simulation
-	virtual bool keyboardCallback(int key, int state); // handle keyboard callbacks
+	virtual void initPhysics();                                                                                                                 // build a multi pendulum
+	virtual void renderScene();                                                                                                                 // render the scene to screen
+	virtual void createMultiPendulum(btSphereShape* colShape, btScalar pendulaQty, const btVector3& position, btScalar length, btScalar mass);  // create a multi pendulum at the indicated x and y position, the specified number of pendula formed into a chain, each with indicated length and mass
+	virtual void changePendulaLength(btScalar length);                                                                                          // change the pendulum length
+	virtual void changePendulaRestitution(btScalar restitution);                                                                                // change the pendula restitution
+	virtual void stepSimulation(float deltaTime);                                                                                               // step the simulation
+	virtual bool keyboardCallback(int key, int state);                                                                                          // handle keyboard callbacks
 	virtual void applyPendulumForce(btScalar pendulumForce);
-	void resetCamera() {
+	void resetCamera()
+	{
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3] = { 0, 0.46, 0 };
+		float targetPos[3] = {0, 0.46, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1],
-			targetPos[2]);
+								 targetPos[2]);
 	}
 
-	std::vector<btSliderConstraint*> constraints; // keep a handle to the slider constraints
-	std::vector<btRigidBody*> pendula; // keep a handle to the pendula
+	std::vector<btSliderConstraint*> constraints;  // keep a handle to the slider constraints
+	std::vector<btRigidBody*> pendula;             // keep a handle to the pendula
 };
 
-static MultiPendulumExample* mex = NULL; // Handle to the example to access it via functions. Do not use this in your simulation!
+static MultiPendulumExample* mex = NULL;  // Handle to the example to access it via functions. Do not use this in your simulation!
 
-void onMultiPendulaLengthChanged(float pendulaLength, void*); // Change the pendula length
+void onMultiPendulaLengthChanged(float pendulaLength, void*);  // Change the pendula length
 
-void onMultiPendulaRestitutionChanged(float pendulaRestitution, void*); // change the pendula restitution
+void onMultiPendulaRestitutionChanged(float pendulaRestitution, void*);  // change the pendula restitution
 
 void applyMForceWithForceScalar(float forceScalar);
 
-void MultiPendulumExample::initPhysics() { // Setup your physics scene
+void MultiPendulumExample::initPhysics()
+{  // Setup your physics scene
 
-	{ // create a slider to change the number of pendula
+	{  // create a slider to change the number of pendula
 		SliderParams slider("Number of Pendula", &gPendulaQty);
 		slider.m_minVal = 1;
 		slider.m_maxVal = 50;
-        slider.m_clampToIntegers = true;
+		slider.m_clampToIntegers = true;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 			slider);
 	}
 
-	{ // create a slider to change the number of displaced pendula
+	{  // create a slider to change the number of displaced pendula
 		SliderParams slider("Number of Displaced Pendula", &gDisplacedPendula);
 		slider.m_minVal = 0;
 		slider.m_maxVal = 49;
-        slider.m_clampToIntegers = true;
+		slider.m_clampToIntegers = true;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 			slider);
 	}
 
-	{ // create a slider to change the pendula restitution
+	{  // create a slider to change the pendula restitution
 		SliderParams slider("Pendula Restitution", &gPendulaRestitution);
 		slider.m_minVal = 0;
 		slider.m_maxVal = 1;
@@ -107,7 +111,7 @@ void MultiPendulumExample::initPhysics() { // Setup your physics scene
 			slider);
 	}
 
-	{ // create a slider to change the pendulum length
+	{  // create a slider to change the pendulum length
 		SliderParams slider("Pendula Length", &gCurrentPendulumLength);
 		slider.m_minVal = 0;
 		slider.m_maxVal = 49;
@@ -117,7 +121,7 @@ void MultiPendulumExample::initPhysics() { // Setup your physics scene
 			slider);
 	}
 
-	{ // create a slider to change the force to displace the lowest pendulum
+	{  // create a slider to change the force to displace the lowest pendulum
 		SliderParams slider("Displacement force", &gDisplacementForce);
 		slider.m_minVal = 0.1;
 		slider.m_maxVal = 200;
@@ -126,7 +130,7 @@ void MultiPendulumExample::initPhysics() { // Setup your physics scene
 			slider);
 	}
 
-	{ // create a slider to apply the force by slider
+	{  // create a slider to apply the force by slider
 		SliderParams slider("Apply displacement force", &gForceScalar);
 		slider.m_minVal = -1;
 		slider.m_maxVal = 1;
@@ -143,15 +147,12 @@ void MultiPendulumExample::initPhysics() { // Setup your physics scene
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	if (m_dynamicsWorld->getDebugDrawer())
 		m_dynamicsWorld->getDebugDrawer()->setDebugMode(
-			btIDebugDraw::DBG_DrawWireframe
-				+ btIDebugDraw::DBG_DrawContactPoints
-				+ btIDebugDraw::DBG_DrawConstraints
-				+ btIDebugDraw::DBG_DrawConstraintLimits);
+			btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints + btIDebugDraw::DBG_DrawConstraints + btIDebugDraw::DBG_DrawConstraintLimits);
 
-	{ // create the multipendulum starting at the indicated position below and where each pendulum has the following mass
+	{  // create the multipendulum starting at the indicated position below and where each pendulum has the following mass
 		btScalar pendulumMass(1.f);
 
-		btVector3 position(0.0f,15.0f,0.0f); // initial top-most pendulum position
+		btVector3 position(0.0f, 15.0f, 0.0f);  // initial top-most pendulum position
 
 		// Re-using the same collision is better for memory usage and performance
 		btSphereShape* pendulumShape = new btSphereShape(gSphereRadius);
@@ -159,25 +160,26 @@ void MultiPendulumExample::initPhysics() { // Setup your physics scene
 
 		// create multi-pendulum
 		createMultiPendulum(pendulumShape, floor(gPendulaQty), position,
-			gInitialPendulumLength, pendulumMass);
+							gInitialPendulumLength, pendulumMass);
 	}
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-void MultiPendulumExample::stepSimulation(float deltaTime) {
+void MultiPendulumExample::stepSimulation(float deltaTime)
+{
+	applyMForceWithForceScalar(gForceScalar);  // apply force defined by apply force slider
 
-	applyMForceWithForceScalar(gForceScalar); // apply force defined by apply force slider
-
-	if (m_dynamicsWorld) {
+	if (m_dynamicsWorld)
+	{
 		m_dynamicsWorld->stepSimulation(deltaTime);
 	}
 }
 
 void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
-	btScalar pendulaQty, const btVector3& position,
-	btScalar length, btScalar mass) {
-
+											   btScalar pendulaQty, const btVector3& position,
+											   btScalar length, btScalar mass)
+{
 	// The multi-pendulum looks like this (names when built):
 	//..........0......./.......1...../.......2......./..etc...:pendulum build iterations
 	// O   parentSphere
@@ -196,7 +198,7 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 	// position the top sphere
 	startTransform.setOrigin(position);
 
-	startTransform.setRotation(btQuaternion(0, 0, 0, 1)); // zero rotation
+	startTransform.setRotation(btQuaternion(0, 0, 0, 1));  // zero rotation
 
 	btRigidBody* topSphere = createRigidBody(mass, startTransform, colShape);
 
@@ -209,25 +211,26 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 	btPoint2PointConstraint* p2pconst = new btPoint2PointConstraint(
 		*topSphere, constraintPivot);
 
-	p2pconst->setDbgDrawSize(btScalar(5.f)); // set the size of the debug drawing
+	p2pconst->setDbgDrawSize(btScalar(5.f));  // set the size of the debug drawing
 
 	// add the constraint to the world
 	m_dynamicsWorld->addConstraint(p2pconst, true);
 
-	btRigidBody* parentSphere = topSphere; // set the top sphere as the parent sphere for the next sphere to be created
+	btRigidBody* parentSphere = topSphere;  // set the top sphere as the parent sphere for the next sphere to be created
 
-	for (int i = 0; i < pendulaQty; i++) { // produce the number of pendula
+	for (int i = 0; i < pendulaQty; i++)
+	{  // produce the number of pendula
 
 		// create joint element to make the pendulum rotate it
 
 		// position the joint sphere at the same position as the top sphere
-		startTransform.setOrigin(position - btVector3(0,length*(i),0));
+		startTransform.setOrigin(position - btVector3(0, length * (i), 0));
 
-		startTransform.setRotation(btQuaternion(0, 0, 0, 1)); // zero rotation
+		startTransform.setRotation(btQuaternion(0, 0, 0, 1));  // zero rotation
 
 		btRigidBody* jointSphere = createRigidBody(mass, startTransform,
-			colShape);
-		jointSphere->setFriction(0); // we do not need friction here
+												   colShape);
+		jointSphere->setFriction(0);  // we do not need friction here
 
 		// disable the deactivation when object does not move anymore
 		jointSphere->setActivationState(DISABLE_DEACTIVATION);
@@ -248,25 +251,25 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 		constraintPivotInJointSphereRF.setOrigin(parentSphereInJointSphereRF);
 
 		btPoint2PointConstraint* p2pconst = new btPoint2PointConstraint(
-			*parentSphere,*jointSphere,constraintPivotInParentSphereRF.getOrigin(), constraintPivotInJointSphereRF.getOrigin());
+			*parentSphere, *jointSphere, constraintPivotInParentSphereRF.getOrigin(), constraintPivotInJointSphereRF.getOrigin());
 
-		p2pconst->setDbgDrawSize(btScalar(5.f)); // set the size of the debug drawing
+		p2pconst->setDbgDrawSize(btScalar(5.f));  // set the size of the debug drawing
 
 		// add the constraint to the world
 		m_dynamicsWorld->addConstraint(p2pconst, true);
 
 		// create a slider constraint to change the length of the pendula while it swings
 
-		startTransform.setIdentity(); // reset start transform
+		startTransform.setIdentity();  // reset start transform
 
 		// position the child sphere below the joint sphere
-		startTransform.setOrigin(position - btVector3(0,length*(i+1),0));
+		startTransform.setOrigin(position - btVector3(0, length * (i + 1), 0));
 
-		startTransform.setRotation(btQuaternion(0, 0, 0, 1)); // zero rotation
+		startTransform.setRotation(btQuaternion(0, 0, 0, 1));  // zero rotation
 
 		btRigidBody* childSphere = createRigidBody(mass, startTransform,
-			colShape);
-		childSphere->setFriction(0); // we do not need friction here
+												   colShape);
+		childSphere->setFriction(0);  // we do not need friction here
 		pendula.push_back(childSphere);
 
 		// disable the deactivation when object does not move anymore
@@ -291,13 +294,13 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 		// the slider constraint is x aligned per default, but we want it to be y aligned, therefore we rotate it
 		btQuaternion qt;
 		qt.setEuler(0, 0, -SIMD_HALF_PI);
-		constraintPivotInJointSphereRF.setRotation(qt); //we use Y like up Axis
-		constraintPivotInChildSphereRF.setRotation(qt); //we use Y like up Axis
+		constraintPivotInJointSphereRF.setRotation(qt);  //we use Y like up Axis
+		constraintPivotInChildSphereRF.setRotation(qt);  //we use Y like up Axis
 
 		btSliderConstraint* sliderConst = new btSliderConstraint(*jointSphere,
-			*childSphere, constraintPivotInJointSphereRF, constraintPivotInChildSphereRF, true);
+																 *childSphere, constraintPivotInJointSphereRF, constraintPivotInChildSphereRF, true);
 
-		sliderConst->setDbgDrawSize(btScalar(5.f)); // set the size of the debug drawing
+		sliderConst->setDbgDrawSize(btScalar(5.f));  // set the size of the debug drawing
 
 		// set limits
 		// the initial setup of the constraint defines the origins of the limit dimensions,
@@ -314,77 +317,89 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 	}
 }
 
-void MultiPendulumExample::changePendulaLength(btScalar length) {
+void MultiPendulumExample::changePendulaLength(btScalar length)
+{
 	btScalar lowerLimit = -gInitialPendulumLength;
 	for (std::vector<btSliderConstraint*>::iterator sit = constraints.begin();
-		sit != constraints.end(); sit++) {
+		 sit != constraints.end(); sit++)
+	{
 		btAssert((*sit) && "Null constraint");
 
 		// if the pendulum is being shortened beyond it's own length, we don't let the lower sphere to go past the upper one
-		if (lowerLimit <= length) {
+		if (lowerLimit <= length)
+		{
 			(*sit)->setLowerLinLimit(length + lowerLimit);
 			(*sit)->setUpperLinLimit(length + lowerLimit);
 		}
 	}
 }
 
-void MultiPendulumExample::changePendulaRestitution(btScalar restitution) {
+void MultiPendulumExample::changePendulaRestitution(btScalar restitution)
+{
 	for (std::vector<btRigidBody*>::iterator rit = pendula.begin();
-		rit != pendula.end(); rit++) {
+		 rit != pendula.end(); rit++)
+	{
 		btAssert((*rit) && "Null constraint");
 
 		(*rit)->setRestitution(restitution);
 	}
 }
 
-void MultiPendulumExample::renderScene() {
+void MultiPendulumExample::renderScene()
+{
 	CommonRigidBodyBase::renderScene();
 }
 
-bool MultiPendulumExample::keyboardCallback(int key, int state) {
-
+bool MultiPendulumExample::keyboardCallback(int key, int state)
+{
 	//b3Printf("Key pressed: %d in state %d \n",key,state);
 
 	//key 1, key 2, key 3
-	switch (key) {
-	case '1' /*ASCII for 1*/: {
+	switch (key)
+	{
+		case '1' /*ASCII for 1*/:
+		{
+			//assumption: Sphere are aligned in Z axis
+			btScalar newLimit = btScalar(gCurrentPendulumLength + 0.1);
 
-		//assumption: Sphere are aligned in Z axis
-		btScalar newLimit = btScalar(gCurrentPendulumLength + 0.1);
-
-		changePendulaLength(newLimit);
-		gCurrentPendulumLength = newLimit;
-
-		b3Printf("Increase pendulum length to %f", gCurrentPendulumLength);
-		return true;
-	}
-	case '2' /*ASCII for 2*/: {
-
-		//assumption: Sphere are aligned in Z axis
-		btScalar newLimit = btScalar(gCurrentPendulumLength - 0.1);
-
-		//is being shortened beyond it's own length, we don't let the lower sphere to go over the upper one
-		if (0 <= newLimit) {
 			changePendulaLength(newLimit);
 			gCurrentPendulumLength = newLimit;
-		}
 
-		b3Printf("Decrease pendulum length to %f", gCurrentPendulumLength);
-		return true;
-	}
-	case '3' /*ASCII for 3*/: {
-		applyPendulumForce(gDisplacementForce);
-		return true;
-	}
+			b3Printf("Increase pendulum length to %f", gCurrentPendulumLength);
+			return true;
+		}
+		case '2' /*ASCII for 2*/:
+		{
+			//assumption: Sphere are aligned in Z axis
+			btScalar newLimit = btScalar(gCurrentPendulumLength - 0.1);
+
+			//is being shortened beyond it's own length, we don't let the lower sphere to go over the upper one
+			if (0 <= newLimit)
+			{
+				changePendulaLength(newLimit);
+				gCurrentPendulumLength = newLimit;
+			}
+
+			b3Printf("Decrease pendulum length to %f", gCurrentPendulumLength);
+			return true;
+		}
+		case '3' /*ASCII for 3*/:
+		{
+			applyPendulumForce(gDisplacementForce);
+			return true;
+		}
 	}
 
 	return false;
 }
 
-void MultiPendulumExample::applyPendulumForce(btScalar pendulumForce){
-	if(pendulumForce != 0){
-		b3Printf("Apply %f to pendulum",pendulumForce);
-		for (int i = 0; i < gDisplacedPendula; i++) {
+void MultiPendulumExample::applyPendulumForce(btScalar pendulumForce)
+{
+	if (pendulumForce != 0)
+	{
+		b3Printf("Apply %f to pendulum", pendulumForce);
+		for (int i = 0; i < gDisplacedPendula; i++)
+		{
 			if (gDisplacedPendula >= 0 && gDisplacedPendula <= gPendulaQty)
 				pendula[i]->applyCentralForce(btVector3(pendulumForce, 0, 0));
 		}
@@ -393,26 +408,30 @@ void MultiPendulumExample::applyPendulumForce(btScalar pendulumForce){
 
 // GUI parameter modifiers
 
-void onMultiPendulaLengthChanged(float pendulaLength, void*) { // Change the pendula length
-	if (mex){
+void onMultiPendulaLengthChanged(float pendulaLength, void*)
+{  // Change the pendula length
+	if (mex)
+	{
 		mex->changePendulaLength(pendulaLength);
 	}
 	//b3Printf("Pendula length changed to %f \n",sliderValue );
-
 }
 
-void onMultiPendulaRestitutionChanged(float pendulaRestitution, void*) { // change the pendula restitution
-	if (mex){
+void onMultiPendulaRestitutionChanged(float pendulaRestitution, void*)
+{  // change the pendula restitution
+	if (mex)
+	{
 		mex->changePendulaRestitution(pendulaRestitution);
 	}
-
 }
 
-void applyMForceWithForceScalar(float forceScalar) {
-	if(mex){
+void applyMForceWithForceScalar(float forceScalar)
+{
+	if (mex)
+	{
 		btScalar appliedForce = forceScalar * gDisplacementForce;
 
-		if(fabs(gForceScalar) < 0.2f)
+		if (fabs(gForceScalar) < 0.2f)
 			gForceScalar = 0;
 
 		mex->applyPendulumForce(appliedForce);
@@ -420,7 +439,8 @@ void applyMForceWithForceScalar(float forceScalar) {
 }
 
 CommonExampleInterface* ET_MultiPendulumCreateFunc(
-	CommonExampleOptions& options) {
+	CommonExampleOptions& options)
+{
 	mex = new MultiPendulumExample(options.m_guiHelper);
 	return mex;
 }

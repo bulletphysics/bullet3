@@ -20,91 +20,77 @@ subject to the following restrictions:
 #include "bChunk.h"
 #include "LinearMath/btHashMap.h"
 
+namespace bParse
+{
+class bDNA;
+
+class bBlenderFile;
+};  // namespace bParse
 
 namespace bParse
 {
-	class bDNA;
+// ----------------------------------------------------- //
 
-	class bBlenderFile;
-};
+typedef btHashMap<btHashInt, bListBasePtr> bMainDataMap;
 
-
-
-namespace bParse {
-
-
-	// ----------------------------------------------------- //
-	
-	typedef	btHashMap<btHashInt,bListBasePtr> bMainDataMap;
-
-
-
-	// ----------------------------------------------------- //
-	class bMain
-	{
+// ----------------------------------------------------- //
+class bMain
+{
 	//private:
-	public:
-		bBlenderFile*			mFP;
-		bListBasePtr	mPool;
+public:
+	bBlenderFile *mFP;
+	bListBasePtr mPool;
 
-		int				mVersion;
-		const char*		mName;
+	int mVersion;
+	const char *mName;
 
-		bMainDataMap	mData;
+	bMainDataMap mData;
 
-	
+	bListBasePtr *_findCode(int code);
 
+public:
+	bMain(bBlenderFile *filePtr, const char *baseName, int fileVersion);
+	~bMain();
 
-		bListBasePtr *_findCode(int code);
+	int getVersion();
+	const char *getName();
 
-	public:
-		bMain(bBlenderFile  *filePtr, const char *baseName, int fileVersion);
-		~bMain();
+	bListBasePtr *getListBasePtr(int listBaseCode);
 
-		int getVersion();
-		const char *getName();
+	bListBasePtr *getScene();
+	bListBasePtr *getLibrary();
+	bListBasePtr *getObject();
+	bListBasePtr *getMesh();
+	bListBasePtr *getCurve();
+	bListBasePtr *getMball();
+	bListBasePtr *getMat();
+	bListBasePtr *getTex();
+	bListBasePtr *getImage();
+	bListBasePtr *getWave();
+	bListBasePtr *getLatt();
+	bListBasePtr *getLamp();
+	bListBasePtr *getCamera();
+	bListBasePtr *getIpo();
+	bListBasePtr *getKey();
+	bListBasePtr *getWorld();
+	bListBasePtr *getScreen();
+	bListBasePtr *getScript();
+	bListBasePtr *getVfont();
+	bListBasePtr *getText();
+	bListBasePtr *getSound();
+	bListBasePtr *getGroup();
+	bListBasePtr *getArmature();
+	bListBasePtr *getAction();
+	bListBasePtr *getNodetree();
+	bListBasePtr *getBrush();
 
-		bListBasePtr *getListBasePtr(int listBaseCode);
+	// tracking allocated memory
+	void addDatablock(void *allocated);
 
+	// --
 
-		bListBasePtr *getScene();
-		bListBasePtr *getLibrary();
-		bListBasePtr *getObject();
-		bListBasePtr *getMesh();
-		bListBasePtr *getCurve();
-		bListBasePtr *getMball();
-		bListBasePtr *getMat();
-		bListBasePtr *getTex();
-		bListBasePtr *getImage();
-		bListBasePtr *getWave();
-		bListBasePtr *getLatt();
-		bListBasePtr *getLamp();
-		bListBasePtr *getCamera();
-		bListBasePtr *getIpo();
-		bListBasePtr *getKey();
-		bListBasePtr *getWorld();
-		bListBasePtr *getScreen();
-		bListBasePtr *getScript();
-		bListBasePtr *getVfont();
-		bListBasePtr *getText();
-		bListBasePtr *getSound();
-		bListBasePtr *getGroup();
-		bListBasePtr *getArmature();
-		bListBasePtr *getAction();
-		bListBasePtr *getNodetree();
-		bListBasePtr *getBrush();
+	void linkList(void *listBasePtr);
+};
+}  // namespace bParse
 
-
-		
-		// tracking allocated memory
-		void addDatablock(void *allocated);
-
-
-		// --
-		
-		void linkList(void *listBasePtr);
-	};
-}
-
-
-#endif//__BMAIN_H__
+#endif  //__BMAIN_H__

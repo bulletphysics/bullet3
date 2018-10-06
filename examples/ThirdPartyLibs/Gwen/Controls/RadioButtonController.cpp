@@ -4,7 +4,6 @@
 	See license in Gwen.h
 */
 
-
 #include "Gwen/Controls/RadioButtonController.h"
 #include "Gwen/Controls/RadioButton.h"
 #include "Gwen/Utility.h"
@@ -12,15 +11,14 @@
 using namespace Gwen;
 using namespace Gwen::Controls;
 
-
-GWEN_CONTROL_CONSTRUCTOR( RadioButtonController )
+GWEN_CONTROL_CONSTRUCTOR(RadioButtonController)
 {
 	m_Selected = NULL;
-	SetTabable( false );
-	SetKeyboardInputEnabled( false );
+	SetTabable(false);
+	SetKeyboardInputEnabled(false);
 }
 
-void RadioButtonController::OnRadioClicked( Gwen::Controls::Base* pFromPanel )
+void RadioButtonController::OnRadioClicked(Gwen::Controls::Base* pFromPanel)
 {
 	RadioButton* pCheckedRadioButton = pFromPanel->DynamicCastRadioButton();
 
@@ -29,16 +27,16 @@ void RadioButtonController::OnRadioClicked( Gwen::Controls::Base* pFromPanel )
 	{
 		Base* pChild = *iter;
 		LabeledRadioButton* pLRB = pChild->DynamicCastLabeledRadioButton();
-		if ( pLRB )
+		if (pLRB)
 		{
 			RadioButton* pChildRadioButton = pLRB->GetRadioButton();
-			if ( pChildRadioButton == pCheckedRadioButton )
+			if (pChildRadioButton == pCheckedRadioButton)
 			{
 				m_Selected = pLRB;
 			}
 			else
 			{
-				pLRB->GetRadioButton()->SetChecked( false );
+				pLRB->GetRadioButton()->SetChecked(false);
 			}
 		}
 	}
@@ -48,25 +46,25 @@ void RadioButtonController::OnRadioClicked( Gwen::Controls::Base* pFromPanel )
 
 void RadioButtonController::OnChange()
 {
-	onSelectionChange.Call( this );
+	onSelectionChange.Call(this);
 }
 
-LabeledRadioButton* RadioButtonController::AddOption( const Gwen::String& strText, const Gwen::String& strOptionName )
+LabeledRadioButton* RadioButtonController::AddOption(const Gwen::String& strText, const Gwen::String& strOptionName)
 {
-	return AddOption( Gwen::Utility::StringToUnicode( strText ), strOptionName );
+	return AddOption(Gwen::Utility::StringToUnicode(strText), strOptionName);
 }
 
-LabeledRadioButton* RadioButtonController::AddOption( const Gwen::UnicodeString& strText, const Gwen::String& strOptionName )
+LabeledRadioButton* RadioButtonController::AddOption(const Gwen::UnicodeString& strText, const Gwen::String& strOptionName)
 {
-	LabeledRadioButton* lrb = new LabeledRadioButton( this );
+	LabeledRadioButton* lrb = new LabeledRadioButton(this);
 
-	lrb->SetName( strOptionName );
-	lrb->GetLabel()->SetText( strText );
-	lrb->GetRadioButton()->onChecked.Add( this, &RadioButtonController::OnRadioClicked );
-	lrb->Dock( Pos::Top );
-	lrb->SetMargin( Margin( 0, 1, 0, 1 ) );
-	lrb->SetKeyboardInputEnabled( false );
-	lrb->SetTabable( false );
+	lrb->SetName(strOptionName);
+	lrb->GetLabel()->SetText(strText);
+	lrb->GetRadioButton()->onChecked.Add(this, &RadioButtonController::OnRadioClicked);
+	lrb->Dock(Pos::Top);
+	lrb->SetMargin(Margin(0, 1, 0, 1));
+	lrb->SetKeyboardInputEnabled(false);
+	lrb->SetTabable(false);
 
 	Invalidate();
 

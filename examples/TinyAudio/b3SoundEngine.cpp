@@ -88,7 +88,7 @@ void b3SoundEngine::exit()
 	}
 	m_data->m_soundSources.clear();
 
-	for (int i=0;i<m_data->m_wavFiles.size();i++)
+	for (int i = 0; i < m_data->m_wavFiles.size(); i++)
 	{
 		b3ReadWavFile** wavPtr = m_data->m_wavFiles.getAtIndex(i);
 		if (wavPtr && *wavPtr)
@@ -99,7 +99,6 @@ void b3SoundEngine::exit()
 	}
 	m_data->m_wavFiles.clear();
 	m_data->m_name2wav.clear();
-
 }
 
 int b3SoundEngine::getAvailableSoundSource()
@@ -117,10 +116,10 @@ int b3SoundEngine::getAvailableSoundSource()
 void b3SoundEngine::startSound(int soundSourceIndex, b3SoundMessage msg)
 {
 	b3SoundSource* soundSource = m_data->m_soundSources[soundSourceIndex];
-	soundSource->setOscillatorAmplitude(0,msg.m_amplitude);
-	soundSource->setOscillatorAmplitude(1,msg.m_amplitude);
+	soundSource->setOscillatorAmplitude(0, msg.m_amplitude);
+	soundSource->setOscillatorAmplitude(1, msg.m_amplitude);
 
-	soundSource->setADSR(msg.m_attackRate,msg.m_decayRate,msg.m_sustainLevel,msg.m_releaseRate);
+	soundSource->setADSR(msg.m_attackRate, msg.m_decayRate, msg.m_sustainLevel, msg.m_releaseRate);
 
 	switch (msg.m_type)
 	{
@@ -128,7 +127,7 @@ void b3SoundEngine::startSound(int soundSourceIndex, b3SoundMessage msg)
 		{
 			soundSource->setOscillatorFrequency(0, msg.m_frequency);
 			soundSource->setOscillatorFrequency(1, msg.m_frequency);
-			
+
 			soundSource->startSound(msg.m_autoKeyOff);
 			break;
 		}
@@ -138,8 +137,8 @@ void b3SoundEngine::startSound(int soundSourceIndex, b3SoundMessage msg)
 			if (wavFilePtr)
 			{
 				b3ReadWavFile* wavFile = *wavFilePtr;
-				soundSource->setWavFile(0,wavFile,getSampleRate());
-				soundSource->setWavFile(1,wavFile,getSampleRate());
+				soundSource->setWavFile(0, wavFile, getSampleRate());
+				soundSource->setWavFile(1, wavFile, getSampleRate());
 				soundSource->startSound(msg.m_autoKeyOff);
 			}
 			break;
@@ -174,7 +173,7 @@ int b3SoundEngine::loadWavFile(const char* fileName)
 		wavFile->normalize(1);
 		int wavUID = m_data->m_wavFileUidGenerator++;
 		m_data->m_wavFiles.insert(wavUID, wavFile);
-		m_data->m_name2wav.insert(fileName,wavUID);
+		m_data->m_name2wav.insert(fileName, wavUID);
 		return wavUID;
 	}
 	return 0;

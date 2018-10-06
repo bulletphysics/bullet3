@@ -33,8 +33,8 @@
 #include <math.h>
 #include <xmmintrin.h>
 
-namespace Vectormath {
-
+namespace Vectormath
+{
 class boolInVec;
 
 //--------------------------------------------------------------------------------------------------
@@ -43,61 +43,61 @@ class boolInVec;
 
 class floatInVec
 {
-    private:
-        __m128 mData;
+private:
+	__m128 mData;
 
-    public:
-        inline floatInVec(__m128 vec);
+public:
+	inline floatInVec(__m128 vec);
 
-        inline floatInVec() {}
+	inline floatInVec() {}
 
-        // matches standard type conversions
-        //
-        inline floatInVec(const boolInVec &vec);
+	// matches standard type conversions
+	//
+	inline floatInVec(const boolInVec &vec);
 
-        // construct from a slot of __m128
-        //
-        inline floatInVec(__m128 vec, int slot);
-        
-        // explicit cast from float
-        //
-        explicit inline floatInVec(float scalar);
+	// construct from a slot of __m128
+	//
+	inline floatInVec(__m128 vec, int slot);
+
+	// explicit cast from float
+	//
+	explicit inline floatInVec(float scalar);
 
 #ifdef _VECTORMATH_NO_SCALAR_CAST
-        // explicit cast to float
-        // 
-        inline float getAsFloat() const;
+	// explicit cast to float
+	//
+	inline float getAsFloat() const;
 #else
-        // implicit cast to float
-        //
-        inline operator float() const;
+	// implicit cast to float
+	//
+	inline operator float() const;
 #endif
 
-        // get vector data
-        // float value is splatted across all word slots of vector
-        //
-        inline __m128 get128() const;
+	// get vector data
+	// float value is splatted across all word slots of vector
+	//
+	inline __m128 get128() const;
 
-        // operators
-        // 
-        inline const floatInVec operator ++ (int);
-        inline const floatInVec operator -- (int);
-        inline floatInVec& operator ++ ();
-        inline floatInVec& operator -- ();
-        inline const floatInVec operator - () const;
-        inline floatInVec& operator = (const floatInVec &vec);
-        inline floatInVec& operator *= (const floatInVec &vec);
-        inline floatInVec& operator /= (const floatInVec &vec);
-        inline floatInVec& operator += (const floatInVec &vec);
-        inline floatInVec& operator -= (const floatInVec &vec);
+	// operators
+	//
+	inline const floatInVec operator++(int);
+	inline const floatInVec operator--(int);
+	inline floatInVec &operator++();
+	inline floatInVec &operator--();
+	inline const floatInVec operator-() const;
+	inline floatInVec &operator=(const floatInVec &vec);
+	inline floatInVec &operator*=(const floatInVec &vec);
+	inline floatInVec &operator/=(const floatInVec &vec);
+	inline floatInVec &operator+=(const floatInVec &vec);
+	inline floatInVec &operator-=(const floatInVec &vec);
 
-        // friend functions
-        //
-        friend inline const floatInVec operator * (const floatInVec &vec0, const floatInVec &vec1);
-        friend inline const floatInVec operator / (const floatInVec &vec0, const floatInVec &vec1);
-        friend inline const floatInVec operator + (const floatInVec &vec0, const floatInVec &vec1);
-        friend inline const floatInVec operator - (const floatInVec &vec0, const floatInVec &vec1);
-        friend inline const floatInVec select(const floatInVec &vec0, const floatInVec &vec1, boolInVec select_vec1);
+	// friend functions
+	//
+	friend inline const floatInVec operator*(const floatInVec &vec0, const floatInVec &vec1);
+	friend inline const floatInVec operator/(const floatInVec &vec0, const floatInVec &vec1);
+	friend inline const floatInVec operator+(const floatInVec &vec0, const floatInVec &vec1);
+	friend inline const floatInVec operator-(const floatInVec &vec0, const floatInVec &vec1);
+	friend inline const floatInVec select(const floatInVec &vec0, const floatInVec &vec1, boolInVec select_vec1);
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -105,24 +105,24 @@ class floatInVec
 //
 
 // operators
-// 
-inline const floatInVec operator * (const floatInVec &vec0, const floatInVec &vec1);
-inline const floatInVec operator / (const floatInVec &vec0, const floatInVec &vec1);
-inline const floatInVec operator + (const floatInVec &vec0, const floatInVec &vec1);
-inline const floatInVec operator - (const floatInVec &vec0, const floatInVec &vec1);
-inline const boolInVec operator < (const floatInVec &vec0, const floatInVec &vec1);
-inline const boolInVec operator <= (const floatInVec &vec0, const floatInVec &vec1);
-inline const boolInVec operator > (const floatInVec &vec0, const floatInVec &vec1);
-inline const boolInVec operator >= (const floatInVec &vec0, const floatInVec &vec1);
-inline const boolInVec operator == (const floatInVec &vec0, const floatInVec &vec1);
-inline const boolInVec operator != (const floatInVec &vec0, const floatInVec &vec1);
+//
+inline const floatInVec operator*(const floatInVec &vec0, const floatInVec &vec1);
+inline const floatInVec operator/(const floatInVec &vec0, const floatInVec &vec1);
+inline const floatInVec operator+(const floatInVec &vec0, const floatInVec &vec1);
+inline const floatInVec operator-(const floatInVec &vec0, const floatInVec &vec1);
+inline const boolInVec operator<(const floatInVec &vec0, const floatInVec &vec1);
+inline const boolInVec operator<=(const floatInVec &vec0, const floatInVec &vec1);
+inline const boolInVec operator>(const floatInVec &vec0, const floatInVec &vec1);
+inline const boolInVec operator>=(const floatInVec &vec0, const floatInVec &vec1);
+inline const boolInVec operator==(const floatInVec &vec0, const floatInVec &vec1);
+inline const boolInVec operator!=(const floatInVec &vec0, const floatInVec &vec1);
 
 // select between vec0 and vec1 using boolInVec.
 // false selects vec0, true selects vec1
 //
 inline const floatInVec select(const floatInVec &vec0, const floatInVec &vec1, const boolInVec &select_vec1);
 
-} // namespace Vectormath
+}  // namespace Vectormath
 
 //--------------------------------------------------------------------------------------------------
 // floatInVec implementation
@@ -130,211 +130,183 @@ inline const floatInVec select(const floatInVec &vec0, const floatInVec &vec1, c
 
 #include "boolInVec.h"
 
-namespace Vectormath {
-
-inline
-floatInVec::floatInVec(__m128 vec)
+namespace Vectormath
 {
-    mData = vec;
+inline floatInVec::floatInVec(__m128 vec)
+{
+	mData = vec;
 }
 
-inline
-floatInVec::floatInVec(const boolInVec &vec)
+inline floatInVec::floatInVec(const boolInVec &vec)
 {
 	mData = vec_sel(_mm_setzero_ps(), _mm_set1_ps(1.0f), vec.get128());
 }
 
-inline
-floatInVec::floatInVec(__m128 vec, int slot)
+inline floatInVec::floatInVec(__m128 vec, int slot)
 {
 	SSEFloat v;
 	v.m128 = vec;
 	mData = _mm_set1_ps(v.f[slot]);
 }
 
-inline
-floatInVec::floatInVec(float scalar)
+inline floatInVec::floatInVec(float scalar)
 {
 	mData = _mm_set1_ps(scalar);
 }
 
 #ifdef _VECTORMATH_NO_SCALAR_CAST
-inline
-float
+inline float
 floatInVec::getAsFloat() const
 #else
-inline
-floatInVec::operator float() const
+inline floatInVec::operator float() const
 #endif
 {
-    return *((float *)&mData);
+	return *((float *)&mData);
 }
 
-inline
-__m128
+inline __m128
 floatInVec::get128() const
 {
-    return mData;
+	return mData;
 }
 
-inline
-const floatInVec
-floatInVec::operator ++ (int)
+inline const floatInVec
+floatInVec::operator++(int)
 {
-    __m128 olddata = mData;
-    operator ++();
-    return floatInVec(olddata);
+	__m128 olddata = mData;
+	operator++();
+	return floatInVec(olddata);
 }
 
-inline
-const floatInVec
-floatInVec::operator -- (int)
+inline const floatInVec
+floatInVec::operator--(int)
 {
-    __m128 olddata = mData;
-    operator --();
-    return floatInVec(olddata);
+	__m128 olddata = mData;
+	operator--();
+	return floatInVec(olddata);
 }
 
-inline
-floatInVec&
-floatInVec::operator ++ ()
+inline floatInVec &
+floatInVec::operator++()
 {
-    *this += floatInVec(_mm_set1_ps(1.0f));
-    return *this;
+	*this += floatInVec(_mm_set1_ps(1.0f));
+	return *this;
 }
 
-inline
-floatInVec&
-floatInVec::operator -- ()
+inline floatInVec &
+floatInVec::operator--()
 {
-    *this -= floatInVec(_mm_set1_ps(1.0f));
-    return *this;
+	*this -= floatInVec(_mm_set1_ps(1.0f));
+	return *this;
 }
 
-inline
-const floatInVec
-floatInVec::operator - () const
+inline const floatInVec
+floatInVec::operator-() const
 {
-    return floatInVec(_mm_sub_ps(_mm_setzero_ps(), mData));
+	return floatInVec(_mm_sub_ps(_mm_setzero_ps(), mData));
 }
 
-inline
-floatInVec&
-floatInVec::operator = (const floatInVec &vec)
+inline floatInVec &
+floatInVec::operator=(const floatInVec &vec)
 {
-    mData = vec.mData;
-    return *this;
+	mData = vec.mData;
+	return *this;
 }
 
-inline
-floatInVec&
-floatInVec::operator *= (const floatInVec &vec)
+inline floatInVec &
+floatInVec::operator*=(const floatInVec &vec)
 {
-    *this = *this * vec;
-    return *this;
+	*this = *this * vec;
+	return *this;
 }
 
-inline
-floatInVec&
-floatInVec::operator /= (const floatInVec &vec)
+inline floatInVec &
+floatInVec::operator/=(const floatInVec &vec)
 {
-    *this = *this / vec;
-    return *this;
+	*this = *this / vec;
+	return *this;
 }
 
-inline
-floatInVec&
-floatInVec::operator += (const floatInVec &vec)
+inline floatInVec &
+floatInVec::operator+=(const floatInVec &vec)
 {
-    *this = *this + vec;
-    return *this;
+	*this = *this + vec;
+	return *this;
 }
 
-inline
-floatInVec&
-floatInVec::operator -= (const floatInVec &vec)
+inline floatInVec &
+floatInVec::operator-=(const floatInVec &vec)
 {
-    *this = *this - vec;
-    return *this;
+	*this = *this - vec;
+	return *this;
 }
 
-inline
-const floatInVec
-operator * (const floatInVec &vec0, const floatInVec &vec1)
+inline const floatInVec
+operator*(const floatInVec &vec0, const floatInVec &vec1)
 {
-    return floatInVec(_mm_mul_ps(vec0.get128(), vec1.get128()));
+	return floatInVec(_mm_mul_ps(vec0.get128(), vec1.get128()));
 }
 
-inline
-const floatInVec
-operator / (const floatInVec &num, const floatInVec &den)
+inline const floatInVec
+operator/(const floatInVec &num, const floatInVec &den)
 {
-    return floatInVec(_mm_div_ps(num.get128(), den.get128()));
+	return floatInVec(_mm_div_ps(num.get128(), den.get128()));
 }
 
-inline
-const floatInVec
-operator + (const floatInVec &vec0, const floatInVec &vec1)
+inline const floatInVec
+operator+(const floatInVec &vec0, const floatInVec &vec1)
 {
-    return floatInVec(_mm_add_ps(vec0.get128(), vec1.get128()));
+	return floatInVec(_mm_add_ps(vec0.get128(), vec1.get128()));
 }
 
-inline
-const floatInVec
-operator - (const floatInVec &vec0, const floatInVec &vec1)
+inline const floatInVec
+operator-(const floatInVec &vec0, const floatInVec &vec1)
 {
-    return floatInVec(_mm_sub_ps(vec0.get128(), vec1.get128()));
+	return floatInVec(_mm_sub_ps(vec0.get128(), vec1.get128()));
 }
 
-inline
-const boolInVec
-operator < (const floatInVec &vec0, const floatInVec &vec1)
+inline const boolInVec
+operator<(const floatInVec &vec0, const floatInVec &vec1)
 {
-    return boolInVec(_mm_cmpgt_ps(vec1.get128(), vec0.get128()));
+	return boolInVec(_mm_cmpgt_ps(vec1.get128(), vec0.get128()));
 }
 
-inline
-const boolInVec
-operator <= (const floatInVec &vec0, const floatInVec &vec1)
+inline const boolInVec
+operator<=(const floatInVec &vec0, const floatInVec &vec1)
 {
-    return boolInVec(_mm_cmpge_ps(vec1.get128(), vec0.get128()));
+	return boolInVec(_mm_cmpge_ps(vec1.get128(), vec0.get128()));
 }
 
-inline
-const boolInVec
-operator > (const floatInVec &vec0, const floatInVec &vec1)
+inline const boolInVec
+operator>(const floatInVec &vec0, const floatInVec &vec1)
 {
-    return boolInVec(_mm_cmpgt_ps(vec0.get128(), vec1.get128()));
+	return boolInVec(_mm_cmpgt_ps(vec0.get128(), vec1.get128()));
 }
 
-inline
-const boolInVec
-operator >= (const floatInVec &vec0, const floatInVec &vec1)
+inline const boolInVec
+operator>=(const floatInVec &vec0, const floatInVec &vec1)
 {
-    return boolInVec(_mm_cmpge_ps(vec0.get128(), vec1.get128()));
+	return boolInVec(_mm_cmpge_ps(vec0.get128(), vec1.get128()));
 }
 
-inline
-const boolInVec
-operator == (const floatInVec &vec0, const floatInVec &vec1)
+inline const boolInVec
+operator==(const floatInVec &vec0, const floatInVec &vec1)
 {
-    return boolInVec(_mm_cmpeq_ps(vec0.get128(), vec1.get128()));
+	return boolInVec(_mm_cmpeq_ps(vec0.get128(), vec1.get128()));
 }
 
-inline
-const boolInVec
-operator != (const floatInVec &vec0, const floatInVec &vec1)
+inline const boolInVec
+operator!=(const floatInVec &vec0, const floatInVec &vec1)
 {
-    return boolInVec(_mm_cmpneq_ps(vec0.get128(), vec1.get128()));
+	return boolInVec(_mm_cmpneq_ps(vec0.get128(), vec1.get128()));
 }
-    
-inline
-const floatInVec
+
+inline const floatInVec
 select(const floatInVec &vec0, const floatInVec &vec1, const boolInVec &select_vec1)
 {
-    return floatInVec(vec_sel(vec0.get128(), vec1.get128(), select_vec1.get128()));
+	return floatInVec(vec_sel(vec0.get128(), vec1.get128(), select_vec1.get128()));
 }
 
-} // namespace Vectormath
+}  // namespace Vectormath
 
-#endif // floatInVec_h
+#endif  // floatInVec_h

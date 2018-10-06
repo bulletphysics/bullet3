@@ -6,8 +6,21 @@ project "App_BulletExampleBrowser"
         
         if os.is("Linux") then
 	        buildoptions{"-fPIC"}
-	    end
-        
+	    	end
+
+				if _OPTIONS["enable_grpc"] then
+					initGRPC()
+					defines{"ENABLE_STATIC_GRPC_PLUGIN"}
+					 files {
+                  "../../examples/SharedMemory/PhysicsClientGRPC.cpp",
+                  "../../examples/SharedMemory/PhysicsClientGRPC.h",
+                  "../../examples/SharedMemory/PhysicsClientGRPC_C_API.cpp",
+                  "../../examples/SharedMemory/PhysicsClientGRPC_C_API.h",
+                  "../../examples/SharedMemory/plugins/grpcPlugin/grpcPlugin.cpp",
+
+                }
+				end
+		        
         hasCL = findOpenCL("clew")
 
         if (hasCL) then
@@ -169,7 +182,7 @@ project "App_BulletExampleBrowser"
 		"../MultiBody/MultiBodyConstraintFeedback.cpp",
 		"../MultiBody/InvertedPendulumPDControl.cpp",
 		"../RigidBody/RigidBodySoftContact.cpp",
-		"../ThirdPartyLibs/stb_image/*",
+		"../ThirdPartyLibs/stb_image/stb_image.cpp",
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",
 		"../ThirdPartyLibs/BussIK/*",
 		"../GyroscopicDemo/GyroscopicSetup.cpp",

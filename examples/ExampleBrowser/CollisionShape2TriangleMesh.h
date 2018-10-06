@@ -7,4 +7,4 @@ class btCollisionShape;
 
 void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTransform& parentTransform, btAlignedObjectArray<btVector3>& vertexPositions, btAlignedObjectArray<btVector3>& vertexNormals, btAlignedObjectArray<int>& indicesOut);
 
-#endif //COLLISION_SHAPE_2_GRAPHICS_H
+#endif  //COLLISION_SHAPE_2_GRAPHICS_H

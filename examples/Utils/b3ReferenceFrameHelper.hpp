@@ -19,38 +19,44 @@ subject to the following restrictions:
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btVector3.h"
 
-class b3ReferenceFrameHelper {
+class b3ReferenceFrameHelper
+{
 public:
-	static btVector3 getPointWorldToLocal(const btTransform& localObjectCenterOfMassTransform, const btVector3& point) {
-		  return localObjectCenterOfMassTransform.inverse() * point; // transforms the point from the world frame into the local frame
+	static btVector3 getPointWorldToLocal(const btTransform& localObjectCenterOfMassTransform, const btVector3& point)
+	{
+		return localObjectCenterOfMassTransform.inverse() * point;  // transforms the point from the world frame into the local frame
 	}
 
-	static btVector3 getPointLocalToWorld(const btTransform& localObjectCenterOfMassTransform,const btVector3& point) {
-		  return localObjectCenterOfMassTransform * point; // transforms the point from the world frame into the local frame
+	static btVector3 getPointLocalToWorld(const btTransform& localObjectCenterOfMassTransform, const btVector3& point)
+	{
+		return localObjectCenterOfMassTransform * point;  // transforms the point from the world frame into the local frame
 	}
 
-	static btVector3 getAxisWorldToLocal(const btTransform& localObjectCenterOfMassTransform, const btVector3& axis) {
-	  btTransform local1 = localObjectCenterOfMassTransform.inverse(); // transforms the axis from the local frame into the world frame
-	  btVector3 zero(0,0,0);
-	  local1.setOrigin(zero);
-	  return local1 * axis;
+	static btVector3 getAxisWorldToLocal(const btTransform& localObjectCenterOfMassTransform, const btVector3& axis)
+	{
+		btTransform local1 = localObjectCenterOfMassTransform.inverse();  // transforms the axis from the local frame into the world frame
+		btVector3 zero(0, 0, 0);
+		local1.setOrigin(zero);
+		return local1 * axis;
 	}
 
-	static btVector3 getAxisLocalToWorld(const btTransform& localObjectCenterOfMassTransform, const btVector3& axis) {
-	  btTransform local1 = localObjectCenterOfMassTransform; // transforms the axis from the local frame into the world frame
-	  btVector3 zero(0,0,0);
-	  local1.setOrigin(zero);
-	  return local1 * axis;
+	static btVector3 getAxisLocalToWorld(const btTransform& localObjectCenterOfMassTransform, const btVector3& axis)
+	{
+		btTransform local1 = localObjectCenterOfMassTransform;  // transforms the axis from the local frame into the world frame
+		btVector3 zero(0, 0, 0);
+		local1.setOrigin(zero);
+		return local1 * axis;
 	}
 
-	static btTransform getTransformWorldToLocal(const btTransform& localObjectCenterOfMassTransform, const btTransform& transform) {
-	  return localObjectCenterOfMassTransform.inverse() * transform; // transforms the axis from the local frame into the world frame
+	static btTransform getTransformWorldToLocal(const btTransform& localObjectCenterOfMassTransform, const btTransform& transform)
+	{
+		return localObjectCenterOfMassTransform.inverse() * transform;  // transforms the axis from the local frame into the world frame
 	}
 
-	static btTransform getTransformLocalToWorld(const btTransform& localObjectCenterOfMassTransform, const btTransform& transform) {
-	  return localObjectCenterOfMassTransform * transform; // transforms the axis from the local frame into the world frame
+	static btTransform getTransformLocalToWorld(const btTransform& localObjectCenterOfMassTransform, const btTransform& transform)
+	{
+		return localObjectCenterOfMassTransform * transform;  // transforms the axis from the local frame into the world frame
 	}
-
 };
 
 #endif /* B3_REFERENCEFRAMEHELPER_H */

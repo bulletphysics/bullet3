@@ -12,8 +12,8 @@ class b3ADSR
 	double m_releaseTime;
 	double m_sustainLevel;
 	bool m_autoKeyOff;
-public:
 
+public:
 	b3ADSR();
 	virtual ~b3ADSR();
 
@@ -22,14 +22,13 @@ public:
 	void keyOn(bool autoKeyOff);
 	void keyOff();
 
-	void setValues(double attack,double decay,double sustain,double release)
+	void setValues(double attack, double decay, double sustain, double release)
 	{
 		m_attackRate = attack;
 		m_decayRate = decay;
 		m_sustainLevel = sustain;
 		m_releaseRate = release;
 	}
-
 };
 
-#endif //B3_ADSR_H
+#endif  //B3_ADSR_H

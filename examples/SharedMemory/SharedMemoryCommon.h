@@ -6,18 +6,16 @@
 class SharedMemoryCommon : public CommonExampleInterface
 {
 protected:
-	
 	struct GUIHelperInterface* m_guiHelper;
-	
+
 public:
 	SharedMemoryCommon(GUIHelperInterface* helper)
-	:m_guiHelper(helper)
+		: m_guiHelper(helper)
 	{
 	}
 
-	virtual void setSharedMemoryKey(int key)=0;
-	virtual bool wantsTermination()=0;
-    virtual bool isConnected()=0;
+	virtual void setSharedMemoryKey(int key) = 0;
+	virtual bool wantsTermination() = 0;
+	virtual bool isConnected() = 0;
 };
-#endif//
-
+#endif  //
