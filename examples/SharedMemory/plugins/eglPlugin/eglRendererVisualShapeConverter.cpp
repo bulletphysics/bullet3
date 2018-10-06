@@ -886,6 +886,7 @@ void EGLRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int link
 			m_data->m_visualShapes[i].m_rgbaColor[1] = rgbaColor[1];
 			m_data->m_visualShapes[i].m_rgbaColor[2] = rgbaColor[2];
 			m_data->m_visualShapes[i].m_rgbaColor[3] = rgbaColor[3];
+			m_data->m_instancingRenderer->writeSingleInstanceColorToCPU(rgbaColor,i);
 		}
 	}
 
@@ -1044,7 +1045,7 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 							glstat = glGetError();
 							b3Assert(glstat == GL_NO_ERROR);
 						}
-						if ((sourceWidth * sourceHeight * sizeof(float)) == depthBufferSizeInPixels)
+						if ((sourceWidth * sourceHeight) == depthBufferSizeInPixels)
 						{
 							glReadPixels(0, 0, sourceWidth, sourceHeight, GL_DEPTH_COMPONENT, GL_FLOAT, &(m_data->m_sourceDepthBuffer[0]));
 							int glstat;
