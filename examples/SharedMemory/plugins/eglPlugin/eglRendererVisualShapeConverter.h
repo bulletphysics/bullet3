@@ -51,6 +51,9 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 	virtual int loadTextureFile(const char* filename);
 	virtual int registerTexture(unsigned char* texels, int width, int height);
 
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]);
+	virtual void setProjectiveTexture(bool useProjectiveTexture);
+
 	virtual void syncTransform(int shapeUid, const class btTransform& worldTransform, const class btVector3& localScaling);
 };
 
