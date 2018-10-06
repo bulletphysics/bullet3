@@ -87,8 +87,8 @@ struct EGLRendererObjectArray
 	}
 };
 
-#define START_WIDTH 640
-#define START_HEIGHT 480
+#define START_WIDTH 2560
+#define START_HEIGHT 2048
 
 struct EGLRendererVisualShapeConverterInternalData
 {
