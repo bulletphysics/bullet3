@@ -1232,7 +1232,7 @@ void btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 			/////setup the friction constraints
 #define ENABLE_FRICTION
 #ifdef ENABLE_FRICTION
-			solverConstraint.m_frictionIndex = frictionIndex;
+			solverConstraint.m_frictionIndex = m_multiBodyFrictionContactConstraints.size();
 
 			///Bullet has several options to set the friction directions
 			///By default, each contact has only a single friction direction that is recomputed automatically every frame
@@ -1501,9 +1501,13 @@ btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlyFinish(btCollisionO
 			if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 			{
 				pt->m_appliedImpulseLateral2 = m_multiBodyFrictionContactConstraints[solverConstraint.m_frictionIndex + 1].m_appliedImpulse;
+			} else
+			{
+				pt->m_appliedImpulseLateral2 = 0;
 			}
-			//do a callback here?
 		}
+		
+			//do a callback here?
 	}
 #if 0
 	//multibody joint feedback

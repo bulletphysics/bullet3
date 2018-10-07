@@ -9704,30 +9704,14 @@ PyMODINIT_FUNC
 #if PY_MAJOR_VERSION >= 3
 PyInit_pybullet(void)
 #else
-#ifdef BT_USE_EGL2
-initpybullet_egl(void)
-#else
-#ifdef BT_PYBULLET_GRPC
-initpybullet_grpc(void)
-#else
 initpybullet(void)
-#endif  //BT_USE_EGL2
-#endif  //BT_PYBULLET_GRPC
 #endif
 {
 	PyObject* m;
 #if PY_MAJOR_VERSION >= 3
 	m = PyModule_Create(&moduledef);
 #else
-#ifdef BT_USE_EGL2
-	m = Py_InitModule3("pybullet_egl", SpamMethods, "Python bindings for Bullet");
-#else
-#ifdef BT_PYBULLET_GRPC
-	m = Py_InitModule3("pybullet_grpc", SpamMethods, "Python bindings for Bullet");
-#else
 	m = Py_InitModule3("pybullet", SpamMethods, "Python bindings for Bullet");
-#endif  //BT_USE_EGL2
-#endif  //BT_PYBULLET_GRPC
 #endif
 
 #if PY_MAJOR_VERSION >= 3
