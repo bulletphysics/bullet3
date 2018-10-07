@@ -1508,7 +1508,6 @@ btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlyFinish(btCollisionO
 		}
 		
 			//do a callback here?
-		}
 	}
 #if 0
 	//multibody joint feedback
