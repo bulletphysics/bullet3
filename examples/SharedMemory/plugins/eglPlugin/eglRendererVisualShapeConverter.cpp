@@ -54,7 +54,7 @@ typedef X11OpenGLWindow DefaultOpenGLWindow;
 #include "OpenGLWindow/GLInstancingRenderer.h"
 #include "OpenGLWindow/GLRenderToTexture.h"
 
-#define BT_USE_TENSOR_RT
+// #define BT_USE_TENSOR_RT
 
 #ifdef BT_USE_TENSOR_RT
 #include "eglRendererTensorRT.cpp"
@@ -1214,7 +1214,7 @@ void EGLRendererVisualShapeConverter::copyCameraArrayImageData(unsigned char* pi
 	*featureLengthPtr = m_data->m_tensorRT->getFeatureLength();
 #else // BT_USE_TENSOR_RT
 	*numFeaturesCopied = 0;
-	*featureLengthPtr = 0
+	*featureLengthPtr = 0;
 #endif //
 
     glReadPixels(0,0,m_data->m_swWidth, m_data->m_swHeight * m_data->m_swCameraArraySize, GL_RGB, GL_UNSIGNED_BYTE, &(pixelsRGB[0]));
