@@ -11,7 +11,7 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual ~EGLRendererVisualShapeConverter();
 
-	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int shapeUid, int objectIndex);
+	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUniqueId, int bodyUniqueId, struct CommonFileIOInterface* fileIO);
 
 	virtual int getNumVisualShapes(int bodyUniqueId);
 
