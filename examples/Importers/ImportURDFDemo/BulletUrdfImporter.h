@@ -19,7 +19,7 @@ class BulletURDFImporter : public URDFImporterInterface
 	struct BulletURDFInternalData* m_data;
 
 public:
-	BulletURDFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, struct CommonFileIOInterface* fileIO,double globalScaling, int flags);
+	BulletURDFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, struct CommonFileIOInterface* fileIO=0,double globalScaling=1, int flags=0);
 
 	virtual ~BulletURDFImporter();
 
