@@ -29,6 +29,7 @@
 #endif
 #include <sstream>
 #include "tiny_obj_loader.h"
+#include <stdio.h>
 
 namespace tinyobj
 {
