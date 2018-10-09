@@ -106,9 +106,6 @@ struct UrdfGeometry
 	}
 };
 
-bool findExistingMeshFile(const std::string& urdf_path, std::string fn,
-						  const std::string& error_message_prefix,
-						  std::string* out_found_filename, int* out_type);  // intended to fill UrdfGeometry::m_meshFileName and Type, but can be used elsewhere
 
 struct UrdfShape
 {
@@ -256,6 +253,9 @@ protected:
 	int m_activeSdfModel;
 
 	btScalar m_urdfScaling;
+
+	struct CommonFileIOInterface* m_fileIO;
+
 	bool parseTransform(btTransform& tr, tinyxml2::XMLElement* xml, ErrorLogger* logger, bool parseSDF = false);
 	bool parseInertia(UrdfInertia& inertia, tinyxml2::XMLElement* config, ErrorLogger* logger);
 	bool parseGeometry(UrdfGeometry& geom, tinyxml2::XMLElement* g, ErrorLogger* logger);
@@ -270,7 +270,7 @@ protected:
 	bool parseSensor(UrdfModel& model, UrdfLink& link, UrdfJoint& joint, tinyxml2::XMLElement* config, ErrorLogger* logger);
 
 public:
-	UrdfParser();
+	UrdfParser(struct CommonFileIOInterface* fileIO);
 	virtual ~UrdfParser();
 
 	void setParseSDF(bool useSDF)

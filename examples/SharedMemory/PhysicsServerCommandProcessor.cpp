@@ -4,6 +4,8 @@
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
+#include "../Importers/ImportURDFDemo/UrdfFindMeshFile.h"
+
 #include "../Extras/InverseDynamics/btMultiBodyTreeCreator.hpp"
 
 #include "BulletCollision/CollisionDispatch/btInternalEdgeUtility.h"
@@ -54,6 +56,7 @@
 #include "plugins/collisionFilterPlugin/collisionFilterPlugin.h"
 #endif
 
+
 #ifdef ENABLE_STATIC_GRPC_PLUGIN
 #include "plugins/grpcPlugin/grpcPlugin.h"
 #endif  //ENABLE_STATIC_GRPC_PLUGIN
@@ -73,6 +76,10 @@
 #ifndef SKIP_STATIC_TINYRENDERER_PLUGIN
 #include "plugins/tinyRendererPlugin/tinyRendererPlugin.h"
 #endif
+
+#ifndef B3_ENABLE_FILEIO_PLUGIN
+#include "plugins/fileIOPlugin/fileIOPlugin.h"
+#endif//B3_DISABLE_FILEIO_PLUGIN
 
 #ifdef B3_ENABLE_TINY_AUDIO
 #include "../TinyAudio/b3SoundEngine.h"
@@ -103,6 +110,11 @@ btQuaternion gVRTeleportOrn(0, 0, 0, 1);
 
 btScalar simTimeScalingFactor = 1;
 btScalar gRhsClamp = 1.f;
+
+#include "../CommonInterfaces/CommonFileIOInterface.h"
+
+
+
 
 struct UrdfLinkNameMapUtil
 {
@@ -1639,6 +1651,7 @@ struct PhysicsServerCommandProcessorInternalData
 	std::string m_profileTimingFileName;
 
 	struct GUIHelperInterface* m_guiHelper;
+	
 	int m_sharedMemoryKey;
 	bool m_enableTinyRenderer;
 
@@ -1704,43 +1717,66 @@ struct PhysicsServerCommandProcessorInternalData
 		{
 			//register static plugins:
 #ifdef STATIC_LINK_VR_PLUGIN
-			m_pluginManager.registerStaticLinkedPlugin("vrSyncPlugin", initPlugin_vrSyncPlugin, exitPlugin_vrSyncPlugin, executePluginCommand_vrSyncPlugin, preTickPluginCallback_vrSyncPlugin, 0, 0, 0, 0);
+			b3PluginFunctions funcs(initPlugin_vrSyncPlugin,exitPlugin_vrSyncPlugin, executePluginCommand_vrSyncPlugin);
+			funcs.m_preTickFunc = preTickPluginCallback_vrSyncPlugin;
+			m_pluginManager.registerStaticLinkedPlugin("vrSyncPlugin", funcs);
 #endif  //STATIC_LINK_VR_PLUGIN
-
+		}
 #ifndef SKIP_STATIC_PD_CONTROL_PLUGIN
 			{
-				m_pdControlPlugin = m_pluginManager.registerStaticLinkedPlugin("pdControlPlugin", initPlugin_pdControlPlugin, exitPlugin_pdControlPlugin, executePluginCommand_pdControlPlugin, preTickPluginCallback_pdControlPlugin, 0, 0, 0, 0);
+				//int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc, PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc, PFN_GET_RENDER_INTERFACE getRendererFunc, PFN_TICK processClientCommandsFunc, PFN_GET_COLLISION_INTERFACE getCollisionFunc, bool initPlugin)
+				b3PluginFunctions funcs(initPlugin_pdControlPlugin,exitPlugin_pdControlPlugin,executePluginCommand_pdControlPlugin);
+				funcs.m_preTickFunc = preTickPluginCallback_pdControlPlugin;
+				m_pdControlPlugin = m_pluginManager.registerStaticLinkedPlugin("pdControlPlugin", funcs);
 			}
 #endif  //SKIP_STATIC_PD_CONTROL_PLUGIN
 
 #ifndef SKIP_COLLISION_FILTER_PLUGIN
 			{
-				m_collisionFilterPlugin = m_pluginManager.registerStaticLinkedPlugin("collisionFilterPlugin", initPlugin_collisionFilterPlugin, exitPlugin_collisionFilterPlugin, executePluginCommand_collisionFilterPlugin, 0, 0, 0, 0, getCollisionInterface_collisionFilterPlugin);
+				b3PluginFunctions funcs(initPlugin_collisionFilterPlugin,exitPlugin_collisionFilterPlugin, executePluginCommand_collisionFilterPlugin);
+				funcs.m_getCollisionFunc = getCollisionInterface_collisionFilterPlugin;
+				m_collisionFilterPlugin = m_pluginManager.registerStaticLinkedPlugin("collisionFilterPlugin", funcs );
 				m_pluginManager.selectCollisionPlugin(m_collisionFilterPlugin);
 			}
 #endif
 
 #ifdef ENABLE_STATIC_GRPC_PLUGIN
 			{
-				m_grpcPlugin = m_pluginManager.registerStaticLinkedPlugin("grpcPlugin", initPlugin_grpcPlugin, exitPlugin_grpcPlugin, executePluginCommand_grpcPlugin, 0, 0, 0, processClientCommands_grpcPlugin, 0);
+				b3PluginFunctions funcs(initPlugin_grpcPlugin, exitPlugin_grpcPlugin, executePluginCommand_grpcPlugin);
+				funcs.m_processClientCommandsFunc = processClientCommands_grpcPlugin;
+				m_grpcPlugin = m_pluginManager.registerStaticLinkedPlugin("grpcPlugin", funcs);
 			}
 #endif  //ENABLE_STATIC_GRPC_PLUGIN
 
 #ifdef STATIC_EGLRENDERER_PLUGIN
 			{
 				bool initPlugin = false;
-				int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("eglRendererPlugin", initPlugin_eglRendererPlugin, exitPlugin_eglRendererPlugin, executePluginCommand_eglRendererPlugin, 0, 0, getRenderInterface_eglRendererPlugin, 0, 0, initPlugin);
+				b3PluginFunctions funcs(initPlugin_eglRendererPlugin, exitPlugin_eglRendererPlugin, executePluginCommand_eglRendererPlugin);
+				funcs.m_getRendererFunc = getRenderInterface_eglRendererPlugin;
+				int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("eglRendererPlugin", funcs, initPlugin);
 				m_pluginManager.selectPluginRenderer(renderPluginId);
 			}
 #endif  //STATIC_EGLRENDERER_PLUGIN
 
 #ifndef SKIP_STATIC_TINYRENDERER_PLUGIN
 			{
-				int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin, 0, 0, getRenderInterface_tinyRendererPlugin, 0, 0);
+				b3PluginFunctions funcs(initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin);
+				funcs.m_getRendererFunc=getRenderInterface_tinyRendererPlugin;
+				int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", funcs);
 				m_pluginManager.selectPluginRenderer(renderPluginId);
 			}
 #endif
-		}
+
+#ifdef B3_ENABLE_FILEIO_PLUGIN
+			{
+				b3PluginFunctions funcs(initPlugin_fileIOPlugin, exitPlugin_fileIOPlugin, executePluginCommand_fileIOPlugin);
+				funcs.m_fileIoFunc = getFileIOFunc_fileIOPlugin;
+				int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("fileIOPlugin", funcs);
+				m_pluginManager.selectFileIOPlugin(renderPluginId);
+			}
+#endif
+
+		
 
 		m_vrControllerEvents.init();
 
@@ -2212,7 +2248,9 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		int graphicsIndex = -1;
 		double globalScaling = 1.f;  //todo!
 		int flags = 0;
-		BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(), globalScaling, flags);
+		CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
+		
+		BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(),fileIO, globalScaling, flags);
 		u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
 
 		btAlignedObjectArray<GLInstanceVertex> vertices;
@@ -2300,7 +2338,8 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		//UrdfLink*const* linkPtr = model.m_links.getAtIndex(urdfIndex);
 		if (m_data->m_pluginManager.getRenderInterface())
 		{
-			m_data->m_pluginManager.getRenderInterface()->convertVisualShapes(linkIndex, pathPrefix, localInertiaFrame, &link, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId);
+			CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
+			m_data->m_pluginManager.getRenderInterface()->convertVisualShapes(linkIndex, pathPrefix, localInertiaFrame, &link, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId, fileIO);
 		}
 	}
 	virtual void setBodyUniqueId(int bodyId)
@@ -3015,7 +3054,8 @@ bool PhysicsServerCommandProcessor::loadMjcf(const char* fileName, char* bufferS
 
 	m_data->m_sdfRecentLoadedBodies.clear();
 
-	BulletMJCFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(), flags);
+	CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
+	BulletMJCFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(), fileIO, flags);
 
 	bool useFixedBase = false;
 	MyMJCFLogger2 logger;
@@ -3037,8 +3077,8 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 	}
 
 	m_data->m_sdfRecentLoadedBodies.clear();
-
-	BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(), globalScaling, flags);
+	CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
+	BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(), fileIO, globalScaling, flags);
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
 
 	bool forceFixedBase = false;
@@ -3067,7 +3107,8 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 		return false;
 	}
 
-	BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(), globalScaling, flags);
+	CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
+	BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(), fileIO, globalScaling, flags);
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
 	bool loadOk = u2b.loadURDF(fileName, useFixedBase);
 
@@ -4101,9 +4142,9 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 				urdfColObj.m_geometry.m_meshFileName = fileName;
 
 				urdfColObj.m_geometry.m_meshScale = meshScale;
-
+				CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
 				pathPrefix[0] = 0;
-				if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
+				if (fileIO->findResourcePath(fileName.c_str(), relativeFileName, 1024))
 				{
 					b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
 				}
@@ -4112,14 +4153,16 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 				std::string out_found_filename;
 				int out_type;
 
-				bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
+				
+				bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
 				if (foundFile)
 				{
 					urdfColObj.m_geometry.m_meshFileType = out_type;
 
 					if (out_type == UrdfGeometry::FILE_STL)
 					{
-						glmesh = LoadMeshFromSTL(relativeFileName);
+						CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
+						glmesh = LoadMeshFromSTL(relativeFileName,fileIO);
 					}
 					if (out_type == UrdfGeometry::FILE_OBJ)
 					{
@@ -4127,12 +4170,13 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 
 						if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags & GEOM_FORCE_CONCAVE_TRIMESH)
 						{
-							glmesh = LoadMeshFromObj(relativeFileName, pathPrefix);
+							CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
+							glmesh = LoadMeshFromObj(relativeFileName, pathPrefix,fileIO);
 						}
 						else
 						{
 							std::vector<tinyobj::shape_t> shapes;
-							std::string err = tinyobj::LoadObj(shapes, out_found_filename.c_str());
+							std::string err = tinyobj::LoadObj(shapes, out_found_filename.c_str(),"",fileIO);
 
 							//shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
 							//static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
@@ -4309,7 +4353,8 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 	serverStatusOut.m_type = CMD_CREATE_VISUAL_SHAPE_FAILED;
 	double globalScaling = 1.f;
 	int flags = 0;
-	BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(), globalScaling, flags);
+	CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
+	BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(), fileIO, globalScaling, flags);
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
 	btTransform localInertiaFrame;
 	localInertiaFrame.setIdentity();
@@ -4374,12 +4419,12 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 				const std::string& error_message_prefix = "";
 				std::string out_found_filename;
 				int out_type;
-				if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
+				if (fileIO->findResourcePath(fileName.c_str(), relativeFileName, 1024))
 				{
 					b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
 				}
 
-				bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
+				bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
 				visualShape.m_geometry.m_meshFileType = out_type;
 				visualShape.m_geometry.m_meshFileName = fileName;
 
@@ -6692,19 +6737,21 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	}
 
 	{
+		CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
 		char relativeFileName[1024];
 		char pathPrefix[1024];
 		pathPrefix[0] = 0;
-		if (b3ResourcePath::findResourcePath(loadSoftBodyArgs.m_fileName, relativeFileName, 1024))
+		if (fileIO->findResourcePath(loadSoftBodyArgs.m_fileName, relativeFileName, 1024))
 		{
 			b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
 		}
 		const std::string& error_message_prefix = "";
 		std::string out_found_filename;
 		int out_type;
-		bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
+		
+		bool foundFile = UrdfFindMeshFile(fileIO,pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
 		std::vector<tinyobj::shape_t> shapes;
-		std::string err = tinyobj::LoadObj(shapes, out_found_filename.c_str());
+		std::string err = tinyobj::LoadObj(shapes, out_found_filename.c_str(),"",fileIO);
 		if (shapes.size() > 0)
 		{
 			const tinyobj::shape_t& shape = shapes[0];
@@ -9802,7 +9849,8 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 	char relativeFileName[1024];
 	char pathPrefix[1024];
 
-	if (b3ResourcePath::findResourcePath(clientCmd.m_loadTextureArguments.m_textureFileName, relativeFileName, 1024))
+	CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
+	if (fileIO->findResourcePath(clientCmd.m_loadTextureArguments.m_textureFileName, relativeFileName, 1024))
 	{
 		b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
 

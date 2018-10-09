@@ -182,7 +182,7 @@ void TinyRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff
 	m_data->m_hasLightSpecularCoeff = true;
 }
 
-void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
+static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut, struct CommonFileIOInterface* fileIO)
 {
 	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
 	visualShapeOut.m_dimensions[0] = 0;
@@ -322,7 +322,7 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 				{
 					//glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
 					b3ImportMeshData meshData;
-					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData))
+					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData, fileIO))
 					{
 						if (meshData.m_textureImage1)
 						{
@@ -338,7 +338,7 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 					break;
 				}
 				case UrdfGeometry::FILE_STL:
-					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str());
+					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str(), fileIO);
 					break;
 				case UrdfGeometry::FILE_COLLADA:
 				{
@@ -354,7 +354,8 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 										visualShapeInstances,
 										upAxisTrans,
 										unitMeterScaling,
-										upAxis);
+										upAxis,
+										fileIO);
 
 					glmesh = new GLInstanceGraphicsShape;
 					//		int index = 0;
@@ -540,9 +541,10 @@ static btVector4 sColors[4] =
 };
 
 void TinyRendererVisualShapeConverter::convertVisualShapes(
-	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
-	const UrdfLink* linkPtr, const UrdfModel* model,
-	int collisionObjectUniqueId, int bodyUniqueId)
+	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, 
+	const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUniqueId, 
+	int bodyUniqueId, struct CommonFileIOInterface* fileIO)
+
 {
 	btAssert(linkPtr);  // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
@@ -663,7 +665,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 
 			{
 				B3_PROFILE("convertURDFToVisualShape");
-				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape);
+				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape, fileIO);
 			}
 
 			if (vertices.size() && indices.size())

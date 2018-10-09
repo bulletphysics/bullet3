@@ -9,6 +9,7 @@
 #include "stb_image/stb_image.h"
 #include "../ImportObjDemo/LoadMeshFromObj.h"
 #include "Bullet3Common/b3HashMap.h"
+#include "../../CommonInterfaces/CommonFileIOInterface.h"
 
 struct CachedTextureResult
 {
@@ -45,7 +46,7 @@ struct CachedTextureManager
 };
 static CachedTextureManager sTexCacheMgr;
 
-bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData)
+bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData, struct CommonFileIOInterface* fileIO)
 {
 	B3_PROFILE("loadAndRegisterMeshFromFileInternal");
 	meshData.m_gfxShape = 0;
@@ -55,7 +56,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 	meshData.m_isCached = false;
 
 	char relativeFileName[1024];
-	if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
+	if (fileIO->findResourcePath(fileName.c_str(), relativeFileName, 1024))
 	{
 		char pathPrefix[1024];
 
@@ -65,7 +66,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 		std::vector<tinyobj::shape_t> shapes;
 		{
 			B3_PROFILE("tinyobj::LoadObj");
-			std::string err = LoadFromCachedOrFromObj(shapes, relativeFileName, pathPrefix);
+			std::string err = LoadFromCachedOrFromObj(shapes, relativeFileName, pathPrefix,fileIO);
 			//std::string err = tinyobj::LoadObj(shapes, relativeFileName, pathPrefix);
 		}
 
@@ -91,7 +92,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 						char relativeFileName[1024];
 						sprintf(relativeFileName, "%s%s", prefix[i], filename);
 						char relativeFileName2[1024];
-						if (b3ResourcePath::findResourcePath(relativeFileName, relativeFileName2, 1024))
+						if (fileIO->findResourcePath(relativeFileName, relativeFileName2, 1024))
 						{
 							if (b3IsFileCachingEnabled())
 							{
@@ -110,7 +111,30 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 
 							if (image == 0)
 							{
-								image = stbi_load(relativeFileName, &width, &height, &n, 3);
+
+								b3AlignedObjectArray<char> buffer;
+								buffer.reserve(1024);
+								int fileId = fileIO->fileOpen(relativeFileName,"rb");
+								if (fileId>=0)
+								{
+									int size = fileIO->getFileSize(fileId);
+									if (size>0)
+									{
+										buffer.resize(size);
+										int actual = fileIO->fileRead(fileId,&buffer[0],size);
+										if (actual != size)
+										{
+											b3Warning("STL filesize mismatch!\n");
+											buffer.resize(0);
+										}
+									}
+								}
+
+								if (buffer.size())
+								{
+									image = stbi_load_from_memory((const unsigned char*)&buffer[0], buffer.size(), &width, &height, &n, 3);
+								}
+								//image = stbi_load(relativeFileName, &width, &height, &n, 3);
 
 								meshData.m_textureImage1 = image;
 

@@ -41,8 +41,7 @@ B3_SHARED_API int initPlugin_vrSyncPlugin(struct b3PluginContext* context)
 {
 	MyClass* obj = new MyClass();
 	context->m_userPointer = obj;
-
-	printf("hi vrSyncPlugin!\n");
+	
 	return SHARED_MEMORY_MAGIC_NUMBER;
 }
 
@@ -192,6 +191,4 @@ B3_SHARED_API void exitPlugin_vrSyncPlugin(struct b3PluginContext* context)
 	MyClass* obj = (MyClass*)context->m_userPointer;
 	delete obj;
 	context->m_userPointer = 0;
-
-	printf("bye vrSyncPlugin!\n");
 }

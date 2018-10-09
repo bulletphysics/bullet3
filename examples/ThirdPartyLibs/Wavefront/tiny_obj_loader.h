@@ -10,6 +10,8 @@
 #include <vector>
 #include <map>
 
+struct CommonFileIOInterface;
+
 namespace tinyobj
 {
 typedef struct
@@ -51,10 +53,19 @@ typedef struct
 /// The function returns error string.
 /// Returns empty string when loading .obj success.
 /// 'mtl_basepath' is optional, and used for base path for .mtl file.
+#ifdef USE_STREAM
 std::string LoadObj(
 	std::vector<shape_t>& shapes,  // [output]
 	const char* filename,
 	const char* mtl_basepath = NULL);
+#else
+std::string
+LoadObj(
+	std::vector<shape_t>& shapes,
+	const char* filename,
+	const char* mtl_basepath,
+	CommonFileIOInterface* fileIO);
+#endif
 
 };  // namespace tinyobj
 
