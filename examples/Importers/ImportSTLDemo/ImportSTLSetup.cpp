@@ -7,6 +7,7 @@
 #include "LoadMeshFromSTL.h"
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../../Utils/b3ResourcePath.h"
+#include "../../Utils/b3BulletDefaultFileIO.h"
 
 class ImportSTLSetup : public CommonRigidBodyBase
 {
@@ -55,7 +56,7 @@ void ImportSTLSetup::initPhysics()
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 
 	char relativeFileName[1024];
-	if (!b3ResourcePath::findResourcePath(m_fileName, relativeFileName, 1024))
+	if (!b3ResourcePath::findResourcePath(m_fileName, relativeFileName, 1024,0))
 	{
 		b3Warning("Cannot find file %s\n", m_fileName);
 		return;
@@ -65,7 +66,8 @@ void ImportSTLSetup::initPhysics()
 	//	int index=10;
 
 	{
-		GLInstanceGraphicsShape* gfxShape = LoadMeshFromSTL(relativeFileName);
+		b3BulletDefaultFileIO fileIO;
+		GLInstanceGraphicsShape* gfxShape = LoadMeshFromSTL(relativeFileName,&fileIO);
 
 		btTransform trans;
 		trans.setIdentity();
@@ -74,7 +76,7 @@ void ImportSTLSetup::initPhysics()
 		btVector3 position = trans.getOrigin();
 		btQuaternion orn = trans.getRotation();
 
-		btVector3 color(0, 0, 1);
+		btVector4 color(0, 0, 1,1);
 
 		int shapeId = m_guiHelper->getRenderInterface()->registerShape(&gfxShape->m_vertices->at(0).xyzw[0], gfxShape->m_numvertices, &gfxShape->m_indices->at(0), gfxShape->m_numIndices);
 

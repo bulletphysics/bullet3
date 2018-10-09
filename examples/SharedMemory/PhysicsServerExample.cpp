@@ -1520,48 +1520,51 @@ public:
 
 		if (gEnableDefaultKeyboardShortcuts)
 		{
-			if (key == 'w' && state)
+			if (m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->isVRCamera())
 			{
-				VRTeleportPos[0] += shift;
-				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-				saveCurrentSettingsVR(VRTeleportPos);
-			}
-			if (key == 's' && state)
-			{
-				VRTeleportPos[0] -= shift;
-				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-				saveCurrentSettingsVR(VRTeleportPos);
-			}
-			if (key == 'a' && state)
-			{
-				VRTeleportPos[1] -= shift;
-				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-				saveCurrentSettingsVR(VRTeleportPos);
-			}
-			if (key == 'd' && state)
-			{
-				VRTeleportPos[1] += shift;
-				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-				saveCurrentSettingsVR(VRTeleportPos);
-			}
-			if (key == 'q' && state)
-			{
-				VRTeleportPos[2] += shift;
-				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-				saveCurrentSettingsVR(VRTeleportPos);
-			}
-			if (key == 'e' && state)
-			{
-				VRTeleportPos[2] -= shift;
-				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-				saveCurrentSettingsVR(VRTeleportPos);
-			}
-			if (key == 'z' && state)
-			{
-				gVRTeleportRotZ += shift;
-				btQuaternion VRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
-				m_physicsServer.setVRTeleportOrientation(VRTeleportOrn);
-				saveCurrentSettingsVR(VRTeleportPos);
+				if (key == 'w' && state)
+				{
+					VRTeleportPos[0] += shift;
+					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
+				if (key == 's' && state)
+				{
+					VRTeleportPos[0] -= shift;
+					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
+				if (key == 'a' && state)
+				{
+					VRTeleportPos[1] -= shift;
+					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
+				if (key == 'd' && state)
+				{
+					VRTeleportPos[1] += shift;
+					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
+				if (key == 'q' && state)
+				{
+					VRTeleportPos[2] += shift;
+					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
+				if (key == 'e' && state)
+				{
+					VRTeleportPos[2] -= shift;
+					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
+				if (key == 'z' && state)
+				{
+					gVRTeleportRotZ += shift;
+					btQuaternion VRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
+					m_physicsServer.setVRTeleportOrientation(VRTeleportOrn);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
 			}
 		}
 

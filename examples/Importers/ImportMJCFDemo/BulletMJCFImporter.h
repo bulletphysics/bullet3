@@ -27,7 +27,7 @@ class BulletMJCFImporter : public URDFImporterInterface
 	void convertURDFToVisualShapeInternal(const struct UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<struct GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MJCFURDFTexture>& texturesOut) const;
 
 public:
-	BulletMJCFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, int flags);
+	BulletMJCFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter,  struct CommonFileIOInterface* fileIO, int flags);
 	virtual ~BulletMJCFImporter();
 
 	virtual bool parseMJCFString(const char* xmlString, MJCFErrorLogger* logger);

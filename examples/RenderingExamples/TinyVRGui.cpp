@@ -7,6 +7,7 @@
 #include "../RenderingExamples/TimeSeriesFontData.h"
 #include "../Importers/ImportMeshUtility/b3ImportMeshUtility.h"
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
+#include "../Utils/b3BulletDefaultFileIO.h"
 
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
@@ -129,7 +130,8 @@ bool TinyVRGui::init()
 			int shapeId = -1;
 
 			b3ImportMeshData meshData;
-			if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fileName, meshData))
+			b3BulletDefaultFileIO fileIO;
+			if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fileName, meshData,&fileIO))
 			{
 				shapeId = m_data->m_renderer->registerShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
 															meshData.m_gfxShape->m_numvertices,

@@ -11,7 +11,7 @@
 #include "../../examples/Importers/ImportURDFDemo/URDF2Bullet.h"
 #include "../../examples/Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../../examples/Importers/ImportURDFDemo/URDF2Bullet.h"
-
+#include "../../examples/Utils/b3BulletDefaultFileIO.h"
 /// Create a btMultiBody model from URDF.
 /// This is adapted from Bullet URDF loader example
 class MyBtMultiBodyFromURDF
@@ -48,7 +48,8 @@ public:
 	{
 		this->createEmptyDynamicsWorld();
 		m_dynamicsWorld->setGravity(m_gravity);
-		BulletURDFImporter urdf_importer(&m_nogfx, 0, 1, 0);
+		b3BulletDefaultFileIO fileIO;
+		BulletURDFImporter urdf_importer(&m_nogfx, 0, &fileIO, 1, 0);
 		URDFImporterInterface &u2b(urdf_importer);
 		bool loadOk = u2b.loadURDF(m_filename.c_str(), m_base_fixed);
 

@@ -6,6 +6,8 @@
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "../../CommonInterfaces/CommonRenderInterface.h"
 #include "../../CommonInterfaces/CommonGUIHelperInterface.h"
+#include "../../CommonInterfaces/CommonFileIOInterface.h"
+#include "../ImportURDFDemo/UrdfFindMeshFile.h"
 #include <string>
 #include "../../Utils/b3ResourcePath.h"
 #include <iostream>
@@ -32,6 +34,7 @@
 #include "BulletCollision/CollisionShapes/btConvexHullShape.h"
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btTriangleMesh.h"
+
 using namespace tinyxml2;
 
 #define mjcf_sphere_indiced textured_detailed_sphere_indices
@@ -203,13 +206,16 @@ struct BulletMJCFImporterInternalData
 
 	int m_flags;
 	int m_textureId;
+	
+	CommonFileIOInterface* m_fileIO;
 
 	BulletMJCFImporterInternalData()
 		: m_inertiaFromGeom(true),
 		  m_activeModel(-1),
 		  m_activeBodyUniqueId(-1),
 		  m_flags(0),
-		  m_textureId(-1)
+		  m_textureId(-1),
+		  m_fileIO(0)
 	{
 		m_pathPrefix[0] = 0;
 	}
@@ -887,7 +893,7 @@ struct BulletMJCFImporterInternalData
 					{
 						geom.m_type = URDF_GEOM_MESH;
 						geom.m_meshFileName = assetPtr->m_fileName;
-						bool exists = findExistingMeshFile(
+						bool exists = UrdfFindMeshFile(m_fileIO,
 							m_sourceFileName, assetPtr->m_fileName, sourceFileLocation(link_xml),
 							&geom.m_meshFileName,
 							&geom.m_meshFileType);
@@ -1408,13 +1414,14 @@ struct BulletMJCFImporterInternalData
 	}
 };
 
-BulletMJCFImporter::BulletMJCFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, int flags)
+BulletMJCFImporter::BulletMJCFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, CommonFileIOInterface* fileIO, int flags)
 {
 	m_data = new BulletMJCFImporterInternalData();
 	m_data->m_guiHelper = helper;
 	m_data->m_customVisualShapesConverter = customConverter;
 	m_data->m_flags = flags;
 	m_data->m_textureId = -1;
+	m_data->m_fileIO = fileIO;
 }
 
 BulletMJCFImporter::~BulletMJCFImporter()
@@ -1433,7 +1440,7 @@ bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger,
 	b3FileUtils fu;
 
 	//bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
-	bool fileFound = (b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024) > 0);
+	bool fileFound = (m_data->m_fileIO->findResourcePath(fileName, relativeFileName, 1024) > 0);
 	m_data->m_sourceFileName = relativeFileName;
 
 	std::string xml_string;
@@ -1962,7 +1969,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 				case UrdfGeometry::FILE_OBJ:
 				{
 					b3ImportMeshData meshData;
-					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData))
+					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData, m_data->m_fileIO))
 					{
 						if (meshData.m_textureImage1)
 						{
@@ -1980,7 +1987,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 
 				case UrdfGeometry::FILE_STL:
 				{
-					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str());
+					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str(), m_data->m_fileIO);
 					break;
 				}
 
@@ -1998,7 +2005,8 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 										visualShapeInstances,
 										upAxisTrans,
 										unitMeterScaling,
-										upAxis);
+										upAxis,
+										m_data->m_fileIO);
 
 					glmesh = new GLInstanceGraphicsShape;
 					//		int index = 0;
@@ -2243,7 +2251,7 @@ void BulletMJCFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, 
 	if (m_data->m_customVisualShapesConverter)
 	{
 		const UrdfLink* link = m_data->getLink(m_data->m_activeModel, urdfIndex);
-		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex, pathPrefix, inertialFrame, link, 0, colObj->getBroadphaseHandle()->getUid(), objectIndex);
+		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex, pathPrefix, inertialFrame, link, 0, colObj->getBroadphaseHandle()->getUid(), objectIndex, m_data->m_fileIO);
 	}
 }
 
@@ -2379,12 +2387,12 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 						{
 							if (col->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
 							{
-								glmesh = LoadMeshFromObj(col->m_geometry.m_meshFileName.c_str(), 0);
+								glmesh = LoadMeshFromObj(col->m_geometry.m_meshFileName.c_str(), 0,m_data->m_fileIO);
 							}
 							else
 							{
 								std::vector<tinyobj::shape_t> shapes;
-								std::string err = tinyobj::LoadObj(shapes, col->m_geometry.m_meshFileName.c_str());
+								std::string err = tinyobj::LoadObj(shapes, col->m_geometry.m_meshFileName.c_str(),"",m_data->m_fileIO);
 								//create a convex hull for each shape, and store it in a btCompoundShape
 
 								childShape = MjcfCreateConvexHullFromShapes(shapes, col->m_geometry.m_meshScale, m_data->m_globalDefaults.m_defaultCollisionMargin);
@@ -2393,7 +2401,7 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 						}
 						case UrdfGeometry::FILE_STL:
 						{
-							glmesh = LoadMeshFromSTL(col->m_geometry.m_meshFileName.c_str());
+							glmesh = LoadMeshFromSTL(col->m_geometry.m_meshFileName.c_str(), m_data->m_fileIO);
 							break;
 						}
 						default:

@@ -22,13 +22,17 @@
 #include <string>
 #include <vector>
 #include <map>
+#ifdef USE_STREAM
 #include <fstream>
+#else
+#include "../../CommonInterfaces/CommonFileIOInterface.h"
+#endif
 #include <sstream>
-
 #include "tiny_obj_loader.h"
 
 namespace tinyobj
 {
+#ifdef USE_STREAM
 //See http://stackoverflow.com/questions/6089231/getting-std-ifstream-to-handle-lf-cr-and-crlf
 std::istream& safeGetline(std::istream& is, std::string& t)
 {
@@ -64,7 +68,7 @@ std::istream& safeGetline(std::istream& is, std::string& t)
 		}
 	}
 }
-
+#endif
 struct vertex_index
 {
 	int v_idx, vt_idx, vn_idx, dummy;
@@ -340,7 +344,8 @@ void InitMaterial(material_t& material)
 std::string LoadMtl(
 	std::map<std::string, material_t>& material_map,
 	const char* filename,
-	const char* mtl_basepath)
+	const char* mtl_basepath,
+	CommonFileIOInterface* fileIO)
 {
 	material_map.clear();
 	std::stringstream err;
@@ -355,22 +360,44 @@ std::string LoadMtl(
 	{
 		filepath = std::string(filename);
 	}
-
+#ifdef USE_STREAM
 	std::ifstream ifs(filepath.c_str());
 	if (!ifs)
 	{
 		err << "Cannot open file [" << filepath << "]" << std::endl;
 		return err.str();
 	}
+#else
+	int fileHandle = fileIO->fileOpen(filepath.c_str(),"r");
+	if (fileHandle<0)
+	{
+		err << "Cannot open file [" << filepath << "]" << std::endl;
+		return err.str();
+	}
+#endif
 
 	material_t material;
 
 	int maxchars = 8192;              // Alloc enough size.
 	std::vector<char> buf(maxchars);  // Alloc enough size.
+#ifdef USE_STREAM
 	while (ifs.peek() != -1)
+#else
+	char* line = 0;
+	do
+#endif
 	{
 		std::string linebuf;
+#ifdef USE_STREAM
 		safeGetline(ifs, linebuf);
+#else
+		char tmpBuf[1024];
+		line = fileIO->readLine(fileHandle, tmpBuf, 1024);
+		if (line)
+		{
+			linebuf=line;
+		}
+#endif
 
 		// Trim newline '\r\n' or '\r'
 		if (linebuf.size() > 0)
@@ -546,9 +573,16 @@ std::string LoadMtl(
 			material.unknown_parameter.insert(std::pair<std::string, std::string>(key, value));
 		}
 	}
+#ifndef USE_STREAM
+	while (line);
+#endif
 	// flush last material.
 	material_map.insert(std::pair<std::string, material_t>(material.name, material));
 
+	if (fileHandle)
+	{
+		fileIO->fileClose(fileHandle);
+	}
 	return err.str();
 }
 
@@ -556,7 +590,8 @@ std::string
 LoadObj(
 	std::vector<shape_t>& shapes,
 	const char* filename,
-	const char* mtl_basepath)
+	const char* mtl_basepath,
+	CommonFileIOInterface* fileIO)
 {
 	std::string tmp = filename;
 	if (!mtl_basepath)
@@ -577,13 +612,21 @@ LoadObj(
 	MyIndices face;
 
 	std::stringstream err;
-
+#ifdef USE_STREAM
 	std::ifstream ifs(filename);
 	if (!ifs)
 	{
 		err << "Cannot open file [" << filename << "]" << std::endl;
 		return err.str();
 	}
+#else
+	int fileHandle = fileIO->fileOpen(filename,"r");
+	if (fileHandle<0)
+	{
+		err << "Cannot open file [" << filename << "]" << std::endl;
+		return err.str();
+	}
+#endif
 
 	std::vector<float> v;
 	v.reserve(1024 * 1024);
@@ -606,10 +649,24 @@ LoadObj(
 	std::string linebuf;
 	linebuf.reserve(maxchars);
 
+#ifdef USE_STREAM
 	while (ifs.peek() != -1)
+#else
+	char* line = 0;
+	do
+#endif
 	{
 		linebuf.resize(0);
+#ifdef USE_STREAM
 		safeGetline(ifs, linebuf);
+#else
+		char tmpBuf[1024];
+		line = fileIO->readLine(fileHandle, tmpBuf, 1024);
+		if (line)
+		{
+			linebuf=line;
+		}
+#endif
 
 		// Trim newline '\r\n' or '\r'
 		if (linebuf.size() > 0)
@@ -720,7 +777,7 @@ LoadObj(
 			token += 7;
 			sscanf(token, "%s", namebuf);
 
-			std::string err_mtl = LoadMtl(material_map, namebuf, mtl_basepath);
+			std::string err_mtl = LoadMtl(material_map, namebuf, mtl_basepath,fileIO);
 			if (!err_mtl.empty())
 			{
 				//faceGroup.resize(0);  // for safety
@@ -789,6 +846,9 @@ LoadObj(
 
 		// Ignore unknown command.
 	}
+#ifndef USE_STREAM
+	while (line);
+#endif
 
 	shape_t shape;
 	bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name, allIndices);
@@ -798,6 +858,10 @@ LoadObj(
 	}
 	faceGroup.resize(0);  // for safety
 
+	if (fileHandle)
+	{
+		fileIO->fileClose(fileHandle);
+	}
 	return err.str();
 }
 

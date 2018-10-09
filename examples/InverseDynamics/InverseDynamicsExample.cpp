@@ -152,7 +152,7 @@ void InverseDynamicsExample::initPhysics()
 	{
 		case BT_ID_LOAD_URDF:
 		{
-			BulletURDFImporter u2b(m_guiHelper, 0, 1, 0);
+			BulletURDFImporter u2b(m_guiHelper, 0, 0, 1, 0);
 			bool loadOk = u2b.loadURDF("kuka_iiwa/model.urdf");  // lwr / kuka.urdf");
 			if (loadOk)
 			{

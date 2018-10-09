@@ -28,7 +28,8 @@ void LoadMeshFromCollada(const char* relativeFileName,
 						 btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,
 						 btTransform& upAxisTrans,
 						 float& unitMeterScaling,
-						 int clientUpAxis);
+						 int clientUpAxis,
+						 struct CommonFileIOInterface* fileIO);
 
 //#define COMPARE_WITH_ASSIMP
 #ifdef COMPARE_WITH_ASSIMP

@@ -7,6 +7,7 @@
 #include "../OpenGLWindow/SimpleOpenGL3App.h"
 #include "Wavefront2GLInstanceGraphicsShape.h"
 #include "../../Utils/b3ResourcePath.h"
+#include "../../Utils/b3BulletDefaultFileIO.h"
 #include "Bullet3Common/b3FileUtils.h"
 
 #include "stb_image/stb_image.h"
@@ -56,7 +57,8 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 	int shapeId = -1;
 
 	b3ImportMeshData meshData;
-	if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fileName, meshData))
+	b3BulletDefaultFileIO fileIO;
+	if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fileName, meshData,&fileIO))
 	{
 		int textureIndex = -1;
 
@@ -94,7 +96,7 @@ void ImportObjSetup::initPhysics()
 	btQuaternion orn = trans.getRotation();
 
 	btVector3 scaling(1, 1, 1);
-	btVector3 color(1, 1, 1);
+	btVector4 color(1, 1, 1,1);
 
 	int shapeId = loadAndRegisterMeshFromFile2(m_fileName, m_guiHelper->getRenderInterface());
 	if (shapeId >= 0)

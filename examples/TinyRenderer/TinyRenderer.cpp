@@ -13,7 +13,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
 #include "Bullet3Common/b3Logging.h"
-
+#include "../CommonInterfaces/CommonFileIOInterface.h"
 struct DepthShader : public IShader
 {
 	Model* m_model;
@@ -264,11 +264,11 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	m_lightSpecularCoeff = 0.05;
 }
 
-void TinyRenderObjectData::loadModel(const char* fileName)
+void TinyRenderObjectData::loadModel(const char* fileName, CommonFileIOInterface* fileIO)
 {
 	//todo(erwincoumans) move the file loading out of here
 	char relativeFileName[1024];
-	if (!b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024))
+	if (!fileIO->findResourcePath(fileName, relativeFileName, 1024))
 	{
 		printf("Cannot find file %s\n", fileName);
 	}
@@ -335,7 +335,7 @@ void TinyRenderObjectData::registerMeshShape(const float* vertices, int numVerti
 	}
 }
 
-void TinyRenderObjectData::registerMesh2(btAlignedObjectArray<btVector3>& vertices, btAlignedObjectArray<btVector3>& normals, btAlignedObjectArray<int>& indices)
+void TinyRenderObjectData::registerMesh2(btAlignedObjectArray<btVector3>& vertices, btAlignedObjectArray<btVector3>& normals, btAlignedObjectArray<int>& indices, CommonFileIOInterface* fileIO)
 {
 	if (0 == m_model)
 	{
@@ -344,7 +344,7 @@ void TinyRenderObjectData::registerMesh2(btAlignedObjectArray<btVector3>& vertic
 
 		m_model = new Model();
 		char relativeFileName[1024];
-		if (b3ResourcePath::findResourcePath("floor_diffuse.tga", relativeFileName, 1024))
+		if (fileIO->findResourcePath("floor_diffuse.tga", relativeFileName, 1024))
 		{
 			m_model->loadDiffuseTexture(relativeFileName);
 		}
@@ -368,12 +368,12 @@ void TinyRenderObjectData::registerMesh2(btAlignedObjectArray<btVector3>& vertic
 	}
 }
 
-void TinyRenderObjectData::createCube(float halfExtentsX, float halfExtentsY, float halfExtentsZ)
+void TinyRenderObjectData::createCube(float halfExtentsX, float halfExtentsY, float halfExtentsZ, CommonFileIOInterface* fileIO)
 {
 	m_model = new Model();
 
 	char relativeFileName[1024];
-	if (b3ResourcePath::findResourcePath("floor_diffuse.tga", relativeFileName, 1024))
+	if (fileIO->findResourcePath("floor_diffuse.tga", relativeFileName, 1024))
 	{
 		m_model->loadDiffuseTexture(relativeFileName);
 	}
