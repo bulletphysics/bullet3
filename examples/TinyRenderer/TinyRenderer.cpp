@@ -14,6 +14,8 @@
 #include "LinearMath/btVector3.h"
 #include "Bullet3Common/b3Logging.h"
 #include "../CommonInterfaces/CommonFileIOInterface.h"
+#include "../Utils/b3BulletDefaultFileIO.h"
+
 struct DepthShader : public IShader
 {
 	Model* m_model;
@@ -370,6 +372,12 @@ void TinyRenderObjectData::registerMesh2(btAlignedObjectArray<btVector3>& vertic
 
 void TinyRenderObjectData::createCube(float halfExtentsX, float halfExtentsY, float halfExtentsZ, CommonFileIOInterface* fileIO)
 {
+	b3BulletDefaultFileIO defaultFileIO;
+
+	if (fileIO==0)
+	{
+		fileIO = &defaultFileIO;
+	}
 	m_model = new Model();
 
 	char relativeFileName[1024];

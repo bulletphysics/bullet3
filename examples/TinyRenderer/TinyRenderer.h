@@ -42,7 +42,7 @@ struct TinyRenderObjectData
 	virtual ~TinyRenderObjectData();
 
 	void loadModel(const char* fileName, struct CommonFileIOInterface* fileIO);
-	void createCube(float HalfExtentsX, float HalfExtentsY, float HalfExtentsZ, struct CommonFileIOInterface* fileIO);
+	void createCube(float HalfExtentsX, float HalfExtentsY, float HalfExtentsZ, struct CommonFileIOInterface* fileIO=0);
 	void registerMeshShape(const float* vertices, int numVertices, const int* indices, int numIndices, const float rgbaColor[4],
 						   unsigned char* textureImage = 0, int textureWidth = 0, int textureHeight = 0);
 
