@@ -173,7 +173,7 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 			}
 		}
 		while (line);
-
+		m_data->m_fileIO->fileClose(fileId);
 #if 0
 		std::fstream xml_file(relativeFileName, std::fstream::in);
 		while (xml_file.good())
