@@ -189,7 +189,12 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 
 	BulletErrorLogger loggie;
 	m_data->m_urdfParser.setParseSDF(false);
-	bool result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase, (m_data->m_flags & CUF_PARSE_SENSORS));
+	bool result = false;
+	
+	if (xml_string.length())
+	{
+			result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase, (m_data->m_flags & CUF_PARSE_SENSORS));
+	}
 
 	return result;
 }

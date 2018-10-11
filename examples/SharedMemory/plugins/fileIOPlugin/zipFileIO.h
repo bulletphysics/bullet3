@@ -29,7 +29,12 @@ struct ZipFileIO : public CommonFileIOInterface
 
 	virtual ~ZipFileIO()
 	{
+		for (int i=0;i<B3_ZIP_FILEIO_MAX_FILES;i++)
+		{
+			fileClose(i);
+		}
 	}
+
 	virtual int fileOpen(const char* fileName, const char* mode)
 	{
 		//search a free slot
@@ -88,6 +93,9 @@ struct ZipFileIO : public CommonFileIOInterface
 							slot=-1;
 						}
 					}
+				} else
+				{
+					slot=-1;
 				}
 			}
 		}

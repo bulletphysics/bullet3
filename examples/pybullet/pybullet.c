@@ -9911,6 +9911,13 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "STATE_LOG_JOINT_USER_TORQUES", STATE_LOG_JOINT_USER_TORQUES);
 	PyModule_AddIntConstant(m, "STATE_LOG_JOINT_TORQUES", STATE_LOG_JOINT_USER_TORQUES + STATE_LOG_JOINT_MOTOR_TORQUES);
 
+	PyModule_AddIntConstant(m, "AddFileIOAction", eAddFileIOAction);
+	PyModule_AddIntConstant(m, "RemoveFileIOAction", eRemoveFileIOAction);
+
+	PyModule_AddIntConstant(m, "PosixFileIO", ePosixFileIO );
+	PyModule_AddIntConstant(m, "ZipFileIO", eZipFileIO );
+	PyModule_AddIntConstant(m, "CNSFileIO", eCNSFileIO );
+
 	SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
 	Py_INCREF(SpamError);
 	PyModule_AddObject(m, "error", SpamError);
