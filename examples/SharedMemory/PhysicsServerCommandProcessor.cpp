@@ -5050,6 +5050,53 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 		memcpy(&rays[numCommandRays], bufferServerToClient, numStreamingRays * sizeof(b3RayData));
 	}
 
+	if (clientCmd.m_requestRaycastIntersections.m_parentObjectUniqueId>=0)
+	{
+		btTransform tr;
+		tr.setIdentity();
+
+		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_requestRaycastIntersections.m_parentObjectUniqueId);
+		if (bodyHandle)
+		{
+			int linkIndex = -1;
+			if (bodyHandle->m_multiBody)
+			{
+				int linkIndex = clientCmd.m_userDebugDrawArgs.m_parentLinkIndex;
+				if (linkIndex == -1)
+				{
+					tr = bodyHandle->m_multiBody->getBaseWorldTransform();
+				}
+				else
+				{
+					if (linkIndex >= 0 && linkIndex < bodyHandle->m_multiBody->getNumLinks())
+					{
+						tr = bodyHandle->m_multiBody->getLink(linkIndex).m_cachedWorldTransform;
+					}
+				}
+			}
+			if (bodyHandle->m_rigidBody)
+			{
+				tr = bodyHandle->m_rigidBody->getWorldTransform();
+			}
+			//convert all rays into world space
+			for (int i=0;i<totalRays;i++)
+			{
+				btVector3 localPosTo(rays[i].m_rayToPosition[0],rays[i].m_rayToPosition[1],rays[i].m_rayToPosition[2]);
+				btVector3 worldPosTo = tr*localPosTo;
+
+				btVector3 localPosFrom(rays[i].m_rayFromPosition[0],rays[i].m_rayFromPosition[1],rays[i].m_rayFromPosition[2]);
+				btVector3 worldPosFrom = tr*localPosFrom;
+				rays[i].m_rayFromPosition[0] = worldPosFrom[0];
+				rays[i].m_rayFromPosition[1] = worldPosFrom[1];
+				rays[i].m_rayFromPosition[2] = worldPosFrom[2];
+				rays[i].m_rayToPosition[0] = worldPosTo[0];
+				rays[i].m_rayToPosition[1] = worldPosTo[1];
+				rays[i].m_rayToPosition[2] = worldPosTo[2];
+			}
+		}
+	}
+	
+
 	BatchRayCaster batchRayCaster(m_data->m_threadPool, m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo*)bufferServerToClient, totalRays);
 	batchRayCaster.castRays(numThreads);
 

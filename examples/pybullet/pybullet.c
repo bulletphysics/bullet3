@@ -4742,12 +4742,14 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 	b3PhysicsClientHandle sm = 0;
 	int sizeFrom = 0;
 	int sizeTo = 0;
-
-	static char* kwlist[] = {"rayFromPositions", "rayToPositions", "numThreads", "physicsClientId", NULL};
+	int parentObjectUniqueId = -1;
+	int parentLinkIndex = -1;
+	
+	static char* kwlist[] = {"rayFromPositions", "rayToPositions", "numThreads", "parentObjectUniqueId", "parentLinkIndex", "physicsClientId", NULL};
 	int physicsClientId = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|ii", kwlist,
-									 &rayFromObjList, &rayToObjList, &numThreads, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|iiii", kwlist,
+									 &rayFromObjList, &rayToObjList, &numThreads, &parentObjectUniqueId, &parentLinkIndex, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -4829,6 +4831,11 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 		{
 			Py_DECREF(seqRayToObj);
 		}
+	}
+
+	if (parentObjectUniqueId>=0)
+	{
+		b3RaycastBatchSetParentObject(commandHandle, parentObjectUniqueId,parentLinkIndex);
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
