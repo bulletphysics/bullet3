@@ -77,7 +77,8 @@
 #include "plugins/tinyRendererPlugin/tinyRendererPlugin.h"
 #endif
 
-#ifndef B3_ENABLE_FILEIO_PLUGIN
+
+#ifdef B3_ENABLE_FILEIO_PLUGIN
 #include "plugins/fileIOPlugin/fileIOPlugin.h"
 #endif//B3_DISABLE_FILEIO_PLUGIN
 
@@ -9911,7 +9912,7 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 			int uid = -1;
 			if (m_data->m_pluginManager.getRenderInterface())
 			{
-				uid = m_data->m_pluginManager.getRenderInterface()->loadTextureFile(relativeFileName);
+				uid = m_data->m_pluginManager.getRenderInterface()->loadTextureFile(relativeFileName, fileIO);
 			}
 			if (uid >= 0)
 			{
@@ -9920,8 +9921,37 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 
 			{
 				int width, height, n;
-				unsigned char* imageData = stbi_load(relativeFileName, &width, &height, &n, 3);
-
+				unsigned char* imageData = 0;
+				
+				CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
+				if (fileIO)
+				{
+					b3AlignedObjectArray<char> buffer;
+					buffer.reserve(1024);
+					int fileId = fileIO->fileOpen(relativeFileName,"rb");
+					if (fileId>=0)
+					{
+						int size = fileIO->getFileSize(fileId);
+						if (size>0)
+						{
+							buffer.resize(size);
+							int actual = fileIO->fileRead(fileId,&buffer[0],size);
+							if (actual != size)
+							{
+								b3Warning("image filesize mismatch!\n");
+								buffer.resize(0);
+							}
+						}
+					}
+					if (buffer.size())
+					{
+						imageData = stbi_load_from_memory((const unsigned char*)&buffer[0], buffer.size(), &width, &height, &n, 3);
+					}
+				} else
+				{
+					imageData = stbi_load(relativeFileName, &width, &height, &n, 3);
+				}
+				
 				if (imageData)
 				{
 					texH->m_openglTextureId = m_data->m_guiHelper->registerTexture(imageData, width, height);

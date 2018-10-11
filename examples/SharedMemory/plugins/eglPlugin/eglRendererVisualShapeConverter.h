@@ -48,7 +48,7 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 	virtual void render();
 	virtual void render(const float viewMat[16], const float projMat[16]);
 
-	virtual int loadTextureFile(const char* filename);
+	virtual int loadTextureFile(const char* filename, struct CommonFileIOInterface* fileIO);
 	virtual int registerTexture(unsigned char* texels, int width, int height);
 
 	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]);

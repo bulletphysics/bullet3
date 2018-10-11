@@ -1317,12 +1317,40 @@ int EGLRendererVisualShapeConverter::registerTexture(unsigned char* texels, int 
 	return m_data->m_textures.size() - 1;
 }
 
-int EGLRendererVisualShapeConverter::loadTextureFile(const char* filename)
+int EGLRendererVisualShapeConverter::loadTextureFile(const char* filename, struct CommonFileIOInterface* fileIO)
 {
 	B3_PROFILE("loadTextureFile");
 	int width, height, n;
 	unsigned char* image = 0;
-	image = stbi_load(filename, &width, &height, &n, 3);
+
+	if (fileIO)
+	{
+		b3AlignedObjectArray<char> buffer;
+		buffer.reserve(1024);
+		int fileId = fileIO->fileOpen(filename,"rb");
+		if (fileId>=0)
+		{
+			int size = fileIO->getFileSize(fileId);
+			if (size>0)
+			{
+				buffer.resize(size);
+				int actual = fileIO->fileRead(fileId,&buffer[0],size);
+				if (actual != size)
+				{
+					b3Warning("image filesize mismatch!\n");
+					buffer.resize(0);
+				}
+			}
+		}
+		if (buffer.size())
+		{
+			image = stbi_load_from_memory((const unsigned char*)&buffer[0], buffer.size(), &width, &height, &n, 3);
+		}
+	} else
+	{
+		image = stbi_load(filename, &width, &height, &n, 3);
+	}
+
 	if (image && (width >= 0) && (height >= 0))
 	{
 		return registerTexture(image, width, height);
