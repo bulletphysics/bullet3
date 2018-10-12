@@ -43,6 +43,9 @@ CXX_FLAGS += '-DBT_ENABLE_ENET '
 CXX_FLAGS += '-DBT_ENABLE_CLSOCKET '
 CXX_FLAGS += '-DB3_DUMP_PYTHON_VERSION '
 CXX_FLAGS += '-DEGL_ADD_PYTHON_INIT '
+CXX_FLAGS += '-DB3_ENABLE_FILEIO_PLUGIN '
+CXX_FLAGS += '-DB3_USE_ZIPFILE_FILEIO '
+
 EGL_CXX_FLAGS = ''
 
 
@@ -73,6 +76,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/TinyRenderer/TinyRenderer.cpp"]\
 +["examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp"]\
 +["examples/SharedMemory/plugins/collisionFilterPlugin/collisionFilterPlugin.cpp"]\
++["examples/SharedMemory/plugins/fileIOPlugin/fileIOPlugin.cpp"]\
 +["examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp"]\
 +["examples/SharedMemory/IKTrajectoryHelper.cpp"]\
 +["examples/SharedMemory/InProcessMemory.cpp"]\
@@ -106,6 +110,24 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp"]\
 +["examples/ThirdPartyLibs/stb_image/stb_image.cpp"]\
 +["examples/ThirdPartyLibs/stb_image/stb_image_write.cpp"]\
++["examples/ThirdPartyLibs/minizip/ioapi.c"]\
++["examples/ThirdPartyLibs/minizip/unzip.c"]\
++["examples/ThirdPartyLibs/minizip/zip.c"]\
++["examples/ThirdPartyLibs/zlib/adler32.c"]\
++["examples/ThirdPartyLibs/zlib/compress.c"]\
++["examples/ThirdPartyLibs/zlib/crc32.c"]\
++["examples/ThirdPartyLibs/zlib/deflate.c"]\
++["examples/ThirdPartyLibs/zlib/gzclose.c"]\
++["examples/ThirdPartyLibs/zlib/gzlib.c"]\
++["examples/ThirdPartyLibs/zlib/gzread.c"]\
++["examples/ThirdPartyLibs/zlib/gzwrite.c"]\
++["examples/ThirdPartyLibs/zlib/infback.c"]\
++["examples/ThirdPartyLibs/zlib/inffast.c"]\
++["examples/ThirdPartyLibs/zlib/inflate.c"]\
++["examples/ThirdPartyLibs/zlib/inftrees.c"]\
++["examples/ThirdPartyLibs/zlib/trees.c"]\
++["examples/ThirdPartyLibs/zlib/uncompr.c"]\
++["examples/ThirdPartyLibs/zlib/zutil.c"]\
 +["examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp"]\
 +["examples/Importers/ImportObjDemo/LoadMeshFromObj.cpp"]\
 +["examples/Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp"]\
@@ -559,7 +581,7 @@ if 'BT_USE_EGL' in EGL_CXX_FLAGS:
 
 setup(
 	name = 'pybullet',
-	version='2.2.9',
+	version='2.3.0',
 	description='Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and deep reinforcement learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',
