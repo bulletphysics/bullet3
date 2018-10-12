@@ -88,15 +88,16 @@ struct WrapperFileIO : public CommonFileIOInterface
 	{
 		//find an available wrapperFileHandle slot
 		int wrapperFileHandle=-1;
+		int slot = -1;
 		for (int i=0;i<B3_MAX_FILEIO_INTERFACES;i++)
 		{
 			if (m_wrapperFileHandles[i].childFileIO==0)
 			{
-				wrapperFileHandle=i;
+				slot=i;
 				break;
 			}
 		}
-		if (wrapperFileHandle>=0)
+		if (slot>=0)
 		{
 			//figure out what wrapper interface to use
 			//use the first one that can open the file
@@ -108,8 +109,9 @@ struct WrapperFileIO : public CommonFileIOInterface
 					int childHandle = childFileIO->fileOpen(fileName, mode);
 					if (childHandle>=0)
 					{
-						m_wrapperFileHandles[wrapperFileHandle].childFileIO = childFileIO;
-						m_wrapperFileHandles[wrapperFileHandle].m_childFileHandle = childHandle;
+						wrapperFileHandle = slot;
+						m_wrapperFileHandles[slot].childFileIO = childFileIO;
+						m_wrapperFileHandles[slot].m_childFileHandle = childHandle;
 						break;
 					}
 				}
