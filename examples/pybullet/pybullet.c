@@ -4742,12 +4742,14 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 	b3PhysicsClientHandle sm = 0;
 	int sizeFrom = 0;
 	int sizeTo = 0;
-
-	static char* kwlist[] = {"rayFromPositions", "rayToPositions", "numThreads", "physicsClientId", NULL};
+	int parentObjectUniqueId = -1;
+	int parentLinkIndex = -1;
+	
+	static char* kwlist[] = {"rayFromPositions", "rayToPositions", "numThreads", "parentObjectUniqueId", "parentLinkIndex", "physicsClientId", NULL};
 	int physicsClientId = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|ii", kwlist,
-									 &rayFromObjList, &rayToObjList, &numThreads, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|iiii", kwlist,
+									 &rayFromObjList, &rayToObjList, &numThreads, &parentObjectUniqueId, &parentLinkIndex, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -4829,6 +4831,11 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 		{
 			Py_DECREF(seqRayToObj);
 		}
+	}
+
+	if (parentObjectUniqueId>=0)
+	{
+		b3RaycastBatchSetParentObject(commandHandle, parentObjectUniqueId,parentLinkIndex);
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
@@ -9903,6 +9910,13 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "STATE_LOG_JOINT_MOTOR_TORQUES", STATE_LOG_JOINT_MOTOR_TORQUES);
 	PyModule_AddIntConstant(m, "STATE_LOG_JOINT_USER_TORQUES", STATE_LOG_JOINT_USER_TORQUES);
 	PyModule_AddIntConstant(m, "STATE_LOG_JOINT_TORQUES", STATE_LOG_JOINT_USER_TORQUES + STATE_LOG_JOINT_MOTOR_TORQUES);
+
+	PyModule_AddIntConstant(m, "AddFileIOAction", eAddFileIOAction);
+	PyModule_AddIntConstant(m, "RemoveFileIOAction", eRemoveFileIOAction);
+
+	PyModule_AddIntConstant(m, "PosixFileIO", ePosixFileIO );
+	PyModule_AddIntConstant(m, "ZipFileIO", eZipFileIO );
+	PyModule_AddIntConstant(m, "CNSFileIO", eCNSFileIO );
 
 	SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
 	Py_INCREF(SpamError);

@@ -87,8 +87,9 @@ struct UrdfRenderingInterface
 	virtual void render(const float viewMat[16], const float projMat[16]) = 0;
 
 	///load a texture from file, in png or other popular/supported format
-	virtual int loadTextureFile(const char* filename) = 0;
-
+	//virtual int loadTextureFile(const char* filename) = 0;
+	virtual int loadTextureFile(const char* filename, struct CommonFileIOInterface* fileIO)=0;
+	
 	///register a texture using an in-memory pixel buffer of a given width and height
 	virtual int registerTexture(unsigned char* texels, int width, int height) = 0;
 

@@ -2898,6 +2898,8 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CreateRaycastBatchCommandInit(b3Phys
 	command->m_requestRaycastIntersections.m_numCommandRays = 0;
 	command->m_requestRaycastIntersections.m_numStreamingRays = 0;
 	command->m_requestRaycastIntersections.m_numThreads = 1;
+	command->m_requestRaycastIntersections.m_parentObjectUniqueId = -1;
+	command->m_requestRaycastIntersections.m_parentLinkIndex=-1;
 	return (b3SharedMemoryCommandHandle)command;
 }
 
@@ -2946,6 +2948,16 @@ B3_SHARED_API void b3RaycastBatchAddRays(b3PhysicsClientHandle physClient, b3Sha
 		cl->uploadRaysToSharedMemory(*command, rayFromWorldArray, rayToWorldArray, numRays);
 	}
 }
+
+B3_SHARED_API void b3RaycastBatchSetParentObject(b3SharedMemoryCommandHandle commandHandle, int parentObjectUniqueId, int parentLinkIndex)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
+	command->m_requestRaycastIntersections.m_parentObjectUniqueId = parentObjectUniqueId;
+	command->m_requestRaycastIntersections.m_parentLinkIndex = parentLinkIndex;
+}
+
 
 B3_SHARED_API void b3GetRaycastInformation(b3PhysicsClientHandle physClient, struct b3RaycastInformation* raycastInfo)
 {

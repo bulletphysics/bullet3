@@ -293,6 +293,9 @@ struct RequestRaycastIntersections
 	b3RayData m_fromToRays[MAX_RAY_INTERSECTION_BATCH_SIZE];
 
 	int m_numStreamingRays;
+	//optional m_parentObjectUniqueId (-1 for unused)
+	int m_parentObjectUniqueId;
+	int m_parentLinkIndex;
 	//streaming ray data stored in shared memory streaming part. (size m_numStreamingRays )
 };
 

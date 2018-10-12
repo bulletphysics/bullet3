@@ -909,4 +909,18 @@ enum eConstraintSolverTypes
 	eConstraintSolverLCP_BLOCK_PGS,
 };
 
+enum eFileIOActions
+{
+	eAddFileIOAction = 1024,//avoid collision with eFileIOTypes
+	eRemoveFileIOAction,
+};
+
+
+enum eFileIOTypes
+{
+	ePosixFileIO = 1,
+	eZipFileIO,
+	eCNSFileIO,
+};
+
 #endif  //SHARED_MEMORY_PUBLIC_H
