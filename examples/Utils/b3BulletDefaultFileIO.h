@@ -148,7 +148,9 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 			FILE* f = m_fileHandles[fileHandle];
 			if (f)
 			{
-				return ::fgets(destBuffer, numBytes, m_fileHandles[fileHandle]);
+				char* txt = ::fgets(destBuffer, numBytes, m_fileHandles[fileHandle]);
+				destBuffer[strcspn(destBuffer, "\r\n")] = 0;
+				return txt;
 			}
 		}
 		return 0;
