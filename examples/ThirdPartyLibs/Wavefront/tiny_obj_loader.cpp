@@ -407,7 +407,7 @@ std::string LoadMtl(
 		}
 		if (linebuf.size() > 0)
 		{
-			if (linebuf[linebuf.size() - 1] == '\n') linebuf.erase(linebuf.size() - 1);
+			if (linebuf[linebuf.size() - 1] == '\r') linebuf.erase(linebuf.size() - 1);
 		}
 
 		// Skip if empty line.
@@ -417,11 +417,10 @@ std::string LoadMtl(
 		}
 
 		linebuf = linebuf.substr(0, linebuf.find_last_not_of(" \t") + 1);
-
 		// Skip leading space.
 		const char* token = linebuf.c_str();
 		token += strspn(token, " \t");
-
+		
 		assert(token);
 		if (token[0] == '\0') continue;  // empty line
 
