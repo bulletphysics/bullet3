@@ -10,7 +10,7 @@ struct ZipFileIO : public CommonFileIOInterface
 	unzFile	m_fileHandles[B3_ZIP_FILEIO_MAX_FILES ];
 	int m_numFileHandles;
 
-	ZipFileIO(const char* zipfileName)
+	ZipFileIO(const char* zipfileName, CommonFileIOInterface* wrapperFileIO)
 		:m_zipfileName(zipfileName),
 		m_numFileHandles(0)
 	{
@@ -37,6 +37,7 @@ struct ZipFileIO : public CommonFileIOInterface
 
 	virtual int fileOpen(const char* fileName, const char* mode)
 	{
+		
 		//search a free slot
 		int slot = -1;
 		for (int i=0;i<B3_ZIP_FILEIO_MAX_FILES ;i++)
@@ -58,6 +59,7 @@ struct ZipFileIO : public CommonFileIOInterface
 				slot = -1;
 			} else
 			{
+				
 				int result = 0;
 				result = unzGetGlobalInfo(zipfile, &m_global_info );
 				if (result != UNZ_OK)
@@ -66,9 +68,6 @@ struct ZipFileIO : public CommonFileIOInterface
 					unzClose(zipfile);
 					zipfile = 0;
 					slot = -1;
-				} else
-				{
-					m_fileHandles[slot] = zipfile;
 				}
 			}
 			if (slot >=0)
@@ -82,20 +81,28 @@ struct ZipFileIO : public CommonFileIOInterface
 					{
 						printf("unzGetCurrentFileInfo() != UNZ_OK (%d)\n", result);
 						slot=-1;
+						unzClose(zipfile);
+						zipfile = 0;
 					}
 					else
 					{
 						result = unzOpenCurrentFile(zipfile);
 						if (result == UNZ_OK)
 						{
+							printf("zipFile::fileOpen %s in mode %s in fileHandle %d\n", fileName, mode, slot);
+							m_fileHandles[slot] = zipfile;
 						} else
 						{
 							slot=-1;
+							unzClose(zipfile);
+							zipfile = 0;
 						}
 					}
 				} else
 				{
 					slot=-1;
+					unzClose(zipfile);
+					zipfile = 0;
 				}
 			}
 		}
@@ -137,6 +144,7 @@ struct ZipFileIO : public CommonFileIOInterface
 			unzFile f = m_fileHandles[fileHandle];
 			if (f)
 			{
+				printf("zipFile::fileClose slot %d\n", fileHandle);
 				unzClose(f);
 				m_fileHandles[fileHandle]=0;
 			}

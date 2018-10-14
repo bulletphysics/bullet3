@@ -53,6 +53,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 	meshData.m_textureImage1 = 0;
 	meshData.m_textureHeight = 0;
 	meshData.m_textureWidth = 0;
+	meshData.m_flags = 0;
 	meshData.m_isCached = false;
 
 	char relativeFileName[1024];
@@ -78,6 +79,18 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 			for (int i = 0; meshData.m_textureImage1 == 0 && i < shapes.size(); i++)
 			{
 				const tinyobj::shape_t& shape = shapes[i];
+				meshData.m_rgbaColor[0] = shape.material.diffuse[0];
+				meshData.m_rgbaColor[1] = shape.material.diffuse[1];
+				meshData.m_rgbaColor[2] = shape.material.diffuse[2];
+				meshData.m_rgbaColor[3] = shape.material.transparency;
+				meshData.m_flags |= B3_IMPORT_MESH_HAS_RGBA_COLOR;
+				
+				meshData.m_specularColor[0] = shape.material.specular[0];
+				meshData.m_specularColor[1] = shape.material.specular[1];
+				meshData.m_specularColor[2] = shape.material.specular[2];
+				meshData.m_specularColor[3] = 1;
+				meshData.m_flags |= B3_IMPORT_MESH_HAS_SPECULAR_COLOR;
+				
 				if (shape.material.diffuse_texname.length() > 0)
 				{
 					int width, height, n;

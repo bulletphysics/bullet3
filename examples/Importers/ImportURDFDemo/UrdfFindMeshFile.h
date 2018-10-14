@@ -74,16 +74,8 @@ static bool UrdfFindMeshFile(
 
 	std::string existing_file;
 
-	{
-		std::string attempt = fn;
-		int f = fileIO->fileOpen(attempt.c_str(), "rb");
-		if (f>=0)
-		{
-			existing_file = attempt;
-			fileIO->fileClose(f);
-		}
-	}
-	if (existing_file.empty())
+	
+	
 	{
 		for (std::list<std::string>::iterator x = shorter.begin(); x != shorter.end(); ++x)
 		{
@@ -98,6 +90,16 @@ static bool UrdfFindMeshFile(
 			existing_file = attempt;
 			//b3Printf("%s: found '%s'", error_message_prefix.c_str(), attempt.c_str());
 			break;
+		}
+	}
+	if (existing_file.empty())
+	{
+		std::string attempt = fn;
+		int f = fileIO->fileOpen(attempt.c_str(), "rb");
+		if (f>=0)
+		{
+			existing_file = attempt;
+			fileIO->fileClose(f);
 		}
 	}
 
