@@ -9,7 +9,7 @@
 #include "../Extras/InverseDynamics/btMultiBodyTreeCreator.hpp"
 
 #include "BulletCollision/CollisionDispatch/btInternalEdgeUtility.h"
-
+#include "../Importers/ImportMeshUtility/b3ImportMeshUtility.h"
 #include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
 #include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
 #include "BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.h"
@@ -2016,11 +2016,13 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 	const b3CreateMultiBodyArgs& m_createBodyArgs;
 	mutable b3AlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 	PhysicsServerCommandProcessorInternalData* m_data;
+	int m_flags;
 
-	ProgrammaticUrdfInterface(const b3CreateMultiBodyArgs& bodyArgs, PhysicsServerCommandProcessorInternalData* data)
+	ProgrammaticUrdfInterface(const b3CreateMultiBodyArgs& bodyArgs, PhysicsServerCommandProcessorInternalData* data, int flags)
 		: m_bodyUniqueId(-1),
 		  m_createBodyArgs(bodyArgs),
-		  m_data(data)
+		  m_data(data),
+		  m_flags(flags)
 	{
 	}
 
@@ -2068,19 +2070,38 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		return false;
 	}
 
+	mutable btHashMap<btHashInt, UrdfMaterialColor> m_linkColors;
+
 	virtual bool getLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const
 	{
-		if (m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex] >= 0)
+
+		if (m_flags & URDF_USE_MATERIAL_COLORS_FROM_MTL)
 		{
-			const InternalVisualShapeHandle* visHandle = m_data->m_userVisualShapeHandles.getHandle(m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]);
-			if (visHandle)
+			const UrdfMaterialColor* matColPtr = m_linkColors[linkIndex];
+			if (matColPtr)
 			{
-				for (int i = 0; i < visHandle->m_visualShapes.size(); i++)
+				matCol = *matColPtr;
+				if ((m_flags&CUF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)==0)
 				{
-					if (visHandle->m_visualShapes[i].m_geometry.m_hasLocalMaterial)
+					matCol.m_rgbaColor[3] = 1;
+				}
+
+				return true;
+			}
+		} else
+		{
+			if (m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex] >= 0)
+			{
+				const InternalVisualShapeHandle* visHandle = m_data->m_userVisualShapeHandles.getHandle(m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]);
+				if (visHandle)
+				{
+					for (int i = 0; i < visHandle->m_visualShapes.size(); i++)
 					{
-						matCol = visHandle->m_visualShapes[i].m_geometry.m_localMaterial.m_matColor;
-						return true;
+						if (visHandle->m_visualShapes[i].m_geometry.m_hasLocalMaterial)
+						{
+							matCol = visHandle->m_visualShapes[i].m_geometry.m_localMaterial.m_matColor;
+							return true;
+						}
 					}
 				}
 			}
@@ -2274,7 +2295,21 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 				{
 					for (int v = 0; v < visHandle->m_visualShapes.size(); v++)
 					{
-						u2b.convertURDFToVisualShapeInternal(&visHandle->m_visualShapes[v], pathPrefix, localInertiaFrame.inverse() * visHandle->m_visualShapes[v].m_linkLocalFrame, vertices, indices, textures);
+						b3ImportMeshData meshData;
+						u2b.convertURDFToVisualShapeInternal(&visHandle->m_visualShapes[v], pathPrefix, localInertiaFrame.inverse() * visHandle->m_visualShapes[v].m_linkLocalFrame, vertices, indices, textures, meshData);
+						if ((meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR) &&
+						(meshData.m_flags & B3_IMPORT_MESH_HAS_SPECULAR_COLOR))
+						{
+							UrdfMaterialColor matCol;
+							matCol.m_rgbaColor.setValue(meshData.m_rgbaColor[0],
+								meshData.m_rgbaColor[1],
+								meshData.m_rgbaColor[2],
+								meshData.m_rgbaColor[3]);
+							matCol.m_specularColor.setValue(meshData.m_specularColor[0],
+								meshData.m_specularColor[1],
+								meshData.m_specularColor[2]);
+							m_linkColors.insert(linkIndex, matCol);
+						}
 					}
 
 					if (vertices.size() && indices.size())
@@ -3713,6 +3748,10 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 					m_data->m_pluginManager.getRenderInterface()->setProjectiveTexture(false);
 				}
 
+				if ((flags & ER_NO_SEGMENTATION_MASK) != 0)
+				{
+					segmentationMaskBuffer = 0;
+				}
 
 				m_data->m_pluginManager.getRenderInterface()->copyCameraImageData(pixelRGBA, numRequestedPixels,
 																				  depthBuffer, numRequestedPixels,
@@ -4462,6 +4501,7 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 			}
 			else
 			{
+				visualShape.m_geometry.m_localMaterial.m_matColor.m_rgbaColor.setValue(1,1,1,1);
 			}
 			if (hasSpecular)
 			{
@@ -6641,7 +6681,14 @@ bool PhysicsServerCommandProcessor::processCreateMultiBodyCommand(const struct S
 	{
 		m_data->m_sdfRecentLoadedBodies.clear();
 
-		ProgrammaticUrdfInterface u2b(clientCmd.m_createMultiBodyArgs, m_data);
+		int flags = 0;
+
+		if (clientCmd.m_updateFlags & MULT_BODY_HAS_FLAGS)
+		{
+			flags = clientCmd.m_createMultiBodyArgs.m_flags;
+		}
+
+		ProgrammaticUrdfInterface u2b(clientCmd.m_createMultiBodyArgs, m_data, flags);
 
 		bool useMultiBody = true;
 		if (clientCmd.m_updateFlags & MULT_BODY_USE_MAXIMAL_COORDINATES)
@@ -6649,12 +6696,7 @@ bool PhysicsServerCommandProcessor::processCreateMultiBodyCommand(const struct S
 			useMultiBody = false;
 		}
 
-		int flags = 0;
-
-		if (clientCmd.m_updateFlags & MULT_BODY_HAS_FLAGS)
-		{
-			flags = clientCmd.m_createMultiBodyArgs.m_flags;
-		}
+		
 
 		bool ok = processImportedObjects("memory", bufferServerToClient, bufferSizeInBytes, useMultiBody, flags, u2b);
 

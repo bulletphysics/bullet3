@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include "../../../CommonInterfaces/CommonFileIOInterface.h"
 #include "../../../Utils/b3ResourcePath.h"
-
-
+#include "Bullet3Common/b3HashMap.h"
+#include <string.h> //memcpy/strlen
 #ifndef B3_EXCLUDE_DEFAULT_FILEIO
 #include "../../../Utils/b3BulletDefaultFileIO.h"
 #endif //B3_EXCLUDE_DEFAULT_FILEIO
@@ -30,13 +30,258 @@ struct WrapperFileHandle
 	int m_childFileHandle;
 };
 
+struct InMemoryFile
+{
+	char* m_buffer;
+	int m_fileSize;
+};
+
+struct InMemoryFileAccessor
+{
+	InMemoryFile* m_file;
+	int m_curPos;
+};
+
+struct InMemoryFileIO : public CommonFileIOInterface
+{
+	b3HashMap<b3HashString,InMemoryFile*> m_fileCache;
+	InMemoryFileAccessor m_fileHandles[B3_MAX_FILEIO_INTERFACES];
+
+	InMemoryFileIO()
+	{
+		for (int i=0;i<B3_FILEIO_MAX_FILES;i++)
+		{
+			m_fileHandles[i].m_curPos = 0;
+			m_fileHandles[i].m_file = 0;
+		}
+	}
+
+	virtual ~InMemoryFileIO()
+	{
+		clearCache();
+	}
+
+	void clearCache()
+	{
+		for (int i=0;i<m_fileCache.size();i++)
+		{
+			InMemoryFile** memPtr = m_fileCache.getAtIndex(i);
+			if (memPtr && *memPtr)
+			{
+				InMemoryFile* mem = *memPtr;
+				freeBuffer(mem->m_buffer);
+				delete (mem);
+			}
+		}
+	}
+
+	char* allocateBuffer(int len)
+	{
+		char* buffer = 0;
+		if (len)
+		{
+			buffer = new char[len];
+		}
+		return buffer;
+	}
+
+	void freeBuffer(char* buffer)
+	{
+		delete[] buffer;
+	}
+
+	virtual int registerFile(const char* fileName, char* buffer, int len)
+	{
+		InMemoryFile* f = new InMemoryFile();
+		f->m_buffer = buffer;
+		f->m_fileSize = len;
+		b3HashString key(fileName);
+		m_fileCache.insert(key,f);
+		return 0;
+	}
+
+	void removeFileFromCache(const char* fileName)
+	{
+		InMemoryFile* f = getInMemoryFile(fileName);
+		if (f)
+		{
+			m_fileCache.remove(fileName);
+			freeBuffer(f->m_buffer);
+			delete (f);
+		}
+	}
+
+	InMemoryFile* getInMemoryFile(const char* fileName)
+	{
+		InMemoryFile** fPtr = m_fileCache[fileName];
+		if (fPtr && *fPtr)
+		{
+			return *fPtr;
+		}
+		return 0;
+	}
+
+	virtual int fileOpen(const char* fileName, const char* mode)
+	{
+		//search a free slot
+		int slot = -1;
+		for (int i=0;i<B3_FILEIO_MAX_FILES;i++)
+		{
+			if (m_fileHandles[i].m_file==0)
+			{
+				slot=i;
+				break;
+			}
+		}
+		if (slot>=0)
+		{
+			InMemoryFile* f = getInMemoryFile(fileName);
+			if (f)
+			{
+				m_fileHandles[slot].m_curPos = 0;
+				m_fileHandles[slot].m_file = f;
+			} else
+			{
+				slot=-1;
+			}
+		}
+		//printf("InMemoryFileIO fileOpen %s, %d\n", fileName, slot);
+		return slot;
+	}
+	virtual int fileRead(int fileHandle, char* destBuffer, int numBytes)
+	{
+		if (fileHandle>=0 && fileHandle < B3_FILEIO_MAX_FILES)
+		{
+			InMemoryFileAccessor& f = m_fileHandles[fileHandle];
+			if (f.m_file)
+			{
+				//if (numBytes>1)
+				//	printf("curPos = %d\n", f.m_curPos);
+				if (f.m_curPos+numBytes <= f.m_file->m_fileSize)
+				{
+					memcpy(destBuffer,f.m_file->m_buffer+f.m_curPos,numBytes);
+					f.m_curPos+=numBytes;
+					//if (numBytes>1)
+					//	printf("read %d bytes, now curPos = %d\n", numBytes, f.m_curPos);
+					return numBytes;
+				} else
+				{
+					if (numBytes!=1)
+					{
+						printf("InMemoryFileIO::fileRead Attempt to read beyond end of file\n");
+					}
+				}
+				
+			}
+		}
+		return 0;
+	}
+
+	virtual int fileWrite(int fileHandle,const char* sourceBuffer, int numBytes)
+	{
+		return 0;
+	}
+	virtual void fileClose(int fileHandle)
+	{
+		if (fileHandle>=0 && fileHandle < B3_FILEIO_MAX_FILES)
+		{
+			InMemoryFileAccessor& f = m_fileHandles[fileHandle];
+			if (f.m_file)
+			{
+				m_fileHandles[fileHandle].m_file = 0;
+				m_fileHandles[fileHandle].m_curPos = 0;
+				//printf("InMemoryFileIO fileClose %d\n", fileHandle);
+			}
+		}
+	}
+	virtual bool findResourcePath(const char* fileName,  char* resourcePathOut, int resourcePathMaxNumBytes)
+	{
+		InMemoryFile* f = getInMemoryFile(fileName);
+		int fileNameLen = strlen(fileName);
+		if (f && fileNameLen<(resourcePathMaxNumBytes-1))
+		{
+			memcpy(resourcePathOut, fileName, fileNameLen);
+			resourcePathOut[fileNameLen]=0;
+			return true;
+		} 
+		return false;
+	}
+	virtual char* readLine(int fileHandle, char* destBuffer, int numBytes)
+	{
+		int numRead = 0;
+		int endOfFile = 0;
+		if (fileHandle>=0 && fileHandle < B3_FILEIO_MAX_FILES )
+		{
+			InMemoryFileAccessor& f = m_fileHandles[fileHandle];
+			if (f.m_file)
+			{
+				//return ::fgets(destBuffer, numBytes, m_fileHandles[fileHandle]);
+				char c = 0;
+				do
+				{
+					int bytesRead = fileRead(fileHandle,&c,1);
+					if (bytesRead != 1)
+					{
+						endOfFile = 1;
+						c=0;
+					}
+					if (c && c!='\n')
+					{
+						char a='\r';
+						if (c!=13)
+						{
+							destBuffer[numRead++]=c;
+						} else
+						{
+							destBuffer[numRead++]=0;
+						}
+					}
+				} while (c != 0 && c != '\n' && numRead<(numBytes-1));
+			}
+		}
+		if (numRead==0 && endOfFile)
+		{
+			return 0;
+		}
+
+		if (numRead<numBytes)
+		{
+			if (numRead >=0)
+			{
+				destBuffer[numRead]=0;
+			}
+			return &destBuffer[0];
+		} else
+		{
+			if (endOfFile==0)
+			{
+				printf("InMemoryFileIO::readLine readLine warning: numRead=%d, numBytes=%d\n", numRead, numBytes);
+			}
+		}
+		return 0;
+	}
+	virtual int getFileSize(int fileHandle)
+	{
+		if (fileHandle>=0 && fileHandle < B3_FILEIO_MAX_FILES )
+		{
+			
+			InMemoryFileAccessor& f = m_fileHandles[fileHandle];
+			if (f.m_file)
+			{
+				return f.m_file->m_fileSize;
+			}
+		}
+		return 0;
+	}
+};
+
 struct WrapperFileIO : public CommonFileIOInterface
 {
 	CommonFileIOInterface* m_availableFileIOInterfaces[B3_MAX_FILEIO_INTERFACES];
 	int m_numWrapperInterfaces;
 
 	WrapperFileHandle m_wrapperFileHandles[B3_MAX_FILEIO_INTERFACES];
-	
+	InMemoryFileIO m_cachedFiles;
 
 	WrapperFileIO()
 		:m_numWrapperInterfaces(0)
@@ -47,6 +292,7 @@ struct WrapperFileIO : public CommonFileIOInterface
 			m_wrapperFileHandles[i].childFileIO=0;
 			m_wrapperFileHandles[i].m_childFileHandle=0;
 		}
+		//addFileIOInterface(&m_cachedFiles);
 	}
 
 	virtual ~WrapperFileIO()
@@ -86,6 +332,7 @@ struct WrapperFileIO : public CommonFileIOInterface
 
 	virtual int fileOpen(const char* fileName, const char* mode)
 	{
+		
 		//find an available wrapperFileHandle slot
 		int wrapperFileHandle=-1;
 		int slot = -1;
@@ -99,20 +346,76 @@ struct WrapperFileIO : public CommonFileIOInterface
 		}
 		if (slot>=0)
 		{
-			//figure out what wrapper interface to use
-			//use the first one that can open the file
-			for (int i=0;i<B3_MAX_FILEIO_INTERFACES;i++)
+			//first check the cache
+			int childHandle = m_cachedFiles.fileOpen(fileName, mode);
+			if (childHandle<0)
 			{
-				CommonFileIOInterface* childFileIO=m_availableFileIOInterfaces[i];
-				if (childFileIO)
+				for (int i=0;i<B3_MAX_FILEIO_INTERFACES;i++)
 				{
-					int childHandle = childFileIO->fileOpen(fileName, mode);
-					if (childHandle>=0)
+					CommonFileIOInterface* childFileIO=m_availableFileIOInterfaces[i];
+					if (childFileIO)
 					{
-						wrapperFileHandle = slot;
-						m_wrapperFileHandles[slot].childFileIO = childFileIO;
-						m_wrapperFileHandles[slot].m_childFileHandle = childHandle;
-						break;
+						int childHandle = childFileIO->fileOpen(fileName, mode);
+						if (childHandle>=0)
+						{
+							int fileSize = childFileIO->getFileSize(childHandle);
+							char* buffer = 0;
+							if (fileSize)
+							{
+								buffer = m_cachedFiles.allocateBuffer(fileSize);
+								if (buffer)
+								{
+									int readBytes = childFileIO->fileRead(childHandle, buffer, fileSize);
+									if (readBytes!=fileSize)
+									{
+										if (readBytes<fileSize)
+										{
+											fileSize = readBytes;
+										} else
+										{
+											printf("WrapperFileIO error: reading more bytes (%d) then reported file size (%d) of file %s.\n", readBytes, fileSize, fileName);
+										}
+									}
+								} else
+								{
+									fileSize=0;
+								}
+							}
+
+							//potentially register a zero byte file, or files that only can be read partially
+							m_cachedFiles.registerFile(fileName,buffer, fileSize);
+							childFileIO->fileClose(childHandle);
+							break;
+						}
+					}
+				}
+			}
+			
+			{
+				int childHandle = m_cachedFiles.fileOpen(fileName, mode);
+				if (childHandle>=0)
+				{
+					wrapperFileHandle = slot;
+					m_wrapperFileHandles[slot].childFileIO = &m_cachedFiles;
+					m_wrapperFileHandles[slot].m_childFileHandle = childHandle;
+				} else
+				{
+					//figure out what wrapper interface to use
+					//use the first one that can open the file
+					for (int i=0;i<B3_MAX_FILEIO_INTERFACES;i++)
+					{
+						CommonFileIOInterface* childFileIO=m_availableFileIOInterfaces[i];
+						if (childFileIO)
+						{
+							int childHandle = childFileIO->fileOpen(fileName, mode);
+							if (childHandle>=0)
+							{
+								wrapperFileHandle = slot;
+								m_wrapperFileHandles[slot].childFileIO = childFileIO;
+								m_wrapperFileHandles[slot].m_childFileHandle = childHandle;
+								break;
+							}
+						}
 					}
 				}
 			}
@@ -155,6 +458,9 @@ struct WrapperFileIO : public CommonFileIOInterface
 	}
 	virtual bool findResourcePath(const char* fileName,  char* resourcePathOut, int resourcePathMaxNumBytes)
 	{
+		if (m_cachedFiles.findResourcePath(fileName, resourcePathOut, resourcePathMaxNumBytes))
+			return true;
+
 		bool found = false;
 		for (int i=0;i<B3_MAX_FILEIO_INTERFACES;i++)
 		{
@@ -273,7 +579,7 @@ B3_SHARED_API int executePluginCommand_fileIOPlugin(struct b3PluginContext* cont
 #ifdef B3_USE_ZIPFILE_FILEIO
 						if (arguments->m_text)
 						{
-							obj->m_fileIO.addFileIOInterface(new ZipFileIO(arguments->m_text));
+							obj->m_fileIO.addFileIOInterface(new ZipFileIO(arguments->m_text, &obj->m_fileIO));
 						}
 #else
 						printf("eZipFileIO is not enabled in this build.\n");

@@ -228,24 +228,36 @@ bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
 	}
 	else
 	{
+
 		char path[1024];
 		fu.extractPath(relativeFileName, path, sizeof(path));
 		m_data->setSourceFile(relativeFileName, path);
 
-		std::fstream xml_file(relativeFileName, std::fstream::in);
-		while (xml_file.good())
+		//read file
+		int fileId = m_data->m_fileIO->fileOpen(relativeFileName,"r");
+		
+		char destBuffer[8192];
+		char* line = 0;
+		do 
 		{
-			std::string line;
-			std::getline(xml_file, line);
-			xml_string += (line + "\n");
+			line = m_data->m_fileIO->readLine(fileId, destBuffer, 8192);
+			if (line)
+			{
+				xml_string += (std::string(destBuffer) + "\n");
+			}
 		}
-		xml_file.close();
+		while (line);
+		m_data->m_fileIO->fileClose(fileId);
 	}
 
 	BulletErrorLogger loggie;
 	//todo: quick test to see if we can re-use the URDF parser for SDF or not
 	m_data->m_urdfParser.setParseSDF(true);
-	bool result = m_data->m_urdfParser.loadSDF(xml_string.c_str(), &loggie);
+	bool result = false;
+	if (xml_string.length())
+	{
+		result = m_data->m_urdfParser.loadSDF(xml_string.c_str(), &loggie);
+	}
 
 	return result;
 }
@@ -861,7 +873,7 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 	return shape;
 }
 
-void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<BulletURDFTexture>& texturesOut) const
+void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<BulletURDFTexture>& texturesOut, struct b3ImportMeshData& meshData) const
 {
 	BT_PROFILE("convertURDFToVisualShapeInternal");
 
@@ -920,7 +932,7 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 			{
 				case UrdfGeometry::FILE_OBJ:
 				{
-					b3ImportMeshData meshData;
+					
 					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData, m_data->m_fileIO))
 					{
 						if (meshData.m_textureImage1)
@@ -1150,16 +1162,49 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 			btTransform childTrans = vis.m_linkLocalFrame;
 			btHashString matName(vis.m_materialName.c_str());
 			UrdfMaterial* const* matPtr = model.m_materials[matName];
-			if (matPtr)
+			b3ImportMeshData meshData;
+
+			convertURDFToVisualShapeInternal(&vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures,meshData);
+
+			if (m_data->m_flags&CUF_USE_MATERIAL_COLORS_FROM_MTL)
 			{
-				UrdfMaterial* const mat = *matPtr;
-				//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
-				UrdfMaterialColor matCol;
-				matCol.m_rgbaColor = mat->m_matColor.m_rgbaColor;
-				matCol.m_specularColor = mat->m_matColor.m_specularColor;
-				m_data->m_linkColors.insert(linkIndex, matCol);
+				if ((meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR) &&
+						(meshData.m_flags & B3_IMPORT_MESH_HAS_SPECULAR_COLOR))
+				{
+					UrdfMaterialColor matCol;
+					
+					if (m_data->m_flags&CUF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
+					{
+						matCol.m_rgbaColor.setValue(meshData.m_rgbaColor[0],
+									meshData.m_rgbaColor[1],
+									meshData.m_rgbaColor[2],
+									meshData.m_rgbaColor[3]);
+					} else
+					{
+						matCol.m_rgbaColor.setValue(meshData.m_rgbaColor[0],
+									meshData.m_rgbaColor[1],
+									meshData.m_rgbaColor[2],
+									1);
+					}
+					
+					matCol.m_specularColor.setValue(meshData.m_specularColor[0],
+						meshData.m_specularColor[1],
+						meshData.m_specularColor[2]);
+					m_data->m_linkColors.insert(linkIndex, matCol);
+				}
+			} else
+			{
+				if (matPtr)
+				{
+					UrdfMaterial* const mat = *matPtr;
+					//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
+					UrdfMaterialColor matCol;
+					matCol.m_rgbaColor = mat->m_matColor.m_rgbaColor;
+					matCol.m_specularColor = mat->m_matColor.m_specularColor;
+					m_data->m_linkColors.insert(linkIndex, matCol);
+				}
 			}
-			convertURDFToVisualShapeInternal(&vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures);
+			
 		}
 	}
 	if (vertices.size() && indices.size())
@@ -1266,6 +1311,7 @@ void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, 
 		UrdfLink* const* linkPtr = model.m_links.getAtIndex(urdfIndex);
 		if (linkPtr)
 		{
+			m_data->m_customVisualShapesConverter->setFlags(m_data->m_flags);
 			m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex, pathPrefix, localInertiaFrame, *linkPtr, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId, m_data->m_fileIO);
 		}
 	}
