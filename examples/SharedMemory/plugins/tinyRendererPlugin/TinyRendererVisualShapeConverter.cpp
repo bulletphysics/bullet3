@@ -182,13 +182,14 @@ void TinyRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff
 	m_data->m_hasLightSpecularCoeff = true;
 }
 
-static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut, struct CommonFileIOInterface* fileIO)
+static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut, struct CommonFileIOInterface* fileIO, int flags)
 {
 	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
 	visualShapeOut.m_dimensions[0] = 0;
 	visualShapeOut.m_dimensions[1] = 0;
 	visualShapeOut.m_dimensions[2] = 0;
 	memset(visualShapeOut.m_meshAssetFileName, 0, sizeof(visualShapeOut.m_meshAssetFileName));
+#if 0
 	if (visual->m_geometry.m_hasLocalMaterial)
 	{
 		visualShapeOut.m_rgbaColor[0] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[0];
@@ -196,6 +197,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 		visualShapeOut.m_rgbaColor[2] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[2];
 		visualShapeOut.m_rgbaColor[3] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[3];
 	}
+#endif
 
 	GLInstanceGraphicsShape* glmesh = 0;
 
@@ -322,8 +324,26 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 				{
 					//glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
 					b3ImportMeshData meshData;
+
 					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData, fileIO))
 					{
+						if (flags&URDF_USE_MATERIAL_COLORS_FROM_MTL)
+						{
+							if (meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR)
+							{
+								visualShapeOut.m_rgbaColor[0] = meshData.m_rgbaColor[0];
+								visualShapeOut.m_rgbaColor[1] = meshData.m_rgbaColor[1];
+								visualShapeOut.m_rgbaColor[2] = meshData.m_rgbaColor[2];
+								
+								if (flags&URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
+								{
+									visualShapeOut.m_rgbaColor[3] = meshData.m_rgbaColor[3];
+								} else
+								{
+									visualShapeOut.m_rgbaColor[3] = 1;
+								}
+							}
+						}
 						if (meshData.m_textureImage1)
 						{
 							MyTexture2 texData;
@@ -665,9 +685,14 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 
 			{
 				B3_PROFILE("convertURDFToVisualShape");
-				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape, fileIO);
+				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape, fileIO, m_data->m_flags);
 			}
 
+			rgbaColor[0] = visualShape.m_rgbaColor[0];
+			rgbaColor[1] = visualShape.m_rgbaColor[1];
+			rgbaColor[2] = visualShape.m_rgbaColor[2];
+			rgbaColor[3] = visualShape.m_rgbaColor[3];
+			
 			if (vertices.size() && indices.size())
 			{
 				TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer, m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId, linkIndex);

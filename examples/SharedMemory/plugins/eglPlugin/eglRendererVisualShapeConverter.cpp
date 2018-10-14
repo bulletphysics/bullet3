@@ -270,13 +270,14 @@ void EGLRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff)
 }
 
 ///todo: merge into single file with TinyRendererVisualShapeConverter
-static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture3>& texturesOut, b3VisualShapeData& visualShapeOut, struct CommonFileIOInterface* fileIO)
+static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture3>& texturesOut, b3VisualShapeData& visualShapeOut, struct CommonFileIOInterface* fileIO, int flags)
 {
 	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
 	visualShapeOut.m_dimensions[0] = 0;
 	visualShapeOut.m_dimensions[1] = 0;
 	visualShapeOut.m_dimensions[2] = 0;
 	memset(visualShapeOut.m_meshAssetFileName, 0, sizeof(visualShapeOut.m_meshAssetFileName));
+#if 0
 	if (visual->m_geometry.m_hasLocalMaterial)
 	{
 		visualShapeOut.m_rgbaColor[0] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[0];
@@ -284,6 +285,7 @@ static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfP
 		visualShapeOut.m_rgbaColor[2] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[2];
 		visualShapeOut.m_rgbaColor[3] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[3];
 	}
+#endif
 
 	GLInstanceGraphicsShape* glmesh = 0;
 
@@ -412,6 +414,23 @@ static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfP
 					b3ImportMeshData meshData;
 					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData, fileIO))
 					{
+						if (flags&URDF_USE_MATERIAL_COLORS_FROM_MTL)
+						{
+							if (meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR)
+							{
+								visualShapeOut.m_rgbaColor[0] = meshData.m_rgbaColor[0];
+								visualShapeOut.m_rgbaColor[1] = meshData.m_rgbaColor[1];
+								visualShapeOut.m_rgbaColor[2] = meshData.m_rgbaColor[2];
+								
+								if (flags&URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
+								{
+									visualShapeOut.m_rgbaColor[3] = meshData.m_rgbaColor[3];
+								} else
+								{
+									visualShapeOut.m_rgbaColor[3] = 1;
+								}
+							}
+						}
 						if (meshData.m_textureImage1)
 						{
 							MyTexture3 texData;
@@ -752,7 +771,7 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
 			visualShape.m_rgbaColor[3] = rgbaColor[3];
 			{
 				B3_PROFILE("convertURDFToVisualShape2");
-				convertURDFToVisualShape2(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape, fileIO);
+				convertURDFToVisualShape2(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape, fileIO, m_data->m_flags);
 			}
 			m_data->m_visualShapes.push_back(visualShape);
 

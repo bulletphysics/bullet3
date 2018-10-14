@@ -111,6 +111,16 @@ class MJCFBaseBulletEnv(gym.Env):
 	# backwards compatibility for gym >= v0.9.x
 	# for extension of this class.
 	def step(self, *args, **kwargs):
+		if self.isRender:
+			base_pos=[0,0,0]
+			if (hasattr(self,'robot')):
+				if (hasattr(self.robot,'body_xyz')):
+					base_pos = self.robot.body_xyz
+					# Keep the previous orientation of the camera set by the user.
+					#[yaw, pitch, dist] = self._p.getDebugVisualizerCamera()[8:11]
+					self._p.resetDebugVisualizerCamera(3,0,0, base_pos)
+
+
 		return self._step(*args, **kwargs)
 
 	if parse_version(gym.__version__)>=parse_version('0.9.6'):

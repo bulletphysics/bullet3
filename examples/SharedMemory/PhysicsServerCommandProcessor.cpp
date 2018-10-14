@@ -3748,6 +3748,10 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 					m_data->m_pluginManager.getRenderInterface()->setProjectiveTexture(false);
 				}
 
+				if ((flags & ER_NO_SEGMENTATION_MASK) != 0)
+				{
+					segmentationMaskBuffer = 0;
+				}
 
 				m_data->m_pluginManager.getRenderInterface()->copyCameraImageData(pixelRGBA, numRequestedPixels,
 																				  depthBuffer, numRequestedPixels,
