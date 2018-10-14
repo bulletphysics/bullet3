@@ -7,7 +7,7 @@
 #include "../../../CommonInterfaces/CommonFileIOInterface.h"
 #include "../../../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3HashMap.h"
-
+#include <string.h> //memcpy/strlen
 #ifndef B3_EXCLUDE_DEFAULT_FILEIO
 #include "../../../Utils/b3BulletDefaultFileIO.h"
 #endif //B3_EXCLUDE_DEFAULT_FILEIO
