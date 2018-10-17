@@ -8,5 +8,6 @@ recursive-include src *.hpp
 recursive-include examples/pybullet/gym *.*
 include examples/ThirdPartyLibs/enet/unix.c
 include examples/OpenGLWindow/*.*
+recursive-include examples/SharedMemory/plugins *.*
 recursive-include examples/ThirdPartyLibs/glad *.*
 include examples/ThirdPartyLibs/enet/win32.c
