@@ -64,7 +64,7 @@ struct InMemoryFileIO : public CommonFileIOInterface
 		clearCache();
 		if (m_numAllocs != m_numFrees)
 		{
-			printf("ErrorInMemoryFile (numAllocs %d !\ numFrees %d\n", m_numAllocs, m_numFrees);
+			printf("Error: InMemoryFile::~InMemoryFileIO (numAllocs %d numFrees %d\n", m_numAllocs, m_numFrees);
 		}
 	}
 	void clearCache()
