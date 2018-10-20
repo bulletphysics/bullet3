@@ -1,5 +1,3 @@
-
-
 #include "fileIOPlugin.h"
 #include "../../SharedMemoryPublic.h"
 #include "../b3PluginContext.h"
@@ -46,9 +44,14 @@ struct InMemoryFileIO : public CommonFileIOInterface
 {
 	b3HashMap<b3HashString,InMemoryFile*> m_fileCache;
 	InMemoryFileAccessor m_fileHandles[B3_MAX_FILEIO_INTERFACES];
+	int m_numAllocs;
+	int m_numFrees;
 
 	InMemoryFileIO()
 	{
+		m_numAllocs=0;
+		m_numFrees=0;
+
 		for (int i=0;i<B3_FILEIO_MAX_FILES;i++)
 		{
 			m_fileHandles[i].m_curPos = 0;
@@ -59,8 +62,11 @@ struct InMemoryFileIO : public CommonFileIOInterface
 	virtual ~InMemoryFileIO()
 	{
 		clearCache();
+		if (m_numAllocs != m_numFrees)
+		{
+			printf("Error: InMemoryFile::~InMemoryFileIO (numAllocs %d numFrees %d\n", m_numAllocs, m_numFrees);
+		}
 	}
-
 	void clearCache()
 	{
 		for (int i=0;i<m_fileCache.size();i++)
@@ -70,7 +76,9 @@ struct InMemoryFileIO : public CommonFileIOInterface
 			{
 				InMemoryFile* mem = *memPtr;
 				freeBuffer(mem->m_buffer);
+				m_numFrees++;
 				delete (mem);
+				m_numFrees++;
 			}
 		}
 	}
@@ -80,6 +88,7 @@ struct InMemoryFileIO : public CommonFileIOInterface
 		char* buffer = 0;
 		if (len)
 		{
+			m_numAllocs++;
 			buffer = new char[len];
 		}
 		return buffer;
@@ -92,6 +101,7 @@ struct InMemoryFileIO : public CommonFileIOInterface
 
 	virtual int registerFile(const char* fileName, char* buffer, int len)
 	{
+		m_numAllocs++;
 		InMemoryFile* f = new InMemoryFile();
 		f->m_buffer = buffer;
 		f->m_fileSize = len;
@@ -227,7 +237,6 @@ struct InMemoryFileIO : public CommonFileIOInterface
 					}
 					if (c && c!='\n')
 					{
-						char a='\r';
 						if (c!=13)
 						{
 							destBuffer[numRead++]=c;
@@ -347,8 +356,12 @@ struct WrapperFileIO : public CommonFileIOInterface
 		if (slot>=0)
 		{
 			//first check the cache
-			int childHandle = m_cachedFiles.fileOpen(fileName, mode);
-			if (childHandle<0)
+			int cacheHandle = m_cachedFiles.fileOpen(fileName, mode);
+			if (cacheHandle>=0)
+			{
+				m_cachedFiles.fileClose(cacheHandle);
+			}
+			if (cacheHandle<0)
 			{
 				for (int i=0;i<B3_MAX_FILEIO_INTERFACES;i++)
 				{
@@ -444,7 +457,6 @@ struct WrapperFileIO : public CommonFileIOInterface
 	}
 	virtual void fileClose(int fileHandle)
 	{
-		int fileReadResult=-1;
 		if (fileHandle>=0 && fileHandle<B3_MAX_FILEIO_INTERFACES)
 		{
 			if (m_wrapperFileHandles[fileHandle].childFileIO)
@@ -477,7 +489,6 @@ struct WrapperFileIO : public CommonFileIOInterface
 	{
 		char* result = 0;
 
-		int fileReadResult=-1;
 		if (fileHandle>=0 && fileHandle<B3_MAX_FILEIO_INTERFACES)
 		{
 			if (m_wrapperFileHandles[fileHandle].childFileIO)
@@ -493,7 +504,6 @@ struct WrapperFileIO : public CommonFileIOInterface
 	{
 		int numBytes = 0;
 
-		int fileReadResult=-1;
 		if (fileHandle>=0 && fileHandle<B3_MAX_FILEIO_INTERFACES)
 		{
 			if (m_wrapperFileHandles[fileHandle].childFileIO)
@@ -589,8 +599,7 @@ B3_SHARED_API int executePluginCommand_fileIOPlugin(struct b3PluginContext* cont
 					case eCNSFileIO:
 					{
 #ifdef B3_USE_CNS_FILEIO
-						B3_USE_ZIPFILE_FILEIO
-						if (arguments->m_text)
+						if (strlen(arguments->m_text))
 						{
 							obj->m_fileIO.addFileIOInterface(new CNSFileIO(arguments->m_text));
 						}
