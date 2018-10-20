@@ -1711,7 +1711,7 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 												 const btVector3 &normal_ang,
 												 const btVector3 &normal_lin,
 												 btScalar *jac,
-												 btAlignedObjectArray<btScalar> &scratch_r,
+												 btAlignedObjectArray<btScalar> &scratch_r1,
 												 btAlignedObjectArray<btVector3> &scratch_v,
 												 btAlignedObjectArray<btMatrix3x3> &scratch_m) const
 {
@@ -1730,9 +1730,20 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 	v_ptr += num_links + 1;
 	btAssert(v_ptr - &scratch_v[0] == scratch_v.size());
 
-	scratch_r.resize(m_dofCount);
-	btScalar *results = m_dofCount > 0 ? &scratch_r[0] : 0;
+	//scratch_r.resize(m_dofCount);
+	//btScalar *results = m_dofCount > 0 ? &scratch_r[0] : 0;
 
+    scratch_r1.resize(m_dofCount+num_links);
+    btScalar * results = m_dofCount > 0 ? &scratch_r1[0] : 0;
+    btScalar* links = num_links? &scratch_r1[m_dofCount] : 0;
+    int numLinksChildToRoot=0;
+    int l = link;
+    while (l != -1)
+    {
+        links[numLinksChildToRoot++]=l;
+        l = m_links[l].m_parent;
+    }
+    
 	btMatrix3x3 *rot_from_world = &scratch_m[0];
 
 	const btVector3 p_minus_com_world = contact_point - m_basePos;
@@ -1766,14 +1777,14 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 	// Qdot coefficients, if necessary.
 	if (num_links > 0 && link > -1)
 	{
-		// TODO: speed this up -- don't calculate for m_links we don't need.
-		// (Also, we are making 3 separate calls to this function, for the normal & the 2 friction directions,
+        // TODO: (Also, we are making 3 separate calls to this function, for the normal & the 2 friction directions,
 		// which is resulting in repeated work being done...)
 
 		// calculate required normals & positions in the local frames.
-		for (int i = 0; i < num_links; ++i)
-		{
-			// transform to local frame
+        for (int a = 0; a < numLinksChildToRoot; a++)
+        {
+            int i = links[numLinksChildToRoot-1-a];
+        	// transform to local frame
 			const int parent = m_links[i].m_parent;
 			const btMatrix3x3 mtx(m_links[i].m_cachedRotParentToThis);
 			rot_from_world[i + 1] = mtx * rot_from_world[parent + 1];
