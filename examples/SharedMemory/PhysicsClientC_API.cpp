@@ -4008,7 +4008,7 @@ B3_SHARED_API int b3GetStatusTextureUniqueId(b3SharedMemoryStatusHandle statusHa
 	return uid;
 }
 
-B3_SHARED_API b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, int shapeIndex)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
@@ -4019,14 +4019,25 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClien
 	command->m_updateVisualShapeDataArguments.m_bodyUniqueId = bodyUniqueId;
 	command->m_updateVisualShapeDataArguments.m_jointIndex = jointIndex;
 	command->m_updateVisualShapeDataArguments.m_shapeIndex = shapeIndex;
-	command->m_updateVisualShapeDataArguments.m_textureUniqueId = textureUniqueId;
+	command->m_updateVisualShapeDataArguments.m_textureUniqueId = -2;
 	command->m_updateFlags = 0;
-
-	if (textureUniqueId >= 0)
-	{
-		command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_TEXTURE;
-	}
 	return (b3SharedMemoryCommandHandle)command;
+}
+
+B3_SHARED_API void b3UpdateVisualShapeTexture(b3SharedMemoryCommandHandle commandHandle, int textureUniqueId)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_UPDATE_VISUAL_SHAPE);
+
+	if (command->m_type == CMD_UPDATE_VISUAL_SHAPE)
+	{
+		if (textureUniqueId >= -1)
+		{
+			command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_TEXTURE;
+			command->m_updateVisualShapeDataArguments.m_textureUniqueId = textureUniqueId;
+		}
+	}
 }
 
 B3_SHARED_API void b3UpdateVisualShapeRGBAColor(b3SharedMemoryCommandHandle commandHandle, const double rgbaColor[4])

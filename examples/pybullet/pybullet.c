@@ -5584,7 +5584,7 @@ static PyObject* pybullet_changeVisualShape(PyObject* self, PyObject* args, PyOb
 	int objectUniqueId = -1;
 	int jointIndex = -1;
 	int shapeIndex = -1;
-	int textureUniqueId = -1;
+	int textureUniqueId = -2;
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
@@ -5606,7 +5606,12 @@ static PyObject* pybullet_changeVisualShape(PyObject* self, PyObject* args, PyOb
 	}
 
 	{
-		commandHandle = b3InitUpdateVisualShape(sm, objectUniqueId, jointIndex, shapeIndex, textureUniqueId);
+		commandHandle = b3InitUpdateVisualShape(sm, objectUniqueId, jointIndex, shapeIndex);
+
+		if (textureUniqueId>=-1)
+		{
+			b3UpdateVisualShapeTexture(commandHandle, textureUniqueId);
+		}
 
 		if (specularColorObj)
 		{

@@ -2755,7 +2755,7 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 	SaveWorldObjectData sd;
 	sd.m_fileName = fileName;
 
-	int currentOpenGLTextureIndex = 0;
+	
 
 	for (int m = 0; m < u2b.getNumModels(); m++)
 	{
@@ -2971,38 +2971,38 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 		}
 
 		{
-			int startShapeIndex = 0;
+			
 
 			if (m_data->m_pluginManager.getRenderInterface())
 			{
+				int currentOpenGLTextureIndex=0;
 				int totalNumVisualShapes = m_data->m_pluginManager.getRenderInterface()->getNumVisualShapes(bodyUniqueId);
-				//int totalBytesPerVisualShape = sizeof (b3VisualShapeData);
-				//int visualShapeStorage = bufferSizeInBytes / totalBytesPerVisualShape - 1;
-				b3VisualShapeData tmpShape;
 
-				int remain = totalNumVisualShapes - startShapeIndex;
-				int shapeIndex = startShapeIndex;
-
-				int success = m_data->m_pluginManager.getRenderInterface()->getVisualShapesData(bodyUniqueId, shapeIndex, &tmpShape);
-				if (success)
+				for (int shapeIndex=0;shapeIndex<totalNumVisualShapes;shapeIndex++)
 				{
-					if (tmpShape.m_tinyRendererTextureId >= 0)
+					b3VisualShapeData tmpShape;
+					int success = m_data->m_pluginManager.getRenderInterface()->getVisualShapesData(bodyUniqueId, shapeIndex, &tmpShape);
+					if (success)
 					{
-						int openglTextureUniqueId = -1;
-
-						//find companion opengl texture unique id and create a 'textureUid'
-						if (currentOpenGLTextureIndex < u2b.getNumAllocatedTextures())
+						if (tmpShape.m_tinyRendererTextureId >= 0)
 						{
-							openglTextureUniqueId = u2b.getAllocatedTexture(currentOpenGLTextureIndex);
-							currentOpenGLTextureIndex++;
-						}
+							int openglTextureUniqueId = -1;
 
-						int texHandle = m_data->m_textureHandles.allocHandle();
-						InternalTextureHandle* texH = m_data->m_textureHandles.getHandle(texHandle);
-						if (texH)
-						{
-							texH->m_tinyRendererTextureId = tmpShape.m_tinyRendererTextureId;
-							texH->m_openglTextureId = openglTextureUniqueId;
+							//find companion opengl texture unique id and create a 'textureUid'
+							if (currentOpenGLTextureIndex<u2b.getNumAllocatedTextures())
+							{
+								openglTextureUniqueId = u2b.getAllocatedTexture(currentOpenGLTextureIndex++);
+							}
+							//if (openglTextureUniqueId>=0)
+							{
+								int texHandle = m_data->m_textureHandles.allocHandle();
+								InternalTextureHandle* texH = m_data->m_textureHandles.getHandle(texHandle);
+								if (texH)
+								{
+									texH->m_tinyRendererTextureId = tmpShape.m_tinyRendererTextureId;
+									texH->m_openglTextureId = openglTextureUniqueId;
+								}
+							}
 						}
 					}
 				}
@@ -9779,9 +9779,12 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 
 	if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_TEXTURE)
 	{
-		texHandle = m_data->m_textureHandles.getHandle(clientCmd.m_updateVisualShapeDataArguments.m_textureUniqueId);
+		if (clientCmd.m_updateVisualShapeDataArguments.m_textureUniqueId>=0)
+		{
+			texHandle = m_data->m_textureHandles.getHandle(clientCmd.m_updateVisualShapeDataArguments.m_textureUniqueId);
+		}
 
-		if (clientCmd.m_updateVisualShapeDataArguments.m_textureUniqueId >= 0)
+		if (clientCmd.m_updateVisualShapeDataArguments.m_textureUniqueId >= -1)
 		{
 			if (texHandle)
 			{
@@ -9792,6 +9795,12 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 																					 clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex,
 																					 texHandle->m_tinyRendererTextureId);
 				}
+			} else
+			{
+				m_data->m_pluginManager.getRenderInterface()->changeShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId,
+																					 clientCmd.m_updateVisualShapeDataArguments.m_jointIndex,
+																					 clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex,
+																					 -1);
 			}
 		}
 	}
@@ -9812,10 +9821,13 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 						int graphicsIndex = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
 						if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_TEXTURE)
 						{
+							int shapeIndex = m_data->m_guiHelper->getShapeIndexFromInstance(graphicsIndex);
 							if (texHandle)
 							{
-								int shapeIndex = m_data->m_guiHelper->getShapeIndexFromInstance(graphicsIndex);
 								m_data->m_guiHelper->replaceTexture(shapeIndex, texHandle->m_openglTextureId);
+							} else
+							{
+								m_data->m_guiHelper->replaceTexture(shapeIndex, -1);
 							}
 						}
 						if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR)
@@ -9843,10 +9855,14 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 							int graphicsIndex = bodyHandle->m_multiBody->getLink(linkIndex).m_collider->getUserIndex();
 							if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_TEXTURE)
 							{
+								int shapeIndex = m_data->m_guiHelper->getShapeIndexFromInstance(graphicsIndex);
 								if (texHandle)
 								{
-									int shapeIndex = m_data->m_guiHelper->getShapeIndexFromInstance(graphicsIndex);
 									m_data->m_guiHelper->replaceTexture(shapeIndex, texHandle->m_openglTextureId);
+								}
+								else
+								{
+									m_data->m_guiHelper->replaceTexture(shapeIndex, -1);
 								}
 							}
 							if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR)
