@@ -5606,7 +5606,7 @@ static PyObject* pybullet_changeVisualShape(PyObject* self, PyObject* args, PyOb
 	}
 
 	{
-		commandHandle = b3InitUpdateVisualShape(sm, objectUniqueId, jointIndex, shapeIndex);
+		commandHandle = b3InitUpdateVisualShape2(sm, objectUniqueId, jointIndex, shapeIndex);
 
 		if (textureUniqueId>=-1)
 		{
