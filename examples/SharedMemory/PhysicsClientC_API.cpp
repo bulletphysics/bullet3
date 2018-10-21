@@ -4008,7 +4008,28 @@ B3_SHARED_API int b3GetStatusTextureUniqueId(b3SharedMemoryStatusHandle statusHa
 	return uid;
 }
 
-B3_SHARED_API b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, int shapeIndex)
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
+{
+        PhysicsClient* cl = (PhysicsClient*)physClient;
+        b3Assert(cl);
+        b3Assert(cl->canSubmitCommand());
+        struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+        b3Assert(command);
+        command->m_type = CMD_UPDATE_VISUAL_SHAPE;
+        command->m_updateVisualShapeDataArguments.m_bodyUniqueId = bodyUniqueId;
+        command->m_updateVisualShapeDataArguments.m_jointIndex = jointIndex;
+        command->m_updateVisualShapeDataArguments.m_shapeIndex = shapeIndex;
+        command->m_updateVisualShapeDataArguments.m_textureUniqueId = textureUniqueId;
+        command->m_updateFlags = 0;
+
+        if (textureUniqueId >= 0)
+        {
+                command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_TEXTURE;
+        }
+        return (b3SharedMemoryCommandHandle)command;
+}
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitUpdateVisualShape2(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, int shapeIndex)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
