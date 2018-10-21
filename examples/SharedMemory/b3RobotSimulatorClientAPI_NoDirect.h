@@ -75,7 +75,7 @@ struct b3RobotSimulatorChangeVisualShapeArgs
 		: m_objectUniqueId(-1),
 		  m_linkIndex(-1),
 		  m_shapeIndex(-1),
-		  m_textureUniqueId(-1),
+		  m_textureUniqueId(-2),
 		  m_rgbaColor(0, 0, 0, 1),
 		  m_hasRgbaColor(false),
 		  m_specularColor(1, 1, 1),

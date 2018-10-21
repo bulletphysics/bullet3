@@ -1159,7 +1159,7 @@ void TinyRendererVisualShapeConverter::resetAll()
 void TinyRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
 	btAssert(textureUniqueId < m_data->m_textures.size());
-	if (textureUniqueId >= 0 && textureUniqueId < m_data->m_textures.size())
+	if (textureUniqueId >= -1 && textureUniqueId < m_data->m_textures.size())
 	{
 		for (int n = 0; n < m_data->m_swRenderInstances.size(); n++)
 		{
@@ -1176,7 +1176,13 @@ void TinyRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, in
 
 					if ((shapeIndex < 0) || (shapeIndex == v))
 					{
-						renderObj->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData1, m_data->m_textures[textureUniqueId].m_width, m_data->m_textures[textureUniqueId].m_height);
+						if (textureUniqueId>=0)
+						{
+							renderObj->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData1, m_data->m_textures[textureUniqueId].m_width, m_data->m_textures[textureUniqueId].m_height);
+						} else
+						{
+							renderObj->m_model->setDiffuseTextureFromData(0,0,0);
+						}
 					}
 				}
 			}

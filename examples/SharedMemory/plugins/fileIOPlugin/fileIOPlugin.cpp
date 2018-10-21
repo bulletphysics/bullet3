@@ -603,6 +603,10 @@ B3_SHARED_API int executePluginCommand_fileIOPlugin(struct b3PluginContext* cont
 						{
 							obj->m_fileIO.addFileIOInterface(new CNSFileIO(arguments->m_text));
 						}
+						else
+						{
+							obj->m_fileIO.addFileIOInterface(new CNSFileIO(""));
+						}
 #else//B3_USE_CNS_FILEIO
 						printf("CNSFileIO is not enabled in this build.\n");
 #endif //B3_USE_CNS_FILEIO
