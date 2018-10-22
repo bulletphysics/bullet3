@@ -30,7 +30,7 @@ typedef unsigned long long int smUint64_t;
 #endif
 
 #define SHARED_MEMORY_SERVER_TEST_C
-#define MAX_DEGREE_OF_FREEDOM 128
+#define MAX_DEGREE_OF_FREEDOM 256
 #define MAX_NUM_SENSORS 256
 #define MAX_URDF_FILENAME_LENGTH 1024
 #define MAX_SDF_FILENAME_LENGTH 1024
@@ -943,7 +943,7 @@ struct b3CreateUserShapeResultArgs
 	int m_userShapeUniqueId;
 };
 
-#define MAX_CREATE_MULTI_BODY_LINKS 128
+#define MAX_CREATE_MULTI_BODY_LINKS MAX_DEGREE_OF_FREEDOM
 enum eCreateMultiBodyEnum
 {
 	MULTI_BODY_HAS_BASE = 1,
