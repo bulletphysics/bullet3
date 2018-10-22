@@ -10999,14 +10999,19 @@ void PhysicsServerCommandProcessor::addTransformChangedNotifications()
 		{
 			continue;
 		}
-		if (bodyData->m_multiBody && bodyData->m_multiBody->isAwake())
+		if (bodyData->m_multiBody)
 		{
 			btMultiBody* mb = bodyData->m_multiBody;
-			m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, -1, mb->getBaseCollider()));
-
+			if (mb->getBaseCollider()->isActive())
+			{
+				m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, -1, mb->getBaseCollider()));
+			}
 			for (int linkIndex = 0; linkIndex < mb->getNumLinks(); linkIndex++)
 			{
-				m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, linkIndex, mb->getLinkCollider(linkIndex)));
+				if (mb->getLinkCollider(linkIndex)->isActive())
+				{
+					m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, linkIndex, mb->getLinkCollider(linkIndex)));
+				}
 			}
 		}
 		else if (bodyData->m_rigidBody && bodyData->m_rigidBody->isActive())
