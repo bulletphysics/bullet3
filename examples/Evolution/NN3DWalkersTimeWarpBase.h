@@ -52,7 +52,7 @@ static double /*7*/ CENTUPLE_SPEED = 100;
 static double /*8*/ QUINCENTUPLE_SPEED = 500;
 static double /*9*/ MILLITUPLE_SPEED = 1000;
 static double /*0*/ MAX_SPEED = MILLITUPLE_SPEED;
-static double /**/ NUM_SPEEDS = 11;
+static double /**/ NUM_SPEEDS = 10;
 };  // namespace SimulationSpeeds
 
 // add speeds from the namespace here
