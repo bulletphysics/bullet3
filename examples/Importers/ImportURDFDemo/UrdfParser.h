@@ -80,6 +80,7 @@ struct UrdfGeometry
 		FILE_COLLADA = 2,
 		FILE_OBJ = 3,
 		FILE_CDF = 4,
+		MEMORY_VERTICES = 5,
 
 	};
 	int m_meshFileType;

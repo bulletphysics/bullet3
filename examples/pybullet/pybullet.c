@@ -6284,6 +6284,75 @@ static PyObject* pybullet_enableJointForceTorqueSensor(PyObject* self, PyObject*
 	return NULL;
 }
 
+
+static int extractVertices(PyObject* verticesObj, double* vertices, int maxNumVertices)
+{
+	int numVerticesOut=0;
+
+	if (verticesObj)
+	{
+		PyObject* seqVerticesObj= PySequence_Fast(verticesObj, "expected a sequence of vertex positions");
+		if (seqVerticesObj)
+		{
+			int numVerticesSrc = PySequence_Size(seqVerticesObj);
+			{
+				int i;
+
+				if (numVerticesSrc > B3_MAX_NUM_VERTICES)
+				{
+					PyErr_SetString(SpamError, "Number of vertices exceeds the maximum.");
+					Py_DECREF(seqVerticesObj);
+					return 0;
+				}
+				for (i = 0; i < numVerticesSrc; i++)
+				{
+					PyObject* vertexObj = PySequence_GetItem(seqVerticesObj, i);
+					double vertex[3];
+					if (pybullet_internalSetVectord(vertexObj, vertex))
+					{
+						vertices[numVerticesOut*3+0]=vertex[0];
+						vertices[numVerticesOut*3+1]=vertex[1];
+						vertices[numVerticesOut*3+2]=vertex[2];
+						numVerticesOut++;
+					}
+				}
+			}
+		}
+	}
+	return numVerticesOut;
+}
+
+static int extractIndices(PyObject* indicesObj, int* indices, int maxNumIndices)
+{
+	int numIndicesOut=0;
+
+	if (indicesObj)
+	{
+		PyObject* seqIndicesObj= PySequence_Fast(indicesObj, "expected a sequence of indices");
+		if (seqIndicesObj)
+		{
+			int numIndicesSrc = PySequence_Size(seqIndicesObj);
+			{
+				int i;
+
+				if (numIndicesSrc > B3_MAX_NUM_INDICES)
+				{
+					PyErr_SetString(SpamError, "Number of indices exceeds the maximum.");
+					Py_DECREF(seqIndicesObj);
+					return 0;
+				}
+				for (i = 0; i < numIndicesSrc; i++)
+				{
+					int index = pybullet_internalGetIntFromSequence(seqIndicesObj,i);
+					indices[numIndicesOut]=index;
+					numIndicesOut++;
+				}
+			}
+		}
+	}
+	return numIndicesOut;
+}
+
 static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int physicsClientId = 0;
@@ -6303,10 +6372,12 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 	int flags = 0;
 
 	PyObject* halfExtentsObj = 0;
+	PyObject* verticesObj = 0;
+	PyObject* indicesObj = 0;
 
-	static char* kwlist[] = {"shapeType", "radius", "halfExtents", "height", "fileName", "meshScale", "planeNormal", "flags", "collisionFramePosition", "collisionFrameOrientation", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOi", kwlist,
-									 &shapeType, &radius, &halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags, &collisionFramePositionObj, &collisionFrameOrientationObj, &physicsClientId))
+	static char* kwlist[] = {"shapeType", "radius", "halfExtents", "height", "fileName", "meshScale", "planeNormal", "flags", "collisionFramePosition", "collisionFrameOrientation", "vertices", "indices", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOOOi", kwlist,
+									 &shapeType, &radius, &halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags, &collisionFramePositionObj, &collisionFrameOrientationObj, &verticesObj, &indicesObj, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -6316,6 +6387,7 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
+
 	if (shapeType >= GEOM_SPHERE)
 	{
 		b3SharedMemoryStatusHandle statusHandle;
@@ -6346,6 +6418,31 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 			pybullet_internalSetVectord(meshScaleObj, meshScale);
 			shapeIndex = b3CreateCollisionShapeAddMesh(commandHandle, fileName, meshScale);
 		}
+		if (shapeType == GEOM_MESH && verticesObj)
+		{
+			int numVertices=0;
+			int numIndices=0;
+
+			double vertices[B3_MAX_NUM_VERTICES*3];
+			int indices[B3_MAX_NUM_INDICES];
+
+			numVertices = extractVertices(verticesObj, vertices, B3_MAX_NUM_VERTICES);
+			pybullet_internalSetVectord(meshScaleObj, meshScale);
+						
+			if (indicesObj)
+			{
+				numIndices = extractIndices(indicesObj, indices,B3_MAX_NUM_INDICES);
+			}
+
+			if (numIndices)
+			{
+				shapeIndex = b3CreateCollisionShapeAddConcaveMesh(commandHandle, meshScale, vertices, numVertices, indices, numIndices);
+			} else
+			{
+				shapeIndex = b3CreateCollisionShapeAddConvexMesh(commandHandle, meshScale, vertices, numVertices);
+			}
+		}
+
 		if (shapeType == GEOM_PLANE)
 		{
 			double planeConstant = 0;

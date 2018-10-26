@@ -320,6 +320,10 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 
 			switch (visual->m_geometry.m_meshFileType)
 			{
+				case UrdfGeometry::MEMORY_VERTICES:
+				{
+					break;
+				}
 				case UrdfGeometry::FILE_OBJ:
 				{
 					//glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
@@ -442,8 +446,10 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 				}
 
 				default:
-					// should never get here (findExistingMeshFile returns false if it doesn't recognize extension)
-					btAssert(0);
+					{
+						// should never get here (findExistingMeshFile returns false if it doesn't recognize extension)
+						btAssert(0);
+					}
 			}
 
 			if (glmesh && glmesh->m_vertices && (glmesh->m_numvertices > 0))
@@ -458,7 +464,10 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 			}
 			else
 			{
-				b3Warning("issue extracting mesh from COLLADA/STL file %s\n", visual->m_geometry.m_meshFileName.c_str());
+				if (visual->m_geometry.m_meshFileType !=UrdfGeometry::MEMORY_VERTICES)
+				{
+					b3Warning("issue extracting mesh from COLLADA/STL file %s\n", visual->m_geometry.m_meshFileName.c_str());
+				}
 			}
 			break;
 		}  // case mesh
