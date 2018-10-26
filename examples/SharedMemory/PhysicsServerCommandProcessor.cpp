@@ -4193,6 +4193,80 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 				std::string out_found_filename;
 				int out_type;
 
+				if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_numVertices)
+				{
+					if (compound == 0)
+					{
+						compound = worldImporter->createCompoundShape();
+					}
+					compound->setMargin(m_data->m_defaultCollisionMargin);
+
+					if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_numIndices)
+					{
+						BT_PROFILE("convert trimesh2");
+						btTriangleMesh* meshInterface = new btTriangleMesh();
+						this->m_data->m_meshInterfaces.push_back(meshInterface);
+						{
+							BT_PROFILE("convert vertices2");
+
+							for (int j = 0; j < clientCmd.m_createUserShapeArgs.m_shapes[i].m_numIndices / 3; j++)
+							{
+								int i0 = clientCmd.m_createUserShapeArgs.m_shapes[i].m_indices[j*3+0];
+								int i1 = clientCmd.m_createUserShapeArgs.m_shapes[i].m_indices[j*3+1];
+								int i2 = clientCmd.m_createUserShapeArgs.m_shapes[i].m_indices[j*3+2];
+
+								btVector3 v0(	clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i0*3+0],
+											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i0*3+1],
+											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i0*3+2]);
+								btVector3 v1(	clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i1*3+0],
+											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i1*3+1],
+											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i1*3+2]);
+								btVector3 v2(	clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i2*3+0],
+											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i2*3+1],
+											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i2*3+2]);
+								meshInterface->addTriangle(v0, v1, v2);
+							}
+						}
+
+						{
+							BT_PROFILE("create btBvhTriangleMeshShape");
+							btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface, true, true);
+							m_data->m_collisionShapes.push_back(trimesh);
+
+							if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags & GEOM_CONCAVE_INTERNAL_EDGE)
+							{
+								btTriangleInfoMap* triangleInfoMap = new btTriangleInfoMap();
+								btGenerateInternalEdgeInfo(trimesh, triangleInfoMap);
+							}
+							shape = trimesh;
+							if (compound)
+							{
+								compound->addChildShape(childTransform, shape);
+								shape->setMargin(m_data->m_defaultCollisionMargin);
+							}
+						}
+					}
+					else
+					{
+						btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
+						convexHull->setMargin(m_data->m_defaultCollisionMargin);
+
+						for (int v = 0; v < clientCmd.m_createUserShapeArgs.m_shapes[i].m_numVertices; v++)
+						{
+
+							btVector3 pt(	clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[v*3+0],
+											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[v*3+1],
+											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[v*3+2]);
+							convexHull->addPoint(pt, false);
+						}
+
+						convexHull->recalcLocalAabb();
+						convexHull->optimizeConvexHull();
+						compound->addChildShape(childTransform, convexHull);
+					}
+					urdfColObj.m_geometry.m_meshFileType = UrdfGeometry::MEMORY_VERTICES;
+					break;
+				}
 				
 				bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
 				if (foundFile)

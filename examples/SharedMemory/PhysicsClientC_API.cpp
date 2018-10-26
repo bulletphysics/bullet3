@@ -1192,6 +1192,92 @@ B3_SHARED_API int b3CreateCollisionShapeAddMesh(b3SharedMemoryCommandHandle comm
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileType = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numVertices = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numIndices = 0;
+
+			command->m_createUserShapeArgs.m_numUserShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+
+B3_SHARED_API int b3CreateCollisionShapeAddConvexMesh(b3SharedMemoryCommandHandle commandHandle, const double meshScale[/*3*/], const double* vertices, int numVertices)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE))
+	{
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
+		if (shapeIndex < MAX_COMPOUND_COLLISION_SHAPES && numVertices >= 0)
+		{
+			int i=0;
+			if (numVertices>B3_MAX_NUM_VERTICES)
+				numVertices=B3_MAX_NUM_VERTICES;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_MESH;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[0] = meshScale[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileType = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileName[0]=0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numVertices = numVertices;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numIndices = 0;
+
+			for (i=0;i<numVertices;i++)
+			{
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+0]=vertices[i*3+0];
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+1]=vertices[i*3+1];
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+2]=vertices[i*3+2];
+			}
+			command->m_createUserShapeArgs.m_numUserShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+
+B3_SHARED_API int b3CreateCollisionShapeAddConcaveMesh(b3SharedMemoryCommandHandle commandHandle, const double meshScale[/*3*/], const double* vertices, int numVertices, const int* indices, int numIndices)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE))
+	{
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
+		if (shapeIndex < MAX_COMPOUND_COLLISION_SHAPES && numVertices >= 0 && numIndices >=0)
+		{
+			int i=0;
+			if (numVertices>B3_MAX_NUM_VERTICES)
+				numVertices=B3_MAX_NUM_VERTICES;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_MESH;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = GEOM_FORCE_CONCAVE_TRIMESH;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[0] = meshScale[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileType = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileName[0]=0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numVertices = numVertices;
+
+			for (i=0;i<numVertices;i++)
+			{
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+0]=vertices[i*3+0];
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+1]=vertices[i*3+1];
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+2]=vertices[i*3+2];
+			}
+			if (numIndices>B3_MAX_NUM_INDICES)
+				numIndices = B3_MAX_NUM_INDICES;
+
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numIndices = numIndices;
+			for (i=0;i<numIndices;i++)
+			{
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_indices[i]=indices[i];
+			}
 			command->m_createUserShapeArgs.m_numUserShapes++;
 			return shapeIndex;
 		}

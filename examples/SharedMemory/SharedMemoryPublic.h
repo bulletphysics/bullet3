@@ -7,7 +7,8 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 2018090300
+#define SHARED_MEMORY_MAGIC_NUMBER   201810250
+//#define SHARED_MEMORY_MAGIC_NUMBER 201809030
 //#define SHARED_MEMORY_MAGIC_NUMBER 201809010
 //#define SHARED_MEMORY_MAGIC_NUMBER 201807040
 //#define SHARED_MEMORY_MAGIC_NUMBER 201806150
@@ -924,5 +925,9 @@ enum eFileIOTypes
 	eZipFileIO,
 	eCNSFileIO,
 };
+
+//limits for vertices/indices in PyBullet::createCollisionShape
+#define B3_MAX_NUM_VERTICES 1024
+#define B3_MAX_NUM_INDICES 1024
 
 #endif  //SHARED_MEMORY_PUBLIC_H

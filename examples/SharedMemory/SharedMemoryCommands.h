@@ -38,6 +38,7 @@ typedef unsigned long long int smUint64_t;
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
 #define MAX_USER_DATA_KEY_LENGTH MAX_URDF_FILENAME_LENGTH
 
+
 struct TmpFloat3
 {
 	float m_x;
@@ -925,7 +926,10 @@ struct b3CreateUserShapeData
 	double m_meshScale[3];
 	int m_collisionFlags;
 	int m_visualFlags;
-
+	int m_numVertices;
+	double m_vertices[B3_MAX_NUM_VERTICES*3];
+	int m_numIndices;
+	int m_indices[B3_MAX_NUM_INDICES];
 	double m_rgbaColor[4];
 	double m_specularColor[3];
 };

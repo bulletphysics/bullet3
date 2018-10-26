@@ -12,9 +12,38 @@ p.resetDebugVisualizerCamera(15,-346,-16,[-15,0,1]);
 
 p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
 
+
 sphereRadius = 0.05
 colSphereId = p.createCollisionShape(p.GEOM_SPHERE,radius=sphereRadius)
+
+#a few different ways to create a mesh:
+
+#convex mesh from obj
 stoneId = p.createCollisionShape(p.GEOM_MESH,fileName="stone.obj")
+
+#concave mesh from obj
+stoneId = p.createCollisionShape(p.GEOM_MESH,fileName="stone.obj", flags=p.GEOM_FORCE_CONCAVE_TRIMESH)
+
+
+verts=[[-0.246350, -0.246483, -0.000624],
+	[ -0.151407, -0.176325, 0.172867],
+	[ -0.246350, 0.249205, -0.000624],
+	[ -0.151407, 0.129477, 0.172867],
+	[ 0.249338, -0.246483, -0.000624],
+	[ 0.154395, -0.176325, 0.172867],
+	[ 0.249338, 0.249205, -0.000624],
+	[ 0.154395, 0.129477, 0.172867]]
+#convex mesh from vertices
+stoneConvexId = p.createCollisionShape(p.GEOM_MESH,vertices=verts)
+
+indices=[0,3,2,3,6,2,7,4,6,5,0,4,6,0,2,3,5,7,0,1,3,3,7,6,7,5,4,5,1,0,6,4,0,3,1,5]
+
+#concave mesh from vertices+indices
+stoneConcaveId = p.createCollisionShape(p.GEOM_MESH,vertices=verts, indices=indices)
+
+stoneId = stoneConvexId
+#stoneId = stoneConcaveId
+
 
 boxHalfLength = 0.5
 boxHalfWidth = 2.5
@@ -72,10 +101,10 @@ for i in range (segmentLength):
 	p.changeDynamics(boxId,-1,spinningFriction=0.001, rollingFriction=0.001,linearDamping=0.0)
 	print(p.getNumJoints(boxId))
 	for joint in range (p.getNumJoints(boxId)):
-		targetVelocity = 1
+		targetVelocity = 10
 		if (i%2):
-			targetVelocity =-1
-		p.setJointMotorControl2(boxId,joint,p.VELOCITY_CONTROL,targetVelocity=targetVelocity,force=10)
+			targetVelocity =-10
+		p.setJointMotorControl2(boxId,joint,p.VELOCITY_CONTROL,targetVelocity=targetVelocity,force=100)
 	segmentStart=segmentStart-1.1
 
 
