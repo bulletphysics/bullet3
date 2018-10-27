@@ -45,6 +45,7 @@ CXX_FLAGS += '-DB3_DUMP_PYTHON_VERSION '
 CXX_FLAGS += '-DEGL_ADD_PYTHON_INIT '
 CXX_FLAGS += '-DB3_ENABLE_FILEIO_PLUGIN '
 CXX_FLAGS += '-DB3_USE_ZIPFILE_FILEIO '
+CXX_FLAGS += '-DBT_THREADSAFE=1 '
 
 EGL_CXX_FLAGS = ''
 
@@ -547,7 +548,7 @@ hh = setup_py_dir + "/" + datadir
 for root, dirs, files in os.walk(hh):
     for fn in files:
         ext = os.path.splitext(fn)[1][1:]
-        if ext and ext in 'yaml index meta data-00000-of-00001 png gif jpg urdf sdf obj mtl dae off stl STL xml '.split():
+        if ext and ext in 'yaml index meta data-00000-of-00001 png gif jpg urdf sdf obj txt mtl dae off stl STL xml '.split():
             fn = root + "/" + fn
             need_files.append(fn[1+len(hh):])
 
@@ -581,7 +582,7 @@ if 'BT_USE_EGL' in EGL_CXX_FLAGS:
 
 setup(
 	name = 'pybullet',
-	version='2.3.2',
+	version='2.3.3',
 	description='Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and deep reinforcement learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',
