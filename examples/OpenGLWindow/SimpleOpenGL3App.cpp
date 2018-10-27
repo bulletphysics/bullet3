@@ -78,7 +78,7 @@ struct SimpleInternalData
 		  m_ffmpegFile(0),
 		  m_renderTexture(0),
 		  m_userPointer(0),
-		  m_upAxis(0),
+		  m_upAxis(1),
 		  m_customViewPortWidth(-1),
 		  m_customViewPortHeight(-1)
 	{

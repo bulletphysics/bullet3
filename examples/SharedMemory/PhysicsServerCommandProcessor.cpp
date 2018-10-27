@@ -10753,6 +10753,7 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 
 	//btCollisionWorld::ClosestRayResultCallback rayCallback(rayFromWorld, rayToWorld);
 	MyResultCallback rayCallback(rayFromWorld, rayToWorld);
+	rayCallback.m_flags |= btTriangleRaycastCallback::kF_UseGjkConvexCastRaytest;
 	m_data->m_dynamicsWorld->rayTest(rayFromWorld, rayToWorld, rayCallback);
 	if (rayCallback.hasHit())
 	{
