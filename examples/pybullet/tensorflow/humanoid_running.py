@@ -182,7 +182,7 @@ def demo_run():
 		for m in range(len(motors)):
 			limit=15
 			ac = np.clip(actions[m],-limit,limit)
-			print (ac)
+			#print (ac)
 			forces[m] = motor_power[m]*ac*0.082
 		p.setJointMotorControlArray(human, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
 
