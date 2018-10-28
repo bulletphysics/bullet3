@@ -1192,6 +1192,92 @@ B3_SHARED_API int b3CreateCollisionShapeAddMesh(b3SharedMemoryCommandHandle comm
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileType = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numVertices = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numIndices = 0;
+
+			command->m_createUserShapeArgs.m_numUserShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+
+B3_SHARED_API int b3CreateCollisionShapeAddConvexMesh(b3SharedMemoryCommandHandle commandHandle, const double meshScale[/*3*/], const double* vertices, int numVertices)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE))
+	{
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
+		if (shapeIndex < MAX_COMPOUND_COLLISION_SHAPES && numVertices >= 0)
+		{
+			int i=0;
+			if (numVertices>B3_MAX_NUM_VERTICES)
+				numVertices=B3_MAX_NUM_VERTICES;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_MESH;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[0] = meshScale[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileType = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileName[0]=0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numVertices = numVertices;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numIndices = 0;
+
+			for (i=0;i<numVertices;i++)
+			{
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+0]=vertices[i*3+0];
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+1]=vertices[i*3+1];
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+2]=vertices[i*3+2];
+			}
+			command->m_createUserShapeArgs.m_numUserShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+
+B3_SHARED_API int b3CreateCollisionShapeAddConcaveMesh(b3SharedMemoryCommandHandle commandHandle, const double meshScale[/*3*/], const double* vertices, int numVertices, const int* indices, int numIndices)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE))
+	{
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
+		if (shapeIndex < MAX_COMPOUND_COLLISION_SHAPES && numVertices >= 0 && numIndices >=0)
+		{
+			int i=0;
+			if (numVertices>B3_MAX_NUM_VERTICES)
+				numVertices=B3_MAX_NUM_VERTICES;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_MESH;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = GEOM_FORCE_CONCAVE_TRIMESH;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[0] = meshScale[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileType = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileName[0]=0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numVertices = numVertices;
+
+			for (i=0;i<numVertices;i++)
+			{
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+0]=vertices[i*3+0];
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+1]=vertices[i*3+1];
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+2]=vertices[i*3+2];
+			}
+			if (numIndices>B3_MAX_NUM_INDICES)
+				numIndices = B3_MAX_NUM_INDICES;
+
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numIndices = numIndices;
+			for (i=0;i<numIndices;i++)
+			{
+				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_indices[i]=indices[i];
+			}
 			command->m_createUserShapeArgs.m_numUserShapes++;
 			return shapeIndex;
 		}
@@ -2898,6 +2984,8 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CreateRaycastBatchCommandInit(b3Phys
 	command->m_requestRaycastIntersections.m_numCommandRays = 0;
 	command->m_requestRaycastIntersections.m_numStreamingRays = 0;
 	command->m_requestRaycastIntersections.m_numThreads = 1;
+	command->m_requestRaycastIntersections.m_parentObjectUniqueId = -1;
+	command->m_requestRaycastIntersections.m_parentLinkIndex=-1;
 	return (b3SharedMemoryCommandHandle)command;
 }
 
@@ -2946,6 +3034,16 @@ B3_SHARED_API void b3RaycastBatchAddRays(b3PhysicsClientHandle physClient, b3Sha
 		cl->uploadRaysToSharedMemory(*command, rayFromWorldArray, rayToWorldArray, numRays);
 	}
 }
+
+B3_SHARED_API void b3RaycastBatchSetParentObject(b3SharedMemoryCommandHandle commandHandle, int parentObjectUniqueId, int parentLinkIndex)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
+	command->m_requestRaycastIntersections.m_parentObjectUniqueId = parentObjectUniqueId;
+	command->m_requestRaycastIntersections.m_parentLinkIndex = parentLinkIndex;
+}
+
 
 B3_SHARED_API void b3GetRaycastInformation(b3PhysicsClientHandle physClient, struct b3RaycastInformation* raycastInfo)
 {
@@ -3998,6 +4096,27 @@ B3_SHARED_API int b3GetStatusTextureUniqueId(b3SharedMemoryStatusHandle statusHa
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
+        PhysicsClient* cl = (PhysicsClient*)physClient;
+        b3Assert(cl);
+        b3Assert(cl->canSubmitCommand());
+        struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+        b3Assert(command);
+        command->m_type = CMD_UPDATE_VISUAL_SHAPE;
+        command->m_updateVisualShapeDataArguments.m_bodyUniqueId = bodyUniqueId;
+        command->m_updateVisualShapeDataArguments.m_jointIndex = jointIndex;
+        command->m_updateVisualShapeDataArguments.m_shapeIndex = shapeIndex;
+        command->m_updateVisualShapeDataArguments.m_textureUniqueId = textureUniqueId;
+        command->m_updateFlags = 0;
+
+        if (textureUniqueId >= 0)
+        {
+                command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_TEXTURE;
+        }
+        return (b3SharedMemoryCommandHandle)command;
+}
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitUpdateVisualShape2(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, int shapeIndex)
+{
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
 	b3Assert(cl->canSubmitCommand());
@@ -4007,14 +4126,25 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClien
 	command->m_updateVisualShapeDataArguments.m_bodyUniqueId = bodyUniqueId;
 	command->m_updateVisualShapeDataArguments.m_jointIndex = jointIndex;
 	command->m_updateVisualShapeDataArguments.m_shapeIndex = shapeIndex;
-	command->m_updateVisualShapeDataArguments.m_textureUniqueId = textureUniqueId;
+	command->m_updateVisualShapeDataArguments.m_textureUniqueId = -2;
 	command->m_updateFlags = 0;
-
-	if (textureUniqueId >= 0)
-	{
-		command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_TEXTURE;
-	}
 	return (b3SharedMemoryCommandHandle)command;
+}
+
+B3_SHARED_API void b3UpdateVisualShapeTexture(b3SharedMemoryCommandHandle commandHandle, int textureUniqueId)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_UPDATE_VISUAL_SHAPE);
+
+	if (command->m_type == CMD_UPDATE_VISUAL_SHAPE)
+	{
+		if (textureUniqueId >= -1)
+		{
+			command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_TEXTURE;
+			command->m_updateVisualShapeDataArguments.m_textureUniqueId = textureUniqueId;
+		}
+	}
 }
 
 B3_SHARED_API void b3UpdateVisualShapeRGBAColor(b3SharedMemoryCommandHandle commandHandle, const double rgbaColor[4])

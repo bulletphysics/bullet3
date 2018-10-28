@@ -1009,6 +1009,10 @@ void GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
 		{
 			gfxObj->m_textureIndex = textureId;
 			gfxObj->m_flags |= eGfxHasTexture;
+		} else
+		{
+			gfxObj->m_textureIndex = -1;
+			gfxObj->m_flags &= ~eGfxHasTexture;
 		}
 	}
 }

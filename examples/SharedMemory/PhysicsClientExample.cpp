@@ -495,9 +495,9 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			int objectUniqueId = 0;
 			int linkIndex = -1;
 			int shapeIndex = -1;
-			int textureIndex = -1;
+			int textureIndex = -2;
 			double rgbaColor[4] = {0.0, 1.0, 0.0, 1.0};
-			b3SharedMemoryCommandHandle commandHandle = b3InitUpdateVisualShape(m_physicsClientHandle, objectUniqueId, linkIndex, shapeIndex, textureIndex);
+			b3SharedMemoryCommandHandle commandHandle = b3InitUpdateVisualShape2(m_physicsClientHandle, objectUniqueId, linkIndex, shapeIndex);
 			b3UpdateVisualShapeRGBAColor(commandHandle, rgbaColor);
 			b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
 			break;

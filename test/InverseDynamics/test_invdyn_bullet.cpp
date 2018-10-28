@@ -47,7 +47,7 @@ TEST(InvDynCompare, bulletUrdfR2D2)
 
 	char relativeFileName[1024];
 
-	ASSERT_TRUE(b3ResourcePath::findResourcePath(kUrdfFile, relativeFileName, 1024));
+	ASSERT_TRUE(b3ResourcePath::findResourcePath(kUrdfFile, relativeFileName, 1024,0));
 
 	mb_load.setFileName(relativeFileName);
 	mb_load.init();

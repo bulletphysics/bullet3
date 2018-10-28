@@ -15,7 +15,7 @@ struct UrdfRenderingInterface
 	virtual ~UrdfRenderingInterface() {}
 	///given a URDF link, convert all visual shapes into internal renderer (loading graphics meshes, textures etc)
 	///use the collisionObjectUid as a unique identifier to synchronize the world transform and to remove the visual shape.
-	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUid, int bodyUniqueId) = 0;
+	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUniqueId, int bodyUniqueId, struct CommonFileIOInterface* fileIO) = 0;
 
 	///remove a visual shapes, based on the shape unique id (shapeUid)
 	virtual void removeVisualShape(int collisionObjectUid) = 0;
@@ -87,10 +87,14 @@ struct UrdfRenderingInterface
 	virtual void render(const float viewMat[16], const float projMat[16]) = 0;
 
 	///load a texture from file, in png or other popular/supported format
-	virtual int loadTextureFile(const char* filename) = 0;
-
+	//virtual int loadTextureFile(const char* filename) = 0;
+	virtual int loadTextureFile(const char* filename, struct CommonFileIOInterface* fileIO)=0;
+	
 	///register a texture using an in-memory pixel buffer of a given width and height
 	virtual int registerTexture(unsigned char* texels, int width, int height) = 0;
+
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]) {}
+	virtual void setProjectiveTexture(bool useProjectiveTexture) {}
 };
 
 #endif  //LINK_VISUAL_SHAPES_CONVERTER_H

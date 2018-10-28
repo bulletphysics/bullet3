@@ -190,7 +190,12 @@ bool b3RobotSimulatorClientAPI_NoDirect::changeVisualShape(const struct b3RobotS
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
 
-	commandHandle = b3InitUpdateVisualShape(m_data->m_physicsClientHandle, objectUniqueId, jointIndex, shapeIndex, textureUniqueId);
+	commandHandle = b3InitUpdateVisualShape2(m_data->m_physicsClientHandle, objectUniqueId, jointIndex, shapeIndex);
+
+	if (textureUniqueId>=-1)
+	{
+		b3UpdateVisualShapeTexture(commandHandle, textureUniqueId);
+	}
 
 	if (args.m_hasSpecularColor)
 	{

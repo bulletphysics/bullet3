@@ -7,7 +7,8 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 2018090300
+#define SHARED_MEMORY_MAGIC_NUMBER   201810250
+//#define SHARED_MEMORY_MAGIC_NUMBER 201809030
 //#define SHARED_MEMORY_MAGIC_NUMBER 201809010
 //#define SHARED_MEMORY_MAGIC_NUMBER 201807040
 //#define SHARED_MEMORY_MAGIC_NUMBER 201806150
@@ -572,13 +573,10 @@ struct b3ContactPointData
 
 	double m_normalForce;
 
-	//todo: expose the friction forces as well
-	//    double m_linearFrictionDirection0[3];
-	//    double m_linearFrictionForce0;
-	//    double m_linearFrictionDirection1[3];
-	//    double m_linearFrictionForce1;
-	//    double m_angularFrictionDirection[3];
-	//    double m_angularFrictionForce;
+	double m_linearFrictionForce1;
+	double m_linearFrictionForce2;
+	double m_linearFrictionDirection1[3];
+	double m_linearFrictionDirection2[3];
 };
 
 enum
@@ -822,6 +820,8 @@ enum eURDF_Flags
 	URDF_INITIALIZE_SAT_FEATURES = 4096,
 	URDF_USE_SELF_COLLISION_INCLUDE_PARENT = 8192,
 	URDF_PARSE_SENSORS = 16384,
+	URDF_USE_MATERIAL_COLORS_FROM_MTL = 32768,
+	URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL = 65536,
 };
 
 enum eUrdfGeomTypes  //sync with UrdfParser UrdfGeomTypes
@@ -911,5 +911,23 @@ enum eConstraintSolverTypes
 	eConstraintSolverLCP_NNCG,
 	eConstraintSolverLCP_BLOCK_PGS,
 };
+
+enum eFileIOActions
+{
+	eAddFileIOAction = 1024,//avoid collision with eFileIOTypes
+	eRemoveFileIOAction,
+};
+
+
+enum eFileIOTypes
+{
+	ePosixFileIO = 1,
+	eZipFileIO,
+	eCNSFileIO,
+};
+
+//limits for vertices/indices in PyBullet::createCollisionShape
+#define B3_MAX_NUM_VERTICES 1024
+#define B3_MAX_NUM_INDICES 1024
 
 #endif  //SHARED_MEMORY_PUBLIC_H

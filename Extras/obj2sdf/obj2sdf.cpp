@@ -14,6 +14,7 @@
 #include "../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "Bullet3Common/b3HashMap.h"
+#include "../Utils/b3BulletDefaultFileIO.h"
 
 struct ShapeContainer
 {
@@ -71,12 +72,14 @@ int main(int argc, char* argv[])
 	bool mergeMaterials = args.CheckCmdLineFlag("mergeMaterials");
 
 	char fileNameWithPath[MAX_PATH_LEN];
-	bool fileFound = (b3ResourcePath::findResourcePath(fileName, fileNameWithPath, MAX_PATH_LEN)) > 0;
+	bool fileFound = (b3ResourcePath::findResourcePath(fileName, fileNameWithPath, MAX_PATH_LEN,0)) > 0;
 	char materialPrefixPath[MAX_PATH_LEN];
 	b3FileUtils::extractPath(fileNameWithPath, materialPrefixPath, MAX_PATH_LEN);
 
 	std::vector<tinyobj::shape_t> shapes;
-	std::string err = tinyobj::LoadObj(shapes, fileNameWithPath, materialPrefixPath);
+
+	b3BulletDefaultFileIO fileIO;
+	std::string err = tinyobj::LoadObj(shapes, fileNameWithPath, materialPrefixPath,&fileIO);
 
 	char sdfFileName[MAX_PATH_LEN];
 	sprintf(sdfFileName, "%s%s.sdf", materialPrefixPath, "newsdf");

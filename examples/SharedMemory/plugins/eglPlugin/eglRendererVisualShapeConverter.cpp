@@ -87,8 +87,8 @@ struct EGLRendererObjectArray
 	}
 };
 
-#define START_WIDTH 640
-#define START_HEIGHT 480
+#define START_WIDTH 2560
+#define START_HEIGHT 2048
 
 struct EGLRendererVisualShapeConverterInternalData
 {
@@ -270,13 +270,14 @@ void EGLRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff)
 }
 
 ///todo: merge into single file with TinyRendererVisualShapeConverter
-static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture3>& texturesOut, b3VisualShapeData& visualShapeOut)
+static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture3>& texturesOut, b3VisualShapeData& visualShapeOut, struct CommonFileIOInterface* fileIO, int flags)
 {
 	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
 	visualShapeOut.m_dimensions[0] = 0;
 	visualShapeOut.m_dimensions[1] = 0;
 	visualShapeOut.m_dimensions[2] = 0;
 	memset(visualShapeOut.m_meshAssetFileName, 0, sizeof(visualShapeOut.m_meshAssetFileName));
+#if 0
 	if (visual->m_geometry.m_hasLocalMaterial)
 	{
 		visualShapeOut.m_rgbaColor[0] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[0];
@@ -284,6 +285,7 @@ static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfP
 		visualShapeOut.m_rgbaColor[2] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[2];
 		visualShapeOut.m_rgbaColor[3] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[3];
 	}
+#endif
 
 	GLInstanceGraphicsShape* glmesh = 0;
 
@@ -410,8 +412,25 @@ static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfP
 				{
 					//glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
 					b3ImportMeshData meshData;
-					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData))
+					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData, fileIO))
 					{
+						if (flags&URDF_USE_MATERIAL_COLORS_FROM_MTL)
+						{
+							if (meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR)
+							{
+								visualShapeOut.m_rgbaColor[0] = meshData.m_rgbaColor[0];
+								visualShapeOut.m_rgbaColor[1] = meshData.m_rgbaColor[1];
+								visualShapeOut.m_rgbaColor[2] = meshData.m_rgbaColor[2];
+								
+								if (flags&URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
+								{
+									visualShapeOut.m_rgbaColor[3] = meshData.m_rgbaColor[3];
+								} else
+								{
+									visualShapeOut.m_rgbaColor[3] = 1;
+								}
+							}
+						}
 						if (meshData.m_textureImage1)
 						{
 							MyTexture3 texData;
@@ -426,7 +445,7 @@ static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfP
 					break;
 				}
 				case UrdfGeometry::FILE_STL:
-					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str());
+					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str(), fileIO);
 					break;
 				case UrdfGeometry::FILE_COLLADA:
 				{
@@ -442,7 +461,7 @@ static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfP
 										visualShapeInstances,
 										upAxisTrans,
 										unitMeterScaling,
-										upAxis);
+										upAxis, fileIO);
 
 					glmesh = new GLInstanceGraphicsShape;
 					//		int index = 0;
@@ -633,7 +652,7 @@ static btVector4 sColors[4] =
 void EGLRendererVisualShapeConverter::convertVisualShapes(
 	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
 	const UrdfLink* linkPtr, const UrdfModel* model,
-	int collisionObjectUniqueId, int bodyUniqueId)
+	int collisionObjectUniqueId, int bodyUniqueId, struct  CommonFileIOInterface* fileIO)
 {
 	btAssert(linkPtr);  // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
@@ -752,7 +771,7 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
 			visualShape.m_rgbaColor[3] = rgbaColor[3];
 			{
 				B3_PROFILE("convertURDFToVisualShape2");
-				convertURDFToVisualShape2(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape);
+				convertURDFToVisualShape2(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape, fileIO, m_data->m_flags);
 			}
 			m_data->m_visualShapes.push_back(visualShape);
 
@@ -886,6 +905,7 @@ void EGLRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int link
 			m_data->m_visualShapes[i].m_rgbaColor[1] = rgbaColor[1];
 			m_data->m_visualShapes[i].m_rgbaColor[2] = rgbaColor[2];
 			m_data->m_visualShapes[i].m_rgbaColor[3] = rgbaColor[3];
+			m_data->m_instancingRenderer->writeSingleInstanceColorToCPU(rgbaColor,i);
 		}
 	}
 
@@ -983,6 +1003,16 @@ void EGLRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 	m_data->m_rgbColorBuffer = TGAImage(width, height, TGAImage::RGB);
 }
 
+void EGLRendererVisualShapeConverter::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+{
+	m_data->m_instancingRenderer->setProjectiveTextureMatrices(viewMatrix,projectionMatrix);
+}
+
+void EGLRendererVisualShapeConverter::setProjectiveTexture(bool useProjectiveTexture)
+{
+	m_data->m_instancingRenderer->setProjectiveTexture(useProjectiveTexture);
+}
+
 //copied from OpenGLGuiHelper.cpp
 void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 	unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
@@ -1044,7 +1074,7 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 							glstat = glGetError();
 							b3Assert(glstat == GL_NO_ERROR);
 						}
-						if ((sourceWidth * sourceHeight * sizeof(float)) == depthBufferSizeInPixels)
+						if ((sourceWidth * sourceHeight) == depthBufferSizeInPixels)
 						{
 							glReadPixels(0, 0, sourceWidth, sourceHeight, GL_DEPTH_COMPONENT, GL_FLOAT, &(m_data->m_sourceDepthBuffer[0]));
 							int glstat;
@@ -1306,12 +1336,40 @@ int EGLRendererVisualShapeConverter::registerTexture(unsigned char* texels, int 
 	return m_data->m_textures.size() - 1;
 }
 
-int EGLRendererVisualShapeConverter::loadTextureFile(const char* filename)
+int EGLRendererVisualShapeConverter::loadTextureFile(const char* filename, struct CommonFileIOInterface* fileIO)
 {
 	B3_PROFILE("loadTextureFile");
 	int width, height, n;
 	unsigned char* image = 0;
-	image = stbi_load(filename, &width, &height, &n, 3);
+
+	if (fileIO)
+	{
+		b3AlignedObjectArray<char> buffer;
+		buffer.reserve(1024);
+		int fileId = fileIO->fileOpen(filename,"rb");
+		if (fileId>=0)
+		{
+			int size = fileIO->getFileSize(fileId);
+			if (size>0)
+			{
+				buffer.resize(size);
+				int actual = fileIO->fileRead(fileId,&buffer[0],size);
+				if (actual != size)
+				{
+					b3Warning("image filesize mismatch!\n");
+					buffer.resize(0);
+				}
+			}
+		}
+		if (buffer.size())
+		{
+			image = stbi_load_from_memory((const unsigned char*)&buffer[0], buffer.size(), &width, &height, &n, 3);
+		}
+	} else
+	{
+		image = stbi_load(filename, &width, &height, &n, 3);
+	}
+
 	if (image && (width >= 0) && (height >= 0))
 	{
 		return registerTexture(image, width, height);

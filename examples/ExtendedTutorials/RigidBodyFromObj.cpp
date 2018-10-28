@@ -24,6 +24,7 @@ subject to the following restrictions:
 #include "Bullet3Common/b3FileUtils.h"
 #include "../Importers/ImportObjDemo/LoadMeshFromObj.h"
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
+#include "../Utils/b3BulletDefaultFileIO.h"
 
 struct RigidBodyFromObjExample : public CommonRigidBodyBase
 {
@@ -73,13 +74,14 @@ void RigidBodyFromObjExample::initPhysics()
 	//load our obj mesh
 	const char* fileName = "teddy.obj";  //sphere8.obj";//sponza_closed.obj";//sphere8.obj";
 	char relativeFileName[1024];
-	if (b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024))
+	if (b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024,0))
 	{
 		char pathPrefix[1024];
 		b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
 	}
 
-	GLInstanceGraphicsShape* glmesh = LoadMeshFromObj(relativeFileName, "");
+	b3BulletDefaultFileIO fileIO;
+	GLInstanceGraphicsShape* glmesh = LoadMeshFromObj(relativeFileName, "",&fileIO);
 	printf("[INFO] Obj loaded: Extracted %d verticed from obj file [%s]\n", glmesh->m_numvertices, fileName);
 
 	const GLInstanceVertex& v = glmesh->m_vertices->at(0);

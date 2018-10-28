@@ -16,7 +16,7 @@
 #include "../Importers/ImportMeshUtility/b3ImportMeshUtility.h"
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
-
+#include "../Utils/b3BulletDefaultFileIO.h"
 struct TinyRendererSetupInternalData
 {
 	TGAImage m_rgbColorBuffer;
@@ -149,7 +149,8 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 			int shapeId = -1;
 
 			b3ImportMeshData meshData;
-			if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fileName, meshData))
+			b3BulletDefaultFileIO fileIO;
+			if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fileName, meshData,&fileIO))
 			{
 				int textureIndex = -1;
 

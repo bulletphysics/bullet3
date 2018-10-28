@@ -87,12 +87,21 @@ void b3ResourcePath::setAdditionalSearchPath(const char* path)
 	}
 }
 
-int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePathOut, int resourcePathMaxNumBytes)
+bool b3MyFindFile(void* userPointer, const char* orgFileName, char* relativeFileName, int maxRelativeFileNameMaxLen)
 {
+	return b3FileUtils::findFile(orgFileName, relativeFileName, maxRelativeFileNameMaxLen);
+}
+
+int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePathOut, int resourcePathMaxNumBytes, PFN_FIND_FILE findFile, void* userPointer)
+{
+	if (findFile==0)
+	{
+		findFile=b3MyFindFile;
+	}
 	//first find in a resource/<exeName> location, then in various folders within 'data' using b3FileUtils
 	char exePath[B3_MAX_EXE_PATH_LEN];
 
-	bool res = b3FileUtils::findFile(resourceName, resourcePathOut, resourcePathMaxNumBytes);
+	bool res = findFile(userPointer, resourceName, resourcePathOut, resourcePathMaxNumBytes);
 	if (res)
 	{
 		return strlen(resourcePathOut);
@@ -104,7 +113,7 @@ int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePat
 		char* resourcePathIn = tmpPath.m_path;
 		sprintf(resourcePathIn, "%s/%s", sAdditionalSearchPath, resourceName);
 		//printf("try resource at %s\n", resourcePath);
-		if (b3FileUtils::findFile(resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
+		if (findFile(userPointer, resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
 		{
 			return strlen(resourcePathOut);
 		}
@@ -122,20 +131,20 @@ int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePat
 			char* resourcePathIn = tmpPath.m_path;
 			sprintf(resourcePathIn, "%s../data/%s", pathToExe, resourceName);
 			//printf("try resource at %s\n", resourcePath);
-			if (b3FileUtils::findFile(resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
+			if (findFile(userPointer, resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
 			{
 				return strlen(resourcePathOut);
 			}
 
 			sprintf(resourcePathIn, "%s../resources/%s/%s", pathToExe, &exePath[exeNamePos], resourceName);
 			//printf("try resource at %s\n", resourcePath);
-			if (b3FileUtils::findFile(resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
+			if (findFile(userPointer, resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
 			{
 				return strlen(resourcePathOut);
 			}
 			sprintf(resourcePathIn, "%s.runfiles/google3/third_party/bullet/data/%s", exePath, resourceName);
 			//printf("try resource at %s\n", resourcePath);
-			if (b3FileUtils::findFile(resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
+			if (findFile(userPointer, resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
 			{
 				return strlen(resourcePathOut);
 			}

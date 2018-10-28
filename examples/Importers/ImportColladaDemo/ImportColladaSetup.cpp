@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include "LoadMeshFromCollada.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include "../../Utils/b3ResourcePath.h"
-
+#include "../../Utils/b3BulletDefaultFileIO.h"
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 
 class ImportColladaSetup : public CommonRigidBodyBase
@@ -79,7 +79,7 @@ void ImportColladaSetup::initPhysics()
 
 	char relativeFileName[1024];
 
-	if (!b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024))
+	if (!b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024,0))
 		return;
 
 	btVector3 shift(0, 0, 0);
@@ -94,7 +94,7 @@ void ImportColladaSetup::initPhysics()
 		btTransform upAxisTrans;
 		upAxisTrans.setIdentity();
 
-		btVector3 color(0, 0, 1);
+		btVector4 color(0, 0, 1,1);
 
 #ifdef COMPARE_WITH_ASSIMP
 		static int useAssimp = 0;
@@ -119,7 +119,8 @@ void ImportColladaSetup::initPhysics()
 		{
 			fileIndex = 0;
 		}
-		LoadMeshFromCollada(relativeFileName, visualShapes, visualShapeInstances, upAxisTrans, unitMeterScaling, upAxis);
+		b3BulletDefaultFileIO fileIO;
+		LoadMeshFromCollada(relativeFileName, visualShapes, visualShapeInstances, upAxisTrans, unitMeterScaling, upAxis,&fileIO);
 #endif  // COMPARE_WITH_ASSIMP
 
 		//at the moment our graphics engine requires instances that share the same visual shape to be added right after registering the shape

@@ -182,13 +182,14 @@ void TinyRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff
 	m_data->m_hasLightSpecularCoeff = true;
 }
 
-void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
+static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut, struct CommonFileIOInterface* fileIO, int flags)
 {
 	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
 	visualShapeOut.m_dimensions[0] = 0;
 	visualShapeOut.m_dimensions[1] = 0;
 	visualShapeOut.m_dimensions[2] = 0;
 	memset(visualShapeOut.m_meshAssetFileName, 0, sizeof(visualShapeOut.m_meshAssetFileName));
+#if 0
 	if (visual->m_geometry.m_hasLocalMaterial)
 	{
 		visualShapeOut.m_rgbaColor[0] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[0];
@@ -196,6 +197,7 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 		visualShapeOut.m_rgbaColor[2] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[2];
 		visualShapeOut.m_rgbaColor[3] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[3];
 	}
+#endif
 
 	GLInstanceGraphicsShape* glmesh = 0;
 
@@ -318,12 +320,34 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 
 			switch (visual->m_geometry.m_meshFileType)
 			{
+				case UrdfGeometry::MEMORY_VERTICES:
+				{
+					break;
+				}
 				case UrdfGeometry::FILE_OBJ:
 				{
 					//glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
 					b3ImportMeshData meshData;
-					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData))
+
+					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData, fileIO))
 					{
+						if (flags&URDF_USE_MATERIAL_COLORS_FROM_MTL)
+						{
+							if (meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR)
+							{
+								visualShapeOut.m_rgbaColor[0] = meshData.m_rgbaColor[0];
+								visualShapeOut.m_rgbaColor[1] = meshData.m_rgbaColor[1];
+								visualShapeOut.m_rgbaColor[2] = meshData.m_rgbaColor[2];
+								
+								if (flags&URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
+								{
+									visualShapeOut.m_rgbaColor[3] = meshData.m_rgbaColor[3];
+								} else
+								{
+									visualShapeOut.m_rgbaColor[3] = 1;
+								}
+							}
+						}
 						if (meshData.m_textureImage1)
 						{
 							MyTexture2 texData;
@@ -338,7 +362,7 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 					break;
 				}
 				case UrdfGeometry::FILE_STL:
-					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str());
+					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str(), fileIO);
 					break;
 				case UrdfGeometry::FILE_COLLADA:
 				{
@@ -354,7 +378,8 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 										visualShapeInstances,
 										upAxisTrans,
 										unitMeterScaling,
-										upAxis);
+										upAxis,
+										fileIO);
 
 					glmesh = new GLInstanceGraphicsShape;
 					//		int index = 0;
@@ -421,8 +446,10 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 				}
 
 				default:
-					// should never get here (findExistingMeshFile returns false if it doesn't recognize extension)
-					btAssert(0);
+					{
+						// should never get here (findExistingMeshFile returns false if it doesn't recognize extension)
+						btAssert(0);
+					}
 			}
 
 			if (glmesh && glmesh->m_vertices && (glmesh->m_numvertices > 0))
@@ -437,7 +464,10 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 			}
 			else
 			{
-				b3Warning("issue extracting mesh from COLLADA/STL file %s\n", visual->m_geometry.m_meshFileName.c_str());
+				if (visual->m_geometry.m_meshFileType !=UrdfGeometry::MEMORY_VERTICES)
+				{
+					b3Warning("issue extracting mesh from COLLADA/STL file %s\n", visual->m_geometry.m_meshFileName.c_str());
+				}
 			}
 			break;
 		}  // case mesh
@@ -540,9 +570,10 @@ static btVector4 sColors[4] =
 };
 
 void TinyRendererVisualShapeConverter::convertVisualShapes(
-	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
-	const UrdfLink* linkPtr, const UrdfModel* model,
-	int collisionObjectUniqueId, int bodyUniqueId)
+	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, 
+	const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUniqueId, 
+	int bodyUniqueId, struct CommonFileIOInterface* fileIO)
+
 {
 	btAssert(linkPtr);  // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
@@ -663,9 +694,14 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 
 			{
 				B3_PROFILE("convertURDFToVisualShape");
-				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape);
+				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape, fileIO, m_data->m_flags);
 			}
 
+			rgbaColor[0] = visualShape.m_rgbaColor[0];
+			rgbaColor[1] = visualShape.m_rgbaColor[1];
+			rgbaColor[2] = visualShape.m_rgbaColor[2];
+			rgbaColor[3] = visualShape.m_rgbaColor[3];
+			
 			if (vertices.size() && indices.size())
 			{
 				TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer, m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId, linkIndex);
@@ -1132,7 +1168,7 @@ void TinyRendererVisualShapeConverter::resetAll()
 void TinyRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
 	btAssert(textureUniqueId < m_data->m_textures.size());
-	if (textureUniqueId >= 0 && textureUniqueId < m_data->m_textures.size())
+	if (textureUniqueId >= -1 && textureUniqueId < m_data->m_textures.size())
 	{
 		for (int n = 0; n < m_data->m_swRenderInstances.size(); n++)
 		{
@@ -1149,7 +1185,13 @@ void TinyRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, in
 
 					if ((shapeIndex < 0) || (shapeIndex == v))
 					{
-						renderObj->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData1, m_data->m_textures[textureUniqueId].m_width, m_data->m_textures[textureUniqueId].m_height);
+						if (textureUniqueId>=0)
+						{
+							renderObj->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData1, m_data->m_textures[textureUniqueId].m_width, m_data->m_textures[textureUniqueId].m_height);
+						} else
+						{
+							renderObj->m_model->setDiffuseTextureFromData(0,0,0);
+						}
 					}
 				}
 			}
@@ -1168,12 +1210,39 @@ int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int
 	return m_data->m_textures.size() - 1;
 }
 
-int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename)
+int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename, struct CommonFileIOInterface* fileIO)
 {
 	B3_PROFILE("loadTextureFile");
 	int width, height, n;
 	unsigned char* image = 0;
-	image = stbi_load(filename, &width, &height, &n, 3);
+	if (fileIO)
+	{
+		b3AlignedObjectArray<char> buffer;
+		buffer.reserve(1024);
+		int fileId = fileIO->fileOpen(filename,"rb");
+		if (fileId>=0)
+		{
+			int size = fileIO->getFileSize(fileId);
+			if (size>0)
+			{
+				buffer.resize(size);
+				int actual = fileIO->fileRead(fileId,&buffer[0],size);
+				if (actual != size)
+				{
+					b3Warning("image filesize mismatch!\n");
+					buffer.resize(0);
+				}
+			}
+		}
+		if (buffer.size())
+		{
+			image = stbi_load_from_memory((const unsigned char*)&buffer[0], buffer.size(), &width, &height, &n, 3);
+		}
+	} else
+	{
+		image = stbi_load(filename, &width, &height, &n, 3);
+	}
+
 	if (image && (width >= 0) && (height >= 0))
 	{
 		return registerTexture(image, width, height);

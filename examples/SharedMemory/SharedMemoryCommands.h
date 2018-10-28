@@ -30,13 +30,14 @@ typedef unsigned long long int smUint64_t;
 #endif
 
 #define SHARED_MEMORY_SERVER_TEST_C
-#define MAX_DEGREE_OF_FREEDOM 128
+#define MAX_DEGREE_OF_FREEDOM 128 
 #define MAX_NUM_SENSORS 256
 #define MAX_URDF_FILENAME_LENGTH 1024
 #define MAX_SDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
 #define MAX_USER_DATA_KEY_LENGTH MAX_URDF_FILENAME_LENGTH
+
 
 struct TmpFloat3
 {
@@ -293,6 +294,9 @@ struct RequestRaycastIntersections
 	b3RayData m_fromToRays[MAX_RAY_INTERSECTION_BATCH_SIZE];
 
 	int m_numStreamingRays;
+	//optional m_parentObjectUniqueId (-1 for unused)
+	int m_parentObjectUniqueId;
+	int m_parentLinkIndex;
 	//streaming ray data stored in shared memory streaming part. (size m_numStreamingRays )
 };
 
@@ -922,7 +926,10 @@ struct b3CreateUserShapeData
 	double m_meshScale[3];
 	int m_collisionFlags;
 	int m_visualFlags;
-
+	int m_numVertices;
+	double m_vertices[B3_MAX_NUM_VERTICES*3];
+	int m_numIndices;
+	int m_indices[B3_MAX_NUM_INDICES];
 	double m_rgbaColor[4];
 	double m_specularColor[3];
 };
@@ -940,7 +947,7 @@ struct b3CreateUserShapeResultArgs
 	int m_userShapeUniqueId;
 };
 
-#define MAX_CREATE_MULTI_BODY_LINKS 128
+#define MAX_CREATE_MULTI_BODY_LINKS MAX_DEGREE_OF_FREEDOM
 enum eCreateMultiBodyEnum
 {
 	MULTI_BODY_HAS_BASE = 1,

@@ -1239,10 +1239,35 @@ public:
 		m_tmpLine.m_debugLineColorRGB[2] = debugLineColorRGB[2];
 		m_tmpLine.m_trackingVisualShapeIndex = trackingVisualShapeIndex;
 		m_tmpLine.m_replaceItemUid = replaceItemUid;
-		m_cs->lock();
-		m_cs->setSharedParam(1, eGUIUserDebugAddLine);
-		m_resultDebugLineUid = -1;
-		workerThreadWait();
+
+		//don't block when replacing an item
+		if (replaceItemUid>=0 && replaceItemUid<m_userDebugLines.size())
+		{
+			//find the right slot
+
+			int slot=-1;
+			for (int i=0;i<m_userDebugLines.size();i++)
+			{
+				if (replaceItemUid == m_userDebugLines[i].m_itemUniqueId)
+				{
+						slot = i;
+				}
+			}
+
+			if (slot>=0)
+			{
+				m_userDebugLines[slot] = m_tmpLine;
+			}
+			m_resultDebugLineUid = replaceItemUid;
+		}
+		else
+		{
+
+			m_cs->lock();
+			m_cs->setSharedParam(1, eGUIUserDebugAddLine);
+			m_resultDebugLineUid = -1;
+			workerThreadWait();
+		}
 		return m_resultDebugLineUid;
 	}
 
@@ -1520,48 +1545,51 @@ public:
 
 		if (gEnableDefaultKeyboardShortcuts)
 		{
-			if (key == 'w' && state)
+			if (m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->isVRCamera())
 			{
-				VRTeleportPos[0] += shift;
-				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-				saveCurrentSettingsVR(VRTeleportPos);
-			}
-			if (key == 's' && state)
-			{
-				VRTeleportPos[0] -= shift;
-				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-				saveCurrentSettingsVR(VRTeleportPos);
-			}
-			if (key == 'a' && state)
-			{
-				VRTeleportPos[1] -= shift;
-				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-				saveCurrentSettingsVR(VRTeleportPos);
-			}
-			if (key == 'd' && state)
-			{
-				VRTeleportPos[1] += shift;
-				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-				saveCurrentSettingsVR(VRTeleportPos);
-			}
-			if (key == 'q' && state)
-			{
-				VRTeleportPos[2] += shift;
-				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-				saveCurrentSettingsVR(VRTeleportPos);
-			}
-			if (key == 'e' && state)
-			{
-				VRTeleportPos[2] -= shift;
-				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-				saveCurrentSettingsVR(VRTeleportPos);
-			}
-			if (key == 'z' && state)
-			{
-				gVRTeleportRotZ += shift;
-				btQuaternion VRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
-				m_physicsServer.setVRTeleportOrientation(VRTeleportOrn);
-				saveCurrentSettingsVR(VRTeleportPos);
+				if (key == 'w' && state)
+				{
+					VRTeleportPos[0] += shift;
+					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
+				if (key == 's' && state)
+				{
+					VRTeleportPos[0] -= shift;
+					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
+				if (key == 'a' && state)
+				{
+					VRTeleportPos[1] -= shift;
+					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
+				if (key == 'd' && state)
+				{
+					VRTeleportPos[1] += shift;
+					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
+				if (key == 'q' && state)
+				{
+					VRTeleportPos[2] += shift;
+					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
+				if (key == 'e' && state)
+				{
+					VRTeleportPos[2] -= shift;
+					m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
+				if (key == 'z' && state)
+				{
+					gVRTeleportRotZ += shift;
+					btQuaternion VRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
+					m_physicsServer.setVRTeleportOrientation(VRTeleportOrn);
+					saveCurrentSettingsVR(VRTeleportPos);
+				}
 			}
 		}
 

@@ -2,12 +2,15 @@
 #include "../../ThirdPartyLibs/tinyxml2/tinyxml2.h"
 #include "urdfStringSplit.h"
 #include "urdfLexicalCast.h"
+#include "UrdfFindMeshFile.h"
+
 using namespace tinyxml2;
 
-UrdfParser::UrdfParser()
+UrdfParser::UrdfParser(CommonFileIOInterface* fileIO)
 	: m_parseSDF(false),
 	  m_activeSdfModel(-1),
-	  m_urdfScaling(1)
+	  m_urdfScaling(1),
+	  m_fileIO(fileIO)
 {
 	m_urdf2Model.m_sourceFile = "IN_MEMORY_STRING";  // if loadUrdf() called later, source file name will be replaced with real
 }
@@ -343,14 +346,27 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, XMLElement* g, ErrorLogger* l
 	if (type_name == "sphere")
 	{
 		geom.m_type = URDF_GEOM_SPHERE;
-		if (!shape->Attribute("radius"))
+		if (m_parseSDF)
 		{
-			logger->reportError("Sphere shape must have a radius attribute");
-			return false;
+			XMLElement* size = shape->FirstChildElement("radius");
+			if (0 == size)
+			{
+				logger->reportError("sphere requires a radius child element");
+				return false;
+			}
+			geom.m_sphereRadius = urdfLexicalCast<double>(size->GetText());
 		}
 		else
 		{
-			geom.m_sphereRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
+			if (!shape->Attribute("radius"))
+			{
+				logger->reportError("Sphere shape must have a radius attribute");
+				return false;
+			}
+			else
+			{
+				geom.m_sphereRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
+			}
 		}
 	}
 	else if (type_name == "box")
@@ -495,7 +511,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, XMLElement* g, ErrorLogger* l
 		}
 
 		geom.m_meshFileName = fn;
-		bool success = findExistingMeshFile(
+		bool success = UrdfFindMeshFile(m_fileIO,
 			m_urdf2Model.m_sourceFile, fn, sourceFileLocation(shape),
 			&geom.m_meshFileName, &geom.m_meshFileType);
 		if (!success)
