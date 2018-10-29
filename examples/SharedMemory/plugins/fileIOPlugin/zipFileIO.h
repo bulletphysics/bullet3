@@ -15,7 +15,7 @@ struct ZipFileIO : public CommonFileIOInterface
 		m_zipfileName(zipfileName),
 		m_numFileHandles(0)
 	{
-		m_rootPath = m_zipfileName.c_str();
+		m_pathPrefix = m_zipfileName.c_str();
 		for (int i=0;i<B3_ZIP_FILEIO_MAX_FILES ;i++)
 		{
 			m_fileHandles[i]=0;
