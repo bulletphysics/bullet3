@@ -10152,33 +10152,50 @@ bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct Shar
 	}
 	else
 	{
-		const char* prefix[] = {"", "./", "./data/", "../data/", "../../data/", "../../../data/", "../../../../data/"};
-		int numPrefixes = sizeof(prefix) / sizeof(const char*);
-		char relativeFileName[1024];
-		FILE* f = 0;
 		bool found = false;
+		char fileName[1024];
+		fileName[0] = 0;
 
-		for (int i = 0; !f && i < numPrefixes; i++)
+		CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
+		b3AlignedObjectArray<char> buffer;
+		buffer.reserve(1024);
+		if (fileIO)
 		{
-			sprintf(relativeFileName, "%s%s", prefix[i], clientCmd.m_fileArguments.m_fileName);
-			f = fopen(relativeFileName, "rb");
-			if (f)
+			
+			int fileId = -1;
+			found = fileIO->findResourcePath(clientCmd.m_fileArguments.m_fileName,  fileName, 1024);
+			if (found)
 			{
-				found = true;
-				break;
+				fileId = fileIO->fileOpen(fileName,"rb");
+			}
+			if (fileId>=0)
+			{
+				int size = fileIO->getFileSize(fileId);
+				if (size>0)
+				{
+					buffer.resize(size);
+					int actual = fileIO->fileRead(fileId,&buffer[0],size);
+					if (actual != size)
+					{
+						b3Warning("image filesize mismatch!\n");
+						buffer.resize(0);
+					} else
+					{
+						found=true;
+					}
+				}
+				fileIO->fileClose(fileId);
 			}
 		}
-		if (f)
-		{
-			fclose(f);
-		}
 
-		if (found)
+		if (found && buffer.size())
 		{
-			ok = importer->loadFile(relativeFileName);
+			ok = importer->loadFileFromMemory(&buffer[0], buffer.size());
+		} else
+		{
+			b3Error("Error in restoreState: cannot load file %s\n", clientCmd.m_fileArguments.m_fileName);
 		}
 	}
-
 	if (ok)
 	{
 		serverCmd.m_type = CMD_RESTORE_STATE_COMPLETED;
