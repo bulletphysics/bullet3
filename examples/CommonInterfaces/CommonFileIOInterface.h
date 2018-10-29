@@ -3,6 +3,15 @@
 
 struct CommonFileIOInterface
 {
+	int m_fileIOType;
+	const char* m_pathPrefix;
+
+	CommonFileIOInterface(int fileIOType, const char* pathPrefix)
+		:m_fileIOType(fileIOType),
+		m_pathPrefix(pathPrefix)
+	{
+	}
+
 	virtual ~CommonFileIOInterface()
 	{
 	}

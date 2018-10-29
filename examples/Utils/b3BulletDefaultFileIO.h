@@ -16,12 +16,15 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 		return fileIo->findFile(orgFileName, relativeFileName, maxRelativeFileNameMaxLen);
 	}
 
+	char m_prefix[1024];
 	FILE* m_fileHandles[B3_FILEIO_MAX_FILES];
 	int m_numFileHandles;
 
-	b3BulletDefaultFileIO()
-		:m_numFileHandles(0)
+	b3BulletDefaultFileIO(int fileIOType=0, const char* pathPrefix=0)
+		:CommonFileIOInterface(fileIOType, m_prefix),
+		m_numFileHandles(0)
 	{
+		sprintf(m_prefix,"%s", pathPrefix);
 		for (int i=0;i<B3_FILEIO_MAX_FILES;i++)
 		{
 			m_fileHandles[i]=0;
@@ -97,7 +100,7 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 
 	virtual bool findResourcePath(const char* fileName, char* relativeFileName, int relativeFileNameSizeInBytes)
 	{
-		return b3ResourcePath::findResourcePath(fileName, relativeFileName, relativeFileNameSizeInBytes, b3BulletDefaultFileIO::FileIOPluginFindFile, this);
+		return b3ResourcePath::findResourcePath(fileName, relativeFileName, relativeFileNameSizeInBytes, b3BulletDefaultFileIO::FileIOPluginFindFile, this)>0;
 	}
 
 
@@ -114,7 +117,7 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 		}
 
 		//printf("Trying various directories, relative to current working directory\n");
-		const char* prefix[] = {"./", "./data/", "../data/", "../../data/", "../../../data/", "../../../../data/"};
+		const char* prefix[] = {m_prefix, "./", "./data/", "../data/", "../../data/", "../../../data/", "../../../../data/"};
 		int numPrefixes = sizeof(prefix) / sizeof(const char*);
 
 		f = 0;

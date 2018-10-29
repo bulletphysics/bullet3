@@ -924,6 +924,7 @@ enum eFileIOTypes
 	ePosixFileIO = 1,
 	eZipFileIO,
 	eCNSFileIO,
+	eInMemoryFileIO,
 };
 
 //limits for vertices/indices in PyBullet::createCollisionShape

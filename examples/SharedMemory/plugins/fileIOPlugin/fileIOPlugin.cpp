@@ -48,6 +48,7 @@ struct InMemoryFileIO : public CommonFileIOInterface
 	int m_numFrees;
 
 	InMemoryFileIO()
+		:CommonFileIOInterface(eInMemoryFileIO,0)
 	{
 		m_numAllocs=0;
 		m_numFrees=0;
@@ -293,7 +294,8 @@ struct WrapperFileIO : public CommonFileIOInterface
 	InMemoryFileIO m_cachedFiles;
 
 	WrapperFileIO()
-		:m_numWrapperInterfaces(0)
+		:CommonFileIOInterface(0,0),
+		m_numWrapperInterfaces(0)
 	{
 		for (int i=0;i<B3_MAX_FILEIO_INTERFACES;i++)
 		{
@@ -327,6 +329,14 @@ struct WrapperFileIO : public CommonFileIOInterface
 		return result;
 	}
 
+	CommonFileIOInterface* getFileIOInterface(int fileIOIndex)
+	{
+		if (fileIOIndex>=0 && fileIOIndex<B3_MAX_FILEIO_INTERFACES)
+		{
+			return m_availableFileIOInterfaces[fileIOIndex];
+		}
+		return 0;
+	}
 	void removeFileIOInterface(int fileIOIndex)
 	{
 		if (fileIOIndex>=0 && fileIOIndex<B3_MAX_FILEIO_INTERFACES)
@@ -571,51 +581,68 @@ B3_SHARED_API int executePluginCommand_fileIOPlugin(struct b3PluginContext* cont
 		{
 			case eAddFileIOAction:
 			{
-				//create new fileIO interface
+				//if the fileIO already exists, skip this action
 				int fileIOType = arguments->m_ints[1];
-				switch (fileIOType)
+				bool alreadyExists = false;
+
+				for (int i=0;i<B3_MAX_FILEIO_INTERFACES;i++)
 				{
-					case ePosixFileIO:
+					CommonFileIOInterface* fileIO = obj->m_fileIO.getFileIOInterface(i);
+					if (fileIO)
 					{
-#ifdef B3_EXCLUDE_DEFAULT_FILEIO
-						printf("ePosixFileIO is not enabled in this build.\n");
-#else
-						obj->m_fileIO.addFileIOInterface(new b3BulletDefaultFileIO());
-#endif
-						break;
-					}
-					case eZipFileIO:
-					{
-#ifdef B3_USE_ZIPFILE_FILEIO
-						if (arguments->m_text)
+						if (fileIO->m_fileIOType == fileIOType)
 						{
-							obj->m_fileIO.addFileIOInterface(new ZipFileIO(arguments->m_text, &obj->m_fileIO));
+							if (fileIO->m_pathPrefix && strcmp(fileIO->m_pathPrefix,arguments->m_text)==0)
+							{
+								result = i;
+								alreadyExists = true;
+								break;
+							}
 						}
-#else
-						printf("eZipFileIO is not enabled in this build.\n");
-#endif
-						break;
-					}
-					case eCNSFileIO:
-					{
-#ifdef B3_USE_CNS_FILEIO
-						if (strlen(arguments->m_text))
-						{
-							obj->m_fileIO.addFileIOInterface(new CNSFileIO(arguments->m_text));
-						}
-						else
-						{
-							obj->m_fileIO.addFileIOInterface(new CNSFileIO(""));
-						}
-#else//B3_USE_CNS_FILEIO
-						printf("CNSFileIO is not enabled in this build.\n");
-#endif //B3_USE_CNS_FILEIO
-						break;
-					}
-					default:
-					{
 					}
 				}
+				
+
+				//create new fileIO interface
+				if (!alreadyExists)
+				{
+					switch (fileIOType)
+					{
+						case ePosixFileIO:
+						{
+	#ifdef B3_EXCLUDE_DEFAULT_FILEIO
+							printf("ePosixFileIO is not enabled in this build.\n");
+	#else
+							result = obj->m_fileIO.addFileIOInterface(new b3BulletDefaultFileIO(ePosixFileIO, arguments->m_text));
+	#endif
+							break;
+						}
+						case eZipFileIO:
+						{
+	#ifdef B3_USE_ZIPFILE_FILEIO
+							if (arguments->m_text)
+							{
+								result = obj->m_fileIO.addFileIOInterface(new ZipFileIO(eZipFileIO, arguments->m_text, &obj->m_fileIO));
+							}
+	#else
+							printf("eZipFileIO is not enabled in this build.\n");
+	#endif
+							break;
+						}
+						case eCNSFileIO:
+						{
+	#ifdef B3_USE_CNS_FILEIO
+							result = obj->m_fileIO.addFileIOInterface(new CNSFileIO(eCNSFileIO, arguments->m_text));
+	#else//B3_USE_CNS_FILEIO
+							printf("CNSFileIO is not enabled in this build.\n");
+	#endif //B3_USE_CNS_FILEIO
+							break;
+						}
+						default:
+						{
+						}
+					}//switch (fileIOType)
+				}//if (!alreadyExists)
 				break;
 			}
 			case eRemoveFileIOAction:
@@ -624,6 +651,7 @@ B3_SHARED_API int executePluginCommand_fileIOPlugin(struct b3PluginContext* cont
 				//remove fileIO interface
 				int fileIOIndex = arguments->m_ints[1];
 				obj->m_fileIO.removeFileIOInterface(fileIOIndex);
+				result = fileIOIndex;
 				break;
 			}
 			default:
