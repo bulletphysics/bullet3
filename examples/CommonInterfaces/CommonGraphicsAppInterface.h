@@ -13,10 +13,10 @@ struct DrawGridData
 	int upAxis;
 	float gridColor[4];
 
-	DrawGridData(int upAxis = 1)
+	DrawGridData(int upAx = 1)
 		: gridSize(10),
 		  upOffset(0.001f),
-		  upAxis(upAxis)
+		  upAxis(upAx)
 	{
 		gridColor[0] = 0.6f;
 		gridColor[1] = 0.6f;
