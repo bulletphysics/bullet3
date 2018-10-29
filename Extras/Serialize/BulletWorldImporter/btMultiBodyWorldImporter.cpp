@@ -219,6 +219,7 @@ void convertMultiBody(T* mbd, btMultiBodyWorldImporterInternalData* m_data)
 				mb->setupPrismatic(i, mbd->m_links[i].m_linkMass, localInertiaDiagonal, mbd->m_links[i].m_parentIndex,
 								   parentRotToThis, jointAxis, parentComToThisPivotOffset, thisPivotToThisComOffset, disableParentCollision);
 				mb->setJointPos(i, mbd->m_links[i].m_jointPos[0]);
+				mb->finalizeMultiDof();
 				mb->setJointVel(i, mbd->m_links[i].m_jointVel[0]);
 				break;
 			}
@@ -230,6 +231,7 @@ void convertMultiBody(T* mbd, btMultiBodyWorldImporterInternalData* m_data)
 				mb->setupRevolute(i, mbd->m_links[i].m_linkMass, localInertiaDiagonal, mbd->m_links[i].m_parentIndex,
 								  parentRotToThis, jointAxis, parentComToThisPivotOffset, thisPivotToThisComOffset, disableParentCollision);
 				mb->setJointPos(i, mbd->m_links[i].m_jointPos[0]);
+				mb->finalizeMultiDof();
 				mb->setJointVel(i, mbd->m_links[i].m_jointVel[0]);
 				break;
 			}
@@ -242,6 +244,7 @@ void convertMultiBody(T* mbd, btMultiBodyWorldImporterInternalData* m_data)
 				btScalar jointPos[4] = {(btScalar)mbd->m_links[i].m_jointPos[0], (btScalar)mbd->m_links[i].m_jointPos[1], (btScalar)mbd->m_links[i].m_jointPos[2], (btScalar)mbd->m_links[i].m_jointPos[3]};
 				btScalar jointVel[3] = {(btScalar)mbd->m_links[i].m_jointVel[0], (btScalar)mbd->m_links[i].m_jointVel[1], (btScalar)mbd->m_links[i].m_jointVel[2]};
 				mb->setJointPosMultiDof(i, jointPos);
+				mb->finalizeMultiDof();
 				mb->setJointVelMultiDof(i, jointVel);
 
 				break;
