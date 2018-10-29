@@ -24,7 +24,11 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 		:CommonFileIOInterface(fileIOType, m_prefix),
 		m_numFileHandles(0)
 	{
-		sprintf(m_prefix,"%s", pathPrefix);
+		m_prefix[0] = 0;
+		if (pathPrefix)
+		{
+			sprintf(m_prefix,"%s", pathPrefix);
+		}
 		for (int i=0;i<B3_FILEIO_MAX_FILES;i++)
 		{
 			m_fileHandles[i]=0;
