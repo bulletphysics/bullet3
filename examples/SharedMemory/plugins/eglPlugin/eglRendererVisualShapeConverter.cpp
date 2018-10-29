@@ -1257,6 +1257,7 @@ void EGLRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqu
 		{
 			for (int o = 0; o < ptr->m_renderObjects.size(); o++)
 			{
+				m_data->m_instancingRenderer->removeGraphicsInstance(ptr->m_graphicsInstanceId);
 				delete ptr->m_renderObjects[o];
 			}
 		}
