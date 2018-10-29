@@ -10,10 +10,12 @@ struct ZipFileIO : public CommonFileIOInterface
 	unzFile	m_fileHandles[B3_ZIP_FILEIO_MAX_FILES ];
 	int m_numFileHandles;
 
-	ZipFileIO(const char* zipfileName, CommonFileIOInterface* wrapperFileIO)
-		:m_zipfileName(zipfileName),
+	ZipFileIO(int fileIOType, const char* zipfileName, CommonFileIOInterface* wrapperFileIO)
+		:CommonFileIOInterface(fileIOType,0),
+		m_zipfileName(zipfileName),
 		m_numFileHandles(0)
 	{
+		m_pathPrefix = m_zipfileName.c_str();
 		for (int i=0;i<B3_ZIP_FILEIO_MAX_FILES ;i++)
 		{
 			m_fileHandles[i]=0;

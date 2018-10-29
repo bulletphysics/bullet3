@@ -143,7 +143,7 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 	b3FileUtils fu;
 
 	//bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
-	bool fileFound = m_data->m_fileIO->findResourcePath(fileName, relativeFileName, 1024) > 0;
+	bool fileFound = m_data->m_fileIO->findResourcePath(fileName, relativeFileName, 1024);
 
 	std::string xml_string;
 
@@ -217,7 +217,7 @@ bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
 	b3FileUtils fu;
 
 	//bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
-	bool fileFound = (m_data->m_fileIO->findResourcePath(fileName, relativeFileName, 1024)) > 0;
+	bool fileFound = (m_data->m_fileIO->findResourcePath(fileName, relativeFileName, 1024));
 
 	std::string xml_string;
 
