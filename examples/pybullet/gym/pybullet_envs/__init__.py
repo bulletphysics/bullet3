@@ -9,17 +9,17 @@ def register(id,*args,**kvargs):
 # ------------bullet-------------
 
 register(
-	id='CartPoleBulletEnv-v0',
+	id='CartPoleBulletEnv-v1',
 	entry_point='pybullet_envs.bullet:CartPoleBulletEnv',
-	timestep_limit=1000,
-	reward_threshold=950.0,
+        max_episode_steps=200,
+	reward_threshold=190.0,
 )
 
 register(
     id='MinitaurBulletEnv-v0',
     entry_point='pybullet_envs.bullet:MinitaurBulletEnv',
     timestep_limit=1000,
-    reward_threshold=5.0,
+    reward_threshold=15.0,
 )
 
 register(

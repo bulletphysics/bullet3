@@ -5,12 +5,13 @@ parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0,parentdir)
 
 import gym
+import time
 
 from baselines import deepq
 from pybullet_envs.bullet.cartpole_bullet import CartPoleBulletEnv
 
 def main():
-    env = gym.make('CartPoleBulletEnv-v0')
+    env = gym.make('CartPoleBulletEnv-v1')
     act = deepq.load("cartpole_model.pkl")
 
     while True:
@@ -28,6 +29,7 @@ def main():
             a = aa[0]
             obs, rew, done, _ = env.step(a)
             episode_rew += rew
+            time.sleep(1./240.)
         print("Episode reward", episode_rew)
 
 
