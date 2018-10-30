@@ -34,6 +34,8 @@ class btCollisionObject;
 
 class btCollisionShape;
 
+extern btShapePairCallback gCompoundCompoundChildShapePairCallback;
+
 /// btCompoundCompoundCollisionAlgorithm  supports collision between two btCompoundCollisionShape shapes
 class btCompoundCompoundCollisionAlgorithm : public btCompoundCollisionAlgorithm
 {
