@@ -1,0 +1,586 @@
+<?xml version="0.0" ?>
+<robot name="">
+	<link name="torso">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="-0.01000 0.00000 -0.12000"/>
+			<mass value="8.90746"/>
+			<inertia ixx="0.21526" ixy="0" ixz="0" iyy="0.18112" iyz="0" izz="0.08225"/>
+		</inertial>
+		<collision>
+			<origin rpy="-1.57080 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<geometry>
+				<capsule length="0.14000" radius="0.07000"/>
+			</geometry>
+		</collision>
+		<collision>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.19000"/>
+			<geometry>
+				<sphere radius="0.09000"/>
+			</geometry>
+		</collision>
+		<collision>
+			<origin rpy="-1.57080 0.00000 0.00000" xyz="-0.01000 0.00000 -0.12000"/>
+			<geometry>
+				<capsule length="0.12000" radius="0.06000"/>
+			</geometry>
+		</collision>
+	</link>
+	<link name="link1_2">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="link1_3">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="lwaist">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="2.26195"/>
+			<inertia ixx="0.01357" ixy="0" ixz="0" iyy="0.00543" iyz="0" izz="0.01357"/>
+		</inertial>
+		<collision>
+			<origin rpy="-1.57080 0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<geometry>
+				<capsule length="0.12000" radius="0.06000"/>
+			</geometry>
+		</collision>
+	</link>
+	<link name="link1_5">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="pelvis">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="-0.02000 0.00000 0.00000"/>
+			<mass value="6.61619"/>
+			<inertia ixx="0.07432" ixy="0" ixz="0" iyy="0.03573" iyz="0" izz="0.07432"/>
+		</inertial>
+		<collision>
+			<origin rpy="-1.57080 0.00000 0.00000" xyz="-0.02000 0.00000 0.00000"/>
+			<geometry>
+				<capsule length="0.14000" radius="0.09000"/>
+			</geometry>
+		</collision>
+	</link>
+	<link name="link1_7">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="link1_8">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="link1_9">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="right_thigh">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00500 -0.17000"/>
+			<mass value="4.75175"/>
+			<inertia ixx="0.09212" ixy="0" ixz="0" iyy="0.09076" iyz="0" izz="0.01276"/>
+		</inertial>
+		<collision>
+			<origin rpy="-3.11219 -0.00000 0.00000" xyz="0.00000 0.00500 -0.17000"/>
+			<geometry>
+				<capsule length="0.34015" radius="0.06000"/>
+			</geometry>
+		</collision>
+	</link>
+	<link name="link1_11">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="right_shin">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 -0.15000"/>
+			<mass value="2.75570"/>
+			<inertia ixx="0.03858" ixy="0" ixz="0" iyy="0.03858" iyz="0" izz="0.00441"/>
+		</inertial>
+		<collision>
+			<origin rpy="3.14159 -0.00000 3.14159" xyz="0.00000 0.00000 -0.15000"/>
+			<geometry>
+				<capsule length="0.30000" radius="0.04900"/>
+			</geometry>
+		</collision>
+	</link>
+	<link name="link1_13">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="link1_14">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="right_foot">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.03500 0.01000 0.00000"/>
+			<mass value="1.13114"/>
+			<inertia ixx="0.00177" ixy="0" ixz="0" iyy="0.00716" iyz="0" izz="0.00828"/>
+		</inertial>
+		<collision>
+			<origin rpy="1.57080 1.47585 1.47585" xyz="0.03500 -0.03000 0.00000"/>
+			<geometry>
+				<capsule length="0.21095" radius="0.02700"/>
+			</geometry>
+		</collision>
+		<collision>
+			<origin rpy="-1.57080 1.47585 -1.47585" xyz="0.03500 0.01000 0.00000"/>
+			<geometry>
+				<capsule length="0.21095" radius="0.02700"/>
+			</geometry>
+		</collision>
+	</link>
+	<link name="link1_16">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="link1_17">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="link1_18">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="left_thigh">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 -0.00500 -0.17000"/>
+			<mass value="4.75175"/>
+			<inertia ixx="0.09212" ixy="0" ixz="0" iyy="0.09076" iyz="0" izz="0.01276"/>
+		</inertial>
+		<collision>
+			<origin rpy="3.11219 -0.00000 0.00000" xyz="0.00000 -0.00500 -0.17000"/>
+			<geometry>
+				<capsule length="0.34015" radius="0.06000"/>
+			</geometry>
+		</collision>
+	</link>
+	<link name="link1_20">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="left_shin">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 -0.15000"/>
+			<mass value="2.75570"/>
+			<inertia ixx="0.03858" ixy="0" ixz="0" iyy="0.03858" iyz="0" izz="0.00441"/>
+		</inertial>
+		<collision>
+			<origin rpy="3.14159 -0.00000 3.14159" xyz="0.00000 0.00000 -0.15000"/>
+			<geometry>
+				<capsule length="0.30000" radius="0.04900"/>
+			</geometry>
+		</collision>
+	</link>
+	<link name="link1_22">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="link1_23">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="left_foot">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.03500 -0.01000 0.00000"/>
+			<mass value="1.13114"/>
+			<inertia ixx="0.00177" ixy="0" ixz="0" iyy="0.00716" iyz="0" izz="0.00828"/>
+		</inertial>
+		<collision>
+			<origin rpy="-1.57080 1.47585 -1.47585" xyz="0.03500 0.03000 0.00000"/>
+			<geometry>
+				<capsule length="0.21095" radius="0.02700"/>
+			</geometry>
+		</collision>
+		<collision>
+			<origin rpy="1.57080 1.47585 1.47585" xyz="0.03500 -0.01000 0.00000"/>
+			<geometry>
+				<capsule length="0.21095" radius="0.02700"/>
+			</geometry>
+		</collision>
+	</link>
+	<link name="link1_25">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="link1_26">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="right_upper_arm">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.08000 -0.08000 -0.08000"/>
+			<mass value="1.66108"/>
+			<inertia ixx="0.02368" ixy="0" ixz="0" iyy="0.02368" iyz="0" izz="0.02267"/>
+		</inertial>
+		<collision>
+			<origin rpy="2.35619 0.61548 1.30900" xyz="0.08000 -0.08000 -0.08000"/>
+			<geometry>
+				<capsule length="0.27713" radius="0.04000"/>
+			</geometry>
+		</collision>
+	</link>
+	<link name="link1_28">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="right_lower_arm">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="1.22954"/>
+			<inertia ixx="0.01419" ixy="0" ixz="0" iyy="0.01419" iyz="0" izz="0.01374"/>
+		</inertial>
+		<collision>
+			<origin rpy="-0.78540 0.61548 -0.26180" xyz="0.09000 0.09000 0.09000"/>
+			<geometry>
+				<capsule length="0.27713" radius="0.03100"/>
+			</geometry>
+		</collision>
+		<collision>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.18000 0.18000 0.18000"/>
+			<geometry>
+				<sphere radius="0.04000"/>
+			</geometry>
+		</collision>
+	</link>
+	<link name="link1_30">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="link1_31">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="left_upper_arm">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.08000 0.08000 -0.08000"/>
+			<mass value="1.66108"/>
+			<inertia ixx="0.02368" ixy="0" ixz="0" iyy="0.02368" iyz="0" izz="0.02267"/>
+		</inertial>
+		<collision>
+			<origin rpy="-2.35619 0.61548 -1.30900" xyz="0.08000 0.08000 -0.08000"/>
+			<geometry>
+				<capsule length="0.27713" radius="0.04000"/>
+			</geometry>
+		</collision>
+	</link>
+	<link name="link1_33">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="left_lower_arm">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="1.22954"/>
+			<inertia ixx="0.01419" ixy="0" ixz="0" iyy="0.01419" iyz="0" izz="0.01374"/>
+		</inertial>
+		<collision>
+			<origin rpy="0.78540 0.61548 0.26180" xyz="0.09000 -0.09000 0.09000"/>
+			<geometry>
+				<capsule length="0.27713" radius="0.03100"/>
+			</geometry>
+		</collision>
+		<collision>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.18000 -0.18000 0.18000"/>
+			<geometry>
+				<sphere radius="0.04000"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="abdomen_z" type="continuous">
+		<parent link="torso"/>
+		<child link="link1_2"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00400 0.00000" xyz="-0.01026 0.00000 -0.19500"/>
+		<axis xyz="0.00000 0.00000 1.00000"/>
+	</joint>
+	<joint name="abdomen_y" type="continuous">
+		<parent link="link1_2"/>
+		<child link="link1_3"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 1.00000 0.00000"/>
+	</joint>
+	<joint name="jointfix_7_3" type="fixed">
+		<parent link="link1_3"/>
+		<child link="lwaist"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 -0.06500"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="abdomen_x" type="continuous">
+		<parent link="lwaist"/>
+		<child link="link1_5"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00400 0.00000" xyz="-0.00040 0.00000 -0.06500"/>
+		<axis xyz="1.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="jointfix_6_5" type="fixed">
+		<parent link="link1_5"/>
+		<child link="pelvis"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 -0.10000"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="right_hip_x" type="continuous">
+		<parent link="pelvis"/>
+		<child link="link1_7"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 -0.10000 -0.04000"/>
+		<axis xyz="1.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="right_hip_z" type="continuous">
+		<parent link="link1_7"/>
+		<child link="link1_8"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 0.00000 1.00000"/>
+	</joint>
+	<joint name="right_hip_y" type="continuous">
+		<parent link="link1_8"/>
+		<child link="link1_9"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 1.00000 0.00000"/>
+	</joint>
+	<joint name="jointfix_2_9" type="fixed">
+		<parent link="link1_9"/>
+		<child link="right_thigh"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="right_knee" type="continuous">
+		<parent link="right_thigh"/>
+		<child link="link1_11"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.01000 -0.38300"/>
+		<axis xyz="0.00000 -1.00000 0.00000"/>
+	</joint>
+	<joint name="jointfix_1_11" type="fixed">
+		<parent link="link1_11"/>
+		<child link="right_shin"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 -0.02000"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="right_ankle_y" type="continuous">
+		<parent link="right_shin"/>
+		<child link="link1_13"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 -0.31000"/>
+		<axis xyz="0.00000 1.00000 0.00000"/>
+	</joint>
+	<joint name="right_ankle_x" type="continuous">
+		<parent link="link1_13"/>
+		<child link="link1_14"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 -0.04000"/>
+		<axis xyz="1.00000 0.00000 0.50000"/>
+	</joint>
+	<joint name="jointfix_0_14" type="fixed">
+		<parent link="link1_14"/>
+		<child link="right_foot"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 -0.08000"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="left_hip_x" type="continuous">
+		<parent link="pelvis"/>
+		<child link="link1_16"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.10000 -0.04000"/>
+		<axis xyz="-1.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="left_hip_z" type="continuous">
+		<parent link="link1_16"/>
+		<child link="link1_17"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 0.00000 -1.00000"/>
+	</joint>
+	<joint name="left_hip_y" type="continuous">
+		<parent link="link1_17"/>
+		<child link="link1_18"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 1.00000 0.00000"/>
+	</joint>
+	<joint name="jointfix_5_18" type="fixed">
+		<parent link="link1_18"/>
+		<child link="left_thigh"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="left_knee" type="continuous">
+		<parent link="left_thigh"/>
+		<child link="link1_20"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 -0.01000 -0.38300"/>
+		<axis xyz="0.00000 -1.00000 0.00000"/>
+	</joint>
+	<joint name="jointfix_4_20" type="fixed">
+		<parent link="link1_20"/>
+		<child link="left_shin"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 -0.02000"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="left_ankle_y" type="continuous">
+		<parent link="left_shin"/>
+		<child link="link1_22"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 -0.31000"/>
+		<axis xyz="0.00000 1.00000 0.00000"/>
+	</joint>
+	<joint name="left_ankle_x" type="continuous">
+		<parent link="link1_22"/>
+		<child link="link1_23"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 -0.04000"/>
+		<axis xyz="1.00000 0.00000 0.50000"/>
+	</joint>
+	<joint name="jointfix_3_23" type="fixed">
+		<parent link="link1_23"/>
+		<child link="left_foot"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 -0.08000"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="right_shoulder1" type="continuous">
+		<parent link="torso"/>
+		<child link="link1_25"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 -0.17000 0.06000"/>
+		<axis xyz="2.00000 1.00000 1.00000"/>
+	</joint>
+	<joint name="right_shoulder2" type="continuous">
+		<parent link="link1_25"/>
+		<child link="link1_26"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 -1.00000 1.00000"/>
+	</joint>
+	<joint name="jointfix_9_26" type="fixed">
+		<parent link="link1_26"/>
+		<child link="right_upper_arm"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="right_elbow" type="continuous">
+		<parent link="right_upper_arm"/>
+		<child link="link1_28"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.18000 -0.18000 -0.18000"/>
+		<axis xyz="0.00000 -1.00000 1.00000"/>
+	</joint>
+	<joint name="jointfix_8_28" type="fixed">
+		<parent link="link1_28"/>
+		<child link="right_lower_arm"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="left_shoulder1" type="continuous">
+		<parent link="torso"/>
+		<child link="link1_30"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.17000 0.06000"/>
+		<axis xyz="2.00000 -1.00000 1.00000"/>
+	</joint>
+	<joint name="left_shoulder2" type="continuous">
+		<parent link="link1_30"/>
+		<child link="link1_31"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 1.00000 1.00000"/>
+	</joint>
+	<joint name="jointfix_11_31" type="fixed">
+		<parent link="link1_31"/>
+		<child link="left_upper_arm"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="left_elbow" type="continuous">
+		<parent link="left_upper_arm"/>
+		<child link="link1_33"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.18000 0.18000 -0.18000"/>
+		<axis xyz="0.00000 -1.00000 -1.00000"/>
+	</joint>
+	<joint name="jointfix_10_33" type="fixed">
+		<parent link="link1_33"/>
+		<child link="left_lower_arm"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+</robot>
