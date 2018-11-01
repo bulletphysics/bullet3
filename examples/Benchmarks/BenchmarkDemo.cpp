@@ -1008,7 +1008,7 @@ void BenchmarkDemo::createTest4()
 	}
 
 	//this will enable polyhedral contact clipping, better quality, slightly slower
-	//convexHullShape->initializePolyhedralFeatures();
+	convexHullShape->initializePolyhedralFeatures();
 
 	btTransform trans;
 	trans.setIdentity();

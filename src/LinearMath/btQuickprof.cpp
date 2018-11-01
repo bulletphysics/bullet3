@@ -694,6 +694,24 @@ void CProfileManager::dumpAll()
 	CProfileManager::Release_Iterator(profileIterator);
 }
 
+
+void btEnterProfileZoneDefault(const char* name)
+{
+}
+void btLeaveProfileZoneDefault()
+{
+}
+
+#else
+void btEnterProfileZoneDefault(const char* name)
+{
+}
+void btLeaveProfileZoneDefault()
+{
+}
+#endif  //BT_NO_PROFILE
+
+
 // clang-format off
 #if defined(_WIN32) && (defined(__MINGW32__) || defined(__MINGW64__))
   #define BT_HAVE_TLS 1
@@ -742,22 +760,6 @@ unsigned int btQuickprofGetCurrentThreadIndex2()
 	return sThreadIndex;
 #endif  //BT_THREADSAFE
 }
-
-void btEnterProfileZoneDefault(const char* name)
-{
-}
-void btLeaveProfileZoneDefault()
-{
-}
-
-#else
-void btEnterProfileZoneDefault(const char* name)
-{
-}
-void btLeaveProfileZoneDefault()
-{
-}
-#endif  //BT_NO_PROFILE
 
 static btEnterProfileZoneFunc* bts_enterFunc = btEnterProfileZoneDefault;
 static btLeaveProfileZoneFunc* bts_leaveFunc = btLeaveProfileZoneDefault;

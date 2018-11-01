@@ -14,7 +14,7 @@ p.setAdditionalSearchPath(pd.getDataPath())
 objs = p.loadMJCF(args.mjcf, flags=p.URDF_USE_IMPLICIT_CYLINDER)
 
 for o in objs:
-	print("o=",o, p.getBodyInfo(o), p.getNumJoints(o))
+	#print("o=",o, p.getBodyInfo(o), p.getNumJoints(o))
 	humanoid = objs[o]
 	ed0 = ed.UrdfEditor()
 	ed0.initializeFromBulletBody(humanoid, p._client)
