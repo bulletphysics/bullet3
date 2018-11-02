@@ -1764,8 +1764,9 @@ void PhysicsServerExample::initPhysics()
 		}
 	}
 
+	m_args[0].m_cs->lock();
 	m_args[0].m_cs->setSharedParam(1, eGUIHelperIdle);
-
+	m_args[0].m_cs->unlock();
 	m_args[0].m_cs2->lock();
 
 	{
