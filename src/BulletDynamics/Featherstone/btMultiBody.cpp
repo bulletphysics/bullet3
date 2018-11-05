@@ -30,9 +30,6 @@
 //#include "Bullet3Common/b3Logging.h"
 // #define INCLUDE_GYRO_TERM
 
-///todo: determine if we need these options. If so, make a proper API, otherwise delete those globals
-bool gJointFeedbackInWorldSpace = false;
-bool gJointFeedbackInJointFrame = false;
 
 namespace
 {
@@ -718,10 +715,12 @@ inline btMatrix3x3 outerProduct(const btVector3 &v0, const btVector3 &v1)  //ren
 //
 
 void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar dt,
-																	   btAlignedObjectArray<btScalar> &scratch_r,
-																	   btAlignedObjectArray<btVector3> &scratch_v,
-																	   btAlignedObjectArray<btMatrix3x3> &scratch_m,
-																	   bool isConstraintPass)
+    btAlignedObjectArray<btScalar> &scratch_r,
+    btAlignedObjectArray<btVector3> &scratch_v,
+    btAlignedObjectArray<btMatrix3x3> &scratch_m,
+	bool isConstraintPass,
+	bool jointFeedbackInWorldSpace,
+	bool jointFeedbackInJointFrame)
 {
 	// Implement Featherstone's algorithm to calculate joint accelerations (q_double_dot)
 	// and the base linear & angular accelerations.
@@ -1124,7 +1123,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 			btVector3 angularBotVec = (spatInertia[i + 1] * spatAcc[i + 1] + zeroAccSpatFrc[i + 1]).m_bottomVec;
 			btVector3 linearTopVec = (spatInertia[i + 1] * spatAcc[i + 1] + zeroAccSpatFrc[i + 1]).m_topVec;
 
-			if (gJointFeedbackInJointFrame)
+			if (jointFeedbackInJointFrame)
 			{
 				//shift the reaction forces to the joint frame
 				//linear (force) component is the same
@@ -1132,7 +1131,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 				angularBotVec = angularBotVec - linearTopVec.cross(m_links[i].m_dVector);
 			}
 
-			if (gJointFeedbackInWorldSpace)
+			if (jointFeedbackInWorldSpace)
 			{
 				if (isConstraintPass)
 				{
