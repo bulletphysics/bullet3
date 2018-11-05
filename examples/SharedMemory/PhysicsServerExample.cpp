@@ -1737,6 +1737,11 @@ void PhysicsServerExample::initPhysics()
 		m_args[w].m_cs2 = m_threadSupport->createCriticalSection();
 		m_args[w].m_cs3 = m_threadSupport->createCriticalSection();
 		m_args[w].m_csGUI = m_threadSupport->createCriticalSection();
+		m_multiThreadedHelper->setCriticalSection(m_args[w].m_cs);
+		m_multiThreadedHelper->setCriticalSection2(m_args[w].m_cs2);
+		m_multiThreadedHelper->setCriticalSection3(m_args[w].m_cs3);
+		m_multiThreadedHelper->setCriticalSectionGUI(m_args[w].m_csGUI);
+
 		m_args[w].m_cs->lock();
 		m_args[w].m_cs->setSharedParam(0, eMotionIsUnInitialized);
 		m_args[w].m_cs->unlock();
@@ -1759,12 +1764,9 @@ void PhysicsServerExample::initPhysics()
 		}
 	}
 
+	m_args[0].m_cs->lock();
 	m_args[0].m_cs->setSharedParam(1, eGUIHelperIdle);
-	m_multiThreadedHelper->setCriticalSection(m_args[0].m_cs);
-	m_multiThreadedHelper->setCriticalSection2(m_args[0].m_cs2);
-	m_multiThreadedHelper->setCriticalSection3(m_args[0].m_cs3);
-	m_multiThreadedHelper->setCriticalSectionGUI(m_args[0].m_csGUI);
-
+	m_args[0].m_cs->unlock();
 	m_args[0].m_cs2->lock();
 
 	{

@@ -15,9 +15,11 @@ subject to the following restrictions:
 
 #include "b3AlignedAllocator.h"
 
+#ifdef B3_ALLOCATOR_STATISTICS
 int b3g_numAlignedAllocs = 0;
 int b3g_numAlignedFree = 0;
 int b3g_totalBytesAlignedAllocs = 0;  //detect memory leaks
+#endif
 
 static void *b3AllocDefault(size_t size)
 {
@@ -109,10 +111,10 @@ void *b3AlignedAllocInternal(size_t size, int alignment, int line, char *filenam
 {
 	void *ret;
 	char *real;
-
+#ifdef B3_ALLOCATOR_STATISTICS
 	b3g_totalBytesAlignedAllocs += size;
 	b3g_numAlignedAllocs++;
-
+#endif
 	real = (char *)b3s_allocFunc(size + 2 * sizeof(void *) + (alignment - 1));
 	if (real)
 	{
@@ -135,14 +137,16 @@ void *b3AlignedAllocInternal(size_t size, int alignment, int line, char *filenam
 void b3AlignedFreeInternal(void *ptr, int line, char *filename)
 {
 	void *real;
+#ifdef B3_ALLOCATOR_STATISTICS
 	b3g_numAlignedFree++;
-
+#endif
 	if (ptr)
 	{
 		real = *((void **)(ptr)-1);
 		int size = *((int *)(ptr)-2);
+#ifdef B3_ALLOCATOR_STATISTICS
 		b3g_totalBytesAlignedAllocs -= size;
-
+#endif
 		b3Printf("free #%d at address %x, from %s,line %d, size %d\n", b3g_numAlignedFree, real, filename, line, size);
 
 		b3s_freeFunc(real);
@@ -157,7 +161,9 @@ void b3AlignedFreeInternal(void *ptr, int line, char *filename)
 
 void *b3AlignedAllocInternal(size_t size, int alignment)
 {
+#ifdef B3_ALLOCATOR_STATISTICS
 	b3g_numAlignedAllocs++;
+#endif
 	void *ptr;
 	ptr = b3s_alignedAllocFunc(size, alignment);
 	//	b3Printf("b3AlignedAllocInternal %d, %x\n",size,ptr);
@@ -170,8 +176,9 @@ void b3AlignedFreeInternal(void *ptr)
 	{
 		return;
 	}
-
+#ifdef B3_ALLOCATOR_STATISTICS
 	b3g_numAlignedFree++;
+#endif
 	//	b3Printf("b3AlignedFreeInternal %x\n",ptr);
 	b3s_alignedFreeFunc(ptr);
 }
