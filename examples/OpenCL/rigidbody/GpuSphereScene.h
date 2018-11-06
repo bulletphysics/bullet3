@@ -6,9 +6,8 @@
 class GpuSphereScene : public GpuRigidBodyDemo
 {
 public:
-
-	GpuSphereScene(){}
-	virtual ~GpuSphereScene(){}
+	GpuSphereScene() {}
+	virtual ~GpuSphereScene() {}
 	virtual const char* getName()
 	{
 		return "BoxOnSphere";
@@ -21,7 +20,6 @@ public:
 	}
 
 	virtual void setupScene(const ConstructionInfo& ci);
-
 };
 
-#endif //GPU_SPHERE_SCENE_H
+#endif  //GPU_SPHERE_SCENE_H

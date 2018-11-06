@@ -18,81 +18,84 @@
 #include "vhacdManifoldMesh.h"
 #include "vhacdVector.h"
 
-namespace VHACD {
+namespace VHACD
+{
 //!    Incremental Convex Hull algorithm (cf. http://cs.smith.edu/~orourke/books/ftp.html ).
-enum ICHullError {
-    ICHullErrorOK = 0,
-    ICHullErrorCoplanarPoints,
-    ICHullErrorNoVolume,
-    ICHullErrorInconsistent,
-    ICHullErrorNotEnoughPoints
+enum ICHullError
+{
+	ICHullErrorOK = 0,
+	ICHullErrorCoplanarPoints,
+	ICHullErrorNoVolume,
+	ICHullErrorInconsistent,
+	ICHullErrorNotEnoughPoints
 };
-class ICHull {
+class ICHull
+{
 public:
-    static const double sc_eps;
-    //!
-    bool IsFlat() { return m_isFlat; }
-    //! Returns the computed mesh
-    TMMesh& GetMesh() { return m_mesh; }
-    //!    Add one point to the convex-hull
-    bool AddPoint(const Vec3<double>& point) { return AddPoints(&point, 1); }
-    //!    Add one point to the convex-hull
-    bool AddPoint(const Vec3<double>& point, int id);
-    //!    Add points to the convex-hull
-    bool AddPoints(const Vec3<double>* points, size_t nPoints);
-    //!
-    ICHullError Process();
-    //!
-    ICHullError Process(const unsigned int nPointsCH, const double minVolume = 0.0);
-    //!
-    bool IsInside(const Vec3<double>& pt0, const double eps = 0.0);
-    //!
-    const ICHull& operator=(ICHull& rhs);
+	static const double sc_eps;
+	//!
+	bool IsFlat() { return m_isFlat; }
+	//! Returns the computed mesh
+	TMMesh& GetMesh() { return m_mesh; }
+	//!    Add one point to the convex-hull
+	bool AddPoint(const Vec3<double>& point) { return AddPoints(&point, 1); }
+	//!    Add one point to the convex-hull
+	bool AddPoint(const Vec3<double>& point, int id);
+	//!    Add points to the convex-hull
+	bool AddPoints(const Vec3<double>* points, size_t nPoints);
+	//!
+	ICHullError Process();
+	//!
+	ICHullError Process(const unsigned int nPointsCH, const double minVolume = 0.0);
+	//!
+	bool IsInside(const Vec3<double>& pt0, const double eps = 0.0);
+	//!
+	const ICHull& operator=(ICHull& rhs);
 
-    //!    Constructor
-    ICHull();
-    //! Destructor
-    ~ICHull(void){};
-
-private:
-    //!    DoubleTriangle builds the initial double triangle.  It first finds 3 noncollinear points and makes two faces out of them, in opposite order. It then finds a fourth point that is not coplanar with that face.  The vertices are stored in the face structure in counterclockwise order so that the volume between the face and the point is negative. Lastly, the 3 newfaces to the fourth point are constructed and the data structures are cleaned up.
-    ICHullError DoubleTriangle();
-    //!    MakeFace creates a new face structure from three vertices (in ccw order).  It returns a pointer to the face.
-    CircularListElement<TMMTriangle>* MakeFace(CircularListElement<TMMVertex>* v0,
-        CircularListElement<TMMVertex>* v1,
-        CircularListElement<TMMVertex>* v2,
-        CircularListElement<TMMTriangle>* fold);
-    //!
-    CircularListElement<TMMTriangle>* MakeConeFace(CircularListElement<TMMEdge>* e, CircularListElement<TMMVertex>* v);
-    //!
-    bool ProcessPoint();
-    //!
-    bool ComputePointVolume(double& totalVolume, bool markVisibleFaces);
-    //!
-    bool FindMaxVolumePoint(const double minVolume = 0.0);
-    //!
-    bool CleanEdges();
-    //!
-    bool CleanVertices(unsigned int& addedPoints);
-    //!
-    bool CleanTriangles();
-    //!
-    bool CleanUp(unsigned int& addedPoints);
-    //!
-    bool MakeCCW(CircularListElement<TMMTriangle>* f,
-        CircularListElement<TMMEdge>* e,
-        CircularListElement<TMMVertex>* v);
-    void Clear();
+	//!    Constructor
+	ICHull();
+	//! Destructor
+	~ICHull(void){};
 
 private:
-    static const int sc_dummyIndex;
-    TMMesh m_mesh;
-    SArray<CircularListElement<TMMEdge>*> m_edgesToDelete;
-    SArray<CircularListElement<TMMEdge>*> m_edgesToUpdate;
-    SArray<CircularListElement<TMMTriangle>*> m_trianglesToDelete;
-    Vec3<double> m_normal;
-    bool m_isFlat;
-    ICHull(const ICHull& rhs);
+	//!    DoubleTriangle builds the initial double triangle.  It first finds 3 noncollinear points and makes two faces out of them, in opposite order. It then finds a fourth point that is not coplanar with that face.  The vertices are stored in the face structure in counterclockwise order so that the volume between the face and the point is negative. Lastly, the 3 newfaces to the fourth point are constructed and the data structures are cleaned up.
+	ICHullError DoubleTriangle();
+	//!    MakeFace creates a new face structure from three vertices (in ccw order).  It returns a pointer to the face.
+	CircularListElement<TMMTriangle>* MakeFace(CircularListElement<TMMVertex>* v0,
+											   CircularListElement<TMMVertex>* v1,
+											   CircularListElement<TMMVertex>* v2,
+											   CircularListElement<TMMTriangle>* fold);
+	//!
+	CircularListElement<TMMTriangle>* MakeConeFace(CircularListElement<TMMEdge>* e, CircularListElement<TMMVertex>* v);
+	//!
+	bool ProcessPoint();
+	//!
+	bool ComputePointVolume(double& totalVolume, bool markVisibleFaces);
+	//!
+	bool FindMaxVolumePoint(const double minVolume = 0.0);
+	//!
+	bool CleanEdges();
+	//!
+	bool CleanVertices(unsigned int& addedPoints);
+	//!
+	bool CleanTriangles();
+	//!
+	bool CleanUp(unsigned int& addedPoints);
+	//!
+	bool MakeCCW(CircularListElement<TMMTriangle>* f,
+				 CircularListElement<TMMEdge>* e,
+				 CircularListElement<TMMVertex>* v);
+	void Clear();
+
+private:
+	static const int sc_dummyIndex;
+	TMMesh m_mesh;
+	SArray<CircularListElement<TMMEdge>*> m_edgesToDelete;
+	SArray<CircularListElement<TMMEdge>*> m_edgesToUpdate;
+	SArray<CircularListElement<TMMTriangle>*> m_trianglesToDelete;
+	Vec3<double> m_normal;
+	bool m_isFlat;
+	ICHull(const ICHull& rhs);
 };
-}
-#endif // VHACD_ICHULL_H
+}  // namespace VHACD
+#endif  // VHACD_ICHULL_H

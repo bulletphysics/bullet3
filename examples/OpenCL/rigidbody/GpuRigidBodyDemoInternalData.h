@@ -6,12 +6,11 @@
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Collision/NarrowPhaseCollision/b3Config.h"
 
-struct	GpuRigidBodyDemoInternalData
+struct GpuRigidBodyDemoInternalData
 {
-	
-	cl_kernel	m_copyTransformsToVBOKernel;
+	cl_kernel m_copyTransformsToVBOKernel;
 
-	b3OpenCLArray<b3Vector4>*	m_instancePosOrnColor;
+	b3OpenCLArray<b3Vector4>* m_instancePosOrnColor;
 
 	class b3GpuRigidBodyPipeline* m_rigidBodyPipeline;
 
@@ -23,11 +22,11 @@ struct	GpuRigidBodyDemoInternalData
 	b3Vector3 m_pickPivotInB;
 	float m_pickDistance;
 	int m_pickBody;
-	int	m_pickConstraint;
+	int m_pickConstraint;
 
 	int m_altPressed;
 	int m_controlPressed;
-	
+
 	int m_pickFixedBody;
 	int m_pickGraphicsShapeIndex;
 	int m_pickGraphicsShapeInstance;
@@ -35,23 +34,23 @@ struct	GpuRigidBodyDemoInternalData
 	GUIHelperInterface* m_guiHelper;
 
 	GpuRigidBodyDemoInternalData()
-		:m_instancePosOrnColor(0),
-		m_copyTransformsToVBOKernel(0),	m_rigidBodyPipeline(0),
-		m_np(0),
-		m_bp(0),
-		m_broadphaseDbvt(0),
-		m_pickConstraint(-1),
-		m_pickFixedBody(-1),
-		m_pickGraphicsShapeIndex(-1),
-		m_pickGraphicsShapeInstance(-1),
-		m_pickBody(-1),
-		m_altPressed(0),
-		m_controlPressed(0),
-		m_guiHelper(0)
+		: m_instancePosOrnColor(0),
+		  m_copyTransformsToVBOKernel(0),
+		  m_rigidBodyPipeline(0),
+		  m_np(0),
+		  m_bp(0),
+		  m_broadphaseDbvt(0),
+		  m_pickConstraint(-1),
+		  m_pickFixedBody(-1),
+		  m_pickGraphicsShapeIndex(-1),
+		  m_pickGraphicsShapeInstance(-1),
+		  m_pickBody(-1),
+		  m_altPressed(0),
+		  m_controlPressed(0),
+		  m_guiHelper(0)
 
 	{
 	}
 };
 
-#endif//GPU_RIGIDBODY_INTERNAL_DATA_H
-
+#endif  //GPU_RIGIDBODY_INTERNAL_DATA_H

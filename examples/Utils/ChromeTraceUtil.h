@@ -6,4 +6,4 @@ void b3ChromeUtilsStartTimings();
 void b3ChromeUtilsStopTimingsAndWriteJsonFile(const char* fileNamePrefix);
 void b3ChromeUtilsEnableProfiling();
 
-#endif//B3_CHROME_TRACE_UTIL_H
+#endif  //B3_CHROME_TRACE_UTIL_H

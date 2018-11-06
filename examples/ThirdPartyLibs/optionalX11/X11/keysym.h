@@ -71,4 +71,3 @@ SOFTWARE.
 #define XK_SINHALA
 
 #include <X11/keysymdef.h>
-

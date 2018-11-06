@@ -17,17 +17,17 @@
 #include "../SharedMemory/SharedMemoryPublic.h"
 #include "Bullet3Common/b3Logging.h"
 
+#ifdef BT_ENABLE_GRPC
+#include "../SharedMemory/PhysicsClientGRPC_C_API.h"
+#endif
 
 b3RobotSimulatorClientAPI::b3RobotSimulatorClientAPI()
 {
-	
 }
 
 b3RobotSimulatorClientAPI::~b3RobotSimulatorClientAPI()
 {
 }
-
-
 
 void b3RobotSimulatorClientAPI::renderScene()
 {
@@ -51,11 +51,11 @@ void b3RobotSimulatorClientAPI::debugDraw(int debugDrawMode)
 	}
 	if (m_data->m_guiHelper)
 	{
-		b3InProcessDebugDrawInternal(m_data->m_physicsClientHandle,debugDrawMode);
+		b3InProcessDebugDrawInternal(m_data->m_physicsClientHandle, debugDrawMode);
 	}
 }
 
-bool	b3RobotSimulatorClientAPI::mouseMoveCallback(float x,float y)
+bool b3RobotSimulatorClientAPI::mouseMoveCallback(float x, float y)
 {
 	if (!isConnected())
 	{
@@ -64,11 +64,11 @@ bool	b3RobotSimulatorClientAPI::mouseMoveCallback(float x,float y)
 	}
 	if (m_data->m_guiHelper)
 	{
-		return b3InProcessMouseMoveCallback(m_data->m_physicsClientHandle, x,y)!=0;
+		return b3InProcessMouseMoveCallback(m_data->m_physicsClientHandle, x, y) != 0;
 	}
 	return false;
 }
-bool	b3RobotSimulatorClientAPI::mouseButtonCallback(int button, int state, float x, float y)
+bool b3RobotSimulatorClientAPI::mouseButtonCallback(int button, int state, float x, float y)
 {
 	if (!isConnected())
 	{
@@ -77,12 +77,10 @@ bool	b3RobotSimulatorClientAPI::mouseButtonCallback(int button, int state, float
 	}
 	if (m_data->m_guiHelper)
 	{
-		return b3InProcessMouseButtonCallback(m_data->m_physicsClientHandle, button,state,x,y)!=0;
+		return b3InProcessMouseButtonCallback(m_data->m_physicsClientHandle, button, state, x, y) != 0;
 	}
 	return false;
 }
-
-
 
 bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, int portOrKey)
 {
@@ -99,13 +97,13 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 
 	switch (mode)
 	{
-	case eCONNECT_EXISTING_EXAMPLE_BROWSER:
+		case eCONNECT_EXISTING_EXAMPLE_BROWSER:
 		{
 			sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(m_data->m_guiHelper);
 			break;
 		}
 
-	case eCONNECT_GUI:
+		case eCONNECT_GUI:
 		{
 			int argc = 0;
 			char* argv[1] = {0};
@@ -116,7 +114,7 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 #endif
 			break;
 		}
-	case eCONNECT_GUI_SERVER:
+		case eCONNECT_GUI_SERVER:
 		{
 			int argc = 0;
 			char* argv[1] = {0};
@@ -127,12 +125,12 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 #endif
 			break;
 		}
-	case eCONNECT_DIRECT:
+		case eCONNECT_DIRECT:
 		{
 			sm = b3ConnectPhysicsDirect();
 			break;
 		}
-	case eCONNECT_SHARED_MEMORY:
+		case eCONNECT_SHARED_MEMORY:
 		{
 			if (portOrKey >= 0)
 			{
@@ -141,7 +139,7 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 			sm = b3ConnectSharedMemory(key);
 			break;
 		}
-	case eCONNECT_UDP:
+		case eCONNECT_UDP:
 		{
 			if (portOrKey >= 0)
 			{
@@ -156,7 +154,7 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 
 			break;
 		}
-	case eCONNECT_TCP:
+		case eCONNECT_TCP:
 		{
 			if (portOrKey >= 0)
 			{
@@ -170,8 +168,16 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 #endif  //BT_ENABLE_CLSOCKET
 			break;
 		}
-
-	default:
+		case eCONNECT_GRPC:
+		{
+#ifdef BT_ENABLE_GRPC
+			sm = b3ConnectPhysicsGRPC(hostName.c_str(), tcpPort);
+#else
+			b3Warning("GRPC is not enabled in this pybullet build");
+#endif
+			break;
+		}
+		default:
 		{
 			b3Warning("connectPhysicsServer unexpected argument");
 		}

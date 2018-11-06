@@ -17,6 +17,4 @@ subject to the following restrictions:
 
 b3ThreadSupportInterface::~b3ThreadSupportInterface()
 {
-
 }
-

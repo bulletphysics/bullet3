@@ -5,10 +5,9 @@
 
 b3PhysicsClientHandle b3ConnectSharedMemory2(int key)
 {
-
 	SharedMemoryCommandProcessor* cmdProc = new SharedMemoryCommandProcessor();
 	cmdProc->setSharedMemoryKey(key);
-	PhysicsDirect* cl = new PhysicsDirect(cmdProc,true);
+	PhysicsDirect* cl = new PhysicsDirect(cmdProc, true);
 
 	cl->setSharedMemoryKey(key);
 
@@ -16,4 +15,3 @@ b3PhysicsClientHandle b3ConnectSharedMemory2(int key)
 
 	return (b3PhysicsClientHandle)cl;
 }
-

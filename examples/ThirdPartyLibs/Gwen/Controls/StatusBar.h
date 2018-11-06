@@ -5,32 +5,31 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/Controls/Base.h"
 
-namespace Gwen 
+namespace Gwen
 {
-	namespace Controls
+namespace Controls
+{
+class StatusBar : public Controls::Base
+{
+public:
+	GWEN_CONTROL_INLINE(StatusBar, Controls::Base)
 	{
-		class StatusBar : public Controls::Base
-		{
-			public:
-
-				GWEN_CONTROL_INLINE( StatusBar, Controls::Base )
-				{
-					SetBounds( 0, 0, 200, 22 );
-					Dock( Pos::Bottom );
-					SetPadding( Padding( 2, 2, 2, 2 ) );
-				}
-
-				virtual void AddControl( Controls::Base* pCtrl, bool bRight)
-				{
-					pCtrl->SetParent( this );
-					pCtrl->Dock( bRight ? Pos::Right : Pos::Left );
-				}
-
-				virtual void Render( Skin::Base* skin )
-				{
-					skin->DrawStatusBar( this );
-				}
-		};
+		SetBounds(0, 0, 200, 22);
+		Dock(Pos::Bottom);
+		SetPadding(Padding(2, 2, 2, 2));
 	}
-}
+
+	virtual void AddControl(Controls::Base* pCtrl, bool bRight)
+	{
+		pCtrl->SetParent(this);
+		pCtrl->Dock(bRight ? Pos::Right : Pos::Left);
+	}
+
+	virtual void Render(Skin::Base* skin)
+	{
+		skin->DrawStatusBar(this);
+	}
+};
+}  // namespace Controls
+}  // namespace Gwen
 #endif

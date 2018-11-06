@@ -3,12 +3,12 @@
 
 enum EnumTutorialTypes
 {
-	TUT_VELOCITY=0,
+	TUT_VELOCITY = 0,
 	TUT_ACCELERATION,
 	TUT_COLLISION,
 	TUT_SOLVE_CONTACT_CONSTRAINT,
 };
 
-class	CommonExampleInterface*    TutorialCreateFunc(struct CommonExampleOptions& options);
+class CommonExampleInterface* TutorialCreateFunc(struct CommonExampleOptions& options);
 
-#endif //TUTORIAL_H
+#endif  //TUTORIAL_H

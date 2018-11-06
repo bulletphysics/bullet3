@@ -12,10 +12,8 @@ public:
 	MinitaurSetup();
 	virtual ~MinitaurSetup();
 
-	int setupMinitaur(class b3RobotSimulatorClientAPI_NoGUI* sim, const class btVector3& startPos=btVector3(0,0,0), const class btQuaternion& startOrn = btQuaternion(0,0,0,1));
+	int setupMinitaur(class b3RobotSimulatorClientAPI_NoGUI* sim, const class btVector3& startPos = btVector3(0, 0, 0), const class btQuaternion& startOrn = btQuaternion(0, 0, 0, 1));
 
-	void setDesiredMotorAngle(class b3RobotSimulatorClientAPI_NoGUI* sim, const char* motorName, double desiredAngle, double maxTorque=3,double kp=0.1, double kd=0.9);
-
+	void setDesiredMotorAngle(class b3RobotSimulatorClientAPI_NoGUI* sim, const char* motorName, double desiredAngle, double maxTorque = 3, double kp = 0.1, double kd = 0.9);
 };
-#endif //MINITAUR_SIMULATION_SETUP_H
- 
+#endif  //MINITAUR_SIMULATION_SETUP_H

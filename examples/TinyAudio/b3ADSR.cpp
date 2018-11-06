@@ -4,7 +4,6 @@
 
 //! ADSR envelope states.
 
-
 enum
 {
 	ADSR_ATTACK,  /*!< Attack */
@@ -69,7 +68,6 @@ double b3ADSR::tick()
 					{
 						keyOff();
 					}
-
 				}
 			}
 			break;
@@ -96,7 +94,7 @@ void b3ADSR::keyOn(bool autoKeyOff)
 	m_autoKeyOff = autoKeyOff;
 	if (m_target <= 0.0)
 		m_target = 1.0;
-	if (m_attackRate==1)
+	if (m_attackRate == 1)
 	{
 		m_value = 1.0;
 	}
@@ -108,5 +106,4 @@ void b3ADSR::keyOff()
 	m_autoKeyOff = false;
 	m_target = 0.0;
 	m_state = ADSR_RELEASE;
-
 }

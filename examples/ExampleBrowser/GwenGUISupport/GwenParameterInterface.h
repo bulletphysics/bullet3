@@ -7,7 +7,7 @@ struct GwenParameterInterface : public CommonParameterInterface
 {
 	struct GwenInternalData* m_gwenInternalData;
 
-	struct GwenParameters*	m_paramInternalData;
+	struct GwenParameters* m_paramInternalData;
 
 	GwenParameterInterface(struct GwenInternalData* gwenInternalData);
 	virtual ~GwenParameterInterface();
@@ -15,12 +15,9 @@ struct GwenParameterInterface : public CommonParameterInterface
 	virtual void registerButtonParameter(ButtonParams& params);
 	virtual void registerComboBox(ComboBoxParams& params);
 
-    virtual void setSliderValue(int sliderIndex, double sliderValue);
+	virtual void setSliderValue(int sliderIndex, double sliderValue);
 	virtual void syncParameters();
 	virtual void removeAllParameters();
-	
-
-
 };
 
-#endif//GWEN_PARAMETER_INTERFACE_H
+#endif  //GWEN_PARAMETER_INTERFACE_H

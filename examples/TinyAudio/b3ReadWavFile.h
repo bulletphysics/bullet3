@@ -1,7 +1,6 @@
 #ifndef B3_READ_WAV_FILE_H
 #define B3_READ_WAV_FILE_H
 
-
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include <stdio.h>
 #include <string.h>
@@ -14,8 +13,6 @@ struct b3WavTicker
 	double rate_;
 };
 
-
-
 class b3ReadWavFile
 {
 	bool byteswap_;
@@ -27,8 +24,8 @@ class b3ReadWavFile
 	unsigned long dataOffset_;
 	unsigned int channels_;
 	bool m_machineIsLittleEndian;
-public:
 
+public:
 	b3ReadWavFile();
 	virtual ~b3ReadWavFile();
 
@@ -47,11 +44,10 @@ public:
 
 	bool read(unsigned long startFrame, bool doNormalize);
 
-	int getNumFrames() const 
+	int getNumFrames() const
 	{
 		return m_numFrames;
 	}
 };
-
 
 #endif  //B3_READ_WAV_FILE_H

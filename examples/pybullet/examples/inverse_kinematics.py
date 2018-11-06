@@ -48,6 +48,7 @@ p.setRealTimeSimulation(useRealTimeSimulation)
 trailDuration = 15
 	
 while 1:
+	p.getCameraImage(320,200, flags=p.ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX, renderer=p.ER_BULLET_HARDWARE_OPENGL)
 	if (useRealTimeSimulation):
 		dt = datetime.now()
 		t = (dt.second/60.)*2.*math.pi

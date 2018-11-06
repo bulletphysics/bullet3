@@ -9,14 +9,14 @@
 #define BulletTest_Test_v3triple_h
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C"
+{
 #endif
 
-int Test_v3triple(void);
+	int Test_v3triple(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-    
 #endif

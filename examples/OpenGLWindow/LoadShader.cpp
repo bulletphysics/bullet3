@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 // Load the shader from the source text
 void gltLoadShaderSrc(const char *szShaderSrc, GLuint shader)
 {
@@ -14,11 +13,9 @@ void gltLoadShaderSrc(const char *szShaderSrc, GLuint shader)
 	glShaderSource(shader, 1, (const GLchar **)fsStringPtr, NULL);
 }
 
-
 GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 {
-
-  assert(glGetError()==GL_NO_ERROR);
+	assert(glGetError() == GL_NO_ERROR);
 
 	// Temporary Shader objects
 	GLuint hVertexShader;
@@ -35,45 +32,42 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 
 	// Compile them
 	glCompileShader(hVertexShader);
-  assert(glGetError()==GL_NO_ERROR);
+	assert(glGetError() == GL_NO_ERROR);
 
 	glGetShaderiv(hVertexShader, GL_COMPILE_STATUS, &testVal);
-	if(testVal == GL_FALSE)
+	if (testVal == GL_FALSE)
 	{
-        char temp[256] = "";
-        glGetShaderInfoLog( hVertexShader, 256, NULL, temp);
-        fprintf( stderr, "Compile failed:\n%s\n", temp);
-        assert(0);
-        return 0;
+		char temp[256] = "";
+		glGetShaderInfoLog(hVertexShader, 256, NULL, temp);
+		fprintf(stderr, "Compile failed:\n%s\n", temp);
+		assert(0);
+		return 0;
 		glDeleteShader(hVertexShader);
 		glDeleteShader(hFragmentShader);
 		return (GLuint)NULL;
 	}
 
-  assert(glGetError()==GL_NO_ERROR);
+	assert(glGetError() == GL_NO_ERROR);
 
-    glCompileShader(hFragmentShader);
-    assert(glGetError()==GL_NO_ERROR);
+	glCompileShader(hFragmentShader);
+	assert(glGetError() == GL_NO_ERROR);
 
-    glGetShaderiv(hFragmentShader, GL_COMPILE_STATUS, &testVal);
-	if(testVal == GL_FALSE)
+	glGetShaderiv(hFragmentShader, GL_COMPILE_STATUS, &testVal);
+	if (testVal == GL_FALSE)
 	{
-        char temp[256] = "";
-        glGetShaderInfoLog( hFragmentShader, 256, NULL, temp);
-        fprintf( stderr, "Compile failed:\n%s\n", temp);
-        assert(0);
-        exit(EXIT_FAILURE);
+		char temp[256] = "";
+		glGetShaderInfoLog(hFragmentShader, 256, NULL, temp);
+		fprintf(stderr, "Compile failed:\n%s\n", temp);
+		assert(0);
+		exit(EXIT_FAILURE);
 		glDeleteShader(hVertexShader);
 		glDeleteShader(hFragmentShader);
 		return (GLuint)NULL;
 	}
 
-    assert(glGetError()==GL_NO_ERROR);
+	assert(glGetError() == GL_NO_ERROR);
 
 	// Check for errors
-
-
-
 
 	// Link them - assuming it works...
 	hReturn = glCreateProgram();
@@ -88,24 +82,22 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 
 	// Make sure link worked too
 	glGetProgramiv(hReturn, GL_LINK_STATUS, &testVal);
-	if(testVal == GL_FALSE)
+	if (testVal == GL_FALSE)
 	{
 		GLsizei maxLen = 4096;
 		GLchar infoLog[4096];
 		GLsizei actualLen;
 
-		glGetProgramInfoLog(	hReturn,
-								maxLen,
-								 &actualLen,
-								 infoLog);
+		glGetProgramInfoLog(hReturn,
+							maxLen,
+							&actualLen,
+							infoLog);
 
 		printf("Warning/Error in GLSL shader:\n");
-		printf("%s\n",infoLog);
+		printf("%s\n", infoLog);
 		glDeleteProgram(hReturn);
 		return (GLuint)NULL;
 	}
 
 	return hReturn;
 }
-
-

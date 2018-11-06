@@ -117,7 +117,7 @@ void SerialChains::initPhysics()
 	m_dynamicsWorld = world;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
-	m_dynamicsWorld->getSolverInfo().m_globalCfm = btScalar(1e-4); //todo: what value is good?
+	m_dynamicsWorld->getSolverInfo().m_globalCfm = btScalar(1e-4);  //todo: what value is good?
 
 	///create a few basic rigid bodies
 	btVector3 groundHalfExtents(50, 50, 50);

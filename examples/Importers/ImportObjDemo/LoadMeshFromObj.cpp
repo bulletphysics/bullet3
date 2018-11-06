@@ -1,7 +1,7 @@
 #include "LoadMeshFromObj.h"
 
 #include "../../OpenGLWindow/GLInstanceGraphicsShape.h"
-#include <stdio.h> //fopen
+#include <stdio.h>  //fopen
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include <string>
 #include <vector>
@@ -23,18 +23,19 @@ int b3IsFileCachingEnabled()
 }
 void b3EnableFileCaching(int enable)
 {
-	gEnableFileCaching  = enable;
-	if (enable==0)
+	gEnableFileCaching = enable;
+	if (enable == 0)
 	{
 		gCachedObjResults.clear();
 	}
 }
 
-
 std::string LoadFromCachedOrFromObj(
-    std::vector<tinyobj::shape_t>& shapes,   // [output]
-    const char* filename,
-    const char* mtl_basepath)
+	std::vector<tinyobj::shape_t>& shapes,  // [output]
+	const char* filename,
+	const char* mtl_basepath,
+	struct CommonFileIOInterface* fileIO
+	)
 {
 	CachedObjResult* resultPtr = gCachedObjResults[filename];
 	if (resultPtr)
@@ -44,25 +45,24 @@ std::string LoadFromCachedOrFromObj(
 		return result.m_msg;
 	}
 
-	std::string err = tinyobj::LoadObj(shapes, filename, mtl_basepath);
+	std::string err = tinyobj::LoadObj(shapes, filename, mtl_basepath,fileIO);
 	CachedObjResult result;
 	result.m_msg = err;
 	result.m_shapes = shapes;
 	if (gEnableFileCaching)
 	{
-		gCachedObjResults.insert(filename,result);
+		gCachedObjResults.insert(filename, result);
 	}
 	return err;
 }
 
-
-GLInstanceGraphicsShape* LoadMeshFromObj(const char* relativeFileName, const char* materialPrefixPath)
+GLInstanceGraphicsShape* LoadMeshFromObj(const char* relativeFileName, const char* materialPrefixPath, struct CommonFileIOInterface* fileIO)
 {
 	B3_PROFILE("LoadMeshFromObj");
 	std::vector<tinyobj::shape_t> shapes;
 	{
 		B3_PROFILE("tinyobj::LoadObj2");
-		std::string  err  = LoadFromCachedOrFromObj(shapes, relativeFileName, materialPrefixPath);
+		std::string err = LoadFromCachedOrFromObj(shapes, relativeFileName, materialPrefixPath,fileIO);
 	}
 
 	{

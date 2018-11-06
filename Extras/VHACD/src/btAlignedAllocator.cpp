@@ -17,16 +17,16 @@ subject to the following restrictions:
 
 int gNumAlignedAllocs = 0;
 int gNumAlignedFree = 0;
-int gTotalBytesAlignedAllocs = 0; //detect memory leaks
+int gTotalBytesAlignedAllocs = 0;  //detect memory leaks
 
 static void* btAllocDefault(size_t size)
 {
-    return malloc(size);
+	return malloc(size);
 }
 
 static void btFreeDefault(void* ptr)
 {
-    free(ptr);
+	free(ptr);
 }
 
 static btAllocFunc* sAllocFunc = btAllocDefault;
@@ -36,52 +36,55 @@ static btFreeFunc* sFreeFunc = btFreeDefault;
 #include <malloc.h>
 static void* btAlignedAllocDefault(size_t size, int alignment)
 {
-    return _aligned_malloc(size, (size_t)alignment);
+	return _aligned_malloc(size, (size_t)alignment);
 }
 
 static void btAlignedFreeDefault(void* ptr)
 {
-    _aligned_free(ptr);
+	_aligned_free(ptr);
 }
 #elif defined(__CELLOS_LV2__)
 #include <stdlib.h>
 
 static inline void* btAlignedAllocDefault(size_t size, int alignment)
 {
-    return memalign(alignment, size);
+	return memalign(alignment, size);
 }
 
 static inline void btAlignedFreeDefault(void* ptr)
 {
-    free(ptr);
+	free(ptr);
 }
 #else
 static inline void* btAlignedAllocDefault(size_t size, int alignment)
 {
-    void* ret;
-    char* real;
-    unsigned long offset;
+	void* ret;
+	char* real;
+	unsigned long offset;
 
-    real = (char*)sAllocFunc(size + sizeof(void*) + (alignment - 1));
-    if (real) {
-        offset = (alignment - (unsigned long)(real + sizeof(void*))) & (alignment - 1);
-        ret = (void*)((real + sizeof(void*)) + offset);
-        *((void**)(ret)-1) = (void*)(real);
-    }
-    else {
-        ret = (void*)(real);
-    }
-    return (ret);
+	real = (char*)sAllocFunc(size + sizeof(void*) + (alignment - 1));
+	if (real)
+	{
+		offset = (alignment - (unsigned long)(real + sizeof(void*))) & (alignment - 1);
+		ret = (void*)((real + sizeof(void*)) + offset);
+		*((void**)(ret)-1) = (void*)(real);
+	}
+	else
+	{
+		ret = (void*)(real);
+	}
+	return (ret);
 }
 
 static inline void btAlignedFreeDefault(void* ptr)
 {
-    void* real;
+	void* real;
 
-    if (ptr) {
-        real = *((void**)(ptr)-1);
-        sFreeFunc(real);
-    }
+	if (ptr)
+	{
+		real = *((void**)(ptr)-1);
+		sFreeFunc(real);
+	}
 }
 #endif
 
@@ -90,14 +93,14 @@ static btAlignedFreeFunc* sAlignedFreeFunc = btAlignedFreeDefault;
 
 void btAlignedAllocSetCustomAligned(btAlignedAllocFunc* allocFunc, btAlignedFreeFunc* freeFunc)
 {
-    sAlignedAllocFunc = allocFunc ? allocFunc : btAlignedAllocDefault;
-    sAlignedFreeFunc = freeFunc ? freeFunc : btAlignedFreeDefault;
+	sAlignedAllocFunc = allocFunc ? allocFunc : btAlignedAllocDefault;
+	sAlignedFreeFunc = freeFunc ? freeFunc : btAlignedFreeDefault;
 }
 
 void btAlignedAllocSetCustom(btAllocFunc* allocFunc, btFreeFunc* freeFunc)
 {
-    sAllocFunc = allocFunc ? allocFunc : btAllocDefault;
-    sFreeFunc = freeFunc ? freeFunc : btFreeDefault;
+	sAllocFunc = allocFunc ? allocFunc : btAllocDefault;
+	sFreeFunc = freeFunc ? freeFunc : btFreeDefault;
 }
 
 #ifdef BT_DEBUG_MEMORY_ALLOCATIONS
@@ -106,71 +109,75 @@ void btAlignedAllocSetCustom(btAllocFunc* allocFunc, btFreeFunc* freeFunc)
 
 void* btAlignedAllocInternal(size_t size, int alignment, int line, char* filename)
 {
-    void* ret;
-    char* real;
-    unsigned long offset;
+	void* ret;
+	char* real;
+	unsigned long offset;
 
-    gTotalBytesAlignedAllocs += size;
-    gNumAlignedAllocs++;
+	gTotalBytesAlignedAllocs += size;
+	gNumAlignedAllocs++;
 
-    real = (char*)sAllocFunc(size + 2 * sizeof(void*) + (alignment - 1));
-    if (real) {
-        offset = (alignment - (unsigned long)(real + 2 * sizeof(void*))) & (alignment - 1);
-        ret = (void*)((real + 2 * sizeof(void*)) + offset);
-        *((void**)(ret)-1) = (void*)(real);
-        *((int*)(ret)-2) = size;
-    }
-    else {
-        ret = (void*)(real); //??
-    }
+	real = (char*)sAllocFunc(size + 2 * sizeof(void*) + (alignment - 1));
+	if (real)
+	{
+		offset = (alignment - (unsigned long)(real + 2 * sizeof(void*))) & (alignment - 1);
+		ret = (void*)((real + 2 * sizeof(void*)) + offset);
+		*((void**)(ret)-1) = (void*)(real);
+		*((int*)(ret)-2) = size;
+	}
+	else
+	{
+		ret = (void*)(real);  //??
+	}
 
-    printf("allocation#%d at address %x, from %s,line %d, size %d\n", gNumAlignedAllocs, real, filename, line, size);
+	printf("allocation#%d at address %x, from %s,line %d, size %d\n", gNumAlignedAllocs, real, filename, line, size);
 
-    int* ptr = (int*)ret;
-    *ptr = 12;
-    return (ret);
+	int* ptr = (int*)ret;
+	*ptr = 12;
+	return (ret);
 }
 
 void btAlignedFreeInternal(void* ptr, int line, char* filename)
 {
+	void* real;
+	gNumAlignedFree++;
 
-    void* real;
-    gNumAlignedFree++;
+	if (ptr)
+	{
+		real = *((void**)(ptr)-1);
+		int size = *((int*)(ptr)-2);
+		gTotalBytesAlignedAllocs -= size;
 
-    if (ptr) {
-        real = *((void**)(ptr)-1);
-        int size = *((int*)(ptr)-2);
-        gTotalBytesAlignedAllocs -= size;
+		printf("free #%d at address %x, from %s,line %d, size %d\n", gNumAlignedFree, real, filename, line, size);
 
-        printf("free #%d at address %x, from %s,line %d, size %d\n", gNumAlignedFree, real, filename, line, size);
-
-        sFreeFunc(real);
-    }
-    else {
-        printf("NULL ptr\n");
-    }
+		sFreeFunc(real);
+	}
+	else
+	{
+		printf("NULL ptr\n");
+	}
 }
 
-#else //BT_DEBUG_MEMORY_ALLOCATIONS
+#else  //BT_DEBUG_MEMORY_ALLOCATIONS
 
 void* btAlignedAllocInternal(size_t size, int alignment)
 {
-    gNumAlignedAllocs++;
-    void* ptr;
-    ptr = sAlignedAllocFunc(size, alignment);
-    //	printf("btAlignedAllocInternal %d, %x\n",size,ptr);
-    return ptr;
+	gNumAlignedAllocs++;
+	void* ptr;
+	ptr = sAlignedAllocFunc(size, alignment);
+	//	printf("btAlignedAllocInternal %d, %x\n",size,ptr);
+	return ptr;
 }
 
 void btAlignedFreeInternal(void* ptr)
 {
-    if (!ptr) {
-        return;
-    }
+	if (!ptr)
+	{
+		return;
+	}
 
-    gNumAlignedFree++;
-    //	printf("btAlignedFreeInternal %x\n",ptr);
-    sAlignedFreeFunc(ptr);
+	gNumAlignedFree++;
+	//	printf("btAlignedFreeInternal %x\n",ptr);
+	sAlignedFreeFunc(ptr);
 }
 
-#endif //BT_DEBUG_MEMORY_ALLOCATIONS
+#endif  //BT_DEBUG_MEMORY_ALLOCATIONS

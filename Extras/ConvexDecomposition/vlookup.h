@@ -2,7 +2,6 @@
 
 #define VLOOKUP_H
 
-
 /*----------------------------------------------------------------------
 		Copyright (c) 2004 Open Dynamics Framework Group
 					www.physicstools.org
@@ -36,7 +35,6 @@
 //
 // http://www.amillionpixels.us
 //
-
 
 // CodeSnippet provided by John W. Ratcliff
 // on March 23, 2006.
@@ -105,15 +103,13 @@
 // Uses an STL set to create an index table for a bunch of vertex positions
 // used typically to re-index a collection of raw triangle data.
 
+typedef void *VertexLookup;
 
-typedef void * VertexLookup;
+VertexLookup Vl_createVertexLookup(void);
+void Vl_releaseVertexLookup(VertexLookup vlook);
 
-VertexLookup  Vl_createVertexLookup(void);
-void          Vl_releaseVertexLookup(VertexLookup vlook);
-
-unsigned int  Vl_getIndex(VertexLookup vlook,const float *pos);  // get index.
-const float * Vl_getVertices(VertexLookup vlook);
-unsigned int  Vl_getVcount(VertexLookup vlook);
-
+unsigned int Vl_getIndex(VertexLookup vlook, const float *pos);  // get index.
+const float *Vl_getVertices(VertexLookup vlook);
+unsigned int Vl_getVcount(VertexLookup vlook);
 
 #endif

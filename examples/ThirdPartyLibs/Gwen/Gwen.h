@@ -32,44 +32,42 @@ subject to the following restrictions:
 
 namespace Gwen
 {
-	namespace Controls
-	{
-		class Base;
-		class Canvas;
-	}
+namespace Controls
+{
+class Base;
+class Canvas;
+}  // namespace Controls
 
-	namespace Renderer
-	{
-		class Base;
-	}
+namespace Renderer
+{
+class Base;
+}
 
-	namespace Debug 
-	{
-		void GWEN_EXPORT Msg( const wchar_t* str, ... );
-		void GWEN_EXPORT Msg( const char* str, ... );
-		void GWEN_EXPORT AssertCheck( bool b, const char* strMsg );
-	}
+namespace Debug
+{
+void GWEN_EXPORT Msg(const wchar_t* str, ...);
+void GWEN_EXPORT Msg(const char* str, ...);
+void GWEN_EXPORT AssertCheck(bool b, const char* strMsg);
+}  // namespace Debug
 
+namespace Colors
+{
+static const Color Black(0, 0, 0, 255);
+static const Color Red(255, 0, 0, 255);
+static const Color Yellow(255, 255, 0, 255);
+static const Color White(255, 255, 255, 255);
+static const Color Blue(0, 0, 255, 255);
+static const Color Green(0, 255, 0, 255);
+static const Color Grey(200, 200, 200, 255);
+static const Color GreyLight(230, 230, 230, 255);
+static const Color GwenPink(255, 65, 199, 255);
 
-	namespace Colors
-	{
-		static const Color Black	( 0, 0, 0, 255 );
-		static const Color Red		( 255, 0, 0, 255 );
-		static const Color Yellow	( 255, 255, 0, 255 );
-		static const Color White	( 255, 255, 255, 255 );
-		static const Color Blue		( 0, 0, 255, 255 );
-		static const Color Green	( 0, 255, 0, 255 );
-		static const Color Grey		( 200, 200, 200, 255 );
-		static const Color GreyLight( 230, 230, 230, 255 );
-		static const Color GwenPink	( 255, 65, 199, 255 );
-		
-		
-	};
+};  // namespace Colors
 
-	extern GWEN_EXPORT Controls::Base*	HoveredControl;
-	extern GWEN_EXPORT Controls::Base*	KeyboardFocus;
-	extern GWEN_EXPORT Controls::Base*	MouseFocus;
+extern GWEN_EXPORT Controls::Base* HoveredControl;
+extern GWEN_EXPORT Controls::Base* KeyboardFocus;
+extern GWEN_EXPORT Controls::Base* MouseFocus;
 
-} //namespace Gwen
+}  //namespace Gwen
 
 #endif

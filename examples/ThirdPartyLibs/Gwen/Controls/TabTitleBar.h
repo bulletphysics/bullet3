@@ -14,43 +14,41 @@
 #include "Gwen/DragAndDrop.h"
 #include "Gwen/Skin.h"
 
-namespace Gwen 
+namespace Gwen
 {
-	namespace Controls
+namespace Controls
+{
+class GWEN_EXPORT TabTitleBar : public Label
+{
+public:
+	GWEN_CONTROL_INLINE(TabTitleBar, Label)
 	{
-		class GWEN_EXPORT TabTitleBar : public Label
-		{
-			public:
+		SetMouseInputEnabled(true);
+		SetTextPadding(Gwen::Padding(5, 2, 5, 2));
+		SetPadding(Gwen::Padding(1, 2, 1, 2));
 
-				GWEN_CONTROL_INLINE( TabTitleBar, Label )
-				{
-					SetMouseInputEnabled( true );
-					SetTextPadding( Gwen::Padding( 5, 2, 5, 2 ) );
-					SetPadding( Gwen::Padding( 1, 2, 1, 2 ) );
-
-					DragAndDrop_SetPackage( true, "TabWindowMove" );
-				}
-
-				void Render( Skin::Base* skin )
-				{
-					skin->DrawTabTitleBar( this );
-				}
-
-				void DragAndDrop_StartDragging( Gwen::DragAndDrop::Package* pPackage, int x, int y )
-				{
-					DragAndDrop::SourceControl = GetParent();
-					DragAndDrop::SourceControl->DragAndDrop_StartDragging( pPackage, x, y );
-				}
-
-				void UpdateFromTab( TabButton* pButton )
-				{
-					SetText( pButton->GetText() );
-					SizeToContents();
-				}
-
-			private:
-
-		};
+		DragAndDrop_SetPackage(true, "TabWindowMove");
 	}
-}
+
+	void Render(Skin::Base* skin)
+	{
+		skin->DrawTabTitleBar(this);
+	}
+
+	void DragAndDrop_StartDragging(Gwen::DragAndDrop::Package* pPackage, int x, int y)
+	{
+		DragAndDrop::SourceControl = GetParent();
+		DragAndDrop::SourceControl->DragAndDrop_StartDragging(pPackage, x, y);
+	}
+
+	void UpdateFromTab(TabButton* pButton)
+	{
+		SetText(pButton->GetText());
+		SizeToContents();
+	}
+
+private:
+};
+}  // namespace Controls
+}  // namespace Gwen
 #endif

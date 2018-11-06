@@ -15,53 +15,54 @@
 #pragma once
 #ifndef HACD_VECTOR_H
 #define HACD_VECTOR_H
-#include<math.h>
-#include<iostream>
+#include <math.h>
+#include <iostream>
 #include "hacdVersion.h"
 
 namespace HACD
 {
-    typedef double Real;
-	//!	Vector dim 3.
-	template < typename T > class Vec3
-	{
-	public:
-		T &					X();
-		T &					Y();
-		T &					Z();
-		const T	&			X() const;
-		const T	&			Y() const;
-		const T	&			Z() const;
-		void				Normalize();
-		T					GetNorm() const;
-		void				operator= (const Vec3 & rhs);
-		void				operator+=(const Vec3 & rhs);
-		void				operator-=(const Vec3 & rhs);
-		void				operator-=(T a);
-		void				operator+=(T a);
-		void				operator/=(T a);
-		void				operator*=(T a);
-		Vec3				operator^ (const Vec3 & rhs) const;
-		T			    	operator* (const Vec3 & rhs) const;
-		Vec3				operator+ (const Vec3 & rhs) const;
-		Vec3				operator- (const Vec3 & rhs) const;
-		Vec3				operator- () const;
-		Vec3				operator* (T rhs) const;
-		Vec3				operator/ (T rhs) const;
-							Vec3();
-							Vec3(T a);
-							Vec3(T x, T y, T z);
-							Vec3(const Vec3 & rhs);
-		/*virtual*/			~Vec3(void);
+typedef double Real;
+//!	Vector dim 3.
+template <typename T>
+class Vec3
+{
+public:
+	T& X();
+	T& Y();
+	T& Z();
+	const T& X() const;
+	const T& Y() const;
+	const T& Z() const;
+	void Normalize();
+	T GetNorm() const;
+	void operator=(const Vec3& rhs);
+	void operator+=(const Vec3& rhs);
+	void operator-=(const Vec3& rhs);
+	void operator-=(T a);
+	void operator+=(T a);
+	void operator/=(T a);
+	void operator*=(T a);
+	Vec3 operator^(const Vec3& rhs) const;
+	T operator*(const Vec3& rhs) const;
+	Vec3 operator+(const Vec3& rhs) const;
+	Vec3 operator-(const Vec3& rhs) const;
+	Vec3 operator-() const;
+	Vec3 operator*(T rhs) const;
+	Vec3 operator/(T rhs) const;
+	Vec3();
+	Vec3(T a);
+	Vec3(T x, T y, T z);
+	Vec3(const Vec3& rhs);
+	/*virtual*/ ~Vec3(void);
 
-	private:
-		T					m_data[3];
-	};
-    template<typename T>
-    bool Colinear(const Vec3<T> & a, const Vec3<T> & b, const Vec3<T> & c);
-    template<typename T>
-    const T Volume(const Vec3<T> & a, const Vec3<T> & b, const Vec3<T> & c, const Vec3<T> & d);
-    
-}
-#include "hacdVector.inl"	// template implementation
+private:
+	T m_data[3];
+};
+template <typename T>
+bool Colinear(const Vec3<T>& a, const Vec3<T>& b, const Vec3<T>& c);
+template <typename T>
+const T Volume(const Vec3<T>& a, const Vec3<T>& b, const Vec3<T>& c, const Vec3<T>& d);
+
+}  // namespace HACD
+#include "hacdVector.inl"  // template implementation
 #endif

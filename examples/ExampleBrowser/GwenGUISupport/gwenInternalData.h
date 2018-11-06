@@ -28,37 +28,34 @@
 //#include "Gwen/Skins/TexturedBase.h"
 #include "gwenUserInterface.h"
 
-
 struct GwenInternalData
 {
 	//struct sth_stash;
 	//class GwenOpenGL3CoreRenderer*	pRenderer;
-	Gwen::Renderer::Base*			pRenderer;
-	Gwen::Skin::Simple				skin;
-	Gwen::Controls::Canvas*			pCanvas;
+	Gwen::Renderer::Base* pRenderer;
+	Gwen::Skin::Simple skin;
+	Gwen::Controls::Canvas* pCanvas;
 	//GLPrimitiveRenderer* m_primRenderer;
-	Gwen::Controls::TabButton*		m_demoPage;
-	Gwen::Controls::TabButton*		m_explorerPage;
-	Gwen::Controls::TreeControl*	m_explorerTreeCtrl;
-	Gwen::Controls::MenuItem*		m_viewMenu;
-    class MyMenuItems*                    m_menuItems;
-	Gwen::Controls::ListBox*		m_TextOutput;
-	Gwen::Controls::Label*		m_exampleInfoGroupBox;
-	Gwen::Controls::ListBox*			m_exampleInfoTextOutput;
-	struct MyTestMenuBar*		m_menubar;
+	Gwen::Controls::TabButton* m_demoPage;
+	Gwen::Controls::TabButton* m_explorerPage;
+	Gwen::Controls::TreeControl* m_explorerTreeCtrl;
+	Gwen::Controls::MenuItem* m_viewMenu;
+	class MyMenuItems* m_menuItems;
+	Gwen::Controls::ListBox* m_TextOutput;
+	Gwen::Controls::Label* m_exampleInfoGroupBox;
+	Gwen::Controls::ListBox* m_exampleInfoTextOutput;
+	struct MyTestMenuBar* m_menubar;
 	Gwen::Controls::StatusBar* m_bar;
 	Gwen::Controls::ScrollControl* m_windowRight;
 	Gwen::Controls::TabControl* m_tab;
 
-	int		m_curYposition;
+	int m_curYposition;
 
 	Gwen::Controls::Label* m_rightStatusBar;
 	Gwen::Controls::Label* m_leftStatusBar;
-	b3AlignedObjectArray<class Gwen::Event::Handler*>	m_handlers;
-	b3ToggleButtonCallback			m_toggleButtonCallback;
-	b3ComboBoxCallback				m_comboBoxCallback;
-	
-
+	b3AlignedObjectArray<class Gwen::Event::Handler*> m_handlers;
+	b3ToggleButtonCallback m_toggleButtonCallback;
+	b3ComboBoxCallback m_comboBoxCallback;
 };
 
-#endif//GWEN_INTERNAL_DATA_H
+#endif  //GWEN_INTERNAL_DATA_H

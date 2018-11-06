@@ -18,11 +18,8 @@ while (1):
 #include "../b3PluginContext.h"
 #include <stdio.h>
 
-
-
 struct MyRendererPluginClass
 {
-	
 	TinyRendererVisualShapeConverter m_renderer;
 	MyRendererPluginClass()
 	{
@@ -39,16 +36,14 @@ B3_SHARED_API int initPlugin_tinyRendererPlugin(struct b3PluginContext* context)
 	return SHARED_MEMORY_MAGIC_NUMBER;
 }
 
-
 B3_SHARED_API int executePluginCommand_tinyRendererPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
 {
-		return -1;
+	return -1;
 }
-
 
 B3_SHARED_API void exitPlugin_tinyRendererPlugin(struct b3PluginContext* context)
 {
-	MyRendererPluginClass* obj = (MyRendererPluginClass*) context->m_userPointer;
+	MyRendererPluginClass* obj = (MyRendererPluginClass*)context->m_userPointer;
 	delete obj;
 	context->m_userPointer = 0;
 }
@@ -56,7 +51,6 @@ B3_SHARED_API void exitPlugin_tinyRendererPlugin(struct b3PluginContext* context
 //all the APIs below are optional
 B3_SHARED_API struct UrdfRenderingInterface* getRenderInterface_tinyRendererPlugin(struct b3PluginContext* context)
 {
-	MyRendererPluginClass* obj = (MyRendererPluginClass*) context->m_userPointer;
+	MyRendererPluginClass* obj = (MyRendererPluginClass*)context->m_userPointer;
 	return &obj->m_renderer;
 }
-

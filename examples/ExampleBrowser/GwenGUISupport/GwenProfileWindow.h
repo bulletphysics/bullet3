@@ -8,6 +8,4 @@ bool isProfileWindowVisible(MyProfileWindow* window);
 
 void destroyProfileWindow(MyProfileWindow* window);
 
-#endif//GWEN_PROFILE_WINDOW_H
-
-
+#endif  //GWEN_PROFILE_WINDOW_H

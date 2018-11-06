@@ -15,7 +15,6 @@ subject to the following restrictions:
 //original author: Erwin Coumans
 */
 
-
 #ifndef LOAD_MESH_FROM_COLLADA_H
 #define LOAD_MESH_FROM_COLLADA_H
 
@@ -24,22 +23,21 @@ subject to the following restrictions:
 #include "../../OpenGLWindow/GLInstanceGraphicsShape.h"
 #include "ColladaGraphicsInstance.h"
 
-
 void LoadMeshFromCollada(const char* relativeFileName,
-						btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, 
-						btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,
-						btTransform& upAxisTrans,
-						float& unitMeterScaling,
-						 int clientUpAxis);
+						 btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes,
+						 btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,
+						 btTransform& upAxisTrans,
+						 float& unitMeterScaling,
+						 int clientUpAxis,
+						 struct CommonFileIOInterface* fileIO);
 
 //#define COMPARE_WITH_ASSIMP
 #ifdef COMPARE_WITH_ASSIMP
-void LoadMeshFromColladaAssimp(const char* relativeFileName, 
-						btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, 
-						btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,
-						btTransform& upAxisTrans,
-						float& unitMeterScaling
-						);
-#endif //COMPARE_WITH_ASSIMP
+void LoadMeshFromColladaAssimp(const char* relativeFileName,
+							   btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes,
+							   btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,
+							   btTransform& upAxisTrans,
+							   float& unitMeterScaling);
+#endif  //COMPARE_WITH_ASSIMP
 
-#endif //LOAD_MESH_FROM_COLLADA_H
+#endif  //LOAD_MESH_FROM_COLLADA_H

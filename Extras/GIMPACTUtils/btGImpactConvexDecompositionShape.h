@@ -24,32 +24,28 @@ subject to the following restrictions:
 #ifndef GIMPACT_CONVEX_DECOMPOSITION_SHAPE_H
 #define GIMPACT_CONVEX_DECOMPOSITION_SHAPE_H
 
-
-#include "BulletCollision/Gimpact/btGImpactShape.h" // box tree class
-
-
+#include "BulletCollision/Gimpact/btGImpactShape.h"  // box tree class
 
 //! This class creates a decomposition from a trimesh.
 /*!
 
 */
-class btGImpactConvexDecompositionShape	: public btGImpactCompoundShape
+class btGImpactConvexDecompositionShape : public btGImpactCompoundShape
 {
 protected:
 	btAlignedObjectArray<btGImpactMeshShapePart::TrimeshPrimitiveManager> m_trimeshInterfaces;
 
-	class GIM_ConvexDecomposition*	m_decomposition;
+	class GIM_ConvexDecomposition* m_decomposition;
 
 	void buildConvexDecomposition(bool transformSubShapes);
+
 public:
-
 	btGImpactConvexDecompositionShape(
-			btStridingMeshInterface * meshInterface,
-			const btVector3 & mesh_scale,
-			btScalar margin = btScalar(0.01),bool children_has_transform = true)
-			:btGImpactCompoundShape(children_has_transform)
+		btStridingMeshInterface* meshInterface,
+		const btVector3& mesh_scale,
+		btScalar margin = btScalar(0.01), bool children_has_transform = true)
+		: btGImpactCompoundShape(children_has_transform)
 	{
-
 		m_collisionMargin = margin;
 
 		btGImpactMeshShapePart::TrimeshPrimitiveManager triInterface;
@@ -59,7 +55,7 @@ public:
 
 		//add parts
 		int part_count = meshInterface->getNumSubParts();
-		for (int i=0;i< part_count;i++ )
+		for (int i = 0; i < part_count; i++)
 		{
 			triInterface.m_part = i;
 			m_trimeshInterfaces.push_back(triInterface);
@@ -72,16 +68,12 @@ public:
 
 	virtual ~btGImpactConvexDecompositionShape();
 
-	SIMD_FORCE_INLINE btGImpactMeshShapePart::TrimeshPrimitiveManager * getTrimeshInterface(int part)
+	SIMD_FORCE_INLINE btGImpactMeshShapePart::TrimeshPrimitiveManager* getTrimeshInterface(int part)
 	{
 		return &m_trimeshInterfaces[part];
 	}
 
-	virtual void processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const;
-
+	virtual void processAllTriangles(btTriangleCallback* callback, const btVector3& aabbMin, const btVector3& aabbMax) const;
 };
 
-
-
-
-#endif //GIMPACT_MESH_SHAPE_H
+#endif  //GIMPACT_MESH_SHAPE_H

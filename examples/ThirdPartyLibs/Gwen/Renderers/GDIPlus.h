@@ -10,7 +10,6 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/BaseRender.h"
 
-
 /*
 
  GDI(plus) is pretty slow for rendering GWEN, because we're
@@ -26,70 +25,64 @@
 
 */
 
-namespace Gwen 
+namespace Gwen
 {
-	namespace Renderer 
-	{
+namespace Renderer
+{
+class GDIPlus : public Gwen::Renderer::Base
+{
+public:
+	GDIPlus(HWND pHWND);
+	~GDIPlus();
 
-		class GDIPlus : public Gwen::Renderer::Base
-		{
-			public:
+	virtual void Begin();
+	virtual void End();
 
-				GDIPlus( HWND pHWND );
-				~GDIPlus();
+	virtual void SetDrawColor(Gwen::Color color);
 
-				virtual void Begin();
-				virtual void End();
+	virtual void DrawLine(int x, int y, int a, int b);
+	virtual void DrawFilledRect(Gwen::Rect rect);
 
-				virtual void SetDrawColor(Gwen::Color color);
+	virtual void LoadFont(Gwen::Font* pFont);
+	virtual void FreeFont(Gwen::Font* pFont);
+	virtual void RenderText(Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text);
+	virtual Gwen::Point MeasureText(Gwen::Font* pFont, const Gwen::UnicodeString& text);
 
-				virtual void DrawLine( int x, int y, int a, int b );
-				virtual void DrawFilledRect( Gwen::Rect rect );
+	void StartClip();
+	void EndClip();
 
-				virtual void LoadFont( Gwen::Font* pFont );
-				virtual void FreeFont( Gwen::Font* pFont );
-				virtual void RenderText( Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text );
-				virtual Gwen::Point MeasureText( Gwen::Font* pFont, const Gwen::UnicodeString& text );
+	void DrawTexturedRect(Gwen::Texture* pTexture, Gwen::Rect pTargetRect, float u1 = 0.0f, float v1 = 0.0f, float u2 = 1.0f, float v2 = 1.0f);
+	void LoadTexture(Gwen::Texture* pTexture);
+	void FreeTexture(Gwen::Texture* pTexture);
 
-				void StartClip();
-				void EndClip();
+protected:
+	int m_iWidth;
+	int m_iHeight;
 
-				void DrawTexturedRect( Gwen::Texture* pTexture, Gwen::Rect pTargetRect, float u1=0.0f, float v1=0.0f, float u2=1.0f, float v2=1.0f );
-				void LoadTexture( Gwen::Texture* pTexture );
-				void FreeTexture( Gwen::Texture* pTexture );
+	Gdiplus::Color m_Colour;
 
-			protected:
+	HWND m_HWND;
+	HDC m_hDC;
+	ULONG_PTR m_gdiplusToken;
 
-				int m_iWidth;
-				int m_iHeight;
+	Gdiplus::Graphics* graphics;
+};
 
-				Gdiplus::Color	m_Colour;
+class GDIPlusBuffered : public GDIPlus
+{
+public:
+	GDIPlusBuffered(HWND pHWND);
+	~GDIPlusBuffered();
 
-				HWND			m_HWND;
-				HDC				m_hDC;
-				ULONG_PTR       m_gdiplusToken;
+	virtual void Begin();
+	virtual void End();
 
-				Gdiplus::Graphics*		graphics;
-		};
+private:
+	void CreateBackbuffer();
+	void DestroyBackbuffer();
 
-		class GDIPlusBuffered : public GDIPlus
-		{
-			public:
-
-				GDIPlusBuffered( HWND pHWND );
-				~GDIPlusBuffered();
-
-				virtual void Begin();
-				virtual void End();
-
-			private:
-
-				void CreateBackbuffer();
-				void DestroyBackbuffer();
-
-				Gdiplus::Bitmap*			m_Bitmap;
-
-		};
-	}
-}
+	Gdiplus::Bitmap* m_Bitmap;
+};
+}  // namespace Renderer
+}  // namespace Gwen
 #endif

@@ -2,7 +2,6 @@
 #ifndef COMMON_RIGID_BODY_MT_BASE_H
 #define COMMON_RIGID_BODY_MT_BASE_H
 
-
 #include "btBulletDynamicsCommon.h"
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
@@ -13,49 +12,57 @@
 
 enum SolverType
 {
-    SOLVER_TYPE_SEQUENTIAL_IMPULSE,
-    SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT,
-    SOLVER_TYPE_NNCG,
-    SOLVER_TYPE_MLCP_PGS,
-    SOLVER_TYPE_MLCP_DANTZIG,
-    SOLVER_TYPE_MLCP_LEMKE,
+	SOLVER_TYPE_SEQUENTIAL_IMPULSE,
+	SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT,
+	SOLVER_TYPE_NNCG,
+	SOLVER_TYPE_MLCP_PGS,
+	SOLVER_TYPE_MLCP_DANTZIG,
+	SOLVER_TYPE_MLCP_LEMKE,
 
-    SOLVER_TYPE_COUNT
+	SOLVER_TYPE_COUNT
 };
 
-inline const char* getSolverTypeName( SolverType t )
+inline const char* getSolverTypeName(SolverType t)
 {
-    switch (t)
-    {
-    case SOLVER_TYPE_SEQUENTIAL_IMPULSE: return "SequentialImpulse";
-    case SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT: return "SequentialImpulseMt";
-    case SOLVER_TYPE_NNCG: return "NNCG";
-    case SOLVER_TYPE_MLCP_PGS: return "MLCP ProjectedGaussSeidel";
-    case SOLVER_TYPE_MLCP_DANTZIG: return "MLCP Dantzig";
-    case SOLVER_TYPE_MLCP_LEMKE: return "MLCP Lemke";
-    default:{}
-    }
-    btAssert( !"unhandled solver type in switch" );
-    return "???";
+	switch (t)
+	{
+		case SOLVER_TYPE_SEQUENTIAL_IMPULSE:
+			return "SequentialImpulse";
+		case SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT:
+			return "SequentialImpulseMt";
+		case SOLVER_TYPE_NNCG:
+			return "NNCG";
+		case SOLVER_TYPE_MLCP_PGS:
+			return "MLCP ProjectedGaussSeidel";
+		case SOLVER_TYPE_MLCP_DANTZIG:
+			return "MLCP Dantzig";
+		case SOLVER_TYPE_MLCP_LEMKE:
+			return "MLCP Lemke";
+		default:
+		{
+		}
+	}
+	btAssert(!"unhandled solver type in switch");
+	return "???";
 }
 
 struct CommonRigidBodyMTBase : public CommonExampleInterface
 {
-		//keep the collision shapes, for deletion/cleanup
-	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
-	btBroadphaseInterface*	m_broadphase;
-	btCollisionDispatcher*	m_dispatcher;
-	btConstraintSolver*	m_solver;
+	//keep the collision shapes, for deletion/cleanup
+	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
+	btBroadphaseInterface* m_broadphase;
+	btCollisionDispatcher* m_dispatcher;
+	btConstraintSolver* m_solver;
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 	btDiscreteDynamicsWorld* m_dynamicsWorld;
-    SolverType m_solverType;
-    bool m_multithreadedWorld;
-    bool m_multithreadCapable;
+	SolverType m_solverType;
+	bool m_multithreadedWorld;
+	bool m_multithreadCapable;
 
 	//data for picking objects
-	class btRigidBody*	m_pickedBody;
+	class btRigidBody* m_pickedBody;
 	class btTypedConstraint* m_pickedConstraint;
-	int	m_savedState;
+	int m_savedState;
 	btVector3 m_oldPickingPos;
 	btVector3 m_hitPos;
 	btScalar m_oldPickingDist;
@@ -64,13 +71,12 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 	CommonRigidBodyMTBase(struct GUIHelperInterface* helper);
 	virtual ~CommonRigidBodyMTBase();
 
-
-	btDiscreteDynamicsWorld*	getDynamicsWorld()
+	btDiscreteDynamicsWorld* getDynamicsWorld()
 	{
 		return m_dynamicsWorld;
 	}
 
-    virtual void createDefaultParameters();
+	virtual void createDefaultParameters();
 	virtual void createEmptyDynamicsWorld();
 
 	virtual void stepSimulation(float deltaTime)
@@ -81,8 +87,8 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		}
 	}
 
-    virtual void drawScreenText();
-    virtual void renderScene();
+	virtual void drawScreenText();
+	virtual void renderScene();
 	virtual void physicsDebugDraw(int debugFlags);
 
 	virtual void exitPhysics()
@@ -91,15 +97,14 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		//cleanup in the reverse order of creation/initialization
 
 		//remove the rigidbodies from the dynamics world and delete them
-		
+
 		if (m_dynamicsWorld)
 		{
-
-            int i;
-            for (i = m_dynamicsWorld->getNumConstraints() - 1; i >= 0; i--)
-            {
-                m_dynamicsWorld->removeConstraint(m_dynamicsWorld->getConstraint(i));
-            }
+			int i;
+			for (i = m_dynamicsWorld->getNumConstraints() - 1; i >= 0; i--)
+			{
+				m_dynamicsWorld->removeConstraint(m_dynamicsWorld->getConstraint(i));
+			}
 			for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 			{
 				btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
@@ -113,7 +118,7 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 			}
 		}
 		//delete collision shapes
-		for (int j = 0; j<m_collisionShapes.size(); j++)
+		for (int j = 0; j < m_collisionShapes.size(); j++)
 		{
 			btCollisionShape* shape = m_collisionShapes[j];
 			delete shape;
@@ -121,84 +126,80 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		m_collisionShapes.clear();
 
 		delete m_dynamicsWorld;
-		m_dynamicsWorld=0;
+		m_dynamicsWorld = 0;
 
 		delete m_solver;
-		m_solver=0;
+		m_solver = 0;
 
 		delete m_broadphase;
-		m_broadphase=0;
+		m_broadphase = 0;
 
 		delete m_dispatcher;
-		m_dispatcher=0;
+		m_dispatcher = 0;
 
 		delete m_collisionConfiguration;
-		m_collisionConfiguration=0;
+		m_collisionConfiguration = 0;
 	}
 
-	
-    virtual void    debugDraw(int debugDrawFlags)
-    {
-     	if (m_dynamicsWorld)
-        {
+	virtual void debugDraw(int debugDrawFlags)
+	{
+		if (m_dynamicsWorld)
+		{
 			if (m_dynamicsWorld->getDebugDrawer())
 			{
 				m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
 			}
-            m_dynamicsWorld->debugDrawWorld();
-        }
+			m_dynamicsWorld->debugDrawWorld();
+		}
+	}
 
-    }
-
-	virtual bool	keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int key, int state)
 	{
-		if ((key==B3G_F3) && state && m_dynamicsWorld)
+		if ((key == B3G_F3) && state && m_dynamicsWorld)
 		{
-			btDefaultSerializer*	serializer = new btDefaultSerializer();
+			btDefaultSerializer* serializer = new btDefaultSerializer();
 			m_dynamicsWorld->serialize(serializer);
 
-			FILE* file = fopen("testFile.bullet","wb");
-			fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1, file);
+			FILE* file = fopen("testFile.bullet", "wb");
+			fwrite(serializer->getBufferPointer(), serializer->getCurrentBufferSize(), 1, file);
 			fclose(file);
 			//b3Printf("btDefaultSerializer wrote testFile.bullet");
 			delete serializer;
 			return true;
-
 		}
-		return false;//don't handle this key
+		return false;  //don't handle this key
 	}
 
-	
-	btVector3	getRayTo(int x,int y)
+	btVector3 getRayTo(int x, int y)
 	{
 		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
-		
+
 		if (!renderer)
 		{
 			btAssert(0);
-			return btVector3(0,0,0);
+			return btVector3(0, 0, 0);
 		}
 
 		float top = 1.f;
 		float bottom = -1.f;
 		float nearPlane = 1.f;
-		float tanFov = (top-bottom)*0.5f / nearPlane;
+		float tanFov = (top - bottom) * 0.5f / nearPlane;
 		float fov = btScalar(2.0) * btAtan(tanFov);
 
-		btVector3 camPos,camTarget;
-		
+		btVector3 camPos, camTarget;
+
 		renderer->getActiveCamera()->getCameraPosition(camPos);
 		renderer->getActiveCamera()->getCameraTargetPosition(camTarget);
 
-		btVector3	rayFrom = camPos;
-		btVector3 rayForward = (camTarget-camPos);
+		btVector3 rayFrom = camPos;
+		btVector3 rayForward = (camTarget - camPos);
 		rayForward.normalize();
 		float farPlane = 10000.f;
-		rayForward*= farPlane;
+		rayForward *= farPlane;
 
 		btVector3 rightOffset;
-		btVector3 cameraUp=btVector3(0,0,0);
-		cameraUp[m_guiHelper->getAppInterface()->getUpAxis()]=1;
+		btVector3 cameraUp = btVector3(0, 0, 0);
+		cameraUp[m_guiHelper->getAppInterface()->getUpAxis()] = 1;
 
 		btVector3 vertical = cameraUp;
 
@@ -208,25 +209,22 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		vertical = hor.cross(rayForward);
 		vertical.safeNormalize();
 
-		float tanfov = tanf(0.5f*fov);
-
+		float tanfov = tanf(0.5f * fov);
 
 		hor *= 2.f * farPlane * tanfov;
 		vertical *= 2.f * farPlane * tanfov;
 
 		btScalar aspect;
 		float width = float(renderer->getScreenWidth());
-		float height = float (renderer->getScreenHeight());
+		float height = float(renderer->getScreenHeight());
 
-		aspect =  width / height;
+		aspect = width / height;
 
-		hor*=aspect;
-
+		hor *= aspect;
 
 		btVector3 rayToCenter = rayFrom + rayForward;
-		btVector3 dHor = hor * 1.f/width;
-		btVector3 dVert = vertical * 1.f/height;
-
+		btVector3 dHor = hor * 1.f / width;
+		btVector3 dVert = vertical * 1.f / height;
 
 		btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
 		rayTo += btScalar(x) * dHor;
@@ -234,10 +232,10 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		return rayTo;
 	}
 
-	virtual bool	mouseMoveCallback(float x,float y)
+	virtual bool mouseMoveCallback(float x, float y)
 	{
 		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
-		
+
 		if (!renderer)
 		{
 			btAssert(0);
@@ -247,21 +245,21 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		btVector3 rayTo = getRayTo(int(x), int(y));
 		btVector3 rayFrom;
 		renderer->getActiveCamera()->getCameraPosition(rayFrom);
-		movePickedBody(rayFrom,rayTo);
+		movePickedBody(rayFrom, rayTo);
 
 		return false;
 	}
 
-	virtual bool	mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int button, int state, float x, float y)
 	{
 		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
-		
+
 		if (!renderer)
 		{
 			btAssert(0);
 			return false;
 		}
-		
+
 		CommonWindowInterface* window = m_guiHelper->getAppInterface()->m_window;
 
 #if 0
@@ -289,25 +287,23 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 			printf("NO CONTROL pressed\n");
 		}
 #endif
-		
-		
-		if (state==1)
+
+		if (state == 1)
 		{
-			if(button==0 && (!window->isModifierKeyPressed(B3G_ALT) && !window->isModifierKeyPressed(B3G_CONTROL) ))
+			if (button == 0 && (!window->isModifierKeyPressed(B3G_ALT) && !window->isModifierKeyPressed(B3G_CONTROL)))
 			{
 				btVector3 camPos;
 				renderer->getActiveCamera()->getCameraPosition(camPos);
 
 				btVector3 rayFrom = camPos;
-				btVector3 rayTo = getRayTo(int(x),int(y));
+				btVector3 rayTo = getRayTo(int(x), int(y));
 
 				pickBody(rayFrom, rayTo);
-
-
 			}
-		} else
+		}
+		else
 		{
-			if (button==0)
+			if (button == 0)
 			{
 				removePickingConstraint();
 				//remove p2p
@@ -318,10 +314,9 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		return false;
 	}
 
-
 	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
 	{
-		if (m_dynamicsWorld==0)
+		if (m_dynamicsWorld == 0)
 			return false;
 
 		btCollisionWorld::ClosestRayResultCallback rayCallback(rayFromWorld, rayToWorld);
@@ -329,7 +324,6 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		m_dynamicsWorld->rayTest(rayFromWorld, rayToWorld, rayCallback);
 		if (rayCallback.hasHit())
 		{
-
 			btVector3 pickPos = rayCallback.m_hitPointWorld;
 			btRigidBody* body = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
 			if (body)
@@ -352,7 +346,6 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 				}
 			}
 
-
 			//					pickObject(pickPos, rayCallback.m_collisionObject);
 			m_oldPickingPos = rayToWorld;
 			m_hitPos = pickPos;
@@ -364,7 +357,7 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 	}
 	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
 	{
-		if (m_pickedBody  && m_pickedConstraint)
+		if (m_pickedBody && m_pickedConstraint)
 		{
 			btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickedConstraint);
 			if (pickCon)
@@ -397,15 +390,13 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		}
 	}
 
-
-
 	btBoxShape* createBoxShape(const btVector3& halfExtents)
 	{
 		btBoxShape* box = new btBoxShape(halfExtents);
 		return box;
 	}
 
-	btRigidBody*	createRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape,  const btVector4& color = btVector4(1, 0, 0, 1))
+	btRigidBody* createRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, const btVector4& color = btVector4(1, 0, 0, 1))
 	{
 		btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
@@ -416,7 +407,7 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		if (isDynamic)
 			shape->calculateLocalInertia(mass, localInertia);
 
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 
 #define USE_MOTIONSTATE 1
 #ifdef USE_MOTIONSTATE
@@ -430,28 +421,24 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 #else
 		btRigidBody* body = new btRigidBody(mass, 0, shape, localInertia);
 		body->setWorldTransform(startTransform);
-#endif//
+#endif  //
 
 		body->setUserIndex(-1);
 		m_dynamicsWorld->addRigidBody(body);
 		return body;
 	}
 
-    btRigidBody* createKinematicBody(const btTransform& startTransform, btCollisionShape* shape)
-    {
-        btAssert( ( !shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE ) );
+	btRigidBody* createKinematicBody(const btTransform& startTransform, btCollisionShape* shape)
+	{
+		btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
-        btRigidBody* body = new btRigidBody( 0.0f, NULL, shape );
-        body->setWorldTransform( startTransform );
-        body->setCollisionFlags( body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT );
-        body->setUserIndex( -1 );
-        m_dynamicsWorld->addRigidBody( body );
-        return body;
-    }
-
-
+		btRigidBody* body = new btRigidBody(0.0f, NULL, shape);
+		body->setWorldTransform(startTransform);
+		body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+		body->setUserIndex(-1);
+		m_dynamicsWorld->addRigidBody(body);
+		return body;
+	}
 };
 
-#endif //#define COMMON_RIGID_BODY_MT_BASE_H
-
-
+#endif  //#define COMMON_RIGID_BODY_MT_BASE_H

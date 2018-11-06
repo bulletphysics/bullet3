@@ -13,12 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #include "btBulletDynamicsCommon.h"
 
 #include "LinearMath/btIDebugDraw.h"
 #include "MotorDemo.h"
-
 
 #include "LinearMath/btAlignedObjectArray.h"
 class btBroadphaseInterface;
@@ -34,63 +32,58 @@ class btDefaultCollisionConfiguration;
 class MotorDemo : public CommonRigidBodyBase
 {
 	float m_Time;
-	float m_fCyclePeriod; // in milliseconds
+	float m_fCyclePeriod;  // in milliseconds
 	float m_fMuscleStrength;
-	
+
 	btAlignedObjectArray<class TestRig*> m_rigs;
-	
-	
+
 public:
 	MotorDemo(struct GUIHelperInterface* helper)
-	:CommonRigidBodyBase(helper)
+		: CommonRigidBodyBase(helper)
 	{
 	}
 
 	void initPhysics();
-	
+
 	void exitPhysics();
-	
+
 	virtual ~MotorDemo()
 	{
 	}
-	
+
 	void spawnTestRig(const btVector3& startOffset, bool bFixed);
-	
-//	virtual void keyboardCallback(unsigned char key, int x, int y);
-	
+
+	//	virtual void keyboardCallback(unsigned char key, int x, int y);
+
 	void setMotorTargets(btScalar deltaTime);
-	
+
 	void resetCamera()
 	{
 		float dist = 11;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3]={0,0.46,0};
-		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
+		float targetPos[3] = {0, 0.46, 0};
+		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
 
-
 #ifndef M_PI
-#define M_PI       3.14159265358979323846
+#define M_PI 3.14159265358979323846
 #endif
 
 #ifndef M_PI_2
-#define M_PI_2     1.57079632679489661923
+#define M_PI_2 1.57079632679489661923
 #endif
 
 #ifndef M_PI_4
-#define M_PI_4     0.785398163397448309616
+#define M_PI_4 0.785398163397448309616
 #endif
 
 #ifndef M_PI_8
-#define M_PI_8     0.5 * M_PI_4
+#define M_PI_8 0.5 * M_PI_4
 #endif
 
-
 // /LOCAL FUNCTIONS
-
-
 
 #define NUM_LEGS 6
 #define BODYPART_COUNT 2 * NUM_LEGS + 1
@@ -98,21 +91,21 @@ public:
 
 class TestRig
 {
-	btDynamicsWorld*	m_ownerWorld;
-	btCollisionShape*	m_shapes[BODYPART_COUNT];
-	btRigidBody*		m_bodies[BODYPART_COUNT];
-	btTypedConstraint*	m_joints[JOINT_COUNT];
+	btDynamicsWorld* m_ownerWorld;
+	btCollisionShape* m_shapes[BODYPART_COUNT];
+	btRigidBody* m_bodies[BODYPART_COUNT];
+	btTypedConstraint* m_joints[JOINT_COUNT];
 
-	btRigidBody* localCreateRigidBody (btScalar mass, const btTransform& startTransform, btCollisionShape* shape)
+	btRigidBody* localCreateRigidBody(btScalar mass, const btTransform& startTransform, btCollisionShape* shape)
 	{
 		bool isDynamic = (mass != 0.f);
 
-		btVector3 localInertia(0,0,0);
+		btVector3 localInertia(0, 0, 0);
 		if (isDynamic)
-			shape->calculateLocalInertia(mass,localInertia);
+			shape->calculateLocalInertia(mass, localInertia);
 
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,shape,localInertia);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, shape, localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
 
 		m_ownerWorld->addRigidBody(body);
@@ -120,33 +113,33 @@ class TestRig
 		return body;
 	}
 
-
 public:
-	TestRig (btDynamicsWorld* ownerWorld, const btVector3& positionOffset, bool bFixed)
-		: m_ownerWorld (ownerWorld)
+	TestRig(btDynamicsWorld* ownerWorld, const btVector3& positionOffset, bool bFixed)
+		: m_ownerWorld(ownerWorld)
 	{
 		btVector3 vUp(0, 1, 0);
 
 		//
 		// Setup geometry
 		//
-		float fBodySize  = 0.25f;
+		float fBodySize = 0.25f;
 		float fLegLength = 0.45f;
 		float fForeLegLength = 0.75f;
 		m_shapes[0] = new btCapsuleShape(btScalar(fBodySize), btScalar(0.10));
 		int i;
-		for ( i=0; i<NUM_LEGS; i++)
+		for (i = 0; i < NUM_LEGS; i++)
 		{
-			m_shapes[1 + 2*i] = new btCapsuleShape(btScalar(0.10), btScalar(fLegLength));
-			m_shapes[2 + 2*i] = new btCapsuleShape(btScalar(0.08), btScalar(fForeLegLength));
+			m_shapes[1 + 2 * i] = new btCapsuleShape(btScalar(0.10), btScalar(fLegLength));
+			m_shapes[2 + 2 * i] = new btCapsuleShape(btScalar(0.08), btScalar(fForeLegLength));
 		}
 
 		//
 		// Setup rigid bodies
 		//
 		float fHeight = 0.5;
-		btTransform offset; offset.setIdentity();
-		offset.setOrigin(positionOffset);		
+		btTransform offset;
+		offset.setIdentity();
+		offset.setOrigin(positionOffset);
 
 		// root
 		btVector3 vRoot = btVector3(btScalar(0.), btScalar(fHeight), btScalar(0.));
@@ -155,32 +148,33 @@ public:
 		transform.setOrigin(vRoot);
 		if (bFixed)
 		{
-			m_bodies[0] = localCreateRigidBody(btScalar(0.), offset*transform, m_shapes[0]);
-		} else
+			m_bodies[0] = localCreateRigidBody(btScalar(0.), offset * transform, m_shapes[0]);
+		}
+		else
 		{
-			m_bodies[0] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[0]);
+			m_bodies[0] = localCreateRigidBody(btScalar(1.), offset * transform, m_shapes[0]);
 		}
 		// legs
-		for ( i=0; i<NUM_LEGS; i++)
+		for (i = 0; i < NUM_LEGS; i++)
 		{
 			float fAngle = 2 * M_PI * i / NUM_LEGS;
 			float fSin = sin(fAngle);
 			float fCos = cos(fAngle);
 
 			transform.setIdentity();
-			btVector3 vBoneOrigin = btVector3(btScalar(fCos*(fBodySize+0.5*fLegLength)), btScalar(fHeight), btScalar(fSin*(fBodySize+0.5*fLegLength)));
+			btVector3 vBoneOrigin = btVector3(btScalar(fCos * (fBodySize + 0.5 * fLegLength)), btScalar(fHeight), btScalar(fSin * (fBodySize + 0.5 * fLegLength)));
 			transform.setOrigin(vBoneOrigin);
 
 			// thigh
 			btVector3 vToBone = (vBoneOrigin - vRoot).normalize();
-			btVector3 vAxis = vToBone.cross(vUp);			
+			btVector3 vAxis = vToBone.cross(vUp);
 			transform.setRotation(btQuaternion(vAxis, M_PI_2));
-			m_bodies[1+2*i] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[1+2*i]);
+			m_bodies[1 + 2 * i] = localCreateRigidBody(btScalar(1.), offset * transform, m_shapes[1 + 2 * i]);
 
 			// shin
 			transform.setIdentity();
-			transform.setOrigin(btVector3(btScalar(fCos*(fBodySize+fLegLength)), btScalar(fHeight-0.5*fForeLegLength), btScalar(fSin*(fBodySize+fLegLength))));
-			m_bodies[2+2*i] = localCreateRigidBody(btScalar(1.), offset*transform, m_shapes[2+2*i]);
+			transform.setOrigin(btVector3(btScalar(fCos * (fBodySize + fLegLength)), btScalar(fHeight - 0.5 * fForeLegLength), btScalar(fSin * (fBodySize + fLegLength))));
+			m_bodies[2 + 2 * i] = localCreateRigidBody(btScalar(1.), offset * transform, m_shapes[2 + 2 * i]);
 		}
 
 		// Setup some damping on the m_bodies
@@ -192,7 +186,6 @@ public:
 			m_bodies[i]->setSleepingThresholds(0.5f, 0.5f);
 		}
 
-
 		//
 		// Setup the constraints
 		//
@@ -201,73 +194,75 @@ public:
 
 		btTransform localA, localB, localC;
 
-		for ( i=0; i<NUM_LEGS; i++)
+		for (i = 0; i < NUM_LEGS; i++)
 		{
 			float fAngle = 2 * M_PI * i / NUM_LEGS;
 			float fSin = sin(fAngle);
 			float fCos = cos(fAngle);
 
 			// hip joints
-			localA.setIdentity(); localB.setIdentity();
-			localA.getBasis().setEulerZYX(0,-fAngle,0);	localA.setOrigin(btVector3(btScalar(fCos*fBodySize), btScalar(0.), btScalar(fSin*fBodySize)));
-			localB = m_bodies[1+2*i]->getWorldTransform().inverse() * m_bodies[0]->getWorldTransform() * localA;
-			hingeC = new btHingeConstraint(*m_bodies[0], *m_bodies[1+2*i], localA, localB);
+			localA.setIdentity();
+			localB.setIdentity();
+			localA.getBasis().setEulerZYX(0, -fAngle, 0);
+			localA.setOrigin(btVector3(btScalar(fCos * fBodySize), btScalar(0.), btScalar(fSin * fBodySize)));
+			localB = m_bodies[1 + 2 * i]->getWorldTransform().inverse() * m_bodies[0]->getWorldTransform() * localA;
+			hingeC = new btHingeConstraint(*m_bodies[0], *m_bodies[1 + 2 * i], localA, localB);
 			hingeC->setLimit(btScalar(-0.75 * M_PI_4), btScalar(M_PI_8));
 			//hingeC->setLimit(btScalar(-0.1), btScalar(0.1));
-			m_joints[2*i] = hingeC;
-			m_ownerWorld->addConstraint(m_joints[2*i], true);
+			m_joints[2 * i] = hingeC;
+			m_ownerWorld->addConstraint(m_joints[2 * i], true);
 
 			// knee joints
-			localA.setIdentity(); localB.setIdentity(); localC.setIdentity();
-			localA.getBasis().setEulerZYX(0,-fAngle,0);	localA.setOrigin(btVector3(btScalar(fCos*(fBodySize+fLegLength)), btScalar(0.), btScalar(fSin*(fBodySize+fLegLength))));
-			localB = m_bodies[1+2*i]->getWorldTransform().inverse() * m_bodies[0]->getWorldTransform() * localA;
-			localC = m_bodies[2+2*i]->getWorldTransform().inverse() * m_bodies[0]->getWorldTransform() * localA;
-			hingeC = new btHingeConstraint(*m_bodies[1+2*i], *m_bodies[2+2*i], localB, localC);
+			localA.setIdentity();
+			localB.setIdentity();
+			localC.setIdentity();
+			localA.getBasis().setEulerZYX(0, -fAngle, 0);
+			localA.setOrigin(btVector3(btScalar(fCos * (fBodySize + fLegLength)), btScalar(0.), btScalar(fSin * (fBodySize + fLegLength))));
+			localB = m_bodies[1 + 2 * i]->getWorldTransform().inverse() * m_bodies[0]->getWorldTransform() * localA;
+			localC = m_bodies[2 + 2 * i]->getWorldTransform().inverse() * m_bodies[0]->getWorldTransform() * localA;
+			hingeC = new btHingeConstraint(*m_bodies[1 + 2 * i], *m_bodies[2 + 2 * i], localB, localC);
 			//hingeC->setLimit(btScalar(-0.01), btScalar(0.01));
 			hingeC->setLimit(btScalar(-M_PI_8), btScalar(0.2));
-			m_joints[1+2*i] = hingeC;
-			m_ownerWorld->addConstraint(m_joints[1+2*i], true);
+			m_joints[1 + 2 * i] = hingeC;
+			m_ownerWorld->addConstraint(m_joints[1 + 2 * i], true);
 		}
 	}
 
-	virtual	~TestRig ()
+	virtual ~TestRig()
 	{
 		int i;
 
 		// Remove all constraints
-		for ( i = 0; i < JOINT_COUNT; ++i)
+		for (i = 0; i < JOINT_COUNT; ++i)
 		{
 			m_ownerWorld->removeConstraint(m_joints[i]);
-			delete m_joints[i]; m_joints[i] = 0;
+			delete m_joints[i];
+			m_joints[i] = 0;
 		}
 
 		// Remove all bodies and shapes
-		for ( i = 0; i < BODYPART_COUNT; ++i)
+		for (i = 0; i < BODYPART_COUNT; ++i)
 		{
 			m_ownerWorld->removeRigidBody(m_bodies[i]);
-			
+
 			delete m_bodies[i]->getMotionState();
 
-			delete m_bodies[i]; m_bodies[i] = 0;
-			delete m_shapes[i]; m_shapes[i] = 0;
+			delete m_bodies[i];
+			m_bodies[i] = 0;
+			delete m_shapes[i];
+			m_shapes[i] = 0;
 		}
 	}
 
-	btTypedConstraint** GetJoints() {return &m_joints[0];}
-
+	btTypedConstraint** GetJoints() { return &m_joints[0]; }
 };
 
-
-
-void motorPreTickCallback (btDynamicsWorld *world, btScalar timeStep)
+void motorPreTickCallback(btDynamicsWorld* world, btScalar timeStep)
 {
 	MotorDemo* motorDemo = (MotorDemo*)world->getWorldUserInfo();
 
 	motorDemo->setMotorTargets(timeStep);
-	
 }
-
-
 
 void MotorDemo::initPhysics()
 {
@@ -276,50 +271,47 @@ void MotorDemo::initPhysics()
 	// Setup the basic world
 
 	m_Time = 0;
-	m_fCyclePeriod = 2000.f; // in milliseconds
+	m_fCyclePeriod = 2000.f;  // in milliseconds
 
-//	m_fMuscleStrength = 0.05f;
+	//	m_fMuscleStrength = 0.05f;
 	// new SIMD solver for joints clips accumulated impulse, so the new limits for the motor
 	// should be (numberOfsolverIterations * oldLimits)
 	// currently solver uses 10 iterations, so:
 	m_fMuscleStrength = 0.5f;
 
-
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
-	btVector3 worldAabbMin(-10000,-10000,-10000);
-	btVector3 worldAabbMax(10000,10000,10000);
-	m_broadphase = new btAxisSweep3 (worldAabbMin, worldAabbMax);
+	btVector3 worldAabbMin(-10000, -10000, -10000);
+	btVector3 worldAabbMax(10000, 10000, 10000);
+	m_broadphase = new btAxisSweep3(worldAabbMin, worldAabbMax);
 
 	m_solver = new btSequentialImpulseConstraintSolver;
 
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 
-	m_dynamicsWorld->setInternalTickCallback(motorPreTickCallback,this,true);
+	m_dynamicsWorld->setInternalTickCallback(motorPreTickCallback, this, true);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-	
 
 	// Setup a big ground box
 	{
-		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(200.),btScalar(10.),btScalar(200.)));
+		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(200.), btScalar(10.), btScalar(200.)));
 		m_collisionShapes.push_back(groundShape);
 		btTransform groundTransform;
 		groundTransform.setIdentity();
-		groundTransform.setOrigin(btVector3(0,-10,0));
-		createRigidBody(btScalar(0.),groundTransform,groundShape);
+		groundTransform.setOrigin(btVector3(0, -10, 0));
+		createRigidBody(btScalar(0.), groundTransform, groundShape);
 	}
 
 	// Spawn one ragdoll
-	btVector3 startOffset(1,0.5,0);
+	btVector3 startOffset(1, 0.5, 0);
 	spawnTestRig(startOffset, false);
-	startOffset.setValue(-2,0.5,0);
+	startOffset.setValue(-2, 0.5, 0);
 	spawnTestRig(startOffset, true);
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
-
 
 void MotorDemo::spawnTestRig(const btVector3& startOffset, bool bFixed)
 {
@@ -327,19 +319,14 @@ void MotorDemo::spawnTestRig(const btVector3& startOffset, bool bFixed)
 	m_rigs.push_back(rig);
 }
 
-void	PreStep()
+void PreStep()
 {
-
 }
-
-
-
 
 void MotorDemo::setMotorTargets(btScalar deltaTime)
 {
-
-	float ms = deltaTime*1000000.;
-	float minFPS = 1000000.f/60.f;
+	float ms = deltaTime * 1000000.;
+	float minFPS = 1000000.f / 60.f;
 	if (ms > minFPS)
 		ms = minFPS;
 
@@ -347,24 +334,22 @@ void MotorDemo::setMotorTargets(btScalar deltaTime)
 
 	//
 	// set per-frame sinusoidal position targets using angular motor (hacky?)
-	//	
-	for (int r=0; r<m_rigs.size(); r++)
+	//
+	for (int r = 0; r < m_rigs.size(); r++)
 	{
-		for (int i=0; i<2*NUM_LEGS; i++)
+		for (int i = 0; i < 2 * NUM_LEGS; i++)
 		{
 			btHingeConstraint* hingeC = static_cast<btHingeConstraint*>(m_rigs[r]->GetJoints()[i]);
-			btScalar fCurAngle      = hingeC->getHingeAngle();
-			
+			btScalar fCurAngle = hingeC->getHingeAngle();
+
 			btScalar fTargetPercent = (int(m_Time / 1000) % int(m_fCyclePeriod)) / m_fCyclePeriod;
-			btScalar fTargetAngle   = 0.5 * (1 + sin(2 * M_PI * fTargetPercent));
+			btScalar fTargetAngle = 0.5 * (1 + sin(2 * M_PI * fTargetPercent));
 			btScalar fTargetLimitAngle = hingeC->getLowerLimit() + fTargetAngle * (hingeC->getUpperLimit() - hingeC->getLowerLimit());
-			btScalar fAngleError  = fTargetLimitAngle - fCurAngle;
-			btScalar fDesiredAngularVel = 1000000.f * fAngleError/ms;
+			btScalar fAngleError = fTargetLimitAngle - fCurAngle;
+			btScalar fDesiredAngularVel = 1000000.f * fAngleError / ms;
 			hingeC->enableAngularMotor(true, fDesiredAngularVel, m_fMuscleStrength);
 		}
 	}
-
-	
 }
 
 #if 0
@@ -392,14 +377,11 @@ void MotorDemo::keyboardCallback(unsigned char key, int x, int y)
 }
 #endif
 
-
-
 void MotorDemo::exitPhysics()
 {
-
 	int i;
 
-	for (i=0;i<m_rigs.size();i++)
+	for (i = 0; i < m_rigs.size(); i++)
 	{
 		TestRig* rig = m_rigs[i];
 		delete rig;
@@ -408,8 +390,8 @@ void MotorDemo::exitPhysics()
 	//cleanup in the reverse order of creation/initialization
 
 	//remove the rigidbodies from the dynamics world and delete them
-	
-	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+
+	for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast(obj);
@@ -417,12 +399,12 @@ void MotorDemo::exitPhysics()
 		{
 			delete body->getMotionState();
 		}
-		m_dynamicsWorld->removeCollisionObject( obj );
+		m_dynamicsWorld->removeCollisionObject(obj);
 		delete obj;
 	}
 
 	//delete collision shapes
-	for (int j=0;j<m_collisionShapes.size();j++)
+	for (int j = 0; j < m_collisionShapes.size(); j++)
 	{
 		btCollisionShape* shape = m_collisionShapes[j];
 		delete shape;
@@ -440,11 +422,10 @@ void MotorDemo::exitPhysics()
 	//delete dispatcher
 	delete m_dispatcher;
 
-	delete m_collisionConfiguration;	
+	delete m_collisionConfiguration;
 }
 
-
-class CommonExampleInterface*    MotorControlCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface* MotorControlCreateFunc(struct CommonExampleOptions& options)
 {
 	return new MotorDemo(options.m_guiHelper);
 }

@@ -13,13 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 ///FractureDemo shows how to break objects.
 ///It assumes a btCompoundShaps (where the childshapes are the pre-fractured pieces)
 ///The btFractureBody is a class derived from btRigidBody, dealing with the collision impacts.
 ///Press the F key to toggle between fracture and glue mode
 ///This is preliminary work
-
 
 #define CUBE_HALF_EXTENTS 1.f
 #define EXTRA_HEIGHT 1.f
@@ -33,87 +31,73 @@ subject to the following restrictions:
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 
-
-#include <stdio.h> //printf debugging
-
+#include <stdio.h>  //printf debugging
 
 int sFrameNumber = 0;
 
 #include "btFractureBody.h"
 #include "btFractureDynamicsWorld.h"
 
-
 #include "LinearMath/btAlignedObjectArray.h"
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 
-
 ///FractureDemo shows basic breaking and glueing of objects
 class FractureDemo : public CommonRigidBodyBase
 {
-	
-	
 public:
-	
 	FractureDemo(struct GUIHelperInterface* helper)
-	:CommonRigidBodyBase(helper)
+		: CommonRigidBodyBase(helper)
 	{
 	}
 	virtual ~FractureDemo()
 	{
 	}
-	void	initPhysics();
-	
-	void	exitPhysics();
-	
+	void initPhysics();
+
+	void exitPhysics();
+
 	virtual void stepSimulation(float deltaTime)
 	{
 		CommonRigidBodyBase::stepSimulation(deltaTime);
-		
+
 		{
-		BT_PROFILE("recreate graphics");
-		//@todo: make this graphics re-creation better
-		//right now: brute force remove all graphics objects, and re-create them every frame
-		m_guiHelper->getRenderInterface()->removeAllInstances();
-		for (int i=0;i<m_dynamicsWorld->getNumCollisionObjects();i++)
-		{
-			btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
-			colObj->getCollisionShape()->setUserIndex(-1);
-			colObj->setUserIndex(-1);
-		}
-		m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+			BT_PROFILE("recreate graphics");
+			//@todo: make this graphics re-creation better
+			//right now: brute force remove all graphics objects, and re-create them every frame
+			m_guiHelper->getRenderInterface()->removeAllInstances();
+			for (int i = 0; i < m_dynamicsWorld->getNumCollisionObjects(); i++)
+			{
+				btCollisionObject* colObj = m_dynamicsWorld->getCollisionObjectArray()[i];
+				colObj->getCollisionShape()->setUserIndex(-1);
+				colObj->setUserIndex(-1);
+			}
+			m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 		}
 	}
-	
-	virtual bool	keyboardCallback(int key, int state);
-	
+
+	virtual bool keyboardCallback(int key, int state);
+
 	void resetCamera()
 	{
 		float dist = 41;
 		float pitch = -35;
 		float yaw = 52;
-		float targetPos[3]={0,0.46,0};
-		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
+		float targetPos[3] = {0, 0.46, 0};
+		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
-	
-	
 };
 
-
-
-
-void	FractureDemo::initPhysics()
+void FractureDemo::initPhysics()
 {
-
 	m_guiHelper->setUpAxis(1);
-	
 
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	//m_collisionConfiguration->setConvexConvexMultipointIterations();
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
+	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 	m_broadphase = new btDbvtBroadphase();
 
@@ -123,42 +107,39 @@ void	FractureDemo::initPhysics()
 
 	//m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 
-	btFractureDynamicsWorld* fractureWorld = new btFractureDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	btFractureDynamicsWorld* fractureWorld = new btFractureDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 	m_dynamicsWorld = fractureWorld;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-	
 
 	//m_splitImpulse removes the penetration resolution from the applied impulse, otherwise objects might fracture due to deep penetrations.
 	m_dynamicsWorld->getSolverInfo().m_splitImpulse = true;
 
 	{
 		///create a few basic rigid bodies
-		btCollisionShape* groundShape = new btBoxShape(btVector3(50,1,50));
-	///	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),0);
+		btCollisionShape* groundShape = new btBoxShape(btVector3(50, 1, 50));
+		///	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),0);
 		m_collisionShapes.push_back(groundShape);
 		btTransform groundTransform;
 		groundTransform.setIdentity();
-		groundTransform.setOrigin(btVector3(0,0,0));
-		createRigidBody(0.f,groundTransform,groundShape);
+		groundTransform.setOrigin(btVector3(0, 0, 0));
+		createRigidBody(0.f, groundTransform, groundShape);
 	}
 
 	{
 		///create a few basic rigid bodies
-		btCollisionShape* shape = new btBoxShape(btVector3(1,1,1));
+		btCollisionShape* shape = new btBoxShape(btVector3(1, 1, 1));
 		m_collisionShapes.push_back(shape);
 		btTransform tr;
 		tr.setIdentity();
-		tr.setOrigin(btVector3(5,2,0));
-		createRigidBody(0.f,tr,shape);
+		tr.setOrigin(btVector3(5, 2, 0));
+		createRigidBody(0.f, tr, shape);
 	}
-
-
 
 	{
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btCollisionShape* colShape = new btBoxShape(btVector3(SCALING*1,SCALING*1,SCALING*1));
+		btCollisionShape* colShape = new btBoxShape(btVector3(SCALING * 1, SCALING * 1, SCALING * 1));
 		//btCollisionShape* colShape = new btCapsuleShape(SCALING*0.4,SCALING*1);
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
@@ -167,43 +148,37 @@ void	FractureDemo::initPhysics()
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar	mass(1.f);
+		btScalar mass(1.f);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
 
-		btVector3 localInertia(0,0,0);
+		btVector3 localInertia(0, 0, 0);
 		if (isDynamic)
-			colShape->calculateLocalInertia(mass,localInertia);
-
+			colShape->calculateLocalInertia(mass, localInertia);
 
 		int gNumObjects = 10;
 
-		for (int i=0;i<gNumObjects;i++)
+		for (int i = 0; i < gNumObjects; i++)
 		{
 			btTransform trans;
 			trans.setIdentity();
 
-			btVector3 pos(i*2*CUBE_HALF_EXTENTS ,20,0);
+			btVector3 pos(i * 2 * CUBE_HALF_EXTENTS, 20, 0);
 			trans.setOrigin(pos);
 
 			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 			btDefaultMotionState* myMotionState = new btDefaultMotionState(trans);
-			btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
+			btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
 			btFractureBody* body = new btFractureBody(rbInfo, m_dynamicsWorld);
-			body->setLinearVelocity(btVector3(0,-10,0));
+			body->setLinearVelocity(btVector3(0, -10, 0));
 
 			m_dynamicsWorld->addRigidBody(body);
-
 		}
-
 	}
 
-
-
-	fractureWorld->stepSimulation(1./60.,0);
+	fractureWorld->stepSimulation(1. / 60., 0);
 	fractureWorld->glueCallback();
-
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
@@ -263,28 +238,25 @@ void FractureDemo::displayCallback(void) {
 }
 #endif
 
-
-bool	FractureDemo::keyboardCallback(int key, int state)
+bool FractureDemo::keyboardCallback(int key, int state)
 {
-	
-	if (key=='f' && (state==0))
+	if (key == 'f' && (state == 0))
 	{
 		btFractureDynamicsWorld* world = (btFractureDynamicsWorld*)m_dynamicsWorld;
 		world->setFractureMode(!world->getFractureMode());
 		if (world->getFractureMode())
 		{
 			b3Printf("Fracturing mode");
-		} else
+		}
+		else
 		{
 			b3Printf("Gluing mode");
-
 		}
 		return true;
 	}
-	
+
 	return false;
 }
-
 
 #if 0
 void FractureDemo::keyboardUpCallback(unsigned char key, int x, int y)
@@ -350,20 +322,13 @@ void	FractureDemo::shootBox(const btVector3& destination)
 }
 #endif
 
-
-
-
-
-
-
-void	FractureDemo::exitPhysics()
+void FractureDemo::exitPhysics()
 {
-
 	//cleanup in the reverse order of creation/initialization
 
 	//remove the rigidbodies from the dynamics world and delete them
 	int i;
-	for (i=m_dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast(obj);
@@ -371,12 +336,12 @@ void	FractureDemo::exitPhysics()
 		{
 			delete body->getMotionState();
 		}
-		m_dynamicsWorld->removeCollisionObject( obj );
+		m_dynamicsWorld->removeCollisionObject(obj);
 		delete obj;
 	}
 
 	//delete collision shapes
-	for (int j=0;j<m_collisionShapes.size();j++)
+	for (int j = 0; j < m_collisionShapes.size(); j++)
 	{
 		btCollisionShape* shape = m_collisionShapes[j];
 		delete shape;
@@ -385,26 +350,22 @@ void	FractureDemo::exitPhysics()
 	m_collisionShapes.clear();
 
 	delete m_dynamicsWorld;
-	m_dynamicsWorld=0;
+	m_dynamicsWorld = 0;
 
 	delete m_solver;
-	m_solver=0;
+	m_solver = 0;
 
 	delete m_broadphase;
-	m_broadphase=0;
+	m_broadphase = 0;
 
 	delete m_dispatcher;
-	m_dispatcher=0;
+	m_dispatcher = 0;
 
 	delete m_collisionConfiguration;
-	m_collisionConfiguration=0;
-
+	m_collisionConfiguration = 0;
 }
 
-
-
-class CommonExampleInterface*    FractureDemoCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface* FractureDemoCreateFunc(struct CommonExampleOptions& options)
 {
 	return new FractureDemo(options.m_guiHelper);
 }
-

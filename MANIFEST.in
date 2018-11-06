@@ -7,11 +7,7 @@ recursive-include src *.h
 recursive-include src *.hpp
 recursive-include examples/pybullet/gym *.*
 include examples/ThirdPartyLibs/enet/unix.c
-include examples/OpenGLWindow/X11OpenGLWindow.cpp
+include examples/OpenGLWindow/*.*
+recursive-include examples/SharedMemory/plugins *.*
 recursive-include examples/ThirdPartyLibs/glad *.*
 include examples/ThirdPartyLibs/enet/win32.c
-include examples/OpenGLWindow/Win32Window.cpp
-include examples/OpenGLWindow/Win32OpenGLWindow.cpp
-include examples/ThirdPartyLibs/Glew/glew.c
-include examples/OpenGLWindow/MacOpenGLWindow.cpp
-include examples/OpenGLWindow/MacOpenGLWindowObjC.m

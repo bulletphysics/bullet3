@@ -101,7 +101,7 @@ b3WavTicker b3ReadWavFile::createWavTicker(double sampleRate)
 
 bool b3ReadWavFile::getWavInfo(const char *fileName)
 {
-	fd_ = fopen(fileName,"rb");
+	fd_ = fopen(fileName, "rb");
 	if (fd_ == 0)
 		return false;
 

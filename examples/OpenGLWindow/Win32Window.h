@@ -13,11 +13,8 @@ subject to the following restrictions:
 */
 //Originally written by Erwin Coumans
 
-
 #ifndef _WIN32_WINDOW_H
 #define _WIN32_WINDOW_H
-
-
 
 struct InternalData2;
 
@@ -25,62 +22,57 @@ struct InternalData2;
 
 class Win32Window : public CommonWindowInterface
 {
-	protected:
-		
-		struct InternalData2*	m_data;
-		
+protected:
+	struct InternalData2* m_data;
 
-		void pumpMessage();
-	
-		
-	
+	void pumpMessage();
+
 public:
-
 	Win32Window();
 
 	virtual ~Win32Window();
 
-	virtual	void	createWindow(const b3gWindowConstructionInfo& ci);
-	
-	virtual void	switchFullScreen(bool fullscreen,int width=0,int height=0,int colorBitsPerPixel=0);
+	virtual void createWindow(const b3gWindowConstructionInfo& ci);
 
-	virtual	void	closeWindow();
+	virtual void switchFullScreen(bool fullscreen, int width = 0, int height = 0, int colorBitsPerPixel = 0);
 
-	virtual void	runMainLoop();
+	virtual void closeWindow();
 
-	virtual	void	startRendering();
+	virtual void runMainLoop();
 
-	virtual	void	renderAllObjects();
+	virtual void startRendering();
 
-	virtual	void	endRendering();
+	virtual void renderAllObjects();
 
-	virtual	float	getTimeInSeconds();
+	virtual void endRendering();
 
-	virtual void	setDebugMessage(int x,int y,const char* message);
-	
-	virtual bool	requestedExit() const;
-	
-	virtual	void	setRequestExit();
+	virtual float getTimeInSeconds();
+
+	virtual void setDebugMessage(int x, int y, const char* message);
+
+	virtual bool requestedExit() const;
+
+	virtual void setRequestExit();
 
 	virtual void getMouseCoordinates(int& x, int& y);
 
-	virtual	void setMouseMoveCallback(b3MouseMoveCallback	mouseCallback);
-	virtual	void setMouseButtonCallback(b3MouseButtonCallback	mouseCallback);
-	virtual	void setResizeCallback(b3ResizeCallback	resizeCallback);
-	virtual	void setWheelCallback(b3WheelCallback wheelCallback);
-	virtual	void setKeyboardCallback( b3KeyboardCallback	keyboardCallback);
+	virtual void setMouseMoveCallback(b3MouseMoveCallback mouseCallback);
+	virtual void setMouseButtonCallback(b3MouseButtonCallback mouseCallback);
+	virtual void setResizeCallback(b3ResizeCallback resizeCallback);
+	virtual void setWheelCallback(b3WheelCallback wheelCallback);
+	virtual void setKeyboardCallback(b3KeyboardCallback keyboardCallback);
 
 	virtual b3MouseMoveCallback getMouseMoveCallback();
 	virtual b3MouseButtonCallback getMouseButtonCallback();
 	virtual b3ResizeCallback getResizeCallback();
 	virtual b3WheelCallback getWheelCallback();
-	virtual b3KeyboardCallback	getKeyboardCallback();
+	virtual b3KeyboardCallback getKeyboardCallback();
 
-	virtual void setRenderCallback( b3RenderCallback renderCallback);
+	virtual void setRenderCallback(b3RenderCallback renderCallback);
 
-	virtual	void setWindowTitle(const char* title);
+	virtual void setWindowTitle(const char* title);
 
-	virtual bool	isModifierKeyPressed(int key);
+	virtual bool isModifierKeyPressed(int key);
 };
 
-#endif //_WIN32_WINDOW_H
+#endif  //_WIN32_WINDOW_H

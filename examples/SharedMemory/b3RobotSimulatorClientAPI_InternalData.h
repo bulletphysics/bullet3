@@ -10,9 +10,9 @@ struct b3RobotSimulatorClientAPI_InternalData
 
 	b3RobotSimulatorClientAPI_InternalData()
 		: m_physicsClientHandle(0),
-		m_guiHelper(0)
+		  m_guiHelper(0)
 	{
 	}
 };
 
-#endif //B3_ROBOT_SIMULATOR_CLIENT_API_INTERNAL_DATA_H
+#endif  //B3_ROBOT_SIMULATOR_CLIENT_API_INTERNAL_DATA_H

@@ -7,29 +7,26 @@
 
 #include "SharedMemoryBlock.h"
 
-
 struct SharedMemoryCommandProcessorInternalData
 {
 	int m_sharedMemoryKey;
 	bool m_isConnected;
 	SharedMemoryInterface* m_sharedMemory;
-	bool	m_ownsSharedMemory;
+	bool m_ownsSharedMemory;
 	bool m_verboseOutput;
 	bool m_waitingForServer;
 	SharedMemoryStatus m_lastServerStatus;
 	SharedMemoryBlock* m_testBlock1;
 
-
 	SharedMemoryCommandProcessorInternalData()
-		:m_sharedMemoryKey(SHARED_MEMORY_KEY),
-		m_isConnected(false),
-		m_sharedMemory(0),
-		m_ownsSharedMemory(false),
-		m_verboseOutput(false),
-		m_waitingForServer(false),
-		m_testBlock1(0)
+		: m_sharedMemoryKey(SHARED_MEMORY_KEY),
+		  m_isConnected(false),
+		  m_sharedMemory(0),
+		  m_ownsSharedMemory(false),
+		  m_verboseOutput(false),
+		  m_waitingForServer(false),
+		  m_testBlock1(0)
 	{
-
 	}
 };
 
@@ -43,13 +40,11 @@ SharedMemoryCommandProcessor::SharedMemoryCommandProcessor()
 	m_data->m_sharedMemory = new PosixSharedMemory();
 #endif
 	m_data->m_ownsSharedMemory = true;
-
-
 }
 
 SharedMemoryCommandProcessor::~SharedMemoryCommandProcessor()
 {
-	if (m_data->m_isConnected) 
+	if (m_data->m_isConnected)
 	{
 		disconnect();
 	}
@@ -58,12 +53,10 @@ SharedMemoryCommandProcessor::~SharedMemoryCommandProcessor()
 		delete m_data->m_sharedMemory;
 	}
 	delete m_data;
-
 }
 
 bool SharedMemoryCommandProcessor::connect()
 {
-	
 	if (m_data->m_isConnected)
 		return true;
 
@@ -71,45 +64,48 @@ bool SharedMemoryCommandProcessor::connect()
 	m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(
 		m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE, allowCreation);
 
-	if (m_data->m_testBlock1) {
-		if (m_data->m_testBlock1->m_magicId != SHARED_MEMORY_MAGIC_NUMBER) {
-
-			if ((m_data->m_testBlock1->m_magicId < 211705023) && 
-				(m_data->m_testBlock1->m_magicId >=201705023))
+	if (m_data->m_testBlock1)
+	{
+		if (m_data->m_testBlock1->m_magicId != SHARED_MEMORY_MAGIC_NUMBER)
+		{
+			if ((m_data->m_testBlock1->m_magicId < 211705023) &&
+				(m_data->m_testBlock1->m_magicId >= 201705023))
 			{
-				b3Error("Error: physics server version mismatch (expected %d got %d)\n",SHARED_MEMORY_MAGIC_NUMBER, m_data->m_testBlock1->m_magicId);
-			} else
+				b3Error("Error: physics server version mismatch (expected %d got %d)\n", SHARED_MEMORY_MAGIC_NUMBER, m_data->m_testBlock1->m_magicId);
+			}
+			else
 			{
 				b3Error("Error connecting to shared memory: please start server before client\n");
 			}
 			m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey,
-				SHARED_MEMORY_SIZE);
+														SHARED_MEMORY_SIZE);
 			m_data->m_testBlock1 = 0;
 			return false;
 		}
-		else {
-			if (m_data->m_verboseOutput) {
+		else
+		{
+			if (m_data->m_verboseOutput)
+			{
 				b3Printf("Connected to existing shared memory, status OK.\n");
 			}
 			m_data->m_isConnected = true;
 		}
 	}
-	else {
+	else
+	{
 		b3Error("Cannot connect to shared memory");
 		return false;
 	}
 	return true;
-
 }
 
 void SharedMemoryCommandProcessor::disconnect()
 {
-	if (m_data->m_isConnected && m_data->m_sharedMemory) 
+	if (m_data->m_isConnected && m_data->m_sharedMemory)
 	{
 		m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE);
 	}
 	m_data->m_isConnected = false;
-
 }
 
 bool SharedMemoryCommandProcessor::isConnected() const
@@ -117,11 +113,12 @@ bool SharedMemoryCommandProcessor::isConnected() const
 	return m_data->m_isConnected;
 }
 
-
 bool SharedMemoryCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
-	if (!m_data->m_waitingForServer) {
-		if (&m_data->m_testBlock1->m_clientCommands[0] != &clientCmd) {
+	if (!m_data->m_waitingForServer)
+	{
+		if (&m_data->m_testBlock1->m_clientCommands[0] != &clientCmd)
+		{
 			m_data->m_testBlock1->m_clientCommands[0] = clientCmd;
 		}
 		m_data->m_testBlock1->m_numClientCommands++;
@@ -133,11 +130,10 @@ bool SharedMemoryCommandProcessor::processCommand(const struct SharedMemoryComma
 
 bool SharedMemoryCommandProcessor::receiveStatus(struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
-
 	m_data->m_lastServerStatus.m_dataStream = 0;
 	m_data->m_lastServerStatus.m_numDataStreamBytes = 0;
 
-	if (!m_data->m_testBlock1) 
+	if (!m_data->m_testBlock1)
 	{
 		//m_data->m_lastServerStatus.m_type = CMD_SHARED_MEMORY_NOT_INITIALIZED;
 		//return &m_data->m_lastServerStatus;
@@ -145,7 +141,8 @@ bool SharedMemoryCommandProcessor::receiveStatus(struct SharedMemoryStatus& serv
 		return false;
 	}
 
-	if (!m_data->m_waitingForServer) {
+	if (!m_data->m_waitingForServer)
+	{
 		return false;
 	}
 
@@ -157,10 +154,10 @@ bool SharedMemoryCommandProcessor::receiveStatus(struct SharedMemoryStatus& serv
 	}
 
 	if (m_data->m_testBlock1->m_numServerCommands >
-		m_data->m_testBlock1->m_numProcessedServerCommands) 
+		m_data->m_testBlock1->m_numProcessedServerCommands)
 	{
 		b3Assert(m_data->m_testBlock1->m_numServerCommands ==
-			m_data->m_testBlock1->m_numProcessedServerCommands + 1);
+				 m_data->m_testBlock1->m_numProcessedServerCommands + 1);
 
 		const SharedMemoryStatus& serverCmd = m_data->m_testBlock1->m_serverCommands[0];
 		m_data->m_lastServerStatus = serverCmd;
@@ -174,13 +171,15 @@ bool SharedMemoryCommandProcessor::receiveStatus(struct SharedMemoryStatus& serv
 		m_data->m_testBlock1->m_numProcessedServerCommands++;
 		// we don't have more than 1 command outstanding (in total, either server or client)
 		b3Assert(m_data->m_testBlock1->m_numProcessedServerCommands ==
-			m_data->m_testBlock1->m_numServerCommands);
+				 m_data->m_testBlock1->m_numServerCommands);
 
 		if (m_data->m_testBlock1->m_numServerCommands ==
-			m_data->m_testBlock1->m_numProcessedServerCommands) {
+			m_data->m_testBlock1->m_numProcessedServerCommands)
+		{
 			m_data->m_waitingForServer = false;
 		}
-		else {
+		else
+		{
 			m_data->m_waitingForServer = true;
 		}
 
@@ -195,7 +194,7 @@ void SharedMemoryCommandProcessor::renderScene(int renderFlags)
 {
 }
 
-void   SharedMemoryCommandProcessor::physicsDebugDraw(int debugDrawFlags)
+void SharedMemoryCommandProcessor::physicsDebugDraw(int debugDrawFlags)
 {
 }
 
@@ -211,13 +210,11 @@ void SharedMemoryCommandProcessor::setSharedMemoryInterface(class SharedMemoryIn
 	}
 	m_data->m_ownsSharedMemory = false;
 	m_data->m_sharedMemory = sharedMem;
-
 }
 
-
-void SharedMemoryCommandProcessor::setSharedMemoryKey(int key) 
-{ 
-	m_data->m_sharedMemoryKey = key; 
+void SharedMemoryCommandProcessor::setSharedMemoryKey(int key)
+{
+	m_data->m_sharedMemoryKey = key;
 }
 
 void SharedMemoryCommandProcessor::setTimeOut(double /*timeOutInSeconds*/)

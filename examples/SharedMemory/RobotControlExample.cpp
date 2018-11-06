@@ -1,6 +1,5 @@
 
 
-
 #include "RobotControlExample.h"
 
 #if 0
@@ -665,5 +664,3 @@ class CommonExampleInterface*    RobotControlExampleCreateFunc(struct CommonExam
 	return example;
 }
 #endif
-
-

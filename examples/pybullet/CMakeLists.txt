@@ -73,6 +73,7 @@ SET(pybullet_SRCS
 		../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
 		../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.h
 		../../examples/ThirdPartyLibs/stb_image/stb_image.cpp
+		../../examples/ThirdPartyLibs/stb_image/stb_image_write.cpp
 		../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp
 		../../examples/Importers/ImportObjDemo/LoadMeshFromObj.cpp
 		../../examples/Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp

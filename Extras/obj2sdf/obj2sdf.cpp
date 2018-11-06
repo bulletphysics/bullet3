@@ -7,23 +7,24 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
-#define ASSERT_EQ(a,b) assert((a)==(b));
-#include"Wavefront/tiny_obj_loader.h"
+#define ASSERT_EQ(a, b) assert((a) == (b));
+#include "Wavefront/tiny_obj_loader.h"
 #include <vector>
 #include "Bullet3Common/b3FileUtils.h"
 #include "../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "Bullet3Common/b3HashMap.h"
+#include "../Utils/b3BulletDefaultFileIO.h"
 
 struct ShapeContainer
 {
 	std::string m_matName;
 	std::string m_shapeName;
 	tinyobj::material_t material;
-	std::vector<float>          positions;
-	std::vector<float>          normals;
-	std::vector<float>          texcoords;
-	std::vector<unsigned int>   indices;
+	std::vector<float> positions;
+	std::vector<float> normals;
+	std::vector<float> texcoords;
+	std::vector<unsigned int> indices;
 
 	b3AlignedObjectArray<int> m_shapeIndices;
 };
@@ -32,17 +33,17 @@ b3HashMap<b3HashString, ShapeContainer> gMaterialNames;
 
 #define MAX_PATH_LEN 1024
 
-std::string StripExtension( const std::string & sPath )
+std::string StripExtension(const std::string& sPath)
 {
-	for( std::string::const_reverse_iterator i = sPath.rbegin(); i != sPath.rend(); i++ )
+	for (std::string::const_reverse_iterator i = sPath.rbegin(); i != sPath.rend(); i++)
 	{
-		if( *i == '.' )
+		if (*i == '.')
 		{
-			return std::string( sPath.begin(), i.base() - 1 );
+			return std::string(sPath.begin(), i.base() - 1);
 		}
 
 		// if we find a slash there is no extension
-		if( *i == '\\' || *i == '/' )
+		if (*i == '\\' || *i == '/')
 			break;
 	}
 
@@ -52,11 +53,10 @@ std::string StripExtension( const std::string & sPath )
 
 int main(int argc, char* argv[])
 {
-
-	b3CommandLineArgs args(argc,argv);
+	b3CommandLineArgs args(argc, argv);
 	char* fileName;
-	args.GetCmdLineArgument("fileName",fileName);
-	if (fileName==0)
+	args.GetCmdLineArgument("fileName", fileName);
+	if (fileName == 0)
 	{
 		printf("required --fileName=\"name\"");
 		exit(0);
@@ -64,27 +64,29 @@ int main(int argc, char* argv[])
 	std::string matLibName = StripExtension(fileName);
 
 	printf("fileName = %s\n", fileName);
-	if (fileName==0)
+	if (fileName == 0)
 	{
 		printf("Please use --fileName=\"pathToObj\".");
 		exit(0);
 	}
 	bool mergeMaterials = args.CheckCmdLineFlag("mergeMaterials");
-	
+
 	char fileNameWithPath[MAX_PATH_LEN];
-	bool fileFound = (b3ResourcePath::findResourcePath(fileName,fileNameWithPath,MAX_PATH_LEN))>0;
+	bool fileFound = (b3ResourcePath::findResourcePath(fileName, fileNameWithPath, MAX_PATH_LEN,0)) > 0;
 	char materialPrefixPath[MAX_PATH_LEN];
-	b3FileUtils::extractPath(fileNameWithPath,materialPrefixPath,MAX_PATH_LEN);
+	b3FileUtils::extractPath(fileNameWithPath, materialPrefixPath, MAX_PATH_LEN);
 
 	std::vector<tinyobj::shape_t> shapes;
-	std::string err = tinyobj::LoadObj(shapes, fileNameWithPath, materialPrefixPath);
-	
+
+	b3BulletDefaultFileIO fileIO;
+	std::string err = tinyobj::LoadObj(shapes, fileNameWithPath, materialPrefixPath,&fileIO);
+
 	char sdfFileName[MAX_PATH_LEN];
-	sprintf(sdfFileName,"%s%s.sdf",materialPrefixPath,"newsdf");
-	FILE* sdfFile = fopen(sdfFileName,"w");
-	if (sdfFile==0)
+	sprintf(sdfFileName, "%s%s.sdf", materialPrefixPath, "newsdf");
+	FILE* sdfFile = fopen(sdfFileName, "w");
+	if (sdfFile == 0)
 	{
-		printf("Fatal error: cannot create sdf file %s\n",sdfFileName);
+		printf("Fatal error: cannot create sdf file %s\n", sdfFileName);
 		exit(0);
 	}
 
@@ -94,7 +96,7 @@ int main(int argc, char* argv[])
 	{
 		tinyobj::shape_t& shape = shapes[s];
 		tinyobj::material_t mat = shape.material;
-		
+
 		b3HashString key = mat.name.length() ? mat.name.c_str() : "";
 		if (!gMaterialNames.find(key))
 		{
@@ -109,10 +111,10 @@ int main(int argc, char* argv[])
 		if (shapeC)
 		{
 			shapeC->m_shapeIndices.push_back(s);
-		
-			int curPositions = shapeC->positions.size()/3;
-			int curNormals = shapeC->normals.size()/3;
-			int curTexcoords = shapeC->texcoords.size()/2;
+
+			int curPositions = shapeC->positions.size() / 3;
+			int curNormals = shapeC->normals.size() / 3;
+			int curTexcoords = shapeC->texcoords.size() / 2;
 
 			int faceCount = shape.mesh.indices.size();
 			int vertexCount = shape.mesh.positions.size();
@@ -139,26 +141,25 @@ int main(int argc, char* argv[])
 				}
 
 				shapeC->indices.push_back(shape.mesh.indices[face] + curPositions);
-				shapeC->indices.push_back(shape.mesh.indices[face+1] + curPositions);
+				shapeC->indices.push_back(shape.mesh.indices[face + 1] + curPositions);
 				shapeC->indices.push_back(shape.mesh.indices[face + 2] + curPositions);
 			}
 		}
 	}
-	
+
 	printf("unique materials=%d\n", gMaterialNames.size());
 
-	
 	if (mergeMaterials)
 	{
-		for (int m = 0; m < gMaterialNames.size();m++)
+		for (int m = 0; m < gMaterialNames.size(); m++)
 		{
 			if (gMaterialNames.getAtIndex(m)->m_shapeIndices.size() == 0)
 				continue;
 
-			ShapeContainer* shapeCon =gMaterialNames.getAtIndex(m);
-			
+			ShapeContainer* shapeCon = gMaterialNames.getAtIndex(m);
+
 			printf("object name = %s\n", shapeCon->m_shapeName.c_str());
-			
+
 			char objSdfPartFileName[MAX_PATH_LEN];
 			sprintf(objSdfPartFileName, "part%d.obj", m);
 
@@ -171,7 +172,6 @@ int main(int argc, char* argv[])
 			{
 				sprintf(objFileName, "part%d.obj", m);
 			}
-
 
 			FILE* f = fopen(objFileName, "w");
 			if (f == 0)
@@ -187,7 +187,6 @@ int main(int argc, char* argv[])
 			else
 			{
 				fprintf(f, "mtllib bedroom.mtl\n");
-
 			}
 
 			int faceCount = shapeCon->indices.size();
@@ -237,9 +236,9 @@ int main(int argc, char* argv[])
 					continue;
 				}
 				fprintf(f, "f %d/%d/%d %d/%d/%d %d/%d/%d\n",
-					shapeCon->indices[face] + 1, shapeCon->indices[face] + 1, shapeCon->indices[face] + 1,
-					shapeCon->indices[face + 1] + 1, shapeCon->indices[face + 1] + 1, shapeCon->indices[face + 1] + 1,
-					shapeCon->indices[face + 2] + 1, shapeCon->indices[face + 2] + 1, shapeCon->indices[face + 2] + 1);
+						shapeCon->indices[face] + 1, shapeCon->indices[face] + 1, shapeCon->indices[face] + 1,
+						shapeCon->indices[face + 1] + 1, shapeCon->indices[face + 1] + 1, shapeCon->indices[face + 1] + 1,
+						shapeCon->indices[face + 2] + 1, shapeCon->indices[face + 2] + 1, shapeCon->indices[face + 2] + 1);
 			}
 			fclose(f);
 
@@ -247,63 +246,54 @@ int main(int argc, char* argv[])
 			float kdGreen = mat.diffuse[1];
 			float kdBlue = mat.diffuse[2];
 			float transparency = mat.transparency;
-			
-			fprintf(sdfFile, "\t\t<model name='%s'>\n"
-				"\t\t\t<static>1</static>\n"
-				"\t\t\t<pose frame=''>0 0 0 0 0 0</pose>\n"
-				"\t\t\t<link name='link_d%d'>\n"
-				"\t\t\t<inertial>\n"
-				"\t\t\t<mass>0</mass>\n"
-				"\t\t\t<inertia>\n"
-				"\t\t\t<ixx>0.166667</ixx>\n"
-				"\t\t\t<ixy>0</ixy>\n"
-				"\t\t\t<ixz>0</ixz>\n"
-				"\t\t\t<iyy>0.166667</iyy>\n"
-				"\t\t\t<iyz>0</iyz>\n"
-				"\t\t\t<izz>0.166667</izz>\n"
-				"\t\t\t</inertia>\n"
-				"\t\t\t</inertial>\n"
-				"\t\t\t<collision concave='yes' name='collision_%d'>\n"
-				"\t\t\t<geometry>\n"
-				"\t\t\t<mesh>\n"
-				"\t\t\t<scale>1 1 1</scale>\n"
-				"\t\t\t\t<uri>%s</uri>\n"
-				"\t\t\t</mesh>\n"
-				"\t\t\t</geometry>\n"
-				"\t\t\t  </collision>\n"
-				"\t\t\t<visual name='visual'>\n"
-				"\t\t\t\t<geometry>\n"
-				"\t\t\t\t<mesh>\n"
-				"\t\t\t\t\t<scale>1 1 1</scale>\n"
-				"\t\t\t\t\t<uri>%s</uri>\n"
-				"\t\t\t\t</mesh>\n"
-				"\t\t\t\t</geometry>\n"
-				"\t\t\t<material>\n"
-				"\t\t\t\t<ambient>1 0 0 1</ambient>\n"
-				"\t\t\t\t<diffuse>%f %f %f %f</diffuse>\n"
-				"\t\t\t\t<specular>0.1 0.1 0.1 1</specular>\n"
-				"\t\t\t\t<emissive>0 0 0 0</emissive>\n"
-				"\t\t\t </material>\n"
-				"\t\t\t </visual>\n"
-				"\t\t\t </link>\n"
-				"\t\t\t</model>\n", objSdfPartFileName, m, m,
-				objSdfPartFileName, objSdfPartFileName,
-				kdRed, kdGreen, kdBlue, transparency);
 
-
+			fprintf(sdfFile,
+					"\t\t<model name='%s'>\n"
+					"\t\t\t<static>1</static>\n"
+					"\t\t\t<pose frame=''>0 0 0 0 0 0</pose>\n"
+					"\t\t\t<link name='link_d%d'>\n"
+					"\t\t\t<inertial>\n"
+					"\t\t\t<mass>0</mass>\n"
+					"\t\t\t<inertia>\n"
+					"\t\t\t<ixx>0.166667</ixx>\n"
+					"\t\t\t<ixy>0</ixy>\n"
+					"\t\t\t<ixz>0</ixz>\n"
+					"\t\t\t<iyy>0.166667</iyy>\n"
+					"\t\t\t<iyz>0</iyz>\n"
+					"\t\t\t<izz>0.166667</izz>\n"
+					"\t\t\t</inertia>\n"
+					"\t\t\t</inertial>\n"
+					"\t\t\t<collision concave='yes' name='collision_%d'>\n"
+					"\t\t\t<geometry>\n"
+					"\t\t\t<mesh>\n"
+					"\t\t\t<scale>1 1 1</scale>\n"
+					"\t\t\t\t<uri>%s</uri>\n"
+					"\t\t\t</mesh>\n"
+					"\t\t\t</geometry>\n"
+					"\t\t\t  </collision>\n"
+					"\t\t\t<visual name='visual'>\n"
+					"\t\t\t\t<geometry>\n"
+					"\t\t\t\t<mesh>\n"
+					"\t\t\t\t\t<scale>1 1 1</scale>\n"
+					"\t\t\t\t\t<uri>%s</uri>\n"
+					"\t\t\t\t</mesh>\n"
+					"\t\t\t\t</geometry>\n"
+					"\t\t\t<material>\n"
+					"\t\t\t\t<ambient>1 0 0 1</ambient>\n"
+					"\t\t\t\t<diffuse>%f %f %f %f</diffuse>\n"
+					"\t\t\t\t<specular>0.1 0.1 0.1 1</specular>\n"
+					"\t\t\t\t<emissive>0 0 0 0</emissive>\n"
+					"\t\t\t </material>\n"
+					"\t\t\t </visual>\n"
+					"\t\t\t </link>\n"
+					"\t\t\t</model>\n",
+					objSdfPartFileName, m, m,
+					objSdfPartFileName, objSdfPartFileName,
+					kdRed, kdGreen, kdBlue, transparency);
 		}
-
-
-
-
-
-
-
-
 	}
 	else
 	{
-
 		for (int s = 0; s < (int)shapes.size(); s++)
 		{
 			tinyobj::shape_t& shape = shapes[s];
@@ -336,9 +326,7 @@ int main(int argc, char* argv[])
 			else
 			{
 				fprintf(f, "mtllib bedroom.mtl\n");
-
 			}
-
 
 			int faceCount = shape.mesh.indices.size();
 			int vertexCount = shape.mesh.positions.size();
@@ -387,9 +375,9 @@ int main(int argc, char* argv[])
 					continue;
 				}
 				fprintf(f, "f %d/%d/%d %d/%d/%d %d/%d/%d\n",
-					shape.mesh.indices[face] + 1, shape.mesh.indices[face] + 1, shape.mesh.indices[face] + 1,
-					shape.mesh.indices[face + 1] + 1, shape.mesh.indices[face + 1] + 1, shape.mesh.indices[face + 1] + 1,
-					shape.mesh.indices[face + 2] + 1, shape.mesh.indices[face + 2] + 1, shape.mesh.indices[face + 2] + 1);
+						shape.mesh.indices[face] + 1, shape.mesh.indices[face] + 1, shape.mesh.indices[face] + 1,
+						shape.mesh.indices[face + 1] + 1, shape.mesh.indices[face + 1] + 1, shape.mesh.indices[face + 1] + 1,
+						shape.mesh.indices[face + 2] + 1, shape.mesh.indices[face + 2] + 1, shape.mesh.indices[face + 2] + 1);
 			}
 			fclose(f);
 
@@ -399,54 +387,54 @@ int main(int argc, char* argv[])
 			float transparency = mat.transparency;
 			char objSdfPartFileName[MAX_PATH_LEN];
 			sprintf(objSdfPartFileName, "part%d.obj", s);
-			fprintf(sdfFile, "\t\t<model name='%s'>\n"
-				"\t\t\t<static>1</static>\n"
-				"\t\t\t<pose frame=''>0 0 0 0 0 0</pose>\n"
-				"\t\t\t<link name='link_d%d'>\n"
-				"\t\t\t<inertial>\n"
-				"\t\t\t<mass>0</mass>\n"
-				"\t\t\t<inertia>\n"
-				"\t\t\t<ixx>0.166667</ixx>\n"
-				"\t\t\t<ixy>0</ixy>\n"
-				"\t\t\t<ixz>0</ixz>\n"
-				"\t\t\t<iyy>0.166667</iyy>\n"
-				"\t\t\t<iyz>0</iyz>\n"
-				"\t\t\t<izz>0.166667</izz>\n"
-				"\t\t\t</inertia>\n"
-				"\t\t\t</inertial>\n"
-				"\t\t\t<collision name='collision_%d'>\n"
-				"\t\t\t<geometry>\n"
-				"\t\t\t<mesh>\n"
-				"\t\t\t<scale>1 1 1</scale>\n"
-				"\t\t\t\t<uri>%s</uri>\n"
-				"\t\t\t</mesh>\n"
-				"\t\t\t</geometry>\n"
-				"\t\t\t  </collision>\n"
-				"\t\t\t<visual name='visual'>\n"
-				"\t\t\t\t<geometry>\n"
-				"\t\t\t\t<mesh>\n"
-				"\t\t\t\t\t<scale>1 1 1</scale>\n"
-				"\t\t\t\t\t<uri>%s</uri>\n"
-				"\t\t\t\t</mesh>\n"
-				"\t\t\t\t</geometry>\n"
-				"\t\t\t<material>\n"
-				"\t\t\t\t<ambient>1 0 0 1</ambient>\n"
-				"\t\t\t\t<diffuse>%f %f %f %f</diffuse>\n"
-				"\t\t\t\t<specular>0.1 0.1 0.1 1</specular>\n"
-				"\t\t\t\t<emissive>0 0 0 0</emissive>\n"
-				"\t\t\t </material>\n"
-				"\t\t\t </visual>\n"
-				"\t\t\t </link>\n"
-				"\t\t\t</model>\n", objSdfPartFileName, s, s,
-				objSdfPartFileName, objSdfPartFileName,
-				kdRed, kdGreen, kdBlue, transparency);
-
-
+			fprintf(sdfFile,
+					"\t\t<model name='%s'>\n"
+					"\t\t\t<static>1</static>\n"
+					"\t\t\t<pose frame=''>0 0 0 0 0 0</pose>\n"
+					"\t\t\t<link name='link_d%d'>\n"
+					"\t\t\t<inertial>\n"
+					"\t\t\t<mass>0</mass>\n"
+					"\t\t\t<inertia>\n"
+					"\t\t\t<ixx>0.166667</ixx>\n"
+					"\t\t\t<ixy>0</ixy>\n"
+					"\t\t\t<ixz>0</ixz>\n"
+					"\t\t\t<iyy>0.166667</iyy>\n"
+					"\t\t\t<iyz>0</iyz>\n"
+					"\t\t\t<izz>0.166667</izz>\n"
+					"\t\t\t</inertia>\n"
+					"\t\t\t</inertial>\n"
+					"\t\t\t<collision name='collision_%d'>\n"
+					"\t\t\t<geometry>\n"
+					"\t\t\t<mesh>\n"
+					"\t\t\t<scale>1 1 1</scale>\n"
+					"\t\t\t\t<uri>%s</uri>\n"
+					"\t\t\t</mesh>\n"
+					"\t\t\t</geometry>\n"
+					"\t\t\t  </collision>\n"
+					"\t\t\t<visual name='visual'>\n"
+					"\t\t\t\t<geometry>\n"
+					"\t\t\t\t<mesh>\n"
+					"\t\t\t\t\t<scale>1 1 1</scale>\n"
+					"\t\t\t\t\t<uri>%s</uri>\n"
+					"\t\t\t\t</mesh>\n"
+					"\t\t\t\t</geometry>\n"
+					"\t\t\t<material>\n"
+					"\t\t\t\t<ambient>1 0 0 1</ambient>\n"
+					"\t\t\t\t<diffuse>%f %f %f %f</diffuse>\n"
+					"\t\t\t\t<specular>0.1 0.1 0.1 1</specular>\n"
+					"\t\t\t\t<emissive>0 0 0 0</emissive>\n"
+					"\t\t\t </material>\n"
+					"\t\t\t </visual>\n"
+					"\t\t\t </link>\n"
+					"\t\t\t</model>\n",
+					objSdfPartFileName, s, s,
+					objSdfPartFileName, objSdfPartFileName,
+					kdRed, kdGreen, kdBlue, transparency);
 		}
 	}
-	fprintf(sdfFile,"\t</world>\n</sdf>\n");
+	fprintf(sdfFile, "\t</world>\n</sdf>\n");
 
 	fclose(sdfFile);
-	
+
 	return 0;
 }

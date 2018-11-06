@@ -12,7 +12,7 @@ logId = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "saveRestoreTimings
 
 def setupWorld():
 	p.resetSimulation()
-        p.setPhysicsEngineParameter(deterministicOverlappingPairs=1)
+	p.setPhysicsEngineParameter(deterministicOverlappingPairs=1)
 	p.loadURDF("planeMesh.urdf")
 	kukaId = p.loadURDF("kuka_iiwa/model_free_base.urdf",[0,0,10])
 	for i in range (p.getNumJoints(kukaId)):

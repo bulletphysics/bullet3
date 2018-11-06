@@ -4,13 +4,13 @@
 #include "DARTPhysicsClient.h"
 
 //think more about naming. The b3ConnectPhysicsLoopback
-B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsDART()
+B3_SHARED_API b3PhysicsClientHandle b3ConnectPhysicsDART()
 {
 	DARTPhysicsServerCommandProcessor* sdk = new DARTPhysicsServerCommandProcessor;
 
-	DARTPhysicsClient* direct = new DARTPhysicsClient(sdk,true);
+	DARTPhysicsClient* direct = new DARTPhysicsClient(sdk, true);
 	bool connected;
 	connected = direct->connect();
-	return (b3PhysicsClientHandle  )direct;
+	return (b3PhysicsClientHandle)direct;
 }
-#endif//BT_ENABLE_DART
+#endif  //BT_ENABLE_DART

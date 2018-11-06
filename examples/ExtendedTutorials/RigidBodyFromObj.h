@@ -18,11 +18,10 @@ subject to the following restrictions:
 
 enum ObjToRigidBodyOptionsEnum
 {
-        ObjUseConvexHullForRendering=1,
-        OptimizeConvexObj=2,
-        ComputePolyhedralFeatures=4,
+	ObjUseConvexHullForRendering = 1,
+	OptimizeConvexObj = 2,
+	ComputePolyhedralFeatures = 4,
 };
-class CommonExampleInterface*    ET_RigidBodyFromObjCreateFunc(struct CommonExampleOptions& options);
+class CommonExampleInterface* ET_RigidBodyFromObjCreateFunc(struct CommonExampleOptions& options);
 
-
-#endif //ET_RIGIDBODYFROMOBJ_EXAMPLE_H
+#endif  //ET_RIGIDBODYFROMOBJ_EXAMPLE_H

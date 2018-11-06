@@ -23,13 +23,13 @@ struct MyClass
 	float m_maxForce;
 	float m_maxForce2;
 	MyClass()
-		:m_testData(42),
-		m_controllerId(-1),
-		m_constraintId(-1),
-		m_constraintId2(-1),
-		m_gripperId(-1),
-		m_maxForce(0),
-		m_maxForce2(0)
+		: m_testData(42),
+		  m_controllerId(-1),
+		  m_constraintId(-1),
+		  m_constraintId2(-1),
+		  m_gripperId(-1),
+		  m_maxForce(0),
+		  m_maxForce2(0)
 	{
 	}
 	virtual ~MyClass()
@@ -41,26 +41,24 @@ B3_SHARED_API int initPlugin_vrSyncPlugin(struct b3PluginContext* context)
 {
 	MyClass* obj = new MyClass();
 	context->m_userPointer = obj;
-
-	printf("hi vrSyncPlugin!\n");
+	
 	return SHARED_MEMORY_MAGIC_NUMBER;
 }
 
-
 B3_SHARED_API int preTickPluginCallback_vrSyncPlugin(struct b3PluginContext* context)
 {
-	MyClass* obj = (MyClass* )context->m_userPointer;
-	if (obj && obj->m_controllerId>=0)
+	MyClass* obj = (MyClass*)context->m_userPointer;
+	if (obj && obj->m_controllerId >= 0)
 	{
 		{
 			int i = 0;
 			{
-				for (int n=0;n<context->m_numVRControllerEvents;n++)
+				for (int n = 0; n < context->m_numVRControllerEvents; n++)
 				{
 					const b3VRControllerEvent& event = context->m_vrControllerEvents[n];
-					if (event.m_controllerId ==obj->m_controllerId)
+					if (event.m_controllerId == obj->m_controllerId)
 					{
-						if (obj->m_constraintId>=0)
+						if (obj->m_constraintId >= 0)
 						{
 							struct b3UserConstraint constraintInfo;
 							if (b3GetUserConstraintInfo(context->m_physClient, obj->m_constraintId, &constraintInfo))
@@ -70,16 +68,16 @@ B3_SHARED_API int preTickPluginCallback_vrSyncPlugin(struct b3PluginContext* con
 								b3SharedMemoryCommandHandle commandHandle;
 								int userConstraintUniqueId = obj->m_constraintId;
 								commandHandle = b3InitChangeUserConstraintCommand(context->m_physClient, userConstraintUniqueId);
-								double pos[4] = {event.m_pos[0],event.m_pos[1],event.m_pos[2],1};
+								double pos[4] = {event.m_pos[0], event.m_pos[1], event.m_pos[2], 1};
 								b3InitChangeUserConstraintSetPivotInB(commandHandle, pos);
-								double orn[4] = {event.m_orn[0],event.m_orn[1],event.m_orn[2],event.m_orn[3]};
+								double orn[4] = {event.m_orn[0], event.m_orn[1], event.m_orn[2], event.m_orn[3]};
 								b3InitChangeUserConstraintSetFrameInB(commandHandle, orn);
 								b3InitChangeUserConstraintSetMaxForce(commandHandle, obj->m_maxForce);
 								b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(context->m_physClient, commandHandle);
 							}
 						}
 						// apply the analogue button to close the constraint, using a gear constraint with position target
-						if (obj->m_constraintId2>=0)
+						if (obj->m_constraintId2 >= 0)
 						{
 							struct b3UserConstraint constraintInfo;
 							if (b3GetUserConstraintInfo(context->m_physClient, obj->m_constraintId2, &constraintInfo))
@@ -92,16 +90,16 @@ B3_SHARED_API int preTickPluginCallback_vrSyncPlugin(struct b3PluginContext* con
 
 								//0 -> open, 1 = closed
 								double openPos = 1.;
-								double relPosTarget = openPos - (event.m_analogAxis*openPos);
+								double relPosTarget = openPos - (event.m_analogAxis * openPos);
 								b3InitChangeUserConstraintSetRelativePositionTarget(commandHandle, relPosTarget);
-								b3InitChangeUserConstraintSetERP(commandHandle,1);
+								b3InitChangeUserConstraintSetERP(commandHandle, 1);
 								b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(context->m_physClient, commandHandle);
 							}
 						}
 						//printf("event.m_analogAxis=%f\n", event.m_analogAxis);
 
 						// use the pr2_gripper motors to keep the gripper centered/symmetric around the center axis
-						if (obj->m_gripperId>=0)
+						if (obj->m_gripperId >= 0)
 						{
 							//this block is similar to
 							//b = p.getJointState(pr2_gripper,2)[0]
@@ -111,9 +109,9 @@ B3_SHARED_API int preTickPluginCallback_vrSyncPlugin(struct b3PluginContext* con
 							//printf("obj->m_gripperId=%d\n", obj->m_gripperId);
 							{
 								b3SharedMemoryCommandHandle cmd_handle =
-								b3RequestActualStateCommandInit(context->m_physClient, obj->m_gripperId);
+									b3RequestActualStateCommandInit(context->m_physClient, obj->m_gripperId);
 								b3SharedMemoryStatusHandle status_handle =
-								b3SubmitClientCommandAndWaitStatus(context->m_physClient, cmd_handle);
+									b3SubmitClientCommandAndWaitStatus(context->m_physClient, cmd_handle);
 
 								int status_type = b3GetStatusType(status_handle);
 								if (status_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED)
@@ -123,8 +121,6 @@ B3_SHARED_API int preTickPluginCallback_vrSyncPlugin(struct b3PluginContext* con
 									b3JointSensorState sensorState;
 									if (b3GetJointState(context->m_physClient, status_handle, 2, &sensorState))
 									{
-										
-										
 										b3SharedMemoryCommandHandle commandHandle;
 										double targetPosition = sensorState.m_jointPosition;
 										//printf("targetPosition =%f\n", targetPosition);
@@ -138,25 +134,23 @@ B3_SHARED_API int preTickPluginCallback_vrSyncPlugin(struct b3PluginContext* con
 											double kd = .6;
 											b3JointControlSetDesiredPosition(commandHandle, info.m_qIndex, targetPosition);
 											b3JointControlSetKp(commandHandle, info.m_uIndex, kp);
-											b3JointControlSetDesiredVelocity(commandHandle, info.m_uIndex,targetVelocity);
+											b3JointControlSetDesiredVelocity(commandHandle, info.m_uIndex, targetVelocity);
 											b3JointControlSetKd(commandHandle, info.m_uIndex, kd);
 											b3JointControlSetMaximumForce(commandHandle, info.m_uIndex, obj->m_maxForce2);
 											b3SubmitClientCommandAndWaitStatus(context->m_physClient, cmd_handle);
 										}
-									} else
+									}
+									else
 									{
 										//printf("???\n");
 									}
-									
-								} else
+								}
+								else
 								{
 									//printf("no\n");
 								}
-
 							}
-							
 						}
-						
 					}
 				}
 			}
@@ -166,12 +160,10 @@ B3_SHARED_API int preTickPluginCallback_vrSyncPlugin(struct b3PluginContext* con
 	return 0;
 }
 
-
-
 B3_SHARED_API int executePluginCommand_vrSyncPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
 {
-	MyClass* obj = (MyClass*) context->m_userPointer;
-	if (arguments->m_numInts>=4 && arguments->m_numFloats >= 2)
+	MyClass* obj = (MyClass*)context->m_userPointer;
+	if (arguments->m_numInts >= 4 && arguments->m_numFloats >= 2)
 	{
 		obj->m_constraintId = arguments->m_ints[1];
 		obj->m_constraintId2 = arguments->m_ints[2];
@@ -187,20 +179,16 @@ B3_SHARED_API int executePluginCommand_vrSyncPlugin(struct b3PluginContext* cont
 		b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(context->m_physClient, command);
 		int statusType = b3GetStatusType(statusHandle);
 
-		if (statusType != CMD_SYNC_BODY_INFO_COMPLETED) 
+		if (statusType != CMD_SYNC_BODY_INFO_COMPLETED)
 		{
-
 		}
 	}
 	return 0;
 }
 
-
 B3_SHARED_API void exitPlugin_vrSyncPlugin(struct b3PluginContext* context)
 {
-	MyClass* obj = (MyClass*) context->m_userPointer;
+	MyClass* obj = (MyClass*)context->m_userPointer;
 	delete obj;
 	context->m_userPointer = 0;
-
-	printf("bye vrSyncPlugin!\n");
 }

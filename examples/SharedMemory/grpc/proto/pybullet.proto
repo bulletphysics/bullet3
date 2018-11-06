@@ -1,0 +1,467 @@
+syntax = "proto3";
+
+//for why oneof everywhere, see the sad decision here:
+//https://github.com/protocolbuffers/protobuf/issues/1606
+
+option java_multiple_files = true;
+option java_package = "io.grpc.pybullet_grpc";
+option java_outer_classname = "PyBulletProto";
+option objc_class_prefix = "PBG";
+
+
+package pybullet_grpc;
+
+service PyBulletAPI {
+  // Sends a greeting
+  rpc SubmitCommand (PyBulletCommand) returns (PyBulletStatus) {}
+}
+
+
+message vec3
+{
+	double x=1;
+	double y=2;
+	double z=3;
+};
+
+
+message quat4
+{
+	double x=1;
+	double y=2;
+	double z=3;
+	double w=4;
+};
+
+message vec4
+{
+	double x=1;
+	double y=2;
+	double z=3;
+	double w=4;
+};
+
+
+message transform
+{
+	vec3 	origin=1;
+	quat4 orientation=2;
+};
+
+message matrix4x4
+{
+	//assume 16 elements, with translation in 12,13,14,
+	//'right' vector is elements 0,1,3 and 4
+	repeated double elems=1;
+};
+
+message CheckVersionCommand
+{
+	int32 clientVersion=1;	
+};
+
+message CheckVersionStatus
+{
+	int32 serverVersion=1;
+};
+
+
+message TerminateServerCommand
+{
+	string exitReason=1;
+};
+
+message StepSimulationCommand
+{
+};
+
+message SyncBodiesCommand
+{
+
+};
+
+message SyncBodiesStatus
+{
+	repeated int32 bodyUniqueIds=1;
+	repeated int32 userConstraintUniqueIds=2;
+};
+
+
+message RequestBodyInfoCommand
+{
+	int32 bodyUniqueId=1;
+};
+
+message RequestBodyInfoStatus
+{
+	int32 bodyUniqueId=1;
+	string bodyName=2;
+};
+
+
+
+message LoadUrdfCommand {
+	string fileName=1;
+	vec3 initialPosition=2;
+	quat4 initialOrientation=3;
+	//for why oneof here, see the sad decision here:
+	//https://github.com/protocolbuffers/protobuf/issues/1606
+	oneof hasUseMultiBody	{		int32  useMultiBody=4;	}
+	oneof hasUseFixedBase{	bool useFixedBase=5;	}
+	int32 flags=6;
+	oneof hasGlobalScaling {	double globalScaling=7;
+	}
+};
+
+message LoadUrdfStatus {
+	int32 bodyUniqueId=1;
+	string bodyName=2;
+	string fileName=3;
+}
+
+
+
+message LoadSdfCommand {
+	string fileName=1;
+	oneof hasUseMultiBody	{		int32  useMultiBody=2;	}
+	oneof hasGlobalScaling {	double globalScaling=3;
+	}
+};
+
+message SdfLoadedStatus
+{
+    repeated int32 bodyUniqueIds=2;
+}
+
+message LoadMjcfCommand {
+	string fileName=1;
+	int32 flags=2;
+	
+};
+
+message MjcfLoadedStatus
+{
+    repeated int32 bodyUniqueIds=2;
+}
+
+
+message ChangeDynamicsCommand
+{
+	int32 bodyUniqueId=1;
+	int32 linkIndex=2;
+	
+	oneof hasMass { double mass=3;}
+	oneof hasLateralFriction { double lateralFriction=5;}
+	oneof hasSpinningFriction {double spinningFriction=6;}
+	oneof hasRollingFriction {double rollingFriction=7;}
+	oneof hasRestitution { double restitution=8;}
+	oneof haslinearDamping { double linearDamping=9;}
+	oneof hasangularDamping { double angularDamping=10;}
+	oneof hasContactStiffness { double contactStiffness=11;}
+	oneof hasContactDamping { double contactDamping=12;}
+	oneof hasLocalInertiaDiagonal { vec3 localInertiaDiagonal=13;}
+	oneof hasFrictionAnchor { int32 frictionAnchor=14;}
+	oneof hasccdSweptSphereRadius { double ccdSweptSphereRadius=15;}
+	oneof hasContactProcessingThreshold { double contactProcessingThreshold=16;}
+	oneof hasActivationState { int32 activationState=17;}
+};
+
+message GetDynamicsCommand
+{
+	int32 bodyUniqueId=1;
+	int32 linkIndex=2;
+};
+
+message GetDynamicsStatus
+{
+	double mass=3;
+	double lateralFriction=5;
+	double spinningFriction=6;
+	double rollingFriction=7;
+	double restitution=8;
+	double linearDamping=9;
+	double angularDamping=10;
+	double contactStiffness=11;
+	double contactDamping=12;
+	vec3 localInertiaDiagonal=13;
+	int32 frictionAnchor=14;
+	double ccdSweptSphereRadius=15;
+	double contactProcessingThreshold=16;
+	int32 activationState=17;
+};
+
+
+message InitPoseCommand
+{
+	int32 bodyUniqueId=1;
+	int32 updateflags=2;
+	repeated int32 hasInitialStateQ=3;
+	repeated double initialStateQ=4;
+	repeated int32 hasInitialStateQdot=5;
+	repeated double initialStateQdot=6;
+};
+
+
+message RequestActualStateCommand
+{
+	int32 bodyUniqueId=1;
+	bool computeForwardKinematics=2;
+	bool computeLinkVelocities=3;
+};
+
+
+message SendActualStateStatus
+{
+	int32 bodyUniqueId=1;
+	int32 numLinks=2;
+	int32 numDegreeOfFreedomQ=3;
+	int32 numDegreeOfFreedomU=4;
+
+	repeated double rootLocalInertialFrame=5;
+   
+	//actual state is only written by the server, read-only access by client is expected
+	repeated double actualStateQ=6;
+	repeated double actualStateQdot=7;
+
+	//measured 6DOF force/torque sensors: force[x,y,z] and torque[x,y,z]
+	repeated double jointReactionForces=8;
+
+	repeated double jointMotorForce=9;
+    
+	repeated double linkState=10;
+	repeated double linkWorldVelocities=11;//linear velocity and angular velocity in world space (x/y/z each).
+	repeated double linkLocalInertialFrames=12;
+};
+
+
+message ConfigureOpenGLVisualizerCommand
+{
+		int32 updateFlags=1;
+		
+    double cameraDistance=2;
+    double cameraPitch=3;
+    double cameraYaw=4;
+    vec3 cameraTargetPosition=5;
+  
+    int32 setFlag=6;
+    int32 setEnabled=7;
+};
+
+
+message PhysicsSimulationParameters
+{
+	double deltaTime=1;
+	vec3 gravityAcceleration=2;
+	int32 numSimulationSubSteps=3;
+	int32 numSolverIterations=4;
+	int32 useRealTimeSimulation=5;
+	int32 useSplitImpulse=6;
+	double splitImpulsePenetrationThreshold=7;
+	double contactBreakingThreshold=8;
+	int32 internalSimFlags=9;
+	double defaultContactERP=10;
+	int32 collisionFilterMode=11;
+	int32 enableFileCaching=12;
+	double restitutionVelocityThreshold=13;
+	double defaultNonContactERP=14;
+	double frictionERP=15;
+	double defaultGlobalCFM=16;
+	double frictionCFM=17;
+	int32 enableConeFriction=18;
+	int32 deterministicOverlappingPairs=19;
+	double allowedCcdPenetration=20;
+	int32 jointFeedbackMode=21;
+	double solverResidualThreshold=22;
+	double contactSlop=23;
+	int32 enableSAT=24;
+  int32 constraintSolverType=25;
+	int32 minimumSolverIslandSize=26;
+};
+
+
+message PhysicsSimulationParametersCommand
+{
+	int32 updateFlags=1;
+	PhysicsSimulationParameters params=2;
+};
+
+
+
+message JointMotorControlCommand
+{
+	int32 bodyUniqueId=1;
+	int32 controlMode=2;
+	int32 updateFlags=3;
+	
+	//PD parameters in case controlMode == CONTROL_MODE_POSITION_VELOCITY_PD
+	repeated double Kp=4;//indexed by degree of freedom, 6 for base, and then the dofs for each link
+	repeated double Kd=5;//indexed by degree of freedom, 6 for base, and then the dofs for each link
+	repeated double maxVelocity=6;
+
+  repeated int32 hasDesiredStateFlags=7;
+    
+	//desired state is only written by the client, read-only access by server is expected
+
+	//desiredStateQ is indexed by position variables, 
+	//starting with 3 base position variables, 4 base orientation variables (quaternion), then link position variables
+  repeated double desiredStateQ=8;
+    
+	//desiredStateQdot is index by velocity degrees of freedom, 3 linear and 3 angular variables for the base and then link velocity variables
+  repeated double desiredStateQdot=9;
+	
+	//desiredStateForceTorque is either the actual applied force/torque (in CONTROL_MODE_TORQUE) or
+	//or the maximum applied force/torque for the PD/motor/constraint to reach the desired velocity in CONTROL_MODE_VELOCITY and CONTROL_MODE_POSITION_VELOCITY_PD mode
+	//indexed by degree of freedom, 6 dof base, and then dofs for each link
+	repeated double desiredStateForceTorque=10;
+};
+
+
+message UserConstraintCommand
+{
+	int32 parentBodyIndex=1;
+	int32 parentJointIndex=2;
+	int32 childBodyIndex=3;
+	int32 childJointIndex=4;
+	transform parentFrame=5;
+	transform childFrame=6;
+	vec3 jointAxis=7;
+	int32 jointType=8;
+	double maxAppliedForce=9;
+	int32 userConstraintUniqueId=10;
+	double gearRatio=11;
+	int32 gearAuxLink=12;
+	double relativePositionTarget=13;
+	double erp=14;
+	int32 updateFlags=15;
+};
+
+message UserConstraintStatus
+{
+	double maxAppliedForce=9;
+	int32 userConstraintUniqueId=10;
+};
+
+message UserConstraintStateStatus
+{
+	vec3 appliedConstraintForcesLinear=1;
+	vec3 appliedConstraintForcesAngular=2;
+	int32 numDofs=3;
+};
+
+
+message RequestKeyboardEventsCommand
+{
+
+};
+
+message KeyboardEvent
+{
+	int32 keyCode=1;//ascii
+	int32 keyState=2;// see b3VRButtonInfo
+};
+
+
+message KeyboardEventsStatus
+{
+	repeated KeyboardEvent keyboardEvents=1;
+};
+
+
+message RequestCameraImageCommand
+{
+	int32 updateFlags=1;
+	int32 cameraFlags=2;
+	matrix4x4 viewMatrix=3;
+	matrix4x4 projectionMatrix=4;
+	int32 startPixelIndex=5;
+	int32 pixelWidth=6;
+	int32 pixelHeight=7;
+	vec3 lightDirection=8;
+	vec3 lightColor=9;
+	double lightDistance=10;
+	double lightAmbientCoeff=11;
+	double lightDiffuseCoeff=12;
+	double lightSpecularCoeff=13;
+	int32 hasShadow=14;
+	matrix4x4 projectiveTextureViewMatrix=15;
+	matrix4x4 projectiveTextureProjectionMatrix=16;
+};
+
+message RequestCameraImageStatus
+{
+	int32 imageWidth=1;
+	int32 imageHeight=2;
+
+	int32 startingPixelIndex=3;
+	int32 numPixelsCopied=4;
+	int32 numRemainingPixels=5;
+};
+
+message ResetSimulationCommand
+{
+};
+
+// The request message containing the command
+message PyBulletCommand {
+  int32 commandType=1;
+  
+  repeated bytes binaryBlob=2;
+  
+  repeated bytes unknownCommandBinaryBlob=3;
+    
+  oneof commands {
+  	
+    LoadUrdfCommand loadUrdfCommand = 4;
+    TerminateServerCommand terminateServerCommand=5;
+		StepSimulationCommand stepSimulationCommand= 6;
+		LoadSdfCommand loadSdfCommand=7;
+		LoadMjcfCommand loadMjcfCommand=8;
+		ChangeDynamicsCommand changeDynamicsCommand=9;
+		GetDynamicsCommand getDynamicsCommand=10;
+		InitPoseCommand initPoseCommand=11;
+		RequestActualStateCommand requestActualStateCommand=12;
+		ConfigureOpenGLVisualizerCommand configureOpenGLVisualizerCommand =13;
+		SyncBodiesCommand syncBodiesCommand=14;
+		RequestBodyInfoCommand requestBodyInfoCommand=15;
+		PhysicsSimulationParametersCommand setPhysicsSimulationParametersCommand=16;
+		JointMotorControlCommand jointMotorControlCommand=17;
+		UserConstraintCommand userConstraintCommand=18;
+		CheckVersionCommand checkVersionCommand=19;
+		RequestKeyboardEventsCommand requestKeyboardEventsCommand=20;
+		RequestCameraImageCommand requestCameraImageCommand=21;
+		ResetSimulationCommand resetSimulationCommand=22;
+  }
+  
+  
+}
+
+// The response message containing the status
+message PyBulletStatus {
+  int32 statusType=1;
+  
+  repeated bytes binaryBlob=2;
+  
+  repeated bytes unknownStatusBinaryBlob=3;
+  
+  oneof status
+  {
+  	
+  	LoadUrdfStatus urdfStatus = 4;
+  	SdfLoadedStatus sdfStatus = 5;
+  	MjcfLoadedStatus mjcfStatus = 6;
+  	GetDynamicsStatus getDynamicsStatus = 7;
+  	SendActualStateStatus actualStateStatus = 8;
+  	SyncBodiesStatus syncBodiesStatus=9;
+  	RequestBodyInfoStatus requestBodyInfoStatus = 10;
+  	PhysicsSimulationParameters requestPhysicsSimulationParametersStatus=11;
+  	CheckVersionStatus checkVersionStatus=12;
+  	UserConstraintStatus userConstraintStatus=13;
+		UserConstraintStateStatus userConstraintStateStatus=14;
+		KeyboardEventsStatus keyboardEventsStatus=15;
+		RequestCameraImageStatus requestCameraImageStatus=16;
+  }
+  
+  
+}
+
+

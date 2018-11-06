@@ -2,7 +2,6 @@
 #ifndef COMMON_MULTI_BODY_SETUP_H
 #define COMMON_MULTI_BODY_SETUP_H
 
-
 #include "btBulletDynamicsCommon.h"
 
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
@@ -20,32 +19,33 @@
 
 enum MyFilterModes
 {
-	FILTER_GROUPAMASKB_AND_GROUPBMASKA2=0,
+	FILTER_GROUPAMASKB_AND_GROUPBMASKA2 = 0,
 	FILTER_GROUPAMASKB_OR_GROUPBMASKA2
 };
 
 struct MyOverlapFilterCallback2 : public btOverlapFilterCallback
 {
 	int m_filterMode;
-	
+
 	MyOverlapFilterCallback2()
-	:m_filterMode(FILTER_GROUPAMASKB_AND_GROUPBMASKA2)
+		: m_filterMode(FILTER_GROUPAMASKB_AND_GROUPBMASKA2)
 	{
 	}
-	
+
 	virtual ~MyOverlapFilterCallback2()
-	{}
-	// return true when pairs need collision
-	virtual bool	needBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
 	{
-		if (m_filterMode==FILTER_GROUPAMASKB_AND_GROUPBMASKA2)
+	}
+	// return true when pairs need collision
+	virtual bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const
+	{
+		if (m_filterMode == FILTER_GROUPAMASKB_AND_GROUPBMASKA2)
 		{
 			bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
 			collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
 			return collides;
 		}
-		
-		if (m_filterMode==FILTER_GROUPAMASKB_OR_GROUPBMASKA2)
+
+		if (m_filterMode == FILTER_GROUPAMASKB_OR_GROUPBMASKA2)
 		{
 			bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
 			collides = collides || (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
@@ -57,20 +57,20 @@ struct MyOverlapFilterCallback2 : public btOverlapFilterCallback
 
 struct CommonMultiBodyBase : public CommonExampleInterface
 {
-		//keep the collision shapes, for deletion/cleanup
-	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+	//keep the collision shapes, for deletion/cleanup
+	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
 	MyOverlapFilterCallback2* m_filterCallback;
 	btOverlappingPairCache* m_pairCache;
-	btBroadphaseInterface*	m_broadphase;
-	btCollisionDispatcher*	m_dispatcher;
-	btMultiBodyConstraintSolver*	m_solver;
+	btBroadphaseInterface* m_broadphase;
+	btCollisionDispatcher* m_dispatcher;
+	btMultiBodyConstraintSolver* m_solver;
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
 
 	//data for picking objects
-	class btRigidBody*	m_pickedBody;
+	class btRigidBody* m_pickedBody;
 	class btTypedConstraint* m_pickedConstraint;
-	class btMultiBodyPoint2Point*		m_pickingMultiBodyPoint2Point;
+	class btMultiBodyPoint2Point* m_pickingMultiBodyPoint2Point;
 
 	btVector3 m_oldPickingPos;
 	btVector3 m_hitPos;
@@ -80,18 +80,18 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 	struct GUIHelperInterface* m_guiHelper;
 
 	CommonMultiBodyBase(GUIHelperInterface* helper)
-	:m_filterCallback(0),
-		m_pairCache(0),
-		m_broadphase(0),
-		m_dispatcher(0),
-		m_solver(0),
-		m_collisionConfiguration(0),
-		m_dynamicsWorld(0),
-		m_pickedBody(0),
-		m_pickedConstraint(0),
-		m_pickingMultiBodyPoint2Point(0),
-		m_prevCanSleep(false),
-		m_guiHelper(helper)
+		: m_filterCallback(0),
+		  m_pairCache(0),
+		  m_broadphase(0),
+		  m_dispatcher(0),
+		  m_solver(0),
+		  m_collisionConfiguration(0),
+		  m_dynamicsWorld(0),
+		  m_pickedBody(0),
+		  m_pickedConstraint(0),
+		  m_pickingMultiBodyPoint2Point(0),
+		  m_prevCanSleep(false),
+		  m_guiHelper(helper)
 	{
 	}
 
@@ -101,15 +101,15 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		m_collisionConfiguration = new btDefaultCollisionConfiguration();
 		//m_collisionConfiguration->setConvexConvexMultipointIterations();
 		m_filterCallback = new MyOverlapFilterCallback2();
-		
+
 		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-		m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
+		m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 		m_pairCache = new btHashedOverlappingPairCache();
 
 		m_pairCache->setOverlapFilterCallback(m_filterCallback);
-		
-		m_broadphase = new btDbvtBroadphase(m_pairCache);//btSimpleBroadphase();
+
+		m_broadphase = new btDbvtBroadphase(m_pairCache);  //btSimpleBroadphase();
 
 		m_solver = new btMultiBodyConstraintSolver;
 
@@ -118,7 +118,6 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
 	}
 
-
 	virtual void stepSimulation(float deltaTime)
 	{
 		if (m_dynamicsWorld)
@@ -126,7 +125,6 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 			m_dynamicsWorld->stepSimulation(deltaTime);
 		}
 	}
-
 
 	virtual void exitPhysics()
 	{
@@ -137,13 +135,12 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 
 		if (m_dynamicsWorld)
 		{
+			int i;
+			for (i = m_dynamicsWorld->getNumConstraints() - 1; i >= 0; i--)
+			{
+				m_dynamicsWorld->removeConstraint(m_dynamicsWorld->getConstraint(i));
+			}
 
-            int i;
-            for (i = m_dynamicsWorld->getNumConstraints() - 1; i >= 0; i--)
-            {
-                m_dynamicsWorld->removeConstraint(m_dynamicsWorld->getConstraint(i));
-            }
-			
 			for (i = m_dynamicsWorld->getNumMultiBodyConstraints() - 1; i >= 0; i--)
 			{
 				btMultiBodyConstraint* mbc = m_dynamicsWorld->getMultiBodyConstraint(i);
@@ -170,7 +167,7 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 			}
 		}
 		//delete collision shapes
-		for (int j = 0; j<m_collisionShapes.size(); j++)
+		for (int j = 0; j < m_collisionShapes.size(); j++)
 		{
 			btCollisionShape* shape = m_collisionShapes[j];
 			delete shape;
@@ -181,22 +178,22 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		m_dynamicsWorld = 0;
 
 		delete m_solver;
-		m_solver=0;
+		m_solver = 0;
 
 		delete m_broadphase;
-		m_broadphase=0;
+		m_broadphase = 0;
 
 		delete m_dispatcher;
-		m_dispatcher=0;
-		
+		m_dispatcher = 0;
+
 		delete m_pairCache;
 		m_pairCache = 0;
 
 		delete m_filterCallback;
 		m_filterCallback = 0;
-		
+
 		delete m_collisionConfiguration;
-		m_collisionConfiguration=0;
+		m_collisionConfiguration = 0;
 	}
 
 	virtual void syncPhysicsToGraphics()
@@ -209,76 +206,72 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 
 	virtual void renderScene()
 	{
-        if (m_dynamicsWorld)
-        {
-		m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
+		if (m_dynamicsWorld)
+		{
+			m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
 
-		m_guiHelper->render(m_dynamicsWorld);
-        }
-	
+			m_guiHelper->render(m_dynamicsWorld);
+		}
 	}
 
-    virtual void    physicsDebugDraw(int debugDrawFlags)
-    {
-     	if (m_dynamicsWorld)
-        {
+	virtual void physicsDebugDraw(int debugDrawFlags)
+	{
+		if (m_dynamicsWorld)
+		{
 			if (m_dynamicsWorld->getDebugDrawer())
 			{
 				m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
 			}
-            m_dynamicsWorld->debugDrawWorld();
-        }
+			m_dynamicsWorld->debugDrawWorld();
+		}
+	}
 
-    }
-
-	virtual bool	keyboardCallback(int key, int state)
+	virtual bool keyboardCallback(int key, int state)
 	{
-		if ((key==B3G_F3) && state && m_dynamicsWorld)
+		if ((key == B3G_F3) && state && m_dynamicsWorld)
 		{
-			btDefaultSerializer*	serializer = new btDefaultSerializer();
+			btDefaultSerializer* serializer = new btDefaultSerializer();
 			m_dynamicsWorld->serialize(serializer);
 
-			FILE* file = fopen("testFile.bullet","wb");
-			fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1, file);
+			FILE* file = fopen("testFile.bullet", "wb");
+			fwrite(serializer->getBufferPointer(), serializer->getCurrentBufferSize(), 1, file);
 			fclose(file);
 			//b3Printf("btDefaultSerializer wrote testFile.bullet");
 			delete serializer;
 			return true;
-
 		}
-		return false;//don't handle this key
+		return false;  //don't handle this key
 	}
 
-
-	btVector3	getRayTo(int x,int y)
+	btVector3 getRayTo(int x, int y)
 	{
 		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
-		
+
 		if (!renderer)
 		{
 			btAssert(0);
-			return btVector3(0,0,0);
+			return btVector3(0, 0, 0);
 		}
 
 		float top = 1.f;
 		float bottom = -1.f;
 		float nearPlane = 1.f;
-		float tanFov = (top-bottom)*0.5f / nearPlane;
+		float tanFov = (top - bottom) * 0.5f / nearPlane;
 		float fov = btScalar(2.0) * btAtan(tanFov);
 
-		btVector3 camPos,camTarget;
+		btVector3 camPos, camTarget;
 		renderer->getActiveCamera()->getCameraPosition(camPos);
 		renderer->getActiveCamera()->getCameraTargetPosition(camTarget);
 
-		btVector3	rayFrom = camPos;
-		btVector3 rayForward = (camTarget-camPos);
+		btVector3 rayFrom = camPos;
+		btVector3 rayForward = (camTarget - camPos);
 		rayForward.normalize();
 		float farPlane = 10000.f;
-		rayForward*= farPlane;
+		rayForward *= farPlane;
 
 		btVector3 rightOffset;
-		btVector3 cameraUp=btVector3(0,0,0);
-		cameraUp[m_guiHelper->getAppInterface()->getUpAxis()]=1;
+		btVector3 cameraUp = btVector3(0, 0, 0);
+		cameraUp[m_guiHelper->getAppInterface()->getUpAxis()] = 1;
 
 		btVector3 vertical = cameraUp;
 
@@ -288,25 +281,22 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		vertical = hor.cross(rayForward);
 		vertical.normalize();
 
-		float tanfov = tanf(0.5f*fov);
-
+		float tanfov = tanf(0.5f * fov);
 
 		hor *= 2.f * farPlane * tanfov;
 		vertical *= 2.f * farPlane * tanfov;
 
 		btScalar aspect;
 		float width = float(renderer->getScreenWidth());
-		float height = float (renderer->getScreenHeight());
+		float height = float(renderer->getScreenHeight());
 
-		aspect =  width / height;
+		aspect = width / height;
 
-		hor*=aspect;
-
+		hor *= aspect;
 
 		btVector3 rayToCenter = rayFrom + rayForward;
-		btVector3 dHor = hor * 1.f/width;
-		btVector3 dVert = vertical * 1.f/height;
-
+		btVector3 dHor = hor * 1.f / width;
+		btVector3 dVert = vertical * 1.f / height;
 
 		btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
 		rayTo += btScalar(x) * dHor;
@@ -314,10 +304,10 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		return rayTo;
 	}
 
-	virtual bool	mouseMoveCallback(float x,float y)
+	virtual bool mouseMoveCallback(float x, float y)
 	{
 		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
-		
+
 		if (!renderer)
 		{
 			btAssert(0);
@@ -327,41 +317,39 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		btVector3 rayTo = getRayTo(int(x), int(y));
 		btVector3 rayFrom;
 		renderer->getActiveCamera()->getCameraPosition(rayFrom);
-		movePickedBody(rayFrom,rayTo);
+		movePickedBody(rayFrom, rayTo);
 
 		return false;
 	}
 
-	virtual bool	mouseButtonCallback(int button, int state, float x, float y)
+	virtual bool mouseButtonCallback(int button, int state, float x, float y)
 	{
 		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
-		
+
 		if (!renderer)
 		{
 			btAssert(0);
 			return false;
 		}
-		
+
 		CommonWindowInterface* window = m_guiHelper->getAppInterface()->m_window;
 
-	
-		if (state==1)
+		if (state == 1)
 		{
-			if(button==0 && (!window->isModifierKeyPressed(B3G_ALT) && !window->isModifierKeyPressed(B3G_CONTROL) ))
+			if (button == 0 && (!window->isModifierKeyPressed(B3G_ALT) && !window->isModifierKeyPressed(B3G_CONTROL)))
 			{
 				btVector3 camPos;
 				renderer->getActiveCamera()->getCameraPosition(camPos);
 
 				btVector3 rayFrom = camPos;
-				btVector3 rayTo = getRayTo(int(x),int(y));
+				btVector3 rayTo = getRayTo(int(x), int(y));
 
 				pickBody(rayFrom, rayTo);
-
-
 			}
-		} else
+		}
+		else
 		{
-			if (button==0)
+			if (button == 0)
 			{
 				removePickingConstraint();
 				//remove p2p
@@ -372,10 +360,9 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		return false;
 	}
 
-
 	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
 	{
-		if (m_dynamicsWorld==0)
+		if (m_dynamicsWorld == 0)
 			return false;
 
 		btCollisionWorld::ClosestRayResultCallback rayCallback(rayFromWorld, rayToWorld);
@@ -383,7 +370,6 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		m_dynamicsWorld->rayTest(rayFromWorld, rayToWorld, rayCallback);
 		if (rayCallback.hasHit())
 		{
-
 			btVector3 pickPos = rayCallback.m_hitPointWorld;
 			btRigidBody* body = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
 			if (body)
@@ -403,32 +389,30 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 					//very weak constraint for picking
 					p2p->m_setting.m_tau = 0.001f;
 				}
-			} else
+			}
+			else
 			{
 				btMultiBodyLinkCollider* multiCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(rayCallback.m_collisionObject);
 				if (multiCol && multiCol->m_multiBody)
 				{
-						
 					m_prevCanSleep = multiCol->m_multiBody->getCanSleep();
 					multiCol->m_multiBody->setCanSleep(false);
 
 					btVector3 pivotInA = multiCol->m_multiBody->worldPosToLocal(multiCol->m_link, pickPos);
 
-					btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(multiCol->m_multiBody,multiCol->m_link,0,pivotInA,pickPos);
+					btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(multiCol->m_multiBody, multiCol->m_link, 0, pivotInA, pickPos);
 					//if you add too much energy to the system, causing high angular velocities, simulation 'explodes'
 					//see also http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?f=4&t=949
 					//so we try to avoid it by clamping the maximum impulse (force) that the mouse pick can apply
 					//it is not satisfying, hopefully we find a better solution (higher order integrator, using joint friction using a zero-velocity target motor with limited force etc?)
-					btScalar scaling=1;
-					p2p->setMaxAppliedImpulse(2*scaling);
-		
-					btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_dynamicsWorld;
+					btScalar scaling = 1;
+					p2p->setMaxAppliedImpulse(2 * scaling);
+
+					btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_dynamicsWorld;
 					world->addMultiBodyConstraint(p2p);
-					m_pickingMultiBodyPoint2Point =p2p; 
+					m_pickingMultiBodyPoint2Point = p2p;
 				}
 			}
-
-
 
 			//					pickObject(pickPos, rayCallback.m_collisionObject);
 			m_oldPickingPos = rayToWorld;
@@ -441,14 +425,14 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 	}
 	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
 	{
-		if (m_pickedBody  && m_pickedConstraint)
+		if (m_pickedBody && m_pickedConstraint)
 		{
 			btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_pickedConstraint);
 			if (pickCon)
 			{
 				//keep it at the same picking distance
-		
-				btVector3 dir = rayToWorld-rayFromWorld;
+
+				btVector3 dir = rayToWorld - rayFromWorld;
 				dir.normalize();
 				dir *= m_oldPickingDist;
 
@@ -456,21 +440,20 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 				pickCon->setPivotB(newPivotB);
 			}
 		}
-		
+
 		if (m_pickingMultiBodyPoint2Point)
 		{
 			//keep it at the same picking distance
 
-		
-			btVector3 dir = rayToWorld-rayFromWorld;
+			btVector3 dir = rayToWorld - rayFromWorld;
 			dir.normalize();
 			dir *= m_oldPickingDist;
 
 			btVector3 newPivotB = rayFromWorld + dir;
-			
+
 			m_pickingMultiBodyPoint2Point->setPivotInB(newPivotB);
 		}
-		
+
 		return false;
 	}
 	virtual void removePickingConstraint()
@@ -478,6 +461,12 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		if (m_pickedConstraint)
 		{
 			m_dynamicsWorld->removeConstraint(m_pickedConstraint);
+
+			if (m_pickedBody)
+			{
+				m_pickedBody->forceActivationState(ACTIVE_TAG);
+				m_pickedBody->activate(true);
+			}
 			delete m_pickedConstraint;
 			m_pickedConstraint = 0;
 			m_pickedBody = 0;
@@ -485,14 +474,12 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		if (m_pickingMultiBodyPoint2Point)
 		{
 			m_pickingMultiBodyPoint2Point->getMultiBodyA()->setCanSleep(m_prevCanSleep);
-			btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_dynamicsWorld;
+			btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_dynamicsWorld;
 			world->removeMultiBodyConstraint(m_pickingMultiBodyPoint2Point);
 			delete m_pickingMultiBodyPoint2Point;
 			m_pickingMultiBodyPoint2Point = 0;
 		}
 	}
-
-
 
 	btBoxShape* createBoxShape(const btVector3& halfExtents)
 	{
@@ -500,7 +487,7 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		return box;
 	}
 
-	btRigidBody*	createRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape,  const btVector4& color = btVector4(1, 0, 0, 1))
+	btRigidBody* createRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, const btVector4& color = btVector4(1, 0, 0, 1))
 	{
 		btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
@@ -511,7 +498,7 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		if (isDynamic)
 			shape->calculateLocalInertia(mass, localInertia);
 
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 
 #define USE_MOTIONSTATE 1
 #ifdef USE_MOTIONSTATE
@@ -525,7 +512,7 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 #else
 		btRigidBody* body = new btRigidBody(mass, 0, shape, localInertia);
 		body->setWorldTransform(startTransform);
-#endif//
+#endif  //
 
 		body->setUserIndex(-1);
 		m_dynamicsWorld->addRigidBody(body);
@@ -533,5 +520,4 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 	}
 };
 
-#endif //COMMON_MULTI_BODY_SETUP_H
-
+#endif  //COMMON_MULTI_BODY_SETUP_H

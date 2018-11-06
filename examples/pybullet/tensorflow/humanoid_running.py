@@ -10,7 +10,7 @@ if (cid<0):
 	cid = p.connect(p.GUI) #DIRECT is much faster, but GUI shows the running gait
 
 p.setGravity(0,0,-9.8)
-p.setPhysicsEngineParameter(fixedTimeStep=1.0/60., numSolverIterations=5, numSubSteps=2)
+p.setPhysicsEngineParameter(fixedTimeStep=1.0/60.,solverResidualThreshold=1-10, numSolverIterations=50, numSubSteps=4)
 #this mp4 recording requires ffmpeg installed
 #mp4log = p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4,"humanoid.mp4")
 
@@ -180,11 +180,14 @@ def demo_run():
 			
 		forces = [0.] * len(motors)
 		for m in range(len(motors)):
-			forces[m] = motor_power[m]*actions[m]*0.082
+			limit=15
+			ac = np.clip(actions[m],-limit,limit)
+			#print (ac)
+			forces[m] = motor_power[m]*ac*0.082
 		p.setJointMotorControlArray(human, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
 
 		p.stepSimulation()
-		time.sleep(0.01)
+		#time.sleep(0.01)
 		distance=5
 		yaw = 0
 		humanPos, humanOrn = p.getBasePositionAndOrientation(human)

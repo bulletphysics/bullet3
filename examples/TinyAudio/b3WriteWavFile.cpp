@@ -153,15 +153,14 @@ bool b3WriteWavFile::setWavFile(std::string fileName, int sampleRate, int numCha
 
 	char data[4] = {'d', 'a', 't', 'a'};
 	int dataSize = 0;
-	if (fwrite(&hdr, 1, bytesToWrite, m_data->m_file) != bytesToWrite) 
+	if (fwrite(&hdr, 1, bytesToWrite, m_data->m_file) != bytesToWrite)
 		return false;
-	if (fwrite(&data, 4, 1, m_data->m_file) != 1) 
+	if (fwrite(&data, 4, 1, m_data->m_file) != 1)
 		return false;
-	if (fwrite(&dataSize, 4, 1, m_data->m_file) != 1) 
+	if (fwrite(&dataSize, 4, 1, m_data->m_file) != 1)
 		return false;
-	
-	return true;
 
+	return true;
 }
 
 void b3WriteWavFile::closeWavFile()

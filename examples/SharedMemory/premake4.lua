@@ -98,7 +98,8 @@ myfiles =
 	"../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp",	
 	"../ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
 	"../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
-	"../ThirdPartyLibs/stb_image/stb_image.cpp",     
+	"../ThirdPartyLibs/stb_image/stb_image.cpp",
+	"../ThirdPartyLibs/stb_image/stb_image_write.cpp",
 
 }
 
@@ -466,6 +467,7 @@ end
 
 include "udp"
 include "tcp"
+
 include "plugins/testPlugin"
 include "plugins/vrSyncPlugin"
 include "plugins/tinyRendererPlugin"
@@ -473,3 +475,11 @@ include "plugins/tinyRendererPlugin"
 include "plugins/pdControlPlugin"
 include "plugins/collisionFilterPlugin"
 
+if _OPTIONS["enable_egl"] then
+		include "plugins/eglPlugin"
+end
+
+if _OPTIONS["enable_grpc"] then
+		include "grpc"
+		include "plugins/grpcPlugin"
+end

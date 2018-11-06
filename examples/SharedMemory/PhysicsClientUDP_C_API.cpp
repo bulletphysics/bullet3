@@ -5,9 +5,8 @@
 #include <stdio.h>
 
 //think more about naming. The b3ConnectPhysicsLoopback
-B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsUDP(const char* hostName, int port)
+B3_SHARED_API b3PhysicsClientHandle b3ConnectPhysicsUDP(const char* hostName, int port)
 {
-
 	UdpNetworkedPhysicsProcessor* udp = new UdpNetworkedPhysicsProcessor(hostName, port);
 
 	PhysicsDirect* direct = new PhysicsDirect(udp, true);
@@ -21,10 +20,6 @@ B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsUDP(const char* hostName, in
 	else
 	{
 		printf("b3ConnectPhysicsUDP connection failed.\n");
-
 	}
 	return (b3PhysicsClientHandle)direct;
 }
-
-
-

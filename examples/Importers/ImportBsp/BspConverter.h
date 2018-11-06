@@ -23,17 +23,14 @@ class BspLoader;
 ///BspConverter turns a loaded bsp level into convex parts (vertices)
 class BspConverter
 {
-	public:
+public:
+	void convertBsp(BspLoader& bspLoader, float scaling);
+	virtual ~BspConverter()
+	{
+	}
 
-		void convertBsp(BspLoader& bspLoader,float scaling);
-		virtual ~BspConverter()
-		{
-		}
-
-		///this callback is called for each brush that succesfully converted into vertices
-		virtual void	addConvexVerticesCollider(btAlignedObjectArray<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation) = 0;
-
+	///this callback is called for each brush that succesfully converted into vertices
+	virtual void addConvexVerticesCollider(btAlignedObjectArray<btVector3>& vertices, bool isEntity, const btVector3& entityTargetLocation) = 0;
 };
 
-#endif //BSP_CONVERTER_H
-
+#endif  //BSP_CONVERTER_H

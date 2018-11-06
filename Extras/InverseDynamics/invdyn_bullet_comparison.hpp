@@ -6,7 +6,8 @@
 class btMultiBody;
 class btVector3;
 
-namespace btInverseDynamics {
+namespace btInverseDynamics
+{
 class MultiBodyTree;
 
 /// this function compares the forward dynamics computations implemented in btMultiBody to
@@ -29,7 +30,7 @@ class MultiBodyTree;
 ///        computed in step 3 relative to dot_u
 /// @return -1 on error, 0 on success
 int compareInverseAndForwardDynamics(vecx &q, vecx &u, vecx &dot_u, btVector3 &gravity, bool verbose,
-                                     btMultiBody *btmb, MultiBodyTree *id_tree, double *pos_error,
-                                     double *acc_error);
-}
+									 btMultiBody *btmb, MultiBodyTree *id_tree, double *pos_error,
+									 double *acc_error);
+}  // namespace btInverseDynamics
 #endif  // INVDYN_BULLET_COMPARISON_HPP

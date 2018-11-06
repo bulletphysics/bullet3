@@ -11,19 +11,17 @@
 #include "Gwen/Controls/Base.h"
 #include "Gwen/Controls/Button.h"
 
-namespace Gwen 
+namespace Gwen
 {
-	namespace Controls
-	{
-		class GWEN_EXPORT LabelClickable : public Button
-		{
-			public:
+namespace Controls
+{
+class GWEN_EXPORT LabelClickable : public Button
+{
+public:
+	GWEN_CONTROL(LabelClickable, Button);
 
-				GWEN_CONTROL( LabelClickable, Button );
-				
-				virtual void Render( Skin::Base* skin );
-
-		};
-	}
-}
+	virtual void Render(Skin::Base* skin);
+};
+}  // namespace Controls
+}  // namespace Gwen
 #endif

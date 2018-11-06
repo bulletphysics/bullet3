@@ -9,9 +9,9 @@
  * @date		2015-09-20
  * @author		Benjamin Ellenberger
  */
-class b3ERPCFMHelper {
+class b3ERPCFMHelper
+{
 public:
-
 	/**
 	 * == How To Use ERP and CFM ==
 	 * ERP and CFM can be independently set in many joints. They can be set in contact joints, in joint limits and various other places, to control the spongyness and springyness of the joint (or joint limit).
@@ -45,7 +45,8 @@ public:
 	 * @return
 	 */
 	static btScalar getERP(btScalar timeStep, btScalar kSpring,
-		btScalar kDamper) {
+						   btScalar kDamper)
+	{
 		return timeStep * kSpring / (timeStep * kSpring + kDamper);
 	}
 
@@ -71,7 +72,8 @@ public:
 	 * @return
 	 */
 	static btScalar getCFM(btScalar avoidSingularity, btScalar timeStep, btScalar kSpring,
-		btScalar kDamper) {
+						   btScalar kDamper)
+	{
 		return btScalar(avoidSingularity) / (timeStep * kSpring + kDamper);
 	}
 };

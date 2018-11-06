@@ -11,49 +11,45 @@
 #include "Gwen/Controls/Base.h"
 #include "Gwen/Controls/TreeNode.h"
 
-namespace Gwen 
+namespace Gwen
 {
-	namespace Controls
-	{
-		class GWEN_EXPORT TreeControl : public TreeNode
-		{
-			public:
+namespace Controls
+{
+class GWEN_EXPORT TreeControl : public TreeNode
+{
+public:
+	GWEN_CONTROL(TreeControl, TreeNode);
 
-				GWEN_CONTROL( TreeControl, TreeNode );
+	virtual void Render(Skin::Base* skin);
 
-				virtual void Render( Skin::Base* skin );
+	virtual void OnChildBoundsChanged(Gwen::Rect oldChildBounds, Base* pChild);
 
-				virtual void OnChildBoundsChanged( Gwen::Rect oldChildBounds, Base* pChild );
+	ScrollControl* Scroller() { return m_ScrollControl; }
 
-				ScrollControl* Scroller() { return m_ScrollControl; }
+	virtual void Clear();
 
-				virtual void Clear();
+	virtual void Layout(Skin::Base* skin);
+	virtual void PostLayout(Skin::Base* skin);
 
-				virtual void Layout( Skin::Base* skin );
-				virtual void PostLayout( Skin::Base* skin );
+	virtual void AllowMultiSelect(bool b) { m_bAllowMultipleSelection = b; }
 
-				virtual void AllowMultiSelect( bool b ){ m_bAllowMultipleSelection = b; }
+	virtual void OnNodeAdded(TreeNode* pNode);
 
-				virtual void OnNodeAdded( TreeNode* pNode );
+	virtual bool OnKeyUp(bool bDown);
+	virtual bool OnKeyDown(bool bDown);
+	virtual bool OnKeyRight(bool bDown);
+	virtual bool OnKeyLeft(bool bDown);
 
-				virtual bool OnKeyUp( bool bDown );
-				virtual bool OnKeyDown( bool bDown );
-				virtual bool OnKeyRight( bool bDown );
-				virtual bool OnKeyLeft( bool bDown );
+	virtual void iterate(int action, int* curIndex, int* resultIndex);
 
-				virtual void iterate(int action,int* curIndex, int* resultIndex);
-				
-				virtual void ForceUpdateScrollBars();
+	virtual void ForceUpdateScrollBars();
 
+private:
+	void OnNodeSelection(Controls::Base* control);
 
-			private:
-
-				void OnNodeSelection( Controls::Base* control );
-
-				ScrollControl*		m_ScrollControl;
-				bool				m_bAllowMultipleSelection;
-				
-		};
-	}
-}
+	ScrollControl* m_ScrollControl;
+	bool m_bAllowMultipleSelection;
+};
+}  // namespace Controls
+}  // namespace Gwen
 #endif

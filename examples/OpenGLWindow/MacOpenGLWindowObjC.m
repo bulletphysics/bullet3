@@ -483,8 +483,8 @@ int Mac_createWindow(struct MacOpenGLWindowInternalData* m_internalData,struct M
     [m_internalData->m_myApp finishLaunching];
     [pool release];
     
-    if(!gladLoadGL()) {
-        printf("gladLoadGL failed!\n");
+    if(!gladLoaderLoadGL()) {
+        printf("gladLoaderLoadGL failed!\n");
         exit(-1);
     }
     

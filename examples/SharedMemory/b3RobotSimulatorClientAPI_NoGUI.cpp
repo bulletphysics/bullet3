@@ -13,12 +13,10 @@
 
 #ifndef BT_DISABLE_PHYSICS_DIRECT
 #include "PhysicsDirectC_API.h"
-#endif //BT_DISABLE_PHYSICS_DIRECT
+#endif  //BT_DISABLE_PHYSICS_DIRECT
 
 #include "SharedMemoryPublic.h"
 #include "Bullet3Common/b3Logging.h"
-
-
 
 b3RobotSimulatorClientAPI_NoGUI::b3RobotSimulatorClientAPI_NoGUI()
 {
@@ -27,7 +25,6 @@ b3RobotSimulatorClientAPI_NoGUI::b3RobotSimulatorClientAPI_NoGUI()
 b3RobotSimulatorClientAPI_NoGUI::~b3RobotSimulatorClientAPI_NoGUI()
 {
 }
-
 
 bool b3RobotSimulatorClientAPI_NoGUI::connect(int mode, const std::string& hostName, int portOrKey)
 {
@@ -43,16 +40,15 @@ bool b3RobotSimulatorClientAPI_NoGUI::connect(int mode, const std::string& hostN
 
 	switch (mode)
 	{
-	
-	case eCONNECT_DIRECT:
+		case eCONNECT_DIRECT:
 		{
 #ifndef BT_DISABLE_PHYSICS_DIRECT
 			sm = b3ConnectPhysicsDirect();
-#endif //BT_DISABLE_PHYSICS_DIRECT
+#endif  //BT_DISABLE_PHYSICS_DIRECT
 
 			break;
 		}
-	case eCONNECT_SHARED_MEMORY:
+		case eCONNECT_SHARED_MEMORY:
 		{
 			if (portOrKey >= 0)
 			{
@@ -61,7 +57,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::connect(int mode, const std::string& hostN
 			sm = b3ConnectSharedMemory(key);
 			break;
 		}
-	case eCONNECT_UDP:
+		case eCONNECT_UDP:
 		{
 			if (portOrKey >= 0)
 			{
@@ -76,7 +72,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::connect(int mode, const std::string& hostN
 
 			break;
 		}
-	case eCONNECT_TCP:
+		case eCONNECT_TCP:
 		{
 			if (portOrKey >= 0)
 			{
@@ -91,7 +87,7 @@ bool b3RobotSimulatorClientAPI_NoGUI::connect(int mode, const std::string& hostN
 			break;
 		}
 
-	default:
+		default:
 		{
 			b3Warning("connectPhysicsServer unexpected argument");
 		}

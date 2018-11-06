@@ -12,9 +12,16 @@ p.resetDebugVisualizerCamera(15,-346,-16,[-15,0,1]);
 
 p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
 
+
 sphereRadius = 0.05
 colSphereId = p.createCollisionShape(p.GEOM_SPHERE,radius=sphereRadius)
+
+#a few different ways to create a mesh:
+
+#convex mesh from obj
 stoneId = p.createCollisionShape(p.GEOM_MESH,fileName="stone.obj")
+
+
 
 boxHalfLength = 0.5
 boxHalfWidth = 2.5
@@ -72,10 +79,10 @@ for i in range (segmentLength):
 	p.changeDynamics(boxId,-1,spinningFriction=0.001, rollingFriction=0.001,linearDamping=0.0)
 	print(p.getNumJoints(boxId))
 	for joint in range (p.getNumJoints(boxId)):
-		targetVelocity = 1
+		targetVelocity = 10
 		if (i%2):
-			targetVelocity =-1
-		p.setJointMotorControl2(boxId,joint,p.VELOCITY_CONTROL,targetVelocity=targetVelocity,force=10)
+			targetVelocity =-10
+		p.setJointMotorControl2(boxId,joint,p.VELOCITY_CONTROL,targetVelocity=targetVelocity,force=100)
 	segmentStart=segmentStart-1.1
 
 
