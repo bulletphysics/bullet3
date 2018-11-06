@@ -1,5 +1,5 @@
-#ifndef GIM_BOX_SET_H_INCLUDED
-#define GIM_BOX_SET_H_INCLUDED
+#ifndef BT_GIMPACT_BVH_H_INCLUDED
+#define BT_GIMPACT_BVH_H_INCLUDED
 
 /*! \file gim_box_set.h
 \author Francisco Leon Najera
@@ -306,4 +306,4 @@ public:
 							   btPairSet& collision_pairs);
 };
 
-#endif  // GIM_BOXPRUNING_H_INCLUDED
+#endif  // BT_GIMPACT_BVH_H_INCLUDED

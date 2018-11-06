@@ -251,7 +251,6 @@ void MyKeyboardCallback(int key, int state)
 
 		if (key == 'p')
 		{
-#ifndef BT_NO_PROFILE
 			if (state)
 			{
 				b3ChromeUtilsStartTimings();
@@ -260,7 +259,6 @@ void MyKeyboardCallback(int key, int state)
 			{
 				b3ChromeUtilsStopTimingsAndWriteJsonFile("timings");
 			}
-#endif  //BT_NO_PROFILE
 		}
 
 #ifndef NO_OPENGL3
@@ -1129,6 +1127,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 
 		gui2->registerFileOpenCallback(fileOpenCallback);
 		gui2->registerQuitCallback(quitCallback);
+		
 	}
 
 	return true;

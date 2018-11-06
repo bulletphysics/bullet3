@@ -463,15 +463,16 @@ egl_renderer_sources = \
 +["src/BulletCollision/CollisionShapes/btConvexInternalShape.cpp"]\
 +["src/Bullet3Common/b3Logging.cpp"]\
 +["src/LinearMath/btAlignedAllocator.cpp"]\
-+["src/LinearMath/btGeometryUtil.cpp"]\
 +["src/LinearMath/btConvexHull.cpp"]\
-+["src/LinearMath/btConvexHullComputer.cpp"]\
++["src/LinearMath/btConvexHullComputer.cpp"] \
++["src/LinearMath/btGeometryUtil.cpp"]\
++["src/LinearMath/btQuickprof.cpp"] \
++["src/LinearMath/btThreads.cpp"] \
 +["src/Bullet3Common/b3AlignedAllocator.cpp"] \
 +["examples/ThirdPartyLibs/glad/gl.c"]\
 +["examples/OpenGLWindow/GLInstancingRenderer.cpp"]\
 +["examples/OpenGLWindow/GLRenderToTexture.cpp"] \
-+["examples/OpenGLWindow/LoadShader.cpp"] \
-+["src/LinearMath/btQuickprof.cpp"]
++["examples/OpenGLWindow/LoadShader.cpp"]
 
 if 'BT_USE_EGL' in CXX_FLAGS:
     sources += ['examples/ThirdPartyLibs/glad/egl.c']

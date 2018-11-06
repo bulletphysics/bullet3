@@ -491,11 +491,14 @@ void btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 				m_scratch_v.resize(bod->getNumLinks() + 1);
 				m_scratch_m.resize(bod->getNumLinks() + 1);
 				bool doNotUpdatePos = false;
-
+                bool isConstraintPass = false;
 				{
 					if (!bod->isUsingRK4Integration())
 					{
-						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(solverInfo.m_timeStep, m_scratch_r, m_scratch_v, m_scratch_m);
+						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(solverInfo.m_timeStep,
+						m_scratch_r, m_scratch_v, m_scratch_m,isConstraintPass,
+						getSolverInfo().m_jointFeedbackInWorldSpace,
+						getSolverInfo().m_jointFeedbackInJointFrame);
 					}
 					else
 					{
@@ -593,7 +596,9 @@ void btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						btScalar h = solverInfo.m_timeStep;
 #define output &m_scratch_r[bod->getNumDofs()]
 						//calc qdd0 from: q0 & qd0
-						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0., m_scratch_r, m_scratch_v, m_scratch_m);
+						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0., m_scratch_r, m_scratch_v, m_scratch_m,
+						isConstraintPass,getSolverInfo().m_jointFeedbackInWorldSpace,
+						getSolverInfo().m_jointFeedbackInJointFrame);
 						pCopy(output, scratch_qdd0, 0, numDofs);
 						//calc q1 = q0 + h/2 * qd0
 						pResetQx();
@@ -603,7 +608,9 @@ void btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						//
 						//calc qdd1 from: q1 & qd1
 						pCopyToVelocityVector(bod, scratch_qd1);
-						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0., m_scratch_r, m_scratch_v, m_scratch_m);
+						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0., m_scratch_r, m_scratch_v, m_scratch_m,
+						isConstraintPass,getSolverInfo().m_jointFeedbackInWorldSpace,
+						getSolverInfo().m_jointFeedbackInJointFrame);
 						pCopy(output, scratch_qdd1, 0, numDofs);
 						//calc q2 = q0 + h/2 * qd1
 						pResetQx();
@@ -613,7 +620,9 @@ void btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						//
 						//calc qdd2 from: q2 & qd2
 						pCopyToVelocityVector(bod, scratch_qd2);
-						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0., m_scratch_r, m_scratch_v, m_scratch_m);
+						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0., m_scratch_r, m_scratch_v, m_scratch_m,
+						isConstraintPass,getSolverInfo().m_jointFeedbackInWorldSpace,
+						getSolverInfo().m_jointFeedbackInJointFrame);
 						pCopy(output, scratch_qdd2, 0, numDofs);
 						//calc q3 = q0 + h * qd2
 						pResetQx();
@@ -623,7 +632,9 @@ void btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						//
 						//calc qdd3 from: q3 & qd3
 						pCopyToVelocityVector(bod, scratch_qd3);
-						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0., m_scratch_r, m_scratch_v, m_scratch_m);
+						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0., m_scratch_r, m_scratch_v, m_scratch_m,
+						isConstraintPass,getSolverInfo().m_jointFeedbackInWorldSpace,
+						getSolverInfo().m_jointFeedbackInJointFrame);
 						pCopy(output, scratch_qdd3, 0, numDofs);
 
 						//
@@ -660,7 +671,9 @@ void btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						{
 							for (int link = 0; link < bod->getNumLinks(); ++link)
 								bod->getLink(link).updateCacheMultiDof();
-							bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0, m_scratch_r, m_scratch_v, m_scratch_m);
+							bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0, m_scratch_r, m_scratch_v, m_scratch_m,
+							isConstraintPass,getSolverInfo().m_jointFeedbackInWorldSpace,
+							getSolverInfo().m_jointFeedbackInJointFrame);
 						}
 					}
 				}
@@ -708,7 +721,9 @@ void btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 					if (!bod->isUsingRK4Integration())
 					{
 						bool isConstraintPass = true;
-						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(solverInfo.m_timeStep, m_scratch_r, m_scratch_v, m_scratch_m, isConstraintPass);
+						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(solverInfo.m_timeStep, m_scratch_r, m_scratch_v, m_scratch_m, isConstraintPass,
+						getSolverInfo().m_jointFeedbackInWorldSpace,
+						getSolverInfo().m_jointFeedbackInJointFrame);
 					}
 				}
 			}

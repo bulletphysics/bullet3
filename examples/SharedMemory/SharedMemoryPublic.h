@@ -928,7 +928,7 @@ enum eFileIOTypes
 };
 
 //limits for vertices/indices in PyBullet::createCollisionShape
-#define B3_MAX_NUM_VERTICES 1024
-#define B3_MAX_NUM_INDICES 1024
+#define B3_MAX_NUM_VERTICES 16
+#define B3_MAX_NUM_INDICES 16
 
 #endif  //SHARED_MEMORY_PUBLIC_H

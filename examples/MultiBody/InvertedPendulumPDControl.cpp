@@ -48,9 +48,6 @@ InvertedPendulumPDControl::~InvertedPendulumPDControl()
 {
 }
 
-///this is a temporary global, until we determine if we need the option or not
-extern bool gJointFeedbackInWorldSpace;
-extern bool gJointFeedbackInJointFrame;
 
 btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GUIHelperInterface* guiHelper, const btTransform& baseWorldTrans, bool fixedBase)
 {
@@ -315,8 +312,10 @@ void InvertedPendulumPDControl::initPhysics()
 	}
 
 	int upAxis = 1;
-	gJointFeedbackInWorldSpace = true;
-	gJointFeedbackInJointFrame = true;
+	
+	m_dynamicsWorld->getSolverInfo().m_jointFeedbackInWorldSpace = true;
+	m_dynamicsWorld->getSolverInfo().m_jointFeedbackInJointFrame = true;
+
 
 	m_guiHelper->setUpAxis(upAxis);
 

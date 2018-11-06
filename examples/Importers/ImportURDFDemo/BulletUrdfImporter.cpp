@@ -2,8 +2,8 @@
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -85,7 +85,7 @@ BulletURDFInternalData
 		m_urdfParser.setGlobalScaling(scaling);
 	}
 
-	
+
 };
 
 void BulletURDFImporter::printTree()
@@ -160,11 +160,11 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 
 		//read file
 		int fileId = m_data->m_fileIO->fileOpen(relativeFileName,"r");
-		
+
 
 		char destBuffer[8192];
 		char* line = 0;
-		do 
+		do
 		{
 			line = m_data->m_fileIO->readLine(fileId, destBuffer, 8192);
 			if (line)
@@ -190,7 +190,7 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 	BulletErrorLogger loggie;
 	m_data->m_urdfParser.setParseSDF(false);
 	bool result = false;
-	
+
 	if (xml_string.length())
 	{
 			result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase, (m_data->m_flags & CUF_PARSE_SENSORS));
@@ -235,10 +235,10 @@ bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
 
 		//read file
 		int fileId = m_data->m_fileIO->fileOpen(relativeFileName,"r");
-		
+
 		char destBuffer[8192];
 		char* line = 0;
-		do 
+		do
 		{
 			line = m_data->m_fileIO->readLine(fileId, destBuffer, 8192);
 			if (line)
@@ -883,6 +883,15 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 
 	switch (visual->m_geometry.m_type)
 	{
+        case URDF_GEOM_CAPSULE:
+        {
+           btScalar radius = visual->m_geometry.m_capsuleRadius;
+			btScalar height = visual->m_geometry.m_capsuleHeight;
+			btCapsuleShapeZ* capsuleShape = new btCapsuleShapeZ(radius, height);
+			convexColShape = capsuleShape;
+			convexColShape->setMargin(gUrdfDefaultCollisionMargin);
+            break;
+        }
 		case URDF_GEOM_CYLINDER:
 		{
 			btAlignedObjectArray<btVector3> vertices;
@@ -932,7 +941,7 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 			{
 				case UrdfGeometry::FILE_OBJ:
 				{
-					
+
 					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData, m_data->m_fileIO))
 					{
 						if (meshData.m_textureImage1)
@@ -1172,7 +1181,7 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 						(meshData.m_flags & B3_IMPORT_MESH_HAS_SPECULAR_COLOR))
 				{
 					UrdfMaterialColor matCol;
-					
+
 					if (m_data->m_flags&CUF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
 					{
 						matCol.m_rgbaColor.setValue(meshData.m_rgbaColor[0],
@@ -1186,7 +1195,7 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 									meshData.m_rgbaColor[2],
 									1);
 					}
-					
+
 					matCol.m_specularColor.setValue(meshData.m_specularColor[0],
 						meshData.m_specularColor[1],
 						meshData.m_specularColor[2]);
@@ -1204,7 +1213,7 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 					m_data->m_linkColors.insert(linkIndex, matCol);
 				}
 			}
-			
+
 		}
 	}
 	if (vertices.size() && indices.size())

@@ -27,7 +27,6 @@ bool gEnableRendering = true;
 bool gActivedVRRealTimeSimulation = false;
 
 bool gEnableSyncPhysicsRendering = true;
-bool gEnableUpdateDebugDrawLines = true;
 static int gCamVisualizerWidth = 228;
 static int gCamVisualizerHeight = 192;
 
@@ -177,6 +176,7 @@ struct MotionArgs
 {
 	MotionArgs()
 		: m_debugDrawFlags(0),
+		  m_enableUpdateDebugDrawLines(true),
 		  m_physicsServerPtr(0)
 	{
 		for (int i = 0; i < MAX_VR_CONTROLLERS; i++)
@@ -201,7 +201,7 @@ struct MotionArgs
 	b3CriticalSection* m_csGUI;
 
 	int m_debugDrawFlags;
-
+	bool m_enableUpdateDebugDrawLines;
 	btAlignedObjectArray<MyMouseCommand> m_mouseCommands;
 
 	b3VRControllerEvent m_vrControllerEvents[MAX_VR_CONTROLLERS];
@@ -424,13 +424,13 @@ void MotionThreadFunc(void* userPtr, void* lsMemory)
 					args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds, args->m_sendVrControllerEvents, numSendVrControllers, keyEvents, args->m_sendKeyEvents.size(), mouseEvents, args->m_sendMouseEvents.size());
 				}
 				{
-					if (gEnableUpdateDebugDrawLines)
+					args->m_csGUI->lock();
+					if (args->m_enableUpdateDebugDrawLines)
 					{
-						args->m_csGUI->lock();
 						args->m_physicsServerPtr->physicsDebugDraw(args->m_debugDrawFlags);
-						gEnableUpdateDebugDrawLines = false;
-						args->m_csGUI->unlock();
+						args->m_enableUpdateDebugDrawLines = false;
 					}
+					args->m_csGUI->unlock();
 				}
 				deltaTimeInSeconds = 0;
 			}
@@ -1737,6 +1737,11 @@ void PhysicsServerExample::initPhysics()
 		m_args[w].m_cs2 = m_threadSupport->createCriticalSection();
 		m_args[w].m_cs3 = m_threadSupport->createCriticalSection();
 		m_args[w].m_csGUI = m_threadSupport->createCriticalSection();
+		m_multiThreadedHelper->setCriticalSection(m_args[w].m_cs);
+		m_multiThreadedHelper->setCriticalSection2(m_args[w].m_cs2);
+		m_multiThreadedHelper->setCriticalSection3(m_args[w].m_cs3);
+		m_multiThreadedHelper->setCriticalSectionGUI(m_args[w].m_csGUI);
+
 		m_args[w].m_cs->lock();
 		m_args[w].m_cs->setSharedParam(0, eMotionIsUnInitialized);
 		m_args[w].m_cs->unlock();
@@ -1758,13 +1763,9 @@ void PhysicsServerExample::initPhysics()
 #endif
 		}
 	}
-
+	m_args[0].m_cs->lock();
 	m_args[0].m_cs->setSharedParam(1, eGUIHelperIdle);
-	m_multiThreadedHelper->setCriticalSection(m_args[0].m_cs);
-	m_multiThreadedHelper->setCriticalSection2(m_args[0].m_cs2);
-	m_multiThreadedHelper->setCriticalSection3(m_args[0].m_cs3);
-	m_multiThreadedHelper->setCriticalSectionGUI(m_args[0].m_csGUI);
-
+	m_args[0].m_cs->unlock();
 	m_args[0].m_cs2->lock();
 
 	{
@@ -2843,7 +2844,7 @@ void PhysicsServerExample::physicsDebugDraw(int debugDrawFlags)
 		//draw stuff and flush?
 		this->m_multiThreadedHelper->m_debugDraw->drawDebugDrawerLines();
 		m_args[0].m_debugDrawFlags = debugDrawFlags;
-		gEnableUpdateDebugDrawLines = true;
+		m_args[0].m_enableUpdateDebugDrawLines = true;
 		m_args[0].m_csGUI->unlock();
 	}
 }

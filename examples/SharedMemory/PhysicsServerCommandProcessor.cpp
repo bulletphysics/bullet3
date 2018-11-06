@@ -96,8 +96,6 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #endif
 
-extern bool gJointFeedbackInWorldSpace;
-extern bool gJointFeedbackInJointFrame;
 
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
@@ -1652,7 +1650,7 @@ struct PhysicsServerCommandProcessorInternalData
 	std::string m_profileTimingFileName;
 
 	struct GUIHelperInterface* m_guiHelper;
-	
+
 	int m_sharedMemoryKey;
 	bool m_enableTinyRenderer;
 
@@ -1777,7 +1775,7 @@ struct PhysicsServerCommandProcessorInternalData
 			}
 #endif
 
-		
+
 
 		m_vrControllerEvents.init();
 
@@ -2271,7 +2269,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		double globalScaling = 1.f;  //todo!
 		int flags = 0;
 		CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
-		
+
 		BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_pluginManager.getRenderInterface(),fileIO, globalScaling, flags);
 		u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
 
@@ -2755,7 +2753,7 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 	SaveWorldObjectData sd;
 	sd.m_fileName = fileName;
 
-	
+
 
 	for (int m = 0; m < u2b.getNumModels(); m++)
 	{
@@ -2971,7 +2969,7 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 		}
 
 		{
-			
+
 
 			if (m_data->m_pluginManager.getRenderInterface())
 			{
@@ -4267,7 +4265,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 					urdfColObj.m_geometry.m_meshFileType = UrdfGeometry::MEMORY_VERTICES;
 					break;
 				}
-				
+
 				bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
 				if (foundFile)
 				{
@@ -5210,7 +5208,7 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 			}
 		}
 	}
-	
+
 
 	BatchRayCaster batchRayCaster(m_data->m_threadPool, m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo*)bufferServerToClient, totalRays);
 	batchRayCaster.castRays(numThreads);
@@ -6770,7 +6768,7 @@ bool PhysicsServerCommandProcessor::processCreateMultiBodyCommand(const struct S
 			useMultiBody = false;
 		}
 
-		
+
 
 		bool ok = processImportedObjects("memory", bufferServerToClient, bufferSizeInBytes, useMultiBody, flags, u2b);
 
@@ -6912,7 +6910,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 		const std::string& error_message_prefix = "";
 		std::string out_found_filename;
 		int out_type;
-		
+
 		bool foundFile = UrdfFindMeshFile(fileIO,pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
 		std::vector<tinyobj::shape_t> shapes;
 		std::string err = tinyobj::LoadObj(shapes, out_found_filename.c_str(),"",fileIO);
@@ -7697,11 +7695,11 @@ bool PhysicsServerCommandProcessor::processRequestPhysicsSimulationParametersCom
 	serverCmd.m_simulationParameterResultArgs.m_gravityAcceleration[2] = grav[2];
 	serverCmd.m_simulationParameterResultArgs.m_internalSimFlags = gInternalSimFlags;
 	serverCmd.m_simulationParameterResultArgs.m_jointFeedbackMode = 0;
-	if (gJointFeedbackInWorldSpace)
+	if (m_data->m_dynamicsWorld->getSolverInfo().m_jointFeedbackInWorldSpace)
 	{
 		serverCmd.m_simulationParameterResultArgs.m_jointFeedbackMode |= JOINT_FEEDBACK_IN_WORLD_SPACE;
 	}
-	if (gJointFeedbackInJointFrame)
+	if (m_data->m_dynamicsWorld->getSolverInfo().m_jointFeedbackInJointFrame)
 	{
 		serverCmd.m_simulationParameterResultArgs.m_jointFeedbackMode |= JOINT_FEEDBACK_IN_JOINT_FRAME;
 	}
@@ -7747,8 +7745,8 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_JOINT_FEEDBACK_MODE)
 	{
-		gJointFeedbackInWorldSpace = (clientCmd.m_physSimParamArgs.m_jointFeedbackMode & JOINT_FEEDBACK_IN_WORLD_SPACE) != 0;
-		gJointFeedbackInJointFrame = (clientCmd.m_physSimParamArgs.m_jointFeedbackMode & JOINT_FEEDBACK_IN_JOINT_FRAME) != 0;
+		m_data->m_dynamicsWorld->getSolverInfo().m_jointFeedbackInWorldSpace = (clientCmd.m_physSimParamArgs.m_jointFeedbackMode & JOINT_FEEDBACK_IN_WORLD_SPACE) != 0;
+		m_data->m_dynamicsWorld->getSolverInfo().m_jointFeedbackInJointFrame = (clientCmd.m_physSimParamArgs.m_jointFeedbackMode & JOINT_FEEDBACK_IN_JOINT_FRAME) != 0;
 	}
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_DELTA_TIME)
@@ -9642,6 +9640,16 @@ int PhysicsServerCommandProcessor::extractCollisionShapes(const btCollisionShape
 
 	switch (colShape->getShapeType())
 	{
+        case STATIC_PLANE_PROXYTYPE:
+        {
+            btStaticPlaneShape* plane = (btStaticPlaneShape*) colShape;
+            collisionShapeBuffer[0].m_collisionGeometryType = GEOM_PLANE;
+            collisionShapeBuffer[0].m_dimensions[0] = plane->getPlaneNormal()[0];
+            collisionShapeBuffer[0].m_dimensions[1] = plane->getPlaneNormal()[1];
+            collisionShapeBuffer[0].m_dimensions[2] = plane->getPlaneNormal()[2];
+            numConverted += 1;
+            break;
+        }
 		case CONVEX_HULL_SHAPE_PROXYTYPE:
 		{
 			UrdfCollision* urdfCol = m_data->m_bulletCollisionShape2UrdfCollision.find(colShape);
@@ -10054,7 +10062,7 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 			{
 				int width, height, n;
 				unsigned char* imageData = 0;
-				
+
 				CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
 				if (fileIO)
 				{
@@ -10083,7 +10091,7 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 				{
 					imageData = stbi_load(relativeFileName, &width, &height, &n, 3);
 				}
-				
+
 				if (imageData)
 				{
 					texH->m_openglTextureId = m_data->m_guiHelper->registerTexture(imageData, width, height);
@@ -10161,7 +10169,7 @@ bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct Shar
 		buffer.reserve(1024);
 		if (fileIO)
 		{
-			
+
 			int fileId = -1;
 			found = fileIO->findResourcePath(clientCmd.m_fileArguments.m_fileName,  fileName, 1024);
 			if (found)

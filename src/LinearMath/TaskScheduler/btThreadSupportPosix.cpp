@@ -1,3 +1,4 @@
+
 /*
 Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2003-2018 Erwin Coumans  http://bulletphysics.com
@@ -72,7 +73,7 @@ public:
 		pthread_t thread;
 		//each tread will wait until this signal to start its work
 		sem_t* startSemaphore;
-
+		btCriticalSection* m_cs;
 		// this is a copy of m_mainSemaphore,
 		//each tread will signal once it is finished with its work
 		sem_t* m_mainSemaphore;
@@ -90,7 +91,7 @@ private:
 	void startThreads(const ConstructionInfo& threadInfo);
 	void stopThreads();
 	int waitForResponse();
-
+	btCriticalSection* m_cs;
 public:
 	btThreadSupportPosix(const ConstructionInfo& threadConstructionInfo);
 	virtual ~btThreadSupportPosix();
@@ -119,6 +120,7 @@ public:
 
 btThreadSupportPosix::btThreadSupportPosix(const ConstructionInfo& threadConstructionInfo)
 {
+	m_cs = createCriticalSection();
 	startThreads(threadConstructionInfo);
 }
 
@@ -126,6 +128,8 @@ btThreadSupportPosix::btThreadSupportPosix(const ConstructionInfo& threadConstru
 btThreadSupportPosix::~btThreadSupportPosix()
 {
 	stopThreads();
+	deleteCriticalSection(m_cs);
+	m_cs=0;
 }
 
 #if (defined(__APPLE__))
@@ -181,21 +185,23 @@ static void* threadFunction(void* argument)
 		{
 			btAssert(status->m_status);
 			status->m_userThreadFunc(userPtr);
+			status->m_cs->lock();
 			status->m_status = 2;
+			status->m_cs->unlock();
 			checkPThreadFunction(sem_post(status->m_mainSemaphore));
 			status->threadUsed++;
 		}
 		else
 		{
 			//exit Thread
+			status->m_cs->lock();
 			status->m_status = 3;
+			status->m_cs->unlock();
 			checkPThreadFunction(sem_post(status->m_mainSemaphore));
-			printf("Thread with taskId %i exiting\n", status->m_taskId);
 			break;
 		}
 	}
 
-	printf("Thread TERMINATED\n");
 	return 0;
 }
 
@@ -206,7 +212,7 @@ void btThreadSupportPosix::runTask(int threadIndex, void* userData)
 	btThreadStatus& threadStatus = m_activeThreadStatus[threadIndex];
 	btAssert(threadIndex >= 0);
 	btAssert(threadIndex < m_activeThreadStatus.size());
-
+	threadStatus.m_cs = m_cs;
 	threadStatus.m_commandId = 1;
 	threadStatus.m_status = 1;
 	threadStatus.m_userPtr = userData;
@@ -231,7 +237,10 @@ int btThreadSupportPosix::waitForResponse()
 
 	for (size_t t = 0; t < size_t(m_activeThreadStatus.size()); ++t)
 	{
-		if (2 == m_activeThreadStatus[t].m_status)
+		m_cs->lock();
+		bool hasFinished = (2 == m_activeThreadStatus[t].m_status);
+		m_cs->unlock(); 
+		if (hasFinished)
 		{
 			last = t;
 			break;
@@ -261,7 +270,6 @@ void btThreadSupportPosix::waitForAllTasks()
 void btThreadSupportPosix::startThreads(const ConstructionInfo& threadConstructionInfo)
 {
 	m_numThreads = btGetNumHardwareThreads() - 1;  // main thread exists already
-	printf("%s creating %i threads.\n", __FUNCTION__, m_numThreads);
 	m_activeThreadStatus.resize(m_numThreads);
 	m_startedThreadsMask = 0;
 
@@ -270,20 +278,18 @@ void btThreadSupportPosix::startThreads(const ConstructionInfo& threadConstructi
 
 	for (int i = 0; i < m_numThreads; i++)
 	{
-		printf("starting thread %d\n", i);
 		btThreadStatus& threadStatus = m_activeThreadStatus[i];
 		threadStatus.startSemaphore = createSem("threadLocal");
-		checkPThreadFunction(pthread_create(&threadStatus.thread, NULL, &threadFunction, (void*)&threadStatus));
-
 		threadStatus.m_userPtr = 0;
+		threadStatus.m_cs = m_cs;
 		threadStatus.m_taskId = i;
 		threadStatus.m_commandId = 0;
 		threadStatus.m_status = 0;
 		threadStatus.m_mainSemaphore = m_mainSemaphore;
 		threadStatus.m_userThreadFunc = threadConstructionInfo.m_userThreadFunc;
 		threadStatus.threadUsed = 0;
+		checkPThreadFunction(pthread_create(&threadStatus.thread, NULL, &threadFunction, (void*)&threadStatus));
 
-		printf("started thread %d \n", i);
 	}
 }
 
@@ -293,20 +299,15 @@ void btThreadSupportPosix::stopThreads()
 	for (size_t t = 0; t < size_t(m_activeThreadStatus.size()); ++t)
 	{
 		btThreadStatus& threadStatus = m_activeThreadStatus[t];
-		printf("%s: Thread %i used: %ld\n", __FUNCTION__, int(t), threadStatus.threadUsed);
 
 		threadStatus.m_userPtr = 0;
 		checkPThreadFunction(sem_post(threadStatus.startSemaphore));
 		checkPThreadFunction(sem_wait(m_mainSemaphore));
 
-		printf("destroy semaphore\n");
 		destroySem(threadStatus.startSemaphore);
-		printf("semaphore destroyed\n");
 		checkPThreadFunction(pthread_join(threadStatus.thread, 0));
 	}
-	printf("destroy main semaphore\n");
 	destroySem(m_mainSemaphore);
-	printf("main semaphore destroyed\n");
 	m_activeThreadStatus.clear();
 }
 
