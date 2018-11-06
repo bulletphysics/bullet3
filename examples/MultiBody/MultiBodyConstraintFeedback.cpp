@@ -44,14 +44,9 @@ MultiBodyConstraintFeedbackSetup::~MultiBodyConstraintFeedbackSetup()
 {
 }
 
-///this is a temporary global, until we determine if we need the option or not
-extern bool gJointFeedbackInWorldSpace;
-extern bool gJointFeedbackInJointFrame;
 void MultiBodyConstraintFeedbackSetup::initPhysics()
 {
 	int upAxis = 2;
-	gJointFeedbackInWorldSpace = true;
-	gJointFeedbackInJointFrame = true;
 	m_guiHelper->setUpAxis(upAxis);
 
 	btVector4 colors[4] =
@@ -68,6 +63,10 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(
 		//btIDebugDraw::DBG_DrawConstraints
 		+btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints + btIDebugDraw::DBG_DrawAabb);  //+btIDebugDraw::DBG_DrawConstraintLimits);
+
+
+	m_dynamicsWorld->getSolverInfo().m_jointFeedbackInWorldSpace = true;
+	m_dynamicsWorld->getSolverInfo().m_jointFeedbackInJointFrame = true;
 
 	//create a static ground object
 	if (1)

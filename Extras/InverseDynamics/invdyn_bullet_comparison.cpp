@@ -176,7 +176,7 @@ int compareInverseAndForwardDynamics(vecx &q, vecx &u, vecx &dot_u, btVector3 &g
 	btAlignedObjectArray<btQuaternion> world_to_local;
 	btAlignedObjectArray<btVector3> local_origin;
 	btmb->forwardKinematics(world_to_local, local_origin);
-	btmb->computeAccelerationsArticulatedBodyAlgorithmMultiDof(dt, scratch_r, scratch_v, scratch_m, isConstraintPass);
+	btmb->computeAccelerationsArticulatedBodyAlgorithmMultiDof(dt, scratch_r, scratch_v, scratch_m, isConstraintPass, false, false);
 
 	// read generalized accelerations back from btMultiBody
 	// the mapping from scratch variables to accelerations is taken from the implementation
