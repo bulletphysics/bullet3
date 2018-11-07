@@ -89,7 +89,11 @@ B3_SHARED_API int executePluginCommand_pdControlPlugin(struct b3PluginContext* c
 {
 	MyPDControlContainer* obj = (MyPDControlContainer*)context->m_userPointer;
 
-	obj->m_api.syncBodies();
+	if (arguments->m_numInts == 0)
+	{
+		obj->m_api.syncBodies();
+		return -1;
+	}
 
 	int numObj = obj->m_api.getNumBodies();
 	//printf("numObj = %d\n", numObj);
