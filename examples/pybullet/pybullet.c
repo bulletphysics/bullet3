@@ -2039,7 +2039,7 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 			(controlMode != CONTROL_MODE_TORQUE) &&
 			(controlMode != CONTROL_MODE_POSITION_VELOCITY_PD))
 		{
-			PyErr_SetString(SpamError, "Illegral control mode.");
+			PyErr_SetString(SpamError, "Illegal control mode.");
 			return NULL;
 		}
 
@@ -2140,9 +2140,10 @@ static PyObject* pybullet_setJointMotorControlArray(PyObject* self, PyObject* ar
 
 		if ((controlMode != CONTROL_MODE_VELOCITY) &&
 			(controlMode != CONTROL_MODE_TORQUE) &&
-			(controlMode != CONTROL_MODE_POSITION_VELOCITY_PD))
+			(controlMode != CONTROL_MODE_POSITION_VELOCITY_PD)&&
+			(controlMode != CONTROL_MODE_PD))
 		{
-			PyErr_SetString(SpamError, "Illegral control mode.");
+			PyErr_SetString(SpamError, "Illegal control mode.");
 			return NULL;
 		}
 
@@ -2340,7 +2341,7 @@ static PyObject* pybullet_setJointMotorControlArray(PyObject* self, PyObject* ar
 					break;
 				}
 
-				case CONTROL_MODE_POSITION_VELOCITY_PD:
+				default:
 				{
 					b3JointControlSetDesiredPosition(commandHandle, info.m_qIndex,
 													 targetPosition);
@@ -2350,9 +2351,6 @@ static PyObject* pybullet_setJointMotorControlArray(PyObject* self, PyObject* ar
 					b3JointControlSetKd(commandHandle, info.m_uIndex, kd);
 					b3JointControlSetMaximumForce(commandHandle, info.m_uIndex, force);
 					break;
-				}
-				default:
-				{
 				}
 			};
 		}
@@ -2440,7 +2438,7 @@ static PyObject* pybullet_setJointMotorControl2(PyObject* self, PyObject* args, 
 			(controlMode != CONTROL_MODE_POSITION_VELOCITY_PD) &&
 			(controlMode != CONTROL_MODE_PD))
 		{
-			PyErr_SetString(SpamError, "Illegral control mode.");
+			PyErr_SetString(SpamError, "Illegal control mode.");
 			return NULL;
 		}
 

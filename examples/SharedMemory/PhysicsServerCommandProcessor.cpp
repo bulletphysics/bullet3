@@ -5581,6 +5581,11 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 				args.m_ints[1] = bodyUniqueId;
 				//find the joint motors and apply the desired velocity and maximum force/torque
 				{
+					args.m_numInts = 0;
+					args.m_numFloats = 0;
+					//syncBodies is expensive/slow, use it only once
+					m_data->m_pluginManager.executePluginCommand(m_data->m_pdControlPlugin, &args);
+
 					int velIndex = 6;  //skip the 3 linear + 3 angular degree of freedom velocity entries of the base
 					int posIndex = 7;  //skip 3 positional and 4 orientation (quaternion) positional degrees of freedom of the base
 					for (int link = 0; link < mb->getNumLinks(); link++)
