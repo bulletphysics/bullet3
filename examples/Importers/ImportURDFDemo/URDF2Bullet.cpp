@@ -1,6 +1,9 @@
+
 #include <stdio.h>
 #include "LinearMath/btTransform.h"
+#include "LinearMath/btThreads.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
+
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 
@@ -28,10 +31,13 @@ static btVector4 colors[4] =
 
 static btVector4 selectColor2()
 {
+	static btSpinMutex sMutex;
+	sMutex.lock();
 	static int curColor = 0;
 	btVector4 color = colors[curColor];
 	curColor++;
 	curColor &= 3;
+	sMutex.unlock();
 	return color;
 }
 
