@@ -37,21 +37,8 @@ btShapeHull::~btShapeHull()
 
 bool btShapeHull::buildHull(btScalar /*margin*/, int highres)
 {
+	
 	int numSampleDirections = highres ? NUM_UNITSPHERE_POINTS_HIGHRES : NUM_UNITSPHERE_POINTS;
-	{
-		int numPDA = m_shape->getNumPreferredPenetrationDirections();
-		if (numPDA)
-		{
-			for (int i = 0; i < numPDA; i++)
-			{
-				btVector3 norm;
-				m_shape->getPreferredPenetrationDirection(i, norm);
-				getUnitSpherePoints(highres)[numSampleDirections] = norm;
-				numSampleDirections++;
-			}
-		}
-	}
-
 	btVector3 supportPoints[NUM_UNITSPHERE_POINTS_HIGHRES + MAX_PREFERRED_PENETRATION_DIRECTIONS * 2];
 	int i;
 	for (i = 0; i < numSampleDirections; i++)
@@ -59,6 +46,17 @@ bool btShapeHull::buildHull(btScalar /*margin*/, int highres)
 		supportPoints[i] = m_shape->localGetSupportingVertex(getUnitSpherePoints(highres)[i]);
 	}
 
+	int numPDA = m_shape->getNumPreferredPenetrationDirections();
+	if (numPDA)
+	{
+		for (int s = 0; s < numPDA; s++)
+		{
+			btVector3 norm;
+			m_shape->getPreferredPenetrationDirection(s, norm);
+			supportPoints[i++] = m_shape->localGetSupportingVertex(norm);
+			numSampleDirections++;
+		}
+	}
 	HullDesc hd;
 	hd.mFlags = QF_TRIANGLES;
 	hd.mVcount = static_cast<unsigned int>(numSampleDirections);
