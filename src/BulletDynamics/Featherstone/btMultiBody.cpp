@@ -396,7 +396,7 @@ void btMultiBody::setJointPos(int i, btScalar q)
 	m_links[i].updateCacheMultiDof();
 }
 
-void btMultiBody::setJointPosMultiDof(int i, btScalar *q)
+void btMultiBody::setJointPosMultiDof(int i, const btScalar *q)
 {
 	for (int pos = 0; pos < m_links[i].m_posVarCount; ++pos)
 		m_links[i].m_jointPos[pos] = q[pos];
@@ -409,7 +409,7 @@ void btMultiBody::setJointVel(int i, btScalar qdot)
 	m_realBuf[6 + m_links[i].m_dofOffset] = qdot;
 }
 
-void btMultiBody::setJointVelMultiDof(int i, btScalar *qdot)
+void btMultiBody::setJointVelMultiDof(int i, const btScalar *qdot)
 {
 	for (int dof = 0; dof < m_links[i].m_dofCount; ++dof)
 		m_realBuf[6 + m_links[i].m_dofOffset + dof] = qdot[dof];

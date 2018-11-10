@@ -38,7 +38,7 @@
       </geometry>
     </collision>
   </link>
-   <joint name="joint_baseLink_childA" type="continuous">
+   <joint name="joint_baseLink_childA" type="spherical">
     <parent link="baseLink"/>
     <child link="childA"/>
     <origin xyz="0 0 0"/>
@@ -54,20 +54,21 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 -0.36"/>
       <geometry>
-        <sphere radius="0.2"/>
+         <box size="0.1 0.2 0.3 "/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 -0.36"/>
       <geometry>
-        <sphere radius="0.2"/>
+        <box size="0.1 0.2 0.3 "/>
       </geometry>
     </collision>
   </link>
-   <joint name="joint_childA_childB" type="fixed">
+   <joint name="joint_childA_childB" type="continuous">
     <parent link="childA"/>
     <child link="childB"/>
     <origin xyz="0 0 -0.2"/>
+    <axis xyz="1 0 0"/>
   </joint>
 </robot>
 

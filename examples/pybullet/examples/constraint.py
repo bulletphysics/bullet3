@@ -9,8 +9,8 @@ cubeId = p.loadURDF("cube_small.urdf",0,0,1)
 p.setGravity(0,0,-10)
 p.setRealTimeSimulation(1)
 cid = p.createConstraint(cubeId,-1,-1,-1,p.JOINT_FIXED,[0,0,0],[0,0,0],[0,0,1])
-print cid
-print p.getConstraintUniqueId(0)
+print (cid)
+print (p.getConstraintUniqueId(0))
 prev=[0,0,1]
 a=-math.pi
 while 1:

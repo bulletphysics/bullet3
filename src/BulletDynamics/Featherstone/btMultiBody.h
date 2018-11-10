@@ -235,8 +235,8 @@ public:
 
 	void setJointPos(int i, btScalar q);
 	void setJointVel(int i, btScalar qdot);
-	void setJointPosMultiDof(int i, btScalar *q);
-	void setJointVelMultiDof(int i, btScalar *qdot);
+	void setJointPosMultiDof(int i, const btScalar *q);
+	void setJointVelMultiDof(int i, const btScalar *qdot);
 
 	//
 	// direct access to velocities as a vector of 6 + num_links elements.

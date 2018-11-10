@@ -1291,6 +1291,37 @@ bool PhysicsDirect::getJointInfo(int bodyIndex, int jointIndex, struct b3JointIn
 		if ((jointIndex >= 0) && (jointIndex < bodyJoints->m_jointInfo.size()))
 		{
 			info = bodyJoints->m_jointInfo[jointIndex];
+			info.m_qSize = 0;
+			info.m_uSize = 0;
+			
+			switch (info.m_jointType)
+			{
+				case eSphericalType:
+				{
+					info.m_qSize = 4;//quaterion x,y,z,w
+					info.m_uSize = 3;
+					break;
+				}
+				case ePlanarType:
+				{
+					info.m_qSize = 2;
+					info.m_uSize = 2;
+					break;
+				}
+				case ePrismaticType:
+				case eRevoluteType:
+				{
+					info.m_qSize = 1;
+					info.m_uSize = 1;
+					break;
+				}
+
+				default:
+				{
+				}
+			}
+
+
 			return true;
 		}
 	}

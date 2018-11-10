@@ -1280,7 +1280,9 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, XMLElement* config, ErrorLogger* l
 	}
 
 	std::string type_str = type_char;
-	if (type_str == "planar")
+	if (type_str == "spherical")
+		joint.m_type = URDFSphericalJoint;
+	else if (type_str == "planar")
 		joint.m_type = URDFPlanarJoint;
 	else if (type_str == "floating")
 		joint.m_type = URDFFloatingJoint;

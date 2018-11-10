@@ -8007,17 +8007,39 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 			int posVarCountIndex = 7;
 			for (int i = 0; i < mb->getNumLinks(); i++)
 			{
-				if ((clientCmd.m_initPoseArgs.m_hasInitialStateQ[posVarCountIndex]) && (mb->getLink(i).m_dofCount == 1))
+				bool hasPosVar = true;
+
+				for (int j = 0; j < mb->getLink(i).m_posVarCount; j++)
 				{
-					mb->setJointPos(i, clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex]);
-					mb->setJointVel(i, 0);  //backwards compatibility
+					if (clientCmd.m_initPoseArgs.m_hasInitialStateQ[posVarCountIndex+j] == 0)
+					{
+						hasPosVar = false;
+						break;
+					}
 				}
-				if ((clientCmd.m_initPoseArgs.m_hasInitialStateQdot[uDofIndex]) && (mb->getLink(i).m_dofCount == 1))
+				if (hasPosVar)
 				{
-					btScalar vel = clientCmd.m_initPoseArgs.m_initialStateQdot[uDofIndex];
-					mb->setJointVel(i, vel);
+					mb->setJointPosMultiDof(i, &clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex]);
+					double vel[6] = { 0, 0, 0, 0, 0, 0 };
+					mb->setJointVelMultiDof(i, vel);
+				}
+				
+				bool hasVel = true;
+				for (int j = 0; j < mb->getLink(i).m_dofCount; j++)
+				{
+					if (clientCmd.m_initPoseArgs.m_hasInitialStateQdot[uDofIndex + j] == 0)
+					{
+						hasVel = false;
+						break;
+					}
 				}
 
+				if (hasVel)
+				{
+					mb->setJointVelMultiDof(i, &clientCmd.m_initPoseArgs.m_initialStateQdot[uDofIndex]);
+				}
+				
+				
 				posVarCountIndex += mb->getLink(i).m_posVarCount;
 				uDofIndex += mb->getLink(i).m_dofCount;
 			}

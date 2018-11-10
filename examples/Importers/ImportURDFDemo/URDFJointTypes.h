@@ -11,6 +11,8 @@ enum UrdfJointTypes
 	URDFFloatingJoint,
 	URDFPlanarJoint,
 	URDFFixedJoint,
+	URDFSphericalJoint,
+
 };
 
 enum URDF_LinkContactFlags
