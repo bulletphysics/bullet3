@@ -56,7 +56,7 @@ public:
 				{
 					for (int h = 0; h < A.m_rowNonZeroElements1[i].size(); h++)
 					{
-						int j = A.m_rowNonZeroElements1[i][h];
+						j = A.m_rowNonZeroElements1[i][h];
 						if (j != i)  //skip main diagonal
 						{
 							delta += A(i, j) * x[j];
