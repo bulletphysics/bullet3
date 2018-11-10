@@ -23,7 +23,8 @@ def parallelCCompile(self, sources, output_dir=None, macros=None, include_dirs=N
         except KeyError: return
         self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
     # convert to list, imap is evaluated on-demand
-    list(multiprocessing.pool.ThreadPool(N).imap(_single_compile,objects))
+    pool = multiprocessing.pool.ThreadPool(N)
+    list(pool.imap(_single_compile,objects))
     return objects
 import distutils.ccompiler
 distutils.ccompiler.CCompiler.compile=parallelCCompile
@@ -583,7 +584,7 @@ if 'BT_USE_EGL' in EGL_CXX_FLAGS:
 
 setup(
 	name = 'pybullet',
-	version='2.3.4',
+	version='2.3.7',
 	description='Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and deep reinforcement learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',

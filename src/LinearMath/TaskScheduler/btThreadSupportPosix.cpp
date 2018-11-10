@@ -198,12 +198,10 @@ static void* threadFunction(void* argument)
 			status->m_status = 3;
 			status->m_cs->unlock();
 			checkPThreadFunction(sem_post(status->m_mainSemaphore));
-			printf("Thread with taskId %i exiting\n", status->m_taskId);
 			break;
 		}
 	}
 
-	printf("Thread TERMINATED\n");
 	return 0;
 }
 
@@ -272,7 +270,6 @@ void btThreadSupportPosix::waitForAllTasks()
 void btThreadSupportPosix::startThreads(const ConstructionInfo& threadConstructionInfo)
 {
 	m_numThreads = btGetNumHardwareThreads() - 1;  // main thread exists already
-	printf("%s creating %i threads.\n", __FUNCTION__, m_numThreads);
 	m_activeThreadStatus.resize(m_numThreads);
 	m_startedThreadsMask = 0;
 
@@ -281,7 +278,6 @@ void btThreadSupportPosix::startThreads(const ConstructionInfo& threadConstructi
 
 	for (int i = 0; i < m_numThreads; i++)
 	{
-		printf("starting thread %d\n", i);
 		btThreadStatus& threadStatus = m_activeThreadStatus[i];
 		threadStatus.startSemaphore = createSem("threadLocal");
 		threadStatus.m_userPtr = 0;
@@ -294,7 +290,6 @@ void btThreadSupportPosix::startThreads(const ConstructionInfo& threadConstructi
 		threadStatus.threadUsed = 0;
 		checkPThreadFunction(pthread_create(&threadStatus.thread, NULL, &threadFunction, (void*)&threadStatus));
 
-		printf("started thread %d \n", i);
 	}
 }
 
@@ -304,20 +299,15 @@ void btThreadSupportPosix::stopThreads()
 	for (size_t t = 0; t < size_t(m_activeThreadStatus.size()); ++t)
 	{
 		btThreadStatus& threadStatus = m_activeThreadStatus[t];
-		printf("%s: Thread %i used: %ld\n", __FUNCTION__, int(t), threadStatus.threadUsed);
 
 		threadStatus.m_userPtr = 0;
 		checkPThreadFunction(sem_post(threadStatus.startSemaphore));
 		checkPThreadFunction(sem_wait(m_mainSemaphore));
 
-		printf("destroy semaphore\n");
 		destroySem(threadStatus.startSemaphore);
-		printf("semaphore destroyed\n");
 		checkPThreadFunction(pthread_join(threadStatus.thread, 0));
 	}
-	printf("destroy main semaphore\n");
 	destroySem(m_mainSemaphore);
-	printf("main semaphore destroyed\n");
 	m_activeThreadStatus.clear();
 }
 

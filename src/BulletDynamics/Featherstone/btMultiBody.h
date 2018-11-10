@@ -338,17 +338,20 @@ public:
 															  btAlignedObjectArray<btScalar> & scratch_r,
 															  btAlignedObjectArray<btVector3> & scratch_v,
 															  btAlignedObjectArray<btMatrix3x3> & scratch_m,
-															  bool isConstraintPass = false);
+															  bool isConstraintPass,
+                                                              bool jointFeedbackInWorldSpace,
+                                                              bool jointFeedbackInJointFrame
+                                                              );
 
 	///stepVelocitiesMultiDof is deprecated, use computeAccelerationsArticulatedBodyAlgorithmMultiDof instead
-	void stepVelocitiesMultiDof(btScalar dt,
-								btAlignedObjectArray<btScalar> & scratch_r,
-								btAlignedObjectArray<btVector3> & scratch_v,
-								btAlignedObjectArray<btMatrix3x3> & scratch_m,
-								bool isConstraintPass = false)
-	{
-		computeAccelerationsArticulatedBodyAlgorithmMultiDof(dt, scratch_r, scratch_v, scratch_m, isConstraintPass);
-	}
+	//void stepVelocitiesMultiDof(btScalar dt,
+	//							btAlignedObjectArray<btScalar> & scratch_r,
+	//							btAlignedObjectArray<btVector3> & scratch_v,
+	//							btAlignedObjectArray<btMatrix3x3> & scratch_m,
+	//							bool isConstraintPass = false)
+	//{
+	//	computeAccelerationsArticulatedBodyAlgorithmMultiDof(dt, scratch_r, scratch_v, scratch_m, isConstraintPass, false, false);
+	//}
 
 	// calcAccelerationDeltasMultiDof
 	// input: force vector (in same format as jacobian, i.e.:

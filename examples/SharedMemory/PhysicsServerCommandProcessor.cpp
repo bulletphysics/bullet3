@@ -96,8 +96,6 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #endif
 
-extern bool gJointFeedbackInWorldSpace;
-extern bool gJointFeedbackInJointFrame;
 
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
@@ -5583,6 +5581,11 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 				args.m_ints[1] = bodyUniqueId;
 				//find the joint motors and apply the desired velocity and maximum force/torque
 				{
+					args.m_numInts = 0;
+					args.m_numFloats = 0;
+					//syncBodies is expensive/slow, use it only once
+					m_data->m_pluginManager.executePluginCommand(m_data->m_pdControlPlugin, &args);
+
 					int velIndex = 6;  //skip the 3 linear + 3 angular degree of freedom velocity entries of the base
 					int posIndex = 7;  //skip 3 positional and 4 orientation (quaternion) positional degrees of freedom of the base
 					for (int link = 0; link < mb->getNumLinks(); link++)
@@ -7697,11 +7700,11 @@ bool PhysicsServerCommandProcessor::processRequestPhysicsSimulationParametersCom
 	serverCmd.m_simulationParameterResultArgs.m_gravityAcceleration[2] = grav[2];
 	serverCmd.m_simulationParameterResultArgs.m_internalSimFlags = gInternalSimFlags;
 	serverCmd.m_simulationParameterResultArgs.m_jointFeedbackMode = 0;
-	if (gJointFeedbackInWorldSpace)
+	if (m_data->m_dynamicsWorld->getSolverInfo().m_jointFeedbackInWorldSpace)
 	{
 		serverCmd.m_simulationParameterResultArgs.m_jointFeedbackMode |= JOINT_FEEDBACK_IN_WORLD_SPACE;
 	}
-	if (gJointFeedbackInJointFrame)
+	if (m_data->m_dynamicsWorld->getSolverInfo().m_jointFeedbackInJointFrame)
 	{
 		serverCmd.m_simulationParameterResultArgs.m_jointFeedbackMode |= JOINT_FEEDBACK_IN_JOINT_FRAME;
 	}
@@ -7747,8 +7750,8 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_JOINT_FEEDBACK_MODE)
 	{
-		gJointFeedbackInWorldSpace = (clientCmd.m_physSimParamArgs.m_jointFeedbackMode & JOINT_FEEDBACK_IN_WORLD_SPACE) != 0;
-		gJointFeedbackInJointFrame = (clientCmd.m_physSimParamArgs.m_jointFeedbackMode & JOINT_FEEDBACK_IN_JOINT_FRAME) != 0;
+		m_data->m_dynamicsWorld->getSolverInfo().m_jointFeedbackInWorldSpace = (clientCmd.m_physSimParamArgs.m_jointFeedbackMode & JOINT_FEEDBACK_IN_WORLD_SPACE) != 0;
+		m_data->m_dynamicsWorld->getSolverInfo().m_jointFeedbackInJointFrame = (clientCmd.m_physSimParamArgs.m_jointFeedbackMode & JOINT_FEEDBACK_IN_JOINT_FRAME) != 0;
 	}
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_DELTA_TIME)
