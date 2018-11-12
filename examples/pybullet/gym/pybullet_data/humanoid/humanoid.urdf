@@ -1,0 +1,284 @@
+<robot name="dumpUrdf">
+	<link name="base" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0 0 0" />
+			 <mass value = "0.000000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+	</link>
+	<link name="link0" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 0.280000 0.000000" />
+			 <mass value = "6.000000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "0 0 0" xyz = "0.000000 0.280000 0.000000" />
+			<geometry>
+				<sphere radius = "0.360000" />
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint0" type="fixed" >
+		<parent link = "base" />
+		<child link="link0" />
+				<origin rpy = "0 0 0" xyz = "0.000000 0.000000 0.000000" />
+	</joint>
+	<link name="link1" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 0.480000 0.000000" />
+			 <mass value = "14.000000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "0 0 0" xyz = "0.000000 0.480000 0.000000" />
+			<geometry>
+				<sphere radius = "0.440000" />
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint1" type="spherical" >
+		<parent link="link0" />
+		<child link="link1" />
+				<origin rpy = "0 0 0" xyz = "0.000000 0.944604 0.000000" />
+	</joint>
+	<link name="link2" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 0.700000 0.000000" />
+			 <mass value = "2.000000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "0 0 0" xyz = "0.000000 0.700000 0.000000" />
+			<geometry>
+				<sphere radius = "0.410000" />
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint2" type="spherical" >
+		<parent link="link1" />
+		<child link="link2" />
+				<origin rpy = "0 0 0" xyz = "0.000000 0.895576 0.000000" />
+	</joint>
+	<link name="link3" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 -0.840000 0.000000" />
+			 <mass value = "4.500000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "-1.570796 0 0" xyz = "0.000000 -0.840000 0.000000" />
+			<geometry>
+				<capsule length="1.200000" radius="0.220000"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint3" type="spherical" >
+		<parent link="link0" />
+		<child link="link3" />
+				<origin rpy = "0 0 0" xyz = "0.000000 0.000000 0.339548" />
+	</joint>
+	<link name="link4" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 -0.800000 0.000000" />
+			 <mass value = "3.000000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "-1.570796 0 0" xyz = "0.000000 -0.800000 0.000000" />
+			<geometry>
+				<capsule length="1.240000" radius="0.200000"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint4" type="continuous" >
+		<parent link="link3" />
+		<child link="link4" />
+				<origin rpy = "0 0 0" xyz = "0.000000 -1.686184 0.000000" />
+		<axis xyz = "0.000000 0.000000 1.000000" />
+	</joint>
+	<link name="link5" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.180000 -0.090000 0.000000" />
+			 <mass value = "1.000000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "0 0 0" xyz = "0.180000 -0.090000 0.000000" />
+			<geometry>
+				<box size="0.708000 0.220000 0.360000" />
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint5" type="spherical" >
+		<parent link="link4" />
+		<child link="link5" />
+				<origin rpy = "0 0 0" xyz = "0.000000 -1.639480 0.000000" />
+	</joint>
+	<link name="link6" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 -0.560000 0.000000" />
+			 <mass value = "1.500000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "-1.570796 0 0" xyz = "0.000000 -0.560000 0.000000" />
+			<geometry>
+				<capsule length="0.720000" radius="0.180000"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint6" type="spherical" >
+		<parent link="link1" />
+		<child link="link6" />
+				<origin rpy = "0 0 0" xyz = "-0.096200 0.974000 0.732440" />
+	</joint>
+	<link name="link7" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 -0.480000 0.000000" />
+			 <mass value = "1.000000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "-1.570796 0 0" xyz = "0.000000 -0.480000 0.000000" />
+			<geometry>
+				<capsule length="0.540000" radius="0.160000"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint7" type="continuous" >
+		<parent link="link6" />
+		<child link="link7" />
+				<origin rpy = "0 0 0" xyz = "0.000000 -1.099152 0.000000" />
+		<axis xyz = "0.000000 0.000000 1.000000" />
+	</joint>
+	<link name="link8" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 0.000000 0.000000" />
+			 <mass value = "0.500000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "0 0 0" xyz = "0.000000 0.000000 0.000000" />
+			<geometry>
+				<sphere radius = "0.160000" />
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint8" type="fixed" >
+		<parent link="link7" />
+		<child link="link8" />
+				<origin rpy = "0 0 0" xyz = "0.000000 -1.035788 0.000000" />
+	</joint>
+	<link name="link9" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 -0.840000 0.000000" />
+			 <mass value = "4.500000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "-1.570796 0 0" xyz = "0.000000 -0.840000 0.000000" />
+			<geometry>
+				<capsule length="1.200000" radius="0.220000"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint9" type="spherical" >
+		<parent link="link0" />
+		<child link="link9" />
+				<origin rpy = "0 0 0" xyz = "0.000000 0.000000 -0.339548" />
+	</joint>
+	<link name="link10" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 -0.800000 0.000000" />
+			 <mass value = "3.000000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "-1.570796 0 0" xyz = "0.000000 -0.800000 0.000000" />
+			<geometry>
+				<capsule length="1.240000" radius="0.200000"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint10" type="continuous" >
+		<parent link="link9" />
+		<child link="link10" />
+				<origin rpy = "0 0 0" xyz = "0.000000 -1.686184 0.000000" />
+		<axis xyz = "0.000000 0.000000 1.000000" />
+	</joint>
+	<link name="link11" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.180000 -0.090000 0.000000" />
+			 <mass value = "1.000000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "0 0 0" xyz = "0.180000 -0.090000 0.000000" />
+			<geometry>
+				<box size="0.708000 0.220000 0.360000" />
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint11" type="spherical" >
+		<parent link="link10" />
+		<child link="link11" />
+				<origin rpy = "0 0 0" xyz = "0.000000 -1.639480 0.000000" />
+	</joint>
+	<link name="link12" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 -0.560000 0.000000" />
+			 <mass value = "1.500000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "-1.570796 0 0" xyz = "0.000000 -0.560000 0.000000" />
+			<geometry>
+				<capsule length="0.720000" radius="0.180000"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint12" type="spherical" >
+		<parent link="link1" />
+		<child link="link12" />
+				<origin rpy = "0 0 0" xyz = "-0.096200 0.974000 -0.732440" />
+	</joint>
+	<link name="link13" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 -0.480000 0.000000" />
+			 <mass value = "1.000000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "-1.570796 0 0" xyz = "0.000000 -0.480000 0.000000" />
+			<geometry>
+				<capsule length="0.540000" radius="0.160000"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint13" type="continuous" >
+		<parent link="link12" />
+		<child link="link13" />
+				<origin rpy = "0 0 0" xyz = "0.000000 -1.099152 0.000000" />
+		<axis xyz = "0.000000 0.000000 1.000000" />
+	</joint>
+	<link name="link14" >
+		<inertial>
+				<origin rpy = "0 0 0" xyz = "0.000000 0.000000 0.000000" />
+			 <mass value = "0.500000" />
+			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
+		</inertial>
+		<collision>
+				<origin rpy = "0 0 0" xyz = "0.000000 0.000000 0.000000" />
+			<geometry>
+				<sphere radius = "0.160000" />
+			</geometry>
+		</collision>
+	</link>
+	<joint name="joint14" type="fixed" >
+		<parent link="link13" />
+		<child link="link14" />
+				<origin rpy = "0 0 0" xyz = "0.000000 -1.035788 0.000000" />
+	</joint>
+</robot>
+ 

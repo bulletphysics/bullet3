@@ -274,6 +274,8 @@ struct b3JointInfo
 	double m_childFrame[7];   // ^^^
 	double m_jointAxis[3];    // joint axis in parent local frame
 	int m_parentIndex;
+	int m_qSize;
+	int m_uSize;
 };
 
 enum UserDataValueType
@@ -355,6 +357,16 @@ struct b3JointSensorState
 	double m_jointVelocity;
 	double m_jointForceTorque[6]; /* note to roboticists: this is NOT the motor torque/force, but the spatial reaction force vector at joint */
 	double m_jointMotorTorque;
+};
+
+struct b3JointSensorState2
+{
+	double m_jointPosition[4];
+	double m_jointVelocity[3];
+	double m_jointReactionForceTorque[6]; /* note to roboticists: this is NOT the motor torque/force, but the spatial reaction force vector at joint */
+	double m_jointMotorTorque;
+	int m_qDofSize;
+	int m_uDofSize;
 };
 
 struct b3DebugLines

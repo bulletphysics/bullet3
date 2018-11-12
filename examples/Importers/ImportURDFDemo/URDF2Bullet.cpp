@@ -383,8 +383,65 @@ void ConvertURDF2BulletInternal(
 
 			switch (jointType)
 			{
-				case URDFFloatingJoint:
+				case URDFSphericalJoint:
+				{
+					if (createMultiBody)
+					{
+						creation.addLinkMapping(urdfLinkIndex, mbLinkIndex);
+						cache.m_bulletMultiBody->setupSpherical(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
+							parentRotToThis, offsetInA.getOrigin(), -offsetInB.getOrigin(),
+							disableParentCollision);
+					}
+					else
+					{
+						btAssert(0);
+					}
+					break;
+				}
 				case URDFPlanarJoint:
+				{
+					
+					if (createMultiBody)
+					{
+#if 0
+						void setupPlanar(int i,  // 0 to num_links-1
+							btScalar mass,
+							const btVector3 &inertia,
+							int parent,
+							const btQuaternion &rotParentToThis,  // rotate points in parent frame to this frame, when q = 0
+							const btVector3 &rotationAxis,
+							const btVector3 &parentComToThisComOffset,  // vector from parent COM to this COM, in PARENT frame
+							bool disableParentCollision = false);
+#endif
+						creation.addLinkMapping(urdfLinkIndex, mbLinkIndex);
+						cache.m_bulletMultiBody->setupPlanar(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
+							parentRotToThis, quatRotate(offsetInB.getRotation(), jointAxisInJointSpace), offsetInA.getOrigin(),
+							disableParentCollision);
+					}
+					else
+					{
+#if 0
+						//b3Printf("Fixed joint\n");
+
+						btGeneric6DofSpring2Constraint* dof6 = 0;
+
+						//backward compatibility
+						if (flags & CUF_RESERVED)
+						{
+							dof6 = creation.createFixedJoint(urdfLinkIndex, *parentRigidBody, *linkRigidBody, offsetInA, offsetInB);
+						}
+						else
+						{
+							dof6 = creation.createFixedJoint(urdfLinkIndex, *linkRigidBody, *parentRigidBody, offsetInB, offsetInA);
+						}
+						if (enableConstraints)
+							world1->addConstraint(dof6, true);
+#endif
+					}
+					break;
+				}
+				case URDFFloatingJoint:
+				
 				case URDFFixedJoint:
 				{
 					if ((jointType == URDFFloatingJoint) || (jointType == URDFPlanarJoint))
@@ -426,7 +483,9 @@ void ConvertURDF2BulletInternal(
 					if (createMultiBody)
 					{
 						cache.m_bulletMultiBody->setupRevolute(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
-															   parentRotToThis, quatRotate(offsetInB.getRotation(), jointAxisInJointSpace), offsetInA.getOrigin(),  //parent2joint.getOrigin(),
+															   parentRotToThis, quatRotate(offsetInB.getRotation(), 
+																   jointAxisInJointSpace), 
+																offsetInA.getOrigin(),
 															   -offsetInB.getOrigin(),
 															   disableParentCollision);
 
