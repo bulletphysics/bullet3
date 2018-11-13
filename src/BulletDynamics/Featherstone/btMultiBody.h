@@ -600,6 +600,15 @@ public:
 		m_userIndex2 = index;
 	}
 
+	static void spatialTransform(const btMatrix3x3 &rotation_matrix,  // rotates vectors in 'from' frame to vectors in 'to' frame
+		const btVector3 &displacement,     // vector from origin of 'from' frame to origin of 'to' frame, in 'to' coordinates
+		const btVector3 &top_in,       // top part of input vector
+		const btVector3 &bottom_in,    // bottom part of input vector
+		btVector3 &top_out,         // top part of output vector
+		btVector3 &bottom_out);      // bottom part of output vector
+
+
+
 private:
 	btMultiBody(const btMultiBody &);     // not implemented
 	void operator=(const btMultiBody &);  // not implemented
