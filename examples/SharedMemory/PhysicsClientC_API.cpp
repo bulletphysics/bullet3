@@ -818,6 +818,22 @@ B3_SHARED_API int b3JointControlSetDesiredPosition(b3SharedMemoryCommandHandle c
 	return 0;
 }
 
+B3_SHARED_API int b3JointControlSetDesiredPositionMultiDof(b3SharedMemoryCommandHandle commandHandle, int qIndex, const double* position, int dofCount)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	if ((qIndex >= 0) && ((qIndex + dofCount) < MAX_DEGREE_OF_FREEDOM) && dofCount > 0 && dofCount <= 4)
+	{
+		for (int dof = 0; dof < dofCount; dof++)
+		{
+			command->m_sendDesiredStateCommandArgument.m_desiredStateQ[qIndex + dof] = position[dof];
+			command->m_updateFlags |= SIM_DESIRED_STATE_HAS_Q;
+			command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[qIndex + dof] |= SIM_DESIRED_STATE_HAS_Q;
+		}
+	}
+	return 0;
+}
+
 B3_SHARED_API int b3JointControlSetKp(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
@@ -866,6 +882,22 @@ B3_SHARED_API int b3JointControlSetDesiredVelocity(b3SharedMemoryCommandHandle c
 		command->m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex] = value;
 		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_QDOT;
 		command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_QDOT;
+	}
+	return 0;
+}
+
+B3_SHARED_API int b3JointControlSetDesiredVelocityMultiDof(b3SharedMemoryCommandHandle commandHandle, int dofIndex, const double* velocity, int dofCount)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	if ((dofIndex >= 0) && ((dofIndex+ dofCount) < MAX_DEGREE_OF_FREEDOM) && dofCount>=0 && dofCount<=4)
+	{
+		for (int dof = 0; dof < dofCount; dof++)
+		{
+			command->m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex+dof] = velocity[dof];
+			command->m_updateFlags |= SIM_DESIRED_STATE_HAS_QDOT;
+			command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex+dof] |= SIM_DESIRED_STATE_HAS_QDOT;
+		}
 	}
 	return 0;
 }
@@ -5220,4 +5252,15 @@ B3_SHARED_API void b3InvertTransform(const double pos[3], const double orn[4], d
 	outOrn[1] = invOrn[1];
 	outOrn[2] = invOrn[2];
 	outOrn[3] = invOrn[3];
+}
+
+B3_SHARED_API void b3QuaternionSlerp(const double startQuat[/*4*/], const double endQuat[/*4*/], double interpolationFraction, double outOrn[/*4*/])
+{
+	b3Quaternion start(startQuat[0], startQuat[1], startQuat[2], startQuat[3]);
+	b3Quaternion end(endQuat[0], endQuat[1], endQuat[2], endQuat[3]);
+	b3Quaternion result = start.slerp(end, interpolationFraction);
+	outOrn[0] = result[0];
+	outOrn[1] = result[1];
+	outOrn[2] = result[2];
+	outOrn[3] = result[3];
 }

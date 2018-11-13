@@ -149,6 +149,8 @@ bool PhysicsClientSharedMemory::getJointInfo(int bodyUniqueId, int jointIndex, b
 		if ((jointIndex >= 0) && (jointIndex < bodyJoints->m_jointInfo.size()))
 		{
 			info = bodyJoints->m_jointInfo[jointIndex];
+			info.m_qSize = 0;
+			info.m_uSize = 0;
 			switch (info.m_jointType)
 			{
 				case eSphericalType:

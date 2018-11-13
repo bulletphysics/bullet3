@@ -317,6 +317,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.cpp"]\
 +["src/BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.cpp"]\
 +["src/BulletDynamics/Featherstone/btMultiBodySliderConstraint.cpp"]\
++["src/BulletDynamics/Featherstone/btMultiBodySphericalJointMotor.cpp"]\
 +["src/BulletDynamics/Vehicle/btRaycastVehicle.cpp"]\
 +["src/BulletDynamics/Vehicle/btWheelInfo.cpp"]\
 +["src/BulletDynamics/Character/btKinematicCharacterController.cpp"]\

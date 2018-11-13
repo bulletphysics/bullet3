@@ -37,18 +37,20 @@ const btScalar SLEEP_EPSILON = btScalar(0.05);  // this is a squared velocity (m
 const btScalar SLEEP_TIMEOUT = btScalar(2);     // in seconds
 }  // namespace
 
-namespace
-{
-void SpatialTransform(const btMatrix3x3 &rotation_matrix,  // rotates vectors in 'from' frame to vectors in 'to' frame
-					  const btVector3 &displacement,       // vector from origin of 'from' frame to origin of 'to' frame, in 'to' coordinates
-					  const btVector3 &top_in,             // top part of input vector
-					  const btVector3 &bottom_in,          // bottom part of input vector
-					  btVector3 &top_out,                  // top part of output vector
-					  btVector3 &bottom_out)               // bottom part of output vector
+void btMultiBody::spatialTransform(const btMatrix3x3 &rotation_matrix,  // rotates vectors in 'from' frame to vectors in 'to' frame
+	const btVector3 &displacement,       // vector from origin of 'from' frame to origin of 'to' frame, in 'to' coordinates
+	const btVector3 &top_in,             // top part of input vector
+	const btVector3 &bottom_in,          // bottom part of input vector
+	btVector3 &top_out,                  // top part of output vector
+	btVector3 &bottom_out)               // bottom part of output vector
 {
 	top_out = rotation_matrix * top_in;
 	bottom_out = -displacement.cross(top_out) + rotation_matrix * bottom_in;
 }
+
+namespace
+{
+
 
 #if 0
     void InverseSpatialTransform(const btMatrix3x3 &rotation_matrix,
@@ -330,6 +332,9 @@ void btMultiBody::setupPlanar(int i,
 	m_links[i].updateCacheMultiDof();
 	//
 	updateLinksDofOffsets();
+
+	m_links[i].setAxisBottom(1, m_links[i].getAxisBottom(1).normalized());
+	m_links[i].setAxisBottom(2, m_links[i].getAxisBottom(2).normalized());
 }
 
 void btMultiBody::finalizeMultiDof()
@@ -540,35 +545,26 @@ void btMultiBody::compTreeLinkVelocities(btVector3 *omega, btVector3 *vel) const
 {
 	int num_links = getNumLinks();
 	// Calculates the velocities of each link (and the base) in its local frame
-	omega[0] = quatRotate(m_baseQuat, getBaseOmega());
-	vel[0] = quatRotate(m_baseQuat, getBaseVel());
+	const btQuaternion& base_rot = getWorldToBaseRot();
+	omega[0] = quatRotate(base_rot, getBaseOmega());
+	vel[0] = quatRotate(base_rot, getBaseVel());
 
 	for (int i = 0; i < num_links; ++i)
 	{
-		const int parent = m_links[i].m_parent;
+		const btMultibodyLink& link = getLink(i);
+		const int parent = link.m_parent;
 
 		// transform parent vel into this frame, store in omega[i+1], vel[i+1]
-		SpatialTransform(btMatrix3x3(m_links[i].m_cachedRotParentToThis), m_links[i].m_cachedRVector,
-						 omega[parent + 1], vel[parent + 1],
-						 omega[i + 1], vel[i + 1]);
+		spatialTransform(btMatrix3x3(link.m_cachedRotParentToThis), link.m_cachedRVector,
+			omega[parent + 1], vel[parent + 1],
+			omega[i + 1], vel[i + 1]);
 
 		// now add qidot * shat_i
-		//only supported for revolute/prismatic joints, todo: spherical and planar joints
-		switch (m_links[i].m_jointType)
+		const btScalar* jointVel = getJointVelMultiDof(i);
+		for (int dof = 0; dof < link.m_dofCount; ++dof)
 		{
-			case btMultibodyLink::ePrismatic:
-			case btMultibodyLink::eRevolute:
-			{
-				btVector3 axisTop = m_links[i].getAxisTop(0);
-				btVector3 axisBottom = m_links[i].getAxisBottom(0);
-				btScalar jointVel = getJointVel(i);
-				omega[i + 1] += jointVel * axisTop;
-				vel[i + 1] += jointVel * axisBottom;
-				break;
-			}
-			default:
-			{
-			}
+			omega[i + 1] += jointVel[dof] * link.getAxisTop(dof);
+			vel[i + 1] += jointVel[dof] * link.getAxisBottom(dof);
 		}
 	}
 }

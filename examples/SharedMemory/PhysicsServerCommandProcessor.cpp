@@ -13,6 +13,8 @@
 #include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
 #include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
 #include "BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.h"
+#include "BulletDynamics/Featherstone/btMultiBodySphericalJointMotor.h"
+
 
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
@@ -2711,7 +2713,8 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 
 bool PhysicsServerCommandProcessor::supportsJointMotor(btMultiBody* mb, int mbLinkIndex)
 {
-	bool canHaveMotor = (mb->getLink(mbLinkIndex).m_jointType == btMultibodyLink::eRevolute || mb->getLink(mbLinkIndex).m_jointType == btMultibodyLink::ePrismatic);
+	bool canHaveMotor = (mb->getLink(mbLinkIndex).m_jointType == btMultibodyLink::eRevolute 
+		|| mb->getLink(mbLinkIndex).m_jointType == btMultibodyLink::ePrismatic);
 	return canHaveMotor;
 }
 
@@ -2722,10 +2725,10 @@ void PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 	for (int i = 0; i < numLinks; i++)
 	{
 		int mbLinkIndex = i;
+		float maxMotorImpulse = 1.f;
 
 		if (supportsJointMotor(mb, mbLinkIndex))
 		{
-			float maxMotorImpulse = 1.f;
 			int dof = 0;
 			btScalar desiredVelocity = 0.f;
 			btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb, mbLinkIndex, dof, desiredVelocity, maxMotorImpulse);
@@ -2733,6 +2736,13 @@ void PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 			motor->setVelocityTarget(0, 1);
 			//motor->setRhsClamp(gRhsClamp);
 			//motor->setMaxAppliedImpulse(0);
+			mb->getLink(mbLinkIndex).m_userPtr = motor;
+			m_data->m_dynamicsWorld->addMultiBodyConstraint(motor);
+			motor->finalizeMultiDof();
+		}
+		if (mb->getLink(mbLinkIndex).m_jointType == btMultibodyLink::eSpherical)
+		{
+			btMultiBodySphericalJointMotor* motor = new btMultiBodySphericalJointMotor(mb, mbLinkIndex, 1000*maxMotorImpulse);
 			mb->getLink(mbLinkIndex).m_userPtr = motor;
 			m_data->m_dynamicsWorld->addMultiBodyConstraint(motor);
 			motor->finalizeMultiDof();
@@ -2916,6 +2926,18 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 			std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
 			m_data->m_strings.push_back(baseName);
 			mb->setBaseName(baseName->c_str());
+			
+#if 0
+			btAlignedObjectArray<char> urdf;
+			mb->dumpUrdf(urdf);
+			FILE* f = fopen("e:/pybullet.urdf", "w");
+			if (f)
+			{
+				fwrite(&urdf[0], urdf.size(), 1, f);
+				fclose(f);
+			}
+#endif
+			
 		}
 		else
 		{
@@ -5811,6 +5833,74 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 								numMotors++;
 							}
 						}
+
+						if (mb->getLink(link).m_jointType == btMultibodyLink::eSpherical)
+						{
+							btMultiBodySphericalJointMotor* motor = (btMultiBodySphericalJointMotor*)mb->getLink(link).m_userPtr;
+							if (motor)
+							{
+								if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[velIndex] & SIM_DESIRED_STATE_HAS_RHS_CLAMP) != 0)
+								{
+									motor->setRhsClamp(clientCmd.m_sendDesiredStateCommandArgument.m_rhsClamp[velIndex]);
+								}
+								bool hasDesiredPosOrVel = false;
+								btScalar kp = 0.f;
+								btScalar kd = 0.f;
+								btVector3 desiredVelocity(0, 0, 0);
+								if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[velIndex] & SIM_DESIRED_STATE_HAS_QDOT) != 0)
+								{
+									hasDesiredPosOrVel = true;
+									desiredVelocity.setValue(
+										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex+0],
+										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex+1],
+										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex+2]);
+									kd = 0.1;
+								}
+								btQuaternion desiredPosition(0, 0, 0, 1);
+								if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[posIndex] & SIM_DESIRED_STATE_HAS_Q) != 0)
+								{
+									hasDesiredPosOrVel = true;
+									desiredPosition.setValue(
+										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex + 0],
+										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex + 1],
+										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex + 2],
+										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex + 3]);
+									kp = 0.1;
+								}
+
+								if (hasDesiredPosOrVel)
+								{
+									if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[velIndex] & SIM_DESIRED_STATE_HAS_KP) != 0)
+									{
+										kp = clientCmd.m_sendDesiredStateCommandArgument.m_Kp[velIndex];
+									}
+
+									if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[velIndex] & SIM_DESIRED_STATE_HAS_KD) != 0)
+									{
+										kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex];
+									}
+
+									motor->setVelocityTarget(desiredVelocity, kd);
+									//todo: instead of clamping, combine the motor and limit
+									//and combine handling of limit force and motor force.
+
+									//clamp position
+									//if (mb->getLink(link).m_jointLowerLimit <= mb->getLink(link).m_jointUpperLimit)
+									//{
+									//	btClamp(desiredPosition, mb->getLink(link).m_jointLowerLimit, mb->getLink(link).m_jointUpperLimit);
+									//}
+									motor->setPositionTarget(desiredPosition, kp);
+
+									btScalar maxImp = 1000000.f * m_data->m_physicsDeltaTime;
+
+									if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_MAX_FORCE) != 0)
+										maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex] * m_data->m_physicsDeltaTime;
+
+									motor->setMaxAppliedImpulse(maxImp);
+								}
+								numMotors++;
+							}
+						}
 						velIndex += mb->getLink(link).m_dofCount;
 						posIndex += mb->getLink(link).m_posVarCount;
 					}
@@ -8038,8 +8128,7 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 				{
 					mb->setJointVelMultiDof(i, &clientCmd.m_initPoseArgs.m_initialStateQdot[uDofIndex]);
 				}
-				
-				
+								
 				posVarCountIndex += mb->getLink(i).m_posVarCount;
 				uDofIndex += mb->getLink(i).m_dofCount;
 			}
