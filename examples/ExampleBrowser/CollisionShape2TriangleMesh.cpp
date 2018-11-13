@@ -3,6 +3,7 @@
 
 #include "btBulletCollisionCommon.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"  //to create a tesselation of a generic btConvexShape
+#include "BulletCollision/CollisionShapes/btConvexPolyhedron.h"
 
 void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTransform& parentTransform, btAlignedObjectArray<btVector3>& vertexPositions, btAlignedObjectArray<btVector3>& vertexNormals, btAlignedObjectArray<int>& indicesOut)
 
@@ -131,38 +132,71 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 			{
 				btConvexShape* convex = (btConvexShape*)collisionShape;
 				{
-					btShapeHull* hull = new btShapeHull(convex);
-					hull->buildHull(0.0, 1);
-
+					
+					const btConvexPolyhedron* pol = 0;
+					if (convex->isPolyhedral())
 					{
-						//int strideInBytes = 9*sizeof(float);
-						//int numVertices = hull->numVertices();
-						//int numIndices =hull->numIndices();
-
-						for (int t = 0; t < hull->numTriangles(); t++)
+						btPolyhedralConvexShape* poly = (btPolyhedralConvexShape*)convex;
+						pol = poly->getConvexPolyhedron();
+					}
+					
+					if (pol)
+					{
+						for (int v = 0; v < pol->m_vertices.size(); v++)
 						{
-							btVector3 triNormal;
+							vertexPositions.push_back(pol->m_vertices[v]);
+							btVector3 norm = pol->m_vertices[v];
+							norm.safeNormalize();
+							vertexNormals.push_back(norm);
+						}
+						for (int f = 0; f < pol->m_faces.size(); f++)
+						{
 
-							int index0 = hull->getIndexPointer()[t * 3 + 0];
-							int index1 = hull->getIndexPointer()[t * 3 + 1];
-							int index2 = hull->getIndexPointer()[t * 3 + 2];
-							btVector3 pos0 = parentTransform * hull->getVertexPointer()[index0];
-							btVector3 pos1 = parentTransform * hull->getVertexPointer()[index1];
-							btVector3 pos2 = parentTransform * hull->getVertexPointer()[index2];
-							triNormal = (pos1 - pos0).cross(pos2 - pos0);
-							triNormal.safeNormalize();
-
-							for (int v = 0; v < 3; v++)
+							for (int ii = 2; ii < pol->m_faces[f].m_indices.size(); ii++)
 							{
-								int index = hull->getIndexPointer()[t * 3 + v];
-								btVector3 pos = parentTransform * hull->getVertexPointer()[index];
-								indicesOut.push_back(vertexPositions.size());
-								vertexPositions.push_back(pos);
-								vertexNormals.push_back(triNormal);
+								indicesOut.push_back(pol->m_faces[f].m_indices[0]);
+								indicesOut.push_back(pol->m_faces[f].m_indices[ii-1]);
+								indicesOut.push_back(pol->m_faces[f].m_indices[ii]);
 							}
 						}
+
+					} 
+					else
+					{
+
+						btShapeHull* hull = new btShapeHull(convex);
+						hull->buildHull(0.0, 1);
+
+						{
+							//int strideInBytes = 9*sizeof(float);
+							//int numVertices = hull->numVertices();
+							//int numIndices =hull->numIndices();
+
+							for (int t = 0; t < hull->numTriangles(); t++)
+							{
+								btVector3 triNormal;
+
+								int index0 = hull->getIndexPointer()[t * 3 + 0];
+								int index1 = hull->getIndexPointer()[t * 3 + 1];
+								int index2 = hull->getIndexPointer()[t * 3 + 2];
+								btVector3 pos0 = parentTransform * hull->getVertexPointer()[index0];
+								btVector3 pos1 = parentTransform * hull->getVertexPointer()[index1];
+								btVector3 pos2 = parentTransform * hull->getVertexPointer()[index2];
+								triNormal = (pos1 - pos0).cross(pos2 - pos0);
+								triNormal.safeNormalize();
+
+								for (int v = 0; v < 3; v++)
+								{
+									int index = hull->getIndexPointer()[t * 3 + v];
+									btVector3 pos = parentTransform * hull->getVertexPointer()[index];
+									indicesOut.push_back(vertexPositions.size());
+									vertexPositions.push_back(pos);
+									vertexNormals.push_back(triNormal);
+								}
+							}
+						}
+						delete hull;
 					}
-					delete hull;
 				}
 			}
 			else
