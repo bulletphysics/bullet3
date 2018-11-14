@@ -223,6 +223,7 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Prim vs Mesh", "Benchmark the performance and stability of rigid bodies using primitive collision shapes (btSphereShape, btBoxShape), resting on a triangle mesh, btBvhTriangleMeshShape.", BenchmarkCreateFunc, 5),
 		ExampleEntry(1, "Convex vs Mesh", "Benchmark the performance and stability of rigid bodies using convex hull collision shapes (btConvexHullShape), resting on a triangle mesh, btBvhTriangleMeshShape.", BenchmarkCreateFunc, 6),
 		ExampleEntry(1, "Raycast", "Benchmark the performance of the btCollisionWorld::rayTest. Note that currently the rays are not rendered.", BenchmarkCreateFunc, 7),
+		ExampleEntry(1, "Convex Pack", "Benchmark the performance of the convex hull primitive.", BenchmarkCreateFunc, 8),
 		//#endif
 
 		ExampleEntry(0, "Importers"),
