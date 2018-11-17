@@ -8809,6 +8809,55 @@ static PyObject* pybullet_invertTransform(PyObject* self,
 }
 
 
+static PyObject* pybullet_calculateVelocityQuaternion(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	PyObject* quatStartObj;
+	PyObject* quatEndObj;
+	double quatStart[4];
+	double quatEnd[4];
+	double deltaTime;
+	int physicsClientId = 0;
+	int hasQuatStart = 0;
+	int hasQuatEnd = 0;
+
+	static char* kwlist[] = { "quaternionStart", "quaternionEnd", "deltaTime", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOd|i", kwlist, &quatStartObj, &quatEndObj, &deltaTime, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	if (quatStartObj)
+	{
+		hasQuatStart = pybullet_internalSetVector4d(quatStartObj, quatStart);
+	}
+
+	if (quatEndObj)
+	{
+		hasQuatEnd = pybullet_internalSetVector4d(quatEndObj, quatEnd);
+	}
+	if (hasQuatStart && hasQuatEnd)
+	{
+		double angVelOut[3];
+		b3CalculateVelocityQuaternion(quatStart, quatEnd, deltaTime, angVelOut);
+		{
+			PyObject* pylist;
+			int i;
+			pylist = PyTuple_New(3);
+			for (i = 0; i < 3; i++)
+				PyTuple_SetItem(pylist, i, PyFloat_FromDouble(angVelOut[i]));
+			return pylist;
+		}
+	}
+	else
+	{
+		PyErr_SetString(SpamError, "Require start and end quaternion, each with 4 components [x,y,z,w].");
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
 static PyObject* pybullet_getQuaternionSlerp(PyObject* self,	PyObject* args, PyObject* keywds)
 {
 	PyObject* quatStartObj;
@@ -8856,6 +8905,145 @@ static PyObject* pybullet_getQuaternionSlerp(PyObject* self,	PyObject* args, PyO
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
+
+static PyObject* pybullet_getAxisAngleFromQuaternion(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	PyObject* quatObj;
+	double quat[4];
+	int hasQuat = 0;
+
+	static char* kwlist[] = { "quaternion", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist, &quatObj, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	if (quatObj)
+	{
+		hasQuat = pybullet_internalSetVector4d(quatObj, quat);
+	}
+
+	if (hasQuat)
+	{
+		double axis[3];
+		double angle;
+		b3GetAxisAngleFromQuaternion(quat, axis, &angle);
+		{
+			PyObject* pylist2 = PyTuple_New(2);
+			{
+				PyObject* axislist;
+				int i;
+				axislist = PyTuple_New(3);
+				for (i = 0; i < 3; i++)
+					PyTuple_SetItem(axislist, i, PyFloat_FromDouble(axis[i]));
+				PyTuple_SetItem(pylist2, 0, axislist);
+			}
+			PyTuple_SetItem(pylist2, 1, PyFloat_FromDouble(angle));
+			
+			return pylist2;
+		}
+	}
+	else
+	{
+		PyErr_SetString(SpamError, "Require a quaternion with 4 components [x,y,z,w].");
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+static PyObject* pybullet_getQuaternionFromAxisAngle(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	PyObject* axisObj;
+	double axis[3];
+	double angle;
+	int physicsClientId = 0;
+	int hasAxis = 0;
+
+	static char* kwlist[] = { "axis", "angle","physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Od|i", kwlist, &axisObj, &angle,&physicsClientId))
+	{
+		return NULL;
+	}
+
+	if (axisObj)
+	{
+		hasAxis = pybullet_internalSetVectord(axisObj, axis);
+	}
+
+	if (hasAxis)
+	{
+		double quatOut[4];
+		b3GetQuaternionFromAxisAngle(axis, angle, quatOut);
+		{
+			PyObject* pylist;
+			int i;
+			pylist = PyTuple_New(4);
+			for (i = 0; i < 4; i++)
+				PyTuple_SetItem(pylist, i, PyFloat_FromDouble(quatOut[i]));
+			return pylist;
+		}
+	}
+	else
+	{
+		PyErr_SetString(SpamError, "Require axis [x,y,z] and angle.");
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+static PyObject* pybullet_getDifferenceQuaternion(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	PyObject* quatStartObj;
+	PyObject* quatEndObj;
+	double quatStart[4];
+	double quatEnd[4];
+	int physicsClientId = 0;
+	int hasQuatStart = 0;
+	int hasQuatEnd = 0;
+
+	static char* kwlist[] = { "quaternionStart", "quaternionEnd", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|i", kwlist, &quatStartObj, &quatEndObj, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	if (quatStartObj)
+	{
+		hasQuatStart = pybullet_internalSetVector4d(quatStartObj, quatStart);
+	}
+
+	if (quatEndObj)
+	{
+		hasQuatEnd = pybullet_internalSetVector4d(quatEndObj, quatEnd);
+	}
+	if (hasQuatStart && hasQuatEnd)
+	{
+		double quatOut[4];
+		b3GetQuaternionDifference(quatStart, quatEnd, quatOut);
+		{
+			PyObject* pylist;
+			int i;
+			pylist = PyTuple_New(4);
+			for (i = 0; i < 4; i++)
+				PyTuple_SetItem(pylist, i, PyFloat_FromDouble(quatOut[i]));
+			return pylist;
+		}
+	}
+	else
+	{
+		PyErr_SetString(SpamError, "Require start and end quaternion, each with 4 components [x,y,z,w].");
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 
 
 /// quaternion <-> euler yaw/pitch/roll convention from URDF/SDF, see Gazebo
@@ -10114,6 +10302,18 @@ static PyMethodDef SpamMethods[] = {
 
 	 { "getQuaternionSlerp", (PyCFunction)pybullet_getQuaternionSlerp, METH_VARARGS | METH_KEYWORDS,
 	 "Compute the spherical interpolation given a start and end quaternion and an interpolation value in range [0..1]" },
+
+	 { "getQuaternionFromAxisAngle", (PyCFunction)pybullet_getQuaternionFromAxisAngle, METH_VARARGS | METH_KEYWORDS,
+		 "Compute the quaternion from axis and angle representation." },
+
+	 { "getAxisAngleFromQuaternion", (PyCFunction)pybullet_getAxisAngleFromQuaternion, METH_VARARGS | METH_KEYWORDS,
+		 "Compute the quaternion from axis and angle representation." },
+
+	 { "getDifferenceQuaternion", (PyCFunction)pybullet_getDifferenceQuaternion, METH_VARARGS | METH_KEYWORDS,
+		 "Compute the quaternion difference from two quaternions." },
+
+	 { "calculateVelocityQuaternion", (PyCFunction)pybullet_calculateVelocityQuaternion, METH_VARARGS | METH_KEYWORDS,
+		 "Compute the angular velocity given start and end quaternion and delta time." },
 
 	{"calculateInverseDynamics", (PyCFunction)pybullet_calculateInverseDynamics, METH_VARARGS | METH_KEYWORDS,
 	 "Given an object id, joint positions, joint velocities and joint "

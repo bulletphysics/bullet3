@@ -1,8 +1,8 @@
 <robot name="dumpUrdf">
-	<link name="base" >
+	<link name="root" >
 		<inertial>
 				<origin rpy = "0 0 0" xyz = "0 0 0" />
-			 <mass value = "0.000000" />
+			 <mass value = "0.00100" />
 			<inertia ixx = "0.1" ixy = "0" ixz = "0" iyy = "0.1" iyz = "0" izz = "0.1" />
 		</inertial>
 	</link>
@@ -20,7 +20,7 @@
 		</collision>
 	</link>
 	<joint name="joint0" type="fixed" >
-		<parent link = "base" />
+		<parent link = "root" />
 		<child link="link0" />
 				<origin rpy = "0 0 0" xyz = "0.000000 0.000000 0.000000" />
 	</joint>
