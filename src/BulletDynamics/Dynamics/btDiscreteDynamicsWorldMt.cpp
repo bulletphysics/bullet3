@@ -147,10 +147,10 @@ void btConstraintSolverPoolMt::reset()
 
 btDiscreteDynamicsWorldMt::btDiscreteDynamicsWorldMt(btDispatcher* dispatcher,
 													 btBroadphaseInterface* pairCache,
-													 btConstraintSolverPoolMt* constraintSolver,
+													 btConstraintSolverPoolMt* solverPool,
 													 btConstraintSolver* constraintSolverMt,
 													 btCollisionConfiguration* collisionConfiguration)
-	: btDiscreteDynamicsWorld(dispatcher, pairCache, constraintSolver, collisionConfiguration)
+	: btDiscreteDynamicsWorld(dispatcher, pairCache, solverPool, collisionConfiguration)
 {
 	if (m_ownsIslandManager)
 	{
