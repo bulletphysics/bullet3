@@ -16,7 +16,7 @@ p.setPhysicsEngineParameter(numSolverIterations=200)
 #path = pybullet_data.getDataPath()+"/motions/humanoid3d_backflip.txt"
 path = pybullet_data.getDataPath()+"/motions/humanoid3d_cartwheel.txt"
 
-p.loadURDF("plane.urdf",[0,0,-1])
+p.loadURDF("plane.urdf",[0,0,-0.03])
 print("path = ", path)
 with open(path, 'r') as f:
     motion_dict = json.load(f)

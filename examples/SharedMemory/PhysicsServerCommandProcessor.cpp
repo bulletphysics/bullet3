@@ -8004,6 +8004,7 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	if (clientCmd.m_updateFlags & SIM_PARAM_ENABLE_FILE_CACHING)
 	{
 		b3EnableFileCaching(clientCmd.m_physSimParamArgs.m_enableFileCaching);
+		m_data->m_pluginManager.getFileIOInterface()->enableFileCaching(clientCmd.m_physSimParamArgs.m_enableFileCaching!=0);
 	}
 
 	SharedMemoryStatus& serverCmd = serverStatusOut;

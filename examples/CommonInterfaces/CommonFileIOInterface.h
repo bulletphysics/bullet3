@@ -22,7 +22,7 @@ struct CommonFileIOInterface
 	virtual bool findResourcePath(const char* fileName,  char* resourcePathOut, int resourcePathMaxNumBytes)=0;
 	virtual char* readLine(int fileHandle, char* destBuffer, int numBytes)=0;
 	virtual int getFileSize(int fileHandle)=0;
-
+	virtual void enableFileCaching(bool enable) = 0;
 };
 
 #endif //COMMON_FILE_IO_INTERFACE_H

@@ -4,6 +4,7 @@
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Matrix3x3.h"
 #include "Bullet3Common/b3Transform.h"
+#include "Bullet3Common/b3TransformUtil.h"
 
 #include <string.h>
 #include "SharedMemoryCommands.h"
@@ -5264,3 +5265,46 @@ B3_SHARED_API void b3QuaternionSlerp(const double startQuat[/*4*/], const double
 	outOrn[2] = result[2];
 	outOrn[3] = result[3];
 }
+
+B3_SHARED_API void b3CalculateVelocityQuaternion(const double startQuat[/*4*/], const double endQuat[/*4*/], double deltaTime, double angVelOut[/*3*/])
+{
+	b3Quaternion start(startQuat[0], startQuat[1], startQuat[2], startQuat[3]);
+	b3Quaternion end(endQuat[0], endQuat[1], endQuat[2], endQuat[3]);
+	b3Vector3 pos=b3MakeVector3(0, 0, 0);
+	b3Vector3 linVel, angVel;
+	b3TransformUtil::calculateVelocityQuaternion(pos, pos, start, end, deltaTime, linVel, angVel);
+	angVelOut[0] = angVel[0];
+	angVelOut[1] = angVel[1];
+	angVelOut[2] = angVel[2];
+}
+
+B3_SHARED_API void b3GetQuaternionFromAxisAngle(const double axis[/*3*/], double angle, double outQuat[/*4*/])
+{
+	b3Quaternion quat(b3MakeVector3(axis[0], axis[1], axis[2]), angle);
+	outQuat[0] = quat[0];
+	outQuat[1] = quat[1];
+	outQuat[2] = quat[2];
+	outQuat[3] = quat[3];
+}
+B3_SHARED_API void b3GetAxisAngleFromQuaternion(const double quat[/*4*/], double axis[/*3*/], double* angle)
+{
+	b3Quaternion q(quat[0], quat[1], quat[2], quat[3]);
+	b3Vector3 ax = q.getAxis();
+	axis[0] = ax[0];
+	axis[1] = ax[1];
+	axis[2] = ax[2];
+	*angle = q.getAngle();
+}
+
+B3_SHARED_API void b3GetQuaternionDifference(const double startQuat[/*4*/], const double endQuat[/*4*/], double outOrn[/*4*/])
+{
+	b3Quaternion orn0(startQuat[0], startQuat[1], startQuat[2], startQuat[3]);
+	b3Quaternion orn1a(endQuat[0], endQuat[1], endQuat[2], endQuat[3]);
+	b3Quaternion orn1 = orn0.nearest(orn1a);
+	b3Quaternion dorn = orn1 * orn0.inverse();
+	outOrn[0] = dorn[0];
+	outOrn[1] = dorn[1];
+	outOrn[2] = dorn[2];
+	outOrn[3] = dorn[3];
+}
+
