@@ -860,7 +860,12 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		// will we not request a velocity with the wrong direction ?
 		// and the answare is not, because in practice during the solving the current velocity is subtracted from the m_constraintError
 		// so the sign of the force that is really matters
+#if 0
 		info->m_constraintError[srow] = (rotational ? -1 : 1) * (f < 0 ? -SIMD_INFINITY : SIMD_INFINITY);
+#else
+		// Using infinite constraints makes the damping not work, and oscillate for ever.
+		info->m_constraintError[srow] = vel + f / m * (rotational ? -1 : 1);
+#endif
 
 		btScalar minf = f < fd ? f : fd;
 		btScalar maxf = f < fd ? fd : f;
