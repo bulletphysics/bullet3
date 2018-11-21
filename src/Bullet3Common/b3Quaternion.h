@@ -96,9 +96,16 @@ public:
 	{
 		b3Scalar d = axis.length();
 		b3Assert(d != b3Scalar(0.0));
-		b3Scalar s = b3Sin(_angle * b3Scalar(0.5)) / d;
-		setValue(axis.getX() * s, axis.getY() * s, axis.getZ() * s,
-				 b3Cos(_angle * b3Scalar(0.5)));
+		if (d < B3_EPSILON)
+		{
+			setValue(0, 0, 0, 1);
+		}
+		else
+		{
+			b3Scalar s = b3Sin(_angle * b3Scalar(0.5)) / d;
+			setValue(axis.getX() * s, axis.getY() * s, axis.getZ() * s,
+				b3Cos(_angle * b3Scalar(0.5)));
+		}
 	}
 	/**@brief Set the quaternion using Euler angles
    * @param yaw Angle around Y
