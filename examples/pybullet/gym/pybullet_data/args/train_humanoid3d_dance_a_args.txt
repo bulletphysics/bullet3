@@ -1,0 +1,33 @@
+--scene imitate
+
+--time_lim_min 0.5
+--time_lim_max 0.5
+--time_lim_exp 0.2
+--time_end_lim_min 20
+--time_end_lim_max 20
+--time_end_lim_exp 50
+--anneal_samples 32000000
+
+--num_update_substeps 10
+--num_sim_substeps 2
+--world_scale 4
+
+--terrain_file data/terrain/plane.txt
+
+--char_types general
+--character_files data/characters/humanoid3d.txt
+--enable_char_soft_contact false
+--fall_contact_bodies 0 1 2 3 4 6 7 8 9 10 12 13 14
+
+--char_ctrls ct_pd
+--char_ctrl_files data/controllers/humanoid3d_ctrl.txt
+--motion_file data/motions/humanoid3d_dance_a.txt
+--sync_char_root_pos true
+--sync_char_root_rot false
+
+--agent_files data/agents/ct_agent_humanoid_ppo.txt
+#--train_agents false
+
+--output_path output
+#--int_output_path output/intermediate
+#--model_files data/policies/humanoid3d/agent0_model.ckpt

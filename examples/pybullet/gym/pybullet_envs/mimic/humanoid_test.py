@@ -19,19 +19,19 @@ motion=MotionCaptureData()
 
 motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_walk.txt"#humanoid3d_spinkick.txt"#/motions/humanoid3d_backflip.txt"
 motion.Load(motionPath)
-print("numFrames = ", motion.NumFrames())
+#print("numFrames = ", motion.NumFrames())
 simTimeId= bc.addUserDebugParameter("simTime",0,motion.NumFrames()-1.1,0)
 
 y2zOrn = bc.getQuaternionFromEuler([-1.57,0,0])
 bc.loadURDF("plane.urdf",[0,-0.04,0], y2zOrn)
 
-humanoid = Humanoid(bc, motion,[0,0,0])
+humanoid = Humanoid(bc, motion,[0,0,0])#4000,0,5000])
 
 simTime = 0
 
 
 keyFrameDuration = motion.KeyFrameDuraction()
-print("keyFrameDuration=",keyFrameDuration)
+#print("keyFrameDuration=",keyFrameDuration)
 #for i in range (50):
 # bc.stepSimulation()
 
@@ -44,25 +44,25 @@ stage = 0
 def Reset(humanoid):
 	global simTime
 	humanoid.Reset()
-	simTime = random.randint(0,motion.NumFrames()-2)
+	simTime = 0 #random.randint(0,motion.NumFrames()-2)
 	humanoid.SetSimTime(simTime)
 	pose = humanoid.InitializePoseFromMotionData()
-	humanoid.ApplyPose(pose, True, True)
+	humanoid.ApplyPose(pose, True, True, humanoid._humanoid,bc)
 
 
 Reset(humanoid)
-bc.stepSimulation()
+#bc.stepSimulation()
 
 
 while (1):
   #simTime = bc.readUserDebugParameter(frameTimeId)
   #print("keyFrameDuration=",keyFrameDuration)
   dt = (1./240.)
-  print("------------------------------------------")
-  print("dt=",dt)
+  #print("------------------------------------------")
+  #print("dt=",dt)
   
-  print("simTime=",simTime)
-  print("humanoid.SetSimTime(simTime)")
+  #print("simTime=",simTime)
+  #print("humanoid.SetSimTime(simTime)")
   humanoid.SetSimTime(simTime)
 
   #pose = humanoid.InitializePoseFromMotionData()
@@ -75,8 +75,10 @@ while (1):
   action = [0]*36
   humanoid.ApplyAction(action)
   for s in range (8):
-    print("step:",s)
+    #print("step:",s)
     bc.stepSimulation()
     simTime += dt   
     time.sleep(1./240.)
-
+  reward = humanoid.GetReward()
+  print("reward=",reward)
+  

@@ -1110,7 +1110,7 @@ void btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 			///If you choose SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION, then the friction will be independent from the relative projected velocity.
 			///
 			///The user can manually override the friction directions for certain contacts using a contact callback,
-			///and set the cp.m_lateralFrictionInitialized to true
+			///and use contactPoint.m_contactPointFlags |= BT_CONTACT_FLAG_LATERAL_FRICTION_INITIALIZED
 			///In that case, you can set the target relative motion in each friction direction (cp.m_contactMotion1 and cp.m_contactMotion2)
 			///this will give a conveyor belt effect
 			///
