@@ -54,21 +54,6 @@ public:
 	GUIHelperInterface* m_guiHelper;
 	int m_wheelInstances[4];
 
-	//----------------------------
-	btRigidBody* m_liftBody;
-	btVector3 m_liftStartPos;
-	btHingeConstraint* m_liftHinge;
-
-	btRigidBody* m_forkBody;
-	btVector3 m_forkStartPos;
-	btSliderConstraint* m_forkSlider;
-
-	btRigidBody* m_loadBody;
-	btVector3 m_loadStartPos;
-
-	void lockLiftHinge(void);
-	void lockForkSlider(void);
-
 	bool m_useDefaultCamera;
 	//----------------------------
 
@@ -113,7 +98,7 @@ public:
 		float dist = 8;
 		float pitch = -32;
 		float yaw = -45;
-		float targetPos[3] = {-0.33, -0.72, 4.5};
+		float targetPos[3] = {0,0,2};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 
@@ -129,9 +114,6 @@ public:
 
 static btScalar maxMotorImpulse = 4000.f;
 
-//the sequential impulse solver has difficulties dealing with large mass ratios (differences), between loadMass and the fork parts
-static btScalar loadMass = 350.f;  //
-//btScalar loadMass = 10.f;//this should work fine for the SI solver
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -189,9 +171,6 @@ Hinge2Vehicle::Hinge2Vehicle(struct GUIHelperInterface* helper)
 	: CommonRigidBodyBase(helper),
 	  m_carChassis(0),
 	  m_guiHelper(helper),
-	  m_liftBody(0),
-	  m_forkBody(0),
-	  m_loadBody(0),
 	  m_indexVertexArrays(0),
 	  m_vertices(0),
 	  m_cameraHeight(4.f),
@@ -203,8 +182,6 @@ Hinge2Vehicle::Hinge2Vehicle(struct GUIHelperInterface* helper)
 	m_wheelShape = 0;
 	m_cameraPosition = btVector3(30, 30, 30);
 	m_useDefaultCamera = false;
-	//	setTexturing(true);
-	//	setShadows(true);
 }
 
 void Hinge2Vehicle::exitPhysics()
@@ -339,25 +316,22 @@ void Hinge2Vehicle::initPhysics()
 		compound->addChildShape(suppLocalTrans, suppShape);
 	}
 
-	tr.setOrigin(btVector3(0, 0.f, 0));
+	const btScalar FALLHEIGHT = 5;
+	tr.setOrigin(btVector3(0, FALLHEIGHT, 0));
 
-	btScalar chassisMass = 800;
+	const btScalar chassisMass = 2.0f;
+	const btScalar wheelMass = 1.0f;
 	m_carChassis = localCreateRigidBody(chassisMass, tr, compound);  //chassisShape);
 	//m_carChassis->setDamping(0.2,0.2);
 
 	//m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth,wheelRadius,wheelRadius));
 	m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
 
-	//const float position[4]={0,10,10,0};
-	//const float quaternion[4]={0,0,0,1};
-	//const float color[4]={0,1,0,1};
-	//const float scaling[4] = {1,1,1,1};
-
 	btVector3 wheelPos[4] = {
-		btVector3(btScalar(-1.), btScalar(-0.25), btScalar(1.25)),
-		btVector3(btScalar(1.), btScalar(-0.25), btScalar(1.25)),
-		btVector3(btScalar(1.), btScalar(-0.25), btScalar(-1.25)),
-		btVector3(btScalar(-1.), btScalar(-0.25), btScalar(-1.25))};
+		btVector3(btScalar(-1.), btScalar(FALLHEIGHT-0.25), btScalar(1.25)),
+		btVector3(btScalar(1.), btScalar(FALLHEIGHT-0.25), btScalar(1.25)),
+		btVector3(btScalar(1.), btScalar(FALLHEIGHT-0.25), btScalar(-1.25)),
+		btVector3(btScalar(-1.), btScalar(FALLHEIGHT-0.25), btScalar(-1.25))};
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -365,134 +339,50 @@ void Hinge2Vehicle::initPhysics()
 		// create two rigid bodies
 		// static bodyA (parent) on top:
 
-		btRigidBody* pBodyA = this->m_carChassis;  //m_chassis;//createRigidBody( 0.0, tr, m_wheelShape);
+		btRigidBody* pBodyA = this->m_carChassis;
 		pBodyA->setActivationState(DISABLE_DEACTIVATION);
 		// dynamic bodyB (child) below it :
 		btTransform tr;
 		tr.setIdentity();
 		tr.setOrigin(wheelPos[i]);
 
-		btRigidBody* pBodyB = createRigidBody(10.0, tr, m_wheelShape);
+		btRigidBody* pBodyB = createRigidBody(wheelMass, tr, m_wheelShape);
 		pBodyB->setFriction(1110);
 		pBodyB->setActivationState(DISABLE_DEACTIVATION);
 		// add some data to build constraint frames
 		btVector3 parentAxis(0.f, 1.f, 0.f);
 		btVector3 childAxis(1.f, 0.f, 0.f);
-		btVector3 anchor = tr.getOrigin();  //(0.f, 0.f, 0.f);
+		btVector3 anchor = tr.getOrigin();
 		btHinge2Constraint* pHinge2 = new btHinge2Constraint(*pBodyA, *pBodyB, anchor, parentAxis, childAxis);
 
 		//m_guiHelper->get2dCanvasInterface();
 
-		pHinge2->setLowerLimit(-SIMD_HALF_PI * 0.5f);
-		pHinge2->setUpperLimit(SIMD_HALF_PI * 0.5f);
+		//pHinge2->setLowerLimit(-SIMD_HALF_PI * 0.5f);
+		//pHinge2->setUpperLimit(SIMD_HALF_PI * 0.5f);
+		
 		// add constraint to world
 		m_dynamicsWorld->addConstraint(pHinge2, true);
-		// draw constraint frames and limits for debugging
-		{
-			int motorAxis = 3;
-			pHinge2->enableMotor(motorAxis, true);
-			pHinge2->setMaxMotorForce(motorAxis, 1000);
-			pHinge2->setTargetVelocity(motorAxis, -1);
-		}
 
-		{
-			int motorAxis = 5;
-			pHinge2->enableMotor(motorAxis, true);
-			pHinge2->setMaxMotorForce(motorAxis, 1000);
-			pHinge2->setTargetVelocity(motorAxis, 0);
-		}
+		// Drive engine.
+		pHinge2->enableMotor(3, true);
+		pHinge2->setMaxMotorForce(3, 1000);
+		pHinge2->setTargetVelocity(3, 0);
+
+		// Steering engine.
+		pHinge2->enableMotor(5, true);
+		pHinge2->setMaxMotorForce(5, 1000);
+		pHinge2->setTargetVelocity(5, 0);
+
+		pHinge2->setParam( BT_CONSTRAINT_CFM, 0.15f, 2 );
+		pHinge2->setParam( BT_CONSTRAINT_ERP, 0.35f, 2 );
+
+		pHinge2->setDamping( 2, 2.0 );
+		pHinge2->setStiffness( 2, 40.0 );
 
 		pHinge2->setDbgDrawSize(btScalar(5.f));
 	}
 
-	{
-		btCollisionShape* liftShape = new btBoxShape(btVector3(0.5f, 2.0f, 0.05f));
-		m_collisionShapes.push_back(liftShape);
-		btTransform liftTrans;
-		m_liftStartPos = btVector3(0.0f, 2.5f, 3.05f);
-		liftTrans.setIdentity();
-		liftTrans.setOrigin(m_liftStartPos);
-		m_liftBody = localCreateRigidBody(10, liftTrans, liftShape);
-
-		btTransform localA, localB;
-		localA.setIdentity();
-		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, M_PI_2, 0);
-		localA.setOrigin(btVector3(0.0, 1.0, 3.05));
-		localB.getBasis().setEulerZYX(0, M_PI_2, 0);
-		localB.setOrigin(btVector3(0.0, -1.5, -0.05));
-		m_liftHinge = new btHingeConstraint(*m_carChassis, *m_liftBody, localA, localB);
-		//		m_liftHinge->setLimit(-LIFT_EPS, LIFT_EPS);
-		m_liftHinge->setLimit(0.0f, 0.0f);
-		m_dynamicsWorld->addConstraint(m_liftHinge, true);
-
-		btCollisionShape* forkShapeA = new btBoxShape(btVector3(1.0f, 0.1f, 0.1f));
-		m_collisionShapes.push_back(forkShapeA);
-		btCompoundShape* forkCompound = new btCompoundShape();
-		m_collisionShapes.push_back(forkCompound);
-		btTransform forkLocalTrans;
-		forkLocalTrans.setIdentity();
-		forkCompound->addChildShape(forkLocalTrans, forkShapeA);
-
-		btCollisionShape* forkShapeB = new btBoxShape(btVector3(0.1f, 0.02f, 0.6f));
-		m_collisionShapes.push_back(forkShapeB);
-		forkLocalTrans.setIdentity();
-		forkLocalTrans.setOrigin(btVector3(-0.9f, -0.08f, 0.7f));
-		forkCompound->addChildShape(forkLocalTrans, forkShapeB);
-
-		btCollisionShape* forkShapeC = new btBoxShape(btVector3(0.1f, 0.02f, 0.6f));
-		m_collisionShapes.push_back(forkShapeC);
-		forkLocalTrans.setIdentity();
-		forkLocalTrans.setOrigin(btVector3(0.9f, -0.08f, 0.7f));
-		forkCompound->addChildShape(forkLocalTrans, forkShapeC);
-
-		btTransform forkTrans;
-		m_forkStartPos = btVector3(0.0f, 0.6f, 3.2f);
-		forkTrans.setIdentity();
-		forkTrans.setOrigin(m_forkStartPos);
-		m_forkBody = localCreateRigidBody(5, forkTrans, forkCompound);
-
-		localA.setIdentity();
-		localB.setIdentity();
-		localA.getBasis().setEulerZYX(0, 0, M_PI_2);
-		localA.setOrigin(btVector3(0.0f, -1.9f, 0.05f));
-		localB.getBasis().setEulerZYX(0, 0, M_PI_2);
-		localB.setOrigin(btVector3(0.0, 0.0, -0.1));
-		m_forkSlider = new btSliderConstraint(*m_liftBody, *m_forkBody, localA, localB, true);
-		m_forkSlider->setLowerLinLimit(0.1f);
-		m_forkSlider->setUpperLinLimit(0.1f);
-		//		m_forkSlider->setLowerAngLimit(-LIFT_EPS);
-		//		m_forkSlider->setUpperAngLimit(LIFT_EPS);
-		m_forkSlider->setLowerAngLimit(0.0f);
-		m_forkSlider->setUpperAngLimit(0.0f);
-		m_dynamicsWorld->addConstraint(m_forkSlider, true);
-
-		btCompoundShape* loadCompound = new btCompoundShape();
-		m_collisionShapes.push_back(loadCompound);
-		btCollisionShape* loadShapeA = new btBoxShape(btVector3(2.0f, 0.5f, 0.5f));
-		m_collisionShapes.push_back(loadShapeA);
-		btTransform loadTrans;
-		loadTrans.setIdentity();
-		loadCompound->addChildShape(loadTrans, loadShapeA);
-		btCollisionShape* loadShapeB = new btBoxShape(btVector3(0.1f, 1.0f, 1.0f));
-		m_collisionShapes.push_back(loadShapeB);
-		loadTrans.setIdentity();
-		loadTrans.setOrigin(btVector3(2.1f, 0.0f, 0.0f));
-		loadCompound->addChildShape(loadTrans, loadShapeB);
-		btCollisionShape* loadShapeC = new btBoxShape(btVector3(0.1f, 1.0f, 1.0f));
-		m_collisionShapes.push_back(loadShapeC);
-		loadTrans.setIdentity();
-		loadTrans.setOrigin(btVector3(-2.1f, 0.0f, 0.0f));
-		loadCompound->addChildShape(loadTrans, loadShapeC);
-		loadTrans.setIdentity();
-		m_loadStartPos = btVector3(0.0f, 3.5f, 7.0f);
-		loadTrans.setOrigin(m_loadStartPos);
-		m_loadBody = localCreateRigidBody(loadMass, loadTrans, loadCompound);
-	}
-
 	resetForklift();
-
-	//	setCameraDistance(26.f);
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
@@ -510,22 +400,6 @@ void Hinge2Vehicle::physicsDebugDraw(int debugFlags)
 void Hinge2Vehicle::renderScene()
 {
 	m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
-#if 0
-	for (int i=0;i<m_vehicle->getNumWheels();i++)
-	{
-		//synchronize the wheels with the (interpolated) chassis worldtransform
-		m_vehicle->updateWheelTransform(i,true);
-
-		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
-		if (renderer)
-		{
-			btTransform tr = m_vehicle->getWheelInfo(i).m_worldTransform;
-			btVector3 pos=tr.getOrigin();
-			btQuaternion orn = tr.getRotation();
-			renderer->writeSingleInstanceTransformToCPU(pos,orn,m_wheelInstances[i]);
-		}
-	}
-#endif
 
 	m_guiHelper->render(m_dynamicsWorld);
 
@@ -533,89 +407,10 @@ void Hinge2Vehicle::renderScene()
 
 	btVector3 worldBoundsMin, worldBoundsMax;
 	getDynamicsWorld()->getBroadphase()->getBroadphaseAabb(worldBoundsMin, worldBoundsMax);
-
-#if 0
-	int lineWidth=400;
-	int xStart = m_glutScreenWidth - lineWidth;
-	int yStart = 20;
-
-	if((getDebugMode() & btIDebugDraw::DBG_NoHelpText)==0)
-	{
-		setOrthographicProjection();
-		glDisable(GL_LIGHTING);
-		glColor3f(0, 0, 0);
-		char buf[124];
-		
-		sprintf(buf,"SHIFT+Cursor Left/Right - rotate lift");
-		GLDebugDrawString(xStart,20,buf);
-		yStart+=20;
-		sprintf(buf,"SHIFT+Cursor UP/Down - fork up/down");
-		yStart+=20;
-		GLDebugDrawString(xStart,yStart,buf);
-
-		if (m_useDefaultCamera)
-		{
-			sprintf(buf,"F5 - camera mode (free)");
-		} else
-		{
-			sprintf(buf,"F5 - camera mode (follow)");
-		}
-		yStart+=20;
-		GLDebugDrawString(xStart,yStart,buf);
-
-		yStart+=20;
-		if (m_dynamicsWorld->getConstraintSolver()->getSolverType()==BT_MLCP_SOLVER)
-		{
-			sprintf(buf,"F6 - solver (direct MLCP)");
-		} else
-		{
-			sprintf(buf,"F6 - solver (sequential impulse)");
-		}
-		GLDebugDrawString(xStart,yStart,buf);
-		btDiscreteDynamicsWorld* world = (btDiscreteDynamicsWorld*) m_dynamicsWorld;
-		if (world->getLatencyMotionStateInterpolation())
-		{
-			sprintf(buf,"F7 - motionstate interpolation (on)");
-		} else
-		{
-			sprintf(buf,"F7 - motionstate interpolation (off)");
-		}
-		yStart+=20;
-		GLDebugDrawString(xStart,yStart,buf);
-
-		sprintf(buf,"Click window for keyboard focus");
-		yStart+=20;
-		GLDebugDrawString(xStart,yStart,buf);
-
-
-		resetPerspectiveProjection();
-		glEnable(GL_LIGHTING);
-	}
-#endif
 }
 
 void Hinge2Vehicle::stepSimulation(float deltaTime)
 {
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-#if 0
-	{			
-		int wheelIndex = 2;
-		m_vehicle->applyEngineForce(gEngineForce,wheelIndex);
-		m_vehicle->setBrake(gBreakingForce,wheelIndex);
-		wheelIndex = 3;
-		m_vehicle->applyEngineForce(gEngineForce,wheelIndex);
-		m_vehicle->setBrake(gBreakingForce,wheelIndex);
-
-
-		wheelIndex = 0;
-		m_vehicle->setSteeringValue(gVehicleSteering,wheelIndex);
-		wheelIndex = 1;
-		m_vehicle->setSteeringValue(gVehicleSteering,wheelIndex);
-
-	}
-#endif
-
 	float dt = deltaTime;
 
 	if (m_dynamicsWorld)
@@ -689,48 +484,6 @@ void Hinge2Vehicle::resetForklift()
 	m_carChassis->setLinearVelocity(btVector3(0, 0, 0));
 	m_carChassis->setAngularVelocity(btVector3(0, 0, 0));
 	m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(m_carChassis->getBroadphaseHandle(), getDynamicsWorld()->getDispatcher());
-#if 0
-	if (m_vehicle)
-	{
-		m_vehicle->resetSuspension();
-		for (int i=0;i<m_vehicle->getNumWheels();i++)
-		{
-			//synchronize the wheels with the (interpolated) chassis worldtransform
-			m_vehicle->updateWheelTransform(i,true);
-		}
-	}
-#endif
-	btTransform liftTrans;
-	liftTrans.setIdentity();
-	liftTrans.setOrigin(m_liftStartPos);
-	m_liftBody->activate();
-	m_liftBody->setCenterOfMassTransform(liftTrans);
-	m_liftBody->setLinearVelocity(btVector3(0, 0, 0));
-	m_liftBody->setAngularVelocity(btVector3(0, 0, 0));
-
-	btTransform forkTrans;
-	forkTrans.setIdentity();
-	forkTrans.setOrigin(m_forkStartPos);
-	m_forkBody->activate();
-	m_forkBody->setCenterOfMassTransform(forkTrans);
-	m_forkBody->setLinearVelocity(btVector3(0, 0, 0));
-	m_forkBody->setAngularVelocity(btVector3(0, 0, 0));
-
-	//	m_liftHinge->setLimit(-LIFT_EPS, LIFT_EPS);
-	m_liftHinge->setLimit(0.0f, 0.0f);
-	m_liftHinge->enableAngularMotor(false, 0, 0);
-
-	m_forkSlider->setLowerLinLimit(0.1f);
-	m_forkSlider->setUpperLinLimit(0.1f);
-	m_forkSlider->setPoweredLinMotor(false);
-
-	btTransform loadTrans;
-	loadTrans.setIdentity();
-	loadTrans.setOrigin(m_loadStartPos);
-	m_loadBody->activate();
-	m_loadBody->setCenterOfMassTransform(loadTrans);
-	m_loadBody->setLinearVelocity(btVector3(0, 0, 0));
-	m_loadBody->setAngularVelocity(btVector3(0, 0, 0));
 }
 
 bool Hinge2Vehicle::keyboardCallback(int key, int state)
@@ -742,43 +495,6 @@ bool Hinge2Vehicle::keyboardCallback(int key, int state)
 	{
 		if (isShiftPressed)
 		{
-			switch (key)
-			{
-				case B3G_LEFT_ARROW:
-				{
-					m_liftHinge->setLimit(-M_PI / 16.0f, M_PI / 8.0f);
-					m_liftHinge->enableAngularMotor(true, -0.1, maxMotorImpulse);
-					handled = true;
-					break;
-				}
-				case B3G_RIGHT_ARROW:
-				{
-					m_liftHinge->setLimit(-M_PI / 16.0f, M_PI / 8.0f);
-					m_liftHinge->enableAngularMotor(true, 0.1, maxMotorImpulse);
-					handled = true;
-					break;
-				}
-				case B3G_UP_ARROW:
-				{
-					m_forkSlider->setLowerLinLimit(0.1f);
-					m_forkSlider->setUpperLinLimit(3.9f);
-					m_forkSlider->setPoweredLinMotor(true);
-					m_forkSlider->setMaxLinMotorForce(maxMotorImpulse);
-					m_forkSlider->setTargetLinMotorVelocity(1.0);
-					handled = true;
-					break;
-				}
-				case B3G_DOWN_ARROW:
-				{
-					m_forkSlider->setLowerLinLimit(0.1f);
-					m_forkSlider->setUpperLinLimit(3.9f);
-					m_forkSlider->setPoweredLinMotor(true);
-					m_forkSlider->setMaxLinMotorForce(maxMotorImpulse);
-					m_forkSlider->setTargetLinMotorVelocity(-1.0);
-					handled = true;
-					break;
-				}
-			}
 		}
 		else
 		{
@@ -863,225 +579,17 @@ bool Hinge2Vehicle::keyboardCallback(int key, int state)
 	}
 	else
 	{
-		switch (key)
-		{
-			case B3G_UP_ARROW:
-			{
-				lockForkSlider();
-				gEngineForce = 0.f;
-				gBreakingForce = defaultBreakingForce;
-				handled = true;
-				break;
-			}
-			case B3G_DOWN_ARROW:
-			{
-				lockForkSlider();
-				gEngineForce = 0.f;
-				gBreakingForce = defaultBreakingForce;
-				handled = true;
-				break;
-			}
-			case B3G_LEFT_ARROW:
-			case B3G_RIGHT_ARROW:
-			{
-				lockLiftHinge();
-				handled = true;
-				break;
-			}
-			default:
-
-				break;
-		}
 	}
 	return handled;
 }
 
 void Hinge2Vehicle::specialKeyboardUp(int key, int x, int y)
 {
-#if 0
-
-#endif
 }
 
 void Hinge2Vehicle::specialKeyboard(int key, int x, int y)
 {
-#if 0
-	if (key==GLUT_KEY_END)
-		return;
-
-	//	printf("key = %i x=%i y=%i\n",key,x,y);
-
-	int state;
-	state=glutGetModifiers();
-	if (state & GLUT_ACTIVE_SHIFT) 
-	{
-		switch (key) 
-			{
-			case GLUT_KEY_LEFT : 
-				{
-				
-					m_liftHinge->setLimit(-M_PI/16.0f, M_PI/8.0f);
-					m_liftHinge->enableAngularMotor(true, -0.1, maxMotorImpulse);
-					break;
-				}
-			case GLUT_KEY_RIGHT : 
-				{
-					
-					m_liftHinge->setLimit(-M_PI/16.0f, M_PI/8.0f);
-					m_liftHinge->enableAngularMotor(true, 0.1, maxMotorImpulse);
-					break;
-				}
-			case GLUT_KEY_UP :
-				{
-					m_forkSlider->setLowerLinLimit(0.1f);
-					m_forkSlider->setUpperLinLimit(3.9f);
-					m_forkSlider->setPoweredLinMotor(true);
-					m_forkSlider->setMaxLinMotorForce(maxMotorImpulse);
-					m_forkSlider->setTargetLinMotorVelocity(1.0);
-					break;
-				}
-			case GLUT_KEY_DOWN :
-				{
-					m_forkSlider->setLowerLinLimit(0.1f);
-					m_forkSlider->setUpperLinLimit(3.9f);
-					m_forkSlider->setPoweredLinMotor(true);
-					m_forkSlider->setMaxLinMotorForce(maxMotorImpulse);
-					m_forkSlider->setTargetLinMotorVelocity(-1.0);
-					break;
-				}
-
-			default:
-				DemoApplication::specialKeyboard(key,x,y);
-				break;
-			}
-
-	} else
-	{
-			switch (key) 
-			{
-			case GLUT_KEY_LEFT : 
-				{
-					gVehicleSteering += steeringIncrement;
-					if (	gVehicleSteering > steeringClamp)
-						gVehicleSteering = steeringClamp;
-
-					break;
-				}
-			case GLUT_KEY_RIGHT : 
-				{
-					gVehicleSteering -= steeringIncrement;
-					if (	gVehicleSteering < -steeringClamp)
-						gVehicleSteering = -steeringClamp;
-
-					break;
-				}
-			case GLUT_KEY_UP :
-				{
-					gEngineForce = maxEngineForce;
-					gBreakingForce = 0.f;
-					break;
-				}
-			case GLUT_KEY_DOWN :
-				{
-					gEngineForce = -maxEngineForce;
-					gBreakingForce = 0.f;
-					break;
-				}
-
-			case GLUT_KEY_F7:
-				{
-					btDiscreteDynamicsWorld* world = (btDiscreteDynamicsWorld*)m_dynamicsWorld;
-					world->setLatencyMotionStateInterpolation(!world->getLatencyMotionStateInterpolation());
-					printf("world latencyMotionStateInterpolation = %d\n", world->getLatencyMotionStateInterpolation());
-					break;
-				}
-			case GLUT_KEY_F6:
-				{
-					//switch solver (needs demo restart)
-					useMCLPSolver = !useMCLPSolver;
-					printf("switching to useMLCPSolver = %d\n", useMCLPSolver);
-
-					delete m_solver;
-					if (useMCLPSolver)
-					{
-						btDantzigSolver* mlcp = new btDantzigSolver();
-						//btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel;
-						btMLCPSolver* sol = new btMLCPSolver(mlcp);
-						m_solver = sol;
-					} else
-					{
-						m_solver = new btSequentialImpulseConstraintSolver();
-					}
-
-					m_dynamicsWorld->setConstraintSolver(m_solver);
-
-
-					//exitPhysics();
-					//initPhysics();
-					break;
-				}
-
-			case GLUT_KEY_F5:
-				m_useDefaultCamera = !m_useDefaultCamera;
-				break;
-			default:
-				DemoApplication::specialKeyboard(key,x,y);
-				break;
-			}
-
-	}
-	//	glutPostRedisplay();
-
-#endif
 }
-
-void Hinge2Vehicle::lockLiftHinge(void)
-{
-	btScalar hingeAngle = m_liftHinge->getHingeAngle();
-	btScalar lowLim = m_liftHinge->getLowerLimit();
-	btScalar hiLim = m_liftHinge->getUpperLimit();
-	m_liftHinge->enableAngularMotor(false, 0, 0);
-	if (hingeAngle < lowLim)
-	{
-		//		m_liftHinge->setLimit(lowLim, lowLim + LIFT_EPS);
-		m_liftHinge->setLimit(lowLim, lowLim);
-	}
-	else if (hingeAngle > hiLim)
-	{
-		//		m_liftHinge->setLimit(hiLim - LIFT_EPS, hiLim);
-		m_liftHinge->setLimit(hiLim, hiLim);
-	}
-	else
-	{
-		//		m_liftHinge->setLimit(hingeAngle - LIFT_EPS, hingeAngle + LIFT_EPS);
-		m_liftHinge->setLimit(hingeAngle, hingeAngle);
-	}
-	return;
-}  // Hinge2Vehicle::lockLiftHinge()
-
-void Hinge2Vehicle::lockForkSlider(void)
-{
-	btScalar linDepth = m_forkSlider->getLinearPos();
-	btScalar lowLim = m_forkSlider->getLowerLinLimit();
-	btScalar hiLim = m_forkSlider->getUpperLinLimit();
-	m_forkSlider->setPoweredLinMotor(false);
-	if (linDepth <= lowLim)
-	{
-		m_forkSlider->setLowerLinLimit(lowLim);
-		m_forkSlider->setUpperLinLimit(lowLim);
-	}
-	else if (linDepth > hiLim)
-	{
-		m_forkSlider->setLowerLinLimit(hiLim);
-		m_forkSlider->setUpperLinLimit(hiLim);
-	}
-	else
-	{
-		m_forkSlider->setLowerLinLimit(linDepth);
-		m_forkSlider->setUpperLinLimit(linDepth);
-	}
-	return;
-}  // Hinge2Vehicle::lockForkSlider()
 
 btRigidBody* Hinge2Vehicle::localCreateRigidBody(btScalar mass, const btTransform& startTransform, btCollisionShape* shape)
 {
