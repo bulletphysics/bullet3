@@ -177,14 +177,13 @@ class Humanoid(object):
     self.kin_client.setGravity(0,-9.8,0)
     
     self._motion_data = motion_data
+    print("LOADING humanoid!")
     self._humanoid = self._pybullet_client.loadURDF(
       "humanoid/humanoid.urdf", [0,0.9,0],globalScaling=0.25, useFixedBase=False)
       
     self._kinematicHumanoid = self.kin_client.loadURDF(
       "humanoid/humanoid.urdf", [0,0.9,0],globalScaling=0.25, useFixedBase=False)
       
-    #self._humanoidDebug = self._pybullet_client.loadURDF(
-    #  "humanoid/humanoid.urdf", [0,0.9,3],globalScaling=0.25, useFixedBase=True)
       
     #print("human #joints=", self._pybullet_client.getNumJoints(self._humanoid))
     pose = HumanoidPose()
@@ -676,5 +675,9 @@ class Humanoid(object):
     #print("reward = %f (pose_reward=%f, vel_reward=%f, end_eff_reward=%f, root_reward=%f, com_reward=%f)\n", reward,
     # pose_reward,vel_reward,end_eff_reward, root_reward, com_reward);
     
-    
     return reward
+
+  def GetBasePosition(self):
+    pos,orn = self._pybullet_client.getBasePositionAndOrientation(self._humanoid)
+    return pos
+

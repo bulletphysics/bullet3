@@ -3,9 +3,9 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0,parentdir)
 
-from pybullet_envs.mimic.humanoid import Humanoid
+from pybullet_envs.deep_mimic.humanoid import Humanoid
 from pybullet_utils.bullet_client import BulletClient
-from pybullet_envs.mimic.motion_capture_data import MotionCaptureData
+from pybullet_envs.deep_mimic.motion_capture_data import MotionCaptureData
 import pybullet_data
 import pybullet
 import time
@@ -72,6 +72,9 @@ while (1):
   	Reset(humanoid)
   	
   state = humanoid.GetState()
+  print("len(state)=",len(state))
+  print("state=", state)
+
   action = [0]*36
   humanoid.ApplyAction(action)
   for s in range (8):
