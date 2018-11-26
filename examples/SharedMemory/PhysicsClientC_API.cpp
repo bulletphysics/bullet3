@@ -5266,6 +5266,16 @@ B3_SHARED_API void b3QuaternionSlerp(const double startQuat[/*4*/], const double
 	outOrn[3] = result[3];
 }
 
+B3_SHARED_API void b3RotateVector(const double quat[/*4*/], const double vec[/*3*/], double vecOut[/*3*/])
+{
+	b3Quaternion q(quat[0], quat[1], quat[2], quat[3]);
+	b3Vector3 v = b3MakeVector3(vec[0], vec[1], vec[2]);
+	b3Vector3 vout = b3QuatRotate(q, v);
+	vecOut[0] = vout[0];
+	vecOut[1] = vout[1];
+	vecOut[2] = vout[2];
+}
+
 B3_SHARED_API void b3CalculateVelocityQuaternion(const double startQuat[/*4*/], const double endQuat[/*4*/], double deltaTime, double angVelOut[/*3*/])
 {
 	b3Quaternion start(startQuat[0], startQuat[1], startQuat[2], startQuat[3]);

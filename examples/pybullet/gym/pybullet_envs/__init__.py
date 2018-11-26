@@ -9,6 +9,13 @@ def register(id,*args,**kvargs):
 # ------------bullet-------------
 
 register(
+        id='HumanoidDeepMimicBulletEnv-v1',
+        entry_point='pybullet_envs.deep_mimic:HumanoidDeepMimicGymEnv',
+        max_episode_steps=1000,
+        reward_threshold=20000.0,
+)
+
+register(
 	id='CartPoleBulletEnv-v1',
 	entry_point='pybullet_envs.bullet:CartPoleBulletEnv',
         max_episode_steps=200,

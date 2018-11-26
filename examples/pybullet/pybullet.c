@@ -8808,6 +8808,53 @@ static PyObject* pybullet_invertTransform(PyObject* self,
 	return NULL;
 }
 
+static PyObject* pybullet_rotateVector(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	PyObject* quatObj;
+	PyObject* vectorObj;
+	double quat[4];
+	double vec[3];
+	int physicsClientId = 0;
+	int hasQuat = 0;
+	int hasVec = 0;
+
+	static char* kwlist[] = { "quaternion", "vector", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|i", kwlist, &quatObj, &vectorObj, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	if (quatObj)
+	{
+		hasQuat = pybullet_internalSetVector4d(quatObj, quat);
+	}
+
+	if (vectorObj)
+	{
+		hasVec = pybullet_internalSetVectord(vectorObj, vec);
+	}
+	if (hasQuat && hasVec)
+	{
+		double vecOut[3];
+		b3RotateVector(quat, vec, vecOut);
+		{
+			PyObject* pylist;
+			int i;
+			pylist = PyTuple_New(3);
+			for (i = 0; i < 3; i++)
+				PyTuple_SetItem(pylist, i, PyFloat_FromDouble(vecOut[i]));
+			return pylist;
+		}
+	}
+	else
+	{
+		PyErr_SetString(SpamError, "Require quaternion with 4 components [x,y,z,w] and a vector [x,y,z].");
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 
 static PyObject* pybullet_calculateVelocityQuaternion(PyObject* self, PyObject* args, PyObject* keywds)
 {
@@ -10314,6 +10361,11 @@ static PyMethodDef SpamMethods[] = {
 
 	 { "calculateVelocityQuaternion", (PyCFunction)pybullet_calculateVelocityQuaternion, METH_VARARGS | METH_KEYWORDS,
 		 "Compute the angular velocity given start and end quaternion and delta time." },
+
+	{ "rotateVector", (PyCFunction)pybullet_rotateVector, METH_VARARGS | METH_KEYWORDS,
+		"Rotate a vector using a quaternion." },
+
+		
 
 	{"calculateInverseDynamics", (PyCFunction)pybullet_calculateInverseDynamics, METH_VARARGS | METH_KEYWORDS,
 	 "Given an object id, joint positions, joint velocities and joint "

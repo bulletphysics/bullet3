@@ -1,0 +1,25 @@
+--scene imitate
+
+--num_update_substeps 10
+--num_sim_substeps 2
+--world_scale 4
+
+--terrain_file data/terrain/plane.txt
+
+--char_types general
+--character_files data/characters/humanoid3d.txt
+--enable_char_soft_contact false
+--fall_contact_bodies 0 1 2 3 4 6 7 8 9 10 12 13 14
+
+--char_ctrls ct_pd
+--char_ctrl_files data/controllers/humanoid3d_ctrl.txt
+--motion_file data/motions/humanoid3d_walk.txt
+--sync_char_root_pos true
+--sync_char_root_rot false
+
+--agent_files data/agents/ct_agent_humanoid_ppo.txt
+--train_agents false
+
+#--output_path output
+#--int_output_path output/intermediate
+--model_files data/policies/humanoid3d/humanoid3d_walk.ckpt

@@ -273,7 +273,7 @@ class UrdfEditor(object):
 		file.write("\t\t</collision>\n")
 
 
-	def writeLink(self, file, urdfLink):
+	def writeLink(self, file, urdfLink,saveVisuals):
 		file.write("\t<link name=\"")
 		file.write(urdfLink.link_name)
 		file.write("\">\n")
@@ -283,9 +283,9 @@ class UrdfEditor(object):
 		for v in urdfLink.urdf_visual_shapes:
 			if (v.geom_type == p.GEOM_CAPSULE):
 				hasCapsules = True
-		if (not hasCapsules):
-			for v in urdfLink.urdf_visual_shapes:
-				self.writeVisualShape(file,v)
+		if (saveVisuals and not hasCapsules):
+				for v in urdfLink.urdf_visual_shapes:
+					self.writeVisualShape(file,v)
 		for c in urdfLink.urdf_collision_shapes:
 			self.writeCollisionShape(file,c)
 		file.write("\t</link>\n")
@@ -329,7 +329,7 @@ class UrdfEditor(object):
 		file.write(str)
 		file.write("\t</joint>\n")
 
-	def saveUrdf(self, fileName):
+	def saveUrdf(self, fileName, saveVisuals=True):
 		file = open(fileName,"w")
 		file.write("<?xml version=\"0.0\" ?>\n")
 		file.write("<robot name=\"")
@@ -337,7 +337,7 @@ class UrdfEditor(object):
 		file.write("\">\n")
 
 		for link in self.urdfLinks:
-			self.writeLink(file,link)
+			self.writeLink(file,link, saveVisuals)
 
 		for joint in self.urdfJoints:
 			self.writeJoint(file,joint)

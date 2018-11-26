@@ -1,0 +1,1 @@
+from pybullet_envs.deep_mimic.humanoid_deepmimic_gym_env import HumanoidDeepMimicGymEnv
