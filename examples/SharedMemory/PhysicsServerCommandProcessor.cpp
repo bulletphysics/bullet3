@@ -8493,23 +8493,55 @@ bool PhysicsServerCommandProcessor::processInverseDynamicsCommand(const struct S
 	BT_PROFILE("CMD_CALCULATE_INVERSE_DYNAMICS");
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId);
+	serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
 	if (bodyHandle && bodyHandle->m_multiBody)
 	{
-		serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
 
 		btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
 
-		if (tree)
+		int baseDofQ = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 7;
+		int baseDofQdot = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+
+		if (tree && clientCmd.m_calculateInverseDynamicsArguments.m_dofCountQ == baseDofQ &&
+			clientCmd.m_calculateInverseDynamicsArguments.m_dofCountQdot == baseDofQdot)
 		{
-			int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
 			const int num_dofs = bodyHandle->m_multiBody->getNumDofs();
-			btInverseDynamics::vecx nu(num_dofs + baseDofs), qdot(num_dofs + baseDofs), q(num_dofs + baseDofs), joint_force(num_dofs + baseDofs);
-			for (int i = 0; i < num_dofs; i++)
+			btInverseDynamics::vecx nu(num_dofs + baseDofQdot), qdot(num_dofs + baseDofQdot), q(num_dofs + baseDofQdot), joint_force(num_dofs + baseDofQdot);
+
+			//for floating base, inverse dynamics expects euler angle x,y,z and position x,y,z in that order
+			//PyBullet expects quaternion, so convert and swap to have a more consistent PyBullet API
+			if (baseDofQ)
 			{
-				q[i + baseDofs] = clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[i];
-				qdot[i + baseDofs] = clientCmd.m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot[i];
-				nu[i + baseDofs] = clientCmd.m_calculateInverseDynamicsArguments.m_jointAccelerations[i];
+				btVector3 pos(clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[0],
+					clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[1],
+					clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[2]);
+
+				btQuaternion orn(clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[0],
+					clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[1],
+					clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[2],
+					clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[3]);
+				btScalar yawZ, pitchY, rollX;
+				orn.getEulerZYX(yawZ, pitchY, rollX);
+				q[0] = rollX;
+				q[1] = pitchY;
+				q[2] = yawZ;
+				q[3] = pos[0];
+				q[4] = pos[1];
+				q[5] = pos[2];
 			}
+			else
+			{
+				for (int i = 0; i < num_dofs; i++)
+				{
+					q[i] = clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[i];
+				}
+			}
+			for (int i = 0; i < num_dofs + baseDofQdot; i++)
+			{
+				qdot[i] = clientCmd.m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot[i];
+				nu[i] = clientCmd.m_calculateInverseDynamicsArguments.m_jointAccelerations[i];
+			}
+
 			// Set the gravity to correspond to the world gravity
 			btInverseDynamics::vec3 id_grav(m_data->m_dynamicsWorld->getGravity());
 
@@ -8517,10 +8549,22 @@ bool PhysicsServerCommandProcessor::processInverseDynamicsCommand(const struct S
 				-1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
 			{
 				serverCmd.m_inverseDynamicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
-				serverCmd.m_inverseDynamicsResultArgs.m_dofCount = num_dofs;
-				for (int i = 0; i < num_dofs; i++)
+				serverCmd.m_inverseDynamicsResultArgs.m_dofCount = num_dofs+ baseDofQdot;
+
+				//inverse dynamics stores angular before linear, swap it to have a consistent PyBullet API.
+				if (baseDofQdot)
 				{
-					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[i] = joint_force[i + baseDofs];
+					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[0] = joint_force[3];
+					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[1] = joint_force[4];
+					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[2] = joint_force[5];
+					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[3] = joint_force[0];
+					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[4] = joint_force[1];
+					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[5] = joint_force[2];
+				}
+				
+				for (int i = baseDofQdot; i < num_dofs+ baseDofQdot; i++)
+				{
+					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[i] = joint_force[i];
 				}
 				serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED;
 			}

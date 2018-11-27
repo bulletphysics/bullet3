@@ -9590,23 +9590,25 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self, PyObject* arg
 			int szObVel = PySequence_Size(objVelocitiesQdot);
 			int szObAcc = PySequence_Size(objAccelerations);
 
-			int dofCountOrg = b3ComputeDofCount(sm, bodyUniqueId);
-
-			if (dofCountOrg && (szObPos == dofCountOrg) && (szObVel == dofCountOrg) &&
-				(szObAcc == dofCountOrg))
+			
+			if (szObVel == szObAcc)
 			{
-				int szInBytes = sizeof(double) * dofCountOrg;
+				int szInBytesQ = sizeof(double) * szObPos;
+				int szInBytesQdot = sizeof(double) * szObVel;
 				int i;
 				PyObject* pylist = 0;
-				double* jointPositionsQ = (double*)malloc(szInBytes);
-				double* jointVelocitiesQdot = (double*)malloc(szInBytes);
-				double* jointAccelerations = (double*)malloc(szInBytes);
-				double* jointForcesOutput = (double*)malloc(szInBytes);
+				double* jointPositionsQ = (double*)malloc(szInBytesQ);
+				double* jointVelocitiesQdot = (double*)malloc(szInBytesQdot);
+				double* jointAccelerations = (double*)malloc(szInBytesQdot);
+				double* jointForcesOutput = (double*)malloc(szInBytesQdot);
 
-				for (i = 0; i < dofCountOrg; i++)
+				for (i = 0; i < szObPos; i++)
 				{
 					jointPositionsQ[i] =
 						pybullet_internalGetFloatFromSequence(objPositionsQ, i);
+				}
+				for (i = 0; i < szObVel; i++)
+				{
 					jointVelocitiesQdot[i] =
 						pybullet_internalGetFloatFromSequence(objVelocitiesQdot, i);
 					jointAccelerations[i] =
@@ -9617,9 +9619,9 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self, PyObject* arg
 					b3SharedMemoryStatusHandle statusHandle;
 					int statusType;
 					b3SharedMemoryCommandHandle commandHandle =
-						b3CalculateInverseDynamicsCommandInit(
-							sm, bodyUniqueId, jointPositionsQ, jointVelocitiesQdot,
-							jointAccelerations);
+						b3CalculateInverseDynamicsCommandInit2(
+							sm, bodyUniqueId, jointPositionsQ, szObPos, jointVelocitiesQdot,
+							jointAccelerations, szObVel);
 					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 
 					statusType = b3GetStatusType(statusHandle);
@@ -9650,7 +9652,7 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self, PyObject* arg
 					else
 					{
 						PyErr_SetString(SpamError,
-										"Internal error in calculateInverseDynamics");
+										"Error in calculateInverseDynamics, please check arguments.");
 					}
 				}
 				free(jointPositionsQ);
@@ -9663,8 +9665,8 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self, PyObject* arg
 			{
 				PyErr_SetString(SpamError,
 								"calculateInverseDynamics numDofs needs to be "
-								"positive and [joint positions], [joint velocities], "
-								"[joint accelerations] need to match the number of "
+								"positive and [joint velocities] and"
+								"[joint accelerations] need to be equal and match the number of "
 								"degrees of freedom.");
 				return NULL;
 			}

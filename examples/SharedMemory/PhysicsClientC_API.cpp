@@ -4369,14 +4369,48 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseDynamicsCommandInit(
 	command->m_type = CMD_CALCULATE_INVERSE_DYNAMICS;
 	command->m_updateFlags = 0;
 	command->m_calculateInverseDynamicsArguments.m_bodyUniqueId = bodyUniqueId;
-	int numJoints = cl->getNumJoints(bodyUniqueId);
-	for (int i = 0; i < numJoints; i++)
+	
+	int dofCount = b3ComputeDofCount(physClient, bodyUniqueId);
+	
+	for (int i = 0; i < dofCount; i++)
 	{
 		command->m_calculateInverseDynamicsArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
 		command->m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot[i] = jointVelocitiesQdot[i];
 		command->m_calculateInverseDynamicsArguments.m_jointAccelerations[i] = jointAccelerations[i];
 	}
+	command->m_calculateInverseDynamicsArguments.m_dofCountQ = dofCount;
+	command->m_calculateInverseDynamicsArguments.m_dofCountQdot = dofCount;
 
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+///compute the forces to achieve an acceleration, given a state q and qdot using inverse dynamics
+B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseDynamicsCommandInit2(b3PhysicsClientHandle physClient, int bodyUniqueId,
+	const double* jointPositionsQ, int dofCountQ, const double* jointVelocitiesQdot, const double* jointAccelerations, int dofCountQdot)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+
+	command->m_type = CMD_CALCULATE_INVERSE_DYNAMICS;
+	command->m_updateFlags = 0;
+	command->m_calculateInverseDynamicsArguments.m_bodyUniqueId = bodyUniqueId;
+
+	command->m_calculateInverseDynamicsArguments.m_dofCountQ = dofCountQ;
+	for (int i = 0; i < dofCountQ; i++)
+	{
+		command->m_calculateInverseDynamicsArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
+	}
+	
+	command->m_calculateInverseDynamicsArguments.m_dofCountQdot = dofCountQdot;
+	for (int i=0;i<dofCountQdot;i++)
+	{
+		command->m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot[i] = jointVelocitiesQdot[i];
+		command->m_calculateInverseDynamicsArguments.m_jointAccelerations[i] = jointAccelerations[i];
+	}
+	
 	return (b3SharedMemoryCommandHandle)command;
 }
 
