@@ -8501,11 +8501,12 @@ bool PhysicsServerCommandProcessor::processInverseDynamicsCommand(const struct S
 
 		int baseDofQ = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 7;
 		int baseDofQdot = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+		const int num_dofs = bodyHandle->m_multiBody->getNumDofs();
 
-		if (tree && clientCmd.m_calculateInverseDynamicsArguments.m_dofCountQ == baseDofQ &&
-			clientCmd.m_calculateInverseDynamicsArguments.m_dofCountQdot == baseDofQdot)
+		if (tree && clientCmd.m_calculateInverseDynamicsArguments.m_dofCountQ == (baseDofQ+ num_dofs) &&
+			clientCmd.m_calculateInverseDynamicsArguments.m_dofCountQdot == (baseDofQdot+ num_dofs))
 		{
-			const int num_dofs = bodyHandle->m_multiBody->getNumDofs();
+			
 			btInverseDynamics::vecx nu(num_dofs + baseDofQdot), qdot(num_dofs + baseDofQdot), q(num_dofs + baseDofQdot), joint_force(num_dofs + baseDofQdot);
 
 			//for floating base, inverse dynamics expects euler angle x,y,z and position x,y,z in that order
