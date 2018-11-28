@@ -384,6 +384,9 @@ extern "C"
 	///compute the forces to achieve an acceleration, given a state q and qdot using inverse dynamics
 	B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseDynamicsCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId,
 																					const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations);
+	B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseDynamicsCommandInit2(b3PhysicsClientHandle physClient, int bodyUniqueId,
+		const double* jointPositionsQ, int dofCountQ, const double* jointVelocitiesQdot, const double* jointAccelerations, int dofCountQdot);
+
 	B3_SHARED_API int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHandle statusHandle,
 															int* bodyUniqueId,
 															int* dofCount,

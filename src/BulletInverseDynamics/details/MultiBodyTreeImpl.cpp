@@ -35,6 +35,8 @@ const char *MultiBodyTree::MultiBodyImpl::jointTypeToString(const JointType &typ
 			return "prismatic";
 		case FLOATING:
 			return "floating";
+		case SPHERICAL:
+			return "spherical";
 	}
 	return "error: invalid";
 }
@@ -88,6 +90,8 @@ int MultiBodyTree::MultiBodyImpl::bodyNumDoFs(const JointType &type) const
 			return 1;
 		case FLOATING:
 			return 6;
+		case SPHERICAL:
+			return 3;
 	}
 	bt_id_error_message("unknown joint type %d\n", type);
 	return 0;
@@ -149,6 +153,11 @@ int MultiBodyTree::MultiBodyImpl::generateIndexSets()
 				m_body_floating_list.push_back(i);
 				body.m_q_index = q_index;
 				q_index += 6;
+				break;
+			case SPHERICAL:
+				m_body_spherical_list.push_back(i);
+				body.m_q_index = q_index;
+				q_index += 3;
 				break;
 			default:
 				bt_id_error_message("unsupported joint type %d\n", body.m_joint_type);
@@ -237,6 +246,16 @@ void MultiBodyTree::MultiBodyImpl::calculateStaticData()
 				break;
 			case FLOATING:
 				// no static data
+				break;
+			case SPHERICAL:
+				//todo: review
+				body.m_parent_pos_parent_body = body.m_parent_pos_parent_body_ref;
+				body.m_parent_vel_rel(0) = 0;
+				body.m_parent_vel_rel(1) = 0;
+				body.m_parent_vel_rel(2) = 0;
+				body.m_parent_acc_rel(0) = 0;
+				body.m_parent_acc_rel(1) = 0;
+				body.m_parent_acc_rel(2) = 0;
 				break;
 		}
 
@@ -352,6 +371,15 @@ int MultiBodyTree::MultiBodyImpl::calculateInverseDynamics(const vecx &q, const 
 		(*joint_forces)(body.m_q_index + 5) = body.m_force_at_joint(2);
 	}
 
+	// 4.4 spherical bodies (3-DoF joints)
+	for (idArrayIdx i = 0; i < m_body_spherical_list.size(); i++)
+	{
+		//todo: review
+		RigidBody &body = m_body_list[m_body_spherical_list[i]];
+		(*joint_forces)(body.m_q_index + 0) = body.m_moment_at_joint(0);
+		(*joint_forces)(body.m_q_index + 1) = body.m_moment_at_joint(1);
+		(*joint_forces)(body.m_q_index + 2) = body.m_moment_at_joint(2);
+	}
 	return 0;
 }
 
@@ -413,7 +441,8 @@ int MultiBodyTree::MultiBodyImpl::calculateKinematics(const vecx &q, const vecx 
 		RigidBody &body = m_body_list[m_body_floating_list[i]];
 
 		body.m_body_T_parent = transformZ(q(body.m_q_index + 2)) *
-							   transformY(q(body.m_q_index + 1)) * transformX(q(body.m_q_index));
+							   transformY(q(body.m_q_index + 1)) *
+							   transformX(q(body.m_q_index));
 		body.m_parent_pos_parent_body(0) = q(body.m_q_index + 3);
 		body.m_parent_pos_parent_body(1) = q(body.m_q_index + 4);
 		body.m_parent_pos_parent_body(2) = q(body.m_q_index + 5);
@@ -441,6 +470,32 @@ int MultiBodyTree::MultiBodyImpl::calculateKinematics(const vecx &q, const vecx 
 			body.m_parent_acc_rel(1) = dot_u(body.m_q_index + 4);
 			body.m_parent_acc_rel(2) = dot_u(body.m_q_index + 5);
 
+			body.m_parent_acc_rel = body.m_body_T_parent.transpose() * body.m_parent_acc_rel;
+		}
+	}
+	
+	for (idArrayIdx i = 0; i < m_body_spherical_list.size(); i++)
+	{
+		//todo: review
+		RigidBody &body = m_body_list[m_body_spherical_list[i]];
+
+		body.m_body_T_parent = transformZ(q(body.m_q_index + 2)) *
+							   transformY(q(body.m_q_index + 1)) *
+							   transformX(q(body.m_q_index));
+		body.m_parent_pos_parent_body = body.m_body_T_parent * body.m_parent_pos_parent_body;
+
+		if (type >= POSITION_VELOCITY)
+		{
+			body.m_body_ang_vel_rel(0) = u(body.m_q_index + 0);
+			body.m_body_ang_vel_rel(1) = u(body.m_q_index + 1);
+			body.m_body_ang_vel_rel(2) = u(body.m_q_index + 2);
+			body.m_parent_vel_rel = body.m_body_T_parent.transpose() * body.m_parent_vel_rel;
+		}
+		if (type >= POSITION_VELOCITY_ACCELERATION)
+		{
+			body.m_body_ang_acc_rel(0) = dot_u(body.m_q_index + 0);
+			body.m_body_ang_acc_rel(1) = dot_u(body.m_q_index + 1);
+			body.m_body_ang_acc_rel(2) = dot_u(body.m_q_index + 2);
 			body.m_parent_acc_rel = body.m_body_T_parent.transpose() * body.m_parent_acc_rel;
 		}
 	}
@@ -561,6 +616,12 @@ void MultiBodyTree::MultiBodyImpl::addRelativeJacobianComponent(RigidBody &body)
 			setMat3xElem(2, idx + 5, body.m_body_T_parent(2, 2), &body.m_body_Jac_T);
 
 			break;
+		case SPHERICAL:
+			//todo: review
+			setMat3xElem(0, idx + 0, 1.0, &body.m_body_Jac_R);
+			setMat3xElem(1, idx + 1, 1.0, &body.m_body_Jac_R);
+			setMat3xElem(2, idx + 2, 1.0, &body.m_body_Jac_R);
+			break;
 	}
 }
 
@@ -607,6 +668,32 @@ int MultiBodyTree::MultiBodyImpl::calculateJacobians(const vecx &q, const vecx &
 	return 0;
 }
 #endif
+
+static inline void setThreeDoFJacobians(const int dof, vec3 &Jac_JR, vec3 &Jac_JT)
+{
+	switch (dof)
+	{
+		// rotational part
+		case 0:
+			Jac_JR(0) = 1;
+			Jac_JR(1) = 0;
+			Jac_JR(2) = 0;
+			setZero(Jac_JT);
+			break;
+		case 1:
+			Jac_JR(0) = 0;
+			Jac_JR(1) = 1;
+			Jac_JR(2) = 0;
+			setZero(Jac_JT);
+			break;
+		case 2:
+			Jac_JR(0) = 0;
+			Jac_JR(1) = 0;
+			Jac_JR(2) = 1;
+			setZero(Jac_JT);
+			break;
+	}
+}
 
 static inline void setSixDoFJacobians(const int dof, vec3 &Jac_JR, vec3 &Jac_JT)
 {
@@ -664,6 +751,8 @@ static inline int jointNumDoFs(const JointType &type)
 			return 1;
 		case FLOATING:
 			return 6;
+		case SPHERICAL:
+			return 3;
 	}
 	// this should never happen
 	bt_id_error_message("invalid joint type\n");
@@ -798,6 +887,11 @@ int MultiBodyTree::MultiBodyImpl::calculateMassMatrix(const vecx &q, const bool 
 			{
 				setSixDoFJacobians(col - q_index_min, Jac_JR, Jac_JT);
 			}
+			if (SPHERICAL == body.m_joint_type)
+			{
+				//todo: review
+				setThreeDoFJacobians(col - q_index_min, Jac_JR, Jac_JT);
+			}
 
 			vec3 body_eom_rot =
 				body.m_body_subtree_I_body * Jac_JR + body.m_body_subtree_mass_com.cross(Jac_JT);
@@ -810,14 +904,19 @@ int MultiBodyTree::MultiBodyImpl::calculateMassMatrix(const vecx &q, const bool 
 				// 1. for multi-dof joints, rest of the dofs of this body
 				for (int row = col - 1; row >= q_index_min; row--)
 				{
-					if (FLOATING != body.m_joint_type)
+					if (SPHERICAL == body.m_joint_type)
 					{
-						bt_id_error_message("??\n");
-						return -1;
+						//todo: review
+						setThreeDoFJacobians(row - q_index_min, Jac_JR, Jac_JT);
+						const double Mrc = Jac_JR.dot(body_eom_rot) + Jac_JT.dot(body_eom_trans);
+						setMatxxElem(col, row, Mrc, mass_matrix);
 					}
-					setSixDoFJacobians(row - q_index_min, Jac_JR, Jac_JT);
-					const double Mrc = Jac_JR.dot(body_eom_rot) + Jac_JT.dot(body_eom_trans);
-					setMatxxElem(col, row, Mrc, mass_matrix);
+					if (FLOATING == body.m_joint_type)
+					{
+						setSixDoFJacobians(row - q_index_min, Jac_JR, Jac_JT);
+						const double Mrc = Jac_JR.dot(body_eom_rot) + Jac_JT.dot(body_eom_trans);
+						setMatxxElem(col, row, Mrc, mass_matrix);
+					}
 				}
 				// 2. ancestor dofs
 				int child_idx = i;
@@ -839,6 +938,11 @@ int MultiBodyTree::MultiBodyImpl::calculateMassMatrix(const vecx &q, const bool 
 					vec3 Jac_JT = parent_body.m_Jac_JT;
 					for (int row = parent_body_q_index_max; row >= parent_body_q_index_min; row--)
 					{
+						if (SPHERICAL == parent_body.m_joint_type)
+						{
+							//todo: review
+							setThreeDoFJacobians(row - parent_body_q_index_min, Jac_JR, Jac_JT);
+						}
 						// set jacobians for 6-DoF joints
 						if (FLOATING == parent_body.m_joint_type)
 						{

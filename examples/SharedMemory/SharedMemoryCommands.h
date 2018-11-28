@@ -658,7 +658,8 @@ enum EnumSdfRequestInfoFlags
 struct CalculateInverseDynamicsArgs
 {
 	int m_bodyUniqueId;
-
+	int m_dofCountQ;
+	int m_dofCountQdot;
 	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
 	double m_jointVelocitiesQdot[MAX_DEGREE_OF_FREEDOM];
 	double m_jointAccelerations[MAX_DEGREE_OF_FREEDOM];
