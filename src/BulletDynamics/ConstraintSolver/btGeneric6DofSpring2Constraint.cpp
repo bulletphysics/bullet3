@@ -820,8 +820,17 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		btScalar dt = BT_ONE / info->fps;
 		btScalar kd = limot->m_springDamping;
 		btScalar ks = limot->m_springStiffness;
-		btScalar vel = rotational ? angVelA.dot(ax1) - angVelB.dot(ax1) : linVelA.dot(ax1) - linVelB.dot(ax1);
-		//		btScalar erp = 0.1;
+		btScalar vel;
+		if (rotational)
+		{
+			vel = angVelA.dot(ax1) - angVelB.dot(ax1);
+		}
+		else
+		{
+			btVector3 tanVelA = angVelA.cross(m_calculatedTransformA.getOrigin() - transA.getOrigin());
+			btVector3 tanVelB = angVelB.cross(m_calculatedTransformB.getOrigin() - transB.getOrigin());
+			vel = (linVelA + tanVelA).dot(ax1) - (linVelB + tanVelB).dot(ax1);
+		}
 		btScalar cfm = BT_ZERO;
 		btScalar mA = BT_ONE / m_rbA.getInvMass();
 		btScalar mB = BT_ONE / m_rbB.getInvMass();
@@ -832,7 +841,10 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 			if (m_rbA.getInvMass()) mA = mA * rrA + 1 / (m_rbA.getInvInertiaTensorWorld() * ax1).length();
 			if (m_rbB.getInvMass()) mB = mB * rrB + 1 / (m_rbB.getInvInertiaTensorWorld() * ax1).length();
 		}
-		btScalar m = mA > mB ? mB : mA;
+		btScalar m;
+		if (m_rbA.getInvMass() == 0) m = mB; else
+		if (m_rbB.getInvMass() == 0) m = mA; else
+			m = mA*mB / (mA + mB);
 		btScalar angularfreq = sqrt(ks / m);
 
 		//limit stiffness (the spring should not be sampled faster that the quarter of its angular frequency)
@@ -856,15 +868,14 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		// however in practice any value is fine as long as it is greater then the "proper" velocity,
 		// because the m_lowerLimit and the m_upperLimit will determinate the strength of the final pulling force
 		// so it is much simpler (and more robust) just to simply use inf (with the proper sign)
+		// (Even with our best intent the "new" velocity is only an estimation. If we underestimate
+		// the "proper" velocity that will weaken the spring, however if we overestimate it, it doesn't
+		// matter, because the solver will limit it according the force limit)
 		// you may also wonder what if the current velocity (vel) so high that the pulling force will not change its direction (in this iteration)
 		// will we not request a velocity with the wrong direction ?
-		// and the answare is not, because in practice during the solving the current velocity is subtracted from the m_constraintError
+		// and the answer is not, because in practice during the solving the current velocity is subtracted from the m_constraintError
 		// so the sign of the force that is really matters
-		// BEWARE! This whole approach has shown osciliation issues that prevent proper damping.
-		if ( m_flags & BT_6DOF_FLAGS_USE_INFINITE_ERROR )
-			info->m_constraintError[srow] = (rotational ? -1 : 1) * (f < 0 ? -SIMD_INFINITY : SIMD_INFINITY);
-		else
-			info->m_constraintError[srow] = vel + f / m * (rotational ? -1 : 1);
+		info->m_constraintError[srow] = (rotational ? -1 : 1) * (f < 0 ? -SIMD_INFINITY : SIMD_INFINITY);
 
 		btScalar minf = f < fd ? f : fd;
 		btScalar maxf = f < fd ? fd : f;
