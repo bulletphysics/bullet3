@@ -1270,6 +1270,7 @@ int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename, stru
 					buffer.resize(0);
 				}
 			}
+			fileIO->fileClose(fileId);
 		}
 		if (buffer.size())
 		{

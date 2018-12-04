@@ -1361,6 +1361,7 @@ int EGLRendererVisualShapeConverter::loadTextureFile(const char* filename, struc
 					buffer.resize(0);
 				}
 			}
+			fileIO->fileClose(fileId);
 		}
 		if (buffer.size())
 		{

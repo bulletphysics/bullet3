@@ -591,6 +591,7 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 		if (actual==size)
 		{
 		}
+		fileIO->fileClose(fileHandle);
 	}
 	if (xmlString.size()==0)
 		return;
