@@ -141,6 +141,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 											buffer.resize(0);
 										}
 									}
+									fileIO->fileClose(fileId);
 								}
 
 								if (buffer.size())
