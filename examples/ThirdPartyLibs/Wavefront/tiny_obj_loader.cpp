@@ -579,7 +579,7 @@ std::string LoadMtl(
 	// flush last material.
 	material_map.insert(std::pair<std::string, material_t>(material.name, material));
 
-	if (fileHandle)
+	if (fileHandle>=0)
 	{
 		fileIO->fileClose(fileHandle);
 	}
@@ -858,7 +858,7 @@ LoadObj(
 	}
 	faceGroup.resize(0);  // for safety
 
-	if (fileHandle)
+	if (fileHandle>=0)
 	{
 		fileIO->fileClose(fileHandle);
 	}
