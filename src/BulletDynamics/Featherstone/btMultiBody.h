@@ -134,6 +134,15 @@ public:
 		return m_baseCollider;
 	}
 
+	const btMultiBodyLinkCollider *getLinkCollider(int index) const
+	{
+		if (index >= 0 && index < getNumLinks())
+		{
+			return getLink(index).m_collider;
+		}
+		return 0;
+	}
+
 	btMultiBodyLinkCollider *getLinkCollider(int index)
 	{
 		if (index >= 0 && index < getNumLinks())

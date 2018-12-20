@@ -281,6 +281,8 @@ int MultiBodyTree::addBody(int body_index, int parent_index, JointType joint_typ
 			break;
 		case FLOATING:
 			break;
+		case SPHERICAL:
+			break;
 		default:
 			bt_id_error_message("unknown joint type %d\n", joint_type);
 			return -1;
@@ -430,6 +432,16 @@ int MultiBodyTree::finalize()
 				break;
 			case FIXED:
 				// NOTE/TODO: dimension really should be zero ..
+				rigid_body.m_Jac_JR(0) = 0.0;
+				rigid_body.m_Jac_JR(1) = 0.0;
+				rigid_body.m_Jac_JR(2) = 0.0;
+				rigid_body.m_Jac_JT(0) = 0.0;
+				rigid_body.m_Jac_JT(1) = 0.0;
+				rigid_body.m_Jac_JT(2) = 0.0;
+				break;
+			case SPHERICAL:
+				// NOTE/TODO: this is not really correct.
+				// the Jacobians should be 3x3 matrices here !
 				rigid_body.m_Jac_JR(0) = 0.0;
 				rigid_body.m_Jac_JR(1) = 0.0;
 				rigid_body.m_Jac_JR(2) = 0.0;
