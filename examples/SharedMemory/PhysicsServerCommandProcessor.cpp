@@ -10244,6 +10244,7 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 								buffer.resize(0);
 							}
 						}
+						fileIO->fileClose(fileId);
 					}
 					if (buffer.size())
 					{
