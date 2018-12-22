@@ -28,13 +28,7 @@ btSubsimplexConvexCast::btSubsimplexConvexCast(const btConvexShape* convexA, con
 {
 }
 
-///Typically the conservative advancement reaches solution in a few iterations, clip it to 32 for degenerate cases.
-///See discussion about this here http://continuousphysics.com/Bullet/phpBB2/viewtopic.php?t=565
-#ifdef BT_USE_DOUBLE_PRECISION
-#define MAX_ITERATIONS 64
-#else
-#define MAX_ITERATIONS 32
-#endif
+
 bool btSubsimplexConvexCast::calcTimeOfImpact(
 	const btTransform& fromA,
 	const btTransform& toA,
@@ -60,7 +54,7 @@ bool btSubsimplexConvexCast::calcTimeOfImpact(
 	btVector3 supVertexA = fromA(m_convexA->localGetSupportingVertex(-r * fromA.getBasis()));
 	btVector3 supVertexB = fromB(m_convexB->localGetSupportingVertex(r * fromB.getBasis()));
 	v = supVertexA - supVertexB;
-	int maxIter = MAX_ITERATIONS;
+	int maxIter = result.m_subSimplexCastMaxIterations;
 
 	btVector3 n;
 	n.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
@@ -69,20 +63,12 @@ bool btSubsimplexConvexCast::calcTimeOfImpact(
 
 	btScalar dist2 = v.length2();
 
-#ifdef BT_USE_DOUBLE_PRECISION
-	btScalar epsilon = SIMD_EPSILON * 10;
-#else
-	//todo: epsilon kept for backward compatibility of unit tests.
-	//will need to digg deeper to make the algorithm more robust
-	//since, a large epsilon can cause an early termination with false
-	//positive results (ray intersections that shouldn't be there)
-	btScalar epsilon = btScalar(0.0001);
-#endif  //BT_USE_DOUBLE_PRECISION
+
 
 	btVector3 w, p;
 	btScalar VdotR;
 
-	while ((dist2 > epsilon) && maxIter--)
+	while ((dist2 > result.m_subSimplexCastEpsilon) && maxIter--)
 	{
 		supVertexA = interpolatedTransA(m_convexA->localGetSupportingVertex(-v * interpolatedTransA.getBasis()));
 		supVertexB = interpolatedTransB(m_convexB->localGetSupportingVertex(v * interpolatedTransB.getBasis()));
