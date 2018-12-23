@@ -822,6 +822,12 @@ void btGImpactCollisionAlgorithm::processCollision(const btCollisionObjectWrappe
 
 		gimpact_vs_shape(body1Wrap, body0Wrap, gimpactshape1, body0Wrap->getCollisionShape(), true);
 	}
+
+	// Ensure that gContactProcessedCallback is called for concave shapes.
+	if (getLastManifold())
+	{
+		m_resultOut->refreshContactPoints();
+	}
 }
 
 btScalar btGImpactCollisionAlgorithm::calculateTimeOfImpact(btCollisionObject* body0, btCollisionObject* body1, const btDispatcherInfo& dispatchInfo, btManifoldResult* resultOut)
