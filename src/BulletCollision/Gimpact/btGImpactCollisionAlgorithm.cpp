@@ -50,10 +50,11 @@ public:
 
 	void get_plane_equation_transformed(const btTransform& trans, btVector4& equation) const
 	{
-		equation[0] = trans.getBasis().getRow(0).dot(m_planeNormal);
-		equation[1] = trans.getBasis().getRow(1).dot(m_planeNormal);
-		equation[2] = trans.getBasis().getRow(2).dot(m_planeNormal);
-		equation[3] = trans.getOrigin().dot(m_planeNormal) + m_planeConstant;
+		const btVector3 normal = trans.getBasis() * m_planeNormal;
+		equation[0] = normal[0];
+		equation[1] = normal[1];
+		equation[2] = normal[2];
+		equation[3] = normal.dot(trans * (m_planeConstant * m_planeNormal));
 	}
 };
 
