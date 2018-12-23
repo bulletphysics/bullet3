@@ -28,6 +28,9 @@ int MultiBodyTree::InitCache::addBody(const int body_index, const int parent_ind
 			// does not add a degree of freedom
 			// m_num_dofs+=0;
 			break;
+		case SPHERICAL:
+			m_num_dofs += 3;
+			break;
 		case FLOATING:
 			m_num_dofs += 6;
 			break;

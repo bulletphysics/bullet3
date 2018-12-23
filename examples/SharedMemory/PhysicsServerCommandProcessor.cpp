@@ -9756,7 +9756,7 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 											   numDofs, clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex,
 											   &q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize * 2, targetDampCoeff);
 					}
-					serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
+					serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseKinematicsArguments.m_bodyUniqueId;
 					for (int i = 0; i < numDofs; i++)
 					{
 						serverCmd.m_inverseKinematicsResultArgs.m_jointPositions[i] = q_new[i];

@@ -31,13 +31,17 @@ static btVector4 colors[4] =
 
 static btVector4 selectColor2()
 {
+#ifdef BT_THREADSAFE
 	static btSpinMutex sMutex;
 	sMutex.lock();
+#endif
 	static int curColor = 0;
 	btVector4 color = colors[curColor];
 	curColor++;
 	curColor &= 3;
+#ifdef BT_THREADSAFE
 	sMutex.unlock();
+#endif
 	return color;
 }
 

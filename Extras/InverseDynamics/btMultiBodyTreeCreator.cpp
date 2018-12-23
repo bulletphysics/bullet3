@@ -202,8 +202,16 @@ int btMultiBodyTreeCreator::createFromBtMultiBody(const btMultiBody *btmb, const
 				link.parent_r_parent_body_ref(2) = bt_link.m_eVector[2];
 				break;
 			case btMultibodyLink::eSpherical:
-				bt_id_error_message("spherical joints not implemented\n");
-				return -1;
+				
+				link.joint_type = SPHERICAL;
+				link.parent_r_parent_body_ref(0) = bt_link.m_eVector[0];
+				link.parent_r_parent_body_ref(1) = bt_link.m_eVector[1];
+				link.parent_r_parent_body_ref(2) = bt_link.m_eVector[2];
+				// random unit vector
+				link.body_axis_of_motion(0) = 0;
+				link.body_axis_of_motion(1) = 0;
+				link.body_axis_of_motion(2) = 1;
+				break;
 			case btMultibodyLink::ePlanar:
 				bt_id_error_message("planar joints not implemented\n");
 				return -1;

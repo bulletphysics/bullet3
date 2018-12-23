@@ -31,8 +31,8 @@ bool btGjkEpaPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& simp
 	(void)simplexSolver;
 
 	btVector3 guessVectors[] = {
-		btVector3(transformB.getOrigin() - transformA.getOrigin()).normalized(),
-		btVector3(transformA.getOrigin() - transformB.getOrigin()).normalized(),
+		btVector3(transformB.getOrigin() - transformA.getOrigin()).safeNormalize(),
+		btVector3(transformA.getOrigin() - transformB.getOrigin()).safeNormalize(),
 		btVector3(0, 0, 1),
 		btVector3(0, 1, 0),
 		btVector3(1, 0, 0),
