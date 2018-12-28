@@ -87,7 +87,7 @@ class PyBulletSimGymEnv(gym.Env):
 
 
     self._pybullet_client.setAdditionalSearchPath(urdf_root)
-    self._seed()
+    self.seed()
     self.reset()
 
     observation_high = (
@@ -108,7 +108,7 @@ class PyBulletSimGymEnv(gym.Env):
   def configure(self, args):
     self._args = args
 
-  def _reset(self):
+  def reset(self):
     if self._hard_reset:
       self._pybullet_client.resetSimulation()
       
@@ -130,11 +130,11 @@ class PyBulletSimGymEnv(gym.Env):
 
     return self._get_observation()
 
-  def _seed(self, seed=None):
+  def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
 
-  def _step(self, action):
+  def step(self, action):
     """Step forward the simulation, given the action.
 
     Args:
@@ -173,7 +173,7 @@ class PyBulletSimGymEnv(gym.Env):
     done = self._termination()
     return np.array(self._get_observation()), reward, done, {}
 
-  def _render(self, mode="rgb_array", close=False):
+  def render(self, mode="rgb_array", close=False):
     if mode != "rgb_array":
       return np.array([])
     base_pos = [0,0,0]

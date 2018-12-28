@@ -85,7 +85,7 @@ class MinitaurTrottingEnv(minitaur_gym_env.MinitaurGymEnv):
         reposition the robot.
       env_randomizer: A list of EnvRandomizers that can randomize the
         environment during when env.reset() is called and add perturbation
-        forces when env._step() is called.
+        forces when env.step() is called.
       log_path: The path to write out logs. For the details of logging, refer to
         minitaur_logging.proto.
       init_extension: The initial reset length of the leg.
@@ -139,12 +139,12 @@ class MinitaurTrottingEnv(minitaur_gym_env.MinitaurGymEnv):
     self._cam_yaw = 30
     self._cam_pitch = -30
 
-  def _reset(self):
+  def reset(self):
     # In this environment, the actions are
     # [swing leg 1, swing leg 2, swing leg 3, swing leg 4,
     #  extension leg 1, extension leg 2, extension leg 3, extension leg 4]
     initial_motor_angles = self._convert_from_leg_model(self._init_pose)
-    super(MinitaurTrottingEnv, self)._reset(
+    super(MinitaurTrottingEnv, self).reset(
         initial_motor_angles=initial_motor_angles, reset_duration=0.5)
     return self._get_observation()
 

@@ -1,4 +1,4 @@
-import pybullet 
+import pybullet
 import gym, gym.spaces, gym.utils
 import numpy as np
 import os, inspect
@@ -22,9 +22,9 @@ class XmlBasedRobot:
 		self.robot_body = None
 
 		high = np.ones([action_dim])
-		self.action_space = gym.spaces.Box(-high, high)
+		self.action_space = gym.spaces.Box(-high, high, dtype=np.float32)
 		high = np.inf * np.ones([obs_dim])
-		self.observation_space = gym.spaces.Box(-high, high)
+		self.observation_space = gym.spaces.Box(-high, high, dtype=np.float32)
 
 		#self.model_xml = model_xml
 		self.robot_name = robot_name
@@ -109,8 +109,8 @@ class MJCFBasedRobot(XmlBasedRobot):
 		self.model_xml = model_xml
 		self.doneLoading=0
 	def reset(self, bullet_client):
-		
-		self._p = bullet_client	
+
+		self._p = bullet_client
 		#print("Created bullet_client with id=", self._p._client)
 		if (self.doneLoading==0):
 			self.ordered_joints = []
@@ -151,7 +151,7 @@ class URDFBasedRobot(XmlBasedRobot):
 		print(os.path.join(os.path.dirname(__file__), "data", self.model_urdf))
 
 		if self.self_collision:
-			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p, 
+			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p,
 				self._p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
 				basePosition=self.basePosition,
 				baseOrientation=self.baseOrientation,
@@ -280,11 +280,11 @@ class Joint:
 		self.bodyIndex = bodyIndex
 		self.jointIndex = jointIndex
 		self.joint_name = joint_name
-		
+
 		jointInfo = self._p.getJointInfo(self.bodies[self.bodyIndex], self.jointIndex)
 		self.lowerLimit = jointInfo[8]
 		self.upperLimit = jointInfo[9]
-		
+
 		self.power_coeff = 0
 
 	def set_state(self, x, vx):

@@ -1,31 +1,31 @@
 from .scene_stadium import SinglePlayerStadiumScene
 from .env_bases import MJCFBaseBulletEnv
 import numpy as np
-import pybullet 
+import pybullet
 from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid, HumanoidFlagrun, HumanoidFlagrunHarder
 
 
 class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 	def __init__(self, robot, render=False):
-		print("WalkerBase::__init__ start")
+		# print("WalkerBase::__init__ start")
 		MJCFBaseBulletEnv.__init__(self, robot, render)
-		
+
 		self.camera_x = 0
 		self.walk_target_x = 1e3  # kilometer away
 		self.walk_target_y = 0
 		self.stateId=-1
-		
+
 
 	def create_single_player_scene(self, bullet_client):
 		self.stadium_scene = SinglePlayerStadiumScene(bullet_client, gravity=9.8, timestep=0.0165/4, frame_skip=4)
 		return self.stadium_scene
 
-	def _reset(self):
+	def reset(self):
 		if (self.stateId>=0):
 			#print("restoreState self.stateId:",self.stateId)
 			self._p.restoreState(self.stateId)
-		
-		r = MJCFBaseBulletEnv._reset(self)
+
+		r = MJCFBaseBulletEnv.reset(self)
 		self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,0)
 
 		self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot.addToScene(self._p,
@@ -36,10 +36,10 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 		if (self.stateId<0):
 			self.stateId=self._p.saveState()
 			#print("saving state self.stateId:",self.stateId)
-			
-		
+
+
 		return r
-	
+
 	def _isDone(self):
 		return self._alive < 0
 
@@ -56,7 +56,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 	foot_ground_object_names = set(["floor"])  # to distinguish ground and other objects
 	joints_at_limit_cost = -0.1	# discourage stuck joints
 
-	def _step(self, a):
+	def step(self, a):
 		if not self.scene.multiplayer:  # if multiplayer, action first applied to all robots, then global step() called, then _step() for all robots with the same actions
 			self.robot.apply_action(a)
 			self.scene.global_step()
@@ -125,41 +125,41 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 		self.camera.move_and_look_at(self.camera_x, y-2.0, 1.4, x, y, 1.0)
 
 class HopperBulletEnv(WalkerBaseBulletEnv):
-	def __init__(self):
+	def __init__(self, render=False):
 		self.robot = Hopper()
-		WalkerBaseBulletEnv.__init__(self, self.robot)
+		WalkerBaseBulletEnv.__init__(self, self.robot, render)
 
 class Walker2DBulletEnv(WalkerBaseBulletEnv):
-	def __init__(self):
+	def __init__(self, render=False):
 		self.robot = Walker2D()
-		WalkerBaseBulletEnv.__init__(self, self.robot)
+		WalkerBaseBulletEnv.__init__(self, self.robot, render)
 
 class HalfCheetahBulletEnv(WalkerBaseBulletEnv):
-	def __init__(self):
+	def __init__(self, render=False):
 		self.robot = HalfCheetah()
-		WalkerBaseBulletEnv.__init__(self, self.robot)
-		
+		WalkerBaseBulletEnv.__init__(self, self.robot, render)
+
 	def _isDone(self):
 		return False
 
 class AntBulletEnv(WalkerBaseBulletEnv):
-	def __init__(self):
+	def __init__(self, render=False):
 		self.robot = Ant()
-		WalkerBaseBulletEnv.__init__(self, self.robot)
+		WalkerBaseBulletEnv.__init__(self, self.robot, render)
 
 class HumanoidBulletEnv(WalkerBaseBulletEnv):
-	def __init__(self, robot=Humanoid()):
+	def __init__(self, robot=Humanoid(), render=False):
 		self.robot = robot
-		WalkerBaseBulletEnv.__init__(self, self.robot)
+		WalkerBaseBulletEnv.__init__(self, self.robot, render)
 		self.electricity_cost  = 4.25*WalkerBaseBulletEnv.electricity_cost
 		self.stall_torque_cost = 4.25*WalkerBaseBulletEnv.stall_torque_cost
 
 class HumanoidFlagrunBulletEnv(HumanoidBulletEnv):
 	random_yaw = True
 
-	def __init__(self):
+	def __init__(self, render=False):
 		self.robot = HumanoidFlagrun()
-		HumanoidBulletEnv.__init__(self, self.robot)
+		HumanoidBulletEnv.__init__(self, self.robot, render)
 
 	def create_single_player_scene(self, bullet_client):
 		s = HumanoidBulletEnv.create_single_player_scene(self, bullet_client)
@@ -169,10 +169,10 @@ class HumanoidFlagrunBulletEnv(HumanoidBulletEnv):
 class HumanoidFlagrunHarderBulletEnv(HumanoidBulletEnv):
 	random_lean = True  # can fall on start
 
-	def __init__(self):
+	def __init__(self, render=False):
 		self.robot = HumanoidFlagrunHarder()
 		self.electricity_cost /= 4   # don't care that much about electricity, just stand up!
-		HumanoidBulletEnv.__init__(self, self.robot)
+		HumanoidBulletEnv.__init__(self, self.robot, render)
 
 	def create_single_player_scene(self, bullet_client):
 		s = HumanoidBulletEnv.create_single_player_scene(self, bullet_client)

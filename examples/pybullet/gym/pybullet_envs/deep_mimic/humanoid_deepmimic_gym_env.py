@@ -56,21 +56,21 @@ class HumanoidDeepMimicGymEnv(gym.Env):
     self._pybullet_client = None
     self._humanoid = None
     self._control_time_step = 8.*(1./240.)#0.033333
-    self._seed()
+    self.seed()
     observation_high = (self._get_observation_upper_bound())
     observation_low = (self._get_observation_lower_bound())
     action_dim = 36
     self._action_bound = 3.14 #todo: check this
     action_high = np.array([self._action_bound] * action_dim)
-    self.action_space = spaces.Box(-action_high, action_high)
-    self.observation_space = spaces.Box(observation_low, observation_high)
+    self.action_space = spaces.Box(-action_high, action_high, dtype=np.float32)
+    self.observation_space = spaces.Box(observation_low, observation_high, dtype=np.float32)
 
-  def _close(self):
+  def close(self):
     self._humanoid = None
     self._pybullet_client.disconnect()
-    
 
-  def _reset(self):
+
+  def reset(self):
     if (self._pybullet_client==None):
       if self._is_render:
         self._pybullet_client = bullet_client.BulletClient(
@@ -93,7 +93,7 @@ class HumanoidDeepMimicGymEnv(gym.Env):
       #self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_PLANAR_REFLECTION,self._ground_id)
       shift=[0,0,0]
       self._humanoid = Humanoid(self._pybullet_client,self._motion,shift)
- 
+
     self._humanoid.Reset()
     simTime = random.randint(0,self._motion.NumFrames()-2)
     self._humanoid.SetSimTime(simTime)
@@ -108,11 +108,11 @@ class HumanoidDeepMimicGymEnv(gym.Env):
         self._pybullet_client.COV_ENABLE_RENDERING, 1)
     return self._get_observation()
 
-  def _seed(self, seed=None):
+  def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
 
-  def _step(self, action):
+  def step(self, action):
     """Step forward the simulation, given the action.
 
     Args:
@@ -155,7 +155,7 @@ class HumanoidDeepMimicGymEnv(gym.Env):
     self._env_step_counter += 1
     return np.array(self._get_observation()), reward, done, {}
 
-  def _render(self, mode="rgb_array", close=False):
+  def render(self, mode="rgb_array", close=False):
     if mode == "human":
       self._is_render = True
     if mode != "rgb_array":
@@ -273,5 +273,3 @@ class HumanoidDeepMimicGymEnv(gym.Env):
   @property
   def env_step_counter(self):
     return self._env_step_counter
-
-

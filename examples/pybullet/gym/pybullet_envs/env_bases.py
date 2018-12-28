@@ -1,6 +1,6 @@
 import gym, gym.spaces, gym.utils, gym.utils.seeding
 import numpy as np
-import pybullet 
+import pybullet
 from pybullet_utils import bullet_client
 
 from pkg_resources import parse_version
@@ -24,7 +24,7 @@ class MJCFBaseBulletEnv(gym.Env):
 		self.camera = Camera()
 		self.isRender = render
 		self.robot = robot
-		self._seed()
+		self.seed()
 		self._cam_dist = 3
 		self._cam_yaw = 0
 		self._cam_pitch = -30
@@ -33,23 +33,24 @@ class MJCFBaseBulletEnv(gym.Env):
 
 		self.action_space = robot.action_space
 		self.observation_space = robot.observation_space
+
 	def configure(self, args):
 		self.robot.args = args
-	def _seed(self, seed=None):
+
+	def seed(self, seed=None):
 		self.np_random, seed = gym.utils.seeding.np_random(seed)
 		self.robot.np_random = self.np_random # use the same np_randomizer for robot as for env
 		return [seed]
 
-	def _reset(self):
+	def reset(self):
 		if (self.physicsClientId<0):
 			self.ownsPhysicsClient = True
 
-
 			if self.isRender:
-      				self._p = bullet_client.BulletClient(connection_mode=pybullet.GUI)
+      			self._p = bullet_client.BulletClient(connection_mode=pybullet.GUI)
 			else:
 				self._p = bullet_client.BulletClient()
-	
+
 			self.physicsClientId = self._p._client
 			self._p.configureDebugVisualizer(pybullet.COV_ENABLE_GUI,0)
 
@@ -68,8 +69,8 @@ class MJCFBaseBulletEnv(gym.Env):
 		self.potential = self.robot.calc_potential()
 		return s
 
-	def _render(self, mode, close=False):
-		if (mode=="human"):
+	def render(self, mode, close=False):
+		if mode == "human":
 			self.isRender = True
 		if mode != "rgb_array":
 			return np.array([])
@@ -99,7 +100,7 @@ class MJCFBaseBulletEnv(gym.Env):
 		return rgb_array
 
 
-	def _close(self):
+	def close(self):
 		if (self.ownsPhysicsClient):
 			if (self.physicsClientId>=0):
 				self._p.disconnect()
@@ -108,27 +109,23 @@ class MJCFBaseBulletEnv(gym.Env):
 	def HUD(self, state, a, done):
 		pass
 
-	# backwards compatibility for gym >= v0.9.x
-	# for extension of this class.
-	def step(self, *args, **kwargs):
-		if self.isRender:
-			base_pos=[0,0,0]
-			if (hasattr(self,'robot')):
-				if (hasattr(self.robot,'body_xyz')):
-					base_pos = self.robot.body_xyz
-					# Keep the previous orientation of the camera set by the user.
-					#[yaw, pitch, dist] = self._p.getDebugVisualizerCamera()[8:11]
-					self._p.resetDebugVisualizerCamera(3,0,0, base_pos)
-
-
-		return self._step(*args, **kwargs)
-
-	if parse_version(gym.__version__)>=parse_version('0.9.6'):
-		close = _close
-		render = _render
-		reset = _reset
-		seed = _seed
-
+	# def step(self, *args, **kwargs):
+	# 	if self.isRender:
+	# 		base_pos=[0,0,0]
+	# 		if (hasattr(self,'robot')):
+	# 			if (hasattr(self.robot,'body_xyz')):
+	# 				base_pos = self.robot.body_xyz
+	# 				# Keep the previous orientation of the camera set by the user.
+	# 				#[yaw, pitch, dist] = self._p.getDebugVisualizerCamera()[8:11]
+	# 				self._p.resetDebugVisualizerCamera(3,0,0, base_pos)
+	#
+	#
+	# 	return self.step(*args, **kwargs)
+	if parse_version(gym.__version__) < parse_version('0.9.6'):
+		_render = render
+		_reset = reset
+		_seed = seed
+		_step = step
 
 class Camera:
 	def __init__(self):

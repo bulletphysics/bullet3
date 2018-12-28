@@ -152,7 +152,7 @@ class MinitaurBulletEnv(gym.Env):
     else:
       self._pybullet_client = bullet_client.BulletClient()
 
-    self._seed()
+    self.seed()
     self.reset()
     observation_high = (
         self.minitaur.GetObservationUpperBound() + OBSERVATION_EPS)
@@ -160,8 +160,8 @@ class MinitaurBulletEnv(gym.Env):
         self.minitaur.GetObservationLowerBound() - OBSERVATION_EPS)
     action_dim = 8
     action_high = np.array([self._action_bound] * action_dim)
-    self.action_space = spaces.Box(-action_high, action_high)
-    self.observation_space = spaces.Box(observation_low, observation_high)
+    self.action_space = spaces.Box(-action_high, action_high, dtype=np.float32)
+    self.observation_space = spaces.Box(observation_low, observation_high, dtype=np.float32)
     self.viewer = None
     self._hard_reset = hard_reset  # This assignment need to be after reset()
 
@@ -171,7 +171,7 @@ class MinitaurBulletEnv(gym.Env):
   def configure(self, args):
     self._args = args
 
-  def _reset(self):
+  def reset(self):
     if self._hard_reset:
       self._pybullet_client.resetSimulation()
       self._pybullet_client.setPhysicsEngineParameter(
@@ -215,7 +215,7 @@ class MinitaurBulletEnv(gym.Env):
         self._pybullet_client.stepSimulation()
     return self._noisy_observation()
 
-  def _seed(self, seed=None):
+  def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
 
@@ -229,7 +229,7 @@ class MinitaurBulletEnv(gym.Env):
       action = self.minitaur.ConvertFromLegModel(action)
     return action
 
-  def _step(self, action):
+  def step(self, action):
     """Step forward the simulation, given the action.
 
     Args:
@@ -260,8 +260,8 @@ class MinitaurBulletEnv(gym.Env):
       yaw = camInfo[8]
       pitch=camInfo[9]
       targetPos = [0.95*curTargetPos[0]+0.05*base_pos[0],0.95*curTargetPos[1]+0.05*base_pos[1],curTargetPos[2]]
-           
-           
+
+
       self._pybullet_client.resetDebugVisualizerCamera(
           distance, yaw, pitch, base_pos)
     action = self._transform_action_to_motor_command(action)
@@ -274,7 +274,7 @@ class MinitaurBulletEnv(gym.Env):
     done = self._termination()
     return np.array(self._noisy_observation()), reward, done, {}
 
-  def _render(self, mode="rgb_array", close=False):
+  def render(self, mode="rgb_array", close=False):
     if mode != "rgb_array":
       return np.array([])
     base_pos = self.minitaur.GetBasePosition()
@@ -388,8 +388,8 @@ class MinitaurBulletEnv(gym.Env):
                       self.minitaur.GetObservationUpperBound())
     return observation
 
-  if parse_version(gym.__version__)>=parse_version('0.9.6'):
-    render = _render
-    reset = _reset
-    seed = _seed
-    step = _step
+  if parse_version(gym.__version__) < parse_version('0.9.6'):
+    _render = render
+    _reset = reset
+    _seed = seed
+    _step = step
