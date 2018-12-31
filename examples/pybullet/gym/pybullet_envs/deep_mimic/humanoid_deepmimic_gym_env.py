@@ -250,12 +250,12 @@ class HumanoidDeepMimicGymEnv(gym.Env):
   def configure(self, args):
     pass
 
-  if parse_version(gym.__version__)>=parse_version('0.9.6'):
-                close = _close
-                render = _render
-                reset = _reset
-                seed = _seed
-                step = _step
+  if parse_version(gym.__version__) < parse_version('0.9.6'):
+    _render = render
+    _reset = reset
+    _seed = seed
+    _step = step
+    _close = close
 
 
   @property

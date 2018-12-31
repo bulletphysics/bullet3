@@ -47,7 +47,7 @@ class MJCFBaseBulletEnv(gym.Env):
 			self.ownsPhysicsClient = True
 
 			if self.isRender:
-      			self._p = bullet_client.BulletClient(connection_mode=pybullet.GUI)
+				self._p = bullet_client.BulletClient(connection_mode=pybullet.GUI)
 			else:
 				self._p = bullet_client.BulletClient()
 
@@ -69,7 +69,7 @@ class MJCFBaseBulletEnv(gym.Env):
 		self.potential = self.robot.calc_potential()
 		return s
 
-	def render(self, mode, close=False):
+	def render(self, mode='human'):
 		if mode == "human":
 			self.isRender = True
 		if mode != "rgb_array":
