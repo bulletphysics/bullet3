@@ -210,6 +210,6 @@ class PyBulletSimGymEnv(gym.Env):
 
   if parse_version(gym.__version__) < parse_version('0.9.6'):
     _render = render
-	_reset = reset
-	_seed = seed
-	_step = step
+    _reset = reset
+    _seed = seed
+    _step = step
