@@ -150,6 +150,8 @@ class HumanoidDeepMimicGymEnv(gym.Env):
     for s in range (8):
       #print("step:",s)
       self._pybullet_client.stepSimulation()
+    self._initial_frame = self._initial_frame + self._control_time_step
+    self._humanoid.setSimTime(self._initial_frame)
     reward = self._reward()
     done = self._termination()
     self._env_step_counter += 1
