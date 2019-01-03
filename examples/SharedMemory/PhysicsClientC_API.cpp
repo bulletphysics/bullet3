@@ -2989,6 +2989,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitRemoveBodyCommand(b3PhysicsClien
 	command->m_updateFlags = BODY_DELETE_FLAG;
 	command->m_removeObjectArgs.m_numBodies = 1;
 	command->m_removeObjectArgs.m_bodyUniqueIds[0] = bodyUniqueId;
+	command->m_removeObjectArgs.m_numUserCollisionShapes = 0;
 	command->m_removeObjectArgs.m_numUserConstraints = 0;
 
 	return (b3SharedMemoryCommandHandle)command;
