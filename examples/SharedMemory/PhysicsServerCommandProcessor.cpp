@@ -4215,6 +4215,17 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 
 				if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_numVertices)
 				{
+
+					int numVertices = clientCmd.m_createUserShapeArgs.m_shapes[i].m_numVertices;
+					int numIndices = clientCmd.m_createUserShapeArgs.m_shapes[i].m_numIndices;
+
+					//int totalUploadSizeInBytes = numVertices * sizeof(double) * 3 + numIndices * sizeof(int);
+
+					char* data = bufferServerToClient;
+					double* vertexUpload = (double*)data;
+					int* indexUpload = (int*)(data + numVertices * sizeof(double)*3);
+
+
 					if (compound == 0)
 					{
 						compound = worldImporter->createCompoundShape();
@@ -4231,19 +4242,19 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 
 							for (int j = 0; j < clientCmd.m_createUserShapeArgs.m_shapes[i].m_numIndices / 3; j++)
 							{
-								int i0 = clientCmd.m_createUserShapeArgs.m_shapes[i].m_indices[j*3+0];
-								int i1 = clientCmd.m_createUserShapeArgs.m_shapes[i].m_indices[j*3+1];
-								int i2 = clientCmd.m_createUserShapeArgs.m_shapes[i].m_indices[j*3+2];
+								int i0 = indexUpload[j*3+0];
+								int i1 = indexUpload[j*3+1];
+								int i2 = indexUpload[j*3+2];
 
-								btVector3 v0(	clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i0*3+0],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i0*3+1],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i0*3+2]);
-								btVector3 v1(	clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i1*3+0],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i1*3+1],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i1*3+2]);
-								btVector3 v2(	clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i2*3+0],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i2*3+1],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i2*3+2]);
+								btVector3 v0(vertexUpload[i0*3+0],
+									vertexUpload[i0*3+1],
+									vertexUpload[i0*3+2]);
+								btVector3 v1(vertexUpload[i1*3+0],
+									vertexUpload[i1*3+1],
+									vertexUpload[i1*3+2]);
+								btVector3 v2(vertexUpload[i2*3+0],
+									vertexUpload[i2*3+1],
+									vertexUpload[i2*3+2]);
 								meshInterface->addTriangle(v0, v1, v2);
 							}
 						}
@@ -4274,9 +4285,9 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 						for (int v = 0; v < clientCmd.m_createUserShapeArgs.m_shapes[i].m_numVertices; v++)
 						{
 
-							btVector3 pt(	clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[v*3+0],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[v*3+1],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[v*3+2]);
+							btVector3 pt(vertexUpload[v*3+0],
+								vertexUpload[v*3+1],
+								vertexUpload[v*3+2]);
 							convexHull->addPoint(pt, false);
 						}
 
@@ -7450,6 +7461,39 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					mb->getBaseCollider()->getCollisionShape()->calculateLocalInertia(mass, localInertia);
 					mb->setBaseInertia(localInertia);
 				}
+
+				//handle switch from static/fixedBase to dynamic and vise-versa
+				if (mass > 0)
+				{
+					bool isDynamic = true;
+					if (mb->hasFixedBase())
+					{
+						int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+						int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+
+						m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
+						int oldFlags = mb->getBaseCollider()->getCollisionFlags();
+						mb->getBaseCollider()->setCollisionFlags(oldFlags & ~btCollisionObject::CF_STATIC_OBJECT);
+						mb->setFixedBase(false);
+						m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
+
+					}
+				}
+				else
+				{
+					if (!mb->hasFixedBase())
+					{
+						bool isDynamic = false;
+						int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+						int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+						int oldFlags = mb->getBaseCollider()->getCollisionFlags();
+						mb->getBaseCollider()->setCollisionFlags(oldFlags | btCollisionObject::CF_STATIC_OBJECT);
+						m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
+						mb->setFixedBase(true);
+						m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
+					}
+				}
+				
 			}
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
 			{

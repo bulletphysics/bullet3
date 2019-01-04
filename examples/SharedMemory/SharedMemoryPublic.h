@@ -941,8 +941,19 @@ enum eFileIOTypes
 	eInMemoryFileIO,
 };
 
+
 //limits for vertices/indices in PyBullet::createCollisionShape
-#define B3_MAX_NUM_VERTICES 16
-#define B3_MAX_NUM_INDICES 16
+//Make sure the data fits in SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE
+//(numVertices*sizeof(double)*3 + numIndices*sizeof(int)) < SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE
+
+
+#ifdef __APPLE__
+#define B3_MAX_NUM_VERTICES 8192
+#define B3_MAX_NUM_INDICES 32768
+#else
+#define B3_MAX_NUM_VERTICES 131072
+#define B3_MAX_NUM_INDICES 524288
+#endif
+
 
 #endif  //SHARED_MEMORY_PUBLIC_H
