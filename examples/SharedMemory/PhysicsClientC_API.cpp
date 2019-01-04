@@ -2652,7 +2652,7 @@ B3_SHARED_API int b3ChangeDynamicsInfoSetMass(b3SharedMemoryCommandHandle comman
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
-	b3Assert(mass > 0);
+	b3Assert(mass >= 0);
 	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
 	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
 	command->m_changeDynamicsInfoArgs.m_mass = mass;

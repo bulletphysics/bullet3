@@ -469,6 +469,11 @@ public:
 		return m_fixedBase;
 	}
 
+	void setFixedBase(bool fixedBase)
+	{
+		m_fixedBase = fixedBase;
+	}
+
 	int getCompanionId() const
 	{
 		return m_companionId;

@@ -7461,6 +7461,39 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					mb->getBaseCollider()->getCollisionShape()->calculateLocalInertia(mass, localInertia);
 					mb->setBaseInertia(localInertia);
 				}
+
+				//handle switch from static/fixedBase to dynamic and vise-versa
+				if (mass > 0)
+				{
+					bool isDynamic = true;
+					if (mb->hasFixedBase())
+					{
+						int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+						int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+
+						m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
+						int oldFlags = mb->getBaseCollider()->getCollisionFlags();
+						mb->getBaseCollider()->setCollisionFlags(oldFlags & ~btCollisionObject::CF_STATIC_OBJECT);
+						mb->setFixedBase(false);
+						m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
+
+					}
+				}
+				else
+				{
+					if (!mb->hasFixedBase())
+					{
+						bool isDynamic = false;
+						int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+						int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+						int oldFlags = mb->getBaseCollider()->getCollisionFlags();
+						mb->getBaseCollider()->setCollisionFlags(oldFlags | btCollisionObject::CF_STATIC_OBJECT);
+						m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
+						mb->setFixedBase(true);
+						m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
+					}
+				}
+				
 			}
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
 			{
