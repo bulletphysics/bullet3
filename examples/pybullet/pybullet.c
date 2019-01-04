@@ -6696,9 +6696,12 @@ static int extractVertices(PyObject* verticesObj, double* vertices, int maxNumVe
 					double vertex[3];
 					if (pybullet_internalSetVectord(vertexObj, vertex))
 					{
-						vertices[numVerticesOut*3+0]=vertex[0];
-						vertices[numVerticesOut*3+1]=vertex[1];
-						vertices[numVerticesOut*3+2]=vertex[2];
+						if (vertices)
+						{
+							vertices[numVerticesOut * 3 + 0] = vertex[0];
+							vertices[numVerticesOut * 3 + 1] = vertex[1];
+							vertices[numVerticesOut * 3 + 2] = vertex[2];
+						}
 						numVerticesOut++;
 					}
 				}
@@ -6730,7 +6733,10 @@ static int extractIndices(PyObject* indicesObj, int* indices, int maxNumIndices)
 				for (i = 0; i < numIndicesSrc; i++)
 				{
 					int index = pybullet_internalGetIntFromSequence(seqIndicesObj,i);
-					indices[numIndicesOut]=index;
+					if (indices)
+					{
+						indices[numIndicesOut] = index;
+					}
 					numIndicesOut++;
 				}
 			}
@@ -6806,11 +6812,10 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 		}
 		if (shapeType == GEOM_MESH && verticesObj)
 		{
-			int numVertices=0;
-			int numIndices=0;
-
-			double vertices[B3_MAX_NUM_VERTICES*3];
-			int indices[B3_MAX_NUM_INDICES];
+			int numVertices= extractVertices(verticesObj, 0, B3_MAX_NUM_VERTICES);
+			int numIndices= extractIndices(indicesObj, 0, B3_MAX_NUM_INDICES);
+			double* vertices = numVertices ? malloc(numVertices * 3 * sizeof(double)) : 0;
+			int* indices = numIndices ? malloc(numIndices * sizeof(int)) : 0;
 
 			numVertices = extractVertices(verticesObj, vertices, B3_MAX_NUM_VERTICES);
 			pybullet_internalSetVectord(meshScaleObj, meshScale);
@@ -6822,11 +6827,13 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 
 			if (numIndices)
 			{
-				shapeIndex = b3CreateCollisionShapeAddConcaveMesh(commandHandle, meshScale, vertices, numVertices, indices, numIndices);
+				shapeIndex = b3CreateCollisionShapeAddConcaveMesh(sm, commandHandle, meshScale, vertices, numVertices, indices, numIndices);
 			} else
 			{
-				shapeIndex = b3CreateCollisionShapeAddConvexMesh(commandHandle, meshScale, vertices, numVertices);
+				shapeIndex = b3CreateCollisionShapeAddConvexMesh(sm, commandHandle, meshScale, vertices, numVertices);
 			}
+			free(vertices);
+			free(indices);
 		}
 
 		if (shapeType == GEOM_PLANE)

@@ -4215,6 +4215,17 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 
 				if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_numVertices)
 				{
+
+					int numVertices = clientCmd.m_createUserShapeArgs.m_shapes[i].m_numVertices;
+					int numIndices = clientCmd.m_createUserShapeArgs.m_shapes[i].m_numIndices;
+
+					//int totalUploadSizeInBytes = numVertices * sizeof(double) * 3 + numIndices * sizeof(int);
+
+					char* data = bufferServerToClient;
+					double* vertexUpload = (double*)data;
+					int* indexUpload = (int*)(data + numVertices * sizeof(double)*3);
+
+
 					if (compound == 0)
 					{
 						compound = worldImporter->createCompoundShape();
@@ -4231,19 +4242,19 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 
 							for (int j = 0; j < clientCmd.m_createUserShapeArgs.m_shapes[i].m_numIndices / 3; j++)
 							{
-								int i0 = clientCmd.m_createUserShapeArgs.m_shapes[i].m_indices[j*3+0];
-								int i1 = clientCmd.m_createUserShapeArgs.m_shapes[i].m_indices[j*3+1];
-								int i2 = clientCmd.m_createUserShapeArgs.m_shapes[i].m_indices[j*3+2];
+								int i0 = indexUpload[j*3+0];
+								int i1 = indexUpload[j*3+1];
+								int i2 = indexUpload[j*3+2];
 
-								btVector3 v0(	clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i0*3+0],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i0*3+1],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i0*3+2]);
-								btVector3 v1(	clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i1*3+0],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i1*3+1],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i1*3+2]);
-								btVector3 v2(	clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i2*3+0],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i2*3+1],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[i2*3+2]);
+								btVector3 v0(vertexUpload[i0*3+0],
+									vertexUpload[i0*3+1],
+									vertexUpload[i0*3+2]);
+								btVector3 v1(vertexUpload[i1*3+0],
+									vertexUpload[i1*3+1],
+									vertexUpload[i1*3+2]);
+								btVector3 v2(vertexUpload[i2*3+0],
+									vertexUpload[i2*3+1],
+									vertexUpload[i2*3+2]);
 								meshInterface->addTriangle(v0, v1, v2);
 							}
 						}
@@ -4274,9 +4285,9 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 						for (int v = 0; v < clientCmd.m_createUserShapeArgs.m_shapes[i].m_numVertices; v++)
 						{
 
-							btVector3 pt(	clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[v*3+0],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[v*3+1],
-											clientCmd.m_createUserShapeArgs.m_shapes[i].m_vertices[v*3+2]);
+							btVector3 pt(vertexUpload[v*3+0],
+								vertexUpload[v*3+1],
+								vertexUpload[v*3+2]);
 							convexHull->addPoint(pt, false);
 						}
 

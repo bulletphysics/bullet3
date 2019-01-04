@@ -1280,8 +1280,11 @@ B3_SHARED_API int b3CreateCollisionShapeAddMesh(b3SharedMemoryCommandHandle comm
 	return -1;
 }
 
-B3_SHARED_API int b3CreateCollisionShapeAddConvexMesh(b3SharedMemoryCommandHandle commandHandle, const double meshScale[/*3*/], const double* vertices, int numVertices)
+B3_SHARED_API int b3CreateCollisionShapeAddConvexMesh(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, const double meshScale[/*3*/], const double* vertices, int numVertices)
 {
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command);
 	b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE));
@@ -1305,12 +1308,7 @@ B3_SHARED_API int b3CreateCollisionShapeAddConvexMesh(b3SharedMemoryCommandHandl
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numVertices = numVertices;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numIndices = 0;
 
-			for (i=0;i<numVertices;i++)
-			{
-				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+0]=vertices[i*3+0];
-				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+1]=vertices[i*3+1];
-				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+2]=vertices[i*3+2];
-			}
+			cl->uploadBulletFileToSharedMemory((const char*)vertices, numVertices * sizeof(double)*3);
 			command->m_createUserShapeArgs.m_numUserShapes++;
 			return shapeIndex;
 		}
@@ -1318,8 +1316,10 @@ B3_SHARED_API int b3CreateCollisionShapeAddConvexMesh(b3SharedMemoryCommandHandl
 	return -1;
 }
 
-B3_SHARED_API int b3CreateCollisionShapeAddConcaveMesh(b3SharedMemoryCommandHandle commandHandle, const double meshScale[/*3*/], const double* vertices, int numVertices, const int* indices, int numIndices)
+B3_SHARED_API int b3CreateCollisionShapeAddConcaveMesh(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, const double meshScale[/*3*/], const double* vertices, int numVertices, const int* indices, int numIndices)
 {
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command);
 	b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE));
@@ -1342,11 +1342,16 @@ B3_SHARED_API int b3CreateCollisionShapeAddConcaveMesh(b3SharedMemoryCommandHand
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileName[0]=0;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numVertices = numVertices;
 
+			int totalUploadSizeInBytes = numVertices * sizeof(double) *3  + numIndices * sizeof(int);
+			char* data = (char*)malloc(totalUploadSizeInBytes);
+			double* vertexUpload = (double*)data;
+			int* indexUpload = (int*)(data + numVertices*sizeof(double)*3);
+
 			for (i=0;i<numVertices;i++)
 			{
-				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+0]=vertices[i*3+0];
-				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+1]=vertices[i*3+1];
-				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_vertices[i*3+2]=vertices[i*3+2];
+				vertexUpload[i*3+0]=vertices[i*3+0];
+				vertexUpload[i*3+1]=vertices[i*3+1];
+				vertexUpload[i*3+2]=vertices[i*3+2];
 			}
 			if (numIndices>B3_MAX_NUM_INDICES)
 				numIndices = B3_MAX_NUM_INDICES;
@@ -1354,9 +1359,11 @@ B3_SHARED_API int b3CreateCollisionShapeAddConcaveMesh(b3SharedMemoryCommandHand
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numIndices = numIndices;
 			for (i=0;i<numIndices;i++)
 			{
-				command->m_createUserShapeArgs.m_shapes[shapeIndex].m_indices[i]=indices[i];
+				indexUpload[i]=indices[i];
 			}
 			command->m_createUserShapeArgs.m_numUserShapes++;
+			cl->uploadBulletFileToSharedMemory(data, totalUploadSizeInBytes);
+			free(data);
 			return shapeIndex;
 		}
 	}
