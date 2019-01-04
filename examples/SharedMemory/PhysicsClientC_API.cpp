@@ -1343,7 +1343,7 @@ B3_SHARED_API int b3CreateCollisionShapeAddConcaveMesh(b3PhysicsClientHandle phy
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numVertices = numVertices;
 
 			int totalUploadSizeInBytes = numVertices * sizeof(double) *3  + numIndices * sizeof(int);
-			char* data = (char*)malloc(totalUploadSizeInBytes);
+			char* data = new char[totalUploadSizeInBytes];
 			double* vertexUpload = (double*)data;
 			int* indexUpload = (int*)(data + numVertices*sizeof(double)*3);
 
@@ -1363,7 +1363,7 @@ B3_SHARED_API int b3CreateCollisionShapeAddConcaveMesh(b3PhysicsClientHandle phy
 			}
 			command->m_createUserShapeArgs.m_numUserShapes++;
 			cl->uploadBulletFileToSharedMemory(data, totalUploadSizeInBytes);
-			free(data);
+			delete [] data;
 			return shapeIndex;
 		}
 	}
