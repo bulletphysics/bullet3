@@ -579,12 +579,9 @@ DBVT_INLINE bool Intersect(const btDbvtAabbMm& a,
 #if DBVT_INT0_IMPL == DBVT_IMPL_SSE
 	const __m128 rt(_mm_or_ps(_mm_cmplt_ps(_mm_load_ps(b.mx), _mm_load_ps(a.mi)),
 							  _mm_cmplt_ps(_mm_load_ps(a.mx), _mm_load_ps(b.mi))));
-#if defined(_WIN32)
-	const __int32* pu((const __int32*)&rt);
-#else
-	const int* pu((const int*)&rt);
-#endif
-	return ((pu[0] | pu[1] | pu[2]) == 0);
+	
+	int mask = _mm_movemask_ps(rt);
+	return (mask & 7) == 0; //are first 3 slots all 0?
 #else
 	return ((a.mi.x() <= b.mx.x()) &&
 			(a.mx.x() >= b.mi.x()) &&
