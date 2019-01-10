@@ -130,7 +130,7 @@ struct btDbvtTreeCollider : btDbvt::ICollide
 //
 btDbvtBroadphase::btDbvtBroadphase(btOverlappingPairCache* paircache)
 {
-	m_deferedcollide = false;
+	m_deferedcollide = true;
 	m_needcleanup = true;
 	m_releasepaircache = (paircache != 0) ? false : true;
 	m_prediction = 0;
