@@ -492,12 +492,20 @@ DBVT_INLINE void btDbvtAabbMm::SignedExpand(const btVector3& e)
 //
 DBVT_INLINE bool btDbvtAabbMm::Contain(const btDbvtAabbMm& a) const
 {
+#if	DBVT_INT0_IMPL == DBVT_IMPL_SSE
+	const __m128 r = _mm_and_ps(_mm_cmple_ps(mi.mVec128, a.mi.mVec128),
+	_mm_cmpge_ps(mx.mVec128, a.mx.mVec128));
+
+	int mask = _mm_movemask_ps(r);
+	return  (mask & 7) == 7;//3 lowest bits all set?
+#else
 	return ((mi.x() <= a.mi.x()) &&
 			(mi.y() <= a.mi.y()) &&
 			(mi.z() <= a.mi.z()) &&
 			(mx.x() >= a.mx.x()) &&
 			(mx.y() >= a.mx.y()) &&
 			(mx.z() >= a.mx.z()));
+#endif
 }
 
 //
