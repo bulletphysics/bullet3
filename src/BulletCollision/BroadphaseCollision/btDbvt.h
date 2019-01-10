@@ -729,12 +729,22 @@ DBVT_INLINE void Merge(const btDbvtAabbMm& a,
 DBVT_INLINE bool NotEqual(const btDbvtAabbMm& a,
 						  const btDbvtAabbMm& b)
 {
+#if DBVT_MERGE_IMPL==DBVT_IMPL_SSE
+
+	const __m128 r = _mm_or_ps(_mm_cmpneq_ps(b.mi.mVec128, a.mi.mVec128),
+		_mm_cmpneq_ps(b.mx.mVec128, a.mx.mVec128));
+
+	auto mask = _mm_movemask_ps(r);
+	return (mask & 7) != 0;
+
+#else
 	return ((a.mi.x() != b.mi.x()) ||
 			(a.mi.y() != b.mi.y()) ||
 			(a.mi.z() != b.mi.z()) ||
 			(a.mx.x() != b.mx.x()) ||
 			(a.mx.y() != b.mx.y()) ||
 			(a.mx.z() != b.mx.z()));
+#endif
 }
 
 //
