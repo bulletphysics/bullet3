@@ -168,4 +168,11 @@ ENDIF(WIN32)
 
 TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common ${PYTHON_LIBRARIES})
 
+IF(WIN32)
+  SET(PYTHON_SITE_PACKAGES Lib/site-packages CACHE PATH "Python install path")
+ELSE()
+  SET(PYTHON_SITE_PACKAGES lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages CACHE PATH "Python install path")
+ENDIF()
+
+INSTALL(TARGETS pybullet DESTINATION ${PYTHON_SITE_PACKAGES})
 
