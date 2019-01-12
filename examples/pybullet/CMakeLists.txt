@@ -169,7 +169,14 @@ ENDIF()
 
 
 
-TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common ${PYTHON_LIBRARIES})
+TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common)
+
+IF (WIN32)
+  TARGET_LINK_LIBRARIES(pybullet ${PYTHON_LIBRARIES})
+ELSEIF (APPLE)
+  SET_TARGET_PROPERTIES(pybullet PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+ENDIF ()
+# else Linux: dont link
 
 IF(WIN32)
   SET(PYTHON_SITE_PACKAGES Lib/site-packages CACHE PATH "Python install path")
