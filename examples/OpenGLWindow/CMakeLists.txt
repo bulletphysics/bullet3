@@ -73,3 +73,8 @@ if (BUILD_SHARED_LIBS)
 endif()
 
 #target_link_libraries(OpenGLWindow ${OPENGL_gl_LIBRARY})
+
+INSTALL(TARGETS OpenGLWindow
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib${LIB_SUFFIX}
+        ARCHIVE DESTINATION lib${LIB_SUFFIX})

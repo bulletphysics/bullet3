@@ -71,6 +71,11 @@ IF (BUILD_SHARED_LIBS)
 	ENDIF(WIN32)
 ENDIF(BUILD_SHARED_LIBS)
 
+INSTALL(TARGETS BulletExampleBrowserLib
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib${LIB_SUFFIX}
+        ARCHIVE DESTINATION lib${LIB_SUFFIX})
+
 ####################
 #
 # Bullet Example Browser main app
