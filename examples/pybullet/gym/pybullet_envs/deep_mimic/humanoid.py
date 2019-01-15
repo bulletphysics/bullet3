@@ -211,6 +211,14 @@ class Humanoid(object):
     pose = self.InitializePoseFromMotionData()
     self.ApplyPose(pose, True, True, self._humanoid, self._pybullet_client)
 
+  def RenderReference(self, t):
+    self.SetSimTime(t)
+    frameData = self._motion_data._motion_data['Frames'][self._frame]
+    frameDataNext = self._motion_data._motion_data['Frames'][self._frameNext]
+    pose = HumanoidPose()
+    pose.Slerp(self._frameFraction, frameData, frameDataNext, self._pybullet_client)
+    self.ApplyPose(pose, True, True, self._humanoid, self._pybullet_client)
+
   def CalcCycleCount(self, simTime, cycleTime):
     phases = simTime / cycleTime;
     count = math.floor(phases)
