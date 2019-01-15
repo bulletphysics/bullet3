@@ -23,7 +23,7 @@ joint_info = {
 
 def init_fb_h36m_dataset(dataset_path):
     dataset = Human36mDataset(dataset_path)
-    print('Preparing Facebook H36M data...')
+    print('Preparing Facebook Human3.6M Dataset...')
     for subject in dataset.subjects():
         for action in dataset[subject].keys():
             anim = dataset[subject][action]
@@ -34,22 +34,6 @@ def init_fb_h36m_dataset(dataset_path):
                 positions_3d.append(pos_3d)
             anim['positions_3d'] = positions_3d
     return dataset
-
-# In[4]:
-
-def init_fb_prediction_dataset(dataset_path):
-    dataset_file = open(dataset_path,"rb")
-    dataset = pickle.load(dataset_file)
-    return dataset
-
-
-def init_fb_prediction_json_dataset(dataset_path):
-    dataset_file = open(dataset_path,"rb")
-    dataset = pickle.load(dataset_file)
-    return dataset
-
-# In[ ]:
-
 
 def pose3D_from_fb_h36m(dataset, subject, action, shift):
     pose_seq = dataset[subject][action]['positions_3d'][0].copy()
@@ -67,32 +51,6 @@ def pose3D_from_fb_h36m(dataset, subject, action, shift):
     # plus shift
     pose_seq += np.array([[shift for i in range(pose_seq.shape[1])] for j in range(pose_seq.shape[0])])
     return pose_seq
-
-# In[ ]:
-
-
-def pose3D_from_fb_prediction(dataset, subject, shift):
-    should_right = [1,2,3,14,15,16]
-    should_left = [4,5,6,11,12,13]
-    pose_seq = dataset[subject]
-    for i in range(pose_seq.shape[0]):
-        for j in range(pose_seq.shape[1]):
-            if i in should_right:
-                t = pose_seq[i][j]
-                change = should_left[should_right.index(i)]
-                pose_seq[i][j] = pose_seq[change][j]
-                pose_seq[change][j] = t
-    for i in range(pose_seq.shape[0]):
-        for j in range(pose_seq.shape[1]):
-            pose_seq[i][j][1] *= -1
-            pose_seq[i][j][2] *= -1
-
-    pose_seq += np.array([[shift for i in range(pose_seq.shape[1])] for j in range(pose_seq.shape[0])])
-    return pose_seq
-
-
-# In[ ]:
-
 
 def rot_seq_to_deepmimic_json(rot_seq, loop, json_path):
     to_json = {"Loop": loop, "Frames":[]}
