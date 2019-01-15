@@ -1,3 +1,8 @@
+'''
+Developed by Somedaywilldo,
+Any bug report or advice please contact me at: somedaywilldo@foxmail.com
+'''
+
 from inverse_kinect import *
 
 import os,  inspect
@@ -26,12 +31,14 @@ import argparse
 parser = argparse.ArgumentParser(description='Arguments for loading reference for learning.')
 
 # General arguments
-parser.add_argument('--dataset_path', default='data/data_3d_h36m.npz', type=str, help='Target dataset') # h36m or humaneva
-parser.add_argument('--json_path', default='data/Walking.json', type=str, help='Json file path for storing the deepmimic-format json created by inverse-kinect.')
-parser.add_argument('--fps', default=24, type=int, help='Frame Per Second')
-parser.add_argument('--subject', default='S11', type=str, help='Camera Subject')
-parser.add_argument('--action', default='Walking', type=str,  help='Name of the Action')
-parser.add_argument('--loop', default='wrap', type=str, help='Loop information in deepmimic, wrap or none.')
+parser.add_argument('--dataset_path', default='data/data_3d_h36m.npz', type=str, help='target dataset') # h36m or humaneva
+parser.add_argument('--json_path', default='data/Walking.json', type=str, help='json file path for storing the deepmimic-format json created by inverse-kinect.')
+parser.add_argument('--fps', default=24, type=int, help='frame per second')
+parser.add_argument('--subject', default='S11', type=str, help='camera subject.')
+parser.add_argument('--action', default='Walking', type=str,  help='name of the action.')
+parser.add_argument('--loop', default='wrap', type=str, help='loop information in deepmimic, wrap or none.')
+parser.add_argument('--draw_gt', action='store_true', help='draw ground truth or not.')
+
 args = parser.parse_args()
 
 
@@ -41,6 +48,7 @@ fps = args.fps
 subject = args.subject
 action = args.action
 loop = args.loop
+draw_gt = args.draw_gt
 
 
 def draw_ground_truth(coord_seq, frame, duration, shift):
@@ -70,8 +78,7 @@ ground_truth = pose3D_from_fb_h36m(dataset,
                                    action = action,
                                    shift = [1.0,0.0,0.0])
 
-coord_seq = ground_truth
-rot_seq =  coord_seq_to_rot_seq(coord_seq = coord_seq, 
+rot_seq =  coord_seq_to_rot_seq(coord_seq = ground_truth, 
                                 frame_duration = 1/fps)
 
 
@@ -112,10 +119,11 @@ print("keyFrameDuration=",keyFrameDuration)
 for utNum in range(motion.NumFrames()):
     bc.stepSimulation()
     humanoid.RenderReference(utNum * keyFrameDuration)
-    draw_ground_truth(coord_seq = coord_seq, 
-                      frame = utNum, 
-                      duration = keyFrameDuration,
-                      shift = [-1.0, 0.0, 1.0])
+    if draw_gt:
+        draw_ground_truth(coord_seq = ground_truth, 
+                        frame = utNum, 
+                        duration = keyFrameDuration,
+                        shift = [-1.0, 0.0, 1.0])
     time.sleep(0.001)
 stage = 0
 
@@ -133,13 +141,4 @@ def Reset(humanoid):
 Reset(humanoid)
 p.disconnect()
 
-'''
 
-python render_reference.py --dataset_path=/Users/mac/Desktop/AI_Dance/Modify_VideoPose3d/data/data_3d_h36m.npz \
-    --json_path=data/Walking.json \
-    --fps=24 \
-    --subject=S11 \
-    --action=Walking \
-    --loop=wrap
-
-'''

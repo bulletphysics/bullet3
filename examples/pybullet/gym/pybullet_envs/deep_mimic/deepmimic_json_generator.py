@@ -1,6 +1,7 @@
-
-# coding: utf-8
-
+'''
+Developed by Somedaywilldo,
+Any bug report or advice please contact me at: somedaywilldo@foxmail.com
+'''
 # In[1]:
 
 
