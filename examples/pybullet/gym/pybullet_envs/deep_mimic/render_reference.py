@@ -3,7 +3,6 @@ Developed by Somedaywilldo,
 Any bug report or advice please contact me at: somedaywilldo@foxmail.com
 '''
 
-from inverse_kinect import *
 
 import os,  inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))

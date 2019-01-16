@@ -5,7 +5,7 @@ Any bug report or advice please contact me at: somedaywilldo@foxmail.com
 # In[1]:
 
 
-from inverse_kinect import *
+from inverse_kinematics import *
 from common.h36m_dataset import Human36mDataset
 from common.camera import *
 
