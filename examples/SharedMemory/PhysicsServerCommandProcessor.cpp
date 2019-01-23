@@ -71,7 +71,7 @@
 #ifdef STATIC_LINK_SPD_PLUGIN
 #include "plugins/stablePDPlugin/BulletConversion.h"
 #include "plugins/stablePDPlugin/RBDModel.h"
-#include "plugins/stablePDPlugin/RBDutil.h"
+#include "plugins/stablePDPlugin/RBDUtil.h"
 #endif
 
 #ifdef STATIC_LINK_VR_PLUGIN
