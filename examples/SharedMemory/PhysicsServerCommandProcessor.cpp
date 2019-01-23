@@ -67,6 +67,13 @@
 #include "plugins/pdControlPlugin/pdControlPlugin.h"
 #endif  //SKIP_STATIC_PD_CONTROL_PLUGIN
 
+
+#ifdef STATIC_LINK_SPD_PLUGIN
+#include "plugins/stablePDPlugin/BulletConversion.h"
+#include "plugins/stablePDPlugin/RBDModel.h"
+#include "plugins/stablePDPlugin/RBDutil.h"
+#endif
+
 #ifdef STATIC_LINK_VR_PLUGIN
 #include "plugins/vrSyncPlugin/vrSyncPlugin.h"
 #endif
@@ -1789,6 +1796,143 @@ struct PhysicsServerCommandProcessorInternalData
 		m_userVisualShapeHandles.exitHandles();
 		m_userVisualShapeHandles.initHandles();
 	}
+
+#ifdef STATIC_LINK_SPD_PLUGIN
+	b3HashMap<btHashPtr, cRBDModel*> m_rbdModels;
+
+	cRBDModel* findOrCreateRBDModel(btMultiBody* multiBody, const double* jointPositionsQ, const double* jointVelocitiesQdot)
+	{
+		cRBDModel* rbdModel = 0;
+		cRBDModel** rbdModelPtr = m_rbdModels.find(multiBody);
+		if (rbdModelPtr)
+		{
+			rbdModel = *rbdModelPtr;
+		}
+		else
+		{
+			rbdModel = new cRBDModel();
+			Eigen::MatrixXd bodyDefs;
+			Eigen::MatrixXd jointMat;
+			btExtractJointBodyFromBullet(multiBody, bodyDefs, jointMat);
+			btVector3 grav = m_dynamicsWorld->getGravity();
+			tVector3 gravity(grav[0], grav[1], grav[2], 0);
+			rbdModel->Init(jointMat, bodyDefs, gravity);
+			m_rbdModels.insert(multiBody, rbdModel);
+		}
+
+		//sync pose and vel
+
+		int baseDofQ = multiBody->hasFixedBase() ? 0 : 7;
+		int baseDofQdot = multiBody->hasFixedBase() ? 0 : 6;
+
+		Eigen::VectorXd pose, vel;
+		pose.resize(7 + multiBody->getNumPosVars());
+		vel.resize(7 + multiBody->getNumPosVars()); //??
+
+		btTransform tr = multiBody->getBaseWorldTransform();
+		int dofsrc = 0;
+		int velsrcdof = 0;
+		if (baseDofQ == 7)
+		{
+			pose[0] = jointPositionsQ[dofsrc++];
+			pose[1] = jointPositionsQ[dofsrc++];
+			pose[2] = jointPositionsQ[dofsrc++];
+
+			double quatXYZW[4];
+			quatXYZW[0] = jointPositionsQ[dofsrc++];
+			quatXYZW[1] = jointPositionsQ[dofsrc++];
+			quatXYZW[2] = jointPositionsQ[dofsrc++];
+			quatXYZW[3] = jointPositionsQ[dofsrc++];
+
+			pose[3] = quatXYZW[3];
+			pose[4] = quatXYZW[0];
+			pose[5] = quatXYZW[1];
+			pose[6] = quatXYZW[2];
+		}
+		else
+		{
+			pose[0] = tr.getOrigin()[0];
+			pose[1] = tr.getOrigin()[1];
+			pose[2] = tr.getOrigin()[2];
+			pose[3] = tr.getRotation()[3];
+			pose[4] = tr.getRotation()[0];
+			pose[5] = tr.getRotation()[1];
+			pose[6] = tr.getRotation()[2];
+		}
+		if (baseDofQdot == 6)
+		{
+			vel[0] = jointVelocitiesQdot[velsrcdof++];
+			vel[1] = jointVelocitiesQdot[velsrcdof++];
+			vel[2] = jointVelocitiesQdot[velsrcdof++];
+			vel[3] = jointVelocitiesQdot[velsrcdof++];
+			vel[4] = jointVelocitiesQdot[velsrcdof++];
+			vel[5] = jointVelocitiesQdot[velsrcdof++];
+			vel[6] = jointVelocitiesQdot[velsrcdof++];
+			vel[6] = 0;
+		}
+		else
+		{
+			vel[0] = multiBody->getBaseVel()[0];
+			vel[1] = multiBody->getBaseVel()[1];
+			vel[2] = multiBody->getBaseVel()[2];
+			vel[3] = multiBody->getBaseOmega()[0];
+			vel[4] = multiBody->getBaseOmega()[1];
+			vel[5] = multiBody->getBaseOmega()[2];
+			vel[6] = 0;
+		}
+		int dof = 7;
+		int veldof = 7;
+
+
+		for (int l = 0; l < multiBody->getNumLinks(); l++)
+		{
+			switch (multiBody->getLink(l).m_jointType)
+			{
+			case btMultibodyLink::eRevolute:
+			case btMultibodyLink::ePrismatic:
+			{
+				pose[dof++] = jointPositionsQ[dofsrc++];
+				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+				break;
+			}
+			case btMultibodyLink::eSpherical:
+			{
+				double quatXYZW[4];
+				quatXYZW[0] = jointPositionsQ[dofsrc++];
+				quatXYZW[1] = jointPositionsQ[dofsrc++];
+				quatXYZW[2] = jointPositionsQ[dofsrc++];
+				quatXYZW[3] = jointPositionsQ[dofsrc++];
+
+				pose[dof++] = quatXYZW[3];
+				pose[dof++] = quatXYZW[0];
+				pose[dof++] = quatXYZW[1];
+				pose[dof++] = quatXYZW[2];
+				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+				break;
+			}
+			case btMultibodyLink::eFixed:
+			{
+				break;
+			}
+			default:
+			{
+				assert(0);
+			}
+			}
+		}
+
+		btVector3 gravOrg = m_dynamicsWorld->getGravity();
+		tVector grav (gravOrg[0], gravOrg[1], gravOrg[2], 0);
+		rbdModel->SetGravity(grav);
+		rbdModel->Update(pose, vel);
+
+		return rbdModel;
+	}
+
+#endif
 
 	btInverseDynamics::MultiBodyTree* findOrCreateTree(btMultiBody* multiBody)
 	{
@@ -3703,7 +3847,7 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 					for (int i = 0; i < m_data->m_dynamicsWorld->getNumCollisionObjects(); i++)
 					{
 						const btCollisionObject* colObj = m_data->m_dynamicsWorld->getCollisionObjectArray()[i];
-						m_data->m_pluginManager.getRenderInterface()->syncTransform(colObj->getBroadphaseHandle()->getUid(), colObj->getWorldTransform(), colObj->getCollisionShape()->getLocalScaling());
+						m_data->m_pluginManager.getRenderInterface()->syncTransform(colObj->getUserIndex3(), colObj->getWorldTransform(), colObj->getCollisionShape()->getLocalScaling());
 					}
 
 					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES) != 0)
@@ -8142,9 +8286,10 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 			int posVarCountIndex = 7;
 			for (int i = 0; i < mb->getNumLinks(); i++)
 			{
-				bool hasPosVar = true;
-
-				for (int j = 0; j < mb->getLink(i).m_posVarCount; j++)
+				int posVarCount = mb->getLink(i).m_posVarCount;
+				bool hasPosVar = posVarCount > 0;
+								
+				for (int j = 0; j < posVarCount; j++)
 				{
 					if (clientCmd.m_initPoseArgs.m_hasInitialStateQ[posVarCountIndex+j] == 0)
 					{
@@ -8154,7 +8299,13 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 				}
 				if (hasPosVar)
 				{
-					mb->setJointPosMultiDof(i, &clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex]);
+					btQuaternion q(
+						clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex],
+						clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex+1],
+						clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex+2],
+						clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex+3]);
+					q.normalize();
+					mb->setJointPosMultiDof(i, &q[0]);
 					double vel[6] = { 0, 0, 0, 0, 0, 0 };
 					mb->setJointVelMultiDof(i, vel);
 				}
@@ -8540,82 +8691,111 @@ bool PhysicsServerCommandProcessor::processInverseDynamicsCommand(const struct S
 	serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
 	if (bodyHandle && bodyHandle->m_multiBody)
 	{
-
-		btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
-
-		int baseDofQ = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 7;
-		int baseDofQdot = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
-		const int num_dofs = bodyHandle->m_multiBody->getNumDofs();
-
-		if (tree && clientCmd.m_calculateInverseDynamicsArguments.m_dofCountQ == (baseDofQ+ num_dofs) &&
-			clientCmd.m_calculateInverseDynamicsArguments.m_dofCountQdot == (baseDofQdot+ num_dofs))
+		if (clientCmd.m_calculateInverseDynamicsArguments.m_flags & 1)
 		{
-			
-			btInverseDynamics::vecx nu(num_dofs + baseDofQdot), qdot(num_dofs + baseDofQdot), q(num_dofs + baseDofQdot), joint_force(num_dofs + baseDofQdot);
-
-			//for floating base, inverse dynamics expects euler angle x,y,z and position x,y,z in that order
-			//PyBullet expects quaternion, so convert and swap to have a more consistent PyBullet API
-			if (baseDofQ)
+#ifdef STATIC_LINK_SPD_PLUGIN
 			{
-				btVector3 pos(clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[0],
-					clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[1],
-					clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[2]);
-
-				btQuaternion orn(clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[0],
-					clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[1],
-					clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[2],
-					clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[3]);
-				btScalar yawZ, pitchY, rollX;
-				orn.getEulerZYX(yawZ, pitchY, rollX);
-				q[0] = rollX;
-				q[1] = pitchY;
-				q[2] = yawZ;
-				q[3] = pos[0];
-				q[4] = pos[1];
-				q[5] = pos[2];
-			}
-			else
-			{
-				for (int i = 0; i < num_dofs; i++)
+				cRBDModel* rbdModel = m_data->findOrCreateRBDModel(bodyHandle->m_multiBody, 
+					clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ,
+					clientCmd.m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot);
+				if (rbdModel)
 				{
-					q[i] = clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[i];
+					int posVal = bodyHandle->m_multiBody->getNumPosVars();
+
+					Eigen::VectorXd acc2 = Eigen::VectorXd::Zero(7 + posVal);
+					Eigen::VectorXd out_tau = Eigen::VectorXd::Zero(7 + posVal);
+					cRBDUtil::SolveInvDyna(*rbdModel, acc2, out_tau);
+					int dof = 7 + bodyHandle->m_multiBody->getNumPosVars();
+					for (int i = 0; i < dof; i++)
+					{
+						serverCmd.m_inverseDynamicsResultArgs.m_jointForces[i] = out_tau[i];
+					}
+					serverCmd.m_inverseDynamicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
+					serverCmd.m_inverseDynamicsResultArgs.m_dofCount = dof;
+					
+					serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED;
+					
 				}
 			}
-			for (int i = 0; i < num_dofs + baseDofQdot; i++)
+#endif
+		} else
+		{
+			btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
+
+			int baseDofQ = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 7;
+			int baseDofQdot = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+			const int num_dofs = bodyHandle->m_multiBody->getNumDofs();
+
+			if (tree && clientCmd.m_calculateInverseDynamicsArguments.m_dofCountQ == (baseDofQ + num_dofs) &&
+				clientCmd.m_calculateInverseDynamicsArguments.m_dofCountQdot == (baseDofQdot + num_dofs))
 			{
-				qdot[i] = clientCmd.m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot[i];
-				nu[i] = clientCmd.m_calculateInverseDynamicsArguments.m_jointAccelerations[i];
-			}
 
-			// Set the gravity to correspond to the world gravity
-			btInverseDynamics::vec3 id_grav(m_data->m_dynamicsWorld->getGravity());
+				btInverseDynamics::vecx nu(num_dofs + baseDofQdot), qdot(num_dofs + baseDofQdot), q(num_dofs + baseDofQdot), joint_force(num_dofs + baseDofQdot);
 
-			if (-1 != tree->setGravityInWorldFrame(id_grav) &&
-				-1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
-			{
-				serverCmd.m_inverseDynamicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
-				serverCmd.m_inverseDynamicsResultArgs.m_dofCount = num_dofs+ baseDofQdot;
-
-				//inverse dynamics stores angular before linear, swap it to have a consistent PyBullet API.
-				if (baseDofQdot)
+				//for floating base, inverse dynamics expects euler angle x,y,z and position x,y,z in that order
+				//PyBullet expects quaternion, so convert and swap to have a more consistent PyBullet API
+				if (baseDofQ)
 				{
-					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[0] = joint_force[3];
-					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[1] = joint_force[4];
-					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[2] = joint_force[5];
-					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[3] = joint_force[0];
-					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[4] = joint_force[1];
-					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[5] = joint_force[2];
+					btVector3 pos(clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[0],
+						clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[1],
+						clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[2]);
+
+					btQuaternion orn(clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[0],
+						clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[1],
+						clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[2],
+						clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[3]);
+					btScalar yawZ, pitchY, rollX;
+					orn.getEulerZYX(yawZ, pitchY, rollX);
+					q[0] = rollX;
+					q[1] = pitchY;
+					q[2] = yawZ;
+					q[3] = pos[0];
+					q[4] = pos[1];
+					q[5] = pos[2];
 				}
-				
-				for (int i = baseDofQdot; i < num_dofs+ baseDofQdot; i++)
+				else
 				{
-					serverCmd.m_inverseDynamicsResultArgs.m_jointForces[i] = joint_force[i];
+					for (int i = 0; i < num_dofs; i++)
+					{
+						q[i] = clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[i];
+					}
 				}
-				serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED;
-			}
-			else
-			{
-				serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
+				for (int i = 0; i < num_dofs + baseDofQdot; i++)
+				{
+					qdot[i] = clientCmd.m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot[i];
+					nu[i] = clientCmd.m_calculateInverseDynamicsArguments.m_jointAccelerations[i];
+				}
+
+				// Set the gravity to correspond to the world gravity
+				btInverseDynamics::vec3 id_grav(m_data->m_dynamicsWorld->getGravity());
+
+				if (-1 != tree->setGravityInWorldFrame(id_grav) &&
+					-1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
+				{
+					serverCmd.m_inverseDynamicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
+					serverCmd.m_inverseDynamicsResultArgs.m_dofCount = num_dofs + baseDofQdot;
+
+					//inverse dynamics stores angular before linear, swap it to have a consistent PyBullet API.
+					if (baseDofQdot)
+					{
+						serverCmd.m_inverseDynamicsResultArgs.m_jointForces[0] = joint_force[3];
+						serverCmd.m_inverseDynamicsResultArgs.m_jointForces[1] = joint_force[4];
+						serverCmd.m_inverseDynamicsResultArgs.m_jointForces[2] = joint_force[5];
+						serverCmd.m_inverseDynamicsResultArgs.m_jointForces[3] = joint_force[0];
+						serverCmd.m_inverseDynamicsResultArgs.m_jointForces[4] = joint_force[1];
+						serverCmd.m_inverseDynamicsResultArgs.m_jointForces[5] = joint_force[2];
+					}
+
+					for (int i = baseDofQdot; i < num_dofs + baseDofQdot; i++)
+					{
+						serverCmd.m_inverseDynamicsResultArgs.m_jointForces[i] = joint_force[i];
+					}
+					serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED;
+				}
+				else
+				{
+					serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
+				}
 			}
 		}
 	}
@@ -8732,37 +8912,82 @@ bool PhysicsServerCommandProcessor::processCalculateMassMatrixCommand(const stru
 	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_calculateMassMatrixArguments.m_bodyUniqueId);
 	if (bodyHandle && bodyHandle->m_multiBody)
 	{
-		btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
-
-		if (tree)
+		if (clientCmd.m_calculateMassMatrixArguments.m_flags & 1)
 		{
-			int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
-			const int numDofs = bodyHandle->m_multiBody->getNumDofs();
-			const int totDofs = numDofs + baseDofs;
-			btInverseDynamics::vecx q(totDofs);
-			btInverseDynamics::matxx massMatrix(totDofs, totDofs);
-			for (int i = 0; i < numDofs; i++)
+#ifdef STATIC_LINK_SPD_PLUGIN
 			{
-				q[i + baseDofs] = clientCmd.m_calculateMassMatrixArguments.m_jointPositionsQ[i];
-			}
-			if (-1 != tree->calculateMassMatrix(q, &massMatrix))
-			{
-				serverCmd.m_massMatrixResultArgs.m_dofCount = totDofs;
-				// Fill in the result into the shared memory.
-				double* sharedBuf = (double*)bufferServerToClient;
-				int sizeInBytes = totDofs * totDofs * sizeof(double);
-				if (sizeInBytes < bufferSizeInBytes)
+				int posVal = bodyHandle->m_multiBody->getNumPosVars();
+				btAlignedObjectArray<double> zeroVel;
+				int dof = 7 + posVal;
+				zeroVel.resize(dof);
+				cRBDModel* rbdModel = m_data->findOrCreateRBDModel(bodyHandle->m_multiBody, clientCmd.m_calculateMassMatrixArguments.m_jointPositionsQ,
+					&zeroVel[0]);
+				if (rbdModel)
 				{
-					for (int i = 0; i < (totDofs); ++i)
+					Eigen::MatrixXd out_mass;
+					cRBDUtil::BuildMassMat(*rbdModel, out_mass);
+					int skipDofs = 0;// 7 - baseDofQ;
+					int totDofs = dof;
+					serverCmd.m_massMatrixResultArgs.m_dofCount = totDofs-skipDofs;
+					// Fill in the result into the shared memory.
+					double* sharedBuf = (double*)bufferServerToClient;
+					int sizeInBytes = totDofs * totDofs * sizeof(double);
+					if (sizeInBytes < bufferSizeInBytes)
 					{
-						for (int j = 0; j < (totDofs); ++j)
+						for (int i = skipDofs; i < (totDofs); ++i)
 						{
-							int element = (totDofs)*i + j;
-
-							sharedBuf[element] = massMatrix(i, j);
+							for (int j = skipDofs; j < (totDofs); ++j)
+							{
+								int element = (totDofs- skipDofs)*(i- skipDofs) + (j- skipDofs);
+								double v = out_mass(i, j);
+								if (i == j && v == 0)
+								{
+									v = 1;
+								}
+								sharedBuf[element] = v;
+							}
 						}
+						serverCmd.m_type = CMD_CALCULATED_MASS_MATRIX_COMPLETED;
 					}
-					serverCmd.m_type = CMD_CALCULATED_MASS_MATRIX_COMPLETED;
+				}
+			}
+#endif
+		}
+		else
+		{
+
+			btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
+
+			if (tree)
+			{
+				int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+				const int numDofs = bodyHandle->m_multiBody->getNumDofs();
+				const int totDofs = numDofs + baseDofs;
+				btInverseDynamics::vecx q(totDofs);
+				btInverseDynamics::matxx massMatrix(totDofs, totDofs);
+				for (int i = 0; i < numDofs; i++)
+				{
+					q[i + baseDofs] = clientCmd.m_calculateMassMatrixArguments.m_jointPositionsQ[i];
+				}
+				if (-1 != tree->calculateMassMatrix(q, &massMatrix))
+				{
+					serverCmd.m_massMatrixResultArgs.m_dofCount = totDofs;
+					// Fill in the result into the shared memory.
+					double* sharedBuf = (double*)bufferServerToClient;
+					int sizeInBytes = totDofs * totDofs * sizeof(double);
+					if (sizeInBytes < bufferSizeInBytes)
+					{
+						for (int i = 0; i < (totDofs); ++i)
+						{
+							for (int j = 0; j < (totDofs); ++j)
+							{
+								int element = (totDofs)*i + j;
+
+								sharedBuf[element] = massMatrix(i, j);
+							}
+						}
+						serverCmd.m_type = CMD_CALCULATED_MASS_MATRIX_COMPLETED;
+					}
 				}
 			}
 		}
@@ -9800,7 +10025,7 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 											   numDofs, clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex,
 											   &q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize * 2, targetDampCoeff);
 					}
-					serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseKinematicsArguments.m_bodyUniqueId;
+					serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
 					for (int i = 0; i < numDofs; i++)
 					{
 						serverCmd.m_inverseKinematicsResultArgs.m_jointPositions[i] = q_new[i];

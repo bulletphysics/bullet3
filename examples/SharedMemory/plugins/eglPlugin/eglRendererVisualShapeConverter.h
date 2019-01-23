@@ -11,7 +11,7 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual ~EGLRendererVisualShapeConverter();
 
-	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUniqueId, int bodyUniqueId, struct CommonFileIOInterface* fileIO);
+	virtual int convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUniqueId, int bodyUniqueId, struct CommonFileIOInterface* fileIO);
 
 	virtual int getNumVisualShapes(int bodyUniqueId);
 
@@ -55,6 +55,10 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 	virtual void setProjectiveTexture(bool useProjectiveTexture);
 
 	virtual void syncTransform(int shapeUid, const class btTransform& worldTransform, const class btVector3& localScaling);
+
+	virtual void mouseMoveCallback(float x, float y);
+	virtual void mouseButtonCallback(int button, int state, float x, float y);
+
 };
 
 #endif  //EGL_RENDERER_VISUAL_SHAPE_CONVERTER_H

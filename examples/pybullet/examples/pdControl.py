@@ -1,7 +1,8 @@
 
 import pybullet as p
+from pdControllerExplicit import PDControllerExplicitMultiDof
 from pdControllerExplicit import PDControllerExplicit
-from pdControllerExplicit import PDControllerStable
+from pdControllerStable import PDControllerStable
 
 import time
 
@@ -13,7 +14,7 @@ pole2 = p.loadURDF("cartpole.urdf", [0,1,0], useMaximalCoordinates=useMaximalCoo
 pole3 = p.loadURDF("cartpole.urdf", [0,2,0], useMaximalCoordinates=useMaximalCoordinates)
 pole4 = p.loadURDF("cartpole.urdf", [0,3,0], useMaximalCoordinates=useMaximalCoordinates)
 
-exPD = PDControllerExplicit(p)
+exPD = PDControllerExplicitMultiDof(p)
 sPD = PDControllerStable(p)
 
 
@@ -60,7 +61,7 @@ timeStep = 0.001
 	
 	
 while p.isConnected():
-	p.getCameraImage(320,200)
+	#p.getCameraImage(320,200)
 	timeStep = p.readUserDebugParameter(timeStepId)
 	p.setTimeStep(timeStep)
 
@@ -76,8 +77,15 @@ while p.isConnected():
 	kdPole = p.readUserDebugParameter(kdPoleId)
 	maxForcePole = p.readUserDebugParameter(maxForcePoleId)
 	
-	taus = exPD.computePD(pole, [0,1], [desiredPosCart,desiredPosPole],[desiredVelCart,desiredVelPole], [kpCart,kpPole], [kdCart,kdPole],[maxForceCart,maxForcePole], timeStep)
-	p.setJointMotorControlArray(pole, [0,1], controlMode=p.TORQUE_CONTROL, forces=taus)
+	basePos,baseOrn = p.getBasePositionAndOrientation(pole)
+	
+	baseDof=7
+	taus = exPD.computePD(pole, [0,1], [basePos[0],basePos[1],basePos[2],baseOrn[0],baseOrn[1],baseOrn[2],baseOrn[3],desiredPosCart,desiredPosPole],
+			[0,0,0,0,0,0,0,desiredVelCart,desiredVelPole], [0,0,0,0,0,0,0,kpCart,kpPole], [0,0,0,0,0,0,0,kdCart,kdPole],[0,0,0,0,0,0,0,maxForceCart,maxForcePole], timeStep)
+	
+	for j in [0,1]:
+		p.setJointMotorControlMultiDof(pole, j, controlMode=p.TORQUE_CONTROL, force=[taus[j+baseDof]])
+	#p.setJointMotorControlArray(pole, [0,1], controlMode=p.TORQUE_CONTROL, forces=taus)
 		
 	if (pd>=0):
 		link = 0
@@ -89,7 +97,10 @@ while p.isConnected():
 	
 	
 	taus = sPD.computePD(pole4, [0,1], [desiredPosCart,desiredPosPole],[desiredVelCart,desiredVelPole], [kpCart,kpPole], [kdCart,kdPole],[maxForceCart,maxForcePole], timeStep)
-	p.setJointMotorControlArray(pole4, [0,1], controlMode=p.TORQUE_CONTROL, forces=taus)
+	#p.setJointMotorControlArray(pole4, [0,1], controlMode=p.TORQUE_CONTROL, forces=taus)
+	for j in [0,1]:
+		p.setJointMotorControlMultiDof(pole4, j, controlMode=p.TORQUE_CONTROL, force=[taus[j]])
+
 		
 	p.setJointMotorControl2(pole3,0, p.POSITION_CONTROL, targetPosition=desiredPosCart, targetVelocity=desiredVelCart, positionGain=timeStep*(kpCart/150.), velocityGain=0.5, force=maxForceCart)
 	p.setJointMotorControl2(pole3,1, p.POSITION_CONTROL, targetPosition=desiredPosPole, targetVelocity=desiredVelPole, positionGain=timeStep*(kpPole/150.), velocityGain=0.5, force=maxForcePole)

@@ -66,6 +66,7 @@ struct TinyRendererVisualShapeConverterInternalData
 	// Maps bodyUniqueId to a list of visual shapes belonging to the body.
 	btHashMap<btHashInt, btAlignedObjectArray<b3VisualShapeData> > m_visualShapesMap;
 
+	int m_uidGenerator;
 	int m_upAxis;
 	int m_swWidth;
 	int m_swHeight;
@@ -92,6 +93,7 @@ struct TinyRendererVisualShapeConverterInternalData
 
 	TinyRendererVisualShapeConverterInternalData()
 		: m_upAxis(2),
+		  m_uidGenerator(1),
 		  m_swWidth(START_WIDTH),
 		  m_swHeight(START_HEIGHT),
 		  m_rgbColorBuffer(START_WIDTH, START_HEIGHT, TGAImage::RGB),
@@ -606,12 +608,13 @@ static btVector4 sColors[4] =
 		//btVector4(1,1,0,1),
 };
 
-void TinyRendererVisualShapeConverter::convertVisualShapes(
+int  TinyRendererVisualShapeConverter::convertVisualShapes(
 	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, 
-	const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUniqueId, 
+	const UrdfLink* linkPtr, const UrdfModel* model, int unused, 
 	int bodyUniqueId, struct CommonFileIOInterface* fileIO)
 
 {
+	int uniqueId = m_data->m_uidGenerator++;
 	btAssert(linkPtr);  // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
 	{
@@ -699,12 +702,12 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 				}
 			}
 
-			TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+			TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[uniqueId];
 			if (visualsPtr == 0)
 			{
-				m_data->m_swRenderInstances.insert(collisionObjectUniqueId, new TinyRendererObjectArray);
+				m_data->m_swRenderInstances.insert(uniqueId, new TinyRendererObjectArray);
 			}
-			visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+			visualsPtr = m_data->m_swRenderInstances[uniqueId];
 
 			btAssert(visualsPtr);
 			TinyRendererObjectArray* visuals = *visualsPtr;
@@ -778,6 +781,8 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 			shapes->push_back(visualShape);
 		}
 	}
+
+	return uniqueId;
 }
 
 int TinyRendererVisualShapeConverter::getNumVisualShapes(int bodyUniqueId)
