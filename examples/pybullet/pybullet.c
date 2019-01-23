@@ -6355,17 +6355,17 @@ static PyObject* pybullet_setCollisionFilterGroupMask(PyObject* self, PyObject* 
 
 	static char* kwlist[] = {"bodyUniqueId", "linkIndexA", "collisionFilterGroup", "collisionFilterMask", "physicsClientId", NULL};
 
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiii|i", kwlist,
+									 &bodyUniqueIdA, &linkIndexA, &collisionFilterGroup, &collisionFilterMask, &physicsClientId))
+		return NULL;
+
 	sm = getPhysicsClient(physicsClientId);
 	if (sm == 0)
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiii|i", kwlist,
-									 &bodyUniqueIdA, &linkIndexA, &collisionFilterGroup, &collisionFilterMask, &physicsClientId))
-		return NULL;
-
+	
 	commandHandle = b3CollisionFilterCommandInit(sm);
 	b3SetCollisionFilterGroupMask(commandHandle, bodyUniqueIdA, linkIndexA, collisionFilterGroup, collisionFilterMask);
 
@@ -6391,16 +6391,16 @@ static PyObject* pybullet_setCollisionFilterPair(PyObject* self, PyObject* args,
 
 	static char* kwlist[] = {"bodyUniqueIdA", "bodyUniqueIdB", "linkIndexA", "linkIndexB", "enableCollision", "physicsClientId", NULL};
 
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiiii|i", kwlist,
+									 &bodyUniqueIdA, &bodyUniqueIdB, &linkIndexA, &linkIndexB, &enableCollision, &physicsClientId))
+		return NULL;
+
 	sm = getPhysicsClient(physicsClientId);
 	if (sm == 0)
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiiii|i", kwlist,
-									 &bodyUniqueIdA, &bodyUniqueIdB, &linkIndexA, &linkIndexB, &enableCollision, &physicsClientId))
-		return NULL;
 
 	commandHandle = b3CollisionFilterCommandInit(sm);
 	b3SetCollisionFilterPair(commandHandle, bodyUniqueIdA, bodyUniqueIdB, linkIndexA, linkIndexB, enableCollision);
