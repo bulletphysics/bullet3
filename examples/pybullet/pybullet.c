@@ -2449,9 +2449,13 @@ static PyObject* pybullet_setJointMotorControlMultiDof(PyObject* self, PyObject*
 		{
 			targetPositionSize = 4;
 		}
-		for (i = 0; i < targetPositionSize; i++)
+		if (targetPositionSeq)
 		{
-			targetPositionArray[i] = pybullet_internalGetFloatFromSequence(targetPositionSeq, i);
+			for (i = 0; i < targetPositionSize; i++)
+			{
+				targetPositionArray[i] = pybullet_internalGetFloatFromSequence(targetPositionSeq, i);
+			}
+			Py_DECREF(targetPositionSeq);
 		}
 	}
 
@@ -2470,11 +2474,14 @@ static PyObject* pybullet_setJointMotorControlMultiDof(PyObject* self, PyObject*
 		{
 			targetVelocitySize = 3;
 		}
-		for (i = 0; i < targetVelocitySize; i++)
+		if (targetVelocitySeq)
 		{
-			targetVelocityArray[i] = pybullet_internalGetFloatFromSequence(targetVelocitySeq, i);
+			for (i = 0; i < targetVelocitySize; i++)
+			{
+				targetVelocityArray[i] = pybullet_internalGetFloatFromSequence(targetVelocitySeq, i);
+			}
+			Py_DECREF(targetVelocitySeq);
 		}
-
 	}
 
 	if (targetForceObj)
@@ -2492,11 +2499,14 @@ static PyObject* pybullet_setJointMotorControlMultiDof(PyObject* self, PyObject*
 		{
 			targetForceSize = 3;
 		}
-		for (i = 0; i < targetForceSize; i++)
+		if (targetForceSeq)
 		{
-			targetForceArray[i] = pybullet_internalGetFloatFromSequence(targetForceSeq, i);
+			for (i = 0; i < targetForceSize; i++)
+			{
+				targetForceArray[i] = pybullet_internalGetFloatFromSequence(targetForceSeq, i);
+			}
+			Py_DECREF(targetForceSeq);
 		}
-
 	}
 
 
@@ -3712,9 +3722,13 @@ static PyObject* pybullet_resetJointStateMultiDof(PyObject* self, PyObject* args
 			{
 				targetPositionSize = 4;
 			}
-			for (i = 0; i < targetPositionSize; i++)
+			if (targetPositionSeq)
 			{
-				targetPositionArray[i] = pybullet_internalGetFloatFromSequence(targetPositionSeq, i);
+				for (i = 0; i < targetPositionSize; i++)
+				{
+					targetPositionArray[i] = pybullet_internalGetFloatFromSequence(targetPositionSeq, i);
+				}
+				Py_DECREF(targetPositionSeq);
 			}
 		}
 		
@@ -3733,11 +3747,14 @@ static PyObject* pybullet_resetJointStateMultiDof(PyObject* self, PyObject* args
 			{
 				targetVelocitySize = 3;
 			}
-			for (i = 0; i < targetVelocitySize; i++)
+			if (targetVelocitySeq)
 			{
-				targetVelocityArray[i] = pybullet_internalGetFloatFromSequence(targetVelocitySeq, i);
+				for (i = 0; i < targetVelocitySize; i++)
+				{
+					targetVelocityArray[i] = pybullet_internalGetFloatFromSequence(targetVelocitySeq, i);
+				}
+				Py_DECREF(targetVelocitySeq);
 			}
-
 		}
 
 		if (targetPositionSize == 0 && targetVelocitySize == 0)
