@@ -27,7 +27,7 @@ btConvexPolyhedron::~btConvexPolyhedron()
 {
 }
 
-inline bool IsAlmostZero(const btVector3& v)
+inline bool IsAlmostZero1(const btVector3& v)
 {
 	if (btFabs(v.x()) > 1e-6 || btFabs(v.y()) > 1e-6 || btFabs(v.z()) > 1e-6) return false;
 	return true;
@@ -123,7 +123,7 @@ void btConvexPolyhedron::initialize()
 			for (int p = 0; p < m_uniqueEdges.size(); p++)
 			{
 				if (IsAlmostZero(m_uniqueEdges[p] - edge) ||
-					IsAlmostZero(m_uniqueEdges[p] + edge))
+					IsAlmostZero1(m_uniqueEdges[p] + edge))
 				{
 					found = true;
 					break;
