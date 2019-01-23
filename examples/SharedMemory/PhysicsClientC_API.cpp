@@ -903,6 +903,22 @@ B3_SHARED_API int b3JointControlSetDesiredVelocityMultiDof(b3SharedMemoryCommand
 	return 0;
 }
 
+B3_SHARED_API int b3JointControlSetDesiredForceTorqueMultiDof(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double* forces, int dofCount)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	if ((dofIndex >= 0) && (dofIndex < MAX_DEGREE_OF_FREEDOM ) && dofCount >= 0 && dofCount <= 4)
+	{
+		for (int dof = 0; dof < dofCount; dof++)
+		{
+			command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex+dof] = forces[dof];
+			command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
+			command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex + dof] |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
+		}
+	}
+	return 0;
+}
+
 B3_SHARED_API int b3JointControlSetMaximumForce(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
@@ -3459,6 +3475,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitUserDebugAddParameter(b3PhysicsC
 	{
 		command->m_userDebugDrawArgs.m_text[0] = 0;
 	}
+	
 	command->m_userDebugDrawArgs.m_rangeMin = rangeMin;
 	command->m_userDebugDrawArgs.m_rangeMax = rangeMax;
 	command->m_userDebugDrawArgs.m_startValue = startValue;
@@ -3477,6 +3494,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitUserDebugReadParameter(b3Physics
 	command->m_type = CMD_USER_DEBUG_DRAW;
 	command->m_updateFlags = USER_DEBUG_READ_PARAMETER;
 	command->m_userDebugDrawArgs.m_itemUniqueId = debugItemUniqueId;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
 	return (b3SharedMemoryCommandHandle)command;
 }
 
@@ -3505,6 +3523,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitUserDebugDrawRemove(b3PhysicsCli
 	command->m_type = CMD_USER_DEBUG_DRAW;
 	command->m_updateFlags = USER_DEBUG_REMOVE_ONE_ITEM;
 	command->m_userDebugDrawArgs.m_itemUniqueId = debugItemUniqueId;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
 	return (b3SharedMemoryCommandHandle)command;
 }
 
@@ -3517,6 +3536,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitUserDebugDrawRemoveAll(b3Physics
 	b3Assert(command);
 	command->m_type = CMD_USER_DEBUG_DRAW;
 	command->m_updateFlags = USER_DEBUG_REMOVE_ALL;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
 	return (b3SharedMemoryCommandHandle)command;
 }
 
@@ -3539,6 +3559,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitDebugDrawingCommand(b3PhysicsCli
 	b3Assert(command);
 	command->m_type = CMD_USER_DEBUG_DRAW;
 	command->m_updateFlags = 0;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
 	return (b3SharedMemoryCommandHandle)command;
 }
 
@@ -4377,7 +4398,8 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseDynamicsCommandInit(
 	command->m_type = CMD_CALCULATE_INVERSE_DYNAMICS;
 	command->m_updateFlags = 0;
 	command->m_calculateInverseDynamicsArguments.m_bodyUniqueId = bodyUniqueId;
-	
+	command->m_calculateInverseDynamicsArguments.m_flags = 0;
+
 	int dofCount = b3ComputeDofCount(physClient, bodyUniqueId);
 	
 	for (int i = 0; i < dofCount; i++)
@@ -4405,6 +4427,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseDynamicsCommandInit2
 	command->m_type = CMD_CALCULATE_INVERSE_DYNAMICS;
 	command->m_updateFlags = 0;
 	command->m_calculateInverseDynamicsArguments.m_bodyUniqueId = bodyUniqueId;
+	command->m_calculateInverseDynamicsArguments.m_flags = 0;
 
 	command->m_calculateInverseDynamicsArguments.m_dofCountQ = dofCountQ;
 	for (int i = 0; i < dofCountQ; i++)
@@ -4420,6 +4443,12 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseDynamicsCommandInit2
 	}
 	
 	return (b3SharedMemoryCommandHandle)command;
+}
+
+B3_SHARED_API void b3CalculateInverseDynamicsSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	command->m_calculateInverseDynamicsArguments.m_flags = flags;
 }
 
 B3_SHARED_API int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHandle statusHandle,
@@ -4511,8 +4540,13 @@ B3_SHARED_API int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, i
 
 	return true;
 }
+B3_SHARED_API void b3CalculateMassMatrixSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	command->m_calculateMassMatrixArguments.m_flags = flags;
+}
 
-B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateMassMatrixCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, const double* jointPositionsQ)
+B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateMassMatrixCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, const double* jointPositionsQ, int dofCountQ)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
@@ -4522,11 +4556,14 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateMassMatrixCommandInit(b3Phy
 
 	command->m_type = CMD_CALCULATE_MASS_MATRIX;
 	command->m_updateFlags = 0;
-	int numJoints = cl->getNumJoints(bodyUniqueId);
-	for (int i = 0; i < numJoints; i++)
+	
+	for (int i = 0; i < dofCountQ; i++)
 	{
 		command->m_calculateMassMatrixArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
 	}
+	command->m_calculateMassMatrixArguments.m_bodyUniqueId = bodyUniqueId;
+	command->m_calculateMassMatrixArguments.m_dofCountQ = dofCountQ;
+	command->m_calculateMassMatrixArguments.m_flags = 0;
 
 	return (b3SharedMemoryCommandHandle)command;
 }
@@ -5359,4 +5396,64 @@ B3_SHARED_API void b3GetQuaternionDifference(const double startQuat[/*4*/], cons
 	outOrn[2] = dorn[2];
 	outOrn[3] = dorn[3];
 }
+
+b3Scalar b3GetMatrixElem(const b3Matrix3x3& mat, int index)
+{
+	int i = index % 3;
+	int j = index / 3;
+	return mat[i][j];
+}
+
+
+static bool MyMatrixToEulerXYZ(const b3Matrix3x3& mat, b3Vector3& xyz)
+{
+	// rot =  cy*cz          -cy*sz           sy
+	//        cz*sx*sy+cx*sz  cx*cz-sx*sy*sz -cy*sx
+	//       -cx*cz*sy+sx*sz  cz*sx+cx*sy*sz  cx*cy
+
+	b3Scalar fi = b3GetMatrixElem(mat, 2);
+	if (fi < b3Scalar(1.0f))
+	{
+		if (fi > b3Scalar(-1.0f))
+		{
+			xyz[0] = b3Atan2(-b3GetMatrixElem(mat, 5), b3GetMatrixElem(mat, 8));
+			xyz[1] = b3Asin(b3GetMatrixElem(mat, 2));
+			xyz[2] = b3Atan2(-b3GetMatrixElem(mat, 1), b3GetMatrixElem(mat, 0));
+			return true;
+		}
+		else
+		{
+			// WARNING.  Not unique.  XA - ZA = -atan2(r10,r11)
+			xyz[0] = -b3Atan2(b3GetMatrixElem(mat, 3), b3GetMatrixElem(mat, 4));
+			xyz[1] = -B3_HALF_PI;
+			xyz[2] = b3Scalar(0.0);
+			return false;
+		}
+	}
+	else
+	{
+		// WARNING.  Not unique.  XAngle + ZAngle = atan2(r10,r11)
+		xyz[0] = b3Atan2(b3GetMatrixElem(mat, 3), b3GetMatrixElem(mat, 4));
+		xyz[1] = B3_HALF_PI;
+		xyz[2] = 0.0;
+	}
+	return false;
+}
+
+
+B3_SHARED_API void b3GetAxisDifferenceQuaternion(const double startQuat[/*4*/], const double endQuat[/*4*/], double axisOut[/*3*/])
+{
+	b3Quaternion currentQuat(startQuat[0], startQuat[1], startQuat[2], startQuat[3]);
+	b3Quaternion desiredQuat(endQuat[0], endQuat[1], endQuat[2], endQuat[3]);
+
+	b3Quaternion relRot = currentQuat.inverse() * desiredQuat;
+	b3Vector3 angleDiff;
+	MyMatrixToEulerXYZ(b3Matrix3x3(relRot), angleDiff);
+	axisOut[0] = angleDiff[0];
+	axisOut[1] = angleDiff[1];
+	axisOut[2] = angleDiff[2];
+
+}
+
+
 

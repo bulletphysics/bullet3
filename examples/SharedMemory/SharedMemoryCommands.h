@@ -663,6 +663,7 @@ struct CalculateInverseDynamicsArgs
 	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
 	double m_jointVelocitiesQdot[MAX_DEGREE_OF_FREEDOM];
 	double m_jointAccelerations[MAX_DEGREE_OF_FREEDOM];
+	int m_flags;
 };
 
 struct CalculateInverseDynamicsResultArgs
@@ -693,6 +694,8 @@ struct CalculateMassMatrixArgs
 {
 	int m_bodyUniqueId;
 	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
+	int m_dofCountQ;
+	int m_flags;
 };
 
 struct CalculateMassMatrixResultArgs

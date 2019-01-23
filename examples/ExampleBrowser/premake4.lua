@@ -27,7 +27,7 @@ project "App_BulletExampleBrowser"
             initOpenCL("clew")
         end
 
-        links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK", "Bullet3Common"}
+        links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","rbdl_static","LinearMath","BussIK", "Bullet3Common"}
         initOpenGL()
         initGlew()
 
@@ -133,6 +133,17 @@ project "App_BulletExampleBrowser"
 		"../SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
 		"../SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",
 		"../SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
+		"../SharedMemory/plugins/stablePDPlugin/SpAlg.cpp",
+		"../SharedMemory/plugins/stablePDPlugin/Shape.cpp",
+		"../SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp",
+		"../SharedMemory/plugins/stablePDPlugin/RBDModel.cpp",
+		"../SharedMemory/plugins/stablePDPlugin/Rand.cpp",
+		"../SharedMemory/plugins/stablePDPlugin/MathUtil.cpp",
+		"../SharedMemory/plugins/stablePDPlugin/KinTree.cpp",
+		"../SharedMemory/plugins/stablePDPlugin/FileUtil.cpp",
+		"../SharedMemory/plugins/stablePDPlugin/json/json_writer.cpp",
+		"../SharedMemory/plugins/stablePDPlugin/json/json_value.cpp",
+		"../SharedMemory/plugins/stablePDPlugin/json/json_reader.cpp",
 		"../SharedMemory/SharedMemoryCommands.h",
 		"../SharedMemory/SharedMemoryPublic.h",
 		"../SharedMemory/b3RobotSimulatorClientAPI_NoGUI.cpp",
@@ -169,6 +180,7 @@ project "App_BulletExampleBrowser"
 		"../VoronoiFracture/*",
 		"../SoftDemo/*",
 		"../RollingFrictionDemo/*",
+		"../rbdl/*",
 		"../FractureDemo/*",
 		"../DynamicControlDemo/*",
 		"../Constraints/*",

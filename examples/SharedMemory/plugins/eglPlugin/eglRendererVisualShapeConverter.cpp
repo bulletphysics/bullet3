@@ -73,9 +73,9 @@ struct MyTexture3
 struct EGLRendererObjectArray
 {
 	btAlignedObjectArray<TinyRenderObjectData*> m_renderObjects;
+	btAlignedObjectArray<int> m_graphicsInstanceIds;
 	int m_objectUniqueId;
 	int m_linkIndex;
-	int m_graphicsInstanceId;
 	btTransform m_worldTransform;
 	btVector3 m_localScaling;
 
@@ -83,12 +83,15 @@ struct EGLRendererObjectArray
 	{
 		m_worldTransform.setIdentity();
 		m_localScaling.setValue(1, 1, 1);
-		m_graphicsInstanceId = -1;
 	}
 };
 
-#define START_WIDTH 2560
-#define START_HEIGHT 2048
+//#define START_WIDTH 2560
+//#define START_HEIGHT 2048
+
+#define START_WIDTH 1024
+#define START_HEIGHT 768
+
 
 struct EGLRendererVisualShapeConverterInternalData
 {
@@ -105,6 +108,7 @@ struct EGLRendererVisualShapeConverterInternalData
 
 	btAlignedObjectArray<b3VisualShapeData> m_visualShapes;
 
+	
 	int m_upAxis;
 	int m_swWidth;
 	int m_swHeight;
@@ -132,12 +136,22 @@ struct EGLRendererVisualShapeConverterInternalData
 	int m_flags;
 	SimpleCamera m_camera;
 
+	bool m_leftMouseButton;
+	bool m_middleMouseButton;
+	bool m_rightMouseButton;
+	float m_wheelMultiplier;
+	float m_mouseMoveMultiplier;
+	float m_mouseXpos;
+	float m_mouseYpos;
+	bool m_mouseInitialized;
+	int m_graphicsUniqueIdGenerator;
+
 	EGLRendererVisualShapeConverterInternalData()
 		: m_upAxis(2),
 		  m_swWidth(START_WIDTH),
 		  m_swHeight(START_HEIGHT),
 		  m_rgbColorBuffer(START_WIDTH, START_HEIGHT, TGAImage::RGB),
-		  m_lightDirection(btVector3(-5, 200, -40)),
+		  m_lightDirection(btVector3(-5, -40, 200 )),
 		  m_hasLightDirection(false),
 		  m_lightColor(btVector3(1.0, 1.0, 1.0)),
 		  m_hasLightColor(false),
@@ -150,7 +164,16 @@ struct EGLRendererVisualShapeConverterInternalData
 		  m_lightSpecularCoeff(0.05),
 		  m_hasLightSpecularCoeff(false),
 		  m_hasShadow(false),
-		  m_flags(0)
+		  m_flags(0),
+		m_leftMouseButton(false),
+		m_middleMouseButton(false),
+		m_rightMouseButton(false),
+		m_wheelMultiplier(0.01f),
+		m_mouseMoveMultiplier(0.4f),
+		m_mouseXpos(0.f),
+		m_mouseYpos(0.f),
+		m_mouseInitialized(false),
+		m_graphicsUniqueIdGenerator(15)
 	{
 		m_depthBuffer.resize(m_swWidth * m_swHeight);
 		m_shadowBuffer.resize(m_swWidth * m_swHeight);
@@ -161,7 +184,7 @@ struct EGLRendererVisualShapeConverterInternalData
 		m_window = new DefaultOpenGLWindow();
 		m_window->setAllowRetina(allowRetina);
 		b3gWindowConstructionInfo ci;
-		ci.m_title = "Title";
+		ci.m_title = "PyBullet";
 		ci.m_width = m_swWidth;
 		ci.m_height = m_swHeight;
 		ci.m_renderDevice = 0;
@@ -207,21 +230,234 @@ struct EGLRendererVisualShapeConverterInternalData
 	}
 };
 
+
+
+static EGLRendererVisualShapeConverter* gWindow = 0;
+
+static void SimpleResizeCallback(float widthf, float heightf)
+{
+	int width = (int)widthf;
+	int height = (int)heightf;
+	if (gWindow && gWindow->m_data->m_instancingRenderer)
+	{
+		gWindow->m_data->m_instancingRenderer->resize(width, height);
+	}
+
+	//if (gApp && gApp->m_instancingRenderer)
+	//	gApp->m_instancingRenderer->resize(width, height);
+	//
+	//if (gApp && gApp->m_primRenderer)
+	//	gApp->m_primRenderer->setScreenSize(width, height);
+}
+
+static void SimpleKeyboardCallback(int key, int state)
+{
+	if (key == B3G_ESCAPE) //&& gApp && gApp->m_window)
+	{
+		//gApp->m_window->setRequestExit();
+	}
+	else
+	{
+		//gApp->defaultKeyboardCallback(key,state);
+	}
+}
+
+static void SimpleMouseButtonCallback(int button, int state, float x, float y)
+{
+	if (gWindow)
+	{
+		gWindow->mouseButtonCallback(button, state, x, y);
+	}
+}
+
+static void SimpleMouseMoveCallback(float x, float y)
+{
+	if (gWindow)
+	{
+		gWindow->mouseMoveCallback(x, y);
+	}
+}
+
+static void SimpleWheelCallback(float deltax, float deltay)
+{
+	float wheelMultiplier = 0.01f;
+	if (gWindow && gWindow->m_data->m_instancingRenderer)
+	{
+		class GLInstancingRenderer* renderer = gWindow->m_data->m_instancingRenderer;
+		b3Vector3 cameraTargetPosition, cameraPosition, cameraUp = b3MakeVector3(0, 0, 0);
+		int upAxis = renderer->getActiveCamera()->getCameraUpAxis();
+		cameraUp[upAxis] = 1;
+		CommonCameraInterface* camera = renderer->getActiveCamera();
+
+		camera->getCameraPosition(cameraPosition);
+		camera->getCameraTargetPosition(cameraTargetPosition);
+
+		bool m_leftMouseButton = false;
+
+		if (!m_leftMouseButton)
+		{
+			float cameraDistance = camera->getCameraDistance();
+			if (deltay < 0 || cameraDistance > 1)
+			{
+				cameraDistance -= deltay * 0.01f;
+				if (cameraDistance < 1)
+					cameraDistance = 1;
+				camera->setCameraDistance(cameraDistance);
+			}
+			else
+			{
+				b3Vector3 fwd = cameraTargetPosition - cameraPosition;
+				fwd.normalize();
+				cameraTargetPosition += fwd * deltay * wheelMultiplier;  //todo: expose it in the GUI?
+			}
+		}
+		else
+		{
+			if (b3Fabs(deltax) > b3Fabs(deltay))
+			{
+				b3Vector3 fwd = cameraTargetPosition - cameraPosition;
+				b3Vector3 side = cameraUp.cross(fwd);
+				side.normalize();
+				cameraTargetPosition += side * deltax * wheelMultiplier;
+			}
+			else
+			{
+				cameraTargetPosition -= cameraUp * deltay * wheelMultiplier;
+			}
+		}
+
+		camera->setCameraTargetPosition(cameraTargetPosition[0], cameraTargetPosition[1], cameraTargetPosition[2]);
+	}
+}
+
+void defaultMouseButtonCallback(int button, int state, float x, float y)
+{
+	if (gWindow)
+	{
+		gWindow->mouseButtonCallback(button, state, x, y);
+	}
+}
+void defaultMouseMoveCallback(float x, float y)
+{
+	if (gWindow)
+	{
+		gWindow->mouseMoveCallback(x, y);
+	}  //m_window &&  m_renderer
+
+	
+}
+
+void EGLRendererVisualShapeConverter::mouseButtonCallback(int button, int state, float x, float y)
+{
+	if (button == 0)
+		m_data->m_leftMouseButton = (state == 1);
+	if (button == 1)
+		m_data->m_middleMouseButton = (state == 1);
+
+	if (button == 2)
+		m_data->m_rightMouseButton = (state == 1);
+
+	m_data->m_mouseXpos = x;
+	m_data->m_mouseYpos = y;
+	m_data->m_mouseInitialized = true;
+}
+void EGLRendererVisualShapeConverter::mouseMoveCallback(float x, float y)
+{
+	class GLInstancingRenderer* renderer = m_data->m_instancingRenderer;
+	if (renderer == 0)
+		return;
+	
+	CommonCameraInterface* camera = renderer->getActiveCamera();
+
+	bool isAltPressed = m_data->m_window->isModifierKeyPressed(B3G_ALT);
+	bool isControlPressed = m_data->m_window->isModifierKeyPressed(B3G_CONTROL);
+
+	if (isAltPressed || isControlPressed)
+	{
+		float xDelta = x - m_data->m_mouseXpos;
+		float yDelta = y - m_data->m_mouseYpos;
+		float cameraDistance = camera->getCameraDistance();
+		float pitch = camera->getCameraPitch();
+		float yaw = camera->getCameraYaw();
+
+		float targPos[3];
+		float camPos[3];
+
+		camera->getCameraTargetPosition(targPos);
+		camera->getCameraPosition(camPos);
+
+		b3Vector3 cameraPosition = b3MakeVector3(b3Scalar(camPos[0]),
+			b3Scalar(camPos[1]),
+			b3Scalar(camPos[2]));
+
+		b3Vector3 cameraTargetPosition = b3MakeVector3(b3Scalar(targPos[0]),
+			b3Scalar(targPos[1]),
+			b3Scalar(targPos[2]));
+		b3Vector3 cameraUp = b3MakeVector3(0, 0, 0);
+		cameraUp[camera->getCameraUpAxis()] = 1.f;
+
+		if (m_data->m_leftMouseButton)
+		{
+			//			if (b3Fabs(xDelta)>b3Fabs(yDelta))
+			//			{
+			pitch -= yDelta * m_data->m_mouseMoveMultiplier;
+			//			} else
+			//			{
+			yaw -= xDelta * m_data->m_mouseMoveMultiplier;
+			//			}
+		}
+
+		if (m_data->m_middleMouseButton)
+		{
+			cameraTargetPosition += cameraUp * yDelta * 0.01;
+
+			b3Vector3 fwd = cameraTargetPosition - cameraPosition;
+			b3Vector3 side = cameraUp.cross(fwd);
+			side.normalize();
+			cameraTargetPosition += side * xDelta * 0.01;
+		}
+		if (m_data->m_rightMouseButton)
+		{
+			cameraDistance -= xDelta * 0.01f;
+			cameraDistance -= yDelta * 0.01f;
+			if (cameraDistance < 1)
+				cameraDistance = 1;
+			if (cameraDistance > 1000)
+				cameraDistance = 1000;
+		}
+		camera->setCameraDistance(cameraDistance);
+		camera->setCameraPitch(pitch);
+		camera->setCameraYaw(yaw);
+		camera->setCameraTargetPosition(cameraTargetPosition[0], cameraTargetPosition[1], cameraTargetPosition[2]);
+	}
+	m_data->m_mouseXpos = x;
+	m_data->m_mouseYpos = y;
+	m_data->m_mouseInitialized = true;
+}
 EGLRendererVisualShapeConverter::EGLRendererVisualShapeConverter()
 {
+	
 	m_data = new EGLRendererVisualShapeConverterInternalData();
-
+	
+	
 	float dist = 1.5;
 	float pitch = -10;
 	float yaw = -80;
 	float targetPos[3] = {0, 0, 0};
 	m_data->m_camera.setCameraUpAxis(m_data->m_upAxis);
 	resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
+	gWindow = this;
+	m_data->m_window->setResizeCallback(SimpleResizeCallback);
+	m_data->m_window->setWheelCallback(SimpleWheelCallback);
+	m_data->m_window->setMouseButtonCallback(SimpleMouseButtonCallback);
+	m_data->m_window->setMouseMoveCallback(SimpleMouseMoveCallback);
 }
 EGLRendererVisualShapeConverter::~EGLRendererVisualShapeConverter()
 {
+	gWindow = 0;
 	resetAll();
 	delete m_data;
+	
 }
 
 void EGLRendererVisualShapeConverter::setLightDirection(float x, float y, float z)
@@ -649,11 +885,15 @@ static btVector4 sColors[4] =
 // If you are getting segfaults in this function it may be ecause you are
 // compliling the plugin with differently from pybullet, try complining the
 // plugin with distutils too.
-void EGLRendererVisualShapeConverter::convertVisualShapes(
+int EGLRendererVisualShapeConverter::convertVisualShapes(
 	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
 	const UrdfLink* linkPtr, const UrdfModel* model,
-	int collisionObjectUniqueId, int bodyUniqueId, struct  CommonFileIOInterface* fileIO)
+	int orgGraphicsUniqueId, int bodyUniqueId, struct  CommonFileIOInterface* fileIO)
 {
+	if (orgGraphicsUniqueId< 0)
+	{
+		orgGraphicsUniqueId  = m_data->m_graphicsUniqueIdGenerator++;
+	}
 	btAssert(linkPtr);  // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
 	{
@@ -743,12 +983,12 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
 				}
 			}
 
-			EGLRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+			EGLRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[orgGraphicsUniqueId];
 			if (visualsPtr == 0)
 			{
-				m_data->m_swRenderInstances.insert(collisionObjectUniqueId, new EGLRendererObjectArray);
+				m_data->m_swRenderInstances.insert(orgGraphicsUniqueId, new EGLRendererObjectArray);
 			}
-			visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+			visualsPtr = m_data->m_swRenderInstances[orgGraphicsUniqueId];
 
 			btAssert(visualsPtr);
 			EGLRendererObjectArray* visuals = *visualsPtr;
@@ -808,13 +1048,14 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
 
 					int shapeIndex = m_data->m_instancingRenderer->registerShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, textureIndex);
 					double scaling[3] = {1, 1, 1};
-					visuals->m_graphicsInstanceId = m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0], scaling);
+					int graphicsIndex = m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0], scaling);
 
 					int segmentationMask = bodyUniqueId + ((linkIndex + 1) << 24);
 					{
-						int graphicsIndex = visuals->m_graphicsInstanceId;
 						if (graphicsIndex >= 0)
 						{
+							visuals->m_graphicsInstanceIds.push_back(graphicsIndex);
+
 							if (m_data->m_graphicsIndexToSegmentationMask.size() < (graphicsIndex + 1))
 							{
 								m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex + 1);
@@ -835,6 +1076,7 @@ void EGLRendererVisualShapeConverter::convertVisualShapes(
 			}
 		}
 	}
+	return orgGraphicsUniqueId;
 }
 
 int EGLRendererVisualShapeConverter::getNumVisualShapes(int bodyUniqueId)
@@ -1032,7 +1274,7 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 	int numRemainingPixels = numTotalPixels - startPixelIndex;
 	int numBytesPerPixel = 4;  //RGBA
 	int numRequestedPixels = btMin(rgbaBufferSizeInPixels, numRemainingPixels);
-	if (numRequestedPixels)
+	if (1)
 	{
 		if (startPixelIndex == 0)
 		{
@@ -1049,9 +1291,13 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 			m_data->m_instancingRenderer->updateCamera(m_data->m_upAxis);
 
 			m_data->m_instancingRenderer->renderScene();
+			m_data->m_instancingRenderer->drawLine(b3MakeVector3(0, 0, 0), b3MakeVector3(1, 0, 0), b3MakeVector3(1, 0, 0), 3);
+			m_data->m_instancingRenderer->drawLine(b3MakeVector3(0, 0, 0), b3MakeVector3(0, 1, 0), b3MakeVector3(0, 1, 0), 3);
+			m_data->m_instancingRenderer->drawLine(b3MakeVector3(0, 0, 0), b3MakeVector3(0, 0, 1), b3MakeVector3(0, 0, 1), 3);
 
 			int numBytesPerPixel = 4;  //RGBA
 
+			if (pixelsRGBA || depthBuffer)
 			{
 				{
 					BT_PROFILE("copy pixels");
@@ -1083,40 +1329,40 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 						}
 					}
 				}
-			}
-
-			m_data->m_rgbaPixelBuffer1.resize((*widthPtr) * (*heightPtr) * numBytesPerPixel);
-			m_data->m_depthBuffer1.resize((*widthPtr) * (*heightPtr));
-			//rescale and flip
-			{
-				BT_PROFILE("resize and flip");
-				for (int j = 0; j < *heightPtr; j++)
+			
+				m_data->m_rgbaPixelBuffer1.resize((*widthPtr) * (*heightPtr) * numBytesPerPixel);
+				m_data->m_depthBuffer1.resize((*widthPtr) * (*heightPtr));
+				//rescale and flip
 				{
-					for (int i = 0; i < *widthPtr; i++)
+					BT_PROFILE("resize and flip");
+					for (int j = 0; j < *heightPtr; j++)
 					{
-						int xIndex = int(float(i) * (float(sourceWidth) / float(*widthPtr)));
-						int yIndex = int(float(*heightPtr - 1 - j) * (float(sourceHeight) / float(*heightPtr)));
-						btClamp(xIndex, 0, sourceWidth);
-						btClamp(yIndex, 0, sourceHeight);
-						int bytesPerPixel = 4;  //RGBA
-
-						int sourcePixelIndex = (xIndex + yIndex * sourceWidth) * bytesPerPixel;
-						int sourceDepthIndex = xIndex + yIndex * sourceWidth;
-#define COPY4PIXELS 1
-#ifdef COPY4PIXELS
-						int* dst = (int*)&m_data->m_rgbaPixelBuffer1[(i + j * (*widthPtr)) * 4 + 0];
-						int* src = (int*)&m_data->m_sourceRgbaPixelBuffer[sourcePixelIndex + 0];
-						*dst = *src;
-
-#else
-						m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 0] = sourceRgbaPixelBuffer[sourcePixelIndex + 0];
-						m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 1] = sourceRgbaPixelBuffer[sourcePixelIndex + 1];
-						m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 2] = sourceRgbaPixelBuffer[sourcePixelIndex + 2];
-						m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 3] = 255;
-#endif
-						if (depthBuffer)
+						for (int i = 0; i < *widthPtr; i++)
 						{
-							m_data->m_depthBuffer1[i + j * (*widthPtr)] = m_data->m_sourceDepthBuffer[sourceDepthIndex];
+							int xIndex = int(float(i) * (float(sourceWidth) / float(*widthPtr)));
+							int yIndex = int(float(*heightPtr - 1 - j) * (float(sourceHeight) / float(*heightPtr)));
+							btClamp(xIndex, 0, sourceWidth);
+							btClamp(yIndex, 0, sourceHeight);
+							int bytesPerPixel = 4;  //RGBA
+
+							int sourcePixelIndex = (xIndex + yIndex * sourceWidth) * bytesPerPixel;
+							int sourceDepthIndex = xIndex + yIndex * sourceWidth;
+	#define COPY4PIXELS 1
+	#ifdef COPY4PIXELS
+							int* dst = (int*)&m_data->m_rgbaPixelBuffer1[(i + j * (*widthPtr)) * 4 + 0];
+							int* src = (int*)&m_data->m_sourceRgbaPixelBuffer[sourcePixelIndex + 0];
+							*dst = *src;
+
+	#else
+							m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 0] = sourceRgbaPixelBuffer[sourcePixelIndex + 0];
+							m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 1] = sourceRgbaPixelBuffer[sourcePixelIndex + 1];
+							m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 2] = sourceRgbaPixelBuffer[sourcePixelIndex + 2];
+							m_data->m_rgbaPixelBuffer1[(i + j * widthPtr) * 4 + 3] = 255;
+	#endif
+							if (depthBuffer)
+							{
+								m_data->m_depthBuffer1[i + j * (*widthPtr)] = m_data->m_sourceDepthBuffer[sourceDepthIndex];
+							}
 						}
 					}
 				}
@@ -1153,36 +1399,35 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 						}
 					}
 				}
-			}
+				m_data->m_segmentationMaskBuffer.resize(destinationWidth * destinationHeight, -1);
 
-			m_data->m_segmentationMaskBuffer.resize(destinationWidth * destinationHeight, -1);
-
-			//rescale and flip
-			{
-				BT_PROFILE("resize and flip");
-				for (int j = 0; j < destinationHeight; j++)
+				//rescale and flip
 				{
-					for (int i = 0; i < destinationWidth; i++)
+					BT_PROFILE("resize and flip");
+					for (int j = 0; j < destinationHeight; j++)
 					{
-						int xIndex = int(float(i) * (float(sourceWidth) / float(destinationWidth)));
-						int yIndex = int(float(destinationHeight - 1 - j) * (float(sourceHeight) / float(destinationHeight)));
-						btClamp(xIndex, 0, sourceWidth);
-						btClamp(yIndex, 0, sourceHeight);
-						int bytesPerPixel = 4;  //RGBA
-						int sourcePixelIndex = (xIndex + yIndex * sourceWidth) * bytesPerPixel;
-						int sourceDepthIndex = xIndex + yIndex * sourceWidth;
-
-						if (segmentationMaskBuffer)
+						for (int i = 0; i < destinationWidth; i++)
 						{
-							float depth = m_data->m_segmentationMaskSourceDepthBuffer[sourceDepthIndex];
-							if (depth < 1)
+							int xIndex = int(float(i) * (float(sourceWidth) / float(destinationWidth)));
+							int yIndex = int(float(destinationHeight - 1 - j) * (float(sourceHeight) / float(destinationHeight)));
+							btClamp(xIndex, 0, sourceWidth);
+							btClamp(yIndex, 0, sourceHeight);
+							int bytesPerPixel = 4;  //RGBA
+							int sourcePixelIndex = (xIndex + yIndex * sourceWidth) * bytesPerPixel;
+							int sourceDepthIndex = xIndex + yIndex * sourceWidth;
+
+							if (segmentationMaskBuffer)
 							{
-								int segMask = m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 0] + 256 * (m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 1]) + 256 * 256 * (m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 2]);
-								m_data->m_segmentationMaskBuffer[i + j * destinationWidth] = segMask;
-							}
-							else
-							{
-								m_data->m_segmentationMaskBuffer[i + j * destinationWidth] = -1;
+								float depth = m_data->m_segmentationMaskSourceDepthBuffer[sourceDepthIndex];
+								if (depth < 1)
+								{
+									int segMask = m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 0] + 256 * (m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 1]) + 256 * 256 * (m_data->m_segmentationMaskSourceRgbaPixelBuffer[sourcePixelIndex + 2]);
+									m_data->m_segmentationMaskBuffer[i + j * destinationWidth] = segMask;
+								}
+								else
+								{
+									m_data->m_segmentationMaskBuffer[i + j * destinationWidth] = -1;
+								}
 							}
 						}
 					}
@@ -1257,7 +1502,11 @@ void EGLRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqu
 		{
 			for (int o = 0; o < ptr->m_renderObjects.size(); o++)
 			{
-				m_data->m_instancingRenderer->removeGraphicsInstance(ptr->m_graphicsInstanceId);
+				for (int i = 0; i < ptr->m_graphicsInstanceIds.size(); i++)
+				{
+					m_data->m_instancingRenderer->removeGraphicsInstance(ptr->m_graphicsInstanceIds[i]);
+				}
+				
 				delete ptr->m_renderObjects[o];
 			}
 		}
@@ -1387,11 +1636,15 @@ void EGLRendererVisualShapeConverter::syncTransform(int collisionObjectUniqueId,
 		EGLRendererObjectArray* renderObj = *renderObjPtr;
 		renderObj->m_worldTransform = worldTransform;
 		renderObj->m_localScaling = localScaling;
-		if (renderObj->m_graphicsInstanceId >= 0)
+		for (int i = 0; i < renderObj->m_graphicsInstanceIds.size(); i++)
 		{
-			btVector3 pos = worldTransform.getOrigin();
-			btQuaternion orn = worldTransform.getRotation();
-			m_data->m_instancingRenderer->writeSingleInstanceTransformToCPU(pos, orn, renderObj->m_graphicsInstanceId);
+			int graphicsInstanceId = renderObj->m_graphicsInstanceIds[i];
+			if (graphicsInstanceId >= 0)
+			{
+				btVector3 pos = worldTransform.getOrigin();
+				btQuaternion orn = worldTransform.getRotation();
+				m_data->m_instancingRenderer->writeSingleInstanceTransformToCPU(pos, orn, graphicsInstanceId);
+			}
 		}
 	}
 }
