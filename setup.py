@@ -105,7 +105,6 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/SharedMemory/plugins/stablePDPlugin/MathUtil.cpp"]\
 +["examples/SharedMemory/plugins/stablePDPlugin/RBDModel.cpp"]\
 +["examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/Rand.cpp"]\
 +["examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp"]\
 +["examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp"]\
 +["examples/SharedMemory/PhysicsClientUDP.cpp"]\
