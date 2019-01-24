@@ -1771,64 +1771,6 @@ void cKinTree::NormalizePoseHeading(const Eigen::MatrixXd& joint_mat, Eigen::Vec
 	}
 }
 
-void cKinTree::MirrorPoseStance(const Eigen::MatrixXd& joint_mat, const std::vector<int> mirror_joints0, const std::vector<int> mirror_joints1, Eigen::VectorXd& out_pose)
-{
-	// mirrors along xy plane
-	assert(mirror_joints0.size() == mirror_joints1.size());
-	int num_joints = cKinTree::GetNumJoints(joint_mat);
-
-	tQuaternion root_rot = cKinTree::GetRootRot(joint_mat, out_pose);
-	tVector root_pos = cKinTree::GetRootPos(joint_mat, out_pose);
-	root_pos[2] *= -1;
-	root_rot = cMathUtil::MirrorQuaternion(root_rot, cMathUtil::eAxisZ);
-
-	cKinTree::SetRootRot(joint_mat, root_rot, out_pose);
-	cKinTree::SetRootPos(joint_mat, root_pos, out_pose);
-
-	for (int j = 0; j < num_joints; ++j)
-	{
-		cKinTree::eJointType joint_type = cKinTree::GetJointType(joint_mat, j);
-		bool is_root = cKinTree::IsRoot(joint_mat, j);
-		if (!is_root)
-		{
-			int param_offset = cKinTree::GetParamOffset(joint_mat, j);
-			int param_size = cKinTree::GetParamSize(joint_mat, j);
-			auto joint_params = out_pose.segment(param_offset, param_size);
-
-			if (joint_type == cKinTree::eJointTypeRevolute
-				|| joint_type == cKinTree::eJointTypeFixed)
-			{
-			}
-			else if (joint_type == cKinTree::eJointTypeSpherical)
-			{
-				tQuaternion quat = cMathUtil::VecToQuat(joint_params);
-				quat = cMathUtil::MirrorQuaternion(quat, cMathUtil::eAxisZ);
-				joint_params = cMathUtil::QuatToVec(quat);
-			}
-			else
-			{
-				assert(false); // unsupported joint type
-			}
-		}
-	}
-
-	for (size_t i = 0; i < mirror_joints0.size(); ++i)
-	{
-		int id0 = mirror_joints0[i];
-		int id1 = mirror_joints1[i];
-
-		int offset0 = cKinTree::GetParamOffset(joint_mat, id0);
-		int size0 = cKinTree::GetParamSize(joint_mat, id0);
-		int offset1 = cKinTree::GetParamOffset(joint_mat, id1);
-		int size1 = cKinTree::GetParamSize(joint_mat, id1);
-
-		Eigen::VectorXd params0 = out_pose.segment(offset0, size0);
-		Eigen::VectorXd params1 = out_pose.segment(offset1, size1);
-		out_pose.segment(offset0, size0) = params1;
-		out_pose.segment(offset1, size1) = params0;
-	}
-}
-
 
 tMatrix cKinTree::ChildParentTransRoot(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& state, int joint_id)
 {

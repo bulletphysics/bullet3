@@ -47,6 +47,8 @@ CXX_FLAGS += '-DEGL_ADD_PYTHON_INIT '
 CXX_FLAGS += '-DB3_ENABLE_FILEIO_PLUGIN '
 CXX_FLAGS += '-DB3_USE_ZIPFILE_FILEIO '
 CXX_FLAGS += '-DBT_THREADSAFE=1 '
+CXX_FLAGS += '-DSTATIC_LINK_SPD_PLUGIN '
+
 
 EGL_CXX_FLAGS = ''
 
@@ -98,6 +100,13 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/SharedMemory/PosixSharedMemory.cpp"]\
 +["examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp"]\
 +["examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/KinTree.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/MathUtil.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/RBDModel.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp"]\
 +["examples/SharedMemory/PhysicsClientUDP.cpp"]\
 +["examples/SharedMemory/PhysicsClientUDP_C_API.cpp"]\
 +["examples/SharedMemory/PhysicsClientTCP.cpp"]\
@@ -585,7 +594,7 @@ if 'BT_USE_EGL' in EGL_CXX_FLAGS:
 
 setup(
 	name = 'pybullet',
-	version='2.4.0',
+	version='2.4.2',
 	description='Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and deep reinforcement learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',

@@ -1,11 +1,10 @@
 #pragma once
 
-#include <random>
 
 #include "Eigen/Dense"
 #include "Eigen/StdVector"
 #include "Eigen/Geometry"
-#include "Rand.h"
+
 #define _USE_MATH_DEFINES
 #include "math.h"
 
@@ -18,9 +17,6 @@ typedef Eigen::Matrix4d tMatrix;
 typedef Eigen::Matrix3d tMatrix3;
 typedef Eigen::Quaterniond tQuaternion;
 
-template <typename T>
-using tEigenArr = std::vector<T, Eigen::aligned_allocator<T> >;
-typedef tEigenArr<tVector> tVectorArr;
 
 const double gRadiansToDegrees = 57.2957795;
 const double gDegreesToRadians = 1.0 / gRadiansToDegrees;
@@ -47,20 +43,6 @@ public:
 
 	static double NormalizeAngle(double theta);
 
-	// rand number
-	static double RandDouble();
-	static double RandDouble(double min, double max);
-	static double RandDoubleNorm(double mean, double stdev);
-	static double RandDoubleExp(double lambda);
-	static double RandDoubleSeed(double seed);
-	static int RandInt();
-	static int RandInt(int min, int max);
-	static int RandUint();
-	static int RandUint(unsigned int min, unsigned int max);
-	static int RandIntExclude(int min, int max, int exc);
-	static void SeedRand(unsigned long int seed);
-	static int RandSign();
-	static bool FlipCoin(double p = 0.5);
 	static double SmoothStep(double t);
 
 	// matrices
@@ -117,7 +99,6 @@ public:
 	static double Sigmoid(double x);
 	static double Sigmoid(double x, double gamma, double bias);
 
-	static int SampleDiscreteProb(const Eigen::VectorXd& probs);
 	static tVector CalcBarycentric(const tVector& p, const tVector& a, const tVector& b, const tVector& c);
 
 	static bool ContainsAABB(const tVector& pt, const tVector& aabb_min, const tVector& aabb_max);
@@ -134,19 +115,14 @@ public:
 	// check if curr_val and curr_val - delta belong to different intervals
 	static bool CheckNextInterval(double delta, double curr_val, double int_size);
 
-	static tVector SampleRandPt(const tVector& bound_min, const tVector& bound_max);
-	// samples a bound within the given bounds with a benter towards the focus pt
-	static tVector SampleRandPtBias(const tVector& bound_min, const tVector& bound_max);
-	static tVector SampleRandPtBias(const tVector& bound_min, const tVector& bound_max, const tVector& focus);
-
+	
 	static void QuatSwingTwistDecomposition(const tQuaternion& q, const tVector& dir, tQuaternion& out_swing, tQuaternion& out_twist);
 	static tQuaternion ProjectQuat(const tQuaternion& q, const tVector& dir);
 
 	static void ButterworthFilter(double dt, double cutoff, Eigen::VectorXd& out_x);
 	
 private:
-	static cRand gRand;
-
+	
 	template <typename T>
 	static T SignAux(T val)
 	{

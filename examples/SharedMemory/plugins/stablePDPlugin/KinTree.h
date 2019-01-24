@@ -238,8 +238,7 @@ public:
 	static void NormalizePoseHeading(const Eigen::MatrixXd& joint_mat, Eigen::VectorXd& out_pose);
 	static void NormalizePoseHeading(const Eigen::MatrixXd& joint_mat, Eigen::VectorXd& out_pose, Eigen::VectorXd& out_vel);
 
-	static void MirrorPoseStance(const Eigen::MatrixXd& joint_mat, const std::vector<int> mirror_joints0, const std::vector<int> mirror_joints1, Eigen::VectorXd& out_pose);
-
+	
 
 protected:
 	static bool ParseJointType(const std::string& type_str, eJointType& out_joint_type);
