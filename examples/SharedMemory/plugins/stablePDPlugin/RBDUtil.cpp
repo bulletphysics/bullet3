@@ -31,7 +31,8 @@ void cRBDUtil::SolveInvDyna(const cRBDModel& model, const Eigen::VectorXd& acc, 
 			cSpAlg::tSpTrans parent_child_trans = model.GetSpParentChildTrans(j);
 			cSpAlg::tSpTrans world_child_trans = model.GetSpWorldJointTrans(j);
 
-			const auto S = model.GetJointSubspace(j);
+			const Eigen::Block<const Eigen::MatrixXd> S = model.GetJointSubspace(j);
+			
 			Eigen::VectorXd q;
 			Eigen::VectorXd dq;
 			Eigen::VectorXd ddq;
@@ -84,7 +85,7 @@ void cRBDUtil::SolveInvDyna(const cRBDModel& model, const Eigen::VectorXd& acc, 
 		if (cKinTree::IsValidBody(body_defs, j))
 		{
 			cSpAlg::tSpVec curr_f = fs.row(j);
-			const auto S = model.GetJointSubspace(j);
+			const const Eigen::Block<const Eigen::MatrixXd> S = model.GetJointSubspace(j);
 			Eigen::VectorXd curr_tau = S.transpose() * curr_f;
 
 			cKinTree::SetJointParams(joint_mat, j, curr_tau, out_tau);
@@ -156,7 +157,7 @@ void cRBDUtil::BuildMassMat(const cRBDModel& model, Eigen::MatrixXd& inertia_buf
 	{
 		if (cKinTree::IsValidBody(body_defs, j))
 		{
-			const auto curr_I = Is.block(j * svs, 0, svs, svs);
+			Eigen::Block< Eigen::MatrixXd, -1, -1, false> curr_I = Is.block(j * svs, 0, svs, svs);
 			int parent_id = cKinTree::GetParent(joint_mat, j);
 			if (cKinTree::HasParent(joint_mat, j))
 			{
@@ -166,7 +167,7 @@ void cRBDUtil::BuildMassMat(const cRBDModel& model, Eigen::MatrixXd& inertia_buf
 				Is.block(parent_id * svs, 0, svs, svs) += child_parent_mat * curr_I * parent_child_mat;
 			}
 
-			const auto S = model.GetJointSubspace(j);
+			const Eigen::Block<const Eigen::MatrixXd> S = model.GetJointSubspace(j);
 			int dim = cKinTree::GetParamSize(joint_mat, j);
 			if (dim > 0)
 			{
@@ -186,7 +187,7 @@ void cRBDUtil::BuildMassMat(const cRBDModel& model, Eigen::MatrixXd& inertia_buf
 
 					if (curr_dim > 0)
 					{
-						const auto curr_S = model.GetJointSubspace(curr_id);
+						const Eigen::Block<const Eigen::MatrixXd> curr_S = model.GetJointSubspace(curr_id);
 						H.block(offset, curr_offset, dim, curr_dim) = F.transpose() * curr_S;
 						H.block(curr_offset, offset, curr_dim, dim) = H.block(offset, curr_offset, dim, curr_dim).transpose();
 					}
@@ -261,7 +262,7 @@ Eigen::MatrixXd cRBDUtil::MultJacobianEndEff(const Eigen::MatrixXd& joint_mat, c
 		int size = cKinTree::GetParamSize(joint_mat, curr_id);
 		Eigen::VectorXd curr_q;
 		cKinTree::GetJointParams(joint_mat, q, curr_id, curr_q);
-		const auto curr_J = J.block(0, offset, cSpAlg::gSpVecSize, size);
+		const Eigen::Block<const Eigen::MatrixXd> curr_J = J.block(0, offset, cSpAlg::gSpVecSize, size);
 		
 		joint_vel += curr_J * curr_q;
 		curr_id = cKinTree::GetParent(joint_mat, curr_id);
@@ -299,7 +300,7 @@ Eigen::MatrixXd cRBDUtil::ExtractEndEffJacobian(const Eigen::MatrixXd& joint_mat
 	{
 		int offset = cKinTree::GetParamOffset(joint_mat, curr_id);
 		int size = cKinTree::GetParamSize(joint_mat, curr_id);
-		const auto curr_J = J.block(0, offset, cSpAlg::gSpVecSize, size);
+		const Eigen::Block<const Eigen::MatrixXd> curr_J = J.block(0, offset, cSpAlg::gSpVecSize, size);
 
 		J_end_eff.block(0, offset, cSpAlg::gSpVecSize, size) = curr_J;
 		curr_id = cKinTree::GetParent(joint_mat, curr_id);
@@ -353,7 +354,7 @@ void cRBDUtil::BuildCOMJacobian(const cRBDModel& model, const Eigen::MatrixXd& J
 				int size = cKinTree::GetParamSize(joint_mat, curr_id);
 				
 				const Eigen::MatrixXd& J_block = J.block(0, offset, cSpAlg::gSpVecSize, size);
-				auto J_com_block = out_J.block(0, offset, cSpAlg::gSpVecSize, size);
+				Eigen::Block<Eigen::MatrixXd, -1, -1, false> J_com_block = out_J.block(0, offset, cSpAlg::gSpVecSize, size);
 				J_com_block += mass_frac * cSpAlg::ApplyTransM(body_pos_trans, J_block);
 
 				curr_id = cKinTree::GetParent(joint_mat, curr_id);
@@ -456,7 +457,7 @@ cSpAlg::tSpVec cRBDUtil::CalcVelProdAcc(const cRBDModel& model, const Eigen::Mat
 		Eigen::VectorXd dq;
 		cKinTree::GetJointParams(joint_mat, pose, curr_id, q);
 		cKinTree::GetJointParams(joint_mat, vel, curr_id, dq);
-		const auto curr_Jd = Jd.block(0, offset, cSpAlg::gSpVecSize, size);
+		const Eigen::Block<const Eigen::MatrixXd> curr_Jd = Jd.block(0, offset, cSpAlg::gSpVecSize, size);
 
 		cSpAlg::tSpVec cj = BuildCj(joint_mat, q, dq, curr_id);
 		if (cj.squaredNorm() > 0)
@@ -1035,7 +1036,7 @@ void cRBDUtil::CalcGravityForce(const cRBDModel& model, Eigen::VectorXd& out_g_f
 		if (cKinTree::IsValidBody(body_defs, j))
 		{
 			cSpAlg::tSpVec curr_f = fs.row(j);
-			const auto S = model.GetJointSubspace(j);
+			const Eigen::Block<const Eigen::MatrixXd> S = model.GetJointSubspace(j);
 			Eigen::VectorXd curr_tau = S.transpose() * curr_f;
 
 			cKinTree::SetJointParams(joint_mat, j, curr_tau, out_g_force);

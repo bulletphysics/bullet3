@@ -1793,8 +1793,8 @@ void cKinTree::MirrorPoseStance(const Eigen::MatrixXd& joint_mat, const std::vec
 		{
 			int param_offset = cKinTree::GetParamOffset(joint_mat, j);
 			int param_size = cKinTree::GetParamSize(joint_mat, j);
-			auto joint_params = out_pose.segment(param_offset, param_size);
-
+			Eigen::VectorBlock<Eigen::VectorXd>& joint_params = out_pose.segment(param_offset, param_size);
+			
 			if (joint_type == cKinTree::eJointTypeRevolute
 				|| joint_type == cKinTree::eJointTypeFixed)
 			{
