@@ -85,7 +85,7 @@ void cRBDUtil::SolveInvDyna(const cRBDModel& model, const Eigen::VectorXd& acc, 
 		if (cKinTree::IsValidBody(body_defs, j))
 		{
 			cSpAlg::tSpVec curr_f = fs.row(j);
-			const const Eigen::Block<const Eigen::MatrixXd> S = model.GetJointSubspace(j);
+			const Eigen::Block<const Eigen::MatrixXd> S = model.GetJointSubspace(j);
 			Eigen::VectorXd curr_tau = S.transpose() * curr_f;
 
 			cKinTree::SetJointParams(joint_mat, j, curr_tau, out_tau);
