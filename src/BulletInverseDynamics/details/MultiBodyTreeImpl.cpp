@@ -486,7 +486,10 @@ int MultiBodyTree::MultiBodyImpl::calculateKinematics(const vecx &q, const vecx 
 				transformZ(q(body.m_q_index + 2));
 		body.m_body_T_parent = T * body.m_body_T_parent_ref;
 			
-		body.m_parent_pos_parent_body.setValue(0,0,0);
+		body.m_parent_pos_parent_body(0)=0;
+		body.m_parent_pos_parent_body(1)=0;
+		body.m_parent_pos_parent_body(2)=0;
+		
 		body.m_parent_pos_parent_body = body.m_body_T_parent * body.m_parent_pos_parent_body;
 
 		if (type >= POSITION_VELOCITY)
@@ -850,7 +853,10 @@ int MultiBodyTree::MultiBodyImpl::calculateMassMatrix(const vecx &q, const bool 
 				transformZ(q(body.m_q_index + 2));
 			body.m_body_T_parent = T * body.m_body_T_parent_ref;
 
-			body.m_parent_pos_parent_body.setValue(0, 0, 0);
+			body.m_parent_pos_parent_body(0)=0;
+			body.m_parent_pos_parent_body(1)=0;
+			body.m_parent_pos_parent_body(2)=0;
+			
 			body.m_parent_pos_parent_body = body.m_body_T_parent * body.m_parent_pos_parent_body;
 		}
 	}
