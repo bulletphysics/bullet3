@@ -3,7 +3,6 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-cRand cMathUtil::gRand = cRand();
 
 int cMathUtil::Clamp(int val, int min, int max)
 {
@@ -45,69 +44,6 @@ double cMathUtil::NormalizeAngle(double theta)
 	return norm_theta;
 }
 
-double cMathUtil::RandDouble()
-{
-	return RandDouble(0, 1);
-}
-
-double cMathUtil::RandDouble(double min, double max)
-{
-	return gRand.RandDouble(min, max);
-}
-
-double cMathUtil::RandDoubleNorm(double mean, double stdev)
-{
-	return gRand.RandDoubleNorm(mean, stdev);
-}
-
-double cMathUtil::RandDoubleExp(double lambda)
-{
-	return gRand.RandDoubleExp(lambda);
-}
-
-double cMathUtil::RandDoubleSeed(double seed)
-{
-	unsigned int int_seed = *reinterpret_cast<unsigned int*>(&seed);
-	std::default_random_engine rand_gen(int_seed);
-	std::uniform_real_distribution<double> dist;
-	return dist(rand_gen);
-}
-
-int cMathUtil::RandInt()
-{
-	return gRand.RandInt();
-}
-
-int cMathUtil::RandInt(int min, int max)
-{
-	return gRand.RandInt(min, max);
-}
-
-int cMathUtil::RandUint()
-{
-	return gRand.RandUint();
-}
-
-int cMathUtil::RandUint(unsigned int min, unsigned int max)
-{
-	return gRand.RandUint(min, max);
-}
-
-int cMathUtil::RandIntExclude(int min, int max, int exc)
-{
-	return gRand.RandIntExclude(min, max, exc);
-}
-
-void cMathUtil::SeedRand(unsigned long int seed)
-{
-	gRand.Seed(seed);
-	srand(gRand.RandInt());
-}
-
-int cMathUtil::RandSign()
-{
-	return gRand.RandSign();
-}
 
 double cMathUtil::SmoothStep(double t)
 {
@@ -115,10 +51,6 @@ double cMathUtil::SmoothStep(double t)
 	return val;
 }
 
-bool cMathUtil::FlipCoin(double p)
-{
-	return gRand.FlipCoin(p);
-}
 
 tMatrix cMathUtil::TranslateMat(const tVector& trans)
 {
@@ -665,26 +597,6 @@ double cMathUtil::Sigmoid(double x, double gamma, double bias)
 	return val;
 }
 
-int cMathUtil::SampleDiscreteProb(const Eigen::VectorXd& probs)
-{
-	assert(std::abs(probs.sum() - 1) < 0.00001);
-	double rand = RandDouble();
-
-	int rand_idx = gInvalidIdx;
-	int num_probs = static_cast<int>(probs.size());
-	for (int i = 0; i < num_probs; ++i)
-	{
-		double curr_prob = probs[i];
-		rand -= curr_prob;
-
-		if (rand <= 0)
-		{
-			rand_idx = i;
-			break;
-		}
-	}
-	return rand_idx;
-}
 
 tVector cMathUtil::CalcBarycentric(const tVector& p, const tVector& a, const tVector& b, const tVector& c)
 {
@@ -791,32 +703,7 @@ bool cMathUtil::CheckNextInterval(double delta, double curr_val, double int_size
 	return new_action;
 }
 
-tVector cMathUtil::SampleRandPt(const tVector& bound_min, const tVector& bound_max)
-{
-	tVector pt = tVector(RandDouble(bound_min[0], bound_max[0]),
-						RandDouble(bound_min[1], bound_max[1]),
-						RandDouble(bound_min[2], bound_max[2]), 0);
-	return pt;
-}
 
-tVector cMathUtil::SampleRandPtBias(const tVector& bound_min, const tVector& bound_max)
-{
-	return SampleRandPtBias(bound_min, bound_max, 0.5 * (bound_max + bound_min));
-}
-
-tVector cMathUtil::SampleRandPtBias(const tVector& bound_min, const tVector& bound_max, const tVector& focus)
-{
-	double t = RandDouble(0, 1);
-	tVector size = bound_max - bound_min;
-	tVector new_min = focus + (t * 0.5) * size;
-	tVector new_max = focus - (t * 0.5) * size;
-	tVector offset = (bound_min - new_min).cwiseMax(0);
-	offset += (bound_max - new_max).cwiseMin(0);
-	new_min += offset;
-	new_max += offset;
-
-	return SampleRandPt(new_min, new_max);
-}
 
 void cMathUtil::QuatSwingTwistDecomposition(const tQuaternion& q, const tVector& dir, tQuaternion& out_swing, tQuaternion& out_twist)
 {
