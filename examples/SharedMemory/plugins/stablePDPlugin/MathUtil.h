@@ -17,9 +17,6 @@ typedef Eigen::Matrix4d tMatrix;
 typedef Eigen::Matrix3d tMatrix3;
 typedef Eigen::Quaterniond tQuaternion;
 
-template <typename T>
-using tEigenArr = std::vector<T, Eigen::aligned_allocator<T> >;
-typedef tEigenArr<tVector> tVectorArr;
 
 const double gRadiansToDegrees = 57.2957795;
 const double gDegreesToRadians = 1.0 / gRadiansToDegrees;
