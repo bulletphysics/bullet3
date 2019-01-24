@@ -122,7 +122,7 @@ void btConvexPolyhedron::initialize()
 
 			for (int p = 0; p < m_uniqueEdges.size(); p++)
 			{
-				if (IsAlmostZero(m_uniqueEdges[p] - edge) ||
+				if (IsAlmostZero1(m_uniqueEdges[p] - edge) ||
 					IsAlmostZero1(m_uniqueEdges[p] + edge))
 				{
 					found = true;
