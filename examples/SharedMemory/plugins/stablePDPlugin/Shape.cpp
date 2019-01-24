@@ -1,5 +1,6 @@
 #include "Shape.h"
 #include <assert.h>
+#include <stdio.h>
 
 bool cShape::ParseShape(const std::string& str, eShape& out_shape)
 {
