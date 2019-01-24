@@ -92,8 +92,8 @@ struct TinyRendererVisualShapeConverterInternalData
 	SimpleCamera m_camera;
 
 	TinyRendererVisualShapeConverterInternalData()
-		: m_upAxis(2),
-		  m_uidGenerator(1),
+		: m_uidGenerator(1),
+			m_upAxis(2),
 		  m_swWidth(START_WIDTH),
 		  m_swHeight(START_HEIGHT),
 		  m_rgbColorBuffer(START_WIDTH, START_HEIGHT, TGAImage::RGB),
