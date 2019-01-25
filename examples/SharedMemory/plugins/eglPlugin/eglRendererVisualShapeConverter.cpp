@@ -250,6 +250,7 @@ static void SimpleResizeCallback(float widthf, float heightf)
 	//	gApp->m_primRenderer->setScreenSize(width, height);
 }
 
+#if 0
 static void SimpleKeyboardCallback(int key, int state)
 {
 	if (key == B3G_ESCAPE) //&& gApp && gApp->m_window)
@@ -261,7 +262,7 @@ static void SimpleKeyboardCallback(int key, int state)
 		//gApp->defaultKeyboardCallback(key,state);
 	}
 }
-
+#endif
 static void SimpleMouseButtonCallback(int button, int state, float x, float y)
 {
 	if (gWindow)
