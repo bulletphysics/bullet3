@@ -140,7 +140,7 @@ class MinitaurLogging(object):
     Returns:
       The minitaur episode proto.
     """
-    with tf.gfile.Open(log_path) as f:
+    with tf.gfile.Open(log_path, 'rb') as f:
       content = f.read()
       episode_proto = minitaur_logging_pb2.MinitaurEpisode()
       episode_proto.ParseFromString(content)
