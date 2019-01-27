@@ -20,7 +20,7 @@ project ("pybullet")
 		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
 	hasCL = findOpenCL("clew")
 
-	links{"BulletExampleBrowserLib","gwen", "BulletFileLoader","BulletWorldImporter","OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK", "Bullet3Common"}
+	links{ "BulletExampleBrowserLib","gwen", "BulletFileLoader","BulletWorldImporter","OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK", "Bullet3Common"}
 	initOpenGL()
 	initGlew()
 
@@ -171,7 +171,55 @@ if not _OPTIONS["no-enet"] then
 			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",
 			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
 			}
+
+	if _OPTIONS["enable_physx"] then
+  	defines {"BT_ENABLE_PHYSX","PX_PHYSX_STATIC_LIB", "PX_FOUNDATION_DLL=0"}
+		
+		configuration {"x64", "debug"}			
+				defines {"_DEBUG"}
+		configuration {"x86", "debug"}
+				defines {"_DEBUG"}
+		configuration {"x64", "release"}
+				defines {"NDEBUG"}
+		configuration {"x86", "release"}
+				defines {"NDEBUG"}
+		configuration{}
+
+		includedirs {
+                ".",
+                "../../src/PhysX/physx/include",
+						    "../../src/PhysX/physx/include/characterkinematic",
+						    "../../src/PhysX/physx/include/common",
+						    "../../src/PhysX/physx/include/cooking",
+						    "../../src/PhysX/physx/include/extensions",
+						    "../../src/PhysX/physx/include/geometry",
+						    "../../src/PhysX/physx/include/geomutils",
+						    "../../src/PhysX/physx/include/vehicle",
+						    "../../src/PhysX/pxshared/include",
+                }
+		links {
+				"PhysX",
+			}
 			
+			files {
+				"../../examples/SharedMemory/plugins/eglPlugin/eglRendererPlugin.cpp",
+				"../../examples/SharedMemory/plugins/eglPlugin/eglRendererPlugin.h",
+				"../../examples/SharedMemory/plugins/eglPlugin/eglRendererVisualShapeConverter.cpp",
+				"../../examples/SharedMemory/plugins/eglPlugin/eglRendererVisualShapeConverter.h",
+				"../../examples/SharedMemory/physx/PhysXC_API.cpp",
+				"../../examples/SharedMemory/physx/PhysXClient.cpp",
+				"../../examples/SharedMemory/physx/PhysXServerCommandProcessor.cpp",
+				"../../examples/SharedMemory/physx/PhysXUrdfImporter.cpp",
+				"../../examples/SharedMemory/physx/URDF2PhysX.cpp",
+				"../../examples/SharedMemory/physx/PhysXC_API.h",
+				"../../examples/SharedMemory/physx/PhysXClient.h",
+				"../../examples/SharedMemory/physx/PhysXServerCommandProcessor.h",
+				"../../examples/SharedMemory/physx/PhysXUrdfImporter.h",
+				"../../examples/SharedMemory/physx/URDF2PhysX.h",
+				"../../examples/SharedMemory/physx/PhysXUserData.h",
+				}
+  end
+  			
 if (_OPTIONS["enable_static_vr_plugin"]) then
 		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
 end

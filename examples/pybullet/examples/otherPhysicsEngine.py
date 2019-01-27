@@ -1,32 +1,14 @@
 import pybullet as p
 import time
 
-#p.connect(p.DIRECT)
-#p.connect(p.DART)
-p.connect(p.MuJoCo)
+p.connect(p.PhysX)
+p.loadPlugin("eglRendererPlugin")
 
-#p.connect(p.GUI)
-bodies = p.loadMJCF("mjcf/capsule.xml")
-print("bodies=",bodies)
-
-numBodies = p.getNumBodies()
-print("numBodies=",numBodies)
-for i in range (numBodies):
-	print("bodyInfo[",i,"]=",p.getBodyInfo(i))
-	
+p.loadURDF("plane.urdf")
+for i in range (50):
+	p.loadURDF("r2d2.urdf",[0,0,1+i*2])
 p.setGravity(0,0,-10)
-timeStep = 1./240.
-p.setPhysicsEngineParameter(fixedTimeStep=timeStep)
 
-#while (p.isConnected()):
-for i in range (1000):
+while (1):
 	p.stepSimulation()
-
-	for b in bodies:
-		pos,orn=p.getBasePositionAndOrientation(b)
-		print("pos[",b,"]=",pos)
-		print("orn[",b,"]=",orn)
-		linvel,angvel=p.getBaseVelocity(b)
-		print("linvel[",b,"]=",linvel)
-		print("angvel[",b,"]=",angvel)
-	time.sleep(timeStep)
+	time.sleep(1./240.)

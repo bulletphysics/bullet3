@@ -68,6 +68,7 @@
 #endif  //SKIP_STATIC_PD_CONTROL_PLUGIN
 
 
+
 #ifdef STATIC_LINK_SPD_PLUGIN
 #include "plugins/stablePDPlugin/BulletConversion.h"
 #include "plugins/stablePDPlugin/RBDModel.h"
@@ -8299,15 +8300,23 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 				}
 				if (hasPosVar)
 				{
-					btQuaternion q(
-						clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex],
-						clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex+1],
-						clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex+2],
-						clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex+3]);
-					q.normalize();
-					mb->setJointPosMultiDof(i, &q[0]);
-					double vel[6] = { 0, 0, 0, 0, 0, 0 };
-					mb->setJointVelMultiDof(i, vel);
+					if (mb->getLink(i).m_dofCount == 1)
+					{
+						mb->setJointPos(i, clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex]);
+						mb->setJointVel(i, 0);//backwards compatibility
+					}
+					if (mb->getLink(i).m_dofCount == 3)
+					{
+						btQuaternion q(
+							clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex],
+							clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex + 1],
+							clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex + 2],
+							clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex + 3]);
+						q.normalize();
+						mb->setJointPosMultiDof(i, &q[0]);
+						double vel[6] = { 0, 0, 0, 0, 0, 0 };
+						mb->setJointVelMultiDof(i, vel);
+					}
 				}
 				
 				bool hasVel = true;
@@ -8322,7 +8331,15 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 
 				if (hasVel)
 				{
-					mb->setJointVelMultiDof(i, &clientCmd.m_initPoseArgs.m_initialStateQdot[uDofIndex]);
+					if (mb->getLink(i).m_dofCount == 1)
+					{
+						btScalar vel = clientCmd.m_initPoseArgs.m_initialStateQdot[uDofIndex];
+						mb->setJointVel(i, vel);
+					}
+					if (mb->getLink(i).m_dofCount == 3)
+					{
+						mb->setJointVelMultiDof(i, &clientCmd.m_initPoseArgs.m_initialStateQdot[uDofIndex]);
+					}
 				}
 								
 				posVarCountIndex += mb->getLink(i).m_posVarCount;

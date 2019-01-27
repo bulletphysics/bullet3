@@ -7,7 +7,7 @@ bool cShape::ParseShape(const std::string& str, eShape& out_shape)
 	bool succ = true;
 	if (str == "null")
 	{
-		out_shape = eShapeNull;
+		out_shape = eShapeNull;  
 	}
 	else if (str == "box")
 	{
