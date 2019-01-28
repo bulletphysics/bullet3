@@ -57,7 +57,7 @@ class KukaGymEnv(gym.Env):
     else:
       p.connect(p.DIRECT)
     #timinglog = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "kukaTimings.json")
-    self._seed()
+    self.seed()
     self.reset()
     observationDim = len(self.getExtendedObservation())
     #print("observationDim")
@@ -74,7 +74,7 @@ class KukaGymEnv(gym.Env):
     self.observation_space = spaces.Box(-observation_high, observation_high)
     self.viewer = None
 
-  def _reset(self):
+  def reset(self):
     #print("KukaGymEnv _reset")
     self.terminated = 0
     p.resetSimulation()
@@ -100,7 +100,7 @@ class KukaGymEnv(gym.Env):
   def __del__(self):
     p.disconnect()
 
-  def _seed(self, seed=None):
+  def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
 
@@ -138,7 +138,7 @@ class KukaGymEnv(gym.Env):
      self._observation.extend(list(blockInGripperPosXYEulZ))
      return self._observation
 
-  def _step(self, action):
+  def step(self, action):
     if (self._isDiscrete):
       dv = 0.005
       dx = [0,-dv,dv,0,0,0,0][action]
@@ -183,10 +183,10 @@ class KukaGymEnv(gym.Env):
 
     return np.array(self._observation), reward, done, {}
 
-  def _render(self, mode="rgb_array", close=False):
+  def render(self, mode="rgb_array", close=False):
     if mode != "rgb_array":
       return np.array([])
-    
+
     base_pos,orn = self._p.getBasePositionAndOrientation(self._kuka.kukaUid)
     view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
         cameraTargetPosition=base_pos,
@@ -203,10 +203,10 @@ class KukaGymEnv(gym.Env):
         projectionMatrix=proj_matrix, renderer=self._p.ER_BULLET_HARDWARE_OPENGL)
         #renderer=self._p.ER_TINY_RENDERER)
 
-        
+
     rgb_array = np.array(px, dtype=np.uint8)
     rgb_array = np.reshape(rgb_array, (RENDER_HEIGHT, RENDER_WIDTH, 4))
-		
+
     rgb_array = rgb_array[:, :, :3]
     return rgb_array
 
@@ -283,8 +283,8 @@ class KukaGymEnv(gym.Env):
     #print(reward)
     return reward
 
-  if parse_version(gym.__version__)>=parse_version('0.9.6'):
-    render = _render
-    reset = _reset
-    seed = _seed
-    step = _step
+  if parse_version(gym.__version__) < parse_version('0.9.6'):
+    _render = render
+    _reset = reset
+    _seed = seed
+    _step = step

@@ -66,9 +66,9 @@ class MinitaurBallGymEnv(minitaur_gym_env.MinitaurGymEnv):
     self.observation_space = spaces.Box(np.array([-math.pi, 0]),
                                         np.array([math.pi, 100]))
 
-  def _reset(self):
+  def reset(self):
     self._ball_id = 0
-    super(MinitaurBallGymEnv, self)._reset()
+    super(MinitaurBallGymEnv, self).reset()
     self._init_ball_theta = random.uniform(-INIT_BALL_ANGLE, INIT_BALL_ANGLE)
     self._init_ball_distance = INIT_BALL_DISTANCE
     self._ball_pos = [self._init_ball_distance *

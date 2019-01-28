@@ -1,7 +1,8 @@
 import os
-import numpy as np
 import copy
 import math
+
+import numpy as np
 
 class Racecar:
 
@@ -18,7 +19,7 @@ class Racecar:
 		#	print (self._p.getJointInfo(car,i))
 		for wheel in range(self._p.getNumJoints(car)):
 				self._p.setJointMotorControl2(car,wheel,self._p.VELOCITY_CONTROL,targetVelocity=0,force=0)
-				self._p.getJointInfo(car,wheel)	
+				self._p.getJointInfo(car,wheel)
 
 		#self._p.setJointMotorControl2(car,10,self._p.VELOCITY_CONTROL,targetVelocity=1,force=10)
 		c = self._p.createConstraint(car,9,car,11,jointType=self._p.JOINT_GEAR,jointAxis =[0,1,0],parentFramePosition=[0,0,0],childFramePosition=[0,0,0])
@@ -80,4 +81,3 @@ class Racecar:
 			self._p.setJointMotorControl2(self.racecarUniqueId,motor,self._p.VELOCITY_CONTROL,targetVelocity=targetVelocity,force=self.maxForce)
 		for steer in self.steeringLinks:
 			self._p.setJointMotorControl2(self.racecarUniqueId,steer,self._p.POSITION_CONTROL,targetPosition=steeringAngle)
-
