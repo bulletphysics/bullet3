@@ -3,6 +3,8 @@ from setuptools import find_packages
 from sys import platform as _platform
 import sys
 import glob
+import os
+
 
 from distutils.core import setup
 from distutils.extension import Extension
@@ -12,6 +14,8 @@ from glob import glob
 # monkey-patch for parallel compilation
 import multiprocessing
 import multiprocessing.pool
+
+
 def parallelCCompile(self, sources, output_dir=None, macros=None, include_dirs=None, debug=0, extra_preargs=None, extra_postargs=None, depends=None):
     # those lines are copied from distutils.ccompiler.CCompiler directly
     macros, objects, extra_postargs, pp_opts, build = self._setup_compile(output_dir, macros, include_dirs, sources, depends, extra_postargs)
@@ -21,14 +25,17 @@ def parallelCCompile(self, sources, output_dir=None, macros=None, include_dirs=N
     def _single_compile(obj):
         try: src, ext = build[obj]
         except KeyError: return
-        self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+        newcc_args = cc_args
+        if _platform == "darwin":
+          if src.endswith('.cpp'):
+            newcc_args = cc_args + ["-stdlib=libc++"]
+        self._compile(obj, src, ext, newcc_args, extra_postargs, pp_opts)
     # convert to list, imap is evaluated on-demand
     pool = multiprocessing.pool.ThreadPool(N)
     list(pool.imap(_single_compile,objects))
     return objects
 import distutils.ccompiler
 distutils.ccompiler.CCompiler.compile=parallelCCompile
-
 
 #see http://stackoverflow.com/a/8719066/295157
 import os
@@ -381,7 +388,7 @@ elif _platform == "win32":
     +["examples/ThirdPartyLibs/glad/gl.c"]
 elif _platform == "darwin":
     print("darwin!")
-    os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
+    os.environ['LDFLAGS'] = '-framework Cocoa -stdlib=libc++ -framework OpenGL'
     CXX_FLAGS += '-DB3_NO_PYTHON_FRAMEWORK '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
     CXX_FLAGS += '-D_DARWIN '
