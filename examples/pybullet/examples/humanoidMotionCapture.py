@@ -2,7 +2,11 @@ import pybullet as p
 import json
 import time
 
-p.connect(p.GUI)
+useGUI = True
+if useGUI:
+	p.connect(p.GUI)
+else:
+	p.connect(p.DIRECT)
 
 useZUp = False
 useYUp = not useZUp
@@ -198,15 +202,19 @@ p.getCameraImage(320,200)
 
 while (p.isConnected()):
 
-	
-	erp = p.readUserDebugParameter(erpId)
-	
-	kpMotor = p.readUserDebugParameter(kpMotorId)
-	maxForce=p.readUserDebugParameter(forceMotorId)
+	if useGUI:	
+		erp = p.readUserDebugParameter(erpId)
+		kpMotor = p.readUserDebugParameter(kpMotorId)
+		maxForce=p.readUserDebugParameter(forceMotorId)
+		frameReal = p.readUserDebugParameter(frameId)
+	else:
+		erp = 0.2
+		kpMotor = 0.2
+		maxForce=1000
+		frameReal = 0
+
 	kp=kpMotor
 	
-	
-	frameReal = p.readUserDebugParameter(frameId)
 	frame = int(frameReal)
 	frameNext = frame+1
 	if (frameNext >=  numFrames):
