@@ -185,6 +185,34 @@ static int pybullet_internalSetVector(PyObject* objVec, float vector[3])
 	return 0;
 }
 
+//  vector - double[2] which will be set by values from obVec
+static int pybullet_internalSetVector2d(PyObject* obVec, double vector[2])
+{
+	int i, len;
+	PyObject* seq;
+	if (obVec == NULL)
+		return 0;
+
+	seq = PySequence_Fast(obVec, "expected a sequence");
+	if (seq)
+	{
+		len = PySequence_Size(obVec);
+		assert(len == 2);
+		if (len == 2)
+		{
+			for (i = 0; i < len; i++)
+			{
+				vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+			}
+			Py_DECREF(seq);
+			return 1;
+		}
+		Py_DECREF(seq);
+	}
+	PyErr_Clear();
+	return 0;
+}
+
 //  vector - double[3] which will be set by values from obVec
 static int pybullet_internalSetVectord(PyObject* obVec, double vector[3])
 {
@@ -6773,6 +6801,45 @@ static int extractVertices(PyObject* verticesObj, double* vertices, int maxNumVe
 	return numVerticesOut;
 }
 
+
+static int extractUVs(PyObject* uvsObj, double* uvs, int maxNumVertices)
+{
+	int numUVOut = 0;
+
+	if (uvsObj)
+	{
+		PyObject* seqVerticesObj = PySequence_Fast(uvsObj, "expected a sequence of uvs");
+		if (seqVerticesObj)
+		{
+			int numVerticesSrc = PySequence_Size(seqVerticesObj);
+			{
+				int i;
+
+				if (numVerticesSrc > B3_MAX_NUM_VERTICES)
+				{
+					PyErr_SetString(SpamError, "Number of uvs exceeds the maximum.");
+					Py_DECREF(seqVerticesObj);
+					return 0;
+				}
+				for (i = 0; i < numVerticesSrc; i++)
+				{
+					PyObject* vertexObj = PySequence_GetItem(seqVerticesObj, i);
+					double uv[2];
+					if (pybullet_internalSetVector2d(vertexObj, uv))
+					{
+						if (uvs)
+						{
+							uvs[numUVOut * 2 + 0] = uv[0];
+							uvs[numUVOut * 2 + 1] = uv[1];
+						}
+						numUVOut++;
+					}
+				}
+			}
+		}
+	}
+	return numUVOut;
+}
 static int extractIndices(PyObject* indicesObj, int* indices, int maxNumIndices)
 {
 	int numIndicesOut=0;
@@ -7183,9 +7250,14 @@ static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyOb
 
 	PyObject* halfExtentsObj = 0;
 
-	static char* kwlist[] = {"shapeType", "radius", "halfExtents", "length", "fileName", "meshScale", "planeNormal", "flags", "rgbaColor", "specularColor", "visualFramePosition", "visualFrameOrientation", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOOOi", kwlist,
-									 &shapeType, &radius, &halfExtentsObj, &length, &fileName, &meshScaleObj, &planeNormalObj, &flags, &rgbaColorObj, &specularColorObj, &visualFramePositionObj, &visualFrameOrientationObj, &physicsClientId))
+	PyObject* verticesObj = 0;
+	PyObject* indicesObj = 0;
+	PyObject* normalsObj = 0;
+	PyObject* uvsObj = 0;
+
+	static char* kwlist[] = {"shapeType", "radius", "halfExtents", "length", "fileName", "meshScale", "planeNormal", "flags", "rgbaColor", "specularColor", "visualFramePosition", "visualFrameOrientation", "vertices", "indices", "normals", "uvs", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOOOOOOOi", kwlist,
+									 &shapeType, &radius, &halfExtentsObj, &length, &fileName, &meshScaleObj, &planeNormalObj, &flags, &rgbaColorObj, &specularColorObj, &visualFramePositionObj, &visualFrameOrientationObj, &verticesObj, &indicesObj, &normalsObj, &uvsObj, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -7228,6 +7300,45 @@ static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyOb
 			pybullet_internalSetVectord(meshScaleObj, meshScale);
 			shapeIndex = b3CreateVisualShapeAddMesh(commandHandle, fileName, meshScale);
 		}
+
+		if (shapeType == GEOM_MESH && verticesObj && indicesObj)
+		{
+			int numVertices = extractVertices(verticesObj, 0, B3_MAX_NUM_VERTICES);
+			int numIndices = extractIndices(indicesObj, 0, B3_MAX_NUM_INDICES);
+			int numNormals = extractVertices(normalsObj, 0, B3_MAX_NUM_VERTICES);
+			int numUVs = extractUVs(uvsObj, 0, B3_MAX_NUM_VERTICES);
+
+			double* vertices = numVertices ? malloc(numVertices * 3 * sizeof(double)) : 0;
+			int* indices = numIndices ? malloc(numIndices * sizeof(int)) : 0;
+			double* normals = numNormals ? malloc(numNormals * 3 * sizeof(double)) : 0;
+			double* uvs = numUVs ? malloc(numUVs * 2 * sizeof(double)) : 0;
+
+			numVertices = extractVertices(verticesObj, vertices, B3_MAX_NUM_VERTICES);
+			pybullet_internalSetVectord(meshScaleObj, meshScale);
+
+			if (indicesObj)
+			{
+				numIndices = extractIndices(indicesObj, indices, B3_MAX_NUM_INDICES);
+			}
+			if (numNormals)
+			{
+				extractVertices(normalsObj, normals, numNormals);
+			}
+			if (numUVs)
+			{
+				extractUVs(uvsObj, uvs, numUVs);
+			}
+
+			if (numIndices)
+			{
+				shapeIndex = b3CreateVisualShapeAddMesh2(sm, commandHandle, meshScale, vertices, numVertices, indices, numIndices, normals, numNormals, uvs, numUVs);
+			}
+			free(uvs);
+			free(normals);
+			free(vertices);
+			free(indices);
+		}
+
 		if (shapeType == GEOM_PLANE)
 		{
 			double planeConstant = 0;

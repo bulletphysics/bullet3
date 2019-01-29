@@ -22,9 +22,9 @@ class XmlBasedRobot:
 		self.robot_body = None
 
 		high = np.ones([action_dim])
-		self.action_space = gym.spaces.Box(-high, high, dtype=np.float32)
+		self.action_space = gym.spaces.Box(-high, high)
 		high = np.inf * np.ones([obs_dim])
-		self.observation_space = gym.spaces.Box(-high, high, dtype=np.float32)
+		self.observation_space = gym.spaces.Box(-high, high)
 
 		#self.model_xml = model_xml
 		self.robot_name = robot_name
@@ -234,6 +234,8 @@ class BodyPart:
 		else:
 			(x, y, z), (a, b, c, d), _, _, _, _ = self._p.getLinkState(body_id, link_id)
 		return np.array([x, y, z, a, b, c, d])
+
+	def get_position(self): return self.current_position()
 
 	def get_pose(self):
 		return self.state_fields_of_pose_of(self.bodies[self.bodyIndex], self.bodyPartIndex)

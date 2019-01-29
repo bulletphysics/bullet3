@@ -5,6 +5,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+import inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(os.path.dirname(currentdir)))
+os.sys.path.insert(0,parentdir)
+
+
 import tensorflow as tf
 from pybullet_envs.minitaur.envs import minitaur_raibert_controller
 from pybullet_envs.minitaur.envs import minitaur_gym_env
