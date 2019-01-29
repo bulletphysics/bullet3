@@ -235,6 +235,8 @@ class BodyPart:
 			(x, y, z), (a, b, c, d), _, _, _, _ = self._p.getLinkState(body_id, link_id)
 		return np.array([x, y, z, a, b, c, d])
 
+	def get_position(self): return self.current_position()
+
 	def get_pose(self):
 		return self.state_fields_of_pose_of(self.bodies[self.bodyIndex], self.bodyPartIndex)
 
