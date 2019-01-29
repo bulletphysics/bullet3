@@ -87,6 +87,12 @@ struct UrdfGeometry
 	std::string m_meshFileName;
 	btVector3 m_meshScale;
 
+	btArray<btVector3> m_vertices;
+	btArray<btVector3> m_uvs;
+	btArray<btVector3> m_normals;
+	btArray<int> m_indices;
+
+
 	UrdfMaterial m_localMaterial;
 	bool m_hasLocalMaterial;
 

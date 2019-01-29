@@ -2520,7 +2520,8 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		if (m_data->m_pluginManager.getRenderInterface())
 		{
 			CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
-			m_data->m_pluginManager.getRenderInterface()->convertVisualShapes(linkIndex, pathPrefix, localInertiaFrame, &link, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId, fileIO);
+			int visualShapeUniqueid = m_data->m_pluginManager.getRenderInterface()->convertVisualShapes(linkIndex, pathPrefix, localInertiaFrame, &link, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId, fileIO);
+			colObj->setUserIndex3(visualShapeUniqueid);
 		}
 	}
 	virtual void setBodyUniqueId(int bodyId)
@@ -4706,18 +4707,68 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 			case URDF_GEOM_MESH:
 			{
 				std::string fileName = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshFileName;
-				const std::string& error_message_prefix = "";
-				std::string out_found_filename;
-				int out_type;
-				if (fileIO->findResourcePath(fileName.c_str(), relativeFileName, 1024))
+				if (fileName.length())
 				{
-					b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+					const std::string& error_message_prefix = "";
+					std::string out_found_filename;
+					int out_type;
+					if (fileIO->findResourcePath(fileName.c_str(), relativeFileName, 1024))
+					{
+						b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+					}
+
+					bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
+					if (foundFile)
+					{
+						visualShape.m_geometry.m_meshFileType = out_type;
+						visualShape.m_geometry.m_meshFileName = fileName;
+					}
+					else
+					{
+
+					}
 				}
+				else
+				{
+					visualShape.m_geometry.m_meshFileType = UrdfGeometry::MEMORY_VERTICES;
+					int numVertices = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_numVertices;
+					int numIndices = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_numIndices;
+					int numUVs = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_numUVs;
+					int numNormals = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_numNormals;
 
-				bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
-				visualShape.m_geometry.m_meshFileType = out_type;
-				visualShape.m_geometry.m_meshFileName = fileName;
+					if (numVertices > 0 && numIndices >0)
+					{
+						char* data = bufferServerToClient;
+						double* vertexUpload = (double*)data;
+						int* indexUpload = (int*)(data + numVertices * sizeof(double) * 3);
+						double* normalUpload = (double*)(data + numVertices * sizeof(double) * 3 + numIndices * sizeof(int));
+						double* uvUpload = (double*)(data + numVertices * sizeof(double) * 3 + numIndices * sizeof(int)+numNormals*sizeof(double)*3);
 
+						for (int i = 0; i < numIndices; i++)
+						{
+							visualShape.m_geometry.m_indices.push_back(indexUpload[i]);
+						}
+						for (int i = 0; i < numVertices; i++)
+						{
+							btVector3 v0(vertexUpload[i * 3 + 0],
+								vertexUpload[i * 3 + 1],
+								vertexUpload[i * 3 + 2]);
+							visualShape.m_geometry.m_vertices.push_back(v0);
+						}
+						for (int i = 0; i < numNormals; i++)
+						{
+							btVector3 normal(normalUpload[i * 3 + 0],
+								normalUpload[i * 3 + 1],
+								normalUpload[i * 3 + 2]);
+							visualShape.m_geometry.m_normals.push_back(normal);
+						}
+						for (int i = 0; i < numUVs; i++)
+						{
+							btVector3 uv(uvUpload[i * 2 + 0], uvUpload[i * 2 + 1],0);
+							visualShape.m_geometry.m_uvs.push_back(uv);
+						}
+					}
+				}
 				visualShape.m_geometry.m_meshScale.setValue(clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[0],
 															clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[1],
 															clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[2]);

@@ -361,6 +361,49 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 			{
 				case UrdfGeometry::MEMORY_VERTICES:
 				{
+					glmesh = new GLInstanceGraphicsShape;
+					//		int index = 0;
+					glmesh->m_indices = new b3AlignedObjectArray<int>();
+					glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+					glmesh->m_vertices->resize(visual->m_geometry.m_vertices.size());
+					glmesh->m_indices->resize(visual->m_geometry.m_indices.size());
+
+					for (int i = 0; i < visual->m_geometry.m_vertices.size(); i++)
+					{
+						glmesh->m_vertices->at(i).xyzw[0] = visual->m_geometry.m_vertices[i].x();
+						glmesh->m_vertices->at(i).xyzw[1] = visual->m_geometry.m_vertices[i].y();
+						glmesh->m_vertices->at(i).xyzw[2] = visual->m_geometry.m_vertices[i].z();
+						glmesh->m_vertices->at(i).xyzw[3] = 1;
+						btVector3 normal(visual->m_geometry.m_vertices[i]);
+						if (visual->m_geometry.m_normals.size() == visual->m_geometry.m_vertices.size())
+						{
+							normal = visual->m_geometry.m_normals[i];
+						}
+						else
+						{
+							normal.safeNormalize();
+						}
+
+						btVector3 uv(0.5, 0.5, 0);
+						if (visual->m_geometry.m_uvs.size() == visual->m_geometry.m_vertices.size())
+						{
+							uv = visual->m_geometry.m_uvs[i];
+						}
+						glmesh->m_vertices->at(i).normal[0] = normal[0];
+						glmesh->m_vertices->at(i).normal[1] = normal[1];
+						glmesh->m_vertices->at(i).normal[2] = normal[2];
+						glmesh->m_vertices->at(i).uv[0] = uv[0];
+						glmesh->m_vertices->at(i).uv[1] = uv[1];
+
+					}
+					for (int i = 0; i < visual->m_geometry.m_indices.size(); i++)
+					{
+						glmesh->m_indices->at(i) = visual->m_geometry.m_indices[i];
+
+					}
+					glmesh->m_numIndices = visual->m_geometry.m_indices.size();
+					glmesh->m_numvertices = visual->m_geometry.m_vertices.size();
+
 					break;
 				}
 				case UrdfGeometry::FILE_OBJ:
