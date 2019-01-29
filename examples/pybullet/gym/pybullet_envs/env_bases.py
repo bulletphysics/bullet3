@@ -69,7 +69,7 @@ class MJCFBaseBulletEnv(gym.Env):
 		self.potential = self.robot.calc_potential()
 		return s
 
-	def render(self, mode='human'):
+	def render(self, mode='human', close=False):
 		if mode == "human":
 			self.isRender = True
 		if mode != "rgb_array":
@@ -125,7 +125,6 @@ class MJCFBaseBulletEnv(gym.Env):
 		_render = render
 		_reset = reset
 		_seed = seed
-		_step = step
 
 class Camera:
 	def __init__(self):
