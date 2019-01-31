@@ -9234,10 +9234,12 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 					m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getBaseCollider());
 					int graphicsIndex = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
 					m_data->m_guiHelper->removeGraphicsInstance(graphicsIndex);
+					delete bodyHandle->m_multiBody->getBaseCollider();
 				}
 				for (int link = 0; link < bodyHandle->m_multiBody->getNumLinks(); link++)
 				{
-					if (bodyHandle->m_multiBody->getLink(link).m_collider)
+					btCollisionObject* colObj = bodyHandle->m_multiBody->getLink(link).m_collider;
+					if (colObj)
 					{
 						if (m_data->m_pluginManager.getRenderInterface())
 						{
@@ -9246,13 +9248,13 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 						m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getLink(link).m_collider);
 						int graphicsIndex = bodyHandle->m_multiBody->getLink(link).m_collider->getUserIndex();
 						m_data->m_guiHelper->removeGraphicsInstance(graphicsIndex);
+						delete colObj;
 					}
 				}
 				int numCollisionObjects = m_data->m_dynamicsWorld->getNumCollisionObjects();
 				m_data->m_dynamicsWorld->removeMultiBody(bodyHandle->m_multiBody);
 				numCollisionObjects = m_data->m_dynamicsWorld->getNumCollisionObjects();
-				//todo: clear all other remaining data, release memory etc
-
+				
 				delete bodyHandle->m_multiBody;
 				bodyHandle->m_multiBody = 0;
 				serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
