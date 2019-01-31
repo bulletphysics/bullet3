@@ -22,3 +22,15 @@ IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 			SET_TARGET_PROPERTIES(Test_btKinematicCharacterController PROPERTIES  MINSIZEREL_POSTFIX "_MinsizeRel")
 			SET_TARGET_PROPERTIES(Test_btKinematicCharacterController PROPERTIES  RELWITHDEBINFO_POSTFIX "_RelWithDebugInfo")
 ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
+
+LINK_LIBRARIES(BulletWorldImporter)
+
+ADD_EXECUTABLE(Test_deterministic_save_and_restore test_deterministic_save_and_restore.cpp)
+
+ADD_TEST(Test_DeterministicSaveRestore_PASS Test_deterministic_save_and_restore)
+
+IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
+			SET_TARGET_PROPERTIES(Test_deterministic_save_and_restore PROPERTIES  DEBUG_POSTFIX "_Debug")
+			SET_TARGET_PROPERTIES(Test_deterministic_save_and_restore PROPERTIES  MINSIZEREL_POSTFIX "_MinsizeRel")
+			SET_TARGET_PROPERTIES(Test_deterministic_save_and_restore PROPERTIES  RELWITHDEBINFO_POSTFIX "_RelWithDebugInfo")
+ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
