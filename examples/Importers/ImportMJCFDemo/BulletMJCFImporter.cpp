@@ -1263,6 +1263,11 @@ struct BulletMJCFImporterInternalData
 			{
 				handled = true;
 			}
+			if (n == "camera")
+			{
+				handled = true;
+				logger->printMessage((sourceFileLocation(xml) + ": field '" + n + "' will be ignored due to not being supported yet.").c_str());
+			}
 
 			if (!handled)
 			{

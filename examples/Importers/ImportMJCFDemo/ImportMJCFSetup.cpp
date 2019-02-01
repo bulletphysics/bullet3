@@ -112,6 +112,7 @@ ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, 
 
 		if (gMCFJFileNameArray.size() == 0)
 		{
+			gMCFJFileNameArray.push_back("mjcf/fetch/main.xml");
 			gMCFJFileNameArray.push_back("mjcf/humanoid.xml");
 
 			gMCFJFileNameArray.push_back("MPL/MPL.xml");

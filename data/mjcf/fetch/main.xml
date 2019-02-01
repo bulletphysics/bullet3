@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mujoco model="fetch">
+    <compiler inertiafromgeom='true' angle='radian' texturedir="./textures"/>
+	<actuator>
+        <motor ctrllimited="true" ctrlrange="-1.6056 1.6056" joint="shoulder_pan_joint" kp="403.256"
+               name="shoulder_pan_joint"/>
+        <motor ctrllimited="true" ctrlrange="-1.221 1.518" joint="shoulder_lift_joint" kp="6510.31"
+               name="shoulder_lift_joint"/>
+        <motor ctrllimited="true" ctrlrange="-3.14 3.14" joint="upperarm_roll_joint" kp="412.222"
+               name="upperarm_roll_joint"/>
+        <motor ctrllimited="true" ctrlrange="-2.251 2.251" joint="elbow_flex_joint" kp="20654.9"
+               name="elbow_flex_joint"/>
+        <motor ctrllimited="true" ctrlrange="-3.14 3.14" joint="forearm_roll_joint" kp="32.4116"
+               name="forearm_roll_joint"/>
+        <motor ctrllimited="true" ctrlrange="-2.16 2.16" joint="wrist_flex_joint" kp="1000" name="wrist_flex_joint"/>
+        <motor ctrllimited="true" ctrlrange="-3.14 3.14" joint="wrist_roll_joint" kp="432.743" name="wrist_roll_joint"/>
+        <motor ctrllimited="true" ctrlrange="0 0.2" joint="l_gripper_finger_joint" kp="10000"
+               name="l_gripper_finger_joint" user="1"/>
+        <motor ctrllimited="true" ctrlrange="0 0.2" joint="r_gripper_finger_joint" kp="10000"
+               name="r_gripper_finger_joint" user="1"/>
+	</actuator>
+	<asset>
+        <mesh file="base_link_collision.stl" name="base_link"/>
+        <mesh file="bellows_link_collision.stl" name="bellows_link"/>
+        <mesh file="elbow_flex_link_collision.stl" name="elbow_flex_link"/>
+        <mesh file="estop_link.stl" name="estop_link"/>
+        <mesh file="forearm_roll_link_collision.stl" name="forearm_roll_link"/>
+        <mesh file="gripper_link.stl" name="gripper_link"/>
+        <mesh file="head_pan_link_collision.stl" name="head_pan_link"/>
+        <mesh file="head_tilt_link_collision.stl" name="head_tilt_link"/>
+        <mesh file="l_wheel_link_collision.stl" name="l_wheel_link"/>
+        <mesh file="laser_link.stl" name="laser_link"/>
+        <mesh file="r_wheel_link_collision.stl" name="r_wheel_link"/>
+        <mesh file="torso_lift_link_collision.stl" name="torso_lift_link"/>
+        <mesh file="shoulder_pan_link_collision.stl" name="shoulder_pan_link"/>
+        <mesh file="shoulder_lift_link_collision.stl" name="shoulder_lift_link"/>
+        <mesh file="upperarm_roll_link_collision.stl" name="upperarm_roll_link"/>
+        <mesh file="wrist_flex_link_collision.stl" name="wrist_flex_link"/>
+        <mesh file="wrist_roll_link_collision.stl" name="wrist_roll_link"/>
+        <mesh file="torso_fixed_link.stl" name="torso_fixed_link"/>
+        <texture builtin="flat" name="texgeom" height="32" width="32" rgb1="1 1 1" type="cube"/>
+        <texture builtin="flat" name="gripper_finger_tex" height="32" width="32" rgb1="1 1 1" type="cube"/>
+        <texture builtin="flat" name="gripper_tex" height="32" width="32" rgb1="1 1 1" type="cube"/>
+        <texture builtin="flat" name="arm_tex" height="32" width="32" rgb1="1 1 1" type="cube"/>
+        <texture builtin="flat" name="head_tex" height="32" width="32" rgb1="1 1 1" type="cube"/>
+        <texture builtin="flat" name="torso_tex" height="32" width="32" rgb1="1 1 1" type="cube"/>
+        <texture builtin="flat" name="base_tex" height="32" width="32" rgb1="1 1 1" type="cube"/>
+        <material name="geomMat" shininess="0.03" specular="0.75" texture="texgeom"/>
+        <material name="gripper_finger_mat" shininess="0.03" specular="0.75" texture="gripper_finger_tex"/>
+        <material name="gripper_mat" shininess="0.03" specular="0.75" texture="gripper_tex"/>
+        <material name="arm_mat" shininess="0.03" specular="0.75" texture="arm_tex"/>
+        <material name="head_mat" shininess="0.03" specular="0.75" texture="head_tex"/>
+        <material name="torso_mat" shininess="0.03" specular="0.75" texture="torso_tex"/>
+        <material name="base_mat" shininess="0.03" specular="0.75" texture="base_tex"/>
+	</asset>
+	<contact>
+        <exclude body1="r_gripper_finger_link" body2="l_gripper_finger_link"/>
+        <exclude body1="torso_lift_link" body2="torso_fixed_link"/>
+        <exclude body1="torso_lift_link" body2="shoulder_pan_link"/>
+	</contact>
+    <default class="fetch">
+        <geom margin="0.001" material="geomMat" rgba="1 1 1 1" solimp="0.99 0.99 0.01" solref="0.01 1" type="mesh"
+              user="0"/>
+        <joint armature="1" damping="50" frictionloss="0" stiffness="0"/>
+        <default class="fetchGripper">
+            <geom condim="4" margin="0.001" type="box" user="0"/>
+            <joint armature="100" damping="1000" limited="true" solimplimit="0.99 0.999 0.01" solreflimit="0.01 1"
+                   type="slide"/>
+        </default>
+    </default>
+	<worldbody>
+
+		<body childclass="fetch" name="base_link" pos="0.2869 0.2641 0">
+            <joint armature="0.0001" axis="1 0 0" damping="100000000000" name="slide0" pos="0 0 0" type="slide"/>
+            <joint armature="0.0001" axis="0 1 0" damping="100000000000" name="slide1" pos="0 0 0" type="slide"/>
+            <joint armature="0.0001" axis="0 0 1" damping="100000000000" name="slide2" pos="0 0 0" type="slide"/>
+            <inertial diaginertia="1.2869 1.2236 0.9868" mass="70.1294" pos="-0.0036 0 0.0014"
+                      quat="0.7605 -0.0133 -0.0061 0.6491"/>
+            <geom type="mesh" mesh="base_link" name="base_link" material="base_mat"/>
+            <inertial diaginertia="0.0047 0.0045 0.0019" mass="2.3311" pos="0.1165 0.0014 0"
+                      quat="-0.0136 0.707 0.0136 0.707"/>
+            <joint type="hinge" axis="0 1 0" name="elbow_flex_joint" range="-2.251 2.251"/>
+            <body name="wrist_flex_link" pos="0.1245 0 0">
+                <body name="torso_lift_link" pos="-0.0869 0 0.3774">
+                    <inertial diaginertia="0.3365 0.3354 0.0943" mass="10.7796" pos="-0.0013 -0.0009 0.2935"
+                              quat="0.9993 -0.0006 0.0336 0.0185"/>
+                    <joint axis="0 0 1" damping="10000000" name="torso_lift_joint" range="0.0386 0.3861" type="slide"/>
+                    <geom type="mesh" mesh="torso_lift_link" name="torso_lift_link" material="torso_mat"/>
+                    <body name="head_pan_link" pos="0.0531 0 0.603">
+                        <inertial diaginertia="0.0185 0.0128 0.0095" mass="2.2556" pos="0.0321 0.0161 0.039"
+                                  quat="0.5148 0.5451 -0.453 0.4823"/>
+                        <joint type="hinge" axis="0 0 1" name="head_pan_joint" range="-1.57 1.57"/>
+                        <geom type="mesh" mesh="head_pan_link" name="head_pan_link" material="head_mat"/>
+                        <body name="head_tilt_link" pos="0.1425 0 0.058">
+                            <inertial diaginertia="0.0063 0.0059 0.0014" mass="0.9087" pos="0.0081 0.0025 0.0113"
+                                      quat="0.6458 0.66 -0.274 0.2689"/>
+                            <joint type="hinge" axis="0 1 0" damping="1000" name="head_tilt_joint" range="-0.76 1.45"
+                                   ref="0.06"/>
+                            <geom type="mesh" mesh="head_tilt_link" name="head_tilt_link" material="head_mat"/>
+                            <body name="head_camera_link" pos="0.055 0 0.0225">
+                                <inertial diaginertia="0 0 0" mass="0" pos="0.055 0 0.0225"/>
+                                <body name="head_camera_rgb_frame" pos="0 0.02 0">
+                                    <inertial diaginertia="0 0 0" mass="0" pos="0 0.02 0"/>
+                                    <body name="head_camera_rgb_optical_frame" pos="0 0 0" quat="0.5 -0.5 0.5 -0.5">
+                                        <inertial diaginertia="0 0 0" mass="0" pos="0 0 0" quat="0.5 -0.5 0.5 -0.5"/>
+                                        <!--<camera euler="3.1415 0 0" fovy="50" name="head_camera_rgb" pos="0 0 0"></camera>-->
+                                    </body>
+                                </body>
+                                <body name="head_camera_depth_frame" pos="0 0.045 0">
+                                    <inertial diaginertia="0 0 0" mass="0" pos="0 0.045 0"/>
+                                    <body name="head_camera_depth_optical_frame" pos="0 0 0" quat="0.5 -0.5 0.5 -0.5">
+                                        <inertial diaginertia="0 0 0" mass="0" pos="0 0 0" quat="0.5 -0.5 0.5 -0.5"/>
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                    <body name="shoulder_pan_link" pos="0.1195 0 0.3486">
+                        <inertial diaginertia="0.009 0.0086 0.0041" mass="2.5587" pos="0.0927 -0.0056 0.0564"
+                                  quat="-0.1364 0.7624 -0.1562 0.613"/>
+                        <joint type="hinge" axis="0 0 1" name="shoulder_pan_joint" range="-1.6056 1.6056"/>
+                        <geom type="mesh" mesh="shoulder_pan_link" name="shoulder_pan_link" material="arm_mat"/>
+                        <body name="shoulder_lift_link" pos="0.117 0 0.06">
+                            <inertial diaginertia="0.0116 0.0112 0.0023" mass="2.6615" pos="0.1432 0.0072 -0.0001"
+                                      quat="0.4382 0.4382 0.555 0.555"/>
+                            <joint type="hinge" axis="0 1 0" name="shoulder_lift_joint" range="-1.221 1.518"/>
+                            <geom type="mesh" mesh="shoulder_lift_link" name="shoulder_lift_link" material="arm_mat"/>
+                            <body name="upperarm_roll_link" pos="0.219 0 0">
+                                <joint type="hinge" axis="1 0 0" limited="false" name="upperarm_roll_joint"/>
+                                <geom type="mesh" mesh="upperarm_roll_link" name="upperarm_roll_link" material="arm_mat"/>
+                                <body name="elbow_flex_link" pos="0.133 0 0">
+                                    <inertial diaginertia="0.0086 0.0084 0.002" mass="2.1299" pos="0.1279 0.0073 0"
+                                              quat="0.4332 0.4332 0.5589 0.5589"/>
+                                    <geom type="mesh" mesh="elbow_flex_link" name="elbow_flex_link" material="arm_mat"/>
+                                    <body name="forearm_roll_link" pos="0.197 0 0">
+                                        <inertial diaginertia="0.0035 0.0031 0.0015" mass="1.6563" pos="0.1097 -0.0266 0"
+                                                  quat="-0.0715 0.7035 0.0715 0.7035"/>
+                                        <joint type="hinge" armature="2.7538" axis="1 0 0" damping="3.5247"
+                                               frictionloss="0" limited="false" name="forearm_roll_joint" stiffness="10"/>
+                                        <geom type="mesh" mesh="forearm_roll_link" name="forearm_roll_link"
+                                              material="arm_mat"/>
+                                        <inertial diaginertia="0.0042 0.0042 0.0018" mass="1.725"
+                                                  pos="0.0882 0.0009 -0.0001" quat="0.4895 0.4895 0.5103 0.5103"/>
+                                        <joint type="hinge" axis="0 1 0" name="wrist_flex_joint" range="-2.16 2.16"/>
+                                        <geom type="mesh" mesh="wrist_flex_link" name="wrist_flex_link" material="arm_mat"/>
+                                        <body name="wrist_roll_link" pos="0.1385 0 0">
+                                            <inertial diaginertia="0.0001 0.0001 0.0001" mass="0.1354"
+                                                      pos="0.0095 0.0004 -0.0002"/>
+                                            <joint type="hinge" axis="1 0 0" limited="false"
+                                                   name="wrist_roll_joint"/>
+                                            <geom type="mesh" mesh="wrist_roll_link" name="wrist_roll_link"
+                                                  material="arm_mat"/>
+                                            <body euler="0 0 0" name="gripper_link" pos="0.1664 0 0">
+                                                <inertial diaginertia="0.0024 0.0019 0.0013" mass="1.5175"
+                                                          pos="-0.09 -0.0001 -0.0017" quat="0 0.7071 0 0.7071"/>
+                                                <geom type="mesh" mesh="gripper_link" name="gripper_link"
+                                                      material="gripper_mat"/>
+                                                <site name="grip" pos="0.02 0 0" rgba="1 0 0 1" size="0.02 0.02 0.02"/>
+                                                <body childclass="fetchGripper" name="r_gripper_finger_link" pos="0 0.0159 0">
+                                                    <site name="grip_r" pos="0.02 -0.01 0" rgba="0 1 0 1"
+                                                          size="0.01 0.01 0.01"/>
+                                                    <inertial diaginertia="0.1 0.1 0.1" mass="4" pos="-0.01 0 0"/>
+                                                    <joint limited="true" type="slide" axis="0 1 0" name="r_gripper_finger_joint"
+                                                           range="0 0.05"/>
+                                                    <geom pos="0 -0.008 0" size="0.0385 0.007 0.0135" type="box"
+                                                          name="r_gripper_finger_link" material="gripper_finger_mat"
+                                                          condim="4" friction="1 0.05 0.01"/>
+                                                </body>
+                                                <body childclass="fetchGripper" name="l_gripper_finger_link" pos="0 -0.0159 0">
+                                                    <site name="grip_l" pos="0.02 0.01 0" rgba="0 1 0 1"
+                                                          size="0.01 0.01 0.01"/>
+                                                    <inertial diaginertia="0.1 0.1 0.1" mass="4" pos="-0.01 0 0"/>
+                                                    <joint limited="true" type="slide" axis="0 -1 0" name="l_gripper_finger_joint"
+                                                           range="0 0.05"/>
+                                                    <geom pos="0 0.008 0" size="0.0385 0.007 0.0135" type="box"
+                                                          name="l_gripper_finger_link" material="gripper_finger_mat"
+                                                          condim="4" friction="1 0.05 0.01"/>
+                                                </body>
+                                            </body>
+                                        </body>
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+			</body>
+            <!-- Below was for the external sensors -->
+			<body name="estop_link" pos="-0.1246 0.2389 0.3113" quat="0.7071 0.7071 0 0">
+                <inertial diaginertia="0 0 0" mass="0.002" pos="0.0024 -0.0033 0.0067"
+                          quat="0.3774 -0.1814 0.1375 0.8977"/>
+                <geom type="mesh" mesh="estop_link" rgba="0.8 0 0 1" name="estop_link"/>
+			</body>
+			<body name="laser_link" pos="0.235 0 0.2878" quat="0 1 0 0">
+                <inertial diaginertia="0 0 0" mass="0.0083" pos="-0.0306 0.0007 0.0552"
+                          quat="0.5878 0.5378 -0.4578 0.3945"/>
+                <geom type="mesh" mesh="laser_link" rgba="0.7922 0.8196 0.9333 1" name="laser_link"/>
+                <camera euler="1.55 -1.55 3.14" fovy="25" name="lidar" pos="0 0 0.02"/>
+			</body>
+			<body name="torso_fixed_link" pos="-0.0869 0 0.3774">
+                <inertial diaginertia="0.3865 0.3394 0.1009" mass="13.2775" pos="-0.0722 0.0057 0.2656"
+                          quat="0.9995 0.0249 0.0177 0.011"/>
+                <geom type="mesh" mesh="torso_fixed_link" name="torso_fixed_link"/>
+			</body>
+			<body name="external_camera_body_0" pos="0 0 0">
+                <camera euler="0 0.75 1.57" fovy="43.3" name="external_camera_0" pos="1.3 0 1.2"/>
+			</body>
+		</body>
+	</worldbody>
+</mujoco>
