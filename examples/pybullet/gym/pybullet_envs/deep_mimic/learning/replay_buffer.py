@@ -2,7 +2,7 @@ import numpy as np
 import copy
 from pybullet_utils.logger import Logger
 import inspect as inspect
-from env.env import Env
+from pybullet_envs.deep_mimic.env.env import Env
 import pybullet_utils.math_util as MathUtil
 
 class ReplayBuffer(object):

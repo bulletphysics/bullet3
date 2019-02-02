@@ -22,8 +22,10 @@ class PyBulletDeepMimicEnv(Env):
     def reset(self):
       self.t = 0
       if not self._isInitialized:
-        self._pybullet_client =  bullet_client.BulletClient(connection_mode=p1.GUI)
-        #self._pybullet_client  =  bullet_client.BulletClient()
+        if self.enable_draw:
+          self._pybullet_client =  bullet_client.BulletClient(connection_mode=p1.GUI)
+        else:
+          self._pybullet_client  =  bullet_client.BulletClient()
         
         self._pybullet_client.setAdditionalSearchPath(pybullet_data.getDataPath())
         z2y = self._pybullet_client.getQuaternionFromEuler([-math.pi*0.5,0,0])
@@ -198,7 +200,7 @@ class PyBulletDeepMimicEnv(Env):
         state = self._humanoid.getState()
         state[1]=state[1]+0.008
         #print("record_state=",state)
-        return state
+        return np.array(state)
         
         
     def record_goal(self, agent_id):
@@ -241,7 +243,7 @@ class PyBulletDeepMimicEnv(Env):
     def is_episode_end(self):
       isEnded = self._humanoid.terminates()
       #also check maximum time, 20 seconds (todo get from file)
-      print("self.t=",self.t)
+      #print("self.t=",self.t)
       if (self.t>3):
         isEnded = True
       return isEnded

@@ -1,5 +1,11 @@
+import os
+import inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+print("parentdir=",parentdir)
 import json
-from learning.rl_world import RLWorld
+from pybullet_envs.deep_mimic.learning.rl_world import RLWorld
 from learning.ppo_agent import PPOAgent
 
 import pybullet_data
@@ -36,7 +42,7 @@ print("bodies=",bodies)
 int_output_path = arg_parser.parse_string("int_output_path")
 print("int_output_path=",int_output_path)
 
-agent_files = arg_parser.parse_string("agent_files")
+agent_files = pybullet_data.getDataPath()+"/"+arg_parser.parse_string("agent_files")
 
 AGENT_TYPE_KEY = "AgentType"
 
