@@ -30,7 +30,7 @@ def build_arg_parser(args):
 args = sys.argv[1:]
 arg_parser = build_arg_parser(args)
 
-render=True
+render=False#True
 env = PyBulletDeepMimicEnv (args,render)
  
 world = RLWorld(env, arg_parser)
@@ -57,7 +57,6 @@ with open(agent_files) as data_file:
     
     agent.set_enable_training(True)
     world.reset()
-
     while (world.env._pybullet_client.isConnected()):
 
       timeStep = 1./600.

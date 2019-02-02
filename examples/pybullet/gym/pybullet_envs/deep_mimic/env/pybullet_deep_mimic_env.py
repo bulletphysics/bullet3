@@ -64,8 +64,12 @@ class PyBulletDeepMimicEnv(Env):
               #self._humanoid.applyPDForces(taus)
               #self._pybullet_client.stepSimulation()
             time.sleep(timeStep)
-
+      #print("numframes = ", self._humanoid._mocap_data.NumFrames())
       startTime = random.randint(0,self._humanoid._mocap_data.NumFrames()-2)
+      rnrange = 1000
+      rn = random.randint(0,rnrange)
+      startTime = float(rn)/rnrange * self._humanoid.getCycleTime()
+
       self._humanoid.setSimTime(startTime)
       self._humanoid.resetPose()
       #this clears the contact points. Todo: add API to explicitly clear all contact points?

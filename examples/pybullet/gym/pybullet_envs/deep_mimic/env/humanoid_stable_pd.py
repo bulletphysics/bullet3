@@ -68,7 +68,7 @@ class HumanoidStablePD(object):
     self.resetPose()
     
   def resetPose(self):
-    print("resetPose with self._frameFraction=",self._frameFraction)
+    print("resetPose with self._frame=", self._frame, " and self._frameFraction=",self._frameFraction)
     pose = self.computePose(self._frameFraction)
     self.initializePose(self._poseInterpolator, self._sim_model, initBase=True)
     self.initializePose(self._poseInterpolator, self._kin_model, initBase=False)
@@ -126,7 +126,6 @@ class HumanoidStablePD(object):
     keyFrameDuration = self._mocap_data.KeyFrameDuraction()
     cycleTime = self.getCycleTime()
     #print("self._motion_data.NumFrames()=",self._mocap_data.NumFrames())
-    #print("cycleTime=",cycleTime)
     cycles = self.calcCycleCount(t, cycleTime)
     #print("cycles=",cycles)
     frameTime = t - cycles*cycleTime

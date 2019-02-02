@@ -3,6 +3,7 @@ import learning.agent_builder as AgentBuilder
 import learning.tf_util as TFUtil
 from learning.rl_agent import RLAgent
 from pybullet_utils.logger import Logger
+import pybullet_data
 
 class RLWorld(object):
     def __init__(self, env, arg_parser):
@@ -79,7 +80,7 @@ class RLWorld(object):
                 if (len(model_files) > 0):
                     curr_model_file = model_files[i]
                     if curr_model_file != 'none':
-                        curr_agent.load_model(curr_model_file)
+                        curr_agent.load_model(pybullet_data.getDataPath()+"/"+curr_model_file)
 
             self.agents.append(curr_agent)
             Logger.print2('')
