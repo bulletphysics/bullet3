@@ -40,8 +40,8 @@ def main():
 
     # Command line arguments
     args = sys.argv[1:]
-
-    world = build_world(args, enable_draw=False)
+    enable_draw = False
+    world = build_world(args, enable_draw)
 
     run()
     shutdown()
