@@ -15,6 +15,18 @@ from pybullet_envs.deep_mimic.env.pybullet_deep_mimic_env import PyBulletDeepMim
 import sys
 import random
 
+
+def update_world(world, time_elapsed):
+    timeStep = 1./600.
+    world.update(timeStep)
+    reward = world.env.calc_reward(agent_id=0)
+    #print("reward=",reward)
+    end_episode = world.env.is_episode_end()
+    if (end_episode):
+      world.end_episode()
+      world.reset()
+    return
+
 def build_arg_parser(args):
     arg_parser = ArgParser()
     arg_parser.load_args(args)
@@ -28,43 +40,40 @@ def build_arg_parser(args):
     return arg_parser
 
 args = sys.argv[1:]
-arg_parser = build_arg_parser(args)
 
-render=False#True
-env = PyBulletDeepMimicEnv (args,render)
- 
-world = RLWorld(env, arg_parser)
 
-motion_file = arg_parser.parse_string("motion_file")
-print("motion_file=",motion_file)
-bodies = arg_parser.parse_ints("fall_contact_bodies")
-print("bodies=",bodies)
-int_output_path = arg_parser.parse_string("int_output_path")
-print("int_output_path=",int_output_path)
 
-agent_files = pybullet_data.getDataPath()+"/"+arg_parser.parse_string("agent_files")
+def build_world(args, enable_draw, playback_speed=1):
+    arg_parser = build_arg_parser(args)
+    env = PyBulletDeepMimicEnv(args, enable_draw)
+    world = RLWorld(env, arg_parser)
+    #world.env.set_playback_speed(playback_speed)
 
-AGENT_TYPE_KEY = "AgentType"
+    motion_file = arg_parser.parse_string("motion_file")
+    print("motion_file=",motion_file)
+    bodies = arg_parser.parse_ints("fall_contact_bodies")
+    print("bodies=",bodies)
+    int_output_path = arg_parser.parse_string("int_output_path")
+    print("int_output_path=",int_output_path)
+    agent_files = pybullet_data.getDataPath()+"/"+arg_parser.parse_string("agent_files")
 
-print("agent_file=",agent_files)
-with open(agent_files) as data_file:
-    json_data = json.load(data_file)
-    print("json_data=",json_data)
-    assert AGENT_TYPE_KEY in json_data
-    agent_type = json_data[AGENT_TYPE_KEY]
-    print("agent_type=",agent_type)
-    agent = PPOAgent(world, id, json_data)
+    AGENT_TYPE_KEY = "AgentType"
+
+    print("agent_file=",agent_files)
+    with open(agent_files) as data_file:
+        json_data = json.load(data_file)
+        print("json_data=",json_data)
+        assert AGENT_TYPE_KEY in json_data
+        agent_type = json_data[AGENT_TYPE_KEY]
+        print("agent_type=",agent_type)
+        agent = PPOAgent(world, id, json_data)
     
-    agent.set_enable_training(True)
-    world.reset()
-    while (world.env._pybullet_client.isConnected()):
-
-      timeStep = 1./600.
-      world.update(timeStep)
-      reward = world.env.calc_reward(agent_id=0)
-      #print("reward=",reward)
-      
-      end_episode = world.env.is_episode_end()
-      if (end_episode):
-        world.end_episode()
+        agent.set_enable_training(True)
         world.reset()
+    return world    
+
+world = build_world(args, True)
+while (world.env._pybullet_client.isConnected()):
+      timeStep = 1./600.
+      update_world(world, timeStep)
+
