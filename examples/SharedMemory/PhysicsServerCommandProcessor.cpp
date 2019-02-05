@@ -7737,6 +7737,12 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 						mb->getLinkCollider(linkIndex)->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
 					}
 				}
+
+				if (clientCmd.m_updateFlags &CHANGE_DYNAMICS_INFO_SET_JOINT_DAMPING)
+				{
+					mb->getLink(linkIndex).m_jointDamping = clientCmd.m_changeDynamicsInfoArgs.m_jointDamping;
+				}
+
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
 				{
 					mb->getLink(linkIndex).m_mass = mass;
@@ -8056,6 +8062,7 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	bool hasStatus = true;
 
 	BT_PROFILE("CMD_SEND_PHYSICS_SIMULATION_PARAMETERS");
+
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_ENABLE_CONE_FRICTION)
 	{

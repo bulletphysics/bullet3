@@ -16,11 +16,15 @@
 #include "PxMaterial.h"
 #include "PxCooking.h"
 #include "PxScene.h"
+#include "PxRigidStatic.h"
+#include "PxRigidDynamic.h"
+#include "PxActor.h"
 #include "PxAggregate.h"
-
+#include "Bullet3Common/b3FileUtils.h"
 #include "PhysXUserData.h"
 #include "../../CommonInterfaces/CommonFileIOInterface.h"
-
+#include "../../Importers/ImportObjDemo/LoadMeshFromObj.h"
+#include "../../Importers/ImportSTLDemo/LoadMeshFromSTL.h"
 #include "Importers/ImportURDFDemo/UrdfParser.h"
 
 
@@ -31,6 +35,8 @@ struct URDF2PhysXCachedData
 	URDF2PhysXCachedData()
 		: m_currentMultiBodyLinkIndex(-1),
 		m_articulation(0),
+		m_rigidStatic(0),
+		m_rigidDynamic(0),
 		m_totalNumJoints1(0)
 	{
 	}
@@ -44,6 +50,8 @@ struct URDF2PhysXCachedData
 	int m_currentMultiBodyLinkIndex;
 
 	physx::PxArticulationReducedCoordinate* m_articulation;
+	physx::PxRigidStatic* m_rigidStatic;
+	physx::PxRigidDynamic* m_rigidDynamic;
 
 	btAlignedObjectArray<physx::PxTransform> m_linkTransWorldSpace;
 	btAlignedObjectArray<int> m_urdfLinkIndex;
@@ -237,7 +245,7 @@ static physx::PxConvexMesh* createPhysXConvex(physx::PxU32 numVerts, const physx
 
 
 int convertLinkPhysXShapes(const URDFImporterInterface& u2b, URDF2PhysXCachedData& cache, ArticulationCreationInterface& creation, int urdfLinkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
-	physx::PxArticulationReducedCoordinate* articulation, int mbLinkIndex, physx::PxArticulationLink* linkPtr)
+	physx::PxArticulationReducedCoordinate* articulation, int mbLinkIndex, physx::PxRigidActor* linkPtr)
 {
 	int numShapes = 0;
 
@@ -362,9 +370,61 @@ int convertLinkPhysXShapes(const URDFImporterInterface& u2b, URDF2PhysXCachedDat
 				numShapes++;
 				break;
 			}
+			case URDF_GEOM_MESH:
+			{
+				btAlignedObjectArray<physx::PxVec3> vertices;
+				GLInstanceGraphicsShape* glmesh = 0;
+				switch (collision->m_geometry.m_meshFileType)
+				{
+					case UrdfGeometry::FILE_OBJ:
+					{
+						char relativeFileName[1024];
+						char pathPrefix[1024];
+						pathPrefix[0] = 0;
+						if (creation.m_fileIO->findResourcePath(collision->m_geometry.m_meshFileName.c_str(), relativeFileName, 1024))
+						{
+							b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+						}
+						glmesh = LoadMeshFromObj(collision->m_geometry.m_meshFileName.c_str(), pathPrefix, creation.m_fileIO);
+						
+						break;
+					}
+					case UrdfGeometry::FILE_STL:
+					{
+						glmesh = LoadMeshFromSTL(collision->m_geometry.m_meshFileName.c_str(), creation.m_fileIO);
+						break;
+					}
+					default:
+					{
 
+					}
+				}
+				if (glmesh && glmesh->m_numvertices)
+				{
+					for (int i = 0; i < glmesh->m_numvertices; i++)
+					{
+						physx::PxVec3 vert(
+							glmesh->m_vertices->at(i).xyzw[0] * collision->m_geometry.m_meshScale[0],
+							glmesh->m_vertices->at(i).xyzw[1] * collision->m_geometry.m_meshScale[1],
+							glmesh->m_vertices->at(i).xyzw[2] * collision->m_geometry.m_meshScale[2]);
+						vertices.push_back(vert);
+					}
+
+					physx::PxConvexMesh* convexMesh = createPhysXConvex(vertices.size(), &vertices[0], creation);
+
+					shape = physx::PxRigidActorExt::createExclusiveShape(*linkPtr,
+						physx::PxConvexMeshGeometry(convexMesh), *material);
+
+					shape->setLocalPose(tr);
+					cache.m_geomLocalPoses.push_back(tr);
+					numShapes++;
+				}
+				break;
+
+			}
 			default:
 			{
+				printf("unknown physx shape\n");
 			}
 			}
 
@@ -390,7 +450,7 @@ btTransform ConvertURDF2PhysXInternal(
 	ArticulationCreationInterface& creation,
 	URDF2PhysXCachedData& cache, int urdfLinkIndex,
 	const btTransform& parentTransformInWorldSpace, 
-	bool createMultiBody, const char* pathPrefix,
+	bool createActiculation, const char* pathPrefix,
 	int flags, 
 	UrdfVisualShapeCache2* cachedLinkGraphicsShapesIn, 
 	UrdfVisualShapeCache2* cachedLinkGraphicsShapesOut, 
@@ -562,18 +622,45 @@ btTransform ConvertURDF2PhysXInternal(
 		btTransform inertialFrameInWorldSpace = linkTransformInWorldSpace * localInertialFrame;
 		bool canSleep = (flags & CUF_ENABLE_SLEEPING) != 0;
 
-		physx::PxArticulationLink* linkPtr = 0;
+		physx::PxRigidActor* linkPtr = 0;
+		
+		physx::PxRigidBody* rbLinkPtr = 0;
+		
 
-		if (!createMultiBody)
+		physx::PxTransform tr;
+		tr.p = physx::PxVec3(linkTransformInWorldSpace.getOrigin().x(), linkTransformInWorldSpace.getOrigin().y(), linkTransformInWorldSpace.getOrigin().z());
+		tr.q = physx::PxQuat(linkTransformInWorldSpace.getRotation().x(), linkTransformInWorldSpace.getRotation().y(), linkTransformInWorldSpace.getRotation().z(), linkTransformInWorldSpace.getRotation().w());
+		bool isFixedBase = (mass == 0);  //todo: figure out when base is fixed
+		
+
+		if (!createActiculation)
 		{
 
+			if (isFixedBase)
+			{
+				physx::PxRigidStatic* s = creation.m_physics->createRigidStatic(tr);
+				if ((cache.m_rigidStatic == 0) && (cache.m_rigidDynamic == 0))
+				{
+					cache.m_rigidStatic = s;
+				}
+				linkPtr = s;
+			}
+			else
+			{
+				
+				physx::PxRigidDynamic* d = creation.m_physics->createRigidDynamic(tr);
+				linkPtr = d;
+				if ((cache.m_rigidStatic == 0) && (cache.m_rigidDynamic == 0))
+				{
+					cache.m_rigidDynamic = d;
+				}
+				rbLinkPtr = d;
+								
+			}
 		}
 		else
 		{
-			physx::PxTransform tr;
-			tr.p = physx::PxVec3(linkTransformInWorldSpace.getOrigin().x(), linkTransformInWorldSpace.getOrigin().y(), linkTransformInWorldSpace.getOrigin().z());
-			tr.q = physx::PxQuat(linkTransformInWorldSpace.getRotation().x(), linkTransformInWorldSpace.getRotation().y(), linkTransformInWorldSpace.getRotation().z(), linkTransformInWorldSpace.getRotation().w());
-
+			
 			cache.m_linkTransWorldSpace.push_back(tr);
 			cache.m_urdfLinkIndex.push_back(urdfLinkIndex);
 			cache.m_parentUrdfLinkIndex.push_back(urdfParentIndex);
@@ -582,7 +669,7 @@ btTransform ConvertURDF2PhysXInternal(
 			if (cache.m_articulation == 0)
 			{
 
-				bool isFixedBase = (mass == 0);  //todo: figure out when base is fixed
+				
 
 				cache.m_articulation = creation.m_physics->createArticulationReducedCoordinate();
 
@@ -596,6 +683,7 @@ btTransform ConvertURDF2PhysXInternal(
 				physx::PxArticulationLink* base = cache.m_articulation->createLink(NULL,tr);
 				
 				linkPtr = base;
+				rbLinkPtr = base;
 
 				
 				//physx::PxRigidActorExt::createExclusiveShape(*base, PxBoxGeometry(0.5f, 0.25f, 1.5f), *gMaterial);
@@ -628,14 +716,19 @@ btTransform ConvertURDF2PhysXInternal(
 
 				
 #endif
+
+				cache.registerMultiBody(urdfLinkIndex, base, inertialFrameInWorldSpace, mass, localInertiaDiagonal, localInertialFrame);
 			}
 			else
 			{
 
 				physx::PxArticulationLink* parentLink = cache.getPhysxLinkFromLink(urdfParentIndex);
-				linkPtr  = cache.m_articulation->createLink(parentLink, tr);
 				
-				physx::PxArticulationJointReducedCoordinate* joint = static_cast<physx::PxArticulationJointReducedCoordinate*>(linkPtr->getInboundJoint());
+				physx::PxArticulationLink* childLink = cache.m_articulation->createLink(parentLink, tr);
+				linkPtr = childLink;
+				rbLinkPtr = childLink;
+				
+				physx::PxArticulationJointReducedCoordinate* joint = static_cast<physx::PxArticulationJointReducedCoordinate*>(childLink->getInboundJoint());
 			
 				switch (jointType)
 				{
@@ -690,18 +783,21 @@ btTransform ConvertURDF2PhysXInternal(
 
 				joint->setParentPose(parentPose);
 				joint->setChildPose(childPose);
-				
+			
+				cache.registerMultiBody(urdfLinkIndex, childLink, inertialFrameInWorldSpace, mass, localInertiaDiagonal, localInertialFrame);
 			}
-			cache.registerMultiBody(urdfLinkIndex, linkPtr, inertialFrameInWorldSpace, mass, localInertiaDiagonal, localInertialFrame);
-			if (linkPtr)
-			{
-				//todo: mem leaks
-				MyPhysXUserData* userData = new MyPhysXUserData();
-				userData->m_graphicsUniqueId = graphicsIndex;
-				linkPtr->userData = userData;
-			}
+			
+			
 		}
 
+
+		if (linkPtr)
+		{
+			//todo: mem leaks
+			MyPhysXUserData* userData = new MyPhysXUserData();
+			userData->m_graphicsUniqueId = graphicsIndex;
+			linkPtr->userData = userData;
+		}
 
 		//create collision shapes
 
@@ -709,7 +805,7 @@ btTransform ConvertURDF2PhysXInternal(
 		convertLinkPhysXShapes(u2b, cache, creation, urdfLinkIndex, pathPrefix, localInertialFrame, cache.m_articulation, mbLinkIndex, linkPtr);
 
 		
-		physx::PxRigidBodyExt::updateMassAndInertia(*linkPtr, mass);
+		physx::PxRigidBodyExt::updateMassAndInertia(*rbLinkPtr, mass);
 		
 		
 		//base->setMass(massOut);
@@ -727,7 +823,7 @@ btTransform ConvertURDF2PhysXInternal(
 
 			bool disableParentCollision = true;
 
-			if (createMultiBody && cache.m_articulation)
+			if (createActiculation && cache.m_articulation)
 			{
 #if 0
 				cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointDamping = jointDamping;
@@ -741,7 +837,7 @@ btTransform ConvertURDF2PhysXInternal(
 		}
 
 
-		if (createMultiBody)
+		if (createActiculation)
 		{
 
 		}
@@ -762,7 +858,7 @@ btTransform ConvertURDF2PhysXInternal(
 		{
 			int urdfChildLinkIndex = urdfChildIndices[i];
 
-			ConvertURDF2PhysXInternal(u2b, creation, cache, urdfChildLinkIndex, linkTransformInWorldSpace, createMultiBody, pathPrefix, flags, cachedLinkGraphicsShapesIn, cachedLinkGraphicsShapesOut, recursive);
+			ConvertURDF2PhysXInternal(u2b, creation, cache, urdfChildLinkIndex, linkTransformInWorldSpace, createActiculation, pathPrefix, flags, cachedLinkGraphicsShapesIn, cachedLinkGraphicsShapesOut, recursive);
 		}
 	}
 	return linkTransformInWorldSpace;
@@ -774,7 +870,7 @@ btTransform ConvertURDF2PhysXInternal(
 
 
 
-physx::PxArticulationReducedCoordinate* URDF2PhysX(physx::PxFoundation* foundation, physx::PxPhysics* physics, physx::PxCooking* cooking, physx::PxScene* scene, class PhysXURDFImporter& u2p, int flags, const char* pathPrefix, const btTransform& rootTransformInWorldSpace, struct CommonFileIOInterface* fileIO)
+physx::PxBase* URDF2PhysX(physx::PxFoundation* foundation, physx::PxPhysics* physics, physx::PxCooking* cooking, physx::PxScene* scene, class PhysXURDFImporter& u2p, int flags, const char* pathPrefix, const btTransform& rootTransformInWorldSpace, struct CommonFileIOInterface* fileIO, bool createActiculation)
 {
 	URDF2PhysXCachedData cache;
 	InitURDF2BulletCache(u2p, cache, flags);
@@ -792,13 +888,13 @@ physx::PxArticulationReducedCoordinate* URDF2PhysX(physx::PxFoundation* foundati
 	creation.m_scene = scene;
 	creation.m_fileIO = fileIO;
 
-	bool createMultiBody = true;
+	
 
 	bool recursive = (flags & CUF_MAINTAIN_LINK_ORDER) == 0;
 	
 	if (recursive)
 	{
-		ConvertURDF2PhysXInternal(u2p, creation, cache, urdfLinkIndex, rootTransformInWorldSpace, createMultiBody, pathPrefix, flags, &cachedLinkGraphicsShapes, &cachedLinkGraphicsShapesOut, recursive);
+		ConvertURDF2PhysXInternal(u2p, creation, cache, urdfLinkIndex, rootTransformInWorldSpace, createActiculation, pathPrefix, flags, &cachedLinkGraphicsShapes, &cachedLinkGraphicsShapesOut, recursive);
 
 	}
 	else
@@ -820,7 +916,7 @@ physx::PxArticulationReducedCoordinate* URDF2PhysX(physx::PxFoundation* foundati
 			int urdfLinkIndex = allIndices[i].m_index;
 			int parentIndex = allIndices[i].m_parentIndex;
 			btTransform parentTr = parentIndex >= 0 ? parentTransforms[parentIndex] : rootTransformInWorldSpace;
-			btTransform tr = ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndex, parentTr, world1, createMultiBody, pathPrefix, flags, cachedLinkGraphicsShapes, &cachedLinkGraphicsShapesOut, recursive);
+			btTransform tr = ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndex, parentTr, world1, createActiculation, pathPrefix, flags, cachedLinkGraphicsShapes, &cachedLinkGraphicsShapesOut, recursive);
 			if ((urdfLinkIndex + 1) >= parentTransforms.size())
 			{
 				parentTransforms.resize(urdfLinkIndex + 1);
@@ -838,7 +934,7 @@ physx::PxArticulationReducedCoordinate* URDF2PhysX(physx::PxFoundation* foundati
 #endif
 
 	
-	if (scene && cache.m_articulation)
+	if (cache.m_articulation)
 	{
 #ifdef DEBUG_ARTICULATIONS
 		printf("\n-----------------\n");
@@ -902,7 +998,19 @@ physx::PxArticulationReducedCoordinate* URDF2PhysX(physx::PxFoundation* foundati
 			scene->addArticulation(*cache.m_articulation);
 		}
 
+		return  cache.m_articulation;
 	}
 
-	return  cache.m_articulation;
+	if (cache.m_rigidStatic)
+	{
+		scene->addActor(*cache.m_rigidStatic);
+		return cache.m_rigidStatic;
+	}
+	if (cache.m_rigidDynamic)
+	{
+		scene->addActor(*cache.m_rigidDynamic);
+		return cache.m_rigidDynamic;
+	}
+	return NULL;
+
 }
