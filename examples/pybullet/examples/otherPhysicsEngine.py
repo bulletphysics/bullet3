@@ -2,8 +2,12 @@ import pybullet as p
 import time
 import math
 
-p.connect(p.PhysX)#GUI)
-p.loadPlugin("eglRendererPlugin")
+usePhysX = True
+if usePhysX:
+  p.connect(p.PhysX)
+  p.loadPlugin("eglRendererPlugin")
+else:
+  p.connect(p.GUI)
 
 p.loadURDF("plane.urdf")
 
@@ -18,9 +22,11 @@ print("numJoints = ", p.getNumJoints(door))
 
 p.setGravity(0,0,-10)
 position_control = True
+
 angle = math.pi*0.25
 p.resetJointState(door,1,angle)  
-
+angleread = p.getJointState(door,1)
+print("angleread = ",angleread)
 prevTime = time.time()
 
 angle = math.pi*0.5

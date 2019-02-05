@@ -2060,13 +2060,7 @@ bool PhysXServerCommandProcessor::processRequestActualStateCommand(const struct 
 			physx::PxU32 startIndex = 0;
 			int numLinks2 = bodyHandle->mArticulation->getLinks(physxLinks, bufferSize, startIndex);
 
-
-			//always add the base, even for static (non-moving objects)
-			//so that we can easily move the 'fixed' base when needed
-			//do we don't use this conditional "if (!mb->hasFixedBase())"
 			{
-				int rootLink = 0;  //todo check
-				
 				serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[0] = 0;
 				serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[1] = 0;
 				serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[2] = 0;
@@ -2091,116 +2085,57 @@ bool PhysXServerCommandProcessor::processRequestActualStateCommand(const struct 
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[6] = orn.w;
 				totalDegreeOfFreedomQ += 7;  //pos + quaternion
 
+				physx::PxVec3 linVel = l->getLinearVelocity();
+				physx::PxVec3 angVel = l->getAngularVelocity();
+
 				//base linear velocity (in world space, carthesian)
-				serverCmd.m_sendActualStateArgs.m_actualStateQdot[0] = 0;//cvel[3];  //mb->getBaseVel()[0];
-				serverCmd.m_sendActualStateArgs.m_actualStateQdot[1] = 0;//cvel[4];  //mb->getBaseVel()[1];
-				serverCmd.m_sendActualStateArgs.m_actualStateQdot[2] = 0;//cvel[5];  //mb->getBaseVel()[2];
+				serverCmd.m_sendActualStateArgs.m_actualStateQdot[0] = linVel.x;
+				serverCmd.m_sendActualStateArgs.m_actualStateQdot[1] = linVel.y;
+				serverCmd.m_sendActualStateArgs.m_actualStateQdot[2] = linVel.z;
 
 				//base angular velocity (in world space, carthesian)
-				serverCmd.m_sendActualStateArgs.m_actualStateQdot[3] = 0;//cvel[0];  //mb->getBaseOmega()[0];
-				serverCmd.m_sendActualStateArgs.m_actualStateQdot[4] = 0;//cvel[1];  //mb->getBaseOmega()[1];
-				serverCmd.m_sendActualStateArgs.m_actualStateQdot[5] = 0;//cvel[2];  //mb->getBaseOmega()[2];
+				serverCmd.m_sendActualStateArgs.m_actualStateQdot[3] = angVel.x;
+				serverCmd.m_sendActualStateArgs.m_actualStateQdot[4] = angVel.y;
+				serverCmd.m_sendActualStateArgs.m_actualStateQdot[5] = angVel.z;
 				totalDegreeOfFreedomU += 6;                                      //3 linear and 3 angular DOF
 			}
 
-			//btAlignedObjectArray<btVector3> omega;
-			//btAlignedObjectArray<btVector3> linVel;
+			physx::PxArticulationCache* c = bodyHandle->mArticulation->createCache();
+			bodyHandle->mArticulation->copyInternalStateToCache(*c, physx::PxArticulationCache::ePOSITION | physx::PxArticulationCache::eVELOCITY);// physx::PxArticulationCache::eALL);
 
-			int numLinks = 0;// m_data->m_mujocoModel->body_jntnum[bodyUniqueId];
-			for (int l = 0; l < numLinks; l++)
+			btAlignedObjectArray<int> dofStarts;
+			dofStarts.resize(numLinks2);
+			dofStarts[0] = 0; //We know that the root link does not have a joint
+							  //cache positions in PhysX may be reshuffled, see
+							  //http://gameworksdocs.nvidia.com/PhysX/4.0/documentation/PhysXGuide/Manual/Articulations.html
+
+			for (int i = 1; i < numLinks2; ++i)
 			{
-				//int type = (m_data->m_mujocoModel->jnt_type + m_data->m_mujocoModel->body_jntnum[bodyUniqueId])[l];
-				//int type=(m_data->m_mujocoModel->jnt_type+m_data->m_mujocoModel->body_jntnum[bodyUniqueId])[l];
+				int  llIndex = physxLinks[i]->getLinkIndex();
+				int  dofs = physxLinks[i]->getInboundJointDof();
 
-#if 0
-				physx::PxArticulationCache* c = bodyHandle->mArticulation->createCache();
-				if (c)
+				dofStarts[llIndex] = dofs;
+			}
+
+			int count = 0;
+			for (int i = 1; i < numLinks2; ++i)
+			{
+				int  dofs = dofStarts[i];
+				dofStarts[i] = count;
+				count += dofs;
+			}
+
+			//start at 1, 0 is the base/root, handled above
+			for (int l = 1; l < numLinks2; l++)
+			{
+				int  dofs = physxLinks[l]->getInboundJointDof();
+				int  llIndex = physxLinks[l]->getLinkIndex();
+				
+				for (int d = 0; d < dofs; d++)
 				{
-					c->jointVelocity[0] = 1;
-					bodyHandle->mArticulation->applyCache(*c, physx::PxArticulationCache::eVELOCITY);
-					bodyHandle->mArticulation->releaseCache(*c);
+					serverCmd.m_sendActualStateArgs.m_actualStateQ[totalDegreeOfFreedomQ++] = c->jointPosition[dofStarts[llIndex + d]];
+					serverCmd.m_sendActualStateArgs.m_actualStateQ[totalDegreeOfFreedomU++] = c->jointVelocity[dofStarts[llIndex + d]];
 				}
-#endif
-#if 0
-				mjtNum* xpos = 
-				for (int d=0;d<mb->getLink(l).m_posVarCount;d++)
-				{
-					serverCmd.m_sendActualStateArgs.m_actualStateQ[totalDegreeOfFreedomQ++] = 0;
-				}
-				for (int d=0;d<mb->getLink(l).m_dofCount;d++)
-				{
-					serverCmd.m_sendActualStateArgs.m_actualStateQdot[totalDegreeOfFreedomU++] = 0;
-				}
-
-				if (0 == mb->getLink(l).m_jointFeedback)
-				{
-					for (int d=0;d<6;d++)
-					{
-						serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+d]=0;
-					}
-				} else
-				{
-
-					serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+0] = 0;
-					serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+1] = 0;
-					serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+2] = 0;
-
-					serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+3] = 0;
-					serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+4] = 0;
-					serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+5] = 0;
-				}
-
-				serverCmd.m_sendActualStateArgs.m_jointMotorForce[l] = 0;
-#if 0
-				if (supportsJointMotor(mb,l))
-				{
-					if (motor && m_data->m_physicsDeltaTime>btScalar(0))
-					{
-						serverCmd.m_sendActualStateArgs.m_jointMotorForce[l] = 0;
-					}
-				}
-#endif
-				//btVector3 linkLocalInertialOrigin = body->m_linkLocalInertialFrames[l].getOrigin();
-				//btQuaternion linkLocalInertialRotation = body->m_linkLocalInertialFrames[l].getRotation();
-
-				//btVector3 linkCOMOrigin =  mb->getLink(l).m_cachedWorldTransform.getOrigin();
-				//btQuaternion linkCOMRotation =  mb->getLink(l).m_cachedWorldTransform.getRotation();
-
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+0] = 0;//linkCOMOrigin.getX();
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+1] = 0;//linkCOMOrigin.getY();
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+2] = 0;//linkCOMOrigin.getZ();
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+3] = 0;//linkCOMRotation.x();
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+4] = 0;//linkCOMRotation.y();
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+5] = 0;//linkCOMRotation.z();
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+6] = 1;//linkCOMRotation.w();
-
-#if 0
-				btVector3 worldLinVel(0,0,0);
-				btVector3 worldAngVel(0,0,0);
-								
-				if (computeLinkVelocities)
-				{
-					const btMatrix3x3& linkRotMat = mb->getLink(l).m_cachedWorldTransform.getBasis();
-					worldLinVel = linkRotMat * linVel[l+1];
-					worldAngVel = linkRotMat * omega[l+1];
-				}
-#endif
-				serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+0] = 0;//worldLinVel[0];
-				serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+1] = 0;//worldLinVel[1];
-				serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+2] = 0;//worldLinVel[2];
-				serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+3] = 0;//worldAngVel[0];
-				serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+4] = 0;//worldAngVel[1];
-				serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+5] = 0;//worldAngVel[2];
-								
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+0] = 0;//linkLocalInertialOrigin.getX();
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+1] = 0;//linkLocalInertialOrigin.getY();
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+2] = 0;//linkLocalInertialOrigin.getZ();
-
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+3] = 0;//linkLocalInertialRotation.x();
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+4] = 0;//linkLocalInertialRotation.y();
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+5] = 0;//linkLocalInertialRotation.z();
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+6] = 1;//linkLocalInertialRotation.w();
-#endif
 			}
 
 			serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
