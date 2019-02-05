@@ -19,6 +19,7 @@
 #include "PxDefaultSimulationFilterShader.h"
 #include "URDF2PhysX.h"
 #include "../b3PluginManager.h"
+#include "PxRigidActorExt.h"
 
 #define STATIC_EGLRENDERER_PLUGIN
 #ifdef STATIC_EGLRENDERER_PLUGIN
@@ -50,10 +51,22 @@ public:
 struct InternalPhysXBodyData
 {
 	physx::PxArticulationReducedCoordinate*		mArticulation;
+	physx::PxRigidDynamic* m_rigidDynamic;
+	physx::PxRigidStatic* m_rigidStatic;
+
 	std::string m_bodyName;
+
+	InternalPhysXBodyData()
+	{
+		clear();
+	}
 	//physx::PxArticulationJointReducedCoordinate*	gDriveJoint;
 	void clear()
 	{
+		mArticulation = 0;
+		m_rigidDynamic = 0;
+		m_rigidStatic = 0;
+
 		m_bodyName = "";
 	}
 };
@@ -298,216 +311,741 @@ bool PhysXServerCommandProcessor::processStateLoggingCommand(const struct Shared
 		}
 	}
 
-#if 0
-	if (clientCmd.m_updateFlags & STATE_LOGGING_START_LOG)
+
+	return hasStatus;
+}
+
+
+bool PhysXServerCommandProcessor::processInitPoseCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+
+	BT_PROFILE("CMD_INIT_POSE");
+
+	if (m_data->m_verboseOutput)
 	{
-		if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_ALL_COMMANDS)
+		b3Printf("Server Init Pose not implemented yet");
+	}
+	int bodyUniqueId = clientCmd.m_initPoseArgs.m_bodyUniqueId;
+	InternalPhysXBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+
+	btVector3 baseLinVel(0, 0, 0);
+	btVector3 baseAngVel(0, 0, 0);
+
+	if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_LINEAR_VELOCITY)
+	{
+		baseLinVel.setValue(clientCmd.m_initPoseArgs.m_initialStateQdot[0],
+			clientCmd.m_initPoseArgs.m_initialStateQdot[1],
+			clientCmd.m_initPoseArgs.m_initialStateQdot[2]);
+	}
+	if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_ANGULAR_VELOCITY)
+	{
+		baseAngVel.setValue(clientCmd.m_initPoseArgs.m_initialStateQdot[3],
+			clientCmd.m_initPoseArgs.m_initialStateQdot[4],
+			clientCmd.m_initPoseArgs.m_initialStateQdot[5]);
+	}
+	btVector3 basePos(0, 0, 0);
+	if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_POSITION)
+	{
+		basePos = btVector3(
+			clientCmd.m_initPoseArgs.m_initialStateQ[0],
+			clientCmd.m_initPoseArgs.m_initialStateQ[1],
+			clientCmd.m_initPoseArgs.m_initialStateQ[2]);
+	}
+	btQuaternion baseOrn(0, 0, 0, 1);
+	if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_ORIENTATION)
+	{
+		baseOrn.setValue(clientCmd.m_initPoseArgs.m_initialStateQ[3],
+			clientCmd.m_initPoseArgs.m_initialStateQ[4],
+			clientCmd.m_initPoseArgs.m_initialStateQ[5],
+			clientCmd.m_initPoseArgs.m_initialStateQ[6]);
+	}
+	if (body && body->mArticulation)
+	{
+		physx::PxArticulationCache* c = body->mArticulation->createCache();
+		body->mArticulation->copyInternalStateToCache(*c, physx::PxArticulationCache::ePOSITION | physx::PxArticulationCache::eVELOCITY);// physx::PxArticulationCache::eALL);
+		physx::PxArticulationLink* physxLinks[64];
+		physx::PxU32 bufferSize = 64;
+		physx::PxU32 startIndex = 0;
+		int numLinks2 = body->mArticulation->getLinks(physxLinks, bufferSize, startIndex);
+
+		btAlignedObjectArray<int> dofStarts;
+		dofStarts.resize(numLinks2);
+		dofStarts[0] = 0; //We know that the root link does not have a joint
+		//cache positions in PhysX may be reshuffled, see
+		//http://gameworksdocs.nvidia.com/PhysX/4.0/documentation/PhysXGuide/Manual/Articulations.html
+
+		for (int  i = 1; i < numLinks2; ++i)
 		{
-			if (m_data->m_commandLogger == 0)
-			{
-				enableCommandLogging(true, clientCmd.m_stateLoggingArguments.m_fileName);
-				serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
-				int loggerUid = m_data->m_stateLoggersUniqueId++;
-				m_data->m_commandLoggingUid = loggerUid;
-				serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
-			}
+			int  llIndex = physxLinks[i]->getLinkIndex();
+			int  dofs = physxLinks[i]->getInboundJointDof();
+
+			dofStarts[llIndex] = dofs;
 		}
 
-		if (clientCmd.m_stateLoggingArguments.m_logType == STATE_REPLAY_ALL_COMMANDS)
+		int count = 0;
+		for (int i = 1; i < numLinks2; ++i)
 		{
-			if (m_data->m_logPlayback == 0)
-			{
-				replayFromLogFile(clientCmd.m_stateLoggingArguments.m_fileName);
-				serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
-				int loggerUid = m_data->m_stateLoggersUniqueId++;
-				m_data->m_logPlaybackUid = loggerUid;
-				serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
-			}
+			int  dofs = dofStarts[i];
+			dofStarts[i] = count;
+			count += dofs;
 		}
 
-		
-		if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_VIDEO_MP4)
+		if (numLinks2 > 0)
 		{
-			//if (clientCmd.m_stateLoggingArguments.m_fileName)
+			int dofs = physxLinks[0]->getInboundJointDof();
+			physx::PxTransform pt = physxLinks[0]->getGlobalPose();
+			physx::PxVec3 linVel = physxLinks[0]->getLinearVelocity();
+			physx::PxVec3 angVel = physxLinks[0]->getAngularVelocity();
+			
+
+			if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_LINEAR_VELOCITY)
 			{
-				int loggerUid = m_data->m_stateLoggersUniqueId++;
-				VideoMP4Loggger* logger = new VideoMP4Loggger(loggerUid, clientCmd.m_stateLoggingArguments.m_fileName, this->m_data->m_guiHelper);
-				m_data->m_stateLoggers.push_back(logger);
-				serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
-				serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+				physxLinks[0]->setLinearVelocity(physx::PxVec3(baseLinVel[0], baseLinVel[1], baseLinVel[2]));
+			}
+
+			if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_ANGULAR_VELOCITY)
+			{
+				physxLinks[0]->setAngularVelocity(physx::PxVec3(baseAngVel[0], baseAngVel[1], baseAngVel[2]));
+			}
+
+			if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_POSITION)
+			{
+				pt.p.x = basePos[0];
+				pt.p.y = basePos[0];
+				pt.p.z = basePos[0];
+				physxLinks[0]->setGlobalPose(pt);
+			}
+			if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_ORIENTATION)
+			{
+				btAssert(clientCmd.m_initPoseArgs.m_hasInitialStateQ[3] &&
+					clientCmd.m_initPoseArgs.m_hasInitialStateQ[4] &&
+					clientCmd.m_initPoseArgs.m_hasInitialStateQ[5] &&
+					clientCmd.m_initPoseArgs.m_hasInitialStateQ[6]);
+				pt.q.x = baseOrn[0];
+				pt.q.y = baseOrn[1];
+				pt.q.z = baseOrn[2];
+				pt.q.w = baseOrn[3];
+				physxLinks[0]->setGlobalPose(pt);
 			}
 		}
-
-		if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_MINITAUR)
+		if (clientCmd.m_updateFlags & INIT_POSE_HAS_JOINT_STATE)
 		{
-			std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
-			//either provide the minitaur by object unique Id, or search for first multibody with 8 motors...
-
-			if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID) && (clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds > 0))
+			int uDofIndex = 6;
+			int posVarCountIndex = 7;
+			
+			//skip 'root' link
+			for (int i = 1; i < numLinks2; i++)
 			{
-				int bodyUniqueId = clientCmd.m_stateLoggingArguments.m_bodyUniqueIds[0];
-				InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-				if (body)
+				int physxCacheLinkIndex = physxLinks[i]->getLinkIndex();
+				int dofs = physxLinks[i]->getInboundJointDof();
+				int posVarCount = dofs;//??
+				bool hasPosVar = posVarCount > 0;
+
+				for (int j = 0; j < posVarCount; j++)
 				{
-					if (body->m_multiBody)
+					if (clientCmd.m_initPoseArgs.m_hasInitialStateQ[posVarCountIndex + j] == 0)
 					{
-						btAlignedObjectArray<std::string> motorNames;
-						motorNames.push_back("motor_front_leftR_joint");
-						motorNames.push_back("motor_front_leftL_joint");
-						motorNames.push_back("motor_back_leftR_joint");
-						motorNames.push_back("motor_back_leftL_joint");
-						motorNames.push_back("motor_front_rightL_joint");
-						motorNames.push_back("motor_front_rightR_joint");
-						motorNames.push_back("motor_back_rightL_joint");
-						motorNames.push_back("motor_back_rightR_joint");
+						hasPosVar = false;
+						break;
+					}
+				}
+				if (hasPosVar)
+				{
+					if (posVarCount == 1)
+					{
+						c->jointPosition[dofStarts[physxCacheLinkIndex]] = clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex];
+					}
+					if (posVarCount == 3)
+					{
+						btQuaternion q(
+							clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex],
+							clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex + 1],
+							clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex + 2],
+							clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex + 3]);
+						q.normalize();
+						//mb->setJointPosMultiDof(i, &q[0]);
+						//double vel[6] = { 0, 0, 0, 0, 0, 0 };
+						//mb->setJointVelMultiDof(i, vel);
+					}
+				}
 
-						btAlignedObjectArray<int> motorIdList;
-						for (int m = 0; m < motorNames.size(); m++)
+				bool hasVel = true;
+				for (int j = 0; j < posVarCount; j++)
+				{
+					if (clientCmd.m_initPoseArgs.m_hasInitialStateQdot[uDofIndex + j] == 0)
+					{
+						hasVel = false;
+						break;
+					}
+				}
+
+				if (hasVel)
+				{
+					if (posVarCount == 1)
+					{
+						btScalar vel = clientCmd.m_initPoseArgs.m_initialStateQdot[uDofIndex];
+						c->jointVelocity[dofStarts[physxCacheLinkIndex]] = vel;
+					}
+					if (posVarCount == 3)
+					{
+						//mb->setJointVelMultiDof(i, &clientCmd.m_initPoseArgs.m_initialStateQdot[uDofIndex]);
+					}
+				}
+				
+				posVarCountIndex += dofs;
+				uDofIndex += dofs;// mb->getLink(i).m_dofCount;
+			}
+		}
+
+		body->mArticulation->applyCache(*c, physx::PxArticulationCache::ePOSITION| physx::PxArticulationCache::eVELOCITY);
+		body->mArticulation->releaseCache(*c);
+		
+	}
+
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+	serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+	return hasStatus;
+}
+
+bool PhysXServerCommandProcessor::processSendDesiredStateCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+	BT_PROFILE("CMD_SEND_DESIRED_STATE");
+	
+	int bodyUniqueId = clientCmd.m_sendDesiredStateCommandArgument.m_bodyUniqueId;
+	InternalPhysXBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+	if (body && body->mArticulation)
+	{
+		physx::PxArticulationLink* physxLinks[64];
+		physx::PxU32 bufferSize = 64;
+		physx::PxU32 startIndex = 0;
+		int numLinks2 = body->mArticulation->getLinks(physxLinks, bufferSize, startIndex);
+		//http://gameworksdocs.nvidia.com/PhysX/4.0/documentation/PhysXGuide/Manual/Articulations.html
+
+
+		switch (clientCmd.m_sendDesiredStateCommandArgument.m_controlMode)
+		{
+		case CONTROL_MODE_VELOCITY:
+		{
+			if (m_data->m_verboseOutput)
+			{
+				b3Printf("Using CONTROL_MODE_VELOCITY");
+			}
+
+			int numMotors = 0;
+			//find the joint motors and apply the desired velocity and maximum force/torque
+			{
+				int dofIndex = 6;  //skip the 3 linear + 3 angular degree of freedom entries of the base
+				for (int link = 1; link < numLinks2; link++)
+				{
+					int dofs = physxLinks[link]->getInboundJointDof();
+					physx::PxReal stiffness = 10.f;
+					physx::PxReal damping = 0.1f;
+					physx::PxReal forceLimit = PX_MAX_F32;
+
+					if (dofs == 1)
+					{
+						physx::PxArticulationJointReducedCoordinate* joint = static_cast<physx::PxArticulationJointReducedCoordinate*>(physxLinks[link]->getInboundJoint());
+						btScalar desiredVelocity = 0.f;
+						bool hasDesiredVelocity = false;
+						physx::PxReal stiffness = 10.f;
+
+						if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] & SIM_DESIRED_STATE_HAS_QDOT) != 0)
 						{
-							for (int i = 0; i < body->m_multiBody->getNumLinks(); i++)
+							desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex];
+							btScalar kd = 0.1f;
+							if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] & SIM_DESIRED_STATE_HAS_KD) != 0)
 							{
-								std::string jointName;
-								if (body->m_multiBody->getLink(i).m_jointName)
-								{
-									jointName = body->m_multiBody->getLink(i).m_jointName;
-								}
-								if (motorNames[m] == jointName)
-								{
-									motorIdList.push_back(i);
-								}
+								kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[dofIndex];
 							}
+							joint->setDriveVelocity(physx::PxArticulationAxis::eTWIST, desiredVelocity);
+							physx::PxReal damping = kd;
+							stiffness = 0;
+							joint->setDriveTarget(physx::PxArticulationAxis::eTWIST, 0.f);
+							physx::PxReal forceLimit = 1000000.f;
+							if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] & SIM_DESIRED_STATE_HAS_MAX_FORCE) != 0)
+							{
+								forceLimit = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex];
+							}
+							joint->setDrive(physx::PxArticulationAxis::eTWIST, stiffness, damping, forceLimit);
+						}
+					}
+					dofIndex += dofs;
+				}
+			}
+			break;
+		}
+
+		case CONTROL_MODE_POSITION_VELOCITY_PD:
+		{
+			if (m_data->m_verboseOutput)
+			{
+				b3Printf("Using CONTROL_MODE_VELOCITY");
+			}
+
+			int numMotors = 0;
+			//find the joint motors and apply the desired velocity and maximum force/torque
+			{
+				int dofIndex = 6;  //skip the 3 linear + 3 angular degree of freedom entries of the base
+				for (int link = 1; link < numLinks2; link++)
+				{
+					int dofs = physxLinks[link]->getInboundJointDof();
+					physx::PxReal stiffness = 10.f;
+					physx::PxReal damping = 0.1f;
+					physx::PxReal forceLimit = PX_MAX_F32;
+					int posIndex = 7;  //skip 3 positional and 4 orientation (quaternion) positional degrees of freedom of the base
+
+					if (dofs == 1)
+					{
+						physx::PxArticulationJointReducedCoordinate* joint = static_cast<physx::PxArticulationJointReducedCoordinate*>(physxLinks[link]->getInboundJoint());
+						btScalar desiredVelocity = 0.f;
+						bool hasDesiredVelocity = false;
+						physx::PxReal stiffness = 10.f;
+						btScalar kd = 0.1f;
+						btScalar kp = 0.f;
+						
+						if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] & SIM_DESIRED_STATE_HAS_QDOT) != 0)
+						{
+							desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex];
 						}
 
-						if (motorIdList.size() == 8)
+						btScalar desiredPosition = 0.f;
+						if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[posIndex] & SIM_DESIRED_STATE_HAS_Q) != 0)
 						{
-							int loggerUid = m_data->m_stateLoggersUniqueId++;
-							MinitaurStateLogger* logger = new MinitaurStateLogger(loggerUid, fileName, body->m_multiBody, motorIdList);
-							m_data->m_stateLoggers.push_back(logger);
-							serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
-							serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+							desiredPosition = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex];
 						}
+
+						if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] & SIM_DESIRED_STATE_HAS_KD) != 0)
+						{
+							kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[dofIndex];
+						}
+						physx::PxReal damping = kd;
+
+						if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] & SIM_DESIRED_STATE_HAS_KP) != 0)
+						{
+							kp = clientCmd.m_sendDesiredStateCommandArgument.m_Kp[dofIndex];
+							stiffness = kp;
+						}
+
+						joint->setDriveVelocity(physx::PxArticulationAxis::eTWIST, desiredVelocity);
+							
+						
+
+						physx::PxReal forceLimit = 1000000.f;
+						if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] & SIM_DESIRED_STATE_HAS_MAX_FORCE) != 0)
+						{
+							forceLimit = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex];
+						}
+						bool isAcceleration = false;
+						joint->setDrive(physx::PxArticulationAxis::eTWIST, stiffness, damping, forceLimit, isAcceleration);
+						
+						joint->setDriveTarget(physx::PxArticulationAxis::eTWIST, desiredPosition);
+					}
+
+					dofIndex += dofs;
+					posIndex += dofs;
+				}
+			}
+			break;
+		}
+		default:
+		{
+		}
+		}
+
+	}
+	serverStatusOut.m_type = CMD_DESIRED_STATE_RECEIVED_COMPLETED;
+	return hasStatus;
+}
+
+
+
+bool PhysXServerCommandProcessor::processChangeDynamicsInfoCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+	BT_PROFILE("CMD_CHANGE_DYNAMICS_INFO");
+
+	int bodyUniqueId = clientCmd.m_changeDynamicsInfoArgs.m_bodyUniqueId;
+	int linkIndex = clientCmd.m_changeDynamicsInfoArgs.m_linkIndex;
+	double mass = clientCmd.m_changeDynamicsInfoArgs.m_mass;
+	double lateralFriction = clientCmd.m_changeDynamicsInfoArgs.m_lateralFriction;
+	double spinningFriction = clientCmd.m_changeDynamicsInfoArgs.m_spinningFriction;
+	double rollingFriction = clientCmd.m_changeDynamicsInfoArgs.m_rollingFriction;
+	double restitution = clientCmd.m_changeDynamicsInfoArgs.m_restitution;
+	btVector3 newLocalInertiaDiagonal(clientCmd.m_changeDynamicsInfoArgs.m_localInertiaDiagonal[0],
+		clientCmd.m_changeDynamicsInfoArgs.m_localInertiaDiagonal[1],
+		clientCmd.m_changeDynamicsInfoArgs.m_localInertiaDiagonal[2]);
+
+	btAssert(bodyUniqueId >= 0);
+
+	InternalPhysXBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+
+	if (body->mArticulation)
+	{
+
+		physx::PxArticulationLink* physxLinks[64];
+		physx::PxU32 bufferSize = 64;
+		physx::PxU32 startIndex = 0;
+		int physxLinkIndex = linkIndex + 1;
+		
+		int numLinks2 = body->mArticulation->getLinks(physxLinks, bufferSize, startIndex);
+
+		if (physxLinkIndex >= 0 && physxLinkIndex < numLinks2)
+		{
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
+			{
+				physx::PxArticulationLink* childLink = physxLinks[physxLinkIndex];
+				physx::PxRigidBodyExt::updateMassAndInertia(*childLink, mass);
+			}
+		}
+	}
+	if (body->m_rigidDynamic)
+	{
+		//body->m_rigidDynamic->setMass(mass);
+		//also update inertia
+		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
+		{
+			physx::PxRigidBodyExt::updateMassAndInertia(*body->m_rigidDynamic, mass);
+		}
+	}
+	if (body->m_rigidStatic)
+	{
+		
+	}
+#if 0
+	if (body && body->m_multiBody)
+	{
+		btMultiBody* mb = body->m_multiBody;
+
+		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
+		{
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateWakeUp)
+			{
+				mb->wakeUp();
+			}
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateSleep)
+			{
+				mb->goToSleep();
+			}
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableSleeping)
+			{
+				mb->setCanSleep(true);
+			}
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateDisableSleeping)
+			{
+				mb->setCanSleep(false);
+			}
+		}
+
+		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
+		{
+			mb->setLinearDamping(clientCmd.m_changeDynamicsInfoArgs.m_linearDamping);
+		}
+		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING)
+		{
+			mb->setAngularDamping(clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
+		}
+
+		if (linkIndex == -1)
+		{
+			if (mb->getBaseCollider())
+			{
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
+				{
+					mb->getBaseCollider()->setRestitution(restitution);
+				}
+
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+				{
+					mb->getBaseCollider()->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
+				{
+					mb->getBaseCollider()->setFriction(lateralFriction);
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
+				{
+					mb->getBaseCollider()->setSpinningFriction(spinningFriction);
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
+				{
+					mb->getBaseCollider()->setRollingFriction(rollingFriction);
+				}
+
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
+				{
+					if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
+					{
+						mb->getBaseCollider()->setCollisionFlags(mb->getBaseCollider()->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+					}
+					else
+					{
+						mb->getBaseCollider()->setCollisionFlags(mb->getBaseCollider()->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
 					}
 				}
 			}
-		}
-
-		if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_GENERIC_ROBOT)
-		{
-			std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
-
-			int loggerUid = m_data->m_stateLoggersUniqueId++;
-			int maxLogDof = 12;
-			if ((clientCmd.m_updateFlags & STATE_LOGGING_MAX_LOG_DOF))
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
 			{
-				maxLogDof = clientCmd.m_stateLoggingArguments.m_maxLogDof;
-			}
-
-			int logFlags = 0;
-			if (clientCmd.m_updateFlags & STATE_LOGGING_LOG_FLAGS)
-			{
-				logFlags = clientCmd.m_stateLoggingArguments.m_logFlags;
-			}
-			GenericRobotStateLogger* logger = new GenericRobotStateLogger(loggerUid, fileName, m_data->m_dynamicsWorld, maxLogDof, logFlags);
-
-			if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID) && (clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds > 0))
-			{
-				logger->m_filterObjectUniqueId = true;
-				for (int i = 0; i < clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds; ++i)
+				mb->setBaseMass(mass);
+				if (mb->getBaseCollider() && mb->getBaseCollider()->getCollisionShape())
 				{
-					int objectUniqueId = clientCmd.m_stateLoggingArguments.m_bodyUniqueIds[i];
-					logger->m_bodyIdList.push_back(objectUniqueId);
+					btVector3 localInertia;
+					mb->getBaseCollider()->getCollisionShape()->calculateLocalInertia(mass, localInertia);
+					mb->setBaseInertia(localInertia);
 				}
-			}
 
-			m_data->m_stateLoggers.push_back(logger);
-			serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
-			serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
-		}
-		if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_CONTACT_POINTS)
-		{
-			std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
-			int loggerUid = m_data->m_stateLoggersUniqueId++;
-			ContactPointsStateLogger* logger = new ContactPointsStateLogger(loggerUid, fileName, m_data->m_dynamicsWorld);
-			if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_LINK_INDEX_A) && clientCmd.m_stateLoggingArguments.m_linkIndexA >= -1)
-			{
-				logger->m_filterLinkA = true;
-				logger->m_linkIndexA = clientCmd.m_stateLoggingArguments.m_linkIndexA;
-			}
-			if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_LINK_INDEX_B) && clientCmd.m_stateLoggingArguments.m_linkIndexB >= -1)
-			{
-				logger->m_filterLinkB = true;
-				logger->m_linkIndexB = clientCmd.m_stateLoggingArguments.m_linkIndexB;
-			}
-			if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A) && clientCmd.m_stateLoggingArguments.m_bodyUniqueIdA > -1)
-			{
-				logger->m_bodyUniqueIdA = clientCmd.m_stateLoggingArguments.m_bodyUniqueIdA;
-			}
-			if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B) && clientCmd.m_stateLoggingArguments.m_bodyUniqueIdB > -1)
-			{
-				logger->m_bodyUniqueIdB = clientCmd.m_stateLoggingArguments.m_bodyUniqueIdB;
-			}
-			m_data->m_stateLoggers.push_back(logger);
-			serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
-			serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
-		}
-		if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_VR_CONTROLLERS)
-		{
-			std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
-			int loggerUid = m_data->m_stateLoggersUniqueId++;
-			int deviceFilterType = VR_DEVICE_CONTROLLER;
-			if (clientCmd.m_updateFlags & STATE_LOGGING_FILTER_DEVICE_TYPE)
-			{
-				deviceFilterType = clientCmd.m_stateLoggingArguments.m_deviceFilterType;
-			}
-			VRControllerStateLogger* logger = new VRControllerStateLogger(loggerUid, deviceFilterType, fileName);
-			m_data->m_stateLoggers.push_back(logger);
-			serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
-			serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
-		}
-	}
-	if ((clientCmd.m_updateFlags & STATE_LOGGING_STOP_LOG) && clientCmd.m_stateLoggingArguments.m_loggingUniqueId >= 0)
-	{
-		if (clientCmd.m_stateLoggingArguments.m_loggingUniqueId == m_data->m_logPlaybackUid)
-		{
-			if (m_data->m_logPlayback)
-			{
-				delete m_data->m_logPlayback;
-				m_data->m_logPlayback = 0;
-				m_data->m_logPlaybackUid = -1;
-			}
-		}
+				//handle switch from static/fixedBase to dynamic and vise-versa
+				if (mass > 0)
+				{
+					bool isDynamic = true;
+					if (mb->hasFixedBase())
+					{
+						int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+						int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
-		if (clientCmd.m_stateLoggingArguments.m_loggingUniqueId == m_data->m_commandLoggingUid)
-		{
-			if (m_data->m_commandLogger)
-			{
-				enableCommandLogging(false, 0);
-				serverStatusOut.m_type = CMD_STATE_LOGGING_COMPLETED;
-				m_data->m_commandLoggingUid = -1;
-			}
-		}
+						m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
+						int oldFlags = mb->getBaseCollider()->getCollisionFlags();
+						mb->getBaseCollider()->setCollisionFlags(oldFlags & ~btCollisionObject::CF_STATIC_OBJECT);
+						mb->setFixedBase(false);
+						m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
 
-		if (clientCmd.m_stateLoggingArguments.m_loggingUniqueId == m_data->m_profileTimingLoggingUid)
-		{
-			serverStatusOut.m_type = CMD_STATE_LOGGING_COMPLETED;
-			b3ChromeUtilsStopTimingsAndWriteJsonFile(m_data->m_profileTimingFileName.c_str());
-			m_data->m_profileTimingLoggingUid = -1;
+					}
+				}
+				else
+				{
+					if (!mb->hasFixedBase())
+					{
+						bool isDynamic = false;
+						int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+						int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+						int oldFlags = mb->getBaseCollider()->getCollisionFlags();
+						mb->getBaseCollider()->setCollisionFlags(oldFlags | btCollisionObject::CF_STATIC_OBJECT);
+						m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
+						mb->setFixedBase(true);
+						m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
+					}
+				}
+
+			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
+			{
+				mb->setBaseInertia(newLocalInertiaDiagonal);
+			}
 		}
 		else
 		{
-			serverStatusOut.m_type = CMD_STATE_LOGGING_COMPLETED;
-			for (int i = 0; i < m_data->m_stateLoggers.size(); i++)
+			if (linkIndex >= 0 && linkIndex < mb->getNumLinks())
 			{
-				if (m_data->m_stateLoggers[i]->m_loggingUniqueId == clientCmd.m_stateLoggingArguments.m_loggingUniqueId)
+				if (mb->getLinkCollider(linkIndex))
 				{
-					m_data->m_stateLoggers[i]->stop();
-					delete m_data->m_stateLoggers[i];
-					m_data->m_stateLoggers.removeAtIndex(i);
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
+					{
+						mb->getLinkCollider(linkIndex)->setRestitution(restitution);
+					}
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
+					{
+						mb->getLinkCollider(linkIndex)->setSpinningFriction(spinningFriction);
+					}
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
+					{
+						mb->getLinkCollider(linkIndex)->setRollingFriction(rollingFriction);
+					}
+
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
+					{
+						if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
+						{
+							mb->getLinkCollider(linkIndex)->setCollisionFlags(mb->getLinkCollider(linkIndex)->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+						}
+						else
+						{
+							mb->getLinkCollider(linkIndex)->setCollisionFlags(mb->getLinkCollider(linkIndex)->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+						}
+					}
+
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
+					{
+						mb->getLinkCollider(linkIndex)->setFriction(lateralFriction);
+					}
+
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+					{
+						mb->getLinkCollider(linkIndex)->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+					}
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
+				{
+					mb->getLink(linkIndex).m_mass = mass;
+					if (mb->getLinkCollider(linkIndex) && mb->getLinkCollider(linkIndex)->getCollisionShape())
+					{
+						btVector3 localInertia;
+						mb->getLinkCollider(linkIndex)->getCollisionShape()->calculateLocalInertia(mass, localInertia);
+						mb->getLink(linkIndex).m_inertiaLocal = localInertia;
+					}
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
+				{
+					mb->getLink(linkIndex).m_inertiaLocal = newLocalInertiaDiagonal;
 				}
 			}
 		}
 	}
+	else
+	{
+		if (body && body->m_rigidBody)
+		{
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
+			{
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableSleeping)
+				{
+					body->m_rigidBody->forceActivationState(ACTIVE_TAG);
+				}
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateDisableSleeping)
+				{
+					body->m_rigidBody->forceActivationState(DISABLE_DEACTIVATION);
+				}
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateWakeUp)
+				{
+					body->m_rigidBody->forceActivationState(ACTIVE_TAG);
+				}
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateSleep)
+				{
+					body->m_rigidBody->forceActivationState(ISLAND_SLEEPING);
+				}
+			}
+
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
+			{
+				btScalar angDamping = body->m_rigidBody->getAngularDamping();
+				body->m_rigidBody->setDamping(clientCmd.m_changeDynamicsInfoArgs.m_linearDamping, angDamping);
+			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING)
+			{
+				btScalar linDamping = body->m_rigidBody->getLinearDamping();
+				body->m_rigidBody->setDamping(linDamping, clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
+			}
+
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+			{
+				body->m_rigidBody->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
+			{
+				body->m_rigidBody->setRestitution(restitution);
+			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
+			{
+				body->m_rigidBody->setFriction(lateralFriction);
+			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
+			{
+				body->m_rigidBody->setSpinningFriction(spinningFriction);
+			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
+			{
+				body->m_rigidBody->setRollingFriction(rollingFriction);
+			}
+
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
+			{
+				if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
+				{
+					body->m_rigidBody->setCollisionFlags(body->m_rigidBody->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+				}
+				else
+				{
+					body->m_rigidBody->setCollisionFlags(body->m_rigidBody->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+				}
+			}
+
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
+			{
+				btVector3 localInertia;
+				if (body->m_rigidBody->getCollisionShape())
+				{
+					body->m_rigidBody->getCollisionShape()->calculateLocalInertia(mass, localInertia);
+				}
+				body->m_rigidBody->setMassProps(mass, localInertia);
+			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
+			{
+				btScalar orgMass = body->m_rigidBody->getInvMass();
+				if (orgMass > 0)
+				{
+					body->m_rigidBody->setMassProps(mass, newLocalInertiaDiagonal);
+				}
+			}
+
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD)
+			{
+				body->m_rigidBody->setContactProcessingThreshold(clientCmd.m_changeDynamicsInfoArgs.m_contactProcessingThreshold);
+			}
+
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CCD_SWEPT_SPHERE_RADIUS)
+			{
+				body->m_rigidBody->setCcdSweptSphereRadius(clientCmd.m_changeDynamicsInfoArgs.m_ccdSweptSphereRadius);
+				//for a given sphere radius, use a motion threshold of half the radius, before the ccd algorithm is enabled
+				body->m_rigidBody->setCcdMotionThreshold(clientCmd.m_changeDynamicsInfoArgs.m_ccdSweptSphereRadius / 2.);
+			}
+		}
+	}
+
+	b3Notification notification;
+	notification.m_notificationType = LINK_DYNAMICS_CHANGED;
+	notification.m_linkArgs.m_bodyUniqueId = bodyUniqueId;
+	notification.m_linkArgs.m_linkIndex = linkIndex;
+	m_data->m_pluginManager.addNotification(notification);
+
+
 #endif
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+	serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+
+	
+	return hasStatus;
+}
+
+bool PhysXServerCommandProcessor::processRequestPhysicsSimulationParametersCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+	serverCmd.m_type = CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED;
+
+	serverCmd.m_simulationParameterResultArgs.m_allowedCcdPenetration = 0;// m_data->m_dynamicsWorld->getDispatchInfo().m_allowedCcdPenetration;
+	serverCmd.m_simulationParameterResultArgs.m_collisionFilterMode = 0;// m_data->m_broadphaseCollisionFilterCallback->m_filterMode;
+	serverCmd.m_simulationParameterResultArgs.m_deltaTime = m_data->m_physicsDeltaTime;
+	serverCmd.m_simulationParameterResultArgs.m_contactBreakingThreshold = 0;// gContactBreakingThreshold;
+	serverCmd.m_simulationParameterResultArgs.m_contactSlop = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop;
+	serverCmd.m_simulationParameterResultArgs.m_enableSAT = 0;// m_data->m_dynamicsWorld->getDispatchInfo().m_enableSatConvex;
+
+	serverCmd.m_simulationParameterResultArgs.m_defaultGlobalCFM = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_globalCfm;
+	serverCmd.m_simulationParameterResultArgs.m_defaultContactERP = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_erp2;
+	serverCmd.m_simulationParameterResultArgs.m_defaultNonContactERP = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_erp;
+	
+	serverCmd.m_simulationParameterResultArgs.m_deterministicOverlappingPairs = 0;// m_data->m_dynamicsWorld->getDispatchInfo().m_deterministicOverlappingPairs;
+	serverCmd.m_simulationParameterResultArgs.m_enableConeFriction = 0;// (m_data->m_dynamicsWorld->getSolverInfo().m_solverMode & SOLVER_DISABLE_IMPLICIT_CONE_FRICTION) ? 0 : 1;
+	serverCmd.m_simulationParameterResultArgs.m_enableFileCaching = 0;// b3IsFileCachingEnabled();
+	serverCmd.m_simulationParameterResultArgs.m_frictionCFM = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_frictionCFM;
+	serverCmd.m_simulationParameterResultArgs.m_frictionERP = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP;
+
+	physx::PxVec3 grav = m_data->m_scene->getGravity();
+
+	serverCmd.m_simulationParameterResultArgs.m_gravityAcceleration[0] = grav.x;
+	serverCmd.m_simulationParameterResultArgs.m_gravityAcceleration[1] = grav.y;
+	serverCmd.m_simulationParameterResultArgs.m_gravityAcceleration[2] = grav.z;
+	serverCmd.m_simulationParameterResultArgs.m_internalSimFlags = 0;
+	serverCmd.m_simulationParameterResultArgs.m_jointFeedbackMode = 0;
+	
+	serverCmd.m_simulationParameterResultArgs.m_numSimulationSubSteps = 0;// m_data->m_numSimulationSubSteps;
+	serverCmd.m_simulationParameterResultArgs.m_numSolverIterations = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_numIterations;
+	serverCmd.m_simulationParameterResultArgs.m_restitutionVelocityThreshold = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_restitutionVelocityThreshold;
+
+	serverCmd.m_simulationParameterResultArgs.m_solverResidualThreshold = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold;
+	serverCmd.m_simulationParameterResultArgs.m_splitImpulsePenetrationThreshold = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_splitImpulsePenetrationThreshold;
+	serverCmd.m_simulationParameterResultArgs.m_useRealTimeSimulation = 0;// m_data->m_useRealTimeSimulation;
+	serverCmd.m_simulationParameterResultArgs.m_useSplitImpulse = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_splitImpulse;
+
 	return hasStatus;
 }
 
@@ -595,6 +1133,30 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 		case CMD_STATE_LOGGING:
 		{
 			hasStatus = processStateLoggingCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
+
+		case CMD_INIT_POSE:
+		{
+			hasStatus = processInitPoseCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
+
+		case CMD_SEND_DESIRED_STATE:
+		{
+			hasStatus = processSendDesiredStateCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
+
+		case CMD_CHANGE_DYNAMICS_INFO:
+		{
+			hasStatus = processChangeDynamicsInfoCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		};
+
+		case CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS:
+		{
+			hasStatus = processRequestPhysicsSimulationParametersCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
 
@@ -697,11 +1259,7 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 			break;
 		}
 
-	case CMD_SEND_DESIRED_STATE:
-		{
-			hasStatus = processSendDesiredStateCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
+	
 	case CMD_REQUEST_COLLISION_INFO:
 		{
 			hasStatus = processRequestCollisionInfoCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
@@ -710,29 +1268,15 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 
 	
 	
-	case CMD_CHANGE_DYNAMICS_INFO:
-		{
-			hasStatus = processChangeDynamicsInfoCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		};
+	
 	case CMD_GET_DYNAMICS_INFO:
 		{
 			hasStatus = processGetDynamicsInfoCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
 
-	case CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS:
-		{
-			hasStatus = processRequestPhysicsSimulationParametersCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
 
 	
-	case CMD_INIT_POSE:
-		{
-			hasStatus = processInitPoseCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
 	
 	case CMD_CREATE_RIGID_BODY:
 		{
@@ -1040,15 +1584,41 @@ bool PhysXServerCommandProcessor::processLoadURDFCommand(const struct SharedMemo
 				//u2p.getMassAndInertia2((urdfLinkIndex, mass, localInertiaDiagonal, bodyHandle->m_rootLocalInertialFrame, flags);
 			}
 			
-			physx::PxArticulationReducedCoordinate* articulation = URDF2PhysX(m_data->m_foundation,m_data->m_physics, m_data->m_cooking, m_data->m_scene, u2p, urdfArgs.m_urdfFlags, u2p.getPathPrefix(), rootTrans, &fileIO);
+			physx::PxBase* baseObj = URDF2PhysX(m_data->m_foundation,m_data->m_physics, m_data->m_cooking, m_data->m_scene, u2p, urdfArgs.m_urdfFlags, u2p.getPathPrefix(), rootTrans, &fileIO, useMultiBody);
+
+			physx::PxRigidDynamic* c = baseObj->is<physx::PxRigidDynamic>();
+			physx::PxRigidStatic* rigidStatic = baseObj->is<physx::PxRigidStatic>();
+			physx::PxRigidDynamic* rigidDynamic = baseObj->is<physx::PxRigidDynamic>();
+			physx::PxArticulationReducedCoordinate* articulation = 0;
+			if (rigidDynamic)
+			{
+				bodyHandle->m_rigidDynamic = rigidDynamic;
+			}
+			if (rigidStatic)
+			{
+				bodyHandle->m_rigidStatic = rigidStatic;
+				serverStatusOut.m_numDataStreamBytes = 0;
+				serverStatusOut.m_type = CMD_URDF_LOADING_COMPLETED;
+				serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
+			}
+			if ((rigidDynamic == 0) && (rigidStatic == 0))
+			{
+				articulation = (physx::PxArticulationReducedCoordinate*)baseObj;
+				serverStatusOut.m_type = CMD_URDF_LOADING_COMPLETED;
+				serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
+			}
+			if (rigidStatic || rigidDynamic || articulation)
+			{
+				serverStatusOut.m_type = CMD_URDF_LOADING_COMPLETED;
+				serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
+				sprintf(serverStatusOut.m_dataStreamArguments.m_bodyName, "%s", bodyHandle->m_bodyName.c_str());
+			}
 			
 			if (articulation)
 			{
 				bodyHandle->mArticulation = articulation;
 				
-				serverStatusOut.m_type = CMD_URDF_LOADING_COMPLETED;
-				serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
-				sprintf(serverStatusOut.m_dataStreamArguments.m_bodyName, "%s", bodyHandle->m_bodyName.c_str());
+				
 
 				btDefaultSerializer ser(bufferSizeInBytes, (unsigned char*)bufferServerToClient);
 
@@ -1215,23 +1785,47 @@ bool PhysXServerCommandProcessor::processForwardDynamicsCommand(const struct Sha
 			for (int i = 0; i < usedHandles.size(); i++)
 			{
 				InternalPhysXBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(usedHandles[i]);
-				physx::PxArticulationLink* physxLinks[64];
-				physx::PxU32 bufferSize = 64;
-				physx::PxU32 startIndex = 0;
-				int numLinks2 = bodyHandle->mArticulation->getLinks(physxLinks, bufferSize, startIndex);
+
 				
-				for (int l = 0; l < numLinks2; l++)
+				physx::PxRigidActor* actor = 0;
+				if (bodyHandle->m_rigidDynamic)
+					actor = bodyHandle->m_rigidDynamic;
+				if (bodyHandle->m_rigidStatic)
+					actor = bodyHandle->m_rigidStatic;
+
+				if (actor)
 				{
-					MyPhysXUserData* ud = (MyPhysXUserData*)physxLinks[l]->userData;
-					if (ud)
+					btTransform tr;
+					tr.setIdentity();
+					physx::PxTransform pt = actor->getGlobalPose();
+					tr.setOrigin(btVector3(pt.p[0], pt.p[1], pt.p[2]));
+					tr.setRotation(btQuaternion(pt.q.x, pt.q.y, pt.q.z, pt.q.w));
+					btVector3 localScaling(1, 1, 1);//??
+					MyPhysXUserData* ud = (MyPhysXUserData*)actor->userData;
+					m_data->m_pluginManager.getRenderInterface()->syncTransform(ud->m_graphicsUniqueId, tr, localScaling);
+				}
+
+				if (bodyHandle->mArticulation)
+				{
+					
+					physx::PxArticulationLink* physxLinks[64];
+					physx::PxU32 bufferSize = 64;
+					physx::PxU32 startIndex = 0;
+					int numLinks2 = bodyHandle->mArticulation->getLinks(physxLinks, bufferSize, startIndex);
+
+					for (int l = 0; l < numLinks2; l++)
 					{
-						btTransform tr;
-						tr.setIdentity();
-						physx::PxTransform pt = physxLinks[l]->getGlobalPose();
-						tr.setOrigin(btVector3(pt.p[0], pt.p[1], pt.p[2]));
-						tr.setRotation(btQuaternion(pt.q.x, pt.q.y, pt.q.z, pt.q.w));
-						btVector3 localScaling(1, 1, 1);//??
-						m_data->m_pluginManager.getRenderInterface()->syncTransform(ud->m_graphicsUniqueId, tr, localScaling);
+						MyPhysXUserData* ud = (MyPhysXUserData*)physxLinks[l]->userData;
+						if (ud)
+						{
+							btTransform tr;
+							tr.setIdentity();
+							physx::PxTransform pt = physxLinks[l]->getGlobalPose();
+							tr.setOrigin(btVector3(pt.p[0], pt.p[1], pt.p[2]));
+							tr.setRotation(btQuaternion(pt.q.x, pt.q.y, pt.q.z, pt.q.w));
+							btVector3 localScaling(1, 1, 1);//??
+							m_data->m_pluginManager.getRenderInterface()->syncTransform(ud->m_graphicsUniqueId, tr, localScaling);
+						}
 					}
 				}
 			}
@@ -1284,10 +1878,15 @@ bool PhysXServerCommandProcessor::processSendPhysicsParametersCommand(const stru
 		{
 			b3Printf("Updated Gravity: %f,%f,%f", grav[0], grav[1], grav[2]);
 		}
-
+	}
+#if 0
+	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS)
+	{
+		
+		m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = clientCmd.m_physSimParamArgs.m_numSolverIterations;
 	}
 
-#if 0
+
 	if (clientCmd.m_updateFlags & SIM_PARAM_ENABLE_CONE_FRICTION)
 	{
 		if (clientCmd.m_physSimParamArgs.m_enableConeFriction)
@@ -1328,10 +1927,6 @@ bool PhysXServerCommandProcessor::processSendPhysicsParametersCommand(const stru
 	}
 
 	
-	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS)
-	{
-		m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = clientCmd.m_physSimParamArgs.m_numSolverIterations;
-	}
 
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_SOLVER_RESIDULAL_THRESHOLD)
 	{
@@ -1465,13 +2060,7 @@ bool PhysXServerCommandProcessor::processRequestActualStateCommand(const struct 
 			physx::PxU32 startIndex = 0;
 			int numLinks2 = bodyHandle->mArticulation->getLinks(physxLinks, bufferSize, startIndex);
 
-
-			//always add the base, even for static (non-moving objects)
-			//so that we can easily move the 'fixed' base when needed
-			//do we don't use this conditional "if (!mb->hasFixedBase())"
 			{
-				int rootLink = 0;  //todo check
-				
 				serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[0] = 0;
 				serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[1] = 0;
 				serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[2] = 0;
@@ -1496,116 +2085,57 @@ bool PhysXServerCommandProcessor::processRequestActualStateCommand(const struct 
 				serverCmd.m_sendActualStateArgs.m_actualStateQ[6] = orn.w;
 				totalDegreeOfFreedomQ += 7;  //pos + quaternion
 
+				physx::PxVec3 linVel = l->getLinearVelocity();
+				physx::PxVec3 angVel = l->getAngularVelocity();
+
 				//base linear velocity (in world space, carthesian)
-				serverCmd.m_sendActualStateArgs.m_actualStateQdot[0] = 0;//cvel[3];  //mb->getBaseVel()[0];
-				serverCmd.m_sendActualStateArgs.m_actualStateQdot[1] = 0;//cvel[4];  //mb->getBaseVel()[1];
-				serverCmd.m_sendActualStateArgs.m_actualStateQdot[2] = 0;//cvel[5];  //mb->getBaseVel()[2];
+				serverCmd.m_sendActualStateArgs.m_actualStateQdot[0] = linVel.x;
+				serverCmd.m_sendActualStateArgs.m_actualStateQdot[1] = linVel.y;
+				serverCmd.m_sendActualStateArgs.m_actualStateQdot[2] = linVel.z;
 
 				//base angular velocity (in world space, carthesian)
-				serverCmd.m_sendActualStateArgs.m_actualStateQdot[3] = 0;//cvel[0];  //mb->getBaseOmega()[0];
-				serverCmd.m_sendActualStateArgs.m_actualStateQdot[4] = 0;//cvel[1];  //mb->getBaseOmega()[1];
-				serverCmd.m_sendActualStateArgs.m_actualStateQdot[5] = 0;//cvel[2];  //mb->getBaseOmega()[2];
+				serverCmd.m_sendActualStateArgs.m_actualStateQdot[3] = angVel.x;
+				serverCmd.m_sendActualStateArgs.m_actualStateQdot[4] = angVel.y;
+				serverCmd.m_sendActualStateArgs.m_actualStateQdot[5] = angVel.z;
 				totalDegreeOfFreedomU += 6;                                      //3 linear and 3 angular DOF
 			}
 
-			//btAlignedObjectArray<btVector3> omega;
-			//btAlignedObjectArray<btVector3> linVel;
+			physx::PxArticulationCache* c = bodyHandle->mArticulation->createCache();
+			bodyHandle->mArticulation->copyInternalStateToCache(*c, physx::PxArticulationCache::ePOSITION | physx::PxArticulationCache::eVELOCITY);// physx::PxArticulationCache::eALL);
 
-			int numLinks = 0;// m_data->m_mujocoModel->body_jntnum[bodyUniqueId];
-			for (int l = 0; l < numLinks; l++)
+			btAlignedObjectArray<int> dofStarts;
+			dofStarts.resize(numLinks2);
+			dofStarts[0] = 0; //We know that the root link does not have a joint
+							  //cache positions in PhysX may be reshuffled, see
+							  //http://gameworksdocs.nvidia.com/PhysX/4.0/documentation/PhysXGuide/Manual/Articulations.html
+
+			for (int i = 1; i < numLinks2; ++i)
 			{
-				//int type = (m_data->m_mujocoModel->jnt_type + m_data->m_mujocoModel->body_jntnum[bodyUniqueId])[l];
-				//int type=(m_data->m_mujocoModel->jnt_type+m_data->m_mujocoModel->body_jntnum[bodyUniqueId])[l];
+				int  llIndex = physxLinks[i]->getLinkIndex();
+				int  dofs = physxLinks[i]->getInboundJointDof();
 
-#if 0
-				physx::PxArticulationCache* c = bodyHandle->mArticulation->createCache();
-				if (c)
+				dofStarts[llIndex] = dofs;
+			}
+
+			int count = 0;
+			for (int i = 1; i < numLinks2; ++i)
+			{
+				int  dofs = dofStarts[i];
+				dofStarts[i] = count;
+				count += dofs;
+			}
+
+			//start at 1, 0 is the base/root, handled above
+			for (int l = 1; l < numLinks2; l++)
+			{
+				int  dofs = physxLinks[l]->getInboundJointDof();
+				int  llIndex = physxLinks[l]->getLinkIndex();
+				
+				for (int d = 0; d < dofs; d++)
 				{
-					c->jointVelocity[0] = 1;
-					bodyHandle->mArticulation->applyCache(*c, physx::PxArticulationCache::eVELOCITY);
-					bodyHandle->mArticulation->releaseCache(*c);
+					serverCmd.m_sendActualStateArgs.m_actualStateQ[totalDegreeOfFreedomQ++] = c->jointPosition[dofStarts[llIndex + d]];
+					serverCmd.m_sendActualStateArgs.m_actualStateQ[totalDegreeOfFreedomU++] = c->jointVelocity[dofStarts[llIndex + d]];
 				}
-#endif
-#if 0
-				mjtNum* xpos = 
-				for (int d=0;d<mb->getLink(l).m_posVarCount;d++)
-				{
-					serverCmd.m_sendActualStateArgs.m_actualStateQ[totalDegreeOfFreedomQ++] = 0;
-				}
-				for (int d=0;d<mb->getLink(l).m_dofCount;d++)
-				{
-					serverCmd.m_sendActualStateArgs.m_actualStateQdot[totalDegreeOfFreedomU++] = 0;
-				}
-
-				if (0 == mb->getLink(l).m_jointFeedback)
-				{
-					for (int d=0;d<6;d++)
-					{
-						serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+d]=0;
-					}
-				} else
-				{
-
-					serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+0] = 0;
-					serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+1] = 0;
-					serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+2] = 0;
-
-					serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+3] = 0;
-					serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+4] = 0;
-					serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+5] = 0;
-				}
-
-				serverCmd.m_sendActualStateArgs.m_jointMotorForce[l] = 0;
-#if 0
-				if (supportsJointMotor(mb,l))
-				{
-					if (motor && m_data->m_physicsDeltaTime>btScalar(0))
-					{
-						serverCmd.m_sendActualStateArgs.m_jointMotorForce[l] = 0;
-					}
-				}
-#endif
-				//btVector3 linkLocalInertialOrigin = body->m_linkLocalInertialFrames[l].getOrigin();
-				//btQuaternion linkLocalInertialRotation = body->m_linkLocalInertialFrames[l].getRotation();
-
-				//btVector3 linkCOMOrigin =  mb->getLink(l).m_cachedWorldTransform.getOrigin();
-				//btQuaternion linkCOMRotation =  mb->getLink(l).m_cachedWorldTransform.getRotation();
-
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+0] = 0;//linkCOMOrigin.getX();
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+1] = 0;//linkCOMOrigin.getY();
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+2] = 0;//linkCOMOrigin.getZ();
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+3] = 0;//linkCOMRotation.x();
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+4] = 0;//linkCOMRotation.y();
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+5] = 0;//linkCOMRotation.z();
-				serverCmd.m_sendActualStateArgs.m_linkState[l*7+6] = 1;//linkCOMRotation.w();
-
-#if 0
-				btVector3 worldLinVel(0,0,0);
-				btVector3 worldAngVel(0,0,0);
-								
-				if (computeLinkVelocities)
-				{
-					const btMatrix3x3& linkRotMat = mb->getLink(l).m_cachedWorldTransform.getBasis();
-					worldLinVel = linkRotMat * linVel[l+1];
-					worldAngVel = linkRotMat * omega[l+1];
-				}
-#endif
-				serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+0] = 0;//worldLinVel[0];
-				serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+1] = 0;//worldLinVel[1];
-				serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+2] = 0;//worldLinVel[2];
-				serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+3] = 0;//worldAngVel[0];
-				serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+4] = 0;//worldAngVel[1];
-				serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+5] = 0;//worldAngVel[2];
-								
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+0] = 0;//linkLocalInertialOrigin.getX();
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+1] = 0;//linkLocalInertialOrigin.getY();
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+2] = 0;//linkLocalInertialOrigin.getZ();
-
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+3] = 0;//linkLocalInertialRotation.x();
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+4] = 0;//linkLocalInertialRotation.y();
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+5] = 0;//linkLocalInertialRotation.z();
-				serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+6] = 1;//linkLocalInertialRotation.w();
-#endif
 			}
 
 			serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;

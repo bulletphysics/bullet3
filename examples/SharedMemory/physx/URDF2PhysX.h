@@ -6,6 +6,7 @@
 
 namespace physx
 {
+	class PxBase;
 	class PxFoundation;
 	class PxPhysics;
 	class PxDefaultCpuDispatcher;
@@ -20,6 +21,6 @@ struct UrdfVisualShapeCache2
 	b3AlignedObjectArray<int> m_cachedUrdfLinkVisualShapeIndices;
 };
 
-physx::PxArticulationReducedCoordinate* URDF2PhysX(physx::PxFoundation* foundation, physx::PxPhysics* physics, physx::PxCooking* cooking, physx::PxScene* scene, class PhysXURDFImporter& u2p, int flags, const char* pathPrefix, const class btTransform& rootTransformInWorldSpace,struct CommonFileIOInterface* fileIO);
+physx::PxBase* URDF2PhysX(physx::PxFoundation* foundation, physx::PxPhysics* physics, physx::PxCooking* cooking, physx::PxScene* scene, class PhysXURDFImporter& u2p, int flags, const char* pathPrefix, const class btTransform& rootTransformInWorldSpace,struct CommonFileIOInterface* fileIO, bool createActiculation);
 
 #endif //URDF2PHYSX_H

@@ -164,6 +164,7 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_CCD_SWEPT_SPHERE_RADIUS = 2048,
 	CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD = 4096,
 	CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE = 8192,
+	CHANGE_DYNAMICS_INFO_SET_JOINT_DAMPING = 16384,
 };
 
 struct ChangeDynamicsInfoArgs
@@ -185,6 +186,7 @@ struct ChangeDynamicsInfoArgs
 	double m_ccdSweptSphereRadius;
 	double m_contactProcessingThreshold;
 	int m_activationState;
+	double m_jointDamping;
 };
 
 struct GetDynamicsInfoArgs
