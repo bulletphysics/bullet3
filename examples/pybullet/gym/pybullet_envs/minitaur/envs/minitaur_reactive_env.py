@@ -90,7 +90,7 @@ class MinitaurReactiveEnv(minitaur_gym_env.MinitaurGymEnv):
         and moved to the origin.
       env_randomizer: An instance (or a list) of EnvRanzomier(s) that can
         randomize the environment during when env.reset() is called and add
-        perturbations when env._step() is called.
+        perturbations when env.step() is called.
       log_path: The path to write out logs. For the details of logging, refer to
         minitaur_logging.proto.
     """
@@ -123,7 +123,7 @@ class MinitaurReactiveEnv(minitaur_gym_env.MinitaurGymEnv):
     self._cam_yaw = 30
     self._cam_pitch = -30
 
-  def _reset(self):
+  def reset(self):
     # TODO(b/73666007): Use composition instead of inheritance.
     # (http://go/design-for-testability-no-inheritance).
     init_pose = MinitaurPose(
@@ -137,7 +137,7 @@ class MinitaurReactiveEnv(minitaur_gym_env.MinitaurGymEnv):
         extension_angle_4=INIT_EXTENSION_POS)
     # TODO(b/73734502): Refactor input of _convert_from_leg_model to namedtuple.
     initial_motor_angles = self._convert_from_leg_model(list(init_pose))
-    super(MinitaurReactiveEnv, self)._reset(
+    super(MinitaurReactiveEnv, self).reset(
         initial_motor_angles=initial_motor_angles, reset_duration=0.5)
     return self._get_observation()
 

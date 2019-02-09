@@ -85,7 +85,7 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
       render: Whether to render the simulation.
       env_randomizer: An instance (or a list) of EnvRanzomier(s) that can
         randomize the environment during when env.reset() is called and add
-        perturbations when env._step() is called.
+        perturbations when env.step() is called.
       use_angular_velocity_in_observation: Whether to include roll_dot and
         pitch_dot of the base in the observation.
       use_motor_angle_in_observation: Whether to include motor angles in the
@@ -132,7 +132,7 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
     self._cur_ori = [0, 0, 0, 1]
     self._goal_ori = [0, 0, 0, 1]
 
-  def _reset(self):
+  def reset(self):
     self.desired_pitch = DESIRED_PITCH
     # In this environment, the actions are
     # [swing leg 1, swing leg 2, swing leg 3, swing leg 4,
@@ -150,11 +150,11 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
     initial_motor_angles = self._convert_from_leg_model(init_pose)
     self._pybullet_client.resetBasePositionAndOrientation(
         0, [0, 0, 0], [0, 0, 0, 1])
-    super(MinitaurFourLegStandEnv, self)._reset(
+    super(MinitaurFourLegStandEnv, self).reset(
         initial_motor_angles=initial_motor_angles, reset_duration=0.5)
     return self._get_observation()
 
-  def _step(self, action):
+  def step(self, action):
     """Step forward the simulation, given the action.
 
     Args:
@@ -187,9 +187,9 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
     action = self._transform_action_to_motor_command(action)
     t = self._env_step_counter % MOVING_FLOOR_TOTAL_STEP
     if t == 0:
-      self._seed()
+      self.seed()
       orientation_x = random.uniform(-0.2, 0.2)
-      self._seed()
+      self.seed()
       orientation_y = random.uniform(-0.2, 0.2)
       _, self._cur_ori = self._pybullet_client.getBasePositionAndOrientation(0)
       self._goal_ori = self._pybullet_client.getQuaternionFromEuler(

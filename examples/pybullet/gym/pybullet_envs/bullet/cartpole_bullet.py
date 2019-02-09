@@ -34,8 +34,8 @@ class CartPoleBulletEnv(gym.Env):
 	    p.connect(p.GUI)
     else:
     	p.connect(p.DIRECT)
-    self.theta_threshold_radians = 12 * 2 * math.pi / 360 
-    self.x_threshold = 0.4 #2.4   
+    self.theta_threshold_radians = 12 * 2 * math.pi / 360
+    self.x_threshold = 0.4 #2.4
     high = np.array([
          self.x_threshold * 2,
          np.finfo(np.float32).max,
@@ -47,21 +47,19 @@ class CartPoleBulletEnv(gym.Env):
     self.action_space = spaces.Discrete(2)
     self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
-    self._seed()
+    self.seed()
     #    self.reset()
     self.viewer = None
     self._configure()
 
-
-
   def _configure(self, display=None):
     self.display = display
 
-  def _seed(self, seed=None):
+  def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
 
-  def _step(self, action):
+  def step(self, action):
     force = self.force_mag if action==1 else -self.force_mag
 
     p.setJointMotorControl2(self.cartpole, 0, p.TORQUE_CONTROL, force=force)
@@ -79,7 +77,7 @@ class CartPoleBulletEnv(gym.Env):
     #print("state=",self.state)
     return np.array(self.state), reward, done, {}
 
-  def _reset(self):
+  def reset(self):
 #    print("-----------reset simulation---------------")
     p.resetSimulation()
     self.cartpole = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"cartpole.urdf"),[0,0,0])
@@ -101,11 +99,5 @@ class CartPoleBulletEnv(gym.Env):
     #print("self.state=", self.state)
     return np.array(self.state)
 
-  def _render(self, mode='human', close=False):
+  def render(self, mode='human', close=False):
       return
-
-  if parse_version(gym.__version__)>=parse_version('0.9.6'):
-    render = _render
-    reset = _reset
-    seed = _seed
-    step = _step

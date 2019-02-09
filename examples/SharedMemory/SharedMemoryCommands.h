@@ -164,6 +164,7 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_CCD_SWEPT_SPHERE_RADIUS = 2048,
 	CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD = 4096,
 	CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE = 8192,
+	CHANGE_DYNAMICS_INFO_SET_JOINT_DAMPING = 16384,
 };
 
 struct ChangeDynamicsInfoArgs
@@ -185,6 +186,7 @@ struct ChangeDynamicsInfoArgs
 	double m_ccdSweptSphereRadius;
 	double m_contactProcessingThreshold;
 	int m_activationState;
+	double m_jointDamping;
 };
 
 struct GetDynamicsInfoArgs
@@ -663,6 +665,7 @@ struct CalculateInverseDynamicsArgs
 	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
 	double m_jointVelocitiesQdot[MAX_DEGREE_OF_FREEDOM];
 	double m_jointAccelerations[MAX_DEGREE_OF_FREEDOM];
+	int m_flags;
 };
 
 struct CalculateInverseDynamicsResultArgs
@@ -693,6 +696,8 @@ struct CalculateMassMatrixArgs
 {
 	int m_bodyUniqueId;
 	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
+	int m_dofCountQ;
+	int m_flags;
 };
 
 struct CalculateMassMatrixResultArgs
@@ -929,6 +934,8 @@ struct b3CreateUserShapeData
 	int m_visualFlags;
 	int m_numVertices;
 	int m_numIndices;
+	int m_numUVs;
+	int m_numNormals;
 	double m_rgbaColor[4];
 	double m_specularColor[3];
 };

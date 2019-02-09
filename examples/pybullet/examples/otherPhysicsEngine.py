@@ -1,32 +1,49 @@
 import pybullet as p
 import time
+import math
 
-#p.connect(p.DIRECT)
-#p.connect(p.DART)
-p.connect(p.MuJoCo)
+usePhysX = True
+if usePhysX:
+  p.connect(p.PhysX)
+  p.loadPlugin("eglRendererPlugin")
+else:
+  p.connect(p.GUI)
 
-#p.connect(p.GUI)
-bodies = p.loadMJCF("mjcf/capsule.xml")
-print("bodies=",bodies)
+p.loadURDF("plane.urdf")
 
-numBodies = p.getNumBodies()
-print("numBodies=",numBodies)
-for i in range (numBodies):
-	print("bodyInfo[",i,"]=",p.getBodyInfo(i))
-	
+for i in range (10):
+  sphere = p.loadURDF("marble_cube.urdf",[0,-1,1+i*1], useMaximalCoordinates=False)
+p.changeDynamics(sphere ,-1, mass=1000)
+
+door = p.loadURDF("door.urdf",[0,0,1])
+p.changeDynamics(door ,1, linearDamping=0, angularDamping=0, jointDamping=0, mass=1)
+print("numJoints = ", p.getNumJoints(door))
+
+
 p.setGravity(0,0,-10)
-timeStep = 1./240.
-p.setPhysicsEngineParameter(fixedTimeStep=timeStep)
+position_control = True
 
-#while (p.isConnected()):
-for i in range (1000):
-	p.stepSimulation()
+angle = math.pi*0.25
+p.resetJointState(door,1,angle)  
+angleread = p.getJointState(door,1)
+print("angleread = ",angleread)
+prevTime = time.time()
 
-	for b in bodies:
-		pos,orn=p.getBasePositionAndOrientation(b)
-		print("pos[",b,"]=",pos)
-		print("orn[",b,"]=",orn)
-		linvel,angvel=p.getBaseVelocity(b)
-		print("linvel[",b,"]=",linvel)
-		print("angvel[",b,"]=",angvel)
-	time.sleep(timeStep)
+angle = math.pi*0.5
+
+while (1):
+  
+  curTime = time.time()
+  
+  diff = curTime - prevTime
+  #every second, swap target angle
+  if (diff>1):
+    angle = - angle
+    prevTime = curTime
+  
+  if position_control:
+    p.setJointMotorControl2(door,1,p.POSITION_CONTROL, targetPosition = angle, positionGain=10.1, velocityGain=1, force=11.001)
+  else:  
+    p.setJointMotorControl2(door,1,p.VELOCITY_CONTROL, targetVelocity=1, force=1011)
+  p.stepSimulation()
+  time.sleep(1./240.)

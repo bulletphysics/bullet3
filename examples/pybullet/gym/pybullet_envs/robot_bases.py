@@ -1,4 +1,4 @@
-import pybullet 
+import pybullet
 import gym, gym.spaces, gym.utils
 import numpy as np
 import os, inspect
@@ -109,8 +109,8 @@ class MJCFBasedRobot(XmlBasedRobot):
 		self.model_xml = model_xml
 		self.doneLoading=0
 	def reset(self, bullet_client):
-		
-		self._p = bullet_client	
+
+		self._p = bullet_client
 		#print("Created bullet_client with id=", self._p._client)
 		if (self.doneLoading==0):
 			self.ordered_joints = []
@@ -151,7 +151,7 @@ class URDFBasedRobot(XmlBasedRobot):
 		print(os.path.join(os.path.dirname(__file__), "data", self.model_urdf))
 
 		if self.self_collision:
-			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p, 
+			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p,
 				self._p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
 				basePosition=self.basePosition,
 				baseOrientation=self.baseOrientation,
@@ -235,6 +235,8 @@ class BodyPart:
 			(x, y, z), (a, b, c, d), _, _, _, _ = self._p.getLinkState(body_id, link_id)
 		return np.array([x, y, z, a, b, c, d])
 
+	def get_position(self): return self.current_position()
+
 	def get_pose(self):
 		return self.state_fields_of_pose_of(self.bodies[self.bodyIndex], self.bodyPartIndex)
 
@@ -280,11 +282,11 @@ class Joint:
 		self.bodyIndex = bodyIndex
 		self.jointIndex = jointIndex
 		self.joint_name = joint_name
-		
+
 		jointInfo = self._p.getJointInfo(self.bodies[self.bodyIndex], self.jointIndex)
 		self.lowerLimit = jointInfo[8]
 		self.upperLimit = jointInfo[9]
-		
+
 		self.power_coeff = 0
 
 	def set_state(self, x, vx):

@@ -237,7 +237,7 @@ class MinitaurGymEnv(gym.Env):
     if self._urdf_version is None:
       self._urdf_version = DEFAULT_URDF_VERSION
     self._pybullet_client.setPhysicsEngineParameter(enableConeFriction=0)
-    self._seed()
+    self.seed()
     self.reset()
     observation_high = (self._get_observation_upper_bound() + OBSERVATION_EPS)
     observation_low = (self._get_observation_lower_bound() - OBSERVATION_EPS)
@@ -248,14 +248,14 @@ class MinitaurGymEnv(gym.Env):
     self.viewer = None
     self._hard_reset = hard_reset  # This assignment need to be after reset()
 
-  def _close(self):
+  def close(self):
     self.logging.save_episode(self._episode_proto)
     self.minitaur.Terminate()
 
   def add_env_randomizer(self, env_randomizer):
     self._env_randomizers.append(env_randomizer)
 
-  def _reset(self, initial_motor_angles=None, reset_duration=1.0):
+  def reset(self, initial_motor_angles=None, reset_duration=1.0):
     self._pybullet_client.configureDebugVisualizer(
         self._pybullet_client.COV_ENABLE_RENDERING, 0)
     self.logging.save_episode(self._episode_proto)
@@ -317,7 +317,7 @@ class MinitaurGymEnv(gym.Env):
         self._pybullet_client.COV_ENABLE_RENDERING, 1)
     return self._get_observation()
 
-  def _seed(self, seed=None):
+  def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
 
@@ -331,7 +331,7 @@ class MinitaurGymEnv(gym.Env):
       action = self.minitaur.ConvertFromLegModel(action)
     return action
 
-  def _step(self, action):
+  def step(self, action):
     """Step forward the simulation, given the action.
 
     Args:
@@ -379,7 +379,7 @@ class MinitaurGymEnv(gym.Env):
       self.minitaur.Terminate()
     return np.array(self._get_observation()), reward, done, {}
 
-  def _render(self, mode="rgb_array", close=False):
+  def render(self, mode="rgb_array", close=False):
     if mode != "rgb_array":
       return np.array([])
     base_pos = self.minitaur.GetBasePosition()
@@ -569,12 +569,12 @@ class MinitaurGymEnv(gym.Env):
     """
     return len(self._get_observation())
 
-  if parse_version(gym.__version__)>=parse_version('0.9.6'):
-                close = _close
-                render = _render
-                reset = _reset
-                seed = _seed
-                step = _step
+  if parse_version(gym.__version__) < parse_version('0.9.6'):
+    _render = render
+    _reset = reset
+    _seed = seed
+    _step = step
+
 
   def set_time_step(self, control_step, simulation_step=0.001):
     """Sets the time step of the environment.
@@ -617,5 +617,3 @@ class MinitaurGymEnv(gym.Env):
   @property
   def env_step_counter(self):
     return self._env_step_counter
-
-

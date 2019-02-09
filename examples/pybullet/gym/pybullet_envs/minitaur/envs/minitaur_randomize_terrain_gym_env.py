@@ -27,7 +27,7 @@ class MinitaurRandomizeTerrainGymEnv(minitaur_gym_env.MinitaurGymEnv):
 
   """
 
-  def _reset(self):
+  def reset(self):
     self._pybullet_client.resetSimulation()
     self._pybullet_client.setPhysicsEngineParameter(
         numSolverIterations=self._num_bullet_solver_iterations)

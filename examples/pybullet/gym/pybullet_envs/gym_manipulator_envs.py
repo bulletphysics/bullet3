@@ -5,14 +5,14 @@ from robot_manipulators import Reacher, Pusher, Striker, Thrower
 
 
 class ReacherBulletEnv(MJCFBaseBulletEnv):
-	def __init__(self):
+	def __init__(self, render=False):
 		self.robot = Reacher()
-		MJCFBaseBulletEnv.__init__(self, self.robot)
+		MJCFBaseBulletEnv.__init__(self, self.robot, render)
 
 	def create_single_player_scene(self, bullet_client):
 		return SingleRobotEmptyScene(bullet_client, gravity=0.0, timestep=0.0165, frame_skip=1)
 
-	def _step(self, a):
+	def step(self, a):
 		assert (not self.scene.multiplayer)
 		self.robot.apply_action(a)
 		self.scene.global_step()
@@ -39,14 +39,14 @@ class ReacherBulletEnv(MJCFBaseBulletEnv):
 
 
 class PusherBulletEnv(MJCFBaseBulletEnv):
-	def __init__(self):
+	def __init__(self, render=False):
 		self.robot = Pusher()
-		MJCFBaseBulletEnv.__init__(self, self.robot)
+		MJCFBaseBulletEnv.__init__(self, self.robot, render)
 
 	def create_single_player_scene(self, bullet_client):
 		return SingleRobotEmptyScene(bullet_client, gravity=9.81, timestep=0.0020, frame_skip=5)
 
-	def _step(self, a):
+	def step(self, a):
 		self.robot.apply_action(a)
 		self.scene.global_step()
 
@@ -93,9 +93,9 @@ class PusherBulletEnv(MJCFBaseBulletEnv):
 
 
 class StrikerBulletEnv(MJCFBaseBulletEnv):
-	def __init__(self):
+	def __init__(self, render=False):
 		self.robot = Striker()
-		MJCFBaseBulletEnv.__init__(self, self.robot)
+		MJCFBaseBulletEnv.__init__(self, self.robot, render)
 		self._striked = False
 		self._min_strike_dist = np.inf
 		self.strike_threshold = 0.1
@@ -103,7 +103,7 @@ class StrikerBulletEnv(MJCFBaseBulletEnv):
 	def create_single_player_scene(self, bullet_client):
 		return SingleRobotEmptyScene(bullet_client, gravity=9.81, timestep=0.0020, frame_skip=5)
 
-	def _step(self, a):
+	def step(self, a):
 		self.robot.apply_action(a)
 		self.scene.global_step()
 
@@ -169,14 +169,14 @@ class StrikerBulletEnv(MJCFBaseBulletEnv):
 
 
 class ThrowerBulletEnv(MJCFBaseBulletEnv):
-	def __init__(self):
+	def __init__(self, render=False):
 		self.robot = Thrower()
-		MJCFBaseBulletEnv.__init__(self, self.robot)
+		MJCFBaseBulletEnv.__init__(self, self.robot, render)
 
 	def create_single_player_scene(self, bullet_client):
 		return SingleRobotEmptyScene(bullet_client, gravity=0.0, timestep=0.0020, frame_skip=5)
 
-	def _step(self, a):
+	def step(self, a):
 		self.robot.apply_action(a)
 		self.scene.global_step()
 		state = self.robot.calc_state()  # sets self.to_target_vec
@@ -231,4 +231,3 @@ class ThrowerBulletEnv(MJCFBaseBulletEnv):
 		x *= 0.5
 		y *= 0.5
 		self.camera.move_and_look_at(0.3, 0.3, 0.3, x, y, z)
-

@@ -74,7 +74,7 @@ class MinitaurAlternatingLegsEnv(minitaur_gym_env.MinitaurGymEnv):
         be running, but only first num_steps_to_log will be recorded in logging.
       env_randomizer: An instance (or a list) of EnvRanzomier(s) that can
         randomize the environment during when env.reset() is called and add
-        perturbations when env._step() is called.
+        perturbations when env.step() is called.
       log_path: The path to write out logs. For the details of logging, refer to
         minitaur_logging.proto.
     """
@@ -107,7 +107,7 @@ class MinitaurAlternatingLegsEnv(minitaur_gym_env.MinitaurGymEnv):
     self._cam_yaw = 30
     self._cam_pitch = -30
 
-  def _reset(self):
+  def reset(self):
     self.desired_pitch = DESIRED_PITCH
     # In this environment, the actions are
     # [swing leg 1, swing leg 2, swing leg 3, swing leg 4,
@@ -123,7 +123,7 @@ class MinitaurAlternatingLegsEnv(minitaur_gym_env.MinitaurGymEnv):
         INIT_EXTENSION_POS + self._extension_offset[3]
     ]
     initial_motor_angles = self._convert_from_leg_model(init_pose)
-    super(MinitaurAlternatingLegsEnv, self)._reset(
+    super(MinitaurAlternatingLegsEnv, self).reset(
         initial_motor_angles=initial_motor_angles, reset_duration=0.5)
     return self._get_observation()
 

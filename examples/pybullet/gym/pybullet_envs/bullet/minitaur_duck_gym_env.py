@@ -2,7 +2,8 @@
 
 """
 
-import os, inspect
+import os
+import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0,parentdir)
@@ -10,6 +11,8 @@ os.sys.path.insert(0,parentdir)
 
 import math
 import time
+from pkg_resources import parse_version
+
 import gym
 from gym import spaces
 from gym.utils import seeding
@@ -17,7 +20,6 @@ import numpy as np
 import pybullet
 from . import bullet_client
 from . import minitaur
-import os
 import pybullet_data
 from . import minitaur_env_randomizer
 
@@ -155,7 +157,7 @@ class MinitaurBulletDuckEnv(gym.Env):
     else:
       self._pybullet_client = bullet_client.BulletClient()
 
-    self._seed()
+    self.seed()
     self.reset()
     observation_high = (
         self.minitaur.GetObservationUpperBound() + OBSERVATION_EPS)
@@ -163,8 +165,8 @@ class MinitaurBulletDuckEnv(gym.Env):
         self.minitaur.GetObservationLowerBound() - OBSERVATION_EPS)
     action_dim = 8
     action_high = np.array([self._action_bound] * action_dim)
-    self.action_space = spaces.Box(-action_high, action_high)
-    self.observation_space = spaces.Box(observation_low, observation_high)
+    self.action_space = spaces.Box(-action_high, action_high, dtype=np.float32)
+    self.observation_space = spaces.Box(observation_low, observation_high, dtype=np.float32)
     self.viewer = None
     self._hard_reset = hard_reset  # This assignment need to be after reset()
 
@@ -174,7 +176,7 @@ class MinitaurBulletDuckEnv(gym.Env):
   def configure(self, args):
     self._args = args
 
-  def _reset(self):
+  def reset(self):
     if self._hard_reset:
       self._pybullet_client.resetSimulation()
       self._pybullet_client.setPhysicsEngineParameter(
@@ -217,7 +219,7 @@ class MinitaurBulletDuckEnv(gym.Env):
         self._pybullet_client.stepSimulation()
     return self._noisy_observation()
 
-  def _seed(self, seed=None):
+  def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
 
@@ -231,7 +233,7 @@ class MinitaurBulletDuckEnv(gym.Env):
       action = self.minitaur.ConvertFromLegModel(action)
     return action
 
-  def _step(self, action):
+  def step(self, action):
     """Step forward the simulation, given the action.
 
     Args:
@@ -268,7 +270,7 @@ class MinitaurBulletDuckEnv(gym.Env):
     done = self._termination()
     return np.array(self._noisy_observation()), reward, done, {}
 
-  def _render(self, mode="rgb_array", close=False):
+  def render(self, mode="rgb_array", close=False):
     if mode != "rgb_array":
       return np.array([])
     base_pos = self.minitaur.GetBasePosition()
@@ -386,7 +388,8 @@ class MinitaurBulletDuckEnv(gym.Env):
                       self.minitaur.GetObservationUpperBound())
     return observation
 
-  render = _render
-  reset = _reset
-  seed = _seed
-  step = _step
+  if parse_version(gym.__version__) < parse_version('0.9.6'):
+    _render = render
+    _reset = reset
+    _seed = seed
+    _step = step

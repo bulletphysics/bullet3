@@ -81,6 +81,11 @@ public:
 		return 0;
 	}
 
+	virtual const struct UrdfLink* getUrdfLink(int urdfLinkIndex) const
+	{
+		return 0;
+	}
+	
 	virtual int getNumAllocatedCollisionShapes() const { return 0; }
 	virtual class btCollisionShape* getAllocatedCollisionShape(int /*index*/) { return 0; }
 	virtual int getNumModels() const { return 0; }
