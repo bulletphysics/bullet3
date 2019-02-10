@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-# transformations.py
-
+# transformations.py 
 # Copyright (c) 2006-2019, Christoph Gohlke
 # Copyright (c) 2006-2019, The Regents of the University of California
 # Produced at the Laboratory for Fluorescence Dynamics
 # All rights reserved.
-#
+# 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #

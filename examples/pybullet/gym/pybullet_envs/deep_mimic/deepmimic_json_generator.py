@@ -10,9 +10,7 @@ from common.h36m_dataset import Human36mDataset
 from common.camera import *
 
 import numpy as np
-
-# In[2]:
-
+# In[2]: 
 
 joint_info = {
 	'joint_name':['root', 'right_hip', 'right_knee', 'right_ankle', 'left_hip', 'left_knee', 'left_ankle', 'chest', 'neck', 'nose', 'eye', 'left_shoulder', 'left_elbow', 'left_wrist', 'right_shoulder', 'right_elbow', 'right_wrist'],

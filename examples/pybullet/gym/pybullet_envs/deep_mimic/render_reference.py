@@ -38,7 +38,7 @@ parser.add_argument('--action', default='Walking', type=str,  help='name of the 
 parser.add_argument('--loop', default='wrap', type=str, help='loop information in deepmimic, wrap or none.')
 parser.add_argument('--draw_gt', action='store_true', help='draw ground truth or not.')
 
-args = parser.parse_args()
+args = parser.parse_args() 
 
 
 dataset_path = args.dataset_path

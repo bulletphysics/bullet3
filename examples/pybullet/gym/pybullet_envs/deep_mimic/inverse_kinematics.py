@@ -9,10 +9,9 @@ from common.transformation import *
 
 from pyquaternion import Quaternion
 
-
 def get_angle(vec1, vec2):
     cos_theta = np.dot(vec1, vec2)/(np.linalg.norm(vec1) * np.linalg.norm(vec2))
-    return acos(cos_theta)
+    return acos(cos_theta) 
 
 
 def get_quaternion(ox, oy, oz, x, y, z):

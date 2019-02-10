@@ -40,4 +40,4 @@ class MocapDataset:
     
     def supports_semi_supervised(self):
         # This method can be overridden
-        return False
+        return False 

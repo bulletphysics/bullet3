@@ -25,7 +25,6 @@ def qrot(q, v):
     
     return (v + 2 * (q[..., :1] * uv + uuv))
     
-    
 def qinverse(q, inplace=False):
     # We assume the quaternion to be normalized
     if inplace:
@@ -35,3 +34,4 @@ def qinverse(q, inplace=False):
         w = q[..., :1]
         xyz = q[..., 1:]
         return np.hstack((w, -xyz))
+ 
