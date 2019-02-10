@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 #
 
-import torch
+import numpy as np
 
 def qrot(q, v):
     """
@@ -19,8 +19,10 @@ def qrot(q, v):
     assert q.shape[:-1] == v.shape[:-1]
 
     qvec = q[..., 1:]
-    uv = torch.cross(qvec, v, dim=len(q.shape)-1)
-    uuv = torch.cross(qvec, uv, dim=len(q.shape)-1)
+
+    uv = np.cross(qvec, v)
+    uuv = np.cross(qvec, uv)
+    
     return (v + 2 * (q[..., :1] * uv + uuv))
     
     
@@ -32,4 +34,4 @@ def qinverse(q, inplace=False):
     else:
         w = q[..., :1]
         xyz = q[..., 1:]
-        return torch.cat((w, -xyz), dim=len(q.shape)-1)
+        return np.hstack((w, -xyz))

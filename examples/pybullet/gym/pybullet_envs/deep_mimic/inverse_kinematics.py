@@ -4,7 +4,7 @@ import numpy as np
 from math import *
 import pickle
 import json
-import quaternion
+# import quaternion
 from common.transformation import *
 
 from pyquaternion import Quaternion

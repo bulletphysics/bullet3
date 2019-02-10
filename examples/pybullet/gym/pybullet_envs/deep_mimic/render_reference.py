@@ -141,3 +141,25 @@ Reset(humanoid)
 p.disconnect()
 
 
+'''
+
+python3 render_reference.py --dataset_path=/Users/mac/Desktop/AI_Dance/DeepMimic_Bullet/data/data_3d_h36m.npz \
+    --json_path=/Users/mac/Desktop/AI_Dance/DeepMimic_Bullet/data/Walking.json \ 
+    --fps=24 \
+    --subject=S11 \
+    --action=Walking \
+    --loop=wrap \
+    --draw_gt
+
+
+
+parser.add_argument('--dataset_path', default='data/data_3d_h36m.npz', type=str, help='target dataset') # h36m or humaneva
+parser.add_argument('--json_path', default='data/Walking.json', type=str, help='json file path for storing the deepmimic-format json created by inverse-kinect.')
+parser.add_argument('--fps', default=24, type=int, help='frame per second')
+parser.add_argument('--subject', default='S11', type=str, help='camera subject.')
+parser.add_argument('--action', default='Walking', type=str,  help='name of the action.')
+parser.add_argument('--loop', default='wrap', type=str, help='loop information in deepmimic, wrap or none.')
+parser.add_argument('--draw_gt', action='store_true', help='draw ground truth or not.')
+
+
+'''
