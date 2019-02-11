@@ -14,7 +14,7 @@ class HumanoidPoseInterpolator(object):
     
     self._basePos = basePos
     self._baseLinVel = baseLinVel
-    print("HumanoidPoseInterpolator.Reset: baseLinVel = ", baseLinVel)
+    #print("HumanoidPoseInterpolator.Reset: baseLinVel = ", baseLinVel)
     self._baseOrn =baseOrn
     self._baseAngVel = baseAngVel
     

@@ -12,12 +12,20 @@ class PDControllerStableMultiDof(object):
       angVel = [(axis[0]*angle)/deltaTime,(axis[1]*angle)/deltaTime,(axis[2]*angle)/deltaTime]
       return angVel
     
-    #def computeAngVelRel(self,ornStart, ornEnd, deltaTime, bullet_client):
-    #  ornStartConjugate = [-ornStart[0],-ornStart[1],-ornStart[2],ornStart[3]]
-    #  pos_diff, q_diff =bullet_client.multiplyTransforms([0,0,0], ornStartConjugate, [0,0,0], ornEnd)
-    #  axis,angle = bullet_client.getAxisAngleFromQuaternion(q_diff)
-    #  angVel = [(axis[0]*angle)/deltaTime,(axis[1]*angle)/deltaTime,(axis[2]*angle)/deltaTime]
-    #  return angVel
+    def quatMul(self, q1, q2):
+      return [ q1[3] * q2[0] + q1[0] * q2[3] + q1[1] * q2[2] - q1[2] * q2[1],
+		           q1[3] * q2[1] + q1[1] * q2[3] + q1[2] * q2[0] - q1[0] * q2[2],
+           		q1[3] * q2[2] + q1[2] * q2[3] + q1[0] * q2[1] - q1[1] * q2[0],
+		          q1[3] * q2[3] - q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2]]
+		
+    def computeAngVelRel(self,ornStart, ornEnd, deltaTime, bullet_client):
+      ornStartConjugate = [-ornStart[0],-ornStart[1],-ornStart[2],ornStart[3]]
+      q_diff = self.quatMul(ornStartConjugate, ornEnd)#bullet_client.multiplyTransforms([0,0,0], ornStartConjugate, [0,0,0], ornEnd)
+      
+      axis,angle = bullet_client.getAxisAngleFromQuaternion(q_diff)
+      angVel = [(axis[0]*angle)/deltaTime,(axis[1]*angle)/deltaTime,(axis[2]*angle)/deltaTime]
+      return angVel
+    
     
     def computePD(self, bodyUniqueId, jointIndices, desiredPositions, desiredVelocities, kps, kds, maxForces, timeStep):
       
@@ -62,8 +70,8 @@ class PDControllerStableMultiDof(object):
         if len(js[0])==4:
           desiredPos=[desiredPositions[qIndex],desiredPositions[qIndex+1],desiredPositions[qIndex+2],desiredPositions[qIndex+3]]
           #axis = self._pb.getAxisDifferenceQuaternion(desiredPos,jointPos)
-          #angDiff = self.computeAngVelRel(jointPos, desiredPos, 1, self._pb)
-          angDiff = self._pb.computeAngVelRel(jointPos, desiredPos, 1)
+          angDiff = self.computeAngVelRel(jointPos, desiredPos, 1, self._pb)
+          #angDiff = self._pb.computeAngVelRel(jointPos, desiredPos, 1)
           
           jointVelNew = [jointVel[0],jointVel[1],jointVel[2],0]
           qdot1+=jointVelNew
@@ -131,7 +139,7 @@ class PDControllerStableMultiDof(object):
       #np.savetxt("pb_b_acc.csv",b, delimiter=",")
       
       
-      useNumpySolver = False
+      useNumpySolver = True
       if useNumpySolver:
         qddot = np.linalg.solve(A, b)
       else:
