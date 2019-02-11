@@ -1,12 +1,6 @@
-# Copyright (c) 2018-present, Facebook, Inc.
-# All rights reserved.
-#
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
-
 import numpy as np 
 
-from common.quaternion import qrot, qinverse
+from quaternion import qrot, qinverse
 
 
 def normalize_screen_coordinates(X, w, h): 

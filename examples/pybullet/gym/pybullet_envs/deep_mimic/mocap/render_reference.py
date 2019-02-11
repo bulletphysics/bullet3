@@ -1,25 +1,24 @@
-'''
-Developed by Somedaywilldo,
-Any bug report or advice please contact me at: somedaywilldo@foxmail.com
-'''
-
-
 import os,  inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0,parentdir)
 
-from pybullet_utils.bullet_client import BulletClient
-from pybullet_envs.deep_mimic.env.motion_capture_data import MotionCaptureData
+print('parent:', parentdir)
+
 import pybullet_data
 import pybullet
 import time
 import random
 
-# from humanoid import Humanoid
-# from humanoid import HumanoidPose
 
-from env.humanoid_stable_pd
+from pybullet_utils.bullet_client import BulletClient
+from deep_mimic.env.motion_capture_data import MotionCaptureData
+
+# from pybullet_envs.deep_mimic.env.humanoid_stable_pd import HumanoidStablePd
+from humanoid import Humanoid
+from humanoid import HumanoidPose
+
+# from env.humanoid_stable_pd
 
 from deepmimic_json_generator import *
 

@@ -1,13 +1,6 @@
-'''
-Developed by Somedaywilldo,
-Any bug report or advice please contact me at: somedaywilldo@foxmail.com
-'''
-# In[1]:
-
-
 from inverse_kinematics import *
-from common.h36m_dataset import Human36mDataset
-from common.camera import *
+from h36m_dataset import Human36mDataset
+from camera import *
 
 import numpy as np
 # In[2]: 
