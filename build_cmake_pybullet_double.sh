@@ -12,4 +12,16 @@ cd pybullet
 if [ -e pybullet.dylib ]; then
   ln -f -s pybullet.dylib pybullet.so
 fi
+if [ -e pybullet_envs ]; then
+  rm pybullet_envs
+fi
+if [ -e pybullet_data ]; then
+  rm pybullet_data
+fi
+if [ -e pybullet_utils ]; then
+  rm pybullet_utils
+fi
+ln -s ../../../examples/pybullet/gym/pybullet_envs .
+ln -s ../../../examples/pybullet/gym/pybullet_data .
+ln -s ../../../examples/pybullet/gym/pybullet_utils .
 echo "Completed build of Bullet."

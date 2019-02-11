@@ -6,10 +6,10 @@ import time
 from abc import ABC, abstractmethod
 from enum import Enum
 
-from learning.path import *
-from learning.exp_params import ExpParams
-from learning.normalizer import Normalizer
-from learning.replay_buffer import ReplayBuffer
+from pybullet_envs.deep_mimic.learning.path import *
+from pybullet_envs.deep_mimic.learning.exp_params import ExpParams
+from pybullet_envs.deep_mimic.learning.normalizer import Normalizer
+from pybullet_envs.deep_mimic.learning.replay_buffer import ReplayBuffer
 from pybullet_utils.logger import Logger
 import pybullet_utils.mpi_util as MPIUtil
 import pybullet_utils.math_util as MathUtil

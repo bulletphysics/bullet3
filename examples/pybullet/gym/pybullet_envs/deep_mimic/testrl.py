@@ -6,7 +6,7 @@ os.sys.path.insert(0,parentdir)
 print("parentdir=",parentdir)
 import json
 from pybullet_envs.deep_mimic.learning.rl_world import RLWorld
-from learning.ppo_agent import PPOAgent
+from pybullet_envs.deep_mimic.learning.ppo_agent import PPOAgent
 
 import pybullet_data
 from pybullet_utils.arg_parser import ArgParser
