@@ -1,0 +1,10 @@
+URDF model created by Erwin Coumans. Mesh / texture created in Blender.
+
+If you use the model, add a citation to PyBullet:
+
+@MISC{coumans2018,
+author =   {Erwin Coumans and Yunfei Bai},
+title =    {PyBullet, a Python module for physics simulation for games, robotics and machine learning},
+howpublished = {\url{http://pybullet.org}},
+year = {2016--2019}
+}
