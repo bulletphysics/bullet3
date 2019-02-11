@@ -123,8 +123,7 @@ class RLAgent(ABC):
         if self.need_new_action():
            #print("update_new_action!!!")
            self._update_new_action()
-        else:
-           print("no action???")
+        
 
         if (self._mode == self.Mode.TRAIN and self.enable_training):
             self._update_counter += timestep
@@ -329,7 +328,9 @@ class RLAgent(ABC):
         return
 
     def _update_new_action(self):
+        #print("_update_new_action!")
         s = self._record_state()
+        #np.savetxt("pb_record_state_s.csv", s, delimiter=",")
         g = self._record_goal()
 
         if not (self._is_first_step()):

@@ -67,6 +67,11 @@ int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
 
 	switch (virtualKeyCode)
 	{
+		case VK_SPACE:
+		{
+			keycode = B3G_SPACE;
+			break;
+		}
 		case VK_RETURN:
 		{
 			keycode = B3G_RETURN;

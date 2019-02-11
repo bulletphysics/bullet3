@@ -16,6 +16,7 @@ import sys
 import random
 
 update_timestep = 1./600.
+animating = True
 
 def update_world(world, time_elapsed):
     timeStep = 1./600.
@@ -74,9 +75,21 @@ def build_world(args, enable_draw):
         world.reset()
     return world    
 
+
+
+  
+    
 if __name__ == '__main__':
+    
     world = build_world(args, True)
     while (world.env._pybullet_client.isConnected()):
       timeStep = 1./600.
-      update_world(world, timeStep)
+      keys = world.env.getKeyboardEvents()
+      
+        
+      if world.env.isKeyTriggered(keys, ' '):
+        animating = not animating
+      if (animating):
+        update_world(world, timeStep)
+        #animating=False
 
