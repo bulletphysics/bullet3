@@ -2,8 +2,14 @@ import numpy as np
 import copy
 import os
 import time
+import sys
+from abc import abstractmethod
+import abc
+if sys.version_info >= (3, 4):
+    ABC = abc.ABC
+else:
+    ABC = abc.ABCMeta('ABC', (), {})
 
-from abc import ABC, abstractmethod
 from enum import Enum
 
 from pybullet_envs.deep_mimic.learning.path import *

@@ -1,4 +1,10 @@
-from abc import ABC, abstractmethod
+from abc import  abstractmethod
+import sys, abc
+if sys.version_info >= (3, 4):
+    ABC = abc.ABC
+else:
+    ABC = abc.ABCMeta('ABC', (), {})
+
 import numpy as np
 from enum import Enum
 
