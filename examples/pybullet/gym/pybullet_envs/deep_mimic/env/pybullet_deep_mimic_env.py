@@ -27,6 +27,8 @@ class PyBulletDeepMimicEnv(Env):
       if not self._isInitialized:
         if self.enable_draw:
           self._pybullet_client =  bullet_client.BulletClient(connection_mode=p1.GUI)
+          #disable 'GUI' since it slows down a lot on Mac OSX and some other platforms
+          self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_GUI,0)
         else:
           self._pybullet_client  =  bullet_client.BulletClient()
         
