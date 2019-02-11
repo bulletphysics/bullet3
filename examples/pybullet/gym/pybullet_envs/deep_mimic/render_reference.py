@@ -10,14 +10,16 @@ parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0,parentdir)
 
 from pybullet_utils.bullet_client import BulletClient
-from pybullet_envs.deep_mimic.motion_capture_data import MotionCaptureData
+from pybullet_envs.deep_mimic.env.motion_capture_data import MotionCaptureData
 import pybullet_data
 import pybullet
 import time
 import random
 
-from humanoid import Humanoid
-from humanoid import HumanoidPose
+# from humanoid import Humanoid
+# from humanoid import HumanoidPose
+
+from env.humanoid_stable_pd
 
 from deepmimic_json_generator import *
 

@@ -1,5 +1,5 @@
 
-from pybullet_envs.deep_mimic.env import pd_controller_stable 
+from pybullet_utils import pd_controller_stable 
 from pybullet_envs.deep_mimic.env import humanoid_pose_interpolator
 import math
 
@@ -24,10 +24,10 @@ class HumanoidStablePD(object):
     print("LOADING humanoid!")
     
     self._sim_model = self._pybullet_client.loadURDF(
-      "humanoid/humanoid.urdf", [0,0.85,0],globalScaling=0.25, useFixedBase=useFixedBase, flags=self._pybullet_client.URDF_MAINTAIN_LINK_ORDER)
+      "humanoid/humanoid.urdf", [0,0.889540259,0],globalScaling=0.25, useFixedBase=useFixedBase, flags=self._pybullet_client.URDF_MAINTAIN_LINK_ORDER)
 
     self._kin_model = self._pybullet_client.loadURDF(
-      "humanoid/humanoid.urdf", [0,2.85,0],globalScaling=0.25, useFixedBase=True, flags=self._pybullet_client.URDF_MAINTAIN_LINK_ORDER)
+      "humanoid/humanoid.urdf", [0,12.85,0],globalScaling=0.25, useFixedBase=True, flags=self._pybullet_client.URDF_MAINTAIN_LINK_ORDER)
     
     self._pybullet_client.changeDynamics(self._sim_model, -1, lateralFriction=0.9)
     for j in range (self._pybullet_client.getNumJoints(self._sim_model)):
@@ -64,7 +64,7 @@ class HumanoidStablePD(object):
     for dof in self._jointDofCounts:
       self._totalDofs += dof
     self.setSimTime(0)
-    self._maxForce = 6000
+    
     self.resetPose()
     
   def resetPose(self):
@@ -146,7 +146,9 @@ class HumanoidStablePD(object):
   def computePose(self, frameFraction):
     frameData = self._mocap_data._motion_data['Frames'][self._frame]
     frameDataNext = self._mocap_data._motion_data['Frames'][self._frameNext]
+    
     pose = self._poseInterpolator.Slerp(frameFraction, frameData, frameDataNext, self._pybullet_client)
+    #print("self._poseInterpolator.Slerp(", frameFraction,")=", pose)
     return pose
 
 
@@ -154,27 +156,34 @@ class HumanoidStablePD(object):
     pose = self._poseInterpolator.ConvertFromAction(self._pybullet_client, action)
     return pose      
 
-  def computePDForces(self, desiredPositions, desiredVelocities = None):
+  def computePDForces(self, desiredPositions, desiredVelocities, maxForces):
     if desiredVelocities==None:
       desiredVelocities = [0]*self._totalDofs
+      
+      
     taus = self._stablePD.computePD(bodyUniqueId=self._sim_model, 
       jointIndices = self._jointIndicesAll,
       desiredPositions = desiredPositions,
       desiredVelocities = desiredVelocities,
       kps = self._kpOrg,
       kds = self._kdOrg,
-      maxForces = [self._maxForce]*self._totalDofs, 
+      maxForces = maxForces, 
       timeStep=self._timeStep)
     return taus
 
   def applyPDForces(self, taus):
     dofIndex=7
+    scaling = 1
     for index in range (len(self._jointIndicesAll)):
       jointIndex = self._jointIndicesAll[index]
       if self._jointDofCounts[index]==4:
-         self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,jointIndex,self._pybullet_client.TORQUE_CONTROL,force=[taus[dofIndex+0],taus[dofIndex+1],taus[dofIndex+2]])
+         force=[scaling*taus[dofIndex+0],scaling*taus[dofIndex+1],scaling*taus[dofIndex+2]]
+         #print("force[", jointIndex,"]=",force)
+         self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,jointIndex,self._pybullet_client.TORQUE_CONTROL,force=force)
       if self._jointDofCounts[index]==1:
-         self._pybullet_client.setJointMotorControlMultiDof(self._sim_model, jointIndex, controlMode=self._pybullet_client.TORQUE_CONTROL, force=[taus[dofIndex]])
+         force=[scaling*taus[dofIndex]]
+         #print("force[", jointIndex,"]=",force)
+         self._pybullet_client.setJointMotorControlMultiDof(self._sim_model, jointIndex, controlMode=self._pybullet_client.TORQUE_CONTROL, force=force)
       dofIndex+=self._jointDofCounts[index]
       
       
@@ -257,6 +266,13 @@ class HumanoidStablePD(object):
       for l in linkPosLocal:
         stateVector.append(l)
       #re-order the quaternion, DeepMimic uses w,x,y,z
+      
+      if (linkOrnLocal[3]<0):
+        linkOrnLocal[0]*=-1
+        linkOrnLocal[1]*=-1
+        linkOrnLocal[2]*=-1
+        linkOrnLocal[3]*=-1
+        
       stateVector.append(linkOrnLocal[3])
       stateVector.append(linkOrnLocal[0])
       stateVector.append(linkOrnLocal[1])
@@ -268,9 +284,13 @@ class HumanoidStablePD(object):
       ls = self._pybullet_client.getLinkState(self._sim_model, j, computeLinkVelocity=True)
       linkLinVel = ls[6]
       linkAngVel = ls[7]
-      for l in linkLinVel:
+      linkLinVelLocal  , unused = self._pybullet_client.multiplyTransforms([0,0,0], rootTransOrn, linkLinVel,[0,0,0,1])
+      #linkLinVelLocal=[linkLinVelLocal[0]-rootPosRel[0],linkLinVelLocal[1]-rootPosRel[1],linkLinVelLocal[2]-rootPosRel[2]]
+      linkAngVelLocal ,unused = self._pybullet_client.multiplyTransforms([0,0,0], rootTransOrn, linkAngVel,[0,0,0,1])
+      
+      for l in linkLinVelLocal:
         stateVector.append(l)
-      for l in linkAngVel:
+      for l in linkAngVelLocal:
         stateVector.append(l)
     
     #print("stateVector len=",len(stateVector))  
@@ -284,6 +304,9 @@ class HumanoidStablePD(object):
     pts = self._pybullet_client.getContactPoints()
     for p in pts:
       part = -1
+      #ignore self-collision
+      if (p[1]==p[2]):
+        continue
       if (p[1]==self._sim_model):
         part=p[3]
       if (p[2]==self._sim_model):
