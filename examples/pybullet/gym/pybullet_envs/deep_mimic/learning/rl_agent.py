@@ -161,7 +161,7 @@ class RLAgent(ABC):
         return self._enable_training
 
     def set_enable_training(self, enable):
-        print("set_enable_training!=", enable)
+        print("set_enable_training=", enable)
         self._enable_training = enable
         if (self._enable_training):
             self.reset()
