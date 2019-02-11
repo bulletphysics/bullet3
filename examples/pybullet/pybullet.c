@@ -9286,7 +9286,7 @@ static PyObject* pybullet_getDifferenceQuaternion(PyObject* self, PyObject* args
 	int physicsClientId = 0;
 	int hasQuatStart = 0;
 	int hasQuatEnd = 0;
-
+	
 	static char* kwlist[] = { "quaternionStart", "quaternionEnd", "physicsClientId", NULL };
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|i", kwlist, &quatStartObj, &quatEndObj, &physicsClientId))
 	{
@@ -10711,11 +10711,11 @@ static PyMethodDef SpamMethods[] = {
 	{NULL, NULL, 0, NULL} /* Sentinel */
 };
 
-///copied from CommonWindowInterface.h
-
+///copied from CommonCallbacks.h
 enum
 {
 	B3G_ESCAPE = 27,
+	B3G_SPACE = 32,
 	B3G_F1 = 0xff00,
 	B3G_F2,
 	B3G_F3,
@@ -10745,7 +10745,7 @@ enum
 	B3G_SHIFT,
 	B3G_CONTROL,
 	B3G_ALT,
-	B3G_RETURN
+	B3G_RETURN,
 };
 
 #if PY_MAJOR_VERSION >= 3
@@ -10959,6 +10959,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "B3G_CONTROL", B3G_CONTROL);
 	PyModule_AddIntConstant(m, "B3G_ALT", B3G_ALT);
 	PyModule_AddIntConstant(m, "B3G_RETURN", B3G_RETURN);
+	PyModule_AddIntConstant(m, "B3G_SPACE", B3G_SPACE);
 
 	PyModule_AddIntConstant(m, "GEOM_SPHERE", GEOM_SPHERE);
 	PyModule_AddIntConstant(m, "GEOM_BOX", GEOM_BOX);

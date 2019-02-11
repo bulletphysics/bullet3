@@ -147,6 +147,7 @@ class PPOAgent(PGAgent):
     def _decide_action(self, s, g):
         with self.sess.as_default(), self.graph.as_default():
             self._exp_action = self._enable_stoch_policy() and MathUtil.flip_coin(self.exp_params_curr.rate)
+            #print("_decide_action._exp_action=",self._exp_action)
             a, logp = self._eval_actor(s, g, self._exp_action)
         return a[0], logp[0]
 

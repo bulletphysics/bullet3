@@ -2,9 +2,9 @@ import numpy as np
 import math
 from pybullet_envs.deep_mimic.env.env import Env
 from pybullet_envs.deep_mimic.env.action_space import ActionSpace
-from pybullet_envs.minitaur.envs import bullet_client
+from pybullet_utils import bullet_client
 import time
-import motion_capture_data
+from pybullet_envs.deep_mimic.env import motion_capture_data
 from pybullet_envs.deep_mimic.env import humanoid_stable_pd
 import pybullet_data
 import pybullet as p1
@@ -20,7 +20,10 @@ class PyBulletDeepMimicEnv(Env):
       self.reset()
     
     def reset(self):
-      self.t = 0
+      
+      
+      startTime = 0. #float(rn)/rnrange * self._humanoid.getCycleTime()
+      self.t = startTime
       if not self._isInitialized:
         if self.enable_draw:
           self._pybullet_client =  bullet_client.BulletClient(connection_mode=p1.GUI)
@@ -29,7 +32,7 @@ class PyBulletDeepMimicEnv(Env):
         
         self._pybullet_client.setAdditionalSearchPath(pybullet_data.getDataPath())
         z2y = self._pybullet_client.getQuaternionFromEuler([-math.pi*0.5,0,0])
-        self._planeId = self._pybullet_client.loadURDF("plane.urdf",[0,0,0],z2y)
+        self._planeId = self._pybullet_client.loadURDF("plane_implicit.urdf",[0,0,0],z2y, useMaximalCoordinates=True)
         #print("planeId=",self._planeId)
         self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_Y_AXIS_UP,1)
         self._pybullet_client.setGravity(0,-9.8,0)
@@ -38,8 +41,8 @@ class PyBulletDeepMimicEnv(Env):
         self._pybullet_client.changeDynamics(self._planeId, linkIndex=-1, lateralFriction=0.9)
         
         self._mocapData = motion_capture_data.MotionCaptureData()
-        motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_walk.txt"
-        #motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_backflip.txt"
+        #motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_walk.txt"
+        motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_backflip.txt"
         self._mocapData.Load(motionPath)
         timeStep = 1./600
         useFixedBase=False
@@ -48,7 +51,7 @@ class PyBulletDeepMimicEnv(Env):
         
         self._pybullet_client.setTimeStep(timeStep)
         self._pybullet_client.setPhysicsEngineParameter(numSubSteps=2)
-        
+       
         
         selfCheck = False
         if (selfCheck):
@@ -65,16 +68,17 @@ class PyBulletDeepMimicEnv(Env):
               #self._pybullet_client.stepSimulation()
             time.sleep(timeStep)
       #print("numframes = ", self._humanoid._mocap_data.NumFrames())
-      startTime = random.randint(0,self._humanoid._mocap_data.NumFrames()-2)
+      #startTime = random.randint(0,self._humanoid._mocap_data.NumFrames()-2)
       rnrange = 1000
       rn = random.randint(0,rnrange)
-      startTime = float(rn)/rnrange * self._humanoid.getCycleTime()
-
+      
       self._humanoid.setSimTime(startTime)
+      
       self._humanoid.resetPose()
       #this clears the contact points. Todo: add API to explicitly clear all contact points?
-      self._pybullet_client.stepSimulation()
-      
+      #self._pybullet_client.stepSimulation()
+      self._humanoid.resetPose()
+      self.needs_update_time = self.t-1#force update
        	
     def get_num_agents(self):
     	return self._num_agents
@@ -198,12 +202,14 @@ class PyBulletDeepMimicEnv(Env):
     	  self._mode = mode
     	  
     def need_new_action(self, agent_id):
-        return True
+        if self.t>=self.needs_update_time:
+          self.needs_update_time = self.t + 1./30.
+          return True
+        return False
         
     def record_state(self, agent_id):
         state = self._humanoid.getState()
-        state[1]=state[1]+0.008
-        #print("record_state=",state)
+        
         return np.array(state)
         
         
@@ -216,24 +222,43 @@ class PyBulletDeepMimicEnv(Env):
         return reward
         
     def set_action(self, agent_id, action):
+        #print("action=",)
+        #for a in action:
+        #  print(a)
+        np.savetxt("pb_action.csv", action, delimiter=",")
         self.desiredPose = self._humanoid.convertActionToPose(action)
+        #we need the target root positon and orientation to be zero, to be compatible with deep mimic
+        self.desiredPose[0] = 0
+        self.desiredPose[1] = 0
+        self.desiredPose[2] = 0
+        self.desiredPose[3] = 0
+        self.desiredPose[4] = 0
+        self.desiredPose[5] = 0
+        self.desiredPose[6] = 0
+        target_pose = np.array(self.desiredPose)
+        
+        
+        np.savetxt("pb_target_pose.csv", target_pose, delimiter=",")
+        
         #print("set_action: desiredPose=", self.desiredPose)
         
     def log_val(self, agent_id, val):
         pass
         
     def update(self, timeStep):
-        for i in range(10):
+      #print("pybullet_deep_mimic_env:update timeStep=",timeStep," t=",self.t)
+      for i in range(1):
           self.t += timeStep
           self._humanoid.setSimTime(self.t)
           
           if self.desiredPose:
-            kinPose = self._humanoid.computePose(self._humanoid._frameFraction)
-            self._humanoid.initializePose(self._humanoid._poseInterpolator, self._humanoid._kin_model, initBase=False)
-            pos,orn=self._pybullet_client.getBasePositionAndOrientation(self._humanoid._sim_model)
-            self._pybullet_client.resetBasePositionAndOrientation(self._humanoid._kin_model, [pos[0],pos[1]+2,pos[2]],orn)
+            #kinPose = self._humanoid.computePose(self._humanoid._frameFraction)
+            #self._humanoid.initializePose(self._humanoid._poseInterpolator, self._humanoid._kin_model, initBase=False)
+            #pos,orn=self._pybullet_client.getBasePositionAndOrientation(self._humanoid._sim_model)
+            #self._pybullet_client.resetBasePositionAndOrientation(self._humanoid._kin_model, [pos[0]+3,pos[1],pos[2]],orn)
             #print("desiredPositions=",self.desiredPose)
-            taus = self._humanoid.computePDForces(self.desiredPose)
+            maxForces = [0,0,0,0,0,0,0,200,200,200,200, 50,50,50,50, 200,200,200,200, 150, 90,90,90,90, 100,100,100,100, 60, 200,200,200,200,  150, 90, 90, 90, 90, 100,100,100,100, 60]
+            taus = self._humanoid.computePDForces(self.desiredPose, desiredVelocities=None, maxForces=maxForces)
             self._humanoid.applyPDForces(taus)
             self._pybullet_client.stepSimulation()
             
@@ -255,3 +280,13 @@ class PyBulletDeepMimicEnv(Env):
     def check_valid_episode(self):
       #could check if limbs exceed velocity threshold
       return true
+    
+    def getKeyboardEvents(self):
+      return self._pybullet_client.getKeyboardEvents()
+    
+    def isKeyTriggered(self, keys, key):
+      o = ord(key)
+      #print("ord=",o)
+      if o in keys:
+        return keys[ord(key)] & self._pybullet_client.KEY_WAS_TRIGGERED
+      return False
