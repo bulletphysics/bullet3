@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 import tensorflow as tf
-from learning.normalizer import Normalizer
+from pybullet_envs.deep_mimic.learning.normalizer import Normalizer
 
 class TFNormalizer(Normalizer):
 

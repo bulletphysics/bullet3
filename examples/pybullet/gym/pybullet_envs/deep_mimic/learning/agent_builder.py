@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from learning.ppo_agent import PPOAgent
+from pybullet_envs.deep_mimic.learning.ppo_agent import PPOAgent
 import pybullet_data
 
 AGENT_TYPE_KEY = "AgentType"

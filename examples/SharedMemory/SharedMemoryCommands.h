@@ -980,14 +980,8 @@ struct b3CreateMultiBodyArgs
 	int m_linkJointTypes[MAX_CREATE_MULTI_BODY_LINKS];
 	double m_linkJointAxis[3 * MAX_CREATE_MULTI_BODY_LINKS];
 	int m_flags;
-#if 0
-	std::string m_name;
-	std::string m_sourceFile;
-    btTransform m_rootTransformInWorld;
-	btHashMap<btHashString, UrdfMaterial*> m_materials;
-	btHashMap<btHashString, UrdfLink*> m_links;
-	btHashMap<btHashString, UrdfJoint*> m_joints;
-#endif
+	int m_numBatchObjects;
+
 };
 
 struct b3CreateMultiBodyResultArgs

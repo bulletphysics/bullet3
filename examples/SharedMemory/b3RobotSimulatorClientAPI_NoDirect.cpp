@@ -2184,6 +2184,21 @@ int b3RobotSimulatorClientAPI_NoDirect::createMultiBody(struct b3RobotSimulatorC
 
 	command = b3CreateMultiBodyCommandInit(sm);
 
+	if (args.m_useMaximalCoordinates)
+	{
+		b3CreateMultiBodyUseMaximalCoordinates(command);
+	}
+	if (args.m_batchPositions.size())
+	{
+		btAlignedObjectArray<double> positionArray;
+		for (int i = 0; i < args.m_batchPositions.size(); i++)
+		{
+			positionArray.push_back(args.m_batchPositions[i][0]);
+			positionArray.push_back(args.m_batchPositions[i][1]);
+			positionArray.push_back(args.m_batchPositions[i][2]);
+		}
+		b3CreateMultiBodySetBatchPositions(sm, command, &positionArray[0], args.m_batchPositions.size());
+	}
 	baseIndex = b3CreateMultiBodyBase(command, args.m_baseMass, args.m_baseCollisionShapeIndex, args.m_baseVisualShapeIndex,
 									  doubleBasePosition, doubleBaseOrientation, doubleBaseInertialFramePosition, doubleBaseInertialFrameOrientation);
 

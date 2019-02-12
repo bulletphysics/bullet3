@@ -13,8 +13,24 @@ IF(BUILD_PYBULLET_NUMPY)
 	)
 ENDIF()
 
+ADD_DEFINITIONS(-DSTATIC_LINK_SPD_PLUGIN)
+
 SET(pybullet_SRCS
 	pybullet.c
+	../../examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/SpAlg.h
+        ../../examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/Shape.h
+        ../../examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.h
+        ../../examples/SharedMemory/plugins/stablePDPlugin/RBDModel.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/RBDModel.h
+        ../../examples/SharedMemory/plugins/stablePDPlugin/MathUtil.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/MathUtil.h
+        ../../examples/SharedMemory/plugins/stablePDPlugin/KinTree.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/KinTree.h
+        ../../examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.h
 		../../examples/SharedMemory/plugins/collisionFilterPlugin/collisionFilterPlugin.cpp
 		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp
 		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h

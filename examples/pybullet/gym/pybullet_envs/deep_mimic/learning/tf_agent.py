@@ -2,9 +2,9 @@ import numpy as np
 import tensorflow as tf
 from abc import abstractmethod
 
-from learning.rl_agent import RLAgent
+from pybullet_envs.deep_mimic.learning.rl_agent import RLAgent
 from pybullet_utils.logger import Logger
-from learning.tf_normalizer import TFNormalizer
+from pybullet_envs.deep_mimic.learning.tf_normalizer import TFNormalizer
 
 class TFAgent(RLAgent):
     RESOURCE_SCOPE = 'resource'

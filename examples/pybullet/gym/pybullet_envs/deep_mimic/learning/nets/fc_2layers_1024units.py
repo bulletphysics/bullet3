@@ -1,5 +1,5 @@
 import tensorflow as tf
-import learning.tf_util as TFUtil
+import pybullet_envs.deep_mimic.learning.tf_util as TFUtil
 
 NAME = "fc_2layers_1024units"
 

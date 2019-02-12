@@ -2621,7 +2621,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 #endif
 
 	//Workaround: in a VR application, where we avoid synchronizing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
-	m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(32768);
+	m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(128 * 1024);
 
 	m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
 
@@ -4401,7 +4401,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 								btVector3 v2(vertexUpload[i2*3+0],
 									vertexUpload[i2*3+1],
 									vertexUpload[i2*3+2]);
-								meshInterface->addTriangle(v0, v1, v2);
+								meshInterface->addTriangle(v0*meshScale, v1*meshScale, v2*meshScale);
 							}
 						}
 
@@ -4434,7 +4434,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 							btVector3 pt(vertexUpload[v*3+0],
 								vertexUpload[v*3+1],
 								vertexUpload[v*3+2]);
-							convexHull->addPoint(pt, false);
+							convexHull->addPoint(pt*meshScale, false);
 						}
 
 						convexHull->recalcLocalAabb();
@@ -7058,6 +7058,36 @@ bool PhysicsServerCommandProcessor::processLoadSDFCommand(const struct SharedMem
 
 bool PhysicsServerCommandProcessor::processCreateMultiBodyCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
+	if (clientCmd.m_createMultiBodyArgs.m_numBatchObjects > 0)
+	{
+		//batch of objects, to speed up creation time
+		bool result = false;
+		SharedMemoryCommand clientCmd2 = clientCmd;
+		int baseLinkIndex = clientCmd.m_createMultiBodyArgs.m_baseLinkIndex;
+		double* basePositionAndOrientations = (double*)bufferServerToClient;
+		for (int i = 0; i < clientCmd2.m_createMultiBodyArgs.m_numBatchObjects; i++)
+		{
+			clientCmd2.m_createMultiBodyArgs.m_linkPositions[baseLinkIndex * 3 + 0] = basePositionAndOrientations[0 + i * 3];
+			clientCmd2.m_createMultiBodyArgs.m_linkPositions[baseLinkIndex * 3 + 1] = basePositionAndOrientations[1 + i * 3];
+			clientCmd2.m_createMultiBodyArgs.m_linkPositions[baseLinkIndex * 3 + 2] = basePositionAndOrientations[2 + i * 3];
+			if (i == (clientCmd2.m_createMultiBodyArgs.m_numBatchObjects - 1))
+			{
+				result = processCreateMultiBodyCommandSingle(clientCmd2, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			}
+			else
+			{
+				result = processCreateMultiBodyCommandSingle(clientCmd2, serverStatusOut, 0, 0);
+			}
+		}
+		m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
+		return result;
+	}
+	return processCreateMultiBodyCommandSingle(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+}
+
+bool PhysicsServerCommandProcessor::processCreateMultiBodyCommandSingle(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	BT_PROFILE("processCreateMultiBodyCommand2");
 	bool hasStatus = true;
 
 	serverStatusOut.m_type = CMD_CREATE_MULTI_BODY_FAILED;
@@ -7082,10 +7112,16 @@ bool PhysicsServerCommandProcessor::processCreateMultiBodyCommand(const struct S
 
 
 
-		bool ok = processImportedObjects("memory", bufferServerToClient, bufferSizeInBytes, useMultiBody, flags, u2b);
+
+		bool ok = 0;
+		{
+			BT_PROFILE("processImportedObjects");
+			ok = processImportedObjects("memory", bufferServerToClient, bufferSizeInBytes, useMultiBody, flags, u2b);
+		}
 
 		if (ok)
 		{
+			BT_PROFILE("post process");
 			int bodyUniqueId = -1;
 
 			if (m_data->m_sdfRecentLoadedBodies.size() == 1)
@@ -7095,15 +7131,23 @@ bool PhysicsServerCommandProcessor::processCreateMultiBodyCommand(const struct S
 			m_data->m_sdfRecentLoadedBodies.clear();
 			if (bodyUniqueId >= 0)
 			{
-				m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
+				
 				serverStatusOut.m_type = CMD_CREATE_MULTI_BODY_COMPLETED;
+				if (bufferSizeInBytes>0 && serverStatusOut.m_numDataStreamBytes==0)
+				{
+					{
+						BT_PROFILE("autogenerateGraphicsObjects");
+						m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
+					}
+					
+					BT_PROFILE("createBodyInfoStream");
+					int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
+					serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
 
-				int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
-				serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
-
-				serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
-				InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-				strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());
+					serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
+					InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+					strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());
+				}
 			}
 		}
 
@@ -8207,6 +8251,11 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 				printf("switched solver\n");
 			}
 		}
+	}
+
+	if (clientCmd.m_updateFlags & SIM_PARAM_CONSTRAINT_MIN_SOLVER_ISLAND_SIZE)
+	{
+		m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = clientCmd.m_physSimParamArgs.m_minimumSolverIslandSize;
 	}
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_COLLISION_FILTER_MODE)
@@ -10977,6 +11026,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processCreateVisualShapeCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
+		
 		case CMD_CREATE_MULTI_BODY:
 		{
 			hasStatus = processCreateMultiBodyCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);

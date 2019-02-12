@@ -2,14 +2,20 @@ import numpy as np
 import copy
 import os
 import time
+import sys
+from abc import abstractmethod
+import abc
+if sys.version_info >= (3, 4):
+    ABC = abc.ABC
+else:
+    ABC = abc.ABCMeta('ABC', (), {})
 
-from abc import ABC, abstractmethod
 from enum import Enum
 
-from learning.path import *
-from learning.exp_params import ExpParams
-from learning.normalizer import Normalizer
-from learning.replay_buffer import ReplayBuffer
+from pybullet_envs.deep_mimic.learning.path import *
+from pybullet_envs.deep_mimic.learning.exp_params import ExpParams
+from pybullet_envs.deep_mimic.learning.normalizer import Normalizer
+from pybullet_envs.deep_mimic.learning.replay_buffer import ReplayBuffer
 from pybullet_utils.logger import Logger
 import pybullet_utils.mpi_util as MPIUtil
 import pybullet_utils.math_util as MathUtil
@@ -161,7 +167,7 @@ class RLAgent(ABC):
         return self._enable_training
 
     def set_enable_training(self, enable):
-        print("set_enable_training!=", enable)
+        print("set_enable_training=", enable)
         self._enable_training = enable
         if (self._enable_training):
             self.reset()
