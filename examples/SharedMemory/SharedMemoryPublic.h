@@ -8,8 +8,9 @@
 //instead, only ADD a new one at the top, comment-out previous one
 
 
-#define SHARED_MEMORY_MAGIC_NUMBER   201811260
-//#define SHARED_MEMORY_MAGIC_NUMBER   201810250
+#define SHARED_MEMORY_MAGIC_NUMBER 201902120
+//#define SHARED_MEMORY_MAGIC_NUMBER 201811260
+//#define SHARED_MEMORY_MAGIC_NUMBER 201810250
 //#define SHARED_MEMORY_MAGIC_NUMBER 201809030
 //#define SHARED_MEMORY_MAGIC_NUMBER 201809010
 //#define SHARED_MEMORY_MAGIC_NUMBER 201807040
@@ -292,7 +293,7 @@ struct b3UserDataValue
 {
 	int m_type;
 	int m_length;
-	char* m_data1;
+	const char* m_data1;
 };
 
 struct b3UserConstraint
@@ -441,6 +442,7 @@ enum b3VREventType
 #define MAX_MOUSE_EVENTS 256
 
 #define MAX_SDF_BODIES 512
+#define MAX_USER_DATA_KEY_LENGTH 256
 
 enum b3VRButtonInfo
 {
@@ -535,7 +537,11 @@ struct b3BodyNotificationArgs
 
 struct b3UserDataNotificationArgs
 {
+	int m_bodyUniqueId;
+	int m_linkIndex;
+	int m_visualShapeIndex;
 	int m_userDataId;
+	char m_key[MAX_USER_DATA_KEY_LENGTH];
 };
 
 struct b3LinkNotificationArgs
