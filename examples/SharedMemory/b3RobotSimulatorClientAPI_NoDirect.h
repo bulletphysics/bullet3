@@ -418,7 +418,7 @@ struct b3RobotSimulatorCreateMultiBodyArgs
 	int *m_linkParentIndices;
 	int *m_linkJointTypes;
 	btVector3 *m_linkJointAxes;
-
+	btAlignedObjectArray<btVector3> m_batchPositions;
 	int m_useMaximalCoordinates;
 
 	b3RobotSimulatorCreateMultiBodyArgs()

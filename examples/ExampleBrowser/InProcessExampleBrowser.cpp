@@ -217,6 +217,11 @@ void ExampleBrowserThreadFunc(void* userPtr, void* lsMemory)
 	ExampleBrowserArgs* args = (ExampleBrowserArgs*)userPtr;
 	//int workLeft = true;
 	b3CommandLineArgs args2(args->m_argc, args->m_argv);
+	int minUpdateMs = 4000;
+	if (args2.GetCmdLineArgument("minGraphicsUpdateTimeMs", minUpdateMs))
+	{
+		gMinUpdateTimeMicroSecs = minUpdateMs;
+	}
 	b3Clock clock;
 
 	ExampleEntriesPhysicsServer examples;

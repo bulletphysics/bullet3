@@ -511,6 +511,9 @@ extern "C"
 											int linkJointType,
 											const double linkJointAxis[/*3*/]);
 
+	//batch creation is an performance feature to create a large number of multi bodies in one command
+	B3_SHARED_API int b3CreateMultiBodySetBatchPositions(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, double* batchPositions, int numBatchObjects);
+
 	//useMaximalCoordinates are disabled by default, enabling them is experimental and not fully supported yet
 	B3_SHARED_API void b3CreateMultiBodyUseMaximalCoordinates(b3SharedMemoryCommandHandle commandHandle);
 	B3_SHARED_API void b3CreateMultiBodySetFlags(b3SharedMemoryCommandHandle commandHandle, int flags);
