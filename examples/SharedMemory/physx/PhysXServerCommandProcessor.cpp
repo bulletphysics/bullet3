@@ -1839,9 +1839,12 @@ bool PhysXServerCommandProcessor::processForwardDynamicsCommand(const struct Sha
 			float* depthBuffer = 0;
 			int* segmentationMaskBuffer = 0;
 			int startPixelIndex = 0;
+			
 			int width = 1024;
 			int height = 768;
+			m_data->m_pluginManager.getRenderInterface()->getWidthAndHeight(width, height);
 			int numPixelsCopied = 0;
+			
 
 			m_data->m_pluginManager.getRenderInterface()->copyCameraImageData(pixelRGBA, numRequestedPixels,
 				depthBuffer, numRequestedPixels,
