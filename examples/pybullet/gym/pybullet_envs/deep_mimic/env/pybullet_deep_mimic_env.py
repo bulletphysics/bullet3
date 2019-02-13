@@ -17,6 +17,7 @@ class PyBulletDeepMimicEnv(Env):
       self._num_agents = 1
       self._pybullet_client = pybullet_client
       self._isInitialized = False
+      self._useStablePD = True
       self.reset()
     
     def reset(self):
@@ -260,8 +261,13 @@ class PyBulletDeepMimicEnv(Env):
             #self._pybullet_client.resetBasePositionAndOrientation(self._humanoid._kin_model, [pos[0]+3,pos[1],pos[2]],orn)
             #print("desiredPositions=",self.desiredPose)
             maxForces = [0,0,0,0,0,0,0,200,200,200,200, 50,50,50,50, 200,200,200,200, 150, 90,90,90,90, 100,100,100,100, 60, 200,200,200,200,  150, 90, 90, 90, 90, 100,100,100,100, 60]
-            taus = self._humanoid.computePDForces(self.desiredPose, desiredVelocities=None, maxForces=maxForces)
-            self._humanoid.applyPDForces(taus)
+            
+            if self._useStablePD:
+              taus = self._humanoid.computePDForces(self.desiredPose, desiredVelocities=None, maxForces=maxForces)
+              self._humanoid.applyPDForces(taus)
+            else:
+              self._humanoid.setJointMotors(self.desiredPose, maxForces=maxForces)
+            
             self._pybullet_client.stepSimulation()
             
 

@@ -71,7 +71,7 @@ def build_world(args, enable_draw):
         print("agent_type=",agent_type)
         agent = PPOAgent(world, id, json_data)
     
-        agent.set_enable_training(True)
+        agent.set_enable_training(False)
         world.reset()
     return world    
 

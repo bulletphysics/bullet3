@@ -9,7 +9,7 @@ if (cid<0):
 	
 p.setPhysicsEngineParameter(numSolverIterations=4, minimumSolverIslandSize=1024)
 p.setTimeStep(1./120.)
-logId = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "visualShapeBench.json")
+logId = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "createMultiBodyBatch.json")
 #useMaximalCoordinates is much faster then the default reduced coordinates (Featherstone)
 p.loadURDF("plane100.urdf", useMaximalCoordinates=True)
 #disable rendering during creation.
@@ -112,9 +112,6 @@ indices=[	0, 1, 2, 0, 2, 3,  #//ground face
 #p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER,0)
 #the visual shape and collision shape can be re-used by all createMultiBody instances (instancing)
 visualShapeId = p.createVisualShape(shapeType=p.GEOM_MESH,rgbaColor=[1,1,1,1], specularColor=[0.4,.4,0], visualFramePosition=shift, meshScale=meshScale, vertices=vertices, indices=indices, uvs=uvs, normals=normals)
-#visualShapeId = p.createVisualShape(shapeType=p.GEOM_BOX,rgbaColor=[1,1,1,1], halfExtents=[0.5,0.5,0.5],specularColor=[0.4,.4,0], visualFramePosition=shift, meshScale=[1,1,1], vertices=vertices, indices=indices)
-
-#visualShapeId = p.createVisualShape(shapeType=p.GEOM_MESH,rgbaColor=[1,1,1,1], specularColor=[0.4,.4,0], visualFramePosition=shift, meshScale=meshScale, fileName="duck.obj")
 collisionShapeId = p.createCollisionShape(shapeType=p.GEOM_BOX, halfExtents=meshScale)#MESH, vertices=vertices, collisionFramePosition=shift,meshScale=meshScale)
 
 texUid = p.loadTexture("tex256.png")
@@ -124,16 +121,16 @@ batchPositions=[]
 
 
 
-for x in range (33):
-  for y in range (34):
-    for z in range (4):
+for x in range (32):
+  for y in range (32):
+    for z in range (10):
       batchPositions.append([x*meshScale[0]*5.5,y*meshScale[1]*5.5,(0.5+z)*meshScale[2]*2.5])
 
-bodyUid = p.createMultiBody(baseMass=1,baseInertialFramePosition=[0,0,0],baseCollisionShapeIndex=collisionShapeId, baseVisualShapeIndex = visualShapeId, basePosition =[0,0,2], batchPositions=batchPositions,useMaximalCoordinates=True)
+bodyUid = p.createMultiBody(baseMass=0,baseInertialFramePosition=[0,0,0],baseCollisionShapeIndex=collisionShapeId, baseVisualShapeIndex = visualShapeId, basePosition =[0,0,2], batchPositions=batchPositions,useMaximalCoordinates=True)
 p.changeVisualShape(bodyUid,-1, textureUniqueId = texUid)		
 
-#p.syncBodyInfo()
-#print("numBodies=",p.getNumBodies())
+p.syncBodyInfo()
+print("numBodies=",p.getNumBodies())
 p.stopStateLogging(logId)
 p.setGravity(0,0,-10)
 
