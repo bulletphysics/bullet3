@@ -5,7 +5,7 @@
 #include <stdio.h>  //fopen
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "../../CommonInterfaces/CommonFileIOInterface.h"
-
+#include <string.h> //memcpy
 struct MySTLTriangle
 {
 	float normal[3];
