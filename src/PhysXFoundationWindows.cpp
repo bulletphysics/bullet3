@@ -1,0 +1,11 @@
+#include "PhysX/physx/source/foundation/src/windows/PsWindowsAtomic.cpp"
+#include "PhysX/physx/source/foundation/src/windows/PsWindowsCpu.cpp"
+#include "PhysX/physx/source/foundation/src/windows/PsWindowsFPU.cpp"
+#include "PhysX/physx/source/foundation/src/windows/PsWindowsMutex.cpp"
+#include "PhysX/physx/source/foundation/src/windows/PsWindowsPrintString.cpp"
+#include "PhysX/physx/source/foundation/src/windows/PsWindowsSList.cpp"
+#include "PhysX/physx/source/foundation/src/windows/PsWindowsSocket.cpp"
+#include "PhysX/physx/source/foundation/src/windows/PsWindowsSync.cpp"
+#include "PhysX/physx/source/foundation/src/windows/PsWindowsThread.cpp"
+#include "PhysX/physx/source/foundation/src/windows/PsWindowsTime.cpp"
+
