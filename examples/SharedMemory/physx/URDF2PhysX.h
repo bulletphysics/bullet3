@@ -2,7 +2,7 @@
 #define URDF2PHYSX_H
 
 #include "Bullet3Common/b3AlignedObjectArray.h"
-#include "Importers/ImportURDFDemo/URDFJointTypes.h"
+#include "../../Importers/ImportURDFDemo/URDFJointTypes.h"
 
 namespace physx
 {
