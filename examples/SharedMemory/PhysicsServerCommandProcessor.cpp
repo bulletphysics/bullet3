@@ -5599,22 +5599,23 @@ bool PhysicsServerCommandProcessor::processAddUserDataCommand(const struct Share
 	BT_PROFILE("CMD_ADD_USER_DATA");
 	serverStatusOut.m_type = CMD_ADD_USER_DATA_FAILED;
 
-	if (clientCmd.m_addUserDataRequestArgs.m_bodyUniqueId < 0 || clientCmd.m_addUserDataRequestArgs.m_bodyUniqueId >= m_data->m_bodyHandles.getNumHandles())
+	const AddUserDataRequestArgs &addUserDataArgs = clientCmd.m_addUserDataRequestArgs;
+	if (addUserDataArgs.m_bodyUniqueId < 0 || addUserDataArgs.m_bodyUniqueId >= m_data->m_bodyHandles.getNumHandles())
 	{
 		return hasStatus;
 	}
 
-	InternalBodyData* body = m_data->m_bodyHandles.getHandle(clientCmd.m_addUserDataRequestArgs.m_bodyUniqueId);
+	InternalBodyData* body = m_data->m_bodyHandles.getHandle(addUserDataArgs.m_bodyUniqueId);
 	if (!body)
 	{
 		return hasStatus;
 	}
 
 	SharedMemoryUserDataHashKey userDataIdentifier(
-		clientCmd.m_addUserDataRequestArgs.m_key,
-		clientCmd.m_addUserDataRequestArgs.m_bodyUniqueId,
-		clientCmd.m_addUserDataRequestArgs.m_linkIndex,
-		clientCmd.m_addUserDataRequestArgs.m_visualShapeIndex);
+		addUserDataArgs.m_key,
+		addUserDataArgs.m_bodyUniqueId,
+		addUserDataArgs.m_linkIndex,
+		addUserDataArgs.m_visualShapeIndex);
 
 	int* userDataHandlePtr = m_data->m_userDataHandleLookup.find(userDataIdentifier);
 	int userDataHandle = userDataHandlePtr ? *userDataHandlePtr : m_data->m_userDataHandles.allocHandle();
@@ -5627,29 +5628,33 @@ bool PhysicsServerCommandProcessor::processAddUserDataCommand(const struct Share
 
 	if (!userDataHandlePtr)
 	{
-		userData->m_key = clientCmd.m_addUserDataRequestArgs.m_key;
-		userData->m_bodyUniqueId = clientCmd.m_addUserDataRequestArgs.m_bodyUniqueId;
-		userData->m_linkIndex = clientCmd.m_addUserDataRequestArgs.m_linkIndex;
-		userData->m_visualShapeIndex = clientCmd.m_addUserDataRequestArgs.m_visualShapeIndex;
+		userData->m_key = addUserDataArgs.m_key;
+		userData->m_bodyUniqueId = addUserDataArgs.m_bodyUniqueId;
+		userData->m_linkIndex = addUserDataArgs.m_linkIndex;
+		userData->m_visualShapeIndex = addUserDataArgs.m_visualShapeIndex;
 		m_data->m_userDataHandleLookup.insert(userDataIdentifier, userDataHandle);
 		body->m_userDataHandles.push_back(userDataHandle);
 	}
-	userData->replaceValue(bufferServerToClient,
-						   clientCmd.m_addUserDataRequestArgs.m_valueLength,
-						   clientCmd.m_addUserDataRequestArgs.m_valueType);
+	userData->replaceValue(bufferServerToClient, addUserDataArgs.m_valueLength, addUserDataArgs.m_valueType);
 
 	serverStatusOut.m_type = CMD_ADD_USER_DATA_COMPLETED;
-	serverStatusOut.m_userDataResponseArgs.m_userDataId = userDataHandle;
-	serverStatusOut.m_userDataResponseArgs.m_bodyUniqueId = clientCmd.m_addUserDataRequestArgs.m_bodyUniqueId;
-	serverStatusOut.m_userDataResponseArgs.m_linkIndex = clientCmd.m_addUserDataRequestArgs.m_linkIndex;
-	serverStatusOut.m_userDataResponseArgs.m_visualShapeIndex = clientCmd.m_addUserDataRequestArgs.m_visualShapeIndex;
-	serverStatusOut.m_userDataResponseArgs.m_valueLength = clientCmd.m_addUserDataRequestArgs.m_valueLength;
-	serverStatusOut.m_userDataResponseArgs.m_valueType = clientCmd.m_addUserDataRequestArgs.m_valueType;
-	strcpy(serverStatusOut.m_userDataResponseArgs.m_key, clientCmd.m_addUserDataRequestArgs.m_key);
+	UserDataResponseArgs &userDataResponseArgs = serverStatusOut.m_userDataResponseArgs;
+	userDataResponseArgs.m_userDataId = userDataHandle;
+	userDataResponseArgs.m_bodyUniqueId = addUserDataArgs.m_bodyUniqueId;
+	userDataResponseArgs.m_linkIndex = addUserDataArgs.m_linkIndex;
+	userDataResponseArgs.m_visualShapeIndex = addUserDataArgs.m_visualShapeIndex;
+	userDataResponseArgs.m_valueLength = addUserDataArgs.m_valueLength;
+	userDataResponseArgs.m_valueType = addUserDataArgs.m_valueType;
+	strcpy(userDataResponseArgs.m_key, addUserDataArgs.m_key);
 
 	b3Notification notification;
 	notification.m_notificationType = USER_DATA_ADDED;
-	notification.m_userDataArgs.m_userDataId = userDataHandle;
+	b3UserDataNotificationArgs &userDataArgs = notification.m_userDataArgs;
+	userDataArgs.m_userDataId = userDataHandle;
+	userDataArgs.m_bodyUniqueId =  addUserDataArgs.m_bodyUniqueId;
+	userDataArgs.m_linkIndex =  addUserDataArgs.m_linkIndex;
+	userDataArgs.m_visualShapeIndex =  addUserDataArgs.m_visualShapeIndex;
+	strcpy(userDataArgs.m_key, addUserDataArgs.m_key);
 	m_data->m_pluginManager.addNotification(notification);
 
 	// Keep bufferServerToClient as-is.
@@ -5766,17 +5771,22 @@ bool PhysicsServerCommandProcessor::processRemoveUserDataCommand(const struct Sh
 	}
 	body->m_userDataHandles.remove(clientCmd.m_removeUserDataRequestArgs.m_userDataId);
 
+	b3Notification notification;
+	notification.m_notificationType = USER_DATA_REMOVED;
+	b3UserDataNotificationArgs &userDataArgs = notification.m_userDataArgs;
+	userDataArgs.m_userDataId = clientCmd.m_removeUserDataRequestArgs.m_userDataId;
+	userDataArgs.m_bodyUniqueId =  userData->m_bodyUniqueId;
+	userDataArgs.m_linkIndex =  userData->m_linkIndex;
+	userDataArgs.m_visualShapeIndex =  userData->m_visualShapeIndex;
+	strcpy(userDataArgs.m_key, userData->m_key.c_str());
+
 	m_data->m_userDataHandleLookup.remove(SharedMemoryUserDataHashKey(userData));
 	m_data->m_userDataHandles.freeHandle(clientCmd.m_removeUserDataRequestArgs.m_userDataId);
 
 	serverStatusOut.m_removeUserDataResponseArgs = clientCmd.m_removeUserDataRequestArgs;
 	serverStatusOut.m_type = CMD_REMOVE_USER_DATA_COMPLETED;
 
-	b3Notification notification;
-	notification.m_notificationType = USER_DATA_REMOVED;
-	notification.m_userDataArgs.m_userDataId = clientCmd.m_removeUserDataRequestArgs.m_userDataId;
 	m_data->m_pluginManager.addNotification(notification);
-
 	return hasStatus;
 }
 
