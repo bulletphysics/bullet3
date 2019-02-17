@@ -5722,7 +5722,7 @@ bool PhysicsServerCommandProcessor::processCollisionFilterCommand(const struct S
 			btCollisionObject* colObj = 0;
 			if (body->m_multiBody)
 			{
-				if (clientCmd.m_collisionFilterArgs.m_linkIndexA)
+				if (clientCmd.m_collisionFilterArgs.m_linkIndexA==-1)
 				{
 					colObj = body->m_multiBody->getBaseCollider();
 				}
