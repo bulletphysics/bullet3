@@ -7653,7 +7653,6 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			{
 				mb->setCanSleep(false);
 			}
-			}
 			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableWakeup)
 			{
 				mb->setCanWakeup(true);
