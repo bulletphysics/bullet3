@@ -454,7 +454,10 @@ public:
 	//
 	void setCanSleep(bool canSleep)
 	{
-		m_canSleep = canSleep;
+		if (m_canWakeup)
+		{
+			m_canSleep = canSleep;
+		}
 	}
 
 	bool getCanSleep() const
@@ -462,6 +465,15 @@ public:
 		return m_canSleep;
 	}
 
+	bool getCanWakeup() const
+	{
+		return m_canWakeup;
+	}
+	
+	void setCanWakeup(bool canWakeup) 
+	{
+		m_canWakeup = canWakeup;
+	}
 	bool isAwake() const { return m_awake; }
 	void wakeUp();
 	void goToSleep();
@@ -696,6 +708,7 @@ private:
 	// Sleep parameters.
 	bool m_awake;
 	bool m_canSleep;
+	bool m_canWakeup;
 	btScalar m_sleepTimer;
 
 	void *m_userObjectPointer;

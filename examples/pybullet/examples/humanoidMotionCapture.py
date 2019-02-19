@@ -38,9 +38,9 @@ timeStep = 1./600.
 
 p.setPhysicsEngineParameter(fixedTimeStep=timeStep)
 
-path = pybullet_data.getDataPath()+"/motions/humanoid3d_backflip.txt"
-#path = pybullet_data.getDataPath()+"/motions/humanoid3d_cartwheel.txt"
-#path = pybullet_data.getDataPath()+"/motions/humanoid3d_walk.txt"
+path = pybullet_data.getDataPath()+"/data/motions/humanoid3d_backflip.txt"
+#path = pybullet_data.getDataPath()+"/data/motions/humanoid3d_cartwheel.txt"
+#path = pybullet_data.getDataPath()+"/data/motions/humanoid3d_walk.txt"
 
 
 #p.loadURDF("plane.urdf",[0,0,-1.03])

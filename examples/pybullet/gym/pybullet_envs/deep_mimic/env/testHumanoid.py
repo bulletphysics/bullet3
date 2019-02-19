@@ -14,17 +14,18 @@ pybullet_client.setAdditionalSearchPath(pybullet_data.getDataPath())
 z2y = pybullet_client.getQuaternionFromEuler([-math.pi*0.5,0,0])
 #planeId = pybullet_client.loadURDF("plane.urdf",[0,0,0],z2y)
 planeId= pybullet_client.loadURDF("plane_implicit.urdf",[0,0,0],z2y, useMaximalCoordinates=True)
-        
+pybullet_client.changeDynamics(planeId, linkIndex=-1, lateralFriction=0.9)        
 #print("planeId=",planeId)
+
 pybullet_client.configureDebugVisualizer(pybullet_client.COV_ENABLE_Y_AXIS_UP,1)
 pybullet_client.setGravity(0,-9.8,0)
 
 pybullet_client.setPhysicsEngineParameter(numSolverIterations=10)
-pybullet_client.changeDynamics(planeId, linkIndex=-1, lateralFriction=0.9)
+
 
 mocapData = motion_capture_data.MotionCaptureData()
-#motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_walk.txt"
-motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_backflip.txt"
+#motionPath = pybullet_data.getDataPath()+"/data/motions/humanoid3d_walk.txt"
+motionPath = pybullet_data.getDataPath()+"/data/motions/humanoid3d_backflip.txt"
 mocapData.Load(motionPath)
 timeStep = 1./600
 useFixedBase=False
@@ -94,23 +95,15 @@ while (1):
       #humanoid.initializePose(pose=pose, phys_model = humanoid._sim_model, initBase=True, initializeVelocity=True)
       #humanoid.resetPose()
       
-      action =   [-6.541649997234344482e-02,1.138873845338821411e-01,-1.215099543333053589e-01,4.610761404037475586e-01,-4.278013408184051514e-01,
-        4.064738750457763672e-02,7.801693677902221680e-02,4.934634566307067871e-01,1.321935355663299561e-01,-1.393979601562023163e-02,-6.699572503566741943e-02,
-        4.778462052345275879e-01,3.740053176879882812e-01,-3.230125308036804199e-01,-3.549785539507865906e-02,-3.283375874161720276e-03,5.070925354957580566e-01,
-        1.033667206764221191e+00,-3.644275963306427002e-01,-3.374500572681427002e-02,1.294951438903808594e-01,-5.880850553512573242e-01,
-        1.185980588197708130e-01,6.445263326168060303e-02,1.625719368457794189e-01,4.615224599838256836e-01,3.817881345748901367e-01,-4.382217228412628174e-01,
-        1.626710966229438782e-02,-4.743926972150802612e-02,3.833046853542327881e-01,1.067031383514404297e+00,3.039606213569641113e-01,
-        -1.891726106405258179e-01,3.595829010009765625e-02,-7.283059358596801758e-01]
       
-      pos_tar2 = humanoid.convertActionToPose(action)
-      desiredPose = np.array(pos_tar2)
-      #desiredPose = humanoid.computePose(humanoid._frameFraction)
-      #desiredPose = targetPose.GetPose() 
+      desiredPose = humanoid.computePose(humanoid._frameFraction)
+      #desiredPose = desiredPose.GetPose() 
       #curPose = HumanoidPoseInterpolator()
       #curPose.reset()
       s = humanoid.getState()
       #np.savetxt("pb_record_state_s.csv", s, delimiter=",")
-      taus = humanoid.computePDForces(desiredPose)
+      maxForces = [0,0,0,0,0,0,0,200,200,200,200, 50,50,50,50, 200,200,200,200, 150, 90,90,90,90, 100,100,100,100, 60, 200,200,200,200,  150, 90, 90, 90, 90, 100,100,100,100, 60]
+      taus = humanoid.computePDForces(desiredPose, desiredVelocities=None, maxForces=maxForces)
       
       #print("taus=",taus)
       humanoid.applyPDForces(taus)

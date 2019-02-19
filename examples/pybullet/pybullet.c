@@ -10960,6 +10960,8 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "ACTIVATION_STATE_DISABLE_SLEEPING", eActivationStateDisableSleeping);
 	PyModule_AddIntConstant(m, "ACTIVATION_STATE_WAKE_UP", eActivationStateWakeUp);
 	PyModule_AddIntConstant(m, "ACTIVATION_STATE_SLEEP", eActivationStateSleep);
+	PyModule_AddIntConstant(m, "ACTIVATION_STATE_ENABLE_WAKEUP", eActivationStateEnableWakeup);
+	PyModule_AddIntConstant(m, "ACTIVATION_STATE_DISABLE_WAKEUP", eActivationStateDisableWakeup);
 
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION", URDF_USE_SELF_COLLISION);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_PARENT", URDF_USE_SELF_COLLISION_EXCLUDE_PARENT);

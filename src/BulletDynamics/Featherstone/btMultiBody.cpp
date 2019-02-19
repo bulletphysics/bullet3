@@ -106,6 +106,7 @@ btMultiBody::btMultiBody(int n_links,
 	  m_fixedBase(fixedBase),
 	  m_awake(true),
 	  m_canSleep(canSleep),
+	  m_canWakeup(true),
 	  m_sleepTimer(0),
 	  m_userObjectPointer(0),
 	  m_userIndex2(-1),
@@ -1882,6 +1883,8 @@ void btMultiBody::checkMotionAndSleepIfRequired(btScalar timestep)
 		return;
 	}
 
+	
+
 	// motion is computed as omega^2 + v^2 + (sum of squares of joint velocities)
 	btScalar motion = 0;
 	{
@@ -1900,8 +1903,11 @@ void btMultiBody::checkMotionAndSleepIfRequired(btScalar timestep)
 	else
 	{
 		m_sleepTimer = 0;
-		if (!m_awake)
-			wakeUp();
+		if (m_canWakeup)
+		{
+			if (!m_awake)
+				wakeUp();
+		}
 	}
 }
 

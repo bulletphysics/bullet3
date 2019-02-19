@@ -15,11 +15,11 @@ from pybullet_envs.deep_mimic.env.pybullet_deep_mimic_env import PyBulletDeepMim
 import sys
 import random
 
-update_timestep = 1./600.
+update_timestep = 1./240.
 animating = True
 
 def update_world(world, time_elapsed):
-    timeStep = 1./600.
+    timeStep = update_timestep
     world.update(timeStep)
     reward = world.env.calc_reward(agent_id=0)
     #print("reward=",reward)
@@ -48,7 +48,7 @@ args = sys.argv[1:]
 def build_world(args, enable_draw):
     arg_parser = build_arg_parser(args)
     print("enable_draw=",enable_draw)
-    env = PyBulletDeepMimicEnv(args, enable_draw)
+    env = PyBulletDeepMimicEnv(arg_parser, enable_draw)
     world = RLWorld(env, arg_parser)
     #world.env.set_playback_speed(playback_speed)
 
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     
     world = build_world(args, True)
     while (world.env._pybullet_client.isConnected()):
-      timeStep = 1./600.
+      timeStep = update_timestep
       keys = world.env.getKeyboardEvents()
       
         

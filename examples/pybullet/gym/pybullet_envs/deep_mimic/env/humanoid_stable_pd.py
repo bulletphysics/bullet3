@@ -26,8 +26,15 @@ class HumanoidStablePD(object):
     self._sim_model = self._pybullet_client.loadURDF(
       "humanoid/humanoid.urdf", [0,0.889540259,0],globalScaling=0.25, useFixedBase=useFixedBase, flags=self._pybullet_client.URDF_MAINTAIN_LINK_ORDER)
 
+    #self._pybullet_client.setCollisionFilterGroupMask(self._sim_model,-1,collisionFilterGroup=0,collisionFilterMask=0)
+    #for j in range (self._pybullet_client.getNumJoints(self._sim_model)):
+    #  self._pybullet_client.setCollisionFilterGroupMask(self._sim_model,j,collisionFilterGroup=0,collisionFilterMask=0)
+    
+    
+    self._end_effectors = [5,8,11,14]  #ankle and wrist, both left and right
+    
     self._kin_model = self._pybullet_client.loadURDF(
-      "humanoid/humanoid.urdf", [0,12.85,0],globalScaling=0.25, useFixedBase=True, flags=self._pybullet_client.URDF_MAINTAIN_LINK_ORDER)
+      "humanoid/humanoid.urdf", [0,0.85,0],globalScaling=0.25, useFixedBase=True, flags=self._pybullet_client.URDF_MAINTAIN_LINK_ORDER)
     
     self._pybullet_client.changeDynamics(self._sim_model, -1, lateralFriction=0.9)
     for j in range (self._pybullet_client.getNumJoints(self._sim_model)):
@@ -35,6 +42,18 @@ class HumanoidStablePD(object):
       
     self._pybullet_client.changeDynamics(self._sim_model, -1, linearDamping=0, angularDamping=0)
     self._pybullet_client.changeDynamics(self._kin_model, -1, linearDamping=0, angularDamping=0)
+    
+    #todo: add feature to disable simulation for a particular object. Until then, disable all collisions
+    self._pybullet_client.setCollisionFilterGroupMask(self._kin_model,-1,collisionFilterGroup=0,collisionFilterMask=0)
+    self._pybullet_client.changeDynamics(self._kin_model,-1,activationState=self._pybullet_client.ACTIVATION_STATE_SLEEP+self._pybullet_client.ACTIVATION_STATE_ENABLE_SLEEPING+self._pybullet_client.ACTIVATION_STATE_DISABLE_WAKEUP)
+    alpha = 0.4
+    self._pybullet_client.changeVisualShape(self._kin_model,-1, rgbaColor=[1,1,1,alpha])
+    for j in range (self._pybullet_client.getNumJoints(self._kin_model)):
+      self._pybullet_client.setCollisionFilterGroupMask(self._kin_model,j,collisionFilterGroup=0,collisionFilterMask=0)
+      self._pybullet_client.changeDynamics(self._kin_model,j,activationState=self._pybullet_client.ACTIVATION_STATE_SLEEP+self._pybullet_client.ACTIVATION_STATE_ENABLE_SLEEPING+self._pybullet_client.ACTIVATION_STATE_DISABLE_WAKEUP)
+      self._pybullet_client.changeVisualShape(self._kin_model,j, rgbaColor=[1,1,1,alpha])
+    
+    
     self._poseInterpolator = humanoid_pose_interpolator.HumanoidPoseInterpolator()
     
     for i in range (self._mocap_data.NumFrames()-1):
@@ -53,7 +72,7 @@ class HumanoidStablePD(object):
       self._pybullet_client.setJointMotorControlMultiDof(self._sim_model, j, self._pybullet_client.POSITION_CONTROL,targetPosition=[0,0,0,1], targetVelocity=[0,0,0], positionGain=0,velocityGain=1,force=[jointFrictionForce,jointFrictionForce,jointFrictionForce])
       self._pybullet_client.setJointMotorControl2(self._kin_model, j, self._pybullet_client.POSITION_CONTROL, targetPosition=0, positionGain=0, targetVelocity=0,force=0)
       self._pybullet_client.setJointMotorControlMultiDof(self._kin_model, j, self._pybullet_client.POSITION_CONTROL,targetPosition=[0,0,0,1], targetVelocity=[0,0,0], positionGain=0,velocityGain=1,force=[jointFrictionForce,jointFrictionForce,0])
-		
+    
     self._jointDofCounts=[4,4,4,1,4,4,1,4,1,4,4,1]
     
     #only those body parts/links are allowed to touch the ground, otherwise the episode terminates
@@ -126,9 +145,9 @@ class HumanoidStablePD(object):
     keyFrameDuration = self._mocap_data.KeyFrameDuraction()
     cycleTime = self.getCycleTime()
     #print("self._motion_data.NumFrames()=",self._mocap_data.NumFrames())
-    cycles = self.calcCycleCount(t, cycleTime)
+    self._cycleCount = self.calcCycleCount(t, cycleTime)
     #print("cycles=",cycles)
-    frameTime = t - cycles*cycleTime
+    frameTime = t - self._cycleCount*cycleTime
     if (frameTime<0):
       frameTime += cycleTime
     
@@ -143,12 +162,29 @@ class HumanoidStablePD(object):
 
     self._frameFraction = (frameTime - self._frame*keyFrameDuration)/(keyFrameDuration)
     
+    
+  def computeCycleOffset(self):
+    firstFrame=0
+    lastFrame = self._mocap_data.NumFrames()-1
+    frameData = self._mocap_data._motion_data['Frames'][0]
+    frameDataNext = self._mocap_data._motion_data['Frames'][lastFrame]
+    
+    basePosStart = [frameData[1],frameData[2],frameData[3]]
+    basePosEnd = [frameDataNext[1],frameDataNext[2],frameDataNext[3]]
+    self._cycleOffset = [basePosEnd[0]-basePosStart[0],basePosEnd[1]-basePosStart[1],basePosEnd[2]-basePosStart[2]]
+    return self._cycleOffset
+    
   def computePose(self, frameFraction):
     frameData = self._mocap_data._motion_data['Frames'][self._frame]
     frameDataNext = self._mocap_data._motion_data['Frames'][self._frameNext]
     
-    pose = self._poseInterpolator.Slerp(frameFraction, frameData, frameDataNext, self._pybullet_client)
+    self._poseInterpolator.Slerp(frameFraction, frameData, frameDataNext, self._pybullet_client)
     #print("self._poseInterpolator.Slerp(", frameFraction,")=", pose)
+    self.computeCycleOffset()
+    oldPos = self._poseInterpolator._basePos
+    self._poseInterpolator._basePos = [oldPos[0]+self._cycleCount*self._cycleOffset[0],oldPos[1]+self._cycleCount*self._cycleOffset[1],oldPos[2]+self._cycleCount*self._cycleOffset[2]]
+    pose = self._poseInterpolator.GetPose()
+    
     return pose
 
 
@@ -372,13 +408,32 @@ class HumanoidStablePD(object):
       
     return terminates
     
+  def quatMul(self, q1, q2):
+      return [ q1[3] * q2[0] + q1[0] * q2[3] + q1[1] * q2[2] - q1[2] * q2[1],
+               q1[3] * q2[1] + q1[1] * q2[3] + q1[2] * q2[0] - q1[0] * q2[2],
+              q1[3] * q2[2] + q1[2] * q2[3] + q1[0] * q2[1] - q1[1] * q2[0],
+              q1[3] * q2[3] - q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2]]
+              
+  def calcRootAngVelErr(self, vel0, vel1):
+    diff = [vel0[0]-vel1[0],vel0[1]-vel1[1], vel0[2]-vel1[2]]
+    return diff[0]*diff[0]+diff[1]*diff[1]+diff[2]*diff[2]
+
+  
+    
+  def calcRootRotDiff(self,orn0, orn1):
+    orn0Conj = [-orn0[0],-orn0[1],-orn0[2],orn0[3]]
+    q_diff = self.quatMul(orn1, orn0Conj)
+    axis,angle = self._pybullet_client.getAxisAngleFromQuaternion(q_diff)
+    return angle*angle
+  
   def getReward(self, pose):
     #from DeepMimic double cSceneImitate::CalcRewardImitate
+    #todo: compensate for ground height in some parts, once we move to non-flat terrain
     pose_w = 0.5
     vel_w = 0.05
-    end_eff_w = 0 #0.15
-    root_w = 0#0.2
-    com_w = 0#0.1
+    end_eff_w = 0.15
+    root_w = 0.2
+    com_w = 0 #0.1
 
     total_w = pose_w + vel_w + end_eff_w + root_w + com_w
     pose_w /= total_w
@@ -441,8 +496,21 @@ class HumanoidStablePD(object):
     num_joints = 15
     
     root_rot_w = mJointWeights[root_id]
-    #pose_err += root_rot_w * cKinTree::CalcRootRotErr(joint_mat, pose0, pose1)
-    #vel_err += root_rot_w * cKinTree::CalcRootAngVelErr(joint_mat, vel0, vel1)
+    rootPosSim,rootOrnSim = self._pybullet_client.getBasePositionAndOrientation(self._sim_model)
+    rootPosKin ,rootOrnKin = self._pybullet_client.getBasePositionAndOrientation(self._kin_model)
+    linVelSim, angVelSim = self._pybullet_client.getBaseVelocity(self._sim_model)
+    linVelKin, angVelKin = self._pybullet_client.getBaseVelocity(self._kin_model)
+    
+    
+    root_rot_err = self.calcRootRotDiff(rootOrnSim,rootOrnKin)
+    pose_err += root_rot_w * root_rot_err
+    
+    
+    root_vel_diff  = [linVelSim[0]-linVelKin[0],linVelSim[1]-linVelKin[1],linVelSim[2]-linVelKin[2]]
+    root_vel_err = root_vel_diff[0]*root_vel_diff[0]+root_vel_diff[1]*root_vel_diff[1]+root_vel_diff[2]*root_vel_diff[2]
+    
+    root_ang_vel_err = self.calcRootAngVelErr( angVelSim, angVelKin)
+    vel_err += root_rot_w * root_ang_vel_err
 
     for j in range (num_joints):
       curr_pose_err = 0
@@ -473,35 +541,27 @@ class HumanoidStablePD(object):
       pose_err += w * curr_pose_err
       vel_err += w * curr_vel_err
     
-    #  bool is_end_eff = sim_char.IsEndEffector(j)
-    #  if (is_end_eff)
-    #  {
-    #    tVector pos0 = sim_char.CalcJointPos(j)
-    #    tVector pos1 = cKinTree::CalcJointWorldPos(joint_mat, pose1, j)
-    #    double ground_h0 = mGround->SampleHeight(pos0)
-    #    double ground_h1 = kin_char.GetOriginPos()[1]
-    #
-    #    tVector pos_rel0 = pos0 - root_pos0
-    #    tVector pos_rel1 = pos1 - root_pos1
-    #    pos_rel0[1] = pos0[1] - ground_h0
-    #    pos_rel1[1] = pos1[1] - ground_h1
-    #
-    #    pos_rel0 = origin_trans * pos_rel0
-    #    pos_rel1 = kin_origin_trans * pos_rel1
-    #
-    #    curr_end_err = (pos_rel1 - pos_rel0).squaredNorm()
-    #    end_eff_err += curr_end_err;
-    #    ++num_end_effs;
-    #  }
-    #}
-    #if (num_end_effs > 0):
-    #  end_eff_err /= num_end_effs
-    #
+      is_end_eff = j in self._end_effectors
+      if is_end_eff:
+        
+        linkStateSim = self._pybullet_client.getLinkState(self._sim_model, j)
+        linkStateKin = self._pybullet_client.getLinkState(self._kin_model, j)
+        linkPosSim = linkStateSim[0]
+        linkPosKin = linkStateKin[0]
+        linkPosDiff = [linkPosSim[0]-linkPosKin[0],linkPosSim[1]-linkPosKin[1],linkPosSim[2]-linkPosKin[2]]
+        curr_end_err = linkPosDiff[0]*linkPosDiff[0]+linkPosDiff[1]*linkPosDiff[1]+linkPosDiff[2]*linkPosDiff[2]
+        end_eff_err += curr_end_err
+        num_end_effs+=1
+    
+    if (num_end_effs > 0):
+      end_eff_err /= num_end_effs
+    
     #double root_ground_h0 = mGround->SampleHeight(sim_char.GetRootPos())
     #double root_ground_h1 = kin_char.GetOriginPos()[1]
     #root_pos0[1] -= root_ground_h0
     #root_pos1[1] -= root_ground_h1
-    #root_pos_err = (root_pos0 - root_pos1).squaredNorm()
+    root_pos_diff = [rootPosSim[0]-rootPosKin[0],rootPosSim[1]-rootPosKin[1],rootPosSim[2]-rootPosKin[2]]
+    root_pos_err = root_pos_diff[0]*root_pos_diff[0]+root_pos_diff[1]*root_pos_diff[1]+root_pos_diff[2]*root_pos_diff[2]
     #  
     #root_rot_err = cMathUtil::QuatDiffTheta(root_rot0, root_rot1)
     #root_rot_err *= root_rot_err
@@ -509,10 +569,8 @@ class HumanoidStablePD(object):
     #root_vel_err = (root_vel1 - root_vel0).squaredNorm()
     #root_ang_vel_err = (root_ang_vel1 - root_ang_vel0).squaredNorm()
 
-    #root_err = root_pos_err
-    #    + 0.1 * root_rot_err
-    #    + 0.01 * root_vel_err
-    #    + 0.001 * root_ang_vel_err
+    root_err = root_pos_err + 0.1 * root_rot_err+ 0.01 * root_vel_err+ 0.001 * root_ang_vel_err
+    
     #com_err = 0.1 * (com_vel1_world - com_vel0_world).squaredNorm()
     
     #print("pose_err=",pose_err)
@@ -525,7 +583,13 @@ class HumanoidStablePD(object):
 
     reward = pose_w * pose_reward + vel_w * vel_reward + end_eff_w * end_eff_reward + root_w * root_reward + com_w * com_reward
 
-    #print("reward = %f (pose_reward=%f, vel_reward=%f, end_eff_reward=%f, root_reward=%f, com_reward=%f)\n", reward,
+    
     # pose_reward,vel_reward,end_eff_reward, root_reward, com_reward);
+    #print("reward=",reward)
+    #print("pose_reward=",pose_reward)
+    #print("vel_reward=",vel_reward)
+    #print("end_eff_reward=",end_eff_reward)
+    #print("root_reward=",root_reward)
+    #print("com_reward=",com_reward)
     
     return reward
