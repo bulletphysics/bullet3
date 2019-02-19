@@ -326,6 +326,8 @@ enum DynamicsActivationState
 	eActivationStateDisableSleeping = 2,
 	eActivationStateWakeUp = 4,
 	eActivationStateSleep = 8,
+	eActivationStateEnableWakeup = 16,
+	eActivationStateDisableWakeup = 32,
 };
 
 struct b3DynamicsInfo
@@ -844,6 +846,7 @@ enum eURDF_Flags
 	URDF_USE_MATERIAL_COLORS_FROM_MTL = 32768,
 	URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL = 65536,
 	URDF_MAINTAIN_LINK_ORDER = 131072,
+	URDF_ENABLE_WAKEUP = 262144,
 };
 
 enum eUrdfGeomTypes  //sync with UrdfParser UrdfGeomTypes

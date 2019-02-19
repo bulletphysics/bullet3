@@ -241,7 +241,9 @@ static void SimpleResizeCallback(float widthf, float heightf)
 	if (gWindow && gWindow->m_data->m_instancingRenderer)
 	{
 		gWindow->m_data->m_instancingRenderer->resize(width, height);
+		gWindow->setWidthAndHeight(width, height);
 	}
+	
 
 	//if (gApp && gApp->m_instancingRenderer)
 	//	gApp->m_instancingRenderer->resize(width, height);
@@ -1281,7 +1283,7 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 		{
 			m_data->m_window->endRendering();
 			m_data->m_window->startRendering();
-			glViewport(0,0, sourceWidth, sourceHeight); 
+			glViewport(0,0, sourceWidth*m_data->m_window->getRetinaScale(), sourceHeight*m_data->m_window->getRetinaScale());
 			B3_PROFILE("m_instancingRenderer render");
 			m_data->m_instancingRenderer->writeTransforms();
 			if (m_data->m_hasLightDirection)
@@ -1373,7 +1375,7 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 			{
 				{
 					m_data->m_window->startRendering();
-					glViewport(0,0, sourceWidth, sourceHeight); 
+					glViewport(0,0, sourceWidth*m_data->m_window->getRetinaScale(), sourceHeight*m_data->m_window->getRetinaScale());
 					BT_PROFILE("renderScene");
 					m_data->m_instancingRenderer->renderSceneInternal(B3_SEGMENTATION_MASK_RENDERMODE);
 				}

@@ -5722,7 +5722,7 @@ bool PhysicsServerCommandProcessor::processCollisionFilterCommand(const struct S
 			btCollisionObject* colObj = 0;
 			if (body->m_multiBody)
 			{
-				if (clientCmd.m_collisionFilterArgs.m_linkIndexA)
+				if (clientCmd.m_collisionFilterArgs.m_linkIndexA==-1)
 				{
 					colObj = body->m_multiBody->getBaseCollider();
 				}
@@ -7653,6 +7653,15 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			{
 				mb->setCanSleep(false);
 			}
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableWakeup)
+			{
+				mb->setCanWakeup(true);
+			}
+			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateDisableWakeup)
+			{
+				mb->setCanWakeup(false);
+			}
+			
 		}
 
 		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)

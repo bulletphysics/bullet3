@@ -12,18 +12,18 @@ import random
       
       
 class PyBulletDeepMimicEnv(Env):
-    def __init__(self, args=None, enable_draw=False, pybullet_client=None):
-      super().__init__(args, enable_draw)
+    def __init__(self, arg_parser=None, enable_draw=False, pybullet_client=None):
+      super().__init__(arg_parser, enable_draw)
       self._num_agents = 1
       self._pybullet_client = pybullet_client
       self._isInitialized = False
+      self._useStablePD = True
+      self._arg_parser = arg_parser
       self.reset()
     
     def reset(self):
       
       
-      startTime = 0. #float(rn)/rnrange * self._humanoid.getCycleTime()
-      self.t = startTime
       if not self._isInitialized:
         if self.enable_draw:
           self._pybullet_client =  bullet_client.BulletClient(connection_mode=p1.GUI)
@@ -43,16 +43,20 @@ class PyBulletDeepMimicEnv(Env):
         self._pybullet_client.changeDynamics(self._planeId, linkIndex=-1, lateralFriction=0.9)
         
         self._mocapData = motion_capture_data.MotionCaptureData()
-        #motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_walk.txt"
-        motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_backflip.txt"
+        
+        motion_file = self._arg_parser.parse_strings('motion_file')
+        print("motion_file=",motion_file[0])
+                
+        motionPath = pybullet_data.getDataPath()+"/"+motion_file[0]
+        #motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_backflip.txt"
         self._mocapData.Load(motionPath)
-        timeStep = 1./600
+        timeStep = 1./600.
         useFixedBase=False
         self._humanoid = humanoid_stable_pd.HumanoidStablePD(self._pybullet_client, self._mocapData, timeStep, useFixedBase)
         self._isInitialized = True
         
         self._pybullet_client.setTimeStep(timeStep)
-        self._pybullet_client.setPhysicsEngineParameter(numSubSteps=2)
+        self._pybullet_client.setPhysicsEngineParameter(numSubSteps=1)
        
         
         selfCheck = False
@@ -73,6 +77,8 @@ class PyBulletDeepMimicEnv(Env):
       #startTime = random.randint(0,self._humanoid._mocap_data.NumFrames()-2)
       rnrange = 1000
       rn = random.randint(0,rnrange)
+      startTime = float(rn)/rnrange * self._humanoid.getCycleTime()
+      self.t = startTime
       
       self._humanoid.setSimTime(startTime)
       
@@ -247,21 +253,30 @@ class PyBulletDeepMimicEnv(Env):
     def log_val(self, agent_id, val):
         pass
         
+        
     def update(self, timeStep):
       #print("pybullet_deep_mimic_env:update timeStep=",timeStep," t=",self.t)
+      self._pybullet_client.setTimeStep(timeStep)
+      self._humanoid._timeStep = timeStep
+        
       for i in range(1):
           self.t += timeStep
           self._humanoid.setSimTime(self.t)
           
           if self.desiredPose:
-            #kinPose = self._humanoid.computePose(self._humanoid._frameFraction)
-            #self._humanoid.initializePose(self._humanoid._poseInterpolator, self._humanoid._kin_model, initBase=False)
+            kinPose = self._humanoid.computePose(self._humanoid._frameFraction)
+            self._humanoid.initializePose(self._humanoid._poseInterpolator, self._humanoid._kin_model, initBase=True)
             #pos,orn=self._pybullet_client.getBasePositionAndOrientation(self._humanoid._sim_model)
             #self._pybullet_client.resetBasePositionAndOrientation(self._humanoid._kin_model, [pos[0]+3,pos[1],pos[2]],orn)
             #print("desiredPositions=",self.desiredPose)
             maxForces = [0,0,0,0,0,0,0,200,200,200,200, 50,50,50,50, 200,200,200,200, 150, 90,90,90,90, 100,100,100,100, 60, 200,200,200,200,  150, 90, 90, 90, 90, 100,100,100,100, 60]
-            taus = self._humanoid.computePDForces(self.desiredPose, desiredVelocities=None, maxForces=maxForces)
-            self._humanoid.applyPDForces(taus)
+            
+            if self._useStablePD:
+              taus = self._humanoid.computePDForces(self.desiredPose, desiredVelocities=None, maxForces=maxForces)
+              self._humanoid.applyPDForces(taus)
+            else:
+              self._humanoid.setJointMotors(self.desiredPose, maxForces=maxForces)
+            
             self._pybullet_client.stepSimulation()
             
 

@@ -25,7 +25,7 @@
 #include "../../CommonInterfaces/CommonFileIOInterface.h"
 #include "../../Importers/ImportObjDemo/LoadMeshFromObj.h"
 #include "../../Importers/ImportSTLDemo/LoadMeshFromSTL.h"
-#include "Importers/ImportURDFDemo/UrdfParser.h"
+#include "../../Importers/ImportURDFDemo/UrdfParser.h"
 
 
 
