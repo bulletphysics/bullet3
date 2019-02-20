@@ -22,6 +22,18 @@ def parallelCCompile(self, sources, output_dir=None, macros=None, include_dirs=N
     cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
     # parallel code
     N = 2*multiprocessing.cpu_count()# number of parallel compilations
+    try:
+        # On Unix-like platforms attempt to obtain the total memory in the
+        # machine and limit the number of parallel jobs to the number of Gbs
+        # of RAM (to avoid killing smaller platforms like the Pi)
+        mem = os.sysconf('SC_PHYS_PAGES') * os.sysconf('SC_PAGE_SIZE') # bytes
+    except (AttributeError, ValueError):
+        # Couldn't query RAM; don't limit parallelism (it's probably a well
+        # equipped Windows / Mac OS X box)
+        pass
+    else:
+        mem = max(1, int(round(mem / 1024 ** 3))) # convert to Gb
+        N = min(mem, N)
     def _single_compile(obj):
         try: src, ext = build[obj]
         except KeyError: return
