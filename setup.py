@@ -142,7 +142,6 @@ else:
 
 sources = ["examples/pybullet/pybullet.c"]\
 +["examples/SharedMemory/physx/PhysXC_API.cpp"]\
-+["examples/SharedMemory/physx/PhysXClient.cpp"]\
 +["examples/SharedMemory/physx/PhysXServerCommandProcessor.cpp"]\
 +["examples/SharedMemory/physx/PhysXUrdfImporter.cpp"]\
 +["examples/SharedMemory/physx/URDF2PhysX.cpp"]\
