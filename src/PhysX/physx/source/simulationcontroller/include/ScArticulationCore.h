@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -44,7 +44,6 @@ namespace IG
 {
 	class NodeIndex;
 }
-
 
 namespace Sc
 {
@@ -78,38 +77,37 @@ namespace Sc
 		//---------------------------------------------------------------------------------
 		// External API
 		//---------------------------------------------------------------------------------
-						PxU32						getInternalDriveIterations() const; 
-						void						setInternalDriveIterations(const PxU32 v);
+		PX_FORCE_INLINE	PxU32						getInternalDriveIterations()		const	{ return mCore.internalDriveIterations;	}
+		PX_FORCE_INLINE	void						setInternalDriveIterations(const PxU32 v)	{ mCore.internalDriveIterations = v;	}
 
-						PxU32						getExternalDriveIterations() const; 
-						void						setExternalDriveIterations(const PxU32 v);
+		PX_FORCE_INLINE	PxU32						getExternalDriveIterations()		const	{ return mCore.externalDriveIterations;	}
+		PX_FORCE_INLINE	void						setExternalDriveIterations(const PxU32 v)	{ mCore.externalDriveIterations = v;	}
 
-						PxU32						getMaxProjectionIterations() const; 
-						void						setMaxProjectionIterations(const PxU32 v);
+		PX_FORCE_INLINE	PxU32						getMaxProjectionIterations()		const	{ return mCore.maxProjectionIterations;	}
+		PX_FORCE_INLINE	void						setMaxProjectionIterations(const PxU32 v)	{ mCore.maxProjectionIterations = v;	}
 
-						PxReal						getSeparationTolerance() const; 
-						void						setSeparationTolerance(const PxReal v);
+		PX_FORCE_INLINE	PxReal						getSeparationTolerance()			const	{ return mCore.separationTolerance;		}
+		PX_FORCE_INLINE	void						setSeparationTolerance(const PxReal v)		{ mCore.separationTolerance = v;		}
 
-						PxReal						getSleepThreshold() const; 
-						void						setSleepThreshold(const PxReal v);
+		PX_FORCE_INLINE	PxReal						getSleepThreshold()					const	{ return mCore.sleepThreshold;			}
+		PX_FORCE_INLINE	void						setSleepThreshold(const PxReal v)			{ mCore.sleepThreshold = v;				}
 
-						PxReal						getFreezeThreshold() const; 
-						void						setFreezeThreshold(const PxReal v);
+		PX_FORCE_INLINE	PxReal						getFreezeThreshold()				const	{ return mCore.freezeThreshold;			}
+		PX_FORCE_INLINE	void						setFreezeThreshold(const PxReal v)			{ mCore.freezeThreshold = v;			}
 
-						PxReal						getWakeCounter() const; 
+		PX_FORCE_INLINE	PxU16						getSolverIterationCounts()			const	{ return mCore.solverIterationCounts;	}
+		PX_FORCE_INLINE	void						setSolverIterationCounts(PxU16 c)			{ mCore.solverIterationCounts = c;		}
+
+		PX_FORCE_INLINE	PxReal						getWakeCounter()					const	{ return mCore.wakeCounter;				}
+		PX_FORCE_INLINE	void						setWakeCounterInternal(const PxReal v)		{ mCore.wakeCounter = v;				}
 						void						setWakeCounter(const PxReal v);
-						void						setWakeCounterInternal(const PxReal v);
 
 						bool						isSleeping() const;
 						void						wakeUp(PxReal wakeCounter);
 						void						putToSleep();
 
-						PxU16						getSolverIterationCounts()	const;
-						void						setSolverIterationCounts(PxU16 c);
-
 						PxArticulation*				getPxArticulation();
 						const PxArticulation*		getPxArticulation() const;
-
 
 		//---------------------------------------------------------------------------------
 		// Drive Cache API
@@ -196,29 +194,24 @@ namespace Sc
 		PX_FORCE_INLINE	const Dy::ArticulationCore&	getCore()					{ return mCore;			}
 
 		static PX_FORCE_INLINE ArticulationCore&	getArticulationCore(ArticulationCore& core)
-		{
-			size_t offset = PX_OFFSET_OF(ArticulationCore, mCore);
-			return *reinterpret_cast<ArticulationCore*>(reinterpret_cast<PxU8*>(&core) - offset);
-		}
+													{
+														const size_t offset = PX_OFFSET_OF(ArticulationCore, mCore);
+														return *reinterpret_cast<ArticulationCore*>(reinterpret_cast<PxU8*>(&core) - offset);
+													}
 
-		PX_INLINE		PxArticulationBase::Enum		getArticulationType() const { return PxArticulationBase::Enum(mType); }
-		PX_INLINE		void							setArticulationType(PxArticulationBase::Enum type) { mType = type; }
+		PX_INLINE		PxArticulationBase::Enum	getArticulationType()							const	{ return PxArticulationBase::Enum(mType);	}
+		PX_INLINE		void						setArticulationType(PxArticulationBase::Enum type)		{ mType = type;								}
 
+						IG::NodeIndex				getIslandNodeIndex() const;
 
-		IG::NodeIndex getIslandNodeIndex() const;
+						void						setGlobalPose();
 
-		void setGlobalPose();
-
-		void setDirty(const bool dirty);
-
-
+						void						setDirty(const bool dirty);
 	private:
-						ArticulationSim*				mSim;
-						Dy::ArticulationCore			mCore;
-						PxU32							mType;
+						ArticulationSim*			mSim;
+						Dy::ArticulationCore		mCore;
+						PxU32						mType;
 	};
-
-
 
 } // namespace Sc
 

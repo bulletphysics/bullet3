@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -33,8 +33,6 @@
 /** \addtogroup character
   @{
 */
-
-#include "characterkinematic/PxCharacter.h"
 
 #include "PxPhysXConfig.h"
 #include "foundation/PxFlags.h"
@@ -83,7 +81,7 @@ PX_FLAGS_OPERATORS(PxControllerDebugRenderFlag::Enum, PxU32)
 
 @see PxController PxBoxController PxCapsuleController
 */
-class PX_PHYSX_CHARACTER_API PxControllerManager
+class PxControllerManager
 {
 public:
 	/**
@@ -295,7 +293,7 @@ protected:
 
 	By default, locking is disabled.
 	*/
-PX_C_EXPORT PX_PHYSX_CHARACTER_API physx::PxControllerManager* PX_CALL_CONV PxCreateControllerManager(physx::PxScene& scene, bool lockingEnabled = false);
+PX_C_EXPORT physx::PxControllerManager* PX_CALL_CONV PxCreateControllerManager(physx::PxScene& scene, bool lockingEnabled = false);
 
 /** @} */
 #endif //PX_PHYSICS_CCT_MANAGER

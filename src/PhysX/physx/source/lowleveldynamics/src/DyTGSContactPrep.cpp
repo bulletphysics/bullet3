@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -627,7 +627,7 @@ namespace Dy
 				//const Vec3V normal = Vec3V_From_PxVec3_Aligned(buffer.contacts[c.contactPatches[c.correlationListHeads[i]].start].normal);
 
 				const FloatV orthoThreshold = FLoad(0.70710678f);
-				const FloatV p1 = FLoad(0.1f);
+				const FloatV p1 = FLoad(0.0001f);
 				// fallback: normal.cross((1,0,0)) or normal.cross((0,0,1))
 				const FloatV normalX = V3GetX(normal);
 				const FloatV normalY = V3GetY(normal);
@@ -643,7 +643,7 @@ namespace Dy
 
 				const VecCrossV t0Cross = V3PrepareCross(t0);
 
-				const Vec3V t1 = V3Cross(norCross, t0Cross);
+				const Vec3V t1 = V3Normalize(V3Cross(norCross, t0Cross));
 				//const VecCrossV t1Cross = V3PrepareCross(t1);
 
 
@@ -671,6 +671,8 @@ namespace Dy
 				const Vec3V relTr = V3Sub(bodyFrame0p, bodyFrame1p);
 
 				header->frictionBrokenWritebackByte = writeback;
+
+				PxReal frictionScale = (contactBase0->materialFlags & PxMaterialFlag::eIMPROVED_PATCH_FRICTION && frictionPatch.anchorCount == 2) ? 0.5f : 1.f;
 
 				for (PxU32 j = 0; j < frictionPatch.anchorCount; j++)
 				{
@@ -725,7 +727,7 @@ namespace Dy
 						f0->raXnI_targetVelW = V4SetW(raXnInertia, targetVel);
 						f0->rbXnI_velMultiplierW = V4SetW(rbXnInertia, velMultiplier);
 						f0->appliedForce = 0.f;
-						f0->frictionScale = 1.f;
+						f0->frictionScale = frictionScale;
 						f0->biasScale = frictionBiasScale;
 					}
 
@@ -759,7 +761,7 @@ namespace Dy
 						f1->raXnI_targetVelW = V4SetW(raXnInertia, targetVel);
 						f1->rbXnI_velMultiplierW = V4SetW(rbXnInertia, velMultiplier);
 						f1->appliedForce = 0.f;
-						f1->frictionScale = 1.f;
+						f1->frictionScale = frictionScale;
 						f1->biasScale = frictionBiasScale;
 					}
 				}
@@ -1035,8 +1037,11 @@ namespace Dy
 			const Gu::ContactPoint* contactBase0 = buffer + c.contactPatches[c.correlationListHeads[i]].start;
 			const PxReal combinedRestitution = contactBase0->restitution;
 
-			const PxReal staticFriction = contactBase0->staticFriction;
-			const PxReal dynamicFriction = contactBase0->dynamicFriction;
+			const bool useImprovedFrictionPatch = !!(contactBase0->materialFlags & PxMaterialFlag::eIMPROVED_PATCH_FRICTION);
+			PxReal coefficient = useImprovedFrictionPatch ? 1.f/frictionPatch.anchorCount : 1.f;
+
+			const PxReal staticFriction = contactBase0->staticFriction*coefficient;
+			const PxReal dynamicFriction = contactBase0->dynamicFriction*coefficient;
 			const bool disableStrongFriction = !!(contactBase0->materialFlags & PxMaterialFlag::eDISABLE_FRICTION);
 			staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W = V4SetX(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W, FLoad(staticFriction));
 			staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W = V4SetY(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W, FLoad(dynamicFriction));
@@ -1253,8 +1258,6 @@ namespace Dy
 
 				if (hasTorsionalFriction && frictionPatch.anchorCount == 1)
 				{
-					header->numFrictionConstr++;
-
 					const FloatV torsionalPatchRadius = FLoad(torsionalPatchRadiusF32);
 					const FloatV minTorsionalPatchRadius = FLoad(minTorsionalPatchRadiusF32);
 					const FloatV torsionalFriction = FMax(minTorsionalPatchRadius, FSqrt(FMul(FMax(zero, FNeg(maxPenetration)), torsionalPatchRadius)));
@@ -1309,7 +1312,7 @@ namespace Dy
 
 					f->normalXYZ_ErrorW = V4SetW(V3Zero(), FLoad(-angle));
 					f->raXnI_targetVelW = V4SetW(V3LoadA(resp0.angular), zero);
-					f->rbXnI_velMultiplierW = V4SetW(V3LoadA(resp1.angular), velMultiplier);
+					f->rbXnI_velMultiplierW = V4SetW(V4Neg(Vec4V_From_Vec3V(V3LoadA(resp1.angular))), velMultiplier);
 					f->biasScale = frictionBiasScale;
 					f->appliedForce = 0.f;
 					FStore(torsionalFriction, &f->frictionScale);

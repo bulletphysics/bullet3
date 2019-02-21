@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -42,7 +42,6 @@
 
 namespace physx
 {
-
 class NpArticulationLink;
 class NpScene;
 class NpAggregate;
@@ -125,14 +124,12 @@ public:
 	PX_FORCE_INLINE	Scb::Articulation&			getScbArticulation() { return mArticulation; }
 	PX_FORCE_INLINE	const Scb::Articulation&	getScbArticulation() const { return mArticulation; }
 
-	void increaseCacheVersion() { mCacheVersion++; }
-
+	PX_FORCE_INLINE	void						increaseCacheVersion()	{ mCacheVersion++; }
 
 #if PX_ENABLE_DEBUG_VISUALIZATION
 public:
 	PX_INLINE void						visualize(Cm::RenderOutput& out, NpScene* scene);
 #endif
-
 
 	Scb::Articulation 			mArticulation;
 	NpArticulationLinkArray		mArticulationLinks;
@@ -158,7 +155,6 @@ public:
 	// PX_SERIALIZATION
 	NpArticulationTemplate(PxBaseFlags baseFlags) : APIClass(baseFlags), mImpl(PxEmpty) {}
 	//~PX_SERIALIZATION
-
 
 	virtual			void						release();
 
@@ -196,7 +192,6 @@ public:
 
 	virtual PxArticulationLink*	 createLink(PxArticulationLink* parent, const PxTransform& pose);
 
-
 	//---------------------------------------------------------------------------------
 	// Miscellaneous
 	//---------------------------------------------------------------------------------
@@ -208,26 +203,20 @@ public:
 
 	virtual PxArticulationBase::Enum getType() const { return PxArticulationBase::Enum(mType); }
 
-
 #if PX_ENABLE_DEBUG_VISUALIZATION
 public:
 	void						visualize(Cm::RenderOutput& out, NpScene* scene) { mImpl.visualize(out, scene); }
 #endif
 
 public:
-
 	PxU32						mType;
 	PxArticulationImpl			mImpl;
-	
-	
 };
-
 
 template<typename APIClass>
 NpArticulationTemplate<APIClass>::NpArticulationTemplate()
 	: APIClass(PxConcreteType::eARTICULATION, PxBaseFlag::eOWNS_MEMORY | PxBaseFlag::eIS_RELEASABLE)
 {
-	PxArticulationBase::userData = NULL;
 	mType = PxArticulationBase::eMaximumCoordinate;
 }
 
@@ -328,7 +317,6 @@ void PxArticulationImpl::setSolverIterationCounts(PxU32 positionIters, PxU32 vel
 	getArticulation().setSolverIterationCounts((velocityIters & 0xff) << 8 | (positionIters & 0xff));
 }
 
-
 void PxArticulationImpl::getSolverIterationCounts(PxU32 & positionIters, PxU32 & velocityIters) const
 {
 	NP_READ_CHECK(getOwnerScene());
@@ -336,7 +324,6 @@ void PxArticulationImpl::getSolverIterationCounts(PxU32 & positionIters, PxU32 &
 	velocityIters = PxU32(x >> 8);
 	positionIters = PxU32(x & 0xff);
 }
-
 
 void PxArticulationImpl::setGlobalPose()
 {
@@ -361,7 +348,6 @@ void PxArticulationImpl::setGlobalPose()
 	}
 }
 
-
 bool PxArticulationImpl::isSleeping() const
 {
 	NP_READ_CHECK(getOwnerScene());
@@ -370,13 +356,11 @@ bool PxArticulationImpl::isSleeping() const
 	return getArticulation().isSleeping();
 }
 
-
 void PxArticulationImpl::setSleepThreshold(PxReal threshold)
 {
 	NP_WRITE_CHECK(getOwnerScene());
 	getArticulation().setSleepThreshold(threshold);
 }
-
 
 PxReal PxArticulationImpl::getSleepThreshold() const
 {
@@ -384,21 +368,17 @@ PxReal PxArticulationImpl::getSleepThreshold() const
 	return getArticulation().getSleepThreshold();
 }
 
-
 void PxArticulationImpl::setStabilizationThreshold(PxReal threshold)
 {
 	NP_WRITE_CHECK(getOwnerScene());
 	getArticulation().setFreezeThreshold(threshold);
 }
 
-
 PxReal PxArticulationImpl::getStabilizationThreshold() const
 {
 	NP_READ_CHECK(getOwnerScene());
 	return getArticulation().getFreezeThreshold();
 }
-
-
 
 void PxArticulationImpl::setWakeCounter(PxReal wakeCounterValue)
 {
@@ -412,13 +392,11 @@ void PxArticulationImpl::setWakeCounter(PxReal wakeCounterValue)
 	getArticulation().setWakeCounter(wakeCounterValue);
 }
 
-
 PxReal PxArticulationImpl::getWakeCounter() const
 {
 	NP_READ_CHECK(getOwnerScene());
 	return getArticulation().getWakeCounter();
 }
-
 
 void PxArticulationImpl::wakeUpInternal(bool forceWakeUp, bool autowake)
 {
@@ -447,7 +425,6 @@ void PxArticulationImpl::wakeUpInternal(bool forceWakeUp, bool autowake)
 	}
 }
 
-
 void PxArticulationImpl::wakeUp()
 {
 	NpScene* scene = getAPIScene();
@@ -463,7 +440,6 @@ void PxArticulationImpl::wakeUp()
 	getArticulation().wakeUp();
 }
 
-
 void PxArticulationImpl::putToSleep()
 {
 	NP_WRITE_CHECK(getOwnerScene());
@@ -477,20 +453,17 @@ void PxArticulationImpl::putToSleep()
 	getArticulation().putToSleep();
 }
 
-
 PxU32 PxArticulationImpl::getNbLinks() const
 {
 	NP_READ_CHECK(getOwnerScene());
 	return mArticulationLinks.size();
 }
 
-
 PxU32 PxArticulationImpl::getLinks(PxArticulationLink** userBuffer, PxU32 bufferSize, PxU32 startIndex) const
 {
 	NP_READ_CHECK(getOwnerScene());
 	return Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mArticulationLinks.begin(), mArticulationLinks.size());
 }
-
 
 PxBounds3 PxArticulationImpl::getWorldBounds(float inflation) const
 {
@@ -509,13 +482,11 @@ PxBounds3 PxArticulationImpl::getWorldBounds(float inflation) const
 	return PxBounds3::centerExtents(center, inflatedExtents);
 }
 
-
 PxAggregate* PxArticulationImpl::getAggregate() const
 {
 	NP_READ_CHECK(getOwnerScene());
 	return mAggregate;
 }
-
 
 void PxArticulationImpl::setName(const char* debugName)
 {
@@ -523,25 +494,21 @@ void PxArticulationImpl::setName(const char* debugName)
 	mName = debugName;
 }
 
-
 const char* PxArticulationImpl::getName() const
 {
 	NP_READ_CHECK(getOwnerScene());
 	return mName;
 }
 
-
 NpScene* PxArticulationImpl::getAPIScene() const
 {
 	return static_cast<NpScene*>(mArticulation.getScbSceneForAPI() ? mArticulation.getScbSceneForAPI()->getPxScene() : NULL);
 }
 
-
 NpScene* PxArticulationImpl::getOwnerScene() const
 {
 	return static_cast<NpScene*>(mArticulation.getScbScene() ? mArticulation.getScbScene()->getPxScene() : NULL);
 }
-
 
 #if PX_ENABLE_DEBUG_VISUALIZATION
 
@@ -551,7 +518,6 @@ void PxArticulationImpl::visualize(Cm::RenderOutput& out, NpScene* scene)
 		mArticulationLinks[i]->visualize(out, scene);
 }
 #endif  // PX_ENABLE_DEBUG_VISUALIZATION
-
 
 NpArticulationLink* PxArticulationImpl::getRoot()
 {

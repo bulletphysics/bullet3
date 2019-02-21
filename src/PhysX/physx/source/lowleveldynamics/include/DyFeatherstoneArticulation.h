@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -47,7 +47,6 @@
 
 namespace physx
 {
-
 	class PxContactJoint;
 	struct PxSolverConstraintDesc;
 	class PxcConstraintBlockStream;
@@ -61,12 +60,12 @@ namespace physx
 	
 namespace Dy
 {
-
 //#if PX_VC 
 //#pragma warning(push)   
 //#pragma warning( disable : 4324 ) // Padding was added at the end of a structure because of a __declspec(align) value.
 //#endif
 
+	struct PxTGSSolverConstraintDesc;
 	//class ArticulationJointCoreData;
 	class ArticulationLinkData;
 	struct SpatialSubspaceMatrix;
@@ -78,7 +77,7 @@ namespace Dy
 	struct SpatialTransform;
 	struct Constraint;
 
-	struct DyScratchAllocator
+/*	struct DyScratchAllocator
 	{
 		char*   base;
 		size_t	size;
@@ -96,11 +95,10 @@ namespace Dy
 			taken += sizeReq;
 			return result;
 		}
-	};
-
+	};*/
 
 	//This stuct is used in TGS
-	class ArticulationTempData
+/*	class ArticulationTempData
 	{
 	public:
 		Cm::SpatialVectorF					mBaseLinkMotionVelocite;
@@ -108,56 +106,56 @@ namespace Dy
 		Ps::Array<PxReal>					mJointPosition;			//	joint position
 		Ps::Array<PxReal>					mJointVelocity;			//	joint velocity
 		Ps::Array<PxTransform>				mLinkTransform;			//	this is the transform list for links
-	};
+	};*/
 
 	struct ArticulationInternalConstraint
 	{
 		//Common/shared directional info between, frictions and drives
-		Cm::UnAlignedSpatialVector row0;					//24	24
-		Cm::UnAlignedSpatialVector row1;					//24	48
-		Cm::UnAlignedSpatialVector deltaVA;					//24	72	
-		Cm::UnAlignedSpatialVector deltaVB;					//24	96
+		Cm::UnAlignedSpatialVector row0;		//24	24
+		Cm::UnAlignedSpatialVector row1;		//24	48
+		Cm::UnAlignedSpatialVector deltaVA;		//24	72	
+		Cm::UnAlignedSpatialVector deltaVB;		//24	96
 		//Response information
-		PxReal recipResponse;								//4		100
-		PxReal response;									//4		104
+		PxReal recipResponse;					//4		100
+		PxReal response;						//4		104
 		//Joint limit values	
-		PxReal lowLimit;									//4		108
-		PxReal highLimit;									//4		112
-		PxReal lowImpulse;									//4		116		changed
-		PxReal highImpulse;									//4		120		changed
-		PxReal erp;											//4		124
+		PxReal lowLimit;						//4		108
+		PxReal highLimit;						//4		112
+		PxReal lowImpulse;						//4		116		changed
+		PxReal highImpulse;						//4		120		changed
+		PxReal erp;								//4		124
 		//Joint spring drive info
-		PxReal driveTargetVel;								//4		128
-		PxReal driveBiasCoefficient;						//4		132
-		PxReal driveTarget;									//4		136
-		PxReal driveVelMultiplier;							//4		140
-		PxReal driveImpulseMultiplier;						//4		144
-		PxReal maxDriveForce;								//4		148
-		PxReal driveForce;									//4		152
+		PxReal driveTargetVel;					//4		128
+		PxReal driveBiasCoefficient;			//4		132
+		PxReal driveTarget;						//4		136
+		PxReal driveVelMultiplier;				//4		140
+		PxReal driveImpulseMultiplier;			//4		144
+		PxReal maxDriveForce;					//4		148
+		PxReal driveForce;						//4		152
 
-		PxReal maxFrictionForce;							//4		156
-		PxReal frictionForce;								//4		160
-		PxReal frictionForceCoefficient;					//4		164
+		PxReal maxFrictionForce;				//4		156
+		PxReal frictionForce;					//4		160
+		PxReal frictionForceCoefficient;		//4		164
 
-		bool isLinearConstraint;							//1		165
-		PxU8 padding[11];									//15	176
+		bool isLinearConstraint;				//1		165
+		PxU8 padding[11];						//11	176
 	};
 
 	struct ArticulationInternalLockedAxis
 	{
 		//How much an impulse will effect angular velocity
-		Cm::UnAlignedSpatialVector deltaVA;				//24	24
-		Cm::UnAlignedSpatialVector deltaVB;				//24	48
+		Cm::UnAlignedSpatialVector deltaVA;		//24	24
+		Cm::UnAlignedSpatialVector deltaVB;		//24	48
 		//Jacobian axis that is locked		
-		PxVec3 axis;									//12	60
+		PxVec3 axis;							//12	60
 		//Response information	
-		PxReal recipResponse;							//4		64
+		PxReal recipResponse;					//4		64
 		//Initial error
-		PxReal error;									//4		68
+		PxReal error;							//4		68
 		//Bias scale
-		PxReal biasScale;								//4		72
+		PxReal biasScale;						//4		72
 
-		PxU32 pad[2];									//4		80
+		PxU32 pad[2];							//4		80
 	};
 
 	class ArticulationData
@@ -168,151 +166,142 @@ namespace Dy
 			mLinksData(NULL), mJointData(NULL), 
 			mDofs(0xffffffff), mLocks(0), mDataDirty(true)
 		{
-
 		}
 
 		~ArticulationData();
 
-		PX_FORCE_INLINE	void					init();
-		PX_FORCE_INLINE void					resizeLinkData(const PxU32 linkCount);
-		PX_FORCE_INLINE void					resizeJointData(const PxU32 dofs);
+		PX_FORCE_INLINE	void						init();
+						void						resizeLinkData(const PxU32 linkCount);
+						void						resizeJointData(const PxU32 dofs);
 		
-		PX_FORCE_INLINE PxReal*					getJointAccelerations() { return mJointAcceleration.begin(); }
-		PX_FORCE_INLINE PxReal*					getJointVelocities() { return mJointVelocity.begin(); }
-		PX_FORCE_INLINE PxReal*					getJointDeltaVelocities() { return mJointDeltaVelocity.begin(); }
-		PX_FORCE_INLINE PxReal*					getJointPositions() { return mJointPosition.begin(); }
-		PX_FORCE_INLINE PxReal*					getJointForces() { return mJointForce.begin(); }
+		PX_FORCE_INLINE PxReal*						getJointAccelerations()									{ return mJointAcceleration.begin();		}
+		PX_FORCE_INLINE PxReal*						getJointVelocities()									{ return mJointVelocity.begin();			}
+		PX_FORCE_INLINE PxReal*						getJointDeltaVelocities()								{ return mJointDeltaVelocity.begin();		}
+		PX_FORCE_INLINE PxReal*						getJointPositions()										{ return mJointPosition.begin();			}
+		PX_FORCE_INLINE PxReal*						getJointForces()										{ return mJointForce.begin();				}
 		//PX_FORCE_INLINE PxReal*					getJointFrictionForces() { return mJointFrictionForce.begin(); }
 
-		PX_FORCE_INLINE ArticulationInternalConstraint& getInternalConstraint(const PxU32 dofId) { return mInternalConstraints[dofId]; }
-		PX_FORCE_INLINE const ArticulationInternalConstraint& getInternalConstraint(const PxU32 dofId) const { return mInternalConstraints[dofId]; }
+		PX_FORCE_INLINE ArticulationInternalConstraint&			getInternalConstraint(const PxU32 dofId)		{ return mInternalConstraints[dofId];	}
+		PX_FORCE_INLINE const ArticulationInternalConstraint&	getInternalConstraint(const PxU32 dofId) const	{ return mInternalConstraints[dofId];	}
 		
-		PX_FORCE_INLINE ArticulationInternalLockedAxis& getInternalLocks(const PxU32 dofId) { return mInternalLockedAxes[dofId]; }
-		PX_FORCE_INLINE const ArticulationInternalLockedAxis& getInternalLocks(const PxU32 dofId) const { return mInternalLockedAxes[dofId]; }
+		PX_FORCE_INLINE ArticulationInternalLockedAxis&			getInternalLocks(const PxU32 dofId)			{ return mInternalLockedAxes[dofId];		}
+		PX_FORCE_INLINE const ArticulationInternalLockedAxis&	getInternalLocks(const PxU32 dofId) const	{ return mInternalLockedAxes[dofId];		}
 
+		PX_FORCE_INLINE Cm::SpatialVectorF*			getMotionVelocities()									{ return mMotionVelocities.begin();			}
+		PX_FORCE_INLINE Cm::SpatialVectorF*			getMotionAccelerations()								{ return mMotionAccelerations.begin();		}
+		PX_FORCE_INLINE Cm::SpatialVectorF*			getCorioliseVectors()									{ return mCorioliseVectors.begin();			}
+		PX_FORCE_INLINE Cm::SpatialVectorF*			getSpatialZAVectors()									{ return mZAForces.begin();					}
+		PX_FORCE_INLINE Cm::SpatialVectorF*			getTransmittedForces()									{ return mJointTransmittedForce.begin();	}
 
-		PX_FORCE_INLINE Cm::SpatialVectorF*		getMotionVelocities() { return mMotionVelocities.begin(); }
-		PX_FORCE_INLINE Cm::SpatialVectorF*		getMotionAccelerations() { return mMotionAccelerations.begin(); }
-		PX_FORCE_INLINE Cm::SpatialVectorF*		getCorioliseVectors() { return mCorioliseVectors.begin(); }
-		PX_FORCE_INLINE Cm::SpatialVectorF*		getSpatialZAVectors() { return mZAForces.begin(); }
-		PX_FORCE_INLINE Cm::SpatialVectorF*		getTransmittedForces() { return mJointTransmittedForce.begin(); }
-
-		PX_FORCE_INLINE Cm::SpatialVectorF*		getPosIterMotionVelocities() { return mPosIterMotionVelocities.begin(); }
-		PX_FORCE_INLINE PxReal*					getPosIterJointDeltaVelocities() { return mPosIterJointDeltaVelocities.begin(); }
+		PX_FORCE_INLINE Cm::SpatialVectorF*			getPosIterMotionVelocities()							{ return mPosIterMotionVelocities.begin();	}
+		PX_FORCE_INLINE PxReal*						getPosIterJointDeltaVelocities()						{ return mPosIterJointDeltaVelocities.begin(); }
 	
+		PX_FORCE_INLINE Cm::SpatialVectorF&			getPosIterMotionVelocity(const PxU32 index)				{ return mPosIterMotionVelocities[index];	}
+		PX_FORCE_INLINE const Cm::SpatialVectorF&	getMotionVelocity(const PxU32 index)			const	{ return mMotionVelocities[index];			}
+		PX_FORCE_INLINE const Cm::SpatialVectorF&	getMotionAcceleration(const PxU32 index)		const	{ return mMotionAccelerations[index];		}
+		PX_FORCE_INLINE const Cm::SpatialVectorF&	getCorioliseVector(const PxU32 index)			const	{ return mCorioliseVectors[index];			}
+		PX_FORCE_INLINE const Cm::SpatialVectorF&	getSpatialZAVector(const PxU32 index)			const	{ return mZAForces[index];					}
+		PX_FORCE_INLINE const Cm::SpatialVectorF&	getTransmittedForce(const PxU32 index)			const	{ return mJointTransmittedForce[index];		}
 
-		PX_FORCE_INLINE Cm::SpatialVectorF&		getPosIterMotionVelocity(const PxU32 index) { return mPosIterMotionVelocities[index]; }
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getMotionVelocity(const PxU32 index) const { return mMotionVelocities[index]; }
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getMotionAcceleration(const PxU32 index) const { return mMotionAccelerations[index]; }
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getCorioliseVector(const PxU32 index) const { return mCorioliseVectors[index]; }
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getSpatialZAVector(const PxU32 index) const { return mZAForces[index]; }
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getTransmittedForce(const PxU32 index) const { return mJointTransmittedForce[index]; }
-
-
-		PX_FORCE_INLINE Cm::SpatialVectorF&	getMotionVelocity(const PxU32 index) { return mMotionVelocities[index]; }
-		PX_FORCE_INLINE Cm::SpatialVectorF&	getMotionAcceleration(const PxU32 index) { return mMotionAccelerations[index]; }
-		PX_FORCE_INLINE Cm::SpatialVectorF&	getCorioliseVector(const PxU32 index) { return mCorioliseVectors[index]; }
-		PX_FORCE_INLINE Cm::SpatialVectorF&	getSpatialZAVector(const PxU32 index) { return mZAForces[index]; }
-		PX_FORCE_INLINE Cm::SpatialVectorF&	getTransmittedForce(const PxU32 index)  { return mJointTransmittedForce[index]; }
+		PX_FORCE_INLINE Cm::SpatialVectorF&			getMotionVelocity(const PxU32 index)					{ return mMotionVelocities[index];			}
+		PX_FORCE_INLINE Cm::SpatialVectorF&			getMotionAcceleration(const PxU32 index)				{ return mMotionAccelerations[index];		}
+		PX_FORCE_INLINE Cm::SpatialVectorF&			getCorioliseVector(const PxU32 index)					{ return mCorioliseVectors[index];			}
+		PX_FORCE_INLINE Cm::SpatialVectorF&			getSpatialZAVector(const PxU32 index)					{ return mZAForces[index];					}
+		PX_FORCE_INLINE Cm::SpatialVectorF&			getTransmittedForce(const PxU32 index)					{ return mJointTransmittedForce[index];		}
 
 		//PX_FORCE_INLINE Dy::SpatialMatrix*			getTempSpatialMatrix() { mTempSpatialMatrix.begin(); }
 
+		PX_FORCE_INLINE PxTransform&				getPreTransform(const PxU32 index)						{ return mPreTransform[index];				}
+		PX_FORCE_INLINE const PxTransform&			getPreTransform(const PxU32 index)				const	{ return mPreTransform[index];				}
+		PX_FORCE_INLINE void						setPreTransform(const PxU32 index, const PxTransform& t){ mPreTransform[index] = t;					}
+		PX_FORCE_INLINE PxTransform*				getPreTransform()										{ return mPreTransform.begin();				}
 
-		PX_FORCE_INLINE PxTransform&			getPreTransform(const PxU32 index) { return mPreTransform[index]; }
-		PX_FORCE_INLINE const PxTransform&			getPreTransform(const PxU32 index) const { return mPreTransform[index]; }
-		PX_FORCE_INLINE void					setPreTransform(const PxU32 index, const PxTransform& tra) { mPreTransform[index] = tra; }
-		PX_FORCE_INLINE PxTransform*			getPreTransform() { return mPreTransform.begin(); }
-
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getDeltaMotionVector(const PxU32 index) const { return mDeltaMotionVector[index]; }
+		PX_FORCE_INLINE const Cm::SpatialVectorF&	getDeltaMotionVector(const PxU32 index) const			{ return mDeltaMotionVector[index];			}
 		PX_FORCE_INLINE void						setDeltaMotionVector(const PxU32 index, const Cm::SpatialVectorF& vec) { mDeltaMotionVector[index] = vec; }
-		PX_FORCE_INLINE Cm::SpatialVectorF*			getDeltaMotionVector() { return mDeltaMotionVector.begin(); }
+		PX_FORCE_INLINE Cm::SpatialVectorF*			getDeltaMotionVector()									{ return mDeltaMotionVector.begin();		}
 
-		PX_FORCE_INLINE ArticulationLink*		getLinks() const { return mLinks; }
-		PX_FORCE_INLINE PxU32					getLinkCount() const { return mLinkCount; }
+		PX_FORCE_INLINE ArticulationLink*			getLinks()										const	{ return mLinks;							}
+		PX_FORCE_INLINE PxU32						getLinkCount()									const	{ return mLinkCount;						}
 
-		PX_FORCE_INLINE ArticulationLink&		getLink(PxU32 index) const { return mLinks[index]; }
+		PX_FORCE_INLINE ArticulationLink&			getLink(PxU32 index)							const	{ return mLinks[index];						}
 
-		PX_FORCE_INLINE ArticulationLinkData*	getLinkData() const { return mLinksData; }
-						ArticulationLinkData&	getLinkData(PxU32 index) const;
+		PX_FORCE_INLINE ArticulationLinkData*		getLinkData()									const	{ return mLinksData;						}
+						ArticulationLinkData&		getLinkData(PxU32 index)						const;
 
-		PX_FORCE_INLINE ArticulationJointCoreData*	getJointData() const { return mJointData; }
-						ArticulationJointCoreData&	getJointData(PxU32 index) const { return mJointData[index]; }
+		PX_FORCE_INLINE ArticulationJointCoreData*	getJointData()									const	{ return mJointData;						}
+						ArticulationJointCoreData&	getJointData(PxU32 index)						const	{ return mJointData[index];					}
 
-		PX_FORCE_INLINE const ArticulationCore*	getCore() const { return mCore; }
-		PX_FORCE_INLINE Cm::SpatialVector*		getExternalAccelerations() { return mExternalAcceleration; }
+		PX_FORCE_INLINE const ArticulationCore*		getCore()										const	{ return mCore;								}
+		PX_FORCE_INLINE Cm::SpatialVector*			getExternalAccelerations()								{ return mExternalAcceleration;				}
 
-		PX_FORCE_INLINE PxU32					getSolverDataSize() { return mSolverDataSize; }
-		PX_FORCE_INLINE Cm::SpatialVector&		getExternalAcceleration(const PxU32 linkID) { return mExternalAcceleration[linkID]; }
+		PX_FORCE_INLINE PxU32						getSolverDataSize()								const	{ return mSolverDataSize;					}
+		PX_FORCE_INLINE Cm::SpatialVector&			getExternalAcceleration(const PxU32 linkID)				{ return mExternalAcceleration[linkID];		}
 
-		PX_FORCE_INLINE PxReal					getDt() const { return mDt; }
-		PX_FORCE_INLINE void					setDt(const PxReal dt) { mDt = dt; }
+		PX_FORCE_INLINE PxReal						getDt()											const	{ return mDt;								}
+		PX_FORCE_INLINE void						setDt(const PxReal dt)									{ mDt = dt;									}
 
-		PX_FORCE_INLINE bool					getDataDirty() { return mDataDirty; }
-		PX_FORCE_INLINE void					setDataDirty(const bool dirty) { mDataDirty = dirty; }
+		PX_FORCE_INLINE bool						getDataDirty()									const	{ return mDataDirty;						}
+		PX_FORCE_INLINE void						setDataDirty(const bool dirty)							{ mDataDirty = dirty;						}
 
-		PX_FORCE_INLINE	PxU32					getDofs() const { return mDofs; }
-		PX_FORCE_INLINE	void					setDofs(const PxU32 dof) { mDofs = dof; }
+		PX_FORCE_INLINE	PxU32						getDofs()										const	{ return mDofs;								}
+		PX_FORCE_INLINE	void						setDofs(const PxU32 dof)								{ mDofs = dof;								}
 
-		PX_FORCE_INLINE	PxU32					getLocks() const { return mLocks; }
-		PX_FORCE_INLINE	void					setLocks(const PxU32 locks) { mLocks = locks; }
+		PX_FORCE_INLINE	PxU32						getLocks()										const	{ return mLocks;							}
+		PX_FORCE_INLINE	void						setLocks(const PxU32 locks)								{ mLocks = locks;							}
 
-		PX_FORCE_INLINE FeatherstoneArticulation* getArticulation() { return mArticulation;}
-		PX_FORCE_INLINE void					  setArticulation(FeatherstoneArticulation* articulation) { mArticulation = articulation;  }
+		PX_FORCE_INLINE FeatherstoneArticulation*	getArticulation()										{ return mArticulation;						}
+		PX_FORCE_INLINE void						setArticulation(FeatherstoneArticulation* articulation)	{ mArticulation = articulation;				}
 		
-		PX_FORCE_INLINE const SpatialMatrix&	getBaseInvSpatialArticulatedInertia() const { return mBaseInvSpatialArticulatedInertia; }
+		PX_FORCE_INLINE const SpatialMatrix&		getBaseInvSpatialArticulatedInertia()			const	{ return mBaseInvSpatialArticulatedInertia;	}
 
-		PX_FORCE_INLINE PxTransform*			getAccumulatedPoses() { return mAccumulatedPoses.begin(); }
-
-		PX_FORCE_INLINE const PxTransform*			getAccumulatedPoses() const { return mAccumulatedPoses.begin(); }
+		PX_FORCE_INLINE PxTransform*				getAccumulatedPoses()									{ return mAccumulatedPoses.begin();			}
+		PX_FORCE_INLINE const PxTransform*			getAccumulatedPoses()							const	{ return mAccumulatedPoses.begin();			}
 
 	private:
-		
-		Ps::Array<PxReal>					mJointAcceleration;		//	joint acceleration
-		Ps::Array<PxReal>					mJointVelocity;			//	joint velocity
-		Ps::Array<PxReal>					mJointDeltaVelocity;	//	joint velocity change due to contacts
-		Ps::Array<PxReal>					mJointPosition;			//	joint position
-		Ps::Array<PxReal>					mJointForce;			//	joint force
-		//Ps::Array<PxReal>					mJointFrictionForce;	//	joint friction force
+		Ps::Array<PxReal>							mJointAcceleration;		//	joint acceleration
+		Ps::Array<PxReal>							mJointVelocity;			//	joint velocity
+		Ps::Array<PxReal>							mJointDeltaVelocity;	//	joint velocity change due to contacts
+		Ps::Array<PxReal>							mJointPosition;			//	joint position
+		Ps::Array<PxReal>							mJointForce;			//	joint force
+		//Ps::Array<PxReal>							mJointFrictionForce;	//	joint friction force
 	
-		Ps::Array<PxReal>					mPosIterJointDeltaVelocities;	//joint delta velocity after postion iternation before velocity iteration
-		Ps::Array<Cm::SpatialVectorF>		mPosIterMotionVelocities;	//link motion velocites after position iteration before velocity iteration
-		Ps::Array<Cm::SpatialVectorF>		mMotionVelocities;		//link motion velocites
-		Ps::Array<Cm::SpatialVectorF>		mMotionAccelerations;	//link motion accelerations
-		Ps::Array<Cm::SpatialVectorF>		mCorioliseVectors;		//link coriolise vector
-		Ps::Array<Cm::SpatialVectorF>		mZAForces;				//link spatial zero acceleration force/ spatial articulated force
-		Ps::Array<Cm::SpatialVectorF>		mJointTransmittedForce; 
-		Ps::Array<ArticulationInternalConstraint> mInternalConstraints;
-		Ps::Array<ArticulationInternalLockedAxis> mInternalLockedAxes;
+		Ps::Array<PxReal>							mPosIterJointDeltaVelocities;	//joint delta velocity after postion iternation before velocity iteration
+		Ps::Array<Cm::SpatialVectorF>				mPosIterMotionVelocities;	//link motion velocites after position iteration before velocity iteration
+		Ps::Array<Cm::SpatialVectorF>				mMotionVelocities;		//link motion velocites
+		Ps::Array<Cm::SpatialVectorF>				mMotionAccelerations;	//link motion accelerations
+		Ps::Array<Cm::SpatialVectorF>				mCorioliseVectors;		//link coriolise vector
+		Ps::Array<Cm::SpatialVectorF>				mZAForces;				//link spatial zero acceleration force/ spatial articulated force
+		Ps::Array<Cm::SpatialVectorF>				mJointTransmittedForce; 
+		Ps::Array<ArticulationInternalConstraint>	mInternalConstraints;
+		Ps::Array<ArticulationInternalLockedAxis>	mInternalLockedAxes;
 
+		Ps::Array<Cm::SpatialVectorF>				mDeltaMotionVector; //this is for TGS solver
+		Ps::Array<PxTransform>						mPreTransform; //this is the previous transform list for links
 
-		Ps::Array<Cm::SpatialVectorF>		mDeltaMotionVector; //this is for TGS solver
-		Ps::Array<PxTransform>				mPreTransform; //this is the previous transform list for links
+		//Ps::Array<SpatialMatrix>					mTempSpatialMatrix;
 
-		//Ps::Array<SpatialMatrix>			mTempSpatialMatrix;
+		ArticulationLink*							mLinks;
+		PxU32										mLinkCount;
+		ArticulationLinkData*						mLinksData;
+		ArticulationJointCoreData*					mJointData;
+		PxReal										mDt;
+		PxU32										mDofs;
+		PxU32										mLocks;
+		const ArticulationCore*						mCore;
+		Cm::SpatialVector*							mExternalAcceleration;
+		PxU32										mSolverDataSize;
+		bool										mDataDirty; //this means we need to call commonInit()
+		bool										mJointDirty; //this means joint delta velocity has been changed by contacts so we need to update joint velocity/joint acceleration 
+		FeatherstoneArticulation*					mArticulation;
 
-		ArticulationLink*					mLinks;
-		PxU32								mLinkCount;
-		ArticulationLinkData*				mLinksData;
-		ArticulationJointCoreData*			mJointData;
-		PxReal								mDt;
-		PxU32								mDofs;
-		PxU32								mLocks;
-		const ArticulationCore*				mCore;
-		Cm::SpatialVector*					mExternalAcceleration;
-		PxU32								mSolverDataSize;
-		bool								mDataDirty; //this means we need to call commonInit()
-		bool								mJointDirty; //this means joint delta velocity has been changed by contacts so we need to update joint velocity/joint acceleration 
-		FeatherstoneArticulation*			mArticulation;
+		Ps::Array<PxTransform>						mAccumulatedPoses;
+		Ps::Array<PxQuat>							mDeltaQ;
+		PxReal										mAccumulatedDt;
 
-		Ps::Array<PxTransform>				mAccumulatedPoses;
-		Ps::Array<PxQuat>					mDeltaQ;
-		PxReal								mAccumulatedDt;
-
-		//ArticulationTempData				mTempData;
-		SpatialMatrix						mBaseInvSpatialArticulatedInertia;
+		//ArticulationTempData						mTempData;
+		SpatialMatrix								mBaseInvSpatialArticulatedInertia;
 
 		friend class FeatherstoneArticulation;
-
 	};
 
 	void ArticulationData::init()
@@ -323,9 +312,7 @@ namespace Dy
 		//zero joint velocity delta, which will be changed in pxcFsApplyImpulse if there are any contact with links
 		PxMemZero(getJointDeltaVelocities(), sizeof(PxReal) * mDofs);
 		mJointDirty = false;
-		
 	}
-
 
 	struct ScratchData
 	{
@@ -360,7 +347,6 @@ namespace Dy
 		PxReal*				jointFrictionForces;
 	};
 
-
 #if PX_VC 
 #pragma warning(push)   
 #pragma warning( disable : 4324 ) // Padding was added at the end of a structure because of a __declspec(align) value.
@@ -375,16 +361,12 @@ namespace Dy
 		FeatherstoneArticulation(Sc::ArticulationSim*);
 		~FeatherstoneArticulation();
 
-
 		// get data sizes for allocation at higher levels
-		virtual void		getDataSizes(PxU32 linkCount,
-			PxU32 &solverDataSize,
-			PxU32& totalSize,
-			PxU32& scratchSize);
+		virtual void		getDataSizes(PxU32 linkCount, PxU32& solverDataSize, PxU32& totalSize, PxU32& scratchSize);
 
-		virtual bool resize(const PxU32 linkCount);
+		virtual bool		resize(const PxU32 linkCount);
 
-		virtual	void onUpdateSolverDesc();
+		virtual	void		onUpdateSolverDesc();
 
 		virtual PxU32		getDofs();
 
@@ -456,9 +438,6 @@ namespace Dy
 		virtual Cm::SpatialVector getMotionVelocity(const PxU32 linkID) const;
 
 		virtual PxReal getLinkMaxPenBias(const PxU32 linkID) const;
-
-		
-
 
 		static PxU32 computeUnconstrainedVelocities(
 			const ArticulationSolverDesc& desc,
@@ -536,14 +515,12 @@ namespace Dy
 			PxReal* jVelocities, PxReal* jAcceleration, PxReal* jPosition, PxReal* jointForce,
 			const PxArticulationCacheFlags flag);
 
-		ArticulationData& getArticulationData() { return mArticulationData; }
+		PX_FORCE_INLINE	ArticulationData&	getArticulationData()			{ return mArticulationData;	}
 
-		void	setGpuRemapId(const PxU32 id) { mGpuRemapId = id; }
-		PxU32	getGpuRemapId() { return mGpuRemapId; }
+		PX_FORCE_INLINE	void				setGpuRemapId(const PxU32 id)	{ mGpuRemapId = id;			}
+		PX_FORCE_INLINE	PxU32				getGpuRemapId()		const		{ return mGpuRemapId;		}
 
 	private:
-
-		
 		void constraintPrep(ArticulationLoopConstraint* lConstraints, const PxU32 nbJoints,
 			Cm::SpatialVectorF* Z, PxSolverConstraintPrepDesc& prepDesc, PxSolverBody& sBody,
 			PxSolverBodyData& sBodyData, PxSolverConstraintDesc* desc, PxConstraintAllocator& allocator);
@@ -553,11 +530,7 @@ namespace Dy
 			Cm::SpatialVectorF* Z,
 			Cm::SpatialVectorF* DeltaV);
 
-
 		PxU32 computeUnconstrainedVelocitiesInternal(
-			const ArticulationSolverDesc& desc,
-			PxConstraintAllocator& allocator,
-			PxSolverConstraintDesc* constraintDesc,
 			PxU32& acCount,
 			const PxVec3& gravity,
 			Cm::SpatialVectorF* Z, Cm::SpatialVectorF* DeltaV);
@@ -565,9 +538,8 @@ namespace Dy
 		void computeUnconstrainedVelocitiesTGSInternal(const PxVec3& gravity,
 			Cm::SpatialVectorF* Z, Cm::SpatialVectorF* DeltaV);
 
-
 		//copy joint data from fromJointData to toJointData
-		void copyJointData(ArticulationData& data, PxReal* toJointData, PxReal* fromJointData);
+		void copyJointData(ArticulationData& data, PxReal* toJointData, const PxReal* fromJointData);
 
 		void computeDofs();
 		//this function calculates motion subspace matrix(s) for all tree joint
@@ -625,7 +597,6 @@ namespace Dy
 		//void copyFromBodyCore();
 		//void copyToBodyCore();
 		void updateBodies();
-
 
 		void applyExternalImpulse(ArticulationLink* links, const PxU32 linkCount, const bool fixBase,
 			ArticulationData& data, Cm::SpatialVectorF* Z, Cm::SpatialVectorF* deltaV, const PxReal dt, const PxVec3& gravity, Cm::SpatialVector* acceleration);
@@ -687,7 +658,6 @@ namespace Dy
 			Cm::SpatialVector& deltaV1,
 			PxReal* jointVelocities);
 
-
 		Cm::SpatialVectorF getImpulseResponseInv(const bool fixBase, 
 			const PxU32 linkID, Cm::SpatialVectorF* Z, 
 			const Cm::SpatialVector& impulse,
@@ -709,7 +679,6 @@ namespace Dy
 		//provided joint velocity and joint acceleartion, compute link acceleration
 		void computeLinkAccelerationInv(ArticulationData& data, ScratchData& scratchData);
 
-
 		void computeGeneralizedForceInv(ArticulationData& data, ScratchData& scratchData);
 
 		void calculateMassMatrixColInv(ScratchData& scratchData);
@@ -720,7 +689,6 @@ namespace Dy
 
 		//joint limits
 		void enforcePrismaticLimits(PxReal* jPosition, ArticulationJointCore* joint);
-		
 
 		public:
 		static void getImpulseSelfResponse(ArticulationLink* links,
@@ -769,8 +737,6 @@ namespace Dy
 			PxReal dt);
 
 		PxU32 setupSolverConstraints(
-			PxConstraintAllocator& allocator,
-			PxSolverConstraintDesc* constraintDesc,
 			ArticulationLink* links,
 			const PxU32 linkCount,
 			const bool fixBase,
@@ -810,7 +776,6 @@ namespace Dy
 			PxReal damping,
 			PxReal dt);
 
-
 		//integration
 		void propagateLinksDown(ArticulationData& data, PxReal* jointVelocities, PxReal* jointPositions,
 			Cm::SpatialVectorF* motionVelocities);
@@ -823,8 +788,8 @@ namespace Dy
 		PxU8* allocateScratchSpatialData(PxcScratchAllocator* allocator,
 			const PxU32 linkCount, ScratchData& scratchData, bool fallBackToHeap = false);
 
-		void allocateScratchSpatialData(DyScratchAllocator& allocator,
-			const PxU32 linkCount, ScratchData& scratchData);
+//		void allocateScratchSpatialData(DyScratchAllocator& allocator,
+//			const PxU32 linkCount, ScratchData& scratchData);
 
 		//This method calculate the velocity change from parent to child using parent current motion velocity
 		PxTransform propagateTransform(const PxU32 linkID, ArticulationLink* links, ArticulationJointCoreData& jointDatum,

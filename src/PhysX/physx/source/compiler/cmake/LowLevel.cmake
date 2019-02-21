@@ -23,7 +23,7 @@
 ## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
-## Copyright (c) 2018 NVIDIA Corporation. All rights reserved.
+## Copyright (c) 2018-2019 NVIDIA Corporation. All rights reserved.
 
 #
 # Build LowLevel common
@@ -60,7 +60,6 @@ SET(LL_COMMON_COLLISION_HEADERS
 )
 SOURCE_GROUP("Common Includes\\collision" FILES ${LL_COMMON_COLLISION_HEADERS})
 SET(LL_COMMON_PIPELINE_HEADERS		
-	${LL_COMMON_DIR}/include/pipeline/PxcCCDStateStreamPair.h
 	${LL_COMMON_DIR}/include/pipeline/PxcConstraintBlockStream.h
 	${LL_COMMON_DIR}/include/pipeline/PxcContactCache.h
 	${LL_COMMON_DIR}/include/pipeline/PxcMaterialMethodImpl.h

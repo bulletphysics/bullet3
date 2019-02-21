@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -53,11 +53,10 @@ namespace physx
 	{
 		enum Enum
 		{
-			eFIX_BASE = (1 << 1)
+			eFIX_BASE = (1 << 0)
 		};
 	};
 
-	
 	class PxJoint;
 
 	typedef PxFlags<PxArticulationFlag::Enum, PxU8> PxArticulationFlags;
@@ -75,7 +74,6 @@ namespace physx
 
 	struct PxArticulationRootLinkData
 	{
-
 		PxTransform				transform;
 		PxVec3					linVel;
 		PxVec3					angVel;
@@ -117,13 +115,10 @@ namespace physx
 		void*					scratchMemory;		//this is used for internal calculation
 		void*					scratchAllocator;
 		PxU32					version; //cache version. If the articulation configulation change, the cache is invalid
-
-		
 	};
 
 	typedef PxFlags<PxArticulationCache::Enum, PxU8> PxArticulationCacheFlags;
 	PX_FLAGS_OPERATORS(PxArticulationCache::Enum, PxU8)
-
 
 	/**
 	\brief a tree structure of bodies connected by joints that is treated as a unit by the dynamics solver
@@ -145,8 +140,7 @@ namespace physx
 	{
 	public:
 
-		virtual		void							release() = 0;
-
+		virtual		void					release() = 0;
 
 		/**
 		\brief Sets flags on the articulation
@@ -154,7 +148,7 @@ namespace physx
 		\param[in] flags Articulation flags
 
 		*/
-		virtual		void							setArticulationFlags(PxArticulationFlags flags) = 0;
+		virtual		void					setArticulationFlags(PxArticulationFlags flags) = 0;
 
 		/**
 		\brief Raises or clears a flag on the articulation
@@ -163,40 +157,39 @@ namespace physx
 		\param[in] value true/false indicating whether to raise or clear the flag
 
 		*/
-		virtual		void							setArticulationFlag(PxArticulationFlag::Enum flag, bool value) = 0;
+		virtual		void					setArticulationFlag(PxArticulationFlag::Enum flag, bool value) = 0;
 
 		/**
 		\brief return PxArticulationFlags
 		*/
-		virtual		PxArticulationFlags				getArticulationFlags() const = 0;
+		virtual		PxArticulationFlags		getArticulationFlags() const = 0;
 
 		/**
 		\brief returns the total Dofs of the articulation
 		*/
-		virtual			PxU32						getDofs() const = 0;
+		virtual			PxU32				getDofs() const = 0;
 
 		/**
 		\brief create an articulation cache
 
 		\note this call may only be made on articulations that are in a scene, and may not be made during simulation
 		*/
-		virtual		PxArticulationCache*			createCache() const = 0;
+		virtual		PxArticulationCache*	createCache() const = 0;
 
 		/**
 		\brief Get the size of the articulation cache
 
 		\note this call may only be made on articulations that are in a scene, and may not be made during simulation
 		*/
-		virtual		PxU32							getCacheDataSize() const = 0;
+		virtual		PxU32					getCacheDataSize() const = 0;
 
 		/**
 		\brief zero all data in the articulation cache beside the cache version
 
 		\note this call may only be made on articulations that are in a scene, and may not be made during simulation
 		*/
-		virtual		void							zeroCache(PxArticulationCache& cache) = 0;
+		virtual		void					zeroCache(PxArticulationCache& cache) = 0;
 
-	
 		/**
 		\brief apply the user defined data in the cache to the articulation system
 
@@ -206,7 +199,7 @@ namespace physx
 
 		@see createCache copyInternalStateToCache
 		*/
-		virtual		void							applyCache(PxArticulationCache& cache, const PxArticulationCacheFlags flag, bool autowake = true) = 0;
+		virtual		void					applyCache(PxArticulationCache& cache, const PxArticulationCacheFlags flag, bool autowake = true) = 0;
 
 		/**
 		\brief copy the internal data of the articulation to the cache
@@ -216,8 +209,7 @@ namespace physx
 
 		@see createCache applyCache
 		*/
-		virtual		void						copyInternalStateToCache(PxArticulationCache& cache, const PxArticulationCacheFlags flag) const = 0;
-	
+		virtual		void					copyInternalStateToCache(PxArticulationCache& cache, const PxArticulationCacheFlags flag) const = 0;
 
 		/**
 		\brief release an articulation cache
@@ -226,28 +218,26 @@ namespace physx
 
 		@see createCache applyCache copyInternalStateToCache
 		*/
-		virtual		void						releaseCache(PxArticulationCache& cache) const = 0;
-	
+		virtual		void					releaseCache(PxArticulationCache& cache) const = 0;
 
 		/**
 		\brief reduce the maximum data format to the reduced internal data
 		\param[in] maximum joint data format
 		\param[out] reduced joint data format
 		*/
-		virtual		void						packJointData(const PxReal* maximum, PxReal* reduced) const = 0;
+		virtual		void					packJointData(const PxReal* maximum, PxReal* reduced) const = 0;
 
 		/**
 		\brief turn the reduced internal data to maximum joint data format
 		\param[in] reduced joint data format
 		\param[out] maximum joint data format
 		*/
-		virtual		void						unpackJointData(const PxReal* reduced, PxReal* maximum) const = 0;
+		virtual		void					unpackJointData(const PxReal* reduced, PxReal* maximum) const = 0;
 
 		/**
 		\brief initialize all the common data for inverse dynamic
 		*/
-		virtual		void						commonInit() const = 0;
-
+		virtual		void					commonInit() const = 0;
 
 		/**
 		\brief determine the statically balance of the joint force of gravity for entire articulation. External force, joint velocity and joint acceleration
@@ -257,7 +247,7 @@ namespace physx
 		
 		@see commonInit
 		*/
-		virtual		void						computeGeneralizedGravityForce(PxArticulationCache& cache) const = 0;
+		virtual		void					computeGeneralizedGravityForce(PxArticulationCache& cache) const = 0;
 
 		/**
 		\brief determine coriolise and centrifugal force. External force, gravity and joint acceleration
@@ -267,7 +257,7 @@ namespace physx
 		
 		@see commonInit
 		*/
-		virtual		void						computeCoriolisAndCentrifugalForce(PxArticulationCache& cache) const = 0;
+		virtual		void					computeCoriolisAndCentrifugalForce(PxArticulationCache& cache) const = 0;
 
 		/**
 		\brief determine joint force change caused by external force. Gravity, joint acceleration and joint velocity
@@ -277,7 +267,8 @@ namespace physx
 
 		@see commonInit
 		*/
-		virtual		void						computeGeneralizedExternalForce(PxArticulationCache& cache) const = 0;
+		virtual		void					computeGeneralizedExternalForce(PxArticulationCache& cache) const = 0;
+
 		/**
 		\brief determine the joint acceleration for each joint
 		This is purely calculates the change in joint acceleration due to change in the joint force
@@ -286,8 +277,7 @@ namespace physx
 		
 		@see commonInit
 		*/
-		virtual		void						computeJointAcceleration(PxArticulationCache& cache) const = 0;
-
+		virtual		void					computeJointAcceleration(PxArticulationCache& cache) const = 0;
 
 		/**
 		\brief determine the joint force
@@ -298,7 +288,7 @@ namespace physx
 		
 		@see commonInit
 		*/
-		virtual		void						computeJointForce(PxArticulationCache& cache) const = 0;
+		virtual		void					computeJointForce(PxArticulationCache& cache) const = 0;
 
 		/**
 		\brief compute the kinematic jacobian for each joint from end effector to the root in world space
@@ -307,16 +297,14 @@ namespace physx
 
 		@see commonInit
 		*/
-		virtual		void						computeKinematicJacobian(const PxU32 linkID, PxArticulationCache& cache) const = 0;
-
+		virtual		void					computeKinematicJacobian(const PxU32 linkID, PxArticulationCache& cache) const = 0;
 
 		/**
 		\brief compute the coefficent matrix for contact force. PxContactJoint is the contact point
 		\param[out] cache returs the coefficent matrix. Each column is the joint force effected by a contact based on impulse strength 1
 		@see commonInit
 		*/
-		virtual		void						computeCoefficentMatrix(PxArticulationCache& cache) const = 0;
-
+		virtual		void					computeCoefficentMatrix(PxArticulationCache& cache) const = 0;
 		
 		/**
 		\brief compute the lambda value when the test impulse is 1
@@ -326,7 +314,7 @@ namespace physx
 		\param[out] cache returns the coefficent matrix. Each column is the joint force effected by a contact based on impulse strength 1
 		@see commonInit
 		*/
-		virtual		bool						computeLambda(PxArticulationCache& cache, PxArticulationCache& initialState, const PxReal* const jointTorque, const PxU32 maxIter) const = 0;
+		virtual		bool					computeLambda(PxArticulationCache& cache, PxArticulationCache& initialState, const PxReal* const jointTorque, const PxU32 maxIter) const = 0;
 		
 		/**
 		\brief compute the joint-space inertia matrix
@@ -334,7 +322,7 @@ namespace physx
 
 		@see commonInit
 		*/
-		virtual		void						computeGeneralizedMassMatrix(PxArticulationCache& cache) const = 0;
+		virtual		void					computeGeneralizedMassMatrix(PxArticulationCache& cache) const = 0;
 	
 		/**
 		\brief add loop joint to the articulation system for inverse dynamic
@@ -342,7 +330,7 @@ namespace physx
 
 		@see commonInit
 		*/
-		virtual		void						addLoopJoint(PxJoint* joint) = 0;
+		virtual		void					addLoopJoint(PxJoint* joint) = 0;
 
 		/**
 		\brief remove loop joint from the articulation system
@@ -350,14 +338,13 @@ namespace physx
 
 		@see commonInit
 		*/
-		virtual		void						removeLoopJoint(PxJoint* joint) = 0;
+		virtual		void					removeLoopJoint(PxJoint* joint) = 0;
 
 		/**
 		\brief returns the number of loop joints in the articulation
 		\return number of loop joints
 		*/
-
-		virtual		PxU32						getNbLoopJoints() const = 0;
+		virtual		PxU32					getNbLoopJoints() const = 0;
 
 		/**
 		\brief returns the set of loop constraints in the articulation
@@ -371,15 +358,13 @@ namespace physx
 
 		@see ArticulationLink
 		*/
-
-		virtual		PxU32						getLoopJoints(PxJoint** userBuffer, PxU32 bufferSize, PxU32 startIndex = 0) const = 0;
+		virtual		PxU32					getLoopJoints(PxJoint** userBuffer, PxU32 bufferSize, PxU32 startIndex = 0) const = 0;
 
 		/**
 		\brief returns the required size of coeffient matrix in the articulation. The coefficient matrix is number of constraint(loop joints) by total dofs. Constraint Torque = transpose(K) * lambda(). Lambda is a vector of number of constraints
 		\return bite size of the coefficient matrix(nc * n)
 		*/
-
-		virtual		PxU32						getCoefficentMatrixSize() const = 0;
+		virtual		PxU32					getCoefficentMatrixSize() const = 0;
 
 		/**
 		\brief teleport root link to a new location
@@ -388,12 +373,12 @@ namespace physx
 	
 		@see commonInit
 		*/
-		virtual		void						teleportRootLink(const PxTransform& pose, bool autowake) = 0;
+		virtual		void					teleportRootLink(const PxTransform& pose, bool autowake) = 0;
 
 	protected:
-		PX_INLINE					PxArticulationReducedCoordinate(PxType concreteType, PxBaseFlags baseFlags) : PxArticulationBase(concreteType, baseFlags) {}
-		PX_INLINE					PxArticulationReducedCoordinate(PxBaseFlags baseFlags) : PxArticulationBase(baseFlags) {}
-		virtual						~PxArticulationReducedCoordinate() {}
+		PX_INLINE							PxArticulationReducedCoordinate(PxType concreteType, PxBaseFlags baseFlags) : PxArticulationBase(concreteType, baseFlags) {}
+		PX_INLINE							PxArticulationReducedCoordinate(PxBaseFlags baseFlags) : PxArticulationBase(baseFlags) {}
+		virtual								~PxArticulationReducedCoordinate() {}
 	};
 
 #if PX_VC
@@ -403,7 +388,6 @@ namespace physx
 #if !PX_DOXYGEN
 } // namespace physx
 #endif
-
 
   /** @} */
 #endif

@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -45,6 +45,33 @@ NpRigidDynamic::~NpRigidDynamic()
 void NpRigidDynamic::requiresObjects(PxProcessPxBaseCallback& c)
 {
 	NpRigidDynamicT::requiresObjects(c);
+}
+
+void NpRigidDynamic::exportData(PxSerializationContext& context) const
+{
+	//Clearing the aggregate ID for serialization so we avoid having a stale 
+	//reference after deserialization. The aggregate ID get's reset on readding to the 
+	//scene anyway.
+	//Also restore dynamic data in case the actor is configured as a kinematic.
+	//otherwise we would loose the data for switching the kinematic actor back to dynamic
+	//after deserialization.
+	Sc::BodyCore& bodyCore = const_cast<Sc::BodyCore&>(getScbBodyFast().getScBody());
+	Sc::ActorCore& actorCore = const_cast<Sc::ActorCore&>(getScbActorFast().getActorCore());
+	if (isKinematic())
+	{
+		bodyCore.restoreDynamicData();
+	}
+	PxU32 backupAggregateID = actorCore.getAggregateID();
+	actorCore.setAggregateID(PX_INVALID_U32);
+
+	context.writeData(this, sizeof(NpRigidDynamic));
+	
+	actorCore.setAggregateID(backupAggregateID);
+
+	if (isKinematic())
+	{
+		bodyCore.backupDynamicData();
+	}
 }
 
 NpRigidDynamic* NpRigidDynamic::createObject(PxU8*& address, PxDeserializationContext& context)

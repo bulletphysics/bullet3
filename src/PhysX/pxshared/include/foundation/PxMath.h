@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -47,7 +47,7 @@
 
 #include <float.h>
 #include "foundation/PxIntrinsics.h"
-#include "foundation/PxAssert.h"
+#include "foundation/PxSharedAssert.h"
 
 #if !PX_DOXYGEN
 namespace physx
@@ -136,7 +136,7 @@ PX_CUDA_CALLABLE PX_FORCE_INLINE int32_t PxAbs(int32_t a)
 template <class T>
 PX_CUDA_CALLABLE PX_FORCE_INLINE T PxClamp(T v, T lo, T hi)
 {
-	PX_ASSERT(lo <= hi);
+	PX_SHARED_ASSERT(lo <= hi);
 	return PxMin(hi, PxMax(lo, v));
 }
 

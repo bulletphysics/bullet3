@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -54,26 +54,21 @@ class PoolList : public Ps::AllocatorTraits<T>::Type
 	typedef typename Ps::AllocatorTraits<T>::Type Alloc;
 	PX_NOCOPY(PoolList)
 public:
-	PX_INLINE PoolList(const Alloc& alloc, ArgumentType* argument, PxU32 eltsPerSlab, PxU32 maxSlabs)
+	PX_INLINE PoolList(const Alloc& alloc, ArgumentType* argument, PxU32 eltsPerSlab)
 		: Alloc(alloc),
 		mEltsPerSlab(eltsPerSlab), 
-		mMaxSlabs(maxSlabs), 
 		mSlabCount(0),
 		mFreeList(0), 
 		mFreeCount(0), 
-		mSlabs(reinterpret_cast<T**>(Alloc::allocate(maxSlabs * sizeof(T*), __FILE__, __LINE__))),
+		mSlabs(NULL),
 		mArgument(argument)
 	{
 		PX_ASSERT(mEltsPerSlab>0);
-		// either maxSlabs = 1 (non-resizable pool), or elts per slab must be a power of two
-		PX_ASSERT((maxSlabs==1) || ((maxSlabs < 8192) && (mEltsPerSlab & (mEltsPerSlab-1))) == 0);		
+		PX_ASSERT((mEltsPerSlab & (mEltsPerSlab-1)) == 0);
 		mLog2EltsPerSlab = 0;
 
-		if(mMaxSlabs>1)
-		{
-			for(mLog2EltsPerSlab=0; mEltsPerSlab!=PxU32(1<<mLog2EltsPerSlab); mLog2EltsPerSlab++)
+		for(mLog2EltsPerSlab=0; mEltsPerSlab!=PxU32(1<<mLog2EltsPerSlab); mLog2EltsPerSlab++)
 				;
-		}
 	}
 
 	PX_INLINE ~PoolList()
@@ -97,17 +92,17 @@ public:
 		//Deallocate
 		for(PxU32 i=0;i<mSlabCount;i++)
 		{
-			PX_FREE(mSlabs[i]);
+			Alloc::deallocate(mSlabs[i]);
 			mSlabs[i] = NULL;
 		}
 		mSlabCount = 0;
 
 		if(mFreeList)
-			PX_FREE(mFreeList);
+			Alloc::deallocate(mFreeList);
 		mFreeList = NULL;
 		if(mSlabs)
 		{
-			PX_FREE(mSlabs);
+			Alloc::deallocate(mSlabs);
 			mSlabs = NULL;
 		}
 	}
@@ -129,10 +124,6 @@ public:
 			PX_ASSERT(mFreeCount == 0);
 
 			PxU32 nbSlabs = (nbToAllocate + mEltsPerSlab - 1) / mEltsPerSlab; //The number of slabs we need to allocate...
-
-			if (mSlabCount + nbSlabs >= mMaxSlabs)
-				return nbElements; //Return only nbFromFree because we're not going to allocate any slabs. Seriously, we need to nuke this "maxSlabs" stuff ASAP!
-
 			//allocate our slabs...
 
 			PxU32 freeCount = mFreeCount;
@@ -145,16 +136,28 @@ public:
 				if (!mAddr)
 					return nbElements; //Allocation failed so only return the set of elements we could allocate from the free list
 
-				mSlabs[mSlabCount++] = mAddr;
+				PxU32 newSlabCount = mSlabCount+1;
 
 				// Make sure the usage bitmap is up-to-size
-				if (mUseBitmap.size() < mSlabCount*mEltsPerSlab)
+				if (mUseBitmap.size() < newSlabCount*mEltsPerSlab)
 				{
-					mUseBitmap.resize(2 * mSlabCount*mEltsPerSlab); //set last element as not used
+					mUseBitmap.resize(2 * newSlabCount*mEltsPerSlab); //set last element as not used
 					if (mFreeList)
-						PX_FREE(mFreeList);
-					mFreeList = reinterpret_cast<T**>(Alloc::allocate(2 * mSlabCount * mEltsPerSlab * sizeof(T*), __FILE__, __LINE__));
+						Alloc::deallocate(mFreeList);
+					mFreeList = reinterpret_cast<T**>(Alloc::allocate(2 * newSlabCount * mEltsPerSlab * sizeof(T*), __FILE__, __LINE__));
+
+					T** slabs = reinterpret_cast<T**>(Alloc::allocate(2* newSlabCount *sizeof(T*), __FILE__, __LINE__));
+					if (mSlabs)
+					{
+						PxMemCopy(slabs, mSlabs, sizeof(T*)*newSlabCount);
+
+						Alloc::deallocate(mSlabs);
+					}
+
+					mSlabs = slabs;
 				}
+
+				mSlabs[mSlabCount++] = mAddr;
 
 				PxU32 baseIndex = (mSlabCount-1) * mEltsPerSlab;
 
@@ -217,7 +220,7 @@ public:
 	{
 		if(index>=mSlabCount*mEltsPerSlab || !(mUseBitmap.boundedTest(index)))
 			return 0;
-		return mMaxSlabs==1 ? mSlabs[0]+index : mSlabs[index>>mLog2EltsPerSlab] + (index&(mEltsPerSlab-1));
+		return mSlabs[index>>mLog2EltsPerSlab] + (index&(mEltsPerSlab-1));
 	}
 
 	/*
@@ -225,29 +228,37 @@ public:
 	*/
 	PX_FORCE_INLINE T* findByIndexFast(PxU32 index) const
 	{
-		PX_ASSERT(mMaxSlabs != 1);
 		return mSlabs[index>>mLog2EltsPerSlab] + (index&(mEltsPerSlab-1));
 	}
 
 	bool extend()
 	{
-		if(mSlabCount == mMaxSlabs)
-			return false;
 		T * mAddr = reinterpret_cast<T*>(Alloc::allocate(mEltsPerSlab * sizeof(T), __FILE__, __LINE__));
 		if(!mAddr)
 			return false;
-		mSlabs[mSlabCount++] = mAddr;
 
-
+		PxU32 newSlabCount = mSlabCount+1;
 
 		// Make sure the usage bitmap is up-to-size
-		if(mUseBitmap.size() < mSlabCount*mEltsPerSlab)
+		if(mUseBitmap.size() < newSlabCount*mEltsPerSlab)
 		{
-			mUseBitmap.resize(2*mSlabCount*mEltsPerSlab); //set last element as not used
+			mUseBitmap.resize(2* newSlabCount*mEltsPerSlab); //set last element as not used
 			if(mFreeList)
-				PX_FREE(mFreeList);
-			mFreeList = reinterpret_cast<T**>(Alloc::allocate(2*mSlabCount * mEltsPerSlab * sizeof(T*), __FILE__, __LINE__));
+				Alloc::deallocate(mFreeList);
+			mFreeList = reinterpret_cast<T**>(Alloc::allocate(2* newSlabCount * mEltsPerSlab * sizeof(T*), __FILE__, __LINE__));
+
+			T** slabs = reinterpret_cast<T**>(Alloc::allocate(2 * newSlabCount * sizeof(T*), __FILE__, __LINE__));
+			if (mSlabs)
+			{
+				PxMemCopy(slabs, mSlabs, sizeof(T*)*newSlabCount);
+
+				Alloc::deallocate(mSlabs);
+			}
+
+			mSlabs = slabs;
 		}
+
+		mSlabs[mSlabCount++] = mAddr;
 	
 		// Add to free list in descending order so that lowest indices get allocated first - 
 		// the FW context code currently *relies* on this behavior to grab the zero-index volume
@@ -275,7 +286,6 @@ public:
 
 private:
 	const PxU32				mEltsPerSlab;
-	const PxU32				mMaxSlabs;
 	PxU32					mSlabCount;
 	PxU32					mLog2EltsPerSlab;
 	T**						mFreeList;

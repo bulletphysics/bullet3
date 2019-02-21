@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -379,12 +379,12 @@ struct PxsCCDPair
 	\param[in] pass The current CCD pass
 	\return The normalized TOI. <=1.0 indicates a hit. Otherwise PX_MAX_REAL.
 	*/
-	PxReal	sweepFindToi(PxcNpThreadContext& threadContext, PxReal dt, PxU32 pass);
+	PxReal	sweepFindToi(PxcNpThreadContext& threadContext, PxReal dt, PxU32 pass, PxReal ccdThreshold);
 	/**
 	\brief Performs a sweep estimation for this pair
 	\return The normalized TOI. <= 1.0 indicates a potential hit, otherwise PX_MAX_REAL.
 	*/
-	PxReal	sweepEstimateToi();
+	PxReal	sweepEstimateToi(PxReal ccdThreshold);
 	/**
 	\brief Advances this pair to the TOI
 	\param[in] dt The time-step
@@ -432,7 +432,8 @@ public:
 	/**
 	\brief Creates this PxsCCDContext
 	*/
-	static PxsCCDContext* create(PxsContext* context, Dy::ThresholdStream& dynamicsContext, PxvNphaseImplementationContext& nPhaseContext);
+	static PxsCCDContext* create(PxsContext* context, Dy::ThresholdStream& dynamicsContext, PxvNphaseImplementationContext& nPhaseContext,
+		PxReal ccdThreshold);
 
 	/**
 	\brief Destroys this PxsCCDContext
@@ -485,6 +486,8 @@ public:
 	*/
 	PX_FORCE_INLINE		void						clearUpdatedBodies()										{ mUpdatedCCDBodies.forceSize_Unsafe(0); }
 
+	PX_FORCE_INLINE		PxReal						getCCDThreshold() const										{ return mCCDThreshold;}
+
 	/**
 	\brief Runs the CCD contact modification.
 	\param[in] contacts The list of modifiable contacts
@@ -530,7 +533,8 @@ protected:
 	\brief Constructor for PxsCCDContext
 	\param[in] context The PxsContext that is associated with this PxsCCDContext.
 	*/
-	PxsCCDContext(PxsContext* context, Dy::ThresholdStream& thresholdStream, PxvNphaseImplementationContext& nPhaseContext);
+	PxsCCDContext(PxsContext* context, Dy::ThresholdStream& thresholdStream, PxvNphaseImplementationContext& nPhaseContext,
+		PxReal ccdThreshold);
 	/**
 	\brief Destructor for PxsCCDContext
 	*/
@@ -607,6 +611,8 @@ private:
 		PxvNphaseImplementationContext& mNphaseContext;
 
 		Ps::Mutex mMutex;
+
+		PxReal mCCDThreshold;
 
 private:
 

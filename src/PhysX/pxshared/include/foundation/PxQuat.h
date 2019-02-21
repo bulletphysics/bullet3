@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -87,7 +87,7 @@ class PxQuat
 	*/
 	PX_CUDA_CALLABLE PX_INLINE PxQuat(float angleRadians, const PxVec3& unitAxis)
 	{
-		PX_ASSERT(PxAbs(1.0f - unitAxis.magnitude()) < 1e-3f);
+		PX_SHARED_ASSERT(PxAbs(1.0f - unitAxis.magnitude()) < 1e-3f);
 		const float a = angleRadians * 0.5f;
 		const float s = PxSin(a);
 		w = PxCos(a);

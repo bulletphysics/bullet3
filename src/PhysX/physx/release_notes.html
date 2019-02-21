@@ -28,6 +28,39 @@
 
 	<!-- -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
+	<h1 style="TEXT-ALIGN: center">Release Notes - NVIDIA<sup>&reg;</sup> PhysX<sup>&reg;</sup> SDK 4.0.0.25635910</h1>
+	<h2 style="TEXT-ALIGN: center">January 2019</h2>
+
+	<h2>General</h2>
+	<ul>
+		<li>Fixed:</li>
+		<ul>
+			<li>Fixed issue in PxBinaryConverter::convert that could corrupt platform re-targeting of convex meshes with more than 127 vertices.</li>
+			<li>GenerateProject scripts should now also work when not called from PhysX directory.</li>
+			<li>GenerateProject script will now create correct compiler/ directory on Linux based systems.</li>
+			<li>Removed /Wall from MSVC compilers.</li>
+			<li>Fixed CMake install, added missing cudacontextmanager files.</li>
+			<li>Fixed binary serialization of actors in aggregates without serialization of the containing aggregate.</li>
+		</ul>
+		<li>Removed:</li>
+		<ul>
+			<li>CharacterKinematic API export/import macros have been removed.</li>
+		</ul>
+		<li>Added:</li>
+		<ul>
+			<li>Support for Linux samples has been added.</li>
+			<li>PxConfig.h include file will be generated during generate projects script. Including this file in your project will ensure that required defines (like PX_PHYSX_STATIC_LIB) are set.</li>
+		</ul>
+		<li>Changed:</li>
+		<ul>
+			<li>PX_FOUNDATION_API was moved to PhysX and uses PX_PHYSX_STATIC_LIB define as the rest of the SDK.</li>
+			<li>PxAssertHandler moved from PxShared to PhysX and marked as deprecated.</li>
+			<li>PxShared does use PX_SHARED_ASSERT instead of PX_ASSERT which is used just in the PhysX SDK and uses PxAssertHandler.</li>
+		</ul>
+	</ul>
+
+	<!-- -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
 	<h1 style="TEXT-ALIGN: center">Release Notes - NVIDIA<sup>&reg;</sup> PhysX<sup>&reg;</sup> SDK 4.0</h1>
 	<h2 style="TEXT-ALIGN: center">December 2018</h2>
 
@@ -135,6 +168,7 @@
             <li>A flag to enable friction constraints to be processed every frame has been added</li>
             <li>PxContactJoint added to represent contacts in inverse dynamics. Not intended for use in simulation.</li>
 			<li>A missing PxShape::getReferenceCount() function has been added.</li>
+            <li>A new flag has been added to PxMaterial to improve friction accuracy. The flag is disabled by default to maintain legacy behavior.</li>
 		</ul>
 		<li>Removed:</li>
 		<ul>
@@ -304,7 +338,7 @@
 	</table>
 
 	* Console code subject to platform NDA not available on GitHub.  Developers licensed by respective platform owners please contact NVIDIA for access.
-	
+
 	<!-- -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
 	<h1 style="TEXT-ALIGN: center">Release Notes - NVIDIA<sup>&reg;</sup> PhysX<sup>&reg;</sup> SDK 3.4.2.25256367</h1>
@@ -338,7 +372,7 @@
 			<li>Fixed a bug in BVH34. Raycasts could fail on binary deserialized BVH34 triangle meshes.</li>
 		</ul>
 	</ul>
-	
+
 	<!-- -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
 	<h1 style="TEXT-ALIGN: center">Release Notes - NVIDIA<sup>&reg;</sup> PhysX<sup>&reg;</sup> SDK 3.4.2.24990349</h1>
@@ -362,7 +396,7 @@
 			<li>Fixed an incorrect mesh index reported in contact buffer when stabilization flag was used. </li>
 		</ul>
 	</ul>
-	
+
 	<!-- -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
 	<h1 style="TEXT-ALIGN: center">Release Notes - NVIDIA<sup>&reg;</sup> PhysX<sup>&reg;</sup> SDK 3.4.2.24698370</h1>
@@ -3674,7 +3708,7 @@
 
 			<p>
 				<br>
-				Copyright (C) 2008-2018 NVIDIA Corporation, 2701 San Thomas Expressway, Santa Clara, CA 95050 U.S.A. All rights reserved. <A href="http://www.nvidia.com">www.nvidia.com</A>
+				Copyright (C) 2008-2019 NVIDIA Corporation, 2701 San Thomas Expressway, Santa Clara, CA 95050 U.S.A. All rights reserved. <A href="http://www.nvidia.com">www.nvidia.com</A>
 			</p>
 </body>
 </html>

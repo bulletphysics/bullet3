@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -66,7 +66,7 @@ class PxTransform
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE explicit PxTransform(const PxQuat& orientation) : q(orientation), p(0)
 	{
-		PX_ASSERT(orientation.isSane());
+		PX_SHARED_ASSERT(orientation.isSane());
 	}
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxTransform(float x, float y, float z, PxQuat aQ = PxQuat(PxIdentity))
@@ -76,7 +76,7 @@ class PxTransform
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxTransform(const PxVec3& p0, const PxQuat& q0) : q(q0), p(p0)
 	{
-		PX_ASSERT(q0.isSane());
+		PX_SHARED_ASSERT(q0.isSane());
 	}
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE explicit PxTransform(const PxMat44& m); // defined in PxMat44.h
@@ -91,7 +91,7 @@ class PxTransform
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxTransform operator*(const PxTransform& x) const
 	{
-		PX_ASSERT(x.isSane());
+		PX_SHARED_ASSERT(x.isSane());
 		return transform(x);
 	}
 
@@ -104,39 +104,39 @@ class PxTransform
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxTransform getInverse() const
 	{
-		PX_ASSERT(isFinite());
+		PX_SHARED_ASSERT(isFinite());
 		return PxTransform(q.rotateInv(-p), q.getConjugate());
 	}
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxVec3 transform(const PxVec3& input) const
 	{
-		PX_ASSERT(isFinite());
+		PX_SHARED_ASSERT(isFinite());
 		return q.rotate(input) + p;
 	}
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxVec3 transformInv(const PxVec3& input) const
 	{
-		PX_ASSERT(isFinite());
+		PX_SHARED_ASSERT(isFinite());
 		return q.rotateInv(input - p);
 	}
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxVec3 rotate(const PxVec3& input) const
 	{
-		PX_ASSERT(isFinite());
+		PX_SHARED_ASSERT(isFinite());
 		return q.rotate(input);
 	}
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxVec3 rotateInv(const PxVec3& input) const
 	{
-		PX_ASSERT(isFinite());
+		PX_SHARED_ASSERT(isFinite());
 		return q.rotateInv(input);
 	}
 
 	//! Transform transform to parent (returns compound transform: first src, then *this)
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxTransform transform(const PxTransform& src) const
 	{
-		PX_ASSERT(src.isSane());
-		PX_ASSERT(isSane());
+		PX_SHARED_ASSERT(src.isSane());
+		PX_SHARED_ASSERT(isSane());
 		// src = [srct, srcr] -> [r*srct + t, r*srcr]
 		return PxTransform(q.rotate(src.p) + p, q * src.q);
 	}
@@ -171,8 +171,8 @@ class PxTransform
 	//! Transform transform from parent (returns compound transform: first src, then this->inverse)
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxTransform transformInv(const PxTransform& src) const
 	{
-		PX_ASSERT(src.isSane());
-		PX_ASSERT(isFinite());
+		PX_SHARED_ASSERT(src.isSane());
+		PX_SHARED_ASSERT(isFinite());
 		// src = [srct, srcr] -> [r^-1*(srct-t), r^-1*srcr]
 		PxQuat qinv = q.getConjugate();
 		return PxTransform(qinv.rotate(src.p - p), qinv * src.q);

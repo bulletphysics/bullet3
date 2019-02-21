@@ -23,7 +23,7 @@
 ## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
-## Copyright (c) 2018 NVIDIA Corporation. All rights reserved.
+## Copyright (c) 2018-2019 NVIDIA Corporation. All rights reserved.
 
 #
 # Build FastXml
@@ -34,7 +34,7 @@
 SET(FASTXML_COMPILE_DEFS 
 
 	# Common to all configurations
-	${PHYSX_MAC_COMPILE_DEFS};PX_FOUNDATION_DLL=0;
+	${PHYSX_MAC_COMPILE_DEFS};
 
 	$<$<CONFIG:debug>:${PHYSX_MAC_DEBUG_COMPILE_DEFS};>
 	$<$<CONFIG:checked>:${PHYSX_MAC_CHECKED_COMPILE_DEFS};>

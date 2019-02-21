@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -46,7 +46,6 @@ class PxsRigidBody;
 namespace Dy
 {
 
-
 #if PX_VC 
     #pragma warning(push)
 	#pragma warning( disable : 4324 ) // Padding was added at the end of a structure because of a __declspec(align) value.
@@ -56,22 +55,22 @@ struct Constraint
 {
 public:
 
-	PxReal								linBreakForce;														//0
-	PxReal								angBreakForce;														//4
-	PxU16								constantBlockSize;													//6
-	PxU16								flags;																//8
+	PxReal					linBreakForce;			//0
+	PxReal					angBreakForce;			//4
+	PxU16					constantBlockSize;		//6
+	PxU16					flags;					//8
 
-	PxConstraintSolverPrep				solverPrep;															//12
-	PxConstraintProject					project;															//16
-	void*								constantBlock;														//20
+	PxConstraintSolverPrep	solverPrep;				//12
+	PxConstraintProject		project;				//16
+	void*					constantBlock;			//20
 
-	PxsRigidBody*						body0;																//24
-	PxsRigidBody*						body1;																//28
+	PxsRigidBody*			body0;					//24
+	PxsRigidBody*			body1;					//28
 
-	PxsBodyCore*						bodyCore0;															//32
-	PxsBodyCore*						bodyCore1;															//36
-	PxU32								index;																//40 //this is also a constraint write back index
-	PxReal								minResponseThreshold;												//44
+	PxsBodyCore*			bodyCore0;				//32
+	PxsBodyCore*			bodyCore1;				//36
+	PxU32					index;					//40 //this is also a constraint write back index
+	PxReal					minResponseThreshold;	//44
 }
 PX_ALIGN_SUFFIX(16);
 #if PX_VC 

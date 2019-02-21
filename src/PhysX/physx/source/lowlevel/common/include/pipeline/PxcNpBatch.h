@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -36,30 +36,15 @@ namespace physx
 {
 	struct PxcNpWorkUnit;
 	class PxcNpThreadContext;
+	struct PxsContactManagerOutput;
 
-struct PxcNpWorkUnit;
-class PxsContactManager;
-struct PxsContactManagerOutput;
+	namespace Gu
+	{
+		struct Cache;
+	}
 
-namespace Gu
-{
-	struct Cache;
-}
-
-namespace Cm
-{
-	class FlushPool;
-}
-
-class PxLightCpuTask;
-
-namespace Gu
-{
-	class PxgGpuNarrowphaseCoreInterface;
-}
-
-void PxcDiscreteNarrowPhase(PxcNpThreadContext& context, const PxcNpWorkUnit& cmInput, Gu::Cache& cache, PxsContactManagerOutput& output);
-void PxcDiscreteNarrowPhasePCM(PxcNpThreadContext& context, const PxcNpWorkUnit& cmInput, Gu::Cache& cache, PxsContactManagerOutput& output);
+	void PxcDiscreteNarrowPhase(PxcNpThreadContext& context, const PxcNpWorkUnit& cmInput, Gu::Cache& cache, PxsContactManagerOutput& output);
+	void PxcDiscreteNarrowPhasePCM(PxcNpThreadContext& context, const PxcNpWorkUnit& cmInput, Gu::Cache& cache, PxsContactManagerOutput& output);
 }
 
 #endif

@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -38,7 +38,7 @@ using namespace physx;
 namespace
 {
 
-#define SN_NUM_BINARY_PLATFORMS 13
+#define SN_NUM_BINARY_PLATFORMS 14
 const PxU32 sBinaryPlatformTags[SN_NUM_BINARY_PLATFORMS] =
 {
 	PX_MAKE_FOURCC('W','_','3','2'),
@@ -53,7 +53,8 @@ const PxU32 sBinaryPlatformTags[SN_NUM_BINARY_PLATFORMS] =
 	PX_MAKE_FOURCC('A','A','6','4'),
 	PX_MAKE_FOURCC('X','O','N','E'),
 	PX_MAKE_FOURCC('N','X','3','2'),
-	PX_MAKE_FOURCC('N','X','6','4')
+	PX_MAKE_FOURCC('N','X','6','4'),
+	PX_MAKE_FOURCC('L','A','6','4')
 };
 
 const char* sBinaryPlatformNames[SN_NUM_BINARY_PLATFORMS] =
@@ -62,15 +63,16 @@ const char* sBinaryPlatformNames[SN_NUM_BINARY_PLATFORMS] =
 	"win64",
 	"linux32",
 	"linux64",
-	"macOSX32",
-	"macOSX64",
+	"mac32",
+	"mac64",
 	"ps4",
 	"android",
 	"ios",
 	"ios64",
 	"xboxone",
 	"switch32",
-	"switch64"
+	"switch64",
+	"linuxaarch64"
 };
 
 #define SN_NUM_BINARY_COMPATIBLE_VERSIONS 1
@@ -93,9 +95,9 @@ PxU32 getBinaryPlatformTag()
 	return sBinaryPlatformTags[0];
 #elif PX_WINDOWS && PX_X64
 	return sBinaryPlatformTags[1];
-#elif PX_LINUX && (PX_X86 || PX_ARM)
+#elif PX_LINUX && PX_X86
 	return sBinaryPlatformTags[2];
-#elif PX_LINUX && (PX_X64 || PX_A64)
+#elif PX_LINUX && PX_X64
 	return sBinaryPlatformTags[3];
 #elif PX_OSX && PX_X86
 	return sBinaryPlatformTags[4];
@@ -115,6 +117,8 @@ PxU32 getBinaryPlatformTag()
 	return sBinaryPlatformTags[11];
 #elif PX_SWITCH && PX_A64
 	return sBinaryPlatformTags[12];
+#elif PX_LINUX && PX_A64
+	return sBinaryPlatformTags[13];
 #else
 	#error Unknown binary platform
 #endif

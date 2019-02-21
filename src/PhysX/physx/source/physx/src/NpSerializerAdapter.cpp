@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -54,23 +54,14 @@ namespace physx
 	using namespace physx::Gu;
 
 	template<>
-	void PxSerializerDefaultAdapter<NpRigidDynamic>::exportData(PxBase& obj, PxSerializationContext& s)   const 
+	void PxSerializerDefaultAdapter<NpRigidDynamic>::exportData(PxBase& obj, PxSerializationContext& s) const 
 	{
-		PxU32 classSize = sizeof(NpRigidDynamic);
-		NpRigidDynamic& dynamic = static_cast<NpRigidDynamic&>(obj);
-
-		PxsBodyCore serialCore;
-		size_t address = dynamic.getScbBodyFast().getScBody().getSerialCore(serialCore);
-		PxU32 offset =  PxU32(address - reinterpret_cast<size_t>(&dynamic));
-		PX_ASSERT(offset + sizeof(serialCore) <= classSize);
-		s.writeData(&dynamic, offset); 
-		s.writeData(&serialCore, sizeof(serialCore));
-		void* tail = reinterpret_cast<PxU8*>(&dynamic) + offset + sizeof(serialCore);
-		s.writeData(tail, classSize - offset - sizeof(serialCore));
+		NpRigidDynamic& rigidDynamic = static_cast<NpRigidDynamic&>(obj);
+		rigidDynamic.exportData(s);
 	}
 
 	template<>
-	void PxSerializerDefaultAdapter<NpRigidDynamic>::registerReferences(PxBase& obj, PxSerializationContext& s)   const 
+	void PxSerializerDefaultAdapter<NpRigidDynamic>::registerReferences(PxBase& obj, PxSerializationContext& s) const 
 	{
 		NpRigidDynamic& dynamic = static_cast<NpRigidDynamic&>(obj);
 
@@ -92,7 +83,21 @@ namespace physx
 	}
 
 	template<>
-	void PxSerializerDefaultAdapter<NpShape>::registerReferences(PxBase& obj, PxSerializationContext& s)   const 
+	void PxSerializerDefaultAdapter<NpRigidStatic>::exportData(PxBase& obj, PxSerializationContext& s) const
+	{
+		NpRigidStatic& rigidStatic = static_cast<NpRigidStatic&>(obj);
+		rigidStatic.exportData(s);
+	}
+
+	template<>
+	void PxSerializerDefaultAdapter<NpArticulationLink>::exportData(PxBase& obj, PxSerializationContext& s) const
+	{
+		NpArticulationLink& articulationLink = static_cast<NpArticulationLink&>(obj);
+		articulationLink.exportData(s);
+	}
+
+	template<>
+	void PxSerializerDefaultAdapter<NpShape>::registerReferences(PxBase& obj, PxSerializationContext& s) const 
 	{	
 		NpShape& shape = static_cast<NpShape&>(obj);
 

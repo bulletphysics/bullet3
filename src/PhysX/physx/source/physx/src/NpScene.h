@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -47,7 +47,6 @@
 
 namespace physx
 {
-
 class PhysicsThread;
 class PxBatchQueryDesc;
 class NpMaterial;
@@ -74,18 +73,6 @@ class NpShapeManager;
 class NpBatchQuery;
 
 class PxBatchQuery;
-
-enum NpProfileZones
-{
-	NpScene_checkResults,
-	NpScene_reportContacts,
-	NpScene_reportProfiling,
-	NpScene_reportTriggers,
-	NpScene_stats,
-
-	NpPrNumZones
-};
-
 
 class NpContactCallbackTask : public physx::PxLightCpuTask
 {
@@ -206,8 +193,6 @@ class NpScene : public NpSceneQueries, public Ps::UserAllocated
 	virtual			bool							fetchResultsStart(const PxContactPairHeader*& contactPairs, PxU32& nbContactPairs, bool block = false);
 	virtual			void							processCallbacks(physx::PxBaseTask* continuation);
 	virtual			void							fetchResultsFinish(PxU32* errorState = 0);
-
-
 
 	virtual			void							flush(bool sendPendingReports) { flushSimulation(sendPendingReports); }
 	virtual			void							flushSimulation(bool sendPendingReports);
@@ -369,8 +354,6 @@ private:
 					void							fetchResultsPreContactCallbacks();
 					void							fetchResultsPostContactCallbacks();
 
-
-
 					void							updateScbStateAndSetupSq(const PxRigidActor& rigidActor, Scb::Actor& actor, NpShapeManager& shapeManager, bool actorDynamic, const PxBounds3* bounds, bool hasPrunerStructure);
 	PX_FORCE_INLINE	void							updateScbStateAndSetupSq(const PxRigidActor& rigidActor, Scb::Body& body, NpShapeManager& shapeManager, bool actorDynamic, const PxBounds3* bounds, bool hasPrunerStructure);
 
@@ -391,13 +374,11 @@ private:
 					Ps::Sync						mCollisionDone;		// physics thread signals this when all collisions ready
 					Ps::Sync						mSceneQueriesDone;	// physics thread signals this when all scene queries update ready
 
-
 		//legacy timing settings:
 					PxReal							mElapsedTime;		//needed to transfer the elapsed time param from the user to the sim thread.
 
 					PxU32							mNbClients;		// Tracks reserved clients for multiclient support.
 					Ps::Array<PxU32>				mClientBehaviorFlags;// Tracks behavior bits for clients.
-
 
 					struct SceneCompletion : public Cm::Task
 					{
@@ -433,7 +414,6 @@ private:
 					typedef Cm::DelegateTask<NpScene, &NpScene::executeCollide> SceneCollide;
 					typedef Cm::DelegateTask<NpScene, &NpScene::executeAdvance> SceneAdvance;
 					
-
 					PxTaskManager*					mTaskManager;
 					SceneCompletion					mSceneCompletion;
 					SceneCompletion					mCollisionCompletion;
@@ -461,12 +441,10 @@ private:
 					bool							mBuildFrozenActors;
 };
 
-
 PX_FORCE_INLINE	void NpScene::addToConstraintList(PxConstraint& constraint)
 {
 	mConstraints.insert(&constraint);
 }
-
 
 PX_FORCE_INLINE	void NpScene::removeFromConstraintList(PxConstraint& constraint)
 {
@@ -475,14 +453,12 @@ PX_FORCE_INLINE	void NpScene::removeFromConstraintList(PxConstraint& constraint)
 	PX_UNUSED(exists);
 }
 
-
 PX_FORCE_INLINE void NpScene::removeFromArticulationList(PxArticulationBase& articulation)
 {
 	const bool exists = mArticulations.erase(&articulation);
 	PX_ASSERT(exists);
 	PX_UNUSED(exists);
 }
-
 
 PX_FORCE_INLINE void NpScene::removeFromAggregateList(PxAggregate& aggregate)
 {

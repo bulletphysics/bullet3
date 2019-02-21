@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -70,7 +70,6 @@ Sc::BodyCore::BodyCore(PxActorType::Enum type, const PxTransform& bodyPose)
 	mCore.mFlags					= PxRigidBodyFlags();
 	mCore.linearVelocity			= PxVec3(0.0f);
 	mCore.angularVelocity			= PxVec3(0.0f);
-	mCore.linearDamping				= 0.0f;
 	mCore.solverIterationCounts		= (1 << 8) | 4;	
 	mCore.contactReportThreshold	= PX_MAX_F32;	
 	mCore.setBody2Actor(PxTransform(PxIdentity));
@@ -81,6 +80,7 @@ Sc::BodyCore::BodyCore(PxActorType::Enum type, const PxTransform& bodyPose)
 
 	if(type == PxActorType::eRIGID_DYNAMIC)
 	{
+		mCore.linearDamping			= 0.0f;
 		mCore.angularDamping		= 0.05f;
 		mCore.maxAngularVelocitySq	= 100.0f * 100.0f;
 //		mCore.maxAngularVelocitySq	= 7.0f * 7.0f;
@@ -106,20 +106,16 @@ Sc::BodySim* Sc::BodyCore::getSim() const
 	return static_cast<BodySim*>(Sc::ActorCore::getSim());
 }
 
-size_t Sc::BodyCore::getSerialCore(PxsBodyCore& serialCore)
+void Sc::BodyCore::restoreDynamicData()
 {
-	serialCore = mCore;
-	if(mSimStateData && mSimStateData->isKine())
-	{	
-		const Kinematic* kine			= mSimStateData->getKinematicData();
-		serialCore.inverseMass			= kine->backupInvMass;
-		serialCore.inverseInertia		= kine->backupInverseInertia;
-		serialCore.linearDamping		= kine->backupLinearDamping;
-		serialCore.angularDamping		= kine->backupAngularDamping;
-		serialCore.maxAngularVelocitySq	= kine->backupMaxAngVelSq;
-		serialCore.maxLinearVelocitySq	= kine->backupMaxLinVelSq;
-	}
-	return reinterpret_cast<size_t>(&mCore);
+	PX_ASSERT(mSimStateData && mSimStateData->isKine());
+	restore();
+}
+
+void Sc::BodyCore::backupDynamicData()
+{
+	PX_ASSERT(mSimStateData && mSimStateData->isKine());
+	backup(*mSimStateData);
 }
 
 //--------------------------------------------------------------

@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -192,7 +192,7 @@ namespace immediate
 	PX_C_EXPORT PX_PHYSX_CORE_API void PxIntegrateSolverBodies(PxSolverBodyData* solverBodyData, PxSolverBody* solverBody, const PxVec3* linearMotionVelocity, const PxVec3* angularMotionState, const PxU32 nbBodiesToIntegrate, PxReal dt);
 
 	/**
-	abrief Performs contact generation for a given pair of geometries at the specified poses. Produced contacts are stored in the provided Gu::ContactBuffer. Information is cached in PxCache structure
+	\brief Performs contact generation for a given pair of geometries at the specified poses. Produced contacts are stored in the provided Gu::ContactBuffer. Information is cached in PxCache structure
 	to accelerate future contact generation between pairs. This cache data is valid only as long as the memory provided by PxCacheAllocator has not been released/re-used. Recommendation is to 
 	retain that data for a single simulation frame, discarding cached data after 2 frames. If the cached memory has been released/re-used prior to the corresponding pair having contact generation
 	performed again, it is the application's responsibility to reset the PxCache.

@@ -1057,7 +1057,7 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 	int sz = sizeof(SharedMemoryStatus);
 	int sz2 = sizeof(SharedMemoryCommand);
 
-	bool hasStatus = false;
+	bool hasStatus = true;
 
 	serverStatusOut.m_type = CMD_INVALID_STATUS;
 	serverStatusOut.m_numDataStreamBytes = 0;
@@ -1109,15 +1109,6 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 		{
 			hasStatus = processResetSimulationCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
-		}
-
-		default:
-		{
-			BT_PROFILE("CMD_UNKNOWN");
-			printf("Unknown command encountered: %d", clientCmd.m_type);
-			SharedMemoryStatus& serverCmd = serverStatusOut;
-			serverCmd.m_type = CMD_UNKNOWN_COMMAND_FLUSHED;
-			hasStatus = true;
 		}
 
 		case CMD_LOAD_URDF:
@@ -1433,6 +1424,15 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 			break;
 		}
 #endif
+
+		default:
+		{
+			BT_PROFILE("CMD_UNKNOWN");
+			printf("Unknown command encountered: %d", clientCmd.m_type);
+			SharedMemoryStatus& serverCmd = serverStatusOut;
+			serverCmd.m_type = CMD_UNKNOWN_COMMAND_FLUSHED;
+			hasStatus = true;
+		}
 	};
 
 	return hasStatus;

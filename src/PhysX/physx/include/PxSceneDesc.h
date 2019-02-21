@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -632,7 +632,7 @@ public:
 	/**
 	\brief Selects the solver algorithm to use.
 
-	<b>Default:</b> PxSolverType::eDEFAULT
+	<b>Default:</b> PxSolverType::ePGS
 
 	@see PxSolverType
 	*/
@@ -849,6 +849,22 @@ public:
 	PxU32					ccdMaxPasses;
 
 	/**
+	\brief CCD threshold
+
+	CCD performs sweeps against shapes if and only if the relative motion of the shapes is fast-enough that a collision would be missed
+	by the discrete contact generation. However, in some circumstances, e.g. when the environment is constructed from large convex shapes, this 
+	approach may produce undesired simulation artefacts. This parameter defines the minimum relative motion that would be required to force CCD between shapes.
+	The smaller of this value and the sum of the thresholds calculated for the shapes involved will be used.
+
+	\note It is not advisable to set this to a very small value as this may lead to CCD "jamming" and detrimentally effect performance. This value should be at least larger than the translation caused by a single frame's gravitational effect
+
+	<b>Default:</b> PX_MAX_F32
+	<b>Range:</b> [Eps, PX_MAX_F32]<br>
+	*/
+
+	PxReal					ccdThreshold;
+
+	/**
 	\brief The wake counter reset value
 
 	Calling wakeUp() on objects which support sleeping will set their wake counter value to the specified reset value.
@@ -980,6 +996,7 @@ PX_INLINE PxSceneDesc::PxSceneDesc(const PxTolerancesScale& scale):
 	maxBiasCoefficient					(PX_MAX_F32),
 	contactReportStreamBufferSize		(8192),
 	ccdMaxPasses						(1),
+	ccdThreshold						(PX_MAX_F32),
 	wakeCounterResetValue				(20.0f*0.02f),
 	sanityBounds						(PxBounds3(PxVec3(-PX_MAX_BOUNDS_EXTENTS), PxVec3(PX_MAX_BOUNDS_EXTENTS))),
 	gpuMaxNumPartitions					(8),
@@ -1018,6 +1035,9 @@ PX_INLINE bool PxSceneDesc::isValid() const
 	if(ccdMaxSeparation < 0.0f)
 		return false;
 	if (solverOffsetSlop < 0.f)
+		return false;
+
+	if(ccdThreshold <= 0.f)
 		return false;
 
 	if(!cpuDispatcher)

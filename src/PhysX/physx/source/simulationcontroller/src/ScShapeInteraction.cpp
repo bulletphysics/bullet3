@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
            
@@ -326,21 +326,18 @@ void Sc::ShapeInteraction::processUserNotificationSync()
 void Sc::ShapeInteraction::processUserNotificationAsync(PxU32 contactEvent, PxU16 infoFlags, bool touchLost, 
 	const PxU32 ccdPass, const bool useCurrentTransform, PxsContactManagerOutputIterator& outputs, ContactReportAllocationManager* alloc)
 {
-
 	contactEvent = (!ccdPass) ? contactEvent : (contactEvent | PxPairFlag::eNOTIFY_TOUCH_CCD);
 
-	if (mActorPair == NULL)
-	{
+	if(!mActorPair)
 		return;
-	}
 
 	ActorPairReport& aPairReport = getActorPairReport();
 	Scene& scene = getScene();
 	NPhaseCore* npcore = scene.getNPhaseCore();
 	ContactStreamManager& cs = aPairReport.createContactStreamManager(*npcore);
 	// Prepare user notification
-	PxU32 timeStamp = scene.getTimeStamp();
-	PxU32 shapePairTimeStamp = scene.getReportShapePairTimeStamp();
+	const PxU32 timeStamp = scene.getTimeStamp();
+	const PxU32 shapePairTimeStamp = scene.getReportShapePairTimeStamp();
 
 	const PxU32 pairFlags = getPairFlags();
 	PX_ASSERT(pairFlags & contactEvent);

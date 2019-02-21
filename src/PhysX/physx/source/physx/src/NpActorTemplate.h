@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -65,9 +65,11 @@ class NpActorTemplate : public APIClass, public NpActor, public Ps::UserAllocate
 public:
 // PX_SERIALIZATION
 											NpActorTemplate(PxBaseFlags baseFlags) : APIClass(baseFlags), NpActor(PxEmpty) {}
-	virtual	void							exportExtraData(PxSerializationContext& stream) { NpActor::exportExtraData(stream); }
-			void							importExtraData(PxDeserializationContext& context) { NpActor::importExtraData(context);	}
-	virtual void							resolveReferences(PxDeserializationContext& context) { NpActor::resolveReferences(context);		}
+
+	virtual void							exportData(PxSerializationContext& context) const = 0;
+	virtual	void							exportExtraData(PxSerializationContext& context) { NpActor::exportExtraData(context); }
+	virtual	void							importExtraData(PxDeserializationContext& context) { NpActor::importExtraData(context); }
+	virtual void							resolveReferences(PxDeserializationContext& context) { NpActor::resolveReferences(context); }
 //~PX_SERIALIZATION
 
 											NpActorTemplate(PxType concreteType, PxBaseFlags baseFlags, const char* name, void* userData);

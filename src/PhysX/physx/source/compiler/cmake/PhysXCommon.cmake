@@ -23,7 +23,7 @@
 ## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
-## Copyright (c) 2018 NVIDIA Corporation. All rights reserved.
+## Copyright (c) 2018-2019 NVIDIA Corporation. All rights reserved.
 
 #
 # Build PhysXCommon common
@@ -43,7 +43,6 @@ include(${PHYSX_ROOT_DIR}/${PROJECT_CMAKE_FILES_DIR}/${TARGET_BUILD_PLATFORM}/Ph
 
 
 SET(PHYSX_COMMON_SOURCE
-	${COMMON_SRC_DIR}/CmBoxPruning.cpp
 	${COMMON_SRC_DIR}/CmCollection.cpp
 	${COMMON_SRC_DIR}/CmMathUtils.cpp
 	${COMMON_SRC_DIR}/CmPtrTable.cpp
@@ -53,7 +52,6 @@ SET(PHYSX_COMMON_SOURCE
 	${COMMON_SRC_DIR}/CmVisualization.cpp
 	${COMMON_SRC_DIR}/CmBitMap.h
 	${COMMON_SRC_DIR}/CmBlockArray.h
-	${COMMON_SRC_DIR}/CmBoxPruning.h
 	${COMMON_SRC_DIR}/CmCollection.h
 	${COMMON_SRC_DIR}/CmConeLimitHelper.h
 	${COMMON_SRC_DIR}/CmFlushPool.h
@@ -137,7 +135,6 @@ SET(PHYSXCOMMON_COLLISION_HEADERS
 SOURCE_GROUP(include\\collision FILES ${PHYSXCOMMON_COLLISION_HEADERS})
 
 SET(PHYSXCOMMON_GU_HEADERS
-	${GU_SOURCE_DIR}/include/GuAxes.h
 	${GU_SOURCE_DIR}/include/GuBox.h
 	${GU_SOURCE_DIR}/include/GuDistanceSegmentBox.h
 	${GU_SOURCE_DIR}/include/GuDistanceSegmentSegment.h

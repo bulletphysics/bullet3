@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -34,7 +34,7 @@
 
 using namespace physx;
 
-// PT: TODO: SIMDify all this... So far I only took care of the quat-to-matrix transform
+// PT: TODO: SIMDify all this...
 void Dy::copyToSolverBodyData(const PxVec3& linearVelocity, const PxVec3& angularVelocity, const PxReal invMass, const PxVec3& invInertia, const PxTransform& globalPose,
 	const PxReal maxDepenetrationVelocity, const PxReal maxContactImpulse, const PxU32 nodeIndex, const PxReal reportThreshold, PxSolverBodyData& data, PxU32 lockFlags)
 {
@@ -42,6 +42,7 @@ void Dy::copyToSolverBodyData(const PxVec3& linearVelocity, const PxVec3& angula
 
 	const PxVec3 safeSqrtInvInertia = computeSafeSqrtInertia(invInertia);
 
+	// PT: TODO: re-SIMDify this one
 	const PxMat33 rotation(globalPose.q);
 
 	Cm::transformInertiaTensor(safeSqrtInvInertia, rotation, data.sqrtInvInertia);

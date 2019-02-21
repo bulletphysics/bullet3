@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -85,7 +85,6 @@ namespace Dy
 
 		computeArticulatedSpatialZ(mArticulationData, scratchData);
 	}
-
 
 #if (FEATHERSTONE_DEBUG && (PX_DEBUG || PX_CHECKED))
 	static bool isSpatialVectorEqual(Cm::SpatialVectorF& t0, Cm::SpatialVectorF& t1)
@@ -672,14 +671,14 @@ namespace Dy
 	{
 		PX_UNUSED(contextID);
 		PX_UNUSED(desc);
+		PX_UNUSED(allocator);
+		PX_UNUSED(constraintDesc);
 		FeatherstoneArticulation* articulation = static_cast<FeatherstoneArticulation*>(desc.articulation);
 		ArticulationData& data = articulation->mArticulationData;
 		data.setDt(dt);
 
-		return articulation->computeUnconstrainedVelocitiesInternal(desc, allocator, constraintDesc,
-			acCount, gravity, Z, deltaV);
+		return articulation->computeUnconstrainedVelocitiesInternal(acCount, gravity, Z, deltaV);
 	}
-
 
 	void FeatherstoneArticulation::computeUnconstrainedVelocitiesTGS(
 		const ArticulationSolverDesc& desc,
@@ -870,18 +869,13 @@ namespace Dy
 		//}
 	}
 
-
 	PxU32 FeatherstoneArticulation::computeUnconstrainedVelocitiesInternal(
-		const ArticulationSolverDesc& desc,
-		PxConstraintAllocator& allocator,
-		PxSolverConstraintDesc* constraintDesc,
 		PxU32& acCount,
 		const PxVec3& gravity,
 		Cm::SpatialVectorF* Z, Cm::SpatialVectorF* DeltaV)
 	{
 		PX_PROFILE_ZONE("Articulations:computeUnconstrainedVelocities", 0);
 
-		PX_UNUSED(desc);
 		ArticulationLink* links = mArticulationData.getLinks();
 		const PxU32 linkCount = mArticulationData.getLinkCount();
 		const bool fixBase = mArticulationData.getCore()->flags & PxArticulationFlag::eFIX_BASE;
@@ -928,10 +922,8 @@ namespace Dy
 			mArticulationData.mDeltaQ[a] = PxQuat(PxIdentity);
 		}
 
-		return setupSolverConstraints(allocator, constraintDesc, links, linkCount,
-			fixBase, mArticulationData, Z, acCount);
+		return setupSolverConstraints(links, linkCount, fixBase, mArticulationData, Z, acCount);
 	}
-
 
 	void FeatherstoneArticulation::computeUnconstrainedVelocitiesTGSInternal(const PxVec3& gravity,
 		Cm::SpatialVectorF* Z, Cm::SpatialVectorF* DeltaV)
@@ -1329,7 +1321,7 @@ namespace Dy
 
 				const PxTransform& preTrans = link.bodyCore->body2World;
 
-				Cm::SpatialVectorF& posVel = data.getPosIterMotionVelocity(0);
+				const Cm::SpatialVectorF& posVel = data.getPosIterMotionVelocity(0);
 
 				updateRootBody(posVel, preTrans, data, dt);
 			}

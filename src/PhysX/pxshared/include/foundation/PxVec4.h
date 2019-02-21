@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -34,7 +34,7 @@
 */
 #include "foundation/PxMath.h"
 #include "foundation/PxVec3.h"
-#include "foundation/PxAssert.h"
+#include "foundation/PxSharedAssert.h"
 
 /**
 \brief 4 Element vector class.
@@ -132,7 +132,7 @@ class PxVec4
 	*/
 	PX_CUDA_CALLABLE PX_INLINE float& operator[](unsigned int index)
 	{
-		PX_ASSERT(index <= 3);
+		PX_SHARED_ASSERT(index <= 3);
 
 		return reinterpret_cast<float*>(this)[index];
 	}
@@ -142,7 +142,7 @@ class PxVec4
 	*/
 	PX_CUDA_CALLABLE PX_INLINE const float& operator[](unsigned int index) const
 	{
-		PX_ASSERT(index <= 3);
+		PX_SHARED_ASSERT(index <= 3);
 
 		return reinterpret_cast<const float*>(this)[index];
 	}

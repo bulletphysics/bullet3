@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -193,7 +193,8 @@ namespace
 namespace physx
 {
 
-	PxsCCDContext::PxsCCDContext(PxsContext* context, Dy::ThresholdStream& thresholdStream, PxvNphaseImplementationContext& nPhaseContext) :
+	PxsCCDContext::PxsCCDContext(PxsContext* context, Dy::ThresholdStream& thresholdStream, PxvNphaseImplementationContext& nPhaseContext,
+		PxReal ccdThreshold) :
 		mPostCCDSweepTask			(context->getContextId(), this, "PxsContext.postCCDSweep"),
 		mPostCCDAdvanceTask			(context->getContextId(), this, "PxsContext.postCCDAdvance"),
 		mPostCCDDepenetrateTask		(context->getContextId(), this, "PxsContext.postCCDDepenetrate"),
@@ -205,7 +206,8 @@ namespace physx
 		mCCDMaxPasses				(1),
 		mContext					(context),
 		mThresholdStream			(thresholdStream),
-		mNphaseContext(nPhaseContext)
+		mNphaseContext				(nPhaseContext),
+		mCCDThreshold				(ccdThreshold)
 {
 }
 
@@ -213,14 +215,15 @@ PxsCCDContext::~PxsCCDContext()
 {
 }
 
-PxsCCDContext* PxsCCDContext::create(PxsContext* context, Dy::ThresholdStream& thresholdStream, PxvNphaseImplementationContext& nPhaseContext)
+PxsCCDContext* PxsCCDContext::create(PxsContext* context, Dy::ThresholdStream& thresholdStream, PxvNphaseImplementationContext& nPhaseContext,
+	PxReal ccdThreshold)
 {
 	PxsCCDContext* dc = reinterpret_cast<PxsCCDContext*>(
 		PX_ALLOC(sizeof(PxsCCDContext), "PxsCCDContext"));
 
 	if(dc)
 	{
-		new(dc) PxsCCDContext(context, thresholdStream, nPhaseContext);
+		new(dc) PxsCCDContext(context, thresholdStream, nPhaseContext, ccdThreshold);
 	}
 	return dc;
 }
@@ -246,7 +249,8 @@ PxTransform PxsCCDShape::getLastCCDAbsPose(const PxsRigidBody* atom)						const
 	return atom->getLastCCDTransform() * atom->getCore().getBody2Actor().getInverse() * mShapeCore->transform;
 }
 
-PxReal PxsCCDPair::sweepFindToi(PxcNpThreadContext& context, PxReal dt, PxU32 pass)
+PxReal PxsCCDPair::sweepFindToi(PxcNpThreadContext& context, PxReal dt, PxU32 pass,
+	PxReal ccdThreshold)
 {
 	printSeparator("findToi", pass, mBa0, mG0, NULL, PxGeometryType::eGEOMETRY_COUNT);
 	//Update shape transforms if necessary
@@ -298,7 +302,7 @@ PxReal PxsCCDPair::sweepFindToi(PxcNpThreadContext& context, PxReal dt, PxU32 pa
 	const PxReal fastMovingThresh0 = ccdShape0->mFastMovingThreshold;
 	const PxReal fastMovingThresh1 = ccdShape1->mFastMovingThreshold;
 
-	const PxReal sumFastMovingThresh = (fastMovingThresh0 + fastMovingThresh1);
+	const PxReal sumFastMovingThresh = PxMin(fastMovingThresh0 + fastMovingThresh1, ccdThreshold);
 
 
 	PxReal toi = Gu::SweepShapeShape(*ccdShape0, *ccdShape1, tm0, tm1, lastTm0, lastTm1, restDistance,
@@ -447,7 +451,7 @@ void PxsCCDPair::updateShapes()
 	}
 }
 
-PxReal PxsCCDPair::sweepEstimateToi()
+PxReal PxsCCDPair::sweepEstimateToi(PxReal ccdThreshold)
 {
 	//Update shape transforms if necessary
 	updateShapes();
@@ -491,7 +495,7 @@ PxReal PxsCCDPair::sweepEstimateToi()
 	//Work out the sum of the fast moving thresholds scaled by the step ratio
 	const PxReal fastMovingThresh0 = ccdShape0->mFastMovingThreshold;
 	const PxReal fastMovingThresh1 = ccdShape1->mFastMovingThreshold;
-	const PxReal sumFastMovingThresh = (fastMovingThresh0 + fastMovingThresh1);
+	const PxReal sumFastMovingThresh = PxMin(fastMovingThresh0 + fastMovingThresh1, ccdThreshold);
 
 	mToiType = eEstimate;
 
@@ -845,9 +849,11 @@ class PxsCCDSweepTask : public Cm::Task
 {
 	PxsCCDPair** 					mPairs;
 	PxU32							mNumPairs;
+	PxReal							mCCDThreshold;
 public:
-	PxsCCDSweepTask(PxU64 contextID, PxsCCDPair** pairs, PxU32 nPairs)
-		:	Cm::Task(contextID), mPairs(pairs), mNumPairs(nPairs)
+	PxsCCDSweepTask(PxU64 contextID, PxsCCDPair** pairs, PxU32 nPairs,
+		PxReal ccdThreshold)
+		:	Cm::Task(contextID), mPairs(pairs), mNumPairs(nPairs), mCCDThreshold(ccdThreshold)
 	{
 	}
 
@@ -856,7 +862,7 @@ public:
 		for (PxU32 j = 0; j < mNumPairs; j++)
 		{
 			PxsCCDPair& pair = *mPairs[j];
-			pair.sweepEstimateToi();
+			pair.sweepEstimateToi(mCCDThreshold);
 			pair.mEstimatePass = 0;
 		}
 	}
@@ -920,6 +926,8 @@ public:
 
 		PxcNpThreadContext* threadContext = mContext->getNpThreadContext();
 
+		PxReal ccdThreshold = mCCDContext->getCCDThreshold();
+
 		// --------------------------------------------------------------------------------------
 		// loop over island labels assigned to this thread
 		PxU32 islandStart = mFirstIslandPair;
@@ -973,7 +981,7 @@ public:
 					//If the pair was an estimate, we must perform an accurate sweep now
 					if(pair.mToiType == PxsCCDPair::eEstimate)
 					{
-						pair.sweepFindToi(*threadContext, dt, mCCDPass);
+						pair.sweepFindToi(*threadContext, dt, mCCDPass, ccdThreshold);
 
 						//Test to see if the pair is still the earliest pair.
 						if((iFront + 1) < islandEnd && mCCDPairs[iFront+1]->mMinToi < pair.mMinToi)
@@ -1136,7 +1144,7 @@ public:
 									// resweep pair1 since either b0 or b1 trajectory has changed
 									PxReal oldToi = pair1.mMinToi;
 									verifyCCDPair(pair1);
-									PxReal toi1 = pair1.sweepEstimateToi();
+									PxReal toi1 = pair1.sweepEstimateToi(ccdThreshold);
 									PX_ASSERT(pair1.mBa0); // this is because mMinToiNormal is the impact point here
 									if (toi1 < oldToi)
 									{
@@ -1544,7 +1552,7 @@ void PxsCCDContext::updateCCD(PxReal dt, PxBaseTask* continuation, IG::IslandSim
 
 					//Calculate the sum of the thresholds and work out if we need to perform a sweep.
 					
-					const PxReal thresh = threshold0 + threshold1;
+					const PxReal thresh = PxMin(threshold0 + threshold1, mCCDThreshold);
 					//If no shape pairs in the entire scene are fast-moving, we can bypass the entire of the CCD.
 					needsSweep = needsSweep || (trA - trB).magnitudeSquared() >= (thresh * thresh);
 				}
@@ -1723,7 +1731,8 @@ void PxsCCDContext::updateCCD(PxReal dt, PxBaseTask* continuation, IG::IslandSim
 		PX_ASSERT_WITH_MESSAGE(ptr, "Failed to allocate PxsCCDSweepTask");
 		const PxU32 batchEnd = PxMin(nPairs, batchBegin + mCCDPairsPerBatch);
 		PX_ASSERT(batchEnd >= batchBegin);
-		PxsCCDSweepTask* task = PX_PLACEMENT_NEW(ptr, PxsCCDSweepTask)(mContext->getContextId(), mCCDPtrPairs.begin() + batchBegin, batchEnd - batchBegin);
+		PxsCCDSweepTask* task = PX_PLACEMENT_NEW(ptr, PxsCCDSweepTask)(mContext->getContextId(), mCCDPtrPairs.begin() + batchBegin, batchEnd - batchBegin,
+			mCCDThreshold);
 		task->setContinuation(*mContext->mTaskManager, &mPostCCDSweepTask);
 		task->removeReference();
 	}

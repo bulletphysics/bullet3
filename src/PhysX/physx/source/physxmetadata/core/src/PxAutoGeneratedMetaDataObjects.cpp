@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -1046,6 +1046,8 @@ inline PxU32 getPxSceneDescContactReportStreamBufferSize( const PxSceneDesc* inO
 inline void setPxSceneDescContactReportStreamBufferSize( PxSceneDesc* inOwner, PxU32 inData) { inOwner->contactReportStreamBufferSize = inData; }
 inline PxU32 getPxSceneDescCcdMaxPasses( const PxSceneDesc* inOwner ) { return inOwner->ccdMaxPasses; }
 inline void setPxSceneDescCcdMaxPasses( PxSceneDesc* inOwner, PxU32 inData) { inOwner->ccdMaxPasses = inData; }
+inline PxReal getPxSceneDescCcdThreshold( const PxSceneDesc* inOwner ) { return inOwner->ccdThreshold; }
+inline void setPxSceneDescCcdThreshold( PxSceneDesc* inOwner, PxReal inData) { inOwner->ccdThreshold = inData; }
 inline PxReal getPxSceneDescWakeCounterResetValue( const PxSceneDesc* inOwner ) { return inOwner->wakeCounterResetValue; }
 inline void setPxSceneDescWakeCounterResetValue( PxSceneDesc* inOwner, PxReal inData) { inOwner->wakeCounterResetValue = inData; }
 inline PxBounds3 getPxSceneDescSanityBounds( const PxSceneDesc* inOwner ) { return inOwner->sanityBounds; }
@@ -1091,6 +1093,7 @@ PX_PHYSX_CORE_API PxSceneDescGeneratedInfo::PxSceneDescGeneratedInfo()
 	, MaxBiasCoefficient( "MaxBiasCoefficient", setPxSceneDescMaxBiasCoefficient, getPxSceneDescMaxBiasCoefficient )
 	, ContactReportStreamBufferSize( "ContactReportStreamBufferSize", setPxSceneDescContactReportStreamBufferSize, getPxSceneDescContactReportStreamBufferSize )
 	, CcdMaxPasses( "CcdMaxPasses", setPxSceneDescCcdMaxPasses, getPxSceneDescCcdMaxPasses )
+	, CcdThreshold( "CcdThreshold", setPxSceneDescCcdThreshold, getPxSceneDescCcdThreshold )
 	, WakeCounterResetValue( "WakeCounterResetValue", setPxSceneDescWakeCounterResetValue, getPxSceneDescWakeCounterResetValue )
 	, SanityBounds( "SanityBounds", setPxSceneDescSanityBounds, getPxSceneDescSanityBounds )
 	, GpuDynamicsConfig( "GpuDynamicsConfig", setPxSceneDescGpuDynamicsConfig, getPxSceneDescGpuDynamicsConfig )
@@ -1131,6 +1134,7 @@ PX_PHYSX_CORE_API PxSceneDescGeneratedValues::PxSceneDescGeneratedValues( const 
 		,MaxBiasCoefficient( inSource->maxBiasCoefficient )
 		,ContactReportStreamBufferSize( inSource->contactReportStreamBufferSize )
 		,CcdMaxPasses( inSource->ccdMaxPasses )
+		,CcdThreshold( inSource->ccdThreshold )
 		,WakeCounterResetValue( inSource->wakeCounterResetValue )
 		,SanityBounds( inSource->sanityBounds )
 		,GpuDynamicsConfig( inSource->gpuDynamicsConfig )

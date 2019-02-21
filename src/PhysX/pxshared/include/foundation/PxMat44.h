@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -301,7 +301,7 @@ class PxMat44
 
 	PX_CUDA_CALLABLE PX_INLINE const PxVec3 getBasis(int num) const
 	{
-		PX_ASSERT(num >= 0 && num < 3);
+		PX_SHARED_ASSERT(num >= 0 && num < 3);
 		return (&column0)[num].getXYZ();
 	}
 

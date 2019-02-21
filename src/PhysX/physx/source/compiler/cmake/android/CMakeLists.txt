@@ -23,7 +23,7 @@
 ## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
-## Copyright (c) 2018 NVIDIA Corporation. All rights reserved.
+## Copyright (c) 2018-2019 NVIDIA Corporation. All rights reserved.
 
 # We define the CXX flags for this CMakeLists and all others that are included afterwards. This is a GLOBAL setting. 
 # If/when the solutions go standalone (say, samples and visual tests) - those CMakeLists will need to be fixed.
@@ -92,3 +92,19 @@ INCLUDE(SceneQuery.cmake)
 INCLUDE(SimulationController.cmake)
 INCLUDE(FastXml.cmake)
 
+# Set folder PhysX SDK to all common SDK source projects
+SET_PROPERTY(TARGET PhysX PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET PhysXCharacterKinematic PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET PhysXCommon PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET PhysXCooking PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET PhysXExtensions PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET PhysXVehicle PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET LowLevel PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET LowLevelAABB PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET LowLevelDynamics PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET SceneQuery PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET SimulationController PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET FastXml PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET PhysXPvdSDK PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET PhysXTask PROPERTY FOLDER "PhysX SDK")
+SET_PROPERTY(TARGET PhysXFoundation PROPERTY FOLDER "PhysX SDK")

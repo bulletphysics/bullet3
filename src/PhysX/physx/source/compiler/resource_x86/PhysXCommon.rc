@@ -74,7 +74,7 @@ BEGIN
             VALUE "FileDescription", "PhysXCommon 32bit Dynamic Link Library"
             VALUE "FileVersion", "4.0.0.0"
             VALUE "InternalName", "PhysXCommon_32"
-            VALUE "LegalCopyright", "Copyright (C) 2018 NVIDIA Corporation"
+            VALUE "LegalCopyright", "Copyright (C) 2019 NVIDIA Corporation"
             VALUE "OriginalFilename", "PhysXCommon_32.dll"
             VALUE "ProductName", "PhysX"
             VALUE "ProductVersion", "4.0.0.0"

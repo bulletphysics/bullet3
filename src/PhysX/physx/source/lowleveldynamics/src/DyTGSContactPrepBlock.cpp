@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -451,7 +451,7 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 
 	PxU32 maxPatches = PxMax(descs[0].numFrictionPatches, PxMax(descs[1].numFrictionPatches, PxMax(descs[2].numFrictionPatches, descs[3].numFrictionPatches)));
 
-	const Vec4V p1 = V4Splat(FLoad(0.1f));
+	const Vec4V p1 = V4Splat(FLoad(0.0001f));
 	const Vec4V orthoThreshold = V4Splat(FLoad(0.70710678f));
 
 
@@ -524,6 +524,8 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 		header->angDom1 = angDom1;
 		header->shapeInteraction[0] = descs[0].shapeInteraction; header->shapeInteraction[1] = descs[1].shapeInteraction;
 		header->shapeInteraction[2] = descs[2].shapeInteraction; header->shapeInteraction[3] = descs[3].shapeInteraction;
+
+		
 
 		Vec4V* maxImpulse = reinterpret_cast<Vec4V*>(ptr + constraintSize * totalContacts);
 
@@ -816,15 +818,6 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 
 		Vec4V maxImpulseScale = V4One();
 		{
-			const Vec4V staticFriction = V4LoadXYZW(contactBase0->staticFriction, contactBase1->staticFriction,
-				contactBase2->staticFriction, contactBase3->staticFriction);
-
-			const Vec4V dynamicFriction = V4LoadXYZW(contactBase0->dynamicFriction, contactBase1->dynamicFriction,
-				contactBase2->dynamicFriction, contactBase3->dynamicFriction);
-
-			PX_ASSERT(totalContacts == contactCount);
-			header->dynamicFriction = dynamicFriction;
-			header->staticFriction = staticFriction;
 
 			const FrictionPatch& frictionPatch0 = c.frictionPatches[frictionIndex0];
 			const FrictionPatch& frictionPatch1 = c.frictionPatches[frictionIndex1];
@@ -843,11 +836,28 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 
 			const PxU32 maxAnchorCount = PxMax(clampedAnchorCount0, PxMax(clampedAnchorCount1, PxMax(clampedAnchorCount2, clampedAnchorCount3)));
 
-			//if(clampedAnchorCount0 != clampedAnchorCount1 || clampedAnchorCount0 != clampedAnchorCount2 || clampedAnchorCount0 != clampedAnchorCount3)
-			//	Ps::debugBreak();
+			PX_ALIGN(16, PxReal staticFriction[4]);
+			PX_ALIGN(16, PxReal dynamicFriction[4]);
 
+			//for (PxU32 f = 0; f < 4; ++f)
+			{
+				PxReal coeff0 = (contactBase0->materialFlags & PxMaterialFlag::eIMPROVED_PATCH_FRICTION && clampedAnchorCount0 == 2) ? 0.5f : 1.f;
+				PxReal coeff1 = (contactBase1->materialFlags & PxMaterialFlag::eIMPROVED_PATCH_FRICTION && clampedAnchorCount1 == 2) ? 0.5f : 1.f;
+				PxReal coeff2 = (contactBase2->materialFlags & PxMaterialFlag::eIMPROVED_PATCH_FRICTION && clampedAnchorCount2 == 2) ? 0.5f : 1.f;
+				PxReal coeff3 = (contactBase3->materialFlags & PxMaterialFlag::eIMPROVED_PATCH_FRICTION && clampedAnchorCount3 == 2) ? 0.5f : 1.f;
 
-			//const bool haveFriction = maxAnchorCount != 0;
+				staticFriction[0] = contactBase0->staticFriction * coeff0;
+				dynamicFriction[0] = contactBase0->dynamicFriction * coeff0;
+				staticFriction[1] = contactBase1->staticFriction * coeff1;
+				dynamicFriction[1] = contactBase1->dynamicFriction * coeff1;
+				staticFriction[2] = contactBase2->staticFriction * coeff2;
+				dynamicFriction[2] = contactBase2->dynamicFriction * coeff2;
+				staticFriction[3] = contactBase3->staticFriction * coeff3;
+				dynamicFriction[3] = contactBase3->dynamicFriction * coeff3;
+			}
+
+			PX_ASSERT(totalContacts == contactCount);
+			
 			header->numFrictionConstr = Ps::to8(maxAnchorCount * 2);
 			header->numFrictionConstrs[0] = Ps::to8(clampedAnchorCount0 * 2);
 			header->numFrictionConstrs[1] = Ps::to8(clampedAnchorCount1 * 2);
@@ -1225,6 +1235,9 @@ static void setupFinalizeSolverConstraints4Step(PxTGSSolverContactDesc* PX_RESTR
 						f1->biasCoefficient = V4Splat(invDt);
 					}
 				}
+
+				header->dynamicFriction = V4LoadA(dynamicFriction);
+				header->staticFriction = V4LoadA(staticFriction);
 
 				frictionPatchWritebackAddrIndex0++;
 				frictionPatchWritebackAddrIndex1++;

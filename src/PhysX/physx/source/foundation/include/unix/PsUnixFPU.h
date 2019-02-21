@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -42,7 +42,6 @@
 #elif PX_NEON
 #include <arm_neon.h>
 #endif
-
 
 PX_INLINE physx::shdfnd::SIMDGuard::SIMDGuard()
 {
@@ -63,7 +62,7 @@ PX_INLINE physx::shdfnd::SIMDGuard::~SIMDGuard()
 }
 
 #else
-#error No SIMD implementation for this unix platform.
+	#error No SIMD implementation for this unix platform.
 #endif // PX_LINUX || PX_PS4 || PX_OSX
 
 #endif // #ifndef PSFOUNDATION_PSUNIXFPU_H

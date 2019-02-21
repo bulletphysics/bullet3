@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -38,7 +38,6 @@ namespace physx
 {
 	namespace Dy
 	{
-
 		struct ArticulationLimit
 		{
 			PxReal low, high;
@@ -101,7 +100,6 @@ namespace physx
 				relativeQuat = other.relativeQuat;
 				jointType = other.jointType;
 				jointOffset = other.jointOffset; //this is the dof offset for the joint in the cache
-
 			}
 
 			// attachment points, don't change the order, otherwise it will break GPU code
@@ -130,13 +128,10 @@ namespace physx
 			PxU8								jointType;				//1			291
 			PxU8								pad[13];				//13		304
 
-
-
 			ArticulationJointCoreBase() { maxJointVelocity = 100.f; }
 			// PX_SERIALIZATION
 			ArticulationJointCoreBase(const PxEMPTY&) {}
 			//~PX_SERIALIZATION
-
 		};
 	}
 }

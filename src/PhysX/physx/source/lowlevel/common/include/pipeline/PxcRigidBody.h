@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -38,9 +38,6 @@
 
 namespace physx
 {
-
-class PxsContactManager;
-struct PxsCCDPair;
 struct PxsCCDBody;
 
 #define PX_INTERNAL_LOCK_FLAG_START 8
@@ -52,63 +49,56 @@ public:
 
 	enum PxcRigidBodyFlag
 	{
-		eFROZEN =						1 << 0,			//This flag indicates that the stabilization is enabled and the body is
-														//"frozen". By "frozen", we mean that the body's transform is unchanged
-														//from the previous frame. This permits various optimizations.
-		eFREEZE_THIS_FRAME =			1 << 1,
-		eUNFREEZE_THIS_FRAME =			1 << 2,
-		eACTIVATE_THIS_FRAME =			1 << 3,
-		eDEACTIVATE_THIS_FRAME =		1 << 4,
-		eDISABLE_GRAVITY =				1 << 5,
-		eSPECULATIVE_CCD =				1 << 6,
+		eFROZEN					=	1 << 0,		//This flag indicates that the stabilization is enabled and the body is
+												//"frozen". By "frozen", we mean that the body's transform is unchanged
+												//from the previous frame. This permits various optimizations.
+		eFREEZE_THIS_FRAME		=	1 << 1,
+		eUNFREEZE_THIS_FRAME	=	1 << 2,
+		eACTIVATE_THIS_FRAME	=	1 << 3,
+		eDEACTIVATE_THIS_FRAME	=	1 << 4,
+		eDISABLE_GRAVITY		=	1 << 5,
+		eSPECULATIVE_CCD		=	1 << 6,
 		//KS - copied here for GPU simulation to avoid needing to pass another set of flags around.
-		eLOCK_LINEAR_X =				1 << (PX_INTERNAL_LOCK_FLAG_START),
-		eLOCK_LINEAR_Y =				1 << (PX_INTERNAL_LOCK_FLAG_START + 1),
-		eLOCK_LINEAR_Z =				1 << (PX_INTERNAL_LOCK_FLAG_START + 2),
-		eLOCK_ANGULAR_X =				1 << (PX_INTERNAL_LOCK_FLAG_START + 3),
-		eLOCK_ANGULAR_Y =				1 << (PX_INTERNAL_LOCK_FLAG_START + 4),
-		eLOCK_ANGULAR_Z =				1 << (PX_INTERNAL_LOCK_FLAG_START + 5)
-		
-
+		eLOCK_LINEAR_X			=	1 << (PX_INTERNAL_LOCK_FLAG_START),
+		eLOCK_LINEAR_Y			=	1 << (PX_INTERNAL_LOCK_FLAG_START + 1),
+		eLOCK_LINEAR_Z			=	1 << (PX_INTERNAL_LOCK_FLAG_START + 2),
+		eLOCK_ANGULAR_X			=	1 << (PX_INTERNAL_LOCK_FLAG_START + 3),
+		eLOCK_ANGULAR_Y			=	1 << (PX_INTERNAL_LOCK_FLAG_START + 4),
+		eLOCK_ANGULAR_Z			=	1 << (PX_INTERNAL_LOCK_FLAG_START + 5)
 	};
 
-	PX_FORCE_INLINE PxcRigidBody(PxsBodyCore* core)  
-	: mLastTransform(core->body2World),
-	  mCCD(NULL),
-	  mCore(core)
-	{
-	}
+	PX_FORCE_INLINE PxcRigidBody(PxsBodyCore* core) :
+		mLastTransform	(core->body2World),
+		mCCD			(NULL),
+		mCore			(core)
+						{}
 
-	void						adjustCCDLastTransform();
+	void			adjustCCDLastTransform();
 
 protected:
 	
-	~PxcRigidBody()
-	{
-	}
+	~PxcRigidBody()		{}
 
 public:
 	
-	PxTransform					mLastTransform;				//28 (28)
+	PxTransform		mLastTransform;			//28 (28)
 
-	PxU16						mInternalFlags;				//30 (30)
-	PxU16						solverIterationCounts;		//32 (32)
+	PxU16			mInternalFlags;			//30 (30)
+	PxU16			solverIterationCounts;	//32 (32)
 
-	PxsCCDBody*					mCCD;						//36 (40)	// only valid during CCD	
+	PxsCCDBody*		mCCD;					//36 (40)	// only valid during CCD	
 
-	PxsBodyCore*				mCore;						//40 (48)
+	PxsBodyCore*	mCore;					//40 (48)
 	
 #if !PX_P64_FAMILY
-	PxU32						alignmentPad[2];			//48 (48)
+	PxU32			alignmentPad[2];		//48 (48)
 #endif
 
-	PxVec3						sleepLinVelAcc;				//60 (60)
-	PxReal						freezeCount;				//64 (64)
+	PxVec3			sleepLinVelAcc;			//60 (60)
+	PxReal			freezeCount;			//64 (64)
 	   
-	PxVec3						sleepAngVelAcc;				//76 (76)
-	PxReal						accelScale;					//80 (80)
-	
-
+	PxVec3			sleepAngVelAcc;			//76 (76)
+	PxReal			accelScale;				//80 (80)
 }
 PX_ALIGN_SUFFIX(16);
 PX_COMPILE_TIME_ASSERT(0 == (sizeof(PxcRigidBody) & 0x0f));

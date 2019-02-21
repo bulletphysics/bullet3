@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -67,71 +67,66 @@ class NpArticulation : public NpArticulationTemplate<PxArticulation>
 //==================================================================================================
 
 public:
-	virtual										~NpArticulation();
+	virtual								~NpArticulation();
 
 // PX_SERIALIZATION
-												NpArticulation(PxBaseFlags baseFlags) : NpArticulationTemplate(baseFlags)
-												 {}
+										NpArticulation(PxBaseFlags baseFlags) : NpArticulationTemplate(baseFlags){}
 	
-	virtual			void						exportExtraData(PxSerializationContext& stream);
-					void						importExtraData(PxDeserializationContext& context);
-					void						resolveReferences(PxDeserializationContext& context);
-	virtual	        void						requiresObjects(PxProcessPxBaseCallback& c);
-	static			NpArticulation*				createObject(PxU8*& address, PxDeserializationContext& context);
-	static			void						getBinaryMetaData(PxOutputStream& stream);
+	virtual	void						exportExtraData(PxSerializationContext& stream);
+			void						importExtraData(PxDeserializationContext& context);
+			void						resolveReferences(PxDeserializationContext& context);
+	virtual	void						requiresObjects(PxProcessPxBaseCallback& c);
+	static	NpArticulation*				createObject(PxU8*& address, PxDeserializationContext& context);
+	static	void						getBinaryMetaData(PxOutputStream& stream);
 //~PX_SERIALIZATION
 
 	//---------------------------------------------------------------------------------
 	// PxArticulation implementation
 	//---------------------------------------------------------------------------------
 
-	virtual			PxU32						getInternalDriveIterations() const;
-	virtual			void						setInternalDriveIterations(PxU32 iterations);
+	virtual	PxU32						getInternalDriveIterations() const;
+	virtual	void						setInternalDriveIterations(PxU32 iterations);
 
-	virtual			PxU32						getExternalDriveIterations() const;
-	virtual			void						setExternalDriveIterations(PxU32 iterations);
+	virtual	PxU32						getExternalDriveIterations() const;
+	virtual	void						setExternalDriveIterations(PxU32 iterations);
 
-	virtual			PxU32						getMaxProjectionIterations() const;
-	virtual			void						setMaxProjectionIterations(PxU32 iterations);
+	virtual	PxU32						getMaxProjectionIterations() const;
+	virtual	void						setMaxProjectionIterations(PxU32 iterations);
 
-	virtual			PxReal						getSeparationTolerance() const;
-	virtual			void						setSeparationTolerance(PxReal tolerance);
+	virtual	PxReal						getSeparationTolerance() const;
+	virtual	void						setSeparationTolerance(PxReal tolerance);
 
 
-	virtual		PxArticulationDriveCache* 
-								createDriveCache(PxReal compliance, PxU32 driveIterations) const;
+	virtual	PxArticulationDriveCache*	createDriveCache(PxReal compliance, PxU32 driveIterations) const;
 
-	virtual		void			updateDriveCache(PxArticulationDriveCache& cache, PxReal compliance, PxU32 driveIterations) const;
+	virtual	void						updateDriveCache(PxArticulationDriveCache& cache, PxReal compliance, PxU32 driveIterations) const;
 
-	virtual		void			releaseDriveCache(PxArticulationDriveCache&) const;
+	virtual	void						releaseDriveCache(PxArticulationDriveCache&) const;
 
-	virtual		void			applyImpulse(PxArticulationLink*,
-											 const PxArticulationDriveCache& driveCache,
-											 const PxVec3& force,
-											 const PxVec3& torque);
+	virtual	void						applyImpulse(	PxArticulationLink*,
+														const PxArticulationDriveCache& driveCache,
+														const PxVec3& force,
+														const PxVec3& torque);
 
-	virtual		void			computeImpulseResponse(PxArticulationLink*,
-													   PxVec3& linearResponse, 
-													   PxVec3& angularResponse,
-													   const PxArticulationDriveCache& driveCache,
-													   const PxVec3& force,
-													   const PxVec3& torque) const;
+	virtual	void						computeImpulseResponse(	PxArticulationLink*,
+																PxVec3& linearResponse, 
+																PxVec3& angularResponse,
+																const PxArticulationDriveCache& driveCache,
+																const PxVec3& force,
+																const PxVec3& torque) const;
 
-	virtual		const char*		getConcreteTypeName() const { return "PxArticulation"; }
+	virtual	const char*					getConcreteTypeName()	const	{ return "PxArticulation"; }
 
 	//---------------------------------------------------------------------------------
 	// Miscellaneous
 	//---------------------------------------------------------------------------------
-												NpArticulation();
+										NpArticulation();
 
+	virtual	bool						isKindOf(const char* name)	const { return !::strcmp("PxArticulation", name) || PxBase::isKindOf(name); }
 
-	virtual		bool			isKindOf(const char* name) const { return !::strcmp("PxArticulation", name) || PxBase::isKindOf(name); }
-
-	virtual PxArticulationJointBase* createArticulationJoint(PxArticulationLink& parent,
-		const PxTransform& parentFrame,
-		PxArticulationLink& child,
-		const PxTransform& childFrame);
-	virtual void					 releaseArticulationJoint(PxArticulationJointBase* joint);
+private:
+	virtual PxArticulationJointBase*	createArticulationJoint(PxArticulationLink& parent, const PxTransform& parentFrame, PxArticulationLink& child, const PxTransform& childFrame);
+	virtual	void						releaseArticulationJoint(PxArticulationJointBase* joint);
 };
 
 #if PX_VC

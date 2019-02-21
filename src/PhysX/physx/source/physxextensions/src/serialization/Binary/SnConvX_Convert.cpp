@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 
 #include "foundation/PxErrorCallback.h"
 #include "SnConvX.h"
@@ -581,11 +581,11 @@ bool Sn::ConvX::convertClass(const char* buffer, const MetaClass* mc, int offset
 				if(strcmp(srcEntry.entry.mName, "mNbHullVertices")==0)
 				{
 					assert(srcEntry.entry.mSize==1);
-					const int nbVerts = int(*(buffer+modSrcOffsetCheck));
+					const PxU8 nbVerts = static_cast<PxU8>(*(buffer+modSrcOffsetCheck));
 					assert(!foundNbVerts);
 					foundNbVerts = true;
 
-					const int gaussMapLimit = getBinaryMetaData(META_DATA_DST)->getGaussMapLimit();
+					const PxU8 gaussMapLimit = static_cast<PxU8>(getBinaryMetaData(META_DATA_DST)->getGaussMapLimit());
 					if(nbVerts > gaussMapLimit)
 					{
 						// We need a gauss map and we have one => keep it

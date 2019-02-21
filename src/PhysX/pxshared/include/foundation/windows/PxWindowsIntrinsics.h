@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -31,7 +31,7 @@
 #define PXFOUNDATION_PXWINDOWSINTRINSICS_H
 
 #include "foundation/Px.h"
-#include "foundation/PxAssert.h"
+#include "foundation/PxSharedAssert.h"
 
 #if !PX_WINDOWS_FAMILY
 #error "This file should only be included by Windows builds!!"
@@ -176,7 +176,7 @@ Set 128B to zero starting at \c dst+offset. Must be aligned.
 */
 PX_FORCE_INLINE void memZero128(void* dest, uint32_t offset = 0)
 {
-	PX_ASSERT(((size_t(dest) + offset) & 0x7f) == 0);
+	PX_SHARED_ASSERT(((size_t(dest) + offset) & 0x7f) == 0);
 	memSet(reinterpret_cast<char*>(dest) + offset, 0, 128);
 }
 

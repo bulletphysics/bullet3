@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -41,7 +41,6 @@ namespace physx
 {
 #endif
 
-	
 	class PxArticulationImpl;
 
 	/**
@@ -241,15 +240,12 @@ namespace physx
 
 		@see PxArticulationLink
 		*/
-
-		virtual			PxArticulationLink*			createLink(PxArticulationLink* parent, const PxTransform& pose) = 0;
-
+		virtual		PxArticulationLink*	createLink(PxArticulationLink* parent, const PxTransform& pose) = 0;
 
 		/**
 		\brief returns the number of links in the articulation
 		*/
-
-		virtual		PxU32			getNbLinks() const = 0;
+		virtual		PxU32				getNbLinks() const = 0;
 
 		/**
 		\brief returns the set of links in the articulation
@@ -263,9 +259,7 @@ namespace physx
 
 		@see ArticulationLink
 		*/
-
-		virtual		PxU32							getLinks(PxArticulationLink** userBuffer, PxU32 bufferSize, PxU32 startIndex = 0) const = 0;
-
+		virtual		PxU32				getLinks(PxArticulationLink** userBuffer, PxU32 bufferSize, PxU32 startIndex = 0)	const = 0;
 
 		/**
 		\brief Sets a name string for the object that can be retrieved with getName().
@@ -277,7 +271,7 @@ namespace physx
 
 		@see getName()
 		*/
-		virtual		void			setName(const char* name) = 0;
+		virtual		void				setName(const char* name) = 0;
 
 		/**
 		\brief Retrieves the name string set with setName().
@@ -286,7 +280,7 @@ namespace physx
 
 		@see setName()
 		*/
-		virtual		const char*		getName()			const = 0;
+		virtual		const char*			getName()			const = 0;
 
 		/**
 		\brief Retrieves the axis aligned bounding box enclosing the articulation.
@@ -297,7 +291,7 @@ namespace physx
 
 		@see PxBounds3
 		*/
-		virtual		PxBounds3		getWorldBounds(float inflation = 1.01f) const = 0;
+		virtual		PxBounds3			getWorldBounds(float inflation = 1.01f) const = 0;
 
 		/**
 		\brief Retrieves the aggregate the articulation might be a part of.
@@ -306,12 +300,10 @@ namespace physx
 
 		@see PxAggregate
 		*/
-		virtual		PxAggregate*	getAggregate() const = 0;
+		virtual		PxAggregate*		getAggregate() const = 0;
 
-		virtual		PxArticulationImpl* getImpl() = 0;
-
-		virtual const PxArticulationImpl* getImpl() const = 0;
-
+		virtual		PxArticulationImpl*		getImpl() = 0;
+		virtual const PxArticulationImpl*	getImpl() const = 0;
 		virtual		PxArticulationBase::Enum getType() const = 0;
 
 		void*						userData;	//!< user can assign this to whatever, usually to create a 1:1 relationship with a user object.
@@ -319,13 +311,10 @@ namespace physx
 		virtual						~PxArticulationBase() {}
 
 	protected:
-		PX_INLINE					PxArticulationBase(PxType concreteType, PxBaseFlags baseFlags) : PxBase(concreteType, baseFlags) {}
+		PX_INLINE					PxArticulationBase(PxType concreteType, PxBaseFlags baseFlags) : PxBase(concreteType, baseFlags), userData(NULL) {}
 		PX_INLINE					PxArticulationBase(PxBaseFlags baseFlags) : PxBase(baseFlags) {}
 public:
-		virtual PxArticulationJointBase* createArticulationJoint(PxArticulationLink& parent,
-			const PxTransform& parentFrame,
-			PxArticulationLink& child,
-			const PxTransform& childFrame) = 0;
+		virtual PxArticulationJointBase* createArticulationJoint(PxArticulationLink& parent, const PxTransform& parentFrame, PxArticulationLink& child, const PxTransform& childFrame) = 0;
 		virtual void					 releaseArticulationJoint(PxArticulationJointBase* joint) = 0;
 	};
 

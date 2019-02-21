@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
      
@@ -239,9 +239,12 @@ static void setupFinalizeSolverConstraints(Sc::ShapeInteraction* shapeInteractio
 		PxF32* forceBuffers = reinterpret_cast<PxF32*>(ptr);
 		PxMemZero(forceBuffers, sizeof(PxF32) * contactCount);
 		ptr += ((contactCount + 3) & (~3)) * sizeof(PxF32); // jump to next 16-byte boundary
+		
+		const PxReal frictionCoefficient = (contactBase0->materialFlags & PxMaterialFlag::eIMPROVED_PATCH_FRICTION && frictionPatch.anchorCount == 2) ? 0.5f : 1.f;
 
-		const PxReal staticFriction = contactBase0->staticFriction;
-		const PxReal dynamicFriction = contactBase0->dynamicFriction;
+		const PxReal staticFriction = contactBase0->staticFriction * frictionCoefficient;
+		const PxReal dynamicFriction = contactBase0->dynamicFriction* frictionCoefficient;
+
 		const bool disableStrongFriction = !!(contactBase0->materialFlags & PxMaterialFlag::eDISABLE_FRICTION);
 		staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W=V4SetX(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W, FLoad(staticFriction));
 		staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W=V4SetY(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W, FLoad(dynamicFriction));
@@ -264,7 +267,7 @@ static void setupFinalizeSolverConstraints(Sc::ShapeInteraction* shapeInteractio
 			//const Vec3V normal = Vec3V_From_PxVec3_Aligned(buffer.contacts[c.contactPatches[c.correlationListHeads[i]].start].normal);
 
 			const FloatV orthoThreshold = FLoad(0.70710678f);
-			const FloatV p1 = FLoad(0.1f);
+			const FloatV p1 = FLoad(0.0001f);
 			// fallback: normal.cross((1,0,0)) or normal.cross((0,0,1))
 			const FloatV normalX = V3GetX(normal);
 			const FloatV normalY = V3GetY(normal);

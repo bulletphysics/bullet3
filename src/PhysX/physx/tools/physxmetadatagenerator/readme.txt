@@ -23,7 +23,7 @@
 ## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##
-## Copyright (c) 2018 NVIDIA Corporation. All rights reserved.
+## Copyright (c) 2018-2019 NVIDIA Corporation. All rights reserved.
 
 If the Physx API is changed, the API level serialization meta data files need to be updated.
 This can be done by running:

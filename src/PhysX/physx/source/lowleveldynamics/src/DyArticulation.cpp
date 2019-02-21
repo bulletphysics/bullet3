@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -45,7 +45,6 @@
 #include "DyArticulationFnsSimd.h"
 #include "DyTGSDynamics.h"
 #include "common/PxProfileZone.h"
-
 
 using namespace physx;
 
@@ -86,7 +85,6 @@ namespace physx
 			rows[0].inertia = Fns::invertInertia(rows[0].inertia);
 		}
 
-
 PX_COMPILE_TIME_ASSERT((sizeof(Articulation)&(DY_ARTICULATION_MAX_SIZE-1))==0);
 
 Articulation::Articulation(Sc::ArticulationSim* sim)
@@ -105,7 +103,6 @@ Articulation::Articulation(Sc::ArticulationSim* sim)
 Articulation::~Articulation()
 {
 }
-
 
 #if DY_DEBUG_ARTICULATION
 
@@ -134,7 +131,6 @@ void Articulation::computeResiduals(const Cm::SpatialVector *v,
 		printf("Energy %f, Error %f\n", energy, error);
 }
 
-
 Cm::SpatialVector Articulation::computeMomentum(const FsInertia *inertia) const
 {
 	typedef ArticulationFnsScalar Fns;
@@ -145,8 +141,6 @@ Cm::SpatialVector Articulation::computeMomentum(const FsInertia *inertia) const
 		m += Fns::translateForce(mSolverDesc->poses[i].p - mSolverDesc->poses[0].p, ArticulationFnsScalar::multiply(inertia[i], velocity[i]));
 	return m;
 }
-
-
 
 void Articulation::checkLimits() const
 {
@@ -238,8 +232,6 @@ bool Dy::Articulation::resize(const PxU32 linkCount)
 			mMotionVelocity.resize(linkCount, Cm::SpatialVector(PxVec3(0.0f), PxVec3(0.0f)));
 
 			mSolverDesc.motionVelocity = mMotionVelocity.begin();
-
-
 		}
 		Dy::ArticulationV::resize(linkCount);
 		
@@ -264,7 +256,6 @@ bool Dy::ArticulationV::resize(const PxU32 linkCount)
 	return true;
 }
 
-
 void PxvRegisterArticulations()
 {
 	const PxU32 type = PxU32(PxArticulationBase::eMaximumCoordinate);
@@ -283,7 +274,7 @@ void PxvRegisterArticulations()
 	SolverCoreRegisterArticulationFnsCoulomb();
 }
 
-void Articulation::getDataSizes(PxU32 linkCount, PxU32 &solverDataSize, PxU32& totalSize, PxU32& scratchSize)
+void Articulation::getDataSizes(PxU32 linkCount, PxU32& solverDataSize, PxU32& totalSize, PxU32& scratchSize)
 {
 	solverDataSize = sizeof(FsData)													// header
 				   + sizeof(Cm::SpatialVectorV)	* linkCount								// velocity
@@ -304,7 +295,6 @@ void Articulation::getDataSizes(PxU32 linkCount, PxU32 &solverDataSize, PxU32& t
 		        + ((sizeof(ArticulationJointTransforms)+15)&~15) * linkCount
 				+ sizeof(Mat33V) * linkCount
 				+ ((sizeof(ArticulationJointTransforms)+15)&~15) * linkCount);
-
 }
 
 void Articulation::getImpulseResponse(
@@ -317,7 +307,7 @@ void Articulation::getImpulseResponse(
 	ArticulationHelper::getImpulseResponse(matrix, linkID, impulse, deltaV);
 }
 
-void	Articulation::getImpulseSelfResponse(
+void Articulation::getImpulseSelfResponse(
 	PxU32 linkID0,
 	PxU32 linkID1,
 	Cm::SpatialVectorF* /*Z*/,
@@ -332,7 +322,6 @@ void	Articulation::getImpulseSelfResponse(
 		reinterpret_cast<const Cm::SpatialVectorV&>(impulse1),
 		reinterpret_cast<Cm::SpatialVectorV&>(deltaV1));
 }
-
 
 Cm::SpatialVectorV Articulation::getLinkVelocity(const PxU32 linkID) const
 {
@@ -365,7 +354,6 @@ PxReal Articulation::getLinkMaxPenBias(const PxU32 linkID) const
 	return maxPenBias[linkID];
 }
 
-
 PxU32 Articulation::getFsDataSize(PxU32 linkCount)
 {
 	return sizeof(FsInertia) + sizeof(FsRow) * linkCount;
@@ -376,9 +364,7 @@ PxU32 Articulation::getLtbDataSize(PxU32 linkCount)
 	return sizeof(LtbRow) * linkCount;
 }
 
-void Articulation::setInertia(FsInertia& inertia,
-	const PxsBodyCore& body,
-	const PxTransform& pose)
+void Articulation::setInertia(FsInertia& inertia, const PxsBodyCore& body, const PxTransform& pose)
 {
 	// assumes that elements that are supposed to be zero (i.e. la matrix and off diagonal elements of ll) are zero
 
@@ -490,8 +476,7 @@ void Articulation::prepareDataBlock(FsData& fsData,
 	}
 }
 
-void Articulation::prepareFsData(FsData& fsData,
-	const ArticulationLink* links)
+void Articulation::prepareFsData(FsData& fsData, const ArticulationLink* links)
 {
 	typedef ArticulationFnsSimd<ArticulationFnsSimdBase> Fns;
 
@@ -641,7 +626,6 @@ void PxcLtbProject(const FsData& m,
 		velocity[i] -= y[i];
 }
 
-
 void PxcFsComputeJointLoadsSimd(const FsData& matrix,
 	const FsInertia*PX_RESTRICT baseInertia,
 	Mat33V*PX_RESTRICT load,
@@ -760,8 +744,7 @@ PX_FORCE_INLINE Cm::SpatialVectorV propagateDrivenImpulse(const FsRow& row,
 	return result;
 }
 
-void PxcFsApplyJointDrives(FsData& matrix,
-	const Vec3V* Q)
+void PxcFsApplyJointDrives(FsData& matrix, const Vec3V* Q)
 {
 	typedef ArticulationFnsSimd<ArticulationFnsSimdBase> Fns;
 
@@ -780,7 +763,6 @@ void PxcFsApplyJointDrives(FsData& matrix,
 	for (PxU32 i = matrix.linkCount; i-->1;)
 		Z[matrix.parent[i]] += propagateDrivenImpulse(rows[i], jointVectors[i], SZminusQ[i], Z[i], Q[i]);
 
-
 	dV[0] = Fns::multiply(getRootInverseInertia(matrix), -Z[0]);
 
 	for (PxU32 i = 1; i<matrix.linkCount; i++)
@@ -791,9 +773,7 @@ void PxcFsApplyJointDrives(FsData& matrix,
 		V[i] += dV[i];
 }
 
-void Articulation::applyImpulses(const FsData& matrix,
-	Cm::SpatialVectorV* Z,
-	Cm::SpatialVectorV* V)
+void Articulation::applyImpulses(const FsData& matrix, Cm::SpatialVectorV* Z, Cm::SpatialVectorV* V)
 {
 	// note: Z is the negated impulse
 
@@ -818,7 +798,6 @@ void Articulation::applyImpulses(const FsData& matrix,
 	for (PxU32 i = 0; i<matrix.linkCount; i++)
 		V[i] += dV[i];
 }
-
 
 void Articulation::computeUnconstrainedVelocitiesInternal(const ArticulationSolverDesc& desc,
 	PxReal dt,
@@ -845,7 +824,6 @@ void Articulation::computeUnconstrainedVelocitiesInternal(const ArticulationSolv
 	Cm::SpatialVectorV* velocity = getVelocity(fsData);
 
 	{
-
 		PX_PROFILE_ZONE("Articulations.setupProject", contextID);
 
 		PxMemZero(getLtbRows(fsData), getLtbDataSize(linkCount));
@@ -894,7 +872,6 @@ void Articulation::computeUnconstrainedVelocitiesInternal(const ArticulationSolv
 		{
 			PX_PROFILE_ZONE("Articulations.jointInternalLoads", contextID);
 			PxcFsComputeJointLoadsSimd(fsData, baseInertia, desc.internalLoads, isf, linkCount, desc.core->internalDriveIterations & 0xffff, allocator);
-
 		}
 
 		{
@@ -964,7 +941,6 @@ void Articulation::computeUnconstrainedVelocitiesInternal(const ArticulationSolv
 	maxSolverFrictionProgress = 0;
 	solverProgress = 0;
 
-
 #if DY_ARTICULATION_DEBUG_VERIFY
 	for (PxU32 i = 0; i<linkCount; i++)
 		getRefVelocity(fsData)[i] = getVelocity(fsData)[i];
@@ -993,9 +969,7 @@ PxU32 Articulation::computeUnconstrainedVelocities(
 		PX_PROFILE_ZONE("Articulations.setupConstraints", contextID);
 		return ArticulationHelper::setupSolverConstraints(articulation, desc.solverDataSize, allocator, constraintDesc, links, jointTransforms, dt, acCount);
 	}
-
 }
-
 
 void Articulation::computeUnconstrainedVelocitiesTGS(
 	const ArticulationSolverDesc& desc,
@@ -1010,7 +984,6 @@ void Articulation::computeUnconstrainedVelocitiesTGS(
 	articulation.computeUnconstrainedVelocitiesInternal(desc, dt, gravity, 
 		contextID, baseInertia, jointTransforms, allocator);
 }
-
 
 void Articulation::computeJointDrives(FsData& fsData,
 	Ps::aos::Vec3V* drives,
@@ -1050,7 +1023,6 @@ void Articulation::computeJointDrives(FsData& fsData,
 		drives[i] = M33MulV3(loads[i], V3LoadU((j.spring * posError + j.damping * velError) * dt * getResistance(j.internalCompliance)));
 	}
 }
-
 
 void Articulation::saveVelocity(const ArticulationSolverDesc& desc, Cm::SpatialVectorF* /*deltaV*/)
 {
@@ -1120,7 +1092,6 @@ void Articulation::saveVelocityTGS(const ArticulationSolverDesc& desc, PxReal in
 #endif
 }
 
-
 void Articulation::recordDeltaMotion(const ArticulationSolverDesc &desc, const PxReal dt, Cm::SpatialVectorF* /*deltaV*/)
 {
 	Articulation* articulation = static_cast<Articulation*>(desc.articulation);
@@ -1128,7 +1099,7 @@ void Articulation::recordDeltaMotion(const ArticulationSolverDesc &desc, const P
 
 	PxQuat* deltaQ = desc.deltaQ;
 
-	Cm::SpatialVectorV* velocity = getVelocity(m);
+	const Cm::SpatialVectorV* velocity = getVelocity(m);
 	Cm::SpatialVectorV* deltaMotion = getMotionVector(m);
 	PxcFsFlushVelocity(m);
 
@@ -1143,7 +1114,6 @@ void Articulation::recordDeltaMotion(const ArticulationSolverDesc &desc, const P
 		PX_ASSERT(isFiniteVec3V(velocity[i].linear));
 		PX_ASSERT(isFiniteVec3V(velocity[i].angular));
 	}
-
 }
 
 void Articulation::deltaMotionToMotionVelocity(const ArticulationSolverDesc& desc, PxReal invDt)
@@ -1151,7 +1121,7 @@ void Articulation::deltaMotionToMotionVelocity(const ArticulationSolverDesc& des
 	Articulation* articulation = static_cast<Articulation*>(desc.articulation);
 	FsData& m = *articulation->getFsDataPtr();
 
-	Cm::SpatialVectorV* deltaMotion = getMotionVector(m);
+	const Cm::SpatialVectorV* deltaMotion = getMotionVector(m);
 
 	Cm::SpatialVectorV* velocity = getVelocity(m);
 
@@ -1224,7 +1194,6 @@ void Articulation::pxcFsApplyImpulse(PxU32 linkID, Ps::aos::Vec3V linear,
 	matrix.dirty |= rows[linkID].pathToRoot;
 }
 
-
 void Articulation::pxcFsGetVelocities(PxU32 linkID, PxU32 linkID1, Cm::SpatialVectorV& v0, Cm::SpatialVectorV& v1)
 {
 	//Common case - linkID = parent of linkID1...
@@ -1242,12 +1211,10 @@ void Articulation::pxcFsApplyImpulses(PxU32 linkID, const Ps::aos::Vec3V& linear
 	pxcFsApplyImpulse(linkID2, linear2, angular2, Z, deltaV);
 }
 
-
 void Articulation::solveInternalConstraints(const PxReal /*dt*/, const PxReal /*invDt*/, Cm::SpatialVectorF* /*impulses*/,
 	Cm::SpatialVectorF* /*DeltaV*/, bool)
 {
 }
-
 
 Cm::SpatialVectorV Articulation::pxcFsGetVelocity(PxU32 linkID)
 {
@@ -1262,7 +1229,6 @@ Cm::SpatialVectorV Articulation::pxcFsGetVelocity(PxU32 linkID)
 
 	// find the dirty node on the path (including the root) with the lowest index
 	ArticulationBitField toUpdate = rows[linkID].pathToRoot & matrix.dirty;
-
 
 	if (toUpdate)
 	{
@@ -1303,7 +1269,6 @@ Cm::SpatialVectorV Articulation::pxcFsGetVelocity(PxU32 linkID)
 			newDirty = rows[0].children;
 			p--;
 		}
-
 
 		while (p)	// using "for(;p;p &= (p-1))" here generates LHSs from the ArticulationLowestSetBit
 		{
@@ -1605,7 +1570,6 @@ void Articulation::updateBodies(const ArticulationSolverDesc& desc, PxReal dt)
 	}
 }
 
-
 void PxvArticulationDriveCache::initialize(
 											FsData &fsData,
 											PxU16 linkCount,
@@ -1639,7 +1603,7 @@ void PxvArticulationDriveCache::initialize(
 	//ArticulationHelper::initializeDriveCache(articulation, cache, linkCount, links, compliance, iterations, scratchMemory, scratchMemorySize);
 }
 
-PxU32	PxvArticulationDriveCache::getLinkCount(const FsData& cache)
+PxU32 PxvArticulationDriveCache::getLinkCount(const FsData& cache)
 {
 	return cache.linkCount;
 }
@@ -1652,7 +1616,7 @@ void PxvArticulationDriveCache::applyImpulses(const FsData& cache,
 	Articulation::applyImpulses(cache, Z, V);
 }
 
-void	PxvArticulationDriveCache::getImpulseResponse(const FsData& cache, 
+void PxvArticulationDriveCache::getImpulseResponse(const FsData& cache, 
 													  PxU32 linkID, 
 													  const Cm::SpatialVectorV& impulse,
 													  Cm::SpatialVectorV& deltaV)

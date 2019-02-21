@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -835,30 +835,36 @@ void NpScene::addArticulation(PxArticulationBase& articulation)
 		Ps::getFoundation().error(PxErrorCode::eINVALID_OPERATION, __FILE__, __LINE__, "PxScene::addArticulation(): Articulation already assigned to a scene. Call will be ignored!");
 }
 
+static void checkArticulationLink(NpScene* scene, NpArticulationLink* link)
+{
+#if PX_CHECKED
+	scene->checkPositionSanity(*link, link->getGlobalPose(), "PxScene::addArticulation or PxScene::addAggregate");
+#else
+	PX_UNUSED(scene);
+#endif
+	if(link->getMass()==0.0f)
+	{
+		Ps::getFoundation().error(PxErrorCode::eDEBUG_WARNING, __FILE__, __LINE__, "PxScene::addArticulation(): Articulation link with zero mass added to scene; defaulting mass to 1");
+		link->setMass(1.0f);
+	}
+
+	const PxVec3 inertia0 = link->getMassSpaceInertiaTensor();
+	if(inertia0.x == 0.0f || inertia0.y == 0.0f || inertia0.z == 0.0f)
+	{
+		Ps::getFoundation().error(PxErrorCode::eDEBUG_WARNING, __FILE__, __LINE__, "PxScene::addArticulation(): Articulation link with zero moment of inertia added to scene; defaulting inertia to (1,1,1)");
+		link->setMassSpaceInertiaTensor(PxVec3(1.0f, 1.0f, 1.0f));
+	}
+}
+
 void NpScene::addArticulationInternal(PxArticulationBase& npa)
 {
-
 	// Add root link first
 	PxU32 nbLinks = npa.getNbLinks();
 	PX_ASSERT(nbLinks > 0);
 	PxArticulationImpl* impl = reinterpret_cast<PxArticulationImpl*>(npa.getImpl());
 	NpArticulationLink* rootLink = static_cast<NpArticulationLink*>(impl->getRoot());
 
-#if PX_CHECKED
-	checkPositionSanity(*rootLink, rootLink->getGlobalPose(), "PxScene::addArticulation or PxScene::addAggregate");
-#endif
-	if(rootLink->getMass()==0)
-	{
-		Ps::getFoundation().error(PxErrorCode::eDEBUG_WARNING, __FILE__, __LINE__, "PxScene::addArticulation(): Articulation link with zero mass added to scene; defaulting mass to 1");
-		rootLink->setMass(1.0f);
-	}
-
-	PxVec3 inertia0 = rootLink->getMassSpaceInertiaTensor();		
-	if(inertia0.x == 0.0f || inertia0.y == 0.0f || inertia0.z == 0.0f)
-	{
-		Ps::getFoundation().error(PxErrorCode::eDEBUG_WARNING, __FILE__, __LINE__, "PxScene::addArticulation(): Articulation link with zero moment of inertia added to scene; defaulting inertia to (1,1,1)");
-		rootLink->setMassSpaceInertiaTensor(PxVec3(1.0f, 1.0f, 1.0f));
-	}
+	checkArticulationLink(this, rootLink);
 
 	bool linkTriggersWakeUp = !rootLink->getScbBodyFast().checkSleepReadinessBesidesWakeCounter();
 	
@@ -897,21 +903,7 @@ void NpScene::addArticulationInternal(PxArticulationBase& npa)
 		{
 			NpArticulationLink* child = children[i];
 
-#if PX_CHECKED
-			checkPositionSanity(*child, child->getGlobalPose(), "PxScene::addArticulation");
-#endif
-			if(child->getMass()==0)
-			{
-				Ps::getFoundation().error(PxErrorCode::eDEBUG_WARNING, __FILE__, __LINE__, "PxScene::addArticulation(): Articulation link with zero mass added to scene; defaulting mass to 1");
-				child->setMass(1.0f);
-			}
-
-			PxVec3 inertia = child->getMassSpaceInertiaTensor();		
-			if(inertia.x == 0.0f || inertia.y == 0.0f || inertia.z == 0.0f)
-			{
-				Ps::getFoundation().error(PxErrorCode::eDEBUG_WARNING, __FILE__, __LINE__, "PxScene::addArticulation(): Articulation link with zero moment of inertia added to scene; defaulting inertia to (1,1,1)");
-				child->setMassSpaceInertiaTensor(PxVec3(1.0f, 1.0f, 1.0f));
-			}
+			checkArticulationLink(this, child);
 
 			linkTriggersWakeUp = linkTriggersWakeUp || (!child->getScbBodyFast().checkSleepReadinessBesidesWakeCounter());
 
@@ -955,7 +947,43 @@ void NpScene::addArticulationInternal(PxArticulationBase& npa)
 			for (PxU32 i = 0; i < l->getNbChildren(); i++)
 			{
 				NpArticulationLink* child = children[i];
+
 				child->setInboundJointDof(scArtSim->getDof(child->getLinkIndex()));
+
+				if (npa.getType() == PxArticulationBase::eReducedCoordinate)
+				{
+					PxArticulationJointReducedCoordinate* joint = static_cast<PxArticulationJointReducedCoordinate*>(child->getInboundJoint());
+					PxArticulationJointType::Enum jointType = joint->getJointType();
+
+					if (jointType == PxArticulationJointType::eUNDEFINED)
+					{
+						Ps::getFoundation().error(PxErrorCode::eDEBUG_WARNING, __FILE__, __LINE__, "PxScene::addArticulation(): The application need to set joint type. defaulting joint type to eFix");
+						joint->setJointType(PxArticulationJointType::eFIX);
+						child->setInboundJointDof(0);
+					}
+
+					if (jointType != PxArticulationJointType::eFIX)
+					{
+
+						PxArticulationMotion::Enum motionX = joint->getMotion(PxArticulationAxis::eX);
+						PxArticulationMotion::Enum motionY = joint->getMotion(PxArticulationAxis::eY);
+						PxArticulationMotion::Enum motionZ = joint->getMotion(PxArticulationAxis::eZ);
+
+						PxArticulationMotion::Enum motionSwing1 = joint->getMotion(PxArticulationAxis::eSWING1);
+						PxArticulationMotion::Enum motionSwing2 = joint->getMotion(PxArticulationAxis::eSWING2);
+						PxArticulationMotion::Enum motionTwist = joint->getMotion(PxArticulationAxis::eTWIST);
+
+						//PxArticulationMotion::eLOCKED is 0 
+						if (!(motionX | motionY | motionZ | motionSwing1 | motionSwing2 | motionTwist))
+						{
+							//if all axis are locked, which means the user doesn't set the motion. In this case, we should change the joint type to be
+							//fix to avoid crash in the solver
+							Ps::getFoundation().error(PxErrorCode::eDEBUG_WARNING, __FILE__, __LINE__, "PxScene::addArticulation(): The application need to set joint motion. defaulting joint type to eFix");
+							joint->setJointType(PxArticulationJointType::eFIX);
+							child->setInboundJointDof(0);
+						}
+					}
+				}
 
 				linkStack[stackSize] = child;
 				stackSize++;
@@ -1871,20 +1899,15 @@ void NpScene::simulateOrCollide(PxReal elapsedTime, physx::PxBaseTask* completio
 			mSceneCollide.setContinuation(&mCollisionCompletion);
 			//Initialize scene completion task
 			mSceneCompletion.setContinuation(*mTaskManager, NULL);
-		}
-		else
-		{
-			mSceneCompletion.setContinuation(*mTaskManager, completionTask);
-			mSceneExecution.setContinuation(*mTaskManager, &mSceneCompletion);
-		}
 
-		if (simStage == Sc::SimulationStage::eCOLLIDE)
-		{
 			mCollisionCompletion.removeReference();
 			mSceneCollide.removeReference();
 		}
 		else
 		{
+			mSceneCompletion.setContinuation(*mTaskManager, completionTask);
+			mSceneExecution.setContinuation(*mTaskManager, &mSceneCompletion);
+
 			mSceneCompletion.removeReference();
 			mSceneExecution.removeReference();
 		}
@@ -3020,3 +3043,4 @@ void NpScene::releaseBatchQuery(PxBatchQuery* sq)
 	PX_UNUSED(found); PX_ASSERT(found);
 	PX_DELETE_AND_RESET(npsq);
 }
+

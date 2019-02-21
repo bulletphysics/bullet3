@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -44,7 +44,7 @@ https://developercommunity.visualstudio.com/content/problem/66047/possible-compi
 #endif
 
 // define API function declaration (public API only needed because of extensions)
-#if defined PX_PHYSX_STATIC_LIB || defined PX_PHYSX_CORE_STATIC_LIB
+#if defined PX_PHYSX_STATIC_LIB
 	#define PX_PHYSX_CORE_API
 #else
 	#if PX_WINDOWS
@@ -82,7 +82,7 @@ https://developercommunity.visualstudio.com/content/problem/66047/possible-compi
 #define PX_PHYSX_GPU_API
 #endif // PX_SUPPORT_GPU_PHYSX
 
-#if defined PX_PHYSX_STATIC_LIB || defined PX_PHYSX_CORE_STATIC_LIB
+#if defined PX_PHYSX_STATIC_LIB
 	#define PX_PHYSX_COMMON_API
 #else
 	#if PX_WINDOWS && !defined(__CUDACC__)

@@ -23,10 +23,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
-
 
 
 #ifndef PXC_CONSTRAINTBLOCKPOOL_H
@@ -39,7 +38,6 @@
 
 namespace physx
 {
-
 class PxsConstraintBlockManager
 {
 public:
@@ -48,15 +46,13 @@ public:
 	{
 	}
 
-
 	PX_FORCE_INLINE	void reset()
 	{
 		mBlockPool.releaseConstraintBlocks(mTrackingArray);
 	}
 
-
-	PxcNpMemBlockArray			mTrackingArray;
-	PxcNpMemBlockPool&			mBlockPool;
+	PxcNpMemBlockArray	mTrackingArray;
+	PxcNpMemBlockPool&	mBlockPool;
 
 private:
 	PxsConstraintBlockManager& operator=(const PxsConstraintBlockManager&);
@@ -66,14 +62,14 @@ class PxcConstraintBlockStream
 {
 	PX_NOCOPY(PxcConstraintBlockStream)
 public:
-	PxcConstraintBlockStream(PxcNpMemBlockPool & blockPool):
-		mBlockPool(blockPool),
-		mBlock(NULL),
-		mUsed(0)
+	PxcConstraintBlockStream(PxcNpMemBlockPool & blockPool) :
+		mBlockPool	(blockPool),
+		mBlock		(NULL),
+		mUsed		(0)
 	{
 	}
 
-	PX_FORCE_INLINE	PxU8* reserve(PxU32 size, PxsConstraintBlockManager& manager)
+	PX_FORCE_INLINE	PxU8*				reserve(PxU32 size, PxsConstraintBlockManager& manager)
 										{
 											size = (size+15)&~15;
 											if(size>PxcNpMemBlock::SIZE)
@@ -98,10 +94,7 @@ public:
 											mUsed = 0;
 										}
 
-	PX_FORCE_INLINE PxcNpMemBlockPool&	getMemBlockPool()
-	{
-		return mBlockPool;
-	}
+	PX_FORCE_INLINE PxcNpMemBlockPool&	getMemBlockPool()	{ return mBlockPool;	}
 
 private:
 			PxcNpMemBlockPool&			mBlockPool;
@@ -122,7 +115,7 @@ public:
 	{
 	}
 
-	PX_FORCE_INLINE	PxU8* reserve(PxU32 size)
+	PX_FORCE_INLINE	PxU8*				reserve(PxU32 size)
 										{
 											size = (size+15)&~15;
 
@@ -150,10 +143,7 @@ public:
 											mUsed = 0;
 										}
 
-	PX_FORCE_INLINE PxcNpMemBlockPool&	getMemBlockPool()
-	{
-		return mBlockPool;
-	}
+	PX_FORCE_INLINE PxcNpMemBlockPool&	getMemBlockPool()	{ return mBlockPool;	}
 
 private:
 			PxcNpMemBlockPool&			mBlockPool;

@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -66,8 +66,7 @@ public:
 
 	@see PxArticulation::createLink()
 	*/
-	virtual		void			release() = 0;
-
+	virtual		void						release() = 0;
 
 	/**
 	\brief get the articulation to which this articulation link belongs. This returns the base class. The application should
@@ -75,8 +74,7 @@ public:
 
 	\return the articulation to which this link belongs
 	*/
-	virtual		PxArticulationBase&		getArticulation() const = 0;
-
+	virtual		PxArticulationBase&			getArticulation() const = 0;
 
 	/**
 	\brief Get the joint which connects this link to its parent.
@@ -94,7 +92,7 @@ public:
 
 	@see PxArticulationJoint
 	*/
-	virtual		PxU32					getInboundJointDof() const = 0;
+	virtual		PxU32						getInboundJointDof() const = 0;
 
 	/**
 	\brief Get number of child links.
@@ -103,15 +101,14 @@ public:
 
 	@see getChildren()
 	*/
-	virtual		PxU32			getNbChildren() const = 0;
-
+	virtual		PxU32						getNbChildren() const = 0;
 
 	/**
 	\brief Get low-level link index 
 
 	\return low-level index
 	*/
-	virtual		PxU32			getLinkIndex() const = 0;
+	virtual		PxU32						getLinkIndex() const = 0;
 
 	/**
 	\brief Retrieve all the child links.
@@ -123,15 +120,15 @@ public:
 
 	@see getNbChildren()
 	*/
-	virtual		PxU32			getChildren(PxArticulationLink** userBuffer, PxU32 bufferSize, PxU32 startIndex=0) const = 0;
+	virtual		PxU32						getChildren(PxArticulationLink** userBuffer, PxU32 bufferSize, PxU32 startIndex=0) const = 0;
 
-	virtual		const char*		getConcreteTypeName() const					{	return "PxArticulationLink"; }
+	virtual		const char*					getConcreteTypeName()		const		{ return "PxArticulationLink";	}
 
 protected:
-	PX_INLINE					PxArticulationLink(PxType concreteType, PxBaseFlags baseFlags) : PxRigidBody(concreteType, baseFlags) {}
-	PX_INLINE					PxArticulationLink(PxBaseFlags baseFlags) : PxRigidBody(baseFlags)	{}
-	virtual						~PxArticulationLink()	{}
-	virtual		bool			isKindOf(const char* name)	const		{	return !::strcmp("PxArticulationLink", name) || PxRigidBody::isKindOf(name);		}
+	PX_INLINE								PxArticulationLink(PxType concreteType, PxBaseFlags baseFlags) : PxRigidBody(concreteType, baseFlags) {}
+	PX_INLINE								PxArticulationLink(PxBaseFlags baseFlags) : PxRigidBody(baseFlags)	{}
+	virtual									~PxArticulationLink()	{}
+	virtual		bool						isKindOf(const char* name)	const		{ return !::strcmp("PxArticulationLink", name) || PxRigidBody::isKindOf(name);	}
 };
 
 #if !PX_DOXYGEN

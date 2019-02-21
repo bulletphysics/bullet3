@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -33,20 +33,12 @@
 #include "Ps.h"
 #include "PsIntrinsics.h"
 
-#define PX_IR(x) ((uint32_t&)(x))
-#define PX_SIR(x) ((int32_t&)(x))
-#define PX_FR(x) ((float&)(x))
-
-// signed integer representation of a floating-point value.
-
-// Floating-point representation of a integer value.
-
-#define PX_SIGN_BITMASK 0x80000000
+#define PX_IR(x) ((uint32_t&)(x))	// integer representation of a floating-point value.
+#define PX_SIR(x) ((int32_t&)(x))	// signed integer representation of a floating-point value.
+#define PX_FR(x) ((float&)(x))		// floating-point representation of a integer value.
 
 #define PX_FPU_GUARD shdfnd::FPUGuard scopedFpGuard;
 #define PX_SIMD_GUARD shdfnd::SIMDGuard scopedFpGuard;
-
-#define PX_SUPPORT_GUARDS (PX_WINDOWS_FAMILY || PX_XBOXONE || (PX_LINUX && (PX_X86 || PX_X64)) || PX_PS4 || PX_OSX)
 
 namespace physx
 {
@@ -69,9 +61,7 @@ class SIMDGuard
 	PX_INLINE SIMDGuard();  // set simd control word for PhysX
 	PX_INLINE ~SIMDGuard(); // restore simd control word
   private:
-#if PX_SUPPORT_GUARDS
 	uint32_t mControlWord;
-#endif
 };
 
 /**

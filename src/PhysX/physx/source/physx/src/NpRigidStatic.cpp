@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -47,6 +47,20 @@ NpRigidStatic::~NpRigidStatic()
 }
 
 // PX_SERIALIZATION
+void NpRigidStatic::exportData(PxSerializationContext& context) const
+{
+	//Clearing the aggregate ID for serialization so we avoid having a stale 
+	//reference after deserialization. The aggregate ID get's reset on readding to the 
+	//scene anyway. 
+	Sc::ActorCore& actorCore = const_cast<Sc::ActorCore&>(getScbActorFast().getActorCore());
+	PxU32 backupAggregateID = actorCore.getAggregateID();
+	actorCore.setAggregateID(PX_INVALID_U32);
+
+	context.writeData(this, sizeof(NpRigidStatic));
+
+	actorCore.setAggregateID(backupAggregateID);
+}
+
 void NpRigidStatic::requiresObjects(PxProcessPxBaseCallback& c)
 {
 	NpRigidStaticT::requiresObjects(c);	

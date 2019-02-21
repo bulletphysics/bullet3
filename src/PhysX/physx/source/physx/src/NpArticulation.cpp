@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -86,7 +86,6 @@ NpArticulation* NpArticulation::createObject(PxU8*& address, PxDeserializationCo
 NpArticulation::NpArticulation()
 	: NpArticulationTemplate(PxConcreteType::eARTICULATION, PxBaseFlag::eOWNS_MEMORY | PxBaseFlag::eIS_RELEASABLE)
 {
-	PxArticulationBase::userData = NULL;
 	mType = PxArticulationBase::eMaximumCoordinate;
 	mImpl.mArticulation.setArticulationType(PxArticulationBase::eMaximumCoordinate);
 }

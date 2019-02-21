@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -291,31 +291,6 @@ DLL export macros
 #else
 #define PX_DLL_EXPORT PX_UNIX_EXPORT
 #define PX_DLL_IMPORT
-#endif
-
-/**
-Define API function declaration
-
-PX_FOUNDATION_DLL=1 - used by the DLL library (PhysXCommon) to export the API
-PX_FOUNDATION_DLL=0 - for windows configurations where the PX_FOUNDATION_API is linked through standard static linking
-no definition       - this will allow DLLs and libraries to use the exported API from PhysXCommon
-
-*/
-
-#if PX_WINDOWS_FAMILY && !PX_ARM_FAMILY
-#ifndef PX_FOUNDATION_DLL
-#define PX_FOUNDATION_API PX_DLL_IMPORT
-#elif PX_FOUNDATION_DLL
-#define PX_FOUNDATION_API PX_DLL_EXPORT
-#endif
-#elif PX_UNIX_FAMILY
-#ifdef PX_FOUNDATION_DLL
-#define PX_FOUNDATION_API PX_UNIX_EXPORT
-#endif
-#endif
-
-#ifndef PX_FOUNDATION_API
-#define PX_FOUNDATION_API
 #endif
 
 /**

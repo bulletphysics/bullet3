@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
@@ -110,6 +110,7 @@ template<> struct PxEnumTraits< physx::PxShapeFlag::Enum > { PxEnumTraits() : Na
 	static PxU32ToName g_physx__PxMaterialFlag__EnumConversion[] = {
 		{ "eDISABLE_FRICTION", static_cast<PxU32>( physx::PxMaterialFlag::eDISABLE_FRICTION ) },
 		{ "eDISABLE_STRONG_FRICTION", static_cast<PxU32>( physx::PxMaterialFlag::eDISABLE_STRONG_FRICTION ) },
+		{ "eIMPROVED_PATCH_FRICTION", static_cast<PxU32>( physx::PxMaterialFlag::eIMPROVED_PATCH_FRICTION ) },
 		{ NULL, 0 }
 	};
 
@@ -2563,6 +2564,7 @@ template<> struct PxEnumTraits< physx::PxSolverType::Enum > { PxEnumTraits() : N
 		PxReal MaxBiasCoefficient;
 		PxU32 ContactReportStreamBufferSize;
 		PxU32 CcdMaxPasses;
+		PxReal CcdThreshold;
 		PxReal WakeCounterResetValue;
 		PxBounds3 SanityBounds;
 		PxgDynamicsMemoryConfig GpuDynamicsConfig;
@@ -2603,6 +2605,7 @@ template<> struct PxEnumTraits< physx::PxSolverType::Enum > { PxEnumTraits() : N
 	DEFINE_PROPERTY_TO_VALUE_STRUCT_MAP( PxSceneDesc, MaxBiasCoefficient, PxSceneDescGeneratedValues)
 	DEFINE_PROPERTY_TO_VALUE_STRUCT_MAP( PxSceneDesc, ContactReportStreamBufferSize, PxSceneDescGeneratedValues)
 	DEFINE_PROPERTY_TO_VALUE_STRUCT_MAP( PxSceneDesc, CcdMaxPasses, PxSceneDescGeneratedValues)
+	DEFINE_PROPERTY_TO_VALUE_STRUCT_MAP( PxSceneDesc, CcdThreshold, PxSceneDescGeneratedValues)
 	DEFINE_PROPERTY_TO_VALUE_STRUCT_MAP( PxSceneDesc, WakeCounterResetValue, PxSceneDescGeneratedValues)
 	DEFINE_PROPERTY_TO_VALUE_STRUCT_MAP( PxSceneDesc, SanityBounds, PxSceneDescGeneratedValues)
 	DEFINE_PROPERTY_TO_VALUE_STRUCT_MAP( PxSceneDesc, GpuDynamicsConfig, PxSceneDescGeneratedValues)
@@ -2646,6 +2649,7 @@ template<> struct PxEnumTraits< physx::PxSolverType::Enum > { PxEnumTraits() : N
 		PxPropertyInfo<PX_PROPERTY_INFO_NAME::PxSceneDesc_MaxBiasCoefficient, PxSceneDesc, PxReal, PxReal > MaxBiasCoefficient;
 		PxPropertyInfo<PX_PROPERTY_INFO_NAME::PxSceneDesc_ContactReportStreamBufferSize, PxSceneDesc, PxU32, PxU32 > ContactReportStreamBufferSize;
 		PxPropertyInfo<PX_PROPERTY_INFO_NAME::PxSceneDesc_CcdMaxPasses, PxSceneDesc, PxU32, PxU32 > CcdMaxPasses;
+		PxPropertyInfo<PX_PROPERTY_INFO_NAME::PxSceneDesc_CcdThreshold, PxSceneDesc, PxReal, PxReal > CcdThreshold;
 		PxPropertyInfo<PX_PROPERTY_INFO_NAME::PxSceneDesc_WakeCounterResetValue, PxSceneDesc, PxReal, PxReal > WakeCounterResetValue;
 		PxPropertyInfo<PX_PROPERTY_INFO_NAME::PxSceneDesc_SanityBounds, PxSceneDesc, PxBounds3, PxBounds3 > SanityBounds;
 		PxPropertyInfo<PX_PROPERTY_INFO_NAME::PxSceneDesc_GpuDynamicsConfig, PxSceneDesc, PxgDynamicsMemoryConfig, PxgDynamicsMemoryConfig > GpuDynamicsConfig;
@@ -2670,7 +2674,7 @@ template<> struct PxEnumTraits< physx::PxSolverType::Enum > { PxEnumTraits() : N
 			PX_UNUSED(inStartIndex);
 			return inStartIndex;
 		}
-		static PxU32 instancePropertyCount() { return 39; }
+		static PxU32 instancePropertyCount() { return 40; }
 		static PxU32 totalPropertyCount() { return instancePropertyCount(); }
 		template<typename TOperator>
 		PxU32 visitInstanceProperties( TOperator inOperator, PxU32 inStartIndex = 0 ) const
@@ -2711,12 +2715,13 @@ template<> struct PxEnumTraits< physx::PxSolverType::Enum > { PxEnumTraits() : N
 			inOperator( MaxBiasCoefficient, inStartIndex + 31 );; 
 			inOperator( ContactReportStreamBufferSize, inStartIndex + 32 );; 
 			inOperator( CcdMaxPasses, inStartIndex + 33 );; 
-			inOperator( WakeCounterResetValue, inStartIndex + 34 );; 
-			inOperator( SanityBounds, inStartIndex + 35 );; 
-			inOperator( GpuDynamicsConfig, inStartIndex + 36 );; 
-			inOperator( GpuMaxNumPartitions, inStartIndex + 37 );; 
-			inOperator( GpuComputeVersion, inStartIndex + 38 );; 
-			return 39 + inStartIndex;
+			inOperator( CcdThreshold, inStartIndex + 34 );; 
+			inOperator( WakeCounterResetValue, inStartIndex + 35 );; 
+			inOperator( SanityBounds, inStartIndex + 36 );; 
+			inOperator( GpuDynamicsConfig, inStartIndex + 37 );; 
+			inOperator( GpuMaxNumPartitions, inStartIndex + 38 );; 
+			inOperator( GpuComputeVersion, inStartIndex + 39 );; 
+			return 40 + inStartIndex;
 		}
 	};
 	template<> struct PxClassInfoTraits<PxSceneDesc>

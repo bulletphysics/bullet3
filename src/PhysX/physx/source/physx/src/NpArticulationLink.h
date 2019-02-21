@@ -23,7 +23,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2018 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -77,6 +77,7 @@ class NpArticulationLink : public NpArticulationLinkT
 public:
 // PX_SERIALIZATION
 									NpArticulationLink(PxBaseFlags baseFlags) : NpArticulationLinkT(baseFlags), mChildLinks(PxEmpty)	{}
+	virtual		void				exportData(PxSerializationContext& context) const;
 	virtual		void				exportExtraData(PxSerializationContext& stream);
 				void				importExtraData(PxDeserializationContext& context);
 				void				registerReferences(PxSerializationContext& stream);
