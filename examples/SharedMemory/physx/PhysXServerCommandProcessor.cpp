@@ -20,6 +20,7 @@
 #include "URDF2PhysX.h"
 #include "../b3PluginManager.h"
 #include "PxRigidActorExt.h"
+#include "LinearMath/btThreads.h"
 
 #define STATIC_EGLRENDERER_PLUGIN
 #ifdef STATIC_EGLRENDERER_PLUGIN
@@ -47,6 +48,9 @@ public:
 		b3Printf("%s in file:%s line:%d\n", message, file, line);
 	}
 };
+
+
+
 
 struct InternalPhysXBodyData
 {
@@ -76,13 +80,117 @@ struct InternalPhysXBodyData
 typedef b3PoolBodyHandle<InternalPhysXBodyData> InternalPhysXBodyHandle;
 
 
-struct PhysXServerCommandProcessorInternalData
+
+struct PhysXServerCommandProcessorInternalData : public physx::PxSimulationEventCallback, public physx::PxContactModifyCallback
 {
 	bool m_isConnected;
 	bool m_verboseOutput;
 	double m_physicsDeltaTime;
 	int m_numSimulationSubSteps;
+	btSpinMutex m_taskLock;
 
+	btAlignedObjectArray<b3ContactPointData> m_contactPoints;
+
+	
+	void onContactModify(physx::PxContactModifyPair* const pairs, physx::PxU32 count)
+	{
+		for (physx::PxU32 i = 0; i<count; i++)
+		{
+			//...
+		}
+	}
+
+	void onContact(const physx::PxContactPairHeader& pairHeader, const physx::PxContactPair* pairs, physx::PxU32 nbPairs)
+	{
+		B3_PROFILE("onContact");
+		//todo: are there really multiple threads calling 'onContact'?
+		m_taskLock.lock();
+
+		btAlignedObjectArray<physx::PxContactPairPoint> contacts;
+		for (physx::PxU32 i = 0; i < nbPairs; i++)
+		{
+			physx::PxU32 contactCount = pairs[i].contactCount;
+			if (contactCount)
+			{
+				contacts.resize(contactCount);
+				pairs[i].extractContacts(&contacts[0], contactCount);
+				for (physx::PxU32 j = 0; j < contactCount; j++)
+				{
+					const physx::PxContactPairPoint& contact = contacts[i];
+					b3ContactPointData srcPt;
+					MyPhysXUserData* udA = (MyPhysXUserData*)pairHeader.actors[0]->userData;
+					MyPhysXUserData* udB = (MyPhysXUserData*)pairHeader.actors[1]->userData;
+					srcPt.m_bodyUniqueIdA = udA->m_bodyUniqueId;
+					srcPt.m_linkIndexA = udA->m_linkIndex;
+					srcPt.m_bodyUniqueIdB = udB->m_bodyUniqueId;
+					srcPt.m_linkIndexB = udB->m_linkIndex;
+					srcPt.m_positionOnAInWS[0] = contact.position.x + contact.separation*contact.normal.x;
+					srcPt.m_positionOnAInWS[1] = contact.position.y + contact.separation*contact.normal.y;
+					srcPt.m_positionOnAInWS[2] = contact.position.z + contact.separation*contact.normal.z;
+					srcPt.m_positionOnBInWS[0] = contact.position.x - contact.separation*contact.normal.x;
+					srcPt.m_positionOnBInWS[1] = contact.position.y - contact.separation*contact.normal.y;
+					srcPt.m_positionOnBInWS[2] = contact.position.z - contact.separation*contact.normal.z;
+					srcPt.m_contactNormalOnBInWS[0] = contact.normal.x;
+					srcPt.m_contactNormalOnBInWS[1] = contact.normal.y;
+					srcPt.m_contactNormalOnBInWS[2] = contact.normal.z;
+					srcPt.m_contactDistance = contact.separation;
+					srcPt.m_contactFlags = 0;
+					srcPt.m_linearFrictionDirection1[0] = 0;
+					srcPt.m_linearFrictionDirection1[1] = 0;
+					srcPt.m_linearFrictionDirection1[2] = 0;
+					srcPt.m_linearFrictionDirection2[0] = 0;
+					srcPt.m_linearFrictionDirection2[1] = 0;
+					srcPt.m_linearFrictionDirection2[2] = 0;
+					
+					srcPt.m_linearFrictionForce2 = 0;
+					
+					srcPt.m_normalForce = contact.impulse.dot(contact.normal);
+					//compute friction direction from impulse projected in contact plane using contact normal.
+					physx::PxVec3 fric = contact.impulse - contact.normal*srcPt.m_normalForce;
+					double fricForce = fric.normalizeSafe();
+					if (fricForce)
+					{
+						srcPt.m_linearFrictionDirection1[0] = fric.x;
+						srcPt.m_linearFrictionDirection1[1] = fric.y;
+						srcPt.m_linearFrictionDirection1[2] = fric.z;
+						srcPt.m_linearFrictionForce1 = fricForce;
+					}
+					m_contactPoints.push_back(srcPt);
+					// std::cout << "Contact: bw " << pairHeader.actors[0]->getName() << " and " << pairHeader.actors[1]->getName() << " | " << contacts[j].position.x << "," << contacts[j].position.y << ","
+					// 		  << contacts[j].position.z << std::endl;
+				}
+			}
+		}
+		m_taskLock.unlock();
+	}
+
+	void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count)
+	{
+		PX_UNUSED(constraints);
+		PX_UNUSED(count);
+	}
+
+	void onWake(physx::PxActor** actors, physx::PxU32 count)
+	{
+		PX_UNUSED(actors);
+		PX_UNUSED(count);
+	}
+
+	void onSleep(physx::PxActor** actors, physx::PxU32 count)
+	{
+		PX_UNUSED(actors);
+		PX_UNUSED(count);
+	}
+
+	void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
+	{
+		PX_UNUSED(pairs);
+		PX_UNUSED(count);
+	}
+
+	void onAdvance(const physx::PxRigidBody* const*, const physx::PxTransform*, const physx::PxU32) 
+	{
+	}
 	
 
 	b3PluginManager m_pluginManager;
@@ -158,9 +266,10 @@ physx::PxFilterFlags MyPhysXFilter(physx::PxFilterObjectAttributes attributes0, 
 	PX_UNUSED(attributes1);
 	PX_UNUSED(constantBlock);
 	PX_UNUSED(constantBlockSize);
-	if (filterData0.word2 != 0 && filterData0.word2 == filterData1.word2)
-		return physx::PxFilterFlag::eKILL;
-	pairFlags |= physx::PxPairFlag::eCONTACT_DEFAULT;
+	// if (filterData0.word2 != 0 && filterData0.word2 == filterData1.word2)
+	// 	return physx::PxFilterFlag::eKILL;
+	pairFlags |= physx::PxPairFlag::eCONTACT_DEFAULT | physx::PxPairFlag::eNOTIFY_TOUCH_FOUND
+		| physx::PxPairFlag::eDETECT_DISCRETE_CONTACT | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS | physx::PxPairFlag::eMODIFY_CONTACTS;
 	return physx::PxFilterFlag::eDEFAULT;
 }
 
@@ -186,13 +295,29 @@ bool PhysXServerCommandProcessor::connect()
 		
 		physx::PxSceneDesc sceneDesc(m_data->m_physics->getTolerancesScale());
 		sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
+
+		//todo: add some boolean, to pick solver
 		sceneDesc.solverType = physx::PxSolverType::eTGS;
 		//sceneDesc.solverType = physx::PxSolverType::ePGS;
 		sceneDesc.cpuDispatcher = m_data->m_dispatcher;
-		//sceneDesc.filterShader = MyPhysXFilter;
-		sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+		
+		//todo: add some boolean, to allow enable/disable of this contact filtering
+		bool enableContactCallback = false;
 
-
+		if (enableContactCallback)
+		{
+			sceneDesc.filterShader = MyPhysXFilter;
+			sceneDesc.simulationEventCallback = this->m_data;
+			sceneDesc.contactModifyCallback = this->m_data;
+		}
+		else
+		{
+			sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+		}
+		
+		
+		
+		
 		m_data->m_scene = m_data->m_physics->createScene(sceneDesc);
 
 		m_data->m_material = m_data->m_physics->createMaterial(0.5f, 0.5f, 0.f);
@@ -1049,6 +1174,34 @@ bool PhysXServerCommandProcessor::processRequestPhysicsSimulationParametersComma
 	return hasStatus;
 }
 
+bool PhysXServerCommandProcessor::processRequestContactpointInformationCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+	int totalBytesPerContact = sizeof(b3ContactPointData);
+	int contactPointStorage = bufferSizeInBytes / totalBytesPerContact - 1;
+
+	b3ContactPointData* contactData = (b3ContactPointData*)bufferServerToClient;
+
+	int startContactPointIndex = clientCmd.m_requestContactPointArguments.m_startingContactPointIndex;
+	int numContactPointBatch = btMin(int(m_data->m_contactPoints.size()), contactPointStorage);
+
+	int endContactPointIndex = startContactPointIndex + numContactPointBatch;
+	serverCmd.m_sendContactPointArgs.m_numContactPointsCopied = 0;
+	for (int i = startContactPointIndex; i < endContactPointIndex; i++)
+	{
+		const b3ContactPointData& srcPt = m_data->m_contactPoints[i];
+		b3ContactPointData& destPt = contactData[serverCmd.m_sendContactPointArgs.m_numContactPointsCopied];
+		destPt = srcPt;
+		serverCmd.m_sendContactPointArgs.m_numContactPointsCopied++;
+	}
+	serverCmd.m_sendContactPointArgs.m_startingContactPointIndex = startContactPointIndex;
+	serverCmd.m_sendContactPointArgs.m_numRemainingContactPoints = m_data->m_contactPoints.size() - startContactPointIndex - serverCmd.m_sendContactPointArgs.m_numContactPointsCopied;
+	serverCmd.m_numDataStreamBytes = totalBytesPerContact * serverCmd.m_sendContactPointArgs.m_numContactPointsCopied;
+	serverCmd.m_type = CMD_CONTACT_POINT_INFORMATION_COMPLETED;
+	
+
+	return true;
+}
 
 bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
@@ -1151,6 +1304,11 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 			break;
 		}
 
+		case CMD_REQUEST_CONTACT_POINT_INFORMATION:
+		{
+			hasStatus = processRequestContactpointInformationCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
 
 #if 0
 	case CMD_SET_VR_CAMERA_STATE:
@@ -1310,11 +1468,7 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 			hasStatus = processConfigureOpenGLVisualizerCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
-	case CMD_REQUEST_CONTACT_POINT_INFORMATION:
-		{
-			hasStatus = processRequestContactpointInformationCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
+	
 	case CMD_CALCULATE_INVERSE_DYNAMICS:
 		{
 			hasStatus = processInverseDynamicsCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
@@ -1768,7 +1922,12 @@ bool PhysXServerCommandProcessor::processForwardDynamicsCommand(const struct Sha
 	int numArt = m_data->m_scene->getNbArticulations();
 	
 	{
+		B3_PROFILE("clear Contacts");
+		m_data->m_contactPoints.clear();
+	}
+	{
 		B3_PROFILE("PhysX_simulate_fetchResults");
+		
 		m_data->m_scene->simulate(m_data->m_physicsDeltaTime);
 		m_data->m_scene->fetchResults(true);
 	}

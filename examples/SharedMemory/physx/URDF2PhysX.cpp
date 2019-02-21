@@ -796,6 +796,8 @@ btTransform ConvertURDF2PhysXInternal(
 			//todo: mem leaks
 			MyPhysXUserData* userData = new MyPhysXUserData();
 			userData->m_graphicsUniqueId = graphicsIndex;
+			userData->m_bodyUniqueId = u2b.getBodyUniqueId();
+			userData->m_linkIndex = mbLinkIndex;
 			linkPtr->userData = userData;
 		}
 

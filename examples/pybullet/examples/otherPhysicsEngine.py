@@ -45,5 +45,7 @@ while (1):
     p.setJointMotorControl2(door,1,p.POSITION_CONTROL, targetPosition = angle, positionGain=10.1, velocityGain=1, force=11.001)
   else:  
     p.setJointMotorControl2(door,1,p.VELOCITY_CONTROL, targetVelocity=1, force=1011)
+  contacts = p.getContactPoints()
+  print("contacts=",contacts)
   p.stepSimulation()
   time.sleep(1./240.)
