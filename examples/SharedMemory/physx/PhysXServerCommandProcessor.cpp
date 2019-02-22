@@ -50,7 +50,25 @@ public:
 	}
 };
 
+class CustomProfilerCallback : public physx::PxProfilerCallback
+{
+public:
+	virtual ~CustomProfilerCallback() {}
 
+	virtual void* zoneStart(const char* eventName, bool detached, uint64_t contextId)
+	{
+		b3EnterProfileZone(eventName);
+		return 0;
+	}
+
+	virtual void zoneEnd(void* profilerData, const char* eventName, bool detached, uint64_t contextId)
+	{
+		b3LeaveProfileZone();
+	}
+
+};
+
+static CustomProfilerCallback gCustomProfilerCallback;
 
 
 struct InternalPhysXBodyData
@@ -292,6 +310,9 @@ bool PhysXServerCommandProcessor::connect()
 	{
 		
 		m_data->m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_data->m_allocator, m_data->m_errorCallback);
+		// This call should be performed after PVD is initialized, otherwise it will have no effect.
+		PxSetProfilerCallback(&gCustomProfilerCallback);
+
 		m_data->m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_data->m_foundation, physx::PxTolerancesScale(), true, 0);
 		m_data->m_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_data->m_foundation, physx::PxCookingParams(physx::PxTolerancesScale()));
 
