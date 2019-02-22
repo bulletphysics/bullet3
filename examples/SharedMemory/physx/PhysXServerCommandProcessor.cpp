@@ -9,6 +9,7 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "LinearMath/btMinMax.h"
 #include "Bullet3Common/b3FileUtils.h"
+#include "Bullet3Common/b3CommandLineArgs.h"
 #include "../../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3ResizablePool.h"
 #include "PxPhysicsAPI.h"
@@ -216,16 +217,19 @@ struct PhysXServerCommandProcessorInternalData : public physx::PxSimulationEvent
 	int m_profileTimingLoggingUid;
 	int m_stateLoggersUniqueId;
 	std::string m_profileTimingFileName;
+	b3CommandLineArgs	m_commandLineArgs;
 
-	PhysXServerCommandProcessorInternalData(PhysXServerCommandProcessor* sdk)
+	PhysXServerCommandProcessorInternalData(PhysXServerCommandProcessor* sdk, int argc, char* argv[])
 		: m_isConnected(false),
 		  m_verboseOutput(false),
 		  m_physicsDeltaTime(1. / 240.),
 		  m_numSimulationSubSteps(0),
 		m_pluginManager(sdk),
 		m_profileTimingLoggingUid(-1),
-		m_stateLoggersUniqueId(1)
+		m_stateLoggersUniqueId(1),
+		m_commandLineArgs(argc,argv)
 	{
+
 		m_foundation = NULL;
 		m_physics = NULL;
 		m_cooking = NULL;
@@ -246,9 +250,10 @@ struct PhysXServerCommandProcessorInternalData : public physx::PxSimulationEvent
 	}
 };
 
-PhysXServerCommandProcessor::PhysXServerCommandProcessor()
+PhysXServerCommandProcessor::PhysXServerCommandProcessor(int argc, char* argv[])
 {
-	m_data = new PhysXServerCommandProcessorInternalData(this);
+
+	m_data = new PhysXServerCommandProcessorInternalData(this, argc, argv);
 }
 
 PhysXServerCommandProcessor::~PhysXServerCommandProcessor()
@@ -290,25 +295,42 @@ bool PhysXServerCommandProcessor::connect()
 		m_data->m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_data->m_foundation, physx::PxTolerancesScale(), true, 0);
 		m_data->m_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_data->m_foundation, physx::PxCookingParams(physx::PxTolerancesScale()));
 
-		physx::PxU32 numCores = 1;//
+		
+		physx::PxU32 numCores = 1;
+		m_data->m_commandLineArgs.GetCmdLineArgument("numCores", numCores);
+		printf("PhysX numCores=%d\n", numCores);
 		m_data->m_dispatcher = physx::PxDefaultCpuDispatcherCreate(numCores == 0 ? 0 : numCores - 1);
 		
 		physx::PxSceneDesc sceneDesc(m_data->m_physics->getTolerancesScale());
 		sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
 
-		//todo: add some boolean, to pick solver
-		sceneDesc.solverType = physx::PxSolverType::eTGS;
-		//sceneDesc.solverType = physx::PxSolverType::ePGS;
+		
+		sceneDesc.solverType = physx::PxSolverType::ePGS;
+		std::string solver;
+		m_data->m_commandLineArgs.GetCmdLineArgument("solver", solver);
+		
+		if (solver=="tgs")
+		{
+			sceneDesc.solverType = physx::PxSolverType::eTGS;
+			printf("PhysX using TGS\n");
+		}
+		else
+		{
+			printf("PhysX using PGS\n");
+		}
+		
 		sceneDesc.cpuDispatcher = m_data->m_dispatcher;
 		
 		//todo: add some boolean, to allow enable/disable of this contact filtering
 		bool enableContactCallback = false;
+		m_data->m_commandLineArgs.GetCmdLineArgument("enableContactCallback", enableContactCallback);
 
 		if (enableContactCallback)
 		{
 			sceneDesc.filterShader = MyPhysXFilter;
 			sceneDesc.simulationEventCallback = this->m_data;
 			sceneDesc.contactModifyCallback = this->m_data;
+			printf("PhysX enableContactCallback\n");
 		}
 		else
 		{
@@ -1203,6 +1225,23 @@ bool PhysXServerCommandProcessor::processRequestContactpointInformationCommand(c
 	return true;
 }
 
+bool PhysXServerCommandProcessor::processCreateCollisionShapeCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	return false;
+}
+
+
+bool PhysXServerCommandProcessor::processSetAdditionalSearchPathCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+
+	BT_PROFILE("CMD_SET_ADDITIONAL_SEARCH_PATH");
+	b3ResourcePath::setAdditionalSearchPath(clientCmd.m_searchPathArgs.m_path);
+	serverStatusOut.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+	return hasStatus;
+}
+
+
 bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	//	BT_PROFILE("processCommand");
@@ -1310,6 +1349,17 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 			break;
 		}
 
+		case CMD_CREATE_COLLISION_SHAPE:
+		{
+			hasStatus = processCreateCollisionShapeCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
+
+		case CMD_SET_ADDITIONAL_SEARCH_PATH:
+		{
+			hasStatus = processSetAdditionalSearchPathCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
 #if 0
 	case CMD_SET_VR_CAMERA_STATE:
 		{
@@ -1365,11 +1415,7 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 			hasStatus = processLoadSDFCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
-	case CMD_CREATE_COLLISION_SHAPE:
-		{
-			hasStatus = processCreateCollisionShapeCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
+	
 	case CMD_CREATE_VISUAL_SHAPE:
 		{
 			hasStatus = processCreateVisualShapeCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
@@ -1380,11 +1426,7 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 			hasStatus = processCreateMultiBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
-	case CMD_SET_ADDITIONAL_SEARCH_PATH:
-		{
-			hasStatus = processSetAdditionalSearchPathCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
+	
 	
 	case CMD_LOAD_MJCF:
 	{

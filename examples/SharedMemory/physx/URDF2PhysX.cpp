@@ -294,6 +294,13 @@ int convertLinkPhysXShapes(const URDFImporterInterface& u2b, URDF2PhysXCachedDat
 				btScalar radius = collision->m_geometry.m_capsuleRadius;
 				btScalar height = collision->m_geometry.m_capsuleHeight;
 
+				//static PxShape* createExclusiveShape(PxRigidActor& actor, const PxGeometry& geometry, PxMaterial*const* materials, PxU16 materialCount,
+				//	PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE | PxShapeFlag::eSIMULATION_SHAPE)
+				//{
+				physx::PxShapeFlags shapeFlags = physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE;
+				
+				//shape = PxGetPhysics().createShape(physx::PxCapsuleGeometry(radius, 0.5*height), &material, 1, false, shapeFlags);
+
 				shape = physx::PxRigidActorExt::createExclusiveShape(*linkPtr, physx::PxCapsuleGeometry(radius, 0.5*height), *material);
 
 				btTransform childTrans = col.m_linkLocalFrame;
@@ -691,7 +698,8 @@ btTransform ConvertURDF2PhysXInternal(
 				
 				//Now create the slider and fixed joints...
 
-				cache.m_articulation->setSolverIterationCounts(32);//todo: API?
+				cache.m_articulation->setSolverIterationCounts(4);//todo: API?
+				//cache.m_articulation->setSolverIterationCounts(32);//todo: API?
 				
 				cache.m_jointTypes.push_back(physx::PxArticulationJointType::eUNDEFINED);
 				cache.m_parentLocalPoses.push_back(physx::PxTransform());
@@ -807,8 +815,10 @@ btTransform ConvertURDF2PhysXInternal(
 		convertLinkPhysXShapes(u2b, cache, creation, urdfLinkIndex, pathPrefix, localInertialFrame, cache.m_articulation, mbLinkIndex, linkPtr);
 
 		
-		physx::PxRigidBodyExt::updateMassAndInertia(*rbLinkPtr, mass);
-		
+		if (rbLinkPtr)
+		{
+			physx::PxRigidBodyExt::updateMassAndInertia(*rbLinkPtr, mass);
+		}
 		
 		//base->setMass(massOut);
 		//base->setMassSpaceInertiaTensor(diagTensor);
@@ -1005,6 +1015,7 @@ physx::PxBase* URDF2PhysX(physx::PxFoundation* foundation, physx::PxPhysics* phy
 
 	if (cache.m_rigidStatic)
 	{
+		
 		scene->addActor(*cache.m_rigidStatic);
 		return cache.m_rigidStatic;
 	}
