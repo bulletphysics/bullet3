@@ -15,7 +15,13 @@ image = plt.imshow(img,interpolation='none',animated=True,label="blah")
 ax = plt.gca()
 
 
-pybullet.connect(pybullet.DIRECT)
+usePhysX = True
+useMaximalCoordinates = True
+if usePhysX:
+  pybullet.connect(pybullet.PhysX,options="--numCores=8 --solver=pgs")
+  pybullet.loadPlugin("eglRendererPlugin")
+else:
+  pybullet.connect(pybullet.GUI)
 
 #pybullet.loadPlugin("eglRendererPlugin")
 pybullet.loadURDF("plane.urdf",[0,0,-1])

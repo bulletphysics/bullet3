@@ -1276,6 +1276,8 @@ void EGLRendererVisualShapeConverter::render(const float viewMat[16], const floa
 
 	render();
 
+	m_data->m_camera.disableVRCamera();
+
 	//cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
 	//cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
 	//cout<<viewMat[4*2 + 0]<<" "<<viewMat[4*2+1]<<" "<<viewMat[4*2+2]<<" "<<viewMat[4*2+3] << endl;
@@ -1678,4 +1680,60 @@ void EGLRendererVisualShapeConverter::syncTransform(int collisionObjectUniqueId,
 			}
 		}
 	}
+}
+
+bool EGLRendererVisualShapeConverter::getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3], float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float cameraTarget[3]) const
+{
+	if (m_data->m_instancingRenderer && m_data->m_instancingRenderer->getActiveCamera())
+	{
+		*width = m_data->m_window->getWidth() * m_data->m_window->getRetinaScale();
+		*height = m_data->m_window->getHeight() * m_data->m_window->getRetinaScale();
+		m_data->m_instancingRenderer->getActiveCamera()->getCameraViewMatrix(viewMatrix);
+		m_data->m_instancingRenderer->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
+		m_data->m_instancingRenderer->getActiveCamera()->getCameraUpVector(camUp);
+		m_data->m_instancingRenderer->getActiveCamera()->getCameraForwardVector(camForward);
+
+		float top = 1.f;
+		float bottom = -1.f;
+		float tanFov = (top - bottom) * 0.5f / 1;
+		float fov = btScalar(2.0) * btAtan(tanFov);
+		btVector3 camPos, camTarget;
+		m_data->m_instancingRenderer->getActiveCamera()->getCameraPosition(camPos);
+		m_data->m_instancingRenderer->getActiveCamera()->getCameraTargetPosition(camTarget);
+		btVector3 rayFrom = camPos;
+		btVector3 rayForward = (camTarget - camPos);
+		rayForward.normalize();
+		float farPlane = 10000.f;
+		rayForward *= farPlane;
+
+		btVector3 rightOffset;
+		btVector3 cameraUp = btVector3(camUp[0], camUp[1], camUp[2]);
+		btVector3 vertical = cameraUp;
+		btVector3 hori;
+		hori = rayForward.cross(vertical);
+		hori.normalize();
+		vertical = hori.cross(rayForward);
+		vertical.normalize();
+		float tanfov = tanf(0.5f * fov);
+		hori *= 2.f * farPlane * tanfov;
+		vertical *= 2.f * farPlane * tanfov;
+		btScalar aspect = float(*width) / float(*height);
+		hori *= aspect;
+		//compute 'hor' and 'vert' vectors, useful to generate raytracer rays
+		hor[0] = hori[0] * m_data->m_window->getRetinaScale();
+		hor[1] = hori[1] * m_data->m_window->getRetinaScale();
+		hor[2] = hori[2] * m_data->m_window->getRetinaScale();
+		vert[0] = vertical[0] * m_data->m_window->getRetinaScale();
+		vert[1] = vertical[1] * m_data->m_window->getRetinaScale();
+		vert[2] = vertical[2] * m_data->m_window->getRetinaScale();
+
+		*yaw = m_data->m_instancingRenderer->getActiveCamera()->getCameraYaw();
+		*pitch = m_data->m_instancingRenderer->getActiveCamera()->getCameraPitch();
+		*camDist = m_data->m_instancingRenderer->getActiveCamera()->getCameraDistance();
+		cameraTarget[0] = camTarget[0];
+		cameraTarget[1] = camTarget[1];
+		cameraTarget[2] = camTarget[2];
+		return true;
+	}
+	return false;
 }

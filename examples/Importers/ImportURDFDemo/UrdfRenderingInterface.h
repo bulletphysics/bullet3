@@ -95,6 +95,13 @@ struct UrdfRenderingInterface
 
 	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]) {}
 	virtual void setProjectiveTexture(bool useProjectiveTexture) {}
+
+
+	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3], float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float cameraTarget[3]) const
+	{
+		return false;
+	}
+
 };
 
 #endif  //LINK_VISUAL_SHAPES_CONVERTER_H

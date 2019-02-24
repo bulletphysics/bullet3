@@ -281,11 +281,21 @@ int convertLinkPhysXShapes(const URDFImporterInterface& u2b, URDF2PhysXCachedDat
 			{
 				btVector3 planeNormal = col.m_geometry.m_planeNormal;
 				btScalar planeConstant = 0;  //not available?
-				//PxPlane(1, 0, 0, 0).
+				
+				btVector3 planeRefAxis(1, 0, 0);
+				btQuaternion diffQuat = shortestArcQuat(planeRefAxis, planeNormal);
 				shape = physx::PxRigidActorExt::createExclusiveShape(*linkPtr, physx::PxPlaneGeometry(), *material);
-				//todo: compensate for plane axis
-				//physx::PxTransform localPose = tr*physx::PxTransform
-				//shape->setLocalPose(localPose);
+				
+				btTransform diffTr;
+				diffTr.setIdentity();
+				diffTr.setRotation(diffQuat);
+				btTransform localTrans = localInertiaFrame.inverse()*childTrans*diffTr;
+				physx::PxTransform tr;
+				tr.p = physx::PxVec3(localTrans.getOrigin()[0], localTrans.getOrigin()[1], localTrans.getOrigin()[2]);
+				tr.q = physx::PxQuat(localTrans.getRotation()[0], localTrans.getRotation()[1], localTrans.getRotation()[2], localTrans.getRotation()[3]);
+
+				physx::PxTransform localPose = tr;
+				shape->setLocalPose(localPose);
 				numShapes++;
 				break;
 			}
@@ -698,8 +708,8 @@ btTransform ConvertURDF2PhysXInternal(
 				
 				//Now create the slider and fixed joints...
 
-				cache.m_articulation->setSolverIterationCounts(4);//todo: API?
-				//cache.m_articulation->setSolverIterationCounts(32);//todo: API?
+				//cache.m_articulation->setSolverIterationCounts(4);//todo: API?
+				cache.m_articulation->setSolverIterationCounts(32);//todo: API?
 				
 				cache.m_jointTypes.push_back(physx::PxArticulationJointType::eUNDEFINED);
 				cache.m_parentLocalPoses.push_back(physx::PxTransform());
@@ -815,7 +825,7 @@ btTransform ConvertURDF2PhysXInternal(
 		convertLinkPhysXShapes(u2b, cache, creation, urdfLinkIndex, pathPrefix, localInertialFrame, cache.m_articulation, mbLinkIndex, linkPtr);
 
 		
-		if (rbLinkPtr)
+		if (rbLinkPtr && mass)
 		{
 			physx::PxRigidBodyExt::updateMassAndInertia(*rbLinkPtr, mass);
 		}
