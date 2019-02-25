@@ -87,7 +87,7 @@ class HumanoidStablePD(object):
     self.resetPose()
     
   def resetPose(self):
-    print("resetPose with self._frame=", self._frame, " and self._frameFraction=",self._frameFraction)
+    #print("resetPose with self._frame=", self._frame, " and self._frameFraction=",self._frameFraction)
     pose = self.computePose(self._frameFraction)
     self.initializePose(self._poseInterpolator, self._sim_model, initBase=True)
     self.initializePose(self._poseInterpolator, self._kin_model, initBase=False)
@@ -239,44 +239,43 @@ class HumanoidStablePD(object):
     leftElbow=13
     kp = 0.2
     
-    
+    forceScale=1
     #self._jointDofCounts=[4,4,4,1,4,4,1,4,1,4,4,1]
-    maxForce = maxForces[startIndex]
+    maxForce = [forceScale*maxForces[startIndex],forceScale*maxForces[startIndex+1],forceScale*maxForces[startIndex+2],forceScale*maxForces[startIndex+3]]
     startIndex+=4
-    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,chest,controlMode, targetPosition=self._poseInterpolator._chestRot,positionGain=kp, force=[maxForce])
-    maxForce = maxForces[startIndex]
+    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,chest,controlMode, targetPosition=self._poseInterpolator._chestRot,positionGain=kp, force=maxForce)
+    maxForce =  [maxForces[startIndex],maxForces[startIndex+1],maxForces[startIndex+2],maxForces[startIndex+3]]
     startIndex+=4
-    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,neck,controlMode,targetPosition=self._poseInterpolator._neckRot,positionGain=kp, force=[maxForce])
-    maxForce = maxForces[startIndex]
+    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,neck,controlMode,targetPosition=self._poseInterpolator._neckRot,positionGain=kp, force=maxForce)
+    maxForce =  [maxForces[startIndex],maxForces[startIndex+1],maxForces[startIndex+2],maxForces[startIndex+3]]
     startIndex+=4
-    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,rightHip,controlMode,targetPosition=self._poseInterpolator._rightHipRot,positionGain=kp, force=[maxForce])
-    maxForce = maxForces[startIndex]
+    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,rightHip,controlMode,targetPosition=self._poseInterpolator._rightHipRot,positionGain=kp, force=maxForce)
+    maxForce = [forceScale*maxForces[startIndex]]
     startIndex+=1
-    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,rightKnee,controlMode,targetPosition=self._poseInterpolator._rightKneeRot,positionGain=kp, force=[maxForce])
-    maxForce = maxForces[startIndex]
+    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,rightKnee,controlMode,targetPosition=self._poseInterpolator._rightKneeRot,positionGain=kp, force=maxForce)
+    maxForce =  [maxForces[startIndex],maxForces[startIndex+1],maxForces[startIndex+2],maxForces[startIndex+3]]
     startIndex+=4
-    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,rightAnkle,controlMode,targetPosition=self._poseInterpolator._rightAnkleRot,positionGain=kp, force=[maxForce])
-    maxForce = [maxForces[startIndex],maxForces[startIndex+1],maxForces[startIndex+2],maxForces[startIndex+3]]
+    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,rightAnkle,controlMode,targetPosition=self._poseInterpolator._rightAnkleRot,positionGain=kp, force=maxForce)
+    maxForce = [forceScale*maxForces[startIndex],forceScale*maxForces[startIndex+1],forceScale*maxForces[startIndex+2],forceScale*maxForces[startIndex+3]]
     startIndex+=4
-    maxForce = maxForces[startIndex]
-    maxForce = maxForces[startIndex]
+    maxForce = [forceScale*maxForces[startIndex]]
     startIndex+=1
-    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,rightElbow, controlMode,targetPosition=self._poseInterpolator._rightElbowRot,positionGain=kp, force=[maxForce])
-    maxForce = maxForces[startIndex]
+    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,rightElbow, controlMode,targetPosition=self._poseInterpolator._rightElbowRot,positionGain=kp, force=maxForce)
+    maxForce =  [maxForces[startIndex],maxForces[startIndex+1],maxForces[startIndex+2],maxForces[startIndex+3]]
     startIndex+=4
-    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,leftHip, controlMode,targetPosition=self._poseInterpolator._leftHipRot,positionGain=kp, force=[maxForce])
-    maxForce = maxForces[startIndex]
+    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,leftHip, controlMode,targetPosition=self._poseInterpolator._leftHipRot,positionGain=kp, force=maxForce)
+    maxForce = [forceScale*maxForces[startIndex]]
     startIndex+=1
-    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,leftKnee, controlMode,targetPosition=self._poseInterpolator._leftKneeRot,positionGain=kp, force=[maxForce])
-    maxForce = maxForces[startIndex]
+    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,leftKnee, controlMode,targetPosition=self._poseInterpolator._leftKneeRot,positionGain=kp, force=maxForce)
+    maxForce =  [maxForces[startIndex],maxForces[startIndex+1],maxForces[startIndex+2],maxForces[startIndex+3]]
     startIndex+=4
-    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,leftAnkle, controlMode,targetPosition=self._poseInterpolator._leftAnkleRot,positionGain=kp, force=[maxForce])
-    maxForce = maxForces[startIndex]
+    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,leftAnkle, controlMode,targetPosition=self._poseInterpolator._leftAnkleRot,positionGain=kp, force=maxForce)
+    maxForce =  [maxForces[startIndex],maxForces[startIndex+1],maxForces[startIndex+2],maxForces[startIndex+3]]
     startIndex+=4
-    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,leftShoulder, controlMode,targetPosition=self._poseInterpolator._leftShoulderRot,positionGain=kp, force=[maxForce])
-    maxForce = maxForces[startIndex]
+    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,leftShoulder, controlMode,targetPosition=self._poseInterpolator._leftShoulderRot,positionGain=kp, force=maxForce)
+    maxForce = [forceScale*maxForces[startIndex]]
     startIndex+=1
-    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,leftElbow, controlMode,targetPosition=self._poseInterpolator._leftElbowRot,positionGain=kp, force=[maxForce])
+    self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,leftElbow, controlMode,targetPosition=self._poseInterpolator._leftElbowRot,positionGain=kp, force=maxForce)
     #print("startIndex=",startIndex)
       
   def getPhase(self):
