@@ -1,4 +1,4 @@
-#include "BlockSolverExample.h"
+#include "BoxStacks.h"
 #include "../OpenGLWindow/SimpleOpenGL3App.h"
 #include "btBulletDynamicsCommon.h"
 
@@ -7,6 +7,7 @@
 
 #include "BulletDynamics/Featherstone/btMultiBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
+#include "BulletDynamics/Featherstone/btMultiBodyBlockConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
@@ -16,19 +17,17 @@
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletDynamics/Featherstone/btMultiBodyFixedConstraint.h"
 #include "BulletDynamics/Featherstone/btMultiBodySliderConstraint.h"
-#include "btBlockSolver.h"
 
 #include "../OpenGLWindow/GLInstancingRenderer.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 
-class BlockSolverExample : public CommonMultiBodyBase
+class BoxStacks : public CommonMultiBodyBase
 {
-	int m_option;
 public:
-	BlockSolverExample(GUIHelperInterface* helper, int option);
-	virtual ~BlockSolverExample();
+    BoxStacks(GUIHelperInterface* helper);
+    virtual ~BoxStacks();
 
 	virtual void initPhysics();
 
@@ -43,6 +42,7 @@ public:
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 
+	void createBoxStack(int numBoxes, btScalar centerX, btScalar centerY);
 	btMultiBody* createFeatherstoneMultiBody(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents, bool spherical = false, bool fixedBase = false);
 	void createGround(const btVector3& halfExtents = btVector3(50, 50, 50), btScalar zOffSet = btScalar(-1.55));
 	void addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents);
@@ -52,28 +52,27 @@ static bool g_fixedBase = true;
 static bool g_firstInit = true;
 static float scaling = 0.4f;
 static float friction = 1.;
+static int g_constraintSolverType = 0;
 
-
-BlockSolverExample::BlockSolverExample(GUIHelperInterface* helper, int option)
-	: CommonMultiBodyBase(helper),
-	m_option(option)
+BoxStacks::BoxStacks(GUIHelperInterface* helper)
+	: CommonMultiBodyBase(helper)
 {
 	m_guiHelper->setUpAxis(1);
 }
 
-BlockSolverExample::~BlockSolverExample()
+BoxStacks::~BoxStacks()
 {
 	// Do nothing
 }
 
-void BlockSolverExample::stepSimulation(float deltaTime)
+void BoxStacks::stepSimulation(float deltaTime)
 {
 	//use a smaller internal timestep, there are stability issues
 	float internalTimeStep = 1. / 240.f;
 	m_dynamicsWorld->stepSimulation(deltaTime, 10, internalTimeStep);
 }
 
-void BlockSolverExample::initPhysics()
+void BoxStacks::initPhysics()
 {
 	m_guiHelper->setUpAxis(1);
 
@@ -91,145 +90,101 @@ void BlockSolverExample::initPhysics()
 
 	m_broadphase = new btDbvtBroadphase();
 
-	
+	if (g_constraintSolverType == 3)
+	{
+		g_constraintSolverType = 0;
+		g_fixedBase = !g_fixedBase;
+	}
+
 	btMLCPSolverInterface* mlcp;
-	if (m_option&BLOCK_SOLVER_SI)
+	switch (g_constraintSolverType++)
 	{
-		btAssert(!m_solver);
-		m_solver = new btMultiBodyConstraintSolver;
-		b3Printf("Constraint Solver: Sequential Impulse");
+		case 0:
+			m_solver = new btMultiBodyConstraintSolver;
+			b3Printf("Constraint Solver: Sequential Impulse");
+			break;
+		case 1:
+			mlcp = new btSolveProjectedGaussSeidel();
+			m_solver = new btMultiBodyMLCPConstraintSolver(mlcp);
+			b3Printf("Constraint Solver: MLCP + PGS");
+			break;
+		default:
+			mlcp = new btDantzigSolver();
+			m_solver = new btMultiBodyMLCPConstraintSolver(mlcp);
+			b3Printf("Constraint Solver: MLCP + Dantzig");
+			break;
 	}
-	if (m_option&BLOCK_SOLVER_MLCP_PGS)
-	{
-		btAssert(!m_solver);
-		mlcp = new btSolveProjectedGaussSeidel();
-		m_solver = new btMultiBodyMLCPConstraintSolver(mlcp);
-		b3Printf("Constraint Solver: MLCP + PGS");
-	}
-	if (m_option&BLOCK_SOLVER_MLCP_DANTZIG)
-	{
-		btAssert(!m_solver);
-		mlcp = new btDantzigSolver();
-		m_solver = new btMultiBodyMLCPConstraintSolver(mlcp);
-		b3Printf("Constraint Solver: MLCP + Dantzig");
-	}
-	if (m_option&BLOCK_SOLVER_BLOCK)
-	{
-		m_solver = new btBlockSolver();
-	}
-	
-	btAssert(m_solver);
+	m_solver = new btMultiBodyBlockConstraintSolver();
 
 	btMultiBodyDynamicsWorld* world = new btMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 	m_dynamicsWorld = world;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-	m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
-	m_dynamicsWorld->getSolverInfo().m_globalCfm = btScalar(1e-4);  //todo: what value is good?
+	m_dynamicsWorld->setGravity(btVector3(btScalar(0), btScalar(-9.81), btScalar(0)));
+	m_dynamicsWorld->getSolverInfo().m_globalCfm = btScalar(1e-4); //todo: what value is good?
 
-	
+	/// Create a few basic rigid bodies
+	btVector3 groundHalfExtents(50, 50, 50);
+	btCollisionShape* groundShape = new btBoxShape(groundHalfExtents);
 
-	/////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////
+	m_collisionShapes.push_back(groundShape);
 
-	bool damping = true;
-	bool gyro = true;
-	int numLinks = 5;
-	bool spherical = true;      //set it ot false -to use 1DoF hinges instead of 3DoF sphericals
-	bool multibodyOnly = true;  //false
-	bool canSleep = true;
-	bool selfCollide = true;
-	btVector3 linkHalfExtents(0.05, 0.37, 0.1);
-	btVector3 baseHalfExtents(0.05, 0.37, 0.1);
+	btTransform groundTransform;
+	groundTransform.setIdentity();
+	groundTransform.setOrigin(btVector3(0, -50, 00));
 
-	btMultiBody* mbC1 = createFeatherstoneMultiBody(world, numLinks, btVector3(-0.4f, 3.f, 0.f), linkHalfExtents, baseHalfExtents, spherical, g_fixedBase);
-	btMultiBody* mbC2 = createFeatherstoneMultiBody(world, numLinks, btVector3(-0.4f, 3.0f, 0.5f), linkHalfExtents, baseHalfExtents, spherical, g_fixedBase);
+	btVector3 linkHalfExtents(btScalar(0.05), btScalar(0.37), btScalar(0.1));
+	btVector3 baseHalfExtents(btScalar(0.05), btScalar(0.37), btScalar(0.1));
 
-	mbC1->setCanSleep(canSleep);
-	mbC1->setHasSelfCollision(selfCollide);
-	mbC1->setUseGyroTerm(gyro);
+	createBoxStack(1, 0, 0);
 
-	if (!damping)
-	{
-		mbC1->setLinearDamping(0.f);
-		mbC1->setAngularDamping(0.f);
-	}
-	else
-	{
-		mbC1->setLinearDamping(0.1f);
-		mbC1->setAngularDamping(0.9f);
-	}
-	//
-	m_dynamicsWorld->setGravity(btVector3(0, -9.81, 0));
-	//////////////////////////////////////////////
-	if (numLinks > 0)
-	{
-		btScalar q0 = 45.f * SIMD_PI / 180.f;
-		if (!spherical)
-		{
-			mbC1->setJointPosMultiDof(0, &q0);
-		}
-		else
-		{
-			btQuaternion quat0(btVector3(1, 1, 0).normalized(), q0);
-			quat0.normalize();
-			mbC1->setJointPosMultiDof(0, quat0);
-		}
-	}
-	///
-	addColliders(mbC1, world, baseHalfExtents, linkHalfExtents);
-
-	mbC2->setCanSleep(canSleep);
-	mbC2->setHasSelfCollision(selfCollide);
-	mbC2->setUseGyroTerm(gyro);
-	//
-	if (!damping)
-	{
-		mbC2->setLinearDamping(0.f);
-		mbC2->setAngularDamping(0.f);
-	}
-	else
-	{
-		mbC2->setLinearDamping(0.1f);
-		mbC2->setAngularDamping(0.9f);
-	}
-	//
-	m_dynamicsWorld->setGravity(btVector3(0, -9.81, 0));
-	//////////////////////////////////////////////
-	if (numLinks > 0)
-	{
-		btScalar q0 = -45.f * SIMD_PI / 180.f;
-		if (!spherical)
-		{
-			mbC2->setJointPosMultiDof(0, &q0);
-		}
-		else
-		{
-			btQuaternion quat0(btVector3(1, 1, 0).normalized(), q0);
-			quat0.normalize();
-			mbC2->setJointPosMultiDof(0, quat0);
-		}
-	}
-	///
-	addColliders(mbC2, world, baseHalfExtents, linkHalfExtents);
-
-	/////////////////////////////////////////////////////////////////
-	btScalar groundHeight = -51.55;
-	btScalar mass(0.);
-
-	//rigidbody is dynamic if and only if mass is non zero, otherwise static
-	bool isDynamic = (mass != 0.f);
+	btScalar groundHeight = btScalar(-51.55);
+	btScalar mass = btScalar(0.0);
 
 	btVector3 localInertia(0, 0, 0);
-	
-	
+	groundShape->calculateLocalInertia(mass, localInertia);
+
+	// Using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+	groundTransform.setIdentity();
+	groundTransform.setOrigin(btVector3(0, groundHeight, 0));
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
+	btRigidBody* body = new btRigidBody(rbInfo);
+
+	// Add the body to the dynamics world
+	m_dynamicsWorld->addRigidBody(body, 1, 1 + 2);
+
 	createGround();
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
-
-	/////////////////////////////////////////////////////////////////
 }
 
-btMultiBody* BlockSolverExample::createFeatherstoneMultiBody(btMultiBodyDynamicsWorld* pWorld, int numLinks, const btVector3& basePosition, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents, bool spherical, bool fixedBase)
+void BoxStacks::createBoxStack(int numBoxes, btScalar centerX, btScalar centerZ)
+{
+	//create a few dynamic rigidbodies
+	// Re-using the same collision is better for memory usage and performance
+
+	const btScalar boxHalfSize = btScalar(0.1);
+
+	btBoxShape* colShape = createBoxShape(btVector3(boxHalfSize, boxHalfSize, boxHalfSize));
+	m_collisionShapes.push_back(colShape);
+
+	/// Create Dynamic Objects
+	btTransform startTransform;
+	startTransform.setIdentity();
+
+	btScalar mass(1.0);
+
+	btVector3 localInertia(0, 0, 0);
+	colShape->calculateLocalInertia(mass,localInertia);
+
+	for (int i = 0; i < numBoxes; ++i)
+	{
+		startTransform.setOrigin(btVector3(centerX, 1+btScalar(btScalar(2) * boxHalfSize * i), centerZ));
+		createRigidBody(mass, startTransform, colShape);
+	}
+}
+
+btMultiBody* BoxStacks::createFeatherstoneMultiBody(btMultiBodyDynamicsWorld* pWorld, int numLinks, const btVector3& basePosition, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents, bool spherical, bool fixedBase)
 {
 	//init the base
 	btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
@@ -288,7 +243,7 @@ btMultiBody* BlockSolverExample::createFeatherstoneMultiBody(btMultiBodyDynamics
 	return pMultiBody;
 }
 
-void BlockSolverExample::createGround(const btVector3& halfExtents, btScalar zOffSet)
+void BoxStacks::createGround(const btVector3& halfExtents, btScalar zOffSet)
 {
 	btCollisionShape* groundShape = new btBoxShape(halfExtents);
 	m_collisionShapes.push_back(groundShape);
@@ -313,7 +268,7 @@ void BlockSolverExample::createGround(const btVector3& halfExtents, btScalar zOf
 	m_dynamicsWorld->addRigidBody(body, 1, 1 + 2);
 }
 
-void BlockSolverExample::addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents)
+void BoxStacks::addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents)
 {
 	btAlignedObjectArray<btQuaternion> world_to_local;
 	world_to_local.resize(pMultiBody->getNumLinks() + 1);
@@ -374,7 +329,7 @@ void BlockSolverExample::addColliders(btMultiBody* pMultiBody, btMultiBodyDynami
 	}
 }
 
-CommonExampleInterface* BlockSolverExampleCreateFunc(CommonExampleOptions& options)
+CommonExampleInterface* BoxStacksCreateFunc(CommonExampleOptions& options)
 {
-	return new BlockSolverExample(options.m_guiHelper, options.m_option);
+    return new BoxStacks(options.m_guiHelper);
 }

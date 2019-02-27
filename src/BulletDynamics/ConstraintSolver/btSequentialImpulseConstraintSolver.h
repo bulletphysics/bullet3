@@ -185,7 +185,7 @@ protected:
 		return m_resolveSplitPenetrationImpulse(bodyA, bodyB, contactConstraint);
 	}
 
-protected:
+public:
 	
 	void writeBackContacts(int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);
 	void writeBackJoints(int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);
@@ -295,6 +295,14 @@ public:
 
 	static btSingleConstraintRowSolver getScalarSplitPenetrationImpulseGeneric();
 	static btSingleConstraintRowSolver getSSE2SplitPenetrationImpulseGeneric();
+
+	virtual btScalar solveGroupConvertConstraintPrestep(btCollisionObject** /*bodies*/, int /*numBodies*/, btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/, btTypedConstraint** /*constraints*/, int /*numConstraints*/, const btContactSolverInfo& /*infoGlobal*/, btIDebugDraw* /*debugDrawer*/);
+	virtual btScalar solveGroupConvertConstraintPoststep(btCollisionObject** /*bodies*/, int /*numBodies*/, btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/, btTypedConstraint** /*constraints*/, int /*numConstraints*/, const btContactSolverInfo& infoGlobal, btIDebugDraw* /*debugDrawer*/);
+	virtual btScalar solveGroupConvertConstraints(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
+
+	virtual btScalar solveGroupConvertBackPrestep(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal);
+	virtual btScalar solveGroupConvertBack(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal);
+	virtual btScalar solveGroupConvertBackPoststep(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal);
 
 };
 

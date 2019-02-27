@@ -202,6 +202,10 @@ SET(BulletExampleBrowser_SRCS
 	../MultiThreadedDemo/MultiThreadedDemo.h
 	../MultiThreadedDemo/CommonRigidBodyMTBase.cpp
 	../MultiThreadedDemo/CommonRigidBodyMTBase.h
+	../ConstraintSolvers/BoxStacks.cpp
+	../ConstraintSolvers/BoxStacks_MLCP.cpp
+	../ConstraintSolvers/Grasp_Block.cpp
+	../ConstraintSolvers/SerialChains.cpp
 	../BlockSolver/btBlockSolver.cpp
 	../BlockSolver/btBlockSolver.h
 	../BlockSolver/BlockSolverExample.cpp
@@ -337,7 +341,6 @@ SET(BulletExampleBrowser_SRCS
   ../MultiBody/InvertedPendulumPDControl.cpp
   ../MultiBody/InvertedPendulumPDControl.h
  ../MultiBody/MultiBodyConstraintFeedback.cpp
-  ../MultiBody/SerialChains.cpp
   ../MultiBody/MultiDofDemo.cpp
   ../MultiBody/MultiDofDemo.h
   ../RigidBody/RigidBodySoftContact.cpp

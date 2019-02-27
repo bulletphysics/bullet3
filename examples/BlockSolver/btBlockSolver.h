@@ -3,7 +3,7 @@
 
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 
-class btBlockSolver : public btConstraintSolver
+class btBlockSolver : public btMultiBodyConstraintSolver
 {
 	struct btBlockSolverInternalData* m_data;
 

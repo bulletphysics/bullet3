@@ -931,10 +931,32 @@ int btSISolverSingleIterationData::getSolverBody(btCollisionObject& body) const
 	return solverBodyId;
 #else   // BT_THREADSAFE
 	int solverBodyIdA = -1;
-	btAssert(body.getCompanionId() >= 0);
-	//body has already been converted
-	solverBodyIdA = body.getCompanionId();
-	btAssert(solverBodyIdA < m_tmpSolverBodyPool.size());
+
+	if (body.getCompanionId() >= 0)
+	{
+		//body has already been converted
+		solverBodyIdA = body.getCompanionId();
+		btAssert(solverBodyIdA < m_tmpSolverBodyPool.size());
+	}
+	else
+	{
+		btRigidBody* rb = btRigidBody::upcast(&body);
+		//convert both active and kinematic objects (for their velocity)
+		if (rb && (rb->getInvMass() || rb->isKinematicObject()))
+		{
+			btAssert(0);
+		}
+		else
+		{
+			if (m_fixedBodyId < 0)
+			{
+				btAssert(0);
+			}
+			return m_fixedBodyId;
+			//			return 0;//assume first one is a fixed solver body
+		}
+	}
+
 	return solverBodyIdA;
 #endif  // BT_THREADSAFE
 }
@@ -1822,7 +1844,16 @@ void btSequentialImpulseConstraintSolver::convertBodies(btCollisionObject** bodi
 	convertBodiesInternal(siData, bodies, numBodies, infoGlobal);
 }
 
+
 btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
+{
+	solveGroupConvertConstraintPrestep(bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
+	solveGroupConvertConstraints(bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
+	solveGroupConvertConstraintPoststep(bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
+	return 0.;
+}
+
+btScalar btSequentialImpulseConstraintSolver::solveGroupConvertConstraints(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
 {
 	m_fixedBodyId = -1;
 	BT_PROFILE("solveGroupCacheFriendlySetup");
@@ -1912,6 +1943,17 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 	convertContacts(manifoldPtr, numManifolds, infoGlobal);
 
+	
+	return 0.f;
+}
+
+btScalar btSequentialImpulseConstraintSolver::solveGroupConvertConstraintPrestep(btCollisionObject** /*bodies*/, int /*numBodies*/, btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/, btTypedConstraint** /*constraints*/, int /*numConstraints*/, const btContactSolverInfo& /*infoGlobal*/, btIDebugDraw* /*debugDrawer*/)
+{
+	return 0;
+}
+
+btScalar btSequentialImpulseConstraintSolver::solveGroupConvertConstraintPoststep(btCollisionObject** /*bodies*/, int /*numBodies*/, btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/, btTypedConstraint** /*constraints*/, int /*numConstraints*/, const btContactSolverInfo& infoGlobal, btIDebugDraw* /*debugDrawer*/)
+{
 	//	btContactSolverInfo info = infoGlobal;
 
 	int numNonContactPool = m_tmpSolverNonContactConstraintPool.size();
@@ -1942,9 +1984,8 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 		}
 	}
 
-	return 0.f;
+	return 0;
 }
-
 btScalar btSequentialImpulseConstraintSolver::solveSingleIterationInternal(btSISolverSingleIterationData& siData, int iteration, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal)
 {
 	BT_PROFILE("solveSingleIteration");
@@ -2371,4 +2412,34 @@ btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bod
 void btSequentialImpulseConstraintSolver::reset()
 {
 	m_btSeed2 = 0;
+}
+
+btScalar btSequentialImpulseConstraintSolver::solveGroupConvertBackPrestep(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal)
+{
+	return btScalar(0);
+}
+
+btScalar btSequentialImpulseConstraintSolver::solveGroupConvertBack(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal)
+{
+	if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
+	{
+		writeBackContacts(0, m_tmpSolverContactConstraintPool.size(), infoGlobal);
+	}
+
+	writeBackJoints(0, m_tmpSolverNonContactConstraintPool.size(), infoGlobal);
+	writeBackBodies(0, m_tmpSolverBodyPool.size(), infoGlobal);
+
+	return btScalar(0);
+}
+
+btScalar btSequentialImpulseConstraintSolver::solveGroupConvertBackPoststep(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal)
+{
+	m_tmpSolverContactConstraintPool.resizeNoInitialize(0);
+	m_tmpSolverNonContactConstraintPool.resizeNoInitialize(0);
+	m_tmpSolverContactFrictionConstraintPool.resizeNoInitialize(0);
+	m_tmpSolverContactRollingFrictionConstraintPool.resizeNoInitialize(0);
+
+	m_tmpSolverBodyPool.resizeNoInitialize(0);
+
+	return btScalar(0);
 }

@@ -28,68 +28,111 @@ class btMultiBody;
 ATTRIBUTE_ALIGNED16(class)
 btMultiBodyConstraintSolver : public btSequentialImpulseConstraintSolver
 {
+
 protected:
-	btMultiBodyConstraintArray m_multiBodyNonContactConstraints;
 
-	btMultiBodyConstraintArray m_multiBodyNormalContactConstraints;
-	btMultiBodyConstraintArray m_multiBodyFrictionContactConstraints;
-	btMultiBodyConstraintArray m_multiBodyTorsionalFrictionContactConstraints;
+	btMultiBodyConstraintArray			m_multiBodyNonContactConstraints;
 
-	btMultiBodyJacobianData m_data;
+	btMultiBodyConstraintArray			m_multiBodyNormalContactConstraints;
+	btMultiBodyConstraintArray			m_multiBodyFrictionContactConstraints;
+	btMultiBodyConstraintArray			m_multiBodyTorsionalFrictionContactConstraints;
 
+	btMultiBodyJacobianData				m_data;
+	
 	//temp storage for multi body constraints for a specific island/group called by 'solveGroup'
-	btMultiBodyConstraint** m_tmpMultiBodyConstraints;
-	int m_tmpNumMultiBodyConstraints;
+	btMultiBodyConstraint**					m_tmpMultiBodyConstraints;
+	int										m_tmpNumMultiBodyConstraints;
 
 	btScalar resolveSingleConstraintRowGeneric(const btMultiBodySolverConstraint& c);
-
+	
 	//solve 2 friction directions and clamp against the implicit friction cone
 	btScalar resolveConeFrictionConstraintRows(const btMultiBodySolverConstraint& cA1, const btMultiBodySolverConstraint& cB);
+	
 
-	void convertContacts(btPersistentManifold * *manifoldPtr, int numManifolds, const btContactSolverInfo& infoGlobal);
+	void convertContacts(btPersistentManifold** manifoldPtr,int numManifolds, const btContactSolverInfo& infoGlobal);
+    
+    btMultiBodySolverConstraint&	addMultiBodyFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity=0, btScalar cfmSlip=0);
 
-	btMultiBodySolverConstraint& addMultiBodyFrictionConstraint(const btVector3& normalAxis, btPersistentManifold* manifold, int frictionIndex, btManifoldPoint& cp, btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity = 0, btScalar cfmSlip = 0);
+    btMultiBodySolverConstraint&	addMultiBodyTorsionalFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,
+                                                            btScalar combinedTorsionalFriction,
+                                                            btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity=0, btScalar cfmSlip=0);
 
-	btMultiBodySolverConstraint& addMultiBodyTorsionalFrictionConstraint(const btVector3& normalAxis, btPersistentManifold* manifold, int frictionIndex, btManifoldPoint& cp,
-																		 btScalar combinedTorsionalFriction,
-																		 btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity = 0, btScalar cfmSlip = 0);
+	void setupMultiBodyJointLimitConstraint(btMultiBodySolverConstraint& constraintRow, 
+																 btScalar* jacA,btScalar* jacB,
+																 btScalar penetration,btScalar combinedFrictionCoeff, btScalar combinedRestitutionCoeff,
+																 const btContactSolverInfo& infoGlobal);
 
-	void setupMultiBodyJointLimitConstraint(btMultiBodySolverConstraint & constraintRow,
-											btScalar * jacA, btScalar * jacB,
-											btScalar penetration, btScalar combinedFrictionCoeff, btScalar combinedRestitutionCoeff,
-											const btContactSolverInfo& infoGlobal);
+	void setupMultiBodyContactConstraint(btMultiBodySolverConstraint& solverConstraint, 
+																 const btVector3& contactNormal,
+																 btManifoldPoint& cp, const btContactSolverInfo& infoGlobal,
+																 btScalar& relaxation,
+																 bool isFriction, btScalar desiredVelocity=0, btScalar cfmSlip=0);
+    
+    //either rolling or spinning friction
+    void setupMultiBodyTorsionalFrictionConstraint(btMultiBodySolverConstraint& solverConstraint,
+                                         const btVector3& contactNormal,
+                                         btManifoldPoint& cp,
+                                        btScalar combinedTorsionalFriction,
+                                        const btContactSolverInfo& infoGlobal,
+                                         btScalar& relaxation,
+                                         bool isFriction, btScalar desiredVelocity=0, btScalar cfmSlip=0);
 
-	void setupMultiBodyContactConstraint(btMultiBodySolverConstraint & solverConstraint,
-										 const btVector3& contactNormal,
-										 btManifoldPoint& cp, const btContactSolverInfo& infoGlobal,
-										 btScalar& relaxation,
-										 bool isFriction, btScalar desiredVelocity = 0, btScalar cfmSlip = 0);
+	void convertMultiBodyContact(btPersistentManifold* manifold,const btContactSolverInfo& infoGlobal);
+	virtual btScalar solveGroupCacheFriendlySetup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
+//	virtual btScalar solveGroupCacheFriendlyIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
 
-	//either rolling or spinning friction
-	void setupMultiBodyTorsionalFrictionConstraint(btMultiBodySolverConstraint & solverConstraint,
-												   const btVector3& contactNormal,
-												   btManifoldPoint& cp,
-												   btScalar combinedTorsionalFriction,
-												   const btContactSolverInfo& infoGlobal,
-												   btScalar& relaxation,
-												   bool isFriction, btScalar desiredVelocity = 0, btScalar cfmSlip = 0);
-
-	void convertMultiBodyContact(btPersistentManifold * manifold, const btContactSolverInfo& infoGlobal);
-	virtual btScalar solveGroupCacheFriendlySetup(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
-	//	virtual btScalar solveGroupCacheFriendlyIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
-
-	virtual btScalar solveSingleIteration(int iteration, btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
-	void applyDeltaVee(btScalar * deltaV, btScalar impulse, int velocityIndex, int ndof);
-	void writeBackSolverBodyToMultiBody(btMultiBodySolverConstraint & constraint, btScalar deltaTime);
-
+	virtual btScalar solveSingleIteration(int iteration, btCollisionObject** bodies ,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
+	void	applyDeltaVee(btScalar* deltaV, btScalar impulse, int velocityIndex, int ndof);
+	void writeBackSolverBodyToMultiBody(btMultiBodySolverConstraint& constraint, btScalar deltaTime);
 public:
+
+	struct btMultiBodyInternalConstraintData
+	{
+		/// Multibody (joint) constraints. This is shared by all the blocks.
+		btMultiBodyConstraint** m_multiBodyConstraints;
+
+		/// Number of multibody (joint) constraints. This is shared by all the
+		/// blocks.
+		int m_numMultiBodyConstraints;
+
+		/// Array of multibody non-contact constraints
+		btAlignedObjectArray<btMultiBodySolverConstraint> m_multiBodyNonContactConstraints;
+
+		/// Array of multibody normal contact constraints
+		btAlignedObjectArray<btMultiBodySolverConstraint> m_multiBodyNormalContactConstraints;
+
+		/// Array of multibody friction contact constraints
+		btAlignedObjectArray<btMultiBodySolverConstraint> m_multiBodyFrictionContactConstraints;
+
+		/// Array of multibody rolling friction contact constraints
+		btAlignedObjectArray<btMultiBodySolverConstraint> m_multiBodyTorsionalFrictionContactConstraints;
+
+		/// Pointer to the block constraint solver's multi body Jacobian data, which
+		/// is shared by all the constraint blocks.
+		btMultiBodyJacobianData m_data;
+	};
+
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	///this method should not be called, it was just used during porting/integration of Featherstone btMultiBody, providing backwards compatibility but no support for btMultiBodyConstraint (only contact constraints)
-	virtual btScalar solveGroup(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher);
-	virtual btScalar solveGroupCacheFriendlyFinish(btCollisionObject * *bodies, int numBodies, const btContactSolverInfo& infoGlobal);
+	/// Copies internal constraint data from \p proxy
+	virtual void setMultiBodyInternalConstraintData(const btMultiBodyInternalConstraintData& proxy, bool onlyDynamicData = false);
 
-	virtual void solveMultiBodyGroup(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, btMultiBodyConstraint** multiBodyConstraints, int numMultiBodyConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher);
+	/// Copies internal constraint data to \p proxy
+	virtual void getMultiBodyInternalConstraintData(btMultiBodyInternalConstraintData& data, bool onlyDynamicData = false);
+
+	///this method should not be called, it was just used during porting/integration of Featherstone btMultiBody, providing backwards compatibility but no support for btMultiBodyConstraint (only contact constraints)
+	virtual btScalar solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer,btDispatcher* dispatcher);
+	virtual btScalar solveGroupConvertConstraintPrestep(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
+	virtual btScalar solveGroupConvertConstraintPoststep(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
+	virtual btScalar solveSingleIterationNew(int iteration, btCollisionObject** bodies ,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
+	virtual btScalar solveGroupCacheFriendlyFinish(btCollisionObject** bodies,int numBodies,const btContactSolverInfo& infoGlobal);
+	
+	virtual void solveMultiBodyGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,btMultiBodyConstraint** multiBodyConstraints, int numMultiBodyConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer,btDispatcher* dispatcher);
 };
 
-#endif  //BT_MULTIBODY_CONSTRAINT_SOLVER_H
+	
+	
+
+
+#endif //BT_MULTIBODY_CONSTRAINT_SOLVER_H
+
