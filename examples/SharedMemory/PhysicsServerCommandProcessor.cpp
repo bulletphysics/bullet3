@@ -6425,6 +6425,32 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 			}
 			for (int d = 0; d < mb->getLink(l).m_dofCount; d++)
 			{
+				serverCmd.m_sendActualStateArgs.m_jointMotorForce[totalDegreeOfFreedomU] = 0;
+
+				if (mb->getLink(l).m_jointType == btMultibodyLink::eSpherical)
+				{
+					btMultiBodySphericalJointMotor* motor = (btMultiBodySphericalJointMotor*)mb->getLink(l).m_userPtr;
+					if (motor)
+					{
+						btScalar impulse = motor->getAppliedImpulse(d);
+						btScalar force = impulse / m_data->m_physicsDeltaTime;
+						serverCmd.m_sendActualStateArgs.m_jointMotorForceMultiDof[totalDegreeOfFreedomU] = force;
+					}
+				}
+				else
+				{
+					if (supportsJointMotor(mb, l))
+					{
+						btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)body->m_multiBody->getLink(l).m_userPtr;
+
+						if (motor && m_data->m_physicsDeltaTime > btScalar(0))
+						{
+							btScalar force = motor->getAppliedImpulse(0) / m_data->m_physicsDeltaTime;
+							serverCmd.m_sendActualStateArgs.m_jointMotorForceMultiDof[totalDegreeOfFreedomU] = force;
+						}
+					}
+				}
+
 				serverCmd.m_sendActualStateArgs.m_actualStateQdot[totalDegreeOfFreedomU++] = mb->getJointVelMultiDof(l)[d];
 			}
 

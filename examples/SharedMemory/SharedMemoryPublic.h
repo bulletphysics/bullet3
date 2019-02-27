@@ -369,7 +369,7 @@ struct b3JointSensorState2
 	double m_jointPosition[4];
 	double m_jointVelocity[3];
 	double m_jointReactionForceTorque[6]; /* note to roboticists: this is NOT the motor torque/force, but the spatial reaction force vector at joint */
-	double m_jointMotorTorque;
+	double m_jointMotorTorqueMultiDof[3];
 	int m_qDofSize;
 	int m_uDofSize;
 };
