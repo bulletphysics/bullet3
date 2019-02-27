@@ -4235,6 +4235,7 @@ static PyObject* pybullet_getJointStateMultiDof(PyObject* self, PyObject* args, 
 	PyObject* pyListJointState;
 	PyObject* pyListPosition;
 	PyObject* pyListVelocity;
+	PyObject* pyListJointMotorTorque;
 
 
 	struct b3JointSensorState2 sensorState;
@@ -4296,7 +4297,7 @@ static PyObject* pybullet_getJointStateMultiDof(PyObject* self, PyObject* args, 
 				int i = 0;
 				pyListPosition = PyTuple_New(sensorState.m_qDofSize);
 				pyListVelocity = PyTuple_New(sensorState.m_uDofSize);
-
+				pyListJointMotorTorque = PyTuple_New(sensorState.m_uDofSize);
 				PyTuple_SetItem(pyListJointState, 0, pyListPosition);
 				PyTuple_SetItem(pyListJointState, 1, pyListVelocity);
 
@@ -4310,6 +4311,9 @@ static PyObject* pybullet_getJointStateMultiDof(PyObject* self, PyObject* args, 
 				{
 					PyTuple_SetItem(pyListVelocity, i,
 						PyFloat_FromDouble(sensorState.m_jointVelocity[i]));
+
+					PyTuple_SetItem(pyListJointMotorTorque, i, 
+						PyFloat_FromDouble(sensorState.m_jointMotorTorqueMultiDof[i]));
 				}
 				
 				for (j = 0; j < forceTorqueSize; j++)
@@ -4320,8 +4324,8 @@ static PyObject* pybullet_getJointStateMultiDof(PyObject* self, PyObject* args, 
 
 				PyTuple_SetItem(pyListJointState, 2, pyListJointForceTorque);
 
-				PyTuple_SetItem(pyListJointState, 3,
-					PyFloat_FromDouble(sensorState.m_jointMotorTorque));
+				PyTuple_SetItem(pyListJointState, 3, pyListJointMotorTorque);
+					
 
 				return pyListJointState;
 			}
