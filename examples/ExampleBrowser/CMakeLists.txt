@@ -202,6 +202,10 @@ SET(BulletExampleBrowser_SRCS
 	../MultiThreadedDemo/MultiThreadedDemo.h
 	../MultiThreadedDemo/CommonRigidBodyMTBase.cpp
 	../MultiThreadedDemo/CommonRigidBodyMTBase.h
+	../BlockSolver/btBlockSolver.cpp
+	../BlockSolver/btBlockSolver.h
+	../BlockSolver/BlockSolverExample.cpp
+	../BlockSolver/BlockSolverExample.h
 	../Tutorial/Tutorial.cpp
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp
