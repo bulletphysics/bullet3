@@ -362,7 +362,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 };
 
 btMultiBodyDynamicsWorld::btMultiBodyDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration)
-	: btDiscreteDynamicsWorld(dispatcher, pairCache, 0, collisionConfiguration),
+	: btDiscreteDynamicsWorld(dispatcher, pairCache, constraintSolver, collisionConfiguration),
 	  m_multiBodyConstraintSolver(constraintSolver)
 {
 	//split impulse is not yet supported for Featherstone hierarchies
@@ -380,7 +380,7 @@ void btMultiBodyDynamicsWorld::setMultiBodyConstraintSolver(btMultiBodyConstrain
 {
 	m_multiBodyConstraintSolver = solver;
 	m_solverMultiBodyIslandCallback->setMultiBodyConstraintSolver(solver);
-	//btDiscreteDynamicsWorld::setConstraintSolver(solver);
+	btDiscreteDynamicsWorld::setConstraintSolver(solver);
 }
 
 void btMultiBodyDynamicsWorld::setConstraintSolver(btConstraintSolver* solver)
