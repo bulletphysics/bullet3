@@ -5403,7 +5403,7 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 			int linkIndex = -1;
 			if (bodyHandle->m_multiBody)
 			{
-				int linkIndex = clientCmd.m_userDebugDrawArgs.m_parentLinkIndex;
+				int linkIndex = clientCmd.m_requestRaycastIntersections.m_parentLinkIndex;
 				if (linkIndex == -1)
 				{
 					tr = bodyHandle->m_multiBody->getBaseWorldTransform();
