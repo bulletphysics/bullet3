@@ -202,10 +202,6 @@ SET(BulletExampleBrowser_SRCS
 	../MultiThreadedDemo/MultiThreadedDemo.h
 	../MultiThreadedDemo/CommonRigidBodyMTBase.cpp
 	../MultiThreadedDemo/CommonRigidBodyMTBase.h
-	../ConstraintSolvers/BoxStacks.cpp
-	../ConstraintSolvers/BoxStacks_MLCP.cpp
-	../ConstraintSolvers/Grasp_Block.cpp
-	../ConstraintSolvers/SerialChains.cpp
 	../BlockSolver/btBlockSolver.cpp
 	../BlockSolver/btBlockSolver.h
 	../BlockSolver/BlockSolverExample.cpp

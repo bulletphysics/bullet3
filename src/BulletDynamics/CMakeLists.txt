@@ -32,7 +32,6 @@ SET(BulletDynamics_SRCS
 	Vehicle/btWheelInfo.cpp
 	Featherstone/btMultiBody.cpp
 	Featherstone/btMultiBodyConstraint.cpp
-	Featherstone/btMultiBodyBlockConstraintSolver.cpp
 	Featherstone/btMultiBodyConstraintSolver.cpp
 	Featherstone/btMultiBodyDynamicsWorld.cpp
 	Featherstone/btMultiBodyFixedConstraint.cpp

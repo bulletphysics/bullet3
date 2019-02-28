@@ -163,7 +163,6 @@ project "App_BulletExampleBrowser"
 		"../Collision/*",
 		"../RoboticsLearning/*",
 		"../BlockSolver/*",
-		"../ConstraintSolvers/*",
 		"../Collision/Internal/*",
 		"../Benchmarks/*",
 		"../MultiThreadedDemo/*",

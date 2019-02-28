@@ -128,7 +128,6 @@ btScalar btBlockSolver::solveGroup(btCollisionObject * *bodies, int numBodies, b
 		int maxIterations = siData.m_maxOverrideNumSolverIterations > info.m_numIterations ? siData.m_maxOverrideNumSolverIterations : info.m_numIterations;
 
 		for (int iteration = 0; iteration < maxIterations; iteration++)
-			//for ( int iteration = maxIterations-1  ; iteration >= 0;iteration--)
 		{
 			leastSquaresResidual = btSequentialImpulseConstraintSolver::solveSingleIterationInternal(siData, iteration, constraints, numConstraints, info);
 
@@ -150,7 +149,7 @@ btScalar btBlockSolver::solveGroup(btCollisionObject * *bodies, int numBodies, b
 
 void btBlockSolver::solveMultiBodyGroup(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, btMultiBodyConstraint** multiBodyConstraints, int numMultiBodyConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher)
 {
-	//btMultiBodyConstraintSolver::solveMultiBodyGroup(bodies, numBodies, manifold, numManifolds, constraints, numConstraints, multiBodyConstraints, numMultiBodyConstraints, info, debugDrawer, dispatcher);
+	btMultiBodyConstraintSolver::solveMultiBodyGroup(bodies, numBodies, manifold, numManifolds, constraints, numConstraints, multiBodyConstraints, numMultiBodyConstraints, info, debugDrawer, dispatcher);
 }
 
 void btBlockSolver::reset()

@@ -52,25 +52,25 @@ struct btSISolverSingleIterationData
 	int getOrInitSolverBody(btCollisionObject & body, btScalar timeStep);
 	static void initSolverBody(btSolverBody * solverBody, btCollisionObject * collisionObject, btScalar timeStep);
 	int getSolverBody(btCollisionObject& body) const;
-	
+
 
 	btSISolverSingleIterationData(btAlignedObjectArray<btSolverBody>& tmpSolverBodyPool,
-									btConstraintArray& tmpSolverContactConstraintPool,
-									btConstraintArray& tmpSolverNonContactConstraintPool,
-									btConstraintArray& tmpSolverContactFrictionConstraintPool,
-									btConstraintArray& tmpSolverContactRollingFrictionConstraintPool,
-									btAlignedObjectArray<int>& orderTmpConstraintPool,
-									btAlignedObjectArray<int>& orderNonContactConstraintPool,
-									btAlignedObjectArray<int>& orderFrictionConstraintPool,
-									btAlignedObjectArray<btTypedConstraint::btConstraintInfo1>& tmpConstraintSizesPool,
-									btSingleConstraintRowSolver& resolveSingleConstraintRowGeneric,
-									btSingleConstraintRowSolver& resolveSingleConstraintRowLowerLimit,
-									btSingleConstraintRowSolver& resolveSplitPenetrationImpulse,
-									btAlignedObjectArray<int>& kinematicBodyUniqueIdToSolverBodyTable,
-									unsigned long& seed,
-									int& fixedBodyId,
-									int& maxOverrideNumSolverIterations
-		)
+		btConstraintArray& tmpSolverContactConstraintPool,
+		btConstraintArray& tmpSolverNonContactConstraintPool,
+		btConstraintArray& tmpSolverContactFrictionConstraintPool,
+		btConstraintArray& tmpSolverContactRollingFrictionConstraintPool,
+		btAlignedObjectArray<int>& orderTmpConstraintPool,
+		btAlignedObjectArray<int>& orderNonContactConstraintPool,
+		btAlignedObjectArray<int>& orderFrictionConstraintPool,
+		btAlignedObjectArray<btTypedConstraint::btConstraintInfo1>& tmpConstraintSizesPool,
+		btSingleConstraintRowSolver& resolveSingleConstraintRowGeneric,
+		btSingleConstraintRowSolver& resolveSingleConstraintRowLowerLimit,
+		btSingleConstraintRowSolver& resolveSplitPenetrationImpulse,
+		btAlignedObjectArray<int>& kinematicBodyUniqueIdToSolverBodyTable,
+		unsigned long& seed,
+		int& fixedBodyId,
+		int& maxOverrideNumSolverIterations
+	)
 		:m_tmpSolverBodyPool(tmpSolverBodyPool),
 		m_tmpSolverContactConstraintPool(tmpSolverContactConstraintPool),
 		m_tmpSolverNonContactConstraintPool(tmpSolverNonContactConstraintPool),
@@ -126,26 +126,26 @@ protected:
 	btScalar m_leastSquaresResidual;
 
 	void setupFrictionConstraint(btSolverConstraint & solverConstraint, const btVector3& normalAxis, int solverBodyIdA, int solverBodyIdB,
-								 btManifoldPoint& cp, const btVector3& rel_pos1, const btVector3& rel_pos2,
-								 btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation,
-								 const btContactSolverInfo& infoGlobal,
-								 btScalar desiredVelocity = 0., btScalar cfmSlip = 0.);
+		btManifoldPoint& cp, const btVector3& rel_pos1, const btVector3& rel_pos2,
+		btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation,
+		const btContactSolverInfo& infoGlobal,
+		btScalar desiredVelocity = 0., btScalar cfmSlip = 0.);
 
 	void setupTorsionalFrictionConstraint(btSolverConstraint & solverConstraint, const btVector3& normalAxis, int solverBodyIdA, int solverBodyIdB,
-										  btManifoldPoint& cp, btScalar combinedTorsionalFriction, const btVector3& rel_pos1, const btVector3& rel_pos2,
-										  btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation,
-										  btScalar desiredVelocity = 0., btScalar cfmSlip = 0.);
+		btManifoldPoint& cp, btScalar combinedTorsionalFriction, const btVector3& rel_pos1, const btVector3& rel_pos2,
+		btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation,
+		btScalar desiredVelocity = 0., btScalar cfmSlip = 0.);
 
 	btSolverConstraint& addFrictionConstraint(const btVector3& normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, btManifoldPoint& cp, const btVector3& rel_pos1, const btVector3& rel_pos2, btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity = 0., btScalar cfmSlip = 0.);
 	btSolverConstraint& addTorsionalFrictionConstraint(const btVector3& normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, btManifoldPoint& cp, btScalar torsionalFriction, const btVector3& rel_pos1, const btVector3& rel_pos2, btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity = 0, btScalar cfmSlip = 0.f);
 
 	void setupContactConstraint(btSolverConstraint & solverConstraint, int solverBodyIdA, int solverBodyIdB, btManifoldPoint& cp,
-								const btContactSolverInfo& infoGlobal, btScalar& relaxation, const btVector3& rel_pos1, const btVector3& rel_pos2);
+		const btContactSolverInfo& infoGlobal, btScalar& relaxation, const btVector3& rel_pos1, const btVector3& rel_pos2);
 
 	static void applyAnisotropicFriction(btCollisionObject * colObj, btVector3 & frictionDirection, int frictionMode);
 
 	void setFrictionConstraintImpulse(btSolverConstraint & solverConstraint, int solverBodyIdA, int solverBodyIdB,
-									  btManifoldPoint& cp, const btContactSolverInfo& infoGlobal);
+		btManifoldPoint& cp, const btContactSolverInfo& infoGlobal);
 
 	///m_btSeed2 is used for re-arranging the constraint rows. improves convergence/quality of friction
 	unsigned long m_btSeed2;
@@ -159,7 +159,7 @@ protected:
 	virtual void convertJoints(btTypedConstraint * *constraints, int numConstraints, const btContactSolverInfo& infoGlobal);
 	void convertJoint(btSolverConstraint * currentConstraintRow, btTypedConstraint * constraint, const btTypedConstraint::btConstraintInfo1& info1, int solverBodyIdA, int solverBodyIdB, const btContactSolverInfo& infoGlobal);
 
-	
+
 	virtual void convertBodies(btCollisionObject * *bodies, int numBodies, const btContactSolverInfo& infoGlobal);
 
 	btScalar resolveSplitPenetrationSIMD(btSolverBody & bodyA, btSolverBody & bodyB, const btSolverConstraint& contactConstraint)
@@ -186,15 +186,15 @@ protected:
 	}
 
 public:
-	
+
 	void writeBackContacts(int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);
 	void writeBackJoints(int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);
 	void writeBackBodies(int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);
 	virtual void solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
 	virtual btScalar solveGroupCacheFriendlyFinish(btCollisionObject * *bodies, int numBodies, const btContactSolverInfo& infoGlobal);
 	virtual btScalar solveSingleIteration(int iteration, btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
-	
-	
+
+
 	virtual btScalar solveGroupCacheFriendlySetup(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
 	virtual btScalar solveGroupCacheFriendlyIterations(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
 
@@ -210,22 +210,22 @@ public:
 	static void convertBodiesInternal(btSISolverSingleIterationData& siData, btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal);
 	static void convertJointsInternal(btSISolverSingleIterationData& siData, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal);
 	static void convertContactInternal(btSISolverSingleIterationData& siData, btPersistentManifold * manifold, const btContactSolverInfo& infoGlobal);
-	static void setupContactConstraintInternal(btSISolverSingleIterationData& siData, btSolverConstraint& solverConstraint,int solverBodyIdA, int solverBodyIdB,btManifoldPoint& cp, const btContactSolverInfo& infoGlobal,btScalar& relaxation,
+	static void setupContactConstraintInternal(btSISolverSingleIterationData& siData, btSolverConstraint& solverConstraint, int solverBodyIdA, int solverBodyIdB, btManifoldPoint& cp, const btContactSolverInfo& infoGlobal, btScalar& relaxation,
 		const btVector3& rel_pos1, const btVector3& rel_pos2);
 	static btScalar restitutionCurveInternal(btScalar rel_vel, btScalar restitution, btScalar velocityThreshold);
-	static btSolverConstraint& addTorsionalFrictionConstraintInternal(btAlignedObjectArray<btSolverBody>& tmpSolverBodyPool, btConstraintArray& tmpSolverContactRollingFrictionConstraintPool, const btVector3& normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, btManifoldPoint& cp, btScalar combinedTorsionalFriction, const btVector3& rel_pos1, const btVector3& rel_pos2, btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity=0, btScalar cfmSlip=0.);
+	static btSolverConstraint& addTorsionalFrictionConstraintInternal(btAlignedObjectArray<btSolverBody>& tmpSolverBodyPool, btConstraintArray& tmpSolverContactRollingFrictionConstraintPool, const btVector3& normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, btManifoldPoint& cp, btScalar combinedTorsionalFriction, const btVector3& rel_pos1, const btVector3& rel_pos2, btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation, btScalar desiredVelocity = 0, btScalar cfmSlip = 0.);
 	static void setupTorsionalFrictionConstraintInternal(btAlignedObjectArray<btSolverBody>& tmpSolverBodyPool, btSolverConstraint& solverConstraint, const btVector3& normalAxis1, int solverBodyIdA, int solverBodyIdB,
 		btManifoldPoint& cp, btScalar combinedTorsionalFriction, const btVector3& rel_pos1, const btVector3& rel_pos2,
 		btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation,
 		btScalar desiredVelocity, btScalar cfmSlip);
 	static void setupFrictionConstraintInternal(btAlignedObjectArray<btSolverBody>& tmpSolverBodyPool, btSolverConstraint& solverConstraint, const btVector3& normalAxis, int solverBodyIdA, int solverBodyIdB, btManifoldPoint& cp, const btVector3& rel_pos1, const btVector3& rel_pos2, btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity, btScalar cfmSlip);
-	static btSolverConstraint& addFrictionConstraintInternal(btAlignedObjectArray<btSolverBody>& tmpSolverBodyPool, btConstraintArray& tmpSolverContactFrictionConstraintPool, const btVector3& normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, btManifoldPoint& cp, const btVector3& rel_pos1, const btVector3& rel_pos2, btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity=0., btScalar cfmSlip=0.);
-	static void setFrictionConstraintImpulseInternal(btAlignedObjectArray<btSolverBody>& tmpSolverBodyPool, btConstraintArray& tmpSolverContactFrictionConstraintPool, 
-	
+	static btSolverConstraint& addFrictionConstraintInternal(btAlignedObjectArray<btSolverBody>& tmpSolverBodyPool, btConstraintArray& tmpSolverContactFrictionConstraintPool, const btVector3& normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, btManifoldPoint& cp, const btVector3& rel_pos1, const btVector3& rel_pos2, btCollisionObject* colObj0, btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity = 0., btScalar cfmSlip = 0.);
+	static void setFrictionConstraintImpulseInternal(btAlignedObjectArray<btSolverBody>& tmpSolverBodyPool, btConstraintArray& tmpSolverContactFrictionConstraintPool,
+
 		btSolverConstraint& solverConstraint,
 		int solverBodyIdA, int solverBodyIdB,
 		btManifoldPoint& cp, const btContactSolverInfo& infoGlobal);
-	static void convertJointInternal(btAlignedObjectArray<btSolverBody>& tmpSolverBodyPool, 
+	static void convertJointInternal(btAlignedObjectArray<btSolverBody>& tmpSolverBodyPool,
 		int& maxOverrideNumSolverIterations,
 		btSolverConstraint* currentConstraintRow,
 		btTypedConstraint* constraint,
@@ -242,7 +242,7 @@ public:
 	static void writeBackBodiesInternal(btAlignedObjectArray<btSolverBody>& tmpSolverBodyPool, int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);
 	static void solveGroupCacheFriendlySplitImpulseIterationsInternal(btSISolverSingleIterationData& siData, btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
 
-	
+
 	///clear internal cached data and reset random seed
 	virtual void reset();
 
@@ -295,14 +295,6 @@ public:
 
 	static btSingleConstraintRowSolver getScalarSplitPenetrationImpulseGeneric();
 	static btSingleConstraintRowSolver getSSE2SplitPenetrationImpulseGeneric();
-
-	virtual btScalar solveGroupConvertConstraintPrestep(btCollisionObject** /*bodies*/, int /*numBodies*/, btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/, btTypedConstraint** /*constraints*/, int /*numConstraints*/, const btContactSolverInfo& /*infoGlobal*/, btIDebugDraw* /*debugDrawer*/);
-	virtual btScalar solveGroupConvertConstraintPoststep(btCollisionObject** /*bodies*/, int /*numBodies*/, btPersistentManifold** /*manifoldPtr*/, int /*numManifolds*/, btTypedConstraint** /*constraints*/, int /*numConstraints*/, const btContactSolverInfo& infoGlobal, btIDebugDraw* /*debugDrawer*/);
-	virtual btScalar solveGroupConvertConstraints(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
-
-	virtual btScalar solveGroupConvertBackPrestep(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal);
-	virtual btScalar solveGroupConvertBack(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal);
-	virtual btScalar solveGroupConvertBackPoststep(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal);
 
 };
 

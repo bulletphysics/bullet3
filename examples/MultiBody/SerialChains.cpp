@@ -7,7 +7,6 @@
 
 #include "BulletDynamics/Featherstone/btMultiBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
-#include "BulletDynamics/Featherstone/btMultiBodyBlockConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
@@ -113,13 +112,12 @@ void SerialChains::initPhysics()
 			b3Printf("Constraint Solver: MLCP + Dantzig");
 			break;
 	}
-	m_solver = new btMultiBodyBlockConstraintSolver();
 
 	btMultiBodyDynamicsWorld* world = new btMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 	m_dynamicsWorld = world;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
-	m_dynamicsWorld->getSolverInfo().m_globalCfm = btScalar(1e-4); //todo: what value is good?
+	m_dynamicsWorld->getSolverInfo().m_globalCfm = btScalar(1e-4);  //todo: what value is good?
 
 	///create a few basic rigid bodies
 	btVector3 groundHalfExtents(50, 50, 50);
@@ -238,53 +236,6 @@ void SerialChains::initPhysics()
 	/////////////////////////////////////////////////////////////////
 
 	createGround();
-
-	{
-		btVector3 halfExtents(.5,.5,.5);
-		btBoxShape* colShape = new btBoxShape(halfExtents);
-		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
-		m_collisionShapes.push_back(colShape);
-
-		/// Create Dynamic Objects
-		btTransform startTransform;
-		startTransform.setIdentity();
-
-		btScalar	mass(1.f);
-
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0,0,0);
-		if (isDynamic)
-			colShape->calculateLocalInertia(mass,localInertia);
-
-		startTransform.setOrigin(btVector3(
-							btScalar(0.0),
-							0.0,
-							btScalar(0.0)));
-
-
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
-//		btRigidBody* body = new btRigidBody(rbInfo);
-
-//		m_dynamicsWorld->addRigidBody(body);//,1,1+2);
-
-		{
-			btVector3 pointInA = -linkHalfExtents;
-	  //      btVector3 pointInB = halfExtents;
-			btMatrix3x3 frameInA;
-			btMatrix3x3 frameInB;
-			frameInA.setIdentity();
-			frameInB.setIdentity();
-			btVector3 jointAxis(1.0,0.0,0.0);
-			//btMultiBodySliderConstraint* p2p = new btMultiBodySliderConstraint(mbC,numLinks-1,body,pointInA,pointInB,frameInA,frameInB,jointAxis);
-			btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(mbC1, numLinks- 1 , mbC2, numLinks - 1, pointInA, pointInA);
-			p2p->setMaxAppliedImpulse(20.0);
-			m_dynamicsWorld->addMultiBodyConstraint(p2p);
-		}
-	}
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 
