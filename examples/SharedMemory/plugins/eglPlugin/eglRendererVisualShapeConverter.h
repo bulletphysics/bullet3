@@ -59,6 +59,9 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 	virtual void mouseMoveCallback(float x, float y);
 	virtual void mouseButtonCallback(int button, int state, float x, float y);
 
+	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3], float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float cameraTarget[3]) const;
+	
+
 };
 
 #endif  //EGL_RENDERER_VISUAL_SHAPE_CONVERTER_H
