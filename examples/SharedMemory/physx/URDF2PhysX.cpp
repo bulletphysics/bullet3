@@ -281,11 +281,21 @@ int convertLinkPhysXShapes(const URDFImporterInterface& u2b, URDF2PhysXCachedDat
 			{
 				btVector3 planeNormal = col.m_geometry.m_planeNormal;
 				btScalar planeConstant = 0;  //not available?
-				//PxPlane(1, 0, 0, 0).
+				
+				btVector3 planeRefAxis(1, 0, 0);
+				btQuaternion diffQuat = shortestArcQuat(planeRefAxis, planeNormal);
 				shape = physx::PxRigidActorExt::createExclusiveShape(*linkPtr, physx::PxPlaneGeometry(), *material);
-				//todo: compensate for plane axis
-				//physx::PxTransform localPose = tr*physx::PxTransform
-				//shape->setLocalPose(localPose);
+				
+				btTransform diffTr;
+				diffTr.setIdentity();
+				diffTr.setRotation(diffQuat);
+				btTransform localTrans = localInertiaFrame.inverse()*childTrans*diffTr;
+				physx::PxTransform tr;
+				tr.p = physx::PxVec3(localTrans.getOrigin()[0], localTrans.getOrigin()[1], localTrans.getOrigin()[2]);
+				tr.q = physx::PxQuat(localTrans.getRotation()[0], localTrans.getRotation()[1], localTrans.getRotation()[2], localTrans.getRotation()[3]);
+
+				physx::PxTransform localPose = tr;
+				shape->setLocalPose(localPose);
 				numShapes++;
 				break;
 			}
@@ -293,6 +303,13 @@ int convertLinkPhysXShapes(const URDFImporterInterface& u2b, URDF2PhysXCachedDat
 			{
 				btScalar radius = collision->m_geometry.m_capsuleRadius;
 				btScalar height = collision->m_geometry.m_capsuleHeight;
+
+				//static PxShape* createExclusiveShape(PxRigidActor& actor, const PxGeometry& geometry, PxMaterial*const* materials, PxU16 materialCount,
+				//	PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE | PxShapeFlag::eSIMULATION_SHAPE)
+				//{
+				physx::PxShapeFlags shapeFlags = physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE;
+				
+				//shape = PxGetPhysics().createShape(physx::PxCapsuleGeometry(radius, 0.5*height), &material, 1, false, shapeFlags);
 
 				shape = physx::PxRigidActorExt::createExclusiveShape(*linkPtr, physx::PxCapsuleGeometry(radius, 0.5*height), *material);
 
@@ -691,6 +708,7 @@ btTransform ConvertURDF2PhysXInternal(
 				
 				//Now create the slider and fixed joints...
 
+				//cache.m_articulation->setSolverIterationCounts(4);//todo: API?
 				cache.m_articulation->setSolverIterationCounts(32);//todo: API?
 				
 				cache.m_jointTypes.push_back(physx::PxArticulationJointType::eUNDEFINED);
@@ -796,6 +814,8 @@ btTransform ConvertURDF2PhysXInternal(
 			//todo: mem leaks
 			MyPhysXUserData* userData = new MyPhysXUserData();
 			userData->m_graphicsUniqueId = graphicsIndex;
+			userData->m_bodyUniqueId = u2b.getBodyUniqueId();
+			userData->m_linkIndex = mbLinkIndex;
 			linkPtr->userData = userData;
 		}
 
@@ -805,8 +825,10 @@ btTransform ConvertURDF2PhysXInternal(
 		convertLinkPhysXShapes(u2b, cache, creation, urdfLinkIndex, pathPrefix, localInertialFrame, cache.m_articulation, mbLinkIndex, linkPtr);
 
 		
-		physx::PxRigidBodyExt::updateMassAndInertia(*rbLinkPtr, mass);
-		
+		if (rbLinkPtr && mass)
+		{
+			physx::PxRigidBodyExt::updateMassAndInertia(*rbLinkPtr, mass);
+		}
 		
 		//base->setMass(massOut);
 		//base->setMassSpaceInertiaTensor(diagTensor);
@@ -1003,6 +1025,7 @@ physx::PxBase* URDF2PhysX(physx::PxFoundation* foundation, physx::PxPhysics* phy
 
 	if (cache.m_rigidStatic)
 	{
+		
 		scene->addActor(*cache.m_rigidStatic);
 		return cache.m_rigidStatic;
 	}

@@ -10,7 +10,7 @@ extern "C"
 {
 #endif
 
-	B3_SHARED_API b3PhysicsClientHandle b3ConnectPhysX();
+	B3_SHARED_API b3PhysicsClientHandle b3ConnectPhysX(int argc, char* argv[]);
 
 #ifdef __cplusplus
 }
