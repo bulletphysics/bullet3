@@ -204,17 +204,17 @@ struct CommonGraphicsApp
 
 				if (m_middleMouseButton)
 				{
-					cameraTargetPosition += cameraUp * yDelta * 0.01;
+					cameraTargetPosition += cameraUp * yDelta *m_mouseMoveMultiplier* 0.01;
 
 					b3Vector3 fwd = cameraTargetPosition - cameraPosition;
 					b3Vector3 side = cameraUp.cross(fwd);
 					side.normalize();
-					cameraTargetPosition += side * xDelta * 0.01;
+					cameraTargetPosition += side * xDelta *m_mouseMoveMultiplier* 0.01;
 				}
 				if (m_rightMouseButton)
 				{
-					cameraDistance -= xDelta * 0.01f;
-					cameraDistance -= yDelta * 0.01f;
+					cameraDistance -= xDelta * m_mouseMoveMultiplier*0.01f;
+					cameraDistance -= yDelta * m_mouseMoveMultiplier*0.01f;
 					if (cameraDistance < 1)
 						cameraDistance = 1;
 					if (cameraDistance > 1000)
@@ -251,7 +251,7 @@ struct CommonGraphicsApp
 				float cameraDistance = camera->getCameraDistance();
 				if (deltay < 0 || cameraDistance > 1)
 				{
-					cameraDistance -= deltay * 0.01f;
+					cameraDistance -= deltay*m_wheelMultiplier * 0.01f;
 					if (cameraDistance < 1)
 						cameraDistance = 1;
 					camera->setCameraDistance(cameraDistance);
