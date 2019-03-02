@@ -1009,8 +1009,8 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
 	{
-		*width = m_data->m_glApp->m_window->getWidth() * m_data->m_glApp->m_window->getRetinaScale();
-		*height = m_data->m_glApp->m_window->getHeight() * m_data->m_glApp->m_window->getRetinaScale();
+		*width = m_data->m_glApp->m_window->getWidth();
+		*height = m_data->m_glApp->m_window->getHeight();
 		getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
 		getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
 		getRenderInterface()->getActiveCamera()->getCameraUpVector(camUp);
@@ -1043,12 +1043,12 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		btScalar aspect = float(*width) / float(*height);
 		hori *= aspect;
 		//compute 'hor' and 'vert' vectors, useful to generate raytracer rays
-		hor[0] = hori[0]* m_data->m_glApp->m_window->getRetinaScale();
-		hor[1] = hori[1]* m_data->m_glApp->m_window->getRetinaScale();
-		hor[2] = hori[2]* m_data->m_glApp->m_window->getRetinaScale();
-		vert[0] = vertical[0]* m_data->m_glApp->m_window->getRetinaScale();
-		vert[1] = vertical[1]* m_data->m_glApp->m_window->getRetinaScale();
-		vert[2] = vertical[2]* m_data->m_glApp->m_window->getRetinaScale();
+		hor[0] = hori[0];
+		hor[1] = hori[1];
+		hor[2] = hori[2];
+		vert[0] = vertical[0];
+		vert[1] = vertical[1];
+		vert[2] = vertical[2];
 
 		*yaw = getRenderInterface()->getActiveCamera()->getCameraYaw();
 		*pitch = getRenderInterface()->getActiveCamera()->getCameraPitch();

@@ -125,7 +125,7 @@ indices=[	0, 1, 2, 0, 2, 3,  #//ground face
 		20, 21, 22, 20, 22, 23]
 
 #the visual shape and collision shape can be re-used by all createMultiBody instances (instancing)
-visualShapeId = p.createVisualShape(shapeType=p.GEOM_MESH,rgbaColor=[1,1,1,1], specularColor=[0.4,.4,0], visualFramePosition=shift, meshScale=[1,1,1], vertices=vertices, indices=indices, uvs=uvs, normals=normals)
+visualShapeId = p.createVisualShape(shapeType=p.GEOM_MESH,rgbaColor=[1,1,1,1], specularColor=[0.4,.4,0], visualFramePosition=shift, meshScale=meshScale, vertices=vertices, indices=indices, uvs=uvs, normals=normals)
 #visualShapeId = p.createVisualShape(shapeType=p.GEOM_BOX,rgbaColor=[1,1,1,1], halfExtents=[0.5,0.5,0.5],specularColor=[0.4,.4,0], visualFramePosition=shift, meshScale=[1,1,1], vertices=vertices, indices=indices)
 
 #visualShapeId = p.createVisualShape(shapeType=p.GEOM_MESH,rgbaColor=[1,1,1,1], specularColor=[0.4,.4,0], visualFramePosition=shift, meshScale=meshScale, fileName="duck.obj")
