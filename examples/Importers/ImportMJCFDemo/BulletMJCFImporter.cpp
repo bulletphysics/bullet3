@@ -2251,7 +2251,8 @@ void BulletMJCFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, 
 	if (m_data->m_customVisualShapesConverter)
 	{
 		const UrdfLink* link = m_data->getLink(m_data->m_activeModel, urdfIndex);
-		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex, pathPrefix, inertialFrame, link, 0, colObj->getBroadphaseHandle()->getUid(), objectIndex, m_data->m_fileIO);
+		int uid3 = m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex, pathPrefix, inertialFrame, link, 0, colObj->getBroadphaseHandle()->getUid(), objectIndex, m_data->m_fileIO);
+		colObj->setUserIndex3(uid3);
 	}
 }
 
