@@ -130,8 +130,8 @@ static ExampleEntry gDefaultExamples[] =
 
 		ExampleEntry(1, "Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.", RigidBodySoftContactCreateFunc),
 
-
 		ExampleEntry(0, "Bullet Robotics"),
+		ExampleEntry(1, "Box Stack", "Create a stack of boxes using C API", BoxStackExampleCreateFunc),
 		ExampleEntry(1, "FixJoint Boxes", "FixJoint Boxes", FixJointBoxesCreateFunc),
 
 		ExampleEntry(0, "MultiBody"),
