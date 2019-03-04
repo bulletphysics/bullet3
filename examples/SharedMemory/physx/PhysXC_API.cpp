@@ -1,13 +1,14 @@
 #ifdef BT_ENABLE_PHYSX
 #include "PhysXC_API.h"
+#include "../PhysicsDirect.h"
 #include "PhysXServerCommandProcessor.h"
-#include "PhysXClient.h"
 
-B3_SHARED_API b3PhysicsClientHandle b3ConnectPhysX()
+
+B3_SHARED_API b3PhysicsClientHandle b3ConnectPhysX(int argc, char* argv[])
 {
-	PhysXServerCommandProcessor* sdk = new PhysXServerCommandProcessor;
+	PhysXServerCommandProcessor* sdk = new PhysXServerCommandProcessor(argc,argv);
 
-	PhysXClient* direct = new PhysXClient(sdk, true);
+	PhysicsDirect* direct = new PhysicsDirect(sdk, true);
 	bool connected;
 	connected = direct->connect();
 	return (b3PhysicsClientHandle)direct;

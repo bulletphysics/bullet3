@@ -639,7 +639,7 @@ B3_SHARED_API int executePluginCommand_fileIOPlugin(struct b3PluginContext* cont
 						case eZipFileIO:
 						{
 	#ifdef B3_USE_ZIPFILE_FILEIO
-							if (arguments->m_text)
+							if (arguments->m_text[0])
 							{
 								result = obj->m_fileIO.addFileIOInterface(new ZipFileIO(eZipFileIO, arguments->m_text, &obj->m_fileIO));
 							}

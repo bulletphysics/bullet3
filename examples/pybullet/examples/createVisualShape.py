@@ -3,6 +3,7 @@ import time
 import math
 
 def getRayFromTo(mouseX,mouseY):
+
 	width, height, viewMat, projMat, cameraUp, camForward, horizon,vertical, _,_,dist, camTarget = p.getDebugVisualizerCamera()
 	camPos = [camTarget[0] - dist*camForward[0],camTarget[1] - dist*camForward[1],camTarget[2] - dist*camForward[2]]
 	farPlane = 10000
@@ -15,9 +16,9 @@ def getRayFromTo(mouseX,mouseY):
 	dHor = [horizon[0] * oneOverWidth,horizon[1] * oneOverWidth,horizon[2] * oneOverWidth]
 	dVer = [vertical[0] * oneOverHeight,vertical[1] * oneOverHeight,vertical[2] * oneOverHeight]
 	rayToCenter=[rayFrom[0]+rayForward[0],rayFrom[1]+rayForward[1],rayFrom[2]+rayForward[2]]
-	rayTo = [rayFrom[0]+rayForward[0]  - 0.5 * horizon[0] + 0.5 * vertical[0]+float(mouseX)*dHor[0]-float(mouseY)*dVer[0],
-					rayFrom[1]+rayForward[1]  - 0.5 * horizon[1] + 0.5 * vertical[1]+float(mouseX)*dHor[1]-float(mouseY)*dVer[1],
-					rayFrom[2]+rayForward[2]  - 0.5 * horizon[2] + 0.5 * vertical[2]+float(mouseX)*dHor[2]-float(mouseY)*dVer[2]]
+	rayTo = [rayToCenter[0]  - 0.5 * horizon[0] + 0.5 * vertical[0]+float(mouseX)*dHor[0]-float(mouseY)*dVer[0],
+			rayToCenter[1]  - 0.5 * horizon[1] + 0.5 * vertical[1]+float(mouseX)*dHor[1]-float(mouseY)*dVer[1],
+				rayToCenter[2]  - 0.5 * horizon[2] + 0.5 * vertical[2]+float(mouseX)*dHor[2]-float(mouseY)*dVer[2]]
 	return rayFrom,rayTo
 
 cid = p.connect(p.SHARED_MEMORY)
@@ -66,7 +67,6 @@ while (1):
 				hit = rayInfo[l]
 				objectUid = hit[0]
 				if (objectUid>=1):
-					#p.removeBody(objectUid)
 					p.changeVisualShape(objectUid,-1,rgbaColor=colors[currentColor])
 					currentColor+=1
 					if (currentColor>=len(colors)):
