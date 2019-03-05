@@ -147,6 +147,7 @@ SET(BulletExampleBrowser_SRCS
         ../BulletRobotics/FixJointBoxes.cpp
 
         ../BulletRobotics/BoxStack.cpp
+        ../BulletRobotics/JointLimit.cpp
 
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp

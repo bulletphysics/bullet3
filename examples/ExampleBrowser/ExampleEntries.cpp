@@ -3,7 +3,9 @@
 #include "../BlockSolver/BlockSolverExample.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "EmptyExample.h"
+#include "../BulletRobotics/BoxStack.h"
 #include "../BulletRobotics/FixJointBoxes.h"
+#include "../BulletRobotics/JointLimit.h"
 #include "../RenderingExamples/RenderInstancingDemo.h"
 #include "../RenderingExamples/CoordinateSystemDemo.h"
 #include "../RenderingExamples/RaytracerSetup.h"
@@ -131,8 +133,8 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.", RigidBodySoftContactCreateFunc),
 
 		ExampleEntry(0, "Bullet Robotics"),
-		ExampleEntry(1, "Box Stack", "Create a stack of boxes using C API", BoxStackExampleCreateFunc),
-		ExampleEntry(1, "FixJoint Boxes", "FixJoint Boxes", FixJointBoxesCreateFunc),
+		ExampleEntry(1, "Box Stack", "Create a stack of boxes of large mass ratio.", BoxStackExampleCreateFunc),
+		ExampleEntry(1, "Joint Limit", "Create three objects joint together", JointLimitCreateFunc),
 
 		ExampleEntry(0, "MultiBody"),
 		ExampleEntry(1, "MultiDof", "Create a basic btMultiBody with 3-DOF spherical joints (mobilizers). The demo uses a fixed base or a floating base at restart.", MultiDofCreateFunc),
