@@ -51,20 +51,17 @@ public:
 		b3RobotSimulatorSetPhysicsEngineParameters physicsArgs;
 		physicsArgs.m_constraintSolverType = eConstraintSolverLCP_DANTZIG;
 
-		b3Printf(m_robotSim.getSolvername());
-
 		physicsArgs.m_defaultGlobalCFM = 1e-6;
 
-                m_robotSim.setNumSolverIterations(10);
-
+		m_robotSim.setNumSolverIterations(10);
 
 		b3RobotSimulatorLoadUrdfFileArgs loadArgs;
 		int humanoid = m_robotSim.loadURDF("test_joints_MB.urdf", loadArgs);
 
-                b3RobotSimulatorChangeDynamicsArgs dynamicsArgs;
-                dynamicsArgs.m_linearDamping = 0;
-                dynamicsArgs.m_angularDamping = 0;
-                m_robotSim.changeDynamics(humanoid, -1, dynamicsArgs);
+		b3RobotSimulatorChangeDynamicsArgs dynamicsArgs;
+		dynamicsArgs.m_linearDamping = 0;
+		dynamicsArgs.m_angularDamping = 0;
+		m_robotSim.changeDynamics(humanoid, -1, dynamicsArgs);
 
 		m_robotSim.setGravity(btVector3(0, 0, -10));
 	}

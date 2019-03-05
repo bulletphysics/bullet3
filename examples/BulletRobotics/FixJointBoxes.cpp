@@ -14,16 +14,26 @@
 #include <vector>
 #include "../RobotSimulator/b3RobotSimulatorClientAPI.h"
 
+static btScalar numSolverIterations = 1000;
+static btScalar solverId = 0;
+
 class FixJointBoxes : public CommonExampleInterface
 {
 	GUIHelperInterface* m_guiHelper;
 	b3RobotSimulatorClientAPI m_robotSim;
 	int m_options;
+	b3RobotSimulatorSetPhysicsEngineParameters physicsArgs;
+	int solver;
+
+	const size_t numCubes = 30;
+	std::vector<int> cubeIds;
 
 public:
 	FixJointBoxes(GUIHelperInterface* helper, int options)
 		: m_guiHelper(helper),
-		  m_options(options)
+		  m_options(options),
+		  cubeIds(numCubes, 0),
+		  solver(solverId)
 	{
 	}
 
@@ -47,39 +57,84 @@ public:
 		m_robotSim.configureDebugVisualizer(COV_ENABLE_DEPTH_BUFFER_PREVIEW, 0);
 		m_robotSim.configureDebugVisualizer(COV_ENABLE_SEGMENTATION_MARK_PREVIEW, 0);
 
-		b3RobotSimulatorLoadUrdfFileArgs args;
-
-		size_t numCubes = 10;
-		std::vector<int> cubeIds(numCubes, 0);
-		for (int i = 0; i < numCubes; i++)
 		{
-			args.m_forceOverrideFixedBase = (i == 0);
-			args.m_startPosition.setValue(0, i * 0.05, 1);
-			cubeIds[i] = m_robotSim.loadURDF("cube_small.urdf", args);
+			b3RobotSimulatorLoadUrdfFileArgs args;
+			b3RobotSimulatorChangeDynamicsArgs dynamicsArgs;
 
-			b3JointInfo jointInfo;
-
-			jointInfo.m_parentFrame[1] = -0.025;
-			jointInfo.m_childFrame[1] = 0.025;
-			jointInfo.m_jointType = eFixedType;
-			// jointInfo.m_jointType = ePoint2PointType;
-			// jointInfo.m_jointType =	ePrismaticType;
-
-			if (i > 0)
+			for (int i = 0; i < numCubes; i++)
 			{
-				m_robotSim.createConstraint(cubeIds[i], -1, cubeIds[i - 1], -1, &jointInfo);
-			}
+				args.m_forceOverrideFixedBase = (i == 0);
+				args.m_startPosition.setValue(0, i * 0.05, 1);
+				cubeIds[i] = m_robotSim.loadURDF("cube_small.urdf", args);
 
-			m_robotSim.loadURDF("plane.urdf");
+				b3RobotJointInfo jointInfo;
+
+				jointInfo.m_parentFrame[1] = -0.025;
+				jointInfo.m_childFrame[1] = 0.025;
+
+				if (i > 0)
+				{
+					m_robotSim.createConstraint(cubeIds[i], -1, cubeIds[i - 1], -1, &jointInfo);
+				}
+
+				m_robotSim.loadURDF("plane.urdf");
+			}
 		}
+
+		{
+			SliderParams slider("Direct solver", &solverId);
+			slider.m_minVal = 0;
+			slider.m_maxVal = 1;
+			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+		}
+		{
+			SliderParams slider("numSolverIterations", &numSolverIterations);
+			slider.m_minVal = 50;
+			slider.m_maxVal = 1e4;
+			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+		}
+
+		physicsArgs.m_defaultGlobalCFM = 1e-6;
+		m_robotSim.setPhysicsEngineParameter(physicsArgs);
+
+		m_robotSim.setGravity(btVector3(0, 0, -10));
+		m_robotSim.setNumSolverIterations((int)numSolverIterations);
 	}
 
 	virtual void exitPhysics()
 	{
 		m_robotSim.disconnect();
 	}
+
+	void resetCubePosition()
+	{
+		for (int i = 0; i < numCubes; i++)
+		{
+			btVector3 pos = {0, i * 0.05, 1};
+			btQuaternion quar = {0, 0, 0, 1};
+			m_robotSim.resetBasePositionAndOrientation(cubeIds[i], pos, quar);
+		}
+	}
 	virtual void stepSimulation(float deltaTime)
 	{
+		int newSolver = (int)(solverId + 0.5);
+		if (newSolver != solver)
+		{
+			printf("Switching solver, new %d, old %d\n", newSolver, solver);
+			solver = newSolver;
+			resetCubePosition();
+			if (solver)
+			{
+				physicsArgs.m_constraintSolverType = eConstraintSolverLCP_DANTZIG;
+			}
+			else
+			{
+				physicsArgs.m_constraintSolverType = eConstraintSolverLCP_SI;
+			}
+
+			m_robotSim.setPhysicsEngineParameter(physicsArgs);
+		}
+		m_robotSim.setNumSolverIterations((int)numSolverIterations);
 		m_robotSim.stepSimulation();
 	}
 	virtual void renderScene()
@@ -102,12 +157,12 @@ public:
 
 	virtual void resetCamera()
 	{
-		// float dist = 1;
-		// float pitch = -20;
-		// float yaw = -30;
-		// float targetPos[3] = {0, 0.2, 0.5};
+		float dist = 1.2;
+		float pitch = -20;
+		float yaw = 90;
+		float targetPos[3] = {.5, 0.6, 0.5};
 
-		// m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
+		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
 
