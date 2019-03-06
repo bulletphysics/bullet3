@@ -144,6 +144,7 @@ SET(ExtendedTutorialsSources
 )
 
 SET(BulletExampleBrowser_SRCS
+        ../BulletRobotics/FixJointBoxes.cpp
 
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp
