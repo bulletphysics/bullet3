@@ -990,6 +990,10 @@ B3_SHARED_API int b3RequestActualStateCommandComputeForwardKinematics(b3SharedMe
 
 B3_SHARED_API int b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int jointIndex, b3JointSensorState* state)
 {
+
+	
+	
+
 	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
 	b3Assert(status);
 	int bodyIndex = status->m_sendActualStateArgs.m_bodyUniqueId;
@@ -997,13 +1001,14 @@ B3_SHARED_API int b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemo
 	if (bodyIndex >= 0)
 	{
 		b3JointInfo info;
+
 		bool result = b3GetJointInfo(physClient, bodyIndex, jointIndex, &info) != 0;
-		if (result)
+		if (result && status->m_sendActualStateArgs.m_stateDetails)
 		{
 			if ((info.m_qIndex >= 0) && (info.m_uIndex >= 0) && (info.m_qIndex < MAX_DEGREE_OF_FREEDOM) && (info.m_uIndex < MAX_DEGREE_OF_FREEDOM))
 			{
-				state->m_jointPosition = status->m_sendActualStateArgs.m_actualStateQ[info.m_qIndex];
-				state->m_jointVelocity = status->m_sendActualStateArgs.m_actualStateQdot[info.m_uIndex];
+				state->m_jointPosition = status->m_sendActualStateArgs.m_stateDetails->m_actualStateQ[info.m_qIndex];
+				state->m_jointVelocity = status->m_sendActualStateArgs.m_stateDetails->m_actualStateQdot[info.m_uIndex];
 			}
 			else
 			{
@@ -1012,9 +1017,9 @@ B3_SHARED_API int b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemo
 			}
 			for (int ii(0); ii < 6; ++ii)
 			{
-				state->m_jointForceTorque[ii] = status->m_sendActualStateArgs.m_jointReactionForces[6 * jointIndex + ii];
+				state->m_jointForceTorque[ii] = status->m_sendActualStateArgs.m_stateDetails->m_jointReactionForces[6 * jointIndex + ii];
 			}
-			state->m_jointMotorTorque = status->m_sendActualStateArgs.m_jointMotorForce[jointIndex];
+			state->m_jointMotorTorque = status->m_sendActualStateArgs.m_stateDetails->m_jointMotorForce[jointIndex];
 			return 1;
 		}
 	}
@@ -1042,12 +1047,12 @@ B3_SHARED_API int b3GetJointStateMultiDof(b3PhysicsClientHandle physClient, b3Sh
 				state->m_uDofSize = info.m_uSize;
 				for (int i = 0; i < state->m_qDofSize; i++)
 				{
-					state->m_jointPosition[i] = status->m_sendActualStateArgs.m_actualStateQ[info.m_qIndex + i];
+					state->m_jointPosition[i] = status->m_sendActualStateArgs.m_stateDetails->m_actualStateQ[info.m_qIndex + i];
 				}
 				for (int i = 0; i < state->m_uDofSize; i++)
 				{
-					state->m_jointVelocity[i] = status->m_sendActualStateArgs.m_actualStateQdot[info.m_uIndex+i];
-					state->m_jointMotorTorqueMultiDof[i] = status->m_sendActualStateArgs.m_jointMotorForceMultiDof[info.m_uIndex + i];
+					state->m_jointVelocity[i] = status->m_sendActualStateArgs.m_stateDetails->m_actualStateQdot[info.m_uIndex+i];
+					state->m_jointMotorTorqueMultiDof[i] = status->m_sendActualStateArgs.m_stateDetails->m_jointMotorForceMultiDof[info.m_uIndex + i];
 				}
 			}
 			else
@@ -1057,7 +1062,7 @@ B3_SHARED_API int b3GetJointStateMultiDof(b3PhysicsClientHandle physClient, b3Sh
 			}
 			for (int ii(0); ii < 6; ++ii)
 			{
-				state->m_jointReactionForceTorque[ii] = status->m_sendActualStateArgs.m_jointReactionForces[6 * jointIndex + ii];
+				state->m_jointReactionForceTorque[ii] = status->m_sendActualStateArgs.m_stateDetails->m_jointReactionForces[6 * jointIndex + ii];
 			}
 			
 			return 1;
@@ -1083,15 +1088,15 @@ B3_SHARED_API int b3GetLinkState(b3PhysicsClientHandle physClient, b3SharedMemor
 
 		for (int i = 0; i < 3; ++i)
 		{
-			state->m_worldPosition[i] = status->m_sendActualStateArgs.m_linkState[7 * linkIndex + i];
-			state->m_localInertialPosition[i] = status->m_sendActualStateArgs.m_linkLocalInertialFrames[7 * linkIndex + i];
-			state->m_worldLinearVelocity[i] = status->m_sendActualStateArgs.m_linkWorldVelocities[6 * linkIndex + i];
-			state->m_worldAngularVelocity[i] = status->m_sendActualStateArgs.m_linkWorldVelocities[6 * linkIndex + i + 3];
+			state->m_worldPosition[i] = status->m_sendActualStateArgs.m_stateDetails->m_linkState[7 * linkIndex + i];
+			state->m_localInertialPosition[i] = status->m_sendActualStateArgs.m_stateDetails->m_linkLocalInertialFrames[7 * linkIndex + i];
+			state->m_worldLinearVelocity[i] = status->m_sendActualStateArgs.m_stateDetails->m_linkWorldVelocities[6 * linkIndex + i];
+			state->m_worldAngularVelocity[i] = status->m_sendActualStateArgs.m_stateDetails->m_linkWorldVelocities[6 * linkIndex + i + 3];
 		}
 		for (int i = 0; i < 4; ++i)
 		{
-			state->m_worldOrientation[i] = status->m_sendActualStateArgs.m_linkState[7 * linkIndex + 3 + i];
-			state->m_localInertialOrientation[i] = status->m_sendActualStateArgs.m_linkLocalInertialFrames[7 * linkIndex + 3 + i];
+			state->m_worldOrientation[i] = status->m_sendActualStateArgs.m_stateDetails->m_linkState[7 * linkIndex + 3 + i];
+			state->m_localInertialOrientation[i] = status->m_sendActualStateArgs.m_stateDetails->m_linkLocalInertialFrames[7 * linkIndex + 3 + i];
 		}
 		com.setOrigin(b3MakeVector3(state->m_worldPosition[0], state->m_worldPosition[1], state->m_worldPosition[2]));
 		com.setRotation(b3Quaternion(state->m_worldOrientation[0], state->m_worldOrientation[1], state->m_worldOrientation[2], state->m_worldOrientation[3]));
@@ -2338,19 +2343,19 @@ B3_SHARED_API int b3GetStatusActualState2(b3SharedMemoryStatusHandle statusHandl
 	}
 	if (linkLocalInertialFrames)
 	{
-		*linkLocalInertialFrames = args.m_linkLocalInertialFrames;
+		*linkLocalInertialFrames = args.m_stateDetails->m_linkLocalInertialFrames;
 	}
 	if (jointMotorForces)
 	{
-		*jointMotorForces = args.m_jointMotorForce;
+		*jointMotorForces = args.m_stateDetails->m_jointMotorForce;
 	}
 	if (linkStates)
 	{
-		*linkStates = args.m_linkState;
+		*linkStates = args.m_stateDetails->m_linkState;
 	}
 	if (linkWorldVelocities)
 	{
-		*linkWorldVelocities = args.m_linkWorldVelocities;
+		*linkWorldVelocities = args.m_stateDetails->m_linkWorldVelocities;
 	}
 	return 1;
 }
@@ -2391,15 +2396,15 @@ B3_SHARED_API int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle
 	}
 	if (actualStateQ)
 	{
-		*actualStateQ = args.m_actualStateQ;
+		*actualStateQ = args.m_stateDetails->m_actualStateQ;
 	}
 	if (actualStateQdot)
 	{
-		*actualStateQdot = args.m_actualStateQdot;
+		*actualStateQdot = args.m_stateDetails->m_actualStateQdot;
 	}
 	if (jointReactionForces)
 	{
-		*jointReactionForces = args.m_jointReactionForces;
+		*jointReactionForces = args.m_stateDetails->m_jointReactionForces;
 	}
 	return true;
 }

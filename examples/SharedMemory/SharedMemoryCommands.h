@@ -522,7 +522,12 @@ struct SendActualStateArgs
 	int m_numDegreeOfFreedomU;
 
 	double m_rootLocalInertialFrame[7];
+	struct SendActualStateSharedMemoryStorage* m_stateDetails;
 
+};
+
+struct SendActualStateSharedMemoryStorage
+{
 	//actual state is only written by the server, read-only access by client is expected
 	double m_actualStateQ[MAX_DEGREE_OF_FREEDOM];
 	double m_actualStateQdot[MAX_DEGREE_OF_FREEDOM];
