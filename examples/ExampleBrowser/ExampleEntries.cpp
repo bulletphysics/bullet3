@@ -1,5 +1,6 @@
 #include "ExampleEntries.h"
 
+#include "../BlockSolver/BlockSolverExample.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "EmptyExample.h"
 #include "../RenderingExamples/RenderInstancingDemo.h"
@@ -29,7 +30,7 @@
 #include "../MultiBody/MultiBodyConstraintFeedback.h"
 #include "../MultiBody/MultiDofDemo.h"
 #include "../MultiBody/InvertedPendulumPDControl.h"
-#include "../MultiBody/SerialChains.h"
+
 #include "../RigidBody/RigidBodySoftContact.h"
 #include "../VoronoiFracture/VoronoiFractureDemo.h"
 #include "../SoftDemo/SoftDemo.h"
@@ -136,8 +137,8 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Constraint Feedback", "The example shows how to receive joint reaction forces in a btMultiBody. Also the applied impulse is available for a btMultiBodyJointMotor", MultiBodyConstraintFeedbackCreateFunc),
 		ExampleEntry(1, "Inverted Pendulum PD", "Keep an inverted pendulum up using open loop PD control", InvertedPendulumPDControlCreateFunc),
 		ExampleEntry(1, "MultiBody Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.", MultiBodySoftContactCreateFunc, 0),
-		ExampleEntry(1, "Serial Chains", "Show colliding two serial chains using different constraint solvers.", SerialChainsCreateFunc, 0),
-
+		
+	
 		ExampleEntry(0, "Physics Client-Server"),
 		ExampleEntry(1, "Physics Server", "Create a physics server that communicates with a physics client over shared memory. You can connect to the server using pybullet, a PhysicsClient or a UDP/TCP Bridge.",
 					 PhysicsServerCreateFuncBullet2),
@@ -149,6 +150,13 @@ static ExampleEntry gDefaultExamples[] =
 					 PhysicsServerCreateFuncBullet2, PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
 		//
 		//	ExampleEntry(1, "Physics Client (Direct)", "Create a physics client that can communicate with a physics server directly in-process.", PhysicsClientCreateFunc,eCLIENTEXAMPLE_DIRECT),
+
+
+		ExampleEntry(0, "BlockSolver"),
+		ExampleEntry(1, "Stack MultiBody SI", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK+ BLOCK_SOLVER_SI),
+		ExampleEntry(1, "Stack MultiBody MLCP PGS", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_MLCP_PGS),
+		ExampleEntry(1, "Stack MultiBody MLCP Dantzig", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_MLCP_DANTZIG),
+		ExampleEntry(1, "Stack MultiBody Block", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_BLOCK),
 
 		ExampleEntry(0, "Inverse Dynamics"),
 		ExampleEntry(1, "Inverse Dynamics URDF", "Create a btMultiBody from URDF. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc, BT_ID_LOAD_URDF),
