@@ -3,6 +3,7 @@
 #include "../BlockSolver/BlockSolverExample.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "EmptyExample.h"
+#include "../BulletRobotics/FixJointBoxes.h"
 #include "../RenderingExamples/RenderInstancingDemo.h"
 #include "../RenderingExamples/CoordinateSystemDemo.h"
 #include "../RenderingExamples/RaytracerSetup.h"
@@ -128,6 +129,10 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Gyroscopic", "Show the Dzhanibekov effect using various settings of the gyroscopic term. You can select the gyroscopic term computation using btRigidBody::setFlags, with arguments BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT (using explicit integration, which adds energy and can lead to explosions), BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD, BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY. If you don't set any of these flags, there is no gyroscopic term used.", GyroscopicCreateFunc),
 
 		ExampleEntry(1, "Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.", RigidBodySoftContactCreateFunc),
+
+
+		ExampleEntry(0, "Bullet Robotics"),
+		ExampleEntry(1, "FixJoint Boxes", "FixJoint Boxes", FixJointBoxesCreateFunc),
 
 		ExampleEntry(0, "MultiBody"),
 		ExampleEntry(1, "MultiDof", "Create a basic btMultiBody with 3-DOF spherical joints (mobilizers). The demo uses a fixed base or a floating base at restart.", MultiDofCreateFunc),
