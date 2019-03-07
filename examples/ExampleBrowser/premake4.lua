@@ -162,6 +162,7 @@ project "App_BulletExampleBrowser"
 		"../Evolution/NN3DWalkers.h",
 		"../Collision/*",
 		"../RoboticsLearning/*",
+		"../BlockSolver/*",
 		"../Collision/Internal/*",
 		"../Benchmarks/*",
 		"../MultiThreadedDemo/*",
