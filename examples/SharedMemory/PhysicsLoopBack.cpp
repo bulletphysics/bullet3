@@ -173,6 +173,9 @@ void PhysicsLoopBack::getCachedCameraImage(struct b3CameraImageData* cameraData)
 	return m_data->m_physicsClient->getCachedCameraImage(cameraData);
 }
 
+
+
+
 void PhysicsLoopBack::getCachedContactPointInformation(struct b3ContactInformation* contactPointData)
 {
 	return m_data->m_physicsClient->getCachedContactPointInformation(contactPointData);

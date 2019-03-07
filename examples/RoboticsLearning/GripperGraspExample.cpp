@@ -62,6 +62,10 @@ public:
 		m_robotSim.setGuiHelper(m_guiHelper);
 		bool connected = m_robotSim.connect(mode);
 
+		m_robotSim.configureDebugVisualizer(COV_ENABLE_RGB_BUFFER_PREVIEW, 0);
+		m_robotSim.configureDebugVisualizer(COV_ENABLE_DEPTH_BUFFER_PREVIEW, 0);
+		m_robotSim.configureDebugVisualizer(COV_ENABLE_SEGMENTATION_MARK_PREVIEW, 0);
+
 		b3Printf("robotSim connected = %d", connected);
 
 		if ((m_options & eGRIPPER_GRASP) != 0)
