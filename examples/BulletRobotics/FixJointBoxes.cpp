@@ -57,7 +57,7 @@ public:
 			args.m_startPosition.setValue(0, i * 0.05, 1);
 			cubeIds[i] = m_robotSim.loadURDF("cube_small.urdf", args);
 
-			b3JointInfo jointInfo;
+			b3RobotJointInfo jointInfo;
 
 			jointInfo.m_parentFrame[1] = -0.025;
 			jointInfo.m_childFrame[1] = 0.025;
@@ -102,12 +102,11 @@ public:
 
 	virtual void resetCamera()
 	{
-		// float dist = 1;
-		// float pitch = -20;
-		// float yaw = -30;
-		// float targetPos[3] = {0, 0.2, 0.5};
-
-		// m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
+		 float dist = 1;
+		 float pitch = -20;
+		 float yaw = -30;
+		 float targetPos[3] = {0, 0.2, 0.5};
+		 m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
 
