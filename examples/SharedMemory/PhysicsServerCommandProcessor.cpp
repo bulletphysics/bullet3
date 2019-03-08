@@ -7664,6 +7664,9 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 	btVector3 newLocalInertiaDiagonal(clientCmd.m_changeDynamicsInfoArgs.m_localInertiaDiagonal[0],
 									  clientCmd.m_changeDynamicsInfoArgs.m_localInertiaDiagonal[1],
 									  clientCmd.m_changeDynamicsInfoArgs.m_localInertiaDiagonal[2]);
+	btVector3 anisotropicFriction(clientCmd.m_changeDynamicsInfoArgs.m_anisotropicFriction[0],
+		clientCmd.m_changeDynamicsInfoArgs.m_anisotropicFriction[1],
+		clientCmd.m_changeDynamicsInfoArgs.m_anisotropicFriction[2]);
 
 	btAssert(bodyUniqueId >= 0);
 
@@ -7796,6 +7799,12 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			{
 				mb->setBaseInertia(newLocalInertiaDiagonal);
 			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION)
+			{
+				mb->getBaseCollider()->setAnisotropicFriction(anisotropicFriction);
+			}
+
+
 		}
 		else
 		{
@@ -7857,6 +7866,10 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
 				{
 					mb->getLink(linkIndex).m_inertiaLocal = newLocalInertiaDiagonal;
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION)
+				{
+					mb->getLinkCollider(linkIndex)->setAnisotropicFriction(anisotropicFriction);
 				}
 			}
 		}
@@ -7946,7 +7959,11 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					body->m_rigidBody->setMassProps(mass, newLocalInertiaDiagonal);
 				}
 			}
-
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION)
+			{
+				body->m_rigidBody->setAnisotropicFriction(anisotropicFriction);
+			}
+			
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD)
 			{
 				body->m_rigidBody->setContactProcessingThreshold(clientCmd.m_changeDynamicsInfoArgs.m_contactProcessingThreshold);
