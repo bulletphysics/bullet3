@@ -2780,6 +2780,21 @@ B3_SHARED_API int b3ChangeDynamicsInfoSetMass(b3SharedMemoryCommandHandle comman
 	return 0;
 }
 
+B3_SHARED_API int b3ChangeDynamicsInfoSetAnisotropicFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, const double anisotropicFriction[])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_anisotropicFriction[0] = anisotropicFriction[0];
+	command->m_changeDynamicsInfoArgs.m_anisotropicFriction[1] = anisotropicFriction[1];
+	command->m_changeDynamicsInfoArgs.m_anisotropicFriction[2] = anisotropicFriction[2];
+
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION;
+	return 0;
+}
+
+
 B3_SHARED_API int b3ChangeDynamicsInfoSetLocalInertiaDiagonal(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, const double localInertiaDiagonal[])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;

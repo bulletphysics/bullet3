@@ -164,6 +164,7 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD = 4096,
 	CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE = 8192,
 	CHANGE_DYNAMICS_INFO_SET_JOINT_DAMPING = 16384,
+	CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION = 32768,
 };
 
 struct ChangeDynamicsInfoArgs
@@ -186,6 +187,7 @@ struct ChangeDynamicsInfoArgs
 	double m_contactProcessingThreshold;
 	int m_activationState;
 	double m_jointDamping;
+	double m_anisotropicFriction[3];
 };
 
 struct GetDynamicsInfoArgs
