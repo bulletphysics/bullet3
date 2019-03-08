@@ -79,6 +79,8 @@ struct PhysicsDirectInternalData
 	bool m_ownsCommandProcessor;
 	double m_timeOutInSeconds;
 
+	SendActualStateSharedMemoryStorage m_cachedState;
+
 	PhysicsDirectInternalData()
 		: m_hasStatus(false),
 		  m_verboseOutput(false),
@@ -1014,6 +1016,9 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		}
 		case CMD_ACTUAL_STATE_UPDATE_COMPLETED:
 		{
+			SendActualStateSharedMemoryStorage* serverState = (SendActualStateSharedMemoryStorage*)&m_data->m_bulletStreamDataServerToClient[0];
+			m_data->m_cachedState = *serverState;
+			m_data->m_serverStatus.m_sendActualStateArgs.m_stateDetails = &m_data->m_cachedState;
 			break;
 		}
 		case CMD_DESIRED_STATE_RECEIVED_COMPLETED:

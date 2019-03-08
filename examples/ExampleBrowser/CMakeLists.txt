@@ -144,6 +144,7 @@ SET(ExtendedTutorialsSources
 )
 
 SET(BulletExampleBrowser_SRCS
+        ../BulletRobotics/FixJointBoxes.cpp
 
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp
@@ -202,6 +203,10 @@ SET(BulletExampleBrowser_SRCS
 	../MultiThreadedDemo/MultiThreadedDemo.h
 	../MultiThreadedDemo/CommonRigidBodyMTBase.cpp
 	../MultiThreadedDemo/CommonRigidBodyMTBase.h
+	../BlockSolver/btBlockSolver.cpp
+	../BlockSolver/btBlockSolver.h
+	../BlockSolver/BlockSolverExample.cpp
+	../BlockSolver/BlockSolverExample.h
 	../Tutorial/Tutorial.cpp
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp
@@ -333,7 +338,6 @@ SET(BulletExampleBrowser_SRCS
   ../MultiBody/InvertedPendulumPDControl.cpp
   ../MultiBody/InvertedPendulumPDControl.h
  ../MultiBody/MultiBodyConstraintFeedback.cpp
-  ../MultiBody/SerialChains.cpp
   ../MultiBody/MultiDofDemo.cpp
   ../MultiBody/MultiDofDemo.h
   ../RigidBody/RigidBodySoftContact.cpp
