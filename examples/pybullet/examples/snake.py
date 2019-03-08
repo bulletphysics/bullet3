@@ -12,9 +12,10 @@ plane = p.createCollisionShape(p.GEOM_PLANE)
 
 p.createMultiBody(0,plane)
 
-useMaximalCoordinates = False
+useMaximalCoordinates = True
 sphereRadius = 0.25
-colBoxId = p.createCollisionShapeArray([p.GEOM_BOX, p.GEOM_SPHERE],radii=[sphereRadius+0.03,sphereRadius+0.03], halfExtents=[[sphereRadius,sphereRadius,sphereRadius],[sphereRadius,sphereRadius,sphereRadius]])
+#colBoxId = p.createCollisionShapeArray([p.GEOM_BOX, p.GEOM_SPHERE],radii=[sphereRadius+0.03,sphereRadius+0.03], halfExtents=[[sphereRadius,sphereRadius,sphereRadius],[sphereRadius,sphereRadius,sphereRadius]])
+colBoxId = p.createCollisionShape(p.GEOM_BOX,halfExtents=[sphereRadius,sphereRadius,sphereRadius])
 
 mass = 1
 visualShapeId = -1
@@ -49,10 +50,12 @@ sphereUid = p.createMultiBody(mass,colBoxId,visualShapeId,basePosition,baseOrien
 p.setGravity(0,0,-10)
 p.setRealTimeSimulation(0)
 
+anistropicFriction = [1,0.01,0.01]
+p.changeDynamics(sphereUid,-1,lateralFriction=2,anisotropicFriction=anistropicFriction)
 p.getNumJoints(sphereUid)
 for i in range (p.getNumJoints(sphereUid)):
   p.getJointInfo(sphereUid,i)
-  p.changeDynamics(sphereUid,i,lateralFriction=2,anisotropicFriction=[1,0.01,0.01])#0,0,0])#1,0.01,0.01])
+  p.changeDynamics(sphereUid,i,lateralFriction=2,anisotropicFriction=anistropicFriction)
   
 dt = 1./240.
 SNAKE_NORMAL_PERIOD=0.1#1.5
