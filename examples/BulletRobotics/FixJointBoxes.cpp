@@ -60,7 +60,7 @@ public:
 		{
 			b3RobotSimulatorLoadUrdfFileArgs args;
 			b3RobotSimulatorChangeDynamicsArgs dynamicsArgs;
-
+      
 			for (int i = 0; i < numCubes; i++)
 			{
 				args.m_forceOverrideFixedBase = (i == 0);
@@ -157,12 +157,12 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 1.2;
-		float pitch = -20;
-		float yaw = 90;
-		float targetPos[3] = {.5, 0.6, 0.5};
 
-		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
+		 float dist = 1;
+		 float pitch = -20;
+		 float yaw = -30;
+		 float targetPos[3] = {0, 0.2, 0.5};
+		 m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
 
