@@ -75,6 +75,7 @@ public:
 				if (i > 0)
 				{
 					m_robotSim.createConstraint(cubeIds[i], -1, cubeIds[i - 1], -1, &jointInfo);
+                    m_robotSim.setCollisionFilterGroupMask(cubeIds[i], -1, 0, 0);
 				}
 
 				m_robotSim.loadURDF("plane.urdf");

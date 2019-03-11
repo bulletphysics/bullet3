@@ -664,6 +664,8 @@ public:
 		return SHARED_MEMORY_MAGIC_NUMBER;
 	}
 	void setAdditionalSearchPath(const std::string &path);
+    
+    void setCollisionFilterGroupMask(int bodyUniqueIdA, int linkIndexA, int collisionFilterGroup, int collisionFilterMask);
 };
 
 #endif  //B3_ROBOT_SIMULATOR_CLIENT_API_NO_DIRECT_H
