@@ -146,6 +146,11 @@ SET(ExtendedTutorialsSources
 SET(BulletExampleBrowser_SRCS
         ../BulletRobotics/FixJointBoxes.cpp
 
+        ../BulletRobotics/BoxStack.cpp
+        ../BulletRobotics/JointLimit.cpp
+        # ../BulletRobotics/GraspBox.cpp
+        ../BulletRobotics/FixJointBoxes.cpp
+
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp
 	../TinyRenderer/tgaimage.cpp

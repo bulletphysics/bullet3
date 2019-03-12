@@ -3,6 +3,10 @@
 #include "../BlockSolver/BlockSolverExample.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "EmptyExample.h"
+#include "../BulletRobotics/BoxStack.h"
+#include "../BulletRobotics/FixJointBoxes.h"
+#include "../BulletRobotics/JointLimit.h"
+// #include "../BulletRobotics/GraspBox.h"
 #include "../BulletRobotics/FixJointBoxes.h"
 #include "../RenderingExamples/RenderInstancingDemo.h"
 #include "../RenderingExamples/CoordinateSystemDemo.h"
@@ -132,6 +136,9 @@ static ExampleEntry gDefaultExamples[] =
 
 
 		ExampleEntry(0, "Bullet Robotics"),
+		ExampleEntry(1, "Box Stack", "Create a stack of boxes of large mass ratio.", BoxStackExampleCreateFunc),
+		ExampleEntry(1, "Joint Limit", "Create three objects joint together", JointLimitCreateFunc),
+		// ExampleEntry(1, "Grasp Box", "A robot arm of large mass tries to grasp a box of small mass", GraspBoxCreateFunc),
 		ExampleEntry(1, "FixJoint Boxes", "FixJoint Boxes", FixJointBoxesCreateFunc),
 
 		ExampleEntry(0, "MultiBody"),
