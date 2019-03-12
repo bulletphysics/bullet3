@@ -36,7 +36,7 @@
   </contact>
     <inertial>
        <origin rpy="0 0 0" xyz="0.02 0 0"/>
-       <mass value="0.241"/>
+       <mass value="1.095"/>
        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
     </inertial>
 	
@@ -262,7 +262,7 @@
   </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="0.02 0 0"/>
-       <mass value="0.241"/>
+       <mass value="1.095"/>
        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
     </inertial>
 	
