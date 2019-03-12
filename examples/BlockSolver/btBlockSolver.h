@@ -5,7 +5,7 @@
 
 class btBlockSolver : public btMultiBodyConstraintSolver
 {
-	struct btBlockSolverInternalData* m_data;
+	struct btBlockSolverInternalData* m_data2;
 
 public:
 	btBlockSolver();
