@@ -2417,3 +2417,25 @@ void b3RobotSimulatorClientAPI_NoDirect::setAdditionalSearchPath(const std::stri
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	}
 }
+
+void b3RobotSimulatorClientAPI_NoDirect::setCollisionFilterGroupMask(int bodyUniqueIdA, int linkIndexA, int collisionFilterGroup, int collisionFilterMask)
+{
+    int physicsClientId = 0;
+    b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+    if (sm == 0)
+    {
+        b3Warning("Not connected");
+        return;
+    }
+    
+    b3SharedMemoryCommandHandle commandHandle;
+    b3SharedMemoryStatusHandle statusHandle;
+    int statusType;
+    
+    commandHandle = b3CollisionFilterCommandInit(sm);
+    b3SetCollisionFilterGroupMask(commandHandle, bodyUniqueIdA, linkIndexA, collisionFilterGroup, collisionFilterMask);
+    
+    statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+    statusType = b3GetStatusType(statusHandle);
+}
+
