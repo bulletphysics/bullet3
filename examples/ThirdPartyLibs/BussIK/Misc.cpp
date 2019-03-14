@@ -21,6 +21,8 @@ subject to the following restrictions:
 */
 
 #include <math.h>
+
+#include <cmath>
 #include "LinearR3.h"
 
 #if 0
@@ -121,7 +123,7 @@ float unit(float vin[3], float vout[3])
 
 	if (dist > 0.0)
 	{
-		dist = sqrt(dist);
+		dist = std::sqrt(dist);
 		f = 1. / dist;
 		vout[0] = f * vin[0];
 		vout[1] = f * vin[1];

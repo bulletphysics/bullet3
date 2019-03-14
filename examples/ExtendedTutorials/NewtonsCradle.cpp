@@ -15,8 +15,9 @@
 
 #include "NewtonsCradle.h"
 
-#include <vector>  // TODO: Should I use another data structure?
+#include <cmath>
 #include <iterator>
+#include <vector>  // TODO: Should I use another data structure?
 
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btVector3.h"
@@ -158,7 +159,7 @@ void NewtonsCradleExample::initPhysics()
 		btSphereShape* pendulumShape = new btSphereShape(gSphereRadius);
 		m_collisionShapes.push_back(pendulumShape);
 
-		for (int i = 0; i < floor(gPendulaQty); i++)
+		for (int i = 0; i < std::floor(gPendulaQty); i++)
 		{
 			// create pendulum
 			createPendulum(pendulumShape, position, gInitialPendulumLength, pendulumMass);
