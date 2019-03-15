@@ -41,36 +41,36 @@ struct btBlockSolverInternalData
 
 btBlockSolver::btBlockSolver()
 {
-	m_data = new btBlockSolverInternalData;
+	m_data2 = new btBlockSolverInternalData;
 }
 
 btBlockSolver::~btBlockSolver()
 {
-	delete m_data;
+	delete m_data2;
 }
 
 
 btScalar btBlockSolver::solveGroup(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher)
 {
 
-	btSISolverSingleIterationData siData(m_data->m_tmpSolverBodyPool,
-		m_data->m_tmpSolverContactConstraintPool,
-		m_data->m_tmpSolverNonContactConstraintPool,
-		m_data->m_tmpSolverContactFrictionConstraintPool,
-		m_data->m_tmpSolverContactRollingFrictionConstraintPool,
-		m_data->m_orderTmpConstraintPool,
-		m_data->m_orderNonContactConstraintPool,
-		m_data->m_orderFrictionConstraintPool,
-		m_data->m_tmpConstraintSizesPool,
-		m_data->m_resolveSingleConstraintRowGeneric,
-		m_data->m_resolveSingleConstraintRowLowerLimit,
-		m_data->m_resolveSplitPenetrationImpulse,
-		m_data->m_kinematicBodyUniqueIdToSolverBodyTable,
-		m_data->m_btSeed2,
-		m_data->m_fixedBodyId,
-		m_data->m_maxOverrideNumSolverIterations);
+	btSISolverSingleIterationData siData(m_data2->m_tmpSolverBodyPool,
+		m_data2->m_tmpSolverContactConstraintPool,
+		m_data2->m_tmpSolverNonContactConstraintPool,
+		m_data2->m_tmpSolverContactFrictionConstraintPool,
+		m_data2->m_tmpSolverContactRollingFrictionConstraintPool,
+		m_data2->m_orderTmpConstraintPool,
+		m_data2->m_orderNonContactConstraintPool,
+		m_data2->m_orderFrictionConstraintPool,
+		m_data2->m_tmpConstraintSizesPool,
+		m_data2->m_resolveSingleConstraintRowGeneric,
+		m_data2->m_resolveSingleConstraintRowLowerLimit,
+		m_data2->m_resolveSplitPenetrationImpulse,
+		m_data2->m_kinematicBodyUniqueIdToSolverBodyTable,
+		m_data2->m_btSeed2,
+		m_data2->m_fixedBodyId,
+		m_data2->m_maxOverrideNumSolverIterations);
 	
-	m_data->m_fixedBodyId = -1;
+	m_data2->m_fixedBodyId = -1;
 	//todo: setup sse2/4 constraint row methods
 
 	btSequentialImpulseConstraintSolver::convertBodiesInternal(siData, bodies, numBodies, info);
@@ -154,7 +154,7 @@ void btBlockSolver::solveMultiBodyGroup(btCollisionObject * *bodies, int numBodi
 
 void btBlockSolver::reset()
 {
-	//or just set m_data->m_btSeed2=0?
-	delete m_data;
-	m_data = new btBlockSolverInternalData;
+	//or just set m_data2->m_btSeed2=0?
+	delete m_data2;
+	m_data2 = new btBlockSolverInternalData;
 }

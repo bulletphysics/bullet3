@@ -15,6 +15,8 @@ subject to the following restrictions:
 
 #include "NN3DWalkers.h"
 
+#include <cmath>
+
 #include "btBulletDynamicsCommon.h"
 
 #include "LinearMath/btIDebugDraw.h"
@@ -282,8 +284,8 @@ public:
 		for (i = 0; i < NUM_LEGS; i++)
 		{
 			float footAngle = 2 * SIMD_PI * i / NUM_LEGS;  // legs are uniformly distributed around the root body
-			float footYUnitPosition = sin(footAngle);      // y position of the leg on the unit circle
-			float footXUnitPosition = cos(footAngle);      // x position of the leg on the unit circle
+			float footYUnitPosition = std::sin(footAngle); // y position of the leg on the unit circle
+			float footXUnitPosition = std::cos(footAngle); // x position of the leg on the unit circle
 
 			transform.setIdentity();
 			btVector3 legCOM = btVector3(btScalar(footXUnitPosition * (gRootBodyRadius + 0.5 * gLegLength)), btScalar(rootAboveGroundHeight), btScalar(footYUnitPosition * (gRootBodyRadius + 0.5 * gLegLength)));
@@ -1017,7 +1019,7 @@ void NN3DWalkersExample::updateEvaluations(const btScalar timeSinceLastTick)
 						}
 
 						// apply the activation function
-						targetAngle = (tanh(targetAngle) + 1.0f) * 0.5f;
+						targetAngle = (std::tanh(targetAngle) + 1.0f) * 0.5f;
 					}
 					btScalar targetLimitAngle = hingeC->getLowerLimit() + targetAngle * (hingeC->getUpperLimit() - hingeC->getLowerLimit());
 					btScalar currentAngle = hingeC->getHingeAngle();
