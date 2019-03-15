@@ -149,7 +149,6 @@ SET(BulletExampleBrowser_SRCS
         ../BulletRobotics/BoxStack.cpp
         ../BulletRobotics/JointLimit.cpp
         # ../BulletRobotics/GraspBox.cpp
-        ../BulletRobotics/FixJointBoxes.cpp
 
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp
