@@ -316,7 +316,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     if test:
       urdf_pattern = os.path.join(self._urdfRoot, 'random_urdfs/*0/*.urdf')
     else:
-      urdf_pattern = os.path.join(self._urdfRoot, 'random_urdfs/*[^0]/*.urdf')
+      urdf_pattern = os.path.join(self._urdfRoot, 'random_urdfs/*[1-9]/*.urdf')
     found_object_directories = glob.glob(urdf_pattern)
     total_num_objects = len(found_object_directories)
     selected_objects = np.random.choice(np.arange(total_num_objects),
