@@ -31,7 +31,7 @@
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 #include "Bullet3Common/b3HashMap.h"
 #include "../Utils/ChromeTraceUtil.h"
-#include "third_party/stblib/stb_image.h"
+#include "stb_image/stb_image.h"
 #include "BulletInverseDynamics/MultiBodyTree.hpp"
 #include "IKTrajectoryHelper.h"
 #include "btBulletDynamicsCommon.h"
@@ -1613,8 +1613,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	btScalar m_physicsDeltaTime;
 	btScalar m_numSimulationSubSteps;
-  btScalar m_simulationTimestamp;
-
+        btScalar m_simulationTimestamp;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
 	b3HashMap<btHashPtr, btInverseDynamics::MultiBodyTree*> m_inverseDynamicsBodies;
 	b3HashMap<btHashPtr, IKTrajectoryHelper*> m_inverseKinematicsHelpers;
@@ -7610,12 +7609,12 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	if (m_data->m_numSimulationSubSteps > 0)
 	{
 		numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, m_data->m_numSimulationSubSteps, m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps);
-    m_data->m_simulationTimestamp += deltaTimeScaled;
+                m_data->m_simulationTimestamp += deltaTimeScaled;
 	}
 	else
 	{
 		numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, 0);
-    m_data->m_simulationTimestamp += deltaTimeScaled;
+                m_data->m_simulationTimestamp += deltaTimeScaled;
 	}
 
 	if (numSteps > 0)
@@ -8165,7 +8164,7 @@ bool PhysicsServerCommandProcessor::processRequestPhysicsSimulationParametersCom
 	serverCmd.m_simulationParameterResultArgs.m_allowedCcdPenetration = m_data->m_dynamicsWorld->getDispatchInfo().m_allowedCcdPenetration;
 	serverCmd.m_simulationParameterResultArgs.m_collisionFilterMode = m_data->m_broadphaseCollisionFilterCallback->m_filterMode;
 	serverCmd.m_simulationParameterResultArgs.m_deltaTime = m_data->m_physicsDeltaTime;
-  serverCmd.m_simulationParameterResultArgs.m_simulationTimestamp = m_data->m_simulationTimestamp;
+        serverCmd.m_simulationParameterResultArgs.m_simulationTimestamp = m_data->m_simulationTimestamp;
 	serverCmd.m_simulationParameterResultArgs.m_contactBreakingThreshold = gContactBreakingThreshold;
 	serverCmd.m_simulationParameterResultArgs.m_contactSlop = m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop;
 	serverCmd.m_simulationParameterResultArgs.m_enableSAT = m_data->m_dynamicsWorld->getDispatchInfo().m_enableSatConvex;
@@ -11723,9 +11722,9 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec, const
 			gSubStep = m_data->m_physicsDeltaTime;
 		}
 
-    btScalar deltaTimeScaled = dtInSec * simTimeScalingFactor;
-		int numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, maxSteps, gSubStep);
-    m_data->m_simulationTimestamp += deltaTimeScaled;
+		btScalar deltaTimeScaled = dtInSec * simTimeScalingFactor;
+                int numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, maxSteps, gSubStep);
+                m_data->m_simulationTimestamp += deltaTimeScaled;
 		gDroppedSimulationSteps += numSteps > maxSteps ? numSteps - maxSteps : 0;
 
 		if (numSteps)
@@ -11803,8 +11802,9 @@ void PhysicsServerCommandProcessor::addTransformChangedNotifications()
 void PhysicsServerCommandProcessor::resetSimulation()
 {
 	//clean up all data
-  m_data->m_simulationTimestamp = 0;
-	m_data->m_cachedVUrdfisualShapes.clear();
+
+	m_data->m_simulationTimestamp = 0;
+        m_data->m_cachedVUrdfisualShapes.clear();
 
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	if (m_data && m_data->m_dynamicsWorld)
