@@ -1082,7 +1082,7 @@ B3_SHARED_API int b3GetLinkState(b3PhysicsClientHandle physClient, b3SharedMemor
 	int numLinks = status->m_sendActualStateArgs.m_numLinks;
 	b3Assert(linkIndex < numLinks);
 
-	if ((bodyIndex >= 0) && (linkIndex >= 0) && linkIndex < numLinks)
+	if (status->m_sendActualStateArgs.m_stateDetails != NULL && (bodyIndex >= 0) && (linkIndex >= 0) && linkIndex < numLinks)
 	{
 		b3Transform wlf, com, inertial;
 
