@@ -48,6 +48,8 @@ subject to the following restrictions:
 
 #include <stdio.h>  //printf debugging
 
+#include <cmath>
+
 #if defined(BT_USE_DOUBLE_PRECISION)
 #define btglLoadMatrix glLoadMatrixd
 #define btglMultMatrix glMultMatrixd
@@ -149,19 +151,19 @@ void GL_ShapeDrawer::drawSphere(btScalar radius, int lats, int longs)
 	for (i = 0; i <= lats; i++)
 	{
 		btScalar lat0 = SIMD_PI * (-btScalar(0.5) + (btScalar)(i - 1) / lats);
-		btScalar z0 = radius * sin(lat0);
-		btScalar zr0 = radius * cos(lat0);
+		btScalar z0 = radius * std::sin(lat0);
+		btScalar zr0 = radius * std::cos(lat0);
 
 		btScalar lat1 = SIMD_PI * (-btScalar(0.5) + (btScalar)i / lats);
-		btScalar z1 = radius * sin(lat1);
-		btScalar zr1 = radius * cos(lat1);
+		btScalar z1 = radius * std::sin(lat1);
+		btScalar zr1 = radius * std::cos(lat1);
 
 		glBegin(GL_QUAD_STRIP);
 		for (j = 0; j <= longs; j++)
 		{
 			btScalar lng = 2 * SIMD_PI * (btScalar)(j - 1) / longs;
-			btScalar x = cos(lng);
-			btScalar y = sin(lng);
+			btScalar x = std::cos(lng);
+			btScalar y = std::sin(lng);
 			glNormal3f(x * zr1, y * zr1, z1);
 			glVertex3f(x * zr1, y * zr1, z1);
 			glNormal3f(x * zr0, y * zr0, z0);

@@ -5,6 +5,7 @@
 */
 
 #include <math.h>
+#include <cmath>
 #include "Gwen/Controls/Slider.h"
 
 using namespace Gwen;
@@ -68,7 +69,7 @@ void Slider::SetValueInternal(float val)
 {
 	if (m_bClampToNotches)
 	{
-		val = floor((val * (float)m_iNumNotches) + 0.5f);
+		val = std::floor((val * (float)m_iNumNotches) + 0.5f);
 		val /= (float)m_iNumNotches;
 	}
 

@@ -40,6 +40,7 @@ http://gimpact.sf.net
 #include "btGeneric6DofSpring2Constraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "LinearMath/btTransformUtil.h"
+#include <cmath>
 #include <new>
 
 btGeneric6DofSpring2Constraint::btGeneric6DofSpring2Constraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB, RotateOrder rotOrder)
@@ -845,7 +846,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		if (m_rbA.getInvMass() == 0) m = mB; else
 		if (m_rbB.getInvMass() == 0) m = mA; else
 			m = mA*mB / (mA + mB);
-		btScalar angularfreq = sqrt(ks / m);
+		btScalar angularfreq = btSqrt(ks / m);
 
 		//limit stiffness (the spring should not be sampled faster that the quarter of its angular frequency)
 		if (limot->m_springStiffnessLimited && 0.25 < angularfreq * dt)
@@ -1085,7 +1086,7 @@ void btGeneric6DofSpring2Constraint::setServoTarget(int index, btScalar targetOr
 		btScalar target = targetOrg + SIMD_PI;
 		if (1)
 		{
-			btScalar m = target - SIMD_2_PI * floor(target / SIMD_2_PI);
+			btScalar m = target - SIMD_2_PI * std::floor(target / SIMD_2_PI);
 			// handle boundary cases resulted from floating-point cut off:
 			{
 				if (m >= SIMD_2_PI)
