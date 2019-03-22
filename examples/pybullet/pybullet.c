@@ -10825,6 +10825,8 @@ initpybullet(void)
 	if (m == NULL) return;
 #endif
 
+	PyModule_AddStringConstant(m, "__version__", "2.4.8");
+
 	PyModule_AddIntConstant(m, "SHARED_MEMORY",
 							eCONNECT_SHARED_MEMORY);                                    // user read
 	PyModule_AddIntConstant(m, "DIRECT", eCONNECT_DIRECT);                              // user read
