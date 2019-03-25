@@ -61,11 +61,7 @@ public:
 			b3RobotSimulatorLoadUrdfFileArgs args;
 			b3RobotSimulatorChangeDynamicsArgs dynamicsArgs;
 
-			for (int i = 0; i < numCubes; i++)
-			{
-				args.m_forceOverrideFixedBase = (i == 0);
-				args.m_startPosition.setValue(0, i * 0.05, 1);
-				cubeIds[i] = m_robotSim.loadURDF("cube_small.urdf", args);
+			b3RobotJointInfo jointInfo;
 
 				b3RobotJointInfo jointInfo;
 
@@ -158,11 +154,11 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 1;
-		float pitch = -20;
-		float yaw = -30;
-		float targetPos[3] = {0, 0.2, 0.5};
-		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
+		 float dist = 1;
+		 float pitch = -20;
+		 float yaw = -30;
+		 float targetPos[3] = {0, 0.2, 0.5};
+		 m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 };
 
