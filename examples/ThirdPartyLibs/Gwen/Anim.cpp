@@ -5,8 +5,9 @@
 */
 
 #include "Gwen/Anim.h"
-#include "Gwen/Utility.h"
 #include <math.h>
+#include <cmath>
+#include "Gwen/Utility.h"
 
 using namespace Gwen;
 
@@ -123,13 +124,12 @@ void Gwen::Anim::TimedAnimation::Think()
 	if (fDelta < 0.0f) fDelta = 0.0f;
 	if (fDelta > 1.0f) fDelta = 1.0f;
 
-	Run(pow(fDelta, m_fEase));
+        Run(std::pow(fDelta, m_fEase));
 
-	if (fDelta == 1.0f)
-	{
-		m_bFinished = true;
-		OnFinish();
-	}
+        if (fDelta == 1.0f) {
+          m_bFinished = true;
+          OnFinish();
+        }
 }
 
 bool Gwen::Anim::TimedAnimation::Finished()

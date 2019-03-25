@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 
 #include <stdio.h>  //printf debugging
+#include <cmath>
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 
@@ -114,8 +115,8 @@ void AllConstraintDemo::initPhysics()
 	///gear constraint demo
 
 #define THETA SIMD_PI / 4.f
-#define L_1 (2 - tan(THETA))
-#define L_2 (1 / cos(THETA))
+#define L_1 (2 - std::tan(THETA))
+#define L_2 (1 / std::cos(THETA))
 #define RATIO L_2 / L_1
 
 	btRigidBody* bodyA = 0;
