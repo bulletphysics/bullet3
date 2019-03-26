@@ -144,6 +144,17 @@ int PhysicsClientSharedMemory::getNumJoints(int bodyUniqueId) const
 	return 0;
 }
 
+int PhysicsClientSharedMemory::getNumDofs(int bodyUniqueId) const
+{
+        BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+        if (bodyJointsPtr && *bodyJointsPtr)
+        {
+                BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
+                return bodyJoints->m_numDofs;
+        }
+        return 0;
+}
+
 bool PhysicsClientSharedMemory::getJointInfo(int bodyUniqueId, int jointIndex, b3JointInfo& info) const
 {
 	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
