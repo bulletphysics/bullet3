@@ -142,11 +142,11 @@ btScalar btBlockSolver::solveGroupInternalBlock(
 
 		for (int iteration = 0; iteration < maxIterations; iteration++)
 		{
-			auto res1 =
+			btScalar res1 =
 				btSequentialImpulseConstraintSolver::solveSingleIterationInternal(
 					siData1, iteration, constraints, halfNumConstraints1, info);
 
-			auto res2 =
+			btScalar res2 =
 				btSequentialImpulseConstraintSolver::solveSingleIterationInternal(
 					siData2, iteration, constraints + halfNumConstraints1,
 					halfNumConstraints2, info);
