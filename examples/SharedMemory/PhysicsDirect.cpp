@@ -22,6 +22,7 @@ struct BodyJointInfoCache2
 	btAlignedObjectArray<b3JointInfo> m_jointInfo;
 	std::string m_bodyName;
 	btAlignedObjectArray<int> m_userDataIds;
+	int m_numDofs;
 
 	~BodyJointInfoCache2()
 	{
