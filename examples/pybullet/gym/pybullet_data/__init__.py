@@ -1,4 +1,3 @@
-import pybullet as p
 import os
 
 def getDataPath():

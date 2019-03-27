@@ -42,7 +42,9 @@ public:
 
 	virtual bool getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const;
 
-	virtual int getNumJoints(int bodyIndex) const;
+	virtual int getNumJoints(int bodyUniqueId) const;
+
+	virtual int getNumDofs(int bodyUniqueId) const;
 
 	virtual bool getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const;
 

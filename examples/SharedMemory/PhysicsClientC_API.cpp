@@ -2526,6 +2526,12 @@ B3_SHARED_API int b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyUniqu
 	return cl->getNumJoints(bodyUniqueId);
 }
 
+B3_SHARED_API int b3GetNumDofs(b3PhysicsClientHandle physClient, int bodyUniqueId)
+{
+        PhysicsClient* cl = (PhysicsClient*)physClient;
+        return cl->getNumDofs(bodyUniqueId);
+}
+
 B3_SHARED_API int b3ComputeDofCount(b3PhysicsClientHandle physClient, int bodyUniqueId)
 {
 	int nj = b3GetNumJoints(physClient, bodyUniqueId);
@@ -4642,8 +4648,9 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateJacobianCommandInit(b3Physi
 	command->m_calculateJacobianArguments.m_localPosition[0] = localPosition[0];
 	command->m_calculateJacobianArguments.m_localPosition[1] = localPosition[1];
 	command->m_calculateJacobianArguments.m_localPosition[2] = localPosition[2];
-	int numJoints = cl->getNumJoints(bodyUniqueId);
-	for (int i = 0; i < numJoints; i++)
+
+	int numDofs = cl->getNumDofs(bodyUniqueId);
+	for (int i = 0; i < numDofs; i++)
 	{
 		command->m_calculateJacobianArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
 		command->m_calculateJacobianArguments.m_jointVelocitiesQdot[i] = jointVelocitiesQdot[i];

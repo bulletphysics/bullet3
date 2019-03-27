@@ -118,7 +118,9 @@ extern "C"
 
 	///give a unique body index (after loading the body) return the number of joints.
 	B3_SHARED_API int b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyUniqueId);
-
+	  ///give a unique body index (after loading the body) return the number of degrees of freedom (DoF).
+        B3_SHARED_API int b3GetNumDofs(b3PhysicsClientHandle physClient, int bodyUniqueId);
+	
 	///compute the number of degrees of freedom for this body.
 	///Return -1 for unsupported spherical joint, -2 for unsupported planar joint.
 	B3_SHARED_API int b3ComputeDofCount(b3PhysicsClientHandle physClient, int bodyUniqueId);

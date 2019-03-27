@@ -20,7 +20,7 @@ struct BodyJointInfoCache
 	b3AlignedObjectArray<b3JointInfo> m_jointInfo;
 	std::string m_bodyName;
 	btAlignedObjectArray<int> m_userDataIds;
-
+	int m_numDofs;
 	~BodyJointInfoCache()
 	{
 	}
@@ -142,6 +142,17 @@ int PhysicsClientSharedMemory::getNumJoints(int bodyUniqueId) const
 		return bodyJoints->m_jointInfo.size();
 	}
 	return 0;
+}
+
+int PhysicsClientSharedMemory::getNumDofs(int bodyUniqueId) const
+{
+        BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+        if (bodyJointsPtr && *bodyJointsPtr)
+        {
+                BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
+                return bodyJoints->m_numDofs;
+        }
+        return 0;
 }
 
 bool PhysicsClientSharedMemory::getJointInfo(int bodyUniqueId, int jointIndex, b3JointInfo& info) const

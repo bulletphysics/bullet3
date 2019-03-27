@@ -249,7 +249,8 @@ class MinitaurGymEnv(gym.Env):
     self._hard_reset = hard_reset  # This assignment need to be after reset()
 
   def close(self):
-    self.logging.save_episode(self._episode_proto)
+    if self._env_step_counter>0:
+      self.logging.save_episode(self._episode_proto)
     self.minitaur.Terminate()
 
   def add_env_randomizer(self, env_randomizer):
@@ -258,7 +259,8 @@ class MinitaurGymEnv(gym.Env):
   def reset(self, initial_motor_angles=None, reset_duration=1.0):
     self._pybullet_client.configureDebugVisualizer(
         self._pybullet_client.COV_ENABLE_RENDERING, 0)
-    self.logging.save_episode(self._episode_proto)
+    if self._env_step_counter>0:
+      self.logging.save_episode(self._episode_proto)
     self._episode_proto = minitaur_logging_pb2.MinitaurEpisode()
     minitaur_logging.preallocate_episode_proto(self._episode_proto,
                                                self._num_steps_to_log)
