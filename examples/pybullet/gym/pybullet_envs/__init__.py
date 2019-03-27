@@ -25,14 +25,14 @@ register(
 register(
     id='MinitaurBulletEnv-v0',
     entry_point='pybullet_envs.bullet:MinitaurBulletEnv',
-    timestep_limit=1000,
+    max_episode_steps=1000,
     reward_threshold=15.0,
 )
 
 register(
     id='MinitaurBulletDuckEnv-v0',
     entry_point='pybullet_envs.bullet:MinitaurBulletDuckEnv',
-    timestep_limit=1000,
+    max_episode_steps=1000,
     reward_threshold=5.0,
 )
 
@@ -40,7 +40,7 @@ register(
 register(
     id='MinitaurReactiveEnv-v0',
     entry_point='pybullet_envs.minitaur.envs:MinitaurReactiveEnv',
-    timestep_limit=1000,
+    max_episode_steps=1000,
     reward_threshold=5.0,
 )
 
@@ -48,7 +48,7 @@ register(
 register(
     id='MinitaurBallGymEnv-v0',
     entry_point='pybullet_envs.minitaur.envs:MinitaurBallGymEnv',
-    timestep_limit=1000,
+    max_episode_steps=1000,
     reward_threshold=5.0,
 )
 
@@ -56,28 +56,28 @@ register(
 register(
     id='MinitaurTrottingEnv-v0',
     entry_point='pybullet_envs.minitaur.envs:MinitaurTrottingEnv',
-    timestep_limit=1000,
+    max_episode_steps=1000,
     reward_threshold=5.0,
 )
 
 register(
     id='MinitaurStandGymEnv-v0',
     entry_point='pybullet_envs.minitaur.envs:MinitaurStandGymEnv',
-    timestep_limit=1000,
+    max_episode_steps=1000,
     reward_threshold=5.0,
 )
 
 register(
     id='MinitaurAlternatingLegsEnv-v0',
     entry_point='pybullet_envs.minitaur.envs:MinitaurAlternatingLegsEnv',
-    timestep_limit=1000,
+    max_episode_steps=1000,
     reward_threshold=5.0,
 )
 
 register(
     id='MinitaurFourLegStandEnv-v0',
     entry_point='pybullet_envs.minitaur.envs:MinitaurFourLegStandEnv',
-    timestep_limit=1000,
+    max_episode_steps=1000,
     reward_threshold=5.0,
 )
 
@@ -86,14 +86,14 @@ register(
 register(
     id='RacecarBulletEnv-v0',
     entry_point='pybullet_envs.bullet:RacecarGymEnv',
-    timestep_limit=1000,
+    max_episode_steps=1000,
     reward_threshold=5.0,
 )
 
 register(
 	id='RacecarZedBulletEnv-v0',
 	entry_point='pybullet_envs.bullet:RacecarZEDGymEnv',
-	timestep_limit=1000,
+	max_episode_steps=1000,
 	reward_threshold=5.0,
 )
 
@@ -101,21 +101,21 @@ register(
 register(
 	id='KukaBulletEnv-v0',
 	entry_point='pybullet_envs.bullet:KukaGymEnv',
-	timestep_limit=1000,
+	max_episode_steps=1000,
 	reward_threshold=5.0,
 )
 
 register(
 	id='KukaCamBulletEnv-v0',
 	entry_point='pybullet_envs.bullet:KukaCamGymEnv',
-	timestep_limit=1000,
+	max_episode_steps=1000,
 	reward_threshold=5.0,
 )
 
 register(
 	id='KukaDiverseObjectGrasping-v0',
 	entry_point='pybullet_envs.bullet:KukaDiverseObjectEnv',
-	timestep_limit=1000,
+	max_episode_steps=1000,
 	reward_threshold=5.0,
 )
 

@@ -109,9 +109,9 @@ int DillCreator::recurseDill(const int level, const int parent, const idScalar d
 			m_body_T_parent_ref[body](i, j) = 0.0;
 		}
 	}
-	const idScalar size_5 = pow(size, 5);
-	m_body_I_body[body](0, 0) = size_5 / 0.2e6;
-	m_body_I_body[body](1, 1) = size_5 * 403 / 1.2e6;
+        const idScalar size_5 = std::pow(size, 5);
+        m_body_I_body[body](0, 0) = size_5 / 0.2e6;
+        m_body_I_body[body](1, 1) = size_5 * 403 / 1.2e6;
 	m_body_I_body[body](2, 2) = m_body_I_body[body](1, 1);
 
 	getVecMatFromDH(0, 0, a_DH_in, alpha_DH_in, &m_parent_r_parent_body_ref[body],

@@ -11,6 +11,7 @@
 #include "Gwen/Platform.h"
 
 #include <math.h>
+#include <cmath>
 
 using namespace Gwen;
 using namespace Gwen::Controls;
@@ -89,9 +90,10 @@ void TextBox::Render(Skin::Base* skin)
 	}
 
 	// Draw caret
-	if (fmod(Gwen::Platform::GetTimeInSeconds() - m_fLastInputTime, 1.0f) > 0.5f)
-		skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
-	else
+        if (std::fmod(Gwen::Platform::GetTimeInSeconds() - m_fLastInputTime,
+                      1.0f) > 0.5f)
+          skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
+        else
 		skin->GetRender()->SetDrawColor(Gwen::Color(0, 0, 0, 255));
 
 	skin->GetRender()->DrawFilledRect(m_rectCaretBounds);

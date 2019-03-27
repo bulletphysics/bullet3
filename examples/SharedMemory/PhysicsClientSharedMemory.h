@@ -45,6 +45,8 @@ public:
 
 	virtual int getNumJoints(int bodyUniqueId) const;
 
+	virtual int getNumDofs(int bodyUniqueId) const;
+
 	virtual bool getJointInfo(int bodyUniqueId, int jointIndex, struct b3JointInfo& info) const;
 
 	virtual int getNumUserConstraints() const;

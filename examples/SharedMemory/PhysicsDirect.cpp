@@ -22,6 +22,7 @@ struct BodyJointInfoCache2
 	btAlignedObjectArray<b3JointInfo> m_jointInfo;
 	std::string m_bodyName;
 	btAlignedObjectArray<int> m_userDataIds;
+	int m_numDofs;
 
 	~BodyJointInfoCache2()
 	{
@@ -1275,9 +1276,9 @@ bool PhysicsDirect::getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const
 	return false;
 }
 
-int PhysicsDirect::getNumJoints(int bodyIndex) const
+int PhysicsDirect::getNumJoints(int bodyUniqueId) const
 {
-	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyIndex];
+	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
@@ -1285,6 +1286,18 @@ int PhysicsDirect::getNumJoints(int bodyIndex) const
 	}
 	btAssert(0);
 	return 0;
+}
+
+int PhysicsDirect::getNumDofs(int bodyUniqueId) const
+{
+        BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+        if (bodyJointsPtr && *bodyJointsPtr)
+        {
+                BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
+                return bodyJoints->m_numDofs;
+        }
+        btAssert(0);
+        return 0;
 }
 
 bool PhysicsDirect::getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const
