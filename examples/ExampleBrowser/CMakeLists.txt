@@ -211,6 +211,8 @@ SET(BulletExampleBrowser_SRCS
 	../BlockSolver/btBlockSolver.h
 	../BlockSolver/BlockSolverExample.cpp
 	../BlockSolver/BlockSolverExample.h
+	../BlockSolver/RigidBodyBoxes.cpp
+	../BlockSolver/RigidBodyBoxes.h
 	../Tutorial/Tutorial.cpp
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp

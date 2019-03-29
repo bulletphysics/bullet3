@@ -13,6 +13,7 @@
 class BlockSolverExample : public CommonMultiBodyBase
 {
 	int m_option;
+
 public:
 	BlockSolverExample(GUIHelperInterface* helper, int option);
 	virtual ~BlockSolverExample();
@@ -35,10 +36,9 @@ public:
 	btMultiBody* loadRobot(std::string filepath);
 };
 
-
 BlockSolverExample::BlockSolverExample(GUIHelperInterface* helper, int option)
 	: CommonMultiBodyBase(helper),
-	m_option(option)
+	  m_option(option)
 {
 	m_guiHelper->setUpAxis(2);
 }
@@ -51,13 +51,12 @@ BlockSolverExample::~BlockSolverExample()
 void BlockSolverExample::stepSimulation(float deltaTime)
 {
 	//use a smaller internal timestep, there are stability issues
-	btScalar internalTimeStep = 1./240.f;
+	btScalar internalTimeStep = 1. / 240.f;
 	m_dynamicsWorld->stepSimulation(deltaTime, 10, internalTimeStep);
 }
 
 void BlockSolverExample::initPhysics()
 {
-	
 	///collision configuration contains default setup for memory, collision setup
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 
@@ -66,36 +65,33 @@ void BlockSolverExample::initPhysics()
 
 	m_broadphase = new btDbvtBroadphase();
 
-
 	btMLCPSolverInterface* mlcp;
-	if (m_option&BLOCK_SOLVER_SI)
+	if (m_option & BLOCK_SOLVER_SI)
 	{
 		btAssert(!m_solver);
 		m_solver = new btMultiBodyConstraintSolver;
 		b3Printf("Constraint Solver: Sequential Impulse");
 	}
-	if (m_option&BLOCK_SOLVER_MLCP_PGS)
+	if (m_option & BLOCK_SOLVER_MLCP_PGS)
 	{
 		btAssert(!m_solver);
 		mlcp = new btSolveProjectedGaussSeidel();
 		m_solver = new btMultiBodyMLCPConstraintSolver(mlcp);
 		b3Printf("Constraint Solver: MLCP + PGS");
 	}
-	if (m_option&BLOCK_SOLVER_MLCP_DANTZIG)
+	if (m_option & BLOCK_SOLVER_MLCP_DANTZIG)
 	{
 		btAssert(!m_solver);
 		mlcp = new btDantzigSolver();
 		m_solver = new btMultiBodyMLCPConstraintSolver(mlcp);
 		b3Printf("Constraint Solver: MLCP + Dantzig");
 	}
-	if (m_option&BLOCK_SOLVER_BLOCK)
+	if (m_option & BLOCK_SOLVER_BLOCK)
 	{
 		m_solver = new btBlockSolver();
 	}
 
 	btAssert(m_solver);
-
-	
 
 	btMultiBodyDynamicsWorld* world = new btMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 	m_dynamicsWorld = world;
@@ -104,15 +100,13 @@ void BlockSolverExample::initPhysics()
 	m_dynamicsWorld->getSolverInfo().m_numIterations = 50;
 	m_dynamicsWorld->getSolverInfo().m_globalCfm = btScalar(1e-6);  //todo: what value is good?
 
-	if (m_option&BLOCK_SOLVER_SCENE_MB_STACK)
+	if (m_option & BLOCK_SOLVER_SCENE_MB_STACK)
 	{
 		createMultiBodyStack();
 	}
-	
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
-
 
 void BlockSolverExample::createMultiBodyStack()
 {
@@ -134,7 +128,7 @@ void BlockSolverExample::createMultiBodyStack()
 		btMultiBody* body = createMultiBody(mass, tr, groundShape);
 	}
 
-	for (int i=0;i<10;i++)
+	for (int i = 0; i < 10; i++)
 	{
 		btBoxShape* boxShape = createBoxShape(btVector3(btScalar(.1), btScalar(.1), btScalar(.1)));
 		m_collisionShapes.push_back(boxShape);
@@ -143,10 +137,10 @@ void BlockSolverExample::createMultiBodyStack()
 			mass = 100;
 		btTransform tr;
 		tr.setIdentity();
-		tr.setOrigin(btVector3(0, 0, 0.1+i*0.2));
+		tr.setOrigin(btVector3(0, 0, 0.1 + i * 0.2));
 		btMultiBody* body = createMultiBody(mass, tr, boxShape);
 	}
-	if(0)
+	if (0)
 	{
 		btMultiBody* mb = loadRobot("cube_small.urdf");
 		btTransform tr;
@@ -173,25 +167,21 @@ btMultiBody* BlockSolverExample::createMultiBody(btScalar mass, const btTransfor
 	int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
 	int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
-
 	this->m_dynamicsWorld->addCollisionObject(collider, collisionFilterGroup, collisionFilterMask);
 	mb->setBaseCollider(collider);
 
 	mb->finalizeMultiDof();
-
 
 	this->m_dynamicsWorld->addMultiBody(mb);
 	m_dynamicsWorld->forwardKinematics();
 	return mb;
 }
 
-
-
 btMultiBody* BlockSolverExample::loadRobot(std::string filepath)
 {
 	btMultiBody* m_multiBody = 0;
 	BulletURDFImporter u2b(m_guiHelper, 0, 0, 1, 0);
-	bool loadOk = u2b.loadURDF(filepath.c_str());// lwr / kuka.urdf");
+	bool loadOk = u2b.loadURDF(filepath.c_str());  // lwr / kuka.urdf");
 	if (loadOk)
 	{
 		int rootLinkIndex = u2b.getRootLinkIndex();

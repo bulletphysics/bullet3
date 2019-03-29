@@ -1,4 +1,3 @@
-
 #include "FixJointBoxes.h"
 
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
@@ -75,7 +74,7 @@ public:
 				if (i > 0)
 				{
 					m_robotSim.createConstraint(cubeIds[i], -1, cubeIds[i - 1], -1, &jointInfo);
-                    m_robotSim.setCollisionFilterGroupMask(cubeIds[i], -1, 0, 0);
+					m_robotSim.setCollisionFilterGroupMask(cubeIds[i], -1, 0, 0);
 				}
 
 				m_robotSim.loadURDF("plane.urdf");
@@ -111,8 +110,8 @@ public:
 	{
 		for (int i = 0; i < numCubes; i++)
 		{
-                  btVector3 pos (0, i * (btScalar)0.05, 1);
-                  btQuaternion quar (0, 0, 0, 1);
+			btVector3 pos(0, i * (btScalar)0.05, 1);
+			btQuaternion quar(0, 0, 0, 1);
 			m_robotSim.resetBasePositionAndOrientation(cubeIds[i], pos, quar);
 		}
 	}
