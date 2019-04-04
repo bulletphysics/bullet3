@@ -1127,7 +1127,6 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 
 		gui2->registerFileOpenCallback(fileOpenCallback);
 		gui2->registerQuitCallback(quitCallback);
-		
 	}
 
 	return true;
