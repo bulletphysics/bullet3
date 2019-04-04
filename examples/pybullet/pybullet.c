@@ -1160,6 +1160,40 @@ static PyObject* pybullet_saveState(PyObject* self, PyObject* args, PyObject* ke
 	return PyInt_FromLong(stateId);
 }
 
+static PyObject* pybullet_removeState(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	{
+		int stateUniqueId = -1;
+		b3PhysicsClientHandle sm = 0;
+
+		int physicsClientId = 0;
+		static char* kwlist[] = { "stateUniqueId", "physicsClientId", NULL };
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &stateUniqueId, &physicsClientId))
+		{
+			return NULL;
+		}
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0)
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+		if (stateUniqueId >= 0)
+		{
+			b3SharedMemoryStatusHandle statusHandle;
+			int statusType;
+			if (b3CanSubmitCommand(sm))
+			{
+				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitRemoveStateCommand(sm, stateUniqueId));
+				statusType = b3GetStatusType(statusHandle);
+			}
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	const char* mjcfFileName = "";
@@ -10328,6 +10362,9 @@ static PyMethodDef SpamMethods[] = {
 
 	{"saveState", (PyCFunction)pybullet_saveState, METH_VARARGS | METH_KEYWORDS,
 	 "Save the full state of the world to memory."},
+
+	 { "removeState", (PyCFunction)pybullet_removeState, METH_VARARGS | METH_KEYWORDS,
+	"Remove a state created using saveState by its state unique id." },
 
 	{"loadMJCF", (PyCFunction)pybullet_loadMJCF, METH_VARARGS | METH_KEYWORDS,
 	 "Load multibodies from an MJCF file."},

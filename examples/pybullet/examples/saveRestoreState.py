@@ -80,6 +80,10 @@ setupWorld()
 #both restore from file or from in-memory state should work
 p.restoreState(fileName="state.bullet")
 stateId = p.saveState()
+print("stateId=",stateId)
+p.removeState(stateId)
+stateId = p.saveState()
+print("stateId=",stateId)
 
 if verbose:
 	p.setInternalSimFlags(1)
