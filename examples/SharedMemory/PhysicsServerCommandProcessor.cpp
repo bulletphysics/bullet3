@@ -10777,7 +10777,7 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 
 bool PhysicsServerCommandProcessor::processSaveStateCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
-	BT_PROFILE("CMD_RESTORE_STATE");
+	BT_PROFILE("CMD_SAVE_STATE");
 	bool hasStatus = true;
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_SAVE_STATE_FAILED;
@@ -10791,14 +10791,56 @@ bool PhysicsServerCommandProcessor::processSaveStateCommand(const struct SharedM
 	if (bulletFile->ok())
 	{
 		serverCmd.m_type = CMD_SAVE_STATE_COMPLETED;
-		serverCmd.m_saveStateResultArgs.m_stateId = m_data->m_savedStates.size();
+		//re-use state if available
+		int reuseStateId = -1;
+		for (int i = 0; i < m_data->m_savedStates.size(); i++)
+		{
+			if (m_data->m_savedStates[i].m_bulletFile == 0)
+			{
+				reuseStateId = i;
+				break;
+			}
+		}
 		SaveStateData sd;
 		sd.m_bulletFile = bulletFile;
 		sd.m_serializer = ser;
-		m_data->m_savedStates.push_back(sd);
+		if (reuseStateId >= 0)
+		{
+			serverCmd.m_saveStateResultArgs.m_stateId = reuseStateId;
+			m_data->m_savedStates[reuseStateId] = sd;
+		}
+		else
+		{
+			serverCmd.m_saveStateResultArgs.m_stateId = m_data->m_savedStates.size();
+			m_data->m_savedStates.push_back(sd);
+		}
 	}
 	return hasStatus;
 }
+
+
+bool PhysicsServerCommandProcessor::processRemoveStateCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	BT_PROFILE("CMD_REMOVE_STATE");
+	bool hasStatus = true;
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+	serverCmd.m_type = CMD_REMOVE_STATE_FAILED;
+	
+	if (clientCmd.m_loadStateArguments.m_stateId >= 0)
+	{
+		if (clientCmd.m_loadStateArguments.m_stateId < m_data->m_savedStates.size())
+		{
+			SaveStateData& sd = m_data->m_savedStates[clientCmd.m_loadStateArguments.m_stateId];
+			delete sd.m_bulletFile;
+			delete sd.m_serializer;
+			sd.m_bulletFile = 0;
+			sd.m_serializer = 0;
+			serverCmd.m_type = CMD_REMOVE_STATE_COMPLETED;
+		}
+	}
+	return hasStatus;
+}
+
 
 bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
@@ -10817,7 +10859,10 @@ bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct Shar
 		if (clientCmd.m_loadStateArguments.m_stateId < m_data->m_savedStates.size())
 		{
 			bParse::btBulletFile* bulletFile = m_data->m_savedStates[clientCmd.m_loadStateArguments.m_stateId].m_bulletFile;
-			ok = importer->convertAllObjects(bulletFile);
+			if (bulletFile)
+			{
+				ok = importer->convertAllObjects(bulletFile);
+			}
 		}
 	}
 	else
@@ -11326,6 +11371,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 		case CMD_SAVE_STATE:
 		{
 			hasStatus = processSaveStateCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
+		case CMD_REMOVE_STATE:
+		{
+			hasStatus = processRemoveStateCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
 

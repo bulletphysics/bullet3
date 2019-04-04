@@ -108,6 +108,25 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3LoadStateCommandInit(b3PhysicsClient
 	return 0;
 }
 
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitRemoveStateCommand(b3PhysicsClientHandle physClient, int stateId)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_REMOVE_STATE;
+		command->m_updateFlags = 0;
+		command->m_loadStateArguments.m_fileName[0] = 0;
+		command->m_loadStateArguments.m_stateId = stateId;
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+
 B3_SHARED_API int b3LoadStateSetStateId(b3SharedMemoryCommandHandle commandHandle, int stateId)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;

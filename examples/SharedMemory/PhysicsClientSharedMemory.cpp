@@ -1429,6 +1429,8 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			case CMD_SYNC_USER_DATA_COMPLETED:
 			case CMD_REMOVE_USER_DATA_COMPLETED:
 			case CMD_ADD_USER_DATA_COMPLETED:
+			case CMD_REMOVE_STATE_FAILED:
+			case CMD_REMOVE_STATE_COMPLETED:
 			{
 				break;
 			}
