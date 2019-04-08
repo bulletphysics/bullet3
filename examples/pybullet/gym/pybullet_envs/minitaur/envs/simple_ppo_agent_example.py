@@ -29,8 +29,7 @@ from pybullet_envs.minitaur.agents import simple_ppo_agent
 
 flags = tf.app.flags
 FLAGS = tf.app.flags.FLAGS
-flags.DEFINE_string("logdir", None,
-                    "The directory that contains checkpoint and config.")
+flags.DEFINE_string("logdir", None, "The directory that contains checkpoint and config.")
 flags.DEFINE_string("checkpoint", None, "The checkpoint file path.")
 flags.DEFINE_string("log_path", None, "The output path to write log.")
 
@@ -44,13 +43,13 @@ def main(argv):
   network = config.network
 
   with tf.Session() as sess:
-    agent = simple_ppo_agent.SimplePPOPolicy(
-        sess,
-        env,
-        network,
-        policy_layers=policy_layers,
-        value_layers=value_layers,
-        checkpoint=os.path.join(FLAGS.logdir, FLAGS.checkpoint))
+    agent = simple_ppo_agent.SimplePPOPolicy(sess,
+                                             env,
+                                             network,
+                                             policy_layers=policy_layers,
+                                             value_layers=value_layers,
+                                             checkpoint=os.path.join(FLAGS.logdir,
+                                                                     FLAGS.checkpoint))
 
     sum_reward = 0
     observation = env.reset()

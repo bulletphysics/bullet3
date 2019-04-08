@@ -3,10 +3,10 @@
 """
 import math
 
-import os,  inspect
+import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 
 from gym import spaces
 import numpy as np
@@ -31,10 +31,7 @@ class MinitaurAlternatingLegsEnv(minitaur_gym_env.MinitaurGymEnv):
   expenditure.
 
   """
-  metadata = {
-      "render.modes": ["human", "rgb_array"],
-      "video.frames_per_second": 66
-  }
+  metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 66}
 
   def __init__(self,
                urdf_version=None,
@@ -81,23 +78,23 @@ class MinitaurAlternatingLegsEnv(minitaur_gym_env.MinitaurGymEnv):
     # _swing_offset and _extension_offset is to mimick the bent legs.
     self._swing_offset = np.zeros(NUM_LEGS)
     self._extension_offset = np.zeros(NUM_LEGS)
-    super(MinitaurAlternatingLegsEnv, self).__init__(
-        urdf_version=urdf_version,
-        accurate_motor_model_enabled=True,
-        motor_overheat_protection=True,
-        hard_reset=False,
-        motor_kp=motor_kp,
-        motor_kd=motor_kd,
-        remove_default_joint_damping=remove_default_joint_damping,
-        control_latency=control_latency,
-        pd_latency=pd_latency,
-        on_rack=on_rack,
-        render=render,
-        num_steps_to_log=num_steps_to_log,
-        env_randomizer=env_randomizer,
-        log_path=log_path,
-        control_time_step=control_time_step,
-        action_repeat=action_repeat)
+    super(MinitaurAlternatingLegsEnv,
+          self).__init__(urdf_version=urdf_version,
+                         accurate_motor_model_enabled=True,
+                         motor_overheat_protection=True,
+                         hard_reset=False,
+                         motor_kp=motor_kp,
+                         motor_kd=motor_kd,
+                         remove_default_joint_damping=remove_default_joint_damping,
+                         control_latency=control_latency,
+                         pd_latency=pd_latency,
+                         on_rack=on_rack,
+                         render=render,
+                         num_steps_to_log=num_steps_to_log,
+                         env_randomizer=env_randomizer,
+                         log_path=log_path,
+                         control_time_step=control_time_step,
+                         action_repeat=action_repeat)
 
     action_dim = 8
     action_high = np.array([0.1] * action_dim)
@@ -113,33 +110,29 @@ class MinitaurAlternatingLegsEnv(minitaur_gym_env.MinitaurGymEnv):
     # [swing leg 1, swing leg 2, swing leg 3, swing leg 4,
     #  extension leg 1, extension leg 2, extension leg 3, extension leg 4]
     init_pose = [
-        INIT_SWING_POS + self._swing_offset[0],
-        INIT_SWING_POS + self._swing_offset[1],
-        INIT_SWING_POS + self._swing_offset[2],
-        INIT_SWING_POS + self._swing_offset[3],
+        INIT_SWING_POS + self._swing_offset[0], INIT_SWING_POS + self._swing_offset[1],
+        INIT_SWING_POS + self._swing_offset[2], INIT_SWING_POS + self._swing_offset[3],
         INIT_EXTENSION_POS + self._extension_offset[0],
         INIT_EXTENSION_POS + self._extension_offset[1],
         INIT_EXTENSION_POS + self._extension_offset[2],
         INIT_EXTENSION_POS + self._extension_offset[3]
     ]
     initial_motor_angles = self._convert_from_leg_model(init_pose)
-    super(MinitaurAlternatingLegsEnv, self).reset(
-        initial_motor_angles=initial_motor_angles, reset_duration=0.5)
+    super(MinitaurAlternatingLegsEnv, self).reset(initial_motor_angles=initial_motor_angles,
+                                                  reset_duration=0.5)
     return self._get_observation()
 
   def _convert_from_leg_model(self, leg_pose):
     motor_pose = np.zeros(NUM_MOTORS)
     for i in range(NUM_LEGS):
       motor_pose[2 * i] = leg_pose[NUM_LEGS + i] - (-1)**(i / 2) * leg_pose[i]
-      motor_pose[2 * i
-                 + 1] = leg_pose[NUM_LEGS + i] + (-1)**(i / 2) * leg_pose[i]
+      motor_pose[2 * i + 1] = leg_pose[NUM_LEGS + i] + (-1)**(i / 2) * leg_pose[i]
     return motor_pose
 
   def _signal(self, t):
     initial_pose = np.array([
-        INIT_SWING_POS, INIT_SWING_POS, INIT_SWING_POS, INIT_SWING_POS,
-        INIT_EXTENSION_POS, INIT_EXTENSION_POS, INIT_EXTENSION_POS,
-        INIT_EXTENSION_POS
+        INIT_SWING_POS, INIT_SWING_POS, INIT_SWING_POS, INIT_SWING_POS, INIT_EXTENSION_POS,
+        INIT_EXTENSION_POS, INIT_EXTENSION_POS, INIT_EXTENSION_POS
     ])
     amplitude = STEP_AMPLITUDE
     period = STEP_PERIOD

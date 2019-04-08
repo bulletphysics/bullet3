@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """In-graph simulation step of a vectorized algorithm with environments."""
 
 from __future__ import absolute_import
@@ -55,7 +54,8 @@ def simulate(batch_env, algo, log=True, reset=False):
     reset_ops = [
         batch_env.reset(agent_indices),
         tf.scatter_update(score, agent_indices, zero_scores),
-        tf.scatter_update(length, agent_indices, zero_durations)]
+        tf.scatter_update(length, agent_indices, zero_durations)
+    ]
     with tf.control_dependencies(reset_ops):
       return algo.begin_episode(agent_indices)
 
@@ -78,9 +78,8 @@ def simulate(batch_env, algo, log=True, reset=False):
       inc_length = length.assign_add(tf.ones(len(batch_env), tf.int32))
     with tf.control_dependencies([add_score, inc_length]):
       agent_indices = tf.range(len(batch_env))
-      experience_summary = algo.experience(
-          agent_indices, prevob, batch_env.action, batch_env.reward,
-          batch_env.done, batch_env.observ)
+      experience_summary = algo.experience(agent_indices, prevob, batch_env.action,
+                                           batch_env.reward, batch_env.done, batch_env.observ)
     return tf.summary.merge([step_summary, experience_summary])
 
   def _define_end_episode(agent_indices):
@@ -96,8 +95,7 @@ def simulate(batch_env, algo, log=True, reset=False):
     """
     assert agent_indices.shape.ndims == 1
     submit_score = mean_score.submit(tf.gather(score, agent_indices))
-    submit_length = mean_length.submit(
-        tf.cast(tf.gather(length, agent_indices), tf.float32))
+    submit_length = mean_length.submit(tf.cast(tf.gather(length, agent_indices), tf.float32))
     with tf.control_dependencies([submit_score, submit_length]):
       return algo.end_episode(agent_indices)
 
@@ -107,41 +105,34 @@ def simulate(batch_env, algo, log=True, reset=False):
     Returns:
       Summary string.
     """
-    score_summary = tf.cond(
-        tf.logical_and(log, tf.cast(mean_score.count, tf.bool)),
-        lambda: tf.summary.scalar('mean_score', mean_score.clear()), str)
-    length_summary = tf.cond(
-        tf.logical_and(log, tf.cast(mean_length.count, tf.bool)),
-        lambda: tf.summary.scalar('mean_length', mean_length.clear()), str)
+    score_summary = tf.cond(tf.logical_and(log, tf.cast(
+        mean_score.count, tf.bool)), lambda: tf.summary.scalar('mean_score', mean_score.clear()),
+                            str)
+    length_summary = tf.cond(tf.logical_and(
+        log, tf.cast(mean_length.count,
+                     tf.bool)), lambda: tf.summary.scalar('mean_length', mean_length.clear()), str)
     return tf.summary.merge([score_summary, length_summary])
 
   with tf.name_scope('simulate'):
     log = tf.convert_to_tensor(log)
     reset = tf.convert_to_tensor(reset)
     with tf.variable_scope('simulate_temporary'):
-      score = tf.Variable(
-          tf.zeros(len(batch_env), dtype=tf.float32), False, name='score')
-      length = tf.Variable(
-          tf.zeros(len(batch_env), dtype=tf.int32), False, name='length')
+      score = tf.Variable(tf.zeros(len(batch_env), dtype=tf.float32), False, name='score')
+      length = tf.Variable(tf.zeros(len(batch_env), dtype=tf.int32), False, name='length')
     mean_score = streaming_mean.StreamingMean((), tf.float32)
     mean_length = streaming_mean.StreamingMean((), tf.float32)
-    agent_indices = tf.cond(
-        reset,
-        lambda: tf.range(len(batch_env)),
-        lambda: tf.cast(tf.where(batch_env.done)[:, 0], tf.int32))
-    begin_episode = tf.cond(
-        tf.cast(tf.shape(agent_indices)[0], tf.bool),
-        lambda: _define_begin_episode(agent_indices), str)
+    agent_indices = tf.cond(reset, lambda: tf.range(len(batch_env)), lambda: tf.cast(
+        tf.where(batch_env.done)[:, 0], tf.int32))
+    begin_episode = tf.cond(tf.cast(tf.shape(agent_indices)[0],
+                                    tf.bool), lambda: _define_begin_episode(agent_indices), str)
     with tf.control_dependencies([begin_episode]):
       step = _define_step()
     with tf.control_dependencies([step]):
       agent_indices = tf.cast(tf.where(batch_env.done)[:, 0], tf.int32)
-      end_episode = tf.cond(
-          tf.cast(tf.shape(agent_indices)[0], tf.bool),
-          lambda: _define_end_episode(agent_indices), str)
+      end_episode = tf.cond(tf.cast(tf.shape(agent_indices)[0],
+                                    tf.bool), lambda: _define_end_episode(agent_indices), str)
     with tf.control_dependencies([end_episode]):
-      summary = tf.summary.merge([
-          _define_summaries(), begin_episode, step, end_episode])
+      summary = tf.summary.merge([_define_summaries(), begin_episode, step, end_episode])
     with tf.control_dependencies([summary]):
       done, score = tf.identity(batch_env.done), tf.identity(score)
     return done, score, summary

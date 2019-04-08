@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Wrappers for OpenAI Gym environments."""
 
 from __future__ import absolute_import
@@ -150,8 +149,7 @@ class FrameHistory(object):
     return self._select_frames()
 
   def _select_frames(self):
-    indices = [
-        (self._step - index) % self._capacity for index in self._past_indices]
+    indices = [(self._step - index) % self._capacity for index in self._past_indices]
     observ = self._buffer[indices]
     if self._flatten:
       observ = np.reshape(observ, (-1,) + observ.shape[2:])
@@ -192,14 +190,14 @@ class RangeNormalize(object):
 
   def __init__(self, env, observ=None, action=None):
     self._env = env
-    self._should_normalize_observ = (
-        observ is not False and self._is_finite(self._env.observation_space))
+    self._should_normalize_observ = (observ is not False and
+                                     self._is_finite(self._env.observation_space))
     if observ is True and not self._should_normalize_observ:
       raise ValueError('Cannot normalize infinite observation range.')
     if observ is None and not self._should_normalize_observ:
       tf.logging.info('Not normalizing infinite observation range.')
-    self._should_normalize_action = (
-        action is not False and self._is_finite(self._env.action_space))
+    self._should_normalize_action = (action is not False and
+                                     self._is_finite(self._env.action_space))
     if action is True and not self._should_normalize_action:
       raise ValueError('Cannot normalize infinite action range.')
     if action is None and not self._should_normalize_action:
@@ -327,8 +325,7 @@ class ExternalProcess(object):
       action_space: The cached action space of the environment.
     """
     self._conn, conn = multiprocessing.Pipe()
-    self._process = multiprocessing.Process(
-        target=self._worker, args=(constructor, conn))
+    self._process = multiprocessing.Process(target=self._worker, args=(constructor, conn))
     atexit.register(self.close)
     self._process.start()
     self._observ_space = None

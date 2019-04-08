@@ -6,13 +6,13 @@ It is the result of first pass system identification for the derpy robot. The
 """
 import math
 
-import os,  inspect
+import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 
 import numpy as np
-from pybullet_envs.minitaur.envs  import minitaur
+from pybullet_envs.minitaur.envs import minitaur
 
 KNEE_CONSTRAINT_POINT_LONG = [0, 0.0055, 0.088]
 KNEE_CONSTRAINT_POINT_SHORT = [0, 0.0055, 0.100]
@@ -46,13 +46,12 @@ class MinitaurDerpy(minitaur.Minitaur):
             "%s/quadruped/minitaur_derpy.urdf" % self._urdf_root,
             init_position,
             useFixedBase=self._on_rack,
-            flags=(
-                self._pybullet_client.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT))
+            flags=(self._pybullet_client.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT))
       else:
-        self.quadruped = self._pybullet_client.loadURDF(
-            "%s/quadruped/minitaur_derpy.urdf" % self._urdf_root,
-            init_position,
-            useFixedBase=self._on_rack)
+        self.quadruped = self._pybullet_client.loadURDF("%s/quadruped/minitaur_derpy.urdf" %
+                                                        self._urdf_root,
+                                                        init_position,
+                                                        useFixedBase=self._on_rack)
       self._BuildJointNameToIdDict()
       self._BuildUrdfIds()
       if self._remove_default_joint_damping:
@@ -62,10 +61,9 @@ class MinitaurDerpy(minitaur.Minitaur):
       self._RecordInertiaInfoFromURDF()
       self.ResetPose(add_constraint=True)
     else:
-      self._pybullet_client.resetBasePositionAndOrientation(
-          self.quadruped, init_position, minitaur.INIT_ORIENTATION)
-      self._pybullet_client.resetBaseVelocity(self.quadruped, [0, 0, 0],
-                                              [0, 0, 0])
+      self._pybullet_client.resetBasePositionAndOrientation(self.quadruped, init_position,
+                                                            minitaur.INIT_ORIENTATION)
+      self._pybullet_client.resetBaseVelocity(self.quadruped, [0, 0, 0], [0, 0, 0])
       self.ResetPose(add_constraint=False)
 
     self._overheat_counter = np.zeros(self.num_motors)
@@ -103,68 +101,60 @@ class MinitaurDerpy(minitaur.Minitaur):
     knee_angle = -2.1834
 
     leg_position = minitaur.LEG_POSITION[leg_id]
-    self._pybullet_client.resetJointState(
-        self.quadruped,
-        self._joint_name_to_id["motor_" + leg_position + "L_joint"],
-        self._motor_direction[2 * leg_id] * half_pi,
-        targetVelocity=0)
-    self._pybullet_client.resetJointState(
-        self.quadruped,
-        self._joint_name_to_id["knee_" + leg_position + "L_joint"],
-        self._motor_direction[2 * leg_id] * knee_angle,
-        targetVelocity=0)
-    self._pybullet_client.resetJointState(
-        self.quadruped,
-        self._joint_name_to_id["motor_" + leg_position + "R_joint"],
-        self._motor_direction[2 * leg_id + 1] * half_pi,
-        targetVelocity=0)
-    self._pybullet_client.resetJointState(
-        self.quadruped,
-        self._joint_name_to_id["knee_" + leg_position + "R_joint"],
-        self._motor_direction[2 * leg_id + 1] * knee_angle,
-        targetVelocity=0)
+    self._pybullet_client.resetJointState(self.quadruped,
+                                          self._joint_name_to_id["motor_" + leg_position +
+                                                                 "L_joint"],
+                                          self._motor_direction[2 * leg_id] * half_pi,
+                                          targetVelocity=0)
+    self._pybullet_client.resetJointState(self.quadruped,
+                                          self._joint_name_to_id["knee_" + leg_position +
+                                                                 "L_joint"],
+                                          self._motor_direction[2 * leg_id] * knee_angle,
+                                          targetVelocity=0)
+    self._pybullet_client.resetJointState(self.quadruped,
+                                          self._joint_name_to_id["motor_" + leg_position +
+                                                                 "R_joint"],
+                                          self._motor_direction[2 * leg_id + 1] * half_pi,
+                                          targetVelocity=0)
+    self._pybullet_client.resetJointState(self.quadruped,
+                                          self._joint_name_to_id["knee_" + leg_position +
+                                                                 "R_joint"],
+                                          self._motor_direction[2 * leg_id + 1] * knee_angle,
+                                          targetVelocity=0)
     if add_constraint:
       if leg_id < 2:
         self._pybullet_client.createConstraint(
-            self.quadruped,
-            self._joint_name_to_id["knee_" + leg_position + "R_joint"],
-            self.quadruped,
-            self._joint_name_to_id["knee_" + leg_position + "L_joint"],
-            self._pybullet_client.JOINT_POINT2POINT, [0, 0, 0],
-            KNEE_CONSTRAINT_POINT_SHORT, KNEE_CONSTRAINT_POINT_LONG)
+            self.quadruped, self._joint_name_to_id["knee_" + leg_position + "R_joint"],
+            self.quadruped, self._joint_name_to_id["knee_" + leg_position + "L_joint"],
+            self._pybullet_client.JOINT_POINT2POINT, [0, 0, 0], KNEE_CONSTRAINT_POINT_SHORT,
+            KNEE_CONSTRAINT_POINT_LONG)
       else:
         self._pybullet_client.createConstraint(
-            self.quadruped,
-            self._joint_name_to_id["knee_" + leg_position + "R_joint"],
-            self.quadruped,
-            self._joint_name_to_id["knee_" + leg_position + "L_joint"],
-            self._pybullet_client.JOINT_POINT2POINT, [0, 0, 0],
-            KNEE_CONSTRAINT_POINT_LONG, KNEE_CONSTRAINT_POINT_SHORT)
+            self.quadruped, self._joint_name_to_id["knee_" + leg_position + "R_joint"],
+            self.quadruped, self._joint_name_to_id["knee_" + leg_position + "L_joint"],
+            self._pybullet_client.JOINT_POINT2POINT, [0, 0, 0], KNEE_CONSTRAINT_POINT_LONG,
+            KNEE_CONSTRAINT_POINT_SHORT)
 
     if self._accurate_motor_model_enabled or self._pd_control_enabled:
       # Disable the default motor in pybullet.
       self._pybullet_client.setJointMotorControl2(
           bodyIndex=self.quadruped,
-          jointIndex=(
-              self._joint_name_to_id["motor_" + leg_position + "L_joint"]),
+          jointIndex=(self._joint_name_to_id["motor_" + leg_position + "L_joint"]),
           controlMode=self._pybullet_client.VELOCITY_CONTROL,
           targetVelocity=0,
           force=knee_friction_force)
       self._pybullet_client.setJointMotorControl2(
           bodyIndex=self.quadruped,
-          jointIndex=(
-              self._joint_name_to_id["motor_" + leg_position + "R_joint"]),
+          jointIndex=(self._joint_name_to_id["motor_" + leg_position + "R_joint"]),
           controlMode=self._pybullet_client.VELOCITY_CONTROL,
           targetVelocity=0,
           force=knee_friction_force)
 
     else:
-      self._SetDesiredMotorAngleByName(
-          "motor_" + leg_position + "L_joint",
-          self._motor_direction[2 * leg_id] * half_pi)
-      self._SetDesiredMotorAngleByName(
-          "motor_" + leg_position + "R_joint",
-          self._motor_direction[2 * leg_id + 1] * half_pi)
+      self._SetDesiredMotorAngleByName("motor_" + leg_position + "L_joint",
+                                       self._motor_direction[2 * leg_id] * half_pi)
+      self._SetDesiredMotorAngleByName("motor_" + leg_position + "R_joint",
+                                       self._motor_direction[2 * leg_id + 1] * half_pi)
 
     self._pybullet_client.setJointMotorControl2(
         bodyIndex=self.quadruped,

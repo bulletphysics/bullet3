@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Execute operations in a loop and coordinate logging and checkpoints."""
 
 from __future__ import absolute_import
@@ -25,10 +24,8 @@ import tensorflow as tf
 
 from pybullet_envs.minitaur.agents.tools import streaming_mean
 
-
 _Phase = collections.namedtuple(
-    'Phase',
-    'name, writer, op, batch, steps, feed, report_every, log_every,'
+    'Phase', 'name, writer, op, batch, steps, feed, report_every, log_every,'
     'checkpoint_every')
 
 
@@ -56,16 +53,22 @@ class Loop(object):
       reset: Tensor indicating to the model to start a new computation.
     """
     self._logdir = logdir
-    self._step = (
-        tf.Variable(0, False, name='global_step') if step is None else step)
+    self._step = (tf.Variable(0, False, name='global_step') if step is None else step)
     self._log = tf.placeholder(tf.bool) if log is None else log
     self._report = tf.placeholder(tf.bool) if report is None else report
     self._reset = tf.placeholder(tf.bool) if reset is None else reset
     self._phases = []
 
-  def add_phase(
-      self, name, done, score, summary, steps,
-      report_every=None, log_every=None, checkpoint_every=None, feed=None):
+  def add_phase(self,
+                name,
+                done,
+                score,
+                summary,
+                steps,
+                report_every=None,
+                log_every=None,
+                checkpoint_every=None,
+                feed=None):
     """Add a phase to the loop protocol.
 
     If the model breaks long computation into multiple steps, the done tensor
@@ -97,13 +100,12 @@ class Loop(object):
     if done.shape.ndims is None or score.shape.ndims is None:
       raise ValueError("Rank of 'done' and 'score' tensors must be known.")
     writer = self._logdir and tf.summary.FileWriter(
-        os.path.join(self._logdir, name), tf.get_default_graph(),
-        flush_secs=60)
+        os.path.join(self._logdir, name), tf.get_default_graph(), flush_secs=60)
     op = self._define_step(done, score, summary)
     batch = 1 if score.shape.ndims == 0 else score.shape[0].value
-    self._phases.append(_Phase(
-        name, writer, op, batch, int(steps), feed, report_every,
-        log_every, checkpoint_every))
+    self._phases.append(
+        _Phase(name, writer, op, batch, int(steps), feed, report_every, log_every,
+               checkpoint_every))
 
   def run(self, sess, saver, max_step=None):
     """Run the loop schedule for a specified number of steps.
@@ -133,13 +135,11 @@ class Loop(object):
         tf.logging.info(message.format(phase.name, phase_step, global_step))
       # Populate book keeping tensors.
       phase.feed[self._reset] = (steps_in < steps_made)
-      phase.feed[self._log] = (
-          phase.writer and
-          self._is_every_steps(phase_step, phase.batch, phase.log_every))
-      phase.feed[self._report] = (
-          self._is_every_steps(phase_step, phase.batch, phase.report_every))
-      summary, mean_score, global_step, steps_made = sess.run(
-          phase.op, phase.feed)
+      phase.feed[self._log] = (phase.writer and
+                               self._is_every_steps(phase_step, phase.batch, phase.log_every))
+      phase.feed[self._report] = (self._is_every_steps(phase_step, phase.batch,
+                                                       phase.report_every))
+      summary, mean_score, global_step, steps_made = sess.run(phase.op, phase.feed)
       if self._is_every_steps(phase_step, phase.batch, phase.checkpoint_every):
         self._store_checkpoint(sess, saver, global_step)
       if self._is_every_steps(phase_step, phase.batch, phase.report_every):
@@ -207,8 +207,7 @@ class Loop(object):
     score_mean = streaming_mean.StreamingMean((), tf.float32)
     with tf.control_dependencies([done, score, summary]):
       done_score = tf.gather(score, tf.where(done)[:, 0])
-      submit_score = tf.cond(
-          tf.reduce_any(done), lambda: score_mean.submit(done_score), tf.no_op)
+      submit_score = tf.cond(tf.reduce_any(done), lambda: score_mean.submit(done_score), tf.no_op)
     with tf.control_dependencies([submit_score]):
       mean_score = tf.cond(self._report, score_mean.clear, float)
       steps_made = tf.shape(score)[0]
