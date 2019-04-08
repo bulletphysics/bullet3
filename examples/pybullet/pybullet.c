@@ -10842,6 +10842,9 @@ static struct PyModuleDef moduledef = {
 };
 #endif
 
+#if __GNUC__ >= 4
+__attribute__((visibility ("default")))
+#endif
 PyMODINIT_FUNC
 #if PY_MAJOR_VERSION >= 3
 PyInit_pybullet(void)
