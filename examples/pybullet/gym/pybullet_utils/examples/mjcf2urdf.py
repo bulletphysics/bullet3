@@ -18,4 +18,11 @@ for o in objs:
 	humanoid = objs[o]
 	ed0 = ed.UrdfEditor()
 	ed0.initializeFromBulletBody(humanoid, p._client)
-	ed0.saveUrdf(p.getBodyInfo(0)[1]+"_"+p.getBodyInfo(o)[0]+".urdf")
+	robotName = str(p.getBodyInfo(o)[1],'utf-8')
+	partName = str(p.getBodyInfo(o)[0], 'utf-8')
+	
+	print("robotName=",robotName)
+	print("partName=",partName)
+	
+	saveVisuals=False
+	ed0.saveUrdf(robotName+"_"+partName+".urdf", saveVisuals)

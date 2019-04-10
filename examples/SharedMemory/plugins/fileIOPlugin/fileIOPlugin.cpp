@@ -283,6 +283,11 @@ struct InMemoryFileIO : public CommonFileIOInterface
 		}
 		return 0;
 	}
+
+	virtual void enableFileCaching(bool enable)
+	{
+		(void)enable;
+	}
 };
 
 struct WrapperFileIO : public CommonFileIOInterface
@@ -292,10 +297,12 @@ struct WrapperFileIO : public CommonFileIOInterface
 
 	WrapperFileHandle m_wrapperFileHandles[B3_MAX_FILEIO_INTERFACES];
 	InMemoryFileIO m_cachedFiles;
+	bool m_enableFileCaching;
 
 	WrapperFileIO()
 		:CommonFileIOInterface(0,0),
-		m_numWrapperInterfaces(0)
+		m_numWrapperInterfaces(0),
+		m_enableFileCaching(true)
 	{
 		for (int i=0;i<B3_MAX_FILEIO_INTERFACES;i++)
 		{
@@ -406,7 +413,10 @@ struct WrapperFileIO : public CommonFileIOInterface
 							}
 
 							//potentially register a zero byte file, or files that only can be read partially
-							m_cachedFiles.registerFile(fileName,buffer, fileSize);
+							if (m_enableFileCaching)
+							{
+								m_cachedFiles.registerFile(fileName, buffer, fileSize);
+							}
 							childFileIO->fileClose(childHandle);
 							break;
 						}
@@ -525,6 +535,15 @@ struct WrapperFileIO : public CommonFileIOInterface
 		return numBytes;
 	}
 
+	virtual void enableFileCaching(bool enable)
+	{
+		m_enableFileCaching = enable;
+		if (!enable)
+		{
+			m_cachedFiles.clearCache();
+		}
+	}
+
 };
 
 
@@ -620,7 +639,7 @@ B3_SHARED_API int executePluginCommand_fileIOPlugin(struct b3PluginContext* cont
 						case eZipFileIO:
 						{
 	#ifdef B3_USE_ZIPFILE_FILEIO
-							if (arguments->m_text)
+							if (arguments->m_text[0])
 							{
 								result = obj->m_fileIO.addFileIOInterface(new ZipFileIO(eZipFileIO, arguments->m_text, &obj->m_fileIO));
 							}

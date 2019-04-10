@@ -418,7 +418,7 @@ struct b3RobotSimulatorCreateMultiBodyArgs
 	int *m_linkParentIndices;
 	int *m_linkJointTypes;
 	btVector3 *m_linkJointAxes;
-
+	btAlignedObjectArray<btVector3> m_batchPositions;
 	int m_useMaximalCoordinates;
 
 	b3RobotSimulatorCreateMultiBodyArgs()
@@ -664,6 +664,8 @@ public:
 		return SHARED_MEMORY_MAGIC_NUMBER;
 	}
 	void setAdditionalSearchPath(const std::string &path);
+    
+    void setCollisionFilterGroupMask(int bodyUniqueIdA, int linkIndexA, int collisionFilterGroup, int collisionFilterMask);
 };
 
 #endif  //B3_ROBOT_SIMULATOR_CLIENT_API_NO_DIRECT_H

@@ -35,7 +35,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
                height=48,
                numObjects=5,
                isTest=False):
-    """Initializes the KukaDiverseObjectEnv. 
+    """Initializes the KukaDiverseObjectEnv.
 
     Args:
       urdfRoot: The diretory from which to load environment URDF's.
@@ -71,7 +71,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     self._maxSteps = maxSteps
     self.terminated = 0
     self._cam_dist = 1.3
-    self._cam_yaw = 180 
+    self._cam_yaw = 180
     self._cam_pitch = -40
     self._dv = dv
     self._p = p
@@ -90,7 +90,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
       p.resetDebugVisualizerCamera(1.3,180,-41,[0.52,-0.2,-0.33])
     else:
       self.cid = p.connect(p.DIRECT)
-    self._seed()
+    self.seed()
 
     if (self._isDiscrete):
       if self._removeHeightHack:
@@ -105,7 +105,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
                                        shape=(4,))  # dx, dy, dz, da
     self.viewer = None
 
-  def _reset(self):
+  def reset(self):
     """Environment reset called at the beginning of an episode.
     """
     # Set the camera settings.
@@ -122,7 +122,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     far = 10
     self._proj_matrix = p.computeProjectionMatrixFOV(
         fov, aspect, near, far)
-    
+
     self._attempted_grasp = False
     self._env_step = 0
     self.terminated = 0
@@ -131,9 +131,9 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     p.setPhysicsEngineParameter(numSolverIterations=150)
     p.setTimeStep(self._timeStep)
     p.loadURDF(os.path.join(self._urdfRoot,"plane.urdf"),[0,0,-1])
-    
+
     p.loadURDF(os.path.join(self._urdfRoot,"table/table.urdf"), 0.5000000,0.00000,-.820000,0.000000,0.000000,0.0,1.0)
-            
+
     p.setGravity(0,0,-10)
     self._kuka = kuka.Kuka(urdfRootPath=self._urdfRoot, timeStep=self._timeStep)
     self._envStepCounter = 0
@@ -185,7 +185,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     np_img_arr = np.reshape(rgb, (self._height, self._width, 4))
     return np_img_arr[:, :, :3]
 
-  def _step(self, action):
+  def step(self, action):
     """Environment step.
 
     Args:
@@ -316,7 +316,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     if test:
       urdf_pattern = os.path.join(self._urdfRoot, 'random_urdfs/*0/*.urdf')
     else:
-      urdf_pattern = os.path.join(self._urdfRoot, 'random_urdfs/*[^0]/*.urdf')
+      urdf_pattern = os.path.join(self._urdfRoot, 'random_urdfs/*[1-9]/*.urdf')
     found_object_directories = glob.glob(urdf_pattern)
     total_num_objects = len(found_object_directories)
     selected_objects = np.random.choice(np.arange(total_num_objects),
@@ -325,9 +325,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     for object_index in selected_objects:
       selected_objects_filenames += [found_object_directories[object_index]]
     return selected_objects_filenames
-  
-  if parse_version(gym.__version__)>=parse_version('0.9.6'):
-    
-    reset = _reset
-    
-    step = _step
+
+  if parse_version(gym.__version__) < parse_version('0.9.6'):
+    _reset = reset
+    _step = step

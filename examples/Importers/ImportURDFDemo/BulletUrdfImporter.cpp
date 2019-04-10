@@ -28,7 +28,7 @@ subject to the following restrictions:
 #include "../../Utils/b3ResourcePath.h"
 #include "../../Utils/b3BulletDefaultFileIO.h"
 
-
+#include "../OpenGLWindow/ShapeData.h"
 
 #include "URDF2Bullet.h"  //for flags
 #include "../ImportMeshUtility/b3ImportMeshUtility.h"
@@ -919,10 +919,40 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 		case URDF_GEOM_BOX:
 		{
 			btVector3 extents = visual->m_geometry.m_boxSize;
-			btBoxShape* boxShape = new btBoxShape(extents * 0.5f);
-			//btConvexShape* boxShape = new btConeShapeX(extents[2]*0.5,extents[0]*0.5);
-			convexColShape = boxShape;
-			convexColShape->setMargin(gUrdfDefaultCollisionMargin);
+			int strideInBytes = 9 * sizeof(float);
+			int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+			int numIndices = sizeof(cube_indices) / sizeof(int);
+			glmesh = new GLInstanceGraphicsShape;
+			glmesh->m_indices = new b3AlignedObjectArray<int>();
+			glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+			glmesh->m_indices->resize(numIndices);
+			for (int k = 0; k < numIndices; k++)
+			{
+				glmesh->m_indices->at(k) = cube_indices[k];
+			}
+			glmesh->m_vertices->resize(numVertices);
+
+			btScalar halfExtentsX = extents[0] * 0.5;
+			btScalar halfExtentsY = extents[1] * 0.5;
+			btScalar halfExtentsZ = extents[2] * 0.5;
+			GLInstanceVertex* verts = &glmesh->m_vertices->at(0);
+			btScalar textureScaling = 1;
+
+			for (int i = 0; i < numVertices; i++)
+			{
+				verts[i].xyzw[0] = halfExtentsX * cube_vertices_textured[i * 9];
+				verts[i].xyzw[1] = halfExtentsY * cube_vertices_textured[i * 9 + 1];
+				verts[i].xyzw[2] = halfExtentsZ * cube_vertices_textured[i * 9 + 2];
+				verts[i].xyzw[3] = cube_vertices_textured[i * 9 + 3];
+				verts[i].normal[0] = cube_vertices_textured[i * 9 + 4];
+				verts[i].normal[1] = cube_vertices_textured[i * 9 + 5];
+				verts[i].normal[2] = cube_vertices_textured[i * 9 + 6];
+				verts[i].uv[0] = cube_vertices_textured[i * 9 + 7] * textureScaling;
+				verts[i].uv[1] = cube_vertices_textured[i * 9 + 8] * textureScaling;
+			}
+			
+			glmesh->m_numIndices = numIndices;
+			glmesh->m_numvertices = numVertices;
 			break;
 		}
 
@@ -939,6 +969,53 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 		{
 			switch (visual->m_geometry.m_meshFileType)
 			{
+				case UrdfGeometry::MEMORY_VERTICES:
+				{
+					glmesh = new GLInstanceGraphicsShape;
+					//		int index = 0;
+					glmesh->m_indices = new b3AlignedObjectArray<int>();
+					glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+					glmesh->m_vertices->resize(visual->m_geometry.m_vertices.size());
+					glmesh->m_indices->resize(visual->m_geometry.m_indices.size());
+
+					for (int i = 0; i < visual->m_geometry.m_vertices.size(); i++)
+					{
+						glmesh->m_vertices->at(i).xyzw[0] = visual->m_geometry.m_vertices[i].x();
+						glmesh->m_vertices->at(i).xyzw[1] = visual->m_geometry.m_vertices[i].y();
+						glmesh->m_vertices->at(i).xyzw[2] = visual->m_geometry.m_vertices[i].z();
+						glmesh->m_vertices->at(i).xyzw[3] = 1;
+						btVector3 normal(visual->m_geometry.m_vertices[i]);
+						if (visual->m_geometry.m_normals.size() == visual->m_geometry.m_vertices.size())
+						{
+							normal = visual->m_geometry.m_normals[i];
+						}
+						else
+						{
+							normal.safeNormalize();
+						}
+
+						btVector3 uv(0.5, 0.5, 0);
+						if (visual->m_geometry.m_uvs.size() == visual->m_geometry.m_vertices.size())
+						{
+							uv = visual->m_geometry.m_uvs[i];
+						}
+						glmesh->m_vertices->at(i).normal[0] = normal[0];
+						glmesh->m_vertices->at(i).normal[1] = normal[1];
+						glmesh->m_vertices->at(i).normal[2] = normal[2];
+						glmesh->m_vertices->at(i).uv[0] = uv[0];
+						glmesh->m_vertices->at(i).uv[1] = uv[1];
+
+					}
+					for (int i = 0; i < visual->m_geometry.m_indices.size(); i++)
+					{
+						glmesh->m_indices->at(i) = visual->m_geometry.m_indices[i];
+
+					}
+					glmesh->m_numIndices = visual->m_geometry.m_indices.size();
+					glmesh->m_numvertices = visual->m_geometry.m_vertices.size();
+
+					break;
+				}
 				case UrdfGeometry::FILE_OBJ:
 				{
 
@@ -1102,8 +1179,10 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 				vtx.normal[0] = pos.x();
 				vtx.normal[1] = pos.y();
 				vtx.normal[2] = pos.z();
-				vtx.uv[0] = 0.5f;
-				vtx.uv[1] = 0.5f;
+				btScalar u = btAtan2(vtx.normal[0], vtx.normal[2]) / (2 * SIMD_PI) + 0.5;
+				btScalar v = vtx.normal[1] * 0.5 + 0.5;
+				vtx.uv[0] = u;
+				vtx.uv[1] = v;
 				glmesh->m_vertices->push_back(vtx);
 			}
 
@@ -1321,7 +1400,9 @@ void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, 
 		if (linkPtr)
 		{
 			m_data->m_customVisualShapesConverter->setFlags(m_data->m_flags);
-			m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex, pathPrefix, localInertiaFrame, *linkPtr, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId, m_data->m_fileIO);
+			
+			int uid3 = m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex, pathPrefix, localInertiaFrame, *linkPtr, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId, m_data->m_fileIO);
+			colObj->setUserIndex3(uid3);
 		}
 	}
 }

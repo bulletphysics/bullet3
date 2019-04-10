@@ -18,6 +18,8 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "MotorDemo.h"
 
+#include <cmath>
+
 #include "LinearMath/btAlignedObjectArray.h"
 class btBroadphaseInterface;
 class btCollisionShape;
@@ -158,8 +160,8 @@ public:
 		for (i = 0; i < NUM_LEGS; i++)
 		{
 			float fAngle = 2 * M_PI * i / NUM_LEGS;
-			float fSin = sin(fAngle);
-			float fCos = cos(fAngle);
+			float fSin = std::sin(fAngle);
+			float fCos = std::cos(fAngle);
 
 			transform.setIdentity();
 			btVector3 vBoneOrigin = btVector3(btScalar(fCos * (fBodySize + 0.5 * fLegLength)), btScalar(fHeight), btScalar(fSin * (fBodySize + 0.5 * fLegLength)));
@@ -197,8 +199,8 @@ public:
 		for (i = 0; i < NUM_LEGS; i++)
 		{
 			float fAngle = 2 * M_PI * i / NUM_LEGS;
-			float fSin = sin(fAngle);
-			float fCos = cos(fAngle);
+			float fSin = std::sin(fAngle);
+			float fCos = std::cos(fAngle);
 
 			// hip joints
 			localA.setIdentity();

@@ -764,6 +764,12 @@ void btHingeConstraint::getInfo2InternalUsingFrameOffset(btConstraintInfo2* info
 	btVector3 ax1A = trA.getBasis().getColumn(2);
 	btVector3 ax1B = trB.getBasis().getColumn(2);
 	btVector3 ax1 = ax1A * factA + ax1B * factB;
+	if (ax1.length2()<SIMD_EPSILON)
+	{
+		factA=0.f;
+		factB=1.f;
+		ax1 = ax1A * factA + ax1B * factB;
+	}
 	ax1.normalize();
 	// fill first 3 rows
 	// we want: velA + wA x relA == velB + wB x relB

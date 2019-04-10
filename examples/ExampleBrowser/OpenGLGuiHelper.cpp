@@ -1009,8 +1009,8 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
 	{
-		*width = m_data->m_glApp->m_window->getWidth() * m_data->m_glApp->m_window->getRetinaScale();
-		*height = m_data->m_glApp->m_window->getHeight() * m_data->m_glApp->m_window->getRetinaScale();
+		*width = m_data->m_glApp->m_window->getWidth();
+		*height = m_data->m_glApp->m_window->getHeight();
 		getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
 		getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
 		getRenderInterface()->getActiveCamera()->getCameraUpVector(camUp);

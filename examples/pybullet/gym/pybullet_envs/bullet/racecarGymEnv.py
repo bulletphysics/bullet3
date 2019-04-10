@@ -5,10 +5,10 @@ os.sys.path.insert(0,parentdir)
 
 import math
 import gym
+import time
 from gym import spaces
 from gym.utils import seeding
 import numpy as np
-import time
 import pybullet
 from . import racecar
 import random
@@ -47,7 +47,7 @@ class RacecarGymEnv(gym.Env):
     else:
       self._p = bullet_client.BulletClient()
 
-    self._seed()
+    self.seed()
     #self.reset()
     observationDim = 2 #len(self.getExtendedObservation())
     #print("observationDim")
@@ -60,11 +60,11 @@ class RacecarGymEnv(gym.Env):
        action_dim = 2
        self._action_bound = 1
        action_high = np.array([self._action_bound] * action_dim)
-       self.action_space = spaces.Box(-action_high, action_high)
-    self.observation_space = spaces.Box(-observation_high, observation_high)
+       self.action_space = spaces.Box(-action_high, action_high, dtype=np.float32)
+    self.observation_space = spaces.Box(-observation_high, observation_high, dtype=np.float32)
     self.viewer = None
 
-  def _reset(self):
+  def reset(self):
     self._p.resetSimulation()
     #p.setPhysicsEngineParameter(numSolverIterations=300)
     self._p.setTimeStep(self._timeStep)
@@ -95,7 +95,7 @@ class RacecarGymEnv(gym.Env):
   def __del__(self):
     self._p = 0
 
-  def _seed(self, seed=None):
+  def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
 
@@ -109,7 +109,7 @@ class RacecarGymEnv(gym.Env):
      self._observation.extend([ballPosInCar[0],ballPosInCar[1]])
      return self._observation
 
-  def _step(self, action):
+  def step(self, action):
     if (self._renders):
       basePos,orn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
       #self._p.resetDebugVisualizerCamera(1, 30, -40, basePos)
@@ -139,7 +139,7 @@ class RacecarGymEnv(gym.Env):
 
     return np.array(self._observation), reward, done, {}
 
-  def _render(self, mode='human', close=False):
+  def render(self, mode='human', close=False):
     if mode != "rgb_array":
       return np.array([])
     base_pos,orn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
@@ -176,8 +176,8 @@ class RacecarGymEnv(gym.Env):
       #print(reward)
     return reward
 
-  if parse_version(gym.__version__)>=parse_version('0.9.6'):
-    render = _render
-    reset = _reset
-    seed = _seed
-    step = _step
+  if parse_version(gym.__version__) < parse_version('0.9.6'):
+    _render = render
+    _reset = reset
+    _seed = seed
+    _step = step

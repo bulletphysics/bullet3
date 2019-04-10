@@ -1,4 +1,3 @@
-
 #ifndef LOAD_MESH_FROM_STL_H
 #define LOAD_MESH_FROM_STL_H
 
@@ -6,7 +5,7 @@
 #include <stdio.h>  //fopen
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "../../CommonInterfaces/CommonFileIOInterface.h"
-
+#include <string.h> //memcpy
 struct MySTLTriangle
 {
 	float normal[3];
@@ -46,6 +45,7 @@ static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName, st
 							if (expectedBinaryFileSize != size)
 							{
 								delete[] memoryBuffer;
+								fileIO->fileClose(fileHandle);
 								return 0;
 							}
 						}

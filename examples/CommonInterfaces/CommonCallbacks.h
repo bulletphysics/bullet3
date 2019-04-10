@@ -11,6 +11,7 @@ typedef void (*b3RenderCallback)();
 enum
 {
 	B3G_ESCAPE = 27,
+	B3G_SPACE = 32,
 	B3G_F1 = 0xff00,
 	B3G_F2,
 	B3G_F3,
@@ -40,7 +41,8 @@ enum
 	B3G_SHIFT,
 	B3G_CONTROL,
 	B3G_ALT,
-	B3G_RETURN
+	B3G_RETURN,
+	
 };
 
 #endif

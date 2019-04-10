@@ -3,6 +3,8 @@ from setuptools import find_packages
 from sys import platform as _platform
 import sys
 import glob
+import os
+
 
 from distutils.core import setup
 from distutils.extension import Extension
@@ -12,22 +14,40 @@ from glob import glob
 # monkey-patch for parallel compilation
 import multiprocessing
 import multiprocessing.pool
+
+
 def parallelCCompile(self, sources, output_dir=None, macros=None, include_dirs=None, debug=0, extra_preargs=None, extra_postargs=None, depends=None):
     # those lines are copied from distutils.ccompiler.CCompiler directly
     macros, objects, extra_postargs, pp_opts, build = self._setup_compile(output_dir, macros, include_dirs, sources, depends, extra_postargs)
     cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
     # parallel code
     N = 2*multiprocessing.cpu_count()# number of parallel compilations
+    try:
+        # On Unix-like platforms attempt to obtain the total memory in the
+        # machine and limit the number of parallel jobs to the number of Gbs
+        # of RAM (to avoid killing smaller platforms like the Pi)
+        mem = os.sysconf('SC_PHYS_PAGES') * os.sysconf('SC_PAGE_SIZE') # bytes
+    except (AttributeError, ValueError):
+        # Couldn't query RAM; don't limit parallelism (it's probably a well
+        # equipped Windows / Mac OS X box)
+        pass
+    else:
+        mem = max(1, int(round(mem / 1024 ** 3))) # convert to Gb
+        N = min(mem, N)
     def _single_compile(obj):
         try: src, ext = build[obj]
         except KeyError: return
-        self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+        newcc_args = cc_args
+        if _platform == "darwin":
+          if src.endswith('.cpp'):
+            newcc_args = cc_args + ["-stdlib=libc++"]
+        self._compile(obj, src, ext, newcc_args, extra_postargs, pp_opts)
     # convert to list, imap is evaluated on-demand
-    list(multiprocessing.pool.ThreadPool(N).imap(_single_compile,objects))
+    pool = multiprocessing.pool.ThreadPool(N)
+    list(pool.imap(_single_compile,objects))
     return objects
 import distutils.ccompiler
 distutils.ccompiler.CCompiler.compile=parallelCCompile
-
 
 #see http://stackoverflow.com/a/8719066/295157
 import os
@@ -46,6 +66,8 @@ CXX_FLAGS += '-DEGL_ADD_PYTHON_INIT '
 CXX_FLAGS += '-DB3_ENABLE_FILEIO_PLUGIN '
 CXX_FLAGS += '-DB3_USE_ZIPFILE_FILEIO '
 CXX_FLAGS += '-DBT_THREADSAFE=1 '
+CXX_FLAGS += '-DSTATIC_LINK_SPD_PLUGIN '
+
 
 EGL_CXX_FLAGS = ''
 
@@ -69,6 +91,9 @@ else:
 	  include_dirs += NP_DIRS
 
 sources = ["examples/pybullet/pybullet.c"]\
++["src/btLinearMathAll.cpp"]\
++["src/btBulletCollisionAll.cpp"]\
++["src/btBulletDynamicsAll.cpp"]\
 +["examples/ExampleBrowser/InProcessExampleBrowser.cpp"]\
 +["examples/TinyRenderer/geometry.cpp"]\
 +["examples/TinyRenderer/model.cpp"]\
@@ -97,6 +122,13 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/SharedMemory/PosixSharedMemory.cpp"]\
 +["examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp"]\
 +["examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/KinTree.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/MathUtil.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/RBDModel.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp"]\
 +["examples/SharedMemory/PhysicsClientUDP.cpp"]\
 +["examples/SharedMemory/PhysicsClientUDP_C_API.cpp"]\
 +["examples/SharedMemory/PhysicsClientTCP.cpp"]\
@@ -170,155 +202,6 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/ExampleBrowser/GwenGUISupport/gwenUserInterface.cpp"]\
 +["examples/ExampleBrowser/GwenGUISupport/GwenParameterInterface.cpp"]\
 +["examples/ExampleBrowser/GwenGUISupport/GwenTextureWindow.cpp"]\
-+["src/LinearMath/btAlignedAllocator.cpp"]\
-+["src/LinearMath/btGeometryUtil.cpp"]\
-+["src/LinearMath/btSerializer.cpp"]\
-+["src/LinearMath/btVector3.cpp"]\
-+["src/LinearMath/btConvexHull.cpp"]\
-+["src/LinearMath/btPolarDecomposition.cpp"]\
-+["src/LinearMath/btSerializer64.cpp"]\
-+["src/LinearMath/btConvexHullComputer.cpp"]\
-+["src/LinearMath/btQuickprof.cpp"]\
-+["src/LinearMath/btThreads.cpp"]\
-+["src/LinearMath/TaskScheduler/btTaskScheduler.cpp"]\
-+["src/LinearMath/TaskScheduler/btThreadSupportPosix.cpp"]\
-+["src/LinearMath/TaskScheduler/btThreadSupportWin32.cpp"]\
-+["src/BulletCollision/BroadphaseCollision/btAxisSweep3.cpp"]\
-+["src/BulletCollision/BroadphaseCollision/btDbvt.cpp"]\
-+["src/BulletCollision/BroadphaseCollision/btOverlappingPairCache.cpp"]\
-+["src/BulletCollision/BroadphaseCollision/btBroadphaseProxy.cpp"]\
-+["src/BulletCollision/BroadphaseCollision/btDbvtBroadphase.cpp"]\
-+["src/BulletCollision/BroadphaseCollision/btQuantizedBvh.cpp"]\
-+["src/BulletCollision/BroadphaseCollision/btCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/BroadphaseCollision/btDispatcher.cpp"]\
-+["src/BulletCollision/BroadphaseCollision/btSimpleBroadphase.cpp"]\
-+["src/BulletCollision/CollisionDispatch/SphereTriangleDetector.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btHashedSimplePairCache.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btActivatingCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btCompoundCompoundCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btInternalEdgeUtility.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btBox2dBox2dCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btConvex2dConvex2dAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btManifoldResult.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btBoxBoxCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btConvexConcaveCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btSimulationIslandManager.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btBoxBoxDetector.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btCollisionDispatcher.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btConvexPlaneCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btCollisionObject.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btCollisionWorld.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btUnionFind.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btCollisionWorldImporter.cpp"]\
-+["src/BulletCollision/CollisionDispatch/btGhostObject.cpp"]\
-+["src/BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.cpp"]\
-+["src/BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.cpp"]\
-+["src/BulletCollision/NarrowPhaseCollision/btPolyhedralContactClipping.cpp"]\
-+["src/BulletCollision/NarrowPhaseCollision/btConvexCast.cpp"]\
-+["src/BulletCollision/NarrowPhaseCollision/btGjkPairDetector.cpp"]\
-+["src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.cpp"]\
-+["src/BulletCollision/NarrowPhaseCollision/btGjkConvexCast.cpp"]\
-+["src/BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.cpp"]\
-+["src/BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.cpp"]\
-+["src/BulletCollision/NarrowPhaseCollision/btGjkEpa2.cpp"]\
-+["src/BulletCollision/NarrowPhaseCollision/btPersistentManifold.cpp"]\
-+["src/BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.cpp"]\
-+["src/BulletCollision/CollisionShapes/btBox2dShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btConvexPolyhedron.cpp"]\
-+["src/BulletCollision/CollisionShapes/btShapeHull.cpp"]\
-+["src/BulletCollision/CollisionShapes/btBoxShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btConvexShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btSphereShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btBvhTriangleMeshShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btConvexTriangleMeshShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btStaticPlaneShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btCapsuleShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btCylinderShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btStridingMeshInterface.cpp"]\
-+["src/BulletCollision/CollisionShapes/btCollisionShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btEmptyShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btTetrahedronShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btCompoundShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btHeightfieldTerrainShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btTriangleBuffer.cpp"]\
-+["src/BulletCollision/CollisionShapes/btConcaveShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btMinkowskiSumShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btTriangleCallback.cpp"]\
-+["src/BulletCollision/CollisionShapes/btConeShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btMultiSphereShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btTriangleIndexVertexArray.cpp"]\
-+["src/BulletCollision/CollisionShapes/btConvex2dShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btMultimaterialTriangleMeshShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btTriangleIndexVertexMaterialArray.cpp"]\
-+["src/BulletCollision/CollisionShapes/btConvexHullShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btOptimizedBvh.cpp"]\
-+["src/BulletCollision/CollisionShapes/btTriangleMesh.cpp"]\
-+["src/BulletCollision/CollisionShapes/btConvexInternalShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btPolyhedralConvexShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btTriangleMeshShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btConvexPointCloudShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btSdfCollisionShape.cpp"]\
-+["src/BulletCollision/CollisionShapes/btMiniSDF.cpp"]\
-+["src/BulletCollision/CollisionShapes/btUniformScalingShape.cpp"]\
-+["src/BulletCollision/Gimpact/btContactProcessing.cpp"]\
-+["src/BulletCollision/Gimpact/btGImpactQuantizedBvh.cpp"]\
-+["src/BulletCollision/Gimpact/btTriangleShapeEx.cpp"]\
-+["src/BulletCollision/Gimpact/gim_memory.cpp"]\
-+["src/BulletCollision/Gimpact/btGImpactBvh.cpp"]\
-+["src/BulletCollision/Gimpact/btGImpactShape.cpp"]\
-+["src/BulletCollision/Gimpact/gim_box_set.cpp"]\
-+["src/BulletCollision/Gimpact/gim_tri_collision.cpp"]\
-+["src/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.cpp"]\
-+["src/BulletCollision/Gimpact/btGenericPoolAllocator.cpp"]\
-+["src/BulletCollision/Gimpact/gim_contact.cpp"]\
-+["src/BulletDynamics/Dynamics/btDiscreteDynamicsWorld.cpp"]\
-+["src/BulletDynamics/Dynamics/btRigidBody.cpp"]\
-+["src/BulletDynamics/Dynamics/btSimulationIslandManagerMt.cpp"]\
-+["src/BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.cpp"]\
-+["src/BulletDynamics/Dynamics/btSimpleDynamicsWorld.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btBatchedConstraints.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btConeTwistConstraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btSliderConstraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btContactConstraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btHinge2Constraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btFixedConstraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btHingeConstraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btTypedConstraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btGearConstraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btUniversalConstraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btPoint2PointConstraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.cpp"]\
-+["src/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.cpp"]\
-+["src/BulletDynamics/MLCPSolvers/btDantzigLCP.cpp"]\
-+["src/BulletDynamics/MLCPSolvers/btLemkeAlgorithm.cpp"]\
-+["src/BulletDynamics/MLCPSolvers/btMLCPSolver.cpp"]\
-+["src/BulletDynamics/Featherstone/btMultiBody.cpp"]\
-+["src/BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.cpp"]\
-+["src/BulletDynamics/Featherstone/btMultiBodyJointMotor.cpp"]\
-+["src/BulletDynamics/Featherstone/btMultiBodyGearConstraint.cpp"]\
-+["src/BulletDynamics/Featherstone/btMultiBodyConstraint.cpp"]\
-+["src/BulletDynamics/Featherstone/btMultiBodyFixedConstraint.cpp"]\
-+["src/BulletDynamics/Featherstone/btMultiBodyPoint2Point.cpp"]\
-+["src/BulletDynamics/Featherstone/btMultiBodyConstraintSolver.cpp"]\
-+["src/BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.cpp"]\
-+["src/BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.cpp"]\
-+["src/BulletDynamics/Featherstone/btMultiBodySliderConstraint.cpp"]\
-+["src/BulletDynamics/Vehicle/btRaycastVehicle.cpp"]\
-+["src/BulletDynamics/Vehicle/btWheelInfo.cpp"]\
-+["src/BulletDynamics/Character/btKinematicCharacterController.cpp"]\
 +["src/Bullet3Common/b3AlignedAllocator.cpp"]\
 +["src/Bullet3Common/b3Logging.cpp"]\
 +["src/Bullet3Common/b3Vector3.cpp"]\
@@ -487,6 +370,8 @@ if _platform == "linux" or _platform == "linux2":
     CXX_FLAGS += '-DDYNAMIC_LOAD_X11_FUNCTIONS '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
     CXX_FLAGS += '-fno-inline-functions-called-once '
+    CXX_FLAGS += '-fvisibility=hidden '
+    CXX_FLAGS += '-fvisibility-inlines-hidden '
     EGL_CXX_FLAGS += '-DBT_USE_EGL '
     EGL_CXX_FLAGS += '-fPIC ' # for plugins
 
@@ -517,7 +402,7 @@ elif _platform == "win32":
     +["examples/ThirdPartyLibs/glad/gl.c"]
 elif _platform == "darwin":
     print("darwin!")
-    os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
+    os.environ['LDFLAGS'] = '-framework Cocoa -stdlib=libc++ -framework OpenGL'
     CXX_FLAGS += '-DB3_NO_PYTHON_FRAMEWORK '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
     CXX_FLAGS += '-D_DARWIN '
@@ -583,7 +468,7 @@ if 'BT_USE_EGL' in EGL_CXX_FLAGS:
 
 setup(
 	name = 'pybullet',
-	version='2.3.4',
+	version='2.4.8',
 	description='Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and deep reinforcement learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',

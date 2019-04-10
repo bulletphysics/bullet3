@@ -26,3 +26,9 @@ IF(WIN32 OR APPLE)
   target_link_libraries(gwen ${OPENGL_gl_LIBRARY})
 ENDIF()
 ENDIF()
+
+
+INSTALL(TARGETS gwen
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib${LIB_SUFFIX}
+        ARCHIVE DESTINATION lib${LIB_SUFFIX})

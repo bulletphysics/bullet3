@@ -101,13 +101,13 @@ class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
     done = self._termination()
     return np.array(self._get_observation()), reward, done, {}
 
-  def _step(self, action):
+  def step(self, action):
     # At start, use policy_flip to lift the robot to its two legs. After the
     # robot reaches the lift up stage, give control back to the agent by
     # returning the current state and reward.
     if self._env_step_counter < 1:
       return self._stand_up()
-    return super(MinitaurStandGymEnv, self)._step(action)
+    return super(MinitaurStandGymEnv, self).step(action)
 
   def _reward(self):
     """Reward function for standing up pose.

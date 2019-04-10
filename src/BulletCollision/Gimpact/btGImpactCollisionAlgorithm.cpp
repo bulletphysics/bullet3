@@ -18,7 +18,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 /*
-Author: Francisco Len Nßjera
+Author: Francisco Leon Najera
 Concave-Concave Collision
 
 */
@@ -50,10 +50,11 @@ public:
 
 	void get_plane_equation_transformed(const btTransform& trans, btVector4& equation) const
 	{
-		equation[0] = trans.getBasis().getRow(0).dot(m_planeNormal);
-		equation[1] = trans.getBasis().getRow(1).dot(m_planeNormal);
-		equation[2] = trans.getBasis().getRow(2).dot(m_planeNormal);
-		equation[3] = trans.getOrigin().dot(m_planeNormal) + m_planeConstant;
+		const btVector3 normal = trans.getBasis() * m_planeNormal;
+		equation[0] = normal[0];
+		equation[1] = normal[1];
+		equation[2] = normal[2];
+		equation[3] = normal.dot(trans * (m_planeConstant * m_planeNormal));
 	}
 };
 
@@ -589,14 +590,16 @@ void btGImpactCollisionAlgorithm::gimpact_vs_shape(const btCollisionObjectWrappe
 		}
 
 		btCollisionObjectWrapper ob0(body0Wrap, colshape0, body0Wrap->getCollisionObject(), body0Wrap->getWorldTransform(), m_part0, m_triface0);
-		const btCollisionObjectWrapper* prevObj0 = m_resultOut->getBody0Wrap();
+		const btCollisionObjectWrapper* prevObj;
 
 		if (m_resultOut->getBody0Wrap()->getCollisionObject() == ob0.getCollisionObject())
 		{
+			prevObj = m_resultOut->getBody0Wrap();
 			m_resultOut->setBody0Wrap(&ob0);
 		}
 		else
 		{
+			prevObj = m_resultOut->getBody1Wrap();
 			m_resultOut->setBody1Wrap(&ob0);
 		}
 
@@ -609,7 +612,15 @@ void btGImpactCollisionAlgorithm::gimpact_vs_shape(const btCollisionObjectWrappe
 		{
 			shape_vs_shape_collision(&ob0, body1Wrap, colshape0, shape1);
 		}
-		m_resultOut->setBody0Wrap(prevObj0);
+
+		if (m_resultOut->getBody0Wrap()->getCollisionObject() == ob0.getCollisionObject())
+		{
+			m_resultOut->setBody0Wrap(prevObj);
+		}
+		else
+		{
+			m_resultOut->setBody1Wrap(prevObj);
+		}
 	}
 
 	shape0->unlockChildShapes();
@@ -820,6 +831,12 @@ void btGImpactCollisionAlgorithm::processCollision(const btCollisionObjectWrappe
 		gimpactshape1 = static_cast<const btGImpactShapeInterface*>(body1Wrap->getCollisionShape());
 
 		gimpact_vs_shape(body1Wrap, body0Wrap, gimpactshape1, body0Wrap->getCollisionShape(), true);
+	}
+
+	// Ensure that gContactProcessedCallback is called for concave shapes.
+	if (getLastManifold())
+	{
+		m_resultOut->refreshContactPoints();
 	}
 }
 

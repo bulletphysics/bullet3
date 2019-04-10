@@ -252,5 +252,10 @@ struct ZipFileIO : public CommonFileIOInterface
 		}
 		return size;
 	}
-	
+
+	virtual void enableFileCaching(bool enable)
+	{
+		(void)enable;
+	}
+
 };

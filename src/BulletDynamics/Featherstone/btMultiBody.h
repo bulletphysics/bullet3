@@ -134,6 +134,15 @@ public:
 		return m_baseCollider;
 	}
 
+	const btMultiBodyLinkCollider *getLinkCollider(int index) const
+	{
+		if (index >= 0 && index < getNumLinks())
+		{
+			return getLink(index).m_collider;
+		}
+		return 0;
+	}
+
 	btMultiBodyLinkCollider *getLinkCollider(int index)
 	{
 		if (index >= 0 && index < getNumLinks())
@@ -173,7 +182,10 @@ public:
 	// get/set pos/vel/rot/omega for the base link
 	//
 
-	const btVector3 &getBasePos() const { return m_basePos; }  // in world frame
+	const btVector3 &getBasePos() const 
+	{ 
+		return m_basePos; 
+	}  // in world frame
 	const btVector3 getBaseVel() const
 	{
 		return btVector3(m_realBuf[3], m_realBuf[4], m_realBuf[5]);
@@ -235,8 +247,10 @@ public:
 
 	void setJointPos(int i, btScalar q);
 	void setJointVel(int i, btScalar qdot);
-	void setJointPosMultiDof(int i, btScalar *q);
-	void setJointVelMultiDof(int i, btScalar *qdot);
+	void setJointPosMultiDof(int i, const double *q);
+	void setJointVelMultiDof(int i, const double *qdot);
+	void setJointPosMultiDof(int i, const float *q);
+	void setJointVelMultiDof(int i, const float *qdot);
 
 	//
 	// direct access to velocities as a vector of 6 + num_links elements.
@@ -440,7 +454,10 @@ public:
 	//
 	void setCanSleep(bool canSleep)
 	{
-		m_canSleep = canSleep;
+		if (m_canWakeup)
+		{
+			m_canSleep = canSleep;
+		}
 	}
 
 	bool getCanSleep() const
@@ -448,6 +465,15 @@ public:
 		return m_canSleep;
 	}
 
+	bool getCanWakeup() const
+	{
+		return m_canWakeup;
+	}
+	
+	void setCanWakeup(bool canWakeup) 
+	{
+		m_canWakeup = canWakeup;
+	}
 	bool isAwake() const { return m_awake; }
 	void wakeUp();
 	void goToSleep();
@@ -456,6 +482,11 @@ public:
 	bool hasFixedBase() const
 	{
 		return m_fixedBase;
+	}
+
+	void setFixedBase(bool fixedBase)
+	{
+		m_fixedBase = fixedBase;
 	}
 
 	int getCompanionId() const
@@ -598,6 +629,15 @@ public:
 		m_userIndex2 = index;
 	}
 
+	static void spatialTransform(const btMatrix3x3 &rotation_matrix,  // rotates vectors in 'from' frame to vectors in 'to' frame
+		const btVector3 &displacement,     // vector from origin of 'from' frame to origin of 'to' frame, in 'to' coordinates
+		const btVector3 &top_in,       // top part of input vector
+		const btVector3 &bottom_in,    // bottom part of input vector
+		btVector3 &top_out,         // top part of output vector
+		btVector3 &bottom_out);      // bottom part of output vector
+
+
+
 private:
 	btMultiBody(const btMultiBody &);     // not implemented
 	void operator=(const btMultiBody &);  // not implemented
@@ -668,6 +708,7 @@ private:
 	// Sleep parameters.
 	bool m_awake;
 	bool m_canSleep;
+	bool m_canWakeup;
 	btScalar m_sleepTimer;
 
 	void *m_userObjectPointer;

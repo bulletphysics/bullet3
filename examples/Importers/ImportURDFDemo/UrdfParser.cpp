@@ -1280,7 +1280,9 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, XMLElement* config, ErrorLogger* l
 	}
 
 	std::string type_str = type_char;
-	if (type_str == "planar")
+	if (type_str == "spherical")
+		joint.m_type = URDFSphericalJoint;
+	else if (type_str == "planar")
 		joint.m_type = URDFPlanarJoint;
 	else if (type_str == "floating")
 		joint.m_type = URDFFloatingJoint;
@@ -1587,7 +1589,15 @@ bool UrdfParser::initTreeAndRoot(UrdfModel& model, ErrorLogger* logger)
 
 	if (model.m_rootLinks.size() > 1)
 	{
-		logger->reportWarning("URDF file with multiple root links found");
+		std::string multipleRootMessage =
+			"URDF file with multiple root links found:";
+
+		for (int i = 0; i < model.m_rootLinks.size(); i++) 
+		{
+			multipleRootMessage += " ";
+			multipleRootMessage += model.m_rootLinks[i]->m_name.c_str();
+		}
+		logger->reportWarning(multipleRootMessage.c_str());
 	}
 
 	if (model.m_rootLinks.size() == 0)

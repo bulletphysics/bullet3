@@ -68,9 +68,9 @@ class PyBulletSimGymEnv(gym.Env):
     self._cam_pitch = -35
     self._hard_reset = True
     self._last_frame_time = 0.0
-    
+
     optionstring='--width={} --height={}'.format(render_width,render_height)
-    
+
     print("urdf_root=" + self._urdf_root)
 
     if self._is_render:
@@ -78,7 +78,7 @@ class PyBulletSimGymEnv(gym.Env):
           connection_mode=pybullet.GUI, options=optionstring)
     else:
       self._pybullet_client = bullet_client.BulletClient()
-      
+
     if (debug_visualization==False):
       self._pybullet_client.configureDebugVisualizer(flag=self._pybullet_client.COV_ENABLE_GUI,enable=0)
       self._pybullet_client.configureDebugVisualizer(flag=self._pybullet_client.COV_ENABLE_RGB_BUFFER_PREVIEW,enable=0)
@@ -87,7 +87,7 @@ class PyBulletSimGymEnv(gym.Env):
 
 
     self._pybullet_client.setAdditionalSearchPath(urdf_root)
-    self._seed()
+    self.seed()
     self.reset()
 
     observation_high = (
@@ -100,22 +100,22 @@ class PyBulletSimGymEnv(gym.Env):
     action_high = np.array([self._action_bound] * action_dim)
     self.action_space = spaces.Box(-action_high, action_high)
     self.observation_space = spaces.Box(observation_low, observation_high)
-    
+
     self.viewer = None
     self._hard_reset = hard_reset  # This assignment need to be after reset()
 
-  
+
   def configure(self, args):
     self._args = args
 
-  def _reset(self):
+  def reset(self):
     if self._hard_reset:
       self._pybullet_client.resetSimulation()
-      
+
       self._pybullet_client.setPhysicsEngineParameter(
           numSolverIterations=int(self._num_bullet_solver_iterations))
       self._pybullet_client.setTimeStep(self._time_step)
-      
+
       self._example_sim = self._pybullet_sim_factory.CreateSim(
           pybullet_client=self._pybullet_client,
           urdf_root=self._urdf_root,
@@ -124,17 +124,17 @@ class PyBulletSimGymEnv(gym.Env):
       self._example_sim.Reset(reload_urdf=False)
 
     self._env_step_counter = 0
-    
+
     #self._pybullet_client.resetDebugVisualizerCamera(
     #    self._cam_dist, self._cam_yaw, self._cam_pitch, [0, 0, 0])
 
     return self._get_observation()
 
-  def _seed(self, seed=None):
+  def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
 
-  def _step(self, action):
+  def step(self, action):
     """Step forward the simulation, given the action.
 
     Args:
@@ -158,12 +158,12 @@ class PyBulletSimGymEnv(gym.Env):
       time_to_sleep = self._action_repeat * self._time_step - time_spent
       if time_to_sleep > 0:
         time.sleep(time_to_sleep)
-        
+
       #base_pos = self.minitaur.GetBasePosition()
       #self._pybullet_client.resetDebugVisualizerCamera(
       #    self._cam_dist, self._cam_yaw, self._cam_pitch, base_pos)
-    
-    
+
+
     for _ in range(self._action_repeat):
       self._example_sim.ApplyAction(action)
       self._pybullet_client.stepSimulation()
@@ -173,7 +173,7 @@ class PyBulletSimGymEnv(gym.Env):
     done = self._termination()
     return np.array(self._get_observation()), reward, done, {}
 
-  def _render(self, mode="rgb_array", close=False):
+  def render(self, mode="rgb_array", close=False):
     if mode != "rgb_array":
       return np.array([])
     base_pos = [0,0,0]
@@ -196,8 +196,6 @@ class PyBulletSimGymEnv(gym.Env):
     rgb_array = rgb_array[:, :, :3]
     return rgb_array
 
-  
-
   def _termination(self):
     terminate=self._example_sim.Termination()
     return terminate
@@ -206,14 +204,12 @@ class PyBulletSimGymEnv(gym.Env):
     reward = 0
     return reward
 
-  
   def _get_observation(self):
     self._observation = self._example_sim.GetObservation()
     return self._observation
 
-  
-  if parse_version(gym.__version__)>=parse_version('0.9.6'):
-    render = _render
-    reset = _reset
-    seed = _seed
-    step = _step
+  if parse_version(gym.__version__) < parse_version('0.9.6'):
+    _render = render
+    _reset = reset
+    _seed = seed
+    _step = step

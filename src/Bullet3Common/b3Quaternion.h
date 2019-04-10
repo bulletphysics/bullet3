@@ -92,13 +92,23 @@ public:
 	/**@brief Set the rotation using axis angle notation 
    * @param axis The axis around which to rotate
    * @param angle The magnitude of the rotation in Radians */
-	void setRotation(const b3Vector3& axis, const b3Scalar& _angle)
+	void setRotation(const b3Vector3& axis1, const b3Scalar& _angle)
 	{
+		b3Vector3 axis = axis1;
+		axis.safeNormalize();
+		
 		b3Scalar d = axis.length();
 		b3Assert(d != b3Scalar(0.0));
-		b3Scalar s = b3Sin(_angle * b3Scalar(0.5)) / d;
-		setValue(axis.getX() * s, axis.getY() * s, axis.getZ() * s,
-				 b3Cos(_angle * b3Scalar(0.5)));
+		if (d < B3_EPSILON)
+		{
+			setValue(0, 0, 0, 1);
+		}
+		else
+		{
+			b3Scalar s = b3Sin(_angle * b3Scalar(0.5)) / d;
+			setValue(axis.getX() * s, axis.getY() * s, axis.getZ() * s,
+				b3Cos(_angle * b3Scalar(0.5)));
+		}
 	}
 	/**@brief Set the quaternion using Euler angles
    * @param yaw Angle around Y

@@ -263,7 +263,10 @@ struct btMatrixX
 	{
 		{
 			BT_PROFILE("storage=0");
-			btSetZero(&m_storage[0], m_storage.size());
+			if (m_storage.size())
+			{
+				btSetZero(&m_storage[0], m_storage.size());
+			}
 			//memset(&m_storage[0],0,sizeof(T)*m_storage.size());
 			//for (int i=0;i<m_storage.size();i++)
 			//			m_storage[i]=0;

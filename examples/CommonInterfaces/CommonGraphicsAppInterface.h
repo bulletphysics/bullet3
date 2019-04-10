@@ -15,8 +15,8 @@ struct DrawGridData
 
 	DrawGridData(int upAx = 1)
 		: gridSize(10),
-		  upOffset(0.001f),
-		  upAxis(upAx)
+		upOffset(0.001f),
+		upAxis(upAx)
 	{
 		gridColor[0] = 0.6f;
 		gridColor[1] = 0.6f;
@@ -58,17 +58,17 @@ struct CommonGraphicsApp
 
 	CommonGraphicsApp()
 		: m_window(0),
-		  m_renderer(0),
-		  m_parameterInterface(0),
-		  m_2dCanvasInterface(0),
-		  m_leftMouseButton(false),
-		  m_middleMouseButton(false),
-		  m_rightMouseButton(false),
-		  m_wheelMultiplier(0.01f),
-		  m_mouseMoveMultiplier(0.4f),
-		  m_mouseXpos(0.f),
-		  m_mouseYpos(0.f),
-		  m_mouseInitialized(false)
+		m_renderer(0),
+		m_parameterInterface(0),
+		m_2dCanvasInterface(0),
+		m_leftMouseButton(false),
+		m_middleMouseButton(false),
+		m_rightMouseButton(false),
+		m_wheelMultiplier(0.01f),
+		m_mouseMoveMultiplier(0.4f),
+		m_mouseXpos(0.f),
+		m_mouseYpos(0.f),
+		m_mouseInitialized(false)
 	{
 		m_backgroundColorRGB[0] = 0.7;
 		m_backgroundColorRGB[1] = 0.7;
@@ -126,13 +126,13 @@ struct CommonGraphicsApp
 	virtual void drawText(const char* txt, int posX, int posY)
 	{
 		float size = 1;
-		float colorRGBA[4] = {0, 0, 0, 1};
+		float colorRGBA[4] = { 0, 0, 0, 1 };
 		drawText(txt, posX, posY, size, colorRGBA);
 	}
 
 	virtual void drawText(const char* txt, int posX, int posY, float size)
 	{
-		float colorRGBA[4] = {0, 0, 0, 1};
+		float colorRGBA[4] = { 0, 0, 0, 1 };
 		drawText(txt, posX, posY, size, colorRGBA);
 	}
 	virtual void drawText(const char* txt, int posX, int posY, float size, float colorRGBA[4]) = 0;
@@ -182,12 +182,12 @@ struct CommonGraphicsApp
 				camera->getCameraPosition(camPos);
 
 				b3Vector3 cameraPosition = b3MakeVector3(b3Scalar(camPos[0]),
-														 b3Scalar(camPos[1]),
-														 b3Scalar(camPos[2]));
+					b3Scalar(camPos[1]),
+					b3Scalar(camPos[2]));
 
 				b3Vector3 cameraTargetPosition = b3MakeVector3(b3Scalar(targPos[0]),
-															   b3Scalar(targPos[1]),
-															   b3Scalar(targPos[2]));
+					b3Scalar(targPos[1]),
+					b3Scalar(targPos[2]));
 				b3Vector3 cameraUp = b3MakeVector3(0, 0, 0);
 				cameraUp[camera->getCameraUpAxis()] = 1.f;
 
@@ -204,17 +204,17 @@ struct CommonGraphicsApp
 
 				if (m_middleMouseButton)
 				{
-					cameraTargetPosition += cameraUp * yDelta * 0.01;
+					cameraTargetPosition += cameraUp * yDelta *m_mouseMoveMultiplier* 0.01;
 
 					b3Vector3 fwd = cameraTargetPosition - cameraPosition;
 					b3Vector3 side = cameraUp.cross(fwd);
 					side.normalize();
-					cameraTargetPosition += side * xDelta * 0.01;
+					cameraTargetPosition += side * xDelta *m_mouseMoveMultiplier* 0.01;
 				}
 				if (m_rightMouseButton)
 				{
-					cameraDistance -= xDelta * 0.01f;
-					cameraDistance -= yDelta * 0.01f;
+					cameraDistance -= xDelta * m_mouseMoveMultiplier*0.01f;
+					cameraDistance -= yDelta * m_mouseMoveMultiplier*0.01f;
 					if (cameraDistance < 1)
 						cameraDistance = 1;
 					if (cameraDistance > 1000)
@@ -251,7 +251,7 @@ struct CommonGraphicsApp
 				float cameraDistance = camera->getCameraDistance();
 				if (deltay < 0 || cameraDistance > 1)
 				{
-					cameraDistance -= deltay * 0.01f;
+					cameraDistance -= deltay*m_wheelMultiplier;
 					if (cameraDistance < 1)
 						cameraDistance = 1;
 					camera->setCameraDistance(cameraDistance);

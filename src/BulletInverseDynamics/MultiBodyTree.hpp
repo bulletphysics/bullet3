@@ -16,7 +16,9 @@ enum JointType
 	/// one translational degree of freedom relative to parent
 	PRISMATIC,
 	/// six degrees of freedom relative to parent
-	FLOATING
+	FLOATING,
+	/// three degrees of freedom, relative to parent
+	SPHERICAL
 };
 
 /// Interface class for calculating inverse dynamics for tree structured
@@ -31,12 +33,14 @@ enum JointType
 ///	- PRISMATIC: displacement [m]
 ///	- FLOATING:  Euler x-y-z angles [rad] and displacement in body-fixed frame of parent [m]
 ///				 (in that order)
+/// - SPHERICAL: Euler x-y-z angles [rad]
 /// The u vector contains the generalized speeds, which are
 ///	- FIXED:	 none
 ///	- REVOLUTE:  time derivative of angle of rotation [rad/s]
 ///	- PRISMATIC: time derivative of displacement [m/s]
 ///	- FLOATING:  angular velocity [rad/s] (*not* time derivative of rpy angles)
 ///				 and time derivative of displacement in parent frame [m/s]
+//	- SPHERICAL:  angular velocity [rad/s]
 ///
 /// The q and u vectors are obtained by stacking contributions of all bodies in one
 /// vector in the order of body indices.
@@ -47,7 +51,7 @@ enum JointType
 ///	 - PRISMATIC: force  [N], along joint axis
 ///	 - FLOATING:  moment vector [Nm] and force vector [N], both in body-fixed frame
 ///				  (in that order)
-///
+///  - SPHERICAL: moment vector [Nm] 
 /// TODO - force element interface (friction, springs, dampers, etc)
 ///	  - gears and motor inertia
 class MultiBodyTree

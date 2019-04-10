@@ -274,6 +274,8 @@ private:
 	idArray<int>::type m_body_prismatic_list;
 	// Indices of floating joints
 	idArray<int>::type m_body_floating_list;
+	// Indices of spherical joints
+	idArray<int>::type m_body_spherical_list;
 	// a user-provided integer
 	idArray<int>::type m_user_int;
 	// a user-provided pointer

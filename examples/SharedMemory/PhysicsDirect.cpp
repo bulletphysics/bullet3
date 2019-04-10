@@ -22,6 +22,7 @@ struct BodyJointInfoCache2
 	btAlignedObjectArray<b3JointInfo> m_jointInfo;
 	std::string m_bodyName;
 	btAlignedObjectArray<int> m_userDataIds;
+	int m_numDofs;
 
 	~BodyJointInfoCache2()
 	{
@@ -78,6 +79,8 @@ struct PhysicsDirectInternalData
 	PhysicsCommandProcessorInterface* m_commandProcessor;
 	bool m_ownsCommandProcessor;
 	double m_timeOutInSeconds;
+
+	SendActualStateSharedMemoryStorage m_cachedState;
 
 	PhysicsDirectInternalData()
 		: m_hasStatus(false),
@@ -1014,6 +1017,9 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		}
 		case CMD_ACTUAL_STATE_UPDATE_COMPLETED:
 		{
+			SendActualStateSharedMemoryStorage* serverState = (SendActualStateSharedMemoryStorage*)&m_data->m_bulletStreamDataServerToClient[0];
+			m_data->m_cachedState = *serverState;
+			m_data->m_serverStatus.m_sendActualStateArgs.m_stateDetails = &m_data->m_cachedState;
 			break;
 		}
 		case CMD_DESIRED_STATE_RECEIVED_COMPLETED:
@@ -1153,6 +1159,14 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			}
 			break;
 		}
+		case CMD_REMOVE_STATE_FAILED:
+		{
+			break;
+		}
+		case CMD_REMOVE_STATE_COMPLETED:
+		{
+			break;
+		}
 		default:
 		{
 			//b3Warning("Unknown server status type");
@@ -1270,9 +1284,9 @@ bool PhysicsDirect::getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const
 	return false;
 }
 
-int PhysicsDirect::getNumJoints(int bodyIndex) const
+int PhysicsDirect::getNumJoints(int bodyUniqueId) const
 {
-	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyIndex];
+	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
@@ -1280,6 +1294,18 @@ int PhysicsDirect::getNumJoints(int bodyIndex) const
 	}
 	btAssert(0);
 	return 0;
+}
+
+int PhysicsDirect::getNumDofs(int bodyUniqueId) const
+{
+        BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+        if (bodyJointsPtr && *bodyJointsPtr)
+        {
+                BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
+                return bodyJoints->m_numDofs;
+        }
+        btAssert(0);
+        return 0;
 }
 
 bool PhysicsDirect::getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const
@@ -1291,6 +1317,37 @@ bool PhysicsDirect::getJointInfo(int bodyIndex, int jointIndex, struct b3JointIn
 		if ((jointIndex >= 0) && (jointIndex < bodyJoints->m_jointInfo.size()))
 		{
 			info = bodyJoints->m_jointInfo[jointIndex];
+			info.m_qSize = 0;
+			info.m_uSize = 0;
+			
+			switch (info.m_jointType)
+			{
+				case eSphericalType:
+				{
+					info.m_qSize = 4;//quaterion x,y,z,w
+					info.m_uSize = 3;
+					break;
+				}
+				case ePlanarType:
+				{
+					info.m_qSize = 2;
+					info.m_uSize = 2;
+					break;
+				}
+				case ePrismaticType:
+				case eRevoluteType:
+				{
+					info.m_qSize = 1;
+					info.m_uSize = 1;
+					break;
+				}
+
+				default:
+				{
+				}
+			}
+
+
 			return true;
 		}
 	}

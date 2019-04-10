@@ -1,0 +1,52 @@
+{
+	"AgentType": "PPO",
+
+	"ActorNet": "fc_2layers_1024units",
+	"ActorStepsize": 0.0000025,
+	"ActorMomentum": 0.9,
+	"ActorWeightDecay": 0.0005,
+	"ActorInitOutputScale": 0.01,
+
+	"CriticNet": "fc_2layers_1024units",
+	"CriticStepsize": 0.01,
+	"CriticMomentum": 0.9,
+	"CriticWeightDecay": 0,
+
+	"UpdatePeriod": 1,
+	"ItersPerUpdate": 1,
+	"Discount": 0.95,
+	"BatchSize": 4096,
+	"MiniBatchSize": 256,
+	"Epochs": 1,
+	"ReplayBufferSize": 500000,
+	"InitSamples": 1,
+	"NormalizerSamples": 1000000,
+
+	"RatioClip": 0.2,
+	"NormAdvClip": 4,
+	"TDLambda": 0.95,
+	
+	"OutputIters": 10,
+	"IntOutputIters": 400,
+	"TestEpisodes": 32,
+
+	"ExpAnnealSamples": 64000000,
+	
+	"ExpParamsBeg":
+	{
+		"Rate": 1,
+		"InitActionRate": 1,
+		"Noise": 0.05,
+		"NoiseInternal": 0,
+		"Temp": 0.1
+	},
+
+	"ExpParamsEnd":
+	{
+		"Rate": 0.2,
+		"InitActionRate": 0.01,
+		"Noise": 0.05,
+		"NoiseInternal": 0,
+		"Temp": 0.001
+	}
+}

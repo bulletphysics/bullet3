@@ -32,7 +32,7 @@ subject to the following restrictions:
 #include "../SharedMemory/SharedMemoryPublic.h"  //for b3VisualShapeData
 #include "../TinyRenderer/model.h"
 #include "stb_image/stb_image.h"
-
+#include "../OpenGLWindow/ShapeData.h"
 struct MyTexture2
 {
 	unsigned char* textureData1;
@@ -66,6 +66,7 @@ struct TinyRendererVisualShapeConverterInternalData
 	// Maps bodyUniqueId to a list of visual shapes belonging to the body.
 	btHashMap<btHashInt, btAlignedObjectArray<b3VisualShapeData> > m_visualShapesMap;
 
+	int m_uidGenerator;
 	int m_upAxis;
 	int m_swWidth;
 	int m_swHeight;
@@ -91,7 +92,8 @@ struct TinyRendererVisualShapeConverterInternalData
 	SimpleCamera m_camera;
 
 	TinyRendererVisualShapeConverterInternalData()
-		: m_upAxis(2),
+		: m_uidGenerator(1),
+			m_upAxis(2),
 		  m_swWidth(START_WIDTH),
 		  m_swHeight(START_HEIGHT),
 		  m_rgbColorBuffer(START_WIDTH, START_HEIGHT, TGAImage::RGB),
@@ -293,10 +295,47 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 
 			btVector3 extents = visual->m_geometry.m_boxSize;
 
-			btBoxShape* boxShape = new btBoxShape(extents * 0.5f);
-			//btConvexShape* boxShape = new btConeShapeX(extents[2]*0.5,extents[0]*0.5);
-			convexColShape = boxShape;
-			convexColShape->setMargin(0.001);
+			
+			int strideInBytes = 9 * sizeof(float);
+			int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+			int numIndices = sizeof(cube_indices) / sizeof(int);
+
+			glmesh = new GLInstanceGraphicsShape;
+			//		int index = 0;
+			glmesh->m_indices = new b3AlignedObjectArray<int>();
+			glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+
+			glmesh->m_indices->resize(numIndices);
+			for (int k = 0; k < numIndices; k++)
+			{
+				glmesh->m_indices->at(k) = cube_indices[k];
+			}
+			glmesh->m_vertices->resize(numVertices);
+
+			btScalar halfExtentsX = extents[0] * 0.5;
+			btScalar halfExtentsY = extents[1] * 0.5;
+			btScalar halfExtentsZ = extents[2] * 0.5;
+			GLInstanceVertex* verts = &glmesh->m_vertices->at(0);
+			btScalar textureScaling = 1;
+
+			for (int i = 0; i < numVertices; i++)
+			{
+
+				verts[i].xyzw[0] = halfExtentsX * cube_vertices_textured[i * 9];
+				verts[i].xyzw[1] = halfExtentsY * cube_vertices_textured[i * 9 + 1];
+				verts[i].xyzw[2] = halfExtentsZ * cube_vertices_textured[i * 9 + 2];
+				verts[i].xyzw[3] = cube_vertices_textured[i * 9 + 3];
+				verts[i].normal[0] = cube_vertices_textured[i * 9 + 4];
+				verts[i].normal[1] = cube_vertices_textured[i * 9 + 5];
+				verts[i].normal[2] = cube_vertices_textured[i * 9 + 6];
+				verts[i].uv[0] = cube_vertices_textured[i * 9 + 7] * textureScaling;
+				verts[i].uv[1] = cube_vertices_textured[i * 9 + 8] * textureScaling;
+			}
+
+			glmesh->m_numIndices = numIndices;
+			glmesh->m_numvertices = numVertices;
+
+			
 			break;
 		}
 		case URDF_GEOM_SPHERE:
@@ -322,6 +361,49 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 			{
 				case UrdfGeometry::MEMORY_VERTICES:
 				{
+					glmesh = new GLInstanceGraphicsShape;
+					//		int index = 0;
+					glmesh->m_indices = new b3AlignedObjectArray<int>();
+					glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+					glmesh->m_vertices->resize(visual->m_geometry.m_vertices.size());
+					glmesh->m_indices->resize(visual->m_geometry.m_indices.size());
+
+					for (int i = 0; i < visual->m_geometry.m_vertices.size(); i++)
+					{
+						glmesh->m_vertices->at(i).xyzw[0] = visual->m_geometry.m_vertices[i].x();
+						glmesh->m_vertices->at(i).xyzw[1] = visual->m_geometry.m_vertices[i].y();
+						glmesh->m_vertices->at(i).xyzw[2] = visual->m_geometry.m_vertices[i].z();
+						glmesh->m_vertices->at(i).xyzw[3] = 1;
+						btVector3 normal(visual->m_geometry.m_vertices[i]);
+						if (visual->m_geometry.m_normals.size() == visual->m_geometry.m_vertices.size())
+						{
+							normal = visual->m_geometry.m_normals[i];
+						}
+						else
+						{
+							normal.safeNormalize();
+						}
+
+						btVector3 uv(0.5, 0.5, 0);
+						if (visual->m_geometry.m_uvs.size() == visual->m_geometry.m_vertices.size())
+						{
+							uv = visual->m_geometry.m_uvs[i];
+						}
+						glmesh->m_vertices->at(i).normal[0] = normal[0];
+						glmesh->m_vertices->at(i).normal[1] = normal[1];
+						glmesh->m_vertices->at(i).normal[2] = normal[2];
+						glmesh->m_vertices->at(i).uv[0] = uv[0];
+						glmesh->m_vertices->at(i).uv[1] = uv[1];
+
+					}
+					for (int i = 0; i < visual->m_geometry.m_indices.size(); i++)
+					{
+						glmesh->m_indices->at(i) = visual->m_geometry.m_indices[i];
+
+					}
+					glmesh->m_numIndices = visual->m_geometry.m_indices.size();
+					glmesh->m_numvertices = visual->m_geometry.m_vertices.size();
+
 					break;
 				}
 				case UrdfGeometry::FILE_OBJ:
@@ -569,12 +651,13 @@ static btVector4 sColors[4] =
 		//btVector4(1,1,0,1),
 };
 
-void TinyRendererVisualShapeConverter::convertVisualShapes(
+int  TinyRendererVisualShapeConverter::convertVisualShapes(
 	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, 
-	const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUniqueId, 
+	const UrdfLink* linkPtr, const UrdfModel* model, int unused, 
 	int bodyUniqueId, struct CommonFileIOInterface* fileIO)
 
 {
+	int uniqueId = m_data->m_uidGenerator++;
 	btAssert(linkPtr);  // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
 	{
@@ -662,12 +745,12 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 				}
 			}
 
-			TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+			TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[uniqueId];
 			if (visualsPtr == 0)
 			{
-				m_data->m_swRenderInstances.insert(collisionObjectUniqueId, new TinyRendererObjectArray);
+				m_data->m_swRenderInstances.insert(uniqueId, new TinyRendererObjectArray);
 			}
-			visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+			visualsPtr = m_data->m_swRenderInstances[uniqueId];
 
 			btAssert(visualsPtr);
 			TinyRendererObjectArray* visuals = *visualsPtr;
@@ -741,6 +824,8 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 			shapes->push_back(visualShape);
 		}
 	}
+
+	return uniqueId;
 }
 
 int TinyRendererVisualShapeConverter::getNumVisualShapes(int bodyUniqueId)
@@ -1233,6 +1318,7 @@ int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename, stru
 					buffer.resize(0);
 				}
 			}
+			fileIO->fileClose(fileId);
 		}
 		if (buffer.size())
 		{

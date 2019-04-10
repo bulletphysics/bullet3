@@ -1260,13 +1260,15 @@ bool convertGRPCToStatus(const PyBulletStatus& grpcReply, SharedMemoryStatus& se
 			serverStatus.m_sendActualStateArgs.m_numDegreeOfFreedomQ = numDegreeOfFreedomQ;
 			serverStatus.m_sendActualStateArgs.m_numDegreeOfFreedomU = numDegreeOfFreedomU;
 
+			serverStatus.m_sendActualStateArgs.m_stateDetails = (SendActualStateSharedMemoryStorage*)bufferServerToClient;
+			
 			for (int i = 0; i < numDegreeOfFreedomQ; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_actualStateQ[i] = stat->actualstateq(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_actualStateQ[i] = stat->actualstateq(i);
 			}
 			for (int i = 0; i < numDegreeOfFreedomU; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_actualStateQdot[i] = stat->actualstateqdot(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_actualStateQdot[i] = stat->actualstateqdot(i);
 			}
 			for (int i = 0; i < 7; i++)
 			{
@@ -1274,23 +1276,23 @@ bool convertGRPCToStatus(const PyBulletStatus& grpcReply, SharedMemoryStatus& se
 			}
 			for (int i = 0; i < numLinks * 6; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_linkLocalInertialFrames[i] = stat->linklocalinertialframes(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_linkLocalInertialFrames[i] = stat->linklocalinertialframes(i);
 			}
 			for (int i = 0; i < numLinks * 6; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_jointReactionForces[i] = stat->jointreactionforces(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_jointReactionForces[i] = stat->jointreactionforces(i);
 			}
 			for (int i = 0; i < numLinks; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_jointMotorForce[i] = stat->jointmotorforce(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_jointMotorForce[i] = stat->jointmotorforce(i);
 			}
 			for (int i = 0; i < numLinks * 7; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_linkState[i] = stat->linkstate(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_linkState[i] = stat->linkstate(i);
 			}
 			for (int i = 0; i < numLinks * 6; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_linkWorldVelocities[i] = stat->linkworldvelocities(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_linkWorldVelocities[i] = stat->linkworldvelocities(i);
 			}
 
 			break;

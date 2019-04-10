@@ -36,7 +36,6 @@ typedef unsigned long long int smUint64_t;
 #define MAX_SDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
-#define MAX_USER_DATA_KEY_LENGTH MAX_URDF_FILENAME_LENGTH
 
 
 struct TmpFloat3
@@ -164,6 +163,9 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_CCD_SWEPT_SPHERE_RADIUS = 2048,
 	CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD = 4096,
 	CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE = 8192,
+	CHANGE_DYNAMICS_INFO_SET_JOINT_DAMPING = 16384,
+	CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION = 32768,
+	CHANGE_DYNAMICS_INFO_SET_MAX_JOINT_VELOCITY = 1<<16,	
 };
 
 struct ChangeDynamicsInfoArgs
@@ -185,6 +187,9 @@ struct ChangeDynamicsInfoArgs
 	double m_ccdSweptSphereRadius;
 	double m_contactProcessingThreshold;
 	int m_activationState;
+	double m_jointDamping;
+	double m_anisotropicFriction[3];
+	double m_maxJointVelocity;
 };
 
 struct GetDynamicsInfoArgs
@@ -445,7 +450,7 @@ enum EnumSimDesiredStateUpdateFlags
 	SIM_DESIRED_STATE_HAS_KD = 4,
 	SIM_DESIRED_STATE_HAS_KP = 8,
 	SIM_DESIRED_STATE_HAS_MAX_FORCE = 16,
-	SIM_DESIRED_STATE_HAS_RHS_CLAMP = 32
+	SIM_DESIRED_STATE_HAS_RHS_CLAMP = 32,
 };
 
 enum EnumSimParamUpdateFlags
@@ -521,7 +526,12 @@ struct SendActualStateArgs
 	int m_numDegreeOfFreedomU;
 
 	double m_rootLocalInertialFrame[7];
+	struct SendActualStateSharedMemoryStorage* m_stateDetails;
 
+};
+
+struct SendActualStateSharedMemoryStorage
+{
 	//actual state is only written by the server, read-only access by client is expected
 	double m_actualStateQ[MAX_DEGREE_OF_FREEDOM];
 	double m_actualStateQdot[MAX_DEGREE_OF_FREEDOM];
@@ -530,6 +540,7 @@ struct SendActualStateArgs
 	double m_jointReactionForces[6 * MAX_DEGREE_OF_FREEDOM];
 
 	double m_jointMotorForce[MAX_DEGREE_OF_FREEDOM];
+	double m_jointMotorForceMultiDof[MAX_DEGREE_OF_FREEDOM];
 
 	double m_linkState[7 * MAX_NUM_LINKS];
 	double m_linkWorldVelocities[6 * MAX_NUM_LINKS];  //linear velocity and angular velocity in world space (x/y/z each).
@@ -658,10 +669,12 @@ enum EnumSdfRequestInfoFlags
 struct CalculateInverseDynamicsArgs
 {
 	int m_bodyUniqueId;
-
+	int m_dofCountQ;
+	int m_dofCountQdot;
 	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
 	double m_jointVelocitiesQdot[MAX_DEGREE_OF_FREEDOM];
 	double m_jointAccelerations[MAX_DEGREE_OF_FREEDOM];
+	int m_flags;
 };
 
 struct CalculateInverseDynamicsResultArgs
@@ -692,6 +705,8 @@ struct CalculateMassMatrixArgs
 {
 	int m_bodyUniqueId;
 	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
+	int m_dofCountQ;
+	int m_flags;
 };
 
 struct CalculateMassMatrixResultArgs
@@ -927,9 +942,9 @@ struct b3CreateUserShapeData
 	int m_collisionFlags;
 	int m_visualFlags;
 	int m_numVertices;
-	double m_vertices[B3_MAX_NUM_VERTICES*3];
 	int m_numIndices;
-	int m_indices[B3_MAX_NUM_INDICES];
+	int m_numUVs;
+	int m_numNormals;
 	double m_rgbaColor[4];
 	double m_specularColor[3];
 };
@@ -975,14 +990,8 @@ struct b3CreateMultiBodyArgs
 	int m_linkJointTypes[MAX_CREATE_MULTI_BODY_LINKS];
 	double m_linkJointAxis[3 * MAX_CREATE_MULTI_BODY_LINKS];
 	int m_flags;
-#if 0
-	std::string m_name;
-	std::string m_sourceFile;
-    btTransform m_rootTransformInWorld;
-	btHashMap<btHashString, UrdfMaterial*> m_materials;
-	btHashMap<btHashString, UrdfLink*> m_links;
-	btHashMap<btHashString, UrdfJoint*> m_joints;
-#endif
+	int m_numBatchObjects;
+
 };
 
 struct b3CreateMultiBodyResultArgs

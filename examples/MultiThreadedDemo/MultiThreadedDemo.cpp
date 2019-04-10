@@ -22,6 +22,7 @@ subject to the following restrictions:
 
 #include <stdio.h>  //printf debugging
 #include <algorithm>
+#include <cmath>
 
 static btScalar gSliderStackRows = 1.0f;
 static btScalar gSliderStackColumns = 1.0f;
@@ -107,7 +108,7 @@ public:
 				// update ground
 				const float cyclesPerSecond = 1.0f;
 				m_groundMovePhase += cyclesPerSecond * deltaTime;
-				m_groundMovePhase -= floor(m_groundMovePhase);  // keep phase between 0 and 1
+				m_groundMovePhase -= std::floor(m_groundMovePhase);  // keep phase between 0 and 1
 				btTransform xf = m_groundStartXf;
 				float gndHOffset = btSin(m_groundMovePhase * SIMD_2_PI) * gSliderGroundHorizontalAmplitude;
 				float gndHVel = btCos(m_groundMovePhase * SIMD_2_PI) * gSliderGroundHorizontalAmplitude * cyclesPerSecond * SIMD_2_PI;  // d(gndHOffset)/dt

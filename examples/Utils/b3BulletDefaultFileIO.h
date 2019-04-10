@@ -186,6 +186,11 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 		}
 		return size;
 	}
+
+	virtual void enableFileCaching(bool enable)
+	{
+		(void) enable;
+	}
 };
 
 #endif //B3_BULLET_DEFAULT_FILE_IO_H

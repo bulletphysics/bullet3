@@ -17,7 +17,8 @@ struct SharedMemoryCommandProcessorInternalData
 	bool m_waitingForServer;
 	SharedMemoryStatus m_lastServerStatus;
 	SharedMemoryBlock* m_testBlock1;
-
+	SendActualStateSharedMemoryStorage m_cachedState;
+	
 	SharedMemoryCommandProcessorInternalData()
 		: m_sharedMemoryKey(SHARED_MEMORY_KEY),
 		  m_isConnected(false),
@@ -160,6 +161,14 @@ bool SharedMemoryCommandProcessor::receiveStatus(struct SharedMemoryStatus& serv
 				 m_data->m_testBlock1->m_numProcessedServerCommands + 1);
 
 		const SharedMemoryStatus& serverCmd = m_data->m_testBlock1->m_serverCommands[0];
+		if (serverCmd.m_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+		{
+			SendActualStateSharedMemoryStorage* serverState = (SendActualStateSharedMemoryStorage*)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
+			m_data->m_cachedState = *serverState;
+			//ideally we provided a 'getCachedState' but that would require changing the API, so we store a pointer instead.
+			m_data->m_testBlock1->m_serverCommands[0].m_sendActualStateArgs.m_stateDetails = &m_data->m_cachedState;
+		}
+
 		m_data->m_lastServerStatus = serverCmd;
 		m_data->m_lastServerStatus.m_dataStream = m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
 

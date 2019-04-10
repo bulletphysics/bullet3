@@ -13,8 +13,24 @@ IF(BUILD_PYBULLET_NUMPY)
 	)
 ENDIF()
 
+ADD_DEFINITIONS(-DSTATIC_LINK_SPD_PLUGIN)
+
 SET(pybullet_SRCS
 	pybullet.c
+	../../examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/SpAlg.h
+        ../../examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/Shape.h
+        ../../examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.h
+        ../../examples/SharedMemory/plugins/stablePDPlugin/RBDModel.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/RBDModel.h
+        ../../examples/SharedMemory/plugins/stablePDPlugin/MathUtil.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/MathUtil.h
+        ../../examples/SharedMemory/plugins/stablePDPlugin/KinTree.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/KinTree.h
+        ../../examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.cpp
+        ../../examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.h
 		../../examples/SharedMemory/plugins/collisionFilterPlugin/collisionFilterPlugin.cpp
 		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp
 		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h
@@ -163,9 +179,26 @@ IF(WIN32)
 	SET_TARGET_PROPERTIES(pybullet PROPERTIES SUFFIX ".pyd" )
 ENDIF(WIN32)
 
+IF (APPLE)
+  SET_TARGET_PROPERTIES(pybullet PROPERTIES SUFFIX ".so" )
+ENDIF()
 
 
 
-TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common ${PYTHON_LIBRARIES})
+TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common)
 
+IF (WIN32)
+  TARGET_LINK_LIBRARIES(pybullet ${PYTHON_LIBRARIES})
+ELSEIF (APPLE)
+  SET_TARGET_PROPERTIES(pybullet PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+ENDIF ()
+# else Linux: dont link
+
+IF(WIN32)
+  SET(PYTHON_SITE_PACKAGES Lib/site-packages CACHE PATH "Python install path")
+ELSE()
+  SET(PYTHON_SITE_PACKAGES lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages CACHE PATH "Python install path")
+ENDIF()
+
+INSTALL(TARGETS pybullet DESTINATION ${PYTHON_SITE_PACKAGES})
 

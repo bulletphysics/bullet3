@@ -1,0 +1,93 @@
+<?xml version="1.0" ?>
+<robot name="cube">
+	<link name="world"/>
+	
+	<link name="x_prismatic">
+	 <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.2125" ixy="-0.005" ixz="0.0225" iyy="0.205" iyz="0.045" izz="0.0125"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </inertial>
+	</link>
+	
+	<joint name="x_to_world" type="prismatic">
+    <parent link="world"/>
+    <child link="x_prismatic"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="0.0" lower="1" upper="-1" velocity="1000.0"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+    
+	<link name="y_prismatic">
+	 <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.2125" ixy="-0.005" ixz="0.0225" iyy="0.205" iyz="0.045" izz="0.0125"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </inertial>
+	</link>
+	
+	<joint name="y_to_x" type="prismatic">
+    <parent link="x_prismatic"/>
+    <child link="y_prismatic"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0.0" lower="1" upper="-1" velocity="1000.0"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  
+  <link name="z_prismatic">
+	 <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.2125" ixy="-0.005" ixz="0.0225" iyy="0.205" iyz="0.045" izz="0.0125"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </inertial>
+	</link>
+	
+	<joint name="z_to_y" type="prismatic">
+    <parent link="y_prismatic"/>
+    <child link="z_prismatic"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="0.0" lower="1" upper="-1" velocity="1000.0"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  
+  
+  <link name="baseLink">
+    <contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <contact_cfm value="0.0"/>
+      <contact_erp value="1.0"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value=".1"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+				<mesh filename="cube.obj" scale="1 1 1"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+	<joint name="cube_to_z" type="continuous">
+    <parent link="z_prismatic"/>
+    <child link="baseLink"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0.0" lower="1" upper="-1" velocity="1000.0"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+    
+</robot>
+

@@ -15,7 +15,7 @@ struct UrdfRenderingInterface
 	virtual ~UrdfRenderingInterface() {}
 	///given a URDF link, convert all visual shapes into internal renderer (loading graphics meshes, textures etc)
 	///use the collisionObjectUid as a unique identifier to synchronize the world transform and to remove the visual shape.
-	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUniqueId, int bodyUniqueId, struct CommonFileIOInterface* fileIO) = 0;
+	virtual int convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUniqueId, int bodyUniqueId, struct CommonFileIOInterface* fileIO) = 0;
 
 	///remove a visual shapes, based on the shape unique id (shapeUid)
 	virtual void removeVisualShape(int collisionObjectUid) = 0;
@@ -95,6 +95,13 @@ struct UrdfRenderingInterface
 
 	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]) {}
 	virtual void setProjectiveTexture(bool useProjectiveTexture) {}
+
+
+	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3], float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float cameraTarget[3]) const
+	{
+		return false;
+	}
+
 };
 
 #endif  //LINK_VISUAL_SHAPES_CONVERTER_H

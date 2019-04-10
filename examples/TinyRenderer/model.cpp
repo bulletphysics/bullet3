@@ -1,10 +1,11 @@
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include "model.h"
-#include "Bullet3Common/b3Logging.h"
 #include <string.h>  // memcpy
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include "Bullet3Common/b3Logging.h"
 Model::Model(const char *filename) : verts_(), faces_(), norms_(), uv_(), diffusemap_(), normalmap_(), specularmap_()
 {
 	std::ifstream in;
@@ -159,10 +160,10 @@ TGAColor Model::diffuse(Vec2f uvf)
 		//		bool repeat = true;
 		//		if (repeat)
 		{
-			uvf[0] = modf(uvf[0], &val);
-			uvf[1] = modf(uvf[1], &val);
-		}
-		Vec2i uv(uvf[0] * diffusemap_.get_width(), uvf[1] * diffusemap_.get_height());
+                  uvf[0] = std::modf(uvf[0], &val);
+                  uvf[1] = std::modf(uvf[1], &val);
+                }
+                Vec2i uv(uvf[0] * diffusemap_.get_width(), uvf[1] * diffusemap_.get_height());
 		return diffusemap_.get(uv[0], uv[1]);
 	}
 	return TGAColor(255, 255, 255, 255);

@@ -21,6 +21,12 @@ inline char* strDup(const char* const str)
 template <typename T, typename U>
 void addJointInfoFromMultiBodyData(const T* mb, U* bodyJoints, bool verboseOutput)
 {
+	int numDofs = 0;
+	if (mb->m_baseMass>0)
+	{
+		numDofs = 6;
+	}
+
 	if (mb->m_baseName)
 	{
 		if (verboseOutput)
@@ -107,7 +113,9 @@ void addJointInfoFromMultiBodyData(const T* mb, U* bodyJoints, bool verboseOutpu
 		}
 		qOffset += mb->m_links[link].m_posVarCount;
 		uOffset += mb->m_links[link].m_dofCount;
+		numDofs += mb->m_links[link].m_dofCount;
 	}
+	bodyJoints->m_numDofs = numDofs;
 }
 
 #endif  //BODY_JOINT_INFO_UTILITY_H

@@ -67,6 +67,11 @@ int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
 
 	switch (virtualKeyCode)
 	{
+		case VK_SPACE:
+		{
+			keycode = B3G_SPACE;
+			break;
+		}
 		case VK_RETURN:
 		{
 			keycode = B3G_RETURN;
@@ -531,10 +536,18 @@ void Win32Window::setWindowTitle(const char* titleChar)
 #ifdef _WIN64
 	SetWindowTextA(m_data->m_hWnd, titleChar);
 #else
+#ifdef UNICODE
+	DWORD dwResult;
+	SendMessageTimeoutA(m_data->m_hWnd, WM_SETTEXT, 0,
+		reinterpret_cast<LPARAM>(titleChar),
+		SMTO_ABORTIFHUNG, 2000, &dwResult);
+#else
 	DWORD dwResult;
 	SendMessageTimeout(m_data->m_hWnd, WM_SETTEXT, 0,
-					   reinterpret_cast<LPARAM>(titleChar),
-					   SMTO_ABORTIFHUNG, 2000, &dwResult);
+		reinterpret_cast<LPARAM>(titleChar),
+		SMTO_ABORTIFHUNG, 2000, &dwResult);
+	
+#endif
 #endif
 }
 

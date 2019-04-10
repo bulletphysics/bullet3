@@ -24,7 +24,7 @@ for i in range (1):
 	p.setJointMotorControl2(bike,1,p.VELOCITY_CONTROL,targetVelocity=5, force=0)
 	p.setJointMotorControl2(bike,2,p.VELOCITY_CONTROL,targetVelocity=15, force=20)
 
-	p.changeDynamics(plane,-1, mass=20,lateralFriction=1, linearDamping=0, angularDamping=0)
+	p.changeDynamics(plane,-1, mass=0,lateralFriction=1, linearDamping=0, angularDamping=0)
 	p.changeDynamics(bike,1,lateralFriction=1,linearDamping=0, angularDamping=0)
 	p.changeDynamics(bike,2,lateralFriction=1,linearDamping=0, angularDamping=0)
 	#p.resetJointState(bike,1,0,100)
