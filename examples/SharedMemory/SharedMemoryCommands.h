@@ -957,6 +957,8 @@ struct b3CreateUserShapeArgs
 	b3CreateUserShapeData m_shapes[MAX_COMPOUND_COLLISION_SHAPES];
 };
 
+
+
 struct b3CreateUserShapeResultArgs
 {
 	int m_userShapeUniqueId;
@@ -1180,6 +1182,7 @@ struct SharedMemoryStatus
 		struct SyncUserDataArgs m_syncUserDataArgs;
 		struct UserDataResponseArgs m_userDataResponseArgs;
 		struct UserDataRequestArgs m_removeUserDataResponseArgs;
+		struct b3ForwardDynamicsAnalyticsArgs m_forwardDynamicsAnalyticsArgs;
 	};
 };
 

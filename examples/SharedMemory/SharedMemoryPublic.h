@@ -931,6 +931,7 @@ struct b3PhysicsSimulationParameters
 	int m_minimumSolverIslandSize;
 };
 
+
 enum eConstraintSolverTypes
 {
 	eConstraintSolverLCP_SI = 1,
@@ -939,6 +940,25 @@ enum eConstraintSolverTypes
 	eConstraintSolverLCP_LEMKE,
 	eConstraintSolverLCP_NNCG,
 	eConstraintSolverLCP_BLOCK_PGS,
+};
+
+struct b3ForwardDynamicsAnalyticsIslandData
+{
+	int m_islandId;
+	int m_numBodies;
+	int m_numContactManifolds;
+	int m_numIterationsUsed;
+	double m_remainingLeastSquaresResidual;
+};
+
+#define MAX_ISLANDS_ANALYTICS 1024
+
+struct b3ForwardDynamicsAnalyticsArgs
+{
+	int m_numSteps;
+	int m_numIslands;
+	int m_numSolverCalls;
+	struct b3ForwardDynamicsAnalyticsIslandData m_islandData[MAX_ISLANDS_ANALYTICS];
 };
 
 enum eFileIOActions

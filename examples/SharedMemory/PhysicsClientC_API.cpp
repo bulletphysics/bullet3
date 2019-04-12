@@ -2214,6 +2214,19 @@ B3_SHARED_API int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle)
 	return CMD_INVALID_STATUS;
 }
 
+B3_SHARED_API int b3GetStatusForwardDynamicsAnalyticsData(b3SharedMemoryStatusHandle statusHandle, struct b3ForwardDynamicsAnalyticsArgs* analyticsData)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	//b3Assert(status);
+	if (status)
+	{
+		*analyticsData = status->m_forwardDynamicsAnalyticsArgs;
+		return status->m_forwardDynamicsAnalyticsArgs.m_numIslands;
+	}
+	return 0;
+}
+
+
 B3_SHARED_API int b3GetStatusBodyIndices(b3SharedMemoryStatusHandle statusHandle, int* bodyIndicesOut, int bodyIndicesCapacity)
 {
 	int numBodies = 0;

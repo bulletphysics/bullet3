@@ -330,6 +330,28 @@ static PyObject* pybullet_stepSimulation(PyObject* self, PyObject* args, PyObjec
 			statusHandle = b3SubmitClientCommandAndWaitStatus(
 				sm, b3InitStepSimulationCommand(sm));
 			statusType = b3GetStatusType(statusHandle);
+
+			if (statusType == CMD_STEP_FORWARD_SIMULATION_COMPLETED)
+			{
+				struct b3ForwardDynamicsAnalyticsArgs analyticsData;
+				int numIslands = 0;
+				int i;
+				numIslands = b3GetStatusForwardDynamicsAnalyticsData(statusHandle, &analyticsData);
+
+				PyObject* pyAnalyticsData = PyTuple_New(numIslands);
+				for (i=0;i<numIslands;i++)
+				{
+					int numFields = 4;
+					PyObject* pyIslandData = PyTuple_New(numFields);
+					PyTuple_SetItem(pyIslandData, 0, PyLong_FromLong(analyticsData.m_islandData[i].m_islandId));
+					PyTuple_SetItem(pyIslandData, 1, PyLong_FromLong(analyticsData.m_islandData[i].m_numBodies));
+					PyTuple_SetItem(pyIslandData, 2, PyLong_FromLong(analyticsData.m_islandData[i].m_numIterationsUsed));
+					PyTuple_SetItem(pyIslandData, 3, PyFloat_FromDouble(analyticsData.m_islandData[i].m_remainingLeastSquaresResidual));
+					PyTuple_SetItem(pyAnalyticsData, i, pyIslandData);
+				}
+
+				return pyAnalyticsData;
+			}
 		}
 	}
 

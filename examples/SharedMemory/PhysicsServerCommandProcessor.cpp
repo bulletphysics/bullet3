@@ -7605,17 +7605,17 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	}
 
 	btScalar deltaTimeScaled = m_data->m_physicsDeltaTime * simTimeScalingFactor;
-
+	m_data->m_dynamicsWorld->getSolverInfo().m_reportSolverAnalytics = true;
 	int numSteps = 0;
 	if (m_data->m_numSimulationSubSteps > 0)
 	{
 		numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, m_data->m_numSimulationSubSteps, m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps);
-                m_data->m_simulationTimestamp += deltaTimeScaled;
+		m_data->m_simulationTimestamp += deltaTimeScaled;
 	}
 	else
 	{
 		numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, 0);
-                m_data->m_simulationTimestamp += deltaTimeScaled;
+		m_data->m_simulationTimestamp += deltaTimeScaled;
 	}
 
 	if (numSteps > 0)
@@ -7624,6 +7624,24 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	}
 
 	SharedMemoryStatus& serverCmd = serverStatusOut;
+
+	serverCmd.m_forwardDynamicsAnalyticsArgs.m_numSteps = numSteps;
+
+	btAlignedObjectArray<btSolverAnalyticsData> islandAnalyticsData;
+
+	m_data->m_dynamicsWorld->getAnalyticsData(islandAnalyticsData);
+	serverCmd.m_forwardDynamicsAnalyticsArgs.m_numIslands = islandAnalyticsData.size();
+	int numIslands = btMin(islandAnalyticsData.size(), MAX_ISLANDS_ANALYTICS);
+	
+	for (int i=0;i<numIslands;i++)
+	{
+		serverCmd.m_forwardDynamicsAnalyticsArgs.m_numSolverCalls = islandAnalyticsData[i].m_numSolverCalls;
+		serverCmd.m_forwardDynamicsAnalyticsArgs.m_islandData[i].m_islandId = islandAnalyticsData[i].m_islandId;
+		serverCmd.m_forwardDynamicsAnalyticsArgs.m_islandData[i].m_numBodies = islandAnalyticsData[i].m_numBodies;
+		serverCmd.m_forwardDynamicsAnalyticsArgs.m_islandData[i].m_numIterationsUsed = islandAnalyticsData[i].m_numIterationsUsed;
+		serverCmd.m_forwardDynamicsAnalyticsArgs.m_islandData[i].m_remainingLeastSquaresResidual = islandAnalyticsData[i].m_remainingLeastSquaresResidual;
+		serverCmd.m_forwardDynamicsAnalyticsArgs.m_islandData[i].m_numContactManifolds = islandAnalyticsData[i].m_numContactManifolds;
+	}
 	serverCmd.m_type = CMD_STEP_FORWARD_SIMULATION_COMPLETED;
 
 	return hasStatus;
