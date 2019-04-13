@@ -96,6 +96,7 @@ class MJCFBaseBulletEnv(gym.Env):
 			renderer=pybullet.ER_BULLET_HARDWARE_OPENGL
 			)
 		rgb_array = np.array(px)
+		rgb_array = np.reshape(np.array(px), (self._render_height, self._render_width, -1))
 		rgb_array = rgb_array[:, :, :3]
 		return rgb_array
 
