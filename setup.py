@@ -370,6 +370,8 @@ if _platform == "linux" or _platform == "linux2":
     CXX_FLAGS += '-DDYNAMIC_LOAD_X11_FUNCTIONS '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
     CXX_FLAGS += '-fno-inline-functions-called-once '
+    CXX_FLAGS += '-fvisibility=hidden '
+    CXX_FLAGS += '-fvisibility-inlines-hidden '
     EGL_CXX_FLAGS += '-DBT_USE_EGL '
     EGL_CXX_FLAGS += '-fPIC ' # for plugins
 

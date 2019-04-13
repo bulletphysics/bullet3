@@ -736,6 +736,7 @@ void btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 				m_scratch_v.resize(bod->getNumLinks() + 1);
 				m_scratch_m.resize(bod->getNumLinks() + 1);
 
+				if (bod->internalNeedsJointFeedback())
 				{
 					if (!bod->isUsingRK4Integration())
 					{
