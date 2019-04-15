@@ -274,7 +274,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 		{
 			///we don't split islands, so all constraints/contact manifolds/bodies are passed into the solver regardless the island id
 			m_solver->solveMultiBodyGroup(bodies, numBodies, manifolds, numManifolds, m_sortedConstraints, m_numConstraints, &m_multiBodySortedConstraints[0], m_numConstraints, *m_solverInfo, m_debugDrawer, m_dispatcher);
-			if (m_solverInfo->m_reportSolverAnalytics)
+			if (m_solverInfo->m_reportSolverAnalytics&1)
 			{
 				m_solver->m_analyticsData.m_islandId = islandId;
 				m_islandAnalyticsData.push_back(m_solver->m_analyticsData);
@@ -363,7 +363,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 		//printf("mb contacts = %d, mb constraints = %d\n", mbContacts, m_multiBodyConstraints.size());
 
 		m_solver->solveMultiBodyGroup(bodies, m_bodies.size(), manifold, m_manifolds.size(), constraints, m_constraints.size(), multiBodyConstraints, m_multiBodyConstraints.size(), *m_solverInfo, m_debugDrawer, m_dispatcher);
-		if (m_bodies.size() && m_solverInfo->m_reportSolverAnalytics)
+		if (m_bodies.size() && (m_solverInfo->m_reportSolverAnalytics&1))
 		{
 			m_solver->m_analyticsData.m_islandId = islandId;
 			m_islandAnalyticsData.push_back(m_solver->m_analyticsData);
