@@ -36,8 +36,11 @@ class QuadrupedPoseInterpolator(object):
     self._baseOrn = bullet_client.getQuaternionSlerp(baseOrn1Start,baseOrn1Next,frameFraction)
     self._baseAngVel = self.ComputeAngVel(baseOrn1Start,baseOrn1Next, keyFrameDuration, bullet_client)
     
-    jointPositions=[]
-    jointVelocities=[]
+    jointPositions=[self._basePos[0],self._basePos[1],self._basePos[2],
+       self._baseOrn[0],self._baseOrn[1],self._baseOrn[2],self._baseOrn[3]]
+    jointVelocities=[self._baseLinVel[0],self._baseLinVel[1],self._baseLinVel[2],
+      self._baseAngVel[0],self._baseAngVel[1],self._baseAngVel[2]]
+    
     for j in range (12):
       index=j+8
       jointPosStart=frameData[index]

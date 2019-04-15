@@ -903,7 +903,7 @@ struct b3PluginArguments
 struct b3PhysicsSimulationParameters
 {
 	double m_deltaTime;
-        double m_simulationTimestamp;  // Output only timestamp of simulation.
+	double m_simulationTimestamp;  // user logging timestamp of simulation.
 	double m_gravityAcceleration[3];
 	int m_numSimulationSubSteps;
 	int m_numSolverIterations;
@@ -929,7 +929,9 @@ struct b3PhysicsSimulationParameters
 	int m_enableSAT;
 	int m_constraintSolverType;
 	int m_minimumSolverIslandSize;
+	int m_reportSolverAnalytics;
 };
+
 
 enum eConstraintSolverTypes
 {
@@ -939,6 +941,25 @@ enum eConstraintSolverTypes
 	eConstraintSolverLCP_LEMKE,
 	eConstraintSolverLCP_NNCG,
 	eConstraintSolverLCP_BLOCK_PGS,
+};
+
+struct b3ForwardDynamicsAnalyticsIslandData
+{
+	int m_islandId;
+	int m_numBodies;
+	int m_numContactManifolds;
+	int m_numIterationsUsed;
+	double m_remainingLeastSquaresResidual;
+};
+
+#define MAX_ISLANDS_ANALYTICS 1024
+
+struct b3ForwardDynamicsAnalyticsArgs
+{
+	int m_numSteps;
+	int m_numIslands;
+	int m_numSolverCalls;
+	struct b3ForwardDynamicsAnalyticsIslandData m_islandData[MAX_ISLANDS_ANALYTICS];
 };
 
 enum eFileIOActions

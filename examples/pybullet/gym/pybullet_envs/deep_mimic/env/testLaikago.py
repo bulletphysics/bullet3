@@ -1,15 +1,19 @@
-import pybullet as p
+import pybullet as p1
+from pybullet_utils import bullet_client
 import pybullet_data
+from pybullet_utils import pd_controller_stable
 
 import time
 import motion_capture_data
 import quadrupedPoseInterpolator
 
-p.connect(p.GUI)
+useConstraints = False
+  
+p =  bullet_client.BulletClient(connection_mode=p1.GUI)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 plane = p.loadURDF("plane.urdf")
-p.setGravity(0,0,-9.8)
+p.setGravity(0,0,-10)
 timeStep=1./500
 p.setTimeStep(timeStep)
 #p.setDefaultContactERP(0)
@@ -21,7 +25,10 @@ startPos=[0.007058990464444105, 0.03149299192130908, 0.4918981912395484]
 startOrn=[0.005934649695708604, 0.7065453990917289, 0.7076373820553712, -0.0027774940359030264]
 quadruped = p.loadURDF("laikago/laikago.urdf",startPos,startOrn, flags = urdfFlags,useFixedBase=False)
 p.resetBasePositionAndOrientation(quadruped,startPos,startOrn)
-
+if not useConstraints:
+  for j in range(p.getNumJoints(quadruped)):
+    p.setJointMotorControl2(quadruped,j,p.POSITION_CONTROL,force=0)
+  
 #This cube is added as a soft constraint to keep the laikago from falling 
 #since we didn't train it yet, it doesn't balance
 cube = p.loadURDF("cube_no_rotation.urdf",[0,0,-0.5],[0,0.5,0.5,0])
@@ -117,6 +124,7 @@ print("mocapData.KeyFrameDuraction=",mocapData.KeyFrameDuraction())
 print("mocapData.getCycleTime=",mocapData.getCycleTime())
 print("mocapData.computeCycleOffset=",mocapData.computeCycleOffset())
 
+stablePD = pd_controller_stable.PDControllerStable(p)
 
 cycleTime = mocapData.getCycleTime()
 t=0
@@ -146,12 +154,50 @@ while t<10.*cycleTime:
   frameData = mocapData._motion_data['Frames'][frame]
   frameDataNext = mocapData._motion_data['Frames'][frameNext]
     
-  joints,qdot=qpi.Slerp(frameFraction, frameData, frameDataNext, p)
+  jointsStr,qdot=qpi.Slerp(frameFraction, frameData, frameDataNext, p)
   
   maxForce = p.readUserDebugParameter(maxForceId)
-  for j in range (12):
-    targetPos = float(joints[j])
-    p.setJointMotorControl2(quadruped,jointIds[j],p.POSITION_CONTROL,jointDirections[j]*targetPos+jointOffsets[j], force=maxForce)
+  print("jointIds=",jointIds)
+
+  if useConstraints:
+    for j in range (12):
+      #skip the base positional dofs
+      targetPos = float(jointsStr[j+7])
+      p.setJointMotorControl2(quadruped,jointIds[j],p.POSITION_CONTROL,jointDirections[j]*targetPos+jointOffsets[j], force=maxForce)
+    
+  else:
+    desiredPositions=[]
+    for j in range (7):
+      targetPosUnmodified = float(jointsStr[j])
+      desiredPositions.append(targetPosUnmodified)
+    for j in range (12):
+      targetPosUnmodified = float(jointsStr[j+7])
+      targetPos=jointDirections[j]*targetPosUnmodified+jointOffsets[j]
+      desiredPositions.append(targetPos)
+    numBaseDofs=6
+    totalDofs=12+numBaseDofs
+    desiredVelocities=None
+    if desiredVelocities==None:
+      desiredVelocities = [0]*totalDofs 
+    taus = stablePD.computePD(bodyUniqueId=quadruped, 
+      jointIndices = jointIds,
+      desiredPositions = desiredPositions,
+      desiredVelocities = desiredVelocities,
+      kps = [4000]*totalDofs,
+      kds = [40]*totalDofs,
+      maxForces = [500]*totalDofs, 
+      timeStep=timeStep)
+    
+    dofIndex=6
+    scaling = 1
+    for index in range (len(jointIds)):
+      jointIndex = jointIds[index]
+      force=[scaling*taus[dofIndex]]
+      print("force[", jointIndex,"]=",force)
+      p.setJointMotorControlMultiDof(quadruped, jointIndex, controlMode=p.TORQUE_CONTROL, force=force)
+      dofIndex+=1
+   
+
   p.stepSimulation()
   t+=timeStep
   time.sleep(timeStep)
