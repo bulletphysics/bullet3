@@ -103,7 +103,7 @@ protected:
 	bool m_flipQuadEdges;
 	bool m_useDiamondSubdivision;
 	bool m_useZigzagSubdivision;
-
+	bool m_flipTriangleWinding;
 	int m_upAxis;
 
 	btVector3 m_localScaling;
@@ -158,6 +158,10 @@ public:
 	///could help compatibility with Ogre heightfields. See https://code.google.com/p/bullet/issues/detail?id=625
 	void setUseZigzagSubdivision(bool useZigzagSubdivision = true) { m_useZigzagSubdivision = useZigzagSubdivision; }
 
+	void setFlipTriangleWinding(bool flipTriangleWinding)
+	{
+		m_flipTriangleWinding = flipTriangleWinding;
+	}
 	virtual void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const;
 
 	virtual void processAllTriangles(btTriangleCallback * callback, const btVector3& aabbMin, const btVector3& aabbMax) const;
