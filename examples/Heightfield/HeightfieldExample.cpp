@@ -678,8 +678,9 @@ public:
 		sum_ms = 0;
 	}
 
-	btRaycastBar3(btScalar ray_length, btScalar z, btScalar max_y, struct GUIHelperInterface* guiHelper)
+	btRaycastBar3(btScalar ray_length, btScalar z, btScalar max_y, struct GUIHelperInterface* guiHelper, int upAxisIndex)
 	{
+		
 		m_guiHelper = guiHelper;
 		frame_counter = 0;
 		ms = 0;
@@ -697,14 +698,24 @@ public:
 		{
 			btScalar alpha = dalpha * i;
 			// rotate around by alpha degrees y
-			btQuaternion q(btVector3(0.0, 1.0, 0.0), alpha);
+			btVector3 upAxis(0, 0, 0);
+			upAxis[upAxisIndex] = 1;
+
+			btQuaternion q(upAxis, alpha);
 			direction[i] = btVector3(1.0, 0.0, 0.0);
 			direction[i] = quatRotate(q, direction[i]);
 			direction[i] = direction[i] * ray_length;
 
-			source[i] = btVector3(min_x, max_y, z);
+			if (upAxisIndex == 1)
+			{
+				source[i] = btVector3(min_x, max_y, z);
+			}
+			else
+			{
+				source[i] = btVector3(min_x, z, max_y);
+			}
 			dest[i] = source[i] + direction[i];
-			dest[i][1] = -1000;
+			dest[i][upAxisIndex] = -1000;
 			normal[i] = btVector3(1.0, 0.0, 0.0);
 		}
 	}
@@ -922,10 +933,12 @@ void HeightfieldExample::initPhysics()
 	
 	createEmptyDynamicsWorld();
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-	raycastBar = btRaycastBar3(2500.0, 0, 2.0, m_guiHelper);
-	// set up basic state
-	m_upAxis = 1;		// start with Y-axis as "up"
+	m_upAxis = 2;		// start with Y-axis as "up"
+	m_guiHelper->setUpAxis(m_upAxis);
 
+	raycastBar = btRaycastBar3(2500.0, 0, 2.0, m_guiHelper, m_upAxis);
+	// set up basic state
+	
 
 	m_type = PHY_FLOAT;// SHORT;
 	m_model = gHeightfieldType;
@@ -970,7 +983,9 @@ void HeightfieldExample::resetPhysics(void)
 			m_minHeight, m_maxHeight,
 			m_upAxis, m_type, flipQuadEdges);
 	btAssert(m_heightfieldShape && "null heightfield");
-
+	
+	if (m_upAxis == 2)
+		m_heightfieldShape->setFlipTriangleWinding(true);
 	//buildAccelerator is optional, it may not support all features.
 	m_heightfieldShape->buildAccelerator();
 
