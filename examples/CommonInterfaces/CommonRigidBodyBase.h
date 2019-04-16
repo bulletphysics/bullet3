@@ -439,12 +439,15 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 
 	virtual void renderScene()
 	{
+		if (m_dynamicsWorld)
 		{
-			m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
-		}
+			{
+				m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
+			}
 
-		{
-			m_guiHelper->render(m_dynamicsWorld);
+			{
+				m_guiHelper->render(m_dynamicsWorld);
+			}
 		}
 	}
 };

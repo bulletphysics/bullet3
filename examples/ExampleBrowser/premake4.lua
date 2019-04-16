@@ -169,6 +169,7 @@ project "App_BulletExampleBrowser"
 		"../Collision/Internal/*",
 		"../Benchmarks/*",
 		"../MultiThreadedDemo/*",
+		"../Heightfield/HeightfieldExample.*",
 		"../CommonInterfaces/*.h",
 		"../ForkLift/ForkLiftDemo.*",
 		"../Importers/**",

@@ -903,7 +903,7 @@ struct b3PluginArguments
 struct b3PhysicsSimulationParameters
 {
 	double m_deltaTime;
-        double m_simulationTimestamp;  // Output only timestamp of simulation.
+	double m_simulationTimestamp;  // user logging timestamp of simulation.
 	double m_gravityAcceleration[3];
 	int m_numSimulationSubSteps;
 	int m_numSolverIterations;
@@ -929,6 +929,7 @@ struct b3PhysicsSimulationParameters
 	int m_enableSAT;
 	int m_constraintSolverType;
 	int m_minimumSolverIslandSize;
+	int m_reportSolverAnalytics;
 };
 
 

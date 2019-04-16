@@ -1567,8 +1567,9 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 	double globalCFM = -1;
 
 	int minimumSolverIslandSize = -1;
-
+	int reportSolverAnalytics = -1;
 	int physicsClientId = 0;
+
 	static char* kwlist[] = {"fixedTimeStep",
 							 "numSolverIterations",
 							 "useSplitImpulse",
@@ -1592,10 +1593,12 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 							 "constraintSolverType",
 							 "globalCFM",
 							 "minimumSolverIslandSize",
+							 "reportSolverAnalytics",
 							 "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiididdiidii", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
-									 &collisionFilterMode, &contactBreakingThreshold, &maxNumCmdPer1ms, &enableFileCaching, &restitutionVelocityThreshold, &erp, &contactERP, &frictionERP, &enableConeFriction, &deterministicOverlappingPairs, &allowedCcdPenetration, &jointFeedbackMode, &solverResidualThreshold, &contactSlop, &enableSAT, &constraintSolverType, &globalCFM, &minimumSolverIslandSize, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiididdiidiii", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
+									 &collisionFilterMode, &contactBreakingThreshold, &maxNumCmdPer1ms, &enableFileCaching, &restitutionVelocityThreshold, &erp, &contactERP, &frictionERP, &enableConeFriction, &deterministicOverlappingPairs, &allowedCcdPenetration, &jointFeedbackMode, &solverResidualThreshold, &contactSlop, &enableSAT, &constraintSolverType, &globalCFM, &minimumSolverIslandSize, 
+									&reportSolverAnalytics, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1711,6 +1714,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		if (globalCFM >= 0)
 		{
 			b3PhysicsParamSetDefaultGlobalCFM(command, globalCFM);
+		}
+		if (reportSolverAnalytics >= 0)
+		{
+			b3PhysicsParamSetSolverAnalytics(command, reportSolverAnalytics);
 		}
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	}

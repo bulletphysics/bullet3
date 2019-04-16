@@ -207,6 +207,8 @@ SET(BulletExampleBrowser_SRCS
 	../MultiThreadedDemo/MultiThreadedDemo.h
 	../MultiThreadedDemo/CommonRigidBodyMTBase.cpp
 	../MultiThreadedDemo/CommonRigidBodyMTBase.h
+	../Heightfield/HeightfieldExample.cpp
+	../Heightfield/HeightfieldExample.h
 	../BlockSolver/btBlockSolver.cpp
 	../BlockSolver/btBlockSolver.h
 	../BlockSolver/BlockSolverExample.cpp

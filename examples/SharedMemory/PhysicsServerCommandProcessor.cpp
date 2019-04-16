@@ -7605,7 +7605,7 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	}
 
 	btScalar deltaTimeScaled = m_data->m_physicsDeltaTime * simTimeScalingFactor;
-	m_data->m_dynamicsWorld->getSolverInfo().m_reportSolverAnalytics = true;
+	
 	int numSteps = 0;
 	if (m_data->m_numSimulationSubSteps > 0)
 	{
@@ -8426,6 +8426,11 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 		m_data->m_pluginManager.getFileIOInterface()->enableFileCaching(clientCmd.m_physSimParamArgs.m_enableFileCaching!=0);
 	}
 
+	if (clientCmd.m_updateFlags & SIM_PARAM_REPORT_CONSTRAINT_SOLVER_ANALYTICS)
+	{
+		m_data->m_dynamicsWorld->getSolverInfo().m_reportSolverAnalytics = clientCmd.m_physSimParamArgs.m_reportSolverAnalytics;
+	}
+	
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
 	return hasStatus;
