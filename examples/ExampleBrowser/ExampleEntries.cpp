@@ -5,6 +5,7 @@
 #include "../BlockSolver/RigidBodyBoxes.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "EmptyExample.h"
+#include "../Heightfield/HeightfieldExample.h"
 #include "../RenderingExamples/RenderInstancingDemo.h"
 #include "../RenderingExamples/CoordinateSystemDemo.h"
 #include "../RenderingExamples/RaytracerSetup.h"
@@ -157,8 +158,8 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Stack MultiBody MLCP PGS", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_MLCP_PGS),
 		ExampleEntry(1, "Stack MultiBody MLCP Dantzig", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_MLCP_DANTZIG),
 		ExampleEntry(1, "Stack MultiBody Block", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_BLOCK),
-		ExampleEntry(1, "Stack RigidBody SI", "Create a stack of blocks, with heavy block at the top", RigidBodyBoxesCreateFunc, BLOCK_SOLVER_SI),
-		ExampleEntry(1, "Stack RigidBody Block", "Create a stack of blocks, with heavy block at the top", RigidBodyBoxesCreateFunc, BLOCK_SOLVER_BLOCK),
+		//ExampleEntry(1, "Stack RigidBody SI", "Create a stack of blocks, with heavy block at the top", RigidBodyBoxesCreateFunc, BLOCK_SOLVER_SI),
+		//ExampleEntry(1, "Stack RigidBody Block", "Create a stack of blocks, with heavy block at the top", RigidBodyBoxesCreateFunc, BLOCK_SOLVER_BLOCK),
 
 		ExampleEntry(0, "Inverse Dynamics"),
 		ExampleEntry(1, "Inverse Dynamics URDF", "Create a btMultiBody from URDF. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc, BT_ID_LOAD_URDF),
@@ -234,6 +235,7 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Convex vs Mesh", "Benchmark the performance and stability of rigid bodies using convex hull collision shapes (btConvexHullShape), resting on a triangle mesh, btBvhTriangleMeshShape.", BenchmarkCreateFunc, 6),
 		ExampleEntry(1, "Raycast", "Benchmark the performance of the btCollisionWorld::rayTest. Note that currently the rays are not rendered.", BenchmarkCreateFunc, 7),
 		ExampleEntry(1, "Convex Pack", "Benchmark the performance of the convex hull primitive.", BenchmarkCreateFunc, 8),
+		ExampleEntry(1, "Heightfield", "Raycast against a btHeightfieldTerrainShape", HeightfieldExampleCreateFunc),
 		//#endif
 
 		ExampleEntry(0, "Importers"),
