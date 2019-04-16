@@ -34,8 +34,6 @@ static const btScalar s_gridHeightScale = 0.02;
 // the singularity at the center of the radial model means we need a lot of
 //   finely-spaced time steps to get the physics right.
 // These numbers are probably too aggressive for a real game!
-static const int s_requestedHz = 180;
-static const float s_engineTimeStep = 1.0 / s_requestedHz;
 
 // delta phase: radians per second
 static const btScalar s_deltaPhase = 0.25 * 2.0 * SIMD_PI;
@@ -81,53 +79,6 @@ getTerrainTypeName
 
 
 
-static const char *
-getDataTypeName
-(
-	PHY_ScalarType type
-)
-{
-	switch (type) {
-	case PHY_UCHAR:
-		return "UnsignedChar";
-
-	case PHY_SHORT:
-		return "Short";
-
-	case PHY_FLOAT:
-		return "Float";
-
-	default:
-		btAssert(!"bad heightfield data type");
-	}
-
-	return NULL;
-}
-
-
-
-static const char *
-getUpAxisName
-(
-	int axis
-)
-{
-	switch (axis) {
-	case 0:
-		return "X";
-
-	case 1:
-		return "Y";
-
-	case 2:
-		return "Z";
-
-	default:
-		btAssert(!"bad up axis");
-	}
-
-	return NULL;
-}
 
 
 
@@ -991,34 +942,6 @@ void HeightfieldExample::initPhysics()
 	
 }
 
-
-
-
-static PHY_ScalarType nextType (PHY_ScalarType type)
-{
-	switch (type)
-	{
-	case PHY_FLOAT:
-		return PHY_SHORT;
-		break;
-	case PHY_SHORT:
-		return PHY_UCHAR;
-		break;
-	case PHY_UCHAR:
-		return PHY_FLOAT;
-		break;
-	}
-	btAssert (0);
-	return PHY_FLOAT;
-}
-
-
-
-static void doPrint(int x, int& y, int dy, const char * text)
-{
-	//GLDebugDrawString(x, y, text);
-	y += dy;
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////
