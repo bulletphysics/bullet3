@@ -303,7 +303,7 @@ randomHeight
 }
 
 
-
+#if 0
 static void
 dumpGrid
 (
@@ -327,7 +327,7 @@ dumpGrid
 		//std::cerr << "\n";
 	}
 }
-
+#endif
 
 
 static void
@@ -460,13 +460,9 @@ getRawHeightfieldData
 		btAssert(!"bad model type");
 	}
 
-	if (0) {
-		// inside if(0) so it keeps compiling but isn't
-		// 	exercised and doesn't cause warnings
-		//		std::cerr << "final grid:\n";
-		dumpGrid(raw, bytesPerElement, type, s_gridSize - 1);
-	}
-
+	//		std::cerr << "final grid:\n";
+	//dumpGrid(raw, bytesPerElement, type, s_gridSize - 1);
+	
 	// find min/max
 	for (int i = 0; i < s_gridSize; ++i) {
 		for (int j = 0; j < s_gridSize; ++j) {
