@@ -116,7 +116,7 @@ joints=[]
 
 mocapData = motion_capture_data.MotionCaptureData()
 
-motionPath = pybullet_data.getDataPath()+"/data/motions/laikago_walk.json"
+motionPath = pybullet_data.getDataPath()+"/data/motions/laikago_walk.txt"
 
 mocapData.Load(motionPath)
 print("mocapData.NumFrames=",mocapData.NumFrames())
