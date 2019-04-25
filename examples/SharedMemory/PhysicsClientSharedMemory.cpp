@@ -1398,12 +1398,51 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			}
 			case CMD_LOAD_SOFT_BODY_FAILED:
 			{
-				b3Warning("loadSoftBody failed");
-				break;
+                            B3_PROFILE("CMD_LOAD_SOFT_BODY_FAILED");
+
+                            if (m_data->m_verboseOutput)
+                            {
+                                b3Printf("Server failed loading the SoftBody...\n");
+                            }
+                            break;
 			}
 			case CMD_LOAD_SOFT_BODY_COMPLETED:
 			{
-				break;
+                          B3_PROFILE("CMD_LOAD_SOFT_BODY_COMPLETED");
+
+                          if (m_data->m_verboseOutput)
+                          {
+                            b3Printf("Server loading the SoftBody OK\n");
+                          }
+                          
+                          b3Assert(serverCmd.m_numDataStreamBytes);
+                          if (serverCmd.m_numDataStreamBytes > 0)
+                          {
+			       bParse::btBulletFile bf(
+                                   this->m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor,
+                                   serverCmd.m_numDataStreamBytes);
+                               bf.setFileDNAisMemoryDNA();
+                               bf.parse(false);
+                               int bodyUniqueId = serverCmd.m_dataStreamArguments.m_bodyUniqueId;
+                               
+                               BodyJointInfoCache* bodyJoints = new BodyJointInfoCache;
+                               m_data->m_bodyJointMap.insert(bodyUniqueId, bodyJoints);
+                               bodyJoints->m_bodyName = serverCmd.m_dataStreamArguments.m_bodyName;
+                               bodyJoints->m_baseName = "baseLink";
+                                        
+                               if (bf.ok())
+                               {
+                                 if (m_data->m_verboseOutput)
+                                 {
+                                   b3Printf("Received robot description ok!\n");
+                                 }
+                               }
+                               else
+                               {
+                                 b3Warning("Robot description not received when loading soft body!");
+                               }
+                          }
+                          break;
 			}
 			case CMD_SYNC_USER_DATA_FAILED:
 			{
