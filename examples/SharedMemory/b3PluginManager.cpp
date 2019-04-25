@@ -112,7 +112,7 @@ struct b3PluginManagerInternalData
 	b3BulletDefaultFileIO m_defaultFileIO;
 	
 	b3PluginManagerInternalData()
-		: m_rpcCommandProcessorInterface(0), m_activeNotificationsBufferIndex(0), m_activeRendererPluginUid(-1), m_activeCollisionPluginUid(-1), m_numNotificationPlugins(0), m_activeFileIOPluginUid(-1)
+		: m_physicsDirect(0), m_rpcCommandProcessorInterface(0), m_activeNotificationsBufferIndex(0), m_activeRendererPluginUid(-1), m_activeCollisionPluginUid(-1), m_numNotificationPlugins(0), m_activeFileIOPluginUid(-1)
 	{
 	}
 };

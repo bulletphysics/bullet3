@@ -34,8 +34,6 @@ static const btScalar s_gridHeightScale = 0.02;
 // the singularity at the center of the radial model means we need a lot of
 //   finely-spaced time steps to get the physics right.
 // These numbers are probably too aggressive for a real game!
-static const int s_requestedHz = 180;
-static const float s_engineTimeStep = 1.0 / s_requestedHz;
 
 // delta phase: radians per second
 static const btScalar s_deltaPhase = 0.25 * 2.0 * SIMD_PI;
@@ -81,53 +79,6 @@ getTerrainTypeName
 
 
 
-static const char *
-getDataTypeName
-(
-	PHY_ScalarType type
-)
-{
-	switch (type) {
-	case PHY_UCHAR:
-		return "UnsignedChar";
-
-	case PHY_SHORT:
-		return "Short";
-
-	case PHY_FLOAT:
-		return "Float";
-
-	default:
-		btAssert(!"bad heightfield data type");
-	}
-
-	return NULL;
-}
-
-
-
-static const char *
-getUpAxisName
-(
-	int axis
-)
-{
-	switch (axis) {
-	case 0:
-		return "X";
-
-	case 1:
-		return "Y";
-
-	case 2:
-		return "Z";
-
-	default:
-		btAssert(!"bad up axis");
-	}
-
-	return NULL;
-}
 
 
 
@@ -352,7 +303,7 @@ randomHeight
 }
 
 
-
+#if 0
 static void
 dumpGrid
 (
@@ -376,7 +327,7 @@ dumpGrid
 		//std::cerr << "\n";
 	}
 }
-
+#endif
 
 
 static void
@@ -509,13 +460,9 @@ getRawHeightfieldData
 		btAssert(!"bad model type");
 	}
 
-	if (0) {
-		// inside if(0) so it keeps compiling but isn't
-		// 	exercised and doesn't cause warnings
-		//		std::cerr << "final grid:\n";
-		dumpGrid(raw, bytesPerElement, type, s_gridSize - 1);
-	}
-
+	//		std::cerr << "final grid:\n";
+	//dumpGrid(raw, bytesPerElement, type, s_gridSize - 1);
+	
 	// find min/max
 	for (int i = 0; i < s_gridSize; ++i) {
 		for (int j = 0; j < s_gridSize; ++j) {
@@ -731,8 +678,9 @@ public:
 		sum_ms = 0;
 	}
 
-	btRaycastBar3(btScalar ray_length, btScalar z, btScalar max_y, struct GUIHelperInterface* guiHelper)
+	btRaycastBar3(btScalar ray_length, btScalar z, btScalar max_y, struct GUIHelperInterface* guiHelper, int upAxisIndex)
 	{
+		
 		m_guiHelper = guiHelper;
 		frame_counter = 0;
 		ms = 0;
@@ -750,14 +698,24 @@ public:
 		{
 			btScalar alpha = dalpha * i;
 			// rotate around by alpha degrees y
-			btQuaternion q(btVector3(0.0, 1.0, 0.0), alpha);
+			btVector3 upAxis(0, 0, 0);
+			upAxis[upAxisIndex] = 1;
+
+			btQuaternion q(upAxis, alpha);
 			direction[i] = btVector3(1.0, 0.0, 0.0);
 			direction[i] = quatRotate(q, direction[i]);
 			direction[i] = direction[i] * ray_length;
 
-			source[i] = btVector3(min_x, max_y, z);
+			if (upAxisIndex == 1)
+			{
+				source[i] = btVector3(min_x, max_y, z);
+			}
+			else
+			{
+				source[i] = btVector3(min_x, z, max_y);
+			}
 			dest[i] = source[i] + direction[i];
-			dest[i][1] = -1000;
+			dest[i][upAxisIndex] = -1000;
 			normal[i] = btVector3(1.0, 0.0, 0.0);
 		}
 	}
@@ -975,10 +933,12 @@ void HeightfieldExample::initPhysics()
 	
 	createEmptyDynamicsWorld();
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-	raycastBar = btRaycastBar3(2500.0, 0, 2.0, m_guiHelper);
-	// set up basic state
-	m_upAxis = 1;		// start with Y-axis as "up"
+	m_upAxis = 2;		// start with Y-axis as "up"
+	m_guiHelper->setUpAxis(m_upAxis);
 
+	raycastBar = btRaycastBar3(2500.0, 0, 2.0, m_guiHelper, m_upAxis);
+	// set up basic state
+	
 
 	m_type = PHY_FLOAT;// SHORT;
 	m_model = gHeightfieldType;
@@ -991,34 +951,6 @@ void HeightfieldExample::initPhysics()
 	
 }
 
-
-
-
-static PHY_ScalarType nextType (PHY_ScalarType type)
-{
-	switch (type)
-	{
-	case PHY_FLOAT:
-		return PHY_SHORT;
-		break;
-	case PHY_SHORT:
-		return PHY_UCHAR;
-		break;
-	case PHY_UCHAR:
-		return PHY_FLOAT;
-		break;
-	}
-	btAssert (0);
-	return PHY_FLOAT;
-}
-
-
-
-static void doPrint(int x, int& y, int dy, const char * text)
-{
-	//GLDebugDrawString(x, y, text);
-	y += dy;
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1051,7 +983,9 @@ void HeightfieldExample::resetPhysics(void)
 			m_minHeight, m_maxHeight,
 			m_upAxis, m_type, flipQuadEdges);
 	btAssert(m_heightfieldShape && "null heightfield");
-
+	
+	if (m_upAxis == 2)
+		m_heightfieldShape->setFlipTriangleWinding(true);
 	//buildAccelerator is optional, it may not support all features.
 	m_heightfieldShape->buildAccelerator();
 

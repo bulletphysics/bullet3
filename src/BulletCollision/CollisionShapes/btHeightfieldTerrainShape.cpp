@@ -71,6 +71,7 @@ void btHeightfieldTerrainShape::initialize(
 	m_flipQuadEdges = flipQuadEdges;
 	m_useDiamondSubdivision = false;
 	m_useZigzagSubdivision = false;
+	m_flipTriangleWinding = false;
 	m_upAxis = upAxis;
 	m_localScaling.setValue(btScalar(1.), btScalar(1.), btScalar(1.));
 	
@@ -335,30 +336,37 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 		for (int x = startX; x < endX; x++)
 		{
 			btVector3 vertices[3];
+			int indices[3] = { 0, 1, 2 };
+			if (m_flipTriangleWinding)
+			{
+				indices[0] = 2;
+				indices[2] = 0;
+			}
+
 			if (m_flipQuadEdges || (m_useDiamondSubdivision && !((j + x) & 1)) || (m_useZigzagSubdivision && !(j & 1)))
 			{
 				//first triangle
-				getVertex(x, j, vertices[0]);
-				getVertex(x, j + 1, vertices[1]);
-				getVertex(x + 1, j + 1, vertices[2]);
+				getVertex(x, j, vertices[indices[0]]);
+				getVertex(x, j + 1, vertices[indices[1]]);
+				getVertex(x + 1, j + 1, vertices[indices[2]]);
 				callback->processTriangle(vertices, x, j);
 				//second triangle
 				//  getVertex(x,j,vertices[0]);//already got this vertex before, thanks to Danny Chapman
-				getVertex(x + 1, j + 1, vertices[1]);
-				getVertex(x + 1, j, vertices[2]);
+				getVertex(x + 1, j + 1, vertices[indices[1]]);
+				getVertex(x + 1, j, vertices[indices[2]]);
 				callback->processTriangle(vertices, x, j);
 			}
 			else
 			{
 				//first triangle
-				getVertex(x, j, vertices[0]);
-				getVertex(x, j + 1, vertices[1]);
-				getVertex(x + 1, j, vertices[2]);
+				getVertex(x, j, vertices[indices[0]]);
+				getVertex(x, j + 1, vertices[indices[1]]);
+				getVertex(x + 1, j, vertices[indices[2]]);
 				callback->processTriangle(vertices, x, j);
 				//second triangle
-				getVertex(x + 1, j, vertices[0]);
+				getVertex(x + 1, j, vertices[indices[0]]);
 				//getVertex(x,j+1,vertices[1]);
-				getVertex(x + 1, j + 1, vertices[2]);
+				getVertex(x + 1, j + 1, vertices[indices[2]]);
 				callback->processTriangle(vertices, x, j);
 			}
 		}
@@ -401,7 +409,7 @@ namespace
 /// and executes an action on each cell intersecting the given segment, ordered from begin to end.
 /// Initially inspired by http://www.cse.yorku.ca/~amana/research/grid.pdf
 template <typename Action_T>
-void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector3& endPos)
+void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector3& endPos, int indices[3])
 {
 	GridRaycastState rs;
 	rs.maxDistance3d = beginPos.distance(endPos);
@@ -410,9 +418,10 @@ void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector
 		// Consider the ray is too small to hit anything
 		return;
 	}
+	
 
-	btScalar rayDirectionFlatX = endPos[0] - beginPos[0];
-	btScalar rayDirectionFlatZ = endPos[2] - beginPos[2];
+	btScalar rayDirectionFlatX = endPos[indices[0]] - beginPos[indices[0]];
+	btScalar rayDirectionFlatZ = endPos[indices[2]] - beginPos[indices[2]];
 	rs.maxDistanceFlat = btSqrt(rayDirectionFlatX * rayDirectionFlatX + rayDirectionFlatZ * rayDirectionFlatZ);
 
 	if (rs.maxDistanceFlat < 0.0001)
@@ -444,11 +453,11 @@ void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector
 	{
 		if (xiStep == 1)
 		{
-			paramCrossX = (ceil(beginPos[0]) - beginPos[0]) * paramDeltaX;
+			paramCrossX = (ceil(beginPos[indices[0]]) - beginPos[indices[0]]) * paramDeltaX;
 		}
 		else
 		{
-			paramCrossX = (beginPos[0] - floor(beginPos[0])) * paramDeltaX;
+			paramCrossX = (beginPos[indices[0]] - floor(beginPos[indices[0]])) * paramDeltaX;
 		}
 	}
 	else
@@ -461,11 +470,11 @@ void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector
 	{
 		if (ziStep == 1)
 		{
-			paramCrossZ = (ceil(beginPos[2]) - beginPos[2]) * paramDeltaZ;
+			paramCrossZ = (ceil(beginPos[indices[2]]) - beginPos[indices[2]]) * paramDeltaZ;
 		}
 		else
 		{
-			paramCrossZ = (beginPos[2] - floor(beginPos[2])) * paramDeltaZ;
+			paramCrossZ = (beginPos[indices[2]] - floor(beginPos[indices[2]])) * paramDeltaZ;
 		}
 	}
 	else
@@ -473,8 +482,8 @@ void gridRaycast(Action_T& quadAction, const btVector3& beginPos, const btVector
 		paramCrossZ = infinite;  // Will never cross on Z
 	}
 
-	rs.x = static_cast<int>(floor(beginPos[0]));
-	rs.z = static_cast<int>(floor(beginPos[2]));
+	rs.x = static_cast<int>(floor(beginPos[indices[0]]));
+	rs.z = static_cast<int>(floor(beginPos[indices[2]]));
 
 	// Workaround cases where the ray starts at an integer position
 	if (paramCrossX == 0.0)
@@ -603,10 +612,12 @@ struct ProcessVBoundsAction
 	btVector3 rayEnd;
 	btVector3 rayDir;
 
+	int* m_indices;
 	ProcessTrianglesAction processTriangles;
 
-	ProcessVBoundsAction(const btAlignedObjectArray<btHeightfieldTerrainShape::Range>& bnd)
-		: vbounds(bnd)
+	ProcessVBoundsAction(const btAlignedObjectArray<btHeightfieldTerrainShape::Range>& bnd, int* indices)
+		: vbounds(bnd),
+		m_indices(indices)
 	{
 	}
 	void operator()(const GridRaycastState& rs) const
@@ -634,11 +645,11 @@ struct ProcessVBoundsAction
 
 			// We did enter the flat projection of the AABB,
 			// but we have to check if we intersect it on the vertical axis
-			if (enterPos[1] > chunk.max && exitPos[1] > chunk.max)
+			if (enterPos[1] > chunk.max && exitPos[m_indices[1]] > chunk.max)
 			{
 				return;
 			}
-			if (enterPos[1] < chunk.min && exitPos[1] < chunk.min)
+			if (enterPos[1] < chunk.min && exitPos[m_indices[1]] < chunk.min)
 			{
 				return;
 			}
@@ -651,7 +662,7 @@ struct ProcessVBoundsAction
 			exitPos = rayEnd;
 		}
 
-		gridRaycast(processTriangles, enterPos, exitPos);
+		gridRaycast(processTriangles, enterPos, exitPos, m_indices);
 		// Note: it could be possible to have more than one grid at different levels,
 		// to do this there would be a branch using a pointer to another ProcessVBoundsAction
 	}
@@ -677,10 +688,16 @@ void btHeightfieldTerrainShape::performRaycast(btTriangleCallback* callback, con
 	processTriangles.length = m_heightStickLength - 1;
 
 	// TODO Transform vectors to account for m_upAxis
-	int iBeginX = static_cast<int>(floor(beginPos[0]));
-	int iBeginZ = static_cast<int>(floor(beginPos[2]));
-	int iEndX = static_cast<int>(floor(endPos[0]));
-	int iEndZ = static_cast<int>(floor(endPos[2]));
+	int indices[3] = { 0, 1, 2 };
+	if (m_upAxis == 2)
+	{
+		indices[1] = 2;
+		indices[2] = 1;
+	}
+	int iBeginX = static_cast<int>(floor(beginPos[indices[0]]));
+	int iBeginZ = static_cast<int>(floor(beginPos[indices[2]]));
+	int iEndX = static_cast<int>(floor(endPos[indices[0]]));
+	int iEndZ = static_cast<int>(floor(endPos[indices[2]]));
 
 	if (iBeginX == iEndX && iBeginZ == iEndZ)
 	{
@@ -691,22 +708,24 @@ void btHeightfieldTerrainShape::performRaycast(btTriangleCallback* callback, con
 		return;
 	}
 
+	
+
 	if (m_vboundsGrid.size()==0)
 	{
 		// Process all quads intersecting the flat projection of the ray
-		gridRaycast(processTriangles, beginPos, endPos);
+		gridRaycast(processTriangles, beginPos, endPos, &indices[0]);
 	}
 	else
 	{
 		btVector3 rayDiff = endPos - beginPos;
-		btScalar flatDistance2 = rayDiff[0] * rayDiff[0] + rayDiff[2] * rayDiff[2];
+		btScalar flatDistance2 = rayDiff[indices[0]] * rayDiff[indices[0]] + rayDiff[indices[2]] * rayDiff[indices[2]];
 		if (flatDistance2 < m_vboundsChunkSize * m_vboundsChunkSize)
 		{
 			// Don't use chunks, the ray is too short in the plane
-			gridRaycast(processTriangles, beginPos, endPos);
+			gridRaycast(processTriangles, beginPos, endPos, &indices[0]);
 		}
 
-		ProcessVBoundsAction processVBounds(m_vboundsGrid);
+		ProcessVBoundsAction processVBounds(m_vboundsGrid, &indices[0]);
 		processVBounds.width = m_vboundsGridWidth;
 		processVBounds.length = m_vboundsGridLength;
 		processVBounds.rayBegin = beginPos;
@@ -715,7 +734,7 @@ void btHeightfieldTerrainShape::performRaycast(btTriangleCallback* callback, con
 		processVBounds.processTriangles = processTriangles;
 		processVBounds.chunkSize = m_vboundsChunkSize;
 		// The ray is long, run raycast on a higher-level grid
-		gridRaycast(processVBounds, beginPos / m_vboundsChunkSize, endPos / m_vboundsChunkSize);
+		gridRaycast(processVBounds, beginPos / m_vboundsChunkSize, endPos / m_vboundsChunkSize, indices);
 	}
 }
 
