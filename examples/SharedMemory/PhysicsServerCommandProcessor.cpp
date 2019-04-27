@@ -6367,24 +6367,24 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 			serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[6] =
 				body->m_rootLocalInertialFrame.getRotation()[3];
 
-			//base position in world space, carthesian
+			//base position in world space, cartesian
 			stateDetails->m_actualStateQ[0] = tr.getOrigin()[0];
 			stateDetails->m_actualStateQ[1] = tr.getOrigin()[1];
 			stateDetails->m_actualStateQ[2] = tr.getOrigin()[2];
 
-			//base orientation, quaternion x,y,z,w, in world space, carthesian
+			//base orientation, quaternion x,y,z,w, in world space, cartesian
 			stateDetails->m_actualStateQ[3] = tr.getRotation()[0];
 			stateDetails->m_actualStateQ[4] = tr.getRotation()[1];
 			stateDetails->m_actualStateQ[5] = tr.getRotation()[2];
 			stateDetails->m_actualStateQ[6] = tr.getRotation()[3];
 			totalDegreeOfFreedomQ += 7;  //pos + quaternion
 
-			//base linear velocity (in world space, carthesian)
+			//base linear velocity (in world space, cartesian)
 			stateDetails->m_actualStateQdot[0] = mb->getBaseVel()[0];
 			stateDetails->m_actualStateQdot[1] = mb->getBaseVel()[1];
 			stateDetails->m_actualStateQdot[2] = mb->getBaseVel()[2];
 
-			//base angular velocity (in world space, carthesian)
+			//base angular velocity (in world space, cartesian)
 			stateDetails->m_actualStateQdot[3] = mb->getBaseOmega()[0];
 			stateDetails->m_actualStateQdot[4] = mb->getBaseOmega()[1];
 			stateDetails->m_actualStateQdot[5] = mb->getBaseOmega()[2];
@@ -6549,24 +6549,24 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
           int totalDegreeOfFreedomU = 0;
 
           btTransform tr = rb->getWorldTransform();
-          //base position in world space, carthesian
+          //base position in world space, cartesian
           stateDetails->m_actualStateQ[0] = tr.getOrigin()[0];
           stateDetails->m_actualStateQ[1] = tr.getOrigin()[1];
           stateDetails->m_actualStateQ[2] = tr.getOrigin()[2];
 
-          //base orientation, quaternion x,y,z,w, in world space, carthesian
+          //base orientation, quaternion x,y,z,w, in world space, cartesian
           stateDetails->m_actualStateQ[3] = tr.getRotation()[0];
           stateDetails->m_actualStateQ[4] = tr.getRotation()[1];
           stateDetails->m_actualStateQ[5] = tr.getRotation()[2];
           stateDetails->m_actualStateQ[6] = tr.getRotation()[3];
           totalDegreeOfFreedomQ += 7;  //pos + quaternion
 
-          //base linear velocity (in world space, carthesian)
+          //base linear velocity (in world space, cartesian)
           stateDetails->m_actualStateQdot[0] = rb->getLinearVelocity()[0];
           stateDetails->m_actualStateQdot[1] = rb->getLinearVelocity()[1];
           stateDetails->m_actualStateQdot[2] = rb->getLinearVelocity()[2];
 
-          //base angular velocity (in world space, carthesian)
+          //base angular velocity (in world space, cartesian)
           stateDetails->m_actualStateQdot[3] = rb->getAngularVelocity()[0];
           stateDetails->m_actualStateQdot[4] = rb->getAngularVelocity()[1];
           stateDetails->m_actualStateQdot[5] = rb->getAngularVelocity()[2];
