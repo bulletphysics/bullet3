@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 r"""Script to render videos of the Proximal Policy Gradient algorithm.
 
 Command line:
@@ -54,6 +53,8 @@ def _create_environment(config, outdir):
     setattr(env, 'spec', getattr(env, 'spec', None))
   if config.max_length:
     env = tools.wrappers.LimitDuration(env, config.max_length)
+
+
 #  env = gym.wrappers.Monitor(
 #      env, outdir, lambda unused_episode_number: True)
   env = tools.wrappers.RangeNormalize(env)
@@ -72,20 +73,20 @@ def _define_loop(graph, eval_steps):
   Returns:
     Loop object.
   """
-  loop = tools.Loop(
-      None, graph.step, graph.should_log, graph.do_report, graph.force_reset)
-  loop.add_phase(
-      'eval', graph.done, graph.score, graph.summary, eval_steps,
-      report_every=eval_steps,
-      log_every=None,
-      checkpoint_every=None,
-      feed={graph.is_training: False})
+  loop = tools.Loop(None, graph.step, graph.should_log, graph.do_report, graph.force_reset)
+  loop.add_phase('eval',
+                 graph.done,
+                 graph.score,
+                 graph.summary,
+                 eval_steps,
+                 report_every=eval_steps,
+                 log_every=None,
+                 checkpoint_every=None,
+                 feed={graph.is_training: False})
   return loop
 
 
-def visualize(
-    logdir, outdir, num_agents, num_episodes, checkpoint=None,
-    env_processes=True):
+def visualize(logdir, outdir, num_agents, num_episodes, checkpoint=None, env_processes=True):
   """Recover checkpoint and render videos from it.
 
   Args:
@@ -98,25 +99,20 @@ def visualize(
   """
   config = utility.load_config(logdir)
   with config.unlocked:
-    config.network = functools.partial(
-        utility.define_network, config.network, config)
+    config.network = functools.partial(utility.define_network, config.network, config)
     config.policy_optimizer = getattr(tf.train, config.policy_optimizer)
     config.value_optimizer = getattr(tf.train, config.value_optimizer)
   with tf.device('/cpu:0'):
-    batch_env = utility.define_batch_env(
-        lambda: _create_environment(config, outdir),
-        num_agents, env_processes)
-    graph = utility.define_simulation_graph(
-        batch_env, config.algorithm, config)
+    batch_env = utility.define_batch_env(lambda: _create_environment(config, outdir), num_agents,
+                                         env_processes)
+    graph = utility.define_simulation_graph(batch_env, config.algorithm, config)
     total_steps = num_episodes * config.max_length
     loop = _define_loop(graph, total_steps)
-  saver = utility.define_saver(
-      exclude=(r'.*_temporary/.*', r'global_step'))
+  saver = utility.define_saver(exclude=(r'.*_temporary/.*', r'global_step'))
   sess_config = tf.ConfigProto(allow_soft_placement=True)
   sess_config.gpu_options.allow_growth = True
   with tf.Session(config=sess_config) as sess:
-    utility.initialize_variables(
-        sess, saver, config.logdir, checkpoint, resume=True)
+    utility.initialize_variables(sess, saver, config.logdir, checkpoint, resume=True)
     for unused_score in loop.run(sess, saver, total_steps):
       pass
   batch_env.close()
@@ -129,29 +125,18 @@ def main(_):
     raise KeyError('You must specify logging and outdirs directories.')
   FLAGS.logdir = os.path.expanduser(FLAGS.logdir)
   FLAGS.outdir = os.path.expanduser(FLAGS.outdir)
-  visualize(
-      FLAGS.logdir, FLAGS.outdir, FLAGS.num_agents, FLAGS.num_episodes,
-      FLAGS.checkpoint, FLAGS.env_processes)
+  visualize(FLAGS.logdir, FLAGS.outdir, FLAGS.num_agents, FLAGS.num_episodes, FLAGS.checkpoint,
+            FLAGS.env_processes)
 
 
 if __name__ == '__main__':
   FLAGS = tf.app.flags.FLAGS
-  tf.app.flags.DEFINE_string(
-      'logdir', None,
-      'Directory to the checkpoint of a training run.')
-  tf.app.flags.DEFINE_string(
-      'outdir', None,
-      'Local directory for storing the monitoring outdir.')
-  tf.app.flags.DEFINE_string(
-      'checkpoint', None,
-      'Checkpoint name to load; defaults to most recent.')
-  tf.app.flags.DEFINE_integer(
-      'num_agents', 1,
-      'How many environments to step in parallel.')
-  tf.app.flags.DEFINE_integer(
-      'num_episodes', 5,
-      'Minimum number of episodes to render.')
-  tf.app.flags.DEFINE_boolean(
-      'env_processes', True,
-      'Step environments in separate processes to circumvent the GIL.')
+  tf.app.flags.DEFINE_string('logdir', None, 'Directory to the checkpoint of a training run.')
+  tf.app.flags.DEFINE_string('outdir', None, 'Local directory for storing the monitoring outdir.')
+  tf.app.flags.DEFINE_string('checkpoint', None,
+                             'Checkpoint name to load; defaults to most recent.')
+  tf.app.flags.DEFINE_integer('num_agents', 1, 'How many environments to step in parallel.')
+  tf.app.flags.DEFINE_integer('num_episodes', 5, 'Minimum number of episodes to render.')
+  tf.app.flags.DEFINE_boolean('env_processes', True,
+                              'Step environments in separate processes to circumvent the GIL.')
   tf.app.run()

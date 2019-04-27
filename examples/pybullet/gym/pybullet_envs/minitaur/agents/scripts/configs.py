@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Example configurations using the PPO algorithm."""
 
 from __future__ import absolute_import
@@ -33,10 +32,7 @@ def default():
   use_gpu = False
   # Network
   network = networks.ForwardGaussianPolicy
-  weight_summaries = dict(
-      all=r'.*',
-      policy=r'.*/policy/.*',
-      value=r'.*/value/.*')
+  weight_summaries = dict(all=r'.*', policy=r'.*/policy/.*', value=r'.*/value/.*')
   policy_layers = 200, 100
   value_layers = 200, 100
   init_mean_factor = 0.05

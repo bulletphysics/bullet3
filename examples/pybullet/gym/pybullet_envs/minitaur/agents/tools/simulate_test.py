@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Tests for the simulation operation."""
 
 from __future__ import absolute_import
@@ -84,9 +83,10 @@ class SimulateTest(tf.test.TestCase):
   def _create_test_batch_env(self, durations):
     envs = []
     for duration in durations:
-      env = tools.MockEnvironment(
-          observ_shape=(2, 3), action_shape=(3,),
-          min_duration=duration, max_duration=duration)
+      env = tools.MockEnvironment(observ_shape=(2, 3),
+                                  action_shape=(3,),
+                                  min_duration=duration,
+                                  max_duration=duration)
       env = tools.wrappers.ConvertTo32Bit(env)
       envs.append(env)
     batch_env = tools.BatchEnv(envs, blocking=True)

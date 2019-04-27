@@ -1,10 +1,8 @@
-
 from setuptools import find_packages
 from sys import platform as _platform
 import sys
 import glob
 import os
-
 
 from distutils.core import setup
 from distutils.extension import Extension
@@ -16,42 +14,56 @@ import multiprocessing
 import multiprocessing.pool
 
 
-def parallelCCompile(self, sources, output_dir=None, macros=None, include_dirs=None, debug=0, extra_preargs=None, extra_postargs=None, depends=None):
-    # those lines are copied from distutils.ccompiler.CCompiler directly
-    macros, objects, extra_postargs, pp_opts, build = self._setup_compile(output_dir, macros, include_dirs, sources, depends, extra_postargs)
-    cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
-    # parallel code
-    N = 2*multiprocessing.cpu_count()# number of parallel compilations
+def parallelCCompile(self,
+                     sources,
+                     output_dir=None,
+                     macros=None,
+                     include_dirs=None,
+                     debug=0,
+                     extra_preargs=None,
+                     extra_postargs=None,
+                     depends=None):
+  # those lines are copied from distutils.ccompiler.CCompiler directly
+  macros, objects, extra_postargs, pp_opts, build = self._setup_compile(
+      output_dir, macros, include_dirs, sources, depends, extra_postargs)
+  cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
+  # parallel code
+  N = 2 * multiprocessing.cpu_count()  # number of parallel compilations
+  try:
+    # On Unix-like platforms attempt to obtain the total memory in the
+    # machine and limit the number of parallel jobs to the number of Gbs
+    # of RAM (to avoid killing smaller platforms like the Pi)
+    mem = os.sysconf('SC_PHYS_PAGES') * os.sysconf('SC_PAGE_SIZE')  # bytes
+  except (AttributeError, ValueError):
+    # Couldn't query RAM; don't limit parallelism (it's probably a well
+    # equipped Windows / Mac OS X box)
+    pass
+  else:
+    mem = max(1, int(round(mem / 1024**3)))  # convert to Gb
+    N = min(mem, N)
+
+  def _single_compile(obj):
     try:
-        # On Unix-like platforms attempt to obtain the total memory in the
-        # machine and limit the number of parallel jobs to the number of Gbs
-        # of RAM (to avoid killing smaller platforms like the Pi)
-        mem = os.sysconf('SC_PHYS_PAGES') * os.sysconf('SC_PAGE_SIZE') # bytes
-    except (AttributeError, ValueError):
-        # Couldn't query RAM; don't limit parallelism (it's probably a well
-        # equipped Windows / Mac OS X box)
-        pass
-    else:
-        mem = max(1, int(round(mem / 1024 ** 3))) # convert to Gb
-        N = min(mem, N)
-    def _single_compile(obj):
-        try: src, ext = build[obj]
-        except KeyError: return
-        newcc_args = cc_args
-        if _platform == "darwin":
-          if src.endswith('.cpp'):
-            newcc_args = cc_args + ["-stdlib=libc++"]
-        self._compile(obj, src, ext, newcc_args, extra_postargs, pp_opts)
-    # convert to list, imap is evaluated on-demand
-    pool = multiprocessing.pool.ThreadPool(N)
-    list(pool.imap(_single_compile,objects))
-    return objects
+      src, ext = build[obj]
+    except KeyError:
+      return
+    newcc_args = cc_args
+    if _platform == "darwin":
+      if src.endswith('.cpp'):
+        newcc_args = cc_args + ["-stdlib=libc++"]
+    self._compile(obj, src, ext, newcc_args, extra_postargs, pp_opts)
+
+  # convert to list, imap is evaluated on-demand
+  pool = multiprocessing.pool.ThreadPool(N)
+  list(pool.imap(_single_compile, objects))
+  return objects
+
+
 import distutils.ccompiler
-distutils.ccompiler.CCompiler.compile=parallelCCompile
+distutils.ccompiler.CCompiler.compile = parallelCCompile
 
 #see http://stackoverflow.com/a/8719066/295157
 import os
-
 
 platform = get_platform()
 print(platform)
@@ -68,10 +80,7 @@ CXX_FLAGS += '-DB3_USE_ZIPFILE_FILEIO '
 CXX_FLAGS += '-DBT_THREADSAFE=1 '
 CXX_FLAGS += '-DSTATIC_LINK_SPD_PLUGIN '
 
-
 EGL_CXX_FLAGS = ''
-
-
 
 # libraries += [current_python]
 
@@ -79,16 +88,16 @@ libraries = []
 include_dirs = []
 
 try:
-    import numpy
-    NP_DIRS = [numpy.get_include()]
+  import numpy
+  NP_DIRS = [numpy.get_include()]
 except:
-	  print("numpy is disabled. getCameraImage maybe slower.")
+  print("numpy is disabled. getCameraImage maybe slower.")
 else:
-	  print("numpy is enabled.")
-	  CXX_FLAGS += '-DPYBULLET_USE_NUMPY '
-	  for d in NP_DIRS:
-	    print("numpy_include_dirs = %s" % d)
-	  include_dirs += NP_DIRS
+  print("numpy is enabled.")
+  CXX_FLAGS += '-DPYBULLET_USE_NUMPY '
+  for d in NP_DIRS:
+    print("numpy_include_dirs = %s" % d)
+  include_dirs += NP_DIRS
 
 sources = ["examples/pybullet/pybullet.c"]\
 +["src/btLinearMathAll.cpp"]\
@@ -358,71 +367,70 @@ egl_renderer_sources = \
 +["examples/OpenGLWindow/LoadShader.cpp"]
 
 if 'BT_USE_EGL' in CXX_FLAGS:
-    sources += ['examples/ThirdPartyLibs/glad/egl.c']
-    sources += ['examples/OpenGLWindow/EGLOpenGLWindow.cpp']
+  sources += ['examples/ThirdPartyLibs/glad/egl.c']
+  sources += ['examples/OpenGLWindow/EGLOpenGLWindow.cpp']
 
 if _platform == "linux" or _platform == "linux2":
-    libraries = ['dl','pthread']
-    CXX_FLAGS += '-D_LINUX '
-    CXX_FLAGS += '-DGLEW_STATIC '
-    CXX_FLAGS += '-DGLEW_INIT_OPENGL11_FUNCTIONS=1 '
-    CXX_FLAGS += '-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1 '
-    CXX_FLAGS += '-DDYNAMIC_LOAD_X11_FUNCTIONS '
-    CXX_FLAGS += '-DHAS_SOCKLEN_T '
-    CXX_FLAGS += '-fno-inline-functions-called-once '
-    CXX_FLAGS += '-fvisibility=hidden '
-    CXX_FLAGS += '-fvisibility-inlines-hidden '
-    EGL_CXX_FLAGS += '-DBT_USE_EGL '
-    EGL_CXX_FLAGS += '-fPIC ' # for plugins
+  libraries = ['dl', 'pthread']
+  CXX_FLAGS += '-D_LINUX '
+  CXX_FLAGS += '-DGLEW_STATIC '
+  CXX_FLAGS += '-DGLEW_INIT_OPENGL11_FUNCTIONS=1 '
+  CXX_FLAGS += '-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1 '
+  CXX_FLAGS += '-DDYNAMIC_LOAD_X11_FUNCTIONS '
+  CXX_FLAGS += '-DHAS_SOCKLEN_T '
+  CXX_FLAGS += '-fno-inline-functions-called-once '
+  CXX_FLAGS += '-fvisibility=hidden '
+  CXX_FLAGS += '-fvisibility-inlines-hidden '
+  EGL_CXX_FLAGS += '-DBT_USE_EGL '
+  EGL_CXX_FLAGS += '-fPIC '  # for plugins
 
-    sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
+  sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
+  +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
+  +["examples/ThirdPartyLibs/glad/gl.c"]\
+  +["examples/ThirdPartyLibs/glad/glx.c"]
+  include_dirs += ["examples/ThirdPartyLibs/optionalX11"]
+
+  if 'BT_USE_EGL' in EGL_CXX_FLAGS:
+    egl_renderer_sources = egl_renderer_sources\
+    +["examples/OpenGLWindow/EGLOpenGLWindow.cpp"]\
+    +['examples/ThirdPartyLibs/glad/egl.c']
+  else:
+    egl_renderer_sources = egl_renderer_sources\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/glad/gl.c"]\
     +["examples/ThirdPartyLibs/glad/glx.c"]
-    include_dirs += ["examples/ThirdPartyLibs/optionalX11"]
-
-    if 'BT_USE_EGL' in EGL_CXX_FLAGS:
-        egl_renderer_sources = egl_renderer_sources\
-        +["examples/OpenGLWindow/EGLOpenGLWindow.cpp"]\
-        +['examples/ThirdPartyLibs/glad/egl.c']
-    else:
-        egl_renderer_sources = egl_renderer_sources\
-        +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
-        +["examples/ThirdPartyLibs/glad/glx.c"]
-
 
 elif _platform == "win32":
-    print("win32!")
-    libraries = ['Ws2_32','Winmm','User32','Opengl32','kernel32','glu32','Gdi32','Comdlg32']
-    CXX_FLAGS += '-DWIN32 '
-    CXX_FLAGS += '-DGLEW_STATIC '
-    sources = sources + ["examples/ThirdPartyLibs/enet/win32.c"]\
-    +["examples/OpenGLWindow/Win32Window.cpp"]\
-    +["examples/OpenGLWindow/Win32OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/glad/gl.c"]
+  print("win32!")
+  libraries = ['Ws2_32', 'Winmm', 'User32', 'Opengl32', 'kernel32', 'glu32', 'Gdi32', 'Comdlg32']
+  CXX_FLAGS += '-DWIN32 '
+  CXX_FLAGS += '-DGLEW_STATIC '
+  sources = sources + ["examples/ThirdPartyLibs/enet/win32.c"]\
+  +["examples/OpenGLWindow/Win32Window.cpp"]\
+  +["examples/OpenGLWindow/Win32OpenGLWindow.cpp"]\
+  +["examples/ThirdPartyLibs/glad/gl.c"]
 elif _platform == "darwin":
-    print("darwin!")
-    os.environ['LDFLAGS'] = '-framework Cocoa -stdlib=libc++ -framework OpenGL'
-    CXX_FLAGS += '-DB3_NO_PYTHON_FRAMEWORK '
-    CXX_FLAGS += '-DHAS_SOCKLEN_T '
-    CXX_FLAGS += '-D_DARWIN '
-#    CXX_FLAGS += '-framework Cocoa '
-    sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
-    +["examples/OpenGLWindow/MacOpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/glad/gl.c"]\
-    +["examples/OpenGLWindow/MacOpenGLWindowObjC.m"]
+  print("darwin!")
+  os.environ['LDFLAGS'] = '-framework Cocoa -stdlib=libc++ -framework OpenGL'
+  CXX_FLAGS += '-DB3_NO_PYTHON_FRAMEWORK '
+  CXX_FLAGS += '-DHAS_SOCKLEN_T '
+  CXX_FLAGS += '-D_DARWIN '
+  #    CXX_FLAGS += '-framework Cocoa '
+  sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
+  +["examples/OpenGLWindow/MacOpenGLWindow.cpp"]\
+  +["examples/ThirdPartyLibs/glad/gl.c"]\
+  +["examples/OpenGLWindow/MacOpenGLWindowObjC.m"]
 else:
-    print("bsd!")
-    libraries = ['GL','GLEW','pthread']
-    os.environ['LDFLAGS'] = '-L/usr/X11R6/lib'
-    CXX_FLAGS += '-D_BSD '
-    CXX_FLAGS += '-I/usr/X11R6/include '
-    CXX_FLAGS += '-DHAS_SOCKLEN_T '
-    CXX_FLAGS += '-fno-inline-functions-called-once'
-    sources = ["examples/ThirdPartyLibs/enet/unix.c"]\
-    +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/glad/gl.c"]\
-    + sources
+  print("bsd!")
+  libraries = ['GL', 'GLEW', 'pthread']
+  os.environ['LDFLAGS'] = '-L/usr/X11R6/lib'
+  CXX_FLAGS += '-D_BSD '
+  CXX_FLAGS += '-I/usr/X11R6/include '
+  CXX_FLAGS += '-DHAS_SOCKLEN_T '
+  CXX_FLAGS += '-fno-inline-functions-called-once'
+  sources = ["examples/ThirdPartyLibs/enet/unix.c"]\
+  +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
+  +["examples/ThirdPartyLibs/glad/gl.c"]\
+  + sources
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -432,67 +440,75 @@ datadir = "examples/pybullet/gym/pybullet_data"
 hh = setup_py_dir + "/" + datadir
 
 for root, dirs, files in os.walk(hh):
-    for fn in files:
-        ext = os.path.splitext(fn)[1][1:]
-        if ext and ext in 'yaml index meta data-00000-of-00001 png gif jpg urdf sdf obj txt mtl dae off stl STL xml '.split():
-            fn = root + "/" + fn
-            need_files.append(fn[1+len(hh):])
+  for fn in files:
+    ext = os.path.splitext(fn)[1][1:]
+    if ext and ext in 'yaml index meta data-00000-of-00001 png gif jpg urdf sdf obj txt mtl dae off stl STL xml '.split(
+    ):
+      fn = root + "/" + fn
+      need_files.append(fn[1 + len(hh):])
 
 print("found resource files: %i" % len(need_files))
-for n in need_files: print("-- %s" % n)
+for n in need_files:
+  print("-- %s" % n)
 print("packages")
 print(find_packages('examples/pybullet/gym'))
 print("-----")
 
 extensions = []
 
-pybullet_ext = Extension("pybullet",
-        sources =  sources,
-        libraries = libraries,
-        extra_compile_args=CXX_FLAGS.split(),
-        include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
-     )
+pybullet_ext = Extension(
+    "pybullet",
+    sources=sources,
+    libraries=libraries,
+    extra_compile_args=CXX_FLAGS.split(),
+    include_dirs=include_dirs + [
+        "src", "examples/ThirdPartyLibs", "examples/ThirdPartyLibs/glad",
+        "examples/ThirdPartyLibs/enet/include", "examples/ThirdPartyLibs/clsocket/src"
+    ])
 extensions.append(pybullet_ext)
-
 
 if 'BT_USE_EGL' in EGL_CXX_FLAGS:
 
-	eglRender = Extension("eglRenderer",
-        	sources =  egl_renderer_sources,
-        	libraries = libraries,
-        	extra_compile_args=(CXX_FLAGS+EGL_CXX_FLAGS ).split(),
-        	include_dirs = include_dirs + ["src","examples", "examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"])
+  eglRender = Extension(
+      "eglRenderer",
+      sources=egl_renderer_sources,
+      libraries=libraries,
+      extra_compile_args=(CXX_FLAGS + EGL_CXX_FLAGS).split(),
+      include_dirs=include_dirs + [
+          "src", "examples", "examples/ThirdPartyLibs", "examples/ThirdPartyLibs/glad",
+          "examples/ThirdPartyLibs/enet/include", "examples/ThirdPartyLibs/clsocket/src"
+      ])
 
-	extensions.append(eglRender)
-
+  extensions.append(eglRender)
 
 setup(
-	name = 'pybullet',
-	version='2.4.9',
-	description='Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
-	long_description='pybullet is an easy to use Python module for physics simulation, robotics and deep reinforcement learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
-	url='https://github.com/bulletphysics/bullet3',
-	author='Erwin Coumans, Yunfei Bai, Jasmine Hsu',
-	author_email='erwincoumans@google.com',
-	license='zlib',
-	platforms='any',
-	keywords=['game development', 'virtual reality', 'physics simulation', 'robotics', 'collision detection', 'opengl'],
-	ext_modules = extensions,
-	classifiers=['Development Status :: 5 - Production/Stable',
-                   'License :: OSI Approved :: zlib/libpng License',
-                   'Operating System :: Microsoft :: Windows',
-                   'Operating System :: POSIX :: Linux',
-                   'Operating System :: MacOS',
-                   'Intended Audience :: Science/Research',
-                   "Programming Language :: Python",
-                   'Programming Language :: Python :: 2.7',
-                   'Programming Language :: Python :: 3.4',
-                   'Programming Language :: Python :: 3.5',
-                   'Programming Language :: Python :: 3.6',
-                   'Topic :: Games/Entertainment :: Simulation',
-                   'Topic :: Scientific/Engineering :: Artificial Intelligence',
-                   'Framework :: Robot Framework'],
-    package_dir = { '': 'examples/pybullet/gym'},
+    name='pybullet',
+    version='2.4.9',
+    description=
+    'Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
+    long_description=
+    'pybullet is an easy to use Python module for physics simulation, robotics and deep reinforcement learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
+    url='https://github.com/bulletphysics/bullet3',
+    author='Erwin Coumans, Yunfei Bai, Jasmine Hsu',
+    author_email='erwincoumans@google.com',
+    license='zlib',
+    platforms='any',
+    keywords=[
+        'game development', 'virtual reality', 'physics simulation', 'robotics',
+        'collision detection', 'opengl'
+    ],
+    ext_modules=extensions,
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'License :: OSI Approved :: zlib/libpng License',
+        'Operating System :: Microsoft :: Windows', 'Operating System :: POSIX :: Linux',
+        'Operating System :: MacOS', 'Intended Audience :: Science/Research',
+        "Programming Language :: Python", 'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4', 'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6', 'Topic :: Games/Entertainment :: Simulation',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Framework :: Robot Framework'
+    ],
+    package_dir={'': 'examples/pybullet/gym'},
     packages=[x for x in find_packages('examples/pybullet/gym')],
-    package_data = { 'pybullet_data': need_files }
-)
+    package_data={'pybullet_data': need_files})
