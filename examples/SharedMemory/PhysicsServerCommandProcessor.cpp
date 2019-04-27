@@ -7353,7 +7353,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 		bool foundFile = UrdfFindMeshFile(fileIO,pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
 		std::vector<tinyobj::shape_t> shapes;
 		std::string err = tinyobj::LoadObj(shapes, out_found_filename.c_str(),"",fileIO);
-		if (shapes.size() > 0)
+		if (!shapes.empty())
 		{
 			const tinyobj::shape_t& shape = shapes[0];
 			btAlignedObjectArray<btScalar> vertices;
