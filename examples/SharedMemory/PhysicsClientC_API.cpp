@@ -314,6 +314,30 @@ B3_SHARED_API int b3LoadSoftBodySetCollisionMargin(b3SharedMemoryCommandHandle c
 	return 0;
 }
 
+
+B3_SHARED_API int b3LoadSoftbodySetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX, double startPosY, double startPosZ)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+	command->m_loadSoftBodyArguments.m_initialPosition[0] = startPosX;
+	command->m_loadSoftBodyArguments.m_initialPosition[1] = startPosY;
+	command->m_loadSoftBodyArguments.m_initialPosition[2] = startPosZ;
+	command->m_updateFlags |= LOAD_SOFT_BODY_INITIAL_POSITION;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftbodySetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX, double startOrnY, double startOrnZ, double startOrnW)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_initialOrientation[0] = startOrnX;
+	command->m_loadSoftBodyArguments.m_initialOrientation[1] = startOrnY;
+	command->m_loadSoftBodyArguments.m_initialOrientation[2] = startOrnZ;
+	command->m_loadSoftBodyArguments.m_initialOrientation[3] = startOrnW;
+	command->m_updateFlags |= LOAD_SOFT_BODY_INITIAL_ORIENTATION;
+	return 0;
+}
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;

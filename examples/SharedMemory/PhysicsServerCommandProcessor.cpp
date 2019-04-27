@@ -122,24 +122,6 @@ btScalar gRhsClamp = 1.f;
 
 #include "../CommonInterfaces/CommonFileIOInterface.h"
 
-
-
-
-struct UrdfLinkNameMapUtil
-{
-	btMultiBody* m_mb;
-	btAlignedObjectArray<btGeneric6DofSpring2Constraint*> m_rigidBodyJoints;
-
-	btDefaultSerializer* m_memSerializer;
-
-	UrdfLinkNameMapUtil() : m_mb(0), m_memSerializer(0)
-	{
-	}
-	virtual ~UrdfLinkNameMapUtil()
-	{
-	}
-};
-
 class b3ThreadPool
 {
 public:
@@ -3357,71 +3339,74 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 	//serialize the btMultiBody and send the data to the client. This is one way to get the link/joint names across the (shared memory) wire
 
 	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-	btMultiBody* mb = bodyHandle ? bodyHandle->m_multiBody : 0;
-	if (mb)
+  if(!bodyHandle) return 0;
+	if (bodyHandle->m_multiBody)
 	{
-		UrdfLinkNameMapUtil utilBla;
-		UrdfLinkNameMapUtil* util = &utilBla;
+    btMultiBody* mb = bodyHandle->m_multiBody;
 		btDefaultSerializer ser(bufferSizeInBytes, (unsigned char*)bufferServerToClient);
 
-		util->m_mb = mb;
-		util->m_memSerializer = &ser;
-		util->m_memSerializer->startSerialization();
+		ser.startSerialization();
 
 		//disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
-		util->m_memSerializer->m_skipPointers.insert(mb->getBaseCollider(), 0);
+		ser.m_skipPointers.insert(mb->getBaseCollider(), 0);
 		if (mb->getBaseName())
 		{
-			util->m_memSerializer->registerNameForPointer(mb->getBaseName(), mb->getBaseName());
+			ser.registerNameForPointer(mb->getBaseName(), mb->getBaseName());
 		}
 
 		bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
 		for (int i = 0; i < mb->getNumLinks(); i++)
 		{
 			//disable serialization of the collision objects
-			util->m_memSerializer->m_skipPointers.insert(mb->getLink(i).m_collider, 0);
-			util->m_memSerializer->registerNameForPointer(mb->getLink(i).m_linkName, mb->getLink(i).m_linkName);
-			util->m_memSerializer->registerNameForPointer(mb->getLink(i).m_jointName, mb->getLink(i).m_jointName);
+			ser.m_skipPointers.insert(mb->getLink(i).m_collider, 0);
+			ser.registerNameForPointer(mb->getLink(i).m_linkName, mb->getLink(i).m_linkName);
+			ser.registerNameForPointer(mb->getLink(i).m_jointName, mb->getLink(i).m_jointName);
 		}
 
-		util->m_memSerializer->registerNameForPointer(mb->getBaseName(), mb->getBaseName());
+		ser.registerNameForPointer(mb->getBaseName(), mb->getBaseName());
 
 		int len = mb->calculateSerializeBufferSize();
-		btChunk* chunk = util->m_memSerializer->allocate(len, 1);
-		const char* structType = mb->serialize(chunk->m_oldPtr, util->m_memSerializer);
-		util->m_memSerializer->finalizeChunk(chunk, structType, BT_MULTIBODY_CODE, mb);
-		streamSizeInBytes = util->m_memSerializer->getCurrentBufferSize();
+		btChunk* chunk = ser.allocate(len, 1);
+		const char* structType = mb->serialize(chunk->m_oldPtr, &ser);
+		ser.finalizeChunk(chunk, structType, BT_MULTIBODY_CODE, mb);
+		streamSizeInBytes = ser.getCurrentBufferSize();
 	}
-	else
-	{
-		btRigidBody* rb = bodyHandle ? bodyHandle->m_rigidBody : 0;
-		if (rb)
-		{
-			UrdfLinkNameMapUtil utilBla;
-			UrdfLinkNameMapUtil* util = &utilBla;
+	else if(bodyHandle->m_rigidBody){
+	    btRigidBody* rb = bodyHandle->m_rigidBody;
 			btDefaultSerializer ser(bufferSizeInBytes, (unsigned char*)bufferServerToClient);
 
-			util->m_memSerializer = &ser;
-			util->m_memSerializer->startSerialization();
-			util->m_memSerializer->registerNameForPointer(bodyHandle->m_rigidBody, bodyHandle->m_bodyName.c_str());
+			ser.startSerialization();
+			ser.registerNameForPointer(bodyHandle->m_rigidBody, bodyHandle->m_bodyName.c_str());
 			//disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
 			for (int i = 0; i < bodyHandle->m_rigidBodyJoints.size(); i++)
 			{
 				const btGeneric6DofSpring2Constraint* con = bodyHandle->m_rigidBodyJoints.at(i);
 
-				util->m_memSerializer->registerNameForPointer(con, bodyHandle->m_rigidBodyJointNames[i].c_str());
-				util->m_memSerializer->registerNameForPointer(&con->getRigidBodyB(), bodyHandle->m_rigidBodyLinkNames[i].c_str());
+				ser.registerNameForPointer(con, bodyHandle->m_rigidBodyJointNames[i].c_str());
+				ser.registerNameForPointer(&con->getRigidBodyB(), bodyHandle->m_rigidBodyLinkNames[i].c_str());
 
 				const btRigidBody& bodyA = con->getRigidBodyA();
 
 				int len = con->calculateSerializeBufferSize();
-				btChunk* chunk = util->m_memSerializer->allocate(len, 1);
-				const char* structType = con->serialize(chunk->m_oldPtr, util->m_memSerializer);
-				util->m_memSerializer->finalizeChunk(chunk, structType, BT_CONSTRAINT_CODE, (void*)con);
+				btChunk* chunk = ser.allocate(len, 1);
+				const char* structType = con->serialize(chunk->m_oldPtr, &ser);
+				ser.finalizeChunk(chunk, structType, BT_CONSTRAINT_CODE, (void*)con);
 			}
-
-			streamSizeInBytes = util->m_memSerializer->getCurrentBufferSize();
+			streamSizeInBytes = ser.getCurrentBufferSize();
 		}
+    else if(bodyHandle->m_softBody){
+    //minimum serialization, registerNameForPointer
+    btSoftBody* sb = bodyHandle->m_softBody;
+		btDefaultSerializer ser(bufferSizeInBytes, (unsigned char*)bufferServerToClient);
+
+		ser.startSerialization();
+		ser.registerNameForPointer(sb, bodyHandle->m_bodyName.c_str());
+
+		int len = sb->calculateSerializeBufferSize();
+		btChunk* chunk = ser.allocate(len, 1);
+		const char* structType = sb->serialize(chunk->m_oldPtr, &ser);
+		ser.finalizeChunk(chunk, structType, BT_SOFTBODY_CODE, sb);
+		streamSizeInBytes = ser.getCurrentBufferSize();
 	}
 
 	return streamSizeInBytes;
@@ -5530,7 +5515,7 @@ bool PhysicsServerCommandProcessor::processSyncBodyInfoCommand(const struct Shar
 	{
 		int usedHandle = usedHandles[i];
 		InternalBodyData* body = m_data->m_bodyHandles.getHandle(usedHandle);
-		if (body && (body->m_multiBody || body->m_rigidBody))
+		if (body && (body->m_multiBody || body->m_rigidBody || body->m_softBody))
 		{
 			serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = usedHandle;
 		}
@@ -6551,59 +6536,100 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 
 		hasStatus = true;
 	}
-	else
-	{
-		if (body && body->m_rigidBody)
-		{
-			btRigidBody* rb = body->m_rigidBody;
-			SharedMemoryStatus& serverCmd = serverStatusOut;
-			serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_COMPLETED;
+	else if (body && body->m_rigidBody){
+          btRigidBody* rb = body->m_rigidBody;
+          SharedMemoryStatus& serverCmd = serverStatusOut;
+          serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_COMPLETED;
 			
-			serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
-			serverCmd.m_sendActualStateArgs.m_numLinks = 0;
-			serverCmd.m_sendActualStateArgs.m_stateDetails = 0;
+          serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
+          serverCmd.m_sendActualStateArgs.m_numLinks = 0;
+          serverCmd.m_sendActualStateArgs.m_stateDetails = 0;
 
-			int totalDegreeOfFreedomQ = 0;
-			int totalDegreeOfFreedomU = 0;
+          int totalDegreeOfFreedomQ = 0;
+          int totalDegreeOfFreedomU = 0;
 
-			btTransform tr = rb->getWorldTransform();
-			//base position in world space, carthesian
-			stateDetails->m_actualStateQ[0] = tr.getOrigin()[0];
-			stateDetails->m_actualStateQ[1] = tr.getOrigin()[1];
-			stateDetails->m_actualStateQ[2] = tr.getOrigin()[2];
+          btTransform tr = rb->getWorldTransform();
+          //base position in world space, carthesian
+          stateDetails->m_actualStateQ[0] = tr.getOrigin()[0];
+          stateDetails->m_actualStateQ[1] = tr.getOrigin()[1];
+          stateDetails->m_actualStateQ[2] = tr.getOrigin()[2];
 
-			//base orientation, quaternion x,y,z,w, in world space, carthesian
-			stateDetails->m_actualStateQ[3] = tr.getRotation()[0];
-			stateDetails->m_actualStateQ[4] = tr.getRotation()[1];
-			stateDetails->m_actualStateQ[5] = tr.getRotation()[2];
-			stateDetails->m_actualStateQ[6] = tr.getRotation()[3];
-			totalDegreeOfFreedomQ += 7;  //pos + quaternion
+          //base orientation, quaternion x,y,z,w, in world space, carthesian
+          stateDetails->m_actualStateQ[3] = tr.getRotation()[0];
+          stateDetails->m_actualStateQ[4] = tr.getRotation()[1];
+          stateDetails->m_actualStateQ[5] = tr.getRotation()[2];
+          stateDetails->m_actualStateQ[6] = tr.getRotation()[3];
+          totalDegreeOfFreedomQ += 7;  //pos + quaternion
 
-			//base linear velocity (in world space, carthesian)
-			stateDetails->m_actualStateQdot[0] = rb->getLinearVelocity()[0];
-			stateDetails->m_actualStateQdot[1] = rb->getLinearVelocity()[1];
-			stateDetails->m_actualStateQdot[2] = rb->getLinearVelocity()[2];
+          //base linear velocity (in world space, carthesian)
+          stateDetails->m_actualStateQdot[0] = rb->getLinearVelocity()[0];
+          stateDetails->m_actualStateQdot[1] = rb->getLinearVelocity()[1];
+          stateDetails->m_actualStateQdot[2] = rb->getLinearVelocity()[2];
 
-			//base angular velocity (in world space, carthesian)
-			stateDetails->m_actualStateQdot[3] = rb->getAngularVelocity()[0];
-			stateDetails->m_actualStateQdot[4] = rb->getAngularVelocity()[1];
-			stateDetails->m_actualStateQdot[5] = rb->getAngularVelocity()[2];
-			totalDegreeOfFreedomU += 6;  //3 linear and 3 angular DOF
+          //base angular velocity (in world space, carthesian)
+          stateDetails->m_actualStateQdot[3] = rb->getAngularVelocity()[0];
+          stateDetails->m_actualStateQdot[4] = rb->getAngularVelocity()[1];
+          stateDetails->m_actualStateQdot[5] = rb->getAngularVelocity()[2];
+          totalDegreeOfFreedomU += 6;  //3 linear and 3 angular DOF
 
-			serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
-			serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
+          serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
+          serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
 
-			hasStatus = true;
-		}
-		else
-		{
-			//b3Warning("Request state but no multibody or rigid body available");
-			SharedMemoryStatus& serverCmd = serverStatusOut;
-			serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_FAILED;
-			hasStatus = true;
-		}
-	}
-	return hasStatus;
+          hasStatus = true;
+        }
+        else if (body && body->m_softBody)
+        {
+          btSoftBody* sb = body->m_softBody;
+          SharedMemoryStatus& serverCmd = serverStatusOut;
+          serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_COMPLETED;
+          serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
+          serverCmd.m_sendActualStateArgs.m_numLinks = 0;
+          serverCmd.m_sendActualStateArgs.m_stateDetails = 0;
+
+          serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[0] =
+              body->m_rootLocalInertialFrame.getOrigin()[0];
+          serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[1] =
+              body->m_rootLocalInertialFrame.getOrigin()[1];
+          serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[2] =
+              body->m_rootLocalInertialFrame.getOrigin()[2];
+
+          serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[3] =
+              body->m_rootLocalInertialFrame.getRotation()[0];
+          serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[4] =
+              body->m_rootLocalInertialFrame.getRotation()[1];
+          serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[5] =
+              body->m_rootLocalInertialFrame.getRotation()[2];
+          serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[6] =
+              body->m_rootLocalInertialFrame.getRotation()[3];
+
+          btTransform tr = sb->getWorldTransform();
+          //base position in world space, cartesian
+          stateDetails->m_actualStateQ[0] = tr.getOrigin()[0];
+          stateDetails->m_actualStateQ[1] = tr.getOrigin()[1];
+          stateDetails->m_actualStateQ[2] = tr.getOrigin()[2];
+
+          //base orientation, quaternion x,y,z,w, in world space, cartesian
+          stateDetails->m_actualStateQ[3] = tr.getRotation()[0];
+          stateDetails->m_actualStateQ[4] = tr.getRotation()[1];
+          stateDetails->m_actualStateQ[5] = tr.getRotation()[2];
+          stateDetails->m_actualStateQ[6] = tr.getRotation()[3];
+
+          int totalDegreeOfFreedomQ = 7;  //pos + quaternion
+          int totalDegreeOfFreedomU = 6;  //3 linear and 3 angular DOF
+
+          serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
+          serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
+
+          hasStatus = true;
+        }
+        else
+        {
+          //b3Warning("Request state but no multibody or rigid body available");
+          SharedMemoryStatus& serverCmd = serverStatusOut;
+          serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_FAILED;
+          hasStatus = true;
+        }
+        return hasStatus;
 }
 
 bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
@@ -7281,17 +7307,34 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	btAssert((clientCmd.m_updateFlags & LOAD_SOFT_BODY_FILE_NAME) != 0);
 	btAssert(loadSoftBodyArgs.m_fileName);
 
+
+        btVector3 initialPos(0, 0, 0);
+        if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_INITIAL_POSITION)
+	{
+          initialPos[0] = loadSoftBodyArgs.m_initialPosition[0];
+          initialPos[1] = loadSoftBodyArgs.m_initialPosition[1];
+          initialPos[2] = loadSoftBodyArgs.m_initialPosition[2];
+	}
+	btQuaternion initialOrn(0, 0, 0, 1);
+        if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_INITIAL_ORIENTATION)
+	{
+          initialOrn[0] = loadSoftBodyArgs.m_initialOrientation[0];
+          initialOrn[1] = loadSoftBodyArgs.m_initialOrientation[1];
+          initialOrn[2] = loadSoftBodyArgs.m_initialOrientation[2];
+          initialOrn[3] = loadSoftBodyArgs.m_initialOrientation[3];
+	}
+
 	if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_UPDATE_SCALE)
 	{
-		scale = clientCmd.m_loadSoftBodyArguments.m_scale;
+                scale = clientCmd.m_loadSoftBodyArguments.m_scale;
 	}
 	if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_UPDATE_MASS)
 	{
-		mass = clientCmd.m_loadSoftBodyArguments.m_mass;
+                mass = clientCmd.m_loadSoftBodyArguments.m_mass;
 	}
-	if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_UPDATE_COLLISION_MARGIN)
+   	if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_UPDATE_COLLISION_MARGIN)
 	{
-		collisionMargin = clientCmd.m_loadSoftBodyArguments.m_collisionMargin;
+                collisionMargin = clientCmd.m_loadSoftBodyArguments.m_collisionMargin;
 	}
 
 	{
@@ -7310,7 +7353,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 		bool foundFile = UrdfFindMeshFile(fileIO,pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
 		std::vector<tinyobj::shape_t> shapes;
 		std::string err = tinyobj::LoadObj(shapes, out_found_filename.c_str(),"",fileIO);
-		if (shapes.size() > 0)
+		if (!shapes.empty())
 		{
 			const tinyobj::shape_t& shape = shapes[0];
 			btAlignedObjectArray<btScalar> vertices;
@@ -7334,8 +7377,8 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				psb->m_cfg.piterations = 20;
 				psb->m_cfg.kDF = 0.5;
 				psb->randomizeConstraints();
-				psb->rotate(btQuaternion(0.70711, 0, 0, 0.70711));
-				psb->translate(btVector3(-0.05, 0, 1.0));
+				psb->rotate(initialOrn);
+				psb->translate(initialPos);
 				psb->scale(btVector3(scale, scale, scale));
 
 				psb->setTotalMass(mass, true);
@@ -7349,6 +7392,19 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				bodyHandle->m_softBody = psb;
 				serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
 				serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_COMPLETED;
+
+                                int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
+                                serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
+
+#ifdef ENABLE_LINK_MAPPER
+                                if (m_data->m_urdfLinkNameMapper.size())
+                                {
+                                  serverStatusOut.m_numDataStreamBytes = m_data->m_urdfLinkNameMapper.at(m_data->m_urdfLinkNameMapper.size() - 1)->m_memSerializer->getCurrentBufferSize();
+                                }
+#endif
+                                serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
+                                InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+                                strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());
 
 				b3Notification notification;
 				notification.m_notificationType = BODY_ADDED;
@@ -7482,6 +7538,17 @@ bool PhysicsServerCommandProcessor::processProfileTimingCommand(const struct Sha
 	return hasStatus;
 }
 
+void setDefaultRootWorldAABB(SharedMemoryStatus& serverCmd)
+{
+    serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = 0;
+		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = 0;
+		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[2] = 0;
+
+		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[0] = -1;
+		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = -1;
+		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = -1;
+}
+
 bool PhysicsServerCommandProcessor::processRequestCollisionInfoCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -7496,13 +7563,7 @@ bool PhysicsServerCommandProcessor::processRequestCollisionInfoCommand(const str
 		btMultiBody* mb = body->m_multiBody;
 		serverStatusOut.m_type = CMD_REQUEST_COLLISION_INFO_COMPLETED;
 		serverCmd.m_sendCollisionInfoArgs.m_numLinks = body->m_multiBody->getNumLinks();
-		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = 0;
-		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = 0;
-		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[2] = 0;
-
-		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[0] = -1;
-		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = -1;
-		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = -1;
+                setDefaultRootWorldAABB(serverCmd);
 
 		if (body->m_multiBody->getBaseCollider())
 		{
@@ -7544,21 +7605,14 @@ bool PhysicsServerCommandProcessor::processRequestCollisionInfoCommand(const str
 			}
 		}
 	}
-	else
+	else if (body && body->m_rigidBody)
 	{
-		if (body && body->m_rigidBody)
-		{
 			btRigidBody* rb = body->m_rigidBody;
 			SharedMemoryStatus& serverCmd = serverStatusOut;
 			serverStatusOut.m_type = CMD_REQUEST_COLLISION_INFO_COMPLETED;
 			serverCmd.m_sendCollisionInfoArgs.m_numLinks = 0;
-			serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = 0;
-			serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = 0;
-			serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[2] = 0;
+                        setDefaultRootWorldAABB(serverCmd);
 
-			serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[0] = -1;
-			serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = -1;
-			serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = -1;
 			if (rb->getCollisionShape())
 			{
 				btTransform tr = rb->getWorldTransform();
@@ -7573,8 +7627,14 @@ bool PhysicsServerCommandProcessor::processRequestCollisionInfoCommand(const str
 				serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = aabbMax[1];
 				serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = aabbMax[2];
 			}
-		}
 	}
+        else if (body && body->m_softBody){
+          SharedMemoryStatus& serverCmd = serverStatusOut;
+          serverStatusOut.m_type = CMD_REQUEST_COLLISION_INFO_COMPLETED;
+          serverCmd.m_sendCollisionInfoArgs.m_numLinks = 0;
+          setDefaultRootWorldAABB(serverCmd);
+        }
+
 	return hasStatus;
 }
 
@@ -7815,7 +7875,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 						m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
 					}
 				}
-				
+
 			}
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
 			{
@@ -8171,6 +8231,12 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 		}
 		hasStatus = true;
 	}
+	else if (body && body->m_softBody){
+          //todo: @fuchuyuan implement dynamics info
+          b3Warning("Softbody dynamics info not set!!!");
+          SharedMemoryStatus& serverCmd = serverStatusOut;
+          serverCmd.m_type = CMD_GET_DYNAMICS_INFO_COMPLETED;
+        }
 	return hasStatus;
 }
 
@@ -10496,6 +10562,18 @@ bool PhysicsServerCommandProcessor::processRequestVisualShapeInfoCommand(const s
 		int totalNumVisualShapes = m_data->m_pluginManager.getRenderInterface()->getNumVisualShapes(clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId);
 		//int totalBytesPerVisualShape = sizeof (b3VisualShapeData);
 		//int visualShapeStorage = bufferSizeInBytes / totalBytesPerVisualShape - 1;
+
+                //set serverCmd.m_sendVisualShapeArgs when totalNumVisualShapes is zero
+                if (totalNumVisualShapes==0) {
+                  serverCmd.m_sendVisualShapeArgs.m_numRemainingVisualShapes = 0;
+                  serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied = 0;
+                  serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex = clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
+                  serverCmd.m_sendVisualShapeArgs.m_bodyUniqueId = clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId;
+                  serverCmd.m_numDataStreamBytes = sizeof(b3VisualShapeData) * serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
+                  serverCmd.m_type = CMD_VISUAL_SHAPE_INFO_COMPLETED;
+                }
+
+    else{
 		b3VisualShapeData* visualShapeStoragePtr = (b3VisualShapeData*)bufferServerToClient;
 
 		int remain = totalNumVisualShapes - clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
@@ -10531,6 +10609,10 @@ bool PhysicsServerCommandProcessor::processRequestVisualShapeInfoCommand(const s
 			serverCmd.m_numDataStreamBytes = sizeof(b3VisualShapeData) * serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
 			serverCmd.m_type = CMD_VISUAL_SHAPE_INFO_COMPLETED;
 		}
+                else{
+                  b3Warning("failed to get shape info");
+                }
+    }
 	}
 	return hasStatus;
 }
