@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Combine multiple environments to step them in batch."""
 
 from __future__ import absolute_import
@@ -84,13 +83,9 @@ class BatchEnv(object):
         message = 'Invalid action at index {}: {}'
         raise ValueError(message.format(index, action))
     if self._blocking:
-      transitions = [
-          env.step(action)
-          for env, action in zip(self._envs, actions)]
+      transitions = [env.step(action) for env, action in zip(self._envs, actions)]
     else:
-      transitions = [
-          env.step(action, blocking=False)
-          for env, action in zip(self._envs, actions)]
+      transitions = [env.step(action, blocking=False) for env, action in zip(self._envs, actions)]
       transitions = [transition() for transition in transitions]
     observs, rewards, dones, infos = zip(*transitions)
     observ = np.stack(observs)

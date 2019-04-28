@@ -75,8 +75,8 @@ reframed = series_to_supervised(scaled, lag_steps, 1)
 print("reframed before drop=", reframed)
 
 # drop columns we don't want to predict
-reframed.drop(reframed.columns[[3,7,11,15,19]], axis=1, inplace=True)
-print("after drop=",reframed.head())
+reframed.drop(reframed.columns[[3, 7, 11, 15, 19]], axis=1, inplace=True)
+print("after drop=", reframed.head())
 
 #dummy = scaler.inverse_transform(reframed)
 #print(dummy)
@@ -104,17 +104,17 @@ test = values[n_train_hours:, :]
 train_X, train_y = train[:, :-1], train[:, -1]
 test_X, test_y = test[:, :-1], test[:, -1]
 
-print("train_X.shape[1]=",train_X.shape[1])
-
+print("train_X.shape[1]=", train_X.shape[1])
 
 # design network
-useLSTM=True
+useLSTM = True
 if useLSTM:
   # reshape input to be 3D [samples, timesteps, features]
-  train_X = train_X.reshape((train_X.shape[0], lag_steps+1, int(train_X.shape[1]/(lag_steps+1))))
-  test_X = test_X.reshape((test_X.shape[0], lag_steps+1, int(test_X.shape[1]/(lag_steps+1))))
+  train_X = train_X.reshape(
+      (train_X.shape[0], lag_steps + 1, int(train_X.shape[1] / (lag_steps + 1))))
+  test_X = test_X.reshape((test_X.shape[0], lag_steps + 1, int(test_X.shape[1] / (lag_steps + 1))))
   model = Sequential()
-  model.add(LSTM(40,  input_shape=(train_X.shape[1], train_X.shape[2])))
+  model.add(LSTM(40, input_shape=(train_X.shape[1], train_X.shape[2])))
   model.add(Dropout(0.05))
   model.add(Dense(8, activation='sigmoid'))
   model.add(Dense(8, activation='sigmoid'))
@@ -128,39 +128,37 @@ else:
   model.add(Dense(1, activation="linear"))
 
 #model.compile(loss='mae', optimizer='adam')
-model.compile(
-    loss='mean_squared_error', optimizer='adam', metrics=['mean_squared_error'])
+model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_squared_error'])
 
 # checkpoint
 filepath = '/tmp/keras/weights-improvement-{epoch:02d}-{val_loss:.2f}.hdf5'
-checkpoint = ModelCheckpoint(
-    filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+checkpoint = ModelCheckpoint(filepath,
+                             monitor='val_loss',
+                             verbose=1,
+                             save_best_only=True,
+                             mode='min')
 callbacks_list = [checkpoint]
 
 # fit network
-history = model.fit(
-    train_X,
-    train_y,
-    epochs=1500,
-    batch_size=32,
-    callbacks=callbacks_list,
-    validation_data=(test_X, test_y),
-    verbose=2,
-    shuffle=False)
+history = model.fit(train_X,
+                    train_y,
+                    epochs=1500,
+                    batch_size=32,
+                    callbacks=callbacks_list,
+                    validation_data=(test_X, test_y),
+                    verbose=2,
+                    shuffle=False)
 # plot history
 
-
-data = np.array([[[1.513535008329887299,3.234624992847829894e-01,1.731481043119239782,1.741165415165205399,
-1.534267104753672228e+00,1.071354965017878635e+00,1.712386127673626302e+00]]])
-
+data = np.array([[[
+    1.513535008329887299, 3.234624992847829894e-01, 1.731481043119239782, 1.741165415165205399,
+    1.534267104753672228e+00, 1.071354965017878635e+00, 1.712386127673626302e+00
+]]])
 
 #prediction = model.predict(data)
 #print("prediction=",prediction)
-
 
 pyplot.plot(history.history['loss'], label='train')
 pyplot.plot(history.history['val_loss'], label='test')
 pyplot.legend()
 pyplot.show()
-
-

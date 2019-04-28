@@ -15,9 +15,8 @@ OVERHEAT_SHUTDOWN_TORQUE = 2.45
 OVERHEAT_SHUTDOWN_TIME = 1.0
 LEG_POSITION = ["front_left", "back_left", "front_right", "back_right"]
 MOTOR_NAMES = [
-    "motor_front_leftL_joint", "motor_front_leftR_joint",
-    "motor_back_leftL_joint", "motor_back_leftR_joint",
-    "motor_front_rightL_joint", "motor_front_rightR_joint",
+    "motor_front_leftL_joint", "motor_front_leftR_joint", "motor_back_leftL_joint",
+    "motor_back_leftR_joint", "motor_front_rightL_joint", "motor_front_rightR_joint",
     "motor_back_rightL_joint", "motor_back_rightR_joint"
 ]
 LEG_LINK_ID = [2, 3, 5, 6, 8, 9, 11, 12, 15, 16, 18, 19, 21, 22, 24, 25]
@@ -33,7 +32,7 @@ class Minitaur(object):
 
   def __init__(self,
                pybullet_client,
-               urdf_root= os.path.join(os.path.dirname(__file__),"../data"),
+               urdf_root=os.path.join(os.path.dirname(__file__), "../data"),
                time_step=0.01,
                self_collision_enabled=False,
                motor_velocity_limit=np.inf,
@@ -87,10 +86,9 @@ class Minitaur(object):
     if self._accurate_motor_model_enabled:
       self._kp = motor_kp
       self._kd = motor_kd
-      self._motor_model = motor.MotorModel(
-          torque_control_enabled=self._torque_control_enabled,
-          kp=self._kp,
-          kd=self._kd)
+      self._motor_model = motor.MotorModel(torque_control_enabled=self._torque_control_enabled,
+                                           kp=self._kp,
+                                           kd=self._kd)
     elif self._pd_control_enabled:
       self._kp = 8
       self._kd = kd_for_pd_controllers
@@ -101,15 +99,12 @@ class Minitaur(object):
     self.Reset()
 
   def _RecordMassInfoFromURDF(self):
-    self._base_mass_urdf = self._pybullet_client.getDynamicsInfo(
-        self.quadruped, BASE_LINK_ID)[0]
+    self._base_mass_urdf = self._pybullet_client.getDynamicsInfo(self.quadruped, BASE_LINK_ID)[0]
     self._leg_masses_urdf = []
     self._leg_masses_urdf.append(
-        self._pybullet_client.getDynamicsInfo(self.quadruped, LEG_LINK_ID[0])[
-            0])
+        self._pybullet_client.getDynamicsInfo(self.quadruped, LEG_LINK_ID[0])[0])
     self._leg_masses_urdf.append(
-        self._pybullet_client.getDynamicsInfo(self.quadruped, MOTOR_LINK_ID[0])[
-            0])
+        self._pybullet_client.getDynamicsInfo(self.quadruped, MOTOR_LINK_ID[0])[0])
 
   def _BuildJointNameToIdDict(self):
     num_joints = self._pybullet_client.getNumJoints(self.quadruped)
@@ -119,9 +114,7 @@ class Minitaur(object):
       self._joint_name_to_id[joint_info[1].decode("UTF-8")] = joint_info[0]
 
   def _BuildMotorIdList(self):
-    self._motor_id_list = [
-        self._joint_name_to_id[motor_name] for motor_name in MOTOR_NAMES
-    ]
+    self._motor_id_list = [self._joint_name_to_id[motor_name] for motor_name in MOTOR_NAMES]
 
   def Reset(self, reload_urdf=True):
     """Reset the minitaur to its initial states.
@@ -144,39 +137,35 @@ class Minitaur(object):
       self._RecordMassInfoFromURDF()
       self.ResetPose(add_constraint=True)
       if self._on_rack:
-        self._pybullet_client.createConstraint(
-            self.quadruped, -1, -1, -1, self._pybullet_client.JOINT_FIXED,
-            [0, 0, 0], [0, 0, 0], [0, 0, 1])
+        self._pybullet_client.createConstraint(self.quadruped, -1, -1, -1,
+                                               self._pybullet_client.JOINT_FIXED, [0, 0, 0],
+                                               [0, 0, 0], [0, 0, 1])
     else:
-      self._pybullet_client.resetBasePositionAndOrientation(
-          self.quadruped, INIT_POSITION, INIT_ORIENTATION)
-      self._pybullet_client.resetBaseVelocity(self.quadruped, [0, 0, 0],
-                                              [0, 0, 0])
+      self._pybullet_client.resetBasePositionAndOrientation(self.quadruped, INIT_POSITION,
+                                                            INIT_ORIENTATION)
+      self._pybullet_client.resetBaseVelocity(self.quadruped, [0, 0, 0], [0, 0, 0])
       self.ResetPose(add_constraint=False)
 
     self._overheat_counter = np.zeros(self.num_motors)
     self._motor_enabled_list = [True] * self.num_motors
 
   def _SetMotorTorqueById(self, motor_id, torque):
-    self._pybullet_client.setJointMotorControl2(
-        bodyIndex=self.quadruped,
-        jointIndex=motor_id,
-        controlMode=self._pybullet_client.TORQUE_CONTROL,
-        force=torque)
+    self._pybullet_client.setJointMotorControl2(bodyIndex=self.quadruped,
+                                                jointIndex=motor_id,
+                                                controlMode=self._pybullet_client.TORQUE_CONTROL,
+                                                force=torque)
 
   def _SetDesiredMotorAngleById(self, motor_id, desired_angle):
-    self._pybullet_client.setJointMotorControl2(
-        bodyIndex=self.quadruped,
-        jointIndex=motor_id,
-        controlMode=self._pybullet_client.POSITION_CONTROL,
-        targetPosition=desired_angle,
-        positionGain=self._kp,
-        velocityGain=self._kd,
-        force=self._max_force)
+    self._pybullet_client.setJointMotorControl2(bodyIndex=self.quadruped,
+                                                jointIndex=motor_id,
+                                                controlMode=self._pybullet_client.POSITION_CONTROL,
+                                                targetPosition=desired_angle,
+                                                positionGain=self._kp,
+                                                velocityGain=self._kd,
+                                                force=self._max_force)
 
   def _SetDesiredMotorAngleByName(self, motor_name, desired_angle):
-    self._SetDesiredMotorAngleById(self._joint_name_to_id[motor_name],
-                                   desired_angle)
+    self._SetDesiredMotorAngleById(self._joint_name_to_id[motor_name], desired_angle)
 
   def ResetPose(self, add_constraint):
     """Reset the pose of the minitaur.
@@ -200,59 +189,53 @@ class Minitaur(object):
     knee_angle = -2.1834
 
     leg_position = LEG_POSITION[leg_id]
-    self._pybullet_client.resetJointState(
-        self.quadruped,
-        self._joint_name_to_id["motor_" + leg_position + "L_joint"],
-        self._motor_direction[2 * leg_id] * half_pi,
-        targetVelocity=0)
-    self._pybullet_client.resetJointState(
-        self.quadruped,
-        self._joint_name_to_id["knee_" + leg_position + "L_link"],
-        self._motor_direction[2 * leg_id] * knee_angle,
-        targetVelocity=0)
-    self._pybullet_client.resetJointState(
-        self.quadruped,
-        self._joint_name_to_id["motor_" + leg_position + "R_joint"],
-        self._motor_direction[2 * leg_id + 1] * half_pi,
-        targetVelocity=0)
-    self._pybullet_client.resetJointState(
-        self.quadruped,
-        self._joint_name_to_id["knee_" + leg_position + "R_link"],
-        self._motor_direction[2 * leg_id + 1] * knee_angle,
-        targetVelocity=0)
+    self._pybullet_client.resetJointState(self.quadruped,
+                                          self._joint_name_to_id["motor_" + leg_position +
+                                                                 "L_joint"],
+                                          self._motor_direction[2 * leg_id] * half_pi,
+                                          targetVelocity=0)
+    self._pybullet_client.resetJointState(self.quadruped,
+                                          self._joint_name_to_id["knee_" + leg_position +
+                                                                 "L_link"],
+                                          self._motor_direction[2 * leg_id] * knee_angle,
+                                          targetVelocity=0)
+    self._pybullet_client.resetJointState(self.quadruped,
+                                          self._joint_name_to_id["motor_" + leg_position +
+                                                                 "R_joint"],
+                                          self._motor_direction[2 * leg_id + 1] * half_pi,
+                                          targetVelocity=0)
+    self._pybullet_client.resetJointState(self.quadruped,
+                                          self._joint_name_to_id["knee_" + leg_position +
+                                                                 "R_link"],
+                                          self._motor_direction[2 * leg_id + 1] * knee_angle,
+                                          targetVelocity=0)
     if add_constraint:
       self._pybullet_client.createConstraint(
-          self.quadruped, self._joint_name_to_id["knee_"
-                                                 + leg_position + "R_link"],
-          self.quadruped, self._joint_name_to_id["knee_"
-                                                 + leg_position + "L_link"],
-          self._pybullet_client.JOINT_POINT2POINT, [0, 0, 0],
-          KNEE_CONSTRAINT_POINT_RIGHT, KNEE_CONSTRAINT_POINT_LEFT)
+          self.quadruped, self._joint_name_to_id["knee_" + leg_position + "R_link"],
+          self.quadruped, self._joint_name_to_id["knee_" + leg_position + "L_link"],
+          self._pybullet_client.JOINT_POINT2POINT, [0, 0, 0], KNEE_CONSTRAINT_POINT_RIGHT,
+          KNEE_CONSTRAINT_POINT_LEFT)
 
     if self._accurate_motor_model_enabled or self._pd_control_enabled:
       # Disable the default motor in pybullet.
       self._pybullet_client.setJointMotorControl2(
           bodyIndex=self.quadruped,
-          jointIndex=(self._joint_name_to_id["motor_"
-                                             + leg_position + "L_joint"]),
+          jointIndex=(self._joint_name_to_id["motor_" + leg_position + "L_joint"]),
           controlMode=self._pybullet_client.VELOCITY_CONTROL,
           targetVelocity=0,
           force=knee_friction_force)
       self._pybullet_client.setJointMotorControl2(
           bodyIndex=self.quadruped,
-          jointIndex=(self._joint_name_to_id["motor_"
-                                             + leg_position + "R_joint"]),
+          jointIndex=(self._joint_name_to_id["motor_" + leg_position + "R_joint"]),
           controlMode=self._pybullet_client.VELOCITY_CONTROL,
           targetVelocity=0,
           force=knee_friction_force)
 
     else:
-      self._SetDesiredMotorAngleByName(
-          "motor_" + leg_position + "L_joint",
-          self._motor_direction[2 * leg_id] * half_pi)
+      self._SetDesiredMotorAngleByName("motor_" + leg_position + "L_joint",
+                                       self._motor_direction[2 * leg_id] * half_pi)
       self._SetDesiredMotorAngleByName("motor_" + leg_position + "R_joint",
-                                       self._motor_direction[2 * leg_id
-                                                             + 1] * half_pi)
+                                       self._motor_direction[2 * leg_id + 1] * half_pi)
 
     self._pybullet_client.setJointMotorControl2(
         bodyIndex=self.quadruped,
@@ -273,8 +256,7 @@ class Minitaur(object):
     Returns:
       The position of minitaur's base.
     """
-    position, _ = (
-        self._pybullet_client.getBasePositionAndOrientation(self.quadruped))
+    position, _ = (self._pybullet_client.getBasePositionAndOrientation(self.quadruped))
     return position
 
   def GetBaseOrientation(self):
@@ -283,8 +265,7 @@ class Minitaur(object):
     Returns:
       The orientation of minitaur's base.
     """
-    _, orientation = (
-        self._pybullet_client.getBasePositionAndOrientation(self.quadruped))
+    _, orientation = (self._pybullet_client.getBasePositionAndOrientation(self.quadruped))
     return orientation
 
   def GetActionDimension(self):
@@ -304,10 +285,9 @@ class Minitaur(object):
     """
     upper_bound = np.array([0.0] * self.GetObservationDimension())
     upper_bound[0:self.num_motors] = math.pi  # Joint angle.
-    upper_bound[self.num_motors:2 * self.num_motors] = (
-        motor.MOTOR_SPEED_LIMIT)  # Joint velocity.
-    upper_bound[2 * self.num_motors:3 * self.num_motors] = (
-        motor.OBSERVED_TORQUE_LIMIT)  # Joint torque.
+    upper_bound[self.num_motors:2 * self.num_motors] = (motor.MOTOR_SPEED_LIMIT)  # Joint velocity.
+    upper_bound[2 * self.num_motors:3 * self.num_motors] = (motor.OBSERVED_TORQUE_LIMIT
+                                                           )  # Joint torque.
     upper_bound[3 * self.num_motors:] = 1.0  # Quaternion of base orientation.
     return upper_bound
 
@@ -354,12 +334,9 @@ class Minitaur(object):
     """
     if self._motor_velocity_limit < np.inf:
       current_motor_angle = self.GetMotorAngles()
-      motor_commands_max = (
-          current_motor_angle + self.time_step * self._motor_velocity_limit)
-      motor_commands_min = (
-          current_motor_angle - self.time_step * self._motor_velocity_limit)
-      motor_commands = np.clip(motor_commands, motor_commands_min,
-                               motor_commands_max)
+      motor_commands_max = (current_motor_angle + self.time_step * self._motor_velocity_limit)
+      motor_commands_min = (current_motor_angle - self.time_step * self._motor_velocity_limit)
+      motor_commands = np.clip(motor_commands, motor_commands_min, motor_commands_max)
 
     if self._accurate_motor_model_enabled or self._pd_control_enabled:
       q = self.GetMotorAngles()
@@ -373,8 +350,7 @@ class Minitaur(object):
               self._overheat_counter[i] += 1
             else:
               self._overheat_counter[i] = 0
-            if (self._overheat_counter[i] >
-                OVERHEAT_SHUTDOWN_TIME / self.time_step):
+            if (self._overheat_counter[i] > OVERHEAT_SHUTDOWN_TIME / self.time_step):
               self._motor_enabled_list[i] = False
 
         # The torque is already in the observation space because we use
@@ -382,12 +358,11 @@ class Minitaur(object):
         self._observed_motor_torques = observed_torque
 
         # Transform into the motor space when applying the torque.
-        self._applied_motor_torque = np.multiply(actual_torque,
-                                                 self._motor_direction)
+        self._applied_motor_torque = np.multiply(actual_torque, self._motor_direction)
 
-        for motor_id, motor_torque, motor_enabled in zip(
-            self._motor_id_list, self._applied_motor_torque,
-            self._motor_enabled_list):
+        for motor_id, motor_torque, motor_enabled in zip(self._motor_id_list,
+                                                         self._applied_motor_torque,
+                                                         self._motor_enabled_list):
           if motor_enabled:
             self._SetMotorTorqueById(motor_id, motor_torque)
           else:
@@ -403,14 +378,12 @@ class Minitaur(object):
         self._applied_motor_torques = np.multiply(self._observed_motor_torques,
                                                   self._motor_direction)
 
-        for motor_id, motor_torque in zip(self._motor_id_list,
-                                          self._applied_motor_torques):
+        for motor_id, motor_torque in zip(self._motor_id_list, self._applied_motor_torques):
           self._SetMotorTorqueById(motor_id, motor_torque)
     else:
-      motor_commands_with_direction = np.multiply(motor_commands,
-                                                  self._motor_direction)
-      for motor_id, motor_command_with_direction in zip(
-          self._motor_id_list, motor_commands_with_direction):
+      motor_commands_with_direction = np.multiply(motor_commands, self._motor_direction)
+      for motor_id, motor_command_with_direction in zip(self._motor_id_list,
+                                                        motor_commands_with_direction):
         self._SetDesiredMotorAngleById(motor_id, motor_command_with_direction)
 
   def GetMotorAngles(self):
@@ -471,13 +444,13 @@ class Minitaur(object):
     quater_pi = math.pi / 4
     for i in range(self.num_motors):
       action_idx = i // 2
-      forward_backward_component = (-scale_for_singularity * quater_pi * (
-          actions[action_idx + half_num_motors] + offset_for_singularity))
+      forward_backward_component = (
+          -scale_for_singularity * quater_pi *
+          (actions[action_idx + half_num_motors] + offset_for_singularity))
       extension_component = (-1)**i * quater_pi * actions[action_idx]
       if i >= half_num_motors:
         extension_component = -extension_component
-      motor_angle[i] = (
-          math.pi + forward_backward_component + extension_component)
+      motor_angle[i] = (math.pi + forward_backward_component + extension_component)
     return motor_angle
 
   def GetBaseMassFromURDF(self):
@@ -489,8 +462,7 @@ class Minitaur(object):
     return self._leg_masses_urdf
 
   def SetBaseMass(self, base_mass):
-    self._pybullet_client.changeDynamics(
-        self.quadruped, BASE_LINK_ID, mass=base_mass)
+    self._pybullet_client.changeDynamics(self.quadruped, BASE_LINK_ID, mass=base_mass)
 
   def SetLegMasses(self, leg_masses):
     """Set the mass of the legs.
@@ -504,11 +476,9 @@ class Minitaur(object):
         leg_masses[1] is the mass of the motor.
     """
     for link_id in LEG_LINK_ID:
-      self._pybullet_client.changeDynamics(
-          self.quadruped, link_id, mass=leg_masses[0])
+      self._pybullet_client.changeDynamics(self.quadruped, link_id, mass=leg_masses[0])
     for link_id in MOTOR_LINK_ID:
-      self._pybullet_client.changeDynamics(
-          self.quadruped, link_id, mass=leg_masses[1])
+      self._pybullet_client.changeDynamics(self.quadruped, link_id, mass=leg_masses[1])
 
   def SetFootFriction(self, foot_friction):
     """Set the lateral friction of the feet.
@@ -518,8 +488,7 @@ class Minitaur(object):
         shared by all four feet.
     """
     for link_id in FOOT_LINK_ID:
-      self._pybullet_client.changeDynamics(
-          self.quadruped, link_id, lateralFriction=foot_friction)
+      self._pybullet_client.changeDynamics(self.quadruped, link_id, lateralFriction=foot_friction)
 
   def SetBatteryVoltage(self, voltage):
     if self._accurate_motor_model_enabled:

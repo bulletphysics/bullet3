@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Utilities for the PPO algorithm."""
 
 from __future__ import absolute_import
@@ -51,8 +50,7 @@ def reinit_nested_vars(variables, indices=None):
     Operation.
   """
   if isinstance(variables, (tuple, list)):
-    return tf.group(*[
-        reinit_nested_vars(variable, indices) for variable in variables])
+    return tf.group(*[reinit_nested_vars(variable, indices) for variable in variables])
   if indices is None:
     return variables.assign(tf.zeros_like(variables))
   else:
@@ -71,9 +69,8 @@ def assign_nested_vars(variables, tensors):
     Operation.
   """
   if isinstance(variables, (tuple, list)):
-    return tf.group(*[
-        assign_nested_vars(variable, tensor)
-        for variable, tensor in zip(variables, tensors)])
+    return tf.group(
+        *[assign_nested_vars(variable, tensor) for variable, tensor in zip(variables, tensors)])
   return variables.assign(tensors)
 
 
@@ -81,10 +78,11 @@ def discounted_return(reward, length, discount):
   """Discounted Monte-Carlo returns."""
   timestep = tf.range(reward.shape[1].value)
   mask = tf.cast(timestep[None, :] < length[:, None], tf.float32)
-  return_ = tf.reverse(tf.transpose(tf.scan(
-      lambda agg, cur: cur + discount * agg,
-      tf.transpose(tf.reverse(mask * reward, [1]), [1, 0]),
-      tf.zeros_like(reward[:, -1]), 1, False), [1, 0]), [1])
+  return_ = tf.reverse(
+      tf.transpose(
+          tf.scan(lambda agg, cur: cur + discount * agg,
+                  tf.transpose(tf.reverse(mask * reward, [1]), [1, 0]),
+                  tf.zeros_like(reward[:, -1]), 1, False), [1, 0]), [1])
   return tf.check_numerics(tf.stop_gradient(return_), 'return')
 
 
@@ -95,9 +93,8 @@ def fixed_step_return(reward, value, length, discount, window):
   return_ = tf.zeros_like(reward)
   for _ in range(window):
     return_ += reward
-    reward = discount * tf.concat(
-        [reward[:, 1:], tf.zeros_like(reward[:, -1:])], 1)
-  return_ += discount ** window * tf.concat(
+    reward = discount * tf.concat([reward[:, 1:], tf.zeros_like(reward[:, -1:])], 1)
+  return_ += discount**window * tf.concat(
       [value[:, window:], tf.zeros_like(value[:, -window:]), 1])
   return tf.check_numerics(tf.stop_gradient(mask * return_), 'return')
 
@@ -109,10 +106,11 @@ def lambda_return(reward, value, length, discount, lambda_):
   sequence = mask * reward + discount * value * (1 - lambda_)
   discount = mask * discount * lambda_
   sequence = tf.stack([sequence, discount], 2)
-  return_ = tf.reverse(tf.transpose(tf.scan(
-      lambda agg, cur: cur[0] + cur[1] * agg,
-      tf.transpose(tf.reverse(sequence, [1]), [1, 2, 0]),
-      tf.zeros_like(value[:, -1]), 1, False), [1, 0]), [1])
+  return_ = tf.reverse(
+      tf.transpose(
+          tf.scan(lambda agg, cur: cur[0] + cur[1] * agg,
+                  tf.transpose(tf.reverse(sequence, [1]), [1, 2, 0]), tf.zeros_like(value[:, -1]),
+                  1, False), [1, 0]), [1])
   return tf.check_numerics(tf.stop_gradient(return_), 'return')
 
 
@@ -122,27 +120,26 @@ def lambda_advantage(reward, value, length, discount):
   mask = tf.cast(timestep[None, :] < length[:, None], tf.float32)
   next_value = tf.concat([value[:, 1:], tf.zeros_like(value[:, -1:])], 1)
   delta = reward + discount * next_value - value
-  advantage = tf.reverse(tf.transpose(tf.scan(
-      lambda agg, cur: cur + discount * agg,
-      tf.transpose(tf.reverse(mask * delta, [1]), [1, 0]),
-      tf.zeros_like(delta[:, -1]), 1, False), [1, 0]), [1])
+  advantage = tf.reverse(
+      tf.transpose(
+          tf.scan(lambda agg, cur: cur + discount * agg,
+                  tf.transpose(tf.reverse(mask * delta, [1]), [1, 0]), tf.zeros_like(delta[:, -1]),
+                  1, False), [1, 0]), [1])
   return tf.check_numerics(tf.stop_gradient(advantage), 'advantage')
 
 
 def diag_normal_kl(mean0, logstd0, mean1, logstd1):
   """Epirical KL divergence of two normals with diagonal covariance."""
   logstd0_2, logstd1_2 = 2 * logstd0, 2 * logstd1
-  return 0.5 * (
-      tf.reduce_sum(tf.exp(logstd0_2 - logstd1_2), -1) +
-      tf.reduce_sum((mean1 - mean0) ** 2 / tf.exp(logstd1_2), -1) +
-      tf.reduce_sum(logstd1_2, -1) - tf.reduce_sum(logstd0_2, -1) -
-      mean0.shape[-1].value)
+  return 0.5 * (tf.reduce_sum(tf.exp(logstd0_2 - logstd1_2), -1) + tf.reduce_sum(
+      (mean1 - mean0)**2 / tf.exp(logstd1_2), -1) + tf.reduce_sum(logstd1_2, -1) -
+                tf.reduce_sum(logstd0_2, -1) - mean0.shape[-1].value)
 
 
 def diag_normal_logpdf(mean, logstd, loc):
   """Log density of a normal with diagonal covariance."""
   constant = -0.5 * (math.log(2 * math.pi) + logstd)
-  value = -0.5 * ((loc - mean) / tf.exp(logstd)) ** 2
+  value = -0.5 * ((loc - mean) / tf.exp(logstd))**2
   return tf.reduce_sum(constant + value, -1)
 
 

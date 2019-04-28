@@ -6,17 +6,17 @@ import numpy as np
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 
 import gym
 from pybullet_envs.bullet.kuka_diverse_object_gym_env import KukaDiverseObjectEnv
 from gym import spaces
 
 
-
 class ContinuousDownwardBiasPolicy(object):
   """Policy which takes continuous actions, and is biased to move down.
   """
+
   def __init__(self, height_hack_prob=0.9):
     """Initializes the DownwardBiasPolicy.
 
@@ -36,25 +36,25 @@ class ContinuousDownwardBiasPolicy(object):
 
 
 def main():
-    
-    env = KukaDiverseObjectEnv(renders=True, isDiscrete=False)
-    policy = ContinuousDownwardBiasPolicy()
 
-    while True:
-        obs, done = env.reset(), False
-        print("===================================")        
-        print("obs")
-        print(obs)
-        episode_rew = 0
-        while not done:
-            env.render(mode='human')
-            act = policy.sample_action(obs, .1)
-            print("Action")
-            print(act)
-            obs, rew, done, _ = env.step([0, 0, 0, 0, 0])
-            episode_rew += rew
-        print("Episode reward", episode_rew)
+  env = KukaDiverseObjectEnv(renders=True, isDiscrete=False)
+  policy = ContinuousDownwardBiasPolicy()
+
+  while True:
+    obs, done = env.reset(), False
+    print("===================================")
+    print("obs")
+    print(obs)
+    episode_rew = 0
+    while not done:
+      env.render(mode='human')
+      act = policy.sample_action(obs, .1)
+      print("Action")
+      print(act)
+      obs, rew, done, _ = env.step([0, 0, 0, 0, 0])
+      episode_rew += rew
+    print("Episode reward", episode_rew)
 
 
 if __name__ == '__main__':
-    main()
+  main()
