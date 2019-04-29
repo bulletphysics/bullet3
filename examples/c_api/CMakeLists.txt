@@ -4,17 +4,11 @@ INCLUDE_DIRECTORIES(
   ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
   ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
   ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
-  ${PYTHON_INCLUDE_DIRS}
 )
-IF(BUILD_PYBULLET_NUMPY)
-  INCLUDE_DIRECTORIES(${PYTHON_NUMPY_INCLUDE_DIR})
-ENDIF()
 
-ADD_DEFINITIONS(-DSTATIC_LINK_SPD_PLUGIN)
 
 SET(
-  pybullet_SRCS
-  pybullet.c
+  bullet_c_api_SRCS
   ../../examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp
   ../../examples/SharedMemory/plugins/stablePDPlugin/SpAlg.h
   ../../examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp
@@ -124,8 +118,8 @@ ENDIF(WIN32)
 
 IF(BUILD_PYBULLET_ENET)
   SET(
-    pybullet_SRCS
-    ${pybullet_SRCS}
+    bullet_c_api_SRCS
+    ${bullet_c_api_SRCS}
     ../../examples/SharedMemory/PhysicsClientUDP.cpp
     ../../examples/SharedMemory/PhysicsClientUDP_C_API.cpp
     ../../examples/SharedMemory/PhysicsClientUDP.h
@@ -144,8 +138,8 @@ ENDIF(BUILD_PYBULLET_ENET)
 
 IF(BUILD_PYBULLET_CLSOCKET)
   SET(
-    pybullet_SRCS
-    ${pybullet_SRCS}
+    bullet_c_api_SRCS
+    ${bullet_c_api_SRCS}
     ../../examples/SharedMemory/PhysicsClientTCP.cpp
     ../../examples/SharedMemory/PhysicsClientTCP.h
     ../../examples/SharedMemory/PhysicsClientTCP_C_API.cpp
@@ -156,29 +150,24 @@ IF(BUILD_PYBULLET_CLSOCKET)
   )
 ENDIF()
 
-ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS})
+ADD_LIBRARY(bullet_c_api SHARED ${bullet_c_api_SRCS})
 
-SET_TARGET_PROPERTIES(pybullet PROPERTIES PREFIX "")
-SET_TARGET_PROPERTIES(pybullet PROPERTIES POSTFIX "")
+SET_TARGET_PROPERTIES(bullet_c_api PROPERTIES PREFIX "")
+SET_TARGET_PROPERTIES(bullet_c_api PROPERTIES POSTFIX "")
 
-SET_TARGET_PROPERTIES(pybullet PROPERTIES VERSION ${BULLET_VERSION})
-SET_TARGET_PROPERTIES(pybullet PROPERTIES SOVERSION ${BULLET_VERSION})
-SET_TARGET_PROPERTIES(pybullet PROPERTIES DEBUG_POSTFIX "_d")
+SET_TARGET_PROPERTIES(bullet_c_api PROPERTIES VERSION ${BULLET_VERSION})
+SET_TARGET_PROPERTIES(bullet_c_api PROPERTIES SOVERSION ${BULLET_VERSION})
+SET_TARGET_PROPERTIES(bullet_c_api PROPERTIES DEBUG_POSTFIX "_d")
 
 IF(WIN32)
   IF(BUILD_PYBULLET_ENET OR BUILD_PYBULLET_CLSOCKET)
-    TARGET_LINK_LIBRARIES(pybullet ws2_32)
+    TARGET_LINK_LIBRARIES(bullet_c_api ws2_32)
   ENDIF(BUILD_PYBULLET_ENET OR BUILD_PYBULLET_CLSOCKET)
-
-  SET_TARGET_PROPERTIES(pybullet PROPERTIES SUFFIX ".pyd")
 ENDIF(WIN32)
 
-IF(APPLE)
-  SET_TARGET_PROPERTIES(pybullet PROPERTIES SUFFIX ".so")
-ENDIF()
 
 TARGET_LINK_LIBRARIES(
-  pybullet
+  bullet_c_api
   BulletExampleBrowserLib
   BulletFileLoader
   BulletWorldImporter
@@ -193,25 +182,3 @@ TARGET_LINK_LIBRARIES(
   BussIK
   Bullet3Common
 )
-
-IF(WIN32)
-  TARGET_LINK_LIBRARIES(pybullet ${PYTHON_LIBRARIES})
-ELSEIF(APPLE)
-  SET_TARGET_PROPERTIES(
-    pybullet
-    PROPERTIES LINK_FLAGS "-undefined dynamic_lookup"
-  )
-ENDIF()
-# else Linux: dont link
-
-IF(WIN32)
-  SET(PYTHON_SITE_PACKAGES Lib/site-packages CACHE PATH "Python install path")
-ELSE()
-  SET(
-    PYTHON_SITE_PACKAGES
-    lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages
-    CACHE PATH "Python install path"
-  )
-ENDIF()
-
-INSTALL(TARGETS pybullet DESTINATION ${PYTHON_SITE_PACKAGES})
