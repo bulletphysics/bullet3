@@ -182,3 +182,5 @@ TARGET_LINK_LIBRARIES(
   BussIK
   Bullet3Common
 )
+
+INSTALL(TARGETS bullet_c_api DESTINATION lib)
