@@ -326,7 +326,10 @@ public:
 				m_robotSim.loadURDF("plane.urdf", args);
 			}
 			m_robotSim.setGravity(btVector3(0, 0, -10));
-			m_robotSim.loadSoftBody("bunny.obj", 0.1, 0.1, 0.02);
+                        b3RobotSimulatorLoadSoftBodyArgs args(0.1, 1, 0.02);
+                        args.m_startPosition.setValue(0, 0, 5);
+                        args.m_startOrientation.setValue(1, 0, 0, 1);
+			m_robotSim.loadSoftBody("bunny.obj", args);
 
 			b3JointInfo revoluteJoint1;
 			revoluteJoint1.m_parentFrame[0] = -0.055;
@@ -402,7 +405,8 @@ public:
 				m_robotSim.loadURDF("plane.urdf", args);
 			}
 			m_robotSim.setGravity(btVector3(0, 0, -10));
-			m_robotSim.loadSoftBody("bunny.obj", 0.3, 10.0, 0.1);
+                        b3RobotSimulatorLoadSoftBodyArgs args(0.3, 10, 0.1);
+			m_robotSim.loadSoftBody("bunny.obj", args);
 		}
 	}
 	virtual void exitPhysics()

@@ -1134,7 +1134,7 @@ void b3RobotSimulatorClientAPI_NoDirect::submitProfileTiming(const std::string& 
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 }
 
-void b3RobotSimulatorClientAPI_NoDirect::loadSoftBody(const std::string& fileName, double scale, double mass, double collisionMargin)
+void b3RobotSimulatorClientAPI_NoDirect::loadSoftBody(const std::string& fileName, const struct b3RobotSimulatorLoadSoftBodyArgs& args)
 {
 	if (!isConnected())
 	{
@@ -1143,9 +1143,11 @@ void b3RobotSimulatorClientAPI_NoDirect::loadSoftBody(const std::string& fileNam
 	}
 
 	b3SharedMemoryCommandHandle command = b3LoadSoftBodyCommandInit(m_data->m_physicsClientHandle, fileName.c_str());
-	b3LoadSoftBodySetScale(command, scale);
-	b3LoadSoftBodySetMass(command, mass);
-	b3LoadSoftBodySetCollisionMargin(command, collisionMargin);
+        b3LoadSoftBodySetStartPosition(command, args.m_startPosition[0], args.m_startPosition[1], args.m_startPosition[2]);
+	b3LoadSoftBodySetStartOrientation(command, args.m_startOrientation[0], args.m_startOrientation[1], args.m_startOrientation[2], args.m_startOrientation[3]);
+	b3LoadSoftBodySetScale(command, args.m_scale);
+	b3LoadSoftBodySetMass(command, args.m_mass);
+	b3LoadSoftBodySetCollisionMargin(command, args.m_collisionMargin);
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 }
 
