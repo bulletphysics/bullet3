@@ -56,42 +56,38 @@ struct b3RobotSimulatorLoadSoftBodyArgs
 {
 	btVector3 m_startPosition;
 	btQuaternion m_startOrientation;
-        double m_scale;
-        double m_mass;
-        double m_collisionMargin;
+	double m_scale;
+	double m_mass;
+	double m_collisionMargin;
 
-        b3RobotSimulatorLoadSoftBodyArgs(const btVector3 &startPos, const btQuaternion &startOrn, const double& scale, const double& mass, const double& collisionMargin )
+	b3RobotSimulatorLoadSoftBodyArgs(const btVector3 &startPos, const btQuaternion &startOrn, const double &scale, const double &mass, const double &collisionMargin)
 		: m_startPosition(startPos),
 		  m_startOrientation(startOrn),
 		  m_scale(scale),
 		  m_mass(mass),
-                  m_collisionMargin(collisionMargin)
+		  m_collisionMargin(collisionMargin)
 	{
 	}
 
-
-        b3RobotSimulatorLoadSoftBodyArgs(const btVector3 &startPos, const btQuaternion &startOrn)
+	b3RobotSimulatorLoadSoftBodyArgs(const btVector3 &startPos, const btQuaternion &startOrn)
 	{
-          b3RobotSimulatorLoadSoftBodyArgs(startPos, startOrn, 1.0, 1.0, 0.02);
+		b3RobotSimulatorLoadSoftBodyArgs(startPos, startOrn, 1.0, 1.0, 0.02);
 	}
-
 
 	b3RobotSimulatorLoadSoftBodyArgs()
 	{
-          b3RobotSimulatorLoadSoftBodyArgs(btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1));
+		b3RobotSimulatorLoadSoftBodyArgs(btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1));
 	}
 
-
-        b3RobotSimulatorLoadSoftBodyArgs(double scale, double mass, double collisionMargin)
+	b3RobotSimulatorLoadSoftBodyArgs(double scale, double mass, double collisionMargin)
 		: m_startPosition(btVector3(0, 0, 0)),
 		  m_startOrientation(btQuaternion(0, 0, 0, 1)),
 		  m_scale(scale),
 		  m_mass(mass),
-                  m_collisionMargin(collisionMargin)
+		  m_collisionMargin(collisionMargin)
 	{
 	}
 };
-
 
 struct b3RobotSimulatorLoadFileResults
 {
@@ -688,7 +684,7 @@ public:
 
 	int getConstraintUniqueId(int serialIndex);
 
-        void loadSoftBody(const std::string &fileName, const struct b3RobotSimulatorLoadSoftBodyArgs& args);
+	void loadSoftBody(const std::string &fileName, const struct b3RobotSimulatorLoadSoftBodyArgs &args);
 
 	virtual void setGuiHelper(struct GUIHelperInterface *guiHelper);
 	virtual struct GUIHelperInterface *getGuiHelper();

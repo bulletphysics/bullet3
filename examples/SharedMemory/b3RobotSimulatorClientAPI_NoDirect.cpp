@@ -1143,7 +1143,7 @@ void b3RobotSimulatorClientAPI_NoDirect::loadSoftBody(const std::string& fileNam
 	}
 
 	b3SharedMemoryCommandHandle command = b3LoadSoftBodyCommandInit(m_data->m_physicsClientHandle, fileName.c_str());
-        b3LoadSoftBodySetStartPosition(command, args.m_startPosition[0], args.m_startPosition[1], args.m_startPosition[2]);
+	b3LoadSoftBodySetStartPosition(command, args.m_startPosition[0], args.m_startPosition[1], args.m_startPosition[2]);
 	b3LoadSoftBodySetStartOrientation(command, args.m_startOrientation[0], args.m_startOrientation[1], args.m_startOrientation[2], args.m_startOrientation[3]);
 	b3LoadSoftBodySetScale(command, args.m_scale);
 	b3LoadSoftBodySetMass(command, args.m_mass);

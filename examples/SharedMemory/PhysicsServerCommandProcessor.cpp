@@ -7376,8 +7376,8 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				psb->generateBendingConstraints(2, pm);
 				psb->m_cfg.piterations = 20;
 				psb->m_cfg.kDF = 0.5;
-                                //turn on softbody vs softbody collision
-                                psb->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
+				//turn on softbody vs softbody collision
+				psb->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
 				psb->randomizeConstraints();
 				psb->rotate(initialOrn);
 				psb->translate(initialPos);
