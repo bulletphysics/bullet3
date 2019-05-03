@@ -1997,6 +1997,9 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 		b3SharedMemoryCommandHandle command =
 			b3LoadSoftBodyCommandInit(sm, fileName);
 
+		b3LoadSoftBodySetStartPosition(command, startPos[0], startPos[1], startPos[2]);
+		b3LoadSoftBodySetStartOrientation(command, startOrn[0], startOrn[1], startOrn[2], startOrn[3]);
+
 		if (scale > 0)
 		{
 			b3LoadSoftBodySetScale(command, scale);
