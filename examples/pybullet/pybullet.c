@@ -1942,7 +1942,7 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 	int physicsClientId = 0;
 	int flags = 0;
 
-	static char* kwlist[] = {"fileName", "scale", "mass", "collisionMargin", "physicsClientId", NULL};
+	static char* kwlist[] = {"fileName", "basePosition", "baseOrientation", "scale", "mass", "collisionMargin", "physicsClientId", NULL};
 
 	int bodyUniqueId = -1;
 	const char* fileName = "";
@@ -1952,9 +1952,35 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 
 	b3PhysicsClientHandle sm = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|dddi", kwlist, &fileName, &scale, &mass, &collisionMargin, &physicsClientId))
+	double startPos[3] = {0.0, 0.0, 0.0};
+	double startOrn[4] = {0.0, 0.0, 0.0, 1.0};
+
+
+	PyObject* basePosObj = 0;
+	PyObject* baseOrnObj = 0;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOdddi", kwlist, &fileName, &basePosObj, &baseOrnObj, &scale, &mass, &collisionMargin, &physicsClientId))
 	{
 		return NULL;
+	}
+	else
+	{
+		if (basePosObj)
+		{
+			if (!pybullet_internalSetVectord(basePosObj, startPos))
+			{
+				PyErr_SetString(SpamError, "Cannot convert basePosition.");
+				return NULL;
+			}
+		}
+		if (baseOrnObj)
+		{
+			if (!pybullet_internalSetVector4d(baseOrnObj, startOrn))
+			{
+				PyErr_SetString(SpamError, "Cannot convert baseOrientation.");
+				return NULL;
+			}
+		}
 	}
 
 	sm = getPhysicsClient(physicsClientId);
