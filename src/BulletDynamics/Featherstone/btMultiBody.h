@@ -492,6 +492,7 @@ void addJointTorque(int i, btScalar Q);
 	void setNumLinks(int numLinks)//careful: when changing the number of m_links, make sure to re-initialize or update existing m_links
 	{
 		m_links.resize(numLinks);
+		m_matrixBuf.resize(n_links + 1);
 	}
 
 	btScalar getLinearDamping() const
