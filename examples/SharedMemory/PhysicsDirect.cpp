@@ -1546,7 +1546,7 @@ int PhysicsDirect::getNumUserData(int bodyUniqueId) const
 void PhysicsDirect::getUserDataInfo(int bodyUniqueId, int userDataIndex, const char** keyOut, int* userDataIdOut, int* linkIndexOut, int* visualShapeIndexOut) const
 {
 	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
-	if (!bodyJointsPtr || !(*bodyJointsPtr) || userDataIndex <= 0 || userDataIndex > (*bodyJointsPtr)->m_userDataIds.size())
+	if (!bodyJointsPtr || !(*bodyJointsPtr) || userDataIndex < 0 || userDataIndex > (*bodyJointsPtr)->m_userDataIds.size())
 	{
 		*keyOut = 0;
 		*userDataIdOut = -1;
