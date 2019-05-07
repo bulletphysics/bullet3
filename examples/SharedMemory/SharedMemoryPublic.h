@@ -952,7 +952,7 @@ struct b3ForwardDynamicsAnalyticsIslandData
 	double m_remainingLeastSquaresResidual;
 };
 
-#define MAX_ISLANDS_ANALYTICS 1024
+#define MAX_ISLANDS_ANALYTICS 64
 
 struct b3ForwardDynamicsAnalyticsArgs
 {
