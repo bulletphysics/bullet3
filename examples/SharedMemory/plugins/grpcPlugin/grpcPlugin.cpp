@@ -206,7 +206,9 @@ private:
 			{
 				GPR_ASSERT(status_ == FINISH);
 				// Once in the FINISH state, deallocate ourselves (CallData).
+				CallData::CallStatus tmpStatus = status_;
 				delete this;
+				return tmpStatus;
 			}
 			return status_;
 		}

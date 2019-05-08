@@ -315,7 +315,7 @@ B3_SHARED_API int b3LoadSoftBodySetCollisionMargin(b3SharedMemoryCommandHandle c
 }
 
 
-B3_SHARED_API int b3LoadSoftbodySetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX, double startPosY, double startPosZ)
+B3_SHARED_API int b3LoadSoftBodySetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX, double startPosY, double startPosZ)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
@@ -326,7 +326,7 @@ B3_SHARED_API int b3LoadSoftbodySetStartPosition(b3SharedMemoryCommandHandle com
 	return 0;
 }
 
-B3_SHARED_API int b3LoadSoftbodySetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX, double startOrnY, double startOrnZ, double startOrnW)
+B3_SHARED_API int b3LoadSoftBodySetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX, double startOrnY, double startOrnZ, double startOrnW)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
