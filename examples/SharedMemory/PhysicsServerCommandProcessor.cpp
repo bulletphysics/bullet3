@@ -2843,7 +2843,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 
 bool PhysicsServerCommandProcessor::supportsJointMotor(btMultiBody* mb, int mbLinkIndex)
 {
-	bool canHaveMotor = (mb->getLink(mbLinkIndex).m_jointType == btMultibodyLink::eRevolute 
+	bool canHaveMotor = (mb->getLink(mbLinkIndex).m_jointType == btMultibodyLink::eRevolute
 		|| mb->getLink(mbLinkIndex).m_jointType == btMultibodyLink::ePrismatic);
 	return canHaveMotor;
 }
@@ -3056,7 +3056,7 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 			std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
 			m_data->m_strings.push_back(baseName);
 			mb->setBaseName(baseName->c_str());
-			
+
 #if 0
 			btAlignedObjectArray<char> urdf;
 			mb->dumpUrdf(urdf);
@@ -3067,7 +3067,7 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 				fclose(f);
 			}
 #endif
-			
+
 		}
 		else
 		{
@@ -6320,7 +6320,7 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 
 	//we store the state details in the shared memory block, to reduce status size
 	SendActualStateSharedMemoryStorage* stateDetails = (SendActualStateSharedMemoryStorage*)bufferServerToClient;
-	
+
 	//make sure the storage fits, otherwise
 	btAssert(sizeof(SendActualStateSharedMemoryStorage) < bufferSizeInBytes);
 	if (sizeof(SendActualStateSharedMemoryStorage) > bufferSizeInBytes)
@@ -6332,11 +6332,12 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 	{
 		btMultiBody* mb = body->m_multiBody;
 		SharedMemoryStatus& serverCmd = serverStatusOut;
-		
+
 		serverStatusOut.m_type = CMD_ACTUAL_STATE_UPDATE_COMPLETED;
 
 		serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
 		serverCmd.m_sendActualStateArgs.m_numLinks = body->m_multiBody->getNumLinks();
+		serverCmd.m_numDataStreamBytes = sizeof(SendActualStateSharedMemoryStorage);
 		serverCmd.m_sendActualStateArgs.m_stateDetails = 0;
 		int totalDegreeOfFreedomQ = 0;
 		int totalDegreeOfFreedomU = 0;
@@ -6545,9 +6546,10 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
           btRigidBody* rb = body->m_rigidBody;
           SharedMemoryStatus& serverCmd = serverStatusOut;
           serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_COMPLETED;
-			
+
           serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
           serverCmd.m_sendActualStateArgs.m_numLinks = 0;
+					serverCmd.m_numDataStreamBytes = sizeof(SendActualStateSharedMemoryStorage);
           serverCmd.m_sendActualStateArgs.m_stateDetails = 0;
 
           int totalDegreeOfFreedomQ = 0;
@@ -6590,6 +6592,7 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
           serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_COMPLETED;
           serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
           serverCmd.m_sendActualStateArgs.m_numLinks = 0;
+					serverCmd.m_numDataStreamBytes = sizeof(SendActualStateSharedMemoryStorage);
           serverCmd.m_sendActualStateArgs.m_stateDetails = 0;
 
           serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[0] =
@@ -7204,7 +7207,7 @@ bool PhysicsServerCommandProcessor::processCreateMultiBodyCommandSingle(const st
 			m_data->m_sdfRecentLoadedBodies.clear();
 			if (bodyUniqueId >= 0)
 			{
-				
+
 				serverStatusOut.m_type = CMD_CREATE_MULTI_BODY_COMPLETED;
 				if (bufferSizeInBytes>0 && serverStatusOut.m_numDataStreamBytes==0)
 				{
@@ -7212,7 +7215,7 @@ bool PhysicsServerCommandProcessor::processCreateMultiBodyCommandSingle(const st
 						BT_PROFILE("autogenerateGraphicsObjects");
 						m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
 					}
-					
+
 					BT_PROFILE("createBodyInfoStream");
 					int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
 					serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
@@ -7675,7 +7678,7 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	}
 
 	btScalar deltaTimeScaled = m_data->m_physicsDeltaTime * simTimeScalingFactor;
-	
+
 	int numSteps = 0;
 	if (m_data->m_numSimulationSubSteps > 0)
 	{
@@ -7702,7 +7705,7 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	m_data->m_dynamicsWorld->getAnalyticsData(islandAnalyticsData);
 	serverCmd.m_forwardDynamicsAnalyticsArgs.m_numIslands = islandAnalyticsData.size();
 	int numIslands = btMin(islandAnalyticsData.size(), MAX_ISLANDS_ANALYTICS);
-	
+
 	for (int i=0;i<numIslands;i++)
 	{
 		serverCmd.m_forwardDynamicsAnalyticsArgs.m_numSolverCalls = islandAnalyticsData[i].m_numSolverCalls;
@@ -7794,7 +7797,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			{
 				mb->setCanWakeup(false);
 			}
-			
+
 		}
 
 		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
@@ -7900,7 +7903,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			{
 				mb->setMaxCoordinateVelocity(clientCmd.m_changeDynamicsInfoArgs.m_maxJointVelocity);
 			}
-			
+
 		}
 		else
 		{
@@ -7988,7 +7991,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					btRigidBody* childRb = &body->m_rigidBodyJoints[linkIndex]->getRigidBodyB();
 					rb = childRb;
 				}
-				
+
 			}
 		}
 
@@ -8079,13 +8082,13 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			{
 				rb->setAnisotropicFriction(anisotropicFriction);
 			}
-			
+
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD)
 			{
 				rb->setContactProcessingThreshold(clientCmd.m_changeDynamicsInfoArgs.m_contactProcessingThreshold);
 			}
 
-			
+
 
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CCD_SWEPT_SPHERE_RADIUS)
 			{
@@ -8508,7 +8511,7 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	{
 		m_data->m_dynamicsWorld->getSolverInfo().m_reportSolverAnalytics = clientCmd.m_physSimParamArgs.m_reportSolverAnalytics;
 	}
-	
+
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
 	return hasStatus;
@@ -8602,7 +8605,7 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 			{
 				int posVarCount = mb->getLink(i).m_posVarCount;
 				bool hasPosVar = posVarCount > 0;
-								
+
 				for (int j = 0; j < posVarCount; j++)
 				{
 					if (clientCmd.m_initPoseArgs.m_hasInitialStateQ[posVarCountIndex+j] == 0)
@@ -8631,7 +8634,7 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 						mb->setJointVelMultiDof(i, vel);
 					}
 				}
-				
+
 				bool hasVel = true;
 				for (int j = 0; j < mb->getLink(i).m_dofCount; j++)
 				{
@@ -8654,7 +8657,7 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 						mb->setJointVelMultiDof(i, &clientCmd.m_initPoseArgs.m_initialStateQdot[uDofIndex]);
 					}
 				}
-								
+
 				posVarCountIndex += mb->getLink(i).m_posVarCount;
 				uDofIndex += mb->getLink(i).m_dofCount;
 			}
@@ -9025,7 +9028,7 @@ bool PhysicsServerCommandProcessor::processInverseDynamicsCommand(const struct S
 		{
 #ifdef STATIC_LINK_SPD_PLUGIN
 			{
-				cRBDModel* rbdModel = m_data->findOrCreateRBDModel(bodyHandle->m_multiBody, 
+				cRBDModel* rbdModel = m_data->findOrCreateRBDModel(bodyHandle->m_multiBody,
 					clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ,
 					clientCmd.m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot);
 				if (rbdModel)
@@ -9042,9 +9045,9 @@ bool PhysicsServerCommandProcessor::processInverseDynamicsCommand(const struct S
 					}
 					serverCmd.m_inverseDynamicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
 					serverCmd.m_inverseDynamicsResultArgs.m_dofCount = dof;
-					
+
 					serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED;
-					
+
 				}
 			}
 #endif
@@ -9516,7 +9519,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				int numCollisionObjects = m_data->m_dynamicsWorld->getNumCollisionObjects();
 				m_data->m_dynamicsWorld->removeMultiBody(bodyHandle->m_multiBody);
 				numCollisionObjects = m_data->m_dynamicsWorld->getNumCollisionObjects();
-				
+
 				delete bodyHandle->m_multiBody;
 				bodyHandle->m_multiBody = 0;
 				serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
@@ -10943,7 +10946,7 @@ bool PhysicsServerCommandProcessor::processRemoveStateCommand(const struct Share
 	bool hasStatus = true;
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_REMOVE_STATE_FAILED;
-	
+
 	if (clientCmd.m_loadStateArguments.m_stateId >= 0)
 	{
 		if (clientCmd.m_loadStateArguments.m_stateId < m_data->m_savedStates.size())
@@ -11283,7 +11286,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processCreateVisualShapeCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
-		
+
 		case CMD_CREATE_MULTI_BODY:
 		{
 			hasStatus = processCreateMultiBodyCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);

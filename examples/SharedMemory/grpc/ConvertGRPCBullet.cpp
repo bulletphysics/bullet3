@@ -1413,6 +1413,22 @@ bool convertGRPCToStatus(const PyBulletStatus& grpcReply, SharedMemoryStatus& se
 
 			break;
 		}
+		case CMD_SDF_LOADING_COMPLETED:
+		{
+			converted = true;
+      const ::pybullet_grpc::SdfLoadedStatus* stat = &grpcReply.sdfstatus();
+      int numBodies = stat->bodyuniqueids_size();
+      if (numBodies > MAX_SDF_BODIES)
+			{
+				printf("SDF exceeds body capacity: %d > %d", numBodies, MAX_SDF_BODIES);
+			}
+      serverStatus.m_sdfLoadedArgs.m_numBodies = numBodies;
+      for (int i = 0; i < numBodies; i++)
+			{
+        serverStatus.m_sdfLoadedArgs.m_bodyUniqueIds[i] = stat->bodyuniqueids(i);
+			}
+			break;
+		}
 		case CMD_DESIRED_STATE_RECEIVED_COMPLETED:
 		{
 			converted = true;
@@ -1681,7 +1697,10 @@ bool convertStatusToGRPC(const SharedMemoryStatus& serverStatus, char* bufferSer
 		case CMD_ACTUAL_STATE_UPDATE_COMPLETED:
 		{
 			converted = true;
-			b3SharedMemoryStatusHandle statusHandle = (b3SharedMemoryStatusHandle)&serverStatus;
+			SharedMemoryStatus* status = (SharedMemoryStatus*)&serverStatus;
+      status->m_sendActualStateArgs.m_stateDetails = (SendActualStateSharedMemoryStorage*)bufferServerToClient;
+			b3SharedMemoryStatusHandle statusHandle = (b3SharedMemoryStatusHandle)status;
+
 			int bodyUniqueId;
 			int numLinks;
 
