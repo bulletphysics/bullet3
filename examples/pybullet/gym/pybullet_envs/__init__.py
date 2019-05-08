@@ -40,6 +40,14 @@ register(
 )
 
 register(
+    id='MinitaurExtendedEnv-v0',
+    entry_point='pybullet_envs.minitaur.envs:MinitaurExtendedEnv',
+    max_episode_steps=1000,
+    reward_threshold=5.0,
+)
+
+
+register(
     id='MinitaurReactiveEnv-v0',
     entry_point='pybullet_envs.minitaur.envs:MinitaurReactiveEnv',
     max_episode_steps=1000,
