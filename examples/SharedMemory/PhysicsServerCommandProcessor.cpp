@@ -3394,6 +3394,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 			}
 			streamSizeInBytes = ser.getCurrentBufferSize();
 		}
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
     else if(bodyHandle->m_softBody){
     //minimum serialization, registerNameForPointer
     btSoftBody* sb = bodyHandle->m_softBody;
@@ -3408,7 +3409,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 		ser.finalizeChunk(chunk, structType, BT_SOFTBODY_CODE, sb);
 		streamSizeInBytes = ser.getCurrentBufferSize();
 	}
-
+#endif
 	return streamSizeInBytes;
 }
 
@@ -5515,7 +5516,11 @@ bool PhysicsServerCommandProcessor::processSyncBodyInfoCommand(const struct Shar
 	{
 		int usedHandle = usedHandles[i];
 		InternalBodyData* body = m_data->m_bodyHandles.getHandle(usedHandle);
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		if (body && (body->m_multiBody || body->m_rigidBody || body->m_softBody))
+#else
+		if (body && (body->m_multiBody || body->m_rigidBody))
+#endif
 		{
 			serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = usedHandle;
 		}
@@ -6579,6 +6584,7 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 
           hasStatus = true;
         }
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
         else if (body && body->m_softBody)
         {
           btSoftBody* sb = body->m_softBody;
@@ -6625,6 +6631,7 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 
           hasStatus = true;
         }
+#endif
         else
         {
           //b3Warning("Request state but no multibody or rigid body available");
@@ -7633,13 +7640,14 @@ bool PhysicsServerCommandProcessor::processRequestCollisionInfoCommand(const str
 				serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = aabbMax[2];
 			}
 	}
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
         else if (body && body->m_softBody){
           SharedMemoryStatus& serverCmd = serverStatusOut;
           serverStatusOut.m_type = CMD_REQUEST_COLLISION_INFO_COMPLETED;
           serverCmd.m_sendCollisionInfoArgs.m_numLinks = 0;
           setDefaultRootWorldAABB(serverCmd);
         }
-
+#endif
 	return hasStatus;
 }
 
@@ -8236,12 +8244,14 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 		}
 		hasStatus = true;
 	}
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	else if (body && body->m_softBody){
           //todo: @fuchuyuan implement dynamics info
           b3Warning("Softbody dynamics info not set!!!");
           SharedMemoryStatus& serverCmd = serverStatusOut;
           serverCmd.m_type = CMD_GET_DYNAMICS_INFO_COMPLETED;
         }
+#endif
 	return hasStatus;
 }
 
