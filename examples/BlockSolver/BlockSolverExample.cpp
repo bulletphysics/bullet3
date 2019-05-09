@@ -140,7 +140,7 @@ void BlockSolverExample::createMultiBodyStack()
 		tr.setOrigin(btVector3(0, 0, 0.1 + i * 0.2));
 		btMultiBody* body = createMultiBody(mass, tr, boxShape);
 	}
-	if (0)
+	if (/* DISABLES CODE */ (0))
 	{
 		btMultiBody* mb = loadRobot("cube_small.urdf");
 		btTransform tr;

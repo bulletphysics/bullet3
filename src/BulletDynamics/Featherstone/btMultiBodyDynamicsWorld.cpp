@@ -238,7 +238,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 	{
 	}
 
-	MultiBodyInplaceSolverIslandCallback& operator=(MultiBodyInplaceSolverIslandCallback& other)
+	MultiBodyInplaceSolverIslandCallback& operator=(const MultiBodyInplaceSolverIslandCallback& other)
 	{
 		btAssert(0);
 		(void)other;

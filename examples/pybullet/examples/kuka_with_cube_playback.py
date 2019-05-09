@@ -10,15 +10,16 @@ import os, fnmatch
 import argparse
 from time import sleep
 
-def readLogFile(filename, verbose = True):
+
+def readLogFile(filename, verbose=True):
   f = open(filename, 'rb')
-  
+
   print('Opened'),
   print(filename)
 
   keys = f.readline().decode('utf8').rstrip('\n').split(',')
   fmt = f.readline().decode('utf8').rstrip('\n')
-  
+
   # The byte number of one record
   sz = struct.calcsize(fmt)
   # The type number of one record
@@ -49,13 +50,14 @@ def readLogFile(filename, verbose = True):
 
   return log
 
+
 #clid = p.connect(p.SHARED_MEMORY)
 p.connect(p.GUI)
-p.loadURDF("plane.urdf",[0,0,-0.3])
-p.loadURDF("kuka_iiwa/model.urdf",[0,0,1])
-p.loadURDF("cube.urdf",[2,2,5])
-p.loadURDF("cube.urdf",[-2,-2,5])
-p.loadURDF("cube.urdf",[2,-2,5])
+p.loadURDF("plane.urdf", [0, 0, -0.3])
+p.loadURDF("kuka_iiwa/model.urdf", [0, 0, 1])
+p.loadURDF("cube.urdf", [2, 2, 5])
+p.loadURDF("cube.urdf", [-2, -2, 5])
+p.loadURDF("cube.urdf", [2, -2, 5])
 
 log = readLogFile("LOG0001.txt")
 
@@ -67,14 +69,14 @@ print('item num:'),
 print(itemNum)
 
 for record in log:
-    Id = record[2]
-    pos = [record[3],record[4],record[5]]
-    orn = [record[6],record[7],record[8],record[9]]
-    p.resetBasePositionAndOrientation(Id,pos,orn)
-    numJoints = p.getNumJoints(Id)
-    for i in range (numJoints):
-        jointInfo = p.getJointInfo(Id,i)
-        qIndex = jointInfo[3]
-        if qIndex > -1:
-            p.resetJointState(Id,i,record[qIndex-7+17])
-    sleep(0.0005)
+  Id = record[2]
+  pos = [record[3], record[4], record[5]]
+  orn = [record[6], record[7], record[8], record[9]]
+  p.resetBasePositionAndOrientation(Id, pos, orn)
+  numJoints = p.getNumJoints(Id)
+  for i in range(numJoints):
+    jointInfo = p.getJointInfo(Id, i)
+    qIndex = jointInfo[3]
+    if qIndex > -1:
+      p.resetJointState(Id, i, record[qIndex - 7 + 17])
+  sleep(0.0005)

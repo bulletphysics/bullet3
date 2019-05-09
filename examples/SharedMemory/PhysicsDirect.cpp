@@ -1079,7 +1079,12 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		}
 		case CMD_LOAD_SOFT_BODY_COMPLETED:
 		{
-			break;
+                       int bodyUniqueId = serverCmd.m_loadSoftBodyResultArguments.m_objectUniqueId;
+                       BodyJointInfoCache2* bodyJoints = new BodyJointInfoCache2;
+                       m_data->m_bodyJointMap.insert(bodyUniqueId, bodyJoints);
+                       bodyJoints->m_bodyName = serverCmd.m_dataStreamArguments.m_bodyName;
+                       bodyJoints->m_baseName = "baseLink";
+                       break;
 		}
 		case CMD_SYNC_USER_DATA_FAILED:
 		{
@@ -1541,7 +1546,7 @@ int PhysicsDirect::getNumUserData(int bodyUniqueId) const
 void PhysicsDirect::getUserDataInfo(int bodyUniqueId, int userDataIndex, const char** keyOut, int* userDataIdOut, int* linkIndexOut, int* visualShapeIndexOut) const
 {
 	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
-	if (!bodyJointsPtr || !(*bodyJointsPtr) || userDataIndex <= 0 || userDataIndex > (*bodyJointsPtr)->m_userDataIds.size())
+	if (!bodyJointsPtr || !(*bodyJointsPtr) || userDataIndex < 0 || userDataIndex > (*bodyJointsPtr)->m_userDataIds.size())
 	{
 		*keyOut = 0;
 		*userDataIdOut = -1;

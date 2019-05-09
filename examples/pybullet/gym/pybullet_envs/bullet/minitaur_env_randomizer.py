@@ -45,24 +45,20 @@ class MinitaurEnvRandomizer(env_randomizer_base.EnvRandomizerBase):
     minitaur.SetBaseMass(randomized_base_mass)
 
     leg_masses = minitaur.GetLegMassesFromURDF()
-    leg_masses_lower_bound = np.array(leg_masses) * (
-        1.0 + self._minitaur_leg_mass_err_range[0])
-    leg_masses_upper_bound = np.array(leg_masses) * (
-        1.0 + self._minitaur_leg_mass_err_range[1])
+    leg_masses_lower_bound = np.array(leg_masses) * (1.0 + self._minitaur_leg_mass_err_range[0])
+    leg_masses_upper_bound = np.array(leg_masses) * (1.0 + self._minitaur_leg_mass_err_range[1])
     randomized_leg_masses = [
         np.random.uniform(leg_masses_lower_bound[i], leg_masses_upper_bound[i])
         for i in range(len(leg_masses))
     ]
     minitaur.SetLegMasses(randomized_leg_masses)
 
-    randomized_battery_voltage = random.uniform(BATTERY_VOLTAGE_RANGE[0],
-                                                BATTERY_VOLTAGE_RANGE[1])
+    randomized_battery_voltage = random.uniform(BATTERY_VOLTAGE_RANGE[0], BATTERY_VOLTAGE_RANGE[1])
     minitaur.SetBatteryVoltage(randomized_battery_voltage)
 
     randomized_motor_damping = random.uniform(MOTOR_VISCOUS_DAMPING_RANGE[0],
                                               MOTOR_VISCOUS_DAMPING_RANGE[1])
     minitaur.SetMotorViscousDamping(randomized_motor_damping)
 
-    randomized_foot_friction = random.uniform(MINITAUR_LEG_FRICTION[0],
-                                              MINITAUR_LEG_FRICTION[1])
+    randomized_foot_friction = random.uniform(MINITAUR_LEG_FRICTION[0], MINITAUR_LEG_FRICTION[1])
     minitaur.SetFootFriction(randomized_foot_friction)

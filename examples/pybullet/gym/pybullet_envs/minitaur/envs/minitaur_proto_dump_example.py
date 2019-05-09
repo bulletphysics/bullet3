@@ -15,13 +15,13 @@ fields = episode.ListFields()
 recs = []
 
 for rec in fields[0][1]:
-	#print(rec.time)
-	for motorState in rec.motor_states:
-		#print("motorState.angle=",motorState.angle)
-		#print("motorState.velocity=",motorState.velocity)
-		#print("motorState.action=",motorState.action)
-		#print("motorState.torque=",motorState.torque)
-		recs.append([motorState.angle,motorState.velocity,motorState.action,motorState.torque])
-		
+  #print(rec.time)
+  for motorState in rec.motor_states:
+    #print("motorState.angle=",motorState.angle)
+    #print("motorState.velocity=",motorState.velocity)
+    #print("motorState.action=",motorState.action)
+    #print("motorState.torque=",motorState.torque)
+    recs.append([motorState.angle, motorState.velocity, motorState.action, motorState.torque])
+
 a = numpy.array(recs)
 numpy.savetxt("motorq_qdot_action_torque.csv", a, delimiter=",")

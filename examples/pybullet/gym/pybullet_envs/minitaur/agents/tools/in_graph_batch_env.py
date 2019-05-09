@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Batch of environments inside the TensorFlow graph."""
 
 from __future__ import absolute_import
@@ -42,18 +41,18 @@ class InGraphBatchEnv(object):
     action_shape = self._parse_shape(self._batch_env.action_space)
     action_dtype = self._parse_dtype(self._batch_env.action_space)
     with tf.variable_scope('env_temporary'):
-      self._observ = tf.Variable(
-          tf.zeros((len(self._batch_env),) + observ_shape, observ_dtype),
-          name='observ', trainable=False)
-      self._action = tf.Variable(
-          tf.zeros((len(self._batch_env),) + action_shape, action_dtype),
-          name='action', trainable=False)
-      self._reward = tf.Variable(
-          tf.zeros((len(self._batch_env),), tf.float32),
-          name='reward', trainable=False)
-      self._done = tf.Variable(
-          tf.cast(tf.ones((len(self._batch_env),)), tf.bool),
-          name='done', trainable=False)
+      self._observ = tf.Variable(tf.zeros((len(self._batch_env),) + observ_shape, observ_dtype),
+                                 name='observ',
+                                 trainable=False)
+      self._action = tf.Variable(tf.zeros((len(self._batch_env),) + action_shape, action_dtype),
+                                 name='action',
+                                 trainable=False)
+      self._reward = tf.Variable(tf.zeros((len(self._batch_env),), tf.float32),
+                                 name='reward',
+                                 trainable=False)
+      self._done = tf.Variable(tf.cast(tf.ones((len(self._batch_env),)), tf.bool),
+                               name='done',
+                               trainable=False)
 
   def __getattr__(self, name):
     """Forward unimplemented attributes to one of the original environments.
@@ -89,16 +88,13 @@ class InGraphBatchEnv(object):
       if action.dtype in (tf.float16, tf.float32, tf.float64):
         action = tf.check_numerics(action, 'action')
       observ_dtype = self._parse_dtype(self._batch_env.observation_space)
-      observ, reward, done = tf.py_func(
-          lambda a: self._batch_env.step(a)[:3], [action],
-          [observ_dtype, tf.float32, tf.bool], name='step')
+      observ, reward, done = tf.py_func(lambda a: self._batch_env.step(a)[:3], [action],
+                                        [observ_dtype, tf.float32, tf.bool],
+                                        name='step')
       observ = tf.check_numerics(observ, 'observ')
       reward = tf.check_numerics(reward, 'reward')
-      return tf.group(
-          self._observ.assign(observ),
-          self._action.assign(action),
-          self._reward.assign(reward),
-          self._done.assign(done))
+      return tf.group(self._observ.assign(observ), self._action.assign(action),
+                      self._reward.assign(reward), self._done.assign(done))
 
   def reset(self, indices=None):
     """Reset the batch of environments.
@@ -112,15 +108,15 @@ class InGraphBatchEnv(object):
     if indices is None:
       indices = tf.range(len(self._batch_env))
     observ_dtype = self._parse_dtype(self._batch_env.observation_space)
-    observ = tf.py_func(
-        self._batch_env.reset, [indices], observ_dtype, name='reset')
+    observ = tf.py_func(self._batch_env.reset, [indices], observ_dtype, name='reset')
     observ = tf.check_numerics(observ, 'observ')
     reward = tf.zeros_like(indices, tf.float32)
     done = tf.zeros_like(indices, tf.bool)
     with tf.control_dependencies([
         tf.scatter_update(self._observ, indices, observ),
         tf.scatter_update(self._reward, indices, reward),
-        tf.scatter_update(self._done, indices, done)]):
+        tf.scatter_update(self._done, indices, done)
+    ]):
       return tf.identity(observ)
 
   @property

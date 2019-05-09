@@ -15,6 +15,7 @@ def current_position():
   position = minitaur.getBasePosition()
   return np.asarray(position)
 
+
 def is_fallen():
   global minitaur
   orientation = minitaur.getBaseOrientation()
@@ -22,12 +23,15 @@ def is_fallen():
   localUp = rotMat[6:]
   return np.dot(np.asarray([0, 0, 1]), np.asarray(localUp)) < 0
 
+
 def evaluate_desired_motorAngle_8Amplitude8Phase(i, params):
   nMotors = 8
   speed = 0.35
   for jthMotor in range(nMotors):
-    joint_values[jthMotor] = math.sin(i*speed + params[nMotors + jthMotor])*params[jthMotor]*+1.57
+    joint_values[jthMotor] = math.sin(i * speed +
+                                      params[nMotors + jthMotor]) * params[jthMotor] * +1.57
   return joint_values
+
 
 def evaluate_desired_motorAngle_2Amplitude4Phase(i, params):
   speed = 0.35
@@ -43,29 +47,37 @@ def evaluate_desired_motorAngle_2Amplitude4Phase(i, params):
   joint_values = [a0, a1, a2, a3, a4, a5, a6, a7]
   return joint_values
 
+
 def evaluate_desired_motorAngle_hop(i, params):
   amplitude = params[0]
   speed = params[1]
-  a1 = math.sin(i*speed)*amplitude+1.57
-  a2 = math.sin(i*speed+3.14)*amplitude+1.57
+  a1 = math.sin(i * speed) * amplitude + 1.57
+  a2 = math.sin(i * speed + 3.14) * amplitude + 1.57
   joint_values = [a1, 1.57, a2, 1.57, 1.57, a1, 1.57, a2]
   return joint_values
 
 
-evaluate_func_map['evaluate_desired_motorAngle_8Amplitude8Phase'] = evaluate_desired_motorAngle_8Amplitude8Phase
-evaluate_func_map['evaluate_desired_motorAngle_2Amplitude4Phase'] = evaluate_desired_motorAngle_2Amplitude4Phase
+evaluate_func_map[
+    'evaluate_desired_motorAngle_8Amplitude8Phase'] = evaluate_desired_motorAngle_8Amplitude8Phase
+evaluate_func_map[
+    'evaluate_desired_motorAngle_2Amplitude4Phase'] = evaluate_desired_motorAngle_2Amplitude4Phase
 evaluate_func_map['evaluate_desired_motorAngle_hop'] = evaluate_desired_motorAngle_hop
 
 
-
-def evaluate_params(evaluateFunc, params, objectiveParams, urdfRoot='', timeStep=0.01, maxNumSteps=10000, sleepTime=0):
+def evaluate_params(evaluateFunc,
+                    params,
+                    objectiveParams,
+                    urdfRoot='',
+                    timeStep=0.01,
+                    maxNumSteps=10000,
+                    sleepTime=0):
   print('start evaluation')
   beforeTime = time.time()
   p.resetSimulation()
 
   p.setTimeStep(timeStep)
   p.loadURDF("%s/plane.urdf" % urdfRoot)
-  p.setGravity(0,0,-10)
+  p.setGravity(0, 0, -10)
 
   global minitaur
   minitaur = Minitaur(urdfRoot)
@@ -95,5 +107,6 @@ def evaluate_params(evaluateFunc, params, objectiveParams, urdfRoot='', timeStep
   final_distance = np.linalg.norm(start_position - current_position())
   finalReturn = final_distance - alpha * total_energy
   elapsedTime = time.time() - beforeTime
-  print ("trial for ", params, " final_distance", final_distance, "total_energy", total_energy, "finalReturn", finalReturn, "elapsed_time", elapsedTime)
+  print("trial for ", params, " final_distance", final_distance, "total_energy", total_energy,
+        "finalReturn", finalReturn, "elapsed_time", elapsedTime)
   return finalReturn

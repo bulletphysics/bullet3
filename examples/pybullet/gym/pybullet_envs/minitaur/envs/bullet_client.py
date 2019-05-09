@@ -42,9 +42,13 @@ class BulletClient(object):
     attribute = getattr(pybullet, name)
     if inspect.isbuiltin(attribute):
       if name not in [
-          "invertTransform", "multiplyTransforms", "getMatrixFromQuaternion",
-          "getEulerFromQuaternion", "computeViewMatrixFromYawPitchRoll",
-          "computeProjectionMatrixFOV", "getQuaternionFromEuler",
+          "invertTransform",
+          "multiplyTransforms",
+          "getMatrixFromQuaternion",
+          "getEulerFromQuaternion",
+          "computeViewMatrixFromYawPitchRoll",
+          "computeProjectionMatrixFOV",
+          "getQuaternionFromEuler",
       ]:  # A temporary hack for now.
         attribute = functools.partial(attribute, physicsClientId=self._client)
     return attribute
