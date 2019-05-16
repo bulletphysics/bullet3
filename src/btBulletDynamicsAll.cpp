@@ -22,6 +22,7 @@
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.cpp"
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.cpp"
 #include "BulletDynamics/MLCPSolvers/btDantzigLCP.cpp"
+#include "BulletDynamics/MLCPSolvers/btLemkeSolver.cpp"
 #include "BulletDynamics/MLCPSolvers/btLemkeAlgorithm.cpp"
 #include "BulletDynamics/MLCPSolvers/btMLCPSolver.cpp"
 #include "BulletDynamics/Featherstone/btMultiBody.cpp"
@@ -39,4 +40,3 @@
 #include "BulletDynamics/Vehicle/btRaycastVehicle.cpp"
 #include "BulletDynamics/Vehicle/btWheelInfo.cpp"
 #include "BulletDynamics/Character/btKinematicCharacterController.cpp"
-
