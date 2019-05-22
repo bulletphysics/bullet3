@@ -161,28 +161,26 @@ for i in range(nJoints):
 
 motor_front_rightR_joint = jointNameToId['motor_front_rightR_joint']
 motor_front_rightL_joint = jointNameToId['motor_front_rightL_joint']
-knee_front_rightL_link = jointNameToId['knee_front_rightL_link']
-hip_front_rightR_link = jointNameToId['hip_front_rightR_link']
-knee_front_rightR_link = jointNameToId['knee_front_rightR_link']
-motor_front_rightL_link = jointNameToId['motor_front_rightL_link']
+knee_front_rightL_joint = jointNameToId['knee_front_rightL_joint']
+hip_front_rightR_joint = jointNameToId['hip_front_rightR_joint']
+knee_front_rightR_joint = jointNameToId['knee_front_rightR_joint']
+motor_front_rightL_joint = jointNameToId['motor_front_rightL_joint']
 motor_front_leftR_joint = jointNameToId['motor_front_leftR_joint']
-hip_front_leftR_link = jointNameToId['hip_front_leftR_link']
-knee_front_leftR_link = jointNameToId['knee_front_leftR_link']
+hip_front_leftR_joint = jointNameToId['hip_front_leftR_joint']
+knee_front_leftR_joint = jointNameToId['knee_front_leftR_joint']
 motor_front_leftL_joint = jointNameToId['motor_front_leftL_joint']
-motor_front_leftL_link = jointNameToId['motor_front_leftL_link']
-knee_front_leftL_link = jointNameToId['knee_front_leftL_link']
+motor_front_leftL_joint = jointNameToId['motor_front_leftL_joint']
+knee_front_leftL_joint = jointNameToId['knee_front_leftL_joint']
 motor_back_rightR_joint = jointNameToId['motor_back_rightR_joint']
-hip_rightR_link = jointNameToId['hip_rightR_link']
-knee_back_rightR_link = jointNameToId['knee_back_rightR_link']
+knee_back_rightR_joint = jointNameToId['knee_back_rightR_joint']
 motor_back_rightL_joint = jointNameToId['motor_back_rightL_joint']
-motor_back_rightL_link = jointNameToId['motor_back_rightL_link']
-knee_back_rightL_link = jointNameToId['knee_back_rightL_link']
+motor_back_rightL_joint = jointNameToId['motor_back_rightL_joint']
+knee_back_rightL_joint = jointNameToId['knee_back_rightL_joint']
 motor_back_leftR_joint = jointNameToId['motor_back_leftR_joint']
-hip_leftR_link = jointNameToId['hip_leftR_link']
-knee_back_leftR_link = jointNameToId['knee_back_leftR_link']
+knee_back_leftR_joint = jointNameToId['knee_back_leftR_joint']
 motor_back_leftL_joint = jointNameToId['motor_back_leftL_joint']
-motor_back_leftL_link = jointNameToId['motor_back_leftL_link']
-knee_back_leftL_link = jointNameToId['knee_back_leftL_link']
+motor_back_leftL_joint = jointNameToId['motor_back_leftL_joint']
+knee_back_leftL_joint = jointNameToId['knee_back_leftL_joint']
 
 #fixtorso = p.createConstraint(-1,-1,quadruped,-1,p.JOINT_FIXED,[0,0,0],[0,0,0],[0,0,0])
 
@@ -230,21 +228,21 @@ if (useMaximalCoordinates):
     p.setJointMotorControl2(quadruped, motor_back_rightR_joint, p.POSITION_CONTROL,
                             motordir[7] * halfpi * float(aa) / steps)
 
-    p.setJointMotorControl2(quadruped, knee_front_leftL_link, p.POSITION_CONTROL,
+    p.setJointMotorControl2(quadruped, knee_front_leftL_joint, p.POSITION_CONTROL,
                             motordir[0] * (kneeangle + twopi) * float(aa) / steps)
-    p.setJointMotorControl2(quadruped, knee_front_leftR_link, p.POSITION_CONTROL,
+    p.setJointMotorControl2(quadruped, knee_front_leftR_joint, p.POSITION_CONTROL,
                             motordir[1] * kneeangle * float(aa) / steps)
-    p.setJointMotorControl2(quadruped, knee_back_leftL_link, p.POSITION_CONTROL,
+    p.setJointMotorControl2(quadruped, knee_back_leftL_joint, p.POSITION_CONTROL,
                             motordir[2] * kneeangle * float(aa) / steps)
-    p.setJointMotorControl2(quadruped, knee_back_leftR_link, p.POSITION_CONTROL,
+    p.setJointMotorControl2(quadruped, knee_back_leftR_joint, p.POSITION_CONTROL,
                             motordir[3] * (kneeangle + twopi) * float(aa) / steps)
-    p.setJointMotorControl2(quadruped, knee_front_rightL_link, p.POSITION_CONTROL,
+    p.setJointMotorControl2(quadruped, knee_front_rightL_joint, p.POSITION_CONTROL,
                             motordir[4] * (kneeangle) * float(aa) / steps)
-    p.setJointMotorControl2(quadruped, knee_front_rightR_link, p.POSITION_CONTROL,
+    p.setJointMotorControl2(quadruped, knee_front_rightR_joint, p.POSITION_CONTROL,
                             motordir[5] * (kneeangle + twopi) * float(aa) / steps)
-    p.setJointMotorControl2(quadruped, knee_back_rightL_link, p.POSITION_CONTROL,
+    p.setJointMotorControl2(quadruped, knee_back_rightL_joint, p.POSITION_CONTROL,
                             motordir[6] * (kneeangle + twopi) * float(aa) / steps)
-    p.setJointMotorControl2(quadruped, knee_back_rightR_link, p.POSITION_CONTROL,
+    p.setJointMotorControl2(quadruped, knee_back_rightR_joint, p.POSITION_CONTROL,
                             motordir[7] * kneeangle * float(aa) / steps)
 
     p.stepSimulation()
@@ -252,57 +250,57 @@ if (useMaximalCoordinates):
 else:
 
   p.resetJointState(quadruped, motor_front_leftL_joint, motordir[0] * halfpi)
-  p.resetJointState(quadruped, knee_front_leftL_link, motordir[0] * kneeangle)
+  p.resetJointState(quadruped, knee_front_leftL_joint, motordir[0] * kneeangle)
   p.resetJointState(quadruped, motor_front_leftR_joint, motordir[1] * halfpi)
-  p.resetJointState(quadruped, knee_front_leftR_link, motordir[1] * kneeangle)
+  p.resetJointState(quadruped, knee_front_leftR_joint, motordir[1] * kneeangle)
 
   p.resetJointState(quadruped, motor_back_leftL_joint, motordir[2] * halfpi)
-  p.resetJointState(quadruped, knee_back_leftL_link, motordir[2] * kneeangle)
+  p.resetJointState(quadruped, knee_back_leftL_joint, motordir[2] * kneeangle)
   p.resetJointState(quadruped, motor_back_leftR_joint, motordir[3] * halfpi)
-  p.resetJointState(quadruped, knee_back_leftR_link, motordir[3] * kneeangle)
+  p.resetJointState(quadruped, knee_back_leftR_joint, motordir[3] * kneeangle)
 
   p.resetJointState(quadruped, motor_front_rightL_joint, motordir[4] * halfpi)
-  p.resetJointState(quadruped, knee_front_rightL_link, motordir[4] * kneeangle)
+  p.resetJointState(quadruped, knee_front_rightL_joint, motordir[4] * kneeangle)
   p.resetJointState(quadruped, motor_front_rightR_joint, motordir[5] * halfpi)
-  p.resetJointState(quadruped, knee_front_rightR_link, motordir[5] * kneeangle)
+  p.resetJointState(quadruped, knee_front_rightR_joint, motordir[5] * kneeangle)
 
   p.resetJointState(quadruped, motor_back_rightL_joint, motordir[6] * halfpi)
-  p.resetJointState(quadruped, knee_back_rightL_link, motordir[6] * kneeangle)
+  p.resetJointState(quadruped, knee_back_rightL_joint, motordir[6] * kneeangle)
   p.resetJointState(quadruped, motor_back_rightR_joint, motordir[7] * halfpi)
-  p.resetJointState(quadruped, knee_back_rightR_link, motordir[7] * kneeangle)
+  p.resetJointState(quadruped, knee_back_rightR_joint, motordir[7] * kneeangle)
 
 #p.getNumJoints(1)
 
 if (toeConstraint):
-  cid = p.createConstraint(quadruped, knee_front_leftR_link, quadruped, knee_front_leftL_link,
+  cid = p.createConstraint(quadruped, knee_front_leftR_joint, quadruped, knee_front_leftL_joint,
                            p.JOINT_POINT2POINT, [0, 0, 0], [0, 0.005, 0.1], [0, 0.01, 0.1])
   p.changeConstraint(cid, maxForce=maxKneeForce)
-  cid = p.createConstraint(quadruped, knee_front_rightR_link, quadruped, knee_front_rightL_link,
+  cid = p.createConstraint(quadruped, knee_front_rightR_joint, quadruped, knee_front_rightL_joint,
                            p.JOINT_POINT2POINT, [0, 0, 0], [0, 0.005, 0.1], [0, 0.01, 0.1])
   p.changeConstraint(cid, maxForce=maxKneeForce)
-  cid = p.createConstraint(quadruped, knee_back_leftR_link, quadruped, knee_back_leftL_link,
+  cid = p.createConstraint(quadruped, knee_back_leftR_joint, quadruped, knee_back_leftL_joint,
                            p.JOINT_POINT2POINT, [0, 0, 0], [0, 0.005, 0.1], [0, 0.01, 0.1])
   p.changeConstraint(cid, maxForce=maxKneeForce)
-  cid = p.createConstraint(quadruped, knee_back_rightR_link, quadruped, knee_back_rightL_link,
+  cid = p.createConstraint(quadruped, knee_back_rightR_joint, quadruped, knee_back_rightL_joint,
                            p.JOINT_POINT2POINT, [0, 0, 0], [0, 0.005, 0.1], [0, 0.01, 0.1])
   p.changeConstraint(cid, maxForce=maxKneeForce)
 
 if (1):
-  p.setJointMotorControl(quadruped, knee_front_leftL_link, p.VELOCITY_CONTROL, 0,
+  p.setJointMotorControl(quadruped, knee_front_leftL_joint, p.VELOCITY_CONTROL, 0,
                          kneeFrictionForce)
-  p.setJointMotorControl(quadruped, knee_front_leftR_link, p.VELOCITY_CONTROL, 0,
+  p.setJointMotorControl(quadruped, knee_front_leftR_joint, p.VELOCITY_CONTROL, 0,
                          kneeFrictionForce)
-  p.setJointMotorControl(quadruped, knee_front_rightL_link, p.VELOCITY_CONTROL, 0,
+  p.setJointMotorControl(quadruped, knee_front_rightL_joint, p.VELOCITY_CONTROL, 0,
                          kneeFrictionForce)
-  p.setJointMotorControl(quadruped, knee_front_rightR_link, p.VELOCITY_CONTROL, 0,
+  p.setJointMotorControl(quadruped, knee_front_rightR_joint, p.VELOCITY_CONTROL, 0,
                          kneeFrictionForce)
-  p.setJointMotorControl(quadruped, knee_back_leftL_link, p.VELOCITY_CONTROL, 0, kneeFrictionForce)
-  p.setJointMotorControl(quadruped, knee_back_leftR_link, p.VELOCITY_CONTROL, 0, kneeFrictionForce)
-  p.setJointMotorControl(quadruped, knee_back_leftL_link, p.VELOCITY_CONTROL, 0, kneeFrictionForce)
-  p.setJointMotorControl(quadruped, knee_back_leftR_link, p.VELOCITY_CONTROL, 0, kneeFrictionForce)
-  p.setJointMotorControl(quadruped, knee_back_rightL_link, p.VELOCITY_CONTROL, 0,
+  p.setJointMotorControl(quadruped, knee_back_leftL_joint, p.VELOCITY_CONTROL, 0, kneeFrictionForce)
+  p.setJointMotorControl(quadruped, knee_back_leftR_joint, p.VELOCITY_CONTROL, 0, kneeFrictionForce)
+  p.setJointMotorControl(quadruped, knee_back_leftL_joint, p.VELOCITY_CONTROL, 0, kneeFrictionForce)
+  p.setJointMotorControl(quadruped, knee_back_leftR_joint, p.VELOCITY_CONTROL, 0, kneeFrictionForce)
+  p.setJointMotorControl(quadruped, knee_back_rightL_joint, p.VELOCITY_CONTROL, 0,
                          kneeFrictionForce)
-  p.setJointMotorControl(quadruped, knee_back_rightR_link, p.VELOCITY_CONTROL, 0,
+  p.setJointMotorControl(quadruped, knee_back_rightR_joint, p.VELOCITY_CONTROL, 0,
                          kneeFrictionForce)
 
 p.setGravity(0, 0, -10)
@@ -376,7 +374,7 @@ p.setJointMotorControl2(bodyIndex=quadruped,
 p.setRealTimeSimulation(useRealTime)
 
 t = 0.0
-t_end = t + 115
+t_end = t + 5
 ref_time = time.time()
 while (t < t_end):
   p.setGravity(0, 0, -10)
