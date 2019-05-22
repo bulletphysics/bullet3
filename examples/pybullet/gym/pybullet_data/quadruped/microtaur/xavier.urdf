@@ -1,0 +1,29 @@
+<?xml version="0.0" ?>
+<robot name="xavier">
+  <link name="baseLink">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value="0.64"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.045 -0.045 -0.018"/>
+      <geometry>
+				<mesh filename="xavier.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="0.092 0.105 0.045"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>
+
