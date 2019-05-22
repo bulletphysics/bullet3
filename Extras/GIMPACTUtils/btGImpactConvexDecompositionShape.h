@@ -1,5 +1,5 @@
 /*! \file btGImpactConvexDecompositionShape.h
-\author Francisco León Nájera
+\author Francisco Leon Najera
 */
 /*
 This source file is part of GIMPACT Library.
