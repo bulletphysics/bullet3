@@ -1461,7 +1461,6 @@ bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger,
 		{
 			xml_string += (std::string(destBuffer) + "\n");
 		}
-		while (line);
 		m_data->m_fileIO->fileClose(fileId);
 
 		if (parseMJCFString(xml_string.c_str(), logger))
