@@ -9,9 +9,9 @@
 #include "../../CommonInterfaces/CommonFileIOInterface.h"
 #include "../ImportURDFDemo/UrdfFindMeshFile.h"
 #include <string>
-#include "../../Utils/b3ResourcePath.h"
 #include <iostream>
 #include <fstream>
+#include "../../Utils/b3ResourcePath.h"
 #include "../ImportURDFDemo/URDF2Bullet.h"
 #include "../ImportURDFDemo/UrdfParser.h"
 #include "../ImportURDFDemo/urdfStringSplit.h"
@@ -1453,17 +1453,21 @@ bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger,
 	}
 	else
 	{
-		int maxPathLen = 1024;
-		fu.extractPath(relativeFileName, m_data->m_pathPrefix, maxPathLen);
+		//read file
+		int fileId = m_data->m_fileIO->fileOpen(relativeFileName,"r");
 
-		std::fstream xml_file(relativeFileName, std::fstream::in);
-		while (xml_file.good())
+		char destBuffer[8192];
+		char* line = 0;
+		do
 		{
-			std::string line;
-			std::getline(xml_file, line);
-			xml_string += (line + "\n");
+			line = m_data->m_fileIO->readLine(fileId, destBuffer, 8192);
+			if (line)
+			{
+				xml_string += (std::string(destBuffer) + "\n");
+			}
 		}
-		xml_file.close();
+		while (line);
+		m_data->m_fileIO->fileClose(fileId);
 
 		if (parseMJCFString(xml_string.c_str(), logger))
 		{
