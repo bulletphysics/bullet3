@@ -336,9 +336,10 @@ static PyObject* pybullet_stepSimulation(PyObject* self, PyObject* args, PyObjec
 				struct b3ForwardDynamicsAnalyticsArgs analyticsData;
 				int numIslands = 0;
 				int i;
+				PyObject* pyAnalyticsData = PyTuple_New(numIslands);
+
 				numIslands = b3GetStatusForwardDynamicsAnalyticsData(statusHandle, &analyticsData);
 
-				PyObject* pyAnalyticsData = PyTuple_New(numIslands);
 				for (i=0;i<numIslands;i++)
 				{
 					int numFields = 4;
