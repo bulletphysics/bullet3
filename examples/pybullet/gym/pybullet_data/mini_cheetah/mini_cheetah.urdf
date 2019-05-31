@@ -100,7 +100,40 @@
             <origin rpy="0 3.141592 0" xyz="0 0 0"/>
         </collision>
     </link>
+    <link name="toe_fr">
+    <contact>
+      <friction_anchor/>
+      <stiffness value="30000.0"/>
+      <damping value="1000.0"/>
+      <spinning_friction value="0.3"/>
+      <lateral_friction value="3.0"/>
+    </contact>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+      <material name="darkgray"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.15"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
+    </inertial>
+  </link>
+  <joint name="toe_fr_joint" type="fixed">
+    <parent link="shank_fr"/>
+    <child link="toe_fr"/>
+    <origin xyz="0 0 -0.18"/>
+    <dynamics damping="0.0" friction="0.0"/>
+  </joint>
 
+ 
 <!--!!!!!!!!!!!! Front Left Leg !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
     <joint name="torso_to_abduct_fl_j" type="continuous">
         <axis xyz="1 0 0"/>
@@ -181,6 +214,39 @@
             <origin rpy="0 3.141592 0" xyz="0 0 0"/>
         </collision>
     </link>
+    <link name="toe_fl">
+      <contact>
+      <friction_anchor/>
+      <stiffness value="30000.0"/>
+      <damping value="1000.0"/>
+      <spinning_friction value="0.3"/>
+      <lateral_friction value="3.0"/>
+    </contact>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+      <material name="darkgray"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.15"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
+    </inertial>
+  </link>
+  <joint name="toe_fl_joint" type="fixed">
+    <parent link="shank_fl"/>
+    <child link="toe_fl"/>
+    <origin xyz="0 0 -0.18"/>
+    <dynamics damping="0.0" friction="0.0"/>
+  </joint>
+
 
 <!--!!!!!!!!!!!! Hind Right Leg !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
     <joint name="torso_to_abduct_hr_j" type="continuous">
@@ -262,6 +328,39 @@
             <origin rpy="0 3.141592 0" xyz="0 0 0"/>
         </collision>
     </link>
+     <link name="toe_hr">
+      <contact>
+      <friction_anchor/>
+      <stiffness value="30000.0"/>
+      <damping value="1000.0"/>
+      <spinning_friction value="0.3"/>
+      <lateral_friction value="3.0"/>
+    </contact>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+      <material name="darkgray"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.15"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
+    </inertial>
+  </link>
+  <joint name="toe_hr_joint" type="fixed">
+    <parent link="shank_hr"/>
+    <child link="toe_hr"/>
+    <origin xyz="0 0 -0.18"/>
+    <dynamics damping="0.0" friction="0.0"/>
+  </joint>
+
 
 <!--!!!!!!!!!!!! Hind Left Leg !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
     <joint name="torso_to_abduct_hl_j" type="continuous">
@@ -343,5 +442,39 @@
             <origin rpy="0 3.141592 0" xyz="0 0 0"/>
         </collision>
     </link>
+    <link name="toe_hl">
+      <contact>
+      <friction_anchor/>
+      <stiffness value="30000.0"/>
+      <damping value="1000.0"/>
+      <spinning_friction value="0.3"/>
+      <lateral_friction value="3.0"/>
+    </contact>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+      <material name="darkgray"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.15"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
+    </inertial>
+  </link>
+  <joint name="toe_hl_joint" type="fixed">
+    <parent link="shank_hl"/>
+    <child link="toe_hl"/>
+    <origin xyz="0 0 -0.18"/>
+    <dynamics damping="0.0" friction="0.0"/>
+  </joint>
+
+
 
 </robot>
