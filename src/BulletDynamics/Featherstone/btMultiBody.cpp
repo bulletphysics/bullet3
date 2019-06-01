@@ -352,9 +352,9 @@ void btMultiBody::finalizeMultiDof()
 	updateLinksDofOffsets();
 }
 
-int btMultiBody::getParent(int i) const
+int btMultiBody::getParent(int link_num) const
 {
-	return m_links[i].m_parent;
+	return m_links[link_num].m_parent;
 }
 
 btScalar btMultiBody::getLinkMass(int i) const
