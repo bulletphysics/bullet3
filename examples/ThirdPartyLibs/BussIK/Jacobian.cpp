@@ -472,8 +472,8 @@ void Jacobian::CalcDeltaThetasSDLS()
 	// Calculate response vector dTheta that is the SDLS solution.
 	//	Delta target values are the dS values
 	int nRows = J.GetNumRows();
-	// TODO: Modify it to work with multiple end effectors.
-	int numEndEffectors = 1;
+	
+	int numEndEffectors = m_tree->GetNumEffector();
 	int nCols = J.GetNumColumns();
 	dTheta.SetZero();
 
