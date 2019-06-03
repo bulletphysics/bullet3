@@ -80,11 +80,11 @@ struct btSISolverSingleIterationData
 		m_orderNonContactConstraintPool(orderNonContactConstraintPool),
 		m_orderFrictionConstraintPool(orderFrictionConstraintPool),
 		m_tmpConstraintSizesPool(tmpConstraintSizesPool),
+		m_seed(seed),
 		m_resolveSingleConstraintRowGeneric(resolveSingleConstraintRowGeneric),
 		m_resolveSingleConstraintRowLowerLimit(resolveSingleConstraintRowLowerLimit),
 		m_resolveSplitPenetrationImpulse(resolveSplitPenetrationImpulse),
 		m_kinematicBodyUniqueIdToSolverBodyTable(kinematicBodyUniqueIdToSolverBodyTable),
-		m_seed(seed),
 		m_fixedBodyId(fixedBodyId),
 		m_maxOverrideNumSolverIterations(maxOverrideNumSolverIterations)
 	{
