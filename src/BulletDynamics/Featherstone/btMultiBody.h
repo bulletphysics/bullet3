@@ -65,7 +65,7 @@ public:
 	virtual ~btMultiBody();
 
 	//note: fixed link collision with parent is always disabled
-	void setupFixed(int linkIndex,
+	void setupFixed(int i, //linkIndex
 					btScalar mass,
 					const btVector3 &inertia,
 					int parent,
@@ -83,7 +83,7 @@ public:
 						const btVector3 &thisPivotToThisComOffset,
 						bool disableParentCollision);
 
-	void setupRevolute(int linkIndex,  // 0 to num_links-1
+	void setupRevolute(int i,  // 0 to num_links-1
 					   btScalar mass,
 					   const btVector3 &inertia,
 					   int parentIndex,
@@ -93,7 +93,7 @@ public:
 					   const btVector3 &thisPivotToThisComOffset,    // vector from joint axis to my COM, in MY frame
 					   bool disableParentCollision = false);
 
-	void setupSpherical(int linkIndex,  // 0 to num_links-1
+	void setupSpherical(int i,  // linkIndex, 0 to num_links-1
 						btScalar mass,
 						const btVector3 &inertia,
 						int parent,
@@ -277,15 +277,15 @@ public:
 	//
 	// transform vectors in local frame of link i to world frame (or vice versa)
 	//
-	btVector3 localPosToWorld(int i, const btVector3 &vec) const;
-	btVector3 localDirToWorld(int i, const btVector3 &vec) const;
-	btVector3 worldPosToLocal(int i, const btVector3 &vec) const;
-	btVector3 worldDirToLocal(int i, const btVector3 &vec) const;
+	btVector3 localPosToWorld(int i, const btVector3 &local_pos) const;
+	btVector3 localDirToWorld(int i, const btVector3 &local_dir) const;
+	btVector3 worldPosToLocal(int i, const btVector3 &world_pos) const;
+	btVector3 worldDirToLocal(int i, const btVector3 &world_dir) const;
 
 	//
 	// transform a frame in local coordinate to a frame in world coordinate
 	//
-	btMatrix3x3 localFrameToWorld(int i, const btMatrix3x3 &mat) const;
+	btMatrix3x3 localFrameToWorld(int i, const btMatrix3x3 &local_frame) const;
 
 	//
 	// calculate kinetic energy and angular momentum
@@ -576,11 +576,11 @@ public:
 	{
 		return m_internalNeedsJointFeedback;
 	}
-	void forwardKinematics(btAlignedObjectArray<btQuaternion> & scratch_q, btAlignedObjectArray<btVector3> & scratch_m);
+	void forwardKinematics(btAlignedObjectArray<btQuaternion>& world_to_local, btAlignedObjectArray<btVector3> & local_origin);
 
 	void compTreeLinkVelocities(btVector3 * omega, btVector3 * vel) const;
 
-	void updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQuaternion> & scratch_q, btAlignedObjectArray<btVector3> & scratch_m);
+	void updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQuaternion> & world_to_local, btAlignedObjectArray<btVector3> & local_origin);
 
 	virtual int calculateSerializeBufferSize() const;
 

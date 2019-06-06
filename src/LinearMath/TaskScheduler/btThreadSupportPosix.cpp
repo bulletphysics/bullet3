@@ -45,14 +45,14 @@ subject to the following restrictions:
 
 int btGetNumHardwareThreads()
 {
-	return btMin<int>(BT_MAX_THREAD_COUNT, std::thread::hardware_concurrency());
+	return btMax(1u, btMin(BT_MAX_THREAD_COUNT, std::thread::hardware_concurrency()));
 }
 
 #else
 
 int btGetNumHardwareThreads()
 {
-	return btMin<int>(BT_MAX_THREAD_COUNT, sysconf(_SC_NPROCESSORS_ONLN));
+	return btMax(1, btMin<int>(BT_MAX_THREAD_COUNT, sysconf(_SC_NPROCESSORS_ONLN)));
 }
 
 #endif

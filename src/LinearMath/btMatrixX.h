@@ -284,7 +284,7 @@ struct btMatrixX
 		}
 	}
 
-	void printMatrix(const char* msg)
+	void printMatrix(const char* msg) const
 	{
 		printf("%s ---------------------\n", msg);
 		for (int i = 0; i < rows(); i++)
