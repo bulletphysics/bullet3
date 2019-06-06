@@ -56,7 +56,7 @@ for i in range(4):
   jointOffsets.append(-0.7)
   jointOffsets.append(0.7)
 
-maxForceId = p.addUserDebugParameter("maxForce", 0, 100, 20)
+maxForceId = p.addUserDebugParameter("maxForce", 0, 100, 120)
 
 for j in range(p.getNumJoints(quadruped)):
   p.changeDynamics(quadruped, j, linearDamping=0, angularDamping=0)
@@ -103,7 +103,7 @@ for i in range(4):
   jointOffsets.append(-0.7)
   jointOffsets.append(0.7)
 
-maxForceId = p.addUserDebugParameter("maxForce", 0, 100, 20)
+maxUpForceId = p.addUserDebugParameter("maxUpForce", 0, 100, 20)
 
 for j in range(p.getNumJoints(quadruped)):
   p.changeDynamics(quadruped, j, linearDamping=0, angularDamping=0)
@@ -162,7 +162,11 @@ while t < 10. * cycleTime:
   jointsStr, qdot = qpi.Slerp(frameFraction, frameData, frameDataNext, p)
 
   maxForce = p.readUserDebugParameter(maxForceId)
-  print("jointIds=", jointIds)
+  #print("jointIds=", jointIds)
+  
+  maxUpForce = p.readUserDebugParameter(maxUpForceId)
+  p.changeConstraint(cid, maxForce=maxUpForce)
+
 
   if useConstraints:
     for j in range(12):
@@ -194,7 +198,7 @@ while t < 10. * cycleTime:
                               desiredVelocities=desiredVelocities,
                               kps=[4000] * totalDofs,
                               kds=[40] * totalDofs,
-                              maxForces=[500] * totalDofs,
+                              maxForces=[maxForce] * totalDofs,
                               timeStep=timeStep)
 
     dofIndex = 6
@@ -202,7 +206,7 @@ while t < 10. * cycleTime:
     for index in range(len(jointIds)):
       jointIndex = jointIds[index]
       force = [scaling * taus[dofIndex]]
-      print("force[", jointIndex, "]=", force)
+      #print("force[", jointIndex, "]=", force)
       p.setJointMotorControlMultiDof(quadruped,
                                      jointIndex,
                                      controlMode=p.TORQUE_CONTROL,
@@ -231,8 +235,9 @@ if useOrgData:
                                 force=maxForce)
       p.stepSimulation()
       for lower_leg in lower_legs:
+        pass
         #print("points for ", quadruped, " link: ", lower_leg)
-        pts = p.getContactPoints(quadruped, -1, lower_leg)
+        #pts = p.getContactPoints(quadruped, -1, lower_leg)
         #print("num points=",len(pts))
         #for pt in pts:
         #	print(pt[9])

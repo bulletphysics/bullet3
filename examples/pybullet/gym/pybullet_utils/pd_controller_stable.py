@@ -227,6 +227,6 @@ class PDControllerStable(object):
     qddot = np.linalg.solve(A, b)
     tau = p + d - Kd.dot(qddot) * timeStep
     maxF = np.array(maxForces)
-    forces = np.clip(tau, -maxF, maxF)
+    tau = np.clip(tau, -maxF, maxF)
     #print("c=",c)
     return tau
