@@ -304,8 +304,8 @@ void btThreadSupportPosix::stopThreads()
 		checkPThreadFunction(sem_post(threadStatus.startSemaphore));
 		checkPThreadFunction(sem_wait(m_mainSemaphore));
 
-		destroySem(threadStatus.startSemaphore);
 		checkPThreadFunction(pthread_join(threadStatus.thread, 0));
+		destroySem(threadStatus.startSemaphore);
 	}
 	destroySem(m_mainSemaphore);
 	m_activeThreadStatus.clear();
