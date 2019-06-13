@@ -4,10 +4,10 @@
 import math
 import random
 
-import os,  inspect
+import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 
 from gym import spaces
 import numpy as np
@@ -52,61 +52,52 @@ class MinitaurBallGymEnv(minitaur_gym_env.MinitaurGymEnv):
         that its walking gait is clearer to visualize.
       render: Whether to render the simulation.
     """
-    super(MinitaurBallGymEnv, self).__init__(
-        urdf_root=urdf_root,
-        self_collision_enabled=self_collision_enabled,
-        pd_control_enabled=pd_control_enabled,
-        leg_model_enabled=leg_model_enabled,
-        on_rack=on_rack,
-        render=render)
+    super(MinitaurBallGymEnv, self).__init__(urdf_root=urdf_root,
+                                             self_collision_enabled=self_collision_enabled,
+                                             pd_control_enabled=pd_control_enabled,
+                                             leg_model_enabled=leg_model_enabled,
+                                             on_rack=on_rack,
+                                             render=render)
     self._cam_dist = 2.0
     self._cam_yaw = -70
     self._cam_pitch = -30
     self.action_space = spaces.Box(np.array([-1]), np.array([1]))
-    self.observation_space = spaces.Box(np.array([-math.pi, 0]),
-                                        np.array([math.pi, 100]))
+    self.observation_space = spaces.Box(np.array([-math.pi, 0]), np.array([math.pi, 100]))
 
-  def _reset(self):
+  def reset(self):
     self._ball_id = 0
-    super(MinitaurBallGymEnv, self)._reset()
+    super(MinitaurBallGymEnv, self).reset()
     self._init_ball_theta = random.uniform(-INIT_BALL_ANGLE, INIT_BALL_ANGLE)
     self._init_ball_distance = INIT_BALL_DISTANCE
-    self._ball_pos = [self._init_ball_distance *
-                      math.cos(self._init_ball_theta),
-                      self._init_ball_distance *
-                      math.sin(self._init_ball_theta), 1]
+    self._ball_pos = [
+        self._init_ball_distance * math.cos(self._init_ball_theta),
+        self._init_ball_distance * math.sin(self._init_ball_theta), 1
+    ]
     self._ball_id = self._pybullet_client.loadURDF(
         "%s/sphere_with_restitution.urdf" % self._urdf_root, self._ball_pos)
     return self._get_observation()
 
   def _get_observation(self):
     world_translation_minitaur, world_rotation_minitaur = (
-        self._pybullet_client.getBasePositionAndOrientation(
-            self.minitaur.quadruped))
+        self._pybullet_client.getBasePositionAndOrientation(self.minitaur.quadruped))
     world_translation_ball, world_rotation_ball = (
         self._pybullet_client.getBasePositionAndOrientation(self._ball_id))
-    minitaur_translation_world, minitaur_rotation_world = (
-        self._pybullet_client.invertTransform(world_translation_minitaur,
-                                              world_rotation_minitaur))
-    minitaur_translation_ball, _ = (
-        self._pybullet_client.multiplyTransforms(minitaur_translation_world,
-                                                 minitaur_rotation_world,
-                                                 world_translation_ball,
-                                                 world_rotation_ball))
-    distance = math.sqrt(minitaur_translation_ball[0]**2 +
-                         minitaur_translation_ball[1]**2)
-    angle = math.atan2(minitaur_translation_ball[0],
-                       minitaur_translation_ball[1])
+    minitaur_translation_world, minitaur_rotation_world = (self._pybullet_client.invertTransform(
+        world_translation_minitaur, world_rotation_minitaur))
+    minitaur_translation_ball, _ = (self._pybullet_client.multiplyTransforms(
+        minitaur_translation_world, minitaur_rotation_world, world_translation_ball,
+        world_rotation_ball))
+    distance = math.sqrt(minitaur_translation_ball[0]**2 + minitaur_translation_ball[1]**2)
+    angle = math.atan2(minitaur_translation_ball[0], minitaur_translation_ball[1])
     self._observation = [angle - math.pi / 2, distance]
     return self._observation
 
   def _transform_action_to_motor_command(self, action):
     if self._leg_model_enabled:
       for i, action_component in enumerate(action):
-        if not (-self._action_bound - ACTION_EPS <=
-                action_component <= self._action_bound + ACTION_EPS):
-          raise ValueError("{}th action {} out of bounds.".format
-                           (i, action_component))
+        if not (-self._action_bound - ACTION_EPS <= action_component <=
+                self._action_bound + ACTION_EPS):
+          raise ValueError("{}th action {} out of bounds.".format(i, action_component))
       action = self._apply_steering_to_locomotion(action)
       action = self.minitaur.ConvertFromLegModel(action)
     return action
@@ -126,15 +117,12 @@ class MinitaurBallGymEnv(minitaur_gym_env.MinitaurGymEnv):
     return action
 
   def _distance_to_ball(self):
-    world_translation_minitaur, _ = (
-        self._pybullet_client.getBasePositionAndOrientation(
-            self.minitaur.quadruped))
-    world_translation_ball, _ = (
-        self._pybullet_client.getBasePositionAndOrientation(
-            self._ball_id))
-    distance = math.sqrt(
-        (world_translation_ball[0] - world_translation_minitaur[0])**2 +
-        (world_translation_ball[1] - world_translation_minitaur[1])**2)
+    world_translation_minitaur, _ = (self._pybullet_client.getBasePositionAndOrientation(
+        self.minitaur.quadruped))
+    world_translation_ball, _ = (self._pybullet_client.getBasePositionAndOrientation(
+        self._ball_id))
+    distance = math.sqrt((world_translation_ball[0] - world_translation_minitaur[0])**2 +
+                         (world_translation_ball[1] - world_translation_minitaur[1])**2)
     return distance
 
   def _goal_state(self):

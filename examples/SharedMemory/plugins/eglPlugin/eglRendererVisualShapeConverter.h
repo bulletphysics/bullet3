@@ -11,7 +11,7 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual ~EGLRendererVisualShapeConverter();
 
-	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int shapeUid, int objectIndex);
+	virtual int convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int orgGraphicsUniqueId, int bodyUniqueId, struct CommonFileIOInterface* fileIO);
 
 	virtual int getNumVisualShapes(int bodyUniqueId);
 
@@ -48,10 +48,20 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 	virtual void render();
 	virtual void render(const float viewMat[16], const float projMat[16]);
 
-	virtual int loadTextureFile(const char* filename);
+	virtual int loadTextureFile(const char* filename, struct CommonFileIOInterface* fileIO);
 	virtual int registerTexture(unsigned char* texels, int width, int height);
 
+	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]);
+	virtual void setProjectiveTexture(bool useProjectiveTexture);
+
 	virtual void syncTransform(int shapeUid, const class btTransform& worldTransform, const class btVector3& localScaling);
+
+	virtual void mouseMoveCallback(float x, float y);
+	virtual void mouseButtonCallback(int button, int state, float x, float y);
+
+	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3], float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float cameraTarget[3]) const;
+	
+
 };
 
 #endif  //EGL_RENDERER_VISUAL_SHAPE_CONVERTER_H

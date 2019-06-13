@@ -33,9 +33,13 @@ class btRigidBody* MyMultiBodyCreator::allocateRigidBody(int urdfLinkIndex, btSc
 {
 	btRigidBody::btRigidBodyConstructionInfo rbci(mass, 0, colShape, localInertiaDiagonal);
 	rbci.m_startWorldTransform = initialWorldTrans;
-	m_rigidBody = new btRigidBody(rbci);
-
-	return m_rigidBody;
+	btRigidBody* body = new btRigidBody(rbci);
+	if (m_rigidBody == 0)
+	{
+		//only store the root of the multi body
+		m_rigidBody = body;
+	}
+	return body;
 }
 
 class btMultiBodyLinkCollider* MyMultiBodyCreator::allocateMultiBodyLinkCollider(int /*urdfLinkIndex*/, int mbLinkIndex, btMultiBody* multiBody)

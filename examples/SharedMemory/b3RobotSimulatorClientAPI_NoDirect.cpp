@@ -190,7 +190,12 @@ bool b3RobotSimulatorClientAPI_NoDirect::changeVisualShape(const struct b3RobotS
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
 
-	commandHandle = b3InitUpdateVisualShape(m_data->m_physicsClientHandle, objectUniqueId, jointIndex, shapeIndex, textureUniqueId);
+	commandHandle = b3InitUpdateVisualShape2(m_data->m_physicsClientHandle, objectUniqueId, jointIndex, shapeIndex);
+
+	if (textureUniqueId>=-1)
+	{
+		b3UpdateVisualShapeTexture(commandHandle, textureUniqueId);
+	}
 
 	if (args.m_hasSpecularColor)
 	{
@@ -1129,7 +1134,7 @@ void b3RobotSimulatorClientAPI_NoDirect::submitProfileTiming(const std::string& 
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 }
 
-void b3RobotSimulatorClientAPI_NoDirect::loadSoftBody(const std::string& fileName, double scale, double mass, double collisionMargin)
+void b3RobotSimulatorClientAPI_NoDirect::loadSoftBody(const std::string& fileName, const struct b3RobotSimulatorLoadSoftBodyArgs& args)
 {
 	if (!isConnected())
 	{
@@ -1138,9 +1143,11 @@ void b3RobotSimulatorClientAPI_NoDirect::loadSoftBody(const std::string& fileNam
 	}
 
 	b3SharedMemoryCommandHandle command = b3LoadSoftBodyCommandInit(m_data->m_physicsClientHandle, fileName.c_str());
-	b3LoadSoftBodySetScale(command, scale);
-	b3LoadSoftBodySetMass(command, mass);
-	b3LoadSoftBodySetCollisionMargin(command, collisionMargin);
+	b3LoadSoftBodySetStartPosition(command, args.m_startPosition[0], args.m_startPosition[1], args.m_startPosition[2]);
+	b3LoadSoftBodySetStartOrientation(command, args.m_startOrientation[0], args.m_startOrientation[1], args.m_startOrientation[2], args.m_startOrientation[3]);
+	b3LoadSoftBodySetScale(command, args.m_scale);
+	b3LoadSoftBodySetMass(command, args.m_mass);
+	b3LoadSoftBodySetCollisionMargin(command, args.m_collisionMargin);
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 }
 
@@ -2179,6 +2186,21 @@ int b3RobotSimulatorClientAPI_NoDirect::createMultiBody(struct b3RobotSimulatorC
 
 	command = b3CreateMultiBodyCommandInit(sm);
 
+	if (args.m_useMaximalCoordinates)
+	{
+		b3CreateMultiBodyUseMaximalCoordinates(command);
+	}
+	if (args.m_batchPositions.size())
+	{
+		btAlignedObjectArray<double> positionArray;
+		for (int i = 0; i < args.m_batchPositions.size(); i++)
+		{
+			positionArray.push_back(args.m_batchPositions[i][0]);
+			positionArray.push_back(args.m_batchPositions[i][1]);
+			positionArray.push_back(args.m_batchPositions[i][2]);
+		}
+		b3CreateMultiBodySetBatchPositions(sm, command, &positionArray[0], args.m_batchPositions.size());
+	}
 	baseIndex = b3CreateMultiBodyBase(command, args.m_baseMass, args.m_baseCollisionShapeIndex, args.m_baseVisualShapeIndex,
 									  doubleBasePosition, doubleBaseOrientation, doubleBaseInertialFramePosition, doubleBaseInertialFrameOrientation);
 
@@ -2397,3 +2419,25 @@ void b3RobotSimulatorClientAPI_NoDirect::setAdditionalSearchPath(const std::stri
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	}
 }
+
+void b3RobotSimulatorClientAPI_NoDirect::setCollisionFilterGroupMask(int bodyUniqueIdA, int linkIndexA, int collisionFilterGroup, int collisionFilterMask)
+{
+    int physicsClientId = 0;
+    b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+    if (sm == 0)
+    {
+        b3Warning("Not connected");
+        return;
+    }
+    
+    b3SharedMemoryCommandHandle commandHandle;
+    b3SharedMemoryStatusHandle statusHandle;
+    int statusType;
+    
+    commandHandle = b3CollisionFilterCommandInit(sm);
+    b3SetCollisionFilterGroupMask(commandHandle, bodyUniqueIdA, linkIndexA, collisionFilterGroup, collisionFilterMask);
+    
+    statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+    statusType = b3GetStatusType(statusHandle);
+}
+

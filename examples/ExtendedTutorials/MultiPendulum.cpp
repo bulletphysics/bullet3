@@ -15,8 +15,9 @@
 
 #include "MultiPendulum.h"
 
-#include <vector>  // TODO: Should I use another data structure?
+#include <cmath>
 #include <iterator>
+#include <vector>  // TODO: Should I use another data structure?
 
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btVector3.h"
@@ -159,7 +160,7 @@ void MultiPendulumExample::initPhysics()
 		m_collisionShapes.push_back(pendulumShape);
 
 		// create multi-pendulum
-		createMultiPendulum(pendulumShape, floor(gPendulaQty), position,
+		createMultiPendulum(pendulumShape, std::floor(gPendulaQty), position,
 							gInitialPendulumLength, pendulumMass);
 	}
 

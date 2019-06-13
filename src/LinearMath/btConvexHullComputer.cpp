@@ -926,7 +926,7 @@ int btConvexHullInternal::Rational64::compare(const Rational64& b) const
 		"decb %%bh\n\t"        // now bx=0x0000 if difference is zero, 0xff01 if it is negative, 0x0001 if it is positive (i.e., same sign as difference)
 		"shll $16, %%ebx\n\t"  // ebx has same sign as difference
 		: "=&b"(result), [tmp] "=&r"(tmp), "=a"(dummy)
-		: "a"(denominator), [bn] "g"(b.numerator), [tn] "g"(numerator), [bd] "g"(b.denominator)
+		: "a"(m_denominator), [bn] "g"(b.m_numerator), [tn] "g"(m_numerator), [bd] "g"(b.m_denominator)
 		: "%rdx", "cc");
 	return result ? result ^ sign  // if sign is +1, only bit 0 of result is inverted, which does not change the sign of result (and cannot result in zero)
 								   // if sign is -1, all bits of result are inverted, which changes the sign of result (and again cannot result in zero)

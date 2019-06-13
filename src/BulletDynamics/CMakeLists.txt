@@ -41,6 +41,7 @@ SET(BulletDynamics_SRCS
 	Featherstone/btMultiBodyMLCPConstraintSolver.cpp
 	Featherstone/btMultiBodyPoint2Point.cpp
 	Featherstone/btMultiBodySliderConstraint.cpp
+	Featherstone/btMultiBodySphericalJointMotor.cpp
 	MLCPSolvers/btDantzigLCP.cpp
 	MLCPSolvers/btMLCPSolver.cpp
 	MLCPSolvers/btLemkeAlgorithm.cpp

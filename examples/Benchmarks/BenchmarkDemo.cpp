@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 #include <stdio.h>  //printf debugging
 #include "TaruData.h"
+#include "HaltonData.h"
 #include "landscapeData.h"
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 
@@ -69,6 +70,7 @@ class BenchmarkDemo : public CommonRigidBodyMTBase
 	void createTest5();
 	void createTest6();
 	void createTest7();
+	void createTest8();
 
 	void createWall(const btVector3& offsetPosition, int stackSize, const btVector3& boxSize);
 	void createPyramid(const btVector3& offsetPosition, int stackSize, const btVector3& boxSize);
@@ -311,35 +313,6 @@ public:
 			m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0], lineColor, points.size(), sizeof(btVector3FloatData), &indices[0], indices.size(), 1);
 		}
 
-#if 0
-		glDisable (GL_LIGHTING);
-		glColor3f (0.0, 1.0, 0.0);
-		glBegin (GL_LINES);
-		int i;
-
-		for (i = 0; i < NUMRAYS; i++)
-		{
-			glVertex3f (source[i][0], source[i][1], source[i][2]);
-			glVertex3f (hit[i][0], hit[i][1], hit[i][2]);
-		}
-		glEnd ();
-		glColor3f (1.0, 1.0, 1.0);
-		glBegin (GL_LINES);
-		for (i = 0; i < NUMRAYS; i++)
-		{
-			glVertex3f (hit[i][0], hit[i][1], hit[i][2]);
-			glVertex3f (hit[i][0] + normal[i][0], hit[i][1] + normal[i][1], hit[i][2] + normal[i][2]);
-		}
-		glEnd ();
-		glColor3f (0.0, 1.0, 1.0);
-		glBegin (GL_POINTS);
-		for ( i = 0; i < NUMRAYS; i++)
-		{
-			glVertex3f (hit[i][0], hit[i][1], hit[i][2]);
-		}
-		glEnd ();
-		glEnable (GL_LIGHTING);
-#endif  //USE_GRAPHICAL_BENCHMARK
 	}
 };
 
@@ -471,6 +444,11 @@ void BenchmarkDemo::initPhysics()
 		case 7:
 		{
 			createTest7();
+			break;
+		}
+		case 8:
+		{
+			createTest8();
 			break;
 		}
 
@@ -1008,7 +986,7 @@ void BenchmarkDemo::createTest4()
 	}
 
 	//this will enable polyhedral contact clipping, better quality, slightly slower
-	//convexHullShape->initializePolyhedralFeatures();
+	convexHullShape->initializePolyhedralFeatures();
 
 	btTransform trans;
 	trans.setIdentity();
@@ -1282,6 +1260,59 @@ void BenchmarkDemo::createTest7()
 	createTest6();
 	setCameraDistance(btScalar(150.));
 	initRays();
+}
+
+void BenchmarkDemo::createTest8()
+{
+	float dist = 8;
+	float pitch = -15;
+	float yaw = 20;
+	float targetPos[3] = {0, 1, 0};
+	m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
+	// Create a shape and rigid body for each Voronoi cell.
+	const float fallHeight = 3.5f;
+	for (int i=0; i<halton_numc; ++i)
+	{
+		btConvexHullShape* shp = new btConvexHullShape();
+		const float* verts  = halton_verts[i];
+		const float* origin = halton_pos[i];
+		for (int v=0; v<halton_numv[i]; ++v)
+		{
+			btVector3 vtx(verts[0],verts[1],verts[2]);
+			shp->addPoint(vtx);
+			verts += 3;
+		}
+		shp->initializePolyhedralFeatures();
+		shp->setMargin(0.04f);
+		btTransform transform;
+		transform.setIdentity();
+		transform.setOrigin(btVector3(origin[0],origin[1]+fallHeight,origin[2]));
+		const float mass = halton_volu[i];
+		btVector3 inertia(0,0,0);
+		shp->calculateLocalInertia(mass, inertia);
+		btRigidBody::btRigidBodyConstructionInfo ci(mass, 0, shp, inertia);
+		ci.m_startWorldTransform = transform;
+		btRigidBody* body = new btRigidBody(ci);
+		body->setFriction(0.6f);
+		m_dynamicsWorld->addRigidBody(body);
+	}
+
+        btContactSolverInfo& si = m_dynamicsWorld->getSolverInfo();
+	si.m_numIterations = 20;
+	si.m_erp = 0.8f;
+	si.m_erp2 = si.m_erp / 2;
+	si.m_globalCfm = 0.015f;
+	// Create a ground plane
+	btCollisionShape* groundplane = new btStaticPlaneShape(btVector3(0,1,0),0);
+	groundplane->setMargin(0.04f);
+	btRigidBody::btRigidBodyConstructionInfo rc(0.0f, 0, groundplane, btVector3(0,0,0));
+	btRigidBody* groundbody = new btRigidBody(rc);
+	m_dynamicsWorld->addRigidBody(groundbody);
+#if 0
+	// Use SAT for slower, but better contact generation.
+	btDispatcherInfo& di = m_dynamicsWorld->getDispatchInfo();
+	di.m_enableSatConvex = true;
+#endif
 }
 
 void BenchmarkDemo::exitPhysics()

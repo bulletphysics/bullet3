@@ -91,7 +91,7 @@ void* Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCreat
 		}
 		else
 		{
-			b3Warning("Could not create file mapping object (%d).\n", GetLastError());
+			//b3Warning("Could not create file mapping object (%d).\n", GetLastError());
 			return 0;
 		}
 	}

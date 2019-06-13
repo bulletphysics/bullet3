@@ -1792,6 +1792,7 @@ void CMainApplication::RenderStereoTargets()
 
 	//m_app->drawGrid(gridUp);
 
+	m_app->m_instancingRenderer->setRenderFrameBuffer(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_MULTISAMPLE);

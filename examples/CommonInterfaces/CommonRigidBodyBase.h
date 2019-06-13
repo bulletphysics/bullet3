@@ -10,6 +10,7 @@
 
 #include "CommonGraphicsAppInterface.h"
 #include "CommonWindowInterface.h"
+#include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 
 struct CommonRigidBodyBase : public CommonExampleInterface
 {
@@ -317,6 +318,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 
 		btCollisionWorld::ClosestRayResultCallback rayCallback(rayFromWorld, rayToWorld);
 
+		rayCallback.m_flags |= btTriangleRaycastCallback::kF_UseGjkConvexCastRaytest;
 		m_dynamicsWorld->rayTest(rayFromWorld, rayToWorld, rayCallback);
 		if (rayCallback.hasHit())
 		{
@@ -437,12 +439,15 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 
 	virtual void renderScene()
 	{
+		if (m_dynamicsWorld)
 		{
-			m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
-		}
+			{
+				m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
+			}
 
-		{
-			m_guiHelper->render(m_dynamicsWorld);
+			{
+				m_guiHelper->render(m_dynamicsWorld);
+			}
 		}
 	}
 };

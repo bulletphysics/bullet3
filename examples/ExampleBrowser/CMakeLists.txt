@@ -71,6 +71,11 @@ IF (BUILD_SHARED_LIBS)
 	ENDIF(WIN32)
 ENDIF(BUILD_SHARED_LIBS)
 
+INSTALL(TARGETS BulletExampleBrowserLib
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib${LIB_SUFFIX}
+        ARCHIVE DESTINATION lib${LIB_SUFFIX})
+
 ####################
 #
 # Bullet Example Browser main app
@@ -88,6 +93,9 @@ INCLUDE_DIRECTORIES(
 LINK_LIBRARIES(
         BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
 )
+
+
+add_definitions(-DINCLUDE_CLOTH_DEMOS)
 
 IF (WIN32)
 	INCLUDE_DIRECTORIES(
@@ -139,6 +147,11 @@ SET(ExtendedTutorialsSources
 )
 
 SET(BulletExampleBrowser_SRCS
+        ../BulletRobotics/FixJointBoxes.cpp
+
+        ../BulletRobotics/BoxStack.cpp
+        ../BulletRobotics/JointLimit.cpp
+        # ../BulletRobotics/GraspBox.cpp
 
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp
@@ -197,6 +210,14 @@ SET(BulletExampleBrowser_SRCS
 	../MultiThreadedDemo/MultiThreadedDemo.h
 	../MultiThreadedDemo/CommonRigidBodyMTBase.cpp
 	../MultiThreadedDemo/CommonRigidBodyMTBase.h
+	../Heightfield/HeightfieldExample.cpp
+	../Heightfield/HeightfieldExample.h
+	../BlockSolver/btBlockSolver.cpp
+	../BlockSolver/btBlockSolver.h
+	../BlockSolver/BlockSolverExample.cpp
+	../BlockSolver/BlockSolverExample.h
+	../BlockSolver/RigidBodyBoxes.cpp
+	../BlockSolver/RigidBodyBoxes.h
 	../Tutorial/Tutorial.cpp
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp
@@ -328,7 +349,8 @@ SET(BulletExampleBrowser_SRCS
   ../MultiBody/InvertedPendulumPDControl.cpp
   ../MultiBody/InvertedPendulumPDControl.h
  ../MultiBody/MultiBodyConstraintFeedback.cpp
-  ../MultiBody/SerialChains.cpp
+  ../SoftDemo/SoftDemo.cpp
+  ../SoftDemo/SoftDemo.h
   ../MultiBody/MultiDofDemo.cpp
   ../MultiBody/MultiDofDemo.h
   ../RigidBody/RigidBodySoftContact.cpp

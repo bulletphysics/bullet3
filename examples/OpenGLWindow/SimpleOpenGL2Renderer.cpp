@@ -436,7 +436,7 @@ void SimpleOpenGL2Renderer::updateTexture(int textureIndex, const unsigned char*
 		}
 
 		b3Assert(glGetError() == GL_NO_ERROR);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		//glGenerateMipmap(GL_TEXTURE_2D);
 		b3Assert(glGetError() == GL_NO_ERROR);
 	}
 }

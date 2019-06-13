@@ -120,7 +120,7 @@ public:
 
 	btDiscreteDynamicsWorldMt(btDispatcher * dispatcher,
 							  btBroadphaseInterface * pairCache,
-							  btConstraintSolverPoolMt * constraintSolver,  // Note this should be a solver-pool for multi-threading
+							  btConstraintSolverPoolMt * solverPool,        // Note this should be a solver-pool for multi-threading
 							  btConstraintSolver * constraintSolverMt,      // single multi-threaded solver for large islands (or NULL)
 							  btCollisionConfiguration * collisionConfiguration);
 	virtual ~btDiscreteDynamicsWorldMt();

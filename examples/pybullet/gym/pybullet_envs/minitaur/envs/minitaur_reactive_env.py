@@ -2,10 +2,10 @@
 
 """
 
-import os,  inspect
+import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 
 import collections
 import math
@@ -19,8 +19,7 @@ NUM_LEGS = 4
 NUM_MOTORS = 2 * NUM_LEGS
 
 MinitaurPose = collections.namedtuple(
-    "MinitaurPose",
-    "swing_angle_1, swing_angle_2, swing_angle_3, swing_angle_4, "
+    "MinitaurPose", "swing_angle_1, swing_angle_2, swing_angle_3, swing_angle_4, "
     "extension_angle_1, extension_angle_2, extension_angle_3, "
     "extension_angle_4")
 
@@ -35,10 +34,7 @@ class MinitaurReactiveEnv(minitaur_gym_env.MinitaurGymEnv):
   expenditure.
 
   """
-  metadata = {
-      "render.modes": ["human", "rgb_array"],
-      "video.frames_per_second": 166
-  }
+  metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 166}
 
   def __init__(self,
                urdf_version=None,
@@ -90,30 +86,30 @@ class MinitaurReactiveEnv(minitaur_gym_env.MinitaurGymEnv):
         and moved to the origin.
       env_randomizer: An instance (or a list) of EnvRanzomier(s) that can
         randomize the environment during when env.reset() is called and add
-        perturbations when env._step() is called.
+        perturbations when env.step() is called.
       log_path: The path to write out logs. For the details of logging, refer to
         minitaur_logging.proto.
     """
     self._use_angle_in_observation = use_angle_in_observation
 
-    super(MinitaurReactiveEnv, self).__init__(
-        urdf_version=urdf_version,
-        energy_weight=energy_weight,
-        accurate_motor_model_enabled=accurate_motor_model_enabled,
-        motor_overheat_protection=True,
-        motor_kp=motor_kp,
-        motor_kd=motor_kd,
-        remove_default_joint_damping=remove_default_joint_damping,
-        control_latency=control_latency,
-        pd_latency=pd_latency,
-        on_rack=on_rack,
-        render=render,
-        hard_reset=hard_reset,
-        num_steps_to_log=num_steps_to_log,
-        env_randomizer=env_randomizer,
-        log_path=log_path,
-        control_time_step=control_time_step,
-        action_repeat=action_repeat)
+    super(MinitaurReactiveEnv,
+          self).__init__(urdf_version=urdf_version,
+                         energy_weight=energy_weight,
+                         accurate_motor_model_enabled=accurate_motor_model_enabled,
+                         motor_overheat_protection=True,
+                         motor_kp=motor_kp,
+                         motor_kd=motor_kd,
+                         remove_default_joint_damping=remove_default_joint_damping,
+                         control_latency=control_latency,
+                         pd_latency=pd_latency,
+                         on_rack=on_rack,
+                         render=render,
+                         hard_reset=hard_reset,
+                         num_steps_to_log=num_steps_to_log,
+                         env_randomizer=env_randomizer,
+                         log_path=log_path,
+                         control_time_step=control_time_step,
+                         action_repeat=action_repeat)
 
     action_dim = 8
     action_low = np.array([-0.5] * action_dim)
@@ -123,37 +119,34 @@ class MinitaurReactiveEnv(minitaur_gym_env.MinitaurGymEnv):
     self._cam_yaw = 30
     self._cam_pitch = -30
 
-  def _reset(self):
+  def reset(self):
     # TODO(b/73666007): Use composition instead of inheritance.
     # (http://go/design-for-testability-no-inheritance).
-    init_pose = MinitaurPose(
-        swing_angle_1=INIT_SWING_POS,
-        swing_angle_2=INIT_SWING_POS,
-        swing_angle_3=INIT_SWING_POS,
-        swing_angle_4=INIT_SWING_POS,
-        extension_angle_1=INIT_EXTENSION_POS,
-        extension_angle_2=INIT_EXTENSION_POS,
-        extension_angle_3=INIT_EXTENSION_POS,
-        extension_angle_4=INIT_EXTENSION_POS)
+    init_pose = MinitaurPose(swing_angle_1=INIT_SWING_POS,
+                             swing_angle_2=INIT_SWING_POS,
+                             swing_angle_3=INIT_SWING_POS,
+                             swing_angle_4=INIT_SWING_POS,
+                             extension_angle_1=INIT_EXTENSION_POS,
+                             extension_angle_2=INIT_EXTENSION_POS,
+                             extension_angle_3=INIT_EXTENSION_POS,
+                             extension_angle_4=INIT_EXTENSION_POS)
     # TODO(b/73734502): Refactor input of _convert_from_leg_model to namedtuple.
     initial_motor_angles = self._convert_from_leg_model(list(init_pose))
-    super(MinitaurReactiveEnv, self)._reset(
-        initial_motor_angles=initial_motor_angles, reset_duration=0.5)
+    super(MinitaurReactiveEnv, self).reset(initial_motor_angles=initial_motor_angles,
+                                           reset_duration=0.5)
     return self._get_observation()
 
   def _convert_from_leg_model(self, leg_pose):
     motor_pose = np.zeros(NUM_MOTORS)
     for i in range(NUM_LEGS):
       motor_pose[int(2 * i)] = leg_pose[NUM_LEGS + i] - (-1)**int(i / 2) * leg_pose[i]
-      motor_pose[int(2 * i + 1)] = (
-          leg_pose[NUM_LEGS + i] + (-1)**int(i / 2) * leg_pose[i])
+      motor_pose[int(2 * i + 1)] = (leg_pose[NUM_LEGS + i] + (-1)**int(i / 2) * leg_pose[i])
     return motor_pose
 
   def _signal(self, t):
     initial_pose = np.array([
-        INIT_SWING_POS, INIT_SWING_POS, INIT_SWING_POS, INIT_SWING_POS,
-        INIT_EXTENSION_POS, INIT_EXTENSION_POS, INIT_EXTENSION_POS,
-        INIT_EXTENSION_POS
+        INIT_SWING_POS, INIT_SWING_POS, INIT_SWING_POS, INIT_SWING_POS, INIT_EXTENSION_POS,
+        INIT_EXTENSION_POS, INIT_EXTENSION_POS, INIT_EXTENSION_POS
     ])
     return initial_pose
 
@@ -214,8 +207,7 @@ class MinitaurReactiveEnv(minitaur_gym_env.MinitaurGymEnv):
     upper_bound_pitch_dot = 2 * math.pi / self._time_step
     upper_bound_motor_angle = 2 * math.pi
     upper_bound = [
-        upper_bound_roll, upper_bound_pitch, upper_bound_roll_dot,
-        upper_bound_pitch_dot
+        upper_bound_roll, upper_bound_pitch, upper_bound_roll_dot, upper_bound_pitch_dot
     ]
 
     if self._use_angle_in_observation:

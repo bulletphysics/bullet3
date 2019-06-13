@@ -20,7 +20,7 @@ struct BodyJointInfoCache
 	b3AlignedObjectArray<b3JointInfo> m_jointInfo;
 	std::string m_bodyName;
 	btAlignedObjectArray<int> m_userDataIds;
-
+	int m_numDofs;
 	~BodyJointInfoCache()
 	{
 	}
@@ -70,6 +70,8 @@ struct PhysicsClientSharedMemoryInternalData
 
 	SharedMemoryStatus m_lastServerStatus;
 
+	SendActualStateSharedMemoryStorage m_cachedState;
+	
 	int m_counter;
 
 	bool m_isConnected;
@@ -78,6 +80,8 @@ struct PhysicsClientSharedMemoryInternalData
 	int m_sharedMemoryKey;
 	bool m_verboseOutput;
 	double m_timeOutInSeconds;
+
+	
 
 	PhysicsClientSharedMemoryInternalData()
 		: m_sharedMemory(0),
@@ -140,6 +144,17 @@ int PhysicsClientSharedMemory::getNumJoints(int bodyUniqueId) const
 	return 0;
 }
 
+int PhysicsClientSharedMemory::getNumDofs(int bodyUniqueId) const
+{
+        BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+        if (bodyJointsPtr && *bodyJointsPtr)
+        {
+                BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
+                return bodyJoints->m_numDofs;
+        }
+        return 0;
+}
+
 bool PhysicsClientSharedMemory::getJointInfo(int bodyUniqueId, int jointIndex, b3JointInfo& info) const
 {
 	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
@@ -149,6 +164,34 @@ bool PhysicsClientSharedMemory::getJointInfo(int bodyUniqueId, int jointIndex, b
 		if ((jointIndex >= 0) && (jointIndex < bodyJoints->m_jointInfo.size()))
 		{
 			info = bodyJoints->m_jointInfo[jointIndex];
+			info.m_qSize = 0;
+			info.m_uSize = 0;
+			switch (info.m_jointType)
+			{
+				case eSphericalType:
+				{
+					info.m_qSize = 4;//quaterion x,y,z,w
+					info.m_uSize = 3;
+					break;
+				}
+				case ePlanarType:
+				{
+					info.m_qSize = 2;
+					info.m_uSize = 2;
+					break;
+				}
+				case ePrismaticType:
+				case eRevoluteType:
+				{
+					info.m_qSize = 1;
+					info.m_uSize = 1;
+					break;
+				}
+
+				default:
+				{
+				}
+			}
 			return true;
 		}
 	}
@@ -496,6 +539,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 				 m_data->m_testBlock1->m_numProcessedServerCommands + 1);
 
 		const SharedMemoryStatus& serverCmd = m_data->m_testBlock1->m_serverCommands[0];
+
+		if (serverCmd.m_type==CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+		{
+			SendActualStateSharedMemoryStorage* serverState = (SendActualStateSharedMemoryStorage*)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
+			m_data->m_cachedState = *serverState;
+			//ideally we provided a 'getCachedState' but that would require changing the API, so we store a pointer instead.
+			m_data->m_testBlock1->m_serverCommands[0].m_sendActualStateArgs.m_stateDetails = &m_data->m_cachedState;
+		}
+
 		m_data->m_lastServerStatus = serverCmd;
 
 		//       EnumSharedMemoryServerStatus s = (EnumSharedMemoryServerStatus)serverCmd.m_type;
@@ -799,6 +851,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			case CMD_ACTUAL_STATE_UPDATE_COMPLETED:
 			{
 				B3_PROFILE("CMD_ACTUAL_STATE_UPDATE_COMPLETED");
+				
 				if (m_data->m_verboseOutput)
 				{
 					b3Printf("Received actual state\n");
@@ -817,12 +870,12 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 							if (i < numQ - 1)
 							{
 								sprintf(msg, "%s%f,", msg,
-										command.m_sendActualStateArgs.m_actualStateQ[i]);
+									m_data->m_cachedState.m_actualStateQ[i]);
 							}
 							else
 							{
 								sprintf(msg, "%s%f", msg,
-										command.m_sendActualStateArgs.m_actualStateQ[i]);
+									m_data->m_cachedState.m_actualStateQ[i]);
 							}
 						}
 						sprintf(msg, "%s]", msg);
@@ -836,12 +889,12 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 						if (i < numU - 1)
 						{
 							sprintf(msg, "%s%f,", msg,
-									command.m_sendActualStateArgs.m_actualStateQdot[i]);
+								m_data->m_cachedState.m_actualStateQdot[i]);
 						}
 						else
 						{
 							sprintf(msg, "%s%f", msg,
-									command.m_sendActualStateArgs.m_actualStateQdot[i]);
+								m_data->m_cachedState.m_actualStateQdot[i]);
 						}
 					}
 					sprintf(msg, "%s]", msg);
@@ -1345,12 +1398,51 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			}
 			case CMD_LOAD_SOFT_BODY_FAILED:
 			{
-				b3Warning("loadSoftBody failed");
-				break;
+                            B3_PROFILE("CMD_LOAD_SOFT_BODY_FAILED");
+
+                            if (m_data->m_verboseOutput)
+                            {
+                                b3Printf("Server failed loading the SoftBody...\n");
+                            }
+                            break;
 			}
 			case CMD_LOAD_SOFT_BODY_COMPLETED:
 			{
-				break;
+                          B3_PROFILE("CMD_LOAD_SOFT_BODY_COMPLETED");
+
+                          if (m_data->m_verboseOutput)
+                          {
+                            b3Printf("Server loading the SoftBody OK\n");
+                          }
+                          
+                          b3Assert(serverCmd.m_numDataStreamBytes);
+                          if (serverCmd.m_numDataStreamBytes > 0)
+                          {
+			       bParse::btBulletFile bf(
+                                   this->m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor,
+                                   serverCmd.m_numDataStreamBytes);
+                               bf.setFileDNAisMemoryDNA();
+                               bf.parse(false);
+                               int bodyUniqueId = serverCmd.m_dataStreamArguments.m_bodyUniqueId;
+                               
+                               BodyJointInfoCache* bodyJoints = new BodyJointInfoCache;
+                               m_data->m_bodyJointMap.insert(bodyUniqueId, bodyJoints);
+                               bodyJoints->m_bodyName = serverCmd.m_dataStreamArguments.m_bodyName;
+                               bodyJoints->m_baseName = "baseLink";
+                                        
+                               if (bf.ok())
+                               {
+                                 if (m_data->m_verboseOutput)
+                                 {
+                                   b3Printf("Received robot description ok!\n");
+                                 }
+                               }
+                               else
+                               {
+                                 b3Warning("Robot description not received when loading soft body!");
+                               }
+                          }
+                          break;
 			}
 			case CMD_SYNC_USER_DATA_FAILED:
 			{
@@ -1376,6 +1468,8 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			case CMD_SYNC_USER_DATA_COMPLETED:
 			case CMD_REMOVE_USER_DATA_COMPLETED:
 			case CMD_ADD_USER_DATA_COMPLETED:
+			case CMD_REMOVE_STATE_FAILED:
+			case CMD_REMOVE_STATE_COMPLETED:
 			{
 				break;
 			}

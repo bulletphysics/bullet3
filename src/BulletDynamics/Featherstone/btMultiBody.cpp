@@ -30,9 +30,6 @@
 //#include "Bullet3Common/b3Logging.h"
 // #define INCLUDE_GYRO_TERM
 
-///todo: determine if we need these options. If so, make a proper API, otherwise delete those globals
-bool gJointFeedbackInWorldSpace = false;
-bool gJointFeedbackInJointFrame = false;
 
 namespace
 {
@@ -40,18 +37,20 @@ const btScalar SLEEP_EPSILON = btScalar(0.05);  // this is a squared velocity (m
 const btScalar SLEEP_TIMEOUT = btScalar(2);     // in seconds
 }  // namespace
 
-namespace
-{
-void SpatialTransform(const btMatrix3x3 &rotation_matrix,  // rotates vectors in 'from' frame to vectors in 'to' frame
-					  const btVector3 &displacement,       // vector from origin of 'from' frame to origin of 'to' frame, in 'to' coordinates
-					  const btVector3 &top_in,             // top part of input vector
-					  const btVector3 &bottom_in,          // bottom part of input vector
-					  btVector3 &top_out,                  // top part of output vector
-					  btVector3 &bottom_out)               // bottom part of output vector
+void btMultiBody::spatialTransform(const btMatrix3x3 &rotation_matrix,  // rotates vectors in 'from' frame to vectors in 'to' frame
+	const btVector3 &displacement,       // vector from origin of 'from' frame to origin of 'to' frame, in 'to' coordinates
+	const btVector3 &top_in,             // top part of input vector
+	const btVector3 &bottom_in,          // bottom part of input vector
+	btVector3 &top_out,                  // top part of output vector
+	btVector3 &bottom_out)               // bottom part of output vector
 {
 	top_out = rotation_matrix * top_in;
 	bottom_out = -displacement.cross(top_out) + rotation_matrix * bottom_in;
 }
+
+namespace
+{
+
 
 #if 0
     void InverseSpatialTransform(const btMatrix3x3 &rotation_matrix,
@@ -107,6 +106,7 @@ btMultiBody::btMultiBody(int n_links,
 	  m_fixedBase(fixedBase),
 	  m_awake(true),
 	  m_canSleep(canSleep),
+	  m_canWakeup(true),
 	  m_sleepTimer(0),
 	  m_userObjectPointer(0),
 	  m_userIndex2(-1),
@@ -333,6 +333,9 @@ void btMultiBody::setupPlanar(int i,
 	m_links[i].updateCacheMultiDof();
 	//
 	updateLinksDofOffsets();
+
+	m_links[i].setAxisBottom(1, m_links[i].getAxisBottom(1).normalized());
+	m_links[i].setAxisBottom(2, m_links[i].getAxisBottom(2).normalized());
 }
 
 void btMultiBody::finalizeMultiDof()
@@ -341,6 +344,7 @@ void btMultiBody::finalizeMultiDof()
 	m_deltaV.resize(6 + m_dofCount);
 	m_realBuf.resize(6 + m_dofCount + m_dofCount * m_dofCount + 6 + m_dofCount);  //m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices + delta-pos vector (6 base "vels" + joint "vels")
 	m_vectorBuf.resize(2 * m_dofCount);                                           //two 3-vectors (i.e. one six-vector) for each system dof	("h" matrices)
+	m_matrixBuf.resize(m_links.size() + 1);
 	for (int i = 0; i < m_vectorBuf.size(); i++)
 	{
 		m_vectorBuf[i].setValue(0, 0, 0);
@@ -348,9 +352,9 @@ void btMultiBody::finalizeMultiDof()
 	updateLinksDofOffsets();
 }
 
-int btMultiBody::getParent(int i) const
+int btMultiBody::getParent(int link_num) const
 {
-	return m_links[i].m_parent;
+	return m_links[link_num].m_parent;
 }
 
 btScalar btMultiBody::getLinkMass(int i) const
@@ -399,23 +403,40 @@ void btMultiBody::setJointPos(int i, btScalar q)
 	m_links[i].updateCacheMultiDof();
 }
 
-void btMultiBody::setJointPosMultiDof(int i, btScalar *q)
+
+void btMultiBody::setJointPosMultiDof(int i, const double *q)
 {
 	for (int pos = 0; pos < m_links[i].m_posVarCount; ++pos)
-		m_links[i].m_jointPos[pos] = q[pos];
+		m_links[i].m_jointPos[pos] = (btScalar)q[pos];
 
 	m_links[i].updateCacheMultiDof();
 }
+
+void btMultiBody::setJointPosMultiDof(int i, const float *q)
+{
+	for (int pos = 0; pos < m_links[i].m_posVarCount; ++pos)
+		m_links[i].m_jointPos[pos] = (btScalar)q[pos];
+
+	m_links[i].updateCacheMultiDof();
+}
+
+
 
 void btMultiBody::setJointVel(int i, btScalar qdot)
 {
 	m_realBuf[6 + m_links[i].m_dofOffset] = qdot;
 }
 
-void btMultiBody::setJointVelMultiDof(int i, btScalar *qdot)
+void btMultiBody::setJointVelMultiDof(int i, const double *qdot)
 {
 	for (int dof = 0; dof < m_links[i].m_dofCount; ++dof)
-		m_realBuf[6 + m_links[i].m_dofOffset + dof] = qdot[dof];
+		m_realBuf[6 + m_links[i].m_dofOffset + dof] = (btScalar)qdot[dof];
+}
+
+void btMultiBody::setJointVelMultiDof(int i, const float* qdot)
+{
+	for (int dof = 0; dof < m_links[i].m_dofCount; ++dof)
+		m_realBuf[6 + m_links[i].m_dofOffset + dof] = (btScalar)qdot[dof];
 }
 
 const btVector3 &btMultiBody::getRVector(int i) const
@@ -526,35 +547,26 @@ void btMultiBody::compTreeLinkVelocities(btVector3 *omega, btVector3 *vel) const
 {
 	int num_links = getNumLinks();
 	// Calculates the velocities of each link (and the base) in its local frame
-	omega[0] = quatRotate(m_baseQuat, getBaseOmega());
-	vel[0] = quatRotate(m_baseQuat, getBaseVel());
+	const btQuaternion& base_rot = getWorldToBaseRot();
+	omega[0] = quatRotate(base_rot, getBaseOmega());
+	vel[0] = quatRotate(base_rot, getBaseVel());
 
 	for (int i = 0; i < num_links; ++i)
 	{
-		const int parent = m_links[i].m_parent;
+		const btMultibodyLink& link = getLink(i);
+		const int parent = link.m_parent;
 
 		// transform parent vel into this frame, store in omega[i+1], vel[i+1]
-		SpatialTransform(btMatrix3x3(m_links[i].m_cachedRotParentToThis), m_links[i].m_cachedRVector,
-						 omega[parent + 1], vel[parent + 1],
-						 omega[i + 1], vel[i + 1]);
+		spatialTransform(btMatrix3x3(link.m_cachedRotParentToThis), link.m_cachedRVector,
+			omega[parent + 1], vel[parent + 1],
+			omega[i + 1], vel[i + 1]);
 
 		// now add qidot * shat_i
-		//only supported for revolute/prismatic joints, todo: spherical and planar joints
-		switch (m_links[i].m_jointType)
+		const btScalar* jointVel = getJointVelMultiDof(i);
+		for (int dof = 0; dof < link.m_dofCount; ++dof)
 		{
-			case btMultibodyLink::ePrismatic:
-			case btMultibodyLink::eRevolute:
-			{
-				btVector3 axisTop = m_links[i].getAxisTop(0);
-				btVector3 axisBottom = m_links[i].getAxisBottom(0);
-				btScalar jointVel = getJointVel(i);
-				omega[i + 1] += jointVel * axisTop;
-				vel[i + 1] += jointVel * axisBottom;
-				break;
-			}
-			default:
-			{
-			}
+			omega[i + 1] += jointVel[dof] * link.getAxisTop(dof);
+			vel[i + 1] += jointVel[dof] * link.getAxisBottom(dof);
 		}
 	}
 }
@@ -718,10 +730,12 @@ inline btMatrix3x3 outerProduct(const btVector3 &v0, const btVector3 &v1)  //ren
 //
 
 void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar dt,
-																	   btAlignedObjectArray<btScalar> &scratch_r,
-																	   btAlignedObjectArray<btVector3> &scratch_v,
-																	   btAlignedObjectArray<btMatrix3x3> &scratch_m,
-																	   bool isConstraintPass)
+    btAlignedObjectArray<btScalar> &scratch_r,
+    btAlignedObjectArray<btVector3> &scratch_v,
+    btAlignedObjectArray<btMatrix3x3> &scratch_m,
+	bool isConstraintPass,
+	bool jointFeedbackInWorldSpace,
+	bool jointFeedbackInJointFrame)
 {
 	// Implement Featherstone's algorithm to calculate joint accelerations (q_double_dot)
 	// and the base linear & angular accelerations.
@@ -1124,7 +1138,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 			btVector3 angularBotVec = (spatInertia[i + 1] * spatAcc[i + 1] + zeroAccSpatFrc[i + 1]).m_bottomVec;
 			btVector3 linearTopVec = (spatInertia[i + 1] * spatAcc[i + 1] + zeroAccSpatFrc[i + 1]).m_topVec;
 
-			if (gJointFeedbackInJointFrame)
+			if (jointFeedbackInJointFrame)
 			{
 				//shift the reaction forces to the joint frame
 				//linear (force) component is the same
@@ -1132,7 +1146,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 				angularBotVec = angularBotVec - linearTopVec.cross(m_links[i].m_dVector);
 			}
 
-			if (gJointFeedbackInWorldSpace)
+			if (jointFeedbackInWorldSpace)
 			{
 				if (isConstraintPass)
 				{
@@ -1711,7 +1725,7 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 												 const btVector3 &normal_ang,
 												 const btVector3 &normal_lin,
 												 btScalar *jac,
-												 btAlignedObjectArray<btScalar> &scratch_r,
+												 btAlignedObjectArray<btScalar> &scratch_r1,
 												 btAlignedObjectArray<btVector3> &scratch_v,
 												 btAlignedObjectArray<btMatrix3x3> &scratch_m) const
 {
@@ -1730,9 +1744,20 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 	v_ptr += num_links + 1;
 	btAssert(v_ptr - &scratch_v[0] == scratch_v.size());
 
-	scratch_r.resize(m_dofCount);
-	btScalar *results = m_dofCount > 0 ? &scratch_r[0] : 0;
+	//scratch_r.resize(m_dofCount);
+	//btScalar *results = m_dofCount > 0 ? &scratch_r[0] : 0;
 
+    scratch_r1.resize(m_dofCount+num_links);
+    btScalar * results = m_dofCount > 0 ? &scratch_r1[0] : 0;
+    btScalar* links = num_links? &scratch_r1[m_dofCount] : 0;
+    int numLinksChildToRoot=0;
+    int l = link;
+    while (l != -1)
+    {
+        links[numLinksChildToRoot++]=l;
+        l = m_links[l].m_parent;
+    }
+    
 	btMatrix3x3 *rot_from_world = &scratch_m[0];
 
 	const btVector3 p_minus_com_world = contact_point - m_basePos;
@@ -1766,14 +1791,14 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 	// Qdot coefficients, if necessary.
 	if (num_links > 0 && link > -1)
 	{
-		// TODO: speed this up -- don't calculate for m_links we don't need.
-		// (Also, we are making 3 separate calls to this function, for the normal & the 2 friction directions,
+        // TODO: (Also, we are making 3 separate calls to this function, for the normal & the 2 friction directions,
 		// which is resulting in repeated work being done...)
 
 		// calculate required normals & positions in the local frames.
-		for (int i = 0; i < num_links; ++i)
-		{
-			// transform to local frame
+        for (int a = 0; a < numLinksChildToRoot; a++)
+        {
+            int i = links[numLinksChildToRoot-1-a];
+        	// transform to local frame
 			const int parent = m_links[i].m_parent;
 			const btMatrix3x3 mtx(m_links[i].m_cachedRotParentToThis);
 			rot_from_world[i + 1] = mtx * rot_from_world[parent + 1];
@@ -1859,6 +1884,8 @@ void btMultiBody::checkMotionAndSleepIfRequired(btScalar timestep)
 		return;
 	}
 
+	
+
 	// motion is computed as omega^2 + v^2 + (sum of squares of joint velocities)
 	btScalar motion = 0;
 	{
@@ -1877,8 +1904,11 @@ void btMultiBody::checkMotionAndSleepIfRequired(btScalar timestep)
 	else
 	{
 		m_sleepTimer = 0;
-		if (!m_awake)
-			wakeUp();
+		if (m_canWakeup)
+		{
+			if (!m_awake)
+				wakeUp();
+		}
 	}
 }
 

@@ -7,7 +7,8 @@ import os, fnmatch
 import argparse
 from time import sleep
 
-def readLogFile(filename, verbose = True):
+
+def readLogFile(filename, verbose=True):
   f = open(filename, 'rb')
 
   print('Opened'),
@@ -44,19 +45,19 @@ def readLogFile(filename, verbose = True):
       if verbose:
         print("num chunks:")
         print(len(chunks))
-      
+
       for chunk in chunks:
-        print("len(chunk)=",len(chunk)," sz = ", sz)
+        print("len(chunk)=", len(chunk), " sz = ", sz)
         if len(chunk) == sz:
-          print("chunk #",chunkIndex)
-          chunkIndex=chunkIndex+1
+          print("chunk #", chunkIndex)
+          chunkIndex = chunkIndex + 1
           values = struct.unpack(fmt, chunk)
           record = list()
           for i in range(ncols):
             record.append(values[i])
             if verbose:
-              print("    ",keys[i],"=",values[i])
-    
+              print("    ", keys[i], "=", values[i])
+
           log.append(record)
     else:
       print("Error, expected aabb terminal")
@@ -65,16 +66,16 @@ def readLogFile(filename, verbose = True):
 
 numArgs = len(sys.argv)
 
-print ('Number of arguments:', numArgs, 'arguments.')
-print ('Argument List:', str(sys.argv))
+print('Number of arguments:', numArgs, 'arguments.')
+print('Argument List:', str(sys.argv))
 fileName = "log.bin"
 
-if (numArgs>1):
+if (numArgs > 1):
   fileName = sys.argv[1]
 
 print("filename=")
 print(fileName)
 
 verbose = True
-  
-readLogFile(fileName,verbose)
+
+readLogFile(fileName, verbose)

@@ -113,6 +113,12 @@ public:
 		const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(m_compoundColObjWrap->getCollisionShape());
 		btAssert(index < compoundShape->getNumChildShapes());
 
+		if (gCompoundChildShapePairCallback)
+		{
+			if (!gCompoundChildShapePairCallback(m_otherObjWrap->getCollisionShape(), childShape))
+				return;
+		}
+
 		//backup
 		btTransform orgTrans = m_compoundColObjWrap->getWorldTransform();
 
@@ -130,11 +136,6 @@ public:
 		btVector3 aabbMin1, aabbMax1;
 		m_otherObjWrap->getCollisionShape()->getAabb(m_otherObjWrap->getWorldTransform(), aabbMin1, aabbMax1);
 
-		if (gCompoundChildShapePairCallback)
-		{
-			if (!gCompoundChildShapePairCallback(m_otherObjWrap->getCollisionShape(), childShape))
-				return;
-		}
 
 		if (TestAabbAgainstAabb2(aabbMin0, aabbMax0, aabbMin1, aabbMax1))
 		{

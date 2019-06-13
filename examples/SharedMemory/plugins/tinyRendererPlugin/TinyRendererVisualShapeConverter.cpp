@@ -32,7 +32,7 @@ subject to the following restrictions:
 #include "../SharedMemory/SharedMemoryPublic.h"  //for b3VisualShapeData
 #include "../TinyRenderer/model.h"
 #include "stb_image/stb_image.h"
-
+#include "../OpenGLWindow/ShapeData.h"
 struct MyTexture2
 {
 	unsigned char* textureData1;
@@ -66,6 +66,7 @@ struct TinyRendererVisualShapeConverterInternalData
 	// Maps bodyUniqueId to a list of visual shapes belonging to the body.
 	btHashMap<btHashInt, btAlignedObjectArray<b3VisualShapeData> > m_visualShapesMap;
 
+	int m_uidGenerator;
 	int m_upAxis;
 	int m_swWidth;
 	int m_swHeight;
@@ -91,7 +92,8 @@ struct TinyRendererVisualShapeConverterInternalData
 	SimpleCamera m_camera;
 
 	TinyRendererVisualShapeConverterInternalData()
-		: m_upAxis(2),
+		: m_uidGenerator(1),
+			m_upAxis(2),
 		  m_swWidth(START_WIDTH),
 		  m_swHeight(START_HEIGHT),
 		  m_rgbColorBuffer(START_WIDTH, START_HEIGHT, TGAImage::RGB),
@@ -182,13 +184,14 @@ void TinyRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff
 	m_data->m_hasLightSpecularCoeff = true;
 }
 
-void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
+static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut, struct CommonFileIOInterface* fileIO, int flags)
 {
 	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
 	visualShapeOut.m_dimensions[0] = 0;
 	visualShapeOut.m_dimensions[1] = 0;
 	visualShapeOut.m_dimensions[2] = 0;
 	memset(visualShapeOut.m_meshAssetFileName, 0, sizeof(visualShapeOut.m_meshAssetFileName));
+#if 0
 	if (visual->m_geometry.m_hasLocalMaterial)
 	{
 		visualShapeOut.m_rgbaColor[0] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[0];
@@ -196,6 +199,7 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 		visualShapeOut.m_rgbaColor[2] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[2];
 		visualShapeOut.m_rgbaColor[3] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[3];
 	}
+#endif
 
 	GLInstanceGraphicsShape* glmesh = 0;
 
@@ -291,10 +295,47 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 
 			btVector3 extents = visual->m_geometry.m_boxSize;
 
-			btBoxShape* boxShape = new btBoxShape(extents * 0.5f);
-			//btConvexShape* boxShape = new btConeShapeX(extents[2]*0.5,extents[0]*0.5);
-			convexColShape = boxShape;
-			convexColShape->setMargin(0.001);
+			
+			int strideInBytes = 9 * sizeof(float);
+			int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+			int numIndices = sizeof(cube_indices) / sizeof(int);
+
+			glmesh = new GLInstanceGraphicsShape;
+			//		int index = 0;
+			glmesh->m_indices = new b3AlignedObjectArray<int>();
+			glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+
+			glmesh->m_indices->resize(numIndices);
+			for (int k = 0; k < numIndices; k++)
+			{
+				glmesh->m_indices->at(k) = cube_indices[k];
+			}
+			glmesh->m_vertices->resize(numVertices);
+
+			btScalar halfExtentsX = extents[0] * 0.5;
+			btScalar halfExtentsY = extents[1] * 0.5;
+			btScalar halfExtentsZ = extents[2] * 0.5;
+			GLInstanceVertex* verts = &glmesh->m_vertices->at(0);
+			btScalar textureScaling = 1;
+
+			for (int i = 0; i < numVertices; i++)
+			{
+
+				verts[i].xyzw[0] = halfExtentsX * cube_vertices_textured[i * 9];
+				verts[i].xyzw[1] = halfExtentsY * cube_vertices_textured[i * 9 + 1];
+				verts[i].xyzw[2] = halfExtentsZ * cube_vertices_textured[i * 9 + 2];
+				verts[i].xyzw[3] = cube_vertices_textured[i * 9 + 3];
+				verts[i].normal[0] = cube_vertices_textured[i * 9 + 4];
+				verts[i].normal[1] = cube_vertices_textured[i * 9 + 5];
+				verts[i].normal[2] = cube_vertices_textured[i * 9 + 6];
+				verts[i].uv[0] = cube_vertices_textured[i * 9 + 7] * textureScaling;
+				verts[i].uv[1] = cube_vertices_textured[i * 9 + 8] * textureScaling;
+			}
+
+			glmesh->m_numIndices = numIndices;
+			glmesh->m_numvertices = numVertices;
+
+			
 			break;
 		}
 		case URDF_GEOM_SPHERE:
@@ -318,12 +359,77 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 
 			switch (visual->m_geometry.m_meshFileType)
 			{
+				case UrdfGeometry::MEMORY_VERTICES:
+				{
+					glmesh = new GLInstanceGraphicsShape;
+					//		int index = 0;
+					glmesh->m_indices = new b3AlignedObjectArray<int>();
+					glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+					glmesh->m_vertices->resize(visual->m_geometry.m_vertices.size());
+					glmesh->m_indices->resize(visual->m_geometry.m_indices.size());
+
+					for (int i = 0; i < visual->m_geometry.m_vertices.size(); i++)
+					{
+						glmesh->m_vertices->at(i).xyzw[0] = visual->m_geometry.m_vertices[i].x();
+						glmesh->m_vertices->at(i).xyzw[1] = visual->m_geometry.m_vertices[i].y();
+						glmesh->m_vertices->at(i).xyzw[2] = visual->m_geometry.m_vertices[i].z();
+						glmesh->m_vertices->at(i).xyzw[3] = 1;
+						btVector3 normal(visual->m_geometry.m_vertices[i]);
+						if (visual->m_geometry.m_normals.size() == visual->m_geometry.m_vertices.size())
+						{
+							normal = visual->m_geometry.m_normals[i];
+						}
+						else
+						{
+							normal.safeNormalize();
+						}
+
+						btVector3 uv(0.5, 0.5, 0);
+						if (visual->m_geometry.m_uvs.size() == visual->m_geometry.m_vertices.size())
+						{
+							uv = visual->m_geometry.m_uvs[i];
+						}
+						glmesh->m_vertices->at(i).normal[0] = normal[0];
+						glmesh->m_vertices->at(i).normal[1] = normal[1];
+						glmesh->m_vertices->at(i).normal[2] = normal[2];
+						glmesh->m_vertices->at(i).uv[0] = uv[0];
+						glmesh->m_vertices->at(i).uv[1] = uv[1];
+
+					}
+					for (int i = 0; i < visual->m_geometry.m_indices.size(); i++)
+					{
+						glmesh->m_indices->at(i) = visual->m_geometry.m_indices[i];
+
+					}
+					glmesh->m_numIndices = visual->m_geometry.m_indices.size();
+					glmesh->m_numvertices = visual->m_geometry.m_vertices.size();
+
+					break;
+				}
 				case UrdfGeometry::FILE_OBJ:
 				{
 					//glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
 					b3ImportMeshData meshData;
-					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData))
+
+					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData, fileIO))
 					{
+						if (flags&URDF_USE_MATERIAL_COLORS_FROM_MTL)
+						{
+							if (meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR)
+							{
+								visualShapeOut.m_rgbaColor[0] = meshData.m_rgbaColor[0];
+								visualShapeOut.m_rgbaColor[1] = meshData.m_rgbaColor[1];
+								visualShapeOut.m_rgbaColor[2] = meshData.m_rgbaColor[2];
+								
+								if (flags&URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
+								{
+									visualShapeOut.m_rgbaColor[3] = meshData.m_rgbaColor[3];
+								} else
+								{
+									visualShapeOut.m_rgbaColor[3] = 1;
+								}
+							}
+						}
 						if (meshData.m_textureImage1)
 						{
 							MyTexture2 texData;
@@ -338,7 +444,7 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 					break;
 				}
 				case UrdfGeometry::FILE_STL:
-					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str());
+					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str(), fileIO);
 					break;
 				case UrdfGeometry::FILE_COLLADA:
 				{
@@ -354,7 +460,8 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 										visualShapeInstances,
 										upAxisTrans,
 										unitMeterScaling,
-										upAxis);
+										upAxis,
+										fileIO);
 
 					glmesh = new GLInstanceGraphicsShape;
 					//		int index = 0;
@@ -421,8 +528,10 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 				}
 
 				default:
-					// should never get here (findExistingMeshFile returns false if it doesn't recognize extension)
-					btAssert(0);
+					{
+						// should never get here (findExistingMeshFile returns false if it doesn't recognize extension)
+						btAssert(0);
+					}
 			}
 
 			if (glmesh && glmesh->m_vertices && (glmesh->m_numvertices > 0))
@@ -437,7 +546,10 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 			}
 			else
 			{
-				b3Warning("issue extracting mesh from COLLADA/STL file %s\n", visual->m_geometry.m_meshFileName.c_str());
+				if (visual->m_geometry.m_meshFileType !=UrdfGeometry::MEMORY_VERTICES)
+				{
+					b3Warning("issue extracting mesh from COLLADA/STL file %s\n", visual->m_geometry.m_meshFileName.c_str());
+				}
 			}
 			break;
 		}  // case mesh
@@ -539,11 +651,13 @@ static btVector4 sColors[4] =
 		//btVector4(1,1,0,1),
 };
 
-void TinyRendererVisualShapeConverter::convertVisualShapes(
-	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
-	const UrdfLink* linkPtr, const UrdfModel* model,
-	int collisionObjectUniqueId, int bodyUniqueId)
+int  TinyRendererVisualShapeConverter::convertVisualShapes(
+	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, 
+	const UrdfLink* linkPtr, const UrdfModel* model, int unused, 
+	int bodyUniqueId, struct CommonFileIOInterface* fileIO)
+
 {
+	int uniqueId = m_data->m_uidGenerator++;
 	btAssert(linkPtr);  // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
 	{
@@ -631,12 +745,12 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 				}
 			}
 
-			TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+			TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[uniqueId];
 			if (visualsPtr == 0)
 			{
-				m_data->m_swRenderInstances.insert(collisionObjectUniqueId, new TinyRendererObjectArray);
+				m_data->m_swRenderInstances.insert(uniqueId, new TinyRendererObjectArray);
 			}
-			visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+			visualsPtr = m_data->m_swRenderInstances[uniqueId];
 
 			btAssert(visualsPtr);
 			TinyRendererObjectArray* visuals = *visualsPtr;
@@ -663,9 +777,14 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 
 			{
 				B3_PROFILE("convertURDFToVisualShape");
-				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape);
+				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape, fileIO, m_data->m_flags);
 			}
 
+			rgbaColor[0] = visualShape.m_rgbaColor[0];
+			rgbaColor[1] = visualShape.m_rgbaColor[1];
+			rgbaColor[2] = visualShape.m_rgbaColor[2];
+			rgbaColor[3] = visualShape.m_rgbaColor[3];
+			
 			if (vertices.size() && indices.size())
 			{
 				TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer, m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId, linkIndex);
@@ -705,6 +824,8 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 			shapes->push_back(visualShape);
 		}
 	}
+
+	return uniqueId;
 }
 
 int TinyRendererVisualShapeConverter::getNumVisualShapes(int bodyUniqueId)
@@ -1132,7 +1253,7 @@ void TinyRendererVisualShapeConverter::resetAll()
 void TinyRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
 	btAssert(textureUniqueId < m_data->m_textures.size());
-	if (textureUniqueId >= 0 && textureUniqueId < m_data->m_textures.size())
+	if (textureUniqueId >= -1 && textureUniqueId < m_data->m_textures.size())
 	{
 		for (int n = 0; n < m_data->m_swRenderInstances.size(); n++)
 		{
@@ -1149,7 +1270,13 @@ void TinyRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, in
 
 					if ((shapeIndex < 0) || (shapeIndex == v))
 					{
-						renderObj->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData1, m_data->m_textures[textureUniqueId].m_width, m_data->m_textures[textureUniqueId].m_height);
+						if (textureUniqueId>=0)
+						{
+							renderObj->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData1, m_data->m_textures[textureUniqueId].m_width, m_data->m_textures[textureUniqueId].m_height);
+						} else
+						{
+							renderObj->m_model->setDiffuseTextureFromData(0,0,0);
+						}
 					}
 				}
 			}
@@ -1168,12 +1295,40 @@ int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int
 	return m_data->m_textures.size() - 1;
 }
 
-int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename)
+int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename, struct CommonFileIOInterface* fileIO)
 {
 	B3_PROFILE("loadTextureFile");
 	int width, height, n;
 	unsigned char* image = 0;
-	image = stbi_load(filename, &width, &height, &n, 3);
+	if (fileIO)
+	{
+		b3AlignedObjectArray<char> buffer;
+		buffer.reserve(1024);
+		int fileId = fileIO->fileOpen(filename,"rb");
+		if (fileId>=0)
+		{
+			int size = fileIO->getFileSize(fileId);
+			if (size>0)
+			{
+				buffer.resize(size);
+				int actual = fileIO->fileRead(fileId,&buffer[0],size);
+				if (actual != size)
+				{
+					b3Warning("image filesize mismatch!\n");
+					buffer.resize(0);
+				}
+			}
+			fileIO->fileClose(fileId);
+		}
+		if (buffer.size())
+		{
+			image = stbi_load_from_memory((const unsigned char*)&buffer[0], buffer.size(), &width, &height, &n, 3);
+		}
+	} else
+	{
+		image = stbi_load(filename, &width, &height, &n, 3);
+	}
+
 	if (image && (width >= 0) && (height >= 0))
 	{
 		return registerTexture(image, width, height);

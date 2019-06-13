@@ -10,15 +10,16 @@ import os, fnmatch
 import argparse
 from time import sleep
 
-def readLogFile(filename, verbose = True):
+
+def readLogFile(filename, verbose=True):
   f = open(filename, 'rb')
-  
+
   print('Opened'),
   print(filename)
 
   keys = f.readline().decode('utf8').rstrip('\n').split(',')
   fmt = f.readline().decode('utf8').rstrip('\n')
-  
+
   # The byte number of one record
   sz = struct.calcsize(fmt)
   # The type number of one record
@@ -38,9 +39,9 @@ def readLogFile(filename, verbose = True):
   wholeFile = f.read()
   # split by alignment word
   chunks = wholeFile.split(b'\xaa\xbb')
-  print ("num chunks")
-  print (len(chunks))
-  
+  print("num chunks")
+  print(len(chunks))
+
   log = list()
   for chunk in chunks:
     if len(chunk) == sz:
@@ -52,9 +53,10 @@ def readLogFile(filename, verbose = True):
 
   return log
 
+
 clid = p.connect(p.SHARED_MEMORY)
 
-log = readLogFile("LOG00076.TXT");
+log = readLogFile("LOG00076.TXT")
 
 recordNum = len(log)
 print('record num:'),
@@ -71,8 +73,6 @@ jump_amp = 0.5
 maxForce = 3.5
 kp = .05
 kd = .5
-
-
 
 quadruped = 1
 nJoints = p.getNumJoints(quadruped)
@@ -106,21 +106,71 @@ motor_back_leftL_joint = jointNameToId['motor_back_leftL_joint']
 motor_back_leftL_link = jointNameToId['motor_back_leftL_link']
 knee_back_leftL_link = jointNameToId['knee_back_leftL_link']
 
-motorDir = [1, 1, 1, 1, 1, 1, 1, 1];
-legnumbering=[motor_front_leftR_joint,motor_front_leftL_joint,motor_back_leftR_joint,motor_back_leftL_joint,motor_front_rightR_joint,motor_front_rightL_joint,motor_back_rightR_joint,motor_back_rightL_joint]
-
+motorDir = [1, 1, 1, 1, 1, 1, 1, 1]
+legnumbering = [
+    motor_front_leftR_joint, motor_front_leftL_joint, motor_back_leftR_joint,
+    motor_back_leftL_joint, motor_front_rightR_joint, motor_front_rightL_joint,
+    motor_back_rightR_joint, motor_back_rightL_joint
+]
 
 for record in log:
-  p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=legnumbering[0], controlMode=p.POSITION_CONTROL, targetPosition=motorDir[0]*record[7], positionGain=kp, velocityGain=kd, force=maxForce)
-  p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=legnumbering[1], controlMode=p.POSITION_CONTROL, targetPosition=motorDir[1]*record[8], positionGain=kp, velocityGain=kd, force=maxForce)
-  p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=legnumbering[2], controlMode=p.POSITION_CONTROL, targetPosition=motorDir[2]*record[9], positionGain=kp, velocityGain=kd, force=maxForce)
-  p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=legnumbering[3], controlMode=p.POSITION_CONTROL, targetPosition=motorDir[3]*record[10], positionGain=kp, velocityGain=kd, force=maxForce)
-  p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=legnumbering[4], controlMode=p.POSITION_CONTROL, targetPosition=motorDir[4]*record[11], positionGain=kp, velocityGain=kd, force=maxForce)
-  p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=legnumbering[5], controlMode=p.POSITION_CONTROL, targetPosition=motorDir[5]*record[12], positionGain=kp, velocityGain=kd, force=maxForce)
-  p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=legnumbering[6], controlMode=p.POSITION_CONTROL, targetPosition=motorDir[6]*record[13], positionGain=kp, velocityGain=kd, force=maxForce)
-  p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=legnumbering[7], controlMode=p.POSITION_CONTROL, targetPosition=motorDir[7]*record[14], positionGain=kp, velocityGain=kd, force=maxForce)
-  p.setGravity(0.000000,0.000000,-10.000000)
+  p.setJointMotorControl2(bodyIndex=quadruped,
+                          jointIndex=legnumbering[0],
+                          controlMode=p.POSITION_CONTROL,
+                          targetPosition=motorDir[0] * record[7],
+                          positionGain=kp,
+                          velocityGain=kd,
+                          force=maxForce)
+  p.setJointMotorControl2(bodyIndex=quadruped,
+                          jointIndex=legnumbering[1],
+                          controlMode=p.POSITION_CONTROL,
+                          targetPosition=motorDir[1] * record[8],
+                          positionGain=kp,
+                          velocityGain=kd,
+                          force=maxForce)
+  p.setJointMotorControl2(bodyIndex=quadruped,
+                          jointIndex=legnumbering[2],
+                          controlMode=p.POSITION_CONTROL,
+                          targetPosition=motorDir[2] * record[9],
+                          positionGain=kp,
+                          velocityGain=kd,
+                          force=maxForce)
+  p.setJointMotorControl2(bodyIndex=quadruped,
+                          jointIndex=legnumbering[3],
+                          controlMode=p.POSITION_CONTROL,
+                          targetPosition=motorDir[3] * record[10],
+                          positionGain=kp,
+                          velocityGain=kd,
+                          force=maxForce)
+  p.setJointMotorControl2(bodyIndex=quadruped,
+                          jointIndex=legnumbering[4],
+                          controlMode=p.POSITION_CONTROL,
+                          targetPosition=motorDir[4] * record[11],
+                          positionGain=kp,
+                          velocityGain=kd,
+                          force=maxForce)
+  p.setJointMotorControl2(bodyIndex=quadruped,
+                          jointIndex=legnumbering[5],
+                          controlMode=p.POSITION_CONTROL,
+                          targetPosition=motorDir[5] * record[12],
+                          positionGain=kp,
+                          velocityGain=kd,
+                          force=maxForce)
+  p.setJointMotorControl2(bodyIndex=quadruped,
+                          jointIndex=legnumbering[6],
+                          controlMode=p.POSITION_CONTROL,
+                          targetPosition=motorDir[6] * record[13],
+                          positionGain=kp,
+                          velocityGain=kd,
+                          force=maxForce)
+  p.setJointMotorControl2(bodyIndex=quadruped,
+                          jointIndex=legnumbering[7],
+                          controlMode=p.POSITION_CONTROL,
+                          targetPosition=motorDir[7] * record[14],
+                          positionGain=kp,
+                          velocityGain=kd,
+                          force=maxForce)
+  p.setGravity(0.000000, 0.000000, -10.000000)
   p.stepSimulation()
   p.stepSimulation()
   sleep(0.01)
-  

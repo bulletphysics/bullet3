@@ -241,7 +241,7 @@ struct ThreadsafeCounter
 	}
 };
 
-static btITaskScheduler* gBtTaskScheduler;
+static btITaskScheduler* gBtTaskScheduler=0;
 static int gThreadsRunningCounter = 0;  // useful for detecting if we are trying to do nested parallel-for calls
 static btSpinMutex gThreadsRunningCounterMutex;
 static ThreadsafeCounter gThreadCounter;

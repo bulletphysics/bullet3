@@ -7,7 +7,11 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 2018090300
+#define SHARED_MEMORY_MAGIC_NUMBER 201904030
+//#define SHARED_MEMORY_MAGIC_NUMBER 201902120
+//#define SHARED_MEMORY_MAGIC_NUMBER 201811260
+//#define SHARED_MEMORY_MAGIC_NUMBER 201810250
+//#define SHARED_MEMORY_MAGIC_NUMBER 201809030
 //#define SHARED_MEMORY_MAGIC_NUMBER 201809010
 //#define SHARED_MEMORY_MAGIC_NUMBER 201807040
 //#define SHARED_MEMORY_MAGIC_NUMBER 201806150
@@ -89,6 +93,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS,
 	CMD_SAVE_STATE,
 	CMD_RESTORE_STATE,
+	CMD_REMOVE_STATE,
 	CMD_REQUEST_COLLISION_SHAPE_INFO,
 
 	CMD_SYNC_USER_DATA,
@@ -96,7 +101,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_ADD_USER_DATA,
 	CMD_REMOVE_USER_DATA,
 	CMD_COLLISION_FILTER,
-
+	
 	//don't go beyond this command!
 	CMD_MAX_CLIENT_COMMANDS,
 };
@@ -214,6 +219,8 @@ enum EnumSharedMemoryServerStatus
 	CMD_ADD_USER_DATA_FAILED,
 	CMD_REMOVE_USER_DATA_COMPLETED,
 	CMD_REMOVE_USER_DATA_FAILED,
+	CMD_REMOVE_STATE_COMPLETED,
+	CMD_REMOVE_STATE_FAILED,
 	//don't go beyond 'CMD_MAX_SERVER_COMMANDS!
 	CMD_MAX_SERVER_COMMANDS
 };
@@ -273,6 +280,8 @@ struct b3JointInfo
 	double m_childFrame[7];   // ^^^
 	double m_jointAxis[3];    // joint axis in parent local frame
 	int m_parentIndex;
+	int m_qSize;
+	int m_uSize;
 };
 
 enum UserDataValueType
@@ -287,7 +296,7 @@ struct b3UserDataValue
 {
 	int m_type;
 	int m_length;
-	char* m_data1;
+	const char* m_data1;
 };
 
 struct b3UserConstraint
@@ -320,6 +329,8 @@ enum DynamicsActivationState
 	eActivationStateDisableSleeping = 2,
 	eActivationStateWakeUp = 4,
 	eActivationStateSleep = 8,
+	eActivationStateEnableWakeup = 16,
+	eActivationStateDisableWakeup = 32,
 };
 
 struct b3DynamicsInfo
@@ -354,6 +365,16 @@ struct b3JointSensorState
 	double m_jointVelocity;
 	double m_jointForceTorque[6]; /* note to roboticists: this is NOT the motor torque/force, but the spatial reaction force vector at joint */
 	double m_jointMotorTorque;
+};
+
+struct b3JointSensorState2
+{
+	double m_jointPosition[4];
+	double m_jointVelocity[3];
+	double m_jointReactionForceTorque[6]; /* note to roboticists: this is NOT the motor torque/force, but the spatial reaction force vector at joint */
+	double m_jointMotorTorqueMultiDof[3];
+	int m_qDofSize;
+	int m_uDofSize;
 };
 
 struct b3DebugLines
@@ -426,6 +447,7 @@ enum b3VREventType
 #define MAX_MOUSE_EVENTS 256
 
 #define MAX_SDF_BODIES 512
+#define MAX_USER_DATA_KEY_LENGTH 256
 
 enum b3VRButtonInfo
 {
@@ -520,7 +542,11 @@ struct b3BodyNotificationArgs
 
 struct b3UserDataNotificationArgs
 {
+	int m_bodyUniqueId;
+	int m_linkIndex;
+	int m_visualShapeIndex;
 	int m_userDataId;
+	char m_key[MAX_USER_DATA_KEY_LENGTH];
 };
 
 struct b3LinkNotificationArgs
@@ -572,13 +598,10 @@ struct b3ContactPointData
 
 	double m_normalForce;
 
-	//todo: expose the friction forces as well
-	//    double m_linearFrictionDirection0[3];
-	//    double m_linearFrictionForce0;
-	//    double m_linearFrictionDirection1[3];
-	//    double m_linearFrictionForce1;
-	//    double m_angularFrictionDirection[3];
-	//    double m_angularFrictionForce;
+	double m_linearFrictionForce1;
+	double m_linearFrictionForce2;
+	double m_linearFrictionDirection1[3];
+	double m_linearFrictionDirection2[3];
 };
 
 enum
@@ -746,7 +769,7 @@ enum EnumRendererAuxFlags
 {
 	ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX = 1,
 	ER_USE_PROJECTIVE_TEXTURE = 2,
-	ER_SEGMENTATION_MASK = 4,
+	ER_NO_SEGMENTATION_MASK = 4,
 };
 
 ///flags to pick the IK solver and other options
@@ -805,6 +828,7 @@ enum eCONNECT_METHOD
 	eCONNECT_DART = 10,
 	eCONNECT_MUJOCO = 11,
 	eCONNECT_GRPC = 12,
+	eCONNECT_PHYSX=13,
 };
 
 enum eURDF_Flags
@@ -822,6 +846,10 @@ enum eURDF_Flags
 	URDF_INITIALIZE_SAT_FEATURES = 4096,
 	URDF_USE_SELF_COLLISION_INCLUDE_PARENT = 8192,
 	URDF_PARSE_SENSORS = 16384,
+	URDF_USE_MATERIAL_COLORS_FROM_MTL = 32768,
+	URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL = 65536,
+	URDF_MAINTAIN_LINK_ORDER = 131072,
+	URDF_ENABLE_WAKEUP = 262144,
 };
 
 enum eUrdfGeomTypes  //sync with UrdfParser UrdfGeomTypes
@@ -875,6 +903,7 @@ struct b3PluginArguments
 struct b3PhysicsSimulationParameters
 {
 	double m_deltaTime;
+	double m_simulationTimestamp;  // user logging timestamp of simulation.
 	double m_gravityAcceleration[3];
 	int m_numSimulationSubSteps;
 	int m_numSolverIterations;
@@ -900,7 +929,9 @@ struct b3PhysicsSimulationParameters
 	int m_enableSAT;
 	int m_constraintSolverType;
 	int m_minimumSolverIslandSize;
+	int m_reportSolverAnalytics;
 };
+
 
 enum eConstraintSolverTypes
 {
@@ -911,5 +942,54 @@ enum eConstraintSolverTypes
 	eConstraintSolverLCP_NNCG,
 	eConstraintSolverLCP_BLOCK_PGS,
 };
+
+struct b3ForwardDynamicsAnalyticsIslandData
+{
+	int m_islandId;
+	int m_numBodies;
+	int m_numContactManifolds;
+	int m_numIterationsUsed;
+	double m_remainingLeastSquaresResidual;
+};
+
+#define MAX_ISLANDS_ANALYTICS 64
+
+struct b3ForwardDynamicsAnalyticsArgs
+{
+	int m_numSteps;
+	int m_numIslands;
+	int m_numSolverCalls;
+	struct b3ForwardDynamicsAnalyticsIslandData m_islandData[MAX_ISLANDS_ANALYTICS];
+};
+
+enum eFileIOActions
+{
+	eAddFileIOAction = 1024,//avoid collision with eFileIOTypes
+	eRemoveFileIOAction,
+};
+
+
+enum eFileIOTypes
+{
+	ePosixFileIO = 1,
+	eZipFileIO,
+	eCNSFileIO,
+	eInMemoryFileIO,
+};
+
+
+//limits for vertices/indices in PyBullet::createCollisionShape
+//Make sure the data fits in SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE
+//(numVertices*sizeof(double)*3 + numIndices*sizeof(int)) < SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE
+
+
+#ifdef __APPLE__
+#define B3_MAX_NUM_VERTICES 8192
+#define B3_MAX_NUM_INDICES 32768
+#else
+#define B3_MAX_NUM_VERTICES 131072
+#define B3_MAX_NUM_INDICES 524288
+#endif
+
 
 #endif  //SHARED_MEMORY_PUBLIC_H

@@ -1,6 +1,9 @@
+
 #include <stdio.h>
 #include "LinearMath/btTransform.h"
+#include "LinearMath/btThreads.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
+
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 
@@ -28,10 +31,17 @@ static btVector4 colors[4] =
 
 static btVector4 selectColor2()
 {
+#ifdef BT_THREADSAFE
+	static btSpinMutex sMutex;
+	sMutex.lock();
+#endif
 	static int curColor = 0;
 	btVector4 color = colors[curColor];
 	curColor++;
 	curColor &= 3;
+#ifdef BT_THREADSAFE
+	sMutex.unlock();
+#endif
 	return color;
 }
 
@@ -103,6 +113,7 @@ void ComputeTotalNumberOfJoints(const URDFImporterInterface& u2b, URDF2BulletCac
 	}
 }
 
+
 void ComputeParentIndices(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int urdfLinkIndex, int urdfParentIndex)
 {
 	cache.m_urdfLinkParentIndices[urdfLinkIndex] = urdfParentIndex;
@@ -116,7 +127,7 @@ void ComputeParentIndices(const URDFImporterInterface& u2b, URDF2BulletCachedDat
 	}
 }
 
-void InitURDF2BulletCache(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache)
+void InitURDF2BulletCache(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int flags)
 {
 	//compute the number of links, and compute parent indices array (and possibly other cached data?)
 	cache.m_totalNumJoints1 = 0;
@@ -133,7 +144,24 @@ void InitURDF2BulletCache(const URDFImporterInterface& u2b, URDF2BulletCachedDat
 		cache.m_urdfLinkLocalInertialFrames.resize(numTotalLinksIncludingBase);
 
 		cache.m_currentMultiBodyLinkIndex = -1;  //multi body base has 'link' index -1
-		ComputeParentIndices(u2b, cache, rootLinkIndex, -2);
+		
+		bool maintainLinkOrder  = (flags & CUF_MAINTAIN_LINK_ORDER)!=0;
+		if (maintainLinkOrder)
+		{
+			URDF2BulletCachedData cache2 = cache;
+
+			ComputeParentIndices(u2b, cache2, rootLinkIndex, -2);
+
+			for (int j=0;j<numTotalLinksIncludingBase;j++)
+			{
+				cache.m_urdfLinkParentIndices[j] = cache2.m_urdfLinkParentIndices[j];
+				cache.m_urdfLinkIndices2BulletLinkIndices[j] = j - 1;
+			}
+		}else
+		{
+			ComputeParentIndices(u2b, cache, rootLinkIndex, -2);
+		}
+
 	}
 }
 
@@ -168,12 +196,12 @@ void processContactParameters(const URDFLinkContactInfo& contactInfo, btCollisio
 
 btScalar tmpUrdfScaling = 2;
 
-void ConvertURDF2BulletInternal(
+btTransform ConvertURDF2BulletInternal(
 	const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation,
 	URDF2BulletCachedData& cache, int urdfLinkIndex,
 	const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,
 	bool createMultiBody, const char* pathPrefix,
-	int flags = 0, UrdfVisualShapeCache* cachedLinkGraphicsShapesIn = 0, UrdfVisualShapeCache* cachedLinkGraphicsShapesOut = 0)
+	int flags, UrdfVisualShapeCache* cachedLinkGraphicsShapesIn, UrdfVisualShapeCache* cachedLinkGraphicsShapesOut, bool recursive)
 {
 	B3_PROFILE("ConvertURDF2BulletInternal2");
 	//b3Printf("start converting/extracting data from URDF interface\n");
@@ -377,8 +405,65 @@ void ConvertURDF2BulletInternal(
 
 			switch (jointType)
 			{
-				case URDFFloatingJoint:
+				case URDFSphericalJoint:
+				{
+					if (createMultiBody)
+					{
+						creation.addLinkMapping(urdfLinkIndex, mbLinkIndex);
+						cache.m_bulletMultiBody->setupSpherical(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
+							parentRotToThis, offsetInA.getOrigin(), -offsetInB.getOrigin(),
+							disableParentCollision);
+					}
+					else
+					{
+						btAssert(0);
+					}
+					break;
+				}
 				case URDFPlanarJoint:
+				{
+					
+					if (createMultiBody)
+					{
+#if 0
+						void setupPlanar(int i,  // 0 to num_links-1
+							btScalar mass,
+							const btVector3 &inertia,
+							int parent,
+							const btQuaternion &rotParentToThis,  // rotate points in parent frame to this frame, when q = 0
+							const btVector3 &rotationAxis,
+							const btVector3 &parentComToThisComOffset,  // vector from parent COM to this COM, in PARENT frame
+							bool disableParentCollision = false);
+#endif
+						creation.addLinkMapping(urdfLinkIndex, mbLinkIndex);
+						cache.m_bulletMultiBody->setupPlanar(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
+							parentRotToThis, quatRotate(offsetInB.getRotation(), jointAxisInJointSpace), offsetInA.getOrigin(),
+							disableParentCollision);
+					}
+					else
+					{
+#if 0
+						//b3Printf("Fixed joint\n");
+
+						btGeneric6DofSpring2Constraint* dof6 = 0;
+
+						//backward compatibility
+						if (flags & CUF_RESERVED)
+						{
+							dof6 = creation.createFixedJoint(urdfLinkIndex, *parentRigidBody, *linkRigidBody, offsetInA, offsetInB);
+						}
+						else
+						{
+							dof6 = creation.createFixedJoint(urdfLinkIndex, *linkRigidBody, *parentRigidBody, offsetInB, offsetInA);
+						}
+						if (enableConstraints)
+							world1->addConstraint(dof6, true);
+#endif
+					}
+					break;
+				}
+				case URDFFloatingJoint:
+				
 				case URDFFixedJoint:
 				{
 					if ((jointType == URDFFloatingJoint) || (jointType == URDFPlanarJoint))
@@ -420,7 +505,9 @@ void ConvertURDF2BulletInternal(
 					if (createMultiBody)
 					{
 						cache.m_bulletMultiBody->setupRevolute(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
-															   parentRotToThis, quatRotate(offsetInB.getRotation(), jointAxisInJointSpace), offsetInA.getOrigin(),  //parent2joint.getOrigin(),
+															   parentRotToThis, quatRotate(offsetInB.getRotation(), 
+																   jointAxisInJointSpace), 
+																offsetInA.getOrigin(),
 															   -offsetInB.getOrigin(),
 															   disableParentCollision);
 
@@ -612,13 +699,55 @@ void ConvertURDF2BulletInternal(
 
 	int numChildren = urdfChildIndices.size();
 
+	if (recursive)
+	{
+		for (int i = 0; i < numChildren; i++)
+		{
+			int urdfChildLinkIndex = urdfChildIndices[i];
+
+			ConvertURDF2BulletInternal(u2b, creation, cache, urdfChildLinkIndex, linkTransformInWorldSpace, world1, createMultiBody, pathPrefix, flags, cachedLinkGraphicsShapesIn, cachedLinkGraphicsShapesOut, recursive);
+		}
+	}
+	return linkTransformInWorldSpace;
+}
+
+struct childParentIndex
+{
+	int m_index;
+	int m_mbIndex;
+	int m_parentIndex;
+	int m_parentMBIndex;
+	
+};
+
+void GetAllIndices(const URDFImporterInterface& u2b, URDF2BulletCachedData& cache, int urdfLinkIndex, int parentIndex, btAlignedObjectArray<childParentIndex>& allIndices)
+{
+	childParentIndex cp;
+	cp.m_index = urdfLinkIndex;
+	int mbIndex = cache.getMbIndexFromUrdfIndex(urdfLinkIndex);
+	cp.m_mbIndex = mbIndex;
+	cp.m_parentIndex = parentIndex;
+	int parentMbIndex = parentIndex>=0? cache.getMbIndexFromUrdfIndex(parentIndex) : -1;
+	cp.m_parentMBIndex = parentMbIndex;
+
+	allIndices.push_back(cp);
+	btAlignedObjectArray<int> urdfChildIndices;
+	u2b.getLinkChildIndices(urdfLinkIndex, urdfChildIndices);
+	int numChildren = urdfChildIndices.size();
 	for (int i = 0; i < numChildren; i++)
 	{
 		int urdfChildLinkIndex = urdfChildIndices[i];
-
-		ConvertURDF2BulletInternal(u2b, creation, cache, urdfChildLinkIndex, linkTransformInWorldSpace, world1, createMultiBody, pathPrefix, flags, cachedLinkGraphicsShapesIn, cachedLinkGraphicsShapesOut);
+		GetAllIndices(u2b, cache, urdfChildLinkIndex, urdfLinkIndex, allIndices);
 	}
 }
+
+
+bool MyIntCompareFunc(childParentIndex a, childParentIndex b)
+{
+	return (a.m_index < b.m_index);
+}
+
+
 void ConvertURDF2Bullet(
 	const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation,
 	const btTransform& rootTransformInWorldSpace,
@@ -626,13 +755,49 @@ void ConvertURDF2Bullet(
 	bool createMultiBody, const char* pathPrefix, int flags, UrdfVisualShapeCache* cachedLinkGraphicsShapes)
 {
 	URDF2BulletCachedData cache;
-	InitURDF2BulletCache(u2b, cache);
+	InitURDF2BulletCache(u2b, cache, flags);
 	int urdfLinkIndex = u2b.getRootLinkIndex();
+	int rootIndex = u2b.getRootLinkIndex();
 	B3_PROFILE("ConvertURDF2Bullet");
 
 	UrdfVisualShapeCache cachedLinkGraphicsShapesOut;
 
-	ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndex, rootTransformInWorldSpace, world1, createMultiBody, pathPrefix, flags, cachedLinkGraphicsShapes, &cachedLinkGraphicsShapesOut);
+
+	bool recursive = (flags & CUF_MAINTAIN_LINK_ORDER)==0;
+	if (recursive)
+	{
+		ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndex, rootTransformInWorldSpace, world1, createMultiBody, pathPrefix, flags, cachedLinkGraphicsShapes, &cachedLinkGraphicsShapesOut, recursive);
+	}
+	else
+	{
+		
+		btAlignedObjectArray<btTransform> parentTransforms;
+		if (urdfLinkIndex >= parentTransforms.size())
+		{
+			parentTransforms.resize(urdfLinkIndex + 1);
+		}
+		parentTransforms[urdfLinkIndex] = rootTransformInWorldSpace;
+		btAlignedObjectArray<childParentIndex> allIndices;
+		
+		GetAllIndices(u2b, cache, urdfLinkIndex, -1, allIndices);
+		allIndices.quickSort(MyIntCompareFunc);
+
+		for (int i = 0; i < allIndices.size(); i++)
+		{
+			int urdfLinkIndex = allIndices[i].m_index;
+			int parentIndex = allIndices[i].m_parentIndex;
+			btTransform parentTr = parentIndex >= 0 ? parentTransforms[parentIndex] : rootTransformInWorldSpace;
+			btTransform tr = ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndex, parentTr , world1, createMultiBody, pathPrefix, flags, cachedLinkGraphicsShapes, &cachedLinkGraphicsShapesOut, recursive);
+			if ((urdfLinkIndex+1) >= parentTransforms.size())
+			{
+				parentTransforms.resize(urdfLinkIndex + 1);
+			}
+			parentTransforms[urdfLinkIndex] = tr;
+		}
+		
+
+
+	}
 	if (cachedLinkGraphicsShapes && cachedLinkGraphicsShapesOut.m_cachedUrdfLinkVisualShapeIndices.size() > cachedLinkGraphicsShapes->m_cachedUrdfLinkVisualShapeIndices.size())
 	{
 		*cachedLinkGraphicsShapes = cachedLinkGraphicsShapesOut;

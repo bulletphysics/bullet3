@@ -32,10 +32,7 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
   action to zero and the height of the robot base. It prefers a similar pose to
   the signal while keeping balance.
   """
-  metadata = {
-      "render.modes": ["human", "rgb_array"],
-      "video.frames_per_second": 166
-  }
+  metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 166}
 
   def __init__(self,
                urdf_version=None,
@@ -85,7 +82,7 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
       render: Whether to render the simulation.
       env_randomizer: An instance (or a list) of EnvRanzomier(s) that can
         randomize the environment during when env.reset() is called and add
-        perturbations when env._step() is called.
+        perturbations when env.step() is called.
       use_angular_velocity_in_observation: Whether to include roll_dot and
         pitch_dot of the base in the observation.
       use_motor_angle_in_observation: Whether to include motor angles in the
@@ -101,23 +98,23 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
     self._extension_offset = np.zeros(NUM_LEGS)
     self._use_angular_velocity_in_observation = use_motor_angle_in_observation
     self._use_motor_angle_in_observation = use_motor_angle_in_observation
-    super(MinitaurFourLegStandEnv, self).__init__(
-        urdf_version=urdf_version,
-        control_time_step=control_time_step,
-        action_repeat=action_repeat,
-        remove_default_joint_damping=remove_default_joint_damping,
-        accurate_motor_model_enabled=True,
-        motor_overheat_protection=True,
-        hard_reset=hard_reset,
-        motor_kp=motor_kp,
-        motor_kd=motor_kd,
-        control_latency=control_latency,
-        pd_latency=pd_latency,
-        on_rack=on_rack,
-        render=render,
-        env_randomizer=env_randomizer,
-        reflection = False,
-        log_path=log_path)
+    super(MinitaurFourLegStandEnv,
+          self).__init__(urdf_version=urdf_version,
+                         control_time_step=control_time_step,
+                         action_repeat=action_repeat,
+                         remove_default_joint_damping=remove_default_joint_damping,
+                         accurate_motor_model_enabled=True,
+                         motor_overheat_protection=True,
+                         hard_reset=hard_reset,
+                         motor_kp=motor_kp,
+                         motor_kd=motor_kd,
+                         control_latency=control_latency,
+                         pd_latency=pd_latency,
+                         on_rack=on_rack,
+                         render=render,
+                         env_randomizer=env_randomizer,
+                         reflection=False,
+                         log_path=log_path)
 
     action_dim = 4
     action_low = np.array([-1.0] * action_dim)
@@ -132,29 +129,26 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
     self._cur_ori = [0, 0, 0, 1]
     self._goal_ori = [0, 0, 0, 1]
 
-  def _reset(self):
+  def reset(self):
     self.desired_pitch = DESIRED_PITCH
     # In this environment, the actions are
     # [swing leg 1, swing leg 2, swing leg 3, swing leg 4,
     #  extension leg 1, extension leg 2, extension leg 3, extension leg 4]
     init_pose = [
-        INIT_SWING_POS + self._swing_offset[0],
-        INIT_SWING_POS + self._swing_offset[1],
-        INIT_SWING_POS + self._swing_offset[2],
-        INIT_SWING_POS + self._swing_offset[3],
+        INIT_SWING_POS + self._swing_offset[0], INIT_SWING_POS + self._swing_offset[1],
+        INIT_SWING_POS + self._swing_offset[2], INIT_SWING_POS + self._swing_offset[3],
         INIT_EXTENSION_POS + self._extension_offset[0],
         INIT_EXTENSION_POS + self._extension_offset[1],
         INIT_EXTENSION_POS + self._extension_offset[2],
         INIT_EXTENSION_POS + self._extension_offset[3]
     ]
     initial_motor_angles = self._convert_from_leg_model(init_pose)
-    self._pybullet_client.resetBasePositionAndOrientation(
-        0, [0, 0, 0], [0, 0, 0, 1])
-    super(MinitaurFourLegStandEnv, self)._reset(
-        initial_motor_angles=initial_motor_angles, reset_duration=0.5)
+    self._pybullet_client.resetBasePositionAndOrientation(0, [0, 0, 0], [0, 0, 0, 1])
+    super(MinitaurFourLegStandEnv, self).reset(initial_motor_angles=initial_motor_angles,
+                                               reset_duration=0.5)
     return self._get_observation()
 
-  def _step(self, action):
+  def step(self, action):
     """Step forward the simulation, given the action.
 
     Args:
@@ -180,16 +174,14 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
         time.sleep(time_to_sleep)
       base_pos = self.minitaur.GetBasePosition()
       # Keep the previous orientation of the camera set by the user.
-      [yaw, pitch,
-       dist] = self._pybullet_client.getDebugVisualizerCamera()[8:11]
-      self._pybullet_client.resetDebugVisualizerCamera(dist, yaw, pitch,
-                                                       base_pos)
+      [yaw, pitch, dist] = self._pybullet_client.getDebugVisualizerCamera()[8:11]
+      self._pybullet_client.resetDebugVisualizerCamera(dist, yaw, pitch, base_pos)
     action = self._transform_action_to_motor_command(action)
     t = self._env_step_counter % MOVING_FLOOR_TOTAL_STEP
     if t == 0:
-      self._seed()
+      self.seed()
       orientation_x = random.uniform(-0.2, 0.2)
-      self._seed()
+      self.seed()
       orientation_y = random.uniform(-0.2, 0.2)
       _, self._cur_ori = self._pybullet_client.getBasePositionAndOrientation(0)
       self._goal_ori = self._pybullet_client.getQuaternionFromEuler(
@@ -197,8 +189,8 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
     t = float(float(t) / float(MOVING_FLOOR_TOTAL_STEP))
     ori = map(operator.add, [x * (1.0 - t) for x in self._cur_ori],
               [x * t for x in self._goal_ori])
-    ori=list(ori)
-    print("ori=",ori)
+    ori = list(ori)
+    print("ori=", ori)
     self._pybullet_client.resetBasePositionAndOrientation(0, [0, 0, 0], ori)
     if self._env_step_counter % PERTURBATION_TOTAL_STEP == 0:
       self._perturbation_magnitude = random.uniform(0.0, 0.0)
@@ -218,8 +210,8 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
     obs = self._get_true_observation()
     reward = self._reward()
     if self._log_path is not None:
-      minitaur_logging.update_episode_proto(self._episode_proto, self.minitaur,
-                                            action, self._env_step_counter)
+      minitaur_logging.update_episode_proto(self._episode_proto, self.minitaur, action,
+                                            self._env_step_counter)
     if done:
       self.minitaur.Terminate()
     return np.array(self._get_observation()), reward, done, {}
@@ -228,15 +220,13 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
     motor_pose = np.zeros(NUM_MOTORS)
     for i in range(NUM_LEGS):
       motor_pose[2 * i] = leg_pose[NUM_LEGS + i] - (-1)**(i / 2) * leg_pose[i]
-      motor_pose[2 * i
-                 + 1] = leg_pose[NUM_LEGS + i] + (-1)**(i / 2) * leg_pose[i]
+      motor_pose[2 * i + 1] = leg_pose[NUM_LEGS + i] + (-1)**(i / 2) * leg_pose[i]
     return motor_pose
 
   def _signal(self, t):
     initial_pose = np.array([
-        INIT_SWING_POS, INIT_SWING_POS, INIT_SWING_POS, INIT_SWING_POS,
-        INIT_EXTENSION_POS, INIT_EXTENSION_POS, INIT_EXTENSION_POS,
-        INIT_EXTENSION_POS
+        INIT_SWING_POS, INIT_SWING_POS, INIT_SWING_POS, INIT_SWING_POS, INIT_EXTENSION_POS,
+        INIT_EXTENSION_POS, INIT_EXTENSION_POS, INIT_EXTENSION_POS
     ])
     signal = initial_pose
     return signal
@@ -268,8 +258,7 @@ class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
     rot_mat = self._pybullet_client.getMatrixFromQuaternion(orientation)
     local_up = rot_mat[6:]
     _, _, height = self.minitaur.GetBasePosition()
-    local_global_up_dot_product = np.dot(
-        np.asarray([0, 0, 1]), np.asarray(local_up))
+    local_global_up_dot_product = np.dot(np.asarray([0, 0, 1]), np.asarray(local_up))
     return local_global_up_dot_product < 0.85 or height < 0.15
 
   def _reward(self):

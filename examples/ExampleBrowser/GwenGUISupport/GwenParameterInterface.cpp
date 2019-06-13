@@ -1,5 +1,6 @@
 #include "GwenParameterInterface.h"
 #include "gwenInternalData.h"
+#include <cstring>
 
 struct MyButtonEventHandler : public Gwen::Event::Handler
 {

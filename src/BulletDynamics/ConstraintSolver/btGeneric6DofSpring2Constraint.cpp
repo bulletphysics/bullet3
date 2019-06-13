@@ -40,6 +40,7 @@ http://gimpact.sf.net
 #include "btGeneric6DofSpring2Constraint.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "LinearMath/btTransformUtil.h"
+#include <cmath>
 #include <new>
 
 btGeneric6DofSpring2Constraint::btGeneric6DofSpring2Constraint(btRigidBody& rbA, btRigidBody& rbB, const btTransform& frameInA, const btTransform& frameInB, RotateOrder rotOrder)
@@ -310,9 +311,9 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 		case RO_XYZ:
 		{
 			//Is this the "line of nodes" calculation choosing planes YZ (B coordinate system) and xy (A coordinate system)? (http://en.wikipedia.org/wiki/Euler_angles)
-			//The two planes are non-homologous, so this is a Tait–Bryan angle formalism and not a proper Euler
+			//The two planes are non-homologous, so this is a Tait Bryan angle formalism and not a proper Euler
 			//Extrinsic rotations are equal to the reversed order intrinsic rotations so the above xyz extrinsic rotations (axes are fixed) are the same as the zy'x" intrinsic rotations (axes are refreshed after each rotation)
-			//that is why xy and YZ planes are chosen (this will describe a zy'x" intrinsic rotation) (see the figure on the left at http://en.wikipedia.org/wiki/Euler_angles under Tait–Bryan angles)
+			//that is why xy and YZ planes are chosen (this will describe a zy'x" intrinsic rotation) (see the figure on the left at http://en.wikipedia.org/wiki/Euler_angles under Tait Bryan angles)
 			// x' = Nperp = N.cross(axis2)
 			// y' = N = axis2.cross(axis0)
 			// z' = z
@@ -820,8 +821,17 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		btScalar dt = BT_ONE / info->fps;
 		btScalar kd = limot->m_springDamping;
 		btScalar ks = limot->m_springStiffness;
-		btScalar vel = rotational ? angVelA.dot(ax1) - angVelB.dot(ax1) : linVelA.dot(ax1) - linVelB.dot(ax1);
-		//		btScalar erp = 0.1;
+		btScalar vel;
+		if (rotational)
+		{
+			vel = angVelA.dot(ax1) - angVelB.dot(ax1);
+		}
+		else
+		{
+			btVector3 tanVelA = angVelA.cross(m_calculatedTransformA.getOrigin() - transA.getOrigin());
+			btVector3 tanVelB = angVelB.cross(m_calculatedTransformB.getOrigin() - transB.getOrigin());
+			vel = (linVelA + tanVelA).dot(ax1) - (linVelB + tanVelB).dot(ax1);
+		}
 		btScalar cfm = BT_ZERO;
 		btScalar mA = BT_ONE / m_rbA.getInvMass();
 		btScalar mB = BT_ONE / m_rbB.getInvMass();
@@ -832,8 +842,11 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 			if (m_rbA.getInvMass()) mA = mA * rrA + 1 / (m_rbA.getInvInertiaTensorWorld() * ax1).length();
 			if (m_rbB.getInvMass()) mB = mB * rrB + 1 / (m_rbB.getInvInertiaTensorWorld() * ax1).length();
 		}
-		btScalar m = mA > mB ? mB : mA;
-		btScalar angularfreq = sqrt(ks / m);
+		btScalar m;
+		if (m_rbA.getInvMass() == 0) m = mB; else
+		if (m_rbB.getInvMass() == 0) m = mA; else
+			m = mA*mB / (mA + mB);
+		btScalar angularfreq = btSqrt(ks / m);
 
 		//limit stiffness (the spring should not be sampled faster that the quarter of its angular frequency)
 		if (limot->m_springStiffnessLimited && 0.25 < angularfreq * dt)
@@ -853,12 +866,15 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		// vel + f / m * (rotational ? -1 : 1)
 		// so in theory this should be set here for m_constraintError
 		// (with m_constraintError we set a desired velocity for the affected body(es))
-		// however in practice any value is fine as long as it is greater then the "proper" velocity,
+		// however in practice any value is fine as long as it is greater than the "proper" velocity,
 		// because the m_lowerLimit and the m_upperLimit will determinate the strength of the final pulling force
 		// so it is much simpler (and more robust) just to simply use inf (with the proper sign)
+		// (Even with our best intent the "new" velocity is only an estimation. If we underestimate
+		// the "proper" velocity that will weaken the spring, however if we overestimate it, it doesn't
+		// matter, because the solver will limit it according the force limit)
 		// you may also wonder what if the current velocity (vel) so high that the pulling force will not change its direction (in this iteration)
 		// will we not request a velocity with the wrong direction ?
-		// and the answare is not, because in practice during the solving the current velocity is subtracted from the m_constraintError
+		// and the answer is not, because in practice during the solving the current velocity is subtracted from the m_constraintError
 		// so the sign of the force that is really matters
 		info->m_constraintError[srow] = (rotational ? -1 : 1) * (f < 0 ? -SIMD_INFINITY : SIMD_INFINITY);
 
@@ -1070,7 +1086,7 @@ void btGeneric6DofSpring2Constraint::setServoTarget(int index, btScalar targetOr
 		btScalar target = targetOrg + SIMD_PI;
 		if (1)
 		{
-			btScalar m = target - SIMD_2_PI * floor(target / SIMD_2_PI);
+			btScalar m = target - SIMD_2_PI * std::floor(target / SIMD_2_PI);
 			// handle boundary cases resulted from floating-point cut off:
 			{
 				if (m >= SIMD_2_PI)

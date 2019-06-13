@@ -4,18 +4,18 @@
 
 import csv
 import math
-
-import os,  inspect
+import os
+import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+parentdir = os.path.dirname(os.path.dirname(os.path.dirname(currentdir)))
+print("parentdir=", parentdir)
+os.sys.path.insert(0, parentdir)
 
 import argparse
 import numpy as np
 import tensorflow as tf
 from pybullet_envs.minitaur.envs import minitaur_gym_env
 import time
-
 
 #FLAGS = flags.FLAGS
 #flags.DEFINE_enum(
@@ -59,7 +59,7 @@ def ResetPoseExample(log_path=None):
   action = [math.pi / 2] * 8
   for _ in range(steps):
     _, _, done, _ = environment.step(action)
-    time.sleep(1./100.)
+    time.sleep(1. / 100.)
     if done:
       break
 
@@ -103,7 +103,7 @@ def MotorOverheatExample(log_path=None):
     observation, _, _, _ = environment.step(action)
     current_row.extend(observation.tolist())
     actions_and_observations.append(current_row)
-    time.sleep(1./100.)
+    time.sleep(1. / 100.)
 
   if FLAGS.output_filename is not None:
     WriteToCSV(FLAGS.output_filename, actions_and_observations)
@@ -150,7 +150,7 @@ def SineStandExample(log_path=None):
     observation, _, _, _ = environment.step(action)
     current_row.extend(observation.tolist())
     actions_and_observations.append(current_row)
-    time.sleep(1./100.)
+    time.sleep(1. / 100.)
 
   if FLAGS.output_filename is not None:
     WriteToCSV(FLAGS.output_filename, actions_and_observations)
@@ -198,7 +198,7 @@ def SinePolicyExample(log_path=None):
     a4 = math.sin(t * speed + math.pi) * amplitude2
     action = [a1, a2, a2, a1, a3, a4, a4, a3]
     _, reward, done, _ = environment.step(action)
-    time.sleep(1./100.)
+    time.sleep(1. / 100.)
 
     sum_reward += reward
     if done:
@@ -206,14 +206,15 @@ def SinePolicyExample(log_path=None):
       environment.reset()
 
 
-
-
 def main():
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument('--env', help='environment ID (0==sine, 1==stand, 2=reset, 3=overheat)',type=int,  default=0)
+  parser.add_argument('--env',
+                      help='environment ID (0==sine, 1==stand, 2=reset, 3=overheat)',
+                      type=int,
+                      default=0)
   args = parser.parse_args()
   print("--env=" + str(args.env))
-    
+
   if (args.env == 0):
     SinePolicyExample()
   if (args.env == 1):
@@ -223,6 +224,6 @@ def main():
   if (args.env == 3):
     MotorOverheatExample()
 
-if __name__ == '__main__':
-    main()
 
+if __name__ == '__main__':
+  main()

@@ -57,6 +57,7 @@ struct SimpleInternalData
 
 	int m_droidRegular;
 	int m_droidRegular2;
+	int m_textureId;
 
 	const char* m_frameDumpPngFileName;
 	FILE* m_ffmpegFile;
@@ -74,11 +75,12 @@ struct SimpleInternalData
 		  m_renderCallbacks2(0),
 		  m_droidRegular(0),
 		  m_droidRegular2(0),
+		  m_textureId(-1),
 		  m_frameDumpPngFileName(0),
 		  m_ffmpegFile(0),
 		  m_renderTexture(0),
 		  m_userPointer(0),
-		  m_upAxis(0),
+		  m_upAxis(1),
 		  m_customViewPortWidth(-1),
 		  m_customViewPortHeight(-1)
 	{
@@ -772,6 +774,51 @@ void SimpleOpenGL3App::registerGrid(int cells_x, int cells_z, float color0[4], f
 
 int SimpleOpenGL3App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId)
 {
+
+	int red = 255;
+	int green = 0;
+	int blue = 128;
+	if (textureId<0)
+	{
+		if (m_data->m_textureId < 0)
+		{
+			int texWidth = 1024;
+			int texHeight = 1024;
+			b3AlignedObjectArray<unsigned char> texels;
+			texels.resize(texWidth * texHeight * 3);
+			for (int i = 0; i < texWidth * texHeight * 3; i++)
+				texels[i] = 255;
+
+			for (int i = 0; i < texWidth; i++)
+			{
+				for (int j = 0; j < texHeight; j++)
+				{
+					int a = i < texWidth / 2 ? 1 : 0;
+					int b = j < texWidth / 2 ? 1 : 0;
+
+					if (a == b)
+					{
+						texels[(i + j * texWidth) * 3 + 0] = red;
+						texels[(i + j * texWidth) * 3 + 1] = green;
+						texels[(i + j * texWidth) * 3 + 2] = blue;
+						//					texels[(i+j*texWidth)*4+3] = 255;
+					}
+					/*else
+					{
+					texels[i*3+0+j*texWidth] = 255;
+					texels[i*3+1+j*texWidth] = 255;
+					texels[i*3+2+j*texWidth] = 255;
+					}
+					*/
+				}
+			}
+
+			m_data->m_textureId = m_instancingRenderer->registerTexture(&texels[0], texWidth, texHeight);
+			
+		}
+		textureId = m_data->m_textureId;
+	}
+
 	int strideInBytes = 9 * sizeof(float);
 
 	int graphicsShapeIndex = -1;
@@ -795,17 +842,17 @@ int SimpleOpenGL3App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lo
 		}
 		case SPHERE_LOD_MEDIUM:
 		{
-			int numVertices = sizeof(medium_sphere_vertices) / strideInBytes;
-			int numIndices = sizeof(medium_sphere_indices) / sizeof(int);
-			graphicsShapeIndex = m_instancingRenderer->registerShape(&medium_sphere_vertices[0], numVertices, medium_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
+			int numVertices = sizeof(textured_detailed_sphere_vertices) / strideInBytes;
+			int numIndices = sizeof(textured_detailed_sphere_indices) / sizeof(int);
+			graphicsShapeIndex = m_instancingRenderer->registerShape(&textured_detailed_sphere_vertices[0], numVertices, textured_detailed_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
 		}
 		case SPHERE_LOD_HIGH:
 		default:
 		{
-			int numVertices = sizeof(detailed_sphere_vertices) / strideInBytes;
-			int numIndices = sizeof(detailed_sphere_indices) / sizeof(int);
-			graphicsShapeIndex = m_instancingRenderer->registerShape(&detailed_sphere_vertices[0], numVertices, detailed_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
+			int numVertices = sizeof(textured_detailed_sphere_vertices) / strideInBytes;
+			int numIndices = sizeof(textured_detailed_sphere_indices) / sizeof(int);
+			graphicsShapeIndex = m_instancingRenderer->registerShape(&textured_detailed_sphere_vertices[0], numVertices, textured_detailed_sphere_indices, numIndices, B3_GL_TRIANGLES, textureId);
 			break;
 		}
 	};

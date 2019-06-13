@@ -27,7 +27,7 @@ class MinitaurRandomizeTerrainGymEnv(minitaur_gym_env.MinitaurGymEnv):
 
   """
 
-  def _reset(self):
+  def reset(self):
     self._pybullet_client.resetSimulation()
     self._pybullet_client.setPhysicsEngineParameter(
         numSolverIterations=self._num_bullet_solver_iterations)
@@ -42,20 +42,17 @@ class MinitaurRandomizeTerrainGymEnv(minitaur_gym_env.MinitaurGymEnv):
         fileName=terrain_file_name,
         flags=1,
         meshScale=[0.5, 0.5, 0.5])
-    self._pybullet_client.createMultiBody(terrain_mass,
-                                          terrain_collision_shape_id,
-                                          terrain_visual_shape_id,
-                                          terrain_position,
+    self._pybullet_client.createMultiBody(terrain_mass, terrain_collision_shape_id,
+                                          terrain_visual_shape_id, terrain_position,
                                           terrain_orientation)
     self._pybullet_client.setGravity(0, 0, -10)
-    self.minitaur = (minitaur.Minitaur(
-        pybullet_client=self._pybullet_client,
-        urdf_root=self._urdf_root,
-        time_step=self._time_step,
-        self_collision_enabled=self._self_collision_enabled,
-        motor_velocity_limit=self._motor_velocity_limit,
-        pd_control_enabled=self._pd_control_enabled,
-        on_rack=self._on_rack))
+    self.minitaur = (minitaur.Minitaur(pybullet_client=self._pybullet_client,
+                                       urdf_root=self._urdf_root,
+                                       time_step=self._time_step,
+                                       self_collision_enabled=self._self_collision_enabled,
+                                       motor_velocity_limit=self._motor_velocity_limit,
+                                       pd_control_enabled=self._pd_control_enabled,
+                                       on_rack=self._on_rack))
     self._last_base_position = [0, 0, 0]
     for _ in xrange(100):
       if self._pd_control_enabled:
@@ -78,6 +75,5 @@ class MinitaurRandomizeTerrainGymEnv(minitaur_gym_env.MinitaurGymEnv):
     asset_source = os.path.join(terrain_dir, terrain_file_name)
     asset_destination = os.path.join(FLAGS.storage_dir, terrain_file_name)
     gfile.Copy(asset_source, asset_destination, overwrite=True)
-    terrain_file_name_complete = os.path.join(FLAGS.storage_dir,
-                                              terrain_file_name)
+    terrain_file_name_complete = os.path.join(FLAGS.storage_dir, terrain_file_name)
     return terrain_file_name_complete

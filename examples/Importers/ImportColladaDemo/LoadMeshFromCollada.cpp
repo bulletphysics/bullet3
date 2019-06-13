@@ -22,10 +22,11 @@ subject to the following restrictions:
 #include "../../ThirdPartyLibs/tinyxml2/tinyxml2.h"
 using namespace tinyxml2;
 
-#include "Bullet3Common/b3FileUtils.h"
+
 #include "LinearMath/btHashMap.h"
 #include <assert.h>
 #include "btMatrix4x4.h"
+#include "../../CommonInterfaces/CommonFileIOInterface.h"
 
 #define MAX_VISUAL_SHAPES 512
 
@@ -561,7 +562,7 @@ void getUnitMeterScalingAndUpAxisTransform(XMLDocument& doc, btTransform& tr, fl
 	}
 }
 
-void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances, btTransform& upAxisTransform, float& unitMeterScaling, int clientUpAxis)
+void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLInstanceGraphicsShape>& visualShapes, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances, btTransform& upAxisTransform, float& unitMeterScaling, int clientUpAxis, struct CommonFileIOInterface* fileIO)
 {
 	//	GLInstanceGraphicsShape* instance = 0;
 
@@ -570,16 +571,33 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 
 	float extraScaling = 1;  //0.01;
 	btHashMap<btHashString, int> name2ShapeIndex;
-	b3FileUtils f;
+	
 	char filename[1024];
-	if (!f.findFile(relativeFileName, filename, 1024))
+	if (!fileIO->findResourcePath(relativeFileName, filename, 1024))
 	{
 		b3Warning("File not found: %s\n", filename);
 		return;
 	}
 
 	XMLDocument doc;
-	if (doc.LoadFile(filename) != XML_SUCCESS)
+	//doc.Parse((const char*)filedata, 0, TIXML_ENCODING_UTF8);
+	b3AlignedObjectArray<char> xmlString;
+	int fileHandle = fileIO->fileOpen(filename,"r");
+	if (fileHandle>=0)
+	{
+		int size = fileIO->getFileSize(fileHandle);
+		xmlString.resize(size);
+		int actual = fileIO->fileRead(fileHandle, &xmlString[0],size);
+		if (actual==size)
+		{
+		}
+		fileIO->fileClose(fileHandle);
+	}
+	if (xmlString.size()==0)
+		return;
+
+	if (doc.Parse(&xmlString[0], xmlString.size()) != XML_SUCCESS)
+	//if (doc.LoadFile(filename) != XML_SUCCESS)
 		return;
 
 	//We need units to be in meter, so apply a scaling using the asset/units meter

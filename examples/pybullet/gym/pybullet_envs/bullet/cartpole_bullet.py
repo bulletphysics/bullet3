@@ -2,10 +2,10 @@
 Classic cart-pole system implemented by Rich Sutton et al.
 Copied from https://webdocs.cs.ualberta.ca/~sutton/book/code/pole.c
 """
-import os,  inspect
+import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 
 import logging
 import math
@@ -21,87 +21,82 @@ from pkg_resources import parse_version
 
 logger = logging.getLogger(__name__)
 
+
 class CartPoleBulletEnv(gym.Env):
-  metadata = {
-    'render.modes': ['human', 'rgb_array'],
-    'video.frames_per_second' : 50
-  }
+  metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
   def __init__(self, renders=True):
     # start the bullet physics server
     self._renders = renders
     if (renders):
-	    p.connect(p.GUI)
+      p.connect(p.GUI)
     else:
-    	p.connect(p.DIRECT)
+      p.connect(p.DIRECT)
+    self.theta_threshold_radians = 12 * 2 * math.pi / 360
+    self.x_threshold = 0.4  #2.4
+    high = np.array([
+        self.x_threshold * 2,
+        np.finfo(np.float32).max, self.theta_threshold_radians * 2,
+        np.finfo(np.float32).max
+    ])
 
-    observation_high = np.array([
-          np.finfo(np.float32).max,
-          np.finfo(np.float32).max,
-          np.finfo(np.float32).max,
-          np.finfo(np.float32).max])
-    action_high = np.array([0.1])
+    self.force_mag = 10
 
-    self.action_space = spaces.Discrete(9)
-    self.observation_space = spaces.Box(-observation_high, observation_high)
+    self.action_space = spaces.Discrete(2)
+    self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
-    self.theta_threshold_radians = 1
-    self.x_threshold = 2.4
-    self._seed()
-#    self.reset()
+    self.seed()
+    #    self.reset()
     self.viewer = None
     self._configure()
 
   def _configure(self, display=None):
     self.display = display
 
-  def _seed(self, seed=None):
+  def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
 
-  def _step(self, action):
+  def step(self, action):
+    force = self.force_mag if action == 1 else -self.force_mag
+
+    p.setJointMotorControl2(self.cartpole, 0, p.TORQUE_CONTROL, force=force)
     p.stepSimulation()
-#    time.sleep(self.timeStep)
+
     self.state = p.getJointState(self.cartpole, 1)[0:2] + p.getJointState(self.cartpole, 0)[0:2]
     theta, theta_dot, x, x_dot = self.state
-
-    dv = 0.1
-    deltav = [-10.*dv,-5.*dv, -2.*dv, -0.1*dv, 0, 0.1*dv, 2.*dv,5.*dv, 10.*dv][action]
-
-    p.setJointMotorControl2(self.cartpole, 0, p.VELOCITY_CONTROL, targetVelocity=(deltav + self.state[3]))
 
     done =  x < -self.x_threshold \
                 or x > self.x_threshold \
                 or theta < -self.theta_threshold_radians \
                 or theta > self.theta_threshold_radians
+    done = bool(done)
     reward = 1.0
-
+    #print("state=",self.state)
     return np.array(self.state), reward, done, {}
 
-  def _reset(self):
-#    print("-----------reset simulation---------------")
+  def reset(self):
+    #    print("-----------reset simulation---------------")
     p.resetSimulation()
-    self.cartpole = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"cartpole.urdf"),[0,0,0])
-    self.timeStep = 0.01
+    self.cartpole = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "cartpole.urdf"),
+                               [0, 0, 0])
+    p.changeDynamics(self.cartpole, -1, linearDamping=0, angularDamping=0)
+    p.changeDynamics(self.cartpole, 0, linearDamping=0, angularDamping=0)
+    p.changeDynamics(self.cartpole, 1, linearDamping=0, angularDamping=0)
+    self.timeStep = 0.02
     p.setJointMotorControl2(self.cartpole, 1, p.VELOCITY_CONTROL, force=0)
-    p.setGravity(0,0, -10)
+    p.setJointMotorControl2(self.cartpole, 0, p.VELOCITY_CONTROL, force=0)
+    p.setGravity(0, 0, -9.8)
     p.setTimeStep(self.timeStep)
     p.setRealTimeSimulation(0)
 
-    initialCartPos = self.np_random.uniform(low=-0.5, high=0.5, size=(1,))
-    initialAngle = self.np_random.uniform(low=-0.5, high=0.5, size=(1,))
-    p.resetJointState(self.cartpole, 1, initialAngle)
-    p.resetJointState(self.cartpole, 0, initialCartPos)
-
+    randstate = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
+    p.resetJointState(self.cartpole, 1, randstate[0], randstate[1])
+    p.resetJointState(self.cartpole, 0, randstate[2], randstate[3])
+    #print("randstate=",randstate)
     self.state = p.getJointState(self.cartpole, 1)[0:2] + p.getJointState(self.cartpole, 0)[0:2]
-
+    #print("self.state=", self.state)
     return np.array(self.state)
 
-  def _render(self, mode='human', close=False):
-      return
-
-  if parse_version(gym.__version__)>=parse_version('0.9.6'):
-    render = _render
-    reset = _reset
-    seed = _seed
-    step = _step
+  def render(self, mode='human', close=False):
+    return

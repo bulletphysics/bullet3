@@ -44,15 +44,10 @@ TestJointTorqueSetup::~TestJointTorqueSetup()
 {
 }
 
-///this is a temporary global, until we determine if we need the option or not
-extern bool gJointFeedbackInWorldSpace;
-extern bool gJointFeedbackInJointFrame;
 
 void TestJointTorqueSetup::initPhysics()
 {
 	int upAxis = 1;
-	gJointFeedbackInWorldSpace = true;
-	gJointFeedbackInJointFrame = true;
 
 	m_guiHelper->setUpAxis(upAxis);
 
@@ -70,6 +65,10 @@ void TestJointTorqueSetup::initPhysics()
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(
 		//btIDebugDraw::DBG_DrawConstraints
 		+btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints + btIDebugDraw::DBG_DrawAabb);  //+btIDebugDraw::DBG_DrawConstraintLimits);
+
+	m_dynamicsWorld->getSolverInfo().m_jointFeedbackInWorldSpace = true;
+	m_dynamicsWorld->getSolverInfo().m_jointFeedbackInJointFrame = true;
+
 
 	//create a static ground object
 	if (1)
@@ -346,7 +345,7 @@ void TestJointTorqueSetup::initPhysics()
 	btSerializer* s = new btDefaultSerializer;
 	m_dynamicsWorld->serialize(s);
 	char resourcePath[1024];
-	if (b3ResourcePath::findResourcePath("multibody.bullet", resourcePath, 1024))
+	if (b3ResourcePath::findResourcePath("multibody.bullet", resourcePath, 1024,0))
 	{
 		FILE* f = fopen(resourcePath, "wb");
 		fwrite(s->getBufferPointer(), s->getCurrentBufferSize(), 1, f);

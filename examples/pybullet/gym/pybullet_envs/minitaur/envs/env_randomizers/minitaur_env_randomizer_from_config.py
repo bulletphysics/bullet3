@@ -7,11 +7,11 @@ from __future__ import print_function
 import functools
 import random
 
-import os,  inspect
+import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 parentdir = os.path.dirname(os.path.dirname(parentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 
 import numpy as np
 import tensorflow as tf
@@ -32,8 +32,7 @@ class MinitaurEnvRandomizerFromConfig(env_randomizer_base.EnvRandomizerBase):
     except AttributeError:
       raise ValueError("Config {} is not found.".format(config))
     self._randomization_param_dict = config()
-    tf.logging.info("Randomization config is: {}".format(
-        self._randomization_param_dict))
+    tf.logging.info("Randomization config is: {}".format(self._randomization_param_dict))
 
   def randomize_env(self, env):
     """Randomize various physical properties of the environment.
@@ -43,35 +42,29 @@ class MinitaurEnvRandomizerFromConfig(env_randomizer_base.EnvRandomizerBase):
     Args:
       env: A minitaur gym environment.
     """
-    self._randomization_function_dict = self._build_randomization_function_dict(
-        env)
+    self._randomization_function_dict = self._build_randomization_function_dict(env)
     for param_name, random_range in self._randomization_param_dict.iteritems():
-      self._randomization_function_dict[param_name](
-          lower_bound=random_range[0], upper_bound=random_range[1])
+      self._randomization_function_dict[param_name](lower_bound=random_range[0],
+                                                    upper_bound=random_range[1])
 
   def _build_randomization_function_dict(self, env):
     func_dict = {}
-    func_dict["mass"] = functools.partial(
-        self._randomize_masses, minitaur=env.minitaur)
-    func_dict["inertia"] = functools.partial(
-        self._randomize_inertia, minitaur=env.minitaur)
-    func_dict["latency"] = functools.partial(
-        self._randomize_latency, minitaur=env.minitaur)
-    func_dict["joint friction"] = functools.partial(
-        self._randomize_joint_friction, minitaur=env.minitaur)
-    func_dict["motor friction"] = functools.partial(
-        self._randomize_motor_friction, minitaur=env.minitaur)
-    func_dict["restitution"] = functools.partial(
-        self._randomize_contact_restitution, minitaur=env.minitaur)
-    func_dict["lateral friction"] = functools.partial(
-        self._randomize_contact_friction, minitaur=env.minitaur)
-    func_dict["battery"] = functools.partial(
-        self._randomize_battery_level, minitaur=env.minitaur)
-    func_dict["motor strength"] = functools.partial(
-        self._randomize_motor_strength, minitaur=env.minitaur)
+    func_dict["mass"] = functools.partial(self._randomize_masses, minitaur=env.minitaur)
+    func_dict["inertia"] = functools.partial(self._randomize_inertia, minitaur=env.minitaur)
+    func_dict["latency"] = functools.partial(self._randomize_latency, minitaur=env.minitaur)
+    func_dict["joint friction"] = functools.partial(self._randomize_joint_friction,
+                                                    minitaur=env.minitaur)
+    func_dict["motor friction"] = functools.partial(self._randomize_motor_friction,
+                                                    minitaur=env.minitaur)
+    func_dict["restitution"] = functools.partial(self._randomize_contact_restitution,
+                                                 minitaur=env.minitaur)
+    func_dict["lateral friction"] = functools.partial(self._randomize_contact_friction,
+                                                      minitaur=env.minitaur)
+    func_dict["battery"] = functools.partial(self._randomize_battery_level, minitaur=env.minitaur)
+    func_dict["motor strength"] = functools.partial(self._randomize_motor_strength,
+                                                    minitaur=env.minitaur)
     # Settinmg control step needs access to the environment.
-    func_dict["control step"] = functools.partial(
-        self._randomize_control_step, env=env)
+    func_dict["control step"] = functools.partial(self._randomize_control_step, env=env)
     return func_dict
 
   def _randomize_control_step(self, env, lower_bound, upper_bound):
@@ -111,8 +104,8 @@ class MinitaurEnvRandomizerFromConfig(env_randomizer_base.EnvRandomizerBase):
 
   def _randomize_joint_friction(self, minitaur, lower_bound, upper_bound):
     num_knee_joints = minitaur.GetNumKneeJoints()
-    randomized_joint_frictions = np.random.uniform(
-        [lower_bound] * num_knee_joints, [upper_bound] * num_knee_joints)
+    randomized_joint_frictions = np.random.uniform([lower_bound] * num_knee_joints,
+                                                   [upper_bound] * num_knee_joints)
     minitaur.SetJointFriction(randomized_joint_frictions)
     tf.logging.info("joint friction is: {}".format(randomized_joint_frictions))
 
@@ -137,9 +130,7 @@ class MinitaurEnvRandomizerFromConfig(env_randomizer_base.EnvRandomizerBase):
     tf.logging.info("battery voltage is: {}".format(randomized_battery_voltage))
 
   def _randomize_motor_strength(self, minitaur, lower_bound, upper_bound):
-    randomized_motor_strength_ratios = np.random.uniform(
-        [lower_bound] * minitaur.num_motors,
-        [upper_bound] * minitaur.num_motors)
+    randomized_motor_strength_ratios = np.random.uniform([lower_bound] * minitaur.num_motors,
+                                                         [upper_bound] * minitaur.num_motors)
     minitaur.SetMotorStrengthRatios(randomized_motor_strength_ratios)
-    tf.logging.info(
-        "motor strength is: {}".format(randomized_motor_strength_ratios))
+    tf.logging.info("motor strength is: {}".format(randomized_motor_strength_ratios))

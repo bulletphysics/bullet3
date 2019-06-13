@@ -9,6 +9,7 @@
 #include "stb_image/stb_image.h"
 #include "../ImportObjDemo/LoadMeshFromObj.h"
 #include "Bullet3Common/b3HashMap.h"
+#include "../../CommonInterfaces/CommonFileIOInterface.h"
 
 struct CachedTextureResult
 {
@@ -45,17 +46,18 @@ struct CachedTextureManager
 };
 static CachedTextureManager sTexCacheMgr;
 
-bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData)
+bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData, struct CommonFileIOInterface* fileIO)
 {
 	B3_PROFILE("loadAndRegisterMeshFromFileInternal");
 	meshData.m_gfxShape = 0;
 	meshData.m_textureImage1 = 0;
 	meshData.m_textureHeight = 0;
 	meshData.m_textureWidth = 0;
+	meshData.m_flags = 0;
 	meshData.m_isCached = false;
 
 	char relativeFileName[1024];
-	if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
+	if (fileIO->findResourcePath(fileName.c_str(), relativeFileName, 1024))
 	{
 		char pathPrefix[1024];
 
@@ -65,7 +67,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 		std::vector<tinyobj::shape_t> shapes;
 		{
 			B3_PROFILE("tinyobj::LoadObj");
-			std::string err = LoadFromCachedOrFromObj(shapes, relativeFileName, pathPrefix);
+			std::string err = LoadFromCachedOrFromObj(shapes, relativeFileName, pathPrefix,fileIO);
 			//std::string err = tinyobj::LoadObj(shapes, relativeFileName, pathPrefix);
 		}
 
@@ -77,6 +79,18 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 			for (int i = 0; meshData.m_textureImage1 == 0 && i < shapes.size(); i++)
 			{
 				const tinyobj::shape_t& shape = shapes[i];
+				meshData.m_rgbaColor[0] = shape.material.diffuse[0];
+				meshData.m_rgbaColor[1] = shape.material.diffuse[1];
+				meshData.m_rgbaColor[2] = shape.material.diffuse[2];
+				meshData.m_rgbaColor[3] = shape.material.transparency;
+				meshData.m_flags |= B3_IMPORT_MESH_HAS_RGBA_COLOR;
+				
+				meshData.m_specularColor[0] = shape.material.specular[0];
+				meshData.m_specularColor[1] = shape.material.specular[1];
+				meshData.m_specularColor[2] = shape.material.specular[2];
+				meshData.m_specularColor[3] = 1;
+				meshData.m_flags |= B3_IMPORT_MESH_HAS_SPECULAR_COLOR;
+				
 				if (shape.material.diffuse_texname.length() > 0)
 				{
 					int width, height, n;
@@ -91,7 +105,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 						char relativeFileName[1024];
 						sprintf(relativeFileName, "%s%s", prefix[i], filename);
 						char relativeFileName2[1024];
-						if (b3ResourcePath::findResourcePath(relativeFileName, relativeFileName2, 1024))
+						if (fileIO->findResourcePath(relativeFileName, relativeFileName2, 1024))
 						{
 							if (b3IsFileCachingEnabled())
 							{
@@ -110,7 +124,31 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 
 							if (image == 0)
 							{
-								image = stbi_load(relativeFileName, &width, &height, &n, 3);
+
+								b3AlignedObjectArray<char> buffer;
+								buffer.reserve(1024);
+								int fileId = fileIO->fileOpen(relativeFileName,"rb");
+								if (fileId>=0)
+								{
+									int size = fileIO->getFileSize(fileId);
+									if (size>0)
+									{
+										buffer.resize(size);
+										int actual = fileIO->fileRead(fileId,&buffer[0],size);
+										if (actual != size)
+										{
+											b3Warning("STL filesize mismatch!\n");
+											buffer.resize(0);
+										}
+									}
+									fileIO->fileClose(fileId);
+								}
+
+								if (buffer.size())
+								{
+									image = stbi_load_from_memory((const unsigned char*)&buffer[0], buffer.size(), &width, &height, &n, 3);
+								}
+								//image = stbi_load(relativeFileName, &width, &height, &n, 3);
 
 								meshData.m_textureImage1 = image;
 

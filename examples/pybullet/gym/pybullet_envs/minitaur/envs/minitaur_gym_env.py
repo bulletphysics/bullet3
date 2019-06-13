@@ -4,10 +4,10 @@
 import math
 import time
 
-import os,  inspect
+import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 
 import gym
 from gym import spaces
@@ -64,10 +64,7 @@ class MinitaurGymEnv(gym.Env):
   expenditure.
 
   """
-  metadata = {
-      "render.modes": ["human", "rgb_array"],
-      "video.frames_per_second": 100
-  }
+  metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 100}
 
   def __init__(self,
                urdf_root=pybullet_data.getDataPath(),
@@ -184,17 +181,14 @@ class MinitaurGymEnv(gym.Env):
         self._action_repeat = 1
       self.control_time_step = self._time_step * self._action_repeat
     # TODO(b/73829334): Fix the value of self._num_bullet_solver_iterations.
-    self._num_bullet_solver_iterations = int(
-        NUM_SIMULATION_ITERATION_STEPS / self._action_repeat)
+    self._num_bullet_solver_iterations = int(NUM_SIMULATION_ITERATION_STEPS / self._action_repeat)
     self._urdf_root = urdf_root
     self._self_collision_enabled = self_collision_enabled
     self._motor_velocity_limit = motor_velocity_limit
     self._observation = []
     self._true_observation = []
     self._objectives = []
-    self._objective_weights = [
-        distance_weight, energy_weight, drift_weight, shake_weight
-    ]
+    self._objective_weights = [distance_weight, energy_weight, drift_weight, shake_weight]
     self._env_step_counter = 0
     self._num_steps_to_log = num_steps_to_log
     self._is_render = render
@@ -226,18 +220,16 @@ class MinitaurGymEnv(gym.Env):
     self._urdf_version = urdf_version
     self._ground_id = None
     self._reflection = reflection
-    self._env_randomizers = convert_to_list(
-        env_randomizer) if env_randomizer else []
+    self._env_randomizers = convert_to_list(env_randomizer) if env_randomizer else []
     self._episode_proto = minitaur_logging_pb2.MinitaurEpisode()
     if self._is_render:
-      self._pybullet_client = bullet_client.BulletClient(
-          connection_mode=pybullet.GUI)
+      self._pybullet_client = bullet_client.BulletClient(connection_mode=pybullet.GUI)
     else:
       self._pybullet_client = bullet_client.BulletClient()
     if self._urdf_version is None:
       self._urdf_version = DEFAULT_URDF_VERSION
     self._pybullet_client.setPhysicsEngineParameter(enableConeFriction=0)
-    self._seed()
+    self.seed()
     self.reset()
     observation_high = (self._get_observation_upper_bound() + OBSERVATION_EPS)
     observation_low = (self._get_observation_lower_bound() - OBSERVATION_EPS)
@@ -248,60 +240,57 @@ class MinitaurGymEnv(gym.Env):
     self.viewer = None
     self._hard_reset = hard_reset  # This assignment need to be after reset()
 
-  def _close(self):
-    self.logging.save_episode(self._episode_proto)
+  def close(self):
+    if self._env_step_counter > 0:
+      self.logging.save_episode(self._episode_proto)
     self.minitaur.Terminate()
 
   def add_env_randomizer(self, env_randomizer):
     self._env_randomizers.append(env_randomizer)
 
-  def _reset(self, initial_motor_angles=None, reset_duration=1.0):
-    self._pybullet_client.configureDebugVisualizer(
-        self._pybullet_client.COV_ENABLE_RENDERING, 0)
-    self.logging.save_episode(self._episode_proto)
+  def reset(self, initial_motor_angles=None, reset_duration=1.0):
+    self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_RENDERING, 0)
+    if self._env_step_counter > 0:
+      self.logging.save_episode(self._episode_proto)
     self._episode_proto = minitaur_logging_pb2.MinitaurEpisode()
-    minitaur_logging.preallocate_episode_proto(self._episode_proto,
-                                               self._num_steps_to_log)
+    minitaur_logging.preallocate_episode_proto(self._episode_proto, self._num_steps_to_log)
     if self._hard_reset:
       self._pybullet_client.resetSimulation()
       self._pybullet_client.setPhysicsEngineParameter(
           numSolverIterations=int(self._num_bullet_solver_iterations))
       self._pybullet_client.setTimeStep(self._time_step)
-      self._ground_id = self._pybullet_client.loadURDF(
-          "%s/plane.urdf" % self._urdf_root)
+      self._ground_id = self._pybullet_client.loadURDF("%s/plane.urdf" % self._urdf_root)
       if (self._reflection):
-        self._pybullet_client.changeVisualShape(self._ground_id,-1,rgbaColor=[1,1,1,0.8])
-        #self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_PLANAR_REFLECTION,1)
+        self._pybullet_client.changeVisualShape(self._ground_id, -1, rgbaColor=[1, 1, 1, 0.8])
+        self._pybullet_client.configureDebugVisualizer(
+            self._pybullet_client.COV_ENABLE_PLANAR_REFLECTION, self._ground_id)
       self._pybullet_client.setGravity(0, 0, -10)
       acc_motor = self._accurate_motor_model_enabled
       motor_protect = self._motor_overheat_protection
       if self._urdf_version not in MINIATUR_URDF_VERSION_MAP:
-        raise ValueError(
-            "%s is not a supported urdf_version." % self._urdf_version)
+        raise ValueError("%s is not a supported urdf_version." % self._urdf_version)
       else:
-        self.minitaur = (
-            MINIATUR_URDF_VERSION_MAP[self._urdf_version](
-                pybullet_client=self._pybullet_client,
-                action_repeat=self._action_repeat,
-                urdf_root=self._urdf_root,
-                time_step=self._time_step,
-                self_collision_enabled=self._self_collision_enabled,
-                motor_velocity_limit=self._motor_velocity_limit,
-                pd_control_enabled=self._pd_control_enabled,
-                accurate_motor_model_enabled=acc_motor,
-                remove_default_joint_damping=self._remove_default_joint_damping,
-                motor_kp=self._motor_kp,
-                motor_kd=self._motor_kd,
-                control_latency=self._control_latency,
-                pd_latency=self._pd_latency,
-                observation_noise_stdev=self._observation_noise_stdev,
-                torque_control_enabled=self._torque_control_enabled,
-                motor_overheat_protection=motor_protect,
-                on_rack=self._on_rack))
-    self.minitaur.Reset(
-        reload_urdf=False,
-        default_motor_angles=initial_motor_angles,
-        reset_time=reset_duration)
+        self.minitaur = (MINIATUR_URDF_VERSION_MAP[self._urdf_version](
+            pybullet_client=self._pybullet_client,
+            action_repeat=self._action_repeat,
+            urdf_root=self._urdf_root,
+            time_step=self._time_step,
+            self_collision_enabled=self._self_collision_enabled,
+            motor_velocity_limit=self._motor_velocity_limit,
+            pd_control_enabled=self._pd_control_enabled,
+            accurate_motor_model_enabled=acc_motor,
+            remove_default_joint_damping=self._remove_default_joint_damping,
+            motor_kp=self._motor_kp,
+            motor_kd=self._motor_kd,
+            control_latency=self._control_latency,
+            pd_latency=self._pd_latency,
+            observation_noise_stdev=self._observation_noise_stdev,
+            torque_control_enabled=self._torque_control_enabled,
+            motor_overheat_protection=motor_protect,
+            on_rack=self._on_rack))
+    self.minitaur.Reset(reload_urdf=False,
+                        default_motor_angles=initial_motor_angles,
+                        reset_time=reset_duration)
 
     # Loop over all env randomizers.
     for env_randomizer in self._env_randomizers:
@@ -311,13 +300,12 @@ class MinitaurGymEnv(gym.Env):
     self._env_step_counter = 0
     self._last_base_position = [0, 0, 0]
     self._objectives = []
-    self._pybullet_client.resetDebugVisualizerCamera(
-        self._cam_dist, self._cam_yaw, self._cam_pitch, [0, 0, 0])
-    self._pybullet_client.configureDebugVisualizer(
-        self._pybullet_client.COV_ENABLE_RENDERING, 1)
+    self._pybullet_client.resetDebugVisualizerCamera(self._cam_dist, self._cam_yaw,
+                                                     self._cam_pitch, [0, 0, 0])
+    self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_RENDERING, 1)
     return self._get_observation()
 
-  def _seed(self, seed=None):
+  def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]
 
@@ -326,12 +314,11 @@ class MinitaurGymEnv(gym.Env):
       for i, action_component in enumerate(action):
         if not (-self._action_bound - ACTION_EPS <= action_component <=
                 self._action_bound + ACTION_EPS):
-          raise ValueError("{}th action {} out of bounds.".format(
-              i, action_component))
+          raise ValueError("{}th action {} out of bounds.".format(i, action_component))
       action = self.minitaur.ConvertFromLegModel(action)
     return action
 
-  def _step(self, action):
+  def step(self, action):
     """Step forward the simulation, given the action.
 
     Args:
@@ -359,10 +346,8 @@ class MinitaurGymEnv(gym.Env):
         time.sleep(time_to_sleep)
       base_pos = self.minitaur.GetBasePosition()
       # Keep the previous orientation of the camera set by the user.
-      [yaw, pitch,
-       dist] = self._pybullet_client.getDebugVisualizerCamera()[8:11]
-      self._pybullet_client.resetDebugVisualizerCamera(dist, yaw, pitch,
-                                                       base_pos)
+      [yaw, pitch, dist] = self._pybullet_client.getDebugVisualizerCamera()[8:11]
+      self._pybullet_client.resetDebugVisualizerCamera(dist, yaw, pitch, base_pos)
 
     for env_randomizer in self._env_randomizers:
       env_randomizer.randomize_step(self)
@@ -372,14 +357,14 @@ class MinitaurGymEnv(gym.Env):
     reward = self._reward()
     done = self._termination()
     if self._log_path is not None:
-      minitaur_logging.update_episode_proto(self._episode_proto, self.minitaur,
-                                            action, self._env_step_counter)
+      minitaur_logging.update_episode_proto(self._episode_proto, self.minitaur, action,
+                                            self._env_step_counter)
     self._env_step_counter += 1
     if done:
       self.minitaur.Terminate()
     return np.array(self._get_observation()), reward, done, {}
 
-  def _render(self, mode="rgb_array", close=False):
+  def render(self, mode="rgb_array", close=False):
     if mode != "rgb_array":
       return np.array([])
     base_pos = self.minitaur.GetBasePosition()
@@ -390,11 +375,11 @@ class MinitaurGymEnv(gym.Env):
         pitch=self._cam_pitch,
         roll=0,
         upAxisIndex=2)
-    proj_matrix = self._pybullet_client.computeProjectionMatrixFOV(
-        fov=60,
-        aspect=float(RENDER_WIDTH) / RENDER_HEIGHT,
-        nearVal=0.1,
-        farVal=100.0)
+    proj_matrix = self._pybullet_client.computeProjectionMatrixFOV(fov=60,
+                                                                   aspect=float(RENDER_WIDTH) /
+                                                                   RENDER_HEIGHT,
+                                                                   nearVal=0.1,
+                                                                   farVal=100.0)
     (_, _, px, _, _) = self._pybullet_client.getCameraImage(
         width=RENDER_WIDTH,
         height=RENDER_HEIGHT,
@@ -411,9 +396,8 @@ class MinitaurGymEnv(gym.Env):
     Returns:
       A numpy array of motor angles.
     """
-    return np.array(
-        self._observation[MOTOR_ANGLE_OBSERVATION_INDEX:
-                          MOTOR_ANGLE_OBSERVATION_INDEX + NUM_MOTORS])
+    return np.array(self._observation[MOTOR_ANGLE_OBSERVATION_INDEX:MOTOR_ANGLE_OBSERVATION_INDEX +
+                                      NUM_MOTORS])
 
   def get_minitaur_motor_velocities(self):
     """Get the minitaur's motor velocities.
@@ -422,8 +406,8 @@ class MinitaurGymEnv(gym.Env):
       A numpy array of motor velocities.
     """
     return np.array(
-        self._observation[MOTOR_VELOCITY_OBSERVATION_INDEX:
-                          MOTOR_VELOCITY_OBSERVATION_INDEX + NUM_MOTORS])
+        self._observation[MOTOR_VELOCITY_OBSERVATION_INDEX:MOTOR_VELOCITY_OBSERVATION_INDEX +
+                          NUM_MOTORS])
 
   def get_minitaur_motor_torques(self):
     """Get the minitaur's motor torques.
@@ -432,8 +416,8 @@ class MinitaurGymEnv(gym.Env):
       A numpy array of motor torques.
     """
     return np.array(
-        self._observation[MOTOR_TORQUE_OBSERVATION_INDEX:
-                          MOTOR_TORQUE_OBSERVATION_INDEX + NUM_MOTORS])
+        self._observation[MOTOR_TORQUE_OBSERVATION_INDEX:MOTOR_TORQUE_OBSERVATION_INDEX +
+                          NUM_MOTORS])
 
   def get_minitaur_base_orientation(self):
     """Get the minitaur's base orientation, represented by a quaternion.
@@ -457,8 +441,7 @@ class MinitaurGymEnv(gym.Env):
     rot_mat = self._pybullet_client.getMatrixFromQuaternion(orientation)
     local_up = rot_mat[6:]
     pos = self.minitaur.GetBasePosition()
-    return (np.dot(np.asarray([0, 0, 1]), np.asarray(local_up)) < 0.85 or
-            pos[2] < 0.13)
+    return (np.dot(np.asarray([0, 0, 1]), np.asarray(local_up)) < 0.85 or pos[2] < 0.13)
 
   def _termination(self):
     position = self.minitaur.GetBasePosition()
@@ -481,9 +464,7 @@ class MinitaurGymEnv(gym.Env):
         np.dot(self.minitaur.GetMotorTorques(),
                self.minitaur.GetMotorVelocities())) * self._time_step
     objectives = [forward_reward, energy_reward, drift_reward, shake_reward]
-    weighted_objectives = [
-        o * w for o, w in zip(objectives, self._objective_weights)
-    ]
+    weighted_objectives = [o * w for o, w in zip(objectives, self._objective_weights)]
     reward = sum(weighted_objectives)
     self._objectives.append(objectives)
     return reward
@@ -550,10 +531,8 @@ class MinitaurGymEnv(gym.Env):
     upper_bound = np.zeros(self._get_observation_dimension())
     num_motors = self.minitaur.num_motors
     upper_bound[0:num_motors] = math.pi  # Joint angle.
-    upper_bound[num_motors:2 * num_motors] = (
-        motor.MOTOR_SPEED_LIMIT)  # Joint velocity.
-    upper_bound[2 * num_motors:3 * num_motors] = (
-        motor.OBSERVED_TORQUE_LIMIT)  # Joint torque.
+    upper_bound[num_motors:2 * num_motors] = (motor.MOTOR_SPEED_LIMIT)  # Joint velocity.
+    upper_bound[2 * num_motors:3 * num_motors] = (motor.OBSERVED_TORQUE_LIMIT)  # Joint torque.
     upper_bound[3 * num_motors:] = 1.0  # Quaternion of base orientation.
     return upper_bound
 
@@ -569,12 +548,11 @@ class MinitaurGymEnv(gym.Env):
     """
     return len(self._get_observation())
 
-  if parse_version(gym.__version__)>=parse_version('0.9.6'):
-                close = _close
-                render = _render
-                reset = _reset
-                seed = _seed
-                step = _step
+  if parse_version(gym.__version__) < parse_version('0.9.6'):
+    _render = render
+    _reset = reset
+    _seed = seed
+    _step = step
 
   def set_time_step(self, control_step, simulation_step=0.001):
     """Sets the time step of the environment.
@@ -589,18 +567,15 @@ class MinitaurGymEnv(gym.Env):
       ValueError: If the control step is smaller than the simulation step.
     """
     if control_step < simulation_step:
-      raise ValueError(
-          "Control step should be larger than or equal to simulation step.")
+      raise ValueError("Control step should be larger than or equal to simulation step.")
     self.control_time_step = control_step
     self._time_step = simulation_step
     self._action_repeat = int(round(control_step / simulation_step))
-    self._num_bullet_solver_iterations = (
-        NUM_SIMULATION_ITERATION_STEPS / self._action_repeat)
+    self._num_bullet_solver_iterations = (NUM_SIMULATION_ITERATION_STEPS / self._action_repeat)
     self._pybullet_client.setPhysicsEngineParameter(
         numSolverIterations=self._num_bullet_solver_iterations)
     self._pybullet_client.setTimeStep(self._time_step)
-    self.minitaur.SetTimeSteps(
-        action_repeat=self._action_repeat, simulation_step=self._time_step)
+    self.minitaur.SetTimeSteps(action_repeat=self._action_repeat, simulation_step=self._time_step)
 
   @property
   def pybullet_client(self):
@@ -617,5 +592,3 @@ class MinitaurGymEnv(gym.Env):
   @property
   def env_step_counter(self):
     return self._env_step_counter
-
-

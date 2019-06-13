@@ -1,11 +1,11 @@
-
 #ifndef LOAD_MESH_FROM_STL_H
 #define LOAD_MESH_FROM_STL_H
 
 #include "../../OpenGLWindow/GLInstanceGraphicsShape.h"
 #include <stdio.h>  //fopen
 #include "Bullet3Common/b3AlignedObjectArray.h"
-
+#include "../../CommonInterfaces/CommonFileIOInterface.h"
+#include <string.h> //memcpy
 struct MySTLTriangle
 {
 	float normal[3];
@@ -14,25 +14,21 @@ struct MySTLTriangle
 	float vertex2[3];
 };
 
-static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName)
+static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName, struct CommonFileIOInterface* fileIO)
 {
 	GLInstanceGraphicsShape* shape = 0;
 
-	FILE* file = fopen(relativeFileName, "rb");
-	if (file)
+	int fileHandle = fileIO->fileOpen(relativeFileName, "rb");
+	if (fileHandle>=0)
 	{
 		int size = 0;
-		if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET))
+		size = fileIO->getFileSize(fileHandle);
 		{
-			b3Warning("Error: Cannot access file to determine size of %s\n", relativeFileName);
-		}
-		else
-		{
-			if (size)
+			if (size>=0)
 			{
 				//b3Warning("Open STL file of %d bytes\n",size);
 				char* memoryBuffer = new char[size + 1];
-				int actualBytesRead = fread(memoryBuffer, 1, size, file);
+				int actualBytesRead = fileIO->fileRead(fileHandle, memoryBuffer, size);
 				if (actualBytesRead != size)
 				{
 					b3Warning("Error reading from file %s", relativeFileName);
@@ -49,6 +45,7 @@ static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName)
 							if (expectedBinaryFileSize != size)
 							{
 								delete[] memoryBuffer;
+								fileIO->fileClose(fileHandle);
 								return 0;
 							}
 						}
@@ -97,7 +94,7 @@ static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName)
 				delete[] memoryBuffer;
 			}
 		}
-		fclose(file);
+		fileIO->fileClose(fileHandle);
 	}
 	if (shape)
 	{

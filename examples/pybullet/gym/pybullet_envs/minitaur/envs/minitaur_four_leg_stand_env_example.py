@@ -5,7 +5,6 @@ import numpy as np
 import tensorflow as tf
 from pybullet_envs.minitaur.envs import minitaur_four_leg_stand_env
 
-
 FLAGS = tf.flags.FLAGS
 tf.flags.DEFINE_string("log_path", None, "The directory to write the log file.")
 NUM_LEGS = 4

@@ -62,6 +62,9 @@ struct btContactSolverInfoData
 	btScalar m_singleAxisRollingFrictionThreshold;
 	btScalar m_leastSquaresResidualThreshold;
 	btScalar m_restitutionVelocityThreshold;
+	bool m_jointFeedbackInWorldSpace;
+	bool m_jointFeedbackInJointFrame;
+	int m_reportSolverAnalytics;
 };
 
 struct btContactSolverInfo : public btContactSolverInfoData
@@ -94,6 +97,9 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_singleAxisRollingFrictionThreshold = 1e30f;          ///if the velocity is above this threshold, it will use a single constraint row (axis), otherwise 3 rows.
 		m_leastSquaresResidualThreshold = 0.f;
 		m_restitutionVelocityThreshold = 0.2f;  //if the relative velocity is below this threshold, there is zero restitution
+		m_jointFeedbackInWorldSpace = false;
+		m_jointFeedbackInJointFrame = false;
+		m_reportSolverAnalytics = 0;
 	}
 };
 

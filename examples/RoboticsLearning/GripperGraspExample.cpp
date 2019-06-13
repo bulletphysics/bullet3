@@ -62,6 +62,10 @@ public:
 		m_robotSim.setGuiHelper(m_guiHelper);
 		bool connected = m_robotSim.connect(mode);
 
+		m_robotSim.configureDebugVisualizer(COV_ENABLE_RGB_BUFFER_PREVIEW, 0);
+		m_robotSim.configureDebugVisualizer(COV_ENABLE_DEPTH_BUFFER_PREVIEW, 0);
+		m_robotSim.configureDebugVisualizer(COV_ENABLE_SEGMENTATION_MARK_PREVIEW, 0);
+
 		b3Printf("robotSim connected = %d", connected);
 
 		if ((m_options & eGRIPPER_GRASP) != 0)
@@ -322,7 +326,10 @@ public:
 				m_robotSim.loadURDF("plane.urdf", args);
 			}
 			m_robotSim.setGravity(btVector3(0, 0, -10));
-			m_robotSim.loadSoftBody("bunny.obj", 0.1, 0.1, 0.02);
+			b3RobotSimulatorLoadSoftBodyArgs args(0.1, 1, 0.02);
+			args.m_startPosition.setValue(0, 0, 5);
+			args.m_startOrientation.setValue(1, 0, 0, 1);
+			m_robotSim.loadSoftBody("bunny.obj", args);
 
 			b3JointInfo revoluteJoint1;
 			revoluteJoint1.m_parentFrame[0] = -0.055;
@@ -398,7 +405,8 @@ public:
 				m_robotSim.loadURDF("plane.urdf", args);
 			}
 			m_robotSim.setGravity(btVector3(0, 0, -10));
-			m_robotSim.loadSoftBody("bunny.obj", 0.3, 10.0, 0.1);
+			b3RobotSimulatorLoadSoftBodyArgs args(0.3, 10, 0.1);
+			m_robotSim.loadSoftBody("bunny.obj", args);
 		}
 	}
 	virtual void exitPhysics()

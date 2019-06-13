@@ -22,4 +22,3 @@ class EnvRandomizerBase(object):
       env: The environment to be randomized.
     """
     pass
-

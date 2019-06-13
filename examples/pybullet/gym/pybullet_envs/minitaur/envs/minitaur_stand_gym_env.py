@@ -29,10 +29,7 @@ class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
   function is based on how long the minitaur stays standing up.
 
   """
-  metadata = {
-      "render.modes": ["human", "rgb_array"],
-      "video.frames_per_second": 50
-  }
+  metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
   def __init__(self,
                urdf_root=pybullet_data.getDataPath(),
@@ -53,16 +50,15 @@ class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
       pd_control_enabled: Whether to use PD controller for each motor.
       render: Whether to render the simulation.
     """
-    super(MinitaurStandGymEnv, self).__init__(
-        urdf_root=urdf_root,
-        action_repeat=action_repeat,
-        observation_noise_stdev=observation_noise_stdev,
-        self_collision_enabled=self_collision_enabled,
-        motor_velocity_limit=motor_velocity_limit,
-        pd_control_enabled=pd_control_enabled,
-        accurate_motor_model_enabled=True,
-        motor_overheat_protection=True,
-        render=render)
+    super(MinitaurStandGymEnv, self).__init__(urdf_root=urdf_root,
+                                              action_repeat=action_repeat,
+                                              observation_noise_stdev=observation_noise_stdev,
+                                              self_collision_enabled=self_collision_enabled,
+                                              motor_velocity_limit=motor_velocity_limit,
+                                              pd_control_enabled=pd_control_enabled,
+                                              accurate_motor_model_enabled=True,
+                                              motor_overheat_protection=True,
+                                              render=render)
     # Set the action dimension to 1, and reset the action space.
     action_dim = 1
     action_high = np.array([self._action_bound] * action_dim)
@@ -85,8 +81,8 @@ class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
     for t in range(5000):
       if self._is_render:
         base_pos = self.minitaur.GetBasePosition()
-        self._pybullet_client.resetDebugVisualizerCamera(
-            self._cam_dist, self._cam_yaw, self._cam_pitch, base_pos)
+        self._pybullet_client.resetDebugVisualizerCamera(self._cam_dist, self._cam_yaw,
+                                                         self._cam_pitch, base_pos)
       state = self._get_true_observation()
       action = self._policy_flip(t, state[24:28])
       self.minitaur.ApplyAction(action)
@@ -101,13 +97,13 @@ class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
     done = self._termination()
     return np.array(self._get_observation()), reward, done, {}
 
-  def _step(self, action):
+  def step(self, action):
     # At start, use policy_flip to lift the robot to its two legs. After the
     # robot reaches the lift up stage, give control back to the agent by
     # returning the current state and reward.
     if self._env_step_counter < 1:
       return self._stand_up()
-    return super(MinitaurStandGymEnv, self)._step(action)
+    return super(MinitaurStandGymEnv, self).step(action)
 
   def _reward(self):
     """Reward function for standing up pose.
@@ -226,8 +222,7 @@ class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
     # Lower the signal a little, so that it becomes positive only for a short
     # amount time.
     lower_signal = -0.94
-    signal_unit = math.copysign(intensity,
-                                math.sin(time_step * speed) + lower_signal)
+    signal_unit = math.copysign(intensity, math.sin(time_step * speed) + lower_signal)
     # Only extend the leg, don't shorten.
     if signal_unit < 0:
       signal_unit = 0

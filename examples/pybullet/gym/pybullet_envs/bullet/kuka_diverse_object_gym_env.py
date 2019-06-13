@@ -13,6 +13,7 @@ import glob
 from pkg_resources import parse_version
 import gym
 
+
 class KukaDiverseObjectEnv(KukaGymEnv):
   """Class for Kuka environment with diverse objects.
 
@@ -35,7 +36,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
                height=48,
                numObjects=5,
                isTest=False):
-    """Initializes the KukaDiverseObjectEnv. 
+    """Initializes the KukaDiverseObjectEnv.
 
     Args:
       urdfRoot: The diretory from which to load environment URDF's.
@@ -61,7 +62,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     """
 
     self._isDiscrete = isDiscrete
-    self._timeStep = 1./240.
+    self._timeStep = 1. / 240.
     self._urdfRoot = urdfRoot
     self._actionRepeat = actionRepeat
     self._isEnableSelfCollision = isEnableSelfCollision
@@ -71,7 +72,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     self._maxSteps = maxSteps
     self.terminated = 0
     self._cam_dist = 1.3
-    self._cam_yaw = 180 
+    self._cam_yaw = 180
     self._cam_pitch = -40
     self._dv = dv
     self._p = p
@@ -85,12 +86,12 @@ class KukaDiverseObjectEnv(KukaGymEnv):
 
     if self._renders:
       self.cid = p.connect(p.SHARED_MEMORY)
-      if (self.cid<0):
-         self.cid = p.connect(p.GUI)
-      p.resetDebugVisualizerCamera(1.3,180,-41,[0.52,-0.2,-0.33])
+      if (self.cid < 0):
+        self.cid = p.connect(p.GUI)
+      p.resetDebugVisualizerCamera(1.3, 180, -41, [0.52, -0.2, -0.33])
     else:
       self.cid = p.connect(p.DIRECT)
-    self._seed()
+    self.seed()
 
     if (self._isDiscrete):
       if self._removeHeightHack:
@@ -100,29 +101,25 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     else:
       self.action_space = spaces.Box(low=-1, high=1, shape=(3,))  # dx, dy, da
       if self._removeHeightHack:
-        self.action_space = spaces.Box(low=-1,
-                                       high=1,
-                                       shape=(4,))  # dx, dy, dz, da
+        self.action_space = spaces.Box(low=-1, high=1, shape=(4,))  # dx, dy, dz, da
     self.viewer = None
 
-  def _reset(self):
+  def reset(self):
     """Environment reset called at the beginning of an episode.
     """
     # Set the camera settings.
     look = [0.23, 0.2, 0.54]
     distance = 1.
-    pitch = -56 + self._cameraRandom*np.random.uniform(-3, 3)
-    yaw = 245 + self._cameraRandom*np.random.uniform(-3, 3)
+    pitch = -56 + self._cameraRandom * np.random.uniform(-3, 3)
+    yaw = 245 + self._cameraRandom * np.random.uniform(-3, 3)
     roll = 0
-    self._view_matrix = p.computeViewMatrixFromYawPitchRoll(
-        look, distance, yaw, pitch, roll, 2)
-    fov = 20. + self._cameraRandom*np.random.uniform(-2, 2)
+    self._view_matrix = p.computeViewMatrixFromYawPitchRoll(look, distance, yaw, pitch, roll, 2)
+    fov = 20. + self._cameraRandom * np.random.uniform(-2, 2)
     aspect = self._width / self._height
     near = 0.01
     far = 10
-    self._proj_matrix = p.computeProjectionMatrixFOV(
-        fov, aspect, near, far)
-    
+    self._proj_matrix = p.computeProjectionMatrixFOV(fov, aspect, near, far)
+
     self._attempted_grasp = False
     self._env_step = 0
     self.terminated = 0
@@ -130,18 +127,18 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     p.resetSimulation()
     p.setPhysicsEngineParameter(numSolverIterations=150)
     p.setTimeStep(self._timeStep)
-    p.loadURDF(os.path.join(self._urdfRoot,"plane.urdf"),[0,0,-1])
-    
-    p.loadURDF(os.path.join(self._urdfRoot,"table/table.urdf"), 0.5000000,0.00000,-.820000,0.000000,0.000000,0.0,1.0)
-            
-    p.setGravity(0,0,-10)
+    p.loadURDF(os.path.join(self._urdfRoot, "plane.urdf"), [0, 0, -1])
+
+    p.loadURDF(os.path.join(self._urdfRoot, "table/table.urdf"), 0.5000000, 0.00000, -.820000,
+               0.000000, 0.000000, 0.0, 1.0)
+
+    p.setGravity(0, 0, -10)
     self._kuka = kuka.Kuka(urdfRootPath=self._urdfRoot, timeStep=self._timeStep)
     self._envStepCounter = 0
     p.stepSimulation()
 
     # Choose the objects in the bin.
-    urdfList = self._get_random_object(
-      self._numObjects, self._isTest)
+    urdfList = self._get_random_object(self._numObjects, self._isTest)
     self._objectUids = self._randomly_place_objects(urdfList)
     self._observation = self._get_observation()
     return np.array(self._observation)
@@ -156,17 +153,15 @@ class KukaDiverseObjectEnv(KukaGymEnv):
       The list of object unique ID's.
     """
 
-
     # Randomize positions of each object urdf.
     objectUids = []
     for urdf_name in urdfList:
-      xpos = 0.4 +self._blockRandom*random.random()
-      ypos = self._blockRandom*(random.random()-.5)
-      angle = np.pi/2 + self._blockRandom * np.pi * random.random()
+      xpos = 0.4 + self._blockRandom * random.random()
+      ypos = self._blockRandom * (random.random() - .5)
+      angle = np.pi / 2 + self._blockRandom * np.pi * random.random()
       orn = p.getQuaternionFromEuler([0, 0, angle])
       urdf_path = os.path.join(self._urdfRoot, urdf_name)
-      uid = p.loadURDF(urdf_path, [xpos, ypos, .15],
-        [orn[0], orn[1], orn[2], orn[3]])
+      uid = p.loadURDF(urdf_path, [xpos, ypos, .15], [orn[0], orn[1], orn[2], orn[3]])
       objectUids.append(uid)
       # Let each object fall to the tray individual, to prevent object
       # intersection.
@@ -178,14 +173,14 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     """Return the observation as an image.
     """
     img_arr = p.getCameraImage(width=self._width,
-                                      height=self._height,
-                                      viewMatrix=self._view_matrix,
-                                      projectionMatrix=self._proj_matrix)
+                               height=self._height,
+                               viewMatrix=self._view_matrix,
+                               projectionMatrix=self._proj_matrix)
     rgb = img_arr[2]
     np_img_arr = np.reshape(rgb, (self._height, self._width, 4))
     return np_img_arr[:, :, :3]
 
-  def _step(self, action):
+  def step(self, action):
     """Environment step.
 
     Args:
@@ -246,8 +241,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
         break
 
     # If we are close to the bin, attempt grasp.
-    state = p.getLinkState(self._kuka.kukaUid,
-                                  self._kuka.kukaEndEffectorIndex)
+    state = p.getLinkState(self._kuka.kukaUid, self._kuka.kukaEndEffectorIndex)
     end_effector_pos = state[0]
     if end_effector_pos[2] <= 0.1:
       finger_angle = 0.3
@@ -257,7 +251,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
         p.stepSimulation()
         #if self._renders:
         #  time.sleep(self._timeStep)
-        finger_angle -= 0.3/100.
+        finger_angle -= 0.3 / 100.
         if finger_angle < 0:
           finger_angle = 0
       for _ in range(500):
@@ -266,7 +260,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
         p.stepSimulation()
         if self._renders:
           time.sleep(self._timeStep)
-        finger_angle -= 0.3/100.
+        finger_angle -= 0.3 / 100.
         if finger_angle < 0:
           finger_angle = 0
       self._attempted_grasp = True
@@ -274,9 +268,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     done = self._termination()
     reward = self._reward()
 
-    debug = {
-        'grasp_success': self._graspSuccess
-    }
+    debug = {'grasp_success': self._graspSuccess}
     return observation, reward, done, debug
 
   def _reward(self):
@@ -288,8 +280,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     reward = 0
     self._graspSuccess = 0
     for uid in self._objectUids:
-      pos, _ = p.getBasePositionAndOrientation(
-        uid)
+      pos, _ = p.getBasePositionAndOrientation(uid)
       # If any block is above height, provide reward.
       if pos[2] > 0.2:
         self._graspSuccess += 1
@@ -316,18 +307,15 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     if test:
       urdf_pattern = os.path.join(self._urdfRoot, 'random_urdfs/*0/*.urdf')
     else:
-      urdf_pattern = os.path.join(self._urdfRoot, 'random_urdfs/*[^0]/*.urdf')
+      urdf_pattern = os.path.join(self._urdfRoot, 'random_urdfs/*[1-9]/*.urdf')
     found_object_directories = glob.glob(urdf_pattern)
     total_num_objects = len(found_object_directories)
-    selected_objects = np.random.choice(np.arange(total_num_objects),
-                                        num_objects)
+    selected_objects = np.random.choice(np.arange(total_num_objects), num_objects)
     selected_objects_filenames = []
     for object_index in selected_objects:
       selected_objects_filenames += [found_object_directories[object_index]]
     return selected_objects_filenames
-  
-  if parse_version(gym.__version__)>=parse_version('0.9.6'):
-    
-    reset = _reset
-    
-    step = _step
+
+  if parse_version(gym.__version__) < parse_version('0.9.6'):
+    _reset = reset
+    _step = step

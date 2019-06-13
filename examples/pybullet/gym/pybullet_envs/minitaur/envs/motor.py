@@ -8,8 +8,7 @@ MOTOR_VOLTAGE = 16.0
 MOTOR_RESISTANCE = 0.186
 MOTOR_TORQUE_CONSTANT = 0.0954
 MOTOR_VISCOUS_DAMPING = 0
-MOTOR_SPEED_LIMIT = MOTOR_VOLTAGE / (
-    MOTOR_VISCOUS_DAMPING + MOTOR_TORQUE_CONSTANT)
+MOTOR_SPEED_LIMIT = MOTOR_VOLTAGE / (MOTOR_VISCOUS_DAMPING + MOTOR_TORQUE_CONSTANT)
 NUM_MOTORS = 8
 
 
@@ -124,21 +123,19 @@ class MotorModel(object):
       observed_torque: The torque observed by the sensor.
     """
     observed_torque = np.clip(
-        self._torque_constant *
-        (np.asarray(pwm) * self._voltage / self._resistance),
+        self._torque_constant * (np.asarray(pwm) * self._voltage / self._resistance),
         -OBSERVED_TORQUE_LIMIT, OBSERVED_TORQUE_LIMIT)
 
     # Net voltage is clipped at 50V by diodes on the motor controller.
     voltage_net = np.clip(
         np.asarray(pwm) * self._voltage -
-        (self._torque_constant + self._viscous_damping) *
-        np.asarray(true_motor_velocity), -VOLTAGE_CLIPPING, VOLTAGE_CLIPPING)
+        (self._torque_constant + self._viscous_damping) * np.asarray(true_motor_velocity),
+        -VOLTAGE_CLIPPING, VOLTAGE_CLIPPING)
     current = voltage_net / self._resistance
     current_sign = np.sign(current)
     current_magnitude = np.absolute(current)
     # Saturate torque based on empirical current relation.
-    actual_torque = np.interp(current_magnitude, self._current_table,
-                              self._torque_table)
+    actual_torque = np.interp(current_magnitude, self._current_table, self._torque_table)
     actual_torque = np.multiply(current_sign, actual_torque)
     actual_torque = np.multiply(self._strength_ratios, actual_torque)
     return actual_torque, observed_torque

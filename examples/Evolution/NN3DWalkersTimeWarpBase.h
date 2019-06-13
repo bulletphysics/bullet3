@@ -52,7 +52,7 @@ static double /*7*/ CENTUPLE_SPEED = 100;
 static double /*8*/ QUINCENTUPLE_SPEED = 500;
 static double /*9*/ MILLITUPLE_SPEED = 1000;
 static double /*0*/ MAX_SPEED = MILLITUPLE_SPEED;
-static double /**/ NUM_SPEEDS = 11;
+static double /**/ NUM_SPEEDS = 10;
 };  // namespace SimulationSpeeds
 
 // add speeds from the namespace here
@@ -91,7 +91,7 @@ enum SolverEnumType
 	NNCGSOLVER = 2,
 	DANZIGSOLVER = 3,
 	LEMKESOLVER = 4,
-	FSSOLVER = 5,
+	
 	NUM_SOLVERS = 6
 };
 
@@ -103,7 +103,7 @@ static char GAUSSSEIDELSOLVER[] = "Gauss-Seidel Solver";
 static char NNCGSOLVER[] = "NNCG Solver";
 static char DANZIGSOLVER[] = "Danzig Solver";
 static char LEMKESOLVER[] = "Lemke Solver";
-static char FSSOLVER[] = "FeatherStone Solver";
+
 };  // namespace SolverType
 
 static const char* solverTypes[NUM_SOLVERS];
@@ -324,7 +324,7 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 		solverTypes[2] = SolverType::NNCGSOLVER;
 		solverTypes[3] = SolverType::DANZIGSOLVER;
 		solverTypes[4] = SolverType::LEMKESOLVER;
-		solverTypes[5] = SolverType::FSSOLVER;
+		
 
 		{
 			ComboBoxParams comboParams;
@@ -499,19 +499,12 @@ struct NN3DWalkersTimeWarpBase : public CommonRigidBodyBase
 				m_solver = new btMLCPSolver(mlcp);
 				break;
 			}
-			case FSSOLVER:
-			{
-				//			b3Printf("=%s=",SolverType::FSSOLVER);
-				//Use the btMultiBodyConstraintSolver for Featherstone btMultiBody support
-				m_solver = new btMultiBodyConstraintSolver;
-
-				break;
-			}
+			
 			default:
 				break;
 		}
 
-		if (SOLVER_TYPE != FSSOLVER)
+		if (1)
 		{
 			//TODO: Set parameters for other solvers
 

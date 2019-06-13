@@ -1260,37 +1260,39 @@ bool convertGRPCToStatus(const PyBulletStatus& grpcReply, SharedMemoryStatus& se
 			serverStatus.m_sendActualStateArgs.m_numDegreeOfFreedomQ = numDegreeOfFreedomQ;
 			serverStatus.m_sendActualStateArgs.m_numDegreeOfFreedomU = numDegreeOfFreedomU;
 
+			serverStatus.m_sendActualStateArgs.m_stateDetails = (SendActualStateSharedMemoryStorage*)bufferServerToClient;
+
 			for (int i = 0; i < numDegreeOfFreedomQ; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_actualStateQ[i] = stat->actualstateq(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_actualStateQ[i] = stat->actualstateq(i);
 			}
 			for (int i = 0; i < numDegreeOfFreedomU; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_actualStateQdot[i] = stat->actualstateqdot(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_actualStateQdot[i] = stat->actualstateqdot(i);
 			}
 			for (int i = 0; i < 7; i++)
 			{
 				serverStatus.m_sendActualStateArgs.m_rootLocalInertialFrame[i] = stat->rootlocalinertialframe(i);
 			}
-			for (int i = 0; i < numLinks * 6; i++)
+			for (int i = 0; i < numLinks * 7; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_linkLocalInertialFrames[i] = stat->linklocalinertialframes(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_linkLocalInertialFrames[i] = stat->linklocalinertialframes(i);
 			}
 			for (int i = 0; i < numLinks * 6; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_jointReactionForces[i] = stat->jointreactionforces(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_jointReactionForces[i] = stat->jointreactionforces(i);
 			}
 			for (int i = 0; i < numLinks; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_jointMotorForce[i] = stat->jointmotorforce(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_jointMotorForce[i] = stat->jointmotorforce(i);
 			}
 			for (int i = 0; i < numLinks * 7; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_linkState[i] = stat->linkstate(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_linkState[i] = stat->linkstate(i);
 			}
 			for (int i = 0; i < numLinks * 6; i++)
 			{
-				serverStatus.m_sendActualStateArgs.m_linkWorldVelocities[i] = stat->linkworldvelocities(i);
+				serverStatus.m_sendActualStateArgs.m_stateDetails->m_linkWorldVelocities[i] = stat->linkworldvelocities(i);
 			}
 
 			break;
@@ -1411,6 +1413,22 @@ bool convertGRPCToStatus(const PyBulletStatus& grpcReply, SharedMemoryStatus& se
 
 			break;
 		}
+		case CMD_SDF_LOADING_COMPLETED:
+		{
+			converted = true;
+      const ::pybullet_grpc::SdfLoadedStatus* stat = &grpcReply.sdfstatus();
+      int numBodies = stat->bodyuniqueids_size();
+      if (numBodies > MAX_SDF_BODIES)
+			{
+				printf("SDF exceeds body capacity: %d > %d", numBodies, MAX_SDF_BODIES);
+			}
+      serverStatus.m_sdfLoadedArgs.m_numBodies = numBodies;
+      for (int i = 0; i < numBodies; i++)
+			{
+        serverStatus.m_sdfLoadedArgs.m_bodyUniqueIds[i] = stat->bodyuniqueids(i);
+			}
+			break;
+		}
 		case CMD_DESIRED_STATE_RECEIVED_COMPLETED:
 		{
 			converted = true;
@@ -1445,6 +1463,29 @@ bool convertGRPCToStatus(const PyBulletStatus& grpcReply, SharedMemoryStatus& se
 			serverStatus.m_sendPixelDataArguments.m_startingPixelIndex = cam->startingpixelindex();
 			break;
 		}
+		case CMD_GET_DYNAMICS_INFO_COMPLETED:
+		{
+			converted = true;
+			const ::pybullet_grpc::GetDynamicsStatus* stat = &grpcReply.getdynamicsstatus();
+			serverStatus.m_dynamicsInfo.m_mass = stat->mass();
+			serverStatus.m_dynamicsInfo.m_lateralFrictionCoeff = stat->lateralfriction();
+			serverStatus.m_dynamicsInfo.m_spinningFrictionCoeff = stat->spinningfriction();
+			serverStatus.m_dynamicsInfo.m_rollingFrictionCoeff = stat->rollingfriction();
+			serverStatus.m_dynamicsInfo.m_restitution = stat->restitution();
+			serverStatus.m_dynamicsInfo.m_linearDamping = stat->lineardamping();
+			serverStatus.m_dynamicsInfo.m_angularDamping = stat->angulardamping();
+			serverStatus.m_dynamicsInfo.m_contactStiffness = stat->contactstiffness();
+			serverStatus.m_dynamicsInfo.m_contactDamping = stat->contactdamping();
+			serverStatus.m_dynamicsInfo.m_localInertialDiagonal[0] = stat->localinertiadiagonal().x();
+			serverStatus.m_dynamicsInfo.m_localInertialDiagonal[1] = stat->localinertiadiagonal().y();
+			serverStatus.m_dynamicsInfo.m_localInertialDiagonal[2] = stat->localinertiadiagonal().z();
+			serverStatus.m_dynamicsInfo.m_frictionAnchor = stat->frictionanchor();
+			serverStatus.m_dynamicsInfo.m_ccdSweptSphereRadius = stat->ccdsweptsphereradius();
+			serverStatus.m_dynamicsInfo.m_contactProcessingThreshold = stat->contactprocessingthreshold();
+			serverStatus.m_dynamicsInfo.m_activationState = stat->activationstate();
+			break;
+		}
+
 		default:
 		{
 #endif  //ALLOW_GRPC_STATUS_CONVERSION
@@ -1656,7 +1697,10 @@ bool convertStatusToGRPC(const SharedMemoryStatus& serverStatus, char* bufferSer
 		case CMD_ACTUAL_STATE_UPDATE_COMPLETED:
 		{
 			converted = true;
-			b3SharedMemoryStatusHandle statusHandle = (b3SharedMemoryStatusHandle)&serverStatus;
+			SharedMemoryStatus* status = (SharedMemoryStatus*)&serverStatus;
+      status->m_sendActualStateArgs.m_stateDetails = (SendActualStateSharedMemoryStorage*)bufferServerToClient;
+			b3SharedMemoryStatusHandle statusHandle = (b3SharedMemoryStatusHandle)status;
+
 			int bodyUniqueId;
 			int numLinks;
 
@@ -1704,7 +1748,7 @@ bool convertStatusToGRPC(const SharedMemoryStatus& serverStatus, char* bufferSer
 				{
 					stat->add_rootlocalinertialframe(rootLocalInertialFramePtr[i]);
 				}
-				for (int i = 0; i < numLinks * 6; i++)
+				for (int i = 0; i < numLinks * 7; i++)
 				{
 					stat->add_linklocalinertialframes(linkLocalInertialFrames[i]);
 				}

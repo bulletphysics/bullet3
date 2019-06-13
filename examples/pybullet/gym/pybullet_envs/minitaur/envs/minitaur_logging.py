@@ -10,10 +10,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os,  inspect
+import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 
 import datetime
 import os
@@ -74,9 +74,8 @@ def update_episode_proto(episode_proto, minitaur, action, step):
   """
   max_num_steps = len(episode_proto.state_action)
   if step >= max_num_steps:
-    tf.logging.warning(
-        "{}th step is not recorded in the logging since only {} steps were "
-        "pre-allocated.".format(step, max_num_steps))
+    tf.logging.warning("{}th step is not recorded in the logging since only {} steps were "
+                       "pre-allocated.".format(step, max_num_steps))
     return
   step_log = episode_proto.state_action[step]
   step_log.info_valid = minitaur.IsObservationValid()
@@ -95,8 +94,7 @@ def update_episode_proto(episode_proto, minitaur, action, step):
 
   _update_base_state(step_log.base_position, minitaur.GetBasePosition())
   _update_base_state(step_log.base_orientation, minitaur.GetBaseRollPitchYaw())
-  _update_base_state(step_log.base_angular_vel,
-                     minitaur.GetBaseRollPitchYawRate())
+  _update_base_state(step_log.base_angular_vel, minitaur.GetBaseRollPitchYawRate())
 
 
 class MinitaurLogging(object):
@@ -124,10 +122,8 @@ class MinitaurLogging(object):
     if not tf.gfile.Exists(self._log_path):
       tf.gfile.MakeDirs(self._log_path)
     ts = time.time()
-    time_stamp = datetime.datetime.fromtimestamp(ts).strftime(
-        "%Y-%m-%d-%H%M%S")
-    log_path = os.path.join(self._log_path,
-                            "minitaur_log_{}".format(time_stamp))
+    time_stamp = datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d-%H%M%S")
+    log_path = os.path.join(self._log_path, "minitaur_log_{}".format(time_stamp))
     with tf.gfile.Open(log_path, "w") as f:
       f.write(episode_proto.SerializeToString())
     return log_path
@@ -140,7 +136,7 @@ class MinitaurLogging(object):
     Returns:
       The minitaur episode proto.
     """
-    with tf.gfile.Open(log_path) as f:
+    with tf.gfile.Open(log_path, 'rb') as f:
       content = f.read()
       episode_proto = minitaur_logging_pb2.MinitaurEpisode()
       episode_proto.ParseFromString(content)

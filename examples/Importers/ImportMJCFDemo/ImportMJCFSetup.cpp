@@ -10,7 +10,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "../../Utils/b3ResourcePath.h"
-
+#include "../../Utils/b3BulletDefaultFileIO.h"
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 
 #include "../ImportURDFDemo/MyMultiBodyCreator.h"
@@ -200,7 +200,8 @@ void ImportMJCFSetup::initPhysics()
 	}
 
 	int flags = 0;
-	BulletMJCFImporter importer(m_guiHelper, 0, flags);
+	b3BulletDefaultFileIO fileIO;
+	BulletMJCFImporter importer(m_guiHelper, 0, &fileIO, flags);
 	MyMJCFLogger logger;
 	bool result = importer.loadMJCF(m_fileName, &logger);
 	if (result)

@@ -65,7 +65,7 @@ public:
 	virtual ~btMultiBody();
 
 	//note: fixed link collision with parent is always disabled
-	void setupFixed(int linkIndex,
+	void setupFixed(int i, //linkIndex
 					btScalar mass,
 					const btVector3 &inertia,
 					int parent,
@@ -83,7 +83,7 @@ public:
 						const btVector3 &thisPivotToThisComOffset,
 						bool disableParentCollision);
 
-	void setupRevolute(int linkIndex,  // 0 to num_links-1
+	void setupRevolute(int i,  // 0 to num_links-1
 					   btScalar mass,
 					   const btVector3 &inertia,
 					   int parentIndex,
@@ -93,7 +93,7 @@ public:
 					   const btVector3 &thisPivotToThisComOffset,    // vector from joint axis to my COM, in MY frame
 					   bool disableParentCollision = false);
 
-	void setupSpherical(int linkIndex,  // 0 to num_links-1
+	void setupSpherical(int i,  // linkIndex, 0 to num_links-1
 						btScalar mass,
 						const btVector3 &inertia,
 						int parent,
@@ -132,6 +132,15 @@ public:
 	btMultiBodyLinkCollider *getBaseCollider()
 	{
 		return m_baseCollider;
+	}
+
+	const btMultiBodyLinkCollider *getLinkCollider(int index) const
+	{
+		if (index >= 0 && index < getNumLinks())
+		{
+			return getLink(index).m_collider;
+		}
+		return 0;
 	}
 
 	btMultiBodyLinkCollider *getLinkCollider(int index)
@@ -173,7 +182,10 @@ public:
 	// get/set pos/vel/rot/omega for the base link
 	//
 
-	const btVector3 &getBasePos() const { return m_basePos; }  // in world frame
+	const btVector3 &getBasePos() const 
+	{ 
+		return m_basePos; 
+	}  // in world frame
 	const btVector3 getBaseVel() const
 	{
 		return btVector3(m_realBuf[3], m_realBuf[4], m_realBuf[5]);
@@ -235,8 +247,10 @@ public:
 
 	void setJointPos(int i, btScalar q);
 	void setJointVel(int i, btScalar qdot);
-	void setJointPosMultiDof(int i, btScalar *q);
-	void setJointVelMultiDof(int i, btScalar *qdot);
+	void setJointPosMultiDof(int i, const double *q);
+	void setJointVelMultiDof(int i, const double *qdot);
+	void setJointPosMultiDof(int i, const float *q);
+	void setJointVelMultiDof(int i, const float *qdot);
 
 	//
 	// direct access to velocities as a vector of 6 + num_links elements.
@@ -263,15 +277,15 @@ public:
 	//
 	// transform vectors in local frame of link i to world frame (or vice versa)
 	//
-	btVector3 localPosToWorld(int i, const btVector3 &vec) const;
-	btVector3 localDirToWorld(int i, const btVector3 &vec) const;
-	btVector3 worldPosToLocal(int i, const btVector3 &vec) const;
-	btVector3 worldDirToLocal(int i, const btVector3 &vec) const;
+	btVector3 localPosToWorld(int i, const btVector3 &local_pos) const;
+	btVector3 localDirToWorld(int i, const btVector3 &local_dir) const;
+	btVector3 worldPosToLocal(int i, const btVector3 &world_pos) const;
+	btVector3 worldDirToLocal(int i, const btVector3 &world_dir) const;
 
 	//
 	// transform a frame in local coordinate to a frame in world coordinate
 	//
-	btMatrix3x3 localFrameToWorld(int i, const btMatrix3x3 &mat) const;
+	btMatrix3x3 localFrameToWorld(int i, const btMatrix3x3 &local_frame) const;
 
 	//
 	// calculate kinetic energy and angular momentum
@@ -338,17 +352,20 @@ public:
 															  btAlignedObjectArray<btScalar> & scratch_r,
 															  btAlignedObjectArray<btVector3> & scratch_v,
 															  btAlignedObjectArray<btMatrix3x3> & scratch_m,
-															  bool isConstraintPass = false);
+															  bool isConstraintPass,
+                                                              bool jointFeedbackInWorldSpace,
+                                                              bool jointFeedbackInJointFrame
+                                                              );
 
 	///stepVelocitiesMultiDof is deprecated, use computeAccelerationsArticulatedBodyAlgorithmMultiDof instead
-	void stepVelocitiesMultiDof(btScalar dt,
-								btAlignedObjectArray<btScalar> & scratch_r,
-								btAlignedObjectArray<btVector3> & scratch_v,
-								btAlignedObjectArray<btMatrix3x3> & scratch_m,
-								bool isConstraintPass = false)
-	{
-		computeAccelerationsArticulatedBodyAlgorithmMultiDof(dt, scratch_r, scratch_v, scratch_m, isConstraintPass);
-	}
+	//void stepVelocitiesMultiDof(btScalar dt,
+	//							btAlignedObjectArray<btScalar> & scratch_r,
+	//							btAlignedObjectArray<btVector3> & scratch_v,
+	//							btAlignedObjectArray<btMatrix3x3> & scratch_m,
+	//							bool isConstraintPass = false)
+	//{
+	//	computeAccelerationsArticulatedBodyAlgorithmMultiDof(dt, scratch_r, scratch_v, scratch_m, isConstraintPass, false, false);
+	//}
 
 	// calcAccelerationDeltasMultiDof
 	// input: force vector (in same format as jacobian, i.e.:
@@ -437,7 +454,10 @@ public:
 	//
 	void setCanSleep(bool canSleep)
 	{
-		m_canSleep = canSleep;
+		if (m_canWakeup)
+		{
+			m_canSleep = canSleep;
+		}
 	}
 
 	bool getCanSleep() const
@@ -445,6 +465,15 @@ public:
 		return m_canSleep;
 	}
 
+	bool getCanWakeup() const
+	{
+		return m_canWakeup;
+	}
+	
+	void setCanWakeup(bool canWakeup) 
+	{
+		m_canWakeup = canWakeup;
+	}
 	bool isAwake() const { return m_awake; }
 	void wakeUp();
 	void goToSleep();
@@ -453,6 +482,11 @@ public:
 	bool hasFixedBase() const
 	{
 		return m_fixedBase;
+	}
+
+	void setFixedBase(bool fixedBase)
+	{
+		m_fixedBase = fixedBase;
 	}
 
 	int getCompanionId() const
@@ -542,11 +576,11 @@ public:
 	{
 		return m_internalNeedsJointFeedback;
 	}
-	void forwardKinematics(btAlignedObjectArray<btQuaternion> & scratch_q, btAlignedObjectArray<btVector3> & scratch_m);
+	void forwardKinematics(btAlignedObjectArray<btQuaternion>& world_to_local, btAlignedObjectArray<btVector3> & local_origin);
 
 	void compTreeLinkVelocities(btVector3 * omega, btVector3 * vel) const;
 
-	void updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQuaternion> & scratch_q, btAlignedObjectArray<btVector3> & scratch_m);
+	void updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQuaternion> & world_to_local, btAlignedObjectArray<btVector3> & local_origin);
 
 	virtual int calculateSerializeBufferSize() const;
 
@@ -594,6 +628,15 @@ public:
 	{
 		m_userIndex2 = index;
 	}
+
+	static void spatialTransform(const btMatrix3x3 &rotation_matrix,  // rotates vectors in 'from' frame to vectors in 'to' frame
+		const btVector3 &displacement,     // vector from origin of 'from' frame to origin of 'to' frame, in 'to' coordinates
+		const btVector3 &top_in,       // top part of input vector
+		const btVector3 &bottom_in,    // bottom part of input vector
+		btVector3 &top_out,         // top part of output vector
+		btVector3 &bottom_out);      // bottom part of output vector
+
+
 
 private:
 	btMultiBody(const btMultiBody &);     // not implemented
@@ -665,6 +708,7 @@ private:
 	// Sleep parameters.
 	bool m_awake;
 	bool m_canSleep;
+	bool m_canWakeup;
 	btScalar m_sleepTimer;
 
 	void *m_userObjectPointer;

@@ -1,7 +1,7 @@
 #include "OpenGLGuiHelper.h"
 
 #include "btBulletDynamicsCommon.h"
-
+#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "Bullet3Common/b3Scalar.h"
@@ -255,6 +255,38 @@ void OpenGLGuiHelper::createRigidBodyGraphicsObject(btRigidBody* body, const btV
 	createCollisionObjectGraphicsObject(body, color);
 }
 
+
+class MyTriangleCollector2 : public btTriangleCallback
+{
+public:
+	btAlignedObjectArray<GLInstanceVertex>* m_pVerticesOut;
+	btAlignedObjectArray<int>* m_pIndicesOut;
+
+	MyTriangleCollector2()
+	{
+		m_pVerticesOut = 0;
+		m_pIndicesOut = 0;
+	}
+
+	virtual void processTriangle(btVector3* tris, int partId, int triangleIndex)
+	{
+		for (int k = 0; k < 3; k++)
+		{
+			GLInstanceVertex v;
+			v.xyzw[3] = 0;
+			v.uv[0] = v.uv[1] = 0.5f;
+			btVector3 normal = (tris[0] - tris[1]).cross(tris[0] - tris[2]);
+			normal.safeNormalize();
+			for (int l = 0; l < 3; l++)
+			{
+				v.xyzw[l] = tris[k][l];
+				v.normal[l] = normal[l];
+			}
+			m_pIndicesOut->push_back(m_pVerticesOut->size());
+			m_pVerticesOut->push_back(v);
+		}
+	}
+};
 void OpenGLGuiHelper::createCollisionObjectGraphicsObject(btCollisionObject* body, const btVector3& color)
 {
 	if (body->getUserIndex() < 0)
@@ -409,6 +441,30 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 	//if (collisionShape->getShapeType()==BOX_SHAPE_PROXYTYPE)
 	{
 	}
+
+
+	if (collisionShape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE)
+	{
+		const btHeightfieldTerrainShape* heightField = static_cast<const btHeightfieldTerrainShape*>(collisionShape);
+		MyTriangleCollector2  col;
+		col.m_pVerticesOut = &gfxVertices;
+		col.m_pIndicesOut = &indices;
+		btVector3 aabbMin, aabbMax;
+		for (int k = 0; k < 3; k++)
+		{
+			aabbMin[k] = -BT_LARGE_FLOAT;
+			aabbMax[k] = BT_LARGE_FLOAT;
+		}
+		heightField->processAllTriangles(&col, aabbMin, aabbMax);
+		if (gfxVertices.size() && indices.size())
+		{
+			int shapeId = m_data->m_glApp->m_renderer->registerShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size());
+			collisionShape->setUserIndex(shapeId);
+		}
+		return;
+	}
+
+
 	if (collisionShape->getShapeType() == SOFTBODY_SHAPE_PROXYTYPE)
 	{
 		computeSoftBodyVertices(collisionShape, gfxVertices, indices);
@@ -1009,8 +1065,8 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
 	{
-		*width = m_data->m_glApp->m_window->getWidth() * m_data->m_glApp->m_window->getRetinaScale();
-		*height = m_data->m_glApp->m_window->getHeight() * m_data->m_glApp->m_window->getRetinaScale();
+		*width = m_data->m_glApp->m_window->getWidth();
+		*height = m_data->m_glApp->m_window->getHeight();
 		getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
 		getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
 		getRenderInterface()->getActiveCamera()->getCameraUpVector(camUp);
