@@ -7,6 +7,7 @@ import time
 import motion_capture_data
 import quadrupedPoseInterpolator
 
+useKinematic = False
 useConstraints = False
 
 p = bullet_client.BulletClient(connection_mode=p1.GUI)
@@ -168,52 +169,63 @@ while t < 10. * cycleTime:
   p.changeConstraint(cid, maxForce=maxUpForce)
 
 
-  if useConstraints:
+  if useKinematic:
+    basePos = startPos
+    basePos =  [float(-jointsStr[0]),-float(jointsStr[1]),float(jointsStr[2])]
+    baseOrn = [float(jointsStr[4]),float(jointsStr[5]),float(jointsStr[6]), float(jointsStr[3])]
+    p.resetBasePositionAndOrientation(quadruped, basePos,baseOrn)
+    
     for j in range(12):
-      #skip the base positional dofs
-      targetPos = float(jointsStr[j + 7])
-      p.setJointMotorControl2(quadruped,
-                              jointIds[j],
-                              p.POSITION_CONTROL,
-                              jointDirections[j] * targetPos + jointOffsets[j],
-                              force=maxForce)
-
+        #skip the base positional dofs
+        targetPos = float(jointsStr[j + 7])
+        p.resetJointState(quadruped,jointIds[j],jointDirections[j] * targetPos + jointOffsets[j])
   else:
-    desiredPositions = []
-    for j in range(7):
-      targetPosUnmodified = float(jointsStr[j])
-      desiredPositions.append(targetPosUnmodified)
-    for j in range(12):
-      targetPosUnmodified = float(jointsStr[j + 7])
-      targetPos = jointDirections[j] * targetPosUnmodified + jointOffsets[j]
-      desiredPositions.append(targetPos)
-    numBaseDofs = 6
-    totalDofs = 12 + numBaseDofs
-    desiredVelocities = None
-    if desiredVelocities == None:
-      desiredVelocities = [0] * totalDofs
-    taus = stablePD.computePD(bodyUniqueId=quadruped,
-                              jointIndices=jointIds,
-                              desiredPositions=desiredPositions,
-                              desiredVelocities=desiredVelocities,
-                              kps=[4000] * totalDofs,
-                              kds=[40] * totalDofs,
-                              maxForces=[maxForce] * totalDofs,
-                              timeStep=timeStep)
-
-    dofIndex = 6
-    scaling = 1
-    for index in range(len(jointIds)):
-      jointIndex = jointIds[index]
-      force = [scaling * taus[dofIndex]]
-      #print("force[", jointIndex, "]=", force)
-      p.setJointMotorControlMultiDof(quadruped,
-                                     jointIndex,
-                                     controlMode=p.TORQUE_CONTROL,
-                                     force=force)
-      dofIndex += 1
-
-  p.stepSimulation()
+	  if useConstraints:
+	    for j in range(12):
+	      #skip the base positional dofs
+	      targetPos = float(jointsStr[j + 7])
+	      p.setJointMotorControl2(quadruped,
+	                              jointIds[j],
+	                              p.POSITION_CONTROL,
+	                              jointDirections[j] * targetPos + jointOffsets[j],
+	                              force=maxForce)
+	
+	  else:
+	    desiredPositions = []
+	    for j in range(7):
+	      targetPosUnmodified = float(jointsStr[j])
+	      desiredPositions.append(targetPosUnmodified)
+	    for j in range(12):
+	      targetPosUnmodified = float(jointsStr[j + 7])
+	      targetPos = jointDirections[j] * targetPosUnmodified + jointOffsets[j]
+	      desiredPositions.append(targetPos)
+	    numBaseDofs = 6
+	    totalDofs = 12 + numBaseDofs
+	    desiredVelocities = None
+	    if desiredVelocities == None:
+	      desiredVelocities = [0] * totalDofs
+	    taus = stablePD.computePD(bodyUniqueId=quadruped,
+	                              jointIndices=jointIds,
+	                              desiredPositions=desiredPositions,
+	                              desiredVelocities=desiredVelocities,
+	                              kps=[4000] * totalDofs,
+	                              kds=[40] * totalDofs,
+	                              maxForces=[maxForce] * totalDofs,
+	                              timeStep=timeStep)
+	
+	    dofIndex = 6
+	    scaling = 1
+	    for index in range(len(jointIds)):
+	      jointIndex = jointIds[index]
+	      force = [scaling * taus[dofIndex]]
+	      #print("force[", jointIndex, "]=", force)
+	      p.setJointMotorControlMultiDof(quadruped,
+	                                     jointIndex,
+	                                     controlMode=p.TORQUE_CONTROL,
+	                                     force=force)
+	      dofIndex += 1
+	
+	  p.stepSimulation()
   t += timeStep
   time.sleep(timeStep)
 
