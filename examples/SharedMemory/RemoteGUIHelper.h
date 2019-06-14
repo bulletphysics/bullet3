@@ -21,6 +21,7 @@ struct RemoteGUIHelper : public GUIHelperInterface
 	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape);
 
 	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld);
+	virtual void syncPhysicsToGraphics2(const class btDiscreteDynamicsWorld* rbWorld);
 	virtual void syncPhysicsToGraphics2(const GUISyncPosition* positions, int numPositions);
 
 	virtual void render(const btDiscreteDynamicsWorld* rbWorld);

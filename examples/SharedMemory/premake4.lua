@@ -41,6 +41,8 @@ myfiles =
 	"GraphicsSharedMemoryBlock.h",
 	"GraphicsSharedMemoryCommands.h",
 	"GraphicsSharedMemoryPublic.h",
+	"RemoteGUIHelper.cpp",
+	"RemoteGUIHelper.h",
 	"SharedMemoryCommands.h",
 	"SharedMemoryPublic.h",
 	"PhysicsServer.cpp",

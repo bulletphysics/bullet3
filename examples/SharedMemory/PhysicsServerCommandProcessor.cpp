@@ -7717,7 +7717,7 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	}
 	serverCmd.m_type = CMD_STEP_FORWARD_SIMULATION_COMPLETED;
 
-	syncPhysicsToGraphics();
+	syncPhysicsToGraphics2();
 	return hasStatus;
 }
 
@@ -11568,6 +11568,13 @@ void PhysicsServerCommandProcessor::syncPhysicsToGraphics()
 {
 	m_data->m_guiHelper->syncPhysicsToGraphics(m_data->m_dynamicsWorld);
 }
+
+
+void PhysicsServerCommandProcessor::syncPhysicsToGraphics2()
+{
+        m_data->m_guiHelper->syncPhysicsToGraphics2(m_data->m_dynamicsWorld);
+}
+
 
 void PhysicsServerCommandProcessor::renderScene(int renderFlags)
 {
