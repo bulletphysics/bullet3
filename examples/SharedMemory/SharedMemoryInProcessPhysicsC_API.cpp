@@ -10,6 +10,7 @@
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "InProcessMemory.h"
+#include "RemoteGUIHelper.h"
 
 #include "Bullet3Common/b3Logging.h"
 class InProcessPhysicsClientSharedMemoryMainThread : public PhysicsClientSharedMemory
@@ -280,6 +281,26 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingEx
 	gSharedMemoryKey = SHARED_MEMORY_KEY;
 	return (b3PhysicsClientHandle)cl;
 }
+
+B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect4(void* guiHelperPtr, int sharedMemoryKey)
+{
+	gSharedMemoryKey = sharedMemoryKey;
+	GUIHelperInterface* guiHelper = (GUIHelperInterface*)guiHelperPtr;
+	if (!guiHelper)
+	{
+		guiHelper = new RemoteGUIHelper();
+	}
+	bool useInprocessMemory = false;
+	bool skipGraphicsUpdate = false;
+	InProcessPhysicsClientExistingExampleBrowser* cl = new InProcessPhysicsClientExistingExampleBrowser(guiHelper, useInprocessMemory, skipGraphicsUpdate);
+
+	cl->setSharedMemoryKey(sharedMemoryKey + 1);
+	cl->connect();
+	//backward compatiblity
+	gSharedMemoryKey = SHARED_MEMORY_KEY;
+	return (b3PhysicsClientHandle)cl;
+}
+
 
 //backward compatiblity
 B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect2(void* guiHelperPtr)

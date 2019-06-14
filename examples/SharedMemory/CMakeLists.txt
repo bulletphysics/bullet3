@@ -18,6 +18,13 @@ SET(SharedMemory_SRCS
 	PhysicsServer.cpp
 	PhysicsServer.h
 	PhysicsClientC_API.cpp
+	GraphicsClientExample.cpp
+	GraphicsClientExample.h
+	GraphicsServerExample.cpp
+	GraphicsServerExample.h
+	GraphicsSharedMemoryBlock.h
+	GraphicsSharedMemoryCommands.h
+	GraphicsSharedMemoryPublic.h
 	SharedMemoryCommands.h
 	SharedMemoryPublic.h
 	PhysicsServer.cpp

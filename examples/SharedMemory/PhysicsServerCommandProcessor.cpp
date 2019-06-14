@@ -7717,6 +7717,7 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	}
 	serverCmd.m_type = CMD_STEP_FORWARD_SIMULATION_COMPLETED;
 
+	syncPhysicsToGraphics();
 	return hasStatus;
 }
 

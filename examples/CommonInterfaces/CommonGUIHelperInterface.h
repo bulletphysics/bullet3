@@ -11,6 +11,13 @@ struct CommonParameterInterface;
 struct CommonRenderInterface;
 struct CommonGraphicsApp;
 
+struct GUISyncPosition
+{
+	int m_graphicsInstanceId;
+	float m_pos[4];
+	float m_orn[4];
+};
+
 typedef void (*VisualizerFlagCallback)(int flag, bool enable);
 
 ///The Bullet 2 GraphicsPhysicsBridge let's the graphics engine create graphics representation and synchronize
@@ -26,6 +33,8 @@ struct GUIHelperInterface
 
 	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld) = 0;
 
+	virtual void syncPhysicsToGraphics2(const GUISyncPosition* positions, int numPositions) {}
+	
 	virtual void render(const btDiscreteDynamicsWorld* rbWorld) = 0;
 
 	virtual void createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld) = 0;
@@ -114,7 +123,10 @@ struct GUIHelperInterface
 ///the DummyGUIHelper does nothing, so we can test the examples without GUI/graphics (in 'console mode')
 struct DummyGUIHelper : public GUIHelperInterface
 {
-	DummyGUIHelper() {}
+	DummyGUIHelper() 
+	{
+
+	}
 	virtual ~DummyGUIHelper() {}
 
 	virtual void createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color) {}

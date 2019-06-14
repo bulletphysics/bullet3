@@ -821,6 +821,46 @@ public:
 		{
 			m_childGuiHelper->syncPhysicsToGraphics(rbWorld);
 		}
+		{
+
+			b3AlignedObjectArray<GUISyncPosition> updatedPositions;
+
+			int numCollisionObjects = rbWorld->getNumCollisionObjects();
+			{
+				B3_PROFILE("write all InstanceTransformToCPU2");
+				for (int i = 0; i < numCollisionObjects; i++)
+				{
+					//B3_PROFILE("writeSingleInstanceTransformToCPU");
+					btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
+					btCollisionShape* collisionShape = colObj->getCollisionShape();
+
+					btVector3 pos = colObj->getWorldTransform().getOrigin();
+					btQuaternion orn = colObj->getWorldTransform().getRotation();
+					int index = colObj->getUserIndex();
+					if (index >= 0)
+					{
+						GUISyncPosition p;
+						p.m_graphicsInstanceId = index;
+						for (int q = 0; q < 4; q++)
+						{
+							p.m_pos[q] = pos[q];
+							p.m_orn[q] = orn[q];
+						}
+						updatedPositions.push_back(p);
+					}
+				}
+			}
+
+			if (updatedPositions.size())
+			{
+				syncPhysicsToGraphics2(&updatedPositions[0], updatedPositions.size());
+			}
+		}
+	}
+
+	virtual void syncPhysicsToGraphics2(const GUISyncPosition* positions, int numPositions)
+	{
+		m_childGuiHelper->syncPhysicsToGraphics2(positions, numPositions);
 	}
 
 	virtual void render(const btDiscreteDynamicsWorld* rbWorld)

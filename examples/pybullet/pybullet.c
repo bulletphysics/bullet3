@@ -463,6 +463,14 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect3(0, key);
 				break;
 			}
+
+			case eCONNECT_SHARED_MEMORY_GUI:
+			{
+				sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect4(0, key);
+				break;
+			}
+
+			
 			case eCONNECT_DIRECT:
 			{
 				sm = b3ConnectPhysicsDirect();
@@ -10933,6 +10941,9 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "GUI_SERVER", eCONNECT_GUI_SERVER);                      // user read
 	PyModule_AddIntConstant(m, "GUI_MAIN_THREAD", eCONNECT_GUI_MAIN_THREAD);            // user read
 	PyModule_AddIntConstant(m, "SHARED_MEMORY_SERVER", eCONNECT_SHARED_MEMORY_SERVER);  // user read
+	PyModule_AddIntConstant(m, "SHARED_MEMORY_GUI", eCONNECT_SHARED_MEMORY_GUI);  // user read
+
+	
 #ifdef BT_ENABLE_DART
 	PyModule_AddIntConstant(m, "DART", eCONNECT_DART);  // user read
 #endif

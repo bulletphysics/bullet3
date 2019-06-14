@@ -5,7 +5,9 @@ from datetime import datetime
 
 clid = p.connect(p.SHARED_MEMORY)
 if (clid < 0):
-  p.connect(p.GUI)
+  #p.connect(p.GUI)
+  p.connect(p.SHARED_MEMORY_GUI)
+
 p.loadURDF("plane.urdf", [0, 0, -0.3])
 kukaId = p.loadURDF("kuka_iiwa/model.urdf", [0, 0, 0])
 p.resetBasePositionAndOrientation(kukaId, [0, 0, 0], [0, 0, 0, 1])
@@ -46,7 +48,9 @@ p.setRealTimeSimulation(useRealTimeSimulation)
 #use 0 for no-removal
 trailDuration = 15
 
-while 1:
+i=0
+while i<5:
+  i+=1
   p.getCameraImage(320,
                    200,
                    flags=p.ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX,
@@ -115,3 +119,4 @@ while 1:
   prevPose = pos
   prevPose1 = ls[4]
   hasPrevPose = 1
+p.disconnect()
