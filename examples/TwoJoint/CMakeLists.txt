@@ -32,6 +32,14 @@ SET(RobotSimulator_SRCS
 		../../examples/SharedMemory/PhysicsClient.h
 		../../examples/SharedMemory/PhysicsServer.cpp
 		../../examples/SharedMemory/PhysicsServer.h
+		../SharedMemory/GraphicsServerExample.cpp
+		../SharedMemory/GraphicsClientExample.cpp
+		../SharedMemory/RemoteGUIHelper.cpp
+		../SharedMemory/GraphicsServerExample.h
+		../SharedMemory/GraphicsClientExample.h
+		../SharedMemory/RemoteGUIHelper.h
+		../SharedMemory/GraphicsSharedMemoryCommands.h
+		../SharedMemory/GraphicsSharedMemoryPublic.h
 		../../examples/SharedMemory/PhysicsServerExample.cpp
 		../../examples/SharedMemory/PhysicsServerExampleBullet2.cpp
 		../../examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp

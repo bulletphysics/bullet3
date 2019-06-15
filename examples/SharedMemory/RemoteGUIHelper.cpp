@@ -363,7 +363,7 @@ int RemoteGUIHelper::uploadData(const unsigned char* data, int sizeInBytes, int 
 		{
 			for (int i = 0; i < curBytes; i++)
 			{
-				m_data->m_testBlock1->m_bulletStreamData[i] = data[i];
+				m_data->m_testBlock1->m_bulletStreamData[i] = data[i+offset];
 			}
 			
 			cmd->m_updateFlags = 0;

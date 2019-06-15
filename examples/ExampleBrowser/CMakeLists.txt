@@ -171,6 +171,14 @@ SET(BulletExampleBrowser_SRCS
 	../SharedMemory/PhysicsClientSharedMemory_C_API.cpp
 	../SharedMemory/PhysicsClient.cpp
 	../SharedMemory/PhysicsClientC_API.cpp
+	../SharedMemory/GraphicsServerExample.cpp
+	../SharedMemory/GraphicsClientExample.cpp
+	../SharedMemory/RemoteGUIHelper.cpp
+	../SharedMemory/GraphicsServerExample.h
+	../SharedMemory/GraphicsClientExample.h
+	../SharedMemory/RemoteGUIHelper.h
+	../SharedMemory/GraphicsSharedMemoryCommands.h
+	../SharedMemory/GraphicsSharedMemoryPublic.h
 	../SharedMemory/PhysicsServerExample.cpp
 	../SharedMemory/PhysicsServerExampleBullet2.cpp
 	../SharedMemory/PhysicsClientExample.cpp
