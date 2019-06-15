@@ -5,8 +5,8 @@ from datetime import datetime
 
 clid = p.connect(p.SHARED_MEMORY)
 if (clid < 0):
-  #p.connect(p.GUI)
-  p.connect(p.SHARED_MEMORY_GUI)
+  p.connect(p.GUI)
+  #p.connect(p.SHARED_MEMORY_GUI)
 
 p.loadURDF("plane.urdf", [0, 0, -0.3])
 kukaId = p.loadURDF("kuka_iiwa/model.urdf", [0, 0, 0])
