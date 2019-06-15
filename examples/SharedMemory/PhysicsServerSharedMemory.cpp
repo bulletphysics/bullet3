@@ -236,8 +236,10 @@ void PhysicsServerSharedMemory::reportNotifications()
 
 void PhysicsServerSharedMemory::processClientCommands()
 {
+	//handle client commands in any of the plugins
 	m_data->m_commandProcessor->processClientCommands();
 
+	//now handle the client commands from the shared memory
 	for (int block = 0; block < MAX_SHARED_MEMORY_BLOCKS; block++)
 	{
 		if (m_data->m_areConnected[block] && m_data->m_testBlocks[block])

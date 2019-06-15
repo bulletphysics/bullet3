@@ -138,6 +138,7 @@ public:
 	virtual void physicsDebugDraw(int debugDrawFlags);
 	virtual void setGuiHelper(struct GUIHelperInterface* guiHelper);
 	virtual void syncPhysicsToGraphics();
+	virtual void syncPhysicsToGraphics2();
 
 	//@todo(erwincoumans) Should we have shared memory commands for picking objects?
 	///The pickBody method will try to pick the first body along a ray, return true if succeeds, false otherwise

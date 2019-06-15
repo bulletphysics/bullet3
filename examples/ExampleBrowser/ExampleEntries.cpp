@@ -11,6 +11,9 @@
 #include "../RenderingExamples/RaytracerSetup.h"
 #include "../RenderingExamples/TinyRendererSetup.h"
 #include "../RenderingExamples/DynamicTexturedCubeDemo.h"
+#include "../SharedMemory/GraphicsServerExample.h"
+#include "../SharedMemory/GraphicsClientExample.h"
+
 #include "../ForkLift/ForkLiftDemo.h"
 #include "../MultiThreadedDemo/MultiThreadedDemo.h"
 #include "../BasicDemo/BasicExample.h"
@@ -150,7 +153,10 @@ static ExampleEntry gDefaultExamples[] =
 					 PhysicsServerCreateFuncBullet2, PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
 		ExampleEntry(1, "Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
 					 PhysicsServerCreateFuncBullet2, PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
-		//
+		ExampleEntry(1, "Graphics Server", "Create a graphics server.",GraphicsServerCreateFuncBullet),
+		ExampleEntry(1, "Graphics Client", "Create a graphics client.", GraphicsClientCreateFunc),
+		
+					 //
 		//	ExampleEntry(1, "Physics Client (Direct)", "Create a physics client that can communicate with a physics server directly in-process.", PhysicsClientCreateFunc,eCLIENTEXAMPLE_DIRECT),
 
 		ExampleEntry(0, "BlockSolver"),

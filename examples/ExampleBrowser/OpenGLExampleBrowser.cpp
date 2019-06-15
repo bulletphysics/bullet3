@@ -1157,17 +1157,22 @@ void OpenGLExampleBrowser::updateGraphics()
 
 void OpenGLExampleBrowser::update(float deltaTime)
 {
+
 	b3ChromeUtilsEnableProfiling();
 
 	if (!gEnableRenderLoop && !singleStepSimulation)
 	{
+		B3_PROFILE("updateGraphics");
 		sCurrentDemo->updateGraphics();
 		return;
 	}
 
 	B3_PROFILE("OpenGLExampleBrowser::update");
-	assert(glGetError() == GL_NO_ERROR);
-	s_instancingRenderer->init();
+	//assert(glGetError() == GL_NO_ERROR);
+	{
+		B3_PROFILE("s_instancingRenderer");
+		s_instancingRenderer->init();
+	}
 	DrawGridData dg;
 	dg.upAxis = s_app->getUpAxis();
 
@@ -1215,6 +1220,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
 
 			if (gFixedTimeStep > 0)
 			{
+				
 				sCurrentDemo->stepSimulation(gFixedTimeStep);
 			}
 			else
@@ -1279,22 +1285,25 @@ void OpenGLExampleBrowser::update(float deltaTime)
 		}
 #endif  //#ifndef BT_NO_PROFILE
 
-		if (sUseOpenGL2)
 		{
-			saveOpenGLState(s_instancingRenderer->getScreenWidth() * s_window->getRetinaScale(), s_instancingRenderer->getScreenHeight() * s_window->getRetinaScale());
-		}
+			B3_PROFILE("updateOpenGL");
+			if (sUseOpenGL2)
+			{
+				saveOpenGLState(s_instancingRenderer->getScreenWidth() * s_window->getRetinaScale(), s_instancingRenderer->getScreenHeight() * s_window->getRetinaScale());
+			}
 
-		if (m_internalData->m_gui)
-		{
-			gBlockGuiMessages = true;
-			m_internalData->m_gui->draw(s_instancingRenderer->getScreenWidth(), s_instancingRenderer->getScreenHeight());
+			if (m_internalData->m_gui)
+			{
+				gBlockGuiMessages = true;
+				m_internalData->m_gui->draw(s_instancingRenderer->getScreenWidth(), s_instancingRenderer->getScreenHeight());
 
-			gBlockGuiMessages = false;
-		}
+				gBlockGuiMessages = false;
+			}
 
-		if (sUseOpenGL2)
-		{
-			restoreOpenGLState();
+			if (sUseOpenGL2)
+			{
+				restoreOpenGLState();
+			}
 		}
 	}
 

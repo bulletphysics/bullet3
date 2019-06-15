@@ -2010,6 +2010,7 @@ TransparentDistanceSortPredicate{
 
 void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 {
+	B3_PROFILE("renderSceneInternal");
 	int renderMode = orgRenderMode;
 	bool reflectionPass = false;
 	bool reflectionPlanePass = false;
@@ -2047,7 +2048,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
 
-	B3_PROFILE("GLInstancingRenderer::RenderScene");
+	
 
 	{
 		B3_PROFILE("init");

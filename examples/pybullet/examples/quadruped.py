@@ -104,7 +104,7 @@ def drawInertiaBox(parentUid, parentLinkIndex, color):
 
 toeConstraint = True
 useMaximalCoordinates = False
-useRealTime = 1
+useRealTime = 0
 
 #the fixedTimeStep and numSolverIterations are the most important parameters to trade-off quality versus performance
 fixedTimeStep = 1. / 100
@@ -123,7 +123,7 @@ kp = 1
 kd = .5
 maxKneeForce = 1000
 
-physId = p.connect(p.SHARED_MEMORY)
+physId = p.connect(p.SHARED_MEMORY_GUI)
 if (physId < 0):
   p.connect(p.GUI)
 #p.resetSimulation()

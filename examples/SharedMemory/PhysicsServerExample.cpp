@@ -822,6 +822,16 @@ public:
 			m_childGuiHelper->syncPhysicsToGraphics(rbWorld);
 		}
 	}
+	
+	virtual void syncPhysicsToGraphics2(const btDiscreteDynamicsWorld* rbWorld)
+	{
+		 m_childGuiHelper->syncPhysicsToGraphics2(rbWorld);
+	}
+
+	virtual void syncPhysicsToGraphics2(const GUISyncPosition* positions, int numPositions)
+	{
+		m_childGuiHelper->syncPhysicsToGraphics2(positions, numPositions);
+	}
 
 	virtual void render(const btDiscreteDynamicsWorld* rbWorld)
 	{
