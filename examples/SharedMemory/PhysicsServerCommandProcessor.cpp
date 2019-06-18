@@ -4630,23 +4630,47 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 {
 	bool hasStatus = true;
 	BT_PROFILE("CMD_REQUEST_MESH_DATA");
-  serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_FAILED;
+	serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_FAILED;
 	serverStatusOut.m_numDataStreamBytes = 0;
 
 	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_requestMeshDataArgs.m_bodyUniqueId);
 	if (bodyHandle)
 	{
-  	serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
-    serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = 1;
-  	serverStatusOut.m_sendMeshDataArgs.m_startingVertex = 0;
-	  serverStatusOut.m_sendMeshDataArgs.m_numVerticesRemaining = 0;
+		if (bodyHandle->m_multiBody)
+		{
+			//todo
+		}
+		if (bodyHandle->m_rigidBody)
+		{
+			//todo
+		}
+		if (bodyHandle->m_softBody)
+		{
+			btSoftBody* psb = bodyHandle->m_softBody;
+			int totalBytesPerVertex = sizeof(btVector3);
+			int numVertices = psb->m_nodes.size();
+			int maxNumVertices = bufferSizeInBytes / totalBytesPerVertex - 1;
+			int numVerticesRemaining = numVertices - clientCmd.m_requestMeshDataArgs.m_startingVertex;
+			int verticesCopied = btMin(maxNumVertices, numVerticesRemaining);
+			btVector3* verticesOut = (btVector3*)bufferServerToClient;
+			for (int i = 0; i < verticesCopied; ++i)
+			{
+				const btSoftBody::Node& n = psb->m_nodes[i+ clientCmd.m_requestMeshDataArgs.m_startingVertex];
+				verticesOut[i] = n.m_x;
+			}
+			
+			serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
+			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
+			serverStatusOut.m_sendMeshDataArgs.m_startingVertex = clientCmd.m_requestMeshDataArgs.m_startingVertex;
+			serverStatusOut.m_sendMeshDataArgs.m_numVerticesRemaining = numVerticesRemaining - verticesCopied;
+		}
+		
 	}
 
 	serverStatusOut.m_numDataStreamBytes = 0;
 
 	return hasStatus;
 }
-
 
 bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
@@ -11309,10 +11333,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processCreateVisualShapeCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
-    case CMD_REQUEST_MESH_DATA:{
-      hasStatus = processRequestMeshDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+		case CMD_REQUEST_MESH_DATA:
+		{
+			hasStatus = processRequestMeshDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
-    }
+		}
 		case CMD_CREATE_MULTI_BODY:
 		{
 			hasStatus = processCreateMultiBodyCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
