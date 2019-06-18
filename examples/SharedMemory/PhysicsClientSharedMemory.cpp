@@ -53,6 +53,9 @@ struct PhysicsClientSharedMemoryInternalData
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
 	btAlignedObjectArray<b3CollisionShapeData> m_cachedCollisionShapes;
 
+  b3MeshData m_cachedMeshData;
+  btAlignedObjectArray<double> m_cachedVertexPositions;
+
 	btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
 	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
 	btAlignedObjectArray<b3MouseEvent> m_cachedMouseEvents;
@@ -1032,6 +1035,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 				b3Warning("Camera image FAILED\n");
 				break;
 			}
+      case CMD_REQUEST_MESH_DATA_COMPLETED:
+      {
+        break;
+      }
+      case CMD_REQUEST_MESH_DATA_FAILED:
+      {
+        b3Warning("Request mesh data failed");
+        break;
+      }
 			case CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED:
 			{
 				break;
@@ -1758,6 +1770,26 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			}
 		}
 
+   if(serverCmd.m_type == CMD_REQUEST_MESH_DATA_COMPLETED)
+   {
+			B3_PROFILE("CMD_REQUEST_MESH_DATA_COMPLETED");
+     	SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
+
+     if (serverCmd.m_sendMeshDataArgs.m_numVerticesRemaining > 0 && serverCmd.m_sendMeshDataArgs.m_numVerticesCopied)
+			{
+				command.m_type = CMD_REQUEST_MESH_DATA;
+				command.m_requestMeshDataArgs.m_startingVertex=
+					serverCmd.m_sendMeshDataArgs.m_startingVertex +
+					serverCmd.m_sendMeshDataArgs.m_numVerticesCopied;
+				submitClientCommand(command);
+				return 0;
+			}
+			else
+			{
+        m_data->m_cachedMeshData.m_numVertices =serverCmd.m_sendMeshDataArgs.m_startingVertex +serverCmd.m_sendMeshDataArgs.m_numVerticesCopied;
+			}
+   }
+
 		if ((serverCmd.m_type == CMD_DEBUG_LINES_COMPLETED) &&
 			(serverCmd.m_sendDebugLinesArgs.m_numRemainingDebugLines > 0))
 		{
@@ -1940,6 +1972,11 @@ void PhysicsClientSharedMemory::getCachedCollisionShapeInformation(struct b3Coll
 	collisionShapesInfo->m_collisionShapeData = collisionShapesInfo->m_numCollisionShapes ? &m_data->m_cachedCollisionShapes[0] : 0;
 }
 
+
+void PhysicsClientSharedMemory::getCachedMeshData(struct b3MeshData* meshData){
+ *meshData = m_data->m_cachedMeshData;
+}
+
 const float* PhysicsClientSharedMemory::getDebugLinesFrom() const
 {
 	if (m_data->m_debugLinesFrom.size())
@@ -2051,3 +2088,4 @@ void PhysicsClientSharedMemory::popProfileTiming()
 		delete sample;
 	}
 }
+

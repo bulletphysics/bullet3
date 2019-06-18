@@ -467,7 +467,7 @@ static int btRefinePortal(const btConvexTemplate &a, const btConvexTemplate &b, 
 	for (int i = 0; i < BT_MPR_MAX_ITERATIONS; i++)
 	//while (1)
 	{
-		// compute direction outside the portal (from v0 throught v1,v2,v3
+		// compute direction outside the portal (from v0 through v1,v2,v3
 		// face)
 		btPortalDir(portal, &dir);
 

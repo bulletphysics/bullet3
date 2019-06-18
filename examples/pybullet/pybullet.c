@@ -7358,6 +7358,46 @@ static PyObject* pybullet_createCollisionShapeArray(PyObject* self, PyObject* ar
 	return NULL;
 }
 
+
+static PyObject* pybullet_getMeshData(PyObject* self, PyObject* args, PyObject* keywds)
+{
+  {
+    int bodyUniqueId = -1;
+    b3PhysicsClientHandle sm = 0;
+    b3SharedMemoryCommandHandle command;
+    b3SharedMemoryStatusHandle statusHandle;
+    struct b3MeshData meshData;
+    int statusType;
+
+    int physicsClientId = 0;
+    static char* kwlist[] = {"bodyUniqueId", "physicsClientId", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &bodyUniqueId, &physicsClientId))
+    {
+      return NULL;
+    }
+    sm = getPhysicsClient(physicsClientId);
+    if (sm == 0)
+    {
+      PyErr_SetString(SpamError, "Not connected to physics server.");
+      return NULL;
+    }
+    command = b3GetMeshDataCommandInit(sm, bodyUniqueId);
+    statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+    statusType = b3GetStatusType(statusHandle);
+    if (statusType == CMD_REQUEST_MESH_DATA_COMPLETED)
+    {
+      b3GetMeshData(sm, &meshData);
+      PyObject* pyListMeshData = PyTuple_New(1);
+      PyTuple_SetItem(pyListMeshData, 0, PyInt_FromLong(meshData.m_numVertices));
+      return pyListMeshData;
+    }
+  }
+  PyErr_SetString(SpamError, "Couldn't get body info");
+  return NULL;
+}
+
+
+
 static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int physicsClientId = 0;
@@ -10444,6 +10484,9 @@ static PyMethodDef SpamMethods[] = {
 
 	{"removeCollisionShape", (PyCFunction)pybullet_removeCollisionShape, METH_VARARGS | METH_KEYWORDS,
 	 "Remove a collision shape. Only useful when the collision shape is not used in a body (to perform a getClosestPoint query)."},
+
+        {"getMeshData", (PyCFunction)pybullet_getMeshData, METH_VARARGS | METH_KEYWORDS,
+	 "Get mesh data. Returns vertices etc from the mesh."},
 
 	{"createVisualShape", (PyCFunction)pybullet_createVisualShape, METH_VARARGS | METH_KEYWORDS,
 	 "Create a visual shape. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
