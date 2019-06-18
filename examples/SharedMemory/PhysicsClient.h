@@ -65,6 +65,8 @@ public:
 
 	virtual void getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo) = 0;
 
+	virtual void getCachedMeshData(struct b3MeshData* meshData) = 0;
+
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData) = 0;
 
 	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData) = 0;

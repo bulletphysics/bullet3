@@ -4626,6 +4626,28 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 	return hasStatus;
 }
 
+bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+	BT_PROFILE("CMD_REQUEST_MESH_DATA");
+  serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_FAILED;
+	serverStatusOut.m_numDataStreamBytes = 0;
+
+	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_requestMeshDataArgs.m_bodyUniqueId);
+	if (bodyHandle)
+	{
+  	serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
+    serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = 1;
+  	serverStatusOut.m_sendMeshDataArgs.m_startingVertex = 0;
+	  serverStatusOut.m_sendMeshDataArgs.m_numVerticesRemaining = 0;
+	}
+
+	serverStatusOut.m_numDataStreamBytes = 0;
+
+	return hasStatus;
+}
+
+
 bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -11287,7 +11309,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processCreateVisualShapeCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
-
+    case CMD_REQUEST_MESH_DATA:{
+      hasStatus = processRequestMeshDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+    }
 		case CMD_CREATE_MULTI_BODY:
 		{
 			hasStatus = processCreateMultiBodyCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);

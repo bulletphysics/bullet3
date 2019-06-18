@@ -66,6 +66,9 @@ struct PhysicsDirectInternalData
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
 	btAlignedObjectArray<b3CollisionShapeData> m_cachedCollisionShapes;
 
+  b3MeshData m_cachedMeshData;
+  btAlignedObjectArray<double> m_cachedVertexPositions;
+
 	btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
 
 	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
@@ -586,6 +589,76 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 	return m_data->m_hasStatus;
 }
 
+
+bool PhysicsDirect::processMeshData(const struct SharedMemoryCommand& orgCommand)
+{
+	SharedMemoryCommand command = orgCommand;
+
+	const SharedMemoryStatus& serverCmd = m_data->m_serverStatus;
+  do
+	{
+		bool hasStatus = m_data->m_commandProcessor->processCommand(command, m_data->m_serverStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+
+		b3Clock clock;
+		double startTime = clock.getTimeInSeconds();
+		double timeOutInSeconds = m_data->m_timeOutInSeconds;
+
+		while ((!hasStatus) && (clock.getTimeInSeconds() - startTime < timeOutInSeconds))
+		{
+			const SharedMemoryStatus* stat = processServerStatus();
+			if (stat)
+			{
+				hasStatus = true;
+			}
+		}
+
+		m_data->m_hasStatus = hasStatus;
+		if (hasStatus)
+		{
+			btAssert(m_data->m_serverStatus.m_type == CMD_REQUEST_MESH_DATA_COMPLETED);
+
+			if (m_data->m_verboseOutput)
+			{
+				b3Printf("Mesh data OK\n");
+			}
+
+      const b3SendMeshDataArgs& args = serverCmd.m_sendMeshDataArgs;
+			int numTotalPixels =args.m_startingVertex +
+								args.m_numVerticesCopied + args.m_numVerticesRemaining;
+
+			 double* verticesReceived =
+				(double*)&m_data->m_bulletStreamDataServerToClient[0];
+
+      // flattened position
+      const int dimension = 3;
+      m_data->m_cachedVertexPositions.resize((args.m_startingVertex +
+								args.m_numVerticesCopied)*dimension);
+
+			for (int i = 0; i < dimension*args.m_numVerticesCopied; i++)
+			{
+				m_data->m_cachedVertexPositions[i + dimension*args.m_startingVertex] = verticesReceived[i];
+			}
+
+			if (args.m_numVerticesRemaining > 0 && args.m_numVerticesCopied)
+			{
+				m_data->m_hasStatus = false;
+
+				// continue requesting remaining vertices
+				command.m_type = CMD_REQUEST_MESH_DATA;
+				command.m_requestMeshDataArgs.m_startingVertex =
+              args.m_startingVertex + args.m_numVerticesCopied;
+			}
+			else
+			{
+        m_data->m_cachedMeshData.m_numVertices=args.m_startingVertex +
+					args.m_numVerticesCopied;
+			}
+		}
+	} while (serverCmd.m_sendMeshDataArgs.m_numVerticesRemaining > 0 && serverCmd.m_sendMeshDataArgs.m_numVerticesCopied);
+
+	return m_data->m_hasStatus;
+}
+
 void PhysicsDirect::processBodyJointInfo(int bodyUniqueId, const SharedMemoryStatus& serverCmd)
 {
 	BodyJointInfoCache2** cachePtr = m_data->m_bodyJointMap[bodyUniqueId];
@@ -883,7 +956,6 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 				b3Clock clock;
 				double startTime = clock.getTimeInSeconds();
 				double timeOutInSeconds = m_data->m_timeOutInSeconds;
-
 				while ((!hasStatus) && (clock.getTimeInSeconds() - startTime < timeOutInSeconds))
 				{
 					hasStatus = m_data->m_commandProcessor->receiveStatus(m_data->m_tmpInfoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
@@ -958,6 +1030,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			b3Warning("createVisualShape failed");
 			break;
 		}
+
 		case CMD_CREATE_VISUAL_SHAPE_COMPLETED:
 		{
 			break;
@@ -977,7 +1050,15 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			b3Warning("Request getCollisionInfo failed");
 			break;
 		}
-
+	  case CMD_REQUEST_MESH_DATA_COMPLETED:
+		{
+			break;
+		}
+		case CMD_REQUEST_MESH_DATA_FAILED:
+		{
+			b3Warning("Request mesh data failed");
+			break;
+		}
 		case CMD_CUSTOM_COMMAND_COMPLETED:
 		{
 			break;
@@ -1201,6 +1282,11 @@ bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& comman
 	if (command.m_type == CMD_REQUEST_AABB_OVERLAP)
 	{
 		return processOverlappingObjects(command);
+	}
+
+  if (command.m_type == CMD_REQUEST_MESH_DATA)
+	{
+		return processMeshData(command);
 	}
 
 	bool hasStatus = m_data->m_commandProcessor->processCommand(command, m_data->m_serverStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
@@ -1440,6 +1526,9 @@ void PhysicsDirect::getCachedCameraImage(b3CameraImageData* cameraData)
 	}
 }
 
+void PhysicsDirect::getCachedMeshData(struct b3MeshData* meshData){
+ *meshData = m_data->m_cachedMeshData;
+}
 void PhysicsDirect::getCachedContactPointInformation(struct b3ContactInformation* contactPointData)
 {
 	contactPointData->m_numContactPoints = m_data->m_cachedContactPoints.size();
