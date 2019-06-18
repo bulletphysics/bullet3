@@ -1054,6 +1054,17 @@ struct AddUserDataRequestArgs
 	// Value data stored in m_bulletStreamDataServerToClientRefactor.
 };
 
+struct b3RequestMeshDataArgs{
+  int m_bodyUniqueId;
+  int m_startingVertex;
+};
+
+struct b3SendMeshDataArgs{
+  int m_numVerticesCopied;
+  int m_startingVertex;
+  int m_numVerticesRemaining;
+};
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -1113,6 +1124,7 @@ struct SharedMemoryCommand
 		struct AddUserDataRequestArgs m_addUserDataRequestArgs;
 		struct UserDataRequestArgs m_removeUserDataRequestArgs;
 		struct b3CollisionFilterArgs m_collisionFilterArgs;
+    struct b3RequestMeshDataArgs m_requestMeshDataArgs;
 	};
 };
 
@@ -1188,6 +1200,7 @@ struct SharedMemoryStatus
 		struct UserDataResponseArgs m_userDataResponseArgs;
 		struct UserDataRequestArgs m_removeUserDataResponseArgs;
 		struct b3ForwardDynamicsAnalyticsArgs m_forwardDynamicsAnalyticsArgs;
+    struct b3SendMeshDataArgs m_sendMeshDataArgs;
 	};
 };
 
