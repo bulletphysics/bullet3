@@ -323,11 +323,12 @@ void RemoteGUIHelper::syncPhysicsToGraphics2(const btDiscreteDynamicsWorld* rbWo
 
 void RemoteGUIHelper::syncPhysicsToGraphics2(const GUISyncPosition* positions, int numPositions)
 {
-	uploadData((unsigned char*) positions, numPositions * sizeof(GUISyncPosition), 0);
+	
 	
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
 	{
+		uploadData((unsigned char*)positions, numPositions * sizeof(GUISyncPosition), 0);
 		cmd->m_updateFlags = 0;
 		cmd->m_syncTransformsCommand.m_numPositions = numPositions;
 		cmd->m_type = GFX_CMD_SYNCHRONIZE_TRANSFORMS;
@@ -389,11 +390,13 @@ int RemoteGUIHelper::registerTexture(const unsigned char* texels, int width, int
 	int textureId = -1;
 
 	//first upload all data
-	int sizeInBytes = width*height * 3;//rgb
-	uploadData(texels, sizeInBytes, 0);
+	
+	
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
 	{
+		int sizeInBytes = width*height * 3;//rgb
+		uploadData(texels, sizeInBytes, 0);
 		cmd->m_updateFlags = 0;
 		cmd->m_type = GFX_CMD_REGISTER_TEXTURE;
 		cmd->m_registerTextureCommand.m_width = width;
@@ -417,11 +420,12 @@ int RemoteGUIHelper::registerGraphicsShape(const float* vertices, int numvertice
 { 
 	int shapeId = -1;
 
-	uploadData((unsigned char*)vertices, numvertices * 9*sizeof(float), 0);
-	uploadData((unsigned char*)indices, numIndices * sizeof(int), 1);
+	
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
 	{
+		uploadData((unsigned char*)vertices, numvertices * 9 * sizeof(float), 0);
+		uploadData((unsigned char*)indices, numIndices * sizeof(int), 1);
 		cmd->m_type = GFX_CMD_REGISTER_GRAPHICS_SHAPE;
 		cmd->m_updateFlags = 0;
 		cmd->m_registerGraphicsShapeCommand.m_numVertices = numvertices;
