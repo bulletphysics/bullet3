@@ -9058,6 +9058,22 @@ bool PhysicsServerCommandProcessor::processConfigureOpenGLVisualizerCommand(cons
 										 clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[1],
 										 clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[2]);
 	}
+	if (m_data->m_guiHelper->getRenderInterface())
+	{
+		if (clientCmd.m_updateFlags & COV_SET_LIGHT_POSITION)
+		{
+			m_data->m_guiHelper->getRenderInterface()->setLightPosition(clientCmd.m_configureOpenGLVisualizerArguments.m_lightPosition);
+		}
+		if (clientCmd.m_updateFlags & COV_SET_SHADOWMAP_RESOLUTION)
+		{
+			m_data->m_guiHelper->getRenderInterface()->setShadowMapResolution(clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapResolution);
+		}
+		if (clientCmd.m_updateFlags & COV_SET_SHADOWMAP_WORLD_SIZE)
+		{
+			float worldSize = clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapWorldSize;
+			m_data->m_guiHelper->getRenderInterface()->setShadowMapWorldSize(worldSize);
+		}
+	}
 	return hasStatus;
 }
 

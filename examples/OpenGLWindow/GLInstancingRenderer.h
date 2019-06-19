@@ -120,6 +120,8 @@ public:
 
 	virtual void setLightPosition(const float lightPos[3]);
 	virtual void setLightPosition(const double lightPos[3]);
+	virtual void setShadowMapResolution(int shadowMapResolution);
+	virtual void setShadowMapWorldSize(float worldSize);
 	void setLightSpecularIntensity(const float lightSpecularIntensity[3]);
 	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]);
 	virtual void setProjectiveTexture(bool useProjectiveTexture);

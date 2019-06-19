@@ -905,6 +905,9 @@ enum InternalOpenGLVisualizerUpdateFlags
 {
 	COV_SET_CAMERA_VIEW_MATRIX = 1,
 	COV_SET_FLAGS = 2,
+	COV_SET_LIGHT_POSITION = 4,
+	COV_SET_SHADOWMAP_RESOLUTION = 8,
+	COV_SET_SHADOWMAP_WORLD_SIZE = 16,
 };
 
 struct ConfigureOpenGLVisualizerRequest
@@ -913,7 +916,9 @@ struct ConfigureOpenGLVisualizerRequest
 	double m_cameraPitch;
 	double m_cameraYaw;
 	double m_cameraTargetPosition[3];
-
+	double m_lightPosition[3];
+	int m_shadowMapResolution;
+	int m_shadowMapWorldSize;
 	int m_setFlag;
 	int m_setEnabled;
 };
