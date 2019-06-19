@@ -10,6 +10,7 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "GraphicsSharedMemoryBlock.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
+#include "SharedMemoryPublic.h"
 
 #define MAX_GRAPHICS_SHARED_MEMORY_BLOCKS 1
 
@@ -108,11 +109,15 @@ public:
 			}
 			case GFX_CMD_SET_VISUALIZER_FLAG:
 			{
-				//printf("clientCmd.m_visualizerFlag.m_visualizerFlag: %d, clientCmd.m_visualizerFlag.m_enable %d\n",
-				//	clientCmd.m_visualizerFlagCommand.m_visualizerFlag, clientCmd.m_visualizerFlagCommand.m_enable);
+				if (clientCmd.m_visualizerFlagCommand.m_visualizerFlag!=COV_ENABLE_RENDERING)
+				{
+					//printf("clientCmd.m_visualizerFlag.m_visualizerFlag: %d, clientCmd.m_visualizerFlag.m_enable %d\n",
+					//	clientCmd.m_visualizerFlagCommand.m_visualizerFlag, clientCmd.m_visualizerFlagCommand.m_enable);
 
-				this->m_guiHelper->setVisualizerFlag(clientCmd.m_visualizerFlagCommand.m_visualizerFlag, clientCmd.m_visualizerFlagCommand.m_enable);
+					this->m_guiHelper->setVisualizerFlag(clientCmd.m_visualizerFlagCommand.m_visualizerFlag, clientCmd.m_visualizerFlagCommand.m_enable);
+				}
 				break;
+
 			}
 
 			case GFX_CMD_UPLOAD_DATA:
