@@ -5869,15 +5869,18 @@ static PyObject* pybullet_getDebugVisualizerCamera(PyObject* self, PyObject* arg
 
 static PyObject* pybullet_configureDebugVisualizer(PyObject* self, PyObject* args, PyObject* keywds)
 {
-	int flag = 1;
+	int flag = -1;
 	int enable = -1;
-
+	int shadowMapResolution = -1;
+	int shadowMapWorldSize = -1;
 	int physicsClientId = 0;
+	double remoteSyncTransformInterval = -1;
+	PyObject* pyLightPosition = 0;
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"flag", "enable", "physicsClientId", NULL};
+	static char* kwlist[] = {"flag", "enable", "lightPosition", "shadowMapResolution", "shadowMapWorldSize", "remoteSyncTransformInterval", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist,
-									 &flag, &enable, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiOiidi", kwlist,
+									 &flag, &enable, &pyLightPosition, &shadowMapResolution, &shadowMapWorldSize, &remoteSyncTransformInterval, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -5889,7 +5892,31 @@ static PyObject* pybullet_configureDebugVisualizer(PyObject* self, PyObject* arg
 
 	{
 		b3SharedMemoryCommandHandle commandHandle = b3InitConfigureOpenGLVisualizer(sm);
-		b3ConfigureOpenGLVisualizerSetVisualizationFlags(commandHandle, flag, enable);
+		if (flag >= 0)
+		{
+			b3ConfigureOpenGLVisualizerSetVisualizationFlags(commandHandle, flag, enable);
+		}
+		if (pyLightPosition)
+		{
+			float lightPosition[3];
+			if (pybullet_internalSetVector(pyLightPosition, lightPosition))
+			{
+				b3ConfigureOpenGLVisualizerSetLightPosition(commandHandle, lightPosition);
+			}
+		}
+		if (shadowMapResolution > 0)
+		{
+			b3ConfigureOpenGLVisualizerSetShadowMapResolution(commandHandle, shadowMapResolution);
+		}
+		if (shadowMapWorldSize > 0)
+		{
+			b3ConfigureOpenGLVisualizerSetShadowMapWorldSize(commandHandle, shadowMapWorldSize);
+		}
+		if (remoteSyncTransformInterval >= 0)
+		{
+			b3ConfigureOpenGLVisualizerSetRemoteSyncTransformInterval(commandHandle, remoteSyncTransformInterval);
+		}
+
 		b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	}
 	Py_INCREF(Py_None);
