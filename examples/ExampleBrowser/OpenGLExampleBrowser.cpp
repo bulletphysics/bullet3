@@ -257,7 +257,11 @@ void MyKeyboardCallback(int key, int state)
 			}
 			else
 			{
+#ifdef _WIN32
 				b3ChromeUtilsStopTimingsAndWriteJsonFile("timings");
+#else
+				b3ChromeUtilsStopTimingsAndWriteJsonFile("/tmp/timings");
+#endif
 			}
 		}
 

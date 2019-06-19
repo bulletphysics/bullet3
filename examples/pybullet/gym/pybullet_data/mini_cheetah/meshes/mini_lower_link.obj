@@ -1,6 +1,5 @@
 # Blender v2.76 (sub 0) OBJ File: ''
 # www.blender.org
-mtllib l_link_mini.mtl
 o lower_link
 v -0.007927 -0.006511 0.072209
 v -0.007918 -0.006511 0.072209
