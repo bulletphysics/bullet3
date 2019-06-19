@@ -5501,6 +5501,19 @@ B3_SHARED_API void b3ConfigureOpenGLVisualizerSetShadowMapWorldSize(b3SharedMemo
 }
 
 
+B3_SHARED_API void b3ConfigureOpenGLVisualizerSetRemoteSyncTransformInterval(b3SharedMemoryCommandHandle commandHandle, double remoteSyncTransformInterval)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+	if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+	{
+		command->m_updateFlags |= COV_SET_REMOTE_SYNC_TRANSFORM_INTERVAL;
+		command->m_configureOpenGLVisualizerArguments.m_remoteSyncTransformInterval = remoteSyncTransformInterval;
+	}
+}
+
+
 B3_SHARED_API void b3ConfigureOpenGLVisualizerSetViewMatrix(b3SharedMemoryCommandHandle commandHandle, float cameraDistance, float cameraPitch, float cameraYaw, const float cameraTargetPosition[3])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;

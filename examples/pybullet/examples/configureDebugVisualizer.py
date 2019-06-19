@@ -12,6 +12,7 @@ radius=5
 t = 0
 p.configureDebugVisualizer(shadowMapWorldSize=5)
 p.configureDebugVisualizer(shadowMapResolution=8192)
+
 while (1):
   t+=dt
   p.configureDebugVisualizer(lightPosition=[radius*math.sin(t),radius*math.cos(t),3])
