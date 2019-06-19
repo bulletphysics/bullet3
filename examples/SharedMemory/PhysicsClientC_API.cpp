@@ -1210,7 +1210,8 @@ B3_SHARED_API int b3CreateCollisionShapeAddSphere(b3SharedMemoryCommandHandle co
 	return -1;
 }
 
-B3_SHARED_API b3SharedMemoryCommandHandle b3GetMeshDataCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId){
+B3_SHARED_API b3SharedMemoryCommandHandle b3GetMeshDataCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex)
+{
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
 	b3Assert(cl->canSubmitCommand());
@@ -1220,22 +1221,22 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3GetMeshDataCommandInit(b3PhysicsClie
 		b3Assert(command);
 		command->m_type = CMD_REQUEST_MESH_DATA;
 		command->m_updateFlags = 0;
+		command->m_requestMeshDataArgs.m_startingVertex = 0;
 		command->m_requestMeshDataArgs.m_bodyUniqueId = bodyUniqueId;
+		command->m_requestMeshDataArgs.m_linkIndex = linkIndex;
 		return (b3SharedMemoryCommandHandle)command;
 	}
 	return 0;
 }
 
-B3_SHARED_API void b3GetMeshData(b3PhysicsClientHandle physClient, struct b3MeshData* meshData){
-  PhysicsClient* cl = (PhysicsClient*)physClient;
+B3_SHARED_API void b3GetMeshData(b3PhysicsClientHandle physClient, struct b3MeshData* meshData)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
 	if (cl)
 	{
 		cl->getCachedMeshData(meshData);
 	}
 }
-
-
-
 
 B3_SHARED_API int b3CreateVisualShapeAddSphere(b3SharedMemoryCommandHandle commandHandle, double radius)
 {

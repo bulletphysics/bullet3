@@ -16,7 +16,7 @@
 
 struct RemoteGUIHelperInternalData
 {
-//	GUIHelperInterface* m_guiHelper;
+	//	GUIHelperInterface* m_guiHelper;
 	bool m_waitingForServer;
 	GraphicsSharedMemoryBlock* m_testBlock1;
 	SharedMemoryInterface* m_sharedMemory;
@@ -26,7 +26,7 @@ struct RemoteGUIHelperInternalData
 
 	RemoteGUIHelperInternalData()
 		: m_waitingForServer(false),
-		m_testBlock1(0)
+		  m_testBlock1(0)
 	{
 #ifdef _WIN32
 		m_sharedMemory = new Win32SharedMemoryClient();
@@ -36,7 +36,6 @@ struct RemoteGUIHelperInternalData
 		m_sharedMemoryKey = GRAPHICS_SHARED_MEMORY_KEY;
 		m_isConnected = false;
 		connect();
-		
 	}
 
 	virtual ~RemoteGUIHelperInternalData()
@@ -98,7 +97,6 @@ struct RemoteGUIHelperInternalData
 		return false;
 	}
 
-
 	const GraphicsSharedMemoryStatus* processServerStatus()
 	{
 		// SharedMemoryStatus* stat = 0;
@@ -120,13 +118,12 @@ struct RemoteGUIHelperInternalData
 			return &m_lastServerStatus;
 		}
 
-
 		if (m_testBlock1->m_numServerCommands >
 			m_testBlock1->m_numProcessedServerCommands)
 		{
 			B3_PROFILE("processServerCMD");
 			b3Assert(m_testBlock1->m_numServerCommands ==
-				m_testBlock1->m_numProcessedServerCommands + 1);
+					 m_testBlock1->m_numProcessedServerCommands + 1);
 
 			const GraphicsSharedMemoryStatus& serverCmd = m_testBlock1->m_serverCommands[0];
 
@@ -136,22 +133,21 @@ struct RemoteGUIHelperInternalData
 			// consume the command
 			switch (serverCmd.m_type)
 			{
-			case GFX_CMD_CLIENT_COMMAND_COMPLETED:
-			{
-				B3_PROFILE("CMD_CLIENT_COMMAND_COMPLETED");
+				case GFX_CMD_CLIENT_COMMAND_COMPLETED:
+				{
+					B3_PROFILE("CMD_CLIENT_COMMAND_COMPLETED");
 
-
-				break;
-			}
-			default:
-			{
-			}
+					break;
+				}
+				default:
+				{
+				}
 			}
 
 			m_testBlock1->m_numProcessedServerCommands++;
 			// we don't have more than 1 command outstanding (in total, either server or client)
 			b3Assert(m_testBlock1->m_numProcessedServerCommands ==
-				m_testBlock1->m_numServerCommands);
+					 m_testBlock1->m_numServerCommands);
 
 			if (m_testBlock1->m_numServerCommands ==
 				m_testBlock1->m_numProcessedServerCommands)
@@ -162,7 +158,6 @@ struct RemoteGUIHelperInternalData
 			{
 				m_waitingForServer = true;
 			}
-
 
 			return &m_lastServerStatus;
 		}
@@ -182,7 +177,7 @@ struct RemoteGUIHelperInternalData
 			{
 				b3Error("Error connecting to shared memory: please start server before client\n");
 				m_sharedMemory->releaseSharedMemory(m_sharedMemoryKey,
-					GRAPHICS_SHARED_MEMORY_SIZE);
+													GRAPHICS_SHARED_MEMORY_SIZE);
 				m_testBlock1 = 0;
 				return false;
 			}
@@ -199,7 +194,6 @@ struct RemoteGUIHelperInternalData
 		return true;
 	}
 
-
 	void disconnect()
 	{
 		if (m_isConnected && m_sharedMemory)
@@ -208,16 +202,9 @@ struct RemoteGUIHelperInternalData
 		}
 		m_isConnected = false;
 	}
-
 };
 
-
-
-
-
-
-
-RemoteGUIHelper::RemoteGUIHelper() 
+RemoteGUIHelper::RemoteGUIHelper()
 {
 	m_data = new RemoteGUIHelperInternalData;
 	if (m_data->canSubmitCommand())
@@ -264,11 +251,11 @@ void RemoteGUIHelper::createCollisionObjectGraphicsObject(btCollisionObject* bod
 		{
 			//	btAssert(graphicsShapeId >= 0);
 			//the graphics shape is already scaled
-			float localScaling[4] = { 1.f, 1.f, 1.f, 1.f };
-			float colorRGBA[4] = { (float)color[0], (float)color[1], (float)color[2], (float) color[3] };
-			float pos[4] = { (float)startTransform.getOrigin()[0], (float)startTransform.getOrigin()[1], (float)startTransform.getOrigin()[2], (float)startTransform.getOrigin()[3] };
-			float orn[4] = { (float)startTransform.getRotation()[0], (float)startTransform.getRotation()[1], (float)startTransform.getRotation()[2], (float)startTransform.getRotation()[3] };
-			int graphicsInstanceId = registerGraphicsInstance(graphicsShapeId, pos,orn, colorRGBA, localScaling);
+			float localScaling[4] = {1.f, 1.f, 1.f, 1.f};
+			float colorRGBA[4] = {(float)color[0], (float)color[1], (float)color[2], (float)color[3]};
+			float pos[4] = {(float)startTransform.getOrigin()[0], (float)startTransform.getOrigin()[1], (float)startTransform.getOrigin()[2], (float)startTransform.getOrigin()[3]};
+			float orn[4] = {(float)startTransform.getRotation()[0], (float)startTransform.getRotation()[1], (float)startTransform.getRotation()[2], (float)startTransform.getRotation()[3]};
+			int graphicsInstanceId = registerGraphicsInstance(graphicsShapeId, pos, orn, colorRGBA, localScaling);
 			body->setUserIndex(graphicsInstanceId);
 		}
 	}
@@ -285,49 +272,46 @@ void RemoteGUIHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 
 void RemoteGUIHelper::syncPhysicsToGraphics2(const btDiscreteDynamicsWorld* rbWorld)
 {
-                       b3AlignedObjectArray<GUISyncPosition> updatedPositions;
+	b3AlignedObjectArray<GUISyncPosition> updatedPositions;
 
-                        int numCollisionObjects = rbWorld->getNumCollisionObjects();
-                        {
-                                B3_PROFILE("write all InstanceTransformToCPU2");
-                                for (int i = 0; i < numCollisionObjects; i++)
-                                {
-                                        //B3_PROFILE("writeSingleInstanceTransformToCPU");
-                                        btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
-                                        btCollisionShape* collisionShape = colObj->getCollisionShape();
+	int numCollisionObjects = rbWorld->getNumCollisionObjects();
+	{
+		B3_PROFILE("write all InstanceTransformToCPU2");
+		for (int i = 0; i < numCollisionObjects; i++)
+		{
+			//B3_PROFILE("writeSingleInstanceTransformToCPU");
+			btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
+			btCollisionShape* collisionShape = colObj->getCollisionShape();
 
-                                        btVector3 pos = colObj->getWorldTransform().getOrigin();
-                                        btQuaternion orn = colObj->getWorldTransform().getRotation();
-                                        int index = colObj->getUserIndex();
-                                        if (index >= 0)
-                                        {
-                                                GUISyncPosition p;
-                                                p.m_graphicsInstanceId = index;
-                                                for (int q = 0; q < 4; q++)
-                                                {
-                                                        p.m_pos[q] = pos[q];
-                                                        p.m_orn[q] = orn[q];
-                                                }
-                                                updatedPositions.push_back(p);
-                                        }
-                                }
-                        }
+			btVector3 pos = colObj->getWorldTransform().getOrigin();
+			btQuaternion orn = colObj->getWorldTransform().getRotation();
+			int index = colObj->getUserIndex();
+			if (index >= 0)
+			{
+				GUISyncPosition p;
+				p.m_graphicsInstanceId = index;
+				for (int q = 0; q < 4; q++)
+				{
+					p.m_pos[q] = pos[q];
+					p.m_orn[q] = orn[q];
+				}
+				updatedPositions.push_back(p);
+			}
+		}
+	}
 
-                        if (updatedPositions.size())
-                        {
-                                syncPhysicsToGraphics2(&updatedPositions[0], updatedPositions.size());
-                        }
-}                
-
-
+	if (updatedPositions.size())
+	{
+		syncPhysicsToGraphics2(&updatedPositions[0], updatedPositions.size());
+	}
+}
 
 void RemoteGUIHelper::syncPhysicsToGraphics2(const GUISyncPosition* positions, int numPositions)
 {
-	uploadData((unsigned char*) positions, numPositions * sizeof(GUISyncPosition), 0);
-	
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
 	{
+		uploadData((unsigned char*)positions, numPositions * sizeof(GUISyncPosition), 0);
 		cmd->m_updateFlags = 0;
 		cmd->m_syncTransformsCommand.m_numPositions = numPositions;
 		cmd->m_type = GFX_CMD_SYNCHRONIZE_TRANSFORMS;
@@ -337,8 +321,6 @@ void RemoteGUIHelper::syncPhysicsToGraphics2(const GUISyncPosition* positions, i
 	while ((status = m_data->processServerStatus()) == 0)
 	{
 	}
-
-
 }
 
 void RemoteGUIHelper::render(const btDiscreteDynamicsWorld* rbWorld)
@@ -363,9 +345,9 @@ int RemoteGUIHelper::uploadData(const unsigned char* data, int sizeInBytes, int 
 		{
 			for (int i = 0; i < curBytes; i++)
 			{
-				m_data->m_testBlock1->m_bulletStreamData[i] = data[i+offset];
+				m_data->m_testBlock1->m_bulletStreamData[i] = data[i + offset];
 			}
-			
+
 			cmd->m_updateFlags = 0;
 			cmd->m_type = GFX_CMD_UPLOAD_DATA;
 			cmd->m_uploadDataCommand.m_numBytes = curBytes;
@@ -385,15 +367,16 @@ int RemoteGUIHelper::uploadData(const unsigned char* data, int sizeInBytes, int 
 }
 
 int RemoteGUIHelper::registerTexture(const unsigned char* texels, int width, int height)
-{ 
+{
 	int textureId = -1;
 
 	//first upload all data
-	int sizeInBytes = width*height * 3;//rgb
-	uploadData(texels, sizeInBytes, 0);
+
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
 	{
+		int sizeInBytes = width * height * 3;  //rgb
+		uploadData(texels, sizeInBytes, 0);
 		cmd->m_updateFlags = 0;
 		cmd->m_type = GFX_CMD_REGISTER_TEXTURE;
 		cmd->m_registerTextureCommand.m_width = width;
@@ -408,20 +391,19 @@ int RemoteGUIHelper::registerTexture(const unsigned char* texels, int width, int
 			textureId = status->m_registerTextureStatus.m_textureId;
 		}
 	}
-	
 
-  return textureId;
+	return textureId;
 }
 
-int RemoteGUIHelper::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId) 
-{ 
+int RemoteGUIHelper::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId)
+{
 	int shapeId = -1;
 
-	uploadData((unsigned char*)vertices, numvertices * 9*sizeof(float), 0);
-	uploadData((unsigned char*)indices, numIndices * sizeof(int), 1);
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
 	{
+		uploadData((unsigned char*)vertices, numvertices * 9 * sizeof(float), 0);
+		uploadData((unsigned char*)indices, numIndices * sizeof(int), 1);
 		cmd->m_type = GFX_CMD_REGISTER_GRAPHICS_SHAPE;
 		cmd->m_updateFlags = 0;
 		cmd->m_registerGraphicsShapeCommand.m_numVertices = numvertices;
@@ -440,11 +422,11 @@ int RemoteGUIHelper::registerGraphicsShape(const float* vertices, int numvertice
 		}
 	}
 
-  return shapeId;
+	return shapeId;
 }
 
 int RemoteGUIHelper::registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
-{ 
+{
 	int graphicsInstanceId = -1;
 
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
@@ -469,9 +451,8 @@ int RemoteGUIHelper::registerGraphicsInstance(int shapeIndex, const float* posit
 		{
 			graphicsInstanceId = status->m_registerGraphicsInstanceStatus.m_graphicsInstanceId;
 		}
-
 	}
-  return graphicsInstanceId;
+	return graphicsInstanceId;
 }
 
 void RemoteGUIHelper::removeAllGraphicsInstances()
@@ -547,14 +528,14 @@ void RemoteGUIHelper::resetCamera(float camDist, float yaw, float pitch, float c
 }
 
 void RemoteGUIHelper::copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],
-									 unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
-									 float* depthBuffer, int depthBufferSizeInPixels,
-									 int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
-									 int startPixelIndex, int width, int height, int* numPixelsCopied)
+										  unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
+										  float* depthBuffer, int depthBufferSizeInPixels,
+										  int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
+										  int startPixelIndex, int width, int height, int* numPixelsCopied)
 
 {
-		if (numPixelsCopied)
-			*numPixelsCopied = 0;
+	if (numPixelsCopied)
+		*numPixelsCopied = 0;
 }
 
 void RemoteGUIHelper::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])

@@ -1,11 +1,13 @@
 import pybullet as p
 from time import sleep
 
-physicsClient = p.connect(p.GUI)
+physicsClient = p.connect(p.DIRECT)
 
 p.setGravity(0, 0, -10)
 planeId = p.loadURDF("plane.urdf")
 bunnyId = p.loadSoftBody("bunny.obj")
+#meshData = p.getMeshData(bunnyId)
+#print("meshData=",meshData)
 p.loadURDF("cube_small.urdf", [1, 0, 1])
 useRealTimeSimulation = 1
 
