@@ -44,7 +44,7 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 		return 0;
 		glDeleteShader(hVertexShader);
 		glDeleteShader(hFragmentShader);
-		return (GLuint)NULL;
+		return (GLuint)0;
 	}
 
 	assert(glGetError() == GL_NO_ERROR);
@@ -62,7 +62,7 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 		exit(EXIT_FAILURE);
 		glDeleteShader(hVertexShader);
 		glDeleteShader(hFragmentShader);
-		return (GLuint)NULL;
+		return (GLuint)0;
 	}
 
 	assert(glGetError() == GL_NO_ERROR);
@@ -96,7 +96,7 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
 		printf("Warning/Error in GLSL shader:\n");
 		printf("%s\n", infoLog);
 		glDeleteProgram(hReturn);
-		return (GLuint)NULL;
+		return (GLuint)0;
 	}
 
 	return hReturn;

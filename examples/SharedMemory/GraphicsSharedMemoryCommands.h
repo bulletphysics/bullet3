@@ -26,7 +26,7 @@ typedef unsigned long long int smUint64a_t;
 #ifdef __APPLE__
 #define GRAPHICS_SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (512 * 1024)
 #else
-#define GRAPHICS_SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (4 * 1024 * 1024)
+ #define GRAPHICS_SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (4 * 1024 * 1024)
 #endif
 
 struct GraphicsCommand0

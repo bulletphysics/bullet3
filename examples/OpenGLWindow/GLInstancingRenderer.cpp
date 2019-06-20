@@ -16,9 +16,8 @@ subject to the following restrictions:
 
 ///todo: make this configurable in the gui
 bool useShadowMap = true;  // true;//false;//true;
-int shadowMapWidth = 4096;
-int shadowMapHeight = 4096;
-float shadowMapWorldSize = 10;
+
+
 #include <stdio.h>
 
 struct caster2
@@ -244,11 +243,22 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	b3ResizablePool<b3PublicGraphicsInstance> m_publicGraphicsInstances;
 
+	int m_shadowMapWidth;
+	int m_shadowMapHeight;
+	float m_shadowMapWorldSize;
+	bool m_updateShadowMap;
+
 	InternalDataRenderer() : m_activeCamera(&m_defaultCamera1),
 							 m_shadowMap(0),
 							 m_shadowTexture(0),
-							 m_renderFrameBuffer(0)
+							 m_renderFrameBuffer(0),
+							m_shadowMapWidth(4096),
+							m_shadowMapHeight(4096),
+							m_shadowMapWorldSize(10),
+							m_updateShadowMap(true)
+
 	{
+		
 		m_lightPos = b3MakeVector3(-50, 30, 40);
 		m_lightSpecularIntensity.setValue(1, 1, 1);
 
@@ -1449,6 +1459,19 @@ void GLInstancingRenderer::setLightPosition(const float lightPos[3])
 	m_data->m_lightPos[2] = lightPos[2];
 }
 
+void GLInstancingRenderer::setShadowMapResolution(int shadowMapResolution)
+{
+	m_data->m_shadowMapWidth = shadowMapResolution;
+	m_data->m_shadowMapHeight = shadowMapResolution;
+	m_data->m_updateShadowMap = true;
+}
+
+void GLInstancingRenderer::setShadowMapWorldSize(float worldSize)
+{
+	m_data->m_shadowMapWorldSize = worldSize;
+	m_data->m_updateShadowMap = true;
+}
+
 void GLInstancingRenderer::setLightPosition(const double lightPos[3])
 {
 	m_data->m_lightPos[0] = lightPos[0];
@@ -2071,6 +2094,13 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
 
+		if (m_data->m_shadowMap && m_data->m_updateShadowMap)
+		{
+			m_data->m_updateShadowMap = false;
+			glDeleteTextures(1, &m_data->m_shadowTexture);
+			delete m_data->m_shadowMap;
+			m_data->m_shadowMap = 0;
+		}
 		if (!m_data->m_shadowMap)
 		{
 			glActiveTexture(GL_TEXTURE0);
@@ -2088,27 +2118,27 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 			int size;
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
-			if (size < shadowMapWidth)
+			if (size < m_data->m_shadowMapWidth)
 			{
-				shadowMapWidth = size;
+				m_data->m_shadowMapWidth = size;
 			}
-			if (size < shadowMapHeight)
+			if (size < m_data->m_shadowMapHeight)
 			{
-				shadowMapHeight = size;
+				m_data->m_shadowMapHeight = size;
 			}
 			GLuint err;
 			do
 			{
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16,
-							 shadowMapWidth, shadowMapHeight,
+					m_data->m_shadowMapWidth, m_data->m_shadowMapHeight,
 							 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 				err = glGetError();
 				if (err != GL_NO_ERROR)
 				{
-					shadowMapHeight >>= 1;
-					shadowMapWidth >>= 1;
+					m_data->m_shadowMapHeight >>= 1;
+					m_data->m_shadowMapWidth >>= 1;
 				}
-			} while (err != GL_NO_ERROR && shadowMapWidth > 0);
+			} while (err != GL_NO_ERROR && m_data->m_shadowMapWidth > 0);
 #endif  //OLD_SHADOWMAP_INIT
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -2124,10 +2154,10 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 
 			m_data->m_shadowMap = new GLRenderToTexture();
-			m_data->m_shadowMap->init(shadowMapWidth, shadowMapHeight, m_data->m_shadowTexture, RENDERTEXTURE_DEPTH);
+			m_data->m_shadowMap->init(m_data->m_shadowMapWidth, m_data->m_shadowMapHeight, m_data->m_shadowTexture, RENDERTEXTURE_DEPTH);
 		}
 		m_data->m_shadowMap->enable();
-		glViewport(0, 0, shadowMapWidth, shadowMapHeight);
+		glViewport(0, 0, m_data->m_shadowMapWidth, m_data->m_shadowMapHeight);
 		//glClearColor(1,1,1,1);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		//glClearColor(0.3,0.3,0.3,1);
@@ -2145,7 +2175,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 		glCullFace(GL_BACK);
 	}
 
-	b3CreateOrtho(-shadowMapWorldSize, shadowMapWorldSize, -shadowMapWorldSize, shadowMapWorldSize, 1, 300, depthProjectionMatrix);  //-14,14,-14,14,1,200, depthProjectionMatrix);
+	b3CreateOrtho(-m_data->m_shadowMapWorldSize, m_data->m_shadowMapWorldSize, -m_data->m_shadowMapWorldSize, m_data->m_shadowMapWorldSize, 1, 300, depthProjectionMatrix);  //-14,14,-14,14,1,200, depthProjectionMatrix);
 	float depthViewMatrix[4][4];
 	b3Vector3 center = b3MakeVector3(0, 0, 0);
 	m_data->m_activeCamera->getCameraTargetPosition(center);

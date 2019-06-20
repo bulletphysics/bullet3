@@ -8,7 +8,7 @@ class RigidBodyBoxes : public CommonRigidBodyBase
 {
 	int m_option;
 	int m_numIterations;
-	int m_numBoxes = 4;
+	int m_numBoxes;
 	btAlignedObjectArray<btRigidBody*> boxes;
 	static btScalar numSolverIterations;
 
@@ -38,7 +38,8 @@ btScalar RigidBodyBoxes::numSolverIterations = 50;
 RigidBodyBoxes::RigidBodyBoxes(GUIHelperInterface* helper, int option)
 	: CommonRigidBodyBase(helper),
 	  m_option(option),
-	  m_numIterations(numSolverIterations)
+	  m_numIterations(numSolverIterations),
+	  m_numBoxes(4)
 {
 	m_guiHelper->setUpAxis(2);
 }
