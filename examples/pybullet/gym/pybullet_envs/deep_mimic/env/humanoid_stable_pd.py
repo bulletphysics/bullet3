@@ -144,6 +144,7 @@ class HumanoidStablePD(object):
     self.setSimTime(0)
 
     self.resetPose()
+    self.thrown_body_ids = []
 
   def resetPose(self):
     #print("resetPose with self._frame=", self._frame, " and self._frameFraction=",self._frameFraction)
@@ -590,6 +591,9 @@ class HumanoidStablePD(object):
       #ignore self-collision
       if (p[1] == p[2]):
         continue
+      # ignore collisions with thrown objects
+      if p[1] in self.thrown_body_ids or p[2] in self.thrown_body_ids:
+        continue
       if (p[1] == self._sim_model):
         part = p[3]
       if (p[2] == self._sim_model):
@@ -795,3 +799,7 @@ class HumanoidStablePD(object):
     #print("com_reward=",com_reward)
 
     return reward
+
+  def getSimModelBasePosition(self):
+    return  self._pybullet_client\
+                .getBasePositionAndOrientation(self._sim_model)

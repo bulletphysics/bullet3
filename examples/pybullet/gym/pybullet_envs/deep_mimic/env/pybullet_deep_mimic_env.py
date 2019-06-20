@@ -82,6 +82,9 @@ class PyBulletDeepMimicEnv(Env):
     startTime = float(rn) / rnrange * self._humanoid.getCycleTime()
     self.t = startTime
 
+    # Remove all the thrown objects
+    self.removeThrownObjects()
+
     self._humanoid.setSimTime(startTime)
 
     self._humanoid.resetPose()
@@ -319,3 +322,44 @@ class PyBulletDeepMimicEnv(Env):
     if o in keys:
       return keys[ord(key)] & self._pybullet_client.KEY_WAS_TRIGGERED
     return False
+
+  def hitWithObject(self):
+    # Spawn an object with velocity hitting the model
+    r = random.random()
+    distance = 3.0
+    rand_angle = r * 2 * math.pi - math.pi
+
+    position, orientation = \
+      self._humanoid.getSimModelBasePosition()
+
+    # Remember, in bullet: Y direction is "up". X and Z direction are
+    # in the horizontal plane.
+    ball_position = [ distance * math.cos(rand_angle) + position[0],
+                      position[1],
+                      distance * math.sin(rand_angle)+ position[2]]
+
+    visualShapeId = self._pybullet_client.createVisualShape(
+      shapeType=self._pybullet_client.GEOM_SPHERE,
+      radius=0.1)
+    
+    collisionShapeId = self._pybullet_client.createCollisionShape(
+      shapeType=self._pybullet_client.GEOM_SPHERE,
+      radius=0.1)
+
+    body = self._pybullet_client.createMultiBody(
+      baseMass=1,
+      baseCollisionShapeIndex=collisionShapeId,
+      baseVisualShapeIndex=visualShapeId,
+      basePosition=ball_position)
+
+    distance_scale = 10
+    ball_velocity = [distance_scale * (position[i] - ball_position[i]) for i in range(3)]
+    self._pybullet_client.resetBaseVelocity(body, linearVelocity=ball_velocity)
+
+    self._humanoid.thrown_body_ids.append(body)
+
+  def removeThrownObjects(self):
+    for objectId in self._humanoid.thrown_body_ids:
+      self._pybullet_client.removeBody(objectId)
+
+    self._humanoid.thrown_body_ids = []

@@ -87,6 +87,9 @@ if __name__ == '__main__':
 
     if world.env.isKeyTriggered(keys, ' '):
       animating = not animating
+    if world.env.isKeyTriggered(keys, 'x'):
+      # print("Throwing object.")
+      world.env.hitWithObject()
     if (animating):
       update_world(world, timeStep)
       #animating=False
