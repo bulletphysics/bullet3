@@ -1595,7 +1595,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	btScalar m_physicsDeltaTime;
 	btScalar m_numSimulationSubSteps;
-        btScalar m_simulationTimestamp;
+	btScalar m_simulationTimestamp;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
 	b3HashMap<btHashPtr, btInverseDynamics::MultiBodyTree*> m_inverseDynamicsBodies;
 	b3HashMap<btHashPtr, IKTrajectoryHelper*> m_inverseKinematicsHelpers;
@@ -1672,6 +1672,9 @@ struct PhysicsServerCommandProcessorInternalData
 	b3ThreadPool* m_threadPool;
 	btScalar m_defaultCollisionMargin;
 
+	double m_remoteSyncTransformTime;
+	double m_remoteSyncTransformInterval;
+
 	PhysicsServerCommandProcessorInternalData(PhysicsCommandProcessorInterface* proc)
 		: m_pluginManager(proc),
 		  m_useRealTimeSimulation(false),
@@ -1681,7 +1684,7 @@ struct PhysicsServerCommandProcessorInternalData
 		  m_logPlaybackUid(-1),
 		  m_physicsDeltaTime(1. / 240.),
 		  m_numSimulationSubSteps(0),
-                  m_simulationTimestamp(0),
+		  m_simulationTimestamp(0),
 		  m_userConstraintUIDGenerator(1),
 		  m_broadphaseCollisionFilterCallback(0),
 		  m_pairCache(0),
@@ -1705,71 +1708,71 @@ struct PhysicsServerCommandProcessorInternalData
 		  m_collisionFilterPlugin(-1),
 		  m_grpcPlugin(-1),
 		  m_threadPool(0),
-		  m_defaultCollisionMargin(0.001)
+		  m_defaultCollisionMargin(0.001),
+		  m_remoteSyncTransformTime(1. / 30.),
+		m_remoteSyncTransformInterval(1. / 30.)
 	{
 		{
 			//register static plugins:
 #ifdef STATIC_LINK_VR_PLUGIN
-			b3PluginFunctions funcs(initPlugin_vrSyncPlugin,exitPlugin_vrSyncPlugin, executePluginCommand_vrSyncPlugin);
+			b3PluginFunctions funcs(initPlugin_vrSyncPlugin, exitPlugin_vrSyncPlugin, executePluginCommand_vrSyncPlugin);
 			funcs.m_preTickFunc = preTickPluginCallback_vrSyncPlugin;
 			m_pluginManager.registerStaticLinkedPlugin("vrSyncPlugin", funcs);
 #endif  //STATIC_LINK_VR_PLUGIN
 		}
 #ifndef SKIP_STATIC_PD_CONTROL_PLUGIN
-			{
-				//int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc, PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc, PFN_GET_RENDER_INTERFACE getRendererFunc, PFN_TICK processClientCommandsFunc, PFN_GET_COLLISION_INTERFACE getCollisionFunc, bool initPlugin)
-				b3PluginFunctions funcs(initPlugin_pdControlPlugin,exitPlugin_pdControlPlugin,executePluginCommand_pdControlPlugin);
-				funcs.m_preTickFunc = preTickPluginCallback_pdControlPlugin;
-				m_pdControlPlugin = m_pluginManager.registerStaticLinkedPlugin("pdControlPlugin", funcs);
-			}
+		{
+			//int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc, PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc, PFN_GET_RENDER_INTERFACE getRendererFunc, PFN_TICK processClientCommandsFunc, PFN_GET_COLLISION_INTERFACE getCollisionFunc, bool initPlugin)
+			b3PluginFunctions funcs(initPlugin_pdControlPlugin, exitPlugin_pdControlPlugin, executePluginCommand_pdControlPlugin);
+			funcs.m_preTickFunc = preTickPluginCallback_pdControlPlugin;
+			m_pdControlPlugin = m_pluginManager.registerStaticLinkedPlugin("pdControlPlugin", funcs);
+		}
 #endif  //SKIP_STATIC_PD_CONTROL_PLUGIN
 
 #ifndef SKIP_COLLISION_FILTER_PLUGIN
-			{
-				b3PluginFunctions funcs(initPlugin_collisionFilterPlugin,exitPlugin_collisionFilterPlugin, executePluginCommand_collisionFilterPlugin);
-				funcs.m_getCollisionFunc = getCollisionInterface_collisionFilterPlugin;
-				m_collisionFilterPlugin = m_pluginManager.registerStaticLinkedPlugin("collisionFilterPlugin", funcs );
-				m_pluginManager.selectCollisionPlugin(m_collisionFilterPlugin);
-			}
+		{
+			b3PluginFunctions funcs(initPlugin_collisionFilterPlugin, exitPlugin_collisionFilterPlugin, executePluginCommand_collisionFilterPlugin);
+			funcs.m_getCollisionFunc = getCollisionInterface_collisionFilterPlugin;
+			m_collisionFilterPlugin = m_pluginManager.registerStaticLinkedPlugin("collisionFilterPlugin", funcs);
+			m_pluginManager.selectCollisionPlugin(m_collisionFilterPlugin);
+		}
 #endif
 
 #ifdef ENABLE_STATIC_GRPC_PLUGIN
-			{
-				b3PluginFunctions funcs(initPlugin_grpcPlugin, exitPlugin_grpcPlugin, executePluginCommand_grpcPlugin);
-				funcs.m_processClientCommandsFunc = processClientCommands_grpcPlugin;
-				m_grpcPlugin = m_pluginManager.registerStaticLinkedPlugin("grpcPlugin", funcs);
-			}
+		{
+			b3PluginFunctions funcs(initPlugin_grpcPlugin, exitPlugin_grpcPlugin, executePluginCommand_grpcPlugin);
+			funcs.m_processClientCommandsFunc = processClientCommands_grpcPlugin;
+			m_grpcPlugin = m_pluginManager.registerStaticLinkedPlugin("grpcPlugin", funcs);
+		}
 #endif  //ENABLE_STATIC_GRPC_PLUGIN
 
 #ifdef STATIC_EGLRENDERER_PLUGIN
-			{
-				bool initPlugin = false;
-				b3PluginFunctions funcs(initPlugin_eglRendererPlugin, exitPlugin_eglRendererPlugin, executePluginCommand_eglRendererPlugin);
-				funcs.m_getRendererFunc = getRenderInterface_eglRendererPlugin;
-				int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("eglRendererPlugin", funcs, initPlugin);
-				m_pluginManager.selectPluginRenderer(renderPluginId);
-			}
+		{
+			bool initPlugin = false;
+			b3PluginFunctions funcs(initPlugin_eglRendererPlugin, exitPlugin_eglRendererPlugin, executePluginCommand_eglRendererPlugin);
+			funcs.m_getRendererFunc = getRenderInterface_eglRendererPlugin;
+			int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("eglRendererPlugin", funcs, initPlugin);
+			m_pluginManager.selectPluginRenderer(renderPluginId);
+		}
 #endif  //STATIC_EGLRENDERER_PLUGIN
 
 #ifndef SKIP_STATIC_TINYRENDERER_PLUGIN
-			{
-				b3PluginFunctions funcs(initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin);
-				funcs.m_getRendererFunc=getRenderInterface_tinyRendererPlugin;
-				int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", funcs);
-				m_pluginManager.selectPluginRenderer(renderPluginId);
-			}
+		{
+			b3PluginFunctions funcs(initPlugin_tinyRendererPlugin, exitPlugin_tinyRendererPlugin, executePluginCommand_tinyRendererPlugin);
+			funcs.m_getRendererFunc = getRenderInterface_tinyRendererPlugin;
+			int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("tinyRendererPlugin", funcs);
+			m_pluginManager.selectPluginRenderer(renderPluginId);
+		}
 #endif
 
 #ifdef B3_ENABLE_FILEIO_PLUGIN
-			{
-				b3PluginFunctions funcs(initPlugin_fileIOPlugin, exitPlugin_fileIOPlugin, executePluginCommand_fileIOPlugin);
-				funcs.m_fileIoFunc = getFileIOFunc_fileIOPlugin;
-				int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("fileIOPlugin", funcs);
-				m_pluginManager.selectFileIOPlugin(renderPluginId);
-			}
+		{
+			b3PluginFunctions funcs(initPlugin_fileIOPlugin, exitPlugin_fileIOPlugin, executePluginCommand_fileIOPlugin);
+			funcs.m_fileIoFunc = getFileIOFunc_fileIOPlugin;
+			int renderPluginId = m_pluginManager.registerStaticLinkedPlugin("fileIOPlugin", funcs);
+			m_pluginManager.selectFileIOPlugin(renderPluginId);
+		}
 #endif
-
-
 
 		m_vrControllerEvents.init();
 
@@ -1812,7 +1815,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 		Eigen::VectorXd pose, vel;
 		pose.resize(7 + multiBody->getNumPosVars());
-		vel.resize(7 + multiBody->getNumPosVars()); //??
+		vel.resize(7 + multiBody->getNumPosVars());  //??
 
 		btTransform tr = multiBody->getBaseWorldTransform();
 		int dofsrc = 0;
@@ -1868,49 +1871,48 @@ struct PhysicsServerCommandProcessorInternalData
 		int dof = 7;
 		int veldof = 7;
 
-
 		for (int l = 0; l < multiBody->getNumLinks(); l++)
 		{
 			switch (multiBody->getLink(l).m_jointType)
 			{
-			case btMultibodyLink::eRevolute:
-			case btMultibodyLink::ePrismatic:
-			{
-				pose[dof++] = jointPositionsQ[dofsrc++];
-				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
-				break;
-			}
-			case btMultibodyLink::eSpherical:
-			{
-				double quatXYZW[4];
-				quatXYZW[0] = jointPositionsQ[dofsrc++];
-				quatXYZW[1] = jointPositionsQ[dofsrc++];
-				quatXYZW[2] = jointPositionsQ[dofsrc++];
-				quatXYZW[3] = jointPositionsQ[dofsrc++];
+				case btMultibodyLink::eRevolute:
+				case btMultibodyLink::ePrismatic:
+				{
+					pose[dof++] = jointPositionsQ[dofsrc++];
+					vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+					break;
+				}
+				case btMultibodyLink::eSpherical:
+				{
+					double quatXYZW[4];
+					quatXYZW[0] = jointPositionsQ[dofsrc++];
+					quatXYZW[1] = jointPositionsQ[dofsrc++];
+					quatXYZW[2] = jointPositionsQ[dofsrc++];
+					quatXYZW[3] = jointPositionsQ[dofsrc++];
 
-				pose[dof++] = quatXYZW[3];
-				pose[dof++] = quatXYZW[0];
-				pose[dof++] = quatXYZW[1];
-				pose[dof++] = quatXYZW[2];
-				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
-				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
-				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
-				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
-				break;
-			}
-			case btMultibodyLink::eFixed:
-			{
-				break;
-			}
-			default:
-			{
-				assert(0);
-			}
+					pose[dof++] = quatXYZW[3];
+					pose[dof++] = quatXYZW[0];
+					pose[dof++] = quatXYZW[1];
+					pose[dof++] = quatXYZW[2];
+					vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+					vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+					vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+					vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+					break;
+				}
+				case btMultibodyLink::eFixed:
+				{
+					break;
+				}
+				default:
+				{
+					assert(0);
+				}
 			}
 		}
 
 		btVector3 gravOrg = m_dynamicsWorld->getGravity();
-		tVector grav (gravOrg[0], gravOrg[1], gravOrg[2], 0);
+		tVector grav(gravOrg[0], gravOrg[1], gravOrg[2], 0);
 		rbdModel->SetGravity(grav);
 		rbdModel->Update(pose, vel);
 
@@ -4630,23 +4632,47 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 {
 	bool hasStatus = true;
 	BT_PROFILE("CMD_REQUEST_MESH_DATA");
-  serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_FAILED;
+	serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_FAILED;
 	serverStatusOut.m_numDataStreamBytes = 0;
 
 	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_requestMeshDataArgs.m_bodyUniqueId);
 	if (bodyHandle)
 	{
-  	serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
-    serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = 1;
-  	serverStatusOut.m_sendMeshDataArgs.m_startingVertex = 0;
-	  serverStatusOut.m_sendMeshDataArgs.m_numVerticesRemaining = 0;
+		if (bodyHandle->m_multiBody)
+		{
+			//todo
+		}
+		if (bodyHandle->m_rigidBody)
+		{
+			//todo
+		}
+		if (bodyHandle->m_softBody)
+		{
+			btSoftBody* psb = bodyHandle->m_softBody;
+			int totalBytesPerVertex = sizeof(btVector3);
+			int numVertices = psb->m_nodes.size();
+			int maxNumVertices = bufferSizeInBytes / totalBytesPerVertex - 1;
+			int numVerticesRemaining = numVertices - clientCmd.m_requestMeshDataArgs.m_startingVertex;
+			int verticesCopied = btMin(maxNumVertices, numVerticesRemaining);
+			btVector3* verticesOut = (btVector3*)bufferServerToClient;
+			for (int i = 0; i < verticesCopied; ++i)
+			{
+				const btSoftBody::Node& n = psb->m_nodes[i+ clientCmd.m_requestMeshDataArgs.m_startingVertex];
+				verticesOut[i] = n.m_x;
+			}
+			
+			serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
+			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
+			serverStatusOut.m_sendMeshDataArgs.m_startingVertex = clientCmd.m_requestMeshDataArgs.m_startingVertex;
+			serverStatusOut.m_sendMeshDataArgs.m_numVerticesRemaining = numVerticesRemaining - verticesCopied;
+		}
+		
 	}
 
 	serverStatusOut.m_numDataStreamBytes = 0;
 
 	return hasStatus;
 }
-
 
 bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
@@ -7739,7 +7765,13 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	}
 	serverCmd.m_type = CMD_STEP_FORWARD_SIMULATION_COMPLETED;
 
-	syncPhysicsToGraphics2();
+	m_data->m_remoteSyncTransformTime += deltaTimeScaled;
+	if (m_data->m_remoteSyncTransformTime >= m_data->m_remoteSyncTransformInterval)
+	{
+		m_data->m_remoteSyncTransformTime = 0;
+		syncPhysicsToGraphics2();
+	}
+
 	return hasStatus;
 }
 
@@ -9034,6 +9066,29 @@ bool PhysicsServerCommandProcessor::processConfigureOpenGLVisualizerCommand(cons
 										 clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[1],
 										 clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[2]);
 	}
+	if (m_data->m_guiHelper->getRenderInterface())
+	{
+		if (clientCmd.m_updateFlags & COV_SET_LIGHT_POSITION)
+		{
+			m_data->m_guiHelper->getRenderInterface()->setLightPosition(clientCmd.m_configureOpenGLVisualizerArguments.m_lightPosition);
+		}
+		if (clientCmd.m_updateFlags & COV_SET_SHADOWMAP_RESOLUTION)
+		{
+			m_data->m_guiHelper->getRenderInterface()->setShadowMapResolution(clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapResolution);
+		}
+		if (clientCmd.m_updateFlags & COV_SET_SHADOWMAP_WORLD_SIZE)
+		{
+			float worldSize = clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapWorldSize;
+			m_data->m_guiHelper->getRenderInterface()->setShadowMapWorldSize(worldSize);
+		}
+	}
+
+	if (clientCmd.m_updateFlags & COV_SET_REMOTE_SYNC_TRANSFORM_INTERVAL)
+	{
+		m_data->m_remoteSyncTransformInterval = clientCmd.m_configureOpenGLVisualizerArguments.m_remoteSyncTransformInterval;
+	}
+
+	
 	return hasStatus;
 }
 
@@ -11309,10 +11364,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processCreateVisualShapeCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
-    case CMD_REQUEST_MESH_DATA:{
-      hasStatus = processRequestMeshDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+		case CMD_REQUEST_MESH_DATA:
+		{
+			hasStatus = processRequestMeshDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
-    }
+		}
 		case CMD_CREATE_MULTI_BODY:
 		{
 			hasStatus = processCreateMultiBodyCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
@@ -12006,7 +12062,8 @@ void PhysicsServerCommandProcessor::addTransformChangedNotifications()
 void PhysicsServerCommandProcessor::resetSimulation()
 {
 	//clean up all data
-
+	m_data->m_remoteSyncTransformTime = m_data->m_remoteSyncTransformInterval;
+	
 	m_data->m_simulationTimestamp = 0;
         m_data->m_cachedVUrdfisualShapes.clear();
 

@@ -66,8 +66,8 @@ struct PhysicsDirectInternalData
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
 	btAlignedObjectArray<b3CollisionShapeData> m_cachedCollisionShapes;
 
-  b3MeshData m_cachedMeshData;
-  btAlignedObjectArray<double> m_cachedVertexPositions;
+	b3MeshData m_cachedMeshData;
+	btAlignedObjectArray<b3MeshVertex> m_cachedVertexPositions;
 
 	btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
 
@@ -94,6 +94,7 @@ struct PhysicsDirectInternalData
 		  m_ownsCommandProcessor(false),
 		  m_timeOutInSeconds(1e30)
 	{
+		memset(&m_cachedMeshData.m_numVertices, 0, sizeof(b3MeshData));
 		memset(&m_command, 0, sizeof(m_command));
 		memset(&m_serverStatus, 0, sizeof(m_serverStatus));
 		memset(m_bulletStreamDataServerToClient, 0, sizeof(m_bulletStreamDataServerToClient));
@@ -589,13 +590,12 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 	return m_data->m_hasStatus;
 }
 
-
 bool PhysicsDirect::processMeshData(const struct SharedMemoryCommand& orgCommand)
 {
 	SharedMemoryCommand command = orgCommand;
 
 	const SharedMemoryStatus& serverCmd = m_data->m_serverStatus;
-  do
+	do
 	{
 		bool hasStatus = m_data->m_commandProcessor->processCommand(command, m_data->m_serverStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 
@@ -622,21 +622,23 @@ bool PhysicsDirect::processMeshData(const struct SharedMemoryCommand& orgCommand
 				b3Printf("Mesh data OK\n");
 			}
 
-      const b3SendMeshDataArgs& args = serverCmd.m_sendMeshDataArgs;
-			int numTotalPixels =args.m_startingVertex +
-								args.m_numVerticesCopied + args.m_numVerticesRemaining;
+			const b3SendMeshDataArgs& args = serverCmd.m_sendMeshDataArgs;
+			int numTotalPixels = args.m_startingVertex +
+								 args.m_numVerticesCopied + args.m_numVerticesRemaining;
 
-			 double* verticesReceived =
-				(double*)&m_data->m_bulletStreamDataServerToClient[0];
+			btVector3* verticesReceived =
+				(btVector3*)&m_data->m_bulletStreamDataServerToClient[0];
 
-      // flattened position
-      const int dimension = 3;
-      m_data->m_cachedVertexPositions.resize((args.m_startingVertex +
-								args.m_numVerticesCopied)*dimension);
+			
+			m_data->m_cachedVertexPositions.resize(args.m_startingVertex +
+													args.m_numVerticesCopied);
 
-			for (int i = 0; i < dimension*args.m_numVerticesCopied; i++)
+			for (int i = 0; i < args.m_numVerticesCopied; i++)
 			{
-				m_data->m_cachedVertexPositions[i + dimension*args.m_startingVertex] = verticesReceived[i];
+				m_data->m_cachedVertexPositions[i + args.m_startingVertex].x = verticesReceived[i].x();
+				m_data->m_cachedVertexPositions[i + args.m_startingVertex].y = verticesReceived[i].y();
+				m_data->m_cachedVertexPositions[i + args.m_startingVertex].z = verticesReceived[i].z();
+				m_data->m_cachedVertexPositions[i + args.m_startingVertex].w = verticesReceived[i].w();
 			}
 
 			if (args.m_numVerticesRemaining > 0 && args.m_numVerticesCopied)
@@ -646,12 +648,12 @@ bool PhysicsDirect::processMeshData(const struct SharedMemoryCommand& orgCommand
 				// continue requesting remaining vertices
 				command.m_type = CMD_REQUEST_MESH_DATA;
 				command.m_requestMeshDataArgs.m_startingVertex =
-              args.m_startingVertex + args.m_numVerticesCopied;
+					args.m_startingVertex + args.m_numVerticesCopied;
 			}
 			else
 			{
-        m_data->m_cachedMeshData.m_numVertices=args.m_startingVertex +
-					args.m_numVerticesCopied;
+				m_data->m_cachedMeshData.m_numVertices = args.m_startingVertex +
+														 args.m_numVerticesCopied;
 			}
 		}
 	} while (serverCmd.m_sendMeshDataArgs.m_numVerticesRemaining > 0 && serverCmd.m_sendMeshDataArgs.m_numVerticesCopied);
@@ -1526,9 +1528,15 @@ void PhysicsDirect::getCachedCameraImage(b3CameraImageData* cameraData)
 	}
 }
 
-void PhysicsDirect::getCachedMeshData(struct b3MeshData* meshData){
- *meshData = m_data->m_cachedMeshData;
+void PhysicsDirect::getCachedMeshData(struct b3MeshData* meshData)
+{
+	m_data->m_cachedMeshData.m_numVertices = m_data->m_cachedVertexPositions.size();
+
+	m_data->m_cachedMeshData.m_vertices = m_data->m_cachedMeshData.m_numVertices ? &m_data->m_cachedVertexPositions[0] : 0;
+
+	*meshData = m_data->m_cachedMeshData;
 }
+
 void PhysicsDirect::getCachedContactPointInformation(struct b3ContactInformation* contactPointData)
 {
 	contactPointData->m_numContactPoints = m_data->m_cachedContactPoints.size();

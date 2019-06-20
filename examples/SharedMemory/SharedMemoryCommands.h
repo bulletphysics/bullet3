@@ -905,6 +905,10 @@ enum InternalOpenGLVisualizerUpdateFlags
 {
 	COV_SET_CAMERA_VIEW_MATRIX = 1,
 	COV_SET_FLAGS = 2,
+	COV_SET_LIGHT_POSITION = 4,
+	COV_SET_SHADOWMAP_RESOLUTION = 8,
+	COV_SET_SHADOWMAP_WORLD_SIZE = 16,
+	COV_SET_REMOTE_SYNC_TRANSFORM_INTERVAL = 32,
 };
 
 struct ConfigureOpenGLVisualizerRequest
@@ -913,7 +917,10 @@ struct ConfigureOpenGLVisualizerRequest
 	double m_cameraPitch;
 	double m_cameraYaw;
 	double m_cameraTargetPosition[3];
-
+	double m_lightPosition[3];
+	int m_shadowMapResolution;
+	int m_shadowMapWorldSize;
+	double m_remoteSyncTransformInterval;
 	int m_setFlag;
 	int m_setEnabled;
 };
@@ -1054,15 +1061,18 @@ struct AddUserDataRequestArgs
 	// Value data stored in m_bulletStreamDataServerToClientRefactor.
 };
 
-struct b3RequestMeshDataArgs{
-  int m_bodyUniqueId;
-  int m_startingVertex;
+struct b3RequestMeshDataArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+	int m_startingVertex;
 };
 
-struct b3SendMeshDataArgs{
-  int m_numVerticesCopied;
-  int m_startingVertex;
-  int m_numVerticesRemaining;
+struct b3SendMeshDataArgs
+{
+	int m_numVerticesCopied;
+	int m_startingVertex;
+	int m_numVerticesRemaining;
 };
 
 struct SharedMemoryCommand
@@ -1124,7 +1134,7 @@ struct SharedMemoryCommand
 		struct AddUserDataRequestArgs m_addUserDataRequestArgs;
 		struct UserDataRequestArgs m_removeUserDataRequestArgs;
 		struct b3CollisionFilterArgs m_collisionFilterArgs;
-    struct b3RequestMeshDataArgs m_requestMeshDataArgs;
+		struct b3RequestMeshDataArgs m_requestMeshDataArgs;
 	};
 };
 
@@ -1200,7 +1210,7 @@ struct SharedMemoryStatus
 		struct UserDataResponseArgs m_userDataResponseArgs;
 		struct UserDataRequestArgs m_removeUserDataResponseArgs;
 		struct b3ForwardDynamicsAnalyticsArgs m_forwardDynamicsAnalyticsArgs;
-    struct b3SendMeshDataArgs m_sendMeshDataArgs;
+		struct b3SendMeshDataArgs m_sendMeshDataArgs;
 	};
 };
 

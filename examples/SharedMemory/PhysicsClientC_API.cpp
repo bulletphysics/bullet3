@@ -1210,7 +1210,8 @@ B3_SHARED_API int b3CreateCollisionShapeAddSphere(b3SharedMemoryCommandHandle co
 	return -1;
 }
 
-B3_SHARED_API b3SharedMemoryCommandHandle b3GetMeshDataCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId){
+B3_SHARED_API b3SharedMemoryCommandHandle b3GetMeshDataCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex)
+{
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
 	b3Assert(cl->canSubmitCommand());
@@ -1220,22 +1221,22 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3GetMeshDataCommandInit(b3PhysicsClie
 		b3Assert(command);
 		command->m_type = CMD_REQUEST_MESH_DATA;
 		command->m_updateFlags = 0;
+		command->m_requestMeshDataArgs.m_startingVertex = 0;
 		command->m_requestMeshDataArgs.m_bodyUniqueId = bodyUniqueId;
+		command->m_requestMeshDataArgs.m_linkIndex = linkIndex;
 		return (b3SharedMemoryCommandHandle)command;
 	}
 	return 0;
 }
 
-B3_SHARED_API void b3GetMeshData(b3PhysicsClientHandle physClient, struct b3MeshData* meshData){
-  PhysicsClient* cl = (PhysicsClient*)physClient;
+B3_SHARED_API void b3GetMeshData(b3PhysicsClientHandle physClient, struct b3MeshData* meshData)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
 	if (cl)
 	{
 		cl->getCachedMeshData(meshData);
 	}
 }
-
-
-
 
 B3_SHARED_API int b3CreateVisualShapeAddSphere(b3SharedMemoryCommandHandle commandHandle, double radius)
 {
@@ -5460,6 +5461,58 @@ B3_SHARED_API void b3ConfigureOpenGLVisualizerSetVisualizationFlags(b3SharedMemo
 		command->m_configureOpenGLVisualizerArguments.m_setEnabled = enabled;
 	}
 }
+
+B3_SHARED_API void b3ConfigureOpenGLVisualizerSetLightPosition(b3SharedMemoryCommandHandle commandHandle, const float lightPosition[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+	if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+	{
+		command->m_updateFlags |= COV_SET_LIGHT_POSITION;
+		command->m_configureOpenGLVisualizerArguments.m_lightPosition[0] = lightPosition[0];
+		command->m_configureOpenGLVisualizerArguments.m_lightPosition[1] = lightPosition[1];
+		command->m_configureOpenGLVisualizerArguments.m_lightPosition[2] = lightPosition[2];
+	}
+}
+
+B3_SHARED_API void b3ConfigureOpenGLVisualizerSetShadowMapResolution(b3SharedMemoryCommandHandle commandHandle, int shadowMapResolution)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+	if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+	{
+		command->m_updateFlags |= COV_SET_SHADOWMAP_RESOLUTION;
+		command->m_configureOpenGLVisualizerArguments.m_shadowMapResolution = shadowMapResolution;
+	}
+}
+
+B3_SHARED_API void b3ConfigureOpenGLVisualizerSetShadowMapWorldSize(b3SharedMemoryCommandHandle commandHandle, int shadowMapWorldSize)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+	if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+	{
+		command->m_updateFlags |= COV_SET_SHADOWMAP_WORLD_SIZE;
+		command->m_configureOpenGLVisualizerArguments.m_shadowMapWorldSize = shadowMapWorldSize;
+	}
+}
+
+
+B3_SHARED_API void b3ConfigureOpenGLVisualizerSetRemoteSyncTransformInterval(b3SharedMemoryCommandHandle commandHandle, double remoteSyncTransformInterval)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+	if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+	{
+		command->m_updateFlags |= COV_SET_REMOTE_SYNC_TRANSFORM_INTERVAL;
+		command->m_configureOpenGLVisualizerArguments.m_remoteSyncTransformInterval = remoteSyncTransformInterval;
+	}
+}
+
 
 B3_SHARED_API void b3ConfigureOpenGLVisualizerSetViewMatrix(b3SharedMemoryCommandHandle commandHandle, float cameraDistance, float cameraPitch, float cameraYaw, const float cameraTargetPosition[3])
 {
