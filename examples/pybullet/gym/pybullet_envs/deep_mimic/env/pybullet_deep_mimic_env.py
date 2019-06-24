@@ -359,7 +359,12 @@ class PyBulletDeepMimicEnv(Env):
     self._humanoid.thrown_body_ids.append(body)
 
   def removeThrownObjects(self):
+    # Disable gui so that object removal does not cause stutter
+    self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_RENDERING,0)
+
     for objectId in self._humanoid.thrown_body_ids:
       self._pybullet_client.removeBody(objectId)
 
     self._humanoid.thrown_body_ids = []
+
+    self._pybullet_client.configureDebugVisualizer(self._pybullet_client.COV_ENABLE_RENDERING,1)
