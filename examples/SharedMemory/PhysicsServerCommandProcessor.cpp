@@ -4660,13 +4660,12 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 				const btSoftBody::Node& n = psb->m_nodes[i+ clientCmd.m_requestMeshDataArgs.m_startingVertex];
 				verticesOut[i] = n.m_x;
 			}
-			
+
 			serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
 			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
 			serverStatusOut.m_sendMeshDataArgs.m_startingVertex = clientCmd.m_requestMeshDataArgs.m_startingVertex;
 			serverStatusOut.m_sendMeshDataArgs.m_numVerticesRemaining = numVerticesRemaining - verticesCopied;
-		}
-		
+      		}
 	}
 
 	serverStatusOut.m_numDataStreamBytes = 0;
@@ -7450,11 +7449,35 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				int bodyUniqueId = m_data->m_bodyHandles.allocHandle();
 				InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 				bodyHandle->m_softBody = psb;
+
+				b3VisualShapeData visualShape;
+
+				visualShape.m_objectUniqueId = bodyUniqueId;
+				visualShape.m_linkIndex = -1;
+				visualShape.m_visualGeometryType = URDF_GEOM_MESH;
+				//dimensions just contains the scale
+				visualShape.m_dimensions[0] = scale;
+				visualShape.m_dimensions[1] = scale;
+				visualShape.m_dimensions[2] = scale;
+				//filename
+				strncpy(visualShape.m_meshAssetFileName, relativeFileName, VISUAL_SHAPE_MAX_PATH_LEN);
+				visualShape.m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN - 1] = 0;
+				//position and orientation
+				visualShape.m_localVisualFrame[0] = initialPos[0];
+				visualShape.m_localVisualFrame[1] = initialPos[1];
+				visualShape.m_localVisualFrame[2] = initialPos[2];
+				visualShape.m_localVisualFrame[3] = initialOrn[0];
+				visualShape.m_localVisualFrame[4] = initialOrn[1];
+				visualShape.m_localVisualFrame[5] = initialOrn[2];
+				visualShape.m_localVisualFrame[6] = initialOrn[3];
+
+				m_data->m_pluginManager.getRenderInterface()->addVisualShape(&visualShape, fileIO);
+
 				serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
 				serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_COMPLETED;
 
-                                int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
-                                serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
+				int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
+				serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
 
 #ifdef ENABLE_LINK_MAPPER
                                 if (m_data->m_urdfLinkNameMapper.size())
@@ -7741,7 +7764,7 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 
 	if (numSteps > 0)
 	{
-		addTransformChangedNotifications();
+		addBodyChangedNotifications();
 	}
 
 	SharedMemoryStatus& serverCmd = serverStatusOut;
@@ -9088,7 +9111,7 @@ bool PhysicsServerCommandProcessor::processConfigureOpenGLVisualizerCommand(cons
 		m_data->m_remoteSyncTransformInterval = clientCmd.m_configureOpenGLVisualizerArguments.m_remoteSyncTransformInterval;
 	}
 
-	
+
 	return hasStatus;
 }
 
@@ -9624,6 +9647,23 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				bodyHandle->m_rigidBody = 0;
 				serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
 			}
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+			if (bodyHandle->m_softBody)
+			{
+				btSoftBody* psb = bodyHandle->m_softBody;
+				if (m_data->m_pluginManager.getRenderInterface())
+				{
+					m_data->m_pluginManager.getRenderInterface()->removeVisualShape(psb->getBroadphaseHandle()->getUid());
+				}
+				serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
+				m_data->m_dynamicsWorld->removeSoftBody(psb);
+				int graphicsInstance = psb->getUserIndex2();
+				m_data->m_guiHelper->removeGraphicsInstance(graphicsInstance);
+				delete psb;
+				psb = 0;
+				serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
+			}
+#endif
 			for (int i = 0; i < bodyHandle->m_userDataHandles.size(); i++)
 			{
 				int userDataHandle = bodyHandle->m_userDataHandles[i];
@@ -11410,7 +11450,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processRequestCollisionInfoCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
-
 		case CMD_REQUEST_ACTUAL_STATE:
 		{
 			hasStatus = processRequestActualStateCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
@@ -11992,7 +12031,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec, const
 			gNumSteps = numSteps;
 			gDtInSec = dtInSec;
 
-			addTransformChangedNotifications();
+			addBodyChangedNotifications();
 		}
 	}
 }
@@ -12021,7 +12060,18 @@ b3Notification createTransformChangedNotification(int bodyUniqueId, int linkInde
 	return notification;
 }
 
-void PhysicsServerCommandProcessor::addTransformChangedNotifications()
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+b3Notification createSoftBodyChangedNotification(int bodyUniqueId, int linkIndex, const btSoftBody* psb)
+{
+	b3Notification notification;
+	notification.m_notificationType = SOFTBODY_CHANGED;
+	notification.m_softBodyChangeArgs.m_bodyUniqueId = bodyUniqueId;
+	notification.m_softBodyChangeArgs.m_linkIndex = linkIndex;
+	return notification;
+}
+#endif
+
+void PhysicsServerCommandProcessor::addBodyChangedNotifications()
 {
 	b3Notification notification;
 	notification.m_notificationType = SIMULATION_STEPPED;
@@ -12056,6 +12106,14 @@ void PhysicsServerCommandProcessor::addTransformChangedNotifications()
 		{
 			m_data->m_pluginManager.addNotification(createTransformChangedNotification(bodyUniqueId, -1, bodyData->m_rigidBody));
 		}
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+		else if (bodyData->m_softBody)
+		{
+			btSoftBody* psb = bodyData->m_softBody;
+			int linkIndex = -1;
+			m_data->m_pluginManager.addNotification(createSoftBodyChangedNotification(bodyUniqueId, linkIndex, psb));
+		}
+#endif
 	}
 }
 
@@ -12063,7 +12121,7 @@ void PhysicsServerCommandProcessor::resetSimulation()
 {
 	//clean up all data
 	m_data->m_remoteSyncTransformTime = m_data->m_remoteSyncTransformInterval;
-	
+
 	m_data->m_simulationTimestamp = 0;
         m_data->m_cachedVUrdfisualShapes.clear();
 
