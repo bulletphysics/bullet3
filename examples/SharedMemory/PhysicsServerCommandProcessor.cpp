@@ -12061,7 +12061,7 @@ b3Notification createTransformChangedNotification(int bodyUniqueId, int linkInde
 }
 
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-b3Notification createSoftBodyChangedNotification(int bodyUniqueId, int linkIndex, const btSoftBody* psb)
+b3Notification createSoftBodyChangedNotification(int bodyUniqueId, int linkIndex)
 {
 	b3Notification notification;
 	notification.m_notificationType = SOFTBODY_CHANGED;
@@ -12109,9 +12109,8 @@ void PhysicsServerCommandProcessor::addBodyChangedNotifications()
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		else if (bodyData->m_softBody)
 		{
-			btSoftBody* psb = bodyData->m_softBody;
 			int linkIndex = -1;
-			m_data->m_pluginManager.addNotification(createSoftBodyChangedNotification(bodyUniqueId, linkIndex, psb));
+			m_data->m_pluginManager.addNotification(createSoftBodyChangedNotification(bodyUniqueId, linkIndex));
 		}
 #endif
 	}
