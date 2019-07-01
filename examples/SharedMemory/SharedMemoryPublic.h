@@ -7,7 +7,8 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201904030
+#define SHARED_MEMORY_MAGIC_NUMBER 2019060190
+// #define SHARED_MEMORY_MAGIC_NUMBER 201904030
 //#define SHARED_MEMORY_MAGIC_NUMBER 201902120
 //#define SHARED_MEMORY_MAGIC_NUMBER 201811260
 //#define SHARED_MEMORY_MAGIC_NUMBER 201810250
@@ -548,6 +549,7 @@ enum b3NotificationType
 	VISUAL_SHAPE_CHANGED = 6,
 	TRANSFORM_CHANGED = 7,
 	SIMULATION_STEPPED = 8,
+	SOFTBODY_CHANGED = 9,
 };
 
 struct b3BodyNotificationArgs
@@ -586,6 +588,12 @@ struct b3TransformChangeNotificationArgs
 	double m_localScaling[3];
 };
 
+struct b3SoftBodyChangeNotificationArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+};
+
 struct b3Notification
 {
 	int m_notificationType;
@@ -595,6 +603,7 @@ struct b3Notification
 		struct b3LinkNotificationArgs m_linkArgs;
 		struct b3VisualShapeNotificationArgs m_visualShapeArgs;
 		struct b3TransformChangeNotificationArgs m_transformChangeArgs;
+		struct b3SoftBodyChangeNotificationArgs m_softBodyChangeArgs;
 	};
 };
 

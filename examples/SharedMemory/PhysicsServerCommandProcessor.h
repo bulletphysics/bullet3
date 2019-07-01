@@ -175,7 +175,7 @@ public:
 	virtual void setVRTeleportOrientation(const btQuaternion& vrTeleportOrn);
 
 private:
-	void addTransformChangedNotifications();
+	void addBodyChangedNotifications();
 };
 
 #endif  //PHYSICS_SERVER_COMMAND_PROCESSOR_H
