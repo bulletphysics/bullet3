@@ -240,6 +240,45 @@ void RemoteGUIHelper::createRigidBodyGraphicsObject(btRigidBody* body, const btV
 	printf("createRigidBodyGraphicsObject\n");
 }
 
+bool RemoteGUIHelper::getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3], float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float camTarget[3]) const
+{
+	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
+	if (cmd)
+	{
+		
+		cmd->m_updateFlags = 0;
+		cmd->m_type = GFX_CMD_GET_CAMERA_INFO;
+		m_data->submitClientCommand(*cmd);
+	}
+	const GraphicsSharedMemoryStatus* status = 0;
+	while ((status = m_data->processServerStatus()) == 0)
+	{
+	}
+	if (status->m_type == GFX_CMD_GET_CAMERA_INFO_COMPLETED)
+	{
+		*width = status->m_getCameraInfoStatus.width;
+		*height = status->m_getCameraInfoStatus.height;
+		for (int i = 0; i < 16; i++)
+		{
+			viewMatrix[i] = status->m_getCameraInfoStatus.viewMatrix[i];
+			projectionMatrix[i] = status->m_getCameraInfoStatus.projectionMatrix[i];
+		}
+		for (int i = 0; i < 3; i++)
+		{
+			camUp[i] = status->m_getCameraInfoStatus.camUp[i];
+			camForward[i] = status->m_getCameraInfoStatus.camForward[i];
+			hor[i] = status->m_getCameraInfoStatus.hor[i];
+			vert[i] = status->m_getCameraInfoStatus.vert[i];
+			camTarget[i] = status->m_getCameraInfoStatus.camTarget[i];
+		}
+		*yaw = status->m_getCameraInfoStatus.yaw;
+		*pitch = status->m_getCameraInfoStatus.pitch;
+		*camDist = status->m_getCameraInfoStatus.camDist;
+		return true;
+	}
+	return false;
+}
+
 void RemoteGUIHelper::createCollisionObjectGraphicsObject(btCollisionObject* body, const btVector3& color)
 {
 	if (body->getUserIndex() < 0)
@@ -487,6 +526,22 @@ void RemoteGUIHelper::removeGraphicsInstance(int graphicsUid)
 }
 void RemoteGUIHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4])
 {
+	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
+	if (cmd)
+	{
+		cmd->m_updateFlags = 0;
+		cmd->m_type = GFX_CMD_CHANGE_RGBA_COLOR;
+		cmd->m_changeRGBAColorCommand.m_graphicsUid = instanceUid;
+		for (int i = 0; i < 4; i++)
+		{
+			cmd->m_changeRGBAColorCommand.m_rgbaColor[i] = rgbaColor[i];
+		}
+		m_data->submitClientCommand(*cmd);
+		const GraphicsSharedMemoryStatus* status = 0;
+		while ((status = m_data->processServerStatus()) == 0)
+		{
+		}
+	}
 }
 Common2dCanvasInterface* RemoteGUIHelper::get2dCanvasInterface()
 {
