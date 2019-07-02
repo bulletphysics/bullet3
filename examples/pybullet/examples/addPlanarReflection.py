@@ -32,7 +32,8 @@ def getRayFromTo(mouseX, mouseY):
   return rayFrom, rayTo
 
 
-cid = p.connect(p.SHARED_MEMORY)
+cid = p.connect(p.SHARED_MEMORY_GUI)
+#cid = p.connect(p.GUI)
 if (cid < 0):
   p.connect(p.GUI)
 p.setPhysicsEngineParameter(numSolverIterations=10)
@@ -82,6 +83,7 @@ colors = [[1, 0, 0, 1], [0, 1, 0, 1], [0, 0, 1, 1], [1, 1, 1, 1]]
 currentColor = 0
 
 while (1):
+  p.getDebugVisualizerCamera()
   mouseEvents = p.getMouseEvents()
   for e in mouseEvents:
     if ((e[0] == 2) and (e[3] == 0) and (e[4] & p.KEY_WAS_TRIGGERED)):

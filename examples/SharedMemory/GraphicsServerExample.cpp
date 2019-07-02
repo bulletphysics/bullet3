@@ -109,7 +109,7 @@ public:
 			}
 			case GFX_CMD_SET_VISUALIZER_FLAG:
 			{
-				if (clientCmd.m_visualizerFlagCommand.m_visualizerFlag!=COV_ENABLE_RENDERING)
+				if (clientCmd.m_visualizerFlagCommand.m_visualizerFlag != COV_ENABLE_RENDERING)
 				{
 					//printf("clientCmd.m_visualizerFlag.m_visualizerFlag: %d, clientCmd.m_visualizerFlag.m_enable %d\n",
 					//	clientCmd.m_visualizerFlagCommand.m_visualizerFlag, clientCmd.m_visualizerFlagCommand.m_enable);
@@ -155,8 +155,8 @@ public:
 				int verticesSlot = 0;
 				int indicesSlot = 1;
 				serverStatusOut.m_type = GFX_CMD_REGISTER_GRAPHICS_SHAPE_FAILED;
-				const float* vertices = (const float*) &m_dataSlots[verticesSlot][0];
-				const int* indices = (const int*) &m_dataSlots[indicesSlot][0];
+				const float* vertices = (const float*)&m_dataSlots[verticesSlot][0];
+				const int* indices = (const int*)&m_dataSlots[indicesSlot][0];
 				int numVertices = clientCmd.m_registerGraphicsShapeCommand.m_numVertices;
 				int numIndices = clientCmd.m_registerGraphicsShapeCommand.m_numIndices;
 				int primitiveType = clientCmd.m_registerGraphicsShapeCommand.m_primitiveType;
@@ -176,7 +176,7 @@ public:
 					clientCmd.m_registerGraphicsInstanceCommand.m_scaling);
 				serverStatusOut.m_registerGraphicsInstanceStatus.m_graphicsInstanceId = graphicsInstanceId;
 				serverStatusOut.m_type = GFX_CMD_REGISTER_GRAPHICS_INSTANCE_COMPLETED;
-				
+
 				break;
 			}
 			case GFX_CMD_SYNCHRONIZE_TRANSFORMS:
@@ -198,8 +198,37 @@ public:
 				m_app->m_renderer->removeGraphicsInstance(clientCmd.m_removeGraphicsInstanceCommand.m_graphicsUid);
 				break;
 			}
+			case GFX_CMD_CHANGE_RGBA_COLOR:
+			{
+				m_guiHelper->changeRGBAColor(clientCmd.m_changeRGBAColorCommand.m_graphicsUid, clientCmd.m_changeRGBAColorCommand.m_rgbaColor);
+				break;
+			}
+			case GFX_CMD_GET_CAMERA_INFO:
+			{
+				serverStatusOut.m_type = GFX_CMD_GET_CAMERA_INFO_FAILED;
+				
+				if (m_guiHelper->getCameraInfo(
+					&serverStatusOut.m_getCameraInfoStatus.width,
+					&serverStatusOut.m_getCameraInfoStatus.height,
+					serverStatusOut.m_getCameraInfoStatus.viewMatrix,
+					serverStatusOut.m_getCameraInfoStatus.projectionMatrix,
+					serverStatusOut.m_getCameraInfoStatus.camUp,
+					serverStatusOut.m_getCameraInfoStatus.camForward,
+					serverStatusOut.m_getCameraInfoStatus.hor,
+					serverStatusOut.m_getCameraInfoStatus.vert,
+					&serverStatusOut.m_getCameraInfoStatus.yaw,
+					&serverStatusOut.m_getCameraInfoStatus.pitch,
+					&serverStatusOut.m_getCameraInfoStatus.camDist,
+					serverStatusOut.m_getCameraInfoStatus.camTarget))
+				{
+					serverStatusOut.m_type = GFX_CMD_GET_CAMERA_INFO_COMPLETED;
+				}
+
+				break;
+			}
 			default:
 			{
+				printf("unsupported command:%d\n", clientCmd.m_type);
 			}
 		}
 		return true;

@@ -106,6 +106,28 @@ struct GraphicsRemoveInstanceCommand
 	int m_graphicsUid;
 };
 
+struct GraphicsChangeRGBAColorCommand
+{
+	int m_graphicsUid;
+	double m_rgbaColor[4];
+};
+
+struct GraphicsGetCameraInfoStatus
+{
+	int width;
+	int height;
+	float viewMatrix[16];
+	float projectionMatrix[16];
+	float camUp[3];
+	float camForward[3];
+	float hor[3];
+	float vert[3];
+	float yaw;
+	float pitch;
+	float camDist;
+	float camTarget[3];
+};
+
 
 struct GraphicsSharedMemoryCommand
 {
@@ -127,6 +149,7 @@ struct GraphicsSharedMemoryCommand
 		struct GraphicsRegisterGraphicsInstanceCommand m_registerGraphicsInstanceCommand;
 		struct GraphicsSyncTransformsCommand m_syncTransformsCommand;
 		struct GraphicsRemoveInstanceCommand m_removeGraphicsInstanceCommand;
+		struct GraphicsChangeRGBAColorCommand m_changeRGBAColorCommand;
 	};
 };
 
@@ -151,6 +174,7 @@ struct GraphicsSharedMemoryStatus
 		struct GraphicsRegisterTextureStatus m_registerTextureStatus;
 		struct GraphicsRegisterGraphicsShapeStatus m_registerGraphicsShapeStatus;
 		struct GraphicsRegisterGraphicsInstanceStatus m_registerGraphicsInstanceStatus;
+		struct GraphicsGetCameraInfoStatus m_getCameraInfoStatus;
 	};
 };
 
