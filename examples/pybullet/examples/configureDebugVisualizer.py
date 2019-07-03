@@ -3,7 +3,7 @@ import math
 import time
 dt = 1./240.
 
-p.connect(p.SHARED_MEMORY_GUI)
+p.connect(p.GUI)#SHARED_MEMORY_GUI)
 p.loadURDF("r2d2.urdf",[0,0,1])
 p.loadURDF("plane.urdf")
 p.setGravity(0,0,-10)
