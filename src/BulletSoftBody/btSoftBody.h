@@ -704,6 +704,7 @@ public:
 	btDbvt m_fdbvt;                    // Faces tree
 	btDbvt m_cdbvt;                    // Clusters tree
 	tClusterArray m_clusters;          // Clusters
+    btScalar m_dampingCoefficient;     // Damping Coefficient
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
 
@@ -735,6 +736,11 @@ public:
 	{
 		return m_worldInfo;
 	}
+    
+    void setDampingCoefficient(btScalar damping_coeff)
+    {
+        m_dampingCoefficient = damping_coeff;
+    }
 
 	///@todo: avoid internal softbody shape hack and move collision code to collision library
 	virtual void setCollisionShape(btCollisionShape* collisionShape)

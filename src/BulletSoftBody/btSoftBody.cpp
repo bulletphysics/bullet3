@@ -110,6 +110,7 @@ void btSoftBody::initDefaults()
 
 	m_windVelocity = btVector3(0, 0, 0);
 	m_restLengthScale = btScalar(1.0);
+    m_dampingCoefficient = 1;
 }
 
 //
