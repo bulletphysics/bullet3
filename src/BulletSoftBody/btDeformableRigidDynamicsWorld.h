@@ -31,7 +31,6 @@ class btDeformableRigidDynamicsWorld : public btSoftRigidDynamicsWorld
     ///Solver classes that encapsulate multiple deformable bodies for solving
     btDeformableBodySolver* m_deformableBodySolver;
 
-
 protected:
     virtual void internalSingleStepSimulation(btScalar timeStep);
     
@@ -65,7 +64,7 @@ public:
     
     virtual void predictUnconstraintMotion(btScalar timeStep)
     {
-        btDiscreteDynamicsWorld::predictUnconstraintMotion(timeStep);
+//        btDiscreteDynamicsWorld::predictUnconstraintMotion(timeStep);
         m_deformableBodySolver->predictMotion(float(timeStep));
     }
     // virtual void internalStepSingleStepSimulation(btScalar timeStep);
