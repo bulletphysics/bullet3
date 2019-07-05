@@ -11,42 +11,14 @@
 #include "btConjugateGradient.h"
 #include "btLagrangianForce.h"
 #include "btMassSpring.h"
+#include "btContactProjection.h"
+#include "btDeformableRigidDynamicsWorld.h"
 
-struct DirichletDofProjection
-{
-    using TVStack = btAlignedObjectArray<btVector3>;
-    const btAlignedObjectArray<btSoftBody *>& m_softBodies;
-    DirichletDofProjection(const btAlignedObjectArray<btSoftBody *>& softBodies)
-    : m_softBodies(softBodies)
-    {}
-    
-    void operator()(TVStack& x)
-    {
-        size_t counter = 0;
-        for (int i = 0; i < m_softBodies.size(); ++i)
-        {
-            const btSoftBody* psb = m_softBodies[i];
-            for (int j = 0; j < psb->m_nodes.size(); ++j)
-            {
-                if (psb->m_nodes[j].m_im == 0)
-                {
-                    x[counter].setZero();
-                }
-                ++counter;
-            }
-        }
-    }
-};
-
+class btDeformableRigidDynamicsWorld;
 class btBackwardEulerObjective
 {
 public:
     using TVStack = btAlignedObjectArray<btVector3>;
-    struct EmptyProjection
-    {
-        void operator()(TVStack& x)
-        {}
-    };
     struct DefaultPreconditioner
     {
         void operator()(const TVStack& x, TVStack& b)
@@ -58,19 +30,19 @@ public:
     };
     btScalar m_dt;
     btConjugateGradient<btBackwardEulerObjective> cg;
-    
+    btDeformableRigidDynamicsWorld* m_world;
     btAlignedObjectArray<btLagrangianForce*> m_lf;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
-    std::function<void(TVStack&)> project;
     std::function<void(const TVStack&, TVStack&)> precondition;
+    btContactProjection projection;
     
-    btBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies)
+    btBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
     : cg(20)
     , m_softBodies(softBodies)
-    , project(EmptyProjection())
     , precondition(DefaultPreconditioner())
+    , projection(m_softBodies, backup_v)
     {
-        // this should really be specified in initialization instead of here
+        // TODO: this should really be specified in initialization instead of here
         btMassSpring* mass_spring = new btMassSpring(m_softBodies);
         m_lf.push_back(mass_spring);
     }
@@ -103,7 +75,6 @@ public:
     void computeStep(TVStack& dv, const TVStack& residual, const btScalar& dt)
     {
         m_dt = dt;
-        // TODO:figure out what the tolerance should be
         btScalar tolerance = std::numeric_limits<float>::epsilon()*16 * computeNorm(residual);
         cg.solve(*this, dv, residual, tolerance);
     }
@@ -133,30 +104,45 @@ public:
         }
     }
     
+    void updateProjection(const TVStack& dv)
+    {
+        projection.update(m_dt, dv);
+    }
+    
     void reinitialize(bool nodeUpdated)
     {
+        if(nodeUpdated)
+        {
+            projection.setSoftBodies(m_softBodies);
+        }
         for (int i = 0; i < m_lf.size(); ++i)
         {
             m_lf[i]->reinitialize(nodeUpdated);
-        }
-        
-        if(nodeUpdated)
-        {
-            DirichletDofProjection dirichlet(m_softBodies);
-            setProjection(dirichlet);
+            projection.reinitialize(nodeUpdated);
         }
     }
     
-    template <class Func>
-    void setProjection(Func project_func)
+    void enforceConstraint(TVStack& x)
     {
-        project = project_func;
+        projection.enforceConstraint(x);
+    }
+    
+    void project(TVStack& r, const TVStack& dv)
+    {
+        updateProjection(dv);
+        projection(r);
     }
     
     template <class Func>
     void setPreconditioner(Func preconditioner_func)
     {
         precondition = preconditioner_func;
+    }
+    
+    virtual void setWorld(btDeformableRigidDynamicsWorld* world)
+    {
+        m_world = world;
+        projection.setWorld(world);
     }
 };
 

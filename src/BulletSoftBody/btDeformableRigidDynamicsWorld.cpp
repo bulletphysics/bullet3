@@ -18,12 +18,52 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     {
         btAssert("Solver initialization failed\n");
     }
+
+    // from btDiscreteDynamicsWorld singleStepSimulation
+    if (0 != m_internalPreTickCallback)
+    {
+        (*m_internalPreTickCallback)(this, timeStep);
+    }
     
-    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::internalSingleStepSimulation(timeStep);
+    ///apply gravity, predict motion
+    btDiscreteDynamicsWorld::predictUnconstraintMotion(timeStep);
+    
+    
+    btDispatcherInfo& dispatchInfo = btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::getDispatchInfo();
+    
+    dispatchInfo.m_timeStep = timeStep;
+    dispatchInfo.m_stepCount = 0;
+    dispatchInfo.m_debugDraw = btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::getDebugDrawer();
+    
+    // only used in CCD
+//    createPredictiveContacts(timeStep);
+    
+    ///perform collision detection
+    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::performDiscreteCollisionDetection();
+    
+    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::calculateSimulationIslands();
+    
+    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::getSolverInfo().m_timeStep = timeStep;
+
+    if (0 != m_internalTickCallback)
+    {
+        (*m_internalTickCallback)(this, timeStep);
+    }
+    
+    
+//    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::internalSingleStepSimulation(timeStep);
     
     ///solve deformable bodies constraints
     solveDeformableBodiesConstraints(timeStep);
 
+    predictUnconstraintMotion(timeStep);
+    //integrate transforms
+    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::integrateTransforms(timeStep);
+    
+    ///update vehicle simulation
+    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::updateActions(timeStep);
+    
+    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::updateActivationState(timeStep);
     
     ///update soft bodies
     m_deformableBodySolver->updateSoftBodies();
