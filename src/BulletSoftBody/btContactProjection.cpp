@@ -76,7 +76,7 @@ void btContactProjection::update(btScalar dt, const TVStack& dv)
                 if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
                 {
                     rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
-                    va = rigidCol ? (rigidCol->getVelocityInLocalPoint(c.m_c1)) * dt : btVector3(0, 0, 0);
+                    va = rigidCol ? (rigidCol->getVelocityInLocalPoint(c.m_c1) + btVector3(0,-10,0)*dt) * dt : btVector3(0, 0, 0);
                 }
                 else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
                 {
@@ -117,7 +117,8 @@ void btContactProjection::update(btScalar dt, const TVStack& dv)
                     //c.m_node->m_v -= impulse * c.m_c2 / dt;
                     // TODO: only contact is considered here, add friction later
                     btVector3 normal = cti.m_normal.normalized();
-                    btVector3 dv = -impulse * c.m_c2;
+                    btVector3 diff = c.m_node->m_v - m_backupVelocity[m_indices[c.m_node]];
+                    btVector3 dv = -impulse * c.m_c2/dt + diff;
                     btScalar dvn = dv.dot(normal);
                     m_constrainedDirections[m_indices[c.m_node]].push_back(normal);
                     m_constrainedValues[m_indices[c.m_node]].push_back(dvn);
