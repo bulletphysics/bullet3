@@ -64,7 +64,7 @@ public:
     
     virtual void predictUnconstraintMotion(btScalar timeStep)
     {
-//        btDiscreteDynamicsWorld::predictUnconstraintMotion(timeStep);
+        btDiscreteDynamicsWorld::predictUnconstraintMotion(timeStep);
         m_deformableBodySolver->predictMotion(float(timeStep));
     }
     // virtual void internalStepSingleStepSimulation(btScalar timeStep);
