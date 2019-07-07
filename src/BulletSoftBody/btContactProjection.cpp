@@ -9,17 +9,6 @@
 #include "btDeformableRigidDynamicsWorld.h"
 void btContactProjection::update(btScalar dt, const TVStack& dv)
 {
-    size_t counter = 0;
-    for (int i = 0; i < m_softBodies.size(); ++i)
-    {
-        btSoftBody* psb = m_softBodies[i];
-        for (int j = 0; j < psb->m_nodes.size(); ++j)
-        {
-            psb->m_nodes[j].m_v = m_backupVelocity[counter] + dv[counter];
-            ++counter;
-        }
-    }
-        
     ///solve rigid body constraints
     m_world->btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::solveConstraints(m_world->getSolverInfo());
     
@@ -31,7 +20,7 @@ void btContactProjection::update(btScalar dt, const TVStack& dv)
     }
     
     // Set dirichlet constraints
-    counter = 0;
+    size_t counter = 0;
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
         const btSoftBody* psb = m_softBodies[i];
@@ -76,7 +65,7 @@ void btContactProjection::update(btScalar dt, const TVStack& dv)
                 if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
                 {
                     rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
-                    va = rigidCol ? (rigidCol->getVelocityInLocalPoint(c.m_c1) + btVector3(0,-10,0)*dt) * dt : btVector3(0, 0, 0);
+                    va = rigidCol ? (rigidCol->getVelocityInLocalPoint(c.m_c1)) * dt : btVector3(0, 0, 0);
                 }
                 else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
                 {
@@ -114,11 +103,9 @@ void btContactProjection::update(btScalar dt, const TVStack& dv)
 //                    const btVector3 impulse = c.m_c0 * ((vr - (fv * c.m_c3)));
                     const btVector3 impulse = c.m_c0 * ((vr - (fv * c.m_c3))+ (cti.m_normal * (dp * c.m_c4)));
                     
-                    //c.m_node->m_v -= impulse * c.m_c2 / dt;
                     // TODO: only contact is considered here, add friction later
                     btVector3 normal = cti.m_normal.normalized();
-                    btVector3 diff = c.m_node->m_v - m_backupVelocity[m_indices[c.m_node]];
-                    btVector3 dv = -impulse * c.m_c2/dt + diff;
+                    btVector3 dv = -impulse * c.m_c2/dt;
                     btScalar dvn = dv.dot(normal);
                     m_constrainedDirections[m_indices[c.m_node]].push_back(normal);
                     m_constrainedValues[m_indices[c.m_node]].push_back(dvn);
