@@ -26,7 +26,7 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     }
     
     ///apply gravity, predict motion
-    btDiscreteDynamicsWorld::predictUnconstraintMotion(timeStep);
+    predictUnconstraintMotion(timeStep);
     
     
     btDispatcherInfo& dispatchInfo = btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::getDispatchInfo();
@@ -56,7 +56,7 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     ///solve deformable bodies constraints
     solveDeformableBodiesConstraints(timeStep);
 
-    predictUnconstraintMotion(timeStep);
+//    predictUnconstraintMotion(timeStep);
     //integrate transforms
     btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::integrateTransforms(timeStep);
     
@@ -68,6 +68,11 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     ///update soft bodies
     m_deformableBodySolver->updateSoftBodies();
     
+    for (int i = 0; i < m_nonStaticRigidBodies.size(); i++)
+    {
+        btRigidBody* body = m_nonStaticRigidBodies[i];
+        std::cout << "rb v = " << body->getLinearVelocity().getY() << std::endl;
+    }
     // End solver-wise simulation step
     // ///////////////////////////////
 }
