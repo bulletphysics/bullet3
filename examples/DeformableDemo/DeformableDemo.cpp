@@ -59,16 +59,45 @@ public:
 
 	void resetCamera()
 	{
-//        float dist = 30;
-//        float pitch = -14;
-//        float yaw = 0;
-//        float targetPos[3] = {0, 0, 0};
-        float dist = 45;
+        float dist = 15;
         float pitch = -45;
         float yaw = 100;
-        float targetPos[3] = {0,0, 0};
+        float targetPos[3] = {0, -5, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
+    
+    
+    void Ctor_RbUpStack(int count)
+    {
+        float mass = 1;
+        
+        btCompoundShape* cylinderCompound = new btCompoundShape;
+        btCollisionShape* cylinderShape = new btCylinderShapeX(btVector3(2, .5, .5));
+        btCollisionShape* boxShape = new btBoxShape(btVector3(2, .5, .5));
+        btTransform localTransform;
+        localTransform.setIdentity();
+        cylinderCompound->addChildShape(localTransform, boxShape);
+        btQuaternion orn(SIMD_HALF_PI, 0, 0);
+        localTransform.setRotation(orn);
+        //    localTransform.setOrigin(btVector3(1,1,1));
+        cylinderCompound->addChildShape(localTransform, cylinderShape);
+        
+        btCollisionShape* shape[] = {
+            new btBoxShape(btVector3(1, 1, 1)),
+            cylinderCompound,
+            new btSphereShape(0.75)
+            
+        };
+        static const int nshapes = sizeof(shape) / sizeof(shape[0]);
+        for (int i = 0; i < count; ++i)
+        {
+            btTransform startTransform;
+            startTransform.setIdentity();
+            startTransform.setOrigin(btVector3(0, 3 + 3 * i, 0));
+            createRigidBody(mass, startTransform, shape[i % nshapes]);
+        }
+    }
+    
     virtual const btDeformableRigidDynamicsWorld* getDeformableDynamicsWorld() const
     {
         ///just make it a btSoftRigidDynamicsWorld please
@@ -105,7 +134,6 @@ void DeformableDemo::initPhysics()
 	m_guiHelper->setUpAxis(1);
 
 	///collision configuration contains default setup for memory, collision setup
-//    m_collisionConfiguration = new btDefaultCollisionConfiguration();
     m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
@@ -119,22 +147,22 @@ void DeformableDemo::initPhysics()
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDeformableRigidDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration, deformableBodySolver);
+    deformableBodySolver->setWorld(getDeformableDynamicsWorld());
 	//	m_dynamicsWorld->getSolverInfo().m_singleAxisDeformableThreshold = 0.f;//faster but lower quality
 	m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
     getDeformableDynamicsWorld()->getSoftDynamicsWorld()->getWorldInfo().m_gravity.setValue(0, -10, 0);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
     {
-        ///create a few basic rigid bodies
-//        btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(10.), btScalar(5.), btScalar(25.)));
-        btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(25.), btScalar(50.)));
+        ///create a ground
+        btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(150.), btScalar(25.), btScalar(150.)));
 
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setOrigin(btVector3(0, -30, 0));
-//        groundTransform.setRotation(btQuaternion(btVector3(0, 1, 0), SIMD_PI * 0.03));
+        groundTransform.setOrigin(btVector3(0, -50, 0));
+        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.0));
         //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
         btScalar mass(0.);
 
@@ -151,76 +179,30 @@ void DeformableDemo::initPhysics()
         btRigidBody* body = new btRigidBody(rbInfo);
         body->setFriction(.5);
 
-        //add the body to the dynamics world
+        //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
     }
-//
-//    {
-//        ///create a few basic rigid bodies
-//        btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(100.), btScalar(100.), btScalar(50.)));
-//
-//        m_collisionShapes.push_back(groundShape);
-//
-//        btTransform groundTransform;
-//        groundTransform.setIdentity();
-//        groundTransform.setOrigin(btVector3(0, 0, -54));
-//        //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
-//        btScalar mass(0.);
-//
-//        //rigidbody is dynamic if and only if mass is non zero, otherwise static
-//        bool isDynamic = (mass != 0.f);
-//
-//        btVector3 localInertia(0, 0, 0);
-//        if (isDynamic)
-//            groundShape->calculateLocalInertia(mass, localInertia);
-//
-//        //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-//        btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-//        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
-//        btRigidBody* body = new btRigidBody(rbInfo);
-//        body->setFriction(.1);
-//        //add the body to the dynamics world
-//        m_dynamicsWorld->addRigidBody(body);
-//    }
-//
-//    {
-//        // add a simple deformable body
-//        const btVector3 s(3,2,1); // side length
-//        const btVector3 p(0,30,0); // origin;
-//        const btVector3 h = s * 0.5;
-//        const btVector3 c[] = {p + h * btVector3(-1, -1, -1),
-//            p + h * btVector3(+1, -1, -1),
-//            p + h * btVector3(-1, +1, -1),
-//            p + h * btVector3(+1, +1, -1),
-//            p + h * btVector3(-1, -1, +1),
-//            p + h * btVector3(+1, -1, +1),
-//            p + h * btVector3(-1, +1, +1),
-//            p + h * btVector3(+1, +1, +1)};
-//        btSoftBody* psb = btSoftBodyHelpers::CreateFromConvexHull(getDeformableDynamicsWorld()->getSoftDynamicsWorld()->getWorldInfo(), c, 8);
-//        psb->generateBendingConstraints(2);
-//        psb->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
-//        psb->setTotalMass(150);
-//        getDeformableDynamicsWorld()->addSoftBody(psb);
-//    }
+    
+    // create a piece of cloth
     {
-        const btScalar s = 8;
+        const btScalar s = 4;
         btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getSoftDynamicsWorld()->getWorldInfo(), btVector3(-s, 0, -s),
                                                          btVector3(+s, 0, -s),
                                                          btVector3(-s, 0, +s),
                                                          btVector3(+s, 0, +s),
-                                                         10, 10,
-                                                         //        31,31,
+//                                                         3, 3,
+                                                                 20,20,
                                                           1 + 2 + 4 + 8, true);
 //                                                         0, true);
         
-        psb->getCollisionShape()->setMargin(0.5);
-//        btSoftBody::Material* pm = psb->appendMaterial();
-//        pm->m_kLST = 0.4 * 1000;
-//        pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
+        psb->getCollisionShape()->setMargin(0.25);
         psb->generateBendingConstraints(2);
-        psb->setTotalMass(1);
-        psb->setDampingCoefficient(0.01);
+        psb->setTotalMass(2);
+        psb->setDampingCoefficient(0.02);
         getDeformableDynamicsWorld()->addSoftBody(psb);
+        
+        // add a few rigid bodies
+        Ctor_RbUpStack(10);
     }
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
@@ -263,7 +245,10 @@ void DeformableDemo::exitPhysics()
 }
 
 
+
 class CommonExampleInterface* DeformableCreateFunc(struct CommonExampleOptions& options)
 {
 	return new DeformableDemo(options.m_guiHelper);
 }
+
+
