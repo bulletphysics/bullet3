@@ -101,6 +101,7 @@ public:
         {
             // damping force is implicit and elastic force is explicit
             m_lf[i]->addScaledDampingForceDifferential(-m_dt, x, b);
+//            m_lf[i]->addScaledElasticForceDifferential(-m_dt*m_dt, x, b);
         }
     }
     

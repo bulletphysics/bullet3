@@ -8,6 +8,7 @@
 #ifndef BT_DEFORMABLE_BODY_SOLVERS_H
 #define BT_DEFORMABLE_BODY_SOLVERS_H
 
+#include <iostream>
 #include "btSoftBodySolvers.h"
 #include "btBackwardEulerObjective.h"
 #include "btDeformableRigidDynamicsWorld.h"
@@ -87,11 +88,26 @@ public:
             // only need to advect x here if elastic force is implicit
 //            prepareSolve(solverdt);
             m_objective.computeResidual(solverdt, m_residual);
+            moveTempVelocity(solverdt, m_residual);
             m_objective.computeStep(m_dv, m_residual, solverdt);
             
             updateVelocity();
         }
         advect(solverdt);
+    }
+    
+    void moveTempVelocity(btScalar dt, const TVStack& f)
+    {
+        size_t counter = 0;
+        for (int i = 0; i < m_softBodySet.size(); ++i)
+        {
+            btSoftBody* psb = m_softBodySet[i];
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                auto& node = psb->m_nodes[j];
+                node.m_v += node.m_im * dt * f[counter++];
+            }
+        }
     }
     
     void reinitialize(bool nodeUpdated)
@@ -119,7 +135,7 @@ public:
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
                 auto& node = psb->m_nodes[j];
-                node.m_x = node.m_q + dt * node.m_v * psb->m_dampingCoefficient;
+                node.m_x = node.m_q + dt * node.m_v;
             }
         }
     }
@@ -132,7 +148,13 @@ public:
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
                 auto& node = psb->m_nodes[j];
-                node.m_x +=  dt * m_dv[counter++];
+//                node.m_x +=  dt * m_dv[counter++];
+                node.m_x +=  dt * node.m_v;
+                if (j == 4)
+                {
+                    std::cout << "x  " << psb->m_nodes[j].m_x.getY() << std::endl;
+                    std::cout << "v  " << psb->m_nodes[j].m_v.getY() << std::endl;
+                }
             }
         }
     }
@@ -147,6 +169,7 @@ public:
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
                 psb->m_nodes[j].m_v = m_backupVelocity[counter] + m_dv[counter];
+                
                 ++counter;
             }
         }
