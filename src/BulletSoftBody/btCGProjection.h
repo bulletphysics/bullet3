@@ -23,11 +23,9 @@ public:
     std::unordered_map<btSoftBody::Node *, size_t> m_indices;
     TVArrayStack m_constrainedDirections;
     TArrayStack m_constrainedValues;
-    const TVStack& m_backupVelocity;
     
-    btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
+    btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies)
     : m_softBodies(softBodies)
-    , m_backupVelocity(backup_v)
     {
         
     }

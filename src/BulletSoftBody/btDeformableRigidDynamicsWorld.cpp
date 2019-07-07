@@ -53,6 +53,14 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     
 //    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::internalSingleStepSimulation(timeStep);
     
+    // incorporate gravity into velocity and clear force
+    for (int i = 0; i < m_nonStaticRigidBodies.size(); ++i)
+    {
+        btRigidBody* rb = m_nonStaticRigidBodies[i];
+        rb->integrateVelocities(timeStep);
+    }
+    clearForces();
+    
     ///solve deformable bodies constraints
     solveDeformableBodiesConstraints(timeStep);
 
@@ -67,12 +75,7 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     
     ///update soft bodies
     m_deformableBodySolver->updateSoftBodies();
-    
-    for (int i = 0; i < m_nonStaticRigidBodies.size(); i++)
-    {
-        btRigidBody* body = m_nonStaticRigidBodies[i];
-        std::cout << "rb v = " << body->getLinearVelocity().getY() << std::endl;
-    }
+
     // End solver-wise simulation step
     // ///////////////////////////////
 }

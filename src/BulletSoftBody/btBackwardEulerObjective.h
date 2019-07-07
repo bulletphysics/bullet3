@@ -40,7 +40,7 @@ public:
     : cg(20)
     , m_softBodies(softBodies)
     , precondition(DefaultPreconditioner())
-    , projection(m_softBodies, backup_v)
+    , projection(m_softBodies)
     {
         // TODO: this should really be specified in initialization instead of here
         btMassSpring* mass_spring = new btMassSpring(m_softBodies);

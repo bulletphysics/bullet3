@@ -15,8 +15,8 @@
 class btContactProjection : public btCGProjection
 {
 public:
-    btContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btAlignedObjectArray<btVector3>& backup_v)
-    : btCGProjection(softBodies, backup_v)
+    btContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies)
+    : btCGProjection(softBodies)
     {
         
     }
