@@ -82,13 +82,11 @@ public:
     {
         bool nodeUpdated = updateNodes();
         reinitialize(nodeUpdated);
-        backupVelocity();
         for (int i = 0; i < m_solveIterations; ++i)
         {
             // only need to advect x here if elastic force is implicit
 //            prepareSolve(solverdt);
             m_objective.computeResidual(solverdt, m_residual);
-            moveTempVelocity(solverdt, m_residual);
             m_objective.computeStep(m_dv, m_residual, solverdt);
             
             updateVelocity();
@@ -116,7 +114,6 @@ public:
         {
             m_dv.resize(m_numNodes);
             m_residual.resize(m_numNodes);
-            m_backupVelocity.resize(m_numNodes);
         }
         
         for (int i = 0; i < m_dv.size(); ++i)
@@ -150,11 +147,6 @@ public:
                 auto& node = psb->m_nodes[j];
 //                node.m_x +=  dt * m_dv[counter++];
                 node.m_x +=  dt * node.m_v;
-                if (j == 4)
-                {
-                    std::cout << "x  " << psb->m_nodes[j].m_x.getY() << std::endl;
-                    std::cout << "v  " << psb->m_nodes[j].m_v.getY() << std::endl;
-                }
             }
         }
     }
@@ -168,23 +160,9 @@ public:
             btSoftBody* psb = m_softBodySet[i];
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
-                psb->m_nodes[j].m_v = m_backupVelocity[counter] + m_dv[counter];
+                psb->m_nodes[j].m_v += m_dv[counter];
                 
                 ++counter;
-            }
-        }
-    }
-    
-    void backupVelocity()
-    {
-        // serial implementation
-        int counter = 0;
-        for (int i = 0; i < m_softBodySet.size(); ++i)
-        {
-            btSoftBody* psb = m_softBodySet[i];
-            for (int j = 0; j < psb->m_nodes.size(); ++j)
-            {
-                m_backupVelocity[counter++] = psb->m_nodes[j].m_v;
             }
         }
     }
