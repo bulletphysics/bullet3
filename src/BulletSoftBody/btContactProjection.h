@@ -15,8 +15,8 @@
 class btContactProjection : public btCGProjection
 {
 public:
-    btContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies)
-    : btCGProjection(softBodies)
+    btContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
+    : btCGProjection(softBodies, dt)
     {
         
     }
@@ -51,6 +51,8 @@ public:
     }
     
     // update the constraints
-    virtual void update(btScalar dt, const TVStack& dv);
+    virtual void update(const TVStack& dv, const TVStack& backupVelocity);
+    
+    virtual void setConstraintDirections();
 };
 #endif /* btContactProjection_h */

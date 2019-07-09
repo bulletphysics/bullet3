@@ -880,7 +880,7 @@ struct btSoftColliders
 					const btTransform& wtr = m_rigidBody ? m_rigidBody->getWorldTransform() : m_colObj1Wrap->getCollisionObject()->getWorldTransform();
 					static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
 					const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
-					const btVector3 ra = n.m_x - wtr.getOrigin();
+					const btVector3 ra = n.m_q - wtr.getOrigin();
 					const btVector3 va = m_rigidBody ? m_rigidBody->getVelocityInLocalPoint(ra) * psb->m_sst.sdt : btVector3(0, 0, 0);
 					const btVector3 vb = n.m_x - n.m_q;
 					const btVector3 vr = vb - va;
