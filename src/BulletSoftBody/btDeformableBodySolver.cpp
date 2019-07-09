@@ -8,6 +8,20 @@
 #include <stdio.h>
 #include "btDeformableBodySolver.h"
 
+btDeformableBodySolver::btDeformableBodySolver()
+: m_numNodes(0)
+, m_solveIterations(1)
+, m_impulseIterations(1)
+, m_world(nullptr)
+{
+    m_objective = new btBackwardEulerObjective(m_softBodySet, m_backupVelocity);
+}
+
+btDeformableBodySolver::~btDeformableBodySolver()
+{
+    delete m_objective;
+}
+
 void btDeformableBodySolver::postStabilize()
 {
     for (int i = 0; i < m_softBodySet.size(); ++i)
