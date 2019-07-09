@@ -16,50 +16,76 @@
 #ifndef BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H
 #define BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H
 
-#include "btSoftRigidDynamicsWorld.h"
+#include "btSoftMultiBodyDynamicsWorld.h"
 #include "btLagrangianForce.h"
 #include "btMassSpring.h"
 #include "btDeformableBodySolver.h"
+#include "btSoftBodyHelpers.h"
+
 typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 
 class btDeformableBodySolver;
 class btLagrangianForce;
+typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 
-class btDeformableRigidDynamicsWorld : public btSoftRigidDynamicsWorld
+class btDeformableRigidDynamicsWorld : public btMultiBodyDynamicsWorld
 {
     using TVStack = btAlignedObjectArray<btVector3>;
     ///Solver classes that encapsulate multiple deformable bodies for solving
     btDeformableBodySolver* m_deformableBodySolver;
-
+    btSoftBodyArray m_softBodies;
+    int m_drawFlags;
+    bool m_drawNodeTree;
+    bool m_drawFaceTree;
+    bool m_drawClusterTree;
+    btSoftBodyWorldInfo m_sbi;
+    bool m_ownsSolver;
+    
 protected:
     virtual void internalSingleStepSimulation(btScalar timeStep);
     
     void solveDeformableBodiesConstraints(btScalar timeStep);
     
 public:
-    btDeformableRigidDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btDeformableBodySolver* deformableBodySolver = 0)
-    : btSoftRigidDynamicsWorld(dispatcher, pairCache, constraintSolver, collisionConfiguration, 0),
+    btDeformableRigidDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btDeformableBodySolver* deformableBodySolver = 0)
+    : btMultiBodyDynamicsWorld(dispatcher, pairCache, constraintSolver, collisionConfiguration),
     m_deformableBodySolver(deformableBodySolver)
     {
+        m_drawFlags = fDrawFlags::Std;
+        m_drawNodeTree = true;
+        m_drawFaceTree = false;
+        m_drawClusterTree = false;
+        m_sbi.m_broadphase = pairCache;
+        m_sbi.m_dispatcher = dispatcher;
+        m_sbi.m_sparsesdf.Initialize();
+        m_sbi.m_sparsesdf.Reset();
+        
+        m_sbi.air_density = (btScalar)1.2;
+        m_sbi.water_density = 0;
+        m_sbi.water_offset = 0;
+        m_sbi.water_normal = btVector3(0, 0, 0);
+        m_sbi.m_gravity.setValue(0, -10, 0);
+        
+        m_sbi.m_sparsesdf.Initialize();
     }
     
     virtual ~btDeformableRigidDynamicsWorld()
     {
     }
     
-    virtual btSoftRigidDynamicsWorld* getSoftDynamicsWorld()
+    virtual btMultiBodyDynamicsWorld* getMultiBodyDynamicsWorld()
     {
-        return (btSoftRigidDynamicsWorld*)(this);
+        return (btMultiBodyDynamicsWorld*)(this);
     }
     
-    virtual const btSoftRigidDynamicsWorld* getSoftDynamicsWorld() const
+    virtual const btMultiBodyDynamicsWorld* getMultiBodyDynamicsWorld() const
     {
-        return (const btSoftRigidDynamicsWorld*)(this);
+        return (const btMultiBodyDynamicsWorld*)(this);
     }
     
     virtual btDynamicsWorldType getWorldType() const
     {
-        return BT_DEFORMABLE_RIGID_DYNAMICS_WORLD;
+        return BT_DEFORMABLE_MULTIBODY_DYNAMICS_WORLD;
     }
     
     virtual void predictUnconstraintMotion(btScalar timeStep);
@@ -68,6 +94,27 @@ public:
     // virtual void solveDeformableBodiesConstraints(btScalar timeStep);
     
     virtual void addSoftBody(btSoftBody* body, int collisionFilterGroup = btBroadphaseProxy::DefaultFilter, int collisionFilterMask = btBroadphaseProxy::AllFilter);
+    
+    btSoftBodyArray& getSoftBodyArray()
+    {
+        return m_softBodies;
+    }
+    
+    const btSoftBodyArray& getSoftBodyArray() const
+    {
+        return m_softBodies;
+    }
+    
+    btSoftBodyWorldInfo& getWorldInfo()
+    {
+        return m_sbi;
+    }
+    const btSoftBodyWorldInfo& getWorldInfo() const
+    {
+        return m_sbi;
+    }
+    int getDrawFlags() const { return (m_drawFlags); }
+    void setDrawFlags(int f) { m_drawFlags = f; }
 };
 
 #endif  //BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H

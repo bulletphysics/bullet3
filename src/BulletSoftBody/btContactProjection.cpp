@@ -10,7 +10,7 @@
 void btContactProjection::update(const TVStack& dv, const TVStack& backupVelocity)
 {
     ///solve rigid body constraints
-    m_world->btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::solveConstraints(m_world->getSolverInfo());
+    m_world->btMultiBodyDynamicsWorld::solveConstraints(m_world->getSolverInfo());
 
     // loop through contacts to create contact constraints
     for (int i = 0; i < m_softBodies.size(); ++i)
