@@ -7470,6 +7470,14 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				visualShape.m_localVisualFrame[4] = initialOrn[1];
 				visualShape.m_localVisualFrame[5] = initialOrn[2];
 				visualShape.m_localVisualFrame[6] = initialOrn[3];
+				//color and ids to be set by the renderer
+				visualShape.m_rgbaColor[0] = 0;
+				visualShape.m_rgbaColor[1] = 0;
+				visualShape.m_rgbaColor[2] = 0;
+				visualShape.m_rgbaColor[3] = 0;
+				visualShape.m_tinyRendererTextureId = -1;
+				visualShape.m_textureUniqueId  =-1;
+				visualShape.m_openglTextureId = -1;
 
 				m_data->m_pluginManager.getRenderInterface()->addVisualShape(&visualShape, fileIO);
 
