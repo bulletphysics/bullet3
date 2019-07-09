@@ -35,17 +35,9 @@ public:
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
     std::function<void(const TVStack&, TVStack&)> precondition;
     btContactProjection projection;
+    const TVStack& m_backupVelocity;
     
-    btBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
-    : cg(20)
-    , m_softBodies(softBodies)
-    , precondition(DefaultPreconditioner())
-    , projection(m_softBodies)
-    {
-        // TODO: this should really be specified in initialization instead of here
-        btMassSpring* mass_spring = new btMassSpring(m_softBodies);
-        m_lf.push_back(mass_spring);
-    }
+    btBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v);
     
     virtual ~btBackwardEulerObjective() {}
     
@@ -54,7 +46,6 @@ public:
     void computeResidual(btScalar dt, TVStack& residual) const
     {
         // gravity is treated explicitly in predictUnconstraintMotion
-        
         // add force
         for (int i = 0; i < m_lf.size(); ++i)
         {
@@ -72,62 +63,29 @@ public:
         return std::sqrt(norm_squared);
     }
     
-    void computeStep(TVStack& dv, const TVStack& residual, const btScalar& dt)
-    {
-        m_dt = dt;
-        btScalar tolerance = std::numeric_limits<float>::epsilon()*16 * computeNorm(residual);
-        cg.solve(*this, dv, residual, tolerance);
-    }
+    void computeStep(TVStack& dv, const TVStack& residual, const btScalar& dt);
     
-    void multiply(const TVStack& x, TVStack& b) const
-    {
-        for (int i = 0; i < b.size(); ++i)
-            b[i].setZero();
-        
-        // add in the mass term
-        size_t counter = 0;
-        for (int i = 0; i < m_softBodies.size(); ++i)
-        {
-            btSoftBody* psb = m_softBodies[i];
-            for (int j = 0; j < psb->m_nodes.size(); ++j)
-            {
-                const auto& node = psb->m_nodes[j];
-                b[counter] += (node.m_im == 0) ? btVector3(0,0,0) : x[counter] / node.m_im;
-                ++counter;
-            }
-        }
-        
-        for (int i = 0; i < m_lf.size(); ++i)
-        {
-            // damping force is implicit and elastic force is explicit
-            m_lf[i]->addScaledDampingForceDifferential(-m_dt, x, b);
-//            m_lf[i]->addScaledElasticForceDifferential(-m_dt*m_dt, x, b);
-        }
-    }
+    void multiply(const TVStack& x, TVStack& b) const;
     
     void updateProjection(const TVStack& dv)
     {
-        projection.update(m_dt, dv);
+        projection.update(dv, m_backupVelocity);
     }
     
-    void reinitialize(bool nodeUpdated)
-    {
-        if(nodeUpdated)
-        {
-            projection.setSoftBodies(m_softBodies);
-        }
-        for (int i = 0; i < m_lf.size(); ++i)
-        {
-            m_lf[i]->reinitialize(nodeUpdated);
-            projection.reinitialize(nodeUpdated);
-        }
-    }
+    void reinitialize(bool nodeUpdated);
     
     void enforceConstraint(TVStack& x)
     {
         projection.enforceConstraint(x);
+        updateVelocity(x);
     }
     
+    void updateVelocity(const TVStack& dv);
+    
+    void setConstraintDirections()
+    {
+        projection.setConstraintDirections();
+    }
     void project(TVStack& r, const TVStack& dv)
     {
         updateProjection(dv);
