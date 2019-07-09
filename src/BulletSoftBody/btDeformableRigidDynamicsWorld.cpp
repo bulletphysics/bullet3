@@ -9,24 +9,11 @@
 #include "btDeformableRigidDynamicsWorld.h"
 #include "btDeformableBodySolver.h"
 
-btDeformableBodySolver::btDeformableBodySolver()
-: m_numNodes(0)
-, m_solveIterations(1)
-, m_impulseIterations(1)
-, m_world(nullptr)
-{
-    m_objective = new btBackwardEulerObjective(m_softBodySet, m_backupVelocity);
-}
-
-btDeformableBodySolver::~btDeformableBodySolver()
-{
-    delete m_objective;
-}
 
 void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
     // Let the solver grab the soft bodies and if necessary optimize for it
-    m_deformableBodySolver->optimize(getSoftDynamicsWorld()->getSoftBodyArray());
+    m_deformableBodySolver->optimize(m_softBodies);
     
     if (!m_deformableBodySolver->checkInitialized())
     {
@@ -42,22 +29,21 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     ///apply gravity, predict motion
     predictUnconstraintMotion(timeStep);
     
-    
-    btDispatcherInfo& dispatchInfo = btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::getDispatchInfo();
+    btDispatcherInfo& dispatchInfo = btMultiBodyDynamicsWorld::getDispatchInfo();
     
     dispatchInfo.m_timeStep = timeStep;
     dispatchInfo.m_stepCount = 0;
-    dispatchInfo.m_debugDraw = btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::getDebugDrawer();
+    dispatchInfo.m_debugDraw = btMultiBodyDynamicsWorld::getDebugDrawer();
     
     // only used in CCD
 //    createPredictiveContacts(timeStep);
     
     ///perform collision detection
-    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::performDiscreteCollisionDetection();
+    btMultiBodyDynamicsWorld::performDiscreteCollisionDetection();
     
-    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::calculateSimulationIslands();
+    btMultiBodyDynamicsWorld::calculateSimulationIslands();
     
-    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::getSolverInfo().m_timeStep = timeStep;
+    btMultiBodyDynamicsWorld::getSolverInfo().m_timeStep = timeStep;
 
     if (0 != m_internalTickCallback)
     {
@@ -76,12 +62,12 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     solveDeformableBodiesConstraints(timeStep);
 
     //integrate transforms
-    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::integrateTransforms(timeStep);
+    btMultiBodyDynamicsWorld::integrateTransforms(timeStep);
     
     ///update vehicle simulation
-    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::updateActions(timeStep);
+    btMultiBodyDynamicsWorld::updateActions(timeStep);
     
-    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::updateActivationState(timeStep);
+    btMultiBodyDynamicsWorld::updateActivationState(timeStep);
     
     ///update soft bodies
     m_deformableBodySolver->updateSoftBodies();
@@ -98,7 +84,7 @@ void btDeformableRigidDynamicsWorld::solveDeformableBodiesConstraints(btScalar t
 
 void btDeformableRigidDynamicsWorld::addSoftBody(btSoftBody* body, int collisionFilterGroup, int collisionFilterMask)
 {
-    getSoftDynamicsWorld()->getSoftBodyArray().push_back(body);
+    m_softBodies.push_back(body);
     
     // Set the soft body solver that will deal with this body
     // to be the world's solver

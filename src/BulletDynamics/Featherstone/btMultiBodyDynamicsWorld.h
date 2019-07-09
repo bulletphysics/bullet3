@@ -47,7 +47,7 @@ protected:
 
 	virtual void calculateSimulationIslands();
 	virtual void updateActivationState(btScalar timeStep);
-	virtual void solveConstraints(btContactSolverInfo& solverInfo);
+	
 
 	virtual void serializeMultiBodies(btSerializer* serializer);
 
@@ -55,7 +55,8 @@ public:
 	btMultiBodyDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration);
 
 	virtual ~btMultiBodyDynamicsWorld();
-
+    
+    virtual void solveConstraints(btContactSolverInfo& solverInfo);
 	virtual void addMultiBody(btMultiBody* body, int group = btBroadphaseProxy::DefaultFilter, int mask = btBroadphaseProxy::AllFilter);
 
 	virtual void removeMultiBody(btMultiBody* body);
