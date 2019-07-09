@@ -23,30 +23,39 @@ public:
     std::unordered_map<btSoftBody::Node *, size_t> m_indices;
     TVArrayStack m_constrainedDirections;
     TArrayStack m_constrainedValues;
+    const btScalar& m_dt;
     
-    btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies)
+    btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : m_softBodies(softBodies)
+    , m_dt(dt)
     {
-        
     }
     
     virtual ~btCGProjection()
     {
-        
     }
     
     // apply the constraints
     virtual void operator()(TVStack& x) = 0;
     
+    virtual void setConstraintDirections() = 0;
+    
     // update the constraints
-    virtual void update(btScalar dt, const TVStack& dv) = 0;
+    virtual void update(const TVStack& dv, const TVStack& backup_v) = 0;
     
     virtual void reinitialize(bool nodeUpdated)
     {
         if (nodeUpdated)
             updateId();
+        
+        // resize and clear the old constraints
         m_constrainedValues.resize(m_indices.size());
         m_constrainedDirections.resize(m_indices.size());
+        for (int i = 0; i < m_constrainedDirections.size(); ++i)
+        {
+            m_constrainedDirections[i].clear();
+            m_constrainedValues[i].clear();
+        }
     }
     
     void updateId()

@@ -9,6 +9,20 @@
 #include "btDeformableRigidDynamicsWorld.h"
 #include "btDeformableBodySolver.h"
 
+btDeformableBodySolver::btDeformableBodySolver()
+: m_numNodes(0)
+, m_solveIterations(1)
+, m_impulseIterations(1)
+, m_world(nullptr)
+{
+    m_objective = new btBackwardEulerObjective(m_softBodySet, m_backupVelocity);
+}
+
+btDeformableBodySolver::~btDeformableBodySolver()
+{
+    delete m_objective;
+}
+
 void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
     // Let the solver grab the soft bodies and if necessary optimize for it
@@ -50,9 +64,6 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
         (*m_internalTickCallback)(this, timeStep);
     }
     
-    
-//    btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::internalSingleStepSimulation(timeStep);
-    
     // incorporate gravity into velocity and clear force
     for (int i = 0; i < m_nonStaticRigidBodies.size(); ++i)
     {
@@ -64,7 +75,6 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     ///solve deformable bodies constraints
     solveDeformableBodiesConstraints(timeStep);
 
-//    predictUnconstraintMotion(timeStep);
     //integrate transforms
     btSoftRigidDynamicsWorld::btDiscreteDynamicsWorld::integrateTransforms(timeStep);
     
@@ -76,6 +86,7 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     ///update soft bodies
     m_deformableBodySolver->updateSoftBodies();
 
+    clearForces();
     // End solver-wise simulation step
     // ///////////////////////////////
 }
@@ -84,4 +95,24 @@ void btDeformableRigidDynamicsWorld::solveDeformableBodiesConstraints(btScalar t
 {
     m_deformableBodySolver->solveConstraints(timeStep);
 }
+
+void btDeformableRigidDynamicsWorld::addSoftBody(btSoftBody* body, int collisionFilterGroup, int collisionFilterMask)
+{
+    getSoftDynamicsWorld()->getSoftBodyArray().push_back(body);
+    
+    // Set the soft body solver that will deal with this body
+    // to be the world's solver
+    body->setSoftBodySolver(m_deformableBodySolver);
+    
+    btCollisionWorld::addCollisionObject(body,
+                                         collisionFilterGroup,
+                                         collisionFilterMask);
+}
+
+void btDeformableRigidDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
+{
+    btDiscreteDynamicsWorld::predictUnconstraintMotion(timeStep);
+    m_deformableBodySolver->predictMotion(float(timeStep));
+}
+
 

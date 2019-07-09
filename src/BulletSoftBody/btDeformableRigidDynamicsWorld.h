@@ -62,27 +62,12 @@ public:
         return BT_DEFORMABLE_RIGID_DYNAMICS_WORLD;
     }
     
-    virtual void predictUnconstraintMotion(btScalar timeStep)
-    {
-        btDiscreteDynamicsWorld::predictUnconstraintMotion(timeStep);
-        m_deformableBodySolver->predictMotion(float(timeStep));
-    }
+    virtual void predictUnconstraintMotion(btScalar timeStep);
     // virtual void internalStepSingleStepSimulation(btScalar timeStep);
     
     // virtual void solveDeformableBodiesConstraints(btScalar timeStep);
     
-    virtual void addSoftBody(btSoftBody* body, int collisionFilterGroup = btBroadphaseProxy::DefaultFilter, int collisionFilterMask = btBroadphaseProxy::AllFilter)
-    {
-        getSoftDynamicsWorld()->getSoftBodyArray().push_back(body);
-        
-        // Set the soft body solver that will deal with this body
-        // to be the world's solver
-        body->setSoftBodySolver(m_deformableBodySolver);
-        
-        btCollisionWorld::addCollisionObject(body,
-                                             collisionFilterGroup,
-                                             collisionFilterMask);
-    }
+    virtual void addSoftBody(btSoftBody* body, int collisionFilterGroup = btBroadphaseProxy::DefaultFilter, int collisionFilterMask = btBroadphaseProxy::AllFilter);
 };
 
 #endif  //BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H
