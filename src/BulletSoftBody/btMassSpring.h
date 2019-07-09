@@ -37,7 +37,12 @@ public:
                 size_t id2 = m_indices[node2];
                 
                 // elastic force
+                
+                // fully implicit
                 btVector3 dir = (node2->m_x - node1->m_x);
+                
+                // explicit elastic force
+//                btVector3 dir = (node2->m_q - node1->m_q);
                 btVector3 dir_normalized = dir.normalized();
                 btVector3 scaled_force = scale * kLST * (dir - dir_normalized * r);
                 force[id1] += scaled_force;
@@ -89,7 +94,7 @@ public:
                 const auto& link = psb->m_links[j];
                 const auto node1 = link.m_n[0];
                 const auto node2 = link.m_n[1];
-                btScalar k_damp = psb->m_dampingCoefficient; // TODO: FIX THIS HACK and set k_damp properly
+                btScalar k_damp = psb->m_dampingCoefficient;
                 size_t id1 = m_indices[node1];
                 size_t id2 = m_indices[node2];
                 btVector3 local_scaled_df = scale * k_damp * (dv[id2] - dv[id1]);
