@@ -111,6 +111,8 @@ public:
 	virtual void setMultiBodyConstraintSolver(btMultiBodyConstraintSolver* solver);
 	virtual void setConstraintSolver(btConstraintSolver* solver);
 	virtual void getAnalyticsData(btAlignedObjectArray<struct btSolverAnalyticsData>& m_islandAnalyticsData) const;
+    
+    virtual void solveExternalForces(btContactSolverInfo& solverInfo);
 
 };
 #endif  //BT_MULTIBODY_DYNAMICS_WORLD_H
