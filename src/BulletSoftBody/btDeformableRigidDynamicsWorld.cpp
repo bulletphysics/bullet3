@@ -50,13 +50,24 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
         (*m_internalTickCallback)(this, timeStep);
     }
     
-    // incorporate gravity into velocity and clear force
+    // TODO: This is an ugly hack to get the desired gravity behavior.
+    // gravity is applied in stepSimulation and then cleared here and then applied here and then cleared here again
+    // so that 1) gravity is applied to velocity before constraint solve and 2) gravity is applied in each substep
+    // when there are multiple substeps
+    
+    clearForces();
+    clearMultiBodyForces();
+    btMultiBodyDynamicsWorld::applyGravity();
+    // integrate rigid body gravity
     for (int i = 0; i < m_nonStaticRigidBodies.size(); ++i)
     {
         btRigidBody* rb = m_nonStaticRigidBodies[i];
         rb->integrateVelocities(timeStep);
     }
+    // integrate multibody gravity
+    btMultiBodyDynamicsWorld::solveExternalForces(btMultiBodyDynamicsWorld::getSolverInfo());
     clearForces();
+    clearMultiBodyForces();
     
     ///solve deformable bodies constraints
     solveDeformableBodiesConstraints(timeStep);
