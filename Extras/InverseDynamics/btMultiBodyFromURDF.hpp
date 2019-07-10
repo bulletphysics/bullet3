@@ -30,6 +30,7 @@ public:
 		m_collisionConfiguration = 0x0;
 		m_dynamicsWorld = 0x0;
 		m_multibody = 0x0;
+                m_flag = 0x0;
 	}
 	/// dtor
 	~MyBtMultiBodyFromURDF()
@@ -43,6 +44,7 @@ public:
 	}
 	/// @param name path to urdf file
 	void setFileName(const std::string name) { m_filename = name; }
+        void setFlag(int flag) { m_flag = flag; }
 	/// load urdf file and build btMultiBody model
 	void init()
 	{
@@ -60,7 +62,7 @@ public:
 			MyMultiBodyCreator creation(&m_nogfx);
 			const bool use_multibody = true;
 			ConvertURDF2Bullet(u2b, creation, identityTrans, m_dynamicsWorld, use_multibody,
-							   u2b.getPathPrefix());
+							   u2b.getPathPrefix(), m_flag);
 			m_multibody = creation.getBulletMultiBody();
 			m_dynamicsWorld->stepSimulation(1. / 240., 0);
 		}
@@ -94,5 +96,6 @@ private:
 	btMultiBody *m_multibody;
 	const btVector3 m_gravity;
 	const bool m_base_fixed;
+        int m_flag;
 };
 #endif  // BTMULTIBODYFROMURDF_HPP
