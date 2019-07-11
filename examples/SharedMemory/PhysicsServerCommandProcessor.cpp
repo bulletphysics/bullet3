@@ -10284,7 +10284,7 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 		endEffectorTargetWorldPositions.resize(0);
 		endEffectorTargetWorldPositions.reserve(clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices * 3);
 		endEffectorTargetWorldOrientations.resize(0);
-		endEffectorTargetWorldOrientations.resize(clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices * 4);
+		endEffectorTargetWorldOrientations.reserve(clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices * 4);
 
 		bool validEndEffectorLinkIndices = true;
 
