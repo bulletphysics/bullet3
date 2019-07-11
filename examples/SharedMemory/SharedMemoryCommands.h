@@ -30,7 +30,7 @@ typedef unsigned long long int smUint64_t;
 #endif
 
 #define SHARED_MEMORY_SERVER_TEST_C
-#define MAX_DEGREE_OF_FREEDOM 128 
+#define MAX_DEGREE_OF_FREEDOM 128
 #define MAX_NUM_SENSORS 256
 #define MAX_URDF_FILENAME_LENGTH 1024
 #define MAX_SDF_FILENAME_LENGTH 1024
@@ -740,9 +740,10 @@ struct CalculateInverseKinematicsArgs
 {
 	int m_bodyUniqueId;
 	//	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
-	double m_targetPosition[3];
+	double m_targetPositions[MAX_DEGREE_OF_FREEDOM*3];
+	int m_numEndEffectorLinkIndices;
 	double m_targetOrientation[4];  //orientation represented as quaternion, x,y,z,w
-	int m_endEffectorLinkIndex;
+	int m_endEffectorLinkIndices[MAX_DEGREE_OF_FREEDOM];
 	double m_lowerLimit[MAX_DEGREE_OF_FREEDOM];
 	double m_upperLimit[MAX_DEGREE_OF_FREEDOM];
 	double m_jointRange[MAX_DEGREE_OF_FREEDOM];

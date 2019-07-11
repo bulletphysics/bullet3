@@ -46,7 +46,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
 {
 	bool useAngularPart = (ikMethod == IK2_VEL_DLS_WITH_ORIENTATION || ikMethod == IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE || ikMethod == IK2_VEL_SDLS_WITH_ORIENTATION) ? true : false;
 
-	Jacobian ikJacobian(useAngularPart, numQ);
+	Jacobian ikJacobian(useAngularPart, numQ, 1);
 
 	ikJacobian.Reset();
 
@@ -184,6 +184,115 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
 	}
 	return true;
 }
+
+
+bool IKTrajectoryHelper::computeIK2(
+	const double* endEffectorTargetPositions,
+	const double* endEffectorCurrentPositions,
+	int numEndEffectors,
+	const double* q_current, int numQ,
+	double* q_new, int ikMethod, const double* linear_jacobians, const double dampIk[6])
+{
+	bool useAngularPart = false;//for now (ikMethod == IK2_VEL_DLS_WITH_ORIENTATION || ikMethod == IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE || ikMethod == IK2_VEL_SDLS_WITH_ORIENTATION) ? true : false;
+
+	Jacobian ikJacobian(useAngularPart, numQ, numEndEffectors);
+
+	ikJacobian.Reset();
+
+	bool UseJacobianTargets1 = false;
+
+	if (UseJacobianTargets1)
+	{
+		ikJacobian.SetJtargetActive();
+	}
+	else
+	{
+		ikJacobian.SetJendActive();
+	}
+
+	VectorRn deltaC(numEndEffectors *3);
+	MatrixRmn completeJacobian(numEndEffectors*3, numQ);
+
+	for (int ne = 0; ne < numEndEffectors; ne++)
+	{
+		VectorR3 targets;
+		targets.Set(endEffectorTargetPositions[ne*3+0], endEffectorTargetPositions[ne * 3 + 1], endEffectorTargetPositions[ne * 3 + 2]);
+
+		// Set one end effector world position from Bullet
+		VectorRn deltaS(3);
+		for (int i = 0; i < 3; ++i)
+		{
+			deltaS.Set(i, dampIk[i] * (endEffectorTargetPositions[ne*3+i] - endEffectorCurrentPositions[ne*3+i]));
+		}
+		{
+			
+			for (int i = 0; i < 3; ++i)
+			{
+				deltaC.Set(ne*3+i, deltaS[i]);
+				for (int j = 0; j < numQ; ++j)
+				{
+					completeJacobian.Set(ne * 3 + i, j, linear_jacobians[(ne*3+i * numQ) + j]);
+				}
+			}
+		}
+	}
+	ikJacobian.SetDeltaS(deltaC);
+	ikJacobian.SetJendTrans(completeJacobian);
+
+	// Calculate the change in theta values
+	switch (ikMethod)
+	{
+	case IK2_JACOB_TRANS:
+		ikJacobian.CalcDeltaThetasTranspose();  // Jacobian transpose method
+		break;
+	case IK2_DLS:
+	case IK2_VEL_DLS_WITH_ORIENTATION:
+	case IK2_VEL_DLS:
+		//ikJacobian.CalcDeltaThetasDLS();			// Damped least squares method
+		assert(m_data->m_dampingCoeff.GetLength() == numQ);
+		ikJacobian.CalcDeltaThetasDLS2(m_data->m_dampingCoeff);
+		break;
+	case IK2_VEL_DLS_WITH_NULLSPACE:
+	case IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE:
+		assert(m_data->m_nullSpaceVelocity.GetLength() == numQ);
+		ikJacobian.CalcDeltaThetasDLSwithNullspace(m_data->m_nullSpaceVelocity);
+		break;
+	case IK2_DLS_SVD:
+		ikJacobian.CalcDeltaThetasDLSwithSVD();
+		break;
+	case IK2_PURE_PSEUDO:
+		ikJacobian.CalcDeltaThetasPseudoinverse();  // Pure pseudoinverse method
+		break;
+	case IK2_SDLS:
+	case IK2_VEL_SDLS:
+	case IK2_VEL_SDLS_WITH_ORIENTATION:
+		ikJacobian.CalcDeltaThetasSDLS();  // Selectively damped least squares method
+		break;
+	default:
+		ikJacobian.ZeroDeltaThetas();
+		break;
+	}
+
+	// Use for velocity IK, update theta dot
+	//ikJacobian.UpdateThetaDot();
+
+	// Use for position IK, incrementally update theta
+	//ikJacobian.UpdateThetas();
+
+	// Apply the change in the theta values
+	//ikJacobian.UpdatedSClampValue(&targets);
+
+	for (int i = 0; i < numQ; i++)
+	{
+		// Use for velocity IK
+		q_new[i] = ikJacobian.dTheta[i] + q_current[i];
+
+		// Use for position IK
+		//q_new[i] = m_data->m_ikNodes[i]->GetTheta();
+	}
+	return true;
+}
+
 
 bool IKTrajectoryHelper::computeNullspaceVel(int numQ, const double* q_current, const double* lower_limit, const double* upper_limit, const double* joint_range, const double* rest_pose)
 {

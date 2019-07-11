@@ -31,6 +31,13 @@ public:
 				   const double* q_old, int numQ, int endEffectorIndex,
 				   double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, const double dampIk[6]);
 
+	bool computeIK2(
+		const double* endEffectorTargetPositions,
+		const double* endEffectorCurrentPositions,
+		int numEndEffectors,
+		const double* q_current, int numQ,
+		double* q_new, int ikMethod, const double* linear_jacobians, const double dampIk[6]);
+
 	bool computeNullspaceVel(int numQ, const double* q_current, const double* lower_limit, const double* upper_limit, const double* joint_range, const double* rest_pose);
 	bool setDampingCoeff(int numQ, const double* coeff);
 };
