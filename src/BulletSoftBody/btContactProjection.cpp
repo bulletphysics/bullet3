@@ -114,6 +114,7 @@ void btContactProjection::setConstraintDirections()
                 m_constrainedValues[counter].push_back(0);
                 m_constrainedValues[counter].push_back(0);
                 m_constrainedValues[counter].push_back(0);
+                m_constrainedId.push_back(counter);
             }
             ++counter;
         }
@@ -180,10 +181,65 @@ void btContactProjection::setConstraintDirections()
                     ++j;
                     m_constrainedDirections[m_indices[c.m_node]].push_back(cti.m_normal);
                     m_constrainedValues[m_indices[c.m_node]].resize(m_constrainedValues[m_indices[c.m_node]].size()+1);
+                    m_constrainedId.push_back(m_indices[c.m_node]);
                     continue;
                 }
             }
             psb->m_rcontacts.removeAtIndex(j);
+        }
+    }
+    
+    // for particles with more than three constrained directions, prune constrained directions so that there are at most three constrained directions
+    counter = 0;
+    const int dim = 3;
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        const btSoftBody* psb = m_softBodies[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            if (m_constrainedDirections[counter].size() > dim)
+            {
+                btAlignedObjectArray<btVector3> prunedConstraints;
+                // always keep the first constrained direction
+                prunedConstraints.push_back(m_constrainedDirections[counter][0]);
+                // find the direction most orthogonal to the first direction and keep it
+                size_t selected = 1;
+                btScalar min_dotProductAbs = std::abs(prunedConstraints[0].dot(m_constrainedDirections[counter][selected]));
+                for (int j = 2; j < m_constrainedDirections[counter].size(); ++j)
+                {
+                    btScalar dotProductAbs =std::abs(prunedConstraints[0].dot(m_constrainedDirections[counter][j]));
+                    if (dotProductAbs < min_dotProductAbs)
+                    {
+                        selected = j;
+                        min_dotProductAbs = dotProductAbs;
+                    }
+                }
+                if (std::abs(min_dotProductAbs-1) < SIMD_EPSILON)
+                {
+                    m_constrainedDirections[counter++] = prunedConstraints;
+                    continue;
+                }
+                prunedConstraints.push_back(m_constrainedDirections[counter][selected]);
+                
+                // find the direction most orthogonal to the previous two directions and keep it
+                size_t selected2 = (selected == 1) ? 2 : 1;
+                btVector3 normal = btCross(prunedConstraints[0], prunedConstraints[1]);
+                normal.normalize();
+                btScalar max_dotProductAbs = std::abs(normal.dot(m_constrainedDirections[counter][selected2]));
+                for (int j = 3; j < m_constrainedDirections[counter].size(); ++j)
+                {
+                    btScalar dotProductAbs = std::abs(normal.dot(m_constrainedDirections[counter][j]));
+                    if (dotProductAbs > min_dotProductAbs)
+                    {
+                        selected2 = j;
+                        max_dotProductAbs = dotProductAbs;
+                    }
+                }
+                prunedConstraints.push_back(m_constrainedDirections[counter][selected2]);
+                m_constrainedDirections[counter] = prunedConstraints;
+                m_constrainedValues[counter].resize(dim);
+            }
+            ++counter;
         }
     }
 }

@@ -8,7 +8,7 @@
 #include "btBackwardEulerObjective.h"
 
 btBackwardEulerObjective::btBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
-: cg(20)
+: cg(50)
 , m_softBodies(softBodies)
 , precondition(DefaultPreconditioner())
 , projection(m_softBodies, m_dt)
@@ -66,7 +66,7 @@ void btBackwardEulerObjective::computeStep(TVStack& dv, const TVStack& residual,
     m_dt = dt;
     btScalar tolerance = std::numeric_limits<float>::epsilon()* 16 * computeNorm(residual);
     cg.solve(*this, dv, residual, tolerance);
-    }
+}
 
 void btBackwardEulerObjective::updateVelocity(const TVStack& dv)
 {
