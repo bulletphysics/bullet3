@@ -11,6 +11,34 @@
 #include <unordered_map>
 
 class btDeformableRigidDynamicsWorld;
+
+struct Constraint
+{
+    const btSoftBody::RContact* m_contact;
+    const btVector3 m_direction;
+    btScalar m_value;
+    
+    Constraint(const btSoftBody::RContact& rcontact)
+    : m_contact(&rcontact)
+    , m_direction(rcontact.m_cti.m_normal)
+    , m_value(0)
+    {
+    }
+    
+    Constraint(const btVector3 dir)
+    : m_contact(nullptr)
+    , m_direction(dir)
+    , m_value(0)
+    {}
+    
+    Constraint()
+    : m_contact(nullptr)
+    {
+        
+    }
+    
+};
+
 class btCGProjection
 {
 public:
@@ -21,11 +49,11 @@ public:
     btAlignedObjectArray<btSoftBody *> m_softBodies;
     btDeformableRigidDynamicsWorld* m_world;
     std::unordered_map<btSoftBody::Node *, size_t> m_indices;
-    TVArrayStack m_constrainedDirections;
-    TArrayStack m_constrainedValues;
-    btAlignedObjectArray<int> m_constrainedId;
-
+//    TVArrayStack m_constrainedDirections;
+//    TArrayStack m_constrainedValues;
+//    btAlignedObjectArray<int> m_constrainedId;
     const btScalar& m_dt;
+    std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<Constraint> > m_constraints;
     
     btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : m_softBodies(softBodies)
@@ -51,14 +79,15 @@ public:
             updateId();
         
         // resize and clear the old constraints
-        m_constrainedValues.resize(m_indices.size());
-        m_constrainedDirections.resize(m_indices.size());
-        for (int i = 0; i < m_constrainedDirections.size(); ++i)
-        {
-            m_constrainedDirections[i].clear();
-            m_constrainedValues[i].clear();
-        }
-        m_constrainedId.clear();
+//        m_constrainedValues.resize(m_indices.size());
+//        m_constrainedDirections.resize(m_indices.size());
+//        for (int i = 0; i < m_constrainedDirections.size(); ++i)
+//        {
+//            m_constrainedDirections[i].clear();
+//            m_constrainedValues[i].clear();
+//        }
+//        m_constrainedId.clear();
+        m_constraints.clear();
     }
     
     void updateId()
