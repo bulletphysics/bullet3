@@ -30,20 +30,19 @@ public:
     virtual void operator()(TVStack& x)
     {
         const int dim = 3;
-        for (int j = 0; j < m_constrainedId.size(); ++j)
+        for (auto it : m_constraints)
         {
-            int i = m_constrainedId[j];
-            btAssert(m_constrainedDirections[i].size() <= dim);
-            if (m_constrainedDirections[i].size() <= 1)
+            const btAlignedObjectArray<Constraint>& constraints = it.second;
+            size_t i = m_indices[it.first];
+            btAssert(constraints.size() <= dim);
+            btAssert(constraints.size() > 0);
+            if (constraints.size() == 1)
             {
-                for (int j = 0; j < m_constrainedDirections[i].size(); ++j)
-                {
-                    x[i] -= x[i].dot(m_constrainedDirections[i][j]) * m_constrainedDirections[i][j];
-                }
+                x[i] -= x[i].dot(constraints[0].m_direction) * constraints[0].m_direction;
             }
-            else if (m_constrainedDirections[i].size() == 2)
+            else if (constraints.size() == 2)
             {
-                btVector3 free_dir = btCross(m_constrainedDirections[i][0], m_constrainedDirections[i][1]);
+                btVector3 free_dir = btCross(constraints[0].m_direction, constraints[1].m_direction);
                 free_dir.normalize();
                 x[i] = x[i].dot(free_dir) * free_dir;
             }
@@ -51,30 +50,30 @@ public:
                 x[i].setZero();
         }
     }
+
     
     virtual void enforceConstraint(TVStack& x)
     {
         const int dim = 3;
-        for (int j = 0; j < m_constrainedId.size(); ++j)
+        for (auto it : m_constraints)
         {
-            int i = m_constrainedId[j];
-            btAssert(m_constrainedDirections[i].size() <= dim);
-            if (m_constrainedDirections[i].size() <= 1)
+            const btAlignedObjectArray<Constraint>& constraints = it.second;
+            size_t i = m_indices[it.first];
+            btAssert(constraints.size() <= dim);
+            btAssert(constraints.size() > 0);
+            if (constraints.size() == 1)
             {
-                for (int j = 0; j < m_constrainedDirections[i].size(); ++j)
-                {
-                    x[i] -= x[i].dot(m_constrainedDirections[i][j]) * m_constrainedDirections[i][j];
-                    x[i] += m_constrainedValues[i][j] * m_constrainedDirections[i][j];
-                }
+                x[i] -= x[i].dot(constraints[0].m_direction) * constraints[0].m_direction;
+                x[i] += constraints[0].m_value * constraints[0].m_direction;
             }
-            else if (m_constrainedDirections[i].size() == 2)
+            else if (constraints.size() == 2)
             {
-                btVector3 free_dir = btCross(m_constrainedDirections[i][0], m_constrainedDirections[i][1]);
+                btVector3 free_dir = btCross(constraints[0].m_direction, constraints[1].m_direction);
                 free_dir.normalize();
-                x[i] = x[i].dot(free_dir) * free_dir + m_constrainedDirections[i][0] * m_constrainedValues[i][0] + m_constrainedDirections[i][1] * m_constrainedValues[i][1];
+                x[i] = x[i].dot(free_dir) * free_dir + constraints[0].m_direction * constraints[0].m_value + constraints[1].m_direction * constraints[1].m_value;
             }
             else
-                x[i] = m_constrainedDirections[i][0] * m_constrainedValues[i][0] + m_constrainedDirections[i][1] * m_constrainedValues[i][1] + m_constrainedDirections[i][2] * m_constrainedValues[i][2];
+                x[i] = constraints[0].m_value * constraints[0].m_direction + constraints[1].m_value * constraints[1].m_direction + constraints[2].m_value * constraints[2].m_direction;
         }
     }
     

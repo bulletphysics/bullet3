@@ -89,20 +89,20 @@ void btDeformableBodySolver::postStabilize()
                     c.m_node->m_x -= dp * cti.m_normal * c.m_c4;
                     
                     ////
-                    //                        if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
-                    //                        {
-                    //                            if (rigidCol)
-                    //                                rigidCol->applyImpulse(impulse, c.m_c1);
-                    //                        }
+//                    if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+//                    {
+//                        if (rigidCol)
+//                            rigidCol->applyImpulse(impulse, c.m_c1);
+//                    }
+//                    else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+//                    {
+//                        if (multibodyLinkCol)
+//                        {
+//                            double multiplier = 0.5;
+//                            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV, -impulse.length() * multiplier);
+//                        }
+//                    }
                 }
-                //                    else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
-                //                    {
-                //                        if (multibodyLinkCol)
-                //                        {
-                //                            double multiplier = 0.5;
-                //                            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV, -impulse.length() * multiplier);
-                //                        }
-                //                    }
             }
         }
     }

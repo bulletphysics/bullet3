@@ -70,19 +70,27 @@ void btBackwardEulerObjective::computeStep(TVStack& dv, const TVStack& residual,
 
 void btBackwardEulerObjective::updateVelocity(const TVStack& dv)
 {
-    for (int i = 0; i < m_softBodies.size(); ++i)
+    // only the velocity of the constrained nodes needs to be updated during CG solve
+    for (auto it : projection.m_constraints)
     {
-        int counter = 0;
-        for (int i = 0; i < m_softBodies.size(); ++i)
-        {
-            btSoftBody* psb = m_softBodies[i];
-            for (int j = 0; j < psb->m_nodes.size(); ++j)
-            {
-                // only the velocity of the constrained nodes needs to be updated during CG solve
-                if (projection.m_constrainedDirections.size() > 0)
-                    psb->m_nodes[j].m_v = m_backupVelocity[counter] + dv[counter];
-                ++counter;
-            }
-        }
+        int i = projection.m_indices[it.first];
+        it.first->m_v = m_backupVelocity[i] + dv[i];
     }
 }
+    
+//    for (int i = 0; i < m_softBodies.size(); ++i)
+//    {
+//        int counter = 0;
+//        for (int i = 0; i < m_softBodies.size(); ++i)
+//        {
+//            btSoftBody* psb = m_softBodies[i];
+//            for (int j = 0; j < psb->m_nodes.size(); ++j)
+//            {
+//                // only the velocity of the constrained nodes needs to be updated during CG solve
+//                if (projection.m_constraints[&(psb->m_nodes[j])].size() > 0)
+//                    psb->m_nodes[j].m_v = m_backupVelocity[counter] + dv[counter];
+//                ++counter;
+//            }
+//        }
+//    }
+
