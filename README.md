@@ -48,7 +48,7 @@ All source code files are licensed under the permissive zlib license
 
 **Windows**
 
-Click on build_visual_studio_vr_pybullet_double.bat and open build3/vs2010/0MySolution.sln
+Click on build_visual_studio_vr_pybullet_double.bat and open build3/vs2010/0_Bullet3Solution.sln
 When asked, convert the projects to a newer version of Visual Studio.
 If you installed Python in the C:\ root directory, the batch file should find it automatically.
 Otherwise, edit this batch file to choose where Python include/lib directories are located.
