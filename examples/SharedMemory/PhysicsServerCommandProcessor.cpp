@@ -10227,34 +10227,10 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 			ikHelperPtr = tmpHelper;
 		}
 
-		int endEffectorLinkIndex = clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex;
 
 		btAlignedObjectArray<double> startingPositions;
 		startingPositions.reserve(bodyHandle->m_multiBody->getNumLinks());
 
-		btVector3 targetPosWorld(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition[0],
-								 clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition[1],
-								 clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition[2]);
-
-		btQuaternion targetOrnWorld(clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[0],
-									clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[1],
-									clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[2],
-									clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[3]);
-
-		btTransform targetBaseCoord;
-		if (clientCmd.m_updateFlags & IK_HAS_CURRENT_JOINT_POSITIONS)
-		{
-			targetBaseCoord.setOrigin(targetPosWorld);
-			targetBaseCoord.setRotation(targetOrnWorld);
-		}
-		else
-		{
-			btTransform targetWorld;
-			targetWorld.setOrigin(targetPosWorld);
-			targetWorld.setRotation(targetOrnWorld);
-			btTransform tr = bodyHandle->m_multiBody->getBaseWorldTransform();
-			targetBaseCoord = tr.inverse() * targetWorld;
-		}
 
 		{
 			int DofIndex = 0;
@@ -10290,6 +10266,9 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 		}
 
 		btScalar currentDiff = 1e30f;
+		b3AlignedObjectArray<double> endEffectorTargetWorldPositions;
+		b3AlignedObjectArray<double> endEffectorTargetWorldOrientations;
+		b3AlignedObjectArray<double> endEffectorCurrentWorldPositions;
 		b3AlignedObjectArray<double> jacobian_linear;
 		b3AlignedObjectArray<double> jacobian_angular;
 		btAlignedObjectArray<double> q_current;
@@ -10302,13 +10281,64 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 		int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
 		btInverseDynamics::vecx nu(numDofs + baseDofs), qdot(numDofs + baseDofs), q(numDofs + baseDofs), joint_force(numDofs + baseDofs);
 
+		endEffectorTargetWorldPositions.resize(0);
+		endEffectorTargetWorldPositions.reserve(clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices * 3);
+		endEffectorTargetWorldOrientations.resize(0);
+		endEffectorTargetWorldOrientations.resize(clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices * 4);
+
+		bool validEndEffectorLinkIndices = true;
+
+		for (int ne = 0; ne < clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices; ne++)
+		{
+
+			int endEffectorLinkIndex = clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndices[ne];
+			validEndEffectorLinkIndices = validEndEffectorLinkIndices && (endEffectorLinkIndex < bodyHandle->m_multiBody->getNumLinks());
+
+			btVector3 targetPosWorld(clientCmd.m_calculateInverseKinematicsArguments.m_targetPositions[ne*3+0],
+				clientCmd.m_calculateInverseKinematicsArguments.m_targetPositions[ne * 3 + 1],
+				clientCmd.m_calculateInverseKinematicsArguments.m_targetPositions[ne * 3 + 2]);
+
+			btQuaternion targetOrnWorld(clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[ne * 4 + 0],
+				clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[ne * 4 + 1],
+				clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[ne * 4 + 2],
+				clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[ne * 4 + 3]);
+
+			btTransform targetBaseCoord;
+			if (clientCmd.m_updateFlags & IK_HAS_CURRENT_JOINT_POSITIONS)
+			{
+				targetBaseCoord.setOrigin(targetPosWorld);
+				targetBaseCoord.setRotation(targetOrnWorld);
+			}
+			else
+			{
+				btTransform targetWorld;
+				targetWorld.setOrigin(targetPosWorld);
+				targetWorld.setRotation(targetOrnWorld);
+				btTransform tr = bodyHandle->m_multiBody->getBaseWorldTransform();
+				targetBaseCoord = tr.inverse() * targetWorld;
+			}
+
+			btVector3DoubleData targetPosBaseCoord;
+			btQuaternionDoubleData targetOrnBaseCoord;
+			targetBaseCoord.getOrigin().serializeDouble(targetPosBaseCoord);
+			targetBaseCoord.getRotation().serializeDouble(targetOrnBaseCoord);
+
+			endEffectorTargetWorldPositions.push_back(targetPosBaseCoord.m_floats[0]);
+			endEffectorTargetWorldPositions.push_back(targetPosBaseCoord.m_floats[1]);
+			endEffectorTargetWorldPositions.push_back(targetPosBaseCoord.m_floats[2]);
+
+			endEffectorTargetWorldOrientations.push_back(targetOrnBaseCoord.m_floats[0]);
+			endEffectorTargetWorldOrientations.push_back(targetOrnBaseCoord.m_floats[1]);
+			endEffectorTargetWorldOrientations.push_back(targetOrnBaseCoord.m_floats[2]);
+			endEffectorTargetWorldOrientations.push_back(targetOrnBaseCoord.m_floats[3]);
+		}
 		for (int i = 0; i < numIterations && currentDiff > residualThreshold; i++)
 		{
 			BT_PROFILE("InverseKinematics1Step");
-			if (ikHelperPtr && (endEffectorLinkIndex < bodyHandle->m_multiBody->getNumLinks()))
+			if (ikHelperPtr && validEndEffectorLinkIndices)
 			{
-				jacobian_linear.resize(3 * numDofs);
-				jacobian_angular.resize(3 * numDofs);
+				jacobian_linear.resize(clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices*3 * numDofs);
+				jacobian_angular.resize(clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices*3 * numDofs);
 				int jacSize = 0;
 
 				btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
@@ -10329,7 +10359,6 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 						if (bodyHandle->m_multiBody->getLink(i).m_jointType >= 0 && bodyHandle->m_multiBody->getLink(i).m_jointType <= 2)
 						{
 							// 0, 1, 2 represent revolute, prismatic, and spherical joint types respectively. Skip the fixed joints.
-
 							double curPos = startingPositions[DofIndex];
 							q_current[DofIndex] = curPos;
 							q[DofIndex + baseDofs] = curPos;
@@ -10348,21 +10377,44 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 							tree->calculateJacobians(q);
 							btInverseDynamics::mat3x jac_t(3, numDofs + baseDofs);
 							btInverseDynamics::mat3x jac_r(3, numDofs + baseDofs);
-							// Note that inverse dynamics uses zero-based indexing of bodies, not starting from -1 for the base link.
-							tree->getBodyJacobianTrans(endEffectorLinkIndex + 1, &jac_t);
-							tree->getBodyJacobianRot(endEffectorLinkIndex + 1, &jac_r);
-
-							//calculatePositionKinematics is already done inside calculateInverseDynamics
-							tree->getBodyOrigin(endEffectorLinkIndex + 1, &world_origin);
-							tree->getBodyTransform(endEffectorLinkIndex + 1, &world_rot);
-
-							for (int i = 0; i < 3; ++i)
+							currentDiff = 0;
+							
+							endEffectorCurrentWorldPositions.resize(0);
+							endEffectorCurrentWorldPositions.reserve(clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices * 3);
+							
+							for (int ne = 0; ne < clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices; ne++)
 							{
-								for (int j = 0; j < numDofs; ++j)
+								
+								int endEffectorLinkIndex2 = clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndices[ne];
+
+								// Note that inverse dynamics uses zero-based indexing of bodies, not starting from -1 for the base link.
+								tree->getBodyJacobianTrans(endEffectorLinkIndex2 + 1, &jac_t);
+								tree->getBodyJacobianRot(endEffectorLinkIndex2 + 1, &jac_r);
+
+								//calculatePositionKinematics is already done inside calculateInverseDynamics
+								
+								tree->getBodyOrigin(endEffectorLinkIndex2 + 1, &world_origin);
+								tree->getBodyTransform(endEffectorLinkIndex2 + 1, &world_rot);
+
+								for (int i = 0; i < 3; ++i)
 								{
-									jacobian_linear[i * numDofs + j] = jac_t(i, (baseDofs + j));
-									jacobian_angular[i * numDofs + j] = jac_r(i, (baseDofs + j));
+									for (int j = 0; j < numDofs; ++j)
+									{
+										jacobian_linear[(ne*3+i) * numDofs + j] = jac_t(i, (baseDofs + j));
+										jacobian_angular[(ne * 3 + i) * numDofs + j] = jac_r(i, (baseDofs + j));
+									}
 								}
+								
+								endEffectorCurrentWorldPositions.push_back(world_origin[0]);
+								endEffectorCurrentWorldPositions.push_back(world_origin[1]);
+								endEffectorCurrentWorldPositions.push_back(world_origin[2]);
+								
+								btInverseDynamics::vec3 targetPos(btVector3(endEffectorTargetWorldPositions[ne*3+0],
+									endEffectorTargetWorldPositions[ne * 3 + 1],
+									endEffectorTargetWorldPositions[ne * 3 + 2]));
+								//diff
+								currentDiff = btMax(currentDiff, (world_origin - targetPos).length());
+
 							}
 						}
 					}
@@ -10451,13 +10503,8 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 					endEffectorBaseCoord.getOrigin().serializeDouble(endEffectorWorldPosition);
 					endEffectorBaseCoord.getRotation().serializeDouble(endEffectorWorldOrientation);
 
-					//diff
-					currentDiff = (endEffectorBaseCoord.getOrigin() - targetBaseCoord.getOrigin()).length();
 
-					btVector3DoubleData targetPosBaseCoord;
-					btQuaternionDoubleData targetOrnBaseCoord;
-					targetBaseCoord.getOrigin().serializeDouble(targetPosBaseCoord);
-					targetBaseCoord.getRotation().serializeDouble(targetOrnBaseCoord);
+			
 
 					// Set joint damping coefficents. A small default
 					// damping constant is added to prevent singularity
@@ -10477,25 +10524,48 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 					ikHelperPtr->setDampingCoeff(numDofs, &joint_damping[0]);
 
 					double targetDampCoeff[6] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+					bool performedIK = false;
 
+					if (clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices==1)
 					{
+
 						BT_PROFILE("computeIK");
-						ikHelperPtr->computeIK(targetPosBaseCoord.m_floats, targetOrnBaseCoord.m_floats,
+						ikHelperPtr->computeIK(&endEffectorTargetWorldPositions[0],
+												&endEffectorTargetWorldOrientations[0],
 											   endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
 											   &q_current[0],
-											   numDofs, clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex,
+											   numDofs, clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndices[0],
 											   &q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize * 2, targetDampCoeff);
+						performedIK = true;
 					}
-					serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
-					for (int i = 0; i < numDofs; i++)
+					else
 					{
-						serverCmd.m_inverseKinematicsResultArgs.m_jointPositions[i] = q_new[i];
+
+						if (clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices>1)
+						{
+							ikHelperPtr->computeIK2(&endEffectorTargetWorldPositions[0],
+													&endEffectorCurrentWorldPositions[0],
+								clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices,
+								//endEffectorWorldOrientation.m_floats,
+								&q_current[0],
+								numDofs,
+								&q_new[0], ikMethod, &jacobian_linear[0], targetDampCoeff);
+							performedIK = true;
+						}
 					}
-					serverCmd.m_inverseKinematicsResultArgs.m_dofCount = numDofs;
-					serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED;
-					for (int i = 0; i < numDofs; i++)
+					if (performedIK)
 					{
-						startingPositions[i] = q_new[i];
+						serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
+						for (int i = 0; i < numDofs; i++)
+						{
+							serverCmd.m_inverseKinematicsResultArgs.m_jointPositions[i] = q_new[i];
+						}
+						serverCmd.m_inverseKinematicsResultArgs.m_dofCount = numDofs;
+						serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED;
+						for (int i = 0; i < numDofs; i++)
+						{
+							startingPositions[i] = q_new[i];
+						}
 					}
 				}
 			}

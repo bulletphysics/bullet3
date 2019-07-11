@@ -57,7 +57,7 @@ class Jacobian
 {
 public:
 	Jacobian(Tree*);
-	Jacobian(bool useAngularJacobian, int nDof);
+	Jacobian(bool useAngularJacobian, int nDof, int numEndEffectors);
 
 	void ComputeJacobian(VectorR3* targets);
 	const MatrixRmn& ActiveJacobian() const { return *Jactive; }

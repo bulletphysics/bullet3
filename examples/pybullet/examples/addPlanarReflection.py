@@ -32,8 +32,8 @@ def getRayFromTo(mouseX, mouseY):
   return rayFrom, rayTo
 
 
-cid = p.connect(p.SHARED_MEMORY_GUI)
-#cid = p.connect(p.GUI)
+#cid = p.connect(p.SHARED_MEMORY_GUI)
+cid = p.connect(p.GUI)
 if (cid < 0):
   p.connect(p.GUI)
 p.setPhysicsEngineParameter(numSolverIterations=10)

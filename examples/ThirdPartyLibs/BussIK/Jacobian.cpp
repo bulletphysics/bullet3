@@ -84,10 +84,10 @@ Jacobian::Jacobian(Tree* tree)
 	Reset();
 }
 
-Jacobian::Jacobian(bool useAngularJacobian, int nDof)
+Jacobian::Jacobian(bool useAngularJacobian, int nDof, int numEndEffectors)
 {
 	m_tree = 0;
-	m_nEffector = 1;
+	m_nEffector = numEndEffectors;
 
 	if (useAngularJacobian)
 	{
