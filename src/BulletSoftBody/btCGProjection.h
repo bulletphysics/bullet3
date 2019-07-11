@@ -23,6 +23,8 @@ public:
     std::unordered_map<btSoftBody::Node *, size_t> m_indices;
     TVArrayStack m_constrainedDirections;
     TArrayStack m_constrainedValues;
+    btAlignedObjectArray<int> m_constrainedId;
+
     const btScalar& m_dt;
     
     btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
@@ -56,6 +58,7 @@ public:
             m_constrainedDirections[i].clear();
             m_constrainedValues[i].clear();
         }
+        m_constrainedId.clear();
     }
     
     void updateId()

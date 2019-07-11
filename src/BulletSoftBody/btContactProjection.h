@@ -29,24 +29,52 @@ public:
     // apply the constraints
     virtual void operator()(TVStack& x)
     {
-        for (int i = 0; i < x.size(); ++i)
+        const int dim = 3;
+        for (int j = 0; j < m_constrainedId.size(); ++j)
         {
-            for (int j = 0; j < m_constrainedDirections[i].size(); ++j)
+            int i = m_constrainedId[j];
+            btAssert(m_constrainedDirections[i].size() <= dim);
+            if (m_constrainedDirections[i].size() <= 1)
             {
-                x[i] -= x[i].dot(m_constrainedDirections[i][j]) * m_constrainedDirections[i][j];
+                for (int j = 0; j < m_constrainedDirections[i].size(); ++j)
+                {
+                    x[i] -= x[i].dot(m_constrainedDirections[i][j]) * m_constrainedDirections[i][j];
+                }
             }
+            else if (m_constrainedDirections[i].size() == 2)
+            {
+                btVector3 free_dir = btCross(m_constrainedDirections[i][0], m_constrainedDirections[i][1]);
+                free_dir.normalize();
+                x[i] = x[i].dot(free_dir) * free_dir;
+            }
+            else
+                x[i].setZero();
         }
     }
     
     virtual void enforceConstraint(TVStack& x)
     {
-        for (int i = 0; i < x.size(); ++i)
+        const int dim = 3;
+        for (int j = 0; j < m_constrainedId.size(); ++j)
         {
-            for (int j = 0; j < m_constrainedDirections[i].size(); ++j)
+            int i = m_constrainedId[j];
+            btAssert(m_constrainedDirections[i].size() <= dim);
+            if (m_constrainedDirections[i].size() <= 1)
             {
-                x[i] -= x[i].dot(m_constrainedDirections[i][j]) * m_constrainedDirections[i][j];
-                x[i] += m_constrainedValues[i][j] * m_constrainedDirections[i][j];
+                for (int j = 0; j < m_constrainedDirections[i].size(); ++j)
+                {
+                    x[i] -= x[i].dot(m_constrainedDirections[i][j]) * m_constrainedDirections[i][j];
+                    x[i] += m_constrainedValues[i][j] * m_constrainedDirections[i][j];
+                }
             }
+            else if (m_constrainedDirections[i].size() == 2)
+            {
+                btVector3 free_dir = btCross(m_constrainedDirections[i][0], m_constrainedDirections[i][1]);
+                free_dir.normalize();
+                x[i] = x[i].dot(free_dir) * free_dir + m_constrainedDirections[i][0] * m_constrainedValues[i][0] + m_constrainedDirections[i][1] * m_constrainedValues[i][1];
+            }
+            else
+                x[i] = m_constrainedDirections[i][0] * m_constrainedValues[i][0] + m_constrainedDirections[i][1] * m_constrainedValues[i][1] + m_constrainedDirections[i][2] * m_constrainedValues[i][2];
         }
     }
     
