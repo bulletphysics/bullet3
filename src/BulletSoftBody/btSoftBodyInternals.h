@@ -891,7 +891,8 @@ struct btSoftColliders
 					c.m_c0 = ImpulseMatrix(psb->m_sst.sdt, ima, imb, iwi, ra);
 					c.m_c1 = ra;
 					c.m_c2 = ima * psb->m_sst.sdt;
-					c.m_c3 = fv.length2() < (dn * fc * dn * fc) ? 0 : 1 - fc;
+//                    c.m_c3 = fv.length2() < (dn * fc * dn * fc) ? 0 : 1 - fc;
+                    c.m_c3 = fc;
 					c.m_c4 = m_colObj1Wrap->getCollisionObject()->isStaticOrKinematicObject() ? psb->m_cfg.kKHR : psb->m_cfg.kCHR;
 					psb->m_rcontacts.push_back(c);
 					if (m_rigidBody)

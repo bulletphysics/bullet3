@@ -7,14 +7,16 @@
 
 #include "btContactProjection.h"
 #include "btDeformableRigidDynamicsWorld.h"
+#include <algorithm>
 void btContactProjection::update(const TVStack& dv, const TVStack& backupVelocity)
 {
     ///solve rigid body constraints
     m_world->btMultiBodyDynamicsWorld::solveConstraints(m_world->getSolverInfo());
 
     // loop through constraints to set constrained values
-    for (auto it : m_constraints)
+    for (auto& it : m_constraints)
     {
+        Friction& friction = m_frictions[it.first];
         btAlignedObjectArray<Constraint>& constraints = it.second;
         for (int i = 0; i < constraints.size(); ++i)
         {
@@ -66,11 +68,27 @@ void btContactProjection::update(const TVStack& dv, const TVStack& backupVelocit
                 const btVector3 vb = c->m_node->m_v * m_dt;
                 const btVector3 vr = vb - va;
                 const btScalar dn = btDot(vr, cti.m_normal);
-                if (1) // in the same CG solve, the set of constraits doesn't change
-                    //                if (dn <= SIMD_EPSILON)
+                btVector3 impulse = c->m_c0 * vr;
+                const btVector3 impulse_normal = c->m_c0 *(cti.m_normal * dn);
+                btVector3 impulse_tangent = impulse - impulse_normal;
+                
+                if (dn < 0 && impulse_tangent.norm() > SIMD_EPSILON)
+                {
+                    btScalar impulse_tangent_magnitude = std::min(impulse_normal.norm()*c->m_c3, impulse_tangent.norm());
+                    
+                    impulse_tangent_magnitude = 0;
+                    
+                    const btVector3 tangent_dir = impulse_tangent.normalized();
+                    impulse_tangent = impulse_tangent_magnitude * tangent_dir;
+                    friction.m_direction = impulse_tangent;
+                    friction.m_dv = -impulse_tangent * c->m_c2/m_dt + (c->m_node->m_v - backupVelocity[m_indices[c->m_node]]).dot(tangent_dir)*tangent_dir;
+                }
+                impulse = impulse_normal + impulse_tangent;
+//                if (1) // in the same CG solve, the set of constraits doesn't change
+                if (dn <= SIMD_EPSILON)
                 {
                     // c0 is the impulse matrix, c3 is 1 - the friction coefficient or 0, c4 is the contact hardness coefficient
-                    const btVector3 impulse = c->m_c0 *(cti.m_normal * dn);
+                    
                     // TODO: only contact is considered here, add friction later
                     
                     // dv = new_impulse + accumulated velocity change in previous CG iterations
@@ -82,7 +100,7 @@ void btContactProjection::update(const TVStack& dv, const TVStack& backupVelocit
                     if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
                     {
                         if (rigidCol)
-                            rigidCol->applyImpulse(impulse, c->m_c1);
+                            rigidCol->applyImpulse(impulse_normal, c->m_c1);
                     }
                     else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
                     {
@@ -102,7 +120,6 @@ void btContactProjection::update(const TVStack& dv, const TVStack& backupVelocit
 void btContactProjection::setConstraintDirections()
 {
     // set Dirichlet constraint
-    size_t counter = 0;
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
         btSoftBody* psb = m_softBodies[i];
@@ -116,7 +133,6 @@ void btContactProjection::setConstraintDirections()
                 c.push_back(Constraint(btVector3(0,0,1)));
                 m_constraints[&(psb->m_nodes[j])] = c;
             }
-            ++counter;
         }
     }
 
@@ -181,6 +197,7 @@ void btContactProjection::setConstraintDirections()
                         btAlignedObjectArray<Constraint> constraints;
                         constraints.push_back(Constraint(c));
                         m_constraints[c.m_node] = constraints;
+                        m_frictions[c.m_node] = Friction();
                     }
                     else
                     {
@@ -193,11 +210,10 @@ void btContactProjection::setConstraintDirections()
     }
     
     // for particles with more than three constrained directions, prune constrained directions so that there are at most three constrained directions
-    counter = 0;
     const int dim = 3;
-    for (auto it : m_constraints)
+    for (auto& it : m_constraints)
     {
-        const btAlignedObjectArray<Constraint>& c = it.second;
+        btAlignedObjectArray<Constraint>& c = it.second;
         if (c.size() > dim)
         {
             btAlignedObjectArray<Constraint> prunedConstraints;
@@ -216,7 +232,7 @@ void btContactProjection::setConstraintDirections()
                     min_dotProductAbs = dotProductAbs;
                 }
             }
-            if (std::abs(min_dotProductAbs-1) < SIMD_EPSILON)
+            if (std::abs(std::abs(min_dotProductAbs)-1) < SIMD_EPSILON)
             {
                 it.second = prunedConstraints;
                 continue;
@@ -239,6 +255,24 @@ void btContactProjection::setConstraintDirections()
             }
             prunedConstraints.push_back(c[selected2]);
             it.second = prunedConstraints;
+        }
+        else
+        {
+            // prune out collinear constraints
+            const btVector3& first_dir = c[0].m_direction;
+            int i = 1;
+            while (i < c.size())
+            {
+                if (std::abs(std::abs(first_dir.dot(c[i].m_direction)) - 1) < 4*SIMD_EPSILON)
+                    c.removeAtIndex(i);
+                else
+                    ++i;
+            }
+            if (c.size() == 3)
+            {
+                if (std::abs(std::abs(c[1].m_direction.dot(c[2].m_direction)) - 1) < 4*SIMD_EPSILON)
+                    c.removeAtIndex(2);
+            }
         }
     }
 }

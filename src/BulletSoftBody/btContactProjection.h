@@ -30,18 +30,22 @@ public:
     virtual void operator()(TVStack& x)
     {
         const int dim = 3;
-        for (auto it : m_constraints)
+        for (auto& it : m_constraints)
         {
             const btAlignedObjectArray<Constraint>& constraints = it.second;
             size_t i = m_indices[it.first];
+            const Friction& friction = m_frictions[it.first];
             btAssert(constraints.size() <= dim);
             btAssert(constraints.size() > 0);
             if (constraints.size() == 1)
             {
                 x[i] -= x[i].dot(constraints[0].m_direction) * constraints[0].m_direction;
+                if (friction.m_direction.norm() > SIMD_EPSILON)
+                    x[i] -= x[i].dot(friction.m_direction) * friction.m_direction;
             }
             else if (constraints.size() == 2)
             {
+                // TODO : friction
                 btVector3 free_dir = btCross(constraints[0].m_direction, constraints[1].m_direction);
                 free_dir.normalize();
                 x[i] = x[i].dot(free_dir) * free_dir;
@@ -55,16 +59,22 @@ public:
     virtual void enforceConstraint(TVStack& x)
     {
         const int dim = 3;
-        for (auto it : m_constraints)
+        for (auto& it : m_constraints)
         {
             const btAlignedObjectArray<Constraint>& constraints = it.second;
             size_t i = m_indices[it.first];
+            const Friction& friction = m_frictions[it.first];
             btAssert(constraints.size() <= dim);
             btAssert(constraints.size() > 0);
             if (constraints.size() == 1)
             {
                 x[i] -= x[i].dot(constraints[0].m_direction) * constraints[0].m_direction;
                 x[i] += constraints[0].m_value * constraints[0].m_direction;
+                if (friction.m_direction.norm() > SIMD_EPSILON)
+                {
+                    x[i] -= x[i].dot(friction.m_direction) * friction.m_direction;
+                    x[i] += friction.m_dv;
+                }
             }
             else if (constraints.size() == 2)
             {
