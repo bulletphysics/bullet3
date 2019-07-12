@@ -8,14 +8,15 @@
 #include "btBackwardEulerObjective.h"
 
 btBackwardEulerObjective::btBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
-: cg(20)
+: cg(50)
 , m_softBodies(softBodies)
-, precondition(DefaultPreconditioner())
 , projection(m_softBodies, m_dt)
 , m_backupVelocity(backup_v)
 {
     // TODO: this should really be specified in initialization instead of here
     btMassSpring* mass_spring = new btMassSpring(m_softBodies);
+//    m_preconditioner = new MassPreconditioner(m_softBodies);
+    m_preconditioner = new DefaultPreconditioner();
     m_lf.push_back(mass_spring);
 }
 
@@ -28,8 +29,9 @@ void btBackwardEulerObjective::reinitialize(bool nodeUpdated)
     for (int i = 0; i < m_lf.size(); ++i)
     {
         m_lf[i]->reinitialize(nodeUpdated);
-        projection.reinitialize(nodeUpdated);
     }
+    projection.reinitialize(nodeUpdated);
+    m_preconditioner->reinitialize(nodeUpdated);
 }
 
 
@@ -64,7 +66,7 @@ void btBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) const
 void btBackwardEulerObjective::computeStep(TVStack& dv, const TVStack& residual, const btScalar& dt)
 {
     m_dt = dt;
-    btScalar tolerance = std::numeric_limits<float>::epsilon()* 16 * computeNorm(residual);
+    btScalar tolerance = std::numeric_limits<float>::epsilon()* 1024 * computeNorm(residual);
     cg.solve(*this, dv, residual, tolerance);
 }
 
