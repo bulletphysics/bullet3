@@ -122,6 +122,7 @@ void btDeformableBodySolver::solveConstraints(float solverdt)
         updateVelocity();
     }
     advect(solverdt);
+//    postStabilize();
 }
 
 void btDeformableBodySolver::reinitialize(bool nodeUpdated)
