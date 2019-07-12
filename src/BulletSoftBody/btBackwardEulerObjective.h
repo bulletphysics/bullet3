@@ -15,25 +15,82 @@
 #include "btDeformableRigidDynamicsWorld.h"
 
 class btDeformableRigidDynamicsWorld;
+
+class Preconditioner
+{
+public:
+    using TVStack = btAlignedObjectArray<btVector3>;
+    virtual void operator()(const TVStack& x, TVStack& b) = 0;
+    virtual void reinitialize(bool nodeUpdated) = 0;
+};
+
+class DefaultPreconditioner : public Preconditioner
+{
+public:
+    virtual void operator()(const TVStack& x, TVStack& b)
+    {
+        btAssert(b.size() == x.size());
+        for (int i = 0; i < b.size(); ++i)
+            b[i] = x[i];
+    }
+    virtual void reinitialize(bool nodeUpdated)
+    {
+        
+    }
+};
+
+class MassPreconditioner : public Preconditioner
+{
+    btAlignedObjectArray<btScalar> m_inv_mass;
+    const btAlignedObjectArray<btSoftBody *>& m_softBodies;
+public:
+    MassPreconditioner(const btAlignedObjectArray<btSoftBody *>& softBodies)
+    : m_softBodies(softBodies)
+    {
+    }
+    
+    virtual void reinitialize(bool nodeUpdated)
+    {
+        if (nodeUpdated)
+        {
+            m_inv_mass.clear();
+            for (int i = 0; i < m_softBodies.size(); ++i)
+            {
+                btSoftBody* psb = m_softBodies[i];
+                for (int j = 0; j < psb->m_nodes.size(); ++j)
+                    m_inv_mass.push_back(psb->m_nodes[j].m_im);
+            }
+        }
+    }
+    
+    virtual void operator()(const TVStack& x, TVStack& b)
+    {
+        btAssert(b.size() == x.size());
+        btAssert(m_inv_mass.size() == x.size());
+        for (int i = 0; i < b.size(); ++i)
+            b[i] = x[i] * m_inv_mass[i];
+    }
+};
+
 class btBackwardEulerObjective
 {
 public:
     using TVStack = btAlignedObjectArray<btVector3>;
-    struct DefaultPreconditioner
-    {
-        void operator()(const TVStack& x, TVStack& b)
-        {
-            btAssert(b.size() == x.size());
-            for (int i = 0; i < b.size(); ++i)
-                b[i] = x[i];
-        }
-    };
+//    struct DefaultPreconditioner
+//    {
+//        void operator()(const TVStack& x, TVStack& b)
+//        {
+//            btAssert(b.size() == x.size());
+//            for (int i = 0; i < b.size(); ++i)
+//                b[i] = x[i];
+//        }
+//    };
     btScalar m_dt;
     btConjugateGradient<btBackwardEulerObjective> cg;
     btDeformableRigidDynamicsWorld* m_world;
     btAlignedObjectArray<btLagrangianForce*> m_lf;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
-    std::function<void(const TVStack&, TVStack&)> precondition;
+    Preconditioner* m_preconditioner;
     btContactProjection projection;
     const TVStack& m_backupVelocity;
     
@@ -92,10 +149,9 @@ public:
         projection(r);
     }
     
-    template <class Func>
-    void setPreconditioner(Func preconditioner_func)
+    void precondition(const TVStack& x, TVStack& b)
     {
-        precondition = preconditioner_func;
+        m_preconditioner->operator()(x,b);
     }
     
     virtual void setWorld(btDeformableRigidDynamicsWorld* world)
