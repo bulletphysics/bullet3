@@ -15,7 +15,7 @@ class btDeformableRigidDynamicsWorld;
 struct Constraint
 {
     const btSoftBody::RContact* m_contact;
-    const btVector3 m_direction;
+    btVector3 m_direction;
     btScalar m_value;
     
     Constraint(const btSoftBody::RContact& rcontact)
@@ -36,7 +36,17 @@ struct Constraint
     {
         
     }
-    
+};
+
+struct Friction
+{
+    btVector3 m_dv;
+    btVector3 m_direction;
+    Friction()
+    {
+        m_dv.setZero();
+        m_direction.setZero();
+    }
 };
 
 class btCGProjection
@@ -49,11 +59,9 @@ public:
     btAlignedObjectArray<btSoftBody *> m_softBodies;
     btDeformableRigidDynamicsWorld* m_world;
     std::unordered_map<btSoftBody::Node *, size_t> m_indices;
-//    TVArrayStack m_constrainedDirections;
-//    TArrayStack m_constrainedValues;
-//    btAlignedObjectArray<int> m_constrainedId;
     const btScalar& m_dt;
     std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<Constraint> > m_constraints;
+    std::unordered_map<btSoftBody::Node *, Friction > m_frictions;
     
     btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : m_softBodies(softBodies)
@@ -77,17 +85,8 @@ public:
     {
         if (nodeUpdated)
             updateId();
-        
-        // resize and clear the old constraints
-//        m_constrainedValues.resize(m_indices.size());
-//        m_constrainedDirections.resize(m_indices.size());
-//        for (int i = 0; i < m_constrainedDirections.size(); ++i)
-//        {
-//            m_constrainedDirections[i].clear();
-//            m_constrainedValues[i].clear();
-//        }
-//        m_constrainedId.clear();
         m_constraints.clear();
+        m_frictions.clear();
     }
     
     void updateId()
