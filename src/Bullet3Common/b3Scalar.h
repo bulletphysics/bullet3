@@ -40,8 +40,12 @@ inline int b3GetVersion()
 
 #ifdef _WIN32
 
-#if defined(__MINGW32__) || defined(__CYGWIN__) || (defined(_MSC_VER) && _MSC_VER < 1300)
-
+#if  defined(__GNUC__)	// it should handle both MINGW and CYGWIN
+#define B3_FORCE_INLINE             __inline__ __attribute__((always_inline))
+#define B3_ATTRIBUTE_ALIGNED16(a)   a __attribute__((aligned(16)))
+#define B3_ATTRIBUTE_ALIGNED64(a)   a __attribute__((aligned(64)))
+#define B3_ATTRIBUTE_ALIGNED128(a)  a __attribute__((aligned(128)))
+#elif ( defined(_MSC_VER) && _MSC_VER < 1300 )
 #define B3_FORCE_INLINE inline
 #define B3_ATTRIBUTE_ALIGNED16(a) a
 #define B3_ATTRIBUTE_ALIGNED64(a) a
