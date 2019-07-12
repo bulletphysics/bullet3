@@ -4646,6 +4646,8 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 		{
 			//todo
 		}
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+
 		if (bodyHandle->m_softBody)
 		{
 			btSoftBody* psb = bodyHandle->m_softBody;
@@ -4665,7 +4667,9 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
 			serverStatusOut.m_sendMeshDataArgs.m_startingVertex = clientCmd.m_requestMeshDataArgs.m_startingVertex;
 			serverStatusOut.m_sendMeshDataArgs.m_numVerticesRemaining = numVerticesRemaining - verticesCopied;
-      		}
+      }
+#endif //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+      		
 	}
 
 	serverStatusOut.m_numDataStreamBytes = 0;
@@ -10202,7 +10206,310 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 	return hasStatus;
 }
 
+
 bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+
+	BT_PROFILE("CMD_CALCULATE_INVERSE_KINEMATICS");
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+	serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_FAILED;
+
+	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_calculateInverseKinematicsArguments.m_bodyUniqueId);
+	if (bodyHandle && bodyHandle->m_multiBody)
+	{
+		IKTrajectoryHelper** ikHelperPtrPtr = m_data->m_inverseKinematicsHelpers.find(bodyHandle->m_multiBody);
+		IKTrajectoryHelper* ikHelperPtr = 0;
+
+		if (ikHelperPtrPtr)
+		{
+			ikHelperPtr = *ikHelperPtrPtr;
+		}
+		else
+		{
+			IKTrajectoryHelper* tmpHelper = new IKTrajectoryHelper;
+			m_data->m_inverseKinematicsHelpers.insert(bodyHandle->m_multiBody, tmpHelper);
+			ikHelperPtr = tmpHelper;
+		}
+
+		int endEffectorLinkIndex = clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndices[0];
+
+		btAlignedObjectArray<double> startingPositions;
+		startingPositions.reserve(bodyHandle->m_multiBody->getNumLinks());
+
+		btVector3 targetPosWorld(clientCmd.m_calculateInverseKinematicsArguments.m_targetPositions[0],
+			clientCmd.m_calculateInverseKinematicsArguments.m_targetPositions[1],
+			clientCmd.m_calculateInverseKinematicsArguments.m_targetPositions[2]);
+
+		btQuaternion targetOrnWorld(clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[0],
+			clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[1],
+			clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[2],
+			clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[3]);
+
+		btTransform targetBaseCoord;
+		if (clientCmd.m_updateFlags & IK_HAS_CURRENT_JOINT_POSITIONS)
+		{
+			targetBaseCoord.setOrigin(targetPosWorld);
+			targetBaseCoord.setRotation(targetOrnWorld);
+		}
+		else
+		{
+			btTransform targetWorld;
+			targetWorld.setOrigin(targetPosWorld);
+			targetWorld.setRotation(targetOrnWorld);
+			btTransform tr = bodyHandle->m_multiBody->getBaseWorldTransform();
+			targetBaseCoord = tr.inverse() * targetWorld;
+		}
+
+		{
+			int DofIndex = 0;
+			for (int i = 0; i < bodyHandle->m_multiBody->getNumLinks(); ++i)
+			{
+				if (bodyHandle->m_multiBody->getLink(i).m_jointType >= 0 && bodyHandle->m_multiBody->getLink(i).m_jointType <= 2)
+				{
+					// 0, 1, 2 represent revolute, prismatic, and spherical joint types respectively. Skip the fixed joints.
+					double curPos = 0;
+					if (clientCmd.m_updateFlags & IK_HAS_CURRENT_JOINT_POSITIONS)
+					{
+						curPos = clientCmd.m_calculateInverseKinematicsArguments.m_currentPositions[DofIndex];
+					}
+					else
+					{
+						curPos = bodyHandle->m_multiBody->getJointPos(i);
+					}
+					startingPositions.push_back(curPos);
+					DofIndex++;
+				}
+			}
+		}
+
+		int numIterations = 20;
+		if (clientCmd.m_updateFlags & IK_HAS_MAX_ITERATIONS)
+		{
+			numIterations = clientCmd.m_calculateInverseKinematicsArguments.m_maxNumIterations;
+		}
+		double residualThreshold = 1e-4;
+		if (clientCmd.m_updateFlags & IK_HAS_RESIDUAL_THRESHOLD)
+		{
+			residualThreshold = clientCmd.m_calculateInverseKinematicsArguments.m_residualThreshold;
+		}
+
+		btScalar currentDiff = 1e30f;
+		b3AlignedObjectArray<double> jacobian_linear;
+		b3AlignedObjectArray<double> jacobian_angular;
+		btAlignedObjectArray<double> q_current;
+		btAlignedObjectArray<double> q_new;
+		btAlignedObjectArray<double> lower_limit;
+		btAlignedObjectArray<double> upper_limit;
+		btAlignedObjectArray<double> joint_range;
+		btAlignedObjectArray<double> rest_pose;
+		const int numDofs = bodyHandle->m_multiBody->getNumDofs();
+		int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+		btInverseDynamics::vecx nu(numDofs + baseDofs), qdot(numDofs + baseDofs), q(numDofs + baseDofs), joint_force(numDofs + baseDofs);
+
+		for (int i = 0; i < numIterations && currentDiff > residualThreshold; i++)
+		{
+			BT_PROFILE("InverseKinematics1Step");
+			if (ikHelperPtr && (endEffectorLinkIndex < bodyHandle->m_multiBody->getNumLinks()))
+			{
+				jacobian_linear.resize(3 * numDofs);
+				jacobian_angular.resize(3 * numDofs);
+				int jacSize = 0;
+
+				btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
+
+				q_current.resize(numDofs);
+
+				if (tree && ((numDofs + baseDofs) == tree->numDoFs()))
+				{
+					btInverseDynamics::vec3 world_origin;
+					btInverseDynamics::mat33 world_rot;
+
+					jacSize = jacobian_linear.size();
+					// Set jacobian value
+
+					int DofIndex = 0;
+					for (int i = 0; i < bodyHandle->m_multiBody->getNumLinks(); ++i)
+					{
+						if (bodyHandle->m_multiBody->getLink(i).m_jointType >= 0 && bodyHandle->m_multiBody->getLink(i).m_jointType <= 2)
+						{
+							// 0, 1, 2 represent revolute, prismatic, and spherical joint types respectively. Skip the fixed joints.
+
+							double curPos = startingPositions[DofIndex];
+							q_current[DofIndex] = curPos;
+							q[DofIndex + baseDofs] = curPos;
+							qdot[DofIndex + baseDofs] = 0;
+							nu[DofIndex + baseDofs] = 0;
+							DofIndex++;
+						}
+					}  // Set the gravity to correspond to the world gravity
+					btInverseDynamics::vec3 id_grav(m_data->m_dynamicsWorld->getGravity());
+
+					{
+						BT_PROFILE("calculateInverseDynamics");
+						if (-1 != tree->setGravityInWorldFrame(id_grav) &&
+							-1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
+						{
+							tree->calculateJacobians(q);
+							btInverseDynamics::mat3x jac_t(3, numDofs + baseDofs);
+							btInverseDynamics::mat3x jac_r(3, numDofs + baseDofs);
+							// Note that inverse dynamics uses zero-based indexing of bodies, not starting from -1 for the base link.
+							tree->getBodyJacobianTrans(endEffectorLinkIndex + 1, &jac_t);
+							tree->getBodyJacobianRot(endEffectorLinkIndex + 1, &jac_r);
+
+							//calculatePositionKinematics is already done inside calculateInverseDynamics
+							tree->getBodyOrigin(endEffectorLinkIndex + 1, &world_origin);
+							tree->getBodyTransform(endEffectorLinkIndex + 1, &world_rot);
+
+							for (int i = 0; i < 3; ++i)
+							{
+								for (int j = 0; j < numDofs; ++j)
+								{
+									jacobian_linear[i * numDofs + j] = jac_t(i, (baseDofs + j));
+									jacobian_angular[i * numDofs + j] = jac_r(i, (baseDofs + j));
+								}
+							}
+						}
+					}
+
+					q_new.resize(numDofs);
+					int ikMethod = 0;
+					if ((clientCmd.m_updateFlags & IK_HAS_TARGET_ORIENTATION) && (clientCmd.m_updateFlags & IK_HAS_NULL_SPACE_VELOCITY))
+					{
+						//Nullspace task only works with DLS now. TODO: add nullspace task to SDLS.
+						ikMethod = IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE;
+					}
+					else if (clientCmd.m_updateFlags & IK_HAS_TARGET_ORIENTATION)
+					{
+						if (clientCmd.m_updateFlags & IK_SDLS)
+						{
+							ikMethod = IK2_VEL_SDLS_WITH_ORIENTATION;
+						}
+						else
+						{
+							ikMethod = IK2_VEL_DLS_WITH_ORIENTATION;
+						}
+					}
+					else if (clientCmd.m_updateFlags & IK_HAS_NULL_SPACE_VELOCITY)
+					{
+						//Nullspace task only works with DLS now. TODO: add nullspace task to SDLS.
+						ikMethod = IK2_VEL_DLS_WITH_NULLSPACE;
+					}
+					else
+					{
+						if (clientCmd.m_updateFlags & IK_SDLS)
+						{
+							ikMethod = IK2_VEL_SDLS;
+						}
+						else
+						{
+							ikMethod = IK2_VEL_DLS;
+							;
+						}
+					}
+
+					if (clientCmd.m_updateFlags & IK_HAS_NULL_SPACE_VELOCITY)
+					{
+						lower_limit.resize(numDofs);
+						upper_limit.resize(numDofs);
+						joint_range.resize(numDofs);
+						rest_pose.resize(numDofs);
+						for (int i = 0; i < numDofs; ++i)
+						{
+							lower_limit[i] = clientCmd.m_calculateInverseKinematicsArguments.m_lowerLimit[i];
+							upper_limit[i] = clientCmd.m_calculateInverseKinematicsArguments.m_upperLimit[i];
+							joint_range[i] = clientCmd.m_calculateInverseKinematicsArguments.m_jointRange[i];
+							rest_pose[i] = clientCmd.m_calculateInverseKinematicsArguments.m_restPose[i];
+						}
+						{
+							BT_PROFILE("computeNullspaceVel");
+							ikHelperPtr->computeNullspaceVel(numDofs, &q_current[0], &lower_limit[0], &upper_limit[0], &joint_range[0], &rest_pose[0]);
+						}
+					}
+
+					//btTransform endEffectorTransformWorld = bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform * bodyHandle->m_linkLocalInertialFrames[endEffectorLinkIndex].inverse();
+
+					btVector3DoubleData endEffectorWorldPosition;
+					btQuaternionDoubleData endEffectorWorldOrientation;
+
+					//get the position from the inverse dynamics (based on q) instead of endEffectorTransformWorld
+					btVector3 endEffectorPosWorldOrg = world_origin;
+					btQuaternion endEffectorOriWorldOrg;
+					world_rot.getRotation(endEffectorOriWorldOrg);
+
+					btTransform endEffectorBaseCoord;
+					endEffectorBaseCoord.setOrigin(endEffectorPosWorldOrg);
+					endEffectorBaseCoord.setRotation(endEffectorOriWorldOrg);
+
+					//don't need the next two lines
+					//btTransform linkInertiaInv = bodyHandle->m_linkLocalInertialFrames[endEffectorLinkIndex].inverse();
+					//endEffectorBaseCoord = endEffectorBaseCoord * linkInertiaInv;
+
+					//btTransform tr = bodyHandle->m_multiBody->getBaseWorldTransform();
+					//endEffectorBaseCoord = tr.inverse()*endEffectorTransformWorld;
+					//endEffectorBaseCoord = tr.inverse()*endEffectorTransformWorld;
+
+					btQuaternion endEffectorOriBaseCoord = endEffectorBaseCoord.getRotation();
+
+					//btVector4 endEffectorOri(endEffectorOriBaseCoord.x(), endEffectorOriBaseCoord.y(), endEffectorOriBaseCoord.z(), endEffectorOriBaseCoord.w());
+
+					endEffectorBaseCoord.getOrigin().serializeDouble(endEffectorWorldPosition);
+					endEffectorBaseCoord.getRotation().serializeDouble(endEffectorWorldOrientation);
+
+					//diff
+					currentDiff = (endEffectorBaseCoord.getOrigin() - targetBaseCoord.getOrigin()).length();
+
+					btVector3DoubleData targetPosBaseCoord;
+					btQuaternionDoubleData targetOrnBaseCoord;
+					targetBaseCoord.getOrigin().serializeDouble(targetPosBaseCoord);
+					targetBaseCoord.getRotation().serializeDouble(targetOrnBaseCoord);
+
+					// Set joint damping coefficents. A small default
+					// damping constant is added to prevent singularity
+					// with pseudo inverse. The user can set joint damping
+					// coefficients differently for each joint. The larger
+					// the damping coefficient is, the less we rely on
+					// this joint to achieve the IK target.
+					btAlignedObjectArray<double> joint_damping;
+					joint_damping.resize(numDofs, 0.5);
+					if (clientCmd.m_updateFlags & IK_HAS_JOINT_DAMPING)
+					{
+						for (int i = 0; i < numDofs; ++i)
+						{
+							joint_damping[i] = clientCmd.m_calculateInverseKinematicsArguments.m_jointDamping[i];
+						}
+					}
+					ikHelperPtr->setDampingCoeff(numDofs, &joint_damping[0]);
+
+					double targetDampCoeff[6] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+
+					{
+						BT_PROFILE("computeIK");
+						ikHelperPtr->computeIK(targetPosBaseCoord.m_floats, targetOrnBaseCoord.m_floats,
+							endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
+							&q_current[0],
+							numDofs, clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndices[0],
+							&q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize * 2, targetDampCoeff);
+					}
+					serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
+					for (int i = 0; i < numDofs; i++)
+					{
+						serverCmd.m_inverseKinematicsResultArgs.m_jointPositions[i] = q_new[i];
+					}
+					serverCmd.m_inverseKinematicsResultArgs.m_dofCount = numDofs;
+					serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED;
+					for (int i = 0; i < numDofs; i++)
+					{
+						startingPositions[i] = q_new[i];
+					}
+				}
+			}
+		}
+	}
+	return hasStatus;
+}
+
+bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand2(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
 
@@ -11654,7 +11961,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 		}
 		case CMD_CALCULATE_INVERSE_KINEMATICS:
 		{
-			hasStatus = processCalculateInverseKinematicsCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			if (clientCmd.m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices==1)
+			{
+				hasStatus = processCalculateInverseKinematicsCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			} else
+			{
+				hasStatus = processCalculateInverseKinematicsCommand2(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			}
 			break;
 		}
 		case CMD_REQUEST_VISUAL_SHAPE_INFO:
