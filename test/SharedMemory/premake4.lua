@@ -379,6 +379,7 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
 			"../../examples/SharedMemory/IKTrajectoryHelper.cpp",
 			"../../examples/SharedMemory/IKTrajectoryHelper.h",
+			"../../examples/SharedMemory/RemoteGUIHelper.cpp",
 			"../../examples/ExampleBrowser/InProcessExampleBrowser.cpp",
 			"../../examples/SharedMemory/InProcessMemory.cpp",
 			"../../examples/SharedMemory/PhysicsClient.cpp",

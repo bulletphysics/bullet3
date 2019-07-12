@@ -92,6 +92,7 @@ if not _OPTIONS["no-enet"] then
 		"../../examples/SharedMemory/IKTrajectoryHelper.h",
 		"../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
 		"../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
+		"../../examples/SharedMemory/RemoteGUIHelper.cpp",
 		"../../examples/OpenGLWindow/SimpleCamera.cpp",
 		"../../examples/OpenGLWindow/SimpleCamera.h",
 		"../../examples/TinyRenderer/geometry.cpp",

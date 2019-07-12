@@ -231,7 +231,7 @@ bool IKTrajectoryHelper::computeIK2(
 				deltaC.Set(ne*3+i, deltaS[i]);
 				for (int j = 0; j < numQ; ++j)
 				{
-					completeJacobian.Set(ne * 3 + i, j, linear_jacobians[(ne*3+i * numQ) + j]);
+					completeJacobian.Set(ne * 3 + i, j, linear_jacobians[((ne*3+i) * numQ) + j]);
 				}
 			}
 		}
