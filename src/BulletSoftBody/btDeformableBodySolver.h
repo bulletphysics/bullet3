@@ -2,7 +2,7 @@
 //  btDeformableBodySolver.h
 //  BulletSoftBody
 //
-//  Created by Chuyuan Fu on 7/1/19.
+//  Created by Xuchen Han on 7/1/19.
 //
 
 #ifndef BT_DEFORMABLE_BODY_SOLVERS_H
@@ -101,8 +101,7 @@ public:
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
                 auto& node = psb->m_nodes[j];
-                node.m_x +=  dt * m_dv[counter++];
-//                node.m_x  =  node.m_q + dt * node.m_v;
+                node.m_x  =  node.m_q + dt * node.m_v;
             }
         }
     }

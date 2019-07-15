@@ -77,8 +77,8 @@ void btDeformableBodySolver::postStabilize()
                 const btVector3 vr = vb - va;
                 const btScalar dn = btDot(vr, cti.m_normal);
                 
-                const btScalar dp = btMin((btDot(c.m_node->m_x, cti.m_normal) + cti.m_offset), mrg);
-                
+                btScalar dp = btMin((btDot(c.m_node->m_x, cti.m_normal) + cti.m_offset), mrg);
+//                dp += mrg;
                 // c0 is the impulse matrix, c3 is 1 - the friction coefficient or 0, c4 is the contact hardness coefficient
                 
                 btScalar dvn = dn * c.m_c4;
@@ -86,23 +86,27 @@ void btDeformableBodySolver::postStabilize()
                 // TODO: only contact is considered here, add friction later
                 if (dp < 0)
                 {
-                    c.m_node->m_x -= dp * cti.m_normal * c.m_c4;
-//                    c.m_node->m_x -= impulse * c.m_c2;
-                    
-                    ////
-                    if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+                    bool two_way = false;
+                    if (two_way)
                     {
-                        if (rigidCol)
-                            rigidCol->applyImpulse(impulse, c.m_c1);
-                    }
-                    else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
-                    {
-                        if (multibodyLinkCol)
+                        c.m_node->m_x -= impulse * c.m_c2;
+                        
+                        if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
                         {
-                            double multiplier = 0.5;
-                            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV, -impulse.length() * multiplier);
+                            if (rigidCol)
+                                rigidCol->applyImpulse(impulse, c.m_c1);
+                        }
+                        else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+                        {
+                            if (multibodyLinkCol)
+                            {
+                                double multiplier = 0.5;
+                                multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV, -impulse.length() * multiplier);
+                            }
                         }
                     }
+                    else
+                        c.m_node->m_x -= dp * cti.m_normal * c.m_c4;
                 }
             }
         }
@@ -115,7 +119,6 @@ void btDeformableBodySolver::solveConstraints(float solverdt)
     bool nodeUpdated = updateNodes();
     reinitialize(nodeUpdated);
     backupVelocity();
-    postStabilize();
     for (int i = 0; i < m_solveIterations; ++i)
     {
         m_objective->computeResidual(solverdt, m_residual);
@@ -123,7 +126,7 @@ void btDeformableBodySolver::solveConstraints(float solverdt)
         updateVelocity();
     }
     advect(solverdt);
-//    postStabilize();
+    postStabilize();
 }
 
 void btDeformableBodySolver::reinitialize(bool nodeUpdated)
