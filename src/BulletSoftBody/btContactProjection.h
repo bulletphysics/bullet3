@@ -47,8 +47,13 @@ public:
             {
                 // TODO : friction
                 btVector3 free_dir = btCross(constraints[0].m_direction, constraints[1].m_direction);
-                free_dir.normalize();
-                x[i] = x[i].dot(free_dir) * free_dir;
+                if (free_dir.norm() < SIMD_EPSILON)
+                    x[i] -= x[i].dot(constraints[0].m_direction) * constraints[0].m_direction;
+                else
+                {
+                    free_dir.normalize();
+                    x[i] = x[i].dot(free_dir) * free_dir;
+                }
             }
             else
                 x[i].setZero();
@@ -69,7 +74,8 @@ public:
             if (constraints.size() == 1)
             {
                 x[i] -= x[i].dot(constraints[0].m_direction) * constraints[0].m_direction;
-                x[i] += constraints[0].m_value * constraints[0].m_direction;
+                btVector3  diff = constraints[0].m_value * constraints[0].m_direction;
+                x[i] += diff;
                 if (friction.m_direction.norm() > SIMD_EPSILON)
                 {
                     x[i] -= x[i].dot(friction.m_direction) * friction.m_direction;
@@ -79,8 +85,17 @@ public:
             else if (constraints.size() == 2)
             {
                 btVector3 free_dir = btCross(constraints[0].m_direction, constraints[1].m_direction);
-                free_dir.normalize();
-                x[i] = x[i].dot(free_dir) * free_dir + constraints[0].m_direction * constraints[0].m_value + constraints[1].m_direction * constraints[1].m_value;
+                if (free_dir.norm() < SIMD_EPSILON)
+                {
+                    x[i] -= x[i].dot(constraints[0].m_direction) * constraints[0].m_direction;
+                    btVector3 diff = constraints[0].m_value * constraints[0].m_direction + constraints[1].m_value * constraints[1].m_direction;
+                    x[i] += diff;
+                }
+                else
+                {
+                    free_dir.normalize();
+                    x[i] = x[i].dot(free_dir) * free_dir + constraints[0].m_direction * constraints[0].m_value + constraints[1].m_direction * constraints[1].m_value;
+                }
             }
             else
                 x[i] = constraints[0].m_value * constraints[0].m_direction + constraints[1].m_value * constraints[1].m_direction + constraints[2].m_value * constraints[2].m_direction;
