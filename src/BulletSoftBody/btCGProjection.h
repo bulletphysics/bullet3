@@ -14,37 +14,41 @@ class btDeformableRigidDynamicsWorld;
 
 struct Constraint
 {
-    const btSoftBody::RContact* m_contact;
-    btVector3 m_direction;
-    btScalar m_value;
+    btAlignedObjectArray<const btSoftBody::RContact*> m_contact;
+    btAlignedObjectArray<btVector3> m_direction;
+    btAlignedObjectArray<btScalar> m_value;
     
     Constraint(const btSoftBody::RContact& rcontact)
-    : m_contact(&rcontact)
-    , m_direction(rcontact.m_cti.m_normal)
-    , m_value(0)
     {
+        m_contact.push_back(&rcontact);
+        m_direction.push_back(rcontact.m_cti.m_normal);
+        m_value.push_back(0);
     }
     
     Constraint(const btVector3 dir)
-    : m_contact(nullptr)
-    , m_direction(dir)
-    , m_value(0)
-    {}
+    {
+        m_contact.push_back(nullptr);
+        m_direction.push_back(dir);
+        m_value.push_back(0);
+    }
     
     Constraint()
-    : m_contact(nullptr)
     {
-        
     }
 };
 
 struct Friction
 {
-    btVector3 m_dv;
+    bool m_static;
+    btScalar m_value;
     btVector3 m_direction;
+    
+    bool m_static_prev;
+    btScalar m_value_prev;
+    btVector3 m_direction_prev;
     Friction()
     {
-        m_dv.setZero();
+        m_direction_prev.setZero();
         m_direction.setZero();
     }
 };
