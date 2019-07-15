@@ -11,6 +11,7 @@
 void btContactProjection::update(const TVStack& dv, const TVStack& backupVelocity)
 {
     ///solve rigid body constraints
+    m_world->getSolverInfo().m_numIterations = 5;
     m_world->btMultiBodyDynamicsWorld::solveConstraints(m_world->getSolverInfo());
 
     // loop through constraints to set constrained values
@@ -258,21 +259,21 @@ void btContactProjection::setConstraintDirections()
         }
         else
         {
-            // prune out collinear constraints
-            const btVector3& first_dir = c[0].m_direction;
-            int i = 1;
-            while (i < c.size())
-            {
-                if (std::abs(std::abs(first_dir.dot(c[i].m_direction)) - 1) < 4*SIMD_EPSILON)
-                    c.removeAtIndex(i);
-                else
-                    ++i;
-            }
-            if (c.size() == 3)
-            {
-                if (std::abs(std::abs(c[1].m_direction.dot(c[2].m_direction)) - 1) < 4*SIMD_EPSILON)
-                    c.removeAtIndex(2);
-            }
+//            // prune out collinear constraints
+//            const btVector3& first_dir = c[0].m_direction;
+//            int i = 1;
+//            while (i < c.size())
+//            {
+//                if (std::abs(std::abs(first_dir.dot(c[i].m_direction)) - 1) < 4*SIMD_EPSILON)
+//                    c.removeAtIndex(i);
+//                else
+//                    ++i;
+//            }
+//            if (c.size() == 3)
+//            {
+//                if (std::abs(std::abs(c[1].m_direction.dot(c[2].m_direction)) - 1) < 4*SIMD_EPSILON)
+//                    c.removeAtIndex(2);
+//            }
         }
     }
 }
