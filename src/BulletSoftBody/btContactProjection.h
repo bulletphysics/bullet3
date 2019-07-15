@@ -39,21 +39,20 @@ public:
             btAssert(constraints.size() > 0);
             if (constraints.size() == 1)
             {
-                x[i] -= x[i].dot(constraints[0].m_direction) * constraints[0].m_direction;
+                x[i] -= x[i].dot(constraints[0].m_direction[0]) * constraints[0].m_direction[0];
                 if (friction.m_direction.norm() > SIMD_EPSILON)
-                    x[i] -= x[i].dot(friction.m_direction) * friction.m_direction;
+                {
+                    btVector3 dir = friction.m_direction.normalized();
+                    x[i] -= x[i].dot(dir) * dir;
+                }
             }
             else if (constraints.size() == 2)
             {
                 // TODO : friction
-                btVector3 free_dir = btCross(constraints[0].m_direction, constraints[1].m_direction);
-                if (free_dir.norm() < SIMD_EPSILON)
-                    x[i] -= x[i].dot(constraints[0].m_direction) * constraints[0].m_direction;
-                else
-                {
-                    free_dir.normalize();
-                    x[i] = x[i].dot(free_dir) * free_dir;
-                }
+                btVector3 free_dir = btCross(constraints[0].m_direction[0], constraints[1].m_direction[0]);
+                btAssert(free_dir.norm() > SIMD_EPSILON)
+                free_dir.normalize();
+                x[i] = x[i].dot(free_dir) * free_dir;
             }
             else
                 x[i].setZero();
@@ -73,32 +72,41 @@ public:
             btAssert(constraints.size() > 0);
             if (constraints.size() == 1)
             {
-                x[i] -= x[i].dot(constraints[0].m_direction) * constraints[0].m_direction;
-                btVector3  diff = constraints[0].m_value * constraints[0].m_direction;
-                x[i] += diff;
+                x[i] -= x[i].dot(constraints[0].m_direction[0]) * constraints[0].m_direction[0];
+                for (int j = 0; j < constraints[0].m_direction.size(); ++j)
+                    x[i] += constraints[0].m_value[j] * constraints[0].m_direction[j];
                 if (friction.m_direction.norm() > SIMD_EPSILON)
                 {
-                    x[i] -= x[i].dot(friction.m_direction) * friction.m_direction;
+                    btVector3 dir = friction.m_direction.normalized();
+                    x[i] -= x[i].dot(dir) * dir;
                     x[i] += friction.m_dv;
                 }
             }
             else if (constraints.size() == 2)
             {
-                btVector3 free_dir = btCross(constraints[0].m_direction, constraints[1].m_direction);
-                if (free_dir.norm() < SIMD_EPSILON)
+                btVector3 free_dir = btCross(constraints[0].m_direction[0], constraints[1].m_direction[0]);
+                btAssert(free_dir.norm() > SIMD_EPSILON)
+                free_dir.normalize();
+                x[i] = x[i].dot(free_dir) * free_dir;
+                for (int j = 0; j < constraints.size(); ++j)
                 {
-                    x[i] -= x[i].dot(constraints[0].m_direction) * constraints[0].m_direction;
-                    btVector3 diff = constraints[0].m_value * constraints[0].m_direction + constraints[1].m_value * constraints[1].m_direction;
-                    x[i] += diff;
-                }
-                else
-                {
-                    free_dir.normalize();
-                    x[i] = x[i].dot(free_dir) * free_dir + constraints[0].m_direction * constraints[0].m_value + constraints[1].m_direction * constraints[1].m_value;
+                    for (int k = 0; k < constraints[j].m_direction.size(); ++k)
+                    {
+                        x[i] += constraints[j].m_value[k] * constraints[j].m_direction[k];
+                    }
                 }
             }
             else
-                x[i] = constraints[0].m_value * constraints[0].m_direction + constraints[1].m_value * constraints[1].m_direction + constraints[2].m_value * constraints[2].m_direction;
+            {
+                x[i].setZero();
+                for (int j = 0; j < constraints.size(); ++j)
+                {
+                    for (int k = 0; k < constraints[j].m_direction.size(); ++k)
+                    {
+                        x[i] += constraints[j].m_value[k] * constraints[j].m_direction[k];
+                    }
+                }
+            }
         }
     }
     
