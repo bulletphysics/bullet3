@@ -63,11 +63,9 @@ public:
             //  r -= alpha * temp;
             multAndAddTo(alpha, p, x);
             multAndAddTo(-alpha, temp, r);
-            
             // zero out the dofs of r
             A.project(r,x);
             A.enforceConstraint(x);
-            
             r_norm = std::sqrt(squaredNorm(r));
             
             if (r_norm < tolerance) {
