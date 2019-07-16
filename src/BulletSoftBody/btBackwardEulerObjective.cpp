@@ -8,7 +8,7 @@
 #include "btBackwardEulerObjective.h"
 
 btBackwardEulerObjective::btBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
-: cg(50)
+: cg(20)
 , m_softBodies(softBodies)
 , projection(m_softBodies, m_dt)
 , m_backupVelocity(backup_v)
@@ -79,20 +79,4 @@ void btBackwardEulerObjective::updateVelocity(const TVStack& dv)
         it.first->m_v = m_backupVelocity[i] + dv[i];
     }
 }
-    
-//    for (int i = 0; i < m_softBodies.size(); ++i)
-//    {
-//        int counter = 0;
-//        for (int i = 0; i < m_softBodies.size(); ++i)
-//        {
-//            btSoftBody* psb = m_softBodies[i];
-//            for (int j = 0; j < psb->m_nodes.size(); ++j)
-//            {
-//                // only the velocity of the constrained nodes needs to be updated during CG solve
-//                if (projection.m_constraints[&(psb->m_nodes[j])].size() > 0)
-//                    psb->m_nodes[j].m_v = m_backupVelocity[counter] + dv[counter];
-//                ++counter;
-//            }
-//        }
-//    }
 
