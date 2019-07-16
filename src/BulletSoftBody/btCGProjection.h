@@ -39,17 +39,27 @@ struct Constraint
 
 struct Friction
 {
-    bool m_static;
-    btScalar m_value;
-    btVector3 m_direction;
+    btAlignedObjectArray<bool> m_static;
+    btAlignedObjectArray<btScalar> m_value;
+    btAlignedObjectArray<btVector3> m_direction;
     
-    bool m_static_prev;
-    btScalar m_value_prev;
-    btVector3 m_direction_prev;
+    btAlignedObjectArray<bool> m_static_prev;
+    btAlignedObjectArray<btScalar> m_value_prev;
+    btAlignedObjectArray<btVector3> m_direction_prev;
+    
+    btAlignedObjectArray<btVector3> m_accumulated_impulse;
     Friction()
     {
-        m_direction_prev.setZero();
-        m_direction.setZero();
+        m_static.push_back(false);
+        m_static_prev.push_back(false);
+        
+        m_direction.push_back(btVector3(0,0,0));
+        m_direction_prev.push_back(btVector3(0,0,0));
+        
+        m_value.push_back(0);
+        m_value_prev.push_back(0);
+        
+        m_accumulated_impulse.push_back(btVector3(0,0,0));
     }
 };
 
@@ -65,7 +75,7 @@ public:
     std::unordered_map<btSoftBody::Node *, size_t> m_indices;
     const btScalar& m_dt;
     std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<Constraint> > m_constraints;
-    std::unordered_map<btSoftBody::Node *, Friction > m_frictions;
+    std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<Friction> > m_frictions;
     
     btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : m_softBodies(softBodies)
