@@ -40,12 +40,16 @@ struct Constraint
 struct Friction
 {
     btAlignedObjectArray<bool> m_static;
-    btAlignedObjectArray<btScalar> m_value;
+    btAlignedObjectArray<btScalar> m_impulse;
+    btAlignedObjectArray<btScalar> m_dv;
     btAlignedObjectArray<btVector3> m_direction;
     
     btAlignedObjectArray<bool> m_static_prev;
-    btAlignedObjectArray<btScalar> m_value_prev;
+    btAlignedObjectArray<btScalar> m_impulse_prev;
+    btAlignedObjectArray<btScalar> m_dv_prev;
     btAlignedObjectArray<btVector3> m_direction_prev;
+    
+    btAlignedObjectArray<bool> m_released;
     
     btAlignedObjectArray<btVector3> m_accumulated_impulse;
     Friction()
@@ -56,10 +60,14 @@ struct Friction
         m_direction.push_back(btVector3(0,0,0));
         m_direction_prev.push_back(btVector3(0,0,0));
         
-        m_value.push_back(0);
-        m_value_prev.push_back(0);
+        m_impulse.push_back(0);
+        m_impulse_prev.push_back(0);
+        
+        m_dv.push_back(0);
+        m_dv_prev.push_back(0);
         
         m_accumulated_impulse.push_back(btVector3(0,0,0));
+        m_released.push_back(false);
     }
 };
 

@@ -1782,7 +1782,7 @@ void btSoftBody::predictMotion(btScalar dt)
 	m_sst.radmrg = getCollisionShape()->getMargin();
 	m_sst.updmrg = m_sst.radmrg * (btScalar)0.25;
 	/* Forces				*/
-	addVelocity(m_worldInfo->m_gravity * m_sst.sdt);
+    addVelocity(m_worldInfo->m_gravity * m_sst.sdt);
 	applyForces();
 	/* Integrate			*/
 	for (i = 0, ni = m_nodes.size(); i < ni; ++i)
@@ -1805,7 +1805,7 @@ void btSoftBody::predictMotion(btScalar dt)
 				}
 			}
 		}
-		n.m_v += deltaV;
+        n.m_v += deltaV;
 		n.m_x += n.m_v * m_sst.sdt;
 		n.m_f = btVector3(0, 0, 0);
 	}
@@ -2773,6 +2773,14 @@ void btSoftBody::dampClusters()
 			}
 		}
 	}
+}
+
+void btSoftBody::setSpringStiffness(btScalar k)
+{
+    for (int i = 0; i < m_links.size(); ++i)
+    {
+        m_links[i].Feature::m_material->m_kLST = k;
+    }
 }
 
 //
