@@ -21,7 +21,7 @@
 #include "btMassSpring.h"
 #include "btDeformableBodySolver.h"
 #include "btSoftBodyHelpers.h"
-
+#include <functional>
 typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 
 class btDeformableBodySolver;
@@ -40,6 +40,7 @@ class btDeformableRigidDynamicsWorld : public btMultiBodyDynamicsWorld
     bool m_drawClusterTree;
     btSoftBodyWorldInfo m_sbi;
     bool m_ownsSolver;
+    btScalar m_internalTime;
     
 protected:
     virtual void internalSingleStepSimulation(btScalar timeStep);
@@ -67,8 +68,9 @@ public:
         m_sbi.m_gravity.setValue(0, -10, 0);
         
         m_sbi.m_sparsesdf.Initialize();
+        m_internalTime = 0.0;
     }
-    
+    btAlignedObjectArray<std::function<void(btScalar, btDeformableRigidDynamicsWorld*)> > before_solver_callbacks;
     virtual ~btDeformableRigidDynamicsWorld()
     {
     }
@@ -89,9 +91,6 @@ public:
     }
     
     virtual void predictUnconstraintMotion(btScalar timeStep);
-    // virtual void internalStepSingleStepSimulation(btScalar timeStep);
-    
-    // virtual void solveDeformableBodiesConstraints(btScalar timeStep);
     
     virtual void addSoftBody(btSoftBody* body, int collisionFilterGroup = btBroadphaseProxy::DefaultFilter, int collisionFilterMask = btBroadphaseProxy::AllFilter);
     

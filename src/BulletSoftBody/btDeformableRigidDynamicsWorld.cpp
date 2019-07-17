@@ -12,6 +12,7 @@
 
 void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
+    m_internalTime += timeStep;
     // Let the solver grab the soft bodies and if necessary optimize for it
     m_deformableBodySolver->optimize(m_softBodies);
     
@@ -54,7 +55,6 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     // gravity is applied in stepSimulation and then cleared here and then applied here and then cleared here again
     // so that 1) gravity is applied to velocity before constraint solve and 2) gravity is applied in each substep
     // when there are multiple substeps
-    
     clearForces();
     clearMultiBodyForces();
     btMultiBodyDynamicsWorld::applyGravity();
@@ -69,9 +69,14 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     clearForces();
     clearMultiBodyForces();
     
+    
+    for (int i = 0; i < before_solver_callbacks.size(); ++i)
+        before_solver_callbacks[i](m_internalTime, this);
     ///solve deformable bodies constraints
     solveDeformableBodiesConstraints(timeStep);
 
+    
+    
     //integrate transforms
     btMultiBodyDynamicsWorld::integrateTransforms(timeStep);
     

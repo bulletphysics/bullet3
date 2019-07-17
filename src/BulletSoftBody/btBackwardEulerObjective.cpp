@@ -57,9 +57,6 @@ void btBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) const
     {
         // add damping matrix
         m_lf[i]->addScaledDampingForceDifferential(-m_dt, x, b);
-        
-        // add stiffness matrix when fully implicity
-        m_lf[i]->addScaledElasticForceDifferential(-m_dt*m_dt, x, b);
     }
 }
 
@@ -80,3 +77,16 @@ void btBackwardEulerObjective::updateVelocity(const TVStack& dv)
     }
 }
 
+void btBackwardEulerObjective::initialGuess(TVStack& dv, const TVStack& residual)
+{
+    size_t counter = 0;
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodies[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            dv[counter] = psb->m_nodes[j].m_im * residual[counter] * 1;
+            ++counter;
+        }
+    }
+}

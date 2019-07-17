@@ -76,15 +76,6 @@ class btBackwardEulerObjective
 {
 public:
     using TVStack = btAlignedObjectArray<btVector3>;
-//    struct DefaultPreconditioner
-//    {
-//        void operator()(const TVStack& x, TVStack& b)
-//        {
-//            btAssert(b.size() == x.size());
-//            for (int i = 0; i < b.size(); ++i)
-//                b[i] = x[i];
-//        }
-//    };
     btScalar m_dt;
     btConjugateGradient<btBackwardEulerObjective> cg;
     btDeformableRigidDynamicsWorld* m_world;
@@ -102,11 +93,29 @@ public:
     
     void computeResidual(btScalar dt, TVStack& residual) const
     {
-        // gravity is treated explicitly in predictUnconstraintMotion
-        // add force
+        // add implicit force
         for (int i = 0; i < m_lf.size(); ++i)
         {
-            m_lf[i]->addScaledForce(dt, residual);
+            m_lf[i]->addScaledImplicitForce(dt, residual);
+        }
+    }
+    
+    void applyExplicitForce(TVStack& force)
+    {
+        for (int i = 0; i < m_lf.size(); ++i)
+            m_lf[i]->addScaledExplicitForce(m_dt, force);
+        
+        size_t counter = 0;
+        for (int i = 0; i < m_softBodies.size(); ++i)
+        {
+            btSoftBody* psb = m_softBodies[i];
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                btScalar one_over_mass = (psb->m_nodes[j].m_im == 0) ? 0 : psb->m_nodes[j].m_im;
+                psb->m_nodes[j].m_v += one_over_mass * force[counter];
+                force[counter].setZero();
+                counter++;
+            }
         }
     }
     
@@ -117,7 +126,7 @@ public:
         {
             norm_squared += residual[i].length2();
         }
-        return std::sqrt(norm_squared);
+        return std::sqrt(norm_squared+SIMD_EPSILON);
     }
     
     void computeStep(TVStack& dv, const TVStack& residual, const btScalar& dt);
@@ -128,6 +137,7 @@ public:
     {
         projection.update(dv, m_backupVelocity);
     }
+    void initialGuess(TVStack& dv, const TVStack& residual);
     
     void reinitialize(bool nodeUpdated);
     
