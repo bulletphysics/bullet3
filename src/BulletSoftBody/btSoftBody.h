@@ -1011,6 +1011,7 @@ public:
 	void solveClusters(btScalar sor);
 	void applyClusters(bool drift);
 	void dampClusters();
+    void setSpringStiffness(btScalar k);
 	void applyForces();
 	static void PSolve_Anchors(btSoftBody* psb, btScalar kst, btScalar ti);
 	static void PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti);
@@ -1021,7 +1022,7 @@ public:
 	static vsolver_t getSolver(eVSolver::_ solver);
 
 	virtual int calculateSerializeBufferSize() const;
-
+  
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual const char* serialize(void* dataBuffer, class btSerializer* serializer) const;
 

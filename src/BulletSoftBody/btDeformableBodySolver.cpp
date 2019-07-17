@@ -118,7 +118,15 @@ void btDeformableBodySolver::solveConstraints(float solverdt)
     m_dt = solverdt;
     bool nodeUpdated = updateNodes();
     reinitialize(nodeUpdated);
+    
+    // apply explicit force
+    m_objective->applyExplicitForce(m_residual);
+    
+    // remove contact constraints with separating velocity
+    setConstraintDirections();
+    
     backupVelocity();
+    
     for (int i = 0; i < m_solveIterations; ++i)
     {
         m_objective->computeResidual(solverdt, m_residual);
@@ -143,9 +151,6 @@ void btDeformableBodySolver::reinitialize(bool nodeUpdated)
         m_residual[i].setZero();
     }
     m_objective->reinitialize(nodeUpdated);
-    
-    // remove contact constraints with separating velocity
-    setConstraintDirections();
 }
 
 void btDeformableBodySolver::setConstraintDirections()

@@ -74,20 +74,6 @@ public:
     
     void postStabilize();
     
-    void moveTempVelocity(btScalar dt, const TVStack& f)
-    {
-        size_t counter = 0;
-        for (int i = 0; i < m_softBodySet.size(); ++i)
-        {
-            btSoftBody* psb = m_softBodySet[i];
-            for (int j = 0; j < psb->m_nodes.size(); ++j)
-            {
-                auto& node = psb->m_nodes[j];
-                node.m_v += node.m_im * dt * f[counter++];
-            }
-        }
-    }
-    
     void reinitialize(bool nodeUpdated);
     
     void setConstraintDirections();

@@ -51,13 +51,13 @@ public:
                     // clear the old friction force
                     if (friction.m_static_prev[j] == false)
                     {
-                        x[i] -= friction.m_direction_prev[j] * friction.m_value_prev[j];
+                        x[i] -= friction.m_direction_prev[j] * friction.m_impulse_prev[j];
                     }
                     
                     // only add to the rhs if there is no static friction constraint on the node
                     if (friction.m_static[j] == false && !has_static_constraint)
                     {
-                        x[i] += friction.m_direction[j] * friction.m_value[j];
+                        x[i] += friction.m_direction[j] * friction.m_impulse[j];
                     }
                 }
             }
@@ -68,6 +68,33 @@ public:
                 btAssert(free_dir.norm() > SIMD_EPSILON)
                 free_dir.normalize();
                 x[i] = x[i].dot(free_dir) * free_dir;
+                
+                bool has_static_constraint = false;
+                for (int f = 0; f < 2; ++f)
+                {
+                    Friction& friction= frictions[f];
+                    for (int j = 0; j < friction.m_static.size(); ++j)
+                        has_static_constraint = has_static_constraint || friction.m_static[j];
+                }
+                
+                for (int f = 0; f < 2; ++f)
+                {
+                    Friction& friction= frictions[f];
+                    for (int j = 0; j < friction.m_direction.size(); ++j)
+                    {
+                        // clear the old friction force
+                        if (friction.m_static_prev[j] == false)
+                        {
+                            x[i] -= friction.m_direction_prev[j] * friction.m_impulse_prev[j];
+                        }
+                        
+                        // only add to the rhs if there is no static friction constraint on the node
+                        if (friction.m_static[j] == false && !has_static_constraint)
+                        {
+                            x[i] += friction.m_direction[j] * friction.m_impulse[j];
+                        }
+                    }
+                }
             }
             else
                 x[i].setZero();
@@ -97,12 +124,12 @@ public:
                     // clear the old constraint
                     if (friction.m_static_prev[j] == true)
                     {
-                        x[i] -= friction.m_direction_prev[j] * friction.m_value_prev[j];
+                        x[i] -= friction.m_direction_prev[j] * friction.m_dv_prev[j];
                     }
                     // add the new constraint
                     if (friction.m_static[j] == true)
                     {
-                        x[i] += friction.m_direction[j] * friction.m_value[j];
+                        x[i] += friction.m_direction[j] * friction.m_dv[j];
                     }
                 }
             }
@@ -118,6 +145,24 @@ public:
                     for (int k = 0; k < constraints[j].m_direction.size(); ++k)
                     {
                         x[i] += constraints[j].m_value[k] * constraints[j].m_direction[k];
+                    }
+                }
+                
+                for (int f = 0; f < 2; ++f)
+                {
+                    const Friction& friction= frictions[f];
+                    for (int j = 0; j < friction.m_direction.size(); ++j)
+                    {
+                        // clear the old constraint
+                        if (friction.m_static_prev[j] == true)
+                        {
+                            x[i] -= friction.m_direction_prev[j] * friction.m_dv_prev[j];
+                        }
+                        // add the new constraint
+                        if (friction.m_static[j] == true)
+                        {
+                            x[i] += friction.m_direction[j] * friction.m_dv[j];
+                        }
                     }
                 }
             }

@@ -25,11 +25,13 @@ public:
     
     virtual ~btLagrangianForce(){}
     
-    virtual void addScaledForce(btScalar scale, TVStack& force) = 0;
+    virtual void addScaledImplicitForce(btScalar scale, TVStack& force) = 0;
     
     virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df) = 0;
     
     virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df) = 0;
+    
+    virtual void addScaledExplicitForce(btScalar scale, TVStack& force) = 0;
     
     virtual void reinitialize(bool nodeUpdated)
     {
