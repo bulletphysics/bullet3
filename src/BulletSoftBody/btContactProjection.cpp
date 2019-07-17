@@ -85,35 +85,41 @@ void btContactProjection::update(const TVStack& dv, const TVStack& backupVelocit
                     // start friction handling
                     // copy old data
                     friction.m_direction_prev[j] = friction.m_direction[j];
-                    friction.m_value_prev[j] = friction.m_value[j];
+                    friction.m_impulse_prev[j] = friction.m_impulse[j];
+                    friction.m_dv_prev[j] = friction.m_dv[j];
                     friction.m_static_prev[j] = friction.m_static[j];
                     if (accumulated_normal < 0 && accumulated_tangent.norm() > SIMD_EPSILON)
                     {
+                        
+                        btScalar compare1 = -accumulated_normal*c->m_c3;
+                        btScalar compare2 = accumulated_tangent.norm();
                         // do not allow switching from static friction to dynamic friction
                         // it causes cg to explode
-                        if (-accumulated_normal*c->m_c3 < accumulated_tangent.norm() && friction.m_static_prev[j] == false)
+                        if (-accumulated_normal*c->m_c3 < accumulated_tangent.norm() && friction.m_static_prev[j] == false && friction.m_released[j] == false)
                         {
                             friction.m_static[j] = false;
-                            friction.m_value[j] = -accumulated_normal*c->m_c3;
+                            friction.m_impulse[j] = -accumulated_normal*c->m_c3;
+                            friction.m_dv[j] = -accumulated_normal*c->m_c3 *c->m_c2/m_dt ;
                         }
                         else
                         {
                             friction.m_static[j] = true;
-                            friction.m_value[j] = accumulated_tangent.norm();
+                            friction.m_impulse[j] = accumulated_tangent.norm();
+                            friction.m_dv[j] = accumulated_tangent.norm() * c->m_c2/m_dt;
                         }
                         
                         const btVector3 tangent_dir = accumulated_tangent.normalized();
-                        impulse_tangent = friction.m_value[j] * tangent_dir;
                         friction.m_direction[j] = -tangent_dir;
                     }
                     else
                     {
+                        friction.m_released[j] = true;
                         friction.m_static[j] = false;
-                        friction.m_value[j] = 0;
-                        impulse_tangent.setZero();
+                        friction.m_impulse[j] = 0;
+                        friction.m_dv[j] = 0;
                     }
                     
-                    
+                    friction.m_accumulated_impulse[j] = accumulated_normal * cti.m_normal - friction.m_impulse[j] * friction.m_direction[j];
                     if (1) // in the same CG solve, the set of constraits doesn't change
 //                    if (dn <= SIMD_EPSILON)
                     {
@@ -128,8 +134,8 @@ void btContactProjection::update(const TVStack& dv, const TVStack& backupVelocit
                         // the incremental impulse:
                         // in the normal direction it's the normal component of "impulse"
                         // in the tangent direction it's the difference between the frictional impulse in the iteration and the previous iteration
-                        impulse = impulse_normal + (friction.m_value_prev[j] * friction.m_direction_prev[j]) - (friction.m_value[j] * friction.m_direction[j]);
-                        
+                        impulse = impulse_normal + (friction.m_impulse_prev[j] * friction.m_direction_prev[j]) - (friction.m_impulse[j] * friction.m_direction[j]);
+//                        impulse = impulse_normal;
                         if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
                         {
                             if (rigidCol)
@@ -172,7 +178,6 @@ void btContactProjection::setConstraintDirections()
                 f.push_back(Friction());
                 f.push_back(Friction());
                 m_frictions[&(psb->m_nodes[j])] = f;
-                // no friction constraints for dirichlet
             }
         }
     }
@@ -262,11 +267,14 @@ void btContactProjection::setConstraintDirections()
                                 // push in an empty friction
                                 frictions[j].m_direction.push_back(btVector3(0,0,0));
                                 frictions[j].m_direction_prev.push_back(btVector3(0,0,0));
-                                frictions[j].m_value.push_back(0);
-                                frictions[j].m_value_prev.push_back(0);
+                                frictions[j].m_impulse.push_back(0);
+                                frictions[j].m_impulse_prev.push_back(0);
+                                frictions[j].m_dv.push_back(0);
+                                frictions[j].m_dv_prev.push_back(0);
                                 frictions[j].m_static.push_back(false);
                                 frictions[j].m_static_prev.push_back(false);
                                 frictions[j].m_accumulated_impulse.push_back(btVector3(0,0,0));
+                                frictions[j].m_released.push_back(false);
                                 merged = true;
                                 break;
                             }
