@@ -12,7 +12,6 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0.043794"/>
       <geometry>
-      	
 				<mesh filename="chassis.stl" scale="1 1 1"/>
       </geometry>
        <material name="yellow">
@@ -22,24 +21,20 @@
     <collision>
       <origin rpy="-1.57 0 0" xyz="0 0 0.043794"/>
       <geometry>
-      	
 				<mesh filename="chassis_vhacd_mod.obj" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
-  
- 
-	
-	 <link name="FR_hip_motor">
-  <contact>
+  <link name="FR_hip_motor">
+    <contact>
       <lateral_friction value="1"/>
-  </contact>
+    </contact>
     <inertial>
        <origin rpy="0 0 0" xyz="0.02 0 0"/>
        <mass value="1.095"/>
        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
     </inertial>
-	
+
 	  <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -47,7 +42,7 @@
       </geometry>
        <material name="green"/>
     </visual>
-    
+
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -55,7 +50,7 @@
       </geometry>
     </collision>
     </link>
-    
+
     <joint name="FR_hip_motor_2_chassis_joint" type="continuous">
 		<axis xyz="0 0 -1"/>
 		<parent link="chassis"/>
@@ -64,7 +59,7 @@
 		<limit effort="100" velocity="100"/>
 		<joint_properties damping=".0" friction=".0"/>
 	</joint>
-	
+
      <link name="FR_upper_leg">
   <contact>
       <lateral_friction value="1"/>
@@ -81,16 +76,16 @@
       </geometry>
        <material name="blue"/>
     </visual>
-    
+
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
 				<mesh filename="upper_leg_right_vhacd.obj" scale="1 1 1"/>
       </geometry>
     </collision>
-    
+
     </link>
-    
+
     <joint name="FR_upper_leg_2_hip_motor_joint" type="continuous">
 		<axis xyz="1 0 0"/>
 		<parent link="FR_hip_motor"/>
@@ -99,7 +94,7 @@
 		<limit effort="100" velocity="100"/>
 		<joint_properties damping=".0" friction=".0"/>
 	</joint>
-	
+
      <link name="FR_lower_leg">
   <contact>
       <lateral_friction value="1"/>
@@ -116,27 +111,27 @@
       </geometry>
        <material name="red"/>
     </visual>
-    
+
     <collision>
       <origin rpy="0 1.57079 0" xyz="0 0.0 0"/>
       <geometry>
 				<mesh filename="lower_leg_3.stl" scale="1 1 1"/>
       </geometry>
     </collision>
-    
+
     </link>
-    
+
     <joint name="FR_lower_leg_2_upper_leg_joint" type="continuous">
 		<axis xyz="1 0 0"/>
 		<parent link="FR_upper_leg"/>
 		<child link="FR_lower_leg"/>
-														
+
 		<origin rpy="0 0 0" xyz="0.02069  -0.20833  -0.1422"/>
 		<limit effort="100" velocity="100"/>
 		<joint_properties damping=".0" friction=".0"/>
 	</joint>
-	
-	
+
+
 	 <link name="FL_hip_motor">
   <contact>
       <lateral_friction value="1"/>
@@ -155,16 +150,16 @@
         <color rgba="0.23 0.73 0.33 1"/>
       </material>
     </visual>
-    
+
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
 				<mesh filename="hip_motor.stl" scale="1 1 1"/>
       </geometry>
     </collision>
-    
+
       </link>
-  
+
    <joint name="FL_hip_motor_2_chassis_joint" type="continuous">
 		<axis xyz="0 0 1"/>
 		<parent link="chassis"/>
@@ -173,7 +168,7 @@
 		<limit effort="100" velocity="100"/>
 		<joint_properties damping=".0" friction=".0"/>
 	</joint>
-	
+
   <link name="FL_upper_leg">
   <contact>
       <lateral_friction value="1"/>
@@ -186,24 +181,24 @@
      <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-      	
+
 				<mesh filename="upper_leg.stl" scale="1 1 1"/>
       </geometry>
        <material name="blue">
         <color rgba="0.28 0.52 0.93 1"/>
       </material>
     </visual>
-    
+
      <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
 				<mesh filename="upper_leg_left_vhacd.obj" scale="1 1 1"/>
       </geometry>
     </collision>
-    
+
     </link>
-  
-  
+
+
   <joint name="FL_upper_leg_2_hip_motor_joint" type="continuous">
 		<axis xyz="1 0 0"/>
 		<parent link="FL_hip_motor"/>
@@ -212,8 +207,8 @@
 		<limit effort="100" velocity="100"/>
 		<joint_properties damping=".0" friction=".0"/>
 	</joint>
-	 
-  
+
+
   <link name="FL_lower_leg">
   <contact>
       <lateral_friction value="1"/>
@@ -232,16 +227,16 @@
         <color rgba="0.85 0.19 0.21 1"/>
       </material>
     </visual>
-    
+
      <collision>
       <origin rpy="0 1.57079 0" xyz="0 0 0"/>
       <geometry>
 				<mesh filename="lower_leg_3.stl" scale="1 1 1"/>
       </geometry>
     </collision>
-    
+
     </link>
-    
+
   <joint name="FL_lower_leg_2_upper_leg_joint" type="continuous">
 		<axis xyz="1 0 0"/>
 		<parent link="FL_upper_leg"/>
@@ -250,12 +245,12 @@
 		<limit effort="100" velocity="100"/>
 		<joint_properties damping=".0" friction=".0"/>
 	</joint>
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	 <link name="RR_hip_motor">
   <contact>
       <lateral_friction value="1"/>
@@ -265,7 +260,7 @@
        <mass value="1.095"/>
        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
     </inertial>
-	
+
 	  <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -273,16 +268,16 @@
       </geometry>
        <material name="green"/>
     </visual>
-    
+
      <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
 				<mesh filename="hip_motor_mirror.stl" scale="1 1 1"/>
       </geometry>
     </collision>
-    
+
     </link>
-    
+
     <joint name="RR_hip_motor_2_chassis_joint" type="continuous">
 		<axis xyz="0 0 -1"/>
 		<parent link="chassis"/>
@@ -291,7 +286,7 @@
 		<limit effort="100" velocity="100"/>
 		<joint_properties damping=".0" friction=".0"/>
 	</joint>
-	
+
      <link name="RR_upper_leg">
   <contact>
       <lateral_friction value="1"/>
@@ -308,16 +303,16 @@
       </geometry>
        <material name="blue"/>
     </visual>
-    
+
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
 				<mesh filename="upper_leg_right_vhacd.obj" scale="1 1 1"/>
       </geometry>
     </collision>
-    
+
     </link>
-    
+
     <joint name="RR_upper_leg_2_hip_motor_joint" type="continuous">
 		<axis xyz="1 0 0"/>
 		<parent link="RR_hip_motor"/>
@@ -326,7 +321,7 @@
 		<limit effort="100" velocity="100"/>
 		<joint_properties damping=".0" friction=".0"/>
 	</joint>
-	
+
      <link name="RR_lower_leg">
   <contact>
       <lateral_friction value="1"/>
@@ -343,16 +338,16 @@
       </geometry>
        <material name="red"/>
     </visual>
-    
+
      <collision>
       <origin rpy="0 1.57079 0" xyz="0 0 0"/>
       <geometry>
 				<mesh filename="lower_leg_3.stl" scale="1 1 1"/>
       </geometry>
     </collision>
-    
+
     </link>
-    
+
     <joint name="RR_lower_leg_2_upper_leg_joint" type="continuous">
 		<axis xyz="1 0 0"/>
 		<parent link="RR_upper_leg"/>
@@ -361,8 +356,8 @@
 		<limit effort="100" velocity="100"/>
 		<joint_properties damping=".0" friction=".0"/>
 	</joint>
-	
-	
+
+
 	 <link name="RL_hip_motor">
   <contact>
       <lateral_friction value="1"/>
@@ -379,26 +374,26 @@
       </geometry>
        <material name="green"/>
     </visual>
-    
+
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
 				<mesh filename="hip_motor.stl" scale="1 1 1"/>
       </geometry>
     </collision>
-    
+
       </link>
-  
+
    <joint name="RL_hip_motor_2_chassis_joint" type="continuous">
 		<axis xyz="0 0 1"/>
 		<parent link="chassis"/>
 		<child link="RL_hip_motor"/>
-												
+
 		<origin rpy="0 0 0" xyz="0.0817145 0 -0.194401"/>
 		<limit effort="100" velocity="100"/>
 		<joint_properties damping=".0" friction=".0"/>
 	</joint>
-	
+
   <link name="RL_upper_leg">
   <contact>
       <lateral_friction value="1"/>
@@ -415,17 +410,17 @@
       </geometry>
        <material name="blue"/>
     </visual>
-    
+
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
 				<mesh filename="upper_leg_left_vhacd.obj" scale="1 1 1"/>
       </geometry>
     </collision>
-    
+
     </link>
-  
-  
+
+
   <joint name="RL_upper_leg_2_hip_motor_joint" type="continuous">
 		<axis xyz="1 0 0"/>
 		<parent link="RL_hip_motor"/>
@@ -434,8 +429,8 @@
 		<limit effort="100" velocity="100"/>
 		<joint_properties damping=".0" friction=".0"/>
 	</joint>
-	 
-  
+
+
   <link name="RL_lower_leg">
   <contact>
       <lateral_friction value="1"/>
@@ -452,16 +447,16 @@
       </geometry>
        <material name="red"/>
     </visual>
-    
+
     <collision>
       <origin rpy="0 1.57079 0" xyz="0 0 0"/>
       <geometry>
 				<mesh filename="lower_leg_3.stl" scale="1 1 1"/>
       </geometry>
     </collision>
-    
+
     </link>
-    
+
   <joint name="RL_lower_leg_2_upper_leg_joint" type="continuous">
 		<axis xyz="1 0 0"/>
 		<parent link="RL_upper_leg"/>
@@ -502,8 +497,8 @@
     <child link="toeRL"/>
     <origin xyz="0 -0.25 -0.022"/>
     <dynamics damping="0.0" friction="0.0"/>
-  </joint>	
-	
+  </joint>
+
 	<link name="toeRR">
     <contact>
       <friction_anchor/>
@@ -535,8 +530,8 @@
     <child link="toeRR"/>
     <origin xyz="0 -0.25 -0.022"/>
     <dynamics damping="0.0" friction="0.0"/>
-  </joint>	
-	
+  </joint>
+
 	<link name="toeFL">
     <contact>
       <friction_anchor/>
@@ -568,8 +563,8 @@
     <child link="toeFL"/>
     <origin xyz="0 -0.25 -0.022"/>
     <dynamics damping="0.0" friction="0.0"/>
-  </joint>	
-	
+  </joint>
+
 	<link name="toeFR">
     <contact>
       <friction_anchor/>
@@ -601,6 +596,6 @@
     <child link="toeFR"/>
     <origin xyz="0 -0.25 -0.022"/>
     <dynamics damping="0.0" friction="0.0"/>
-  </joint>	
+  </joint>
 </robot>
 
