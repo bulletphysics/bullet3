@@ -51,17 +51,7 @@ public:
         return true;
     }
 
-    virtual void updateSoftBodies()
-    {
-        for (int i = 0; i < m_softBodySet.size(); i++)
-        {
-            btSoftBody *psb = (btSoftBody *)m_softBodySet[i];
-            if (psb->isActive())
-            {
-                psb->integrateMotion(); // normal is updated here
-            }
-        }
-    }
+    virtual void updateSoftBodies();
     
     virtual void optimize(btAlignedObjectArray<btSoftBody *> &softBodies, bool forceUpdate = false)
     {
@@ -76,64 +66,17 @@ public:
     
     void reinitialize(bool nodeUpdated);
     
-    void setConstraintDirections();
+    void setConstraints();
     
-    void advect(btScalar dt)
-    {
-        size_t counter = 0;
-        for (int i = 0; i < m_softBodySet.size(); ++i)
-        {
-            btSoftBody* psb = m_softBodySet[i];
-            for (int j = 0; j < psb->m_nodes.size(); ++j)
-            {
-                auto& node = psb->m_nodes[j];
-                node.m_x  =  node.m_q + dt * node.m_v;
-            }
-        }
-    }
+    void advect(btScalar dt);
     
-    void backupVelocity()
-    {
-        // serial implementation
-        int counter = 0;
-        for (int i = 0; i < m_softBodySet.size(); ++i)
-        {
-            btSoftBody* psb = m_softBodySet[i];
-            for (int j = 0; j < psb->m_nodes.size(); ++j)
-            {
-                m_backupVelocity[counter++] = psb->m_nodes[j].m_v;
-            }
-        }
-    }
+    void backupVelocity();
     
     void updateVelocity();
     
-    bool updateNodes()
-    {
-        int numNodes = 0;
-        for (int i = 0; i < m_softBodySet.size(); ++i)
-            numNodes += m_softBodySet[i]->m_nodes.size();
-        if (numNodes != m_numNodes)
-        {
-            m_numNodes = numNodes;
-            m_backupVelocity.resize(numNodes);
-            return true;
-        }
-        return false;
-    }
+    bool updateNodes();
     
-    virtual void predictMotion(float solverdt)
-    {
-        for (int i = 0; i < m_softBodySet.size(); ++i)
-        {
-            btSoftBody *psb = m_softBodySet[i];
-            
-            if (psb->isActive())
-            {
-                psb->predictMotion(solverdt);
-            }
-        }
-    }
+    virtual void predictMotion(float solverdt);
 
     virtual void copySoftBodyToVertexBuffer(const btSoftBody *const softBody, btVertexBufferDescriptor *vertexBuffer) {}
 
