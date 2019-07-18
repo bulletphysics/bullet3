@@ -124,7 +124,7 @@ public:
                     // clear the old constraint
                     if (friction.m_static_prev[j] == true)
                     {
-                        x[i] -= friction.m_direction_prev[j] * friction.m_dv_prev[j];
+//                        x[i] -= friction.m_direction_prev[j] * friction.m_dv_prev[j];
                     }
                     // add the new constraint
                     if (friction.m_static[j] == true)
@@ -156,7 +156,7 @@ public:
                         // clear the old constraint
                         if (friction.m_static_prev[j] == true)
                         {
-                            x[i] -= friction.m_direction_prev[j] * friction.m_dv_prev[j];
+//                            x[i] -= friction.m_direction_prev[j] * friction.m_dv_prev[j];
                         }
                         // add the new constraint
                         if (friction.m_static[j] == true)
