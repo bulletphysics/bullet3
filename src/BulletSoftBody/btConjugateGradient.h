@@ -18,12 +18,10 @@ class btConjugateGradient
     using TVStack = btAlignedObjectArray<btVector3>;
     TVStack r,p,z,temp;
     int max_iterations;
-    btScalar tolerance;
     
 public:
     btConjugateGradient(const int max_it_in)
     : max_iterations(max_it_in)
-    , tolerance(std::numeric_limits<float>::epsilon() * 16)
     {
     }
     
@@ -119,12 +117,6 @@ public:
         for (int i = 0; i < a.size(); ++i)
             ans += a[i].dot(b[i]);
         return ans;
-    }
-    
-    void setZero(TVStack& a)
-    {
-        for (int i = 0; i < a.size(); ++i)
-            a[i].setZero();
     }
     
     void multAndAddTo(btScalar s, const TVStack& a, TVStack& result)
