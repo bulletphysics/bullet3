@@ -27,7 +27,7 @@ subject to the following restrictions:
 #define START_POS_Y -5
 #define START_POS_Z -3
 
-#include "DeformableDemo.h"
+#include "Pinch.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableRigidDynamicsWorld.h"
@@ -41,17 +41,29 @@ subject to the following restrictions:
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
-///The DeformableDemo shows the use of rolling friction.
+///The Pinch shows the use of rolling friction.
 ///Spheres will come to a rest on a sloped plane using a constraint. Damping cannot achieve the same.
 ///Generally it is best to leave the rolling friction coefficient zero (or close to zero).
-class DeformableDemo : public CommonRigidBodyBase
+
+struct TetraCube
+{
+#include "../SoftDemo/cube.inl"
+};
+
+struct TetraBunny
+{
+#include "../SoftDemo/bunny.inl"
+};
+
+
+class Pinch : public CommonRigidBodyBase
 {
 public:
-	DeformableDemo(struct GUIHelperInterface* helper)
+	Pinch(struct GUIHelperInterface* helper)
 		: CommonRigidBodyBase(helper)
 	{
 	}
-	virtual ~DeformableDemo()
+	virtual ~Pinch()
 	{
 	}
 	void initPhysics();
@@ -60,7 +72,7 @@ public:
 
 	void resetCamera()
 	{
-        float dist = 20;
+        float dist = 25;
         float pitch = -45;
         float yaw = 100;
         float targetPos[3] = {0, -3, 0};
@@ -74,60 +86,31 @@ public:
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
-    void Ctor_RbUpStack(int count)
+    void createGrip()
     {
-        float mass = 0.2;
-        
-        btCompoundShape* cylinderCompound = new btCompoundShape;
-        btCollisionShape* cylinderShape = new btCylinderShapeX(btVector3(2, .5, .5));
-        btCollisionShape* boxShape = new btBoxShape(btVector3(2, .5, .5));
-        btTransform localTransform;
-        localTransform.setIdentity();
-        cylinderCompound->addChildShape(localTransform, boxShape);
-        btQuaternion orn(SIMD_HALF_PI, 0, 0);
-        localTransform.setRotation(orn);
-        //    localTransform.setOrigin(btVector3(1,1,1));
-        cylinderCompound->addChildShape(localTransform, cylinderShape);
-        
+        int count = 2;
+        float mass = 2;
         btCollisionShape* shape[] = {
-            new btBoxShape(btVector3(1, 1, 1)),
-//            new btSphereShape(0.75),
-//            cylinderCompound
+            new btBoxShape(btVector3(3, 3, 0.5)),
         };
-//        static const int nshapes = sizeof(shape) / sizeof(shape[0]);
-//        for (int i = 0; i < count; ++i)
-//        {
-//            btTransform startTransform;
-//            startTransform.setIdentity();
-//            startTransform.setOrigin(btVector3(0, 2+ 2 * i, 0));
-//            startTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
-//            createRigidBody(mass, startTransform, shape[i % nshapes]);
-//        }
-        btTransform startTransform;
-        startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(1, 2, 1));
-        createRigidBody(mass, startTransform, shape[0]);
-        startTransform.setOrigin(btVector3(1, 2, -1));
-        createRigidBody(mass, startTransform, shape[0]);
-        startTransform.setOrigin(btVector3(-1, 2, 1));
-        createRigidBody(mass, startTransform, shape[0]);
-        startTransform.setOrigin(btVector3(-1, 2, -1));
-        createRigidBody(mass, startTransform, shape[0]);
-        startTransform.setOrigin(btVector3(0, 4, 0));
-        createRigidBody(mass, startTransform, shape[0]);
+        static const int nshapes = sizeof(shape) / sizeof(shape[0]);
+        for (int i = 0; i < count; ++i)
+        {
+            btTransform startTransform;
+            startTransform.setIdentity();
+            startTransform.setOrigin(btVector3(10, 0, 0));
+            startTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
+            createRigidBody(mass, startTransform, shape[i % nshapes]);
+        }
     }
     
     virtual const btDeformableRigidDynamicsWorld* getDeformableDynamicsWorld() const
     {
-        ///just make it a btSoftRigidDynamicsWorld please
-        ///or we will add type checking
         return (btDeformableRigidDynamicsWorld*)m_dynamicsWorld;
     }
     
     virtual btDeformableRigidDynamicsWorld* getDeformableDynamicsWorld()
     {
-        ///just make it a btSoftRigidDynamicsWorld please
-        ///or we will add type checking
         return (btDeformableRigidDynamicsWorld*)m_dynamicsWorld;
     }
     
@@ -139,7 +122,6 @@ public:
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
             btSoftBody* psb = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
-            //if (softWorld->getDebugDrawer() && !(softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
             {
                 btSoftBodyHelpers::DrawFrame(psb, deformableWorld->getDebugDrawer());
                 btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
@@ -148,20 +130,61 @@ public:
     }
 };
 
-void DeformableDemo::initPhysics()
+void dynamics(btScalar time, btDeformableRigidDynamicsWorld* world)
+{
+    btAlignedObjectArray<btRigidBody*>& rbs = world->getNonStaticRigidBodies();
+    if (rbs.size()<2)
+        return;
+    btRigidBody* rb0 = rbs[0];
+    btScalar pressTime = 0.9;
+    btTransform rbTransform;
+    rbTransform.setIdentity();
+    btVector3 translation = btVector3(0.5,3,4);
+    btVector3 velocity = btVector3(0,5,0);
+    if (time < pressTime)
+    {
+        velocity = btVector3(0,0,-2);
+        translation += velocity * time;
+    }
+    else
+        translation += btVector3(0,0,-2) * pressTime + (time-pressTime)*velocity;
+    rbTransform.setOrigin(translation);
+    rbTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0));
+    rb0->setCenterOfMassTransform(rbTransform);
+    rb0->setAngularVelocity(btVector3(0,0,0));
+    rb0->setLinearVelocity(velocity);
+    
+    btRigidBody* rb1 = rbs[1];
+    translation = btVector3(0.5,3,-4);
+    velocity = btVector3(0,5,0);
+    if (time < pressTime)
+    {
+        velocity = btVector3(0,0,2);
+        translation += velocity * time;
+    }
+    else
+        translation += btVector3(0,0,2) * pressTime + (time-pressTime)*velocity;
+    rbTransform.setOrigin(translation);
+    rbTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0));
+    rb1->setCenterOfMassTransform(rbTransform);
+    rb1->setAngularVelocity(btVector3(0,0,0));
+    rb1->setLinearVelocity(velocity);
+    
+    rb0->setFriction(2);
+    rb1->setFriction(2);
+}
+
+void Pinch::initPhysics()
 {
 	m_guiHelper->setUpAxis(1);
 
-	///collision configuration contains default setup for memory, collision setup
     m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 	m_broadphase = new btDbvtBroadphase();
     btDeformableBodySolver* deformableBodySolver = new btDeformableBodySolver();
 
-	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btMultiBodyConstraintSolver* sol = new btMultiBodyConstraintSolver();
 	m_solver = sol;
 
@@ -171,19 +194,19 @@ void DeformableDemo::initPhysics()
 	m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity.setValue(0, -10, 0);
     
-//    getDeformableDynamicsWorld()->before_solver_callbacks.push_back(dynamics);
+    getDeformableDynamicsWorld()->before_solver_callbacks.push_back(dynamics);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
+    //create a ground
     {
-        ///create a ground
         btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(150.), btScalar(25.), btScalar(150.)));
 
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setOrigin(btVector3(0, -30, 0));
-        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
+        groundTransform.setOrigin(btVector3(0, -25, 0));
+        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0));
         //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
         btScalar mass(0.);
 
@@ -198,50 +221,36 @@ void DeformableDemo::initPhysics()
         btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
         btRigidBody* body = new btRigidBody(rbInfo);
-        body->setFriction(1);
+        body->setFriction(0.5);
 
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
     }
     
-    // create a piece of cloth
+    // create a soft block
     {
-        bool onGround = true;
-        const btScalar s = 4;
-        btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, 0, -s),
-                                                         btVector3(+s, 0, -s),
-                                                         btVector3(-s, 0, +s),
-                                                         btVector3(+s, 0, +s),
-//                                                         3,3,
-                                                          20,20,
-                                                          1 + 2 + 4 + 8, true);
-//                                                          0, true);
-
-        if (onGround)
-            psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, 0, -s),
-                                                 btVector3(+s, 0, -s),
-                                                 btVector3(-s, 0, +s),
-                                                 btVector3(+s, 0, +s),
-                                                 20,20,
-                                                 0, true);
-        
+        btSoftBody* psb = btSoftBodyHelpers::CreateFromTetGenData(getDeformableDynamicsWorld()->getWorldInfo(),
+                                                                  TetraCube::getElements(),
+                                                                  0,
+                                                                  TetraCube::getNodes(),
+                                                                  false, true, true);
+        getDeformableDynamicsWorld()->addSoftBody(psb);
+        psb->scale(btVector3(2, 2, 2));
+        psb->translate(btVector3(0, 4, 0));
         psb->getCollisionShape()->setMargin(0.1);
-        psb->generateBendingConstraints(2);
-        psb->setTotalMass(10);
+        psb->setTotalMass(1);
         psb->setSpringStiffness(10);
         psb->setDampingCoefficient(0.01);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 1;
-        getDeformableDynamicsWorld()->addSoftBody(psb);
-        
-        // add a few rigid bodies
-        Ctor_RbUpStack(1);
+        psb->m_cfg.kDF = 0.5;
+        // add a grippers
+        createGrip();
     }
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-void DeformableDemo::exitPhysics()
+void Pinch::exitPhysics()
 {
 	//cleanup in the reverse order of creation/initialization
 
@@ -280,9 +289,9 @@ void DeformableDemo::exitPhysics()
 
 
 
-class CommonExampleInterface* DeformableCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface* PinchCreateFunc(struct CommonExampleOptions& options)
 {
-	return new DeformableDemo(options.m_guiHelper);
+	return new Pinch(options.m_guiHelper);
 }
 
 
