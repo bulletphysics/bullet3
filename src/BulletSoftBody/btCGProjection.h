@@ -43,22 +43,23 @@ struct Friction
     btAlignedObjectArray<btScalar> m_impulse;
     btAlignedObjectArray<btScalar> m_dv;
     btAlignedObjectArray<btVector3> m_direction;
+    btAlignedObjectArray<btVector3> m_direction_prev;
     
     btAlignedObjectArray<bool> m_static_prev;
     btAlignedObjectArray<btScalar> m_impulse_prev;
     btAlignedObjectArray<btScalar> m_dv_prev;
-    btAlignedObjectArray<btVector3> m_direction_prev;
     
     btAlignedObjectArray<bool> m_released;
     
-    btAlignedObjectArray<btVector3> m_accumulated_impulse;
+    btAlignedObjectArray<btScalar> m_accumulated_normal_impulse;
+    btAlignedObjectArray<btVector3> m_accumulated_tangent_impulse;
     Friction()
     {
         m_static.push_back(false);
         m_static_prev.push_back(false);
         
-        m_direction.push_back(btVector3(0,0,0));
         m_direction_prev.push_back(btVector3(0,0,0));
+        m_direction.push_back(btVector3(0,0,0));
         
         m_impulse.push_back(0);
         m_impulse_prev.push_back(0);
@@ -66,7 +67,8 @@ struct Friction
         m_dv.push_back(0);
         m_dv_prev.push_back(0);
         
-        m_accumulated_impulse.push_back(btVector3(0,0,0));
+        m_accumulated_normal_impulse.push_back(0);
+        m_accumulated_tangent_impulse.push_back(btVector3(0,0,0));
         m_released.push_back(false);
     }
 };
