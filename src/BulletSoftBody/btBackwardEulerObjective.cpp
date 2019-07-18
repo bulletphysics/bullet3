@@ -8,7 +8,7 @@
 #include "btBackwardEulerObjective.h"
 
 btBackwardEulerObjective::btBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
-: cg(20)
+: cg(10)
 , m_softBodies(softBodies)
 , projection(m_softBodies, m_dt)
 , m_backupVelocity(backup_v)
