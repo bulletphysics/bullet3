@@ -122,14 +122,15 @@ void btDeformableBodySolver::solveConstraints(float solverdt)
     // apply explicit force
     m_objective->applyExplicitForce(m_residual);
     
-    // remove contact constraints with separating velocity
-    setConstraintDirections();
+    // add constraints to the solver
+    setConstraints();
     
     backupVelocity();
     
     for (int i = 0; i < m_solveIterations; ++i)
     {
         m_objective->computeResidual(solverdt, m_residual);
+        m_objective->initialGuess(m_dv, m_residual);
         m_objective->computeStep(m_dv, m_residual, solverdt);
         updateVelocity();
     }
@@ -153,9 +154,9 @@ void btDeformableBodySolver::reinitialize(bool nodeUpdated)
     m_objective->reinitialize(nodeUpdated);
 }
 
-void btDeformableBodySolver::setConstraintDirections()
+void btDeformableBodySolver::setConstraints()
 {
-    m_objective->setConstraintDirections();
+    m_objective->setConstraints();
 }
 
 void btDeformableBodySolver::setWorld(btDeformableRigidDynamicsWorld* world)
@@ -173,9 +174,76 @@ void btDeformableBodySolver::updateVelocity()
         btSoftBody* psb = m_softBodySet[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
-//            psb->m_nodes[j].m_v += m_dv[counter];
             psb->m_nodes[j].m_v = m_backupVelocity[counter]+m_dv[counter];
             ++counter;
+        }
+    }
+}
+
+
+void btDeformableBodySolver::advect(btScalar dt)
+{
+    for (int i = 0; i < m_softBodySet.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodySet[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            auto& node = psb->m_nodes[j];
+            node.m_x  =  node.m_q + dt * node.m_v;
+        }
+    }
+}
+
+void btDeformableBodySolver::backupVelocity()
+{
+    // serial implementation
+    int counter = 0;
+    for (int i = 0; i < m_softBodySet.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodySet[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            m_backupVelocity[counter++] = psb->m_nodes[j].m_v;
+        }
+    }
+}
+
+bool btDeformableBodySolver::updateNodes()
+{
+    int numNodes = 0;
+    for (int i = 0; i < m_softBodySet.size(); ++i)
+        numNodes += m_softBodySet[i]->m_nodes.size();
+    if (numNodes != m_numNodes)
+    {
+        m_numNodes = numNodes;
+        m_backupVelocity.resize(numNodes);
+        return true;
+    }
+    return false;
+}
+
+
+void btDeformableBodySolver::predictMotion(float solverdt)
+{
+    for (int i = 0; i < m_softBodySet.size(); ++i)
+    {
+        btSoftBody *psb = m_softBodySet[i];
+        
+        if (psb->isActive())
+        {
+            psb->predictMotion(solverdt);
+        }
+    }
+}
+
+void btDeformableBodySolver::updateSoftBodies()
+{
+    for (int i = 0; i < m_softBodySet.size(); i++)
+    {
+        btSoftBody *psb = (btSoftBody *)m_softBodySet[i];
+        if (psb->isActive())
+        {
+            psb->integrateMotion(); // normal is updated here
         }
     }
 }

@@ -77,6 +77,51 @@ void btBackwardEulerObjective::updateVelocity(const TVStack& dv)
     }
 }
 
+void btBackwardEulerObjective::applyForce(TVStack& force, bool setZero)
+{
+    size_t counter = 0;
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodies[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            btScalar one_over_mass = (psb->m_nodes[j].m_im == 0) ? 0 : psb->m_nodes[j].m_im;
+            psb->m_nodes[j].m_v += one_over_mass * force[counter++];
+        }
+    }
+    if (setZero)
+    {
+        for (int i = 0; i < force.size(); ++i)
+            force[i].setZero();
+    }
+}
+
+void btBackwardEulerObjective::computeResidual(btScalar dt, TVStack &residual) const
+{
+    // add implicit force
+    for (int i = 0; i < m_lf.size(); ++i)
+    {
+        m_lf[i]->addScaledImplicitForce(dt, residual);
+    }
+}
+
+btScalar btBackwardEulerObjective::computeNorm(const TVStack& residual) const
+{
+    btScalar norm_squared = 0;
+    for (int i = 0; i < residual.size(); ++i)
+    {
+        norm_squared += residual[i].length2();
+    }
+    return std::sqrt(norm_squared+SIMD_EPSILON);
+}
+
+void btBackwardEulerObjective::applyExplicitForce(TVStack& force)
+{
+    for (int i = 0; i < m_lf.size(); ++i)
+        m_lf[i]->addScaledExplicitForce(m_dt, force);
+    applyForce(force, true);
+}
+
 void btBackwardEulerObjective::initialGuess(TVStack& dv, const TVStack& residual)
 {
     size_t counter = 0;
@@ -85,7 +130,7 @@ void btBackwardEulerObjective::initialGuess(TVStack& dv, const TVStack& residual
         btSoftBody* psb = m_softBodies[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
-            dv[counter] = psb->m_nodes[j].m_im * residual[counter] * 1;
+            dv[counter] = psb->m_nodes[j].m_im * residual[counter];
             ++counter;
         }
     }
