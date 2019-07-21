@@ -816,7 +816,7 @@ class HumanoidStablePD(object):
     root_ang_vel_err = self.calcRootAngVelErr(angVelSim, angVelKin)
     vel_err += root_rot_w * root_ang_vel_err
 
-    useArray = False
+    useArray = True
     
     if useArray:
       jointIndices = range(num_joints)
