@@ -21,10 +21,10 @@ from pdControllerStable import PDControllerStableMultiDof
 explicitPD = PDControllerExplicitMultiDof(p)
 stablePD = PDControllerStableMultiDof(p)
 
-p.resetDebugVisualizerCamera(cameraDistance=7,
+p.resetDebugVisualizerCamera(cameraDistance=7.4,
                              cameraYaw=-94,
                              cameraPitch=-14,
-                             cameraTargetPosition=[0.31, 0.03, -1.16])
+                             cameraTargetPosition=[0.24, -0.02, -0.09])
 
 import pybullet_data
 p.setTimeOut(10000)
@@ -67,7 +67,7 @@ jointTypes = [
     "JOINT_REVOLUTE", "JOINT_PRISMATIC", "JOINT_SPHERICAL", "JOINT_PLANAR", "JOINT_FIXED"
 ]
 
-startLocations = [[0, 0, 2], [0, 0, 0], [0, 0, -2], [0, 0, -4]]
+startLocations = [[0, 0, 2], [0, 0, 0], [0, 0, -2], [0, 0, -4], [0, 0, 4]]
 
 p.addUserDebugText("Stable PD",
                    [startLocations[0][0], startLocations[0][1] + 1, startLocations[0][2]],
@@ -80,6 +80,9 @@ p.addUserDebugText("Explicit PD",
                    [0, 0, 0])
 p.addUserDebugText("Kinematic",
                    [startLocations[3][0], startLocations[3][1] + 1, startLocations[3][2]],
+                   [0, 0, 0])
+p.addUserDebugText("Stable PD (Py)",
+                   [startLocations[4][0], startLocations[4][1] + 1, startLocations[4][2]],
                    [0, 0, 0])
 
 humanoid = p.loadURDF("humanoid/humanoid.urdf",
@@ -102,6 +105,11 @@ humanoid4 = p.loadURDF("humanoid/humanoid.urdf",
                        globalScaling=0.25,
                        useFixedBase=False,
                        flags=p.URDF_MAINTAIN_LINK_ORDER)
+humanoid5 = p.loadURDF("humanoid/humanoid.urdf",
+                      startLocations[4],
+                      globalScaling=0.25,
+                      useFixedBase=False,
+                      flags=p.URDF_MAINTAIN_LINK_ORDER)
 
 humanoid_fix = p.createConstraint(humanoid, -1, -1, -1, p.JOINT_FIXED, [0, 0, 0], [0, 0, 0],
                                   startLocations[0], [0, 0, 0, 1])
@@ -111,6 +119,8 @@ humanoid3_fix = p.createConstraint(humanoid3, -1, -1, -1, p.JOINT_FIXED, [0, 0, 
                                    startLocations[2], [0, 0, 0, 1])
 humanoid3_fix = p.createConstraint(humanoid4, -1, -1, -1, p.JOINT_FIXED, [0, 0, 0], [0, 0, 0],
                                    startLocations[3], [0, 0, 0, 1])
+humanoid4_fix = p.createConstraint(humanoid5, -1, -1, -1, p.JOINT_FIXED, [0, 0, 0], [0, 0, 0],
+                                   startLocations[4], [0, 0, 0, 1])
 
 startPose = [
     2, 0.847532, 0, 0.9986781045, 0.01410400148, -0.0006980000731, -0.04942300517, 0.9988133229,
@@ -135,6 +145,7 @@ p.resetBasePositionAndOrientation(humanoid, startLocations[0], [0, 0, 0, 1])
 p.resetBasePositionAndOrientation(humanoid2, startLocations[1], [0, 0, 0, 1])
 p.resetBasePositionAndOrientation(humanoid3, startLocations[2], [0, 0, 0, 1])
 p.resetBasePositionAndOrientation(humanoid4, startLocations[3], [0, 0, 0, 1])
+p.resetBasePositionAndOrientation(humanoid5, startLocations[4], [0, 0, 0, 1])
 
 index0 = 7
 for j in range(p.getNumJoints(humanoid)):
@@ -150,6 +161,7 @@ for j in range(p.getNumJoints(humanoid)):
     print("spherical position: ", targetPosition)
     print("spherical velocity: ", targetVel)
     p.resetJointStateMultiDof(humanoid, j, targetValue=targetPosition, targetVelocity=targetVel)
+    p.resetJointStateMultiDof(humanoid5, j, targetValue=targetPosition, targetVelocity=targetVel)
     p.resetJointStateMultiDof(humanoid2, j, targetValue=targetPosition, targetVelocity=targetVel)
   if (jointType == p.JOINT_PRISMATIC or jointType == p.JOINT_REVOLUTE):
     targetPosition = [startPose[index0]]
@@ -158,6 +170,7 @@ for j in range(p.getNumJoints(humanoid)):
     print("revolute:", targetPosition)
     print("revolute	velocity:", targetVel)
     p.resetJointStateMultiDof(humanoid, j, targetValue=targetPosition, targetVelocity=targetVel)
+    p.resetJointStateMultiDof(humanoid5, j, targetValue=targetPosition, targetVelocity=targetVel)
     p.resetJointStateMultiDof(humanoid2, j, targetValue=targetPosition, targetVelocity=targetVel)
 
 for j in range(p.getNumJoints(humanoid)):
@@ -167,6 +180,14 @@ for j in range(p.getNumJoints(humanoid)):
   if (jointType == p.JOINT_SPHERICAL):
     targetPosition = [0, 0, 0, 1]
     p.setJointMotorControlMultiDof(humanoid,
+                                   j,
+                                   p.POSITION_CONTROL,
+                                   targetPosition,
+                                   targetVelocity=[0, 0, 0],
+                                   positionGain=0,
+                                   velocityGain=1,
+                                   force=[0, 0, 0])
+    p.setJointMotorControlMultiDof(humanoid5,
                                    j,
                                    p.POSITION_CONTROL,
                                    targetPosition,
@@ -195,6 +216,7 @@ for j in range(p.getNumJoints(humanoid)):
     p.setJointMotorControl2(humanoid, j, p.VELOCITY_CONTROL, targetVelocity=0, force=0)
     p.setJointMotorControl2(humanoid3, j, p.VELOCITY_CONTROL, targetVelocity=0, force=31)
     p.setJointMotorControl2(humanoid4, j, p.VELOCITY_CONTROL, targetVelocity=0, force=10)
+    p.setJointMotorControl2(humanoid5, j, p.VELOCITY_CONTROL, targetVelocity=0, force=0)
 
   #print(ji)
   print("joint[", j, "].type=", jointTypes[ji[2]])
@@ -411,15 +433,42 @@ while (p.isConnected()):
     #print("pose=")
     #for po	in pose:
     #	print(po)
-
-    taus = stablePD.computePD(bodyUniqueId=humanoid,
-                              jointIndices=jointIndicesAll,
-                              desiredPositions=pose,
-                              desiredVelocities=[0] * totalDofs,
-                              kps=kpOrg,
-                              kds=kdOrg,
-                              maxForces=[maxForce] * totalDofs,
-                              timeStep=timeStep)
+    
+    
+    taus = stablePD.computePD(bodyUniqueId=humanoid5,
+                                jointIndices=jointIndicesAll,
+                                desiredPositions=pose,
+                                desiredVelocities=[0] * totalDofs,
+                                kps=kpOrg,
+                                kds=kdOrg,
+                                maxForces=[maxForce] * totalDofs,
+                                timeStep=timeStep)
+    
+    indices = [chest, neck, rightHip, rightKnee,
+              rightAnkle, rightShoulder, rightElbow,
+               leftHip, leftKnee, leftAnkle,
+               leftShoulder, leftElbow]
+    targetPositions = [chestRot,neckRot,rightHipRot, rightKneeRot,
+                      rightAnkleRot, rightShoulderRot, rightElbowRot,
+                      leftHipRot, leftKneeRot, leftAnkleRot,
+                      leftShoulderRot, leftElbowRot]
+    maxForces = [  [maxForce,maxForce,maxForce], [maxForce,maxForce,maxForce],[maxForce,maxForce,maxForce],[maxForce],
+                  [maxForce,maxForce,maxForce],[maxForce,maxForce,maxForce],[maxForce],
+                  [maxForce,maxForce,maxForce], [maxForce], [maxForce,maxForce,maxForce],
+                  [maxForce,maxForce,maxForce], [maxForce]]
+    
+   
+    kps = [1000]*12
+    kds = [100]*12
+    
+                      
+    p.setJointMotorControlMultiDofArray(humanoid,
+                                   indices,
+                                   p.STABLE_PD_CONTROL,
+                                   targetPositions=targetPositions,
+                                   positionGains=kps,
+                                   velocityGains=kds,
+                                   forces=maxForces)
 
     taus3 = explicitPD.computePD(bodyUniqueId=humanoid3,
                                  jointIndices=jointIndicesAll,
@@ -435,9 +484,9 @@ while (p.isConnected()):
     for index in range(len(jointIndicesAll)):
       jointIndex = jointIndicesAll[index]
       if jointDofCounts[index] == 4:
-
+        
         p.setJointMotorControlMultiDof(
-            humanoid,
+              humanoid5,
             jointIndex,
             p.TORQUE_CONTROL,
             force=[taus[dofIndex + 0], taus[dofIndex + 1], taus[dofIndex + 2]])
@@ -449,7 +498,8 @@ while (p.isConnected()):
 
       if jointDofCounts[index] == 1:
 
-        p.setJointMotorControlMultiDof(humanoid,
+        
+        p.setJointMotorControlMultiDof(humanoid5,
                                        jointIndex,
                                        controlMode=p.TORQUE_CONTROL,
                                        force=[taus[dofIndex]])

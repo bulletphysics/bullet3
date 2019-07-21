@@ -772,6 +772,7 @@ enum
 	CONTROL_MODE_TORQUE,
 	CONTROL_MODE_POSITION_VELOCITY_PD,
 	CONTROL_MODE_PD,  // The standard PD control implemented as soft constraint.
+	CONTROL_MODE_STABLE_PD,
 };
 
 ///flags for b3ApplyExternalTorque and b3ApplyExternalForce

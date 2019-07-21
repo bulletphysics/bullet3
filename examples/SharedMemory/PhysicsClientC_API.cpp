@@ -856,7 +856,17 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3JointControlCommandInit2Internal(b3S
 	for (int i = 0; i < MAX_DEGREE_OF_FREEDOM; i++)
 	{
 		command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[i] = 0;
+
 	}
+	for (int i = 0; i < 7; i++)
+	{
+		command->m_sendDesiredStateCommandArgument.m_desiredStateQ[i] = 0;
+		command->m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 0;
+		command->m_sendDesiredStateCommandArgument.m_Kp[i] = 0;
+		command->m_sendDesiredStateCommandArgument.m_Kd[i] = 0;
+		command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 0;
+	}
+	command->m_sendDesiredStateCommandArgument.m_desiredStateQ[3] = 1;
 	return (b3SharedMemoryCommandHandle)command;
 }
 
