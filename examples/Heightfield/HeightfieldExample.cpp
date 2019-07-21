@@ -1036,7 +1036,7 @@ void HeightfieldExample::clearWorld(void)
 		m_collisionShapes.clear();
 
 		// delete raw heightfield data
-		delete m_rawHeightfieldData;
+		delete[] m_rawHeightfieldData;
 		m_rawHeightfieldData = NULL;
 	}
 }
