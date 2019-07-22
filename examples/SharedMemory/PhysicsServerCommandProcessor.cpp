@@ -2849,12 +2849,13 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	delete m_data->m_collisionConfiguration;
 	m_data->m_collisionConfiguration = 0;
 	m_data->m_userConstraintUIDGenerator = 1;
-
+#ifdef STATIC_LINK_SPD_PLUGIN
 	for (int i = 0; i < m_data->m_rbdModels.size(); i++)
 	{
 		delete *(m_data->m_rbdModels.getAtIndex(i));
 	}
 	m_data->m_rbdModels.clear();
+#endif//STATIC_LINK_SPD_PLUGIN
 }
 
 bool PhysicsServerCommandProcessor::supportsJointMotor(btMultiBody* mb, int mbLinkIndex)
