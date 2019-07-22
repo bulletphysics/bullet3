@@ -10,31 +10,27 @@
 
 #include <iostream>
 #include "btSoftBodySolvers.h"
-#include "btBackwardEulerObjective.h"
+#include "btDeformableBackwardEulerObjective.h"
 #include "btDeformableRigidDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 
 struct btCollisionObjectWrapper;
-class btBackwardEulerObjective;
+class btDeformableBackwardEulerObjective;
 class btDeformableRigidDynamicsWorld;
 
 class btDeformableBodySolver : public btSoftBodySolver
 {
     using TVStack = btAlignedObjectArray<btVector3>;
 protected:
-    /** Variable to define whether we need to update solver constants on the next iteration */
-    bool m_updateSolverConstants;
     int m_numNodes;
     TVStack m_dv;
     TVStack m_residual;
     btAlignedObjectArray<btSoftBody *> m_softBodySet;
-    btBackwardEulerObjective* m_objective;
-    int m_solveIterations;
-    int m_impulseIterations;
-    btDeformableRigidDynamicsWorld* m_world;
+    btDeformableBackwardEulerObjective* m_objective;
     btAlignedObjectArray<btVector3> m_backupVelocity;
     btScalar m_dt;
+    btConjugateGradient<btDeformableBackwardEulerObjective> cg;
     
 public:
     btDeformableBodySolver();
@@ -45,30 +41,20 @@ public:
     {
         return DEFORMABLE_SOLVER;
     }
-    
-    virtual bool checkInitialized()
-    {
-        return true;
-    }
 
     virtual void updateSoftBodies();
-    
-    virtual void optimize(btAlignedObjectArray<btSoftBody *> &softBodies, bool forceUpdate = false)
-    {
-        m_softBodySet.copyFromArray(softBodies);
-    }
 
     virtual void copyBackToSoftBodies(bool bMove = true) {}
 
+    void extracted(float solverdt);
+    
     virtual void solveConstraints(float solverdt);
     
-    void postStabilize();
-    
-    void reinitialize(bool nodeUpdated);
+    void reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies);
     
     void setConstraints();
     
-    void advect(btScalar dt);
+    void predictDeformableMotion(btSoftBody* psb, btScalar dt);
     
     void backupVelocity();
     
@@ -76,6 +62,8 @@ public:
     
     bool updateNodes();
     
+    void computeStep(TVStack& dv, const TVStack& residual);
+                     
     virtual void predictMotion(float solverdt);
 
     virtual void copySoftBodyToVertexBuffer(const btSoftBody *const softBody, btVertexBufferDescriptor *vertexBuffer) {}
@@ -88,7 +76,8 @@ public:
     virtual void processCollision(btSoftBody * softBody, btSoftBody * otherSoftBody) {
         softBody->defaultCollisionHandler(otherSoftBody);
     }
-    
+    virtual void optimize(btAlignedObjectArray<btSoftBody *> &softBodies, bool forceUpdate = false){}
+    virtual bool checkInitialized(){return true;}
     virtual void setWorld(btDeformableRigidDynamicsWorld* world);
 };
 
