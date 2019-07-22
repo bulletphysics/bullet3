@@ -10,11 +10,9 @@
 
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
-, m_solveIterations(1)
-, m_impulseIterations(1)
-, m_world(nullptr)
+, cg(10)
 {
-    m_objective = new btBackwardEulerObjective(m_softBodySet, m_backupVelocity);
+    m_objective = new btDeformableBackwardEulerObjective(m_softBodySet, m_backupVelocity);
 }
 
 btDeformableBodySolver::~btDeformableBodySolver()
@@ -22,124 +20,31 @@ btDeformableBodySolver::~btDeformableBodySolver()
     delete m_objective;
 }
 
-void btDeformableBodySolver::postStabilize()
-{
-    for (int i = 0; i < m_softBodySet.size(); ++i)
-    {
-        btSoftBody* psb = m_softBodySet[i];
-        btMultiBodyJacobianData jacobianData;
-        const btScalar mrg = psb->getCollisionShape()->getMargin();
-        for (int j = 0; j < psb->m_rcontacts.size(); ++j)
-        {
-            const btSoftBody::RContact& c = psb->m_rcontacts[j];
-            // skip anchor points
-            if (c.m_node->m_im == 0)
-                continue;
-            
-            const btSoftBody::sCti& cti = c.m_cti;
-            if (cti.m_colObj->hasContactResponse())
-            {
-                btVector3 va(0, 0, 0);
-                btRigidBody* rigidCol = 0;
-                btMultiBodyLinkCollider* multibodyLinkCol = 0;
-                btScalar* deltaV;
-                
-                // grab the velocity of the rigid body
-                if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
-                {
-                    rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
-                    va = rigidCol ? (rigidCol->getVelocityInLocalPoint(c.m_c1)) * m_dt : btVector3(0, 0, 0);
-                }
-                else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
-                {
-                    multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
-                    if (multibodyLinkCol)
-                    {
-                        const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
-                        jacobianData.m_jacobians.resize(ndof);
-                        jacobianData.m_deltaVelocitiesUnitImpulse.resize(ndof);
-                        btScalar* jac = &jacobianData.m_jacobians[0];
-                        
-                        multibodyLinkCol->m_multiBody->fillContactJacobianMultiDof(multibodyLinkCol->m_link, c.m_node->m_x, cti.m_normal, jac, jacobianData.scratch_r, jacobianData.scratch_v, jacobianData.scratch_m);
-                        deltaV = &jacobianData.m_deltaVelocitiesUnitImpulse[0];
-                        multibodyLinkCol->m_multiBody->calcAccelerationDeltasMultiDof(&jacobianData.m_jacobians[0], deltaV, jacobianData.scratch_r, jacobianData.scratch_v);
-                        
-                        btScalar vel = 0.0;
-                        for (int j = 0; j < ndof; ++j)
-                        {
-                            vel += multibodyLinkCol->m_multiBody->getVelocityVector()[j] * jac[j];
-                        }
-                        va = cti.m_normal * vel * m_dt;
-                    }
-                }
-                
-                const btVector3 vb = c.m_node->m_v * m_dt;
-                const btVector3 vr = vb - va;
-                const btScalar dn = btDot(vr, cti.m_normal);
-                
-                btScalar dp = btMin((btDot(c.m_node->m_x, cti.m_normal) + cti.m_offset), mrg);
-//                dp += mrg;
-                // c0 is the impulse matrix, c3 is 1 - the friction coefficient or 0, c4 is the contact hardness coefficient
-                
-                btScalar dvn = dn * c.m_c4;
-                const btVector3 impulse = c.m_c0 * ((cti.m_normal * (dn * c.m_c4)));
-                // TODO: only contact is considered here, add friction later
-                if (dp < 0)
-                {
-                    bool two_way = false;
-                    if (two_way)
-                    {
-                        c.m_node->m_x -= impulse * c.m_c2;
-                        
-                        if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
-                        {
-                            if (rigidCol)
-                                rigidCol->applyImpulse(impulse, c.m_c1);
-                        }
-                        else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
-                        {
-                            if (multibodyLinkCol)
-                            {
-                                double multiplier = 0.5;
-                                multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV, -impulse.length() * multiplier);
-                            }
-                        }
-                    }
-                    else
-                        c.m_node->m_x -= dp * cti.m_normal * c.m_c4;
-                }
-            }
-        }
-    }
-}
-
 void btDeformableBodySolver::solveConstraints(float solverdt)
 {
-    m_dt = solverdt;
-    bool nodeUpdated = updateNodes();
-    reinitialize(nodeUpdated);
-    
-    // apply explicit force
-    m_objective->applyExplicitForce(m_residual);
+    m_objective->setDt(solverdt);
     
     // add constraints to the solver
     setConstraints();
     
+    // save v_{n+1}^* velocity after explicit forces
     backupVelocity();
-    
-    for (int i = 0; i < m_solveIterations; ++i)
-    {
-        m_objective->computeResidual(solverdt, m_residual);
-        m_objective->initialGuess(m_dv, m_residual);
-        m_objective->computeStep(m_dv, m_residual, solverdt);
-        updateVelocity();
-    }
-    advect(solverdt);
-    postStabilize();
+    m_objective->computeResidual(solverdt, m_residual);
+//   m_objective->initialGuess(m_dv, m_residual);
+    computeStep(m_dv, m_residual);
+    updateVelocity();
 }
 
-void btDeformableBodySolver::reinitialize(bool nodeUpdated)
+void btDeformableBodySolver::computeStep(TVStack& dv, const TVStack& residual)
 {
+    btScalar tolerance = std::numeric_limits<float>::epsilon()* 1024 * m_objective->computeNorm(residual);
+    cg.solve(*m_objective, dv, residual, tolerance);
+}
+
+void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies)
+{
+    m_softBodySet.copyFromArray(softBodies);
+    bool nodeUpdated = updateNodes();
     if (nodeUpdated)
     {
         m_dv.resize(m_numNodes);
@@ -161,7 +66,6 @@ void btDeformableBodySolver::setConstraints()
 
 void btDeformableBodySolver::setWorld(btDeformableRigidDynamicsWorld* world)
 {
-    m_world = world;
     m_objective->setWorld(world);
 }
 
@@ -176,20 +80,6 @@ void btDeformableBodySolver::updateVelocity()
         {
             psb->m_nodes[j].m_v = m_backupVelocity[counter]+m_dv[counter];
             ++counter;
-        }
-    }
-}
-
-
-void btDeformableBodySolver::advect(btScalar dt)
-{
-    for (int i = 0; i < m_softBodySet.size(); ++i)
-    {
-        btSoftBody* psb = m_softBodySet[i];
-        for (int j = 0; j < psb->m_nodes.size(); ++j)
-        {
-            auto& node = psb->m_nodes[j];
-            node.m_x  =  node.m_q + dt * node.m_v;
         }
     }
 }
@@ -231,9 +121,51 @@ void btDeformableBodySolver::predictMotion(float solverdt)
         
         if (psb->isActive())
         {
-            psb->predictMotion(solverdt);
+            // apply explicit forces to velocity
+            m_objective->applyExplicitForce(m_residual);
+            // predict motion for collision detection
+            predictDeformableMotion(psb, solverdt);
         }
     }
+}
+
+void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar dt)
+{
+    int i, ni;
+    
+    /* Prepare                */
+    psb->m_sst.sdt = dt * psb->m_cfg.timescale;
+    psb->m_sst.isdt = 1 / psb->m_sst.sdt;
+    psb->m_sst.velmrg = psb->m_sst.sdt * 3;
+    psb->m_sst.radmrg = psb->getCollisionShape()->getMargin();
+    psb->m_sst.updmrg = psb->m_sst.radmrg * (btScalar)0.25;
+    /* Integrate            */
+    for (i = 0, ni = psb->m_nodes.size(); i < ni; ++i)
+    {
+        btSoftBody::Node& n = psb->m_nodes[i];
+        n.m_q = n.m_x;
+        n.m_x += n.m_v * dt;
+    }
+    /* Bounds                */
+    psb->updateBounds();
+    /* Nodes                */
+    ATTRIBUTE_ALIGNED16(btDbvtVolume)
+    vol;
+    for (i = 0, ni = psb->m_nodes.size(); i < ni; ++i)
+    {
+        btSoftBody::Node& n = psb->m_nodes[i];
+        vol = btDbvtVolume::FromCR(n.m_x, psb->m_sst.radmrg);
+        psb->m_ndbvt.update(n.m_leaf,
+                       vol,
+                       n.m_v * psb->m_sst.velmrg,
+                       psb->m_sst.updmrg);
+    }
+
+    /* Clear contacts        */
+    psb->m_rcontacts.resize(0);
+    psb->m_scontacts.resize(0);
+    /* Optimize dbvt's        */
+    psb->m_ndbvt.optimizeIncremental(1);
 }
 
 void btDeformableBodySolver::updateSoftBodies()
@@ -243,7 +175,7 @@ void btDeformableBodySolver::updateSoftBodies()
         btSoftBody *psb = (btSoftBody *)m_softBodySet[i];
         if (psb->isActive())
         {
-            psb->integrateMotion(); // normal is updated here
+            psb->updateNormals(); // normal is updated here
         }
     }
 }

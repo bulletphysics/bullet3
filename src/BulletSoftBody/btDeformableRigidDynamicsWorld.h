@@ -17,15 +17,15 @@
 #define BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H
 
 #include "btSoftMultiBodyDynamicsWorld.h"
-#include "btLagrangianForce.h"
-#include "btMassSpring.h"
+#include "btDeformableLagrangianForce.h"
+#include "btDeformableMassSpringForce.h"
 #include "btDeformableBodySolver.h"
 #include "btSoftBodyHelpers.h"
 #include <functional>
 typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 
 class btDeformableBodySolver;
-class btLagrangianForce;
+class btDeformableLagrangianForce;
 typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 
 class btDeformableRigidDynamicsWorld : public btMultiBodyDynamicsWorld
@@ -44,6 +44,10 @@ class btDeformableRigidDynamicsWorld : public btMultiBodyDynamicsWorld
     
 protected:
     virtual void internalSingleStepSimulation(btScalar timeStep);
+    
+    virtual void integrateTransforms(btScalar timeStep);
+    
+    void positionCorrection();
     
     void solveDeformableBodiesConstraints(btScalar timeStep);
     
@@ -70,7 +74,7 @@ public:
         m_sbi.m_sparsesdf.Initialize();
         m_internalTime = 0.0;
     }
-    btAlignedObjectArray<std::function<void(btScalar, btDeformableRigidDynamicsWorld*)> > before_solver_callbacks;
+    btAlignedObjectArray<std::function<void(btScalar, btDeformableRigidDynamicsWorld*)> > m_beforeSolverCallbacks;
     virtual ~btDeformableRigidDynamicsWorld()
     {
     }
@@ -108,10 +112,18 @@ public:
     {
         return m_sbi;
     }
+    
     const btSoftBodyWorldInfo& getWorldInfo() const
     {
         return m_sbi;
     }
+    
+    void reinitialize(btScalar timeStep);
+    
+    void applyRigidBodyGravity(btScalar timeStep);
+    
+    void beforeSolverCallbacks(btScalar timeStep);
+    
     int getDrawFlags() const { return (m_drawFlags); }
     void setDrawFlags(int f) { m_drawFlags = f; }
 };

@@ -1,35 +1,33 @@
 //
-//  btLagrangianForce.h
+//  btDeformableLagrangianForce.h
 //  BulletSoftBody
 //
 //  Created by Xuchen Han on 7/1/19.
 //
 
-#ifndef BT_LAGRANGIAN_FORCE_H
-#define BT_LAGRANGIAN_FORCE_H
+#ifndef BT_DEFORMABLE_LAGRANGIAN_FORCE_H
+#define BT_DEFORMABLE_LAGRANGIAN_FORCE_H
 
 #include "btSoftBody.h"
 #include <unordered_map>
 
-class btLagrangianForce
+class btDeformableLagrangianForce
 {
 public:
     using TVStack = btAlignedObjectArray<btVector3>;
     const btAlignedObjectArray<btSoftBody *>& m_softBodies;
     std::unordered_map<btSoftBody::Node *, size_t> m_indices;
     
-    btLagrangianForce(const btAlignedObjectArray<btSoftBody *>& softBodies)
+    btDeformableLagrangianForce(const btAlignedObjectArray<btSoftBody *>& softBodies)
     : m_softBodies(softBodies)
     {
     }
     
-    virtual ~btLagrangianForce(){}
+    virtual ~btDeformableLagrangianForce(){}
     
     virtual void addScaledImplicitForce(btScalar scale, TVStack& force) = 0;
     
-    virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df) = 0;
-    
-    virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df) = 0;
+    virtual void addScaledForceDifferential(btScalar scale, const TVStack& dv, TVStack& df) = 0;
     
     virtual void addScaledExplicitForce(btScalar scale, TVStack& force) = 0;
     
@@ -39,7 +37,7 @@ public:
             updateId();
     }
     
-    void updateId()
+    virtual void updateId()
     {
         size_t index = 0;
         for (int i = 0; i < m_softBodies.size(); ++i)
@@ -51,5 +49,15 @@ public:
             }
         }
     }
+    
+    virtual int getNumNodes()
+    {
+        int numNodes = 0;
+        for (int i = 0; i < m_softBodies.size(); ++i)
+        {
+            numNodes += m_softBodies[i]->m_nodes.size();
+        }
+        return numNodes;
+    }
 };
-#endif /* btLagrangianForce_h */
+#endif /* BT_DEFORMABLE_LAGRANGIAN_FORCE */

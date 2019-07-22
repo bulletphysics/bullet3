@@ -1,5 +1,5 @@
 //
-//  btContactProjection.h
+//  btDeformableContactProjection.h
 //  BulletSoftBody
 //
 //  Created by Xuchen Han on 7/4/19.
@@ -12,27 +12,32 @@
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 #include <iostream>
-class btContactProjection : public btCGProjection
+class btDeformableContactProjection : public btCGProjection
 {
 public:
-    btContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
+    std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<DeformableContactConstraint> > m_constraints;
+    std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<DeformableFrictionConstraint> > m_frictions;
+    
+    btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : btCGProjection(softBodies, dt)
     {
     }
     
-    virtual ~btContactProjection()
+    virtual ~btDeformableContactProjection()
     {
     }
     
     // apply the constraints to the rhs
-    virtual void operator()(TVStack& x);
+    virtual void project(TVStack& x);
     
     // apply constraints to x in Ax=b
     virtual void enforceConstraint(TVStack& x);
     
     // update the constraints
-    virtual void update(const TVStack& dv, const TVStack& backupVelocity);
+    virtual void update();
     
     virtual void setConstraints();
+    
+    virtual void reinitialize(bool nodeUpdated);
 };
 #endif /* btContactProjection_h */

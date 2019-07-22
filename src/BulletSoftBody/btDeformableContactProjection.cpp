@@ -50,12 +50,12 @@ void btDeformableContactProjection::update()
     // loop through constraints to set constrained values
     for (auto& it : m_constraints)
     {
-        btAlignedObjectArray<Friction>& frictions = m_frictions[it.first];
-        btAlignedObjectArray<Constraint>& constraints = it.second;
+        btAlignedObjectArray<DeformableFrictionConstraint>& frictions = m_frictions[it.first];
+        btAlignedObjectArray<DeformableContactConstraint>& constraints = it.second;
         for (int i = 0; i < constraints.size(); ++i)
         {
-            Constraint& constraint = constraints[i];
-            Friction& friction = frictions[i];
+            DeformableContactConstraint& constraint = constraints[i];
+            DeformableFrictionConstraint& friction = frictions[i];
             for (int j = 0; j < constraint.m_contact.size(); ++j)
             {
                 if (constraint.m_contact[j] == nullptr)
@@ -229,16 +229,16 @@ void btDeformableContactProjection::setConstraints()
         {
             if (psb->m_nodes[j].m_im == 0)
             {
-                btAlignedObjectArray<Constraint> c;
-                c.push_back(Constraint(btVector3(1,0,0)));
-                c.push_back(Constraint(btVector3(0,1,0)));
-                c.push_back(Constraint(btVector3(0,0,1)));
+                btAlignedObjectArray<DeformableContactConstraint> c;
+                c.push_back(DeformableContactConstraint(btVector3(1,0,0)));
+                c.push_back(DeformableContactConstraint(btVector3(0,1,0)));
+                c.push_back(DeformableContactConstraint(btVector3(0,0,1)));
                 m_constraints[&(psb->m_nodes[j])] = c;
                 
-                btAlignedObjectArray<Friction> f;
-                f.push_back(Friction());
-                f.push_back(Friction());
-                f.push_back(Friction());
+                btAlignedObjectArray<DeformableFrictionConstraint> f;
+                f.push_back(DeformableFrictionConstraint());
+                f.push_back(DeformableFrictionConstraint());
+                f.push_back(DeformableFrictionConstraint());
                 m_frictions[&(psb->m_nodes[j])] = f;
             }
         }
@@ -310,11 +310,11 @@ void btDeformableContactProjection::setConstraints()
                     
                     if (m_constraints.find(c.m_node) == m_constraints.end())
                     {
-                        btAlignedObjectArray<Constraint> constraints;
-                        constraints.push_back(Constraint(c, jacobianData_normal));
+                        btAlignedObjectArray<DeformableContactConstraint> constraints;
+                        constraints.push_back(DeformableContactConstraint(c, jacobianData_normal));
                         m_constraints[c.m_node] = constraints;
-                        btAlignedObjectArray<Friction> frictions;
-                        frictions.push_back(Friction(complementaryDirection, jacobianData_complementary));
+                        btAlignedObjectArray<DeformableFrictionConstraint> frictions;
+                        frictions.push_back(DeformableFrictionConstraint(complementaryDirection, jacobianData_complementary));
                         m_frictions[c.m_node] = frictions;
                     }
                     else
@@ -322,8 +322,8 @@ void btDeformableContactProjection::setConstraints()
                         // group colinear constraints into one
                         const btScalar angle_epsilon = 0.015192247; // less than 10 degree
                         bool merged = false;
-                        btAlignedObjectArray<Constraint>& constraints = m_constraints[c.m_node];
-                        btAlignedObjectArray<Friction>& frictions = m_frictions[c.m_node];
+                        btAlignedObjectArray<DeformableContactConstraint>& constraints = m_constraints[c.m_node];
+                        btAlignedObjectArray<DeformableFrictionConstraint>& frictions = m_frictions[c.m_node];
                         for (int j = 0; j < constraints.size(); ++j)
                         {
                             const btAlignedObjectArray<btVector3>& dirs = constraints[j].m_direction;
@@ -343,8 +343,8 @@ void btDeformableContactProjection::setConstraints()
                         // hard coded no more than 3 constraint directions
                         if (!merged && constraints.size() < dim)
                         {
-                            constraints.push_back(Constraint(c, jacobianData_normal));
-                            frictions.push_back(Friction(complementaryDirection, jacobianData_complementary));
+                            constraints.push_back(DeformableContactConstraint(c, jacobianData_normal));
+                            frictions.push_back(DeformableFrictionConstraint(complementaryDirection, jacobianData_complementary));
                         }
                     }
                 }
@@ -358,9 +358,9 @@ void btDeformableContactProjection::enforceConstraint(TVStack& x)
     const int dim = 3;
     for (auto& it : m_constraints)
     {
-        const btAlignedObjectArray<Constraint>& constraints = it.second;
+        const btAlignedObjectArray<DeformableContactConstraint>& constraints = it.second;
         size_t i = m_indices[it.first];
-        const btAlignedObjectArray<Friction>& frictions = m_frictions[it.first];
+        const btAlignedObjectArray<DeformableFrictionConstraint>& frictions = m_frictions[it.first];
         btAssert(constraints.size() <= dim);
         btAssert(constraints.size() > 0);
         if (constraints.size() == 1)
@@ -401,7 +401,7 @@ void btDeformableContactProjection::enforceConstraint(TVStack& x)
         {
             for (int f = 0; f < frictions.size(); ++f)
             {
-                const Friction& friction= frictions[f];
+                const DeformableFrictionConstraint& friction= frictions[f];
                 for (int j = 0; j < friction.m_direction.size(); ++j)
                 {
                     // clear the old constraint
@@ -425,9 +425,9 @@ void btDeformableContactProjection::project(TVStack& x)
     const int dim = 3;
     for (auto& it : m_constraints)
     {
-        const btAlignedObjectArray<Constraint>& constraints = it.second;
+        const btAlignedObjectArray<DeformableContactConstraint>& constraints = it.second;
         size_t i = m_indices[it.first];
-        btAlignedObjectArray<Friction>& frictions = m_frictions[it.first];
+        btAlignedObjectArray<DeformableFrictionConstraint>& frictions = m_frictions[it.first];
         btAssert(constraints.size() <= dim);
         btAssert(constraints.size() > 0);
         if (constraints.size() == 1)
@@ -450,14 +450,14 @@ void btDeformableContactProjection::project(TVStack& x)
             bool has_static_constraint = false;
             for (int f = 0; f < frictions.size(); ++f)
             {
-                Friction& friction= frictions[f];
+                DeformableFrictionConstraint& friction= frictions[f];
                 for (int j = 0; j < friction.m_static.size(); ++j)
                     has_static_constraint = has_static_constraint || friction.m_static[j];
             }
             
             for (int f = 0; f < frictions.size(); ++f)
             {
-                Friction& friction= frictions[f];
+                DeformableFrictionConstraint& friction= frictions[f];
                 for (int j = 0; j < friction.m_direction.size(); ++j)
                 {
                     // clear the old friction force

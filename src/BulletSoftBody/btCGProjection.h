@@ -8,53 +8,61 @@
 #define BT_CG_PROJECTION_H
 
 #include "btSoftBody.h"
+#include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
+#include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 #include <unordered_map>
 
 class btDeformableRigidDynamicsWorld;
 
-struct Constraint
+struct DeformableContactConstraint
 {
     btAlignedObjectArray<const btSoftBody::RContact*> m_contact;
     btAlignedObjectArray<btVector3> m_direction;
     btAlignedObjectArray<btScalar> m_value;
     // the magnitude of the total impulse the node applied to the rb in the normal direction in the cg solve
     btAlignedObjectArray<btScalar> m_accumulated_normal_impulse;
+    btAlignedObjectArray<btMultiBodyJacobianData> m_normal_jacobian;
     
-    Constraint(const btSoftBody::RContact& rcontact)
+    DeformableContactConstraint(const btSoftBody::RContact& rcontact, const btMultiBodyJacobianData& jacobian)
     {
-        append(rcontact);
+        append(rcontact, jacobian);
     }
     
-    Constraint(const btVector3 dir)
+    DeformableContactConstraint(const btVector3 dir)
     {
         m_contact.push_back(nullptr);
         m_direction.push_back(dir);
         m_value.push_back(0);
         m_accumulated_normal_impulse.push_back(0);
+        btMultiBodyJacobianData j;
+        m_normal_jacobian.push_back(j);
     }
     
-    Constraint()
+    DeformableContactConstraint()
     {
         m_contact.push_back(nullptr);
         m_direction.push_back(btVector3(0,0,0));
         m_value.push_back(0);
         m_accumulated_normal_impulse.push_back(0);
+        btMultiBodyJacobianData j;
+        m_normal_jacobian.push_back(j);
     }
     
-    void append(const btSoftBody::RContact& rcontact)
+    void append(const btSoftBody::RContact& rcontact, const btMultiBodyJacobianData& jacobian)
     {
         m_contact.push_back(&rcontact);
         m_direction.push_back(rcontact.m_cti.m_normal);
         m_value.push_back(0);
         m_accumulated_normal_impulse.push_back(0);
+        m_normal_jacobian.push_back(jacobian);
     }
     
-    ~Constraint()
+    ~DeformableContactConstraint()
     {
     }
 };
 
-struct Friction
+struct DeformableFrictionConstraint
 {
     
     btAlignedObjectArray<bool> m_static; // whether the friction is static
@@ -69,14 +77,22 @@ struct Friction
     btAlignedObjectArray<btVector3> m_direction_prev;
     
     btAlignedObjectArray<bool> m_released; // whether the contact is released
-    
+    btAlignedObjectArray<btMultiBodyJacobianData> m_complementary_jacobian;
+    btAlignedObjectArray<btVector3> m_complementaryDirection;
 
     
     // the total impulse the node applied to the rb in the tangential direction in the cg solve
     btAlignedObjectArray<btVector3> m_accumulated_tangent_impulse;
-    Friction()
+    
+    DeformableFrictionConstraint()
     {
         append();
+    }
+    
+    DeformableFrictionConstraint(const btVector3& complementaryDir, const btMultiBodyJacobianData& jacobian)
+    {
+        append();
+        addJacobian(complementaryDir, jacobian);
     }
     
     void append()
@@ -96,6 +112,13 @@ struct Friction
         m_accumulated_tangent_impulse.push_back(btVector3(0,0,0));
         m_released.push_back(false);
     }
+    
+    void addJacobian(const btVector3& complementaryDir, const btMultiBodyJacobianData& jacobian)
+    {
+        m_complementary_jacobian.push_back(jacobian);
+        m_complementaryDirection.push_back(complementaryDir);
+    }
+    
 };
 
 class btCGProjection
@@ -109,8 +132,6 @@ public:
     btDeformableRigidDynamicsWorld* m_world;
     std::unordered_map<btSoftBody::Node *, size_t> m_indices;
     const btScalar& m_dt;
-    std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<Constraint> > m_constraints;
-    std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<Friction> > m_frictions;
     
     btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : m_softBodies(softBodies)
@@ -123,19 +144,17 @@ public:
     }
     
     // apply the constraints
-    virtual void operator()(TVStack& x) = 0;
+    virtual void project(TVStack& x) = 0;
     
     virtual void setConstraints() = 0;
     
     // update the constraints
-    virtual void update(const TVStack& dv, const TVStack& backup_v) = 0;
+    virtual void update() = 0;
     
     virtual void reinitialize(bool nodeUpdated)
     {
         if (nodeUpdated)
             updateId();
-        m_constraints.clear();
-        m_frictions.clear();
     }
     
     void updateId()
