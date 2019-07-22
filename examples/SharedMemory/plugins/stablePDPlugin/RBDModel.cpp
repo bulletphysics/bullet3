@@ -1,7 +1,7 @@
 #include "RBDModel.h"
 #include "RBDUtil.h"
 #include "KinTree.h"
-
+#include "LinearMath/btQuickprof.h"
 cRBDModel::cRBDModel()
 {
 }
@@ -38,11 +38,26 @@ void cRBDModel::Update(const Eigen::VectorXd& pose, const Eigen::VectorXd& vel)
 	SetPose(pose);
 	SetVel(vel);
 
-	UpdateJointSubspaceArr();
-	UpdateChildParentMatArr();
-	UpdateSpWorldTrans();
-	UpdateMassMat();
-	UpdateBiasForce();
+	{
+		BT_PROFILE("rbdModel::UpdateJointSubspaceArr");
+		UpdateJointSubspaceArr();
+	}
+	{
+		BT_PROFILE("rbdModel::UpdateChildParentMatArr");
+		UpdateChildParentMatArr();
+	}
+	{
+		BT_PROFILE("rbdModel::UpdateSpWorldTrans");
+		UpdateSpWorldTrans();
+	}
+	{
+		BT_PROFILE("UpdateMassMat");
+		UpdateMassMat();
+	}
+	{
+		BT_PROFILE("UpdateBiasForce");
+		UpdateBiasForce();
+	}
 }
 
 int cRBDModel::GetNumDof() const

@@ -1788,32 +1788,11 @@ struct PhysicsServerCommandProcessorInternalData
 #ifdef STATIC_LINK_SPD_PLUGIN
 	b3HashMap<btHashPtr, cRBDModel*> m_rbdModels;
 
-	cRBDModel* findOrCreateRBDModel(btMultiBody* multiBody, const double* jointPositionsQ, const double* jointVelocitiesQdot)
+	static void convertPose(const btMultiBody* multiBody, const double* jointPositionsQ, const double* jointVelocitiesQdot, Eigen::VectorXd& pose, Eigen::VectorXd&vel)
 	{
-		cRBDModel* rbdModel = 0;
-		cRBDModel** rbdModelPtr = m_rbdModels.find(multiBody);
-		if (rbdModelPtr)
-		{
-			rbdModel = *rbdModelPtr;
-		}
-		else
-		{
-			rbdModel = new cRBDModel();
-			Eigen::MatrixXd bodyDefs;
-			Eigen::MatrixXd jointMat;
-			btExtractJointBodyFromBullet(multiBody, bodyDefs, jointMat);
-			btVector3 grav = m_dynamicsWorld->getGravity();
-			tVector3 gravity(grav[0], grav[1], grav[2], 0);
-			rbdModel->Init(jointMat, bodyDefs, gravity);
-			m_rbdModels.insert(multiBody, rbdModel);
-		}
-
-		//sync pose and vel
-
 		int baseDofQ = multiBody->hasFixedBase() ? 0 : 7;
 		int baseDofQdot = multiBody->hasFixedBase() ? 0 : 6;
-
-		Eigen::VectorXd pose, vel;
+		
 		pose.resize(7 + multiBody->getNumPosVars());
 		vel.resize(7 + multiBody->getNumPosVars());  //??
 
@@ -1875,46 +1854,75 @@ struct PhysicsServerCommandProcessorInternalData
 		{
 			switch (multiBody->getLink(l).m_jointType)
 			{
-				case btMultibodyLink::eRevolute:
-				case btMultibodyLink::ePrismatic:
-				{
-					pose[dof++] = jointPositionsQ[dofsrc++];
-					vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
-					break;
-				}
-				case btMultibodyLink::eSpherical:
-				{
-					double quatXYZW[4];
-					quatXYZW[0] = jointPositionsQ[dofsrc++];
-					quatXYZW[1] = jointPositionsQ[dofsrc++];
-					quatXYZW[2] = jointPositionsQ[dofsrc++];
-					quatXYZW[3] = jointPositionsQ[dofsrc++];
+			case btMultibodyLink::eRevolute:
+			case btMultibodyLink::ePrismatic:
+			{
+				pose[dof++] = jointPositionsQ[dofsrc++];
+				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+				break;
+			}
+			case btMultibodyLink::eSpherical:
+			{
+				double quatXYZW[4];
+				quatXYZW[0] = jointPositionsQ[dofsrc++];
+				quatXYZW[1] = jointPositionsQ[dofsrc++];
+				quatXYZW[2] = jointPositionsQ[dofsrc++];
+				quatXYZW[3] = jointPositionsQ[dofsrc++];
 
-					pose[dof++] = quatXYZW[3];
-					pose[dof++] = quatXYZW[0];
-					pose[dof++] = quatXYZW[1];
-					pose[dof++] = quatXYZW[2];
-					vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
-					vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
-					vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
-					vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
-					break;
-				}
-				case btMultibodyLink::eFixed:
-				{
-					break;
-				}
-				default:
-				{
-					assert(0);
-				}
+				pose[dof++] = quatXYZW[3];
+				pose[dof++] = quatXYZW[0];
+				pose[dof++] = quatXYZW[1];
+				pose[dof++] = quatXYZW[2];
+				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+				vel[veldof++] = jointVelocitiesQdot[velsrcdof++];
+				break;
+			}
+			case btMultibodyLink::eFixed:
+			{
+				break;
+			}
+			default:
+			{
+				assert(0);
+			}
 			}
 		}
+	}
+
+	cRBDModel* findOrCreateRBDModel(btMultiBody* multiBody, const double* jointPositionsQ, const double* jointVelocitiesQdot)
+	{
+		cRBDModel* rbdModel = 0;
+		cRBDModel** rbdModelPtr = m_rbdModels.find(multiBody);
+		if (rbdModelPtr)
+		{
+			rbdModel = *rbdModelPtr;
+		}
+		else
+		{
+			rbdModel = new cRBDModel();
+			Eigen::MatrixXd bodyDefs;
+			Eigen::MatrixXd jointMat;
+			btExtractJointBodyFromBullet(multiBody, bodyDefs, jointMat);
+			btVector3 grav = m_dynamicsWorld->getGravity();
+			tVector3 gravity(grav[0], grav[1], grav[2], 0);
+			rbdModel->Init(jointMat, bodyDefs, gravity);
+			m_rbdModels.insert(multiBody, rbdModel);
+		}
+
+		//sync pose and vel
+
+		Eigen::VectorXd pose, vel;
+		PhysicsServerCommandProcessorInternalData::convertPose(multiBody, jointPositionsQ, jointVelocitiesQdot, pose, vel);
 
 		btVector3 gravOrg = m_dynamicsWorld->getGravity();
 		tVector grav(gravOrg[0], gravOrg[1], gravOrg[2], 0);
 		rbdModel->SetGravity(grav);
-		rbdModel->Update(pose, vel);
+		{
+			BT_PROFILE("rbdModel::Update");
+			rbdModel->Update(pose, vel);
+		}
 
 		return rbdModel;
 	}
@@ -2841,6 +2849,13 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	delete m_data->m_collisionConfiguration;
 	m_data->m_collisionConfiguration = 0;
 	m_data->m_userConstraintUIDGenerator = 1;
+#ifdef STATIC_LINK_SPD_PLUGIN
+	for (int i = 0; i < m_data->m_rbdModels.size(); i++)
+	{
+		delete *(m_data->m_rbdModels.getAtIndex(i));
+	}
+	m_data->m_rbdModels.clear();
+#endif//STATIC_LINK_SPD_PLUGIN
 }
 
 bool PhysicsServerCommandProcessor::supportsJointMotor(btMultiBody* mb, int mbLinkIndex)
@@ -6168,6 +6183,189 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 
 				break;
 			}
+#ifdef STATIC_LINK_SPD_PLUGIN
+			case CONTROL_MODE_STABLE_PD:
+			{
+				int posVal = body->m_multiBody->getNumPosVars();
+				btAlignedObjectArray<double> zeroVel;
+				int dof = 7 + posVal;
+				zeroVel.resize(dof);
+				//clientCmd.m_sendDesiredStateCommandArgument.
+				//current positions and velocities
+				btAlignedObjectArray<double> jointPositionsQ;
+				btAlignedObjectArray<double> jointVelocitiesQdot;
+				btTransform baseTr = body->m_multiBody->getBaseWorldTransform();
+#if 1
+				jointPositionsQ.push_back(baseTr.getOrigin()[0]);
+				jointPositionsQ.push_back(baseTr.getOrigin()[1]);
+				jointPositionsQ.push_back(baseTr.getOrigin()[2]);
+				jointPositionsQ.push_back(baseTr.getRotation()[0]);
+				jointPositionsQ.push_back(baseTr.getRotation()[1]);
+				jointPositionsQ.push_back(baseTr.getRotation()[2]);
+				jointPositionsQ.push_back(baseTr.getRotation()[3]);
+				jointVelocitiesQdot.push_back(body->m_multiBody->getBaseVel()[0]);
+				jointVelocitiesQdot.push_back(body->m_multiBody->getBaseVel()[1]);
+				jointVelocitiesQdot.push_back(body->m_multiBody->getBaseVel()[2]);
+				jointVelocitiesQdot.push_back(body->m_multiBody->getBaseOmega()[0]);
+				jointVelocitiesQdot.push_back(body->m_multiBody->getBaseOmega()[1]);
+				jointVelocitiesQdot.push_back(body->m_multiBody->getBaseOmega()[2]);
+				jointVelocitiesQdot.push_back(0);
+#else
+				for (int i = 0; i < 7; i++)
+				{
+					jointPositionsQ.push_back(0);
+					jointVelocitiesQdot.push_back(0);
+				}
+				jointPositionsQ[6] = 1;
+#endif
+				for (int i = 0; i < body->m_multiBody->getNumLinks(); i++)
+				{
+					switch (body->m_multiBody->getLink(i).m_jointType)
+					{
+					case btMultibodyLink::eSpherical:
+					{
+						btScalar* jointPos = body->m_multiBody->getJointPosMultiDof(i);
+						jointPositionsQ.push_back(jointPos[0]);
+						jointPositionsQ.push_back(jointPos[1]);
+						jointPositionsQ.push_back(jointPos[2]);
+						jointPositionsQ.push_back(jointPos[3]);
+						btScalar* jointVel = body->m_multiBody->getJointVelMultiDof(i);
+						jointVelocitiesQdot.push_back(jointVel[0]);
+						jointVelocitiesQdot.push_back(jointVel[1]);
+						jointVelocitiesQdot.push_back(jointVel[2]);
+						jointVelocitiesQdot.push_back(0);
+						break;
+					}
+					case btMultibodyLink::ePrismatic:
+					case btMultibodyLink::eRevolute:
+					{
+						btScalar* jointPos = body->m_multiBody->getJointPosMultiDof(i);
+						jointPositionsQ.push_back(jointPos[0]);
+						btScalar* jointVel = body->m_multiBody->getJointVelMultiDof(i);
+						jointVelocitiesQdot.push_back(jointVel[0]);
+						break;
+					}
+					case btMultibodyLink::eFixed:
+					{
+						//skip
+						break;
+					}
+					default:
+					{
+						b3Error("Unsupported joint type");
+						btAssert(0);
+					}
+					}
+				}
+
+
+				cRBDModel* rbdModel = 0;
+				
+				{
+					BT_PROFILE("findOrCreateRBDModel");
+					rbdModel = m_data->findOrCreateRBDModel(body->m_multiBody, &jointPositionsQ[0], &jointVelocitiesQdot[0]);
+				}
+				if (rbdModel)
+				{
+
+					int num_dof = jointPositionsQ.size();
+					const Eigen::VectorXd& pose = rbdModel->GetPose();
+					const Eigen::VectorXd& vel = rbdModel->GetVel();
+
+					Eigen::Map<Eigen::VectorXd> mKp((double*)clientCmd.m_sendDesiredStateCommandArgument.m_Kp, num_dof);
+					Eigen::Map<Eigen::VectorXd> mKd((double*)clientCmd.m_sendDesiredStateCommandArgument.m_Kd, num_dof);
+					Eigen::Map<Eigen::VectorXd> maxForce((double*)clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque, num_dof);
+
+					Eigen::DiagonalMatrix<double, Eigen::Dynamic> Kp_mat = mKp.asDiagonal();
+					Eigen::DiagonalMatrix<double, Eigen::Dynamic> Kd_mat = mKd.asDiagonal();
+
+					Eigen::MatrixXd M = rbdModel->GetMassMat();
+					//rbdModel->UpdateBiasForce();
+					const Eigen::VectorXd& C = rbdModel->GetBiasForce();
+					M.diagonal() += m_data->m_physicsDeltaTime * mKd;
+
+					Eigen::VectorXd pose_inc;
+					
+					const Eigen::MatrixXd& joint_mat = rbdModel->GetJointMat();
+					{
+						BT_PROFILE("cKinTree::VelToPoseDiff");
+						cKinTree::VelToPoseDiff(joint_mat, rbdModel->GetPose(), rbdModel->GetVel(), pose_inc);
+					}
+
+					//tar_pose needs to be reshuffled?
+					Eigen::VectorXd tar_pose, tar_vel;
+
+					{
+						BT_PROFILE("convertPose");
+							PhysicsServerCommandProcessorInternalData::convertPose(body->m_multiBody,
+							(double*)clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ,
+								(double*)clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot,
+								tar_pose, tar_vel);
+					}
+
+					pose_inc = pose+m_data->m_physicsDeltaTime * pose_inc;
+					
+					{
+						BT_PROFILE("cKinTree::PostProcessPose");
+						cKinTree::PostProcessPose(joint_mat, pose_inc);
+					}
+
+					Eigen::VectorXd pose_err;
+					{
+						BT_PROFILE("cKinTree::CalcVel");
+						cKinTree::CalcVel(joint_mat, pose_inc, tar_pose, 1, pose_err);
+					}
+					for (int i = 0; i < 7; i++)
+					{
+						pose_err[i] = 0;
+					}
+					
+					Eigen::VectorXd vel_err = tar_vel - vel;
+					Eigen::VectorXd acc;
+					
+					{
+						BT_PROFILE("acc");
+						acc = Kp_mat * pose_err + Kd_mat * vel_err - C;
+					}
+
+					{
+						BT_PROFILE("M.ldlt().solve");
+						acc = M.ldlt().solve(acc);
+					}
+					Eigen::VectorXd out_tau = Eigen::VectorXd::Zero(num_dof);
+					out_tau += Kp_mat * pose_err + Kd_mat * (vel_err - m_data->m_physicsDeltaTime * acc);
+					//clamp the forces
+					out_tau = out_tau.cwiseMax(-maxForce);
+					out_tau = out_tau.cwiseMin(maxForce);
+					//apply the forces
+					int torqueIndex = 7;
+					for (int link = 0; link < mb->getNumLinks(); link++)
+					{
+						int dofCount = mb->getLink(link).m_dofCount;
+						int dofOffset = mb->getLink(link).m_dofOffset;
+						if (dofCount == 3)
+						{
+							for (int dof = 0; dof < 3; dof++)
+							{
+								double torque = out_tau[torqueIndex+ dof];
+								mb->addJointTorqueMultiDof(link, dof, torque);
+							}
+							torqueIndex += 4;
+						}
+						if (dofCount == 1)
+						{
+							double torque = out_tau[torqueIndex];
+							mb->addJointTorqueMultiDof(link, 0, torque);
+							torqueIndex++;
+						}
+					}
+					
+					
+				}
+			
+				break;
+			}
+#endif
 			default:
 			{
 				b3Warning("m_controlMode not implemented yet");
@@ -9127,6 +9325,7 @@ bool PhysicsServerCommandProcessor::processConfigureOpenGLVisualizerCommand(cons
 	return hasStatus;
 }
 
+
 bool PhysicsServerCommandProcessor::processInverseDynamicsCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -9352,7 +9551,7 @@ bool PhysicsServerCommandProcessor::processCalculateMassMatrixCommand(const stru
 {
 	bool hasStatus = true;
 	BT_PROFILE("CMD_CALCULATE_MASS_MATRIX");
-
+	
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_CALCULATED_MASS_MATRIX_FAILED;
 	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_calculateMassMatrixArguments.m_bodyUniqueId);
@@ -9370,8 +9569,9 @@ bool PhysicsServerCommandProcessor::processCalculateMassMatrixCommand(const stru
 					&zeroVel[0]);
 				if (rbdModel)
 				{
-					Eigen::MatrixXd out_mass;
-					cRBDUtil::BuildMassMat(*rbdModel, out_mass);
+					//Eigen::MatrixXd out_mass;
+					//cRBDUtil::BuildMassMat(*rbdModel, out_mass);
+					const Eigen::MatrixXd& out_mass = rbdModel->GetMassMat();
 					int skipDofs = 0;// 7 - baseDofQ;
 					int totDofs = dof;
 					serverCmd.m_massMatrixResultArgs.m_dofCount = totDofs-skipDofs;
@@ -12564,6 +12764,8 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	b3Notification notification;
 	notification.m_notificationType = SIMULATION_RESET;
 	m_data->m_pluginManager.addNotification(notification);
+
+	
 }
 
 void PhysicsServerCommandProcessor::setTimeOut(double /*timeOutInSeconds*/)

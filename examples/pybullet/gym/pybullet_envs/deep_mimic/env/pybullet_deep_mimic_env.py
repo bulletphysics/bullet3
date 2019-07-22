@@ -52,7 +52,7 @@ class PyBulletDeepMimicEnv(Env):
       motionPath = pybullet_data.getDataPath() + "/" + motion_file[0]
       #motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_backflip.txt"
       self._mocapData.Load(motionPath)
-      timeStep = 1. / 600.
+      timeStep = 1. / 240.
       useFixedBase = False
       self._humanoid = humanoid_stable_pd.HumanoidStablePD(self._pybullet_client, self._mocapData,
                                                            timeStep, useFixedBase)
@@ -283,10 +283,16 @@ class PyBulletDeepMimicEnv(Env):
         ]
 
         if self._useStablePD:
-          taus = self._humanoid.computePDForces(self.desiredPose,
+          usePythonStablePD = False
+          if usePythonStablePD:
+            taus = self._humanoid.computePDForces(self.desiredPose,
                                                 desiredVelocities=None,
                                                 maxForces=maxForces)
-          self._humanoid.applyPDForces(taus)
+            #taus = [0]*43
+            self._humanoid.applyPDForces(taus)
+          else:
+            self._humanoid.computeAndApplyPDForces(self.desiredPose,
+                                                maxForces=maxForces)
         else:
           self._humanoid.setJointMotors(self.desiredPose, maxForces=maxForces)
 

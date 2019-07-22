@@ -152,58 +152,84 @@ class HumanoidStablePD(object):
     self.initializePose(self._poseInterpolator, self._kin_model, initBase=False)
 
   def initializePose(self, pose, phys_model, initBase, initializeVelocity=True):
-
+    
+    useArray = True
     if initializeVelocity:
       if initBase:
         self._pybullet_client.resetBasePositionAndOrientation(phys_model, pose._basePos,
                                                               pose._baseOrn)
         self._pybullet_client.resetBaseVelocity(phys_model, pose._baseLinVel, pose._baseAngVel)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, chest, pose._chestRot,
-                                                    pose._chestVel)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, neck, pose._neckRot, pose._neckVel)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, rightHip, pose._rightHipRot,
-                                                    pose._rightHipVel)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, rightKnee, pose._rightKneeRot,
-                                                    pose._rightKneeVel)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, rightAnkle, pose._rightAnkleRot,
-                                                    pose._rightAnkleVel)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, rightShoulder,
-                                                    pose._rightShoulderRot, pose._rightShoulderVel)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, rightElbow, pose._rightElbowRot,
-                                                    pose._rightElbowVel)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, leftHip, pose._leftHipRot,
-                                                    pose._leftHipVel)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, leftKnee, pose._leftKneeRot,
-                                                    pose._leftKneeVel)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, leftAnkle, pose._leftAnkleRot,
-                                                    pose._leftAnkleVel)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, leftShoulder,
-                                                    pose._leftShoulderRot, pose._leftShoulderVel)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, leftElbow, pose._leftElbowRot,
-                                                    pose._leftElbowVel)
+      if useArray:
+        indices = [chest,neck,rightHip,rightKnee,
+                  rightAnkle, rightShoulder, rightElbow,leftHip,
+                  leftKnee, leftAnkle, leftShoulder,leftElbow]
+        jointPositions = [pose._chestRot, pose._neckRot, pose._rightHipRot, pose._rightKneeRot,
+                          pose._rightAnkleRot, pose._rightShoulderRot, pose._rightElbowRot, pose._leftHipRot,
+                          pose._leftKneeRot, pose._leftAnkleRot, pose._leftShoulderRot, pose._leftElbowRot]
+        
+        jointVelocities = [pose._chestVel, pose._neckVel, pose._rightHipVel, pose._rightKneeVel,
+                          pose._rightAnkleVel, pose._rightShoulderVel, pose._rightElbowVel, pose._leftHipVel,
+                          pose._leftKneeVel, pose._leftAnkleVel, pose._leftShoulderVel, pose._leftElbowVel]
+        self._pybullet_client.resetJointStatesMultiDof(phys_model, indices,
+                                                    jointPositions, jointVelocities)
+      else:
+        self._pybullet_client.resetJointStateMultiDof(phys_model, chest, pose._chestRot,
+                                                      pose._chestVel)
+        self._pybullet_client.resetJointStateMultiDof(phys_model, neck, pose._neckRot, pose._neckVel)
+        self._pybullet_client.resetJointStateMultiDof(phys_model, rightHip, pose._rightHipRot,
+                                                      pose._rightHipVel)
+        self._pybullet_client.resetJointStateMultiDof(phys_model, rightKnee, pose._rightKneeRot,
+                                                      pose._rightKneeVel)
+        self._pybullet_client.resetJointStateMultiDof(phys_model, rightAnkle, pose._rightAnkleRot,
+                                                      pose._rightAnkleVel)
+        self._pybullet_client.resetJointStateMultiDof(phys_model, rightShoulder,
+                                                      pose._rightShoulderRot, pose._rightShoulderVel)
+        self._pybullet_client.resetJointStateMultiDof(phys_model, rightElbow, pose._rightElbowRot,
+                                                      pose._rightElbowVel)
+        self._pybullet_client.resetJointStateMultiDof(phys_model, leftHip, pose._leftHipRot,
+                                                      pose._leftHipVel)
+        self._pybullet_client.resetJointStateMultiDof(phys_model, leftKnee, pose._leftKneeRot,
+                                                      pose._leftKneeVel)
+        self._pybullet_client.resetJointStateMultiDof(phys_model, leftAnkle, pose._leftAnkleRot,
+                                                      pose._leftAnkleVel)
+        self._pybullet_client.resetJointStateMultiDof(phys_model, leftShoulder,
+                                                      pose._leftShoulderRot, pose._leftShoulderVel)
+        self._pybullet_client.resetJointStateMultiDof(phys_model, leftElbow, pose._leftElbowRot,
+                                                      pose._leftElbowVel)
     else:
+      
       if initBase:
         self._pybullet_client.resetBasePositionAndOrientation(phys_model, pose._basePos,
                                                               pose._baseOrn)
-      self._pybullet_client.resetJointStateMultiDof(phys_model, chest, pose._chestRot, [0, 0, 0])
-      self._pybullet_client.resetJointStateMultiDof(phys_model, neck, pose._neckRot, [0, 0, 0])
-      self._pybullet_client.resetJointStateMultiDof(phys_model, rightHip, pose._rightHipRot,
-                                                    [0, 0, 0])
-      self._pybullet_client.resetJointStateMultiDof(phys_model, rightKnee, pose._rightKneeRot, [0])
-      self._pybullet_client.resetJointStateMultiDof(phys_model, rightAnkle, pose._rightAnkleRot,
-                                                    [0, 0, 0])
-      self._pybullet_client.resetJointStateMultiDof(phys_model, rightShoulder,
-                                                    pose._rightShoulderRot, [0, 0, 0])
-      self._pybullet_client.resetJointStateMultiDof(phys_model, rightElbow, pose._rightElbowRot,
-                                                    [0])
-      self._pybullet_client.resetJointStateMultiDof(phys_model, leftHip, pose._leftHipRot,
-                                                    [0, 0, 0])
-      self._pybullet_client.resetJointStateMultiDof(phys_model, leftKnee, pose._leftKneeRot, [0])
-      self._pybullet_client.resetJointStateMultiDof(phys_model, leftAnkle, pose._leftAnkleRot,
-                                                    [0, 0, 0])
-      self._pybullet_client.resetJointStateMultiDof(phys_model, leftShoulder,
-                                                    pose._leftShoulderRot, [0, 0, 0])
-      self._pybullet_client.resetJointStateMultiDof(phys_model, leftElbow, pose._leftElbowRot, [0])
+      if useArray:
+        indices = [chest,neck,rightHip,rightKnee,
+                  rightAnkle, rightShoulder, rightElbow,leftHip,
+                  leftKnee, leftAnkle, leftShoulder,leftElbow]
+        jointPositions = [pose._chestRot, pose._neckRot, pose._rightHipRot, pose._rightKneeRot,
+                          pose._rightAnkleRot, pose._rightShoulderRot, pose._rightElbowRot, pose._leftHipRot,
+                          pose._leftKneeRot, pose._leftAnkleRot, pose._leftShoulderRot, pose._leftElbowRot]
+        self._pybullet_client.resetJointStatesMultiDof(phys_model, indices,jointPositions)
+        
+      else:
+        self._pybullet_client.resetJointStateMultiDof(phys_model, chest, pose._chestRot, [0, 0, 0])
+        self._pybullet_client.resetJointStateMultiDof(phys_model, neck, pose._neckRot, [0, 0, 0])
+        self._pybullet_client.resetJointStateMultiDof(phys_model, rightHip, pose._rightHipRot,
+                                                      [0, 0, 0])
+        self._pybullet_client.resetJointStateMultiDof(phys_model, rightKnee, pose._rightKneeRot, [0])
+        self._pybullet_client.resetJointStateMultiDof(phys_model, rightAnkle, pose._rightAnkleRot,
+                                                      [0, 0, 0])
+        self._pybullet_client.resetJointStateMultiDof(phys_model, rightShoulder,
+                                                      pose._rightShoulderRot, [0, 0, 0])
+        self._pybullet_client.resetJointStateMultiDof(phys_model, rightElbow, pose._rightElbowRot,
+                                                      [0])
+        self._pybullet_client.resetJointStateMultiDof(phys_model, leftHip, pose._leftHipRot,
+                                                      [0, 0, 0])
+        self._pybullet_client.resetJointStateMultiDof(phys_model, leftKnee, pose._leftKneeRot, [0])
+        self._pybullet_client.resetJointStateMultiDof(phys_model, leftAnkle, pose._leftAnkleRot,
+                                                      [0, 0, 0])
+        self._pybullet_client.resetJointStateMultiDof(phys_model, leftShoulder,
+                                                      pose._leftShoulderRot, [0, 0, 0])
+        self._pybullet_client.resetJointStateMultiDof(phys_model, leftElbow, pose._leftElbowRot, [0])
 
   def calcCycleCount(self, simTime, cycleTime):
     phases = simTime / cycleTime
@@ -275,6 +301,57 @@ class HumanoidStablePD(object):
     pose = self._poseInterpolator.ConvertFromAction(self._pybullet_client, action)
     return pose
 
+  def computeAndApplyPDForces(self, desiredPositions, maxForces):
+    dofIndex = 7
+    scaling = 1
+    indices = []
+    forces = []
+    targetPositions=[]
+    targetVelocities=[]
+    kps = []
+    kds = []
+    
+    for index in range(len(self._jointIndicesAll)):
+      jointIndex = self._jointIndicesAll[index]
+      indices.append(jointIndex)
+      kps.append(self._kpOrg[dofIndex])
+      kds.append(self._kdOrg[dofIndex])
+      if self._jointDofCounts[index] == 4:
+        force = [
+            scaling * maxForces[dofIndex + 0],
+            scaling * maxForces[dofIndex + 1],
+            scaling * maxForces[dofIndex + 2]
+        ]
+        targetVelocity = [0,0,0]
+        targetPosition = [
+            desiredPositions[dofIndex + 0],
+            desiredPositions[dofIndex + 1],
+            desiredPositions[dofIndex + 2],
+            desiredPositions[dofIndex + 3]
+        ]
+      if self._jointDofCounts[index] == 1:
+        force = [scaling * maxForces[dofIndex]]
+        targetPosition = [desiredPositions[dofIndex+0]]
+        targetVelocity = [0]
+      forces.append(force)
+      targetPositions.append(targetPosition)
+      targetVelocities.append(targetVelocity)
+      dofIndex += self._jointDofCounts[index]
+      
+    #static char* kwlist[] = { "bodyUniqueId", 
+    #"jointIndices", 
+    #"controlMode", "targetPositions", "targetVelocities", "forces", "positionGains", "velocityGains", "maxVelocities", "physicsClientId", NULL };
+	
+    self._pybullet_client.setJointMotorControlMultiDofArray(self._sim_model,
+                                                           indices,
+                                                           self._pybullet_client.STABLE_PD_CONTROL,
+                                                           targetPositions = targetPositions,
+                                                           targetVelocities = targetVelocities,
+                                                           forces=forces,
+                                                           positionGains = kps,
+                                                           velocityGains = kds,
+                                                           )
+
   def computePDForces(self, desiredPositions, desiredVelocities, maxForces):
     if desiredVelocities == None:
       desiredVelocities = [0] * self._totalDofs
@@ -292,27 +369,50 @@ class HumanoidStablePD(object):
   def applyPDForces(self, taus):
     dofIndex = 7
     scaling = 1
-    for index in range(len(self._jointIndicesAll)):
-      jointIndex = self._jointIndicesAll[index]
-      if self._jointDofCounts[index] == 4:
-        force = [
-            scaling * taus[dofIndex + 0], scaling * taus[dofIndex + 1],
-            scaling * taus[dofIndex + 2]
-        ]
-        #print("force[", jointIndex,"]=",force)
-        self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,
-                                                           jointIndex,
-                                                           self._pybullet_client.TORQUE_CONTROL,
-                                                           force=force)
-      if self._jointDofCounts[index] == 1:
-        force = [scaling * taus[dofIndex]]
-        #print("force[", jointIndex,"]=",force)
-        self._pybullet_client.setJointMotorControlMultiDof(
-            self._sim_model,
-            jointIndex,
-            controlMode=self._pybullet_client.TORQUE_CONTROL,
-            force=force)
-      dofIndex += self._jointDofCounts[index]
+    useArray = True
+    indices = []
+    forces = []
+    
+    if (useArray):
+      for index in range(len(self._jointIndicesAll)):
+        jointIndex = self._jointIndicesAll[index]
+        indices.append(jointIndex)
+        if self._jointDofCounts[index] == 4:
+          force = [
+              scaling * taus[dofIndex + 0], scaling * taus[dofIndex + 1],
+              scaling * taus[dofIndex + 2]
+          ]
+        if self._jointDofCounts[index] == 1:
+          force = [scaling * taus[dofIndex]]
+          #print("force[", jointIndex,"]=",force)
+        forces.append(force)
+        dofIndex += self._jointDofCounts[index]
+      self._pybullet_client.setJointMotorControlMultiDofArray(self._sim_model,
+                                                             indices,
+                                                             self._pybullet_client.TORQUE_CONTROL,
+                                                             forces=forces)
+    else:
+      for index in range(len(self._jointIndicesAll)):
+        jointIndex = self._jointIndicesAll[index]
+        if self._jointDofCounts[index] == 4:
+          force = [
+              scaling * taus[dofIndex + 0], scaling * taus[dofIndex + 1],
+              scaling * taus[dofIndex + 2]
+          ]
+          #print("force[", jointIndex,"]=",force)
+          self._pybullet_client.setJointMotorControlMultiDof(self._sim_model,
+                                                             jointIndex,
+                                                             self._pybullet_client.TORQUE_CONTROL,
+                                                             force=force)
+        if self._jointDofCounts[index] == 1:
+          force = [scaling * taus[dofIndex]]
+          #print("force[", jointIndex,"]=",force)
+          self._pybullet_client.setJointMotorControlMultiDof(
+              self._sim_model,
+              jointIndex,
+              controlMode=self._pybullet_client.TORQUE_CONTROL,
+              force=force)
+        dofIndex += self._jointDofCounts[index]
 
   def setJointMotors(self, desiredPositions, maxForces):
     controlMode = self._pybullet_client.POSITION_CONTROL
@@ -531,10 +631,17 @@ class HumanoidStablePD(object):
     #self.pb2dmJoints=[0,1,2,9,10,11,3,4,5,12,13,14,6,7,8]
     self.pb2dmJoints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 
+    linkIndicesSim = []
+    for pbJoint in range(self._pybullet_client.getNumJoints(self._sim_model)):
+      linkIndicesSim.append(self.pb2dmJoints[pbJoint])
+      
+    linkStatesSim = self._pybullet_client.getLinkStates(self._sim_model, linkIndicesSim, computeForwardKinematics=True, computeLinkVelocity=True)
+    
     for pbJoint in range(self._pybullet_client.getNumJoints(self._sim_model)):
       j = self.pb2dmJoints[pbJoint]
       #print("joint order:",j)
-      ls = self._pybullet_client.getLinkState(self._sim_model, j, computeForwardKinematics=True)
+      #ls = self._pybullet_client.getLinkState(self._sim_model, j, computeForwardKinematics=True)
+      ls = linkStatesSim[pbJoint]
       linkPos = ls[0]
       linkOrn = ls[1]
       linkPosLocal, linkOrnLocal = self._pybullet_client.multiplyTransforms(
@@ -560,9 +667,12 @@ class HumanoidStablePD(object):
       stateVector.append(linkOrnLocal[1])
       stateVector.append(linkOrnLocal[2])
 
+       
     for pbJoint in range(self._pybullet_client.getNumJoints(self._sim_model)):
       j = self.pb2dmJoints[pbJoint]
-      ls = self._pybullet_client.getLinkState(self._sim_model, j, computeLinkVelocity=True)
+      #ls = self._pybullet_client.getLinkState(self._sim_model, j, computeLinkVelocity=True)
+      ls = linkStatesSim[pbJoint]
+      
       linkLinVel = ls[6]
       linkAngVel = ls[7]
       linkLinVelLocal, unused = self._pybullet_client.multiplyTransforms([0, 0, 0], rootTransOrn,
@@ -706,16 +816,27 @@ class HumanoidStablePD(object):
     root_ang_vel_err = self.calcRootAngVelErr(angVelSim, angVelKin)
     vel_err += root_rot_w * root_ang_vel_err
 
+    useArray = True
+    
+    if useArray:
+      jointIndices = range(num_joints)
+      simJointStates = self._pybullet_client.getJointStatesMultiDof(self._sim_model, jointIndices)
+      kinJointStates = self._pybullet_client.getJointStatesMultiDof(self._kin_model, jointIndices)
     for j in range(num_joints):
       curr_pose_err = 0
       curr_vel_err = 0
       w = mJointWeights[j]
-
-      simJointInfo = self._pybullet_client.getJointStateMultiDof(self._sim_model, j)
+      if useArray:
+        simJointInfo = simJointStates[j]
+      else:
+        simJointInfo = self._pybullet_client.getJointStateMultiDof(self._sim_model, j)
 
       #print("simJointInfo.pos=",simJointInfo[0])
       #print("simJointInfo.vel=",simJointInfo[1])
-      kinJointInfo = self._pybullet_client.getJointStateMultiDof(self._kin_model, j)
+      if useArray:
+        kinJointInfo = kinJointStates[j]
+      else:
+        kinJointInfo = self._pybullet_client.getJointStateMultiDof(self._kin_model, j)
       #print("kinJointInfo.pos=",kinJointInfo[0])
       #print("kinJointInfo.vel=",kinJointInfo[1])
       if (len(simJointInfo[0]) == 1):
