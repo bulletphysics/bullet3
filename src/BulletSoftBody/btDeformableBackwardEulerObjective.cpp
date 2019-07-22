@@ -1,26 +1,26 @@
 //
-//  btBackwardEulerObjective.cpp
+//  btDeformableBackwardEulerObjective.cpp
 //  BulletSoftBody
 //
 //  Created by Xuchen Han on 7/9/19.
 //
 
-#include "btBackwardEulerObjective.h"
+#include "btDeformableBackwardEulerObjective.h"
 
-btBackwardEulerObjective::btBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
-: cg(10)
-, m_softBodies(softBodies)
+btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
+: m_softBodies(softBodies)
 , projection(m_softBodies, m_dt)
 , m_backupVelocity(backup_v)
 {
     // TODO: this should really be specified in initialization instead of here
-    btMassSpring* mass_spring = new btMassSpring(m_softBodies);
-//    m_preconditioner = new MassPreconditioner(m_softBodies);
+    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(m_softBodies);
+    btDeformableGravityForce* gravity = new btDeformableGravityForce(m_softBodies, btVector3(0,-10,0));
     m_preconditioner = new DefaultPreconditioner();
     m_lf.push_back(mass_spring);
+    m_lf.push_back(gravity);
 }
 
-void btBackwardEulerObjective::reinitialize(bool nodeUpdated)
+void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated)
 {
     if(nodeUpdated)
     {
@@ -34,8 +34,12 @@ void btBackwardEulerObjective::reinitialize(bool nodeUpdated)
     m_preconditioner->reinitialize(nodeUpdated);
 }
 
+void btDeformableBackwardEulerObjective::setDt(btScalar dt)
+{
+    m_dt = dt;
+}
 
-void btBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) const
+void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) const
 {
     for (int i = 0; i < b.size(); ++i)
         b[i].setZero();
@@ -56,18 +60,11 @@ void btBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) const
     for (int i = 0; i < m_lf.size(); ++i)
     {
         // add damping matrix
-        m_lf[i]->addScaledDampingForceDifferential(-m_dt, x, b);
+        m_lf[i]->addScaledForceDifferential(-m_dt, x, b);
     }
 }
 
-void btBackwardEulerObjective::computeStep(TVStack& dv, const TVStack& residual, const btScalar& dt)
-{
-    m_dt = dt;
-    btScalar tolerance = std::numeric_limits<float>::epsilon()* 1024 * computeNorm(residual);
-    cg.solve(*this, dv, residual, tolerance);
-}
-
-void btBackwardEulerObjective::updateVelocity(const TVStack& dv)
+void btDeformableBackwardEulerObjective::updateVelocity(const TVStack& dv)
 {
     // only the velocity of the constrained nodes needs to be updated during CG solve
     for (auto it : projection.m_constraints)
@@ -77,7 +74,7 @@ void btBackwardEulerObjective::updateVelocity(const TVStack& dv)
     }
 }
 
-void btBackwardEulerObjective::applyForce(TVStack& force, bool setZero)
+void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero)
 {
     size_t counter = 0;
     for (int i = 0; i < m_softBodies.size(); ++i)
@@ -96,7 +93,7 @@ void btBackwardEulerObjective::applyForce(TVStack& force, bool setZero)
     }
 }
 
-void btBackwardEulerObjective::computeResidual(btScalar dt, TVStack &residual) const
+void btDeformableBackwardEulerObjective::computeResidual(btScalar dt, TVStack &residual) const
 {
     // add implicit force
     for (int i = 0; i < m_lf.size(); ++i)
@@ -105,7 +102,7 @@ void btBackwardEulerObjective::computeResidual(btScalar dt, TVStack &residual) c
     }
 }
 
-btScalar btBackwardEulerObjective::computeNorm(const TVStack& residual) const
+btScalar btDeformableBackwardEulerObjective::computeNorm(const TVStack& residual) const
 {
     btScalar norm_squared = 0;
     for (int i = 0; i < residual.size(); ++i)
@@ -115,14 +112,14 @@ btScalar btBackwardEulerObjective::computeNorm(const TVStack& residual) const
     return std::sqrt(norm_squared+SIMD_EPSILON);
 }
 
-void btBackwardEulerObjective::applyExplicitForce(TVStack& force)
+void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
 {
     for (int i = 0; i < m_lf.size(); ++i)
         m_lf[i]->addScaledExplicitForce(m_dt, force);
     applyForce(force, true);
 }
 
-void btBackwardEulerObjective::initialGuess(TVStack& dv, const TVStack& residual)
+void btDeformableBackwardEulerObjective::initialGuess(TVStack& dv, const TVStack& residual)
 {
     size_t counter = 0;
     for (int i = 0; i < m_softBodies.size(); ++i)

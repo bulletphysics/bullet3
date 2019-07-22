@@ -1782,7 +1782,7 @@ void btSoftBody::predictMotion(btScalar dt)
 	m_sst.radmrg = getCollisionShape()->getMargin();
 	m_sst.updmrg = m_sst.radmrg * (btScalar)0.25;
 	/* Forces				*/
-    addVelocity(m_worldInfo->m_gravity * m_sst.sdt);
+//    addVelocity(m_worldInfo->m_gravity * m_sst.sdt);
 	applyForces();
 	/* Integrate			*/
 	for (i = 0, ni = m_nodes.size(); i < ni; ++i)
@@ -1806,7 +1806,7 @@ void btSoftBody::predictMotion(btScalar dt)
 			}
 		}
         n.m_v += deltaV;
-		n.m_x += n.m_v * m_sst.sdt;
+        n.m_x += n.m_v * m_sst.sdt;
 		n.m_f = btVector3(0, 0, 0);
 	}
 	/* Clusters				*/
@@ -2270,10 +2270,11 @@ bool btSoftBody::checkContact(const btCollisionObjectWrapper* colObjWrap,
 {
 	btVector3 nrm;
 	const btCollisionShape* shp = colObjWrap->getCollisionShape();
-	//	const btRigidBody *tmpRigid = btRigidBody::upcast(colObjWrap->getCollisionObject());
-	//const btTransform &wtr = tmpRigid ? tmpRigid->getWorldTransform() : colObjWrap->getWorldTransform();
-	const btTransform& wtr = colObjWrap->getWorldTransform();
-	//todo: check which transform is needed here
+        const btRigidBody *tmpRigid = btRigidBody::upcast(colObjWrap->getCollisionObject());
+    
+    // get the position x_{n+1}^* = x_n + dt * v_{n+1}^* where v_{n+1}^* = v_n + dtg
+    const btTransform &wtr = tmpRigid ? tmpRigid->getInterpolationWorldTransform() : colObjWrap->getWorldTransform();
+    // TODO: get the correct transform for multibody
 
 	btScalar dst =
 		m_worldInfo->m_sparsesdf.Evaluate(
