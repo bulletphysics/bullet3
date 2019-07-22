@@ -2849,6 +2849,12 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	delete m_data->m_collisionConfiguration;
 	m_data->m_collisionConfiguration = 0;
 	m_data->m_userConstraintUIDGenerator = 1;
+
+	for (int i = 0; i < m_data->m_rbdModels.size(); i++)
+	{
+		delete *(m_data->m_rbdModels.getAtIndex(i));
+	}
+	m_data->m_rbdModels.clear();
 }
 
 bool PhysicsServerCommandProcessor::supportsJointMotor(btMultiBody* mb, int mbLinkIndex)
@@ -12757,6 +12763,8 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	b3Notification notification;
 	notification.m_notificationType = SIMULATION_RESET;
 	m_data->m_pluginManager.addNotification(notification);
+
+	
 }
 
 void PhysicsServerCommandProcessor::setTimeOut(double /*timeOutInSeconds*/)
