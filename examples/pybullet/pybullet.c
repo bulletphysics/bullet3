@@ -4301,6 +4301,8 @@ static PyObject* pybullet_resetJointStatesMultiDof(PyObject* self, PyObject* arg
 				)
 			{
 				Py_DECREF(jointIndicesSeq);
+				PyErr_SetString(SpamError, "Number of targetValues and targetVelocities needs to match number of indices.");
+				return NULL;
 			}
 			
 			
@@ -4313,6 +4315,10 @@ static PyObject* pybullet_resetJointStatesMultiDof(PyObject* self, PyObject* arg
 				int jointIndex = pybullet_internalGetIntFromSequence(jointIndicesSeq, i);
 				if ((jointIndex >= numJoints) || (jointIndex < 0))
 				{
+					if (targetPositionsSeq)
+						Py_DECREF(targetPositionsSeq);
+					if (targetVelocitiesSeq)
+						Py_DECREF(targetVelocitiesSeq);
 					Py_DECREF(jointIndicesSeq);
 					PyErr_SetString(SpamError, "Joint index out-of-range.");
 					return NULL;
@@ -4389,6 +4395,11 @@ static PyObject* pybullet_resetJointStatesMultiDof(PyObject* self, PyObject* arg
 
 				if (targetPositionSize == 0 && targetVelocitySize == 0)
 				{
+					if (targetPositionsSeq)
+						Py_DECREF(targetPositionsSeq);
+					if (targetVelocitiesSeq)
+						Py_DECREF(targetVelocitiesSeq);
+					Py_DECREF(jointIndicesSeq);
 					PyErr_SetString(SpamError, "Expected an position and/or velocity list.");
 					return NULL;
 				}
@@ -4405,8 +4416,14 @@ static PyObject* pybullet_resetJointStatesMultiDof(PyObject* self, PyObject* arg
 					}
 				}
 			}
-			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+
+			if (targetPositionsSeq)
+				Py_DECREF(targetPositionsSeq);
+			if (targetVelocitiesSeq)
+				Py_DECREF(targetVelocitiesSeq);
 			Py_DECREF(jointIndicesSeq);
+			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+			
 		}
 	}
 	Py_INCREF(Py_None);
