@@ -1,20 +1,20 @@
 //
-//  btMassSpring.h
+//  btDeformableMassSpringForce.h
 //  BulletSoftBody
 //
-//  Created by Chuyuan Fu on 7/1/19.
+//  Created by Xuchen Gan on 7/1/19.
 //
 
 #ifndef BT_MASS_SPRING_H
 #define BT_MASS_SPRING_H
 
-#include "btLagrangianForce.h"
+#include "btDeformableLagrangianForce.h"
 
-class btMassSpring : public btLagrangianForce
+class btDeformableMassSpringForce : public btDeformableLagrangianForce
 {
 public:
-    using TVStack = btLagrangianForce::TVStack;
-    btMassSpring(const btAlignedObjectArray<btSoftBody *>& softBodies) : btLagrangianForce(softBodies)
+    using TVStack = btDeformableLagrangianForce::TVStack;
+    btDeformableMassSpringForce(const btAlignedObjectArray<btSoftBody *>& softBodies) : btDeformableLagrangianForce(softBodies)
     {
         
     }
@@ -72,10 +72,6 @@ public:
                 size_t id2 = m_indices[node2];
                 
                 // elastic force
-                
-                // fully implicit
-//                btVector3 dir = (node2->m_x - node1->m_x);
-                
                 // explicit elastic force
                 btVector3 dir = (node2->m_q - node1->m_q);
                 btVector3 dir_normalized = dir.normalized();
@@ -86,33 +82,7 @@ public:
         }
     }
     
-    virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
-    {
-        int numNodes = getNumNodes();
-        btAssert(numNodes == dx.size());
-        btAssert(numNodes == df.size());
-        
-        // implicit elastic force differential
-        for (int i = 0; i < m_softBodies.size(); ++i)
-        {
-            const btSoftBody* psb = m_softBodies[i];
-            for (int j = 0; j < psb->m_links.size(); ++j)
-            {
-                const auto& link = psb->m_links[j];
-                const auto node1 = link.m_n[0];
-                const auto node2 = link.m_n[1];
-                btScalar kLST = link.Feature::m_material->m_kLST;
-                size_t id1 = m_indices[node1];
-                size_t id2 = m_indices[node2];
-                btVector3 local_scaled_df = scale * kLST * (dx[id2] - dx[id1]);
-                df[id1] += local_scaled_df;
-                df[id2] -= local_scaled_df;
-            }
-        }
-    }
-    
-    
-    virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
+    virtual void addScaledForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
     {
         // implicit damping force differential
         for (int i = 0; i < m_softBodies.size(); ++i)
@@ -131,16 +101,6 @@ public:
                 df[id2] -= local_scaled_df;
             }
         }
-    }
-    
-    int getNumNodes()
-    {
-        int numNodes = 0;
-        for (int i = 0; i < m_softBodies.size(); ++i)
-        {
-            numNodes += m_softBodies[i]->m_nodes.size();
-        }
-        return numNodes;
     }
 };
 

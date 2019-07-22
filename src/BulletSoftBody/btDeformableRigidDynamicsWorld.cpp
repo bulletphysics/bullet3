@@ -12,85 +12,76 @@
 
 void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
-    m_internalTime += timeStep;
-    // Let the solver grab the soft bodies and if necessary optimize for it
-    m_deformableBodySolver->optimize(m_softBodies);
+    reinitialize(timeStep);
     
-    if (!m_deformableBodySolver->checkInitialized())
-    {
-        btAssert("Solver initialization failed\n");
-    }
-
-    // from btDiscreteDynamicsWorld singleStepSimulation
-    if (0 != m_internalPreTickCallback)
-    {
-        (*m_internalPreTickCallback)(this, timeStep);
-    }
+    // add gravity to velocity of rigid and multi bodys
+    applyRigidBodyGravity(timeStep);
     
-    ///apply gravity, predict motion
+    ///apply gravity and explicit force to velocity, predict motion
     predictUnconstraintMotion(timeStep);
-    
-    btDispatcherInfo& dispatchInfo = btMultiBodyDynamicsWorld::getDispatchInfo();
-    
-    dispatchInfo.m_timeStep = timeStep;
-    dispatchInfo.m_stepCount = 0;
-    dispatchInfo.m_debugDraw = btMultiBodyDynamicsWorld::getDebugDrawer();
-    
-    // only used in CCD
-//    createPredictiveContacts(timeStep);
     
     ///perform collision detection
     btMultiBodyDynamicsWorld::performDiscreteCollisionDetection();
     
     btMultiBodyDynamicsWorld::calculateSimulationIslands();
     
-    btMultiBodyDynamicsWorld::getSolverInfo().m_timeStep = timeStep;
-
-    if (0 != m_internalTickCallback)
-    {
-        (*m_internalTickCallback)(this, timeStep);
-    }
+    beforeSolverCallbacks(timeStep);
     
-    // TODO: This is an ugly hack to get the desired gravity behavior.
-    // gravity is applied in stepSimulation and then cleared here and then applied here and then cleared here again
-    // so that 1) gravity is applied to velocity before constraint solve and 2) gravity is applied in each substep
-    // when there are multiple substeps
-    clearForces();
-    clearMultiBodyForces();
-    btMultiBodyDynamicsWorld::applyGravity();
-    // integrate rigid body gravity
-    for (int i = 0; i < m_nonStaticRigidBodies.size(); ++i)
-    {
-        btRigidBody* rb = m_nonStaticRigidBodies[i];
-        rb->integrateVelocities(timeStep);
-    }
-    // integrate multibody gravity
-    btMultiBodyDynamicsWorld::solveExternalForces(btMultiBodyDynamicsWorld::getSolverInfo());
-    clearForces();
-    clearMultiBodyForces();
-    
-    
-    for (int i = 0; i < before_solver_callbacks.size(); ++i)
-        before_solver_callbacks[i](m_internalTime, this);
     ///solve deformable bodies constraints
     solveDeformableBodiesConstraints(timeStep);
-
     
+    positionCorrection();
     
-    //integrate transforms
-    btMultiBodyDynamicsWorld::integrateTransforms(timeStep);
+    integrateTransforms(timeStep);
     
     ///update vehicle simulation
     btMultiBodyDynamicsWorld::updateActions(timeStep);
     
     btMultiBodyDynamicsWorld::updateActivationState(timeStep);
-    
-    ///update soft bodies
-    m_deformableBodySolver->updateSoftBodies();
-
-    clearForces();
     // End solver-wise simulation step
     // ///////////////////////////////
+}
+
+void btDeformableRigidDynamicsWorld::positionCorrection()
+{
+    // perform position correction for all geometric collisions
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodies[i];
+        const btScalar mrg = psb->getCollisionShape()->getMargin();
+        for (int j = 0; j < psb->m_rcontacts.size(); ++j)
+        {
+            const btSoftBody::RContact& c = psb->m_rcontacts[j];
+            // skip anchor points
+            if (c.m_node->m_im == 0)
+                continue;
+            
+            const btSoftBody::sCti& cti = c.m_cti;
+            if (cti.m_colObj->hasContactResponse())
+            {
+                btScalar dp = btMin((btDot(c.m_node->m_x, cti.m_normal) + cti.m_offset), mrg);
+                if (dp < 0)
+                {
+                    // m_c4 is the collision hardness
+                    c.m_node->m_q -= dp * cti.m_normal * c.m_c4;
+                }
+            }
+        }
+    }
+}
+
+void btDeformableRigidDynamicsWorld::integrateTransforms(btScalar dt)
+{
+    btMultiBodyDynamicsWorld::integrateTransforms(dt);
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodies[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            auto& node = psb->m_nodes[j];
+            node.m_x  =  node.m_q + dt * node.m_v;
+        }
+    }
 }
 
 void btDeformableRigidDynamicsWorld::solveDeformableBodiesConstraints(btScalar timeStep)
@@ -117,4 +108,45 @@ void btDeformableRigidDynamicsWorld::predictUnconstraintMotion(btScalar timeStep
     m_deformableBodySolver->predictMotion(float(timeStep));
 }
 
+void btDeformableRigidDynamicsWorld::reinitialize(btScalar timeStep)
+{
+    m_internalTime += timeStep;
+    m_deformableBodySolver->reinitialize(m_softBodies);
+    btDispatcherInfo& dispatchInfo = btMultiBodyDynamicsWorld::getDispatchInfo();
+    dispatchInfo.m_timeStep = timeStep;
+    dispatchInfo.m_stepCount = 0;
+    dispatchInfo.m_debugDraw = btMultiBodyDynamicsWorld::getDebugDrawer();
+    btMultiBodyDynamicsWorld::getSolverInfo().m_timeStep = timeStep;
+}
 
+void btDeformableRigidDynamicsWorld::applyRigidBodyGravity(btScalar timeStep)
+{
+    // TODO: This is an ugly hack to get the desired gravity behavior.
+    // gravity is applied in stepSimulation and then cleared here and then applied here and then cleared here again
+    // so that 1) gravity is applied to velocity before constraint solve and 2) gravity is applied in each substep
+    // when there are multiple substeps
+    clearForces();
+    clearMultiBodyForces();
+    btMultiBodyDynamicsWorld::applyGravity();
+    // integrate rigid body gravity
+    for (int i = 0; i < m_nonStaticRigidBodies.size(); ++i)
+    {
+        btRigidBody* rb = m_nonStaticRigidBodies[i];
+        rb->integrateVelocities(timeStep);
+    }
+    // integrate multibody gravity
+    btMultiBodyDynamicsWorld::solveExternalForces(btMultiBodyDynamicsWorld::getSolverInfo());
+    clearForces();
+    clearMultiBodyForces();
+}
+
+void btDeformableRigidDynamicsWorld::beforeSolverCallbacks(btScalar timeStep)
+{
+    if (0 != m_internalTickCallback)
+    {
+        (*m_internalTickCallback)(this, timeStep);
+    }
+    
+    for (int i = 0; i < m_beforeSolverCallbacks.size(); ++i)
+        m_beforeSolverCallbacks[i](m_internalTime, this);
+}

@@ -229,6 +229,16 @@ public:
 	{
 		return m_latencyMotionStateInterpolation;
 	}
+    
+    btAlignedObjectArray<btRigidBody*>& getNonStaticRigidBodies()
+    {
+        return m_nonStaticRigidBodies;
+    }
+    
+    const btAlignedObjectArray<btRigidBody*>& getNonStaticRigidBodies() const
+    {
+        return m_nonStaticRigidBodies;
+    }
 };
 
 #endif  //BT_DISCRETE_DYNAMICS_WORLD_H

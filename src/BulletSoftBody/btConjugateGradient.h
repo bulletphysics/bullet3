@@ -36,7 +36,7 @@ public:
         // r = b - A * x --with assigned dof zeroed out
         A.multiply(x, temp);
         r = sub(b, temp);
-        A.project(r,x);
+        A.project(r);
         A.enforceConstraint(x);
         
         btScalar r_norm = std::sqrt(squaredNorm(r));
@@ -62,7 +62,7 @@ public:
             multAndAddTo(alpha, p, x);
             multAndAddTo(-alpha, temp, r);
             // zero out the dofs of r
-            A.project(r,x);
+            A.project(r);
             A.enforceConstraint(x);
             r_norm = std::sqrt(squaredNorm(r));
             

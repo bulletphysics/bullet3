@@ -9,8 +9,9 @@
 #define BT_BACKWARD_EULER_OBJECTIVE_H
 #include <functional>
 #include "btConjugateGradient.h"
-#include "btLagrangianForce.h"
-#include "btMassSpring.h"
+#include "btDeformableLagrangianForce.h"
+#include "btDeformableMassSpringForce.h"
+#include "btDeformableGravityForce.h"
 #include "btDeformableContactProjection.h"
 #include "btPreconditioner.h"
 #include "btDeformableRigidDynamicsWorld.h"
@@ -22,7 +23,7 @@ public:
     using TVStack = btAlignedObjectArray<btVector3>;
     btScalar m_dt;
     btDeformableRigidDynamicsWorld* m_world;
-    btAlignedObjectArray<btLagrangianForce*> m_lf;
+    btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
     Preconditioner* m_preconditioner;
     btDeformableContactProjection projection;
@@ -80,7 +81,6 @@ public:
     void project(TVStack& r)
     {
         projection.update();
-        // TODO rename
         projection.project(r);
     }
     
