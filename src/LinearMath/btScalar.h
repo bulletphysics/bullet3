@@ -63,7 +63,12 @@ inline int btGetVersion()
 #endif
 
 #ifdef _WIN32
-	#if defined(__MINGW32__) || defined(__CYGWIN__) || (defined (_MSC_VER) && _MSC_VER < 1300)
+	#if  defined(__GNUC__)	// it should handle both MINGW and CYGWIN
+        	#define SIMD_FORCE_INLINE        __inline__ __attribute__((always_inline))
+        	#define ATTRIBUTE_ALIGNED16(a)   a __attribute__((aligned(16)))
+        	#define ATTRIBUTE_ALIGNED64(a)   a __attribute__((aligned(64)))
+        	#define ATTRIBUTE_ALIGNED128(a)  a __attribute__((aligned(128)))
+    	#elif ( defined(_MSC_VER) && _MSC_VER < 1300 )
 		#define SIMD_FORCE_INLINE inline
 		#define ATTRIBUTE_ALIGNED16(a) a
 		#define ATTRIBUTE_ALIGNED64(a) a
