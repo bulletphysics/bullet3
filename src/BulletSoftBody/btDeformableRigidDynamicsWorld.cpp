@@ -13,7 +13,7 @@
 void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
     reinitialize(timeStep);
-    
+//    beforeSolverCallbacks(timeStep);
     // add gravity to velocity of rigid and multi bodys
     applyRigidBodyGravity(timeStep);
     
@@ -30,7 +30,7 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     ///solve deformable bodies constraints
     solveDeformableBodiesConstraints(timeStep);
     
-    positionCorrection();
+    afterSolverCallbacks(timeStep);
     
     integrateTransforms(timeStep);
     
@@ -42,36 +42,57 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     // ///////////////////////////////
 }
 
-void btDeformableRigidDynamicsWorld::positionCorrection()
+void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
 {
-    // perform position correction for all geometric collisions
-    for (int i = 0; i < m_softBodies.size(); ++i)
+    // perform position correction for all constraints 
+    for (auto& it : m_deformableBodySolver->m_objective->projection.m_constraints)
     {
-        btSoftBody* psb = m_softBodies[i];
-        const btScalar mrg = psb->getCollisionShape()->getMargin();
-        for (int j = 0; j < psb->m_rcontacts.size(); ++j)
+        btAlignedObjectArray<DeformableFrictionConstraint>& frictions = m_deformableBodySolver->m_objective->projection.m_frictions[it.first];
+        btAlignedObjectArray<DeformableContactConstraint>& constraints = it.second;
+        for (int i = 0; i < constraints.size(); ++i)
         {
-            const btSoftBody::RContact& c = psb->m_rcontacts[j];
-            // skip anchor points
-            if (c.m_node->m_im == 0)
-                continue;
-            
-            const btSoftBody::sCti& cti = c.m_cti;
-            if (cti.m_colObj->hasContactResponse())
+            DeformableContactConstraint& constraint = constraints[i];
+            DeformableFrictionConstraint& friction = frictions[i];
+            for (int j = 0; j < constraint.m_contact.size(); ++j)
             {
-                btScalar dp = btMin((btDot(c.m_node->m_x, cti.m_normal) + cti.m_offset), mrg);
-                if (dp < 0)
+                const btSoftBody::RContact* c = constraint.m_contact[j];
+                // skip anchor points
+                if (c == nullptr || c->m_node->m_im == 0)
+                    continue;
+                const btSoftBody::sCti& cti = c->m_cti;
+                btRigidBody* rigidCol = 0;
+                btVector3 va(0, 0, 0);
+                
+                // grab the velocity of the rigid body
+                if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
                 {
-                    // m_c4 is the collision hardness
-                    c.m_node->m_q -= dp * cti.m_normal * c.m_c4;
+                    rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
+                    va = rigidCol ? (rigidCol->getVelocityInLocalPoint(c->m_c1)): btVector3(0, 0, 0);
+                }
+                
+                if (cti.m_colObj->hasContactResponse())
+                {
+                    btScalar dp = cti.m_offset;
+                    rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
+                    if (friction.m_static[j] == true)
+                    {
+                        c->m_node->m_v = va;
+                    }
+                    if (dp < 0)
+                    {
+                        c->m_node->m_v -= dp * cti.m_normal / dt;
+                    }
                 }
             }
         }
     }
 }
 
+
 void btDeformableRigidDynamicsWorld::integrateTransforms(btScalar dt)
 {
+    m_deformableBodySolver->backupVelocity();
+    positionCorrection(dt);
     btMultiBodyDynamicsWorld::integrateTransforms(dt);
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
@@ -82,6 +103,7 @@ void btDeformableRigidDynamicsWorld::integrateTransforms(btScalar dt)
             node.m_x  =  node.m_q + dt * node.m_v;
         }
     }
+    m_deformableBodySolver->revertVelocity();
 }
 
 void btDeformableRigidDynamicsWorld::solveDeformableBodiesConstraints(btScalar timeStep)
@@ -146,7 +168,12 @@ void btDeformableRigidDynamicsWorld::beforeSolverCallbacks(btScalar timeStep)
     {
         (*m_internalTickCallback)(this, timeStep);
     }
-    
+    for (int i = 0; i < m_beforeSolverCallbacks.size(); ++i)
+        m_beforeSolverCallbacks[i](m_internalTime, this);
+}
+
+void btDeformableRigidDynamicsWorld::afterSolverCallbacks(btScalar timeStep)
+{
     for (int i = 0; i < m_beforeSolverCallbacks.size(); ++i)
         m_beforeSolverCallbacks[i](m_internalTime, this);
 }

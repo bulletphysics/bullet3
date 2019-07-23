@@ -2286,7 +2286,8 @@ bool btSoftBody::checkContact(const btCollisionObjectWrapper* colObjWrap,
 	{
 		cti.m_colObj = colObjWrap->getCollisionObject();
 		cti.m_normal = wtr.getBasis() * nrm;
-		cti.m_offset = -btDot(cti.m_normal, x - cti.m_normal * dst);
+//        cti.m_offset = -btDot(cti.m_normal, x - cti.m_normal * dst);
+        cti.m_offset = dst;
 		return (true);
 	}
 	return (false);

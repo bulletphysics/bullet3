@@ -233,7 +233,7 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 				//				printf("error in island management\n");
 			}
 
-			btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
+//            btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
 			if (colObj0->getIslandTag() == islandId)
 			{
 				if (colObj0->getActivationState() == ACTIVE_TAG ||
@@ -257,7 +257,7 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 					//					printf("error in island management\n");
 				}
 
-				btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
+//                btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
 
 				if (colObj0->getIslandTag() == islandId)
 				{
@@ -278,7 +278,8 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 					//					printf("error in island management\n");
 				}
 
-				btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
+//                 btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
+
 
 				if (colObj0->getIslandTag() == islandId)
 				{
