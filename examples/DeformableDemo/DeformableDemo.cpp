@@ -105,15 +105,15 @@ public:
 //        }
         btTransform startTransform;
         startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(1, 2, 1));
+        startTransform.setOrigin(btVector3(1, 1.5, 1));
         createRigidBody(mass, startTransform, shape[0]);
-        startTransform.setOrigin(btVector3(1, 2, -1));
+        startTransform.setOrigin(btVector3(1, 1.5, -1));
         createRigidBody(mass, startTransform, shape[0]);
-        startTransform.setOrigin(btVector3(-1, 2, 1));
+        startTransform.setOrigin(btVector3(-1, 1.5, 1));
         createRigidBody(mass, startTransform, shape[0]);
-        startTransform.setOrigin(btVector3(-1, 2, -1));
+        startTransform.setOrigin(btVector3(-1, 1.5, -1));
         createRigidBody(mass, startTransform, shape[0]);
-        startTransform.setOrigin(btVector3(0, 4, 0));
+        startTransform.setOrigin(btVector3(0, 3.5, 0));
         createRigidBody(mass, startTransform, shape[0]);
     }
     
@@ -182,7 +182,7 @@ void DeformableDemo::initPhysics()
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setOrigin(btVector3(0, -30, 0));
+        groundTransform.setOrigin(btVector3(0, -32, 0));
         groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
         //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
         btScalar mass(0.);
@@ -206,7 +206,7 @@ void DeformableDemo::initPhysics()
     
     // create a piece of cloth
     {
-        bool onGround = true;
+        bool onGround = false;
         const btScalar s = 4;
         btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, 0, -s),
                                                          btVector3(+s, 0, -s),
@@ -222,13 +222,14 @@ void DeformableDemo::initPhysics()
                                                  btVector3(+s, 0, -s),
                                                  btVector3(-s, 0, +s),
                                                  btVector3(+s, 0, +s),
-                                                 20,20,
+//                                                 20,20,
+                                                 2,2,
                                                  0, true);
         
         psb->getCollisionShape()->setMargin(0.1);
         psb->generateBendingConstraints(2);
-        psb->setTotalMass(10);
-        psb->setSpringStiffness(10);
+        psb->setTotalMass(1);
+        psb->setSpringStiffness(1);
         psb->setDampingCoefficient(0.01);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
