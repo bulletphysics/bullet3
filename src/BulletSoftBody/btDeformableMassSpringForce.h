@@ -22,6 +22,7 @@ public:
     virtual void addScaledImplicitForce(btScalar scale, TVStack& force)
     {
         addScaledDampingForce(scale, force);
+//        addScaledElasticForce(scale, force);
     }
     
     virtual void addScaledExplicitForce(btScalar scale, TVStack& force)
@@ -102,6 +103,8 @@ public:
             }
         }
     }
+    
+    
 };
 
 #endif /* btMassSpring_h */

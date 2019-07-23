@@ -54,13 +54,6 @@ class DeformableContact : public CommonMultiBodyBase
     btMultiBody* m_multiBody;
     btAlignedObjectArray<btMultiBodyJointFeedback*> m_jointFeedbacks;
 public:
-    
-    struct TetraBunny
-    {
-        #include "../SoftDemo/bunny.inl"
-    };
-
-    
 	DeformableContact(struct GUIHelperInterface* helper)
 		: CommonMultiBodyBase(helper)
 	{
@@ -147,7 +140,7 @@ void DeformableContact::initPhysics()
         btTransform groundTransform;
         groundTransform.setIdentity();
         groundTransform.setOrigin(btVector3(0, -40, 0));
-        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.0));
+        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.1));
         //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
         btScalar mass(0.);
 
@@ -170,16 +163,16 @@ void DeformableContact::initPhysics()
 
     
     {
-        bool damping = true;
-        bool gyro = true;
-        int numLinks = 3;
+        bool damping = false;
+        bool gyro = false;
+        int numLinks = 0;
         bool spherical = true;  //set it ot false -to use 1DoF hinges instead of 3DoF sphericals
         bool canSleep = false;
         bool selfCollide = true;
         btVector3 linkHalfExtents(1, 1, 1);
         btVector3 baseHalfExtents(1, 1, 1);
         
-        btMultiBody* mbC = createFeatherstoneMultiBody_testMultiDof(m_dynamicsWorld, numLinks, btVector3(0.f, 10.f,0.f), linkHalfExtents, baseHalfExtents, spherical, g_floatingBase);
+        btMultiBody* mbC = createFeatherstoneMultiBody_testMultiDof(m_dynamicsWorld, numLinks, btVector3(0.f, 2.f,0.f), linkHalfExtents, baseHalfExtents, spherical, g_floatingBase);
         
         mbC->setCanSleep(canSleep);
         mbC->setHasSelfCollision(selfCollide);
@@ -216,12 +209,13 @@ void DeformableContact::initPhysics()
     
     // create a patch of cloth
     {
-        const btScalar s = 6;
+        const btScalar s = 4;
         btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, 0, -s),
                                                          btVector3(+s, 0, -s),
                                                          btVector3(-s, 0, +s),
                                                          btVector3(+s, 0, +s),
-                                                         20,20,
+//                                                         20,20,
+                                                         3,3,
                                                          1 + 2 + 4 + 8, true);
 
         psb->getCollisionShape()->setMargin(0.25);
@@ -232,7 +226,6 @@ void DeformableContact::initPhysics()
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 0;
         getDeformableDynamicsWorld()->addSoftBody(psb);
-
     }
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
