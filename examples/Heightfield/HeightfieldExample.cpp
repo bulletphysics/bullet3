@@ -491,7 +491,7 @@ getRawHeightfieldData
                     for (int j = 0; j < width; ++j)
                     {
                         float y = j * s_gridSpacing;
-                        float z = double(image[i*3+width*j*3])*(4./256.);
+                        float z = double(image[i*3+width*j*3])*(40./256.);
                         convertFromFloat(p, z, type);
                         p += bytesPerElement;
                     }
