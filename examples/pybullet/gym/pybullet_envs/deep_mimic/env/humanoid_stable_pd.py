@@ -341,7 +341,7 @@ class HumanoidStablePD(object):
     #static char* kwlist[] = { "bodyUniqueId", 
     #"jointIndices", 
     #"controlMode", "targetPositions", "targetVelocities", "forces", "positionGains", "velocityGains", "maxVelocities", "physicsClientId", NULL };
-	
+  
     self._pybullet_client.setJointMotorControlMultiDofArray(self._sim_model,
                                                            indices,
                                                            self._pybullet_client.STABLE_PD_CONTROL,
@@ -822,6 +822,9 @@ class HumanoidStablePD(object):
       jointIndices = range(num_joints)
       simJointStates = self._pybullet_client.getJointStatesMultiDof(self._sim_model, jointIndices)
       kinJointStates = self._pybullet_client.getJointStatesMultiDof(self._kin_model, jointIndices)
+    if useArray:
+      linkStatesSim = self._pybullet_client.getLinkStates(self._sim_model, jointIndices)
+      linkStatesKin = self._pybullet_client.getLinkStates(self._kin_model, jointIndices)
     for j in range(num_joints):
       curr_pose_err = 0
       curr_vel_err = 0
@@ -859,10 +862,15 @@ class HumanoidStablePD(object):
       vel_err += w * curr_vel_err
 
       is_end_eff = j in self._end_effectors
+      
       if is_end_eff:
 
-        linkStateSim = self._pybullet_client.getLinkState(self._sim_model, j)
-        linkStateKin = self._pybullet_client.getLinkState(self._kin_model, j)
+        if useArray:
+          linkStateSim = linkStatesSim[j]
+          linkStateKin = linkStatesKin[j]
+        else:
+          linkStateSim = self._pybullet_client.getLinkState(self._sim_model, j)
+          linkStateKin = self._pybullet_client.getLinkState(self._kin_model, j)
         linkPosSim = linkStateSim[0]
         linkPosKin = linkStateKin[0]
         linkPosDiff = [
