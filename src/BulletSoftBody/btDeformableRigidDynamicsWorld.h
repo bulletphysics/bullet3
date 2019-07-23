@@ -47,7 +47,7 @@ protected:
     
     virtual void integrateTransforms(btScalar timeStep);
     
-    void positionCorrection();
+    void positionCorrection(btScalar dt);
     
     void solveDeformableBodiesConstraints(btScalar timeStep);
     
@@ -123,6 +123,8 @@ public:
     void applyRigidBodyGravity(btScalar timeStep);
     
     void beforeSolverCallbacks(btScalar timeStep);
+    
+    void afterSolverCallbacks(btScalar timeStep);
     
     int getDrawFlags() const { return (m_drawFlags); }
     void setDrawFlags(int f) { m_drawFlags = f; }

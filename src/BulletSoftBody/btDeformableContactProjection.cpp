@@ -143,6 +143,8 @@ void btDeformableContactProjection::update()
                         friction.m_direction[j] = -local_tangent_dir;
                         // do not allow switching from static friction to dynamic friction
                         // it causes cg to explode
+                        btScalar comp1 = -accumulated_normal*c->m_c3;
+                        btScalar comp2 = tangent_norm;
                         if (-accumulated_normal*c->m_c3 < tangent_norm && friction.m_static_prev[j] == false && friction.m_released[j] == false)
                         {
                             friction.m_static[j] = false;
@@ -167,49 +169,44 @@ void btDeformableContactProjection::update()
                     // the incremental impulse applied to rb in the tangential direction
                     btVector3 incremental_tangent = (friction.m_impulse_prev[j] * friction.m_direction_prev[j])-(friction.m_impulse[j] * friction.m_direction[j]);
                     
-                    // TODO cleanup
-                    if (1) // in the same CG solve, the set of constraits doesn't change
-                    {
-                        // c0 is the impulse matrix, c3 is 1 - the friction coefficient or 0, c4 is the contact hardness coefficient
-                        
-                        // dv = new_impulse + accumulated velocity change in previous CG iterations
-                        // so we have the invariant node->m_v = backupVelocity + dv;
 
-                        btScalar dvn = -accumulated_normal * c->m_c2/m_dt;
+                    // dv = new_impulse + accumulated velocity change in previous CG iterations
+                    // so we have the invariant node->m_v = backupVelocity + dv;
+
+                    btScalar dvn = -accumulated_normal * c->m_c2/m_dt;
+                    
+                    // the following is equivalent
+                    /*
+                        btVector3 dv = -impulse_normal * c->m_c2/m_dt + c->m_node->m_v - backupVelocity[m_indices[c->m_node]];
+                        btScalar dvn = dv.dot(cti.m_normal);
+                     */
+                    
+                    constraint.m_value[j] = dvn;
+                    
+                    // the incremental impulse:
+                    // in the normal direction it's the normal component of "impulse"
+                    // in the tangent direction it's the difference between the frictional impulse in the iteration and the previous iteration
+                    impulse = impulse_normal + incremental_tangent;
+                    if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+                    {
+                        if (rigidCol)
+                            rigidCol->applyImpulse(impulse, c->m_c1);
+                    }
+                    else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+                    {
                         
-                        // the following is equivalent
-                        /*
-                            btVector3 dv = -impulse_normal * c->m_c2/m_dt + c->m_node->m_v - backupVelocity[m_indices[c->m_node]];
-                            btScalar dvn = dv.dot(cti.m_normal);
-                         */
-                        
-                        constraint.m_value[j] = dvn;
-                        
-                        // the incremental impulse:
-                        // in the normal direction it's the normal component of "impulse"
-                        // in the tangent direction it's the difference between the frictional impulse in the iteration and the previous iteration
-                        impulse = impulse_normal + incremental_tangent;
-                        if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+                        if (multibodyLinkCol)
                         {
-                            if (rigidCol)
-                                rigidCol->applyImpulse(impulse, c->m_c1);
-                        }
-                        else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
-                        {
+                            double multiplier = 1;
+                            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_normal, -impulse_normal.length() * multiplier);
                             
-                            if (multibodyLinkCol)
+                            if (incremental_tangent.norm() > SIMD_EPSILON)
                             {
-                                double multiplier = 1;
-                                multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_normal, -impulse_normal.length() * multiplier);
-                                
-                                if (incremental_tangent.norm() > SIMD_EPSILON)
-                                {
-                                    btMultiBodyJacobianData jacobian_tangent;
-                                    btVector3 tangent = incremental_tangent.normalized();
-                                    findJacobian(multibodyLinkCol, jacobian_tangent, c->m_node->m_x, tangent);
-                                    const btScalar* deltaV_tangent = &jacobian_tangent.m_deltaVelocitiesUnitImpulse[0];
-                                    multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_tangent, incremental_tangent.length() * multiplier);
-                                }
+                                btMultiBodyJacobianData jacobian_tangent;
+                                btVector3 tangent = incremental_tangent.normalized();
+                                findJacobian(multibodyLinkCol, jacobian_tangent, c->m_node->m_x, tangent);
+                                const btScalar* deltaV_tangent = &jacobian_tangent.m_deltaVelocitiesUnitImpulse[0];
+                                multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_tangent, incremental_tangent.length() * multiplier);
                             }
                         }
                     }
@@ -404,14 +401,10 @@ void btDeformableContactProjection::enforceConstraint(TVStack& x)
                 const DeformableFrictionConstraint& friction= frictions[f];
                 for (int j = 0; j < friction.m_direction.size(); ++j)
                 {
-                    // clear the old constraint
-                    if (friction.m_static_prev[j] == true)
-                    {
-                        x[i] -= friction.m_direction_prev[j] * friction.m_dv_prev[j];
-                    }
-                    // add the new constraint
+                    // add the friction constraint
                     if (friction.m_static[j] == true)
                     {
+                        x[i] -= x[i].dot(friction.m_direction[j]) * friction.m_direction[j];
                         x[i] += friction.m_direction[j] * friction.m_dv[j];
                     }
                 }
@@ -467,9 +460,15 @@ void btDeformableContactProjection::project(TVStack& x)
                     }
                     
                     // only add to the rhs if there is no static friction constraint on the node
-                    if (friction.m_static[j] == false && !has_static_constraint)
+                    if (friction.m_static[j] == false)
                     {
-                        x[i] += friction.m_direction[j] * friction.m_impulse[j];
+                        if (!has_static_constraint)
+                            x[i] += friction.m_direction[j] * friction.m_impulse[j];
+                    }
+                    else
+                    {
+                        // otherwise clear the constraint in the friction direction
+                        x[i] -= x[i].dot(friction.m_direction[j]) * friction.m_direction[j];
                     }
                 }
             }

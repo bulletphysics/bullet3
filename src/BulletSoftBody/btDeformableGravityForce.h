@@ -23,6 +23,7 @@ public:
     
     virtual void addScaledImplicitForce(btScalar scale, TVStack& force)
     {
+//        addScaledGravityForce(scale, force);
     }
     
     virtual void addScaledExplicitForce(btScalar scale, TVStack& force)

@@ -73,9 +73,9 @@ public:
 	void resetCamera()
 	{
         float dist = 25;
-        float pitch = -45;
+        float pitch = -30;
         float yaw = 100;
-        float targetPos[3] = {0, -3, 0};
+        float targetPos[3] = {0, -0, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
     
@@ -137,17 +137,56 @@ void dynamics(btScalar time, btDeformableRigidDynamicsWorld* world)
         return;
     btRigidBody* rb0 = rbs[0];
     btScalar pressTime = 0.9;
+    btScalar liftTime = 2.5;
+    btScalar shiftTime = 3.5;
+    btScalar holdTime = 4.5*1000;
+    btScalar dropTime = 5.3*1000;
     btTransform rbTransform;
     rbTransform.setIdentity();
-    btVector3 translation = btVector3(0.5,3,4);
-    btVector3 velocity = btVector3(0,5,0);
+    btVector3 translation;
+    btVector3 velocity;
+    
+    btVector3 initialTranslationLeft = btVector3(0.5,3,4);
+    btVector3 initialTranslationRight = btVector3(0.5,3,-4);
+    btVector3 pinchVelocityLeft = btVector3(0,0,-2);
+    btVector3 pinchVelocityRight = btVector3(0,0,2);
+    btVector3 liftVelocity = btVector3(0,5,0);
+    btVector3 shiftVelocity = btVector3(0,0,5);
+    btVector3 holdVelocity = btVector3(0,0,0);
+    btVector3 openVelocityLeft = btVector3(0,0,4);
+    btVector3 openVelocityRight = btVector3(0,0,-4);
+    
     if (time < pressTime)
     {
-        velocity = btVector3(0,0,-2);
-        translation += velocity * time;
+        velocity = pinchVelocityLeft;
+        translation = initialTranslationLeft + pinchVelocityLeft * time;
+    }
+    else if (time < liftTime)
+    {
+        velocity = liftVelocity;
+        translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (time - pressTime);
+        
+    }
+    else if (time < shiftTime)
+    {
+        velocity = shiftVelocity;
+        translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (time - liftTime);
+    }
+    else if (time < holdTime)
+    {
+        velocity = btVector3(0,0,0);
+        translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (time - shiftTime);
+    }
+    else if (time < dropTime)
+    {
+        velocity = openVelocityLeft;
+        translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (holdTime - shiftTime)+ openVelocityLeft * (time - holdTime);
     }
     else
-        translation += btVector3(0,0,-2) * pressTime + (time-pressTime)*velocity;
+    {
+        velocity = holdVelocity;
+        translation = initialTranslationLeft + pinchVelocityLeft * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (holdTime - shiftTime)+ openVelocityLeft * (dropTime - holdTime);
+    }
     rbTransform.setOrigin(translation);
     rbTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0));
     rb0->setCenterOfMassTransform(rbTransform);
@@ -155,23 +194,45 @@ void dynamics(btScalar time, btDeformableRigidDynamicsWorld* world)
     rb0->setLinearVelocity(velocity);
     
     btRigidBody* rb1 = rbs[1];
-    translation = btVector3(0.5,3,-4);
-    velocity = btVector3(0,5,0);
     if (time < pressTime)
     {
-        velocity = btVector3(0,0,2);
-        translation += velocity * time;
+        velocity = pinchVelocityRight;
+        translation = initialTranslationRight + pinchVelocityRight * time;
+    }
+    else if (time < liftTime)
+    {
+        velocity = liftVelocity;
+        translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (time - pressTime);
+        
+    }
+    else if (time < shiftTime)
+    {
+        velocity = shiftVelocity;
+        translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (time - liftTime);
+    }
+    else if (time < holdTime)
+    {
+        velocity = btVector3(0,0,0);
+        translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (time - shiftTime);
+    }
+    else if (time < dropTime)
+    {
+        velocity = openVelocityRight;
+        translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (holdTime - shiftTime)+ openVelocityRight * (time - holdTime);
     }
     else
-        translation += btVector3(0,0,2) * pressTime + (time-pressTime)*velocity;
+    {
+        velocity = holdVelocity;
+        translation = initialTranslationRight + pinchVelocityRight * pressTime + liftVelocity * (liftTime-pressTime) + shiftVelocity * (shiftTime - liftTime) + holdVelocity * (holdTime - shiftTime)+ openVelocityRight * (dropTime - holdTime);
+    }
     rbTransform.setOrigin(translation);
     rbTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0));
     rb1->setCenterOfMassTransform(rbTransform);
     rb1->setAngularVelocity(btVector3(0,0,0));
     rb1->setLinearVelocity(velocity);
     
-    rb0->setFriction(2);
-    rb1->setFriction(2);
+    rb0->setFriction(20);
+    rb1->setFriction(20);
 }
 
 void Pinch::initPhysics()
@@ -194,7 +255,7 @@ void Pinch::initPhysics()
 	m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity.setValue(0, -10, 0);
     
-    getDeformableDynamicsWorld()->before_solver_callbacks.push_back(dynamics);
+    getDeformableDynamicsWorld()->m_beforeSolverCallbacks.push_back(dynamics);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
     //create a ground
@@ -229,21 +290,58 @@ void Pinch::initPhysics()
     
     // create a soft block
     {
+        btScalar verts[24] = {0.f, 0.f, 0.f,
+            1.f, 0.f, 0.f,
+            0.f, 1.f, 0.f,
+            0.f, 0.f, 1.f,
+            1.f, 1.f, 0.f,
+            0.f, 1.f, 1.f,
+            1.f, 0.f, 1.f,
+            1.f, 1.f, 1.f
+        };
+        int triangles[60] = {0, 6, 3,
+            0,1,6,
+            7,5,3,
+            7,3,6,
+            4,7,6,
+            4,6,1,
+            7,2,5,
+            7,4,2,
+            0,3,2,
+            2,3,5,
+            0,2,4,
+            0,4,1,
+            0,6,5,
+            0,6,4,
+            3,4,2,
+            3,4,7,
+            2,7,3,
+            2,7,1,
+            4,5,0,
+            4,5,6,
+        };
+//       btSoftBody* psb = btSoftBodyHelpers::CreateFromTriMesh(getDeformableDynamicsWorld()->getWorldInfo(), &verts[0], &triangles[0], 20);
+////
         btSoftBody* psb = btSoftBodyHelpers::CreateFromTetGenData(getDeformableDynamicsWorld()->getWorldInfo(),
                                                                   TetraCube::getElements(),
                                                                   0,
                                                                   TetraCube::getNodes(),
                                                                   false, true, true);
-        getDeformableDynamicsWorld()->addSoftBody(psb);
+        
         psb->scale(btVector3(2, 2, 2));
         psb->translate(btVector3(0, 4, 0));
         psb->getCollisionShape()->setMargin(0.1);
         psb->setTotalMass(1);
-        psb->setSpringStiffness(10);
-        psb->setDampingCoefficient(0.01);
+//        psb->scale(btVector3(5, 5, 5));
+//        psb->translate(btVector3(-2.5, 4, -2.5));
+//        psb->getCollisionShape()->setMargin(0.1);
+//        psb->setTotalMass(1);
+        psb->setSpringStiffness(4);
+        psb->setDampingCoefficient(0.02);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 0.5;
+        psb->m_cfg.kDF = 2;
+        getDeformableDynamicsWorld()->addSoftBody(psb);
         // add a grippers
         createGrip();
     }

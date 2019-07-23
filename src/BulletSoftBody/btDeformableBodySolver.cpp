@@ -29,6 +29,7 @@ void btDeformableBodySolver::solveConstraints(float solverdt)
     
     // save v_{n+1}^* velocity after explicit forces
     backupVelocity();
+    
     m_objective->computeResidual(solverdt, m_residual);
 //   m_objective->initialGuess(m_dv, m_residual);
     computeStep(m_dv, m_residual);
@@ -94,6 +95,20 @@ void btDeformableBodySolver::backupVelocity()
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             m_backupVelocity[counter++] = psb->m_nodes[j].m_v;
+        }
+    }
+}
+
+void btDeformableBodySolver::revertVelocity()
+{
+    // serial implementation
+    int counter = 0;
+    for (int i = 0; i < m_softBodySet.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodySet[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            psb->m_nodes[j].m_v = m_backupVelocity[counter++];
         }
     }
 }

@@ -27,12 +27,14 @@ protected:
     TVStack m_dv;
     TVStack m_residual;
     btAlignedObjectArray<btSoftBody *> m_softBodySet;
-    btDeformableBackwardEulerObjective* m_objective;
+   
     btAlignedObjectArray<btVector3> m_backupVelocity;
     btScalar m_dt;
     btConjugateGradient<btDeformableBackwardEulerObjective> cg;
     
 public:
+    btDeformableBackwardEulerObjective* m_objective;
+    
     btDeformableBodySolver();
     
     virtual ~btDeformableBodySolver();
@@ -57,7 +59,7 @@ public:
     void predictDeformableMotion(btSoftBody* psb, btScalar dt);
     
     void backupVelocity();
-    
+    void revertVelocity();
     void updateVelocity();
     
     bool updateNodes();
