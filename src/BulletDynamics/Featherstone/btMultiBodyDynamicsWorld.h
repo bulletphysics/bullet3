@@ -113,6 +113,7 @@ public:
 	virtual void getAnalyticsData(btAlignedObjectArray<struct btSolverAnalyticsData>& m_islandAnalyticsData) const;
     
     virtual void solveExternalForces(btContactSolverInfo& solverInfo);
+    virtual void solveInternalConstraints(btContactSolverInfo& solverInfo);
 
 };
 #endif  //BT_MULTIBODY_DYNAMICS_WORLD_H

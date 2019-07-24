@@ -26,7 +26,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
 #include "btSparseSDF.h"
 #include "BulletCollision/BroadphaseCollision/btDbvt.h"
-
+#include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
+#include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 //#ifdef BT_USE_DOUBLE_PRECISION
 //#define btRigidBodyData	btRigidBodyDoubleData
 //#define btRigidBodyDataName	"btRigidBodyDoubleData"
@@ -300,6 +301,13 @@ public:
 		btScalar m_c2;     // ima*dt
 		btScalar m_c3;     // Friction
 		btScalar m_c4;     // Hardness
+        
+        // jacobians and unit impulse responses for multibody
+        btMultiBodyJacobianData jacobianData_normal;
+        btMultiBodyJacobianData jacobianData_t1;
+        btMultiBodyJacobianData jacobianData_t2;
+        btVector3 t1;
+        btVector3 t2;
 	};
 	/* SContact		*/
 	struct SContact

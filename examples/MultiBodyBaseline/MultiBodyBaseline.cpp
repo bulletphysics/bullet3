@@ -27,7 +27,7 @@ subject to the following restrictions:
 #define START_POS_Y -5
 #define START_POS_Z -3
 
-#include "DeformableContact.h"
+#include "MultiBodyBaseline.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableRigidDynamicsWorld.h"
@@ -46,20 +46,20 @@ subject to the following restrictions:
 
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
-///The DeformableContact demo deformable bodies self-collision
+///The MultiBodyBaseline demo deformable bodies self-collision
 static bool g_floatingBase = true;
 static float friction = 1.;
-class DeformableContact : public CommonMultiBodyBase
+class MultiBodyBaseline : public CommonMultiBodyBase
 {
     btMultiBody* m_multiBody;
     btAlignedObjectArray<btMultiBodyJointFeedback*> m_jointFeedbacks;
 public:
-	DeformableContact(struct GUIHelperInterface* helper)
+	MultiBodyBaseline(struct GUIHelperInterface* helper)
 		: CommonMultiBodyBase(helper)
 	{
 	}
     
-	virtual ~DeformableContact()
+	virtual ~MultiBodyBaseline()
 	{
 	}
     
@@ -81,35 +81,10 @@ public:
     btMultiBody* createFeatherstoneMultiBody_testMultiDof(class btMultiBodyDynamicsWorld* world, int numLinks, const btVector3& basePosition, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents, bool spherical = false, bool floating = false);
     
     void addColliders_testMultiDof(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents);
-    
 
-    virtual const btDeformableRigidDynamicsWorld* getDeformableDynamicsWorld() const
-    {
-        return (btDeformableRigidDynamicsWorld*)m_dynamicsWorld;
-    }
-    
-    virtual btDeformableRigidDynamicsWorld* getDeformableDynamicsWorld()
-    {
-        return (btDeformableRigidDynamicsWorld*)m_dynamicsWorld;
-    }
-    
-    virtual void renderScene()
-    {
-        CommonMultiBodyBase::renderScene();
-        btDeformableRigidDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
-        
-        for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
-        {
-            btSoftBody* psb = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
-            {
-                btSoftBodyHelpers::DrawFrame(psb, deformableWorld->getDebugDrawer());
-                btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
-            }
-        }
-    }
 };
 
-void DeformableContact::initPhysics()
+void MultiBodyBaseline::initPhysics()
 {
 	m_guiHelper->setUpAxis(1);
 
@@ -120,16 +95,15 @@ void DeformableContact::initPhysics()
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
 	m_broadphase = new btDbvtBroadphase();
-    btDeformableBodySolver* deformableBodySolver = new btDeformableBodySolver();
     btMultiBodyConstraintSolver* sol;
     sol = new btMultiBodyConstraintSolver;
 	m_solver = sol;
     
-    m_dynamicsWorld = new btDeformableRigidDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
-    deformableBodySolver->setWorld(getDeformableDynamicsWorld());
-	m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
-    getDeformableDynamicsWorld()->getWorldInfo().m_gravity.setValue(0, -10, 0);
-	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+    btMultiBodyDynamicsWorld* world = new btMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration);
+    m_dynamicsWorld = world;
+    //    m_dynamicsWorld->setDebugDrawer(&gDebugDraw);
+    m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+    m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
 
     {
         ///create a ground
@@ -206,34 +180,11 @@ void DeformableContact::initPhysics()
         ///
         addColliders_testMultiDof(mbC, m_dynamicsWorld, baseHalfExtents, linkHalfExtents);
     }
-    
-    // create a patch of cloth
-    {
-        btScalar h = 0;
-        const btScalar s = 4;
-        btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -s),
-                                                         btVector3(+s, h, -s),
-                                                         btVector3(-s, h, +s),
-                                                         btVector3(+s, h, +s),
-                                                         20,20,
-//                                                         3,3,
-                                                         1 + 2 + 4 + 8, true);
-
-        psb->getCollisionShape()->setMargin(0.25);
-        psb->generateBendingConstraints(2);
-        psb->setTotalMass(5);
-        psb->setSpringStiffness(2);
-        psb->setDampingCoefficient(0.01);
-        psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
-        psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = .1;
-        getDeformableDynamicsWorld()->addSoftBody(psb);
-    }
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-void DeformableContact::exitPhysics()
+void MultiBodyBaseline::exitPhysics()
 {
 	//cleanup in the reverse order of creation/initialization
 
@@ -270,14 +221,14 @@ void DeformableContact::exitPhysics()
 	delete m_collisionConfiguration;
 }
 
-void DeformableContact::stepSimulation(float deltaTime)
+void MultiBodyBaseline::stepSimulation(float deltaTime)
 {
 //    getDeformableDynamicsWorld()->getMultiBodyDynamicsWorld()->stepSimulation(deltaTime);
     m_dynamicsWorld->stepSimulation(deltaTime, 5, 1./250.);
 }
 
 
-btMultiBody* DeformableContact::createFeatherstoneMultiBody_testMultiDof(btMultiBodyDynamicsWorld* pWorld, int numLinks, const btVector3& basePosition, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents, bool spherical, bool floating)
+btMultiBody* MultiBodyBaseline::createFeatherstoneMultiBody_testMultiDof(btMultiBodyDynamicsWorld* pWorld, int numLinks, const btVector3& basePosition, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents, bool spherical, bool floating)
 {
     //init the base
     btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
@@ -337,7 +288,7 @@ btMultiBody* DeformableContact::createFeatherstoneMultiBody_testMultiDof(btMulti
     return pMultiBody;
 }
 
-void DeformableContact::addColliders_testMultiDof(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents)
+void MultiBodyBaseline::addColliders_testMultiDof(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents)
 {
     btAlignedObjectArray<btQuaternion> world_to_local;
     world_to_local.resize(pMultiBody->getNumLinks() + 1);
@@ -399,9 +350,9 @@ void DeformableContact::addColliders_testMultiDof(btMultiBody* pMultiBody, btMul
         pMultiBody->getLink(i).m_collider = col;
     }
 }
-class CommonExampleInterface* DeformableContactCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface* MultiBodyBaselineCreateFunc(struct CommonExampleOptions& options)
 {
-	return new DeformableContact(options.m_guiHelper);
+	return new MultiBodyBaseline(options.m_guiHelper);
 }
 
 

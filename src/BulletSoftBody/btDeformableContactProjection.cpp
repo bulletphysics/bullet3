@@ -45,7 +45,7 @@ void btDeformableContactProjection::update()
 {
     ///solve rigid body constraints
     m_world->getSolverInfo().m_numIterations = 10;
-    m_world->btMultiBodyDynamicsWorld::solveConstraints(m_world->getSolverInfo());
+    m_world->btMultiBodyDynamicsWorld::solveInternalConstraints(m_world->getSolverInfo());
 
     // loop through constraints to set constrained values
     for (auto& it : m_constraints)
@@ -66,10 +66,6 @@ void btDeformableContactProjection::update()
                 const btSoftBody::RContact* c = constraint.m_contact[j];
                 const btSoftBody::sCti& cti = c->m_cti;
                 
-                // normal jacobian is precompute but tangent jacobian is not
-                const btMultiBodyJacobianData& jacobianData_normal = constraint.m_normal_jacobian[j];
-                const btMultiBodyJacobianData& jacobianData_complementary = friction.m_complementary_jacobian[j];
-                
                 if (cti.m_colObj->hasContactResponse())
                 {
                     btVector3 va(0, 0, 0);
@@ -89,25 +85,31 @@ void btDeformableContactProjection::update()
                         if (multibodyLinkCol)
                         {
                             const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
-                            const btScalar* jac_normal = &jacobianData_normal.m_jacobians[0];
-                            deltaV_normal = &jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
+                            const btScalar* J_n = &c->jacobianData_normal.m_jacobians[0];
+                            const btScalar* J_t1 = &c->jacobianData_t1.m_jacobians[0];
+                            const btScalar* J_t2 = &c->jacobianData_t2.m_jacobians[0];
+                            deltaV_normal = &c->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
                             
                             // add in the normal component of the va
                             btScalar vel = 0.0;
                             for (int k = 0; k < ndof; ++k)
                             {
-                                vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * jac_normal[k];
+                                vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * J_n[k];
                             }
                             va = cti.m_normal * vel * m_dt;
-                            
-                            // add in complementary direction of va
-                            const btScalar* jac_complementary = &jacobianData_complementary.m_jacobians[0];
+
                             vel = 0.0;
                             for (int k = 0; k < ndof; ++k)
                             {
-                                vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * jac_complementary[k];
+                                vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * J_t1[k];
                             }
-                            va += friction.m_complementaryDirection[j] * vel * m_dt;
+                            va += c->t1 * vel * m_dt;
+                            vel = 0.0;
+                            for (int k = 0; k < ndof; ++k)
+                            {
+                                vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * J_t2[k];
+                            }
+                            va += c->t2 * vel * m_dt;
                         }
                     }
                     
@@ -143,8 +145,6 @@ void btDeformableContactProjection::update()
                         friction.m_direction[j] = -local_tangent_dir;
                         // do not allow switching from static friction to dynamic friction
                         // it causes cg to explode
-                        btScalar comp1 = -accumulated_normal*c->m_c3;
-                        btScalar comp2 = tangent_norm;
                         if (-accumulated_normal*c->m_c3 < tangent_norm && friction.m_static_prev[j] == false && friction.m_released[j] == false)
                         {
                             friction.m_static[j] = false;
@@ -194,19 +194,15 @@ void btDeformableContactProjection::update()
                     }
                     else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
                     {
-                        
                         if (multibodyLinkCol)
                         {
-                            double multiplier = 1;
-                            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_normal, -impulse_normal.length() * multiplier);
-                            
+                            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_normal, impulse.dot(cti.m_normal));
                             if (incremental_tangent.norm() > SIMD_EPSILON)
                             {
-                                btMultiBodyJacobianData jacobian_tangent;
-                                btVector3 tangent = incremental_tangent.normalized();
-                                findJacobian(multibodyLinkCol, jacobian_tangent, c->m_node->m_x, tangent);
-                                const btScalar* deltaV_tangent = &jacobian_tangent.m_deltaVelocitiesUnitImpulse[0];
-                                multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_tangent, incremental_tangent.length() * multiplier);
+                               const btScalar* deltaV_t1 = &c->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
+                                multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_t1, impulse.dot(c->t1));
+                                const btScalar* deltaV_t2 = &c->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
+                                multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_t2, impulse.dot(c->t2));
                             }
                         }
                     }
@@ -274,15 +270,12 @@ void btDeformableContactProjection::setConstraints()
                     multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
                     if (multibodyLinkCol)
                     {
-                        findJacobian(multibodyLinkCol, jacobianData_normal, c.m_node->m_x, cti.m_normal);
                         btScalar vel = 0.0;
-                        const btScalar* jac = &jacobianData_normal.m_jacobians[0];
+                        const btScalar* jac = &c.jacobianData_normal.m_jacobians[0];
                         const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
                         for (int j = 0; j < ndof; ++j)
                         {
                             vel += multibodyLinkCol->m_multiBody->getVelocityVector()[j] * jac[j];
-                            std::cout << multibodyLinkCol->m_multiBody->getVelocityVector()[j] << std::endl;
-                            std::cout << jac[j] << std::endl;
                         }
                         va = cti.m_normal * vel * m_dt;
                     }
@@ -293,25 +286,13 @@ void btDeformableContactProjection::setConstraints()
                 const btScalar dn = btDot(vr, cti.m_normal);
                 if (dn < SIMD_EPSILON)
                 {
-                    // find complementary jacobian
-                    btVector3 complementaryDirection;
-                    if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
-                    {
-                        multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
-                        if (multibodyLinkCol)
-                        {
-                            complementaryDirection = generateUnitOrthogonalVector(cti.m_normal);
-                            findJacobian(multibodyLinkCol, jacobianData_complementary, c.m_node->m_x, complementaryDirection);
-                        }
-                    }
-                    
                     if (m_constraints.find(c.m_node) == m_constraints.end())
                     {
                         btAlignedObjectArray<DeformableContactConstraint> constraints;
-                        constraints.push_back(DeformableContactConstraint(c, jacobianData_normal));
+                        constraints.push_back(DeformableContactConstraint(c));
                         m_constraints[c.m_node] = constraints;
                         btAlignedObjectArray<DeformableFrictionConstraint> frictions;
-                        frictions.push_back(DeformableFrictionConstraint(complementaryDirection, jacobianData_complementary));
+                        frictions.push_back(DeformableFrictionConstraint());
                         m_frictions[c.m_node] = frictions;
                     }
                     else
@@ -328,10 +309,9 @@ void btDeformableContactProjection::setConstraints()
                             if (std::abs(std::abs(dot_prod) - 1) < angle_epsilon)
                             {
                                 // group the constraints
-                                constraints[j].append(c, jacobianData_normal);
+                                constraints[j].append(c);
                                 // push in an empty friction
                                 frictions[j].append();
-                                frictions[j].addJacobian(complementaryDirection, jacobianData_complementary);
                                 merged = true;
                                 break;
                             }
@@ -340,8 +320,8 @@ void btDeformableContactProjection::setConstraints()
                         // hard coded no more than 3 constraint directions
                         if (!merged && constraints.size() < dim)
                         {
-                            constraints.push_back(DeformableContactConstraint(c, jacobianData_normal));
-                            frictions.push_back(DeformableFrictionConstraint(complementaryDirection, jacobianData_complementary));
+                            constraints.push_back(DeformableContactConstraint(c));
+                            frictions.push_back(DeformableFrictionConstraint());
                         }
                     }
                 }

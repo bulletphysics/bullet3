@@ -50,6 +50,7 @@
 #include "../DeformableDemo/DeformableDemo.h"
 #include "../Pinch/Pinch.h"
 #include "../DeformableContact/DeformableContact.h"
+#include "../MultiBodyBaseline/MultiBodyBaseline.h"
 #include "../VolumetricDeformable/VolumetricDeformable.h"
 #include "../SharedMemory/PhysicsServerExampleBullet2.h"
 #include "../SharedMemory/PhysicsServerExample.h"
@@ -126,6 +127,7 @@ static ExampleEntry gDefaultExamples[] =
         ExampleEntry(0, "Grasp Deformable Cube", "Grasping test", PinchCreateFunc),
         ExampleEntry(0, "Volumetric Deformable Objects", "Volumetric Deformable test", VolumetricDeformableCreateFunc),
         ExampleEntry(0, "Deformable-MultiBody Contact", "MultiBody and Deformable contact", DeformableContactCreateFunc),
+        ExampleEntry(0, "MultiBody Baseline", "MultiBody Baseline", MultiBodyBaselineCreateFunc),
         
 		ExampleEntry(1, "Constraints", "Show the use of the various constraints in Bullet. Press the L key to visualize the constraint limits. Press the C key to visualize the constraint frames.",
 					 AllConstraintCreateFunc),
