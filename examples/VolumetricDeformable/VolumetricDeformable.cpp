@@ -77,8 +77,8 @@ public:
     void stepSimulation(float deltaTime)
     {
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 480.f;
-        m_dynamicsWorld->stepSimulation(deltaTime, 8, internalTimeStep);
+        float internalTimeStep = 1. / 240.f;
+        m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
     void createStaticBox(const btVector3& halfEdge, const btVector3& translation)

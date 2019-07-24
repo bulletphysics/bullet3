@@ -21,11 +21,10 @@ struct DeformableContactConstraint
     btAlignedObjectArray<btScalar> m_value;
     // the magnitude of the total impulse the node applied to the rb in the normal direction in the cg solve
     btAlignedObjectArray<btScalar> m_accumulated_normal_impulse;
-    btAlignedObjectArray<btMultiBodyJacobianData> m_normal_jacobian;
     
-    DeformableContactConstraint(const btSoftBody::RContact& rcontact, const btMultiBodyJacobianData& jacobian)
+    DeformableContactConstraint(const btSoftBody::RContact& rcontact)
     {
-        append(rcontact, jacobian);
+        append(rcontact);
     }
     
     DeformableContactConstraint(const btVector3 dir)
@@ -34,8 +33,6 @@ struct DeformableContactConstraint
         m_direction.push_back(dir);
         m_value.push_back(0);
         m_accumulated_normal_impulse.push_back(0);
-        btMultiBodyJacobianData j;
-        m_normal_jacobian.push_back(j);
     }
     
     DeformableContactConstraint()
@@ -44,17 +41,14 @@ struct DeformableContactConstraint
         m_direction.push_back(btVector3(0,0,0));
         m_value.push_back(0);
         m_accumulated_normal_impulse.push_back(0);
-        btMultiBodyJacobianData j;
-        m_normal_jacobian.push_back(j);
     }
     
-    void append(const btSoftBody::RContact& rcontact, const btMultiBodyJacobianData& jacobian)
+    void append(const btSoftBody::RContact& rcontact)
     {
         m_contact.push_back(&rcontact);
         m_direction.push_back(rcontact.m_cti.m_normal);
         m_value.push_back(0);
         m_accumulated_normal_impulse.push_back(0);
-        m_normal_jacobian.push_back(jacobian);
     }
     
     ~DeformableContactConstraint()
@@ -77,8 +71,6 @@ struct DeformableFrictionConstraint
     btAlignedObjectArray<btVector3> m_direction_prev;
     
     btAlignedObjectArray<bool> m_released; // whether the contact is released
-    btAlignedObjectArray<btMultiBodyJacobianData> m_complementary_jacobian;
-    btAlignedObjectArray<btVector3> m_complementaryDirection;
 
     
     // the total impulse the node applied to the rb in the tangential direction in the cg solve
@@ -87,12 +79,6 @@ struct DeformableFrictionConstraint
     DeformableFrictionConstraint()
     {
         append();
-    }
-    
-    DeformableFrictionConstraint(const btVector3& complementaryDir, const btMultiBodyJacobianData& jacobian)
-    {
-        append();
-        addJacobian(complementaryDir, jacobian);
     }
     
     void append()
@@ -112,13 +98,6 @@ struct DeformableFrictionConstraint
         m_accumulated_tangent_impulse.push_back(btVector3(0,0,0));
         m_released.push_back(false);
     }
-    
-    void addJacobian(const btVector3& complementaryDir, const btMultiBodyJacobianData& jacobian)
-    {
-        m_complementary_jacobian.push_back(jacobian);
-        m_complementaryDirection.push_back(complementaryDir);
-    }
-    
 };
 
 class btCGProjection
