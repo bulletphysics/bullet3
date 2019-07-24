@@ -40,4 +40,4 @@ public:
     
     virtual void reinitialize(bool nodeUpdated);
 };
-#endif /* btContactProjection_h */
+#endif /* btDeformableContactProjection_h */
