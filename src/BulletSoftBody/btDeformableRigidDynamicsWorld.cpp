@@ -69,6 +69,43 @@ void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
                     rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
                     va = rigidCol ? (rigidCol->getVelocityInLocalPoint(c->m_c1)): btVector3(0, 0, 0);
                 }
+                else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+                {
+                    btMultiBodyLinkCollider* multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
+                    if (multibodyLinkCol)
+                    {
+                        const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
+                        const btScalar* J_n = &c->jacobianData_normal.m_jacobians[0];
+                        const btScalar* J_t1 = &c->jacobianData_t1.m_jacobians[0];
+                        const btScalar* J_t2 = &c->jacobianData_t2.m_jacobians[0];
+                        
+                        // add in the normal component of the va
+                        btScalar vel = 0.0;
+                        for (int k = 0; k < ndof; ++k)
+                        {
+                            vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * J_n[k];
+                        }
+                        va = cti.m_normal * vel;
+                        
+                        vel = 0.0;
+                        for (int k = 0; k < ndof; ++k)
+                        {
+                            vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * J_t1[k];
+                        }
+                        va += c->t1 * vel;
+                        vel = 0.0;
+                        for (int k = 0; k < ndof; ++k)
+                        {
+                            vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * J_t2[k];
+                        }
+                        va += c->t2 * vel;
+                    }
+                }
+                else
+                {
+                    // The object interacting with deformable node is not supported for position correction
+                    btAssert(false);
+                }
                 
                 if (cti.m_colObj->hasContactResponse())
                 {
