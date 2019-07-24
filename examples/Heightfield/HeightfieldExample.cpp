@@ -22,14 +22,16 @@ subject to the following restrictions:
 #include "../MultiThreadedDemo/CommonRigidBodyMTBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
+#include "../../Utils/b3BulletDefaultFileIO.h"
+#include "../../Importers/ImportURDFDemo/urdfStringSplit.h"
+#include "stb_image/stb_image.h"
 
 // constants -------------------------------------------------------------------
 static const btScalar s_gravity = 9.8;		// 9.8 m/s^2
 
-static const int s_gridSize = 128 + 1;  // must be (2^N) + 1
-static const btScalar s_gridSpacing = 0.5;
-
-static const btScalar s_gridHeightScale = 0.02;
+static int s_gridSize = 16 + 1;  // must be (2^N) + 1
+static btScalar s_gridSpacing = 0.5;
+static btScalar s_gridHeightScale = 0.02;
 
 // the singularity at the center of the radial model means we need a lot of
 //   finely-spaced time steps to get the physics right.
@@ -41,7 +43,10 @@ static const btScalar s_deltaPhase = 0.25 * 2.0 * SIMD_PI;
 // what type of terrain is generated?
 enum eTerrainModel {
 	eRadial = 0,	// deterministic
-	eFractal = 1	// random
+	eFractal = 1,	// random
+	eCSVFile = 2,//csv file used in DeepLoco for example
+	eImageFile = 3,//terrain from png/jpg files, asset from https://www.beamng.com/threads/tutorial-adding-heightmap-roads-using-blender.16356/
+
 };
 
 
@@ -69,7 +74,10 @@ getTerrainTypeName
 
 	case eFractal:
 		return "Fractal";
-
+    case eCSVFile:
+        return "DeepLocoCSV";
+    case eImageFile:
+        return "Image";
 	default:
 		btAssert(!"bad terrain model type");
 	}
@@ -413,6 +421,7 @@ setFractal
 }
 
 
+#define MYLINELENGTH 16*32768
 
 static byte_t *
 getRawHeightfieldData
@@ -423,79 +432,242 @@ getRawHeightfieldData
 	btScalar& maxHeight
 )
 {
-	//	std::cerr << "\nRegenerating terrain\n";
-	//	std::cerr << "  model = " << model << "\n";
-	//	std::cerr << "  type = " << type << "\n";
 
-	long nElements = ((long)s_gridSize) * s_gridSize;
-	//	std::cerr << "  nElements = " << nElements << "\n";
+    if (model==eImageFile)
+    {
 
-	int bytesPerElement = getByteSize(type);
-	//	std::cerr << "  bytesPerElement = " << bytesPerElement << "\n";
-	btAssert(bytesPerElement > 0 && "bad bytes per element");
+        b3BulletDefaultFileIO fileIO;
+        char relativeFileName[1024];
+        int found = fileIO.findFile("heightmaps/wm_height_out.png", relativeFileName, 1024);
+        
 
-	long nBytes = nElements * bytesPerElement;
-	//	std::cerr << "  nBytes = " << nBytes << "\n";
-	byte_t * raw = new byte_t[nBytes];
-	btAssert(raw && "out of memory");
+        b3AlignedObjectArray<char> buffer;
+        buffer.reserve(1024);
+        int fileId = fileIO.fileOpen(relativeFileName,"rb");
+        if (fileId>=0)
+        {
+            int size = fileIO.getFileSize(fileId);
+            if (size>0)
+            {
+                buffer.resize(size);
+                int actual = fileIO.fileRead(fileId,&buffer[0],size);
+                if (actual != size)
+                {
+                    b3Warning("STL filesize mismatch!\n");
+                    buffer.resize(0);
+                }
+            }
+            fileIO.fileClose(fileId);
+        }
 
-	// reseed randomization every 30 seconds
-	//	srand(time(NULL) / 30);
+        if (buffer.size())
+        {
+            int width, height,n;
 
-	// populate based on model
-	switch (model) {
-	case eRadial:
-		setRadial(raw, bytesPerElement, type);
-		break;
+            unsigned char* image = stbi_load_from_memory((const unsigned char*)&buffer[0], buffer.size(), &width, &height, &n, 3);
+            if (image)
+            {
+                printf("width=%d, height=%d at %d channels\n", width,height, n);
+                s_gridSize = width;
+                s_gridSpacing = 0.2;
+                s_gridHeightScale = 0.2;
+                fileIO.fileClose(fileId);
+                long nElements = ((long)s_gridSize) * s_gridSize;
+                //	std::cerr << "  nElements = " << nElements << "\n";
 
-	case eFractal:
-		for (int i = 0; i < nBytes; i++)
-		{
-			raw[i] = 0;
-		}
-		setFractal(raw, bytesPerElement, type, s_gridSize - 1);
-		break;
+                int bytesPerElement = getByteSize(type);
+                //	std::cerr << "  bytesPerElement = " << bytesPerElement << "\n";
+                btAssert(bytesPerElement > 0 && "bad bytes per element");
 
-	default:
-		btAssert(!"bad model type");
-	}
+                long nBytes = nElements * bytesPerElement;
+                //	std::cerr << "  nBytes = " << nBytes << "\n";
+                byte_t * raw = new byte_t[nBytes];
+                btAssert(raw && "out of memory");
 
-	//		std::cerr << "final grid:\n";
-	//dumpGrid(raw, bytesPerElement, type, s_gridSize - 1);
-	
-	// find min/max
-	for (int i = 0; i < s_gridSize; ++i) {
-		for (int j = 0; j < s_gridSize; ++j) {
-			btScalar z = getGridHeight(raw, i, j, type);
-			//			std::cerr << "i=" << i << ", j=" << j << ": z=" << z << "\n";
+                byte_t * p = raw;
+                for (int i = 0; i < width; ++i)
+                {
+                    float x = i * s_gridSpacing;
+                    for (int j = 0; j < width; ++j)
+                    {
+                        float y = j * s_gridSpacing;
+                        float z = double(image[i*3+width*j*3])*(40./256.);
+                        convertFromFloat(p, z, type);
+                        p += bytesPerElement;
+                    }
+                }
+                return raw;
 
-			// update min/max
-			if (!i && !j) {
-				minHeight = z;
-				maxHeight = z;
-			}
-			else {
-				if (z < minHeight) {
-					minHeight = z;
-				}
-				if (z > maxHeight) {
-					maxHeight = z;
-				}
-			}
-		}
-	}
+            }
 
-	if (maxHeight < -minHeight) {
-		maxHeight = -minHeight;
-	}
-	if (minHeight > -maxHeight) {
-		minHeight = -maxHeight;
-	}
+        }
 
-	//	std::cerr << "  minHeight = " << minHeight << "\n";
-	//	std::cerr << "  maxHeight = " << maxHeight << "\n";
 
-	return raw;
+
+
+
+    }
+
+    if (model==eCSVFile)
+    {
+        {
+            b3BulletDefaultFileIO fileIO;
+            char relativePath[1024];
+            int found = fileIO.findFile("heightmaps/ground0.txt", relativePath, 1024);
+            char lineBuffer[MYLINELENGTH];
+            int slot = fileIO.fileOpen(relativePath, "r");
+            int rows = 0;
+            int cols=0;
+
+            btAlignedObjectArray<double> allValues;
+            if (slot>=0)
+            {
+                char* lineChar;
+                while (lineChar = fileIO.readLine(slot, lineBuffer, MYLINELENGTH))
+                {
+                    rows=0;
+                    char** values = urdfStrSplit(lineChar, ",");
+                    if (values)
+                    {
+                        int index = 0;
+                        char* value;
+                        while (value = values[index++])
+                        {
+                            std::string strval(value);
+                            double v;
+                            if(sscanf(value, "%lf", &v) == 1)
+                            {
+                                //printf("strlen = %d\n", strval.length());
+                                //printf("value[%d,%d]=%s or (%f)", cols,rows,value, v);
+                                allValues.push_back(v);
+                                rows++;
+                            }
+                        }
+                    }
+                    cols++;
+
+                }
+                printf("done, rows=%d, cols=%d\n", rows, cols);
+                int width = rows-1;
+                s_gridSize = rows;
+                s_gridSpacing = 0.2;
+                s_gridHeightScale = 0.2;
+                fileIO.fileClose(slot);
+                long nElements = ((long)s_gridSize) * s_gridSize;
+                //	std::cerr << "  nElements = " << nElements << "\n";
+
+                int bytesPerElement = getByteSize(type);
+                //	std::cerr << "  bytesPerElement = " << bytesPerElement << "\n";
+                btAssert(bytesPerElement > 0 && "bad bytes per element");
+
+                long nBytes = nElements * bytesPerElement;
+                //	std::cerr << "  nBytes = " << nBytes << "\n";
+                byte_t * raw = new byte_t[nBytes];
+                btAssert(raw && "out of memory");
+
+                byte_t * p = raw;
+                for (int i = 0; i < width; ++i)
+                {
+                    float x = i * s_gridSpacing;
+                    for (int j = 0; j < width; ++j)
+                    {
+                        float y = j * s_gridSpacing;
+                        float z = allValues[i+width*j];
+                        convertFromFloat(p, z, type);
+                        p += bytesPerElement;
+                    }
+                }
+                return raw;
+            }
+            printf("found=%d",found);
+        }
+    } else
+    {
+        if (model==eRadial)
+        {
+            s_gridSize = 16 + 1;  // must be (2^N) + 1
+            s_gridSpacing = 0.5;
+            s_gridHeightScale = 0.02;
+        } else
+        {
+            s_gridSize = 256 + 1;  // must be (2^N) + 1
+            s_gridSpacing = 0.5;
+            s_gridHeightScale = 0.02;
+        }
+        //	std::cerr << "\nRegenerating terrain\n";
+        //	std::cerr << "  model = " << model << "\n";
+        //	std::cerr << "  type = " << type << "\n";
+
+        long nElements = ((long)s_gridSize) * s_gridSize;
+        //	std::cerr << "  nElements = " << nElements << "\n";
+
+        int bytesPerElement = getByteSize(type);
+        //	std::cerr << "  bytesPerElement = " << bytesPerElement << "\n";
+        btAssert(bytesPerElement > 0 && "bad bytes per element");
+
+        long nBytes = nElements * bytesPerElement;
+        //	std::cerr << "  nBytes = " << nBytes << "\n";
+        byte_t * raw = new byte_t[nBytes];
+        btAssert(raw && "out of memory");
+
+        // reseed randomization every 30 seconds
+        //	srand(time(NULL) / 30);
+
+        // populate based on model
+        switch (model) {
+        case eRadial:
+            setRadial(raw, bytesPerElement, type);
+            break;
+
+        case eFractal:
+            for (int i = 0; i < nBytes; i++)
+            {
+                raw[i] = 0;
+            }
+            setFractal(raw, bytesPerElement, type, s_gridSize - 1);
+            break;
+
+        default:
+            btAssert(!"bad model type");
+        }
+
+        //		std::cerr << "final grid:\n";
+        //dumpGrid(raw, bytesPerElement, type, s_gridSize - 1);
+
+        // find min/max
+        for (int i = 0; i < s_gridSize; ++i) {
+            for (int j = 0; j < s_gridSize; ++j) {
+                btScalar z = getGridHeight(raw, i, j, type);
+                //			std::cerr << "i=" << i << ", j=" << j << ": z=" << z << "\n";
+
+                // update min/max
+                if (!i && !j) {
+                    minHeight = z;
+                    maxHeight = z;
+                }
+                else {
+                    if (z < minHeight) {
+                        minHeight = z;
+                    }
+                    if (z > maxHeight) {
+                        maxHeight = z;
+                    }
+                }
+            }
+        }
+
+        if (maxHeight < -minHeight) {
+            maxHeight = -minHeight;
+        }
+        if (minHeight > -maxHeight) {
+            minHeight = -maxHeight;
+        }
+
+        //	std::cerr << "  minHeight = " << minHeight << "\n";
+        //	std::cerr << "  maxHeight = " << maxHeight << "\n";
+        return raw;
+    }
+	return 0;
 }
 
 
@@ -517,7 +689,7 @@ public:
 	virtual void initPhysics();
 
 	// public class methods ------------------------------------------------
-	
+
 	void castRays();
 
 	void stepSimulation(float deltaTime);
@@ -549,7 +721,7 @@ private:
 };
 
 
-#define HEIGHTFIELD_TYPE_COUNT 2
+#define HEIGHTFIELD_TYPE_COUNT 4
 eTerrainModel gHeightfieldType = eRadial;
 
 void setHeightfieldTypeComboBoxCallback(int combobox, const char* item, void* userPointer)
@@ -601,7 +773,7 @@ HeightfieldExample::~HeightfieldExample(void)
 {
 	clearWorld();
 
-	
+
 }
 
 
@@ -680,7 +852,7 @@ public:
 
 	btRaycastBar3(btScalar ray_length, btScalar z, btScalar max_y, struct GUIHelperInterface* guiHelper, int upAxisIndex)
 	{
-		
+
 		m_guiHelper = guiHelper;
 		frame_counter = 0;
 		ms = 0;
@@ -746,7 +918,7 @@ public:
 
 			{
 				BT_PROFILE("cw->rayTest");
-				//to disable raycast accelerator, uncomment next line 
+				//to disable raycast accelerator, uncomment next line
 				//cb.m_flags |= btTriangleRaycastCallback::kF_DisableHeightfieldAccelerator;
 				cw->rayTest(source[i], dest[i], cb);
 			}
@@ -930,7 +1102,7 @@ void HeightfieldExample::stepSimulation(float deltaTime)
 void HeightfieldExample::initPhysics()
 {
 	//	std::cerr << "initializing...\n";
-	
+
 	createEmptyDynamicsWorld();
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	m_upAxis = 2;		// start with Y-axis as "up"
@@ -938,17 +1110,17 @@ void HeightfieldExample::initPhysics()
 
 	raycastBar = btRaycastBar3(2500.0, 0, 2.0, m_guiHelper, m_upAxis);
 	// set up basic state
-	
+
 
 	m_type = PHY_FLOAT;// SHORT;
 	m_model = gHeightfieldType;
 	m_isDynamic = true;
 
 	// set up the physics world
-	
+
 	// initialize axis- or type-dependent physics from here
 	this->resetPhysics();
-	
+
 }
 
 
@@ -983,7 +1155,45 @@ void HeightfieldExample::resetPhysics(void)
 			m_minHeight, m_maxHeight,
 			m_upAxis, m_type, flipQuadEdges);
 	btAssert(m_heightfieldShape && "null heightfield");
-	
+
+	if (m_model== eImageFile)
+	{
+		b3BulletDefaultFileIO fileIO;
+		char relativeFileName[1024];
+		int found = fileIO.findFile("heightmaps/gimp_overlay_out.png", relativeFileName, 1024);
+
+		b3AlignedObjectArray<char> buffer;
+		buffer.reserve(1024);
+		int fileId = fileIO.fileOpen(relativeFileName, "rb");
+		if (fileId >= 0)
+		{
+			int size = fileIO.getFileSize(fileId);
+			if (size>0)
+			{
+				buffer.resize(size);
+				int actual = fileIO.fileRead(fileId, &buffer[0], size);
+				if (actual != size)
+				{
+					b3Warning("STL filesize mismatch!\n");
+					buffer.resize(0);
+				}
+			}
+			fileIO.fileClose(fileId);
+		}
+
+		if (buffer.size())
+		{
+			int width, height, n;
+
+
+			unsigned char* image = stbi_load_from_memory((const unsigned char*)&buffer[0], buffer.size(), &width, &height, &n, 3);
+			if (image)
+			{
+				int texId = m_guiHelper->registerTexture(image, width, height);
+				m_heightfieldShape->setUserIndex2(texId);
+			}
+		}
+	}
 	if (m_upAxis == 2)
 		m_heightfieldShape->setFlipTriangleWinding(true);
 	//buildAccelerator is optional, it may not support all features.
@@ -1003,8 +1213,11 @@ void HeightfieldExample::resetPhysics(void)
 
 	// create ground object
 	float mass = 0.0;
-	createRigidBody(mass, tr, m_heightfieldShape);
+	btRigidBody* body = createRigidBody(mass, tr, m_heightfieldShape);
+	double color[4]={1,1,1,1};
+
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+	m_guiHelper->changeRGBAColor(body->getUserIndex(),color);
 }
 
 
@@ -1036,7 +1249,7 @@ void HeightfieldExample::clearWorld(void)
 		m_collisionShapes.clear();
 
 		// delete raw heightfield data
-		delete[] m_rawHeightfieldData;
+		delete m_rawHeightfieldData;
 		m_rawHeightfieldData = NULL;
 	}
 }

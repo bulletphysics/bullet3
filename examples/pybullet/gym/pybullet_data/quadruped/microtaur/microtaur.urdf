@@ -1,0 +1,1186 @@
+<?xml version="1.0"?>
+<!-- ======================================================================= -->
+<!--LICENSE:                                                                 -->
+<!--Copyright (c) 2019, Erwin Coumans                                        -->
+<!--Google Inc.                                                              -->
+<!--All rights reserved.                                                     -->
+<!--                                                                         -->
+<!--Redistribution and use in source and binary forms, with or without       -->
+<!--modification, are permitted provided that the following conditions are   -->
+<!--met:                                                                     -->
+<!--                                                                         -->
+<!--1. Redistributions or derived work must retain this copyright notice,    -->
+<!--   this list of conditions and the following disclaimer.                 -->
+<!--                                                                         -->
+<!--2. Redistributions in binary form must reproduce the above copyright     -->
+<!--   notice, this list of conditions and the following disclaimer in the   -->
+<!--   documentation and/or other materials provided with the distribution.  -->
+<!--                                                                         -->
+<!--THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS  -->
+<!--IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,-->
+<!--THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR   -->
+<!--PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR        -->
+<!--CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,    -->
+<!--EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,      -->
+<!--PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR       -->
+<!--PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF   -->
+<!--LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING     -->
+<!--NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS       -->
+<!--SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.             -->
+
+<robot name="microtaur">
+  <link name="base_chassis_link">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 -1.57079" xyz="0 0 0.036"/>
+       <mass value="0.64"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 -1.57079" xyz="-0.045 0.045 0.018"/>
+      <geometry>
+				<mesh filename="xavier.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 -1.57079" xyz="0 0 0.033"/>
+      <geometry>
+	 	<box size="0.092 0.105 0.045"/>
+      </geometry>
+    </collision>
+  </link>	
+  
+   <link name="plate0">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value="0.08"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.037 0.0045 0"/>
+      <geometry>
+				<mesh filename="plate.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black1">
+        <color rgba="0.1 0.1 0.1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="0.074 0.009 0.138"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="plate0_center" type="fixed">
+    <axis xyz="0 0 1"/>
+    <parent link="base_chassis_link"/>
+    <child link="plate0"/>
+    <origin rpy="-1.57079 0 -1.57079" xyz="0.063 0.028 0.005"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+   <link name="plate1">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value="0.08"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.037 0.0045 0"/>
+      <geometry>
+				<mesh filename="plate.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black1">
+        <color rgba="0.1 0.1 0.1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="0.074 0.009 0.138"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="plate1_center" type="fixed">
+    <axis xyz="0 0 1"/>
+    <parent link="base_chassis_link"/>
+    <child link="plate1"/>
+    <origin rpy="-1.57079 0 -1.57079" xyz="-0.063 0.028 0.005"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+  
+  <link name="plate2">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value="0.08"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.037 0.0045 0"/>
+      <geometry>
+				<mesh filename="plate.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black1">
+        <color rgba="0.1 0.1 0.1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="0.074 0.009 0.138"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="plate2_center" type="fixed">
+    <axis xyz="0 0 1"/>
+    <parent link="base_chassis_link"/>
+    <child link="plate2"/>
+    <origin rpy="-1.57079 0 1.57079" xyz="0.063 -0.028 0.005"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+   <link name="plate3">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value="0.08"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.037 0.0045 0"/>
+      <geometry>
+				<mesh filename="plate.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black1">
+        <color rgba="0.1 0.1 0.1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="0.074 0.009 0.138"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="plate3_center" type="fixed">
+    <axis xyz="0 0 1"/>
+    <parent link="base_chassis_link"/>
+    <child link="plate3"/>
+    <origin rpy="-1.57079 0 1.57079" xyz="-0.063 -0.028 0.005"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+	<link name="chassis_right">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="-1.57079 0 -1.57079" xyz="0 0 0"/>
+       <mass value="0.13"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="-1.57079 0 -1.57079" xyz="-0.1502 0.019 0.019 "/>
+      <geometry>
+				<mesh filename="channel.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="-1.57079 0 -1.57079" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="0.038 0.038 0.305"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="chassis_right_center" type="fixed">
+    <axis xyz="0 0 1"/>
+    <parent link="base_chassis_link"/>
+    <child link="chassis_right"/>
+    <origin rpy="0 0 0" xyz="0.0 -0.07 0.019"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+ <link name="chassis_front">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="-1.57079 0 0" xyz="0 0 0"/>
+       <mass value="0.13"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="-1.57079 0 0" xyz="-0.019 -0.075 0.019 "/>
+      <geometry>
+				<mesh filename="channel_6inch.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="bla2">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="-1.57079 0 0" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="0.038 0.038 0.152"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="chassis_front_center" type="fixed">
+    <axis xyz="0 0 1"/>
+    <parent link="base_chassis_link"/>
+    <child link="chassis_front"/>
+    <origin rpy="0 0 0" xyz="0.1335 0.0 0.019"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+
+  
+ <link name="dynamixel7">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+       <mass value="0.082"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <geometry>
+				<mesh filename="xm430w210.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="dyn11green">
+        <color rgba="0.3 1. .3 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+      <geometry>
+	 	<box size="0.024 0.047 0.034"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dynamixel7_chassis_left" type="continuous">
+    <axis xyz="0 0 1"/>
+    <parent link="chassis_left"/>
+    <child link="dynamixel7"/>
+    <origin rpy="-3.14159 1.57079 0 0" xyz="-0.13 0.045 0.0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+  
+ <link name="dynamixel4">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+       <mass value="0.082"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <geometry>
+				<mesh filename="xm430w210.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="dyn6bl">
+        <color rgba="0.3 .3 .3 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+      <geometry>
+	 	<box size="0.024 0.047 0.034"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dynamixel4_chassis_right" type="continuous">
+    <axis xyz="0 0 1"/>
+    <parent link="chassis_right"/>
+    <child link="dynamixel4"/>
+    <origin rpy="0 1.57079 0 0" xyz="0.13 -0.045 0.0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+  
+ <link name="dynamixel3">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+       <mass value="0.082"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <geometry>
+				<mesh filename="xm430w210.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="dyn14bl">
+        <color rgba="0.3 .3 .3 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+      <geometry>
+	 	<box size="0.024 0.047 0.034"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dynamixel3_chassis_right" type="continuous">
+    <axis xyz="0 0 1"/>
+    <parent link="chassis_right"/>
+    <child link="dynamixel3"/>
+    <origin rpy="0 -1.57079 0 0" xyz="-0.13 -0.045 0.0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+
+  
+   <link name="dynamixel11">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+       <mass value="0.082"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <geometry>
+				<mesh filename="xm430w210.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="dyn2bl">
+        <color rgba="0.3 .3 .3 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+      <geometry>
+	 	<box size="0.024 0.047 0.034"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dynamixel11_chassis_left" type="continuous">
+    <axis xyz="0 0 -1"/>
+    <parent link="chassis_left"/>
+    <child link="dynamixel11"/>
+    <origin rpy="-3.14159 -1.57079 0 0" xyz="0.13 0.045 0.0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+
+
+  
+   <link name="d435">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value="0.081"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.0125"/>
+      <geometry>
+				<mesh filename="d435i.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="0.09 0.025 0.025"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  
+  <joint name="d435_front" type="fixed">
+    <axis xyz="0 0 1"/>
+    <parent link="chassis_front"/>
+    <child link="d435"/>
+    <origin rpy="1.57079 0 1.57079" xyz="0 0 0.04"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+ <link name="chassis_rear">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="-1.57079 0 0" xyz="0 0 0"/>
+       <mass value="0.13"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="-1.57079 0 0" xyz="-0.019 -0.075 0.019 "/>
+      <geometry>
+				<mesh filename="channel_6inch.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="-1.57079 0 0" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="0.038 0.038 0.152"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="chassis_rear_center" type="fixed">
+    <axis xyz="0 0 1"/>
+    <parent link="base_chassis_link"/>
+    <child link="chassis_rear"/>
+    <origin rpy="0 0 0" xyz="-0.1335 0.0 0.019"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+ <link name="chassis_left">
+   <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="-1.57079 0 -1.57079" xyz="0 0 0"/>
+       <mass value="0.13"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="-1.57079 0 -1.57079" xyz="-0.1502 0.019 0.019 "/>
+      <geometry>
+				<mesh filename="channel.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="-1.57079 0 -1.57079" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="0.038 0.038 0.305"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="chassis_left_center" type="fixed">
+    <axis xyz="0 0 1"/>
+    <parent link="base_chassis_link"/>
+    <child link="chassis_left"/>
+    <origin rpy="0 0 0" xyz="0.0 0.07 0.019"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+
+
+
+ <link name="dynamixel5">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+       <mass value="0.082"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <geometry>
+				<mesh filename="xm430w210.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="dyn14bl">
+        <color rgba="0.3 .3 .3 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+      <geometry>
+	 	<box size="0.024 0.047 0.034"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dynamixel5_dynamixel3" type="fixed">
+    <parent link="dynamixel3"/>
+    <child link="dynamixel5"/>
+    <origin rpy="-1.57079 0 -1.57079 0" xyz="0.0 -0.053 -0.018"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+   <link name="fr12_h103_right_back">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value="0.090"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 1.57079 0" xyz="0 0  0"/>
+      <geometry>
+				<mesh filename="fr12_h103_lowres.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <visual>
+      <origin rpy="0 1.57079 3.14159" xyz="0 0.111  0"/>
+      <geometry>
+				<mesh filename="fr12_h103_lowres.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 1.57079 0" xyz="0. 0.028 0"/>
+      <geometry>
+				<box size="0.04 0.057 0.03"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.57079 0" xyz="0. 0.083 0"/>
+      <geometry>
+				<box size="0.04 0.057 0.03"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="fr12_h103_right_back_dynamixel5" type="continuous">
+    <axis xyz="0 0 1"/>
+    <parent link="dynamixel5"/>
+    <child link="fr12_h103_right_back"/>
+    <origin rpy="0 0 -1.57079" xyz="0 0 0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+  
+   <link name="dynamixel6">
+    <contact>
+      <lateral_friction value="0.3"/>
+      <friction_anchor/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+       <mass value="0.082"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <geometry>
+				<mesh filename="xm430w210.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="dyn2black">
+        <color rgba="0.3 .3 .3 1"/>
+      </material>
+    </visual>
+     <visual>
+      <origin rpy="0 1.57079 0" xyz="0 -0.09  0"/>
+      <geometry>
+				<mesh filename="fr12_h103_lowres.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black23">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    
+    <visual>
+      <origin rpy="0 1.57079 3.14159" xyz="0 -0.09  0"/>
+      <geometry>
+				<mesh filename="fr12_h101.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black23">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    
+    <visual>
+      <origin rpy="0 1.57079 1.57079" xyz="0 -0.13  0"/>
+      <geometry>
+				<mesh filename="toe_brake.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black23">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    
+    <collision>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+      <geometry>
+	 	<box size="0.024 0.047 0.034"/>
+      </geometry>
+    </collision>
+     <collision>
+      <origin rpy="0 1.57079 0" xyz="0. -0.082 0"/>
+      <geometry>
+				<box size="0.04 0.077 0.03"/>
+      </geometry>
+    </collision>
+    
+    <collision>
+      <origin rpy="0 1.57079 1.57079" xyz="0 -0.13  0"/>
+      <geometry>
+				<mesh filename="toe_brake.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dynamixel6_fr12_h103_right_back" type="continuous">
+    <axis xyz="0 0 -1"/>
+    <parent link="fr12_h103_right_back"/>
+    <child link="dynamixel6"/>
+    <origin rpy="3.14159 3.14159 0" xyz="0.0 0.111 0.0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+
+ <link name="dynamixel14">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+       <mass value="0.082"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <geometry>
+				<mesh filename="xm430w210.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="dyn14bl">
+        <color rgba="0.3 .3 .3 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+      <geometry>
+	 	<box size="0.024 0.047 0.034"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dynamixel14_dynamixel4" type="fixed">
+    <parent link="dynamixel4"/>
+    <child link="dynamixel14"/>
+    <origin rpy="1.57079 0 -1.57079 0" xyz="0.0 -0.053 0.018"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+   <link name="fr12_h103_right_front">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value="0.090"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 1.57079 0" xyz="0 0  0"/>
+      <geometry>
+				<mesh filename="fr12_h103_lowres.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <visual>
+      <origin rpy="0 1.57079 3.14159" xyz="0 0.111  0"/>
+      <geometry>
+				<mesh filename="fr12_h103_lowres.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 1.57079 0" xyz="0. 0.028 0"/>
+      <geometry>
+				<box size="0.04 0.057 0.03"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.57079 0" xyz="0. 0.083 0"/>
+      <geometry>
+				<box size="0.04 0.057 0.03"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="fr12_h103_right_front_dynamixel14" type="continuous">
+    <axis xyz="0 0 1"/>
+    <parent link="dynamixel14"/>
+    <child link="fr12_h103_right_front"/>
+    <origin rpy="0 0 -1.57079" xyz="0 0 0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+  
+   <link name="dynamixel12">
+    <contact>
+      <lateral_friction value="0.3"/>
+      <friction_anchor/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+       <mass value="0.082"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <geometry>
+				<mesh filename="xm430w210.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="dyn2black">
+        <color rgba="0.3 .3 .3 1"/>
+      </material>
+    </visual>
+     <visual>
+      <origin rpy="0 1.57079 0" xyz="0 -0.09  0"/>
+      <geometry>
+				<mesh filename="fr12_h103_lowres.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black23">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    
+    <visual>
+      <origin rpy="0 1.57079 3.14159" xyz="0 -0.09  0"/>
+      <geometry>
+				<mesh filename="fr12_h101.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black23">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    
+    <visual>
+      <origin rpy="0 1.57079 1.57079" xyz="0 -0.13  0"/>
+      <geometry>
+				<mesh filename="toe_brake.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black23">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    
+    <collision>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+      <geometry>
+	 	<box size="0.024 0.047 0.034"/>
+      </geometry>
+    </collision>
+     <collision>
+      <origin rpy="0 1.57079 0" xyz="0. -0.082 0"/>
+      <geometry>
+				<box size="0.04 0.077 0.03"/>
+      </geometry>
+    </collision>
+    
+    <collision>
+      <origin rpy="0 1.57079 1.57079" xyz="0 -0.13  0"/>
+      <geometry>
+				<mesh filename="toe_brake.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dynamixel12_fr12_h103_right_front" type="continuous">
+    <axis xyz="0 0 -1"/>
+    <parent link="fr12_h103_right_front"/>
+    <child link="dynamixel12"/>
+    <origin rpy="3.14159 3.14159 0" xyz="0.0 0.111 0.0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+  
+  
+  
+  
+ <link name="dynamixel10">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+       <mass value="0.082"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <geometry>
+				<mesh filename="xm430w210.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="dyn14bl">
+        <color rgba="0.3 .3 .3 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+      <geometry>
+	 	<box size="0.024 0.047 0.034"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dynamixel10_dynamixel11" type="fixed">
+    <parent link="dynamixel11"/>
+    <child link="dynamixel10"/>
+    <origin rpy="1.57079 0 -1.57079 0" xyz="0.0 -0.053 0.018"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+   <link name="fr12_h103_left_front">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value="0.090"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 1.57079 0" xyz="0 0  0"/>
+      <geometry>
+				<mesh filename="fr12_h103_lowres.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <visual>
+      <origin rpy="0 1.57079 3.14159" xyz="0 0.111  0"/>
+      <geometry>
+				<mesh filename="fr12_h103_lowres.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 1.57079 0" xyz="0. 0.028 0"/>
+      <geometry>
+				<box size="0.04 0.057 0.03"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.57079 0" xyz="0. 0.083 0"/>
+      <geometry>
+				<box size="0.04 0.057 0.03"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="fr12_h103_left_front_dynamixel10" type="continuous">
+    <axis xyz="0 0 1"/>
+    <parent link="dynamixel10"/>
+    <child link="fr12_h103_left_front"/>
+    <origin rpy="0 0 -1.57079" xyz="0 0 0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+  
+   <link name="dynamixel8">
+    <contact>
+      <lateral_friction value="0.3"/>
+      <friction_anchor/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+       <mass value="0.082"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <geometry>
+				<mesh filename="xm430w210.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="dyn2black">
+        <color rgba="0.3 .3 .3 1"/>
+      </material>
+    </visual>
+     <visual>
+      <origin rpy="0 1.57079 0" xyz="0 -0.09  0"/>
+      <geometry>
+				<mesh filename="fr12_h103_lowres.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black23">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    
+    <visual>
+      <origin rpy="0 1.57079 3.14159" xyz="0 -0.09  0"/>
+      <geometry>
+				<mesh filename="fr12_h101.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black23">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    
+    <visual>
+      <origin rpy="0 1.57079 1.57079" xyz="0 -0.13  0"/>
+      <geometry>
+				<mesh filename="toe_brake.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black23">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    
+    <collision>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+      <geometry>
+	 	<box size="0.024 0.047 0.034"/>
+      </geometry>
+    </collision>
+     <collision>
+      <origin rpy="0 1.57079 0" xyz="0. -0.082 0"/>
+      <geometry>
+				<box size="0.04 0.077 0.03"/>
+      </geometry>
+    </collision>
+    
+    <collision>
+      <origin rpy="0 1.57079 1.57079" xyz="0 -0.13  0"/>
+      <geometry>
+				<mesh filename="toe_brake.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dynamixel8_fr12_h103_left_front" type="continuous">
+    <axis xyz="0 0 -1"/>
+    <parent link="fr12_h103_left_front"/>
+    <child link="dynamixel8"/>
+    <origin rpy="3.14159 3.14159 0" xyz="0.0 0.111 0.0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+  
+ <link name="dynamixel9">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+       <mass value="0.082"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <geometry>
+				<mesh filename="xm430w210.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="dyn14bl">
+        <color rgba="0.3 .3 .3 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+      <geometry>
+	 	<box size="0.024 0.047 0.034"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dynamixel9_dynamixel7" type="fixed">
+    <parent link="dynamixel7"/>
+    <child link="dynamixel9"/>
+    <origin rpy="-1.57079 0 -1.57079 0" xyz="0.0 -0.053 -0.018"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+   <link name="fr12_h103_left_back">
+    <contact>
+      <lateral_friction value="0.3"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value="0.090"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 1.57079 0" xyz="0 0  0"/>
+      <geometry>
+				<mesh filename="fr12_h103_lowres.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <visual>
+      <origin rpy="0 1.57079 3.14159" xyz="0 0.111  0"/>
+      <geometry>
+				<mesh filename="fr12_h103_lowres.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 1.57079 0" xyz="0. 0.028 0"/>
+      <geometry>
+				<box size="0.04 0.057 0.03"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 1.57079 0" xyz="0. 0.083 0"/>
+      <geometry>
+				<box size="0.04 0.057 0.03"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="fr12_h103_left_back_dynamixel9" type="continuous">
+    <axis xyz="0 0 1"/>
+    <parent link="dynamixel9"/>
+    <child link="fr12_h103_left_back"/>
+    <origin rpy="0 0 -1.57079" xyz="0 0 0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+  
+   <link name="dynamixel13">
+    <contact>
+      <lateral_friction value="0.3"/>
+      <friction_anchor/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+       <mass value="0.082"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 0"/>
+      <geometry>
+				<mesh filename="xm430w210.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="dyn2black">
+        <color rgba="0.3 .3 .3 1"/>
+      </material>
+    </visual>
+     <visual>
+      <origin rpy="0 1.57079 0" xyz="0 -0.09  0"/>
+      <geometry>
+				<mesh filename="fr12_h103_lowres.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black23">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    
+    <visual>
+      <origin rpy="0 1.57079 3.14159" xyz="0 -0.09  0"/>
+      <geometry>
+				<mesh filename="fr12_h101.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black23">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    
+    <visual>
+      <origin rpy="0 1.57079 1.57079" xyz="0 -0.13  0"/>
+      <geometry>
+				<mesh filename="toe_brake.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+       <material name="black23">
+        <color rgba="0.3 0.3 0.3 1"/>
+      </material>
+    </visual>
+    
+    <collision>
+      <origin rpy="0 0 0" xyz="0 -0.011 0"/>
+      <geometry>
+	 	<box size="0.024 0.047 0.034"/>
+      </geometry>
+    </collision>
+     <collision>
+      <origin rpy="0 1.57079 0" xyz="0. -0.082 0"/>
+      <geometry>
+				<box size="0.04 0.077 0.03"/>
+      </geometry>
+    </collision>
+    
+    <collision>
+      <origin rpy="0 1.57079 1.57079" xyz="0 -0.13  0"/>
+      <geometry>
+				<mesh filename="toe_brake.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dynamixel13_fr12_h103_left_back" type="continuous">
+    <axis xyz="0 0 -1"/>
+    <parent link="fr12_h103_left_back"/>
+    <child link="dynamixel13"/>
+    <origin rpy="3.14159 3.14159 0" xyz="0.0 0.111 0.0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+  
+</robot>

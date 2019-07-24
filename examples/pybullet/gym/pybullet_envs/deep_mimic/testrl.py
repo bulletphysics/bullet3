@@ -1,3 +1,4 @@
+import time
 import os
 import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -17,7 +18,7 @@ import random
 
 update_timestep = 1. / 240.
 animating = True
-
+step = False
 
 def update_world(world, time_elapsed):
   timeStep = update_timestep
@@ -82,11 +83,15 @@ if __name__ == '__main__':
 
   world = build_world(args, True)
   while (world.env._pybullet_client.isConnected()):
+
     timeStep = update_timestep
+    time.sleep(timeStep)
     keys = world.env.getKeyboardEvents()
 
     if world.env.isKeyTriggered(keys, ' '):
       animating = not animating
-    if (animating):
+    if world.env.isKeyTriggered(keys, 'i'):
+      step = True
+    if (animating or step):
       update_world(world, timeStep)
-      #animating=False
+      step = False

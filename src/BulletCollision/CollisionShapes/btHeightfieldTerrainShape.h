@@ -114,6 +114,8 @@ protected:
 	int m_vboundsGridLength;
 	int m_vboundsChunkSize;
 
+	int m_userIndex2;
+
 	virtual btScalar getRawHeightFieldValue(int x, int y) const;
 	void quantizeWithClamp(int* out, const btVector3& point, int isMax) const;
 
@@ -185,6 +187,16 @@ public:
 	}
 	//debugging
 	virtual const char* getName() const { return "HEIGHTFIELD"; }
+
+	
+	void setUserIndex2(int index)
+	{
+		m_userIndex2 = index;
+	}
+	int getUserIndex2() const
+	{
+		return m_userIndex2;
+	}
 };
 
 #endif  //BT_HEIGHTFIELD_TERRAIN_SHAPE_H

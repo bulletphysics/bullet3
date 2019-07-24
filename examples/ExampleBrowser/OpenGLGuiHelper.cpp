@@ -261,8 +261,10 @@ class MyTriangleCollector2 : public btTriangleCallback
 public:
 	btAlignedObjectArray<GLInstanceVertex>* m_pVerticesOut;
 	btAlignedObjectArray<int>* m_pIndicesOut;
+	btVector3 m_aabbMin, m_aabbMax;
 
-	MyTriangleCollector2()
+	MyTriangleCollector2(const btVector3& aabbMin, const btVector3& aabbMax)
+		:m_aabbMin(aabbMin), m_aabbMax(aabbMax)
 	{
 		m_pVerticesOut = 0;
 		m_pIndicesOut = 0;
@@ -274,7 +276,7 @@ public:
 		{
 			GLInstanceVertex v;
 			v.xyzw[3] = 0;
-			v.uv[0] = v.uv[1] = 0.5f;
+			
 			btVector3 normal = (tris[0] - tris[1]).cross(tris[0] - tris[2]);
 			normal.safeNormalize();
 			for (int l = 0; l < 3; l++)
@@ -282,6 +284,10 @@ public:
 				v.xyzw[l] = tris[k][l];
 				v.normal[l] = normal[l];
 			}
+
+			v.uv[1] = 1-((v.xyzw[0] - m_aabbMin[0]) / (m_aabbMax[0] - m_aabbMin[0]));
+			v.uv[0] = ((v.xyzw[1] - m_aabbMin[1]) / (m_aabbMax[1] - m_aabbMin[1]));
+
 			m_pIndicesOut->push_back(m_pVerticesOut->size());
 			m_pVerticesOut->push_back(v);
 		}
@@ -446,10 +452,15 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 	if (collisionShape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE)
 	{
 		const btHeightfieldTerrainShape* heightField = static_cast<const btHeightfieldTerrainShape*>(collisionShape);
-		MyTriangleCollector2  col;
+		
+		
+		btVector3 aabbMin, aabbMax;
+		btTransform tr;
+		tr.setIdentity();
+		heightField->getAabb(tr, aabbMin, aabbMax);
+		MyTriangleCollector2  col(aabbMin, aabbMax);
 		col.m_pVerticesOut = &gfxVertices;
 		col.m_pIndicesOut = &indices;
-		btVector3 aabbMin, aabbMax;
 		for (int k = 0; k < 3; k++)
 		{
 			aabbMin[k] = -BT_LARGE_FLOAT;
@@ -458,7 +469,12 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 		heightField->processAllTriangles(&col, aabbMin, aabbMax);
 		if (gfxVertices.size() && indices.size())
 		{
-			int shapeId = m_data->m_glApp->m_renderer->registerShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size());
+			int userImage = heightField->getUserIndex2();
+			if (userImage == -1)
+			{
+				userImage = m_data->m_checkedTextureGrey;
+			}
+			int shapeId = m_data->m_glApp->m_renderer->registerShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(),1, userImage);
 			collisionShape->setUserIndex(shapeId);
 		}
 		return;
