@@ -14,15 +14,13 @@ class btDeformableMassSpringForce : public btDeformableLagrangianForce
 {
 public:
     using TVStack = btDeformableLagrangianForce::TVStack;
-    btDeformableMassSpringForce(const btAlignedObjectArray<btSoftBody *>& softBodies) : btDeformableLagrangianForce(softBodies)
+    btDeformableMassSpringForce()
     {
-        
     }
     
     virtual void addScaledImplicitForce(btScalar scale, TVStack& force)
     {
         addScaledDampingForce(scale, force);
-//        addScaledElasticForce(scale, force);
     }
     
     virtual void addScaledExplicitForce(btScalar scale, TVStack& force)
@@ -33,7 +31,7 @@ public:
     virtual void addScaledDampingForce(btScalar scale, TVStack& force)
     {
         int numNodes = getNumNodes();
-        btAssert(numNodes == force.size())
+        btAssert(numNodes <= force.size())
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             const btSoftBody* psb = m_softBodies[i];
@@ -42,8 +40,8 @@ public:
                 const auto& link = psb->m_links[j];
                 const auto node1 = link.m_n[0];
                 const auto node2 = link.m_n[1];
-                size_t id1 = m_indices[node1];
-                size_t id2 = m_indices[node2];
+                size_t id1 = m_indices->at(node1);
+                size_t id2 = m_indices->at(node2);
                 
                 // damping force
                 btVector3 v_diff = (node2->m_v - node1->m_v);
@@ -58,7 +56,7 @@ public:
     virtual void addScaledElasticForce(btScalar scale, TVStack& force)
     {
         int numNodes = getNumNodes();
-        btAssert(numNodes == force.size())
+        btAssert(numNodes <= force.size())
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             const btSoftBody* psb = m_softBodies[i];
@@ -69,8 +67,8 @@ public:
                 const auto node2 = link.m_n[1];
                 btScalar kLST = link.Feature::m_material->m_kLST;
                 btScalar r = link.m_rl;
-                size_t id1 = m_indices[node1];
-                size_t id2 = m_indices[node2];
+                size_t id1 = m_indices->at(node1);
+                size_t id2 = m_indices->at(node2);
                 
                 // elastic force
                 // explicit elastic force
@@ -95,8 +93,8 @@ public:
                 const auto node1 = link.m_n[0];
                 const auto node2 = link.m_n[1];
                 btScalar k_damp = psb->m_dampingCoefficient;
-                size_t id1 = m_indices[node1];
-                size_t id2 = m_indices[node2];
+                size_t id1 = m_indices->at(node1);
+                size_t id2 = m_indices->at(node2);
                 btVector3 local_scaled_df = scale * k_damp * (dv[id2] - dv[id1]);
                 df[id1] += local_scaled_df;
                 df[id2] -= local_scaled_df;
@@ -104,6 +102,10 @@ public:
         }
     }
     
+    virtual btDeformableLagrangianForceType getForceType()
+    {
+        return BT_MASSSPRING_FORCE;
+    }
     
 };
 

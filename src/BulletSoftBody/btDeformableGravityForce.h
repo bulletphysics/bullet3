@@ -16,7 +16,7 @@ public:
     using TVStack = btDeformableLagrangianForce::TVStack;
     btVector3 m_gravity;
     
-    btDeformableGravityForce(const btAlignedObjectArray<btSoftBody *>& softBodies, const btVector3& g) : btDeformableLagrangianForce(softBodies), m_gravity(g)
+    btDeformableGravityForce(const btVector3& g) : m_gravity(g)
     {
         
     }
@@ -39,14 +39,14 @@ public:
     virtual void addScaledGravityForce(btScalar scale, TVStack& force)
     {
         int numNodes = getNumNodes();
-        btAssert(numNodes == force.size())
+        btAssert(numNodes <= force.size())
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
                 btSoftBody::Node& n = psb->m_nodes[j];
-                size_t id = m_indices[&n];
+                size_t id = m_indices->at(&n);
                 btScalar mass = (n.m_im == 0) ? 0 : 1. / n.m_im;
                 btVector3 scaled_force = scale * m_gravity * mass;
                 force[id] += scaled_force;
@@ -54,7 +54,10 @@ public:
         }
     }
     
-
+    virtual btDeformableLagrangianForceType getForceType()
+    {
+        return BT_GRAVITY_FORCE;
+    }
     
     
 };

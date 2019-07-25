@@ -2266,14 +2266,15 @@ btVector3 btSoftBody::evaluateCom() const
 bool btSoftBody::checkContact(const btCollisionObjectWrapper* colObjWrap,
 							  const btVector3& x,
 							  btScalar margin,
-							  btSoftBody::sCti& cti) const
+							  btSoftBody::sCti& cti, bool predict) const
 {
 	btVector3 nrm;
 	const btCollisionShape* shp = colObjWrap->getCollisionShape();
-        const btRigidBody *tmpRigid = btRigidBody::upcast(colObjWrap->getCollisionObject());
+    const btRigidBody *tmpRigid = btRigidBody::upcast(colObjWrap->getCollisionObject());
     
     // get the position x_{n+1}^* = x_n + dt * v_{n+1}^* where v_{n+1}^* = v_n + dtg
-    const btTransform &wtr = tmpRigid ? tmpRigid->getInterpolationWorldTransform() : colObjWrap->getWorldTransform();
+    const btTransform &wtr = (tmpRigid&&predict) ? tmpRigid->getInterpolationWorldTransform() : colObjWrap->getWorldTransform();
+//    const btTransform &wtr = predict ? colObjWrap->getInterpolationWorldTransform() : colObjWrap->getWorldTransform();
     // TODO: get the correct transform for multibody
 
 	btScalar dst =
@@ -2282,11 +2283,10 @@ bool btSoftBody::checkContact(const btCollisionObjectWrapper* colObjWrap,
 			shp,
 			nrm,
 			margin);
-	if (dst < 0)
+	if (dst < 0 || !predict)
 	{
 		cti.m_colObj = colObjWrap->getCollisionObject();
 		cti.m_normal = wtr.getBasis() * nrm;
-//        cti.m_offset = -btDot(cti.m_normal, x - cti.m_normal * dst);
         cti.m_offset = dst;
 		return (true);
 	}
