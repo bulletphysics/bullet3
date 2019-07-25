@@ -28,6 +28,7 @@ public:
     Preconditioner* m_preconditioner;
     btDeformableContactProjection projection;
     const TVStack& m_backupVelocity;
+    std::unordered_map<btSoftBody::Node *, size_t> m_indices;
     
     btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v);
     
@@ -94,6 +95,24 @@ public:
     {
         m_world = world;
         projection.setWorld(world);
+    }
+    
+    virtual void updateId()
+    {
+        size_t index = 0;
+        for (int i = 0; i < m_softBodies.size(); ++i)
+        {
+            btSoftBody* psb = m_softBodies[i];
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                m_indices[&(psb->m_nodes[j])] = index++;
+            }
+        }
+    }
+    
+    std::unordered_map<btSoftBody::Node *, size_t>* getIndices()
+    {
+        return &m_indices;
     }
 };
 

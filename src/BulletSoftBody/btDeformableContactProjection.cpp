@@ -88,26 +88,27 @@ void btDeformableContactProjection::update()
                             const btScalar* J_n = &c->jacobianData_normal.m_jacobians[0];
                             const btScalar* J_t1 = &c->jacobianData_t1.m_jacobians[0];
                             const btScalar* J_t2 = &c->jacobianData_t2.m_jacobians[0];
+                            const btScalar* local_v = multibodyLinkCol->m_multiBody->getVelocityVector();
                             deltaV_normal = &c->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
-                            
                             // add in the normal component of the va
                             btScalar vel = 0.0;
                             for (int k = 0; k < ndof; ++k)
                             {
-                                vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * J_n[k];
+                                vel += local_v[k] * J_n[k];
                             }
                             va = cti.m_normal * vel * m_dt;
 
+                            // add in the tangential components of the va
                             vel = 0.0;
                             for (int k = 0; k < ndof; ++k)
                             {
-                                vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * J_t1[k];
+                                vel += local_v[k] * J_t1[k];
                             }
                             va += c->t1 * vel * m_dt;
                             vel = 0.0;
                             for (int k = 0; k < ndof; ++k)
                             {
-                                vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * J_t2[k];
+                                vel += local_v[k] * J_t2[k];
                             }
                             va += c->t2 * vel * m_dt;
                         }
@@ -177,7 +178,7 @@ void btDeformableContactProjection::update()
                     
                     // the following is equivalent
                     /*
-                        btVector3 dv = -impulse_normal * c->m_c2/m_dt + c->m_node->m_v - backupVelocity[m_indices[c->m_node]];
+                        btVector3 dv = -impulse_normal * c->m_c2/m_dt + c->m_node->m_v - backupVelocity[m_indices->at(c->m_node)];
                         btScalar dvn = dv.dot(cti.m_normal);
                      */
                     
@@ -196,9 +197,11 @@ void btDeformableContactProjection::update()
                     {
                         if (multibodyLinkCol)
                         {
+                            // apply normal component of the impulse
                             multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_normal, impulse.dot(cti.m_normal));
                             if (incremental_tangent.norm() > SIMD_EPSILON)
                             {
+                                // apply tangential component of the impulse
                                const btScalar* deltaV_t1 = &c->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
                                 multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_t1, impulse.dot(c->t1));
                                 const btScalar* deltaV_t2 = &c->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
@@ -336,7 +339,7 @@ void btDeformableContactProjection::enforceConstraint(TVStack& x)
     for (auto& it : m_constraints)
     {
         const btAlignedObjectArray<DeformableContactConstraint>& constraints = it.second;
-        size_t i = m_indices[it.first];
+        size_t i = m_indices->at(it.first);
         const btAlignedObjectArray<DeformableFrictionConstraint>& frictions = m_frictions[it.first];
         btAssert(constraints.size() <= dim);
         btAssert(constraints.size() > 0);
@@ -399,7 +402,7 @@ void btDeformableContactProjection::project(TVStack& x)
     for (auto& it : m_constraints)
     {
         const btAlignedObjectArray<DeformableContactConstraint>& constraints = it.second;
-        size_t i = m_indices[it.first];
+        size_t i = m_indices->at(it.first);
         btAlignedObjectArray<DeformableFrictionConstraint>& frictions = m_frictions[it.first];
         btAssert(constraints.size() <= dim);
         btAssert(constraints.size() > 0);

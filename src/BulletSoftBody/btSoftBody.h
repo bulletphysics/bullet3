@@ -1005,7 +1005,7 @@ public:
 				btScalar& mint, eFeature::_& feature, int& index, bool bcountonly) const;
 	void initializeFaceTree();
 	btVector3 evaluateCom() const;
-	bool checkContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti) const;
+	bool checkContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
 	void updateNormals();
 	void updateBounds();
 	void updatePose();

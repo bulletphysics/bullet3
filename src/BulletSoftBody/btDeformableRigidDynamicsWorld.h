@@ -126,6 +126,8 @@ public:
     
     void afterSolverCallbacks(btScalar timeStep);
     
+    void addForce(btSoftBody* psb, btDeformableLagrangianForce* force);
+    
     int getDrawFlags() const { return (m_drawFlags); }
     void setDrawFlags(int f) { m_drawFlags = f; }
 };

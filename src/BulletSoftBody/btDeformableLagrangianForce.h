@@ -10,16 +10,20 @@
 
 #include "btSoftBody.h"
 #include <unordered_map>
+enum btDeformableLagrangianForceType
+{
+    BT_GRAVITY_FORCE = 1,
+    BT_MASSSPRING_FORCE = 2
+};
 
 class btDeformableLagrangianForce
 {
 public:
     using TVStack = btAlignedObjectArray<btVector3>;
-    const btAlignedObjectArray<btSoftBody *>& m_softBodies;
-    std::unordered_map<btSoftBody::Node *, size_t> m_indices;
+    btAlignedObjectArray<btSoftBody *> m_softBodies;
+    const std::unordered_map<btSoftBody::Node *, size_t>* m_indices;
     
-    btDeformableLagrangianForce(const btAlignedObjectArray<btSoftBody *>& softBodies)
-    : m_softBodies(softBodies)
+    btDeformableLagrangianForce()
     {
     }
     
@@ -31,23 +35,10 @@ public:
     
     virtual void addScaledExplicitForce(btScalar scale, TVStack& force) = 0;
     
+    virtual btDeformableLagrangianForceType getForceType() = 0;
+    
     virtual void reinitialize(bool nodeUpdated)
     {
-        if (nodeUpdated)
-            updateId();
-    }
-    
-    virtual void updateId()
-    {
-        size_t index = 0;
-        for (int i = 0; i < m_softBodies.size(); ++i)
-        {
-            btSoftBody* psb = m_softBodies[i];
-            for (int j = 0; j < psb->m_nodes.size(); ++j)
-            {
-                m_indices[&(psb->m_nodes[j])] = index++;
-            }
-        }
     }
     
     virtual int getNumNodes()
@@ -58,6 +49,16 @@ public:
             numNodes += m_softBodies[i]->m_nodes.size();
         }
         return numNodes;
+    }
+    
+    virtual void addSoftBody(btSoftBody* psb)
+    {
+        m_softBodies.push_back(psb);
+    }
+    
+    virtual void setIndices(const std::unordered_map<btSoftBody::Node *, size_t>* indices)
+    {
+        m_indices = indices;
     }
 };
 #endif /* BT_DEFORMABLE_LAGRANGIAN_FORCE */

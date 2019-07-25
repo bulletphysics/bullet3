@@ -168,8 +168,9 @@ void DeformableDemo::initPhysics()
 	m_dynamicsWorld = new btDeformableRigidDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
     deformableBodySolver->setWorld(getDeformableDynamicsWorld());
 	//	m_dynamicsWorld->getSolverInfo().m_singleAxisDeformableThreshold = 0.f;//faster but lower quality
-	m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
-    getDeformableDynamicsWorld()->getWorldInfo().m_gravity.setValue(0, -10, 0);
+    btVector3 gravity = btVector3(0, -10, 0);
+	m_dynamicsWorld->setGravity(gravity);
+    getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
     
 //    getDeformableDynamicsWorld()->before_solver_callbacks.push_back(dynamics);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
@@ -235,6 +236,8 @@ void DeformableDemo::initPhysics()
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 1;
         getDeformableDynamicsWorld()->addSoftBody(psb);
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce());
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
         
         // add a few rigid bodies
         Ctor_RbUpStack(1);
