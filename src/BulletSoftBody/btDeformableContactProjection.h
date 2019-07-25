@@ -18,8 +18,8 @@ public:
     std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<DeformableContactConstraint> > m_constraints;
     std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<DeformableFrictionConstraint> > m_frictions;
     
-    btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
-    : btCGProjection(softBodies, dt)
+    btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt, const std::unordered_map<btSoftBody::Node *, size_t>* indices)
+    : btCGProjection(softBodies, dt, indices)
     {
     }
     

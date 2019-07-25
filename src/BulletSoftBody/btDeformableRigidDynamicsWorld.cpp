@@ -60,13 +60,12 @@ void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
                 if (c == nullptr || c->m_node->m_im == 0)
                     continue;
                 const btSoftBody::sCti& cti = c->m_cti;
-                btRigidBody* rigidCol = 0;
                 btVector3 va(0, 0, 0);
                 
                 // grab the velocity of the rigid body
                 if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
                 {
-                    rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
+                    btRigidBody* rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
                     va = rigidCol ? (rigidCol->getVelocityInLocalPoint(c->m_c1)): btVector3(0, 0, 0);
                 }
                 else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
@@ -78,25 +77,25 @@ void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
                         const btScalar* J_n = &c->jacobianData_normal.m_jacobians[0];
                         const btScalar* J_t1 = &c->jacobianData_t1.m_jacobians[0];
                         const btScalar* J_t2 = &c->jacobianData_t2.m_jacobians[0];
-                        
+                        const btScalar* local_v = multibodyLinkCol->m_multiBody->getVelocityVector();
                         // add in the normal component of the va
                         btScalar vel = 0.0;
                         for (int k = 0; k < ndof; ++k)
                         {
-                            vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * J_n[k];
+                            vel += local_v[k] * J_n[k];
                         }
                         va = cti.m_normal * vel;
                         
                         vel = 0.0;
                         for (int k = 0; k < ndof; ++k)
                         {
-                            vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * J_t1[k];
+                            vel += local_v[k] * J_t1[k];
                         }
                         va += c->t1 * vel;
                         vel = 0.0;
                         for (int k = 0; k < ndof; ++k)
                         {
-                            vel += multibodyLinkCol->m_multiBody->getVelocityVector()[k] * J_t2[k];
+                            vel += local_v[k] * J_t2[k];
                         }
                         va += c->t2 * vel;
                     }
@@ -110,7 +109,6 @@ void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
                 if (cti.m_colObj->hasContactResponse())
                 {
                     btScalar dp = cti.m_offset;
-                    rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
                     if (friction.m_static[j] == true)
                     {
                         c->m_node->m_v = va;
@@ -213,4 +211,25 @@ void btDeformableRigidDynamicsWorld::afterSolverCallbacks(btScalar timeStep)
 {
     for (int i = 0; i < m_beforeSolverCallbacks.size(); ++i)
         m_beforeSolverCallbacks[i](m_internalTime, this);
+}
+
+void btDeformableRigidDynamicsWorld::addForce(btSoftBody* psb, btDeformableLagrangianForce* force)
+{
+    btAlignedObjectArray<btDeformableLagrangianForce*>& forces = m_deformableBodySolver->m_objective->m_lf;
+    bool added = false;
+    for (int i = 0; i < forces.size(); ++i)
+    {
+        if (forces[i]->getForceType() == force->getForceType())
+        {
+            forces[i]->addSoftBody(psb);
+            added = true;
+            break;
+        }
+    }
+    if (!added)
+    {
+        force->addSoftBody(psb);
+        force->setIndices(m_deformableBodySolver->m_objective->getIndices());
+        forces.push_back(force);
+    }
 }
