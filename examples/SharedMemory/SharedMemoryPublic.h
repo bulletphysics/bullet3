@@ -886,6 +886,8 @@ enum eUrdfGeomTypes  //sync with UrdfParser UrdfGeomTypes
 	GEOM_MESH,
 	GEOM_PLANE,
 	GEOM_CAPSULE,  //non-standard URDF?
+	GEOM_SDF,      //signed-distance-field, non-standard URDF
+	GEOM_HEIGHTFIELD,
 	GEOM_UNKNOWN,
 };
 

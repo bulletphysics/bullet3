@@ -14,7 +14,7 @@
 #include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
 #include "BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodySphericalJointMotor.h"
-
+#include "../Utils/b3BulletDefaultFileIO.h"
 
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
@@ -4211,6 +4211,158 @@ bool PhysicsServerCommandProcessor::processSaveWorldCommand(const struct SharedM
 	return hasStatus;
 }
 
+
+
+
+
+#define MYLINELENGTH 16*32768
+
+static unsigned char* MyGetRawHeightfieldData(const char* fileName, int& width, int& height)
+{
+	int s_gridSize = width;
+	btScalar s_gridSpacing = 0.5;
+	btScalar s_gridHeightScale = 0.02;
+
+	PHY_ScalarType type = PHY_FLOAT;
+	if (1)//model == eImageFile)
+	{
+		b3BulletDefaultFileIO fileIO;
+		char relativeFileName[1024];
+		int found = fileIO.findFile(fileName, relativeFileName, 1024);
+		
+		b3AlignedObjectArray<char> buffer;
+		buffer.reserve(1024);
+		int fileId = fileIO.fileOpen(relativeFileName, "rb");
+		if (fileId >= 0)
+		{
+			int size = fileIO.getFileSize(fileId);
+			if (size>0)
+			{
+				buffer.resize(size);
+				int actual = fileIO.fileRead(fileId, &buffer[0], size);
+				if (actual != size)
+				{
+					b3Warning("STL filesize mismatch!\n");
+					buffer.resize(0);
+				}
+			}
+			fileIO.fileClose(fileId);
+		}
+
+		if (buffer.size())
+		{
+			int n;
+
+			unsigned char* image = stbi_load_from_memory((const unsigned char*)&buffer[0], buffer.size(), &width, &height, &n, 3);
+			if (image)
+			{
+				
+				fileIO.fileClose(fileId);
+				long nElements = ((long)s_gridSize) * s_gridSize;
+				int bytesPerElement = sizeof(btScalar); 
+				btAssert(bytesPerElement > 0 && "bad bytes per element");
+
+				long nBytes = nElements * bytesPerElement;
+				unsigned char * raw = new unsigned char[nBytes];
+				btAssert(raw && "out of memory");
+
+				unsigned char * p = raw;
+				for (int i = 0; i < width; ++i)
+				{
+					float x = i * s_gridSpacing;
+					for (int j = 0; j < width; ++j)
+					{
+						float y = j * s_gridSpacing;
+						float z = double(image[i * 3 + width*j * 3])*(40. / 256.);
+						btScalar * pf = (btScalar *)p;
+						*pf = z;
+						p += bytesPerElement;
+					}
+				}
+				return raw;
+			}
+		}
+	}
+#if 0
+	if (model == eCSVFile)
+	{
+		{
+			b3BulletDefaultFileIO fileIO;
+			char relativePath[1024];
+			int found = fileIO.findFile("heightmaps/ground0.txt", relativePath, 1024);
+			char lineBuffer[MYLINELENGTH];
+			int slot = fileIO.fileOpen(relativePath, "r");
+			int rows = 0;
+			int cols = 0;
+
+			btAlignedObjectArray<double> allValues;
+			if (slot >= 0)
+			{
+				char* lineChar;
+				while (lineChar = fileIO.readLine(slot, lineBuffer, MYLINELENGTH))
+				{
+					rows = 0;
+					char** values = urdfStrSplit(lineChar, ",");
+					if (values)
+					{
+						int index = 0;
+						char* value;
+						while (value = values[index++])
+						{
+							std::string strval(value);
+							double v;
+							if (sscanf(value, "%lf", &v) == 1)
+							{
+								//printf("strlen = %d\n", strval.length());
+								//printf("value[%d,%d]=%s or (%f)", cols,rows,value, v);
+								allValues.push_back(v);
+								rows++;
+							}
+						}
+					}
+					cols++;
+
+				}
+				printf("done, rows=%d, cols=%d\n", rows, cols);
+				int width = rows - 1;
+				s_gridSize = rows;
+				s_gridSpacing = 0.2;
+				s_gridHeightScale = 0.2;
+				fileIO.fileClose(slot);
+				long nElements = ((long)s_gridSize) * s_gridSize;
+				//	std::cerr << "  nElements = " << nElements << "\n";
+
+				int bytesPerElement = getByteSize(type);
+				//	std::cerr << "  bytesPerElement = " << bytesPerElement << "\n";
+				btAssert(bytesPerElement > 0 && "bad bytes per element");
+
+				long nBytes = nElements * bytesPerElement;
+				//	std::cerr << "  nBytes = " << nBytes << "\n";
+				unsigned char * raw = new unsigned char[nBytes];
+				btAssert(raw && "out of memory");
+
+				byte_t * p = raw;
+				for (int i = 0; i < width; ++i)
+				{
+					float x = i * s_gridSpacing;
+					for (int j = 0; j < width; ++j)
+					{
+						float y = j * s_gridSpacing;
+						float z = allValues[i + width*j];
+						convertFromFloat(p, z, type);
+						p += bytesPerElement;
+					}
+				}
+				return raw;
+			}
+		}
+	}
+#endif
+	
+	return 0;
+}
+
+
 bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -4318,6 +4470,11 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 				urdfColObj.m_geometry.m_capsuleRadius = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius;
 				urdfColObj.m_geometry.m_capsuleHeight = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight;
 
+				break;
+			}
+			case GEOM_HEIGHTFIELD:
+			{
+				
 				break;
 			}
 			case GEOM_PLANE:

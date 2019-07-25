@@ -22,8 +22,8 @@ subject to the following restrictions:
 #include "../MultiThreadedDemo/CommonRigidBodyMTBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
-#include "../../Utils/b3BulletDefaultFileIO.h"
-#include "../../Importers/ImportURDFDemo/urdfStringSplit.h"
+#include "../Utils/b3BulletDefaultFileIO.h"
+#include "../Importers/ImportURDFDemo/urdfStringSplit.h"
 #include "stb_image/stb_image.h"
 
 // constants -------------------------------------------------------------------
@@ -1112,7 +1112,7 @@ void HeightfieldExample::initPhysics()
 	// set up basic state
 
 
-	m_type = PHY_FLOAT;// SHORT;
+	m_type = PHY_FLOAT;
 	m_model = gHeightfieldType;
 	m_isDynamic = true;
 
@@ -1156,8 +1156,14 @@ void HeightfieldExample::resetPhysics(void)
 			m_upAxis, m_type, flipQuadEdges);
 	btAssert(m_heightfieldShape && "null heightfield");
 
+	// set origin to middle of heightfield
+	btTransform tr;
+	tr.setIdentity();
+	tr.setOrigin(btVector3(0, 0, 0));
+
 	if (m_model== eImageFile)
 	{
+		tr.setOrigin(btVector3(0, 0, -24));
 		b3BulletDefaultFileIO fileIO;
 		char relativeFileName[1024];
 		int found = fileIO.findFile("heightmaps/gimp_overlay_out.png", relativeFileName, 1024);
@@ -1206,10 +1212,7 @@ void HeightfieldExample::resetPhysics(void)
 	// stash this shape away
 	m_collisionShapes.push_back(m_heightfieldShape);
 
-	// set origin to middle of heightfield
-	btTransform tr;
-	tr.setIdentity();
-	tr.setOrigin(btVector3(0, 0, 0));
+
 
 	// create ground object
 	float mass = 0.0;
@@ -1249,7 +1252,7 @@ void HeightfieldExample::clearWorld(void)
 		m_collisionShapes.clear();
 
 		// delete raw heightfield data
-		delete m_rawHeightfieldData;
+		delete[] m_rawHeightfieldData;
 		m_rawHeightfieldData = NULL;
 	}
 }
