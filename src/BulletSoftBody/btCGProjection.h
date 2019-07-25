@@ -109,12 +109,13 @@ public:
     using TArrayStack = btAlignedObjectArray<btAlignedObjectArray<btScalar> >;
     btAlignedObjectArray<btSoftBody *> m_softBodies;
     btDeformableRigidDynamicsWorld* m_world;
-    std::unordered_map<btSoftBody::Node *, size_t> m_indices;
+    const std::unordered_map<btSoftBody::Node *, size_t>* m_indices;
     const btScalar& m_dt;
     
-    btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
+    btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt, const std::unordered_map<btSoftBody::Node *, size_t>* indices)
     : m_softBodies(softBodies)
     , m_dt(dt)
+    , m_indices(indices)
     {
     }
     
@@ -132,22 +133,6 @@ public:
     
     virtual void reinitialize(bool nodeUpdated)
     {
-        if (nodeUpdated)
-            updateId();
-    }
-    
-    void updateId()
-    {
-        size_t index = 0;
-        m_indices.clear();
-        for (int i = 0; i < m_softBodies.size(); ++i)
-        {
-            btSoftBody* psb = m_softBodies[i];
-            for (int j = 0; j < psb->m_nodes.size(); ++j)
-            {
-                m_indices[&(psb->m_nodes[j])] = index++;
-            }
-        }
     }
     
     void setSoftBodies(btAlignedObjectArray<btSoftBody* > softBodies)

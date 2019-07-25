@@ -945,14 +945,17 @@ struct btSoftColliders
 
 			if (!n.m_battach)
             {
-				if (psb->checkContact(m_colObj1Wrap, n.m_x, m, c.m_cti))
+                // check for collision at x_{n+1}^*
+                if (psb->checkContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predicted = */ true))
+//                if (psb->checkContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predicted = */ false));
                 {
                     const btScalar ima = n.m_im;
                     const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;
                     const btScalar ms = ima + imb;
                     if (ms > 0)
                     {
-                        psb->checkContact(m_colObj1Wrap, n.m_q, m, c.m_cti);
+                        // resolve contact at x_n
+                        psb->checkContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predicted = */ false);
                         auto& cti = c.m_cti;
                         c.m_node = &n;
                         const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();
@@ -982,8 +985,13 @@ struct btSoftColliders
                                 btVector3 t2 = btCross(normal, t1);
                                 btMultiBodyJacobianData jacobianData_normal, jacobianData_t1, jacobianData_t2;
                                 findJacobian(multibodyLinkCol, jacobianData_normal, c.m_node->m_q, normal);
-                                findJacobian(multibodyLinkCol, jacobianData_t1, c.m_node->m_q, t1);
-                                findJacobian(multibodyLinkCol, jacobianData_t2, c.m_node->m_q, t2);
+                                
+                                // findJacobian is hella expensive, avoid calling if possible
+                                if (fc != 0)
+                                {
+                                    findJacobian(multibodyLinkCol, jacobianData_t1, c.m_node->m_q, t1);
+                                    findJacobian(multibodyLinkCol, jacobianData_t2, c.m_node->m_q, t2);
+                                }
                                 
                                 btScalar* J_n = &jacobianData_normal.m_jacobians[0];
                                 btScalar* J_t1 = &jacobianData_t1.m_jacobians[0];
@@ -995,16 +1003,7 @@ struct btSoftColliders
                                 
                                 btMatrix3x3 rot(normal, t1, t2); // world frame to local frame
                                 const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
-                                btVector3 u_dot_J(0,0,0);
-                                for (int i = 0; i < ndof; ++i)
-                                {
-                                    u_dot_J += btVector3(J_n[i] * u_n[i], J_t1[i] * u_t1[i], J_t2[i] * u_t2[i]);
-                                }
-                                btVector3 impulse_matrix_diag;
                                 btScalar dt = psb->m_sst.sdt;
-                                impulse_matrix_diag.setX(1/((u_dot_J.getX() + n.m_im) * dt));
-                                impulse_matrix_diag.setY(1/((u_dot_J.getY() + n.m_im) * dt));
-                                impulse_matrix_diag.setZ(1/((u_dot_J.getZ() + n.m_im) * dt));
                                 btMatrix3x3 local_impulse_matrix = Diagonal(1/dt) * (Diagonal(n.m_im) + OuterProduct(J_n, J_t1, J_t2, u_n, u_t1, u_t2, ndof)).inverse();
                                 c.m_c0 =  rot.transpose() * local_impulse_matrix * rot;
                                 c.jacobianData_normal = jacobianData_normal;

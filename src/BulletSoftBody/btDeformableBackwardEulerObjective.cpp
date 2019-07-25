@@ -9,21 +9,22 @@
 
 btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
 : m_softBodies(softBodies)
-, projection(m_softBodies, m_dt)
+, projection(m_softBodies, m_dt, &m_indices)
 , m_backupVelocity(backup_v)
 {
     // TODO: this should really be specified in initialization instead of here
-    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(m_softBodies);
-    btDeformableGravityForce* gravity = new btDeformableGravityForce(m_softBodies, btVector3(0,-10,0));
+//    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(m_softBodies);
+//    btDeformableGravityForce* gravity = new btDeformableGravityForce(m_softBodies, btVector3(0,-10,0));
     m_preconditioner = new DefaultPreconditioner();
-    m_lf.push_back(mass_spring);
-    m_lf.push_back(gravity);
+//    m_lf.push_back(mass_spring);
+//    m_lf.push_back(gravity);
 }
 
 void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated)
 {
     if(nodeUpdated)
     {
+        updateId();
         projection.setSoftBodies(m_softBodies);
     }
     for (int i = 0; i < m_lf.size(); ++i)
@@ -69,7 +70,7 @@ void btDeformableBackwardEulerObjective::updateVelocity(const TVStack& dv)
     // only the velocity of the constrained nodes needs to be updated during CG solve
     for (auto it : projection.m_constraints)
     {
-        int i = projection.m_indices[it.first];
+        int i = m_indices[it.first];
         it.first->m_v = m_backupVelocity[i] + dv[i];
     }
 }
