@@ -1,9 +1,27 @@
 import pybullet as p
+import pybullet_data as pd
+
 import time
 
 p.connect(p.GUI)
-p.createCollisionShape(p.GEOM_HEIGHTFIELD)
-p.createMultiBody(0, 0)
+p.setAdditionalSearchPath(pd.getDataPath())
+
+textureId = -1
+useDeepLocoCSV = False
+
+if useDeepLocoCSV:
+  terrainShape = p.createCollisionShape(shapeType = p.GEOM_HEIGHTFIELD, meshScale=[.5,.5,2.5],fileName = "heightmaps/ground0.txt", heightfieldTextureScaling=128)#Image8x4.png")#wm_height_out.png")
+  terrain  = p.createMultiBody(0, terrainShape)
+  p.resetBasePositionAndOrientation(terrain,[-8,0,-2], [0,0,0,1])
+else:
+  terrainShape = p.createCollisionShape(shapeType = p.GEOM_HEIGHTFIELD, meshScale=[.1,.1,24],fileName = "heightmaps/wm_height_out.png")
+  textureId = p.loadTexture("heightmaps/gimp_overlay_out.png")
+  terrain  = p.createMultiBody(0, terrainShape)
+  p.changeVisualShape(terrain, -1, textureUniqueId = textureId)
+ 
+ 
+p.changeVisualShape(terrain, -1, rgbaColor=[1,1,1,1])
+
 
 sphereRadius = 0.05
 colSphereId = p.createCollisionShape(p.GEOM_SPHERE, radius=sphereRadius)
@@ -28,7 +46,7 @@ for i in range(3):
   for j in range(3):
     for k in range(3):
       basePosition = [
-          1 + i * 5 * sphereRadius, 1 + j * 5 * sphereRadius, 1 + k * 5 * sphereRadius + 1
+          i * 5 * sphereRadius, j * 5 * sphereRadius, 1 + k * 5 * sphereRadius + 1
       ]
       baseOrientation = [0, 0, 0, 1]
       if (k & 2):
@@ -51,6 +69,7 @@ for i in range(3):
                                       linkJointTypes=jointTypes,
                                       linkJointAxis=axis)
 
+      
       p.changeDynamics(sphereUid,
                        -1,
                        spinningFriction=0.001,
@@ -69,5 +88,6 @@ for i in range(p.getNumJoints(sphereUid)):
 while (1):
   keys = p.getKeyboardEvents()
   print(keys)
-
+  #getCameraImage note: software/TinyRenderer doesn't render/support heightfields!
+  #p.getCameraImage(320,200, renderer=p.ER_BULLET_HARDWARE_OPENGL)
   time.sleep(0.01)

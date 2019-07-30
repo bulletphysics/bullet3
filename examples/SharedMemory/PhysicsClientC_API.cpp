@@ -1310,6 +1310,32 @@ B3_SHARED_API int b3CreateVisualShapeAddCapsule(b3SharedMemoryCommandHandle comm
 	return b3CreateCollisionShapeAddCapsule(commandHandle, radius, height);
 }
 
+B3_SHARED_API int b3CreateCollisionShapeAddHeightfield(b3SharedMemoryCommandHandle commandHandle, const char* fileName, const double meshScale[/*3*/], double textureScaling)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE))
+	{
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
+		if (shapeIndex < MAX_COMPOUND_COLLISION_SHAPES)
+		{
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_HEIGHTFIELD;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			strcpy(command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileName, fileName);
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[0] = meshScale[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_heightfieldTextureScaling = textureScaling;
+			command->m_createUserShapeArgs.m_numUserShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+
 B3_SHARED_API int b3CreateCollisionShapeAddCylinder(b3SharedMemoryCommandHandle commandHandle, double radius, double height)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;

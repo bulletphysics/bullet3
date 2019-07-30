@@ -491,8 +491,22 @@ getRawHeightfieldData
                     for (int j = 0; j < width; ++j)
                     {
                         float y = j * s_gridSpacing;
-                        float z = double(image[i*3+width*j*3])*(40./256.);
+                        float z = double(image[i*3+width*j*3])*(14./256.);
                         convertFromFloat(p, z, type);
+						// update min/max
+						if (!i && !j) {
+							minHeight = z;
+							maxHeight = z;
+						}
+						else {
+							if (z < minHeight) {
+								minHeight = z;
+							}
+							if (z > maxHeight) {
+								maxHeight = z;
+							}
+						}
+
                         p += bytesPerElement;
                     }
                 }
@@ -574,6 +588,19 @@ getRawHeightfieldData
                         float y = j * s_gridSpacing;
                         float z = allValues[i+width*j];
                         convertFromFloat(p, z, type);
+						// update min/max
+						if (!i && !j) {
+							minHeight = z;
+							maxHeight = z;
+						}
+						else {
+							if (z < minHeight) {
+								minHeight = z;
+							}
+							if (z > maxHeight) {
+								maxHeight = z;
+							}
+						}
                         p += bytesPerElement;
                     }
                 }
@@ -1159,11 +1186,11 @@ void HeightfieldExample::resetPhysics(void)
 	// set origin to middle of heightfield
 	btTransform tr;
 	tr.setIdentity();
-	tr.setOrigin(btVector3(0, 0, 0));
+	tr.setOrigin(btVector3(0, 0, -4));
 
 	if (m_model== eImageFile)
 	{
-		tr.setOrigin(btVector3(0, 0, -24));
+		
 		b3BulletDefaultFileIO fileIO;
 		char relativeFileName[1024];
 		int found = fileIO.findFile("heightmaps/gimp_overlay_out.png", relativeFileName, 1024);

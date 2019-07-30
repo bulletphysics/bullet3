@@ -7967,14 +7967,14 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 	double collisionFrameOrientation[4] = {0, 0, 0, 1};
 	char* fileName = 0;
 	int flags = 0;
-
+	double heightfieldTextureScaling = 1;
 	PyObject* halfExtentsObj = 0;
 	PyObject* verticesObj = 0;
 	PyObject* indicesObj = 0;
 
-	static char* kwlist[] = {"shapeType", "radius", "halfExtents", "height", "fileName", "meshScale", "planeNormal", "flags", "collisionFramePosition", "collisionFrameOrientation", "vertices", "indices", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOOOi", kwlist,
-									 &shapeType, &radius, &halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags, &collisionFramePositionObj, &collisionFrameOrientationObj, &verticesObj, &indicesObj, &physicsClientId))
+	static char* kwlist[] = {"shapeType", "radius", "halfExtents", "height", "fileName", "meshScale", "planeNormal", "flags", "collisionFramePosition", "collisionFrameOrientation", "vertices", "indices", "heightfieldTextureScaling", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOOOdi", kwlist,
+									 &shapeType, &radius, &halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags, &collisionFramePositionObj, &collisionFrameOrientationObj, &verticesObj, &indicesObj, &heightfieldTextureScaling, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -8009,6 +8009,15 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 		if (shapeType == GEOM_CYLINDER && radius > 0 && height >= 0)
 		{
 			shapeIndex = b3CreateCollisionShapeAddCylinder(commandHandle, radius, height);
+		}
+		if (shapeType == GEOM_HEIGHTFIELD && fileName)
+		{
+			if (meshScaleObj)
+			{
+				pybullet_internalSetVectord(meshScaleObj, meshScale);
+			}
+			shapeIndex = b3CreateCollisionShapeAddHeightfield(commandHandle, fileName, meshScale, heightfieldTextureScaling);
+
 		}
 		if (shapeType == GEOM_MESH && fileName)
 		{
