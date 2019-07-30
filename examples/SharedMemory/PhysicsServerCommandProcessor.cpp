@@ -2811,6 +2811,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	{
 		delete[] m_data->m_heightfieldDatas[j];
 	}
+
 	for (int j = 0; j < m_data->m_meshInterfaces.size(); j++)
 	{
 		delete m_data->m_meshInterfaces[j];
@@ -2824,6 +2825,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 			m_data->m_guiHelper->removeTexture(texId);
 		}
 	}
+	m_data->m_heightfieldDatas.clear();
 	m_data->m_allocatedTextures.clear();
 	m_data->m_meshInterfaces.clear();
 	m_data->m_collisionShapes.clear();
@@ -4321,7 +4323,8 @@ static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY
 		{
 			char relativePath[1024];
 			int found = fileIO.findResourcePath(fileName, relativePath, 1024);
-			char lineBuffer[MYLINELENGTH];
+			btAlignedObjectArray<char> lineBuffer;
+			lineBuffer.resize(MYLINELENGTH);
 			int slot = fileIO.fileOpen(relativePath, "r");
 			int rows = 0;
 			int cols = 0;
@@ -4330,7 +4333,7 @@ static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY
 			if (slot >= 0)
 			{
 				char* lineChar;
-				while (lineChar = fileIO.readLine(slot, lineBuffer, MYLINELENGTH))
+				while (lineChar = fileIO.readLine(slot, &lineBuffer[0], MYLINELENGTH))
 				{
 					rows = 0;
 					std::string line(lineChar);
