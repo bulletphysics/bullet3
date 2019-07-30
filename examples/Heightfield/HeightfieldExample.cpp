@@ -485,13 +485,16 @@ getRawHeightfieldData
                 btAssert(raw && "out of memory");
 
                 byte_t * p = raw;
-                for (int i = 0; i < width; ++i)
+                
+				for (int j = 0; j < width; ++j)
                 {
-                    float x = i * s_gridSpacing;
-                    for (int j = 0; j < width; ++j)
+                    
+					for (int i = 0; i < width; ++i)
                     {
+						float x = i * s_gridSpacing;
                         float y = j * s_gridSpacing;
-                        float z = double(image[i*3+width*j*3])*(14./256.);
+						float heightScaling = (14. / 256.);
+						float z = double(image[(width - 1 - i) * 3 + width*j * 3]) * heightScaling;
                         convertFromFloat(p, z, type);
 						// update min/max
 						if (!i && !j) {
