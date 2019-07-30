@@ -14,8 +14,8 @@
 #include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
 #include "BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodySphericalJointMotor.h"
-
-
+#include "../Utils/b3BulletDefaultFileIO.h"
+#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
@@ -1610,6 +1610,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<std::string*> m_strings;
 
 	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
+	btAlignedObjectArray<unsigned char*> m_heightfieldDatas;
 	btAlignedObjectArray<int> m_allocatedTextures;
 	btHashMap<btHashPtr, UrdfCollision> m_bulletCollisionShape2UrdfCollision;
 	btAlignedObjectArray<btStridingMeshInterface*> m_meshInterfaces;
@@ -2806,6 +2807,11 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 		}
 		delete shape;
 	}
+	for (int j = 0; j < m_data->m_heightfieldDatas.size(); j++)
+	{
+		delete[] m_data->m_heightfieldDatas[j];
+	}
+
 	for (int j = 0; j < m_data->m_meshInterfaces.size(); j++)
 	{
 		delete m_data->m_meshInterfaces[j];
@@ -2819,6 +2825,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 			m_data->m_guiHelper->removeTexture(texId);
 		}
 	}
+	m_data->m_heightfieldDatas.clear();
 	m_data->m_allocatedTextures.clear();
 	m_data->m_meshInterfaces.clear();
 	m_data->m_collisionShapes.clear();
@@ -4211,6 +4218,208 @@ bool PhysicsServerCommandProcessor::processSaveWorldCommand(const struct SharedM
 	return hasStatus;
 }
 
+
+
+
+
+#define MYLINELENGTH 16*32768
+
+static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY_ScalarType type, const char* fileName, int& width, int& height,
+	btScalar& minHeight,
+	btScalar& maxHeight)
+{
+	
+	std::string ext;
+	std::string fn(fileName);
+	std::string ext_ = fn.substr(fn.size() - 4);
+	for (std::string::iterator i = ext_.begin(); i != ext_.end(); ++i)
+	{
+		ext += char(tolower(*i));
+	}
+
+	
+	if (ext != ".txt")
+	{
+		
+		char relativeFileName[1024];
+		int found = fileIO.findResourcePath(fileName, relativeFileName, 1024);
+		
+		b3AlignedObjectArray<char> buffer;
+		buffer.reserve(1024);
+		int fileId = fileIO.fileOpen(relativeFileName, "rb");
+		if (fileId >= 0)
+		{
+			int size = fileIO.getFileSize(fileId);
+			if (size>0)
+			{
+				buffer.resize(size);
+				int actual = fileIO.fileRead(fileId, &buffer[0], size);
+				if (actual != size)
+				{
+					b3Warning("STL filesize mismatch!\n");
+					buffer.resize(0);
+				}
+			}
+			fileIO.fileClose(fileId);
+		}
+
+		if (buffer.size())
+		{
+			int n;
+
+			unsigned char* image = stbi_load_from_memory((const unsigned char*)&buffer[0], buffer.size(), &width, &height, &n, 3);
+			if (image)
+			{
+				fileIO.fileClose(fileId);
+				int nElements = width * height;
+				int bytesPerElement = sizeof(btScalar); 
+				btAssert(bytesPerElement > 0 && "bad bytes per element");
+
+				int nBytes = nElements * bytesPerElement;
+				unsigned char * raw = new unsigned char[nBytes];
+				btAssert(raw && "out of memory");
+
+				unsigned char * p = raw;
+				for (int j = 0; j < height; ++j)
+				
+				{
+					
+					for (int i = 0; i < width; ++i)
+					{
+						
+						float z = double(image[(width-1-i) * 3+ width*j * 3])*(1. / 255.);
+						btScalar * pf = (btScalar *)p;
+						*pf = z;
+						p += bytesPerElement;
+						// update min/max
+						if (!i && !j) 
+						{
+							minHeight = z;
+							maxHeight = z;
+						}
+						else 
+						{
+							if (z < minHeight) 
+							{
+								minHeight = z;
+							}
+							if (z > maxHeight) 
+							{
+								maxHeight = z;
+							}
+						}
+					}
+				}
+				free (image);
+
+				return raw;
+			}
+		}
+	}
+
+	if (ext == ".txt")
+	{
+		//read a csv file as used in DeepLoco
+		{
+			char relativePath[1024];
+			int found = fileIO.findResourcePath(fileName, relativePath, 1024);
+			btAlignedObjectArray<char> lineBuffer;
+			lineBuffer.resize(MYLINELENGTH);
+			int slot = fileIO.fileOpen(relativePath, "r");
+			int rows = 0;
+			int cols = 0;
+
+			btAlignedObjectArray<double> allValues;
+			if (slot >= 0)
+			{
+				char* lineChar;
+				while (lineChar = fileIO.readLine(slot, &lineBuffer[0], MYLINELENGTH))
+				{
+					rows = 0;
+					std::string line(lineChar);
+					int pos=0;
+					while (pos < line.length())
+					{
+						int nextPos = pos+1;
+						while (nextPos < line.length())
+						{
+							if (line[nextPos-1] == ',')
+							{
+								break;
+							}
+							nextPos++;
+						}
+						std::string substr = line.substr(pos, nextPos-pos-1);
+
+						double v;
+						if (sscanf(substr.c_str(), "%lf", &v) == 1)
+						{
+							allValues.push_back(v);
+							rows++;
+						}
+						pos = nextPos;
+					}
+					cols++;
+
+				}
+				width = rows;
+				height = cols;
+				
+				fileIO.fileClose(slot);
+				int nElements = width * height;
+				//	std::cerr << "  nElements = " << nElements << "\n";
+
+				int bytesPerElement = sizeof(btScalar);
+				//	std::cerr << "  bytesPerElement = " << bytesPerElement << "\n";
+				btAssert(bytesPerElement > 0 && "bad bytes per element");
+
+				long nBytes = nElements * bytesPerElement;
+				//	std::cerr << "  nBytes = " << nBytes << "\n";
+				unsigned char * raw = new unsigned char[nBytes];
+				btAssert(raw && "out of memory");
+
+				unsigned char* p = raw;
+				for (int i = 0; i < width; ++i)
+				{
+					
+					for (int j = 0; j < height; ++j)
+					{
+						
+						float z = allValues[i + width*j];
+						//convertFromFloat(p, z, type);
+						btScalar * pf = (btScalar *)p;
+						*pf = z;
+						p += bytesPerElement;
+						// update min/max
+						if (!i && !j)
+						{
+							minHeight = z;
+							maxHeight = z;
+						}
+						else
+						{
+							if (z < minHeight)
+							{
+								minHeight = z;
+							}
+							if (z > maxHeight)
+							{
+								maxHeight = z;
+							}
+						}
+						
+					}
+				}
+				return raw;
+			}
+		}
+	}
+
+	
+	return 0;
+}
+
+
 bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -4320,6 +4529,47 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 
 				break;
 			}
+			case GEOM_HEIGHTFIELD:
+			{
+				int width;
+				int height;
+				btScalar minHeight, maxHeight;
+				PHY_ScalarType scalarType = PHY_FLOAT;
+				CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
+				unsigned char* heightfieldData = MyGetRawHeightfieldData(*fileIO, scalarType, clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshFileName, width, height, minHeight, maxHeight);
+				if (heightfieldData)
+				{
+					
+					btScalar gridSpacing = 0.5;
+					btScalar gridHeightScale = 1. / 256.;
+
+					bool flipQuadEdges = false;
+					int upAxis = 2;
+					btHeightfieldTerrainShape* heightfieldShape = worldImporter->createHeightfieldShape( width, height,
+						heightfieldData,
+							gridHeightScale,
+							minHeight, maxHeight,
+							upAxis, int(scalarType), flipQuadEdges);
+					
+					heightfieldShape->setUserValue3(clientCmd.m_createUserShapeArgs.m_shapes[i].m_heightfieldTextureScaling);
+					shape = heightfieldShape;
+					if (upAxis == 2)
+						heightfieldShape->setFlipTriangleWinding(true);
+					//buildAccelerator is optional, it may not support all features.
+					heightfieldShape->buildAccelerator();
+
+					// scale the shape
+					btVector3 localScaling(clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[0],
+						clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[1],
+						clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[2]);
+					
+					heightfieldShape->setLocalScaling(localScaling);
+					
+					this->m_data->m_heightfieldDatas.push_back(heightfieldData);
+						
+				}
+				break;
+			}
 			case GEOM_PLANE:
 			{
 				btVector3 planeNormal(clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[0],
@@ -4340,6 +4590,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 
 				break;
 			}
+			
 			case GEOM_MESH:
 			{
 				btVector3 meshScale(clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[0],

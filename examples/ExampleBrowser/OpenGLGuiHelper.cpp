@@ -262,9 +262,10 @@ public:
 	btAlignedObjectArray<GLInstanceVertex>* m_pVerticesOut;
 	btAlignedObjectArray<int>* m_pIndicesOut;
 	btVector3 m_aabbMin, m_aabbMax;
+	btScalar m_textureScaling;
 
 	MyTriangleCollector2(const btVector3& aabbMin, const btVector3& aabbMax)
-		:m_aabbMin(aabbMin), m_aabbMax(aabbMax)
+		:m_aabbMin(aabbMin), m_aabbMax(aabbMax), m_textureScaling(1)
 	{
 		m_pVerticesOut = 0;
 		m_pIndicesOut = 0;
@@ -284,9 +285,11 @@ public:
 				v.xyzw[l] = tris[k][l];
 				v.normal[l] = normal[l];
 			}
-
-			v.uv[1] = 1-((v.xyzw[0] - m_aabbMin[0]) / (m_aabbMax[0] - m_aabbMin[0]));
-			v.uv[0] = ((v.xyzw[1] - m_aabbMin[1]) / (m_aabbMax[1] - m_aabbMin[1]));
+			
+			btVector3 extents = m_aabbMax - m_aabbMin;
+			
+			v.uv[0] = (1.-((v.xyzw[0] - m_aabbMin[0]) / (m_aabbMax[0] - m_aabbMin[0])))*m_textureScaling;
+			v.uv[1] = (1.-(v.xyzw[1] - m_aabbMin[1]) / (m_aabbMax[1] - m_aabbMin[1]))*m_textureScaling;
 
 			m_pIndicesOut->push_back(m_pVerticesOut->size());
 			m_pVerticesOut->push_back(v);
@@ -433,7 +436,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 
 	if (m_data->m_checkedTexture < 0)
 	{
-		m_data->m_checkedTexture = createCheckeredTexture(192, 192, 255);
+		m_data->m_checkedTexture = createCheckeredTexture(173, 199, 255);
 	}
 
 	if (m_data->m_checkedTextureGrey < 0)
@@ -459,6 +462,10 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 		tr.setIdentity();
 		heightField->getAabb(tr, aabbMin, aabbMax);
 		MyTriangleCollector2  col(aabbMin, aabbMax);
+		if (heightField->getUserValue3())
+		{
+			col.m_textureScaling = heightField->getUserValue3();
+		}
 		col.m_pVerticesOut = &gfxVertices;
 		col.m_pIndicesOut = &indices;
 		for (int k = 0; k < 3; k++)
@@ -472,7 +479,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 			int userImage = heightField->getUserIndex2();
 			if (userImage == -1)
 			{
-				userImage = m_data->m_checkedTextureGrey;
+				userImage = m_data->m_checkedTexture;
 			}
 			int shapeId = m_data->m_glApp->m_renderer->registerShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(),1, userImage);
 			collisionShape->setUserIndex(shapeId);

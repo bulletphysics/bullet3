@@ -1499,6 +1499,7 @@ public:
 	{
 		//printf("key=%d, state=%d\n", key,state);
 		{
+			m_args[0].m_csGUI->lock();
 			int keyIndex = -1;
 			//is already there?
 			for (int i = 0; i < m_args[0].m_keyboardEvents.size(); i++)
@@ -1515,7 +1516,7 @@ public:
 				b3KeyboardEvent ev;
 				ev.m_keyCode = key;
 				ev.m_keyState = eButtonIsDown + eButtonTriggered;
-				m_args[0].m_csGUI->lock();
+				
 				if (keyIndex >= 0)
 				{
 					if (0 == (m_args[0].m_keyboardEvents[keyIndex].m_keyState & eButtonIsDown))
@@ -1527,11 +1528,10 @@ public:
 				{
 					m_args[0].m_keyboardEvents.push_back(ev);
 				}
-				m_args[0].m_csGUI->unlock();
+				
 			}
 			else
 			{
-				m_args[0].m_csGUI->lock();
 				b3KeyboardEvent ev;
 				ev.m_keyCode = key;
 				ev.m_keyState = eButtonReleased;
@@ -1543,8 +1543,9 @@ public:
 				{
 					m_args[0].m_keyboardEvents.push_back(ev);
 				}
-				m_args[0].m_csGUI->unlock();
+				
 			}
+			m_args[0].m_csGUI->unlock();
 		}
 		/*printf("m_args[0].m_keyboardEvents.size()=%d\n", m_args[0].m_keyboardEvents.size());
 		for (int i=0;i<m_args[0].m_keyboardEvents.size();i++)

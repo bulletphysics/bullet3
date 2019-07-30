@@ -22,8 +22,8 @@ subject to the following restrictions:
 #include "../MultiThreadedDemo/CommonRigidBodyMTBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
-#include "../../Utils/b3BulletDefaultFileIO.h"
-#include "../../Importers/ImportURDFDemo/urdfStringSplit.h"
+#include "../Utils/b3BulletDefaultFileIO.h"
+#include "../Importers/ImportURDFDemo/urdfStringSplit.h"
 #include "stb_image/stb_image.h"
 
 // constants -------------------------------------------------------------------
@@ -485,14 +485,31 @@ getRawHeightfieldData
                 btAssert(raw && "out of memory");
 
                 byte_t * p = raw;
-                for (int i = 0; i < width; ++i)
+                
+				for (int j = 0; j < width; ++j)
                 {
-                    float x = i * s_gridSpacing;
-                    for (int j = 0; j < width; ++j)
+                    
+					for (int i = 0; i < width; ++i)
                     {
+						float x = i * s_gridSpacing;
                         float y = j * s_gridSpacing;
-                        float z = double(image[i*3+width*j*3])*(40./256.);
+						float heightScaling = (14. / 256.);
+						float z = double(image[(width - 1 - i) * 3 + width*j * 3]) * heightScaling;
                         convertFromFloat(p, z, type);
+						// update min/max
+						if (!i && !j) {
+							minHeight = z;
+							maxHeight = z;
+						}
+						else {
+							if (z < minHeight) {
+								minHeight = z;
+							}
+							if (z > maxHeight) {
+								maxHeight = z;
+							}
+						}
+
                         p += bytesPerElement;
                     }
                 }
@@ -574,6 +591,19 @@ getRawHeightfieldData
                         float y = j * s_gridSpacing;
                         float z = allValues[i+width*j];
                         convertFromFloat(p, z, type);
+						// update min/max
+						if (!i && !j) {
+							minHeight = z;
+							maxHeight = z;
+						}
+						else {
+							if (z < minHeight) {
+								minHeight = z;
+							}
+							if (z > maxHeight) {
+								maxHeight = z;
+							}
+						}
                         p += bytesPerElement;
                     }
                 }
@@ -1112,7 +1142,7 @@ void HeightfieldExample::initPhysics()
 	// set up basic state
 
 
-	m_type = PHY_FLOAT;// SHORT;
+	m_type = PHY_FLOAT;
 	m_model = gHeightfieldType;
 	m_isDynamic = true;
 
@@ -1156,8 +1186,14 @@ void HeightfieldExample::resetPhysics(void)
 			m_upAxis, m_type, flipQuadEdges);
 	btAssert(m_heightfieldShape && "null heightfield");
 
+	// set origin to middle of heightfield
+	btTransform tr;
+	tr.setIdentity();
+	tr.setOrigin(btVector3(0, 0, -4));
+
 	if (m_model== eImageFile)
 	{
+		
 		b3BulletDefaultFileIO fileIO;
 		char relativeFileName[1024];
 		int found = fileIO.findFile("heightmaps/gimp_overlay_out.png", relativeFileName, 1024);
@@ -1206,10 +1242,7 @@ void HeightfieldExample::resetPhysics(void)
 	// stash this shape away
 	m_collisionShapes.push_back(m_heightfieldShape);
 
-	// set origin to middle of heightfield
-	btTransform tr;
-	tr.setIdentity();
-	tr.setOrigin(btVector3(0, 0, 0));
+
 
 	// create ground object
 	float mass = 0.0;
@@ -1249,7 +1282,7 @@ void HeightfieldExample::clearWorld(void)
 		m_collisionShapes.clear();
 
 		// delete raw heightfield data
-		delete m_rawHeightfieldData;
+		delete[] m_rawHeightfieldData;
 		m_rawHeightfieldData = NULL;
 	}
 }

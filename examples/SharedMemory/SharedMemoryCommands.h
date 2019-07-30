@@ -958,6 +958,7 @@ struct b3CreateUserShapeData
 	int m_numIndices;
 	int m_numUVs;
 	int m_numNormals;
+	double m_heightfieldTextureScaling;
 	double m_rgbaColor[4];
 	double m_specularColor[3];
 };
