@@ -19,9 +19,11 @@ jointFrictionForce = 0
 
 class HumanoidStablePD(object):
 
-  def __init__(self, pybullet_client, mocap_data, timeStep, useFixedBase=True):
+  def __init__( self, pybullet_client, mocap_data, timeStep, 
+                useFixedBase=True, arg_parser=None):
     self._pybullet_client = pybullet_client
     self._mocap_data = mocap_data
+    self._arg_parser = arg_parser
     print("LOADING humanoid!")
 
     self._sim_model = self._pybullet_client.loadURDF(
@@ -135,7 +137,10 @@ class HumanoidStablePD(object):
     self._jointDofCounts = [4, 4, 4, 1, 4, 4, 1, 4, 1, 4, 4, 1]
 
     #only those body parts/links are allowed to touch the ground, otherwise the episode terminates
-    self._allowed_body_parts = [5, 11]
+    fall_contact_bodies = []
+    if self._arg_parser is not None:
+      fall_contact_bodies = self._arg_parser.parse_ints("fall_contact_bodies")
+    self._fall_contact_body_parts = fall_contact_bodies
 
     #[x,y,z] base position and [x,y,z,w] base orientation!
     self._totalDofs = 7
@@ -704,7 +709,7 @@ class HumanoidStablePD(object):
         part = p[3]
       if (p[2] == self._sim_model):
         part = p[4]
-      if (part >= 0 and part not in self._allowed_body_parts):
+      if (part >= 0 and part in self._fall_contact_body_parts):
         #print("terminating part:", part)
         terminates = True
 
