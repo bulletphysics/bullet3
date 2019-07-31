@@ -144,6 +144,7 @@ struct MyHashShape
 	int m_shapeType;
 	btVector3 m_sphere0Pos;
 	btVector3 m_sphere1Pos;
+	btVector3 m_halfExtents;
 	btScalar m_radius0;
 	btScalar m_radius1;
 	btTransform m_childTransform;
@@ -156,6 +157,7 @@ struct MyHashShape
 		  m_shapeType(0),
 		  m_sphere0Pos(btVector3(0, 0, 0)),
 		  m_sphere1Pos(btVector3(0, 0, 0)),
+		  m_halfExtents(btVector3(0, 0, 0)),
 		  m_radius0(0),
 		  m_radius1(0),
 		  m_deformFunc(0),
@@ -170,12 +172,13 @@ struct MyHashShape
 		bool sameShapeType = m_shapeType == other.m_shapeType;
 		bool sameSphere0 = m_sphere0Pos == other.m_sphere0Pos;
 		bool sameSphere1 = m_sphere1Pos == other.m_sphere1Pos;
+		bool sameHalfExtents = m_halfExtents == other.m_halfExtents;
 		bool sameRadius0 = m_radius0 == other.m_radius0;
 		bool sameRadius1 = m_radius1 == other.m_radius1;
 		bool sameTransform = m_childTransform == other.m_childTransform;
 		bool sameUpAxis = m_upAxis == other.m_upAxis;
 		bool sameHalfHeight = m_halfHeight == other.m_halfHeight;
-		return sameShapeType && sameSphere0 && sameSphere1 && sameRadius0 && sameRadius1 && sameTransform && sameUpAxis && sameHalfHeight;
+		return sameShapeType && sameSphere0 && sameSphere1 && sameHalfExtents && sameRadius0 && sameRadius1 && sameTransform && sameUpAxis && sameHalfHeight;
 	}
 	//to our success
 	SIMD_FORCE_INLINE unsigned int getHash() const
@@ -447,8 +450,56 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 	btAlignedObjectArray<GLInstanceVertex> gfxVertices;
 	btAlignedObjectArray<int> indices;
 	int strideInBytes = 9 * sizeof(float);
-	//if (collisionShape->getShapeType()==BOX_SHAPE_PROXYTYPE)
+	if (collisionShape->getShapeType() == BOX_SHAPE_PROXYTYPE)
 	{
+		btBoxShape* boxShape = (btBoxShape*)collisionShape;
+		
+		
+		btAlignedObjectArray<float> transformedVertices;
+
+		btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
+
+		MyHashShape shape;
+		shape.m_shapeType = boxShape->getShapeType();
+		shape.m_halfExtents = halfExtents;
+		shape.m_deformFunc = 0;  ////no deform
+		int graphicsShapeIndex = -1;
+		int* graphicsShapeIndexPtr = m_data->m_hashShapes[shape];
+
+		if (graphicsShapeIndexPtr)
+		{
+			graphicsShapeIndex = *graphicsShapeIndexPtr;
+		}
+		else
+		{
+			int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+			transformedVertices.resize(numVertices * 9);
+			for (int i = 0; i < numVertices; i++)
+			{
+				btVector3 vert;
+				vert.setValue(cube_vertices_textured[i * 9 + 0],
+					cube_vertices_textured[i * 9 + 1],
+					cube_vertices_textured[i * 9 + 2]);
+
+				btVector3 trVer = halfExtents * vert;
+				transformedVertices[i * 9 + 0] = trVer[0];
+				transformedVertices[i * 9 + 1] = trVer[1];
+				transformedVertices[i * 9 + 2] = trVer[2];
+				transformedVertices[i * 9 + 3] = cube_vertices_textured[i * 9 + 3];
+				transformedVertices[i * 9 + 4] = cube_vertices_textured[i * 9 + 4];
+				transformedVertices[i * 9 + 5] = cube_vertices_textured[i * 9 + 5];
+				transformedVertices[i * 9 + 6] = cube_vertices_textured[i * 9 + 6];
+				transformedVertices[i * 9 + 7] = cube_vertices_textured[i * 9 + 7];
+				transformedVertices[i * 9 + 8] = cube_vertices_textured[i * 9 + 8];
+			}
+
+			int numIndices = sizeof(cube_indices) / sizeof(int);
+			graphicsShapeIndex = registerGraphicsShape(&transformedVertices[0], numVertices, cube_indices, numIndices, B3_GL_TRIANGLES, m_data->m_checkedTextureGrey);
+			m_data->m_hashShapes.insert(shape, graphicsShapeIndex);
+		}
+
+		collisionShape->setUserIndex(graphicsShapeIndex);
+		return;
 	}
 
 
@@ -570,6 +621,8 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 			return;
 		}
 	}
+
+	
 
 	if (collisionShape->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
 	{
