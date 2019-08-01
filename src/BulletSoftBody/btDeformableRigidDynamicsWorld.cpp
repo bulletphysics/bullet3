@@ -161,7 +161,7 @@ void btDeformableRigidDynamicsWorld::addSoftBody(btSoftBody* body, int collision
 
 void btDeformableRigidDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 {
-    btDiscreteDynamicsWorld::predictUnconstraintMotion(timeStep);
+    btMultiBodyDynamicsWorld::predictUnconstraintMotion(timeStep);
     m_deformableBodySolver->predictMotion(float(timeStep));
 }
 

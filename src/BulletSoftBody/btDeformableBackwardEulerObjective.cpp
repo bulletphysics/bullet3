@@ -12,12 +12,7 @@ btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAligned
 , projection(m_softBodies, m_dt, &m_indices)
 , m_backupVelocity(backup_v)
 {
-    // TODO: this should really be specified in initialization instead of here
-//    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(m_softBodies);
-//    btDeformableGravityForce* gravity = new btDeformableGravityForce(m_softBodies, btVector3(0,-10,0));
     m_preconditioner = new DefaultPreconditioner();
-//    m_lf.push_back(mass_spring);
-//    m_lf.push_back(gravity);
 }
 
 void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated)
