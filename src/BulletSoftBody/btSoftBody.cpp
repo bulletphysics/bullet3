@@ -2270,12 +2270,10 @@ bool btSoftBody::checkContact(const btCollisionObjectWrapper* colObjWrap,
 {
 	btVector3 nrm;
 	const btCollisionShape* shp = colObjWrap->getCollisionShape();
-    const btRigidBody *tmpRigid = btRigidBody::upcast(colObjWrap->getCollisionObject());
-    
+    const btCollisionObject* tmpCollisionObj = colObjWrap->getCollisionObject();
     // get the position x_{n+1}^* = x_n + dt * v_{n+1}^* where v_{n+1}^* = v_n + dtg
-    const btTransform &wtr = (tmpRigid&&predict) ? tmpRigid->getInterpolationWorldTransform() : colObjWrap->getWorldTransform();
-//    const btTransform &wtr = predict ? colObjWrap->getInterpolationWorldTransform() : colObjWrap->getWorldTransform();
-    // TODO: get the correct transform for multibody
+    const btTransform &wtr = (predict) ? tmpCollisionObj->getInterpolationWorldTransform() : colObjWrap->getWorldTransform();
+//    const btTransform &wtr = colObjWrap->getWorldTransform();
 
 	btScalar dst =
 		m_worldInfo->m_sparsesdf.Evaluate(
