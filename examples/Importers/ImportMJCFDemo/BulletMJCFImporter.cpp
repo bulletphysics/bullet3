@@ -2522,6 +2522,9 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 				{
 					break;
 				}
+				default:
+				{
+				}
 
 			}  // switch geom
 

@@ -396,7 +396,7 @@ void TinyRenderObjectData::createCube(float halfExtentsX, float halfExtentsY, fl
 	{
 		m_model->addVertex(halfExtentsX * cube_vertices_textured[i * 9],
 						   halfExtentsY * cube_vertices_textured[i * 9 + 1],
-						   halfExtentsY * cube_vertices_textured[i * 9 + 2],
+						   halfExtentsZ * cube_vertices_textured[i * 9 + 2],
 						   cube_vertices_textured[i * 9 + 4],
 						   cube_vertices_textured[i * 9 + 5],
 						   cube_vertices_textured[i * 9 + 6],
