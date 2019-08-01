@@ -111,6 +111,10 @@ struct btMultibodyLink
 
 	btQuaternion m_cachedRotParentToThis;  // rotates vectors in parent frame to vectors in local frame
 	btVector3 m_cachedRVector;             // vector from COM of parent to COM of this link, in local frame.
+    
+    // predicted verstion
+    btQuaternion m_cachedRotParentToThis_interpolate;  // rotates vectors in parent frame to vectors in local frame
+    btVector3 m_cachedRVector_interpolate;             // vector from COM of parent to COM of this link, in local frame.
 
 	btVector3 m_appliedForce;   // In WORLD frame
 	btVector3 m_appliedTorque;  // In WORLD frame
@@ -119,6 +123,7 @@ struct btMultibodyLink
 	btVector3 m_appliedConstraintTorque;  // In WORLD frame
 
 	btScalar m_jointPos[7];
+    btScalar m_jointPos_interpolate[7];
 
 	//m_jointTorque is the joint torque applied by the user using 'addJointTorque'.
 	//It gets set to zero after each internal stepSimulation call
@@ -186,44 +191,50 @@ struct btMultibodyLink
 	}
 
 	// routine to update m_cachedRotParentToThis and m_cachedRVector
-	void updateCacheMultiDof(btScalar *pq = 0)
+	void updateCacheMultiDof(btScalar *pq = 0, bool predict = false)
 	{
-		btScalar *pJointPos = (pq ? pq : &m_jointPos[0]);
-
+        btScalar *pJointPos;
+        
+        if (!predict)
+            pJointPos = (pq ? pq : &m_jointPos[0]);
+        else
+            pJointPos = &m_jointPos_interpolate[0];
+        btQuaternion& cachedRot = predict ? m_cachedRotParentToThis_interpolate : m_cachedRotParentToThis;
+        btVector3& cachedVector = predict ? m_cachedRVector_interpolate : m_cachedRVector;
 		switch (m_jointType)
 		{
 			case eRevolute:
 			{
-				m_cachedRotParentToThis = btQuaternion(getAxisTop(0), -pJointPos[0]) * m_zeroRotParentToThis;
-				m_cachedRVector = m_dVector + quatRotate(m_cachedRotParentToThis, m_eVector);
+				cachedRot = btQuaternion(getAxisTop(0), -pJointPos[0]) * m_zeroRotParentToThis;
+				cachedVector = m_dVector + quatRotate(m_cachedRotParentToThis, m_eVector);
 
 				break;
 			}
 			case ePrismatic:
 			{
 				// m_cachedRotParentToThis never changes, so no need to update
-				m_cachedRVector = m_dVector + quatRotate(m_cachedRotParentToThis, m_eVector) + pJointPos[0] * getAxisBottom(0);
+				cachedVector = m_dVector + quatRotate(m_cachedRotParentToThis, m_eVector) + pJointPos[0] * getAxisBottom(0);
 
 				break;
 			}
 			case eSpherical:
 			{
-				m_cachedRotParentToThis = btQuaternion(pJointPos[0], pJointPos[1], pJointPos[2], -pJointPos[3]) * m_zeroRotParentToThis;
-				m_cachedRVector = m_dVector + quatRotate(m_cachedRotParentToThis, m_eVector);
+				cachedRot = btQuaternion(pJointPos[0], pJointPos[1], pJointPos[2], -pJointPos[3]) * m_zeroRotParentToThis;
+				cachedVector = m_dVector + quatRotate(cachedRot, m_eVector);
 
 				break;
 			}
 			case ePlanar:
 			{
-				m_cachedRotParentToThis = btQuaternion(getAxisTop(0), -pJointPos[0]) * m_zeroRotParentToThis;
-				m_cachedRVector = quatRotate(btQuaternion(getAxisTop(0), -pJointPos[0]), pJointPos[1] * getAxisBottom(1) + pJointPos[2] * getAxisBottom(2)) + quatRotate(m_cachedRotParentToThis, m_eVector);
+				cachedRot = btQuaternion(getAxisTop(0), -pJointPos[0]) * m_zeroRotParentToThis;
+				cachedVector = quatRotate(btQuaternion(getAxisTop(0), -pJointPos[0]), pJointPos[1] * getAxisBottom(1) + pJointPos[2] * getAxisBottom(2)) + quatRotate(cachedRot, m_eVector);
 
 				break;
 			}
 			case eFixed:
 			{
-				m_cachedRotParentToThis = m_zeroRotParentToThis;
-				m_cachedRVector = m_dVector + quatRotate(m_cachedRotParentToThis, m_eVector);
+				cachedRot = m_zeroRotParentToThis;
+				cachedVector = m_dVector + quatRotate(cachedRot, m_eVector);
 
 				break;
 			}

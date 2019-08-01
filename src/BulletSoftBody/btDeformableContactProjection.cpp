@@ -44,7 +44,7 @@ static btVector3 generateUnitOrthogonalVector(const btVector3& u)
 void btDeformableContactProjection::update()
 {
     ///solve rigid body constraints
-    m_world->getSolverInfo().m_numIterations = 10;
+    m_world->getSolverInfo().m_numIterations = 1;
     m_world->btMultiBodyDynamicsWorld::solveInternalConstraints(m_world->getSolverInfo());
 
     // loop through constraints to set constrained values
