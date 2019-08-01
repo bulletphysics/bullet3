@@ -985,13 +985,8 @@ struct btSoftColliders
                                 btVector3 t2 = btCross(normal, t1);
                                 btMultiBodyJacobianData jacobianData_normal, jacobianData_t1, jacobianData_t2;
                                 findJacobian(multibodyLinkCol, jacobianData_normal, c.m_node->m_q, normal);
-                                
-                                // findJacobian is hella expensive, avoid calling if possible
-                                if (fc != 0)
-                                {
-                                    findJacobian(multibodyLinkCol, jacobianData_t1, c.m_node->m_q, t1);
-                                    findJacobian(multibodyLinkCol, jacobianData_t2, c.m_node->m_q, t2);
-                                }
+                                findJacobian(multibodyLinkCol, jacobianData_t1, c.m_node->m_q, t1);
+                                findJacobian(multibodyLinkCol, jacobianData_t2, c.m_node->m_q, t2);
                                 
                                 btScalar* J_n = &jacobianData_normal.m_jacobians[0];
                                 btScalar* J_t1 = &jacobianData_t1.m_jacobians[0];

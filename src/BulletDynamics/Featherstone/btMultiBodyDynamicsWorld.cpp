@@ -33,6 +33,12 @@ void btMultiBodyDynamicsWorld::removeMultiBody(btMultiBody* body)
 	m_multiBodies.remove(body);
 }
 
+void btMultiBodyDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
+{
+    btDiscreteDynamicsWorld::predictUnconstraintMotion(timeStep);
+    integrateMultiBodyTransforms(timeStep, /*predict = */ true);
+    
+}
 void btMultiBodyDynamicsWorld::calculateSimulationIslands()
 {
 	BT_PROFILE("calculateSimulationIslands");
@@ -778,8 +784,11 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
 void btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
 	btDiscreteDynamicsWorld::integrateTransforms(timeStep);
+    integrateMultiBodyTransforms(timeStep);
+}
 
-	{
+void btMultiBodyDynamicsWorld::integrateMultiBodyTransforms(btScalar timeStep, bool predict)
+{
 		BT_PROFILE("btMultiBody stepPositions");
 		//integrate and update the Featherstone hierarchies
 
@@ -802,7 +811,7 @@ void btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 				int nLinks = bod->getNumLinks();
 
 				///base + num m_links
-
+                if (!predict)
 				{
 					if (!bod->isPosUpdated())
 						bod->stepPositionsMultiDof(timeStep);
@@ -815,18 +824,21 @@ void btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 						bod->setPosUpdated(false);
 					}
 				}
+                else
+                    bod->predictPositionsMultiDof(timeStep);
 
 				m_scratch_world_to_local.resize(nLinks + 1);
 				m_scratch_local_origin.resize(nLinks + 1);
-
-				bod->updateCollisionObjectWorldTransforms(m_scratch_world_to_local, m_scratch_local_origin);
+                if (predict)
+                    bod->updateCollisionObjectInterpolationWorldTransforms(m_scratch_world_to_local, m_scratch_local_origin);
+                else
+                    bod->updateCollisionObjectWorldTransforms(m_scratch_world_to_local, m_scratch_local_origin);
 			}
 			else
 			{
 				bod->clearVelocities();
 			}
 		}
-	}
 }
 
 void btMultiBodyDynamicsWorld::addMultiBodyConstraint(btMultiBodyConstraint* constraint)
