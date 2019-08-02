@@ -664,6 +664,7 @@ extern "C"
 
 	B3_SHARED_API b3SharedMemoryCommandHandle b3ProfileTimingCommandInit(b3PhysicsClientHandle physClient, const char* name);
 	B3_SHARED_API void b3SetProfileTimingDuractionInMicroSeconds(b3SharedMemoryCommandHandle commandHandle, int duration);
+	B3_SHARED_API void b3SetProfileTimingType(b3SharedMemoryCommandHandle commandHandle, int type);
 
 	B3_SHARED_API void b3PushProfileTiming(b3PhysicsClientHandle physClient, const char* timingName);
 	B3_SHARED_API void b3PopProfileTiming(b3PhysicsClientHandle physClient);
