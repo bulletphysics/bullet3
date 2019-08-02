@@ -28,6 +28,7 @@ subject to the following restrictions:
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 #include <string.h>  //for memset
+#include <math.h>
 static void findJacobian(const btMultiBodyLinkCollider* multibodyLinkCol,
                          btMultiBodyJacobianData& jacobianData,
                          const btVector3& contact_point,
@@ -954,7 +955,7 @@ struct btSoftColliders
                     {
                         // resolve contact at x_n
                         psb->checkContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predicted = */ false);
-                        auto& cti = c.m_cti;
+                        btSoftBody::sCti& cti = c.m_cti;
                         c.m_node = &n;
                         const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();
                         c.m_c2 = ima * psb->m_sst.sdt;

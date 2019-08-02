@@ -47,7 +47,7 @@ void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) 
         btSoftBody* psb = m_softBodies[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
-            const auto& node = psb->m_nodes[j];
+            const btSoftBody::Node& node = psb->m_nodes[j];
             b[counter] += (node.m_im == 0) ? btVector3(0,0,0) : x[counter] / node.m_im;
             ++counter;
         }
