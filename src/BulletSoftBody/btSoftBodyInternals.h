@@ -28,7 +28,7 @@ subject to the following restrictions:
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 #include <string.h>  //for memset
-#include <math.h>
+#include <cmath>
 static void findJacobian(const btMultiBodyLinkCollider* multibodyLinkCol,
                          btMultiBodyJacobianData& jacobianData,
                          const btVector3& contact_point,
