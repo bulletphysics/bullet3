@@ -8,6 +8,7 @@
 #include "btDeformableContactProjection.h"
 #include "btDeformableRigidDynamicsWorld.h"
 #include <algorithm>
+#include <math.h>
 static void findJacobian(const btMultiBodyLinkCollider* multibodyLinkCol,
                          btMultiBodyJacobianData& jacobianData,
                          const btVector3& contact_point,
