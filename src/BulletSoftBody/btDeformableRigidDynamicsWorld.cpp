@@ -136,7 +136,7 @@ void btDeformableRigidDynamicsWorld::integrateTransforms(btScalar dt)
         btSoftBody* psb = m_softBodies[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
-            auto& node = psb->m_nodes[j];
+            btSoftBody::Node& node = psb->m_nodes[j];
             node.m_x  =  node.m_q + dt * node.m_v;
         }
     }
