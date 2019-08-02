@@ -8037,44 +8037,35 @@ bool PhysicsServerCommandProcessor::processProfileTimingCommand(const struct Sha
 {
 	bool hasStatus = true;
 
-	B3_PROFILE("custom");  //clientCmd.m_profile.m_name);
+	
 	{
-		B3_PROFILE("event");  //clientCmd.m_profile.m_name);
-		char** eventNamePtr = m_data->m_profileEvents[clientCmd.m_profile.m_name];
-		char* eventName = 0;
-		if (eventNamePtr)
+		if (clientCmd.m_profile.m_type == 0)
 		{
-			B3_PROFILE("reuse");
-			eventName = *eventNamePtr;
-		}
-		else
-		{
-			B3_PROFILE("alloc");
-			int len = strlen(clientCmd.m_profile.m_name);
-			eventName = new char[len + 1];
-			strcpy(eventName, clientCmd.m_profile.m_name);
-			eventName[len] = 0;
-			m_data->m_profileEvents.insert(eventName, eventName);
-		}
-
-		{
+			
+			char** eventNamePtr = m_data->m_profileEvents[clientCmd.m_profile.m_name];
+			char* eventName = 0;
+			if (eventNamePtr)
 			{
-				B3_PROFILE("with");  //clientCmd.m_profile.m_name);
-				{
-					B3_PROFILE("some");  //clientCmd.m_profile.m_name);
-					{
-						B3_PROFILE("deep");  //clientCmd.m_profile.m_name);
-						{
-							B3_PROFILE("level");  //clientCmd.m_profile.m_name);
-							{
-								B3_PROFILE(eventName);
-								b3Clock::usleep(clientCmd.m_profile.m_durationInMicroSeconds);
-							}
-						}
-					}
-				}
+				
+				eventName = *eventNamePtr;
 			}
+			else
+			{
+				
+				int len = strlen(clientCmd.m_profile.m_name);
+				eventName = new char[len + 1];
+				strcpy(eventName, clientCmd.m_profile.m_name);
+				eventName[len] = 0;
+				m_data->m_profileEvents.insert(eventName, eventName);
+			}
+
+			b3EnterProfileZone(eventName);
 		}
+		if (clientCmd.m_profile.m_type == 1)
+		{
+			b3LeaveProfileZone();
+		}
+		
 	}
 
 	serverStatusOut.m_type = CMD_CLIENT_COMMAND_COMPLETED;

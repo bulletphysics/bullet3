@@ -6058,14 +6058,12 @@ static PyObject* pybullet_submitProfileTiming(PyObject* self, PyObject* args, Py
 	//	b3SharedMemoryStatusHandle statusHandle;
 	//	int statusType;
 	char* eventName = 0;
-	int duractionInMicroSeconds = -1;
-
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"eventName ", "duraction", "physicsClientId", NULL};
+	static char* kwlist[] = {"eventName ", "physicsClientId", NULL};
 	int physicsClientId = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist,
-									 &eventName, &duractionInMicroSeconds, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|si", kwlist,
+									 &eventName, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -6074,16 +6072,18 @@ static PyObject* pybullet_submitProfileTiming(PyObject* self, PyObject* args, Py
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
+	b3SharedMemoryCommandHandle commandHandle;
+	commandHandle = b3ProfileTimingCommandInit(sm, eventName);
+
 	if (eventName)
 	{
-		b3SharedMemoryCommandHandle commandHandle;
-		commandHandle = b3ProfileTimingCommandInit(sm, eventName);
-		if (duractionInMicroSeconds >= 0)
-		{
-			b3SetProfileTimingDuractionInMicroSeconds(commandHandle, duractionInMicroSeconds);
-		}
-		b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		b3SetProfileTimingType(commandHandle, 0);
 	}
+	else
+	{
+		b3SetProfileTimingType(commandHandle, 1);
+	}
+	b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	Py_INCREF(Py_None);
 	return Py_None;
 }

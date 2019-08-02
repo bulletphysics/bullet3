@@ -627,6 +627,7 @@ struct b3Profile
 {
 	char m_name[MAX_FILENAME_LENGTH];
 	int m_durationInMicroSeconds;
+	int m_type;
 };
 
 struct SdfLoadedArgs

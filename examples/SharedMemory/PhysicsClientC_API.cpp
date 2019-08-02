@@ -5276,8 +5276,8 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3ProfileTimingCommandInit(b3PhysicsCl
 	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
 
-	int len = strlen(name);
-	if (len >= 0 && len < (MAX_FILENAME_LENGTH + 1))
+	int len = name ? strlen(name) : 0;
+	if (len > 0 && len < (MAX_FILENAME_LENGTH + 1))
 	{
 		command->m_type = CMD_PROFILE_TIMING;
 		strcpy(command->m_profile.m_name, name);
@@ -5290,6 +5290,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3ProfileTimingCommandInit(b3PhysicsCl
 		strcpy(command->m_profile.m_name, invalid);
 		command->m_profile.m_name[len] = 0;
 	}
+	command->m_profile.m_type = -1;
 	command->m_profile.m_durationInMicroSeconds = 0;
 	return (b3SharedMemoryCommandHandle)command;
 }
@@ -5318,6 +5319,18 @@ B3_SHARED_API void b3SetProfileTimingDuractionInMicroSeconds(b3SharedMemoryComma
 		command->m_profile.m_durationInMicroSeconds = duration;
 	}
 }
+
+B3_SHARED_API void b3SetProfileTimingType(b3SharedMemoryCommandHandle commandHandle, int type)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_PROFILE_TIMING);
+	if (command->m_type == CMD_PROFILE_TIMING)
+	{
+		command->m_profile.m_type = type;
+	}
+}
+
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3StateLoggingCommandInit(b3PhysicsClientHandle physClient)
 {
