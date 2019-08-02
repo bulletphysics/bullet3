@@ -39,7 +39,7 @@ SET(BulletSoftBody_HDRS
 	btSoftBodySolvers.h
 	btDefaultSoftBodySolver.h
 	
-	btCGrojection.h
+	btCGProjection.h
 	btConjugateGradient.h
 	btDeformableGravityForce.h
 	btDeformableMassSpringForce.h
