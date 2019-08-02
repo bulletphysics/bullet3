@@ -37,9 +37,9 @@ public:
             const btSoftBody* psb = m_softBodies[i];
             for (int j = 0; j < psb->m_links.size(); ++j)
             {
-                const auto& link = psb->m_links[j];
-                const auto node1 = link.m_n[0];
-                const auto node2 = link.m_n[1];
+                const btSoftBody::Link& link = psb->m_links[j];
+                btSoftBody::Node* node1 = link.m_n[0];
+                btSoftBody::Node* node2 = link.m_n[1];
                 size_t id1 = m_indices->at(node1);
                 size_t id2 = m_indices->at(node2);
                 
@@ -62,9 +62,9 @@ public:
             const btSoftBody* psb = m_softBodies[i];
             for (int j = 0; j < psb->m_links.size(); ++j)
             {
-                const auto& link = psb->m_links[j];
-                const auto node1 = link.m_n[0];
-                const auto node2 = link.m_n[1];
+                const btSoftBody::Link& link = psb->m_links[j];
+                btSoftBody::Node* node1 = link.m_n[0];
+                btSoftBody::Node* node2 = link.m_n[1];
                 btScalar kLST = link.Feature::m_material->m_kLST;
                 btScalar r = link.m_rl;
                 size_t id1 = m_indices->at(node1);
@@ -89,9 +89,9 @@ public:
             const btSoftBody* psb = m_softBodies[i];
             for (int j = 0; j < psb->m_links.size(); ++j)
             {
-                const auto& link = psb->m_links[j];
-                const auto node1 = link.m_n[0];
-                const auto node2 = link.m_n[1];
+                const btSoftBody::Link& link = psb->m_links[j];
+                btSoftBody::Node* node1 = link.m_n[0];
+                btSoftBody::Node* node2 = link.m_n[1];
                 btScalar k_damp = psb->m_dampingCoefficient;
                 size_t id1 = m_indices->at(node1);
                 size_t id2 = m_indices->at(node2);
