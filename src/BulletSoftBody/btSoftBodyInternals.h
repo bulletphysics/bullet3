@@ -947,7 +947,6 @@ struct btSoftColliders
             {
                 // check for collision at x_{n+1}^*
                 if (psb->checkContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predicted = */ true))
-//                if (psb->checkContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predicted = */ false));
                 {
                     const btScalar ima = n.m_im;
                     const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;
