@@ -73,10 +73,7 @@ public:
     void updateVelocity(const TVStack& dv);
     
     //set constraints as projections
-    void setConstraints()
-    {
-        projection.setConstraints();
-    }
+    void setConstraints();
     
     // update the projections and project the residual
     void project(TVStack& r)
