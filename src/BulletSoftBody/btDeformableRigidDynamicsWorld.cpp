@@ -109,12 +109,14 @@ void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
                 if (cti.m_colObj->hasContactResponse())
                 {
                     btScalar dp = cti.m_offset;
-                    if (friction.m_static[j] == true)
-                    {
-                        c->m_node->m_v = va;
-                    }
+                    
+                    // only perform position correction when penetrating
                     if (dp < 0)
                     {
+                        if (friction.m_static[j] == true)
+                        {
+                            c->m_node->m_v = va;
+                        }
                         c->m_node->m_v -= dp * cti.m_normal / dt;
                     }
                 }

@@ -2271,9 +2271,9 @@ bool btSoftBody::checkContact(const btCollisionObjectWrapper* colObjWrap,
 	btVector3 nrm;
 	const btCollisionShape* shp = colObjWrap->getCollisionShape();
     const btCollisionObject* tmpCollisionObj = colObjWrap->getCollisionObject();
-    // get the position x_{n+1}^* = x_n + dt * v_{n+1}^* where v_{n+1}^* = v_n + dtg
+    // use the position x_{n+1}^* = x_n + dt * v_{n+1}^* where v_{n+1}^* = v_n + dtg for collision detect
+    // but resolve contact at x_n
     const btTransform &wtr = (predict) ? tmpCollisionObj->getInterpolationWorldTransform() : colObjWrap->getWorldTransform();
-//    const btTransform &wtr = colObjWrap->getWorldTransform();
 
 	btScalar dst =
 		m_worldInfo->m_sparsesdf.Evaluate(
@@ -2281,13 +2281,14 @@ bool btSoftBody::checkContact(const btCollisionObjectWrapper* colObjWrap,
 			shp,
 			nrm,
 			margin);
-	if (dst < 0 || !predict)
+	if (!predict)
 	{
 		cti.m_colObj = colObjWrap->getCollisionObject();
 		cti.m_normal = wtr.getBasis() * nrm;
         cti.m_offset = dst;
-		return (true);
 	}
+    if (dst < 0)
+        return true;
 	return (false);
 }
 
