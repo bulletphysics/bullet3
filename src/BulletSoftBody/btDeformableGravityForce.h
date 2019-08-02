@@ -13,7 +13,8 @@
 class btDeformableGravityForce : public btDeformableLagrangianForce
 {
 public:
-    using TVStack = btDeformableLagrangianForce::TVStack;
+//    using TVStack = btDeformableLagrangianForce::TVStack;
+    typedef btAlignedObjectArray<btVector3> TVStack;
     btVector3 m_gravity;
     
     btDeformableGravityForce(const btVector3& g) : m_gravity(g)

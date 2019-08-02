@@ -20,7 +20,8 @@ class btDeformableRigidDynamicsWorld;
 class btDeformableBackwardEulerObjective
 {
 public:
-    using TVStack = btAlignedObjectArray<btVector3>;
+//    using TVStack = btAlignedObjectArray<btVector3>;
+    typedef btAlignedObjectArray<btVector3> TVStack;
     btScalar m_dt;
     btDeformableRigidDynamicsWorld* m_world;
     btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;

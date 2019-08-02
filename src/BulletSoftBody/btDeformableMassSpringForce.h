@@ -13,7 +13,8 @@
 class btDeformableMassSpringForce : public btDeformableLagrangianForce
 {
 public:
-    using TVStack = btDeformableLagrangianForce::TVStack;
+//    using TVStack = btDeformableLagrangianForce::TVStack;
+    typedef btAlignedObjectArray<btVector3> TVStack;
     btDeformableMassSpringForce()
     {
     }
