@@ -30,7 +30,8 @@ typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 
 class btDeformableRigidDynamicsWorld : public btMultiBodyDynamicsWorld
 {
-    using TVStack = btAlignedObjectArray<btVector3>;
+    typedef btAlignedObjectArray<btVector3> TVStack;
+//    using TVStack = btAlignedObjectArray<btVector3>;
     ///Solver classes that encapsulate multiple deformable bodies for solving
     btDeformableBodySolver* m_deformableBodySolver;
     btSoftBodyArray m_softBodies;

@@ -15,7 +15,8 @@
 template <class TM>
 class btConjugateGradient
 {
-    using TVStack = btAlignedObjectArray<btVector3>;
+//    using TVStack = btAlignedObjectArray<btVector3>;
+    typedef btAlignedObjectArray<btVector3> TVStack;
     TVStack r,p,z,temp;
     int max_iterations;
     

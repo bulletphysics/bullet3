@@ -11,7 +11,8 @@
 class Preconditioner
 {
 public:
-    using TVStack = btAlignedObjectArray<btVector3>;
+    typedef btAlignedObjectArray<btVector3> TVStack;
+//    using TVStack = btAlignedObjectArray<btVector3>;
     virtual void operator()(const TVStack& x, TVStack& b) = 0;
     virtual void reinitialize(bool nodeUpdated) = 0;
 };
