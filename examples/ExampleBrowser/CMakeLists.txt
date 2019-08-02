@@ -359,6 +359,14 @@ SET(BulletExampleBrowser_SRCS
  ../MultiBody/MultiBodyConstraintFeedback.cpp
   ../SoftDemo/SoftDemo.cpp
   ../SoftDemo/SoftDemo.h
+  ../Pinch/Pinch.cpp
+  ../Pinch/Pinch.h
+  ../DeformableContact/DeformableContact.cpp
+  ../DeformableContact/DeformableContact.h
+  ../DeformableDemo/DeformableDemo.cpp
+  ../DeformableDemo/DeformableDemo.h
+  ../VolumetricDeformable/VolumetricDeformable.cpp
+  ../VolumetricDeformable/VolumetricDeformable.h
   ../MultiBody/MultiDofDemo.cpp
   ../MultiBody/MultiDofDemo.h
   ../RigidBody/RigidBodySoftContact.cpp
