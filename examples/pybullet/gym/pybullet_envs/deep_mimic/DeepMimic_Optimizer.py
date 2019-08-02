@@ -12,7 +12,6 @@ from pybullet_envs.deep_mimic.learning.rl_world import RLWorld
 from pybullet_utils.logger import Logger
 from pybullet_envs.deep_mimic.testrl import update_world, update_timestep, build_world
 import pybullet_utils.mpi_util as MPIUtil
-from mpi4py import MPI
 
 args = []
 world = None
@@ -21,15 +20,7 @@ world = None
 def run():
   global update_timestep
   global world
-  rank = MPI.COMM_WORLD.Get_rank()
-  name = "timings"+str(rank)+".json"
-  slot = world.env._pybullet_client.startStateLogging(world.env._pybullet_client.STATE_LOGGING_PROFILE_TIMINGS,name)
-  count=1000
-  done = False
   while not (done):
-    count-=1
-    if (count<0):
-      world.env._pybullet_client.stopStateLogging(slot)
     update_world(world, update_timestep)
 
   return
