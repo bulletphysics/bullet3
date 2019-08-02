@@ -27,7 +27,6 @@
 #include "btMultiBodyJointFeedback.h"
 #include "LinearMath/btTransformUtil.h"
 #include "LinearMath/btSerializer.h"
-#include <iostream>
 //#include "Bullet3Common/b3Logging.h"
 // #define INCLUDE_GYRO_TERM
 

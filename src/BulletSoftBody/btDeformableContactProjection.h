@@ -11,7 +11,6 @@
 #include "btSoftBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
-#include <iostream>
 class btDeformableContactProjection : public btCGProjection
 {
 public:
