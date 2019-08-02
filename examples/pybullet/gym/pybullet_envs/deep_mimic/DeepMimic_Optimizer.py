@@ -20,6 +20,7 @@ world = None
 def run():
   global update_timestep
   global world
+  done = False
   while not (done):
     update_world(world, update_timestep)
 
