@@ -31,7 +31,7 @@ void btDeformableBodySolver::solveConstraints(float solverdt)
     backupVelocity();
     
     m_objective->computeResidual(solverdt, m_residual);
-//   m_objective->initialGuess(m_dv, m_residual);
+    
     computeStep(m_dv, m_residual);
     updateVelocity();
 }

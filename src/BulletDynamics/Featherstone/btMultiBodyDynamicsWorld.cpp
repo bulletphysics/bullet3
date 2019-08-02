@@ -428,14 +428,18 @@ void btMultiBodyDynamicsWorld::forwardKinematics()
 void btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 {
     solveExternalForces(solverInfo);
+    buildIslands();
     solveInternalConstraints(solverInfo);
+}
+
+void btMultiBodyDynamicsWorld::buildIslands()
+{
+    m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
 }
 
 void btMultiBodyDynamicsWorld::solveInternalConstraints(btContactSolverInfo& solverInfo)
 {
 	/// solve all the constraints for this island
-	m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
-
 	m_solverMultiBodyIslandCallback->processConstraints();
 
 	m_constraintSolver->allSolved(solverInfo, m_debugDrawer);
