@@ -128,3 +128,11 @@ void btDeformableBackwardEulerObjective::initialGuess(TVStack& dv, const TVStack
         }
     }
 }
+
+//set constraints as projections
+void btDeformableBackwardEulerObjective::setConstraints()
+{
+    // build islands for multibody solve
+    m_world->btMultiBodyDynamicsWorld::buildIslands();
+    projection.setConstraints();
+}

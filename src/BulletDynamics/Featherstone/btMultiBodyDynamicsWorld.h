@@ -116,6 +116,7 @@ public:
     
     virtual void solveExternalForces(btContactSolverInfo& solverInfo);
     virtual void solveInternalConstraints(btContactSolverInfo& solverInfo);
+    void buildIslands();
 
 };
 #endif  //BT_MULTIBODY_DYNAMICS_WORLD_H
