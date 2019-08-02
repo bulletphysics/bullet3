@@ -21,7 +21,8 @@ class btDeformableRigidDynamicsWorld;
 
 class btDeformableBodySolver : public btSoftBodySolver
 {
-    using TVStack = btAlignedObjectArray<btVector3>;
+//    using TVStack = btAlignedObjectArray<btVector3>;
+    typedef btAlignedObjectArray<btVector3> TVStack;
 protected:
     int m_numNodes;
     TVStack m_dv;
