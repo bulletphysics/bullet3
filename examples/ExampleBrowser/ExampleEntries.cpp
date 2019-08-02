@@ -122,12 +122,6 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Basic Example", "Create some rigid bodies using box collision shapes. This is a good example to familiarize with the basic initialization of Bullet. The Basic Example can also be compiled without graphical user interface, as a console application. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", BasicExampleCreateFunc),
 
 		ExampleEntry(1, "Rolling Friction", "Damping is often not good enough to keep rounded objects from rolling down a sloped surface. Instead, you can set the rolling friction of a rigid body. Generally it is best to leave the rolling friction to zero, to avoid artifacts.", RollingFrictionCreateFunc),
-
-        ExampleEntry(0, "Deformable-RigidBody Contact", "Deformable test", DeformableCreateFunc),
-        ExampleEntry(0, "Grasp Deformable Cube", "Grasping test", PinchCreateFunc),
-        ExampleEntry(0, "Volumetric Deformable Objects", "Volumetric Deformable test", VolumetricDeformableCreateFunc),
-        ExampleEntry(0, "Deformable-MultiBody Contact", "MultiBody and Deformable contact", DeformableContactCreateFunc),
-        ExampleEntry(0, "MultiBody Baseline", "MultiBody Baseline", MultiBodyBaselineCreateFunc),
         
 		ExampleEntry(1, "Constraints", "Show the use of the various constraints in Bullet. Press the L key to visualize the constraint limits. Press the C key to visualize the constraint frames.",
 					 AllConstraintCreateFunc),
@@ -201,6 +195,13 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Spheres & Plane C-API (Bullet2)", "Collision C-API using Bullet 2.x backend", CollisionTutorialBullet2CreateFunc, TUT_SPHERE_PLANE_BULLET2),
 //ExampleEntry(1, "Spheres & Plane C-API (Bullet3)", "Collision C-API using Bullet 3.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_PLANE_RTB3),
 
+        ExampleEntry(0, "Deformabe Body"),
+        ExampleEntry(1, "Deformable-RigidBody Contact", "Deformable test", DeformableCreateFunc),
+        ExampleEntry(1, "Grasp Deformable Cube", "Grasping test", PinchCreateFunc),
+        ExampleEntry(1, "Volumetric Deformable Objects", "Volumetric Deformable test", VolumetricDeformableCreateFunc),
+        ExampleEntry(1, "Deformable-MultiBody Contact", "MultiBody and Deformable contact", DeformableContactCreateFunc),
+        // ExampleEntry(1, "MultiBody Baseline", "MultiBody Baseline", MultiBodyBaselineCreateFunc),
+        
 #ifdef INCLUDE_CLOTH_DEMOS
 		ExampleEntry(0, "Soft Body"),
 		ExampleEntry(1, "Cloth", "Simulate a patch of cloth.", SoftDemoCreateFunc, 0),
