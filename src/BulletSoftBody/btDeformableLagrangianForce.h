@@ -19,7 +19,8 @@ enum btDeformableLagrangianForceType
 class btDeformableLagrangianForce
 {
 public:
-    using TVStack = btAlignedObjectArray<btVector3>;
+//    using TVStack = btAlignedObjectArray<btVector3>;
+    typedef btAlignedObjectArray<btVector3> TVStack;
     btAlignedObjectArray<btSoftBody *> m_softBodies;
     const std::unordered_map<btSoftBody::Node *, size_t>* m_indices;
     

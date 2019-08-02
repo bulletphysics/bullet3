@@ -104,9 +104,12 @@ class btCGProjection
 {
 public:
 //    static const int dim = 3;
-    using TVStack = btAlignedObjectArray<btVector3>;
-    using TVArrayStack = btAlignedObjectArray<btAlignedObjectArray<btVector3> >;
-    using TArrayStack = btAlignedObjectArray<btAlignedObjectArray<btScalar> >;
+    typedef btAlignedObjectArray<btVector3> TVStack;
+    typedef btAlignedObjectArray<btAlignedObjectArray<btVector3> > TVArrayStack;
+    typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > TArrayStack;
+//    using TVStack = btAlignedObjectArray<btVector3>;
+//    using TVArrayStack = btAlignedObjectArray<btAlignedObjectArray<btVector3> >;
+//    using TArrayStack = btAlignedObjectArray<btAlignedObjectArray<btScalar> >;
     btAlignedObjectArray<btSoftBody *> m_softBodies;
     btDeformableRigidDynamicsWorld* m_world;
     const std::unordered_map<btSoftBody::Node *, size_t>* m_indices;
