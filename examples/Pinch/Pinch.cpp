@@ -256,7 +256,7 @@ void Pinch::initPhysics()
 	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
     
-    getDeformableDynamicsWorld()->m_beforeSolverCallbacks.push_back(dynamics);
+    getDeformableDynamicsWorld()->setSolverCallback(dynamics);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
     //create a ground

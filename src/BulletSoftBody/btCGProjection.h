@@ -29,7 +29,7 @@ struct DeformableContactConstraint
     
     DeformableContactConstraint(const btVector3 dir)
     {
-        m_contact.push_back(nullptr);
+        m_contact.push_back(NULL);
         m_direction.push_back(dir);
         m_value.push_back(0);
         m_accumulated_normal_impulse.push_back(0);
@@ -37,7 +37,7 @@ struct DeformableContactConstraint
     
     DeformableContactConstraint()
     {
-        m_contact.push_back(nullptr);
+        m_contact.push_back(NULL);
         m_direction.push_back(btVector3(0,0,0));
         m_value.push_back(0);
         m_accumulated_normal_impulse.push_back(0);
