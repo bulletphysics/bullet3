@@ -75,7 +75,15 @@ public:
         m_sbi.m_sparsesdf.Initialize();
         m_internalTime = 0.0;
     }
-    btAlignedObjectArray<std::function<void(btScalar, btDeformableRigidDynamicsWorld*)> > m_beforeSolverCallbacks;
+//    btAlignedObjectArray<std::function<void(btScalar, btDeformableRigidDynamicsWorld*)> > m_beforeSolverCallbacks;
+    typedef void (*btSolverCallback)(btScalar time, btDeformableRigidDynamicsWorld* world);
+    btSolverCallback m_solverCallback;
+    
+    void setSolverCallback(btSolverCallback cb)
+    {
+        m_solverCallback = cb;
+    }
+    
     virtual ~btDeformableRigidDynamicsWorld()
     {
     }
