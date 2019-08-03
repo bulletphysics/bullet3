@@ -995,7 +995,9 @@ struct btSoftColliders
                                 btScalar* u_t1 = &jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
                                 btScalar* u_t2 = &jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
                                 
-                                btMatrix3x3 rot(normal, t1, t2); // world frame to local frame
+                                btMatrix3x3 rot(normal.getX(), normal.getY(), normal.getZ(),
+                                                t1.getX(), t1.getY(), t1.getZ(),
+                                                t2.getX(), t2.getY(), t2.getZ()); // world frame to local frame
                                 const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
                                 btScalar dt = psb->m_sst.sdt;
                                 btMatrix3x3 local_impulse_matrix = Diagonal(1/dt) * (Diagonal(n.m_im) + OuterProduct(J_n, J_t1, J_t2, u_n, u_t1, u_t2, ndof)).inverse();

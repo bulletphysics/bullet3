@@ -50,6 +50,7 @@ void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody 
     {
         m_dv.resize(m_numNodes);
         m_residual.resize(m_numNodes);
+        m_backupVelocity.resize(m_numNodes);
     }
     
     for (int i = 0; i < m_dv.size(); ++i)
@@ -121,7 +122,6 @@ bool btDeformableBodySolver::updateNodes()
     if (numNodes != m_numNodes)
     {
         m_numNodes = numNodes;
-        m_backupVelocity.resize(numNodes);
         return true;
     }
     return false;
