@@ -33,6 +33,7 @@ protected:
     btScalar m_dt;
     btConjugateGradient<btDeformableBackwardEulerObjective> cg;
     
+    
 public:
     btDeformableBackwardEulerObjective* m_objective;
     

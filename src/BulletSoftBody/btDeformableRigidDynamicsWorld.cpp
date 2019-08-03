@@ -45,10 +45,11 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
 void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
 {
     // perform position correction for all constraints 
-    for (auto& it : m_deformableBodySolver->m_objective->projection.m_constraints)
+//    for (auto& it : m_deformableBodySolver->m_objective->projection.m_constraints)
+    for (int index = 0; index < m_deformableBodySolver->m_objective->projection.m_constraints.size(); ++index)
     {
-        btAlignedObjectArray<DeformableFrictionConstraint>& frictions = m_deformableBodySolver->m_objective->projection.m_frictions[it.first];
-        btAlignedObjectArray<DeformableContactConstraint>& constraints = it.second;
+        btAlignedObjectArray<DeformableFrictionConstraint>& frictions = *m_deformableBodySolver->m_objective->projection.m_frictions[m_deformableBodySolver->m_objective->projection.m_constraints.getKeyAtIndex(index)];
+        btAlignedObjectArray<DeformableContactConstraint>& constraints = *m_deformableBodySolver->m_objective->projection.m_constraints.getAtIndex(index);
         for (int i = 0; i < constraints.size(); ++i)
         {
             DeformableContactConstraint& constraint = constraints[i];

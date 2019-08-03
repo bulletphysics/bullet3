@@ -258,6 +258,7 @@ public:
 		btScalar m_area;     // Area
 		btDbvtNode* m_leaf;  // Leaf data
 		int m_battach : 1;   // Attached
+        int index;
 	};
 	/* Link			*/
 	ATTRIBUTE_ALIGNED16(struct)
