@@ -6,6 +6,7 @@
 //
 
 #include <stdio.h>
+#include <limits>
 #include "btDeformableBodySolver.h"
 
 btDeformableBodySolver::btDeformableBodySolver()
