@@ -58,7 +58,7 @@ void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
             {
                 const btSoftBody::RContact* c = constraint.m_contact[j];
                 // skip anchor points
-                if (c == nullptr || c->m_node->m_im == 0)
+                if (c == NULL || c->m_node->m_im == 0)
                     continue;
                 const btSoftBody::sCti& cti = c->m_cti;
                 btVector3 va(0, 0, 0);
@@ -206,14 +206,24 @@ void btDeformableRigidDynamicsWorld::beforeSolverCallbacks(btScalar timeStep)
     {
         (*m_internalTickCallback)(this, timeStep);
     }
-    for (int i = 0; i < m_beforeSolverCallbacks.size(); ++i)
-        m_beforeSolverCallbacks[i](m_internalTime, this);
+    
+    if (0 != m_solverCallback)
+    {
+        (*m_solverCallback)(m_internalTime, this);
+    }
+    
+//    for (int i = 0; i < m_beforeSolverCallbacks.size(); ++i)
+//        m_beforeSolverCallbacks[i](m_internalTime, this);
 }
 
 void btDeformableRigidDynamicsWorld::afterSolverCallbacks(btScalar timeStep)
 {
-    for (int i = 0; i < m_beforeSolverCallbacks.size(); ++i)
-        m_beforeSolverCallbacks[i](m_internalTime, this);
+    if (0 != m_solverCallback)
+    {
+        (*m_solverCallback)(m_internalTime, this);
+    }
+//    for (int i = 0; i < m_beforeSolverCallbacks.size(); ++i)
+//        m_beforeSolverCallbacks[i](m_internalTime, this);
 }
 
 void btDeformableRigidDynamicsWorld::addForce(btSoftBody* psb, btDeformableLagrangianForce* force)
