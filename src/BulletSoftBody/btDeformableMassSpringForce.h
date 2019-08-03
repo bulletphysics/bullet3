@@ -41,8 +41,8 @@ public:
                 const btSoftBody::Link& link = psb->m_links[j];
                 btSoftBody::Node* node1 = link.m_n[0];
                 btSoftBody::Node* node2 = link.m_n[1];
-                size_t id1 = m_indices->at(node1);
-                size_t id2 = m_indices->at(node2);
+                size_t id1 = node1->index;
+                size_t id2 = node2->index;
                 
                 // damping force
                 btVector3 v_diff = (node2->m_v - node1->m_v);
@@ -68,8 +68,8 @@ public:
                 btSoftBody::Node* node2 = link.m_n[1];
                 btScalar kLST = link.Feature::m_material->m_kLST;
                 btScalar r = link.m_rl;
-                size_t id1 = m_indices->at(node1);
-                size_t id2 = m_indices->at(node2);
+                size_t id1 = node1->index;
+                size_t id2 = node2->index;
                 
                 // elastic force
                 // explicit elastic force
@@ -94,8 +94,8 @@ public:
                 btSoftBody::Node* node1 = link.m_n[0];
                 btSoftBody::Node* node2 = link.m_n[1];
                 btScalar k_damp = psb->m_dampingCoefficient;
-                size_t id1 = m_indices->at(node1);
-                size_t id2 = m_indices->at(node2);
+                size_t id1 = node1->index;
+                size_t id2 = node2->index;
                 btVector3 local_scaled_df = scale * k_damp * (dv[id2] - dv[id1]);
                 df[id1] += local_scaled_df;
                 df[id2] -= local_scaled_df;

@@ -9,7 +9,8 @@
 #define BT_DEFORMABLE_LAGRANGIAN_FORCE_H
 
 #include "btSoftBody.h"
-#include <unordered_map>
+#include <LinearMath/btHashMap.h>
+
 enum btDeformableLagrangianForceType
 {
     BT_GRAVITY_FORCE = 1,
@@ -22,7 +23,7 @@ public:
 //    using TVStack = btAlignedObjectArray<btVector3>;
     typedef btAlignedObjectArray<btVector3> TVStack;
     btAlignedObjectArray<btSoftBody *> m_softBodies;
-    const std::unordered_map<btSoftBody::Node *, size_t>* m_indices;
+    const btAlignedObjectArray<btSoftBody::Node*>* m_nodes;
     
     btDeformableLagrangianForce()
     {
@@ -57,9 +58,9 @@ public:
         m_softBodies.push_back(psb);
     }
     
-    virtual void setIndices(const std::unordered_map<btSoftBody::Node *, size_t>* indices)
+    virtual void setIndices(const btAlignedObjectArray<btSoftBody::Node*>* nodes)
     {
-        m_indices = indices;
+        m_nodes = nodes;
     }
 };
 #endif /* BT_DEFORMABLE_LAGRANGIAN_FORCE */

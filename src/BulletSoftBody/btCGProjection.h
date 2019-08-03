@@ -10,7 +10,6 @@
 #include "btSoftBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
-#include <unordered_map>
 
 class btDeformableRigidDynamicsWorld;
 
@@ -21,6 +20,7 @@ struct DeformableContactConstraint
     btAlignedObjectArray<btScalar> m_value;
     // the magnitude of the total impulse the node applied to the rb in the normal direction in the cg solve
     btAlignedObjectArray<btScalar> m_accumulated_normal_impulse;
+    btSoftBody::Node* node;
     
     DeformableContactConstraint(const btSoftBody::RContact& rcontact)
     {
@@ -58,7 +58,6 @@ struct DeformableContactConstraint
 
 struct DeformableFrictionConstraint
 {
-    
     btAlignedObjectArray<bool> m_static; // whether the friction is static
     btAlignedObjectArray<btScalar> m_impulse; // the impulse magnitude the node feels
     btAlignedObjectArray<btScalar> m_dv;      // the dv magnitude of the node
@@ -75,6 +74,7 @@ struct DeformableFrictionConstraint
     
     // the total impulse the node applied to the rb in the tangential direction in the cg solve
     btAlignedObjectArray<btVector3> m_accumulated_tangent_impulse;
+    btSoftBody::Node* node;
     
     DeformableFrictionConstraint()
     {
@@ -103,22 +103,18 @@ struct DeformableFrictionConstraint
 class btCGProjection
 {
 public:
-//    static const int dim = 3;
     typedef btAlignedObjectArray<btVector3> TVStack;
     typedef btAlignedObjectArray<btAlignedObjectArray<btVector3> > TVArrayStack;
     typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > TArrayStack;
-//    using TVStack = btAlignedObjectArray<btVector3>;
-//    using TVArrayStack = btAlignedObjectArray<btAlignedObjectArray<btVector3> >;
-//    using TArrayStack = btAlignedObjectArray<btAlignedObjectArray<btScalar> >;
     btAlignedObjectArray<btSoftBody *> m_softBodies;
     btDeformableRigidDynamicsWorld* m_world;
-    const std::unordered_map<btSoftBody::Node *, size_t>* m_indices;
+    const btAlignedObjectArray<btSoftBody::Node*>* m_nodes;
     const btScalar& m_dt;
     
-    btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt, const std::unordered_map<btSoftBody::Node *, size_t>* indices)
+    btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt, const btAlignedObjectArray<btSoftBody::Node*>* nodes)
     : m_softBodies(softBodies)
     , m_dt(dt)
-    , m_indices(indices)
+    , m_nodes(nodes)
     {
     }
     

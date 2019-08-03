@@ -9,7 +9,7 @@
 
 btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
 : m_softBodies(softBodies)
-, projection(m_softBodies, m_dt, &m_indices)
+, projection(m_softBodies, m_dt, &m_nodes)
 , m_backupVelocity(backup_v)
 {
     m_preconditioner = new DefaultPreconditioner();
@@ -63,10 +63,11 @@ void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) 
 void btDeformableBackwardEulerObjective::updateVelocity(const TVStack& dv)
 {
     // only the velocity of the constrained nodes needs to be updated during CG solve
-    for (auto it : projection.m_constraints)
+//    for (auto it : projection.m_constraints)
+    for (int i = 0; i < projection.m_constraints.size(); ++i)
     {
-        int i = m_indices[it.first];
-        it.first->m_v = m_backupVelocity[i] + dv[i];
+        int index = projection.m_constraints.getKeyAtIndex(i).getUid1();
+        m_nodes[index]->m_v = m_backupVelocity[index] + dv[index];
     }
 }
 
