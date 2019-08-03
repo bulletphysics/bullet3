@@ -11,14 +11,19 @@
 #include "btSoftBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
+#include "LinearMath/btHashMap.h"
 class btDeformableContactProjection : public btCGProjection
 {
 public:
-    std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<DeformableContactConstraint> > m_constraints;
-    std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<DeformableFrictionConstraint> > m_frictions;
+//    std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<DeformableContactConstraint> > m_constraints;
+//    std::unordered_map<btSoftBody::Node *, btAlignedObjectArray<DeformableFrictionConstraint> > m_frictions;
     
-    btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt, const std::unordered_map<btSoftBody::Node *, size_t>* indices)
-    : btCGProjection(softBodies, dt, indices)
+    // map from node index to constraints
+    btHashMap<btHashInt, btAlignedObjectArray<DeformableContactConstraint> > m_constraints;
+    btHashMap<btHashInt, btAlignedObjectArray<DeformableFrictionConstraint> >m_frictions;
+    
+    btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt, const btAlignedObjectArray<btSoftBody::Node*>* nodes)
+    : btCGProjection(softBodies, dt, nodes)
     {
     }
     
