@@ -59,7 +59,7 @@ void btDeformableContactProjection::update()
             DeformableFrictionConstraint& friction = frictions[i];
             for (int j = 0; j < constraint.m_contact.size(); ++j)
             {
-                if (constraint.m_contact[j] == nullptr)
+                if (constraint.m_contact[j] == NULL)
                 {
                     // nothing needs to be done for dirichelet constraints
                     continue;
