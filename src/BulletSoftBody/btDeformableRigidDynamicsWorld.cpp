@@ -1,9 +1,15 @@
-//
-//  btDeformableRigidDynamicsWorld.cpp
-//  BulletSoftBody
-//
-//  Created by Xuchen Han on 7/1/19.
-//
+/*
+ Bullet Continuous Collision Detection and Physics Library
+ Copyright (c) 2016 Google Inc. http://bulletphysics.org
+ This software is provided 'as-is', without any express or implied warranty.
+ In no event will the authors be held liable for any damages arising from the use of this software.
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it freely,
+ subject to the following restrictions:
+ 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+ 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+ 3. This notice may not be removed or altered from any source distribution.
+ */
 
 #include <stdio.h>
 #include "btDeformableRigidDynamicsWorld.h"
@@ -13,7 +19,6 @@
 void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
     reinitialize(timeStep);
-//    beforeSolverCallbacks(timeStep);
     // add gravity to velocity of rigid and multi bodys
     applyRigidBodyGravity(timeStep);
     
@@ -165,7 +170,7 @@ void btDeformableRigidDynamicsWorld::addSoftBody(btSoftBody* body, int collision
 void btDeformableRigidDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 {
     btMultiBodyDynamicsWorld::predictUnconstraintMotion(timeStep);
-    m_deformableBodySolver->predictMotion(float(timeStep));
+    m_deformableBodySolver->predictMotion(timeStep);
 }
 
 void btDeformableRigidDynamicsWorld::reinitialize(btScalar timeStep)
@@ -181,8 +186,7 @@ void btDeformableRigidDynamicsWorld::reinitialize(btScalar timeStep)
 
 void btDeformableRigidDynamicsWorld::applyRigidBodyGravity(btScalar timeStep)
 {
-    // TODO: This is an ugly hack to get the desired gravity behavior.
-    // gravity is applied in stepSimulation and then cleared here and then applied here and then cleared here again
+    // Gravity is applied in stepSimulation and then cleared here and then applied here and then cleared here again
     // so that 1) gravity is applied to velocity before constraint solve and 2) gravity is applied in each substep
     // when there are multiple substeps
     clearForces();
@@ -211,9 +215,6 @@ void btDeformableRigidDynamicsWorld::beforeSolverCallbacks(btScalar timeStep)
     {
         (*m_solverCallback)(m_internalTime, this);
     }
-    
-//    for (int i = 0; i < m_beforeSolverCallbacks.size(); ++i)
-//        m_beforeSolverCallbacks[i](m_internalTime, this);
 }
 
 void btDeformableRigidDynamicsWorld::afterSolverCallbacks(btScalar timeStep)
@@ -222,8 +223,6 @@ void btDeformableRigidDynamicsWorld::afterSolverCallbacks(btScalar timeStep)
     {
         (*m_solverCallback)(m_internalTime, this);
     }
-//    for (int i = 0; i < m_beforeSolverCallbacks.size(); ++i)
-//        m_beforeSolverCallbacks[i](m_internalTime, this);
 }
 
 void btDeformableRigidDynamicsWorld::addForce(btSoftBody* psb, btDeformableLagrangianForce* force)
