@@ -8,6 +8,7 @@ t = time.time() + 3.1
 
 logId = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "chrome_about_tracing.json")
 while (time.time() < t):
+  p.stepSimulation()
   p.submitProfileTiming("pythontest")
   time.sleep(1./240.)
   p.submitProfileTiming("nested")
