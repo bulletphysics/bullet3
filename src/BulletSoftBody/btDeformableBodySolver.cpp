@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <limits>
 #include "btDeformableBodySolver.h"
+#include "LinearMath/btQuickprof.h"
 
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
@@ -29,6 +30,7 @@ btDeformableBodySolver::~btDeformableBodySolver()
 
 void btDeformableBodySolver::solveConstraints(float solverdt)
 {
+    BT_PROFILE("solveConstraints");
     m_objective->setDt(solverdt);
     
     // add constraints to the solver
@@ -70,6 +72,7 @@ void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody 
 
 void btDeformableBodySolver::setConstraints()
 {
+    BT_PROFILE("setConstraint");
     m_objective->setConstraints();
 }
 
