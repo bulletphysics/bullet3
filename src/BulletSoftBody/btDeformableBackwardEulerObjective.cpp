@@ -1,9 +1,15 @@
-//
-//  btDeformableBackwardEulerObjective.cpp
-//  BulletSoftBody
-//
-//  Created by Xuchen Han on 7/9/19.
-//
+/*
+ Bullet Continuous Collision Detection and Physics Library
+ Copyright (c) 2016 Google Inc. http://bulletphysics.org
+ This software is provided 'as-is', without any express or implied warranty.
+ In no event will the authors be held liable for any damages arising from the use of this software.
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it freely,
+ subject to the following restrictions:
+ 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+ 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+ 3. This notice may not be removed or altered from any source distribution.
+ */
 
 #include "btDeformableBackwardEulerObjective.h"
 
@@ -63,7 +69,6 @@ void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) 
 void btDeformableBackwardEulerObjective::updateVelocity(const TVStack& dv)
 {
     // only the velocity of the constrained nodes needs to be updated during CG solve
-//    for (auto it : projection.m_constraints)
     for (int i = 0; i < projection.m_constraints.size(); ++i)
     {
         int index = projection.m_constraints.getKeyAtIndex(i).getUid1();
@@ -112,7 +117,9 @@ btScalar btDeformableBackwardEulerObjective::computeNorm(const TVStack& residual
 void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
 {
     for (int i = 0; i < m_lf.size(); ++i)
+    {
         m_lf[i]->addScaledExplicitForce(m_dt, force);
+    }
     applyForce(force, true);
 }
 
