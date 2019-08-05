@@ -94,15 +94,15 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             const btSoftBody* psb = m_softBodies[i];
+            btScalar scaled_k_damp = psb->m_dampingCoefficient * scale;
             for (int j = 0; j < psb->m_links.size(); ++j)
             {
                 const btSoftBody::Link& link = psb->m_links[j];
                 btSoftBody::Node* node1 = link.m_n[0];
                 btSoftBody::Node* node2 = link.m_n[1];
-                btScalar k_damp = psb->m_dampingCoefficient;
                 size_t id1 = node1->index;
                 size_t id2 = node2->index;
-                btVector3 local_scaled_df = scale * k_damp * (dv[id2] - dv[id1]);
+                btVector3 local_scaled_df = scaled_k_damp * (dv[id2] - dv[id1]);
                 df[id1] += local_scaled_df;
                 df[id2] -= local_scaled_df;
             }
