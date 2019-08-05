@@ -86,6 +86,7 @@ void btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	m_debugBodyId = uniqueId++;
 
 	setMassProps(constructionInfo.m_mass, constructionInfo.m_localInertia);
+        m_mass = constructionInfo.m_mass;
 	updateInertiaTensor();
 
 	m_rigidbodyFlags = BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY;
