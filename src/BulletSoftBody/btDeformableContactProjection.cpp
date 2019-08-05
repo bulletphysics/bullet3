@@ -224,6 +224,7 @@ void btDeformableContactProjection::update()
 
 void btDeformableContactProjection::setConstraints()
 {
+    BT_PROFILE("setConstraints");
     // set Dirichlet constraint
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
@@ -233,12 +234,14 @@ void btDeformableContactProjection::setConstraints()
             if (psb->m_nodes[j].m_im == 0)
             {
                 btAlignedObjectArray<DeformableContactConstraint> c;
+                c.reserve(3);
                 c.push_back(DeformableContactConstraint(btVector3(1,0,0)));
                 c.push_back(DeformableContactConstraint(btVector3(0,1,0)));
                 c.push_back(DeformableContactConstraint(btVector3(0,0,1)));
                 m_constraints.insert(psb->m_nodes[j].index, c);
                 
                 btAlignedObjectArray<DeformableFrictionConstraint> f;
+                f.reserve(3);
                 f.push_back(DeformableFrictionConstraint());
                 f.push_back(DeformableFrictionConstraint());
                 f.push_back(DeformableFrictionConstraint());
@@ -246,13 +249,12 @@ void btDeformableContactProjection::setConstraints()
             }
         }
     }
-
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
         btSoftBody* psb = m_softBodies[i];
         btMultiBodyJacobianData jacobianData_normal;
         btMultiBodyJacobianData jacobianData_complementary;
-        
+        std::cout <<psb->m_rcontacts.size() << std::endl;
         for (int j = 0; j < psb->m_rcontacts.size(); ++j)
         {
             const btSoftBody::RContact& c = psb->m_rcontacts[j];
@@ -296,6 +298,7 @@ void btDeformableContactProjection::setConstraints()
                 const btScalar dn = btDot(vr, cti.m_normal);
                 if (dn < SIMD_EPSILON)
                 {
+                    
                     if (m_constraints.find(c.m_node->index) == NULL)
                     {
                         btAlignedObjectArray<DeformableContactConstraint> constraints;
@@ -369,7 +372,6 @@ void btDeformableContactProjection::enforceConstraint(TVStack& x)
                     x[i] += constraints[j].m_value[k] * constraints[j].m_direction[k];
                 }
             }
-            
         }
         else
         {

@@ -12,6 +12,7 @@
  */
 
 #include "btDeformableBackwardEulerObjective.h"
+#include "LinearMath/btQuickprof.h"
 
 btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
 : m_softBodies(softBodies)
@@ -23,6 +24,7 @@ btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAligned
 
 void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated)
 {
+    BT_PROFILE("reinitialize");
     if(nodeUpdated)
     {
         updateId();
@@ -43,9 +45,7 @@ void btDeformableBackwardEulerObjective::setDt(btScalar dt)
 
 void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) const
 {
-    for (int i = 0; i < b.size(); ++i)
-        b[i].setZero();
-    
+    BT_PROFILE("multiply");
     // add in the mass term
     size_t counter = 0;
     for (int i = 0; i < m_softBodies.size(); ++i)
@@ -54,11 +54,11 @@ void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) 
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             const btSoftBody::Node& node = psb->m_nodes[j];
-            b[counter] += (node.m_im == 0) ? btVector3(0,0,0) : x[counter] / node.m_im;
+            b[counter] = (node.m_im == 0) ? btVector3(0,0,0) : x[counter] / node.m_im;
             ++counter;
         }
     }
-    
+
     for (int i = 0; i < m_lf.size(); ++i)
     {
         // add damping matrix
@@ -97,6 +97,7 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 
 void btDeformableBackwardEulerObjective::computeResidual(btScalar dt, TVStack &residual) const
 {
+    BT_PROFILE("computeResidual");
     // add implicit force
     for (int i = 0; i < m_lf.size(); ++i)
     {
