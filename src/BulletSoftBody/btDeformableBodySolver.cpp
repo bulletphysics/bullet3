@@ -1,9 +1,15 @@
-//
-//  btDeformableBodySolver.cpp
-//  BulletSoftBody
-//
-//  Created by Xuchen Han on 7/9/19.
-//
+/*
+ Bullet Continuous Collision Detection and Physics Library
+ Copyright (c) 2016 Google Inc. http://bulletphysics.org
+ This software is provided 'as-is', without any express or implied warranty.
+ In no event will the authors be held liable for any damages arising from the use of this software.
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it freely,
+ subject to the following restrictions:
+ 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+ 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+ 3. This notice may not be removed or altered from any source distribution.
+ */
 
 #include <stdio.h>
 #include <limits>
@@ -11,7 +17,7 @@
 
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
-, cg(10)
+, m_cg(10)
 {
     m_objective = new btDeformableBackwardEulerObjective(m_softBodySet, m_backupVelocity);
 }
@@ -40,7 +46,7 @@ void btDeformableBodySolver::solveConstraints(float solverdt)
 void btDeformableBodySolver::computeStep(TVStack& dv, const TVStack& residual)
 {
     btScalar tolerance = std::numeric_limits<float>::epsilon()* 1024 * m_objective->computeNorm(residual);
-    cg.solve(*m_objective, dv, residual, tolerance);
+    m_cg.solve(*m_objective, dv, residual, tolerance);
 }
 
 void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies)
