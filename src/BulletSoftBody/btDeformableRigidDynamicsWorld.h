@@ -43,6 +43,9 @@ class btDeformableRigidDynamicsWorld : public btMultiBodyDynamicsWorld
     bool m_ownsSolver;
     btScalar m_internalTime;
     
+    typedef void (*btSolverCallback)(btScalar time, btDeformableRigidDynamicsWorld* world);
+    btSolverCallback m_solverCallback;
+    
 protected:
     virtual void internalSingleStepSimulation(btScalar timeStep);
     
@@ -55,7 +58,7 @@ protected:
 public:
     btDeformableRigidDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btDeformableBodySolver* deformableBodySolver = 0)
     : btMultiBodyDynamicsWorld(dispatcher, pairCache, constraintSolver, collisionConfiguration),
-    m_deformableBodySolver(deformableBodySolver)
+    m_deformableBodySolver(deformableBodySolver), m_solverCallback(0)
     {
         m_drawFlags = fDrawFlags::Std;
         m_drawNodeTree = true;
@@ -76,8 +79,7 @@ public:
         m_internalTime = 0.0;
     }
 //    btAlignedObjectArray<std::function<void(btScalar, btDeformableRigidDynamicsWorld*)> > m_beforeSolverCallbacks;
-    typedef void (*btSolverCallback)(btScalar time, btDeformableRigidDynamicsWorld* world);
-    btSolverCallback m_solverCallback;
+    
     
     void setSolverCallback(btSolverCallback cb)
     {
