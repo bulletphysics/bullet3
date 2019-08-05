@@ -14,10 +14,11 @@
 #include <stdio.h>
 #include "btDeformableRigidDynamicsWorld.h"
 #include "btDeformableBodySolver.h"
-
+#include "LinearMath/btQuickprof.h"
 
 void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
+    BT_PROFILE("internalSingleStepSimulation");
     reinitialize(timeStep);
     // add gravity to velocity of rigid and multi bodys
     applyRigidBodyGravity(timeStep);
@@ -50,7 +51,7 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
 void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
 {
     // perform position correction for all constraints 
-//    for (auto& it : m_deformableBodySolver->m_objective->projection.m_constraints)
+    BT_PROFILE("positionCorrection");
     for (int index = 0; index < m_deformableBodySolver->m_objective->projection.m_constraints.size(); ++index)
     {
         btAlignedObjectArray<DeformableFrictionConstraint>& frictions = *m_deformableBodySolver->m_objective->projection.m_frictions[m_deformableBodySolver->m_objective->projection.m_constraints.getKeyAtIndex(index)];
@@ -134,6 +135,7 @@ void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
 
 void btDeformableRigidDynamicsWorld::integrateTransforms(btScalar dt)
 {
+    BT_PROFILE("integrateTransforms");
     m_deformableBodySolver->backupVelocity();
     positionCorrection(dt);
     btMultiBodyDynamicsWorld::integrateTransforms(dt);
@@ -169,6 +171,7 @@ void btDeformableRigidDynamicsWorld::addSoftBody(btSoftBody* body, int collision
 
 void btDeformableRigidDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 {
+    BT_PROFILE("predictUnconstraintMotion");
     btMultiBodyDynamicsWorld::predictUnconstraintMotion(timeStep);
     m_deformableBodySolver->predictMotion(timeStep);
 }

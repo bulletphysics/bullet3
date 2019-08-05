@@ -13,7 +13,6 @@
 
 #ifndef BT_BACKWARD_EULER_OBJECTIVE_H
 #define BT_BACKWARD_EULER_OBJECTIVE_H
-#include <functional>
 #include "btConjugateGradient.h"
 #include "btDeformableLagrangianForce.h"
 #include "btDeformableMassSpringForce.h"
@@ -21,6 +20,7 @@
 #include "btDeformableContactProjection.h"
 #include "btPreconditioner.h"
 #include "btDeformableRigidDynamicsWorld.h"
+#include "LinearMath/btQuickprof.h"
 
 class btDeformableRigidDynamicsWorld;
 class btDeformableBackwardEulerObjective
@@ -36,7 +36,6 @@ public:
     btDeformableContactProjection projection;
     const TVStack& m_backupVelocity;
     btAlignedObjectArray<btSoftBody::Node* > m_nodes;
-    
     btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v);
     
     virtual ~btDeformableBackwardEulerObjective() {}
@@ -72,6 +71,7 @@ public:
     // enforce constraints in CG solve
     void enforceConstraint(TVStack& x)
     {
+        BT_PROFILE("enforceConstraint");
         projection.enforceConstraint(x);
         updateVelocity(x);
     }
@@ -85,6 +85,7 @@ public:
     // update the projections and project the residual
     void project(TVStack& r)
     {
+        BT_PROFILE("project");
         projection.update();
         projection.project(r);
     }

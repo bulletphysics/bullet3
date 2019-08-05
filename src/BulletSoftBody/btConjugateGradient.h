@@ -17,15 +17,13 @@
 #include <cmath>
 #include <LinearMath/btAlignedObjectArray.h>
 #include <LinearMath/btVector3.h>
-
+#include "LinearMath/btQuickprof.h"
 template <class MatrixX>
 class btConjugateGradient
 {
-//    using TVStack = btAlignedObjectArray<btVector3>;
     typedef btAlignedObjectArray<btVector3> TVStack;
     TVStack r,p,z,temp;
     int max_iterations;
-    
 public:
     btConjugateGradient(const int max_it_in)
     : max_iterations(max_it_in)
@@ -37,6 +35,7 @@ public:
     // return the number of iterations taken
     int solve(MatrixX& A, TVStack& x, const TVStack& b, btScalar tolerance)
     {
+        BT_PROFILE("CGSolve");
         btAssert(x.size() == b.size());
         reinitialize(b);
         
