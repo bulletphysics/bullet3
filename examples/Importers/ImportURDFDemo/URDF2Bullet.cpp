@@ -619,6 +619,7 @@ btTransform ConvertURDF2BulletInternal(
 				//when syncing the btMultiBody link transforms to the btMultiBodyLinkCollider
 
 				col->setWorldTransform(tr);
+                col->setInterpolationWorldTransform(tr);
 
 				//base and fixed? -> static, otherwise flag as dynamic
 				bool isDynamic = (mbLinkIndex < 0 && cache.m_bulletMultiBody->hasFixedBase()) ? false : true;
