@@ -336,19 +336,19 @@ static PyObject* pybullet_stepSimulation(PyObject* self, PyObject* args, PyObjec
 				struct b3ForwardDynamicsAnalyticsArgs analyticsData;
 				int numIslands = 0;
 				int i;
-				PyObject* pyAnalyticsData = PyTuple_New(numIslands);
-
+                                PyObject* val = 0;
+                                
 				numIslands = b3GetStatusForwardDynamicsAnalyticsData(statusHandle, &analyticsData);
-
+				PyObject* pyAnalyticsData = PyTuple_New(numIslands);
+                                
 				for (i=0;i<numIslands;i++)
 				{
-					int numFields = 4;
-					PyObject* pyIslandData = PyTuple_New(numFields);
-					PyTuple_SetItem(pyIslandData, 0, PyLong_FromLong(analyticsData.m_islandData[i].m_islandId));
-					PyTuple_SetItem(pyIslandData, 1, PyLong_FromLong(analyticsData.m_islandData[i].m_numBodies));
-					PyTuple_SetItem(pyIslandData, 2, PyLong_FromLong(analyticsData.m_islandData[i].m_numIterationsUsed));
-					PyTuple_SetItem(pyIslandData, 3, PyFloat_FromDouble(analyticsData.m_islandData[i].m_remainingLeastSquaresResidual));
-					PyTuple_SetItem(pyAnalyticsData, i, pyIslandData);
+                                        val = Py_BuildValue("{s:i, s:i, s:i, s:d}",
+                                                            "islandId", analyticsData.m_islandData[i].m_islandId,
+                                                            "numBodies", analyticsData.m_islandData[i].m_numBodies,
+                                                            "numIterationsUsed", analyticsData.m_islandData[i].m_numIterationsUsed,
+                                                            "remainingResidual", analyticsData.m_islandData[i].m_remainingLeastSquaresResidual);
+					PyTuple_SetItem(pyAnalyticsData, i, val);
 				}
 
 				return pyAnalyticsData;
@@ -1577,6 +1577,9 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 
 	int minimumSolverIslandSize = -1;
 	int reportSolverAnalytics = -1;
+
+	double warmStartingFactor = -1;
+
 	int physicsClientId = 0;
 
 	static char* kwlist[] = {"fixedTimeStep",
@@ -1603,11 +1606,12 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 							 "globalCFM",
 							 "minimumSolverIslandSize",
 							 "reportSolverAnalytics",
+							 "warmStartingFactor",
 							 "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiididdiidiii", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiididdiidiidi", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
 									 &collisionFilterMode, &contactBreakingThreshold, &maxNumCmdPer1ms, &enableFileCaching, &restitutionVelocityThreshold, &erp, &contactERP, &frictionERP, &enableConeFriction, &deterministicOverlappingPairs, &allowedCcdPenetration, &jointFeedbackMode, &solverResidualThreshold, &contactSlop, &enableSAT, &constraintSolverType, &globalCFM, &minimumSolverIslandSize, 
-									&reportSolverAnalytics, &physicsClientId))
+									&reportSolverAnalytics, &warmStartingFactor, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1727,6 +1731,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		if (reportSolverAnalytics >= 0)
 		{
 			b3PhysicsParamSetSolverAnalytics(command, reportSolverAnalytics);
+		}
+		if (warmStartingFactor >= 0)
+		{
+			b3PhysicsParamSetWarmStartingFactor(command, warmStartingFactor);
 		}
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	}
