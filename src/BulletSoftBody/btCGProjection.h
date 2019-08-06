@@ -113,13 +113,13 @@ public:
     typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > TArrayStack;
     btAlignedObjectArray<btSoftBody *> m_softBodies;
     btDeformableRigidDynamicsWorld* m_world;
-    const btAlignedObjectArray<btSoftBody::Node*>* m_nodes;
+//    const btAlignedObjectArray<btSoftBody::Node*>* m_nodes;
     const btScalar& m_dt;
     
-    btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt, const btAlignedObjectArray<btSoftBody::Node*>* nodes)
+    btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : m_softBodies(softBodies)
     , m_dt(dt)
-    , m_nodes(nodes)
+//    , m_nodes(nodes)
     {
     }
     

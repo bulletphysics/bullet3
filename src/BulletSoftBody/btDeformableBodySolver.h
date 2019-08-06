@@ -60,7 +60,7 @@ public:
     
     virtual void solveConstraints(float solverdt);
     
-    void reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies);
+    void reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt);
     
     void setConstraints();
     

@@ -25,8 +25,8 @@ public:
     btHashMap<btHashInt, btAlignedObjectArray<DeformableContactConstraint> > m_constraints;
     btHashMap<btHashInt, btAlignedObjectArray<DeformableFrictionConstraint> >m_frictions;
     
-    btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt, const btAlignedObjectArray<btSoftBody::Node*>* nodes)
-    : btCGProjection(softBodies, dt, nodes)
+    btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
+    : btCGProjection(softBodies, dt)
     {
     }
     
