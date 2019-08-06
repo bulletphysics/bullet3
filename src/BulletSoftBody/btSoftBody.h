@@ -160,6 +160,7 @@ public:
 			RVSmask = 0x000f,  ///Rigid versus soft mask
 			SDF_RS = 0x0001,   ///SDF based rigid vs soft
 			CL_RS = 0x0002,    ///Cluster vs convex rigid vs soft
+            SDF_RD = 0x0003,   ///DF based rigid vs deformable
 
 			SVSmask = 0x0030,  ///Rigid versus soft mask
 			VF_SS = 0x0010,    ///Vertex vs face soft vs soft handling
@@ -1006,7 +1007,8 @@ public:
 				btScalar& mint, eFeature::_& feature, int& index, bool bcountonly) const;
 	void initializeFaceTree();
 	btVector3 evaluateCom() const;
-	bool checkContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
+	bool checkDeformableContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
+    bool checkContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti) const;
 	void updateNormals();
 	void updateBounds();
 	void updatePose();
