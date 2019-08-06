@@ -3234,6 +3234,7 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 
 	m_data->m_saveWorldBodyData.push_back(sd);
 
+	syncPhysicsToGraphics2();
 	return loadOk;
 }
 
@@ -9228,6 +9229,8 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 		}
 	}
 
+	syncPhysicsToGraphics2();
+
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
 
@@ -13007,6 +13010,7 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	notification.m_notificationType = SIMULATION_RESET;
 	m_data->m_pluginManager.addNotification(notification);
 
+	syncPhysicsToGraphics2();
 	
 }
 
