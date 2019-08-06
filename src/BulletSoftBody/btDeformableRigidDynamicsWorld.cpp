@@ -11,6 +11,22 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
+/* ====== Overview of the Deformable Algorithm ====== */
+
+/*
+A single step of the deformable body simulation contains the following main components:
+1. Update velocity to a temporary state v_{n+1}^* = v_n + explicit_force * dt / mass, where explicit forces include gravity and elastic forces.
+2. Detect collisions between rigid and deformable bodies at position x_{n+1}^* = x_n + dt * v_{n+1}^*.
+3. Then velocities of deformable bodies v_{n+1} are solved in
+        M(v_{n+1} - v_{n+1}^*) = damping_force * dt / mass,
+   by a conjugate gradient solver, where the damping force is implicit and depends on v_{n+1}.
+4. Contact constraints are solved as projections as in the paper by Baraff and Witkin https://www.cs.cmu.edu/~baraff/papers/sig98.pdf. Dynamic frictions are treated as a force and added to the rhs of the CG solve, whereas static frictions are treated as constraints similar to contact.
+5. Position is updated via x_{n+1} = x_n + dt * v_{n+1}.
+6. Apply position correction to prevent numerical drift.
+
+The algorithm also closely resembles the one in http://physbam.stanford.edu/~fedkiw/papers/stanford2008-03.pdf
+ */
+
 #include <stdio.h>
 #include "btDeformableRigidDynamicsWorld.h"
 #include "btDeformableBodySolver.h"
