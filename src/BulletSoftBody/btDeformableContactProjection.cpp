@@ -254,7 +254,6 @@ void btDeformableContactProjection::setConstraints()
         btSoftBody* psb = m_softBodies[i];
         btMultiBodyJacobianData jacobianData_normal;
         btMultiBodyJacobianData jacobianData_complementary;
-        std::cout <<psb->m_rcontacts.size() << std::endl;
         for (int j = 0; j < psb->m_rcontacts.size(); ++j)
         {
             const btSoftBody::RContact& c = psb->m_rcontacts[j];

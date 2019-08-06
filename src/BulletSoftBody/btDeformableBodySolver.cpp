@@ -31,8 +31,6 @@ btDeformableBodySolver::~btDeformableBodySolver()
 void btDeformableBodySolver::solveConstraints(float solverdt)
 {
     BT_PROFILE("solveConstraints");
-    m_objective->setDt(solverdt);
-    
     // add constraints to the solver
     setConstraints();
     
@@ -51,22 +49,16 @@ void btDeformableBodySolver::computeStep(TVStack& dv, const TVStack& residual)
     m_cg.solve(*m_objective, dv, residual, tolerance);
 }
 
-void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies)
+void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt)
 {
+    m_objective->setDt(dt);
     m_softBodySet.copyFromArray(softBodies);
     bool nodeUpdated = updateNodes();
-    if (nodeUpdated)
-    {
-        m_dv.resize(m_numNodes);
-        m_residual.resize(m_numNodes);
-        m_backupVelocity.resize(m_numNodes);
-    }
     
-    for (int i = 0; i < m_dv.size(); ++i)
-    {
-        m_dv[i].setZero();
-        m_residual[i].setZero();
-    }
+    m_dv.resize(m_numNodes, btVector3(0,0,0));
+    m_residual.resize(m_numNodes, btVector3(0,0,0));
+    m_backupVelocity.resize(m_numNodes, btVector3(0,0,0));
+    
     m_objective->reinitialize(nodeUpdated);
 }
 

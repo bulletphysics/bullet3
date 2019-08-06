@@ -179,7 +179,7 @@ void btDeformableRigidDynamicsWorld::predictUnconstraintMotion(btScalar timeStep
 void btDeformableRigidDynamicsWorld::reinitialize(btScalar timeStep)
 {
     m_internalTime += timeStep;
-    m_deformableBodySolver->reinitialize(m_softBodies);
+    m_deformableBodySolver->reinitialize(m_softBodies, timeStep);
     btDispatcherInfo& dispatchInfo = btMultiBodyDynamicsWorld::getDispatchInfo();
     dispatchInfo.m_timeStep = timeStep;
     dispatchInfo.m_stepCount = 0;
