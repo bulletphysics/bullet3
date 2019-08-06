@@ -75,7 +75,6 @@ void btDeformableBodySolver::setWorld(btDeformableRigidDynamicsWorld* world)
 
 void btDeformableBodySolver::updateVelocity()
 {
-    // serial implementation
     int counter = 0;
     for (int i = 0; i < m_softBodySet.size(); ++i)
     {
@@ -90,7 +89,6 @@ void btDeformableBodySolver::updateVelocity()
 
 void btDeformableBodySolver::backupVelocity()
 {
-    // serial implementation
     int counter = 0;
     for (int i = 0; i < m_softBodySet.size(); ++i)
     {
@@ -104,7 +102,6 @@ void btDeformableBodySolver::backupVelocity()
 
 void btDeformableBodySolver::revertVelocity()
 {
-    // serial implementation
     int counter = 0;
     for (int i = 0; i < m_softBodySet.size(); ++i)
     {

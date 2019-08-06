@@ -928,10 +928,62 @@ struct btSoftColliders
 			psa->m_cdbvt.collideTT(psa->m_cdbvt.m_root, psb->m_cdbvt.m_root, *this);
 		}
 	};
+    //
+    // CollideSDF_RS
+    //
+    struct CollideSDF_RS : btDbvt::ICollide
+    {
+        void Process(const btDbvtNode* leaf)
+        {
+            btSoftBody::Node* node = (btSoftBody::Node*)leaf->data;
+            DoNode(*node);
+        }
+        void DoNode(btSoftBody::Node& n) const
+        {
+            const btScalar m = n.m_im > 0 ? dynmargin : stamargin;
+            btSoftBody::RContact c;
+            
+            if ((!n.m_battach) &&
+                psb->checkContact(m_colObj1Wrap, n.m_x, m, c.m_cti))
+            {
+                const btScalar ima = n.m_im;
+                const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;
+                const btScalar ms = ima + imb;
+                if (ms > 0)
+                {
+                    const btTransform& wtr = m_rigidBody ? m_rigidBody->getWorldTransform() : m_colObj1Wrap->getCollisionObject()->getWorldTransform();
+                    static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
+                    const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
+                    const btVector3 ra = n.m_x - wtr.getOrigin();
+                    const btVector3 va = m_rigidBody ? m_rigidBody->getVelocityInLocalPoint(ra) * psb->m_sst.sdt : btVector3(0, 0, 0);
+                    const btVector3 vb = n.m_x - n.m_q;
+                    const btVector3 vr = vb - va;
+                    const btScalar dn = btDot(vr, c.m_cti.m_normal);
+                    const btVector3 fv = vr - c.m_cti.m_normal * dn;
+                    const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();
+                    c.m_node = &n;
+                    c.m_c0 = ImpulseMatrix(psb->m_sst.sdt, ima, imb, iwi, ra);
+                    c.m_c1 = ra;
+                    c.m_c2 = ima * psb->m_sst.sdt;
+                    c.m_c3 = fv.length2() < (dn * fc * dn * fc) ? 0 : 1 - fc;
+                    c.m_c4 = m_colObj1Wrap->getCollisionObject()->isStaticOrKinematicObject() ? psb->m_cfg.kKHR : psb->m_cfg.kCHR;
+                    psb->m_rcontacts.push_back(c);
+                    if (m_rigidBody)
+                        m_rigidBody->activate();
+                }
+            }
+        }
+        btSoftBody* psb;
+        const btCollisionObjectWrapper* m_colObj1Wrap;
+        btRigidBody* m_rigidBody;
+        btScalar dynmargin;
+        btScalar stamargin;
+    };
+
 	//
-	// CollideSDF_RS
+	// CollideSDF_RD
 	//
-	struct CollideSDF_RS : btDbvt::ICollide
+	struct CollideSDF_RD : btDbvt::ICollide
 	{
 		void Process(const btDbvtNode* leaf)
 		{
@@ -946,7 +998,7 @@ struct btSoftColliders
 			if (!n.m_battach)
             {
                 // check for collision at x_{n+1}^*
-                if (psb->checkContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predicted = */ true))
+                if (psb->checkDeformableContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predicted = */ true))
                 {
                     const btScalar ima = n.m_im;
                     const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;
@@ -954,7 +1006,7 @@ struct btSoftColliders
                     if (ms > 0)
                     {
                         // resolve contact at x_n
-                        psb->checkContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predicted = */ false);
+                        psb->checkDeformableContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predicted = */ false);
                         btSoftBody::sCti& cti = c.m_cti;
                         c.m_node = &n;
                         const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();
