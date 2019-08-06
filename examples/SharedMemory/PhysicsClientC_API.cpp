@@ -668,6 +668,15 @@ B3_SHARED_API int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHand
 	return 0;
 }
 
+B3_SHARED_API int b3PhysicsParamSetWarmStartingFactor(b3SharedMemoryCommandHandle commandHandle, double warmStartingFactor)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_warmStartingFactor = warmStartingFactor;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_WARM_STARTING_FACTOR;
+	return 0;
+}
+
 B3_SHARED_API int b3PhysicsParamSetSolverResidualThreshold(b3SharedMemoryCommandHandle commandHandle, double solverResidualThreshold)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
