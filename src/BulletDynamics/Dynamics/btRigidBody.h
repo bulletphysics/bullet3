@@ -62,7 +62,6 @@ class btRigidBody : public btCollisionObject
 	btVector3 m_linearVelocity;
 	btVector3 m_angularVelocity;
 	btScalar m_inverseMass;
-	btScalar m_mass;
 	btVector3 m_linearFactor;
 
 	btVector3 m_gravity;
@@ -260,9 +259,7 @@ public:
 		m_invMass = m_linearFactor * m_inverseMass;
 	}
 	btScalar getInvMass() const { return m_inverseMass; }
-
-	btScalar getMass() const { return m_mass; }
-
+	btScalar getMass() const { return m_inverseMass == btScalar(0.) ? btScalar(0.) : btScalar(1.0) / m_inverseMass; }
 	const btMatrix3x3& getInvInertiaTensorWorld() const
 	{
 		return m_invInertiaTensorWorld;
@@ -558,7 +555,6 @@ struct btRigidBodyFloatData
 	btVector3FloatData m_totalForce;
 	btVector3FloatData m_totalTorque;
 	float m_inverseMass;
-	float m_mass;
 	float m_linearDamping;
 	float m_angularDamping;
 	float m_additionalDampingFactor;
@@ -585,7 +581,6 @@ struct btRigidBodyDoubleData
 	btVector3DoubleData m_totalForce;
 	btVector3DoubleData m_totalTorque;
 	double m_inverseMass;
-	double m_mass;
 	double m_linearDamping;
 	double m_angularDamping;
 	double m_additionalDampingFactor;
