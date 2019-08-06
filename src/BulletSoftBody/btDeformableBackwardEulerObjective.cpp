@@ -16,7 +16,7 @@
 
 btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
 : m_softBodies(softBodies)
-, projection(m_softBodies, m_dt, &m_nodes)
+, projection(m_softBodies, m_dt)
 , m_backupVelocity(backup_v)
 {
     m_preconditioner = new DefaultPreconditioner();
