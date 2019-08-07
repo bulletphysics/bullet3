@@ -157,6 +157,7 @@ struct btMultibodyLink
 		  m_parent(-1),
 		  m_zeroRotParentToThis(0, 0, 0, 1),
 		  m_cachedRotParentToThis(0, 0, 0, 1),
+          m_cachedRotParentToThis_interpolate(0, 0, 0, 1),
 		  m_collider(0),
 		  m_flags(0),
 		  m_dofCount(0),
@@ -179,6 +180,7 @@ struct btMultibodyLink
 		m_dVector.setValue(0, 0, 0);
 		m_eVector.setValue(0, 0, 0);
 		m_cachedRVector.setValue(0, 0, 0);
+        m_cachedRVector_interpolate.setValue(0, 0, 0);
 		m_appliedForce.setValue(0, 0, 0);
 		m_appliedTorque.setValue(0, 0, 0);
 		m_appliedConstraintForce.setValue(0, 0, 0);
