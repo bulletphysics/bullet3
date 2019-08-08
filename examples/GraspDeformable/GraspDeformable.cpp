@@ -402,8 +402,8 @@ btMultiBody* GraspDeformable::createFeatherstoneMultiBody(btMultiBodyDynamicsWor
 {
     //init the base
     btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
-    float baseMass = .1f;
-    float linkMass = .1f;
+    float baseMass = 1.f;
+    float linkMass = 1.f;
     int numLinks = 2;
     
     if (baseMass)
