@@ -142,6 +142,12 @@ void PhysicsDirect::resetData()
 	m_data->m_debugLinesFrom.clear();
 	m_data->m_debugLinesTo.clear();
 	m_data->m_debugLinesColor.clear();
+	m_data->m_userConstraintInfoMap.clear();
+	clearCachedBodies();
+}
+
+void PhysicsDirect::clearCachedBodies()
+{
 	for (int i = 0; i < m_data->m_bodyJointMap.size(); i++)
 	{
 		BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
@@ -151,7 +157,8 @@ void PhysicsDirect::resetData()
 		}
 	}
 	m_data->m_bodyJointMap.clear();
-	m_data->m_userConstraintInfoMap.clear();
+	m_data->m_userDataMap.clear();
+	m_data->m_userDataHandleLookup.clear();
 }
 
 // return true if connection succesfull, can also check 'isConnected'
@@ -912,7 +919,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			break;
 		}
 		case CMD_SYNC_BODY_INFO_COMPLETED:
-			m_data->m_bodyJointMap.clear();
+			clearCachedBodies();
 		case CMD_MJCF_LOADING_COMPLETED:
 		case CMD_SDF_LOADING_COMPLETED:
 		{
