@@ -912,6 +912,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			break;
 		}
 		case CMD_SYNC_BODY_INFO_COMPLETED:
+			m_data->m_bodyJointMap.clear();
 		case CMD_MJCF_LOADING_COMPLETED:
 		case CMD_SDF_LOADING_COMPLETED:
 		{
@@ -1193,6 +1194,8 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		{
 			B3_PROFILE("CMD_SYNC_USER_DATA_COMPLETED");
 			// Remove all cached user data entries.
+			m_data->m_userDataMap.clear();
+			m_data->m_userDataHandleLookup.clear();
 			for (int i = 0; i < m_data->m_bodyJointMap.size(); i++)
 			{
 				BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
@@ -1200,8 +1203,6 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 				{
 					(*bodyJointsPtr)->m_userDataIds.clear();
 				}
-				m_data->m_userDataMap.clear();
-				m_data->m_userDataHandleLookup.clear();
 			}
 			const int numIdentifiers = serverCmd.m_syncUserDataArgs.m_numUserDataIdentifiers;
 			int* identifiers = new int[numIdentifiers];
