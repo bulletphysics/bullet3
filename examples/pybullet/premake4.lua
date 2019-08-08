@@ -17,7 +17,8 @@ project ("pybullet")
 		
 		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
-		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER", "STATIC_LINK_SPD_PLUGIN"}
+		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
+		
 		
 		
 	hasCL = findOpenCL("clew")
@@ -181,6 +182,12 @@ if not _OPTIONS["no-enet"] then
 			"../../examples/SharedMemory/plugins/collisionFilterPlugin/collisionFilterPlugin.cpp",
 			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",
 			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
+			
+			
+
+	if _OPTIONS["enable_stable_pd"] then
+		defines {"STATIC_LINK_SPD_PLUGIN"}
+		files {
 			"../../examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp",
 			"../../examples/SharedMemory/plugins/stablePDPlugin/SpAlg.h",
 			"../../examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp",
@@ -196,7 +203,9 @@ if not _OPTIONS["no-enet"] then
 			"../../examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.cpp",
 			"../../examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.h",
 			}
-
+		end
+		
+		
 	if _OPTIONS["enable_physx"] then
   	defines {"BT_ENABLE_PHYSX","PX_PHYSX_STATIC_LIB", "PX_FOUNDATION_DLL=0"}
 		

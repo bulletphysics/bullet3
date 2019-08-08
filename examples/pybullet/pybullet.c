@@ -4319,6 +4319,12 @@ static PyObject* pybullet_resetJointStatesMultiDof(PyObject* self, PyObject* arg
 				targetVelocitiesSeq = PySequence_Fast(targetVelocitiesObj, "expected a sequence of target positions");
 			for (i = 0; i < numIndices; i++)
 			{
+				double targetPositionArray[4] = { 0, 0, 0, 1 };
+				double targetVelocityArray[3] = { 0, 0, 0 };
+				int targetPositionSize = 0;
+				int targetVelocitySize = 0;
+				PyObject* targetPositionObj = 0;
+				PyObject* targetVelocityObj = 0;
 				
 				int jointIndex = pybullet_internalGetIntFromSequence(jointIndicesSeq, i);
 				if ((jointIndex >= numJoints) || (jointIndex < 0))
@@ -4333,12 +4339,7 @@ static PyObject* pybullet_resetJointStatesMultiDof(PyObject* self, PyObject* arg
 				}
 
 
-				double targetPositionArray[4] = { 0, 0, 0, 1 };
-				double targetVelocityArray[3] = { 0, 0, 0 };
-				int targetPositionSize = 0;
-				int targetVelocitySize = 0;
-				PyObject* targetPositionObj = 0;
-				PyObject* targetVelocityObj = 0;
+				
 				
 
 				if (numTargetPositionObjs > 0)
@@ -6069,6 +6070,7 @@ static PyObject* pybullet_submitProfileTiming(PyObject* self, PyObject* args, Py
 	b3PhysicsClientHandle sm = 0;
 	static char* kwlist[] = {"eventName ", "physicsClientId", NULL};
 	int physicsClientId = 0;
+	b3SharedMemoryCommandHandle commandHandle;
 
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|si", kwlist,
 									 &eventName, &physicsClientId))
@@ -6080,7 +6082,7 @@ static PyObject* pybullet_submitProfileTiming(PyObject* self, PyObject* args, Py
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	b3SharedMemoryCommandHandle commandHandle;
+	
 	commandHandle = b3ProfileTimingCommandInit(sm, eventName);
 
 	if (eventName)
@@ -10979,9 +10981,11 @@ static PyObject* pybullet_calculateInverseKinematics2(PyObject* self,
 	}
 	{
 		int numEndEffectorPositions = extractVertices(targetPosObj, 0, B3_MAX_NUM_END_EFFECTORS);
+		    
 		int numIndices = extractIndices(endEffectorLinkIndicesObj, 0, B3_MAX_NUM_END_EFFECTORS);
 		double* positions = numEndEffectorPositions ? malloc(numEndEffectorPositions * 3 * sizeof(double)) : 0;
 		int* indices = numIndices ? malloc(numIndices * sizeof(int)) : 0;
+
 
 		numEndEffectorPositions = extractVertices(targetPosObj, positions, B3_MAX_NUM_VERTICES);
 		
@@ -10990,196 +10994,198 @@ static PyObject* pybullet_calculateInverseKinematics2(PyObject* self,
 			numIndices = extractIndices(endEffectorLinkIndicesObj, indices, B3_MAX_NUM_INDICES);
 		}
 		
-		double pos[3] = { 0, 0, 0 };
-		double ori[4] = { 0, 0, 0, 1 };
-		int hasPos = numEndEffectorPositions > 0;
-		int hasOrn = 0;// pybullet_internalSetVector4d(targetOrnObj, ori);
-
-		int szLowerLimits = lowerLimitsObj ? PySequence_Size(lowerLimitsObj) : 0;
-		int szUpperLimits = upperLimitsObj ? PySequence_Size(upperLimitsObj) : 0;
-		int szJointRanges = jointRangesObj ? PySequence_Size(jointRangesObj) : 0;
-		int szRestPoses = restPosesObj ? PySequence_Size(restPosesObj) : 0;
-		int szJointDamping = jointDampingObj ? PySequence_Size(jointDampingObj) : 0;
-
-		int szCurrentPositions = currentPositionsObj ? PySequence_Size(currentPositionsObj) : 0;
-
-		int numJoints = b3GetNumJoints(sm, bodyUniqueId);
-		int dofCount = b3ComputeDofCount(sm, bodyUniqueId);
-
-		int hasNullSpace = 0;
-		int hasJointDamping = 0;
-		int hasCurrentPositions = 0;
-		double* lowerLimits = 0;
-		double* upperLimits = 0;
-		double* jointRanges = 0;
-		double* restPoses = 0;
-		double* jointDamping = 0;
-		double* currentPositions = 0;
-
-		if (dofCount && (szLowerLimits == dofCount) && (szUpperLimits == dofCount) &&
-			(szJointRanges == dofCount) && (szRestPoses == dofCount))
 		{
-			int szInBytes = sizeof(double) * dofCount;
-			int i;
-			lowerLimits = (double*)malloc(szInBytes);
-			upperLimits = (double*)malloc(szInBytes);
-			jointRanges = (double*)malloc(szInBytes);
-			restPoses = (double*)malloc(szInBytes);
+			double pos[3] = { 0, 0, 0 };
+			double ori[4] = { 0, 0, 0, 1 };
+			int hasPos = numEndEffectorPositions > 0;
+			int hasOrn = 0;// pybullet_internalSetVector4d(targetOrnObj, ori);
 
-			for (i = 0; i < dofCount; i++)
+			int szLowerLimits = lowerLimitsObj ? PySequence_Size(lowerLimitsObj) : 0;
+			int szUpperLimits = upperLimitsObj ? PySequence_Size(upperLimitsObj) : 0;
+			int szJointRanges = jointRangesObj ? PySequence_Size(jointRangesObj) : 0;
+			int szRestPoses = restPosesObj ? PySequence_Size(restPosesObj) : 0;
+			int szJointDamping = jointDampingObj ? PySequence_Size(jointDampingObj) : 0;
+
+			int szCurrentPositions = currentPositionsObj ? PySequence_Size(currentPositionsObj) : 0;
+
+			int numJoints = b3GetNumJoints(sm, bodyUniqueId);
+			int dofCount = b3ComputeDofCount(sm, bodyUniqueId);
+
+			int hasNullSpace = 0;
+			int hasJointDamping = 0;
+			int hasCurrentPositions = 0;
+			double* lowerLimits = 0;
+			double* upperLimits = 0;
+			double* jointRanges = 0;
+			double* restPoses = 0;
+			double* jointDamping = 0;
+			double* currentPositions = 0;
+
+			if (dofCount && (szLowerLimits == dofCount) && (szUpperLimits == dofCount) &&
+				(szJointRanges == dofCount) && (szRestPoses == dofCount))
 			{
-				lowerLimits[i] = pybullet_internalGetFloatFromSequence(lowerLimitsObj, i);
-				upperLimits[i] = pybullet_internalGetFloatFromSequence(upperLimitsObj, i);
-				jointRanges[i] = pybullet_internalGetFloatFromSequence(jointRangesObj, i);
-				restPoses[i] = pybullet_internalGetFloatFromSequence(restPosesObj, i);
+				int szInBytes = sizeof(double) * dofCount;
+				int i;
+				lowerLimits = (double*)malloc(szInBytes);
+				upperLimits = (double*)malloc(szInBytes);
+				jointRanges = (double*)malloc(szInBytes);
+				restPoses = (double*)malloc(szInBytes);
+
+				for (i = 0; i < dofCount; i++)
+				{
+					lowerLimits[i] = pybullet_internalGetFloatFromSequence(lowerLimitsObj, i);
+					upperLimits[i] = pybullet_internalGetFloatFromSequence(upperLimitsObj, i);
+					jointRanges[i] = pybullet_internalGetFloatFromSequence(jointRangesObj, i);
+					restPoses[i] = pybullet_internalGetFloatFromSequence(restPosesObj, i);
+				}
+				hasNullSpace = 1;
 			}
-			hasNullSpace = 1;
-		}
 
-		if (szCurrentPositions > 0)
-		{
-			if (szCurrentPositions != dofCount)
+			if (szCurrentPositions > 0)
 			{
-				PyErr_SetString(SpamError,
-					"calculateInverseKinematics the size of input current positions needs to be equal to the number of degrees of freedom.");
+				if (szCurrentPositions != dofCount)
+				{
+					PyErr_SetString(SpamError,
+						"calculateInverseKinematics the size of input current positions needs to be equal to the number of degrees of freedom.");
+					free(lowerLimits);
+					free(upperLimits);
+					free(jointRanges);
+					free(restPoses);
+					return NULL;
+				}
+				else
+				{
+					int szInBytes = sizeof(double) * szCurrentPositions;
+					int i;
+					currentPositions = (double*)malloc(szInBytes);
+					for (i = 0; i < szCurrentPositions; i++)
+					{
+						currentPositions[i] = pybullet_internalGetFloatFromSequence(currentPositionsObj, i);
+					}
+					hasCurrentPositions = 1;
+				}
+			}
+
+			if (szJointDamping > 0)
+			{
+				if (szJointDamping < dofCount)
+				{
+					printf("calculateInverseKinematics: the size of input joint damping values should be equal to the number of degrees of freedom, not using joint damping.");
+				}
+				else
+				{
+					int szInBytes = sizeof(double) * szJointDamping;
+					int i;
+					//if (szJointDamping != dofCount)
+					//{
+					//	printf("calculateInverseKinematics: the size of input joint damping values should be equal to the number of degrees of freedom, ignoring the additonal values.");
+					//}
+					jointDamping = (double*)malloc(szInBytes);
+					for (i = 0; i < szJointDamping; i++)
+					{
+						jointDamping[i] = pybullet_internalGetFloatFromSequence(jointDampingObj, i);
+					}
+					hasJointDamping = 1;
+				}
+			}
+
+			if (hasPos)
+			{
+				b3SharedMemoryStatusHandle statusHandle;
+				int numPos = 0;
+				int resultBodyIndex;
+				int result;
+
+				b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(sm, bodyUniqueId);
+				b3CalculateInverseKinematicsSelectSolver(command, solver);
+
+				if (hasCurrentPositions)
+				{
+					b3CalculateInverseKinematicsSetCurrentPositions(command, dofCount, currentPositions);
+				}
+				if (maxNumIterations > 0)
+				{
+					b3CalculateInverseKinematicsSetMaxNumIterations(command, maxNumIterations);
+				}
+				if (residualThreshold >= 0)
+				{
+					b3CalculateInverseKinematicsSetResidualThreshold(command, residualThreshold);
+				}
+
+				if (hasNullSpace)
+				{
+					if (hasOrn)
+					{
+						b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(command, dofCount, endEffectorLinkIndex, pos, ori, lowerLimits, upperLimits, jointRanges, restPoses);
+					}
+					else
+					{
+						b3CalculateInverseKinematicsPosWithNullSpaceVel(command, dofCount, endEffectorLinkIndex, pos, lowerLimits, upperLimits, jointRanges, restPoses);
+					}
+				}
+				else
+				{
+					if (hasOrn)
+					{
+						b3CalculateInverseKinematicsAddTargetPositionWithOrientation(command, endEffectorLinkIndex, pos, ori);
+					}
+					else
+					{
+						//b3CalculateInverseKinematicsAddTargetPurePosition(command, endEffectorLinkIndex, pos);
+						b3CalculateInverseKinematicsAddTargetsPurePosition(command, numEndEffectorPositions, indices, positions);
+					}
+				}
+
+				if (hasJointDamping)
+				{
+					b3CalculateInverseKinematicsSetJointDamping(command, dofCount, jointDamping);
+				}
+				free(currentPositions);
+				free(jointDamping);
+
 				free(lowerLimits);
 				free(upperLimits);
 				free(jointRanges);
 				free(restPoses);
-				return NULL;
-			}
-			else
-			{
-				int szInBytes = sizeof(double) * szCurrentPositions;
-				int i;
-				currentPositions = (double*)malloc(szInBytes);
-				for (i = 0; i < szCurrentPositions; i++)
-				{
-					currentPositions[i] = pybullet_internalGetFloatFromSequence(currentPositionsObj, i);
-				}
-				hasCurrentPositions = 1;
-			}
-		}
 
-		if (szJointDamping > 0)
-		{
-			if (szJointDamping < dofCount)
-			{
-				printf("calculateInverseKinematics: the size of input joint damping values should be equal to the number of degrees of freedom, not using joint damping.");
-			}
-			else
-			{
-				int szInBytes = sizeof(double) * szJointDamping;
-				int i;
-				//if (szJointDamping != dofCount)
-				//{
-				//	printf("calculateInverseKinematics: the size of input joint damping values should be equal to the number of degrees of freedom, ignoring the additonal values.");
-				//}
-				jointDamping = (double*)malloc(szInBytes);
-				for (i = 0; i < szJointDamping; i++)
-				{
-					jointDamping[i] = pybullet_internalGetFloatFromSequence(jointDampingObj, i);
-				}
-				hasJointDamping = 1;
-			}
-		}
+				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 
-		if (hasPos)
-		{
-			b3SharedMemoryStatusHandle statusHandle;
-			int numPos = 0;
-			int resultBodyIndex;
-			int result;
-
-			b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(sm, bodyUniqueId);
-			b3CalculateInverseKinematicsSelectSolver(command, solver);
-
-			if (hasCurrentPositions)
-			{
-				b3CalculateInverseKinematicsSetCurrentPositions(command, dofCount, currentPositions);
-			}
-			if (maxNumIterations > 0)
-			{
-				b3CalculateInverseKinematicsSetMaxNumIterations(command, maxNumIterations);
-			}
-			if (residualThreshold >= 0)
-			{
-				b3CalculateInverseKinematicsSetResidualThreshold(command, residualThreshold);
-			}
-
-			if (hasNullSpace)
-			{
-				if (hasOrn)
-				{
-					b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(command, dofCount, endEffectorLinkIndex, pos, ori, lowerLimits, upperLimits, jointRanges, restPoses);
-				}
-				else
-				{
-					b3CalculateInverseKinematicsPosWithNullSpaceVel(command, dofCount, endEffectorLinkIndex, pos, lowerLimits, upperLimits, jointRanges, restPoses);
-				}
-			}
-			else
-			{
-				if (hasOrn)
-				{
-					b3CalculateInverseKinematicsAddTargetPositionWithOrientation(command, endEffectorLinkIndex, pos, ori);
-				}
-				else
-				{
-					//b3CalculateInverseKinematicsAddTargetPurePosition(command, endEffectorLinkIndex, pos);
-					b3CalculateInverseKinematicsAddTargetsPurePosition(command, numEndEffectorPositions, indices, positions);
-				}
-			}
-
-			if (hasJointDamping)
-			{
-				b3CalculateInverseKinematicsSetJointDamping(command, dofCount, jointDamping);
-			}
-			free(currentPositions);
-			free(jointDamping);
-
-			free(lowerLimits);
-			free(upperLimits);
-			free(jointRanges);
-			free(restPoses);
-
-			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-
-			result = b3GetStatusInverseKinematicsJointPositions(statusHandle,
-				&resultBodyIndex,
-				&numPos,
-				0);
-			if (result && numPos)
-			{
-				int i;
-				PyObject* pylist;
-				double* ikOutPutJointPos = (double*)malloc(numPos * sizeof(double));
 				result = b3GetStatusInverseKinematicsJointPositions(statusHandle,
 					&resultBodyIndex,
 					&numPos,
-					ikOutPutJointPos);
-				pylist = PyTuple_New(numPos);
-				for (i = 0; i < numPos; i++)
+					0);
+				if (result && numPos)
 				{
-					PyTuple_SetItem(pylist, i,
-						PyFloat_FromDouble(ikOutPutJointPos[i]));
-				}
+					int i;
+					PyObject* pylist;
+					double* ikOutPutJointPos = (double*)malloc(numPos * sizeof(double));
+					result = b3GetStatusInverseKinematicsJointPositions(statusHandle,
+						&resultBodyIndex,
+						&numPos,
+						ikOutPutJointPos);
+					pylist = PyTuple_New(numPos);
+					for (i = 0; i < numPos; i++)
+					{
+						PyTuple_SetItem(pylist, i,
+							PyFloat_FromDouble(ikOutPutJointPos[i]));
+					}
 
-				free(ikOutPutJointPos);
-				return pylist;
+					free(ikOutPutJointPos);
+					return pylist;
+				}
+				else
+				{
+					PyErr_SetString(SpamError,
+						"Error in calculateInverseKinematics");
+					return NULL;
+				}
 			}
 			else
 			{
 				PyErr_SetString(SpamError,
-					"Error in calculateInverseKinematics");
+					"calculateInverseKinematics couldn't extract position vector3");
 				return NULL;
 			}
-		}
-		else
-		{
-			PyErr_SetString(SpamError,
-				"calculateInverseKinematics couldn't extract position vector3");
-			return NULL;
 		}
 	}
 
