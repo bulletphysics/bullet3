@@ -7043,48 +7043,62 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 
 		hasStatus = true;
 	}
-	else if (body && body->m_rigidBody){
-          btRigidBody* rb = body->m_rigidBody;
-          SharedMemoryStatus& serverCmd = serverStatusOut;
-          serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_COMPLETED;
+	else if (body && body->m_rigidBody)
+	{
+		btRigidBody* rb = body->m_rigidBody;
+		SharedMemoryStatus& serverCmd = serverStatusOut;
+		serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_COMPLETED;
 
-          serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
-          serverCmd.m_sendActualStateArgs.m_numLinks = 0;
-					serverCmd.m_numDataStreamBytes = sizeof(SendActualStateSharedMemoryStorage);
-          serverCmd.m_sendActualStateArgs.m_stateDetails = 0;
+		serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
+		serverCmd.m_sendActualStateArgs.m_numLinks = 0;
+		serverCmd.m_numDataStreamBytes = sizeof(SendActualStateSharedMemoryStorage);
+		serverCmd.m_sendActualStateArgs.m_stateDetails = 0;
 
-          int totalDegreeOfFreedomQ = 0;
-          int totalDegreeOfFreedomU = 0;
+		serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[0] =
+			body->m_rootLocalInertialFrame.getOrigin()[0];
+		serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[1] =
+			body->m_rootLocalInertialFrame.getOrigin()[1];
+		serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[2] =
+			body->m_rootLocalInertialFrame.getOrigin()[2];
 
-          btTransform tr = rb->getWorldTransform();
-          //base position in world space, cartesian
-          stateDetails->m_actualStateQ[0] = tr.getOrigin()[0];
-          stateDetails->m_actualStateQ[1] = tr.getOrigin()[1];
-          stateDetails->m_actualStateQ[2] = tr.getOrigin()[2];
+		serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[3] =
+			body->m_rootLocalInertialFrame.getRotation()[0];
+		serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[4] =
+			body->m_rootLocalInertialFrame.getRotation()[1];
+		serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[5] =
+			body->m_rootLocalInertialFrame.getRotation()[2];
+		serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[6] =
+			body->m_rootLocalInertialFrame.getRotation()[3];
 
-          //base orientation, quaternion x,y,z,w, in world space, cartesian
-          stateDetails->m_actualStateQ[3] = tr.getRotation()[0];
-          stateDetails->m_actualStateQ[4] = tr.getRotation()[1];
-          stateDetails->m_actualStateQ[5] = tr.getRotation()[2];
-          stateDetails->m_actualStateQ[6] = tr.getRotation()[3];
-          totalDegreeOfFreedomQ += 7;  //pos + quaternion
+		btTransform tr = rb->getWorldTransform();
+		//base position in world space, cartesian
+		stateDetails->m_actualStateQ[0] = tr.getOrigin()[0];
+		stateDetails->m_actualStateQ[1] = tr.getOrigin()[1];
+		stateDetails->m_actualStateQ[2] = tr.getOrigin()[2];
 
-          //base linear velocity (in world space, cartesian)
-          stateDetails->m_actualStateQdot[0] = rb->getLinearVelocity()[0];
-          stateDetails->m_actualStateQdot[1] = rb->getLinearVelocity()[1];
-          stateDetails->m_actualStateQdot[2] = rb->getLinearVelocity()[2];
+		//base orientation, quaternion x,y,z,w, in world space, cartesian
+		stateDetails->m_actualStateQ[3] = tr.getRotation()[0];
+		stateDetails->m_actualStateQ[4] = tr.getRotation()[1];
+		stateDetails->m_actualStateQ[5] = tr.getRotation()[2];
+		stateDetails->m_actualStateQ[6] = tr.getRotation()[3];
+		int totalDegreeOfFreedomQ = 7;  //pos + quaternion
 
-          //base angular velocity (in world space, cartesian)
-          stateDetails->m_actualStateQdot[3] = rb->getAngularVelocity()[0];
-          stateDetails->m_actualStateQdot[4] = rb->getAngularVelocity()[1];
-          stateDetails->m_actualStateQdot[5] = rb->getAngularVelocity()[2];
-          totalDegreeOfFreedomU += 6;  //3 linear and 3 angular DOF
+		//base linear velocity (in world space, cartesian)
+		stateDetails->m_actualStateQdot[0] = rb->getLinearVelocity()[0];
+		stateDetails->m_actualStateQdot[1] = rb->getLinearVelocity()[1];
+		stateDetails->m_actualStateQdot[2] = rb->getLinearVelocity()[2];
 
-          serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
-          serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
+		//base angular velocity (in world space, cartesian)
+		stateDetails->m_actualStateQdot[3] = rb->getAngularVelocity()[0];
+		stateDetails->m_actualStateQdot[4] = rb->getAngularVelocity()[1];
+		stateDetails->m_actualStateQdot[5] = rb->getAngularVelocity()[2];
+		int totalDegreeOfFreedomU = 6;  //3 linear and 3 angular DOF
 
-          hasStatus = true;
-        }
+		serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
+		serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
+
+		hasStatus = true;
+	}
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
         else if (body && body->m_softBody)
         {
@@ -8774,6 +8788,19 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 			}
 		}
 		hasStatus = true;
+	}
+	else if (body && body->m_rigidBody)
+	{
+		SharedMemoryStatus& serverCmd = serverStatusOut;
+		serverCmd.m_type = CMD_GET_DYNAMICS_INFO_COMPLETED;
+
+		btRigidBody* rb = body->m_rigidBody;
+		serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = rb->getFriction();
+		serverCmd.m_dynamicsInfo.m_rollingFrictionCoeff = rb->getRollingFriction();
+		serverCmd.m_dynamicsInfo.m_spinningFrictionCoeff = rb->getSpinningFriction();
+		serverCmd.m_dynamicsInfo.m_angularDamping = rb->getAngularDamping();
+		serverCmd.m_dynamicsInfo.m_linearDamping = rb->getLinearDamping();
+		serverCmd.m_dynamicsInfo.m_mass = rb->getMass();
 	}
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	else if (body && body->m_softBody){
