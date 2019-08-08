@@ -1,17 +1,15 @@
 /*
-Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
-
-This software is provided 'as-is', without any express or implied warranty.
-In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
-subject to the following restrictions:
-
-1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
-2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
-3. This notice may not be removed or altered from any source distribution.
-*/
+ Bullet Continuous Collision Detection and Physics Library
+ Copyright (c) 2016 Google Inc. http://bulletphysics.org
+ This software is provided 'as-is', without any express or implied warranty.
+ In no event will the authors be held liable for any damages arising from the use of this software.
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it freely,
+ subject to the following restrictions:
+ 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+ 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+ 3. This notice may not be removed or altered from any source distribution.
+ */
 
 ///create 125 (5x5x5) dynamic object
 #define ARRAY_SIZE_X 5
@@ -27,7 +25,7 @@ subject to the following restrictions:
 #define START_POS_Y -5
 #define START_POS_Z -3
 
-#include "VolumetricDeformable.h"
+#include "DeformableRigid.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableRigidDynamicsWorld.h"
@@ -41,24 +39,17 @@ subject to the following restrictions:
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
-///The VolumetricDeformable shows the use of rolling friction.
+///The DeformableRigid shows the use of rolling friction.
 ///Spheres will come to a rest on a sloped plane using a constraint. Damping cannot achieve the same.
 ///Generally it is best to leave the rolling friction coefficient zero (or close to zero).
-
-
-struct TetraCube
-{
-#include "../SoftDemo/cube.inl"
-};
-
-class VolumetricDeformable : public CommonRigidBodyBase
+class DeformableRigid : public CommonRigidBodyBase
 {
 public:
-	VolumetricDeformable(struct GUIHelperInterface* helper)
+	DeformableRigid(struct GUIHelperInterface* helper)
 		: CommonRigidBodyBase(helper)
 	{
 	}
-	virtual ~VolumetricDeformable()
+	virtual ~DeformableRigid()
 	{
 	}
 	void initPhysics();
@@ -70,7 +61,7 @@ public:
         float dist = 20;
         float pitch = -45;
         float yaw = 100;
-        float targetPos[3] = {0, 3, 0};
+        float targetPos[3] = {0, -3, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
     
@@ -81,35 +72,9 @@ public:
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
-    void createStaticBox(const btVector3& halfEdge, const btVector3& translation)
-    {
-        btCollisionShape* box = new btBoxShape(halfEdge);
-        m_collisionShapes.push_back(box);
-        
-        btTransform Transform;
-        Transform.setIdentity();
-        Transform.setOrigin(translation);
-        Transform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.0));
-        //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
-        btScalar mass(0.);
-        //rigidbody is dynamic if and only if mass is non zero, otherwise static
-        bool isDynamic = (mass != 0.f);
-        btVector3 localInertia(0, 0, 0);
-        if (isDynamic)
-            box->calculateLocalInertia(mass, localInertia);
-        //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-        btDefaultMotionState* myMotionState = new btDefaultMotionState(Transform);
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, box, localInertia);
-        btRigidBody* body = new btRigidBody(rbInfo);
-        body->setFriction(0.5);
-        
-        //add the ground to the dynamics world
-        m_dynamicsWorld->addRigidBody(body);
-    }
-    
     void Ctor_RbUpStack(int count)
     {
-        float mass = 0.02;
+        float mass = 0.2;
         
         btCompoundShape* cylinderCompound = new btCompoundShape;
         btCollisionShape* cylinderShape = new btCylinderShapeX(btVector3(2, .5, .5));
@@ -124,15 +89,30 @@ public:
         
         btCollisionShape* shape[] = {
             new btBoxShape(btVector3(1, 1, 1)),
+//            new btSphereShape(0.75),
+//            cylinderCompound
         };
-        static const int nshapes = sizeof(shape) / sizeof(shape[0]);
-        for (int i = 0; i < count; ++i)
-        {
-            btTransform startTransform;
-            startTransform.setIdentity();
-            startTransform.setOrigin(btVector3(i, 10 + 2 * i, i-1));
-            createRigidBody(mass, startTransform, shape[i % nshapes]);
-        }
+//        static const int nshapes = sizeof(shape) / sizeof(shape[0]);
+//        for (int i = 0; i < count; ++i)
+//        {
+//            btTransform startTransform;
+//            startTransform.setIdentity();
+//            startTransform.setOrigin(btVector3(0, 2+ 2 * i, 0));
+//            startTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
+//            createRigidBody(mass, startTransform, shape[i % nshapes]);
+//        }
+        btTransform startTransform;
+        startTransform.setIdentity();
+        startTransform.setOrigin(btVector3(1, 1.5, 1));
+        createRigidBody(mass, startTransform, shape[0]);
+        startTransform.setOrigin(btVector3(1, 1.5, -1));
+        createRigidBody(mass, startTransform, shape[0]);
+        startTransform.setOrigin(btVector3(-1, 1.5, 1));
+        createRigidBody(mass, startTransform, shape[0]);
+        startTransform.setOrigin(btVector3(-1, 1.5, -1));
+        createRigidBody(mass, startTransform, shape[0]);
+        startTransform.setOrigin(btVector3(0, 3.5, 0));
+        createRigidBody(mass, startTransform, shape[0]);
     }
     
     virtual const btDeformableRigidDynamicsWorld* getDeformableDynamicsWorld() const
@@ -166,7 +146,7 @@ public:
     }
 };
 
-void VolumetricDeformable::initPhysics()
+void DeformableRigid::initPhysics()
 {
 	m_guiHelper->setUpAxis(1);
 
@@ -189,69 +169,82 @@ void VolumetricDeformable::initPhysics()
     btVector3 gravity = btVector3(0, -10, 0);
 	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
+    
+//    getDeformableDynamicsWorld()->before_solver_callbacks.push_back(dynamics);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
     {
         ///create a ground
-        btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(150.), btScalar(50.), btScalar(150.)));
+        btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(150.), btScalar(25.), btScalar(150.)));
+
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setOrigin(btVector3(0, -50, 0));
-        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.0));
+        groundTransform.setOrigin(btVector3(0, -32, 0));
+        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
         //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
         btScalar mass(0.);
+
         //rigidbody is dynamic if and only if mass is non zero, otherwise static
         bool isDynamic = (mass != 0.f);
+
         btVector3 localInertia(0, 0, 0);
         if (isDynamic)
             groundShape->calculateLocalInertia(mass, localInertia);
+
         //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
         btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
         btRigidBody* body = new btRigidBody(rbInfo);
-        body->setFriction(0.5);
+        body->setFriction(1);
 
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
     }
     
-    createStaticBox(btVector3(1, 5, 5), btVector3(-5,0,0));
-    createStaticBox(btVector3(1, 5, 5), btVector3(5,0,0));
-    createStaticBox(btVector3(5, 5, 1), btVector3(0,0,5));
-    createStaticBox(btVector3(5, 5, 1), btVector3(0,0,-5));
-    
-    // create volumetric soft body
+    // create a piece of cloth
     {
-        btSoftBody* psb = btSoftBodyHelpers::CreateFromTetGenData(getDeformableDynamicsWorld()->getWorldInfo(),
-                                                                  TetraCube::getElements(),
-                                                                  0,
-                                                                  TetraCube::getNodes(),
-                                                                  false, true, true);
-        getDeformableDynamicsWorld()->addSoftBody(psb);
-        psb->scale(btVector3(2, 2, 2));
-        psb->translate(btVector3(0, 5, 0));
-//        psb->setVolumeMass(10);
-        psb->getCollisionShape()->setMargin(0.25);
-//        psb->generateBendingConstraints(2);
+        bool onGround = false;
+        const btScalar s = 4;
+        btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, 0, -s),
+                                                         btVector3(+s, 0, -s),
+                                                         btVector3(-s, 0, +s),
+                                                         btVector3(+s, 0, +s),
+//                                                         3,3,
+                                                          20,20,
+                                                          1 + 2 + 4 + 8, true);
+//                                                          0, true);
+
+        if (onGround)
+            psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, 0, -s),
+                                                 btVector3(+s, 0, -s),
+                                                 btVector3(-s, 0, +s),
+                                                 btVector3(+s, 0, +s),
+//                                                 20,20,
+                                                 2,2,
+                                                 0, true);
+        
+        psb->getCollisionShape()->setMargin(0.1);
+        psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
         psb->setSpringStiffness(1);
         psb->setDampingCoefficient(0.01);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 0.5;
+        psb->m_cfg.kDF = 1;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        getDeformableDynamicsWorld()->addSoftBody(psb);
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce());
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
+        
+        // add a few rigid bodies
+        Ctor_RbUpStack(1);
     }
-    // add a few rigid bodies
-    Ctor_RbUpStack(4); 
-    
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-void VolumetricDeformable::exitPhysics()
+void DeformableRigid::exitPhysics()
 {
 	//cleanup in the reverse order of creation/initialization
 
@@ -290,9 +283,9 @@ void VolumetricDeformable::exitPhysics()
 
 
 
-class CommonExampleInterface* VolumetricDeformableCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface* DeformableRigidCreateFunc(struct CommonExampleOptions& options)
 {
-	return new VolumetricDeformable(options.m_guiHelper);
+	return new DeformableRigid(options.m_guiHelper);
 }
 
 
