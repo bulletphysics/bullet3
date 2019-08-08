@@ -294,8 +294,6 @@ void PhysicsClientSharedMemory::clearCachedBodies()
 		}
 	}
 	m_data->m_bodyJointMap.clear();
-	m_data->m_userDataHandleLookup.clear();
-	m_data->m_userDataMap.clear();
 }
 
 void PhysicsClientSharedMemory::resetData()
@@ -304,6 +302,8 @@ void PhysicsClientSharedMemory::resetData()
 	m_data->m_debugLinesTo.clear();
 	m_data->m_debugLinesColor.clear();
 	m_data->m_userConstraintInfoMap.clear();
+	m_data->m_userDataMap.clear();
+	m_data->m_userDataHandleLookup.clear();
 	clearCachedBodies();
 }
 void PhysicsClientSharedMemory::setSharedMemoryKey(int key)
