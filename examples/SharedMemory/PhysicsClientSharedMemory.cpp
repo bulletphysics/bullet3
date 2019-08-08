@@ -282,11 +282,9 @@ void PhysicsClientSharedMemory::removeCachedBody(int bodyUniqueId)
 		m_data->m_bodyJointMap.remove(bodyUniqueId);
 	}
 }
-void PhysicsClientSharedMemory::resetData()
+
+void PhysicsClientSharedMemory::clearCachedBodies()
 {
-	m_data->m_debugLinesFrom.clear();
-	m_data->m_debugLinesTo.clear();
-	m_data->m_debugLinesColor.clear();
 	for (int i = 0; i < m_data->m_bodyJointMap.size(); i++)
 	{
 		BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
@@ -296,9 +294,17 @@ void PhysicsClientSharedMemory::resetData()
 		}
 	}
 	m_data->m_bodyJointMap.clear();
+}
+
+void PhysicsClientSharedMemory::resetData()
+{
+	m_data->m_debugLinesFrom.clear();
+	m_data->m_debugLinesTo.clear();
+	m_data->m_debugLinesColor.clear();
 	m_data->m_userConstraintInfoMap.clear();
-	m_data->m_userDataHandleLookup.clear();
 	m_data->m_userDataMap.clear();
+	m_data->m_userDataHandleLookup.clear();
+	clearCachedBodies();
 }
 void PhysicsClientSharedMemory::setSharedMemoryKey(int key)
 {
@@ -1270,6 +1276,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 
 			case CMD_SYNC_BODY_INFO_COMPLETED:
 			{
+				clearCachedBodies();
 				break;
 			}
 			case CMD_STATE_LOGGING_START_COMPLETED:
@@ -1560,9 +1567,9 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 				{
 					(*bodyJointsPtr)->m_userDataIds.clear();
 				}
-				m_data->m_userDataMap.clear();
-				m_data->m_userDataHandleLookup.clear();
 			}
+			m_data->m_userDataMap.clear();
+			m_data->m_userDataHandleLookup.clear();
 			const int numIdentifiers = serverCmd.m_syncUserDataArgs.m_numUserDataIdentifiers;
 			if (numIdentifiers > 0)
 			{
