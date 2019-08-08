@@ -7,8 +7,9 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 2019060190
-// #define SHARED_MEMORY_MAGIC_NUMBER 201904030
+#define SHARED_MEMORY_MAGIC_NUMBER 201908050
+//#define SHARED_MEMORY_MAGIC_NUMBER 2019060190
+//#define SHARED_MEMORY_MAGIC_NUMBER 201904030
 //#define SHARED_MEMORY_MAGIC_NUMBER 201902120
 //#define SHARED_MEMORY_MAGIC_NUMBER 201811260
 //#define SHARED_MEMORY_MAGIC_NUMBER 201810250
@@ -935,6 +936,7 @@ struct b3PhysicsSimulationParameters
 	double m_gravityAcceleration[3];
 	int m_numSimulationSubSteps;
 	int m_numSolverIterations;
+	double m_warmStartingFactor;
 	int m_useRealTimeSimulation;
 	int m_useSplitImpulse;
 	double m_splitImpulsePenetrationThreshold;
