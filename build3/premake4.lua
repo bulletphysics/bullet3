@@ -56,6 +56,13 @@
 
 	newoption
 	{
+		trigger = "enable_stable_pd",
+		description = "Enable Stable PD control in PyBullet"
+	}
+
+
+	newoption
+	{
 		trigger = "enable_static_vr_plugin",
 		description = "Statically link vr plugin (in examples/SharedMemory/plugins/vrSyncPlugin)"
 	}

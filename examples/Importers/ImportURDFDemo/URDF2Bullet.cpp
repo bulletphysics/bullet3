@@ -661,6 +661,27 @@ btTransform ConvertURDF2BulletInternal(
 
 				if (mbLinkIndex >= 0)  //???? double-check +/- 1
 				{
+					//if the base is static and all joints in the chain between this link and the base are fixed, 
+					//then this link is static too (doesn't merge islands)
+					if (cache.m_bulletMultiBody->getBaseMass() == 0)
+					{
+						bool allJointsFixed = true;
+						int testLinkIndex = mbLinkIndex;
+						do
+						{
+							if (cache.m_bulletMultiBody->getLink(testLinkIndex).m_jointType != btMultibodyLink::eFixed)
+							{
+								allJointsFixed = false;
+								break;
+							}
+							testLinkIndex = cache.m_bulletMultiBody->getLink(testLinkIndex).m_parent;
+						} while (testLinkIndex> 0);
+						if (allJointsFixed)
+						{
+							col->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+						}
+
+					}
 					cache.m_bulletMultiBody->getLink(mbLinkIndex).m_collider = col;
 					if (flags & CUF_USE_SELF_COLLISION_INCLUDE_PARENT)
 					{
