@@ -15,6 +15,7 @@ protected:
 	void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
 	void resetData();
 	void removeCachedBody(int bodyUniqueId);
+	void clearCachedBodies();
 	virtual void renderSceneInternal(){};
 
 public:
