@@ -1,17 +1,15 @@
 /*
-Bullet Continuous Collision Detection and Physics Library
-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
-
-This software is provided 'as-is', without any express or implied warranty.
-In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
-subject to the following restrictions:
-
-1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
-2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
-3. This notice may not be removed or altered from any source distribution.
-*/
+ Bullet Continuous Collision Detection and Physics Library
+ Copyright (c) 2016 Google Inc. http://bulletphysics.org
+ This software is provided 'as-is', without any express or implied warranty.
+ In no event will the authors be held liable for any damages arising from the use of this software.
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it freely,
+ subject to the following restrictions:
+ 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+ 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+ 3. This notice may not be removed or altered from any source distribution.
+ */
 
 ///create 125 (5x5x5) dynamic object
 #define ARRAY_SIZE_X 5
@@ -27,7 +25,7 @@ subject to the following restrictions:
 #define START_POS_Y -5
 #define START_POS_Z -3
 
-#include "DeformableContact.h"
+#include "DeformableMultibody.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableRigidDynamicsWorld.h"
@@ -46,20 +44,20 @@ subject to the following restrictions:
 
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
-///The DeformableContact demo deformable bodies self-collision
+///The DeformableMultibody demo deformable bodies self-collision
 static bool g_floatingBase = true;
 static float friction = 1.;
-class DeformableContact : public CommonMultiBodyBase
+class DeformableMultibody : public CommonMultiBodyBase
 {
     btMultiBody* m_multiBody;
     btAlignedObjectArray<btMultiBodyJointFeedback*> m_jointFeedbacks;
 public:
-	DeformableContact(struct GUIHelperInterface* helper)
+	DeformableMultibody(struct GUIHelperInterface* helper)
 		: CommonMultiBodyBase(helper)
 	{
 	}
     
-	virtual ~DeformableContact()
+	virtual ~DeformableMultibody()
 	{
 	}
     
@@ -109,7 +107,7 @@ public:
     }
 };
 
-void DeformableContact::initPhysics()
+void DeformableMultibody::initPhysics()
 {
 	m_guiHelper->setUpAxis(1);
 
@@ -237,7 +235,7 @@ void DeformableContact::initPhysics()
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-void DeformableContact::exitPhysics()
+void DeformableMultibody::exitPhysics()
 {
 	//cleanup in the reverse order of creation/initialization
 
@@ -274,14 +272,14 @@ void DeformableContact::exitPhysics()
 	delete m_collisionConfiguration;
 }
 
-void DeformableContact::stepSimulation(float deltaTime)
+void DeformableMultibody::stepSimulation(float deltaTime)
 {
 //    getDeformableDynamicsWorld()->getMultiBodyDynamicsWorld()->stepSimulation(deltaTime);
     m_dynamicsWorld->stepSimulation(deltaTime, 5, 1./250.);
 }
 
 
-btMultiBody* DeformableContact::createFeatherstoneMultiBody_testMultiDof(btMultiBodyDynamicsWorld* pWorld, int numLinks, const btVector3& basePosition, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents, bool spherical, bool floating)
+btMultiBody* DeformableMultibody::createFeatherstoneMultiBody_testMultiDof(btMultiBodyDynamicsWorld* pWorld, int numLinks, const btVector3& basePosition, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents, bool spherical, bool floating)
 {
     //init the base
     btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
@@ -341,7 +339,7 @@ btMultiBody* DeformableContact::createFeatherstoneMultiBody_testMultiDof(btMulti
     return pMultiBody;
 }
 
-void DeformableContact::addColliders_testMultiDof(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents)
+void DeformableMultibody::addColliders_testMultiDof(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents)
 {
     btAlignedObjectArray<btQuaternion> world_to_local;
     world_to_local.resize(pMultiBody->getNumLinks() + 1);
@@ -403,9 +401,9 @@ void DeformableContact::addColliders_testMultiDof(btMultiBody* pMultiBody, btMul
         pMultiBody->getLink(i).m_collider = col;
     }
 }
-class CommonExampleInterface* DeformableContactCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface* DeformableMultibodyCreateFunc(struct CommonExampleOptions& options)
 {
-	return new DeformableContact(options.m_guiHelper);
+	return new DeformableMultibody(options.m_guiHelper);
 }
 
 
