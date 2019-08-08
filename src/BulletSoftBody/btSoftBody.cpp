@@ -854,6 +854,7 @@ void btSoftBody::scale(const btVector3& scl)
 	updateNormals();
 	updateBounds();
 	updateConstants();
+    initializeDmInverse();
 }
 
 //
@@ -2808,6 +2809,24 @@ void btSoftBody::setSpringStiffness(btScalar k)
     for (int i = 0; i < m_links.size(); ++i)
     {
         m_links[i].Feature::m_material->m_kLST = k;
+    }
+}
+
+void btSoftBody::initializeDmInverse()
+{
+    btScalar unit_simplex_measure = 1./6.;
+    
+    for (int i = 0; i < m_tetras.size(); ++i)
+    {
+        Tetra &t = m_tetras[i];
+        btVector3 c1 = t.m_n[1]->m_q - t.m_n[0]->m_q;
+        btVector3 c2 = t.m_n[2]->m_q - t.m_n[0]->m_q;
+        btVector3 c3 = t.m_n[3]->m_q - t.m_n[0]->m_q;
+        btMatrix3x3 Dm(c1.getX(), c2.getX(), c3.getX(),
+                       c1.getY(), c2.getY(), c3.getY(),
+                       c1.getZ(), c2.getZ(), c3.getZ());
+        t.m_element_measure = Dm.determinant() * unit_simplex_measure;
+        t.m_Dm_inverse = Dm.inverse();
     }
 }
 
