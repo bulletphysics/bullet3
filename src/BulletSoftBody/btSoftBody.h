@@ -292,6 +292,9 @@ public:
 		btVector3 m_c0[4];   // gradients
 		btScalar m_c1;       // (4*kVST)/(im0+im1+im2+im3)
 		btScalar m_c2;       // m_c1/sum(|g0..3|^2)
+        btMatrix3x3 m_Dm_inverse; // rest Dm^-1
+        btMatrix3x3 m_ds;
+        btScalar m_element_measure;
 	};
 	/* RContact		*/
 	struct RContact
@@ -1023,6 +1026,7 @@ public:
 	void applyClusters(bool drift);
 	void dampClusters();
     void setSpringStiffness(btScalar k);
+    void initializeDmInverse();
 	void applyForces();
 	static void PSolve_Anchors(btSoftBody* psb, btScalar kst, btScalar ti);
 	static void PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti);

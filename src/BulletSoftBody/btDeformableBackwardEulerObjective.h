@@ -17,6 +17,7 @@
 #include "btDeformableLagrangianForce.h"
 #include "btDeformableMassSpringForce.h"
 #include "btDeformableGravityForce.h"
+#include "btDeformableCorotatedForce.h"
 #include "btDeformableContactProjection.h"
 #include "btPreconditioner.h"
 #include "btDeformableRigidDynamicsWorld.h"

@@ -20,7 +20,8 @@
 enum btDeformableLagrangianForceType
 {
     BT_GRAVITY_FORCE = 1,
-    BT_MASSSPRING_FORCE = 2
+    BT_MASSSPRING_FORCE = 2,
+    BT_COROTATED_FORCE = 3
 };
 
 class btDeformableLagrangianForce
