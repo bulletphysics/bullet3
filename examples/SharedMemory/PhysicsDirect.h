@@ -34,6 +34,8 @@ protected:
 
 	void removeCachedBody(int bodyUniqueId);
 
+	void clearCachedBodies();
+
 public:
 	PhysicsDirect(class PhysicsCommandProcessorInterface* physSdk, bool passSdkOwnership);
 
