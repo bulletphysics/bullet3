@@ -55,9 +55,19 @@ void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody 
     m_softBodySet.copyFromArray(softBodies);
     bool nodeUpdated = updateNodes();
     
-    m_dv.resize(m_numNodes, btVector3(0,0,0));
-    m_residual.resize(m_numNodes, btVector3(0,0,0));
-    m_backupVelocity.resize(m_numNodes, btVector3(0,0,0));
+    if (nodeUpdated)
+    {
+        m_dv.resize(m_numNodes, btVector3(0,0,0));
+        m_residual.resize(m_numNodes, btVector3(0,0,0));
+        m_backupVelocity.resize(m_numNodes, btVector3(0,0,0));
+    }
+    
+    // need to setZero here as resize only set value for newly allocated items
+    for (int i = 0; i < m_numNodes; ++i)
+    {
+        m_dv[i].setZero();
+        m_residual[i].setZero();
+    }
     
     m_objective->reinitialize(nodeUpdated);
 }
