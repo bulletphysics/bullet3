@@ -47,11 +47,10 @@
 #include "../FractureDemo/FractureDemo.h"
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
-#include "../DeformableDemo/DeformableDemo.h"
-#include "../Pinch/Pinch.h"
-#include "../DeformableContact/DeformableContact.h"
-#include "../MultiBodyBaseline/MultiBodyBaseline.h"
-#include "../VolumetricDeformable/VolumetricDeformable.h"
+#include "../DeformableDemo/DeformableRigid.h"
+#include "../DeformableDemo/Pinch.h"
+#include "../DeformableDemo/DeformableMultibody.h"
+#include "../DeformableDemo/VolumetricDeformable.h"
 #include "../SharedMemory/PhysicsServerExampleBullet2.h"
 #include "../SharedMemory/PhysicsServerExample.h"
 #include "../SharedMemory/PhysicsClientExample.h"
@@ -196,10 +195,10 @@ static ExampleEntry gDefaultExamples[] =
 //ExampleEntry(1, "Spheres & Plane C-API (Bullet3)", "Collision C-API using Bullet 3.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_PLANE_RTB3),
 
         ExampleEntry(0, "Deformabe Body"),
-        ExampleEntry(1, "Deformable-RigidBody Contact", "Deformable test", DeformableCreateFunc),
+        ExampleEntry(1, "Deformable-RigidBody Contact", "Deformable test", DeformableRigidCreateFunc),
         ExampleEntry(1, "Grasp Deformable Cube", "Grasping test", PinchCreateFunc),
         ExampleEntry(1, "Volumetric Deformable Objects", "Volumetric Deformable test", VolumetricDeformableCreateFunc),
-        ExampleEntry(1, "Deformable-MultiBody Contact", "MultiBody and Deformable contact", DeformableContactCreateFunc),
+        ExampleEntry(1, "Deformable-MultiBody Contact", "MultiBody and Deformable contact", DeformableMultibodyCreateFunc),
         // ExampleEntry(1, "MultiBody Baseline", "MultiBody Baseline", MultiBodyBaselineCreateFunc),
         
 #ifdef INCLUDE_CLOTH_DEMOS
