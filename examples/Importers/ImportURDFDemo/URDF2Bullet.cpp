@@ -612,6 +612,11 @@ btTransform ConvertURDF2BulletInternal(
 					}
 				}
 
+				if (compoundShape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE)
+				{
+					col->setCollisionFlags(col->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+				}
+
 				btTransform tr;
 				tr.setIdentity();
 				tr = linkTransformInWorldSpace;
@@ -677,7 +682,7 @@ btTransform ConvertURDF2BulletInternal(
 						} while (testLinkIndex> 0);
 						if (allJointsFixed)
 						{
-							col->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+							col->setCollisionFlags(col->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
 						}
 
 					}
@@ -699,7 +704,7 @@ btTransform ConvertURDF2BulletInternal(
 						//&& cache.m_bulletMultiBody->getNumDofs()==0)
 						{
 							//col->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
-							col->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+							col->setCollisionFlags(col->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
 						}
 					}
 
