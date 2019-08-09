@@ -62,8 +62,8 @@ public:
     // set initial guess for CG solve
     void initialGuess(TVStack& dv, const TVStack& residual);
     
-    // reset data structure
-    void reinitialize(bool nodeUpdated);
+    // reset data structure and reset dt
+    void reinitialize(bool nodeUpdated, btScalar dt);
     
     void setDt(btScalar dt);
     

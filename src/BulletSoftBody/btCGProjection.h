@@ -111,7 +111,7 @@ public:
     typedef btAlignedObjectArray<btVector3> TVStack;
     typedef btAlignedObjectArray<btAlignedObjectArray<btVector3> > TVArrayStack;
     typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > TArrayStack;
-    btAlignedObjectArray<btSoftBody *> m_softBodies;
+    btAlignedObjectArray<btSoftBody *>& m_softBodies;
     btDeformableRigidDynamicsWorld* m_world;
 //    const btAlignedObjectArray<btSoftBody::Node*>* m_nodes;
     const btScalar& m_dt;
@@ -119,7 +119,6 @@ public:
     btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : m_softBodies(softBodies)
     , m_dt(dt)
-//    , m_nodes(nodes)
     {
     }
     
@@ -137,11 +136,6 @@ public:
     
     virtual void reinitialize(bool nodeUpdated)
     {
-    }
-    
-    void setSoftBodies(btAlignedObjectArray<btSoftBody* > softBodies)
-    {
-        m_softBodies.copyFromArray(softBodies);
     }
     
     virtual void setWorld(btDeformableRigidDynamicsWorld* world)
