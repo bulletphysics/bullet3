@@ -182,6 +182,7 @@ if not _OPTIONS["no-enet"] then
 			"../../examples/SharedMemory/plugins/collisionFilterPlugin/collisionFilterPlugin.cpp",
 			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",
 			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
+		}
 			
 			
 
