@@ -38,6 +38,7 @@ void btDeformableBodySolver::solveConstraints(float solverdt)
     setConstraints();
 
     m_objective->computeResidual(solverdt, m_residual);
+    m_objective->projectFriction(m_residual);
     computeStep(m_dv, m_residual);
     updateVelocity();
 }
@@ -75,7 +76,7 @@ void btDeformableBodySolver::setConstraints()
 {
     BT_PROFILE("setConstraint");
     m_objective->setConstraints();
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 1; ++i)
     {
         m_objective->projection.update();
         m_objective->enforceConstraint(m_dv);

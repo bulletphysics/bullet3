@@ -133,10 +133,11 @@ void btDeformableContactProjection::update()
                     friction.m_impulse_prev[j] = friction.m_impulse[j];
                     friction.m_dv_prev[j] = friction.m_dv[j];
                     friction.m_static_prev[j] = friction.m_static[j];
+                    friction.m_direction_prev[j] = friction.m_direction[j];
                     
                     // get the current tangent direction
                     btScalar local_tangent_norm = impulse_tangent.norm();
-                    btVector3 local_tangent_dir = btVector3(0,0,0);
+                    btVector3 local_tangent_dir = -friction.m_direction[j];
                     if (local_tangent_norm > SIMD_EPSILON)
                         local_tangent_dir = impulse_tangent.normalized();
 
@@ -395,7 +396,9 @@ void btDeformableContactProjection::enforceConstraint(TVStack& x)
                     // add the friction constraint
                     if (friction.m_static[j] == true)
                     {
-                        x[i] -= x[i].dot(friction.m_direction[j]) * friction.m_direction[j];
+//                        if (friction.m_static_prev[j] == true)
+//                            x[i] -= friction.m_direction_prev[j] * friction.m_dv_prev[j];
+//                        x[i] -= x[i].dot(friction.m_direction[j]) * friction.m_direction[j];
                         x[i] += friction.m_direction[j] * friction.m_dv[j];
                     }
                 }
@@ -410,8 +413,8 @@ void btDeformableContactProjection::project(TVStack& x)
     for (int index = 0; index < m_constraints.size(); ++index)
     {
         const btAlignedObjectArray<DeformableContactConstraint>& constraints = *m_constraints.getAtIndex(index);
-        size_t i = m_constraints.getKeyAtIndex(index).getUid1();
         btAlignedObjectArray<DeformableFrictionConstraint>& frictions = *m_frictions[m_constraints.getKeyAtIndex(index)];
+        size_t i = m_constraints.getKeyAtIndex(index).getUid1();
         btAssert(constraints.size() <= dim);
         btAssert(constraints.size() > 0);
         if (constraints.size() == 1)
@@ -427,6 +430,34 @@ void btDeformableContactProjection::project(TVStack& x)
         }
         else
             x[i].setZero();
+        // apply the friction constraint
+        if (constraints.size() < 3)
+        {
+            for (int f = 0; f < frictions.size(); ++f)
+            {
+                DeformableFrictionConstraint& friction= frictions[f];
+                for (int j = 0; j < friction.m_direction.size(); ++j)
+                {
+                    if (friction.m_static[j] == true)
+                    {
+                        x[i] -= x[i].dot(friction.m_direction[j]) * friction.m_direction[j];
+                    }
+                }
+            }
+        }
+    }
+}
+
+void btDeformableContactProjection::projectFriction(TVStack& x)
+{
+    const int dim = 3;
+    for (int index = 0; index < m_constraints.size(); ++index)
+    {
+        const btAlignedObjectArray<DeformableContactConstraint>& constraints = *m_constraints.getAtIndex(index);
+        size_t i = m_constraints.getKeyAtIndex(index).getUid1();
+        btAlignedObjectArray<DeformableFrictionConstraint>& frictions = *m_frictions[m_constraints.getKeyAtIndex(index)];
+        btAssert(constraints.size() <= dim);
+        btAssert(constraints.size() > 0);
         
         // apply friction if the node is not constrained in all directions
         if (constraints.size() < 3)
@@ -444,22 +475,11 @@ void btDeformableContactProjection::project(TVStack& x)
                 DeformableFrictionConstraint& friction= frictions[f];
                 for (int j = 0; j < friction.m_direction.size(); ++j)
                 {
-                    // clear the old friction force
-                    if (friction.m_static_prev[j] == false)
-                    {
-                        x[i] -= friction.m_direction_prev[j] * friction.m_impulse_prev[j];
-                    }
-                    
                     // only add to the rhs if there is no static friction constraint on the node
                     if (friction.m_static[j] == false)
                     {
                         if (!has_static_constraint)
                             x[i] += friction.m_direction[j] * friction.m_impulse[j];
-                    }
-                    else
-                    {
-                        // otherwise clear the constraint in the friction direction
-                        x[i] -= x[i].dot(friction.m_direction[j]) * friction.m_direction[j];
                     }
                 }
             }
