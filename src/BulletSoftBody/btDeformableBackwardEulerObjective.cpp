@@ -145,3 +145,8 @@ void btDeformableBackwardEulerObjective::setConstraints()
     m_world->btMultiBodyDynamicsWorld::buildIslands();
     projection.setConstraints();
 }
+
+void btDeformableBackwardEulerObjective::projectFriction(TVStack& r)
+{
+     projection.projectFriction(r);
+}

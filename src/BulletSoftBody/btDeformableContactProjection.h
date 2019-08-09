@@ -36,6 +36,8 @@ public:
     
     // apply the constraints to the rhs
     virtual void project(TVStack& x);
+    // add to friction
+    virtual void projectFriction(TVStack& x);
     
     // apply constraints to x in Ax=b
     virtual void enforceConstraint(TVStack& x);
