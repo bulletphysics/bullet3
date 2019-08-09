@@ -2805,6 +2805,14 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 				delete trimesh->getTriangleInfoMap();
 			}
 		}
+		if (shape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE)
+		{
+			btHeightfieldTerrainShape* terrain = (btHeightfieldTerrainShape*)shape;
+			if (terrain->getTriangleInfoMap())
+			{
+				delete terrain->getTriangleInfoMap();
+			}
+		}
 		delete shape;
 	}
 	for (int j = 0; j < m_data->m_heightfieldDatas.size(); j++)
@@ -4546,12 +4554,19 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 
 					bool flipQuadEdges = false;
 					int upAxis = 2;
-					btHeightfieldTerrainShape* heightfieldShape = worldImporter->createHeightfieldShape( width, height,
+					/*btHeightfieldTerrainShape* heightfieldShape = worldImporter->createHeightfieldShape( width, height,
 						heightfieldData,
 							gridHeightScale,
 							minHeight, maxHeight,
 							upAxis, int(scalarType), flipQuadEdges);
-					
+					*/
+					btHeightfieldTerrainShape* heightfieldShape = new btHeightfieldTerrainShape( width, height,
+					heightfieldData,
+					gridHeightScale,
+					minHeight, maxHeight,
+					upAxis, scalarType, flipQuadEdges);
+					m_data->m_collisionShapes.push_back(heightfieldShape);
+
 					heightfieldShape->setUserValue3(clientCmd.m_createUserShapeArgs.m_shapes[i].m_heightfieldTextureScaling);
 					shape = heightfieldShape;
 					if (upAxis == 2)
@@ -4565,6 +4580,9 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 						clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[2]);
 					
 					heightfieldShape->setLocalScaling(localScaling);
+
+					btTriangleInfoMap* triangleInfoMap = new btTriangleInfoMap();
+					btGenerateInternalEdgeInfo(heightfieldShape, triangleInfoMap);
 					
 					this->m_data->m_heightfieldDatas.push_back(heightfieldData);
 						
