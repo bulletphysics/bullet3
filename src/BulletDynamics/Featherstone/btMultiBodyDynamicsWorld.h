@@ -96,7 +96,8 @@ public:
 	virtual void removeMultiBodyConstraint(btMultiBodyConstraint* constraint);
 
 	virtual void integrateTransforms(btScalar timeStep);
-    void integrateMultiBodyTransforms(btScalar timeStep,bool predict = false);
+    void integrateMultiBodyTransforms(btScalar timeStep);
+    void predictMultiBodyTransforms(btScalar timeStep);
     
     virtual void predictUnconstraintMotion(btScalar timeStep);
 	virtual void debugDrawWorld();
