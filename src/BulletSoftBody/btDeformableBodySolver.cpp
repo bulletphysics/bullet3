@@ -51,7 +51,6 @@ void btDeformableBodySolver::computeStep(TVStack& dv, const TVStack& residual)
 
 void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt)
 {
-    m_objective->setDt(dt);
     m_softBodySet.copyFromArray(softBodies);
     bool nodeUpdated = updateNodes();
     
@@ -69,7 +68,7 @@ void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody 
         m_residual[i].setZero();
     }
     
-    m_objective->reinitialize(nodeUpdated);
+    m_objective->reinitialize(nodeUpdated, dt);
 }
 
 void btDeformableBodySolver::setConstraints()

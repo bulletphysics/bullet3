@@ -22,13 +22,13 @@ btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAligned
     m_preconditioner = new DefaultPreconditioner();
 }
 
-void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated)
+void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated, btScalar dt)
 {
     BT_PROFILE("reinitialize");
+    setDt(dt);
     if(nodeUpdated)
     {
         updateId();
-        projection.setSoftBodies(m_softBodies);
     }
     for (int i = 0; i < m_lf.size(); ++i)
     {
