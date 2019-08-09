@@ -101,8 +101,6 @@
 #include "BulletSoftBody/btSoftBodySolvers.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "BulletSoftBody/btSoftMultiBodyDynamicsWorld.h"
-#include "BulletSoftBody/btDeformableRigidDynamicsWorld.h"
-#include "BulletSoftBody/btDeformableBodySolver.h"
 #include "../SoftDemo/BunnyMesh.h"
 #else
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
@@ -1625,7 +1623,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-    btDeformableRigidDynamicsWorld* m_dynamicsWorld;
+	btSoftMultiBodyDynamicsWorld* m_dynamicsWorld;
 	btSoftBodySolver* m_softbodySolver;
 #else
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
@@ -1686,7 +1684,7 @@ struct PhysicsServerCommandProcessorInternalData
 		  m_logPlayback(0),
 		  m_logPlaybackUid(-1),
 		  m_physicsDeltaTime(1. / 240.),
-		  m_numSimulationSubSteps(10),
+		  m_numSimulationSubSteps(0),
 		  m_simulationTimestamp(0),
 		  m_userConstraintUIDGenerator(1),
 		  m_broadphaseCollisionFilterCallback(0),
@@ -2593,7 +2591,6 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 #else
 	m_data->m_collisionConfiguration = new btDefaultCollisionConfiguration();
 #endif
-
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_data->m_dispatcher = new btCollisionDispatcher(m_data->m_collisionConfiguration);
 
@@ -2611,21 +2608,19 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	m_data->m_broadphase = bv;
 
 	m_data->m_solver = new btMultiBodyConstraintSolver;
-    btDeformableBodySolver* deformableBodySolver = new btDeformableBodySolver();
-    m_data->m_dynamicsWorld = new btDeformableRigidDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration, deformableBodySolver);
-    deformableBodySolver->setWorld(m_data->m_dynamicsWorld);
-//#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-//    m_data->m_dynamicsWorld = new btSoftMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
-//#else
-//    m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
-//#endif
+
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	m_data->m_dynamicsWorld = new btSoftMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
+#else
+	m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
+#endif
 
 	//Workaround: in a VR application, where we avoid synchronizing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
 	m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(128 * 1024);
 
 	m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
 
-	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
+	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.08;
 
 	m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = 0.2;  //need to check if there are artifacts with frictionERP
@@ -2777,13 +2772,12 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 			delete mb;
 		}
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-        //TODO
-//        for (i = m_data->m_dynamicsWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
-//        {
-//            btSoftBody* sb = m_data->m_dynamicsWorld->getSoftBodyArray()[i];
-//            m_data->m_dynamicsWorld->removeSoftBody(sb);
-//            delete sb;
-//        }
+		for (i = m_data->m_dynamicsWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
+		{
+			btSoftBody* sb = m_data->m_dynamicsWorld->getSoftBodyArray()[i];
+			m_data->m_dynamicsWorld->removeSoftBody(sb);
+			delete sb;
+		}
 #endif
 	}
 
@@ -8041,10 +8035,10 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 			{
 				btSoftBody* psb = btSoftBodyHelpers::CreateFromTriMesh(m_data->m_dynamicsWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
 				btSoftBody::Material* pm = psb->appendMaterial();
-//                pm->m_kLST = 0.5;
+				pm->m_kLST = 0.5;
 				pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
 				psb->generateBendingConstraints(2, pm);
-//                psb->m_cfg.piterations = 20;
+				psb->m_cfg.piterations = 20;
 				psb->m_cfg.kDF = 0.5;
 				//turn on softbody vs softbody collision
 				psb->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
@@ -8057,8 +8051,6 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				psb->getCollisionShape()->setMargin(collisionMargin);
 				psb->getCollisionShape()->setUserPointer(psb);
 				m_data->m_dynamicsWorld->addSoftBody(psb);
-                m_data->m_dynamicsWorld->addForce(psb, new btDeformableMassSpringForce());
-                m_data->m_dynamicsWorld->addForce(psb, new btDeformableGravityForce(btVector3(0,0,-10)));
 				m_data->m_guiHelper->createCollisionShapeGraphicsObject(psb->getCollisionShape());
 				m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
 				int bodyUniqueId = m_data->m_bodyHandles.allocHandle();
@@ -10291,8 +10283,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 					m_data->m_pluginManager.getRenderInterface()->removeVisualShape(psb->getBroadphaseHandle()->getUid());
 				}
 				serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
-                //TODO
-//                m_data->m_dynamicsWorld->removeSoftBody(psb);
+				m_data->m_dynamicsWorld->removeSoftBody(psb);
 				int graphicsInstance = psb->getUserIndex2();
 				m_data->m_guiHelper->removeGraphicsInstance(graphicsInstance);
 				delete psb;
