@@ -331,14 +331,15 @@ void GraspDeformable::initPhysics()
         psb->getCollisionShape()->setMargin(0.1);
         psb->setTotalMass(1);
         psb->setSpringStiffness(0);
-        psb->setDampingCoefficient(0.04);
+        psb->setDampingCoefficient(0.02);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 2;
+        psb->m_cfg.kDF = 0;
+        psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce());
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(2,2));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(1,1));
     }
     
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);

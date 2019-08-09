@@ -73,7 +73,6 @@ public:
     {
         BT_PROFILE("enforceConstraint");
         projection.enforceConstraint(x);
-        updateVelocity(x);
     }
     
     // add dv to velocity
@@ -86,7 +85,6 @@ public:
     void project(TVStack& r)
     {
         BT_PROFILE("project");
-        projection.update();
         projection.project(r);
     }
     

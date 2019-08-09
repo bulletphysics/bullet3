@@ -31,20 +31,20 @@ btDeformableBodySolver::~btDeformableBodySolver()
 void btDeformableBodySolver::solveConstraints(float solverdt)
 {
     BT_PROFILE("solveConstraints");
-    // add constraints to the solver
-    setConstraints();
-    
     // save v_{n+1}^* velocity after explicit forces
     backupVelocity();
     
+    // add constraints to the solver
+    setConstraints();
+
     m_objective->computeResidual(solverdt, m_residual);
-    
     computeStep(m_dv, m_residual);
     updateVelocity();
 }
 
 void btDeformableBodySolver::computeStep(TVStack& dv, const TVStack& residual)
 {
+    
     btScalar tolerance = std::numeric_limits<float>::epsilon()* 1024 * m_objective->computeNorm(residual);
     m_cg.solve(*m_objective, dv, residual, tolerance);
 }
@@ -75,6 +75,12 @@ void btDeformableBodySolver::setConstraints()
 {
     BT_PROFILE("setConstraint");
     m_objective->setConstraints();
+    for (int i = 0; i < 10; ++i)
+    {
+        m_objective->projection.update();
+        m_objective->enforceConstraint(m_dv);
+        m_objective->updateVelocity(m_dv);
+    }
 }
 
 void btDeformableBodySolver::setWorld(btDeformableRigidDynamicsWorld* world)
