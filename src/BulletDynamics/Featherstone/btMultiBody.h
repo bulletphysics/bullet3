@@ -435,7 +435,7 @@ public:
 	}
 
 	// timestep the positions (given current velocities).
-	void stepPositionsMultiDof(btScalar dt, btScalar *pq = 0, btScalar *pqd = 0, bool predict = false);
+	void stepPositionsMultiDof(btScalar dt, btScalar *pq = 0, btScalar *pqd = 0);
     
     // predict the positions
     void predictPositionsMultiDof(btScalar dt);

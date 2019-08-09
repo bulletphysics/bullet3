@@ -36,7 +36,7 @@ void btMultiBodyDynamicsWorld::removeMultiBody(btMultiBody* body)
 void btMultiBodyDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 {
     btDiscreteDynamicsWorld::predictUnconstraintMotion(timeStep);
-    integrateMultiBodyTransforms(timeStep, /*predict = */ true);
+    predictMultiBodyTransforms(timeStep);
     
 }
 void btMultiBodyDynamicsWorld::calculateSimulationIslands()
@@ -791,7 +791,7 @@ void btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
     integrateMultiBodyTransforms(timeStep);
 }
 
-void btMultiBodyDynamicsWorld::integrateMultiBodyTransforms(btScalar timeStep, bool predict)
+void btMultiBodyDynamicsWorld::integrateMultiBodyTransforms(btScalar timeStep)
 {
 		BT_PROFILE("btMultiBody stepPositions");
 		//integrate and update the Featherstone hierarchies
@@ -815,34 +815,61 @@ void btMultiBodyDynamicsWorld::integrateMultiBodyTransforms(btScalar timeStep, b
 				int nLinks = bod->getNumLinks();
 
 				///base + num m_links
-                if (!predict)
-				{
-					if (!bod->isPosUpdated())
-						bod->stepPositionsMultiDof(timeStep);
-					else
-					{
-						btScalar* pRealBuf = const_cast<btScalar*>(bod->getVelocityVector());
-						pRealBuf += 6 + bod->getNumDofs() + bod->getNumDofs() * bod->getNumDofs();
-
-						bod->stepPositionsMultiDof(1, 0, pRealBuf);
-						bod->setPosUpdated(false);
-					}
-				}
+                if (!bod->isPosUpdated())
+                    bod->stepPositionsMultiDof(timeStep);
                 else
-                    bod->predictPositionsMultiDof(timeStep);
+                {
+                    btScalar* pRealBuf = const_cast<btScalar*>(bod->getVelocityVector());
+                    pRealBuf += 6 + bod->getNumDofs() + bod->getNumDofs() * bod->getNumDofs();
+
+                    bod->stepPositionsMultiDof(1, 0, pRealBuf);
+                    bod->setPosUpdated(false);
+                }
+
 
 				m_scratch_world_to_local.resize(nLinks + 1);
 				m_scratch_local_origin.resize(nLinks + 1);
-                if (predict)
-                    bod->updateCollisionObjectInterpolationWorldTransforms(m_scratch_world_to_local, m_scratch_local_origin);
-                else
-                    bod->updateCollisionObjectWorldTransforms(m_scratch_world_to_local, m_scratch_local_origin);
+                bod->updateCollisionObjectWorldTransforms(m_scratch_world_to_local, m_scratch_local_origin);
 			}
 			else
 			{
 				bod->clearVelocities();
 			}
 		}
+}
+
+void btMultiBodyDynamicsWorld::predictMultiBodyTransforms(btScalar timeStep)
+{
+    BT_PROFILE("btMultiBody stepPositions");
+    //integrate and update the Featherstone hierarchies
+    
+    for (int b = 0; b < m_multiBodies.size(); b++)
+    {
+        btMultiBody* bod = m_multiBodies[b];
+        bool isSleeping = false;
+        if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+        {
+            isSleeping = true;
+        }
+        for (int b = 0; b < bod->getNumLinks(); b++)
+        {
+            if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+                isSleeping = true;
+        }
+        
+        if (!isSleeping)
+        {
+            int nLinks = bod->getNumLinks();
+            bod->predictPositionsMultiDof(timeStep);
+            m_scratch_world_to_local.resize(nLinks + 1);
+            m_scratch_local_origin.resize(nLinks + 1);
+            bod->updateCollisionObjectInterpolationWorldTransforms(m_scratch_world_to_local, m_scratch_local_origin);
+        }
+        else
+        {
+            bod->clearVelocities();
+        }
+    }
 }
 
 void btMultiBodyDynamicsWorld::addMultiBodyConstraint(btMultiBodyConstraint* constraint)
