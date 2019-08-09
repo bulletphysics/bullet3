@@ -51,6 +51,7 @@
 #include "../DeformableDemo/Pinch.h"
 #include "../DeformableDemo/DeformableMultibody.h"
 #include "../DeformableDemo/VolumetricDeformable.h"
+#include "../DeformableDemo/GraspDeformable.h"
 #include "../SharedMemory/PhysicsServerExampleBullet2.h"
 #include "../SharedMemory/PhysicsServerExample.h"
 #include "../SharedMemory/PhysicsClientExample.h"
