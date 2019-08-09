@@ -117,6 +117,8 @@ protected:
 	int m_userIndex2;
 	btScalar m_userValue3;
 
+	struct btTriangleInfoMap* m_triangleInfoMap;
+
 	virtual btScalar getRawHeightFieldValue(int x, int y) const;
 	void quantizeWithClamp(int* out, const btVector3& point, int isMax) const;
 
@@ -205,6 +207,18 @@ public:
 	btScalar getUserValue3() const
 	{
 		return m_userValue3;
+	}
+	const struct btTriangleInfoMap* getTriangleInfoMap() const
+	{
+		return m_triangleInfoMap;
+	}
+	struct btTriangleInfoMap* getTriangleInfoMap()
+	{
+		return m_triangleInfoMap;
+	}
+	void setTriangleInfoMap(btTriangleInfoMap* map)
+	{
+		m_triangleInfoMap = map;
 	}
 };
 

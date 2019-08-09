@@ -612,6 +612,11 @@ btTransform ConvertURDF2BulletInternal(
 					}
 				}
 
+				if (compoundShape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE)
+				{
+					col->setCollisionFlags(col->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+				}
+
 				btTransform tr;
 				tr.setIdentity();
 				tr = linkTransformInWorldSpace;
