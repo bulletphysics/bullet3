@@ -22,8 +22,7 @@ class btDeformableContactProjection : public btCGProjection
 {
 public:
     // map from node index to constraints
-    btHashMap<btHashInt, btAlignedObjectArray<DeformableContactConstraint> > m_constraints;
-    btHashMap<btHashInt, btAlignedObjectArray<DeformableFrictionConstraint> >m_frictions;
+    btHashMap<btHashInt, DeformableContactConstraint> m_constraints;
     
     btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : btCGProjection(softBodies, dt)
@@ -37,7 +36,7 @@ public:
     // apply the constraints to the rhs
     virtual void project(TVStack& x);
     // add to friction
-    virtual void projectFriction(TVStack& x);
+    virtual void applyDynamicFriction(TVStack& f);
     
     // apply constraints to x in Ax=b
     virtual void enforceConstraint(TVStack& x);
