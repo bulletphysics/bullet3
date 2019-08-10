@@ -37,6 +37,7 @@ protected:
    
     btAlignedObjectArray<btVector3> m_backupVelocity;
     btScalar m_dt;
+    btScalar m_contact_iterations;
     btConjugateGradient<btDeformableBackwardEulerObjective> m_cg;
     
     
