@@ -75,7 +75,7 @@ public:
         projection.enforceConstraint(x);
     }
     
-    void projectFriction(TVStack& r);
+    void applyDynamicFriction(TVStack& r);
     
     // add dv to velocity
     void updateVelocity(const TVStack& dv);

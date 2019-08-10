@@ -146,7 +146,7 @@ void btDeformableBackwardEulerObjective::setConstraints()
     projection.setConstraints();
 }
 
-void btDeformableBackwardEulerObjective::projectFriction(TVStack& r)
+void btDeformableBackwardEulerObjective::applyDynamicFriction(TVStack& r)
 {
-     projection.projectFriction(r);
+     projection.applyDynamicFriction(r);
 }
