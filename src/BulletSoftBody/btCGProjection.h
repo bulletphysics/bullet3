@@ -22,39 +22,30 @@ class btDeformableRigidDynamicsWorld;
 
 struct DeformableContactConstraint
 {
+    const btSoftBody::Node* m_node;
     btAlignedObjectArray<const btSoftBody::RContact*> m_contact;
-    btAlignedObjectArray<btVector3> m_direction;
-    btAlignedObjectArray<btScalar> m_value;
-    // the magnitude of the total impulse the node applied to the rb in the normal direction in the cg solve
-    btAlignedObjectArray<btScalar> m_accumulated_normal_impulse;
+    btAlignedObjectArray<btVector3> m_total_normal_dv;
+    btAlignedObjectArray<btVector3> m_total_tangent_dv;
+    btAlignedObjectArray<bool> m_static;
+    btAlignedObjectArray<bool> m_can_be_dynamic;
     
-    DeformableContactConstraint(const btSoftBody::RContact& rcontact)
+    DeformableContactConstraint(const btSoftBody::RContact& rcontact): m_node(rcontact.m_node)
     {
         append(rcontact);
     }
     
-    DeformableContactConstraint(const btVector3 dir)
+    DeformableContactConstraint(): m_node(NULL)
     {
         m_contact.push_back(NULL);
-        m_direction.push_back(dir);
-        m_value.push_back(0);
-        m_accumulated_normal_impulse.push_back(0);
-    }
-    
-    DeformableContactConstraint()
-    {
-        m_contact.push_back(NULL);
-        m_direction.push_back(btVector3(0,0,0));
-        m_value.push_back(0);
-        m_accumulated_normal_impulse.push_back(0);
     }
     
     void append(const btSoftBody::RContact& rcontact)
     {
         m_contact.push_back(&rcontact);
-        m_direction.push_back(rcontact.m_cti.m_normal);
-        m_value.push_back(0);
-        m_accumulated_normal_impulse.push_back(0);
+        m_total_normal_dv.push_back(btVector3(0,0,0));
+        m_total_tangent_dv.push_back(btVector3(0,0,0));
+        m_static.push_back(false);
+        m_can_be_dynamic.push_back(true);
     }
     
     ~DeformableContactConstraint()
