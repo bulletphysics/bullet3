@@ -232,7 +232,7 @@ void DeformableRigid::initPhysics()
         psb->setDampingCoefficient(0.05);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 0;
+        psb->m_cfg.kDF = 1;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce());
