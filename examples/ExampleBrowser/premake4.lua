@@ -145,12 +145,6 @@ project "App_BulletExampleBrowser"
 		"../SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
 		"../SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",
 		"../SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
-		"../SharedMemory/plugins/stablePDPlugin/SpAlg.cpp",
-		"../SharedMemory/plugins/stablePDPlugin/Shape.cpp",
-		"../SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp",
-		"../SharedMemory/plugins/stablePDPlugin/RBDModel.cpp",
-		"../SharedMemory/plugins/stablePDPlugin/MathUtil.cpp",
-		"../SharedMemory/plugins/stablePDPlugin/KinTree.cpp",
 		"../SharedMemory/SharedMemoryCommands.h",
 		"../SharedMemory/SharedMemoryPublic.h",
 		"../SharedMemory/b3RobotSimulatorClientAPI_NoGUI.cpp",
@@ -212,6 +206,26 @@ project "App_BulletExampleBrowser"
     "../ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
     "../ThirdPartyLibs/tinyxml2/tinyxml2.h",
         }
+        
+  if _OPTIONS["enable_stable_pd"] then
+		defines {"STATIC_LINK_SPD_PLUGIN"}
+		files {
+			"../SharedMemory/plugins/stablePDPlugin/SpAlg.cpp",
+			"../SharedMemory/plugins/stablePDPlugin/SpAlg.h",
+			"../SharedMemory/plugins/stablePDPlugin/Shape.cpp",
+			"../SharedMemory/plugins/stablePDPlugin/Shape.h",
+			"../SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp",
+			"../SharedMemory/plugins/stablePDPlugin/RBDUtil.h",
+			"../SharedMemory/plugins/stablePDPlugin/RBDModel.cpp",
+			"../SharedMemory/plugins/stablePDPlugin/RBDModel.h",
+			"../SharedMemory/plugins/stablePDPlugin/MathUtil.cpp",
+			"../SharedMemory/plugins/stablePDPlugin/MathUtil.h",
+			"../SharedMemory/plugins/stablePDPlugin/KinTree.cpp",
+			"../SharedMemory/plugins/stablePDPlugin/KinTree.h",
+			"../SharedMemory/plugins/stablePDPlugin/BulletConversion.cpp",
+			"../SharedMemory/plugins/stablePDPlugin/BulletConversion.h",
+			}
+		end
 if (hasCL and findOpenGL3()) then
 			files {
 				"../OpenCL/broadphase/*",

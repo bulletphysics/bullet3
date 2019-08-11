@@ -24,7 +24,7 @@ typedef unsigned long long int smUint64_t;
 #endif
 
 #ifdef __APPLE__
-#define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (512 * 1024)
+#define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (1024 * 1024)
 #else
 #define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (8 * 1024 * 1024)
 #endif
@@ -961,6 +961,8 @@ struct b3CreateUserShapeData
 	int m_numUVs;
 	int m_numNormals;
 	double m_heightfieldTextureScaling;
+	int m_numHeightfieldRows;
+	int m_numHeightfieldColumns;
 	double m_rgbaColor[4];
 	double m_specularColor[3];
 };

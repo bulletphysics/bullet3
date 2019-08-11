@@ -1610,7 +1610,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<std::string*> m_strings;
 
 	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
-	btAlignedObjectArray<unsigned char*> m_heightfieldDatas;
+	btAlignedObjectArray<const unsigned char*> m_heightfieldDatas;
 	btAlignedObjectArray<int> m_allocatedTextures;
 	btHashMap<btHashPtr, UrdfCollision> m_bulletCollisionShape2UrdfCollision;
 	btAlignedObjectArray<btStridingMeshInterface*> m_meshInterfaces;
@@ -4394,7 +4394,7 @@ static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY
 					for (int j = 0; j < height; ++j)
 					{
 						
-						float z = allValues[i + width*j];
+						double z = allValues[i + width*j];
 						//convertFromFloat(p, z, type);
 						btScalar * pf = (btScalar *)p;
 						*pf = z;
@@ -4545,7 +4545,29 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 				btScalar minHeight, maxHeight;
 				PHY_ScalarType scalarType = PHY_FLOAT;
 				CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
-				unsigned char* heightfieldData = MyGetRawHeightfieldData(*fileIO, scalarType, clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshFileName, width, height, minHeight, maxHeight);
+				const unsigned char* heightfieldData = 0;
+				if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_numHeightfieldColumns > 0 &&
+					clientCmd.m_createUserShapeArgs.m_shapes[i].m_numHeightfieldRows > 0)
+				{
+					
+					width = clientCmd.m_createUserShapeArgs.m_shapes[i].m_numHeightfieldRows;
+					height = clientCmd.m_createUserShapeArgs.m_shapes[i].m_numHeightfieldColumns;
+					float* heightfieldDataSrc = (float*)bufferServerToClient;
+					heightfieldData = new unsigned char[width*height * sizeof(btScalar)];
+					btScalar* datafl = (btScalar*)heightfieldData;
+					minHeight = heightfieldDataSrc[0];
+					maxHeight = heightfieldDataSrc[0];
+					for (int i = 0; i < width*height; i++)
+					{
+						datafl[i] = heightfieldDataSrc[i];
+						minHeight = btMin(minHeight, (btScalar)datafl[i]);
+						maxHeight = btMax(maxHeight, (btScalar)datafl[i]);
+					}
+				}
+				else
+				{
+					heightfieldData = MyGetRawHeightfieldData(*fileIO, scalarType, clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshFileName, width, height, minHeight, maxHeight);
+				}
 				if (heightfieldData)
 				{
 					
