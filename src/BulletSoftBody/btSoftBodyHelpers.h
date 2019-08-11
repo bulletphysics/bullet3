@@ -17,7 +17,8 @@ subject to the following restrictions:
 #define BT_SOFT_BODY_HELPERS_H
 
 #include "btSoftBody.h"
-
+#include <fstream>
+#include <string>
 //
 // Helpers
 //
@@ -140,6 +141,9 @@ struct btSoftBodyHelpers
 											bool bfacelinks,
 											bool btetralinks,
 											bool bfacesfromtetras);
+    static btSoftBody* CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, const std::string& vtk_file);
+    static btSoftBody* CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, std::istream& in);
+    
 
 	/// Sort the list of links to move link calculations that are dependent upon earlier
 	/// ones as far as possible away from the calculation of those values
