@@ -1338,6 +1338,39 @@ B3_SHARED_API int b3CreateCollisionShapeAddHeightfield(b3SharedMemoryCommandHand
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_heightfieldTextureScaling = textureScaling;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numHeightfieldRows = -1;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numHeightfieldColumns = -1;
+			command->m_createUserShapeArgs.m_numUserShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+
+B3_SHARED_API int b3CreateCollisionShapeAddHeightfield2(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, const double meshScale[/*3*/], double textureScaling, float* heightfieldData, int numHeightfieldRows, int numHeightfieldColumns)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE))
+	{
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
+		if (shapeIndex < MAX_COMPOUND_COLLISION_SHAPES)
+		{
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_HEIGHTFIELD;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileName[0] = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[0] = meshScale[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_heightfieldTextureScaling = textureScaling;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numHeightfieldRows = numHeightfieldRows;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numHeightfieldColumns = numHeightfieldColumns;
+			cl->uploadBulletFileToSharedMemory((const char*)heightfieldData, numHeightfieldRows*numHeightfieldColumns* sizeof(float));
 			command->m_createUserShapeArgs.m_numUserShapes++;
 			return shapeIndex;
 		}
