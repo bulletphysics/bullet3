@@ -11028,7 +11028,7 @@ static PyObject* pybullet_calculateInverseKinematics2(PyObject* self,
 	double residualThreshold = -1;
 
 	static char* kwlist[] = { "bodyUniqueId", "endEffectorLinkIndices", "targetPositions",  "lowerLimits", "upperLimits", "jointRanges", "restPoses", "jointDamping", "solver", "currentPositions", "maxNumIterations", "residualThreshold", "physicsClientId", NULL };
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOO|OOOOOOiOidi", kwlist, &bodyUniqueId, &endEffectorLinkIndicesObj, &targetPosObj, &lowerLimitsObj, &upperLimitsObj, &jointRangesObj, &restPosesObj, &jointDampingObj, &solver, &currentPositionsObj, &maxNumIterations, &residualThreshold, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOO|OOOOOiOidi", kwlist, &bodyUniqueId, &endEffectorLinkIndicesObj, &targetPosObj, &lowerLimitsObj, &upperLimitsObj, &jointRangesObj, &restPosesObj, &jointDampingObj, &solver, &currentPositionsObj, &maxNumIterations, &residualThreshold, &physicsClientId))
 	{
 			return NULL;
 	}
