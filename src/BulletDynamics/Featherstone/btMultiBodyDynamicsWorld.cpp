@@ -375,15 +375,10 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 			m_islandAnalyticsData.push_back(m_solver->m_analyticsData);
 		}
 		m_bodies.resize(0);
-//        m_manifolds.resize(0);
+        m_manifolds.resize(0);
 		m_constraints.resize(0);
 		m_multiBodyConstraints.resize(0);
 	}
-    
-    void clearContactConstraints()
-    {
-        m_manifolds.resize(0);
-    }
 };
 
 void btMultiBodyDynamicsWorld::getAnalyticsData(btAlignedObjectArray<btSolverAnalyticsData>& islandAnalyticsData) const
@@ -435,7 +430,6 @@ void btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
     solveExternalForces(solverInfo);
     buildIslands();
     solveInternalConstraints(solverInfo);
-    m_solverMultiBodyIslandCallback->clearContactConstraints();
 }
 
 void btMultiBodyDynamicsWorld::buildIslands()
