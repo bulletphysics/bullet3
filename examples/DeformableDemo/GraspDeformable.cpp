@@ -31,7 +31,8 @@
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
-
+#include "../CommonInterfaces/CommonFileIOInterface.h"
+#include "Bullet3Common/b3FileUtils.h"
 
 ///The GraspDeformable shows the use of rolling friction.
 ///Spheres will come to a rest on a sloped plane using a constraint. Damping cannot achieve the same.
@@ -125,7 +126,7 @@ public:
         }
         
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 250.f;
+        float internalTimeStep = 1. / 400.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 5, internalTimeStep);
     }
     
@@ -312,7 +313,7 @@ void GraspDeformable::initPhysics()
         btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
         btRigidBody* body = new btRigidBody(rbInfo);
-        body->setFriction(0.5);
+        body->setFriction(0);
 
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
@@ -320,18 +321,32 @@ void GraspDeformable::initPhysics()
 
     // create a soft block
     {
-        btSoftBody* psb = btSoftBodyHelpers::CreateFromTetGenData(getDeformableDynamicsWorld()->getWorldInfo(),
-                                                                  TetraCube::getElements(),
-                                                                  0,
-                                                                  TetraCube::getNodes(),
-                                                                  false, true, true);
+        char relative_path[1024];
+//        b3FileUtils::findFile("banana.vtk", relative_path, 1024);
+         b3FileUtils::findFile("ball.vtk", relative_path, 1024);
+//         b3FileUtils::findFile("tube.vtk", relative_path, 1024);
+//         b3FileUtils::findFile("torus.vtk", relative_path, 1024);
+//         b3FileUtils::findFile("paper_roll.vtk", relative_path, 1024);
+//         b3FileUtils::findFile("bread.vtk", relative_path, 1024);
+//        b3FileUtils::findFile("ditto.vtk", relative_path, 1024);
+//        b3FileUtils::findFile("boot.vtk", relative_path, 1024);
+        std::string path(relative_path);
+//        btSoftBody* psb = btSoftBodyHelpers::CreateFromTetGenData(getDeformableDynamicsWorld()->getWorldInfo(),
+//                                                                  TetraCube::getElements(),
+//                                                                  0,
+//                                                                  TetraCube::getNodes(),
+//                                                                  false, true, true);
+        btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), path);
 
+//        psb->scale(btVector3(30, 30, 30)); // for banana
         psb->scale(btVector3(2, 2, 2));
-        psb->translate(btVector3(0, 0, 0));
+//        psb->scale(btVector3(3, 3, 3));  // for tube, torus, boot
+//        psb->scale(btVector3(1, 1, 1));  // for ditto
+//        psb->translate(btVector3(0, 0, 2)); for boot
         psb->getCollisionShape()->setMargin(0.1);
         psb->setTotalMass(1);
         psb->setSpringStiffness(0);
-        psb->setDampingCoefficient(0.1);
+        psb->setDampingCoefficient(.1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 2;
@@ -339,8 +354,42 @@ void GraspDeformable::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(psb);
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce());
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(1,1));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(10,10));
     }
+    
+//    // create a piece of cloth
+//    {
+//        bool onGround = false;
+//        const btScalar s = 4;
+//        btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, 0, -s),
+//                                                         btVector3(+s, 0, -s),
+//                                                         btVector3(-s, 0, +s),
+//                                                         btVector3(+s, 0, +s),
+//                                                         20,20,
+//                                                                  0, true);
+//
+//        if (onGround)
+//            psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, 0, -s),
+//                                                 btVector3(+s, 0, -s),
+//                                                 btVector3(-s, 0, +s),
+//                                                 btVector3(+s, 0, +s),
+//                                                 //                                                 20,20,
+//                                                 2,2,
+//                                                 0, true);
+//
+//        psb->getCollisionShape()->setMargin(0.1);
+//        psb->generateBendingConstraints(2);
+//        psb->setTotalMass(1);
+//        psb->setSpringStiffness(2);
+//        psb->setDampingCoefficient(0.03);
+//        psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
+//        psb->m_cfg.kCHR = 1; // collision hardness with rigid body
+//        psb->m_cfg.kDF = 1;
+//        psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+//        getDeformableDynamicsWorld()->addSoftBody(psb);
+//        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce());
+//        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
+//    }
     
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
     
