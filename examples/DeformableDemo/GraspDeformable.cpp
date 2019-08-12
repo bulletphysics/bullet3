@@ -126,7 +126,7 @@ public:
         }
         
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 400.f;
+        float internalTimeStep = 1. / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 5, internalTimeStep);
     }
     
@@ -354,7 +354,7 @@ void GraspDeformable::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(psb);
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce());
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(10,10));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(5,5));
     }
     
 //    // create a piece of cloth
