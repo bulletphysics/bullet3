@@ -24,13 +24,14 @@ class FixJointBoxes : public CommonExampleInterface
 	b3RobotSimulatorSetPhysicsEngineParameters physicsArgs;
 	int solver;
 
-	const size_t numCubes = 30;
+	const size_t numCubes;
 	std::vector<int> cubeIds;
 
 public:
 	FixJointBoxes(GUIHelperInterface* helper, int options)
 		: m_guiHelper(helper),
 		  m_options(options),
+		  numCubes(30),
 		  cubeIds(numCubes, 0),
 		  solver(solverId)
 	{

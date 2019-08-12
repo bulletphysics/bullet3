@@ -1,3 +1,4 @@
+
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include "../SharedMemory/PhysicsDirectC_API.h"
 #include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
@@ -336,18 +337,19 @@ static PyObject* pybullet_stepSimulation(PyObject* self, PyObject* args, PyObjec
 				struct b3ForwardDynamicsAnalyticsArgs analyticsData;
 				int numIslands = 0;
 				int i;
-                                PyObject* val = 0;
+				PyObject* val = 0;
+				PyObject* pyAnalyticsData;
                                 
 				numIslands = b3GetStatusForwardDynamicsAnalyticsData(statusHandle, &analyticsData);
-				PyObject* pyAnalyticsData = PyTuple_New(numIslands);
+				pyAnalyticsData = PyTuple_New(numIslands);
                                 
 				for (i=0;i<numIslands;i++)
 				{
-                                        val = Py_BuildValue("{s:i, s:i, s:i, s:d}",
-                                                            "islandId", analyticsData.m_islandData[i].m_islandId,
-                                                            "numBodies", analyticsData.m_islandData[i].m_numBodies,
-                                                            "numIterationsUsed", analyticsData.m_islandData[i].m_numIterationsUsed,
-                                                            "remainingResidual", analyticsData.m_islandData[i].m_remainingLeastSquaresResidual);
+					val = Py_BuildValue("{s:i, s:i, s:i, s:d}",
+					"islandId", analyticsData.m_islandData[i].m_islandId,
+					"numBodies", analyticsData.m_islandData[i].m_numBodies,
+					"numIterationsUsed", analyticsData.m_islandData[i].m_numIterationsUsed,
+					"remainingResidual", analyticsData.m_islandData[i].m_remainingLeastSquaresResidual);
 					PyTuple_SetItem(pyAnalyticsData, i, val);
 				}
 
@@ -7960,6 +7962,7 @@ static int extractIndices(PyObject* indicesObj, int* indices, int maxNumIndices)
 	return numIndicesOut;
 }
 
+
 static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int physicsClientId = 0;
@@ -7981,10 +7984,29 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 	PyObject* halfExtentsObj = 0;
 	PyObject* verticesObj = 0;
 	PyObject* indicesObj = 0;
+	PyObject* heightfieldDataObj = 0;
+	int numHeightfieldRows = -1;
+	int numHeightfieldColumns = -1;
 
-	static char* kwlist[] = {"shapeType", "radius", "halfExtents", "height", "fileName", "meshScale", "planeNormal", "flags", "collisionFramePosition", "collisionFrameOrientation", "vertices", "indices", "heightfieldTextureScaling", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOOOdi", kwlist,
-									 &shapeType, &radius, &halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags, &collisionFramePositionObj, &collisionFrameOrientationObj, &verticesObj, &indicesObj, &heightfieldTextureScaling, &physicsClientId))
+	static char* kwlist[] = {"shapeType",
+							 "radius",
+							 "halfExtents",
+							 "height",
+							 "fileName",
+							 "meshScale",
+							 "planeNormal",
+							 "flags",
+							 "collisionFramePosition",
+							 "collisionFrameOrientation",
+							 "vertices",
+							 "indices",
+							 "heightfieldTextureScaling",
+							 "heightfieldData",
+							 "numHeightfieldRows",
+							 "numHeightfieldColumns",
+							 "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOOOdOiii", kwlist,
+									 &shapeType, &radius, &halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags, &collisionFramePositionObj, &collisionFrameOrientationObj, &verticesObj, &indicesObj, &heightfieldTextureScaling, &heightfieldDataObj, &numHeightfieldRows, &numHeightfieldColumns, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -8028,6 +8050,43 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 			}
 			shapeIndex = b3CreateCollisionShapeAddHeightfield(commandHandle, fileName, meshScale, heightfieldTextureScaling);
 
+		}
+		if (shapeType == GEOM_HEIGHTFIELD && fileName==0 && heightfieldDataObj && numHeightfieldColumns>0 && numHeightfieldRows > 0)
+		{
+			if (meshScaleObj)
+			{
+				pybullet_internalSetVectord(meshScaleObj, meshScale);
+			}
+			PyObject* seqPoints = PySequence_Fast(heightfieldDataObj, "expected a sequence");
+			int numHeightfieldPoints = PySequence_Size(heightfieldDataObj);
+			if (numHeightfieldPoints != numHeightfieldColumns*numHeightfieldRows)
+			{
+				PyErr_SetString(SpamError, "Size of heightfieldData doesn't match numHeightfieldColumns*numHeightfieldRows");
+				return NULL;
+			}
+			PyObject* item;
+			int i;
+			float* pointBuffer = (float*)malloc(numHeightfieldPoints*sizeof(float));
+			if (PyList_Check(seqPoints))
+			{
+				for (i = 0; i < numHeightfieldPoints; i++)
+				{
+					item = PyList_GET_ITEM(seqPoints, i);
+					pointBuffer[i] = (float)PyFloat_AsDouble(item);
+				}
+			}
+			else
+			{
+				for (i = 0; i < numHeightfieldPoints; i++)
+				{
+					item = PyTuple_GET_ITEM(seqPoints, i);
+					pointBuffer[i] = (float)PyFloat_AsDouble(item);
+				}
+			}
+			shapeIndex = b3CreateCollisionShapeAddHeightfield2(sm, commandHandle, meshScale, heightfieldTextureScaling, pointBuffer, numHeightfieldRows, numHeightfieldColumns);
+			free(pointBuffer);
+			if (seqPoints)
+				Py_DECREF(seqPoints);
 		}
 		if (shapeType == GEOM_MESH && fileName)
 		{
@@ -10969,7 +11028,7 @@ static PyObject* pybullet_calculateInverseKinematics2(PyObject* self,
 	double residualThreshold = -1;
 
 	static char* kwlist[] = { "bodyUniqueId", "endEffectorLinkIndices", "targetPositions",  "lowerLimits", "upperLimits", "jointRanges", "restPoses", "jointDamping", "solver", "currentPositions", "maxNumIterations", "residualThreshold", "physicsClientId", NULL };
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOO|OOOOOOiOidi", kwlist, &bodyUniqueId, &endEffectorLinkIndicesObj, &targetPosObj, &lowerLimitsObj, &upperLimitsObj, &jointRangesObj, &restPosesObj, &jointDampingObj, &solver, &currentPositionsObj, &maxNumIterations, &residualThreshold, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOO|OOOOOiOidi", kwlist, &bodyUniqueId, &endEffectorLinkIndicesObj, &targetPosObj, &lowerLimitsObj, &upperLimitsObj, &jointRangesObj, &restPosesObj, &jointDampingObj, &solver, &currentPositionsObj, &maxNumIterations, &residualThreshold, &physicsClientId))
 	{
 			return NULL;
 	}
