@@ -724,7 +724,8 @@ btSoftBody* btSoftBodyHelpers::CreatePatch(btSoftBodyWorldInfo& worldInfo, const
 										   int resx,
 										   int resy,
 										   int fixeds,
-										   bool gendiags)
+										   bool gendiags,
+                                           btScalar perturbation)
 {
 #define IDX(_x_, _y_) ((_y_)*rx + (_x_))
 	/* Create nodes	*/
@@ -744,7 +745,13 @@ btSoftBody* btSoftBodyHelpers::CreatePatch(btSoftBodyWorldInfo& worldInfo, const
 		for (int ix = 0; ix < rx; ++ix)
 		{
 			const btScalar tx = ix / (btScalar)(rx - 1);
-			x[IDX(ix, iy)] = lerp(py0, py1, tx);
+            btScalar pert = perturbation * btScalar(rand())/RAND_MAX;
+            btVector4 temp1 = py1;
+            temp1.setY(py1.getY() + pert);
+            btVector4 temp = py0;
+            pert = perturbation * btScalar(rand())/RAND_MAX;
+            temp.setY(py0.getY() + pert);
+			x[IDX(ix, iy)] = lerp(temp, temp1, tx);
 			m[IDX(ix, iy)] = 1;
 		}
 	}
