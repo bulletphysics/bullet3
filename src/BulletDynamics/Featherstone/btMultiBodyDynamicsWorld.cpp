@@ -428,13 +428,18 @@ void btMultiBodyDynamicsWorld::forwardKinematics()
 void btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 {
     solveExternalForces(solverInfo);
-    buildIslands();
+    m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
     solveInternalConstraints(solverInfo);
 }
 
 void btMultiBodyDynamicsWorld::buildIslands()
 {
-    m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
+    m_islandManager->buildIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld());
+}
+
+void btMultiBodyDynamicsWorld::processIslands()
+{
+    m_islandManager->processIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
 }
 
 void btMultiBodyDynamicsWorld::solveInternalConstraints(btContactSolverInfo& solverInfo)
@@ -1085,4 +1090,9 @@ void btMultiBodyDynamicsWorld::serializeMultiBodies(btSerializer* serializer)
 			serializer->finalizeChunk(chunk, structType, BT_MB_LINKCOLLIDER_CODE, colObj);
 		}
 	}
+}
+
+void btMultiBodyDynamicsWorld::setSplitIslands(bool split)
+{
+    m_islandManager->setSplitIslands(split);
 }
