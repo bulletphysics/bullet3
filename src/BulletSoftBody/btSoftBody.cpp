@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include "LinearMath/btSerializer.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
-
+#include <iostream>
 //
 btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m)
 	: m_softBodySolver(0), m_worldInfo(worldInfo)
@@ -2301,8 +2301,9 @@ bool btSoftBody::checkDeformableContact(const btCollisionObjectWrapper* colObjWr
     const btCollisionObject* tmpCollisionObj = colObjWrap->getCollisionObject();
     // use the position x_{n+1}^* = x_n + dt * v_{n+1}^* where v_{n+1}^* = v_n + dtg for collision detect
     // but resolve contact at x_n
-    const btTransform &wtr = (predict) ? tmpCollisionObj->getInterpolationWorldTransform() : colObjWrap->getWorldTransform();
-
+    btTransform wtr = (predict) ?
+    (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
+                 : colObjWrap->getWorldTransform();
 	btScalar dst =
 		m_worldInfo->m_sparsesdf.Evaluate(
 			wtr.invXform(x),
