@@ -65,13 +65,14 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 		btVector3 shift(0, 0, 0);
 
 		std::vector<tinyobj::shape_t> shapes;
+		tinyobj::attrib_t attribute;
 		{
 			B3_PROFILE("tinyobj::LoadObj");
-			std::string err = LoadFromCachedOrFromObj(shapes, relativeFileName, pathPrefix,fileIO);
+			std::string err = LoadFromCachedOrFromObj(attribute, shapes, relativeFileName, pathPrefix, fileIO);
 			//std::string err = tinyobj::LoadObj(shapes, relativeFileName, pathPrefix);
 		}
 
-		GLInstanceGraphicsShape* gfxShape = btgCreateGraphicsShapeFromWavefrontObj(shapes);
+		GLInstanceGraphicsShape* gfxShape = btgCreateGraphicsShapeFromWavefrontObj(attribute, shapes);
 		{
 			B3_PROFILE("Load Texture");
 			//int textureIndex = -1;
@@ -84,7 +85,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 				meshData.m_rgbaColor[2] = shape.material.diffuse[2];
 				meshData.m_rgbaColor[3] = shape.material.transparency;
 				meshData.m_flags |= B3_IMPORT_MESH_HAS_RGBA_COLOR;
-				
+
 				meshData.m_specularColor[0] = shape.material.specular[0];
 				meshData.m_specularColor[1] = shape.material.specular[1];
 				meshData.m_specularColor[2] = shape.material.specular[2];
