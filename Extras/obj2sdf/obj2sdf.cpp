@@ -77,9 +77,10 @@ int main(int argc, char* argv[])
 	b3FileUtils::extractPath(fileNameWithPath, materialPrefixPath, MAX_PATH_LEN);
 
 	std::vector<tinyobj::shape_t> shapes;
+	tinyobj::attrib_t attribute;
 
 	b3BulletDefaultFileIO fileIO;
-	std::string err = tinyobj::LoadObj(shapes, fileNameWithPath, materialPrefixPath,&fileIO);
+	std::string err = tinyobj::LoadObj(attribute, shapes, fileNameWithPath, materialPrefixPath,&fileIO);
 
 	char sdfFileName[MAX_PATH_LEN];
 	sprintf(sdfFileName, "%s%s.sdf", materialPrefixPath, "newsdf");
@@ -117,20 +118,20 @@ int main(int argc, char* argv[])
 			int curTexcoords = shapeC->texcoords.size() / 2;
 
 			int faceCount = shape.mesh.indices.size();
-			int vertexCount = shape.mesh.positions.size();
+			int vertexCount = attribute.vertices.size();
 			for (int v = 0; v < vertexCount; v++)
 			{
-				shapeC->positions.push_back(shape.mesh.positions[v]);
+				shapeC->positions.push_back(attribute.vertices[v]);
 			}
-			int numNormals = int(shape.mesh.normals.size());
+			int numNormals = int(attribute.normals.size());
 			for (int vn = 0; vn < numNormals; vn++)
 			{
-				shapeC->normals.push_back(shape.mesh.normals[vn]);
+				shapeC->normals.push_back(attribute.normals[vn]);
 			}
-			int numTexCoords = int(shape.mesh.texcoords.size());
+			int numTexCoords = int(attribute.texcoords.size());
 			for (int vt = 0; vt < numTexCoords; vt++)
 			{
-				shapeC->texcoords.push_back(shape.mesh.texcoords[vt]);
+				shapeC->texcoords.push_back(attribute.texcoords[vt]);
 			}
 
 			for (int face = 0; face < faceCount; face += 3)
@@ -140,9 +141,9 @@ int main(int argc, char* argv[])
 					continue;
 				}
 
-				shapeC->indices.push_back(shape.mesh.indices[face] + curPositions);
-				shapeC->indices.push_back(shape.mesh.indices[face + 1] + curPositions);
-				shapeC->indices.push_back(shape.mesh.indices[face + 2] + curPositions);
+				shapeC->indices.push_back(shape.mesh.indices[face].vertex_index + curPositions);
+				shapeC->indices.push_back(shape.mesh.indices[face + 1].vertex_index + curPositions);
+				shapeC->indices.push_back(shape.mesh.indices[face + 2].vertex_index + curPositions);
 			}
 		}
 	}
@@ -329,7 +330,7 @@ int main(int argc, char* argv[])
 			}
 
 			int faceCount = shape.mesh.indices.size();
-			int vertexCount = shape.mesh.positions.size();
+			int vertexCount = attribute.vertices.size();
 			tinyobj::material_t mat = shape.material;
 			if (shape.name.length())
 			{
@@ -339,7 +340,7 @@ int main(int argc, char* argv[])
 			}
 			for (int v = 0; v < vertexCount / 3; v++)
 			{
-				fprintf(f, "v %f %f %f\n", shape.mesh.positions[v * 3 + 0], shape.mesh.positions[v * 3 + 1], shape.mesh.positions[v * 3 + 2]);
+				fprintf(f, "v %f %f %f\n", attribute.vertices[v * 3 + 0], attribute.vertices[v * 3 + 1], attribute.vertices[v * 3 + 2]);
 			}
 
 			if (mat.name.length())
@@ -352,18 +353,18 @@ int main(int argc, char* argv[])
 			}
 
 			fprintf(f, "\n");
-			int numNormals = int(shape.mesh.normals.size());
+			int numNormals = int(attribute.normals.size());
 
 			for (int vn = 0; vn < numNormals / 3; vn++)
 			{
-				fprintf(f, "vn %f %f %f\n", shape.mesh.normals[vn * 3 + 0], shape.mesh.normals[vn * 3 + 1], shape.mesh.normals[vn * 3 + 2]);
+				fprintf(f, "vn %f %f %f\n", attribute.normals[vn * 3 + 0], attribute.normals[vn * 3 + 1], attribute.normals[vn * 3 + 2]);
 			}
 
 			fprintf(f, "\n");
-			int numTexCoords = int(shape.mesh.texcoords.size());
+			int numTexCoords = int(attribute.texcoords.size());
 			for (int vt = 0; vt < numTexCoords / 2; vt++)
 			{
-				fprintf(f, "vt %f %f\n", shape.mesh.texcoords[vt * 2 + 0], shape.mesh.texcoords[vt * 2 + 1]);
+				fprintf(f, "vt %f %f\n", attribute.texcoords[vt * 2 + 0], attribute.texcoords[vt * 2 + 1]);
 			}
 
 			fprintf(f, "s off\n");
@@ -375,9 +376,9 @@ int main(int argc, char* argv[])
 					continue;
 				}
 				fprintf(f, "f %d/%d/%d %d/%d/%d %d/%d/%d\n",
-						shape.mesh.indices[face] + 1, shape.mesh.indices[face] + 1, shape.mesh.indices[face] + 1,
-						shape.mesh.indices[face + 1] + 1, shape.mesh.indices[face + 1] + 1, shape.mesh.indices[face + 1] + 1,
-						shape.mesh.indices[face + 2] + 1, shape.mesh.indices[face + 2] + 1, shape.mesh.indices[face + 2] + 1);
+						shape.mesh.indices[face].vertex_index + 1, shape.mesh.indices[face].vertex_index + 1, shape.mesh.indices[face].vertex_index + 1,
+						shape.mesh.indices[face + 1].vertex_index + 1, shape.mesh.indices[face + 1].vertex_index + 1, shape.mesh.indices[face + 1].vertex_index + 1,
+						shape.mesh.indices[face + 2].vertex_index + 1, shape.mesh.indices[face + 2].vertex_index + 1, shape.mesh.indices[face + 2].vertex_index + 1);
 			}
 			fclose(f);
 
