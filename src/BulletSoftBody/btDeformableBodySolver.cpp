@@ -19,7 +19,7 @@
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(10)
-, m_contact_iterations(10)
+, m_contact_iterations(5)
 {
     m_objective = new btDeformableBackwardEulerObjective(m_softBodySet, m_backupVelocity);
 }

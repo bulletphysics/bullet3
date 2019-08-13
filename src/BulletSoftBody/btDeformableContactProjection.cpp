@@ -51,9 +51,11 @@ static btVector3 generateUnitOrthogonalVector(const btVector3& u)
 void btDeformableContactProjection::update()
 {
     ///solve rigid body constraints
-    m_world->getSolverInfo().m_numIterations = 1;
-    m_world->btMultiBodyDynamicsWorld::solveInternalConstraints(m_world->getSolverInfo());
-
+    {
+        m_world->getSolverInfo().m_numIterations = 1;
+        m_world->processIslands();
+        m_world->btMultiBodyDynamicsWorld::solveInternalConstraints(m_world->getSolverInfo()); // process constraints deferred in the previous step
+    }
     // loop through constraints to set constrained values
     for (int index = 0; index < m_constraints.size(); ++index)
     {

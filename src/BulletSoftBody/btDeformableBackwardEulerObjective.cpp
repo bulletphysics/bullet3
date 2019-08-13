@@ -143,6 +143,8 @@ void btDeformableBackwardEulerObjective::setConstraints()
 {
     // build islands for multibody solve
     m_world->btMultiBodyDynamicsWorld::buildIslands();
+    // for repeated constraint solve, splitIslands has to be set to true
+    m_world->setSplitIslands(true);
     projection.setConstraints();
 }
 

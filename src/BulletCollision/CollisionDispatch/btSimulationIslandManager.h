@@ -57,7 +57,7 @@ public:
 	};
 
 	void buildAndProcessIslands(btDispatcher* dispatcher, btCollisionWorld* collisionWorld, IslandCallback* callback);
-
+    void processIslands(btDispatcher* dispatcher, btCollisionWorld* collisionWorld, IslandCallback* callback);
 	void buildIslands(btDispatcher* dispatcher, btCollisionWorld* colWorld);
 
 	bool getSplitIslands()
