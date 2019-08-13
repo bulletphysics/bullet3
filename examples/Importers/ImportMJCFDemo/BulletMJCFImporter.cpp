@@ -2265,7 +2265,7 @@ int BulletMJCFImporter::getBodyUniqueId() const
 	return m_data->m_activeBodyUniqueId;
 }
 
-static btCollisionShape* MjcfCreateConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale, btScalar collisionMargin)
+static btCollisionShape* MjcfCreateConvexHullFromShapes(const tinyobj::attrib_t& attribute, std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale, btScalar collisionMargin)
 {
 	btCompoundShape* compound = new btCompoundShape();
 	compound->setMargin(collisionMargin);
@@ -2278,25 +2278,26 @@ static btCollisionShape* MjcfCreateConvexHullFromShapes(std::vector<tinyobj::sha
 		btConvexHullShape* convexHull = new btConvexHullShape();
 		convexHull->setMargin(collisionMargin);
 		tinyobj::shape_t& shape = shapes[s];
+
 		int faceCount = shape.mesh.indices.size();
 
 		for (int f = 0; f < faceCount; f += 3)
 		{
 			btVector3 pt;
-			pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
-						shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
-						shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
+			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f].vertex_index + 0],
+						attribute.vertices[3 * shape.mesh.indices[f].vertex_index + 1],
+						attribute.vertices[3 * shape.mesh.indices[f].vertex_index + 2]);
 
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
-						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
-						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
+			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 0],
+						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 1],
+						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
-						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
-						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
+			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 0],
+						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 1],
+						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 		}
 
@@ -2391,10 +2392,11 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 							else
 							{
 								std::vector<tinyobj::shape_t> shapes;
-								std::string err = tinyobj::LoadObj(shapes, col->m_geometry.m_meshFileName.c_str(),"",m_data->m_fileIO);
+								tinyobj::attrib_t attribute;
+								std::string err = tinyobj::LoadObj(attribute, shapes, col->m_geometry.m_meshFileName.c_str(), "", m_data->m_fileIO);
 								//create a convex hull for each shape, and store it in a btCompoundShape
 
-								childShape = MjcfCreateConvexHullFromShapes(shapes, col->m_geometry.m_meshScale, m_data->m_globalDefaults.m_defaultCollisionMargin);
+								childShape = MjcfCreateConvexHullFromShapes(attribute, shapes, col->m_geometry.m_meshScale, m_data->m_globalDefaults.m_defaultCollisionMargin);
 							}
 							break;
 						}
