@@ -23,7 +23,7 @@ struct vertex_index_t
 		: v_idx(vidx), vt_idx(vtidx), vn_idx(vnidx) {}
 };
 
-using face_t = std::vector<vertex_index_t>;
+typedef std::vector<vertex_index_t> face_t;
 
 typedef struct
 {
