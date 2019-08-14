@@ -54,6 +54,7 @@ public:
     {
         int numNodes = getNumNodes();
         btAssert(numNodes <= force.size())
+        btVector3 grad_N_hat_1st_col = btVector3(-1,-1,-1);
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
@@ -64,8 +65,7 @@ public:
                 btMatrix3x3 F = tetra.m_ds * tetra.m_Dm_inverse;
                 btMatrix3x3 P;
                 firstPiola(F,P);
-                btVector3 grad_N_hat_1st_col = btVector3(-1,-1,-1);
-                btVector3 force_on_node0 = P * tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col;
+                btVector3 force_on_node0 = P * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 force_on_node123 = P * tetra.m_Dm_inverse.transpose();
                 
                 btSoftBody::Node* node0 = tetra.m_n[0];
@@ -79,26 +79,30 @@ public:
                 
                 // elastic force
                 // explicit elastic force
-                force[id0] -= scale * tetra.m_element_measure * force_on_node0;
-                force[id1] -= scale * tetra.m_element_measure * force_on_node123.getColumn(0);
-                force[id2] -= scale * tetra.m_element_measure * force_on_node123.getColumn(1);
-                force[id3] -= scale * tetra.m_element_measure * force_on_node123.getColumn(2);
+                btScalar scale1 = scale * tetra.m_element_measure;
+                force[id0] -= scale1 * force_on_node0;
+                force[id1] -= scale1 * force_on_node123.getColumn(0);
+                force[id2] -= scale1 * force_on_node123.getColumn(1);
+                force[id3] -= scale1 * force_on_node123.getColumn(2);
             }
         }
     }
     
     void firstPiola(const btMatrix3x3& F, btMatrix3x3& P)
     {
-        btMatrix3x3 R,S;
+        // btMatrix3x3 JFinvT = F.adjoint();
         btScalar J = F.determinant();
-        if (J < 1024 * SIMD_EPSILON)
-            R.setIdentity();
-        else
-            PolarDecompose(F, R, S); // this QR is not robust, consider using implicit shift svd
-        /*https://fuchuyuan.github.io/research/svd/paper.pdf*/
-        
-        btMatrix3x3 JFinvT = F.adjoint();
-        P =  JFinvT * (m_lambda * (J-1)) +  (F-R) * 2 * m_mu;
+        P =  F.adjoint() * (m_lambda * (J-1));
+        if (m_mu > SIMD_EPSILON)
+        {
+            btMatrix3x3 R,S;
+            if (J < 1024 * SIMD_EPSILON)
+                R.setIdentity();
+            else
+                PolarDecompose(F, R, S); // this QR is not robust, consider using implicit shift svd
+            /*https://fuchuyuan.github.io/research/svd/paper.pdf*/
+            P += (F-R) * 2 * m_mu;
+        }
     }
     void updateDs(btSoftBody::Tetra& t)
     {
