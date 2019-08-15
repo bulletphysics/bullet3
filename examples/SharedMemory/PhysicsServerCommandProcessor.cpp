@@ -4428,6 +4428,37 @@ static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY
 	return 0;
 }
 
+class MyTriangleCollector4 : public btTriangleCallback
+{
+public:
+	btAlignedObjectArray<GLInstanceVertex>* m_pVerticesOut;
+	btAlignedObjectArray<int>* m_pIndicesOut;
+
+	MyTriangleCollector4()
+	{
+		m_pVerticesOut = 0;
+		m_pIndicesOut = 0;
+	}
+
+	virtual void processTriangle(btVector3* tris, int partId, int triangleIndex)
+	{
+		for (int k = 0; k < 3; k++)
+		{
+			GLInstanceVertex v;
+			v.xyzw[3] = 0;
+			v.uv[0] = v.uv[1] = 0.5f;
+			btVector3 normal = (tris[0] - tris[1]).cross(tris[0] - tris[2]);
+			normal.safeNormalize();
+			for (int l = 0; l < 3; l++)
+			{
+				v.xyzw[l] = tris[k][l];
+				v.normal[l] = normal[l];
+			}
+			m_pIndicesOut->push_back(m_pVerticesOut->size());
+			m_pVerticesOut->push_back(v);
+		}
+	}
+};
 
 bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
@@ -4571,43 +4602,109 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 				if (heightfieldData)
 				{
 					
-					btScalar gridSpacing = 0.5;
-					btScalar gridHeightScale = 1. / 256.;
+					//replace heightfield data or create new heightfield
+					if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_replaceHeightfieldIndex >=0)
+					{
+						int collisionShapeUid = clientCmd.m_createUserShapeArgs.m_shapes[i].m_replaceHeightfieldIndex;
 
-					bool flipQuadEdges = false;
-					int upAxis = 2;
-					/*btHeightfieldTerrainShape* heightfieldShape = worldImporter->createHeightfieldShape( width, height,
-						heightfieldData,
+						InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(collisionShapeUid);
+						if (handle && handle->m_collisionShape && handle->m_collisionShape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE)
+						{
+							btHeightfieldTerrainShape* terrainShape = (btHeightfieldTerrainShape*)handle->m_collisionShape;
+							btScalar* heightfieldDest = (btScalar*)terrainShape->getHeightfieldRawData();
+							//replace the data
+
+							btScalar* datafl = (btScalar*)heightfieldData;
+
+							for (int i = 0; i < width*height; i++)
+							{
+								heightfieldDest[i] = datafl[i];
+							}
+							//update graphics
+
+							btAlignedObjectArray<GLInstanceVertex> gfxVertices;
+							btAlignedObjectArray<int> indices;
+							int strideInBytes = 9 * sizeof(float);
+
+
+							MyTriangleCollector4  col;
+							col.m_pVerticesOut = &gfxVertices;
+							col.m_pIndicesOut = &indices;
+							btVector3 aabbMin, aabbMax;
+							for (int k = 0; k < 3; k++)
+							{
+								aabbMin[k] = -BT_LARGE_FLOAT;
+								aabbMax[k] = BT_LARGE_FLOAT;
+							}
+							terrainShape->processAllTriangles(&col, aabbMin, aabbMax);
+							if (gfxVertices.size() && indices.size())
+							{
+								m_data->m_guiHelper->updateShape(terrainShape->getUserIndex(), &gfxVertices[0].xyzw[0]);
+							}
+
+							terrainShape->clearAccelerator();
+							terrainShape->buildAccelerator();
+
+
+							btTriangleInfoMap* oldTriangleInfoMap = terrainShape->getTriangleInfoMap();
+							delete (oldTriangleInfoMap);
+							terrainShape->setTriangleInfoMap(0);
+
+							if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags & GEOM_CONCAVE_INTERNAL_EDGE)
+							{
+								btTriangleInfoMap* triangleInfoMap = new btTriangleInfoMap();
+								btGenerateInternalEdgeInfo(terrainShape, triangleInfoMap);
+							}
+							serverStatusOut.m_createUserShapeResultArgs.m_userShapeUniqueId = collisionShapeUid;
+							delete worldImporter;
+							serverStatusOut.m_type = CMD_CREATE_COLLISION_SHAPE_COMPLETED;
+						}
+						
+						delete heightfieldData;
+						return hasStatus;
+					}
+					else
+					{
+
+						btScalar gridSpacing = 0.5;
+						btScalar gridHeightScale = 1. / 256.;
+
+						bool flipQuadEdges = false;
+						int upAxis = 2;
+						/*btHeightfieldTerrainShape* heightfieldShape = worldImporter->createHeightfieldShape( width, height,
+							heightfieldData,
+								gridHeightScale,
+								minHeight, maxHeight,
+								upAxis, int(scalarType), flipQuadEdges);
+						*/
+						btHeightfieldTerrainShape* heightfieldShape = new btHeightfieldTerrainShape(width, height,
+							heightfieldData,
 							gridHeightScale,
 							minHeight, maxHeight,
-							upAxis, int(scalarType), flipQuadEdges);
-					*/
-					btHeightfieldTerrainShape* heightfieldShape = new btHeightfieldTerrainShape( width, height,
-					heightfieldData,
-					gridHeightScale,
-					minHeight, maxHeight,
-					upAxis, scalarType, flipQuadEdges);
-					m_data->m_collisionShapes.push_back(heightfieldShape);
+							upAxis, scalarType, flipQuadEdges);
+						m_data->m_collisionShapes.push_back(heightfieldShape);
 
-					heightfieldShape->setUserValue3(clientCmd.m_createUserShapeArgs.m_shapes[i].m_heightfieldTextureScaling);
-					shape = heightfieldShape;
-					if (upAxis == 2)
-						heightfieldShape->setFlipTriangleWinding(true);
-					//buildAccelerator is optional, it may not support all features.
-					heightfieldShape->buildAccelerator();
-
-					// scale the shape
-					btVector3 localScaling(clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[0],
-						clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[1],
-						clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[2]);
-					
-					heightfieldShape->setLocalScaling(localScaling);
-
-					btTriangleInfoMap* triangleInfoMap = new btTriangleInfoMap();
-					btGenerateInternalEdgeInfo(heightfieldShape, triangleInfoMap);
-					
-					this->m_data->m_heightfieldDatas.push_back(heightfieldData);
+						heightfieldShape->setUserValue3(clientCmd.m_createUserShapeArgs.m_shapes[i].m_heightfieldTextureScaling);
+						shape = heightfieldShape;
+						if (upAxis == 2)
+							heightfieldShape->setFlipTriangleWinding(true);
 						
+						// scale the shape
+						btVector3 localScaling(clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[0],
+							clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[1],
+							clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[2]);
+
+						heightfieldShape->setLocalScaling(localScaling);
+						//buildAccelerator is optional, it may not support all features.
+						heightfieldShape->buildAccelerator();
+
+						if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags & GEOM_CONCAVE_INTERNAL_EDGE)
+						{
+							btTriangleInfoMap* triangleInfoMap = new btTriangleInfoMap();
+							btGenerateInternalEdgeInfo(heightfieldShape, triangleInfoMap);
+						}
+						this->m_data->m_heightfieldDatas.push_back(heightfieldData);
+					}
 				}
 				break;
 			}

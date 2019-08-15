@@ -1,6 +1,6 @@
 import pybullet as p
 import pybullet_data as pd
-
+import math
 import time
 
 p.connect(p.GUI)
@@ -11,6 +11,7 @@ textureId = -1
 useProgrammatic = 0
 useTerrainFromPNG = 1
 useDeepLocoCSV = 2
+updateHeightfield = False
 
 heightfieldSource = useProgrammatic
 import random
@@ -30,7 +31,7 @@ if heightfieldSource==useProgrammatic:
       heightfieldData[2*i+1+(2*j+1)*numHeightfieldRows]=height
       
       
-  terrainShape = p.createCollisionShape(shapeType = p.GEOM_HEIGHTFIELD, meshScale=[.05,.05,1], heightfieldTextureScaling=(numHeightfieldRows-1)/2, heightfieldData=heightfieldData, numHeightfieldRows=numHeightfieldRows, numHeightfieldColumns=numHeightfieldColumns, )
+  terrainShape = p.createCollisionShape(shapeType = p.GEOM_HEIGHTFIELD, meshScale=[.05,.05,1], heightfieldTextureScaling=(numHeightfieldRows-1)/2, heightfieldData=heightfieldData, numHeightfieldRows=numHeightfieldRows, numHeightfieldColumns=numHeightfieldColumns)
   terrain  = p.createMultiBody(0, terrainShape)
   p.resetBasePositionAndOrientation(terrain,[0,0,0], [0,0,0,1])
 
@@ -114,7 +115,23 @@ for i in range(p.getNumJoints(sphereUid)):
 
 
 while (p.isConnected()):
-  #keys = p.getKeyboardEvents()
+  keys = p.getKeyboardEvents()
+  
+  if updateHeightfield and heightfieldSource==useProgrammatic:
+    for j in range (int(numHeightfieldColumns/2)):
+      for i in range (int(numHeightfieldRows/2) ):
+        height = random.uniform(0,heightPerturbationRange)#+math.sin(time.time())
+        heightfieldData[2*i+2*j*numHeightfieldRows]=height
+        heightfieldData[2*i+1+2*j*numHeightfieldRows]=height
+        heightfieldData[2*i+(2*j+1)*numHeightfieldRows]=height
+        heightfieldData[2*i+1+(2*j+1)*numHeightfieldRows]=height
+    #GEOM_CONCAVE_INTERNAL_EDGE may help avoid getting stuck at an internal (shared) edge of the triangle/heightfield.
+    #GEOM_CONCAVE_INTERNAL_EDGE is a bit slower to build though.
+    #flags = p.GEOM_CONCAVE_INTERNAL_EDGE
+    flags = 0
+    terrainShape2 = p.createCollisionShape(shapeType = p.GEOM_HEIGHTFIELD, flags = flags, meshScale=[.05,.05,1], heightfieldTextureScaling=(numHeightfieldRows-1)/2, heightfieldData=heightfieldData, numHeightfieldRows=numHeightfieldRows, numHeightfieldColumns=numHeightfieldColumns, replaceHeightfieldIndex = terrainShape)
+    
+
   #print(keys)
   #getCameraImage note: software/TinyRenderer doesn't render/support heightfields!
   #p.getCameraImage(320,200, renderer=p.ER_BULLET_HARDWARE_OPENGL)

@@ -33,7 +33,7 @@ struct DeformableContactConstraint
         append(rcontact);
     }
     
-    DeformableContactConstraint(const btVector3 dir)
+    DeformableContactConstraint(const btVector3& dir)
     {
         m_contact.push_back(NULL);
         m_direction.push_back(dir);
