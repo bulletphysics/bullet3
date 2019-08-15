@@ -38,7 +38,6 @@ class btDeformableRigidDynamicsWorld : public btMultiBodyDynamicsWorld
     bool m_drawFaceTree;
     bool m_drawClusterTree;
     btSoftBodyWorldInfo m_sbi;
-    bool m_ownsSolver;
     btScalar m_internalTime;
     
     typedef void (*btSolverCallback)(btScalar time, btDeformableRigidDynamicsWorld* world);
@@ -49,7 +48,7 @@ protected:
     
     virtual void integrateTransforms(btScalar timeStep);
     
-    void positionCorrection(btScalar dt);
+    void positionCorrection(btScalar timeStep);
     
     void solveDeformableBodiesConstraints(btScalar timeStep);
     
