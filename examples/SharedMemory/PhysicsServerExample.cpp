@@ -127,6 +127,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperChangeTexture,
 	eGUIHelperRemoveTexture,
 	eGUIHelperSetVisualizerFlagCheckRenderedFrame,
+	eGUIHelperUpdateShape,
 };
 
 #include <stdio.h>
@@ -865,6 +866,18 @@ public:
 		workerThreadWait();
 	}
 
+	int m_updateShapeIndex;
+	float* m_updateShapeVertices;
+
+	virtual void updateShape(int shapeIndex, float* vertices)
+	{
+		m_updateShapeIndex = shapeIndex;
+		m_updateShapeVertices = vertices;
+		
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIHelperUpdateShape);
+		workerThreadWait();
+	}
 	virtual int registerTexture(const unsigned char* texels, int width, int height)
 	{
 		int* cachedTexture = m_cachedTextureIds[texels];
@@ -1916,6 +1929,15 @@ void PhysicsServerExample::updateGraphics()
 			m_multiThreadedHelper->mainThreadRelease();
 			break;
 		}
+
+		case eGUIHelperUpdateShape:
+		{
+			B3_PROFILE("eGUIHelperUpdateShape");
+			m_multiThreadedHelper->m_childGuiHelper->updateShape(m_multiThreadedHelper->m_updateShapeIndex, m_multiThreadedHelper->m_updateShapeVertices);
+			m_multiThreadedHelper->mainThreadRelease();
+			break;
+		}
+
 		case eGUIHelperRegisterGraphicsShape:
 		{
 			B3_PROFILE("eGUIHelperRegisterGraphicsShape");
@@ -2038,6 +2060,7 @@ void PhysicsServerExample::updateGraphics()
 			}
 			break;
 		}
+
 
 		case eGUIHelperSetVisualizerFlagCheckRenderedFrame:
 		{

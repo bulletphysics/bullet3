@@ -965,6 +965,7 @@ struct b3CreateUserShapeData
 	int m_numHeightfieldColumns;
 	double m_rgbaColor[4];
 	double m_specularColor[3];
+	int m_replaceHeightfieldIndex;
 };
 
 #define MAX_COMPOUND_COLLISION_SHAPES 16
