@@ -4861,7 +4861,8 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 						else
 						{
 							std::vector<tinyobj::shape_t> shapes;
-							std::string err = tinyobj::LoadObj(shapes, out_found_filename.c_str(),"",fileIO);
+							tinyobj::attrib_t attribute;
+							std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), "", fileIO);
 
 							//shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
 							//static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
@@ -4882,20 +4883,20 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 								for (int f = 0; f < faceCount; f += 3)
 								{
 									btVector3 pt;
-									pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
-												shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
-												shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
+									pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 0],
+												attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 1],
+												attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 2]);
 
 									convexHull->addPoint(pt * meshScale, false);
 
-									pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
-												shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
-												shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
+									pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 0],
+												attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 1],
+												attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 2]);
 									convexHull->addPoint(pt * meshScale, false);
 
-									pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
-												shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
-												shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
+									pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 0],
+												attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 1],
+												attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 2]);
 									convexHull->addPoint(pt * meshScale, false);
 								}
 
@@ -7958,8 +7959,8 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_FAILED;
 	bool hasStatus = true;
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-	double scale = 0.1;
-	double mass = 0.1;
+	double scale = 1;
+	double mass = 1;
 	double collisionMargin = 0.02;
 	const LoadSoftBodyArgs& loadSoftBodyArgs = clientCmd.m_loadSoftBodyArguments;
 	if (m_data->m_verboseOutput)
@@ -8012,23 +8013,24 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 		std::string out_found_filename;
 		int out_type;
 
-		bool foundFile = UrdfFindMeshFile(fileIO,pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
+		bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
 		std::vector<tinyobj::shape_t> shapes;
-		std::string err = tinyobj::LoadObj(shapes, out_found_filename.c_str(),"",fileIO);
+		tinyobj::attrib_t attribute;
+		std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), "", fileIO);
 		if (!shapes.empty())
 		{
 			const tinyobj::shape_t& shape = shapes[0];
 			btAlignedObjectArray<btScalar> vertices;
 			btAlignedObjectArray<int> indices;
-			for (int i = 0; i < shape.mesh.positions.size(); i++)
+			for (int i = 0; i < attribute.vertices.size(); i++)
 			{
-				vertices.push_back(shape.mesh.positions[i]);
+				vertices.push_back(attribute.vertices[i]);
 			}
 			for (int i = 0; i < shape.mesh.indices.size(); i++)
 			{
-				indices.push_back(shape.mesh.indices[i]);
+				indices.push_back(shape.mesh.indices[i].vertex_index);
 			}
-			int numTris = indices.size() / 3;
+			int numTris = shape.mesh.indices.size() / 3;
 			if (numTris > 0)
 			{
 				btSoftBody* psb = btSoftBodyHelpers::CreateFromTriMesh(m_data->m_dynamicsWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
@@ -8041,9 +8043,9 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				//turn on softbody vs softbody collision
 				psb->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
 				psb->randomizeConstraints();
+				psb->scale(btVector3(scale, scale, scale));
 				psb->rotate(initialOrn);
 				psb->translate(initialPos);
-				psb->scale(btVector3(scale, scale, scale));
 
 				psb->setTotalMass(mass, true);
 				psb->getCollisionShape()->setMargin(collisionMargin);

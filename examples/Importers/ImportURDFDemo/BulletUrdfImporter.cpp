@@ -509,7 +509,7 @@ bool BulletURDFImporter::getRootTransformInWorld(btTransform& rootTransformInWor
 	return true;
 }
 
-static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale, int flags)
+static btCollisionShape* createConvexHullFromShapes(const tinyobj::attrib_t& attribute, std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale, int flags)
 {
 	B3_PROFILE("createConvexHullFromShapes");
 	btCompoundShape* compound = new btCompoundShape();
@@ -528,20 +528,20 @@ static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t
 		for (int f = 0; f < faceCount; f += 3)
 		{
 			btVector3 pt;
-			pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
-						shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
-						shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
+			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 0],
+						attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 1],
+						attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 2]);
 
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
-						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
-						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
+			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 0],
+						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 1],
+						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
-						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
-						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
+			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 0],
+						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 1],
+						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 		}
 
@@ -557,8 +557,6 @@ static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t
 
 	return compound;
 }
-
-
 
 int BulletURDFImporter::getUrdfFromCollisionShape(const btCollisionShape* collisionShape, UrdfCollision& collision) const
 {
@@ -718,10 +716,10 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 					else
 					{
 						std::vector<tinyobj::shape_t> shapes;
-						std::string err = tinyobj::LoadObj(shapes, collision->m_geometry.m_meshFileName.c_str(),"",m_data->m_fileIO);
+						tinyobj::attrib_t attribute;
+						std::string err = tinyobj::LoadObj(attribute, shapes, collision->m_geometry.m_meshFileName.c_str(), "", m_data->m_fileIO);
 						//create a convex hull for each shape, and store it in a btCompoundShape
-
-						shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale, m_data->m_flags);
+						shape = createConvexHullFromShapes(attribute, shapes, collision->m_geometry.m_meshScale, m_data->m_flags);
 						m_data->m_bulletCollisionShape2UrdfCollision.insert(shape, *collision);
 						return shape;
 					}
