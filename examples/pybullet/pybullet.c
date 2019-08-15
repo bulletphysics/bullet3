@@ -8054,41 +8054,45 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 		}
 		if (shapeType == GEOM_HEIGHTFIELD && fileName==0 && heightfieldDataObj && numHeightfieldColumns>0 && numHeightfieldRows > 0)
 		{
+			PyObject* seqPoints=0;
+			int numHeightfieldPoints;
 			if (meshScaleObj)
 			{
 				pybullet_internalSetVectord(meshScaleObj, meshScale);
 			}
-			PyObject* seqPoints = PySequence_Fast(heightfieldDataObj, "expected a sequence");
-			int numHeightfieldPoints = PySequence_Size(heightfieldDataObj);
+			seqPoints = PySequence_Fast(heightfieldDataObj, "expected a sequence");
+			numHeightfieldPoints = PySequence_Size(heightfieldDataObj);
 			if (numHeightfieldPoints != numHeightfieldColumns*numHeightfieldRows)
 			{
 				PyErr_SetString(SpamError, "Size of heightfieldData doesn't match numHeightfieldColumns*numHeightfieldRows");
 				return NULL;
 			}
-			PyObject* item;
-			int i;
-			float* pointBuffer = (float*)malloc(numHeightfieldPoints*sizeof(float));
-			if (PyList_Check(seqPoints))
 			{
-				for (i = 0; i < numHeightfieldPoints; i++)
+				PyObject* item;
+				int i;
+				float* pointBuffer = (float*)malloc(numHeightfieldPoints*sizeof(float));
+				if (PyList_Check(seqPoints))
 				{
-					item = PyList_GET_ITEM(seqPoints, i);
-					pointBuffer[i] = (float)PyFloat_AsDouble(item);
+					for (i = 0; i < numHeightfieldPoints; i++)
+					{
+						item = PyList_GET_ITEM(seqPoints, i);
+						pointBuffer[i] = (float)PyFloat_AsDouble(item);
+					}
 				}
-			}
-			else
-			{
-				for (i = 0; i < numHeightfieldPoints; i++)
+				else
 				{
-					item = PyTuple_GET_ITEM(seqPoints, i);
-					pointBuffer[i] = (float)PyFloat_AsDouble(item);
+					for (i = 0; i < numHeightfieldPoints; i++)
+					{
+						item = PyTuple_GET_ITEM(seqPoints, i);
+						pointBuffer[i] = (float)PyFloat_AsDouble(item);
+					}
 				}
-			}
-			shapeIndex = b3CreateCollisionShapeAddHeightfield2(sm, commandHandle, meshScale, heightfieldTextureScaling, pointBuffer, numHeightfieldRows, numHeightfieldColumns, replaceHeightfieldIndex);
+				shapeIndex = b3CreateCollisionShapeAddHeightfield2(sm, commandHandle, meshScale, heightfieldTextureScaling, pointBuffer, numHeightfieldRows, numHeightfieldColumns, replaceHeightfieldIndex);
 			
-			free(pointBuffer);
-			if (seqPoints)
-				Py_DECREF(seqPoints);
+				free(pointBuffer);
+				if (seqPoints)
+					Py_DECREF(seqPoints);
+			}
 		}
 		if (shapeType == GEOM_MESH && fileName)
 		{
