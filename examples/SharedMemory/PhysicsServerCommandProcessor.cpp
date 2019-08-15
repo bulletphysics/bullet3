@@ -7862,8 +7862,8 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_FAILED;
 	bool hasStatus = true;
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-	double scale = 0.1;
-	double mass = 0.1;
+	double scale = 1;
+	double mass = 1;
 	double collisionMargin = 0.02;
 	const LoadSoftBodyArgs& loadSoftBodyArgs = clientCmd.m_loadSoftBodyArguments;
 	if (m_data->m_verboseOutput)
@@ -7946,9 +7946,9 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				//turn on softbody vs softbody collision
 				psb->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
 				psb->randomizeConstraints();
+				psb->scale(btVector3(scale, scale, scale));
 				psb->rotate(initialOrn);
 				psb->translate(initialPos);
-				psb->scale(btVector3(scale, scale, scale));
 
 				psb->setTotalMass(mass, true);
 				psb->getCollisionShape()->setMargin(collisionMargin);
