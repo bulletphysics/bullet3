@@ -220,6 +220,10 @@ public:
 	{
 		m_triangleInfoMap = map;
 	}
+	const unsigned char* getHeightfieldRawData() const
+	{
+		return m_heightfieldDataUnsignedChar;
+	}
 };
 
 #endif  //BT_HEIGHTFIELD_TERRAIN_SHAPE_H
