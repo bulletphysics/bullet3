@@ -1,4 +1,4 @@
-
+//#include "D:/develop/visual_leak_detector/include/vld.h"
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include "../SharedMemory/PhysicsDirectC_API.h"
 #include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
@@ -7987,7 +7987,7 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 	PyObject* heightfieldDataObj = 0;
 	int numHeightfieldRows = -1;
 	int numHeightfieldColumns = -1;
-
+	int replaceHeightfieldIndex = -1;
 	static char* kwlist[] = {"shapeType",
 							 "radius",
 							 "halfExtents",
@@ -8004,9 +8004,10 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 							 "heightfieldData",
 							 "numHeightfieldRows",
 							 "numHeightfieldColumns",
+							 "replaceHeightfieldIndex",
 							 "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOOOdOiii", kwlist,
-									 &shapeType, &radius, &halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags, &collisionFramePositionObj, &collisionFrameOrientationObj, &verticesObj, &indicesObj, &heightfieldTextureScaling, &heightfieldDataObj, &numHeightfieldRows, &numHeightfieldColumns, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOOOdOiiii", kwlist,
+									 &shapeType, &radius, &halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags, &collisionFramePositionObj, &collisionFrameOrientationObj, &verticesObj, &indicesObj, &heightfieldTextureScaling, &heightfieldDataObj, &numHeightfieldRows, &numHeightfieldColumns, &replaceHeightfieldIndex, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -8083,7 +8084,8 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 					pointBuffer[i] = (float)PyFloat_AsDouble(item);
 				}
 			}
-			shapeIndex = b3CreateCollisionShapeAddHeightfield2(sm, commandHandle, meshScale, heightfieldTextureScaling, pointBuffer, numHeightfieldRows, numHeightfieldColumns);
+			shapeIndex = b3CreateCollisionShapeAddHeightfield2(sm, commandHandle, meshScale, heightfieldTextureScaling, pointBuffer, numHeightfieldRows, numHeightfieldColumns, replaceHeightfieldIndex);
+			
 			free(pointBuffer);
 			if (seqPoints)
 				Py_DECREF(seqPoints);
@@ -8141,7 +8143,10 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 			{
 				pybullet_internalSetVector4d(collisionFrameOrientationObj, collisionFrameOrientation);
 			}
-			b3CreateCollisionShapeSetChildTransform(commandHandle, shapeIndex, collisionFramePosition, collisionFrameOrientation);
+			if (collisionFramePositionObj || collisionFrameOrientationObj)
+			{
+				b3CreateCollisionShapeSetChildTransform(commandHandle, shapeIndex, collisionFramePosition, collisionFrameOrientation);
+			}
 		}
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 		statusType = b3GetStatusType(statusHandle);

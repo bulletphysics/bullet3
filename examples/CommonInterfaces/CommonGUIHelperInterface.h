@@ -47,7 +47,7 @@ struct GUIHelperInterface
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]) {}
 	virtual void changeSpecularColor(int instanceUid, const double specularColor[3]) {}
 	virtual void changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height) {}
-
+	virtual void updateShape(int shapeIndex, float* vertices) {}
 	virtual int getShapeIndexFromInstance(int instanceUid) { return -1; }
 	virtual void replaceTexture(int shapeIndex, int textureUid) {}
 	virtual void removeTexture(int textureUid) {}

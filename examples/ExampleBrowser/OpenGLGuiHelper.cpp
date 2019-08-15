@@ -1496,3 +1496,8 @@ void OpenGLGuiHelper::computeSoftBodyVertices(btCollisionShape* collisionShape,
 		}
 	}
 }
+
+void OpenGLGuiHelper::updateShape(int shapeIndex, float* vertices)
+{
+	m_data->m_glApp->m_renderer->updateShape(shapeIndex, vertices);
+}
