@@ -26,7 +26,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionCreateFunc.h"
 #include "btSparseSDF.h"
 #include "BulletCollision/BroadphaseCollision/btDbvt.h"
-
+#include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
+#include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 //#ifdef BT_USE_DOUBLE_PRECISION
 //#define btRigidBodyData	btRigidBodyDoubleData
 //#define btRigidBodyDataName	"btRigidBodyDoubleData"
@@ -159,6 +160,7 @@ public:
 			RVSmask = 0x000f,  ///Rigid versus soft mask
 			SDF_RS = 0x0001,   ///SDF based rigid vs soft
 			CL_RS = 0x0002,    ///Cluster vs convex rigid vs soft
+            SDF_RD = 0x0003,   ///DF based rigid vs deformable
 
 			SVSmask = 0x0030,  ///Rigid versus soft mask
 			VF_SS = 0x0010,    ///Vertex vs face soft vs soft handling
@@ -257,6 +259,7 @@ public:
 		btScalar m_area;     // Area
 		btDbvtNode* m_leaf;  // Leaf data
 		int m_battach : 1;   // Attached
+        int index;
 	};
 	/* Link			*/
 	ATTRIBUTE_ALIGNED16(struct)
@@ -300,6 +303,13 @@ public:
 		btScalar m_c2;     // ima*dt
 		btScalar m_c3;     // Friction
 		btScalar m_c4;     // Hardness
+        
+        // jacobians and unit impulse responses for multibody
+        btMultiBodyJacobianData jacobianData_normal;
+        btMultiBodyJacobianData jacobianData_t1;
+        btMultiBodyJacobianData jacobianData_t2;
+        btVector3 t1;
+        btVector3 t2;
 	};
 	/* SContact		*/
 	struct SContact
@@ -704,6 +714,7 @@ public:
 	btDbvt m_fdbvt;                    // Faces tree
 	btDbvt m_cdbvt;                    // Clusters tree
 	tClusterArray m_clusters;          // Clusters
+    btScalar m_dampingCoefficient;     // Damping Coefficient
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
 
@@ -735,6 +746,11 @@ public:
 	{
 		return m_worldInfo;
 	}
+    
+    void setDampingCoefficient(btScalar damping_coeff)
+    {
+        m_dampingCoefficient = damping_coeff;
+    }
 
 	///@todo: avoid internal softbody shape hack and move collision code to collision library
 	virtual void setCollisionShape(btCollisionShape* collisionShape)
@@ -991,7 +1007,8 @@ public:
 				btScalar& mint, eFeature::_& feature, int& index, bool bcountonly) const;
 	void initializeFaceTree();
 	btVector3 evaluateCom() const;
-	bool checkContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti) const;
+	bool checkDeformableContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
+    bool checkContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti) const;
 	void updateNormals();
 	void updateBounds();
 	void updatePose();
@@ -1005,6 +1022,7 @@ public:
 	void solveClusters(btScalar sor);
 	void applyClusters(bool drift);
 	void dampClusters();
+    void setSpringStiffness(btScalar k);
 	void applyForces();
 	static void PSolve_Anchors(btSoftBody* psb, btScalar kst, btScalar ti);
 	static void PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti);
@@ -1015,7 +1033,7 @@ public:
 	static vsolver_t getSolver(eVSolver::_ solver);
 
 	virtual int calculateSerializeBufferSize() const;
-
+  
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual const char* serialize(void* dataBuffer, class btSerializer* serializer) const;
 

@@ -17,6 +17,11 @@ SET(BulletSoftBody_SRCS
 	btSoftSoftCollisionAlgorithm.cpp
 	btDefaultSoftBodySolver.cpp
 
+	btDeformableBackwardEulerObjective.cpp
+	btDeformableBodySolver.cpp
+	btDeformableContactProjection.cpp
+	btDeformableRigidDynamicsWorld.cpp
+
 )
 
 SET(BulletSoftBody_HDRS
@@ -33,6 +38,18 @@ SET(BulletSoftBody_HDRS
 
 	btSoftBodySolvers.h
 	btDefaultSoftBodySolver.h
+	
+	btCGProjection.h
+	btConjugateGradient.h
+	btDeformableGravityForce.h
+	btDeformableMassSpringForce.h
+	btDeformableLagrangianForce.h
+	btPreconditioner.h
+
+	btDeformableBackwardEulerObjective.h
+	btDeformableBodySolver.h
+	btDeformableContactProjection.h
+	btDeformableRigidDynamicsWorld.h
 
 	btSoftBodySolverVertexBuffer.h
 )
