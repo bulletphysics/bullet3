@@ -64,7 +64,7 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     // ///////////////////////////////
 }
 
-void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
+void btDeformableRigidDynamicsWorld::positionCorrection(btScalar timeStep)
 {
     // perform position correction for all constraints 
     BT_PROFILE("positionCorrection");
@@ -140,7 +140,7 @@ void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
                         {
                             c->m_node->m_v = va;
                         }
-                        c->m_node->m_v -= dp * cti.m_normal / dt;
+                        c->m_node->m_v -= dp * cti.m_normal / timeStep;
                     }
                 }
             }
@@ -149,19 +149,19 @@ void btDeformableRigidDynamicsWorld::positionCorrection(btScalar dt)
 }
 
 
-void btDeformableRigidDynamicsWorld::integrateTransforms(btScalar dt)
+void btDeformableRigidDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
     BT_PROFILE("integrateTransforms");
     m_deformableBodySolver->backupVelocity();
-    positionCorrection(dt);
-    btMultiBodyDynamicsWorld::integrateTransforms(dt);
+    positionCorrection(timeStep);
+    btMultiBodyDynamicsWorld::integrateTransforms(timeStep);
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
         btSoftBody* psb = m_softBodies[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             btSoftBody::Node& node = psb->m_nodes[j];
-            node.m_x  =  node.m_q + dt * node.m_v;
+            node.m_x  =  node.m_q + timeStep * node.m_v;
         }
     }
     m_deformableBodySolver->revertVelocity();

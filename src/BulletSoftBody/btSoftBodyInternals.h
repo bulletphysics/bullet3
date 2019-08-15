@@ -998,7 +998,7 @@ struct btSoftColliders
 			if (!n.m_battach)
             {
                 // check for collision at x_{n+1}^*
-                if (psb->checkDeformableContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predicted = */ true))
+                if (psb->checkDeformableContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predict = */ true))
                 {
                     const btScalar ima = n.m_im;
                     const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;
@@ -1006,7 +1006,7 @@ struct btSoftColliders
                     if (ms > 0)
                     {
                         // resolve contact at x_n
-                        psb->checkDeformableContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predicted = */ false);
+                        psb->checkDeformableContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predict = */ false);
                         btSoftBody::sCti& cti = c.m_cti;
                         c.m_node = &n;
                         const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();

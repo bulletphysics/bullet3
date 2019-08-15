@@ -49,8 +49,6 @@ static bool g_floatingBase = true;
 static float friction = 1.;
 class DeformableMultibody : public CommonMultiBodyBase
 {
-    btMultiBody* m_multiBody;
-    btAlignedObjectArray<btMultiBodyJointFeedback*> m_jointFeedbacks;
 public:
 	DeformableMultibody(struct GUIHelperInterface* helper)
 		: CommonMultiBodyBase(helper)
