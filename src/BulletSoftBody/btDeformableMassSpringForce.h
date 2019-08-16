@@ -18,10 +18,10 @@
 
 class btDeformableMassSpringForce : public btDeformableLagrangianForce
 {
+    bool m_momentum_conserving;
 public:
-//    using TVStack = btDeformableLagrangianForce::TVStack;
     typedef btAlignedObjectArray<btVector3> TVStack;
-    btDeformableMassSpringForce()
+    btDeformableMassSpringForce() : m_momentum_conserving(false)
     {
     }
     
@@ -53,7 +53,15 @@ public:
                 // damping force
                 btVector3 v_diff = (node2->m_v - node1->m_v);
                 btScalar k_damp = psb->m_dampingCoefficient;
-                btVector3 scaled_force = scale * v_diff * k_damp;
+                btVector3 scaled_force = scale *  k_damp * v_diff;
+                if (m_momentum_conserving)
+                {
+                    if ((node2->m_q - node1->m_q).norm() > SIMD_EPSILON)
+                    {
+                        btVector3 dir = (node2->m_q - node1->m_q).normalized();
+                        scaled_force = scale *  k_damp * v_diff.dot(dir) * dir;
+                    }
+                }
                 force[id1] += scaled_force;
                 force[id2] -= scaled_force;
             }
@@ -102,7 +110,16 @@ public:
                 btSoftBody::Node* node2 = link.m_n[1];
                 size_t id1 = node1->index;
                 size_t id2 = node2->index;
+
                 btVector3 local_scaled_df = scaled_k_damp * (dv[id2] - dv[id1]);
+                if (m_momentum_conserving)
+                {
+                    if ((node2->m_q - node1->m_q).norm() > SIMD_EPSILON)
+                    {
+                        btVector3 dir = (node2->m_q - node1->m_q).normalized();
+                        local_scaled_df= scaled_k_damp * (dv[id2] - dv[id1]).dot(dir) * dir;
+                    }
+                }
                 df[id1] += local_scaled_df;
                 df[id2] -= local_scaled_df;
             }
