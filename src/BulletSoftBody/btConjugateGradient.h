@@ -1,4 +1,6 @@
 /*
+ Written by Xuchen Han <xuchenhan2015@u.northwestern.edu>
+ 
  Bullet Continuous Collision Detection and Physics Library
  Copyright (c) 2019 Google Inc. http://bulletphysics.org
  This software is provided 'as-is', without any express or implied warranty.
@@ -31,67 +33,6 @@ public:
     }
     
     virtual ~btConjugateGradient(){}
-    
-//    // return the number of iterations taken
-//    int solve(MatrixX& A, TVStack& x, const TVStack& b, btScalar tolerance)
-//    {
-//        BT_PROFILE("CGSolve");
-//        btAssert(x.size() == b.size());
-//        reinitialize(b);
-//        
-//        // r = b - A * x --with assigned dof zeroed out
-//        A.multiply(x, temp);
-//        r = sub(b, temp);
-//        A.project(r);
-//
-//        btScalar r_norm = std::sqrt(squaredNorm(r));
-//        if (r_norm < tolerance) {
-//            std::cout << "Iteration = 0" << std::endl;
-//            std::cout << "Two norm of the residual = " << r_norm << std::endl;
-//            return 0;
-//        }
-//        
-//        // z = M^(-1) * r
-//        A.precondition(r, z);
-//        p = z;
-//        // temp = A*p
-//        A.multiply(p, temp);
-//        A.project(temp);
-//        btScalar r_dot_z = dot(z,r), r_dot_z_new;
-//        // alpha = r^T * z / (p^T * A * p)
-//        btScalar alpha = r_dot_z / dot(p, temp), beta;
-//        
-//        for (int k = 1; k < max_iterations; k++) {
-//            //  x += alpha * p;
-//            //  r -= alpha * temp;
-//            multAndAddTo(alpha, p, x);
-//            multAndAddTo(-alpha, temp, r);
-//            // zero out the dofs of r
-//            A.project(r);
-////            A.enforceConstraint(x);
-//            r_norm = std::sqrt(squaredNorm(r));
-//            
-//            if (r_norm < tolerance) {
-//                std::cout << "ConjugateGradient iterations " << k << std::endl;
-//                return k;
-//            }
-//            
-//            // z = M^(-1) * r
-//            A.precondition(r, z);
-//            r_dot_z_new = dot(r,z);
-//            beta = r_dot_z_new/ r_dot_z;
-//            r_dot_z = r_dot_z_new;
-//            // p = z + beta * p;
-//            p = multAndAdd(beta, p, z);
-//            // temp = A * p;
-//            A.multiply(p, temp);
-//            A.project(temp);
-//            // alpha = r^T * z / (p^T * A * p)
-//            alpha = r_dot_z / dot(p, temp);
-//        }
-//        std::cout << "ConjugateGradient max iterations reached " << max_iterations << std::endl;
-//        return max_iterations;
-//    }
     
     // return the number of iterations taken
     int solve(MatrixX& A, TVStack& x, const TVStack& b, btScalar tolerance)

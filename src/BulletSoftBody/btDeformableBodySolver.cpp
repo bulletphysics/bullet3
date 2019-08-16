@@ -1,4 +1,6 @@
 /*
+ Written by Xuchen Han <xuchenhan2015@u.northwestern.edu>
+ 
  Bullet Continuous Collision Detection and Physics Library
  Copyright (c) 2019 Google Inc. http://bulletphysics.org
  This software is provided 'as-is', without any express or implied warranty.
