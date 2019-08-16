@@ -103,7 +103,7 @@ struct btSparseSdf
 				pc = pn;
 			}
 		}
-		voxelsz = 0.25;
+		voxelsz = 0.025;
 		puid = 0;
 		ncells = 0;
 		nprobes = 1;
