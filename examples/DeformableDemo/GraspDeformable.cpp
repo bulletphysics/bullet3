@@ -73,7 +73,7 @@ public:
 
 	void resetCamera()
 	{
-        float dist = 20;
+        float dist = 2;
         float pitch = -45;
         float yaw = 100;
         float targetPos[3] = {0, -0, 0};
@@ -126,8 +126,8 @@ public:
         }
         
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 240.f;
-        m_dynamicsWorld->stepSimulation(deltaTime, 5, internalTimeStep);
+        float internalTimeStep = 1. / 250.f;
+        m_dynamicsWorld->stepSimulation(deltaTime, 100, internalTimeStep);
     }
     
     void createGrip()
@@ -245,9 +245,9 @@ void GraspDeformable::initPhysics()
         bool canSleep = false;
         bool selfCollide = true;
         int numLinks = 2;
-        btVector3 linkHalfExtents(1., 2, .4);
-        btVector3 baseHalfExtents(1, 0.2, 2);
-        btMultiBody* mbC = createFeatherstoneMultiBody(getDeformableDynamicsWorld(), btVector3(0.f, 7.f,0.f), linkHalfExtents, baseHalfExtents, false);
+        btVector3 linkHalfExtents(.1, .2, .04);
+        btVector3 baseHalfExtents(.1, 0.02, .2);
+        btMultiBody* mbC = createFeatherstoneMultiBody(getDeformableDynamicsWorld(), btVector3(0.f, .7f,0.f), linkHalfExtents, baseHalfExtents, false);
         
         mbC->setCanSleep(canSleep);
         mbC->setHasSelfCollision(selfCollide);
@@ -297,7 +297,7 @@ void GraspDeformable::initPhysics()
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setOrigin(btVector3(0, -25-2.1, 0));
+        groundTransform.setOrigin(btVector3(0, -25-.6, 0));
         groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0));
         //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
         btScalar mass(0.);
@@ -313,7 +313,7 @@ void GraspDeformable::initPhysics()
         btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
         btRigidBody* body = new btRigidBody(rbInfo);
-        body->setFriction(0);
+        body->setFriction(0.1);
 
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
@@ -339,22 +339,22 @@ void GraspDeformable::initPhysics()
         btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), path);
 
 //        psb->scale(btVector3(30, 30, 30)); // for banana
-        psb->scale(btVector3(2, 2, 2));
-//        psb->scale(btVector3(3, 3, 3));  // for tube, torus, boot
+//        psb->scale(btVector3(.2, .2, .2));
+        psb->scale(btVector3(.3, .3, .3));  // for tube, torus, boot
 //        psb->scale(btVector3(1, 1, 1));  // for ditto
 //        psb->translate(btVector3(0, 0, 2)); for boot
-        psb->getCollisionShape()->setMargin(0.1);
-        psb->setTotalMass(1);
+        psb->getCollisionShape()->setMargin(0.02);
+        psb->setTotalMass(.1);
         psb->setSpringStiffness(0);
-        psb->setDampingCoefficient(.1);
+        psb->setDampingCoefficient(.01);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 2;
+        psb->m_cfg.kDF = 50;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce());
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(5,5));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(6,6));
     }
     
 //    // create a piece of cloth
@@ -395,15 +395,15 @@ void GraspDeformable::initPhysics()
     
     {
         SliderParams slider("Moving velocity", &sGripperVerticalVelocity);
-        slider.m_minVal = -2;
-        slider.m_maxVal = 2;
+        slider.m_minVal = -.2;
+        slider.m_maxVal = .2;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
     
     {
         SliderParams slider("Closing velocity", &sGripperClosingTargetVelocity);
-        slider.m_minVal = -1;
-        slider.m_maxVal = 1;
+        slider.m_minVal = -.1;
+        slider.m_maxVal = .1;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
     
