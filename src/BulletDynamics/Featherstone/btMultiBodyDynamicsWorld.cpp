@@ -588,15 +588,10 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                 {
                     if (!bod->isUsingRK4Integration())
                     {
-                        const btScalar linearDamp = bod->getLinearDamping();
-//                        const btScalar angularDamp = bod->getAngularDamping();
-                        bod->setLinearDamping(0);
                         bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(solverInfo.m_timeStep,
                                                                                   m_scratch_r, m_scratch_v, m_scratch_m,isConstraintPass,
                                                                                   getSolverInfo().m_jointFeedbackInWorldSpace,
                                                                                   getSolverInfo().m_jointFeedbackInJointFrame);
-                        bod->setLinearDamping(linearDamp);
-//                        bod->setAngularDamping(angularDamp);
                     }
                     else
                     {
