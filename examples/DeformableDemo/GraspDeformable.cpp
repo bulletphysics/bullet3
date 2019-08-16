@@ -339,20 +339,24 @@ void GraspDeformable::initPhysics()
         btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), path);
 
 //        psb->scale(btVector3(30, 30, 30)); // for banana
-//        psb->scale(btVector3(.2, .2, .2));
-        psb->scale(btVector3(.3, .3, .3));  // for tube, torus, boot
+        psb->scale(btVector3(.25, .25, .25));
+//        psb->scale(btVector3(.3, .3, .3));  // for tube, torus, boot
 //        psb->scale(btVector3(1, 1, 1));  // for ditto
 //        psb->translate(btVector3(0, 0, 2)); for boot
         psb->getCollisionShape()->setMargin(0.02);
         psb->setTotalMass(.1);
-        psb->setSpringStiffness(0);
-        psb->setDampingCoefficient(.01);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 50;
+        psb->m_cfg.kDF = 10;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce());
+        // nonlinear damping 
+//        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(1,0.04, true));
+//        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
+//        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(0,6));
+        
+        // linear damping
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(0,0.01, false));
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(6,6));
     }

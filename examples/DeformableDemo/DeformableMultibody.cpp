@@ -219,14 +219,12 @@ void DeformableMultibody::initPhysics()
         psb->getCollisionShape()->setMargin(0.25);
         psb->generateBendingConstraints(2);
         psb->setTotalMass(5);
-        psb->setSpringStiffness(2);
-        psb->setDampingCoefficient(0.01);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = .1;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce());
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(2, 0.01));
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
     }
 
