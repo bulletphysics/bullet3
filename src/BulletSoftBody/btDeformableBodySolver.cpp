@@ -18,7 +18,7 @@
 
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
-, m_cg(10)
+, m_cg(50)
 , m_contact_iterations(5)
 {
     m_objective = new btDeformableBackwardEulerObjective(m_softBodySet, m_backupVelocity);
@@ -47,7 +47,7 @@ void btDeformableBodySolver::solveConstraints(float solverdt)
 void btDeformableBodySolver::computeStep(TVStack& dv, const TVStack& residual)
 {
     
-    btScalar tolerance = std::numeric_limits<float>::epsilon() * 1024 * m_objective->computeNorm(residual);
+    btScalar tolerance = std::numeric_limits<float>::epsilon() * 16 * m_objective->computeNorm(residual);
     m_cg.solve(*m_objective, dv, residual, tolerance);
 }
 
