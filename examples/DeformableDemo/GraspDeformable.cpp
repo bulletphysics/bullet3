@@ -14,7 +14,7 @@
 #include "GraspDeformable.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
-#include "BulletSoftBody/btDeformableRigidDynamicsWorld.h"
+#include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
 #include "BulletSoftBody/btSoftBody.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "BulletSoftBody/btDeformableBodySolver.h"
@@ -148,20 +148,20 @@ public:
         }
     }
     
-    virtual const btDeformableRigidDynamicsWorld* getDeformableDynamicsWorld() const
+    virtual const btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld() const
     {
-        return (btDeformableRigidDynamicsWorld*)m_dynamicsWorld;
+        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
     }
     
-    virtual btDeformableRigidDynamicsWorld* getDeformableDynamicsWorld()
+    virtual btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld()
     {
-        return (btDeformableRigidDynamicsWorld*)m_dynamicsWorld;
+        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
     }
     
     virtual void renderScene()
     {
         CommonRigidBodyBase::renderScene();
-        btDeformableRigidDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
+        btDeformableMultiBodyDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
@@ -189,7 +189,7 @@ void GraspDeformable::initPhysics()
 	btMultiBodyConstraintSolver* sol = new btMultiBodyConstraintSolver();
 	m_solver = sol;
 
-	m_dynamicsWorld = new btDeformableRigidDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
+	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
     deformableBodySolver->setWorld(getDeformableDynamicsWorld());
     btVector3 gravity = btVector3(0, -10, 0);
 	m_dynamicsWorld->setGravity(gravity);

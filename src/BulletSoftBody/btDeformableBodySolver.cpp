@@ -87,7 +87,7 @@ void btDeformableBodySolver::setConstraints()
     }
 }
 
-void btDeformableBodySolver::setWorld(btDeformableRigidDynamicsWorld* world)
+void btDeformableBodySolver::setWorld(btDeformableMultiBodyDynamicsWorld* world)
 {
     m_objective->setWorld(world);
 }

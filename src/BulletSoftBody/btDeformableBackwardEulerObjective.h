@@ -22,16 +22,16 @@
 #include "btDeformableCorotatedForce.h"
 #include "btDeformableContactProjection.h"
 #include "btPreconditioner.h"
-#include "btDeformableRigidDynamicsWorld.h"
+#include "btDeformableMultiBodyDynamicsWorld.h"
 #include "LinearMath/btQuickprof.h"
 
-class btDeformableRigidDynamicsWorld;
+class btDeformableMultiBodyDynamicsWorld;
 class btDeformableBackwardEulerObjective
 {
 public:
     typedef btAlignedObjectArray<btVector3> TVStack;
     btScalar m_dt;
-    btDeformableRigidDynamicsWorld* m_world;
+    btDeformableMultiBodyDynamicsWorld* m_world;
     btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
     Preconditioner* m_preconditioner;
@@ -98,7 +98,7 @@ public:
         m_preconditioner->operator()(x,b);
     }
     
-    virtual void setWorld(btDeformableRigidDynamicsWorld* world)
+    virtual void setWorld(btDeformableMultiBodyDynamicsWorld* world)
     {
         m_world = world;
         projection.setWorld(world);

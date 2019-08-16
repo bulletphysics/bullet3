@@ -30,11 +30,11 @@ The algorithm also closely resembles the one in http://physbam.stanford.edu/~fed
  */
 
 #include <stdio.h>
-#include "btDeformableRigidDynamicsWorld.h"
+#include "btDeformableMultiBodyDynamicsWorld.h"
 #include "btDeformableBodySolver.h"
 #include "LinearMath/btQuickprof.h"
 
-void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
+void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
     BT_PROFILE("internalSingleStepSimulation");
     reinitialize(timeStep);
@@ -66,7 +66,7 @@ void btDeformableRigidDynamicsWorld::internalSingleStepSimulation(btScalar timeS
     // ///////////////////////////////
 }
 
-void btDeformableRigidDynamicsWorld::positionCorrection(btScalar timeStep)
+void btDeformableMultiBodyDynamicsWorld::positionCorrection(btScalar timeStep)
 {
     // perform position correction for all constraints 
     BT_PROFILE("positionCorrection");
@@ -141,7 +141,7 @@ void btDeformableRigidDynamicsWorld::positionCorrection(btScalar timeStep)
 }
 
 
-void btDeformableRigidDynamicsWorld::integrateTransforms(btScalar timeStep)
+void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
     BT_PROFILE("integrateTransforms");
     m_deformableBodySolver->backupVelocity();
@@ -159,12 +159,12 @@ void btDeformableRigidDynamicsWorld::integrateTransforms(btScalar timeStep)
     m_deformableBodySolver->revertVelocity();
 }
 
-void btDeformableRigidDynamicsWorld::solveDeformableBodiesConstraints(btScalar timeStep)
+void btDeformableMultiBodyDynamicsWorld::solveDeformableBodiesConstraints(btScalar timeStep)
 {
     m_deformableBodySolver->solveConstraints(timeStep);
 }
 
-void btDeformableRigidDynamicsWorld::addSoftBody(btSoftBody* body, int collisionFilterGroup, int collisionFilterMask)
+void btDeformableMultiBodyDynamicsWorld::addSoftBody(btSoftBody* body, int collisionFilterGroup, int collisionFilterMask)
 {
     m_softBodies.push_back(body);
     
@@ -177,14 +177,14 @@ void btDeformableRigidDynamicsWorld::addSoftBody(btSoftBody* body, int collision
                                          collisionFilterMask);
 }
 
-void btDeformableRigidDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
+void btDeformableMultiBodyDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 {
     BT_PROFILE("predictUnconstraintMotion");
     btMultiBodyDynamicsWorld::predictUnconstraintMotion(timeStep);
     m_deformableBodySolver->predictMotion(timeStep);
 }
 
-void btDeformableRigidDynamicsWorld::reinitialize(btScalar timeStep)
+void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
 {
     m_internalTime += timeStep;
     m_deformableBodySolver->reinitialize(m_softBodies, timeStep);
@@ -195,7 +195,7 @@ void btDeformableRigidDynamicsWorld::reinitialize(btScalar timeStep)
     btMultiBodyDynamicsWorld::getSolverInfo().m_timeStep = timeStep;
 }
 
-void btDeformableRigidDynamicsWorld::applyRigidBodyGravity(btScalar timeStep)
+void btDeformableMultiBodyDynamicsWorld::applyRigidBodyGravity(btScalar timeStep)
 {
     // Gravity is applied in stepSimulation and then cleared here and then applied here and then cleared here again
     // so that 1) gravity is applied to velocity before constraint solve and 2) gravity is applied in each substep
@@ -215,7 +215,7 @@ void btDeformableRigidDynamicsWorld::applyRigidBodyGravity(btScalar timeStep)
     clearMultiBodyForces();
 }
 
-void btDeformableRigidDynamicsWorld::beforeSolverCallbacks(btScalar timeStep)
+void btDeformableMultiBodyDynamicsWorld::beforeSolverCallbacks(btScalar timeStep)
 {
     if (0 != m_internalTickCallback)
     {
@@ -228,7 +228,7 @@ void btDeformableRigidDynamicsWorld::beforeSolverCallbacks(btScalar timeStep)
     }
 }
 
-void btDeformableRigidDynamicsWorld::afterSolverCallbacks(btScalar timeStep)
+void btDeformableMultiBodyDynamicsWorld::afterSolverCallbacks(btScalar timeStep)
 {
     if (0 != m_solverCallback)
     {
@@ -236,7 +236,7 @@ void btDeformableRigidDynamicsWorld::afterSolverCallbacks(btScalar timeStep)
     }
 }
 
-void btDeformableRigidDynamicsWorld::addForce(btSoftBody* psb, btDeformableLagrangianForce* force)
+void btDeformableMultiBodyDynamicsWorld::addForce(btSoftBody* psb, btDeformableLagrangianForce* force)
 {
     btAlignedObjectArray<btDeformableLagrangianForce*>& forces = m_deformableBodySolver->m_objective->m_lf;
     bool added = false;

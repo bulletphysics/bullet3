@@ -28,7 +28,7 @@
 #include "Pinch.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
-#include "BulletSoftBody/btDeformableRigidDynamicsWorld.h"
+#include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
 #include "BulletSoftBody/btSoftBody.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "BulletSoftBody/btDeformableBodySolver.h"
@@ -102,20 +102,20 @@ public:
         }
     }
     
-    virtual const btDeformableRigidDynamicsWorld* getDeformableDynamicsWorld() const
+    virtual const btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld() const
     {
-        return (btDeformableRigidDynamicsWorld*)m_dynamicsWorld;
+        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
     }
     
-    virtual btDeformableRigidDynamicsWorld* getDeformableDynamicsWorld()
+    virtual btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld()
     {
-        return (btDeformableRigidDynamicsWorld*)m_dynamicsWorld;
+        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
     }
     
     virtual void renderScene()
     {
         CommonRigidBodyBase::renderScene();
-        btDeformableRigidDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
+        btDeformableMultiBodyDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
@@ -128,7 +128,7 @@ public:
     }
 };
 
-void dynamics(btScalar time, btDeformableRigidDynamicsWorld* world)
+void dynamics(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
 {
     btAlignedObjectArray<btRigidBody*>& rbs = world->getNonStaticRigidBodies();
     if (rbs.size()<2)
@@ -247,7 +247,7 @@ void Pinch::initPhysics()
 	btMultiBodyConstraintSolver* sol = new btMultiBodyConstraintSolver();
 	m_solver = sol;
 
-	m_dynamicsWorld = new btDeformableRigidDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
+	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
     deformableBodySolver->setWorld(getDeformableDynamicsWorld());
 	//	m_dynamicsWorld->getSolverInfo().m_singleAxisDeformableThreshold = 0.f;//faster but lower quality
     btVector3 gravity = btVector3(0, -10, 0);

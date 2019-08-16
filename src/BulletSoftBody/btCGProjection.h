@@ -20,7 +20,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 
-class btDeformableRigidDynamicsWorld;
+class btDeformableMultiBodyDynamicsWorld;
 
 struct DeformableContactConstraint
 {
@@ -62,7 +62,7 @@ public:
     typedef btAlignedObjectArray<btAlignedObjectArray<btVector3> > TVArrayStack;
     typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > TArrayStack;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
-    btDeformableRigidDynamicsWorld* m_world;
+    btDeformableMultiBodyDynamicsWorld* m_world;
     const btScalar& m_dt;
     
     btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
@@ -87,7 +87,7 @@ public:
     {
     }
     
-    virtual void setWorld(btDeformableRigidDynamicsWorld* world)
+    virtual void setWorld(btDeformableMultiBodyDynamicsWorld* world)
     {
         m_world = world;
     }

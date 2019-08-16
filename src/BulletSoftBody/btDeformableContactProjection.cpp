@@ -14,7 +14,7 @@
  */
 
 #include "btDeformableContactProjection.h"
-#include "btDeformableRigidDynamicsWorld.h"
+#include "btDeformableMultiBodyDynamicsWorld.h"
 #include <algorithm>
 #include <cmath>
 void btDeformableContactProjection::update()

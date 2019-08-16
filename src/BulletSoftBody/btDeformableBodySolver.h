@@ -19,13 +19,13 @@
 
 #include "btSoftBodySolvers.h"
 #include "btDeformableBackwardEulerObjective.h"
-#include "btDeformableRigidDynamicsWorld.h"
+#include "btDeformableMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 
 struct btCollisionObjectWrapper;
 class btDeformableBackwardEulerObjective;
-class btDeformableRigidDynamicsWorld;
+class btDeformableMultiBodyDynamicsWorld;
 
 class btDeformableBodySolver : public btSoftBodySolver
 {
@@ -91,7 +91,7 @@ public:
     }
     virtual void optimize(btAlignedObjectArray<btSoftBody *> &softBodies, bool forceUpdate = false){}
     virtual bool checkInitialized(){return true;}
-    virtual void setWorld(btDeformableRigidDynamicsWorld* world);
+    virtual void setWorld(btDeformableMultiBodyDynamicsWorld* world);
 };
 
 #endif /* btDeformableBodySolver_h */

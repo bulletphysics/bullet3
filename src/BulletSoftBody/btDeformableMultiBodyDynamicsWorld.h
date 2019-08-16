@@ -28,7 +28,7 @@ class btDeformableBodySolver;
 class btDeformableLagrangianForce;
 typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 
-class btDeformableRigidDynamicsWorld : public btMultiBodyDynamicsWorld
+class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
 {
     typedef btAlignedObjectArray<btVector3> TVStack;
 //    using TVStack = btAlignedObjectArray<btVector3>;
@@ -42,7 +42,7 @@ class btDeformableRigidDynamicsWorld : public btMultiBodyDynamicsWorld
     btSoftBodyWorldInfo m_sbi;
     btScalar m_internalTime;
     
-    typedef void (*btSolverCallback)(btScalar time, btDeformableRigidDynamicsWorld* world);
+    typedef void (*btSolverCallback)(btScalar time, btDeformableMultiBodyDynamicsWorld* world);
     btSolverCallback m_solverCallback;
     
 protected:
@@ -55,7 +55,7 @@ protected:
     void solveDeformableBodiesConstraints(btScalar timeStep);
     
 public:
-    btDeformableRigidDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btDeformableBodySolver* deformableBodySolver = 0)
+    btDeformableMultiBodyDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btDeformableBodySolver* deformableBodySolver = 0)
     : btMultiBodyDynamicsWorld(dispatcher, pairCache, constraintSolver, collisionConfiguration),
     m_deformableBodySolver(deformableBodySolver), m_solverCallback(0)
     {
@@ -83,7 +83,7 @@ public:
         m_solverCallback = cb;
     }
     
-    virtual ~btDeformableRigidDynamicsWorld()
+    virtual ~btDeformableMultiBodyDynamicsWorld()
     {
     }
     
