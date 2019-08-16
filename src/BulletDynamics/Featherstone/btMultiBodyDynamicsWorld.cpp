@@ -593,14 +593,10 @@ void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverIn
                 {
                     if (!bod->isUsingRK4Integration())
                     {
-                        // avoid damping in external forces (e.g. gravity)
-                        const btScalar linearDamp = bod->getLinearDamping();
-                        bod->setLinearDamping(0);
                         bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(solverInfo.m_timeStep,
                                                                                   m_scratch_r, m_scratch_v, m_scratch_m,isConstraintPass,
                                                                                   getSolverInfo().m_jointFeedbackInWorldSpace,
                                                                                   getSolverInfo().m_jointFeedbackInJointFrame);
-                        bod->setLinearDamping(linearDamp);
                     }
                     else
                     {
