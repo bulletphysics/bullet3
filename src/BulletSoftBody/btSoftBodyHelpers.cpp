@@ -746,9 +746,9 @@ btSoftBody* btSoftBodyHelpers::CreatePatch(btSoftBodyWorldInfo& worldInfo, const
 		{
 			const btScalar tx = ix / (btScalar)(rx - 1);
             btScalar pert = perturbation * btScalar(rand())/RAND_MAX;
-            btVector4 temp1 = py1;
+            btVector3 temp1 = py1;
             temp1.setY(py1.getY() + pert);
-            btVector4 temp = py0;
+            btVector3 temp = py0;
             pert = perturbation * btScalar(rand())/RAND_MAX;
             temp.setY(py0.getY() + pert);
 			x[IDX(ix, iy)] = lerp(temp, temp1, tx);
@@ -1239,7 +1239,7 @@ if(face&&face[0])
 	return (psb);
 }
 
-btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, const std::string& vtk_file)
+btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file)
 {
     std::ifstream fs;
     fs.open(vtk_file);

@@ -330,13 +330,12 @@ void GraspDeformable::initPhysics()
 //         b3FileUtils::findFile("bread.vtk", relative_path, 1024);
 //        b3FileUtils::findFile("ditto.vtk", relative_path, 1024);
 //        b3FileUtils::findFile("boot.vtk", relative_path, 1024);
-        std::string path(relative_path);
 //        btSoftBody* psb = btSoftBodyHelpers::CreateFromTetGenData(getDeformableDynamicsWorld()->getWorldInfo(),
 //                                                                  TetraCube::getElements(),
 //                                                                  0,
 //                                                                  TetraCube::getNodes(),
 //                                                                  false, true, true);
-        btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), path);
+        btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), relative_path);
 
 //        psb->scale(btVector3(30, 30, 30)); // for banana
         psb->scale(btVector3(.25, .25, .25));
