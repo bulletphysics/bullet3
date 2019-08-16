@@ -131,15 +131,6 @@ void btDeformableRigidDynamicsWorld::positionCorrection(btScalar timeStep)
                 // only perform position correction when penetrating
                 if (dp < 0)
                 {
-                    if (constraint.m_static[j] == true)
-                    {
-                        if (friction.m_static[j] == true)
-                        {
-                            c->m_node->m_v = va;
-                        }
-                        c->m_node->m_v -= dp * cti.m_normal / timeStep;
-                        c->m_node->m_v = va;
-                    }
                     c->m_node->m_v -= dp * cti.m_normal / timeStep;
                 }
             }
