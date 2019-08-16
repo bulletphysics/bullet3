@@ -17,39 +17,6 @@
 #include "btDeformableRigidDynamicsWorld.h"
 #include <algorithm>
 #include <cmath>
-static void findJacobian(const btMultiBodyLinkCollider* multibodyLinkCol,
-                         btMultiBodyJacobianData& jacobianData,
-                         const btVector3& contact_point,
-                         const btVector3& dir)
-{
-    const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
-    jacobianData.m_jacobians.resize(ndof);
-    jacobianData.m_deltaVelocitiesUnitImpulse.resize(ndof);
-    btScalar* jac = &jacobianData.m_jacobians[0];
-    
-    multibodyLinkCol->m_multiBody->fillContactJacobianMultiDof(multibodyLinkCol->m_link, contact_point, dir, jac, jacobianData.scratch_r, jacobianData.scratch_v, jacobianData.scratch_m);
-    multibodyLinkCol->m_multiBody->calcAccelerationDeltasMultiDof(&jacobianData.m_jacobians[0], &jacobianData.m_deltaVelocitiesUnitImpulse[0], jacobianData.scratch_r, jacobianData.scratch_v);
-}
-
-static btVector3 generateUnitOrthogonalVector(const btVector3& u)
-{
-    btScalar ux = u.getX();
-    btScalar uy = u.getY();
-    btScalar uz = u.getZ();
-    btScalar ax = std::abs(ux);
-    btScalar ay = std::abs(uy);
-    btScalar az = std::abs(uz);
-    btVector3 v;
-    if (ax <= ay && ax <= az)
-        v = btVector3(0, -uz, uy);
-    else if (ay <= ax && ay <= az)
-        v = btVector3(-uz, 0, ux);
-    else
-        v = btVector3(-uy, ux, 0);
-    v.normalize();
-    return v;
-}
-
 void btDeformableContactProjection::update()
 {
     ///solve rigid body constraints
