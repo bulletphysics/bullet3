@@ -21,7 +21,6 @@
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(50)
-, m_contact_iterations(5)
 {
     m_objective = new btDeformableBackwardEulerObjective(m_softBodySet, m_backupVelocity);
 }
@@ -79,12 +78,16 @@ void btDeformableBodySolver::setConstraints()
 {
     BT_PROFILE("setConstraint");
     m_objective->setConstraints();
+    // m_contact_iterations takes over m_numIterations
+    m_contact_iterations = m_objective->m_world->getSolverInfo().m_numIterations;
     for (int i = 0; i < m_contact_iterations; ++i)
     {
         m_objective->projection.update();
         m_objective->enforceConstraint(m_dv);
         m_objective->updateVelocity(m_dv);
     }
+    // recover m_numIterations from m_contact_iterations
+    m_objective->m_world->getSolverInfo().m_numIterations = m_contact_iterations;
 }
 
 void btDeformableBodySolver::setWorld(btDeformableMultiBodyDynamicsWorld* world)
