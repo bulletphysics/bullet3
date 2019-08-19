@@ -2,7 +2,7 @@
  Written by Xuchen Han <xuchenhan2015@u.northwestern.edu>
  
  Bullet Continuous Collision Detection and Physics Library
- Copyright (c) 2016 Google Inc. http://bulletphysics.org
+ Copyright (c) 2019 Google Inc. http://bulletphysics.org
  This software is provided 'as-is', without any express or implied warranty.
  In no event will the authors be held liable for any damages arising from the use of this software.
  Permission is granted to anyone to use this software for any purpose,
@@ -63,10 +63,8 @@ public:
             for (int j = 0; j < psb->m_tetras.size(); ++j)
             {
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
-                updateDs(tetra);
-                btMatrix3x3 F = tetra.m_ds * tetra.m_Dm_inverse;
                 btMatrix3x3 P;
-                firstPiola(F,P);
+                firstPiola(tetra.m_F,P);
                 btVector3 force_on_node0 = P * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 force_on_node123 = P * tetra.m_Dm_inverse.transpose();
                 
@@ -105,16 +103,6 @@ public:
             /*https://fuchuyuan.github.io/research/svd/paper.pdf*/
             P += (F-R) * 2 * m_mu;
         }
-    }
-    void updateDs(btSoftBody::Tetra& t)
-    {
-        btVector3 c1 = t.m_n[1]->m_q - t.m_n[0]->m_q;
-        btVector3 c2 = t.m_n[2]->m_q - t.m_n[0]->m_q;
-        btVector3 c3 = t.m_n[3]->m_q - t.m_n[0]->m_q;
-        btMatrix3x3 Ds(c1.getX(), c2.getX(), c3.getX(),
-                       c1.getY(), c2.getY(), c3.getY(),
-                       c1.getZ(), c2.getZ(), c3.getZ());
-        t.m_ds = Ds;
     }
     
     virtual void addScaledForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)

@@ -119,6 +119,11 @@ btScalar btDeformableBackwardEulerObjective::computeNorm(const TVStack& residual
 
 void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
 {
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        m_softBodies[i]->updateDeformation();
+    }
+    
     for (int i = 0; i < m_lf.size(); ++i)
     {
         m_lf[i]->addScaledExplicitForce(m_dt, force);
