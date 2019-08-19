@@ -43,6 +43,8 @@ SET(BulletSoftBody_HDRS
 	btConjugateGradient.h
 	btDeformableGravityForce.h
 	btDeformableMassSpringForce.h
+	btDeformableCorotatedForce.h
+	btDeformableNeoHookeanForce.h
 	btDeformableLagrangianForce.h
 	btPreconditioner.h
 
