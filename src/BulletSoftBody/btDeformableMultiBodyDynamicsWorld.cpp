@@ -153,6 +153,19 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             btSoftBody::Node& node = psb->m_nodes[j];
+            btScalar maxDisplacement = psb->getWorldInfo()->m_maxDisplacement;
+            btScalar clampDeltaV = maxDisplacement / timeStep;
+            for (int c = 0; c < 3; c++)
+            {
+                if (node.m_v[c] > clampDeltaV)
+                {
+                    node.m_v[c] = clampDeltaV;
+                }
+                if (node.m_v[c] < -clampDeltaV)
+                {
+                    node.m_v[c] = -clampDeltaV;
+                }
+            }
             node.m_x  =  node.m_q + timeStep * node.m_v;
         }
     }
