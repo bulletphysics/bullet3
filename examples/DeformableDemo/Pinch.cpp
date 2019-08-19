@@ -336,8 +336,9 @@ void Pinch::initPhysics()
         psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(2, 0.02));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(1, 0.05));
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableNeoHookeanForce(.2,1));
         // add a grippers
         createGrip();
     }

@@ -236,9 +236,9 @@ void VolumetricDeformable::initPhysics()
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 0.5;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(0,0.01));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(0,0.03));
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(.5,.5));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableNeoHookeanForce(.5,2.5));
     }
     // add a few rigid bodies
     Ctor_RbUpStack(4); 

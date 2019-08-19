@@ -191,7 +191,7 @@ void GraspDeformable::initPhysics()
 
 	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
     deformableBodySolver->setWorld(getDeformableDynamicsWorld());
-    btVector3 gravity = btVector3(0, -10, 0);
+    btVector3 gravity = btVector3(0, -9.81, 0);
 	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
@@ -316,7 +316,7 @@ void GraspDeformable::initPhysics()
         body->setFriction(0.1);
 
         //add the ground to the dynamics world
-        m_dynamicsWorld->addRigidBody(body);
+        m_dynamicsWorld->addRigidBody(body,1,1+2);
     }
 
     // create a soft block
@@ -342,22 +342,23 @@ void GraspDeformable::initPhysics()
 //        psb->scale(btVector3(.3, .3, .3));  // for tube, torus, boot
 //        psb->scale(btVector3(1, 1, 1));  // for ditto
 //        psb->translate(btVector3(0, 0, 2)); for boot
-        psb->getCollisionShape()->setMargin(0.02);
+        psb->getCollisionShape()->setMargin(0.01);
         psb->setTotalMass(.1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 10;
+        psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
+        psb->getWorldInfo()->m_maxDisplacement = .1f;
         // nonlinear damping 
 //        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(1,0.04, true));
 //        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
 //        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(0,6));
         
         // linear damping
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(0,0.01, false));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(.5,0.04, true));
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(6,6));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableNeoHookeanForce(2,10));
     }
     
 //    // create a piece of cloth

@@ -233,7 +233,7 @@ void DeformableRigid::initPhysics()
         psb->m_cfg.kDF = 1;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(2, 0.05));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(2, 0.01, false));
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
         
         // add a few rigid bodies
