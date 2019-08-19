@@ -27,7 +27,7 @@ public:
     btDeformableMassSpringForce() : m_momentum_conserving(false), m_elasticStiffness(1), m_dampingStiffness(0.05)
     {
     }
-    btDeformableMassSpringForce(btScalar k, btScalar d, bool conserve_angular = false) : m_momentum_conserving(conserve_angular), m_elasticStiffness(k), m_dampingStiffness(d)
+    btDeformableMassSpringForce(btScalar k, btScalar d, bool conserve_angular = true) : m_momentum_conserving(conserve_angular), m_elasticStiffness(k), m_dampingStiffness(d)
     {
     }
     
@@ -63,7 +63,7 @@ public:
                 {
                     if ((node2->m_q - node1->m_q).norm() > SIMD_EPSILON)
                     {
-                        btVector3 dir = (node2->m_q - node1->m_q).normalized();
+                        btVector3 dir = (node2->m_x - node1->m_x).normalized();
                         scaled_force = scale * m_dampingStiffness * v_diff.dot(dir) * dir;
                     }
                 }
@@ -120,7 +120,7 @@ public:
                 {
                     if ((node2->m_q - node1->m_q).norm() > SIMD_EPSILON)
                     {
-                        btVector3 dir = (node2->m_q - node1->m_q).normalized();
+                        btVector3 dir = (node2->m_x - node1->m_x).normalized();
                         local_scaled_df= scaled_k_damp * (dv[id2] - dv[id1]).dot(dir) * dir;
                     }
                 }
