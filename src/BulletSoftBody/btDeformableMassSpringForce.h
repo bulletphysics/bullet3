@@ -92,7 +92,7 @@ public:
                 // elastic force
                 // explicit elastic force
                 btVector3 dir = (node2->m_q - node1->m_q);
-                btVector3 dir_normalized = dir.normalized();
+                btVector3 dir_normalized = (dir.norm() > SIMD_EPSILON) ? dir.normalized() : btVector3(0,0,0);
                 btVector3 scaled_force = scale * m_elasticStiffness * (dir - dir_normalized * r);
                 force[id1] += scaled_force;
                 force[id2] -= scaled_force;
