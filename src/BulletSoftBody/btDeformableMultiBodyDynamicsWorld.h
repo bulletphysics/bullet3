@@ -136,6 +136,8 @@ public:
     
     void addForce(btSoftBody* psb, btDeformableLagrangianForce* force);
     
+    void removeSoftBody(btSoftBody* body);
+    
     int getDrawFlags() const { return (m_drawFlags); }
     void setDrawFlags(int f) { m_drawFlags = f; }
 };

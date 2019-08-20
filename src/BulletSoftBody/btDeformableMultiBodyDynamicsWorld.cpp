@@ -269,3 +269,11 @@ void btDeformableMultiBodyDynamicsWorld::addForce(btSoftBody* psb, btDeformableL
         forces.push_back(force);
     }
 }
+
+void btDeformableMultiBodyDynamicsWorld::removeSoftBody(btSoftBody* body)
+{
+    m_softBodies.remove(body);
+    btCollisionWorld::removeCollisionObject(body);
+    // force a reinitialize so that node indices get updated.
+    m_deformableBodySolver->reinitialize(m_softBodies, btScalar(-1));
+}

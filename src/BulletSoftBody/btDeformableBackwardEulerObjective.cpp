@@ -27,7 +27,10 @@ btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAligned
 void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated, btScalar dt)
 {
     BT_PROFILE("reinitialize");
-    setDt(dt);
+    if (dt > 0)
+    {
+        setDt(dt);
+    }
     if(nodeUpdated)
     {
         updateId();
