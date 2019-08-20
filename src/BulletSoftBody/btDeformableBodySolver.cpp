@@ -103,6 +103,11 @@ void btDeformableBodySolver::updateVelocity()
         btSoftBody* psb = m_softBodySet[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
+            // set NaN to zero;
+            if (m_dv[counter] != m_dv[counter])
+            {
+                m_dv[counter].setZero();
+            }
             psb->m_nodes[j].m_v = m_backupVelocity[counter]+m_dv[counter];
             ++counter;
         }
