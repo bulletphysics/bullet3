@@ -35,7 +35,7 @@ public:
     virtual ~btConjugateGradient(){}
     
     // return the number of iterations taken
-    int solve(MatrixX& A, TVStack& x, const TVStack& b, btScalar tolerance)
+    int solve(MatrixX& A, TVStack& x, const TVStack& b, btScalar tolerance, bool verbose = false)
     {
         BT_PROFILE("CGSolve");
         btAssert(x.size() == b.size());
@@ -49,8 +49,11 @@ public:
         A.project(z);
         btScalar r_dot_z = dot(z,r);
         if (r_dot_z < tolerance) {
-            std::cout << "Iteration = 0" << std::endl;
-            std::cout << "Two norm of the residual = " << r_dot_z << std::endl;
+            if (verbose)
+            {
+                std::cout << "Iteration = 0" << std::endl;
+                std::cout << "Two norm of the residual = " << r_dot_z << std::endl;
+            }
             return 0;
         }
         p = z;
@@ -70,13 +73,19 @@ public:
             r_dot_z = r_dot_z_new;
             r_dot_z_new = dot(r,z);
             if (r_dot_z_new < tolerance) {
-                std::cout << "ConjugateGradient iterations " << k << std::endl;
+                if (verbose)
+                {
+                    std::cout << "ConjugateGradient iterations " << k << std::endl;
+                }
                 return k;
             }
             btScalar beta = r_dot_z_new/ r_dot_z;
             p = multAndAdd(beta, p, z);
         }
-        std::cout << "ConjugateGradient max iterations reached " << max_iterations << std::endl;
+        if (verbose)
+        {
+            std::cout << "ConjugateGradient max iterations reached " << max_iterations << std::endl;
+        }
         return max_iterations;
     }
     
