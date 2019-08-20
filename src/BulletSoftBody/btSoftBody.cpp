@@ -2835,10 +2835,12 @@ void btSoftBody::updateDeformation()
 {
     for (int i = 0; i < m_tetras.size(); ++i)
     {
+        // updateDeformation is called before predictMotion where m_q is sync'd.
+        // So m_x is the current position of the node.
         btSoftBody::Tetra& t = m_tetras[i];
-        btVector3 c1 = t.m_n[1]->m_q - t.m_n[0]->m_q;
-        btVector3 c2 = t.m_n[2]->m_q - t.m_n[0]->m_q;
-        btVector3 c3 = t.m_n[3]->m_q - t.m_n[0]->m_q;
+        btVector3 c1 = t.m_n[1]->m_x - t.m_n[0]->m_x;
+        btVector3 c2 = t.m_n[2]->m_x - t.m_n[0]->m_x;
+        btVector3 c3 = t.m_n[3]->m_x - t.m_n[0]->m_x;
         btMatrix3x3 Ds(c1.getX(), c2.getX(), c3.getX(),
                        c1.getY(), c2.getY(), c3.getY(),
                        c1.getZ(), c2.getZ(), c3.getZ());
