@@ -2142,6 +2142,7 @@ void btMultiBody::updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQu
 		tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
 
 		getBaseCollider()->setWorldTransform(tr);
+        getBaseCollider()->setInterpolationWorldTransform(tr);
 	}
 
 	for (int k = 0; k < getNumLinks(); k++)
@@ -2170,6 +2171,7 @@ void btMultiBody::updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQu
 			tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
 
 			col->setWorldTransform(tr);
+            col->setInterpolationWorldTransform(tr);
 		}
 	}
 }
