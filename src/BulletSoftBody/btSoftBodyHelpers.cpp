@@ -1244,13 +1244,7 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
     std::ifstream fs;
     fs.open(vtk_file);
     btAssert(fs);
-    btSoftBody* psb = CreateFromVtkFile(worldInfo, fs);
-    fs.close();
-    return psb;
-}
-
-btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, std::istream& in)
-{
+    
     typedef btAlignedObjectArray<int> Index;
     std::string line;
     btAlignedObjectArray<btVector3> X;
@@ -1262,7 +1256,7 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
     size_t n_tets = 0;
     size_t x_count = 0;
     size_t indices_count = 0;
-    while (std::getline(in, line))
+    while (std::getline(fs, line))
     {
         std::stringstream ss(line);
         if (line.size() == (size_t)(0))
@@ -1332,7 +1326,7 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
     printf("Links:  %u\r\n", psb->m_links.size());
     printf("Faces:  %u\r\n", psb->m_faces.size());
     printf("Tetras: %u\r\n", psb->m_tetras.size());
-    return (psb);
+
+    fs.close();
+    return psb;
 }
-
-

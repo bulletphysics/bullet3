@@ -143,7 +143,7 @@ struct btSoftBodyHelpers
 											bool btetralinks,
 											bool bfacesfromtetras);
     static btSoftBody* CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file);
-    static btSoftBody* CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, std::istream& in);
+
     
 
 	/// Sort the list of links to move link calculations that are dependent upon earlier
