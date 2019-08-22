@@ -11524,16 +11524,18 @@ int PhysicsServerCommandProcessor::extractCollisionShapes(const btCollisionShape
 
 	switch (colShape->getShapeType())
 	{
-        case STATIC_PLANE_PROXYTYPE:
-        {
-            btStaticPlaneShape* plane = (btStaticPlaneShape*) colShape;
-            collisionShapeBuffer[0].m_collisionGeometryType = GEOM_PLANE;
-            collisionShapeBuffer[0].m_dimensions[0] = plane->getPlaneNormal()[0];
-            collisionShapeBuffer[0].m_dimensions[1] = plane->getPlaneNormal()[1];
-            collisionShapeBuffer[0].m_dimensions[2] = plane->getPlaneNormal()[2];
-            numConverted += 1;
-            break;
-        }
+		case STATIC_PLANE_PROXYTYPE:
+		{
+		    btStaticPlaneShape* plane = (btStaticPlaneShape*) colShape;
+		    collisionShapeBuffer[0].m_collisionGeometryType = GEOM_PLANE;
+		    collisionShapeBuffer[0].m_dimensions[0] = plane->getPlaneNormal()[0];
+		    collisionShapeBuffer[0].m_dimensions[1] = plane->getPlaneNormal()[1];
+		    collisionShapeBuffer[0].m_dimensions[2] = plane->getPlaneNormal()[2];
+		    numConverted += 1;
+		    break;
+		}
+		case TRIANGLE_MESH_SHAPE_PROXYTYPE:
+		case SCALED_TRIANGLE_MESH_SHAPE_PROXYTYPE:
 		case CONVEX_HULL_SHAPE_PROXYTYPE:
 		{
 			UrdfCollision* urdfCol = m_data->m_bulletCollisionShape2UrdfCollision.find(colShape);
