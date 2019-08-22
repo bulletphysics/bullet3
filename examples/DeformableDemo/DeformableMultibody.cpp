@@ -49,6 +49,7 @@ static bool g_floatingBase = true;
 static float friction = 1.;
 class DeformableMultibody : public CommonMultiBodyBase
 {
+    btAlignedObjectArray<btDeformableLagrangianForce*> forces;
 public:
 	DeformableMultibody(struct GUIHelperInterface* helper)
 		: CommonMultiBodyBase(helper)
@@ -122,7 +123,6 @@ void DeformableMultibody::initPhysics()
 	m_solver = sol;
     
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
-//    deformableBodySolver->setWorld(getDeformableDynamicsWorld());
     btVector3 gravity = btVector3(0, -10, 0);
 	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
@@ -224,8 +224,14 @@ void DeformableMultibody::initPhysics()
         psb->m_cfg.kDF = .1;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(2, 0.01, false));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
+
+        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(2, 0.01, false);
+        getDeformableDynamicsWorld()->addForce(psb, mass_spring);
+        forces.push_back(mass_spring);
+        
+        btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
+        getDeformableDynamicsWorld()->addForce(psb, gravity_force);
+        forces.push_back(gravity_force);
     }
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
@@ -248,7 +254,12 @@ void DeformableMultibody::exitPhysics()
 		m_dynamicsWorld->removeCollisionObject(obj);
 		delete obj;
 	}
-
+    // delete forces
+    for (int j = 0; j < forces.size(); j++)
+    {
+        btDeformableLagrangianForce* force = forces[j];
+        delete force;
+    }
 	//delete collision shapes
 	for (int j = 0; j < m_collisionShapes.size(); j++)
 	{

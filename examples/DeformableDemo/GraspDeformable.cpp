@@ -59,6 +59,7 @@ static bool supportsJointMotor(btMultiBody* mb, int mbLinkIndex)
 
 class GraspDeformable : public CommonRigidBodyBase
 {
+    btAlignedObjectArray<btDeformableLagrangianForce*> forces;
 public:
 	GraspDeformable(struct GUIHelperInterface* helper)
 		: CommonRigidBodyBase(helper)
@@ -355,11 +356,17 @@ void GraspDeformable::initPhysics()
 //        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
 //        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(0,6));
         
-        // linear damping
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(.5,0.04, true));
-//        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(3,0.04, true));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableNeoHookeanForce(2,10));
+        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(.5,0.04, true);
+        getDeformableDynamicsWorld()->addForce(psb, mass_spring);
+        forces.push_back(mass_spring);
+        
+        btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
+        getDeformableDynamicsWorld()->addForce(psb, gravity_force);
+        forces.push_back(gravity_force);
+        
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(2,10);
+        getDeformableDynamicsWorld()->addForce(psb, neohookean);
+        forces.push_back(neohookean);
     }
     
 //    // create a piece of cloth
@@ -431,7 +438,12 @@ void GraspDeformable::exitPhysics()
 		m_dynamicsWorld->removeCollisionObject(obj);
 		delete obj;
 	}
-
+    // delete forces
+    for (int j = 0; j < forces.size(); j++)
+    {
+        btDeformableLagrangianForce* force = forces[j];
+        delete force;
+    }
 	//delete collision shapes
 	for (int j = 0; j < m_collisionShapes.size(); j++)
 	{

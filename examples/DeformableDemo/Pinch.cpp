@@ -56,6 +56,7 @@ struct TetraBunny
 
 class Pinch : public CommonRigidBodyBase
 {
+    btAlignedObjectArray<btDeformableLagrangianForce*> forces;
 public:
 	Pinch(struct GUIHelperInterface* helper)
 		: CommonRigidBodyBase(helper)
@@ -248,8 +249,6 @@ void Pinch::initPhysics()
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
-//    deformableBodySolver->setWorld(getDeformableDynamicsWorld());
-	//	m_dynamicsWorld->getSolverInfo().m_singleAxisDeformableThreshold = 0.f;//faster but lower quality
     btVector3 gravity = btVector3(0, -10, 0);
 	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
@@ -336,9 +335,18 @@ void Pinch::initPhysics()
         psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(1, 0.05));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableNeoHookeanForce(.2,1));
+        
+        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(1,0.05);
+        getDeformableDynamicsWorld()->addForce(psb, mass_spring);
+        forces.push_back(mass_spring);
+        
+        btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
+        getDeformableDynamicsWorld()->addForce(psb, gravity_force);
+        forces.push_back(gravity_force);
+        
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(.2,1);
+        getDeformableDynamicsWorld()->addForce(psb, neohookean);
+        forces.push_back(neohookean);
         // add a grippers
         createGrip();
     }
@@ -362,7 +370,12 @@ void Pinch::exitPhysics()
 		m_dynamicsWorld->removeCollisionObject(obj);
 		delete obj;
 	}
-
+    // delete forces
+    for (int j = 0; j < forces.size(); j++)
+    {
+        btDeformableLagrangianForce* force = forces[j];
+        delete force;
+    }
 	//delete collision shapes
 	for (int j = 0; j < m_collisionShapes.size(); j++)
 	{
