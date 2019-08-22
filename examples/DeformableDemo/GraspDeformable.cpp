@@ -190,7 +190,7 @@ void GraspDeformable::initPhysics()
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
-    deformableBodySolver->setWorld(getDeformableDynamicsWorld());
+//    deformableBodySolver->setWorld(getDeformableDynamicsWorld());
     btVector3 gravity = btVector3(0, -9.81, 0);
 	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
@@ -357,6 +357,7 @@ void GraspDeformable::initPhysics()
         
         // linear damping
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(.5,0.04, true));
+//        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(3,0.04, true));
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableNeoHookeanForce(2,10));
     }

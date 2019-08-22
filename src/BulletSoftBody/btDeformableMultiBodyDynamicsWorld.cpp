@@ -33,7 +33,6 @@ The algorithm also closely resembles the one in http://physbam.stanford.edu/~fed
 #include "btDeformableMultiBodyDynamicsWorld.h"
 #include "btDeformableBodySolver.h"
 #include "LinearMath/btQuickprof.h"
-
 void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
     BT_PROFILE("internalSingleStepSimulation");
@@ -52,7 +51,7 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
     beforeSolverCallbacks(timeStep);
     
     ///solve deformable bodies constraints
-    solveDeformableBodiesConstraints(timeStep);
+    solveConstraints(timeStep);
     
     afterSolverCallbacks(timeStep);
     
@@ -172,9 +171,31 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
     m_deformableBodySolver->revertVelocity();
 }
 
-void btDeformableMultiBodyDynamicsWorld::solveDeformableBodiesConstraints(btScalar timeStep)
+void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
 {
-    m_deformableBodySolver->solveConstraints(timeStep);
+    // save v_{n+1}^* velocity after explicit forces
+    m_deformableBodySolver->backupVelocity();
+    
+    // setup constraints among multibodies and between multibodies and deformable bodies
+    setupConstraints();
+    solveMultiBodyConstraints();
+    m_deformableBodySolver->solveDeformableConstraints(timeStep);
+}
+
+void btDeformableMultiBodyDynamicsWorld::setupConstraints()
+{
+    m_deformableBodySolver->setConstraints();
+    m_islandManager->buildIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld());
+}
+
+void btDeformableMultiBodyDynamicsWorld::solveMultiBodyConstraints()
+{
+    for (int i = 0; i < m_contact_iterations; ++i)
+    {
+        m_islandManager->processIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), (btSimulationIslandManager::IslandCallback*)m_solverMultiBodyIslandCallback);
+        btMultiBodyDynamicsWorld::processConstraintsAndDeltaVee();
+        m_deformableBodySolver->solveContactConstraints();
+    }
 }
 
 void btDeformableMultiBodyDynamicsWorld::addSoftBody(btSoftBody* body, int collisionFilterGroup, int collisionFilterMask)

@@ -30,14 +30,14 @@ btDeformableBodySolver::~btDeformableBodySolver()
     delete m_objective;
 }
 
-void btDeformableBodySolver::solveConstraints(float solverdt)
+void btDeformableBodySolver::solveDeformableConstraints(float solverdt)
 {
     BT_PROFILE("solveConstraints");
     // save v_{n+1}^* velocity after explicit forces
-    backupVelocity();
+//    backupVelocity();
     
     // add constraints to the solver
-    setConstraints();
+//    setConstraints();
     m_objective->computeResidual(solverdt, m_residual);
     m_objective->applyDynamicFriction(m_residual);
     computeStep(m_dv, m_residual);
@@ -47,7 +47,6 @@ void btDeformableBodySolver::solveConstraints(float solverdt)
 
 void btDeformableBodySolver::computeStep(TVStack& dv, const TVStack& residual)
 {
-    
     btScalar tolerance = std::numeric_limits<float>::epsilon() * 16 * m_objective->computeNorm(residual);
     m_cg.solve(*m_objective, dv, residual, tolerance);
 }
@@ -78,22 +77,16 @@ void btDeformableBodySolver::setConstraints()
 {
     BT_PROFILE("setConstraint");
     m_objective->setConstraints();
-    // m_contact_iterations takes over m_numIterations
-    m_contact_iterations = m_objective->m_world->getSolverInfo().m_numIterations;
-    for (int i = 0; i < m_contact_iterations; ++i)
-    {
-        m_objective->projection.update();
-        m_objective->enforceConstraint(m_dv);
-        m_objective->updateVelocity(m_dv);
-    }
-    // recover m_numIterations from m_contact_iterations
-    m_objective->m_world->getSolverInfo().m_numIterations = m_contact_iterations;
 }
 
-void btDeformableBodySolver::setWorld(btDeformableMultiBodyDynamicsWorld* world)
+void btDeformableBodySolver::solveContactConstraints()
 {
-    m_objective->setWorld(world);
+    BT_PROFILE("setConstraint");
+    m_objective->projection.update();
+    m_objective->enforceConstraint(m_dv);
+    m_objective->updateVelocity(m_dv);
 }
+
 
 void btDeformableBodySolver::updateVelocity()
 {

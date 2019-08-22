@@ -21,11 +21,14 @@
 #include "btDeformableMassSpringForce.h"
 #include "btDeformableBodySolver.h"
 #include "btSoftBodyHelpers.h"
+#include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 #include <functional>
 typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 
 class btDeformableBodySolver;
 class btDeformableLagrangianForce;
+struct MultiBodyInplaceSolverIslandCallback;
+
 typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 
 class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
@@ -41,6 +44,7 @@ class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
     bool m_drawClusterTree;
     btSoftBodyWorldInfo m_sbi;
     btScalar m_internalTime;
+    int m_contact_iterations;
     
     typedef void (*btSolverCallback)(btScalar time, btDeformableMultiBodyDynamicsWorld* world);
     btSolverCallback m_solverCallback;
@@ -52,7 +56,7 @@ protected:
     
     void positionCorrection(btScalar timeStep);
     
-    void solveDeformableBodiesConstraints(btScalar timeStep);
+    void solveConstraints(btScalar timeStep);
     
 public:
     btDeformableMultiBodyDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btDeformableBodySolver* deformableBodySolver = 0)
@@ -76,6 +80,7 @@ public:
         
         m_sbi.m_sparsesdf.Initialize();
         m_internalTime = 0.0;
+        m_contact_iterations = 1;
     }
 
     void setSolverCallback(btSolverCallback cb)
@@ -140,6 +145,9 @@ public:
     
     int getDrawFlags() const { return (m_drawFlags); }
     void setDrawFlags(int f) { m_drawFlags = f; }
+    
+    void setupConstraints();
+    void solveMultiBodyConstraints();
 };
 
 #endif  //BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H

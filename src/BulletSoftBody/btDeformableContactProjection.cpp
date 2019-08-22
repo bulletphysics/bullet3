@@ -19,13 +19,8 @@
 #include <cmath>
 void btDeformableContactProjection::update()
 {
-    ///solve rigid body constraints
-    {
-        // m_numIterations get temporarily to 1 so that we interleave one step of multibody solve with one step of multibody/deformable contact solve
-        m_world->getSolverInfo().m_numIterations = 1;
-        m_world->processIslands();
-        m_world->btMultiBodyDynamicsWorld::solveInternalConstraints(m_world->getSolverInfo()); // process constraints deferred in the previous step
-    }
+//        m_world->getSolverInfo().m_numIterations = 1;
+
     // loop through constraints to set constrained values
     for (int index = 0; index < m_constraints.size(); ++index)
     {

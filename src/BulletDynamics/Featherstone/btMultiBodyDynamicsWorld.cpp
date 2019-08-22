@@ -428,27 +428,41 @@ void btMultiBodyDynamicsWorld::forwardKinematics()
 void btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 {
     solveExternalForces(solverInfo);
-    m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
+    buildIslands();
     solveInternalConstraints(solverInfo);
 }
 
 void btMultiBodyDynamicsWorld::buildIslands()
 {
-    m_islandManager->buildIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld());
-}
-
-void btMultiBodyDynamicsWorld::processIslands()
-{
-    m_islandManager->processIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
+    m_islandManager->buildAndProcessIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
 }
 
 void btMultiBodyDynamicsWorld::solveInternalConstraints(btContactSolverInfo& solverInfo)
 {
 	/// solve all the constraints for this island
 	m_solverMultiBodyIslandCallback->processConstraints();
-
 	m_constraintSolver->allSolved(solverInfo, m_debugDrawer);
+    calculateJointForce(solverInfo);
+    processDeltaVee();
+}
 
+void btMultiBodyDynamicsWorld::btMultiBodyDynamicsWorld::processConstraintsAndDeltaVee()
+{
+    m_solverMultiBodyIslandCallback->processConstraints();
+    processDeltaVee();
+}
+
+void btMultiBodyDynamicsWorld::processDeltaVee()
+{
+    for (int i = 0; i < this->m_multiBodies.size(); i++)
+    {
+        btMultiBody* bod = m_multiBodies[i];
+        bod->processDeltaVeeMultiDof2();
+    }
+}
+
+void btMultiBodyDynamicsWorld::calculateJointForce(btContactSolverInfo& solverInfo)
+{
 	{
 		BT_PROFILE("btMultiBody stepVelocities");
 		for (int i = 0; i < this->m_multiBodies.size(); i++)
@@ -489,13 +503,7 @@ void btMultiBodyDynamicsWorld::solveInternalConstraints(btContactSolverInfo& sol
 				}
 			}
 		}
-	}
-
-	for (int i = 0; i < this->m_multiBodies.size(); i++)
-	{
-		btMultiBody* bod = m_multiBodies[i];
-		bod->processDeltaVeeMultiDof2();
-	}
+	}	
 }
 
 void btMultiBodyDynamicsWorld::solveExternalForces(btContactSolverInfo& solverInfo)
@@ -1087,8 +1095,8 @@ void btMultiBodyDynamicsWorld::serializeMultiBodies(btSerializer* serializer)
 		}
 	}
 }
-
-void btMultiBodyDynamicsWorld::setSplitIslands(bool split)
-{
-    m_islandManager->setSplitIslands(split);
-}
+//
+//void btMultiBodyDynamicsWorld::setSplitIslands(bool split)
+//{
+//    m_islandManager->setSplitIslands(split);
+//}

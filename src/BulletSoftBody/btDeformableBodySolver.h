@@ -61,7 +61,11 @@ public:
 
     void extracted(float solverdt);
     
-    virtual void solveConstraints(float solverdt);
+    virtual void solveDeformableConstraints(btScalar solverdt);
+    
+    void solveContactConstraints();
+    
+    virtual void solveConstraints(float dt){}
     
     void reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt);
     
@@ -77,7 +81,7 @@ public:
     
     void computeStep(TVStack& dv, const TVStack& residual);
                      
-    virtual void predictMotion(float solverdt);
+    virtual void predictMotion(btScalar solverdt);
 
     virtual void copySoftBodyToVertexBuffer(const btSoftBody *const softBody, btVertexBufferDescriptor *vertexBuffer) {}
 
@@ -90,8 +94,9 @@ public:
         softBody->defaultCollisionHandler(otherSoftBody);
     }
     virtual void optimize(btAlignedObjectArray<btSoftBody *> &softBodies, bool forceUpdate = false){}
+    
     virtual bool checkInitialized(){return true;}
-    virtual void setWorld(btDeformableMultiBodyDynamicsWorld* world);
+
 };
 
 #endif /* btDeformableBodySolver_h */
