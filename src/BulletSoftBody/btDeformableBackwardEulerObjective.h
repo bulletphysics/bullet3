@@ -26,13 +26,11 @@
 #include "btDeformableMultiBodyDynamicsWorld.h"
 #include "LinearMath/btQuickprof.h"
 
-//class btDeformableMultiBodyDynamicsWorld;
 class btDeformableBackwardEulerObjective
 {
 public:
     typedef btAlignedObjectArray<btVector3> TVStack;
     btScalar m_dt;
-//    btDeformableMultiBodyDynamicsWorld* m_world;
     btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
     Preconditioner* m_preconditioner;
@@ -41,7 +39,7 @@ public:
     btAlignedObjectArray<btSoftBody::Node* > m_nodes;
     btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v);
     
-    virtual ~btDeformableBackwardEulerObjective() {}
+    virtual ~btDeformableBackwardEulerObjective();
     
     void initialize(){}
     

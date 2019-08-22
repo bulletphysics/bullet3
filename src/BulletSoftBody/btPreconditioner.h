@@ -22,6 +22,7 @@ public:
     typedef btAlignedObjectArray<btVector3> TVStack;
     virtual void operator()(const TVStack& x, TVStack& b) = 0;
     virtual void reinitialize(bool nodeUpdated) = 0;
+    virtual ~Preconditioner(){}
 };
 
 class DefaultPreconditioner : public Preconditioner
@@ -35,8 +36,9 @@ public:
     }
     virtual void reinitialize(bool nodeUpdated)
     {
-        
     }
+    
+    virtual ~DefaultPreconditioner(){}
 };
 
 class MassPreconditioner : public Preconditioner

@@ -24,6 +24,11 @@ btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAligned
     m_preconditioner = new DefaultPreconditioner();
 }
 
+btDeformableBackwardEulerObjective::~btDeformableBackwardEulerObjective()
+{
+    delete m_preconditioner;
+}
+
 void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated, btScalar dt)
 {
     BT_PROFILE("reinitialize");
