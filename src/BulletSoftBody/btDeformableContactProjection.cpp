@@ -361,7 +361,7 @@ void btDeformableContactProjection::enforceConstraint(TVStack& x)
         else if (constraints.size() == 2)
         {
             btVector3 free_dir = btCross(constraints[0].m_direction[0], constraints[1].m_direction[0]);
-            btAssert(free_dir.norm() > SIMD_EPSILON)
+            btAssert(free_dir.norm() > SIMD_EPSILON);
             free_dir.normalize();
             x[i] = x[i].dot(free_dir) * free_dir;
             for (int j = 0; j < constraints.size(); ++j)
@@ -421,7 +421,7 @@ void btDeformableContactProjection::project(TVStack& x)
         else if (constraints.size() == 2)
         {
             btVector3 free_dir = btCross(constraints[0].m_direction[0], constraints[1].m_direction[0]);
-            btAssert(free_dir.norm() > SIMD_EPSILON)
+            btAssert(free_dir.norm() > SIMD_EPSILON);
             free_dir.normalize();
             x[i] = x[i].dot(free_dir) * free_dir;
         }
