@@ -30,14 +30,9 @@ btDeformableBodySolver::~btDeformableBodySolver()
     delete m_objective;
 }
 
-void btDeformableBodySolver::solveDeformableConstraints(float solverdt)
+void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
 {
     BT_PROFILE("solveConstraints");
-    // save v_{n+1}^* velocity after explicit forces
-//    backupVelocity();
-    
-    // add constraints to the solver
-//    setConstraints();
     m_objective->computeResidual(solverdt, m_residual);
     m_objective->applyDynamicFriction(m_residual);
     computeStep(m_dv, m_residual);
@@ -147,7 +142,7 @@ bool btDeformableBodySolver::updateNodes()
 }
 
 
-void btDeformableBodySolver::predictMotion(float solverdt)
+void btDeformableBodySolver::predictMotion(btScalar solverdt)
 {
     for (int i = 0; i < m_softBodySet.size(); ++i)
     {

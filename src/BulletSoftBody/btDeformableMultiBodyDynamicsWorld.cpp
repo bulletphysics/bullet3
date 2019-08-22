@@ -196,6 +196,7 @@ void btDeformableMultiBodyDynamicsWorld::solveMultiBodyConstraints()
         btMultiBodyDynamicsWorld::processConstraintsAndDeltaVee();
         m_deformableBodySolver->solveContactConstraints();
     }
+    // todo @xuchenhan: add joint force feedback
 }
 
 void btDeformableMultiBodyDynamicsWorld::addSoftBody(btSoftBody* body, int collisionFilterGroup, int collisionFilterMask)
