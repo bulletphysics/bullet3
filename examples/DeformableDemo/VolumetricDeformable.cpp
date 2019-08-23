@@ -178,7 +178,8 @@ void VolumetricDeformable::initPhysics()
 	m_broadphase = new btDbvtBroadphase();
     btDeformableBodySolver* deformableBodySolver = new btDeformableBodySolver();
 
-	btMultiBodyConstraintSolver* sol = new btMultiBodyConstraintSolver();
+	btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
+    sol->setDeformableSolver(deformableBodySolver);
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);

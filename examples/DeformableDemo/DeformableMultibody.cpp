@@ -118,8 +118,9 @@ void DeformableMultibody::initPhysics()
 
 	m_broadphase = new btDbvtBroadphase();
     btDeformableBodySolver* deformableBodySolver = new btDeformableBodySolver();
-    btMultiBodyConstraintSolver* sol;
-    sol = new btMultiBodyConstraintSolver;
+    btDeformableMultiBodyConstraintSolver* sol;
+    sol = new btDeformableMultiBodyConstraintSolver;
+    sol->setDeformableSolver(deformableBodySolver);
 	m_solver = sol;
     
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
@@ -223,6 +224,7 @@ void DeformableMultibody::initPhysics()
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = .1;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        psb->setCollisionFlags(0);
         getDeformableDynamicsWorld()->addSoftBody(psb);
 
         btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(2, 0.01, false);

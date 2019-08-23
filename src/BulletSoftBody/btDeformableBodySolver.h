@@ -63,7 +63,7 @@ public:
     
     virtual void solveDeformableConstraints(btScalar solverdt);
     
-    void solveContactConstraints();
+    btScalar solveContactConstraints();
     
     virtual void solveConstraints(float dt){}
     
@@ -81,7 +81,7 @@ public:
     
     void computeStep(TVStack& dv, const TVStack& residual);
                      
-    virtual void predictMotion(btScalar solverdt);
+    virtual void predictMotion(float solverdt);
 
     virtual void copySoftBodyToVertexBuffer(const btSoftBody *const softBody, btVertexBufferDescriptor *vertexBuffer) {}
 

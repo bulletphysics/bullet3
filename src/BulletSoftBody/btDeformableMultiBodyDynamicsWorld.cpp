@@ -33,6 +33,7 @@ The algorithm also closely resembles the one in http://physbam.stanford.edu/~fed
 #include "btDeformableMultiBodyDynamicsWorld.h"
 #include "btDeformableBodySolver.h"
 #include "LinearMath/btQuickprof.h"
+
 void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
     BT_PROFILE("internalSingleStepSimulation");
@@ -176,27 +177,108 @@ void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
     // save v_{n+1}^* velocity after explicit forces
     m_deformableBodySolver->backupVelocity();
     
-    // setup constraints among multibodies and between multibodies and deformable bodies
+    // set up constraints among multibodies and between multibodies and deformable bodies
     setupConstraints();
-    solveMultiBodyConstraints();
+    solveMultiBodyRelatedConstraints();
     m_deformableBodySolver->solveDeformableConstraints(timeStep);
 }
 
 void btDeformableMultiBodyDynamicsWorld::setupConstraints()
 {
+    // set up constraints between multibody and deformable bodies
     m_deformableBodySolver->setConstraints();
-    m_islandManager->buildIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld());
+    
+    // set up constraints among multibodies
+    {
+        sortConstraints();
+        // setup the solver callback
+        btMultiBodyConstraint** sortedMultiBodyConstraints = m_sortedMultiBodyConstraints.size() ? &m_sortedMultiBodyConstraints[0] : 0;
+        btTypedConstraint** constraintsPtr = getNumConstraints() ? &m_sortedConstraints[0] : 0;
+        m_solverMultiBodyIslandCallback->setup(&m_solverInfo, constraintsPtr, m_sortedConstraints.size(), sortedMultiBodyConstraints, m_sortedMultiBodyConstraints.size(), getDebugDrawer());
+        m_constraintSolver->prepareSolve(getCollisionWorld()->getNumCollisionObjects(), getCollisionWorld()->getDispatcher()->getNumManifolds());
+        
+        // build islands
+        m_islandManager->buildIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld());
+        // write the constraint information of each island to the callback, and also setup the constraints in solver
+    }
 }
 
-void btDeformableMultiBodyDynamicsWorld::solveMultiBodyConstraints()
+void btDeformableMultiBodyDynamicsWorld::sortConstraints()
 {
-    for (int i = 0; i < m_contact_iterations; ++i)
+    m_sortedConstraints.resize(m_constraints.size());
+    int i;
+    for (i = 0; i < getNumConstraints(); i++)
     {
-        m_islandManager->processIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), (btSimulationIslandManager::IslandCallback*)m_solverMultiBodyIslandCallback);
-        btMultiBodyDynamicsWorld::processConstraintsAndDeltaVee();
-        m_deformableBodySolver->solveContactConstraints();
+        m_sortedConstraints[i] = m_constraints[i];
     }
-    // todo @xuchenhan: add joint force feedback
+    m_sortedConstraints.quickSort(btSortConstraintOnIslandPredicate2());
+    
+    m_sortedMultiBodyConstraints.resize(m_multiBodyConstraints.size());
+    for (i = 0; i < m_multiBodyConstraints.size(); i++)
+    {
+        m_sortedMultiBodyConstraints[i] = m_multiBodyConstraints[i];
+    }
+    m_sortedMultiBodyConstraints.quickSort(btSortMultiBodyConstraintOnIslandPredicate());
+}
+    
+    
+void btDeformableMultiBodyDynamicsWorld::solveMultiBodyRelatedConstraints()
+{
+    // process constraints on each island
+    m_islandManager->processIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
+    
+    // process deferred
+    m_solverMultiBodyIslandCallback->processConstraints();
+    m_constraintSolver->allSolved(m_solverInfo, m_debugDrawer);
+    
+    // write joint feedback
+    {
+        for (int i = 0; i < this->m_multiBodies.size(); i++)
+        {
+            btMultiBody* bod = m_multiBodies[i];
+            
+            bool isSleeping = false;
+            
+            if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+            {
+                isSleeping = true;
+            }
+            for (int b = 0; b < bod->getNumLinks(); b++)
+            {
+                if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+                    isSleeping = true;
+            }
+            
+            if (!isSleeping)
+            {
+                //useless? they get resized in stepVelocities once again (AND DIFFERENTLY)
+                m_scratch_r.resize(bod->getNumLinks() + 1);  //multidof? ("Y"s use it and it is used to store qdd)
+                m_scratch_v.resize(bod->getNumLinks() + 1);
+                m_scratch_m.resize(bod->getNumLinks() + 1);
+                
+                if (bod->internalNeedsJointFeedback())
+                {
+                    if (!bod->isUsingRK4Integration())
+                    {
+                        if (bod->internalNeedsJointFeedback())
+                        {
+                            bool isConstraintPass = true;
+                            bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(m_solverInfo.m_timeStep, m_scratch_r, m_scratch_v, m_scratch_m, isConstraintPass,
+                                                                                      getSolverInfo().m_jointFeedbackInWorldSpace,
+                                                                                      getSolverInfo().m_jointFeedbackInJointFrame);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // todo : may not be necessary
+    for (int i = 0; i < this->m_multiBodies.size(); i++)
+    {
+        btMultiBody* bod = m_multiBodies[i];
+        bod->processDeltaVeeMultiDof2();
+    }
 }
 
 void btDeformableMultiBodyDynamicsWorld::addSoftBody(btSoftBody* body, int collisionFilterGroup, int collisionFilterMask)
@@ -244,8 +326,51 @@ void btDeformableMultiBodyDynamicsWorld::applyRigidBodyGravity(btScalar timeStep
         btRigidBody* rb = m_nonStaticRigidBodies[i];
         rb->integrateVelocities(timeStep);
     }
+    
     // integrate multibody gravity
-    btMultiBodyDynamicsWorld::solveExternalForces(btMultiBodyDynamicsWorld::getSolverInfo());
+    {
+        forwardKinematics();
+        clearMultiBodyConstraintForces();
+        {
+            for (int i = 0; i < this->m_multiBodies.size(); i++)
+            {
+                btMultiBody* bod = m_multiBodies[i];
+                
+                bool isSleeping = false;
+                
+                if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+                {
+                    isSleeping = true;
+                }
+                for (int b = 0; b < bod->getNumLinks(); b++)
+                {
+                    if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+                        isSleeping = true;
+                }
+                
+                if (!isSleeping)
+                {
+                    m_scratch_r.resize(bod->getNumLinks() + 1);
+                    m_scratch_v.resize(bod->getNumLinks() + 1);
+                    m_scratch_m.resize(bod->getNumLinks() + 1);
+                    bool isConstraintPass = false;
+                    {
+                        if (!bod->isUsingRK4Integration())
+                        {
+                            bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(m_solverInfo.m_timeStep,
+                                                                                      m_scratch_r, m_scratch_v, m_scratch_m,isConstraintPass,
+                                                                                      getSolverInfo().m_jointFeedbackInWorldSpace,
+                                                                                      getSolverInfo().m_jointFeedbackInJointFrame);
+                        }
+                        else
+                        {
+                            btAssert(" RK4Integration is not supported" );
+                        }
+                    }
+                }
+            }
+        }
+    }
     clearForces();
     clearMultiBodyForces();
 }

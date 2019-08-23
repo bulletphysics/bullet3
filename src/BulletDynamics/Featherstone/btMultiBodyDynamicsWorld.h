@@ -17,6 +17,7 @@ subject to the following restrictions:
 #define BT_MULTIBODY_DYNAMICS_WORLD_H
 
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
+#include "BulletDynamics/Featherstone/btMultiBodyInplaceSolverIslandCallback.h"
 
 #define BT_USE_VIRTUAL_CLEARFORCES_AND_GRAVITY
 
@@ -119,8 +120,5 @@ public:
     virtual void solveExternalForces(btContactSolverInfo& solverInfo);
     virtual void solveInternalConstraints(btContactSolverInfo& solverInfo);
     void buildIslands();
-    void calculateJointForce(btContactSolverInfo& solverInfo);
-    void processDeltaVee();
-    void processConstraintsAndDeltaVee();
 };
 #endif  //BT_MULTIBODY_DYNAMICS_WORLD_H

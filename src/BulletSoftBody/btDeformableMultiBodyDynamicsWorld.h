@@ -20,6 +20,7 @@
 #include "btDeformableLagrangianForce.h"
 #include "btDeformableMassSpringForce.h"
 #include "btDeformableBodySolver.h"
+#include "btDeformableMultiBodyConstraintSolver.h"
 #include "btSoftBodyHelpers.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 #include <functional>
@@ -28,6 +29,7 @@ typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 class btDeformableBodySolver;
 class btDeformableLagrangianForce;
 struct MultiBodyInplaceSolverIslandCallback;
+class btDeformableMultiBodyConstraintSolver;
 
 typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 
@@ -59,8 +61,8 @@ protected:
     void solveConstraints(btScalar timeStep);
     
 public:
-    btDeformableMultiBodyDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btDeformableBodySolver* deformableBodySolver = 0)
-    : btMultiBodyDynamicsWorld(dispatcher, pairCache, constraintSolver, collisionConfiguration),
+    btDeformableMultiBodyDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btDeformableMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btDeformableBodySolver* deformableBodySolver = 0)
+    : btMultiBodyDynamicsWorld(dispatcher, pairCache, (btMultiBodyConstraintSolver*)constraintSolver, collisionConfiguration),
     m_deformableBodySolver(deformableBodySolver), m_solverCallback(0)
     {
         m_drawFlags = fDrawFlags::Std;
@@ -70,7 +72,7 @@ public:
         m_sbi.m_broadphase = pairCache;
         m_sbi.m_dispatcher = dispatcher;
         m_sbi.m_sparsesdf.Initialize();
-        m_sbi.m_sparsesdf.setDefaultVoxelsz(0.0025);
+        m_sbi.m_sparsesdf.setDefaultVoxelsz(0.025);
         m_sbi.m_sparsesdf.Reset();
         
         m_sbi.air_density = (btScalar)1.2;
@@ -78,10 +80,7 @@ public:
         m_sbi.water_offset = 0;
         m_sbi.water_normal = btVector3(0, 0, 0);
         m_sbi.m_gravity.setValue(0, -10, 0);
-        
-        m_sbi.m_sparsesdf.Initialize();
         m_internalTime = 0.0;
-        m_contact_iterations = 1;
     }
 
     void setSolverCallback(btSolverCallback cb)
@@ -148,7 +147,12 @@ public:
     void setDrawFlags(int f) { m_drawFlags = f; }
     
     void setupConstraints();
+    
     void solveMultiBodyConstraints();
+    
+    void solveMultiBodyRelatedConstraints();
+    
+    void sortConstraints();
 };
 
 #endif  //BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H

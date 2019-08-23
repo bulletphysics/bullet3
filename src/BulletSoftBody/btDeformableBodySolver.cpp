@@ -74,12 +74,13 @@ void btDeformableBodySolver::setConstraints()
     m_objective->setConstraints();
 }
 
-void btDeformableBodySolver::solveContactConstraints()
+btScalar btDeformableBodySolver::solveContactConstraints()
 {
     BT_PROFILE("setConstraint");
-    m_objective->projection.update();
+    btScalar maxSquaredResidual = m_objective->projection.update();
     m_objective->enforceConstraint(m_dv);
     m_objective->updateVelocity(m_dv);
+    return maxSquaredResidual;
 }
 
 
@@ -142,7 +143,7 @@ bool btDeformableBodySolver::updateNodes()
 }
 
 
-void btDeformableBodySolver::predictMotion(btScalar solverdt)
+void btDeformableBodySolver::predictMotion(float solverdt)
 {
     for (int i = 0; i < m_softBodySet.size(); ++i)
     {

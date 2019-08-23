@@ -17,10 +17,9 @@
 #include "btDeformableMultiBodyDynamicsWorld.h"
 #include <algorithm>
 #include <cmath>
-void btDeformableContactProjection::update()
+btScalar btDeformableContactProjection::update()
 {
-//        m_world->getSolverInfo().m_numIterations = 1;
-
+    btScalar residualSquare = 0;
     // loop through constraints to set constrained values
     for (int index = 0; index < m_constraints.size(); ++index)
     {
@@ -129,21 +128,28 @@ void btDeformableContactProjection::update()
                     }
                 }
                 impulse = impulse_normal + impulse_tangent;
+                
+                // dn is the normal component of velocity diffrerence. Approximates the residual.
+                residualSquare = btMax(residualSquare, dn*dn);
+                
                 if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
                 {
                     if (rigidCol)
+                    {
                         rigidCol->applyImpulse(impulse, c->m_c1);
+                    }
                 }
                 else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
                 {
                     if (multibodyLinkCol)
                     {
+                        multibodyLinkCol->m_multiBody->processDeltaVeeMultiDof2(); // make sure velocity is up-to-date;
                         // apply normal component of the impulse
                         multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_normal, impulse.dot(cti.m_normal));
                         if (impulse_tangent.norm() > SIMD_EPSILON)
                         {
                             // apply tangential component of the impulse
-                           const btScalar* deltaV_t1 = &c->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
+                            const btScalar* deltaV_t1 = &c->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
                             multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_t1, impulse.dot(c->t1));
                             const btScalar* deltaV_t2 = &c->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
                             multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_t2, impulse.dot(c->t2));
@@ -153,6 +159,7 @@ void btDeformableContactProjection::update()
             }
         }
     }
+    return residualSquare;
 }
 
 void btDeformableContactProjection::setConstraints()

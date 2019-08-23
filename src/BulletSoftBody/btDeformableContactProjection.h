@@ -44,7 +44,7 @@ public:
     virtual void enforceConstraint(TVStack& x);
     
     // update the constraints
-    virtual void update();
+    virtual btScalar update();
     
     virtual void setConstraints();
     

@@ -80,7 +80,7 @@ public:
     virtual void setConstraints() = 0;
     
     // update the constraints
-    virtual void update() = 0;
+    virtual btScalar update() = 0;
     
     virtual void reinitialize(bool nodeUpdated)
     {

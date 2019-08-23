@@ -161,7 +161,8 @@ void DeformableRigid::initPhysics()
     btDeformableBodySolver* deformableBodySolver = new btDeformableBodySolver();
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-	btMultiBodyConstraintSolver* sol = new btMultiBodyConstraintSolver();
+	btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
+    sol->setDeformableSolver(deformableBodySolver);
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
@@ -208,10 +209,12 @@ void DeformableRigid::initPhysics()
     {
         bool onGround = false;
         const btScalar s = 4;
-        btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, 0, -s),
-                                                         btVector3(+s, 0, -s),
-                                                         btVector3(-s, 0, +s),
-                                                         btVector3(+s, 0, +s),
+        const btScalar h = 0;
+        
+        btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -s),
+                                                         btVector3(+s, h, -s),
+                                                         btVector3(-s, h, +s),
+                                                         btVector3(+s, h, +s),
 //                                                         3,3,
                                                           20,20,
                                                           1 + 2 + 4 + 8, true);
