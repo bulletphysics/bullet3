@@ -58,26 +58,26 @@ btScalar btDeformableContactProjection::update()
                         const btScalar* J_t1 = &c->jacobianData_t1.m_jacobians[0];
                         const btScalar* J_t2 = &c->jacobianData_t2.m_jacobians[0];
                         const btScalar* local_v = multibodyLinkCol->m_multiBody->getVelocityVector();
+                        const btScalar* local_dv = multibodyLinkCol->m_multiBody->getDeltaVelocityVector();
                         deltaV_normal = &c->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
                         // add in the normal component of the va
                         btScalar vel = 0.0;
                         for (int k = 0; k < ndof; ++k)
                         {
-                            vel += local_v[k] * J_n[k];
+                            vel += (local_v[k]+local_dv[k]) * J_n[k];
                         }
                         va = cti.m_normal * vel * m_dt;
-
                         // add in the tangential components of the va
                         vel = 0.0;
                         for (int k = 0; k < ndof; ++k)
                         {
-                            vel += local_v[k] * J_t1[k];
+                            vel += (local_v[k]+local_dv[k]) * J_t1[k];
                         }
                         va += c->t1 * vel * m_dt;
                         vel = 0.0;
                         for (int k = 0; k < ndof; ++k)
                         {
-                            vel += local_v[k] * J_t2[k];
+                            vel += (local_v[k]+local_dv[k]) * J_t2[k];
                         }
                         va += c->t2 * vel * m_dt;
                     }
@@ -131,7 +131,6 @@ btScalar btDeformableContactProjection::update()
                 
                 // dn is the normal component of velocity diffrerence. Approximates the residual.
                 residualSquare = btMax(residualSquare, dn*dn);
-                
                 if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
                 {
                     if (rigidCol)
@@ -143,16 +142,15 @@ btScalar btDeformableContactProjection::update()
                 {
                     if (multibodyLinkCol)
                     {
-                        multibodyLinkCol->m_multiBody->processDeltaVeeMultiDof2(); // make sure velocity is up-to-date;
                         // apply normal component of the impulse
-                        multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_normal, impulse.dot(cti.m_normal));
+                        multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_normal, impulse.dot(cti.m_normal));
                         if (impulse_tangent.norm() > SIMD_EPSILON)
                         {
                             // apply tangential component of the impulse
                             const btScalar* deltaV_t1 = &c->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
-                            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_t1, impulse.dot(c->t1));
+                            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t1, impulse.dot(c->t1));
                             const btScalar* deltaV_t2 = &c->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
-                            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV_t2, impulse.dot(c->t2));
+                            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t2, impulse.dot(c->t2));
                         }
                     }
                 }

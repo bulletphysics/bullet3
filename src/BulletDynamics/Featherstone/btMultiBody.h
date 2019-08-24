@@ -273,6 +273,11 @@ public:
 	{
 		return &m_realBuf[0];
 	}
+    
+    const btScalar *getDeltaVelocityVector() const
+    {
+        return &m_deltaV[0];
+    }
 	/*    btScalar * getVelocityVector() 
 	{ 
 		return &real_buf[0]; 
