@@ -143,7 +143,7 @@ bool btDeformableBodySolver::updateNodes()
 }
 
 
-void btDeformableBodySolver::predictMotion(float solverdt)
+void btDeformableBodySolver::predictMotion(btScalar solverdt)
 {
     for (int i = 0; i < m_softBodySet.size(); ++i)
     {

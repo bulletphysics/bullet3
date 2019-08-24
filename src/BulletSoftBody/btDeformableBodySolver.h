@@ -58,14 +58,12 @@ public:
     virtual void updateSoftBodies();
 
     virtual void copyBackToSoftBodies(bool bMove = true) {}
-
-    void extracted(float solverdt);
     
     virtual void solveDeformableConstraints(btScalar solverdt);
     
     btScalar solveContactConstraints();
     
-    virtual void solveConstraints(float dt){}
+    virtual void solveConstraints(btScalar dt){}
     
     void reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt);
     
@@ -81,7 +79,7 @@ public:
     
     void computeStep(TVStack& dv, const TVStack& residual);
                      
-    virtual void predictMotion(float solverdt);
+    virtual void predictMotion(btScalar solverdt);
 
     virtual void copySoftBodyToVertexBuffer(const btSoftBody *const softBody, btVertexBufferDescriptor *vertexBuffer) {}
 
