@@ -60,7 +60,7 @@ bool btDefaultSoftBodySolver::checkInitialized()
 	return true;
 }
 
-void btDefaultSoftBodySolver::solveConstraints(float solverdt)
+void btDefaultSoftBodySolver::solveConstraints(btScalar solverdt)
 {
 	// Solve constraints for non-solver softbodies
 	for (int i = 0; i < m_softBodySet.size(); ++i)
