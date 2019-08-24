@@ -197,7 +197,7 @@ struct btMultibodyLink
 	{
         btScalar *pJointPos = (pq ? pq : &m_jointPos[0]);
         btQuaternion& cachedRot = m_cachedRotParentToThis;
-        btVector3& cachedVector =m_cachedRVector;
+        btVector3& cachedVector = m_cachedRVector;
 		switch (m_jointType)
 		{
 			case eRevolute:
@@ -241,6 +241,8 @@ struct btMultibodyLink
 				btAssert(0);
 			}
 		}
+        m_cachedRotParentToThis_interpolate = m_cachedRotParentToThis;
+        m_cachedRVector_interpolate = m_cachedRVector;
 	}
     
     void updateInterpolationCacheMultiDof()
