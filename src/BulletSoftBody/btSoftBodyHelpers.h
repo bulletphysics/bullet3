@@ -17,7 +17,8 @@ subject to the following restrictions:
 #define BT_SOFT_BODY_HELPERS_H
 
 #include "btSoftBody.h"
-
+#include <fstream>
+#include <string>
 //
 // Helpers
 //
@@ -91,7 +92,8 @@ struct btSoftBodyHelpers
 								   int resx,
 								   int resy,
 								   int fixeds,
-								   bool gendiags);
+								   bool gendiags,
+                                   btScalar perturbation = 0.);
 	/* Create a patch with UV Texture Coordinates	*/
 	static btSoftBody* CreatePatchUV(btSoftBodyWorldInfo& worldInfo,
 									 const btVector3& corner00,
@@ -140,6 +142,9 @@ struct btSoftBodyHelpers
 											bool bfacelinks,
 											bool btetralinks,
 											bool bfacesfromtetras);
+    static btSoftBody* CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file);
+
+    
 
 	/// Sort the list of links to move link calculations that are dependent upon earlier
 	/// ones as far as possible away from the calculation of those values

@@ -1,4 +1,6 @@
 /*
+ Written by Xuchen Han <xuchenhan2015@u.northwestern.edu>
+ 
  Bullet Continuous Collision Detection and Physics Library
  Copyright (c) 2019 Google Inc. http://bulletphysics.org
  This software is provided 'as-is', without any express or implied warranty.
@@ -18,7 +20,7 @@
 
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
-, m_cg(10)
+, m_cg(50)
 {
     m_objective = new btDeformableBackwardEulerObjective(m_softBodySet, m_backupVelocity);
 }
@@ -28,24 +30,19 @@ btDeformableBodySolver::~btDeformableBodySolver()
     delete m_objective;
 }
 
-void btDeformableBodySolver::solveConstraints(float solverdt)
+void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
 {
     BT_PROFILE("solveConstraints");
-    // add constraints to the solver
-    setConstraints();
-    
-    // save v_{n+1}^* velocity after explicit forces
-    backupVelocity();
-    
     m_objective->computeResidual(solverdt, m_residual);
-    
+    m_objective->applyDynamicFriction(m_residual);
     computeStep(m_dv, m_residual);
+    
     updateVelocity();
 }
 
 void btDeformableBodySolver::computeStep(TVStack& dv, const TVStack& residual)
 {
-    btScalar tolerance = std::numeric_limits<float>::epsilon()* 1024 * m_objective->computeNorm(residual);
+    btScalar tolerance = std::numeric_limits<float>::epsilon() * 16 * m_objective->computeNorm(residual);
     m_cg.solve(*m_objective, dv, residual, tolerance);
 }
 
@@ -77,10 +74,15 @@ void btDeformableBodySolver::setConstraints()
     m_objective->setConstraints();
 }
 
-void btDeformableBodySolver::setWorld(btDeformableRigidDynamicsWorld* world)
+btScalar btDeformableBodySolver::solveContactConstraints()
 {
-    m_objective->setWorld(world);
+    BT_PROFILE("setConstraint");
+    btScalar maxSquaredResidual = m_objective->projection.update();
+    m_objective->enforceConstraint(m_dv);
+    m_objective->updateVelocity(m_dv);
+    return maxSquaredResidual;
 }
+
 
 void btDeformableBodySolver::updateVelocity()
 {
@@ -90,6 +92,11 @@ void btDeformableBodySolver::updateVelocity()
         btSoftBody* psb = m_softBodySet[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
+            // set NaN to zero;
+            if (m_dv[counter] != m_dv[counter])
+            {
+                m_dv[counter].setZero();
+            }
             psb->m_nodes[j].m_v = m_backupVelocity[counter]+m_dv[counter];
             ++counter;
         }
@@ -136,7 +143,7 @@ bool btDeformableBodySolver::updateNodes()
 }
 
 
-void btDeformableBodySolver::predictMotion(float solverdt)
+void btDeformableBodySolver::predictMotion(btScalar solverdt)
 {
     for (int i = 0; i < m_softBodySet.size(); ++i)
     {

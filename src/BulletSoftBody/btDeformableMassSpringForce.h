@@ -1,4 +1,6 @@
 /*
+ Written by Xuchen Han <xuchenhan2015@u.northwestern.edu>
+ 
  Bullet Continuous Collision Detection and Physics Library
  Copyright (c) 2019 Google Inc. http://bulletphysics.org
  This software is provided 'as-is', without any express or implied warranty.
@@ -18,10 +20,14 @@
 
 class btDeformableMassSpringForce : public btDeformableLagrangianForce
 {
+    bool m_momentum_conserving;
+    btScalar m_elasticStiffness, m_dampingStiffness;
 public:
-//    using TVStack = btDeformableLagrangianForce::TVStack;
     typedef btAlignedObjectArray<btVector3> TVStack;
-    btDeformableMassSpringForce()
+    btDeformableMassSpringForce() : m_momentum_conserving(false), m_elasticStiffness(1), m_dampingStiffness(0.05)
+    {
+    }
+    btDeformableMassSpringForce(btScalar k, btScalar d, bool conserve_angular = true) : m_momentum_conserving(conserve_angular), m_elasticStiffness(k), m_dampingStiffness(d)
     {
     }
     
@@ -52,8 +58,15 @@ public:
                 
                 // damping force
                 btVector3 v_diff = (node2->m_v - node1->m_v);
-                btScalar k_damp = psb->m_dampingCoefficient;
-                btVector3 scaled_force = scale * v_diff * k_damp;
+                btVector3 scaled_force = scale * m_dampingStiffness * v_diff;
+                if (m_momentum_conserving)
+                {
+                    if ((node2->m_q - node1->m_q).norm() > SIMD_EPSILON)
+                    {
+                        btVector3 dir = (node2->m_x - node1->m_x).normalized();
+                        scaled_force = scale * m_dampingStiffness * v_diff.dot(dir) * dir;
+                    }
+                }
                 force[id1] += scaled_force;
                 force[id2] -= scaled_force;
             }
@@ -72,7 +85,6 @@ public:
                 const btSoftBody::Link& link = psb->m_links[j];
                 btSoftBody::Node* node1 = link.m_n[0];
                 btSoftBody::Node* node2 = link.m_n[1];
-                btScalar kLST = link.Feature::m_material->m_kLST;
                 btScalar r = link.m_rl;
                 size_t id1 = node1->index;
                 size_t id2 = node2->index;
@@ -80,8 +92,8 @@ public:
                 // elastic force
                 // explicit elastic force
                 btVector3 dir = (node2->m_q - node1->m_q);
-                btVector3 dir_normalized = dir.normalized();
-                btVector3 scaled_force = scale * kLST * (dir - dir_normalized * r);
+                btVector3 dir_normalized = (dir.norm() > SIMD_EPSILON) ? dir.normalized() : btVector3(0,0,0);
+                btVector3 scaled_force = scale * m_elasticStiffness * (dir - dir_normalized * r);
                 force[id1] += scaled_force;
                 force[id2] -= scaled_force;
             }
@@ -94,7 +106,7 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             const btSoftBody* psb = m_softBodies[i];
-            btScalar scaled_k_damp = psb->m_dampingCoefficient * scale;
+            btScalar scaled_k_damp = m_dampingStiffness * scale;
             for (int j = 0; j < psb->m_links.size(); ++j)
             {
                 const btSoftBody::Link& link = psb->m_links[j];
@@ -102,7 +114,16 @@ public:
                 btSoftBody::Node* node2 = link.m_n[1];
                 size_t id1 = node1->index;
                 size_t id2 = node2->index;
+
                 btVector3 local_scaled_df = scaled_k_damp * (dv[id2] - dv[id1]);
+                if (m_momentum_conserving)
+                {
+                    if ((node2->m_q - node1->m_q).norm() > SIMD_EPSILON)
+                    {
+                        btVector3 dir = (node2->m_x - node1->m_x).normalized();
+                        local_scaled_df= scaled_k_damp * (dv[id2] - dv[id1]).dot(dir) * dir;
+                    }
+                }
                 df[id1] += local_scaled_df;
                 df[id2] -= local_scaled_df;
             }

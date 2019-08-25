@@ -28,7 +28,7 @@
 #include "VolumetricDeformable.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
-#include "BulletSoftBody/btDeformableRigidDynamicsWorld.h"
+#include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
 #include "BulletSoftBody/btSoftBody.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "BulletSoftBody/btDeformableBodySolver.h"
@@ -51,6 +51,7 @@ struct TetraCube
 
 class VolumetricDeformable : public CommonRigidBodyBase
 {
+    btAlignedObjectArray<btDeformableLagrangianForce*> forces;
 public:
 	VolumetricDeformable(struct GUIHelperInterface* helper)
 		: CommonRigidBodyBase(helper)
@@ -133,24 +134,24 @@ public:
         }
     }
     
-    virtual const btDeformableRigidDynamicsWorld* getDeformableDynamicsWorld() const
+    virtual const btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld() const
     {
         ///just make it a btSoftRigidDynamicsWorld please
         ///or we will add type checking
-        return (btDeformableRigidDynamicsWorld*)m_dynamicsWorld;
+        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
     }
     
-    virtual btDeformableRigidDynamicsWorld* getDeformableDynamicsWorld()
+    virtual btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld()
     {
         ///just make it a btSoftRigidDynamicsWorld please
         ///or we will add type checking
-        return (btDeformableRigidDynamicsWorld*)m_dynamicsWorld;
+        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
     }
     
     virtual void renderScene()
     {
         CommonRigidBodyBase::renderScene();
-        btDeformableRigidDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
+        btDeformableMultiBodyDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
@@ -177,13 +178,11 @@ void VolumetricDeformable::initPhysics()
 	m_broadphase = new btDbvtBroadphase();
     btDeformableBodySolver* deformableBodySolver = new btDeformableBodySolver();
 
-	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-	btMultiBodyConstraintSolver* sol = new btMultiBodyConstraintSolver();
+	btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
+    sol->setDeformableSolver(deformableBodySolver);
 	m_solver = sol;
 
-	m_dynamicsWorld = new btDeformableRigidDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
-    deformableBodySolver->setWorld(getDeformableDynamicsWorld());
-	//	m_dynamicsWorld->getSolverInfo().m_singleAxisDeformableThreshold = 0.f;//faster but lower quality
+	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
     btVector3 gravity = btVector3(0, -10, 0);
 	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
@@ -230,18 +229,25 @@ void VolumetricDeformable::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(psb);
         psb->scale(btVector3(2, 2, 2));
         psb->translate(btVector3(0, 5, 0));
-//        psb->setVolumeMass(10);
         psb->getCollisionShape()->setMargin(0.25);
-//        psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
-        psb->setSpringStiffness(1);
-        psb->setDampingCoefficient(0.01);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 0.5;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce());
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
+        
+        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(0,0.03);
+        getDeformableDynamicsWorld()->addForce(psb, mass_spring);
+        forces.push_back(mass_spring);
+        
+        btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
+        getDeformableDynamicsWorld()->addForce(psb, gravity_force);
+        forces.push_back(gravity_force);
+        
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(.5,2.5);
+        getDeformableDynamicsWorld()->addForce(psb, neohookean);
+        forces.push_back(neohookean);
+        
     }
     // add a few rigid bodies
     Ctor_RbUpStack(4); 
@@ -266,6 +272,12 @@ void VolumetricDeformable::exitPhysics()
 		m_dynamicsWorld->removeCollisionObject(obj);
 		delete obj;
 	}
+    // delete forces
+    for (int j = 0; j < forces.size(); j++)
+    {
+        btDeformableLagrangianForce* force = forces[j];
+        delete force;
+    }
 
 	//delete collision shapes
 	for (int j = 0; j < m_collisionShapes.size(); j++)

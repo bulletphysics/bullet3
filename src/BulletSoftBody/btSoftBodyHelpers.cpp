@@ -16,6 +16,9 @@ subject to the following restrictions:
 
 #include "btSoftBodyInternals.h"
 #include <stdio.h>
+#include <string>
+#include <iostream>
+#include <sstream>
 #include <string.h>
 #include "btSoftBodyHelpers.h"
 #include "LinearMath/btConvexHull.h"
@@ -721,7 +724,8 @@ btSoftBody* btSoftBodyHelpers::CreatePatch(btSoftBodyWorldInfo& worldInfo, const
 										   int resx,
 										   int resy,
 										   int fixeds,
-										   bool gendiags)
+										   bool gendiags,
+                                           btScalar perturbation)
 {
 #define IDX(_x_, _y_) ((_y_)*rx + (_x_))
 	/* Create nodes	*/
@@ -741,7 +745,13 @@ btSoftBody* btSoftBodyHelpers::CreatePatch(btSoftBodyWorldInfo& worldInfo, const
 		for (int ix = 0; ix < rx; ++ix)
 		{
 			const btScalar tx = ix / (btScalar)(rx - 1);
-			x[IDX(ix, iy)] = lerp(py0, py1, tx);
+            btScalar pert = perturbation * btScalar(rand())/RAND_MAX;
+            btVector3 temp1 = py1;
+            temp1.setY(py1.getY() + pert);
+            btVector3 temp = py0;
+            pert = perturbation * btScalar(rand())/RAND_MAX;
+            temp.setY(py0.getY() + pert);
+			x[IDX(ix, iy)] = lerp(temp, temp1, tx);
 			m[IDX(ix, iy)] = 1;
 		}
 	}
@@ -1221,9 +1231,102 @@ if(face&&face[0])
 			}
 		}
 	}
+    psb->initializeDmInverse();
 	printf("Nodes:  %u\r\n", psb->m_nodes.size());
 	printf("Links:  %u\r\n", psb->m_links.size());
 	printf("Faces:  %u\r\n", psb->m_faces.size());
 	printf("Tetras: %u\r\n", psb->m_tetras.size());
 	return (psb);
+}
+
+btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file)
+{
+    std::ifstream fs;
+    fs.open(vtk_file);
+    btAssert(fs);
+    
+    typedef btAlignedObjectArray<int> Index;
+    std::string line;
+    btAlignedObjectArray<btVector3> X;
+    btVector3 position;
+    btAlignedObjectArray<Index> indices;
+    bool reading_points = false;
+    bool reading_tets = false;
+    size_t n_points = 0;
+    size_t n_tets = 0;
+    size_t x_count = 0;
+    size_t indices_count = 0;
+    while (std::getline(fs, line))
+    {
+        std::stringstream ss(line);
+        if (line.size() == (size_t)(0))
+        {
+        }
+        else if (line.substr(0, 6) == "POINTS")
+        {
+            reading_points = true;
+            reading_tets = false;
+            ss.ignore(128, ' '); // ignore "POINTS"
+            ss >> n_points;
+            X.resize(n_points);
+        }
+        else if (line.substr(0, 5) == "CELLS")
+        {
+            reading_points = false;
+            reading_tets = true;
+            ss.ignore(128, ' '); // ignore "CELLS"
+            ss >> n_tets;
+            indices.resize(n_tets);
+        }
+        else if (line.substr(0, 10) == "CELL_TYPES")
+        {
+            reading_points = false;
+            reading_tets = false;
+        }
+        else if (reading_points)
+        {
+            btScalar p;
+            ss >> p;
+            position.setX(p);
+            ss >> p;
+            position.setY(p);
+            ss >> p;
+            position.setZ(p);
+            X[x_count++] = position;
+        }
+        else if (reading_tets)
+        {
+            ss.ignore(128, ' '); // ignore "4"
+            Index tet;
+            tet.resize(4);
+            for (size_t i = 0; i < 4; i++)
+            {
+                ss >> tet[i];
+            }
+            indices[indices_count++] = tet;
+        }
+    }
+    btSoftBody* psb = new btSoftBody(&worldInfo, n_points, &X[0], 0);
+    
+    for (int i = 0; i < n_tets; ++i)
+    {
+        const Index& ni = indices[i];
+        psb->appendTetra(ni[0], ni[1], ni[2], ni[3]);
+        {
+            psb->appendLink(ni[0], ni[1], 0, true);
+            psb->appendLink(ni[1], ni[2], 0, true);
+            psb->appendLink(ni[2], ni[0], 0, true);
+            psb->appendLink(ni[0], ni[3], 0, true);
+            psb->appendLink(ni[1], ni[3], 0, true);
+            psb->appendLink(ni[2], ni[3], 0, true);
+        }
+    }
+    psb->initializeDmInverse();
+    printf("Nodes:  %u\r\n", psb->m_nodes.size());
+    printf("Links:  %u\r\n", psb->m_links.size());
+    printf("Faces:  %u\r\n", psb->m_faces.size());
+    printf("Tetras: %u\r\n", psb->m_tetras.size());
+
+    fs.close();
+    return psb;
 }

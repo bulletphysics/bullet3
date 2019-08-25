@@ -1,4 +1,6 @@
 /*
+ Written by Xuchen Han <xuchenhan2015@u.northwestern.edu>
+ 
  Bullet Continuous Collision Detection and Physics Library
  Copyright (c) 2019 Google Inc. http://bulletphysics.org
  This software is provided 'as-is', without any express or implied warranty.
@@ -20,13 +22,14 @@
 enum btDeformableLagrangianForceType
 {
     BT_GRAVITY_FORCE = 1,
-    BT_MASSSPRING_FORCE = 2
+    BT_MASSSPRING_FORCE = 2,
+    BT_COROTATED_FORCE = 3,
+    BT_NEOHOOKEAN_FORCE = 4
 };
 
 class btDeformableLagrangianForce
 {
 public:
-//    using TVStack = btAlignedObjectArray<btVector3>;
     typedef btAlignedObjectArray<btVector3> TVStack;
     btAlignedObjectArray<btSoftBody *> m_softBodies;
     const btAlignedObjectArray<btSoftBody::Node*>* m_nodes;

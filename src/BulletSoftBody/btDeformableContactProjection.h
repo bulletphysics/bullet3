@@ -1,4 +1,6 @@
 /*
+ Written by Xuchen Han <xuchenhan2015@u.northwestern.edu>
+ 
  Bullet Continuous Collision Detection and Physics Library
  Copyright (c) 2019 Google Inc. http://bulletphysics.org
  This software is provided 'as-is', without any express or implied warranty.
@@ -22,8 +24,7 @@ class btDeformableContactProjection : public btCGProjection
 {
 public:
     // map from node index to constraints
-    btHashMap<btHashInt, btAlignedObjectArray<DeformableContactConstraint> > m_constraints;
-    btHashMap<btHashInt, btAlignedObjectArray<DeformableFrictionConstraint> >m_frictions;
+    btHashMap<btHashInt, DeformableContactConstraint> m_constraints;
     
     btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : btCGProjection(softBodies, dt)
@@ -36,12 +37,14 @@ public:
     
     // apply the constraints to the rhs
     virtual void project(TVStack& x);
+    // add to friction
+    virtual void applyDynamicFriction(TVStack& f);
     
     // apply constraints to x in Ax=b
     virtual void enforceConstraint(TVStack& x);
     
     // update the constraints
-    virtual void update();
+    virtual btScalar update();
     
     virtual void setConstraints();
     

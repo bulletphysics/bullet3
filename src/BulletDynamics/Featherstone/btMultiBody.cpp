@@ -1707,9 +1707,9 @@ void btMultiBody::predictPositionsMultiDof(btScalar dt)
             {
                 //reset to current pos
 
-                for (int i = 0; i < 4; ++i)
+                for (int j = 0; j < 4; ++j)
                 {
-                    pJointPos[i] = m_links[i].m_jointPos[i];
+                    pJointPos[j] = m_links[i].m_jointPos[j];
                 }
                 
                 btVector3 jointVel;
@@ -1725,9 +1725,9 @@ void btMultiBody::predictPositionsMultiDof(btScalar dt)
             }
             case btMultibodyLink::ePlanar:
             {
-                for (int i = 0; i < 3; ++i)
+                for (int j = 0; j < 3; ++j)
                 {
-                    pJointPos[i] = m_links[i].m_jointPos[i];
+                    pJointPos[j] = m_links[i].m_jointPos[j];
                 }
                 pJointPos[0] += dt * getJointVelMultiDof(i)[0];
                 
@@ -2142,6 +2142,7 @@ void btMultiBody::updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQu
 		tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
 
 		getBaseCollider()->setWorldTransform(tr);
+        getBaseCollider()->setInterpolationWorldTransform(tr);
 	}
 
 	for (int k = 0; k < getNumLinks(); k++)
@@ -2170,6 +2171,7 @@ void btMultiBody::updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQu
 			tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
 
 			col->setWorldTransform(tr);
+            col->setInterpolationWorldTransform(tr);
 		}
 	}
 }

@@ -1,4 +1,6 @@
 /*
+ Written by Xuchen Han <xuchenhan2015@u.northwestern.edu>
+ 
  Bullet Continuous Collision Detection and Physics Library
  Copyright (c) 2019 Google Inc. http://bulletphysics.org
  This software is provided 'as-is', without any express or implied warranty.
@@ -17,18 +19,18 @@
 #include "btDeformableLagrangianForce.h"
 #include "btDeformableMassSpringForce.h"
 #include "btDeformableGravityForce.h"
+#include "btDeformableCorotatedForce.h"
+#include "btDeformableNeoHookeanForce.h"
 #include "btDeformableContactProjection.h"
 #include "btPreconditioner.h"
-#include "btDeformableRigidDynamicsWorld.h"
+#include "btDeformableMultiBodyDynamicsWorld.h"
 #include "LinearMath/btQuickprof.h"
 
-class btDeformableRigidDynamicsWorld;
 class btDeformableBackwardEulerObjective
 {
 public:
     typedef btAlignedObjectArray<btVector3> TVStack;
     btScalar m_dt;
-    btDeformableRigidDynamicsWorld* m_world;
     btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
     Preconditioner* m_preconditioner;
@@ -37,7 +39,7 @@ public:
     btAlignedObjectArray<btSoftBody::Node* > m_nodes;
     btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v);
     
-    virtual ~btDeformableBackwardEulerObjective() {}
+    virtual ~btDeformableBackwardEulerObjective();
     
     void initialize(){}
     
@@ -72,8 +74,9 @@ public:
     {
         BT_PROFILE("enforceConstraint");
         projection.enforceConstraint(x);
-        updateVelocity(x);
     }
+    
+    void applyDynamicFriction(TVStack& r);
     
     // add dv to velocity
     void updateVelocity(const TVStack& dv);
@@ -85,7 +88,6 @@ public:
     void project(TVStack& r)
     {
         BT_PROFILE("project");
-        projection.update();
         projection.project(r);
     }
     
@@ -94,13 +96,7 @@ public:
     {
         m_preconditioner->operator()(x,b);
     }
-    
-    virtual void setWorld(btDeformableRigidDynamicsWorld* world)
-    {
-        m_world = world;
-        projection.setWorld(world);
-    }
-    
+
     virtual void updateId()
     {
         size_t id = 0;

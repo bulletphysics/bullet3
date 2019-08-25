@@ -1,4 +1,6 @@
 /*
+ Written by Xuchen Han <xuchenhan2015@u.northwestern.edu>
+ 
  Bullet Continuous Collision Detection and Physics Library
  Copyright (c) 2019 Google Inc. http://bulletphysics.org
  This software is provided 'as-is', without any express or implied warranty.
@@ -33,63 +35,57 @@ public:
     virtual ~btConjugateGradient(){}
     
     // return the number of iterations taken
-    int solve(MatrixX& A, TVStack& x, const TVStack& b, btScalar tolerance)
+    int solve(MatrixX& A, TVStack& x, const TVStack& b, btScalar tolerance, bool verbose = false)
     {
         BT_PROFILE("CGSolve");
         btAssert(x.size() == b.size());
         reinitialize(b);
-        
         // r = b - A * x --with assigned dof zeroed out
         A.multiply(x, temp);
         r = sub(b, temp);
         A.project(r);
-        A.enforceConstraint(x);
-        
-        btScalar r_norm = std::sqrt(squaredNorm(r));
-        if (r_norm < tolerance) {
-            std::cout << "Iteration = 0" << std::endl;
-            std::cout << "Two norm of the residual = " << r_norm << std::endl;
-            return 0;
-        }
-        
         // z = M^(-1) * r
         A.precondition(r, z);
-        p = z;
-        // temp = A*p
-        A.multiply(p, temp);
-        
-        btScalar r_dot_z = dot(z,r), r_dot_z_new;
-        // alpha = r^T * z / (p^T * A * p)
-        btScalar alpha = r_dot_z / dot(p, temp), beta;
-        
-        for (int k = 1; k < max_iterations; k++) {
-            //  x += alpha * p;
-            //  r -= alpha * temp;
-            multAndAddTo(alpha, p, x);
-            multAndAddTo(-alpha, temp, r);
-            // zero out the dofs of r
-            A.project(r);
-            A.enforceConstraint(x);
-            r_norm = std::sqrt(squaredNorm(r));
-            
-            if (r_norm < tolerance) {
-                std::cout << "ConjugateGradient iterations " << k << std::endl;
-                return k;
+        A.project(z);
+        btScalar r_dot_z = dot(z,r);
+        if (r_dot_z < tolerance) {
+            if (verbose)
+            {
+                std::cout << "Iteration = 0" << std::endl;
+                std::cout << "Two norm of the residual = " << r_dot_z << std::endl;
             }
-            
+            return 0;
+        }
+        p = z;
+        btScalar r_dot_z_new = r_dot_z;
+        for (int k = 1; k < max_iterations; k++) {
+            // temp = A*p
+            A.multiply(p, temp);
+            A.project(temp);
+            // alpha = r^T * z / (p^T * A * p)
+            btScalar alpha = r_dot_z_new / dot(p, temp);
+            //  x += alpha * p;
+            multAndAddTo(alpha, p, x);
+            //  r -= alpha * temp;
+            multAndAddTo(-alpha, temp, r);
             // z = M^(-1) * r
             A.precondition(r, z);
-            r_dot_z_new = dot(r,z);
-            beta = r_dot_z_new/ r_dot_z;
             r_dot_z = r_dot_z_new;
-            // p = z + beta * p;
+            r_dot_z_new = dot(r,z);
+            if (r_dot_z_new < tolerance) {
+                if (verbose)
+                {
+                    std::cout << "ConjugateGradient iterations " << k << std::endl;
+                }
+                return k;
+            }
+            btScalar beta = r_dot_z_new/ r_dot_z;
             p = multAndAdd(beta, p, z);
-            // temp = A * p;
-            A.multiply(p, temp);
-            // alpha = r^T * z / (p^T * A * p)
-            alpha = r_dot_z / dot(p, temp);
         }
-        std::cout << "ConjugateGradient max iterations reached " << max_iterations << std::endl;
+        if (verbose)
+        {
+            std::cout << "ConjugateGradient max iterations reached " << max_iterations << std::endl;
+        }
         return max_iterations;
     }
     

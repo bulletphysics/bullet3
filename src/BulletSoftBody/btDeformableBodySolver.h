@@ -1,4 +1,6 @@
 /*
+ Written by Xuchen Han <xuchenhan2015@u.northwestern.edu>
+ 
  Bullet Continuous Collision Detection and Physics Library
  Copyright (c) 2019 Google Inc. http://bulletphysics.org
  This software is provided 'as-is', without any express or implied warranty.
@@ -17,13 +19,13 @@
 
 #include "btSoftBodySolvers.h"
 #include "btDeformableBackwardEulerObjective.h"
-#include "btDeformableRigidDynamicsWorld.h"
+#include "btDeformableMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 
 struct btCollisionObjectWrapper;
 class btDeformableBackwardEulerObjective;
-class btDeformableRigidDynamicsWorld;
+class btDeformableMultiBodyDynamicsWorld;
 
 class btDeformableBodySolver : public btSoftBodySolver
 {
@@ -37,6 +39,7 @@ protected:
    
     btAlignedObjectArray<btVector3> m_backupVelocity;
     btScalar m_dt;
+    btScalar m_contact_iterations;
     btConjugateGradient<btDeformableBackwardEulerObjective> m_cg;
     
     
@@ -55,10 +58,12 @@ public:
     virtual void updateSoftBodies();
 
     virtual void copyBackToSoftBodies(bool bMove = true) {}
-
-    void extracted(float solverdt);
     
-    virtual void solveConstraints(float solverdt);
+    virtual void solveDeformableConstraints(btScalar solverdt);
+    
+    btScalar solveContactConstraints();
+    
+    virtual void solveConstraints(btScalar dt){}
     
     void reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt);
     
@@ -74,7 +79,7 @@ public:
     
     void computeStep(TVStack& dv, const TVStack& residual);
                      
-    virtual void predictMotion(float solverdt);
+    virtual void predictMotion(btScalar solverdt);
 
     virtual void copySoftBodyToVertexBuffer(const btSoftBody *const softBody, btVertexBufferDescriptor *vertexBuffer) {}
 
@@ -87,8 +92,9 @@ public:
         softBody->defaultCollisionHandler(otherSoftBody);
     }
     virtual void optimize(btAlignedObjectArray<btSoftBody *> &softBodies, bool forceUpdate = false){}
+    
     virtual bool checkInitialized(){return true;}
-    virtual void setWorld(btDeformableRigidDynamicsWorld* world);
+
 };
 
 #endif /* btDeformableBodySolver_h */

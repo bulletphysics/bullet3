@@ -1,4 +1,6 @@
 /*
+ Written by Xuchen Han <xuchenhan2015@u.northwestern.edu>
+ 
  Bullet Continuous Collision Detection and Physics Library
  Copyright (c) 2019 Google Inc. http://bulletphysics.org
  This software is provided 'as-is', without any express or implied warranty.
@@ -22,10 +24,18 @@ btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAligned
     m_preconditioner = new DefaultPreconditioner();
 }
 
+btDeformableBackwardEulerObjective::~btDeformableBackwardEulerObjective()
+{
+    delete m_preconditioner;
+}
+
 void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated, btScalar dt)
 {
     BT_PROFILE("reinitialize");
-    setDt(dt);
+    if (dt > 0)
+    {
+        setDt(dt);
+    }
     if(nodeUpdated)
     {
         updateId();
@@ -117,6 +127,11 @@ btScalar btDeformableBackwardEulerObjective::computeNorm(const TVStack& residual
 
 void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
 {
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        m_softBodies[i]->updateDeformation();
+    }
+    
     for (int i = 0; i < m_lf.size(); ++i)
     {
         m_lf[i]->addScaledExplicitForce(m_dt, force);
@@ -141,7 +156,10 @@ void btDeformableBackwardEulerObjective::initialGuess(TVStack& dv, const TVStack
 //set constraints as projections
 void btDeformableBackwardEulerObjective::setConstraints()
 {
-    // build islands for multibody solve
-    m_world->btMultiBodyDynamicsWorld::buildIslands();
     projection.setConstraints();
+}
+
+void btDeformableBackwardEulerObjective::applyDynamicFriction(TVStack& r)
+{
+     projection.applyDynamicFriction(r);
 }

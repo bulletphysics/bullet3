@@ -338,13 +338,17 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher, btCollisi
 	}
 }
 
+
 ///@todo: this is random access, it can be walked 'cache friendly'!
 void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher, btCollisionWorld* collisionWorld, IslandCallback* callback)
 {
-	btCollisionObjectArray& collisionObjects = collisionWorld->getCollisionObjectArray();
-
 	buildIslands(dispatcher, collisionWorld);
+    processIslands(dispatcher, collisionWorld, callback);
+}
 
+void btSimulationIslandManager::processIslands(btDispatcher* dispatcher, btCollisionWorld* collisionWorld, IslandCallback* callback)
+{
+    btCollisionObjectArray& collisionObjects = collisionWorld->getCollisionObjectArray();
 	int endIslandIndex = 1;
 	int startIslandIndex;
 	int numElem = getUnionFind().getNumElements();

@@ -17,6 +17,7 @@ subject to the following restrictions:
 #define BT_MULTIBODY_DYNAMICS_WORLD_H
 
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
+#include "BulletDynamics/Featherstone/btMultiBodyInplaceSolverIslandCallback.h"
 
 #define BT_USE_VIRTUAL_CLEARFORCES_AND_GRAVITY
 
@@ -57,6 +58,7 @@ public:
 	virtual ~btMultiBodyDynamicsWorld();
     
     virtual void solveConstraints(btContactSolverInfo& solverInfo);
+    
 	virtual void addMultiBody(btMultiBody* body, int group = btBroadphaseProxy::DefaultFilter, int mask = btBroadphaseProxy::AllFilter);
 
 	virtual void removeMultiBody(btMultiBody* body);
@@ -118,6 +120,5 @@ public:
     virtual void solveExternalForces(btContactSolverInfo& solverInfo);
     virtual void solveInternalConstraints(btContactSolverInfo& solverInfo);
     void buildIslands();
-
 };
 #endif  //BT_MULTIBODY_DYNAMICS_WORLD_H

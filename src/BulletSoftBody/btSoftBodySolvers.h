@@ -72,10 +72,10 @@ public:
 	virtual void copyBackToSoftBodies(bool bMove = true) = 0;
 
 	/** Predict motion of soft bodies into next timestep */
-	virtual void predictMotion(float solverdt) = 0;
+	virtual void predictMotion(btScalar solverdt) = 0;
 
 	/** Solve constraints for a set of soft bodies */
-	virtual void solveConstraints(float solverdt) = 0;
+	virtual void solveConstraints(btScalar solverdt) = 0;
 
 	/** Perform necessary per-step updates of soft bodies such as recomputing normals and bounding boxes */
 	virtual void updateSoftBodies() = 0;
