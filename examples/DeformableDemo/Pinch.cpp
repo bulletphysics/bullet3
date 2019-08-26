@@ -56,7 +56,7 @@ struct TetraBunny
 
 class Pinch : public CommonRigidBodyBase
 {
-    btAlignedObjectArray<btDeformableLagrangianForce*> forces;
+    btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 public:
 	Pinch(struct GUIHelperInterface* helper)
 		: CommonRigidBodyBase(helper)
@@ -339,15 +339,15 @@ void Pinch::initPhysics()
         
         btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(1,0.05);
         getDeformableDynamicsWorld()->addForce(psb, mass_spring);
-        forces.push_back(mass_spring);
+        m_forces.push_back(mass_spring);
         
         btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
-        forces.push_back(gravity_force);
+        m_forces.push_back(gravity_force);
         
         btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(.2,1);
         getDeformableDynamicsWorld()->addForce(psb, neohookean);
-        forces.push_back(neohookean);
+        m_forces.push_back(neohookean);
         // add a grippers
         createGrip();
     }
@@ -372,11 +372,12 @@ void Pinch::exitPhysics()
 		delete obj;
 	}
     // delete forces
-    for (int j = 0; j < forces.size(); j++)
+    for (int j = 0; j < m_forces.size(); j++)
     {
-        btDeformableLagrangianForce* force = forces[j];
+        btDeformableLagrangianForce* force = m_forces[j];
         delete force;
     }
+    m_forces.clear();
 	//delete collision shapes
 	for (int j = 0; j < m_collisionShapes.size(); j++)
 	{
