@@ -92,7 +92,7 @@ public:
     {
         // btMatrix3x3 JFinvT = F.adjoint();
         btScalar J = F.determinant();
-        P =  F.adjoint() * (m_lambda * (J-1));
+        P =  F.adjoint().transpose() * (m_lambda * (J-1));
         if (m_mu > SIMD_EPSILON)
         {
             btMatrix3x3 R,S;

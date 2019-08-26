@@ -166,7 +166,7 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
                     node.m_v[c] = -clampDeltaV;
                 }
             }
-            node.m_x  =  node.m_q + timeStep * node.m_v;
+            node.m_x  =  node.m_x + timeStep * node.m_v;
         }
     }
     m_deformableBodySolver->revertVelocity();

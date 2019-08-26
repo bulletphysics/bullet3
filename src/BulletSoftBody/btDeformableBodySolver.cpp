@@ -174,7 +174,7 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
     {
         btSoftBody::Node& n = psb->m_nodes[i];
         n.m_q = n.m_x;
-        n.m_x += n.m_v * dt;
+        n.m_q += n.m_v * dt;
     }
     /* Bounds                */
     psb->updateBounds();
@@ -184,7 +184,7 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
     for (i = 0, ni = psb->m_nodes.size(); i < ni; ++i)
     {
         btSoftBody::Node& n = psb->m_nodes[i];
-        vol = btDbvtVolume::FromCR(n.m_x, psb->m_sst.radmrg);
+        vol = btDbvtVolume::FromCR(n.m_q, psb->m_sst.radmrg);
         psb->m_ndbvt.update(n.m_leaf,
                        vol,
                        n.m_v * psb->m_sst.velmrg,

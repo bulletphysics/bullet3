@@ -61,7 +61,7 @@ public:
                 btVector3 scaled_force = scale * m_dampingStiffness * v_diff;
                 if (m_momentum_conserving)
                 {
-                    if ((node2->m_q - node1->m_q).norm() > SIMD_EPSILON)
+                    if ((node2->m_x - node1->m_x).norm() > SIMD_EPSILON)
                     {
                         btVector3 dir = (node2->m_x - node1->m_x).normalized();
                         scaled_force = scale * m_dampingStiffness * v_diff.dot(dir) * dir;
@@ -91,7 +91,7 @@ public:
                 
                 // elastic force
                 // explicit elastic force
-                btVector3 dir = (node2->m_q - node1->m_q);
+                btVector3 dir = (node2->m_x - node1->m_x);
                 btVector3 dir_normalized = (dir.norm() > SIMD_EPSILON) ? dir.normalized() : btVector3(0,0,0);
                 btVector3 scaled_force = scale * m_elasticStiffness * (dir - dir_normalized * r);
                 force[id1] += scaled_force;
@@ -118,7 +118,7 @@ public:
                 btVector3 local_scaled_df = scaled_k_damp * (dv[id2] - dv[id1]);
                 if (m_momentum_conserving)
                 {
-                    if ((node2->m_q - node1->m_q).norm() > SIMD_EPSILON)
+                    if ((node2->m_x - node1->m_x).norm() > SIMD_EPSILON)
                     {
                         btVector3 dir = (node2->m_x - node1->m_x).normalized();
                         local_scaled_df= scaled_k_damp * (dv[id2] - dv[id1]).dot(dir) * dir;

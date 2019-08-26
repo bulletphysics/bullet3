@@ -998,7 +998,7 @@ struct btSoftColliders
 			if (!n.m_battach)
             {
                 // check for collision at x_{n+1}^*
-                if (psb->checkDeformableContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predict = */ true))
+                if (psb->checkDeformableContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predict = */ true))
                 {
                     const btScalar ima = n.m_im;
                     const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;
@@ -1006,7 +1006,7 @@ struct btSoftColliders
                     if (ms > 0)
                     {
                         // resolve contact at x_n
-                        psb->checkDeformableContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predict = */ false);
+                        psb->checkDeformableContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predict = */ false);
                         btSoftBody::sCti& cti = c.m_cti;
                         c.m_node = &n;
                         const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();
@@ -1019,7 +1019,7 @@ struct btSoftColliders
                             const btTransform& wtr = m_rigidBody ? m_rigidBody->getWorldTransform() : m_colObj1Wrap->getCollisionObject()->getWorldTransform();
                             static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
                             const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
-                            const btVector3 ra = n.m_q - wtr.getOrigin();
+                            const btVector3 ra = n.m_x - wtr.getOrigin();
                             
                             c.m_c0 = ImpulseMatrix(psb->m_sst.sdt, ima, imb, iwi, ra);
                             c.m_c1 = ra;
@@ -1035,9 +1035,9 @@ struct btSoftColliders
                                 btVector3 t1 = generateUnitOrthogonalVector(normal);
                                 btVector3 t2 = btCross(normal, t1);
                                 btMultiBodyJacobianData jacobianData_normal, jacobianData_t1, jacobianData_t2;
-                                findJacobian(multibodyLinkCol, jacobianData_normal, c.m_node->m_q, normal);
-                                findJacobian(multibodyLinkCol, jacobianData_t1, c.m_node->m_q, t1);
-                                findJacobian(multibodyLinkCol, jacobianData_t2, c.m_node->m_q, t2);
+                                findJacobian(multibodyLinkCol, jacobianData_normal, c.m_node->m_x, normal);
+                                findJacobian(multibodyLinkCol, jacobianData_t1, c.m_node->m_x, t1);
+                                findJacobian(multibodyLinkCol, jacobianData_t2, c.m_node->m_x, t2);
                                 
                                 btScalar* J_n = &jacobianData_normal.m_jacobians[0];
                                 btScalar* J_t1 = &jacobianData_t1.m_jacobians[0];
