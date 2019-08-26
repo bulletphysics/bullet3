@@ -546,7 +546,7 @@ MultithreadedDebugDrawer : public btIDebugDraw
 	btHashMap<ColorWidth, int> m_hashedLines;
 
 public:
-	void drawDebugDrawerLines()
+	virtual void drawDebugDrawerLines()
 	{
 		if (m_hashedLines.size())
 		{
@@ -628,7 +628,7 @@ public:
 		return m_debugMode;
 	}
 
-	virtual void clearLines()
+	virtual void clearLines() override
 	{
 		m_hashedLines.clear();
 		m_sortedIndices.clear();
@@ -650,13 +650,21 @@ class MultiThreadedOpenGLGuiHelper : public GUIHelperInterface
 
 public:
 	MultithreadedDebugDrawer* m_debugDraw;
-	void drawDebugDrawerLines()
+	virtual void drawDebugDrawerLines()
 	{
 		if (m_debugDraw)
 		{
 			m_debugDraw->drawDebugDrawerLines();
 		}
 	}
+        virtual void clearLines()
+        {
+		if (m_debugDraw)
+		{
+			m_debugDraw->clearLines();
+		}
+	}
+        
 	GUIHelperInterface* m_childGuiHelper;
 
 	btHashMap<btHashPtr, int> m_cachedTextureIds;
@@ -847,10 +855,8 @@ public:
 			delete m_debugDraw;
 			m_debugDraw = 0;
 		}
-
-		m_debugDraw = new MultithreadedDebugDrawer(this);
-
-		rbWorld->setDebugDrawer(m_debugDraw);
+                m_debugDraw = new MultithreadedDebugDrawer(this);
+                rbWorld->setDebugDrawer(m_debugDraw);
 
 		//m_childGuiHelper->createPhysicsDebugDrawer(rbWorld);
 	}

@@ -128,7 +128,7 @@ public:
         
         //use a smaller internal timestep, there are stability issues
         float internalTimeStep = 1. / 250.f;
-        m_dynamicsWorld->stepSimulation(deltaTime, 100, internalTimeStep);
+        m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
     void createGrip()
