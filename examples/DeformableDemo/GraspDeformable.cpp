@@ -357,7 +357,7 @@ void GraspDeformable::initPhysics()
 //        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
 //        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(0,6));
         
-        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(.5,0.04, true);
+        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(.0,0.04, true);
         getDeformableDynamicsWorld()->addForce(psb, mass_spring);
         m_forces.push_back(mass_spring);
         

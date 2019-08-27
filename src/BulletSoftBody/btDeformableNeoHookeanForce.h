@@ -87,18 +87,20 @@ public:
         btMatrix3x3 C = F.transpose()*F;
         btScalar J = F.determinant();
         btScalar trace = C[0].getX() + C[1].getY() + C[2].getZ();
-        P = F * m_mu * ( 1. - 1. / (trace + 1.)) + F.adjoint() * (m_lambda * (J - 1) - 0.75 * m_mu);
+        P = F * m_mu * ( 1. - 1. / (trace + 1.)) + F.adjoint().transpose() * (m_lambda * (J - 1) - 0.75 * m_mu);
     }
     
     virtual void addScaledForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
     {
     }
     
-    void firstPiolaDifferential(const btMatrix3x3& F, const btMatrix3x3& G,  btMatrix3x3& P)
+    void firstPiolaDifferential(const btMatrix3x3& F, const btMatrix3x3& dF,  btMatrix3x3& dP)
     {
         btScalar J = F.determinant();
-        addScaledCofactorMatrixDifferential(F, G, m_lambda*(J-1), P);
-        P += F.adjoint() * m_lambda * DotProduct(F.adjoint(), G);
+        addScaledCofactorMatrixDifferential(F, dF, m_lambda*(J-1) - 0.75*m_mu, dP);
+        dP += F.adjoint().transpose() * m_lambda * DotProduct(F.adjoint().transpose(), dF);
+        
+        //todo @xuchenhan: add the dP of the m_mu term.
     }
     
     btScalar DotProduct(const btMatrix3x3& A, const btMatrix3x3& B)
