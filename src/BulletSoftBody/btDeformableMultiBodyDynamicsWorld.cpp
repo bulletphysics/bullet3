@@ -168,6 +168,7 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
             }
             node.m_x  =  node.m_x + timeStep * node.m_v;
             node.m_q = node.m_x;
+            node.m_vn = node.m_v;
         }
     }
     m_deformableBodySolver->revertVelocity();
@@ -175,11 +176,8 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 
 void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
 {
-    if (!m_implicit)
-    {
-        // save v_{n+1}^* velocity after explicit forces
-        m_deformableBodySolver->backupVelocity();
-    }
+    // save v_{n+1}^* velocity after explicit forces
+    m_deformableBodySolver->backupVelocity();
     
     // set up constraints among multibodies and between multibodies and deformable bodies
     setupConstraints();
@@ -187,11 +185,13 @@ void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
     
     if (m_implicit)
     {
-    // revert to v_n after collisions are registered
-        m_deformableBodySolver->revertVelocity();
-        // todo @xuchenhan : think about whether contact solve should be done with v_n velocity or v_{n+1}^* velocity. It's using v_n for implicit and v_{n+1}^* for non-implicit now.
+        // at this point dv = v_{n+1} - v_{n+1}^*
+        // modify dv such that dv = v_{n+1} - v_n
+        // modify m_backupVelocity so that it stores v_n instead of v_{n+1}^* as needed by Newton
+        m_deformableBodySolver->backupVn();
     }
-    // At this point, dv is golden for nodes in contact
+    
+    // At this point, dv should be golden for nodes in contact
     m_deformableBodySolver->solveDeformableConstraints(timeStep);
 }
 
@@ -211,7 +211,6 @@ void btDeformableMultiBodyDynamicsWorld::setupConstraints()
         
         // build islands
         m_islandManager->buildIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld());
-        // write the constraint information of each island to the callback, and also setup the constraints in solver
     }
 }
 
@@ -317,11 +316,11 @@ void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
     m_internalTime += timeStep;
     m_deformableBodySolver->setImplicit(m_implicit);
     m_deformableBodySolver->reinitialize(m_softBodies, timeStep);
-    if (m_implicit)
-    {
-        // backup v_n velocity
-        m_deformableBodySolver->backupVelocity();
-    }
+//    if (m_implicit)
+//    {
+//        // todo: backup v_n velocity somewhere else
+//        m_deformableBodySolver->backupVelocity();
+//    }
     btDispatcherInfo& dispatchInfo = btMultiBodyDynamicsWorld::getDispatchInfo();
     dispatchInfo.m_timeStep = timeStep;
     dispatchInfo.m_stepCount = 0;

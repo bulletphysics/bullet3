@@ -67,7 +67,7 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
             {
                 break;
             }
-//            m_objective->applyDynamicFriction(m_residual);
+            m_objective->applyDynamicFriction(m_residual);
             computeStep(m_ddv, m_residual);
             updateDv();
             for (int j = 0; j < m_numNodes; ++j)
@@ -189,6 +189,20 @@ void btDeformableBodySolver::backupVelocity()
     }
 }
 
+void btDeformableBodySolver::backupVn()
+{
+    int counter = 0;
+    for (int i = 0; i < m_softBodySet.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodySet[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            m_dv[counter] += m_backupVelocity[counter] - psb->m_nodes[j].m_vn;
+            m_backupVelocity[counter++] = psb->m_nodes[j].m_vn;
+        }
+    }
+}
+
 void btDeformableBodySolver::revertVelocity()
 {
     int counter = 0;
@@ -246,8 +260,7 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
     for (i = 0, ni = psb->m_nodes.size(); i < ni; ++i)
     {
         btSoftBody::Node& n = psb->m_nodes[i];
-        n.m_q = n.m_x;
-        n.m_q += n.m_v * dt;
+        n.m_q = n.m_x + n.m_v * dt;
     }
     /* Bounds                */
     psb->updateBounds();

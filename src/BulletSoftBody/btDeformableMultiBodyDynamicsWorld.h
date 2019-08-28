@@ -73,7 +73,7 @@ public:
         m_sbi.m_broadphase = pairCache;
         m_sbi.m_dispatcher = dispatcher;
         m_sbi.m_sparsesdf.Initialize();
-        m_sbi.m_sparsesdf.setDefaultVoxelsz(0.0025);
+        m_sbi.m_sparsesdf.setDefaultVoxelsz(0.025);
         m_sbi.m_sparsesdf.Reset();
         
         m_sbi.air_density = (btScalar)1.2;
@@ -82,7 +82,7 @@ public:
         m_sbi.water_normal = btVector3(0, 0, 0);
         m_sbi.m_gravity.setValue(0, -10, 0);
         m_internalTime = 0.0;
-        m_implicit = false;
+        m_implicit = true;
     }
 
     void setSolverCallback(btSolverCallback cb)

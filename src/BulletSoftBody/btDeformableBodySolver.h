@@ -75,6 +75,7 @@ public:
     void predictDeformableMotion(btSoftBody* psb, btScalar dt);
     
     void backupVelocity();
+    void backupVn();
     void revertVelocity();
     void updateVelocity();
     

@@ -83,7 +83,7 @@ void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) 
 
 void btDeformableBackwardEulerObjective::updateVelocity(const TVStack& dv)
 {
-    // only the velocity of the constrained nodes needs to be updated during CG solve
+    // only the velocity of the constrained nodes needs to be updated during contact solve
     for (int i = 0; i < projection.m_constraints.size(); ++i)
     {
         int index = projection.m_constraints.getKeyAtIndex(i).getUid1();

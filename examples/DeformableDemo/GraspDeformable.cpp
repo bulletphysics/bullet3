@@ -325,7 +325,8 @@ void GraspDeformable::initPhysics()
     {
         char relative_path[1024];
 //        b3FileUtils::findFile("banana.vtk", relative_path, 1024);
-         b3FileUtils::findFile("ball.vtk", relative_path, 1024);
+        b3FileUtils::findFile("ball.vtk", relative_path, 1024);
+//        b3FileUtils::findFile("single_tet.vtk", relative_path, 1024);
 //         b3FileUtils::findFile("tube.vtk", relative_path, 1024);
 //         b3FileUtils::findFile("torus.vtk", relative_path, 1024);
 //         b3FileUtils::findFile("paper_roll.vtk", relative_path, 1024);
@@ -343,21 +344,16 @@ void GraspDeformable::initPhysics()
         psb->scale(btVector3(.25, .25, .25));
 //        psb->scale(btVector3(.3, .3, .3));  // for tube, torus, boot
 //        psb->scale(btVector3(1, 1, 1));  // for ditto
-//        psb->translate(btVector3(0, 0, 2)); for boot
-        psb->getCollisionShape()->setMargin(0.01);
+        psb->translate(btVector3(.25, 0, 0.4)); 
+        psb->getCollisionShape()->setMargin(0.02);
         psb->setTotalMass(.1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
-        psb->getWorldInfo()->m_maxDisplacement = .1f;
-        // nonlinear damping 
-//        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(1,0.04, true));
-//        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
-//        getDeformableDynamicsWorld()->addForce(psb, new btDeformableCorotatedForce(0,6));
         
-        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(.0,0.04, true);
+        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(.0,.04, true);
         getDeformableDynamicsWorld()->addForce(psb, mass_spring);
         m_forces.push_back(mass_spring);
         
@@ -365,7 +361,7 @@ void GraspDeformable::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
         
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(2,10);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(5,10);
         getDeformableDynamicsWorld()->addForce(psb, neohookean);
         m_forces.push_back(neohookean);
     }
@@ -415,8 +411,8 @@ void GraspDeformable::initPhysics()
     
     {
         SliderParams slider("Closing velocity", &sGripperClosingTargetVelocity);
-        slider.m_minVal = -.1;
-        slider.m_maxVal = .1;
+        slider.m_minVal = -.3;
+        slider.m_maxVal = .3;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
     
@@ -470,8 +466,8 @@ btMultiBody* GraspDeformable::createFeatherstoneMultiBody(btMultiBodyDynamicsWor
 {
     //init the base
     btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
-    float baseMass = 1.f;
-    float linkMass = 1.f;
+    float baseMass = 100.f;
+    float linkMass = 100.f;
     int numLinks = 2;
     
     if (baseMass)
