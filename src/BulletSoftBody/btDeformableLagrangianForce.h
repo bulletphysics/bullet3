@@ -105,7 +105,6 @@ public:
             psb->updateDeformation();
         }
         
-        
         TVStack dx;
         dx.resize(getNumNodes());
         TVStack dphi_dx;
@@ -140,7 +139,6 @@ public:
         }
         
         btAlignedObjectArray<double> errors;
-        double h = 1;
         for (int it = 0; it < 10; ++it)
         {
             for (int i = 0; i < dx.size(); ++i)
