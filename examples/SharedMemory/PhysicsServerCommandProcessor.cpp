@@ -105,7 +105,6 @@
 #include "BulletSoftBody/btDeformableBodySolver.h"
 #include "BulletSoftBody/btDeformableMultiBodyConstraintSolver.h"
 #include "../SoftDemo/BunnyMesh.h"
-#define SKIP_DEFORMABLE_BODY
 #else
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #endif
@@ -8040,6 +8039,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 
 		bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
                 btSoftBody* psb = NULL;
+                btScalar spring_elastic_stiffness, spring_damping_stiffness;
                 if (out_type == UrdfGeometry::FILE_OBJ)
                 {
 		    std::vector<tinyobj::shape_t> shapes;
@@ -8064,14 +8064,20 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 		    		psb = btSoftBodyHelpers::CreateFromTriMesh(m_data->m_dynamicsWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
                         }
                     }
+#ifndef SKIP_DEFORMABLE_BODY
+                    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
+                    {
+                            spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
+                            spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
+                            m_data->m_dynamicsWorld->addForce(psb, new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, false));
+                    }
+#endif
                 }
-                else if (out_type = UrdfGeometry::FILE_VTK)
+                else if (out_type == UrdfGeometry::FILE_VTK)
                 {
 #ifndef SKIP_DEFORMABLE_BODY
                     psb = btSoftBodyHelpers::CreateFromVtkFile(m_data->m_dynamicsWorld->getWorldInfo(), out_found_filename.c_str());
                     btScalar corotated_mu, corotated_lambda;
-                    btScalar spring_elastic_stiffness, spring_damping_stiffness;
-                    btScalar gravity_constant;
                     if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_COROTATED_FORCE)
                     {
                             corotated_mu = clientCmd.m_loadSoftBodyArguments.m_corotatedMu;
@@ -8085,26 +8091,18 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
                             neohookean_lambda = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanLambda;
                             m_data->m_dynamicsWorld->addForce(psb, new btDeformableNeoHookeanForce(neohookean_mu, neohookean_lambda));
                     }
+                    btScalar spring_elastic_stiffness, spring_damping_stiffness;
+                    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
+                    {
+                            spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
+                            spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
+                            m_data->m_dynamicsWorld->addForce(psb, new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true));
+                    }
 #endif
                 }
                 if (psb != NULL)
                 {
 #ifndef SKIP_DEFORMABLE_BODY
-                                btScalar corotated_mu, corotated_lambda;
-                                btScalar spring_elastic_stiffness, spring_damping_stiffness;
-                                btScalar gravity_constant;
-                                if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_COROTATED_FORCE)
-                                {
-                                        corotated_mu = clientCmd.m_loadSoftBodyArguments.m_corotatedMu;
-                                        corotated_lambda = clientCmd.m_loadSoftBodyArguments.m_corotatedLambda;
-                                        m_data->m_dynamicsWorld->addForce(psb, new btDeformableCorotatedForce(corotated_mu, corotated_lambda));
-                                }
-                                if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
-                                {
-                                        spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
-                                        spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
-                                        m_data->m_dynamicsWorld->addForce(psb, new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, false));
-                                }
                                 btVector3 gravity(0,0,0);
                                 if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_GRAVITY_FORCE)
                                 {
