@@ -1,19 +1,10 @@
 cmake_minimum_required(VERSION 3.0)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
-cmake_policy(SET CMP0017 NEW)
 #this line has to appear before 'PROJECT' in order to be able to disable incremental linking
 SET(MSVC_INCREMENTAL_DEFAULT ON)
 
 PROJECT(BULLET_PHYSICS)
 FILE (STRINGS "VERSION" BULLET_VERSION)
-
-IF(COMMAND cmake_policy)
-   cmake_policy(SET CMP0003 NEW)
-   if(POLICY CMP0042)
-      # Enable MACOSX_RPATH by default.
-      cmake_policy(SET CMP0042 NEW)
-   endif(POLICY CMP0042)
-ENDIF(COMMAND cmake_policy)
 
 IF (NOT CMAKE_BUILD_TYPE)
 # SET(CMAKE_BUILD_TYPE "Debug")
@@ -275,11 +266,6 @@ ENDIF()
 ELSE(WIN32)
 OPTION(USE_GLUT "Use Glut"	ON)
 ENDIF(WIN32)
-
-
-IF(COMMAND cmake_policy)
-   cmake_policy(SET CMP0003 NEW)
-ENDIF(COMMAND cmake_policy)
 
 
 # This is the shortcut to finding GLU, GLUT and OpenGL if they are properly installed on your system
