@@ -20,6 +20,9 @@ pip-selfcheck.json
 /dist
 *.eggs
 
+# Apple
+.DS_Store
+
 # CMake
 CMakeFiles/
 CMakeCache.txt
