@@ -31,9 +31,10 @@ public:
     {
     }
     
-    virtual void addScaledImplicitForce(btScalar scale, TVStack& force)
+    virtual void addScaledForces(btScalar scale, TVStack& force)
     {
         addScaledDampingForce(scale, force);
+        addScaledElasticForce(scale, force);
     }
     
     virtual void addScaledExplicitForce(btScalar scale, TVStack& force)
@@ -61,9 +62,9 @@ public:
                 btVector3 scaled_force = scale * m_dampingStiffness * v_diff;
                 if (m_momentum_conserving)
                 {
-                    if ((node2->m_x - node1->m_x).norm() > SIMD_EPSILON)
+                    if ((node2->m_q - node1->m_q).norm() > SIMD_EPSILON)
                     {
-                        btVector3 dir = (node2->m_x - node1->m_x).normalized();
+                        btVector3 dir = (node2->m_q - node1->m_q).normalized();
                         scaled_force = scale * m_dampingStiffness * v_diff.dot(dir) * dir;
                     }
                 }
@@ -91,7 +92,7 @@ public:
                 
                 // elastic force
                 // explicit elastic force
-                btVector3 dir = (node2->m_x - node1->m_x);
+                btVector3 dir = (node2->m_q - node1->m_q);
                 btVector3 dir_normalized = (dir.norm() > SIMD_EPSILON) ? dir.normalized() : btVector3(0,0,0);
                 btVector3 scaled_force = scale * m_elasticStiffness * (dir - dir_normalized * r);
                 force[id1] += scaled_force;
@@ -100,7 +101,7 @@ public:
         }
     }
     
-    virtual void addScaledForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
+    virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
     {
         // implicit damping force differential
         for (int i = 0; i < m_softBodies.size(); ++i)
@@ -118,12 +119,40 @@ public:
                 btVector3 local_scaled_df = scaled_k_damp * (dv[id2] - dv[id1]);
                 if (m_momentum_conserving)
                 {
-                    if ((node2->m_x - node1->m_x).norm() > SIMD_EPSILON)
+                    if ((node2->m_q - node1->m_q).norm() > SIMD_EPSILON)
                     {
-                        btVector3 dir = (node2->m_x - node1->m_x).normalized();
+                        btVector3 dir = (node2->m_q - node1->m_q).normalized();
                         local_scaled_df= scaled_k_damp * (dv[id2] - dv[id1]).dot(dir) * dir;
                     }
                 }
+                df[id1] += local_scaled_df;
+                df[id2] -= local_scaled_df;
+            }
+        }
+    }
+    
+    virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
+    {
+        // implicit damping force differential
+        for (int i = 0; i < m_softBodies.size(); ++i)
+        {
+            const btSoftBody* psb = m_softBodies[i];
+            btScalar scaled_k_damp = m_dampingStiffness * scale;
+            for (int j = 0; j < psb->m_links.size(); ++j)
+            {
+                const btSoftBody::Link& link = psb->m_links[j];
+                btSoftBody::Node* node1 = link.m_n[0];
+                btSoftBody::Node* node2 = link.m_n[1];
+                size_t id1 = node1->index;
+                size_t id2 = node2->index;
+                btScalar r = link.m_rl;
+
+                // todo @xuchenhan: find df
+                btVector3 dir = (node2->m_q - node1->m_q);
+                btVector3 dir_normalized = (dir.norm() > SIMD_EPSILON) ? dir.normalized() : btVector3(0,0,0);
+                btVector3 scaled_force = scale * m_elasticStiffness * (dir - dir_normalized * r);
+                btVector3 local_scaled_df = btVector3(0,0,0);
+                
                 df[id1] += local_scaled_df;
                 df[id2] -= local_scaled_df;
             }

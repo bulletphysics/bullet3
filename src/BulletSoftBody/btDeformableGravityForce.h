@@ -28,8 +28,9 @@ public:
     {
     }
     
-    virtual void addScaledImplicitForce(btScalar scale, TVStack& force)
+    virtual void addScaledForces(btScalar scale, TVStack& force)
     {
+        addScaledGravityForce(scale, force);
     }
     
     virtual void addScaledExplicitForce(btScalar scale, TVStack& force)
@@ -37,9 +38,16 @@ public:
         addScaledGravityForce(scale, force);
     }
     
-    virtual void addScaledForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
+    virtual void addScaledDampingForce(btScalar scale, TVStack& force)
     {
-        
+    }
+    
+    virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
+    {
+    }
+    
+    virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
+    {
     }
     
     virtual void addScaledGravityForce(btScalar scale, TVStack& force)

@@ -167,6 +167,7 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
                 }
             }
             node.m_x  =  node.m_x + timeStep * node.m_v;
+            node.m_q = node.m_x;
         }
     }
     m_deformableBodySolver->revertVelocity();
@@ -174,12 +175,23 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 
 void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
 {
-    // save v_{n+1}^* velocity after explicit forces
-    m_deformableBodySolver->backupVelocity();
+    if (!m_implicit)
+    {
+        // save v_{n+1}^* velocity after explicit forces
+        m_deformableBodySolver->backupVelocity();
+    }
     
     // set up constraints among multibodies and between multibodies and deformable bodies
     setupConstraints();
     solveMultiBodyRelatedConstraints();
+    
+    if (m_implicit)
+    {
+    // revert to v_n after collisions are registered
+        m_deformableBodySolver->revertVelocity();
+        // todo @xuchenhan : think about whether contact solve should be done with v_n velocity or v_{n+1}^* velocity. It's using v_n for implicit and v_{n+1}^* for non-implicit now.
+    }
+    // At this point, dv is golden for nodes in contact
     m_deformableBodySolver->solveDeformableConstraints(timeStep);
 }
 
@@ -273,7 +285,6 @@ void btDeformableMultiBodyDynamicsWorld::solveMultiBodyRelatedConstraints()
         }
     }
     
-    // todo : may not be necessary
     for (int i = 0; i < this->m_multiBodies.size(); i++)
     {
         btMultiBody* bod = m_multiBodies[i];
@@ -304,7 +315,13 @@ void btDeformableMultiBodyDynamicsWorld::predictUnconstraintMotion(btScalar time
 void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
 {
     m_internalTime += timeStep;
+    m_deformableBodySolver->setImplicit(m_implicit);
     m_deformableBodySolver->reinitialize(m_softBodies, timeStep);
+    if (m_implicit)
+    {
+        // backup v_n velocity
+        m_deformableBodySolver->backupVelocity();
+    }
     btDispatcherInfo& dispatchInfo = btMultiBodyDynamicsWorld::getDispatchInfo();
     dispatchInfo.m_timeStep = timeStep;
     dispatchInfo.m_stepCount = 0;

@@ -34,6 +34,7 @@ class btDeformableBodySolver : public btSoftBodySolver
 protected:
     int m_numNodes;
     TVStack m_dv;
+    TVStack m_ddv;
     TVStack m_residual;
     btAlignedObjectArray<btSoftBody *> m_softBodySet;
    
@@ -41,7 +42,9 @@ protected:
     btScalar m_dt;
     btScalar m_contact_iterations;
     btConjugateGradient<btDeformableBackwardEulerObjective> m_cg;
-    
+    bool m_implicit;
+    int m_maxNewtonIterations;
+    btScalar m_newtonTolerance;
     
 public:
     btDeformableBackwardEulerObjective* m_objective;
@@ -94,7 +97,14 @@ public:
     virtual void optimize(btAlignedObjectArray<btSoftBody *> &softBodies, bool forceUpdate = false){}
     
     virtual bool checkInitialized(){return true;}
-
+    
+    void setImplicit(bool implicit);
+    
+    void updateState();
+    
+    void updateDv();
+    
+    void updateTempPosition();
 };
 
 #endif /* btDeformableBodySolver_h */
