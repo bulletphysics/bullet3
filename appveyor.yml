@@ -1,10 +1,15 @@
+environment:
+  matrix:
+  - CMAKE_ARGS: -DBUILD_SHARED_LIBS=ON
+  - CMAKE_ARGS: -DBUILD_SHARED_LIBS=OFF
+
 build:
   project: build3/vs2010/0_Bullet3Solution.sln
 
 build_script:
   - mkdir cm
   - cd cm
-  - cmake .. -G"Visual Studio 14 2015 Win64"
+  - cmake .. -G"Visual Studio 14 2015 Win64" %CMAKE_ARGS%
   - cmake --build . --target ALL_BUILD --config Release -- /maxcpucount:4 /verbosity:quiet
 
 test_script:
