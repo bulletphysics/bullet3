@@ -8,4 +8,4 @@ Description: Bullet extras that include several utilities for robotics including
 Version: @BULLET_VERSION@
 Requires: bullet
 Libs: -L${libdir} -lBulletRobotics
-Cflags: @BULLET_DOUBLE_DEF@ -I${includedir} -I@{prefix}/@BULLET_INSTALL_INCLUDEDIR@ -I@CMAKE_INSTALL_INCLUDEDIR@
+Cflags: @BULLET_INSTALL_DEFINITIONS@ -I${includedir} -I@{prefix}/@BULLET_INSTALL_INCLUDEDIR@ -I@CMAKE_INSTALL_INCLUDEDIR@

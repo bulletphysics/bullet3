@@ -14,12 +14,18 @@
 #  BULLET_ROOT_DIR           - The base directory of Bullet
 #  BULLET_VERSION_STRING     - A human-readable string containing the version
 
-set ( BULLET_FOUND 1 )
-set ( BULLET_USE_FILE     "@BULLET_USE_FILE@" )
-set ( BULLET_DEFINITIONS  "@BULLET_INSTALL_DEFINITIONS@" )
-set ( BULLET_INCLUDE_DIR  "@BULLET_INSTALL_INCLUDEDIR@" )
-set ( BULLET_INCLUDE_DIRS "@BULLET_INSTALL_INCLUDEDIR@" )
-set ( BULLET_LIBRARIES    "@BULLET_INSTALL_LIBRARIES@" )
-set ( BULLET_LIBRARY_DIRS "@CMAKE_INSTALL_LIBDIR@" )
-set ( BULLET_ROOT_DIR     "@CMAKE_INSTALL_PREFIX@" )
-set ( BULLET_VERSION_STRING "@BULLET_VERSION@" )
+@PACKAGE_INIT@
+
+set            ( BULLET_FOUND          1 )
+set_and_check  ( BULLET_USE_FILE       "@PACKAGE_BULLET_INSTALL_USEFILE@" )
+set            ( BULLET_DEFINITIONS    "@BULLET_INSTALL_DEFINITIONS@" )
+set_and_check  ( BULLET_INCLUDE_DIR    "@PACKAGE_BULLET_INSTALL_INCLUDEDIR@" )
+set_and_check  ( BULLET_INCLUDE_DIRS   "@PACKAGE_BULLET_INSTALL_INCLUDEDIR@" )
+set            ( BULLET_LIBRARIES      "BulletSoftBody;BulletDynamics;BulletCollision;BulletInverseDynamics;LinearMath;Bullet3Common" )
+set_and_check  ( BULLET_LIBRARY_DIRS   "@PACKAGE_BULLET_INSTALL_LIBDIR@" )
+set_and_check  ( BULLET_ROOT_DIR       "${PACKAGE_PREFIX_DIR}" )
+set            ( BULLET_VERSION_STRING "@BULLET_VERSION@" )
+set_and_check  ( BULLET_CMAKE_DIR      "@PACKAGE_BULLET_INSTALL_CMAKEDIR@" )
+
+# Include targets exported by CMake
+include("${BULLET_CMAKE_DIR}/BulletTargets.cmake")
