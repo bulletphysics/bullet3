@@ -244,6 +244,7 @@ ENDIF()
 # This is the shortcut to finding GLU, GLUT and OpenGL if they are properly installed on your system
 # This should be the case.
 
+SET(OpenGL_GL_PREFERENCE GLVND)
 FIND_PACKAGE(OpenGL)
 IF(OPENGL_FOUND)
 	MESSAGE(STATUS "Found OpenGL: ${OPENGL_LIBRARIES}")
