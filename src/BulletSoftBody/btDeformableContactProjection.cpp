@@ -20,6 +20,7 @@
 btScalar btDeformableContactProjection::update()
 {
     btScalar residualSquare = 0;
+    btScalar max_impulse = 0;
     // loop through constraints to set constrained values
     for (int index = 0; index < m_constraints.size(); ++index)
     {
@@ -128,6 +129,7 @@ btScalar btDeformableContactProjection::update()
                     }
                 }
                 impulse = impulse_normal + impulse_tangent;
+                max_impulse = btMax(impulse.length2(), max_impulse);
                 
                 // dn is the normal component of velocity diffrerence. Approximates the residual.
                 residualSquare = btMax(residualSquare, dn*dn);
@@ -231,7 +233,16 @@ void btDeformableContactProjection::setConstraints()
                     else
                     {
                         DeformableContactConstraint& constraints = *m_constraints[c.m_node->index];
-                        constraints.append(c);
+                        bool single_contact = true;
+                        if (single_contact)
+                        {
+                          constraints.m_contact[0]->m_cti.m_offset > cti.m_offset;
+                          constraints.replace(c);
+                        }
+                        else
+                        {
+                          constraints.append(c);
+                        }
                     }
                 }
             }

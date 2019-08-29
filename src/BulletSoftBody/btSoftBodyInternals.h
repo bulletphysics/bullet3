@@ -998,7 +998,7 @@ struct btSoftColliders
 			if (!n.m_battach)
             {
                 // check for collision at x_{n+1}^*
-                if (psb->checkDeformableContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predict = */ true))
+                if (psb->checkDeformableContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predict = */ true) || psb->checkDeformableContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predict = */ true))
                 {
                     const btScalar ima = n.m_im;
                     const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;

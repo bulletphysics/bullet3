@@ -96,7 +96,7 @@ void btDeformableBodySolver::updateDv()
 
 void btDeformableBodySolver::computeStep(TVStack& ddv, const TVStack& residual)
 {
-//    btScalar tolerance = std::numeric_limits<btScalar>::epsilon() * m_objective->computeNorm(residual);
+    //btScalar tolerance = std::numeric_limits<btScalar>::epsilon() * m_objective->computeNorm(residual);
     btScalar tolerance = std::numeric_limits<btScalar>::epsilon();
     m_cg.solve(*m_objective, ddv, residual, tolerance);
 }
@@ -197,7 +197,16 @@ void btDeformableBodySolver::backupVn()
         btSoftBody* psb = m_softBodySet[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
-            m_dv[counter] += m_backupVelocity[counter] - psb->m_nodes[j].m_vn;
+            // Here:
+            // dv = 0 for nodes not in constraints
+            // dv = v_{n+1} - v_{n+1}^* for nodes in constraints
+            if (m_objective->projection.m_constraints.find(psb->m_nodes[j].index)!=NULL)
+            {
+                m_dv[counter] += m_backupVelocity[counter] - psb->m_nodes[j].m_vn;
+            }
+            // Now:
+            // dv = 0 for nodes not in constraints
+            // dv = v_{n+1} - v_n for nodes in constraints
             m_backupVelocity[counter++] = psb->m_nodes[j].m_vn;
         }
     }
