@@ -236,12 +236,14 @@ void btDeformableContactProjection::setConstraints()
                         bool single_contact = true;
                         if (single_contact)
                         {
-                          constraints.m_contact[0]->m_cti.m_offset > cti.m_offset;
-                          constraints.replace(c);
+                            if (constraints.m_contact[0]->m_cti.m_offset > cti.m_offset)
+                            {
+                                constraints.replace(c);
+                            }
                         }
                         else
                         {
-                          constraints.append(c);
+                            constraints.append(c);
                         }
                     }
                 }

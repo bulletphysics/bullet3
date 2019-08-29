@@ -20,9 +20,9 @@
 
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
-, m_cg(50)
+, m_cg(20)
 , m_maxNewtonIterations(5)
-, m_newtonTolerance(1e-10)
+, m_newtonTolerance(1e-4)
 {
     m_objective = new btDeformableBackwardEulerObjective(m_softBodySet, m_backupVelocity);
 }
