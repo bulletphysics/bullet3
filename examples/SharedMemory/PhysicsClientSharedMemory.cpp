@@ -621,6 +621,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 					BodyJointInfoCache* bodyJoints = new BodyJointInfoCache;
 					m_data->m_bodyJointMap.insert(bodyUniqueId, bodyJoints);
 					bodyJoints->m_bodyName = serverCmd.m_dataStreamArguments.m_bodyName;
+					bodyJoints->m_baseName = serverCmd.m_dataStreamArguments.m_bodyName;
 
 					for (int i = 0; i < bf.m_constraints.size(); i++)
 					{
