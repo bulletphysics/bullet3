@@ -2870,6 +2870,11 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	delete m_data->m_remoteDebugDrawer;
 	m_data->m_remoteDebugDrawer = 0;
 
+#ifndef SKIP_DEFORMABLE_BODY
+	delete m_data->m_deformablebodySolver;
+	m_data->m_deformablebodySolver = 0;
+#endif
+
 	delete m_data->m_solver;
 	m_data->m_solver = 0;
 
@@ -10392,14 +10397,10 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				btSoftBody* psb = bodyHandle->m_softBody;
 				if (m_data->m_pluginManager.getRenderInterface())
 				{
-#ifdef SKIP_DEFORMABLE_BODY
 					m_data->m_pluginManager.getRenderInterface()->removeVisualShape(psb->getBroadphaseHandle()->getUid());
-#endif
 				}
 				serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
-#ifdef SKIP_DEFORMABLE_BODY
 				m_data->m_dynamicsWorld->removeSoftBody(psb);
-#endif
 				int graphicsInstance = psb->getUserIndex2();
 				m_data->m_guiHelper->removeGraphicsInstance(graphicsInstance);
 				delete psb;
