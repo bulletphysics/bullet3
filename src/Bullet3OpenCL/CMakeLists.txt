@@ -31,6 +31,7 @@ SET(Bullet3OpenCL_clew_SRCS
 )
 
 SET(Bullet3OpenCL_clew_HDRS
+	Bullet3OpenCLApi.h
 	# ${Root_HDRS}
 )
 

@@ -16,6 +16,7 @@ subject to the following restrictions:
 #ifndef B3_SERIALIZER_H
 #define B3_SERIALIZER_H
 
+#include "bullet2FileLoaderApi.h"
 #include "Bullet3Common/b3Scalar.h"  // has definitions like B3_FORCE_INLINE
 #include "Bullet3Common/b3StackAlloc.h"
 #include "Bullet3Common/b3HashMap.h"
@@ -25,10 +26,10 @@ subject to the following restrictions:
 #endif
 #include <string.h>
 
-extern char b3s_bulletDNAstr[];
-extern int b3s_bulletDNAlen;
-extern char b3s_bulletDNAstr64[];
-extern int b3s_bulletDNAlen64;
+BULLET2FILELOADER_API extern char b3s_bulletDNAstr[];
+BULLET2FILELOADER_API extern int b3s_bulletDNAlen;
+BULLET2FILELOADER_API extern char b3s_bulletDNAstr64[];
+BULLET2FILELOADER_API extern int b3s_bulletDNAlen64;
 
 B3_FORCE_INLINE int b3StrLen(const char* str)
 {

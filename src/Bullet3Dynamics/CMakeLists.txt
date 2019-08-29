@@ -8,6 +8,7 @@ SET(Bullet3Dynamics_SRCS
 )
 
 SET(Bullet3Dynamics_HDRS
+	Bullet3DynamicsApi.h
 	b3CpuRigidBodyPipeline.h
 	ConstraintSolver/b3ContactSolverInfo.h
 	ConstraintSolver/b3FixedConstraint.h

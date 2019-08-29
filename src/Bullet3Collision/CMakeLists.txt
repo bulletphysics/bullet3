@@ -45,6 +45,7 @@ SET(Bullet3CollisionNarrowPhaseShared_HDRS
 )
 
 SET(Bullet3Collision_HDRS
+	Bullet3CollisionApi.h
 	${Bullet3CollisionBroadPhase_HDRS}
 	${Bullet3CollisionBroadPhaseShared_HDRS}
 	${Bullet3CollisionNarrowPhaseShared_HDRS}

@@ -100,6 +100,7 @@ SET(BulletCollision_SRCS
 )
 
 SET(Root_HDRS
+	BulletCollisionApi.h
 	../btBulletCollisionCommon.h
 )
 SET(BroadphaseCollision_HDRS

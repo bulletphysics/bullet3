@@ -4,6 +4,7 @@ SET(Bullet3Geometry_SRCS
 )
 
 SET(Bullet3Geometry_HDRS
+	Bullet3GeometryApi.h
 	b3AabbUtil.h
 	b3ConvexHullComputer.h
 	b3GeometryUtil.h

@@ -44,6 +44,7 @@ SET(BulletDynamics_SRCS
 )
 
 SET(Root_HDRS
+	BulletDynamicsApi.h
 	../btBulletDynamicsCommon.h
 	../btBulletCollisionCommon.h
 )

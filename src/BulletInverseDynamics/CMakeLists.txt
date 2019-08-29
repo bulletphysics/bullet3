@@ -6,6 +6,7 @@ SET(BulletInverseDynamics_SRCS
 )
 
 SET(BulletInverseDynamicsRoot_HDRS
+	BulletInverseDynamicsApi.h
 	IDConfig.hpp
 	IDConfigEigen.hpp
 	IDMath.hpp

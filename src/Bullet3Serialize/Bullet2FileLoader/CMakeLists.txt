@@ -7,6 +7,7 @@ SET(Bullet2FileLoader_SRCS
 )
 
 SET(Bullet2FileLoader_HDRS
+	bullet2FileLoaderApi.h
 	b3BulletFile.h
 	b3Chunk.h
 	b3Common.h

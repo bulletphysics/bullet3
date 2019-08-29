@@ -16,6 +16,7 @@ subject to the following restrictions:
 #ifndef BT_PERSISTENT_MANIFOLD_H
 #define BT_PERSISTENT_MANIFOLD_H
 
+#include "BulletCollision/BulletCollisionApi.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransform.h"
 #include "btManifoldPoint.h"
@@ -27,7 +28,7 @@ struct btCollisionObjectDoubleData;
 struct btCollisionObjectFloatData;
 
 ///maximum contact breaking and merging threshold
-extern btScalar gContactBreakingThreshold;
+BULLETCOLLISION_API extern btScalar gContactBreakingThreshold;
 
 #ifndef SWIG
 class btPersistentManifold;
@@ -36,10 +37,10 @@ typedef bool (*ContactDestroyedCallback)(void* userPersistentData);
 typedef bool (*ContactProcessedCallback)(btManifoldPoint& cp, void* body0, void* body1);
 typedef void (*ContactStartedCallback)(btPersistentManifold* const& manifold);
 typedef void (*ContactEndedCallback)(btPersistentManifold* const& manifold);
-extern ContactDestroyedCallback gContactDestroyedCallback;
-extern ContactProcessedCallback gContactProcessedCallback;
-extern ContactStartedCallback gContactStartedCallback;
-extern ContactEndedCallback gContactEndedCallback;
+BULLETCOLLISION_API extern ContactDestroyedCallback gContactDestroyedCallback;
+BULLETCOLLISION_API extern ContactProcessedCallback gContactProcessedCallback;
+BULLETCOLLISION_API extern ContactStartedCallback gContactStartedCallback;
+BULLETCOLLISION_API extern ContactEndedCallback gContactEndedCallback;
 #endif  //SWIG
 
 //the enum starts at 1024 to avoid type conflicts with btTypedConstraint

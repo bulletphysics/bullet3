@@ -16,6 +16,7 @@ subject to the following restrictions:
 #ifndef BT_SERIALIZER_H
 #define BT_SERIALIZER_H
 
+#include "LinearMathApi.h"
 #include "btScalar.h"  // has definitions like SIMD_FORCE_INLINE
 #include "btHashMap.h"
 
@@ -24,10 +25,10 @@ subject to the following restrictions:
 #endif
 #include <string.h>
 
-extern char sBulletDNAstr[];
-extern int sBulletDNAlen;
-extern char sBulletDNAstr64[];
-extern int sBulletDNAlen64;
+LINEARMATH_API extern char sBulletDNAstr[];
+LINEARMATH_API extern int sBulletDNAlen;
+LINEARMATH_API extern char sBulletDNAstr64[];
+LINEARMATH_API extern int sBulletDNAlen64;
 
 SIMD_FORCE_INLINE int btStrLen(const char* str)
 {

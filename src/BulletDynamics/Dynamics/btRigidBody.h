@@ -16,6 +16,8 @@ subject to the following restrictions:
 #ifndef BT_RIGIDBODY_H
 #define BT_RIGIDBODY_H
 
+#include "BulletDynamics/BulletDynamicsApi.h"
+
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
@@ -25,8 +27,8 @@ class btCollisionShape;
 class btMotionState;
 class btTypedConstraint;
 
-extern btScalar gDeactivationTime;
-extern bool gDisableDeactivation;
+BULLETDYNAMICS_API extern btScalar gDeactivationTime;
+BULLETDYNAMICS_API extern bool gDisableDeactivation;
 
 #ifdef BT_USE_DOUBLE_PRECISION
 #define btRigidBodyData btRigidBodyDoubleData
