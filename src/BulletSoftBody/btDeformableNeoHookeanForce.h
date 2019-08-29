@@ -23,12 +23,18 @@ class btDeformableNeoHookeanForce : public btDeformableLagrangianForce
 public:
     typedef btAlignedObjectArray<btVector3> TVStack;
     btScalar m_mu, m_lambda;
+    btScalar m_mu_damp, m_lambda_damp;
     btDeformableNeoHookeanForce(): m_mu(1), m_lambda(1)
     {
+        btScalar damping = 0.005;
+        m_mu_damp = damping * m_mu;
+        m_lambda_damp = damping * m_lambda;
     }
     
-    btDeformableNeoHookeanForce(btScalar mu, btScalar lambda): m_mu(mu), m_lambda(lambda)
+    btDeformableNeoHookeanForce(btScalar mu, btScalar lambda, btScalar damping = 0.005): m_mu(mu), m_lambda(lambda)
     {
+        m_mu_damp = damping * m_mu;
+        m_lambda_damp = damping * m_lambda;
     }
     
     virtual void addScaledForces(btScalar scale, TVStack& force)
@@ -44,6 +50,37 @@ public:
     
     virtual void addScaledDampingForce(btScalar scale, TVStack& force)
     {
+        int numNodes = getNumNodes();
+        btAssert(numNodes <= force.size())
+        btVector3 grad_N_hat_1st_col = btVector3(-1,-1,-1);
+        for (int i = 0; i < m_softBodies.size(); ++i)
+        {
+            btSoftBody* psb = m_softBodies[i];
+            for (int j = 0; j < psb->m_tetras.size(); ++j)
+            {
+                btSoftBody::Tetra& tetra = psb->m_tetras[j];
+                btSoftBody::Node* node0 = tetra.m_n[0];
+                btSoftBody::Node* node1 = tetra.m_n[1];
+                btSoftBody::Node* node2 = tetra.m_n[2];
+                btSoftBody::Node* node3 = tetra.m_n[3];
+                size_t id0 = node0->index;
+                size_t id1 = node1->index;
+                size_t id2 = node2->index;
+                size_t id3 = node3->index;
+                btMatrix3x3 dF = DsFromVelocity(node0, node1, node2, node3) * tetra.m_Dm_inverse;
+                btMatrix3x3 dP;
+                firstPiolaDampingDifferential(tetra.m_F, dF, dP);
+                btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
+                btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
+                
+                // damping force differential
+                btScalar scale1 = scale * tetra.m_element_measure;
+                force[id0] -= scale1 * df_on_node0;
+                force[id1] -= scale1 * df_on_node123.getColumn(0);
+                force[id2] -= scale1 * df_on_node123.getColumn(1);
+                force[id3] -= scale1 * df_on_node123.getColumn(2);
+            }
+        }
     }
     
     virtual double totalElasticEnergy()
@@ -111,6 +148,37 @@ public:
     
     virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
     {
+        int numNodes = getNumNodes();
+        btAssert(numNodes <= df.size())
+        btVector3 grad_N_hat_1st_col = btVector3(-1,-1,-1);
+        for (int i = 0; i < m_softBodies.size(); ++i)
+        {
+            btSoftBody* psb = m_softBodies[i];
+            for (int j = 0; j < psb->m_tetras.size(); ++j)
+            {
+                btSoftBody::Tetra& tetra = psb->m_tetras[j];
+                btSoftBody::Node* node0 = tetra.m_n[0];
+                btSoftBody::Node* node1 = tetra.m_n[1];
+                btSoftBody::Node* node2 = tetra.m_n[2];
+                btSoftBody::Node* node3 = tetra.m_n[3];
+                size_t id0 = node0->index;
+                size_t id1 = node1->index;
+                size_t id2 = node2->index;
+                size_t id3 = node3->index;
+                btMatrix3x3 dF = Ds(id0, id1, id2, id3, dv) * tetra.m_Dm_inverse;
+                btMatrix3x3 dP;
+                firstPiolaDampingDifferential(tetra.m_F, dF, dP);
+                btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
+                btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
+                
+                // damping force differential
+                btScalar scale1 = scale * tetra.m_element_measure;
+                df[id0] -= scale1 * df_on_node0;
+                df[id1] -= scale1 * df_on_node123.getColumn(0);
+                df[id2] -= scale1 * df_on_node123.getColumn(1);
+                df[id3] -= scale1 * df_on_node123.getColumn(2);
+            }
+        }
     }
     
     virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
@@ -167,16 +235,23 @@ public:
         dP += F.adjoint().transpose() * m_lambda * DotProduct(F.adjoint().transpose(), dF);
     }
     
+    void firstPiolaDampingDifferential(const btMatrix3x3& F, const btMatrix3x3& dF,  btMatrix3x3& dP)
+    {
+        btScalar J = F.determinant();
+        btMatrix3x3 C = F.transpose()*F;
+        btScalar trace = C[0].getX() + C[1].getY() + C[2].getZ();
+        dP = dF * m_mu_damp * ( 1. - 1. / (trace + 1.)) + F * (2*m_mu_damp) * DotProduct(F, dF) * (1./((1.+trace)*(1.+trace)));
+        
+        addScaledCofactorMatrixDifferential(F, dF, m_lambda_damp*(J-1.) - 0.75*m_mu_damp, dP);
+        dP += F.adjoint().transpose() * m_lambda_damp * DotProduct(F.adjoint().transpose(), dF);
+    }
+    
     btScalar DotProduct(const btMatrix3x3& A, const btMatrix3x3& B)
     {
         btScalar ans = 0;
         for (int i = 0; i < 3; ++i)
         {
             ans += A[i].dot(B[i]);
-//            for (int j = 0; j < 3; ++j)
-//            {
-//                ans += A[i][j] * B[i][j];
-//            }
         }
         return ans;
     }

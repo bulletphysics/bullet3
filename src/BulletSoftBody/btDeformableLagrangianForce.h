@@ -93,6 +93,17 @@ public:
         return dF;
     }
     
+    virtual btMatrix3x3 DsFromVelocity(const btSoftBody::Node* n0, const btSoftBody::Node* n1, const btSoftBody::Node* n2, const btSoftBody::Node* n3)
+    {
+        btVector3 c1 = n1->m_v - n0->m_v;
+        btVector3 c2 = n2->m_v - n0->m_v;
+        btVector3 c3 = n3->m_v - n0->m_v;
+        btMatrix3x3 dF(c1.getX(), c2.getX(), c3.getX(),
+                       c1.getY(), c2.getY(), c3.getY(),
+                       c1.getZ(), c2.getZ(), c3.getZ());
+        return dF;
+    }
+    
     virtual void testDerivative()
     {
         for (int i = 0; i<m_softBodies.size();++i)
