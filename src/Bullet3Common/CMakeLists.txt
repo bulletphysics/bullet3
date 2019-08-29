@@ -5,6 +5,7 @@ SET(Bullet3Common_SRCS
 )
 
 SET(Bullet3Common_HDRS
+	b3Api.h
 	b3AlignedAllocator.h
 	b3AlignedObjectArray.h
 	b3CommandLineArgs.h
