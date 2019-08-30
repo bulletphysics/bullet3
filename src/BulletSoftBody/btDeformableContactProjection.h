@@ -19,12 +19,20 @@
 #include "btSoftBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
+#include "btDeformableContactConstraint.h"
 #include "LinearMath/btHashMap.h"
 class btDeformableContactProjection : public btCGProjection
 {
 public:
-    // map from node index to constraints
-    btHashMap<btHashInt, DeformableContactConstraint> m_constraints;
+    // map from node index to static constraint
+    btHashMap<btHashInt, btDeformableStaticConstraint> m_staticConstraints;
+    // map from node index to node rigid constraint
+    btHashMap<btHashInt, btAlignedObjectArray<btDeformableNodeRigidContactConstraint> > m_nodeRigidConstraints;
+//    // map from node index to face rigid constraint
+//    btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceRigidContactConstraint> > m_faceRigidConstraints;
+
+    // map from node index to projection directions
+    btHashMap<btHashInt, btAlignedObjectArray<btVector3> > m_projectionsDict;
     
     btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : btCGProjection(softBodies, dt)
@@ -37,6 +45,7 @@ public:
     
     // apply the constraints to the rhs
     virtual void project(TVStack& x);
+    
     // add to friction
     virtual void applyDynamicFriction(TVStack& f);
     
@@ -46,7 +55,11 @@ public:
     // update the constraints
     virtual btScalar update();
     
+    // Add constraints to m_constraints. In addition, the constraints that each vertex own are recorded in m_constraintsDict.
     virtual void setConstraints();
+    
+    // Set up projections for each vertex by adding the projection direction to
+    virtual void setProjection();
     
     virtual void reinitialize(bool nodeUpdated);
 };

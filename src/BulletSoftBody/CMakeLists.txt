@@ -22,6 +22,7 @@ SET(BulletSoftBody_SRCS
 	btDeformableMultiBodyConstraintSolver.cpp
 	btDeformableContactProjection.cpp
 	btDeformableMultiBodyDynamicsWorld.cpp
+	btDeformableContactConstraint.cpp
 
 )
 
@@ -54,6 +55,7 @@ SET(BulletSoftBody_HDRS
 	btDeformableMultiBodyConstraintSolver.h
 	btDeformableContactProjection.h
 	btDeformableMultiBodyDynamicsWorld.h
+	btDeformableContactConstraint.h
 
 	btSoftBodySolverVertexBuffer.h
 )

@@ -101,16 +101,22 @@ public:
 
     virtual void updateId()
     {
-        size_t id = 0;
+        size_t node_id = 0;
+        size_t face_id = 0;
         m_nodes.clear();
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
-                psb->m_nodes[j].index = id;
+                psb->m_nodes[j].index = node_id;
                 m_nodes.push_back(&psb->m_nodes[j]);
-                ++id;
+                ++node_id;
+            }
+            for (int j = 0; j < psb->m_faces.size(); ++j)
+            {
+                psb->m_faces[j].m_index = face_id;
+                ++face_id;
             }
         }
     }

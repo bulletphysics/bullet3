@@ -51,7 +51,7 @@ public:
         A.project(z);
         btScalar r_dot_z = dot(z,r);
         btScalar local_tolerance = btMin(relative_tolerance * std::sqrt(r_dot_z), tolerance);
-        if (std::sqrt(r_dot_z) < local_tolerance) {
+        if (std::sqrt(r_dot_z) <= local_tolerance) {
             if (verbose)
             {
                 std::cout << "Iteration = 0" << std::endl;

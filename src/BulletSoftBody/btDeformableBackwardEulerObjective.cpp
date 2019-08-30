@@ -47,6 +47,7 @@ void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated, btScalar
         m_lf[i]->reinitialize(nodeUpdated);
     }
     projection.reinitialize(nodeUpdated);
+    projection.setIndices(getIndices());
     m_preconditioner->reinitialize(nodeUpdated);
 }
 
@@ -84,11 +85,21 @@ void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) 
 
 void btDeformableBackwardEulerObjective::updateVelocity(const TVStack& dv)
 {
-    // only the velocity of the constrained nodes needs to be updated during contact solve
-    for (int i = 0; i < projection.m_constraints.size(); ++i)
+//    // only the velocity of the constrained nodes needs to be updated during contact solve
+//    for (int i = 0; i < projection.m_constraints.size(); ++i)
+//    {
+//        int index = projection.m_constraints.getKeyAtIndex(i).getUid1();
+//        m_nodes[index]->m_v = m_backupVelocity[index] + dv[index];
+//    }
+    
+    for (int i = 0; i < m_softBodies.size(); ++i)
     {
-        int index = projection.m_constraints.getKeyAtIndex(i).getUid1();
-        m_nodes[index]->m_v = m_backupVelocity[index] + dv[index];
+        btSoftBody* psb = m_softBodies[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            btSoftBody::Node& node = psb->m_nodes[j];
+            node.m_v = m_backupVelocity[node.index] + dv[node.index];
+        }
     }
 }
 
