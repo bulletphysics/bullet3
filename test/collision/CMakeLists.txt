@@ -30,7 +30,8 @@ ENDIF()
 		../../src/BulletCollision/CollisionShapes/btConvexPolyhedron.cpp
 	)
 
-ADD_TEST(Test_Collision_PASS Test_Collision)
+ADD_TEST(NAME Test_Collision_PASS
+	COMMAND $<TARGET_FILE:Test_Collision>)
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 			SET_TARGET_PROPERTIES(Test_Collision PROPERTIES  DEBUG_POSTFIX "_Debug")

@@ -21,7 +21,8 @@ ADD_EXECUTABLE(Test_BulletDynamics
 	../../../examples/MultiBody/Pendulum.cpp
 )
 
-ADD_TEST(Test_BulletDynamics_PASS Test_BulletDynamics)
+ADD_TEST(NAME Test_BulletDynamics_PASS
+	COMMAND $<TARGET_FILE:Test_BulletDynamics>)
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 			SET_TARGET_PROPERTIES(Test_BulletDynamics PROPERTIES  DEBUG_POSTFIX "_Debug")

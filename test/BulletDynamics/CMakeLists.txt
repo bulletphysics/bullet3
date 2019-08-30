@@ -15,7 +15,8 @@ ENDIF()
 
 ADD_EXECUTABLE(Test_btKinematicCharacterController test_btKinematicCharacterController.cpp)
 
-ADD_TEST(Test_btKinematicCharacterController_PASS Test_btKinematicCharacterController)
+ADD_TEST(NAME Test_btKinematicCharacterController_PASS
+	COMMAND $<TARGET_FILE:Test_btKinematicCharacterController>)
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 			SET_TARGET_PROPERTIES(Test_btKinematicCharacterController PROPERTIES  DEBUG_POSTFIX "_Debug")

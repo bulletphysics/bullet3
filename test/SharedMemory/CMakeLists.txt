@@ -96,7 +96,8 @@ ENDIF()
                         
 	)
 
-ADD_TEST(Test_PhysicsClientServer_PASS Test_PhysicsClientServer)
+ADD_TEST(NAME Test_PhysicsClientServer_PASS
+	COMMAND $<TARGET_FILE:Test_PhysicsClientServer>)
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 			SET_TARGET_PROPERTIES(Test_PhysicsClientServer PROPERTIES  DEBUG_POSTFIX "_Debug")
