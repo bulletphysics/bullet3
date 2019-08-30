@@ -70,78 +70,82 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
     // ///////////////////////////////
 }
 
+//void btDeformableMultiBodyDynamicsWorld::positionCorrection(btScalar timeStep)
+//{
+//    // perform position correction for all constraints 
+//    BT_PROFILE("positionCorrection");
+//    for (int index = 0; index < m_deformableBodySolver->m_objective->projection.m_constraints.size(); ++index)
+//    {
+//        DeformableContactConstraint& constraint = *m_deformableBodySolver->m_objective->projection.m_constraints.getAtIndex(index);
+//        for (int j = 0; j < constraint.m_contact.size(); ++j)
+//        {
+//            const btSoftBody::RContact* c = constraint.m_contact[j];
+//            // skip anchor points
+//            if (c == NULL || c->m_node->m_im == 0)
+//                continue;
+//            const btSoftBody::sCti& cti = c->m_cti;
+//            btVector3 va(0, 0, 0);
+//            
+//            // grab the velocity of the rigid body
+//            if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+//            {
+//                btRigidBody* rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
+//                va = rigidCol ? (rigidCol->getVelocityInLocalPoint(c->m_c1)): btVector3(0, 0, 0);
+//            }
+//            else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+//            {
+//                btMultiBodyLinkCollider* multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
+//                if (multibodyLinkCol)
+//                {
+//                    const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
+//                    const btScalar* J_n = &c->jacobianData_normal.m_jacobians[0];
+//                    const btScalar* J_t1 = &c->jacobianData_t1.m_jacobians[0];
+//                    const btScalar* J_t2 = &c->jacobianData_t2.m_jacobians[0];
+//                    const btScalar* local_v = multibodyLinkCol->m_multiBody->getVelocityVector();
+//                    // add in the normal component of the va
+//                    btScalar vel = 0.0;
+//                    for (int k = 0; k < ndof; ++k)
+//                    {
+//                        vel += local_v[k] * J_n[k];
+//                    }
+//                    va = cti.m_normal * vel;
+//                    
+//                    vel = 0.0;
+//                    for (int k = 0; k < ndof; ++k)
+//                    {
+//                        vel += local_v[k] * J_t1[k];
+//                    }
+//                    va += c->t1 * vel;
+//                    vel = 0.0;
+//                    for (int k = 0; k < ndof; ++k)
+//                    {
+//                        vel += local_v[k] * J_t2[k];
+//                    }
+//                    va += c->t2 * vel;
+//                }
+//            }
+//            else
+//            {
+//                // The object interacting with deformable node is not supported for position correction
+//                btAssert(false);
+//            }
+//            
+//            if (cti.m_colObj->hasContactResponse())
+//            {
+//                btScalar dp = cti.m_offset;
+//                
+//                // only perform position correction when penetrating
+//                if (dp < 0)
+//                {
+//                    c->m_node->m_v -= dp * cti.m_normal / timeStep;
+//                }
+//            }
+//        }
+//    }
+//}
+
 void btDeformableMultiBodyDynamicsWorld::positionCorrection(btScalar timeStep)
 {
-    // perform position correction for all constraints 
-    BT_PROFILE("positionCorrection");
-    for (int index = 0; index < m_deformableBodySolver->m_objective->projection.m_constraints.size(); ++index)
-    {
-        DeformableContactConstraint& constraint = *m_deformableBodySolver->m_objective->projection.m_constraints.getAtIndex(index);
-        for (int j = 0; j < constraint.m_contact.size(); ++j)
-        {
-            const btSoftBody::RContact* c = constraint.m_contact[j];
-            // skip anchor points
-            if (c == NULL || c->m_node->m_im == 0)
-                continue;
-            const btSoftBody::sCti& cti = c->m_cti;
-            btVector3 va(0, 0, 0);
-            
-            // grab the velocity of the rigid body
-            if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
-            {
-                btRigidBody* rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
-                va = rigidCol ? (rigidCol->getVelocityInLocalPoint(c->m_c1)): btVector3(0, 0, 0);
-            }
-            else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
-            {
-                btMultiBodyLinkCollider* multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
-                if (multibodyLinkCol)
-                {
-                    const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
-                    const btScalar* J_n = &c->jacobianData_normal.m_jacobians[0];
-                    const btScalar* J_t1 = &c->jacobianData_t1.m_jacobians[0];
-                    const btScalar* J_t2 = &c->jacobianData_t2.m_jacobians[0];
-                    const btScalar* local_v = multibodyLinkCol->m_multiBody->getVelocityVector();
-                    // add in the normal component of the va
-                    btScalar vel = 0.0;
-                    for (int k = 0; k < ndof; ++k)
-                    {
-                        vel += local_v[k] * J_n[k];
-                    }
-                    va = cti.m_normal * vel;
-                    
-                    vel = 0.0;
-                    for (int k = 0; k < ndof; ++k)
-                    {
-                        vel += local_v[k] * J_t1[k];
-                    }
-                    va += c->t1 * vel;
-                    vel = 0.0;
-                    for (int k = 0; k < ndof; ++k)
-                    {
-                        vel += local_v[k] * J_t2[k];
-                    }
-                    va += c->t2 * vel;
-                }
-            }
-            else
-            {
-                // The object interacting with deformable node is not supported for position correction
-                btAssert(false);
-            }
-            
-            if (cti.m_colObj->hasContactResponse())
-            {
-                btScalar dp = cti.m_offset;
-                
-                // only perform position correction when penetrating
-                if (dp < 0)
-                {
-                    c->m_node->m_v -= dp * cti.m_normal / timeStep;
-                }
-            }
-        }
-    }
 }
 
 
@@ -187,7 +191,7 @@ void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
     // set up constraints among multibodies and between multibodies and deformable bodies
     setupConstraints();
     solveMultiBodyRelatedConstraints();
-    
+    m_deformableBodySolver->m_objective->projection.setProjection();
     if (m_implicit)
     {
         // at this point dv = v_{n+1} - v_{n+1}^*
@@ -321,11 +325,6 @@ void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
     m_internalTime += timeStep;
     m_deformableBodySolver->setImplicit(m_implicit);
     m_deformableBodySolver->reinitialize(m_softBodies, timeStep);
-//    if (m_implicit)
-//    {
-//        // todo: backup v_n velocity somewhere else
-//        m_deformableBodySolver->backupVelocity();
-//    }
     btDispatcherInfo& dispatchInfo = btMultiBodyDynamicsWorld::getDispatchInfo();
     dispatchInfo.m_timeStep = timeStep;
     dispatchInfo.m_stepCount = 0;

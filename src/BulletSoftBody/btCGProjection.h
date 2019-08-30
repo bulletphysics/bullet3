@@ -20,8 +20,6 @@
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 
-//class btDeformableMultiBodyDynamicsWorld;
-
 struct DeformableContactConstraint
 {
     const btSoftBody::Node* m_node;
@@ -64,6 +62,37 @@ struct DeformableContactConstraint
     {
     }
 };
+//
+//
+//struct DeformableFaceContactConstraint
+//{
+//    const btSoftBody::Face* m_face;
+//    const btSoftBody::FaceRContact* m_contact;
+//    btVector3 m_total_normal_dv;
+//    btVector3 m_total_tangent_dv;
+//    bool m_static;
+//    bool m_can_be_dynamic;
+//    
+//    DeformableFaceContactConstraint(const btSoftBody::FaceRContact& rcontact)
+//    : m_face(rcontact.m_face),
+//    m_contact(&rcontact),
+//    m_total_normal_dv(0,0,0),
+//    m_total_tangent_dv(0,0,0),
+//    m_static(false),
+//    m_can_be_dynamic(true)
+//    {
+//    }
+//    
+//    void replace(const btSoftBody::FaceRContact& rcontact)
+//    {
+//        m_contact = &rcontact;
+//        m_face = rcontact.m_face;
+//    }
+//    
+//    ~DeformableFaceContactConstraint()
+//    {
+//    }
+//};
 
 class btCGProjection
 {
@@ -73,6 +102,8 @@ public:
     typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > TArrayStack;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
     const btScalar& m_dt;
+    // map from node indices to node pointers
+    const btAlignedObjectArray<btSoftBody::Node*>* m_nodes;
     
     btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : m_softBodies(softBodies)
@@ -94,6 +125,11 @@ public:
     
     virtual void reinitialize(bool nodeUpdated)
     {
+    }
+    
+    virtual void setIndices(const btAlignedObjectArray<btSoftBody::Node*>* nodes)
+    {
+        m_nodes = nodes;
     }
 };
 

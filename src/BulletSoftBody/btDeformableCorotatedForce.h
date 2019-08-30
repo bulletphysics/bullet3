@@ -19,7 +19,7 @@
 #include "btDeformableLagrangianForce.h"
 #include "LinearMath/btPolarDecomposition.h"
 
-static inline int PolarDecompose(const btMatrix3x3& m, btMatrix3x3& q, btMatrix3x3& s)
+static inline int PolarDecomposition(const btMatrix3x3& m, btMatrix3x3& q, btMatrix3x3& s)
 {
     static const btPolarDecomposition polar;
     return polar.decompose(m, q, s);
@@ -100,7 +100,7 @@ public:
             if (J < 1024 * SIMD_EPSILON)
                 R.setIdentity();
             else
-                PolarDecompose(F, R, S); // this QR is not robust, consider using implicit shift svd
+                PolarDecomposition(F, R, S); // this QR is not robust, consider using implicit shift svd
             /*https://fuchuyuan.github.io/research/svd/paper.pdf*/
             P += (F-R) * 2 * m_mu;
         }
