@@ -23,8 +23,9 @@ subject to the following restrictions:
 #include "btSoftBodyHelpers.h"
 #include "LinearMath/btConvexHull.h"
 #include "LinearMath/btConvexHullComputer.h"
+#include <map>
+#include <vector>
 
-//
 static void drawVertex(btIDebugDraw* idraw,
 					   const btVector3& x, btScalar s, const btVector3& c)
 {
@@ -1321,6 +1322,57 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
             psb->appendLink(ni[2], ni[3], 0, true);
         }
     }
+    
+    std::map<std::vector<int>, std::vector<int> > dict;
+    for (int i = 0; i < indices.size(); ++i)
+    {
+        for (int j = 0; j < 4; ++j)
+        {
+            std::vector<int> f;
+            if (j == 0)
+            {
+                f.push_back(indices[i][1]);
+                f.push_back(indices[i][0]);
+                f.push_back(indices[i][2]);
+            }
+            if (j == 1)
+            {
+                f.push_back(indices[i][3]);
+                f.push_back(indices[i][0]);
+                f.push_back(indices[i][1]);
+            }
+            if (j == 2)
+            {
+                f.push_back(indices[i][3]);
+                f.push_back(indices[i][1]);
+                f.push_back(indices[i][2]);
+            }
+            if (j == 3)
+            {
+                f.push_back(indices[i][2]);
+                f.push_back(indices[i][0]);
+                f.push_back(indices[i][3]);
+            }
+            std::vector<int> f_sorted = f;
+            std::sort(f_sorted.begin(), f_sorted.end());
+            if (dict.find(f_sorted) != dict.end())
+            {
+                dict.erase(f_sorted);
+            }
+            else
+            {
+                dict.insert(std::make_pair(f_sorted, f));
+            }
+        }
+    }
+
+    for (auto it = dict.begin(); it != dict.end(); ++it)
+    {
+        std::vector<int> f = it->second;
+        psb->appendFace(f[0], f[1], f[2]);
+    }
+    
+    
     psb->initializeDmInverse();
     printf("Nodes:  %u\r\n", psb->m_nodes.size());
     printf("Links:  %u\r\n", psb->m_links.size());
@@ -1329,4 +1381,112 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
 
     fs.close();
     return psb;
+}
+
+void btSoftBodyHelpers::writeObj(const char* filename, const btSoftBody* psb)
+{
+    std::ofstream fs;
+    fs.open(filename);
+    btAssert(fs);
+    for (int i = 0; i < psb->m_nodes.size(); ++i)
+    {
+        fs << "v";
+        for (int d = 0; d < 3; d++)
+        {
+             fs << " " << psb->m_nodes[i].m_x[d];
+        }
+        fs << "\n";
+    }
+    
+    for (int i = 0; i < psb->m_faces.size(); ++i)
+    {
+        fs << "f";
+        for (int n = 0; n < 3; n++)
+        {
+            fs << " " << psb->m_faces[i].m_n[n]->index + 1;
+        }
+        fs << "\n";
+    }
+    fs.close();
+}
+
+void btSoftBodyHelpers::getBarycentricWeights(const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& d, const btVector3& p, btVector4& bary)
+{
+    btVector3 vap = p - a;
+    btVector3 vbp = p - b;
+    
+    btVector3 vab = b - a;
+    btVector3 vac = c - a;
+    btVector3 vad = d - a;
+    
+    btVector3 vbc = c - b;
+    btVector3 vbd = d - b;
+    btScalar va6 = (vbp.cross(vbd)).dot(vbc);
+    btScalar vb6 = (vap.cross(vac)).dot(vad);
+    btScalar vc6 = (vap.cross(vad)).dot(vab);
+    btScalar vd6 = (vap.cross(vab)).dot(vac);
+    btScalar v6 = btScalar(1) / (vab.cross(vac).dot(vad));
+    bary = btVector4(va6*v6, vb6*v6, vc6*v6, vd6*v6);
+}
+
+void btSoftBodyHelpers::readRenderMeshFromObj(const char* file, btSoftBody* psb)
+{
+    std::ifstream fs;
+    fs.open(file);
+    std::string line;
+    btVector3 pos;
+    while (std::getline(fs, line))
+    {
+        std::stringstream ss(line);
+        if (line[0] == 'v')
+        {
+            ss.ignore();
+            for (size_t i = 0; i < 3; i++)
+                ss >> pos[i];
+            btSoftBody::Node n;
+            n.m_x = pos;
+            psb->m_renderNodes.push_back(n);
+        }
+        else if (line[0] == 'f')
+        {
+            ss.ignore();
+            int id0, id1, id2;
+            ss >> id0;
+            ss >> id1;
+            ss >> id2;
+            btSoftBody::Face f;
+            f.m_n[0] = &psb->m_renderNodes[id0-1];
+            f.m_n[1] = &psb->m_renderNodes[id1-1];
+            f.m_n[2] = &psb->m_renderNodes[id2-1];
+            psb->m_renderFaces.push_back(f);
+        }
+    }
+    fs.close();
+}
+
+void btSoftBodyHelpers::interpolateBarycentricWeights(btSoftBody* psb)
+{
+    psb->m_renderNodesInterpolationWeights.resize(psb->m_renderNodes.size());
+    psb->m_renderNodesParents.resize(psb->m_renderNodes.size());
+    for (int i = 0; i < psb->m_renderNodes.size(); ++i)
+    {
+        const btVector3& p = psb->m_renderNodes[i].m_x;
+        btVector4 bary;
+        for (int j = 0; j < psb->m_tetras.size(); ++j)
+        {
+            const btSoftBody::Tetra& t = psb->m_tetras[j];
+            getBarycentricWeights(t.m_n[0]->m_x, t.m_n[1]->m_x, t.m_n[2]->m_x, t.m_n[3]->m_x, p, bary);
+            if (bary[0]>=0 && bary[1]>=0 && bary[2]>=0 && bary[3]>=0)
+            {
+                btAlignedObjectArray<const btSoftBody::Node*> parents;
+                parents.push_back(t.m_n[0]);
+                parents.push_back(t.m_n[1]);
+                parents.push_back(t.m_n[2]);
+                parents.push_back(t.m_n[3]);
+                psb->m_renderNodesParents[i] = parents;
+                break;
+            }
+        }
+        psb->m_renderNodesInterpolationWeights[i] = bary;
+    }
 }
