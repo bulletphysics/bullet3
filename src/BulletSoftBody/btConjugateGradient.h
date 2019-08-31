@@ -48,7 +48,7 @@ public:
         A.precondition(r, z);
         A.project(z);
         btScalar r_dot_z = dot(z,r);
-        if (r_dot_z < tolerance) {
+        if (dot(z,z) < tolerance) {
             if (verbose)
             {
                 std::cout << "Iteration = 0" << std::endl;
