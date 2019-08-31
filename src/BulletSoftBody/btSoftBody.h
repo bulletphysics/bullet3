@@ -703,8 +703,10 @@ public:
 	btSoftBodyWorldInfo* m_worldInfo;  // World info
 	tNoteArray m_notes;                // Notes
 	tNodeArray m_nodes;                // Nodes
+    tNodeArray m_renderNodes;                // Nodes
 	tLinkArray m_links;                // Links
 	tFaceArray m_faces;                // Faces
+    tFaceArray m_renderFaces;                // Faces
 	tTetraArray m_tetras;              // Tetras
 	tAnchorArray m_anchors;            // Anchors
 	tRContactArray m_rcontacts;        // Rigid contacts
@@ -719,6 +721,9 @@ public:
 	btDbvt m_cdbvt;                    // Clusters tree
 	tClusterArray m_clusters;          // Clusters
     btScalar m_dampingCoefficient;     // Damping Coefficient
+    
+    btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
+    btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
 
@@ -1030,6 +1035,7 @@ public:
     void initializeDmInverse();
     void updateDeformation();
 	void applyForces();
+    void interpolateRenderMesh();
 	static void PSolve_Anchors(btSoftBody* psb, btScalar kst, btScalar ti);
 	static void PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti);
 	static void PSolve_SContacts(btSoftBody* psb, btScalar, btScalar ti);

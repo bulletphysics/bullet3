@@ -3083,6 +3083,20 @@ void btSoftBody::applyForces()
 }
 
 //
+void btSoftBody::interpolateRenderMesh()
+{
+    for (int i = 0; i < m_renderNodes.size(); ++i)
+    {
+        Node& n = m_renderNodes[i];
+        n.m_x.setZero();
+        for (int j = 0; j < m_renderNodesParents[i].size(); ++j)
+        {
+            n.m_x += m_renderNodesParents[i][j]->m_x * m_renderNodesInterpolationWeights[j];
+        }
+    }
+}
+
+//
 void btSoftBody::PSolve_Anchors(btSoftBody* psb, btScalar kst, btScalar ti)
 {
 	BT_PROFILE("PSolve_Anchors");
