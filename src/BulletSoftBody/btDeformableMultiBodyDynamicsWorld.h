@@ -73,7 +73,7 @@ public:
         m_sbi.m_broadphase = pairCache;
         m_sbi.m_dispatcher = dispatcher;
         m_sbi.m_sparsesdf.Initialize();
-        m_sbi.m_sparsesdf.setDefaultVoxelsz(0.025);
+        m_sbi.m_sparsesdf.setDefaultVoxelsz(0.005);
         m_sbi.m_sparsesdf.Reset();
         
         m_sbi.air_density = (btScalar)1.2;

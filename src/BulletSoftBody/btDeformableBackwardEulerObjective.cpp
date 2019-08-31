@@ -131,12 +131,12 @@ void btDeformableBackwardEulerObjective::computeResidual(btScalar dt, TVStack &r
 
 btScalar btDeformableBackwardEulerObjective::computeNorm(const TVStack& residual) const
 {
-    btScalar norm_squared = 0;
+    btScalar mag = 0;
     for (int i = 0; i < residual.size(); ++i)
     {
-        norm_squared += residual[i].length2();
+        mag += residual[i].length();
     }
-    return std::sqrt(norm_squared);
+    return mag;
 }
 
 void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
