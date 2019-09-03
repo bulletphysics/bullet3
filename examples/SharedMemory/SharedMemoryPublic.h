@@ -7,7 +7,8 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201908110
+#define SHARED_MEMORY_MAGIC_NUMBER 201909030
+//#define SHARED_MEMORY_MAGIC_NUMBER 201908110
 //#define SHARED_MEMORY_MAGIC_NUMBER 201908050
 //#define SHARED_MEMORY_MAGIC_NUMBER 2019060190
 //#define SHARED_MEMORY_MAGIC_NUMBER 201904030
@@ -340,6 +341,13 @@ enum DynamicsActivationState
 	eActivationStateDisableWakeup = 32,
 };
 
+enum b3BodyType
+{
+	BT_RIGID_BODY = 1,
+	BT_MULTI_BODY = 2,
+	BT_SOFT_BODY = 3,
+};
+
 struct b3DynamicsInfo
 {
 	double m_mass;
@@ -353,6 +361,7 @@ struct b3DynamicsInfo
 	double m_contactStiffness;
 	double m_contactDamping;
 	int m_activationState;
+	int m_bodyType;
 	double m_angularDamping;
 	double m_linearDamping;
 	double m_ccdSweptSphereRadius;
