@@ -109,6 +109,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #endif
 
+#define SKIP_DEFORMABE_BODY 1
 
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
@@ -1622,7 +1623,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btHashedOverlappingPairCache* m_pairCache;
 	btBroadphaseInterface* m_broadphase;
 	btCollisionDispatcher* m_dispatcher;
-#ifdef SKIP_DEFORMABLE_BODY
+#if defined (SKIP_DEFORMABLE_BODY) || defined(SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD)
 	btMultiBodyConstraintSolver* m_solver;
 #else
 	btDeformableMultiBodyConstraintSolver* m_solver;
@@ -2797,9 +2798,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 		for (i = m_data->m_dynamicsWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
 		{
 			btSoftBody* sb = m_data->m_dynamicsWorld->getSoftBodyArray()[i];
-#ifdef SKIP_DEFORMABLE_BODY
 			m_data->m_dynamicsWorld->removeSoftBody(sb);
-#endif
 			delete sb;
 		}
 #endif
@@ -2870,7 +2869,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	delete m_data->m_remoteDebugDrawer;
 	m_data->m_remoteDebugDrawer = 0;
 
-#ifndef SKIP_DEFORMABLE_BODY
+#if !defined (SKIP_DEFORMABLE_BODY) && !defined(SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD)
 	delete m_data->m_deformablebodySolver;
 	m_data->m_deformablebodySolver = 0;
 #endif
@@ -8108,12 +8107,9 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
                 if (psb != NULL)
                 {
 #ifndef SKIP_DEFORMABLE_BODY
-                                btVector3 gravity(0,0,0);
+                                btVector3 gravity = m_data->m_dynamicsWorld->getGravity();
                                 if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_GRAVITY_FORCE)
                                 {
-                                        gravity[0] = loadSoftBodyArgs.m_gravity[0];
-                                        gravity[1] = loadSoftBodyArgs.m_gravity[1];
-                                        gravity[2] = loadSoftBodyArgs.m_gravity[2];
                                         m_data->m_dynamicsWorld->addForce(psb, new btDeformableGravityForce(gravity));
                                 }
                                 btScalar collision_hardness = 1;

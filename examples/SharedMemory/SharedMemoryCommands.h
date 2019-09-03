@@ -523,7 +523,6 @@ struct LoadSoftBodyArgs
         double m_springDampingStiffness;
         double m_corotatedMu;
         double m_corotatedLambda;
-        double m_gravity[3];
         bool m_useBendingSprings;
         double m_collisionHardness;
         double m_frictionCoeff;
