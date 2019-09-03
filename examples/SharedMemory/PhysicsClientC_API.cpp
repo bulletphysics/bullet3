@@ -372,9 +372,6 @@ B3_SHARED_API int b3LoadSoftBodyAddGravityForce(b3SharedMemoryCommandHandle comm
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
-        command->m_loadSoftBodyArguments.m_gravity[0] = gravityX;
-        command->m_loadSoftBodyArguments.m_gravity[1] = gravityY;
-        command->m_loadSoftBodyArguments.m_gravity[2] = gravityZ;
 	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_GRAVITY_FORCE;
 	return 0;
 }
