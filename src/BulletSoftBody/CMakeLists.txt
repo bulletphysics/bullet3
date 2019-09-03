@@ -53,7 +53,6 @@ SET(BulletSoftBody_HDRS
 	btDeformableBackwardEulerObjective.h
 	btDeformableBodySolver.h
 	btDeformableMultiBodyConstraintSolver.h
-	btDeformableMultiBodyConstraintSolver.h
 	btDeformableContactProjection.h
 	btDeformableMultiBodyDynamicsWorld.h
 
