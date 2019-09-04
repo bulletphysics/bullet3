@@ -34,7 +34,7 @@ for i in range(100000):
   start = time.time()
   p.getCameraImage(300, 300, renderer=p.ER_BULLET_HARDWARE_OPENGL)
   end = time.time()
-  print("rendering duraction")
+  print("rendering duration")
   print(end - start)
 p.stopStateLogging(logId)
 #p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
