@@ -12152,6 +12152,7 @@ bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct Shar
 			b3Error("Error in restoreState: cannot load file %s\n", clientCmd.m_fileArguments.m_fileName);
 		}
 	}
+	delete importer;
 	if (ok)
 	{
 		serverCmd.m_type = CMD_RESTORE_STATE_COMPLETED;
