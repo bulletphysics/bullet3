@@ -8818,7 +8818,8 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 	{
 		SharedMemoryStatus& serverCmd = serverStatusOut;
 		serverCmd.m_type = CMD_GET_DYNAMICS_INFO_COMPLETED;
-
+                serverCmd.m_dynamicsInfo.m_bodyType = BT_MULTI_BODY;
+                
 		btMultiBody* mb = body->m_multiBody;
 		if (linkIndex == -1)
 		{
@@ -8932,6 +8933,7 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 	{
 		SharedMemoryStatus& serverCmd = serverStatusOut;
 		serverCmd.m_type = CMD_GET_DYNAMICS_INFO_COMPLETED;
+                serverCmd.m_dynamicsInfo.m_bodyType = BT_RIGID_BODY;
 
 		btRigidBody* rb = body->m_rigidBody;
 		serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = rb->getFriction();
@@ -8943,11 +8945,10 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 	}
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	else if (body && body->m_softBody){
-          //todo: @fuchuyuan implement dynamics info
-          b3Warning("Softbody dynamics info not set!!!");
-          SharedMemoryStatus& serverCmd = serverStatusOut;
-          serverCmd.m_type = CMD_GET_DYNAMICS_INFO_COMPLETED;
-        }
+		SharedMemoryStatus& serverCmd = serverStatusOut;
+		serverCmd.m_type = CMD_GET_DYNAMICS_INFO_COMPLETED;
+		serverCmd.m_dynamicsInfo.m_bodyType = BT_SOFT_BODY;
+	}
 #endif
 	return hasStatus;
 }
