@@ -39,8 +39,9 @@ public:
     {
     }
     
-    virtual void addScaledImplicitForce(btScalar scale, TVStack& force)
+    virtual void addScaledForces(btScalar scale, TVStack& force)
     {
+        addScaledElasticForce(scale, force);
     }
     
     virtual void addScaledExplicitForce(btScalar scale, TVStack& force)
@@ -92,7 +93,7 @@ public:
     {
         // btMatrix3x3 JFinvT = F.adjoint();
         btScalar J = F.determinant();
-        P =  F.adjoint() * (m_lambda * (J-1));
+        P =  F.adjoint().transpose() * (m_lambda * (J-1));
         if (m_mu > SIMD_EPSILON)
         {
             btMatrix3x3 R,S;
@@ -105,7 +106,11 @@ public:
         }
     }
     
-    virtual void addScaledForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
+    virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
+    {
+    }
+    
+    virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
     {
     }
     

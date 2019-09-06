@@ -247,6 +247,11 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletSoftBody/btSoftBodyConcaveCollisionAlgorithm.cpp"]\
 +["src/BulletSoftBody/btSoftMultiBodyDynamicsWorld.cpp"]\
 +["src/BulletSoftBody/btSoftSoftCollisionAlgorithm.cpp"]\
++["src/BulletSoftBody/btDeformableBackwardEulerObjective.cpp"]\
++["src/BulletSoftBody/btDeformableBodySolver.cpp"]\
++["src/BulletSoftBody/btDeformableContactProjection.cpp"]\
++["src/BulletSoftBody/btDeformableMultiBodyConstraintSolver.cpp"]\
++["src/BulletSoftBody/btDeformableMultiBodyDynamicsWorld.cpp"]\
 +["src/BulletInverseDynamics/IDMath.cpp"]\
 +["src/BulletInverseDynamics/MultiBodyTree.cpp"]\
 +["src/BulletInverseDynamics/details/MultiBodyTreeImpl.cpp"]\

@@ -104,7 +104,9 @@ public:
         TVStack c;
         c.resize(a.size());
         for (int i = 0; i < a.size(); ++i)
+        {
             c[i] = a[i] - b[i];
+        }
         return c;
     }
     

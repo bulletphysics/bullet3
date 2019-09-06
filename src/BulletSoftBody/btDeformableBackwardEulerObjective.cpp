@@ -14,14 +14,16 @@
  */
 
 #include "btDeformableBackwardEulerObjective.h"
+#include "btPreconditioner.h"
 #include "LinearMath/btQuickprof.h"
 
 btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
 : m_softBodies(softBodies)
 , projection(m_softBodies, m_dt)
 , m_backupVelocity(backup_v)
+, m_implicit(false)
 {
-    m_preconditioner = new DefaultPreconditioner();
+    m_preconditioner = new MassPreconditioner(m_softBodies);
 }
 
 btDeformableBackwardEulerObjective::~btDeformableBackwardEulerObjective()
@@ -72,13 +74,17 @@ void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) 
     for (int i = 0; i < m_lf.size(); ++i)
     {
         // add damping matrix
-        m_lf[i]->addScaledForceDifferential(-m_dt, x, b);
+        m_lf[i]->addScaledDampingForceDifferential(-m_dt, x, b);
+        if (m_implicit)
+        {
+             m_lf[i]->addScaledElasticForceDifferential(-m_dt*m_dt, x, b);
+        }
     }
 }
 
 void btDeformableBackwardEulerObjective::updateVelocity(const TVStack& dv)
 {
-    // only the velocity of the constrained nodes needs to be updated during CG solve
+    // only the velocity of the constrained nodes needs to be updated during contact solve
     for (int i = 0; i < projection.m_constraints.size(); ++i)
     {
         int index = projection.m_constraints.getKeyAtIndex(i).getUid1();
@@ -105,14 +111,22 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
     }
 }
 
-void btDeformableBackwardEulerObjective::computeResidual(btScalar dt, TVStack &residual) const
+void btDeformableBackwardEulerObjective::computeResidual(btScalar dt, TVStack &residual)
 {
     BT_PROFILE("computeResidual");
     // add implicit force
     for (int i = 0; i < m_lf.size(); ++i)
     {
-        m_lf[i]->addScaledImplicitForce(dt, residual);
+        if (m_implicit)
+        {
+            m_lf[i]->addScaledForces(dt, residual);
+        }
+        else
+        {
+            m_lf[i]->addScaledDampingForce(dt, residual);
+        }
     }
+    projection.project(residual);
 }
 
 btScalar btDeformableBackwardEulerObjective::computeNorm(const TVStack& residual) const
@@ -122,7 +136,7 @@ btScalar btDeformableBackwardEulerObjective::computeNorm(const TVStack& residual
     {
         norm_squared += residual[i].length2();
     }
-    return std::sqrt(norm_squared+SIMD_EPSILON);
+    return std::sqrt(norm_squared);
 }
 
 void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)

@@ -338,6 +338,71 @@ B3_SHARED_API int b3LoadSoftBodySetStartOrientation(b3SharedMemoryCommandHandle 
 	return 0;
 }
 
+B3_SHARED_API int b3LoadSoftBodyAddCorotatedForce(b3SharedMemoryCommandHandle commandHandle, double corotatedMu, double corotatedLambda)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_corotatedMu = corotatedMu;
+        command->m_loadSoftBodyArguments.m_corotatedLambda = corotatedLambda;
+	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_COROTATED_FORCE;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodyAddNeoHookeanForce(b3SharedMemoryCommandHandle commandHandle, double NeoHookeanMu, double NeoHookeanLambda)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_NeoHookeanMu = NeoHookeanMu;
+        command->m_loadSoftBodyArguments.m_NeoHookeanLambda = NeoHookeanLambda;
+	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_NEOHOOKEAN_FORCE;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodyAddMassSpringForce(b3SharedMemoryCommandHandle commandHandle, double springElasticStiffness , double springDampingStiffness)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_springElasticStiffness = springElasticStiffness;
+        command->m_loadSoftBodyArguments.m_springDampingStiffness = springDampingStiffness;
+	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodyAddGravityForce(b3SharedMemoryCommandHandle commandHandle, double gravityX, double gravityY, double gravityZ)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_GRAVITY_FORCE;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodySetCollsionHardness(b3SharedMemoryCommandHandle commandHandle, double collisionHardness)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_collisionHardness = collisionHardness;
+	command->m_updateFlags |= LOAD_SOFT_BODY_SET_COLLISION_HARDNESS;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodySetFrictionCoefficient(b3SharedMemoryCommandHandle commandHandle, double frictionCoefficient)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_frictionCoeff = frictionCoefficient;
+	command->m_updateFlags |= LOAD_SOFT_BODY_SET_FRICTION_COEFFICIENT;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodyUseBendingSprings(b3SharedMemoryCommandHandle commandHandle, int useBendingSprings)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_useBendingSprings = useBendingSprings;
+	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_BENDING_SPRINGS;
+	return 0;
+}
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
@@ -1373,7 +1438,6 @@ B3_SHARED_API int b3CreateCollisionShapeAddHeightfield2(b3PhysicsClientHandle ph
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numHeightfieldRows = numHeightfieldRows;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numHeightfieldColumns = numHeightfieldColumns;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_replaceHeightfieldIndex = replaceHeightfieldIndex;
-			
 			cl->uploadBulletFileToSharedMemory((const char*)heightfieldData, numHeightfieldRows*numHeightfieldColumns* sizeof(float));
 			command->m_createUserShapeArgs.m_numUserShapes++;
 			return shapeIndex;

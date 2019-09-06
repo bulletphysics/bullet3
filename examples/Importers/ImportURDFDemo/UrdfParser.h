@@ -82,6 +82,7 @@ struct UrdfGeometry
 		FILE_OBJ = 3,
 		FILE_CDF = 4,
 		MEMORY_VERTICES = 5,
+	        FILE_VTK = 6,
 
 	};
 	int m_meshFileType;

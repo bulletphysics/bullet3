@@ -47,6 +47,7 @@ class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
     btSoftBodyWorldInfo m_sbi;
     btScalar m_internalTime;
     int m_contact_iterations;
+    bool m_implicit;
     
     typedef void (*btSolverCallback)(btScalar time, btDeformableMultiBodyDynamicsWorld* world);
     btSolverCallback m_solverCallback;
@@ -81,6 +82,7 @@ public:
         m_sbi.water_normal = btVector3(0, 0, 0);
         m_sbi.m_gravity.setValue(0, -10, 0);
         m_internalTime = 0.0;
+        m_implicit = true;
     }
 
     void setSolverCallback(btSolverCallback cb)
@@ -153,6 +155,11 @@ public:
     void solveMultiBodyRelatedConstraints();
     
     void sortConstraints();
+    
+    void setImplicit(bool implicit)
+    {
+        m_implicit = implicit;
+    }
 };
 
 #endif  //BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H

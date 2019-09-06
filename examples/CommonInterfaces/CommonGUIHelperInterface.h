@@ -1,6 +1,5 @@
 #ifndef GUI_HELPER_INTERFACE_H
 #define GUI_HELPER_INTERFACE_H
-
 class btRigidBody;
 class btVector3;
 class btCollisionObject;
@@ -118,6 +117,8 @@ struct GUIHelperInterface
 
 	//empty name stops dumping video
 	virtual void dumpFramesToVideo(const char* mp4FileName){};
+	virtual void drawDebugDrawerLines(){}
+	virtual void clearLines(){}
 };
 
 ///the DummyGUIHelper does nothing, so we can test the examples without GUI/graphics (in 'console mode')

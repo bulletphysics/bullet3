@@ -49,6 +49,16 @@ struct DeformableContactConstraint
         m_static.push_back(false);
         m_can_be_dynamic.push_back(true);
     }
+
+    void replace(const btSoftBody::RContact& rcontact)
+    {
+        m_contact.clear();
+        m_total_normal_dv.clear();
+        m_total_tangent_dv.clear();
+        m_static.clear();
+        m_can_be_dynamic.clear();
+        append(rcontact);
+    }
     
     ~DeformableContactConstraint()
     {

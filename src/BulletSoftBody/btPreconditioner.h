@@ -70,7 +70,9 @@ public:
         btAssert(b.size() == x.size());
         btAssert(m_inv_mass.size() == x.size());
         for (int i = 0; i < b.size(); ++i)
+        {
             b[i] = x[i] * m_inv_mass[i];
+        }
     }
 };
 

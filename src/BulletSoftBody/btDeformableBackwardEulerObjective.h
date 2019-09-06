@@ -37,6 +37,8 @@ public:
     btDeformableContactProjection projection;
     const TVStack& m_backupVelocity;
     btAlignedObjectArray<btSoftBody::Node* > m_nodes;
+    bool m_implicit;
+
     btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v);
     
     virtual ~btDeformableBackwardEulerObjective();
@@ -44,7 +46,7 @@ public:
     void initialize(){}
     
     // compute the rhs for CG solve, i.e, add the dt scaled implicit force to residual
-    void computeResidual(btScalar dt, TVStack& residual) const;
+    void computeResidual(btScalar dt, TVStack& residual);
     
     // add explicit force to the velocity
     void applyExplicitForce(TVStack& force);
@@ -116,6 +118,11 @@ public:
     const btAlignedObjectArray<btSoftBody::Node*>* getIndices() const
     {
         return &m_nodes;
+    }
+    
+    void setImplicit(bool implicit)
+    {
+        m_implicit = implicit;
     }
 };
 

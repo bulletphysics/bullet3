@@ -166,7 +166,9 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
                     node.m_v[c] = -clampDeltaV;
                 }
             }
-            node.m_x  =  node.m_q + timeStep * node.m_v;
+            node.m_x  =  node.m_x + timeStep * node.m_v;
+            node.m_q = node.m_x;
+            node.m_vn = node.m_v;
         }
     }
     m_deformableBodySolver->revertVelocity();
@@ -180,6 +182,16 @@ void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
     // set up constraints among multibodies and between multibodies and deformable bodies
     setupConstraints();
     solveMultiBodyRelatedConstraints();
+    
+    if (m_implicit)
+    {
+        // at this point dv = v_{n+1} - v_{n+1}^*
+        // modify dv such that dv = v_{n+1} - v_n
+        // modify m_backupVelocity so that it stores v_n instead of v_{n+1}^* as needed by Newton
+        m_deformableBodySolver->backupVn();
+    }
+    
+    // At this point, dv should be golden for nodes in contact
     m_deformableBodySolver->solveDeformableConstraints(timeStep);
 }
 
@@ -199,7 +211,6 @@ void btDeformableMultiBodyDynamicsWorld::setupConstraints()
         
         // build islands
         m_islandManager->buildIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld());
-        // write the constraint information of each island to the callback, and also setup the constraints in solver
     }
 }
 
@@ -273,7 +284,6 @@ void btDeformableMultiBodyDynamicsWorld::solveMultiBodyRelatedConstraints()
         }
     }
     
-    // todo : may not be necessary
     for (int i = 0; i < this->m_multiBodies.size(); i++)
     {
         btMultiBody* bod = m_multiBodies[i];
@@ -304,7 +314,13 @@ void btDeformableMultiBodyDynamicsWorld::predictUnconstraintMotion(btScalar time
 void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
 {
     m_internalTime += timeStep;
+    m_deformableBodySolver->setImplicit(m_implicit);
     m_deformableBodySolver->reinitialize(m_softBodies, timeStep);
+//    if (m_implicit)
+//    {
+//        // todo: backup v_n velocity somewhere else
+//        m_deformableBodySolver->backupVelocity();
+//    }
     btDispatcherInfo& dispatchInfo = btMultiBodyDynamicsWorld::getDispatchInfo();
     dispatchInfo.m_timeStep = timeStep;
     dispatchInfo.m_stepCount = 0;

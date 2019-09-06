@@ -44,7 +44,7 @@
 ///Generally it is best to leave the rolling friction coefficient zero (or close to zero).
 class DeformableRigid : public CommonRigidBodyBase
 {
-    btAlignedObjectArray<btDeformableLagrangianForce*> forces;
+    btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 public:
 	DeformableRigid(struct GUIHelperInterface* helper)
 		: CommonRigidBodyBase(helper)
@@ -234,17 +234,17 @@ void DeformableRigid::initPhysics()
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 1;
+        psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         
-        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(2,0.01, false);
+        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(2,0.1, true);
         getDeformableDynamicsWorld()->addForce(psb, mass_spring);
-        forces.push_back(mass_spring);
+        m_forces.push_back(mass_spring);
         
         btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
-        forces.push_back(gravity_force);
+        m_forces.push_back(gravity_force);
         // add a few rigid bodies
         Ctor_RbUpStack(1);
     }
@@ -269,11 +269,12 @@ void DeformableRigid::exitPhysics()
 		delete obj;
 	}
     // delete forces
-    for (int j = 0; j < forces.size(); j++)
+    for (int j = 0; j < m_forces.size(); j++)
     {
-        btDeformableLagrangianForce* force = forces[j];
+        btDeformableLagrangianForce* force = m_forces[j];
         delete force;
     }
+    m_forces.clear();
 	//delete collision shapes
 	for (int j = 0; j < m_collisionShapes.size(); j++)
 	{
