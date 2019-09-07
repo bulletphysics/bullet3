@@ -1290,43 +1290,15 @@ void btSequentialImpulseConstraintSolver::setFrictionConstraintImpulseInternal(b
 	int solverBodyIdA, int solverBodyIdB,
 	btManifoldPoint& cp, const btContactSolverInfo& infoGlobal)
 {
-	btSolverBody* bodyA = &tmpSolverBodyPool[solverBodyIdA];
-	btSolverBody* bodyB = &tmpSolverBodyPool[solverBodyIdB];
-
-	btRigidBody* rb0 = bodyA->m_originalBody;
-	btRigidBody* rb1 = bodyB->m_originalBody;
-
 	{
 		btSolverConstraint& frictionConstraint1 = tmpSolverContactFrictionConstraintPool[solverConstraint.m_frictionIndex];
-		if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
-		{
-			frictionConstraint1.m_appliedImpulse = cp.m_appliedImpulseLateral1 * infoGlobal.m_warmstartingFactor;
-			if (rb0)
-				bodyA->internalApplyImpulse(frictionConstraint1.m_contactNormal1 * rb0->getInvMass(), frictionConstraint1.m_angularComponentA, frictionConstraint1.m_appliedImpulse);
-			if (rb1)
-				bodyB->internalApplyImpulse(-frictionConstraint1.m_contactNormal2 * rb1->getInvMass(), -frictionConstraint1.m_angularComponentB, -(btScalar)frictionConstraint1.m_appliedImpulse);
-		}
-		else
-		{
-			frictionConstraint1.m_appliedImpulse = 0.f;
-		}
+		frictionConstraint1.m_appliedImpulse = 0.f;
 	}
 
 	if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 	{
 		btSolverConstraint& frictionConstraint2 = tmpSolverContactFrictionConstraintPool[solverConstraint.m_frictionIndex + 1];
-		if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
-		{
-			frictionConstraint2.m_appliedImpulse = cp.m_appliedImpulseLateral2 * infoGlobal.m_warmstartingFactor;
-			if (rb0)
-				bodyA->internalApplyImpulse(frictionConstraint2.m_contactNormal1 * rb0->getInvMass(), frictionConstraint2.m_angularComponentA, frictionConstraint2.m_appliedImpulse);
-			if (rb1)
-				bodyB->internalApplyImpulse(-frictionConstraint2.m_contactNormal2 * rb1->getInvMass(), -frictionConstraint2.m_angularComponentB, -(btScalar)frictionConstraint2.m_appliedImpulse);
-		}
-		else
-		{
-			frictionConstraint2.m_appliedImpulse = 0.f;
-		}
+		frictionConstraint2.m_appliedImpulse = 0.f;
 	}
 }
 
