@@ -553,6 +553,8 @@ public:
 		m_optionalMotionState = motionState;
 		if (m_optionalMotionState)
 			motionState->getWorldTransform(m_worldTransform);
+		m_interpolationWorldTransform = m_worldTransform;
+		updateInertiaTensor();
 	}
 
 	//for experimental overriding of friction/contact solver func
