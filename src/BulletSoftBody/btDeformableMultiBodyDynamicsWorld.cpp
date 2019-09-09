@@ -37,6 +37,10 @@ The algorithm also closely resembles the one in http://physbam.stanford.edu/~fed
 void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
     BT_PROFILE("internalSingleStepSimulation");
+    if (0 != m_internalPreTickCallback)
+    {
+        (*m_internalPreTickCallback)(this, timeStep);
+    }
     reinitialize(timeStep);
     // add gravity to velocity of rigid and multi bodys
     applyRigidBodyGravity(timeStep);
@@ -144,8 +148,8 @@ void btDeformableMultiBodyDynamicsWorld::positionCorrection(btScalar timeStep)
 void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
     BT_PROFILE("integrateTransforms");
-    m_deformableBodySolver->backupVelocity();
-    positionCorrection(timeStep);
+    //m_deformableBodySolver->backupVelocity();
+    //positionCorrection(timeStep);
     btMultiBodyDynamicsWorld::integrateTransforms(timeStep);
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
@@ -170,8 +174,9 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
             node.m_q = node.m_x;
             node.m_vn = node.m_v;
         }
+        psb->interpolateRenderMesh();
     }
-    m_deformableBodySolver->revertVelocity();
+    //m_deformableBodySolver->revertVelocity();
 }
 
 void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
