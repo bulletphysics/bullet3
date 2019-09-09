@@ -2303,6 +2303,7 @@ bool btSoftBody::checkDeformableContact(const btCollisionObjectWrapper* colObjWr
     btTransform wtr = (predict) ?
     (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
                  : colObjWrap->getWorldTransform();
+    //const btTransform& wtr = colObjWrap->getWorldTransform();
 	btScalar dst =
 		m_worldInfo->m_sparsesdf.Evaluate(
 			wtr.invXform(x),
@@ -3089,9 +3090,9 @@ void btSoftBody::interpolateRenderMesh()
     {
         Node& n = m_renderNodes[i];
         n.m_x.setZero();
-        for (int j = 0; j < m_renderNodesParents[i].size(); ++j)
+        for (int j = 0; j < 4; ++j)
         {
-            n.m_x += m_renderNodesParents[i][j]->m_x * m_renderNodesInterpolationWeights[j];
+            n.m_x += m_renderNodesParents[i][j]->m_x * m_renderNodesInterpolationWeights[i][j];
         }
     }
 }

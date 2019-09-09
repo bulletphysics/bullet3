@@ -1410,6 +1410,51 @@ void btSoftBodyHelpers::writeObj(const char* filename, const btSoftBody* psb)
     fs.close();
 }
 
+void btSoftBodyHelpers::duplicateFaces(const char* filename, const btSoftBody* psb)
+{
+    std::ifstream fs_read;
+    fs_read.open(filename);
+    std::string line;
+    btVector3 pos;
+    btAlignedObjectArray<btAlignedObjectArray<int> > additional_faces;
+    while (std::getline(fs_read, line))
+    {
+        std::stringstream ss(line);
+        if (line[0] == 'v')
+        {
+        }
+        else if (line[0] == 'f')
+        {
+            ss.ignore();
+            int id0, id1, id2;
+            ss >> id0;
+            ss >> id1;
+            ss >> id2;
+            btAlignedObjectArray<int> new_face;
+            new_face.push_back(id1);
+            new_face.push_back(id0);
+            new_face.push_back(id2);
+            additional_faces.push_back(new_face);
+        }
+    }
+    fs_read.close();
+
+    std::ofstream fs_write;
+    fs_write.open(filename, std::ios_base::app);
+    for (int i = 0; i < additional_faces.size(); ++i)
+    {
+        fs_write << "f";
+        for (int n = 0; n < 3; n++)
+        {
+            fs_write << " " << additional_faces[i][n];
+        }
+        fs_write << "\n";
+    }
+    fs_write.close();
+}
+
+
+
 void btSoftBodyHelpers::getBarycentricWeights(const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& d, const btVector3& p, btVector4& bary)
 {
     btVector3 vap = p - a;
@@ -1438,7 +1483,7 @@ void btSoftBodyHelpers::readRenderMeshFromObj(const char* file, btSoftBody* psb)
     while (std::getline(fs, line))
     {
         std::stringstream ss(line);
-        if (line[0] == 'v')
+        if (line[0] == 'v' && line[1] != 't' && line[1] != 'n')
         {
             ss.ignore();
             for (size_t i = 0; i < 3; i++)
@@ -1472,21 +1517,37 @@ void btSoftBodyHelpers::interpolateBarycentricWeights(btSoftBody* psb)
     {
         const btVector3& p = psb->m_renderNodes[i].m_x;
         btVector4 bary;
+        btVector4 optimal_bary;
+        btScalar min_bary_weight = -1e3;
+        btAlignedObjectArray<const btSoftBody::Node*> optimal_parents;
+        bool found = false;
         for (int j = 0; j < psb->m_tetras.size(); ++j)
         {
             const btSoftBody::Tetra& t = psb->m_tetras[j];
             getBarycentricWeights(t.m_n[0]->m_x, t.m_n[1]->m_x, t.m_n[2]->m_x, t.m_n[3]->m_x, p, bary);
-            if (bary[0]>=0 && bary[1]>=0 && bary[2]>=0 && bary[3]>=0)
+            btScalar new_min_bary_weight = bary[0];
+            for (int k = 1; k < 4; ++k)
+            {
+                new_min_bary_weight = btMin(new_min_bary_weight, bary[k]);
+            }
+            if (new_min_bary_weight > min_bary_weight)
             {
                 btAlignedObjectArray<const btSoftBody::Node*> parents;
                 parents.push_back(t.m_n[0]);
                 parents.push_back(t.m_n[1]);
                 parents.push_back(t.m_n[2]);
                 parents.push_back(t.m_n[3]);
-                psb->m_renderNodesParents[i] = parents;
-                break;
+                optimal_parents = parents;
+                optimal_bary = bary;
+                min_bary_weight = new_min_bary_weight;
+                // stop searching if p is inside the tetrahedron at hand
+                if (bary[0]>=0. && bary[1]>=0. && bary[2]>=0. && bary[3]>=0.)
+                {
+                    break;
+                }
             }
         }
-        psb->m_renderNodesInterpolationWeights[i] = bary;
+        psb->m_renderNodesInterpolationWeights[i] = optimal_bary;
+        psb->m_renderNodesParents[i] = optimal_parents;
     }
 }
