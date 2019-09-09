@@ -1529,19 +1529,45 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 		{
 			B3_PROFILE("CMD_LOADING_COMPLETED");
 			int numConstraints = serverCmd.m_sdfLoadedArgs.m_numUserConstraints;
-			for (int i = 0; i < numConstraints; i++)
-			{
-				int constraintUid = serverCmd.m_sdfLoadedArgs.m_userConstraintUniqueIds[i];
-				m_data->m_constraintIdsRequestInfo.push_back(constraintUid);
-			}
 			int numBodies = serverCmd.m_sdfLoadedArgs.m_numBodies;
+			if (serverCmd.m_type == CMD_SYNC_BODY_INFO_COMPLETED)
+			{
+				int* ids = (int*)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
+				int* constraintUids = ids + numBodies;
+				for (int i = 0; i < numConstraints; i++)
+				{
+					int constraintUid = constraintUids[i];
+					m_data->m_constraintIdsRequestInfo.push_back(constraintUid);
+				}
+			}
+			else
+			{
+				for (int i = 0; i < numConstraints; i++)
+				{
+					int constraintUid = serverCmd.m_sdfLoadedArgs.m_userConstraintUniqueIds[i];
+					m_data->m_constraintIdsRequestInfo.push_back(constraintUid);
+				}
+			}
+			
 			if (numBodies > 0)
 			{
 				m_data->m_tempBackupServerStatus = m_data->m_lastServerStatus;
 
-				for (int i = 0; i < numBodies; i++)
+				if (serverCmd.m_type == CMD_SYNC_BODY_INFO_COMPLETED)
 				{
-					m_data->m_bodyIdsRequestInfo.push_back(serverCmd.m_sdfLoadedArgs.m_bodyUniqueIds[i]);
+					int* bodyIds = (int*)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
+
+					for (int i = 0; i < numBodies; i++)
+					{
+						m_data->m_bodyIdsRequestInfo.push_back(bodyIds[i]);
+					}
+				}
+				else
+				{
+					for (int i = 0; i < numBodies; i++)
+					{
+						m_data->m_bodyIdsRequestInfo.push_back(serverCmd.m_sdfLoadedArgs.m_bodyUniqueIds[i]);
+					}
 				}
 
 				int bodyId = m_data->m_bodyIdsRequestInfo[m_data->m_bodyIdsRequestInfo.size() - 1];

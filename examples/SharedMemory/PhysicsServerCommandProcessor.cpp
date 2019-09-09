@@ -5996,6 +5996,8 @@ bool PhysicsServerCommandProcessor::processSyncBodyInfoCommand(const struct Shar
 	b3AlignedObjectArray<int> usedHandles;
 	m_data->m_bodyHandles.getUsedHandles(usedHandles);
 	int actualNumBodies = 0;
+	int* bodyIds = (int*) bufferServerToClient;
+
 	for (int i = 0; i < usedHandles.size(); i++)
 	{
 		int usedHandle = usedHandles[i];
@@ -6006,18 +6008,19 @@ bool PhysicsServerCommandProcessor::processSyncBodyInfoCommand(const struct Shar
 		if (body && (body->m_multiBody || body->m_rigidBody))
 #endif
 		{
-			serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = usedHandle;
+			bodyIds[actualNumBodies++] = usedHandle;
 		}
 	}
 	serverStatusOut.m_sdfLoadedArgs.m_numBodies = actualNumBodies;
 
 	int usz = m_data->m_userConstraints.size();
 	serverStatusOut.m_sdfLoadedArgs.m_numUserConstraints = usz;
+	int* constraintIds = bodyIds + actualNumBodies;
 	for (int i = 0; i < usz; i++)
 	{
 		int key = m_data->m_userConstraints.getKeyAtIndex(i).getUid1();
-		//						int uid = m_data->m_userConstraints.getAtIndex(i)->m_userConstraintData.m_userConstraintUniqueId;
-		serverStatusOut.m_sdfLoadedArgs.m_userConstraintUniqueIds[i] = key;
+		//int uid = m_data->m_userConstraints.getAtIndex(i)->m_userConstraintData.m_userConstraintUniqueId;
+		constraintIds[i] = key;
 	}
 
 	serverStatusOut.m_type = CMD_SYNC_BODY_INFO_COMPLETED;
@@ -7755,8 +7758,11 @@ bool PhysicsServerCommandProcessor::processRequestBodyInfoCommand(const struct S
 
 	const SdfRequestInfoArgs& sdfInfoArgs = clientCmd.m_sdfRequestInfoArgs;
 	//stream info into memory
-	int streamSizeInBytes = createBodyInfoStream(sdfInfoArgs.m_bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
-
+	{
+		BT_PROFILE("createBodyInfoStream");
+		int streamSizeInBytes = createBodyInfoStream(sdfInfoArgs.m_bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
+		serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
+	}
 	serverStatusOut.m_type = CMD_BODY_INFO_COMPLETED;
 	serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = sdfInfoArgs.m_bodyUniqueId;
 	serverStatusOut.m_dataStreamArguments.m_bodyName[0] = 0;
@@ -7767,7 +7773,7 @@ bool PhysicsServerCommandProcessor::processRequestBodyInfoCommand(const struct S
 		strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, bodyHandle->m_bodyName.c_str());
 	}
 
-	serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
+	
 
 	return hasStatus;
 }
@@ -12830,16 +12836,19 @@ void PhysicsServerCommandProcessor::renderScene(int renderFlags)
 		m_data->m_guiHelper->render(m_data->m_dynamicsWorld);
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 #ifndef SKIP_DEFORMABLE_BODY
-                for (int i = 0; i < m_data->m_dynamicsWorld->getSoftBodyArray().size(); i++)
-                {
-                    btSoftBody* psb = (btSoftBody*)m_data->m_dynamicsWorld->getSoftBodyArray()[i];
-                    {
-                        btSoftBodyHelpers::DrawFrame(psb, m_data->m_dynamicsWorld->getDebugDrawer());
-                        btSoftBodyHelpers::Draw(psb, m_data->m_dynamicsWorld->getDebugDrawer(), m_data->m_dynamicsWorld->getDrawFlags());
-                    }
-                }
-                m_data->m_guiHelper->drawDebugDrawerLines();
-                m_data->m_guiHelper->clearLines();
+		if (m_data->m_dynamicsWorld->getSoftBodyArray().size())
+		{
+			for (int i = 0; i < m_data->m_dynamicsWorld->getSoftBodyArray().size(); i++)
+			{
+				btSoftBody* psb = (btSoftBody*)m_data->m_dynamicsWorld->getSoftBodyArray()[i];
+				{
+					btSoftBodyHelpers::DrawFrame(psb, m_data->m_dynamicsWorld->getDebugDrawer());
+					btSoftBodyHelpers::Draw(psb, m_data->m_dynamicsWorld->getDebugDrawer(), m_data->m_dynamicsWorld->getDrawFlags());
+				}
+			}
+			m_data->m_guiHelper->drawDebugDrawerLines();
+			m_data->m_guiHelper->clearLines();
+		}
 #endif
 #endif
 	}
