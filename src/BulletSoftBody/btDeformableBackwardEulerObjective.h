@@ -124,6 +124,8 @@ public:
     {
         m_implicit = implicit;
     }
+
+    btScalar totalEnergy();
 };
 
 #endif /* btBackwardEulerObjective_h */

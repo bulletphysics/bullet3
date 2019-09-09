@@ -23,6 +23,11 @@ btDeformableBodySolver::btDeformableBodySolver()
 , m_cg(20)
 , m_maxNewtonIterations(5)
 , m_newtonTolerance(1e-4)
+//, m_lineSearch(false)
+//, m_cg(10)
+//, m_maxNewtonIterations(5)
+//, m_newtonTolerance(1e-3)
+, m_lineSearch(true)
 {
     m_objective = new btDeformableBackwardEulerObjective(m_softBodySet, m_backupVelocity);
 }
@@ -63,13 +68,37 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
             }
             
             m_objective->computeResidual(solverdt, m_residual);
-            if (m_objective->computeNorm(m_residual) < m_newtonTolerance)
+            if (m_objective->computeNorm(m_residual) < m_newtonTolerance && i > 0)
             {
                 break;
             }
             m_objective->applyDynamicFriction(m_residual);
-            computeStep(m_ddv, m_residual);
-            updateDv();
+            if (m_lineSearch)
+            {
+                btScalar inner_product = computeDescentStep(m_ddv,m_residual);
+                btScalar alpha = 0.01, beta = 0.5; // Boyd & Vandenberghe suggested alpha between 0.01 and 0.3, beta between 0.1 to 0.8
+                btScalar scale = 2;
+                btScalar f0 = m_objective->totalEnergy()+kineticEnergy(), f1, f2;
+                backupDv();
+                do {
+                    scale *= beta;
+                    if (scale < 1e-8) {
+                        //std::cout << "Could not find sufficient descent!" << std::endl;
+                        return;
+                    }
+                    updateEnergy(scale);
+                    f1 = m_objective->totalEnergy()+kineticEnergy();
+                    f2 = f0 - alpha * scale * inner_product;
+                } while (!(f1 < f2)); // if anything here is nan then the search continues
+                revertDv();
+                updateDv(scale);
+            }
+            else
+            {
+                computeStep(m_ddv, m_residual);
+                updateDv();
+            }
+
             for (int j = 0; j < m_numNodes; ++j)
             {
                 m_ddv[j].setZero();
@@ -79,26 +108,99 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
     }
 }
 
+btScalar btDeformableBodySolver::kineticEnergy()
+{
+    btScalar ke = 0;
+    for (int i = 0; i < m_softBodySet.size();++i)
+    {
+        btSoftBody* psb = m_softBodySet[i];
+        for (int j = 0; j < psb->m_nodes.size();++j)
+        {
+            btSoftBody::Node& node = psb->m_nodes[j];
+            if (node.m_im > 0)
+            {
+                ke += m_dv[node.index].length2() * 0.5 / node.m_im;
+            }
+        }
+    }
+    return ke;
+}
+
+void btDeformableBodySolver::backupDv()
+{
+    m_backup_dv.resize(m_dv.size());
+    for (int i = 0; i<m_backup_dv.size(); ++i)
+    {
+        m_backup_dv[i] = m_dv[i];
+    }
+}
+
+void btDeformableBodySolver::revertDv()
+{
+    for (int i = 0; i<m_backup_dv.size(); ++i)
+    {
+        m_dv[i] = m_backup_dv[i];
+    }
+}
+
+void btDeformableBodySolver::updateEnergy(btScalar scale)
+{
+    for (int i = 0; i<m_dv.size(); ++i)
+    {
+        m_dv[i] = m_backup_dv[i] + scale * m_ddv[i];
+    }
+    updateState();
+}
+
+
+btScalar btDeformableBodySolver::computeDescentStep(TVStack& ddv, const TVStack& residual)
+{
+    btScalar relative_tolerance = btMin(0.5, std::sqrt(btMax(m_objective->computeNorm(residual), m_newtonTolerance)));
+    m_cg.solve(*m_objective, ddv, residual, relative_tolerance, false);
+    btScalar inner_product = m_cg.dot(residual, m_ddv);
+    btScalar tol = 1e-5 * m_objective->computeNorm(residual) * m_objective->computeNorm(m_ddv);
+    if (inner_product < -tol)
+    {
+        std::cout << "Looking backwards!" << std::endl;
+        for (int i = 0; i < m_ddv.size();++i)
+        {
+            m_ddv[i] = -m_ddv[i];
+        }
+        inner_product = -inner_product;
+    }
+    else if (std::abs(inner_product) < tol)
+    {
+        std::cout << "Gradient Descent!" << std::endl;
+        btScalar res_norm = m_objective->computeNorm(residual);
+        btScalar scale = m_objective->computeNorm(m_ddv) / res_norm;
+        for (int i = 0; i < m_ddv.size();++i)
+        {
+            m_ddv[i] = scale * residual[i];
+        }
+        inner_product = scale * res_norm * res_norm;
+    }
+    return inner_product;
+}
+
 void btDeformableBodySolver::updateState()
 {
     updateVelocity();
     updateTempPosition();
-    
 }
 
-void btDeformableBodySolver::updateDv()
+void btDeformableBodySolver::updateDv(btScalar scale)
 {
     for (int i = 0; i < m_numNodes; ++i)
     {
-        m_dv[i] += m_ddv[i];
+        m_dv[i] += scale * m_ddv[i];
     }
 }
 
 void btDeformableBodySolver::computeStep(TVStack& ddv, const TVStack& residual)
 {
     //btScalar tolerance = std::numeric_limits<btScalar>::epsilon() * m_objective->computeNorm(residual);
-    btScalar tolerance = std::numeric_limits<btScalar>::epsilon();
-    m_cg.solve(*m_objective, ddv, residual, tolerance);
+    btScalar relative_tolerance = btMin(0.5, std::sqrt(btMax(m_objective->computeNorm(residual), m_newtonTolerance)));
+    m_cg.solve(*m_objective, ddv, residual, relative_tolerance, false);
 }
 
 void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt)

@@ -34,6 +34,7 @@ class btDeformableBodySolver : public btSoftBodySolver
 protected:
     int m_numNodes;
     TVStack m_dv;
+    TVStack m_backup_dv;
     TVStack m_ddv;
     TVStack m_residual;
     btAlignedObjectArray<btSoftBody *> m_softBodySet;
@@ -45,6 +46,7 @@ protected:
     bool m_implicit;
     int m_maxNewtonIterations;
     btScalar m_newtonTolerance;
+    bool m_lineSearch;
     
 public:
     btDeformableBackwardEulerObjective* m_objective;
@@ -82,6 +84,7 @@ public:
     bool updateNodes();
     
     void computeStep(TVStack& dv, const TVStack& residual);
+    btScalar computeDescentStep(TVStack& ddv, const TVStack& residual);
                      
     virtual void predictMotion(btScalar solverdt);
 
@@ -103,9 +106,13 @@ public:
     
     void updateState();
     
-    void updateDv();
+    void updateDv(btScalar scale = 1);
     
     void updateTempPosition();
+    void backupDv();
+    void revertDv();
+    void updateEnergy(btScalar scale);
+    btScalar kineticEnergy();
 };
 
 #endif /* btDeformableBodySolver_h */
