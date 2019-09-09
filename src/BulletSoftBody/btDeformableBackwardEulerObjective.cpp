@@ -134,9 +134,19 @@ btScalar btDeformableBackwardEulerObjective::computeNorm(const TVStack& residual
     btScalar mag = 0;
     for (int i = 0; i < residual.size(); ++i)
     {
-        mag += residual[i].length();
+        mag += residual[i].length2();
     }
-    return mag;
+    return std::sqrt(mag);
+}
+
+btScalar btDeformableBackwardEulerObjective::totalEnergy()
+{
+    btScalar e = 0;
+    for (int i = 0; i < m_lf.size(); ++i)
+    {
+        e += m_lf[i]->totalElasticEnergy();
+    }
+    return e;
 }
 
 void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
