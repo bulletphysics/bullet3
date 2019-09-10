@@ -5963,6 +5963,8 @@ bool PhysicsServerCommandProcessor::processSyncBodyInfoCommand(const struct Shar
 	b3AlignedObjectArray<int> usedHandles;
 	m_data->m_bodyHandles.getUsedHandles(usedHandles);
 	int actualNumBodies = 0;
+	int* bodyUids = (int*)bufferServerToClient;
+
 	for (int i = 0; i < usedHandles.size(); i++)
 	{
 		int usedHandle = usedHandles[i];
@@ -5973,18 +5975,18 @@ bool PhysicsServerCommandProcessor::processSyncBodyInfoCommand(const struct Shar
 		if (body && (body->m_multiBody || body->m_rigidBody))
 #endif
 		{
-			serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = usedHandle;
+			bodyUids[actualNumBodies++] = usedHandle;
 		}
 	}
 	serverStatusOut.m_sdfLoadedArgs.m_numBodies = actualNumBodies;
 
 	int usz = m_data->m_userConstraints.size();
+	int* constraintUid = bodyUids + actualNumBodies;
 	serverStatusOut.m_sdfLoadedArgs.m_numUserConstraints = usz;
 	for (int i = 0; i < usz; i++)
 	{
 		int key = m_data->m_userConstraints.getKeyAtIndex(i).getUid1();
-		//						int uid = m_data->m_userConstraints.getAtIndex(i)->m_userConstraintData.m_userConstraintUniqueId;
-		serverStatusOut.m_sdfLoadedArgs.m_userConstraintUniqueIds[i] = key;
+		constraintUid[i] = key;
 	}
 
 	serverStatusOut.m_type = CMD_SYNC_BODY_INFO_COMPLETED;
