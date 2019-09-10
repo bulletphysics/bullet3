@@ -9024,8 +9024,21 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 			if (statusType == CMD_CREATE_MULTI_BODY_COMPLETED)
 			{
 				int uid = b3GetStatusBodyIndex(statusHandle);
-				PyObject* ob = PyLong_FromLong(uid);
-				return ob;
+				if (numBatchPositions > 0)
+				{
+					PyObject* pyResultList = PyTuple_New(numBatchPositions );
+					for (i = 0; i < numBatchPositions; i++)
+					{
+						PyTuple_SetItem(pyResultList, i, PyLong_FromLong(uid - numBatchPositions + i + 1));
+					}
+					return pyResultList;
+					
+				}
+				else
+				{
+					PyObject* ob = PyLong_FromLong(uid);
+					return ob;
+				}
 			}
 		}
 		else

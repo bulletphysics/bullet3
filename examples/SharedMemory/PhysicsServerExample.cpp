@@ -654,16 +654,21 @@ public:
 	{
 		if (m_debugDraw)
 		{
+			m_csGUI->lock();
+			//draw stuff and flush?
 			m_debugDraw->drawDebugDrawerLines();
+			m_csGUI->unlock();
 		}
 	}
         virtual void clearLines()
         {
-		if (m_debugDraw)
-		{
-			m_debugDraw->clearLines();
+			m_csGUI->lock();
+			if (m_debugDraw)
+			{
+				m_debugDraw->clearLines();
+			}
+			m_csGUI->unlock();
 		}
-	}
         
 	GUIHelperInterface* m_childGuiHelper;
 

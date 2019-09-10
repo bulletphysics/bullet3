@@ -688,7 +688,10 @@ void PhysicsDirect::processBodyJointInfo(int bodyUniqueId, const SharedMemorySta
 	{
 		bf.setFileDNAisMemoryDNA();
 	}
-	bf.parse(false);
+	{
+		BT_PROFILE("bf.parse");
+		bf.parse(false);
+	}
 
 	BodyJointInfoCache2* bodyJoints = new BodyJointInfoCache2;
 	m_data->m_bodyJointMap.insert(bodyUniqueId, bodyJoints);
@@ -718,7 +721,8 @@ void PhysicsDirect::processBodyJointInfo(int bodyUniqueId, const SharedMemorySta
 				bodyJoints->m_baseName = mb->m_baseName;
 			}
 			addJointInfoFromMultiBodyData(mb, bodyJoints, m_data->m_verboseOutput);
-		}
+	
+	}
 	}
 	if (bf.ok())
 	{
@@ -919,17 +923,57 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			break;
 		}
 		case CMD_SYNC_BODY_INFO_COMPLETED:
-			clearCachedBodies();
 		case CMD_MJCF_LOADING_COMPLETED:
 		case CMD_SDF_LOADING_COMPLETED:
 		{
 			//we'll stream further info from the physics server
 			//so serverCmd will be invalid, make a copy
 
+			btAlignedObjectArray<int> bodyIdArray;
+			btAlignedObjectArray<int> constraintIdArray;
+
 			int numConstraints = serverCmd.m_sdfLoadedArgs.m_numUserConstraints;
+			int numBodies = serverCmd.m_sdfLoadedArgs.m_numBodies;
+			
+			bodyIdArray.reserve(numBodies);
+			constraintIdArray.reserve(numConstraints);
+
+			if (serverCmd.m_type == CMD_SYNC_BODY_INFO_COMPLETED)
+			{
+				clearCachedBodies();
+				const int* bodyIds = (int*)m_data->m_bulletStreamDataServerToClient;
+				const int* constaintIds = bodyIds + numBodies;
+
+				for (int i = 0; i < numConstraints; i++)
+				{
+					int constraintUid = constaintIds[i];
+					constraintIdArray.push_back(constraintUid);
+				}
+				for (int i = 0; i < numBodies; i++)
+				{
+					int bodyUid = bodyIds[i];
+					bodyIdArray.push_back(bodyUid);
+				}
+			}
+			else
+			{
+				for (int i = 0; i < numConstraints; i++)
+				{
+					int constraintUid = serverCmd.m_sdfLoadedArgs.m_userConstraintUniqueIds[i];
+					constraintIdArray.push_back(constraintUid);
+				}
+				for (int i = 0; i < numBodies; i++)
+				{
+					int bodyUid = serverCmd.m_sdfLoadedArgs.m_bodyUniqueIds[i];
+					bodyIdArray.push_back(bodyUid);
+				}
+
+			}
+			
+			
 			for (int i = 0; i < numConstraints; i++)
 			{
-				int constraintUid = serverCmd.m_sdfLoadedArgs.m_userConstraintUniqueIds[i];
+				int constraintUid = constraintIdArray[i];
 
 				m_data->m_tmpInfoRequestCommand.m_type = CMD_USER_CONSTRAINT;
 				m_data->m_tmpInfoRequestCommand.m_updateFlags = USER_CONSTRAINT_REQUEST_INFO;
@@ -953,10 +997,10 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 				}
 			}
 
-			int numBodies = serverCmd.m_sdfLoadedArgs.m_numBodies;
+			
 			for (int i = 0; i < numBodies; i++)
 			{
-				int bodyUniqueId = serverCmd.m_sdfLoadedArgs.m_bodyUniqueIds[i];
+				int bodyUniqueId = bodyIdArray[i];
 
 				m_data->m_tmpInfoRequestCommand.m_type = CMD_REQUEST_BODY_INFO;
 				m_data->m_tmpInfoRequestCommand.m_sdfRequestInfoArgs.m_bodyUniqueId = bodyUniqueId;
