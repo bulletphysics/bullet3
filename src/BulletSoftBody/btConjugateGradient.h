@@ -100,7 +100,7 @@ public:
     TVStack sub(const TVStack& a, const TVStack& b)
     {
         // c = a-b
-        btAssert(a.size() == b.size())
+        btAssert(a.size() == b.size());
         TVStack c;
         c.resize(a.size());
         for (int i = 0; i < a.size(); ++i)
@@ -126,7 +126,7 @@ public:
     void multAndAddTo(btScalar s, const TVStack& a, TVStack& result)
     {
 //        result += s*a
-        btAssert(a.size() == result.size())
+        btAssert(a.size() == result.size());
         for (int i = 0; i < a.size(); ++i)
             result[i] += s * a[i];
     }
