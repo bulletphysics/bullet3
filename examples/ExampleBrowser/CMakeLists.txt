@@ -220,12 +220,6 @@ SET(BulletExampleBrowser_SRCS
 	../MultiThreadedDemo/CommonRigidBodyMTBase.h
 	../Heightfield/HeightfieldExample.cpp
 	../Heightfield/HeightfieldExample.h
-	../BlockSolver/btBlockSolver.cpp
-	../BlockSolver/btBlockSolver.h
-	../BlockSolver/BlockSolverExample.cpp
-	../BlockSolver/BlockSolverExample.h
-	../BlockSolver/RigidBodyBoxes.cpp
-	../BlockSolver/RigidBodyBoxes.h
 	../Tutorial/Tutorial.cpp
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp
