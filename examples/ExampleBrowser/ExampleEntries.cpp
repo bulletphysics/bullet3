@@ -1,8 +1,5 @@
 #include "ExampleEntries.h"
 
-#include "../BlockSolver/btBlockSolver.h"
-#include "../BlockSolver/BlockSolverExample.h"
-#include "../BlockSolver/RigidBodyBoxes.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "EmptyExample.h"
 #include "../Heightfield/HeightfieldExample.h"
@@ -164,13 +161,6 @@ static ExampleEntry gDefaultExamples[] =
 					 //
 		//	ExampleEntry(1, "Physics Client (Direct)", "Create a physics client that can communicate with a physics server directly in-process.", PhysicsClientCreateFunc,eCLIENTEXAMPLE_DIRECT),
 
-		ExampleEntry(0, "BlockSolver"),
-		ExampleEntry(1, "Stack MultiBody SI", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_SI),
-		ExampleEntry(1, "Stack MultiBody MLCP PGS", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_MLCP_PGS),
-		ExampleEntry(1, "Stack MultiBody MLCP Dantzig", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_MLCP_DANTZIG),
-		ExampleEntry(1, "Stack MultiBody Block", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_BLOCK),
-		//ExampleEntry(1, "Stack RigidBody SI", "Create a stack of blocks, with heavy block at the top", RigidBodyBoxesCreateFunc, BLOCK_SOLVER_SI),
-		//ExampleEntry(1, "Stack RigidBody Block", "Create a stack of blocks, with heavy block at the top", RigidBodyBoxesCreateFunc, BLOCK_SOLVER_BLOCK),
 
 		ExampleEntry(0, "Inverse Dynamics"),
 		ExampleEntry(1, "Inverse Dynamics URDF", "Create a btMultiBody from URDF. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc, BT_ID_LOAD_URDF),
