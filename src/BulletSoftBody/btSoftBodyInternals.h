@@ -1104,6 +1104,7 @@ struct btSoftColliders
                     btSoftBody::sCti& cti = c.m_cti;
                     c.m_contactPoint = contact_point;
                     c.m_bary = bary;
+                    // todo xuchenhan@: check m_c2 and m_weights
                     c.m_weights = btScalar(2)/(btScalar(1) + bary.length2()) * bary;
                     c.m_face = &f;
                     const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();

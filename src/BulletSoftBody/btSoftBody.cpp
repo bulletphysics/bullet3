@@ -2368,7 +2368,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
     btVector3 guess(0,0,0);
     const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
     btGjkEpaSolver2::SignedDistance(&triangle, triangle_transform, csh, wtr, guess, results);
-    btScalar dst = results.distance;
+    btScalar dst = results.distance - margin;
     contact_point = results.witnesses[0];
     getBarycentric(contact_point, f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
     if (!predict)
@@ -3431,7 +3431,7 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
             docollideFace.m_rigidBody = prb1;
             docollideFace.dynmargin = basemargin + timemargin;
             docollideFace.stamargin = basemargin;
-            m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
+//            m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
         }
         break;
 	}

@@ -71,7 +71,7 @@ public:
     
     void setDt(btScalar dt);
     
-    // enforce constraints in CG solve
+    // enforce constraints in contact solve
     void enforceConstraint(TVStack& x)
     {
         BT_PROFILE("enforceConstraint");

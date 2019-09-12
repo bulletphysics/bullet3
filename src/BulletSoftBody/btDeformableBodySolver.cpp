@@ -24,7 +24,7 @@ btDeformableBodySolver::btDeformableBodySolver()
 , m_cg(20)
 , m_maxNewtonIterations(5)
 , m_newtonTolerance(1e-4)
-, m_lineSearch(false)
+, m_lineSearch(true)
 {
     m_objective = new btDeformableBackwardEulerObjective(m_softBodySet, m_backupVelocity);
 }
@@ -69,12 +69,14 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
             {
                 break;
             }
+            // todo xuchenhan@: this really only needs to be calculated once
             m_objective->applyDynamicFriction(m_residual);
             if (m_lineSearch)
             {
                 btScalar inner_product = computeDescentStep(m_ddv,m_residual);
                 btScalar alpha = 0.01, beta = 0.5; // Boyd & Vandenberghe suggested alpha between 0.01 and 0.3, beta between 0.1 to 0.8
                 btScalar scale = 2;
+                // todo xuchenhan@: add damping energy to f0 and f1
                 btScalar f0 = m_objective->totalEnergy()+kineticEnergy(), f1, f2;
                 backupDv();
                 do {
@@ -239,14 +241,18 @@ btScalar btDeformableBodySolver::solveContactConstraints()
         m_dv[i].setZero();
     }
     btScalar maxSquaredResidual = m_objective->projection.update();
-    m_objective->enforceConstraint(m_dv);
-//    std::cout << "=================" << std::endl;
-//    for (int i = 0; i < m_dv.size(); ++i)
-//    {
-//        std::cout << m_dv[i].getX() << " " << m_dv[i].getY() << " " << m_dv[i].getZ() << std::endl;
-//    }
-    
-    m_objective->updateVelocity(m_dv);
+//    m_objective->enforceConstraint(m_dv);
+//    m_objective->updateVelocity(m_dv);
+    int counter = 0;
+    for (int i = 0; i < m_softBodySet.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodySet[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            m_dv[counter] = psb->m_nodes[j].m_v - m_backupVelocity[counter];
+            ++counter;
+        }
+    }
     return maxSquaredResidual;
 }
 
@@ -374,7 +380,7 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
         psb->m_bUpdateRtCst = false;
         psb->updateConstants();
         psb->m_fdbvt.clear();
-        if (psb->m_cfg.collisions & btSoftBody::fCollision::SDF_RDF)
+        if (psb->m_cfg.collisions & btSoftBody::fCollision::SDF_RD)
         {
             psb->initializeFaceTree();
         }
