@@ -21,6 +21,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 #include "btDeformableContactConstraint.h"
 #include "LinearMath/btHashMap.h"
+#include <vector>
 class btDeformableContactProjection : public btCGProjection
 {
 public:
@@ -28,9 +29,10 @@ public:
     btHashMap<btHashInt, btDeformableStaticConstraint> m_staticConstraints;
     // map from node index to node rigid constraint
     btHashMap<btHashInt, btAlignedObjectArray<btDeformableNodeRigidContactConstraint> > m_nodeRigidConstraints;
-//    // map from node index to face rigid constraint
-//    btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceRigidContactConstraint> > m_faceRigidConstraints;
-
+    // map from node index to face rigid constraint
+    btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceRigidContactConstraint*> > m_faceRigidConstraints;
+    btAlignedObjectArray<btDeformableFaceRigidContactConstraint*> m_allFaceConstraints;
+    
     // map from node index to projection directions
     btHashMap<btHashInt, btAlignedObjectArray<btVector3> > m_projectionsDict;
     

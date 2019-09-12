@@ -15,6 +15,7 @@
 
 #include "btDeformableContactConstraint.h"
 
+/* ================   Deformable vs. Rigid   =================== */
 btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btSoftBody::DeformableRigidContact& c)
 : m_contact(&c)
 , btDeformableContactConstraint(c.m_cti.m_normal)
@@ -91,6 +92,8 @@ btScalar btDeformableRigidContactConstraint::solveConstraint()
     btVector3 vb = getVb();
     btVector3 vr = vb - va;
     const btScalar dn = btDot(vr, cti.m_normal);
+//    if (dn > 0)
+//        return 0;
     // dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
     btScalar residualSquare = dn*dn;
     btVector3 impulse = m_contact->m_c0 * vr;
@@ -133,7 +136,7 @@ btScalar btDeformableRigidContactConstraint::solveConstraint()
         }
     }
     impulse = impulse_normal + impulse_tangent;
-    
+    applyImpulse(impulse);
     
     if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
     {
@@ -166,6 +169,7 @@ btScalar btDeformableRigidContactConstraint::solveConstraint()
     return residualSquare;
 }
 
+/* ================   Node vs. Rigid   =================== */
 btDeformableNodeRigidContactConstraint::btDeformableNodeRigidContactConstraint(const btSoftBody::DeformableNodeRigidContact& contact)
     : m_node(contact.m_node)
     , btDeformableRigidContactConstraint(contact)
@@ -184,7 +188,46 @@ btVector3 btDeformableNodeRigidContactConstraint::getVb() const
 }
 
 
-btVector3 btDeformableNodeRigidContactConstraint::getDv(btSoftBody::Node* node) const
+btVector3 btDeformableNodeRigidContactConstraint::getDv(const btSoftBody::Node* node) const
 {
     return m_total_normal_dv + m_total_tangent_dv;
+}
+
+/* ================   Face vs. Rigid   =================== */
+btDeformableFaceRigidContactConstraint::btDeformableFaceRigidContactConstraint(const btSoftBody::DeformableFaceRigidContact& contact)
+: m_face(contact.m_face)
+, m_solved(false)
+, btDeformableRigidContactConstraint(contact)
+{
+}
+
+btDeformableFaceRigidContactConstraint::btDeformableFaceRigidContactConstraint(const btDeformableFaceRigidContactConstraint& other)
+: m_face(other.m_face)
+, m_solved(false)
+, btDeformableRigidContactConstraint(other)
+{
+}
+
+btVector3 btDeformableFaceRigidContactConstraint::getVb() const
+{
+    const btSoftBody::DeformableFaceRigidContact* contact = getContact();
+    btVector3 vb = m_face->m_n[0]->m_v * contact->m_bary[0] + m_face->m_n[1]->m_v * contact->m_bary[1] + m_face->m_n[2]->m_v * contact->m_bary[2];
+    return vb;
+}
+
+
+btVector3 btDeformableFaceRigidContactConstraint::getDv(const btSoftBody::Node* node) const
+{
+    btVector3 face_dv = m_total_normal_dv + m_total_tangent_dv;
+    const btSoftBody::DeformableFaceRigidContact* contact = getContact();
+    if (m_face->m_n[0] == node)
+    {
+        return face_dv * contact->m_weights[0];
+    }
+    if (m_face->m_n[1] == node)
+    {
+        return face_dv * contact->m_weights[1];
+    }
+    btAssert(node == m_face->m_n[2]);
+    return face_dv * contact->m_weights[2];
 }
