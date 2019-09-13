@@ -46,31 +46,14 @@ protected:
     
     void writeToSolverBody(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal)
     {
-        btSISolverSingleIterationData siData(m_tmpSolverBodyPool,
-                                             m_tmpSolverContactConstraintPool,
-                                             m_tmpSolverNonContactConstraintPool,
-                                             m_tmpSolverContactFrictionConstraintPool,
-                                             m_tmpSolverContactRollingFrictionConstraintPool,
-                                             m_orderTmpConstraintPool,
-                                             m_orderNonContactConstraintPool,
-                                             m_orderFrictionConstraintPool,
-                                             m_tmpConstraintSizesPool,
-                                             m_resolveSingleConstraintRowGeneric,
-                                             m_resolveSingleConstraintRowLowerLimit,
-                                             m_resolveSplitPenetrationImpulse,
-                                             m_kinematicBodyUniqueIdToSolverBodyTable,
-                                             m_btSeed2,
-                                             m_fixedBodyId,
-                                             m_maxOverrideNumSolverIterations);
-        
         for (int i = 0; i < numBodies; i++)
         {
-            int bodyId = siData.getOrInitSolverBody(*bodies[i], infoGlobal.m_timeStep);
+            int bodyId = getOrInitSolverBody(*bodies[i], infoGlobal.m_timeStep);
             
             btRigidBody* body = btRigidBody::upcast(bodies[i]);
             if (body && body->getInvMass())
             {
-                btSolverBody& solverBody = siData.m_tmpSolverBodyPool[bodyId];
+                btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
                 solverBody.m_linearVelocity = body->getLinearVelocity() - solverBody.m_deltaLinearVelocity;
                 solverBody.m_angularVelocity = body->getAngularVelocity() - solverBody.m_deltaAngularVelocity;
             }

@@ -117,14 +117,14 @@ for x in range(32):
       batchPositions.append(
           [x * meshScale[0] * 5.5, y * meshScale[1] * 5.5, (0.5 + z) * meshScale[2] * 2.5])
 
-bodyUid = p.createMultiBody(baseMass=0,
+bodyUids = p.createMultiBody(baseMass=0,
                             baseInertialFramePosition=[0, 0, 0],
                             baseCollisionShapeIndex=collisionShapeId,
                             baseVisualShapeIndex=visualShapeId,
                             basePosition=[0, 0, 2],
                             batchPositions=batchPositions,
                             useMaximalCoordinates=True)
-p.changeVisualShape(bodyUid, -1, textureUniqueId=texUid)
+p.changeVisualShape(bodyUids[0], -1, textureUniqueId=texUid)
 
 p.syncBodyInfo()
 print("numBodies=", p.getNumBodies())
