@@ -77,13 +77,14 @@ public:
     void predictDeformableMotion(btSoftBody* psb, btScalar dt);
     
     void backupVelocity();
-    void backupVn();
+    void setupDeformableSolve(bool implicit);
     void revertVelocity();
     void updateVelocity();
     
     bool updateNodes();
     
     void computeStep(TVStack& dv, const TVStack& residual);
+    
     btScalar computeDescentStep(TVStack& ddv, const TVStack& residual);
                      
     virtual void predictMotion(btScalar solverdt);

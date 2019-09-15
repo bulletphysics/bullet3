@@ -300,6 +300,16 @@ public:
         btMatrix3x3 m_F;
         btScalar m_element_measure;
 	};
+    
+    /*  TetraScratch  */
+    struct TetraScratch
+    {
+        btMatrix3x3 m_F;                // deformation gradient F
+        btScalar m_trace;               // trace of F^T * F
+        btScalar m_J;                   // det(F)
+        btMatrix3x3 m_cofF;             // cofactor of F
+    };
+    
 	/* RContact		*/
 	struct RContact
 	{
@@ -745,6 +755,7 @@ public:
 	tFaceArray m_faces;                // Faces
     tFaceArray m_renderFaces;                // Faces
 	tTetraArray m_tetras;              // Tetras
+    btAlignedObjectArray<TetraScratch> m_tetraScratches;
 	tAnchorArray m_anchors;            // Anchors
 	tRContactArray m_rcontacts;        // Rigid contacts
     btAlignedObjectArray<DeformableNodeRigidContact> m_nodeRigidContacts;

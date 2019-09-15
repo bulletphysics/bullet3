@@ -185,20 +185,21 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 
 void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
 {
-    // save v_{n+1}^* velocity after explicit forces
-    m_deformableBodySolver->backupVelocity();
+    if (!m_implicit)
+    {
+        // save v_{n+1}^* velocity after explicit forces
+        m_deformableBodySolver->backupVelocity();
+    }
     
     // set up constraints among multibodies and between multibodies and deformable bodies
     setupConstraints();
     solveMultiBodyRelatedConstraints();
     m_deformableBodySolver->m_objective->projection.setProjection();
-    if (m_implicit)
-    {
-        // at this point dv = v_{n+1} - v_{n+1}^*
-        // modify dv such that dv = v_{n+1} - v_n
-        // modify m_backupVelocity so that it stores v_n instead of v_{n+1}^* as needed by Newton
-        m_deformableBodySolver->backupVn();
-    }
+    
+    // for explicit scheme, m_backupVelocity = v_{n+1}^*
+    // for implicit scheme, m_backupVelocity = v_n
+    // Here, set dv = v_{n+1} - v_n for nodes in contact
+    m_deformableBodySolver->setupDeformableSolve(m_implicit);
     
     // At this point, dv should be golden for nodes in contact
     m_deformableBodySolver->solveDeformableConstraints(timeStep);

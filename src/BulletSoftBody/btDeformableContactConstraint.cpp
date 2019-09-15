@@ -92,8 +92,6 @@ btScalar btDeformableRigidContactConstraint::solveConstraint()
     btVector3 vb = getVb();
     btVector3 vr = vb - va;
     const btScalar dn = btDot(vr, cti.m_normal);
-//    if (dn > 0)
-//        return 0;
     // dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
     btScalar residualSquare = dn*dn;
     btVector3 impulse = m_contact->m_c0 * vr;
@@ -136,8 +134,10 @@ btScalar btDeformableRigidContactConstraint::solveConstraint()
         }
     }
     impulse = impulse_normal + impulse_tangent;
+    // apply impulse to deformable nodes involved and change their velocities
     applyImpulse(impulse);
     
+    // apply impulse to the rigid/multibodies involved and change their velocities
     if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
     {
         btRigidBody* rigidCol = 0;

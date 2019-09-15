@@ -1233,6 +1233,7 @@ if(face&&face[0])
 		}
 	}
     psb->initializeDmInverse();
+    psb->m_tetraScratches.resize(psb->m_tetras.size());
 	printf("Nodes:  %u\r\n", psb->m_nodes.size());
 	printf("Links:  %u\r\n", psb->m_links.size());
 	printf("Faces:  %u\r\n", psb->m_faces.size());
@@ -1374,6 +1375,7 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
     
     
     psb->initializeDmInverse();
+    psb->m_tetraScratches.resize(psb->m_tetras.size());
     printf("Nodes:  %u\r\n", psb->m_nodes.size());
     printf("Links:  %u\r\n", psb->m_links.size());
     printf("Faces:  %u\r\n", psb->m_faces.size());
