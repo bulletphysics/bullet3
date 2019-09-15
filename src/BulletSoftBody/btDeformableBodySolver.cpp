@@ -22,7 +22,7 @@
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(20)
-, m_maxNewtonIterations(5)
+, m_maxNewtonIterations(10)
 , m_newtonTolerance(1e-4)
 , m_lineSearch(true)
 {
@@ -86,7 +86,7 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
                     updateEnergy(scale);
                     f1 = m_objective->totalEnergy(solverdt)+kineticEnergy();
                     f2 = f0 - alpha * scale * inner_product;
-                } while (!(f1 < f2)); // if anything here is nan then the search continues
+                } while (!(f1 < f2+SIMD_EPSILON)); // if anything here is nan then the search continues
                 revertDv();
                 updateDv(scale);
             }
@@ -155,7 +155,6 @@ btScalar btDeformableBodySolver::computeDescentStep(TVStack& ddv, const TVStack&
     btScalar inner_product = m_cg.dot(residual, m_ddv);
     btScalar res_norm = m_objective->computeNorm(residual);
     btScalar tol = 1e-5 * res_norm * m_objective->computeNorm(m_ddv);
-    
     if (inner_product < -tol)
     {
         std::cout << "Looking backwards!" << std::endl;
