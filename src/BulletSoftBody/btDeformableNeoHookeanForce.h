@@ -32,7 +32,7 @@ public:
         m_lambda_damp = damping * m_lambda;
     }
     
-    btDeformableNeoHookeanForce(btScalar mu, btScalar lambda, btScalar damping = 0.05): m_mu(mu), m_lambda(lambda)
+    btDeformableNeoHookeanForce(btScalar mu, btScalar lambda, btScalar damping = 0): m_mu(mu), m_lambda(lambda)
     {
         m_mu_damp = damping * m_mu;
         m_lambda_damp = damping * m_lambda;
