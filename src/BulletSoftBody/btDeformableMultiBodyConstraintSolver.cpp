@@ -39,7 +39,7 @@ btScalar btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlyIteration
                 printf("residual = %f at iteration #%d\n", m_leastSquaresResidual, iteration);
 #endif
                 m_analyticsData.m_numSolverCalls++;
-                std::cout << m_leastSquaresResidual << std::endl;
+                std::cout << "Contact Residual = " << m_leastSquaresResidual << std::endl;
                 m_analyticsData.m_numIterationsUsed = iteration+1;
                 m_analyticsData.m_islandId = -2;
                 if (numBodies>0)

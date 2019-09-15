@@ -2905,6 +2905,13 @@ void btSoftBody::updateDeformation()
                        c1.getY(), c2.getY(), c3.getY(),
                        c1.getZ(), c2.getZ(), c3.getZ());
         t.m_F = Ds * t.m_Dm_inverse;
+        
+        btSoftBody::TetraScratch& s = m_tetraScratches[i];
+        s.m_F = t.m_F;
+        s.m_J = t.m_F.determinant();
+        btMatrix3x3 C = t.m_F.transpose()*t.m_F;
+        s.m_trace = C[0].getX() + C[1].getY() + C[2].getZ();
+        s.m_cofF = t.m_F.adjoint().transpose();
     }
 }
 //
@@ -3431,7 +3438,7 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
             docollideFace.m_rigidBody = prb1;
             docollideFace.dynmargin = basemargin + timemargin;
             docollideFace.stamargin = basemargin;
-//            m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
+            m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
         }
         break;
 	}

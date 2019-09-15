@@ -22,7 +22,7 @@
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(20)
-, m_maxNewtonIterations(5)
+, m_maxNewtonIterations(10)
 , m_newtonTolerance(1e-4)
 , m_lineSearch(true)
 {
@@ -82,13 +82,12 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
                 do {
                     scale *= beta;
                     if (scale < 1e-8) {
-                        //std::cout << "Could not find sufficient descent!" << std::endl;
                         return;
                     }
                     updateEnergy(scale);
                     f1 = m_objective->totalEnergy()+kineticEnergy();
                     f2 = f0 - alpha * scale * inner_product;
-                } while (!(f1 < f2)); // if anything here is nan then the search continues
+                } while (!(f1 < f2+SIMD_EPSILON)); // if anything here is nan then the search continues
                 revertDv();
                 updateDv(scale);
             }
@@ -97,7 +96,6 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
                 computeStep(m_ddv, m_residual);
                 updateDv();
             }
-
             for (int j = 0; j < m_numNodes; ++j)
             {
                 m_ddv[j].setZero();
@@ -157,7 +155,8 @@ btScalar btDeformableBodySolver::computeDescentStep(TVStack& ddv, const TVStack&
     btScalar relative_tolerance = btMin(btScalar(0.5), std::sqrt(btMax(m_objective->computeNorm(residual), m_newtonTolerance)));
     m_cg.solve(*m_objective, ddv, residual, relative_tolerance, false);
     btScalar inner_product = m_cg.dot(residual, m_ddv);
-    btScalar tol = 1e-5 * m_objective->computeNorm(residual) * m_objective->computeNorm(m_ddv);
+    btScalar tol = 1e-3 * m_objective->computeNorm(residual) * m_objective->computeNorm(m_ddv);
+    btScalar res_norm = m_objective->computeNorm(residual);
     if (inner_product < -tol)
     {
         std::cout << "Looking backwards!" << std::endl;
@@ -170,7 +169,6 @@ btScalar btDeformableBodySolver::computeDescentStep(TVStack& ddv, const TVStack&
     else if (std::abs(inner_product) < tol)
     {
         std::cout << "Gradient Descent!" << std::endl;
-        btScalar res_norm = m_objective->computeNorm(residual);
         btScalar scale = m_objective->computeNorm(m_ddv) / res_norm;
         for (int i = 0; i < m_ddv.size();++i)
         {
@@ -236,23 +234,7 @@ void btDeformableBodySolver::setConstraints()
 btScalar btDeformableBodySolver::solveContactConstraints()
 {
     BT_PROFILE("setConstraint");
-    for (int i = 0; i < m_dv.size();++i)
-    {
-        m_dv[i].setZero();
-    }
     btScalar maxSquaredResidual = m_objective->projection.update();
-//    m_objective->enforceConstraint(m_dv);
-//    m_objective->updateVelocity(m_dv);
-    int counter = 0;
-    for (int i = 0; i < m_softBodySet.size(); ++i)
-    {
-        btSoftBody* psb = m_softBodySet[i];
-        for (int j = 0; j < psb->m_nodes.size(); ++j)
-        {
-            m_dv[counter] = psb->m_nodes[j].m_v - m_backupVelocity[counter];
-            ++counter;
-        }
-    }
     return maxSquaredResidual;
 }
 
@@ -304,7 +286,7 @@ void btDeformableBodySolver::backupVelocity()
     }
 }
 
-void btDeformableBodySolver::backupVn()
+void btDeformableBodySolver::setupDeformableSolve(bool implicit)
 {
     int counter = 0;
     for (int i = 0; i < m_softBodySet.size(); ++i)
@@ -312,17 +294,12 @@ void btDeformableBodySolver::backupVn()
         btSoftBody* psb = m_softBodySet[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
-            // Here:
-            // dv = 0 for nodes not in constraints
-            // dv = v_{n+1} - v_{n+1}^* for nodes in constraints
-            if (m_objective->projection.m_projectionsDict.find(psb->m_nodes[j].index)!=NULL)
+            if (implicit)
             {
-                m_dv[counter] += m_backupVelocity[counter] - psb->m_nodes[j].m_vn;
+                m_backupVelocity[counter] = psb->m_nodes[j].m_vn;
             }
-            // Now:
-            // dv = 0 for nodes not in constraints
-            // dv = v_{n+1} - v_n for nodes in constraints
-            m_backupVelocity[counter++] = psb->m_nodes[j].m_vn;
+            m_dv[counter] = psb->m_nodes[j].m_v - m_backupVelocity[counter];
+            ++counter;
         }
     }
 }
