@@ -71,13 +71,6 @@ public:
     
     void setDt(btScalar dt);
     
-    // enforce constraints in contact solve
-    void enforceConstraint(TVStack& x)
-    {
-        BT_PROFILE("enforceConstraint");
-        projection.enforceConstraint(x);
-    }
-    
     void applyDynamicFriction(TVStack& r);
     
     // add dv to velocity

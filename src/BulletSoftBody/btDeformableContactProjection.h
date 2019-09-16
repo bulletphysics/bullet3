@@ -31,7 +31,11 @@ public:
     btHashMap<btHashInt, btAlignedObjectArray<btDeformableNodeRigidContactConstraint> > m_nodeRigidConstraints;
     // map from node index to face rigid constraint
     btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceRigidContactConstraint*> > m_faceRigidConstraints;
-    btAlignedObjectArray<btDeformableFaceRigidContactConstraint*> m_allFaceConstraints;
+    // map from node index to deformable constraint
+    btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceNodeContactConstraint*> > m_deformableConstraints;
+    
+    // all constraints involving face
+    btAlignedObjectArray<btDeformableContactConstraint*> m_allFaceConstraints;
     
     // map from node index to projection directions
     btHashMap<btHashInt, btAlignedObjectArray<btVector3> > m_projectionsDict;
@@ -50,9 +54,6 @@ public:
     
     // add to friction
     virtual void applyDynamicFriction(TVStack& f);
-    
-    // apply constraints to x in Ax=b
-    virtual void enforceConstraint(TVStack& x);
     
     // update the constraints
     virtual btScalar update();

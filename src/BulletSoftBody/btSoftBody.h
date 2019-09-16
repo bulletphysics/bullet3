@@ -163,10 +163,11 @@ public:
             SDF_RD = 0x0003,   ///DF based rigid vs deformable
             SDF_RDF = 0x0004,   ///DF based rigid vs deformable faces
 
-			SVSmask = 0x0030,  ///Rigid versus soft mask
+			SVSmask = 0x00F0,  ///Rigid versus soft mask
 			VF_SS = 0x0010,    ///Vertex vs face soft vs soft handling
 			CL_SS = 0x0020,    ///Cluster vs cluster soft vs soft handling
 			CL_SELF = 0x0040,  ///Cluster soft body self collision
+            VF_DD = 0x0050,    ///Vertex vs face soft vs soft handling
 			/* presets	*/
 			Default = SDF_RS,
 			END
@@ -360,6 +361,19 @@ public:
         btVector3 m_contactPoint;       // Contact point
         btVector3 m_bary;               // Barycentric weights
         btVector3 m_weights;            // v_contactPoint * m_weights[i] = m_face->m_node[i]->m_v;
+    };
+    
+    struct DeformableFaceNodeContact
+    {
+        Node* m_node;         // Node
+        Face* m_face;         // Face
+        btVector3 m_bary;     // Barycentric weights
+        btVector3 m_weights;  // v_contactPoint * m_weights[i] = m_face->m_node[i]->m_v;
+        btVector3 m_normal;   // Normal
+        btScalar m_margin;    // Margin
+        btScalar m_friction;  // Friction
+        btScalar m_imf;       // inverse mass of the face at contact point
+        btScalar m_c0;        // scale of the impulse matrix;
     };
     
 	/* SContact		*/
@@ -759,6 +773,7 @@ public:
 	tAnchorArray m_anchors;            // Anchors
 	tRContactArray m_rcontacts;        // Rigid contacts
     btAlignedObjectArray<DeformableNodeRigidContact> m_nodeRigidContacts;
+    btAlignedObjectArray<DeformableFaceNodeContact> m_faceNodeContacts;
     btAlignedObjectArray<DeformableFaceRigidContact> m_faceRigidContacts;
 	tSContactArray m_scontacts;        // Soft contacts
 	tJointArray m_joints;              // Joints
