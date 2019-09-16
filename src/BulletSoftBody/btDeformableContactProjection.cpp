@@ -35,7 +35,7 @@ btScalar btDeformableContactProjection::update()
     // face constraints
     for (int index = 0; index < m_allFaceConstraints.size(); ++index)
     {
-        btDeformableFaceRigidContactConstraint* constraint = m_allFaceConstraints[index];
+        btDeformableContactConstraint* constraint = m_allFaceConstraints[index];
         btScalar localResidualSquare = constraint->solveConstraint();
         residualSquare = btMax(residualSquare, localResidualSquare);
     }
@@ -140,65 +140,63 @@ void btDeformableContactProjection::setConstraints()
                 delete constraint;
             }
         }
-    }
-    // todo xuchenhan@: set Deformable Face vs. Deformable Node
-}
-
-void btDeformableContactProjection::enforceConstraint(TVStack& x)
-{
-    // x is set to zero when passed in
     
-    // loop through node constraints to add in contributions to dv
-    for (int index = 0; index < m_nodeRigidConstraints.size(); ++index)
-    {
-        btAlignedObjectArray<btDeformableNodeRigidContactConstraint>& constraintsList = *m_nodeRigidConstraints.getAtIndex(index);
-        // i is node index
-        int i = m_nodeRigidConstraints.getKeyAtIndex(index).getUid1();
-        int numConstraints = 1;
-//        int numConstraints = constraintsList.size();
-//        if (m_faceRigidConstraints.find(i) != NULL)
-//        {
-//            numConstraints += m_faceRigidConstraints[i]->size();
-//        }
-        for (int j = 0; j < constraintsList.size(); ++j)
+        // set Deformable Face vs. Deformable Node constraint
+        for (int j = 0; j < psb->m_faceNodeContacts.size(); ++j)
         {
-            const btDeformableNodeRigidContactConstraint& constraint = constraintsList[j];
-            x[i] += constraint.getDv(constraint.getContact()->m_node)/btScalar(numConstraints);
-        }
-    }
-    
-    // loop through face constraints to add in contributions to dv
-    // note that for each face constraint is owned by three nodes. Be careful here to only add the dv to the node that owns the constraint
-    for (int index = 0; index < m_faceRigidConstraints.size(); ++index)
-    {
-        btAlignedObjectArray<btDeformableFaceRigidContactConstraint*>& constraintsList = *m_faceRigidConstraints.getAtIndex(index);
-        // i is node index
-        int i = m_faceRigidConstraints.getKeyAtIndex(index).getUid1();
-        for (int j = 0; j < constraintsList.size(); ++j)
-        {
-            const btDeformableFaceRigidContactConstraint* constraint = constraintsList[j];
-            const btSoftBody::Face* face = constraint->m_face;
-            btSoftBody::Node* node;
-            // find the node that owns the constraint
-            for (int k = 0; k < 3; ++k)
+            const btSoftBody::DeformableFaceNodeContact& contact = psb->m_faceNodeContacts[j];
+            
+            btDeformableFaceNodeContactConstraint* constraint = new btDeformableFaceNodeContactConstraint(contact);
+            btVector3 va = constraint->getVa();
+            btVector3 vb = constraint->getVb();
+            const btVector3 vr = vb - va;
+            const btScalar dn = btDot(vr, contact.m_normal);
+            if (dn > -SIMD_EPSILON)
             {
-                if (face->m_n[k]->index == i)
+                btSoftBody::Node* node = contact.m_node;
+                btSoftBody::Face* face = contact.m_face;
+                m_allFaceConstraints.push_back(constraint);
+                if (node->m_im != 0)
                 {
-                    node = face->m_n[k];
-                    break;
+                    if (m_deformableConstraints.find(node->index) == NULL)
+                    {
+                        btAlignedObjectArray<btDeformableFaceNodeContactConstraint*> constraintsList;
+                        constraintsList.push_back(constraint);
+                        m_deformableConstraints.insert(node->index, constraintsList);
+                    }
+                    else
+                    {
+                        btAlignedObjectArray<btDeformableFaceNodeContactConstraint*>& constraintsList = *m_deformableConstraints[node->index];
+                        constraintsList.push_back(constraint);
+                    }
+                }
+                    
+                // add face constraints to each of the nodes
+                for (int k = 0; k < 3; ++k)
+                {
+                    btSoftBody::Node* node = face->m_n[k];
+                    // static node does not need to own face/rigid constraint
+                    if (node->m_im != 0)
+                    {
+                        if (m_deformableConstraints.find(node->index) == NULL)
+                        {
+                            btAlignedObjectArray<btDeformableFaceNodeContactConstraint*> constraintsList;
+                            constraintsList.push_back(constraint);
+                            m_deformableConstraints.insert(node->index, constraintsList);
+                        }
+                        else
+                        {
+                            btAlignedObjectArray<btDeformableFaceNodeContactConstraint*>& constraintsList = *m_deformableConstraints[node->index];
+                            constraintsList.push_back(constraint);
+                        }
+                    }
                 }
             }
-            x[i] += constraint->getDv(node);
+            else
+            {
+                delete constraint;
+            }
         }
-    }
-    // todo xuchenhan@: add deformable deformable constraints' contribution to dv
-    
-    // Finally, loop through static constraints to set dv of static nodes to zero
-    for (int index = 0; index < m_staticConstraints.size(); ++index)
-    {
-        const btDeformableStaticConstraint& constraint = *m_staticConstraints.getAtIndex(index);
-        int i = m_staticConstraints.getKeyAtIndex(index).getUid1();
-        x[i] = constraint.getDv(constraint.m_node);
     }
 }
 
@@ -258,7 +256,7 @@ void btDeformableContactProjection::setProjection()
                 hasConstraint = true;
             }
             
-            // accumulate normals
+            // accumulate normals from Deformable Node vs. Rigid constraints
             if (!existStaticConstraint && m_nodeRigidConstraints.find(index) != NULL)
             {
                 hasConstraint = true;
@@ -276,10 +274,29 @@ void btDeformableContactProjection::setProjection()
                 }
             }
         
+            // accumulate normals from Deformable Face vs. Rigid constraints
             if (!existStaticConstraint && m_faceRigidConstraints.find(index) != NULL)
             {
                 hasConstraint = true;
                 btAlignedObjectArray<btDeformableFaceRigidContactConstraint*>& constraintsList = *m_faceRigidConstraints[index];
+                for (int k = 0; k < constraintsList.size(); ++k)
+                {
+                    if (constraintsList[k]->m_static)
+                    {
+                        existStaticConstraint = true;
+                        break;
+                    }
+                    const btVector3& local_normal = constraintsList[k]->m_normal;
+                    normals.push_back(local_normal);
+                    averagedNormal += local_normal;
+                }
+            }
+            
+            // accumulate normals from Deformable Node vs. Deformable Face constraints
+            if (!existStaticConstraint && m_deformableConstraints.find(index) != NULL)
+            {
+                hasConstraint = true;
+                btAlignedObjectArray<btDeformableFaceNodeContactConstraint*>& constraintsList = *m_deformableConstraints[index];
                 for (int k = 0; k < constraintsList.size(); ++k)
                 {
                     if (constraintsList[k]->m_static)
@@ -388,6 +405,7 @@ void btDeformableContactProjection::reinitialize(bool nodeUpdated)
     m_staticConstraints.clear();
     m_nodeRigidConstraints.clear();
     m_faceRigidConstraints.clear();
+    m_deformableConstraints.clear();
     m_projectionsDict.clear();
     for (int i = 0; i < m_allFaceConstraints.size(); ++i)
     {

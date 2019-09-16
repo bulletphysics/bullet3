@@ -89,6 +89,7 @@ void btSoftBody::initDefaults()
 	m_cfg.diterations = 0;
 	m_cfg.citerations = 4;
 	m_cfg.collisions = fCollision::Default;
+    m_cfg.collisions |= fCollision::VF_DD;
 	m_pose.m_bvolume = false;
 	m_pose.m_bframe = false;
 	m_pose.m_volume = 0;
@@ -1861,8 +1862,7 @@ void btSoftBody::predictMotion(btScalar dt)
         }
     }
     /* Clear contacts        */
-    m_nodeRigidContacts.resize(0);
-    m_faceRigidContacts.resize(0);
+    m_rcontacts.resize(0);
     m_scontacts.resize(0);
     /* Optimize dbvt's        */
     m_ndbvt.optimizeIncremental(1);
@@ -3484,6 +3484,30 @@ void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 			}
 		}
 		break;
+        case fCollision::VF_DD:
+        {
+            // self-collision not supported yet
+            if (this != psb)
+            {
+                btSoftColliders::CollideVF_DD docollide;
+                /* common                    */
+                docollide.mrg = getCollisionShape()->getMargin() +
+                psb->getCollisionShape()->getMargin();
+                /* psb0 nodes vs psb1 faces    */
+                docollide.psb[0] = this;
+                docollide.psb[1] = psb;
+                docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_ndbvt.m_root,
+                                                    docollide.psb[1]->m_fdbvt.m_root,
+                                                    docollide);
+                /* psb1 nodes vs psb0 faces    */
+                docollide.psb[0] = psb;
+                docollide.psb[1] = this;
+                docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_ndbvt.m_root,
+                                                    docollide.psb[1]->m_fdbvt.m_root,
+                                                    docollide);
+            }
+        }
+        break;
 		default:
 		{
 		}

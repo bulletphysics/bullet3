@@ -502,6 +502,77 @@ static inline void ProjectOrigin(const btVector3& a,
 }
 
 //
+static inline bool rayIntersectsTriangle(const btVector3& origin, const btVector3& dir, const btVector3& v0, const btVector3& v1, const btVector3& v2, btScalar& t)
+{
+    btScalar a, f, u, v;
+    
+    btVector3 e1 = v1 - v0;
+    btVector3 e2 = v2 - v0;
+    btVector3 h = dir.cross(e2);
+    a = e1.dot(h);
+    
+    if (a > -0.00001 && a < 0.00001)
+        return (false);
+    
+    f = btScalar(1) / a;
+    btVector3 s = origin - v0;
+    u = f * s.dot(h);
+    
+    if (u < 0.0 || u > 1.0)
+        return (false);
+    
+    btVector3 q = s.cross(e1);
+    v = f * dir.dot(q);
+    if (v < 0.0 || u + v > 1.0)
+        return (false);
+    // at this stage we can compute t to find out where
+    // the intersection point is on the line
+    t = f * e2.dot(q);
+    if (t > 0)  // ray intersection
+        return (true);
+    else  // this means that there is a line intersection
+        // but not a ray intersection
+        return (false);
+}
+
+static inline bool lineIntersectsTriangle(const btVector3& rayStart, const btVector3& rayEnd, const btVector3& p1, const btVector3& p2, const btVector3& p3, btVector3& sect, btVector3& normal)
+{
+    btVector3 dir = rayEnd - rayStart;
+    btScalar dir_norm = dir.norm();
+    if (dir_norm < SIMD_EPSILON)
+        return false;
+    dir.normalize();
+
+    btScalar t;
+    
+    bool ret = rayIntersectsTriangle(rayStart, dir, p1, p2, p3, t);
+    
+    if (ret)
+    {
+        if (t <= dir_norm)
+        {
+            sect = rayStart + dir * t;
+        }
+        else
+        {
+            ret = false;
+        }
+    }
+    
+    if (ret)
+    {
+        btVector3 n = (p3-p1).cross(p2-p1);
+        n.safeNormalize();
+        if (n.dot(dir) < 0)
+            normal = n;
+        else
+            normal = -n;
+    }
+    return ret;
+}
+
+
+//
 template <typename T>
 static inline T BaryEval(const T& a,
 						 const T& b,
@@ -1217,6 +1288,53 @@ struct btSoftColliders
 		btSoftBody* psb[2];
 		btScalar mrg;
 	};
+    
+    //
+    // CollideVF_DD
+    //
+    struct CollideVF_DD : btDbvt::ICollide
+    {
+        void Process(const btDbvtNode* lnode,
+                     const btDbvtNode* lface)
+        {
+            btSoftBody::Node* node = (btSoftBody::Node*)lnode->data;
+            btSoftBody::Face* face = (btSoftBody::Face*)lface->data;
+            btVector3 o = node->m_x;
+            btVector3 p, normal;
+            const btSoftBody::Node* n[] = {face->m_n[0], face->m_n[1], face->m_n[2]};
+            btVector3 dir = node->m_q - o;
+            btScalar l = dir.length();
+            if (l < SIMD_EPSILON)
+                return;
+            btVector3 rayEnd = dir.normalized() * (l + 2*mrg);
+            bool intersect = lineIntersectsTriangle(btVector3(0,0,0), rayEnd, face->m_n[0]->m_x-o, face->m_n[1]->m_x-o, face->m_n[2]->m_x-o, p, normal);
+
+            if (intersect)
+            {
+                p += o;
+                const btVector3 w = BaryCoord(n[0]->m_x, n[1]->m_x, n[2]->m_x, p);
+                const btScalar ma = node->m_im;
+                btScalar mb = BaryEval(n[0]->m_im, n[1]->m_im, n[2]->m_im, w);
+                const btScalar ms = ma + mb;
+                if (ms > 0)
+                {
+                    btSoftBody::DeformableFaceNodeContact c;
+                    c.m_normal = normal;
+                    c.m_margin = mrg;
+                    c.m_node = node;
+                    c.m_face = face;
+                    c.m_bary = w;
+                    c.m_weights = btScalar(2)/(btScalar(1) + w.length2()) * w;
+                    c.m_friction = btMax(psb[0]->m_cfg.kDF, psb[1]->m_cfg.kDF);
+                    c.m_imf = c.m_bary[0]*c.m_weights[0] * n[0]->m_im + c.m_bary[1]*c.m_weights[1] * n[1]->m_im + c.m_bary[2]*c.m_weights[2] * n[2]->m_im;
+                    c.m_c0 = btScalar(1)/(ma + c.m_imf);
+                    psb[0]->m_faceNodeContacts.push_back(c);
+                }
+            }
+        }
+        btSoftBody* psb[2];
+        btScalar mrg;
+    };
 };
 
 #endif  //_BT_SOFT_BODY_INTERNALS_H
