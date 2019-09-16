@@ -353,6 +353,8 @@ SET(BulletExampleBrowser_SRCS
  ../MultiBody/MultiBodyConstraintFeedback.cpp
   ../SoftDemo/SoftDemo.cpp
   ../SoftDemo/SoftDemo.h
+  ../DeformableDemo/DeformableContact.cpp
+  ../DeformableDemo/DeformableContact.h
   ../DeformableDemo/GraspDeformable.cpp
   ../DeformableDemo/GraspDeformable.h
   ../DeformableDemo/Pinch.cpp
