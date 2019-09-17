@@ -26,12 +26,12 @@ public:
     btScalar m_mu_damp, m_lambda_damp;
     btDeformableNeoHookeanForce(): m_mu(1), m_lambda(1)
     {
-        btScalar damping = 0.005;
+        btScalar damping = 0.05;
         m_mu_damp = damping * m_mu;
         m_lambda_damp = damping * m_lambda;
     }
     
-    btDeformableNeoHookeanForce(btScalar mu, btScalar lambda, btScalar damping = 0): m_mu(mu), m_lambda(lambda)
+    btDeformableNeoHookeanForce(btScalar mu, btScalar lambda, btScalar damping = 0.05): m_mu(mu), m_lambda(lambda)
     {
         m_mu_damp = damping * m_mu;
         m_lambda_damp = damping * m_lambda;
@@ -71,7 +71,7 @@ public:
                 size_t id3 = node3->index;
                 btMatrix3x3 dF = DsFromVelocity(node0, node1, node2, node3) * tetra.m_Dm_inverse;
                 btMatrix3x3 dP;
-                firstPiolaDampingDifferential(psb->m_tetraScratches[j], dF, dP);
+                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
                 btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
 
@@ -85,7 +85,7 @@ public:
         }
     }
     
-    virtual double totalElasticEnergy()
+    virtual double totalElasticEnergy(btScalar dt)
     {
         double energy = 0;
         for (int i = 0; i < m_softBodies.size(); ++i)
@@ -96,6 +96,35 @@ public:
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
                 btSoftBody::TetraScratch& s = psb->m_tetraScratches[j];
                 energy += tetra.m_element_measure * elasticEnergyDensity(s);
+            }
+        }
+        return energy;
+    }
+    
+    virtual double totalDampingEnergy(btScalar dt)
+    {
+        double energy = 0;
+        int sz = 0;
+        for (int i = 0; i < m_softBodies.size(); ++i)
+        {
+            btSoftBody* psb = m_softBodies[i];
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                sz = btMax(sz, psb->m_nodes[j].index);
+            }
+        }
+        TVStack dampingForce;
+        dampingForce.resize(sz+1);
+        for (int i = 0; i < dampingForce.size(); ++i)
+            dampingForce[i].setZero();
+        addScaledDampingForce(0.5, dampingForce);
+        for (int i = 0; i < m_softBodies.size(); ++i)
+        {
+            btSoftBody* psb = m_softBodies[i];
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                const btSoftBody::Node& node = psb->m_nodes[j];
+                energy -= dampingForce[node.index].dot(node.m_v) / dt;
             }
         }
         return energy;
@@ -168,7 +197,7 @@ public:
                 size_t id3 = node3->index;
                 btMatrix3x3 dF = Ds(id0, id1, id2, id3, dv) * tetra.m_Dm_inverse;
                 btMatrix3x3 dP;
-                firstPiolaDampingDifferential(psb->m_tetraScratches[j], dF, dP);
+                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
                 btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
 

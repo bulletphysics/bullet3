@@ -37,7 +37,7 @@ protected:
     TVStack m_backup_dv;
     TVStack m_ddv;
     TVStack m_residual;
-    btAlignedObjectArray<btSoftBody *> m_softBodySet;
+    btAlignedObjectArray<btSoftBody *> m_softBodies;
    
     btAlignedObjectArray<btVector3> m_backupVelocity;
     btScalar m_dt;

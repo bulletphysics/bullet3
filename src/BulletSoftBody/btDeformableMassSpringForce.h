@@ -129,7 +129,7 @@ public:
             }
         }
     }
-    virtual double totalElasticEnergy()
+    virtual double totalElasticEnergy(btScalar dt)
     {
         double energy = 0;
         for (int i = 0; i < m_softBodies.size(); ++i)
@@ -144,7 +144,7 @@ public:
 
                 // elastic force
                 btVector3 dir = (node2->m_q - node1->m_q);
-                energy += 0.5 * m_elasticStiffness * (dir.norm() - r) * (dir.norm() -r );
+                energy += 0.5 * m_elasticStiffness * (dir.norm() - r) * (dir.norm() -r);
             }
         }
         return energy;

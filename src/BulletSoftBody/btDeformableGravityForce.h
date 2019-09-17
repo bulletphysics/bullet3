@@ -73,7 +73,7 @@ public:
         return BT_GRAVITY_FORCE;
     }
 
-    virtual double totalElasticEnergy()
+    virtual double totalEnergy(btScalar dt)
     {
         double e = 0;
         for (int i = 0; i<m_softBodies.size();++i)

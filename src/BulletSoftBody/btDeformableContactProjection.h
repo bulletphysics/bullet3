@@ -22,9 +22,14 @@
 #include "btDeformableContactConstraint.h"
 #include "LinearMath/btHashMap.h"
 #include <vector>
-class btDeformableContactProjection : public btCGProjection
+class btDeformableContactProjection
 {
 public:
+    typedef btAlignedObjectArray<btVector3> TVStack;
+    typedef btAlignedObjectArray<btAlignedObjectArray<btVector3> > TVArrayStack;
+    typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > TArrayStack;
+    btAlignedObjectArray<btSoftBody *>& m_softBodies;
+    
     // map from node index to static constraint
     btHashMap<btHashInt, btDeformableStaticConstraint> m_staticConstraints;
     // map from node index to node rigid constraint
@@ -40,8 +45,8 @@ public:
     // map from node index to projection directions
     btHashMap<btHashInt, btAlignedObjectArray<btVector3> > m_projectionsDict;
     
-    btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
-    : btCGProjection(softBodies, dt)
+    btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies)
+    : m_softBodies(softBodies)
     {
     }
     
