@@ -62,37 +62,6 @@ struct DeformableContactConstraint
     {
     }
 };
-//
-//
-//struct DeformableFaceContactConstraint
-//{
-//    const btSoftBody::Face* m_face;
-//    const btSoftBody::FaceRContact* m_contact;
-//    btVector3 m_total_normal_dv;
-//    btVector3 m_total_tangent_dv;
-//    bool m_static;
-//    bool m_can_be_dynamic;
-//    
-//    DeformableFaceContactConstraint(const btSoftBody::FaceRContact& rcontact)
-//    : m_face(rcontact.m_face),
-//    m_contact(&rcontact),
-//    m_total_normal_dv(0,0,0),
-//    m_total_tangent_dv(0,0,0),
-//    m_static(false),
-//    m_can_be_dynamic(true)
-//    {
-//    }
-//    
-//    void replace(const btSoftBody::FaceRContact& rcontact)
-//    {
-//        m_contact = &rcontact;
-//        m_face = rcontact.m_face;
-//    }
-//    
-//    ~DeformableFaceContactConstraint()
-//    {
-//    }
-//};
 
 class btCGProjection
 {

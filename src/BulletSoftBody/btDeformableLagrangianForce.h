@@ -77,6 +77,7 @@ public:
         return numNodes;
     }
     
+    // add a soft body to be affected by the particular lagrangian force
     virtual void addSoftBody(btSoftBody* psb)
     {
         m_softBodies.push_back(psb);
@@ -87,6 +88,7 @@ public:
         m_nodes = nodes;
     }
     
+     // Calculate the incremental deformable generated from the input dx
     virtual btMatrix3x3 Ds(int id0, int id1, int id2, int id3, const TVStack& dx)
     {
         btVector3 c1 = dx[id1] - dx[id0];
@@ -98,6 +100,7 @@ public:
         return dF;
     }
     
+    // Calculate the incremental deformable generated from the current velocity
     virtual btMatrix3x3 DsFromVelocity(const btSoftBody::Node* n0, const btSoftBody::Node* n1, const btSoftBody::Node* n2, const btSoftBody::Node* n3)
     {
         btVector3 c1 = n1->m_v - n0->m_v;

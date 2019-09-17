@@ -55,7 +55,7 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
     
     beforeSolverCallbacks(timeStep);
     
-    ///solve deformable bodies constraints
+    ///solve contact constraints and then deformable bodies momemtum equation
     solveConstraints(timeStep);
     
     afterSolverCallbacks(timeStep);
@@ -193,7 +193,11 @@ void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
     
     // set up constraints among multibodies and between multibodies and deformable bodies
     setupConstraints();
-    solveMultiBodyRelatedConstraints();
+    
+    // solve contact constraints
+    solveContactConstraints();
+    
+    // set up the directions in which the velocity does not change in the momentum solve
     m_deformableBodySolver->m_objective->m_projection.setProjection();
     
     // for explicit scheme, m_backupVelocity = v_{n+1}^*
@@ -202,6 +206,7 @@ void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
     m_deformableBodySolver->setupDeformableSolve(m_implicit);
     
     // At this point, dv should be golden for nodes in contact
+    // proceed to solve deformable momentum equation
     m_deformableBodySolver->solveDeformableConstraints(timeStep);
 }
 
@@ -217,7 +222,6 @@ void btDeformableMultiBodyDynamicsWorld::setupConstraints()
         btMultiBodyConstraint** sortedMultiBodyConstraints = m_sortedMultiBodyConstraints.size() ? &m_sortedMultiBodyConstraints[0] : 0;
         btTypedConstraint** constraintsPtr = getNumConstraints() ? &m_sortedConstraints[0] : 0;
         m_solverMultiBodyIslandCallback->setup(&m_solverInfo, constraintsPtr, m_sortedConstraints.size(), sortedMultiBodyConstraints, m_sortedMultiBodyConstraints.size(), getDebugDrawer());
-        m_constraintSolver->prepareSolve(getCollisionWorld()->getNumCollisionObjects(), getCollisionWorld()->getDispatcher()->getNumManifolds());
         
         // build islands
         m_islandManager->buildIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld());
@@ -243,7 +247,7 @@ void btDeformableMultiBodyDynamicsWorld::sortConstraints()
 }
     
     
-void btDeformableMultiBodyDynamicsWorld::solveMultiBodyRelatedConstraints()
+void btDeformableMultiBodyDynamicsWorld::solveContactConstraints()
 {
     // process constraints on each island
     m_islandManager->processIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
