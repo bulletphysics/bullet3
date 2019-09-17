@@ -194,7 +194,7 @@ void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
     // set up constraints among multibodies and between multibodies and deformable bodies
     setupConstraints();
     solveMultiBodyRelatedConstraints();
-    m_deformableBodySolver->m_objective->projection.setProjection();
+    m_deformableBodySolver->m_objective->m_projection.setProjection();
     
     // for explicit scheme, m_backupVelocity = v_{n+1}^*
     // for implicit scheme, m_backupVelocity = v_n

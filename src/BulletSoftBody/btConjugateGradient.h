@@ -50,7 +50,8 @@ public:
         A.precondition(r, z);
         A.project(z);
         btScalar r_dot_z = dot(z,r);
-        btScalar local_tolerance = btMin(relative_tolerance * std::sqrt(r_dot_z), tolerance);
+//        btScalar local_tolerance = btMin(relative_tolerance * std::sqrt(r_dot_z), tolerance);
+        btScalar local_tolerance = tolerance;
         if (std::sqrt(r_dot_z) <= local_tolerance) {
             if (verbose)
             {
@@ -66,7 +67,7 @@ public:
             A.multiply(p, temp);
             A.project(temp);
             // alpha = r^T * z / (p^T * A * p)
-            if (dot(p,temp) < 0)
+            if (dot(p,temp) < SIMD_EPSILON)
             {
                 if (verbose)
                     std::cout << "Encountered negative direction in CG!"<<std::endl;
@@ -92,7 +93,8 @@ public:
                 }
                 return k;
             }
-            btScalar beta = r_dot_z_new/ r_dot_z;
+
+            btScalar beta = r_dot_z_new/r_dot_z;
             p = multAndAdd(beta, p, z);
         }
         if (verbose)

@@ -28,6 +28,11 @@ enum btDeformableLagrangianForceType
     BT_NEOHOOKEAN_FORCE = 4
 };
 
+static inline double randomDouble(double low, double high)
+{
+    return low + static_cast<double>(rand()) / RAND_MAX * (high - low);
+}
+
 class btDeformableLagrangianForce
 {
 public:
@@ -176,7 +181,7 @@ public:
                 psb->updateDeformation();
             }
             counter = 0;
-            double f1 = totalElasticEnergy();
+            double f1 = totalElasticEnergy(0);
             
             for (int i = 0; i<m_softBodies.size();++i)
             {
@@ -190,7 +195,7 @@ public:
             }
             counter = 0;
             
-            double f2 = totalElasticEnergy();
+            double f2 = totalElasticEnergy(0);
             
             //restore m_q
             for (int i = 0; i<m_softBodies.size();++i)
@@ -337,14 +342,22 @@ public:
         }
     }
     
-    virtual double totalElasticEnergy()
+    //
+    virtual double totalElasticEnergy(btScalar dt)
     {
         return 0;
     }
     
-    double randomDouble(double low, double high)
+    //
+    virtual double totalDampingEnergy(btScalar dt)
     {
-        return low + static_cast<double>(rand()) / RAND_MAX * (high - low);
+        return 0;
+    }
+    
+    // total Energy takes dt as input because certain energies depend on dt
+    virtual double totalEnergy(btScalar dt)
+    {
+        return totalElasticEnergy(dt) + totalDampingEnergy(dt);
     }
 };
 #endif /* BT_DEFORMABLE_LAGRANGIAN_FORCE */

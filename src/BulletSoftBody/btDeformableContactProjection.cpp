@@ -40,7 +40,6 @@ btScalar btDeformableContactProjection::update()
         residualSquare = btMax(residualSquare, localResidualSquare);
     }
     
-    // todo xuchenhan@: deformable/deformable constraints
     return residualSquare;
 }
 
@@ -401,7 +400,6 @@ void btDeformableContactProjection::applyDynamicFriction(TVStack& f)
 
 void btDeformableContactProjection::reinitialize(bool nodeUpdated)
 {
-    btCGProjection::reinitialize(nodeUpdated);
     m_staticConstraints.clear();
     m_nodeRigidConstraints.clear();
     m_faceRigidConstraints.clear();

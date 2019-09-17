@@ -2914,6 +2914,15 @@ void btSoftBody::updateDeformation()
         s.m_cofF = t.m_F.adjoint().transpose();
     }
 }
+
+void btSoftBody::advanceDeformation()
+{
+    updateDeformation();
+    for (int i = 0; i < m_tetras.size(); ++i)
+    {
+        m_tetraScratchesTn[i] = m_tetraScratches[i];
+    }
+}
 //
 void btSoftBody::Joint::Prepare(btScalar dt, int)
 {

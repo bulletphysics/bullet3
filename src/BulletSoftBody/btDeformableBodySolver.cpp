@@ -22,11 +22,11 @@
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(20)
-, m_maxNewtonIterations(10)
+, m_maxNewtonIterations(3)
 , m_newtonTolerance(1e-4)
 , m_lineSearch(true)
 {
-    m_objective = new btDeformableBackwardEulerObjective(m_softBodySet, m_backupVelocity);
+    m_objective = new btDeformableBackwardEulerObjective(m_softBodies, m_backupVelocity);
 }
 
 btDeformableBodySolver::~btDeformableBodySolver()
@@ -51,9 +51,9 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
             updateState();
             // add the inertia term in the residual
             int counter = 0;
-            for (int k = 0; k < m_softBodySet.size(); ++k)
+            for (int k = 0; k < m_softBodies.size(); ++k)
             {
-                btSoftBody* psb = m_softBodySet[k];
+                btSoftBody* psb = m_softBodies[k];
                 for (int j = 0; j < psb->m_nodes.size(); ++j)
                 {
                     if (psb->m_nodes[j].m_im > 0)
@@ -77,7 +77,7 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
                 btScalar alpha = 0.01, beta = 0.5; // Boyd & Vandenberghe suggested alpha between 0.01 and 0.3, beta between 0.1 to 0.8
                 btScalar scale = 2;
                 // todo xuchenhan@: add damping energy to f0 and f1
-                btScalar f0 = m_objective->totalEnergy()+kineticEnergy(), f1, f2;
+                btScalar f0 = m_objective->totalEnergy(solverdt)+kineticEnergy(), f1, f2;
                 backupDv();
                 do {
                     scale *= beta;
@@ -85,9 +85,9 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
                         return;
                     }
                     updateEnergy(scale);
-                    f1 = m_objective->totalEnergy()+kineticEnergy();
+                    f1 = m_objective->totalEnergy(solverdt)+kineticEnergy();
                     f2 = f0 - alpha * scale * inner_product;
-                } while (!(f1 < f2+SIMD_EPSILON)); // if anything here is nan then the search continues
+                } while (!(f1 < f2)); // if anything here is nan then the search continues
                 revertDv();
                 updateDv(scale);
             }
@@ -108,9 +108,9 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
 btScalar btDeformableBodySolver::kineticEnergy()
 {
     btScalar ke = 0;
-    for (int i = 0; i < m_softBodySet.size();++i)
+    for (int i = 0; i < m_softBodies.size();++i)
     {
-        btSoftBody* psb = m_softBodySet[i];
+        btSoftBody* psb = m_softBodies[i];
         for (int j = 0; j < psb->m_nodes.size();++j)
         {
             btSoftBody::Node& node = psb->m_nodes[j];
@@ -152,11 +152,13 @@ void btDeformableBodySolver::updateEnergy(btScalar scale)
 
 btScalar btDeformableBodySolver::computeDescentStep(TVStack& ddv, const TVStack& residual)
 {
-    btScalar relative_tolerance = btMin(btScalar(0.5), std::sqrt(btMax(m_objective->computeNorm(residual), m_newtonTolerance)));
+//    btScalar relative_tolerance = btMin(btScalar(0.5), std::sqrt(btMax(m_objective->computeNorm(residual), m_newtonTolerance)));
+    btScalar relative_tolerance = 0.5;
     m_cg.solve(*m_objective, ddv, residual, relative_tolerance, false);
     btScalar inner_product = m_cg.dot(residual, m_ddv);
-    btScalar tol = 1e-3 * m_objective->computeNorm(residual) * m_objective->computeNorm(m_ddv);
     btScalar res_norm = m_objective->computeNorm(residual);
+    btScalar tol = 1e-5 * res_norm * m_objective->computeNorm(m_ddv);
+    
     if (inner_product < -tol)
     {
         std::cout << "Looking backwards!" << std::endl;
@@ -196,13 +198,14 @@ void btDeformableBodySolver::updateDv(btScalar scale)
 void btDeformableBodySolver::computeStep(TVStack& ddv, const TVStack& residual)
 {
     //btScalar tolerance = std::numeric_limits<btScalar>::epsilon() * m_objective->computeNorm(residual);
-    btScalar relative_tolerance = btMin(btScalar(0.5), std::sqrt(btMax(m_objective->computeNorm(residual), m_newtonTolerance)));
+//    btScalar relative_tolerance = btMin(btScalar(0.5), std::sqrt(btMax(m_objective->computeNorm(residual), m_newtonTolerance)));
+    btScalar relative_tolerance = 0.5;
     m_cg.solve(*m_objective, ddv, residual, relative_tolerance, false);
 }
 
 void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt)
 {
-    m_softBodySet.copyFromArray(softBodies);
+    m_softBodies.copyFromArray(softBodies);
     bool nodeUpdated = updateNodes();
     
     if (nodeUpdated)
@@ -234,7 +237,7 @@ void btDeformableBodySolver::setConstraints()
 btScalar btDeformableBodySolver::solveContactConstraints()
 {
     BT_PROFILE("setConstraint");
-    btScalar maxSquaredResidual = m_objective->projection.update();
+    btScalar maxSquaredResidual = m_objective->m_projection.update();
     return maxSquaredResidual;
 }
 
@@ -242,9 +245,9 @@ btScalar btDeformableBodySolver::solveContactConstraints()
 void btDeformableBodySolver::updateVelocity()
 {
     int counter = 0;
-    for (int i = 0; i < m_softBodySet.size(); ++i)
+    for (int i = 0; i < m_softBodies.size(); ++i)
     {
-        btSoftBody* psb = m_softBodySet[i];
+        btSoftBody* psb = m_softBodies[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             // set NaN to zero;
@@ -261,9 +264,9 @@ void btDeformableBodySolver::updateVelocity()
 void btDeformableBodySolver::updateTempPosition()
 {
     int counter = 0;
-    for (int i = 0; i < m_softBodySet.size(); ++i)
+    for (int i = 0; i < m_softBodies.size(); ++i)
     {
-        btSoftBody* psb = m_softBodySet[i];
+        btSoftBody* psb = m_softBodies[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             psb->m_nodes[j].m_q = psb->m_nodes[j].m_x + m_dt * psb->m_nodes[j].m_v;
@@ -276,9 +279,9 @@ void btDeformableBodySolver::updateTempPosition()
 void btDeformableBodySolver::backupVelocity()
 {
     int counter = 0;
-    for (int i = 0; i < m_softBodySet.size(); ++i)
+    for (int i = 0; i < m_softBodies.size(); ++i)
     {
-        btSoftBody* psb = m_softBodySet[i];
+        btSoftBody* psb = m_softBodies[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             m_backupVelocity[counter++] = psb->m_nodes[j].m_v;
@@ -289,9 +292,9 @@ void btDeformableBodySolver::backupVelocity()
 void btDeformableBodySolver::setupDeformableSolve(bool implicit)
 {
     int counter = 0;
-    for (int i = 0; i < m_softBodySet.size(); ++i)
+    for (int i = 0; i < m_softBodies.size(); ++i)
     {
-        btSoftBody* psb = m_softBodySet[i];
+        btSoftBody* psb = m_softBodies[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             if (implicit)
@@ -307,9 +310,9 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
 void btDeformableBodySolver::revertVelocity()
 {
     int counter = 0;
-    for (int i = 0; i < m_softBodySet.size(); ++i)
+    for (int i = 0; i < m_softBodies.size(); ++i)
     {
-        btSoftBody* psb = m_softBodySet[i];
+        btSoftBody* psb = m_softBodies[i];
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             psb->m_nodes[j].m_v = m_backupVelocity[counter++];
@@ -320,8 +323,8 @@ void btDeformableBodySolver::revertVelocity()
 bool btDeformableBodySolver::updateNodes()
 {
     int numNodes = 0;
-    for (int i = 0; i < m_softBodySet.size(); ++i)
-        numNodes += m_softBodySet[i]->m_nodes.size();
+    for (int i = 0; i < m_softBodies.size(); ++i)
+        numNodes += m_softBodies[i]->m_nodes.size();
     if (numNodes != m_numNodes)
     {
         m_numNodes = numNodes;
@@ -333,9 +336,9 @@ bool btDeformableBodySolver::updateNodes()
 
 void btDeformableBodySolver::predictMotion(btScalar solverdt)
 {
-    for (int i = 0; i < m_softBodySet.size(); ++i)
+    for (int i = 0; i < m_softBodies.size(); ++i)
     {
-        btSoftBody *psb = m_softBodySet[i];
+        btSoftBody *psb = m_softBodies[i];
         
         if (psb->isActive())
         {
@@ -417,9 +420,9 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
 
 void btDeformableBodySolver::updateSoftBodies()
 {
-    for (int i = 0; i < m_softBodySet.size(); i++)
+    for (int i = 0; i < m_softBodies.size(); i++)
     {
-        btSoftBody *psb = (btSoftBody *)m_softBodySet[i];
+        btSoftBody *psb = (btSoftBody *)m_softBodies[i];
         if (psb->isActive())
         {
             psb->updateNormals(); // normal is updated here

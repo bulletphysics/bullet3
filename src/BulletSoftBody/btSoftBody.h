@@ -770,6 +770,7 @@ public:
     tFaceArray m_renderFaces;                // Faces
 	tTetraArray m_tetras;              // Tetras
     btAlignedObjectArray<TetraScratch> m_tetraScratches;
+    btAlignedObjectArray<TetraScratch> m_tetraScratchesTn;
 	tAnchorArray m_anchors;            // Anchors
 	tRContactArray m_rcontacts;        // Rigid contacts
     btAlignedObjectArray<DeformableNodeRigidContact> m_nodeRigidContacts;
@@ -1100,6 +1101,7 @@ public:
     void setSpringStiffness(btScalar k);
     void initializeDmInverse();
     void updateDeformation();
+    void advanceDeformation();
 	void applyForces();
     void interpolateRenderMesh();
 	static void PSolve_Anchors(btSoftBody* psb, btScalar kst, btScalar ti);
@@ -1114,8 +1116,6 @@ public:
   
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual const char* serialize(void* dataBuffer, class btSerializer* serializer) const;
-
-	//virtual void serializeSingleObject(class btSerializer* serializer) const;
 };
 
 #endif  //_BT_SOFT_BODY_H

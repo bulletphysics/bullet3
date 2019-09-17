@@ -34,7 +34,7 @@ public:
     btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
     Preconditioner* m_preconditioner;
-    btDeformableContactProjection projection;
+    btDeformableContactProjection m_projection;
     const TVStack& m_backupVelocity;
     btAlignedObjectArray<btSoftBody::Node* > m_nodes;
     bool m_implicit;
@@ -71,6 +71,7 @@ public:
     
     void setDt(btScalar dt);
     
+    // add friction force to residual
     void applyDynamicFriction(TVStack& r);
     
     // add dv to velocity
@@ -83,7 +84,7 @@ public:
     void project(TVStack& r)
     {
         BT_PROFILE("project");
-        projection.project(r);
+        m_projection.project(r);
     }
     
     // perform precondition M^(-1) x = b
@@ -124,7 +125,7 @@ public:
         m_implicit = implicit;
     }
 
-    btScalar totalEnergy();
+    btScalar totalEnergy(btScalar dt);
 };
 
 #endif /* btBackwardEulerObjective_h */
