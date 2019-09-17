@@ -31,6 +31,7 @@ protected:
     // override the iterations method to include deformable/multibody contact
     virtual btScalar solveGroupCacheFriendlyIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
     
+    // write the velocity of the the solver body to the underlying rigid body
     void solverBodyWriteBack(const btContactSolverInfo& infoGlobal)
     {
         for (int i = 0; i < m_tmpSolverBodyPool.size(); i++)

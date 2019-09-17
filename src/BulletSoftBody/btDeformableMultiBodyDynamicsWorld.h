@@ -152,7 +152,7 @@ public:
     
     void solveMultiBodyConstraints();
     
-    void solveMultiBodyRelatedConstraints();
+    void solveContactConstraints();
     
     void sortConstraints();
     

@@ -37,7 +37,7 @@ public:
     virtual ~btConjugateGradient(){}
     
     // return the number of iterations taken
-    int solve(MatrixX& A, TVStack& x, const TVStack& b, btScalar relative_tolerance, bool verbose = false)
+    int solve(MatrixX& A, TVStack& x, const TVStack& b, bool verbose = false)
     {
         BT_PROFILE("CGSolve");
         btAssert(x.size() == b.size());
@@ -50,7 +50,6 @@ public:
         A.precondition(r, z);
         A.project(z);
         btScalar r_dot_z = dot(z,r);
-//        btScalar local_tolerance = btMin(relative_tolerance * std::sqrt(r_dot_z), tolerance);
         btScalar local_tolerance = tolerance;
         if (std::sqrt(r_dot_z) <= local_tolerance) {
             if (verbose)

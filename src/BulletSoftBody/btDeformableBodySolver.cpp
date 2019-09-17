@@ -76,7 +76,6 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
                 btScalar inner_product = computeDescentStep(m_ddv,m_residual);
                 btScalar alpha = 0.01, beta = 0.5; // Boyd & Vandenberghe suggested alpha between 0.01 and 0.3, beta between 0.1 to 0.8
                 btScalar scale = 2;
-                // todo xuchenhan@: add damping energy to f0 and f1
                 btScalar f0 = m_objective->totalEnergy(solverdt)+kineticEnergy(), f1, f2;
                 backupDv();
                 do {
@@ -152,9 +151,7 @@ void btDeformableBodySolver::updateEnergy(btScalar scale)
 
 btScalar btDeformableBodySolver::computeDescentStep(TVStack& ddv, const TVStack& residual)
 {
-//    btScalar relative_tolerance = btMin(btScalar(0.5), std::sqrt(btMax(m_objective->computeNorm(residual), m_newtonTolerance)));
-    btScalar relative_tolerance = 0.5;
-    m_cg.solve(*m_objective, ddv, residual, relative_tolerance, false);
+    m_cg.solve(*m_objective, ddv, residual, false);
     btScalar inner_product = m_cg.dot(residual, m_ddv);
     btScalar res_norm = m_objective->computeNorm(residual);
     btScalar tol = 1e-5 * res_norm * m_objective->computeNorm(m_ddv);
@@ -197,10 +194,7 @@ void btDeformableBodySolver::updateDv(btScalar scale)
 
 void btDeformableBodySolver::computeStep(TVStack& ddv, const TVStack& residual)
 {
-    //btScalar tolerance = std::numeric_limits<btScalar>::epsilon() * m_objective->computeNorm(residual);
-//    btScalar relative_tolerance = btMin(btScalar(0.5), std::sqrt(btMax(m_objective->computeNorm(residual), m_newtonTolerance)));
-    btScalar relative_tolerance = 0.5;
-    m_cg.solve(*m_objective, ddv, residual, relative_tolerance, false);
+    m_cg.solve(*m_objective, ddv, residual, false);
 }
 
 void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt)

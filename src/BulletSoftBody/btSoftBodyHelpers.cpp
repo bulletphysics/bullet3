@@ -1457,8 +1457,7 @@ void btSoftBodyHelpers::duplicateFaces(const char* filename, const btSoftBody* p
     fs_write.close();
 }
 
-
-
+// Given a simplex with vertices a,b,c,d, find the barycentric weights of p in this simplex
 void btSoftBodyHelpers::getBarycentricWeights(const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& d, const btVector3& p, btVector4& bary)
 {
     btVector3 vap = p - a;
@@ -1513,6 +1512,8 @@ void btSoftBodyHelpers::readRenderMeshFromObj(const char* file, btSoftBody* psb)
     fs.close();
 }
 
+// Iterate through all render nodes to find the simulation tetrahedron that contains the render node and record the barycentric weights
+// If the node is not inside any tetrahedron, assign it to the tetrahedron in which the node has the least negative barycentric weight
 void btSoftBodyHelpers::interpolateBarycentricWeights(btSoftBody* psb)
 {
     psb->m_renderNodesInterpolationWeights.resize(psb->m_renderNodes.size());

@@ -17,6 +17,7 @@
 #define BT_DEFORMABLE_CONTACT_CONSTRAINT_H
 #include "btSoftBody.h"
 
+// btDeformableContactConstraint is an abstract class specifying the method that each type of contact constraint needs to implement
 class btDeformableContactConstraint
 {
 public:
@@ -45,10 +46,8 @@ public:
     
     virtual ~btDeformableContactConstraint(){}
     
-    // solve the constraint with inelastic impulse and return the error, which is the square of normal component of dt scaled velocity diffrerence
-    // the constraint is solved by calculating the impulse between object A and B in the contact and apply the impulse.
-    // if the object is rigid/multibody apply the impulse to change the velocity,
-    // if the object is deformable node, change the according dv.
+    // solve the constraint with inelastic impulse and return the error, which is the square of normal component of velocity diffrerence
+    // the constraint is solved by calculating the impulse between object A and B in the contact and apply the impulse to both objects involved in the contact
     virtual btScalar solveConstraint() = 0;
     
     // get the velocity of the object A in the contact
@@ -64,6 +63,8 @@ public:
     virtual void applyImpulse(const btVector3& impulse) = 0;
 };
 
+//
+// Constraint that a certain node in the deformable objects cannot move
 class btDeformableStaticConstraint : public btDeformableContactConstraint
 {
 public:
@@ -107,6 +108,8 @@ public:
     virtual void applyImpulse(const btVector3& impulse){}
 };
 
+//
+// Constraint between rigid/multi body and deformable objects
 class btDeformableRigidContactConstraint : public btDeformableContactConstraint
 {
 public:
@@ -121,17 +124,18 @@ public:
     {
     }
     
-    // object A is the rigid/multi body, and object B is the deformable node
+    // object A is the rigid/multi body, and object B is the deformable node/face
     virtual btVector3 getVa() const;
     
     virtual btScalar solveConstraint();
 };
 
-
-
+//
+// Constraint between rigid/multi body and deformable objects nodes
 class btDeformableNodeRigidContactConstraint : public btDeformableRigidContactConstraint
 {
 public:
+    // the deformable node in contact
     const btSoftBody::Node* m_node;
     
     btDeformableNodeRigidContactConstraint(){}
@@ -142,24 +146,23 @@ public:
     {
     }
     
+    // get the velocity of the deformable node in contact
     virtual btVector3 getVb() const;
     
+    // get the velocity change of the input soft body node in the constraint
     virtual btVector3 getDv(const btSoftBody::Node*) const;
     
+    // cast the contact to the desired type
     const btSoftBody::DeformableNodeRigidContact* getContact() const
     {
         return static_cast<const btSoftBody::DeformableNodeRigidContact*>(m_contact);
     }
     
-    virtual void applyImpulse(const btVector3& impulse)
-    {
-        const btSoftBody::DeformableNodeRigidContact* contact = getContact();
-        btVector3 dv = impulse * contact->m_c2;
-        contact->m_node->m_v -= dv;
-    }
+    virtual void applyImpulse(const btVector3& impulse);
 };
 
-
+//
+// Constraint between rigid/multi body and deformable objects faces
 class btDeformableFaceRigidContactConstraint : public btDeformableRigidContactConstraint
 {
 public:
@@ -172,29 +175,23 @@ public:
     {
     }
     
+    // get the velocity of the deformable face at the contact point
     virtual btVector3 getVb() const;
     
+    // get the velocity change of the input soft body node in the constraint
     virtual btVector3 getDv(const btSoftBody::Node*) const;
     
+    // cast the contact to the desired type
     const btSoftBody::DeformableFaceRigidContact* getContact() const
     {
         return static_cast<const btSoftBody::DeformableFaceRigidContact*>(m_contact);
     }
     
-    virtual void applyImpulse(const btVector3& impulse)
-    {
-        const btSoftBody::DeformableFaceRigidContact* contact = getContact();
-        btVector3 dv = impulse * contact->m_c2;
-        btSoftBody::Face* face = contact->m_face;
-        if (face->m_n[0]->m_im > 0)
-            face->m_n[0]->m_v -= dv * contact->m_weights[0];
-        if (face->m_n[1]->m_im > 0)
-            face->m_n[1]->m_v -= dv * contact->m_weights[1];
-        if (face->m_n[2]->m_im > 0)
-            face->m_n[2]->m_v -= dv * contact->m_weights[2];
-    }
+    virtual void applyImpulse(const btVector3& impulse);
 };
 
+//
+// Constraint between  deformable objects faces and deformable objects nodes
 class btDeformableFaceNodeContactConstraint : public btDeformableContactConstraint
 {
 public:
@@ -218,9 +215,10 @@ public:
     // get the velocity of the object B in the contact
     virtual btVector3 getVb() const;
     
-    // get the velocity change of the soft body node in the constraint
+    // get the velocity change of the input soft body node in the constraint
     virtual btVector3 getDv(const btSoftBody::Node*) const;
     
+    // cast the contact to the desired type
     const btSoftBody::DeformableFaceNodeContact* getContact() const
     {
         return static_cast<const btSoftBody::DeformableFaceNodeContact*>(m_contact);

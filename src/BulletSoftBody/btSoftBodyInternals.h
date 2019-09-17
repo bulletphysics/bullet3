@@ -29,6 +29,8 @@ subject to the following restrictions:
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 #include <string.h>  //for memset
 #include <cmath>
+
+// Given a multibody link, a contact point and a contact direction, fill in the jacobian data needed to calculate the velocity change given an impulse in the contact direction
 static void findJacobian(const btMultiBodyLinkCollider* multibodyLinkCol,
                          btMultiBodyJacobianData& jacobianData,
                          const btVector3& contact_point,
@@ -1068,7 +1070,7 @@ struct btSoftColliders
 
 			if (!n.m_battach)
             {
-                // check for collision at x_{n+1}^*
+                // check for collision at x_{n+1}^* as well at x_n
                 if (psb->checkDeformableContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predict = */ true) || psb->checkDeformableContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predict = */ true))
                 {
                     const btScalar ima = n.m_im;
@@ -1175,11 +1177,14 @@ struct btSoftColliders
                     btSoftBody::sCti& cti = c.m_cti;
                     c.m_contactPoint = contact_point;
                     c.m_bary = bary;
-                    // todo xuchenhan@: check m_c2 and m_weights
+                    // todo xuchenhan@: this is assuming mass of all vertices are the same. Need to modify if mass are different for distinct vertices
                     c.m_weights = btScalar(2)/(btScalar(1) + bary.length2()) * bary;
                     c.m_face = &f;
                     const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();
+                    
+                    // the effective inverse mass of the face as in https://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf
                     ima = bary.getX()*c.m_weights.getX() * n0->m_im + bary.getY()*c.m_weights.getY() * n1->m_im + bary.getZ()*c.m_weights.getZ() * n2->m_im;
+                    
                     c.m_c2 = ima;
                     c.m_c3 = fc;
                     c.m_c4 = m_colObj1Wrap->getCollisionObject()->isStaticOrKinematicObject() ? psb->m_cfg.kKHR : psb->m_cfg.kCHR;
@@ -1190,6 +1195,7 @@ struct btSoftColliders
                         const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
                         const btVector3 ra = contact_point - wtr.getOrigin();
                         
+                        // we do not scale the impulse matrix by dt
                         c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
                         c.m_c1 = ra;
                         if (m_rigidBody)
@@ -1307,6 +1313,7 @@ struct btSoftColliders
             if (l < SIMD_EPSILON)
                 return;
             btVector3 rayEnd = dir.normalized() * (l + 2*mrg);
+            // register an intersection if the line segment formed by the trajectory of the node in the timestep intersects the face
             bool intersect = lineIntersectsTriangle(btVector3(0,0,0), rayEnd, face->m_n[0]->m_x-o, face->m_n[1]->m_x-o, face->m_n[2]->m_x-o, p, normal);
 
             if (intersect)
@@ -1324,8 +1331,10 @@ struct btSoftColliders
                     c.m_node = node;
                     c.m_face = face;
                     c.m_bary = w;
+                    // todo xuchenhan@: this is assuming mass of all vertices are the same. Need to modify if mass are different for distinct vertices
                     c.m_weights = btScalar(2)/(btScalar(1) + w.length2()) * w;
                     c.m_friction = btMax(psb[0]->m_cfg.kDF, psb[1]->m_cfg.kDF);
+                    // the effective inverse mass of the face as in https://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf
                     c.m_imf = c.m_bary[0]*c.m_weights[0] * n[0]->m_im + c.m_bary[1]*c.m_weights[1] * n[1]->m_im + c.m_bary[2]*c.m_weights[2] * n[2]->m_im;
                     c.m_c0 = btScalar(1)/(ma + c.m_imf);
                     psb[0]->m_faceNodeContacts.push_back(c);

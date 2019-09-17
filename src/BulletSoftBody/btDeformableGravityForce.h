@@ -73,6 +73,7 @@ public:
         return BT_GRAVITY_FORCE;
     }
 
+    // the gravitational potential energy
     virtual double totalEnergy(btScalar dt)
     {
         double e = 0;

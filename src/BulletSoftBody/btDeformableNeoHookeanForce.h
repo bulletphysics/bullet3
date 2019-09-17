@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "btDeformableLagrangianForce.h"
 
+// This energy is as described in https://graphics.pixar.com/library/StableElasticity/paper.pdf
 class btDeformableNeoHookeanForce : public btDeformableLagrangianForce
 {
 public:
@@ -48,6 +49,7 @@ public:
         addScaledElasticForce(scale, force);
     }
     
+    // The damping matrix is calculated using the time n state as described in https://www.math.ucla.edu/~jteran/papers/GSSJT15.pdf to allow line search
     virtual void addScaledDampingForce(btScalar scale, TVStack& force)
     {
         if (m_mu_damp == 0 && m_lambda_damp == 0)
@@ -101,6 +103,7 @@ public:
         return energy;
     }
     
+    // The damping energy is formulated as in https://www.math.ucla.edu/~jteran/papers/GSSJT15.pdf to allow line search
     virtual double totalDampingEnergy(btScalar dt)
     {
         double energy = 0;
@@ -174,6 +177,7 @@ public:
         }
     }
     
+    // The damping matrix is calculated using the time n state as described in https://www.math.ucla.edu/~jteran/papers/GSSJT15.pdf to allow line search
     virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
     {
         if (m_mu_damp == 0 && m_lambda_damp == 0)
@@ -251,6 +255,8 @@ public:
         P = s.m_F * m_mu * ( 1. - 1. / (s.m_trace + 1.)) + s.m_cofF * (m_lambda * (s.m_J - 1.) - 0.75 * m_mu);
     }
     
+    // Let P be the first piola stress.
+    // This function calculates the dP = dP/dF * dF
     void firstPiolaDifferential(const btSoftBody::TetraScratch& s, const btMatrix3x3& dF,  btMatrix3x3& dP)
     {
         dP = dF * m_mu * ( 1. - 1. / (s.m_trace + 1.)) + s.m_F * (2*m_mu) * DotProduct(s.m_F, dF) * (1./((1.+s.m_trace)*(1.+s.m_trace)));
@@ -259,6 +265,8 @@ public:
         dP += s.m_cofF * m_lambda * DotProduct(s.m_cofF, dF);
     }
     
+    // Let Q be the damping stress.
+    // This function calculates the dP = dQ/dF * dF
     void firstPiolaDampingDifferential(const btSoftBody::TetraScratch& s, const btMatrix3x3& dF,  btMatrix3x3& dP)
     {
         dP = dF * m_mu_damp * ( 1. - 1. / (s.m_trace + 1.)) + s.m_F * (2*m_mu_damp) * DotProduct(s.m_F, dF) * (1./((1.+s.m_trace)*(1.+s.m_trace)));
@@ -277,6 +285,9 @@ public:
         return ans;
     }
     
+    // Let C(A) be the cofactor of the matrix A
+    // Let H = the derivative of C(A) with respect to A evaluated at F = A
+    // This function calculates H*dF
     void addScaledCofactorMatrixDifferential(const btMatrix3x3& F, const btMatrix3x3& dF, btScalar scale, btMatrix3x3& M)
     {
         M[0][0] += scale * (dF[1][1] * F[2][2] + F[1][1] * dF[2][2] - dF[2][1] * F[1][2] - F[2][1] * dF[1][2]);

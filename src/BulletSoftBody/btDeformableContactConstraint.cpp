@@ -193,6 +193,13 @@ btVector3 btDeformableNodeRigidContactConstraint::getDv(const btSoftBody::Node* 
     return m_total_normal_dv + m_total_tangent_dv;
 }
 
+void btDeformableNodeRigidContactConstraint::applyImpulse(const btVector3& impulse)
+{
+    const btSoftBody::DeformableNodeRigidContact* contact = getContact();
+    btVector3 dv = impulse * contact->m_c2;
+    contact->m_node->m_v -= dv;
+}
+
 /* ================   Face vs. Rigid   =================== */
 btDeformableFaceRigidContactConstraint::btDeformableFaceRigidContactConstraint(const btSoftBody::DeformableFaceRigidContact& contact)
 : m_face(contact.m_face)
@@ -228,6 +235,19 @@ btVector3 btDeformableFaceRigidContactConstraint::getDv(const btSoftBody::Node* 
     }
     btAssert(node == m_face->m_n[2]);
     return face_dv * contact->m_weights[2];
+}
+
+void btDeformableFaceRigidContactConstraint::applyImpulse(const btVector3& impulse)
+{
+    const btSoftBody::DeformableFaceRigidContact* contact = getContact();
+    btVector3 dv = impulse * contact->m_c2;
+    btSoftBody::Face* face = contact->m_face;
+    if (face->m_n[0]->m_im > 0)
+        face->m_n[0]->m_v -= dv * contact->m_weights[0];
+    if (face->m_n[1]->m_im > 0)
+        face->m_n[1]->m_v -= dv * contact->m_weights[1];
+    if (face->m_n[2]->m_im > 0)
+        face->m_n[2]->m_v -= dv * contact->m_weights[2];
 }
 
 /* ================   Face vs. Node   =================== */
