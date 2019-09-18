@@ -133,7 +133,7 @@ void DeformableContact::initPhysics()
         btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
         btRigidBody* body = new btRigidBody(rbInfo);
-        body->setFriction(1);
+        body->setFriction(2);
         
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
@@ -156,12 +156,12 @@ void DeformableContact::initPhysics()
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 2;
+        psb->m_cfg.kDF = 1;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         
-        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(20,0.1, true);
+        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(10,1, true);
         getDeformableDynamicsWorld()->addForce(psb, mass_spring);
         m_forces.push_back(mass_spring);
         
@@ -183,13 +183,13 @@ void DeformableContact::initPhysics()
         psb2->setTotalMass(1);
         psb2->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb2->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb2->m_cfg.kDF = 2;
+        psb2->m_cfg.kDF = 1;
         psb2->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb2->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
         psb->translate(btVector3(3,0,0));
         getDeformableDynamicsWorld()->addSoftBody(psb2);
         
-        btDeformableMassSpringForce* mass_spring2 = new btDeformableMassSpringForce(20,0.1, true);
+        btDeformableMassSpringForce* mass_spring2 = new btDeformableMassSpringForce(10,1, true);
         getDeformableDynamicsWorld()->addForce(psb2, mass_spring2);
         m_forces.push_back(mass_spring2);
         

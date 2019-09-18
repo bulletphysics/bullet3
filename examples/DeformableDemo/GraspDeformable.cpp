@@ -274,10 +274,10 @@ void GraspDeformable::initPhysics()
     {
         char relative_path[1024];
 //        b3FileUtils::findFile("banana.vtk", relative_path, 1024);
-        b3FileUtils::findFile("ball.vtk", relative_path, 1024);
+//        b3FileUtils::findFile("ball.vtk", relative_path, 1024);
 //        b3FileUtils::findFile("paper_collision.vtk", relative_path, 1024);
 //        b3FileUtils::findFile("single_tet.vtk", relative_path, 1024);
-//        b3FileUtils::findFile("tube.vtk", relative_path, 1024);
+        b3FileUtils::findFile("tube.vtk", relative_path, 1024);
 //        b3FileUtils::findFile("torus.vtk", relative_path, 1024);
 //        b3FileUtils::findFile("paper_roll.vtk", relative_path, 1024);
 //        b3FileUtils::findFile("bread.vtk", relative_path, 1024);
@@ -291,12 +291,12 @@ void GraspDeformable::initPhysics()
         btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), relative_path);
 
 //        psb->scale(btVector3(30, 30, 30)); // for banana
-        psb->scale(btVector3(.05, .05, .05));
+//        psb->scale(btVector3(.2, .2, .2));
 //        psb->scale(btVector3(2, 2, 2));
-//        psb->scale(btVector3(.3, .3, .3));  // for tube, torus, boot
-//        psb->scale(btVector3(1, 1, 1));  // for ditto
-        psb->translate(btVector3(.25, 2, 0.4));
-        psb->getCollisionShape()->setMargin(0.02);
+        psb->scale(btVector3(.3, .3, .3));  // for tube, torus, boot
+//        psb->scale(btVector3(.1, .1, .1));  // for ditto
+//        psb->translate(btVector3(.25, 2, 0.4));
+        psb->getCollisionShape()->setMargin(0.01);
         psb->setTotalMass(.01);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -308,7 +308,7 @@ void GraspDeformable::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
 
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(250,500);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(10,20, 0.01);
         getDeformableDynamicsWorld()->addForce(psb, neohookean);
         m_forces.push_back(neohookean);
     }
