@@ -238,7 +238,7 @@ void DeformableRigid::initPhysics()
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         
-        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(2,0.1, true);
+        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(30,1, true);
         getDeformableDynamicsWorld()->addForce(psb, mass_spring);
         m_forces.push_back(mass_spring);
         

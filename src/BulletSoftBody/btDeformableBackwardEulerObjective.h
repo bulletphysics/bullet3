@@ -93,6 +93,7 @@ public:
         m_preconditioner->operator()(x,b);
     }
 
+    // reindex all the vertices 
     virtual void updateId()
     {
         size_t node_id = 0;
@@ -125,6 +126,7 @@ public:
         m_implicit = implicit;
     }
 
+    // Calculate the total potential energy in the system
     btScalar totalEnergy(btScalar dt);
 };
 
