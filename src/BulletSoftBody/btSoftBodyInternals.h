@@ -1314,7 +1314,15 @@ struct btSoftColliders
                 return;
             btVector3 rayEnd = dir.normalized() * (l + 2*mrg);
             // register an intersection if the line segment formed by the trajectory of the node in the timestep intersects the face
-            bool intersect = lineIntersectsTriangle(btVector3(0,0,0), rayEnd, face->m_n[0]->m_x-o, face->m_n[1]->m_x-o, face->m_n[2]->m_x-o, p, normal);
+            btVector3 v0 = face->m_n[0]->m_x;
+            btVector3 v1 = face->m_n[1]->m_x;
+            btVector3 v2 = face->m_n[2]->m_x;
+            btVector3 vc = (v0+v1+v2)/3.;
+            btScalar  scale = 2;
+            btVector3 u0 = vc + (v0-vc)*scale;
+            btVector3 u1 = vc + (v1-vc)*scale;
+            btVector3 u2 = vc + (v2-vc)*scale;
+            bool intersect = lineIntersectsTriangle(btVector3(0,0,0), rayEnd, u0-o, u1-o, u2-o, p, normal);
 
             if (intersect)
             {

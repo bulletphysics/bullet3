@@ -24,7 +24,7 @@ btDeformableBodySolver::btDeformableBodySolver()
 , m_cg(20)
 , m_maxNewtonIterations(3)
 , m_newtonTolerance(1e-4)
-, m_lineSearch(true)
+, m_lineSearch(false)
 {
     m_objective = new btDeformableBackwardEulerObjective(m_softBodies, m_backupVelocity);
 }
