@@ -25,9 +25,7 @@
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
-///The ClothFriction shows the use of rolling friction.
-///Spheres will come to a rest on a sloped plane using a constraint. Damping cannot achieve the same.
-///Generally it is best to leave the rolling friction coefficient zero (or close to zero).
+///The ClothFriction shows the use of deformable friction.
 class ClothFriction : public CommonRigidBodyBase
 {
     btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
@@ -197,6 +195,7 @@ void ClothFriction::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb2, gravity_force2);
         m_forces.push_back(gravity_force2);
     }
+    getDeformableDynamicsWorld()->setImplicit(false);
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 

@@ -25,9 +25,7 @@
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
-///The DeformableContact shows the use of rolling friction.
-///Spheres will come to a rest on a sloped plane using a constraint. Damping cannot achieve the same.
-///Generally it is best to leave the rolling friction coefficient zero (or close to zero).
+///The DeformableContact shows the contact between deformable objects
 class DeformableContact : public CommonRigidBodyBase
 {
     btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;

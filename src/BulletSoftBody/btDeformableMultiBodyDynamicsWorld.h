@@ -47,6 +47,7 @@ class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
     btScalar m_internalTime;
     int m_contact_iterations;
     bool m_implicit;
+    bool m_lineSearch;
     
     typedef void (*btSolverCallback)(btScalar time, btDeformableMultiBodyDynamicsWorld* world);
     btSolverCallback m_solverCallback;
@@ -158,6 +159,11 @@ public:
     void setImplicit(bool implicit)
     {
         m_implicit = implicit;
+    }
+    
+    void setLineSearch(bool lineSearch)
+    {
+        m_lineSearch = lineSearch;
     }
 };
 
