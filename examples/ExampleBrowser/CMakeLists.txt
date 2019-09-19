@@ -361,6 +361,8 @@ SET(BulletExampleBrowser_SRCS
   ../DeformableDemo/Pinch.h
   ../DeformableDemo/PinchFriction.cpp
   ../DeformableDemo/PinchFriction.h
+  ../DeformableDemo/ClothFriction.cpp
+  ../DeformableDemo/ClothFriction.h
   ../DeformableDemo/DeformableMultibody.cpp
   ../DeformableDemo/DeformableMultibody.h
   ../DeformableDemo/DeformableRigid.cpp
