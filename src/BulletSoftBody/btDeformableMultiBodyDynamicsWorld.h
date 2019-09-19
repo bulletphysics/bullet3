@@ -13,8 +13,8 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
-#ifndef BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H
-#define BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H
+#ifndef BT_DEFORMABLE_MULTIBODY_DYNAMICS_WORLD_H
+#define BT_DEFORMABLE_MULTIBODY_DYNAMICS_WORLD_H
 
 #include "btSoftMultiBodyDynamicsWorld.h"
 #include "btDeformableLagrangianForce.h"
@@ -36,7 +36,6 @@ typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
 {
     typedef btAlignedObjectArray<btVector3> TVStack;
-//    using TVStack = btAlignedObjectArray<btVector3>;
     ///Solver classes that encapsulate multiple deformable bodies for solving
     btDeformableBodySolver* m_deformableBodySolver;
     btSoftBodyArray m_softBodies;
@@ -162,4 +161,4 @@ public:
     }
 };
 
-#endif  //BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H
+#endif  //BT_DEFORMABLE_MULTIBODY_DYNAMICS_WORLD_H
