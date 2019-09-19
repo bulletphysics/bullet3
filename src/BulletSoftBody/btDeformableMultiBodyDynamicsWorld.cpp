@@ -69,14 +69,14 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
     // End solver-wise simulation step
     // ///////////////////////////////
 }
-
+//
 //void btDeformableMultiBodyDynamicsWorld::positionCorrection(btScalar timeStep)
 //{
-//    // perform position correction for all constraints 
+//    // perform position correction for all constraints
 //    BT_PROFILE("positionCorrection");
-//    for (int index = 0; index < m_deformableBodySolver->m_objective->projection.m_constraints.size(); ++index)
+//    for (int index = 0; index < m_deformableBodySolver->m_objective->m_projection.m_constraints.size(); ++index)
 //    {
-//        DeformableContactConstraint& constraint = *m_deformableBodySolver->m_objective->projection.m_constraints.getAtIndex(index);
+//        DeformableContactConstraint& constraint = *m_deformableBodySolver->m_objective->m_projection.m_constraints.getAtIndex(index);
 //        for (int j = 0; j < constraint.m_contact.size(); ++j)
 //        {
 //            const btSoftBody::RContact* c = constraint.m_contact[j];
@@ -144,16 +144,11 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
 //    }
 //}
 
-void btDeformableMultiBodyDynamicsWorld::positionCorrection(btScalar timeStep)
-{
-}
-
-
 void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
     BT_PROFILE("integrateTransforms");
     //m_deformableBodySolver->backupVelocity();
-    //positionCorrection(timeStep);
+    //positionCorrection(timeStep);  // looks like position correction is no longer necessary
     btMultiBodyDynamicsWorld::integrateTransforms(timeStep);
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
@@ -329,6 +324,7 @@ void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
 {
     m_internalTime += timeStep;
     m_deformableBodySolver->setImplicit(m_implicit);
+    m_deformableBodySolver->setLineSearch(m_lineSearch);
     m_deformableBodySolver->reinitialize(m_softBodies, timeStep);
     btDispatcherInfo& dispatchInfo = btMultiBodyDynamicsWorld::getDispatchInfo();
     dispatchInfo.m_timeStep = timeStep;

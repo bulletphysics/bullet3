@@ -34,9 +34,7 @@
 #include "../CommonInterfaces/CommonFileIOInterface.h"
 #include "Bullet3Common/b3FileUtils.h"
 
-///The GraspDeformable shows the use of rolling friction.
-///Spheres will come to a rest on a sloped plane using a constraint. Damping cannot achieve the same.
-///Generally it is best to leave the rolling friction coefficient zero (or close to zero).
+///The GraspDeformable shows grasping a volumetric deformable objects with multibody gripper with moter constraints.
 static btScalar sGripperVerticalVelocity = 0.f;
 static btScalar sGripperClosingTargetVelocity = 0.f;
 static float friction = 1.;

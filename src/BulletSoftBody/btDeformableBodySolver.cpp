@@ -429,3 +429,8 @@ void btDeformableBodySolver::setImplicit(bool implicit)
     m_implicit = implicit;
     m_objective->setImplicit(implicit);
 }
+
+void btDeformableBodySolver::setLineSearch(bool lineSearch)
+{
+    m_lineSearch = lineSearch;
+}

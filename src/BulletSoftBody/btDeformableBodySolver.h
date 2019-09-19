@@ -103,16 +103,38 @@ public:
     
     virtual bool checkInitialized(){return true;}
     
+    // If true, implicit time stepping scheme is used.
+    // Otherwise, explicit time stepping scheme is used
     void setImplicit(bool implicit);
     
+    // If true, newton's method with line search is used when implicit time stepping scheme is turned on
+    void setLineSearch(bool lineSearch);
+    
+    // set temporary position x^* = x_n + dt * v
+    // update the deformation gradient at position x^*
     void updateState();
     
+    // set dv = dv + scale * ddv
     void updateDv(btScalar scale = 1);
     
+    // set temporary position x^* = x_n + dt * v^*
     void updateTempPosition();
+    
+    // save the current dv to m_backup_dv;
     void backupDv();
+    
+    // set dv to the backed-up value
     void revertDv();
+    
+    // set dv = dv + scale * ddv
+    // set v^* = v_n + dv
+    // set temporary position x^* = x_n + dt * v^*
+    // update the deformation gradient at position x^*
     void updateEnergy(btScalar scale);
+    
+    // calculates the appropriately scaled kinetic energy in the system, which is
+    // 1/2 * dv^T * M * dv
+    // used in line search
     btScalar kineticEnergy();
 };
 
