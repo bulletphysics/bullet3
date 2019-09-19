@@ -151,6 +151,9 @@ struct btSoftBodyHelpers
     static void readRenderMeshFromObj(const char* file, btSoftBody* psb);
 
     static void interpolateBarycentricWeights(btSoftBody* psb);
+    
+    static void generateBoundaryFaces(btSoftBody* psb);
+    
     static void duplicateFaces(const char* filename, const btSoftBody* psb);
 	/// Sort the list of links to move link calculations that are dependent upon earlier
 	/// ones as far as possible away from the calculation of those values
