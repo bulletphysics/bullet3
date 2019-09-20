@@ -231,6 +231,8 @@ void DeformableRigid::initPhysics()
         // add a few rigid bodies
         Ctor_RbUpStack(1);
     }
+    getDeformableDynamicsWorld()->setImplicit(true);
+    getDeformableDynamicsWorld()->setLineSearch(false);
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 

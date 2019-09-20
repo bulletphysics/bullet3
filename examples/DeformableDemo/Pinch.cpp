@@ -329,6 +329,7 @@ void Pinch::initPhysics()
         // add a grippers
         createGrip();
     }
+    getDeformableDynamicsWorld()->setImplicit(false);
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 

@@ -196,6 +196,7 @@ void VolumetricDeformable::initPhysics()
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
     }
+    getDeformableDynamicsWorld()->setLineSearch(false);
     
     createStaticBox(btVector3(1, 5, 5), btVector3(-5,0,0));
     createStaticBox(btVector3(1, 5, 5), btVector3(5,0,0));
