@@ -22,7 +22,7 @@
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(20)
-, m_maxNewtonIterations(3)
+, m_maxNewtonIterations(10)
 , m_newtonTolerance(1e-4)
 , m_lineSearch(true)
 {

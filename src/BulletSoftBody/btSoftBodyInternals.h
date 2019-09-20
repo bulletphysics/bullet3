@@ -1255,6 +1255,12 @@ struct btSoftColliders
 		{
 			btSoftBody::Node* node = (btSoftBody::Node*)lnode->data;
 			btSoftBody::Face* face = (btSoftBody::Face*)lface->data;
+            for (int i = 0; i < 3; ++i)
+            {
+                if (face->m_n[i] == node)
+                    continue;
+            }
+            
 			btVector3 o = node->m_x;
 			btVector3 p;
 			btScalar d = SIMD_INFINITY;
@@ -1318,7 +1324,8 @@ struct btSoftColliders
             btVector3 v1 = face->m_n[1]->m_x;
             btVector3 v2 = face->m_n[2]->m_x;
             btVector3 vc = (v0+v1+v2)/3.;
-            btScalar  scale = 2;
+            btScalar  scale = 1;
+            // enlarge the triangle to catch collision on the edge
             btVector3 u0 = vc + (v0-vc)*scale;
             btVector3 u1 = vc + (v1-vc)*scale;
             btVector3 u2 = vc + (v2-vc)*scale;

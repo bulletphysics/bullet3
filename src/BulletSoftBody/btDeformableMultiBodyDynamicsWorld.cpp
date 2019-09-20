@@ -51,6 +51,11 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
     ///perform collision detection
     btMultiBodyDynamicsWorld::performDiscreteCollisionDetection();
     
+    if (m_selfCollision)
+    {
+        softBodySelfCollision();
+    }
+    
     btMultiBodyDynamicsWorld::calculateSimulationIslands();
     
     beforeSolverCallbacks(timeStep);
@@ -68,6 +73,15 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
     btMultiBodyDynamicsWorld::updateActivationState(timeStep);
     // End solver-wise simulation step
     // ///////////////////////////////
+}
+
+void btDeformableMultiBodyDynamicsWorld::softBodySelfCollision()
+{
+    for (int i = 0; i < m_softBodies.size(); i++)
+    {
+        btSoftBody* psb = (btSoftBody*)m_softBodies[i];
+        psb->defaultCollisionHandler(psb);
+    }
 }
 
 void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)

@@ -3515,6 +3515,18 @@ void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
                                                     docollide.psb[1]->m_fdbvt.m_root,
                                                     docollide);
             }
+            else
+            {
+                btSoftColliders::CollideVF_DD docollide;
+                docollide.mrg = getCollisionShape()->getMargin() +
+                psb->getCollisionShape()->getMargin();
+                /* psb0 nodes vs psb0 faces    */
+                docollide.psb[0] = this;
+                docollide.psb[1] = psb;
+                docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_ndbvt.m_root,
+                                                    docollide.psb[1]->m_fdbvt.m_root,
+                                                    docollide);
+            }
         }
         break;
 		default:
