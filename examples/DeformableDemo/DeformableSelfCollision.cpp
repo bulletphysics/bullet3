@@ -153,7 +153,7 @@ void DeformableSelfCollision::initPhysics()
                                                          btVector3(-s, h, +4*s),
                                                          btVector3(+s, h, +4*s),
                                                          10,40,
-                                                         0, true, 0.1);
+                                                         0, true, 0.01);
 
         
         psb->getCollisionShape()->setMargin(0.2);
@@ -161,7 +161,7 @@ void DeformableSelfCollision::initPhysics()
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 0.02;
+        psb->m_cfg.kDF = 0.2;
         psb->rotate(btQuaternion(0,SIMD_PI / 2, 0));
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;

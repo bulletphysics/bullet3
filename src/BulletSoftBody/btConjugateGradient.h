@@ -69,7 +69,7 @@ public:
             if (dot(p,temp) < SIMD_EPSILON)
             {
                 if (verbose)
-                    std::cout << "Encountered negative direction in CG!"<<std::endl;
+                    std::cout << "Encountered negative direction in CG!" << std::endl;
                 if (k == 1)
                 {
                     x = b;

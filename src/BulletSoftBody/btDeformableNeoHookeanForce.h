@@ -17,7 +17,7 @@ subject to the following restrictions:
 #define BT_NEOHOOKEAN_H
 
 #include "btDeformableLagrangianForce.h"
-
+#include "LinearMath/btQuickprof.h"
 // This energy is as described in https://graphics.pixar.com/library/StableElasticity/paper.pdf
 class btDeformableNeoHookeanForce : public btDeformableLagrangianForce
 {
@@ -155,8 +155,9 @@ public:
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
                 btMatrix3x3 P;
                 firstPiola(psb->m_tetraScratches[j],P);
-                btVector3 force_on_node0 = P * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
+//                btVector3 force_on_node0 = P * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 force_on_node123 = P * tetra.m_Dm_inverse.transpose();
+                btVector3 force_on_node0 = force_on_node123 * grad_N_hat_1st_col;
                 
                 btSoftBody::Node* node0 = tetra.m_n[0];
                 btSoftBody::Node* node1 = tetra.m_n[1];
@@ -202,8 +203,9 @@ public:
                 btMatrix3x3 dF = Ds(id0, id1, id2, id3, dv) * tetra.m_Dm_inverse;
                 btMatrix3x3 dP;
                 firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
-                btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
+//                btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
+                btVector3 df_on_node0 = df_on_node123 * grad_N_hat_1st_col;
 
                 // damping force differential
                 btScalar scale1 = scale * tetra.m_element_measure;
@@ -237,8 +239,9 @@ public:
                 btMatrix3x3 dF = Ds(id0, id1, id2, id3, dx) * tetra.m_Dm_inverse;
                 btMatrix3x3 dP;
                 firstPiolaDifferential(psb->m_tetraScratches[j], dF, dP);
-                btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
+//                btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
+                btVector3 df_on_node0 = df_on_node123 * grad_N_hat_1st_col;
                 
                 // elastic force differential
                 btScalar scale1 = scale * tetra.m_element_measure;
@@ -252,27 +255,33 @@ public:
     
     void firstPiola(const btSoftBody::TetraScratch& s, btMatrix3x3& P)
     {
-        P = s.m_F * m_mu * ( 1. - 1. / (s.m_trace + 1.)) + s.m_cofF * (m_lambda * (s.m_J - 1.) - 0.75 * m_mu);
+        btScalar c1 = (m_mu * ( 1. - 1. / (s.m_trace + 1.)));
+        btScalar c2 = (m_lambda * (s.m_J - 1.) - 0.75 * m_mu);
+        P = s.m_F * c1 + s.m_cofF * c2;
     }
     
     // Let P be the first piola stress.
     // This function calculates the dP = dP/dF * dF
     void firstPiolaDifferential(const btSoftBody::TetraScratch& s, const btMatrix3x3& dF,  btMatrix3x3& dP)
     {
-        dP = dF * m_mu * ( 1. - 1. / (s.m_trace + 1.)) + s.m_F * (2*m_mu) * DotProduct(s.m_F, dF) * (1./((1.+s.m_trace)*(1.+s.m_trace)));
-        
+        btScalar c1 = m_mu * ( 1. - 1. / (s.m_trace + 1.));
+        btScalar c2 = (2.*m_mu) * DotProduct(s.m_F, dF) * (1./((1.+s.m_trace)*(1.+s.m_trace)));
+        btScalar c3 = (m_lambda * DotProduct(s.m_cofF, dF));
+        dP = dF * c1 + s.m_F * c2;
         addScaledCofactorMatrixDifferential(s.m_F, dF, m_lambda*(s.m_J-1.) - 0.75*m_mu, dP);
-        dP += s.m_cofF * m_lambda * DotProduct(s.m_cofF, dF);
+        dP += s.m_cofF * c3;
     }
     
     // Let Q be the damping stress.
     // This function calculates the dP = dQ/dF * dF
     void firstPiolaDampingDifferential(const btSoftBody::TetraScratch& s, const btMatrix3x3& dF,  btMatrix3x3& dP)
     {
-        dP = dF * m_mu_damp * ( 1. - 1. / (s.m_trace + 1.)) + s.m_F * (2*m_mu_damp) * DotProduct(s.m_F, dF) * (1./((1.+s.m_trace)*(1.+s.m_trace)));
-
+        btScalar c1 = (m_mu_damp * ( 1. - 1. / (s.m_trace + 1.)));
+        btScalar c2 = ((2.*m_mu_damp) * DotProduct(s.m_F, dF) *(1./((1.+s.m_trace)*(1.+s.m_trace))));
+        btScalar c3 = (m_lambda_damp * DotProduct(s.m_cofF, dF));
+        dP = dF * c1 + s.m_F * c2;
         addScaledCofactorMatrixDifferential(s.m_F, dF, m_lambda_damp*(s.m_J-1.) - 0.75*m_mu_damp, dP);
-        dP += s.m_cofF * m_lambda_damp * DotProduct(s.m_cofF, dF);
+        dP += s.m_cofF * c3;
     }
     
     btScalar DotProduct(const btMatrix3x3& A, const btMatrix3x3& B)

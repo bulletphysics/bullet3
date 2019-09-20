@@ -91,7 +91,7 @@ public:
     
     void Ctor_RbUpStack(int count)
     {
-        float mass = 0.02;
+        float mass = 1;
         
         btCompoundShape* cylinderCompound = new btCompoundShape;
         btCollisionShape* cylinderShape = new btCylinderShapeX(btVector3(2, .5, .5));
@@ -166,7 +166,7 @@ void VolumetricDeformable::initPhysics()
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
-    btVector3 gravity = btVector3(0, -10, 0);
+    btVector3 gravity = btVector3(0, -100, 0);
 	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
@@ -196,7 +196,6 @@ void VolumetricDeformable::initPhysics()
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
     }
-    getDeformableDynamicsWorld()->setLineSearch(false);
     
     createStaticBox(btVector3(1, 5, 5), btVector3(-5,0,0));
     createStaticBox(btVector3(1, 5, 5), btVector3(5,0,0));
@@ -220,19 +219,17 @@ void VolumetricDeformable::initPhysics()
         psb->m_cfg.kDF = 0.5;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         
-        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(0,0.03);
-        getDeformableDynamicsWorld()->addForce(psb, mass_spring);
-        m_forces.push_back(mass_spring);
-        
         btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
         
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(.5,2.5);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(30,100,0.02);
         getDeformableDynamicsWorld()->addForce(psb, neohookean);
         m_forces.push_back(neohookean);
         
     }
+    getDeformableDynamicsWorld()->setImplicit(true);
+    getDeformableDynamicsWorld()->setLineSearch(false);
     // add a few rigid bodies
     Ctor_RbUpStack(4); 
     
