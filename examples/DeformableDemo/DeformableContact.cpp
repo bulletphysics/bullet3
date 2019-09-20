@@ -26,6 +26,7 @@
 #include "../Utils/b3ResourcePath.h"
 
 ///The DeformableContact shows the contact between deformable objects
+
 class DeformableContact : public CommonRigidBodyBase
 {
     btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
@@ -149,12 +150,12 @@ void DeformableContact::initPhysics()
                                                          20,20,
                                                          1 + 2 + 4 + 8, true);
         
-        psb->getCollisionShape()->setMargin(0.05);
+        psb->getCollisionShape()->setMargin(0.1);
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 1;
+        psb->m_cfg.kDF = 0;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
@@ -176,15 +177,15 @@ void DeformableContact::initPhysics()
                                                           btVector3(+s, h, +s),
                                                           10,10,
                                                           0, true);
-        psb2->getCollisionShape()->setMargin(0.05);
+        psb2->getCollisionShape()->setMargin(0.1);
         psb2->generateBendingConstraints(2);
         psb2->setTotalMass(1);
         psb2->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb2->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb2->m_cfg.kDF = 1;
+        psb2->m_cfg.kDF = .1;
         psb2->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb2->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
-        psb->translate(btVector3(3,0,0));
+        psb->translate(btVector3(3.5,0,0));
         getDeformableDynamicsWorld()->addSoftBody(psb2);
         
         btDeformableMassSpringForce* mass_spring2 = new btDeformableMassSpringForce(10,1, true);
@@ -195,6 +196,8 @@ void DeformableContact::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb2, gravity_force2);
         m_forces.push_back(gravity_force2);
     }
+    getDeformableDynamicsWorld()->setImplicit(true);
+    getDeformableDynamicsWorld()->setLineSearch(false);
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
