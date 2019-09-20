@@ -20,6 +20,8 @@
 
 class btDeformableMassSpringForce : public btDeformableLagrangianForce
 {
+    // If true, the damping force will be in the direction of the spring
+    // If false, the damping force will be in the direction of the velocity
     bool m_momentum_conserving;
     btScalar m_elasticStiffness, m_dampingStiffness;
 public:

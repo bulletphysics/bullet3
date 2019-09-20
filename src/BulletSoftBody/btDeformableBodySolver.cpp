@@ -22,7 +22,7 @@
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(20)
-, m_maxNewtonIterations(10)
+, m_maxNewtonIterations(5)
 , m_newtonTolerance(1e-4)
 , m_lineSearch(true)
 {
@@ -412,6 +412,7 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
     psb->m_fdbvt.optimizeIncremental(1);
 }
 
+
 void btDeformableBodySolver::updateSoftBodies()
 {
     for (int i = 0; i < m_softBodies.size(); i++)
@@ -419,7 +420,7 @@ void btDeformableBodySolver::updateSoftBodies()
         btSoftBody *psb = (btSoftBody *)m_softBodies[i];
         if (psb->isActive())
         {
-            psb->updateNormals(); // normal is updated here
+            psb->updateNormals();
         }
     }
 }

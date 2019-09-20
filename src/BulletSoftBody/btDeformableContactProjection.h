@@ -26,8 +26,6 @@ class btDeformableContactProjection
 {
 public:
     typedef btAlignedObjectArray<btVector3> TVStack;
-    typedef btAlignedObjectArray<btAlignedObjectArray<btVector3> > TVArrayStack;
-    typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > TArrayStack;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
     
     // map from node index to static constraint
@@ -54,10 +52,10 @@ public:
     {
     }
     
-    // apply the constraints to the rhs
+    // apply the constraints to the rhs of the linear solve
     virtual void project(TVStack& x);
     
-    // add to friction
+    // add friction force to the rhs of the linear solve
     virtual void applyDynamicFriction(TVStack& f);
     
     // update the constraints
