@@ -359,6 +359,8 @@ SET(BulletExampleBrowser_SRCS
   ../DeformableDemo/GraspDeformable.h
   ../DeformableDemo/Pinch.cpp
   ../DeformableDemo/Pinch.h
+  ../DeformableDemo/DeformableSelfCollision.cpp
+  ../DeformableDemo/DeformableSelfCollision.h
   ../DeformableDemo/PinchFriction.cpp
   ../DeformableDemo/PinchFriction.h
   ../DeformableDemo/ClothFriction.cpp

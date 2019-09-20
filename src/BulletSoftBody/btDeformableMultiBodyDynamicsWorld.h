@@ -48,6 +48,7 @@ class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
     int m_contact_iterations;
     bool m_implicit;
     bool m_lineSearch;
+    bool m_selfCollision;
     
     typedef void (*btSolverCallback)(btScalar time, btDeformableMultiBodyDynamicsWorld* world);
     btSolverCallback m_solverCallback;
@@ -83,6 +84,7 @@ public:
         m_sbi.m_gravity.setValue(0, -10, 0);
         m_internalTime = 0.0;
         m_implicit = true;
+        m_selfCollision = true;
     }
 
     void setSolverCallback(btSolverCallback cb)
@@ -155,6 +157,8 @@ public:
     void solveContactConstraints();
     
     void sortConstraints();
+    
+    void softBodySelfCollision();
     
     void setImplicit(bool implicit)
     {
