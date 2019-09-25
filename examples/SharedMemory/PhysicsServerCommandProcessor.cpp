@@ -4005,7 +4005,7 @@ bool PhysicsServerCommandProcessor::processSaveWorldCommand(const struct SharedM
 		FILE* f = fopen(clientCmd.m_sdfArguments.m_sdfFileName, "w");
 		if (f)
 		{
-			char line[1024];
+			char line[2048];
 			{
 				sprintf(line, "import pybullet as p\n");
 				int len = strlen(line);
