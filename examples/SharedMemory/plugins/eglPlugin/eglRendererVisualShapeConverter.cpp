@@ -1276,7 +1276,10 @@ void EGLRendererVisualShapeConverter::render(const float viewMat[16], const floa
 
 	render();
 
-	m_data->m_camera.disableVRCamera();
+// don't disableVRCamera, see issue https://github.com/bulletphysics/bullet3/issues/2390
+// todo: check out why
+//
+//	m_data->m_camera.disableVRCamera();
 
 	//cout<<viewMat[4*0 + 0]<<" "<<viewMat[4*0+1]<<" "<<viewMat[4*0+2]<<" "<<viewMat[4*0+3] << endl;
 	//cout<<viewMat[4*1 + 0]<<" "<<viewMat[4*1+1]<<" "<<viewMat[4*1+2]<<" "<<viewMat[4*1+3] << endl;
