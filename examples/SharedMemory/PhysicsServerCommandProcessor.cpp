@@ -105,7 +105,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #endif
 
-#define SKIP_DEFORMABE_BODY 1
+#define SKIP_DEFORMABLE_BODY 1
 
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
