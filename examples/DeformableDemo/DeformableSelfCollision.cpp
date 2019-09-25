@@ -153,6 +153,7 @@ void DeformableSelfCollision::initPhysics()
                                                          btVector3(-s, h, +4*s),
                                                          btVector3(+s, h, +4*s),
                                                          10,40,
+//                                                         2,2,
                                                          0, true, 0.01);
 
         

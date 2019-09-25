@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include "BulletSoftBody/btSoftBodySolvers.h"
 #include "btSoftBodyData.h"
 #include "LinearMath/btSerializer.h"
+#include "LinearMath/btAlignedAllocator.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
@@ -3453,9 +3454,55 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
 	}
 }
 
+static inline btDbvntNode* copyToDbvnt(const btDbvtNode* n)
+{
+    if (n == 0)
+        return 0;
+    btDbvntNode* root = new btDbvntNode(n);
+    if (n->isinternal())
+    {
+        btDbvntNode* c0 = copyToDbvnt(n->childs[0]);
+        root->childs[0] = c0;
+        btDbvntNode* c1 = copyToDbvnt(n->childs[1]);
+        root->childs[1] = c1;
+    }
+    return root;
+}
+
+static inline void calculateNormalCone(btDbvntNode* root)
+{
+    if (!root)
+        return;
+    if (root->isleaf())
+    {
+        const btSoftBody::Face* face = (btSoftBody::Face*)root->data;
+        root->normal = face->m_normal;
+        root->angle = 0;
+    }
+    else
+    {
+        btVector3 n0(0,0,0), n1(0,0,0);
+        btScalar a0 = 0, a1 = 0;
+        if (root->childs[0])
+        {
+            calculateNormalCone(root->childs[0]);
+            n0 = root->childs[0]->normal;
+            a0 = root->childs[0]->angle;
+        }
+        if (root->childs[1])
+        {
+            calculateNormalCone(root->childs[1]);
+            n1 = root->childs[1]->normal;
+            a1 = root->childs[1]->angle;
+        }
+        root->normal = (n0+n1).safeNormalize();
+        root->angle = btMax(a0,a1) + btAngle(n0, n1)*0.5;
+    }
+}
 //
 void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 {
+    BT_PROFILE("Deformable Collision");
 	const int cf = m_cfg.collisions & psb->m_cfg.collisions;
 	switch (cf & fCollision::SVSmask)
 	{
@@ -3495,7 +3542,6 @@ void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 		break;
         case fCollision::VF_DD:
         {
-            // self-collision not supported yet
             if (this != psb)
             {
                 btSoftColliders::CollideVF_DD docollide;
@@ -3517,15 +3563,27 @@ void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
             }
             else
             {
-                btSoftColliders::CollideVF_DD docollide;
+                btSoftColliders::CollideFF_DD docollide;
                 docollide.mrg = getCollisionShape()->getMargin() +
                 psb->getCollisionShape()->getMargin();
-                /* psb0 nodes vs psb0 faces    */
                 docollide.psb[0] = this;
                 docollide.psb[1] = psb;
-                docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_ndbvt.m_root,
-                                                    docollide.psb[1]->m_fdbvt.m_root,
-                                                    docollide);
+                /* psb0 faces vs psb0 faces    */
+                btDbvntNode* root = copyToDbvnt(this->m_fdbvt.m_root);
+                calculateNormalCone(root);
+                this->m_fdbvt.selfCollideT(root,docollide);
+                delete root;
+                
+//                btSoftColliders::CollideFF_DD docollide;
+//                /* common                    */
+//                docollide.mrg = getCollisionShape()->getMargin() +
+//                psb->getCollisionShape()->getMargin();
+//                /* psb0 nodes vs psb1 faces    */
+//                docollide.psb[0] = this;
+//                docollide.psb[1] = psb;
+//                docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_fdbvt.m_root,
+//                                                    docollide.psb[1]->m_fdbvt.m_root,
+//                                                    docollide);
             }
         }
         break;

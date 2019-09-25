@@ -415,6 +415,7 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
 
 void btDeformableBodySolver::updateSoftBodies()
 {
+    BT_PROFILE("updateSoftBodies");
     for (int i = 0; i < m_softBodies.size(); i++)
     {
         btSoftBody *psb = (btSoftBody *)m_softBodies[i];
