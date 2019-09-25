@@ -77,6 +77,7 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
 
 void btDeformableMultiBodyDynamicsWorld::softBodySelfCollision()
 {
+    m_deformableBodySolver->updateSoftBodies();
     for (int i = 0; i < m_softBodies.size(); i++)
     {
         btSoftBody* psb = (btSoftBody*)m_softBodies[i];
