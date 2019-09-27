@@ -1306,8 +1306,8 @@ struct btSoftColliders
     //
     struct CollideVF_DD : btDbvt::ICollide
     {
-        void Process(const btDbvntNode* lnode,
-                     const btDbvntNode* lface)
+        void Process(const btDbvtNode* lnode,
+                     const btDbvtNode* lface)
         {
             btSoftBody::Node* node = (btSoftBody::Node*)lnode->data;
             btSoftBody::Face* face = (btSoftBody::Face*)lface->data;
@@ -1324,7 +1324,7 @@ struct btSoftColliders
             btVector3 v1 = face->m_n[1]->m_x;
             btVector3 v2 = face->m_n[2]->m_x;
             btVector3 vc = (v0+v1+v2)/3.;
-            btScalar  scale = 2;
+            btScalar  scale = 1.5;
             // enlarge the triangle to catch collision on the edge
             btVector3 u0 = vc + (v0-vc)*scale;
             btVector3 u1 = vc + (v1-vc)*scale;

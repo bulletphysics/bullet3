@@ -182,7 +182,7 @@ void DeformableContact::initPhysics()
         psb2->setTotalMass(1);
         psb2->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb2->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb2->m_cfg.kDF = .1;
+        psb2->m_cfg.kDF = 0.1;
         psb2->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb2->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
         psb->translate(btVector3(3.5,0,0));
