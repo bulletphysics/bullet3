@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include <iostream>
 #include <sstream>
 #include <string.h>
+#include <algorithm>
 #include "btSoftBodyHelpers.h"
 #include "LinearMath/btConvexHull.h"
 #include "LinearMath/btConvexHullComputer.h"
