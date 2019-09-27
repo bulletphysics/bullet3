@@ -1326,56 +1326,8 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
         }
     }
     
-    std::map<std::vector<int>, std::vector<int> > dict;
-    for (int i = 0; i < indices.size(); ++i)
-    {
-        for (int j = 0; j < 4; ++j)
-        {
-            std::vector<int> f;
-            if (j == 0)
-            {
-                f.push_back(indices[i][1]);
-                f.push_back(indices[i][0]);
-                f.push_back(indices[i][2]);
-            }
-            if (j == 1)
-            {
-                f.push_back(indices[i][3]);
-                f.push_back(indices[i][0]);
-                f.push_back(indices[i][1]);
-            }
-            if (j == 2)
-            {
-                f.push_back(indices[i][3]);
-                f.push_back(indices[i][1]);
-                f.push_back(indices[i][2]);
-            }
-            if (j == 3)
-            {
-                f.push_back(indices[i][2]);
-                f.push_back(indices[i][0]);
-                f.push_back(indices[i][3]);
-            }
-            std::vector<int> f_sorted = f;
-            std::sort(f_sorted.begin(), f_sorted.end());
-            if (dict.find(f_sorted) != dict.end())
-            {
-                dict.erase(f_sorted);
-            }
-            else
-            {
-                dict.insert(std::make_pair(f_sorted, f));
-            }
-        }
-    }
-
-    for (auto it = dict.begin(); it != dict.end(); ++it)
-    {
-        std::vector<int> f = it->second;
-        psb->appendFace(f[0], f[1], f[2]);
-    }
     
-    
+    generateBoundaryFaces(psb);
     psb->initializeDmInverse();
     psb->m_tetraScratches.resize(psb->m_tetras.size());
     psb->m_tetraScratchesTn.resize(psb->m_tetras.size());
@@ -1451,7 +1403,7 @@ void btSoftBodyHelpers::generateBoundaryFaces(btSoftBody* psb)
         }
     }
     
-    for (auto it = dict.begin(); it != dict.end(); ++it)
+    for (std::map<std::vector<int>, std::vector<int> >::iterator it = dict.begin(); it != dict.end(); ++it)
     {
         std::vector<int> f = it->second;
         psb->appendFace(f[0], f[1], f[2]);

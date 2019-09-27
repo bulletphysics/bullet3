@@ -17,6 +17,7 @@
 #define BT_CONJUGATE_GRADIENT_H
 #include <iostream>
 #include <cmath>
+#include <limits>
 #include <LinearMath/btAlignedObjectArray.h>
 #include <LinearMath/btVector3.h>
 #include "LinearMath/btQuickprof.h"
