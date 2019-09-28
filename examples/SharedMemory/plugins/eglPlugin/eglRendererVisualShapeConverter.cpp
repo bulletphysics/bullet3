@@ -216,7 +216,7 @@ struct EGLRendererVisualShapeConverterInternalData
 		ci.m_title = "PyBullet";
 		ci.m_width = m_swWidth;
 		ci.m_height = m_swHeight;
-		ci.m_renderDevice = 0;
+		ci.m_renderDevice = -1;
 
 		m_window->createWindow(ci);
 		m_window->setWindowTitle(ci.m_title);
@@ -1573,7 +1573,7 @@ void EGLRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqu
 void EGLRendererVisualShapeConverter::resetAll()
 {
 	m_data->m_cachedTextureIds.clear();
-
+	
 	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
 	{
 		EGLRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
@@ -1600,6 +1600,7 @@ void EGLRendererVisualShapeConverter::resetAll()
 	m_data->m_visualShapes.clear();
 	m_data->m_graphicsIndexToSegmentationMask.clear();
 	m_data->m_instancingRenderer->removeAllInstances();
+	m_data->m_cachedVisualShapes.clear();
 }
 
 void EGLRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
