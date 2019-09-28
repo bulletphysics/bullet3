@@ -8087,7 +8087,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
                     }
 #endif
 		}
-		}
+		
 		if (psb != NULL)
 		{
 #ifndef SKIP_DEFORMABLE_BODY
@@ -8126,8 +8126,10 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
                     }
 
                     // turn on the collision flag for deformable
-                    // collision
+                    // collision between deformable and rigid
                     psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+	            // collion between deformable and deformable and self-collision
+                    psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
                     psb->setCollisionFlags(0);
 		    psb->setTotalMass(mass);
 #else
