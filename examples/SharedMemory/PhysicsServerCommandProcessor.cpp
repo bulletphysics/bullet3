@@ -7999,10 +7999,12 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 		}
 		const std::string& error_message_prefix = "";
 		std::string out_found_filename;
-		int out_type;
+		int out_type=0;
 
 		bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
 		btSoftBody* psb = NULL;
+		if (foundFile)
+		{
 		btScalar spring_elastic_stiffness, spring_damping_stiffness;
 		if (out_type == UrdfGeometry::FILE_OBJ)
 		{
@@ -8063,6 +8065,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				m_data->m_dynamicsWorld->addForce(psb, new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true));
 			}
 #endif
+		}
 		}
 		if (psb != NULL)
 		{
