@@ -149,7 +149,7 @@ void btDeformableBodySolver::updateEnergy(btScalar scale)
 }
 
 
-btScalar btDeformableBodySolver::computeDescentStep(TVStack& ddv, const TVStack& residual)
+btScalar btDeformableBodySolver::computeDescentStep(TVStack& ddv, const TVStack& residual, bool verbose)
 {
     m_cg.solve(*m_objective, ddv, residual, false);
     btScalar inner_product = m_cg.dot(residual, m_ddv);
@@ -157,7 +157,10 @@ btScalar btDeformableBodySolver::computeDescentStep(TVStack& ddv, const TVStack&
     btScalar tol = 1e-5 * res_norm * m_objective->computeNorm(m_ddv);
     if (inner_product < -tol)
     {
-        std::cout << "Looking backwards!" << std::endl;
+        if (verbose)
+        {
+            std::cout << "Looking backwards!" << std::endl;
+        }
         for (int i = 0; i < m_ddv.size();++i)
         {
             m_ddv[i] = -m_ddv[i];
@@ -166,7 +169,10 @@ btScalar btDeformableBodySolver::computeDescentStep(TVStack& ddv, const TVStack&
     }
     else if (std::abs(inner_product) < tol)
     {
-        std::cout << "Gradient Descent!" << std::endl;
+        if (verbose)
+        {
+            std::cout << "Gradient Descent!" << std::endl;
+        }
         btScalar scale = m_objective->computeNorm(m_ddv) / res_norm;
         for (int i = 0; i < m_ddv.size();++i)
         {
@@ -229,7 +235,7 @@ void btDeformableBodySolver::setConstraints()
 
 btScalar btDeformableBodySolver::solveContactConstraints()
 {
-    BT_PROFILE("setConstraint");
+    BT_PROFILE("solveContactConstraints");
     btScalar maxSquaredResidual = m_objective->m_projection.update();
     return maxSquaredResidual;
 }

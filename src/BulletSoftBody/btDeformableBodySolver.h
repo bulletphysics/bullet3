@@ -99,7 +99,7 @@ public:
     void computeStep(TVStack& ddv, const TVStack& residual);
     
     // calculate the change in dv resulting from the momentum solve when line search is turned on
-    btScalar computeDescentStep(TVStack& ddv, const TVStack& residual);
+    btScalar computeDescentStep(TVStack& ddv, const TVStack& residual, bool verbose=false);
 
     virtual void copySoftBodyToVertexBuffer(const btSoftBody *const softBody, btVertexBufferDescriptor *vertexBuffer) {}
 

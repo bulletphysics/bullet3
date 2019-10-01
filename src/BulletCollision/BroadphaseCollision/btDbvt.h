@@ -21,7 +21,6 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btAabbUtil2.h"
-#include <iostream>
 //
 // Compile time configuration
 //
