@@ -5055,15 +5055,24 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 		{
 			btSoftBody* psb = bodyHandle->m_softBody;
 			int totalBytesPerVertex = sizeof(btVector3);
-			int numVertices = psb->m_nodes.size();
+            bool separateRenderMesh = (psb->m_renderNodes.size() != 0);
+            int numVertices = separateRenderMesh ? psb->m_renderNodes.size() : psb->m_nodes.size();
 			int maxNumVertices = bufferSizeInBytes / totalBytesPerVertex - 1;
 			int numVerticesRemaining = numVertices - clientCmd.m_requestMeshDataArgs.m_startingVertex;
 			int verticesCopied = btMin(maxNumVertices, numVerticesRemaining);
 			btVector3* verticesOut = (btVector3*)bufferServerToClient;
 			for (int i = 0; i < verticesCopied; ++i)
 			{
-				const btSoftBody::Node& n = psb->m_nodes[i + clientCmd.m_requestMeshDataArgs.m_startingVertex];
-				verticesOut[i] = n.m_x;
+                if (separateRenderMesh)
+                {
+                    const btSoftBody::Node& n = psb->m_renderNodes[i + clientCmd.m_requestMeshDataArgs.m_startingVertex];
+                    verticesOut[i] = n.m_x;
+                }
+                else
+                {
+                    const btSoftBody::Node& n = psb->m_nodes[i + clientCmd.m_requestMeshDataArgs.m_startingVertex];
+                    verticesOut[i] = n.m_x;
+                }
 			}
 
 			serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
@@ -7989,220 +7998,225 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	}
 
 	{
-                btSoftBody* psb = NULL;
-                btScalar spring_elastic_stiffness, spring_damping_stiffness;
+        btSoftBody* psb = NULL;
+        
 
-		CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
-		char relativeFileName[1024];
-		char pathPrefix[1024];
-		pathPrefix[0] = 0;
-		if (fileIO->findResourcePath(loadSoftBodyArgs.m_fileName, relativeFileName, 1024))
-		{
-			b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
-		}
+	CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
+	char relativeFileName[1024];
+	char pathPrefix[1024];
+	pathPrefix[0] = 0;
+	if (fileIO->findResourcePath(loadSoftBodyArgs.m_fileName, relativeFileName, 1024))
+	{
+		b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+	}
 
-                // add _sim.vtk postfix 
-                char relativeSimFileName[1024];
-                char sim_file_ending[9] = "_sim.vtk";
-                strncpy(relativeSimFileName, relativeFileName, strlen(relativeFileName));
-                strncpy(relativeSimFileName + strlen(relativeFileName)-4, sim_file_ending, sizeof(sim_file_ending));
+        // add _sim.vtk postfix
+        char relativeSimFileName[1024];
+        char sim_file_ending[9] = "_sim.vtk";
+        strncpy(relativeSimFileName, relativeFileName, strlen(relativeFileName));
+        strncpy(relativeSimFileName + strlen(relativeFileName)-4, sim_file_ending, sizeof(sim_file_ending));
 
-		const std::string& error_message_prefix = "";
-		std::string out_found_filename;
-		std::string out_found_sim_filename;
-		int out_type, out_sim_type;
+	const std::string& error_message_prefix = "";
+	std::string out_found_filename;
+	std::string out_found_sim_filename;
+	int out_type, out_sim_type;
 
-                bool render_mesh_is_sim_mesh = true;
+        bool render_mesh_is_sim_mesh = true;
 
-		bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
-                if (out_type == UrdfGeometry::FILE_OBJ)
-                {
+	bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
+        if (out_type == UrdfGeometry::FILE_OBJ)
+        {
 		    bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeSimFileName, error_message_prefix, &out_found_sim_filename, &out_sim_type);
-                    render_mesh_is_sim_mesh = !foundFile;
-                }
+            render_mesh_is_sim_mesh = !foundFile;
+        }
 
-                if (render_mesh_is_sim_mesh)
-                {
-                    out_sim_type = out_type;
-                    out_found_sim_filename = out_found_filename;
-                }
-                    
-                if (out_sim_type == UrdfGeometry::FILE_OBJ)
-                {
-		    std::vector<tinyobj::shape_t> shapes;
-		    tinyobj::attrib_t attribute;
-		    std::string err = tinyobj::LoadObj(attribute, shapes, out_found_sim_filename.c_str(), "", fileIO);
-		    if (!shapes.empty())
-		    {
-		    	const tinyobj::shape_t& shape = shapes[0];
-		    	btAlignedObjectArray<btScalar> vertices;
-		    	btAlignedObjectArray<int> indices;
-		    	for (int i = 0; i < attribute.vertices.size(); i++)
-		    	{
-		    		vertices.push_back(attribute.vertices[i]);
-		    	}
-		    	for (int i = 0; i < shape.mesh.indices.size(); i++)
-		    	{
-		    		indices.push_back(shape.mesh.indices[i].vertex_index);
-		    	}
-		    	int numTris = shape.mesh.indices.size() / 3;
-		    	if (numTris > 0)
-		    	{
-		    		psb = btSoftBodyHelpers::CreateFromTriMesh(m_data->m_dynamicsWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
-                        }
-                    }
+        if (render_mesh_is_sim_mesh)
+        {
+            out_sim_type = out_type;
+            out_found_sim_filename = out_found_filename;
+        }
+        
+        if (out_sim_type == UrdfGeometry::FILE_OBJ)
+        {
+	    std::vector<tinyobj::shape_t> shapes;
+	    tinyobj::attrib_t attribute;
+	    std::string err = tinyobj::LoadObj(attribute, shapes, out_found_sim_filename.c_str(), "", fileIO);
+	    if (!shapes.empty())
+	    {
+            const tinyobj::shape_t& shape = shapes[0];
+            btAlignedObjectArray<btScalar> vertices;
+	    	btAlignedObjectArray<int> indices;
+	    	for (int i = 0; i < attribute.vertices.size(); i++)
+	    	{
+	    		vertices.push_back(attribute.vertices[i]);
+	    	}
+	    	for (int i = 0; i < shape.mesh.indices.size(); i++)
+	    	{
+	    		indices.push_back(shape.mesh.indices[i].vertex_index);
+	    	}
+	    	int numTris = shape.mesh.indices.size() / 3;
+	    	if (numTris > 0)
+            {
+                psb = btSoftBodyHelpers::CreateFromTriMesh(m_data->m_dynamicsWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
+            }
+        }
 #ifndef SKIP_DEFORMABLE_BODY
-			if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
-			{
-				spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
-				spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
-				m_data->m_dynamicsWorld->addForce(psb, new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, false));
-			}
+        btScalar spring_elastic_stiffness, spring_damping_stiffness;
+	    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
+	    {
+            spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
+            spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
+            m_data->m_dynamicsWorld->addForce(psb, new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, false));
+	    }
 #endif
-                }
-                else if (out_sim_type == UrdfGeometry::FILE_VTK)
-                {
+        }
+        else if (out_sim_type == UrdfGeometry::FILE_VTK)
+        {
 #ifndef SKIP_DEFORMABLE_BODY
-                    psb = btSoftBodyHelpers::CreateFromVtkFile(m_data->m_dynamicsWorld->getWorldInfo(), out_found_sim_filename.c_str());
-                    btScalar corotated_mu, corotated_lambda;
-                    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_COROTATED_FORCE)
-                    {
-                            corotated_mu = clientCmd.m_loadSoftBodyArguments.m_corotatedMu;
-                            corotated_lambda = clientCmd.m_loadSoftBodyArguments.m_corotatedLambda;
-                            m_data->m_dynamicsWorld->addForce(psb, new btDeformableCorotatedForce(corotated_mu, corotated_lambda));
-                    }
-                    btScalar neohookean_mu, neohookean_lambda;
-                    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_NEOHOOKEAN_FORCE)
-                    {
-                            neohookean_mu = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanMu;
-                            neohookean_lambda = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanLambda;
-                            m_data->m_dynamicsWorld->addForce(psb, new btDeformableNeoHookeanForce(neohookean_mu, neohookean_lambda));
-                    }
-                    btScalar spring_elastic_stiffness, spring_damping_stiffness;
-                    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
-                    {
-                            spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
-                            spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
-                            m_data->m_dynamicsWorld->addForce(psb, new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true));
-                    }
+            psb = btSoftBodyHelpers::CreateFromVtkFile(m_data->m_dynamicsWorld->getWorldInfo(), out_found_sim_filename.c_str());
+            btScalar corotated_mu, corotated_lambda;
+            if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_COROTATED_FORCE)
+            {
+                    corotated_mu = clientCmd.m_loadSoftBodyArguments.m_corotatedMu;
+                    corotated_lambda = clientCmd.m_loadSoftBodyArguments.m_corotatedLambda;
+                    m_data->m_dynamicsWorld->addForce(psb, new btDeformableCorotatedForce(corotated_mu, corotated_lambda));
+            }
+            btScalar neohookean_mu, neohookean_lambda;
+            if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_NEOHOOKEAN_FORCE)
+            {
+                    neohookean_mu = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanMu;
+                    neohookean_lambda = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanLambda;
+                    m_data->m_dynamicsWorld->addForce(psb, new btDeformableNeoHookeanForce(neohookean_mu, neohookean_lambda));
+            }
+            btScalar spring_elastic_stiffness, spring_damping_stiffness;
+            if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
+            {
+                    spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
+                    spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
+                    m_data->m_dynamicsWorld->addForce(psb, new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true));
+            }
 #endif
 		}
 		
 		if (psb != NULL)
 		{
 #ifndef SKIP_DEFORMABLE_BODY
-                    if (!render_mesh_is_sim_mesh)
-                    {
-                            // load render mesh
-                            btSoftBodyHelpers::readRenderMeshFromObj(out_found_filename.c_str(), psb);
-                            btSoftBodyHelpers::interpolateBarycentricWeights(psb);
-                    }
-                    btVector3 gravity = m_data->m_dynamicsWorld->getGravity();
-                    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_GRAVITY_FORCE)
-                    {
-                            m_data->m_dynamicsWorld->addForce(psb, new btDeformableGravityForce(gravity));
-                    }
-                    btScalar collision_hardness = 1;
-                    psb->m_cfg.kKHR = collision_hardness;
-                    psb->m_cfg.kCHR = collision_hardness;
+            if (!render_mesh_is_sim_mesh)
+            {
+                // load render mesh
+                btSoftBodyHelpers::readRenderMeshFromObj(out_found_filename.c_str(), psb);
+                btSoftBodyHelpers::interpolateBarycentricWeights(psb);
+            }
+            else
+            {
+                psb->m_renderNodes.resize(0);
+            }
+            btVector3 gravity = m_data->m_dynamicsWorld->getGravity();
+            if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_GRAVITY_FORCE)
+            {
+                    m_data->m_dynamicsWorld->addForce(psb, new btDeformableGravityForce(gravity));
+            }
+            btScalar collision_hardness = 1;
+            psb->m_cfg.kKHR = collision_hardness;
+            psb->m_cfg.kCHR = collision_hardness;
 
-                    btScalar friction_coeff = 0;
-                    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SET_FRICTION_COEFFICIENT)
-                    {
-                            friction_coeff = loadSoftBodyArgs.m_frictionCoeff;
-                    }
-                    psb->m_cfg.kDF = friction_coeff;
-                    
-                    bool use_bending_spring = true;
-                    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_BENDING_SPRINGS)
-                    {
-                            use_bending_spring = loadSoftBodyArgs.m_useBendingSprings;
-                    }
-		    btSoftBody::Material* pm = psb->appendMaterial();
-		    pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
-                    if (use_bending_spring)
-                    {
-                            psb->generateBendingConstraints(2,pm);
-                    }
+            btScalar friction_coeff = 0;
+            if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SET_FRICTION_COEFFICIENT)
+            {
+                    friction_coeff = loadSoftBodyArgs.m_frictionCoeff;
+            }
+            psb->m_cfg.kDF = friction_coeff;
+            
+            bool use_bending_spring = true;
+            if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_BENDING_SPRINGS)
+            {
+                    use_bending_spring = loadSoftBodyArgs.m_useBendingSprings;
+            }
+            btSoftBody::Material* pm = psb->appendMaterial();
+            pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
+            if (use_bending_spring)
+            {
+                    psb->generateBendingConstraints(2,pm);
+            }
 
-                    // turn on the collision flag for deformable
-                    // collision between deformable and rigid
-                    psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-	            // collion between deformable and deformable and self-collision
-                    psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
-                    psb->setCollisionFlags(0);
-		    psb->setTotalMass(mass);
+            // turn on the collision flag for deformable
+            // collision between deformable and rigid
+            psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+            // collion between deformable and deformable and self-collision
+            psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
+            psb->setCollisionFlags(0);
+	    psb->setTotalMass(mass);
 #else
-		    btSoftBody::Material* pm = psb->appendMaterial();
-		    pm->m_kLST = 0.5;
-		    pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
-		    psb->generateBendingConstraints(2, pm);
-		    psb->m_cfg.piterations = 20;
-		    psb->m_cfg.kDF = 0.5;
-		    //turn on softbody vs softbody collision
-		    psb->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
-		    psb->randomizeConstraints();
-		    psb->setTotalMass(mass, true);
+	    btSoftBody::Material* pm = psb->appendMaterial();
+	    pm->m_kLST = 0.5;
+	    pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
+	    psb->generateBendingConstraints(2, pm);
+	    psb->m_cfg.piterations = 20;
+	    psb->m_cfg.kDF = 0.5;
+	    //turn on softbody vs softbody collision
+	    psb->m_cfg.collisions |= btSoftBody::fCollision::VF_SS;
+	    psb->randomizeConstraints();
+	    psb->setTotalMass(mass, true);
 #endif
-		    psb->scale(btVector3(scale, scale, scale));
-		    psb->rotate(initialOrn);
-		    psb->translate(initialPos);
+	    psb->scale(btVector3(scale, scale, scale));
+	    psb->rotate(initialOrn);
+	    psb->translate(initialPos);
 
-		    psb->getCollisionShape()->setMargin(collisionMargin);
-		    psb->getCollisionShape()->setUserPointer(psb);
-		    m_data->m_dynamicsWorld->addSoftBody(psb);
-		    m_data->m_guiHelper->createCollisionShapeGraphicsObject(psb->getCollisionShape());
-		    m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
-		    int bodyUniqueId = m_data->m_bodyHandles.allocHandle();
-		    InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-		    bodyHandle->m_softBody = psb;
+	    psb->getCollisionShape()->setMargin(collisionMargin);
+	    psb->getCollisionShape()->setUserPointer(psb);
+	    m_data->m_dynamicsWorld->addSoftBody(psb);
+	    m_data->m_guiHelper->createCollisionShapeGraphicsObject(psb->getCollisionShape());
+	    m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
+	    int bodyUniqueId = m_data->m_bodyHandles.allocHandle();
+	    InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+	    bodyHandle->m_softBody = psb;
 
-		    b3VisualShapeData visualShape;
+	    b3VisualShapeData visualShape;
 
-		    visualShape.m_objectUniqueId = bodyUniqueId;
-		    visualShape.m_linkIndex = -1;
-		    visualShape.m_visualGeometryType = URDF_GEOM_MESH;
-		    //dimensions just contains the scale
-		    visualShape.m_dimensions[0] = scale;
-		    visualShape.m_dimensions[1] = scale;
-		    visualShape.m_dimensions[2] = scale;
-		    //filename
-		    strncpy(visualShape.m_meshAssetFileName, relativeFileName, VISUAL_SHAPE_MAX_PATH_LEN);
-		    visualShape.m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN - 1] = 0;
-		    //position and orientation
-		    visualShape.m_localVisualFrame[0] = initialPos[0];
-		    visualShape.m_localVisualFrame[1] = initialPos[1];
-		    visualShape.m_localVisualFrame[2] = initialPos[2];
-		    visualShape.m_localVisualFrame[3] = initialOrn[0];
-		    visualShape.m_localVisualFrame[4] = initialOrn[1];
-		    visualShape.m_localVisualFrame[5] = initialOrn[2];
-		    visualShape.m_localVisualFrame[6] = initialOrn[3];
-		    //color and ids to be set by the renderer
-		    visualShape.m_rgbaColor[0] = 0;
-		    visualShape.m_rgbaColor[1] = 0;
-		    visualShape.m_rgbaColor[2] = 0;
-		    visualShape.m_rgbaColor[3] = 1;
-		    visualShape.m_tinyRendererTextureId = -1;
-		    visualShape.m_textureUniqueId  =-1;
-		    visualShape.m_openglTextureId = -1;
+	    visualShape.m_objectUniqueId = bodyUniqueId;
+	    visualShape.m_linkIndex = -1;
+	    visualShape.m_visualGeometryType = URDF_GEOM_MESH;
+	    //dimensions just contains the scale
+	    visualShape.m_dimensions[0] = scale;
+	    visualShape.m_dimensions[1] = scale;
+	    visualShape.m_dimensions[2] = scale;
+	    //filename
+	    strncpy(visualShape.m_meshAssetFileName, relativeFileName, VISUAL_SHAPE_MAX_PATH_LEN);
+	    visualShape.m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN - 1] = 0;
+	    //position and orientation
+	    visualShape.m_localVisualFrame[0] = initialPos[0];
+	    visualShape.m_localVisualFrame[1] = initialPos[1];
+	    visualShape.m_localVisualFrame[2] = initialPos[2];
+	    visualShape.m_localVisualFrame[3] = initialOrn[0];
+	    visualShape.m_localVisualFrame[4] = initialOrn[1];
+	    visualShape.m_localVisualFrame[5] = initialOrn[2];
+	    visualShape.m_localVisualFrame[6] = initialOrn[3];
+	    //color and ids to be set by the renderer
+	    visualShape.m_rgbaColor[0] = 0;
+	    visualShape.m_rgbaColor[1] = 0;
+	    visualShape.m_rgbaColor[2] = 0;
+	    visualShape.m_rgbaColor[3] = 1;
+	    visualShape.m_tinyRendererTextureId = -1;
+	    visualShape.m_textureUniqueId  =-1;
+	    visualShape.m_openglTextureId = -1;
 
-		    m_data->m_pluginManager.getRenderInterface()->addVisualShape(&visualShape, fileIO);
+	    m_data->m_pluginManager.getRenderInterface()->addVisualShape(&visualShape, fileIO);
 
-		    serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
-		    serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_COMPLETED;
+	    serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
+	    serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_COMPLETED;
 
-		    int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
-		    serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
+	    int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
+	    serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
 
 #ifdef ENABLE_LINK_MAPPER
-                    if (m_data->m_urdfLinkNameMapper.size())
-                    {
-                      serverStatusOut.m_numDataStreamBytes = m_data->m_urdfLinkNameMapper.at(m_data->m_urdfLinkNameMapper.size() - 1)->m_memSerializer->getCurrentBufferSize();
-                    }
+            if (m_data->m_urdfLinkNameMapper.size())
+            {
+              serverStatusOut.m_numDataStreamBytes = m_data->m_urdfLinkNameMapper.at(m_data->m_urdfLinkNameMapper.size() - 1)->m_memSerializer->getCurrentBufferSize();
+            }
 #endif
-                    serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
-                    InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-                    strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());
+            serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
+            InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+            strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());
 
 		    b3Notification notification;
 		    notification.m_notificationType = BODY_ADDED;
