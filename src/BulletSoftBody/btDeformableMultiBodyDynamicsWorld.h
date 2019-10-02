@@ -13,8 +13,8 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
-#ifndef BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H
-#define BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H
+#ifndef BT_DEFORMABLE_MULTIBODY_DYNAMICS_WORLD_H
+#define BT_DEFORMABLE_MULTIBODY_DYNAMICS_WORLD_H
 
 #include "btSoftMultiBodyDynamicsWorld.h"
 #include "btDeformableLagrangianForce.h"
@@ -36,7 +36,6 @@ typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
 {
     typedef btAlignedObjectArray<btVector3> TVStack;
-//    using TVStack = btAlignedObjectArray<btVector3>;
     ///Solver classes that encapsulate multiple deformable bodies for solving
     btDeformableBodySolver* m_deformableBodySolver;
     btSoftBodyArray m_softBodies;
@@ -48,6 +47,8 @@ class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
     btScalar m_internalTime;
     int m_contact_iterations;
     bool m_implicit;
+    bool m_lineSearch;
+    bool m_selfCollision;
     
     typedef void (*btSolverCallback)(btScalar time, btDeformableMultiBodyDynamicsWorld* world);
     btSolverCallback m_solverCallback;
@@ -73,7 +74,7 @@ public:
         m_sbi.m_broadphase = pairCache;
         m_sbi.m_dispatcher = dispatcher;
         m_sbi.m_sparsesdf.Initialize();
-        m_sbi.m_sparsesdf.setDefaultVoxelsz(0.025);
+        m_sbi.m_sparsesdf.setDefaultVoxelsz(0.005);
         m_sbi.m_sparsesdf.Reset();
         
         m_sbi.air_density = (btScalar)1.2;
@@ -83,6 +84,7 @@ public:
         m_sbi.m_gravity.setValue(0, -10, 0);
         m_internalTime = 0.0;
         m_implicit = true;
+        m_selfCollision = true;
     }
 
     void setSolverCallback(btSolverCallback cb)
@@ -152,14 +154,21 @@ public:
     
     void solveMultiBodyConstraints();
     
-    void solveMultiBodyRelatedConstraints();
+    void solveContactConstraints();
     
     void sortConstraints();
+    
+    void softBodySelfCollision();
     
     void setImplicit(bool implicit)
     {
         m_implicit = implicit;
     }
+    
+    void setLineSearch(bool lineSearch)
+    {
+        m_lineSearch = lineSearch;
+    }
 };
 
-#endif  //BT_DEFORMABLE_RIGID_DYNAMICS_WORLD_H
+#endif  //BT_DEFORMABLE_MULTIBODY_DYNAMICS_WORLD_H

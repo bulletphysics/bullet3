@@ -17,6 +17,7 @@
 #define BT_CONJUGATE_GRADIENT_H
 #include <iostream>
 #include <cmath>
+#include <limits>
 #include <LinearMath/btAlignedObjectArray.h>
 #include <LinearMath/btVector3.h>
 #include "LinearMath/btQuickprof.h"
@@ -26,16 +27,18 @@ class btConjugateGradient
     typedef btAlignedObjectArray<btVector3> TVStack;
     TVStack r,p,z,temp;
     int max_iterations;
+    btScalar tolerance;
 public:
     btConjugateGradient(const int max_it_in)
     : max_iterations(max_it_in)
     {
+       tolerance = 1024 * std::numeric_limits<btScalar>::epsilon();
     }
     
     virtual ~btConjugateGradient(){}
     
     // return the number of iterations taken
-    int solve(MatrixX& A, TVStack& x, const TVStack& b, btScalar tolerance, bool verbose = false)
+    int solve(MatrixX& A, TVStack& x, const TVStack& b, bool verbose = false)
     {
         BT_PROFILE("CGSolve");
         btAssert(x.size() == b.size());
@@ -48,7 +51,8 @@ public:
         A.precondition(r, z);
         A.project(z);
         btScalar r_dot_z = dot(z,r);
-        if (r_dot_z < tolerance) {
+        btScalar local_tolerance = tolerance;
+        if (std::sqrt(r_dot_z) <= local_tolerance) {
             if (verbose)
             {
                 std::cout << "Iteration = 0" << std::endl;
@@ -58,11 +62,21 @@ public:
         }
         p = z;
         btScalar r_dot_z_new = r_dot_z;
-        for (int k = 1; k < max_iterations; k++) {
+        for (int k = 1; k <= max_iterations; k++) {
             // temp = A*p
             A.multiply(p, temp);
             A.project(temp);
             // alpha = r^T * z / (p^T * A * p)
+            if (dot(p,temp) < SIMD_EPSILON)
+            {
+                if (verbose)
+                    std::cout << "Encountered negative direction in CG!" << std::endl;
+                if (k == 1)
+                {
+                    x = b;
+                }
+              return k;
+            }
             btScalar alpha = r_dot_z_new / dot(p, temp);
             //  x += alpha * p;
             multAndAddTo(alpha, p, x);
@@ -72,14 +86,15 @@ public:
             A.precondition(r, z);
             r_dot_z = r_dot_z_new;
             r_dot_z_new = dot(r,z);
-            if (r_dot_z_new < tolerance) {
+            if (std::sqrt(r_dot_z_new) < local_tolerance) {
                 if (verbose)
                 {
                     std::cout << "ConjugateGradient iterations " << k << std::endl;
                 }
                 return k;
             }
-            btScalar beta = r_dot_z_new/ r_dot_z;
+
+            btScalar beta = r_dot_z_new/r_dot_z;
             p = multAndAdd(beta, p, z);
         }
         if (verbose)

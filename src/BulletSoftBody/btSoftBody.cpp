@@ -18,8 +18,12 @@ subject to the following restrictions:
 #include "BulletSoftBody/btSoftBodySolvers.h"
 #include "btSoftBodyData.h"
 #include "LinearMath/btSerializer.h"
+#include "LinearMath/btAlignedAllocator.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
+#include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
+#include "BulletCollision/CollisionShapes/btTriangleShape.h"
+#include <iostream>
 //
 btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m)
 	: m_softBodySolver(0), m_worldInfo(worldInfo)
@@ -86,6 +90,7 @@ void btSoftBody::initDefaults()
 	m_cfg.diterations = 0;
 	m_cfg.citerations = 4;
 	m_cfg.collisions = fCollision::Default;
+    m_cfg.collisions |= fCollision::VF_DD;
 	m_pose.m_bvolume = false;
 	m_pose.m_bframe = false;
 	m_pose.m_volume = 0;
@@ -2289,6 +2294,7 @@ bool btSoftBody::checkContact(const btCollisionObjectWrapper* colObjWrap,
     }
     return (false);
 }
+
 //
 bool btSoftBody::checkDeformableContact(const btCollisionObjectWrapper* colObjWrap,
 							  const btVector3& x,
@@ -2303,6 +2309,7 @@ bool btSoftBody::checkDeformableContact(const btCollisionObjectWrapper* colObjWr
     btTransform wtr = (predict) ?
     (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
                  : colObjWrap->getWorldTransform();
+    //const btTransform& wtr = colObjWrap->getWorldTransform();
 	btScalar dst =
 		m_worldInfo->m_sparsesdf.Evaluate(
 			wtr.invXform(x),
@@ -2318,6 +2325,63 @@ bool btSoftBody::checkDeformableContact(const btCollisionObjectWrapper* colObjWr
     if (dst < 0)
         return true;
 	return (false);
+}
+
+//
+// Compute barycentric coordinates (u, v, w) for
+// point p with respect to triangle (a, b, c)
+static void getBarycentric(const btVector3& p, btVector3& a, btVector3& b, btVector3& c, btVector3& bary)
+{
+    btVector3 v0 = b - a, v1 = c - a, v2 = p - a;
+    btScalar d00 = v0.dot(v0);
+    btScalar d01 = v0.dot(v1);
+    btScalar d11 = v1.dot(v1);
+    btScalar d20 = v2.dot(v0);
+    btScalar d21 = v2.dot(v1);
+    btScalar denom = d00 * d11 - d01 * d01;
+    bary.setY((d11 * d20 - d01 * d21) / denom);
+    bary.setZ((d00 * d21 - d01 * d20) / denom);
+    bary.setX(btScalar(1) - bary.getY() - bary.getZ());
+}
+
+//
+bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colObjWrap,
+                                        const Face& f,
+                                        btVector3& contact_point,
+                                        btVector3& bary,
+                                        btScalar margin,
+                                        btSoftBody::sCti& cti, bool predict) const
+{
+    btVector3 nrm;
+    const btCollisionShape* shp = colObjWrap->getCollisionShape();
+    const btCollisionObject* tmpCollisionObj = colObjWrap->getCollisionObject();
+    // use the position x_{n+1}^* = x_n + dt * v_{n+1}^* where v_{n+1}^* = v_n + dtg for collision detect
+    // but resolve contact at x_n
+    btTransform wtr = (predict) ?
+    (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
+    : colObjWrap->getWorldTransform();
+    
+    btGjkEpaSolver2::sResults results;
+    btTransform triangle_transform;
+    triangle_transform.setIdentity();
+    triangle_transform.setOrigin(f.m_n[0]->m_x);
+    btTriangleShape triangle(btVector3(0,0,0), f.m_n[1]->m_x-f.m_n[0]->m_x, f.m_n[2]->m_x-f.m_n[0]->m_x);
+    btVector3 guess(0,0,0);
+    const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
+    btGjkEpaSolver2::SignedDistance(&triangle, triangle_transform, csh, wtr, guess, results);
+    btScalar dst = results.distance - margin;
+    contact_point = results.witnesses[0];
+    getBarycentric(contact_point, f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
+    if (!predict)
+    {
+        cti.m_colObj = colObjWrap->getCollisionObject();
+//        cti.m_normal = wtr.getBasis() * results.normal;
+        cti.m_normal = results.normal;
+        cti.m_offset = dst;
+    }
+    if (dst < 0)
+        return true;
+    return (false);
 }
 
 //
@@ -2842,6 +2906,22 @@ void btSoftBody::updateDeformation()
                        c1.getY(), c2.getY(), c3.getY(),
                        c1.getZ(), c2.getZ(), c3.getZ());
         t.m_F = Ds * t.m_Dm_inverse;
+        
+        btSoftBody::TetraScratch& s = m_tetraScratches[i];
+        s.m_F = t.m_F;
+        s.m_J = t.m_F.determinant();
+        btMatrix3x3 C = t.m_F.transpose()*t.m_F;
+        s.m_trace = C[0].getX() + C[1].getY() + C[2].getZ();
+        s.m_cofF = t.m_F.adjoint().transpose();
+    }
+}
+
+void btSoftBody::advanceDeformation()
+{
+    updateDeformation();
+    for (int i = 0; i < m_tetras.size(); ++i)
+    {
+        m_tetraScratchesTn[i] = m_tetraScratches[i];
     }
 }
 //
@@ -3080,6 +3160,20 @@ void btSoftBody::applyForces()
 		/* Aerodynamics			*/
 		addAeroForceToFace(m_windVelocity, i);
 	}
+}
+
+//
+void btSoftBody::interpolateRenderMesh()
+{
+    for (int i = 0; i < m_renderNodes.size(); ++i)
+    {
+        Node& n = m_renderNodes[i];
+        n.m_x.setZero();
+        for (int j = 0; j < 4; ++j)
+        {
+            n.m_x += m_renderNodesParents[i][j]->m_x * m_renderNodesInterpolationWeights[i][j];
+        }
+    }
 }
 
 //
@@ -3324,7 +3418,7 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
 		break;
         case fCollision::SDF_RD:
         {
-            btSoftColliders::CollideSDF_RD docollide;
+            
             btRigidBody* prb1 = (btRigidBody*)btRigidBody::upcast(pcoWrap->getCollisionObject());
             btTransform wtr = pcoWrap->getWorldTransform();
             
@@ -3340,21 +3434,75 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
                                                   maxs);
             volume = btDbvtVolume::FromMM(mins, maxs);
             volume.Expand(btVector3(basemargin, basemargin, basemargin));
-            docollide.psb = this;
-            docollide.m_colObj1Wrap = pcoWrap;
-            docollide.m_rigidBody = prb1;
+            btSoftColliders::CollideSDF_RD docollideNode;
+            docollideNode.psb = this;
+            docollideNode.m_colObj1Wrap = pcoWrap;
+            docollideNode.m_rigidBody = prb1;
+            docollideNode.dynmargin = basemargin + timemargin;
+            docollideNode.stamargin = basemargin;
+            m_ndbvt.collideTV(m_ndbvt.m_root, volume, docollideNode);
             
-            docollide.dynmargin = basemargin + timemargin;
-            docollide.stamargin = basemargin;
-            m_ndbvt.collideTV(m_ndbvt.m_root, volume, docollide);
+            btSoftColliders::CollideSDF_RDF docollideFace;
+            docollideFace.psb = this;
+            docollideFace.m_colObj1Wrap = pcoWrap;
+            docollideFace.m_rigidBody = prb1;
+            docollideFace.dynmargin = basemargin + timemargin;
+            docollideFace.stamargin = basemargin;
+            m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
         }
         break;
 	}
 }
 
+static inline btDbvntNode* copyToDbvnt(const btDbvtNode* n)
+{
+    if (n == 0)
+        return 0;
+    btDbvntNode* root = new btDbvntNode(n);
+    if (n->isinternal())
+    {
+        btDbvntNode* c0 = copyToDbvnt(n->childs[0]);
+        root->childs[0] = c0;
+        btDbvntNode* c1 = copyToDbvnt(n->childs[1]);
+        root->childs[1] = c1;
+    }
+    return root;
+}
+
+static inline void calculateNormalCone(btDbvntNode* root)
+{
+    if (!root)
+        return;
+    if (root->isleaf())
+    {
+        const btSoftBody::Face* face = (btSoftBody::Face*)root->data;
+        root->normal = face->m_normal;
+        root->angle = 0;
+    }
+    else
+    {
+        btVector3 n0(0,0,0), n1(0,0,0);
+        btScalar a0 = 0, a1 = 0;
+        if (root->childs[0])
+        {
+            calculateNormalCone(root->childs[0]);
+            n0 = root->childs[0]->normal;
+            a0 = root->childs[0]->angle;
+        }
+        if (root->childs[1])
+        {
+            calculateNormalCone(root->childs[1]);
+            n1 = root->childs[1]->normal;
+            a1 = root->childs[1]->angle;
+        }
+        root->normal = (n0+n1).safeNormalize();
+        root->angle = btMax(a0,a1) + btAngle(n0, n1)*0.5;
+    }
+}
 //
 void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 {
+    BT_PROFILE("Deformable Collision");
 	const int cf = m_cfg.collisions & psb->m_cfg.collisions;
 	switch (cf & fCollision::SVSmask)
 	{
@@ -3392,6 +3540,53 @@ void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 			}
 		}
 		break;
+        case fCollision::VF_DD:
+        {
+            if (this != psb)
+            {
+                btSoftColliders::CollideVF_DD docollide;
+                /* common                    */
+                docollide.mrg = getCollisionShape()->getMargin() +
+                psb->getCollisionShape()->getMargin();
+                /* psb0 nodes vs psb1 faces    */
+                docollide.psb[0] = this;
+                docollide.psb[1] = psb;
+                docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_ndbvt.m_root,
+                                                    docollide.psb[1]->m_fdbvt.m_root,
+                                                    docollide);
+                /* psb1 nodes vs psb0 faces    */
+                docollide.psb[0] = psb;
+                docollide.psb[1] = this;
+                docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_ndbvt.m_root,
+                                                    docollide.psb[1]->m_fdbvt.m_root,
+                                                    docollide);
+            }
+            else
+            {
+                btSoftColliders::CollideFF_DD docollide;
+                docollide.mrg = getCollisionShape()->getMargin() +
+                psb->getCollisionShape()->getMargin();
+                docollide.psb[0] = this;
+                docollide.psb[1] = psb;
+                /* psb0 faces vs psb0 faces    */
+                btDbvntNode* root = copyToDbvnt(this->m_fdbvt.m_root);
+                calculateNormalCone(root);
+                this->m_fdbvt.selfCollideT(root,docollide);
+                delete root;
+                
+//                btSoftColliders::CollideFF_DD docollide;
+//                /* common                    */
+//                docollide.mrg = getCollisionShape()->getMargin() +
+//                psb->getCollisionShape()->getMargin();
+//                /* psb0 nodes vs psb1 faces    */
+//                docollide.psb[0] = this;
+//                docollide.psb[1] = psb;
+//                docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_fdbvt.m_root,
+//                                                    docollide.psb[1]->m_fdbvt.m_root,
+//                                                    docollide);
+            }
+        }
+        break;
 		default:
 		{
 		}

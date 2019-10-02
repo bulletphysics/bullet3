@@ -19,7 +19,7 @@
 
 btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v)
 : m_softBodies(softBodies)
-, projection(m_softBodies, m_dt)
+, m_projection(softBodies)
 , m_backupVelocity(backup_v)
 , m_implicit(false)
 {
@@ -46,7 +46,7 @@ void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated, btScalar
     {
         m_lf[i]->reinitialize(nodeUpdated);
     }
-    projection.reinitialize(nodeUpdated);
+    m_projection.reinitialize(nodeUpdated);
     m_preconditioner->reinitialize(nodeUpdated);
 }
 
@@ -84,11 +84,14 @@ void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) 
 
 void btDeformableBackwardEulerObjective::updateVelocity(const TVStack& dv)
 {
-    // only the velocity of the constrained nodes needs to be updated during contact solve
-    for (int i = 0; i < projection.m_constraints.size(); ++i)
+    for (int i = 0; i < m_softBodies.size(); ++i)
     {
-        int index = projection.m_constraints.getKeyAtIndex(i).getUid1();
-        m_nodes[index]->m_v = m_backupVelocity[index] + dv[index];
+        btSoftBody* psb = m_softBodies[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            btSoftBody::Node& node = psb->m_nodes[j];
+            node.m_v = m_backupVelocity[node.index] + dv[node.index];
+        }
     }
 }
 
@@ -126,24 +129,34 @@ void btDeformableBackwardEulerObjective::computeResidual(btScalar dt, TVStack &r
             m_lf[i]->addScaledDampingForce(dt, residual);
         }
     }
-    projection.project(residual);
+    m_projection.project(residual);
 }
 
 btScalar btDeformableBackwardEulerObjective::computeNorm(const TVStack& residual) const
 {
-    btScalar norm_squared = 0;
+    btScalar mag = 0;
     for (int i = 0; i < residual.size(); ++i)
     {
-        norm_squared += residual[i].length2();
+        mag += residual[i].length2();
     }
-    return std::sqrt(norm_squared);
+    return std::sqrt(mag);
+}
+
+btScalar btDeformableBackwardEulerObjective::totalEnergy(btScalar dt)
+{
+    btScalar e = 0;
+    for (int i = 0; i < m_lf.size(); ++i)
+    {
+        e += m_lf[i]->totalEnergy(dt);
+    }
+    return e;
 }
 
 void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
 {
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
-        m_softBodies[i]->updateDeformation();
+        m_softBodies[i]->advanceDeformation();
     }
     
     for (int i = 0; i < m_lf.size(); ++i)
@@ -170,10 +183,10 @@ void btDeformableBackwardEulerObjective::initialGuess(TVStack& dv, const TVStack
 //set constraints as projections
 void btDeformableBackwardEulerObjective::setConstraints()
 {
-    projection.setConstraints();
+    m_projection.setConstraints();
 }
 
 void btDeformableBackwardEulerObjective::applyDynamicFriction(TVStack& r)
 {
-     projection.applyDynamicFriction(r);
+     m_projection.applyDynamicFriction(r);
 }

@@ -250,6 +250,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletSoftBody/btDeformableBackwardEulerObjective.cpp"]\
 +["src/BulletSoftBody/btDeformableBodySolver.cpp"]\
 +["src/BulletSoftBody/btDeformableContactProjection.cpp"]\
++["src/BulletSoftBody/btDeformableContactConstraint.cpp"]\
 +["src/BulletSoftBody/btDeformableMultiBodyConstraintSolver.cpp"]\
 +["src/BulletSoftBody/btDeformableMultiBodyDynamicsWorld.cpp"]\
 +["src/BulletInverseDynamics/IDMath.cpp"]\

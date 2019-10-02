@@ -11,20 +11,6 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
-///create 125 (5x5x5) dynamic object
-#define ARRAY_SIZE_X 5
-#define ARRAY_SIZE_Y 5
-#define ARRAY_SIZE_Z 5
-
-//maximum number of objects (and allow user to shoot additional boxes)
-#define MAX_PROXIES (ARRAY_SIZE_X * ARRAY_SIZE_Y * ARRAY_SIZE_Z + 1024)
-
-///scaling of the objects (0.1 = 20 centimeter boxes )
-#define SCALING 1.
-#define START_POS_X -5
-#define START_POS_Y -5
-#define START_POS_Z -3
-
 #include "VolumetricDeformable.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
@@ -39,10 +25,7 @@
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
-///The VolumetricDeformable shows the use of rolling friction.
-///Spheres will come to a rest on a sloped plane using a constraint. Damping cannot achieve the same.
-///Generally it is best to leave the rolling friction coefficient zero (or close to zero).
-
+///The VolumetricDeformable shows the contact between volumetric deformable objects and rigid objects.
 
 struct TetraCube
 {
@@ -108,7 +91,7 @@ public:
     
     void Ctor_RbUpStack(int count)
     {
-        float mass = 0.02;
+        float mass = 1;
         
         btCompoundShape* cylinderCompound = new btCompoundShape;
         btCollisionShape* cylinderShape = new btCylinderShapeX(btVector3(2, .5, .5));
@@ -183,7 +166,7 @@ void VolumetricDeformable::initPhysics()
 	m_solver = sol;
 
 	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
-    btVector3 gravity = btVector3(0, -10, 0);
+    btVector3 gravity = btVector3(0, -100, 0);
 	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
@@ -236,19 +219,17 @@ void VolumetricDeformable::initPhysics()
         psb->m_cfg.kDF = 0.5;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         
-        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(0,0.03);
-        getDeformableDynamicsWorld()->addForce(psb, mass_spring);
-        m_forces.push_back(mass_spring);
-        
         btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
         
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(.5,2.5);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(30,100,0.02);
         getDeformableDynamicsWorld()->addForce(psb, neohookean);
         m_forces.push_back(neohookean);
         
     }
+    getDeformableDynamicsWorld()->setImplicit(true);
+    getDeformableDynamicsWorld()->setLineSearch(false);
     // add a few rigid bodies
     Ctor_RbUpStack(4); 
     

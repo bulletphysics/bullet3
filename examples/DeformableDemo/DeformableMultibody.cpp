@@ -11,20 +11,6 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
-///create 125 (5x5x5) dynamic object
-#define ARRAY_SIZE_X 5
-#define ARRAY_SIZE_Y 5
-#define ARRAY_SIZE_Z 5
-
-//maximum number of objects (and allow user to shoot additional boxes)
-#define MAX_PROXIES (ARRAY_SIZE_X * ARRAY_SIZE_Y * ARRAY_SIZE_Z + 1024)
-
-///scaling of the objects (0.1 = 20 centimeter boxes )
-#define SCALING 1.
-#define START_POS_X -5
-#define START_POS_Y -5
-#define START_POS_Z -3
-
 #include "DeformableMultibody.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
@@ -235,7 +221,7 @@ void DeformableMultibody::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
     }
-
+    getDeformableDynamicsWorld()->setImplicit(false);
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
@@ -360,26 +346,23 @@ void DeformableMultibody::addColliders_testMultiDof(btMultiBody* pMultiBody, btM
     local_origin[0] = pMultiBody->getBasePos();
     
     {
-        //    float pos[4]={local_origin[0].x(),local_origin[0].y(),local_origin[0].z(),1};
+
         btScalar quat[4] = {-world_to_local[0].x(), -world_to_local[0].y(), -world_to_local[0].z(), world_to_local[0].w()};
         
-        if (1)
-        {
-            btCollisionShape* box = new btBoxShape(baseHalfExtents);
-            btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(pMultiBody, -1);
-            col->setCollisionShape(box);
-            
-            btTransform tr;
-            tr.setIdentity();
-            tr.setOrigin(local_origin[0]);
-            tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
-            col->setWorldTransform(tr);
-            
-            pWorld->addCollisionObject(col, 2, 1 + 2);
-            
-            col->setFriction(friction);
-            pMultiBody->setBaseCollider(col);
-        }
+        btCollisionShape* box = new btBoxShape(baseHalfExtents);
+        btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(pMultiBody, -1);
+        col->setCollisionShape(box);
+        
+        btTransform tr;
+        tr.setIdentity();
+        tr.setOrigin(local_origin[0]);
+        tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
+        col->setWorldTransform(tr);
+        
+        pWorld->addCollisionObject(col, 2, 1 + 2);
+        
+        col->setFriction(friction);
+        pMultiBody->setBaseCollider(col);
     }
     
     for (int i = 0; i < pMultiBody->getNumLinks(); ++i)
@@ -392,7 +375,6 @@ void DeformableMultibody::addColliders_testMultiDof(btMultiBody* pMultiBody, btM
     for (int i = 0; i < pMultiBody->getNumLinks(); ++i)
     {
         btVector3 posr = local_origin[i + 1];
-        //    float pos[4]={posr.x(),posr.y(),posr.z(),1};
         
         btScalar quat[4] = {-world_to_local[i + 1].x(), -world_to_local[i + 1].y(), -world_to_local[i + 1].z(), world_to_local[i + 1].w()};
         
