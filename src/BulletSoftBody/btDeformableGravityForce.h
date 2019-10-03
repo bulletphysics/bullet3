@@ -72,6 +72,25 @@ public:
     {
         return BT_GRAVITY_FORCE;
     }
+
+    // the gravitational potential energy
+    virtual double totalEnergy(btScalar dt)
+    {
+        double e = 0;
+        for (int i = 0; i<m_softBodies.size();++i)
+        {
+            btSoftBody* psb = m_softBodies[i];
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                const btSoftBody::Node& node = psb->m_nodes[j];
+                if (node.m_im > 0)
+                {
+                    e -= m_gravity.dot(node.m_q)/node.m_im;
+                }
+            }
+        }
+        return e;
+    }
     
     
 };

@@ -376,7 +376,7 @@ B3_SHARED_API int b3LoadSoftBodyAddGravityForce(b3SharedMemoryCommandHandle comm
 	return 0;
 }
 
-B3_SHARED_API int b3LoadSoftBodySetCollsionHardness(b3SharedMemoryCommandHandle commandHandle, double collisionHardness)
+B3_SHARED_API int b3LoadSoftBodySetCollisionHardness(b3SharedMemoryCommandHandle commandHandle, double collisionHardness)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);

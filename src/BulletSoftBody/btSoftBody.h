@@ -161,11 +161,13 @@ public:
 			SDF_RS = 0x0001,   ///SDF based rigid vs soft
 			CL_RS = 0x0002,    ///Cluster vs convex rigid vs soft
             SDF_RD = 0x0003,   ///DF based rigid vs deformable
+            SDF_RDF = 0x0004,   ///DF based rigid vs deformable faces
 
-			SVSmask = 0x0030,  ///Rigid versus soft mask
+			SVSmask = 0x00F0,  ///Rigid versus soft mask
 			VF_SS = 0x0010,    ///Vertex vs face soft vs soft handling
 			CL_SS = 0x0020,    ///Cluster vs cluster soft vs soft handling
 			CL_SELF = 0x0040,  ///Cluster soft body self collision
+            VF_DD = 0x0050,    ///Vertex vs face soft vs soft handling
 			/* presets	*/
 			Default = SDF_RS,
 			END
@@ -217,6 +219,7 @@ public:
 		const btCollisionObject* m_colObj; /* Rigid body			*/
 		btVector3 m_normal;                /* Outward normal		*/
 		btScalar m_offset;                 /* Offset from origin	*/
+        btVector3 m_bary;                  /* Barycentric weights for faces */
 	};
 
 	/* sMedium		*/
@@ -283,6 +286,7 @@ public:
 		btVector3 m_normal;  // Normal
 		btScalar m_ra;       // Rest area
 		btDbvtNode* m_leaf;  // Leaf data
+        int m_index;
 	};
 	/* Tetra		*/
 	struct Tetra : Feature
@@ -297,6 +301,16 @@ public:
         btMatrix3x3 m_F;
         btScalar m_element_measure;
 	};
+    
+    /*  TetraScratch  */
+    struct TetraScratch
+    {
+        btMatrix3x3 m_F;                // deformation gradient F
+        btScalar m_trace;               // trace of F^T * F
+        btScalar m_J;                   // det(F)
+        btMatrix3x3 m_cofF;             // cofactor of F
+    };
+    
 	/* RContact		*/
 	struct RContact
 	{
@@ -315,6 +329,53 @@ public:
         btVector3 t1;
         btVector3 t2;
 	};
+    
+    class DeformableRigidContact
+    {
+    public:
+        sCti m_cti;        // Contact infos
+        btMatrix3x3 m_c0;  // Impulse matrix
+        btVector3 m_c1;    // Relative anchor
+        btScalar m_c2;     // inverse mass of node/face
+        btScalar m_c3;     // Friction
+        btScalar m_c4;     // Hardness
+        
+        // jacobians and unit impulse responses for multibody
+        btMultiBodyJacobianData jacobianData_normal;
+        btMultiBodyJacobianData jacobianData_t1;
+        btMultiBodyJacobianData jacobianData_t2;
+        btVector3 t1;
+        btVector3 t2;
+    };
+    
+    class DeformableNodeRigidContact : public DeformableRigidContact
+    {
+    public:
+        Node* m_node;      // Owner node
+    };
+    
+    class DeformableFaceRigidContact : public DeformableRigidContact
+    {
+    public:
+        Face* m_face;                   // Owner face
+        btVector3 m_contactPoint;       // Contact point
+        btVector3 m_bary;               // Barycentric weights
+        btVector3 m_weights;            // v_contactPoint * m_weights[i] = m_face->m_node[i]->m_v;
+    };
+    
+    struct DeformableFaceNodeContact
+    {
+        Node* m_node;         // Node
+        Face* m_face;         // Face
+        btVector3 m_bary;     // Barycentric weights
+        btVector3 m_weights;  // v_contactPoint * m_weights[i] = m_face->m_node[i]->m_v;
+        btVector3 m_normal;   // Normal
+        btScalar m_margin;    // Margin
+        btScalar m_friction;  // Friction
+        btScalar m_imf;       // inverse mass of the face at contact point
+        btScalar m_c0;        // scale of the impulse matrix;
+    };
+    
 	/* SContact		*/
 	struct SContact
 	{
@@ -703,11 +764,18 @@ public:
 	btSoftBodyWorldInfo* m_worldInfo;  // World info
 	tNoteArray m_notes;                // Notes
 	tNodeArray m_nodes;                // Nodes
+    tNodeArray m_renderNodes;                // Nodes
 	tLinkArray m_links;                // Links
 	tFaceArray m_faces;                // Faces
+    tFaceArray m_renderFaces;                // Faces
 	tTetraArray m_tetras;              // Tetras
+    btAlignedObjectArray<TetraScratch> m_tetraScratches;
+    btAlignedObjectArray<TetraScratch> m_tetraScratchesTn;
 	tAnchorArray m_anchors;            // Anchors
 	tRContactArray m_rcontacts;        // Rigid contacts
+    btAlignedObjectArray<DeformableNodeRigidContact> m_nodeRigidContacts;
+    btAlignedObjectArray<DeformableFaceNodeContact> m_faceNodeContacts;
+    btAlignedObjectArray<DeformableFaceRigidContact> m_faceRigidContacts;
 	tSContactArray m_scontacts;        // Soft contacts
 	tJointArray m_joints;              // Joints
 	tMaterialArray m_materials;        // Materials
@@ -719,6 +787,9 @@ public:
 	btDbvt m_cdbvt;                    // Clusters tree
 	tClusterArray m_clusters;          // Clusters
     btScalar m_dampingCoefficient;     // Damping Coefficient
+    
+    btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
+    btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
 
@@ -1012,6 +1083,7 @@ public:
 	void initializeFaceTree();
 	btVector3 evaluateCom() const;
 	bool checkDeformableContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
+    bool checkDeformableFaceContact(const btCollisionObjectWrapper* colObjWrap, const Face& x, btVector3& contact_point, btVector3& bary, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
     bool checkContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti) const;
 	void updateNormals();
 	void updateBounds();
@@ -1029,7 +1101,9 @@ public:
     void setSpringStiffness(btScalar k);
     void initializeDmInverse();
     void updateDeformation();
+    void advanceDeformation();
 	void applyForces();
+    void interpolateRenderMesh();
 	static void PSolve_Anchors(btSoftBody* psb, btScalar kst, btScalar ti);
 	static void PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti);
 	static void PSolve_SContacts(btSoftBody* psb, btScalar, btScalar ti);
@@ -1042,8 +1116,6 @@ public:
   
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual const char* serialize(void* dataBuffer, class btSerializer* serializer) const;
-
-	//virtual void serializeSingleObject(class btSerializer* serializer) const;
 };
 
 #endif  //_BT_SOFT_BODY_H

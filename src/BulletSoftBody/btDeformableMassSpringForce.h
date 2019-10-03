@@ -20,6 +20,8 @@
 
 class btDeformableMassSpringForce : public btDeformableLagrangianForce
 {
+    // If true, the damping force will be in the direction of the spring
+    // If false, the damping force will be in the direction of the velocity
     bool m_momentum_conserving;
     btScalar m_elasticStiffness, m_dampingStiffness;
 public:
@@ -62,9 +64,9 @@ public:
                 btVector3 scaled_force = scale * m_dampingStiffness * v_diff;
                 if (m_momentum_conserving)
                 {
-                    if ((node2->m_q - node1->m_q).norm() > SIMD_EPSILON)
+                    if ((node2->m_x - node1->m_x).norm() > SIMD_EPSILON)
                     {
-                        btVector3 dir = (node2->m_q - node1->m_q).normalized();
+                        btVector3 dir = (node2->m_x - node1->m_x).normalized();
                         scaled_force = scale * m_dampingStiffness * v_diff.dot(dir) * dir;
                     }
                 }
@@ -118,9 +120,9 @@ public:
                 btVector3 local_scaled_df = scaled_k_damp * (dv[id2] - dv[id1]);
                 if (m_momentum_conserving)
                 {
-                    if ((node2->m_q - node1->m_q).norm() > SIMD_EPSILON)
+                    if ((node2->m_x - node1->m_x).norm() > SIMD_EPSILON)
                     {
-                        btVector3 dir = (node2->m_q - node1->m_q).normalized();
+                        btVector3 dir = (node2->m_x - node1->m_x).normalized();
                         local_scaled_df= scaled_k_damp * (dv[id2] - dv[id1]).dot(dir) * dir;
                     }
                 }
@@ -129,7 +131,8 @@ public:
             }
         }
     }
-    virtual double totalElasticEnergy()
+    
+    virtual double totalElasticEnergy(btScalar dt)
     {
         double energy = 0;
         for (int i = 0; i < m_softBodies.size(); ++i)
@@ -144,7 +147,36 @@ public:
 
                 // elastic force
                 btVector3 dir = (node2->m_q - node1->m_q);
-                energy += 0.5 * m_elasticStiffness * (dir.norm() - r) * (dir.norm() -r );
+                energy += 0.5 * m_elasticStiffness * (dir.norm() - r) * (dir.norm() -r);
+            }
+        }
+        return energy;
+    }
+    
+    virtual double totalDampingEnergy(btScalar dt)
+    {
+        double energy = 0;
+        int sz = 0;
+        for (int i = 0; i < m_softBodies.size(); ++i)
+        {
+            btSoftBody* psb = m_softBodies[i];
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                sz = btMax(sz, psb->m_nodes[j].index);
+            }
+        }
+        TVStack dampingForce;
+        dampingForce.resize(sz+1);
+        for (int i = 0; i < dampingForce.size(); ++i)
+            dampingForce[i].setZero();
+        addScaledDampingForce(0.5, dampingForce);
+        for (int i = 0; i < m_softBodies.size(); ++i)
+        {
+            btSoftBody* psb = m_softBodies[i];
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                const btSoftBody::Node& node = psb->m_nodes[j];
+                energy -= dampingForce[node.index].dot(node.m_v) / dt;
             }
         }
         return energy;

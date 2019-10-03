@@ -20,8 +20,6 @@
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 
-//class btDeformableMultiBodyDynamicsWorld;
-
 struct DeformableContactConstraint
 {
     const btSoftBody::Node* m_node;
@@ -73,6 +71,8 @@ public:
     typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > TArrayStack;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
     const btScalar& m_dt;
+    // map from node indices to node pointers
+    const btAlignedObjectArray<btSoftBody::Node*>* m_nodes;
     
     btCGProjection(btAlignedObjectArray<btSoftBody *>& softBodies, const btScalar& dt)
     : m_softBodies(softBodies)
@@ -94,6 +94,11 @@ public:
     
     virtual void reinitialize(bool nodeUpdated)
     {
+    }
+    
+    virtual void setIndices(const btAlignedObjectArray<btSoftBody::Node*>* nodes)
+    {
+        m_nodes = nodes;
     }
 };
 

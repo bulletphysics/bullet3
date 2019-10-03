@@ -28,6 +28,11 @@ enum btDeformableLagrangianForceType
     BT_NEOHOOKEAN_FORCE = 4
 };
 
+static inline double randomDouble(double low, double high)
+{
+    return low + static_cast<double>(rand()) / RAND_MAX * (high - low);
+}
+
 class btDeformableLagrangianForce
 {
 public:
@@ -62,6 +67,7 @@ public:
     {
     }
     
+    // get number of nodes that have the force
     virtual int getNumNodes()
     {
         int numNodes = 0;
@@ -72,6 +78,7 @@ public:
         return numNodes;
     }
     
+    // add a soft body to be affected by the particular lagrangian force
     virtual void addSoftBody(btSoftBody* psb)
     {
         m_softBodies.push_back(psb);
@@ -82,28 +89,25 @@ public:
         m_nodes = nodes;
     }
     
+     // Calculate the incremental deformable generated from the input dx
     virtual btMatrix3x3 Ds(int id0, int id1, int id2, int id3, const TVStack& dx)
     {
         btVector3 c1 = dx[id1] - dx[id0];
         btVector3 c2 = dx[id2] - dx[id0];
         btVector3 c3 = dx[id3] - dx[id0];
-        btMatrix3x3 dF(c1.getX(), c2.getX(), c3.getX(),
-                       c1.getY(), c2.getY(), c3.getY(),
-                       c1.getZ(), c2.getZ(), c3.getZ());
-        return dF;
+        return btMatrix3x3(c1,c2,c3).transpose();
     }
     
+    // Calculate the incremental deformable generated from the current velocity
     virtual btMatrix3x3 DsFromVelocity(const btSoftBody::Node* n0, const btSoftBody::Node* n1, const btSoftBody::Node* n2, const btSoftBody::Node* n3)
     {
         btVector3 c1 = n1->m_v - n0->m_v;
         btVector3 c2 = n2->m_v - n0->m_v;
         btVector3 c3 = n3->m_v - n0->m_v;
-        btMatrix3x3 dF(c1.getX(), c2.getX(), c3.getX(),
-                       c1.getY(), c2.getY(), c3.getY(),
-                       c1.getZ(), c2.getZ(), c3.getZ());
-        return dF;
+        return btMatrix3x3(c1,c2,c3).transpose();
     }
     
+    // test for addScaledElasticForce function
     virtual void testDerivative()
     {
         for (int i = 0; i<m_softBodies.size();++i)
@@ -176,7 +180,7 @@ public:
                 psb->updateDeformation();
             }
             counter = 0;
-            double f1 = totalElasticEnergy();
+            double f1 = totalElasticEnergy(0);
             
             for (int i = 0; i<m_softBodies.size();++i)
             {
@@ -190,7 +194,7 @@ public:
             }
             counter = 0;
             
-            double f2 = totalElasticEnergy();
+            double f2 = totalElasticEnergy(0);
             
             //restore m_q
             for (int i = 0; i<m_softBodies.size();++i)
@@ -214,6 +218,7 @@ public:
         }
     }
     
+    // test for addScaledElasticForce function
     virtual void testHessian()
     {
         for (int i = 0; i<m_softBodies.size();++i)
@@ -337,14 +342,22 @@ public:
         }
     }
     
-    virtual double totalElasticEnergy()
+    //
+    virtual double totalElasticEnergy(btScalar dt)
     {
         return 0;
     }
     
-    double randomDouble(double low, double high)
+    //
+    virtual double totalDampingEnergy(btScalar dt)
     {
-        return low + static_cast<double>(rand()) / RAND_MAX * (high - low);
+        return 0;
+    }
+    
+    // total Energy takes dt as input because certain energies depend on dt
+    virtual double totalEnergy(btScalar dt)
+    {
+        return totalElasticEnergy(dt) + totalDampingEnergy(dt);
     }
 };
 #endif /* BT_DEFORMABLE_LAGRANGIAN_FORCE */

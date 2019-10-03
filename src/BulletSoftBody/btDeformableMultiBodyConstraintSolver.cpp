@@ -23,13 +23,21 @@ btScalar btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlyIteration
         ///this is a special step to resolve penetrations (just for contacts)
         solveGroupCacheFriendlySplitImpulseIterations(bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
         
+        m_maxOverrideNumSolverIterations = 50;
         int maxIterations = m_maxOverrideNumSolverIterations > infoGlobal.m_numIterations ? m_maxOverrideNumSolverIterations : infoGlobal.m_numIterations;
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
-            m_leastSquaresResidual = solveSingleIteration(iteration, bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
+            // rigid bodies are solved using solver body velocity, but rigid/deformable contact directly uses the velocity of the actual rigid body. So we have to do the following: Solve one iteration of the rigid/rigid contact, get the updated velocity in the solver body and update the velocity of the underlying rigid body. Then solve the rigid/deformable contact. Finally, grab the (once again) updated rigid velocity and update the velocity of the wrapping solver body
             
+            // solve rigid/rigid in solver body
+            m_leastSquaresResidual = solveSingleIteration(iteration, bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
+            // solver body velocity -> rigid body velocity
             solverBodyWriteBack(infoGlobal);
+            
+            // update rigid body velocity in rigid/deformable contact
             m_leastSquaresResidual = btMax(m_leastSquaresResidual, m_deformableSolver->solveContactConstraints());
+            
+            // solver body velocity <- rigid body velocity
             writeToSolverBody(bodies, numBodies, infoGlobal);
             
             if (m_leastSquaresResidual <= infoGlobal.m_leastSquaresResidualThreshold || (iteration >= (maxIterations - 1)))
@@ -50,4 +58,51 @@ btScalar btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlyIteration
         }
     }
     return 0.f;
+}
+
+void btDeformableMultiBodyConstraintSolver::solveMultiBodyGroup(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, btMultiBodyConstraint** multiBodyConstraints, int numMultiBodyConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher)
+{
+    m_tmpMultiBodyConstraints = multiBodyConstraints;
+    m_tmpNumMultiBodyConstraints = numMultiBodyConstraints;
+    
+    // inherited from MultiBodyConstraintSolver
+    solveGroupCacheFriendlySetup(bodies, numBodies, manifold, numManifolds, constraints, numConstraints, info, debugDrawer);
+    
+    // overriden
+    solveGroupCacheFriendlyIterations(bodies, numBodies, manifold, numManifolds, constraints, numConstraints, info, debugDrawer);
+    
+    // inherited from MultiBodyConstraintSolver
+    solveGroupCacheFriendlyFinish(bodies, numBodies, info);
+    
+    m_tmpMultiBodyConstraints = 0;
+    m_tmpNumMultiBodyConstraints = 0;
+}
+
+void btDeformableMultiBodyConstraintSolver::writeToSolverBody(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal)
+{
+    for (int i = 0; i < numBodies; i++)
+    {
+        int bodyId = getOrInitSolverBody(*bodies[i], infoGlobal.m_timeStep);
+
+        btRigidBody* body = btRigidBody::upcast(bodies[i]);
+        if (body && body->getInvMass())
+        {
+            btSolverBody& solverBody = m_tmpSolverBodyPool[bodyId];
+            solverBody.m_linearVelocity = body->getLinearVelocity() - solverBody.m_deltaLinearVelocity;
+            solverBody.m_angularVelocity = body->getAngularVelocity() - solverBody.m_deltaAngularVelocity;
+        }
+    }
+}
+
+void btDeformableMultiBodyConstraintSolver::solverBodyWriteBack(const btContactSolverInfo& infoGlobal)
+{
+    for (int i = 0; i < m_tmpSolverBodyPool.size(); i++)
+    {
+        btRigidBody* body = m_tmpSolverBodyPool[i].m_originalBody;
+        if (body)
+        {
+            m_tmpSolverBodyPool[i].m_originalBody->setLinearVelocity(m_tmpSolverBodyPool[i].m_linearVelocity + m_tmpSolverBodyPool[i].m_deltaLinearVelocity);
+            m_tmpSolverBodyPool[i].m_originalBody->setAngularVelocity(m_tmpSolverBodyPool[i].m_angularVelocity+m_tmpSolverBodyPool[i].m_deltaAngularVelocity);
+        }
+    }
 }

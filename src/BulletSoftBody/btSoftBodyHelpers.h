@@ -144,8 +144,17 @@ struct btSoftBodyHelpers
 											bool bfacesfromtetras);
     static btSoftBody* CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file);
 
+    static void writeObj(const char* file, const btSoftBody* psb);
     
+    static void getBarycentricWeights(const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& d, const btVector3& p, btVector4& bary);
+    
+    static void readRenderMeshFromObj(const char* file, btSoftBody* psb);
 
+    static void interpolateBarycentricWeights(btSoftBody* psb);
+    
+    static void generateBoundaryFaces(btSoftBody* psb);
+    
+    static void duplicateFaces(const char* filename, const btSoftBody* psb);
 	/// Sort the list of links to move link calculations that are dependent upon earlier
 	/// ones as far as possible away from the calculation of those values
 	/// This tends to make adjacent loop iterations not dependent upon one another,

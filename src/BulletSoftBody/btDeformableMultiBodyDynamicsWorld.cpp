@@ -37,6 +37,10 @@ The algorithm also closely resembles the one in http://physbam.stanford.edu/~fed
 void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
     BT_PROFILE("internalSingleStepSimulation");
+    if (0 != m_internalPreTickCallback)
+    {
+        (*m_internalPreTickCallback)(this, timeStep);
+    }
     reinitialize(timeStep);
     // add gravity to velocity of rigid and multi bodys
     applyRigidBodyGravity(timeStep);
@@ -47,11 +51,16 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
     ///perform collision detection
     btMultiBodyDynamicsWorld::performDiscreteCollisionDetection();
     
+    if (m_selfCollision)
+    {
+        softBodySelfCollision();
+    }
+    
     btMultiBodyDynamicsWorld::calculateSimulationIslands();
     
     beforeSolverCallbacks(timeStep);
     
-    ///solve deformable bodies constraints
+    ///solve contact constraints and then deformable bodies momemtum equation
     solveConstraints(timeStep);
     
     afterSolverCallbacks(timeStep);
@@ -66,86 +75,21 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
     // ///////////////////////////////
 }
 
-void btDeformableMultiBodyDynamicsWorld::positionCorrection(btScalar timeStep)
+void btDeformableMultiBodyDynamicsWorld::softBodySelfCollision()
 {
-    // perform position correction for all constraints 
-    BT_PROFILE("positionCorrection");
-    for (int index = 0; index < m_deformableBodySolver->m_objective->projection.m_constraints.size(); ++index)
+    m_deformableBodySolver->updateSoftBodies();
+    for (int i = 0; i < m_softBodies.size(); i++)
     {
-        DeformableContactConstraint& constraint = *m_deformableBodySolver->m_objective->projection.m_constraints.getAtIndex(index);
-        for (int j = 0; j < constraint.m_contact.size(); ++j)
-        {
-            const btSoftBody::RContact* c = constraint.m_contact[j];
-            // skip anchor points
-            if (c == NULL || c->m_node->m_im == 0)
-                continue;
-            const btSoftBody::sCti& cti = c->m_cti;
-            btVector3 va(0, 0, 0);
-            
-            // grab the velocity of the rigid body
-            if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
-            {
-                btRigidBody* rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
-                va = rigidCol ? (rigidCol->getVelocityInLocalPoint(c->m_c1)): btVector3(0, 0, 0);
-            }
-            else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
-            {
-                btMultiBodyLinkCollider* multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
-                if (multibodyLinkCol)
-                {
-                    const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
-                    const btScalar* J_n = &c->jacobianData_normal.m_jacobians[0];
-                    const btScalar* J_t1 = &c->jacobianData_t1.m_jacobians[0];
-                    const btScalar* J_t2 = &c->jacobianData_t2.m_jacobians[0];
-                    const btScalar* local_v = multibodyLinkCol->m_multiBody->getVelocityVector();
-                    // add in the normal component of the va
-                    btScalar vel = 0.0;
-                    for (int k = 0; k < ndof; ++k)
-                    {
-                        vel += local_v[k] * J_n[k];
-                    }
-                    va = cti.m_normal * vel;
-                    
-                    vel = 0.0;
-                    for (int k = 0; k < ndof; ++k)
-                    {
-                        vel += local_v[k] * J_t1[k];
-                    }
-                    va += c->t1 * vel;
-                    vel = 0.0;
-                    for (int k = 0; k < ndof; ++k)
-                    {
-                        vel += local_v[k] * J_t2[k];
-                    }
-                    va += c->t2 * vel;
-                }
-            }
-            else
-            {
-                // The object interacting with deformable node is not supported for position correction
-                btAssert(false);
-            }
-            
-            if (cti.m_colObj->hasContactResponse())
-            {
-                btScalar dp = cti.m_offset;
-                
-                // only perform position correction when penetrating
-                if (dp < 0)
-                {
-                    c->m_node->m_v -= dp * cti.m_normal / timeStep;
-                }
-            }
-        }
+        btSoftBody* psb = (btSoftBody*)m_softBodies[i];
+        psb->defaultCollisionHandler(psb);
     }
 }
-
 
 void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
     BT_PROFILE("integrateTransforms");
-    m_deformableBodySolver->backupVelocity();
-    positionCorrection(timeStep);
+    //m_deformableBodySolver->backupVelocity();
+    //positionCorrection(timeStep);  // looks like position correction is no longer necessary
     btMultiBodyDynamicsWorld::integrateTransforms(timeStep);
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
@@ -170,28 +114,35 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
             node.m_q = node.m_x;
             node.m_vn = node.m_v;
         }
+        psb->interpolateRenderMesh();
     }
-    m_deformableBodySolver->revertVelocity();
+    //m_deformableBodySolver->revertVelocity();
 }
 
 void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
 {
-    // save v_{n+1}^* velocity after explicit forces
-    m_deformableBodySolver->backupVelocity();
+    if (!m_implicit)
+    {
+        // save v_{n+1}^* velocity after explicit forces
+        m_deformableBodySolver->backupVelocity();
+    }
     
     // set up constraints among multibodies and between multibodies and deformable bodies
     setupConstraints();
-    solveMultiBodyRelatedConstraints();
     
-    if (m_implicit)
-    {
-        // at this point dv = v_{n+1} - v_{n+1}^*
-        // modify dv such that dv = v_{n+1} - v_n
-        // modify m_backupVelocity so that it stores v_n instead of v_{n+1}^* as needed by Newton
-        m_deformableBodySolver->backupVn();
-    }
+    // solve contact constraints
+    solveContactConstraints();
+    
+    // set up the directions in which the velocity does not change in the momentum solve
+    m_deformableBodySolver->m_objective->m_projection.setProjection();
+    
+    // for explicit scheme, m_backupVelocity = v_{n+1}^*
+    // for implicit scheme, m_backupVelocity = v_n
+    // Here, set dv = v_{n+1} - v_n for nodes in contact
+    m_deformableBodySolver->setupDeformableSolve(m_implicit);
     
     // At this point, dv should be golden for nodes in contact
+    // proceed to solve deformable momentum equation
     m_deformableBodySolver->solveDeformableConstraints(timeStep);
 }
 
@@ -207,7 +158,6 @@ void btDeformableMultiBodyDynamicsWorld::setupConstraints()
         btMultiBodyConstraint** sortedMultiBodyConstraints = m_sortedMultiBodyConstraints.size() ? &m_sortedMultiBodyConstraints[0] : 0;
         btTypedConstraint** constraintsPtr = getNumConstraints() ? &m_sortedConstraints[0] : 0;
         m_solverMultiBodyIslandCallback->setup(&m_solverInfo, constraintsPtr, m_sortedConstraints.size(), sortedMultiBodyConstraints, m_sortedMultiBodyConstraints.size(), getDebugDrawer());
-        m_constraintSolver->prepareSolve(getCollisionWorld()->getNumCollisionObjects(), getCollisionWorld()->getDispatcher()->getNumManifolds());
         
         // build islands
         m_islandManager->buildIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld());
@@ -233,7 +183,7 @@ void btDeformableMultiBodyDynamicsWorld::sortConstraints()
 }
     
     
-void btDeformableMultiBodyDynamicsWorld::solveMultiBodyRelatedConstraints()
+void btDeformableMultiBodyDynamicsWorld::solveContactConstraints()
 {
     // process constraints on each island
     m_islandManager->processIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
@@ -315,12 +265,8 @@ void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
 {
     m_internalTime += timeStep;
     m_deformableBodySolver->setImplicit(m_implicit);
+    m_deformableBodySolver->setLineSearch(m_lineSearch);
     m_deformableBodySolver->reinitialize(m_softBodies, timeStep);
-//    if (m_implicit)
-//    {
-//        // todo: backup v_n velocity somewhere else
-//        m_deformableBodySolver->backupVelocity();
-//    }
     btDispatcherInfo& dispatchInfo = btMultiBodyDynamicsWorld::getDispatchInfo();
     dispatchInfo.m_timeStep = timeStep;
     dispatchInfo.m_stepCount = 0;

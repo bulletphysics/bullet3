@@ -45,10 +45,14 @@
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
 #include "../DeformableDemo/DeformableRigid.h"
+#include "../DeformableDemo/ClothFriction.h"
 #include "../DeformableDemo/Pinch.h"
+#include "../DeformableDemo/DeformableSelfCollision.h"
+#include "../DeformableDemo/PinchFriction.h"
 #include "../DeformableDemo/DeformableMultibody.h"
 #include "../DeformableDemo/VolumetricDeformable.h"
 #include "../DeformableDemo/GraspDeformable.h"
+#include "../DeformableDemo/DeformableContact.h"
 #include "../SharedMemory/PhysicsServerExampleBullet2.h"
 #include "../SharedMemory/PhysicsServerExample.h"
 #include "../SharedMemory/PhysicsClientExample.h"
@@ -186,6 +190,10 @@ static ExampleEntry gDefaultExamples[] =
 //ExampleEntry(1, "Spheres & Plane C-API (Bullet3)", "Collision C-API using Bullet 3.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_PLANE_RTB3),
 
         ExampleEntry(0, "Deformabe Body"),
+        ExampleEntry(1, "Deformable Self Collision", "Deformable Self Collision", DeformableSelfCollisionCreateFunc),
+        ExampleEntry(1, "Deformable-Deformable Contact", "Deformable contact", DeformableContactCreateFunc),
+        ExampleEntry(1, "Cloth Friction", "Cloth friction contact", ClothFrictionCreateFunc),
+        ExampleEntry(1, "Deformable-Deformable Friction Contact", "Deformable friction contact", PinchFrictionCreateFunc),
         ExampleEntry(1, "Deformable-RigidBody Contact", "Deformable test", DeformableRigidCreateFunc),
         ExampleEntry(1, "Grasp Deformable Cube", "Grasping test", PinchCreateFunc),
         ExampleEntry(1, "Grasp Deformable with Motor", "Grasping test", GraspDeformableCreateFunc),
