@@ -8113,10 +8113,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
                 psb->m_renderNodes.resize(0);
             }
             btVector3 gravity = m_data->m_dynamicsWorld->getGravity();
-            if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_GRAVITY_FORCE)
-            {
-                    m_data->m_dynamicsWorld->addForce(psb, new btDeformableGravityForce(gravity));
-            }
+            m_data->m_dynamicsWorld->addForce(psb, new btDeformableGravityForce(gravity));
             btScalar collision_hardness = 1;
             psb->m_cfg.kKHR = collision_hardness;
             psb->m_cfg.kCHR = collision_hardness;
