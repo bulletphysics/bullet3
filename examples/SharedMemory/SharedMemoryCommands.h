@@ -529,6 +529,7 @@ struct LoadSoftBodyArgs
         double m_frictionCoeff;
         double m_NeoHookeanMu;
         double m_NeoHookeanLambda;
+        double m_NeoHookeanDamping;
 };
 
 struct b3LoadSoftBodyResultArgs

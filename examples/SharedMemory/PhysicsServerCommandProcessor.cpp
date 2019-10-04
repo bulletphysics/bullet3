@@ -8081,12 +8081,13 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
                     corotated_lambda = clientCmd.m_loadSoftBodyArguments.m_corotatedLambda;
                     m_data->m_dynamicsWorld->addForce(psb, new btDeformableCorotatedForce(corotated_mu, corotated_lambda));
             }
-            btScalar neohookean_mu, neohookean_lambda;
+            btScalar neohookean_mu, neohookean_lambda, neohookean_damping;
             if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_NEOHOOKEAN_FORCE)
             {
                     neohookean_mu = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanMu;
                     neohookean_lambda = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanLambda;
-                    m_data->m_dynamicsWorld->addForce(psb, new btDeformableNeoHookeanForce(neohookean_mu, neohookean_lambda));
+                    neohookean_damping = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanDamping;
+                    m_data->m_dynamicsWorld->addForce(psb, new btDeformableNeoHookeanForce(neohookean_mu, neohookean_lambda, neohookean_damping));
             }
             btScalar spring_elastic_stiffness, spring_damping_stiffness;
             if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
