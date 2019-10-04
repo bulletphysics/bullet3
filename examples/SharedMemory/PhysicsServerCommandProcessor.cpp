@@ -8019,7 +8019,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	const std::string& error_message_prefix = "";
 	std::string out_found_filename;
 	std::string out_found_sim_filename;
-	int out_type, out_sim_type;
+	int out_type(0), out_sim_type(0);
 
         bool render_mesh_is_sim_mesh = true;
 
@@ -8081,12 +8081,13 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
                     corotated_lambda = clientCmd.m_loadSoftBodyArguments.m_corotatedLambda;
                     m_data->m_dynamicsWorld->addForce(psb, new btDeformableCorotatedForce(corotated_mu, corotated_lambda));
             }
-            btScalar neohookean_mu, neohookean_lambda;
+            btScalar neohookean_mu, neohookean_lambda, neohookean_damping;
             if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_NEOHOOKEAN_FORCE)
             {
                     neohookean_mu = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanMu;
                     neohookean_lambda = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanLambda;
-                    m_data->m_dynamicsWorld->addForce(psb, new btDeformableNeoHookeanForce(neohookean_mu, neohookean_lambda));
+                    neohookean_damping = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanDamping;
+                    m_data->m_dynamicsWorld->addForce(psb, new btDeformableNeoHookeanForce(neohookean_mu, neohookean_lambda, neohookean_damping));
             }
             btScalar spring_elastic_stiffness, spring_damping_stiffness;
             if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
