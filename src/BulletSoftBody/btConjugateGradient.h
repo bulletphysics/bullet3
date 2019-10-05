@@ -32,7 +32,7 @@ public:
     btConjugateGradient(const int max_it_in)
     : max_iterations(max_it_in)
     {
-       tolerance = 1024 * std::numeric_limits<btScalar>::epsilon();
+       tolerance = 1e-5;
     }
     
     virtual ~btConjugateGradient(){}
@@ -52,7 +52,7 @@ public:
         A.project(z);
         btScalar r_dot_z = dot(z,r);
         btScalar local_tolerance = tolerance;
-        if (std::sqrt(r_dot_z) <= local_tolerance) {
+        if (r_dot_z <= local_tolerance) {
             if (verbose)
             {
                 std::cout << "Iteration = 0" << std::endl;
@@ -86,7 +86,7 @@ public:
             A.precondition(r, z);
             r_dot_z = r_dot_z_new;
             r_dot_z_new = dot(r,z);
-            if (std::sqrt(r_dot_z_new) < local_tolerance) {
+            if (r_dot_z_new < local_tolerance) {
                 if (verbose)
                 {
                     std::cout << "ConjugateGradient iterations " << k << std::endl;
