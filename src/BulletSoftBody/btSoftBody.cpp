@@ -3378,6 +3378,16 @@ btSoftBody::vsolver_t btSoftBody::getSolver(eVSolver::_ solver)
 	return (0);
 }
 
+void btSoftBody::setSelfCollision(bool useSelfCollision)
+{
+    m_useSelfCollision = useSelfCollision;
+}
+
+bool btSoftBody::useSelfCollision()
+{
+   return m_useSelfCollision;
+}
+
 //
 void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap)
 {
@@ -3563,16 +3573,19 @@ void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
             }
             else
             {
-                btSoftColliders::CollideFF_DD docollide;
-                docollide.mrg = getCollisionShape()->getMargin() +
-                psb->getCollisionShape()->getMargin();
-                docollide.psb[0] = this;
-                docollide.psb[1] = psb;
-                /* psb0 faces vs psb0 faces    */
-                btDbvntNode* root = copyToDbvnt(this->m_fdbvt.m_root);
-                calculateNormalCone(root);
-                this->m_fdbvt.selfCollideT(root,docollide);
-                delete root;
+                if (psb->useSelfCollision())
+                {
+                  btSoftColliders::CollideFF_DD docollide;
+                  docollide.mrg = getCollisionShape()->getMargin() +
+                  psb->getCollisionShape()->getMargin();
+                  docollide.psb[0] = this;
+                  docollide.psb[1] = psb;
+                  /* psb0 faces vs psb0 faces    */
+                  btDbvntNode* root = copyToDbvnt(this->m_fdbvt.m_root);
+                  calculateNormalCone(root);
+                  this->m_fdbvt.selfCollideT(root,docollide);
+                  delete root;
+                }
                 
 //                btSoftColliders::CollideFF_DD docollide;
 //                /* common                    */

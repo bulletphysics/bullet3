@@ -790,6 +790,7 @@ public:
     
     btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
     btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
+    bool m_useSelfCollision;
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
 
@@ -1006,6 +1007,8 @@ public:
 	/* defaultCollisionHandlers												*/
 	void defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap);
 	void defaultCollisionHandler(btSoftBody* psb);
+        void setSelfCollision(bool useSelfCollision);
+        bool useSelfCollision();
 
 	//
 	// Functionality to deal with new accelerated solvers.
