@@ -502,6 +502,7 @@ enum EnumLoadSoftBodyUpdateFlags
         LOAD_SOFT_BODY_SET_FRICTION_COEFFICIENT = 1<<10,
         LOAD_SOFT_BODY_ADD_BENDING_SPRINGS = 1<<11,
         LOAD_SOFT_BODY_ADD_NEOHOOKEAN_FORCE = 1<<12,
+        LOAD_SOFT_BODY_SET_SELF_COLLISION = 1<<13,
 };
 
 enum EnumSimParamInternalSimFlags
@@ -526,6 +527,7 @@ struct LoadSoftBodyArgs
         double m_corotatedLambda;
         bool m_useBendingSprings;
         double m_collisionHardness;
+        double m_useSelfCollision;
         double m_frictionCoeff;
         double m_NeoHookeanMu;
         double m_NeoHookeanLambda;

@@ -386,6 +386,15 @@ B3_SHARED_API int b3LoadSoftBodySetCollisionHardness(b3SharedMemoryCommandHandle
 	return 0;
 }
 
+B3_SHARED_API int b3LoadSoftBodySetSelfCollision(b3SharedMemoryCommandHandle commandHandle, bool useSelfCollision)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_useSelfCollision = useSelfCollision;
+	command->m_updateFlags |= LOAD_SOFT_BODY_SET_SELF_COLLISION;
+	return 0;
+}
+
 B3_SHARED_API int b3LoadSoftBodySetFrictionCoefficient(b3SharedMemoryCommandHandle commandHandle, double frictionCoefficient)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
