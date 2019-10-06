@@ -228,7 +228,7 @@ void VolumetricDeformable::initPhysics()
         m_forces.push_back(neohookean);
         
     }
-    getDeformableDynamicsWorld()->setImplicit(true);
+    getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     // add a few rigid bodies
     Ctor_RbUpStack(4); 

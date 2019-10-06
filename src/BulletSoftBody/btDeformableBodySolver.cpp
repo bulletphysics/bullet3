@@ -21,7 +21,7 @@
 
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
-, m_cg(20)
+, m_cg(200)
 , m_maxNewtonIterations(5)
 , m_newtonTolerance(1e-4)
 , m_lineSearch(true)
@@ -301,6 +301,7 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
                 m_backupVelocity[counter] = psb->m_nodes[j].m_vn;
             }
             m_dv[counter] = psb->m_nodes[j].m_v - m_backupVelocity[counter];
+            psb->m_nodes[j].m_v = m_backupVelocity[counter];
             ++counter;
         }
     }

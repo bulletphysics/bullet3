@@ -350,7 +350,7 @@ void PinchFriction::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb3, neohookean);
         m_forces.push_back(neohookean);
     }
-    
+    getDeformableDynamicsWorld()->setImplicit(false);
     // add a pair of grippers
     createGrip();
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);

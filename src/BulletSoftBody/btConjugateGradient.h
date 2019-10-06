@@ -66,7 +66,6 @@ public:
             // temp = A*p
             A.multiply(p, temp);
             A.project(temp);
-            // alpha = r^T * z / (p^T * A * p)
             if (dot(p,temp) < SIMD_EPSILON)
             {
                 if (verbose)
@@ -77,6 +76,7 @@ public:
                 }
               return k;
             }
+            // alpha = r^T * z / (p^T * A * p)
             btScalar alpha = r_dot_z_new / dot(p, temp);
             //  x += alpha * p;
             multAndAddTo(alpha, p, x);

@@ -196,7 +196,7 @@ void DeformableContact::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb2, gravity_force2);
         m_forces.push_back(gravity_force2);
     }
-    getDeformableDynamicsWorld()->setImplicit(true);
+    getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
