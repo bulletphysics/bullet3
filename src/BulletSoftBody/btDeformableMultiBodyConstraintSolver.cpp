@@ -23,7 +23,7 @@ btScalar btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlyIteration
         ///this is a special step to resolve penetrations (just for contacts)
         solveGroupCacheFriendlySplitImpulseIterations(bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
         
-        m_maxOverrideNumSolverIterations = 50;
+//        m_maxOverrideNumSolverIterations = 10;
         int maxIterations = m_maxOverrideNumSolverIterations > infoGlobal.m_numIterations ? m_maxOverrideNumSolverIterations : infoGlobal.m_numIterations;
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
@@ -33,10 +33,9 @@ btScalar btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlyIteration
             m_leastSquaresResidual = solveSingleIteration(iteration, bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
             // solver body velocity -> rigid body velocity
             solverBodyWriteBack(infoGlobal);
-            
+            btScalar deformableResidual = m_deformableSolver->solveContactConstraints();
             // update rigid body velocity in rigid/deformable contact
-            m_leastSquaresResidual = btMax(m_leastSquaresResidual, m_deformableSolver->solveContactConstraints());
-            
+            m_leastSquaresResidual = btMax(m_leastSquaresResidual, deformableResidual);
             // solver body velocity <- rigid body velocity
             writeToSolverBody(bodies, numBodies, infoGlobal);
             
