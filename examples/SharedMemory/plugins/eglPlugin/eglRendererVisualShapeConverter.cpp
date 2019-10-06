@@ -1052,12 +1052,12 @@ int EGLRendererVisualShapeConverter::convertVisualShapes(
 				tmp.m_vis = *vis;
 				tmp.m_tr = tr;
 
-				int* bla = m_data->m_cachedVisualShapes[tmp];
-				if (bla)
-				{
-					shapeIndex = *bla;
-				}
-				else
+				// int* bla = m_data->m_cachedVisualShapes[tmp];
+				// if (bla)
+				// {
+				// 	shapeIndex = *bla;
+				// }
+				// else
 				{
 					convertURDFToVisualShape2(vis, pathPrefix, tr, vertices, indices, textures, visualShape, fileIO, m_data->m_flags);
 				}
