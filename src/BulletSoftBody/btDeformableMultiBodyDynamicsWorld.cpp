@@ -386,3 +386,12 @@ void btDeformableMultiBodyDynamicsWorld::removeSoftBody(btSoftBody* body)
     // force a reinitialize so that node indices get updated.
     m_deformableBodySolver->reinitialize(m_softBodies, btScalar(-1));
 }
+
+void btDeformableMultiBodyDynamicsWorld::removeCollisionObject(btCollisionObject* collisionObject)
+{
+    btSoftBody* body = btSoftBody::upcast(collisionObject);
+    if (body)
+        removeSoftBody(body);
+    else
+        btDiscreteDynamicsWorld::removeCollisionObject(collisionObject);
+}
