@@ -147,6 +147,8 @@ public:
     
     void removeSoftBody(btSoftBody* body);
     
+    void removeCollisionObject(btCollisionObject* collisionObject);
+    
     int getDrawFlags() const { return (m_drawFlags); }
     void setDrawFlags(int f) { m_drawFlags = f; }
     
