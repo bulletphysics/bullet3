@@ -2306,9 +2306,9 @@ bool btSoftBody::checkDeformableContact(const btCollisionObjectWrapper* colObjWr
     const btCollisionObject* tmpCollisionObj = colObjWrap->getCollisionObject();
     // use the position x_{n+1}^* = x_n + dt * v_{n+1}^* where v_{n+1}^* = v_n + dtg for collision detect
     // but resolve contact at x_n
-    //btTransform wtr = (predict) ?
-    //(colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
-                 //: colObjWrap->getWorldTransform();
+//    btTransform wtr = (predict) ?
+//    (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
+//                 : colObjWrap->getWorldTransform();
     const btTransform& wtr = colObjWrap->getWorldTransform();
 	btScalar dst =
 		m_worldInfo->m_sparsesdf.Evaluate(
@@ -3430,35 +3430,38 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
         {
             
             btRigidBody* prb1 = (btRigidBody*)btRigidBody::upcast(pcoWrap->getCollisionObject());
-            btTransform wtr = pcoWrap->getWorldTransform();
-            
-            const btTransform ctr = pcoWrap->getWorldTransform();
-            const btScalar timemargin = (wtr.getOrigin() - ctr.getOrigin()).length();
-            const btScalar basemargin = getCollisionShape()->getMargin();
-            btVector3 mins;
-            btVector3 maxs;
-            ATTRIBUTE_ALIGNED16(btDbvtVolume)
-            volume;
-            pcoWrap->getCollisionShape()->getAabb(pcoWrap->getWorldTransform(),
-                                                  mins,
-                                                  maxs);
-            volume = btDbvtVolume::FromMM(mins, maxs);
-            volume.Expand(btVector3(basemargin, basemargin, basemargin));
-            btSoftColliders::CollideSDF_RD docollideNode;
-            docollideNode.psb = this;
-            docollideNode.m_colObj1Wrap = pcoWrap;
-            docollideNode.m_rigidBody = prb1;
-            docollideNode.dynmargin = basemargin + timemargin;
-            docollideNode.stamargin = basemargin;
-            m_ndbvt.collideTV(m_ndbvt.m_root, volume, docollideNode);
-            
-            btSoftColliders::CollideSDF_RDF docollideFace;
-            docollideFace.psb = this;
-            docollideFace.m_colObj1Wrap = pcoWrap;
-            docollideFace.m_rigidBody = prb1;
-            docollideFace.dynmargin = basemargin + timemargin;
-            docollideFace.stamargin = basemargin;
-            m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
+            if (pcoWrap->getCollisionObject()->isActive() || this->isActive())
+            {
+                const btTransform wtr = pcoWrap->getWorldTransform();
+//                const btTransform ctr = pcoWrap->getWorldTransform();
+//                const btScalar timemargin = (wtr.getOrigin() - ctr.getOrigin()).length();
+                const btScalar timemargin = 0;
+                const btScalar basemargin = getCollisionShape()->getMargin();
+                btVector3 mins;
+                btVector3 maxs;
+                ATTRIBUTE_ALIGNED16(btDbvtVolume)
+                volume;
+                pcoWrap->getCollisionShape()->getAabb(wtr,
+                                                      mins,
+                                                      maxs);
+                volume = btDbvtVolume::FromMM(mins, maxs);
+                volume.Expand(btVector3(basemargin, basemargin, basemargin));
+                btSoftColliders::CollideSDF_RD docollideNode;
+                docollideNode.psb = this;
+                docollideNode.m_colObj1Wrap = pcoWrap;
+                docollideNode.m_rigidBody = prb1;
+                docollideNode.dynmargin = basemargin + timemargin;
+                docollideNode.stamargin = basemargin;
+                m_ndbvt.collideTV(m_ndbvt.m_root, volume, docollideNode);
+                
+                btSoftColliders::CollideSDF_RDF docollideFace;
+                docollideFace.psb = this;
+                docollideFace.m_colObj1Wrap = pcoWrap;
+                docollideFace.m_rigidBody = prb1;
+                docollideFace.dynmargin = basemargin + timemargin;
+                docollideFace.stamargin = basemargin;
+                m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
+            }
         }
         break;
 	}
