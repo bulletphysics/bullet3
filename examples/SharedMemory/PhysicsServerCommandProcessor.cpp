@@ -105,7 +105,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #endif
 
-#define SKIP_DEFORMABLE_BODY 1
+//#define SKIP_DEFORMABLE_BODY 1
 
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
@@ -1631,6 +1631,7 @@ struct PhysicsServerCommandProcessorInternalData
 #ifndef SKIP_DEFORMABLE_BODY
 	btDeformableMultiBodyDynamicsWorld* m_dynamicsWorld;
 	btDeformableBodySolver* m_deformablebodySolver;
+    btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
 #else
 	btSoftMultiBodyDynamicsWorld* m_dynamicsWorld;
 	btSoftBodySolver* m_softbodySolver;
@@ -2790,6 +2791,13 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 			m_data->m_dynamicsWorld->removeMultiBody(mb);
 			delete mb;
 		}
+#ifndef SKIP_DEFORMABLE
+        for (int j = 0; j < m_data->m_lf.size(); j++)
+        {
+            btDeformableLagrangianForce* force = m_data->m_lf[j];
+            delete force;
+        }
+#endif
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		for (i = m_data->m_dynamicsWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
 		{
@@ -8066,7 +8074,9 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	    {
             spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
             spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
-            m_data->m_dynamicsWorld->addForce(psb, new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, false));
+            btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, false);
+            m_data->m_dynamicsWorld->addForce(psb, springForce);
+            m_data->m_lf.push_back(springForce);
 	    }
 #endif
         }
@@ -8077,24 +8087,30 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
             btScalar corotated_mu, corotated_lambda;
             if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_COROTATED_FORCE)
             {
-                    corotated_mu = clientCmd.m_loadSoftBodyArguments.m_corotatedMu;
-                    corotated_lambda = clientCmd.m_loadSoftBodyArguments.m_corotatedLambda;
-                    m_data->m_dynamicsWorld->addForce(psb, new btDeformableCorotatedForce(corotated_mu, corotated_lambda));
+                corotated_mu = clientCmd.m_loadSoftBodyArguments.m_corotatedMu;
+                corotated_lambda = clientCmd.m_loadSoftBodyArguments.m_corotatedLambda;
+                btDeformableLagrangianForce* corotatedForce = new btDeformableCorotatedForce(corotated_mu, corotated_lambda);
+                m_data->m_dynamicsWorld->addForce(psb, corotatedForce);
+                m_data->m_lf.push_back(corotatedForce);
             }
             btScalar neohookean_mu, neohookean_lambda, neohookean_damping;
             if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_NEOHOOKEAN_FORCE)
             {
-                    neohookean_mu = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanMu;
-                    neohookean_lambda = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanLambda;
-                    neohookean_damping = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanDamping;
-                    m_data->m_dynamicsWorld->addForce(psb, new btDeformableNeoHookeanForce(neohookean_mu, neohookean_lambda, neohookean_damping));
+                neohookean_mu = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanMu;
+                neohookean_lambda = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanLambda;
+                neohookean_damping = clientCmd.m_loadSoftBodyArguments.m_NeoHookeanDamping;
+                btDeformableLagrangianForce* neohookeanForce = new btDeformableNeoHookeanForce(neohookean_mu, neohookean_lambda, neohookean_damping);
+                m_data->m_dynamicsWorld->addForce(psb, neohookeanForce);
+                m_data->m_lf.push_back(neohookeanForce);
             }
             btScalar spring_elastic_stiffness, spring_damping_stiffness;
             if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
             {
-                    spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
-                    spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
-                    m_data->m_dynamicsWorld->addForce(psb, new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true));
+                spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
+                spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
+                btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true);
+                m_data->m_dynamicsWorld->addForce(psb, springForce);
+                m_data->m_lf.push_back(springForce);
             }
 #endif
 		}
@@ -8113,7 +8129,9 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
                 psb->m_renderNodes.resize(0);
             }
             btVector3 gravity = m_data->m_dynamicsWorld->getGravity();
-            m_data->m_dynamicsWorld->addForce(psb, new btDeformableGravityForce(gravity));
+            btDeformableLagrangianForce* gravityForce = new btDeformableGravityForce(gravity);
+            m_data->m_dynamicsWorld->addForce(psb, gravityForce);
+            m_data->m_lf.push_back(gravityForce);
             btScalar collision_hardness = 1;
             psb->m_cfg.kKHR = collision_hardness;
             psb->m_cfg.kCHR = collision_hardness;
@@ -8143,7 +8161,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
             // collion between deformable and deformable and self-collision
             psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
             psb->setCollisionFlags(0);
-	    psb->setTotalMass(mass);
+            psb->setTotalMass(mass);
             bool use_self_collision = false;
             if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SET_SELF_COLLISION)
             {
