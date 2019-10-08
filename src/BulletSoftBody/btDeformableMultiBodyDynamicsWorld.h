@@ -83,7 +83,8 @@ public:
         m_sbi.water_normal = btVector3(0, 0, 0);
         m_sbi.m_gravity.setValue(0, -10, 0);
         m_internalTime = 0.0;
-        m_implicit = true;
+        m_implicit = false;
+        m_lineSearch = false;
         m_selfCollision = true;
     }
 
