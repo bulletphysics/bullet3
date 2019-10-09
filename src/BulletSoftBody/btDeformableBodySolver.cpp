@@ -336,14 +336,14 @@ bool btDeformableBodySolver::updateNodes()
 
 void btDeformableBodySolver::predictMotion(btScalar solverdt)
 {
+    // apply explicit forces to velocity
+    m_objective->applyExplicitForce(m_residual);
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
         btSoftBody *psb = m_softBodies[i];
         
         if (psb->isActive())
         {
-            // apply explicit forces to velocity
-            m_objective->applyExplicitForce(m_residual);
             // predict motion for collision detection
             predictDeformableMotion(psb, solverdt);
         }
