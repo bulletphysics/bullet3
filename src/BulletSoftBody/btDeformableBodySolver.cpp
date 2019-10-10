@@ -372,15 +372,26 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
     psb->m_sst.velmrg = psb->m_sst.sdt * 3;
     psb->m_sst.radmrg = psb->getCollisionShape()->getMargin();
     psb->m_sst.updmrg = psb->m_sst.radmrg * (btScalar)0.25;
+    /* Bounds                */
+    psb->updateBounds();
+    
     /* Integrate            */
+    // do not allow particles to move more than 10% of the bounding box size
+    btScalar max_v = 0.1 * (psb->m_bounds[1]-psb->m_bounds[0]).norm() / dt;
     for (i = 0, ni = psb->m_nodes.size(); i < ni; ++i)
     {
         btSoftBody::Node& n = psb->m_nodes[i];
+        // apply drag
         n.m_v *= (1 - psb->m_cfg.drag);
+        // scale velocity back
+        if (n.m_v.norm() > max_v)
+        {
+            n.m_v.safeNormalize();
+            n.m_v *= max_v;
+        }
         n.m_q = n.m_x + n.m_v * dt;
     }
-    /* Bounds                */
-    psb->updateBounds();
+
     /* Nodes                */
     ATTRIBUTE_ALIGNED16(btDbvtVolume)
     vol;
