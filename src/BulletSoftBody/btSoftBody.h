@@ -702,6 +702,7 @@ public:
 		tVSolverArray m_vsequence;  // Velocity solvers sequence
 		tPSolverArray m_psequence;  // Position solvers sequence
 		tPSolverArray m_dsequence;  // Drift solvers sequence
+        btScalar drag;           // deformable air drag
 	};
 	/* SolverState	*/
 	struct SolverState

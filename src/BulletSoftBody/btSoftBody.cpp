@@ -89,6 +89,7 @@ void btSoftBody::initDefaults()
 	m_cfg.piterations = 1;
 	m_cfg.diterations = 0;
 	m_cfg.citerations = 4;
+    m_cfg.drag = 0.01;
 	m_cfg.collisions = fCollision::Default;
     m_cfg.collisions |= fCollision::VF_DD;
 	m_pose.m_bvolume = false;
