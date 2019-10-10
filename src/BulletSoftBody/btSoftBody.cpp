@@ -2428,31 +2428,63 @@ void btSoftBody::updateBounds()
 		m_bounds[1] = btVector3(1000, 1000, 1000);
 
 	} else {*/
-	if (m_ndbvt.m_root)
-	{
-		const btVector3& mins = m_ndbvt.m_root->volume.Mins();
-		const btVector3& maxs = m_ndbvt.m_root->volume.Maxs();
-		const btScalar csm = getCollisionShape()->getMargin();
-		const btVector3 mrg = btVector3(csm,
-										csm,
-										csm) *
-							  1;  // ??? to investigate...
-		m_bounds[0] = mins - mrg;
-		m_bounds[1] = maxs + mrg;
-		if (0 != getBroadphaseHandle())
-		{
-			m_worldInfo->m_broadphase->setAabb(getBroadphaseHandle(),
-											   m_bounds[0],
-											   m_bounds[1],
-											   m_worldInfo->m_dispatcher);
-		}
-	}
-	else
-	{
-		m_bounds[0] =
-			m_bounds[1] = btVector3(0, 0, 0);
-	}
-	//}
+//    if (m_ndbvt.m_root)
+//    {
+//        const btVector3& mins = m_ndbvt.m_root->volume.Mins();
+//        const btVector3& maxs = m_ndbvt.m_root->volume.Maxs();
+//        const btScalar csm = getCollisionShape()->getMargin();
+//        const btVector3 mrg = btVector3(csm,
+//                                        csm,
+//                                        csm) *
+//                              1;  // ??? to investigate...
+//        m_bounds[0] = mins - mrg;
+//        m_bounds[1] = maxs + mrg;
+//        if (0 != getBroadphaseHandle())
+//        {
+//            m_worldInfo->m_broadphase->setAabb(getBroadphaseHandle(),
+//                                               m_bounds[0],
+//                                               m_bounds[1],
+//                                               m_worldInfo->m_dispatcher);
+//        }
+//    }
+//    else
+//    {
+//        m_bounds[0] =
+//            m_bounds[1] = btVector3(0, 0, 0);
+//    }
+    if (m_nodes.size())
+    {
+        btVector3 mins = m_nodes[0].m_x;
+        btVector3 maxs = m_nodes[0].m_x;
+        for (int i = 1; i < m_nodes.size(); ++i)
+        {
+            for (int d = 0; d < 3; ++d)
+            {
+                if (m_nodes[i].m_x[d] > maxs[d])
+                    maxs[d] = m_nodes[i].m_x[d];
+                if (m_nodes[i].m_x[d] < mins[d])
+                    mins[d] = m_nodes[i].m_x[d];
+            }
+        }
+        const btScalar csm = getCollisionShape()->getMargin();
+        const btVector3 mrg = btVector3(csm,
+                                        csm,
+                                        csm);
+        m_bounds[0] = mins - mrg;
+        m_bounds[1] = maxs + mrg;
+        if (0 != getBroadphaseHandle())
+        {
+            m_worldInfo->m_broadphase->setAabb(getBroadphaseHandle(),
+                                               m_bounds[0],
+                                               m_bounds[1],
+                                               m_worldInfo->m_dispatcher);
+        }
+    }
+    else
+    {
+        m_bounds[0] =
+        m_bounds[1] = btVector3(0, 0, 0);
+    }
 }
 
 //
