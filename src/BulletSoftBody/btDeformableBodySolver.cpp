@@ -376,6 +376,7 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
     for (i = 0, ni = psb->m_nodes.size(); i < ni; ++i)
     {
         btSoftBody::Node& n = psb->m_nodes[i];
+        n.m_v *= (1 - psb->m_cfg.drag);
         n.m_q = n.m_x + n.m_v * dt;
     }
     /* Bounds                */

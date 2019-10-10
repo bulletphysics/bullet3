@@ -93,6 +93,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_tetraScratches.size(); ++j)
             {
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
@@ -111,6 +115,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
                 sz = btMax(sz, psb->m_nodes[j].index);
