@@ -50,7 +50,7 @@ def parallelCCompile(self,
     newcc_args = cc_args
     if _platform == "darwin":
       if src.endswith('.cpp'):
-        newcc_args = cc_args + ["-stdlib=libc++"]
+        newcc_args = cc_args + ["-mmacosx-version-min=10.7", "-stdlib=libc++"]
     self._compile(obj, src, ext, newcc_args, extra_postargs, pp_opts)
 
   # convert to list, imap is evaluated on-demand
@@ -418,7 +418,7 @@ elif _platform == "win32":
   +["examples/ThirdPartyLibs/glad/gl.c"]
 elif _platform == "darwin":
   print("darwin!")
-  os.environ['LDFLAGS'] = '-framework Cocoa -stdlib=libc++ -framework OpenGL'
+  os.environ['LDFLAGS'] = '-framework Cocoa -mmacosx-version-min=10.7 -stdlib=libc++ -framework OpenGL'
   CXX_FLAGS += '-DB3_NO_PYTHON_FRAMEWORK '
   CXX_FLAGS += '-DHAS_SOCKLEN_T '
   CXX_FLAGS += '-D_DARWIN '
@@ -491,7 +491,7 @@ if 'BT_USE_EGL' in EGL_CXX_FLAGS:
 
 setup(
     name='pybullet',
-    version='2.5.5',
+    version='2.5.6',
     description=
     'Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
     long_description=

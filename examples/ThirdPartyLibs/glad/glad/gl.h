@@ -2007,12 +2007,16 @@ typedef khronos_ssize_t GLsizeiptr;
 #if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) && (__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ > 1060)
 	typedef long GLintptrARB;
 #else
+#ifndef __gltypes_h_
 typedef ptrdiff_t GLintptrARB;
+#endif
 #endif
 #if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) && (__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ > 1060)
 	typedef long GLsizeiptrARB;
 #else
+#ifndef __gltypes_h_
 typedef ptrdiff_t GLsizeiptrARB;
+#endif
 #endif
 	typedef int64_t GLint64EXT;
 	typedef uint64_t GLuint64EXT;
