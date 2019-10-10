@@ -105,7 +105,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #endif
 
-//#define SKIP_DEFORMABLE_BODY 1
+#define SKIP_DEFORMABLE_BODY 1
 
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
@@ -2797,6 +2797,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
             btDeformableLagrangianForce* force = m_data->m_lf[j];
             delete force;
         }
+        m_data->m_lf.clear();
 #endif
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		for (i = m_data->m_dynamicsWorld->getSoftBodyArray().size() - 1; i >= 0; i--)
