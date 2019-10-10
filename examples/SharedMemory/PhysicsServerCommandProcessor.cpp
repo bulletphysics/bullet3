@@ -2791,7 +2791,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 			m_data->m_dynamicsWorld->removeMultiBody(mb);
 			delete mb;
 		}
-#ifndef SKIP_DEFORMABLE
+#ifndef SKIP_DEFORMABLE_BODY
         for (int j = 0; j < m_data->m_lf.size(); j++)
         {
             btDeformableLagrangianForce* force = m_data->m_lf[j];
