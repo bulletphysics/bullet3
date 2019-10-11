@@ -376,8 +376,8 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
     psb->updateBounds();
     
     /* Integrate            */
-    // do not allow particles to move more than 10% of the bounding box size
-    btScalar max_v = 0.1 * (psb->m_bounds[1]-psb->m_bounds[0]).norm() / dt;
+    // do not allow particles to move more than the bounding box size
+    btScalar max_v = (psb->m_bounds[1]-psb->m_bounds[0]).norm() / dt;
     for (i = 0, ni = psb->m_nodes.size(); i < ni; ++i)
     {
         btSoftBody::Node& n = psb->m_nodes[i];
