@@ -32,6 +32,7 @@ SET(LinearMath_HDRS
 	btIDebugDraw.h
 	btList.h
 	btMatrix3x3.h
+	btImplicitQRSVD.h
 	btMinMax.h
 	btMotionState.h
 	btPolarDecomposition.h
