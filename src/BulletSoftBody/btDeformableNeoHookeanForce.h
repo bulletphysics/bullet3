@@ -73,7 +73,10 @@ public:
                 size_t id3 = node3->index;
                 btMatrix3x3 dF = DsFromVelocity(node0, node1, node2, node3) * tetra.m_Dm_inverse;
                 btMatrix3x3 dP;
-                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
+//                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
+                btMatrix3x3 I;
+                I.setIdentity();
+                dP = (dF + dF.transpose()) * m_mu_damp + I * (dF[0][0]+dF[1][1]+dF[2][2]) * m_lambda_damp;
                 btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
 
@@ -210,7 +213,10 @@ public:
                 size_t id3 = node3->index;
                 btMatrix3x3 dF = Ds(id0, id1, id2, id3, dv) * tetra.m_Dm_inverse;
                 btMatrix3x3 dP;
-                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
+//                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
+                btMatrix3x3 I;
+                I.setIdentity();
+                dP = (dF + dF.transpose()) * m_mu_damp + I * (dF[0][0]+dF[1][1]+dF[2][2]) * m_lambda_damp;
 //                btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
                 btVector3 df_on_node0 = df_on_node123 * grad_N_hat_1st_col;
