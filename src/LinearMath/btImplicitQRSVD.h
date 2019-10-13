@@ -87,6 +87,12 @@ public:
     }
 };
 
+static inline btScalar copySign(btScalar x, btScalar y) {
+    if ((x < 0 && y > 0) || (x > 0 && y < 0))
+        return -x;
+    return x;
+}
+
 /**
  Class for givens rotation.
  Row rotation G*A corresponds to something like
@@ -550,14 +556,11 @@ inline void singularValueDecomposition(
  */
 inline btScalar wilkinsonShift(const btScalar a1, const btScalar b1, const btScalar a2)
 {
-    using std::sqrt;
     using std::fabs;
-    using std::copysign;
     
     btScalar d = (btScalar)0.5 * (a1 - a2);
     btScalar bs = b1 * b1;
-    
-    btScalar mu = a2 - copysign(bs / (fabs(d) + sqrt(d * d + bs)), d);
+    btScalar mu = a2 - copysign(bs / (btFabs(d) + btSqrt(d * d + bs)), d);
     // T mu = a2 - bs / ( d + sign_d*sqrt (d*d + bs));
     return mu;
 }
