@@ -340,7 +340,7 @@ void GraspDeformable::initPhysics()
         psb->getCollisionShape()->setMargin(0.005);
         psb->generateBendingConstraints(2);
         psb->setTotalMass(.01);
-        psb->setSpringStiffness(5);
+        psb->setSpringStiffness(10);
         psb->setDampingCoefficient(0.05);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
