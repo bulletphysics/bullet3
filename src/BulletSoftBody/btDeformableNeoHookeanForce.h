@@ -33,7 +33,7 @@ public:
         m_lambda_damp = damping * m_lambda;
     }
     
-    btDeformableNeoHookeanForce(btScalar mu, btScalar lambda, btScalar damping = 0): m_mu(mu), m_lambda(lambda)
+    btDeformableNeoHookeanForce(btScalar mu, btScalar lambda, btScalar damping = 0.05): m_mu(mu), m_lambda(lambda)
     {
         m_mu_damp = damping * m_mu;
         m_lambda_damp = damping * m_lambda;
@@ -73,12 +73,10 @@ public:
                 size_t id2 = node2->index;
                 size_t id3 = node3->index;
                 btMatrix3x3 dF = DsFromVelocity(node0, node1, node2, node3) * tetra.m_Dm_inverse;
-                btMatrix3x3 C = dF + dF.transpose();
-                btMatrix3x3 dP;
-//                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
                 btMatrix3x3 I;
                 I.setIdentity();
-                dP = C * m_mu_damp + I * (dF[0][0]+dF[1][1]+dF[2][2]) * m_lambda_damp;
+                btMatrix3x3 dP = (dF + dF.transpose()) * m_mu_damp + I * (dF[0][0]+dF[1][1]+dF[2][2]) * m_lambda_damp;
+//                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
                 btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
 
@@ -157,13 +155,17 @@ public:
     
     virtual void addScaledElasticForce(btScalar scale, TVStack& force)
     {
-//        btScalar max_p = 0;
         int numNodes = getNumNodes();
         btAssert(numNodes <= force.size());
         btVector3 grad_N_hat_1st_col = btVector3(-1,-1,-1);
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
+            btScalar max_p = psb->m_cfg.m_maxStress;
             for (int j = 0; j < psb->m_tetras.size(); ++j)
             {
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
@@ -173,47 +175,21 @@ public:
                 btMatrix3x3 U, V;
                 btVector3 sigma;
                 singularValueDecomposition(P, U, sigma, V);
-                sigma[0] = btMin(sigma[0], (btScalar)1000);
-                sigma[1] = btMin(sigma[1], (btScalar)1000);
-                sigma[2] = btMin(sigma[2], (btScalar)1000);
-                sigma[0] = btMax(sigma[0], (btScalar)-1000);
-                sigma[1] = btMax(sigma[1], (btScalar)-1000);
-                sigma[2] = btMax(sigma[2], (btScalar)-1000);
+                if (max_p > 0)
+                {
+                    sigma[0] = btMin(sigma[0], max_p);
+                    sigma[1] = btMin(sigma[1], max_p);
+                    sigma[2] = btMin(sigma[2], max_p);
+                    sigma[0] = btMax(sigma[0], -max_p);
+                    sigma[1] = btMax(sigma[1], -max_p);
+                    sigma[2] = btMax(sigma[2], -max_p);
+                }
                 btMatrix3x3 Sigma;
                 Sigma.setIdentity();
                 Sigma[0][0] = sigma[0];
                 Sigma[1][1] = sigma[1];
                 Sigma[2][2] = sigma[2];
-//                max_p = btMax(max_p, sigma[0]);
-//                max_p = btMax(max_p, sigma[1]);
-//                max_p = btMax(max_p, sigma[2]);
                 P = U * Sigma * V.transpose();
-
-//                Eigen::Matrix<double, 3,3> eigenP;
-//                eigenP << P[0][0], P[0][1], P[0][2],
-//                P[1][0],P[1][1],P[1][2],
-//                P[2][0],P[2][1],P[2][2];
-//                Eigen::JacobiSVD<Eigen::Matrix<double, 3,3> > svd(eigenP, Eigen::ComputeFullU | Eigen::ComputeFullV);
-//                Eigen::Matrix<double, 3,3> P_hat = svd.singularValues().asDiagonal();
-//                P_hat(0,0) = btMin((btScalar)P_hat(0,0), (btScalar)20);
-//                P_hat(1,1) = btMin((btScalar)P_hat(1,1), (btScalar)20);
-//                P_hat(2,2) = btMin((btScalar)P_hat(2,2), (btScalar)20);
-//                eigenP = svd.matrixU() * P_hat * svd.matrixV().transpose();
-//                max_p = btMax(max_p, (btScalar)P_hat(0,0));
-//                max_p = btMax(max_p, (btScalar)P_hat(1,1));
-//                max_p = btMax(max_p, (btScalar)P_hat(2,2));
-//
-//                P[0][0] = eigenP(0,0);
-//                P[0][1] = eigenP(0,1);
-//                P[0][2] = eigenP(0,2);
-//                P[1][0] = eigenP(1,0);
-//                P[1][1] = eigenP(1,1);
-//                P[1][2] = eigenP(1,2);
-//                P[2][0] = eigenP(2,0);
-//                P[2][1] = eigenP(2,1);
-//                P[2][2] = eigenP(2,2);
-                
-                
 //                btVector3 force_on_node0 = P * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 force_on_node123 = P * tetra.m_Dm_inverse.transpose();
                 btVector3 force_on_node0 = force_on_node123 * grad_N_hat_1st_col;
@@ -235,7 +211,6 @@ public:
                 force[id3] -= scale1 * force_on_node123.getColumn(2);
             }
         }
-//        std::cout << max_p << std::endl;
     }
     
     // The damping matrix is calculated using the time n state as described in https://www.math.ucla.edu/~jteran/papers/GSSJT15.pdf to allow line search
@@ -261,12 +236,10 @@ public:
                 size_t id2 = node2->index;
                 size_t id3 = node3->index;
                 btMatrix3x3 dF = Ds(id0, id1, id2, id3, dv) * tetra.m_Dm_inverse;
-                btMatrix3x3 C = dF + dF.transpose();
-                btMatrix3x3 dP;
-//                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
                 btMatrix3x3 I;
                 I.setIdentity();
-                dP = C * m_mu_damp + I * (dF[0][0]+dF[1][1]+dF[2][2]) * m_lambda_damp;
+                btMatrix3x3 dP = (dF + dF.transpose()) * m_mu_damp + I * (dF[0][0]+dF[1][1]+dF[2][2]) * m_lambda_damp;
+//                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
 //                btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
                 btVector3 df_on_node0 = df_on_node123 * grad_N_hat_1st_col;

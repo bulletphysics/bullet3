@@ -703,6 +703,7 @@ public:
 		tPSolverArray m_psequence;  // Position solvers sequence
 		tPSolverArray m_dsequence;  // Drift solvers sequence
         btScalar drag;           // deformable air drag
+        btScalar m_maxStress;       // Maximum principle first Piola stress
 	};
 	/* SolverState	*/
 	struct SolverState
@@ -1107,6 +1108,7 @@ public:
     void updateDeformation();
     void advanceDeformation();
 	void applyForces();
+    void setMaxStress(btScalar maxStress);
     void interpolateRenderMesh();
 	static void PSolve_Anchors(btSoftBody* psb, btScalar kst, btScalar ti);
 	static void PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti);
