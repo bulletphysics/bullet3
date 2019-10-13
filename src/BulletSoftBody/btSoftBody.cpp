@@ -90,6 +90,7 @@ void btSoftBody::initDefaults()
 	m_cfg.diterations = 0;
 	m_cfg.citerations = 4;
     m_cfg.drag = 0;
+    m_cfg.m_maxStress = 0;
 	m_cfg.collisions = fCollision::Default;
     m_cfg.collisions |= fCollision::VF_DD;
 	m_pose.m_bvolume = false;
@@ -3193,6 +3194,12 @@ void btSoftBody::applyForces()
 		/* Aerodynamics			*/
 		addAeroForceToFace(m_windVelocity, i);
 	}
+}
+
+//
+void btSoftBody::setMaxStress(btScalar maxStress)
+{
+    m_cfg.m_maxStress = maxStress;
 }
 
 //
