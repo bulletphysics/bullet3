@@ -556,8 +556,6 @@ inline void singularValueDecomposition(
  */
 inline btScalar wilkinsonShift(const btScalar a1, const btScalar b1, const btScalar a2)
 {
-    using std::fabs;
-    
     btScalar d = (btScalar)0.5 * (a1 - a2);
     btScalar bs = b1 * b1;
     btScalar mu = a2 - copysign(bs / (btFabs(d) + btSqrt(d * d + bs)), d);
@@ -647,12 +645,10 @@ inline void swapCol(btMatrix3x3& A, int i, int j)
  */
 inline void sort(btMatrix3x3& U, btVector3& sigma, btMatrix3x3& V, int t)
 {
-    using std::fabs;
-    
     if (t == 0)
     {
         // Case: sigma(0) > |sigma(1)| >= |sigma(2)|
-        if (fabs(sigma[1]) >= fabs(sigma[2])) {
+        if (btFabs(sigma[1]) >= btFabs(sigma[2])) {
             if (sigma[1] < 0) {
                 flipSign(1, U, sigma);
                 flipSign(2, U, sigma);
@@ -688,7 +684,7 @@ inline void sort(btMatrix3x3& U, btVector3& sigma, btMatrix3x3& V, int t)
     else if (t == 1)
     {
         // Case: |sigma(0)| >= sigma(1) > |sigma(2)|
-        if (fabs(sigma[0]) >= sigma[1]) {
+        if (btFabs(sigma[0]) >= sigma[1]) {
             if (sigma[0] < 0) {
                 flipSign(0, U, sigma);
                 flipSign(2, U, sigma);
@@ -702,7 +698,7 @@ inline void sort(btMatrix3x3& U, btVector3& sigma, btMatrix3x3& V, int t)
         swapCol(V, 0, 1);
         
         // Case: sigma(1) > |sigma(2)| >= |sigma(0)|
-        if (fabs(sigma[1]) < fabs(sigma[2])) {
+        if (btFabs(sigma[1]) < btFabs(sigma[2])) {
             std::swap(sigma[1], sigma[2]);
             swapCol(U, 1, 2);
             swapCol(V, 1, 2);
@@ -736,8 +732,6 @@ inline int singularValueDecomposition(const btMatrix3x3& A,
                                      btScalar tol = 128*std::numeric_limits<btScalar>::epsilon())
 {
     using std::fabs;
-    using std::sqrt;
-    using std::max;
     btMatrix3x3 B = A;
     U.setIdentity();
     V.setIdentity();
@@ -755,15 +749,15 @@ inline int singularValueDecomposition(const btMatrix3x3& A,
     btScalar beta_2 = B[1][2];
     btScalar gamma_1 = alpha_1 * beta_1;
     btScalar gamma_2 = alpha_2 * beta_2;
-    tol *= max((btScalar)0.5 * sqrt(alpha_1 * alpha_1 + alpha_2 * alpha_2 + alpha_3 * alpha_3 + beta_1 * beta_1 + beta_2 * beta_2), (btScalar)1);
+    tol *= btMax((btScalar)0.5 * btSqrt(alpha_1 * alpha_1 + alpha_2 * alpha_2 + alpha_3 * alpha_3 + beta_1 * beta_1 + beta_2 * beta_2), (btScalar)1);
     
     /**
      Do implicit shift QR until A^T A is block diagonal
      */
     
-    while (fabs(beta_2) > tol && fabs(beta_1) > tol
-           && fabs(alpha_1) > tol && fabs(alpha_2) > tol
-           && fabs(alpha_3) > tol) {
+    while (btFabs(beta_2) > tol && btFabs(beta_1) > tol
+           && btFabs(alpha_1) > tol && btFabs(alpha_2) > tol
+           && btFabs(alpha_3) > tol) {
         mu = wilkinsonShift(alpha_2 * alpha_2 + beta_1 * beta_1, gamma_2, alpha_3 * alpha_3 + beta_2 * beta_2);
         
         r.compute(alpha_1 * alpha_1 - mu, gamma_1);
@@ -791,7 +785,7 @@ inline int singularValueDecomposition(const btMatrix3x3& A,
      0 x 0
      0 0 x
      */
-    if (fabs(beta_2) <= tol) {
+    if (btFabs(beta_2) <= tol) {
         process<0>(B, U, sigma, V);
         sort(U, sigma, V,0);
     }
@@ -801,7 +795,7 @@ inline int singularValueDecomposition(const btMatrix3x3& A,
      0 x x
      0 0 x
      */
-    else if (fabs(beta_1) <= tol) {
+    else if (btFabs(beta_1) <= tol) {
         process<1>(B, U, sigma, V);
         sort(U, sigma, V,1);
     }
@@ -811,7 +805,7 @@ inline int singularValueDecomposition(const btMatrix3x3& A,
      0 0 x
      0 0 x
      */
-    else if (fabs(alpha_2) <= tol) {
+    else if (btFabs(alpha_2) <= tol) {
         /**
          Reduce B to
          x x 0
@@ -832,7 +826,7 @@ inline int singularValueDecomposition(const btMatrix3x3& A,
      0 x x
      0 0 0
      */
-    else if (fabs(alpha_3) <= tol) {
+    else if (btFabs(alpha_3) <= tol) {
         /**
          Reduce B to
          x x +
@@ -863,7 +857,7 @@ inline int singularValueDecomposition(const btMatrix3x3& A,
      0 x x
      0 0 x
      */
-    else if (fabs(alpha_1) <= tol) {
+    else if (btFabs(alpha_1) <= tol) {
         /**
          Reduce B to
          0 0 +
