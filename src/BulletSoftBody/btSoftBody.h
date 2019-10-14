@@ -789,6 +789,9 @@ public:
 	btDbvt m_cdbvt;                    // Clusters tree
 	tClusterArray m_clusters;          // Clusters
     btScalar m_dampingCoefficient;     // Damping Coefficient
+    btScalar m_sleepingThreshold;
+    btScalar m_maxSpeedSquared;
+    bool m_useFaceContact;
     
     btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
     btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
@@ -828,6 +831,11 @@ public:
     void setDampingCoefficient(btScalar damping_coeff)
     {
         m_dampingCoefficient = damping_coeff;
+    }
+    
+    void setUseFaceContact(bool useFaceContact)
+    {
+        m_useFaceContact = false;
     }
 
 	///@todo: avoid internal softbody shape hack and move collision code to collision library

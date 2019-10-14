@@ -117,6 +117,9 @@ void btSoftBody::initDefaults()
 	m_windVelocity = btVector3(0, 0, 0);
 	m_restLengthScale = btScalar(1.0);
     m_dampingCoefficient = 1;
+    m_sleepingThreshold = 0.01;
+    m_useFaceContact = false;
+    m_collisionFlags = 0;
 }
 
 //
@@ -3494,13 +3497,16 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
                 docollideNode.stamargin = basemargin;
                 m_ndbvt.collideTV(m_ndbvt.m_root, volume, docollideNode);
                 
-                btSoftColliders::CollideSDF_RDF docollideFace;
-                docollideFace.psb = this;
-                docollideFace.m_colObj1Wrap = pcoWrap;
-                docollideFace.m_rigidBody = prb1;
-                docollideFace.dynmargin = basemargin + timemargin;
-                docollideFace.stamargin = basemargin;
-                m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
+                if (this->m_useFaceContact)
+                {
+                    btSoftColliders::CollideSDF_RDF docollideFace;
+                    docollideFace.psb = this;
+                    docollideFace.m_colObj1Wrap = pcoWrap;
+                    docollideFace.m_rigidBody = prb1;
+                    docollideFace.dynmargin = basemargin + timemargin;
+                    docollideFace.stamargin = basemargin;
+                    m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
+                }
             }
         }
         break;
