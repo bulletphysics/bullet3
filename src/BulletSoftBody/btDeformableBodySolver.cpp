@@ -18,13 +18,13 @@
 #include "btDeformableBodySolver.h"
 #include "btSoftBodyInternals.h"
 #include "LinearMath/btQuickprof.h"
-
+static const int kMaxConjugateGradientIterations  = 200;
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
-, m_cg(200)
+, m_cg(kMaxConjugateGradientIterations)
 , m_maxNewtonIterations(5)
 , m_newtonTolerance(1e-4)
-, m_lineSearch(true)
+, m_lineSearch(false)
 {
     m_objective = new btDeformableBackwardEulerObjective(m_softBodies, m_backupVelocity);
 }
@@ -101,6 +101,7 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
                 m_residual[j].setZero();
             }
         }
+        updateVelocity();
     }
 }
 
@@ -298,9 +299,14 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
         {
             if (implicit)
             {
+                if ((psb->m_nodes[j].m_v - m_backupVelocity[counter]).norm() < SIMD_EPSILON)
+                    m_dv[counter] = psb->m_nodes[j].m_v - m_backupVelocity[counter];
+                else
+                    m_dv[counter] = psb->m_nodes[j].m_v - psb->m_nodes[j].m_vn;
                 m_backupVelocity[counter] = psb->m_nodes[j].m_vn;
             }
-            m_dv[counter] = psb->m_nodes[j].m_v - m_backupVelocity[counter];
+            else
+                m_dv[counter] =  psb->m_nodes[j].m_v - m_backupVelocity[counter];
             psb->m_nodes[j].m_v = m_backupVelocity[counter];
             ++counter;
         }
