@@ -23,7 +23,6 @@ btScalar btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlyIteration
         ///this is a special step to resolve penetrations (just for contacts)
         solveGroupCacheFriendlySplitImpulseIterations(bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
         
-//        m_maxOverrideNumSolverIterations = 10;
         int maxIterations = m_maxOverrideNumSolverIterations > infoGlobal.m_numIterations ? m_maxOverrideNumSolverIterations : infoGlobal.m_numIterations;
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {

@@ -88,8 +88,6 @@ void btDeformableMultiBodyDynamicsWorld::softBodySelfCollision()
 void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
     BT_PROFILE("integrateTransforms");
-    //m_deformableBodySolver->backupVelocity();
-    //positionCorrection(timeStep);  // looks like position correction is no longer necessary
     btMultiBodyDynamicsWorld::integrateTransforms(timeStep);
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
@@ -116,16 +114,12 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
         }
         psb->interpolateRenderMesh();
     }
-    //m_deformableBodySolver->revertVelocity();
 }
 
 void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
 {
-    if (!m_implicit)
-    {
-        // save v_{n+1}^* velocity after explicit forces
-        m_deformableBodySolver->backupVelocity();
-    }
+    // save v_{n+1}^* velocity after explicit forces
+    m_deformableBodySolver->backupVelocity();
     
     // set up constraints among multibodies and between multibodies and deformable bodies
     setupConstraints();
