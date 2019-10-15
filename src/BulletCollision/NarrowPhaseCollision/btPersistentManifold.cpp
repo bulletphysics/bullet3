@@ -326,7 +326,7 @@ const char* btPersistentManifold::serialize(const class btPersistentManifold* ma
 		const btManifoldPoint& pt = manifold->getContactPoint(i);
 		dataOut->m_pointCacheAppliedImpulse[i] = pt.m_appliedImpulse;
 		dataOut->m_pointCachePrevRHS[i] = pt.m_prevRHS;
-    dataOut->m_pointCacheAppliedImpulseLateral1[i] = pt.m_appliedImpulseLateral1;
+                dataOut->m_pointCacheAppliedImpulseLateral1[i] = pt.m_appliedImpulseLateral1;
 		dataOut->m_pointCacheAppliedImpulseLateral2[i] = pt.m_appliedImpulseLateral2;
 		pt.m_localPointA.serialize(dataOut->m_pointCacheLocalPointA[i]);
 		pt.m_localPointB.serialize(dataOut->m_pointCacheLocalPointB[i]);
@@ -338,6 +338,7 @@ const char* btPersistentManifold::serialize(const class btPersistentManifold* ma
 		dataOut->m_pointCacheFrictionCFM[i] = pt.m_frictionCFM;
 		dataOut->m_pointCacheContactERP[i] = pt.m_contactERP;
 		dataOut->m_pointCacheContactCFM[i] = pt.m_contactCFM;
+		dataOut->m_pointCacheContactPointFlags[i] = pt.m_contactPointFlags;
 		dataOut->m_pointCacheIndex0[i] = pt.m_index0;
 		dataOut->m_pointCacheIndex1[i] = pt.m_index1;
 		dataOut->m_pointCachePartId0[i] = pt.m_partId0;
