@@ -70,18 +70,46 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
     ///update vehicle simulation
     btMultiBodyDynamicsWorld::updateActions(timeStep);
     
-    btMultiBodyDynamicsWorld::updateActivationState(timeStep);
+    updateActivationState(timeStep);
     // End solver-wise simulation step
     // ///////////////////////////////
 }
+
+void btDeformableMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
+{
+    for (int i = 0; i < m_softBodies.size(); i++)
+    {
+        btSoftBody* psb = m_softBodies[i];
+        psb->updateDeactivation(timeStep);
+        if (psb->wantsSleeping())
+        {
+            if (psb->getActivationState() == ACTIVE_TAG)
+                psb->setActivationState(WANTS_DEACTIVATION);
+            if (psb->getActivationState() == ISLAND_SLEEPING)
+            {
+                psb->setZeroVelocity();
+            }
+        }
+        else
+        {
+            if (psb->getActivationState() != DISABLE_DEACTIVATION)
+                psb->setActivationState(ACTIVE_TAG);
+        }
+    }
+    btMultiBodyDynamicsWorld::updateActivationState(timeStep);
+}
+
 
 void btDeformableMultiBodyDynamicsWorld::softBodySelfCollision()
 {
     m_deformableBodySolver->updateSoftBodies();
     for (int i = 0; i < m_softBodies.size(); i++)
     {
-        btSoftBody* psb = (btSoftBody*)m_softBodies[i];
-        psb->defaultCollisionHandler(psb);
+        btSoftBody* psb = m_softBodies[i];
+        if (psb->isActive())
+        {
+            psb->defaultCollisionHandler(psb);
+        }
     }
 }
 

@@ -1017,8 +1017,11 @@ public:
 	/* defaultCollisionHandlers												*/
 	void defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap);
 	void defaultCollisionHandler(btSoftBody* psb);
-        void setSelfCollision(bool useSelfCollision);
-        bool useSelfCollision();
+    void setSelfCollision(bool useSelfCollision);
+    bool useSelfCollision();
+    void updateDeactivation(btScalar timeStep);
+    void setZeroVelocity();
+    bool wantsSleeping();
 
 	//
 	// Functionality to deal with new accelerated solvers.

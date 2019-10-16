@@ -51,6 +51,10 @@ void btDeformableContactProjection::setConstraints()
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
         btSoftBody* psb = m_softBodies[i];
+        if (!psb->isActive())
+        {
+            continue;
+        }
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             if (psb->m_nodes[j].m_im == 0)
@@ -61,10 +65,15 @@ void btDeformableContactProjection::setConstraints()
         }
     }
     
-    // set Deformable Node vs. Rigid constraint
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
         btSoftBody* psb = m_softBodies[i];
+        if (!psb->isActive())
+        {
+            continue;
+        }
+
+        // set Deformable Node vs. Rigid constraint
         for (int j = 0; j < psb->m_nodeRigidContacts.size(); ++j)
         {
             const btSoftBody::DeformableNodeRigidContact& contact = psb->m_nodeRigidContacts[j];
@@ -242,6 +251,10 @@ void btDeformableContactProjection::setProjection()
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
         btSoftBody* psb = m_softBodies[i];
+        if (!psb->isActive())
+        {
+            continue;
+        }
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             int index = psb->m_nodes[j].index;

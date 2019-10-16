@@ -200,7 +200,7 @@ void btDeformableBodySolver::updateDv(btScalar scale)
 
 void btDeformableBodySolver::computeStep(TVStack& ddv, const TVStack& residual)
 {
-    m_cg.solve(*m_objective, ddv, residual, false);
+    m_cg.solve(*m_objective, ddv, residual);
 }
 
 void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt)
@@ -248,6 +248,11 @@ void btDeformableBodySolver::updateVelocity()
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
         btSoftBody* psb = m_softBodies[i];
+        psb->m_maxSpeedSquared = 0;
+        if (!psb->isActive())
+        {
+            continue;
+        }
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             // set NaN to zero;
@@ -256,6 +261,7 @@ void btDeformableBodySolver::updateVelocity()
                 m_dv[counter].setZero();
             }
             psb->m_nodes[j].m_v = m_backupVelocity[counter]+m_dv[counter];
+            psb->m_maxSpeedSquared = btMax(psb->m_maxSpeedSquared, psb->m_nodes[j].m_v.length2());
             ++counter;
         }
     }
@@ -267,6 +273,10 @@ void btDeformableBodySolver::updateTempPosition()
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
         btSoftBody* psb = m_softBodies[i];
+        if (!psb->isActive())
+        {
+            continue;
+        }
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             psb->m_nodes[j].m_q = psb->m_nodes[j].m_x + m_dt * psb->m_nodes[j].m_v;
@@ -295,6 +305,10 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
         btSoftBody* psb = m_softBodies[i];
+        if (!psb->isActive())
+        {
+            continue;
+        }
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
             if (implicit)
