@@ -1097,8 +1097,6 @@ struct btSoftColliders
                             
                             c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
                             c.m_c1 = ra;
-                            if (m_rigidBody)
-                                m_rigidBody->activate();
                         }
                         else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
                         {
@@ -1200,8 +1198,6 @@ struct btSoftColliders
                         // we do not scale the impulse matrix by dt
                         c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
                         c.m_c1 = ra;
-                        if (m_rigidBody)
-                            m_rigidBody->activate();
                     }
                     else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
                     {

@@ -117,7 +117,7 @@ void btSoftBody::initDefaults()
 	m_windVelocity = btVector3(0, 0, 0);
 	m_restLengthScale = btScalar(1.0);
     m_dampingCoefficient = 1;
-    m_sleepingThreshold = 0.01;
+    m_sleepingThreshold = 0.1;
     m_useFaceContact = false;
     m_collisionFlags = 0;
 }
@@ -3601,51 +3601,43 @@ void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 		break;
         case fCollision::VF_DD:
         {
-            if (this != psb)
+            if (psb->isActive() || this->isActive())
             {
-                btSoftColliders::CollideVF_DD docollide;
-                /* common                    */
-                docollide.mrg = getCollisionShape()->getMargin() +
-                psb->getCollisionShape()->getMargin();
-                /* psb0 nodes vs psb1 faces    */
-                docollide.psb[0] = this;
-                docollide.psb[1] = psb;
-                docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_ndbvt.m_root,
-                                                    docollide.psb[1]->m_fdbvt.m_root,
-                                                    docollide);
-                /* psb1 nodes vs psb0 faces    */
-                docollide.psb[0] = psb;
-                docollide.psb[1] = this;
-                docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_ndbvt.m_root,
-                                                    docollide.psb[1]->m_fdbvt.m_root,
-                                                    docollide);
-            }
-            else
-            {
-                if (psb->useSelfCollision())
+                if (this != psb)
                 {
-                  btSoftColliders::CollideFF_DD docollide;
-                  docollide.mrg = getCollisionShape()->getMargin() +
-                  psb->getCollisionShape()->getMargin();
-                  docollide.psb[0] = this;
-                  docollide.psb[1] = psb;
-                  /* psb0 faces vs psb0 faces    */
-                  btDbvntNode* root = copyToDbvnt(this->m_fdbvt.m_root);
-                  calculateNormalCone(root);
-                  this->m_fdbvt.selfCollideT(root,docollide);
-                  delete root;
+                    btSoftColliders::CollideVF_DD docollide;
+                    /* common                    */
+                    docollide.mrg = getCollisionShape()->getMargin() +
+                    psb->getCollisionShape()->getMargin();
+                    /* psb0 nodes vs psb1 faces    */
+                    docollide.psb[0] = this;
+                    docollide.psb[1] = psb;
+                    docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_ndbvt.m_root,
+                                                        docollide.psb[1]->m_fdbvt.m_root,
+                                                        docollide);
+                    /* psb1 nodes vs psb0 faces    */
+                    docollide.psb[0] = psb;
+                    docollide.psb[1] = this;
+                    docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_ndbvt.m_root,
+                                                        docollide.psb[1]->m_fdbvt.m_root,
+                                                        docollide);
                 }
-                
-//                btSoftColliders::CollideFF_DD docollide;
-//                /* common                    */
-//                docollide.mrg = getCollisionShape()->getMargin() +
-//                psb->getCollisionShape()->getMargin();
-//                /* psb0 nodes vs psb1 faces    */
-//                docollide.psb[0] = this;
-//                docollide.psb[1] = psb;
-//                docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_fdbvt.m_root,
-//                                                    docollide.psb[1]->m_fdbvt.m_root,
-//                                                    docollide);
+                else
+                {
+                    if (psb->useSelfCollision())
+                    {
+                      btSoftColliders::CollideFF_DD docollide;
+                      docollide.mrg = getCollisionShape()->getMargin() +
+                      psb->getCollisionShape()->getMargin();
+                      docollide.psb[0] = this;
+                      docollide.psb[1] = psb;
+                      /* psb0 faces vs psb0 faces    */
+                      btDbvntNode* root = copyToDbvnt(this->m_fdbvt.m_root);
+                      calculateNormalCone(root);
+                      this->m_fdbvt.selfCollideT(root,docollide);
+                      delete root;
+                    }
+                }
             }
         }
         break;
@@ -4050,4 +4042,48 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 	}
 
 	return btSoftBodyDataName;
+}
+
+void btSoftBody::updateDeactivation(btScalar timeStep)
+{
+    if ((getActivationState() == ISLAND_SLEEPING) || (getActivationState() == DISABLE_DEACTIVATION))
+        return;
+
+    if (m_maxSpeedSquared < m_sleepingThreshold * m_sleepingThreshold)
+    {
+        m_deactivationTime += timeStep;
+    }
+    else
+    {
+        m_deactivationTime = btScalar(0.);
+        setActivationState(0);
+    }
+}
+
+
+void btSoftBody::setZeroVelocity()
+{
+    for (int i = 0; i < m_nodes.size(); ++i)
+    {
+        m_nodes[i].m_v.setZero();
+    }
+}
+
+bool btSoftBody::wantsSleeping()
+{
+    if (getActivationState() == DISABLE_DEACTIVATION)
+        return false;
+
+    //disable deactivation
+    if (gDisableDeactivation || (gDeactivationTime == btScalar(0.)))
+        return false;
+
+    if ((getActivationState() == ISLAND_SLEEPING) || (getActivationState() == WANTS_DEACTIVATION))
+        return true;
+
+    if (m_deactivationTime > gDeactivationTime)
+    {
+        return true;
+    }
+    return false;
 }
