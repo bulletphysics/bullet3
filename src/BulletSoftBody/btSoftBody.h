@@ -905,6 +905,7 @@ public:
 
 	/* Append anchor														*/
     void appendDeformableAnchor(int node, btRigidBody* body);
+    void appendDeformableAnchor(int node, btMultiBodyLinkCollider* link);
     void appendAnchor(int node,
 					  btRigidBody* body, bool disableCollisionBetweenLinkedBodies = false, btScalar influence = 1);
 	void appendAnchor(int node, btRigidBody* body, const btVector3& localPivot, bool disableCollisionBetweenLinkedBodies = false, btScalar influence = 1);

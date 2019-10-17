@@ -443,9 +443,66 @@ void btSoftBody::appendDeformableAnchor(int node, btRigidBody* body)
     c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
     c.m_c1 = ra;
     c.m_local = body->getWorldTransform().inverse() * m_nodes[node].m_x;
+    c.m_node->m_battach = 1;
     m_deformableAnchors.push_back(c);
 }
 
+//
+void btSoftBody::appendDeformableAnchor(int node, btMultiBodyLinkCollider* link)
+{
+    DeformableNodeRigidAnchor c;
+    btSoftBody::Node& n = m_nodes[node];
+    const btScalar ima = n.m_im;
+    btVector3 nrm;
+    const btCollisionShape* shp = link->getCollisionShape();
+    const btTransform& wtr = link->getWorldTransform();
+    btScalar dst =
+    m_worldInfo->m_sparsesdf.Evaluate(
+                                      wtr.invXform(m_nodes[node].m_x),
+                                      shp,
+                                      nrm,
+                                      0);
+    c.m_cti.m_colObj = link;
+    c.m_cti.m_normal = wtr.getBasis() * nrm;
+    c.m_cti.m_offset = dst;
+    c.m_node = &m_nodes[node];
+    const btScalar fc = m_cfg.kDF * link->getFriction();
+    c.m_c2 = ima;
+    c.m_c3 = fc;
+    c.m_c4 = link->isStaticOrKinematicObject() ? m_cfg.kKHR : m_cfg.kCHR;
+    btVector3 normal = c.m_cti.m_normal;
+    btVector3 t1 = generateUnitOrthogonalVector(normal);
+    btVector3 t2 = btCross(normal, t1);
+    btMultiBodyJacobianData jacobianData_normal, jacobianData_t1, jacobianData_t2;
+    findJacobian(link, jacobianData_normal, c.m_node->m_x, normal);
+    findJacobian(link, jacobianData_t1, c.m_node->m_x, t1);
+    findJacobian(link, jacobianData_t2, c.m_node->m_x, t2);
+    
+    btScalar* J_n = &jacobianData_normal.m_jacobians[0];
+    btScalar* J_t1 = &jacobianData_t1.m_jacobians[0];
+    btScalar* J_t2 = &jacobianData_t2.m_jacobians[0];
+    
+    btScalar* u_n = &jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
+    btScalar* u_t1 = &jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
+    btScalar* u_t2 = &jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
+    
+    btMatrix3x3 rot(normal.getX(), normal.getY(), normal.getZ(),
+                    t1.getX(), t1.getY(), t1.getZ(),
+                    t2.getX(), t2.getY(), t2.getZ()); // world frame to local frame
+    const int ndof = link->m_multiBody->getNumDofs() + 6;
+    btMatrix3x3 local_impulse_matrix = (Diagonal(n.m_im) + OuterProduct(J_n, J_t1, J_t2, u_n, u_t1, u_t2, ndof)).inverse();
+    c.m_c0 =  rot.transpose() * local_impulse_matrix * rot;
+    c.jacobianData_normal = jacobianData_normal;
+    c.jacobianData_t1 = jacobianData_t1;
+    c.jacobianData_t2 = jacobianData_t2;
+    c.t1 = t1;
+    c.t2 = t2;
+    const btVector3 ra = n.m_x - wtr.getOrigin();
+    c.m_c1 = ra;
+    c.m_local = link->getWorldTransform().inverse() * m_nodes[node].m_x;
+    c.m_node->m_battach = 1;
+    m_deformableAnchors.push_back(c);
+}
 //
 void btSoftBody::appendLinearJoint(const LJoint::Specs& specs, Cluster* body0, Body body1)
 {

@@ -54,6 +54,7 @@
 #include "../DeformableDemo/GraspDeformable.h"
 #include "../DeformableDemo/DeformableContact.h"
 #include "../DeformableDemo/DeformableClothAnchor.h"
+#include "../DeformableDemo/MultibodyClothAnchor.h"
 #include "../SharedMemory/PhysicsServerExampleBullet2.h"
 #include "../SharedMemory/PhysicsServerExample.h"
 #include "../SharedMemory/PhysicsClientExample.h"
@@ -199,7 +200,8 @@ static ExampleEntry gDefaultExamples[] =
         ExampleEntry(1, "Grasp Deformable Cube", "Grasping test", PinchCreateFunc),
         ExampleEntry(1, "Grasp Deformable with Motor", "Grasping test", GraspDeformableCreateFunc),
         ExampleEntry(1, "Volumetric Deformable Objects", "Volumetric Deformable test", VolumetricDeformableCreateFunc),
-        ExampleEntry(1, "Deformable Cloth Anchor", "Deformable Anchor test", DeformableClothAnchorCreateFunc),
+        ExampleEntry(1, "Rigid Cloth Anchor", "Deformable Rigid body Anchor test", DeformableClothAnchorCreateFunc),
+        ExampleEntry(1, "Multibody Cloth Anchor", "Deformable Multibody Anchor test", MultibodyClothAnchorCreateFunc),
         ExampleEntry(1, "Deformable-MultiBody Contact", "MultiBody and Deformable contact", DeformableMultibodyCreateFunc),
         // ExampleEntry(1, "MultiBody Baseline", "MultiBody Baseline", MultiBodyBaselineCreateFunc),
         

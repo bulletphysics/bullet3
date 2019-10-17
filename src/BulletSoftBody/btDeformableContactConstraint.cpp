@@ -45,8 +45,6 @@ btVector3 btDeformableNodeAnchorConstraint::getVa() const
         }
         else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
         {
-            // multibody anchor not supported yet
-            btAssert(false);
             multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
             if (multibodyLinkCol)
             {
