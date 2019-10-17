@@ -36,6 +36,8 @@ public:
     btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceRigidContactConstraint*> > m_faceRigidConstraints;
     // map from node index to deformable constraint
     btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceNodeContactConstraint*> > m_deformableConstraints;
+    // map from node index to node anchor constraint
+    btHashMap<btHashInt, btDeformableNodeAnchorConstraint> m_nodeAnchorConstraints;
     
     // all constraints involving face
     btAlignedObjectArray<btDeformableContactConstraint*> m_allFaceConstraints;

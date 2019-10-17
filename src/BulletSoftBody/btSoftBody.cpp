@@ -412,6 +412,41 @@ void btSoftBody::appendAnchor(int node, btRigidBody* body, const btVector3& loca
 }
 
 //
+void btSoftBody::appendDeformableAnchor(int node, btRigidBody* body)
+{
+    DeformableNodeRigidAnchor c;
+    btSoftBody::Node& n = m_nodes[node];
+    const btScalar ima = n.m_im;
+    const btScalar imb = body->getInvMass();
+    btVector3 nrm;
+    const btCollisionShape* shp = body->getCollisionShape();
+    const btTransform& wtr = body->getWorldTransform();
+    btScalar dst =
+    m_worldInfo->m_sparsesdf.Evaluate(
+                                      wtr.invXform(m_nodes[node].m_x),
+                                      shp,
+                                      nrm,
+                                      0);
+
+    c.m_cti.m_colObj = body;
+    c.m_cti.m_normal = wtr.getBasis() * nrm;
+    c.m_cti.m_offset = dst;
+    c.m_node = &m_nodes[node];
+    const btScalar fc = m_cfg.kDF * body->getFriction();
+    c.m_c2 = ima;
+    c.m_c3 = fc;
+    c.m_c4 = body->isStaticOrKinematicObject() ? m_cfg.kKHR : m_cfg.kCHR;
+    static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    const btMatrix3x3& iwi = body->getInvInertiaTensorWorld();
+    const btVector3 ra = n.m_x - wtr.getOrigin();
+
+    c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
+    c.m_c1 = ra;
+    c.m_local = body->getWorldTransform().inverse() * m_nodes[node].m_x;
+    m_deformableAnchors.push_back(c);
+}
+
+//
 void btSoftBody::appendLinearJoint(const LJoint::Specs& specs, Cluster* body0, Body body1)
 {
 	LJoint* pj = new (btAlignedAlloc(sizeof(LJoint), 16)) LJoint();
