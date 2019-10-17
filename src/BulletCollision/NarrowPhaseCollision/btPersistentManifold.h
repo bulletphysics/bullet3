@@ -280,7 +280,7 @@ struct btPersistentManifoldDoubleData
 	double m_pointCacheDistance[4];
 	double m_pointCacheAppliedImpulse[4];
 	double m_pointCachePrevRHS[4];
-        double m_pointCacheCombinedFriction[4];
+	 double m_pointCacheCombinedFriction[4];
 	double m_pointCacheCombinedRollingFriction[4];
 	double m_pointCacheCombinedSpinningFriction[4];
 	double m_pointCacheCombinedRestitution[4];

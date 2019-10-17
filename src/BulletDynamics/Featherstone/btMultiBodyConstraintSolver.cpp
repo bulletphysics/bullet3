@@ -835,7 +835,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 	{
 		if (btFabs(cp.m_prevRHS) > 1e-5)
 		{
-			solverConstraint.m_appliedImpulse = isFriction ? 0 : cp.m_appliedImpulse / cp.m_prevRHS * solverConstraint.m_rhs * infoGlobal.m_warmstartingFactor;
+			solverConstraint.m_appliedImpulse = isFriction ? 0 : cp.m_appliedImpulse / cp.m_prevRHS * solverConstraint.m_rhs * infoGlobal.m_articulatedWarmstartingFactor;
 			if (solverConstraint.m_appliedImpulse < 0)
 				solverConstraint.m_appliedImpulse = 0;
 		}
@@ -1438,7 +1438,7 @@ void btMultiBodyConstraintSolver::convertContacts(btPersistentManifold** manifol
 	}
 
 	// Warmstart for noncontact constraints
-	if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
+	if (infoGlobal.m_solverMode & SOLVER_USE_ARTICULATED_WARMSTARTING)
 	{
 		for (int i = 0; i < m_multiBodyNonContactConstraints.size(); i++)
 		{
@@ -1446,7 +1446,7 @@ void btMultiBodyConstraintSolver::convertContacts(btPersistentManifold** manifol
 				m_multiBodyNonContactConstraints[i];
 			solverConstraint.m_appliedImpulse =
 				solverConstraint.m_orgConstraint->getAppliedImpulse(solverConstraint.m_orgDofIndex) *
-				infoGlobal.m_warmstartingFactor;
+				infoGlobal.m_articulatedWarmstartingFactor;
 
 			btMultiBody* multiBodyA = solverConstraint.m_multiBodyA;
 			btMultiBody* multiBodyB = solverConstraint.m_multiBodyB;
@@ -1603,28 +1603,10 @@ btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlyFinish(btCollisionO
 		writeBackSolverBodyToMultiBody(solverConstraint, infoGlobal.m_timeStep);
 	}
 
-	if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
+	if (infoGlobal.m_solverMode & SOLVER_USE_ARTICULATED_WARMSTARTING)
 	{
 		BT_PROFILE("warm starting write back");
-		for (int j = 0; j < numPoolConstraints; j++)
-		{
-			const btMultiBodySolverConstraint& solverConstraint = m_multiBodyNormalContactConstraints[j];
-			btManifoldPoint* pt = (btManifoldPoint*)solverConstraint.m_originalContactPoint;
-			btAssert(pt);
-			pt->m_appliedImpulse = solverConstraint.m_appliedImpulse;
-			pt->m_appliedImpulseLateral1 = m_multiBodyFrictionContactConstraints[solverConstraint.m_frictionIndex].m_appliedImpulse;
-
-			//printf("pt->m_appliedImpulseLateral1 = %f\n", pt->m_appliedImpulseLateral1);
-			if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
-			{
-				pt->m_appliedImpulseLateral2 = m_multiBodyFrictionContactConstraints[solverConstraint.m_frictionIndex + 1].m_appliedImpulse;
-			} else
-			{
-				pt->m_appliedImpulseLateral2 = 0;
-			}
-		}
-		
-			//do a callback here?
+		writeBackMultiBodyContacts(0, numPoolConstraints);
 	}
 #if 0
 	//multibody joint feedback
@@ -1725,7 +1707,7 @@ btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlyFinish(btCollisionO
 	}
 #endif
 #endif
-	writeBackMultiBodyContacts(0, numPoolConstraints);
+
 	return btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(bodies, numBodies, infoGlobal);
 }
 
