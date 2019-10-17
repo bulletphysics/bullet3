@@ -354,6 +354,12 @@ public:
         Node* m_node;      // Owner node
     };
     
+    class DeformableNodeRigidAnchor : public DeformableNodeRigidContact
+    {
+    public:
+        btVector3 m_local;    // Anchor position in body space
+    };
+    
     class DeformableFaceRigidContact : public DeformableRigidContact
     {
     public:
@@ -774,6 +780,7 @@ public:
     btAlignedObjectArray<TetraScratch> m_tetraScratches;
     btAlignedObjectArray<TetraScratch> m_tetraScratchesTn;
 	tAnchorArray m_anchors;            // Anchors
+    btAlignedObjectArray<DeformableNodeRigidAnchor> m_deformableAnchors;
 	tRContactArray m_rcontacts;        // Rigid contacts
     btAlignedObjectArray<DeformableNodeRigidContact> m_nodeRigidContacts;
     btAlignedObjectArray<DeformableFaceNodeContact> m_faceNodeContacts;
@@ -897,7 +904,8 @@ public:
 					 Material* mat = 0);
 
 	/* Append anchor														*/
-	void appendAnchor(int node,
+    void appendDeformableAnchor(int node, btRigidBody* body);
+    void appendAnchor(int node,
 					  btRigidBody* body, bool disableCollisionBetweenLinkedBodies = false, btScalar influence = 1);
 	void appendAnchor(int node, btRigidBody* body, const btVector3& localPivot, bool disableCollisionBetweenLinkedBodies = false, btScalar influence = 1);
 	/* Append linear joint													*/

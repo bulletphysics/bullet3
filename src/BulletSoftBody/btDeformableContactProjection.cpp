@@ -32,6 +32,14 @@ btScalar btDeformableContactProjection::update()
         }
     }
     
+    // anchor constraints
+    for (int index = 0; index < m_nodeAnchorConstraints.size(); ++index)
+    {
+        btDeformableNodeAnchorConstraint& constraint = *m_nodeAnchorConstraints.getAtIndex(index);
+        btScalar localResidualSquare = constraint.solveConstraint();
+        residualSquare = btMax(residualSquare, localResidualSquare);
+    }
+    
     // face constraints
     for (int index = 0; index < m_allFaceConstraints.size(); ++index)
     {
@@ -73,6 +81,24 @@ void btDeformableContactProjection::setConstraints()
             continue;
         }
 
+        // set up deformable anchors
+        for (int j = 0; j < psb->m_deformableAnchors.size(); ++j)
+        {
+            btSoftBody::DeformableNodeRigidAnchor& anchor = psb->m_deformableAnchors[j];
+            // skip fixed points
+            if (anchor.m_node->m_im == 0)
+            {
+                continue;
+            }
+            
+            if (m_nodeAnchorConstraints.find(anchor.m_node->index) == NULL)
+            {
+                anchor.m_c1 = anchor.m_cti.m_colObj->getWorldTransform().getBasis() * anchor.m_local;
+                btDeformableNodeAnchorConstraint constraint(anchor);
+                m_nodeAnchorConstraints.insert(anchor.m_node->index, constraint);
+            }
+        }
+        
         // set Deformable Node vs. Rigid constraint
         for (int j = 0; j < psb->m_nodeRigidContacts.size(); ++j)
         {
@@ -262,7 +288,7 @@ void btDeformableContactProjection::setProjection()
             bool existStaticConstraint = false;
             btVector3 averagedNormal(0,0,0);
             btAlignedObjectArray<btVector3> normals;
-            if (m_staticConstraints.find(index) != NULL)
+            if (m_staticConstraints.find(index) != NULL || m_nodeAnchorConstraints.find(index) != NULL)
             {
                 existStaticConstraint = true;
                 hasConstraint = true;
@@ -451,6 +477,7 @@ void btDeformableContactProjection::applyDynamicFriction(TVStack& f)
 void btDeformableContactProjection::reinitialize(bool nodeUpdated)
 {
     m_staticConstraints.clear();
+    m_nodeAnchorConstraints.clear();
     m_nodeRigidConstraints.clear();
     m_faceRigidConstraints.clear();
     m_deformableConstraints.clear();

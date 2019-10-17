@@ -140,6 +140,13 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
             node.m_q = node.m_x;
             node.m_vn = node.m_v;
         }
+        // enforce anchor constraints
+        for (int j = 0; j < psb->m_deformableAnchors.size();++j)
+        {
+            btSoftBody::DeformableNodeRigidAnchor& a = psb->m_deformableAnchors[j];
+            btSoftBody::Node* n = a.m_node;
+            n->m_x = a.m_cti.m_colObj->getWorldTransform() * a.m_local;
+        }
         psb->interpolateRenderMesh();
     }
 }

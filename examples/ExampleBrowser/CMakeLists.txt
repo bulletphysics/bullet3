@@ -371,6 +371,8 @@ SET(BulletExampleBrowser_SRCS
   ../DeformableDemo/DeformableRigid.h
   ../DeformableDemo/VolumetricDeformable.cpp
   ../DeformableDemo/VolumetricDeformable.h
+  ../DeformableDemo/DeformableClothAnchor.cpp
+  ../DeformableDemo/DeformableClothAnchor.h
   ../MultiBody/MultiDofDemo.cpp
   ../MultiBody/MultiDofDemo.h
   ../RigidBody/RigidBodySoftContact.cpp
