@@ -15,6 +15,125 @@
 
 #include "btDeformableContactConstraint.h"
 
+/* ================   Deformable Node Anchor   =================== */
+btDeformableNodeAnchorConstraint::btDeformableNodeAnchorConstraint(const btSoftBody::DeformableNodeRigidAnchor& a)
+: m_anchor(&a)
+, btDeformableContactConstraint(a.m_cti.m_normal)
+{
+}
+
+btDeformableNodeAnchorConstraint::btDeformableNodeAnchorConstraint(const btDeformableNodeAnchorConstraint& other)
+: m_anchor(other.m_anchor)
+, btDeformableContactConstraint(other)
+{
+}
+
+btVector3 btDeformableNodeAnchorConstraint::getVa() const
+{
+    const btSoftBody::sCti& cti = m_anchor->m_cti;
+    btVector3 va(0, 0, 0);
+    if (cti.m_colObj->hasContactResponse())
+    {
+        btRigidBody* rigidCol = 0;
+        btMultiBodyLinkCollider* multibodyLinkCol = 0;
+        
+        // grab the velocity of the rigid body
+        if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+        {
+            rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
+            va = rigidCol ? (rigidCol->getVelocityInLocalPoint(m_anchor->m_c1)) : btVector3(0, 0, 0);
+        }
+        else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+        {
+            multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
+            if (multibodyLinkCol)
+            {
+                const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
+                const btScalar* J_n = &m_anchor->jacobianData_normal.m_jacobians[0];
+                const btScalar* J_t1 = &m_anchor->jacobianData_t1.m_jacobians[0];
+                const btScalar* J_t2 = &m_anchor->jacobianData_t2.m_jacobians[0];
+                const btScalar* local_v = multibodyLinkCol->m_multiBody->getVelocityVector();
+                const btScalar* local_dv = multibodyLinkCol->m_multiBody->getDeltaVelocityVector();
+                // add in the normal component of the va
+                btScalar vel = 0.0;
+                for (int k = 0; k < ndof; ++k)
+                {
+                    vel += (local_v[k]+local_dv[k]) * J_n[k];
+                }
+                va = cti.m_normal * vel;
+                // add in the tangential components of the va
+                vel = 0.0;
+                for (int k = 0; k < ndof; ++k)
+                {
+                    vel += (local_v[k]+local_dv[k]) * J_t1[k];
+                }
+                va += m_anchor->t1 * vel;
+                vel = 0.0;
+                for (int k = 0; k < ndof; ++k)
+                {
+                    vel += (local_v[k]+local_dv[k]) * J_t2[k];
+                }
+                va += m_anchor->t2 * vel;
+            }
+        }
+    }
+    return va;
+}
+
+btScalar btDeformableNodeAnchorConstraint::solveConstraint()
+{
+    const btSoftBody::sCti& cti = m_anchor->m_cti;
+    btVector3 va = getVa();
+    btVector3 vb = getVb();
+    btVector3 vr = (vb - va);
+    // + (m_anchor->m_node->m_x - cti.m_colObj->getWorldTransform() * m_anchor->m_local) * 10.0
+    const btScalar dn = btDot(vr, cti.m_normal);
+    // dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
+    btScalar residualSquare = dn*dn;
+    btVector3 impulse = m_anchor->m_c0 * vr;
+    // apply impulse to deformable nodes involved and change their velocities
+    applyImpulse(impulse);
+    
+    // apply impulse to the rigid/multibodies involved and change their velocities
+    if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+    {
+        btRigidBody* rigidCol = 0;
+        rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
+        if (rigidCol)
+        {
+            rigidCol->applyImpulse(impulse, m_anchor->m_c1);
+        }
+    }
+    else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+    {
+        btMultiBodyLinkCollider* multibodyLinkCol = 0;
+        multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
+        if (multibodyLinkCol)
+        {
+            const btScalar* deltaV_normal = &m_anchor->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
+            // apply normal component of the impulse
+            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_normal, impulse.dot(cti.m_normal));
+            // apply tangential component of the impulse
+            const btScalar* deltaV_t1 = &m_anchor->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
+            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t1, impulse.dot(m_anchor->t1));
+            const btScalar* deltaV_t2 = &m_anchor->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
+            multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t2, impulse.dot(m_anchor->t2));
+        }
+    }
+    return residualSquare;
+}
+
+btVector3 btDeformableNodeAnchorConstraint::getVb() const
+{
+    return m_anchor->m_node->m_v;
+}
+
+void btDeformableNodeAnchorConstraint::applyImpulse(const btVector3& impulse)
+{
+    btVector3 dv = impulse * m_anchor->m_c2;
+    m_anchor->m_node->m_v -= dv;
+}
+
 /* ================   Deformable vs. Rigid   =================== */
 btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btSoftBody::DeformableRigidContact& c)
 : m_contact(&c)

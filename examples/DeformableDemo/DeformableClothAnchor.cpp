@@ -10,8 +10,7 @@
  2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
  3. This notice may not be removed or altered from any source distribution.
  */
-
-#include "DeformableContact.h"
+#include "DeformableClothAnchor.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
@@ -25,17 +24,16 @@
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
-///The DeformableContact shows the contact between deformable objects
-
-class DeformableContact : public CommonRigidBodyBase
+///The DeformableClothAnchor shows contact between deformable objects and rigid objects.
+class DeformableClothAnchor : public CommonRigidBodyBase
 {
     btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 public:
-    DeformableContact(struct GUIHelperInterface* helper)
+    DeformableClothAnchor(struct GUIHelperInterface* helper)
     : CommonRigidBodyBase(helper)
     {
     }
-    virtual ~DeformableContact()
+    virtual ~DeformableClothAnchor()
     {
     }
     void initPhysics();
@@ -44,26 +42,31 @@ public:
     
     void resetCamera()
     {
-        float dist = 12;
-        float pitch = -50;
-        float yaw = 120;
+        float dist = 20;
+        float pitch = -45;
+        float yaw = 100;
         float targetPos[3] = {0, -3, 0};
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     
     void stepSimulation(float deltaTime)
     {
+        //use a smaller internal timestep, there are stability issues
         float internalTimeStep = 1. / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
     virtual const btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld() const
     {
+        ///just make it a btSoftRigidDynamicsWorld please
+        ///or we will add type checking
         return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
     }
     
     virtual btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld()
     {
+        ///just make it a btSoftRigidDynamicsWorld please
+        ///or we will add type checking
         return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
     }
     
@@ -75,6 +78,7 @@ public:
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
             btSoftBody* psb = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
+            //if (softWorld->getDebugDrawer() && !(softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
             {
                 btSoftBodyHelpers::DrawFrame(psb, deformableWorld->getDebugDrawer());
                 btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
@@ -83,7 +87,7 @@ public:
     }
 };
 
-void DeformableContact::initPhysics()
+void DeformableClothAnchor::initPhysics()
 {
     m_guiHelper->setUpAxis(1);
     
@@ -102,21 +106,24 @@ void DeformableContact::initPhysics()
     m_solver = sol;
     
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
+    //    deformableBodySolver->setWorld(getDeformableDynamicsWorld());
+    //    m_dynamicsWorld->getSolverInfo().m_singleAxisDeformableThreshold = 0.f;//faster but lower quality
     btVector3 gravity = btVector3(0, -10, 0);
     m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
     
+    //    getDeformableDynamicsWorld()->before_solver_callbacks.push_back(dynamics);
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
     
     {
         ///create a ground
-        btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(150), btScalar(25.), btScalar(150)));
+        btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(150.), btScalar(25.), btScalar(150.)));
         
         m_collisionShapes.push_back(groundShape);
         
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setOrigin(btVector3(0, -32, 0));
+        groundTransform.setOrigin(btVector3(0, -50, 0));
         groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
         //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
         btScalar mass(0.);
@@ -132,7 +139,7 @@ void DeformableContact::initPhysics()
         btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
         btRigidBody* body = new btRigidBody(rbInfo);
-        body->setFriction(2);
+        body->setFriction(1);
         
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
@@ -140,68 +147,43 @@ void DeformableContact::initPhysics()
     
     // create a piece of cloth
     {
-        btScalar s = 4;
-        btScalar h = 0;
-        
+        const btScalar s = 4;
+        const btScalar h = 6;
+        const int r = 9;
         btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -s),
                                                          btVector3(+s, h, -s),
                                                          btVector3(-s, h, +s),
-                                                         btVector3(+s, h, +s),
-                                                         20,20,
-                                                         1 + 2 + 4 + 8, true);
-        
+                                                         btVector3(+s, h, +s), r, r, 4 + 8, true);
         psb->getCollisionShape()->setMargin(0.1);
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 0;
+        psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         
-        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(10,1, true);
+        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(100,1, true);
         getDeformableDynamicsWorld()->addForce(psb, mass_spring);
         m_forces.push_back(mass_spring);
         
         btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
-
         
-        h = 2;
-        s = 2;
-        btSoftBody* psb2 = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -s),
-                                                          btVector3(+s, h, -s),
-                                                          btVector3(-s, h, +s),
-                                                          btVector3(+s, h, +s),
-                                                          10,10,
-                                                          0, true);
-        psb2->getCollisionShape()->setMargin(0.1);
-        psb2->generateBendingConstraints(2);
-        psb2->setTotalMass(1);
-        psb2->m_cfg.kKHR = 1; // collision hardness with kinematic objects
-        psb2->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb2->m_cfg.kDF = 0.1;
-        psb2->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        psb2->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
-        psb->translate(btVector3(3.5,0,0));
-        getDeformableDynamicsWorld()->addSoftBody(psb2);
-        
-        btDeformableMassSpringForce* mass_spring2 = new btDeformableMassSpringForce(10,1, true);
-        getDeformableDynamicsWorld()->addForce(psb2, mass_spring2);
-        m_forces.push_back(mass_spring2);
-        
-        btDeformableGravityForce* gravity_force2 =  new btDeformableGravityForce(gravity);
-        getDeformableDynamicsWorld()->addForce(psb2, gravity_force2);
-        m_forces.push_back(gravity_force2);
+        btTransform startTransform;
+        startTransform.setIdentity();
+        startTransform.setOrigin(btVector3(0, h, -(s + 3.5)));
+        btRigidBody* body = createRigidBody(2, startTransform, new btBoxShape(btVector3(s, 1, 3)));
+        psb->appendDeformableAnchor(0, body);
+        psb->appendDeformableAnchor(r - 1, body);
     }
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-void DeformableContact::exitPhysics()
+void DeformableClothAnchor::exitPhysics()
 {
     //cleanup in the reverse order of creation/initialization
     
@@ -244,9 +226,11 @@ void DeformableContact::exitPhysics()
     delete m_collisionConfiguration;
 }
 
-class CommonExampleInterface* DeformableContactCreateFunc(struct CommonExampleOptions& options)
+
+
+class CommonExampleInterface* DeformableClothAnchorCreateFunc(struct CommonExampleOptions& options)
 {
-    return new DeformableContact(options.m_guiHelper);
+    return new DeformableClothAnchor(options.m_guiHelper);
 }
 
 

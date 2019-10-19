@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "btDeformableLagrangianForce.h"
 #include "LinearMath/btQuickprof.h"
+#include "LinearMath/btImplicitQRSVD.h"
 // This energy is as described in https://graphics.pixar.com/library/StableElasticity/paper.pdf
 class btDeformableNeoHookeanForce : public btDeformableLagrangianForce
 {
@@ -32,7 +33,7 @@ public:
         m_lambda_damp = damping * m_lambda;
     }
     
-    btDeformableNeoHookeanForce(btScalar mu, btScalar lambda, btScalar damping = 0): m_mu(mu), m_lambda(lambda)
+    btDeformableNeoHookeanForce(btScalar mu, btScalar lambda, btScalar damping = 0.05): m_mu(mu), m_lambda(lambda)
     {
         m_mu_damp = damping * m_mu;
         m_lambda_damp = damping * m_lambda;
@@ -60,6 +61,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_tetras.size(); ++j)
             {
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
@@ -72,8 +77,10 @@ public:
                 size_t id2 = node2->index;
                 size_t id3 = node3->index;
                 btMatrix3x3 dF = DsFromVelocity(node0, node1, node2, node3) * tetra.m_Dm_inverse;
-                btMatrix3x3 dP;
-                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
+                btMatrix3x3 I;
+                I.setIdentity();
+                btMatrix3x3 dP = (dF + dF.transpose()) * m_mu_damp + I * (dF[0][0]+dF[1][1]+dF[2][2]) * m_lambda_damp;
+//                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
                 btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
 
@@ -93,6 +100,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_tetraScratches.size(); ++j)
             {
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
@@ -111,6 +122,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
                 sz = btMax(sz, psb->m_nodes[j].index);
@@ -150,11 +165,35 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
+            btScalar max_p = psb->m_cfg.m_maxStress;
             for (int j = 0; j < psb->m_tetras.size(); ++j)
             {
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
                 btMatrix3x3 P;
                 firstPiola(psb->m_tetraScratches[j],P);
+                
+                btMatrix3x3 U, V;
+                btVector3 sigma;
+                singularValueDecomposition(P, U, sigma, V);
+                if (max_p > 0)
+                {
+                    sigma[0] = btMin(sigma[0], max_p);
+                    sigma[1] = btMin(sigma[1], max_p);
+                    sigma[2] = btMin(sigma[2], max_p);
+                    sigma[0] = btMax(sigma[0], -max_p);
+                    sigma[1] = btMax(sigma[1], -max_p);
+                    sigma[2] = btMax(sigma[2], -max_p);
+                }
+                btMatrix3x3 Sigma;
+                Sigma.setIdentity();
+                Sigma[0][0] = sigma[0];
+                Sigma[1][1] = sigma[1];
+                Sigma[2][2] = sigma[2];
+                P = U * Sigma * V.transpose();
 //                btVector3 force_on_node0 = P * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 force_on_node123 = P * tetra.m_Dm_inverse.transpose();
                 btVector3 force_on_node0 = force_on_node123 * grad_N_hat_1st_col;
@@ -189,6 +228,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_tetras.size(); ++j)
             {
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
@@ -201,8 +244,10 @@ public:
                 size_t id2 = node2->index;
                 size_t id3 = node3->index;
                 btMatrix3x3 dF = Ds(id0, id1, id2, id3, dv) * tetra.m_Dm_inverse;
-                btMatrix3x3 dP;
-                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
+                btMatrix3x3 I;
+                I.setIdentity();
+                btMatrix3x3 dP = (dF + dF.transpose()) * m_mu_damp + I * (dF[0][0]+dF[1][1]+dF[2][2]) * m_lambda_damp;
+//                firstPiolaDampingDifferential(psb->m_tetraScratchesTn[j], dF, dP);
 //                btVector3 df_on_node0 = dP * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
                 btVector3 df_on_node0 = df_on_node123 * grad_N_hat_1st_col;
@@ -225,6 +270,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_tetras.size(); ++j)
             {
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];

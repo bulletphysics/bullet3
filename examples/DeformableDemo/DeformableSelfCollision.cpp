@@ -175,7 +175,7 @@ void DeformableSelfCollision::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
     }
-    getDeformableDynamicsWorld()->setImplicit(true);
+    getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }

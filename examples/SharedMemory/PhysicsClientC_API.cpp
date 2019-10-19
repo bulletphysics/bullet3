@@ -348,12 +348,13 @@ B3_SHARED_API int b3LoadSoftBodyAddCorotatedForce(b3SharedMemoryCommandHandle co
 	return 0;
 }
 
-B3_SHARED_API int b3LoadSoftBodyAddNeoHookeanForce(b3SharedMemoryCommandHandle commandHandle, double NeoHookeanMu, double NeoHookeanLambda)
+B3_SHARED_API int b3LoadSoftBodyAddNeoHookeanForce(b3SharedMemoryCommandHandle commandHandle, double NeoHookeanMu, double NeoHookeanLambda, double NeoHookeanDamping)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
         command->m_loadSoftBodyArguments.m_NeoHookeanMu = NeoHookeanMu;
         command->m_loadSoftBodyArguments.m_NeoHookeanLambda = NeoHookeanLambda;
+        command->m_loadSoftBodyArguments.m_NeoHookeanDamping = NeoHookeanDamping;
 	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_NEOHOOKEAN_FORCE;
 	return 0;
 }
@@ -382,6 +383,15 @@ B3_SHARED_API int b3LoadSoftBodySetCollisionHardness(b3SharedMemoryCommandHandle
 	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
         command->m_loadSoftBodyArguments.m_collisionHardness = collisionHardness;
 	command->m_updateFlags |= LOAD_SOFT_BODY_SET_COLLISION_HARDNESS;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodySetSelfCollision(b3SharedMemoryCommandHandle commandHandle, int useSelfCollision)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_useSelfCollision = useSelfCollision;
+	command->m_updateFlags |= LOAD_SOFT_BODY_SET_SELF_COLLISION;
 	return 0;
 }
 

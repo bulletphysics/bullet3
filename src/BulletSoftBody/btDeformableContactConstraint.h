@@ -109,6 +109,32 @@ public:
 };
 
 //
+// Anchor Constraint between rigid and deformable node
+class btDeformableNodeAnchorConstraint : public btDeformableContactConstraint
+{
+public:
+    const btSoftBody::DeformableNodeRigidAnchor* m_anchor;
+    
+    btDeformableNodeAnchorConstraint(){}
+    btDeformableNodeAnchorConstraint(const btSoftBody::DeformableNodeRigidAnchor& c);
+    btDeformableNodeAnchorConstraint(const btDeformableNodeAnchorConstraint& other);
+    virtual ~btDeformableNodeAnchorConstraint()
+    {
+    }
+    virtual btScalar solveConstraint();
+    // object A is the rigid/multi body, and object B is the deformable node/face
+    virtual btVector3 getVa() const;
+    // get the velocity of the deformable node in contact
+    virtual btVector3 getVb() const;
+    virtual btVector3 getDv(const btSoftBody::Node* n) const
+    {
+        return btVector3(0,0,0);
+    }
+    virtual void applyImpulse(const btVector3& impulse);
+};
+
+
+//
 // Constraint between rigid/multi body and deformable objects
 class btDeformableRigidContactConstraint : public btDeformableContactConstraint
 {

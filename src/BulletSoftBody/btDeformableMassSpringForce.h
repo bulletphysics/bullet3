@@ -51,6 +51,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             const btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_links.size(); ++j)
             {
                 const btSoftBody::Link& link = psb->m_links[j];
@@ -83,6 +87,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             const btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_links.size(); ++j)
             {
                 const btSoftBody::Link& link = psb->m_links[j];
@@ -108,6 +116,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             btScalar scaled_k_damp = m_dampingStiffness * scale;
             for (int j = 0; j < psb->m_links.size(); ++j)
             {
@@ -138,6 +150,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             const btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_links.size(); ++j)
             {
                 const btSoftBody::Link& link = psb->m_links[j];
@@ -160,6 +176,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
                 sz = btMax(sz, psb->m_nodes[j].index);
@@ -188,6 +208,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             const btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             btScalar scaled_k = m_elasticStiffness * scale;
             for (int j = 0; j < psb->m_links.size(); ++j)
             {

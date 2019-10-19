@@ -354,6 +354,12 @@ public:
         Node* m_node;      // Owner node
     };
     
+    class DeformableNodeRigidAnchor : public DeformableNodeRigidContact
+    {
+    public:
+        btVector3 m_local;    // Anchor position in body space
+    };
+    
     class DeformableFaceRigidContact : public DeformableRigidContact
     {
     public:
@@ -702,6 +708,8 @@ public:
 		tVSolverArray m_vsequence;  // Velocity solvers sequence
 		tPSolverArray m_psequence;  // Position solvers sequence
 		tPSolverArray m_dsequence;  // Drift solvers sequence
+        btScalar drag;           // deformable air drag
+        btScalar m_maxStress;       // Maximum principle first Piola stress
 	};
 	/* SolverState	*/
 	struct SolverState
@@ -772,6 +780,7 @@ public:
     btAlignedObjectArray<TetraScratch> m_tetraScratches;
     btAlignedObjectArray<TetraScratch> m_tetraScratchesTn;
 	tAnchorArray m_anchors;            // Anchors
+    btAlignedObjectArray<DeformableNodeRigidAnchor> m_deformableAnchors;
 	tRContactArray m_rcontacts;        // Rigid contacts
     btAlignedObjectArray<DeformableNodeRigidContact> m_nodeRigidContacts;
     btAlignedObjectArray<DeformableFaceNodeContact> m_faceNodeContacts;
@@ -787,9 +796,13 @@ public:
 	btDbvt m_cdbvt;                    // Clusters tree
 	tClusterArray m_clusters;          // Clusters
     btScalar m_dampingCoefficient;     // Damping Coefficient
+    btScalar m_sleepingThreshold;
+    btScalar m_maxSpeedSquared;
+    bool m_useFaceContact;
     
     btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
     btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
+    bool m_useSelfCollision;
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
 
@@ -825,6 +838,11 @@ public:
     void setDampingCoefficient(btScalar damping_coeff)
     {
         m_dampingCoefficient = damping_coeff;
+    }
+    
+    void setUseFaceContact(bool useFaceContact)
+    {
+        m_useFaceContact = false;
     }
 
 	///@todo: avoid internal softbody shape hack and move collision code to collision library
@@ -886,7 +904,9 @@ public:
 					 Material* mat = 0);
 
 	/* Append anchor														*/
-	void appendAnchor(int node,
+    void appendDeformableAnchor(int node, btRigidBody* body);
+    void appendDeformableAnchor(int node, btMultiBodyLinkCollider* link);
+    void appendAnchor(int node,
 					  btRigidBody* body, bool disableCollisionBetweenLinkedBodies = false, btScalar influence = 1);
 	void appendAnchor(int node, btRigidBody* body, const btVector3& localPivot, bool disableCollisionBetweenLinkedBodies = false, btScalar influence = 1);
 	/* Append linear joint													*/
@@ -1006,6 +1026,11 @@ public:
 	/* defaultCollisionHandlers												*/
 	void defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap);
 	void defaultCollisionHandler(btSoftBody* psb);
+    void setSelfCollision(bool useSelfCollision);
+    bool useSelfCollision();
+    void updateDeactivation(btScalar timeStep);
+    void setZeroVelocity();
+    bool wantsSleeping();
 
 	//
 	// Functionality to deal with new accelerated solvers.
@@ -1103,6 +1128,7 @@ public:
     void updateDeformation();
     void advanceDeformation();
 	void applyForces();
+    void setMaxStress(btScalar maxStress);
     void interpolateRenderMesh();
 	static void PSolve_Anchors(btSoftBody* psb, btScalar kst, btScalar ti);
 	static void PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti);

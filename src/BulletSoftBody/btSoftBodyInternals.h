@@ -1074,6 +1074,7 @@ struct btSoftColliders
                 if (psb->checkDeformableContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predict = */ true) || psb->checkDeformableContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predict = */ true))
                 {
                     const btScalar ima = n.m_im;
+                    // todo: collision between multibody and fixed deformable node will be missed.
                     const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;
                     const btScalar ms = ima + imb;
                     if (ms > 0)
@@ -1096,8 +1097,6 @@ struct btSoftColliders
                             
                             c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
                             c.m_c1 = ra;
-                            if (m_rigidBody)
-                                m_rigidBody->activate();
                         }
                         else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
                         {
@@ -1169,6 +1168,7 @@ struct btSoftColliders
             {
                 btScalar ima = n0->m_im + n1->m_im + n2->m_im;
                 const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;
+                // todo: collision between multibody and fixed deformable face will be missed.
                 const btScalar ms = ima + imb;
                 if (ms > 0)
                 {
@@ -1198,8 +1198,6 @@ struct btSoftColliders
                         // we do not scale the impulse matrix by dt
                         c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
                         c.m_c1 = ra;
-                        if (m_rigidBody)
-                            m_rigidBody->activate();
                     }
                     else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
                     {

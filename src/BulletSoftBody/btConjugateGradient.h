@@ -27,12 +27,12 @@ class btConjugateGradient
     typedef btAlignedObjectArray<btVector3> TVStack;
     TVStack r,p,z,temp;
     int max_iterations;
-    btScalar tolerance;
+    btScalar tolerance_squared;
 public:
     btConjugateGradient(const int max_it_in)
     : max_iterations(max_it_in)
     {
-       tolerance = 1024 * std::numeric_limits<btScalar>::epsilon();
+       tolerance_squared = 1e-5;
     }
     
     virtual ~btConjugateGradient(){}
@@ -51,8 +51,7 @@ public:
         A.precondition(r, z);
         A.project(z);
         btScalar r_dot_z = dot(z,r);
-        btScalar local_tolerance = tolerance;
-        if (std::sqrt(r_dot_z) <= local_tolerance) {
+        if (r_dot_z <= tolerance_squared) {
             if (verbose)
             {
                 std::cout << "Iteration = 0" << std::endl;
@@ -66,7 +65,6 @@ public:
             // temp = A*p
             A.multiply(p, temp);
             A.project(temp);
-            // alpha = r^T * z / (p^T * A * p)
             if (dot(p,temp) < SIMD_EPSILON)
             {
                 if (verbose)
@@ -77,6 +75,7 @@ public:
                 }
               return k;
             }
+            // alpha = r^T * z / (p^T * A * p)
             btScalar alpha = r_dot_z_new / dot(p, temp);
             //  x += alpha * p;
             multAndAddTo(alpha, p, x);
@@ -86,7 +85,7 @@ public:
             A.precondition(r, z);
             r_dot_z = r_dot_z_new;
             r_dot_z_new = dot(r,z);
-            if (std::sqrt(r_dot_z_new) < local_tolerance) {
+            if (r_dot_z_new < tolerance_squared) {
                 if (verbose)
                 {
                     std::cout << "ConjugateGradient iterations " << k << std::endl;

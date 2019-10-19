@@ -57,6 +57,10 @@ public:
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
                 btSoftBody::Node& n = psb->m_nodes[j];
@@ -80,6 +84,10 @@ public:
         for (int i = 0; i<m_softBodies.size();++i)
         {
             btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
                 const btSoftBody::Node& node = psb->m_nodes[j];
