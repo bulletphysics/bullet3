@@ -3463,8 +3463,6 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 		btDefaultSerializer ser(bufferSizeInBytes, (unsigned char*)bufferServerToClient);
 
 		ser.startSerialization();
-		ser.registerNameForPointer(sb, bodyHandle->m_bodyName.c_str());
-
 		int len = sb->calculateSerializeBufferSize();
 		btChunk* chunk = ser.allocate(len, 1);
 		const char* structType = sb->serialize(chunk->m_oldPtr, &ser);
@@ -8227,6 +8225,12 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 
 	    serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
 	    serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_COMPLETED;
+      int pos = strlen(relativeFileName)-1;
+      while(pos>=0 && relativeFileName[pos]!='/') { pos--;}
+      btAssert(strlen(relativeFileName)-pos-5>0);
+      std::string object_name (std::string(relativeFileName).substr(pos+1, strlen(relativeFileName)- 5 - pos));
+      bodyHandle->m_bodyName = object_name;
+
 
 	    int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
 	    serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;

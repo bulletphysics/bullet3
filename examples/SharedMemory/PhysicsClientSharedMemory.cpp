@@ -1458,7 +1458,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
                                BodyJointInfoCache* bodyJoints = new BodyJointInfoCache;
                                m_data->m_bodyJointMap.insert(bodyUniqueId, bodyJoints);
                                bodyJoints->m_bodyName = serverCmd.m_dataStreamArguments.m_bodyName;
-                               bodyJoints->m_baseName = "baseLink";
+                               bodyJoints->m_baseName = serverCmd.m_dataStreamArguments.m_bodyName;
                                         
                                if (bf.ok())
                                {
