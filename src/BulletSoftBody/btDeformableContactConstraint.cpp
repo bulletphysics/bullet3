@@ -435,7 +435,7 @@ btScalar btDeformableFaceNodeContactConstraint::solveConstraint()
         m_total_tangent_dv -= impulse_tangent *  m_contact->m_imf;
     }
     
-    if (m_total_normal_dv.dot(m_contact->m_normal) < 0)
+    if (m_total_normal_dv.dot(m_contact->m_normal) > 0)
     {
         // separating in the normal direction
         m_static = false;
