@@ -14,7 +14,6 @@
  */
 
 #include "btDeformableContactConstraint.h"
-
 /* ================   Deformable Node Anchor   =================== */
 btDeformableNodeAnchorConstraint::btDeformableNodeAnchorConstraint(const btSoftBody::DeformableNodeRigidAnchor& a)
 : m_anchor(&a)
@@ -216,12 +215,11 @@ btScalar btDeformableRigidContactConstraint::solveConstraint()
     btVector3 impulse = m_contact->m_c0 * vr;
     const btVector3 impulse_normal = m_contact->m_c0 * (cti.m_normal * dn);
     btVector3 impulse_tangent = impulse - impulse_normal;
-    
     btVector3 old_total_tangent_dv = m_total_tangent_dv;
     // m_c2 is the inverse mass of the deformable node/face
     m_total_normal_dv -= impulse_normal * m_contact->m_c2;
     m_total_tangent_dv -= impulse_tangent * m_contact->m_c2;
-    
+
     if (m_total_normal_dv.dot(cti.m_normal) < 0)
     {
         // separating in the normal direction
@@ -236,13 +234,13 @@ btScalar btDeformableRigidContactConstraint::solveConstraint()
             // dynamic friction
             // with dynamic friction, the impulse are still applied to the two objects colliding, however, it does not pose a constraint in the cg solve, hence the change to dv merely serves to update velocity in the contact iterations.
             m_static = false;
-            if (m_total_tangent_dv.norm() < SIMD_EPSILON)
+            if (m_total_tangent_dv.safeNorm() < SIMD_EPSILON)
             {
                 m_total_tangent_dv = btVector3(0,0,0);
             }
             else
             {
-                m_total_tangent_dv = m_total_tangent_dv.normalized() * m_total_normal_dv.norm() * m_contact->m_c3;
+                m_total_tangent_dv = m_total_tangent_dv.normalized() * m_total_normal_dv.safeNorm() * m_contact->m_c3;
             }
             impulse_tangent = -btScalar(1)/m_contact->m_c2 * (m_total_tangent_dv - old_total_tangent_dv);
         }
@@ -255,7 +253,6 @@ btScalar btDeformableRigidContactConstraint::solveConstraint()
     impulse = impulse_normal + impulse_tangent;
     // apply impulse to deformable nodes involved and change their velocities
     applyImpulse(impulse);
-    
     // apply impulse to the rigid/multibodies involved and change their velocities
     if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
     {
@@ -469,13 +466,13 @@ btScalar btDeformableFaceNodeContactConstraint::solveConstraint()
             // dynamic friction
             // with dynamic friction, the impulse are still applied to the two objects colliding, however, it does not pose a constraint in the cg solve, hence the change to dv merely serves to update velocity in the contact iterations.
             m_static = false;
-            if (m_total_tangent_dv.norm() < SIMD_EPSILON)
+            if (m_total_tangent_dv.safeNorm() < SIMD_EPSILON)
             {
                 m_total_tangent_dv = btVector3(0,0,0);
             }
             else
             {
-                m_total_tangent_dv = m_total_tangent_dv.normalized() * m_total_normal_dv.norm() * m_contact->m_friction;
+                m_total_tangent_dv = m_total_tangent_dv.normalized() * m_total_normal_dv.safeNorm() * m_contact->m_friction;
             }
             impulse_tangent = -btScalar(1)/m_node->m_im * (m_total_tangent_dv - old_total_tangent_dv);
         }
