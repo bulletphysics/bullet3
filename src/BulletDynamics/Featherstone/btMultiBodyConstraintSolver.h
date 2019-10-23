@@ -87,7 +87,6 @@ protected:
 	virtual btScalar solveSingleIteration(int iteration, btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
 	void applyDeltaVee(btScalar * deltaV, btScalar impulse, int velocityIndex, int ndof);
 	void writeBackSolverBodyToMultiBody(btMultiBodySolverConstraint & constraint, btScalar deltaTime);
-	void writeBackMultiBodyContacts(int iBegin, int iEnd);
 
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
