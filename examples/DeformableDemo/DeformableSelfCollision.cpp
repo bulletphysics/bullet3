@@ -166,6 +166,7 @@ void DeformableSelfCollision::initPhysics()
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
+		psb->setSelfCollision(true);
         
         btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(10,0.2, true);
         getDeformableDynamicsWorld()->addForce(psb, mass_spring);
