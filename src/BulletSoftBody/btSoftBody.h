@@ -974,14 +974,16 @@ public:
 	/* Return the volume													*/
 	btScalar getVolume() const;
 	/* Cluster count														*/
-  btVector3 getCenterOfMass() const{
-    btVector3 com(0,0,0);
-    for(int i = 0; i<m_nodes.size(); i++){
-      com += m_nodes[i].m_x;
-    }
-    com/=m_nodes.size();
-    return com;
-  }
+	btVector3 getCenterOfMass() const
+	{
+		btVector3 com(0, 0, 0);
+		for (int i = 0; i < m_nodes.size(); i++)
+		{
+			com += (m_nodes[i].m_x / m_nodes[i].m_im);
+		}
+		com /= this->getTotalMass();
+		return com;
+	}
 	int clusterCount() const;
 	/* Cluster center of mass												*/
 	static btVector3 clusterCom(const Cluster* cluster);
