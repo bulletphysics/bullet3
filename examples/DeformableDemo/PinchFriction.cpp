@@ -112,9 +112,9 @@ void dynamics2(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
     if (rbs.size()<2)
         return;
     btRigidBody* rb0 = rbs[0];
-    btScalar pressTime = 0.9;
-    btScalar liftTime = 10;
-    btScalar shiftTime = 3.5;
+    btScalar pressTime = 0.45;
+    btScalar liftTime = 5;
+    btScalar shiftTime = 1.75;
     btScalar holdTime = 4.5*1000;
     btScalar dropTime = 5.3*1000;
     btTransform rbTransform;
@@ -124,9 +124,9 @@ void dynamics2(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
     
     btVector3 initialTranslationLeft = btVector3(0.5,3,4);
     btVector3 initialTranslationRight = btVector3(0.5,3,-4);
-    btVector3 PinchFrictionVelocityLeft = btVector3(0,0,-1);
-    btVector3 PinchFrictionVelocityRight = btVector3(0,0,1);
-    btVector3 liftVelocity = btVector3(0,1,0);
+    btVector3 PinchFrictionVelocityLeft = btVector3(0,0,-2);
+    btVector3 PinchFrictionVelocityRight = btVector3(0,0,2);
+    btVector3 liftVelocity = btVector3(0,2,0);
     btVector3 shiftVelocity = btVector3(0,0,0);
     btVector3 holdVelocity = btVector3(0,0,0);
     btVector3 openVelocityLeft = btVector3(0,0,4);
@@ -230,7 +230,8 @@ void PinchFriction::initPhysics()
     btVector3 gravity = btVector3(0, -10, 0);
     m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
-    
+	getDeformableDynamicsWorld()->getWorldInfo().m_sparsesdf.setDefaultVoxelsz(0.25);
+	getDeformableDynamicsWorld()->getWorldInfo().m_sparsesdf.Reset();
     getDeformableDynamicsWorld()->setSolverCallback(dynamics2);
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
     

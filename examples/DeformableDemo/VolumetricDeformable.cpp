@@ -169,6 +169,8 @@ void VolumetricDeformable::initPhysics()
     btVector3 gravity = btVector3(0, -100, 0);
 	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
+	getDeformableDynamicsWorld()->getWorldInfo().m_sparsesdf.setDefaultVoxelsz(0.25);
+	getDeformableDynamicsWorld()->getWorldInfo().m_sparsesdf.Reset();
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
     {
@@ -223,7 +225,7 @@ void VolumetricDeformable::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
         
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(30,100,0.02);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(30,100,0.05);
         getDeformableDynamicsWorld()->addForce(psb, neohookean);
         m_forces.push_back(neohookean);
         

@@ -119,6 +119,7 @@ void btSoftBody::initDefaults()
     m_dampingCoefficient = 1;
     m_sleepingThreshold = 0.1;
     m_useFaceContact = false;
+	m_useSelfCollision = false;
     m_collisionFlags = 0;
 }
 

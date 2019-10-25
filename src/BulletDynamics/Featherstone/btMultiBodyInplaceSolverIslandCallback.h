@@ -188,7 +188,13 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
             //} else
             {
                 for (i = 0; i < numBodies; i++)
-                    m_bodies.push_back(bodies[i]);
+				{
+					bool isSoftBodyType = (bodies[i]->getInternalType() & btCollisionObject::CO_SOFT_BODY);
+					if (!isSoftBodyType)
+					{
+						m_bodies.push_back(bodies[i]);
+					}
+				}
                 for (i = 0; i < numManifolds; i++)
                     m_manifolds.push_back(manifolds[i]);
                 for (i = 0; i < numCurConstraints; i++)
