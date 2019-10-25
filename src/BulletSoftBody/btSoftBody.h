@@ -20,6 +20,7 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btIDebugDraw.h"
+#include "LinearMath/btVector3.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
 #include "BulletCollision/CollisionShapes/btConcaveShape.h"
@@ -973,6 +974,14 @@ public:
 	/* Return the volume													*/
 	btScalar getVolume() const;
 	/* Cluster count														*/
+  btVector3 getCenterOfMass() const{
+    btVector3 com(0,0,0);
+    for(int i = 0; i<m_nodes.size(); i++){
+      com += m_nodes[i].m_x;
+    }
+    com/=m_nodes.size();
+    return com;
+  }
 	int clusterCount() const;
 	/* Cluster center of mass												*/
 	static btVector3 clusterCom(const Cluster* cluster);
