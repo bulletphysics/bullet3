@@ -35,8 +35,7 @@ plCollisionWorldHandle Bullet2CollisionSdk::createCollisionWorld(int /*maxNumObj
 	m_internalData->m_dispatcher = new btCollisionDispatcher(m_internalData->m_collisionConfig);
 	m_internalData->m_aabbBroadphase = new btDbvtBroadphase();
 	m_internalData->m_collisionWorld = new btCollisionWorld(m_internalData->m_dispatcher,
-															m_internalData->m_aabbBroadphase,
-															m_internalData->m_collisionConfig);
+															m_internalData->m_aabbBroadphase);
 	return (plCollisionWorldHandle)m_internalData->m_collisionWorld;
 }
 
