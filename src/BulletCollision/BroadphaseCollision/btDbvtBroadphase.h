@@ -121,7 +121,7 @@ struct btDbvtBroadphase : btBroadphaseInterface
 	virtual void printStats();
 
 	///reset broadphase internal structures, to ensure determinism/reproducability
-	virtual void resetPool(btDispatcher* dispatcher);
+	virtual void resetPool();
 
 	void performDeferredRemoval(btDispatcher* dispatcher);
 

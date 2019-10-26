@@ -319,7 +319,7 @@ bool btSimpleBroadphase::testAabbOverlap(btBroadphaseProxy* proxy0, btBroadphase
 	return aabbOverlap(p0, p1);
 }
 
-void btSimpleBroadphase::resetPool(btDispatcher* dispatcher)
+void btSimpleBroadphase::resetPool()
 {
 	//not yet
 }

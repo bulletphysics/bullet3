@@ -172,7 +172,7 @@ struct b3DynamicBvhBroadphase
 	virtual void printStats();
 
 	///reset broadphase internal structures, to ensure determinism/reproducability
-	virtual void resetPool(b3Dispatcher* dispatcher);
+	virtual void resetPool();
 
 	void performDeferredRemoval(b3Dispatcher* dispatcher);
 

@@ -131,7 +131,7 @@ public:
 	void updateHandle(BP_FP_INT_TYPE handle, const btVector3& aabbMin, const btVector3& aabbMax, btDispatcher* dispatcher);
 	SIMD_FORCE_INLINE Handle* getHandle(BP_FP_INT_TYPE index) const { return m_pHandles + index; }
 
-	virtual void resetPool(btDispatcher* dispatcher);
+	virtual void resetPool();
 
 	void processAllOverlappingPairs(btOverlapCallback* callback);
 
@@ -576,7 +576,7 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::removeHandle(BP_FP_INT_TYPE handle, b
 }
 
 template <typename BP_FP_INT_TYPE>
-void btAxisSweep3Internal<BP_FP_INT_TYPE>::resetPool(btDispatcher* /*dispatcher*/)
+void btAxisSweep3Internal<BP_FP_INT_TYPE>::resetPool()
 {
 	if (m_numHandles == 0)
 	{

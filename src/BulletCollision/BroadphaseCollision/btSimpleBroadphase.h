@@ -97,7 +97,7 @@ protected:
 	}
 
 	///reset broadphase internal structures, to ensure determinism/reproducability
-	virtual void resetPool(btDispatcher* dispatcher);
+	virtual void resetPool();
 
 	void validate();
 

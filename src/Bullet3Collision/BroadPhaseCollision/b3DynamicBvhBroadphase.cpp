@@ -643,7 +643,7 @@ void b3DynamicBvhBroadphase::getBroadphaseAabb(b3Vector3& aabbMin, b3Vector3& aa
 	aabbMax = bounds.Maxs();
 }
 
-void b3DynamicBvhBroadphase::resetPool(b3Dispatcher* dispatcher)
+void b3DynamicBvhBroadphase::resetPool()
 {
 	int totalObjects = m_sets[0].m_leaves + m_sets[1].m_leaves;
 	if (!totalObjects)
