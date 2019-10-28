@@ -129,11 +129,11 @@ public:
 	{
 		btVector3 linrel = linvelA - linvelB;
 		btVector3 angvela = angvelA * m_aJ;
-		btVector3 angvelb = angvelB * m_bJ;
+		const btVector3 angvelb = angvelB * m_bJ;
 		linrel *= m_linearJointAxis;
 		angvela += angvelb;
 		angvela += linrel;
-		btScalar rel_vel2 = angvela[0] + angvela[1] + angvela[2];
+		const btScalar rel_vel2 = angvela[0] + angvela[1] + angvela[2];
 		return rel_vel2 + SIMD_EPSILON;
 	}
 	//private:

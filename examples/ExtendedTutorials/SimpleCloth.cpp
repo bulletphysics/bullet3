@@ -88,7 +88,7 @@ void SimpleClothExample::initPhysics()
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0, -50, 0));
 	{
-		btScalar mass(0.);
+		const btScalar mass(0.);
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 

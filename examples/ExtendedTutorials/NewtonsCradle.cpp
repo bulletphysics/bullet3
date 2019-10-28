@@ -61,10 +61,10 @@ struct NewtonsCradleExample : public CommonRigidBodyBase
 	virtual void applyPendulumForce(btScalar pendulumForce);
 	void resetCamera()
 	{
-		float dist = 41;
-		float pitch = -35;
-		float yaw = 52;
-		float targetPos[3] = {0, 0.46, 0};
+		const float dist = 41;
+		const float pitch = -35;
+		const float yaw = 52;
+		const float targetPos[3] = {0, 0.46, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1],
 								 targetPos[2]);
 	}
@@ -150,10 +150,10 @@ void NewtonsCradleExample::initPhysics()
 			btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints + btIDebugDraw::DBG_DrawConstraints + btIDebugDraw::DBG_DrawConstraintLimits);
 
 	{  // create the pendula starting at the indicated position below and where each pendulum has the following mass
-		btScalar pendulumMass(1.f);
+		const btScalar pendulumMass(1.f);
 
 		btVector3 position(0.0f, 15.0f, 0.0f);  // initial left-most pendulum position
-		btQuaternion orientation(0, 0, 0, 1);   // orientation of the pendula
+		const btQuaternion orientation(0, 0, 0, 1);   // orientation of the pendula
 
 		// Re-using the same collision is better for memory usage and performance
 		btSphereShape* pendulumShape = new btSphereShape(gSphereRadius);

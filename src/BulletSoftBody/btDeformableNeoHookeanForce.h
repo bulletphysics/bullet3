@@ -264,7 +264,7 @@ public:
     
     virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
     {
-        int numNodes = getNumNodes();
+        const int numNodes = getNumNodes();
         btAssert(numNodes <= df.size());
         btVector3 grad_N_hat_1st_col = btVector3(-1,-1,-1);
         for (int i = 0; i < m_softBodies.size(); ++i)

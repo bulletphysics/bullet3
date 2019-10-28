@@ -137,15 +137,15 @@ public:
    * @param roll Angle around X */
 	void setEulerZYX(const b3Scalar& yawZ, const b3Scalar& pitchY, const b3Scalar& rollX)
 	{
-		b3Scalar halfYaw = b3Scalar(yawZ) * b3Scalar(0.5);
-		b3Scalar halfPitch = b3Scalar(pitchY) * b3Scalar(0.5);
-		b3Scalar halfRoll = b3Scalar(rollX) * b3Scalar(0.5);
-		b3Scalar cosYaw = b3Cos(halfYaw);
-		b3Scalar sinYaw = b3Sin(halfYaw);
-		b3Scalar cosPitch = b3Cos(halfPitch);
-		b3Scalar sinPitch = b3Sin(halfPitch);
-		b3Scalar cosRoll = b3Cos(halfRoll);
-		b3Scalar sinRoll = b3Sin(halfRoll);
+		const b3Scalar halfYaw = b3Scalar(yawZ) * b3Scalar(0.5);
+		const b3Scalar halfPitch = b3Scalar(pitchY) * b3Scalar(0.5);
+		const b3Scalar halfRoll = b3Scalar(rollX) * b3Scalar(0.5);
+		const b3Scalar cosYaw = b3Cos(halfYaw);
+		const b3Scalar sinYaw = b3Sin(halfYaw);
+		const b3Scalar cosPitch = b3Cos(halfPitch);
+		const b3Scalar sinPitch = b3Sin(halfPitch);
+		const b3Scalar cosRoll = b3Cos(halfRoll);
+		const b3Scalar sinRoll = b3Sin(halfRoll);
 		setValue(sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw,   //x
 				 cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw,   //y
 				 cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw,   //z

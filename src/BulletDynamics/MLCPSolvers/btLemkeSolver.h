@@ -44,7 +44,7 @@ public:
 		if (m_useLoHighBounds)
 		{
 			BT_PROFILE("btLemkeSolver::solveMLCP");
-			int n = A.rows();
+			const int n = A.rows();
 			if (0 == n)
 				return true;
 

@@ -543,12 +543,12 @@ SIMD_FORCE_INLINE btScalar btAtan2Fast(btScalar y, btScalar x)
 	btScalar angle;
 	if (x >= 0.0f)
 	{
-		btScalar r = (x - abs_y) / (x + abs_y);
+		const btScalar r = (x - abs_y) / (x + abs_y);
 		angle = coeff_1 - coeff_1 * r;
 	}
 	else
 	{
-		btScalar r = (x + abs_y) / (abs_y - x);
+		const btScalar r = (x + abs_y) / (abs_y - x);
 		angle = coeff_2 - coeff_1 * r;
 	}
 	return (y < 0.0f) ? -angle : angle;

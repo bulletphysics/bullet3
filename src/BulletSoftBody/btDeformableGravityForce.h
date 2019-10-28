@@ -52,7 +52,7 @@ public:
     
     virtual void addScaledGravityForce(btScalar scale, TVStack& force)
     {
-        int numNodes = getNumNodes();
+        const int numNodes = getNumNodes();
         btAssert(numNodes <= force.size());
         for (int i = 0; i < m_softBodies.size(); ++i)
         {
@@ -63,10 +63,10 @@ public:
             }
             for (int j = 0; j < psb->m_nodes.size(); ++j)
             {
-                btSoftBody::Node& n = psb->m_nodes[j];
-                size_t id = n.index;
-                btScalar mass = (n.m_im == 0) ? 0 : 1. / n.m_im;
-                btVector3 scaled_force = scale * m_gravity * mass;
+                const btSoftBody::Node& n = psb->m_nodes[j];
+                const size_t id = n.index;
+                const btScalar mass = (n.m_im == 0) ? 0 : 1. / n.m_im;
+                const btVector3 scaled_force = scale * m_gravity * mass;
                 force[id] += scaled_force;
             }
         }

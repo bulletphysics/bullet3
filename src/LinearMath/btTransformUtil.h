@@ -174,8 +174,8 @@ public:
 	{
 		const btVector3& toPosA = transA.getOrigin();
 		const btVector3& toPosB = transB.getOrigin();
-		btQuaternion toOrnA = transA.getRotation();
-		btQuaternion toOrnB = transB.getRotation();
+		const btQuaternion toOrnA = transA.getRotation();
+		const btQuaternion toOrnB = transB.getRotation();
 
 		if (m_separatingDistance > 0.f)
 		{

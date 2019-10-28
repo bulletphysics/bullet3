@@ -319,8 +319,8 @@ void ForkLiftDemo::initPhysics()
 	m_collisionShapes.push_back(groundShape);
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
-	btVector3 worldMin(-1000, -1000, -1000);
-	btVector3 worldMax(1000, 1000, 1000);
+	const btVector3 worldMin(-1000, -1000, -1000);
+	const btVector3 worldMax(1000, 1000, 1000);
 	m_overlappingPairCache = new btAxisSweep3(worldMin, worldMax);
 	if (useMCLPSolver)
 	{

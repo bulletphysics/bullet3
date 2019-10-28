@@ -1267,7 +1267,7 @@ SIMD_FORCE_INLINE void btPlaneSpace1(const T& n, T& p, T& q)
 	{
 		// choose p in x-y plane
 		btScalar a = n[0] * n[0] + n[1] * n[1];
-		btScalar k = btRecipSqrt(a);
+		const btScalar k = btRecipSqrt(a);
 		p[0] = -n[1] * k;
 		p[1] = n[0] * k;
 		p[2] = 0;

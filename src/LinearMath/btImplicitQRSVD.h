@@ -147,7 +147,7 @@ public:
      */
     inline void compute(const btScalar a, const btScalar b)
     {
-        btScalar d = a * a + b * b;
+        const btScalar d = a * a + b * b;
         c = 1;
         s = 0;
         if (d != 0) {
@@ -205,8 +205,8 @@ public:
     inline void rowRotation(btMatrix3x3& A) const
     {
         for (int j = 0; j < 3; j++) {
-            btScalar tau1 = A[rowi][j];
-            btScalar tau2 = A[rowk][j];
+			const btScalar tau1 = A[rowi][j];
+            const btScalar tau2 = A[rowk][j];
             A[rowi][j] = c * tau1 - s * tau2;
             A[rowk][j] = s * tau1 + c * tau2;
         }
@@ -231,8 +231,8 @@ public:
     inline void columnRotation(btMatrix3x3& A) const
     {
         for (int j = 0; j < 3; j++) {
-            btScalar tau1 = A[j][rowi];
-            btScalar tau2 = A[j][rowk];
+            const btScalar tau1 = A[j][rowi];
+			const btScalar tau2 = A[j][rowk];
             A[j][rowi] = c * tau1 - s * tau2;
             A[j][rowk] = s * tau1 + c * tau2;
         }
@@ -252,8 +252,8 @@ public:
      **/
     inline void operator*=(const GivensRotation& A)
     {
-        btScalar new_c = c * A.c - s * A.s;
-        btScalar new_s = s * A.c + c * A.s;
+        const btScalar new_c = c * A.c - s * A.s;
+		const btScalar new_s = s * A.c + c * A.s;
         c = new_c;
         s = new_s;
     }
@@ -429,7 +429,7 @@ inline void polarDecomposition(const btMatrix2x2& A,
                    const btMatrix2x2& S_Sym)
 {
     btScalar a = (A(0, 0) + A(1, 1)),  b = (A(1, 0) - A(0, 1));
-    btScalar denominator = btSqrt(a*a+b*b);
+    const btScalar denominator = btSqrt(a*a+b*b);
     R.c = (btScalar)1;
     R.s = (btScalar)0;
     if (denominator != 0) {
@@ -474,7 +474,7 @@ inline void singularValueDecomposition(
     polarDecomposition(A, U, S_Sym);
     btScalar cosine, sine;
     btScalar x = S_Sym(0, 0);
-    btScalar y = S_Sym(0, 1);
+    const btScalar y = S_Sym(0, 1);
     btScalar z = S_Sym(1, 1);
     if (y == 0) {
         // S is already diagonal
@@ -484,8 +484,8 @@ inline void singularValueDecomposition(
         sigma(1,1) = z;
     }
     else {
-        btScalar tau = 0.5 * (x - z);
-        btScalar w = btSqrt(tau * tau + y * y);
+        const btScalar tau = 0.5 * (x - z);
+        const btScalar w = btSqrt(tau * tau + y * y);
         // w > y > 0
         btScalar t;
         if (tau > 0) {
@@ -556,9 +556,9 @@ inline void singularValueDecomposition(
  */
 inline btScalar wilkinsonShift(const btScalar a1, const btScalar b1, const btScalar a2)
 {
-    btScalar d = (btScalar)0.5 * (a1 - a2);
-    btScalar bs = b1 * b1;
-    btScalar mu = a2 - copysign(bs / (btFabs(d) + btSqrt(d * d + bs)), d);
+    const btScalar d = (btScalar)0.5 * (a1 - a2);
+    const btScalar bs = b1 * b1;
+    const btScalar mu = a2 - copysign(bs / (btFabs(d) + btSqrt(d * d + bs)), d);
     // T mu = a2 - bs / ( d + sign_d*sqrt (d*d + bs));
     return mu;
 }

@@ -44,7 +44,7 @@ public:
 	virtual bool solveMLCP(const btMatrixXu& A, const btVectorXu& b, btVectorXu& x, const btVectorXu& lo, const btVectorXu& hi, const btAlignedObjectArray<int>& limitDependency, int numIterations, bool useSparsity = true)
 	{
 		bool result = true;
-		int n = b.rows();
+		const int n = b.rows();
 		if (n)
 		{
 			int nub = 0;

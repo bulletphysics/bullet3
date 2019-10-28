@@ -72,7 +72,7 @@ public:
 				}
 
 				btScalar aDiag = A(i, i);
-				btScalar xOld = x[i];
+				const btScalar xOld = x[i];
 				x[i] = (b[i] - delta) / aDiag;
 				btScalar s = 1.f;
 
@@ -87,11 +87,11 @@ public:
 					x[i] = lo[i] * s;
 				if (x[i] > hi[i] * s)
 					x[i] = hi[i] * s;
-				btScalar diff = x[i] - xOld;
+				const btScalar diff = x[i] - xOld;
 				m_leastSquaresResidual += diff * diff;
 			}
 
-			btScalar eps = m_leastSquaresResidualThreshold;
+			const btScalar eps = m_leastSquaresResidualThreshold;
 			if ((m_leastSquaresResidual < eps) || (k >= (numIterations - 1)))
 			{
 #ifdef VERBOSE_PRINTF_RESIDUAL

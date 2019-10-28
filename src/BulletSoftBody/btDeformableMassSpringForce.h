@@ -157,8 +157,8 @@ public:
             for (int j = 0; j < psb->m_links.size(); ++j)
             {
                 const btSoftBody::Link& link = psb->m_links[j];
-                btSoftBody::Node* node1 = link.m_n[0];
-                btSoftBody::Node* node2 = link.m_n[1];
+                const btSoftBody::Node* node1 = link.m_n[0];
+                const btSoftBody::Node* node2 = link.m_n[1];
                 btScalar r = link.m_rl;
 
                 // elastic force

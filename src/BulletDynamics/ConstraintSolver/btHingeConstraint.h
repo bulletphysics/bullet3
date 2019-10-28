@@ -216,17 +216,17 @@ public:
 	{
 		btVector3 rbAxisA1, rbAxisA2;
 		btPlaneSpace1(axisInA, rbAxisA1, rbAxisA2);
-		btVector3 pivotInA = m_rbAFrame.getOrigin();
+		const btVector3 pivotInA = m_rbAFrame.getOrigin();
 		//		m_rbAFrame.getOrigin() = pivotInA;
 		m_rbAFrame.getBasis().setValue(rbAxisA1.getX(), rbAxisA2.getX(), axisInA.getX(),
 									   rbAxisA1.getY(), rbAxisA2.getY(), axisInA.getY(),
 									   rbAxisA1.getZ(), rbAxisA2.getZ(), axisInA.getZ());
 
-		btVector3 axisInB = m_rbA.getCenterOfMassTransform().getBasis() * axisInA;
+		const btVector3 axisInB = m_rbA.getCenterOfMassTransform().getBasis() * axisInA;
 
-		btQuaternion rotationArc = shortestArcQuat(axisInA, axisInB);
-		btVector3 rbAxisB1 = quatRotate(rotationArc, rbAxisA1);
-		btVector3 rbAxisB2 = axisInB.cross(rbAxisB1);
+		const btQuaternion rotationArc = shortestArcQuat(axisInA, axisInB);
+		const btVector3 rbAxisB1 = quatRotate(rotationArc, rbAxisA1);
+		const btVector3 rbAxisB2 = axisInB.cross(rbAxisB1);
 
 		m_rbBFrame.getOrigin() = m_rbB.getCenterOfMassTransform().inverse()(m_rbA.getCenterOfMassTransform()(pivotInA));
 

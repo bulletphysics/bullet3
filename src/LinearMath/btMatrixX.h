@@ -346,8 +346,8 @@ struct btMatrixX
 					T dotProd = 0;
 					{
 						{
-							int r = rows();
-							int c = cols();
+							const int r = rows();
+							const int c = cols();
 
 							for (int k = 0; k < cols(); k++)
 							{

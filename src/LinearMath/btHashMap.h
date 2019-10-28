@@ -266,7 +266,7 @@ public:
 		int hash = key.getHash() & (m_valueArray.capacity() - 1);
 
 		//replace value if the key is already there
-		int index = findIndex(key);
+		const int index = findIndex(key);
 		if (index != BT_HASH_NULL)
 		{
 			m_valueArray[index] = value;

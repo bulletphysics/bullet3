@@ -59,8 +59,8 @@ public:
 			// sync(fAngle) = sin(c*fAngle)/t
 			axis = angvel * (b3Sin(b3Scalar(0.5) * fAngle * timeStep) / fAngle);
 		}
-		b3Quaternion dorn(axis.getX(), axis.getY(), axis.getZ(), b3Cos(fAngle * timeStep * b3Scalar(0.5)));
-		b3Quaternion orn0 = curTrans.getRotation();
+		const b3Quaternion dorn(axis.getX(), axis.getY(), axis.getZ(), b3Cos(fAngle * timeStep * b3Scalar(0.5)));
+		const b3Quaternion orn0 = curTrans.getRotation();
 
 		b3Quaternion predictedOrn = dorn * orn0;
 		predictedOrn.normalize();
