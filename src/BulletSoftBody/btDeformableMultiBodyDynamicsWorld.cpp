@@ -17,14 +17,19 @@
 
 /*
 A single step of the deformable body simulation contains the following main components:
-1. Update velocity to a temporary state v_{n+1}^* = v_n + explicit_force * dt / mass, where explicit forces include gravity and elastic forces.
-2. Detect collisions between rigid and deformable bodies at position x_{n+1}^* = x_n + dt * v_{n+1}^*.
-3. Then velocities of deformable bodies v_{n+1} are solved in
+Call internalStepSimulation multiple times, to achieve 240Hz (4 steps of 60Hz).
+1. Deformable maintaintenance of rest lengths and volume preservation. Forces only depend on position: Update velocity to a temporary state v_{n+1}^* = v_n + explicit_force * dt / mass, where explicit forces include gravity and elastic forces.
+2. Detect discrete collisions between rigid and deformable bodies at position x_{n+1}^* = x_n + dt * v_{n+1}^*.
+
+3a. Solve all constraints, including LCP. Contact, position correction due to numerical drift, friction, and anchors for deformable.
+    TODO: add option for positional drift correction (using vel_target += erp * pos_error/dt
+
+3b. 5 Newton steps (multiple step). Conjugent Gradient solves linear system. Deformable Damping: Then velocities of deformable bodies v_{n+1} are solved in
         M(v_{n+1} - v_{n+1}^*) = damping_force * dt / mass,
    by a conjugate gradient solver, where the damping force is implicit and depends on v_{n+1}.
-4. Contact constraints are solved as projections as in the paper by Baraff and Witkin https://www.cs.cmu.edu/~baraff/papers/sig98.pdf. Dynamic frictions are treated as a force and added to the rhs of the CG solve, whereas static frictions are treated as constraints similar to contact.
-5. Position is updated via x_{n+1} = x_n + dt * v_{n+1}.
-6. Apply position correction to prevent numerical drift.
+   Make sure contact constraints are not violated in step b by performing velocity projections as in the paper by Baraff and Witkin https://www.cs.cmu.edu/~baraff/papers/sig98.pdf. Dynamic frictions are treated as a force and added to the rhs of the CG solve, whereas static frictions are treated as constraints similar to contact.
+4. Position is updated via x_{n+1} = x_n + dt * v_{n+1}.
+
 
 The algorithm also closely resembles the one in http://physbam.stanford.edu/~fedkiw/papers/stanford2008-03.pdf
  */
