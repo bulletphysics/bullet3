@@ -979,7 +979,7 @@ public:
 		btVector3 com(0, 0, 0);
 		for (int i = 0; i < m_nodes.size(); i++)
 		{
-			com += (m_nodes[i].m_x / m_nodes[i].m_im);
+			com += (m_nodes[i].m_x * this->getMass(i));
 		}
 		com /= this->getTotalMass();
 		return com;
