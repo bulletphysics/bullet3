@@ -44,6 +44,18 @@ track down the issue, but more work is required to cover all OpenCL kernels.
 All source code files are licensed under the permissive zlib license
 (http://opensource.org/licenses/Zlib) unless marked differently in a particular folder/file.
 
+## Build instructions for Bullet using vcpkg
+
+You can download and install Bullet using the [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager:
+
+    git clone https://github.com/Microsoft/vcpkg.git
+    cd vcpkg
+    ./bootstrap-vcpkg.sh
+    ./vcpkg integrate install
+    vcpkg install bullet3
+
+The Bullet port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
+
 ## Build instructions for Bullet using premake. You can also use cmake instead.
 
 **Windows**
