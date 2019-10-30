@@ -947,6 +947,7 @@ struct b3PhysicsSimulationParameters
 	int m_numSimulationSubSteps;
 	int m_numSolverIterations;
 	double m_warmStartingFactor;
+	double m_articulatedWarmStartingFactor;
 	int m_useRealTimeSimulation;
 	int m_useSplitImpulse;
 	double m_splitImpulsePenetrationThreshold;
