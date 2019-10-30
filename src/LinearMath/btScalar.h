@@ -25,12 +25,22 @@ subject to the following restrictions:
 #include <float.h>
 
 /* SVN $Revision$ on $Date$ from http://bullet.googlecode.com*/
-#define BT_BULLET_VERSION 288
+#define BT_BULLET_VERSION 289
 
 inline int btGetVersion()
 {
 	return BT_BULLET_VERSION;
 }
+
+inline int btIsDoublePrecision()
+{
+  #ifdef BT_USE_DOUBLE_PRECISION
+  return true;
+  #else
+  return false;
+  #endif
+}
+
 
 // The following macro "BT_NOT_EMPTY_FILE" can be put into a file
 // in order suppress the MS Visual C++ Linker warning 4221

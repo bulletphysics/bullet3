@@ -155,15 +155,15 @@ struct btContactSolverInfoFloatData
 	float m_warmstartingFactor;
 	float m_articulatedWarmstartingFactor;
 	float m_maxGyroscopicForce;
-	float m_singleAxisRollingFrictionThreshold;
 
+	float m_singleAxisRollingFrictionThreshold;
 	int m_numIterations;
 	int m_solverMode;
 	int m_restingContactRestitutionThreshold;
-	int m_minimumSolverBatchSize;
 
+	int m_minimumSolverBatchSize;
 	int m_splitImpulse;
-	char m_padding[4];
+	
 };
 
 #endif  //BT_CONTACT_SOLVER_INFO
