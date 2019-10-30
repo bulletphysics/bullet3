@@ -175,7 +175,6 @@ public:
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
                 btMatrix3x3 P;
                 firstPiola(psb->m_tetraScratches[j],P);
-#if USE_SVD
                 if (max_p > 0)
                 {
                     // since we want to clamp the principal stress to max_p, we only need to
@@ -200,7 +199,6 @@ public:
                         P = U * Sigma * V.transpose();
                     }
                 }
-#endif
 //                btVector3 force_on_node0 = P * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 force_on_node123 = P * tetra.m_Dm_inverse.transpose();
                 btVector3 force_on_node0 = force_on_node123 * grad_N_hat_1st_col;
