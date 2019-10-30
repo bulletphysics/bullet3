@@ -175,7 +175,7 @@ public:
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
                 btMatrix3x3 P;
                 firstPiola(psb->m_tetraScratches[j],P);
-                
+#if USE_SVD
                 btMatrix3x3 U, V;
                 btVector3 sigma;
                 singularValueDecomposition(P, U, sigma, V);
@@ -194,6 +194,7 @@ public:
                 Sigma[1][1] = sigma[1];
                 Sigma[2][2] = sigma[2];
                 P = U * Sigma * V.transpose();
+#endif
 //                btVector3 force_on_node0 = P * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 force_on_node123 = P * tetra.m_Dm_inverse.transpose();
                 btVector3 force_on_node0 = force_on_node123 * grad_N_hat_1st_col;

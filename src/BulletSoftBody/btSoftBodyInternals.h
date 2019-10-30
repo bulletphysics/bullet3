@@ -1288,7 +1288,7 @@ struct btSoftColliders
 					c.m_node = node;
 					c.m_face = face;
 					c.m_weights = w;
-					c.m_friction = btMax(psb[0]->m_cfg.kDF, psb[1]->m_cfg.kDF);
+					c.m_friction = btMax (psb[0]->m_cfg.kDF, psb[1]->m_cfg.kDF);
 					c.m_cfm[0] = ma / ms * psb[0]->m_cfg.kSHR;
 					c.m_cfm[1] = mb / ms * psb[1]->m_cfg.kSHR;
 					psb[0]->m_scontacts.push_back(c);
@@ -1346,7 +1346,7 @@ struct btSoftColliders
                     c.m_bary = w;
                     // todo xuchenhan@: this is assuming mass of all vertices are the same. Need to modify if mass are different for distinct vertices
                     c.m_weights = btScalar(2)/(btScalar(1) + w.length2()) * w;
-                    c.m_friction = btMax(psb[0]->m_cfg.kDF, psb[1]->m_cfg.kDF);
+                    c.m_friction = psb[0]->m_cfg.kDF * psb[1]->m_cfg.kDF;
                     // the effective inverse mass of the face as in https://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf
                     c.m_imf = c.m_bary[0]*c.m_weights[0] * n[0]->m_im + c.m_bary[1]*c.m_weights[1] * n[1]->m_im + c.m_bary[2]*c.m_weights[2] * n[2]->m_im;
                     c.m_c0 = btScalar(1)/(ma + c.m_imf);
@@ -1408,7 +1408,7 @@ struct btSoftColliders
                         c.m_bary = w;
                         // todo xuchenhan@: this is assuming mass of all vertices are the same. Need to modify if mass are different for distinct vertices
                         c.m_weights = btScalar(2)/(btScalar(1) + w.length2()) * w;
-                        c.m_friction = btMax(psb[0]->m_cfg.kDF, psb[1]->m_cfg.kDF);
+                        c.m_friction = psb[0]->m_cfg.kDF * psb[1]->m_cfg.kDF;
                         // the effective inverse mass of the face as in https://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf
                         c.m_imf = c.m_bary[0]*c.m_weights[0] * n[0]->m_im + c.m_bary[1]*c.m_weights[1] * n[1]->m_im + c.m_bary[2]*c.m_weights[2] * n[2]->m_im;
                         c.m_c0 = btScalar(1)/(ma + c.m_imf);
@@ -1462,7 +1462,7 @@ struct btSoftColliders
                         c.m_bary = w;
                         // todo xuchenhan@: this is assuming mass of all vertices are the same. Need to modify if mass are different for distinct vertices
                         c.m_weights = btScalar(2)/(btScalar(1) + w.length2()) * w;
-                        c.m_friction = btMax(psb[0]->m_cfg.kDF, psb[1]->m_cfg.kDF);
+                        c.m_friction = psb[0]->m_cfg.kDF *  psb[1]->m_cfg.kDF;
                         // the effective inverse mass of the face as in https://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf
                         c.m_imf = c.m_bary[0]*c.m_weights[0] * n[0]->m_im + c.m_bary[1]*c.m_weights[1] * n[1]->m_im + c.m_bary[2]*c.m_weights[2] * n[2]->m_im;
                         c.m_c0 = btScalar(1)/(ma + c.m_imf);

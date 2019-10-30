@@ -105,7 +105,8 @@ void DeformableContact::initPhysics()
     btVector3 gravity = btVector3(0, -10, 0);
     m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
-    
+    getDeformableDynamicsWorld()->getWorldInfo().m_sparsesdf.setDefaultVoxelsz(0.25);
+		getDeformableDynamicsWorld()->getWorldInfo().m_sparsesdf.Reset();
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
     
     {
@@ -182,7 +183,7 @@ void DeformableContact::initPhysics()
         psb2->setTotalMass(1);
         psb2->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb2->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb2->m_cfg.kDF = 0;
+        psb2->m_cfg.kDF = 0.5;
         psb2->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb2->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
         psb->translate(btVector3(3.5,0,0));

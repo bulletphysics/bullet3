@@ -150,10 +150,14 @@ public:
         btScalar d = a * a + b * b;
         c = 1;
         s = 0;
-        if (d != 0) {
-            btScalar t = btScalar(1.0)/btSqrt(d);
-            c = a * t;
-            s = -b * t;
+        if (d > SIMD_EPSILON) {
+            btScalar sqrtd = btSqrt(d);
+            if (sqrtd>SIMD_EPSILON)
+            {
+              btScalar t = btScalar(1.0)/sqrtd;
+              c = a * t;
+              s = -b * t;
+            }
         }
     }
     
@@ -167,7 +171,7 @@ public:
         btScalar d = a * a + b * b;
         c = 0;
         s = 1;
-        if (d != 0) {
+        if (d > SIMD_EPSILON) {
             btScalar t = btScalar(1.0)/btSqrt(d);
             s = a * t;
             c = b * t;
@@ -432,10 +436,11 @@ inline void polarDecomposition(const btMatrix2x2& A,
     btScalar denominator = btSqrt(a*a+b*b);
     R.c = (btScalar)1;
     R.s = (btScalar)0;
-    if (denominator != 0) {
+    if (denominator > SIMD_EPSILON) { 
         /*
          No need to use a tolerance here because x(0) and x(1) always have
          smaller magnitude then denominator, therefore overflow never happens.
+         In Bullet, we use a tolerance anyway.
          */
         R.c = a / denominator;
         R.s = -b / denominator;
@@ -485,7 +490,10 @@ inline void singularValueDecomposition(
     }
     else {
         btScalar tau = 0.5 * (x - z);
-        btScalar w = btSqrt(tau * tau + y * y);
+        btScalar val = tau * tau + y * y;
+        if (val > SIMD_EPSILON)
+        {
+        btScalar w = btSqrt(val);
         // w > y > 0
         btScalar t;
         if (tau > 0) {
@@ -508,6 +516,13 @@ inline void singularValueDecomposition(
         btScalar s2 = sine * sine;
         sigma(0,0) = c2 * x - csy + s2 * z;
         sigma(1,1) = s2 * x + csy + c2 * z;
+      } else
+      	{
+      		cosine = 1;
+        sine = 0;
+        sigma(0,0) = x;
+        sigma(1,1) = z;
+      	}
     }
     
     // Sorting
@@ -558,9 +573,15 @@ inline btScalar wilkinsonShift(const btScalar a1, const btScalar b1, const btSca
 {
     btScalar d = (btScalar)0.5 * (a1 - a2);
     btScalar bs = b1 * b1;
-    btScalar mu = a2 - copysign(bs / (btFabs(d) + btSqrt(d * d + bs)), d);
+    btScalar val = d * d + bs;
+    if (val>SIMD_EPSILON)
+    	{
+    		btScalar denom = btFabs(d) + btSqrt(val);
+    		
+    btScalar mu = a2 - copySign(bs / (denom), d);
     // T mu = a2 - bs / ( d + sign_d*sqrt (d*d + bs));
     return mu;
+  }
 }
 
 /**
@@ -749,15 +770,20 @@ inline int singularValueDecomposition(const btMatrix3x3& A,
     btScalar beta_2 = B[1][2];
     btScalar gamma_1 = alpha_1 * beta_1;
     btScalar gamma_2 = alpha_2 * beta_2;
-    tol *= btMax((btScalar)0.5 * btSqrt(alpha_1 * alpha_1 + alpha_2 * alpha_2 + alpha_3 * alpha_3 + beta_1 * beta_1 + beta_2 * beta_2), (btScalar)1);
-    
+    btScalar val = alpha_1 * alpha_1 + alpha_2 * alpha_2 + alpha_3 * alpha_3 + beta_1 * beta_1 + beta_2 * beta_2;
+    if (val > SIMD_EPSILON)
+    {
+	    tol *= btMax((btScalar)0.5 * btSqrt(val), (btScalar)1);
+		}    
     /**
      Do implicit shift QR until A^T A is block diagonal
      */
+    int max_count = 100;
     
     while (btFabs(beta_2) > tol && btFabs(beta_1) > tol
            && btFabs(alpha_1) > tol && btFabs(alpha_2) > tol
-           && btFabs(alpha_3) > tol) {
+           && btFabs(alpha_3) > tol
+           && count < max_count) {
         mu = wilkinsonShift(alpha_2 * alpha_2 + beta_1 * beta_1, gamma_2, alpha_3 * alpha_3 + beta_2 * beta_2);
         
         r.compute(alpha_1 * alpha_1 - mu, gamma_1);
