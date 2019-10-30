@@ -9338,6 +9338,12 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	{
 		m_data->m_dynamicsWorld->getSolverInfo().m_warmstartingFactor = clientCmd.m_physSimParamArgs.m_warmStartingFactor;
 	}
+
+	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_ARTICULATED_WARM_STARTING_FACTOR)
+	{
+		m_data->m_dynamicsWorld->getSolverInfo().m_solverMode |= SOLVER_USE_ARTICULATED_WARMSTARTING;
+		m_data->m_dynamicsWorld->getSolverInfo().m_articulatedWarmstartingFactor = clientCmd.m_physSimParamArgs.m_articulatedWarmStartingFactor;
+	}
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
 	return hasStatus;

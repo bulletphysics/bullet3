@@ -30,7 +30,8 @@ enum btSolverMode
 	SOLVER_SIMD = 256,
 	SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS = 512,
 	SOLVER_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS = 1024,
-	SOLVER_DISABLE_IMPLICIT_CONE_FRICTION = 2048
+	SOLVER_DISABLE_IMPLICIT_CONE_FRICTION = 2048,
+	SOLVER_USE_ARTICULATED_WARMSTARTING = 4096,
 };
 
 struct btContactSolverInfoData
@@ -54,7 +55,7 @@ struct btContactSolverInfoData
 	btScalar m_splitImpulseTurnErp;
 	btScalar m_linearSlop;
 	btScalar m_warmstartingFactor;
-
+	btScalar m_articulatedWarmstartingFactor;
 	int m_solverMode;
 	int m_restingContactRestitutionThreshold;
 	int m_minimumSolverBatchSize;
@@ -89,6 +90,7 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_splitImpulseTurnErp = 0.1f;
 		m_linearSlop = btScalar(0.0);
 		m_warmstartingFactor = btScalar(0.85);
+		m_articulatedWarmstartingFactor = btScalar(0.85);
 		//m_solverMode =  SOLVER_USE_WARMSTARTING |  SOLVER_SIMD | SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION|SOLVER_USE_2_FRICTION_DIRECTIONS|SOLVER_ENABLE_FRICTION_DIRECTION_CACHING;// | SOLVER_RANDMIZE_ORDER;
 		m_solverMode = SOLVER_USE_WARMSTARTING | SOLVER_SIMD;  // | SOLVER_RANDMIZE_ORDER;
 		m_restingContactRestitutionThreshold = 2;              //unused as of 2.81
@@ -120,6 +122,7 @@ struct btContactSolverInfoDoubleData
 	double m_splitImpulseTurnErp;
 	double m_linearSlop;
 	double m_warmstartingFactor;
+	double m_articulatedWarmstartingFactor;
 	double m_maxGyroscopicForce;  ///it is only used for 'explicit' version of gyroscopic force
 	double m_singleAxisRollingFrictionThreshold;
 
@@ -150,16 +153,17 @@ struct btContactSolverInfoFloatData
 
 	float m_linearSlop;
 	float m_warmstartingFactor;
+	float m_articulatedWarmstartingFactor;
 	float m_maxGyroscopicForce;
-	float m_singleAxisRollingFrictionThreshold;
 
+	float m_singleAxisRollingFrictionThreshold;
 	int m_numIterations;
 	int m_solverMode;
 	int m_restingContactRestitutionThreshold;
-	int m_minimumSolverBatchSize;
 
+	int m_minimumSolverBatchSize;
 	int m_splitImpulse;
-	char m_padding[4];
+	
 };
 
 #endif  //BT_CONTACT_SOLVER_INFO
