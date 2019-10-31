@@ -14,7 +14,6 @@
  */
 
 #include "btDeformableContactConstraint.h"
-
 /* ================   Deformable Node Anchor   =================== */
 btDeformableNodeAnchorConstraint::btDeformableNodeAnchorConstraint(const btSoftBody::DeformableNodeRigidAnchor& a)
 : m_anchor(&a)
@@ -216,12 +215,11 @@ btScalar btDeformableRigidContactConstraint::solveConstraint()
     btVector3 impulse = m_contact->m_c0 * vr;
     const btVector3 impulse_normal = m_contact->m_c0 * (cti.m_normal * dn);
     btVector3 impulse_tangent = impulse - impulse_normal;
-    
     btVector3 old_total_tangent_dv = m_total_tangent_dv;
     // m_c2 is the inverse mass of the deformable node/face
     m_total_normal_dv -= impulse_normal * m_contact->m_c2;
     m_total_tangent_dv -= impulse_tangent * m_contact->m_c2;
-    
+
     if (m_total_normal_dv.dot(cti.m_normal) < 0)
     {
         // separating in the normal direction
@@ -236,13 +234,13 @@ btScalar btDeformableRigidContactConstraint::solveConstraint()
             // dynamic friction
             // with dynamic friction, the impulse are still applied to the two objects colliding, however, it does not pose a constraint in the cg solve, hence the change to dv merely serves to update velocity in the contact iterations.
             m_static = false;
-            if (m_total_tangent_dv.norm() < SIMD_EPSILON)
+            if (m_total_tangent_dv.safeNorm() < SIMD_EPSILON)
             {
                 m_total_tangent_dv = btVector3(0,0,0);
             }
             else
             {
-                m_total_tangent_dv = m_total_tangent_dv.normalized() * m_total_normal_dv.norm() * m_contact->m_c3;
+                m_total_tangent_dv = m_total_tangent_dv.normalized() * m_total_normal_dv.safeNorm() * m_contact->m_c3;
             }
             impulse_tangent = -btScalar(1)/m_contact->m_c2 * (m_total_tangent_dv - old_total_tangent_dv);
         }
@@ -255,7 +253,6 @@ btScalar btDeformableRigidContactConstraint::solveConstraint()
     impulse = impulse_normal + impulse_tangent;
     // apply impulse to deformable nodes involved and change their velocities
     applyImpulse(impulse);
-    
     // apply impulse to the rigid/multibodies involved and change their velocities
     if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
     {
@@ -361,12 +358,32 @@ void btDeformableFaceRigidContactConstraint::applyImpulse(const btVector3& impul
     const btSoftBody::DeformableFaceRigidContact* contact = getContact();
     btVector3 dv = impulse * contact->m_c2;
     btSoftBody::Face* face = contact->m_face;
-    if (face->m_n[0]->m_im > 0)
-        face->m_n[0]->m_v -= dv * contact->m_weights[0];
-    if (face->m_n[1]->m_im > 0)
-        face->m_n[1]->m_v -= dv * contact->m_weights[1];
-    if (face->m_n[2]->m_im > 0)
-        face->m_n[2]->m_v -= dv * contact->m_weights[2];
+    
+    btVector3& v0 = face->m_n[0]->m_v;
+    btVector3& v1 = face->m_n[1]->m_v;
+    btVector3& v2 = face->m_n[2]->m_v;
+    const btScalar& im0 = face->m_n[0]->m_im;
+    const btScalar& im1 = face->m_n[1]->m_im;
+    const btScalar& im2 = face->m_n[2]->m_im;
+    if (im0 > 0)
+        v0 -= dv * contact->m_weights[0];
+    if (im1 > 0)
+        v1 -= dv * contact->m_weights[1];
+    if (im2 > 0)
+        v2 -= dv * contact->m_weights[2];
+    
+    // apply strain limiting to prevent undamped modes
+    btScalar m01 = (btScalar(1)/(im0 + im1));
+    btScalar m02 = (btScalar(1)/(im0 + im2));
+    btScalar m12 = (btScalar(1)/(im1 + im2));
+    
+    btVector3 dv0 = im0 * (m01 * (v1-v0) + m02 * (v2-v0));
+    btVector3 dv1 = im1 * (m01 * (v0-v1) + m12 * (v2-v1));
+    btVector3 dv2 = im2 * (m12 * (v1-v2) + m02 * (v0-v2));
+    
+    v0 += dv0;
+    v1 += dv1;
+    v2 += dv2;
 }
 
 /* ================   Face vs. Node   =================== */
@@ -449,13 +466,13 @@ btScalar btDeformableFaceNodeContactConstraint::solveConstraint()
             // dynamic friction
             // with dynamic friction, the impulse are still applied to the two objects colliding, however, it does not pose a constraint in the cg solve, hence the change to dv merely serves to update velocity in the contact iterations.
             m_static = false;
-            if (m_total_tangent_dv.norm() < SIMD_EPSILON)
+            if (m_total_tangent_dv.safeNorm() < SIMD_EPSILON)
             {
                 m_total_tangent_dv = btVector3(0,0,0);
             }
             else
             {
-                m_total_tangent_dv = m_total_tangent_dv.normalized() * m_total_normal_dv.norm() * m_contact->m_friction;
+                m_total_tangent_dv = m_total_tangent_dv.normalized() * m_total_normal_dv.safeNorm() * m_contact->m_friction;
             }
             impulse_tangent = -btScalar(1)/m_node->m_im * (m_total_tangent_dv - old_total_tangent_dv);
         }
@@ -482,16 +499,33 @@ void btDeformableFaceNodeContactConstraint::applyImpulse(const btVector3& impuls
     }
     
     btSoftBody::Face* face = contact->m_face;
-    if (face->m_n[0]->m_im > 0)
+    btVector3& v0 = face->m_n[0]->m_v;
+    btVector3& v1 = face->m_n[1]->m_v;
+    btVector3& v2 = face->m_n[2]->m_v;
+    const btScalar& im0 = face->m_n[0]->m_im;
+    const btScalar& im1 = face->m_n[1]->m_im;
+    const btScalar& im2 = face->m_n[2]->m_im;
+    if (im0 > 0)
     {
-        face->m_n[0]->m_v -= dvb * contact->m_weights[0];
+        v0 -= dvb * contact->m_weights[0];
     }
-    if (face->m_n[1]->m_im > 0)
+    if (im1 > 0)
     {
-        face->m_n[1]->m_v -= dvb * contact->m_weights[1];
+        v1 -= dvb * contact->m_weights[1];
     }
-    if (face->m_n[2]->m_im > 0)
+    if (im2 > 0)
     {
-        face->m_n[2]->m_v -= dvb * contact->m_weights[2];
+        v2 -= dvb * contact->m_weights[2];
     }
+    // todo: Face node constraints needs more work
+//    btScalar m01 = (btScalar(1)/(im0 + im1));
+//    btScalar m02 = (btScalar(1)/(im0 + im2));
+//    btScalar m12 = (btScalar(1)/(im1 + im2));
+//
+//    btVector3 dv0 = im0 * (m01 * (v1-v0) + m02 * (v2-v0));
+//    btVector3 dv1 = im1 * (m01 * (v0-v1) + m12 * (v2-v1));
+//    btVector3 dv2 = im2 * (m12 * (v1-v2) + m02 * (v0-v2));
+//    v0 += dv0;
+//    v1 += dv1;
+//    v2 += dv2;
 }

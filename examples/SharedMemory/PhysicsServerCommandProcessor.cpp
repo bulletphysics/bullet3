@@ -3463,8 +3463,6 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 		btDefaultSerializer ser(bufferSizeInBytes, (unsigned char*)bufferServerToClient);
 
 		ser.startSerialization();
-		ser.registerNameForPointer(sb, bodyHandle->m_bodyName.c_str());
-
 		int len = sb->calculateSerializeBufferSize();
 		btChunk* chunk = ser.allocate(len, 1);
 		const char* structType = sb->serialize(chunk->m_oldPtr, &ser);
@@ -7259,6 +7257,7 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 		serverCmd.m_numDataStreamBytes = sizeof(SendActualStateSharedMemoryStorage);
 		serverCmd.m_sendActualStateArgs.m_stateDetails = 0;
 
+
 		serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[0] =
 			body->m_rootLocalInertialFrame.getOrigin()[0];
 		serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[1] =
@@ -7275,11 +7274,12 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 		serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[6] =
 			body->m_rootLocalInertialFrame.getRotation()[3];
 
+    btVector3 center_of_mass(sb->getCenterOfMass());
 		btTransform tr = sb->getWorldTransform();
 		//base position in world space, cartesian
-		stateDetails->m_actualStateQ[0] = tr.getOrigin()[0];
-		stateDetails->m_actualStateQ[1] = tr.getOrigin()[1];
-		stateDetails->m_actualStateQ[2] = tr.getOrigin()[2];
+		stateDetails->m_actualStateQ[0] = center_of_mass[0];
+		stateDetails->m_actualStateQ[1] = center_of_mass[1];
+		stateDetails->m_actualStateQ[2] = center_of_mass[2];
 
 		//base orientation, quaternion x,y,z,w, in world space, cartesian
 		stateDetails->m_actualStateQ[3] = tr.getRotation()[0];
@@ -8227,6 +8227,12 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 
 	    serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
 	    serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_COMPLETED;
+      int pos = strlen(relativeFileName)-1;
+      while(pos>=0 && relativeFileName[pos]!='/') { pos--;}
+      btAssert(strlen(relativeFileName)-pos-5>0);
+      std::string object_name (std::string(relativeFileName).substr(pos+1, strlen(relativeFileName)- 5 - pos));
+      bodyHandle->m_bodyName = object_name;
+
 
 	    int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
 	    serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
