@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<robot name="pan_tilt">
+
+  <link name="base_link">
+       <inertial>
+  	<mass value="1"/>
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+  	<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+  </inertial>
+    </link>
+
+    <joint name="pan_joint" type="revolute">
+      <parent link="base_link"/>
+      <child link="pan_link"/>
+      <origin xyz="0 0 0.1"/>
+      <axis xyz="0 0 1" />
+      <limit effort="300" velocity="0.1" lower="-3.14" upper="3.14"/>
+      <dynamics damping="50" friction="1"/>
+    </joint>
+
+    <link name="pan_link">
+     <inertial>
+  	<mass value="1"/>
+    <origin rpy="0 0 0" xyz="0 0 1"/>
+  	<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+  </inertial>
+    </link>
+
+    <joint name="tilt_joint" type="revolute">
+      <parent link="pan_link"/>
+      <child link="tilt_link"/>
+      <origin rpy="0.0 0.0 0.0" xyz="4 0 1"/>
+      <axis xyz="0.0 1.0 0.0" />
+      <limit effort="300" velocity="1.0" lower="-4.64" upper="4.64"/>
+    </joint>
+
+    <link name="tilt_link">
+    <inertial>
+  	<mass value="5"/>
+    <origin rpy="0 0 0" xyz="1.001 1 1"/>
+  	<inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+  </inertial>
+    </link>
+</robot>

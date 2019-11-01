@@ -1,7 +1,7 @@
 #include "OpenGLGuiHelper.h"
 
 #include "btBulletDynamicsCommon.h"
-
+#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "Bullet3Common/b3Scalar.h"
@@ -144,6 +144,7 @@ struct MyHashShape
 	int m_shapeType;
 	btVector3 m_sphere0Pos;
 	btVector3 m_sphere1Pos;
+	btVector3 m_halfExtents;
 	btScalar m_radius0;
 	btScalar m_radius1;
 	btTransform m_childTransform;
@@ -156,6 +157,7 @@ struct MyHashShape
 		  m_shapeType(0),
 		  m_sphere0Pos(btVector3(0, 0, 0)),
 		  m_sphere1Pos(btVector3(0, 0, 0)),
+		  m_halfExtents(btVector3(0, 0, 0)),
 		  m_radius0(0),
 		  m_radius1(0),
 		  m_deformFunc(0),
@@ -170,12 +172,13 @@ struct MyHashShape
 		bool sameShapeType = m_shapeType == other.m_shapeType;
 		bool sameSphere0 = m_sphere0Pos == other.m_sphere0Pos;
 		bool sameSphere1 = m_sphere1Pos == other.m_sphere1Pos;
+		bool sameHalfExtents = m_halfExtents == other.m_halfExtents;
 		bool sameRadius0 = m_radius0 == other.m_radius0;
 		bool sameRadius1 = m_radius1 == other.m_radius1;
 		bool sameTransform = m_childTransform == other.m_childTransform;
 		bool sameUpAxis = m_upAxis == other.m_upAxis;
 		bool sameHalfHeight = m_halfHeight == other.m_halfHeight;
-		return sameShapeType && sameSphere0 && sameSphere1 && sameRadius0 && sameRadius1 && sameTransform && sameUpAxis && sameHalfHeight;
+		return sameShapeType && sameSphere0 && sameSphere1 && sameHalfExtents && sameRadius0 && sameRadius1 && sameTransform && sameUpAxis && sameHalfHeight;
 	}
 	//to our success
 	SIMD_FORCE_INLINE unsigned int getHash() const
@@ -255,6 +258,47 @@ void OpenGLGuiHelper::createRigidBodyGraphicsObject(btRigidBody* body, const btV
 	createCollisionObjectGraphicsObject(body, color);
 }
 
+
+class MyTriangleCollector2 : public btTriangleCallback
+{
+public:
+	btAlignedObjectArray<GLInstanceVertex>* m_pVerticesOut;
+	btAlignedObjectArray<int>* m_pIndicesOut;
+	btVector3 m_aabbMin, m_aabbMax;
+	btScalar m_textureScaling;
+
+	MyTriangleCollector2(const btVector3& aabbMin, const btVector3& aabbMax)
+		:m_aabbMin(aabbMin), m_aabbMax(aabbMax), m_textureScaling(1)
+	{
+		m_pVerticesOut = 0;
+		m_pIndicesOut = 0;
+	}
+
+	virtual void processTriangle(btVector3* tris, int partId, int triangleIndex)
+	{
+		for (int k = 0; k < 3; k++)
+		{
+			GLInstanceVertex v;
+			v.xyzw[3] = 0;
+			
+			btVector3 normal = (tris[0] - tris[1]).cross(tris[0] - tris[2]);
+			normal.safeNormalize();
+			for (int l = 0; l < 3; l++)
+			{
+				v.xyzw[l] = tris[k][l];
+				v.normal[l] = normal[l];
+			}
+			
+			btVector3 extents = m_aabbMax - m_aabbMin;
+			
+			v.uv[0] = (1.-((v.xyzw[0] - m_aabbMin[0]) / (m_aabbMax[0] - m_aabbMin[0])))*m_textureScaling;
+			v.uv[1] = (1.-(v.xyzw[1] - m_aabbMin[1]) / (m_aabbMax[1] - m_aabbMin[1]))*m_textureScaling;
+
+			m_pIndicesOut->push_back(m_pVerticesOut->size());
+			m_pVerticesOut->push_back(v);
+		}
+	}
+};
 void OpenGLGuiHelper::createCollisionObjectGraphicsObject(btCollisionObject* body, const btVector3& color)
 {
 	if (body->getUserIndex() < 0)
@@ -395,7 +439,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 
 	if (m_data->m_checkedTexture < 0)
 	{
-		m_data->m_checkedTexture = createCheckeredTexture(192, 192, 255);
+		m_data->m_checkedTexture = createCheckeredTexture(173, 199, 255);
 	}
 
 	if (m_data->m_checkedTextureGrey < 0)
@@ -406,9 +450,95 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 	btAlignedObjectArray<GLInstanceVertex> gfxVertices;
 	btAlignedObjectArray<int> indices;
 	int strideInBytes = 9 * sizeof(float);
-	//if (collisionShape->getShapeType()==BOX_SHAPE_PROXYTYPE)
+	if (collisionShape->getShapeType() == BOX_SHAPE_PROXYTYPE)
 	{
+		btBoxShape* boxShape = (btBoxShape*)collisionShape;
+		
+		
+		btAlignedObjectArray<float> transformedVertices;
+
+		btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
+
+		MyHashShape shape;
+		shape.m_shapeType = boxShape->getShapeType();
+		shape.m_halfExtents = halfExtents;
+		shape.m_deformFunc = 0;  ////no deform
+		int graphicsShapeIndex = -1;
+		int* graphicsShapeIndexPtr = m_data->m_hashShapes[shape];
+
+		if (graphicsShapeIndexPtr)
+		{
+			graphicsShapeIndex = *graphicsShapeIndexPtr;
+		}
+		else
+		{
+			int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+			transformedVertices.resize(numVertices * 9);
+			for (int i = 0; i < numVertices; i++)
+			{
+				btVector3 vert;
+				vert.setValue(cube_vertices_textured[i * 9 + 0],
+					cube_vertices_textured[i * 9 + 1],
+					cube_vertices_textured[i * 9 + 2]);
+
+				btVector3 trVer = halfExtents * vert;
+				transformedVertices[i * 9 + 0] = trVer[0];
+				transformedVertices[i * 9 + 1] = trVer[1];
+				transformedVertices[i * 9 + 2] = trVer[2];
+				transformedVertices[i * 9 + 3] = cube_vertices_textured[i * 9 + 3];
+				transformedVertices[i * 9 + 4] = cube_vertices_textured[i * 9 + 4];
+				transformedVertices[i * 9 + 5] = cube_vertices_textured[i * 9 + 5];
+				transformedVertices[i * 9 + 6] = cube_vertices_textured[i * 9 + 6];
+				transformedVertices[i * 9 + 7] = cube_vertices_textured[i * 9 + 7];
+				transformedVertices[i * 9 + 8] = cube_vertices_textured[i * 9 + 8];
+			}
+
+			int numIndices = sizeof(cube_indices) / sizeof(int);
+			graphicsShapeIndex = registerGraphicsShape(&transformedVertices[0], numVertices, cube_indices, numIndices, B3_GL_TRIANGLES, m_data->m_checkedTextureGrey);
+			m_data->m_hashShapes.insert(shape, graphicsShapeIndex);
+		}
+
+		collisionShape->setUserIndex(graphicsShapeIndex);
+		return;
 	}
+
+
+	if (collisionShape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE)
+	{
+		const btHeightfieldTerrainShape* heightField = static_cast<const btHeightfieldTerrainShape*>(collisionShape);
+		
+		
+		btVector3 aabbMin, aabbMax;
+		btTransform tr;
+		tr.setIdentity();
+		heightField->getAabb(tr, aabbMin, aabbMax);
+		MyTriangleCollector2  col(aabbMin, aabbMax);
+		if (heightField->getUserValue3())
+		{
+			col.m_textureScaling = heightField->getUserValue3();
+		}
+		col.m_pVerticesOut = &gfxVertices;
+		col.m_pIndicesOut = &indices;
+		for (int k = 0; k < 3; k++)
+		{
+			aabbMin[k] = -BT_LARGE_FLOAT;
+			aabbMax[k] = BT_LARGE_FLOAT;
+		}
+		heightField->processAllTriangles(&col, aabbMin, aabbMax);
+		if (gfxVertices.size() && indices.size())
+		{
+			int userImage = heightField->getUserIndex2();
+			if (userImage == -1)
+			{
+				userImage = m_data->m_checkedTexture;
+			}
+			int shapeId = m_data->m_glApp->m_renderer->registerShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(),1, userImage);
+			collisionShape->setUserIndex(shapeId);
+		}
+		return;
+	}
+
+
 	if (collisionShape->getShapeType() == SOFTBODY_SHAPE_PROXYTYPE)
 	{
 		computeSoftBodyVertices(collisionShape, gfxVertices, indices);
@@ -491,6 +621,8 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 			return;
 		}
 	}
+
+	
 
 	if (collisionShape->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
 	{
@@ -1363,4 +1495,9 @@ void OpenGLGuiHelper::computeSoftBodyVertices(btCollisionShape* collisionShape,
 			indices.push_back(currentIndex);
 		}
 	}
+}
+
+void OpenGLGuiHelper::updateShape(int shapeIndex, float* vertices)
+{
+	m_data->m_glApp->m_renderer->updateShape(shapeIndex, vertices);
 }

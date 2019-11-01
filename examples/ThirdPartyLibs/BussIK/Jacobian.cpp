@@ -84,10 +84,10 @@ Jacobian::Jacobian(Tree* tree)
 	Reset();
 }
 
-Jacobian::Jacobian(bool useAngularJacobian, int nDof)
+Jacobian::Jacobian(bool useAngularJacobian, int nDof, int numEndEffectors)
 {
 	m_tree = 0;
-	m_nEffector = 1;
+	m_nEffector = numEndEffectors;
 
 	if (useAngularJacobian)
 	{
@@ -472,8 +472,8 @@ void Jacobian::CalcDeltaThetasSDLS()
 	// Calculate response vector dTheta that is the SDLS solution.
 	//	Delta target values are the dS values
 	int nRows = J.GetNumRows();
-	// TODO: Modify it to work with multiple end effectors.
-	int numEndEffectors = 1;
+	
+	int numEndEffectors = m_tree->GetNumEffector();
 	int nCols = J.GetNumColumns();
 	dTheta.SetZero();
 

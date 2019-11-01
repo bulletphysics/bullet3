@@ -17,8 +17,8 @@ DIAGONAL_LEG_PAIR_2 = (1, 2)
 
 class BehaviorParameters(
     collections.namedtuple("BehaviorParameters", [
-        "stance_duration", "desired_forward_speed", "turning_speed",
-        "standing_height", "desired_incline_angle"
+        "stance_duration", "desired_forward_speed", "turning_speed", "standing_height",
+        "desired_incline_angle"
     ])):
   __slots__ = ()
 
@@ -28,18 +28,16 @@ class BehaviorParameters(
               turning_speed=0,
               standing_height=0.21,
               desired_incline_angle=0):
-    return super(BehaviorParameters, cls).__new__(
-        cls, stance_duration, desired_forward_speed, turning_speed,
-        standing_height, desired_incline_angle)
+    return super(BehaviorParameters,
+                 cls).__new__(cls, stance_duration, desired_forward_speed, turning_speed,
+                              standing_height, desired_incline_angle)
 
 
 def motor_angles_to_leg_pose(motor_angles):
   leg_pose = np.zeros(_NUM_MOTORS)
   for i in range(_NUM_LEGS):
-    leg_pose[i] = 0.5 * (-1)**(i // 2) * (
-        motor_angles[2 * i + 1] - motor_angles[2 * i])
-    leg_pose[_NUM_LEGS + i] = 0.5 * (
-        motor_angles[2 * i] + motor_angles[2 * i + 1])
+    leg_pose[i] = 0.5 * (-1)**(i // 2) * (motor_angles[2 * i + 1] - motor_angles[2 * i])
+    leg_pose[_NUM_LEGS + i] = 0.5 * (motor_angles[2 * i] + motor_angles[2 * i + 1])
   return leg_pose
 
 
@@ -47,8 +45,7 @@ def leg_pose_to_motor_angles(leg_pose):
   motor_pose = np.zeros(_NUM_MOTORS)
   for i in range(_NUM_LEGS):
     motor_pose[2 * i] = leg_pose[_NUM_LEGS + i] - (-1)**(i // 2) * leg_pose[i]
-    motor_pose[2 * i + 1] = (
-        leg_pose[_NUM_LEGS + i] + (-1)**(i // 2) * leg_pose[i])
+    motor_pose[2 * i + 1] = (leg_pose[_NUM_LEGS + i] + (-1)**(i // 2) * leg_pose[i])
   return motor_pose
 
 
@@ -85,8 +82,7 @@ def foot_position_to_leg_pose(foot_position):
   ext = math.acos(cos_ext)
 
   hip_toe = math.sqrt(hip_toe_sqr)
-  cos_theta = (hip_toe_sqr + hip_ankle_sqr -
-               (l3 - l2)**2) / (2 * hip_ankle * hip_toe)
+  cos_theta = (hip_toe_sqr + hip_ankle_sqr - (l3 - l2)**2) / (2 * hip_ankle * hip_toe)
 
   assert cos_theta > 0
   theta = math.acos(cos_theta)
@@ -94,8 +90,7 @@ def foot_position_to_leg_pose(foot_position):
   return (-sw, ext)
 
 
-def foot_horizontal_position_to_leg_swing(foot_horizontal_position,
-                                          leg_extension):
+def foot_horizontal_position_to_leg_swing(foot_horizontal_position, leg_extension):
   """Computes the target leg swing.
 
   Sometimes it is more convenient to plan in the hybrid space.
@@ -119,8 +114,7 @@ def foot_horizontal_position_to_leg_swing(foot_horizontal_position,
 
   # Cap the foot horizontal (projected) position so the target leg pose is
   # always feasible.
-  foot_position = max(
-      min(toe_hip_len * 0.8, foot_horizontal_position), -toe_hip_len * 0.5)
+  foot_position = max(min(toe_hip_len * 0.8, foot_horizontal_position), -toe_hip_len * 0.5)
 
   sw_and_theta = math.asin(foot_position / toe_hip_len)
 
@@ -171,9 +165,7 @@ def generate_swing_trajectory(phase, init_pose, end_pose):
 
   b = (phi * phi * delta_2 - delta_1) / delta_p
 
-  delta = (
-      a * normalized_phase * normalized_phase + b * normalized_phase +
-      init_delta)
+  delta = (a * normalized_phase * normalized_phase + b * normalized_phase + init_delta)
 
   l1 = _UPPER_LEG_LEN
   l2 = _LOWER_SHORT_LEG_LEN
@@ -209,10 +201,9 @@ class RaibertSwingLegController(object):
     leg_pose_set = []
     for i in raibiert_controller.swing_set:
       target_foot_horizontal_position = (
-          raibiert_controller.behavior_parameters.stance_duration / 2 *
-          current_speed + self._speed_gain *
-          (current_speed -
-           raibiert_controller.behavior_parameters.desired_forward_speed))
+          raibiert_controller.behavior_parameters.stance_duration / 2 * current_speed +
+          self._speed_gain *
+          (current_speed - raibiert_controller.behavior_parameters.desired_forward_speed))
 
       # Use the swing phase [0, 1] to track the foot. The idea is
       # straightforward:
@@ -221,19 +212,19 @@ class RaibertSwingLegController(object):
       # 3) Find the next leg pose on the curve based on how much time left.
 
       # 1) Convert the target foot
-      target_leg_extension = (
-          raibiert_controller.nominal_leg_extension -
-          self._leg_extension_clearance)
-      target_leg_swing = foot_horizontal_position_to_leg_swing(
-          target_foot_horizontal_position, leg_extension=target_leg_extension)
+      target_leg_extension = (raibiert_controller.nominal_leg_extension -
+                              self._leg_extension_clearance)
+      target_leg_swing = foot_horizontal_position_to_leg_swing(target_foot_horizontal_position,
+                                                               leg_extension=target_leg_extension)
 
       target_leg_pose = (target_leg_swing, target_leg_extension)
 
       # 2) Generates the curve from the current leg pose to the target leg pose.
       # and Find the next leg pose on the curve based on current swing phase.
 
-      desired_leg_pose = self._leg_trajectory_generator(
-          phase, raibiert_controller.swing_start_leg_pose, target_leg_pose)
+      desired_leg_pose = self._leg_trajectory_generator(phase,
+                                                        raibiert_controller.swing_start_leg_pose,
+                                                        target_leg_pose)
 
       leg_pose_set.append(desired_leg_pose)
 
@@ -244,9 +235,7 @@ class RaibertSwingLegController(object):
 
 class RaibertStanceLegController(object):
 
-  def __init__(self,
-               speed_gain=0.1,
-               leg_trajectory_generator=generate_stance_trajectory):
+  def __init__(self, speed_gain=0.1, leg_trajectory_generator=generate_stance_trajectory):
     self._speed_gain = speed_gain
     self._leg_trajectory_generator = leg_trajectory_generator
 
@@ -255,20 +244,18 @@ class RaibertStanceLegController(object):
     current_speed = raibiert_controller.estimate_base_velocity()
     leg_pose_set = []
     for i in raibiert_controller.stance_set:
-      desired_forward_speed = (
-          raibiert_controller.behavior_parameters.desired_forward_speed)
-      target_foot_position = -(
-          raibiert_controller.behavior_parameters.stance_duration / 2 *
-          current_speed - self._speed_gain *
-          (current_speed - desired_forward_speed))
+      desired_forward_speed = (raibiert_controller.behavior_parameters.desired_forward_speed)
+      target_foot_position = -(raibiert_controller.behavior_parameters.stance_duration / 2 *
+                               current_speed - self._speed_gain *
+                               (current_speed - desired_forward_speed))
 
       target_leg_pose = (foot_horizontal_position_to_leg_swing(
-          target_foot_position,
-          leg_extension=raibiert_controller.nominal_leg_extension),
+          target_foot_position, leg_extension=raibiert_controller.nominal_leg_extension),
                          raibiert_controller.nominal_leg_extension)
 
-      desired_leg_pose = self._leg_trajectory_generator(
-          phase, raibiert_controller.stance_start_leg_pose, target_leg_pose)
+      desired_leg_pose = self._leg_trajectory_generator(phase,
+                                                        raibiert_controller.stance_start_leg_pose,
+                                                        target_leg_pose)
 
       leg_pose_set.append(desired_leg_pose)
 
@@ -288,8 +275,7 @@ class MinitaurRaibertTrottingController(object):
     self._robot = robot
     self._behavior_parameters = behavior_parameters
 
-    nominal_leg_pose = foot_position_to_leg_pose(
-        (0, -self._behavior_parameters.standing_height))
+    nominal_leg_pose = foot_position_to_leg_pose((0, -self._behavior_parameters.standing_height))
     self._nominal_leg_extension = nominal_leg_pose[1]
 
     self._swing_leg_controller = swing_leg_controller
@@ -337,8 +323,7 @@ class MinitaurRaibertTrottingController(object):
     # extract the swing leg pose from the current_leg_pose
     leg_pose = []
     for index in leg_indices:
-      leg_pose.append(
-          [current_leg_pose[index], current_leg_pose[index + _NUM_LEGS]])
+      leg_pose.append([current_leg_pose[index], current_leg_pose[index + _NUM_LEGS]])
 
     leg_pose = np.array(leg_pose)
     return np.mean(leg_pose, axis=0)
@@ -353,13 +338,13 @@ class MinitaurRaibertTrottingController(object):
 
   def get_phase(self):
     """Compute the current stance/swing phase."""
-    return math.fmod(self._time, self._behavior_parameters.stance_duration
-                    ) / self._behavior_parameters.stance_duration
+    return math.fmod(
+        self._time,
+        self._behavior_parameters.stance_duration) / self._behavior_parameters.stance_duration
 
   def update_swing_stance_set(self):
     """Switch the set of swing/stance legs based on timing."""
-    swing_stance_phase = math.fmod(
-        self._time, 2 * self._behavior_parameters.stance_duration)
+    swing_stance_phase = math.fmod(self._time, 2 * self._behavior_parameters.stance_duration)
     if swing_stance_phase < self._behavior_parameters.stance_duration:
       return (DIAGONAL_LEG_PAIR_1, DIAGONAL_LEG_PAIR_2)
     return (DIAGONAL_LEG_PAIR_2, DIAGONAL_LEG_PAIR_1)
@@ -387,8 +372,8 @@ class MinitaurRaibertTrottingController(object):
     toe_hip_len = math.sqrt(x**2 + y**2)
     horizontal_dist = toe_hip_len * delta_sw
     phase = self.get_phase()
-    speed = 0 if phase < 0.1 else horizontal_dist / (
-        self._behavior_parameters.stance_duration * phase)
+    speed = 0 if phase < 0.1 else horizontal_dist / (self._behavior_parameters.stance_duration *
+                                                     phase)
     return speed
 
   def get_swing_leg_action(self):

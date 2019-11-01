@@ -1,15 +1,16 @@
 #include "ExampleEntries.h"
 
-#include "../BlockSolver/btBlockSolver.h"
-#include "../BlockSolver/BlockSolverExample.h"
-#include "../BlockSolver/RigidBodyBoxes.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "EmptyExample.h"
+#include "../Heightfield/HeightfieldExample.h"
 #include "../RenderingExamples/RenderInstancingDemo.h"
 #include "../RenderingExamples/CoordinateSystemDemo.h"
 #include "../RenderingExamples/RaytracerSetup.h"
 #include "../RenderingExamples/TinyRendererSetup.h"
 #include "../RenderingExamples/DynamicTexturedCubeDemo.h"
+#include "../SharedMemory/GraphicsServerExample.h"
+#include "../SharedMemory/GraphicsClientExample.h"
+
 #include "../ForkLift/ForkLiftDemo.h"
 #include "../MultiThreadedDemo/MultiThreadedDemo.h"
 #include "../BasicDemo/BasicExample.h"
@@ -43,6 +44,17 @@
 #include "../FractureDemo/FractureDemo.h"
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
+#include "../DeformableDemo/DeformableRigid.h"
+#include "../DeformableDemo/ClothFriction.h"
+#include "../DeformableDemo/Pinch.h"
+#include "../DeformableDemo/DeformableSelfCollision.h"
+#include "../DeformableDemo/PinchFriction.h"
+#include "../DeformableDemo/DeformableMultibody.h"
+#include "../DeformableDemo/VolumetricDeformable.h"
+#include "../DeformableDemo/GraspDeformable.h"
+#include "../DeformableDemo/DeformableContact.h"
+#include "../DeformableDemo/DeformableClothAnchor.h"
+#include "../DeformableDemo/MultibodyClothAnchor.h"
 #include "../SharedMemory/PhysicsServerExampleBullet2.h"
 #include "../SharedMemory/PhysicsServerExample.h"
 #include "../SharedMemory/PhysicsClientExample.h"
@@ -113,7 +125,7 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Basic Example", "Create some rigid bodies using box collision shapes. This is a good example to familiarize with the basic initialization of Bullet. The Basic Example can also be compiled without graphical user interface, as a console application. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", BasicExampleCreateFunc),
 
 		ExampleEntry(1, "Rolling Friction", "Damping is often not good enough to keep rounded objects from rolling down a sloped surface. Instead, you can set the rolling friction of a rigid body. Generally it is best to leave the rolling friction to zero, to avoid artifacts.", RollingFrictionCreateFunc),
-
+        
 		ExampleEntry(1, "Constraints", "Show the use of the various constraints in Bullet. Press the L key to visualize the constraint limits. Press the C key to visualize the constraint frames.",
 					 AllConstraintCreateFunc),
 
@@ -149,16 +161,12 @@ static ExampleEntry gDefaultExamples[] =
 					 PhysicsServerCreateFuncBullet2, PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
 		ExampleEntry(1, "Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
 					 PhysicsServerCreateFuncBullet2, PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
-		//
+		ExampleEntry(1, "Graphics Server", "Create a graphics server.",GraphicsServerCreateFuncBullet),
+		ExampleEntry(1, "Graphics Client", "Create a graphics client.", GraphicsClientCreateFunc),
+		
+					 //
 		//	ExampleEntry(1, "Physics Client (Direct)", "Create a physics client that can communicate with a physics server directly in-process.", PhysicsClientCreateFunc,eCLIENTEXAMPLE_DIRECT),
 
-		ExampleEntry(0, "BlockSolver"),
-		ExampleEntry(1, "Stack MultiBody SI", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_SI),
-		ExampleEntry(1, "Stack MultiBody MLCP PGS", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_MLCP_PGS),
-		ExampleEntry(1, "Stack MultiBody MLCP Dantzig", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_MLCP_DANTZIG),
-		ExampleEntry(1, "Stack MultiBody Block", "Create a stack of blocks, with heavy block at the top", BlockSolverExampleCreateFunc, BLOCK_SOLVER_SCENE_MB_STACK + BLOCK_SOLVER_BLOCK),
-		ExampleEntry(1, "Stack RigidBody SI", "Create a stack of blocks, with heavy block at the top", RigidBodyBoxesCreateFunc, BLOCK_SOLVER_SI),
-		ExampleEntry(1, "Stack RigidBody Block", "Create a stack of blocks, with heavy block at the top", RigidBodyBoxesCreateFunc, BLOCK_SOLVER_BLOCK),
 
 		ExampleEntry(0, "Inverse Dynamics"),
 		ExampleEntry(1, "Inverse Dynamics URDF", "Create a btMultiBody from URDF. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc, BT_ID_LOAD_URDF),
@@ -183,6 +191,20 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Spheres & Plane C-API (Bullet2)", "Collision C-API using Bullet 2.x backend", CollisionTutorialBullet2CreateFunc, TUT_SPHERE_PLANE_BULLET2),
 //ExampleEntry(1, "Spheres & Plane C-API (Bullet3)", "Collision C-API using Bullet 3.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_PLANE_RTB3),
 
+        ExampleEntry(0, "Deformabe Body"),
+        ExampleEntry(1, "Deformable Self Collision", "Deformable Self Collision", DeformableSelfCollisionCreateFunc),
+        ExampleEntry(1, "Deformable-Deformable Contact", "Deformable contact", DeformableContactCreateFunc),
+        ExampleEntry(1, "Cloth Friction", "Cloth friction contact", ClothFrictionCreateFunc),
+        ExampleEntry(1, "Deformable-Deformable Friction Contact", "Deformable friction contact", PinchFrictionCreateFunc),
+        ExampleEntry(1, "Deformable-RigidBody Contact", "Deformable test", DeformableRigidCreateFunc),
+        ExampleEntry(1, "Grasp Deformable Cube", "Grasping test", PinchCreateFunc),
+        ExampleEntry(1, "Grasp Deformable with Motor", "Grasping test", GraspDeformableCreateFunc),
+        ExampleEntry(1, "Volumetric Deformable Objects", "Volumetric Deformable test", VolumetricDeformableCreateFunc),
+        ExampleEntry(1, "Rigid Cloth Anchor", "Deformable Rigid body Anchor test", DeformableClothAnchorCreateFunc),
+        ExampleEntry(1, "Multibody Cloth Anchor", "Deformable Multibody Anchor test", MultibodyClothAnchorCreateFunc),
+        ExampleEntry(1, "Deformable-MultiBody Contact", "MultiBody and Deformable contact", DeformableMultibodyCreateFunc),
+        // ExampleEntry(1, "MultiBody Baseline", "MultiBody Baseline", MultiBodyBaselineCreateFunc),
+        
 #ifdef INCLUDE_CLOTH_DEMOS
 		ExampleEntry(0, "Soft Body"),
 		ExampleEntry(1, "Cloth", "Simulate a patch of cloth.", SoftDemoCreateFunc, 0),
@@ -234,6 +256,7 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Convex vs Mesh", "Benchmark the performance and stability of rigid bodies using convex hull collision shapes (btConvexHullShape), resting on a triangle mesh, btBvhTriangleMeshShape.", BenchmarkCreateFunc, 6),
 		ExampleEntry(1, "Raycast", "Benchmark the performance of the btCollisionWorld::rayTest. Note that currently the rays are not rendered.", BenchmarkCreateFunc, 7),
 		ExampleEntry(1, "Convex Pack", "Benchmark the performance of the convex hull primitive.", BenchmarkCreateFunc, 8),
+		ExampleEntry(1, "Heightfield", "Raycast against a btHeightfieldTerrainShape", HeightfieldExampleCreateFunc),
 		//#endif
 
 		ExampleEntry(0, "Importers"),

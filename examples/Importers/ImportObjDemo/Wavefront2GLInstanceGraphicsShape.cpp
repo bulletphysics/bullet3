@@ -9,7 +9,7 @@
 #include "../../OpenGLWindow/GLInstancingRenderer.h"
 #include "../../OpenGLWindow/GLInstanceGraphicsShape.h"
 
-GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tinyobj::shape_t>& shapes, bool flatShading)
+GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(const tinyobj::attrib_t& attribute, std::vector<tinyobj::shape_t>& shapes, bool flatShading)
 {
 	b3AlignedObjectArray<GLInstanceVertex>* vertices = new b3AlignedObjectArray<GLInstanceVertex>;
 	{
@@ -36,19 +36,20 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 					}
 
 					GLInstanceVertex vtx0;
-					vtx0.xyzw[0] = shape.mesh.positions[shape.mesh.indices[f] * 3 + 0];
-					vtx0.xyzw[1] = shape.mesh.positions[shape.mesh.indices[f] * 3 + 1];
-					vtx0.xyzw[2] = shape.mesh.positions[shape.mesh.indices[f] * 3 + 2];
+					tinyobj::index_t v_0 = shape.mesh.indices[f];
+					vtx0.xyzw[0] = attribute.vertices[3 * v_0.vertex_index];
+					vtx0.xyzw[1] = attribute.vertices[3 * v_0.vertex_index + 1];
+					vtx0.xyzw[2] = attribute.vertices[3 * v_0.vertex_index + 2];
 					vtx0.xyzw[3] = 0.f;
 
-					if (shape.mesh.texcoords.size())
+					if (attribute.texcoords.size())
 					{
-						int uv0Index = shape.mesh.indices[f] * 2 + 0;
-						int uv1Index = shape.mesh.indices[f] * 2 + 1;
-						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < int(shape.mesh.texcoords.size()) && (uv1Index < shape.mesh.texcoords.size())))
+						int uv0Index = 2 * v_0.texcoord_index;
+						int uv1Index = 2 * v_0.texcoord_index + 1;
+						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < int(attribute.texcoords.size()) && (uv1Index < attribute.texcoords.size())))
 						{
-							vtx0.uv[0] = shape.mesh.texcoords[uv0Index];
-							vtx0.uv[1] = shape.mesh.texcoords[uv1Index];
+							vtx0.uv[0] = attribute.texcoords[uv0Index];
+							vtx0.uv[1] = attribute.texcoords[uv1Index];
 						}
 						else
 						{
@@ -64,19 +65,20 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 					}
 
 					GLInstanceVertex vtx1;
-					vtx1.xyzw[0] = shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0];
-					vtx1.xyzw[1] = shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1];
-					vtx1.xyzw[2] = shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2];
+					tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
+					vtx1.xyzw[0] = attribute.vertices[3 * v_1.vertex_index];
+					vtx1.xyzw[1] = attribute.vertices[3 * v_1.vertex_index + 1];
+					vtx1.xyzw[2] = attribute.vertices[3 * v_1.vertex_index + 2];
 					vtx1.xyzw[3] = 0.f;
 
-					if (shape.mesh.texcoords.size())
+					if (attribute.texcoords.size())
 					{
-						int uv0Index = shape.mesh.indices[f + 1] * 2 + 0;
-						int uv1Index = shape.mesh.indices[f + 1] * 2 + 1;
-						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < shape.mesh.texcoords.size()) && (uv1Index < shape.mesh.texcoords.size()))
+						int uv0Index = 2 * v_1.texcoord_index;
+						int uv1Index = 2 * v_1.texcoord_index + 1;
+						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < attribute.texcoords.size()) && (uv1Index < attribute.texcoords.size()))
 						{
-							vtx1.uv[0] = shape.mesh.texcoords[uv0Index];
-							vtx1.uv[1] = shape.mesh.texcoords[uv1Index];
+							vtx1.uv[0] = attribute.texcoords[uv0Index];
+							vtx1.uv[1] = attribute.texcoords[uv1Index];
 						}
 						else
 						{
@@ -92,22 +94,24 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 					}
 
 					GLInstanceVertex vtx2;
-					vtx2.xyzw[0] = shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0];
-					vtx2.xyzw[1] = shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1];
-					vtx2.xyzw[2] = shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2];
+					tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
+					vtx2.xyzw[0] = attribute.vertices[3 * v_2.vertex_index];
+					vtx2.xyzw[1] = attribute.vertices[3 * v_2.vertex_index + 1];
+					vtx2.xyzw[2] = attribute.vertices[3 * v_2.vertex_index + 2];
 					vtx2.xyzw[3] = 0.f;
-					if (shape.mesh.texcoords.size())
+					if (attribute.texcoords.size())
 					{
-						int uv0Index = shape.mesh.indices[f + 2] * 2 + 0;
-						int uv1Index = shape.mesh.indices[f + 2] * 2 + 1;
-						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < shape.mesh.texcoords.size()) && (uv1Index < shape.mesh.texcoords.size()))
+						int uv0Index = 2 * v_2.texcoord_index;
+						int uv1Index = 2 * v_2.texcoord_index + 1;
+
+						if (uv0Index >= 0 && uv1Index >= 0 && (uv0Index < attribute.texcoords.size()) && (uv1Index < attribute.texcoords.size()))
 						{
-							vtx2.uv[0] = shape.mesh.texcoords[uv0Index];
-							vtx2.uv[1] = shape.mesh.texcoords[uv1Index];
+							vtx2.uv[0] = attribute.texcoords[uv0Index];
+							vtx2.uv[1] = attribute.texcoords[uv1Index];
 						}
 						else
 						{
-							b3Warning("obj texture coordinate out-of-range!");
+							//b3Warning("obj texture coordinate out-of-range!");
 							vtx2.uv[0] = 0;
 							vtx2.uv[1] = 0;
 						}
@@ -123,16 +127,21 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 					btVector3 v2(vtx2.xyzw[0], vtx2.xyzw[1], vtx2.xyzw[2]);
 
 					unsigned int maxIndex = 0;
-					maxIndex = b3Max(maxIndex, shape.mesh.indices[f] * 3 + 0);
-					maxIndex = b3Max(maxIndex, shape.mesh.indices[f] * 3 + 1);
-					maxIndex = b3Max(maxIndex, shape.mesh.indices[f] * 3 + 2);
-					maxIndex = b3Max(maxIndex, shape.mesh.indices[f + 1] * 3 + 0);
-					maxIndex = b3Max(maxIndex, shape.mesh.indices[f + 1] * 3 + 1);
-					maxIndex = b3Max(maxIndex, shape.mesh.indices[f + 1] * 3 + 2);
-					maxIndex = b3Max(maxIndex, shape.mesh.indices[f + 2] * 3 + 0);
-					maxIndex = b3Max(maxIndex, shape.mesh.indices[f + 2] * 3 + 1);
-					maxIndex = b3Max(maxIndex, shape.mesh.indices[f + 2] * 3 + 2);
-					bool hasNormals = (shape.mesh.normals.size() && maxIndex < shape.mesh.normals.size());
+					unsigned n0Index = shape.mesh.indices[f].normal_index;
+					unsigned n1Index = shape.mesh.indices[f + 1].normal_index;
+					unsigned n2Index = shape.mesh.indices[f + 2].normal_index;
+
+					maxIndex = b3Max(maxIndex, 3 * n0Index + 0);
+					maxIndex = b3Max(maxIndex, 3 * n0Index + 1);
+					maxIndex = b3Max(maxIndex, 3 * n0Index + 2);
+					maxIndex = b3Max(maxIndex, 3 * n1Index + 0);
+					maxIndex = b3Max(maxIndex, 3 * n1Index + 1);
+					maxIndex = b3Max(maxIndex, 3 * n1Index + 2);
+					maxIndex = b3Max(maxIndex, 3 * n2Index + 0);
+					maxIndex = b3Max(maxIndex, 3 * n2Index + 1);
+					maxIndex = b3Max(maxIndex, 3 * n2Index + 2);
+
+					bool hasNormals = (attribute.normals.size() && maxIndex < attribute.normals.size());
 
 					if (flatShading || !hasNormals)
 					{
@@ -159,15 +168,15 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 					}
 					else
 					{
-						vtx0.normal[0] = shape.mesh.normals[shape.mesh.indices[f] * 3 + 0];
-						vtx0.normal[1] = shape.mesh.normals[shape.mesh.indices[f] * 3 + 1];
-						vtx0.normal[2] = shape.mesh.normals[shape.mesh.indices[f] * 3 + 2];  //shape.mesh.indices[f+1]*3+0
-						vtx1.normal[0] = shape.mesh.normals[shape.mesh.indices[f + 1] * 3 + 0];
-						vtx1.normal[1] = shape.mesh.normals[shape.mesh.indices[f + 1] * 3 + 1];
-						vtx1.normal[2] = shape.mesh.normals[shape.mesh.indices[f + 1] * 3 + 2];
-						vtx2.normal[0] = shape.mesh.normals[shape.mesh.indices[f + 2] * 3 + 0];
-						vtx2.normal[1] = shape.mesh.normals[shape.mesh.indices[f + 2] * 3 + 1];
-						vtx2.normal[2] = shape.mesh.normals[shape.mesh.indices[f + 2] * 3 + 2];
+						vtx0.normal[0] = attribute.normals[3 * n0Index+ 0];
+						vtx0.normal[1] = attribute.normals[3 * n0Index+ 1];
+						vtx0.normal[2] = attribute.normals[3 * n0Index+ 2];
+						vtx1.normal[0] = attribute.normals[3 * n1Index+ 0];
+						vtx1.normal[1] = attribute.normals[3 * n1Index+ 1];
+						vtx1.normal[2] = attribute.normals[3 * n1Index+ 2];
+						vtx2.normal[0] = attribute.normals[3 * n2Index+ 0];
+						vtx2.normal[1] = attribute.normals[3 * n2Index+ 1];
+						vtx2.normal[2] = attribute.normals[3 * n2Index+ 2];
 					}
 					vertices->push_back(vtx0);
 					vertices->push_back(vtx1);

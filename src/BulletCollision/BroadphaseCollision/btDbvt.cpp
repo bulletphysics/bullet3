@@ -80,6 +80,7 @@ static DBVT_INLINE void deletenode(btDbvt* pdbvt,
 static void recursedeletenode(btDbvt* pdbvt,
 							  btDbvtNode* node)
 {
+	if (node == 0) return;
 	if (!node->isleaf())
 	{
 		recursedeletenode(pdbvt, node->childs[0]);

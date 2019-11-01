@@ -45,6 +45,10 @@ static bool UrdfFindMeshFile(
 	{
 		*out_type = UrdfGeometry::FILE_CDF;
 	}
+	else if (ext == ".vtk")
+	{
+		*out_type = UrdfGeometry::FILE_VTK;
+	}
 	else
 	{
 		b3Warning("%s: invalid mesh filename extension '%s'\n", error_message_prefix.c_str(), ext.c_str());

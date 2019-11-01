@@ -1,6 +1,5 @@
 #The example to run the raibert controller in a Minitaur gym env.
 
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -9,8 +8,7 @@ import os
 import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(os.path.dirname(currentdir)))
-os.sys.path.insert(0,parentdir)
-
+os.sys.path.insert(0, parentdir)
 
 import tensorflow as tf
 from pybullet_envs.minitaur.envs import minitaur_raibert_controller
@@ -21,9 +19,8 @@ FLAGS = tf.app.flags.FLAGS
 
 flags.DEFINE_float("motor_kp", 1.0, "The position gain of the motor.")
 flags.DEFINE_float("motor_kd", 0.015, "The speed gain of the motor.")
-flags.DEFINE_float(
-    "control_latency", 0.02, "The latency between sensor measurement and action"
-    " execution the robot.")
+flags.DEFINE_float("control_latency", 0.02, "The latency between sensor measurement and action"
+                   " execution the robot.")
 flags.DEFINE_string("log_path", None, "The directory to write the log file.")
 
 
@@ -55,20 +52,18 @@ def main(argv):
         log_path=FLAGS.log_path)
     env.reset()
 
-    controller = minitaur_raibert_controller.MinitaurRaibertTrottingController(
-        env.minitaur)
+    controller = minitaur_raibert_controller.MinitaurRaibertTrottingController(env.minitaur)
 
     tstart = env.minitaur.GetTimeSinceReset()
     for _ in range(1000):
       t = env.minitaur.GetTimeSinceReset() - tstart
-      controller.behavior_parameters = (
-          minitaur_raibert_controller.BehaviorParameters(
-              desired_forward_speed=speed(t)))
+      controller.behavior_parameters = (minitaur_raibert_controller.BehaviorParameters(
+          desired_forward_speed=speed(t)))
       controller.update(t)
       env.step(controller.get_action())
   finally:
     env.close()
 
+
 if __name__ == "__main__":
   tf.app.run(main)
-

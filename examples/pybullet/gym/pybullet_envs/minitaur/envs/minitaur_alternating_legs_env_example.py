@@ -3,10 +3,10 @@
 """
 import time
 
-import os,  inspect
+import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 
 import os
 import numpy as np
@@ -50,13 +50,11 @@ def hand_tuned_agent(observation, timestamp):
   pitch_compensation = pitch_gain * pitch + pitch_dot_gain * pitch_dot
 
   first_leg = [
-      0, -pitch_compensation, -pitch_compensation, 0, 0,
-      -pitch_compensation - roll_compensation,
+      0, -pitch_compensation, -pitch_compensation, 0, 0, -pitch_compensation - roll_compensation,
       pitch_compensation + roll_compensation, 0
   ]
   second_leg = [
-      -pitch_compensation, 0, 0, -pitch_compensation,
-      pitch_compensation - roll_compensation, 0, 0,
+      -pitch_compensation, 0, 0, -pitch_compensation, pitch_compensation - roll_compensation, 0, 0,
       -pitch_compensation + roll_compensation
   ]
   if (timestamp // minitaur_alternating_legs_env.STEP_PERIOD) % 2:
@@ -94,8 +92,7 @@ def hand_tuned_balance_example(log_path=None):
     for _ in range(steps):
       # Sleep to prevent serial buffer overflow on microcontroller.
       time.sleep(0.002)
-      action = hand_tuned_agent(observation,
-                                environment.minitaur.GetTimeSinceReset())
+      action = hand_tuned_agent(observation, environment.minitaur.GetTimeSinceReset())
       observation, reward, done, _ = environment.step(action)
       sum_reward += reward
       if done:

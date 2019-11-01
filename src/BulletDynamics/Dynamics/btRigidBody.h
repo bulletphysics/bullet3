@@ -259,6 +259,7 @@ public:
 		m_invMass = m_linearFactor * m_inverseMass;
 	}
 	btScalar getInvMass() const { return m_inverseMass; }
+	btScalar getMass() const { return m_inverseMass == btScalar(0.) ? btScalar(0.) : btScalar(1.0) / m_inverseMass; }
 	const btMatrix3x3& getInvInertiaTensorWorld() const
 	{
 		return m_invInertiaTensorWorld;

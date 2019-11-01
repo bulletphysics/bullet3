@@ -35,12 +35,11 @@ def main(argv):
       #print("motorState.velocity=",motorState.velocity)
       #print("motorState.action=",motorState.action)
       #print("motorState.torque=",motorState.torque)
-      recs.append([motorState.angle,motorState.velocity,motorState.action,motorState.torque])
-		
+      recs.append([motorState.angle, motorState.velocity, motorState.action, motorState.torque])
+
   a = numpy.array(recs)
   numpy.savetxt(FLAGS.csv_file, a, delimiter=",")
 
+
 if __name__ == "__main__":
   tf.app.run(main)
-
-

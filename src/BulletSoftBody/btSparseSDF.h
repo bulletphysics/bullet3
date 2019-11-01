@@ -70,6 +70,7 @@ struct btSparseSdf
 
 	btAlignedObjectArray<Cell*> cells;
 	btScalar voxelsz;
+    btScalar m_defaultVoxelsz;
 	int puid;
 	int ncells;
 	int m_clampCells;
@@ -87,9 +88,16 @@ struct btSparseSdf
 		//if this limit is reached, the SDF is reset (at the cost of some performance during the reset)
 		m_clampCells = clampCells;
 		cells.resize(hashsize, 0);
+        m_defaultVoxelsz = 0.25;
 		Reset();
 	}
 	//
+    
+    void setDefaultVoxelsz(btScalar sz)
+    {
+        m_defaultVoxelsz = sz;
+    }
+    
 	void Reset()
 	{
 		for (int i = 0, ni = cells.size(); i < ni; ++i)
@@ -103,7 +111,7 @@ struct btSparseSdf
 				pc = pn;
 			}
 		}
-		voxelsz = 0.25;
+		voxelsz = m_defaultVoxelsz;
 		puid = 0;
 		ncells = 0;
 		nprobes = 1;

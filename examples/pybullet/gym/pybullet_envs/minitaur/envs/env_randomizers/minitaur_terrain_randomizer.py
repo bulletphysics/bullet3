@@ -4,11 +4,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os,  inspect
+import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 parentdir = os.path.dirname(os.path.dirname(parentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 
 import itertools
 import math
@@ -62,8 +62,7 @@ class PoissonDisc2D(object):
     self._grid = [None] * self._grid_size_x * self._grid_size_y
 
     # Generate the first sample point and set it as an active site.
-    first_sample = np.array(
-        np.random.random_sample(2)) * [grid_length, grid_width]
+    first_sample = np.array(np.random.random_sample(2)) * [grid_length, grid_width]
     self._active_list = [first_sample]
 
     # Also store the sample point in the grid.
@@ -114,8 +113,7 @@ class PoissonDisc2D(object):
     Returns:
       Whether the point is inside the grid.
     """
-    return (0 <= point[0] < self._grid_length) and (0 <= point[1] <
-                                                    self._grid_width)
+    return (0 <= point[0] < self._grid_length) and (0 <= point[1] < self._grid_width)
 
   def _is_in_range(self, index2d):
     """Checks if the cell ID is within the grid.
@@ -127,8 +125,7 @@ class PoissonDisc2D(object):
       Whether the cell (2D index) is inside the grid.
     """
 
-    return (0 <= index2d[0] < self._grid_size_x) and (0 <= index2d[1] <
-                                                      self._grid_size_y)
+    return (0 <= index2d[0] < self._grid_size_x) and (0 <= index2d[1] < self._grid_size_y)
 
   def _is_close_to_existing_points(self, point):
     """Checks if the point is close to any already sampled (and stored) points.
@@ -142,15 +139,13 @@ class PoissonDisc2D(object):
     """
     px, py = self._point_to_index_2d(point)
     # Now we can check nearby cells for existing points
-    for neighbor_cell in itertools.product(
-        xrange(px - 1, px + 2), xrange(py - 1, py + 2)):
+    for neighbor_cell in itertools.product(xrange(px - 1, px + 2), xrange(py - 1, py + 2)):
 
       if not self._is_in_range(neighbor_cell):
         continue
 
       maybe_a_point = self._grid[self._index_2d_to_1d(neighbor_cell)]
-      if maybe_a_point is not None and np.linalg.norm(
-          maybe_a_point - point) < self._min_radius:
+      if maybe_a_point is not None and np.linalg.norm(maybe_a_point - point) < self._min_radius:
         return True
 
     return False
@@ -168,8 +163,8 @@ class PoissonDisc2D(object):
       random_angle = np.random.uniform(0, 2 * math.pi)
 
       # The sampled 2D points near the active point
-      sample = random_radius * np.array(
-          [np.cos(random_angle), np.sin(random_angle)]) + active_point
+      sample = random_radius * np.array([np.cos(random_angle),
+                                         np.sin(random_angle)]) + active_point
 
       if not self._is_in_grid(sample):
         continue
@@ -214,12 +209,11 @@ class TerrainType(enum.Enum):
 class MinitaurTerrainRandomizer(env_randomizer_base.EnvRandomizerBase):
   """Generates an uneven terrain in the gym env."""
 
-  def __init__(
-      self,
-      terrain_type=TerrainType.TRIANGLE_MESH,
-      mesh_filename="robotics/reinforcement_learning/minitaur/envs/testdata/"
-      "triangle_mesh_terrain/terrain9735.obj",
-      mesh_scale=None):
+  def __init__(self,
+               terrain_type=TerrainType.TRIANGLE_MESH,
+               mesh_filename="robotics/reinforcement_learning/minitaur/envs/testdata/"
+               "triangle_mesh_terrain/terrain9735.obj",
+               mesh_scale=None):
     """Initializes the randomizer.
 
     Args:
@@ -261,9 +255,7 @@ class MinitaurTerrainRandomizer(env_randomizer_base.EnvRandomizerBase):
         flags=1,
         meshScale=self._mesh_scale)
     env.ground_id = env.pybullet_client.createMultiBody(
-        baseMass=0,
-        baseCollisionShapeIndex=terrain_collision_shape_id,
-        basePosition=[0, 0, 0])
+        baseMass=0, baseCollisionShapeIndex=terrain_collision_shape_id, basePosition=[0, 0, 0])
 
   def _generate_convex_blocks(self, env):
     """Adds random convex blocks to the flat ground.
@@ -277,8 +269,7 @@ class MinitaurTerrainRandomizer(env_randomizer_base.EnvRandomizerBase):
 
     """
 
-    poisson_disc = PoissonDisc2D(_GRID_LENGTH, _GRID_WIDTH, _MIN_BLOCK_DISTANCE,
-                                 _MAX_SAMPLE_SIZE)
+    poisson_disc = PoissonDisc2D(_GRID_LENGTH, _GRID_WIDTH, _MIN_BLOCK_DISTANCE, _MAX_SAMPLE_SIZE)
 
     block_centers = poisson_disc.generate()
 
@@ -289,12 +280,10 @@ class MinitaurTerrainRandomizer(env_randomizer_base.EnvRandomizerBase):
       # Do not place blocks near the point [0, 0], where the robot will start.
       if abs(shifted_center[0]) < 1.0 and abs(shifted_center[1]) < 1.0:
         continue
-      half_length = np.random.uniform(_MIN_BLOCK_LENGTH, _MAX_BLOCK_LENGTH) / (
-          2 * math.sqrt(2))
+      half_length = np.random.uniform(_MIN_BLOCK_LENGTH, _MAX_BLOCK_LENGTH) / (2 * math.sqrt(2))
       half_height = np.random.uniform(_MIN_BLOCK_HEIGHT, _MAX_BLOCK_HEIGHT) / 2
       box_id = env.pybullet_client.createCollisionShape(
-          env.pybullet_client.GEOM_BOX,
-          halfExtents=[half_length, half_length, half_height])
+          env.pybullet_client.GEOM_BOX, halfExtents=[half_length, half_length, half_height])
       env.pybullet_client.createMultiBody(
           baseMass=0,
           baseCollisionShapeIndex=box_id,

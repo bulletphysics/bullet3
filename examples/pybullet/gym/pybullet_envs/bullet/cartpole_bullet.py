@@ -2,10 +2,10 @@
 Classic cart-pole system implemented by Rich Sutton et al.
 Copied from https://webdocs.cs.ualberta.ca/~sutton/book/code/pole.c
 """
-import os,  inspect
+import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 
 import logging
 import math
@@ -21,26 +21,24 @@ from pkg_resources import parse_version
 
 logger = logging.getLogger(__name__)
 
+
 class CartPoleBulletEnv(gym.Env):
-  metadata = {
-    'render.modes': ['human', 'rgb_array'],
-    'video.frames_per_second' : 50
-  }
+  metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
   def __init__(self, renders=True):
     # start the bullet physics server
     self._renders = renders
     if (renders):
-	    p.connect(p.GUI)
+      p.connect(p.GUI)
     else:
-    	p.connect(p.DIRECT)
+      p.connect(p.DIRECT)
     self.theta_threshold_radians = 12 * 2 * math.pi / 360
-    self.x_threshold = 0.4 #2.4
+    self.x_threshold = 0.4  #2.4
     high = np.array([
-         self.x_threshold * 2,
-         np.finfo(np.float32).max,
-         self.theta_threshold_radians * 2,
-         np.finfo(np.float32).max])
+        self.x_threshold * 2,
+        np.finfo(np.float32).max, self.theta_threshold_radians * 2,
+        np.finfo(np.float32).max
+    ])
 
     self.force_mag = 10
 
@@ -60,7 +58,7 @@ class CartPoleBulletEnv(gym.Env):
     return [seed]
 
   def step(self, action):
-    force = self.force_mag if action==1 else -self.force_mag
+    force = self.force_mag if action == 1 else -self.force_mag
 
     p.setJointMotorControl2(self.cartpole, 0, p.TORQUE_CONTROL, force=force)
     p.stepSimulation()
@@ -78,16 +76,17 @@ class CartPoleBulletEnv(gym.Env):
     return np.array(self.state), reward, done, {}
 
   def reset(self):
-#    print("-----------reset simulation---------------")
+    #    print("-----------reset simulation---------------")
     p.resetSimulation()
-    self.cartpole = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"cartpole.urdf"),[0,0,0])
+    self.cartpole = p.loadURDF(os.path.join(pybullet_data.getDataPath(), "cartpole.urdf"),
+                               [0, 0, 0])
     p.changeDynamics(self.cartpole, -1, linearDamping=0, angularDamping=0)
     p.changeDynamics(self.cartpole, 0, linearDamping=0, angularDamping=0)
     p.changeDynamics(self.cartpole, 1, linearDamping=0, angularDamping=0)
     self.timeStep = 0.02
     p.setJointMotorControl2(self.cartpole, 1, p.VELOCITY_CONTROL, force=0)
     p.setJointMotorControl2(self.cartpole, 0, p.VELOCITY_CONTROL, force=0)
-    p.setGravity(0,0, -9.8)
+    p.setGravity(0, 0, -9.8)
     p.setTimeStep(self.timeStep)
     p.setRealTimeSimulation(0)
 
@@ -100,4 +99,4 @@ class CartPoleBulletEnv(gym.Env):
     return np.array(self.state)
 
   def render(self, mode='human', close=False):
-      return
+    return

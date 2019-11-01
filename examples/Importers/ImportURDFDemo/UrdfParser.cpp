@@ -27,7 +27,7 @@ static bool parseVector4(btVector4& vec4, const std::string& vector_str)
 {
 	vec4.setZero();
 	btArray<std::string> pieces;
-	btArray<float> rgba;
+	btArray<double> rgba;
 	btAlignedObjectArray<std::string> strArray;
 	urdfIsAnyOf(" ", strArray);
 	urdfStringSplit(pieces, vector_str, strArray);
@@ -50,7 +50,7 @@ static bool parseVector3(btVector3& vec3, const std::string& vector_str, ErrorLo
 {
 	vec3.setZero();
 	btArray<std::string> pieces;
-	btArray<float> rgba;
+	btArray<double> rgba;
 	btAlignedObjectArray<std::string> strArray;
 	urdfIsAnyOf(" ", strArray);
 	urdfStringSplit(pieces, vector_str, strArray);

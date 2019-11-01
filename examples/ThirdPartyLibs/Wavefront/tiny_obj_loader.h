@@ -14,6 +14,17 @@ struct CommonFileIOInterface;
 
 namespace tinyobj
 {
+struct vertex_index_t
+{
+	int v_idx, vt_idx, vn_idx;
+	vertex_index_t() : v_idx(-1), vt_idx(-1), vn_idx(-1) {}
+	explicit vertex_index_t(int idx) : v_idx(idx), vt_idx(idx), vn_idx(idx) {}
+	vertex_index_t(int vidx, int vtidx, int vnidx)
+		: v_idx(vidx), vt_idx(vtidx), vn_idx(vnidx) {}
+};
+
+typedef std::vector<vertex_index_t> face_t;
+
 typedef struct
 {
 	std::string name;
@@ -24,21 +35,27 @@ typedef struct
 	float transmittance[3];
 	float emission[3];
 	float shininess;
-	float transparency;
+	float transparency;  // 1 == opaque; 0 == fully transparent
 
-	std::string ambient_texname;
-	std::string diffuse_texname;
-	std::string specular_texname;
+	std::string ambient_texname;   // map_Ka
+	std::string diffuse_texname;   // map_Kd
+	std::string specular_texname;  // map_Ks
 	std::string normal_texname;
 	std::map<std::string, std::string> unknown_parameter;
 } material_t;
 
+// Index struct to support different indices for vtx/normal/texcoord.
+// -1 means not used.
 typedef struct
 {
-	std::vector<float> positions;
-	std::vector<float> normals;
-	std::vector<float> texcoords;
-	std::vector<unsigned int> indices;
+	int vertex_index;
+	int normal_index;
+	int texcoord_index;
+} index_t;
+
+typedef struct
+{
+	std::vector<index_t> indices;
 } mesh_t;
 
 typedef struct
@@ -48,6 +65,14 @@ typedef struct
 	mesh_t mesh;
 } shape_t;
 
+// Vertex attributes
+struct attrib_t
+{
+	std::vector<float> vertices;   // 'v'(xyz)
+	std::vector<float> normals;    // 'vn'
+	std::vector<float> texcoords;  // 'vt'(uv)
+	attrib_t() {}
+};
 /// Loads .obj from a file.
 /// 'shapes' will be filled with parsed shape data
 /// The function returns error string.
@@ -55,12 +80,14 @@ typedef struct
 /// 'mtl_basepath' is optional, and used for base path for .mtl file.
 #ifdef USE_STREAM
 std::string LoadObj(
+	attrib_t& attrib,
 	std::vector<shape_t>& shapes,  // [output]
 	const char* filename,
 	const char* mtl_basepath = NULL);
 #else
 std::string
 LoadObj(
+	attrib_t& attrib,
 	std::vector<shape_t>& shapes,
 	const char* filename,
 	const char* mtl_basepath,

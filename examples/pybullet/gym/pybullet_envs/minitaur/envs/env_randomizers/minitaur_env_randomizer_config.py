@@ -4,7 +4,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-
 PARAM_RANGE = {
     # The following ranges are in percentage. e.g. 0.8 means 80%.
     "mass": [0.8, 1.2],

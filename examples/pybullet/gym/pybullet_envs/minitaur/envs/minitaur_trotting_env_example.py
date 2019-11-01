@@ -26,13 +26,12 @@ def main(argv):
   network = config.network
 
   with tf.Session() as sess:
-    agent = simple_ppo_agent.SimplePPOPolicy(
-        sess,
-        env,
-        network,
-        policy_layers=policy_layers,
-        value_layers=value_layers,
-        checkpoint=os.path.join(LOG_DIR, CHECKPOINT))
+    agent = simple_ppo_agent.SimplePPOPolicy(sess,
+                                             env,
+                                             network,
+                                             policy_layers=policy_layers,
+                                             value_layers=value_layers,
+                                             checkpoint=os.path.join(LOG_DIR, CHECKPOINT))
 
     sum_reward = 0
     observation = env.reset()
@@ -48,4 +47,3 @@ def main(argv):
 
 if __name__ == "__main__":
   tf.app.run(main)
-
