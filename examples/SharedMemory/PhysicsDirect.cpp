@@ -1218,7 +1218,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
                        BodyJointInfoCache2* bodyJoints = new BodyJointInfoCache2;
                        m_data->m_bodyJointMap.insert(bodyUniqueId, bodyJoints);
                        bodyJoints->m_bodyName = serverCmd.m_dataStreamArguments.m_bodyName;
-                       bodyJoints->m_baseName = "baseLink";
+                       bodyJoints->m_baseName = serverCmd.m_dataStreamArguments.m_bodyName;
                        break;
 		}
 		case CMD_SYNC_USER_DATA_FAILED:
