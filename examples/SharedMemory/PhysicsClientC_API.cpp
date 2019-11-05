@@ -4270,8 +4270,10 @@ B3_SHARED_API void b3ComputeProjectionMatrix(float left, float right, float bott
 
 B3_SHARED_API void b3ComputeProjectionMatrixFOV(float fov, float aspect, float nearVal, float farVal, float projectionMatrix[16])
 {
-	float yScale = 1.0 / tan((B3_PI / 180.0) * fov / 2);
-	float xScale = yScale / aspect;
+	float yFOV = (B3_PI / 180.0) * fov;
+	float xFOV = yFOV * aspect;  // aspect = width / height
+	float yScale = 1.0 / tan(yFOV / 2);
+	float xScale = 1.0 / tan(xFOV / 2);
 
 	projectionMatrix[0 * 4 + 0] = xScale;
 	projectionMatrix[0 * 4 + 1] = float(0);
