@@ -175,7 +175,6 @@ public:
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
                 btMatrix3x3 P;
                 firstPiola(psb->m_tetraScratches[j],P);
-#define USE_SVD 1
 #ifdef USE_SVD
                 if (max_p > 0)
                 {
