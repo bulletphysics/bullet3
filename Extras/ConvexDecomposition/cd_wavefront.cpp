@@ -176,7 +176,7 @@ public:
 		mHard[(int)c] = ST_DATA;
 	}
 
-	void DefaultSymbols(void);  // set up default symbols for hard seperator and comment symbol of the '#' character.
+	void DefaultSymbols(void);  // set up default symbols for hard separator and comment symbol of the '#' character.
 
 	bool EOS(char c)
 	{
@@ -197,7 +197,7 @@ private:
 	inline bool IsHard(char c);
 	inline char *SkipSpaces(char *foo);
 	inline bool IsWhiteSpace(char c);
-	inline bool IsNonSeparator(char c);  // non seperator,neither hard nor soft
+	inline bool IsNonSeparator(char c);  // non separator, neither hard nor soft
 
 	bool mMyAlloc;  // whether or not *I* allocated the buffer and am responsible for deleting it.
 	char *mData;    // ascii data to parse.
