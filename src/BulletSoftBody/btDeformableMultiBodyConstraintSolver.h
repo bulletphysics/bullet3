@@ -44,6 +44,8 @@ protected:
     // write the velocity of the underlying rigid body to the the the solver body
     void writeToSolverBody(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal);
     
+    virtual void solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
+    
 public:
     BT_DECLARE_ALIGNED_ALLOCATOR();
     

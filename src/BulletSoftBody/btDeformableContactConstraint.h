@@ -50,6 +50,9 @@ public:
     // the constraint is solved by calculating the impulse between object A and B in the contact and apply the impulse to both objects involved in the contact
     virtual btScalar solveConstraint() = 0;
     
+    // solve the position error by applying an inelastic impulse that changes only the position (not velocity)
+    virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal) = 0;
+    
     // get the velocity of the object A in the contact
     virtual btVector3 getVa() const = 0;
     
@@ -61,6 +64,12 @@ public:
     
     // apply impulse to the soft body node and/or face involved
     virtual void applyImpulse(const btVector3& impulse) = 0;
+    
+    // apply position based impulse to the soft body node and/or face involved
+    virtual void applySplitImpulse(const btVector3& impulse) = 0;
+    
+    // scale the penetration depth by erp
+    virtual void setPenetrationScale(btScalar scale) = 0;
 };
 
 //
@@ -90,6 +99,11 @@ public:
         return 0;
     }
     
+    virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal)
+    {
+        return 0;
+    }
+
     virtual btVector3 getVa() const
     {
         return btVector3(0,0,0);
@@ -106,6 +120,8 @@ public:
     }
     
     virtual void applyImpulse(const btVector3& impulse){}
+    virtual void applySplitImpulse(const btVector3& impulse){}
+    virtual void setPenetrationScale(btScalar scale){}
 };
 
 //
@@ -122,6 +138,11 @@ public:
     {
     }
     virtual btScalar solveConstraint();
+    virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal)
+    {
+        // todo xuchenhan@
+        return 0;
+    }
     // object A is the rigid/multi body, and object B is the deformable node/face
     virtual btVector3 getVa() const;
     // get the velocity of the deformable node in contact
@@ -131,6 +152,11 @@ public:
         return btVector3(0,0,0);
     }
     virtual void applyImpulse(const btVector3& impulse);
+    virtual void applySplitImpulse(const btVector3& impulse)
+    {
+        // todo xuchenhan@
+    };
+    virtual void setPenetrationScale(btScalar scale){}
 };
 
 
@@ -141,6 +167,7 @@ class btDeformableRigidContactConstraint : public btDeformableContactConstraint
 public:
     btVector3 m_total_normal_dv;
     btVector3 m_total_tangent_dv;
+    btScalar m_penetration;
     const btSoftBody::DeformableRigidContact* m_contact;
     
     btDeformableRigidContactConstraint(){}
@@ -154,6 +181,13 @@ public:
     virtual btVector3 getVa() const;
     
     virtual btScalar solveConstraint();
+    
+    virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal);
+    
+    virtual void setPenetrationScale(btScalar scale)
+    {
+        m_penetration *= scale;
+    }
 };
 
 //
@@ -185,6 +219,7 @@ public:
     }
     
     virtual void applyImpulse(const btVector3& impulse);
+    virtual void applySplitImpulse(const btVector3& impulse);
 };
 
 //
@@ -214,6 +249,7 @@ public:
     }
     
     virtual void applyImpulse(const btVector3& impulse);
+    virtual void applySplitImpulse(const btVector3& impulse);
 };
 
 //
@@ -235,6 +271,12 @@ public:
     
     virtual btScalar solveConstraint();
     
+    virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal)
+    {
+        // todo: xuchenhan@
+        return 0;
+    }
+    
     // get the velocity of the object A in the contact
     virtual btVector3 getVa() const;
     
@@ -251,5 +293,10 @@ public:
     }
     
     virtual void applyImpulse(const btVector3& impulse);
+    virtual void applySplitImpulse(const btVector3& impulse)
+    {
+        // todo xuchenhan@
+    }
+    virtual void setPenetrationScale(btScalar scale){}
 };
 #endif /* BT_DEFORMABLE_CONTACT_CONSTRAINT_H */

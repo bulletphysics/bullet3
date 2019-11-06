@@ -104,3 +104,40 @@ void btDeformableMultiBodyConstraintSolver::solverBodyWriteBack(const btContactS
         }
     }
 }
+
+void btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
+{
+    BT_PROFILE("solveGroupCacheFriendlySplitImpulseIterations");
+    int iteration;
+    if (infoGlobal.m_splitImpulse)
+    {
+        {
+            m_deformableSolver->splitImpulseSetup(infoGlobal);
+            for (iteration = 0; iteration < infoGlobal.m_numIterations; iteration++)
+            {
+                btScalar leastSquaresResidual = 0.f;
+                {
+                    int numPoolConstraints = m_tmpSolverContactConstraintPool.size();
+                    int j;
+                    for (j = 0; j < numPoolConstraints; j++)
+                    {
+                        const btSolverConstraint& solveManifold = m_tmpSolverContactConstraintPool[m_orderTmpConstraintPool[j]];
+                        
+                        btScalar residual = resolveSplitPenetrationImpulse(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA], m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB], solveManifold);
+                        leastSquaresResidual = btMax(leastSquaresResidual, residual * residual);
+                    }
+                    // solve the position correction between deformable and rigid/multibody
+                    btScalar residual = m_deformableSolver->solveSplitImpulse(infoGlobal);
+                    leastSquaresResidual = btMax(leastSquaresResidual, residual * residual);
+                }
+                if (leastSquaresResidual <= infoGlobal.m_leastSquaresResidualThreshold || iteration >= (infoGlobal.m_numIterations - 1))
+                {
+#ifdef VERBOSE_RESIDUAL_PRINTF
+                    printf("residual = %f at iteration #%d\n", leastSquaresResidual, iteration);
+#endif
+                    break;
+                }
+            }
+        }
+    }
+}
