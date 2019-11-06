@@ -175,7 +175,7 @@ public:
                 btSoftBody::Tetra& tetra = psb->m_tetras[j];
                 btMatrix3x3 P;
                 firstPiola(psb->m_tetraScratches[j],P);
-#if USE_SVD
+#ifdef USE_SVD
                 if (max_p > 0)
                 {
                     // since we want to clamp the principal stress to max_p, we only need to

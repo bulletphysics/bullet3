@@ -18,7 +18,7 @@
 #include "btDeformableBodySolver.h"
 #include "btSoftBodyInternals.h"
 #include "LinearMath/btQuickprof.h"
-static const int kMaxConjugateGradientIterations  = 200;
+static const int kMaxConjugateGradientIterations  = 50;
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(kMaxConjugateGradientIterations)
@@ -251,6 +251,7 @@ void btDeformableBodySolver::updateVelocity()
         psb->m_maxSpeedSquared = 0;
         if (!psb->isActive())
         {
+            counter += psb->m_nodes.size();
             continue;
         }
         for (int j = 0; j < psb->m_nodes.size(); ++j)
@@ -275,6 +276,7 @@ void btDeformableBodySolver::updateTempPosition()
         btSoftBody* psb = m_softBodies[i];
         if (!psb->isActive())
         {
+            counter += psb->m_nodes.size();
             continue;
         }
         for (int j = 0; j < psb->m_nodes.size(); ++j)
@@ -307,6 +309,7 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
         btSoftBody* psb = m_softBodies[i];
         if (!psb->isActive())
         {
+            counter += psb->m_nodes.size();
             continue;
         }
         for (int j = 0; j < psb->m_nodes.size(); ++j)
