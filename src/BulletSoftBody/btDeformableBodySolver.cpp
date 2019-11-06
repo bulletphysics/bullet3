@@ -36,7 +36,7 @@ btDeformableBodySolver::~btDeformableBodySolver()
 
 void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
 {
-    BT_PROFILE("solveConstraints");
+    BT_PROFILE("solveDeformableConstraints");
     if (!m_implicit)
     {
         m_objective->computeResidual(solverdt, m_residual);
@@ -241,6 +241,16 @@ btScalar btDeformableBodySolver::solveContactConstraints()
     return maxSquaredResidual;
 }
 
+btScalar btDeformableBodySolver::solveSplitImpulse(const btContactSolverInfo& infoGlobal)
+{
+    BT_PROFILE("solveSplitImpulse");
+    return m_objective->m_projection.solveSplitImpulse(infoGlobal);
+}
+
+void btDeformableBodySolver::splitImpulseSetup(const btContactSolverInfo& infoGlobal)
+{
+     m_objective->m_projection.splitImpulseSetup(infoGlobal);
+}
 
 void btDeformableBodySolver::updateVelocity()
 {
@@ -324,7 +334,7 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
             }
             else
                 m_dv[counter] =  psb->m_nodes[j].m_v - m_backupVelocity[counter];
-            psb->m_nodes[j].m_v = m_backupVelocity[counter];
+            psb->m_nodes[j].m_v = m_backupVelocity[counter] + psb->m_nodes[j].m_vsplit;
             ++counter;
         }
     }

@@ -118,9 +118,32 @@ void btDeformableMultiBodyDynamicsWorld::softBodySelfCollision()
     }
 }
 
+void btDeformableMultiBodyDynamicsWorld::positionCorrection(btScalar timeStep)
+{
+    // correct the position of rigid bodies with temporary velocity generated from split impulse
+    btContactSolverInfo infoGlobal;
+    btVector3 zero(0,0,0);
+    for (int i = 0; i < m_nonStaticRigidBodies.size(); ++i)
+    {
+        btRigidBody* rb = m_nonStaticRigidBodies[i];
+        //correct the position/orientation based on push/turn recovery
+        btTransform newTransform;
+        btVector3 pushVelocity = rb->getPushVelocity();
+        btVector3 turnVelocity = rb->getTurnVelocity();
+        if (pushVelocity[0] != 0.f || pushVelocity[1] != 0 || pushVelocity[2] != 0 || turnVelocity[0] != 0.f || turnVelocity[1] != 0 || turnVelocity[2] != 0)
+        {
+            btTransformUtil::integrateTransform(rb->getWorldTransform(), pushVelocity, turnVelocity * infoGlobal.m_splitImpulseTurnErp, timeStep, newTransform);
+            rb->setWorldTransform(newTransform);
+            rb->setPushVelocity(zero);
+            rb->setTurnVelocity(zero);
+        }
+    }
+}
+
 void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 {
     BT_PROFILE("integrateTransforms");
+    positionCorrection(timeStep);
     btMultiBodyDynamicsWorld::integrateTransforms(timeStep);
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
@@ -142,6 +165,8 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
                 }
             }
             node.m_x  =  node.m_x + timeStep * node.m_v;
+            node.m_v -= node.m_vsplit;
+            node.m_vsplit.setZero();
             node.m_q = node.m_x;
             node.m_vn = node.m_v;
         }

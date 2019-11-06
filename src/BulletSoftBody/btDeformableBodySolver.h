@@ -66,6 +66,12 @@ public:
     
     // solve the contact between deformable and rigid as well as among deformables
     btScalar solveContactConstraints();
+    
+    // solve the position error  between deformable and rigid as well as among deformables;
+    btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal);
+    
+    // set up the position error in split impulse
+    void splitImpulseSetup(const btContactSolverInfo& infoGlobal);
 
     // resize/clear data structures
     void reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt);

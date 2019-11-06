@@ -25,7 +25,8 @@ enum btDeformableLagrangianForceType
     BT_GRAVITY_FORCE = 1,
     BT_MASSSPRING_FORCE = 2,
     BT_COROTATED_FORCE = 3,
-    BT_NEOHOOKEAN_FORCE = 4
+    BT_NEOHOOKEAN_FORCE = 4,
+    BT_LINEAR_ELASTICITY_FORCE = 5
 };
 
 static inline double randomDouble(double low, double high)
