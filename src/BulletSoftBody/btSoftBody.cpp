@@ -92,7 +92,6 @@ void btSoftBody::initDefaults()
     m_cfg.drag = 0;
     m_cfg.m_maxStress = 0;
 	m_cfg.collisions = fCollision::Default;
-    m_cfg.collisions |= fCollision::VF_DD;
 	m_pose.m_bvolume = false;
 	m_pose.m_bframe = false;
 	m_pose.m_volume = 0;
