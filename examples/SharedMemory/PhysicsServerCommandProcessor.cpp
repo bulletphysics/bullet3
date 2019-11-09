@@ -9261,8 +9261,7 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 				{
 				}
 			};
-
-#ifdef SKIP_DEFORMABLE_BODY
+            
 			if (newSolver)
 			{
 				delete oldSolver;
@@ -9271,7 +9270,6 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 				m_data->m_solver = newSolver;
 				printf("switched solver\n");
 			}
-#endif
 		}
 	}
 

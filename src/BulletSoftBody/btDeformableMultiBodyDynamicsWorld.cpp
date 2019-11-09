@@ -383,8 +383,6 @@ void btDeformableMultiBodyDynamicsWorld::applyRigidBodyGravity(btScalar timeStep
     // Gravity is applied in stepSimulation and then cleared here and then applied here and then cleared here again
     // so that 1) gravity is applied to velocity before constraint solve and 2) gravity is applied in each substep
     // when there are multiple substeps
-    clearForces();
-    clearMultiBodyForces();
     btMultiBodyDynamicsWorld::applyGravity();
     // integrate rigid body gravity
     for (int i = 0; i < m_nonStaticRigidBodies.size(); ++i)
@@ -437,8 +435,48 @@ void btDeformableMultiBodyDynamicsWorld::applyRigidBodyGravity(btScalar timeStep
             }
         }
     }
-    clearForces();
-    clearMultiBodyForces();
+    clearGravity();
+}
+
+void btDeformableMultiBodyDynamicsWorld::clearGravity()
+{
+    BT_PROFILE("btMultiBody clearGravity");
+    // clear rigid body gravity
+    for (int i = 0; i < m_nonStaticRigidBodies.size(); i++)
+    {
+        btRigidBody* body = m_nonStaticRigidBodies[i];
+        if (body->isActive())
+        {
+            body->clearGravity();
+        }
+    }
+    // clear multibody gravity
+    for (int i = 0; i < this->m_multiBodies.size(); i++)
+    {
+        btMultiBody* bod = m_multiBodies[i];
+        
+        bool isSleeping = false;
+        
+        if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
+        {
+            isSleeping = true;
+        }
+        for (int b = 0; b < bod->getNumLinks(); b++)
+        {
+            if (bod->getLink(b).m_collider && bod->getLink(b).m_collider->getActivationState() == ISLAND_SLEEPING)
+                isSleeping = true;
+        }
+        
+        if (!isSleeping)
+        {
+            bod->addBaseForce(-m_gravity * bod->getBaseMass());
+            
+            for (int j = 0; j < bod->getNumLinks(); ++j)
+            {
+                bod->addLinkForce(j, -m_gravity * bod->getLinkMass(j));
+            }
+        }
+    }
 }
 
 void btDeformableMultiBodyDynamicsWorld::beforeSolverCallbacks(btScalar timeStep)
@@ -498,4 +536,73 @@ void btDeformableMultiBodyDynamicsWorld::removeCollisionObject(btCollisionObject
         removeSoftBody(body);
     else
         btDiscreteDynamicsWorld::removeCollisionObject(collisionObject);
+}
+
+
+int btDeformableMultiBodyDynamicsWorld::stepSimulation(btScalar timeStep, int maxSubSteps, btScalar fixedTimeStep)
+{
+    startProfiling(timeStep);
+    
+    int numSimulationSubSteps = 0;
+    
+    if (maxSubSteps)
+    {
+        //fixed timestep with interpolation
+        m_fixedTimeStep = fixedTimeStep;
+        m_localTime += timeStep;
+        if (m_localTime >= fixedTimeStep)
+        {
+            numSimulationSubSteps = int(m_localTime / fixedTimeStep);
+            m_localTime -= numSimulationSubSteps * fixedTimeStep;
+        }
+    }
+    else
+    {
+        //variable timestep
+        fixedTimeStep = timeStep;
+        m_localTime = m_latencyMotionStateInterpolation ? 0 : timeStep;
+        m_fixedTimeStep = 0;
+        if (btFuzzyZero(timeStep))
+        {
+            numSimulationSubSteps = 0;
+            maxSubSteps = 0;
+        }
+        else
+        {
+            numSimulationSubSteps = 1;
+            maxSubSteps = 1;
+        }
+    }
+    
+    //process some debugging flags
+    if (getDebugDrawer())
+    {
+        btIDebugDraw* debugDrawer = getDebugDrawer();
+        gDisableDeactivation = (debugDrawer->getDebugMode() & btIDebugDraw::DBG_NoDeactivation) != 0;
+    }
+    if (numSimulationSubSteps)
+    {
+        //clamp the number of substeps, to prevent simulation grinding spiralling down to a halt
+        int clampedSimulationSteps = (numSimulationSubSteps > maxSubSteps) ? maxSubSteps : numSimulationSubSteps;
+        
+        saveKinematicState(fixedTimeStep * clampedSimulationSteps);
+        
+        for (int i = 0; i < clampedSimulationSteps; i++)
+        {
+            internalSingleStepSimulation(fixedTimeStep);
+            synchronizeMotionStates();
+        }
+    }
+    else
+    {
+        synchronizeMotionStates();
+    }
+    
+    clearForces();
+    
+#ifndef BT_NO_PROFILE
+    CProfileManager::Increment_Frame_Counter();
+#endif  //BT_NO_PROFILE
+    
+    return numSimulationSubSteps;
 }

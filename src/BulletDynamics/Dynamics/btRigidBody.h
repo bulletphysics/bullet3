@@ -205,6 +205,8 @@ public:
 	void saveKinematicState(btScalar step);
 
 	void applyGravity();
+    
+    void clearGravity();
 
 	void setGravity(const btVector3& acceleration);
 
