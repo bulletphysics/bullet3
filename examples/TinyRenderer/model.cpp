@@ -126,9 +126,12 @@ int Model::nfaces()
 std::vector<int> Model::face(int idx)
 {
 	std::vector<int> face;
-	for (int i = 0; i < (int)faces_[idx].size(); i++) face.push_back(faces_[idx][i][0]);
-	return face;
+        face.reserve((int)faces_[idx].size());
+        for (int i = 0; i < (int)faces_[idx].size(); i++)
+          face.push_back(faces_[idx][i][0]);
+        return face;
 }
+
 
 Vec3f Model::vert(int i)
 {
