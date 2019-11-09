@@ -59,7 +59,7 @@ void btDeformableContactProjection::splitImpulseSetup(const btContactSolverInfo&
         btAlignedObjectArray<btDeformableNodeRigidContactConstraint>& constraints = *m_nodeRigidConstraints.getAtIndex(index);
         for (int i = 0; i < constraints.size(); ++i)
         {
-            constraints[i].setPenetrationScale(infoGlobal.m_erp);
+            constraints[i].setPenetrationScale(infoGlobal.m_deformable_erp);
         }
     }
     
@@ -67,7 +67,7 @@ void btDeformableContactProjection::splitImpulseSetup(const btContactSolverInfo&
     for (int index = 0; index < m_allFaceConstraints.size(); ++index)
     {
         btDeformableContactConstraint* constraint = m_allFaceConstraints[index];
-        constraint->setPenetrationScale(infoGlobal.m_erp);
+        constraint->setPenetrationScale(infoGlobal.m_deformable_erp);
     }
 }
 

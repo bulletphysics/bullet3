@@ -162,9 +162,9 @@ void SplitImpulse::initPhysics()
     }
     
 #ifdef USE_SPLIT_IMPULSE
-        getDeformableDynamicsWorld()->getSolverInfo().m_erp = 0.03;
+        getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.03;
 #else
-        getDeformableDynamicsWorld()->getSolverInfo().m_erp = 0.0;
+        getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.0;
 #endif
     
     // create a piece of cloth
