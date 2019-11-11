@@ -1243,6 +1243,7 @@ struct btSoftColliders
         btScalar dynmargin;
         btScalar stamargin;
     };
+    
 	//
 	// CollideVF_SS
 	//
@@ -1299,6 +1300,7 @@ struct btSoftColliders
 		btScalar mrg;
 	};
     
+    
     //
     // CollideVF_DD
     //
@@ -1309,37 +1311,35 @@ struct btSoftColliders
         {
             btSoftBody::Node* node = (btSoftBody::Node*)lnode->data;
             btSoftBody::Face* face = (btSoftBody::Face*)lface->data;
+            
             btVector3 o = node->m_x;
-            btVector3 p, normal;
-            const btSoftBody::Node* n[] = {face->m_n[0], face->m_n[1], face->m_n[2]};
-            btVector3 dir = node->m_q - o;
-            btScalar l = dir.length();
-            if (l < SIMD_EPSILON)
-                return;
-            btVector3 rayEnd = dir.normalized() * (l + 2*mrg);
-            // register an intersection if the line segment formed by the trajectory of the node in the timestep intersects the face
-            btVector3 v0 = face->m_n[0]->m_x;
-            btVector3 v1 = face->m_n[1]->m_x;
-            btVector3 v2 = face->m_n[2]->m_x;
-            btVector3 vc = (v0+v1+v2)/3.;
-            btScalar  scale = 1.5;
-            // enlarge the triangle to catch collision on the edge
-            btVector3 u0 = vc + (v0-vc)*scale;
-            btVector3 u1 = vc + (v1-vc)*scale;
-            btVector3 u2 = vc + (v2-vc)*scale;
-            bool intersect = lineIntersectsTriangle(btVector3(0,0,0), rayEnd, u0-o, u1-o, u2-o, p, normal);
-
-            if (intersect)
+            btVector3 p;
+            btScalar d = SIMD_INFINITY;
+            ProjectOrigin(face->m_n[0]->m_x - o,
+                          face->m_n[1]->m_x - o,
+                          face->m_n[2]->m_x - o,
+                          p, d);
+            const btScalar m = mrg + (o - node->m_q).safeNorm() * 2;
+            if (d < (m * m))
             {
-                p += o;
-                const btVector3 w = BaryCoord(n[0]->m_x, n[1]->m_x, n[2]->m_x, p);
+                const btSoftBody::Node* n[] = {face->m_n[0], face->m_n[1], face->m_n[2]};
+                const btVector3 w = BaryCoord(n[0]->m_x, n[1]->m_x, n[2]->m_x, p + o);
                 const btScalar ma = node->m_im;
                 btScalar mb = BaryEval(n[0]->m_im, n[1]->m_im, n[2]->m_im, w);
+                if ((n[0]->m_im <= 0) ||
+                    (n[1]->m_im <= 0) ||
+                    (n[2]->m_im <= 0))
+                {
+                    mb = 0;
+                }
                 const btScalar ms = ma + mb;
                 if (ms > 0)
                 {
                     btSoftBody::DeformableFaceNodeContact c;
-                    c.m_normal = normal;
+                    if (useFaceNormal)
+                        c.m_normal = face->m_normal;
+                    else
+                        c.m_normal = p / -btSqrt(d);
                     c.m_margin = mrg;
                     c.m_node = node;
                     c.m_face = face;
@@ -1356,6 +1356,7 @@ struct btSoftColliders
         }
         btSoftBody* psb[2];
         btScalar mrg;
+        bool useFaceNormal;
     };
     
     //
@@ -1371,37 +1372,45 @@ struct btSoftColliders
             for (int node_id = 0; node_id < 3; ++node_id)
             {
                 btSoftBody::Node* node = f->m_n[node_id];
-                btVector3 o = node->m_x;
-                btVector3 p, normal;
-                const btSoftBody::Node* n[] = {face->m_n[0], face->m_n[1], face->m_n[2]};
-                btVector3 dir = node->m_q - o;
-                btScalar l = dir.length();
-                if (l < SIMD_EPSILON)
-                    return;
-                btVector3 rayEnd = dir.normalized() * (l + 2*mrg);
-                // register an intersection if the line segment formed by the trajectory of the node in the timestep intersects the face
-                btVector3 v0 = face->m_n[0]->m_x;
-                btVector3 v1 = face->m_n[1]->m_x;
-                btVector3 v2 = face->m_n[2]->m_x;
-                btVector3 vc = (v0+v1+v2)/3.;
-                btScalar  scale = 1.5;
-                // enlarge the triangle to catch collision on the edge
-                btVector3 u0 = vc + (v0-vc)*scale;
-                btVector3 u1 = vc + (v1-vc)*scale;
-                btVector3 u2 = vc + (v2-vc)*scale;
-                bool intersect = lineIntersectsTriangle(btVector3(0,0,0), rayEnd, u0-o, u1-o, u2-o, p, normal);
-                
-                if (intersect)
+                bool skip = false;
+                for (int i = 0; i < 3; ++i)
                 {
-                    p += o;
-                    const btVector3 w = BaryCoord(n[0]->m_x, n[1]->m_x, n[2]->m_x, p);
+                    if (face->m_n[i] == node)
+                    {
+                        skip = true;
+                        break;
+                    }
+                }
+                if (skip)
+                    continue;
+                btVector3 o = node->m_x;
+                btVector3 p;
+                btScalar d = SIMD_INFINITY;
+                ProjectOrigin(face->m_n[0]->m_x - o,
+                              face->m_n[1]->m_x - o,
+                              face->m_n[2]->m_x - o,
+                              p, d);
+                const btScalar m = mrg + (o - node->m_q).safeNorm() * 2;
+                if (d < (m * m))
+                {
+                    const btSoftBody::Node* n[] = {face->m_n[0], face->m_n[1], face->m_n[2]};
+                    const btVector3 w = BaryCoord(n[0]->m_x, n[1]->m_x, n[2]->m_x, p + o);
                     const btScalar ma = node->m_im;
                     btScalar mb = BaryEval(n[0]->m_im, n[1]->m_im, n[2]->m_im, w);
+                    if ((n[0]->m_im <= 0) ||
+                        (n[1]->m_im <= 0) ||
+                        (n[2]->m_im <= 0))
+                    {
+                        mb = 0;
+                    }
                     const btScalar ms = ma + mb;
                     if (ms > 0)
                     {
                         btSoftBody::DeformableFaceNodeContact c;
-                        c.m_normal = normal;
+                        if (useFaceNormal)
+                            c.m_normal = face->m_normal;
+                        else
+                            c.m_normal = p / -btSqrt(d);
                         c.m_margin = mrg;
                         c.m_node = node;
                         c.m_face = face;
@@ -1417,62 +1426,9 @@ struct btSoftColliders
                 }
             }
         }
-        void Process(const btDbvtNode* lface1,
-                     const btDbvtNode* lface2)
-        {
-            btSoftBody::Face* f = (btSoftBody::Face*)lface1->data;
-            btSoftBody::Face* face = (btSoftBody::Face*)lface2->data;
-            for (int node_id = 0; node_id < 3; ++node_id)
-            {
-                btSoftBody::Node* node = f->m_n[node_id];
-                btVector3 o = node->m_x;
-                btVector3 p, normal;
-                const btSoftBody::Node* n[] = {face->m_n[0], face->m_n[1], face->m_n[2]};
-                btVector3 dir = node->m_q - o;
-                btScalar l = dir.length();
-                if (l < SIMD_EPSILON)
-                    return;
-                btVector3 rayEnd = dir.normalized() * (l + 2*mrg);
-                // register an intersection if the line segment formed by the trajectory of the node in the timestep intersects the face
-                btVector3 v0 = face->m_n[0]->m_x;
-                btVector3 v1 = face->m_n[1]->m_x;
-                btVector3 v2 = face->m_n[2]->m_x;
-                btVector3 vc = (v0+v1+v2)/3.;
-                btScalar  scale = 1.5;
-                // enlarge the triangle to catch collision on the edge
-                btVector3 u0 = vc + (v0-vc)*scale;
-                btVector3 u1 = vc + (v1-vc)*scale;
-                btVector3 u2 = vc + (v2-vc)*scale;
-                bool intersect = lineIntersectsTriangle(btVector3(0,0,0), rayEnd, u0-o, u1-o, u2-o, p, normal);
-                
-                if (intersect)
-                {
-                    p += o;
-                    const btVector3 w = BaryCoord(n[0]->m_x, n[1]->m_x, n[2]->m_x, p);
-                    const btScalar ma = node->m_im;
-                    btScalar mb = BaryEval(n[0]->m_im, n[1]->m_im, n[2]->m_im, w);
-                    const btScalar ms = ma + mb;
-                    if (ms > 0)
-                    {
-                        btSoftBody::DeformableFaceNodeContact c;
-                        c.m_normal = normal;
-                        c.m_margin = mrg;
-                        c.m_node = node;
-                        c.m_face = face;
-                        c.m_bary = w;
-                        // todo xuchenhan@: this is assuming mass of all vertices are the same. Need to modify if mass are different for distinct vertices
-                        c.m_weights = btScalar(2)/(btScalar(1) + w.length2()) * w;
-                        c.m_friction = psb[0]->m_cfg.kDF *  psb[1]->m_cfg.kDF;
-                        // the effective inverse mass of the face as in https://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf
-                        c.m_imf = c.m_bary[0]*c.m_weights[0] * n[0]->m_im + c.m_bary[1]*c.m_weights[1] * n[1]->m_im + c.m_bary[2]*c.m_weights[2] * n[2]->m_im;
-                        c.m_c0 = btScalar(1)/(ma + c.m_imf);
-                        psb[0]->m_faceNodeContacts.push_back(c);
-                    }
-                }
-            }
-        }
         btSoftBody* psb[2];
         btScalar mrg;
+        bool useFaceNormal;
     };
 };
 

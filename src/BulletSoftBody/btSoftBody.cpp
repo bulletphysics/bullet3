@@ -3702,12 +3702,20 @@ void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
                     docollide.mrg = getCollisionShape()->getMargin() +
                     psb->getCollisionShape()->getMargin();
                     /* psb0 nodes vs psb1 faces    */
+                    if (psb->m_tetras.size() > 0)
+                        docollide.useFaceNormal = true;
+                    else
+                        docollide.useFaceNormal = false;
                     docollide.psb[0] = this;
                     docollide.psb[1] = psb;
                     docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_ndbvt.m_root,
                                                         docollide.psb[1]->m_fdbvt.m_root,
                                                         docollide);
                     /* psb1 nodes vs psb0 faces    */
+                    if (this->m_tetras.size() > 0)
+                        docollide.useFaceNormal = true;
+                    else
+                        docollide.useFaceNormal = false;
                     docollide.psb[0] = psb;
                     docollide.psb[1] = this;
                     docollide.psb[0]->m_ndbvt.collideTT(docollide.psb[0]->m_ndbvt.m_root,
@@ -3723,6 +3731,10 @@ void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
                       psb->getCollisionShape()->getMargin();
                       docollide.psb[0] = this;
                       docollide.psb[1] = psb;
+                      if (this->m_tetras.size() > 0)
+                          docollide.useFaceNormal = true;
+                      else
+                          docollide.useFaceNormal = false;
                       /* psb0 faces vs psb0 faces    */
                       btDbvntNode* root = copyToDbvnt(this->m_fdbvt.m_root);
                       calculateNormalCone(root);
