@@ -288,6 +288,7 @@ public:
 		btVector3 m_normal;  // Normal
 		btScalar m_ra;       // Rest area
 		btDbvtNode* m_leaf;  // Leaf data
+        btVector4 m_pcontact; // barycentric weights of the persistent contact
         int m_index;
 	};
 	/* Tetra		*/
@@ -1120,7 +1121,7 @@ public:
 	void initializeFaceTree();
 	btVector3 evaluateCom() const;
 	bool checkDeformableContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
-    bool checkDeformableFaceContact(const btCollisionObjectWrapper* colObjWrap, const Face& x, btVector3& contact_point, btVector3& bary, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
+    bool checkDeformableFaceContact(const btCollisionObjectWrapper* colObjWrap, Face& x, btVector3& contact_point, btVector3& bary, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
     bool checkContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti) const;
 	void updateNormals();
 	void updateBounds();

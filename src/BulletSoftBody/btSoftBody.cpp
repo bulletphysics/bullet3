@@ -117,7 +117,7 @@ void btSoftBody::initDefaults()
 	m_restLengthScale = btScalar(1.0);
     m_dampingCoefficient = 1;
     m_sleepingThreshold = 0.1;
-    m_useFaceContact = false;
+    m_useFaceContact = true;
 	m_useSelfCollision = false;
     m_collisionFlags = 0;
 }
@@ -2443,7 +2443,7 @@ static void getBarycentric(const btVector3& p, btVector3& a, btVector3& b, btVec
 
 //
 bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colObjWrap,
-                                        const Face& f,
+                                        Face& f,
                                         btVector3& contact_point,
                                         btVector3& bary,
                                         btScalar margin,
@@ -2454,26 +2454,46 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
     const btCollisionObject* tmpCollisionObj = colObjWrap->getCollisionObject();
     // use the position x_{n+1}^* = x_n + dt * v_{n+1}^* where v_{n+1}^* = v_n + dtg for collision detect
     // but resolve contact at x_n
-    btTransform wtr = (predict) ?
-    (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
-    : colObjWrap->getWorldTransform();
-    
-    btGjkEpaSolver2::sResults results;
-    btTransform triangle_transform;
-    triangle_transform.setIdentity();
-    triangle_transform.setOrigin(f.m_n[0]->m_x);
-    btTriangleShape triangle(btVector3(0,0,0), f.m_n[1]->m_x-f.m_n[0]->m_x, f.m_n[2]->m_x-f.m_n[0]->m_x);
-    btVector3 guess(0,0,0);
-    const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
-    btGjkEpaSolver2::SignedDistance(&triangle, triangle_transform, csh, wtr, guess, results);
-    btScalar dst = results.distance - margin;
-    contact_point = results.witnesses[0];
-    getBarycentric(contact_point, f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
+//    btTransform wtr = (predict) ?
+//    (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
+//    : colObjWrap->getWorldTransform();
+    const btTransform& wtr = colObjWrap->getWorldTransform();
+    btScalar dst;
+//    if (f.m_pcontact[3] != 0)
+    if (0)
+    {
+        for (int i = 0; i < 3; ++i)
+            bary[i] = f.m_pcontact[i];
+        contact_point = BaryEval(f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
+        dst = m_worldInfo->m_sparsesdf.Evaluate(
+                                          wtr.invXform(contact_point),
+                                          shp,
+                                          nrm,
+                                          margin);
+        nrm = wtr.getBasis() * nrm;
+        // use cached contact point
+    }
+    else
+    {
+        btGjkEpaSolver2::sResults results;
+        btTransform triangle_transform;
+        triangle_transform.setIdentity();
+        triangle_transform.setOrigin(f.m_n[0]->m_x);
+        btTriangleShape triangle(btVector3(0,0,0), f.m_n[1]->m_x-f.m_n[0]->m_x, f.m_n[2]->m_x-f.m_n[0]->m_x);
+        btVector3 guess(0,0,0);
+        const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
+        btGjkEpaSolver2::SignedDistance(&triangle, triangle_transform, csh, wtr, guess, results);
+        dst = results.distance - margin;
+        contact_point = results.witnesses[0];
+        getBarycentric(contact_point, f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
+        nrm = results.normal;
+        for (int i = 0; i < 3; ++i)
+            f.m_pcontact[i] = bary[i];
+    }
     if (!predict)
     {
         cti.m_colObj = colObjWrap->getCollisionObject();
-//        cti.m_normal = wtr.getBasis() * results.normal;
-        cti.m_normal = results.normal;
+        cti.m_normal = nrm;
         cti.m_offset = dst;
     }
     if (dst < 0)
