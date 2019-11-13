@@ -325,7 +325,7 @@ void btSoftBody::appendFace(int model, Material* mat)
 		ZeroInitialize(f);
 		f.m_material = mat ? mat : m_materials[0];
 	}
-	m_faces.push_back(f);
+    m_faces.push_back(f);
 }
 
 //
@@ -2454,13 +2454,18 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
     const btCollisionObject* tmpCollisionObj = colObjWrap->getCollisionObject();
     // use the position x_{n+1}^* = x_n + dt * v_{n+1}^* where v_{n+1}^* = v_n + dtg for collision detect
     // but resolve contact at x_n
-//    btTransform wtr = (predict) ?
-//    (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
-//    : colObjWrap->getWorldTransform();
-    const btTransform& wtr = colObjWrap->getWorldTransform();
+    btTransform wtr = (predict) ?
+    (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
+    : colObjWrap->getWorldTransform();
+//    const btTransform& wtr = colObjWrap->getWorldTransform();
     btScalar dst;
-//    if (f.m_pcontact[3] != 0)
-    if (0)
+    
+#define USE_QUADRATURE 1
+//#define CACHE_PREV_COLLISION
+    
+    // use the contact position of the previous collision
+#ifdef CACHE_PREV_COLLISION
+    if (f.m_pcontact[3] != 0)
     {
         for (int i = 0; i < 3; ++i)
             bary[i] = f.m_pcontact[i];
@@ -2490,12 +2495,58 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
         for (int i = 0; i < 3; ++i)
             f.m_pcontact[i] = bary[i];
     }
+
+#endif
+
+    // use collision quadrature point
+#ifdef USE_QUADRATURE
+    {
+        dst = SIMD_INFINITY;
+        btVector3 local_nrm;
+        for (int q = 0; q < m_quads.size(); ++q)
+        {
+            btVector3 p = BaryEval(f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, m_quads[q]);
+            btScalar local_dst = m_worldInfo->m_sparsesdf.Evaluate(
+                                                    wtr.invXform(p),
+                                                    shp,
+                                                    local_nrm,
+                                                    margin);
+            if (local_dst < dst)
+            {
+                dst = local_dst;
+                contact_point = p;
+                bary = m_quads[q];
+                nrm = wtr.getBasis() * local_nrm;
+            }
+        }
+    }
+#endif
+    
+    // regular face contact
+    {
+        btGjkEpaSolver2::sResults results;
+        btTransform triangle_transform;
+        triangle_transform.setIdentity();
+        triangle_transform.setOrigin(f.m_n[0]->m_x);
+        btTriangleShape triangle(btVector3(0,0,0), f.m_n[1]->m_x-f.m_n[0]->m_x, f.m_n[2]->m_x-f.m_n[0]->m_x);
+        btVector3 guess(0,0,0);
+        const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
+        btGjkEpaSolver2::SignedDistance(&triangle, triangle_transform, csh, wtr, guess, results);
+        dst = results.distance - margin;
+        contact_point = results.witnesses[0];
+        getBarycentric(contact_point, f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
+        nrm = results.normal;
+        for (int i = 0; i < 3; ++i)
+            f.m_pcontact[i] = bary[i];
+    }
+    
     if (!predict)
     {
         cti.m_colObj = colObjWrap->getCollisionObject();
         cti.m_normal = nrm;
         cti.m_offset = dst;
     }
+    
     if (dst < 0)
         return true;
     return (false);
@@ -3327,6 +3378,17 @@ void btSoftBody::interpolateRenderMesh()
         for (int j = 0; j < 4; ++j)
         {
             n.m_x += m_renderNodesParents[i][j]->m_x * m_renderNodesInterpolationWeights[i][j];
+        }
+    }
+}
+
+void btSoftBody::setCollisionQuadrature(int N)
+{
+    for (int i = 0; i <= N; ++i)
+    {
+        for (int j = 0; i+j <= N; ++j)
+        {
+            m_quads.push_back(btVector3(btScalar(i)/btScalar(N), btScalar(j)/btScalar(N), btScalar(N-i-j)/btScalar(N)));
         }
     }
 }

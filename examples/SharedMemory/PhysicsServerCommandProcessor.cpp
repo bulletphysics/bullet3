@@ -8129,6 +8129,8 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
             {
                 psb->m_renderNodes.resize(0);
             }
+            // This value should really be a exposed parameter 
+            psb->setCollisionQuadrature(5);
             btVector3 gravity = m_data->m_dynamicsWorld->getGravity();
             btDeformableLagrangianForce* gravityForce = new btDeformableGravityForce(gravity);
             m_data->m_dynamicsWorld->addForce(psb, gravityForce);

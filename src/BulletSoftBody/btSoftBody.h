@@ -802,6 +802,7 @@ public:
     btScalar m_sleepingThreshold;
     btScalar m_maxSpeedSquared;
     bool m_useFaceContact;
+    btAlignedObjectArray<btVector3> m_quads; // quadrature points for collision detection
     
     btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
     btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
@@ -1143,6 +1144,7 @@ public:
 	void applyForces();
     void setMaxStress(btScalar maxStress);
     void interpolateRenderMesh();
+    void setCollisionQuadrature(int N);
 	static void PSolve_Anchors(btSoftBody* psb, btScalar kst, btScalar ti);
 	static void PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti);
 	static void PSolve_SContacts(btSoftBody* psb, btScalar, btScalar ti);
