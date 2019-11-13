@@ -8113,6 +8113,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
                 m_data->m_dynamicsWorld->addForce(psb, springForce);
                 m_data->m_lf.push_back(springForce);
             }
+            btSoftBodyHelpers::generateBoundaryFaces(psb);
 #endif
 		}
 		
@@ -9265,9 +9266,10 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 			if (newSolver)
 			{
 				delete oldSolver;
-
 				m_data->m_dynamicsWorld->setMultiBodyConstraintSolver(newSolver);
+#ifdef SKIP_DEFORMABLE_BODY
 				m_data->m_solver = newSolver;
+#endif
 				printf("switched solver\n");
 			}
 		}
