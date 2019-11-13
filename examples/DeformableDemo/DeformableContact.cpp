@@ -206,7 +206,11 @@ void DeformableContact::initPhysics()
 	int numInstances = m_guiHelper->getRenderInterface()->getTotalNumInstances();
 	double rgbaColors[3][4] = { { 1, 0, 0, 1 } , { 0, 1, 0, 1 } ,{ 0, 0, 1, 1 } };
 
-
+	for (int i = 0; i < numInstances; i++)
+	{
+		m_guiHelper->changeInstanceFlags(i, B3_INSTANCE_DOUBLE_SIDED);
+	}
+	
 }
 
 void DeformableContact::exitPhysics()
