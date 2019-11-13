@@ -75,10 +75,11 @@ public:
         {
             btSoftBody* psb = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
             {
-                btSoftBodyHelpers::DrawFrame(psb, deformableWorld->getDebugDrawer());
-                btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
+                //btSoftBodyHelpers::DrawFrame(psb, deformableWorld->getDebugDrawer());
+				btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), fDrawFlags::Faces);// deformableWorld->getDrawFlags());
             }
         }
+
     }
 };
 

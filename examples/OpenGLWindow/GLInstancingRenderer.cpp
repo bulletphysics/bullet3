@@ -139,11 +139,7 @@ static InternalDataRenderer* sData2;
 
 GLint lineWidthRange[2] = {1, 1};
 
-enum
-{
-	eGfxTransparency = 1,
-	eGfxHasTexture = 2,
-};
+
 
 struct b3GraphicsInstance
 {
@@ -492,6 +488,26 @@ void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int srcIndex2, flo
 	orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex * 4 + 2];
 	orientation[3] = m_data->m_instance_quaternion_ptr[srcIndex * 4 + 3];
 }
+
+void GLInstancingRenderer::writeSingleInstanceFlagsToCPU(int flags, int srcIndex2)
+{
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
+	int shapeIndex = pg->m_shapeIndex;
+	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
+	if (flags & B3_INSTANCE_DOUBLE_SIDED)
+	{
+		gfxObj->m_flags |= B3_INSTANCE_DOUBLE_SIDED;
+	}
+	else
+	{
+		gfxObj->m_flags &= ~B3_INSTANCE_DOUBLE_SIDED;
+	}
+}
+
+
 void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, int srcIndex2)
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
@@ -502,11 +518,11 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, in
 	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
 	if (color[3] < 1)
 	{
-		gfxObj->m_flags |= eGfxTransparency;
+		gfxObj->m_flags |= B3_INSTANCE_TRANSPARANCY;
 	}
 	else
 	{
-		gfxObj->m_flags &= ~eGfxTransparency;
+		gfxObj->m_flags &= ~B3_INSTANCE_TRANSPARANCY;
 	}
 
 	m_data->m_instance_colors_ptr[srcIndex * 4 + 0] = float(color[0]);
@@ -525,11 +541,11 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int
 
 	if (color[3] < 1)
 	{
-		gfxObj->m_flags |= eGfxTransparency;
+		gfxObj->m_flags |= B3_INSTANCE_TRANSPARANCY;
 	}
 	else
 	{
-		gfxObj->m_flags &= ~eGfxTransparency;
+		gfxObj->m_flags &= ~B3_INSTANCE_TRANSPARANCY;
 	}
 
 	m_data->m_instance_colors_ptr[srcIndex * 4 + 0] = color[0];
@@ -916,7 +932,7 @@ int GLInstancingRenderer::registerGraphicsInstanceInternal(int newUid, const flo
 
 		if (color[3] < 1 && color[3] > 0)
 		{
-			gfxObj->m_flags |= eGfxTransparency;
+			gfxObj->m_flags |= B3_INSTANCE_TRANSPARANCY;
 		}
 		gfxObj->m_numGraphicsInstances++;
 		m_data->m_totalNumInstances++;
@@ -1018,11 +1034,11 @@ void GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
 		if (textureId >= 0 && textureId < m_data->m_textureHandles.size())
 		{
 			gfxObj->m_textureIndex = textureId;
-			gfxObj->m_flags |= eGfxHasTexture;
+			gfxObj->m_flags |= B3_INSTANCE_TEXTURE;
 		} else
 		{
 			gfxObj->m_textureIndex = -1;
-			gfxObj->m_flags &= ~eGfxHasTexture;
+			gfxObj->m_flags &= ~B3_INSTANCE_TEXTURE;
 		}
 	}
 }
@@ -1110,7 +1126,7 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	if (textureId >= 0)
 	{
 		gfxObj->m_textureIndex = textureId;
-		gfxObj->m_flags |= eGfxHasTexture;
+		gfxObj->m_flags |= B3_INSTANCE_TEXTURE;
 	}
 
 	gfxObj->m_primitiveType = primitiveType;
@@ -1754,6 +1770,7 @@ static void b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center, const 
 	result[3 * 4 + 3] = 1.f;
 }
 
+
 void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float colorRGBA[4], int textureIndex, int vertexLayout)
 {
 	int sz = sizeof(GfxVertexFormat0);
@@ -2263,7 +2280,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 				inst.m_shapeIndex = obj;
 
-				if ((gfxObj->m_flags & eGfxTransparency) == 0)
+				if ((gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY) == 0)
 				{
 					inst.m_instanceId = curOffset;
 					b3Vector3 centerPosition;
@@ -2313,10 +2330,10 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 			b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
 
 			//only draw stuff (opaque/transparent) if it is the right pass
-			int drawThisPass = (pass == 0) == ((gfxObj->m_flags & eGfxTransparency) == 0);
+			int drawThisPass = (pass == 0) == ((gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY) == 0);
 
 			//transparent objects don't cast shadows (to simplify things)
-			if (gfxObj->m_flags & eGfxTransparency)
+			if (gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY)
 			{
 				if (renderMode == B3_CREATE_SHADOWMAP_RENDERMODE)
 					drawThisPass = 0;
@@ -2326,7 +2343,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 			{
 				glActiveTexture(GL_TEXTURE0);
 				GLuint curBindTexture = 0;
-				if (gfxObj->m_flags & eGfxHasTexture)
+				if (gfxObj->m_flags & B3_INSTANCE_TEXTURE)
 				{
 					curBindTexture = m_data->m_textureHandles[gfxObj->m_textureIndex].m_glTexture;
 
@@ -2432,6 +2449,11 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 					}
 					else
 					{
+						if (gfxObj->m_flags & B3_INSTANCE_DOUBLE_SIDED)
+						{
+							glDisable(GL_CULL_FACE);
+						}
+
 						switch (renderMode)
 						{
 							case B3_SEGMENTATION_MASK_RENDERMODE:
@@ -2445,7 +2467,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 							}
 							case B3_DEFAULT_RENDERMODE:
 							{
-								if (gfxObj->m_flags & eGfxTransparency)
+								if (gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY)
 								{
 									glDepthMask(false);
 									glEnable(GL_BLEND);
@@ -2462,7 +2484,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 								glUniform1i(uniform_texture_diffuse, 0);
 
-								if (gfxObj->m_flags & eGfxTransparency)
+								if (gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY)
 								{
 									int instanceId = transparentInstances[i].m_instanceId;
 									glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)((instanceId)*4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes));
@@ -2477,7 +2499,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 									glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 								}
 
-								if (gfxObj->m_flags & eGfxTransparency)
+								if (gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY)
 								{
 									glDisable(GL_BLEND);
 									glDepthMask(true);
@@ -2495,7 +2517,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 							case B3_USE_SHADOWMAP_RENDERMODE:
 							{
-								if (gfxObj->m_flags & eGfxTransparency)
+								if (gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY)
 								{
 									glDepthMask(false);
 									glEnable(GL_BLEND);
@@ -2549,7 +2571,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 								//gfxObj->m_instanceOffset
 
-								if (gfxObj->m_flags & eGfxTransparency)
+								if (gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY)
 								{
 									int instanceId = transparentInstances[i].m_instanceId;
 									glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)((instanceId)*4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes));
@@ -2563,7 +2585,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 									glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 								}
 
-								if (gfxObj->m_flags & eGfxTransparency)
+								if (gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY)
 								{
 									glDisable(GL_BLEND);
 									glDepthMask(true);
@@ -2577,7 +2599,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 							}
 							case B3_USE_PROJECTIVE_TEXTURE_RENDERMODE:
 							{
-								if (gfxObj->m_flags & eGfxTransparency)
+								if (gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY)
 								{
 									glDepthMask(false);
 									glEnable(GL_BLEND);
@@ -2617,7 +2639,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 								glUniformMatrix4fv(projectiveTexture_TextureMVP, 1, false, &textureMVP[0]);
 
 								//sort transparent objects
-								if (gfxObj->m_flags & eGfxTransparency)
+								if (gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY)
 								{
 									int instanceId = transparentInstances[i].m_instanceId;
 									glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)((instanceId)*4 * sizeof(float) + m_data->m_maxShapeCapacityInBytes));
@@ -2631,7 +2653,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 									glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 								}
 
-								if (gfxObj->m_flags & eGfxTransparency)
+								if (gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY)
 								{
 									glDisable(GL_BLEND);
 									glDepthMask(true);
@@ -2646,6 +2668,10 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 								//	b3Assert(0);
 							}
 						};
+						if (gfxObj->m_flags & B3_INSTANCE_DOUBLE_SIDED)
+						{
+							glEnable(GL_CULL_FACE);
+						}
 					}
 
 					//glDrawElementsInstanced(GL_LINE_LOOP, indexCount, GL_UNSIGNED_INT, (void*)indexOffset, gfxObj->m_numGraphicsInstances);

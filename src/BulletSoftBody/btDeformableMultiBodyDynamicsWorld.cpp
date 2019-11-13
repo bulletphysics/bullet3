@@ -378,6 +378,22 @@ void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
     btMultiBodyDynamicsWorld::getSolverInfo().m_timeStep = timeStep;
 }
 
+
+void btDeformableMultiBodyDynamicsWorld::debugDrawWorld()
+{
+
+	for (int i = 0; i < getSoftBodyArray().size(); i++)
+	{
+		btSoftBody* psb = (btSoftBody*)getSoftBodyArray()[i];
+		{
+			btSoftBodyHelpers::DrawFrame(psb, getDebugDrawer());
+			btSoftBodyHelpers::Draw(psb, getDebugDrawer(), getDrawFlags());
+		}
+	}
+
+	btMultiBodyDynamicsWorld::debugDrawWorld();
+}
+
 void btDeformableMultiBodyDynamicsWorld::applyRigidBodyGravity(btScalar timeStep)
 {
     // Gravity is applied in stepSimulation and then cleared here and then applied here and then cleared here again

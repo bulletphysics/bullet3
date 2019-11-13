@@ -93,7 +93,9 @@ public:
     }
 
     virtual int stepSimulation(btScalar timeStep, int maxSubSteps = 1, btScalar fixedTimeStep = btScalar(1.) / btScalar(60.));
-    
+
+	virtual void debugDrawWorld();
+
     void setSolverCallback(btSolverCallback cb)
     {
         m_solverCallback = cb;
@@ -178,6 +180,7 @@ public:
     {
         m_lineSearch = lineSearch;
     }
+
 };
 
 #endif  //BT_DEFORMABLE_MULTIBODY_DYNAMICS_WORLD_H
