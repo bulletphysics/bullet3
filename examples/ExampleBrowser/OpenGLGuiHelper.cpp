@@ -380,6 +380,14 @@ void OpenGLGuiHelper::replaceTexture(int shapeIndex, int textureUid)
 		m_data->m_glApp->m_renderer->replaceTexture(shapeIndex, textureUid);
 	};
 }
+void OpenGLGuiHelper::changeInstanceFlags(int instanceUid, int flags)
+{
+	if (instanceUid >= 0)
+	{
+		//careful, flags/instanceUid is swapped
+		m_data->m_glApp->m_renderer->writeSingleInstanceFlagsToCPU(  flags, instanceUid);
+	}
+}
 void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4])
 {
 	if (instanceUid >= 0)
@@ -1433,6 +1441,11 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 			color.setValue(1, 1, 1, 1);
 		}
 		createCollisionObjectGraphicsObject(colObj, color);
+		if (sb)
+		{
+			int graphicsInstanceId = colObj->getUserIndex();
+			changeInstanceFlags(graphicsInstanceId, B3_INSTANCE_DOUBLE_SIDED);
+		}
 	}
 }
 

@@ -11,6 +11,13 @@ enum
 
 enum
 {
+	B3_INSTANCE_TRANSPARANCY = 1,
+	B3_INSTANCE_TEXTURE = 2,
+	B3_INSTANCE_DOUBLE_SIDED = 4,
+};
+
+enum
+{
 	B3_DEFAULT_RENDERMODE = 1,
 	//B3_WIREFRAME_RENDERMODE,
 	B3_CREATE_SHADOWMAP_RENDERMODE,
@@ -94,7 +101,8 @@ struct CommonRenderInterface
 	virtual void writeSingleInstanceScaleToCPU(const double* scale, int srcIndex) = 0;
 	virtual void writeSingleInstanceSpecularColorToCPU(const double* specular, int srcIndex) = 0;
 	virtual void writeSingleInstanceSpecularColorToCPU(const float* specular, int srcIndex) = 0;
-
+	virtual void writeSingleInstanceFlagsToCPU(int flags, int srcIndex) = 0;
+	
 	virtual int getTotalNumInstances() const = 0;
 
 	virtual void writeTransforms() = 0;
