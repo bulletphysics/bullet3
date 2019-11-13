@@ -1433,6 +1433,11 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 			color.setValue(1, 1, 1, 1);
 		}
 		createCollisionObjectGraphicsObject(colObj, color);
+		if (sb)
+		{
+			int graphicsInstanceId = colObj->getUserIndex();
+			changeInstanceFlags(graphicsInstanceId, B3_INSTANCE_DOUBLE_SIDED);
+		}
 	}
 }
 
