@@ -563,6 +563,13 @@ enum b3NotificationType
 	SOFTBODY_CHANGED = 9,
 };
 
+enum b3ResetSimulationFlags
+{
+	RESET_USE_DEFORMABLE_WORLD=1,
+	RESET_USE_DISCRETE_DYNAMICS_WORLD=2,
+	RESET_USE_SIMPLE_BROADPHASE=4,
+};
+
 struct b3BodyNotificationArgs
 {
 	int m_bodyUniqueId;

@@ -373,6 +373,7 @@ extern "C"
 
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitResetSimulationCommand(b3PhysicsClientHandle physClient);
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitResetSimulationCommand2(b3SharedMemoryCommandHandle commandHandle);
+	B3_SHARED_API int b3InitResetSimulationSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags);
 
 	///Load a robot from a URDF file. Status type will CMD_URDF_LOADING_COMPLETED.
 	///Access the robot from the unique body index, through b3GetStatusBodyIndex(statusHandle);
