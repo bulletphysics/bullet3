@@ -1509,28 +1509,31 @@ void btSoftBodyHelpers::readRenderMeshFromObj(const char* file, btSoftBody* psb)
     while (std::getline(fs, line))
     {
         std::stringstream ss(line);
-        if (line[0] == 'v' && line[1] != 't' && line[1] != 'n')
-        {
-            ss.ignore();
-            for (size_t i = 0; i < 3; i++)
-                ss >> pos[i];
-            btSoftBody::Node n;
-            n.m_x = pos;
-            psb->m_renderNodes.push_back(n);
-        }
-        else if (line[0] == 'f')
-        {
-            ss.ignore();
-            int id0, id1, id2;
-            ss >> id0;
-            ss >> id1;
-            ss >> id2;
-            btSoftBody::Face f;
-            f.m_n[0] = &psb->m_renderNodes[id0-1];
-            f.m_n[1] = &psb->m_renderNodes[id1-1];
-            f.m_n[2] = &psb->m_renderNodes[id2-1];
-            psb->m_renderFaces.push_back(f);
-        }
+		if (line.length()>1)
+		{
+			if (line[0] == 'v' && line[1] != 't' && line[1] != 'n')
+			{
+				ss.ignore();
+				for (size_t i = 0; i < 3; i++)
+					ss >> pos[i];
+				btSoftBody::Node n;
+				n.m_x = pos;
+				psb->m_renderNodes.push_back(n);
+			}
+			else if (line[0] == 'f')
+			{
+				ss.ignore();
+				int id0, id1, id2;
+				ss >> id0;
+				ss >> id1;
+				ss >> id2;
+				btSoftBody::Face f;
+				f.m_n[0] = &psb->m_renderNodes[id0-1];
+				f.m_n[1] = &psb->m_renderNodes[id1-1];
+				f.m_n[2] = &psb->m_renderNodes[id2-1];
+				psb->m_renderFaces.push_back(f);
+			}
+		}
     }
     fs.close();
 }
