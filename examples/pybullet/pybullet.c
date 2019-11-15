@@ -2050,10 +2050,11 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 static PyObject* pybullet_resetSimulation(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int physicsClientId = 0;
-	static char* kwlist[] = {"physicsClientId", NULL};
+	int flags = 0;
+	static char* kwlist[] = {"flags", "physicsClientId", NULL};
 	b3PhysicsClientHandle sm = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ii", kwlist, &flags, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -2065,9 +2066,12 @@ static PyObject* pybullet_resetSimulation(PyObject* self, PyObject* args, PyObje
 	}
 
 	{
+		b3SharedMemoryCommandHandle commandHandle;
 		b3SharedMemoryStatusHandle statusHandle;
+		commandHandle = b3InitResetSimulationCommand(sm);
+		b3InitResetSimulationSetFlags(commandHandle, flags);
 		statusHandle = b3SubmitClientCommandAndWaitStatus(
-			sm, b3InitResetSimulationCommand(sm));
+			sm, commandHandle);
 	}
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -11721,7 +11725,7 @@ static PyMethodDef SpamMethods[] = {
 	{"resetSimulation", (PyCFunction)pybullet_resetSimulation, METH_VARARGS | METH_KEYWORDS,
 	 "resetSimulation(physicsClientId=0)\n"
 	 "Reset the simulation: remove all objects and start from an empty world."},
-
+	
 	{"stepSimulation", (PyCFunction)pybullet_stepSimulation, METH_VARARGS | METH_KEYWORDS,
 	 "stepSimulation(physicsClientId=0)\n"
 	 "Step the simulation using forward dynamics."},
@@ -12375,6 +12379,10 @@ initpybullet(void)
 	//PyModule_AddIntConstant(m, "CONSTRAINT_SOLVER_LCP_LEMKE",eConstraintSolverLCP_LEMKE);
 	//PyModule_AddIntConstant(m, "CONSTRAINT_SOLVER_LCP_NNCF",eConstraintSolverLCP_NNCG);
 	//PyModule_AddIntConstant(m, "CONSTRAINT_SOLVER_LCP_BLOCK",eConstraintSolverLCP_BLOCK_PGS);
+
+	PyModule_AddIntConstant(m, "RESET_USE_DEFORMABLE_WORLD", RESET_USE_DEFORMABLE_WORLD);
+	PyModule_AddIntConstant(m, "RESET_USE_DISCRETE_DYNAMICS_WORLD", RESET_USE_DISCRETE_DYNAMICS_WORLD);
+	PyModule_AddIntConstant(m, "RESET_USE_SIMPLE_BROADPHASE", RESET_USE_SIMPLE_BROADPHASE);
 
 	PyModule_AddIntConstant(m, "VR_BUTTON_IS_DOWN", eButtonIsDown);
 	PyModule_AddIntConstant(m, "VR_BUTTON_WAS_TRIGGERED", eButtonTriggered);

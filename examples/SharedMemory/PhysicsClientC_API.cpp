@@ -923,6 +923,19 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitResetSimulationCommand2(b3Shared
 	return (b3SharedMemoryCommandHandle)command;
 }
 
+B3_SHARED_API int b3InitResetSimulationSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	btAssert(command->m_type == CMD_RESET_SIMULATION);
+	if (command->m_type == CMD_RESET_SIMULATION)
+	{
+		command->m_updateFlags = flags;
+	}
+	return 0;
+}
+
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3JointControlCommandInit(b3PhysicsClientHandle physClient, int controlMode)
 {
 	return b3JointControlCommandInit2(physClient, 0, controlMode);
