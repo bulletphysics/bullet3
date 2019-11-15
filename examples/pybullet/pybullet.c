@@ -1,4 +1,5 @@
-//#include "D:/develop/visual_leak_detector/include/vld.h"
+//#include "D:/dev/visual leak detector/include/vld.h"
+
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include "../SharedMemory/PhysicsDirectC_API.h"
 #include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
@@ -7259,6 +7260,7 @@ static PyObject* pybullet_changeTexture(PyObject* self, PyObject* args, PyObject
 			}
 		}
 
+		Py_DECREF(seqPixels);
 		commandHandle = b3CreateChangeTextureCommandInit(sm, textureUniqueId, width, height, (const char*)pixelBuffer);
 		free(pixelBuffer);
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
