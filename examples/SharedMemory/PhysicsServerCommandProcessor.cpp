@@ -8250,7 +8250,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
             psb->setCollisionFlags(0);
             psb->setTotalMass(mass);
             bool use_self_collision = false;
-            if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SET_SELF_COLLISION)
+            if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_USE_SELF_COLLISION)
             {
                     use_self_collision = loadSoftBodyArgs.m_useSelfCollision;
             }
@@ -13446,7 +13446,6 @@ void PhysicsServerCommandProcessor::resetSimulation(int flags)
 				softWorld->getWorldInfo().m_sparsesdf.Reset();
 			}
 		}
-		
 	}
 #endif
 	if (m_data && m_data->m_guiHelper)
