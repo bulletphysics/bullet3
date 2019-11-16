@@ -1,7 +1,3 @@
-INCLUDE_DIRECTORIES(
-	${BULLET_PHYSICS_SOURCE_DIR}/src
-)
-
 SET(Bullet3Collision_SRCS
 	BroadPhaseCollision/b3DynamicBvh.cpp
 	BroadPhaseCollision/b3DynamicBvhBroadphase.cpp
@@ -56,6 +52,9 @@ SET(Bullet3Collision_HDRS
 )
 
 ADD_LIBRARY(Bullet3Collision ${Bullet3Collision_SRCS} ${Bullet3Collision_HDRS})
+TARGET_INCLUDE_DIRECTORIES(Bullet3Collision PUBLIC
+	"$<BUILD_INTERFACE:${BULLET_PHYSICS_SOURCE_DIR}/src>"
+	"$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>")
 TARGET_LINK_LIBRARIES(Bullet3Collision Bullet3Geometry)
 SET_TARGET_PROPERTIES(Bullet3Collision PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(Bullet3Collision PROPERTIES SOVERSION ${BULLET_VERSION})
