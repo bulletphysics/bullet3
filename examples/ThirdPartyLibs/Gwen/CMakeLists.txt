@@ -21,10 +21,8 @@ FILE(GLOB gwen_SRCS "*.cpp" "Controls/*.cpp" "Controls/Dialog/*.cpp" "Controls/D
 FILE(GLOB gwen_HDRS "*.h" "Controls/*.h" "Controls/Dialog/*.h" "Controls/Dialogs/*.h" "Controls/Layout/*.h" "Controls/Property/*.h" "Input/*.h" "Platforms/*.h" "Renderers/*.h" "Skins/*.h")
 
 ADD_LIBRARY(gwen ${gwen_SRCS} ${gwen_HDRS})
-IF (BUILD_SHARED_LIBS)
 IF(WIN32 OR APPLE)
-  target_link_libraries(gwen ${OPENGL_gl_LIBRARY})
-ENDIF()
+	target_link_libraries(gwen ${OPENGL_gl_LIBRARY})
 ENDIF()
 
 

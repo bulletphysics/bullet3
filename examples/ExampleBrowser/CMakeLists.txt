@@ -42,34 +42,32 @@ ADD_LIBRARY(BulletExampleBrowserLib
 	../Utils/b3ReferenceFrameHelper.hpp
 	${GwenGUISupport_SRCS}
 	${GwenGUISupport_HDRS}
-	
+
 )
 
 SET_TARGET_PROPERTIES(BulletExampleBrowserLib PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletExampleBrowserLib PROPERTIES SOVERSION ${BULLET_VERSION})
-IF (BUILD_SHARED_LIBS)
-		IF (WIN32)
-                TARGET_LINK_LIBRARIES(
-                        BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                        BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
-                        ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-                )
-		ELSE(WIN32)
-        IF(APPLE)
-                 TARGET_LINK_LIBRARIES(
-                                BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                                BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
-                                ${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-                 )
-  			ELSE(APPLE)
-                 TARGET_LINK_LIBRARIES(
-                                BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                                BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
-                                pthread ${DL}
-                        )
-        ENDIF(APPLE)
-	ENDIF(WIN32)
-ENDIF(BUILD_SHARED_LIBS)
+IF (WIN32)
+		TARGET_LINK_LIBRARIES(
+				BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+				BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
+				${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+		)
+ELSE(WIN32)
+	IF(APPLE)
+		TARGET_LINK_LIBRARIES(
+			BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+			BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
+			${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+		 )
+	ELSE(APPLE)
+		TARGET_LINK_LIBRARIES(
+			BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+			BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
+			pthread ${DL}
+		)
+	ENDIF(APPLE)
+ENDIF(WIN32)
 
 INSTALL(TARGETS BulletExampleBrowserLib
         RUNTIME DESTINATION bin
@@ -91,7 +89,7 @@ INCLUDE_DIRECTORIES(
 
 
 LINK_LIBRARIES(
-        BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
+        BulletExampleBrowserLib BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics OpenGLWindow gwen BussIK LinearMath Bullet3Common
 )
 
 
@@ -122,13 +120,13 @@ ENDIF(WIN32)
 
 
 SET(ExtendedTutorialsSources
-	../ExtendedTutorials/Chain.cpp 
+	../ExtendedTutorials/Chain.cpp
 	../ExtendedTutorials/Chain.h
 	../ExtendedTutorials/Bridge.cpp
 	../ExtendedTutorials/Bridge.h
 	../ExtendedTutorials/RigidBodyFromObj.cpp
 	../ExtendedTutorials/RigidBodyFromObj.h
-    ../ExtendedTutorials/SimpleBox.cpp
+	../ExtendedTutorials/SimpleBox.cpp
 	../ExtendedTutorials/SimpleBox.h
 	../ExtendedTutorials/MultipleBoxes.cpp
 	../ExtendedTutorials/MultipleBoxes.h
@@ -265,7 +263,7 @@ SET(BulletExampleBrowser_SRCS
 	../RenderingExamples/DynamicTexturedCubeDemo.h
 	../RenderingExamples/TinyVRGui.cpp
 	../RenderingExamples/TinyVRGui.h
-	
+
 	../RoboticsLearning/GripperGraspExample.cpp
 	../RoboticsLearning/GripperGraspExample.h
 	../RoboticsLearning/R2D2GraspExample.cpp
@@ -292,9 +290,9 @@ SET(BulletExampleBrowser_SRCS
 	../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
 	../../Extras/Serialize/BulletWorldImporter/btMultiBodyWorldImporter.cpp
 	../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
-	../../Extras/Serialize/BulletFileLoader/bChunk.cpp		
+	../../Extras/Serialize/BulletFileLoader/bChunk.cpp
 	../../Extras/Serialize/BulletFileLoader/bFile.cpp
-	../../Extras/Serialize/BulletFileLoader/bDNA.cpp		
+	../../Extras/Serialize/BulletFileLoader/bDNA.cpp
 	../../Extras/Serialize/BulletFileLoader/btBulletFile.cpp
 
 	../Importers/ImportBsp/BspLoader.h
@@ -394,7 +392,7 @@ SET(BulletExampleBrowser_SRCS
 	../ThirdPartyLibs/stb_image/stb_image.h
 	../ThirdPartyLibs/stb_image/stb_image_write.cpp
 	../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
-	
+
 	../ThirdPartyLibs/tinyxml2/tinyxml2.cpp
 	InProcessExampleBrowser.cpp
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
@@ -407,7 +405,7 @@ ADD_EXECUTABLE(App_ExampleBrowser
 		ExampleEntries.cpp
 		ExampleEntries.h
 		${ExtendedTutorialsSources}
-		${BulletExampleBrowser_SRCS} 
+		${BulletExampleBrowser_SRCS}
 )
 
 FILE( MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/data" )

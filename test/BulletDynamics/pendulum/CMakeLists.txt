@@ -10,16 +10,16 @@ ADD_DEFINITIONS(-DUSE_GTEST)
 ADD_DEFINITIONS(-D_VARIADIC_MAX=10)
 
 LINK_LIBRARIES(
- BulletDynamics BulletCollision LinearMath gtest
+	BulletDynamics BulletCollision LinearMath gtest
 )
 
 IF (NOT WIN32)
 	LINK_LIBRARIES(		pthread	)
 ENDIF()
 
-	ADD_EXECUTABLE(Test_BulletDynamics
-		 ../../../examples/MultiBody/Pendulum.cpp
-	)
+ADD_EXECUTABLE(Test_BulletDynamics
+	../../../examples/MultiBody/Pendulum.cpp
+)
 
 ADD_TEST(Test_BulletDynamics_PASS Test_BulletDynamics)
 
