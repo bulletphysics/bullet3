@@ -804,7 +804,6 @@ btStridingMeshInterfaceData* btCollisionWorldImporter::createStridingMeshInterfa
 }
 
 #ifdef USE_INTERNAL_EDGE_UTILITY
-extern ContactAddedCallback gContactAddedCallback;
 
 static bool btAdjustInternalEdgeContactsCallback(btManifoldPoint& cp, const btCollisionObject* colObj0, int partId0, int index0, const btCollisionObject* colObj1, int partId1, int index1)
 {
