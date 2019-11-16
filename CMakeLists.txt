@@ -6,6 +6,17 @@ SET(MSVC_INCREMENTAL_DEFAULT ON)
 FILE(STRINGS "VERSION" BULLET_VERSION)
 PROJECT(BULLET_PHYSICS VERSION "${BULLET_VERSION}")
 
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/build3/cmake")
+INCLUDE(Bullet3Utils)
+
+INCLUDE(GNUInstallDirs)
+SET(BULLET_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" CACHE PATH "Bullet install prefix")
+SET(BULLET_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/bullet" CACHE PATH "Bullet install include folder")
+SET(BULLET_INSTALL_BINDIR "${CMAKE_INSTALL_BINDIR}" CACHE PATH "Bullet install binary folder")
+SET(BULLET_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}" CACHE PATH "Bullet install library folder")
+SET(BULLET_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig" CACHE PATH "Bullet install pkgconfig folder")
+SET(BULLET_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/bullet" CACHE PATH "Bullet install cmake scripts folder")
+
 IF(NOT CMAKE_BUILD_TYPE)
 	SET(CMAKE_BUILD_TYPE "Release")
 ENDIF()
@@ -22,6 +33,17 @@ IF(BULLET2_MULTITHREADING)
 	OPTION(BULLET2_USE_TBB_MULTITHREADING "Build Bullet 2 with support for multi-threading with Intel Threading Building Blocks (requires the TBB library to be already installed)" OFF)
 	IF(MSVC)
 		OPTION(BULLET2_USE_PPL_MULTITHREADING "Build Bullet 2 with support for multi-threading with Microsoft Parallel Patterns Library (requires MSVC compiler)" OFF)
+	ENDIF()
+ENDIF()
+
+IF("${CMAKE_GENERATOR}" MATCHES "Unix Makefiles")
+	OPTION(INSTALL_LIBS "Set when you want to install libraries" ON)
+ELSE()
+	IF(APPLE AND FRAMEWORK)
+		OPTION(INSTALL_LIBS "Set when you want to install libraries" ON)
+	ELSE()
+		# By default, don't enable the 'INSTALL' option for Xcode and MSVC projectfiles
+		OPTION(INSTALL_LIBS "Set when you want to install libraries" OFF)
 	ENDIF()
 ENDIF()
 
@@ -260,7 +282,6 @@ IF(BUILD_PYBULLET)
 	SET(PYTHON_VERSION_PYBULLET "" CACHE STRING "Python version pybullet will use.")
 	SET(Python_ADDITIONAL_VERSIONS 3 3.6 3.5 3.4 3.3 3.2 3.1 3.0 2.7 2.7.12 2.7.10 2.7.3 )
 	SET_PROPERTY(CACHE PYTHON_VERSION_PYBULLET PROPERTY STRINGS ${Python_ADDITIONAL_VERSIONS})
-	SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build3/cmake ${CMAKE_MODULE_PATH})
 	OPTION(EXACT_PYTHON_VERSION "Require Python and match PYTHON_VERSION_PYBULLET exactly, e.g. 2.7.12" OFF)
 	IF(EXACT_PYTHON_VERSION)
 		SET(EXACT_PYTHON_VERSION_FLAG EXACT REQUIRED)
@@ -368,36 +389,11 @@ ENDIF()
 
 SUBDIRS(src)
 
-IF("${CMAKE_GENERATOR}" MATCHES "Unix Makefiles")
-	OPTION(INSTALL_LIBS "Set when you want to install libraries" ON)
-ELSE()
-	IF(APPLE AND FRAMEWORK)
-		OPTION(INSTALL_LIBS "Set when you want to install libraries" ON)
-	ELSE()
-		# By default, don't enable the 'INSTALL' option for Xcode and MSVC projectfiles
-		OPTION(INSTALL_LIBS "Set when you want to install libraries" OFF)
-	ENDIF()
-ENDIF()
-
-
-IF(INSTALL_LIBS)
-	IF(BUILD_EXTRAS)
-		OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" ON)
-	ENDIF()
-
-	SET(LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
-	SET(LIB_DESTINATION "lib${LIB_SUFFIX}" CACHE STRING "Library directory name")
-	## the following are directories where stuff will be installed to
-	SET(INCLUDE_INSTALL_DIR "include/bullet/" CACHE PATH "The subdirectory to the header prefix")
-	SET(PKGCONFIG_INSTALL_PREFIX "lib${LIB_SUFFIX}/pkgconfig/" CACHE STRING "Base directory for pkgconfig files")
-	IF(NOT MSVC)
-		CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/bullet.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/bullet.pc @ONLY)
-	INSTALL(
-		FILES
-		${CMAKE_CURRENT_BINARY_DIR}/bullet.pc
-		DESTINATION
-		${PKGCONFIG_INSTALL_PREFIX})
-	ENDIF()
+IF(NOT MSVC)
+	CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/bullet.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/bullet.pc @ONLY)
+	BULLET3_INSTALL(
+		FILES "${CMAKE_CURRENT_BINARY_DIR}/bullet.pc"
+		DESTINATION "${BULLET_INSTALL_PKGCONFIGDIR}")
 ENDIF()
 
 OPTION(BUILD_UNIT_TESTS "Build Unit Tests" ON)
@@ -407,14 +403,11 @@ IF(BUILD_UNIT_TESTS)
 	SUBDIRS(test)
 ENDIF()
 
-SET(BULLET_CONFIG_CMAKE_PATH lib${LIB_SUFFIX}/cmake/bullet )
-LIST(APPEND BULLET_LIBRARIES LinearMath)
-LIST(APPEND BULLET_LIBRARIES Bullet3Common)
-LIST(APPEND BULLET_LIBRARIES BulletInverseDynamics)
-LIST(APPEND BULLET_LIBRARIES BulletCollision)
-LIST(APPEND BULLET_LIBRARIES BulletDynamics)
-LIST(APPEND BULLET_LIBRARIES BulletSoftBody)
-SET(BULLET_USE_FILE ${BULLET_CONFIG_CMAKE_PATH}/UseBullet.cmake)
+IF(BUILD_SHARED_LIBS)
+	SET(BULLET_INSTALL_DEFINITIONS "-DBULLET_SHARED")
+ENDIF()
+LIST(APPEND BULLET_INSTALL_LIBRARIES BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamics LinearMath Bullet3Common)
+SET(BULLET_USE_FILE ${BULLET_INSTALL_CMAKEDIR}/UseBullet.cmake)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/BulletConfig.cmake.in
 	${CMAKE_CURRENT_BINARY_DIR}/BulletConfig.cmake
 	@ONLY ESCAPE_QUOTES
@@ -422,8 +415,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/BulletConfig.cmake.in
 OPTION(INSTALL_CMAKE_FILES "Install generated CMake files" ON)
 
 IF(INSTALL_CMAKE_FILES)
-	INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/UseBullet.cmake
+	BULLET3_INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/UseBullet.cmake
 		${CMAKE_CURRENT_BINARY_DIR}/BulletConfig.cmake
-		DESTINATION ${BULLET_CONFIG_CMAKE_PATH}
-	)
+		DESTINATION ${BULLET_INSTALL_CMAKEDIR})
 ENDIF()

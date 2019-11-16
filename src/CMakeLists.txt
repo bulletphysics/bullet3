@@ -17,10 +17,8 @@ SUBDIRS(
 	Bullet3Common
 )
 
-IF(INSTALL_LIBS)
-	IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-		# Don't actually need to install any common files, the frameworks include everything
-	ELSE()
-		INSTALL(FILES btBulletCollisionCommon.h btBulletDynamicsCommon.h DESTINATION ${INCLUDE_INSTALL_DIR})
-	ENDIF()
+IF(APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
+	# Don't actually need to install any common files, the frameworks include everything
+ELSE()
+	BULLET3_INSTALL(FILES btBulletCollisionCommon.h btBulletDynamicsCommon.h DESTINATION ${BULLET_INSTALL_INCLUDEDIR})
 ENDIF()

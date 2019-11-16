@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef B3_SERIALIZER_H
 #define B3_SERIALIZER_H
 
-#include "bullet2FileLoaderApi.h"
+#include "Bullet2FileLoaderApi.h"
 #include "Bullet3Common/b3Scalar.h"  // has definitions like B3_FORCE_INLINE
 #include "Bullet3Common/b3StackAlloc.h"
 #include "Bullet3Common/b3HashMap.h"
