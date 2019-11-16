@@ -43,6 +43,7 @@
 #include "ExampleEntries.h"
 #include "OpenGLGuiHelper.h"
 #include "Bullet3Common/b3FileUtils.h"
+#include "BulletDynamics/Dynamics/btRigidBody.h"
 
 #include "LinearMath/btIDebugDraw.h"
 //quick test for file import, @todo(erwincoumans) make it more general and add other file formats
@@ -139,7 +140,6 @@ int gDebugDrawFlags = 0;
 static bool pauseSimulation = false;
 static bool singleStepSimulation = false;
 int midiBaseIndex = 176;
-extern bool gDisableDeactivation;
 
 int gSharedMemoryKey = -1;
 
