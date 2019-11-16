@@ -1,6 +1,6 @@
 #                                               -*- cmake -*-
 #
-#  BulletConfig.cmake(.in)
+#  BulletConfig.cmake
 #
 
 # Use the following variables to compile and link against Bullet:
@@ -16,10 +16,10 @@
 
 set ( BULLET_FOUND 1 )
 set ( BULLET_USE_FILE     "@BULLET_USE_FILE@" )
-set ( BULLET_DEFINITIONS  "@BULLET_DEFINITIONS@" )
-set ( BULLET_INCLUDE_DIR  "@INCLUDE_INSTALL_DIR@" )
-set ( BULLET_INCLUDE_DIRS "@INCLUDE_INSTALL_DIR@" )
-set ( BULLET_LIBRARIES    "@BULLET_LIBRARIES@" )
-set ( BULLET_LIBRARY_DIRS "@LIB_DESTINATION@" )
+set ( BULLET_DEFINITIONS  "@BULLET_INSTALL_DEFINITIONS@" )
+set ( BULLET_INCLUDE_DIR  "@BULLET_INSTALL_INCLUDEDIR@" )
+set ( BULLET_INCLUDE_DIRS "@BULLET_INSTALL_INCLUDEDIR@" )
+set ( BULLET_LIBRARIES    "@BULLET_INSTALL_LIBRARIES@" )
+set ( BULLET_LIBRARY_DIRS "@CMAKE_INSTALL_LIBDIR@" )
 set ( BULLET_ROOT_DIR     "@CMAKE_INSTALL_PREFIX@" )
 set ( BULLET_VERSION_STRING "@BULLET_VERSION@" )
