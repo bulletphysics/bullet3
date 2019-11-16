@@ -1,10 +1,23 @@
 environment:
+  PYTHON: "C:\\Python36-x64"
   matrix:
+  - CMAKE_ARGS: -DBUILD_PYBULLET=ON -DPYTHON_LIBRARY=C:\\Python36-x64\\libs\\python36.lib
   - CMAKE_ARGS: -DBUILD_SHARED_LIBS=ON
   - CMAKE_ARGS: -DBUILD_SHARED_LIBS=OFF
 
+init:
+  - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
+  - python --version
+
 build:
   project: build3/vs2010/0_Bullet3Solution.sln
+
+before_build:
+  - echo %CD%
+  - cd build3
+  - echo %CD%
+  - premake4  vs2010
+  - cd ..
 
 build_script:
   - mkdir cm
@@ -14,11 +27,3 @@ build_script:
 
 test_script:
   - ctest --parallel 4 --build-config Release --output-on-failure
-
-before_build:
-  - echo %CD%
-  - ps: cd build3
-  - echo %CD%
-  - premake4  vs2010
-  - ps: cd ..
-
