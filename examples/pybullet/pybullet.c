@@ -1963,13 +1963,25 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 	int physicsClientId = 0;
 	int flags = 0;
 
-	static char* kwlist[] = {"fileName", "basePosition", "baseOrientation", "scale", "mass", "collisionMargin", "physicsClientId", NULL};
+	static char* kwlist[] = {"fileName", "basePosition", "baseOrientation", "scale", "mass", "collisionMargin", "physicsClientId", "useMassSpring", "useBendingSprings", "useNeoHookean", "springElasticStiffness", "springDampingStiffness", "NeoHookeanMu", "NeoHookeanLambda", "NeoHookeanDamping", "frictionCoeff", "useFaceContact", "useSelfCollision", NULL};
 
 	int bodyUniqueId = -1;
 	const char* fileName = "";
 	double scale = -1;
 	double mass = -1;
 	double collisionMargin = -1;
+	int useMassSpring = 0;
+	int useBendingSprings = 0;
+	int useNeoHookean = 0;
+	double springElasticStiffness = 1;
+	double springDampingStiffness = 0.1;
+	double NeoHookeanMu = 1;
+	double NeoHookeanLambda = 1;
+	double NeoHookeanDamping = 0.1;
+	double frictionCoeff = 0;
+	int useFaceContact = 0;
+	int useSelfCollision = 0;
+	
 
 	b3PhysicsClientHandle sm = 0;
 
@@ -1980,7 +1992,7 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 	PyObject* basePosObj = 0;
 	PyObject* baseOrnObj = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOdddi", kwlist, &fileName, &basePosObj, &baseOrnObj, &scale, &mass, &collisionMargin, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOdddiiiiddddddii", kwlist, &fileName, &basePosObj, &baseOrnObj, &scale, &mass, &collisionMargin, &physicsClientId, &useMassSpring, &useBendingSprings, &useNeoHookean, &springElasticStiffness, &springDampingStiffness, &NeoHookeanMu, &NeoHookeanLambda, &NeoHookeanDamping, &frictionCoeff, &useFaceContact, &useSelfCollision))
 	{
 		return NULL;
 	}
@@ -2033,6 +2045,16 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 		{
 			b3LoadSoftBodySetCollisionMargin(command, collisionMargin);
 		}
+		if (useMassSpring)
+		{
+			b3LoadSoftBodyAddMassSpringForce(command, springElasticStiffness, springDampingStiffness);
+			b3LoadSoftBodyUseBendingSprings(command, useBendingSprings);
+		}
+		if (useNeoHookean)
+		{
+			b3LoadSoftBodyAddNeoHookeanForce(command, NeoHookeanMu, NeoHookeanLambda, NeoHookeanDamping);
+		}
+		b3LoadSoftBodySetFrictionCoefficient(command, frictionCoeff);
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType != CMD_LOAD_SOFT_BODY_COMPLETED)

@@ -386,12 +386,12 @@ B3_SHARED_API int b3LoadSoftBodySetCollisionHardness(b3SharedMemoryCommandHandle
 	return 0;
 }
 
-B3_SHARED_API int b3LoadSoftBodySetSelfCollision(b3SharedMemoryCommandHandle commandHandle, int useSelfCollision)
+B3_SHARED_API int b3LoadSoftBodyUseSelfCollision(b3SharedMemoryCommandHandle commandHandle, int useSelfCollision)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
         command->m_loadSoftBodyArguments.m_useSelfCollision = useSelfCollision;
-	command->m_updateFlags |= LOAD_SOFT_BODY_SET_SELF_COLLISION;
+	command->m_updateFlags |= LOAD_SOFT_BODY_USE_SELF_COLLISION;
 	return 0;
 }
 
@@ -411,6 +411,15 @@ B3_SHARED_API int b3LoadSoftBodyUseBendingSprings(b3SharedMemoryCommandHandle co
         command->m_loadSoftBodyArguments.m_useBendingSprings = useBendingSprings;
 	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_BENDING_SPRINGS;
 	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodyUseFaceContact(b3SharedMemoryCommandHandle commandHandle, int useFaceContact)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+    b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+    command->m_loadSoftBodyArguments.m_useFaceContact = useFaceContact;
+    command->m_updateFlags |= LOAD_SOFT_BODY_USE_FACE_CONTACT;
+    return 0;
 }
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
