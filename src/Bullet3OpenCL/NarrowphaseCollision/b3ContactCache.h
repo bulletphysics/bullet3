@@ -22,9 +22,6 @@ subject to the following restrictions:
 #include "Bullet3Common/b3Transform.h"
 #include "Bullet3Common/b3AlignedAllocator.h"
 
-///maximum contact breaking and merging threshold
-BULLET3OPENCL_API extern b3Scalar gContactBreakingThreshold;
-
 #define MANIFOLD_CACHE_SIZE 4
 
 ///b3ContactCache is a contact point cache, it stays persistent as long as objects are overlapping in the broadphase.

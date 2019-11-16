@@ -20,8 +20,6 @@ subject to the following restrictions:
 
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3Contact4Data.h"
 
-b3Scalar					gContactBreakingThreshold = b3Scalar(0.02);
-
 ///gContactCalcArea3Points will approximate the convex hull area using 3 points
 ///when setting it to false, it will use 4 points to compute the area: it is more accurate but slower
 bool						gContactCalcArea3Points = true;

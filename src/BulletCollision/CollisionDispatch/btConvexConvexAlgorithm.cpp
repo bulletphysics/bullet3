@@ -265,8 +265,6 @@ struct btPerturbedContactResult : public btManifoldResult
 	}
 };
 
-extern btScalar gContactBreakingThreshold;
-
 //
 // Convex-Convex collision algorithm
 //
