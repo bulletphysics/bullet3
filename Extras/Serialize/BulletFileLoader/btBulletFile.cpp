@@ -17,28 +17,12 @@ subject to the following restrictions:
 #include "bDefines.h"
 #include "bDNA.h"
 
+#include "LinearMath/btSerializer.h"
+
 #if !defined(__CELLOS_LV2__) && !defined(__MWERKS__)
 #include <memory.h>
 #endif
 #include <string.h>
-
-// 32 && 64 bit versions
-#ifdef BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
-#ifdef _WIN64
-extern char sBulletDNAstr64[];
-extern int sBulletDNAlen64;
-#else
-extern char sBulletDNAstr[];
-extern int sBulletDNAlen;
-#endif  //_WIN64
-#else   //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
-
-extern char sBulletDNAstr64[];
-extern int sBulletDNAlen64;
-extern char sBulletDNAstr[];
-extern int sBulletDNAlen;
-
-#endif  //BT_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 
 using namespace bParse;
 
