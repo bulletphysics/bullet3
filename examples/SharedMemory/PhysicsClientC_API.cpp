@@ -338,6 +338,24 @@ B3_SHARED_API int b3LoadSoftBodySetStartOrientation(b3SharedMemoryCommandHandle 
 	return 0;
 }
 
+B3_SHARED_API int b3LoadSoftBodyAddRenderMesh(b3SharedMemoryCommandHandle commandHandle, const char* filename)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+    b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+    int len = strlen(filename);
+    if (len < MAX_FILENAME_LENGTH)
+    {
+        strcpy(command->m_loadSoftBodyArguments.m_renderFileName, filename);
+    }
+    else
+    {
+        command->m_loadSoftBodyArguments.m_renderFileName[0] = 0;
+    }
+    command->m_updateFlags |= LOAD_SOFT_BODY_RENDER_MESH;
+    return 0;
+
+}
+
 B3_SHARED_API int b3LoadSoftBodyAddCorotatedForce(b3SharedMemoryCommandHandle commandHandle, double corotatedMu, double corotatedLambda)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;

@@ -8087,29 +8087,14 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
         
 	const std::string& error_message_prefix = "";
 	std::string out_found_filename;
-	std::string out_found_sim_filename;
-	int out_type(0), out_sim_type(0);
-
-        bool render_mesh_is_sim_mesh = true;
+	int out_type(0);
 
 	bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
         if (out_type == UrdfGeometry::FILE_OBJ)
         {
-		    foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_sim_filename, &out_sim_type);
-            render_mesh_is_sim_mesh = !foundFile;
-        }
-
-        if (render_mesh_is_sim_mesh)
-        {
-            out_sim_type = out_type;
-            out_found_sim_filename = out_found_filename;
-        }
-        
-        if (out_sim_type == UrdfGeometry::FILE_OBJ)
-        {
 	    std::vector<tinyobj::shape_t> shapes;
 	    tinyobj::attrib_t attribute;
-	    std::string err = tinyobj::LoadObj(attribute, shapes, out_found_sim_filename.c_str(), "", fileIO);
+	    std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), "", fileIO);
 	    if (!shapes.empty())
 	    {
             const tinyobj::shape_t& shape = shapes[0];
@@ -8158,13 +8143,13 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	    }
 #endif
         }
-        else if (out_sim_type == UrdfGeometry::FILE_VTK)
+        else if (out_type == UrdfGeometry::FILE_VTK)
         {
 #ifndef SKIP_DEFORMABLE_BODY
 			btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
 			if (deformWorld)
 			{
-				psb = btSoftBodyHelpers::CreateFromVtkFile(deformWorld->getWorldInfo(), out_found_sim_filename.c_str());
+				psb = btSoftBodyHelpers::CreateFromVtkFile(deformWorld->getWorldInfo(), out_found_filename.c_str());
 				btScalar corotated_mu, corotated_lambda;
 				if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_COROTATED_FORCE)
 				{
@@ -8193,6 +8178,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 					deformWorld->addForce(psb, springForce);
 					m_data->m_lf.push_back(springForce);
 				}
+                
 			}
 #endif
 		}
@@ -8201,15 +8187,31 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 		{
 #ifndef SKIP_DEFORMABLE_BODY
 			btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+            bool foundRenderMesh = false;
 			if (deformWorld)
 			{
-            if (!render_mesh_is_sim_mesh)
-            {
-                // load render mesh
-                btSoftBodyHelpers::readRenderMeshFromObj(out_found_filename.c_str(), psb);
-                btSoftBodyHelpers::interpolateBarycentricWeights(psb);
-            }
-            else
+                if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_RENDER_MESH)
+                {
+                    int out_render_type(0);
+                    std::string out_found_render_filename;
+                    char relativeRenderFileName[1024];
+                    char pathRenderPrefix[1024];
+                    pathRenderPrefix[0] = 0;
+                    if (fileIO->findResourcePath(loadSoftBodyArgs.m_renderFileName, relativeRenderFileName, 1024))
+                    {
+                        b3FileUtils::extractPath(relativeRenderFileName, pathRenderPrefix, 1024);
+                    }
+                    foundRenderMesh = UrdfFindMeshFile(fileIO, pathRenderPrefix, relativeRenderFileName, error_message_prefix, &out_found_render_filename, &out_render_type);
+                    // load render mesh
+                    if (foundRenderMesh)
+                    {
+                        btSoftBodyHelpers::readRenderMeshFromObj(out_found_render_filename.c_str(), psb);
+                        btSoftBodyHelpers::interpolateBarycentricWeights(psb);
+                    }
+                }
+            
+
+            if (!foundRenderMesh)
             {
                 psb->m_renderNodes.resize(0);
             }
