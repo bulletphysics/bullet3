@@ -2605,7 +2605,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 btDeformableMultiBodyDynamicsWorld* PhysicsServerCommandProcessor::getDeformableWorld()
 {
 	btDeformableMultiBodyDynamicsWorld* world = 0;
-	if (m_data->m_dynamicsWorld->getWorldType()== BT_DEFORMABLE_MULTIBODY_DYNAMICS_WORLD)
+	if (m_data->m_dynamicsWorld && m_data->m_dynamicsWorld->getWorldType()== BT_DEFORMABLE_MULTIBODY_DYNAMICS_WORLD)
 	{
 		world = (btDeformableMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
 	}
@@ -2615,7 +2615,7 @@ btDeformableMultiBodyDynamicsWorld* PhysicsServerCommandProcessor::getDeformable
 btSoftMultiBodyDynamicsWorld* PhysicsServerCommandProcessor::getSoftWorld()
 {
 	btSoftMultiBodyDynamicsWorld* world = 0;
-	if (m_data->m_dynamicsWorld->getWorldType()== BT_SOFT_MULTIBODY_DYNAMICS_WORLD)
+	if (m_data->m_dynamicsWorld && m_data->m_dynamicsWorld->getWorldType()== BT_SOFT_MULTIBODY_DYNAMICS_WORLD)
 	{
 		world = (btSoftMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
 	}
@@ -9437,6 +9437,26 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 		m_data->m_dynamicsWorld->getSolverInfo().m_frictionCFM = clientCmd.m_physSimParamArgs.m_frictionCFM;
 	}
 
+	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_SPARSE_SDF)
+	{
+		{
+            btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+            if (deformWorld)
+            {
+                deformWorld ->getWorldInfo().m_sparsesdf.setDefaultVoxelsz(clientCmd.m_physSimParamArgs.m_sparseSdfVoxelSize);
+                deformWorld ->getWorldInfo().m_sparsesdf.Reset();
+            }
+        }
+        {
+            btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
+            if (softWorld)
+            {
+                softWorld->getWorldInfo().m_sparsesdf.setDefaultVoxelsz(clientCmd.m_physSimParamArgs.m_sparseSdfVoxelSize);
+                softWorld->getWorldInfo().m_sparsesdf.Reset();
+            }
+        }
+	}
+
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD)
 	{
 		m_data->m_dynamicsWorld->getSolverInfo().m_restitutionVelocityThreshold = clientCmd.m_physSimParamArgs.m_restitutionVelocityThreshold;
@@ -12966,30 +12986,6 @@ void PhysicsServerCommandProcessor::renderScene(int renderFlags)
 		}
 
 		m_data->m_guiHelper->render(m_data->m_dynamicsWorld);
-#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-#ifndef SKIP_DEFORMABLE_BODY
-		if (m_data->m_dynamicsWorld)
-		{
-			btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
-			if (deformWorld)
-			{
-				if (deformWorld->getSoftBodyArray().size())
-				{
-					for (int i = 0; i < deformWorld->getSoftBodyArray().size(); i++)
-					{
-						btSoftBody* psb = (btSoftBody*)deformWorld->getSoftBodyArray()[i];
-						{
-							btSoftBodyHelpers::DrawFrame(psb, m_data->m_dynamicsWorld->getDebugDrawer());
-							btSoftBodyHelpers::Draw(psb, m_data->m_dynamicsWorld->getDebugDrawer(), deformWorld->getDrawFlags());
-						}
-					}
-					m_data->m_guiHelper->drawDebugDrawerLines();
-					m_data->m_guiHelper->clearLines();
-				}
-			}
-		}
-#endif
-#endif
 	}
 }
 

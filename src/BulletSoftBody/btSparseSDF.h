@@ -77,6 +77,10 @@ struct btSparseSdf
 	int nprobes;
 	int nqueries;
 
+	~btSparseSdf()
+	{
+		Reset();
+	}
 	//
 	// Methods
 	//
@@ -330,15 +334,18 @@ struct btSparseSdf
 	{
 		struct btS
 		{
-			int x, y, z;
+			int x, y, z, w;
 			void* p;
 		};
 
 		btS myset;
+		//memset may be needed in case of additional (uninitialized) padding!
+		//memset(myset, 0, sizeof(btS));
 
 		myset.x = x;
 		myset.y = y;
 		myset.z = z;
+		myset.w = 0;
 		myset.p = (void*)shape;
 		const void* ptr = &myset;
 
