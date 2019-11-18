@@ -9655,6 +9655,39 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 	return hasStatus;
 }
 
+bool PhysicsServerCommandProcessor::processSetSparseSDFCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+    bool hasStatus = true;
+    BT_PROFILE("CMD_SET_SPARSE_SDF");
+    double sz = clientCmd.m_setSparseSDFArguments.m_sz;
+    SharedMemoryStatus& serverCmd = serverStatusOut;
+    serverCmd.m_type = CMD_SET_SPARSE_SDF_FAILED;
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+    if (m_data && m_data->m_dynamicsWorld)
+    {
+        {
+            btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+            if (deformWorld)
+            {
+                deformWorld ->getWorldInfo().m_sparsesdf.setDefaultVoxelsz(sz);
+                deformWorld ->getWorldInfo().m_sparsesdf.Reset();
+                serverCmd.m_type = CMD_SET_SPARSE_SDF_COMPLETED;
+            }
+        }
+        {
+            btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
+            if (softWorld)
+            {
+                softWorld->getWorldInfo().m_sparsesdf.setDefaultVoxelsz(sz);
+                softWorld->getWorldInfo().m_sparsesdf.Reset();
+                serverCmd.m_type = CMD_SET_SPARSE_SDF_COMPLETED;
+            }
+        }
+    }
+#endif
+    return true;
+}
+
 bool PhysicsServerCommandProcessor::processResetSimulationCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -12746,6 +12779,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processInitPoseCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
+        case CMD_SET_SPARSE_SDF:
+        {
+            hasStatus = processSetSparseSDFCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+            break;
+        }
 		case CMD_RESET_SIMULATION:
 		{
 			hasStatus = processResetSimulationCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);

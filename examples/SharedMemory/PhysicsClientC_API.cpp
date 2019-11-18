@@ -907,9 +907,23 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitStepSimulationCommand(b3PhysicsC
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3InitStepSimulationCommand2(b3SharedMemoryCommandHandle commandHandle)
 {
-	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
-	command->m_type = CMD_STEP_FORWARD_SIMULATION;
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+    command->m_type = CMD_STEP_FORWARD_SIMULATION;
+    command->m_updateFlags = 0;
+    return (b3SharedMemoryCommandHandle)command;
+}
+
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitSetSparseSDFCommand(b3PhysicsClientHandle physClient, double sz)
+{
+    PhysicsClient* cl = (PhysicsClient*)physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+	command->m_type = CMD_SET_SPARSE_SDF;
 	command->m_updateFlags = 0;
+    command->m_setSparseSDFArguments.m_sz = sz;
 	return (b3SharedMemoryCommandHandle)command;
 }
 

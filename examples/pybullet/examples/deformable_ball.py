@@ -11,7 +11,7 @@ planeId = p.loadURDF("plane.urdf", [0,0,-2])
 
 boxId = p.loadURDF("cube.urdf", [0,3,2],useMaximalCoordinates = True)
 
-torus = p.loadSoftBody("torus.vtk", useNeoHookean = 1, NeoHookeanMu = 60, NeoHookeanLambda = 200, NeoHookeanDamping = 0.01, useSelfCollision = 1, frictionCoeff = 0.5)
+ballId = p.loadSoftBody("ball.vtk", scale = 0.5, mass = 0.1, useNeoHookean = 1, NeoHookeanMu = 20, NeoHookeanLambda = 20, NeoHookeanDamping = 0.001, useSelfCollision = 1, frictionCoeff = .5)
 p.setSparseSDF(size = 0.25)
 p.setRealTimeSimulation(1)
 

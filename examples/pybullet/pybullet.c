@@ -1957,6 +1957,38 @@ static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject* keyw
 }
 
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+static PyObject* pybullet_setSparseSDF(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int flags = 0;
+
+	static char* kwlist[] = {"size", NULL};
+	double size = 0.25;
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "d", kwlist, &size))
+	{
+		return NULL;
+	}
+	b3PhysicsClientHandle sm = 0;
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	{
+		b3SharedMemoryCommandHandle commandHandle;
+		b3SharedMemoryStatusHandle statusHandle;
+		commandHandle = b3InitSetSparseSDFCommand(sm, size);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(
+			sm, commandHandle);
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+#endif
+
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 // Load a softbody from an obj file
 static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject* keywds)
 {
@@ -11792,6 +11824,8 @@ static PyMethodDef SpamMethods[] = {
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	{"loadSoftBody", (PyCFunction)pybullet_loadSoftBody, METH_VARARGS | METH_KEYWORDS,
 	 "Load a softbody from an obj file."},
+	{"setSparseSDF", (PyCFunction)pybullet_setSparseSDF, METH_VARARGS | METH_KEYWORDS,
+	 "Set the grid resolution of the sparse SDF."},
 #endif
 	{"loadBullet", (PyCFunction)pybullet_loadBullet, METH_VARARGS | METH_KEYWORDS,
 	 "Load a world from a .bullet file."},

@@ -636,6 +636,11 @@ struct CreateBoxShapeArgs
 	double m_colorRGBA[4];
 };
 
+struct SetSparseSDFArgs
+{
+    double m_sz;
+};
+
 struct b3ObjectArgs
 {
 	int m_numBodies;
@@ -1129,6 +1134,7 @@ struct SharedMemoryCommand
 		struct RequestActualStateArgs m_requestActualStateInformationCommandArgument;
 		struct CreateSensorArgs m_createSensorArguments;
 		struct CreateBoxShapeArgs m_createBoxShapeArguments;
+        struct SetSparseSDFArgs m_setSparseSDFArguments;
 		struct RequestDebugLinesArgs m_requestDebugLinesArguments;
 		struct RequestPixelDataArgs m_requestPixelDataArguments;
 		struct PickBodyArgs m_pickBodyArguments;
