@@ -1583,6 +1583,7 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 	int reportSolverAnalytics = -1;
 
 	double warmStartingFactor = -1;
+	double sparseSdfVoxelSize = -1;
 
 	int physicsClientId = 0;
 
@@ -1611,11 +1612,12 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 							 "minimumSolverIslandSize",
 							 "reportSolverAnalytics",
 							 "warmStartingFactor",
+							 "sparseSdfVoxelSize",
 							 "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiididdiidiidi", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiididdiidiiddi", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
 									 &collisionFilterMode, &contactBreakingThreshold, &maxNumCmdPer1ms, &enableFileCaching, &restitutionVelocityThreshold, &erp, &contactERP, &frictionERP, &enableConeFriction, &deterministicOverlappingPairs, &allowedCcdPenetration, &jointFeedbackMode, &solverResidualThreshold, &contactSlop, &enableSAT, &constraintSolverType, &globalCFM, &minimumSolverIslandSize, 
-									&reportSolverAnalytics, &warmStartingFactor, &physicsClientId))
+									&reportSolverAnalytics, &warmStartingFactor, &sparseSdfVoxelSize, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1739,6 +1741,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		if (warmStartingFactor >= 0)
 		{
 			b3PhysicsParamSetWarmStartingFactor(command, warmStartingFactor);
+		}
+		if (sparseSdfVoxelSize >= 0)
+		{
+			b3PhysicsParameterSetSparseSdfVoxelSize(command, sparseSdfVoxelSize);
 		}
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	}
