@@ -382,6 +382,8 @@ void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
 void btDeformableMultiBodyDynamicsWorld::debugDrawWorld()
 {
 
+	btMultiBodyDynamicsWorld::debugDrawWorld();
+
 	for (int i = 0; i < getSoftBodyArray().size(); i++)
 	{
 		btSoftBody* psb = (btSoftBody*)getSoftBodyArray()[i];
@@ -391,7 +393,7 @@ void btDeformableMultiBodyDynamicsWorld::debugDrawWorld()
 		}
 	}
 
-	btMultiBodyDynamicsWorld::debugDrawWorld();
+	
 }
 
 void btDeformableMultiBodyDynamicsWorld::applyRigidBodyGravity(btScalar timeStep)
