@@ -1636,18 +1636,14 @@ struct PhysicsServerCommandProcessorInternalData
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 
-//#ifndef SKIP_DEFORMABLE_BODY
+#ifndef SKIP_DEFORMABLE_BODY
 	
 	btDeformableBodySolver* m_deformablebodySolver;
     btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
-//#else//SKIP_DEFORMABLE_BODY
-//#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+#endif
 	
 	
-//#else//SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
-//#endif//SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-//#endif//SKIP_DEFORMABLE_BODY
 
 	int m_constraintSolverType;
 	SharedMemoryDebugDrawer* m_remoteDebugDrawer;
@@ -1714,7 +1710,9 @@ struct PhysicsServerCommandProcessorInternalData
 		  m_solver(0),
 		  m_collisionConfiguration(0),
 		  m_dynamicsWorld(0),
+#ifndef SKIP_DEFORMABLE_BODY
 		  m_deformablebodySolver(0),
+#endif
 		  m_constraintSolverType(-1),
 		  m_remoteDebugDrawer(0),
 		  m_stateLoggersUniqueId(0),
@@ -9437,6 +9435,7 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_SPARSE_SDF)
 	{
+#ifndef SKIP_DEFORMABLE_BODY
 		{
             btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
             if (deformWorld)
@@ -9445,6 +9444,8 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
                 deformWorld ->getWorldInfo().m_sparsesdf.Reset();
             }
         }
+#endif
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
         {
             btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
             if (softWorld)
@@ -9453,6 +9454,7 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
                 softWorld->getWorldInfo().m_sparsesdf.Reset();
             }
         }
+#endif
 	}
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD)
