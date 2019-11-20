@@ -4,8 +4,8 @@ from time import sleep
 physicsClient = p.connect(p.GUI)
 
 p.resetSimulation(p.RESET_USE_DEFORMABLE_WORLD)
-
-p.setGravity(0, 0, -10)
+gravZ=-10
+p.setGravity(0, 0, gravZ)
 
 planeOrn = [0,0,0,1]#p.getQuaternionFromEuler([0.3,0,0])
 planeId = p.loadURDF("plane.urdf", [0,0,-2],planeOrn)
@@ -24,6 +24,6 @@ p.setRealTimeSimulation(1)
 
 
 while p.isConnected():
-  p.getNumBodies()
+  p.setGravity(0,0,gravZ)
   sleep(1./240.)
   
