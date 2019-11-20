@@ -633,7 +633,7 @@ extern "C"
 	B3_SHARED_API int b3LoadSoftBodySetCollisionMargin(b3SharedMemoryCommandHandle commandHandle, double collisionMargin);
 	B3_SHARED_API int b3LoadSoftBodySetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX, double startPosY, double startPosZ);
 	B3_SHARED_API int b3LoadSoftBodySetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX, double startOrnY, double startOrnZ, double startOrnW);
-    B3_SHARED_API int b3LoadSoftBodyAddRenderMesh(b3SharedMemoryCommandHandle commandHandle, const char* filename);
+    B3_SHARED_API int b3LoadSoftBodyUpdateSimMesh(b3SharedMemoryCommandHandle commandHandle, const char* filename);
 	B3_SHARED_API int b3LoadSoftBodyAddCorotatedForce(b3SharedMemoryCommandHandle commandHandle, double corotatedMu, double corotatedLambda);
     B3_SHARED_API int b3LoadSoftBodyAddCorotatedForce(b3SharedMemoryCommandHandle commandHandle, double corotatedMu, double corotatedLambda);
 	B3_SHARED_API int b3LoadSoftBodyAddNeoHookeanForce(b3SharedMemoryCommandHandle commandHandle, double NeoHookeanMu, double NeoHookeanLambda, double NeoHookeanDamping);

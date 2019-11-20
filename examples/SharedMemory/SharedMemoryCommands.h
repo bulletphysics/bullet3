@@ -505,7 +505,7 @@ enum EnumLoadSoftBodyUpdateFlags
         LOAD_SOFT_BODY_ADD_NEOHOOKEAN_FORCE = 1<<12,
         LOAD_SOFT_BODY_USE_SELF_COLLISION = 1<<13,
     LOAD_SOFT_BODY_USE_FACE_CONTACT = 1<<14,
-    LOAD_SOFT_BODY_RENDER_MESH = 1<<15,
+    LOAD_SOFT_BODY_SIM_MESH = 1<<15,
 };
 
 enum EnumSimParamInternalSimFlags
@@ -536,7 +536,7 @@ struct LoadSoftBodyArgs
         double m_NeoHookeanLambda;
         double m_NeoHookeanDamping;
     int m_useFaceContact;
-    char m_renderFileName[MAX_FILENAME_LENGTH];
+    char m_simFileName[MAX_FILENAME_LENGTH];
 };
 
 struct b3LoadSoftBodyResultArgs
