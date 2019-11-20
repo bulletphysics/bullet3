@@ -1963,6 +1963,10 @@ static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject* keyw
 }
 
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+
+
+
+
 // Load a softbody from an obj file
 static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject* keywds)
 {
@@ -2072,6 +2076,56 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 	}
 	return PyLong_FromLong(bodyUniqueId);
 }
+
+static PyObject* pybullet_createSoftBodyAnchor(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3SharedMemoryCommandHandle commandHandle;
+	int softBodyUniqueId = -1;
+	int nodeIndex  = -1;
+	int bodyUniqueId = -1;
+	int linkIndex = -1;
+	PyObject* bodyFramePositionObj = 0;
+	double bodyFramePosition[3] = {0, 0, 0};
+	struct b3JointInfo jointInfo;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = {"softBodyBodyUniqueId", "nodeIndex",
+							 "bodyUniqueId", "linkIndex", "bodyFramePosition",
+							 "physicsClientId",
+							 NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|iiOi", kwlist, &softBodyUniqueId, &nodeIndex,
+									 &bodyUniqueId, &linkIndex,&bodyFramePositionObj,&physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	pybullet_internalSetVectord(bodyFramePositionObj, bodyFramePosition);
+
+	commandHandle = b3InitCreateSoftBodyAnchorConstraintCommand(sm, softBodyUniqueId, nodeIndex, bodyUniqueId, linkIndex, bodyFramePosition);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType == CMD_USER_CONSTRAINT_COMPLETED)
+	{
+		int userConstraintUid = b3GetStatusUserConstraintUniqueId(statusHandle);
+		PyObject* ob = PyLong_FromLong(userConstraintUid);
+		return ob;
+	}
+
+	PyErr_SetString(SpamError, "createSoftBodyAnchor failed.");
+	return NULL;
+}
+
+
 #endif
 
 // Reset the simulation to remove all loaded objects
@@ -11798,6 +11852,10 @@ static PyMethodDef SpamMethods[] = {
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	{"loadSoftBody", (PyCFunction)pybullet_loadSoftBody, METH_VARARGS | METH_KEYWORDS,
 	 "Load a softbody from an obj file."},
+
+	{"createSoftBodyAnchor", (PyCFunction)pybullet_createSoftBodyAnchor, METH_VARARGS | METH_KEYWORDS,
+	 "Create an anchor (attachment) between a soft body and a rigid or multi body."},
+
 #endif
 	{"loadBullet", (PyCFunction)pybullet_loadBullet, METH_VARARGS | METH_KEYWORDS,
 	 "Load a world from a .bullet file."},

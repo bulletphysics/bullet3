@@ -1500,43 +1500,6 @@ void btSoftBodyHelpers::getBarycentricWeights(const btVector3& a, const btVector
     bary = btVector4(va6*v6, vb6*v6, vc6*v6, vd6*v6);
 }
 
-void btSoftBodyHelpers::readRenderMeshFromObj(const char* file, btSoftBody* psb)
-{
-    std::ifstream fs;
-    fs.open(file);
-    std::string line;
-    btVector3 pos;
-    while (std::getline(fs, line))
-    {
-        std::stringstream ss(line);
-		if (line.length()>1)
-		{
-			if (line[0] == 'v' && line[1] != 't' && line[1] != 'n')
-			{
-				ss.ignore();
-				for (size_t i = 0; i < 3; i++)
-					ss >> pos[i];
-				btSoftBody::Node n;
-				n.m_x = pos;
-				psb->m_renderNodes.push_back(n);
-			}
-			else if (line[0] == 'f')
-			{
-				ss.ignore();
-				int id0, id1, id2;
-				ss >> id0;
-				ss >> id1;
-				ss >> id2;
-				btSoftBody::Face f;
-				f.m_n[0] = &psb->m_renderNodes[id0-1];
-				f.m_n[1] = &psb->m_renderNodes[id1-1];
-				f.m_n[2] = &psb->m_renderNodes[id2-1];
-				psb->m_renderFaces.push_back(f);
-			}
-		}
-    }
-    fs.close();
-}
 
 // Iterate through all render nodes to find the simulation tetrahedron that contains the render node and record the barycentric weights
 // If the node is not inside any tetrahedron, assign it to the tetrahedron in which the node has the least negative barycentric weight

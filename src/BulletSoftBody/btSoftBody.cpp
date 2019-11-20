@@ -2496,7 +2496,8 @@ void btSoftBody::updateNormals()
 		btSoftBody::Face& f = m_faces[i];
 		const btVector3 n = btCross(f.m_n[1]->m_x - f.m_n[0]->m_x,
 									f.m_n[2]->m_x - f.m_n[0]->m_x);
-		f.m_normal = n.normalized();
+		f.m_normal = n;
+		f.m_normal.safeNormalize();
 		f.m_n[0]->m_n += n;
 		f.m_n[1]->m_n += n;
 		f.m_n[2]->m_n += n;
@@ -3306,7 +3307,10 @@ void btSoftBody::interpolateRenderMesh()
         n.m_x.setZero();
         for (int j = 0; j < 4; ++j)
         {
-            n.m_x += m_renderNodesParents[i][j]->m_x * m_renderNodesInterpolationWeights[i][j];
+			if (m_renderNodesParents[i].size())
+			{
+				n.m_x += m_renderNodesParents[i][j]->m_x * m_renderNodesInterpolationWeights[i][j];
+			}
         }
     }
 }
