@@ -3872,7 +3872,7 @@ const char* btSoftBody::serialize(void* dataBuffer, class btSerializer* serializ
 			for (int j = 0; j < 4; j++)
 			{
 				m_tetras[i].m_c0[j].serializeFloat(memPtr->m_c0[j]);
-				memPtr->m_nodeIndices[j] = m_tetras[j].m_n[j] ? m_tetras[j].m_n[j] - &m_nodes[0] : -1;
+				memPtr->m_nodeIndices[j] = m_tetras[i].m_n[j] ? m_tetras[i].m_n[j] - &m_nodes[0] : -1;
 			}
 			memPtr->m_c1 = m_tetras[i].m_c1;
 			memPtr->m_c2 = m_tetras[i].m_c2;
