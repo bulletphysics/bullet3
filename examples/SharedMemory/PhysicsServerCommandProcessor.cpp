@@ -53,7 +53,7 @@
 #include "../Extras/Serialize/BulletFileLoader/btBulletFile.h"
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include "LinearMath/TaskScheduler/btThreadSupportInterface.h"
-
+#include "Wavefront/tiny_obj_loader.h"
 #ifndef SKIP_COLLISION_FILTER_PLUGIN
 #include "plugins/collisionFilterPlugin/collisionFilterPlugin.h"
 #endif
@@ -1636,18 +1636,14 @@ struct PhysicsServerCommandProcessorInternalData
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 
-//#ifndef SKIP_DEFORMABLE_BODY
+#ifndef SKIP_DEFORMABLE_BODY
 	
 	btDeformableBodySolver* m_deformablebodySolver;
     btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
-//#else//SKIP_DEFORMABLE_BODY
-//#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+#endif
 	
 	
-//#else//SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
-//#endif//SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-//#endif//SKIP_DEFORMABLE_BODY
 
 	int m_constraintSolverType;
 	SharedMemoryDebugDrawer* m_remoteDebugDrawer;
@@ -1713,8 +1709,11 @@ struct PhysicsServerCommandProcessorInternalData
 		  m_dispatcher(0),
 		  m_solver(0),
 		  m_collisionConfiguration(0),
-		  m_dynamicsWorld(0),
+		  
+#ifndef SKIP_DEFORMABLE_BODY
 		  m_deformablebodySolver(0),
+#endif
+		  m_dynamicsWorld(0),
 		  m_constraintSolverType(-1),
 		  m_remoteDebugDrawer(0),
 		  m_stateLoggersUniqueId(0),
@@ -8206,7 +8205,46 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
             if (!render_mesh_is_sim_mesh)
             {
                 // load render mesh
-                btSoftBodyHelpers::readRenderMeshFromObj(out_found_filename.c_str(), psb);
+
+
+				{
+					
+					tinyobj::attrib_t attribute;
+					std::vector<tinyobj::shape_t> shapes;
+					
+					std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
+
+					for (int s = 0; s < (int)shapes.size(); s++)
+					{
+						tinyobj::shape_t& shape = shapes[s];
+						int faceCount = shape.mesh.indices.size();
+						int vertexCount = attribute.vertices.size()/3;
+						for (int v=0;v<vertexCount;v++)
+						{
+							btSoftBody::Node n;
+							n.m_x = btVector3(attribute.vertices[3*v],attribute.vertices[3*v+1],attribute.vertices[3*v+2]);
+							psb->m_renderNodes.push_back(n);
+						}
+
+						for (int f = 0; f < faceCount; f += 3)
+						{
+							if (f < 0 && f >= int(shape.mesh.indices.size()))
+							{
+								continue;
+							}
+							tinyobj::index_t v_0 = shape.mesh.indices[f];
+							tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
+							tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
+							btSoftBody::Face ff;
+							ff.m_n[0] = &psb->m_renderNodes[v_0.vertex_index];
+							ff.m_n[1] = &psb->m_renderNodes[v_1.vertex_index];
+							ff.m_n[2] = &psb->m_renderNodes[v_2.vertex_index];
+							psb->m_renderFaces.push_back(ff);
+						}
+					}
+					
+				}
+
                 btSoftBodyHelpers::interpolateBarycentricWeights(psb);
             }
             else
@@ -9437,6 +9475,7 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_SPARSE_SDF)
 	{
+#ifndef SKIP_DEFORMABLE_BODY
 		{
             btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
             if (deformWorld)
@@ -9445,6 +9484,8 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
                 deformWorld ->getWorldInfo().m_sparsesdf.Reset();
             }
         }
+#endif
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
         {
             btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
             if (softWorld)
@@ -9453,6 +9494,7 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
                 softWorld->getWorldInfo().m_sparsesdf.Reset();
             }
         }
+#endif
 	}
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD)
@@ -10643,6 +10685,84 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_USER_CONSTRAINT_FAILED;
 	hasStatus = true;
+	if (clientCmd.m_updateFlags & USER_CONSTRAINT_ADD_SOFT_BODY_ANCHOR)
+	{
+#ifndef SKIP_DEFORMABLE_BODY
+		InternalBodyHandle* sbodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_parentBodyIndex);
+		if (sbodyHandle)
+		{
+			if (sbodyHandle->m_softBody)
+			{
+				int nodeIndex = clientCmd.m_userConstraintArguments.m_parentJointIndex;
+				if (nodeIndex>=0 && nodeIndex < sbodyHandle->m_softBody->m_nodes.size())
+				{
+					int bodyUniqueId = clientCmd.m_userConstraintArguments.m_childBodyIndex;
+					if (bodyUniqueId<=0)
+					{
+						//fixed anchor (mass = 0)
+						sbodyHandle->m_softBody->setMass(nodeIndex,0.0);
+						int uid = m_data->m_userConstraintUIDGenerator++;
+						serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+						serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+					} else
+					{
+						InternalBodyHandle* mbodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+						if (mbodyHandle && mbodyHandle->m_multiBody)
+						{
+
+							btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+							if (deformWorld)
+							{
+								int linkIndex = clientCmd.m_userConstraintArguments.m_childJointIndex;
+								if (linkIndex<0)
+								{
+									sbodyHandle->m_softBody->appendDeformableAnchor(nodeIndex, mbodyHandle->m_multiBody->getBaseCollider());
+								} else
+								{
+									if (linkIndex < mbodyHandle->m_multiBody->getNumLinks())
+									{
+										sbodyHandle->m_softBody->appendDeformableAnchor(nodeIndex, mbodyHandle->m_multiBody->getLinkCollider(linkIndex));
+									}
+								}
+							}
+						}
+						if (mbodyHandle && mbodyHandle->m_rigidBody)
+						{
+							btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+							if (deformWorld)
+							{
+								//todo: expose those values
+								bool disableCollisionBetweenLinkedBodies = true;
+								//btVector3 localPivot(0,0,0);
+								sbodyHandle->m_softBody->appendDeformableAnchor(nodeIndex, mbodyHandle->m_rigidBody);
+							}
+
+#if 1
+							btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
+							if (softWorld)
+							{
+								bool disableCollisionBetweenLinkedBodies = true;
+								btVector3 localPivot(clientCmd.m_userConstraintArguments.m_childFrame[0],
+									clientCmd.m_userConstraintArguments.m_childFrame[1],
+									clientCmd.m_userConstraintArguments.m_childFrame[2]);
+								
+								sbodyHandle->m_softBody->appendAnchor(nodeIndex, mbodyHandle->m_rigidBody, localPivot, disableCollisionBetweenLinkedBodies);
+							}		
+#endif
+						}
+						int uid = m_data->m_userConstraintUIDGenerator++;
+						serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+						serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+
+					}
+
+				}
+				
+				
+			}
+		}
+#endif
+	}
 	if (clientCmd.m_updateFlags & USER_CONSTRAINT_REQUEST_STATE)
 	{
 		int constraintUid = clientCmd.m_userConstraintArguments.m_userConstraintUniqueId;

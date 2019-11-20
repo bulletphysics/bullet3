@@ -3248,6 +3248,30 @@ B3_SHARED_API int b3ChangeDynamicsInfoSetActivationState(b3SharedMemoryCommandHa
 	return 0;
 }
 
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitCreateSoftBodyAnchorConstraintCommand(b3PhysicsClientHandle physClient, int softBodyUniqueId, int nodeIndex, int bodyUniqueId, int linkIndex, const double bodyFramePosition[3])
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_USER_CONSTRAINT;
+	command->m_updateFlags = USER_CONSTRAINT_ADD_SOFT_BODY_ANCHOR;
+	command->m_userConstraintArguments.m_parentBodyIndex = softBodyUniqueId;
+	command->m_userConstraintArguments.m_parentJointIndex = nodeIndex;
+	command->m_userConstraintArguments.m_childBodyIndex = bodyUniqueId;
+	command->m_userConstraintArguments.m_childJointIndex = linkIndex;
+	command->m_userConstraintArguments.m_childFrame[0] = bodyFramePosition[0];
+	command->m_userConstraintArguments.m_childFrame[1] = bodyFramePosition[1];
+	command->m_userConstraintArguments.m_childFrame[2] = bodyFramePosition[2];
+	command->m_userConstraintArguments.m_childFrame[3] = 0.;
+	command->m_userConstraintArguments.m_childFrame[4] = 0.;
+	command->m_userConstraintArguments.m_childFrame[5] = 0.;
+	command->m_userConstraintArguments.m_childFrame[6] = 1.;
+
+	return (b3SharedMemoryCommandHandle)command;
+}
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyUniqueId, int parentJointIndex, int childBodyUniqueId, int childJointIndex, struct b3JointInfo* info)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
