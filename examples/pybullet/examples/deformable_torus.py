@@ -3,8 +3,6 @@ from time import sleep
 
 physicsClient = p.connect(p.GUI)
 
-p.resetSimulation(p.RESET_USE_DEFORMABLE_WORLD)
-
 p.setGravity(0, 0, -10)
 
 planeId = p.loadURDF("plane.urdf", [0,0,-2])

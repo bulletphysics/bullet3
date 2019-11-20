@@ -3,7 +3,7 @@ from time import sleep
 
 physicsClient = p.connect(p.GUI)
 
-p.resetSimulation(p.RESET_USE_DEFORMABLE_WORLD)
+#p.resetSimulation(p.RESET_USE_DEFORMABLE_WORLD)
 gravZ=-10
 p.setGravity(0, 0, gravZ)
 
