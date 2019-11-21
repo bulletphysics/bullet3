@@ -8597,10 +8597,21 @@ bool PhysicsServerCommandProcessor::processRequestCollisionInfoCommand(const str
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	else if (body && body->m_softBody)
 	{
+		btSoftBody* sb = body->m_softBody;
+		serverCmd.m_sendCollisionInfoArgs.m_numLinks = 0;
+		btVector3 aabbMin, aabbMax;
+		sb->getAabb(aabbMin, aabbMax);
+
+		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = aabbMin[0];
+		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = aabbMin[1];
+		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[2] = aabbMin[2];
+
+		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[0] = aabbMax[0];
+		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = aabbMax[1];
+		serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = aabbMax[2];
+
 		SharedMemoryStatus& serverCmd = serverStatusOut;
 		serverStatusOut.m_type = CMD_REQUEST_COLLISION_INFO_COMPLETED;
-		serverCmd.m_sendCollisionInfoArgs.m_numLinks = 0;
-		setDefaultRootWorldAABB(serverCmd);
 	}
 #endif
 	return hasStatus;
