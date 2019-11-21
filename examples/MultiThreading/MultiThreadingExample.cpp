@@ -29,13 +29,14 @@ void SamplelsMemoryReleaseFunc(void* ptr);
 #ifndef _WIN32
 #include "b3PosixThreadSupport.h"
 
+
 b3ThreadSupportInterface* createThreadSupport(int numThreads)
 {
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("testThreads",
-																  SampleThreadFunc,
-																  SamplelsMemoryFunc,
-																  SamplelsMemoryReleaseFunc,
-																  numThreads);
+	SampleThreadFunc,
+	SamplelsMemoryFunc,
+	SamplelsMemoryReleaseFunc,
+	  numThreads);
 	b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport(constructionInfo);
 
 	return threadSupport;
