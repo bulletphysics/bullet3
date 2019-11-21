@@ -2651,24 +2651,24 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 		m_data->m_broadphase = bv;
 	}
 
-        if (flags & RESET_USE_SOFT_MULTIBODY_WORLD)
+    if (flags & RESET_USE_DEFORMABLE_WORLD)
 	{
-	    m_data->m_solver = new btMultiBodyConstraintSolver;
-#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-            m_data->m_dynamicsWorld = new btSoftMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
-#else
-            m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
+#ifndef SKIP_DEFORMABLE_BODY
+        m_data->m_deformablebodySolver = new btDeformableBodySolver();
+        btDeformableMultiBodyConstraintSolver* solver = new btDeformableMultiBodyConstraintSolver;
+        m_data->m_solver = solver;
+        solver->setDeformableSolver(m_data->m_deformablebodySolver);
+        m_data->m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, solver, m_data->m_collisionConfiguration, m_data->m_deformablebodySolver);
 #endif
 	}
 
         if ((0==m_data->m_dynamicsWorld) && (0==(flags&RESET_USE_DISCRETE_DYNAMICS_WORLD)))
 	{
-#ifndef SKIP_DEFORMABLE_BODY
-	    m_data->m_deformablebodySolver = new btDeformableBodySolver();
-            btDeformableMultiBodyConstraintSolver* solver = new btDeformableMultiBodyConstraintSolver;
-	    m_data->m_solver = solver;
-	    solver->setDeformableSolver(m_data->m_deformablebodySolver);
-          m_data->m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, solver, m_data->m_collisionConfiguration, m_data->m_deformablebodySolver);
+        m_data->m_solver = new btMultiBodyConstraintSolver;
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+        m_data->m_dynamicsWorld = new btSoftMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
+#else
+        m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
 #endif
 	}
 
