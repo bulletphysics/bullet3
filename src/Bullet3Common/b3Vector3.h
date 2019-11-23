@@ -16,6 +16,7 @@ subject to the following restrictions:
 #define B3_VECTOR3_H
 
 //#include <stdint.h>
+#include "Bullet3CommonApi.h"
 #include "b3Scalar.h"
 #include "b3MinMax.h"
 #include "b3AlignedAllocator.h"
@@ -955,7 +956,7 @@ B3_FORCE_INLINE long b3Vector3::maxDot(const b3Vector3* array, long array_count,
 	long b3_maxdot_large(const float* array, const float* vec, unsigned long array_count, float* dotOut);
 #elif defined B3_USE_NEON
 	const long scalar_cutoff = 4;
-	extern long (*_maxdot_large)(const float* array, const float* vec, unsigned long array_count, float* dotOut);
+    BULLET3COMMON_API extern long (*_maxdot_large)(const float* array, const float* vec, unsigned long array_count, float* dotOut);
 #endif
 	if (array_count < scalar_cutoff)
 #else
@@ -997,7 +998,7 @@ B3_FORCE_INLINE long b3Vector3::minDot(const b3Vector3* array, long array_count,
 	long b3_mindot_large(const float* array, const float* vec, unsigned long array_count, float* dotOut);
 #elif defined B3_USE_NEON
 	const long scalar_cutoff = 4;
-	extern long (*b3_mindot_large)(const float* array, const float* vec, unsigned long array_count, float* dotOut);
+	BULLET3COMMON_API extern long (*b3_mindot_large)(const float* array, const float* vec, unsigned long array_count, float* dotOut);
 #else
 #error unhandled arch!
 #endif

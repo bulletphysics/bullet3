@@ -203,9 +203,9 @@ ENDIF ()
 # else Linux: dont link
 
 IF(WIN32)
-  SET(PYTHON_SITE_PACKAGES Lib/site-packages CACHE PATH "Python install path")
+  SET(PYTHON_SITE_PACKAGES ${BULLET_INSTALL_LIBDIR}/site-packages CACHE PATH "Python install path")
 ELSE()
-  SET(PYTHON_SITE_PACKAGES lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages CACHE PATH "Python install path")
+  SET(PYTHON_SITE_PACKAGES ${BULLET_INSTALL_LIBDIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages CACHE PATH "Python install path")
 ENDIF()
 
 INSTALL(TARGETS pybullet DESTINATION ${PYTHON_SITE_PACKAGES})

@@ -17,6 +17,8 @@ subject to the following restrictions:
 #ifndef BT_DBVT_BROADPHASE_H
 #define BT_DBVT_BROADPHASE_H
 
+#include "BulletCollision/BulletCollisionApi.h"
+
 #include "BulletCollision/BroadphaseCollision/btDbvt.h"
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
 
@@ -30,7 +32,7 @@ subject to the following restrictions:
 #define DBVT_BP_ACCURATESLEEPING 0
 #define DBVT_BP_ENABLE_BENCHMARK 0
 //#define DBVT_BP_MARGIN					(btScalar)0.05
-extern btScalar gDbvtMargin;
+BULLETCOLLISION_API extern btScalar gDbvtMargin;
 
 #if DBVT_BP_PROFILE
 #define DBVT_BP_PROFILING_RATE 256

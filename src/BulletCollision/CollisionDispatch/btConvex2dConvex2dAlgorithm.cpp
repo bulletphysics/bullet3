@@ -78,8 +78,6 @@ void btConvex2dConvex2dAlgorithm ::setLowLevelOfDetail(bool useLowLevel)
 	m_lowLevelOfDetail = useLowLevel;
 }
 
-extern btScalar gContactBreakingThreshold;
-
 //
 // Convex-Convex collision algorithm
 //

@@ -19,6 +19,7 @@ subject to the following restrictions:
 class btCollisionObject;
 struct btCollisionObjectWrapper;
 
+#include "BulletCollision/BulletCollisionApi.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 class btManifoldPoint;
 
@@ -29,19 +30,19 @@ class btManifoldPoint;
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 
 typedef bool (*ContactAddedCallback)(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1);
-extern ContactAddedCallback gContactAddedCallback;
+BULLETCOLLISION_API extern ContactAddedCallback gContactAddedCallback;
 
 //#define DEBUG_PART_INDEX 1
 
 /// These callbacks are used to customize the algorith that combine restitution, friction, damping, Stiffness
 typedef btScalar (*CalculateCombinedCallback)(const btCollisionObject* body0, const btCollisionObject* body1);
 
-extern CalculateCombinedCallback gCalculateCombinedRestitutionCallback;
-extern CalculateCombinedCallback gCalculateCombinedFrictionCallback;
-extern CalculateCombinedCallback gCalculateCombinedRollingFrictionCallback;
-extern CalculateCombinedCallback gCalculateCombinedSpinningFrictionCallback;
-extern CalculateCombinedCallback gCalculateCombinedContactDampingCallback;
-extern CalculateCombinedCallback gCalculateCombinedContactStiffnessCallback;
+BULLETCOLLISION_API extern CalculateCombinedCallback gCalculateCombinedRestitutionCallback;
+BULLETCOLLISION_API extern CalculateCombinedCallback gCalculateCombinedFrictionCallback;
+BULLETCOLLISION_API extern CalculateCombinedCallback gCalculateCombinedRollingFrictionCallback;
+BULLETCOLLISION_API extern CalculateCombinedCallback gCalculateCombinedSpinningFrictionCallback;
+BULLETCOLLISION_API extern CalculateCombinedCallback gCalculateCombinedContactDampingCallback;
+BULLETCOLLISION_API extern CalculateCombinedCallback gCalculateCombinedContactStiffnessCallback;
 
 ///btManifoldResult is a helper class to manage  contact results.
 class btManifoldResult : public btDiscreteCollisionDetectorInterface::Result

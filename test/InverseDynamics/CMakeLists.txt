@@ -56,7 +56,8 @@ IF (BULLET_BUILD_RBDL_COMPARE_TEST)
     		
     	)
     
-    ADD_TEST(Test_DynamicsABA_bulletVSrbdl_PASS Test_DynamicsABA_bulletVSrbdl)
+    ADD_TEST(NAME Test_DynamicsABA_bulletVSrbdl_PASS
+    	COMMAND $<TARGET_FILE:Test_DynamicsABA_bulletVSrbdl>)
     
     IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
     			SET_TARGET_PROPERTIES(Test_DynamicsABA_bulletVSrbdl PROPERTIES  DEBUG_POSTFIX "_Debug")
@@ -89,7 +90,8 @@ ENDIF()
 		test_invdyn_jacobian.cpp
 	)
 
-ADD_TEST(Test_BulletInverseDynamicsJacobian_PASS Test_BulletInverseDynamicsJacobian)
+ADD_TEST(NAME Test_BulletInverseDynamicsJacobian_PASS
+	COMMAND $<TARGET_FILE:Test_BulletInverseDynamicsJacobian>)
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 			SET_TARGET_PROPERTIES(Test_BulletInverseDynamicsJacobian PROPERTIES  DEBUG_POSTFIX "_Debug")
@@ -153,7 +155,8 @@ ENDIF()
 		
         )
 
-ADD_TEST(Test_BulletInverseForwardDynamics_PASS Test_BulletInverseForwardDynamics)
+ADD_TEST(NAME Test_BulletInverseForwardDynamics_PASS
+	COMMAND $<TARGET_FILE:Test_BulletInverseForwardDynamics>)
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
                         SET_TARGET_PROPERTIES(Test_BulletInverseForwardDynamics PROPERTIES  DEBUG_POSTFIX "_Debug")
@@ -184,7 +187,8 @@ ENDIF()
                 test_invdyn_kinematics.cpp
         )
 
-ADD_TEST(Test_BulletInverseDynamics_PASS Test_BulletInverseDynamics)
+ADD_TEST(NAME Test_BulletInverseDynamics_PASS
+	COMMAND $<TARGET_FILE:Test_BulletInverseDynamics>)
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
                         SET_TARGET_PROPERTIES(Test_BulletInverseDynamics PROPERTIES  DEBUG_POSTFIX "_Debug")

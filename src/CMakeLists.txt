@@ -1,19 +1,28 @@
+TARGET_INCLUDE_DIRECTORIES(BulletInterface INTERFACE
+	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+	"$<INSTALL_INTERFACE:${BULLET_INSTALL_INCLUDEDIR}>")
 
 IF(BUILD_BULLET3)
-	SUBDIRS(  Bullet3OpenCL Bullet3Serialize/Bullet2FileLoader Bullet3Dynamics Bullet3Collision Bullet3Geometry )
-ENDIF(BUILD_BULLET3)
+	SUBDIRS(
+		Bullet3OpenCL
+		Bullet3Serialize/Bullet2FileLoader
+		Bullet3Dynamics
+		Bullet3Collision
+		Bullet3Geometry
+	)
+ENDIF()
 
+SUBDIRS(
+	BulletInverseDynamics
+	BulletSoftBody
+	BulletCollision
+	BulletDynamics
+	LinearMath
+	Bullet3Common
+)
 
-SUBDIRS(   BulletInverseDynamics BulletSoftBody BulletCollision BulletDynamics LinearMath Bullet3Common)
-
-
-IF(INSTALL_LIBS)
-	#INSTALL of other files requires CMake 2.6
-	IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
-		IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-			# Don't actually need to install any common files, the frameworks include everything
-		ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-			INSTALL(FILES btBulletCollisionCommon.h btBulletDynamicsCommon.h  DESTINATION ${INCLUDE_INSTALL_DIR})
-		ENDIF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-	ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
-ENDIF(INSTALL_LIBS)
+IF(APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
+	# Don't actually need to install any common files, the frameworks include everything
+ELSE()
+	BULLET3_INSTALL(FILES btBulletCollisionCommon.h btBulletDynamicsCommon.h DESTINATION ${BULLET_INSTALL_INCLUDEDIR})
+ENDIF()

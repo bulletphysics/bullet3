@@ -61,20 +61,18 @@ elseif (APPLE)
   target_link_libraries(OpenGLWindow ${COCOA_LIBRARY})
 endif ()
 
-if (BUILD_SHARED_LIBS)
-  target_link_libraries(OpenGLWindow Bullet3Common)
-  if (WIN32 OR APPLE)
-   target_link_libraries(OpenGLWindow ${OPENGL_gl_LIBRARY})
-  else()
+target_link_libraries(OpenGLWindow Bullet3Common)
+if (WIN32 OR APPLE)
+	target_link_libraries(OpenGLWindow ${OPENGL_gl_LIBRARY})
+else()
 	set (CMAKE_THREAD_PREFER_PTHREAD TRUE)
 	FIND_PACKAGE(Threads)
 	target_link_libraries(OpenGLWindow ${CMAKE_THREAD_LIBS_INIT})
-  endif()
 endif()
 
 #target_link_libraries(OpenGLWindow ${OPENGL_gl_LIBRARY})
 
 INSTALL(TARGETS OpenGLWindow
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib${LIB_SUFFIX}
-        ARCHIVE DESTINATION lib${LIB_SUFFIX})
+        RUNTIME DESTINATION ${BULLET_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${BULLET_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${BULLET_INSTALL_LIBDIR})

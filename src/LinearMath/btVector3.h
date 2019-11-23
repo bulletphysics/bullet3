@@ -15,6 +15,8 @@ subject to the following restrictions:
 #ifndef BT_VECTOR3_H
 #define BT_VECTOR3_H
 
+#include "LinearMathApi.h"
+
 //#include <stdint.h>
 #include "btScalar.h"
 #include "btMinMax.h"
@@ -1000,10 +1002,10 @@ SIMD_FORCE_INLINE long btVector3::maxDot(const btVector3* array, long array_coun
 #if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined(BT_USE_NEON)
 #if defined _WIN32 || defined(BT_USE_SSE)
 	const long scalar_cutoff = 10;
-	long _maxdot_large(const float* array, const float* vec, unsigned long array_count, float* dotOut);
+	LINEARMATH_API long _maxdot_large(const float* array, const float* vec, unsigned long array_count, float* dotOut);
 #elif defined BT_USE_NEON
 	const long scalar_cutoff = 4;
-	extern long (*_maxdot_large)(const float* array, const float* vec, unsigned long array_count, float* dotOut);
+	LINEARMATH_API extern long (*_maxdot_large)(const float* array, const float* vec, unsigned long array_count, float* dotOut);
 #endif
 	if (array_count < scalar_cutoff)
 #endif
@@ -1038,7 +1040,7 @@ SIMD_FORCE_INLINE long btVector3::minDot(const btVector3* array, long array_coun
 	long _mindot_large(const float* array, const float* vec, unsigned long array_count, float* dotOut);
 #elif defined BT_USE_NEON
 	const long scalar_cutoff = 4;
-	extern long (*_mindot_large)(const float* array, const float* vec, unsigned long array_count, float* dotOut);
+	LINEARMATH_API extern long (*_mindot_large)(const float* array, const float* vec, unsigned long array_count, float* dotOut);
 #else
 #error unhandled arch!
 #endif

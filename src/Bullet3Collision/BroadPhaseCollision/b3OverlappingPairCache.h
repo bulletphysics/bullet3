@@ -16,6 +16,7 @@ subject to the following restrictions:
 #ifndef B3_OVERLAPPING_PAIR_CACHE_H
 #define B3_OVERLAPPING_PAIR_CACHE_H
 
+#include "Bullet3Collision/Bullet3CollisionApi.h"
 #include "Bullet3Common/shared/b3Int2.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
@@ -42,9 +43,9 @@ struct b3OverlapFilterCallback
 	virtual bool needBroadphaseCollision(int proxy0, int proxy1) const = 0;
 };
 
-extern int b3g_removePairs;
-extern int b3g_addedPairs;
-extern int b3g_findPairs;
+BULLET3COLLISION_API extern int b3g_removePairs;
+BULLET3COLLISION_API extern int b3g_addedPairs;
+BULLET3COLLISION_API extern int b3g_findPairs;
 
 const int B3_NULL_PAIR = 0xffffffff;
 

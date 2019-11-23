@@ -16,6 +16,7 @@ subject to the following restrictions:
 #include "b3BulletFile.h"
 #include "b3Defines.h"
 #include "b3DNA.h"
+#include "b3Serializer.h"
 
 #if !defined(__CELLOS_LV2__) && !defined(__MWERKS__)
 #include <memory.h>
@@ -32,11 +33,6 @@ extern char b3s_bulletDNAstr[];
 extern int b3s_bulletDNAlen;
 #endif  //_WIN64
 #else   //B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
-
-extern char b3s_bulletDNAstr64[];
-extern int b3s_bulletDNAlen64;
-extern char b3s_bulletDNAstr[];
-extern int b3s_bulletDNAlen;
 
 #endif  //B3_INTERNAL_UPDATE_SERIALIZATION_STRUCTURES
 

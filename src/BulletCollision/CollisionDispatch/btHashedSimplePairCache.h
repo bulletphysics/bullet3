@@ -16,6 +16,7 @@ subject to the following restrictions:
 #ifndef BT_HASHED_SIMPLE_PAIR_CACHE_H
 #define BT_HASHED_SIMPLE_PAIR_CACHE_H
 
+#include "BulletCollision/BulletCollisionApi.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
 const int BT_SIMPLE_NULL_PAIR = 0xffffffff;
@@ -40,10 +41,12 @@ struct btSimplePair
 typedef btAlignedObjectArray<btSimplePair> btSimplePairArray;
 
 #ifdef BT_DEBUG_COLLISION_PAIRS
-extern int gOverlappingSimplePairs;
-extern int gRemoveSimplePairs;
-extern int gAddedSimplePairs;
-extern int gFindSimplePairs;
+#include "Bullet3Common/b3Api.h"
+
+BULLETCOLLISION_API extern int gOverlappingSimplePairs;
+BULLETCOLLISION_API extern int gRemoveSimplePairs;
+BULLETCOLLISION_API extern int gAddedSimplePairs;
+BULLETCOLLISION_API extern int gFindSimplePairs;
 #endif  //BT_DEBUG_COLLISION_PAIRS
 
 class btHashedSimplePairCache

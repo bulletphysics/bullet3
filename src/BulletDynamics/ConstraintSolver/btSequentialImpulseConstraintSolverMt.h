@@ -16,6 +16,7 @@ subject to the following restrictions:
 #ifndef BT_SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_MT_H
 #define BT_SEQUENTIAL_IMPULSE_CONSTRAINT_SOLVER_MT_H
 
+#include "BulletDynamics/BulletDynamicsApi.h"
 #include "btSequentialImpulseConstraintSolver.h"
 #include "btBatchedConstraints.h"
 #include "LinearMath/btThreads.h"
@@ -85,12 +86,12 @@ public:
 	void internalConvertMultipleJoints(const btAlignedObjectArray<JointParams>& jointParamsArray, btTypedConstraint** constraints, int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);
 
 	// parameters to control batching
-	static bool s_allowNestedParallelForLoops;        // whether to allow nested parallel operations
-	static int s_minimumContactManifoldsForBatching;  // don't even try to batch if fewer manifolds than this
-	static btBatchedConstraints::BatchingMethod s_contactBatchingMethod;
-	static btBatchedConstraints::BatchingMethod s_jointBatchingMethod;
-	static int s_minBatchSize;  // desired number of constraints per batch
-	static int s_maxBatchSize;
+	BULLETDYNAMICS_API static bool s_allowNestedParallelForLoops;        // whether to allow nested parallel operations
+	BULLETDYNAMICS_API static int s_minimumContactManifoldsForBatching;  // don't even try to batch if fewer manifolds than this
+	BULLETDYNAMICS_API static btBatchedConstraints::BatchingMethod s_contactBatchingMethod;
+	BULLETDYNAMICS_API static btBatchedConstraints::BatchingMethod s_jointBatchingMethod;
+	BULLETDYNAMICS_API static int s_minBatchSize;  // desired number of constraints per batch
+	BULLETDYNAMICS_API static int s_maxBatchSize;
 
 protected:
 	static const int CACHE_LINE_SIZE = 64;
