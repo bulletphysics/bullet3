@@ -1642,7 +1642,6 @@ struct PhysicsServerCommandProcessorInternalData
     btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
 #endif
 	
-	
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
 
 	int m_constraintSolverType;
@@ -1713,7 +1712,6 @@ struct PhysicsServerCommandProcessorInternalData
 		  m_deformablebodySolver(0),
 #endif
 		  m_dynamicsWorld(0),
-		  m_deformablebodySolver(0),
 		  m_constraintSolverType(-1),
 		  m_remoteDebugDrawer(0),
 		  m_stateLoggersUniqueId(0),
@@ -8104,7 +8102,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
         {
 	    std::vector<tinyobj::shape_t> shapes;
 	    tinyobj::attrib_t attribute;
-	    std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), "", fileIO);
+	    std::string err = tinyobj::LoadObj(attribute, shapes, out_found_sim_filename.c_str(), "", fileIO);
 	    if (!shapes.empty())
 	    {
             const tinyobj::shape_t& shape = shapes[0];
@@ -8153,7 +8151,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	    }
 #endif
         }
-        else if (out_type == UrdfGeometry::FILE_VTK)
+        else if (out_sim_type == UrdfGeometry::FILE_VTK)
         {
 #ifndef SKIP_DEFORMABLE_BODY
 			btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();

@@ -2460,7 +2460,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 //    const btTransform& wtr = colObjWrap->getWorldTransform();
     btScalar dst;
     
-#define USE_QUADRATURE 1
+//#define USE_QUADRATURE 1
 //#define CACHE_PREV_COLLISION
     
     // use the contact position of the previous collision
