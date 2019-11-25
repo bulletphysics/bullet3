@@ -20,27 +20,38 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
 
-// Modified Paul Hsieh hash
-template <const int DWORDLEN>
-unsigned int HsiehHash(const void* pdata)
-{
-	const unsigned short* data = (const unsigned short*)pdata;
-	unsigned hash = DWORDLEN << 2, tmp;
-	for (int i = 0; i < DWORDLEN; ++i)
-	{
-		hash += data[0];
-		tmp = (data[1] << 11) ^ hash;
-		hash = (hash << 16) ^ tmp;
-		data += 2;
-		hash += hash >> 11;
-	}
-	hash ^= hash << 3;
-	hash += hash >> 5;
-	hash ^= hash << 4;
-	hash += hash >> 17;
-	hash ^= hash << 25;
-	hash += hash >> 6;
-	return (hash);
+// Fast Hash
+
+#if !defined (get16bits)
+#define get16bits(d) ((((unsigned int)(((const unsigned char *)(d))[1])) << 8)\
++(unsigned int)(((const unsigned char *)(d))[0]) )
+#endif
+//
+// super hash function by Paul Hsieh
+//
+inline unsigned int HsiehHash (const char * data, int len) {
+  unsigned int hash = len, tmp;
+  len>>=2;
+
+    /* Main loop */
+    for (;len > 0; len--) {
+        hash  += get16bits (data);
+        tmp    = (get16bits (data+2) << 11) ^ hash;
+        hash   = (hash << 16) ^ tmp;
+        data  += 2*sizeof (unsigned short);
+        hash  += hash >> 11;
+    }
+
+
+    /* Force "avalanching" of final 127 bits */
+    hash ^= hash << 3;
+    hash += hash >> 5;
+    hash ^= hash << 4;
+    hash += hash >> 17;
+    hash ^= hash << 25;
+    hash += hash >> 6;
+
+    return hash;
 }
 
 template <const int CELLSIZE>
@@ -209,6 +220,9 @@ struct btSparseSdf
 			}
 			else
 			{
+				// printf("c->hash/c[0][1][2]=%d,%d,%d,%d\n", c->hash, c->c[0], c->c[1],c->c[2]);
+                        //printf("h,ixb,iyb,izb=%d,%d,%d,%d\n", h,ix.b, iy.b, iz.b);
+
 				c = c->next;
 			}
 		}
@@ -260,7 +274,7 @@ struct btSparseSdf
 						 Lerp(gy[2], gy[3], ix.f), iz.f));
 		normal.setZ(Lerp(Lerp(gz[0], gz[1], ix.f),
 						 Lerp(gz[2], gz[3], ix.f), iy.f));
-		normal = normal.normalized();
+		normal.safeNormalize();
 #else
 		normal = btVector3(d[1] - d[0], d[3] - d[0], d[4] - d[0]).normalized();
 #endif
@@ -340,16 +354,16 @@ struct btSparseSdf
 
 		btS myset;
 		//memset may be needed in case of additional (uninitialized) padding!
-		//memset(myset, 0, sizeof(btS));
+		//memset(&myset, 0, sizeof(btS));
 
 		myset.x = x;
 		myset.y = y;
 		myset.z = z;
 		myset.w = 0;
 		myset.p = (void*)shape;
-		const void* ptr = &myset;
+		const char* ptr = (const char*)&myset;
 
-		unsigned int result = HsiehHash<sizeof(btS) / 4>(ptr);
+		unsigned int result = HsiehHash(ptr, sizeof(btS) );
 
 		return result;
 	}
