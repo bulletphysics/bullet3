@@ -422,11 +422,12 @@ B3_SHARED_API int b3LoadSoftBodySetFrictionCoefficient(b3SharedMemoryCommandHand
 	return 0;
 }
 
-B3_SHARED_API int b3LoadSoftBodyUseBendingSprings(b3SharedMemoryCommandHandle commandHandle, int useBendingSprings)
+B3_SHARED_API int b3LoadSoftBodyUseBendingSprings(b3SharedMemoryCommandHandle commandHandle, int useBendingSprings, double bendingStiffness)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
-        command->m_loadSoftBodyArguments.m_useBendingSprings = useBendingSprings;
+    command->m_loadSoftBodyArguments.m_useBendingSprings = useBendingSprings;
+    command->m_loadSoftBodyArguments.m_springBendingStiffness = bendingStiffness;
 	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_BENDING_SPRINGS;
 	return 0;
 }

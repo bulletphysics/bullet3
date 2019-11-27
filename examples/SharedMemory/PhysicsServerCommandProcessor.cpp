@@ -8070,7 +8070,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	{
 		collisionMargin = clientCmd.m_loadSoftBodyArguments.m_collisionMargin;
 	}
-        
+    btScalar spring_bending_stiffness = 0;
 	{
         btSoftBody* psb = NULL;
         
@@ -8137,7 +8137,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
             }
         }
 #ifndef SKIP_DEFORMABLE_BODY
-        btScalar spring_elastic_stiffness, spring_damping_stiffness;
+            btScalar spring_elastic_stiffness, spring_damping_stiffness;
 	    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
 	    {
 			btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
@@ -8145,7 +8145,11 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 			{
 				spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
 				spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
-				btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, false);
+                if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_BENDING_SPRINGS)
+                {
+                    spring_bending_stiffness = clientCmd.m_loadSoftBodyArguments.m_springBendingStiffness;
+                }
+				btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, false, spring_bending_stiffness);
 				deformWorld->addForce(psb, springForce);
 				m_data->m_lf.push_back(springForce);
 			}
@@ -8178,12 +8182,16 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 					deformWorld->addForce(psb, neohookeanForce);
 					m_data->m_lf.push_back(neohookeanForce);
 				}
-				btScalar spring_elastic_stiffness, spring_damping_stiffness;
+                btScalar spring_elastic_stiffness, spring_damping_stiffness;
 				if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
 				{
 					spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
 					spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
-					btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true);
+                    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_BENDING_SPRINGS)
+                    {
+                        spring_bending_stiffness = clientCmd.m_loadSoftBodyArguments.m_springBendingStiffness;
+                    }
+					btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true, spring_bending_stiffness);
 					deformWorld->addForce(psb, springForce);
 					m_data->m_lf.push_back(springForce);
 				}
@@ -8258,19 +8266,18 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
                     friction_coeff = loadSoftBodyArgs.m_frictionCoeff;
             }
             psb->m_cfg.kDF = friction_coeff;
-            
-            bool use_bending_spring = true;
+            bool use_bending_spring = false;
             if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_BENDING_SPRINGS)
             {
-                    use_bending_spring = loadSoftBodyArgs.m_useBendingSprings;
+                use_bending_spring = loadSoftBodyArgs.m_useBendingSprings;
+                if (use_bending_spring)
+                {
+                    psb->generateBendingConstraints(2);
+                }
             }
             btSoftBody::Material* pm = psb->appendMaterial();
             pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
-            if (use_bending_spring)
-            {
-                    psb->generateBendingConstraints(2,pm);
-            }
-
+            
             // turn on the collision flag for deformable
             // collision between deformable and rigid
             psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
