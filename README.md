@@ -5,7 +5,20 @@
 
 This is the official C++ source code repository of the Bullet Physics SDK: real-time collision detection and multi-physics simulation for VR, games, visual effects, robotics, machine learning etc.
 
-New in Bullet 2.85: pybullet Python bindings, improved support for robotics and VR. Use pip install pybullet and see [PyBullet Quickstart Guide](https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA/edit#heading=h.2ye70wns7io3).
+## PyBullet ##
+New in Bullet 2.85: pybullet Python bindings, improved support for robotics and VR. Use pip install pybullet and checkout the [PyBullet Quickstart Guide](https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA/edit#heading=h.2ye70wns7io3).
+
+If you use PyBullet in your research, please cite it like this:
+
+```
+@MISC{coumans2019,
+author =   {Erwin Coumans and Yunfei Bai},
+title =    {PyBullet, a Python module for physics simulation for games, robotics and machine learning},
+howpublished = {\url{http://pybullet.org}},
+year = {2016--2019}
+}
+```
+
 
 The Bullet 2 API will stay default and up-to-date while slowly moving to a new API.
 The steps towards a new API is in a nutshell:

@@ -7,7 +7,9 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201909030
+
+#define SHARED_MEMORY_MAGIC_NUMBER 201911180
+//#define SHARED_MEMORY_MAGIC_NUMBER 201909030
 //#define SHARED_MEMORY_MAGIC_NUMBER 201908110
 //#define SHARED_MEMORY_MAGIC_NUMBER 201908050
 //#define SHARED_MEMORY_MAGIC_NUMBER 2019060190
@@ -563,6 +565,13 @@ enum b3NotificationType
 	SOFTBODY_CHANGED = 9,
 };
 
+enum b3ResetSimulationFlags
+{
+	RESET_USE_DEFORMABLE_WORLD=1,
+	RESET_USE_DISCRETE_DYNAMICS_WORLD=2,
+	RESET_USE_SIMPLE_BROADPHASE=4,
+};
+
 struct b3BodyNotificationArgs
 {
 	int m_bodyUniqueId;
@@ -971,6 +980,7 @@ struct b3PhysicsSimulationParameters
 	int m_constraintSolverType;
 	int m_minimumSolverIslandSize;
 	int m_reportSolverAnalytics;
+	double m_sparseSdfVoxelSize;
 };
 
 

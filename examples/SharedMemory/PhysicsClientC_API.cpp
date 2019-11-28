@@ -338,6 +338,24 @@ B3_SHARED_API int b3LoadSoftBodySetStartOrientation(b3SharedMemoryCommandHandle 
 	return 0;
 }
 
+B3_SHARED_API int b3LoadSoftBodyUpdateSimMesh(b3SharedMemoryCommandHandle commandHandle, const char* filename)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+    b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+    int len = strlen(filename);
+    if (len < MAX_FILENAME_LENGTH)
+    {
+        strcpy(command->m_loadSoftBodyArguments.m_simFileName, filename);
+    }
+    else
+    {
+        command->m_loadSoftBodyArguments.m_simFileName[0] = 0;
+    }
+    command->m_updateFlags |= LOAD_SOFT_BODY_SIM_MESH;
+    return 0;
+
+}
+
 B3_SHARED_API int b3LoadSoftBodyAddCorotatedForce(b3SharedMemoryCommandHandle commandHandle, double corotatedMu, double corotatedLambda)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
@@ -386,12 +404,12 @@ B3_SHARED_API int b3LoadSoftBodySetCollisionHardness(b3SharedMemoryCommandHandle
 	return 0;
 }
 
-B3_SHARED_API int b3LoadSoftBodySetSelfCollision(b3SharedMemoryCommandHandle commandHandle, int useSelfCollision)
+B3_SHARED_API int b3LoadSoftBodyUseSelfCollision(b3SharedMemoryCommandHandle commandHandle, int useSelfCollision)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
         command->m_loadSoftBodyArguments.m_useSelfCollision = useSelfCollision;
-	command->m_updateFlags |= LOAD_SOFT_BODY_SET_SELF_COLLISION;
+	command->m_updateFlags |= LOAD_SOFT_BODY_USE_SELF_COLLISION;
 	return 0;
 }
 
@@ -411,6 +429,15 @@ B3_SHARED_API int b3LoadSoftBodyUseBendingSprings(b3SharedMemoryCommandHandle co
         command->m_loadSoftBodyArguments.m_useBendingSprings = useBendingSprings;
 	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_BENDING_SPRINGS;
 	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodyUseFaceContact(b3SharedMemoryCommandHandle commandHandle, int useFaceContact)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+    b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+    command->m_loadSoftBodyArguments.m_useFaceContact = useFaceContact;
+    command->m_updateFlags |= LOAD_SOFT_BODY_USE_FACE_CONTACT;
+    return 0;
 }
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
@@ -886,6 +913,15 @@ B3_SHARED_API int b3PhysicsParamSetDefaultFrictionCFM(b3SharedMemoryCommandHandl
 	return 0;
 }
 
+B3_SHARED_API int b3PhysicsParameterSetSparseSdfVoxelSize(b3SharedMemoryCommandHandle commandHandle, double sparseSdfVoxelSize)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_updateFlags |= SIM_PARAM_UPDATE_SPARSE_SDF;
+	command->m_physSimParamArgs.m_sparseSdfVoxelSize = sparseSdfVoxelSize;
+	return 0;
+}
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3InitStepSimulationCommand(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
@@ -922,6 +958,19 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitResetSimulationCommand2(b3Shared
 	command->m_updateFlags = 0;
 	return (b3SharedMemoryCommandHandle)command;
 }
+
+B3_SHARED_API int b3InitResetSimulationSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	btAssert(command->m_type == CMD_RESET_SIMULATION);
+	if (command->m_type == CMD_RESET_SIMULATION)
+	{
+		command->m_updateFlags = flags;
+	}
+	return 0;
+}
+
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3JointControlCommandInit(b3PhysicsClientHandle physClient, int controlMode)
 {
@@ -3215,6 +3264,30 @@ B3_SHARED_API int b3ChangeDynamicsInfoSetActivationState(b3SharedMemoryCommandHa
 	command->m_changeDynamicsInfoArgs.m_activationState = activationState;
 	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE;
 	return 0;
+}
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitCreateSoftBodyAnchorConstraintCommand(b3PhysicsClientHandle physClient, int softBodyUniqueId, int nodeIndex, int bodyUniqueId, int linkIndex, const double bodyFramePosition[3])
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_USER_CONSTRAINT;
+	command->m_updateFlags = USER_CONSTRAINT_ADD_SOFT_BODY_ANCHOR;
+	command->m_userConstraintArguments.m_parentBodyIndex = softBodyUniqueId;
+	command->m_userConstraintArguments.m_parentJointIndex = nodeIndex;
+	command->m_userConstraintArguments.m_childBodyIndex = bodyUniqueId;
+	command->m_userConstraintArguments.m_childJointIndex = linkIndex;
+	command->m_userConstraintArguments.m_childFrame[0] = bodyFramePosition[0];
+	command->m_userConstraintArguments.m_childFrame[1] = bodyFramePosition[1];
+	command->m_userConstraintArguments.m_childFrame[2] = bodyFramePosition[2];
+	command->m_userConstraintArguments.m_childFrame[3] = 0.;
+	command->m_userConstraintArguments.m_childFrame[4] = 0.;
+	command->m_userConstraintArguments.m_childFrame[5] = 0.;
+	command->m_userConstraintArguments.m_childFrame[6] = 1.;
+
+	return (b3SharedMemoryCommandHandle)command;
 }
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyUniqueId, int parentJointIndex, int childBodyUniqueId, int childJointIndex, struct b3JointInfo* info)

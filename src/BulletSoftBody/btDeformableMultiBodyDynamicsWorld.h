@@ -63,7 +63,9 @@ protected:
     void solveConstraints(btScalar timeStep);
     
     void updateActivationState(btScalar timeStep);
-
+    
+    void clearGravity();
+    
 public:
     btDeformableMultiBodyDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btDeformableMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btDeformableBodySolver* deformableBodySolver = 0)
     : btMultiBodyDynamicsWorld(dispatcher, pairCache, (btMultiBodyConstraintSolver*)constraintSolver, collisionConfiguration),
@@ -89,6 +91,10 @@ public:
         m_lineSearch = false;
         m_selfCollision = true;
     }
+
+    virtual int stepSimulation(btScalar timeStep, int maxSubSteps = 1, btScalar fixedTimeStep = btScalar(1.) / btScalar(60.));
+
+	virtual void debugDrawWorld();
 
     void setSolverCallback(btSolverCallback cb)
     {
@@ -174,6 +180,7 @@ public:
     {
         m_lineSearch = lineSearch;
     }
+
 };
 
 #endif  //BT_DEFORMABLE_MULTIBODY_DYNAMICS_WORLD_H

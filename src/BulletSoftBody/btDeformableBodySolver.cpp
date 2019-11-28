@@ -18,7 +18,7 @@
 #include "btDeformableBodySolver.h"
 #include "btSoftBodyInternals.h"
 #include "LinearMath/btQuickprof.h"
-static const int kMaxConjugateGradientIterations  = 200;
+static const int kMaxConjugateGradientIterations  = 50;
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(kMaxConjugateGradientIterations)
@@ -36,7 +36,7 @@ btDeformableBodySolver::~btDeformableBodySolver()
 
 void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
 {
-    BT_PROFILE("solveConstraints");
+    BT_PROFILE("solveDeformableConstraints");
     if (!m_implicit)
     {
         m_objective->computeResidual(solverdt, m_residual);
@@ -241,6 +241,16 @@ btScalar btDeformableBodySolver::solveContactConstraints()
     return maxSquaredResidual;
 }
 
+btScalar btDeformableBodySolver::solveSplitImpulse(const btContactSolverInfo& infoGlobal)
+{
+    BT_PROFILE("solveSplitImpulse");
+    return m_objective->m_projection.solveSplitImpulse(infoGlobal);
+}
+
+void btDeformableBodySolver::splitImpulseSetup(const btContactSolverInfo& infoGlobal)
+{
+     m_objective->m_projection.splitImpulseSetup(infoGlobal);
+}
 
 void btDeformableBodySolver::updateVelocity()
 {
@@ -251,6 +261,7 @@ void btDeformableBodySolver::updateVelocity()
         psb->m_maxSpeedSquared = 0;
         if (!psb->isActive())
         {
+            counter += psb->m_nodes.size();
             continue;
         }
         for (int j = 0; j < psb->m_nodes.size(); ++j)
@@ -275,6 +286,7 @@ void btDeformableBodySolver::updateTempPosition()
         btSoftBody* psb = m_softBodies[i];
         if (!psb->isActive())
         {
+            counter += psb->m_nodes.size();
             continue;
         }
         for (int j = 0; j < psb->m_nodes.size(); ++j)
@@ -307,6 +319,7 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
         btSoftBody* psb = m_softBodies[i];
         if (!psb->isActive())
         {
+            counter += psb->m_nodes.size();
             continue;
         }
         for (int j = 0; j < psb->m_nodes.size(); ++j)
@@ -321,7 +334,7 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
             }
             else
                 m_dv[counter] =  psb->m_nodes[j].m_v - m_backupVelocity[counter];
-            psb->m_nodes[j].m_v = m_backupVelocity[counter];
+            psb->m_nodes[j].m_v = m_backupVelocity[counter] + psb->m_nodes[j].m_vsplit;
             ++counter;
         }
     }

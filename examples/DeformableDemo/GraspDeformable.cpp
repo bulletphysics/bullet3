@@ -28,6 +28,7 @@
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
+#include "../Utils/b3BulletDefaultFileIO.h"
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
@@ -161,7 +162,7 @@ public:
             btSoftBody* psb = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
             {
                 btSoftBodyHelpers::DrawFrame(psb, deformableWorld->getDebugDrawer());
-                btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
+				btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), fDrawFlags::Faces);// deformableWorld->getDrawFlags());
             }
         }
     }
@@ -270,25 +271,26 @@ void GraspDeformable::initPhysics()
     }
 
     // create a soft block
-    if(1)
-    {
-        char relative_path[1024];
-//        b3FileUtils::findFile("banana.vtk", relative_path, 1024);
-//        b3FileUtils::findFile("ball.vtk", relative_path, 1024);
-//        b3FileUtils::findFile("deformable_crumpled_napkin_sim.vtk", relative_path, 1024);
-//        b3FileUtils::findFile("single_tet.vtk", relative_path, 1024);
-//        b3FileUtils::findFile("tube.vtk", relative_path, 1024);
-//        b3FileUtils::findFile("torus.vtk", relative_path, 1024);
-//        b3FileUtils::findFile("paper_roll.vtk", relative_path, 1024);
-//        b3FileUtils::findFile("bread.vtk", relative_path, 1024);
-        b3FileUtils::findFile("ditto.vtk", relative_path, 1024);
-//        b3FileUtils::findFile("boot.vtk", relative_path, 1024);
-//        btSoftBody* psb = btSoftBodyHelpers::CreateFromTetGenData(getDeformableDynamicsWorld()->getWorldInfo(),
-//                                                                  TetraCube::getElements(),
-//                                                                  0,
-//                                                                  TetraCube::getNodes(),
-//                                                                  false, true, true);
-        btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), relative_path);
+	if (1)
+	{
+		char absolute_path[1024];
+		b3BulletDefaultFileIO fileio;
+		fileio.findResourcePath("ditto.vtk", absolute_path, 1024);
+		//        fileio.findResourcePath("banana.vtk", absolute_path, 1024);
+		//        fileio.findResourcePath("ball.vtk", absolute_path, 1024);
+		//        fileio.findResourcePath("deformable_crumpled_napkin_sim.vtk", absolute_path, 1024);
+		//        fileio.findResourcePath("single_tet.vtk", absolute_path, 1024);
+		//        fileio.findResourcePath("tube.vtk", absolute_path, 1024);
+		//        fileio.findResourcePath("torus.vtk", absolute_path, 1024);
+		//        fileio.findResourcePath("paper_roll.vtk", absolute_path, 1024);
+		//        fileio.findResourcePath("bread.vtk", absolute_path, 1024);
+		//        fileio.findResourcePath("boot.vtk", absolute_path, 1024);
+		//        btSoftBody* psb = btSoftBodyHelpers::CreateFromTetGenData(getDeformableDynamicsWorld()->getWorldInfo(),
+		//                                                                  TetraCube::getElements(),
+		//                                                                  0,
+		//                                                                  TetraCube::getNodes(),
+		//                                                                  false, true, true);
+		btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), absolute_path);
 
 //        psb->scale(btVector3(30, 30, 30)); // for banana
         psb->scale(btVector3(.7, .7, .7));

@@ -103,6 +103,7 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
         btSoftBody* psb = m_softBodies[i];
         if (!psb->isActive())
         {
+            counter += psb->m_nodes.size();
             continue;
         }
         for (int j = 0; j < psb->m_nodes.size(); ++j)

@@ -51,6 +51,57 @@ btScalar btDeformableContactProjection::update()
     return residualSquare;
 }
 
+void btDeformableContactProjection::splitImpulseSetup(const btContactSolverInfo& infoGlobal)
+{
+    // node constraints
+    for (int index = 0; index < m_nodeRigidConstraints.size(); ++index)
+    {
+        btAlignedObjectArray<btDeformableNodeRigidContactConstraint>& constraints = *m_nodeRigidConstraints.getAtIndex(index);
+        for (int i = 0; i < constraints.size(); ++i)
+        {
+            constraints[i].setPenetrationScale(infoGlobal.m_deformable_erp);
+        }
+    }
+    
+    // face constraints
+    for (int index = 0; index < m_allFaceConstraints.size(); ++index)
+    {
+        btDeformableContactConstraint* constraint = m_allFaceConstraints[index];
+        constraint->setPenetrationScale(infoGlobal.m_deformable_erp);
+    }
+}
+
+btScalar btDeformableContactProjection::solveSplitImpulse(const btContactSolverInfo& infoGlobal)
+{
+    btScalar residualSquare = 0;
+    // node constraints
+    for (int index = 0; index < m_nodeRigidConstraints.size(); ++index)
+    {
+        btAlignedObjectArray<btDeformableNodeRigidContactConstraint>& constraints = *m_nodeRigidConstraints.getAtIndex(index);
+        for (int i = 0; i < constraints.size(); ++i)
+        {
+            btScalar localResidualSquare = constraints[i].solveSplitImpulse(infoGlobal);
+            residualSquare = btMax(residualSquare, localResidualSquare);
+        }
+    }
+    
+    // anchor constraints
+    for (int index = 0; index < m_nodeAnchorConstraints.size(); ++index)
+    {
+        btDeformableNodeAnchorConstraint& constraint = *m_nodeAnchorConstraints.getAtIndex(index);
+        btScalar localResidualSquare = constraint.solveSplitImpulse(infoGlobal);
+        residualSquare = btMax(residualSquare, localResidualSquare);
+    }
+    
+    // face constraints
+    for (int index = 0; index < m_allFaceConstraints.size(); ++index)
+    {
+        btDeformableContactConstraint* constraint = m_allFaceConstraints[index];
+        btScalar localResidualSquare = constraint->solveSplitImpulse(infoGlobal);
+        residualSquare = btMax(residualSquare, localResidualSquare);
+    }
+    return residualSquare;
+}
 
 void btDeformableContactProjection::setConstraints()
 {

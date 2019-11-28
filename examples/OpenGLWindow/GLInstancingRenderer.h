@@ -95,6 +95,7 @@ public:
 
 	virtual void writeSingleInstanceColorToCPU(const float* color, int srcIndex);
 	virtual void writeSingleInstanceColorToCPU(const double* color, int srcIndex);
+	virtual void writeSingleInstanceFlagsToCPU(int flags, int srcIndex2);
 
 	virtual void writeSingleInstanceSpecularColorToCPU(const double* specular, int srcIndex2);
 	virtual void writeSingleInstanceSpecularColorToCPU(const float* specular, int srcIndex2);

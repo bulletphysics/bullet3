@@ -220,6 +220,7 @@ void VolumetricDeformable::initPhysics()
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 0.5;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        btSoftBodyHelpers::generateBoundaryFaces(psb);
         
         btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);

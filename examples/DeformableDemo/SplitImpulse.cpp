@@ -10,8 +10,7 @@
  2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
  3. This notice may not be removed or altered from any source distribution.
  */
-
-#include "ClothFriction.h"
+#include "SplitImpulse.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
@@ -25,44 +24,63 @@
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
-///The ClothFriction shows the use of deformable friction.
-class ClothFriction : public CommonRigidBodyBase
+#define USE_SPLIT_IMPULSE 1
+///The SplitImpulse shows the effect of split impulse in deformable rigid contact.
+class SplitImpulse : public CommonRigidBodyBase
 {
     btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 public:
-    ClothFriction(struct GUIHelperInterface* helper)
-    : CommonRigidBodyBase(helper)
-    {
-    }
-    virtual ~ClothFriction()
-    {
-    }
-    void initPhysics();
-    
-    void exitPhysics();
-    
-    void resetCamera()
-    {
-        float dist = 12;
-        float pitch = -50;
-        float yaw = 120;
+	SplitImpulse(struct GUIHelperInterface* helper)
+		: CommonRigidBodyBase(helper)
+	{
+	}
+	virtual ~SplitImpulse()
+	{
+	}
+	void initPhysics();
+
+	void exitPhysics();
+
+	void resetCamera()
+	{
+        float dist = 20;
+        float pitch = -45;
+        float yaw = 100;
         float targetPos[3] = {0, -3, 0};
-        m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
-    }
+		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
+	}
     
     void stepSimulation(float deltaTime)
     {
+        //use a smaller internal timestep, there are stability issues
         float internalTimeStep = 1. / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
+    void Ctor_RbUpStack(int count)
+    {
+        float mass = 0.2;
+        
+        btCollisionShape* shape[] = {
+            new btBoxShape(btVector3(1, 1, 1)),
+        };
+        btTransform startTransform;
+        startTransform.setIdentity();
+        startTransform.setOrigin(btVector3(0, 0.7, 0));
+        createRigidBody(mass, startTransform, shape[0]);
+    }
+    
     virtual const btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld() const
     {
+        ///just make it a btSoftRigidDynamicsWorld please
+        ///or we will add type checking
         return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
     }
     
     virtual btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld()
     {
+        ///just make it a btSoftRigidDynamicsWorld please
+        ///or we will add type checking
         return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
     }
     
@@ -74,151 +92,137 @@ public:
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
             btSoftBody* psb = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
+            //if (softWorld->getDebugDrawer() && !(softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
             {
-                //btSoftBodyHelpers::DrawFrame(psb, deformableWorld->getDebugDrawer());
-				btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), fDrawFlags::Faces);// deformableWorld->getDrawFlags());
+                btSoftBodyHelpers::DrawFrame(psb, deformableWorld->getDebugDrawer());
+                btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
             }
         }
-
     }
 };
 
-void ClothFriction::initPhysics()
+void SplitImpulse::initPhysics()
 {
-    m_guiHelper->setUpAxis(1);
-    
-    ///collision configuration contains default setup for memory, collision setup
+	m_guiHelper->setUpAxis(1);
+
+	///collision configuration contains default setup for memory, collision setup
     m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
-    
-    ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-    m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
-    
-    m_broadphase = new btDbvtBroadphase();
+
+	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
+
+	m_broadphase = new btDbvtBroadphase();
     btDeformableBodySolver* deformableBodySolver = new btDeformableBodySolver();
-    
-    ///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-    btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
+
+	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
+	btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
     sol->setDeformableSolver(deformableBodySolver);
-    m_solver = sol;
-    
-    m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
-    btVector3 gravity = btVector3(0, -10, 0);
-    m_dynamicsWorld->setGravity(gravity);
+	m_solver = sol;
+
+	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
+//    deformableBodySolver->setWorld(getDeformableDynamicsWorld());
+	//	m_dynamicsWorld->getSolverInfo().m_singleAxisDeformableThreshold = 0.f;//faster but lower quality
+    btVector3 gravity = btVector3(0, -50, 0);
+	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
 	getDeformableDynamicsWorld()->getWorldInfo().m_sparsesdf.setDefaultVoxelsz(0.25);
 	getDeformableDynamicsWorld()->getWorldInfo().m_sparsesdf.Reset();
     
-    m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-    
+//    getDeformableDynamicsWorld()->before_solver_callbacks.push_back(dynamics);
+	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+
     {
         ///create a ground
-        btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(150), btScalar(25.), btScalar(150)));
-        
+        btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(150.), btScalar(25.), btScalar(150.)));
+
         m_collisionShapes.push_back(groundShape);
-        
+
         btTransform groundTransform;
         groundTransform.setIdentity();
         groundTransform.setOrigin(btVector3(0, -32, 0));
-        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.1));
+        groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
         //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
         btScalar mass(0.);
-        
+
         //rigidbody is dynamic if and only if mass is non zero, otherwise static
         bool isDynamic = (mass != 0.f);
-        
+
         btVector3 localInertia(0, 0, 0);
         if (isDynamic)
             groundShape->calculateLocalInertia(mass, localInertia);
-        
+
         //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
         btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
         btRigidBody* body = new btRigidBody(rbInfo);
-        body->setFriction(3);
-        
+        body->setFriction(1);
+
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
     }
     
+#ifdef USE_SPLIT_IMPULSE
+        getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.03;
+#else
+        getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.0;
+#endif
+    
     // create a piece of cloth
     {
-        btScalar s = 4;
-        btScalar h = 0;
+        const btScalar s = 4;
+        const btScalar h = 0;
         
         btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -s),
                                                          btVector3(+s, h, -s),
                                                          btVector3(-s, h, +s),
                                                          btVector3(+s, h, +s),
-                                                         10,10,
-                                                         0, true);
+//                                                         3,3,
+                                                          20,20,
+                                                          1 + 2 + 4 + 8, true);
+//                                                          0, true);
+
         
-        psb->getCollisionShape()->setMargin(0.05);
+        psb->getCollisionShape()->setMargin(0.15);
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 3;
+        psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         
-        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(10,1, true);
+        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(30,1, true);
         getDeformableDynamicsWorld()->addForce(psb, mass_spring);
         m_forces.push_back(mass_spring);
         
         btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
-        
-        
-        h = 2;
-        s = 2;
-        btSoftBody* psb2 = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -s),
-                                                          btVector3(+s, h, -s),
-                                                          btVector3(-s, h, +s),
-                                                          btVector3(+s, h, +s),
-                                                          5,5,
-                                                          0, true);
-        psb2->getCollisionShape()->setMargin(0.05);
-        psb2->generateBendingConstraints(2);
-        psb2->setTotalMass(1);
-        psb2->m_cfg.kKHR = 1; // collision hardness with kinematic objects
-        psb2->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb2->m_cfg.kDF = 20;
-        psb2->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        psb2->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
-        psb->translate(btVector3(0,0,0));
-        getDeformableDynamicsWorld()->addSoftBody(psb2);
-        
-        btDeformableMassSpringForce* mass_spring2 = new btDeformableMassSpringForce(10,1, true);
-        getDeformableDynamicsWorld()->addForce(psb2, mass_spring2);
-        m_forces.push_back(mass_spring2);
-        
-        btDeformableGravityForce* gravity_force2 =  new btDeformableGravityForce(gravity);
-        getDeformableDynamicsWorld()->addForce(psb2, gravity_force2);
-        m_forces.push_back(gravity_force2);
+        // add a few rigid bodies
+        Ctor_RbUpStack(1);
     }
     getDeformableDynamicsWorld()->setImplicit(false);
-    m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+    getDeformableDynamicsWorld()->setLineSearch(false);
+	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
 
-void ClothFriction::exitPhysics()
+void SplitImpulse::exitPhysics()
 {
-    //cleanup in the reverse order of creation/initialization
-    
-    //remove the rigidbodies from the dynamics world and delete them
-    int i;
-    for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
-    {
-        btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-        btRigidBody* body = btRigidBody::upcast(obj);
-        if (body && body->getMotionState())
-        {
-            delete body->getMotionState();
-        }
-        m_dynamicsWorld->removeCollisionObject(obj);
-        delete obj;
-    }
+	//cleanup in the reverse order of creation/initialization
+
+	//remove the rigidbodies from the dynamics world and delete them
+	int i;
+	for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
+	{
+		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		m_dynamicsWorld->removeCollisionObject(obj);
+		delete obj;
+	}
     // delete forces
     for (int j = 0; j < m_forces.size(); j++)
     {
@@ -226,28 +230,30 @@ void ClothFriction::exitPhysics()
         delete force;
     }
     m_forces.clear();
-    //delete collision shapes
-    for (int j = 0; j < m_collisionShapes.size(); j++)
-    {
-        btCollisionShape* shape = m_collisionShapes[j];
-        delete shape;
-    }
-    m_collisionShapes.clear();
-    
-    delete m_dynamicsWorld;
-    
-    delete m_solver;
-    
-    delete m_broadphase;
-    
-    delete m_dispatcher;
-    
-    delete m_collisionConfiguration;
+	//delete collision shapes
+	for (int j = 0; j < m_collisionShapes.size(); j++)
+	{
+		btCollisionShape* shape = m_collisionShapes[j];
+		delete shape;
+	}
+	m_collisionShapes.clear();
+
+	delete m_dynamicsWorld;
+
+	delete m_solver;
+
+	delete m_broadphase;
+
+	delete m_dispatcher;
+
+	delete m_collisionConfiguration;
 }
 
-class CommonExampleInterface* ClothFrictionCreateFunc(struct CommonExampleOptions& options)
+
+
+class CommonExampleInterface* SplitImpulseCreateFunc(struct CommonExampleOptions& options)
 {
-    return new ClothFriction(options.m_guiHelper);
+	return new SplitImpulse(options.m_guiHelper);
 }
 
 
