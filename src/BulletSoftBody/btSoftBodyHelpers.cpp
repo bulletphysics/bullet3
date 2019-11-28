@@ -1500,7 +1500,6 @@ void btSoftBodyHelpers::getBarycentricWeights(const btVector3& a, const btVector
     bary = btVector4(va6*v6, vb6*v6, vc6*v6, vd6*v6);
 }
 
-
 // Iterate through all render nodes to find the simulation tetrahedron that contains the render node and record the barycentric weights
 // If the node is not inside any tetrahedron, assign it to the tetrahedron in which the node has the least negative barycentric weight
 void btSoftBodyHelpers::interpolateBarycentricWeights(btSoftBody* psb)
