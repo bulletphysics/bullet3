@@ -807,7 +807,10 @@ class HumanoidStablePD(object):
     rootPosSim, rootOrnSim = self._pybullet_client.getBasePositionAndOrientation(self._sim_model)
     rootPosKin, rootOrnKin = self._pybullet_client.getBasePositionAndOrientation(self._kin_model)
     linVelSim, angVelSim = self._pybullet_client.getBaseVelocity(self._sim_model)
-    linVelKin, angVelKin = self._pybullet_client.getBaseVelocity(self._kin_model)
+    #don't read the velocities from the kinematic model (they are zero), use the pose interpolator velocity
+    #see also issue https://github.com/bulletphysics/bullet3/issues/2401 
+    linVelKin = self._poseInterpolator._baseLinVel
+    angVelKin = self._poseInterpolator._baseAngVel
 
     root_rot_err = self.calcRootRotDiff(rootOrnSim, rootOrnKin)
     pose_err += root_rot_w * root_rot_err
