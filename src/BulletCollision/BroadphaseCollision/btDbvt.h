@@ -349,6 +349,9 @@ struct btDbvt
     DBVT_PREFIX
     void selfCollideT(const btDbvntNode* root,
                    DBVT_IPOLICY);
+    DBVT_PREFIX
+    void selfCollideTT(const btDbvtNode* root,
+                      DBVT_IPOLICY);
 
 	DBVT_PREFIX
 	void collideTTpersistentStack(const btDbvtNode* root0,
@@ -933,6 +936,70 @@ inline void btDbvt::selfCollideT(const btDbvntNode* root,
                     {
                         stkStack[depth++] = sStknNN(p.a, p.b->childs[0]);
                         stkStack[depth++] = sStknNN(p.a, p.b->childs[1]);
+                    }
+                    else
+                    {
+                        policy.Process(p.a, p.b);
+                    }
+                }
+            }
+        } while (depth);
+    }
+}
+
+//
+DBVT_PREFIX
+inline void btDbvt::selfCollideTT(const btDbvtNode* root,
+                                 DBVT_IPOLICY)
+{
+    DBVT_CHECKTYPE
+    if (root)
+    {
+        int depth = 1;
+        int treshold = DOUBLE_STACKSIZE - 4;
+        btAlignedObjectArray<sStkNN> stkStack;
+        stkStack.resize(DOUBLE_STACKSIZE);
+        stkStack[0] = sStkNN(root, root);
+        do
+        {
+            sStkNN p = stkStack[--depth];
+            if (depth > treshold)
+            {
+                stkStack.resize(stkStack.size() * 2);
+                treshold = stkStack.size() - 4;
+            }
+            if (p.a == p.b)
+            {
+                if (p.a->isinternal())
+                {
+                    stkStack[depth++] = sStkNN(p.a->childs[0], p.a->childs[0]);
+                    stkStack[depth++] = sStkNN(p.a->childs[1], p.a->childs[1]);
+                    stkStack[depth++] = sStkNN(p.a->childs[0], p.a->childs[1]);
+                }
+            }
+            else if (Intersect(p.a->volume, p.b->volume))
+            {
+                if (p.a->isinternal())
+                {
+                    if (p.b->isinternal())
+                    {
+                        stkStack[depth++] = sStkNN(p.a->childs[0], p.b->childs[0]);
+                        stkStack[depth++] = sStkNN(p.a->childs[1], p.b->childs[0]);
+                        stkStack[depth++] = sStkNN(p.a->childs[0], p.b->childs[1]);
+                        stkStack[depth++] = sStkNN(p.a->childs[1], p.b->childs[1]);
+                    }
+                    else
+                    {
+                        stkStack[depth++] = sStkNN(p.a->childs[0], p.b);
+                        stkStack[depth++] = sStkNN(p.a->childs[1], p.b);
+                    }
+                }
+                else
+                {
+                    if (p.b->isinternal())
+                    {
+                        stkStack[depth++] = sStkNN(p.a, p.b->childs[0]);
+                        stkStack[depth++] = sStkNN(p.a, p.b->childs[1]);
                     }
                     else
                     {

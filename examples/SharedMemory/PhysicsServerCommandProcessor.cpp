@@ -1642,7 +1642,6 @@ struct PhysicsServerCommandProcessorInternalData
     btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
 #endif
 	
-	
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
 
 	int m_constraintSolverType;

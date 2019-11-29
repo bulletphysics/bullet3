@@ -348,7 +348,7 @@ struct btSparseSdf
 	{
 		struct btS
 		{
-			int x, y, z,w;
+			int x, y, z, w;
 			void* p;
 		};
 
