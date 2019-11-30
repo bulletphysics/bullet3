@@ -37,6 +37,8 @@ def build_arg_parser(args):
   arg_parser.load_args(args)
 
   arg_file = arg_parser.parse_string('arg_file', '')
+  if arg_file == '':
+    arg_file = "run_humanoid3d_backflip_args.txt"
   if (arg_file != ''):
     path = pybullet_data.getDataPath() + "/args/" + arg_file
     succ = arg_parser.load_file(path)

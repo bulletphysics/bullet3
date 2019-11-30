@@ -84,32 +84,32 @@ p.addUserDebugText("Kinematic",
 p.addUserDebugText("Stable PD (Py)",
                    [startLocations[4][0], startLocations[4][1] + 1, startLocations[4][2]],
                    [0, 0, 0])
-
+flags=p.URDF_MAINTAIN_LINK_ORDER+p.URDF_USE_SELF_COLLISION
 humanoid = p.loadURDF("humanoid/humanoid.urdf",
                       startLocations[0],
                       globalScaling=0.25,
                       useFixedBase=False,
-                      flags=p.URDF_MAINTAIN_LINK_ORDER)
+                      flags=flags)
 humanoid2 = p.loadURDF("humanoid/humanoid.urdf",
                        startLocations[1],
                        globalScaling=0.25,
                        useFixedBase=False,
-                       flags=p.URDF_MAINTAIN_LINK_ORDER)
+                       flags=flags)
 humanoid3 = p.loadURDF("humanoid/humanoid.urdf",
                        startLocations[2],
                        globalScaling=0.25,
                        useFixedBase=False,
-                       flags=p.URDF_MAINTAIN_LINK_ORDER)
+                       flags=flags)
 humanoid4 = p.loadURDF("humanoid/humanoid.urdf",
                        startLocations[3],
                        globalScaling=0.25,
                        useFixedBase=False,
-                       flags=p.URDF_MAINTAIN_LINK_ORDER)
+                       flags=flags)
 humanoid5 = p.loadURDF("humanoid/humanoid.urdf",
                       startLocations[4],
                       globalScaling=0.25,
                       useFixedBase=False,
-                      flags=p.URDF_MAINTAIN_LINK_ORDER)
+                      flags=flags)
 
 humanoid_fix = p.createConstraint(humanoid, -1, -1, -1, p.JOINT_FIXED, [0, 0, 0], [0, 0, 0],
                                   startLocations[0], [0, 0, 0, 1])
