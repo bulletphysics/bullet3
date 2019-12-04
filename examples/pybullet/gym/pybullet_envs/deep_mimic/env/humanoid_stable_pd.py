@@ -25,12 +25,12 @@ class HumanoidStablePD(object):
     self._mocap_data = mocap_data
     self._arg_parser = arg_parser
     print("LOADING humanoid!")
-
+    flags=self._pybullet_client.URDF_MAINTAIN_LINK_ORDER+self._pybullet_client.URDF_USE_SELF_COLLISION+self._pybullet_client.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS
     self._sim_model = self._pybullet_client.loadURDF(
         "humanoid/humanoid.urdf", [0, 0.889540259, 0],
         globalScaling=0.25,
         useFixedBase=useFixedBase,
-        flags=self._pybullet_client.URDF_MAINTAIN_LINK_ORDER)
+        flags=flags)
 
     #self._pybullet_client.setCollisionFilterGroupMask(self._sim_model,-1,collisionFilterGroup=0,collisionFilterMask=0)
     #for j in range (self._pybullet_client.getNumJoints(self._sim_model)):
@@ -346,7 +346,6 @@ class HumanoidStablePD(object):
     #static char* kwlist[] = { "bodyUniqueId", 
     #"jointIndices", 
     #"controlMode", "targetPositions", "targetVelocities", "forces", "positionGains", "velocityGains", "maxVelocities", "physicsClientId", NULL };
-  
     self._pybullet_client.setJointMotorControlMultiDofArray(self._sim_model,
                                                            indices,
                                                            self._pybullet_client.STABLE_PD_CONTROL,
