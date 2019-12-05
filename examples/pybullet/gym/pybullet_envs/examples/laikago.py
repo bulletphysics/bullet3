@@ -12,7 +12,7 @@ p.setTimeStep(1. / 500)
 #p.setDefaultContactERP(0)
 #urdfFlags = p.URDF_USE_SELF_COLLISION+p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS
 urdfFlags = p.URDF_USE_SELF_COLLISION
-quadruped = p.loadURDF("laikago/laikago.urdf", [0, 0, .5], [0, 0.5, 0.5, 0],
+quadruped = p.loadURDF("laikago/laikago_toes.urdf", [0, 0, .5], [0, 0.5, 0.5, 0],
                        flags=urdfFlags,
                        useFixedBase=False)
 
@@ -87,6 +87,7 @@ with open(pd.getDataPath() + "/laikago/data1.txt", "r") as filestream:
       # print(pt[9])
     time.sleep(1. / 500.)
 
+index = 0
 for j in range(p.getNumJoints(quadruped)):
   p.changeDynamics(quadruped, j, linearDamping=0, angularDamping=0)
   info = p.getJointInfo(quadruped, j)
@@ -95,9 +96,10 @@ for j in range(p.getNumJoints(quadruped)):
   jointName = info[1]
   jointType = info[2]
   if (jointType == p.JOINT_PRISMATIC or jointType == p.JOINT_REVOLUTE):
-    paramIds.append(
-        p.addUserDebugParameter(jointName.decode("utf-8"), -4, 4,
-                                (js[0] - jointOffsets[j]) / jointDirections[j]))
+    paramIds.append(p.addUserDebugParameter(jointName.decode("utf-8"), -4, 4,
+                                (js[0] - jointOffsets[index]) / jointDirections[index]))
+    index = index+1
+                       
 
 p.setRealTimeSimulation(1)
 
