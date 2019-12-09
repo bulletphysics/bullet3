@@ -14,7 +14,7 @@ from gym import spaces
 from gym.utils import seeding
 import numpy as np
 import pybullet
-from . import bullet_client
+import pybullet_utils.bullet_client as bc
 from . import minitaur
 import os
 import pybullet_data
@@ -145,9 +145,9 @@ class MinitaurBulletEnv(gym.Env):
       self._action_repeat *= NUM_SUBSTEPS
 
     if self._is_render:
-      self._pybullet_client = bullet_client.BulletClient(connection_mode=pybullet.GUI)
+      self._pybullet_client = bc.BulletClient(connection_mode=pybullet.GUI)
     else:
-      self._pybullet_client = bullet_client.BulletClient()
+      self._pybullet_client = bc.BulletClient()
 
     self.seed()
     self.reset()
