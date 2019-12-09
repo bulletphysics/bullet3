@@ -2065,6 +2065,10 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 		{
 			b3LoadSoftBodyAddNeoHookeanForce(command, NeoHookeanMu, NeoHookeanLambda, NeoHookeanDamping);
 		}
+		if (useSelfCollision)
+		{
+			b3LoadSoftBodySetSelfCollision(command, useSelfCollision);
+		}
 		b3LoadSoftBodySetFrictionCoefficient(command, frictionCoeff);
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
