@@ -3,7 +3,7 @@ import pybullet_data as pd
 import math
 import time
 import numpy as np
-import panda_sim
+from pybullet_envs.examples import panda_sim
 
 p.connect(p.GUI)
 p.configureDebugVisualizer(p.COV_ENABLE_Y_AXIS_UP,1)
