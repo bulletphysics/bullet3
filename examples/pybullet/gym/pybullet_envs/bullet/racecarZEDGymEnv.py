@@ -10,7 +10,7 @@ from gym.utils import seeding
 import numpy as np
 import time
 import pybullet
-from . import bullet_client
+import pybullet_utils.bullet_client as bc
 from . import racecar
 import random
 import pybullet_data
@@ -42,9 +42,9 @@ class RacecarZEDGymEnv(gym.Env):
 
     self._isDiscrete = isDiscrete
     if self._renders:
-      self._p = bullet_client.BulletClient(connection_mode=pybullet.GUI)
+      self._p = bc.BulletClient(connection_mode=pybullet.GUI)
     else:
-      self._p = bullet_client.BulletClient()
+      self._p = bc.BulletClient()
 
     self.seed()
     self.reset()
