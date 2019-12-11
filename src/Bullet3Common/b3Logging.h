@@ -14,33 +14,8 @@ extern "C"
 	//#define b3Printf b3OutputPrintfVarArgsInternal
 	//#define b3Printf(...) printf(__VA_ARGS__)
 	//#define b3Printf(...)
-#ifdef __clang__
-#define b3Warning(...)                                                                    \
-	do                                                                                    \
-	{                                                                                     \
-		b3OutputWarningMessageVarArgsInternal("b3Warning[%s,%d]:\n", __FILE_NAME__, __LINE__); \
-		b3OutputWarningMessageVarArgsInternal(__VA_ARGS__);                               \
-	} while (0)
-#define b3Error(...)                                                                  \
-	do                                                                                \
-	{                                                                                 \
-		b3OutputErrorMessageVarArgsInternal("b3Error[%s,%d]:\n", __FILE_NAME__, __LINE__); \
-		b3OutputErrorMessageVarArgsInternal(__VA_ARGS__);                             \
-	} while (0)
-#else//__clang__
-#define b3Warning(...)                                                                    \
-	do                                                                                    \
-	{                                                                                     \
-		b3OutputWarningMessageVarArgsInternal("b3Warning[%s,%d]:\n", __FILE__, __LINE__); \
-		b3OutputWarningMessageVarArgsInternal(__VA_ARGS__);                               \
-	} while (0)
-#define b3Error(...)                                                                  \
-	do                                                                                \
-	{                                                                                 \
-		b3OutputErrorMessageVarArgsInternal("b3Error[%s,%d]:\n", __FILE__, __LINE__); \
-		b3OutputErrorMessageVarArgsInternal(__VA_ARGS__);                             \
-	} while (0)
-#endif //__clang__
+#define b3Warning(...) do{	b3OutputWarningMessageVarArgsInternal("b3Warning[%s,%d]:\n", __FILE__, __LINE__);b3OutputWarningMessageVarArgsInternal(__VA_ARGS__);} while (0)
+#define b3Error(...)do	{b3OutputErrorMessageVarArgsInternal("b3Error[%s,%d]:\n", __FILE__, __LINE__);b3OutputErrorMessageVarArgsInternal(__VA_ARGS__);} while (0)
 #ifndef B3_NO_PROFILE
 
 	void b3EnterProfileZone(const char* name);
