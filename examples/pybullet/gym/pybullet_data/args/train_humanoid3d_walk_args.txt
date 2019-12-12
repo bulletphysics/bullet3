@@ -29,5 +29,5 @@
 #--train_agents false
 
 --output_path output
-#--int_output_path output/intermediate
+--int_output_path output/intermediate
 #--model_files data/policies/humanoid3d/agent0_model.ckpt

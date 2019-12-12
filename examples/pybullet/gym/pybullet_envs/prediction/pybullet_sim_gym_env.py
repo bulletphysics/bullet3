@@ -14,7 +14,7 @@ from gym import spaces
 from gym.utils import seeding
 import numpy as np
 import pybullet
-from pybullet_envs.bullet import bullet_client
+import pybullet_utils.bullet_client as bc
 
 from pybullet_envs.prediction import boxstack_pybullet_sim
 
@@ -71,10 +71,10 @@ class PyBulletSimGymEnv(gym.Env):
     print("urdf_root=" + self._urdf_root)
 
     if self._is_render:
-      self._pybullet_client = bullet_client.BulletClient(connection_mode=pybullet.GUI,
+      self._pybullet_client = bc.BulletClient(connection_mode=pybullet.GUI,
                                                          options=optionstring)
     else:
-      self._pybullet_client = bullet_client.BulletClient()
+      self._pybullet_client = bc.BulletClient()
 
     if (debug_visualization == False):
       self._pybullet_client.configureDebugVisualizer(flag=self._pybullet_client.COV_ENABLE_GUI,

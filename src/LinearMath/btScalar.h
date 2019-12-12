@@ -110,11 +110,16 @@ inline int btIsDoublePrecision()
 #if defined (_M_ARM)
             //Do not turn SSE on for ARM (may want to turn on BT_USE_NEON however)
 #elif (defined (_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined (BT_USE_DOUBLE_PRECISION))
+
+#ifdef __clang__
+#define __BT_DISABLE_SSE__
+#endif
+#ifndef __BT_DISABLE_SSE__
 			#if _MSC_VER>1400
 				#define BT_USE_SIMD_VECTOR3
 			#endif
-
 			#define BT_USE_SSE
+#endif//__BT_DISABLE_SSE__
 			#ifdef BT_USE_SSE
 
 #if (_MSC_FULL_VER >= 170050727)//Visual Studio 2012 can compile SSE4/FMA3 (but SSE4/FMA3 is not enabled by default)
@@ -210,6 +215,7 @@ inline int btIsDoublePrecision()
 
 			#if (defined (__APPLE__) && (!defined (BT_USE_DOUBLE_PRECISION)))
 				#if defined (__i386__) || defined (__x86_64__)
+#error bla
 					#define BT_USE_SIMD_VECTOR3
 					#define BT_USE_SSE
 					//BT_USE_SSE_IN_API is enabled on Mac OSX by default, because memory is automatically aligned on 16-byte boundaries
