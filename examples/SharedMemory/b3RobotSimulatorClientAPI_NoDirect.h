@@ -89,6 +89,55 @@ struct b3RobotSimulatorLoadSoftBodyArgs
 	}
 };
 
+
+struct b3RobotSimulatorLoadDeformableBodyArgs
+{
+	btVector3 m_startPosition;
+	btQuaternion m_startOrientation;
+	double m_scale;
+	double m_mass;
+	double m_collisionMargin;
+	double m_springElasticStiffness;
+	double m_springDampingStiffness;
+	double m_springBendingStiffness;
+	double m_NeoHookeanMu;
+	double m_NeoHookeanLambda;
+	double m_NeoHookeanDamping;
+	bool m_useSelfCollision;
+	bool m_useFaceContact;
+	bool m_useBendingSprings;
+	double m_frictionCoeff;
+
+	b3RobotSimulatorLoadDeformableBodyArgs(const btVector3 &startPos, const btQuaternion &startOrn, const double &scale, const double &mass, const double &collisionMargin)
+	: m_startPosition(startPos),
+	m_startOrientation(startOrn),
+	m_scale(scale),
+	m_mass(mass),
+	m_collisionMargin(collisionMargin)
+	{
+	}
+
+	b3RobotSimulatorLoadDeformableBodyArgs(const btVector3 &startPos, const btQuaternion &startOrn)
+	{
+		b3RobotSimulatorLoadSoftBodyArgs(startPos, startOrn, 1.0, 1.0, 0.02);
+	}
+
+	b3RobotSimulatorLoadDeformableBodyArgs()
+	{
+		b3RobotSimulatorLoadSoftBodyArgs(btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1));
+	}
+
+	b3RobotSimulatorLoadDeformableBodyArgs(double scale, double mass, double collisionMargin)
+	: m_startPosition(btVector3(0, 0, 0)),
+	m_startOrientation(btQuaternion(0, 0, 0, 1)),
+	m_scale(scale),
+	m_mass(mass),
+	m_collisionMargin(collisionMargin)
+	{
+	}
+};
+
+
 struct b3RobotSimulatorLoadFileResults
 {
 	btAlignedObjectArray<int> m_uniqueObjectIds;
@@ -534,6 +583,8 @@ public:
 	void syncBodies();
 
 	void resetSimulation();
+    
+	void resetSimulation(int flag);
 
 	btQuaternion getQuaternionFromEuler(const btVector3 &rollPitchYaw);
 	btVector3 getEulerFromQuaternion(const btQuaternion &quat);
@@ -685,6 +736,8 @@ public:
 	int getConstraintUniqueId(int serialIndex);
 
 	void loadSoftBody(const std::string &fileName, const struct b3RobotSimulatorLoadSoftBodyArgs &args);
+    
+	void loadDeformableBody(const std::string &fileName, const struct b3RobotSimulatorLoadDeformableBodyArgs &args);
 
 	virtual void setGuiHelper(struct GUIHelperInterface *guiHelper);
 	virtual struct GUIHelperInterface *getGuiHelper();

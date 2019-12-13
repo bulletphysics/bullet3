@@ -89,6 +89,19 @@ void b3RobotSimulatorClientAPI_NoDirect::resetSimulation()
 		m_data->m_physicsClientHandle, b3InitResetSimulationCommand(m_data->m_physicsClientHandle));
 }
 
+void b3RobotSimulatorClientAPI_NoDirect::resetSimulation(int flag)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+	b3SharedMemoryStatusHandle statusHandle;
+	b3SharedMemoryCommandHandle command = b3InitResetSimulationCommand(m_data->m_physicsClientHandle);
+	b3InitResetSimulationSetFlags(command, flag);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+}
+
 bool b3RobotSimulatorClientAPI_NoDirect::canSubmitCommand() const
 {
 	if (!isConnected())
@@ -1148,6 +1161,29 @@ void b3RobotSimulatorClientAPI_NoDirect::loadSoftBody(const std::string& fileNam
 	b3LoadSoftBodySetScale(command, args.m_scale);
 	b3LoadSoftBodySetMass(command, args.m_mass);
 	b3LoadSoftBodySetCollisionMargin(command, args.m_collisionMargin);
+	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+}
+
+void b3RobotSimulatorClientAPI_NoDirect::loadDeformableBody(const std::string& fileName, const struct b3RobotSimulatorLoadDeformableBodyArgs& args)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+
+	b3SharedMemoryCommandHandle command = b3LoadSoftBodyCommandInit(m_data->m_physicsClientHandle, fileName.c_str());
+	b3LoadSoftBodySetStartPosition(command, args.m_startPosition[0], args.m_startPosition[1], args.m_startPosition[2]);
+	b3LoadSoftBodySetStartOrientation(command, args.m_startOrientation[0], args.m_startOrientation[1], args.m_startOrientation[2], args.m_startOrientation[3]);
+	b3LoadSoftBodySetScale(command, args.m_scale);
+	b3LoadSoftBodySetMass(command, args.m_mass);
+	b3LoadSoftBodySetCollisionMargin(command, args.m_collisionMargin);
+	b3LoadSoftBodyAddNeoHookeanForce(command, args.m_NeoHookeanMu, args.m_NeoHookeanLambda, args.m_NeoHookeanDamping);
+	b3LoadSoftBodyAddMassSpringForce(command, args.m_springElasticStiffness, args.m_springDampingStiffness);
+	b3LoadSoftBodyUseSelfCollision(command, args.m_useSelfCollision);
+	b3LoadSoftBodyUseFaceContact(command, args.m_useFaceContact);
+	b3LoadSoftBodySetFrictionCoefficient(command, args.m_frictionCoeff);
+	b3LoadSoftBodyUseBendingSprings(command, args.m_useBendingSprings, args.m_springBendingStiffness);
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 }
 
