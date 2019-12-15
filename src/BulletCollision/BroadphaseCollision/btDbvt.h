@@ -131,7 +131,6 @@ subject to the following restrictions:
 struct btDbvtAabbMm
 {
     DBVT_INLINE btDbvtAabbMm(){}
-    DBVT_INLINE btDbvtAabbMm(const btDbvtAabbMm& other): mi(other.mi), mx(other.mx){}
 	DBVT_INLINE btVector3 Center() const { return ((mi + mx) / 2); }
 	DBVT_INLINE btVector3 Lengths() const { return (mx - mi); }
 	DBVT_INLINE btVector3 Extents() const { return ((mx - mi) / 2); }
