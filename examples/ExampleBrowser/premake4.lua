@@ -199,7 +199,6 @@ project "App_BulletExampleBrowser"
 		"../RigidBody/RigidBodySoftContact.cpp",
 		"../ThirdPartyLibs/stb_image/stb_image.cpp",
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",
-		"../ThirdPartyLibs/BussIK/*",
 		"../GyroscopicDemo/GyroscopicSetup.cpp",
 		"../GyroscopicDemo/GyroscopicSetup.h",
     "../ThirdPartyLibs/tinyxml2/tinyxml2.cpp",

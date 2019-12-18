@@ -413,8 +413,6 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"../../examples/TinyRenderer/tgaimage.cpp",
 			"../../examples/TinyRenderer/our_gl.cpp",
 			"../../examples/TinyRenderer/TinyRenderer.cpp",
-			"../../examples/Utils/b3ResourcePath.cpp",
-			"../../examples/Utils/b3ResourcePath.h",
 			"../../examples/Utils/RobotLoggingUtil.cpp",
 			"../../examples/Utils/RobotLoggingUtil.h",
 			"../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
