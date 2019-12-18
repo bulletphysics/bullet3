@@ -29,6 +29,7 @@ typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
 class btDeformableBodySolver;
 class btDeformableLagrangianForce;
 struct MultiBodyInplaceSolverIslandCallback;
+struct DeformableBodyInplaceSolverIslandCallback;
 class btDeformableMultiBodyConstraintSolver;
 
 typedef btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
@@ -49,6 +50,7 @@ class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
     bool m_implicit;
     bool m_lineSearch;
     bool m_selfCollision;
+    DeformableBodyInplaceSolverIslandCallback* m_solverDeformableBodyIslandCallback;
     
     typedef void (*btSolverCallback)(btScalar time, btDeformableMultiBodyDynamicsWorld* world);
     btSolverCallback m_solverCallback;
@@ -67,30 +69,7 @@ protected:
     void clearGravity();
     
 public:
-    btDeformableMultiBodyDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btDeformableMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btDeformableBodySolver* deformableBodySolver = 0)
-    : btMultiBodyDynamicsWorld(dispatcher, pairCache, (btMultiBodyConstraintSolver*)constraintSolver, collisionConfiguration),
-    m_deformableBodySolver(deformableBodySolver), m_solverCallback(0)
-    {
-        m_drawFlags = fDrawFlags::Std;
-        m_drawNodeTree = true;
-        m_drawFaceTree = false;
-        m_drawClusterTree = false;
-        m_sbi.m_broadphase = pairCache;
-        m_sbi.m_dispatcher = dispatcher;
-        m_sbi.m_sparsesdf.Initialize();
-        m_sbi.m_sparsesdf.setDefaultVoxelsz(0.005);
-        m_sbi.m_sparsesdf.Reset();
-        
-        m_sbi.air_density = (btScalar)1.2;
-        m_sbi.water_density = 0;
-        m_sbi.water_offset = 0;
-        m_sbi.water_normal = btVector3(0, 0, 0);
-        m_sbi.m_gravity.setValue(0, -10, 0);
-        m_internalTime = 0.0;
-        m_implicit = false;
-        m_lineSearch = false;
-        m_selfCollision = true;
-    }
+	btDeformableMultiBodyDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btDeformableMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btDeformableBodySolver* deformableBodySolver = 0);
 
     virtual int stepSimulation(btScalar timeStep, int maxSubSteps = 1, btScalar fixedTimeStep = btScalar(1.) / btScalar(60.));
 

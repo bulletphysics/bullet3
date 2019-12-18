@@ -1180,7 +1180,7 @@ void b3RobotSimulatorClientAPI_NoDirect::loadDeformableBody(const std::string& f
 	b3LoadSoftBodySetCollisionMargin(command, args.m_collisionMargin);
 	b3LoadSoftBodyAddNeoHookeanForce(command, args.m_NeoHookeanMu, args.m_NeoHookeanLambda, args.m_NeoHookeanDamping);
 	b3LoadSoftBodyAddMassSpringForce(command, args.m_springElasticStiffness, args.m_springDampingStiffness);
-	b3LoadSoftBodyUseSelfCollision(command, args.m_useSelfCollision);
+	b3LoadSoftBodySetSelfCollision(command, args.m_useSelfCollision);
 	b3LoadSoftBodyUseFaceContact(command, args.m_useFaceContact);
 	b3LoadSoftBodySetFrictionCoefficient(command, args.m_frictionCoeff);
 	b3LoadSoftBodyUseBendingSprings(command, args.m_useBendingSprings, args.m_springBendingStiffness);

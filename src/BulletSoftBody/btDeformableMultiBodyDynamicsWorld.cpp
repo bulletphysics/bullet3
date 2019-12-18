@@ -36,9 +36,36 @@ The algorithm also closely resembles the one in http://physbam.stanford.edu/~fed
 
 #include <stdio.h>
 #include "btDeformableMultiBodyDynamicsWorld.h"
+#include "DeformableBodyInplaceSolverIslandCallback.h"
 #include "btDeformableBodySolver.h"
 #include "LinearMath/btQuickprof.h"
 #include "btSoftBodyInternals.h"
+btDeformableMultiBodyDynamicsWorld::btDeformableMultiBodyDynamicsWorld(btDispatcher* dispatcher, btBroadphaseInterface* pairCache, btDeformableMultiBodyConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btDeformableBodySolver* deformableBodySolver)
+: btMultiBodyDynamicsWorld(dispatcher, pairCache, (btMultiBodyConstraintSolver*)constraintSolver, collisionConfiguration),
+m_deformableBodySolver(deformableBodySolver), m_solverCallback(0)
+{
+	m_drawFlags = fDrawFlags::Std;
+	m_drawNodeTree = true;
+	m_drawFaceTree = false;
+	m_drawClusterTree = false;
+	m_sbi.m_broadphase = pairCache;
+	m_sbi.m_dispatcher = dispatcher;
+	m_sbi.m_sparsesdf.Initialize();
+	m_sbi.m_sparsesdf.setDefaultVoxelsz(0.005);
+	m_sbi.m_sparsesdf.Reset();
+	
+	m_sbi.air_density = (btScalar)1.2;
+	m_sbi.water_density = 0;
+	m_sbi.water_offset = 0;
+	m_sbi.water_normal = btVector3(0, 0, 0);
+	m_sbi.m_gravity.setValue(0, -10, 0);
+	m_internalTime = 0.0;
+	m_implicit = false;
+	m_lineSearch = false;
+	m_selfCollision = true;
+	m_solverDeformableBodyIslandCallback = new DeformableBodyInplaceSolverIslandCallback(constraintSolver, dispatcher);
+}
+
 void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
     BT_PROFILE("internalSingleStepSimulation");
@@ -261,7 +288,7 @@ void btDeformableMultiBodyDynamicsWorld::setupConstraints()
         // setup the solver callback
         btMultiBodyConstraint** sortedMultiBodyConstraints = m_sortedMultiBodyConstraints.size() ? &m_sortedMultiBodyConstraints[0] : 0;
         btTypedConstraint** constraintsPtr = getNumConstraints() ? &m_sortedConstraints[0] : 0;
-        m_solverMultiBodyIslandCallback->setup(&m_solverInfo, constraintsPtr, m_sortedConstraints.size(), sortedMultiBodyConstraints, m_sortedMultiBodyConstraints.size(), getDebugDrawer());
+        m_solverDeformableBodyIslandCallback->setup(&m_solverInfo, constraintsPtr, m_sortedConstraints.size(), sortedMultiBodyConstraints, m_sortedMultiBodyConstraints.size(), getDebugDrawer());
         
         // build islands
         m_islandManager->buildIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld());
@@ -290,10 +317,10 @@ void btDeformableMultiBodyDynamicsWorld::sortConstraints()
 void btDeformableMultiBodyDynamicsWorld::solveContactConstraints()
 {
     // process constraints on each island
-    m_islandManager->processIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverMultiBodyIslandCallback);
+    m_islandManager->processIslands(getCollisionWorld()->getDispatcher(), getCollisionWorld(), m_solverDeformableBodyIslandCallback);
     
     // process deferred
-    m_solverMultiBodyIslandCallback->processConstraints();
+    m_solverDeformableBodyIslandCallback->processConstraints();
     m_constraintSolver->allSolved(m_solverInfo, m_debugDrawer);
     
     // write joint feedback

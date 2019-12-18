@@ -17,7 +17,7 @@
 #include "btDeformableMultiBodyConstraintSolver.h"
 #include <iostream>
 // override the iterations method to include deformable/multibody contact
-btScalar btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlyIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
+btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(btCollisionObject** bodies,int numBodies,btCollisionObject** deformableBodies,int numDeformableBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
     {
         ///this is a special step to resolve penetrations (just for contacts)
@@ -82,7 +82,7 @@ btScalar btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlyIteration
     return 0.f;
 }
 
-void btDeformableMultiBodyConstraintSolver::solveMultiBodyGroup(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, btMultiBodyConstraint** multiBodyConstraints, int numMultiBodyConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher)
+void btDeformableMultiBodyConstraintSolver::solveDeformableBodyGroup(btCollisionObject * *bodies, int numBodies, btCollisionObject * *deformableBodies, int numDeformableBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, btMultiBodyConstraint** multiBodyConstraints, int numMultiBodyConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher)
 {
     m_tmpMultiBodyConstraints = multiBodyConstraints;
     m_tmpNumMultiBodyConstraints = numMultiBodyConstraints;
@@ -91,7 +91,7 @@ void btDeformableMultiBodyConstraintSolver::solveMultiBodyGroup(btCollisionObjec
     solveGroupCacheFriendlySetup(bodies, numBodies, manifold, numManifolds, constraints, numConstraints, info, debugDrawer);
     
     // overriden
-    solveGroupCacheFriendlyIterations(bodies, numBodies, manifold, numManifolds, constraints, numConstraints, info, debugDrawer);
+    solveDeformableGroupIterations(bodies, numBodies, deformableBodies, numDeformableBodies, manifold, numManifolds, constraints, numConstraints, info, debugDrawer);
     
     // inherited from MultiBodyConstraintSolver
     solveGroupCacheFriendlyFinish(bodies, numBodies, info);
