@@ -113,7 +113,16 @@ struct b3RobotSimulatorLoadDeformableBodyArgs
 	m_startOrientation(startOrn),
 	m_scale(scale),
 	m_mass(mass),
-	m_collisionMargin(collisionMargin)
+	m_collisionMargin(collisionMargin),
+	m_springElasticStiffness(-1),
+	m_springDampingStiffness(-1),
+	m_springBendingStiffness(-1),
+	m_NeoHookeanMu(-1),
+	m_NeoHookeanDamping(-1),
+	m_useSelfCollision(false),
+	m_useFaceContact(false),
+	m_useBendingSprings(false),
+	m_frictionCoeff(0)
 	{
 	}
 
