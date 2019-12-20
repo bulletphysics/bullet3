@@ -5481,18 +5481,16 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3ProfileTimingCommandInit(b3PhysicsCl
 	b3Assert(command);
 
 	int len = name ? strlen(name) : 0;
+	command->m_type = CMD_PROFILE_TIMING;
 	if (len > 0 && len < (MAX_FILENAME_LENGTH + 1))
 	{
-		command->m_type = CMD_PROFILE_TIMING;
+		
 		strcpy(command->m_profile.m_name, name);
 		command->m_profile.m_name[len] = 0;
 	}
 	else
 	{
-		const char* invalid = "InvalidProfileTimingName";
-		int len = strlen(invalid);
-		strcpy(command->m_profile.m_name, invalid);
-		command->m_profile.m_name[len] = 0;
+		command->m_profile.m_name[0] = 0;
 	}
 	command->m_profile.m_type = -1;
 	command->m_profile.m_durationInMicroSeconds = 0;
