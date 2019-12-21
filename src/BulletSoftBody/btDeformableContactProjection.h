@@ -28,22 +28,33 @@ public:
     typedef btAlignedObjectArray<btVector3> TVStack;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
     
-    // map from node index to static constraint
-    btHashMap<btHashInt, btDeformableStaticConstraint> m_staticConstraints;
-    // map from node index to node rigid constraint
-    btHashMap<btHashInt, btAlignedObjectArray<btDeformableNodeRigidContactConstraint> > m_nodeRigidConstraints;
-    // map from node index to face rigid constraint
-    btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceRigidContactConstraint*> > m_faceRigidConstraints;
-    // map from node index to deformable constraint
-    btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceNodeContactConstraint*> > m_deformableConstraints;
-    // map from node index to node anchor constraint
-    btHashMap<btHashInt, btDeformableNodeAnchorConstraint> m_nodeAnchorConstraints;
-    
+//    // map from node index to static constraint
+//    btHashMap<btHashInt, btDeformableStaticConstraint> m_staticConstraints;
+//    // map from node index to node rigid constraint
+//    btHashMap<btHashInt, btAlignedObjectArray<btDeformableNodeRigidContactConstraint> > m_nodeRigidConstraints;
+//    // map from node index to face rigid constraint
+//    btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceRigidContactConstraint*> > m_faceRigidConstraints;
+//    // map from node index to deformable constraint
+//    btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceNodeContactConstraint*> > m_deformableConstraints;
+//    // map from node index to node anchor constraint
+//    btHashMap<btHashInt, btDeformableNodeAnchorConstraint> m_nodeAnchorConstraints;
+	
     // all constraints involving face
     btAlignedObjectArray<btDeformableContactConstraint*> m_allFaceConstraints;
     
     // map from node index to projection directions
     btHashMap<btHashInt, btAlignedObjectArray<btVector3> > m_projectionsDict;
+	
+	// map from node index to static constraint
+	btAlignedObjectArray<btAlignedObjectArray<btDeformableStaticConstraint> > m_staticConstraints;
+	// map from node index to node rigid constraint
+	btAlignedObjectArray<btAlignedObjectArray<btDeformableNodeRigidContactConstraint> > m_nodeRigidConstraints;
+	// map from node index to face rigid constraint
+	btAlignedObjectArray<btAlignedObjectArray<btDeformableFaceRigidContactConstraint> > m_faceRigidConstraints;
+	// map from node index to deformable constraint
+	btAlignedObjectArray<btAlignedObjectArray<btDeformableFaceNodeContactConstraint> > m_deformableConstraints;
+	// map from node index to node anchor constraint
+	btAlignedObjectArray<btAlignedObjectArray<btDeformableNodeAnchorConstraint> > m_nodeAnchorConstraints;
     
     btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies)
     : m_softBodies(softBodies)
@@ -61,7 +72,7 @@ public:
     virtual void applyDynamicFriction(TVStack& f);
     
     // update and solve the constraints
-    virtual btScalar update();
+    virtual btScalar update(btCollisionObject** deformableBodies,int numDeformableBodies);
     
     // solve the position error using split impulse
     virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal);

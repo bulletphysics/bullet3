@@ -36,7 +36,7 @@ btDeformableMultiBodyConstraintSolver : public btMultiBodyConstraintSolver
     
 protected:
     // override the iterations method to include deformable/multibody contact
-    virtual btScalar solveGroupCacheFriendlyIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
+//    virtual btScalar solveGroupCacheFriendlyIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
     
     // write the velocity of the the solver body to the underlying rigid body
     void solverBodyWriteBack(const btContactSolverInfo& infoGlobal);
@@ -46,6 +46,7 @@ protected:
     
     virtual void solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
     
+    virtual btScalar solveDeformableGroupIterations(btCollisionObject** bodies,int numBodies,btCollisionObject** deformableBodies,int numDeformableBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
 public:
     BT_DECLARE_ALIGNED_ALLOCATOR();
     
@@ -54,7 +55,7 @@ public:
         m_deformableSolver = deformableSolver;
     }
     
-    virtual void solveMultiBodyGroup(btCollisionObject * *bodies, int numBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, btMultiBodyConstraint** multiBodyConstraints, int numMultiBodyConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher);
+    virtual void solveDeformableBodyGroup(btCollisionObject * *bodies, int numBodies, btCollisionObject * *deformableBodies, int numDeformableBodies, btPersistentManifold** manifold, int numManifolds, btTypedConstraint** constraints, int numConstraints, btMultiBodyConstraint** multiBodyConstraints, int numMultiBodyConstraints, const btContactSolverInfo& info, btIDebugDraw* debugDrawer, btDispatcher* dispatcher);
 };
 
 #endif /* BT_DEFORMABLE_MULTIBODY_CONSTRAINT_SOLVER_H */
