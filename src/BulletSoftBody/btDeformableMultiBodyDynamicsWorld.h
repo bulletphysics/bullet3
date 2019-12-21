@@ -80,9 +80,7 @@ public:
         m_solverCallback = cb;
     }
     
-    virtual ~btDeformableMultiBodyDynamicsWorld()
-    {
-    }
+    virtual ~btDeformableMultiBodyDynamicsWorld();
     
     virtual btMultiBodyDynamicsWorld* getMultiBodyDynamicsWorld()
     {

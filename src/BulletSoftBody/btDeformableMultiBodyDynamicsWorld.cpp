@@ -66,6 +66,11 @@ m_deformableBodySolver(deformableBodySolver), m_solverCallback(0)
 	m_solverDeformableBodyIslandCallback = new DeformableBodyInplaceSolverIslandCallback(constraintSolver, dispatcher);
 }
 
+btDeformableMultiBodyDynamicsWorld::~btDeformableMultiBodyDynamicsWorld()
+{
+    delete m_solverDeformableBodyIslandCallback;
+}
+
 void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
     BT_PROFILE("internalSingleStepSimulation");
