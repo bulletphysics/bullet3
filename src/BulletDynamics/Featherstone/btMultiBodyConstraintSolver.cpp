@@ -1250,7 +1250,7 @@ void btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 {
 	const btMultiBodyLinkCollider* fcA = btMultiBodyLinkCollider::upcast(manifold->getBody0());
 	const btMultiBodyLinkCollider* fcB = btMultiBodyLinkCollider::upcast(manifold->getBody1());
-
+	
 	btMultiBody* mbA = fcA ? fcA->m_multiBody : 0;
 	btMultiBody* mbB = fcB ? fcB->m_multiBody : 0;
 
@@ -1270,7 +1270,7 @@ void btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 	//	return;
 
 	//only a single rollingFriction per manifold
-	int rollingFriction = 1;
+	int rollingFriction = 4;
 
 	for (int j = 0; j < manifold->getNumContacts(); j++)
 	{
