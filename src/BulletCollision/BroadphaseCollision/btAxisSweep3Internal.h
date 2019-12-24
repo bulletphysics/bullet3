@@ -721,27 +721,23 @@ void btAxisSweep3Internal<BP_FP_INT_TYPE>::updateHandle(BP_FP_INT_TYPE handle, c
 	for (int axis = 0; axis < 3; axis++)
 	{
 		BP_FP_INT_TYPE emin = pHandle->m_minEdges[axis];
+        int dmin = (int)min[axis] - (int)m_pEdges[axis][emin].m_pos;
+        m_pEdges[axis][emin].m_pos = min[axis];
+        
+        if (dmin < 0)
+            sortMinDown(axis, emin,dispatcher,true);
+        else if (dmin > 0)
+            sortMinUp(axis, emin,dispatcher,true);
+        
+        
 		BP_FP_INT_TYPE emax = pHandle->m_maxEdges[axis];
-
-		int dmin = (int)min[axis] - (int)m_pEdges[axis][emin].m_pos;
 		int dmax = (int)max[axis] - (int)m_pEdges[axis][emax].m_pos;
-
-		m_pEdges[axis][emin].m_pos = min[axis];
 		m_pEdges[axis][emax].m_pos = max[axis];
-
-		// expand (only adds overlaps)
-		if (dmin < 0)
-			sortMinDown(axis, emin, dispatcher, true);
-
+        
 		if (dmax > 0)
-			sortMaxUp(axis, emax, dispatcher, true);
-
-		// shrink (only removes overlaps)
-		if (dmin > 0)
-			sortMinUp(axis, emin, dispatcher, true);
-
-		if (dmax < 0)
-			sortMaxDown(axis, emax, dispatcher, true);
+			sortMaxUp(axis, emax,dispatcher,true);
+		else if (dmax < 0)
+			sortMaxDown(axis, emax,dispatcher,true);
 
 #ifdef DEBUG_BROADPHASE
 		debugPrintAxis(axis);
