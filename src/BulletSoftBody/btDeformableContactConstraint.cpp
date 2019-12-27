@@ -140,8 +140,8 @@ btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btS
 {
     m_total_normal_dv.setZero();
     m_total_tangent_dv.setZero();
-    // penetration is non-positive. The magnitude of penetration is the depth of penetration.
-    m_penetration = btMin(btScalar(0), c.m_cti.m_offset);
+    // The magnitude of penetration is the depth of penetration.
+    m_penetration = c.m_cti.m_offset;
 }
 
 btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btDeformableRigidContactConstraint& other)
@@ -256,6 +256,8 @@ btScalar btDeformableRigidContactConstraint::solveConstraint()
     impulse = impulse_normal + impulse_tangent;
     // apply impulse to deformable nodes involved and change their velocities
     applyImpulse(impulse);
+	if (residualSquare < 1e-7)
+		return residualSquare;
     // apply impulse to the rigid/multibodies involved and change their velocities
     if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
     {
