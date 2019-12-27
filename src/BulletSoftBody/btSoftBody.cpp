@@ -3700,8 +3700,8 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
                     docollideFace.psb = this;
                     docollideFace.m_colObj1Wrap = pcoWrap;
                     docollideFace.m_rigidBody = prb1;
-                    docollideFace.dynmargin = basemargin + timemargin;
-                    docollideFace.stamargin = basemargin;
+					docollideFace.dynmargin = 0.9*(basemargin + timemargin);
+					docollideFace.stamargin = 0.9*basemargin;
                     m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
                 }
             }

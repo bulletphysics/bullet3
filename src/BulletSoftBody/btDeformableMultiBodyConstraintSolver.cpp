@@ -127,8 +127,8 @@ void btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlySplitImpulseI
                         leastSquaresResidual = btMax(leastSquaresResidual, residual * residual);
                     }
                     // solve the position correction between deformable and rigid/multibody
-                    btScalar residual = m_deformableSolver->solveSplitImpulse(infoGlobal);
-                    leastSquaresResidual = btMax(leastSquaresResidual, residual * residual);
+//                    btScalar residual = m_deformableSolver->solveSplitImpulse(infoGlobal);
+//                    leastSquaresResidual = btMax(leastSquaresResidual, residual * residual);
                 }
                 if (leastSquaresResidual <= infoGlobal.m_leastSquaresResidualThreshold || iteration >= (infoGlobal.m_numIterations - 1))
                 {
