@@ -2407,7 +2407,6 @@ bool btSoftBody::checkDeformableContact(const btCollisionObjectWrapper* colObjWr
     btTransform wtr = (predict) ?
     (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
                  : colObjWrap->getWorldTransform();
-//    const btTransform& wtr = colObjWrap->getWorldTransform();
 	btScalar dst =
 		m_worldInfo->m_sparsesdf.Evaluate(
 			wtr.invXform(x),
@@ -2458,7 +2457,6 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
     btTransform wtr = (predict) ?
     (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
     : colObjWrap->getWorldTransform();
-//    const btTransform& wtr = colObjWrap->getWorldTransform();
     btScalar dst;
     
 #define USE_QUADRATURE 1
