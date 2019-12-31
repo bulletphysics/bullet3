@@ -55,7 +55,6 @@ IF(NOT WIN32)
 ENDIF(NOT WIN32)
 
 OPTION(USE_MSVC_INCREMENTAL_LINKING "Use MSVC Incremental Linking" OFF)
-OPTION(USE_CUSTOM_VECTOR_MATH "Use custom vectormath library" OFF)
 
 #statically linking VC++ isn't supported for WindowsPhone/WindowsStore
 IF (CMAKE_SYSTEM_NAME STREQUAL WindowsPhone OR CMAKE_SYSTEM_NAME STREQUAL WindowsStore)
