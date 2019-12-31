@@ -53,7 +53,7 @@ btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btV
 		n.m_material = pm;
 	}
 	updateBounds();
-	setCollisionQuadrature(3);
+	setCollisionQuadrature(2);
 }
 
 btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo)
