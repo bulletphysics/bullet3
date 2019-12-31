@@ -77,7 +77,7 @@ public:
     void reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt);
     
     // set up contact constraints
-    void setConstraints();
+    void setConstraints(const btContactSolverInfo& infoGlobal);
     
     // add in elastic forces and gravity to obtain v_{n+1}^* and calls predictDeformableMotion
     virtual void predictMotion(btScalar solverdt);

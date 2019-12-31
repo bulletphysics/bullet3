@@ -78,7 +78,7 @@ public:
     virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal);
     
     // Add constraints to m_constraints. In addition, the constraints that each vertex own are recorded in m_constraintsDict.
-    virtual void setConstraints();
+    virtual void setConstraints(const btContactSolverInfo& infoGlobal);
     
     // Set up projections for each vertex by adding the projection direction to
     virtual void setProjection();

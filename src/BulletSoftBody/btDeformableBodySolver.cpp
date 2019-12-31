@@ -228,10 +228,10 @@ void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody 
     m_objective->reinitialize(nodeUpdated, dt);
 }
 
-void btDeformableBodySolver::setConstraints()
+void btDeformableBodySolver::setConstraints(const btContactSolverInfo& infoGlobal)
 {
     BT_PROFILE("setConstraint");
-    m_objective->setConstraints();
+    m_objective->setConstraints(infoGlobal);
 }
 
 btScalar btDeformableBodySolver::solveContactConstraints(btCollisionObject** deformableBodies,int numDeformableBodies)
