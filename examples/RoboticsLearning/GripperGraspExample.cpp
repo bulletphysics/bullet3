@@ -425,12 +425,12 @@ public:
 
 			m_robotSim.setGravity(btVector3(0, 0, -10));
 			b3RobotSimulatorLoadDeformableBodyArgs args(2, .01, 0.006);
-			args.m_springElasticStiffness = .1;
-			args.m_springDampingStiffness = .0004;
-			args.m_springBendingStiffness = 1;
-			args.m_frictionCoeff = 1;
+			args.m_springElasticStiffness = 1;
+			args.m_springDampingStiffness = .01;
+			args.m_springBendingStiffness = .1;
+			args.m_frictionCoeff = 10;
 			args.m_useSelfCollision = false;
-//			args.m_useFaceContact = true;
+			args.m_useFaceContact = true;
 			args.m_useBendingSprings = true;
 			args.m_startPosition.setValue(0, 0, 0);
 			args.m_startOrientation.setValue(0, 0, 1, 1);
@@ -476,7 +476,7 @@ public:
 			revoluteJoint2.m_jointType = ePoint2PointType;
 			m_robotSim.createConstraint(0, 2, 0, 4, &revoluteJoint1);
 			m_robotSim.createConstraint(0, 3, 0, 6, &revoluteJoint2);
-			m_robotSim.setNumSimulationSubSteps(8);
+			m_robotSim.setNumSimulationSubSteps(2);
         }
 
 		if ((m_options & eSOFTBODY_MULTIBODY_COUPLING) != 0)
