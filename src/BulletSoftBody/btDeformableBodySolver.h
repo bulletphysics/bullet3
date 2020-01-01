@@ -65,7 +65,7 @@ public:
     virtual void solveDeformableConstraints(btScalar solverdt);
     
     // solve the contact between deformable and rigid as well as among deformables
-    btScalar solveContactConstraints(btCollisionObject** deformableBodies,int numDeformableBodies);
+    btScalar solveContactConstraints(btCollisionObject** deformableBodies,int numDeformableBodies, const btContactSolverInfo& infoGlobal);
     
     // solve the position error  between deformable and rigid as well as among deformables;
     btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal);

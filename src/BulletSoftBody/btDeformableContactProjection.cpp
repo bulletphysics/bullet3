@@ -17,7 +17,7 @@
 #include "btDeformableMultiBodyDynamicsWorld.h"
 #include <algorithm>
 #include <cmath>
-btScalar btDeformableContactProjection::update(btCollisionObject** deformableBodies,int numDeformableBodies)
+btScalar btDeformableContactProjection::update(btCollisionObject** deformableBodies,int numDeformableBodies, const btContactSolverInfo& infoGlobal)
 {
 	btScalar residualSquare = 0;
 	for (int i = 0; i < numDeformableBodies; ++i)
@@ -32,25 +32,25 @@ btScalar btDeformableContactProjection::update(btCollisionObject** deformableBod
 			for (int k = 0; k < m_nodeRigidConstraints[j].size(); ++k)
 			{
 				btDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[j][k];
-				btScalar localResidualSquare = constraint.solveConstraint();
+				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
 				residualSquare = btMax(residualSquare, localResidualSquare);
 			}
 			for (int k = 0; k < m_nodeAnchorConstraints[j].size(); ++k)
 			{
 				btDeformableNodeAnchorConstraint& constraint = m_nodeAnchorConstraints[j][k];
-				btScalar localResidualSquare = constraint.solveConstraint();
+				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
 				residualSquare = btMax(residualSquare, localResidualSquare);
 			}
 			for (int k = 0; k < m_faceRigidConstraints[j].size(); ++k)
 			{
 				btDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[j][k];
-				btScalar localResidualSquare = constraint.solveConstraint();
+				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
 				residualSquare = btMax(residualSquare, localResidualSquare);
 			}
 			for (int k = 0; k < m_deformableConstraints[j].size(); ++k)
 			{
 				btDeformableFaceNodeContactConstraint& constraint = m_deformableConstraints[j][k];
-				btScalar localResidualSquare = constraint.solveConstraint();
+				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
 				residualSquare = btMax(residualSquare, localResidualSquare);
 			}
 		}

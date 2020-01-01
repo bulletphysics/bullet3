@@ -275,12 +275,12 @@ void GraspDeformable::initPhysics()
 	{
 		char absolute_path[1024];
 		b3BulletDefaultFileIO fileio;
-//        fileio.findResourcePath("ditto.vtk", absolute_path, 1024);
+        fileio.findResourcePath("ditto.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("banana.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("ball.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("deformable_crumpled_napkin_sim.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("single_tet.vtk", absolute_path, 1024);
-                fileio.findResourcePath("tube.vtk", absolute_path, 1024);
+//                fileio.findResourcePath("tube.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("torus.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("paper_roll.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("bread.vtk", absolute_path, 1024);
@@ -295,8 +295,8 @@ void GraspDeformable::initPhysics()
 //        psb->scale(btVector3(30, 30, 30)); // for banana
         psb->scale(btVector3(.7, .7, .7));
 //        psb->scale(btVector3(2, 2, 2));
-        psb->scale(btVector3(.3, .3, .3));  // for tube, torus, boot
-//        psb->scale(btVector3(.1, .1, .1));  // for ditto
+//        psb->scale(btVector3(.3, .3, .3));  // for tube, torus, boot
+        psb->scale(btVector3(.1, .1, .1));  // for ditto
 //        psb->translate(btVector3(.25, 10, 0.4));
         psb->getCollisionShape()->setMargin(0.0005);
         psb->setMaxStress(50);

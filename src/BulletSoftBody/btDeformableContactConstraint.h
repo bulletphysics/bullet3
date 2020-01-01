@@ -50,7 +50,7 @@ public:
     
     // solve the constraint with inelastic impulse and return the error, which is the square of normal component of velocity diffrerence
     // the constraint is solved by calculating the impulse between object A and B in the contact and apply the impulse to both objects involved in the contact
-    virtual btScalar solveConstraint() = 0;
+    virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal) = 0;
     
     // solve the position error by applying an inelastic impulse that changes only the position (not velocity)
     virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal) = 0;
@@ -93,7 +93,7 @@ public:
     
     virtual ~btDeformableStaticConstraint(){}
     
-    virtual btScalar solveConstraint()
+    virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal)
     {
         return 0;
     }
@@ -136,7 +136,7 @@ public:
     virtual ~btDeformableNodeAnchorConstraint()
     {
     }
-    virtual btScalar solveConstraint();
+    virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal);
     virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal)
     {
         // todo xuchenhan@
@@ -179,7 +179,7 @@ public:
     // object A is the rigid/multi body, and object B is the deformable node/face
     virtual btVector3 getVa() const;
     
-    virtual btScalar solveConstraint();
+    virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal);
     
     virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal);
     
@@ -264,7 +264,7 @@ public:
 	btDeformableFaceNodeContactConstraint(){}
     virtual ~btDeformableFaceNodeContactConstraint(){}
     
-    virtual btScalar solveConstraint();
+    virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal);
     
     virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal)
     {

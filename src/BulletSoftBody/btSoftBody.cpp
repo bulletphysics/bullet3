@@ -53,7 +53,7 @@ btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btV
 		n.m_material = pm;
 	}
 	updateBounds();
-	setCollisionQuadrature(2);
+	setCollisionQuadrature(3);
 }
 
 btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo)
@@ -2459,7 +2459,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
     : colObjWrap->getWorldTransform();
     btScalar dst;
     
-#define USE_QUADRATURE 1
+//#define USE_QUADRATURE 1
 //#define CACHE_PREV_COLLISION
     
     // use the contact position of the previous collision

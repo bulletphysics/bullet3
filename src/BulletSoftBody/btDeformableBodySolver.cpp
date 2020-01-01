@@ -234,10 +234,10 @@ void btDeformableBodySolver::setConstraints(const btContactSolverInfo& infoGloba
     m_objective->setConstraints(infoGlobal);
 }
 
-btScalar btDeformableBodySolver::solveContactConstraints(btCollisionObject** deformableBodies,int numDeformableBodies)
+btScalar btDeformableBodySolver::solveContactConstraints(btCollisionObject** deformableBodies,int numDeformableBodies, const btContactSolverInfo& infoGlobal)
 {
     BT_PROFILE("solveContactConstraints");
-    btScalar maxSquaredResidual = m_objective->m_projection.update(deformableBodies,numDeformableBodies);
+    btScalar maxSquaredResidual = m_objective->m_projection.update(deformableBodies,numDeformableBodies, infoGlobal);
     return maxSquaredResidual;
 }
 

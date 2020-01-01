@@ -72,7 +72,7 @@ public:
     virtual void applyDynamicFriction(TVStack& f);
     
     // update and solve the constraints
-    virtual btScalar update(btCollisionObject** deformableBodies,int numDeformableBodies);
+    virtual btScalar update(btCollisionObject** deformableBodies,int numDeformableBodies, const btContactSolverInfo& infoGlobal);
     
     // solve the position error using split impulse
     virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal);
