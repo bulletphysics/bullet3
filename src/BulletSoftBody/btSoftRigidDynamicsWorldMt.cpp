@@ -114,7 +114,7 @@ void btSoftRigidDynamicsWorldMt::internalSingleStepSimulation(btScalar timeStep)
 	if (m_softBodies.size() > 0)
 	{
 		DefaultCollisionHandler update(&m_softBodies);
-		int grainSize = 10;  // num of iterations per task for task scheduler
+		int grainSize = 2;  // num of iterations per task for task scheduler
 		btParallelFor(0, m_softBodies.size(), grainSize, update);
 	}
 
@@ -198,20 +198,20 @@ void btSoftRigidDynamicsWorldMt::solveClusters()
 
       {
 			PrepareClusters update(&m_softBodies, iterations);
-			int grainSize = 10;  // num of iterations per task for task scheduler
+			int grainSize = 2;  // num of iterations per task for task scheduler
 			btParallelFor(0, m_softBodies.size(), grainSize, update);
 		}
 
 		for (i = 0; i < iterations; ++i)
 		{
 			SolveClusters update(&m_softBodies);
-			int grainSize = 10;  // num of iterations per task for task scheduler
+			int grainSize = 2;  // num of iterations per task for task scheduler
 			btParallelFor(0, m_softBodies.size(), grainSize, update);
 		}
 
 		{
 			CleanupClusters update(&m_softBodies);
-			int grainSize = 10;  // num of iterations per task for task scheduler
+			int grainSize = 2;  // num of iterations per task for task scheduler
 			btParallelFor(0, m_softBodies.size(), grainSize, update);
 		}
 	}
