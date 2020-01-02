@@ -26,6 +26,7 @@ from __future__ import print_function
 import os
 
 import gym
+from gym import wrappers
 import tensorflow as tf
 
 from . import tools

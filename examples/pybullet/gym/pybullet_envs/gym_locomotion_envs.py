@@ -9,12 +9,12 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 
   def __init__(self, robot, render=False):
     # print("WalkerBase::__init__ start")
-    MJCFBaseBulletEnv.__init__(self, robot, render)
-
     self.camera_x = 0
     self.walk_target_x = 1e3  # kilometer away
     self.walk_target_y = 0
     self.stateId = -1
+    MJCFBaseBulletEnv.__init__(self, robot, render)
+
 
   def create_single_player_scene(self, bullet_client):
     self.stadium_scene = SinglePlayerStadiumScene(bullet_client,
