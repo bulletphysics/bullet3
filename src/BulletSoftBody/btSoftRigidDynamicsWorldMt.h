@@ -13,8 +13,8 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BT_SOFT_RIGID_DYNAMICS_WORLD_H
-#define BT_SOFT_RIGID_DYNAMICS_WORLD_H
+#ifndef BT_SOFT_RIGID_DYNAMICS_WORLD_MT_H
+#define BT_SOFT_RIGID_DYNAMICS_WORLD_MT_H
 
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h"
 #include "btSoftBody.h"
@@ -106,4 +106,4 @@ public:
 	virtual void serialize(btSerializer* serializer);
 };
 
-#endif  //BT_SOFT_RIGID_DYNAMICS_WORLD_H
+#endif  //BT_SOFT_RIGID_DYNAMICS_WORLD_MT_H
