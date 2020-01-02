@@ -41,7 +41,7 @@ class BulletClient(object):
   def __getattr__(self, name):
     """Inject the client id into Bullet functions."""
     attribute = getattr(pybullet, name)
-
+    attribute = functools.partial(attribute, physicsClientId=self._client)
     if name=="disconnect":
       self._client = -1 
     return attribute
