@@ -48,7 +48,7 @@ void btDefaultSoftBodySolverMt::updateSoftBodies()
 	if (m_softBodySet.size() > 0)
 	{
 		SoftBodyUpdater loop(&m_softBodySet);
-		int grainSize = 10;
+		int grainSize = 2;
 		btParallelFor(0, m_softBodySet.size(), grainSize, loop);
 	}
 }  // updateSoftBodies
@@ -80,7 +80,7 @@ void btDefaultSoftBodySolverMt::solveConstraints(btScalar solverdt)
 	if (m_softBodySet.size() > 0)
 	{
 		SolveConstraints loop(&m_softBodySet);
-		int grainSize = 10;
+		int grainSize = 2;
 		btParallelFor(0, m_softBodySet.size(), grainSize, loop);
 	}
 }  // btDefaultSoftBodySolverMt::solveConstraints
@@ -113,7 +113,7 @@ void btDefaultSoftBodySolverMt::predictMotion(btScalar timeStep)
 	if (m_softBodySet.size() > 0)
 	{
 		PredictMotion loop(&m_softBodySet, timeStep);
-		int grainSize = 10;
+		int grainSize = 2;
 		btParallelFor(0, m_softBodySet.size(), grainSize, loop);
 	}
 }
