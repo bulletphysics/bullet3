@@ -21,6 +21,7 @@ subject to the following restrictions:
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btVector3.h"
+#include "LinearMath/btThreads.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
 #include "BulletCollision/CollisionShapes/btConcaveShape.h"
@@ -76,6 +77,9 @@ public:
 
 	// The solver object that handles this soft body
 	btSoftBodySolver* m_softBodySolver;
+
+	// The mutex object used to synchronize threads setting AABB to the broadphase
+	static btSpinMutex m_setAabbMutex;
 
 	//
 	// Enumerations
@@ -1026,7 +1030,7 @@ public:
 	/* Solver presets														*/
 	void setSolver(eSolverPresets::_ preset);
 	/* predictMotion														*/
-	void predictMotion(btScalar dt);
+	void predictMotion(btScalar dt, bool useBatching = false);
 	/* solveConstraints														*/
 	void solveConstraints();
 	/* staticSolve															*/
@@ -1125,7 +1129,7 @@ public:
     bool checkDeformableFaceContact(const btCollisionObjectWrapper* colObjWrap, Face& f, btVector3& contact_point, btVector3& bary, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
     bool checkContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti) const;
 	void updateNormals();
-	void updateBounds();
+	void updateBounds(bool useBatching = false);
 	void updatePose();
 	void updateConstants();
 	void updateLinkConstants();
