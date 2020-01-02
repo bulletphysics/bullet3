@@ -18,9 +18,6 @@ subject to the following restrictions:
 
 #include "BulletSoftBody/btDefaultSoftBodySolver.h"
 
-struct btCollisionObjectWrapper;
-class btVertexBufferDescriptor;
-
 class btDefaultSoftBodySolverMt : public btDefaultSoftBodySolver
 {
 public:
