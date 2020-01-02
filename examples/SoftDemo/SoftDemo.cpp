@@ -2153,6 +2153,8 @@ void SoftDemo::initPhysics()
 	m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
 #ifdef USE_MULTITHREADED_SOFT_BODY_PROCESSING
+	m_taskScheduler = btCreateDefaultTaskScheduler();
+	btSetTaskScheduler(m_taskScheduler);
 	m_dispatcher = new btCollisionDispatcherMt(m_collisionConfiguration);
 #else
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
@@ -2208,8 +2210,6 @@ void SoftDemo::initPhysics()
 #endif  //USE_AMD_OPENCL
 
 #ifdef USE_MULTITHREADED_SOFT_BODY_PROCESSING
-	m_taskScheduler = btCreateDefaultTaskScheduler();
-	btSetTaskScheduler(m_taskScheduler);
 	btConstraintSolverPoolMt* pool = new btConstraintSolverPoolMt(BT_MAX_THREAD_COUNT);
 	btDiscreteDynamicsWorld* world = new btSoftRigidDynamicsWorldMt(m_dispatcher, m_broadphase, pool, m_solver, m_collisionConfiguration, m_softBodySolver);
 #else
