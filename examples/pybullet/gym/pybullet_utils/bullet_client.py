@@ -42,17 +42,6 @@ class BulletClient(object):
     """Inject the client id into Bullet functions."""
     attribute = getattr(pybullet, name)
 
-    if inspect.isbuiltin(attribute):
-      if name not in [
-          "invertTransform",
-          "multiplyTransforms",
-          "getMatrixFromQuaternion",
-          "getEulerFromQuaternion",
-          "computeViewMatrixFromYawPitchRoll",
-          "computeProjectionMatrixFOV",
-          "getQuaternionFromEuler",
-      ]:  # A temporary hack for now.
-        attribute = functools.partial(attribute, physicsClientId=self._client)
     if name=="disconnect":
       self._client = -1 
     return attribute
