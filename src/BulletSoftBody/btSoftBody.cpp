@@ -2643,18 +2643,18 @@ void btSoftBody::updateBounds(bool useBatching)
         m_bounds[1] = maxs + mrg;
         if (0 != getBroadphaseHandle())
         {
-			if (useBatching)
-			{
+            if (useBatching)
+            {
 				m_setAabbMutex.lock();
-			}
+            }
             m_worldInfo->m_broadphase->setAabb(getBroadphaseHandle(),
                                                m_bounds[0],
                                                m_bounds[1],
                                                m_worldInfo->m_dispatcher);
-			if (useBatching)
-			{
-				m_setAabbMutex.unlock();
-			}
+            if (useBatching)
+            {
+            	m_setAabbMutex.unlock();
+            }
         }
     }
     else
