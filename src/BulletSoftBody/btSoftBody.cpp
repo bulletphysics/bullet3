@@ -23,8 +23,9 @@ subject to the following restrictions:
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa2.h"
 #include "BulletCollision/CollisionShapes/btTriangleShape.h"
-#include <iostream>
-//
+
+btSpinMutex btSoftBody::m_setAabbMutex;
+
 btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m)
 	: m_softBodySolver(0), m_worldInfo(worldInfo)
 {
@@ -620,7 +621,7 @@ void btSoftBody::addAeroForceToNode(const btVector3& windVelocity, int nodeIndex
 					fDrag = 0.5f * kDG * medium.m_density * rel_v2 * tri_area * n_dot_v * (-rel_v_nrm);
 
 					// Check angle of attack
-					// cos(10บ) = 0.98480
+					// cos(10ยบ) = 0.98480
 					if (0 < n_dot_v && n_dot_v < 0.98480f)
 						fLift = 0.5f * kLF * medium.m_density * rel_v_len * tri_area * btSqrt(1.0f - n_dot_v * n_dot_v) * (nrm.cross(rel_v_nrm).cross(rel_v_nrm));
 
@@ -706,7 +707,7 @@ void btSoftBody::addAeroForceToFace(const btVector3& windVelocity, int faceIndex
 				fDrag = 0.5f * kDG * medium.m_density * rel_v2 * tri_area * n_dot_v * (-rel_v_nrm);
 
 				// Check angle of attack
-				// cos(10บ) = 0.98480
+				// cos(10ยบ) = 0.98480
 				if (0 < n_dot_v && n_dot_v < 0.98480f)
 					fLift = 0.5f * kLF * medium.m_density * rel_v_len * tri_area * btSqrt(1.0f - n_dot_v * n_dot_v) * (nrm.cross(rel_v_nrm).cross(rel_v_nrm));
 
@@ -1860,7 +1861,7 @@ void btSoftBody::setSolver(eSolverPresets::_ preset)
 	}
 }
 
-void btSoftBody::predictMotion(btScalar dt)
+void btSoftBody::predictMotion(btScalar dt, bool useBatching)
 {
     int i, ni;
     
@@ -1913,7 +1914,7 @@ void btSoftBody::predictMotion(btScalar dt)
     /* Clusters                */
     updateClusters();
     /* Bounds                */
-    updateBounds();
+    updateBounds(useBatching);
     /* Nodes                */
     ATTRIBUTE_ALIGNED16(btDbvtVolume)
     vol;
@@ -2582,7 +2583,7 @@ void btSoftBody::updateNormals()
 }
 
 //
-void btSoftBody::updateBounds()
+void btSoftBody::updateBounds(bool useBatching)
 {
 	/*if( m_acceleratedSoftBody )
 	{
@@ -2642,10 +2643,18 @@ void btSoftBody::updateBounds()
         m_bounds[1] = maxs + mrg;
         if (0 != getBroadphaseHandle())
         {
+			if (useBatching)
+			{
+				m_setAabbMutex.lock();
+			}
             m_worldInfo->m_broadphase->setAabb(getBroadphaseHandle(),
                                                m_bounds[0],
                                                m_bounds[1],
                                                m_worldInfo->m_dispatcher);
+			if (useBatching)
+			{
+				m_setAabbMutex.unlock();
+			}
         }
     }
     else
