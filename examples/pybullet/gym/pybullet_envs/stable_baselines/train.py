@@ -3,18 +3,9 @@
 # Colab Notebook: https://colab.research.google.com/drive/1nZkHO4QTYfAksm9ZTaZ5vXyC7szZxC3F
 # Author: Antonin RAFFIN
 # MIT License
-
-# Add parent dir to find package. Only needed for source code build, pip install doesn't need it.
-import os
-import inspect
 import argparse
 
-try:
-    import pybullet_envs
-except ImportError:
-    current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    parent_dir = os.path.dirname(os.path.dirname(current_dir))
-    os.sys.path.insert(0, parent_dir)
+import pybullet_envs
 
 import gym
 import numpy as np
