@@ -1,6 +1,6 @@
 # Code adapted from https://github.com/araffin/rl-baselines-zoo
 # it requires stable-baselines to be installed
-# Colab Notebook:
+# Colab Notebook: https://colab.research.google.com/drive/1nZkHO4QTYfAksm9ZTaZ5vXyC7szZxC3F
 # Author: Antonin RAFFIN
 # MIT License
 
