@@ -99,6 +99,8 @@ public:
 	btITaskScheduler* m_taskScheduler;
 #endif
 
+	btSoftBodySolver* m_softBodySolver;
+
 public:
 	void initPhysics();
 
@@ -2173,14 +2175,13 @@ void SoftDemo::initPhysics()
 	m_softBodyWorldInfo.m_broadphase = m_broadphase;
 
 #ifdef USE_MULTITHREADED_SOFT_BODY_PROCESSING
-	btSequentialImpulseConstraintSolverMt* solver = new btSequentialImpulseConstraintSolverMt();
+	m_softBodySolver = new btDefaultSoftBodySolverMt();
+	m_solver = new btSequentialImpulseConstraintSolverMt();
 #else
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
+	m_softBodySolver = new btDefaultSoftBodySolver();
+	m_solver = new btSequentialImpulseConstraintSolver();
 #endif
 
-	m_solver = solver;
-
-	btSoftBodySolver* softBodySolver = new btDefaultSoftBodySolverMt();
 #ifdef USE_AMD_OPENCL
 
 	static bool once = true;
@@ -2210,9 +2211,9 @@ void SoftDemo::initPhysics()
 	m_taskScheduler = btCreateDefaultTaskScheduler();
 	btSetTaskScheduler(m_taskScheduler);
 	btConstraintSolverPoolMt* pool = new btConstraintSolverPoolMt(BT_MAX_THREAD_COUNT);
-	btDiscreteDynamicsWorld* world = new btSoftRigidDynamicsWorldMt(m_dispatcher, m_broadphase, pool, m_solver, m_collisionConfiguration, softBodySolver);
+	btDiscreteDynamicsWorld* world = new btSoftRigidDynamicsWorldMt(m_dispatcher, m_broadphase, pool, m_solver, m_collisionConfiguration, m_softBodySolver);
 #else
-	btDiscreteDynamicsWorld* world = new btSoftRigidDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration, softBodySolver);
+	btDiscreteDynamicsWorld* world = new btSoftRigidDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration, m_softBodySolver);
 #endif
 
 	m_dynamicsWorld = world;
@@ -2313,6 +2314,7 @@ void SoftDemo::exitPhysics()
 
 	//delete solver
 	delete m_solver;
+	delete m_softBodySolver;
 
 	//delete broadphase
 	delete m_broadphase;
