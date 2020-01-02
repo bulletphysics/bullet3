@@ -16,45 +16,19 @@ subject to the following restrictions:
 #ifndef BT_SOFT_BODY_DEFAULT_SOLVER_MT_H
 #define BT_SOFT_BODY_DEFAULT_SOLVER_MT_H
 
-#include "BulletSoftBody/btSoftBodySolvers.h"
-#include "btSoftBodySolverVertexBuffer.h"
+#include "BulletSoftBody/btDefaultSoftBodySolver.h"
+
 struct btCollisionObjectWrapper;
+class btVertexBufferDescriptor;
 
-class btDefaultSoftBodySolverMt : public btSoftBodySolver
+class btDefaultSoftBodySolverMt : public btDefaultSoftBodySolver
 {
-protected:
-	/** Variable to define whether we need to update solver constants on the next iteration */
-	bool m_updateSolverConstants;
-
-	btAlignedObjectArray<btSoftBody *> m_softBodySet;
-
 public:
-	btDefaultSoftBodySolverMt();
-
-	virtual ~btDefaultSoftBodySolverMt();
-
-	virtual SolverTypes getSolverType() const
-	{
-		return DEFAULT_SOLVER;
-	}
-
-	virtual bool checkInitialized();
-
 	virtual void updateSoftBodies();
-
-	virtual void optimize(btAlignedObjectArray<btSoftBody *> &softBodies, bool forceUpdate = false);
-
-	virtual void copyBackToSoftBodies(bool bMove = true);
 
 	virtual void solveConstraints(btScalar solverdt);
 
 	virtual void predictMotion(btScalar solverdt);
-
-	virtual void copySoftBodyToVertexBuffer(const btSoftBody *const softBody, btVertexBufferDescriptor *vertexBuffer);
-
-	virtual void processCollision(btSoftBody *, const btCollisionObjectWrapper *);
-
-	virtual void processCollision(btSoftBody *, btSoftBody *);
 };
 
 #endif  // #ifndef BT_SOFT_BODY_DEFAULT_SOLVER_MT_H
