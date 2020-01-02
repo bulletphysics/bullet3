@@ -45,7 +45,7 @@ if __name__ == '__main__':
     # Tuned hyperparameters from https://github.com/araffin/rl-baselines-zoo
     hyperparams = {
         'sac': dict(batch_size=256, gamma=0.98, policy_kwargs=dict(layers=[256, 256]),
-                    learning_starts=10000, buffer_size=int(1e6), tau=0.01),
+                    learning_starts=10000, buffer_size=int(2e5), tau=0.01),
 
         'td3': dict(batch_size=100, policy_kwargs=dict(layers=[400, 300]),
                     learning_rate=1e-3, learning_starts=10000, buffer_size=int(1e6),
