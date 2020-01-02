@@ -188,7 +188,7 @@ struct PredictMotion : public btIParallelForBody
 			btSoftBody* psb = (btSoftBody*)(*mSoftBodySet)[i];
 			if (psb->isActive())
 			{
-				psb->predictMotion(mTimeStep);
+				psb->predictMotion(mTimeStep, true);
 			}
 		}
 	}
