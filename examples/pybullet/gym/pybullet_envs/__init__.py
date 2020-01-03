@@ -26,6 +26,14 @@ register(
 )
 
 register(
+    id='CartPoleContinuousBulletEnv-v0',
+    entry_point='pybullet_envs.bullet:CartPoleContinuousBulletEnv',
+    max_episode_steps=200,
+    reward_threshold=190.0,
+)
+
+
+register(
     id='MinitaurBulletEnv-v0',
     entry_point='pybullet_envs.bullet:MinitaurBulletEnv',
     max_episode_steps=1000,
