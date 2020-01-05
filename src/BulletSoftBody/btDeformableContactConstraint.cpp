@@ -414,6 +414,11 @@ void btDeformableFaceRigidContactConstraint::applyImpulse(const btVector3& impul
     if (im2 > 0)
         v2 -= dv * contact->m_weights[2];
 
+	btScalar relaxation = 1./btScalar(m_infoGlobal->m_numIterations);
+	btScalar m01 = (relaxation/(im0 + im1));
+	btScalar m02 = (relaxation/(im0 + im2));
+	btScalar m12 = (relaxation/(im1 + im2));
+	#ifdef USE_STRAIN_RATE_LIMITING
 	// apply strain limiting to prevent the new velocity to change the current length of the edge by more than 1%.
 	btScalar p = 0.01;
 	btVector3& x0 = face->m_n[0]->m_x;
@@ -446,24 +451,19 @@ void btDeformableFaceRigidContactConstraint::applyImpulse(const btVector3& impul
 		{
 			s = 1/dt * (-x_diff_dot_u + btSqrt(x_diff_dot_u*x_diff_dot_u + (p*p+2*p) * x_diff_norm * x_diff_norm));
 		}
-//		x_diff_norm_new = (x_diff[i] + s * u[i] * dt).safeNorm();
-//		strainRate = x_diff_norm_new/x_diff_norm;
+		//		x_diff_norm_new = (x_diff[i] + s * u[i] * dt).safeNorm();
+		//		strainRate = x_diff_norm_new/x_diff_norm;
 		dn[i] = s - v_diff[i].safeNorm();
 	}
-
-	btScalar relaxation = 0.5;
-	// apply strain limiting to prevent undamped modes
-	btScalar m01 = (relaxation/(im0 + im1));
-	btScalar m02 = (relaxation/(im0 + im2));
-	btScalar m12 = (relaxation/(im1 + im2));
-
-//	btVector3 dv0 = im0 * (m01 * (v1-v0) + m02 * (v2-v0));
-//	btVector3 dv1 = im1 * (m01 * (v0-v1) + m12 * (v2-v1));
-//	btVector3 dv2 = im2 * (m12 * (v1-v2) + m02 * (v0-v2));
-	
 	btVector3 dv0 = im0 * (m01 * u[0]*(-dn[0]) + m02 * u[1]*-(dn[1]));
 	btVector3 dv1 = im1 * (m01 * u[0]*(dn[0]) + m12 * u[2]*(-dn[2]));
 	btVector3 dv2 = im2 * (m12 * u[2]*(dn[2]) + m02 * u[1]*(dn[1]));
+#else
+	// apply strain limiting to prevent undamped modes
+	btVector3 dv0 = im0 * (m01 * (v1-v0) + m02 * (v2-v0));
+	btVector3 dv1 = im1 * (m01 * (v0-v1) + m12 * (v2-v1));
+	btVector3 dv2 = im2 * (m12 * (v1-v2) + m02 * (v0-v2));
+#endif
 	v0 += dv0;
 	v1 += dv1;
 	v2 += dv2;

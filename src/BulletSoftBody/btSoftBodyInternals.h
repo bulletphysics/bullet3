@@ -1181,8 +1181,8 @@ struct btSoftColliders
                     c.m_weights = btScalar(2)/(btScalar(1) + bary.length2()) * bary;
                     c.m_face = &f;
 					// friction is handled by the nodes to prevent sticking
-                    const btScalar fc = 0;
-//                    const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();
+//                    const btScalar fc = 0;
+                    const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();
                     
                     // the effective inverse mass of the face as in https://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf
                     ima = bary.getX()*c.m_weights.getX() * n0->m_im + bary.getY()*c.m_weights.getY() * n1->m_im + bary.getZ()*c.m_weights.getZ() * n2->m_im;

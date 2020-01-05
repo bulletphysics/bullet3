@@ -2459,7 +2459,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
     : colObjWrap->getWorldTransform();
     btScalar dst;
     
-//#define USE_QUADRATURE 1
+#define USE_QUADRATURE 1
 //#define CACHE_PREV_COLLISION
     
     // use the contact position of the previous collision
@@ -3698,8 +3698,8 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
                     docollideFace.psb = this;
                     docollideFace.m_colObj1Wrap = pcoWrap;
                     docollideFace.m_rigidBody = prb1;
-					docollideFace.dynmargin = 0.9*(basemargin + timemargin);
-					docollideFace.stamargin = 0.9*basemargin;
+					docollideFace.dynmargin = 0.05*(basemargin + timemargin);
+					docollideFace.stamargin = 0.05*basemargin;
                     m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
                 }
             }
