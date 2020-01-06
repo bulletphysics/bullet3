@@ -1030,7 +1030,7 @@ public:
 	/* Solver presets														*/
 	void setSolver(eSolverPresets::_ preset);
 	/* predictMotion														*/
-	void predictMotion(btScalar dt, bool useBatching = false);
+	void predictMotion(btScalar dt, bool batchUpdating = false);
 	/* solveConstraints														*/
 	void solveConstraints();
 	/* staticSolve															*/
@@ -1129,7 +1129,7 @@ public:
     bool checkDeformableFaceContact(const btCollisionObjectWrapper* colObjWrap, Face& f, btVector3& contact_point, btVector3& bary, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
     bool checkContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti) const;
 	void updateNormals();
-	void updateBounds(bool useBatching = false);
+	void updateBounds(bool batchUpdating = false);
 	void updatePose();
 	void updateConstants();
 	void updateLinkConstants();
