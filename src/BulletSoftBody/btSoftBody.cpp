@@ -1861,7 +1861,7 @@ void btSoftBody::setSolver(eSolverPresets::_ preset)
 	}
 }
 
-void btSoftBody::predictMotion(btScalar dt, bool useBatching)
+void btSoftBody::predictMotion(btScalar dt, bool batchUpdating)
 {
     int i, ni;
     
@@ -1914,7 +1914,7 @@ void btSoftBody::predictMotion(btScalar dt, bool useBatching)
     /* Clusters                */
     updateClusters();
     /* Bounds                */
-    updateBounds(useBatching);
+    updateBounds(batchUpdating);
     /* Nodes                */
     ATTRIBUTE_ALIGNED16(btDbvtVolume)
     vol;
@@ -2583,7 +2583,7 @@ void btSoftBody::updateNormals()
 }
 
 //
-void btSoftBody::updateBounds(bool useBatching)
+void btSoftBody::updateBounds(bool batchUpdating)
 {
 	/*if( m_acceleratedSoftBody )
 	{
@@ -2643,7 +2643,7 @@ void btSoftBody::updateBounds(bool useBatching)
         m_bounds[1] = maxs + mrg;
         if (0 != getBroadphaseHandle())
         {
-            if (useBatching)
+            if (batchUpdating)
             {
                 m_setAabbMutex.lock();
             }
@@ -2651,7 +2651,7 @@ void btSoftBody::updateBounds(bool useBatching)
                                                m_bounds[0],
                                                m_bounds[1],
                                                m_worldInfo->m_dispatcher);
-            if (useBatching)
+            if (batchUpdating)
             {
                 m_setAabbMutex.unlock();
             }
