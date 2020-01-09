@@ -1131,7 +1131,7 @@ void b3RobotSimulatorClientAPI_NoDirect::resetDebugVisualizerCamera(double camer
 	}
 }
 
-void b3RobotSimulatorClientAPI_NoDirect::submitProfileTiming(const std::string& profileName, int durationInMicroSeconds)
+void b3RobotSimulatorClientAPI_NoDirect::submitProfileTiming(const std::string& profileName)
 {
 	if (!isConnected())
 	{
@@ -1140,10 +1140,16 @@ void b3RobotSimulatorClientAPI_NoDirect::submitProfileTiming(const std::string& 
 	}
 
 	b3SharedMemoryCommandHandle commandHandle = b3ProfileTimingCommandInit(m_data->m_physicsClientHandle, profileName.c_str());
-	if (durationInMicroSeconds >= 0)
+
+	if (profileName.length())
 	{
-		b3SetProfileTimingDuractionInMicroSeconds(commandHandle, durationInMicroSeconds);
+		b3SetProfileTimingType(commandHandle, 0);
 	}
+	else
+	{
+		b3SetProfileTimingType(commandHandle, 1);
+	}
+
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 }
 

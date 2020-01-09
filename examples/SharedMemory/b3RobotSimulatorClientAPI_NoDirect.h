@@ -670,7 +670,7 @@ public:
 	void getVREvents(b3VREventsData *vrEventsData, int deviceTypeFilter);
 	void getKeyboardEvents(b3KeyboardEventsData *keyboardEventsData);
 
-	void submitProfileTiming(const std::string &profileName, int durationInMicroSeconds = 1);
+	void submitProfileTiming(const std::string &profileName);
 
 	// JFC: added these 24 methods
 
