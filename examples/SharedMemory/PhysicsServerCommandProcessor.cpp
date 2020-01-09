@@ -9353,6 +9353,15 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 		if (deformWorld)
 		{
 			deformWorld->getWorldInfo().m_gravity = grav;
+			for (int i = 0; i < m_data->m_lf.size(); ++i)
+			{
+				btDeformableLagrangianForce* force = m_data->m_lf[i];
+				if (force->getForceType() == BT_GRAVITY_FORCE)
+				{
+					btDeformableGravityForce* gforce = (btDeformableGravityForce*)force;
+					gforce->m_gravity = grav;
+				}
+			}
 		}
 		
 
