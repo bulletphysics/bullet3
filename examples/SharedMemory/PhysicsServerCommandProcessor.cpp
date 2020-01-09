@@ -10544,7 +10544,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				{
 					if (m_data->m_pluginManager.getRenderInterface())
 					{
-						m_data->m_pluginManager.getRenderInterface()->removeVisualShape(bodyHandle->m_multiBody->getBaseCollider()->getBroadphaseHandle()->getUid());
+						m_data->m_pluginManager.getRenderInterface()->removeVisualShape(bodyHandle->m_multiBody->getBaseCollider()->getUserIndex3());
 					}
 					m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getBaseCollider());
 					int graphicsIndex = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
@@ -10558,7 +10558,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 					{
 						if (m_data->m_pluginManager.getRenderInterface())
 						{
-							m_data->m_pluginManager.getRenderInterface()->removeVisualShape(bodyHandle->m_multiBody->getLink(link).m_collider->getBroadphaseHandle()->getUid());
+							m_data->m_pluginManager.getRenderInterface()->removeVisualShape(bodyHandle->m_multiBody->getLink(link).m_collider->getUserIndex3());
 						}
 						m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getLink(link).m_collider);
 						int graphicsIndex = bodyHandle->m_multiBody->getLink(link).m_collider->getUserIndex();
@@ -10578,7 +10578,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 			{
 				if (m_data->m_pluginManager.getRenderInterface())
 				{
-					m_data->m_pluginManager.getRenderInterface()->removeVisualShape(bodyHandle->m_rigidBody->getBroadphaseHandle()->getUid());
+					m_data->m_pluginManager.getRenderInterface()->removeVisualShape(bodyHandle->m_rigidBody->getUserIndex3());
 				}
 				serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
 
@@ -10602,7 +10602,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				btSoftBody* psb = bodyHandle->m_softBody;
 				if (m_data->m_pluginManager.getRenderInterface())
 				{
-					m_data->m_pluginManager.getRenderInterface()->removeVisualShape(psb->getBroadphaseHandle()->getUid());
+					m_data->m_pluginManager.getRenderInterface()->removeVisualShape(psb->getUserIndex3());
 				}
 				serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
 				btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
