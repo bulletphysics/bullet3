@@ -355,7 +355,6 @@ MatrixRmn& MatrixRmn::MultiplyTranspose(const MatrixRmn& A, const MatrixRmn& B, 
 // No error checking for divide by zero or instability (except with asserts)
 void MatrixRmn::Solve(const VectorRn& b, VectorRn* xVec, MatrixRmn& AugMat) const
 {
-	B3_PROFILE("MatrixRmn::Solve");
 	assert(NumRows == NumCols && NumCols == xVec->GetLength() && NumRows == b.GetLength());
 
 	// Copy this matrix and b into an Augmented Matrix
