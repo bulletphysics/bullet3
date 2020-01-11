@@ -253,6 +253,13 @@
     </collision>
   </link>
   <link name="panda_leftfinger">
+       <contact>
+      <friction_anchor/>
+      <stiffness value="30000.0"/>
+      <damping value="1000.0"/>
+      <spinning_friction value="0.1"/>
+      <lateral_friction value="1.0"/>
+    </contact>
   	<inertial>
       <origin rpy="0 0 0" xyz="0 0.01 0.02"/>
        <mass value="0.1"/>
@@ -272,6 +279,14 @@
     </collision>
   </link>
   <link name="panda_rightfinger">
+        <contact>
+      <friction_anchor/>
+      <stiffness value="30000.0"/>
+      <damping value="1000.0"/>
+      <spinning_friction value="0.1"/>
+      <lateral_friction value="1.0"/>
+    </contact>
+
   	<inertial>
       <origin rpy="0 0 0" xyz="0 -0.01 0.02"/>
        <mass value="0.1"/>
