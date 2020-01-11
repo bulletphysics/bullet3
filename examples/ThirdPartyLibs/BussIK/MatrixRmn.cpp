@@ -30,7 +30,6 @@ subject to the following restrictions:
 
 #include "MatrixRmn.h"
 
-MatrixRmn MatrixRmn::WorkMatrix;  // Temporary work matrix
 
 // Fill the diagonal entries with the value d.  The rest of the matrix is unchanged.
 void MatrixRmn::SetDiagonalEntries(double d)
@@ -354,12 +353,13 @@ MatrixRmn& MatrixRmn::MultiplyTranspose(const MatrixRmn& A, const MatrixRmn& B, 
 // Solves the equation   (*this)*xVec = b;
 // Uses row operations.  Assumes *this is square and invertible.
 // No error checking for divide by zero or instability (except with asserts)
-void MatrixRmn::Solve(const VectorRn& b, VectorRn* xVec) const
+void MatrixRmn::Solve(const VectorRn& b, VectorRn* xVec, MatrixRmn& AugMat) const
 {
 	assert(NumRows == NumCols && NumCols == xVec->GetLength() && NumRows == b.GetLength());
 
 	// Copy this matrix and b into an Augmented Matrix
-	MatrixRmn& AugMat = GetWorkMatrix(NumRows, NumCols + 1);
+	
+	AugMat.SetSize(NumRows, NumCols + 1);
 	AugMat.LoadAsSubmatrix(*this);
 	AugMat.SetColumn(NumRows, b);
 

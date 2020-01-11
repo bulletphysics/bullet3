@@ -620,7 +620,7 @@ int b3RobotSimulatorClientAPI_NoDirect::createConstraint(int parentBodyIndex, in
 	return -1;
 }
 
-int b3RobotSimulatorClientAPI_NoDirect::changeConstraint(int constraintId, b3JointInfo* jointInfo)
+int b3RobotSimulatorClientAPI_NoDirect::changeConstraint(int constraintId, b3RobotUserConstraint* jointInfo)
 {
 	if (!isConnected())
 	{
@@ -629,16 +629,35 @@ int b3RobotSimulatorClientAPI_NoDirect::changeConstraint(int constraintId, b3Joi
 	}
 	b3SharedMemoryCommandHandle commandHandle = b3InitChangeUserConstraintCommand(m_data->m_physicsClientHandle, constraintId);
 
-	if (jointInfo->m_flags & eJointChangeMaxForce)
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_MAX_FORCE)
 	{
-		b3InitChangeUserConstraintSetMaxForce(commandHandle, jointInfo->m_jointMaxForce);
+		b3InitChangeUserConstraintSetMaxForce(commandHandle, jointInfo->m_maxAppliedForce);
 	}
 
-	if (jointInfo->m_flags & eJointChangeChildFramePosition)
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_GEAR_RATIO)
+	{
+		b3InitChangeUserConstraintSetGearRatio(commandHandle, jointInfo->m_gearRatio);
+	}
+
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_ERP)
+	{
+		b3InitChangeUserConstraintSetERP(commandHandle, jointInfo->m_erp);
+	}
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK)
+	{
+		b3InitChangeUserConstraintSetGearAuxLink(commandHandle, jointInfo->m_gearAuxLink);
+	}
+
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET)
+	{
+		b3InitChangeUserConstraintSetRelativePositionTarget(commandHandle, jointInfo->m_relativePositionTarget);
+	}
+	
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_PIVOT_IN_B)
 	{
 		b3InitChangeUserConstraintSetPivotInB(commandHandle, &jointInfo->m_childFrame[0]);
 	}
-	if (jointInfo->m_flags & eJointChangeChildFrameOrientation)
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B)
 	{
 		b3InitChangeUserConstraintSetFrameInB(commandHandle, &jointInfo->m_childFrame[3]);
 	}
@@ -1131,7 +1150,7 @@ void b3RobotSimulatorClientAPI_NoDirect::resetDebugVisualizerCamera(double camer
 	}
 }
 
-void b3RobotSimulatorClientAPI_NoDirect::submitProfileTiming(const std::string& profileName, int durationInMicroSeconds)
+void b3RobotSimulatorClientAPI_NoDirect::submitProfileTiming(const std::string& profileName)
 {
 	if (!isConnected())
 	{
@@ -1140,10 +1159,16 @@ void b3RobotSimulatorClientAPI_NoDirect::submitProfileTiming(const std::string& 
 	}
 
 	b3SharedMemoryCommandHandle commandHandle = b3ProfileTimingCommandInit(m_data->m_physicsClientHandle, profileName.c_str());
-	if (durationInMicroSeconds >= 0)
+
+	if (profileName.length())
 	{
-		b3SetProfileTimingDuractionInMicroSeconds(commandHandle, durationInMicroSeconds);
+		b3SetProfileTimingType(commandHandle, 0);
 	}
+	else
+	{
+		b3SetProfileTimingType(commandHandle, 1);
+	}
+
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 }
 

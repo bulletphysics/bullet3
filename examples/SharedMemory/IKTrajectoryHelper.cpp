@@ -44,6 +44,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
 								   const double* q_current, int numQ, int endEffectorIndex,
 								   double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, const double dampIk[6])
 {
+	MatrixRmn AugMat;
 	bool useAngularPart = (ikMethod == IK2_VEL_DLS_WITH_ORIENTATION || ikMethod == IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE || ikMethod == IK2_VEL_SDLS_WITH_ORIENTATION) ? true : false;
 
 	Jacobian ikJacobian(useAngularPart, numQ, 1);
@@ -142,12 +143,12 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
 		case IK2_VEL_DLS:
 			//ikJacobian.CalcDeltaThetasDLS();			// Damped least squares method
 			assert(m_data->m_dampingCoeff.GetLength() == numQ);
-			ikJacobian.CalcDeltaThetasDLS2(m_data->m_dampingCoeff);
+			ikJacobian.CalcDeltaThetasDLS2(m_data->m_dampingCoeff, AugMat);
 			break;
 		case IK2_VEL_DLS_WITH_NULLSPACE:
 		case IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE:
 			assert(m_data->m_nullSpaceVelocity.GetLength() == numQ);
-			ikJacobian.CalcDeltaThetasDLSwithNullspace(m_data->m_nullSpaceVelocity);
+			ikJacobian.CalcDeltaThetasDLSwithNullspace(m_data->m_nullSpaceVelocity, AugMat);
 			break;
 		case IK2_DLS_SVD:
 			ikJacobian.CalcDeltaThetasDLSwithSVD();
@@ -193,6 +194,7 @@ bool IKTrajectoryHelper::computeIK2(
 	const double* q_current, int numQ,
 	double* q_new, int ikMethod, const double* linear_jacobians, const double dampIk[6])
 {
+	MatrixRmn AugMat;
 	bool useAngularPart = false;//for now (ikMethod == IK2_VEL_DLS_WITH_ORIENTATION || ikMethod == IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE || ikMethod == IK2_VEL_SDLS_WITH_ORIENTATION) ? true : false;
 
 	Jacobian ikJacobian(useAngularPart, numQ, numEndEffectors);
@@ -250,12 +252,12 @@ bool IKTrajectoryHelper::computeIK2(
 	case IK2_VEL_DLS:
 		//ikJacobian.CalcDeltaThetasDLS();			// Damped least squares method
 		assert(m_data->m_dampingCoeff.GetLength() == numQ);
-		ikJacobian.CalcDeltaThetasDLS2(m_data->m_dampingCoeff);
+		ikJacobian.CalcDeltaThetasDLS2(m_data->m_dampingCoeff, AugMat);
 		break;
 	case IK2_VEL_DLS_WITH_NULLSPACE:
 	case IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE:
 		assert(m_data->m_nullSpaceVelocity.GetLength() == numQ);
-		ikJacobian.CalcDeltaThetasDLSwithNullspace(m_data->m_nullSpaceVelocity);
+		ikJacobian.CalcDeltaThetasDLSwithNullspace(m_data->m_nullSpaceVelocity, AugMat);
 		break;
 	case IK2_DLS_SVD:
 		ikJacobian.CalcDeltaThetasDLSwithSVD();

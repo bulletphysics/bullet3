@@ -921,6 +921,13 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	m_internalData->m_app = s_app;
 	char* gVideoFileName = 0;
 	args.GetCmdLineArgument("mp4", gVideoFileName);
+	int gVideoFps = 0;
+	args.GetCmdLineArgument("mp4fps", gVideoFps);
+	if (gVideoFps)
+	{
+		simpleApp->setMp4Fps(gVideoFps);
+	}
+
 #ifndef NO_OPENGL3
 	if (gVideoFileName)
 		simpleApp->dumpFramesToVideo(gVideoFileName);

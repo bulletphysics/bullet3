@@ -526,6 +526,100 @@ struct b3RobotSimulatorCreateMultiBodyArgs
 	}
 };
 
+
+struct b3RobotUserConstraint : public b3UserConstraint
+{
+	int m_userUpdateFlags;//see EnumUserConstraintFlags
+
+	void setErp(double erp)
+	{
+		m_erp = erp;
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_ERP;
+	}
+	
+	void setMaxAppliedForce(double maxForce)
+	{
+		m_maxAppliedForce = maxForce;
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_MAX_FORCE;
+	}
+	
+	void setGearRatio(double gearRatio)
+	{
+		m_gearRatio = gearRatio;
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_GEAR_RATIO;
+	}
+
+	void setGearAuxLink(int link)
+	{
+		m_gearAuxLink = link;
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK;
+	}
+
+	void setRelativePositionTarget(double target)
+	{
+		m_relativePositionTarget = target;
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET;
+	}
+
+	void setChildPivot(double pivot[3])
+	{
+		m_childFrame[0] = pivot[0];
+		m_childFrame[1] = pivot[1];
+		m_childFrame[2] = pivot[2];
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_PIVOT_IN_B;
+	}
+
+	void setChildFrameOrientation(double orn[4])
+	{
+		m_childFrame[3] = orn[0];
+		m_childFrame[4] = orn[1];
+		m_childFrame[5] = orn[2];
+		m_childFrame[6] = orn[3];
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B;
+	}
+
+	b3RobotUserConstraint()
+		:m_userUpdateFlags(0)
+	{
+		m_parentBodyIndex = -1;
+		m_parentJointIndex = -1;
+		m_childBodyIndex = -1;
+		m_childJointIndex = -1;
+		//position
+		m_parentFrame[0] = 0;
+		m_parentFrame[1] = 0;
+		m_parentFrame[2] = 0;
+		//orientation quaternion [x,y,z,w]
+		m_parentFrame[3] = 0;
+		m_parentFrame[4] = 0;
+		m_parentFrame[5] = 0;
+		m_parentFrame[6] = 1;
+
+		//position
+		m_childFrame[0] = 0;
+		m_childFrame[1] = 0;
+		m_childFrame[2] = 0;
+		//orientation quaternion [x,y,z,w]
+		m_childFrame[3] = 0;
+		m_childFrame[4] = 0;
+		m_childFrame[5] = 0;
+		m_childFrame[6] = 1;
+
+		m_jointAxis[0] = 0;
+		m_jointAxis[1] = 0;
+		m_jointAxis[2] = 1;
+
+		m_jointType = eFixedType;
+
+		m_maxAppliedForce = 500;
+		m_userConstraintUniqueId = -1;
+		m_gearRatio = -1;
+		m_gearAuxLink = -1;
+		m_relativePositionTarget = 0;
+		m_erp = 0;
+	}
+};
+
 struct b3RobotJointInfo : public b3JointInfo
 {
 	b3RobotJointInfo()
@@ -624,7 +718,7 @@ public:
 
 	int createConstraint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo *jointInfo);
 
-	int changeConstraint(int constraintId, b3JointInfo *jointInfo);
+	int changeConstraint(int constraintId, b3RobotUserConstraint*jointInfo);
 
 	void removeConstraint(int constraintId);
 
@@ -670,7 +764,7 @@ public:
 	void getVREvents(b3VREventsData *vrEventsData, int deviceTypeFilter);
 	void getKeyboardEvents(b3KeyboardEventsData *keyboardEventsData);
 
-	void submitProfileTiming(const std::string &profileName, int durationInMicroSeconds = 1);
+	void submitProfileTiming(const std::string &profileName);
 
 	// JFC: added these 24 methods
 
