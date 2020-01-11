@@ -100,7 +100,7 @@ void DoUpdateStep(double Tstep, Tree& treeY, Jacobian* jacob, int ikMethod)
 		jacob->SetJendActive();
 	}
 	jacob->ComputeJacobian(targetaa);  // Set up Jacobian and deltaS vectors
-
+	MatrixRmn AugMat;
 	// Calculate the change in theta values
 	switch (ikMethod)
 	{
@@ -108,7 +108,7 @@ void DoUpdateStep(double Tstep, Tree& treeY, Jacobian* jacob, int ikMethod)
 			jacob->CalcDeltaThetasTranspose();  // Jacobian transpose method
 			break;
 		case IK_DLS:
-			jacob->CalcDeltaThetasDLS();  // Damped least squares method
+			jacob->CalcDeltaThetasDLS(AugMat);  // Damped least squares method
 			break;
 		case IK_DLS_SVD:
 			jacob->CalcDeltaThetasDLSwithSVD();
