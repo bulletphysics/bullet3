@@ -8153,7 +8153,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
                 {
                     spring_bending_stiffness = clientCmd.m_loadSoftBodyArguments.m_springBendingStiffness;
                 }
-				btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, false, spring_bending_stiffness);
+				btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true, spring_bending_stiffness);
 				deformWorld->addForce(psb, springForce);
 				m_data->m_lf.push_back(springForce);
 			}

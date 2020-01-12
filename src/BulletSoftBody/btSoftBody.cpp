@@ -53,6 +53,7 @@ btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btV
 		n.m_material = pm;
 	}
 	updateBounds();
+	setCollisionQuadrature(3);
 }
 
 btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo)
@@ -2403,10 +2404,9 @@ bool btSoftBody::checkDeformableContact(const btCollisionObjectWrapper* colObjWr
     const btCollisionObject* tmpCollisionObj = colObjWrap->getCollisionObject();
     // use the position x_{n+1}^* = x_n + dt * v_{n+1}^* where v_{n+1}^* = v_n + dtg for collision detect
     // but resolve contact at x_n
-//    btTransform wtr = (predict) ?
-//    (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
-//                 : colObjWrap->getWorldTransform();
-    const btTransform& wtr = colObjWrap->getWorldTransform();
+    btTransform wtr = (predict) ?
+    (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
+                 : colObjWrap->getWorldTransform();
 	btScalar dst =
 		m_worldInfo->m_sparsesdf.Evaluate(
 			wtr.invXform(x),
@@ -2457,10 +2457,9 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
     btTransform wtr = (predict) ?
     (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform()*(*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
     : colObjWrap->getWorldTransform();
-//    const btTransform& wtr = colObjWrap->getWorldTransform();
     btScalar dst;
     
-//#define USE_QUADRATURE 1
+#define USE_QUADRATURE 1
 //#define CACHE_PREV_COLLISION
     
     // use the contact position of the previous collision
@@ -2476,6 +2475,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
                                           nrm,
                                           margin);
         nrm = wtr.getBasis() * nrm;
+        cti.m_colObj = colObjWrap->getCollisionObject();
         // use cached contact point
     }
     else
@@ -2492,10 +2492,11 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
         contact_point = results.witnesses[0];
         getBarycentric(contact_point, f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
         nrm = results.normal;
+        cti.m_colObj = colObjWrap->getCollisionObject();
         for (int i = 0; i < 3; ++i)
             f.m_pcontact[i] = bary[i];
     }
-
+    return (dst < 0);
 #endif
 
     // use collision quadrature point
@@ -2505,7 +2506,11 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
         btVector3 local_nrm;
         for (int q = 0; q < m_quads.size(); ++q)
         {
-            btVector3 p = BaryEval(f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, m_quads[q]);
+            btVector3 p;
+            if (predict)
+                p = BaryEval(f.m_n[0]->m_q, f.m_n[1]->m_q, f.m_n[2]->m_q, m_quads[q]);
+            else
+                p = BaryEval(f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, m_quads[q]);
             btScalar local_dst = m_worldInfo->m_sparsesdf.Evaluate(
                                                     wtr.invXform(p),
                                                     shp,
@@ -2513,12 +2518,21 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
                                                     margin);
             if (local_dst < dst)
             {
+                if (local_dst < 0 && predict)
+                    return true;
                 dst = local_dst;
                 contact_point = p;
                 bary = m_quads[q];
-                nrm = wtr.getBasis() * local_nrm;
+                nrm = local_nrm;
+            }
+            if (!predict)
+            {
+                cti.m_colObj = colObjWrap->getCollisionObject();
+                cti.m_normal = wtr.getBasis() * nrm;
+                cti.m_offset = dst;
             }
         }
+        return (dst < 0);
     }
 #endif
     
@@ -2530,6 +2544,11 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
         triangle_transform.setOrigin(f.m_n[0]->m_x);
         btTriangleShape triangle(btVector3(0,0,0), f.m_n[1]->m_x-f.m_n[0]->m_x, f.m_n[2]->m_x-f.m_n[0]->m_x);
         btVector3 guess(0,0,0);
+        if (predict)
+        {
+            triangle_transform.setOrigin(f.m_n[0]->m_q);
+            triangle = btTriangleShape(btVector3(0,0,0), f.m_n[1]->m_q-f.m_n[0]->m_q, f.m_n[2]->m_q-f.m_n[0]->m_q);
+        }
         const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
         btGjkEpaSolver2::SignedDistance(&triangle, triangle_transform, csh, wtr, guess, results);
         dst = results.distance - margin;
@@ -2547,9 +2566,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
         cti.m_offset = dst;
     }
     
-    if (dst < 0)
-        return true;
-    return (false);
+    return (dst < 0);
 }
 
 //
@@ -3681,8 +3698,8 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
                     docollideFace.psb = this;
                     docollideFace.m_colObj1Wrap = pcoWrap;
                     docollideFace.m_rigidBody = prb1;
-                    docollideFace.dynmargin = basemargin + timemargin;
-                    docollideFace.stamargin = basemargin;
+					docollideFace.dynmargin = 0.05*(basemargin + timemargin);
+					docollideFace.stamargin = 0.05*basemargin;
                     m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
                 }
             }
