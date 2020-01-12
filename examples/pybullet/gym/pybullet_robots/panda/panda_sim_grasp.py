@@ -39,7 +39,7 @@ class PandaSim(object):
     self.panda = self.bullet_client.loadURDF("franka_panda/panda.urdf", np.array([0,0,0])+self.offset, orn, useFixedBase=True, flags=flags)
     index = 0
     self.state = 0
-    self.control_dt = 1./120.
+    self.control_dt = 1./240.
     self.finger_target = 0
     self.gripper_height = 0.2
     #create a constraint to keep the fingers centered
