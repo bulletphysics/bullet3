@@ -24,31 +24,33 @@ public:
     // True if the friction is static
     // False if the friction is dynamic
     bool m_static;
-    
-    // normal of the contact
-    btVector3 m_normal;
-    
-    btDeformableContactConstraint(const btVector3& normal): m_static(false), m_normal(normal)
-    {
-    }
-    
-    btDeformableContactConstraint(bool isStatic, const btVector3& normal): m_static(isStatic), m_normal(normal)
-    {
-    }
-    
-    btDeformableContactConstraint(const btDeformableContactConstraint& other)
-    : m_static(other.m_static)
-    , m_normal(other.m_normal)
-    {
-        
-    }
-    btDeformableContactConstraint(){}
-    
+	const btContactSolverInfo* m_infoGlobal;
+
+	// normal of the contact
+	btVector3 m_normal;
+
+	btDeformableContactConstraint(const btVector3& normal, const btContactSolverInfo& infoGlobal): m_static(false), m_normal(normal), m_infoGlobal(&infoGlobal)
+	{
+	}
+
+	btDeformableContactConstraint(bool isStatic, const btVector3& normal, const btContactSolverInfo& infoGlobal): m_static(isStatic), m_normal(normal), m_infoGlobal(&infoGlobal)
+	{
+	}
+	
+	btDeformableContactConstraint(){}
+
+	btDeformableContactConstraint(const btDeformableContactConstraint& other)
+	: m_static(other.m_static)
+	, m_normal(other.m_normal)
+	, m_infoGlobal(other.m_infoGlobal)
+	{
+	}
+
     virtual ~btDeformableContactConstraint(){}
     
     // solve the constraint with inelastic impulse and return the error, which is the square of normal component of velocity diffrerence
     // the constraint is solved by calculating the impulse between object A and B in the contact and apply the impulse to both objects involved in the contact
-    virtual btScalar solveConstraint() = 0;
+    virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal) = 0;
     
     // solve the position error by applying an inelastic impulse that changes only the position (not velocity)
     virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal) = 0;
@@ -79,22 +81,19 @@ class btDeformableStaticConstraint : public btDeformableContactConstraint
 public:
     const btSoftBody::Node* m_node;
     
-    btDeformableStaticConstraint(){}
-    
-    btDeformableStaticConstraint(const btSoftBody::Node* node): m_node(node), btDeformableContactConstraint(false, btVector3(0,0,0))
+    btDeformableStaticConstraint(const btSoftBody::Node* node, const btContactSolverInfo& infoGlobal): m_node(node), btDeformableContactConstraint(false, btVector3(0,0,0), infoGlobal)
     {
     }
-    
+	btDeformableStaticConstraint(){}
     btDeformableStaticConstraint(const btDeformableStaticConstraint& other)
     : m_node(other.m_node)
     , btDeformableContactConstraint(other)
     {
-        
     }
     
     virtual ~btDeformableStaticConstraint(){}
     
-    virtual btScalar solveConstraint()
+    virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal)
     {
         return 0;
     }
@@ -130,14 +129,14 @@ class btDeformableNodeAnchorConstraint : public btDeformableContactConstraint
 {
 public:
     const btSoftBody::DeformableNodeRigidAnchor* m_anchor;
-    
-    btDeformableNodeAnchorConstraint(){}
-    btDeformableNodeAnchorConstraint(const btSoftBody::DeformableNodeRigidAnchor& c);
+	
+    btDeformableNodeAnchorConstraint(const btSoftBody::DeformableNodeRigidAnchor& c, const btContactSolverInfo& infoGlobal);
     btDeformableNodeAnchorConstraint(const btDeformableNodeAnchorConstraint& other);
+	btDeformableNodeAnchorConstraint(){}
     virtual ~btDeformableNodeAnchorConstraint()
     {
     }
-    virtual btScalar solveConstraint();
+    virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal);
     virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal)
     {
         // todo xuchenhan@
@@ -169,10 +168,10 @@ public:
     btVector3 m_total_tangent_dv;
     btScalar m_penetration;
     const btSoftBody::DeformableRigidContact* m_contact;
-    
-    btDeformableRigidContactConstraint(){}
-    btDeformableRigidContactConstraint(const btSoftBody::DeformableRigidContact& c);
+	
+    btDeformableRigidContactConstraint(const btSoftBody::DeformableRigidContact& c, const btContactSolverInfo& infoGlobal);
     btDeformableRigidContactConstraint(const btDeformableRigidContactConstraint& other);
+	btDeformableRigidContactConstraint(){}
     virtual ~btDeformableRigidContactConstraint()
     {
     }
@@ -180,7 +179,7 @@ public:
     // object A is the rigid/multi body, and object B is the deformable node/face
     virtual btVector3 getVa() const;
     
-    virtual btScalar solveConstraint();
+    virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal);
     
     virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal);
     
@@ -197,11 +196,10 @@ class btDeformableNodeRigidContactConstraint : public btDeformableRigidContactCo
 public:
     // the deformable node in contact
     const btSoftBody::Node* m_node;
-    
-    btDeformableNodeRigidContactConstraint(){}
-    btDeformableNodeRigidContactConstraint(const btSoftBody::DeformableNodeRigidContact& contact);
+	
+    btDeformableNodeRigidContactConstraint(const btSoftBody::DeformableNodeRigidContact& contact, const btContactSolverInfo& infoGlobal);
     btDeformableNodeRigidContactConstraint(const btDeformableNodeRigidContactConstraint& other);
-    
+	btDeformableNodeRigidContactConstraint(){}
     virtual ~btDeformableNodeRigidContactConstraint()
     {
     }
@@ -228,10 +226,9 @@ class btDeformableFaceRigidContactConstraint : public btDeformableRigidContactCo
 {
 public:
     const btSoftBody::Face* m_face;
-    btDeformableFaceRigidContactConstraint(){}
-    btDeformableFaceRigidContactConstraint(const btSoftBody::DeformableFaceRigidContact& contact);
+    btDeformableFaceRigidContactConstraint(const btSoftBody::DeformableFaceRigidContact& contact, const btContactSolverInfo& infoGlobal);
     btDeformableFaceRigidContactConstraint(const btDeformableFaceRigidContactConstraint& other);
-    
+	btDeformableFaceRigidContactConstraint(){}
     virtual ~btDeformableFaceRigidContactConstraint()
     {
     }
@@ -263,13 +260,11 @@ public:
     btVector3 m_total_normal_dv;
     btVector3 m_total_tangent_dv;
     
-    btDeformableFaceNodeContactConstraint(){}
-    
-    btDeformableFaceNodeContactConstraint(const btSoftBody::DeformableFaceNodeContact& contact);
-    
+    btDeformableFaceNodeContactConstraint(const btSoftBody::DeformableFaceNodeContact& contact, const btContactSolverInfo& infoGlobal);
+	btDeformableFaceNodeContactConstraint(){}
     virtual ~btDeformableFaceNodeContactConstraint(){}
     
-    virtual btScalar solveConstraint();
+    virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal);
     
     virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal)
     {

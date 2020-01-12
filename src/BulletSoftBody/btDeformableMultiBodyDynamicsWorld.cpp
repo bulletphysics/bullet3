@@ -285,7 +285,7 @@ void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
 void btDeformableMultiBodyDynamicsWorld::setupConstraints()
 {
     // set up constraints between multibody and deformable bodies
-    m_deformableBodySolver->setConstraints();
+    m_deformableBodySolver->setConstraints(m_solverInfo);
     
     // set up constraints among multibodies
     {

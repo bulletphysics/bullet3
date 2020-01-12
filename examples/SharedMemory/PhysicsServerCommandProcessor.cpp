@@ -8153,7 +8153,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
                 {
                     spring_bending_stiffness = clientCmd.m_loadSoftBodyArguments.m_springBendingStiffness;
                 }
-				btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, false, spring_bending_stiffness);
+				btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true, spring_bending_stiffness);
 				deformWorld->addForce(psb, springForce);
 				m_data->m_lf.push_back(springForce);
 			}
@@ -9353,6 +9353,15 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 		if (deformWorld)
 		{
 			deformWorld->getWorldInfo().m_gravity = grav;
+			for (int i = 0; i < m_data->m_lf.size(); ++i)
+			{
+				btDeformableLagrangianForce* force = m_data->m_lf[i];
+				if (force->getForceType() == BT_GRAVITY_FORCE)
+				{
+					btDeformableGravityForce* gforce = (btDeformableGravityForce*)force;
+					gforce->m_gravity = grav;
+				}
+			}
 		}
 		
 

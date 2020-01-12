@@ -46,7 +46,7 @@ struct btContactSolverInfoData
 	btScalar m_sor;          //successive over-relaxation term
 	btScalar m_erp;          //error reduction for non-contact constraints
 	btScalar m_erp2;         //error reduction for contact constraints
-    btScalar m_deformable_erp;          //error reduction for deformable constraints
+	btScalar m_deformable_erp;          //error reduction for deformable constraints
 	btScalar m_globalCfm;    //constraint force mixing for contacts and non-contacts
 	btScalar m_frictionERP;  //error reduction for friction constraints
 	btScalar m_frictionCFM;  //constraint force mixing for friction constraints
@@ -82,7 +82,7 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_numIterations = 10;
 		m_erp = btScalar(0.2);
 		m_erp2 = btScalar(0.2);
-        m_deformable_erp = btScalar(0.);
+		m_deformable_erp = btScalar(0.3);
 		m_globalCfm = btScalar(0.);
 		m_frictionERP = btScalar(0.2);  //positional friction 'anchors' are disabled by default
 		m_frictionCFM = btScalar(0.);

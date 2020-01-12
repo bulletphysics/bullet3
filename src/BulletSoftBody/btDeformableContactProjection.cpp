@@ -17,7 +17,7 @@
 #include "btDeformableMultiBodyDynamicsWorld.h"
 #include <algorithm>
 #include <cmath>
-btScalar btDeformableContactProjection::update(btCollisionObject** deformableBodies,int numDeformableBodies)
+btScalar btDeformableContactProjection::update(btCollisionObject** deformableBodies,int numDeformableBodies, const btContactSolverInfo& infoGlobal)
 {
 	btScalar residualSquare = 0;
 	for (int i = 0; i < numDeformableBodies; ++i)
@@ -32,25 +32,25 @@ btScalar btDeformableContactProjection::update(btCollisionObject** deformableBod
 			for (int k = 0; k < m_nodeRigidConstraints[j].size(); ++k)
 			{
 				btDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[j][k];
-				btScalar localResidualSquare = constraint.solveConstraint();
+				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
 				residualSquare = btMax(residualSquare, localResidualSquare);
 			}
 			for (int k = 0; k < m_nodeAnchorConstraints[j].size(); ++k)
 			{
 				btDeformableNodeAnchorConstraint& constraint = m_nodeAnchorConstraints[j][k];
-				btScalar localResidualSquare = constraint.solveConstraint();
+				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
 				residualSquare = btMax(residualSquare, localResidualSquare);
 			}
 			for (int k = 0; k < m_faceRigidConstraints[j].size(); ++k)
 			{
 				btDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[j][k];
-				btScalar localResidualSquare = constraint.solveConstraint();
+				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
 				residualSquare = btMax(residualSquare, localResidualSquare);
 			}
 			for (int k = 0; k < m_deformableConstraints[j].size(); ++k)
 			{
 				btDeformableFaceNodeContactConstraint& constraint = m_deformableConstraints[j][k];
-				btScalar localResidualSquare = constraint.solveConstraint();
+				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
 				residualSquare = btMax(residualSquare, localResidualSquare);
 			}
 		}
@@ -108,7 +108,7 @@ btScalar btDeformableContactProjection::solveSplitImpulse(const btContactSolverI
 	return residualSquare;
 }
 
-void btDeformableContactProjection::setConstraints()
+void btDeformableContactProjection::setConstraints(const btContactSolverInfo& infoGlobal)
 {
 	BT_PROFILE("setConstraints");
 	for (int i = 0; i < m_softBodies.size(); ++i)
@@ -124,7 +124,7 @@ void btDeformableContactProjection::setConstraints()
 		{
 			if (psb->m_nodes[j].m_im == 0)
 			{
-				btDeformableStaticConstraint static_constraint(&psb->m_nodes[j]);
+				btDeformableStaticConstraint static_constraint(&psb->m_nodes[j], infoGlobal);
 				m_staticConstraints[i].push_back(static_constraint);
 			}
 		}
@@ -139,7 +139,7 @@ void btDeformableContactProjection::setConstraints()
 				continue;
 			}
 			anchor.m_c1 = anchor.m_cti.m_colObj->getWorldTransform().getBasis() * anchor.m_local;
-			btDeformableNodeAnchorConstraint constraint(anchor);
+			btDeformableNodeAnchorConstraint constraint(anchor, infoGlobal);
 			m_nodeAnchorConstraints[i].push_back(constraint);
 		}
 		
@@ -152,7 +152,7 @@ void btDeformableContactProjection::setConstraints()
 			{
 				continue;
 			}
-			btDeformableNodeRigidContactConstraint constraint(contact);
+			btDeformableNodeRigidContactConstraint constraint(contact, infoGlobal);
 			btVector3 va = constraint.getVa();
 			btVector3 vb = constraint.getVb();
 			const btVector3 vr = vb - va;
@@ -173,7 +173,7 @@ void btDeformableContactProjection::setConstraints()
 			{
 				continue;
 			}
-			btDeformableFaceRigidContactConstraint constraint(contact);
+			btDeformableFaceRigidContactConstraint constraint(contact, infoGlobal);
 			btVector3 va = constraint.getVa();
 			btVector3 vb = constraint.getVb();
 			const btVector3 vr = vb - va;
@@ -190,7 +190,7 @@ void btDeformableContactProjection::setConstraints()
 		{
 			const btSoftBody::DeformableFaceNodeContact& contact = psb->m_faceNodeContacts[j];
 
-			btDeformableFaceNodeContactConstraint constraint(contact);
+			btDeformableFaceNodeContactConstraint constraint(contact, infoGlobal);
 			btVector3 va = constraint.getVa();
 			btVector3 vb = constraint.getVb();
 			const btVector3 vr = vb - va;

@@ -1070,8 +1070,8 @@ struct btSoftColliders
 
 			if (!n.m_battach)
             {
-                // check for collision at x_{n+1}^* as well at x_n
-                if (psb->checkDeformableContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predict = */ true) || psb->checkDeformableContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predict = */ true))
+				// check for collision at x_{n+1}^*
+				if (psb->checkDeformableContact(m_colObj1Wrap, n.m_q, m, c.m_cti, /*predict = */ true))
                 {
                     const btScalar ima = n.m_im;
                     // todo: collision between multibody and fixed deformable node will be missed.
@@ -1159,7 +1159,6 @@ struct btSoftColliders
             btSoftBody::Node* n0 = f.m_n[0];
             btSoftBody::Node* n1 = f.m_n[1];
             btSoftBody::Node* n2 = f.m_n[2];
-            
             const btScalar m = (n0->m_im > 0 && n1->m_im > 0 && n2->m_im > 0 )? dynmargin : stamargin;
             btSoftBody::DeformableFaceRigidContact c;
             btVector3 contact_point;
@@ -1181,6 +1180,8 @@ struct btSoftColliders
                     // todo xuchenhan@: this is assuming mass of all vertices are the same. Need to modify if mass are different for distinct vertices
                     c.m_weights = btScalar(2)/(btScalar(1) + bary.length2()) * bary;
                     c.m_face = &f;
+					// friction is handled by the nodes to prevent sticking
+//                    const btScalar fc = 0;
                     const btScalar fc = psb->m_cfg.kDF * m_colObj1Wrap->getCollisionObject()->getFriction();
                     
                     // the effective inverse mass of the face as in https://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf

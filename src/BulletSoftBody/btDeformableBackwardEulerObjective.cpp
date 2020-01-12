@@ -186,9 +186,9 @@ void btDeformableBackwardEulerObjective::initialGuess(TVStack& dv, const TVStack
 }
 
 //set constraints as projections
-void btDeformableBackwardEulerObjective::setConstraints()
+void btDeformableBackwardEulerObjective::setConstraints(const btContactSolverInfo& infoGlobal)
 {
-    m_projection.setConstraints();
+    m_projection.setConstraints(infoGlobal);
 }
 
 void btDeformableBackwardEulerObjective::applyDynamicFriction(TVStack& r)
