@@ -74,6 +74,8 @@ public:
 
 	///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
 
+	virtual const struct UrdfModel* getUrdfModel() const;
+
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const;
 
 	virtual int getCollisionGroupAndMask(int linkIndex, int& colGroup, int& colMask) const;

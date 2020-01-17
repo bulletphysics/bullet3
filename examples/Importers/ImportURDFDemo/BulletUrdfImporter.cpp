@@ -1498,3 +1498,7 @@ class btCompoundShape* BulletURDFImporter::convertLinkCollisionShapes(int linkIn
 
 	return compoundShape;
 }
+
+const struct UrdfModel* BulletURDFImporter::getUrdfModel() const {
+	return &m_data->m_urdfParser.getModel();
+};
