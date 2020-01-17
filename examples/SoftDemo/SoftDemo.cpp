@@ -15,10 +15,8 @@ subject to the following restrictions:
 
 ///btSoftBody implementation by Nathanael Presson
 
-//#define USE_MULTITHREADED_SOFT_BODY_PROCESSING
-
 #include "btBulletDynamicsCommon.h"
-#ifdef USE_MULTITHREADED_SOFT_BODY_PROCESSING
+#ifdef BT_THREADSAFE
 #include "BulletCollision/CollisionDispatch/btCollisionDispatcherMt.h"
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.h"
 #include "BulletSoftBody/btSoftRigidDynamicsWorldMt.h"
@@ -95,7 +93,7 @@ public:
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
-#ifdef USE_MULTITHREADED_SOFT_BODY_PROCESSING
+#ifdef BT_THREADSAFE
 	btITaskScheduler* m_taskScheduler;
 #endif
 
@@ -135,7 +133,7 @@ public:
 
 	virtual void setDrawClusters(bool drawClusters);
 
-#ifdef USE_MULTITHREADED_SOFT_BODY_PROCESSING
+#ifdef BT_THREADSAFE
 	virtual const btSoftRigidDynamicsWorldMt* getSoftDynamicsWorld() const
 	{
 		///just make it a btSoftRigidDynamicsWorld please
@@ -180,7 +178,7 @@ public:
 	virtual void renderScene()
 	{
 		CommonRigidBodyBase::renderScene();
-#ifdef USE_MULTITHREADED_SOFT_BODY_PROCESSING
+#ifdef BT_THREADSAFE
 		btSoftRigidDynamicsWorldMt* softWorld = getSoftDynamicsWorld();
 #else
 		btSoftRigidDynamicsWorld* softWorld = getSoftDynamicsWorld();
@@ -1726,7 +1724,7 @@ void	SoftDemo::renderme()
 
 	//int debugMode = m_dynamicsWorld->getDebugDrawer()? m_dynamicsWorld->getDebugDrawer()->getDebugMode() : -1;
 
-#ifdef USE_MULTITHREADED_SOFT_BODY_PROCESSING
+#ifdef BT_THREADSAFE
 	btSoftRigidDynamicsWorldMt* softWorld = (btSoftRigidDynamicsWorldMt*)m_dynamicsWorld;
 #else
 	btSoftRigidDynamicsWorld* softWorld = (btSoftRigidDynamicsWorld*)m_dynamicsWorld;
@@ -2152,7 +2150,7 @@ void SoftDemo::initPhysics()
 	///register some softbody collision algorithms on top of the default btDefaultCollisionConfiguration
 	m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
-#ifdef USE_MULTITHREADED_SOFT_BODY_PROCESSING
+#ifdef BT_THREADSAFE
 	m_taskScheduler = btCreateDefaultTaskScheduler();
 	btSetTaskScheduler(m_taskScheduler);
 	m_dispatcher = new btCollisionDispatcherMt(m_collisionConfiguration);
@@ -2176,7 +2174,7 @@ void SoftDemo::initPhysics()
 
 	m_softBodyWorldInfo.m_broadphase = m_broadphase;
 
-#ifdef USE_MULTITHREADED_SOFT_BODY_PROCESSING
+#ifdef BT_THREADSAFE
 	m_softBodySolver = new btDefaultSoftBodySolverMt();
 	m_solver = new btSequentialImpulseConstraintSolverMt();
 #else
@@ -2209,7 +2207,7 @@ void SoftDemo::initPhysics()
 	g_softBodyOutput = new btSoftBodySolverOutputCLtoCPU;
 #endif  //USE_AMD_OPENCL
 
-#ifdef USE_MULTITHREADED_SOFT_BODY_PROCESSING
+#ifdef BT_THREADSAFE
 	btConstraintSolverPoolMt* pool = new btConstraintSolverPoolMt(BT_MAX_THREAD_COUNT);
 	btDiscreteDynamicsWorld* world = new btSoftRigidDynamicsWorldMt(m_dispatcher, m_broadphase, pool, m_solver, m_collisionConfiguration, m_softBodySolver);
 #else
@@ -2305,7 +2303,7 @@ void SoftDemo::exitPhysics()
 	delete m_dynamicsWorld;
 	m_dynamicsWorld = 0;
 
-#ifdef USE_MULTITHREADED_SOFT_BODY_PROCESSING
+#ifdef BT_THREADSAFE
 	// delete scheduler
 	btSetTaskScheduler(0);
 	delete m_taskScheduler;
