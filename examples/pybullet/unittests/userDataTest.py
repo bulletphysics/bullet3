@@ -46,7 +46,7 @@ class TestUserDataMethods(unittest.TestCase):
       self.assertEqual(info[1:], expected_user_data_infos[info[0]])
       user_data_val = self.client.getUserData(info[0])
       self.assertIn(
-          "Expected identifier: linkIndex: %i, visualShapeIndex: %i" %
+          b"Expected identifier: linkIndex: %i, visualShapeIndex: %i" %
           (info[3], info[4]), user_data_val)
 
   def testAddUserData(self):
