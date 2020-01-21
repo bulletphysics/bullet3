@@ -3049,8 +3049,10 @@ void PhysicsServerCommandProcessor::addUserData(const btHashMap<btHashString, st
 	for (int i = 0; i < user_data_entries.size(); ++i) {
 		const std::string key = user_data_entries.getKeyAtIndex(i).m_string1;
 		const std::string* value = user_data_entries.getAtIndex(i);
-		addUserData(bodyUniqueId, linkIndex, visualShapeIndex, key.c_str(), value->c_str(),
-					value->size()+1, USER_DATA_VALUE_TYPE_STRING);
+		if (value) {
+			addUserData(bodyUniqueId, linkIndex, visualShapeIndex, key.c_str(), value->c_str(),
+						value->size()+1, USER_DATA_VALUE_TYPE_STRING);
+		}
 	}
 }
 
