@@ -1,6 +1,7 @@
 #ifndef PHYSICS_SERVER_COMMAND_PROCESSOR_H
 #define PHYSICS_SERVER_COMMAND_PROCESSOR_H
 
+#include "LinearMath/btHashMap.h"
 #include "LinearMath/btVector3.h"
 
 #include "PhysicsCommandProcessorInterface.h"
@@ -180,6 +181,8 @@ public:
 
 private:
 	void addBodyChangedNotifications();
+	int addUserData(int bodyUniqueId, int linkIndex, int visualShapeIndex, const char* key, const char* valueBytes, int valueLength, int valueType);
+	void addUserData(const btHashMap<btHashString, std::string>& user_data_entries, int bodyUniqueId, int linkIndex = -1, int visualShapeIndex = -1);
 };
 
 #endif  //PHYSICS_SERVER_COMMAND_PROCESSOR_H

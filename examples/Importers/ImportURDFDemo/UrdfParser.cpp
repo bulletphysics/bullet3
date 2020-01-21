@@ -77,6 +77,28 @@ static bool parseVector3(btVector3& vec3, const std::string& vector_str, ErrorLo
 	return true;
 }
 
+// Parses user data from an xml element and stores it in a hashmap. User data is
+// expected to reside in a <user-data> tag that is nested inside a <bullet> tag.
+// Example:
+// <bullet>
+//   <user-data key="label">...</user-data>
+// </bullet>
+static void ParseUserData(const XMLElement* element, btHashMap<btHashString,
+	std::string>& user_data, ErrorLogger* logger) {
+	// Parse any custom Bullet-specific info.
+	for (const XMLElement* bullet_xml = element->FirstChildElement("bullet");
+			bullet_xml; bullet_xml = bullet_xml->NextSiblingElement("bullet")) {
+		for (const XMLElement* user_data_xml = bullet_xml->FirstChildElement("user-data");
+				user_data_xml; user_data_xml = user_data_xml->NextSiblingElement("user-data")) {
+			const char* key_attr = user_data_xml->Attribute("key");
+			if (!key_attr) {
+				logger->reportError("User data tag must have a key attribute.");
+			}
+			user_data.insert(key_attr, user_data_xml->GetText());
+		}
+	}
+}
+
 bool UrdfParser::parseMaterial(UrdfMaterial& material, XMLElement* config, ErrorLogger* logger)
 {
 	if (!config->Attribute("name"))
@@ -732,6 +754,7 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, XMLElement* c
 			}
 		}
 	}
+	ParseUserData(config, visual.m_userData, logger);
 
 	return true;
 }
@@ -1071,6 +1094,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 			return false;
 		}
 	}
+	ParseUserData(config, link.m_userData, logger);
 	return true;
 }
 
@@ -1780,6 +1804,8 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 			}
 		}
 	}
+
+	ParseUserData(robot_xml, m_urdf2Model.m_userData, logger);
 
 	if (m_urdf2Model.m_links.size() == 0)
 	{

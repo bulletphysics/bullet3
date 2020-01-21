@@ -31,6 +31,7 @@
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 #include "Bullet3Common/b3HashMap.h"
 #include "../Utils/ChromeTraceUtil.h"
+#include "SharedMemoryPublic.h"
 #include "stb_image/stb_image.h"
 #include "BulletInverseDynamics/MultiBodyTree.hpp"
 #include "IKTrajectoryHelper.h"
@@ -2363,7 +2364,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 				jointType = URDFFixedJoint;
 				break;
 			}
-			case	eSphericalType:
+			case eSphericalType:
 			{
 				isValid = true;
 				jointType = URDFSphericalJoint;
@@ -3013,6 +3014,48 @@ void PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 	}
 }
 
+int PhysicsServerCommandProcessor::addUserData(int bodyUniqueId, int linkIndex, int visualShapeIndex, const char* key, const char* valueBytes, int valueLength, int valueType) {
+	InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+	if (!body)
+	{
+		return -1;
+	}
+
+	SharedMemoryUserDataHashKey userDataIdentifier(key, bodyUniqueId, linkIndex, visualShapeIndex);
+
+	int* userDataHandlePtr = m_data->m_userDataHandleLookup.find(userDataIdentifier);
+	int userDataHandle = userDataHandlePtr ? *userDataHandlePtr : m_data->m_userDataHandles.allocHandle();
+
+	SharedMemoryUserData* userData = m_data->m_userDataHandles.getHandle(userDataHandle);
+	if (!userData)
+	{
+		return -1;
+	}
+
+	if (!userDataHandlePtr)
+	{
+		userData->m_key = key;
+		userData->m_bodyUniqueId = bodyUniqueId;
+		userData->m_linkIndex = linkIndex;
+		userData->m_visualShapeIndex = visualShapeIndex;
+		m_data->m_userDataHandleLookup.insert(userDataIdentifier, userDataHandle);
+		body->m_userDataHandles.push_back(userDataHandle);
+	}
+	userData->replaceValue(valueBytes, valueLength, valueType);
+	return userDataHandle;
+}
+
+void PhysicsServerCommandProcessor::addUserData(const btHashMap<btHashString, std::string>& user_data_entries, int bodyUniqueId, int linkIndex, int visualShapeIndex) {
+	for (int i = 0; i < user_data_entries.size(); ++i) {
+		const std::string key = user_data_entries.getKeyAtIndex(i).m_string1;
+		const std::string* value = user_data_entries.getAtIndex(i);
+		if (value) {
+			addUserData(bodyUniqueId, linkIndex, visualShapeIndex, key.c_str(), value->c_str(),
+						value->size()+1, USER_DATA_VALUE_TYPE_STRING);
+		}
+	}
+}
+
 bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags, URDFImporterInterface& u2b)
 {
 	bool loadOk = true;
@@ -3286,6 +3329,18 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 				}
 			}
 		}
+
+	const UrdfModel* urdfModel = u2b.getUrdfModel();
+	if (urdfModel) {
+		addUserData(urdfModel->m_userData, bodyUniqueId);
+		for (int linkIndex = 0; linkIndex < urdfModel->m_links.size(); ++linkIndex) {
+			const UrdfLink* link = *urdfModel->m_links.getAtIndex(linkIndex);
+			addUserData(link->m_userData, bodyUniqueId, linkIndex - 1);
+			for (int visualShapeIndex = 0; visualShapeIndex < link->m_visualArray.size(); ++visualShapeIndex) {
+				addUserData(link->m_visualArray.at(visualShapeIndex).m_userData, bodyUniqueId, linkIndex - 1, visualShapeIndex);
+			}
+		}
+	}
 
 		b3Notification notification;
 		notification.m_notificationType = BODY_ADDED;
@@ -6134,38 +6189,14 @@ bool PhysicsServerCommandProcessor::processAddUserDataCommand(const struct Share
 	{
 		return hasStatus;
 	}
-
-	InternalBodyData* body = m_data->m_bodyHandles.getHandle(addUserDataArgs.m_bodyUniqueId);
-	if (!body)
-	{
+	int userDataHandle = addUserData(
+		addUserDataArgs.m_bodyUniqueId, addUserDataArgs.m_linkIndex,
+		addUserDataArgs.m_visualShapeIndex, addUserDataArgs.m_key,
+		bufferServerToClient, addUserDataArgs.m_valueLength,
+		addUserDataArgs.m_valueType);
+	if (userDataHandle < 0) {
 		return hasStatus;
 	}
-
-	SharedMemoryUserDataHashKey userDataIdentifier(
-		addUserDataArgs.m_key,
-		addUserDataArgs.m_bodyUniqueId,
-		addUserDataArgs.m_linkIndex,
-		addUserDataArgs.m_visualShapeIndex);
-
-	int* userDataHandlePtr = m_data->m_userDataHandleLookup.find(userDataIdentifier);
-	int userDataHandle = userDataHandlePtr ? *userDataHandlePtr : m_data->m_userDataHandles.allocHandle();
-
-	SharedMemoryUserData* userData = m_data->m_userDataHandles.getHandle(userDataHandle);
-	if (!userData)
-	{
-		return hasStatus;
-	}
-
-	if (!userDataHandlePtr)
-	{
-		userData->m_key = addUserDataArgs.m_key;
-		userData->m_bodyUniqueId = addUserDataArgs.m_bodyUniqueId;
-		userData->m_linkIndex = addUserDataArgs.m_linkIndex;
-		userData->m_visualShapeIndex = addUserDataArgs.m_visualShapeIndex;
-		m_data->m_userDataHandleLookup.insert(userDataIdentifier, userDataHandle);
-		body->m_userDataHandles.push_back(userDataHandle);
-	}
-	userData->replaceValue(bufferServerToClient, addUserDataArgs.m_valueLength, addUserDataArgs.m_valueType);
 
 	serverStatusOut.m_type = CMD_ADD_USER_DATA_COMPLETED;
 	UserDataResponseArgs& userDataResponseArgs = serverStatusOut.m_userDataResponseArgs;
@@ -9362,6 +9393,7 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 					gforce->m_gravity = grav;
 				}
 			}
+
 		}
 		
 
