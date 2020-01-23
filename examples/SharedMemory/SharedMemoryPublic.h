@@ -494,6 +494,7 @@ enum b3VREventType
 
 #define MAX_SDF_BODIES 512
 #define MAX_USER_DATA_KEY_LENGTH 256
+#define MAX_REQUESTED_BODIES_LENGTH 256
 
 enum b3VRButtonInfo
 {

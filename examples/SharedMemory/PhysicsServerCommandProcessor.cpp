@@ -6139,7 +6139,24 @@ bool PhysicsServerCommandProcessor::processSyncUserDataCommand(const struct Shar
 	BT_PROFILE("CMD_SYNC_USER_DATA");
 
 	b3AlignedObjectArray<int> userDataHandles;
-	m_data->m_userDataHandles.getUsedHandles(userDataHandles);
+	if (clientCmd.m_syncUserDataRequestArgs.m_numRequestedBodies == 0)
+	{
+		m_data->m_userDataHandles.getUsedHandles(userDataHandles);
+	}
+	else
+	{
+		for (int i=0; i<clientCmd.m_syncUserDataRequestArgs.m_numRequestedBodies; ++i) {
+			const int bodyUniqueId = clientCmd.m_syncUserDataRequestArgs.m_requestedBodyIds[i];
+			InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+			if (!body)
+			{
+				return hasStatus;
+			}
+			for (int j=0; j < body->m_userDataHandles.size(); ++j) {
+				userDataHandles.push_back(body->m_userDataHandles[j]);
+			}
+		}
+	}
 	if (userDataHandles.size())
 	{
 		memcpy(bufferServerToClient, &userDataHandles[0], sizeof(int) * userDataHandles.size());

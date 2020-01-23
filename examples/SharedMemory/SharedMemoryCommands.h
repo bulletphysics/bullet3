@@ -1044,6 +1044,14 @@ struct b3StateSerializationArguments
 	int m_stateId;
 };
 
+struct SyncUserDataRequestArgs
+{
+	// The number of bodies for which we'd like to sync the user data of. When 0, all bodies are synced.
+	int m_numRequestedBodies;
+	// The body IDs for which we'd like to sync the user data of.
+	int m_requestedBodyIds[MAX_REQUESTED_BODIES_LENGTH];
+};
+
 struct SyncUserDataArgs
 {
 	// User data identifiers stored in m_bulletStreamDataServerToClientRefactor
@@ -1148,6 +1156,7 @@ struct SharedMemoryCommand
 		struct b3CustomCommand m_customCommandArgs;
 		struct b3StateSerializationArguments m_loadStateArguments;
 		struct RequestCollisionShapeDataArgs m_requestCollisionShapeDataArguments;
+		struct SyncUserDataRequestArgs m_syncUserDataRequestArgs;
 		struct UserDataRequestArgs m_userDataRequestArgs;
 		struct AddUserDataRequestArgs m_addUserDataRequestArgs;
 		struct UserDataRequestArgs m_removeUserDataRequestArgs;

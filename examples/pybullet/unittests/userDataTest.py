@@ -28,7 +28,7 @@ class TestUserDataMethods(unittest.TestCase):
 
   def testLoadingUserDataFromURDF(self):
     body_id = self.client.loadURDF(OBJECT_WITH_USER_DATA_PATH)
-    self.client.syncUserData()
+    self.client.syncUserData(body_id)
     num_user_data = self.client.getNumUserData(body_id)
 
     self.assertEqual(num_user_data, 7)

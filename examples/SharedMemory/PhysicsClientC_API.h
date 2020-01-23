@@ -130,6 +130,7 @@ extern "C"
 
 	///user data handling
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitSyncUserDataCommand(b3PhysicsClientHandle physClient);
+	B3_SHARED_API void b3AddBodyToSyncUserDataRequest(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId);
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitAddUserDataCommand(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int visualShapeIndex, const char* key, enum UserDataValueType valueType, int valueLength, const void* valueData);
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitRemoveUserDataCommand(b3PhysicsClientHandle physClient, int userDataId);
 
