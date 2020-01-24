@@ -786,7 +786,7 @@ public:
 
 	bool changeDynamics(int bodyUniqueId, int linkIndex, struct b3RobotSimulatorChangeDynamicsArgs &args);
 
-	int addUserDebugParameter(char *paramName, double rangeMin, double rangeMax, double startValue);
+	int addUserDebugParameter(const char *paramName, double rangeMin, double rangeMax, double startValue);
 
 	double readUserDebugParameter(int itemUniqueId);
 
