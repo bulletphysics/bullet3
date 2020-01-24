@@ -1503,7 +1503,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::changeDynamics(int bodyUniqueId, int li
 	return true;
 }
 
-int b3RobotSimulatorClientAPI_NoDirect::addUserDebugParameter(char* paramName, double rangeMin, double rangeMax, double startValue)
+int b3RobotSimulatorClientAPI_NoDirect::addUserDebugParameter(const char* paramName, double rangeMin, double rangeMax, double startValue)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0)
