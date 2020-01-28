@@ -68,12 +68,14 @@ struct MyTexture3
 	int m_width;
 	int m_height;
 	bool m_isCached;
+  int m_eglTextureIndex;
 };
 
 struct EGLRendererObjectArray
 {
-	
+
 	btAlignedObjectArray<int> m_graphicsInstanceIds;
+	btAlignedObjectArray<int> m_eglShapeIds;
 	int m_objectUniqueId;
 	int m_linkIndex;
 	btTransform m_worldTransform;
@@ -1041,6 +1043,7 @@ int EGLRendererVisualShapeConverter::convertVisualShapes(
 			visualShape.m_rgbaColor[1] = rgbaColor[1];
 			visualShape.m_rgbaColor[2] = rgbaColor[2];
 			visualShape.m_rgbaColor[3] = rgbaColor[3];
+			visualShape.m_tinyRendererTextureId = -1;
 			int shapeIndex = -1;
 			btHashVisual tmp;
 			{
@@ -1052,12 +1055,12 @@ int EGLRendererVisualShapeConverter::convertVisualShapes(
 				tmp.m_vis = *vis;
 				tmp.m_tr = tr;
 
-				int* bla = m_data->m_cachedVisualShapes[tmp];
-				if (bla)
-				{
-					shapeIndex = *bla;
-				}
-				else
+				// int* bla = m_data->m_cachedVisualShapes[tmp];
+				// if (bla)
+				// {
+				// 	shapeIndex = *bla;
+				// }
+				// else
 				{
 					convertURDFToVisualShape2(vis, pathPrefix, tr, vertices, indices, textures, visualShape, fileIO, m_data->m_flags);
 				}
@@ -1114,6 +1117,7 @@ int EGLRendererVisualShapeConverter::convertVisualShapes(
 					if (graphicsIndex >= 0)
 					{
 						visuals->m_graphicsInstanceIds.push_back(graphicsIndex);
+						visuals->m_eglShapeIds.push_back(shapeIndex);
 
 						if (m_data->m_graphicsIndexToSegmentationMask.size() < (graphicsIndex + 1))
 						{
@@ -1198,32 +1202,23 @@ int EGLRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int s
 
 void EGLRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4])
 {
-	//int start = -1;
-	for (int i = 0; i < m_data->m_visualShapes.size(); i++)
-	{
-		if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId && m_data->m_visualShapes[i].m_linkIndex == linkIndex)
-		{
-			m_data->m_visualShapes[i].m_rgbaColor[0] = rgbaColor[0];
-			m_data->m_visualShapes[i].m_rgbaColor[1] = rgbaColor[1];
-			m_data->m_visualShapes[i].m_rgbaColor[2] = rgbaColor[2];
-			m_data->m_visualShapes[i].m_rgbaColor[3] = rgbaColor[3];
-			m_data->m_instancingRenderer->writeSingleInstanceColorToCPU(rgbaColor,i);
-		}
-	}
-
-	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
-	{
-		EGLRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
-		if (ptrptr && *ptrptr)
-		{
-			float rgba[4] = {(float)rgbaColor[0], (float)rgbaColor[1], (float)rgbaColor[2], (float)rgbaColor[3]};
-			EGLRendererObjectArray* visuals = *ptrptr;
-			if ((bodyUniqueId == visuals->m_objectUniqueId) && (linkIndex == visuals->m_linkIndex))
-			{
-				
-			}
-		}
-	}
+  for (int n = 0; n < m_data->m_swRenderInstances.size(); n++)
+    {
+      EGLRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(n);
+      if (0 == visualArrayPtr)
+        continue;  //can this ever happen?
+      EGLRendererObjectArray* visualArray = *visualArrayPtr;
+      if (visualArray->m_objectUniqueId == bodyUniqueId && visualArray->m_linkIndex == linkIndex)
+        {
+          for (int v = 0; v < visualArray->m_graphicsInstanceIds.size(); v++)
+            {
+              if ((shapeIndex < 0) || (shapeIndex == v))
+                {
+                  m_data->m_instancingRenderer->writeSingleInstanceColorToCPU(rgbaColor, visualArray->m_graphicsInstanceIds[v]);
+                }
+            }
+        }
+    }
 }
 
 void EGLRendererVisualShapeConverter::setUpAxis(int axis)
@@ -1350,9 +1345,6 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 			m_data->m_instancingRenderer->updateCamera(m_data->m_upAxis);
 
 			m_data->m_instancingRenderer->renderScene();
-			m_data->m_instancingRenderer->drawLine(b3MakeVector3(0, 0, 0), b3MakeVector3(1, 0, 0), b3MakeVector3(1, 0, 0), 3);
-			m_data->m_instancingRenderer->drawLine(b3MakeVector3(0, 0, 0), b3MakeVector3(0, 1, 0), b3MakeVector3(0, 1, 0), 3);
-			m_data->m_instancingRenderer->drawLine(b3MakeVector3(0, 0, 0), b3MakeVector3(0, 0, 1), b3MakeVector3(0, 0, 1), 3);
 
 			int numBytesPerPixel = 4;  //RGBA
 
@@ -1563,6 +1555,7 @@ void EGLRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqu
 			{
 				m_data->m_instancingRenderer->removeGraphicsInstance(ptr->m_graphicsInstanceIds[i]);
 			}
+
 			
 		}
 		delete ptr;
@@ -1606,10 +1599,29 @@ void EGLRendererVisualShapeConverter::resetAll()
 void EGLRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
 	btAssert(textureUniqueId < m_data->m_textures.size());
-	if (textureUniqueId >= 0 && textureUniqueId < m_data->m_textures.size())
-	{
-		
-	}
+	if (textureUniqueId >= -1 && textureUniqueId < m_data->m_textures.size())
+  {
+    for (int n = 0; n < m_data->m_swRenderInstances.size(); n++)
+    {
+      EGLRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(n);
+      if (0 == visualArrayPtr)
+        continue;  //can this ever happen?
+      EGLRendererObjectArray* visualArray = *visualArrayPtr;
+      if (visualArray->m_objectUniqueId == objectUniqueId && visualArray->m_linkIndex == jointIndex)
+      {
+        for (int v = 0; v < visualArray->m_eglShapeIds.size(); v++)
+        {
+          if ((shapeIndex < 0) || (shapeIndex == v))
+          {
+            if (textureUniqueId>=0)
+            {
+              m_data->m_instancingRenderer->replaceTexture(visualArray->m_eglShapeIds[v],m_data->m_textures[textureUniqueId].m_eglTextureIndex);
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 int EGLRendererVisualShapeConverter::registerTexture(unsigned char* texels, int width, int height)
@@ -1619,6 +1631,7 @@ int EGLRendererVisualShapeConverter::registerTexture(unsigned char* texels, int 
 	texData.m_height = height;
 	texData.textureData1 = texels;
 	texData.m_isCached = false;
+  texData.m_eglTextureIndex = m_data->m_instancingRenderer->registerTexture(texels, width, height);
 	m_data->m_textures.push_back(texData);
 	return m_data->m_textures.size() - 1;
 }
