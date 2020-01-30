@@ -752,14 +752,19 @@ static PyObject* pybullet_syncUserData(PyObject* self, PyObject* args, PyObject*
 {
 	b3PhysicsClientHandle sm = 0;
 	int physicsClientId = 0;
-	static char* kwlist[] = {"physicsClientId", NULL};
+	static char* kwlistSingleBody[] = {"bodyUniqueId", "physicsClientId", NULL};
+	static char* kwlistMultipleBodies[] = {"bodyUniqueIds", "physicsClientId", NULL};
 	b3SharedMemoryCommandHandle command;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
-
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
-	{
-		return NULL;
+	PyObject* bodyUniqueIdsObj = 0;
+	int requestedBodyUniqueId = -1;
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ii", kwlistSingleBody, &requestedBodyUniqueId, &physicsClientId)) {
+		PyErr_Clear();
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "|Oi", kwlistMultipleBodies, &bodyUniqueIdsObj, &physicsClientId))
+		{
+			return NULL;
+		}
 	}
 	sm = getPhysicsClient(physicsClientId);
 	if (sm == 0)
@@ -769,6 +774,20 @@ static PyObject* pybullet_syncUserData(PyObject* self, PyObject* args, PyObject*
 	}
 
 	command = b3InitSyncUserDataCommand(sm);
+	if (bodyUniqueIdsObj)
+	{
+		PyObject *seq = PySequence_Fast(bodyUniqueIdsObj, "expected a sequence");
+		int len = PySequence_Size(bodyUniqueIdsObj);
+		for (int i=0; i < len; ++i)
+		{
+			b3AddBodyToSyncUserDataRequest(command, pybullet_internalGetIntFromSequence(seq, i));
+		}
+	}
+	else if (requestedBodyUniqueId != -1)
+	{
+		b3AddBodyToSyncUserDataRequest(command, requestedBodyUniqueId);
+
+	}
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	statusType = b3GetStatusType(statusHandle);
 
@@ -11932,7 +11951,7 @@ static PyMethodDef SpamMethods[] = {
 	 "Update body and constraint/joint information, in case other clients made changes."},
 
 	{"syncUserData", (PyCFunction)pybullet_syncUserData, METH_VARARGS | METH_KEYWORDS,
-	 "syncUserData(physicsClientId=0)\n"
+	 "syncUserData(bodyUniqueIds=[], physicsClientId=0)\n"
 	 "Update user data, in case other clients made changes."},
 
 	{"addUserData", (PyCFunction)pybullet_addUserData, METH_VARARGS | METH_KEYWORDS,

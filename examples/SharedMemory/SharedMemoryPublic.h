@@ -7,7 +7,8 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201911280
+#define SHARED_MEMORY_MAGIC_NUMBER 202001230
+//#define SHARED_MEMORY_MAGIC_NUMBER 201911280
 //#define SHARED_MEMORY_MAGIC_NUMBER 201911180
 //#define SHARED_MEMORY_MAGIC_NUMBER 201909030
 //#define SHARED_MEMORY_MAGIC_NUMBER 201908110
@@ -494,6 +495,7 @@ enum b3VREventType
 
 #define MAX_SDF_BODIES 512
 #define MAX_USER_DATA_KEY_LENGTH 256
+#define MAX_REQUESTED_BODIES_LENGTH 256
 
 enum b3VRButtonInfo
 {
