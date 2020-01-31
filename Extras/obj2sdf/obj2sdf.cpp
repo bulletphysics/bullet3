@@ -376,11 +376,11 @@ int main(int argc, char* argv[])
 					continue;
 				}
 				fprintf(f, "f %d/%d/%d %d/%d/%d %d/%d/%d\n",
-						shape.mesh.indices[face].vertex_index + 1, shape.mesh.indices[face].vertex_index + 1, shape.mesh.indices[face].vertex_index + 1,
-						shape.mesh.indices[face + 1].vertex_index + 1, shape.mesh.indices[face + 1].vertex_index + 1, shape.mesh.indices[face + 1].vertex_index + 1,
-						shape.mesh.indices[face + 2].vertex_index + 1, shape.mesh.indices[face + 2].vertex_index + 1, shape.mesh.indices[face + 2].vertex_index + 1);
+                                        shape.mesh.indices[face].vertex_index + 1,     shape.mesh.indices[face].texcoord_index + 1,     shape.mesh.indices[face].normal_index + 1,
+                                        shape.mesh.indices[face + 1].vertex_index + 1, shape.mesh.indices[face + 1].texcoord_index + 1, shape.mesh.indices[face + 1].normal_index + 1,
+                                        shape.mesh.indices[face + 2].vertex_index + 1, shape.mesh.indices[face + 2].texcoord_index + 1, shape.mesh.indices[face + 2].normal_index + 1);
 			}
-			fclose(f);
+                        fclose(f);
 
 			float kdRed = mat.diffuse[0];
 			float kdGreen = mat.diffuse[1];
