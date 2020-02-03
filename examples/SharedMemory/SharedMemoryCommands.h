@@ -1057,6 +1057,8 @@ struct SyncUserDataArgs
 	// User data identifiers stored in m_bulletStreamDataServerToClientRefactor
 	// as as array of integers.
 	int m_numUserDataIdentifiers;
+	// Whether the client should clear its user data cache.
+	bool m_clearCachedUserDataEntries;
 };
 
 struct UserDataRequestArgs

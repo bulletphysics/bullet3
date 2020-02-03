@@ -6161,6 +6161,8 @@ bool PhysicsServerCommandProcessor::processSyncUserDataCommand(const struct Shar
 	{
 		memcpy(bufferServerToClient, &userDataHandles[0], sizeof(int) * userDataHandles.size());
 	}
+	// Only clear the client-side cache when a full sync is requested
+	serverStatusOut.m_syncUserDataArgs.m_clearCachedUserDataEntries = clientCmd.m_syncUserDataRequestArgs.m_numRequestedBodies == 0;
 	serverStatusOut.m_syncUserDataArgs.m_numUserDataIdentifiers = userDataHandles.size();
 	serverStatusOut.m_type = CMD_SYNC_USER_DATA_COMPLETED;
 	return hasStatus;
