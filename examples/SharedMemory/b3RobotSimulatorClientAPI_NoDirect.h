@@ -492,6 +492,38 @@ struct b3RobotSimulatorCreateCollisionShapeArgs
 	}
 };
 
+
+struct b3RobotSimulatorCreateVisualShapeArgs
+{
+	int m_shapeType;
+	double m_radius;
+	btVector3 m_halfExtents;
+	double m_height;
+	char* m_fileName;
+	btVector3 m_meshScale;
+	btVector3 m_planeNormal;
+	int m_flags;
+	b3RobotSimulatorCreateVisualShapeArgs()
+		: m_shapeType(-1),
+		m_radius(0.5),
+		m_height(1),
+		m_fileName(NULL),
+		m_flags(0)
+	{
+		m_halfExtents.m_floats[0] = 1;
+		m_halfExtents.m_floats[1] = 1;
+		m_halfExtents.m_floats[2] = 1;
+
+		m_meshScale.m_floats[0] = 1;
+		m_meshScale.m_floats[1] = 1;
+		m_meshScale.m_floats[2] = 1;
+
+		m_planeNormal.m_floats[0] = 0;
+		m_planeNormal.m_floats[1] = 0;
+		m_planeNormal.m_floats[2] = 1;
+	}
+};
+
 struct b3RobotSimulatorCreateMultiBodyArgs
 {
 	double m_baseMass;
@@ -707,7 +739,7 @@ public:
 	bool getBodyInfo(int bodyUniqueId, struct b3BodyInfo *bodyInfo);
 
 	bool getBasePositionAndOrientation(int bodyUniqueId, btVector3 &basePosition, btQuaternion &baseOrientation) const;
-	bool resetBasePositionAndOrientation(int bodyUniqueId, btVector3 &basePosition, btQuaternion &baseOrientation);
+	bool resetBasePositionAndOrientation(int bodyUniqueId, const btVector3 &basePosition, const btQuaternion &baseOrientation);
 
 	bool getBaseVelocity(int bodyUniqueId, btVector3 &baseLinearVelocity, btVector3 &baseAngularVelocity) const;
 	bool resetBaseVelocity(int bodyUniqueId, const btVector3 &linearVelocity, const btVector3 &angularVelocity) const;
@@ -792,9 +824,9 @@ public:
 
 	bool removeUserDebugItem(int itemUniqueId);
 
-	int addUserDebugText(char *text, double *textPosition, struct b3RobotSimulatorAddUserDebugTextArgs &args);
+	int addUserDebugText(const char *text, double *textPosition, struct b3RobotSimulatorAddUserDebugTextArgs &args);
 
-	int addUserDebugText(char *text, btVector3 &textPosition, struct b3RobotSimulatorAddUserDebugTextArgs &args);
+	int addUserDebugText(const char *text, btVector3 &textPosition, struct b3RobotSimulatorAddUserDebugTextArgs &args);
 
 	int addUserDebugLine(double *fromXYZ, double *toXYZ, struct b3RobotSimulatorAddUserDebugLineArgs &args);
 
@@ -829,6 +861,8 @@ public:
 	bool getAABB(int bodyUniqueId, int linkIndex, double *aabbMin, double *aabbMax);
 
 	bool getAABB(int bodyUniqueId, int linkIndex, btVector3 &aabbMin, btVector3 &aabbMax);
+
+	int createVisualShape(int shapeType, struct b3RobotSimulatorCreateVisualShapeArgs& args);
 
 	int createCollisionShape(int shapeType, struct b3RobotSimulatorCreateCollisionShapeArgs &args);
 
