@@ -464,7 +464,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::getBasePositionAndOrientation(int bodyU
 	return true;
 }
 
-bool b3RobotSimulatorClientAPI_NoDirect::resetBasePositionAndOrientation(int bodyUniqueId, btVector3& basePosition, btQuaternion& baseOrientation)
+bool b3RobotSimulatorClientAPI_NoDirect::resetBasePositionAndOrientation(int bodyUniqueId, const btVector3& basePosition, const btQuaternion& baseOrientation)
 {
 	if (!isConnected())
 	{
@@ -1575,7 +1575,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::removeUserDebugItem(int itemUniqueId)
 	return true;
 }
 
-int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(char* text, double* textPosition, struct b3RobotSimulatorAddUserDebugTextArgs& args)
+int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(const char* text, double* textPosition, struct b3RobotSimulatorAddUserDebugTextArgs& args)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0)
@@ -1611,7 +1611,7 @@ int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(char* text, double* tex
 	return -1;
 }
 
-int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(char* text, btVector3& textPosition, struct b3RobotSimulatorAddUserDebugTextArgs& args)
+int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(const char* text, btVector3& textPosition, struct b3RobotSimulatorAddUserDebugTextArgs& args)
 {
 	double dposXYZ[3];
 	dposXYZ[0] = textPosition.x();
@@ -2166,6 +2166,68 @@ bool b3RobotSimulatorClientAPI_NoDirect::getAABB(int bodyUniqueId, int linkIndex
 	aabbMax[2] = (float)daabbMax[2];
 
 	return status;
+}
+
+
+int b3RobotSimulatorClientAPI_NoDirect::createVisualShape(int shapeType, struct b3RobotSimulatorCreateVisualShapeArgs& args)
+{
+	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+	if (sm == 0)
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+	b3SharedMemoryCommandHandle command;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	int shapeIndex = -1;
+
+	command = b3CreateVisualShapeCommandInit(sm);
+
+	if (shapeType == GEOM_SPHERE && args.m_radius > 0)
+	{
+		shapeIndex = b3CreateVisualShapeAddSphere(command, args.m_radius);
+	}
+	if (shapeType == GEOM_BOX)
+	{
+		double halfExtents[3];
+		scalarToDouble3(args.m_halfExtents, halfExtents);
+		shapeIndex = b3CreateVisualShapeAddBox(command, halfExtents);
+	}
+	if (shapeType == GEOM_CAPSULE && args.m_radius > 0 && args.m_height >= 0)
+	{
+		shapeIndex = b3CreateVisualShapeAddCapsule(command, args.m_radius, args.m_height);
+	}
+	if (shapeType == GEOM_CYLINDER && args.m_radius > 0 && args.m_height >= 0)
+	{
+		shapeIndex = b3CreateVisualShapeAddCylinder(command, args.m_radius, args.m_height);
+	}
+	if (shapeType == GEOM_MESH && args.m_fileName)
+	{
+		double meshScale[3];
+		scalarToDouble3(args.m_meshScale, meshScale);
+		shapeIndex = b3CreateVisualShapeAddMesh(command, args.m_fileName, meshScale);
+	}
+	if (shapeType == GEOM_PLANE)
+	{
+		double planeConstant = 0;
+		double planeNormal[3];
+		scalarToDouble3(args.m_planeNormal, planeNormal);
+		shapeIndex = b3CreateVisualShapeAddPlane(command, planeNormal, planeConstant);
+	}
+	if (shapeIndex >= 0 && args.m_flags)
+	{
+		b3CreateVisualSetFlag(command, shapeIndex, args.m_flags);
+	}
+
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType == CMD_CREATE_VISUAL_SHAPE_COMPLETED)
+	{
+		int uid = b3GetStatusVisualShapeUniqueId(statusHandle);
+		return uid;
+	}
+	return -1;
 }
 
 int b3RobotSimulatorClientAPI_NoDirect::createCollisionShape(int shapeType, struct b3RobotSimulatorCreateCollisionShapeArgs& args)
