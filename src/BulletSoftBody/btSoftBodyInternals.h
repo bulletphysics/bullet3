@@ -565,7 +565,7 @@ static SIMD_FORCE_INLINE bool continuousCollisionDetection(const btSoftBody::Fac
     btScalar a3 = c.dot(e);
     btScalar eps = SAFE_EPSILON;
     int num_roots = 0;
-    float roots[3];
+    btScalar roots[3];
     if (std::abs(a3) < eps)
     {
         // cubic term is zero
