@@ -156,6 +156,7 @@ void DeformableContact::initPhysics()
         
         psb->getCollisionShape()->setMargin(0.1);
         psb->generateBendingConstraints(2);
+        psb->setSpringStiffness(10);
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -183,6 +184,7 @@ void DeformableContact::initPhysics()
                                                           0, true);
         psb2->getCollisionShape()->setMargin(0.1);
         psb2->generateBendingConstraints(2);
+        psb2->setSpringStiffness(10);
         psb2->setTotalMass(1);
         psb2->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb2->m_cfg.kCHR = 1; // collision hardness with rigid body
