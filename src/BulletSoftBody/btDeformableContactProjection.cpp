@@ -122,7 +122,6 @@ void btDeformableContactProjection::setConstraints(const btContactSolverInfo& in
 		// set Dirichlet constraint
 		for (int j = 0; j < psb->m_nodes.size(); ++j)
 		{
-			psb->m_nodes[i].m_constrained = false; // reset the m_constrained to false
 			if (psb->m_nodes[j].m_im == 0)
 			{
 				btDeformableStaticConstraint static_constraint(&psb->m_nodes[j], infoGlobal);

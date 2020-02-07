@@ -8,14 +8,14 @@
 
 #include "poly34.h" // solution of cubic and quartic equation
 #define TwoPi 6.28318530717958648
-const float eps = 1e-7;
+const btScalar eps = SIMD_EPSILON;
 
 //=============================================================================
 // _root3, root3 from http://prografix.narod.ru
 //=============================================================================
-static SIMD_FORCE_INLINE float _root3(float x)
+static SIMD_FORCE_INLINE btScalar _root3(btScalar x)
 {
-    float s = 1.;
+    btScalar s = 1.;
     while (x < 1.) {
         x *= 8.;
         s *= 0.5;
@@ -24,7 +24,7 @@ static SIMD_FORCE_INLINE float _root3(float x)
         x *= 0.125;
         s *= 2.;
     }
-    float r = 1.5;
+    btScalar r = 1.5;
     r -= 1. / 3. * (r - x / (r * r));
     r -= 1. / 3. * (r - x / (r * r));
     r -= 1. / 3. * (r - x / (r * r));
@@ -34,7 +34,7 @@ static SIMD_FORCE_INLINE float _root3(float x)
     return r * s;
 }
 
-float SIMD_FORCE_INLINE root3(float x)
+btScalar SIMD_FORCE_INLINE root3(btScalar x)
 {
     if (x > 0)
         return _root3(x);
@@ -47,9 +47,9 @@ float SIMD_FORCE_INLINE root3(float x)
 // x - array of size 2
 // return 2: 2 real roots x[0], x[1]
 // return 0: pair of complex roots: x[0]i*x[1]
-int SolveP2(float* x, float a, float b)
+int SolveP2(btScalar* x, btScalar a, btScalar b)
 { // solve equation x^2 + a*x + b = 0
-    float D = 0.25 * a * a - b;
+    btScalar D = 0.25 * a * a - b;
     if (D >= 0) {
         D = sqrt(D);
         x[0] = -0.5 * a + D;
@@ -65,19 +65,19 @@ int SolveP2(float* x, float a, float b)
 // In case 3 real roots: => x[0], x[1], x[2], return 3
 //         2 real roots: x[0], x[1],          return 2
 //         1 real root : x[0], x[1]  i*x[2], return 1
-int SolveP3(float* x, float a, float b, float c)
+int SolveP3(btScalar* x, btScalar a, btScalar b, btScalar c)
 { // solve cubic equation x^3 + a*x^2 + b*x + c = 0
-    float a2 = a * a;
-    float q = (a2 - 3 * b) / 9;
+    btScalar a2 = a * a;
+    btScalar q = (a2 - 3 * b) / 9;
     if (q < 0)
         q = eps;
-    float r = (a * (2 * a2 - 9 * b) + 27 * c) / 54;
+    btScalar r = (a * (2 * a2 - 9 * b) + 27 * c) / 54;
     // equation x^3 + q*x + r = 0
-    float r2 = r * r;
-    float q3 = q * q * q;
-    float A, B;
+    btScalar r2 = r * r;
+    btScalar q3 = q * q * q;
+    btScalar A, B;
     if (r2 <= (q3 + eps)) { //<<-- FIXED!
-        float t = r / sqrt(q3);
+        btScalar t = r / sqrt(q3);
         if (t < -1)
             t = -1;
         if (t > 1)
@@ -107,12 +107,12 @@ int SolveP3(float* x, float a, float b, float c)
         }
         return (1);
     }
-} // SolveP3(float *x,float a,float b,float c) {
+} // SolveP3(btScalar *x,btScalar a,btScalar b,btScalar c) {
 //---------------------------------------------------------------------------
 // a>=0!
-void CSqrt(float x, float y, float& a, float& b) // returns:  a+i*s = sqrt(x+i*y)
+void CSqrt(btScalar x, btScalar y, btScalar& a, btScalar& b) // returns:  a+i*s = sqrt(x+i*y)
 {
-    float r = sqrt(x * x + y * y);
+    btScalar r = sqrt(x * x + y * y);
     if (y == 0) {
         r = sqrt(r);
         if (x >= 0) {
@@ -130,17 +130,17 @@ void CSqrt(float x, float y, float& a, float& b) // returns:  a+i*s = sqrt(x+i*y
     }
 }
 //---------------------------------------------------------------------------
-int SolveP4Bi(float* x, float b, float d) // solve equation x^4 + b*x^2 + d = 0
+int SolveP4Bi(btScalar* x, btScalar b, btScalar d) // solve equation x^4 + b*x^2 + d = 0
 {
-    float D = b * b - 4 * d;
+    btScalar D = b * b - 4 * d;
     if (D >= 0) {
-        float sD = sqrt(D);
-        float x1 = (-b + sD) / 2;
-        float x2 = (-b - sD) / 2; // x2 <= x1
+        btScalar sD = sqrt(D);
+        btScalar x1 = (-b + sD) / 2;
+        btScalar x2 = (-b - sD) / 2; // x2 <= x1
         if (x2 >= 0) // 0 <= x2 <= x1, 4 real roots
         {
-            float sx1 = sqrt(x1);
-            float sx2 = sqrt(x2);
+            btScalar sx1 = sqrt(x1);
+            btScalar sx2 = sqrt(x2);
             x[0] = -sx1;
             x[1] = sx1;
             x[2] = -sx2;
@@ -149,8 +149,8 @@ int SolveP4Bi(float* x, float b, float d) // solve equation x^4 + b*x^2 + d = 0
         }
         if (x1 < 0) // x2 <= x1 < 0, two pair of imaginary roots
         {
-            float sx1 = sqrt(-x1);
-            float sx2 = sqrt(-x2);
+            btScalar sx1 = sqrt(-x1);
+            btScalar sx2 = sqrt(-x2);
             x[0] = 0;
             x[1] = sx1;
             x[2] = 0;
@@ -158,8 +158,8 @@ int SolveP4Bi(float* x, float b, float d) // solve equation x^4 + b*x^2 + d = 0
             return 0;
         }
         // now x2 < 0 <= x1 , two real roots and one pair of imginary root
-        float sx1 = sqrt(x1);
-        float sx2 = sqrt(-x2);
+        btScalar sx1 = sqrt(x1);
+        btScalar sx2 = sqrt(-x2);
         x[0] = -sx1;
         x[1] = sx1;
         x[2] = 0;
@@ -167,12 +167,12 @@ int SolveP4Bi(float* x, float b, float d) // solve equation x^4 + b*x^2 + d = 0
         return 2;
     }
     else { // if( D < 0 ), two pair of compex roots
-        float sD2 = 0.5 * sqrt(-D);
+        btScalar sD2 = 0.5 * sqrt(-D);
         CSqrt(-0.5 * b, sD2, x[0], x[1]);
         CSqrt(-0.5 * b, -sD2, x[2], x[3]);
         return 0;
     } // if( D>=0 )
-} // SolveP4Bi(float *x, float b, float d)    // solve equation x^4 + b*x^2 d
+} // SolveP4Bi(btScalar *x, btScalar b, btScalar d)    // solve equation x^4 + b*x^2 d
 //---------------------------------------------------------------------------
 #define SWAP(a, b) \
 {              \
@@ -180,9 +180,9 @@ t = b;     \
 b = a;     \
 a = t;     \
 }
-static void dblSort3(float& a, float& b, float& c) // make: a <= b <= c
+static void dblSort3(btScalar& a, btScalar& b, btScalar& c) // make: a <= b <= c
 {
-    float t;
+    btScalar t;
     if (a > b)
         SWAP(a, b); // now a<=b
     if (c < b) {
@@ -192,7 +192,7 @@ static void dblSort3(float& a, float& b, float& c) // make: a <= b <= c
     }
 }
 //---------------------------------------------------------------------------
-int SolveP4De(float* x, float b, float c, float d) // solve equation x^4 + b*x^2 + c*x + d
+int SolveP4De(btScalar* x, btScalar b, btScalar c, btScalar d) // solve equation x^4 + b*x^2 + c*x + d
 {
     //if( c==0 ) return SolveP4Bi(x,b,d); // After that, c!=0
     if (fabs(c) < 1e-14 * (fabs(b) + fabs(d)))
@@ -206,9 +206,9 @@ int SolveP4De(float* x, float b, float c, float d) // solve equation x^4 + b*x^2
         // Note: x[0]*x[1]*x[2]= c*c > 0
         if (x[0] > 0) // all roots are positive
         {
-            float sz1 = sqrt(x[0]);
-            float sz2 = sqrt(x[1]);
-            float sz3 = sqrt(x[2]);
+            btScalar sz1 = sqrt(x[0]);
+            btScalar sz2 = sqrt(x[1]);
+            btScalar sz3 = sqrt(x[2]);
             // Note: sz1*sz2*sz3= -c (and not equal to 0)
             if (c > 0) {
                 x[0] = (-sz1 - sz2 - sz3) / 2;
@@ -226,9 +226,9 @@ int SolveP4De(float* x, float b, float c, float d) // solve equation x^4 + b*x^2
         } // if( x[0] > 0) // all roots are positive
         // now x[0] <= x[1] < 0, x[2] > 0
         // two pair of comlex roots
-        float sz1 = sqrt(-x[0]);
-        float sz2 = sqrt(-x[1]);
-        float sz3 = sqrt(x[2]);
+        btScalar sz1 = sqrt(-x[0]);
+        btScalar sz2 = sqrt(-x[1]);
+        btScalar sz3 = sqrt(x[2]);
         
         if (c > 0) // sign = -1
         {
@@ -251,8 +251,8 @@ int SolveP4De(float* x, float b, float c, float d) // solve equation x^4 + b*x^2
     // x[0] must be >=0. But one times x[0]=~ 1e-17, so:
     if (x[0] < 0)
         x[0] = 0;
-    float sz1 = sqrt(x[0]);
-    float szr, szi;
+    btScalar sz1 = sqrt(x[0]);
+    btScalar szr, szi;
     CSqrt(x[1], x[2], szr, szi); // (szr+i*szi)^2 = x[1]+i*x[2]
     if (c > 0) // sign = -1
     {
@@ -268,14 +268,14 @@ int SolveP4De(float* x, float b, float c, float d) // solve equation x^4 + b*x^2
     x[2] = -sz1 / 2;
     x[3] = szi;
     return 2;
-} // SolveP4De(float *x, float b, float c, float d)    // solve equation x^4 + b*x^2 + c*x + d
+} // SolveP4De(btScalar *x, btScalar b, btScalar c, btScalar d)    // solve equation x^4 + b*x^2 + c*x + d
 //-----------------------------------------------------------------------------
-float N4Step(float x, float a, float b, float c, float d) // one Newton step for x^4 + a*x^3 + b*x^2 + c*x + d
+btScalar N4Step(btScalar x, btScalar a, btScalar b, btScalar c, btScalar d) // one Newton step for x^4 + a*x^3 + b*x^2 + c*x + d
 {
-    float fxs = ((4 * x + 3 * a) * x + 2 * b) * x + c; // f'(x)
+    btScalar fxs = ((4 * x + 3 * a) * x + 2 * b) * x + c; // f'(x)
     if (fxs == 0)
         return x; //return 1e99; <<-- FIXED!
-    float fx = (((x + a) * x + b) * x + c) * x + d; // f(x)
+    btScalar fx = (((x + a) * x + b) * x + c) * x + d; // f(x)
     return x - fx / fxs;
 }
 //-----------------------------------------------------------------------------
@@ -283,12 +283,12 @@ float N4Step(float x, float a, float b, float c, float d) // one Newton step for
 // return 4: 4 real roots x[0], x[1], x[2], x[3], possible multiple roots
 // return 2: 2 real roots x[0], x[1] and complex x[2]i*x[3],
 // return 0: two pair of complex roots: x[0]i*x[1],  x[2]i*x[3],
-int SolveP4(float* x, float a, float b, float c, float d)
+int SolveP4(btScalar* x, btScalar a, btScalar b, btScalar c, btScalar d)
 { // solve equation x^4 + a*x^3 + b*x^2 + c*x + d by Dekart-Euler method
     // move to a=0:
-    float d1 = d + 0.25 * a * (0.25 * b * a - 3. / 64 * a * a * a - c);
-    float c1 = c + 0.5 * a * (0.25 * a * a - b);
-    float b1 = b - 0.375 * a * a;
+    btScalar d1 = d + 0.25 * a * (0.25 * b * a - 3. / 64 * a * a * a - c);
+    btScalar c1 = c + 0.5 * a * (0.25 * a * a - b);
+    btScalar b1 = b - 0.375 * a * a;
     int res = SolveP4De(x, b1, c1, d1);
     if (res == 4) {
         x[0] -= a / 4;
@@ -319,13 +319,13 @@ int SolveP4(float* x, float a, float b, float c, float d)
 //-----------------------------------------------------------------------------
 #define F5(t) (((((t + a) * t + b) * t + c) * t + d) * t + e)
 //-----------------------------------------------------------------------------
-float SolveP5_1(float a, float b, float c, float d, float e) // return real root of x^5 + a*x^4 + b*x^3 + c*x^2 + d*x + e = 0
+btScalar SolveP5_1(btScalar a, btScalar b, btScalar c, btScalar d, btScalar e) // return real root of x^5 + a*x^4 + b*x^3 + c*x^2 + d*x + e = 0
 {
     int cnt;
     if (fabs(e) < eps)
         return 0;
     
-    float brd = fabs(a); // brd - border of real roots
+    btScalar brd = fabs(a); // brd - border of real roots
     if (fabs(b) > brd)
         brd = fabs(b);
     if (fabs(c) > brd)
@@ -336,10 +336,10 @@ float SolveP5_1(float a, float b, float c, float d, float e) // return real root
         brd = fabs(e);
     brd++; // brd - border of real roots
     
-    float x0, f0; // less than root
-    float x1, f1; // greater than root
-    float x2, f2, f2s; // next values, f(x2), f'(x2)
-    float dx = 0;
+    btScalar x0, f0; // less than root
+    btScalar x1, f1; // greater than root
+    btScalar x2, f2, f2s; // next values, f(x2), f'(x2)
+    btScalar dx = 0;
     
     if (e < 0) {
         x0 = 0;
@@ -408,12 +408,12 @@ float SolveP5_1(float a, float b, float c, float d, float e) // return real root
         x2 -= dx;
     } while (fabs(dx) > eps);
     return x2;
-} // SolveP5_1(float a,float b,float c,float d,float e)    // return real root of x^5 + a*x^4 + b*x^3 + c*x^2 + d*x + e = 0
+} // SolveP5_1(btScalar a,btScalar b,btScalar c,btScalar d,btScalar e)    // return real root of x^5 + a*x^4 + b*x^3 + c*x^2 + d*x + e = 0
 //-----------------------------------------------------------------------------
-int SolveP5(float* x, float a, float b, float c, float d, float e) // solve equation x^5 + a*x^4 + b*x^3 + c*x^2 + d*x + e = 0
+int SolveP5(btScalar* x, btScalar a, btScalar b, btScalar c, btScalar d, btScalar e) // solve equation x^5 + a*x^4 + b*x^3 + c*x^2 + d*x + e = 0
 {
-    float r = x[0] = SolveP5_1(a, b, c, d, e);
-    float a1 = a + r, b1 = b + r * a1, c1 = c + r * b1, d1 = d + r * c1;
+    btScalar r = x[0] = SolveP5_1(a, b, c, d, e);
+    btScalar a1 = a + r, b1 = b + r * a1, c1 = c + r * b1, d1 = d + r * c1;
     return 1 + SolveP4(x + 1, a1, b1, c1, d1);
-} // SolveP5(float *x,float a,float b,float c,float d,float e)    // solve equation x^5 + a*x^4 + b*x^3 + c*x^2 + d*x + e = 0
+} // SolveP5(btScalar *x,btScalar a,btScalar b,btScalar c,btScalar d,btScalar e)    // solve equation x^5 + a*x^4 + b*x^3 + c*x^2 + d*x + e = 0
 //-----------------------------------------------------------------------------

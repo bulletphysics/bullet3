@@ -206,13 +206,26 @@ void btDeformableMultiBodyDynamicsWorld::performGeometricCollisions(btScalar tim
 		}
 		if (penetration_count == 0)
 		{
-			return;
+			break;
 		}
 
 		// apply inelastic impulse
 		for (int i = 0; i < m_softBodies.size(); ++i)
 		{
 			m_softBodies[i]->applyRepulsionForce(timeStep, false);
+		}
+	}
+
+	for (int i = 0; i < m_softBodies.size(); ++i)
+	{
+		btSoftBody* psb = m_softBodies[i];
+		if (psb->m_usePostCollisionDamping)
+		{
+			for (int j = 0; j < psb->m_nodes.size(); ++j)
+			{
+			if (!psb->m_nodes[j].m_constrained)
+				psb->m_nodes[j].m_v *= psb->m_dampingCoefficient;
+			}
 		}
 	}
 }

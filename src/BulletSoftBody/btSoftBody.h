@@ -803,16 +803,17 @@ public:
 	btDbvntNode* m_fdbvnt;              // Faces tree with normals
 	btDbvt m_cdbvt;                    // Clusters tree
 	tClusterArray m_clusters;          // Clusters
-    btScalar m_dampingCoefficient;     // Damping Coefficient
-    btScalar m_sleepingThreshold;
-    btScalar m_maxSpeedSquared;
-    bool m_useFaceContact;
-    btAlignedObjectArray<btVector3> m_quads; // quadrature points for collision detection
-    btScalar repulsionStiffness;
-    
-    btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
-    btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
-    bool m_useSelfCollision;
+	btScalar m_dampingCoefficient;     // Damping Coefficient
+	btScalar m_sleepingThreshold;
+	btScalar m_maxSpeedSquared;
+	bool m_useFaceContact;
+	btAlignedObjectArray<btVector3> m_quads; // quadrature points for collision detection
+	btScalar repulsionStiffness;
+
+	btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
+	btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
+	bool m_useSelfCollision;
+	bool m_usePostCollisionDamping;
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
 
