@@ -536,6 +536,14 @@ static SIMD_FORCE_INLINE bool bernsteinVFTest(const btSoftBody::Face* face, cons
     return coplanarAndInsideTest(k0, k1, k2, k3, face, node, dt);
 }
 
+template <class T>
+static SIMD_FORCE_INLINE void swap(T& a, T& b)
+{
+    T temp = a;
+    a = b;
+    b = temp;
+}
+
 static SIMD_FORCE_INLINE bool continuousCollisionDetection(const btSoftBody::Face* face, const btSoftBody::Node* node, const btScalar& dt, const btScalar& mrg, btVector3& bary)
 {
     if (hasSeparatingPlane(face, node, dt))
@@ -587,7 +595,19 @@ static SIMD_FORCE_INLINE bool continuousCollisionDetection(const btSoftBody::Fac
     {
         num_roots = SolveP3(roots, a2/a3, a1/a3, a0/a3);
     }
-    std::sort(roots, roots+num_roots);
+//    std::sort(roots, roots+num_roots);
+    if (num_roots > 1)
+    {
+        if (roots[0] > roots[1])
+            swap(roots[0], roots[1]);
+    }
+    if (num_roots > 2)
+    {
+        if (roots[0] > roots[2])
+            swap(roots[0], roots[2]);
+        if (roots[1] > roots[2])
+            swap(roots[1], roots[2]);
+    }
     for (int r = 0; r < num_roots; ++r)
     {
         double root = roots[r];
