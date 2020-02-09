@@ -253,6 +253,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletSoftBody/btDeformableContactConstraint.cpp"]\
 +["src/BulletSoftBody/btDeformableMultiBodyConstraintSolver.cpp"]\
 +["src/BulletSoftBody/btDeformableMultiBodyDynamicsWorld.cpp"]\
++["src/BulletSoftBody/poly34.cpp"]\
 +["src/BulletInverseDynamics/IDMath.cpp"]\
 +["src/BulletInverseDynamics/MultiBodyTree.cpp"]\
 +["src/BulletInverseDynamics/details/MultiBodyTreeImpl.cpp"]\
