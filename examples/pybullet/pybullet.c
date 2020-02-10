@@ -778,7 +778,8 @@ static PyObject* pybullet_syncUserData(PyObject* self, PyObject* args, PyObject*
 	{
 		PyObject *seq = PySequence_Fast(bodyUniqueIdsObj, "expected a sequence");
 		int len = PySequence_Size(bodyUniqueIdsObj);
-		for (int i=0; i < len; ++i)
+		int i;
+		for (i=0; i < len; ++i)
 		{
 			b3AddBodyToSyncUserDataRequest(command, pybullet_internalGetIntFromSequence(seq, i));
 		}
