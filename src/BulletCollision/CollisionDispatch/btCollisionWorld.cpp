@@ -1475,19 +1475,19 @@ void btCollisionWorld::debugDrawWorld()
 
 		btIDebugDraw::DefaultColors defaultColors = getDebugDrawer()->getDefaultColors();
 
-		if (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawContactPoints)
+		const int mode = getDebugDrawer()->getDebugMode();
+		if (mode & btIDebugDraw::DBG_DrawContactPoints)
 		{
 			if (getDispatcher())
 			{
-				int numManifolds = getDispatcher()->getNumManifolds();
-
+				const int numManifolds = getDispatcher()->getNumManifolds();
 				for (int i = 0; i < numManifolds; i++)
 				{
 					btPersistentManifold* contactManifold = getDispatcher()->getManifoldByIndexInternal(i);
 					//btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
 					//btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
 
-					int numContacts = contactManifold->getNumContacts();
+					const int numContacts = contactManifold->getNumContacts();
 					for (int j = 0; j < numContacts; j++)
 					{
 						btManifoldPoint& cp = contactManifold->getContactPoint(j);
@@ -1497,18 +1497,17 @@ void btCollisionWorld::debugDrawWorld()
 			}
 		}
 
-		if ((getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb)))
+		if (mode & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb))
 		{
-			int i;
-
-			for (i = 0; i < m_collisionObjects.size(); i++)
+			for (int i = 0; i < m_collisionObjects.size(); i++)
 			{
 				btCollisionObject* colObj = m_collisionObjects[i];
+
 				if ((colObj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT) == 0)
 				{
-					if (getDebugDrawer() && (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe))
+					if (mode & btIDebugDraw::DBG_DrawWireframe)
 					{
-						btVector3 color(btScalar(0.4), btScalar(0.4), btScalar(0.4));
+						btVector3 color;
 
 						switch (colObj->getActivationState())
 						{
@@ -1531,13 +1530,14 @@ void btCollisionWorld::debugDrawWorld()
 							{
 								color = btVector3(btScalar(.3), btScalar(0.3), btScalar(0.3));
 							}
-						};
+						}
 
 						colObj->getCustomDebugColor(color);
 
 						debugDrawObject(colObj->getWorldTransform(), colObj->getCollisionShape(), color);
 					}
-					if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
+
+					if (mode & btIDebugDraw::DBG_DrawAabb)
 					{
 						btVector3 minAabb, maxAabb;
 						btVector3 colorvec = defaultColors.m_aabb;

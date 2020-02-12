@@ -272,38 +272,28 @@ void btDiscreteDynamicsWorld::debugDrawWorld()
 
 	btCollisionWorld::debugDrawWorld();
 
-	bool drawConstraints = false;
 	if (getDebugDrawer())
 	{
-		int mode = getDebugDrawer()->getDebugMode();
+		const int mode = getDebugDrawer()->getDebugMode();
+
 		if (mode & (btIDebugDraw::DBG_DrawConstraints | btIDebugDraw::DBG_DrawConstraintLimits))
 		{
-			drawConstraints = true;
+			for (int i = getNumConstraints() - 1; i >= 0; i--)
+			{
+				debugDrawConstraint(getConstraint(i));
+			}
 		}
-	}
-	if (drawConstraints)
-	{
-		for (int i = getNumConstraints() - 1; i >= 0; i--)
-		{
-			btTypedConstraint* constraint = getConstraint(i);
-			debugDrawConstraint(constraint);
-		}
-	}
 
-	if (getDebugDrawer() && (getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawNormals)))
-	{
-		int i;
-
-		if (getDebugDrawer() && getDebugDrawer()->getDebugMode())
+		if (mode & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawNormals))
 		{
-			for (i = 0; i < m_actions.size(); i++)
+			for (int i = 0; i < m_actions.size(); i++)
 			{
 				m_actions[i]->debugDraw(m_debugDrawer);
 			}
 		}
-	}
-	if (getDebugDrawer())
+
 		getDebugDrawer()->flushLines();
+	}
 }
 
 void btDiscreteDynamicsWorld::clearForces()
