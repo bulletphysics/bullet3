@@ -24,7 +24,6 @@
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
-#define USE_SPLIT_IMPULSE 1
 ///The SplitImpulse shows the effect of split impulse in deformable rigid contact.
 class SplitImpulse : public CommonRigidBodyBase
 {
@@ -161,12 +160,6 @@ void SplitImpulse::initPhysics()
         m_dynamicsWorld->addRigidBody(body);
     }
     
-#ifdef USE_SPLIT_IMPULSE
-        getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.03;
-#else
-        getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.0;
-#endif
-    
     // create a piece of cloth
     {
         const btScalar s = 4;
@@ -187,7 +180,7 @@ void SplitImpulse::initPhysics()
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 2;
+        psb->m_cfg.kDF = 0.1;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         
