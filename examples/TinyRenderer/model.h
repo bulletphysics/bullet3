@@ -5,6 +5,8 @@
 #include "geometry.h"
 #include "tgaimage.h"
 
+namespace TinyRender
+{
 class Model
 {
 private:
@@ -52,4 +54,6 @@ public:
 	float specular(Vec2f uv);
 	std::vector<int> face(int idx);
 };
+}
+
 #endif  //__MODEL_H__
