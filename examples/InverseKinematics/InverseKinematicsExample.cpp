@@ -7,7 +7,6 @@
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
-#include "../OpenGLWindow/OpenGLInclude.h"
 
 #include "BussIK/Node.h"
 #include "BussIK/Tree.h"
@@ -227,7 +226,6 @@ public:
 		int lineWidth = 2;
 		if (node != 0)
 		{
-			//	glPushMatrix();
 			b3Vector3 pos = b3MakeVector3(tr.getOrigin().x, tr.getOrigin().y, tr.getOrigin().z);
 			b3Vector3 color1 = b3MakeVector3(0, 1, 0);
 			int pointSize = 10;
@@ -242,7 +240,6 @@ public:
 
 			m_app->m_renderer->drawLine(pos, pos + 0.1 * axisWorld, b3MakeVector3(.2, 0.2, 0.7), 5);
 
-			//	glPopMatrix();
 			if (node->right)
 			{
 				b3Transform act;
