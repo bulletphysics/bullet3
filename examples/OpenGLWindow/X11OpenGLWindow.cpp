@@ -220,7 +220,7 @@ struct InternalData2
 		if (!m_x11_library)
 		{
 			// TODO: Properly handle this error.
-			fprintf(stderr, "Error opening X11 library %s\n", X11_LIBRARY);
+			fprintf(stderr, "Error opening X11 library %s: %s\n", X11_LIBRARY, dlerror());
 			exit(EXIT_FAILURE);
 		}
 
