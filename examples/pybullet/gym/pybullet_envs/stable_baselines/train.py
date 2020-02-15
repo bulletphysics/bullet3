@@ -1,6 +1,7 @@
 # Code adapted from https://github.com/araffin/rl-baselines-zoo
 # it requires stable-baselines to be installed
 # Colab Notebook: https://colab.research.google.com/drive/1nZkHO4QTYfAksm9ZTaZ5vXyC7szZxC3F
+# You can run it using: python -m pybullet_envs.stable_baselines.train --algo td3 --env HalfCheetahBulletEnv-v0
 # Author: Antonin RAFFIN
 # MIT License
 import argparse
@@ -12,11 +13,11 @@ import numpy as np
 from stable_baselines import SAC, TD3
 from stable_baselines.common.noise import NormalActionNoise
 
-from utils import TimeFeatureWrapper, EvalCallback
+from pybullet_envs.stable_baselines.utils import TimeFeatureWrapper, EvalCallback
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser("Train an RL agent using Stable Baselines")
     parser.add_argument('--algo', help='RL Algorithm (Soft Actor-Critic by default)', default='sac',
                         type=str, required=False, choices=['sac', 'td3'])
     parser.add_argument('--env', type=str, default='HalfCheetahBulletEnv-v0', help='environment ID')
