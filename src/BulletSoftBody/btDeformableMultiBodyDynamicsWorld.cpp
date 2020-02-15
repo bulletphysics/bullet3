@@ -58,11 +58,12 @@ m_deformableBodySolver(deformableBodySolver), m_solverCallback(0)
 	m_sbi.water_density = 0;
 	m_sbi.water_offset = 0;
 	m_sbi.water_normal = btVector3(0, 0, 0);
-	m_sbi.m_gravity.setValue(0, -10, 0);
+	m_sbi.m_gravity.setValue(0, -9.8, 0);
 	m_internalTime = 0.0;
 	m_implicit = false;
 	m_lineSearch = false;
 	m_selfCollision = true;
+	m_ccdIterations = 3;
 	m_solverDeformableBodyIslandCallback = new DeformableBodyInplaceSolverIslandCallback(constraintSolver, dispatcher);
 }
 
@@ -101,7 +102,11 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
     solveConstraints(timeStep);
     
     afterSolverCallbacks(timeStep);
-    
+
+    applyRepulsionForce(timeStep);
+
+    performGeometricCollisions(timeStep);
+
     integrateTransforms(timeStep);
     
     ///update vehicle simulation
@@ -136,10 +141,98 @@ void btDeformableMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep
     btMultiBodyDynamicsWorld::updateActivationState(timeStep);
 }
 
+void btDeformableMultiBodyDynamicsWorld::applyRepulsionForce(btScalar timeStep)
+{
+    BT_PROFILE("btDeformableMultiBodyDynamicsWorld::applyRepulsionForce");
+    for (int i = 0; i < m_softBodies.size(); i++)
+    {
+        btSoftBody* psb = m_softBodies[i];
+        if (psb->isActive())
+        {
+			psb->applyRepulsionForce(timeStep, true);
+        }
+    }
+}
+
+void btDeformableMultiBodyDynamicsWorld::performGeometricCollisions(btScalar timeStep)
+{
+	BT_PROFILE("btDeformableMultiBodyDynamicsWorld::performGeometricCollisions");
+    // refit the BVH tree for CCD
+	for (int i = 0; i < m_softBodies.size(); ++i)
+	{
+		m_softBodies[i]->updateFaceTree(true, false);
+		m_softBodies[i]->updateNodeTree(true, false);
+        for (int j = 0; j < m_softBodies[i]->m_faces.size(); ++j)
+        {
+            btSoftBody::Face& f = m_softBodies[i]->m_faces[j];
+            f.m_n0 = (f.m_n[1]->m_x - f.m_n[0]->m_x).cross(f.m_n[2]->m_x - f.m_n[0]->m_x);
+        }
+	}
+
+	// clear contact points & update DBVT
+	for (int r = 0; r < m_ccdIterations; ++r)
+	{
+		for (int i = 0; i < m_softBodies.size(); ++i)
+		{
+            // clear contact points in the previous iteration
+			m_softBodies[i]->m_faceNodeContacts.clear();
+
+            // update m_q and normals for CCD calculation
+            for (int j = 0; j < m_softBodies[i]->m_nodes.size(); ++j)
+            {
+                m_softBodies[i]->m_nodes[j].m_q = m_softBodies[i]->m_nodes[j].m_x + timeStep * m_softBodies[i]->m_nodes[j].m_v;
+            }
+            for (int j = 0; j < m_softBodies[i]->m_faces.size(); ++j)
+            {
+                btSoftBody::Face& f = m_softBodies[i]->m_faces[j];
+                f.m_n1 = (f.m_n[1]->m_q - f.m_n[0]->m_q).cross(f.m_n[2]->m_q - f.m_n[0]->m_q);
+                f.m_vn = (f.m_n[1]->m_v - f.m_n[0]->m_v).cross(f.m_n[2]->m_v - f.m_n[0]->m_v) * timeStep * timeStep;
+            }
+        }
+
+		// apply CCD to register new contact points
+		for (int i = 0; i < m_softBodies.size(); ++i)
+		{
+			for (int j = i; j < m_softBodies.size(); ++j)
+			{
+				m_softBodies[i]->geometricCollisionHandler(m_softBodies[j]);
+			}
+        }
+
+		int penetration_count = 0;
+		for (int i = 0; i < m_softBodies.size(); ++i)
+		{
+			penetration_count += m_softBodies[i]->m_faceNodeContacts.size();
+		}
+		if (penetration_count == 0)
+		{
+			break;
+		}
+
+		// apply inelastic impulse
+		for (int i = 0; i < m_softBodies.size(); ++i)
+		{
+			m_softBodies[i]->applyRepulsionForce(timeStep, false);
+		}
+	}
+
+	for (int i = 0; i < m_softBodies.size(); ++i)
+	{
+		btSoftBody* psb = m_softBodies[i];
+		if (psb->m_usePostCollisionDamping)
+		{
+			for (int j = 0; j < psb->m_nodes.size(); ++j)
+			{
+			if (!psb->m_nodes[j].m_constrained)
+				psb->m_nodes[j].m_v *= psb->m_dampingCoefficient;
+			}
+		}
+	}
+}
 
 void btDeformableMultiBodyDynamicsWorld::softBodySelfCollision()
 {
-    m_deformableBodySolver->updateSoftBodies();
+    BT_PROFILE("btDeformableMultiBodyDynamicsWorld::softBodySelfCollision");
     for (int i = 0; i < m_softBodies.size(); i++)
     {
         btSoftBody* psb = m_softBodies[i];
@@ -260,6 +353,7 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 
 void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
 {
+    BT_PROFILE("btDeformableMultiBodyDynamicsWorld::solveConstraints");
     // save v_{n+1}^* velocity after explicit forces
     m_deformableBodySolver->backupVelocity();
     

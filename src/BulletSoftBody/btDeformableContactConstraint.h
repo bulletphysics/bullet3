@@ -79,9 +79,9 @@ public:
 class btDeformableStaticConstraint : public btDeformableContactConstraint
 {
 public:
-    const btSoftBody::Node* m_node;
+    btSoftBody::Node* m_node;
     
-    btDeformableStaticConstraint(const btSoftBody::Node* node, const btContactSolverInfo& infoGlobal): m_node(node), btDeformableContactConstraint(false, btVector3(0,0,0), infoGlobal)
+    btDeformableStaticConstraint(btSoftBody::Node* node, const btContactSolverInfo& infoGlobal): m_node(node), btDeformableContactConstraint(false, btVector3(0,0,0), infoGlobal)
     {
     }
 	btDeformableStaticConstraint(){}
@@ -195,7 +195,7 @@ class btDeformableNodeRigidContactConstraint : public btDeformableRigidContactCo
 {
 public:
     // the deformable node in contact
-    const btSoftBody::Node* m_node;
+    btSoftBody::Node* m_node;
 	
     btDeformableNodeRigidContactConstraint(const btSoftBody::DeformableNodeRigidContact& contact, const btContactSolverInfo& infoGlobal);
     btDeformableNodeRigidContactConstraint(const btDeformableNodeRigidContactConstraint& other);

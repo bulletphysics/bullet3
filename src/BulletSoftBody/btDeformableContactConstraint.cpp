@@ -620,15 +620,4 @@ void btDeformableFaceNodeContactConstraint::applyImpulse(const btVector3& impuls
     {
         v2 -= dvb * contact->m_weights[2];
     }
-    // todo: Face node constraints needs more work
-//    btScalar m01 = (btScalar(1)/(im0 + im1));
-//    btScalar m02 = (btScalar(1)/(im0 + im2));
-//    btScalar m12 = (btScalar(1)/(im1 + im2));
-//
-//    btVector3 dv0 = im0 * (m01 * (v1-v0) + m02 * (v2-v0));
-//    btVector3 dv1 = im1 * (m01 * (v0-v1) + m12 * (v2-v1));
-//    btVector3 dv2 = im2 * (m12 * (v1-v2) + m02 * (v0-v2));
-//    v0 += dv0;
-//    v1 += dv1;
-//    v2 += dv2;
 }

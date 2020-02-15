@@ -226,6 +226,7 @@ void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody 
     
     m_dt = dt;
     m_objective->reinitialize(nodeUpdated, dt);
+    updateSoftBodies();
 }
 
 void btDeformableBodySolver::setConstraints(const btContactSolverInfo& infoGlobal)
@@ -385,6 +386,7 @@ void btDeformableBodySolver::predictMotion(btScalar solverdt)
 
 void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar dt)
 {
+    BT_PROFILE("btDeformableBodySolver::predictDeformableMotion");
     int i, ni;
     
     /* Update                */
@@ -423,40 +425,22 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
             n.m_v *= max_v;
         }
         n.m_q = n.m_x + n.m_v * dt;
+        n.m_constrained = false;
     }
 
     /* Nodes                */
-    ATTRIBUTE_ALIGNED16(btDbvtVolume)
-    vol;
-    for (i = 0, ni = psb->m_nodes.size(); i < ni; ++i)
-    {
-        btSoftBody::Node& n = psb->m_nodes[i];
-        btVector3 points[2] = {n.m_x, n.m_q};
-        vol = btDbvtVolume::FromPoints(points, 2);
-        vol.Expand(btVector3(psb->m_sst.radmrg, psb->m_sst.radmrg, psb->m_sst.radmrg));
-        psb->m_ndbvt.update(n.m_leaf, vol);
-    }
-
+    psb->updateNodeTree(true, true);
     if (!psb->m_fdbvt.empty())
     {
-        for (int i = 0; i < psb->m_faces.size(); ++i)
-        {
-            btSoftBody::Face& f = psb->m_faces[i];
-            btVector3 points[6] = {f.m_n[0]->m_x, f.m_n[0]->m_q,
-                                   f.m_n[1]->m_x, f.m_n[1]->m_q,
-                                   f.m_n[2]->m_x, f.m_n[2]->m_q};
-            vol = btDbvtVolume::FromPoints(points, 6);
-            vol.Expand(btVector3(psb->m_sst.radmrg, psb->m_sst.radmrg, psb->m_sst.radmrg));
-            psb->m_fdbvt.update(f.m_leaf, vol);
-        }
+        psb->updateFaceTree(true, true);
     }
-    /* Clear contacts        */
+    /* Clear contacts */
     psb->m_nodeRigidContacts.resize(0);
     psb->m_faceRigidContacts.resize(0);
     psb->m_faceNodeContacts.resize(0);
     /* Optimize dbvt's        */
-    psb->m_ndbvt.optimizeIncremental(1);
-    psb->m_fdbvt.optimizeIncremental(1);
+//    psb->m_ndbvt.optimizeIncremental(1);
+//    psb->m_fdbvt.optimizeIncremental(1);
 }
 
 

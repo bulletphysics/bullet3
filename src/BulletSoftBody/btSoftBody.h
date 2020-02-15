@@ -35,6 +35,8 @@ subject to the following restrictions:
 //#else
 #define btSoftBodyData btSoftBodyFloatData
 #define btSoftBodyDataName "btSoftBodyFloatData"
+static const btScalar  OVERLAP_REDUCTION_FACTOR = 0.1;
+static unsigned long seed = 243703;
 //#endif //BT_USE_DOUBLE_PRECISION
 
 class btBroadphaseInterface;
@@ -264,6 +266,7 @@ public:
 		btScalar m_im;       // 1/mass
 		btScalar m_area;     // Area
 		btDbvtNode* m_leaf;  // Leaf data
+		bool m_constrained;   // constrained node
 		int m_battach : 1;   // Attached
         int index;
 	};
@@ -289,6 +292,7 @@ public:
 		btScalar m_ra;       // Rest area
 		btDbvtNode* m_leaf;  // Leaf data
         btVector4 m_pcontact; // barycentric weights of the persistent contact
+        btVector3 m_n0, m_n1, m_vn;
         int m_index;
 	};
 	/* Tetra		*/
@@ -796,17 +800,20 @@ public:
 	bool m_bUpdateRtCst;               // Update runtime constants
 	btDbvt m_ndbvt;                    // Nodes tree
 	btDbvt m_fdbvt;                    // Faces tree
+	btDbvntNode* m_fdbvnt;              // Faces tree with normals
 	btDbvt m_cdbvt;                    // Clusters tree
 	tClusterArray m_clusters;          // Clusters
-    btScalar m_dampingCoefficient;     // Damping Coefficient
-    btScalar m_sleepingThreshold;
-    btScalar m_maxSpeedSquared;
-    bool m_useFaceContact;
-    btAlignedObjectArray<btVector3> m_quads; // quadrature points for collision detection
-    
-    btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
-    btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
-    bool m_useSelfCollision;
+	btScalar m_dampingCoefficient;     // Damping Coefficient
+	btScalar m_sleepingThreshold;
+	btScalar m_maxSpeedSquared;
+	bool m_useFaceContact;
+	btAlignedObjectArray<btVector3> m_quads; // quadrature points for collision detection
+	btScalar repulsionStiffness;
+
+	btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
+	btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
+	bool m_useSelfCollision;
+	bool m_usePostCollisionDamping;
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
 
@@ -1120,6 +1127,7 @@ public:
 	int rayTest(const btVector3& rayFrom, const btVector3& rayTo,
 				btScalar& mint, eFeature::_& feature, int& index, bool bcountonly) const;
 	void initializeFaceTree();
+	void rebuildNodeTree();
 	btVector3 evaluateCom() const;
 	bool checkDeformableContact(const btCollisionObjectWrapper* colObjWrap, const btVector3& x, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
     bool checkDeformableFaceContact(const btCollisionObjectWrapper* colObjWrap, Face& f, btVector3& contact_point, btVector3& bary, btScalar margin, btSoftBody::sCti& cti, bool predict = false) const;
@@ -1152,7 +1160,180 @@ public:
 	static void VSolve_Links(btSoftBody* psb, btScalar kst);
 	static psolver_t getSolver(ePSolver::_ solver);
 	static vsolver_t getSolver(eVSolver::_ solver);
+	void geometricCollisionHandler(btSoftBody* psb);
+#define SAFE_EPSILON SIMD_EPSILON*10.0
+	void updateNode(btDbvtNode* node, bool use_velocity, bool margin)
+	{
+		if (node->isleaf())
+		{
+			btSoftBody::Node* n = (btSoftBody::Node*)(node->data);
+			ATTRIBUTE_ALIGNED16(btDbvtVolume) vol;
+			btScalar pad = margin ? m_sst.radmrg : SAFE_EPSILON; // use user defined margin or margin for floating point precision
+			if (use_velocity)
+			{
+				btVector3 points[2] = {n->m_x, n->m_x + m_sst.sdt * n->m_v};
+				vol = btDbvtVolume::FromPoints(points, 2);
+				vol.Expand(btVector3(pad, pad, pad));
+			}
+			else
+			{
+				vol = btDbvtVolume::FromCR(n->m_x, pad);
+			}
+			node->volume = vol;
+			return;
+		}
+		else
+		{
+			updateNode(node->childs[0], use_velocity, margin);
+			updateNode(node->childs[1], use_velocity, margin);
+			ATTRIBUTE_ALIGNED16(btDbvtVolume) vol;
+			Merge(node->childs[0]->volume, node->childs[1]->volume, vol);
+			node->volume = vol;
+		}
+	}
+	
+    void updateNodeTree(bool use_velocity, bool margin)
+	{
+		if (m_ndbvt.m_root)
+			updateNode(m_ndbvt.m_root, use_velocity, margin);
+	}
 
+	template <class DBVTNODE> // btDbvtNode or btDbvntNode
+	void updateFace(DBVTNODE* node, bool use_velocity, bool margin)
+	{
+		if (node->isleaf())
+		{
+			btSoftBody::Face* f = (btSoftBody::Face*)(node->data);
+			btScalar pad = margin ? m_sst.radmrg : SAFE_EPSILON; // use user defined margin or margin for floating point precision
+			ATTRIBUTE_ALIGNED16(btDbvtVolume) vol;
+			if (use_velocity)
+			{
+				btVector3 points[6] = {f->m_n[0]->m_x, f->m_n[0]->m_x + m_sst.sdt * f->m_n[0]->m_v,
+					f->m_n[1]->m_x, f->m_n[1]->m_x + m_sst.sdt * f->m_n[1]->m_v,
+					f->m_n[2]->m_x, f->m_n[2]->m_x + m_sst.sdt * f->m_n[2]->m_v};
+				vol = btDbvtVolume::FromPoints(points, 6);
+			}
+			else
+			{
+				btVector3 points[3] = {f->m_n[0]->m_x,
+					f->m_n[1]->m_x,
+					f->m_n[2]->m_x};
+				vol = btDbvtVolume::FromPoints(points, 3);
+			}
+			vol.Expand(btVector3(pad, pad, pad));
+			node->volume = vol;
+			return;
+		}
+		else
+		{
+			updateFace(node->childs[0], use_velocity, margin);
+			updateFace(node->childs[1], use_velocity, margin);
+			ATTRIBUTE_ALIGNED16(btDbvtVolume) vol;
+			Merge(node->childs[0]->volume, node->childs[1]->volume, vol);
+			node->volume = vol;
+		}
+	}
+	void updateFaceTree(bool use_velocity, bool margin)
+	{
+		if (m_fdbvt.m_root)
+			updateFace(m_fdbvt.m_root, use_velocity, margin);
+		if (m_fdbvnt)
+			updateFace(m_fdbvnt, use_velocity, margin);
+	}
+
+	template <typename T>
+	static inline T BaryEval(const T& a,
+							 const T& b,
+							 const T& c,
+							 const btVector3& coord)
+	{
+		return (a * coord.x() + b * coord.y() + c * coord.z());
+	}
+
+    void applyRepulsionForce(btScalar timeStep, bool applySpringForce)
+	{
+		btAlignedObjectArray<int> indices;
+		{
+			// randomize the order of repulsive force
+			indices.resize(m_faceNodeContacts.size());
+			for (int i = 0; i < m_faceNodeContacts.size(); ++i)
+				indices[i] = i;
+//			static unsigned long seed = 243703;
+#define NEXTRAND (seed = (1664525L * seed + 1013904223L) & 0xffffffff)
+			int i, ni;
+
+			for (i = 0, ni = indices.size(); i < ni; ++i)
+			{
+				btSwap(indices[i], indices[NEXTRAND % ni]);
+			}
+		}
+		for (int k = 0; k < m_faceNodeContacts.size(); ++k)
+		{
+			int i = indices[k];
+			btSoftBody::DeformableFaceNodeContact& c = m_faceNodeContacts[i];
+			btSoftBody::Node* node = c.m_node;
+			btSoftBody::Face* face = c.m_face;
+			const btVector3& w = c.m_bary;
+			const btVector3& n = c.m_normal;
+			btVector3 l = node->m_x - BaryEval(face->m_n[0]->m_x, face->m_n[1]->m_x, face->m_n[2]->m_x, w);
+			btScalar d = c.m_margin - n.dot(l);
+			d = btMax(btScalar(0),d);
+			
+			const btVector3& va = node->m_v;
+			btVector3 vb = BaryEval(face->m_n[0]->m_v, face->m_n[1]->m_v, face->m_n[2]->m_v, w);
+			btVector3 vr = va - vb;
+			const btScalar vn = btDot(vr, n); // dn < 0 <==> opposing
+			if (vn > OVERLAP_REDUCTION_FACTOR * d / timeStep)
+				continue;
+			btVector3 vt = vr - vn*n;
+			btScalar I = 0;
+			if (applySpringForce)
+				I = -btMin(repulsionStiffness * timeStep * d, btScalar(1)/node->m_im * (OVERLAP_REDUCTION_FACTOR * d / timeStep - vn));
+			if (vn < 0)
+				I += btScalar(0.5)/node->m_im * vn;
+			bool face_constrained = false, node_constrained = node->m_constrained;
+			for (int i = 0; i < 3; ++i)
+				face_constrained |= face->m_n[i]->m_constrained;
+			btScalar I_tilde = 2.0*I /(1.0+w.length2());
+			
+			// double the impulse if node or face is constrained.
+			if (face_constrained || node_constrained)
+				I_tilde *= 2.0;
+			if (!face_constrained)
+			{
+				for (int j = 0; j < 3; ++j)
+					face->m_n[j]->m_v += w[j]*n*I_tilde*node->m_im;
+			}
+			if (!node_constrained)
+			{
+				node->m_v -= I_tilde*node->m_im*n;
+			}
+			
+			// apply frictional impulse
+			btScalar vt_norm = vt.safeNorm();
+			if (vt_norm > SIMD_EPSILON)
+			{
+				btScalar delta_vn = -2 * I * node->m_im;
+				btScalar mu = c.m_friction;
+				btScalar vt_new = btMax(btScalar(1) - mu * delta_vn / (vt_norm + SIMD_EPSILON), btScalar(0))*vt_norm;
+				I = btScalar(0.5)/node->m_im * (vt_norm-vt_new);
+				vt.safeNormalize();
+				I_tilde = 2.0*I /(1.0+w.length2());
+				// double the impulse if node or face is constrained.
+				if (face_constrained || node_constrained)
+					I_tilde *= 2.0;
+				if (!face_constrained)
+				{
+					for (int j = 0; j < 3; ++j)
+						face->m_n[j]->m_v += w[j]*vt*I_tilde*node->m_im;
+				}
+				if (!node_constrained)
+				{
+					node->m_v -= I_tilde*node->m_im*vt;
+				}
+			}
+		}
+	}
 	virtual int calculateSerializeBufferSize() const;
   
 	///fills the dataBuffer and returns the struct name (and 0 on failure)

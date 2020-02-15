@@ -2,6 +2,7 @@
 #define TINY_RENDERER_H
 
 #include "geometry.h"
+#include "model.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "LinearMath/btAlignedObjectArray.h"
@@ -12,9 +13,9 @@
 struct TinyRenderObjectData
 {
 	//Camera
-	Matrix m_viewMatrix;
-	Matrix m_projectionMatrix;
-	Matrix m_viewportMatrix;
+	TinyRender::Matrix m_viewMatrix;
+	TinyRender::Matrix m_projectionMatrix;
+	TinyRender::Matrix m_viewportMatrix;
 	btVector3 m_localScaling;
 	btVector3 m_lightDirWorld;
 	btVector3 m_lightColor;
@@ -24,8 +25,8 @@ struct TinyRenderObjectData
 	float m_lightSpecularCoeff;
 
 	//Model (vertices, indices, textures, shader)
-	Matrix m_modelMatrix;
-	class Model* m_model;
+	TinyRender::Matrix m_modelMatrix;
+	TinyRender::Model* m_model;
 	//class IShader* m_shader; todo(erwincoumans) expose the shader, for now we use a default shader
 
 	//Output

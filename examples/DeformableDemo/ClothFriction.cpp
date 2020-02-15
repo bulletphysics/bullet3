@@ -152,9 +152,10 @@ void ClothFriction::initPhysics()
                                                          10,10,
                                                          0, true);
         
-        psb->getCollisionShape()->setMargin(0.05);
+        psb->getCollisionShape()->setMargin(0.005);
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
+        psb->setSpringStiffness(10);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 3;
@@ -171,7 +172,7 @@ void ClothFriction::initPhysics()
         m_forces.push_back(gravity_force);
         
         
-        h = 2;
+        h = .5;
         s = 2;
         btSoftBody* psb2 = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -s),
                                                           btVector3(+s, h, -s),
@@ -179,9 +180,10 @@ void ClothFriction::initPhysics()
                                                           btVector3(+s, h, +s),
                                                           5,5,
                                                           0, true);
-        psb2->getCollisionShape()->setMargin(0.05);
+        psb2->getCollisionShape()->setMargin(0.005);
         psb2->generateBendingConstraints(2);
         psb2->setTotalMass(1);
+        psb2->setSpringStiffness(10);
         psb2->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb2->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb2->m_cfg.kDF = 20;

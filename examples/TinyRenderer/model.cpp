@@ -6,6 +6,9 @@
 #include <iostream>
 #include <sstream>
 #include "Bullet3Common/b3Logging.h"
+
+namespace TinyRender
+{
 Model::Model(const char *filename) : verts_(), faces_(), norms_(), uv_(), diffusemap_(), normalmap_(), specularmap_()
 {
 	std::ifstream in;
@@ -201,4 +204,5 @@ Vec3f Model::normal(int iface, int nthvert)
 {
 	int idx = faces_[iface][nthvert][2];
 	return norms_[idx].normalize();
+}
 }

@@ -184,7 +184,8 @@ void btDeformableContactProjection::setConstraints(const btContactSolverInfo& in
 				m_faceRigidConstraints[i].push_back(constraint);
 			}
 		}
-		
+// skip deformable constraints as they are done separately now
+#if 0
 		// set Deformable Face vs. Deformable Node constraint
 		for (int j = 0; j < psb->m_faceNodeContacts.size(); ++j)
 		{
@@ -200,6 +201,7 @@ void btDeformableContactProjection::setConstraints(const btContactSolverInfo& in
 				m_deformableConstraints[i].push_back(constraint);
 			}
 		}
+#endif
 	}
 }
 
@@ -243,6 +245,7 @@ void btDeformableContactProjection::project(TVStack& x)
 
 void btDeformableContactProjection::setProjection()
 {
+	BT_PROFILE("btDeformableContactProjection::setProjection");
 	btAlignedObjectArray<btVector3> units;
 	units.push_back(btVector3(1,0,0));
 	units.push_back(btVector3(0,1,0));
@@ -257,6 +260,7 @@ void btDeformableContactProjection::setProjection()
 		for (int j = 0; j < m_staticConstraints[i].size(); ++j)
 		{
 			int index = m_staticConstraints[i][j].m_node->index;
+			m_staticConstraints[i][j].m_node->m_constrained = true;
 			if (m_projectionsDict.find(index) == NULL)
 			{
 				m_projectionsDict.insert(index, units);
@@ -273,6 +277,7 @@ void btDeformableContactProjection::setProjection()
 		for (int j = 0; j < m_nodeAnchorConstraints[i].size(); ++j)
 		{
 			int index = m_nodeAnchorConstraints[i][j].m_anchor->m_node->index;
+			m_nodeAnchorConstraints[i][j].m_anchor->m_node->m_constrained = true;
 			if (m_projectionsDict.find(index) == NULL)
 			{
 				m_projectionsDict.insert(index, units);
@@ -289,6 +294,7 @@ void btDeformableContactProjection::setProjection()
 		for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
 		{
 			int index = m_nodeRigidConstraints[i][j].m_node->index;
+			m_nodeRigidConstraints[i][j].m_node->m_constrained = true;
 			if (m_nodeRigidConstraints[i][j].m_static)
 			{
 				if (m_projectionsDict.find(index) == NULL)
@@ -324,7 +330,8 @@ void btDeformableContactProjection::setProjection()
 			const btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
 			for (int k = 0; k < 3; ++k)
 			{
-				const btSoftBody::Node* node = face->m_n[k];
+				btSoftBody::Node* node = face->m_n[k];
+				node->m_constrained = true;
 				int index = node->index;
 				if (m_faceRigidConstraints[i][j].m_static)
 				{

@@ -208,7 +208,7 @@ static int gLoadMultiBodyFromUrdf(lua_State* L)
 		}
 		const char* fileName = lua_tostring(L, 2);
 #if 1
-		BulletURDFImporter u2b(sLuaDemo->m_guiHelper);
+		BulletURDFImporter u2b(sLuaDemo->m_guiHelper, 0);
 		bool loadOk = u2b.loadURDF(fileName);
 		if (loadOk)
 		{
