@@ -3945,6 +3945,37 @@ static PyObject* pybullet_getNumBodies(PyObject* self, PyObject* args, PyObject*
 	}
 }
 
+
+static PyObject* pybullet_computeDofCount(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int bodyUniqueId = -1;
+	b3PhysicsClientHandle sm = 0;
+
+	static char* kwlist[] = { "bodyUniqueId", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &bodyUniqueId, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	{
+		int dofCount = b3ComputeDofCount(sm, bodyUniqueId);
+		
+#if PY_MAJOR_VERSION >= 3
+		return PyLong_FromLong(dofCount);
+#else
+		return PyInt_FromLong(dofCount);
+#endif
+	}
+}
+
+
 static PyObject* pybullet_getBodyUniqueId(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int physicsClientId = 0;
@@ -11794,7 +11825,7 @@ static PyObject* pybullet_calculateMassMatrix(PyObject* self, PyObject* args, Py
 					else
 					{
 						PyErr_SetString(SpamError,
-										"Internal error in calculateJacobian");
+										"Internal error in calculateMassMatrix");
 					}
 				}
 				free(jointPositions);
@@ -11953,6 +11984,9 @@ static PyMethodDef SpamMethods[] = {
 
 	{"getBodyInfo", (PyCFunction)pybullet_getBodyInfo, METH_VARARGS | METH_KEYWORDS,
 	 "Get the body info, given a body unique id."},
+
+	{ "computeDofCount", (PyCFunction)pybullet_computeDofCount, METH_VARARGS | METH_KEYWORDS,
+	"computeDofCount returns the number of degrees of freedom, including 7 degrees of freedom for the base in case of floating base" },
 
 	{"syncBodyInfo", (PyCFunction)pybullet_syncBodyInfo, METH_VARARGS | METH_KEYWORDS,
 	 "syncBodyInfo(physicsClientId=0)\n"

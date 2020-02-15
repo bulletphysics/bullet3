@@ -988,6 +988,45 @@ bool b3RobotSimulatorClientAPI_NoDirect::calculateInverseKinematics(const struct
 	return result;
 }
 
+int b3RobotSimulatorClientAPI_NoDirect::computeDofCount(int bodyUniqueId) const
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return 0;
+	}
+	return b3ComputeDofCount(m_data->m_physicsClientHandle, bodyUniqueId);
+}
+
+int b3RobotSimulatorClientAPI_NoDirect::calculateMassMatrix(int bodyUniqueId, const double* jointPositions, int numJointPositions, double* massMatrix, int flags)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return 0;
+	}
+
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle commandHandle =
+		b3CalculateMassMatrixCommandInit(m_data->m_physicsClientHandle, bodyUniqueId, jointPositions, numJointPositions);
+	b3CalculateMassMatrixSetFlags(commandHandle, flags);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType == CMD_CALCULATED_MASS_MATRIX_COMPLETED)
+	{
+		int dofCount;
+		b3GetStatusMassMatrix(m_data->m_physicsClientHandle, statusHandle, &dofCount, NULL);
+		if (dofCount)
+		{
+			b3GetStatusMassMatrix(m_data->m_physicsClientHandle, statusHandle, NULL, massMatrix);
+			return dofCount;
+		}
+	}
+	
+	return 0;
+}
+
 bool b3RobotSimulatorClientAPI_NoDirect::getBodyJacobian(int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositions, const double* jointVelocities, const double* jointAccelerations, double* linearJacobian, double* angularJacobian)
 {
 	if (!isConnected())
