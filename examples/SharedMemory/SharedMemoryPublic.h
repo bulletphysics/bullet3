@@ -388,6 +388,7 @@ struct b3DynamicsInfo
 	double m_ccdSweptSphereRadius;
 	double m_contactProcessingThreshold;
 	int m_frictionAnchor;
+	double m_collisionMargin;
 };
 
 // copied from btMultiBodyLink.h

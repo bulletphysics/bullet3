@@ -8927,6 +8927,18 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			{
 				mb->setMaxCoordinateVelocity(clientCmd.m_changeDynamicsInfoArgs.m_maxJointVelocity);
 			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN)
+			{
+				mb->getBaseCollider()->getCollisionShape()->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
+				if (mb->getBaseCollider()->getCollisionShape()->isCompound())
+				{
+					btCompoundShape* compound = (btCompoundShape*)mb->getBaseCollider()->getCollisionShape();
+					for (int s = 0; s < compound->getNumChildShapes(); s++)
+					{
+						compound->getChildShape(s)->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
+					}
+				}
+			}
 		}
 		else
 		{
@@ -8967,6 +8979,10 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
 					{
 						mb->getLinkCollider(linkIndex)->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+					}
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN)
+					{
+						mb->getLinkCollider(linkIndex)->getCollisionShape()->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
 					}
 				}
 
@@ -9115,6 +9131,10 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 				//for a given sphere radius, use a motion threshold of half the radius, before the ccd algorithm is enabled
 				rb->setCcdMotionThreshold(clientCmd.m_changeDynamicsInfoArgs.m_ccdSweptSphereRadius / 2.);
 			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN)
+			{
+				rb->getCollisionShape()->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
+			}
 		}
 	}
 
@@ -9165,6 +9185,7 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 				serverCmd.m_dynamicsInfo.m_contactProcessingThreshold = mb->getBaseCollider()->getContactProcessingThreshold();
 				serverCmd.m_dynamicsInfo.m_ccdSweptSphereRadius = mb->getBaseCollider()->getCcdSweptSphereRadius();
 				serverCmd.m_dynamicsInfo.m_frictionAnchor = mb->getBaseCollider()->getCollisionFlags() & btCollisionObject::CF_HAS_FRICTION_ANCHOR;
+				serverCmd.m_dynamicsInfo.m_collisionMargin = mb->getBaseCollider()->getCollisionShape()->getMargin();
 			}
 			else
 			{
@@ -9172,6 +9193,7 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 				serverCmd.m_dynamicsInfo.m_contactProcessingThreshold = 0;
 				serverCmd.m_dynamicsInfo.m_ccdSweptSphereRadius = 0;
 				serverCmd.m_dynamicsInfo.m_frictionAnchor = 0;
+				serverCmd.m_dynamicsInfo.m_collisionMargin = 0;
 			}
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[0] = mb->getBaseInertia()[0];
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[1] = mb->getBaseInertia()[1];
@@ -9214,6 +9236,7 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 				serverCmd.m_dynamicsInfo.m_contactProcessingThreshold = mb->getLinkCollider(linkIndex)->getContactProcessingThreshold();
 				serverCmd.m_dynamicsInfo.m_ccdSweptSphereRadius = mb->getLinkCollider(linkIndex)->getCcdSweptSphereRadius();
 				serverCmd.m_dynamicsInfo.m_frictionAnchor = mb->getLinkCollider(linkIndex)->getCollisionFlags() & btCollisionObject::CF_HAS_FRICTION_ANCHOR;
+				serverCmd.m_dynamicsInfo.m_collisionMargin = mb->getLinkCollider(linkIndex)->getCollisionShape()->getMargin();
 			}
 			else
 			{
@@ -9221,6 +9244,7 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 				serverCmd.m_dynamicsInfo.m_contactProcessingThreshold = 0;
 				serverCmd.m_dynamicsInfo.m_ccdSweptSphereRadius = 0;
 				serverCmd.m_dynamicsInfo.m_frictionAnchor = 0;
+				serverCmd.m_dynamicsInfo.m_collisionMargin = 0;
 			}
 
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[0] = mb->getLinkInertia(linkIndex)[0];
@@ -9277,12 +9301,14 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 		serverCmd.m_dynamicsInfo.m_angularDamping = rb->getAngularDamping();
 		serverCmd.m_dynamicsInfo.m_linearDamping = rb->getLinearDamping();
 		serverCmd.m_dynamicsInfo.m_mass = rb->getMass();
+		serverCmd.m_dynamicsInfo.m_collisionMargin = rb->getCollisionShape() ? rb->getCollisionShape()->getMargin() : 0;
 	}
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	else if (body && body->m_softBody){
 		SharedMemoryStatus& serverCmd = serverStatusOut;
 		serverCmd.m_type = CMD_GET_DYNAMICS_INFO_COMPLETED;
 		serverCmd.m_dynamicsInfo.m_bodyType = BT_SOFT_BODY;
+		serverCmd.m_dynamicsInfo.m_collisionMargin = 0;
 	}
 #endif
 	return hasStatus;
