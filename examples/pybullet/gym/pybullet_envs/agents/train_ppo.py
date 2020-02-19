@@ -26,7 +26,7 @@ import datetime
 import os
 
 import gym
-import tensorflow as tf
+import tf.compat.v1 as tf
 
 from . import tools
 from . import configs

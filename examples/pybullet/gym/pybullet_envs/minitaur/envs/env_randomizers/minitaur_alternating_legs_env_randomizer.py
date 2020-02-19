@@ -11,7 +11,7 @@ parentdir = os.path.dirname(os.path.dirname(parentdir))
 os.sys.path.insert(0, parentdir)
 
 import numpy as np
-import tensorflow as tf
+import tf.compat.v1 as tf
 from pybullet_envs.minitaur.envs import env_randomizer_base
 
 # Absolute range.

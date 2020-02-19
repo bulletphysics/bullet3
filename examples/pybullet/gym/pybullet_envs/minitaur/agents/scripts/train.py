@@ -27,7 +27,7 @@ import functools
 import os
 
 import gym
-import tensorflow as tf
+import tf.compat.v1 as tf
 
 from pybullet_envs.minitaur.agents import tools
 from pybullet_envs.minitaur.agents.scripts import configs
