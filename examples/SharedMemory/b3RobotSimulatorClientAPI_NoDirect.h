@@ -783,8 +783,12 @@ public:
 	void setNumSolverIterations(int numIterations);
 	void setContactBreakingThreshold(double threshold);
 
+	int computeDofCount(int bodyUniqueId) const;
+	
 	bool calculateInverseKinematics(const struct b3RobotSimulatorInverseKinematicArgs &args, struct b3RobotSimulatorInverseKinematicsResults &results);
 
+	int calculateMassMatrix(int bodyUniqueId, const double* jointPositions, int numJointPositions, double* massMatrix, int flags);
+	
 	bool getBodyJacobian(int bodyUniqueId, int linkIndex, const double *localPosition, const double *jointPositions, const double *jointVelocities, const double *jointAccelerations, double *linearJacobian, double *angularJacobian);
 
 	void configureDebugVisualizer(enum b3ConfigureDebugVisualizerEnum flag, int enable);

@@ -166,6 +166,7 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_JOINT_DAMPING = 16384,
 	CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION = 32768,
 	CHANGE_DYNAMICS_INFO_SET_MAX_JOINT_VELOCITY = 1<<16,	
+	CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN = 1 << 17,
 };
 
 struct ChangeDynamicsInfoArgs
@@ -190,6 +191,7 @@ struct ChangeDynamicsInfoArgs
 	double m_jointDamping;
 	double m_anisotropicFriction[3];
 	double m_maxJointVelocity;
+	double m_collisionMargin;
 };
 
 struct GetDynamicsInfoArgs
