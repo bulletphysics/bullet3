@@ -1,4 +1,4 @@
-import tensorflow as tf
+import tf.compat.v1 as tf
 import sys
 import numpy as np
 

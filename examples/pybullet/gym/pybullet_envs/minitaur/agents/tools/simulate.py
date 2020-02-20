@@ -17,7 +17,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
+import tf.compat.v1 as tf
 
 from pybullet_envs.minitaur.agents.tools import streaming_mean
 

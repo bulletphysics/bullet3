@@ -19,7 +19,7 @@ from __future__ import print_function
 
 import functools
 
-import tensorflow as tf
+import tf.compat.v1 as tf
 
 from agents import tools
 

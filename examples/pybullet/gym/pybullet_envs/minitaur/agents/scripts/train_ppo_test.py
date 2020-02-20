@@ -20,7 +20,7 @@ from __future__ import print_function
 import functools
 import itertools
 
-import tensorflow as tf
+import tf.compat.v1 as tf
 
 from google3.robotics.reinforcement_learning.agents import ppo
 from google3.robotics.reinforcement_learning.agents import tools
