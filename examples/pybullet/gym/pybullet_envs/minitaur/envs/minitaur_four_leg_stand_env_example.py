@@ -2,7 +2,7 @@
 
 """
 import numpy as np
-import tensorflow as tf
+import tf.compat.v1 as tf
 from pybullet_envs.minitaur.envs import minitaur_four_leg_stand_env
 
 FLAGS = tf.flags.FLAGS

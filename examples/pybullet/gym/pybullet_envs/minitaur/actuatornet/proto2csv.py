@@ -5,7 +5,7 @@ from __future__ import print_function
 #python proto2csv.py --proto_file=/tmp/logs/minitaur_log_2019-01-27-12-59-31 --csv_file=/tmp/logs/out.csv
 #each line in csv contains: angle, velocity, action, torque
 
-import tensorflow as tf
+import tf.compat.v1 as tf
 import argparse
 import numpy
 from pybullet_envs.minitaur.envs import minitaur_logging

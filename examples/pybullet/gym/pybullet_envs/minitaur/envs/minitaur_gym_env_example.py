@@ -13,7 +13,7 @@ os.sys.path.insert(0, parentdir)
 
 import argparse
 import numpy as np
-import tensorflow as tf
+import tf.compat.v1 as tf
 from pybullet_envs.minitaur.envs import minitaur_gym_env
 import time
 

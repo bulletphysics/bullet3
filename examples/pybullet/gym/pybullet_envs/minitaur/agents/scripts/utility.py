@@ -22,7 +22,7 @@ import os
 import re
 
 import ruamel.yaml as yaml
-import tensorflow as tf
+import tf.compat.v1 as tf
 
 from pybullet_envs.minitaur.agents import tools
 

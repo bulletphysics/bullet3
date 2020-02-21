@@ -21,7 +21,7 @@ import collections
 import functools
 import operator
 
-import tensorflow as tf
+import tf.compat.v1 as tf
 
 NetworkOutput = collections.namedtuple('NetworkOutput', 'policy, mean, logstd, value, state')
 

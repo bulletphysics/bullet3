@@ -23,7 +23,7 @@ from __future__ import print_function
 import os
 import time
 
-import tensorflow as tf
+import tf.compat.v1 as tf
 from pybullet_envs.agents import utility
 from pybullet_envs.minitaur.agents import simple_ppo_agent
 

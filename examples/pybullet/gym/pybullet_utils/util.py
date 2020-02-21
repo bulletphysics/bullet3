@@ -4,7 +4,7 @@ import numpy as np
 
 def set_global_seeds(seed):
   try:
-    import tensorflow as tf
+    import tf.compat.v1 as tf
   except ImportError:
     pass
   else:
