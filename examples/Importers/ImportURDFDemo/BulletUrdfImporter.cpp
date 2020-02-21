@@ -194,6 +194,37 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 	if (xml_string.length())
 	{
 			result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase, (m_data->m_flags & CUF_PARSE_SENSORS));
+
+			if (m_data->m_flags & CUF_IGNORE_VISUAL_SHAPES)
+			{
+				for (int i=0; i < m_data->m_urdfParser.getModel().m_links.size(); i++)
+				{
+					UrdfLink* linkPtr = *m_data->m_urdfParser.getModel().m_links.getAtIndex(i);
+					linkPtr->m_visualArray.clear();
+				}
+			}
+			if (m_data->m_flags & CUF_IGNORE_COLLISION_SHAPES)
+			{
+				for (int i=0; i < m_data->m_urdfParser.getModel().m_links.size(); i++)
+				{
+					UrdfLink* linkPtr = *m_data->m_urdfParser.getModel().m_links.getAtIndex(i);
+					linkPtr->m_collisionArray.clear();
+				}
+			}
+			if (m_data->m_urdfParser.getModel().m_rootLinks.size())
+			{
+				if (m_data->m_flags & CUF_MERGE_FIXED_LINKS)
+				{
+					m_data->m_urdfParser.mergeFixedLinks(m_data->m_urdfParser.getModel(), m_data->m_urdfParser.getModel().m_rootLinks[0], &loggie, forceFixedBase, 0);
+					m_data->m_urdfParser.getModel().m_links.clear();
+					m_data->m_urdfParser.getModel().m_joints.clear();
+					m_data->m_urdfParser.recreateModel(m_data->m_urdfParser.getModel(), m_data->m_urdfParser.getModel().m_rootLinks[0], &loggie);
+				}
+				if (m_data->m_flags & CUF_PRINT_URDF_INFO)
+				{
+					m_data->m_urdfParser.printTree(m_data->m_urdfParser.getModel().m_rootLinks[0], &loggie, 0);
+				}
+			}
 	}
 
 	return result;

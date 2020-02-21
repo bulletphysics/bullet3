@@ -1544,6 +1544,238 @@ bool UrdfParser::parseSensor(UrdfModel& model, UrdfLink& link, UrdfJoint& joint,
 	return true;
 }
 
+static void CalculatePrincipalAxisTransform(btScalar* masses, const btTransform* transforms, btMatrix3x3* inertiasIn, btTransform& principal, btVector3& inertiaOut)
+{
+	int n = 2;
+
+	btScalar totalMass = 0;
+	btVector3 center(0, 0, 0);
+	int k;
+
+	for (k = 0; k < n; k++)
+	{
+		btAssert(masses[k] > 0);
+		center += transforms[k].getOrigin() * masses[k];
+		totalMass += masses[k];
+	}
+
+	btAssert(totalMass > 0);
+
+	center /= totalMass;
+	principal.setOrigin(center);
+
+	btMatrix3x3 tensor(0, 0, 0, 0, 0, 0, 0, 0, 0);
+	for (k = 0; k < n; k++)
+	{
+		
+
+		const btTransform& t = transforms[k];
+		btVector3 o = t.getOrigin() - center;
+
+		//compute inertia tensor in coordinate system of parent
+		btMatrix3x3 j = t.getBasis().transpose();
+		j *= inertiasIn[k];
+		j = t.getBasis() * j;
+
+		//add inertia tensor
+		tensor[0] += j[0];
+		tensor[1] += j[1];
+		tensor[2] += j[2];
+
+		//compute inertia tensor of pointmass at o
+		btScalar o2 = o.length2();
+		j[0].setValue(o2, 0, 0);
+		j[1].setValue(0, o2, 0);
+		j[2].setValue(0, 0, o2);
+		j[0] += o * -o.x();
+		j[1] += o * -o.y();
+		j[2] += o * -o.z();
+
+		//add inertia tensor of pointmass
+		tensor[0] += masses[k] * j[0];
+		tensor[1] += masses[k] * j[1];
+		tensor[2] += masses[k] * j[2];
+	}
+
+	tensor.diagonalize(principal.getBasis(), btScalar(0.00001), 20);
+	inertiaOut.setValue(tensor[0][0], tensor[1][1], tensor[2][2]);
+}
+
+bool UrdfParser::mergeFixedLinks(UrdfModel& model, UrdfLink* link, ErrorLogger* logger, bool forceFixedBase, int level)
+{
+	for (int l = 0; l < level; l++)
+	{
+		printf("\t");
+	}
+	printf("processing %s\n", link->m_name.c_str());
+	
+	for (int i = 0; i < link->m_childJoints.size();)
+	{
+		if (link->m_childJoints[i]->m_type == URDFFixedJoint)
+		{
+			UrdfLink* childLink = link->m_childLinks[i];
+			UrdfJoint* childJoint = link->m_childJoints[i];
+			for (int l = 0; l < level+1; l++)
+			{
+				printf("\t");
+			}
+			//mergeChildLink
+			printf("merge %s into %s!\n", childLink->m_name.c_str(), link->m_name.c_str());
+			for (int c = 0; c < childLink->m_collisionArray.size(); c++)
+			{
+				UrdfCollision col = childLink->m_collisionArray[c];
+				col.m_linkLocalFrame = childJoint->m_parentLinkToJointTransform * col.m_linkLocalFrame;
+				link->m_collisionArray.push_back(col);
+			}
+
+			for (int c = 0; c < childLink->m_visualArray.size(); c++)
+			{
+				UrdfVisual viz = childLink->m_visualArray[c];
+				viz.m_linkLocalFrame = childJoint->m_parentLinkToJointTransform * viz.m_linkLocalFrame;
+				link->m_visualArray.push_back(viz);
+			}
+
+			if (!link->m_inertia.m_hasLinkLocalFrame)
+			{
+				link->m_inertia.m_linkLocalFrame.setIdentity();
+			}
+			if (!childLink->m_inertia.m_hasLinkLocalFrame)
+			{
+				childLink->m_inertia.m_linkLocalFrame.setIdentity();
+			}
+			//for a 'forceFixedBase' don't merge
+			bool isStaticBase = false;
+			if (forceFixedBase && link->m_parentJoint == 0)
+				isStaticBase = true;
+			if (link->m_inertia.m_mass==0 && link->m_parentJoint == 0)
+				isStaticBase = true;
+
+			//skip the mass and inertia merge for a fixed base link
+			if (!isStaticBase)
+			{
+				btScalar masses[2] = { link->m_inertia.m_mass, childLink->m_inertia.m_mass };
+				btTransform transforms[2] = { link->m_inertia.m_linkLocalFrame, childJoint->m_parentLinkToJointTransform * childLink->m_inertia.m_linkLocalFrame };
+				btMatrix3x3 inertiaLink(
+					link->m_inertia.m_ixx, link->m_inertia.m_ixy, link->m_inertia.m_ixz,
+					link->m_inertia.m_ixy, link->m_inertia.m_iyy, link->m_inertia.m_iyz,
+					link->m_inertia.m_ixz, link->m_inertia.m_iyz, link->m_inertia.m_izz);
+				btMatrix3x3 inertiaChild(
+					childLink->m_inertia.m_ixx, childLink->m_inertia.m_ixy, childLink->m_inertia.m_ixz,
+					childLink->m_inertia.m_ixy, childLink->m_inertia.m_iyy, childLink->m_inertia.m_iyz,
+					childLink->m_inertia.m_ixz, childLink->m_inertia.m_iyz, childLink->m_inertia.m_izz);
+				btMatrix3x3 inertiasIn[2] = { inertiaLink, inertiaChild };
+				btVector3 inertiaOut;
+				btTransform principal;
+				CalculatePrincipalAxisTransform(masses, transforms, inertiasIn, principal, inertiaOut);
+				link->m_inertia.m_hasLinkLocalFrame = true;
+				link->m_inertia.m_linkLocalFrame.setIdentity();
+				//link->m_inertia.m_linkLocalFrame = principal;
+				link->m_inertia.m_linkLocalFrame.setOrigin(principal.getOrigin());
+				
+				link->m_inertia.m_ixx = inertiaOut[0];
+				link->m_inertia.m_ixy = 0;
+				link->m_inertia.m_ixz = 0;
+				link->m_inertia.m_iyy = inertiaOut[1];
+				link->m_inertia.m_iyz = 0;
+				link->m_inertia.m_izz = inertiaOut[2];
+				link->m_inertia.m_mass += childLink->m_inertia.m_mass;
+			}
+			link->m_childJoints.removeAtIndex(i);
+			link->m_childLinks.removeAtIndex(i);
+
+			for (int g = 0; g < childLink->m_childJoints.size(); g++)
+			{
+				UrdfLink* grandChildLink = childLink->m_childLinks[g];
+				UrdfJoint* grandChildJoint = childLink->m_childJoints[g];
+				for (int l = 0; l < level+2; l++)
+				{
+					printf("\t");
+				}
+				printf("relink %s from %s to %s!\n", grandChildLink->m_name.c_str(), childLink->m_name.c_str(), link->m_name.c_str());
+				
+				grandChildJoint->m_parentLinkName = link->m_name;
+				grandChildJoint->m_parentLinkToJointTransform =
+					childJoint->m_parentLinkToJointTransform * grandChildJoint->m_parentLinkToJointTransform;
+				
+				grandChildLink->m_parentLink = link;
+				grandChildLink->m_parentJoint->m_parentLinkName = link->m_name;
+
+				link->m_childJoints.push_back(grandChildJoint);
+				link->m_childLinks.push_back(grandChildLink);
+			}
+			model.m_links.remove(childLink->m_name.c_str());
+			model.m_joints.remove(childJoint->m_name.c_str());
+			
+		}
+		else
+		{
+			//keep this link and recurse
+			mergeFixedLinks(model, link->m_childLinks[i], logger, forceFixedBase, level+1);
+			i++;
+		}
+	}
+	return true;
+}
+
+
+const std::string sJointNames[]={"unused",
+	"URDFRevoluteJoint",
+	"URDFPrismaticJoint",
+	"URDFContinuousJoint",
+	"URDFFloatingJoint",
+	"URDFPlanarJoint",
+	"URDFFixedJoint",
+	"URDFSphericalJoint",
+};
+
+bool UrdfParser::printTree(UrdfLink* link, ErrorLogger* logger, int level)
+{
+	printf("\n");
+	for (int l = 0; l < level; l++)
+	{
+		printf("\t");
+	}
+	printf("%s (mass=%f) ", link->m_name.c_str(), link->m_inertia.m_mass);
+	if (link->m_parentJoint)
+	{
+		printf("(joint %s, joint type=%s\n", link->m_parentJoint->m_name.c_str(), sJointNames[link->m_parentJoint->m_type].c_str());
+	}
+	else
+	{
+		printf("\n");
+	}
+	
+	for (int i = 0; i<link->m_childJoints.size(); i++)
+	{
+		printTree(link->m_childLinks[i], logger, level + 1);
+		btAssert(link->m_childJoints[i]->m_parentLinkName == link->m_name);
+	}
+	return true;
+}
+
+bool UrdfParser::recreateModel(UrdfModel& model, UrdfLink* link, ErrorLogger* logger)
+{
+	if (!link->m_parentJoint)
+	{
+		link->m_linkIndex = model.m_links.size();
+		model.m_links.insert(link->m_name.c_str(), link);
+	}
+	for (int i = 0; i < link->m_childJoints.size(); i++)
+	{
+		link->m_childLinks[i]->m_linkIndex = model.m_links.size();
+		const char* childName = link->m_childLinks[i]->m_name.c_str();
+		UrdfLink* childLink = link->m_childLinks[i];
+		model.m_links.insert(childName, childLink);
+		const char* jointName = link->m_childLinks[i]->m_parentJoint->m_name.c_str();
+		UrdfJoint* joint = link->m_childLinks[i]->m_parentJoint;
+		model.m_joints.insert(jointName, joint);
+	}
+	for (int i = 0; i < link->m_childJoints.size(); i++)
+	{
+		recreateModel(model, link->m_childLinks[i], logger);
+	}
+	return true;
+}
 bool UrdfParser::initTreeAndRoot(UrdfModel& model, ErrorLogger* logger)
 {
 	// every link has children links and joints, but no parents, so we create a
@@ -1629,6 +1861,9 @@ bool UrdfParser::initTreeAndRoot(UrdfModel& model, ErrorLogger* logger)
 		logger->reportError("URDF without root link found");
 		return false;
 	}
+
+
+
 	return true;
 }
 
