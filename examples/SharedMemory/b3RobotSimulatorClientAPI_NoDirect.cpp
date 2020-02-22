@@ -278,6 +278,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::loadMJCF(const std::string& fileName, b
 	b3SharedMemoryCommandHandle command;
 
 	command = b3LoadMJCFCommandInit(m_data->m_physicsClientHandle, fileName.c_str());
+	b3LoadMJCFCommandSetFlags(command, URDF_USE_IMPLICIT_CYLINDER);
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType != CMD_MJCF_LOADING_COMPLETED)

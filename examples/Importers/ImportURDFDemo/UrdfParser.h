@@ -357,6 +357,12 @@ public:
 		return m_urdf2Model;
 	}
 
+
+	bool mergeFixedLinks(UrdfModel& model, UrdfLink* link, ErrorLogger* logger, bool forceFixedBase, int level);
+	bool printTree(UrdfLink* link, ErrorLogger* logger, int level);
+	bool recreateModel(UrdfModel& model, UrdfLink* link, ErrorLogger* logger);
+	
+
 	std::string sourceFileLocation(tinyxml2::XMLElement* e);
 
 	void setSourceFile(const std::string& sourceFile)

@@ -3484,6 +3484,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
 	if (loadOk)
 	{
+		
 		btTransform rootTrans;
 		rootTrans.setOrigin(pos);
 		rootTrans.setRotation(orn);
@@ -12009,6 +12010,17 @@ int PhysicsServerCommandProcessor::extractCollisionShapes(const btCollisionShape
 
 	switch (colShape->getShapeType())
 	{
+		case MULTI_SPHERE_SHAPE_PROXYTYPE:
+		{
+			btCapsuleShapeZ* capsule = (btCapsuleShapeZ*)colShape;
+			collisionShapeBuffer[0].m_collisionGeometryType = GEOM_CAPSULE;
+			collisionShapeBuffer[0].m_dimensions[0] = 2. * capsule->getHalfHeight();
+			collisionShapeBuffer[0].m_dimensions[1] = capsule->getRadius();
+			collisionShapeBuffer[0].m_dimensions[2] = 0;
+			numConverted++;
+			break;
+			break;
+		}
 		case STATIC_PLANE_PROXYTYPE:
 		{
 			btStaticPlaneShape* plane = (btStaticPlaneShape*)colShape;
