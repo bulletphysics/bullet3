@@ -228,18 +228,20 @@ public:
 		if (n_hor < 2) n_hor = 2;
 		btScalar step_h = (maxTh - minTh) / btScalar(n_hor - 1);
 		bool isClosed = false;
-
 		if (minPs > maxPs)
 		{
 			minPs = -SIMD_PI + step;
 			maxPs = SIMD_PI;
 			isClosed = true;
 		}
+		else if ((maxPs - minPs) >= SIMD_PI * btScalar(2.f))
+		{
+			isClosed = true;
+		}
 		else
 		{
-			isClosed = (maxPs - minPs) >= SIMD_PI * btScalar(2.f);
+			isClosed = false;
 		}
-
 		int n_vert = (int)((maxPs - minPs) / step) + 1;
 		if (n_vert < 2) n_vert = 2;
 		btScalar step_v = (maxPs - minPs) / btScalar(n_vert - 1);
