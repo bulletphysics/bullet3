@@ -1653,7 +1653,7 @@ bool UrdfParser::mergeFixedLinks(UrdfModel& model, UrdfLink* link, ErrorLogger* 
 			//skip the mass and inertia merge for a fixed base link
 			if (!isStaticBase)
 			{
-				btScalar masses[2] = { link->m_inertia.m_mass, childLink->m_inertia.m_mass };
+				btScalar masses[2] = { (btScalar)link->m_inertia.m_mass, (btScalar)childLink->m_inertia.m_mass };
 				btTransform transforms[2] = { link->m_inertia.m_linkLocalFrame, childJoint->m_parentLinkToJointTransform * childLink->m_inertia.m_linkLocalFrame };
 				btMatrix3x3 inertiaLink(
 					link->m_inertia.m_ixx, link->m_inertia.m_ixy, link->m_inertia.m_ixz,
