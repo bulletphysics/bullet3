@@ -29,13 +29,16 @@
 class ClothFriction : public CommonRigidBodyBase
 {
     btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
+    btDeformableBodySolver* m_deformableBodySolver;
 public:
     ClothFriction(struct GUIHelperInterface* helper)
-    : CommonRigidBodyBase(helper)
+    : CommonRigidBodyBase(helper),
+        m_deformableBodySolver(0)
     {
     }
     virtual ~ClothFriction()
     {
+        
     }
     void initPhysics();
     
@@ -94,14 +97,14 @@ void ClothFriction::initPhysics()
     m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
     
     m_broadphase = new btDbvtBroadphase();
-    btDeformableBodySolver* deformableBodySolver = new btDeformableBodySolver();
+    m_deformableBodySolver = new btDeformableBodySolver();
     
     ///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
-    sol->setDeformableSolver(deformableBodySolver);
+    sol->setDeformableSolver(m_deformableBodySolver);
     m_solver = sol;
     
-    m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
+    m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, m_deformableBodySolver);
     btVector3 gravity = btVector3(0, -10, 0);
     m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
@@ -240,6 +243,8 @@ void ClothFriction::exitPhysics()
     
     delete m_solver;
     
+    delete m_deformableBodySolver;
+
     delete m_broadphase;
     
     delete m_dispatcher;
