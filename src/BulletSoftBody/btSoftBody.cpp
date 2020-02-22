@@ -105,7 +105,17 @@ static inline btDbvtNode* buildTreeBottomUp(btAlignedObjectArray<btDbvtNode*>& l
 			}
 		}
 		leafNodes = newLeafNodes;
-		adj = newAdj;
+		//this assignment leaks memory, the assignment doesn't do a deep copy, for now a manual copy
+		//adj = newAdj;
+		adj.clear();
+		adj.resize(newAdj.size());
+		for (int i = 0; i < newAdj.size(); i++)
+		{
+			for (int j = 0; j < newAdj[i].size(); j++)
+			{
+				adj[i].push_back(newAdj[i][j]);
+			}
+		}
 		N = leafNodes.size();
 	}
 	return leafNodes[0];
