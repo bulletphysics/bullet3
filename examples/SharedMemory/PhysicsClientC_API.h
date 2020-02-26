@@ -341,7 +341,7 @@ extern "C"
 	B3_SHARED_API int b3PhysicsParamSetNumSubSteps(b3SharedMemoryCommandHandle commandHandle, int numSubSteps);
 	B3_SHARED_API int b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandHandle, int enableRealTimeSimulation);
 	B3_SHARED_API int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations);
-    B3_SHARED_API int b3PhysicsParamSetNumMotorIterations(b3SharedMemoryCommandHandle commandHandle, int numMotorIterations);
+	B3_SHARED_API int b3PhysicsParamSetNumMotorIterations(b3SharedMemoryCommandHandle commandHandle, int numMotorIterations);
 	B3_SHARED_API int b3PhysicsParamSetWarmStartingFactor(b3SharedMemoryCommandHandle commandHandle, double warmStartingFactor);
 	B3_SHARED_API int b3PhysicsParamSetArticulatedWarmStartingFactor(b3SharedMemoryCommandHandle commandHandle, double warmStartingFactor);
 	B3_SHARED_API int b3PhysicsParamSetCollisionFilterMode(b3SharedMemoryCommandHandle commandHandle, int filterMode);

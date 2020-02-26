@@ -9455,10 +9455,10 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 		m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = clientCmd.m_physSimParamArgs.m_numSolverIterations;
 	}
     
-    if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_NUM_MOTOR_ITERATIONS)
-    {
-        m_data->m_dynamicsWorld->getSolverInfo().m_numMotorIterations = clientCmd.m_physSimParamArgs.m_numMotorIterations;
-    }
+	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_NUM_MOTOR_ITERATIONS)
+	{
+		m_data->m_dynamicsWorld->getSolverInfo().m_numMotorIterations = clientCmd.m_physSimParamArgs.m_numMotorIterations;
+	}
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_SOLVER_RESIDULAL_THRESHOLD)
 	{
