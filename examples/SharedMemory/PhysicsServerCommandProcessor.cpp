@@ -8299,9 +8299,15 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	    			    			psb->m_renderFaces.push_back(ff);
 	    			    		}
 	    			    	}
-	    			    	
 	    			    }
+                        if (out_sim_type == UrdfGeometry::FILE_VTK)
+                        {
             			    btSoftBodyHelpers::interpolateBarycentricWeights(psb);
+                        }
+						else if (out_sim_type == UrdfGeometry::FILE_OBJ)
+						{
+							btSoftBodyHelpers::extrapolateBarycentricWeights(psb);
+						}
             			}
             			else
             			{

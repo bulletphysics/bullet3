@@ -812,6 +812,7 @@ public:
 
 	btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
 	btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
+    btAlignedObjectArray<btScalar> m_z; // vertical distance used in extrapolation
 	bool m_useSelfCollision;
 	bool m_usePostCollisionDamping;
 
