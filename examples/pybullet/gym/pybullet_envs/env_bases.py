@@ -57,6 +57,7 @@ class MJCFBaseBulletEnv(gym.Env):
       else:
         self._p = bullet_client.BulletClient()
       self._p.resetSimulation()
+      self._p.setPhysicsEngineParameter(deterministicOverlappingPairs=1)
       #optionally enable EGL for faster headless rendering
       try:
         if os.environ["PYBULLET_EGL"]:
