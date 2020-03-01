@@ -1,6 +1,9 @@
 import numpy as np
 import copy as copy
-import tf.compat.v1 as tf
+try:
+  import tensorflow.compat.v1 as tf
+except Exception:
+  import tensorflow as tf
 
 from pybullet_envs.deep_mimic.learning.pg_agent import PGAgent
 from pybullet_envs.deep_mimic.learning.solvers.mpi_solver import MPISolver
