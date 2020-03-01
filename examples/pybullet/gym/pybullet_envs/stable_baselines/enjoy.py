@@ -12,7 +12,7 @@ import numpy as np
 import pybullet_envs
 
 from stable_baselines import SAC, TD3
-from stable_baselines.common.vec_env import SubprocVecEnv
+
 from stable_baselines.common.evaluation import evaluate_policy
 
 from pybullet_envs.stable_baselines.utils import TimeFeatureWrapper
