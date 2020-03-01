@@ -27,7 +27,10 @@ import os
 
 import gym
 from gym import wrappers
-import tf.compat.v1 as tf
+try:
+  import tensorflow.compat.v1 as tf
+except Exception:
+  import tensorflow as tf
 
 from . import tools
 from . import utility
