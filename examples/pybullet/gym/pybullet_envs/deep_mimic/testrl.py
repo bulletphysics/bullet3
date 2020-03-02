@@ -19,14 +19,25 @@ import random
 update_timestep = 1. / 240.
 animating = True
 step = False
+total_reward = 0
+steps = 0
 
 def update_world(world, time_elapsed):
   timeStep = update_timestep
   world.update(timeStep)
   reward = world.env.calc_reward(agent_id=0)
+  global total_reward
+  total_reward += reward
+  global steps
+  steps+=1
+  
   #print("reward=",reward)
+  #print("steps=",steps)
   end_episode = world.env.is_episode_end()
-  if (end_episode):
+  if (end_episode or steps>= 1000):
+    print("total_reward=",total_reward)
+    total_reward=0
+    steps = 0
     world.end_episode()
     world.reset()
   return
