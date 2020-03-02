@@ -533,7 +533,7 @@ struct LoadSoftBodyArgs
     double m_corotatedLambda;
     int m_useBendingSprings;
     double m_collisionHardness;
-    double m_useSelfCollision;
+    int m_useSelfCollision;
     double m_frictionCoeff;
     double m_NeoHookeanMu;
     double m_NeoHookeanLambda;
