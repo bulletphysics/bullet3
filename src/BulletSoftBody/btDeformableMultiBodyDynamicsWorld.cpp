@@ -160,13 +160,17 @@ void btDeformableMultiBodyDynamicsWorld::performGeometricCollisions(btScalar tim
     // refit the BVH tree for CCD
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
-		m_softBodies[i]->updateFaceTree(true, false);
-		m_softBodies[i]->updateNodeTree(true, false);
-        for (int j = 0; j < m_softBodies[i]->m_faces.size(); ++j)
-        {
-            btSoftBody::Face& f = m_softBodies[i]->m_faces[j];
-            f.m_n0 = (f.m_n[1]->m_x - f.m_n[0]->m_x).cross(f.m_n[2]->m_x - f.m_n[0]->m_x);
-        }
+		btSoftBody* psb = m_softBodies[i];
+		if (psb->isActive())
+		{
+			m_softBodies[i]->updateFaceTree(true, false);
+			m_softBodies[i]->updateNodeTree(true, false);
+			for (int j = 0; j < m_softBodies[i]->m_faces.size(); ++j)
+			{
+				btSoftBody::Face& f = m_softBodies[i]->m_faces[j];
+				f.m_n0 = (f.m_n[1]->m_x - f.m_n[0]->m_x).cross(f.m_n[2]->m_x - f.m_n[0]->m_x);
+			}
+		}
 	}
 
 	// clear contact points & update DBVT
@@ -174,20 +178,24 @@ void btDeformableMultiBodyDynamicsWorld::performGeometricCollisions(btScalar tim
 	{
 		for (int i = 0; i < m_softBodies.size(); ++i)
 		{
-            // clear contact points in the previous iteration
-			m_softBodies[i]->m_faceNodeContacts.clear();
+			btSoftBody* psb = m_softBodies[i];
+			if (psb->isActive())
+			{
+				// clear contact points in the previous iteration
+				psb->m_faceNodeContacts.clear();
 
-            // update m_q and normals for CCD calculation
-            for (int j = 0; j < m_softBodies[i]->m_nodes.size(); ++j)
-            {
-                m_softBodies[i]->m_nodes[j].m_q = m_softBodies[i]->m_nodes[j].m_x + timeStep * m_softBodies[i]->m_nodes[j].m_v;
-            }
-            for (int j = 0; j < m_softBodies[i]->m_faces.size(); ++j)
-            {
-                btSoftBody::Face& f = m_softBodies[i]->m_faces[j];
-                f.m_n1 = (f.m_n[1]->m_q - f.m_n[0]->m_q).cross(f.m_n[2]->m_q - f.m_n[0]->m_q);
-                f.m_vn = (f.m_n[1]->m_v - f.m_n[0]->m_v).cross(f.m_n[2]->m_v - f.m_n[0]->m_v) * timeStep * timeStep;
-            }
+				// update m_q and normals for CCD calculation
+				for (int j = 0; j < psb->m_nodes.size(); ++j)
+				{
+					psb->m_nodes[j].m_q = psb->m_nodes[j].m_x + timeStep * psb->m_nodes[j].m_v;
+				}
+				for (int j = 0; j < psb->m_faces.size(); ++j)
+				{
+					btSoftBody::Face& f = psb->m_faces[j];
+					f.m_n1 = (f.m_n[1]->m_q - f.m_n[0]->m_q).cross(f.m_n[2]->m_q - f.m_n[0]->m_q);
+					f.m_vn = (f.m_n[1]->m_v - f.m_n[0]->m_v).cross(f.m_n[2]->m_v - f.m_n[0]->m_v) * timeStep * timeStep;
+				}
+			}
         }
 
 		// apply CCD to register new contact points
@@ -195,14 +203,23 @@ void btDeformableMultiBodyDynamicsWorld::performGeometricCollisions(btScalar tim
 		{
 			for (int j = i; j < m_softBodies.size(); ++j)
 			{
-				m_softBodies[i]->geometricCollisionHandler(m_softBodies[j]);
+				btSoftBody* psb1 = m_softBodies[i];
+				btSoftBody* psb2 = m_softBodies[j];
+				if (psb1->isActive() && psb2->isActive())
+				{
+					m_softBodies[i]->geometricCollisionHandler(m_softBodies[j]);
+				}
 			}
         }
 
 		int penetration_count = 0;
 		for (int i = 0; i < m_softBodies.size(); ++i)
 		{
-			penetration_count += m_softBodies[i]->m_faceNodeContacts.size();
+			btSoftBody* psb = m_softBodies[i];
+			if (psb->isActive())
+			{
+				penetration_count += psb->m_faceNodeContacts.size();
+			}
 		}
 		if (penetration_count == 0)
 		{
@@ -212,19 +229,25 @@ void btDeformableMultiBodyDynamicsWorld::performGeometricCollisions(btScalar tim
 		// apply inelastic impulse
 		for (int i = 0; i < m_softBodies.size(); ++i)
 		{
-			m_softBodies[i]->applyRepulsionForce(timeStep, false);
+			btSoftBody* psb = m_softBodies[i];
+			if (psb->isActive())
+			{
+				psb->applyRepulsionForce(timeStep, false);
+			}
 		}
 	}
 
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
 		btSoftBody* psb = m_softBodies[i];
-		if (psb->m_usePostCollisionDamping)
+		if (psb->isActive() && psb->m_usePostCollisionDamping)
 		{
 			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
-			if (!psb->m_nodes[j].m_constrained)
-				psb->m_nodes[j].m_v *= psb->m_dampingCoefficient;
+				if (!psb->m_nodes[j].m_constrained)
+				{
+					psb->m_nodes[j].m_v *= psb->m_dampingCoefficient;
+				}
 			}
 		}
 	}
