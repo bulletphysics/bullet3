@@ -40,6 +40,8 @@ class HumanoidDeepBulletEnv(gym.Env):
       Logger.print2(arg_file)
     assert succ, Logger.print2('Failed to load args from: ' + arg_file)
     
+    self._p = None
+    self._time_step = 1./240.
     self._internal_env =  None
     self._renders = renders
     self._discrete_actions = False
@@ -55,16 +57,37 @@ class HumanoidDeepBulletEnv(gym.Env):
         np.finfo(np.float32).max
     ])
 
-    self.force_mag = 10
-
-    if self._discrete_actions:
-      self.action_space = spaces.Discrete(2)
-    else:
-      action_dim = 1
-      action_high = np.array([self.force_mag] * action_dim)
-      self.action_space = spaces.Box(-action_high, action_high)
     
-    self.observation_space = spaces.Box(-high, high, dtype=np.float32)
+    ctrl_size = 43  #numDof
+    root_size = 7 # root
+    
+    action_dim = ctrl_size - root_size
+    
+    action_bound_min = np.array([
+        -4.79999999999, -1.00000000000, -1.00000000000, -1.00000000000, -4.00000000000,
+        -1.00000000000, -1.00000000000, -1.00000000000, -7.77999999999, -1.00000000000,
+        -1.000000000, -1.000000000, -7.850000000, -6.280000000, -1.000000000, -1.000000000,
+        -1.000000000, -12.56000000, -1.000000000, -1.000000000, -1.000000000, -4.710000000,
+        -7.779999999, -1.000000000, -1.000000000, -1.000000000, -7.850000000, -6.280000000,
+        -1.000000000, -1.000000000, -1.000000000, -8.460000000, -1.000000000, -1.000000000,
+        -1.000000000, -4.710000000
+    ])
+    
+    #print("len(action_bound_min)=",len(action_bound_min))
+    action_bound_max = np.array([
+        4.799999999, 1.000000000, 1.000000000, 1.000000000, 4.000000000, 1.000000000, 1.000000000,
+        1.000000000, 8.779999999, 1.000000000, 1.0000000, 1.0000000, 4.7100000, 6.2800000,
+        1.0000000, 1.0000000, 1.0000000, 12.560000, 1.0000000, 1.0000000, 1.0000000, 7.8500000,
+        8.7799999, 1.0000000, 1.0000000, 1.0000000, 4.7100000, 6.2800000, 1.0000000, 1.0000000,
+        1.0000000, 10.100000, 1.0000000, 1.0000000, 1.0000000, 7.8500000
+    ])
+    #print("len(action_bound_max)=",len(action_bound_max))
+    
+    self.action_space = spaces.Box(action_bound_min, action_bound_max)
+    observation_min = np.array([0.0]+[-100.0]+[-4.0]*105+[-500.0]*90)
+    observation_max = np.array([1.0]+[100.0]+[4.0]*105+[500.0]*90)
+    state_size = 197
+    self.observation_space = spaces.Box(observation_min, observation_min, dtype=np.float32)
 
     self.seed()
     
@@ -79,25 +102,24 @@ class HumanoidDeepBulletEnv(gym.Env):
     return [seed]
 
   def step(self, action):
-    p = self._p
-    if self._discrete_actions:
-      force = self.force_mag if action == 1 else -self.force_mag
-    else:
-      force = action[0]
+    
+    #apply control action
+    agent_id = -1
+    self._internal_env.set_action(agent_id, action)
+    
+    #step sim
+    self._internal_env.update(self._time_step)
+    
 
-    p.setJointMotorControl2(self.cartpole, 0, p.TORQUE_CONTROL, force=force)
-    p.stepSimulation()
-
-    self.state = p.getJointState(self.cartpole, 1)[0:2] + p.getJointState(self.cartpole, 0)[0:2]
-    theta, theta_dot, x, x_dot = self.state
-
-    done =  x < -self.x_threshold \
-                or x > self.x_threshold \
-                or theta < -self.theta_threshold_radians \
-                or theta > self.theta_threshold_radians
-    done = bool(done)
-    reward = 1.0
-    #print("state=",self.state)
+    #record state
+    self.state = self._internal_env.record_state(agent_id)
+    
+    #record reward
+    reward = self._internal_env.calc_reward(agent_id)
+    
+    #record done
+    done = self._internal_env.is_episode_end()
+    
     return np.array(self.state), reward, done, {}
 
   def reset(self):
@@ -105,6 +127,7 @@ class HumanoidDeepBulletEnv(gym.Env):
     if self._internal_env==None:
       self._internal_env = PyBulletDeepMimicEnv(self._arg_parser, self._renders)
     self._internal_env.reset()
+    self._p = self._internal_env._pybullet_client
     agent_id = -1 #unused here
     state = self._internal_env.record_state(agent_id)
     return state
@@ -118,7 +141,7 @@ class HumanoidDeepBulletEnv(gym.Env):
     self._cam_dist = 2
     self._cam_pitch = 0.3
     self._cam_yaw = 0
-    if (self._physics_client_id>=0):
+    if (not self._p == None):
       view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
         cameraTargetPosition=base_pos,
         distance=self._cam_dist,
@@ -148,9 +171,8 @@ class HumanoidDeepBulletEnv(gym.Env):
     pass
     
   def close(self):
-    if self._physics_client_id >= 0:
-      self._p.disconnect()
-    self._physics_client_id = -1
+    
+    pass
 
 class HumanoidDeepMimicBackflipBulletEnv(HumanoidDeepBulletEnv):
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
