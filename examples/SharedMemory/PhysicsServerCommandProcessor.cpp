@@ -9355,6 +9355,7 @@ bool PhysicsServerCommandProcessor::processRequestPhysicsSimulationParametersCom
 
 	serverCmd.m_simulationParameterResultArgs.m_numSimulationSubSteps = m_data->m_numSimulationSubSteps;
 	serverCmd.m_simulationParameterResultArgs.m_numSolverIterations = m_data->m_dynamicsWorld->getSolverInfo().m_numIterations;
+	serverCmd.m_simulationParameterResultArgs.m_numMotorIterations = m_data->m_dynamicsWorld->getSolverInfo().m_numMotorIterations;
 	serverCmd.m_simulationParameterResultArgs.m_restitutionVelocityThreshold = m_data->m_dynamicsWorld->getSolverInfo().m_restitutionVelocityThreshold;
 
 	serverCmd.m_simulationParameterResultArgs.m_solverResidualThreshold = m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold;
@@ -9452,6 +9453,11 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS)
 	{
 		m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = clientCmd.m_physSimParamArgs.m_numSolverIterations;
+	}
+    
+	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_NUM_MOTOR_ITERATIONS)
+	{
+		m_data->m_dynamicsWorld->getSolverInfo().m_numMotorIterations = clientCmd.m_physSimParamArgs.m_numMotorIterations;
 	}
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_SOLVER_RESIDULAL_THRESHOLD)
