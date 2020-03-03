@@ -1006,7 +1006,7 @@ struct b3PhysicsSimulationParameters
 	int m_minimumSolverIslandSize;
 	int m_reportSolverAnalytics;
 	double m_sparseSdfVoxelSize;
-	int m_numMotorIterations;
+	int m_numNonContactInnerIterations;
 };
 
 

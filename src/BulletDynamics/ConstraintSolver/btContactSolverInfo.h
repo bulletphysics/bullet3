@@ -67,7 +67,7 @@ struct btContactSolverInfoData
 	bool m_jointFeedbackInWorldSpace;
 	bool m_jointFeedbackInJointFrame;
 	int m_reportSolverAnalytics;
-	int m_numMotorIterations;
+	int m_numNonContactInnerIterations;
 };
 
 struct btContactSolverInfo : public btContactSolverInfoData
@@ -105,7 +105,7 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_jointFeedbackInWorldSpace = false;
 		m_jointFeedbackInJointFrame = false;
 		m_reportSolverAnalytics = 0;
-		m_numMotorIterations = 1;   // the number of inner iterations for solving motor constraint in a single iteration of the constraint solve
+		m_numNonContactInnerIterations = 1;   // the number of inner iterations for solving motor constraint in a single iteration of the constraint solve
 	}
 };
 
