@@ -156,6 +156,7 @@ void DeformableSelfCollision::addCloth(btVector3 origin)
     
     psb->getCollisionShape()->setMargin(0.0075);
     psb->generateBendingConstraints(2);
+    psb->generateBendingConstraints(2);
     psb->setTotalMass(.5);
     psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
     psb->m_cfg.kCHR = 1; // collision hardness with rigid body
