@@ -1510,9 +1510,9 @@ void btSoftBodyHelpers::getBarycentricWeights(const btVector3& a, const btVector
     btScalar d20 = btDot(v2, v0);
     btScalar d21 = btDot(v2, v1);
     btScalar invDenom = 1.0 / (d00 * d11 - d01 * d01);
-    bary[0] = (d11 * d20 - d01 * d21) * invDenom;
-    bary[1] = (d00 * d21 - d01 * d20) * invDenom;
-    bary[2] = 1.0 - bary[0] - bary[1];
+    bary[1] = (d11 * d20 - d01 * d21) * invDenom;
+    bary[2] = (d00 * d21 - d01 * d20) * invDenom;
+    bary[0] = 1.0 - bary[1] - bary[2];
     bary[3] = 0;
 }
 
@@ -1575,7 +1575,7 @@ void btSoftBodyHelpers::extrapolateBarycentricWeights(btSoftBody* psb)
         btVector4 optimal_bary;
         btScalar min_bary_weight = -1e3;
         btAlignedObjectArray<const btSoftBody::Node*> optimal_parents;
-        btScalar dist;
+        btScalar dist, optimal_dist;
         for (int j = 0; j < psb->m_faces.size(); ++j)
         {
             const btSoftBody::Face& f = psb->m_faces[j];
@@ -1597,6 +1597,7 @@ void btSoftBodyHelpers::extrapolateBarycentricWeights(btSoftBody* psb)
                 parents.push_back(f.m_n[2]);
                 optimal_parents = parents;
                 optimal_bary = bary;
+                optimal_dist = dist;
                 min_bary_weight = new_min_bary_weight;
                 // stop searching if the projected p is inside the triangle at hand
                 if (bary[0]>=0. && bary[1]>=0. && bary[2]>=0.)
@@ -1607,6 +1608,6 @@ void btSoftBodyHelpers::extrapolateBarycentricWeights(btSoftBody* psb)
         }
         psb->m_renderNodesInterpolationWeights[i] = optimal_bary;
         psb->m_renderNodesParents[i] = optimal_parents;
-        psb->m_z[i] = dist;
+        psb->m_z[i] = optimal_dist;
     }
 }
