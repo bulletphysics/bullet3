@@ -215,7 +215,7 @@ void btSoftBody::initDefaults()
 	m_windVelocity = btVector3(0, 0, 0);
 	m_restLengthScale = btScalar(1.0);
 	m_dampingCoefficient = 1.0;
-	m_sleepingThreshold = 0.1;
+	m_sleepingThreshold = .8;
 	m_useFaceContact = true;
 	m_useSelfCollision = false;
 	m_usePostCollisionDamping = false;
@@ -3612,18 +3612,39 @@ void btSoftBody::setMaxStress(btScalar maxStress)
 //
 void btSoftBody::interpolateRenderMesh()
 {
-    for (int i = 0; i < m_renderNodes.size(); ++i)
-    {
-        Node& n = m_renderNodes[i];
-        n.m_x.setZero();
-        for (int j = 0; j < 4; ++j)
-        {
-			if (m_renderNodesParents[i].size())
+	if (m_z.size() > 0)
+	{
+		for (int i = 0; i < m_renderNodes.size(); ++i)
+		{
+			const Node* p0 = m_renderNodesParents[i][0];
+			const Node* p1 = m_renderNodesParents[i][1];
+			const Node* p2 = m_renderNodesParents[i][2];
+			btVector3 normal = btCross(p1->m_x - p0->m_x, p2->m_x - p0->m_x);
+			btVector3 unit_normal = normal.normalized();
+			Node& n = m_renderNodes[i];
+			n.m_x.setZero();
+			for (int j = 0; j < 3; ++j)
 			{
 				n.m_x += m_renderNodesParents[i][j]->m_x * m_renderNodesInterpolationWeights[i][j];
 			}
-        }
-    }
+			n.m_x += m_z[i] * unit_normal;
+		}
+	}
+	else
+	{
+		for (int i = 0; i < m_renderNodes.size(); ++i)
+		{
+			Node& n = m_renderNodes[i];
+			n.m_x.setZero();
+			for (int j = 0; j < 4; ++j)
+			{
+				if (m_renderNodesParents[i].size())
+				{
+					n.m_x += m_renderNodesParents[i][j]->m_x * m_renderNodesInterpolationWeights[i][j];
+				}
+			}
+		}
+	}
 }
 
 void btSoftBody::setCollisionQuadrature(int N)

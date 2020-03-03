@@ -771,12 +771,12 @@ B3_SHARED_API int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHand
 	return 0;
 }
 
-B3_SHARED_API int b3PhysicsParamSetNumMotorIterations(b3SharedMemoryCommandHandle commandHandle, int numMotorIterations)
+B3_SHARED_API int b3PhysicsParamSetNumNonContactInnerIterations(b3SharedMemoryCommandHandle commandHandle, int numNonContactInnerIterations)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
     b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
-    command->m_physSimParamArgs.m_numMotorIterations = numMotorIterations;
-    command->m_updateFlags |= SIM_PARAM_UPDATE_NUM_MOTOR_ITERATIONS;
+    command->m_physSimParamArgs.m_numNonContactInnerIterations = numNonContactInnerIterations;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_NUM_NONCONTACT_INNER_ITERATIONS;
     return 0;
 }
 

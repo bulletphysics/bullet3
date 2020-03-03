@@ -8125,94 +8125,90 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 	{
 		collisionMargin = clientCmd.m_loadSoftBodyArguments.m_collisionMargin;
 	}
-    btScalar spring_bending_stiffness = 0;
+	btScalar spring_bending_stiffness = 0;
 	{
-        btSoftBody* psb = NULL;
-        
+		btSoftBody* psb = NULL;
+		CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
+		char relativeFileName[1024];
+		char pathPrefix[1024];
+		pathPrefix[0] = 0;
+		if (fileIO->findResourcePath(loadSoftBodyArgs.m_fileName, relativeFileName, 1024))
+		{
+			b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+		}
+		const std::string& error_message_prefix = "";
+		std::string out_found_filename, out_found_sim_filename;
+		int out_type(0), out_sim_type(0);
 
-	CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
-	char relativeFileName[1024];
-	char pathPrefix[1024];
-	pathPrefix[0] = 0;
-	if (fileIO->findResourcePath(loadSoftBodyArgs.m_fileName, relativeFileName, 1024))
-	{
-		b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
-	}
-
-	const std::string& error_message_prefix = "";
-	std::string out_found_filename, out_found_sim_filename;
-	int out_type(0), out_sim_type(0);
-
-	bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
-
-        if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SIM_MESH)
-        {
-            bool foundSimMesh = UrdfFindMeshFile(fileIO, pathPrefix, loadSoftBodyArgs.m_simFileName, error_message_prefix, &out_found_sim_filename, &out_sim_type);
-        }
-        else
-        {
-          out_sim_type = out_type;
-          out_found_sim_filename = out_found_filename;
-        }
-        if (out_sim_type == UrdfGeometry::FILE_OBJ)
-        {
-	    std::vector<tinyobj::shape_t> shapes;
-	    tinyobj::attrib_t attribute;
-	    std::string err = tinyobj::LoadObj(attribute, shapes, out_found_sim_filename.c_str(), "", fileIO);
-	    if (!shapes.empty())
-	    {
-            const tinyobj::shape_t& shape = shapes[0];
-            btAlignedObjectArray<btScalar> vertices;
-	    	btAlignedObjectArray<int> indices;
-	    	for (int i = 0; i < attribute.vertices.size(); i++)
-	    	{
-	    		vertices.push_back(attribute.vertices[i]);
-	    	}
-	    	for (int i = 0; i < shape.mesh.indices.size(); i++)
-	    	{
-	    		indices.push_back(shape.mesh.indices[i].vertex_index);
-	    	}
-	    	int numTris = shape.mesh.indices.size() / 3;
-	    	if (numTris > 0)
-            {
+		bool foundFile = UrdfFindMeshFile(fileIO, pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
+		if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SIM_MESH)
+		{
+			bool foundSimMesh = UrdfFindMeshFile(fileIO, pathPrefix, loadSoftBodyArgs.m_simFileName, error_message_prefix, &out_found_sim_filename, &out_sim_type);
+		}
+		else
+		{
+			out_sim_type = out_type;
+			out_found_sim_filename = out_found_filename;
+		}
+		if (out_sim_type == UrdfGeometry::FILE_OBJ)
+		{
+			std::vector<tinyobj::shape_t> shapes;
+			tinyobj::attrib_t attribute;
+			std::string err = tinyobj::LoadObj(attribute, shapes, out_found_sim_filename.c_str(), "", fileIO);
+			if (!shapes.empty())
+			{
+				const tinyobj::shape_t& shape = shapes[0];
+				btAlignedObjectArray<btScalar> vertices;
+				btAlignedObjectArray<int> indices;
+				for (int i = 0; i < attribute.vertices.size(); i++)
 				{
-					btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
-					if (softWorld)
+					vertices.push_back(attribute.vertices[i]);
+				}
+				for (int i = 0; i < shape.mesh.indices.size(); i++)
+				{
+					indices.push_back(shape.mesh.indices[i].vertex_index);
+				}
+				int numTris = shape.mesh.indices.size() / 3;
+				if (numTris > 0)
+				{
 					{
-						psb = btSoftBodyHelpers::CreateFromTriMesh(softWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
+						btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
+						if (softWorld)
+						{
+							psb = btSoftBodyHelpers::CreateFromTriMesh(softWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
+						}
+					}
+					{
+						btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+						if (deformWorld)
+						{
+							psb = btSoftBodyHelpers::CreateFromTriMesh(deformWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
+						}
 					}
 				}
-				{
-					btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
-					if (deformWorld)
-					{
-						psb = btSoftBodyHelpers::CreateFromTriMesh(deformWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
-					}
-				}
-            }
-        }
+			}
 #ifndef SKIP_DEFORMABLE_BODY
             btScalar spring_elastic_stiffness, spring_damping_stiffness;
-	    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
-	    {
-			btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
-			if (deformWorld)
+			if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
 			{
-				spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
-				spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
-                if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_BENDING_SPRINGS)
-                {
-                    spring_bending_stiffness = clientCmd.m_loadSoftBodyArguments.m_springBendingStiffness;
-                }
-				btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true, spring_bending_stiffness);
-				deformWorld->addForce(psb, springForce);
-				m_data->m_lf.push_back(springForce);
+				btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+				if (deformWorld)
+				{
+					spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
+					spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
+					if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_BENDING_SPRINGS)
+					{
+						spring_bending_stiffness = clientCmd.m_loadSoftBodyArguments.m_springBendingStiffness;
+					}
+					btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true, spring_bending_stiffness);
+					deformWorld->addForce(psb, springForce);
+					m_data->m_lf.push_back(springForce);
+				}
 			}
-	    }
 #endif
-        }
-        else if (out_sim_type == UrdfGeometry::FILE_VTK)
-        {
+		}
+		else if (out_sim_type == UrdfGeometry::FILE_VTK)
+		{
 #ifndef SKIP_DEFORMABLE_BODY
 			btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
 			if (deformWorld)
@@ -8237,119 +8233,121 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 					deformWorld->addForce(psb, neohookeanForce);
 					m_data->m_lf.push_back(neohookeanForce);
 				}
-                btScalar spring_elastic_stiffness, spring_damping_stiffness;
+				btScalar spring_elastic_stiffness, spring_damping_stiffness;
 				if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE)
 				{
 					spring_elastic_stiffness = clientCmd.m_loadSoftBodyArguments.m_springElasticStiffness;
 					spring_damping_stiffness = clientCmd.m_loadSoftBodyArguments.m_springDampingStiffness;
-                    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_BENDING_SPRINGS)
-                    {
-                        spring_bending_stiffness = clientCmd.m_loadSoftBodyArguments.m_springBendingStiffness;
-                    }
+					if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_BENDING_SPRINGS)
+					{
+						spring_bending_stiffness = clientCmd.m_loadSoftBodyArguments.m_springBendingStiffness;
+					}
 					btDeformableLagrangianForce* springForce = new btDeformableMassSpringForce(spring_elastic_stiffness, spring_damping_stiffness, true, spring_bending_stiffness);
 					deformWorld->addForce(psb, springForce);
 					m_data->m_lf.push_back(springForce);
 				}
-                
 			}
 #endif
 		}
-		
 		if (psb != NULL)
 		{
 #ifndef SKIP_DEFORMABLE_BODY
-		  	btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+			btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
 			if (deformWorld)
 			{
-            			// load render mesh
-            			if (out_found_sim_filename != out_found_filename)
-            			{
-            			    // load render mesh
-	    			    {
-	    			    	tinyobj::attrib_t attribute;
-	    			    	std::vector<tinyobj::shape_t> shapes;
-	    			    	
-	    			    	std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
+				// load render mesh
+				if (out_found_sim_filename != out_found_filename)
+				{
+					// load render mesh
+					{
+						tinyobj::attrib_t attribute;
+						std::vector<tinyobj::shape_t> shapes;
 
-	    			    	for (int s = 0; s < (int)shapes.size(); s++)
-	    			    	{
-	    			    		tinyobj::shape_t& shape = shapes[s];
-	    			    		int faceCount = shape.mesh.indices.size();
-	    			    		int vertexCount = attribute.vertices.size()/3;
-	    			    		for (int v=0;v<vertexCount;v++)
-	    			    		{
-	    			    			btSoftBody::Node n;
-	    			    			n.m_x = btVector3(attribute.vertices[3*v],attribute.vertices[3*v+1],attribute.vertices[3*v+2]);
-	    			    			psb->m_renderNodes.push_back(n);
-	    			    		}
+						std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
 
-	    			    		for (int f = 0; f < faceCount; f += 3)
-	    			    		{
-	    			    			if (f < 0 && f >= int(shape.mesh.indices.size()))
-	    			    			{
-	    			    				continue;
-	    			    			}
-	    			    			tinyobj::index_t v_0 = shape.mesh.indices[f];
-	    			    			tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
-	    			    			tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
-	    			    			btSoftBody::Face ff;
-	    			    			ff.m_n[0] = &psb->m_renderNodes[v_0.vertex_index];
-	    			    			ff.m_n[1] = &psb->m_renderNodes[v_1.vertex_index];
-	    			    			ff.m_n[2] = &psb->m_renderNodes[v_2.vertex_index];
-	    			    			psb->m_renderFaces.push_back(ff);
-	    			    		}
-	    			    	}
-	    			    	
-	    			    }
-            			    btSoftBodyHelpers::interpolateBarycentricWeights(psb);
-            			}
-            			else
-            			{
-            			    psb->m_renderNodes.resize(0);
-            			}
-            btVector3 gravity = m_data->m_dynamicsWorld->getGravity();
-            btDeformableLagrangianForce* gravityForce = new btDeformableGravityForce(gravity);
-            deformWorld->addForce(psb, gravityForce);
-            m_data->m_lf.push_back(gravityForce);
-            btScalar collision_hardness = 1;
-            psb->m_cfg.kKHR = collision_hardness;
-            psb->m_cfg.kCHR = collision_hardness;
+						for (int s = 0; s < (int)shapes.size(); s++)
+						{
+							tinyobj::shape_t& shape = shapes[s];
+							int faceCount = shape.mesh.indices.size();
+							int vertexCount = attribute.vertices.size()/3;
+							for (int v=0;v<vertexCount;v++)
+							{
+								btSoftBody::Node n;
+								n.m_x = btVector3(attribute.vertices[3*v],attribute.vertices[3*v+1],attribute.vertices[3*v+2]);
+								psb->m_renderNodes.push_back(n);
+							}
+							for (int f = 0; f < faceCount; f += 3)
+							{
+								if (f < 0 && f >= int(shape.mesh.indices.size()))
+								{
+									continue;
+								}
+								tinyobj::index_t v_0 = shape.mesh.indices[f];
+								tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
+								tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
+								btSoftBody::Face ff;
+								ff.m_n[0] = &psb->m_renderNodes[v_0.vertex_index];
+								ff.m_n[1] = &psb->m_renderNodes[v_1.vertex_index];
+								ff.m_n[2] = &psb->m_renderNodes[v_2.vertex_index];
+								psb->m_renderFaces.push_back(ff);
+							}
+						}
+					}
+					if (out_sim_type == UrdfGeometry::FILE_VTK)
+					{
+						btSoftBodyHelpers::interpolateBarycentricWeights(psb);
+					}
+					else if (out_sim_type == UrdfGeometry::FILE_OBJ)
+					{
+						btSoftBodyHelpers::extrapolateBarycentricWeights(psb);
+					}
+				}
+				else
+				{
+					psb->m_renderNodes.resize(0);
+				}
+				btVector3 gravity = m_data->m_dynamicsWorld->getGravity();
+				btDeformableLagrangianForce* gravityForce = new btDeformableGravityForce(gravity);
+				deformWorld->addForce(psb, gravityForce);
+				m_data->m_lf.push_back(gravityForce);
+				btScalar collision_hardness = 1;
+				psb->m_cfg.kKHR = collision_hardness;
+				psb->m_cfg.kCHR = collision_hardness;
 
-            btScalar friction_coeff = 0;
-            if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SET_FRICTION_COEFFICIENT)
-            {
-                    friction_coeff = loadSoftBodyArgs.m_frictionCoeff;
-            }
-            psb->m_cfg.kDF = friction_coeff;
-            bool use_bending_spring = false;
-            if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_BENDING_SPRINGS)
-            {
-                use_bending_spring = loadSoftBodyArgs.m_useBendingSprings;
-                if (use_bending_spring)
-                {
-                    psb->generateBendingConstraints(2);
-                }
-            }
-            btSoftBody::Material* pm = psb->appendMaterial();
-            pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
-            
-            // turn on the collision flag for deformable
-            // collision between deformable and rigid
-            psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-            // collion between deformable and deformable and self-collision
-            psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
-            psb->setCollisionFlags(0);
-            psb->setTotalMass(mass);
-            bool use_self_collision = false;
-            if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_USE_SELF_COLLISION)
-            {
-                    use_self_collision = loadSoftBodyArgs.m_useSelfCollision;
-            }
-            psb->setSelfCollision(use_self_collision);
+				btScalar friction_coeff = 0;
+				if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SET_FRICTION_COEFFICIENT)
+				{
+					friction_coeff = loadSoftBodyArgs.m_frictionCoeff;
+				}
+				psb->m_cfg.kDF = friction_coeff;
+				bool use_bending_spring = false;
+				if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_BENDING_SPRINGS)
+				{
+					use_bending_spring = loadSoftBodyArgs.m_useBendingSprings;
+					if (use_bending_spring)
+					{
+						psb->generateBendingConstraints(2);
+					}
+				}
+				btSoftBody::Material* pm = psb->appendMaterial();
+				pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
+
+				// turn on the collision flag for deformable
+				// collision between deformable and rigid
+				psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+				// collion between deformable and deformable and self-collision
+				psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
+				psb->setCollisionFlags(0);
+				psb->setTotalMass(mass);
+				bool use_self_collision = false;
+				if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_USE_SELF_COLLISION)
+				{
+					use_self_collision = loadSoftBodyArgs.m_useSelfCollision;
+				}
+				psb->setSelfCollision(use_self_collision);
 			}
 #endif//SKIP_DEFORMABLE_BODY
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-
 		btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
 		if (softWorld)
 		{
@@ -8423,12 +8421,11 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 
 	    serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
 	    serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_COMPLETED;
-      int pos = strlen(relativeFileName)-1;
-      while(pos>=0 && relativeFileName[pos]!='/') { pos--;}
-      btAssert(strlen(relativeFileName)-pos-5>0);
-      std::string object_name (std::string(relativeFileName).substr(pos+1, strlen(relativeFileName)- 5 - pos));
-      bodyHandle->m_bodyName = object_name;
-
+		int pos = strlen(relativeFileName)-1;
+		while(pos>=0 && relativeFileName[pos]!='/') { pos--;}
+		btAssert(strlen(relativeFileName)-pos-5>0);
+		std::string object_name (std::string(relativeFileName).substr(pos+1, strlen(relativeFileName)- 5 - pos));
+			bodyHandle->m_bodyName = object_name;
 
 	    int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
 	    serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
@@ -9355,7 +9352,7 @@ bool PhysicsServerCommandProcessor::processRequestPhysicsSimulationParametersCom
 
 	serverCmd.m_simulationParameterResultArgs.m_numSimulationSubSteps = m_data->m_numSimulationSubSteps;
 	serverCmd.m_simulationParameterResultArgs.m_numSolverIterations = m_data->m_dynamicsWorld->getSolverInfo().m_numIterations;
-	serverCmd.m_simulationParameterResultArgs.m_numMotorIterations = m_data->m_dynamicsWorld->getSolverInfo().m_numMotorIterations;
+	serverCmd.m_simulationParameterResultArgs.m_numNonContactInnerIterations = m_data->m_dynamicsWorld->getSolverInfo().m_numNonContactInnerIterations;
 	serverCmd.m_simulationParameterResultArgs.m_restitutionVelocityThreshold = m_data->m_dynamicsWorld->getSolverInfo().m_restitutionVelocityThreshold;
 
 	serverCmd.m_simulationParameterResultArgs.m_solverResidualThreshold = m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold;
@@ -9455,9 +9452,9 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 		m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = clientCmd.m_physSimParamArgs.m_numSolverIterations;
 	}
     
-	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_NUM_MOTOR_ITERATIONS)
+    if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_NUM_NONCONTACT_INNER_ITERATIONS)
 	{
-		m_data->m_dynamicsWorld->getSolverInfo().m_numMotorIterations = clientCmd.m_physSimParamArgs.m_numMotorIterations;
+		m_data->m_dynamicsWorld->getSolverInfo().m_numNonContactInnerIterations = clientCmd.m_physSimParamArgs.m_numNonContactInnerIterations;
 	}
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_SOLVER_RESIDULAL_THRESHOLD)

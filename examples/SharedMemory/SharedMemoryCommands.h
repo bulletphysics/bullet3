@@ -487,7 +487,7 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_WARM_STARTING_FACTOR = 1 << 27,
 	SIM_PARAM_UPDATE_ARTICULATED_WARM_STARTING_FACTOR = 1 << 28,
 	SIM_PARAM_UPDATE_SPARSE_SDF = 1 << 29,
-	SIM_PARAM_UPDATE_NUM_MOTOR_ITERATIONS = 1 << 30,
+	SIM_PARAM_UPDATE_NUM_NONCONTACT_INNER_ITERATIONS = 1 << 30,
 };
 
 enum EnumLoadSoftBodyUpdateFlags
@@ -533,7 +533,7 @@ struct LoadSoftBodyArgs
     double m_corotatedLambda;
     int m_useBendingSprings;
     double m_collisionHardness;
-    double m_useSelfCollision;
+    int m_useSelfCollision;
     double m_frictionCoeff;
     double m_NeoHookeanMu;
     double m_NeoHookeanLambda;

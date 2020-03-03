@@ -32,7 +32,7 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 	//solve featherstone non-contact constraints
 
 	//printf("m_multiBodyNonContactConstraints = %d\n",m_multiBodyNonContactConstraints.size());
-	for (int i = 0; i < infoGlobal.m_numMotorIterations; ++i)
+	for (int i = 0; i < infoGlobal.m_numNonContactInnerIterations; ++i)
 	{
 		for (int j = 0; j < m_multiBodyNonContactConstraints.size(); j++)
 		{
