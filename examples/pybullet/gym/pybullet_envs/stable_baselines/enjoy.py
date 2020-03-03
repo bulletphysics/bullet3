@@ -6,13 +6,13 @@
 # MIT License
 import argparse
 import multiprocessing
-
+import time
 import gym
 import numpy as np
 import pybullet_envs
 
 from stable_baselines import SAC, TD3
-from stable_baselines.common.vec_env import SubprocVecEnv
+
 from stable_baselines.common.evaluation import evaluate_policy
 
 from pybullet_envs.stable_baselines.utils import TimeFeatureWrapper
@@ -35,11 +35,7 @@ if __name__ == '__main__':
 
     # Use SubprocVecEnv for rendering
     if not args.no_render:
-        # Note: fork is not thread-safe but usually is faster
-        fork_available = 'fork' in multiprocessing.get_all_start_methods()
-        start_method = 'fork' if fork_available else 'spawn'
-        env = SubprocVecEnv([lambda: env], start_method=start_method)
-
+      env.render(mode='human')
 
     algo = {
         'sac': SAC,
@@ -67,6 +63,8 @@ if __name__ == '__main__':
                 episode_length += 1
                 if not args.no_render:
                     env.render(mode='human')
+                    dt = 1./240.
+                    time.sleep(dt)
             episode_rewards.append(episode_reward)
             episode_lengths.append(episode_length)
             print("Episode {} reward={}, length={}".format(len(episode_rewards), episode_reward, episode_length))
