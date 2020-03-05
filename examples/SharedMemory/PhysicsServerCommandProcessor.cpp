@@ -9046,7 +9046,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateWakeUp)
 				{
 					rb->forceActivationState(ACTIVE_TAG);
-                                        rb->setDeactivationTime(0.0);
+					rb->setDeactivationTime(0.0);
 				}
 				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateSleep)
 				{
