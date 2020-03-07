@@ -155,8 +155,7 @@ void DeformableSelfCollision::addCloth(btVector3 origin)
 
     
     psb->getCollisionShape()->setMargin(0.0075);
-    psb->generateBendingConstraints(2);
-    psb->generateBendingConstraints(2);
+    psb->generateBendingConstraints(3);
     psb->setTotalMass(.5);
     psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
     psb->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -171,8 +170,8 @@ void DeformableSelfCollision::addCloth(btVector3 origin)
     getDeformableDynamicsWorld()->addSoftBody(psb);
     psb->setSelfCollision(true);
     
-    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(3,0.2, true);
-    psb->setSpringStiffness(3);
+    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(1.5,0.1, true);
+    psb->setSpringStiffness(1);
     getDeformableDynamicsWorld()->addForce(psb, mass_spring);
     m_forces.push_back(mass_spring);
     btVector3 gravity = btVector3(0, -9.8, 0);
