@@ -7,7 +7,7 @@
 #include "CommonGUIHelperInterface.h"
 #include "CommonRenderInterface.h"
 #include "CommonCameraInterface.h"
-
+#include "BulletSoftBody/btSoftBody.h"
 #include "CommonGraphicsAppInterface.h"
 #include "CommonWindowInterface.h"
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
@@ -343,6 +343,21 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 					p2p->m_setting.m_tau = 0.001f;
 				}
 			}
+            btSoftBody* psb = (btSoftBody*)btSoftBody::upcast(rayCallback.m_collisionObject);
+            if (psb)
+            {
+                    m_savedState = psb->getActivationState();
+                    m_pickedBody->setActivationState(DISABLE_DEACTIVATION);
+                    //printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
+                    btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
+                    btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
+                    m_dynamicsWorld->addConstraint(p2p, true);
+                    m_pickedConstraint = p2p;
+                    btScalar mousePickClamping = 30.f;
+                    p2p->m_setting.m_impulseClamp = mousePickClamping;
+                    //very weak constraint for picking
+                    p2p->m_setting.m_tau = 0.001f;
+            }
 
 			//					pickObject(pickPos, rayCallback.m_collisionObject);
 			m_oldPickingPos = rayToWorld;
