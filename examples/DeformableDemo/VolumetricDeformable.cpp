@@ -23,27 +23,28 @@
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include <stdio.h>  //printf debugging
 
-#include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../CommonInterfaces/CommonDeformableBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
 ///The VolumetricDeformable shows the contact between volumetric deformable objects and rigid objects.
 static btScalar E = 100;
 static btScalar nu = 0.3;
-static btScalar damping = 0.1;
+static btScalar damping = 0.01;
 
 struct TetraCube
 {
 #include "../SoftDemo/cube.inl"
 };
 
-class VolumetricDeformable : public CommonRigidBodyBase
+class VolumetricDeformable : public CommonDeformableBodyBase
 {
-    btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 	btDeformableNeoHookeanForce* m_neohookean;
+
 public:
 	VolumetricDeformable(struct GUIHelperInterface* helper)
-		: CommonRigidBodyBase(helper)
+		: CommonDeformableBodyBase(helper)
 	{
+        m_neohookean = 0;
 	}
 	virtual ~VolumetricDeformable()
 	{
@@ -67,8 +68,8 @@ public:
 		m_neohookean->setYoungsModulus(E);
 		m_neohookean->setDamping(damping);
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 240.f;
-        m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
+        float internalTimeStep = 1. / 600.f;
+        m_dynamicsWorld->stepSimulation(deltaTime, 10, internalTimeStep);
     }
     
     void createStaticBox(const btVector3& halfEdge, const btVector3& translation)
@@ -125,37 +126,20 @@ public:
         }
     }
     
-    virtual const btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld() const
-    {
-        ///just make it a btSoftRigidDynamicsWorld please
-        ///or we will add type checking
-        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
-    }
-    
-    virtual btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld()
-    {
-        ///just make it a btSoftRigidDynamicsWorld please
-        ///or we will add type checking
-        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
-    }
-    
     virtual void renderScene()
     {
-        CommonRigidBodyBase::renderScene();
+        CommonDeformableBodyBase::renderScene();
         btDeformableMultiBodyDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
             btSoftBody* psb = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
-            //if (softWorld->getDebugDrawer() && !(softWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
             {
                 btSoftBodyHelpers::DrawFrame(psb, deformableWorld->getDebugDrawer());
                 btSoftBodyHelpers::Draw(psb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
             }
         }
     }
-	
-	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld);
 };
 
 void VolumetricDeformable::initPhysics()
@@ -237,7 +221,7 @@ void VolumetricDeformable::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
         
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(30,100,0.05);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(30,100,0.01);
 		m_neohookean = neohookean;
         getDeformableDynamicsWorld()->addForce(psb, neohookean);
         m_forces.push_back(neohookean);
@@ -258,7 +242,7 @@ void VolumetricDeformable::initPhysics()
 	}
 	{
 		SliderParams slider("Poisson Ratio", &nu);
-		slider.m_minVal = 0;
+		slider.m_minVal = 0.1;
 		slider.m_maxVal = 0.4;
 		if (m_guiHelper->getParameterInterface())
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
@@ -266,73 +250,16 @@ void VolumetricDeformable::initPhysics()
 	{
 		SliderParams slider("Damping", &damping);
 		slider.m_minVal = 0.01;
-		slider.m_maxVal = 1;
+		slider.m_maxVal = 0.2;
 		if (m_guiHelper->getParameterInterface())
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
 }
 
-bool VolumetricDeformable::pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
-{
-	if (getDeformableDynamicsWorld() == 0)
-		return false;
-	
-	btCollisionWorld::ClosestRayResultCallbackWithInfo rayCallback(rayFromWorld, rayToWorld);
-	
-	rayCallback.m_flags |= btTriangleRaycastCallback::kF_UseGjkConvexCastRaytest;
-	getDeformableDynamicsWorld()->rayTest(rayFromWorld, rayToWorld, rayCallback);
-	if (rayCallback.hasHit())
-	{
-		btVector3 pickPos = rayCallback.m_hitPointWorld;
-		btRigidBody* body = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
-		if (body)
-		{
-			//other exclusions?
-			if (!(body->isStaticObject() || body->isKinematicObject()))
-			{
-				m_pickedBody = body;
-				m_savedState = m_pickedBody->getActivationState();
-				m_pickedBody->setActivationState(DISABLE_DEACTIVATION);
-				//printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
-				btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
-				btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
-				m_dynamicsWorld->addConstraint(p2p, true);
-				m_pickedConstraint = p2p;
-				btScalar mousePickClamping = 30.f;
-				p2p->m_setting.m_impulseClamp = mousePickClamping;
-				//very weak constraint for picking
-				p2p->m_setting.m_tau = 0.001f;
-			}
-		}
-		btSoftBody* psb = (btSoftBody*)btSoftBody::upcast(rayCallback.m_collisionObject);
-		if (psb)
-		{
-			m_savedState = psb->getActivationState();
-			m_pickedBody->setActivationState(DISABLE_DEACTIVATION);
-//			btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
-//			btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
-//			m_dynamicsWorld->addConstraint(p2p, true);
-//			m_pickedConstraint = p2p;
-//			btScalar mousePickClamping = 30.f;
-//			p2p->m_setting.m_impulseClamp = mousePickClamping;
-//			//very weak constraint for picking
-//			p2p->m_setting.m_tau = 0.001f;
-		}
-		
-		//					pickObject(pickPos, rayCallback.m_collisionObject);
-		m_oldPickingPos = rayToWorld;
-		m_hitPos = pickPos;
-		m_oldPickingDist = (pickPos - rayFromWorld).length();
-		//					printf("hit !\n");
-		//add p2p
-	}
-	return false;
-}
-
 void VolumetricDeformable::exitPhysics()
 {
 	//cleanup in the reverse order of creation/initialization
-
+    removePickingConstraint();
 	//remove the rigidbodies from the dynamics world and delete them
 	int i;
 	for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)

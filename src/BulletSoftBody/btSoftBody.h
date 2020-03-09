@@ -1031,6 +1031,11 @@ public:
 	bool rayTest(const btVector3& rayFrom,
 				 const btVector3& rayTo,
 				 sRayCast& results);
+	bool rayFaceTest(const btVector3& rayFrom,
+					 const btVector3& rayTo,
+					 sRayCast& results);
+	int rayFaceTest(const btVector3& rayFrom, const btVector3& rayTo,
+					btScalar& mint, int& index) const;
 	/* Solver presets														*/
 	void setSolver(eSolverPresets::_ preset);
 	/* predictMotion														*/

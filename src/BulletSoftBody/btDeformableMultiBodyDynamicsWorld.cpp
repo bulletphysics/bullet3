@@ -688,6 +688,24 @@ void btDeformableMultiBodyDynamicsWorld::addForce(btSoftBody* psb, btDeformableL
     }
 }
 
+void btDeformableMultiBodyDynamicsWorld::removeForce(btSoftBody* psb, btDeformableLagrangianForce* force)
+{
+    btAlignedObjectArray<btDeformableLagrangianForce*>& forces = m_deformableBodySolver->m_objective->m_lf;
+    int removed_index = -1;
+    for (int i = 0; i < forces.size(); ++i)
+    {
+        if (forces[i]->getForceType() == force->getForceType())
+        {
+            forces[i]->removeSoftBody(psb);
+            if (forces[i]->m_softBodies.size() == 0)
+                removed_index = i;
+            break;
+        }
+    }
+    if (removed_index >= 0)
+        forces.removeAtIndex(removed_index);
+}
+
 void btDeformableMultiBodyDynamicsWorld::removeSoftBody(btSoftBody* body)
 {
     m_softBodies.remove(body);

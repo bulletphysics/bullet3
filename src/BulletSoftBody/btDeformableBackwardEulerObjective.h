@@ -20,6 +20,7 @@
 #include "btDeformableMassSpringForce.h"
 #include "btDeformableGravityForce.h"
 #include "btDeformableCorotatedForce.h"
+#include "btDeformableMousePickingForce.h"
 #include "btDeformableLinearElasticityForce.h"
 #include "btDeformableNeoHookeanForce.h"
 #include "btDeformableContactProjection.h"

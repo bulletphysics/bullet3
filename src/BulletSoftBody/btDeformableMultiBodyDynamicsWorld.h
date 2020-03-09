@@ -131,6 +131,8 @@ public:
     
     void addForce(btSoftBody* psb, btDeformableLagrangianForce* force);
     
+    void removeForce(btSoftBody* psb, btDeformableLagrangianForce* force);
+    
     void removeSoftBody(btSoftBody* body);
     
     void removeCollisionObject(btCollisionObject* collisionObject);
@@ -267,7 +269,7 @@ public:
             if (softBody)
             {
                 btSoftBody::sRayCast softResult;
-                if (softBody->rayTest(rayFromTrans.getOrigin(), rayToTrans.getOrigin(), softResult))
+                if (softBody->rayFaceTest(rayFromTrans.getOrigin(), rayToTrans.getOrigin(), softResult))
                 {
                     if (softResult.fraction <= resultCallback.m_closestHitFraction)
                     {
@@ -278,8 +280,6 @@ public:
                         btVector3 rayDir = rayToTrans.getOrigin() - rayFromTrans.getOrigin();
                         btVector3 normal = -rayDir;
                         normal.normalize();
-                        
-                        if (softResult.feature == btSoftBody::eFeature::Face)
                         {
                             normal = softBody->m_faces[softResult.index].m_normal;
                             if (normal.dot(rayDir) > 0)
