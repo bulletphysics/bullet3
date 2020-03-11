@@ -263,36 +263,6 @@ public:
 			return rayResult.m_hitFraction;
 		}
 	};
-    
-    struct ClosestRayResultCallbackWithInfo : public ClosestRayResultCallback
-    {
-        ClosestRayResultCallbackWithInfo(const btVector3& rayFromWorld, const btVector3& rayToWorld)
-        : ClosestRayResultCallback(rayFromWorld, rayToWorld)
-        {
-        }
-        LocalShapeInfo* m_localShapeInfo;
-        
-        virtual btScalar addSingleResult(LocalRayResult& rayResult, bool normalInWorldSpace)
-        {
-            //caller already does the filter on the m_closestHitFraction
-            btAssert(rayResult.m_hitFraction <= m_closestHitFraction);
-            
-            m_closestHitFraction = rayResult.m_hitFraction;
-            m_collisionObject = rayResult.m_collisionObject;
-            m_localShapeInfo = rayResult.m_localShapeInfo;
-            if (normalInWorldSpace)
-            {
-                m_hitNormalWorld = rayResult.m_hitNormalLocal;
-            }
-            else
-            {
-                ///need to transform normal into worldspace
-                m_hitNormalWorld = m_collisionObject->getWorldTransform().getBasis() * rayResult.m_hitNormalLocal;
-            }
-            m_hitPointWorld.setInterpolate3(m_rayFromWorld, m_rayToWorld, rayResult.m_hitFraction);
-            return rayResult.m_hitFraction;
-        }
-    };
 
 	struct AllHitsRayResultCallback : public RayResultCallback
 	{

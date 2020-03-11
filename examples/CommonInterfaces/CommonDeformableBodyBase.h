@@ -14,6 +14,7 @@
 #include "CommonWindowInterface.h"
 #include "CommonCameraInterface.h"
 #include "CommonMultiBodyBase.h"
+#include "BulletSoftBody/btSoftBody.h"
 
 struct CommonDeformableBodyBase : public CommonMultiBodyBase
 {
@@ -38,12 +39,49 @@ struct CommonDeformableBodyBase : public CommonMultiBodyBase
 	{
 		return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
 	}
-    
+	
+	struct ClosestRayResultCallbackWithInfo : public btCollisionWorld::ClosestRayResultCallback
+	{
+		ClosestRayResultCallbackWithInfo(const btVector3& rayFromWorld, const btVector3& rayToWorld)
+		: ClosestRayResultCallback(rayFromWorld, rayToWorld)
+		{
+		}
+		int m_faceId;
+		
+		virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)
+		{
+			//caller already does the filter on the m_closestHitFraction
+			btAssert(rayResult.m_hitFraction <= m_closestHitFraction);
+			
+			m_closestHitFraction = rayResult.m_hitFraction;
+			m_collisionObject = rayResult.m_collisionObject;
+			if (rayResult.m_localShapeInfo)
+			{
+				m_faceId = rayResult.m_localShapeInfo->m_triangleIndex;
+			}
+			else
+			{
+				m_faceId = -1;
+			}
+			if (normalInWorldSpace)
+			{
+				m_hitNormalWorld = rayResult.m_hitNormalLocal;
+			}
+			else
+			{
+				///need to transform normal into worldspace
+				m_hitNormalWorld = m_collisionObject->getWorldTransform().getBasis() * rayResult.m_hitNormalLocal;
+			}
+			m_hitPointWorld.setInterpolate3(m_rayFromWorld, m_rayToWorld, rayResult.m_hitFraction);
+			return rayResult.m_hitFraction;
+		}
+	};
+	
 	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
 	{
 		if (getDeformableDynamicsWorld() == 0)
 			return false;
-		btCollisionWorld::ClosestRayResultCallbackWithInfo rayCallback(rayFromWorld, rayToWorld);
+		ClosestRayResultCallbackWithInfo rayCallback(rayFromWorld, rayToWorld);
 		getDeformableDynamicsWorld()->rayTest(rayFromWorld, rayToWorld, rayCallback);
 		if (rayCallback.hasHit())
 		{
@@ -68,13 +106,16 @@ struct CommonDeformableBodyBase : public CommonMultiBodyBase
 			}
 			else if (psb)
 			{
-				int face_id = rayCallback.m_localShapeInfo->m_triangleIndex;
-				m_pickedSoftBody = psb;
-				psb->setActivationState(DISABLE_DEACTIVATION);
-				const btSoftBody::Face& f = psb->m_faces[face_id];
-				btDeformableMousePickingForce* mouse_force = new btDeformableMousePickingForce(100, 0.2, f, m_hitPos, m_maxPickingForce);
-				m_mouseForce = mouse_force;
-				getDeformableDynamicsWorld()->addForce(psb, mouse_force);
+				int face_id = rayCallback.m_faceId;
+				if (face_id >= 0 && face_id < psb->m_faces.size())
+				{
+					m_pickedSoftBody = psb;
+					psb->setActivationState(DISABLE_DEACTIVATION);
+					const btSoftBody::Face& f = psb->m_faces[face_id];
+					btDeformableMousePickingForce* mouse_force = new btDeformableMousePickingForce(100, 0.2, f, m_hitPos, m_maxPickingForce);
+					m_mouseForce = mouse_force;
+					getDeformableDynamicsWorld()->addForce(psb, mouse_force);
+				}
 			}
 			else
 			{
