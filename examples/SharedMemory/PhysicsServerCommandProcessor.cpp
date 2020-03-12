@@ -9136,6 +9136,35 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			}
 		}
 	}
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+        if (body && body->m_softBody)
+        {
+            btSoftBody* psb = body->m_softBody;
+            if (psb)
+            {
+                if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
+                {
+                        if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableSleeping)
+                        {
+                                psb->forceActivationState(ACTIVE_TAG);
+                        }
+                        if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateDisableSleeping)
+                        {
+                                psb->forceActivationState(DISABLE_DEACTIVATION);
+                        }
+                        if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateWakeUp)
+                        {
+                                psb->forceActivationState(ACTIVE_TAG);
+                                psb->setDeactivationTime(0.0);
+                        }
+                        if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateSleep)
+                        {
+                                psb->forceActivationState(ISLAND_SLEEPING);
+                        }
+                }
+            }
+        }
+#endif
 
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
@@ -9814,6 +9843,7 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 			body->m_rigidBody->setAngularVelocity(baseAngVel);
 		}
 	}
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
     if (body && body->m_softBody)
     {
         if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_LINEAR_VELOCITY)
@@ -9824,7 +9854,6 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
         {
             body->m_softBody->setAngularVelocity(baseAngVel);
         }
-        
         if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_POSITION)
         {
             btTransform tr;
@@ -9832,7 +9861,6 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
             tr.setOrigin(basePos);
             body->m_softBody->transform(tr);
         }
-        
         if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_ORIENTATION)
         {
             btTransform tr;
@@ -9841,7 +9869,7 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
             body->m_softBody->transform(tr);
         }
     }
-
+#endif
 	syncPhysicsToGraphics2();
 
 	SharedMemoryStatus& serverCmd = serverStatusOut;
