@@ -938,6 +938,26 @@ static inline btMatrix3x3 OuterProduct(const btScalar* v1,const btScalar* v2,con
     return (m);
 }
 
+static inline btMatrix3x3 OuterProduct(const btVector3& v1,const btVector3& v2)
+{
+    btMatrix3x3 m;
+    btScalar a11 = v1[0] * v2[0];
+    btScalar a12 = v1[0] * v2[1];
+    btScalar a13 = v1[0] * v2[2];
+    
+    btScalar a21 = v1[1] * v2[0];
+    btScalar a22 = v1[1] * v2[1];
+    btScalar a23 = v1[1] * v2[2];
+    
+    btScalar a31 = v1[2] * v2[0];
+    btScalar a32 = v1[2] * v2[1];
+    btScalar a33 = v1[2] * v2[2];
+    m[0] = btVector3(a11, a12, a13);
+    m[1] = btVector3(a21, a22, a23);
+    m[2] = btVector3(a31, a32, a33);
+    return (m);
+}
+
 
 //
 static inline btMatrix3x3 Add(const btMatrix3x3& a,
