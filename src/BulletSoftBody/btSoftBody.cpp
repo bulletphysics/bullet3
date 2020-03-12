@@ -999,8 +999,42 @@ void btSoftBody::setVolumeDensity(btScalar density)
 }
 
 //
+btVector3 btSoftBody::getLinearVelocity()
+{
+    btVector3 total_momentum = btVector3(0,0,0);
+    for (int i = 0; i < m_nodes.size(); ++i)
+    {
+        btScalar mass = m_nodes[i].m_im == 0 ? 0 : 1.0/m_nodes[i].m_im;
+        total_momentum += mass * m_nodes[i].m_v;
+    }
+    btScalar total_mass = getTotalMass();
+    return total_mass == 0 ? total_momentum : total_momentum / total_mass;
+}
+
+//
+void btSoftBody::setLinearVelocity(const btVector3& linVel)
+{
+    btVector3 old_vel = getLinearVelocity();
+    btVector3 diff = linVel - old_vel;
+    for (int i = 0; i < m_nodes.size(); ++i)
+        m_nodes[i].m_v += diff;
+}
+
+//
+void btSoftBody::setAngularVelocity(const btVector3& angVel)
+{
+    btVector3 old_vel = getLinearVelocity();
+    btVector3 com = getCenterOfMass();
+    for (int i = 0; i < m_nodes.size(); ++i)
+    {
+        m_nodes[i].m_v = angVel.cross(m_nodes[i].m_x - com) + old_vel;
+    }
+}
+
+//
 void btSoftBody::transform(const btTransform& trs)
 {
+    btVector3 com = getCenterOfMass();
 	const btScalar margin = getCollisionShape()->getMargin();
 	ATTRIBUTE_ALIGNED16(btDbvtVolume)
 	vol;
@@ -1008,8 +1042,8 @@ void btSoftBody::transform(const btTransform& trs)
 	for (int i = 0, ni = m_nodes.size(); i < ni; ++i)
 	{
 		Node& n = m_nodes[i];
-		n.m_x = trs * n.m_x;
-		n.m_q = trs * n.m_q;
+		n.m_x = trs * (n.m_x - com) + com;
+		n.m_q = trs * (n.m_q - com) + com;
 		n.m_n = trs.getBasis() * n.m_n;
 		vol = btDbvtVolume::FromCR(n.m_x, margin);
 

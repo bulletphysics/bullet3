@@ -965,6 +965,12 @@ public:
 	void setVolumeMass(btScalar mass);
 	/* Set volume density (using tetrahedrons)								*/
 	void setVolumeDensity(btScalar density);
+	/* Get the linear velocity of the center of mass                        */
+	btVector3 getLinearVelocity();
+	/* Set the linear velocity of the center of mass                        */
+	void setLinearVelocity(const btVector3& linVel);
+	/* Set the angular velocity of the center of mass                       */
+	void setAngularVelocity(const btVector3& angVel);
 	/* Transform															*/
 	void transform(const btTransform& trs);
 	/* Translate															*/

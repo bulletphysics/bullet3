@@ -9814,6 +9814,33 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 			body->m_rigidBody->setAngularVelocity(baseAngVel);
 		}
 	}
+    if (body && body->m_softBody)
+    {
+        if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_LINEAR_VELOCITY)
+        {
+            body->m_softBody->setLinearVelocity(baseLinVel);
+        }
+        if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_ANGULAR_VELOCITY)
+        {
+            body->m_softBody->setAngularVelocity(baseAngVel);
+        }
+        
+        if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_POSITION)
+        {
+            btTransform tr;
+            tr.setIdentity();
+            tr.setOrigin(basePos);
+            body->m_softBody->transform(tr);
+        }
+        
+        if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_ORIENTATION)
+        {
+            btTransform tr;
+            tr.setIdentity();
+            tr.setRotation(baseOrn);
+            body->m_softBody->transform(tr);
+        }
+    }
 
 	syncPhysicsToGraphics2();
 
