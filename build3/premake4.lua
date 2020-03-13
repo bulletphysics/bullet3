@@ -337,6 +337,12 @@ end
 		trigger = "double",
 		description = "Double precision version of Bullet"
 	}
+
+	newoption
+	{
+		trigger = "clamp-velocities",
+		description = "Limit maximum velocities to reduce FP exception risk"
+	}
 	
 	newoption
 	{
@@ -359,6 +365,9 @@ end
 	end
 	if _OPTIONS["double"] then
 		defines {"BT_USE_DOUBLE_PRECISION"}
+	end
+	if _OPTIONS["clamp-velocities"] then
+		defines {"BT_CLAMP_VELOCITY_TO=9999"}
 	end
 
 	configurations {"Release", "Debug"}

@@ -380,6 +380,9 @@ void btRigidBody::integrateVelocities(btScalar step)
 	{
 		m_angularVelocity *= (MAX_ANGVEL / step) / angvel;
 	}
+	#if defined(BT_CLAMP_VELOCITY_TO) && BT_CLAMP_VELOCITY_TO > 0
+	clampVelocity(m_angularVelocity);
+	#endif
 }
 
 btQuaternion btRigidBody::getOrientation() const
