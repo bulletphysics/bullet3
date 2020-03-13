@@ -1573,9 +1573,9 @@ void btSoftBodyHelpers::extrapolateBarycentricWeights(btSoftBody* psb)
         const btVector3& p = psb->m_renderNodes[i].m_x;
         btVector4 bary;
         btVector4 optimal_bary;
-        btScalar min_bary_weight = -1e3;
+        btScalar min_bary_weight = -SIMD_INFINITY;
         btAlignedObjectArray<const btSoftBody::Node*> optimal_parents;
-        btScalar dist, optimal_dist;
+        btScalar dist = 0, optimal_dist = 0;
         for (int j = 0; j < psb->m_faces.size(); ++j)
         {
             const btSoftBody::Face& f = psb->m_faces[j];
