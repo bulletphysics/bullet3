@@ -88,6 +88,9 @@ struct CommonDeformableBodyBase : public CommonMultiBodyBase
 			btVector3 pickPos = rayCallback.m_hitPointWorld;
 			btRigidBody* body = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
 			btSoftBody* psb = (btSoftBody*)btSoftBody::upcast(rayCallback.m_collisionObject);
+            m_oldPickingPos = rayToWorld;
+            m_hitPos = pickPos;
+            m_oldPickingDist = (pickPos - rayFromWorld).length();
 			if (body)
 			{
 				if (!(body->isStaticObject() || body->isKinematicObject()))
@@ -139,9 +142,6 @@ struct CommonDeformableBodyBase : public CommonMultiBodyBase
 					m_pickingMultiBodyPoint2Point = p2p;
 				}
 			}
-			m_oldPickingPos = rayToWorld;
-			m_hitPos = pickPos;
-			m_oldPickingDist = (pickPos - rayFromWorld).length();
 		}
 		return false;
 	}
