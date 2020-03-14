@@ -1936,6 +1936,25 @@ bool btSoftBody::rayTest(const btVector3& rayFrom,
 	return (rayTest(rayFrom, rayTo, results.fraction, results.feature, results.index, false) != 0);
 }
 
+bool btSoftBody::rayFaceTest(const btVector3& rayFrom,
+                         const btVector3& rayTo,
+                         sRayCast& results)
+{
+	if (m_faces.size() == 0)
+		return false;
+	else
+	{
+    	if (m_fdbvt.empty())
+        	initializeFaceTree();
+	}
+    
+    results.body = this;
+    results.fraction = 1.f;
+    results.index = -1;
+    
+    return (rayFaceTest(rayFrom, rayTo, results.fraction,  results.index) != 0);
+}
+
 //
 void btSoftBody::setSolver(eSolverPresets::_ preset)
 {
@@ -2440,6 +2459,25 @@ int btSoftBody::rayTest(const btVector3& rayFrom, const btVector3& rayTo,
 	}
 	return (cnt);
 }
+
+int btSoftBody::rayFaceTest(const btVector3& rayFrom, const btVector3& rayTo,
+						btScalar& mint, int& index) const
+{
+	int cnt = 0;
+	{ /* Use dbvt	*/
+		RayFromToCaster collider(rayFrom, rayTo, mint);
+		
+		btDbvt::rayTest(m_fdbvt.m_root, rayFrom, rayTo, collider);
+		if (collider.m_face)
+		{
+			mint = collider.m_mint;
+			index = (int)(collider.m_face - &m_faces[0]);
+			cnt = 1;
+		}
+	}
+	return (cnt);
+}
+
 
 //
 static inline btDbvntNode* copyToDbvnt(const btDbvtNode* n)
@@ -3942,8 +3980,8 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
                     docollideFace.psb = this;
                     docollideFace.m_colObj1Wrap = pcoWrap;
                     docollideFace.m_rigidBody = prb1;
-					docollideFace.dynmargin = 0.05*(basemargin + timemargin);
-					docollideFace.stamargin = 0.05*basemargin;
+					docollideFace.dynmargin = 0.5*(basemargin + timemargin);
+					docollideFace.stamargin = 0.5*basemargin;
                     m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
                 }
             }

@@ -21,16 +21,15 @@
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include <stdio.h>  //printf debugging
 
-#include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../CommonInterfaces/CommonDeformableBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
 ///The DeformableSelfCollision shows deformable self collisions
-class DeformableSelfCollision : public CommonRigidBodyBase
+class DeformableSelfCollision : public CommonDeformableBodyBase
 {
-    btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 public:
     DeformableSelfCollision(struct GUIHelperInterface* helper)
-    : CommonRigidBodyBase(helper)
+    : CommonDeformableBodyBase(helper)
     {
     }
     virtual ~DeformableSelfCollision()
@@ -57,23 +56,9 @@ public:
     
     void addCloth(btVector3 origin);
     
-    virtual const btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld() const
-    {
-        ///just make it a btSoftRigidDynamicsWorld please
-        ///or we will add type checking
-        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
-    }
-    
-    virtual btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld()
-    {
-        ///just make it a btSoftRigidDynamicsWorld please
-        ///or we will add type checking
-        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
-    }
-    
     virtual void renderScene()
     {
-        CommonRigidBodyBase::renderScene();
+        CommonDeformableBodyBase::renderScene();
     }
 };
 
@@ -155,8 +140,7 @@ void DeformableSelfCollision::addCloth(btVector3 origin)
 
     
     psb->getCollisionShape()->setMargin(0.0075);
-    psb->generateBendingConstraints(2);
-    psb->generateBendingConstraints(2);
+    psb->generateBendingConstraints(3);
     psb->setTotalMass(.5);
     psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
     psb->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -171,8 +155,8 @@ void DeformableSelfCollision::addCloth(btVector3 origin)
     getDeformableDynamicsWorld()->addSoftBody(psb);
     psb->setSelfCollision(true);
     
-    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(3,0.2, true);
-    psb->setSpringStiffness(3);
+    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(1.5,0.1, true);
+    psb->setSpringStiffness(1);
     getDeformableDynamicsWorld()->addForce(psb, mass_spring);
     m_forces.push_back(mass_spring);
     btVector3 gravity = btVector3(0, -9.8, 0);
@@ -184,7 +168,7 @@ void DeformableSelfCollision::addCloth(btVector3 origin)
 void DeformableSelfCollision::exitPhysics()
 {
     //cleanup in the reverse order of creation/initialization
-    
+    removePickingConstraint();
     //remove the rigidbodies from the dynamics world and delete them
     int i;
     for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)

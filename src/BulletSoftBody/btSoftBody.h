@@ -1031,6 +1031,11 @@ public:
 	bool rayTest(const btVector3& rayFrom,
 				 const btVector3& rayTo,
 				 sRayCast& results);
+	bool rayFaceTest(const btVector3& rayFrom,
+					 const btVector3& rayTo,
+					 sRayCast& results);
+	int rayFaceTest(const btVector3& rayFrom, const btVector3& rayTo,
+					btScalar& mint, int& index) const;
 	/* Solver presets														*/
 	void setSolver(eSolverPresets::_ preset);
 	/* predictMotion														*/
@@ -1288,10 +1293,11 @@ public:
 				continue;
 			btVector3 vt = vr - vn*n;
 			btScalar I = 0;
+			btScalar mass = node->m_im == 0 ? 0 : btScalar(1)/node->m_im;
 			if (applySpringForce)
-				I = -btMin(repulsionStiffness * timeStep * d, btScalar(1)/node->m_im * (OVERLAP_REDUCTION_FACTOR * d / timeStep - vn));
+				I = -btMin(repulsionStiffness * timeStep * d, mass * (OVERLAP_REDUCTION_FACTOR * d / timeStep - vn));
 			if (vn < 0)
-				I += btScalar(0.5)/node->m_im * vn;
+				I += 0.5 * mass * vn;
 			bool face_constrained = false, node_constrained = node->m_constrained;
 			for (int i = 0; i < 3; ++i)
 				face_constrained |= face->m_n[i]->m_constrained;
@@ -1317,7 +1323,7 @@ public:
 				btScalar delta_vn = -2 * I * node->m_im;
 				btScalar mu = c.m_friction;
 				btScalar vt_new = btMax(btScalar(1) - mu * delta_vn / (vt_norm + SIMD_EPSILON), btScalar(0))*vt_norm;
-				I = btScalar(0.5)/node->m_im * (vt_norm-vt_new);
+				I = 0.5 * mass * (vt_norm-vt_new);
 				vt.safeNormalize();
 				I_tilde = 2.0*I /(1.0+w.length2());
 				// double the impulse if node or face is constrained.

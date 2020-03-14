@@ -21,16 +21,15 @@
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include <stdio.h>  //printf debugging
 
-#include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../CommonInterfaces/CommonDeformableBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
 ///The DeformableRigid shows contact between deformable objects and rigid objects.
-class DeformableRigid : public CommonRigidBodyBase
+class DeformableRigid : public CommonDeformableBodyBase
 {
-    btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 public:
 	DeformableRigid(struct GUIHelperInterface* helper)
-		: CommonRigidBodyBase(helper)
+    :CommonDeformableBodyBase(helper)
 	{
 	}
 	virtual ~DeformableRigid()
@@ -115,7 +114,7 @@ public:
     
     virtual void renderScene()
     {
-        CommonRigidBodyBase::renderScene();
+        CommonDeformableBodyBase::renderScene();
         btDeformableMultiBodyDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
@@ -241,7 +240,7 @@ void DeformableRigid::initPhysics()
 void DeformableRigid::exitPhysics()
 {
 	//cleanup in the reverse order of creation/initialization
-
+    removePickingConstraint();
 	//remove the rigidbodies from the dynamics world and delete them
 	int i;
 	for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
