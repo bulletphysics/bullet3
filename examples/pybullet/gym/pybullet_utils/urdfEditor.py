@@ -168,6 +168,8 @@ class UrdfEditor(object):
       urdfJoint.link = urdfLink
       urdfJoint.joint_name = jointInfo[1].decode("utf-8")
       urdfJoint.joint_type = jointInfo[2]
+      urdfJoint.joint_lower_limit = jointInfo[8]
+      urdfJoint.joint_upper_limit = jointInfo[9]
       urdfJoint.joint_axis_xyz = jointInfo[13]
       orgParentIndex = jointInfo[16]
       if (orgParentIndex < 0):
