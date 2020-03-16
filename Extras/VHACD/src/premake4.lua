@@ -6,6 +6,7 @@
     end
 	includedirs {
 		"../inc","../public",
+		"../../../src"
 	}
 	files {
 		"*.cpp",

@@ -14,7 +14,7 @@
  */
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "btConvexHullComputer.h"
+#include "LinearMath/btConvexHullComputer.h"
 #include "vhacdMesh.h"
 #include <fstream>
 #include <iosfwd>

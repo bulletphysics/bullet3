@@ -7,10 +7,11 @@ else
 	kind "ConsoleApp"
 end
 
-includedirs {"../../public"}
+includedirs {"../../public",
+"../../../src"}
 
 links {
-	"vhacd"
+	"vhacd", "LinearMath"
 }
 
 language "C++"
