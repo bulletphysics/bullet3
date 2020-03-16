@@ -1581,7 +1581,7 @@ void btSoftBodyHelpers::extrapolateBarycentricWeights(btSoftBody* psb)
             const btSoftBody::Face& f = psb->m_faces[j];
             btVector3 n = btCross(f.m_n[1]->m_x - f.m_n[0]->m_x,  f.m_n[2]->m_x - f.m_n[0]->m_x);
             btVector3 unit_n = n.normalized();
-            dist = p.dot(unit_n);
+            dist = (p-f.m_n[0]->m_x).dot(unit_n);
             btVector3 proj_p = p - dist*unit_n;
             getBarycentricWeights(f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, proj_p, bary);
             btScalar new_min_bary_weight = bary[0];

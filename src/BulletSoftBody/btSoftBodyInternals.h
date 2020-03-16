@@ -78,9 +78,9 @@ static SIMD_FORCE_INLINE bool proximityTest(const btVector3& x1, const btVector3
     btScalar det = a11*a22 - a12*a12;
     if (det < SIMD_EPSILON)
         return false;
-    btScalar w2 = (b1*a22-b2*a12)/det;
-    btScalar w3 = (b2*a11-b1*a12)/det;
-    btScalar w1 = 1-w2-w3;
+    btScalar w1 = (b1*a22-b2*a12)/det;
+    btScalar w2 = (b2*a11-b1*a12)/det;
+    btScalar w3 = 1-w1-w2;
     btScalar delta = mrg / std::sqrt(0.5*std::abs(x13.cross(x23).safeNorm()));
     bary = btVector3(w1,w2,w3);
     for (int i = 0; i < 3; ++i)

@@ -21,16 +21,15 @@
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include <stdio.h>  //printf debugging
 
-#include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../CommonInterfaces/CommonDeformableBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
 ///The MultibodyClothAnchor shows contact between deformable objects and rigid objects.
-class MultibodyClothAnchor : public CommonRigidBodyBase
+class MultibodyClothAnchor : public CommonDeformableBodyBase
 {
-    btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 public:
     MultibodyClothAnchor(struct GUIHelperInterface* helper)
-    : CommonRigidBodyBase(helper)
+    : CommonDeformableBodyBase(helper)
     {
     }
     virtual ~MultibodyClothAnchor()
@@ -56,23 +55,9 @@ public:
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
-    virtual const btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld() const
-    {
-        ///just make it a btSoftRigidDynamicsWorld please
-        ///or we will add type checking
-        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
-    }
-    
-    virtual btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld()
-    {
-        ///just make it a btSoftRigidDynamicsWorld please
-        ///or we will add type checking
-        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
-    }
-    
     virtual void renderScene()
     {
-        CommonRigidBodyBase::renderScene();
+        CommonDeformableBodyBase::renderScene();
         btDeformableMultiBodyDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
@@ -234,7 +219,7 @@ void MultibodyClothAnchor::initPhysics()
 void MultibodyClothAnchor::exitPhysics()
 {
     //cleanup in the reverse order of creation/initialization
-    
+    removePickingConstraint();
     //remove the rigidbodies from the dynamics world and delete them
     int i;
     for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)

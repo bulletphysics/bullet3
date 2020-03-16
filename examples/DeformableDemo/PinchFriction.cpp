@@ -21,7 +21,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include <stdio.h>  //printf debugging
 
-#include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../CommonInterfaces/CommonDeformableBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
 ///The PinchFriction shows the frictional contacts among volumetric deformable objects
@@ -31,12 +31,12 @@ struct TetraCube
 #include "../SoftDemo/cube.inl"
 };
 
-class PinchFriction : public CommonRigidBodyBase
+class PinchFriction : public CommonDeformableBodyBase
 {
     btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 public:
     PinchFriction(struct GUIHelperInterface* helper)
-    : CommonRigidBodyBase(helper)
+    : CommonDeformableBodyBase(helper)
     {
     }
     virtual ~PinchFriction()
@@ -80,20 +80,20 @@ public:
         }
     }
     
-    virtual const btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld() const
-    {
-        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
-    }
-    
-    virtual btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld()
-    {
-        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
-    }
-    
     virtual void renderScene()
     {
-        CommonRigidBodyBase::renderScene();
+        CommonDeformableBodyBase::renderScene();
     }
+    
+    virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
+    {
+        return false;
+    }
+    virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
+    {
+        return false;
+    }
+    virtual void removePickingConstraint(){}
 };
 
 void dynamics2(btScalar time, btDeformableMultiBodyDynamicsWorld* world)
@@ -353,7 +353,7 @@ void PinchFriction::initPhysics()
 void PinchFriction::exitPhysics()
 {
     //cleanup in the reverse order of creation/initialization
-    
+    removePickingConstraint();
     //remove the rigidbodies from the dynamics world and delete them
     int i;
     for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
