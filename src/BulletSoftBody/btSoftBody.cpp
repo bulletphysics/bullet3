@@ -18,6 +18,7 @@ subject to the following restrictions:
 #include "BulletSoftBody/btSoftBodySolvers.h"
 #include "btSoftBodyData.h"
 #include "LinearMath/btSerializer.h"
+#include "LinearMath/btImplicitQRSVD.h"
 #include "LinearMath/btAlignedAllocator.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
@@ -138,6 +139,7 @@ btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btV
 	/* Nodes			*/
 	const btScalar margin = getCollisionShape()->getMargin();
 	m_nodes.resize(node_count);
+    m_X.resize(node_count);
 	for (int i = 0, ni = node_count; i < ni; ++i)
 	{
 		Node& n = m_nodes[i];
@@ -148,6 +150,7 @@ btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btV
 		n.m_im = n.m_im > 0 ? 1 / n.m_im : 0;
 		n.m_leaf = m_ndbvt.insert(btDbvtVolume::FromCR(n.m_x, margin), &n);
 		n.m_material = pm;
+        m_X[i] = n.m_x;
 	}
 	updateBounds();
 	setCollisionQuadrature(3);
@@ -210,7 +213,7 @@ void btSoftBody::initDefaults()
 	m_collisionShape = new btSoftBodyCollisionShape(this);
 	m_collisionShape->setMargin(0.25f);
 
-	m_initialWorldTransform.setIdentity();
+	m_worldTransform.setIdentity();
 
 	m_windVelocity = btVector3(0, 0, 0);
 	m_restLengthScale = btScalar(1.0);
@@ -999,6 +1002,71 @@ void btSoftBody::setVolumeDensity(btScalar density)
 }
 
 //
+btVector3 btSoftBody::getLinearVelocity()
+{
+    btVector3 total_momentum = btVector3(0,0,0);
+    for (int i = 0; i < m_nodes.size(); ++i)
+    {
+        btScalar mass = m_nodes[i].m_im == 0 ? 0 : 1.0/m_nodes[i].m_im;
+        total_momentum += mass * m_nodes[i].m_v;
+    }
+    btScalar total_mass = getTotalMass();
+    return total_mass == 0 ? total_momentum : total_momentum / total_mass;
+}
+
+//
+void btSoftBody::setLinearVelocity(const btVector3& linVel)
+{
+    btVector3 old_vel = getLinearVelocity();
+    btVector3 diff = linVel - old_vel;
+    for (int i = 0; i < m_nodes.size(); ++i)
+        m_nodes[i].m_v += diff;
+}
+
+//
+void btSoftBody::setAngularVelocity(const btVector3& angVel)
+{
+    btVector3 old_vel = getLinearVelocity();
+    btVector3 com = getCenterOfMass();
+    for (int i = 0; i < m_nodes.size(); ++i)
+    {
+        m_nodes[i].m_v = angVel.cross(m_nodes[i].m_x - com) + old_vel;
+    }
+}
+
+//
+btTransform btSoftBody::getRigidTransform()
+{
+    btVector3 t = getCenterOfMass();
+    btMatrix3x3 S;
+    S.setZero();
+    // get rotation that minimizes L2 difference: \sum_i || RX_i + t - x_i ||
+    for (int i = 0; i < m_nodes.size(); ++i)
+    {
+        S += OuterProduct(m_X[i], t-m_nodes[i].m_x);
+    }
+    btVector3 sigma;
+    btMatrix3x3 U,V;
+    singularValueDecomposition(S,U,sigma,V);
+    btMatrix3x3 R = V * U.transpose();
+    btTransform trs;
+    trs.setIdentity();
+    trs.setOrigin(t);
+    trs.setBasis(R);
+    return trs;
+}
+
+//
+void btSoftBody::transformTo(const btTransform& trs)
+{
+    // get the current best rigid fit
+    btTransform current_transform = getRigidTransform();
+    // apply transform in material space
+    btTransform new_transform = trs * current_transform.inverse();
+    transform(new_transform);
+}
+
+//
 void btSoftBody::transform(const btTransform& trs)
 {
 	const btScalar margin = getCollisionShape()->getMargin();
@@ -1018,7 +1086,6 @@ void btSoftBody::transform(const btTransform& trs)
 	updateNormals();
 	updateBounds();
 	updateConstants();
-	m_initialWorldTransform = trs;
 }
 
 //
@@ -3980,8 +4047,8 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
                     docollideFace.psb = this;
                     docollideFace.m_colObj1Wrap = pcoWrap;
                     docollideFace.m_rigidBody = prb1;
-					docollideFace.dynmargin = 0.5*(basemargin + timemargin);
-					docollideFace.stamargin = 0.5*basemargin;
+		 	docollideFace.dynmargin = basemargin + timemargin;
+			docollideFace.stamargin = basemargin;
                     m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
                 }
             }

@@ -41,7 +41,7 @@
 
 #ifndef btImplicitQRSVD_h
 #define btImplicitQRSVD_h
-
+#include <limits>
 #include "btMatrix3x3.h"
 class btMatrix2x2
 {
