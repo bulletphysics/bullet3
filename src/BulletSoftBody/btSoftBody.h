@@ -809,6 +809,7 @@ public:
 	bool m_useFaceContact;
 	btAlignedObjectArray<btVector3> m_quads; // quadrature points for collision detection
 	btScalar repulsionStiffness;
+    btAlignedObjectArray<btVector3> m_X;   // initial positions
 
 	btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
 	btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
@@ -818,7 +819,7 @@ public:
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
 
-	btTransform m_initialWorldTransform;
+	btTransform m_worldTransform;
 
 	btVector3 m_windVelocity;
 
@@ -965,6 +966,16 @@ public:
 	void setVolumeMass(btScalar mass);
 	/* Set volume density (using tetrahedrons)								*/
 	void setVolumeDensity(btScalar density);
+	/* Get the linear velocity of the center of mass                        */
+	btVector3 getLinearVelocity();
+	/* Set the linear velocity of the center of mass                        */
+	void setLinearVelocity(const btVector3& linVel);
+	/* Set the angular velocity of the center of mass                       */
+	void setAngularVelocity(const btVector3& angVel);
+    /* Get best fit rigid transform                                         */
+    btTransform getRigidTransform();
+    /* Transform to given pose                                              */
+    void transformTo(const btTransform& trs);
 	/* Transform															*/
 	void transform(const btTransform& trs);
 	/* Translate															*/
