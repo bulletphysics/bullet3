@@ -819,8 +819,6 @@ public:
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
 
-	btTransform m_worldTransform;
-
 	btVector3 m_windVelocity;
 
 	btScalar m_restLengthScale;
@@ -972,6 +970,8 @@ public:
 	void setLinearVelocity(const btVector3& linVel);
 	/* Set the angular velocity of the center of mass                       */
 	void setAngularVelocity(const btVector3& angVel);
+    /* Update the world transform to the best fit rigid transform           */
+    void updateTransform();
     /* Get best fit rigid transform                                         */
     btTransform getRigidTransform();
     /* Transform to given pose                                              */

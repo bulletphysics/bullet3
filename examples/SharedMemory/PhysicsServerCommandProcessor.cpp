@@ -7482,7 +7482,8 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 		serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[6] =
 			body->m_rootLocalInertialFrame.getRotation()[3];
 
-    btVector3 center_of_mass(sb->getCenterOfMass());
+    	btVector3 center_of_mass(sb->getCenterOfMass());
+		sb->updateTransform();
 		btTransform tr = sb->getWorldTransform();
 		//base position in world space, cartesian
 		stateDetails->m_actualStateQ[0] = center_of_mass[0];
