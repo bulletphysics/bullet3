@@ -3,6 +3,7 @@ recursive-include examples *.h
 recursive-include examples *.hpp
 recursive-include Extras *.h
 recursive-include Extras *.hpp
+recursive-include Extras *.inl
 recursive-include src *.h
 recursive-include src *.hpp
 recursive-include src *.cpp
