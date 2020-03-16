@@ -6312,6 +6312,55 @@ static PyObject* pybullet_setAdditionalSearchPath(PyObject* self, PyObject* args
 	return Py_None;
 }
 
+#ifdef BT_ENABLE_VHACD
+static PyObject* pybullet_vhacd(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	char* fileNameIn = 0;
+	char* fileNameOut = 0;
+	char* fileNameLogging = 0;
+	double concavity = -1;
+	double alpha = -1;
+	double beta = -1;
+	double gamma = -1;
+	double minVolumePerCH = -1;
+	int resolution = -1;
+	int maxNumVerticesPerCH = -1;
+	int depth = -1;
+	int planeDownsampling = -1;
+	int convexhullDownsampling = -1;
+	int pca = -1;
+	int mode = -1;
+	int convexhullApproximation = -1;
+
+	static char* kwlist[] = {"fileNameIn", "fileNameOut", "fileNameLogging", 
+		"concavity", "alpha","beta","gamma","minVolumePerCH",
+		"resolution","maxNumVerticesPerCH","depth","planeDownsampling",
+		"convexhullDownsampling","pca","mode","convexhullApproximation",
+		"physicsClientId", NULL};
+	double timeOutInSeconds = -1;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sss|dddddiiiiiiiii", kwlist,
+									 &fileNameIn , &fileNameOut, &fileNameLogging , 
+		&concavity, &alpha,&beta, &gamma, &minVolumePerCH,
+		&resolution, &maxNumVerticesPerCH, &depth, &planeDownsampling,
+		&convexhullDownsampling, &pca, &mode, &convexhullApproximation,
+		&physicsClientId))
+		return NULL;
+	if (fileNameIn && fileNameOut)
+	{
+		b3VHACD(fileNameIn, fileNameOut, fileNameLogging,
+			concavity, alpha, beta, gamma, minVolumePerCH,
+			resolution, maxNumVerticesPerCH, depth, planeDownsampling,
+			convexhullDownsampling, pca, mode, convexhullApproximation);
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+#endif//BT_ENABLE_VHACD
+
+
 static PyObject* pybullet_setTimeOut(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	static char* kwlist[] = {"timeOutInSeconds", "physicsClientId", NULL};
@@ -12376,6 +12425,10 @@ static PyMethodDef SpamMethods[] = {
 	{"setTimeOut", (PyCFunction)pybullet_setTimeOut, METH_VARARGS | METH_KEYWORDS,
 	 "Set the timeOut in seconds, used for most of the API calls."},
 
+#ifdef BT_ENABLE_VHACD
+	{"vhacd", (PyCFunction)pybullet_vhacd, METH_VARARGS | METH_KEYWORDS,
+	 "Compute volume hierarchical convex decomposition of an OBJ file."},
+#endif //BT_ENABLE_VHACD
 	{"setAdditionalSearchPath", (PyCFunction)pybullet_setAdditionalSearchPath,
 	 METH_VARARGS | METH_KEYWORDS,
 	 "Set an additional search path, used to load URDF/SDF files."},

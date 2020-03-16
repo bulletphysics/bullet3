@@ -18,6 +18,7 @@ language "C++"
 
 files {
 	"main.cpp",
+	"main_vhacd.cpp",
 }
 
 

@@ -79,6 +79,7 @@ CXX_FLAGS += '-DB3_ENABLE_FILEIO_PLUGIN '
 CXX_FLAGS += '-DB3_USE_ZIPFILE_FILEIO '
 CXX_FLAGS += '-DBT_THREADSAFE=1 '
 CXX_FLAGS += '-DSTATIC_LINK_SPD_PLUGIN '
+CXX_FLAGS += '-DBT_ENABLE_VHACD '
 
 EGL_CXX_FLAGS = ''
 
@@ -331,7 +332,12 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/ThirdPartyLibs/Gwen/Platforms/Null.cpp"]\
 +["examples/ThirdPartyLibs/Gwen/Platforms/Windows.cpp"]\
 +["examples/ThirdPartyLibs/Gwen/Renderers/OpenGL_DebugFont.cpp"]\
-
++["Extras/VHACD/test/src/main_vhacd.cpp"] \
++["Extras/VHACD/src/VHACD.cpp"] \
++["Extras/VHACD/src/vhacdICHull.cpp"] \
++["Extras/VHACD/src/vhacdManifoldMesh.cpp"] \
++["Extras/VHACD/src/vhacdMesh.cpp"] \
++["Extras/VHACD/src/vhacdVolume.cpp"]
 
 
 egl_renderer_sources = \
@@ -472,7 +478,8 @@ pybullet_ext = Extension(
     extra_compile_args=CXX_FLAGS.split(),
     include_dirs=include_dirs + [
         "src", "examples/ThirdPartyLibs", "examples/ThirdPartyLibs/glad",
-        "examples/ThirdPartyLibs/enet/include", "examples/ThirdPartyLibs/clsocket/src"
+        "examples/ThirdPartyLibs/enet/include", "examples/ThirdPartyLibs/clsocket/src",
+        "Extras/VHACD/inc", "Extras/VHACD/public",
     ])
 extensions.append(pybullet_ext)
 

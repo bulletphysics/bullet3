@@ -6063,5 +6063,49 @@ B3_SHARED_API void b3GetAxisDifferenceQuaternion(const double startQuat[/*4*/], 
 
 }
 
+#ifdef BT_ENABLE_VHACD
+#include "VHACD.h"
+#include <string>
+
+int main_vhacd_ext(const std::string& fileNameIn, const std::string& fileNameOut, const std::string& fileNameLog, VHACD::IVHACD::Parameters& paramsVHACD);
+
+B3_SHARED_API void b3VHACD(const char* fileNameInput, const char* fileNameOutput, const char* fileNameLogging,
+	double concavity, double alpha, double beta, double gamma, double minVolumePerCH, int resolution,
+	int maxNumVerticesPerCH, int depth, int planeDownsampling, int convexhullDownsampling,
+	int pca, int mode, int convexhullApproximation)
+{
+	std::string fileNameIn(fileNameInput);
+	std::string fileNameOut(fileNameOutput);
+	std::string fileNameLog(fileNameLogging);
+	VHACD::IVHACD::Parameters params;
+	if (concavity >= 0)
+		params.m_concavity = concavity;
+	if (alpha >= 0)
+		params.m_alpha = alpha;
+	if (beta >= 0)
+		params.m_beta = beta;
+	if (gamma >= 0)
+		params.m_gamma = gamma;
+	if (minVolumePerCH >= 0)
+		params.m_minVolumePerCH = minVolumePerCH;
+	if (resolution >= 0)
+		params.m_resolution = (unsigned int)resolution;
+	if (maxNumVerticesPerCH >= 0)
+		params.m_maxNumVerticesPerCH = (unsigned int)maxNumVerticesPerCH;
+	if (depth >= 0)
+		params.m_depth = depth;
+	if (planeDownsampling >= 0)
+		params.m_planeDownsampling = planeDownsampling;
+	if (convexhullDownsampling >= 0)
+		params.m_convexhullDownsampling = convexhullDownsampling;
+	if (pca >= 0)
+		params.m_pca = pca;
+	if (mode >= 0)
+		params.m_mode = mode;
+	if (convexhullApproximation >= 0)
+		params.m_convexhullApproximation = convexhullApproximation;
+	main_vhacd_ext(fileNameIn, fileNameOut, fileNameLog, params);
+}
+#endif
 
 
