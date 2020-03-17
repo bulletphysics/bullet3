@@ -449,6 +449,12 @@ struct b3MeshVertex
 	double x, y, z, w;
 };
 
+
+enum eMeshDataEnum
+{
+	B3_MESH_DATA_COLLISIONSHAPEINDEX=1,
+};
+
 struct b3MeshData
 {
 	int m_numVertices;

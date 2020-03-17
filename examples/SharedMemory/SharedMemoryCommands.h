@@ -1097,6 +1097,7 @@ struct b3RequestMeshDataArgs
 	int m_bodyUniqueId;
 	int m_linkIndex;
 	int m_startingVertex;
+	int m_collisionShapeIndex;
 };
 
 struct b3SendMeshDataArgs

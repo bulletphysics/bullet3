@@ -8620,6 +8620,7 @@ static PyObject* pybullet_getMeshData(PyObject* self, PyObject* args, PyObject* 
 {
 	int bodyUniqueId = -1;
 	int linkIndex = -1;
+	int collisionShapeIndex = -1;
 	b3PhysicsClientHandle sm = 0;
 	b3SharedMemoryCommandHandle command;
 	b3SharedMemoryStatusHandle statusHandle;
@@ -8627,8 +8628,8 @@ static PyObject* pybullet_getMeshData(PyObject* self, PyObject* args, PyObject* 
 	int statusType;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|ii", kwlist, &bodyUniqueId, &linkIndex, &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "collisionShapeIndex", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|iii", kwlist, &bodyUniqueId, &linkIndex,&collisionShapeIndex, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -8639,6 +8640,10 @@ static PyObject* pybullet_getMeshData(PyObject* self, PyObject* args, PyObject* 
 		return NULL;
 	}
 	command = b3GetMeshDataCommandInit(sm, bodyUniqueId, linkIndex);
+	if (collisionShapeIndex >= 0)
+	{
+		b3GetMeshDataSetCollisionShapeIndex(command, collisionShapeIndex);
+	}
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType == CMD_REQUEST_MESH_DATA_COMPLETED)
