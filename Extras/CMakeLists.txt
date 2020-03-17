@@ -1,4 +1,4 @@
-SUBDIRS( InverseDynamics BulletRobotics obj2sdf Serialize ConvexDecomposition HACD GIMPACTUtils )
+SUBDIRS( InverseDynamics BulletRoboticsGUI BulletRobotics obj2sdf Serialize ConvexDecomposition HACD GIMPACTUtils )
 
 
 
