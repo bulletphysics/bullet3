@@ -179,7 +179,7 @@ SET_TARGET_PROPERTIES(BulletRoboticsGUI PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletRoboticsGUI PROPERTIES SOVERSION ${BULLET_VERSION})
 
 IF (BUILD_SHARED_LIBS)
-	TARGET_LINK_LIBRARIES(BulletRoboticsGUI  BulletRobotics  BulletInverseDynamicsUtils BulletWorldImporter BulletFileLoader BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamics LinearMath Bullet3Common)
+	TARGET_LINK_LIBRARIES(BulletRoboticsGUI  BulletExampleBrowserLib BulletRobotics  BulletInverseDynamicsUtils BulletWorldImporter BulletFileLoader BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamics LinearMath Bullet3Common)
 ENDIF (BUILD_SHARED_LIBS)
 
   
