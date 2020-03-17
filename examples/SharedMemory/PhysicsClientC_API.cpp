@@ -1390,6 +1390,18 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3GetMeshDataCommandInit(b3PhysicsClie
 	return 0;
 }
 
+B3_SHARED_API void b3GetMeshDataSetCollisionShapeIndex(b3SharedMemoryCommandHandle commandHandle, int shapeIndex)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_MESH_DATA);
+	if (command->m_type == CMD_REQUEST_MESH_DATA)
+	{
+		command->m_updateFlags = B3_MESH_DATA_COLLISIONSHAPEINDEX;
+		command->m_requestMeshDataArgs.m_collisionShapeIndex = shapeIndex;
+	}
+}
+
 B3_SHARED_API void b3GetMeshData(b3PhysicsClientHandle physClient, struct b3MeshData* meshData)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
@@ -4058,6 +4070,20 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitUserDebugDrawRemoveAll(b3Physics
 	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
 	return (b3SharedMemoryCommandHandle)command;
 }
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitUserRemoveAllParameters(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_USER_DEBUG_DRAW;
+	command->m_updateFlags = USER_DEBUG_REMOVE_ALL_PARAMETERS;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
 
 B3_SHARED_API int b3GetDebugItemUniqueId(b3SharedMemoryStatusHandle statusHandle)
 {

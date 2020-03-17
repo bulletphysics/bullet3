@@ -114,6 +114,8 @@ struct GUIHelperInterface
 
 	virtual void removeUserDebugItem(int debugItemUniqueId){};
 	virtual void removeAllUserDebugItems(){};
+	virtual void removeAllUserParameters() {};
+	
 	virtual void setVisualizerFlagCallback(VisualizerFlagCallback callback) {}
 
 	//empty name stops dumping video

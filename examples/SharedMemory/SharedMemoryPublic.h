@@ -449,6 +449,12 @@ struct b3MeshVertex
 	double x, y, z, w;
 };
 
+
+enum eMeshDataEnum
+{
+	B3_MESH_DATA_COLLISIONSHAPEINDEX=1,
+};
+
 struct b3MeshData
 {
 	int m_numVertices;
@@ -940,6 +946,7 @@ enum eUrdfCollisionFlags
 {
 	GEOM_FORCE_CONCAVE_TRIMESH = 1,
 	GEOM_CONCAVE_INTERNAL_EDGE = 2,
+	GEOM_INITIALIZE_SAT_FEATURES = URDF_INITIALIZE_SAT_FEATURES,
 };
 
 enum eUrdfVisualFlags

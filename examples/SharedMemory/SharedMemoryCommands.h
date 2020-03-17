@@ -811,6 +811,7 @@ enum EnumUserDebugDrawFlags
 	USER_DEBUG_HAS_TEXT_ORIENTATION = 512,
 	USER_DEBUG_HAS_PARENT_OBJECT = 1024,
 	USER_DEBUG_HAS_REPLACE_ITEM_UNIQUE_ID = 2048,
+	USER_DEBUG_REMOVE_ALL_PARAMETERS = 4096,
 };
 
 struct UserDebugDrawArgs
@@ -1096,6 +1097,7 @@ struct b3RequestMeshDataArgs
 	int m_bodyUniqueId;
 	int m_linkIndex;
 	int m_startingVertex;
+	int m_collisionShapeIndex;
 };
 
 struct b3SendMeshDataArgs
