@@ -47,7 +47,7 @@ distribution.
 typedef int32_t xml_Int32a_t;
 typedef int64_t xml_Int64a_t;
 typedef uint32_t xml_Uint32a_t;
-typedef uxml_Int64a_t xml_Uint64a_t;
+typedef uint64_t xml_Uint64a_t;
 #elif defined(_MSC_VER)
 typedef __int32 xml_Int32a_t;
 typedef __int64 xml_Int64a_t;

@@ -101,6 +101,14 @@ else:
   include_dirs += NP_DIRS
 
 sources = ["examples/pybullet/pybullet.c"]\
++["examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/KinTree.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/MathUtil.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/RBDModel.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp"]\
 +["src/btLinearMathAll.cpp"]\
 +["src/btBulletCollisionAll.cpp"]\
 +["src/btBulletDynamicsAll.cpp"]\
@@ -134,13 +142,6 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/SharedMemory/PosixSharedMemory.cpp"]\
 +["examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp"]\
 +["examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/KinTree.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/MathUtil.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/RBDModel.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp"]\
 +["examples/SharedMemory/PhysicsClientUDP.cpp"]\
 +["examples/SharedMemory/PhysicsClientUDP_C_API.cpp"]\
 +["examples/SharedMemory/PhysicsClientTCP.cpp"]\
@@ -151,7 +152,6 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/Utils/ChromeTraceUtil.cpp"]\
 +["examples/Utils/b3Clock.cpp"]\
 +["examples/Utils/b3Quickprof.cpp"]\
-+["examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp"]\
 +["examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp"]\
 +["examples/ThirdPartyLibs/stb_image/stb_image.cpp"]\
 +["examples/ThirdPartyLibs/stb_image/stb_image_write.cpp"]\
