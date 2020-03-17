@@ -5029,8 +5029,13 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 									convexHull->addPoint(pt * meshScale, false);
 								}
 
+								if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags & GEOM_INITIALIZE_SAT_FEATURES)
+								{
+									convexHull->initializePolyhedralFeatures();
+								}
 								convexHull->recalcLocalAabb();
 								convexHull->optimizeConvexHull();
+								
 								compound->addChildShape(childTransform, convexHull);
 							}
 						}
@@ -12217,6 +12222,8 @@ bool PhysicsServerCommandProcessor::processRequestCollisionShapeInfoCommand(cons
 		if (bodyHandle->m_multiBody)
 		{
 			b3CollisionShapeData* collisionShapeStoragePtr = (b3CollisionShapeData*)bufferServerToClient;
+			collisionShapeStoragePtr->m_objectUniqueId = bodyUniqueId;
+			collisionShapeStoragePtr->m_linkIndex = linkIndex;
 			int totalBytesPerObject = sizeof(b3CollisionShapeData);
 			int maxNumColObjects = bufferSizeInBytes / totalBytesPerObject - 1;
 			btTransform childTrans;
