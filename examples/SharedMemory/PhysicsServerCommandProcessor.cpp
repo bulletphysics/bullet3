@@ -5644,6 +5644,14 @@ bool PhysicsServerCommandProcessor::processUserDebugDrawCommand(const struct Sha
 		m_data->m_guiHelper->removeAllUserDebugItems();
 		serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
 	}
+
+	if (clientCmd.m_updateFlags & USER_DEBUG_REMOVE_ALL_PARAMETERS)
+	{
+		m_data->m_guiHelper->removeAllUserParameters();
+		serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
+	}
+
+	
 	if (clientCmd.m_updateFlags & USER_DEBUG_REMOVE_ONE_ITEM)
 	{
 		m_data->m_guiHelper->removeUserDebugItem(clientCmd.m_userDebugDrawArgs.m_itemUniqueId);
