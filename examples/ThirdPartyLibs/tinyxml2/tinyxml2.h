@@ -45,7 +45,7 @@ distribution.
 #ifdef __GNUC__
 #include <stdint.h>
 typedef int32_t xml_Int32a_t;
-typedef xml_Int64a_t xml_Int64a_t;
+typedef int64_t xml_Int64a_t;
 typedef uint32_t xml_Uint32a_t;
 typedef uxml_Int64a_t xml_Uint64a_t;
 #elif defined(_MSC_VER)
