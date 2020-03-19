@@ -132,13 +132,7 @@ void resolveSingleBilateral(btRigidBody& body1, const btVector3& pos1,
 	btScalar jacDiagAB = jac.getDiagonal();
 	btScalar jacDiagABInv = btScalar(1.) / jacDiagAB;
 
-	btScalar rel_vel = jac.getRelativeVelocity(
-		body1.getLinearVelocity(),
-		body1.getCenterOfMassTransform().getBasis().transpose() * body1.getAngularVelocity(),
-		body2.getLinearVelocity(),
-		body2.getCenterOfMassTransform().getBasis().transpose() * body2.getAngularVelocity());
-
-	rel_vel = normal.dot(vel);
+	btScalar rel_vel = normal.dot(vel);
 
 	//todo: move this into proper structure
 	btScalar contactDamping = btScalar(0.2);

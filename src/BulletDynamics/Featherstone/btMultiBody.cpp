@@ -1709,8 +1709,8 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd
 	//btVector3 v = getBaseVel();
 	//m_basePos += dt * v;
 	//
-    btScalar *pBasePos = (pq ? &pq[4] : m_basePos);
-    btScalar *pBaseVel = (pqd ? &pqd[3] : &m_realBuf[3]);  //note: the !pqd case assumes m_realBuf holds with base velocity at 3,4,5 (should be wrapped for safety)
+	btScalar *pBasePos = (pq ? &pq[4] : m_basePos);
+	btScalar *pBaseVel = (pqd ? &pqd[3] : &m_realBuf[3]);  //note: the !pqd case assumes m_realBuf holds with base velocity at 3,4,5 (should be wrapped for safety)
     
 	pBasePos[0] += dt * pBaseVel[0];
 	pBasePos[1] += dt * pBaseVel[1];

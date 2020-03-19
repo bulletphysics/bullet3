@@ -477,7 +477,6 @@ static bool b3ContactCmp(const b3Contact4& p, const b3Contact4& q)
 	return ((p.m_bodyAPtrAndSignBit < q.m_bodyAPtrAndSignBit) ||
 			((p.m_bodyAPtrAndSignBit == q.m_bodyAPtrAndSignBit) && (p.m_bodyBPtrAndSignBit < q.m_bodyBPtrAndSignBit)) ||
 			((p.m_bodyAPtrAndSignBit == q.m_bodyAPtrAndSignBit) && (p.m_bodyBPtrAndSignBit == q.m_bodyBPtrAndSignBit) && p.m_childIndexA < q.m_childIndexA) ||
-			((p.m_bodyAPtrAndSignBit == q.m_bodyAPtrAndSignBit) && (p.m_bodyBPtrAndSignBit == q.m_bodyBPtrAndSignBit) && p.m_childIndexA < q.m_childIndexA) ||
 			((p.m_bodyAPtrAndSignBit == q.m_bodyAPtrAndSignBit) && (p.m_bodyBPtrAndSignBit == q.m_bodyBPtrAndSignBit) && p.m_childIndexA == q.m_childIndexA && p.m_childIndexB < q.m_childIndexB));
 }
 

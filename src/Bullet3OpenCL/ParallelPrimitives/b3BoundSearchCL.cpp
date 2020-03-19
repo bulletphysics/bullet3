@@ -149,7 +149,7 @@ void b3BoundSearchCL::executeHost(b3AlignedObjectArray<b3SortData>& src, int nSr
 		for (int i = 0; i < nSrc; i++)
 		{
 			b3SortData& iData = (i == 0) ? minData : src[i - 1];
-			b3SortData& jData = (i == nSrc) ? maxData : src[i];
+			b3SortData& jData = src[i];
 
 			if (iData.m_key != jData.m_key)
 			{

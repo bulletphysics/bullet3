@@ -515,6 +515,7 @@ int b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<b3GpuChildShape
 
 	//	m_data->m_localShapeAABBGPU->push_back(aabbWS);
 	clFinish(m_queue);
+	delete bvh;
 	return collidableIndex;
 }
 

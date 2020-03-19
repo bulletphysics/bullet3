@@ -368,12 +368,11 @@ void b3DynamicBvhBroadphase::setAabbForceUpdate(b3BroadphaseProxy* absproxy,
 	b3DbvtProxy* proxy = (b3DbvtProxy*)absproxy;
 	B3_ATTRIBUTE_ALIGNED16(b3DbvtVolume)
 	aabb = b3DbvtVolume::FromMM(aabbMin, aabbMax);
-	bool docollide = false;
+
 	if (proxy->stage == STAGECOUNT)
 	{ /* fixed -> dynamic set	*/
 		m_sets[1].remove(proxy->leaf);
 		proxy->leaf = m_sets[0].insert(aabb, proxy);
-		docollide = true;
 	}
 	else
 	{ /* dynamic set				*/
@@ -381,22 +380,19 @@ void b3DynamicBvhBroadphase::setAabbForceUpdate(b3BroadphaseProxy* absproxy,
 		/* Teleporting			*/
 		m_sets[0].update(proxy->leaf, aabb);
 		++m_updates_done;
-		docollide = true;
 	}
 	b3ListRemove(proxy, m_stageRoots[proxy->stage]);
 	proxy->m_aabbMin = aabbMin;
 	proxy->m_aabbMax = aabbMax;
 	proxy->stage = m_stageCurrent;
 	b3ListAppend(proxy, m_stageRoots[m_stageCurrent]);
-	if (docollide)
+
+	m_needcleanup = true;
+	if (!m_deferedcollide)
 	{
-		m_needcleanup = true;
-		if (!m_deferedcollide)
-		{
-			b3DbvtTreeCollider collider(this);
-			m_sets[1].collideTTpersistentStack(m_sets[1].m_root, proxy->leaf, collider);
-			m_sets[0].collideTTpersistentStack(m_sets[0].m_root, proxy->leaf, collider);
-		}
+		b3DbvtTreeCollider collider(this);
+		m_sets[1].collideTTpersistentStack(m_sets[1].m_root, proxy->leaf, collider);
+		m_sets[0].collideTTpersistentStack(m_sets[0].m_root, proxy->leaf, collider);
 	}
 }
 
