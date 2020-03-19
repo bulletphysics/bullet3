@@ -8416,7 +8416,6 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 					if (use_bending_spring)
 					{
 						psb->generateBendingConstraints(2);
-                        psb->generateBendingConstraints(2);
 					}
 				}
 				btSoftBody::Material* pm = psb->appendMaterial();
@@ -8425,6 +8424,8 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				// turn on the collision flag for deformable
 				// collision between deformable and rigid
 				psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+				// turn on face contact only for multibodies
+				psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
 				// collion between deformable and deformable and self-collision
 				psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
 				psb->setCollisionFlags(0);
