@@ -13,7 +13,6 @@ New in Bullet 2.85: pybullet Python bindings, improved support for robotics and 
 Installation is simple:
 ```
 pip3 install pybullet --upgrade --user
-python3 -m pybullet_robots.laikago.laikago
 python3 -m pybullet_envs.examples.enjoy_TF_AntBulletEnv_v0_2017may
 python3 -m pybullet_envs.examples.enjoy_TF_HumanoidFlagrunHarderBulletEnv_v1_2017jul
 python3 -m pybullet_envs.deep_mimic.testrl --arg_file run_humanoid3d_backflip_args.txt
