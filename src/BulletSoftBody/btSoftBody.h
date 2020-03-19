@@ -163,17 +163,17 @@ public:
 			RVSmask = 0x000f,  ///Rigid versus soft mask
 			SDF_RS = 0x0001,   ///SDF based rigid vs soft
 			CL_RS = 0x0002,    ///Cluster vs convex rigid vs soft
-            SDF_RD = 0x0004,   ///SDF based rigid vs deformable
+			SDF_RD = 0x0004,   ///SDF based rigid vs deformable
 
 			SVSmask = 0x00f0,  ///Rigid versus soft mask
 			VF_SS = 0x00100,    ///Vertex vs face soft vs soft handling
 			CL_SS = 0x00200,    ///Cluster vs cluster soft vs soft handling
 			CL_SELF = 0x0040,  ///Cluster soft body self collision
-            VF_DD = 0x0080,    ///Vertex vs face soft vs soft handling
-            
-            RVDFmask = 0x0f00, /// Rigid versus deformable face mask
-            SDF_RDF = 0x0100,  /// SDF based Rigid vs. deformable face
-            SDF_MDF = 0x0200,  /// SDF based Multibody vs. deformable face
+			VF_DD = 0x0080,    ///Vertex vs face soft vs soft handling
+
+			RVDFmask = 0x0f00, /// Rigid versus deformable face mask
+			SDF_RDF = 0x0100,  /// SDF based Rigid vs. deformable face
+			SDF_MDF = 0x0200,  /// SDF based Multibody vs. deformable face
 			/* presets	*/
 			Default = SDF_RS,
 			END
@@ -967,8 +967,6 @@ public:
 	void setLinearVelocity(const btVector3& linVel);
 	/* Set the angular velocity of the center of mass                       */
 	void setAngularVelocity(const btVector3& angVel);
-    /* Update the world transform to the best fit rigid transform           */
-    void updateTransform();
     /* Get best fit rigid transform                                         */
     btTransform getRigidTransform();
     /* Transform to given pose                                              */

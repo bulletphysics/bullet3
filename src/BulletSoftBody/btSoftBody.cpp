@@ -1034,12 +1034,6 @@ void btSoftBody::setAngularVelocity(const btVector3& angVel)
 }
 
 //
-void btSoftBody::updateTransform()
-{
-   setWorldTransform(getRigidTransform());
-}
-
-//
 btTransform btSoftBody::getRigidTransform()
 {
     btVector3 t = getCenterOfMass();
