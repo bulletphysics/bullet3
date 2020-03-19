@@ -243,7 +243,7 @@ PhysicsClientSharedMemory::PhysicsClientSharedMemory()
 
 PhysicsClientSharedMemory::~PhysicsClientSharedMemory()
 {
-	if (m_data->m_isConnected)
+if (m_data->m_isConnected)
 	{
 		disconnectSharedMemory();
 	}
