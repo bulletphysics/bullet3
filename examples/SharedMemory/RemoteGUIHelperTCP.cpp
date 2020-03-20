@@ -197,6 +197,8 @@ struct RemoteGUIHelperTCPInternalData
 			return true;
 
 		m_tcpSocket.Initialize();
+		m_tcpSocket.SetReceiveTimeout(100, 100);// (1, 0);
+		m_tcpSocket.SetSendTimeout(100, 100);
 
 		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), m_port);
 		if (m_isConnected)
