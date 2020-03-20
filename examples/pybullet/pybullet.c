@@ -462,9 +462,18 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 #endif
 				break;
 			}
+			case eCONNECT_GRAPHICS_SERVER_MAIN_THREAD:
+			{
+				sm = b3CreateInProcessGraphicsServerAndConnectMainThreadSharedMemory(tcpPort);
+				break;
+			}
 			case eCONNECT_GRAPHICS_SERVER:
 			{
-				sm = b3CreateInProcessGraphicsServerAndConnectSharedMemory(argc, argv);
+#ifdef __APPLE__
+				sm = b3CreateInProcessGraphicsServerAndConnectMainThreadSharedMemory(tcpPort);
+#else
+				sm = b3CreateInProcessGraphicsServerAndConnectSharedMemory(tcpPort);
+#endif
 				break;
 			}
 			case eCONNECT_SHARED_MEMORY_SERVER:
@@ -593,7 +602,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				sPhysicsClientsGUI[freeIndex] = method;
 				sNumPhysicsClients++;
 
-				if (method != eCONNECT_GRAPHICS_SERVER)
+				if (method != eCONNECT_GRAPHICS_SERVER && method != eCONNECT_GRAPHICS_SERVER_MAIN_THREAD)
 				{
 					command = b3InitSyncBodyInfoCommand(sm);
 					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
@@ -12591,6 +12600,8 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "GRAPHICS_CLIENT", eCONNECT_SHARED_MEMORY_GUI);  // user read
 	PyModule_AddIntConstant(m, "GRAPHICS_SERVER", eCONNECT_GRAPHICS_SERVER);  // user read
 	PyModule_AddIntConstant(m, "GRAPHICS_SERVER_TCP", eCONNECT_GRAPHICS_SERVER_TCP);  // user read
+	PyModule_AddIntConstant(m, "GRAPHICS_SERVER_MAIN_THREAD", eCONNECT_GRAPHICS_SERVER_MAIN_THREAD);  // user read
+	
 	
 
 	

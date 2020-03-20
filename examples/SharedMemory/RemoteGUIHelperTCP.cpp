@@ -67,7 +67,7 @@ struct RemoteGUIHelperTCPInternalData
 	{
 		m_isConnected = false;
 		connect();
-		m_tcpSocket.SetBlocking();
+		
 	}
 
 	virtual ~RemoteGUIHelperTCPInternalData()

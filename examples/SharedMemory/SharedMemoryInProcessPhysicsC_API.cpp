@@ -357,18 +357,20 @@ class InProcessGraphicsServerSharedMemory : public PhysicsClientSharedMemory
 	SharedMemoryInterface* m_sharedMemory;
 
 public:
-	InProcessGraphicsServerSharedMemory(int argc, char* argv[], bool useInProcessMemory)
+	InProcessGraphicsServerSharedMemory(int port)
 	{
-		int newargc = argc + 2;
+		int newargc = 3;
 		m_newargv = (char**)malloc(sizeof(void*) * newargc);
 		char* t0 = (char*)"--unused";
 		m_newargv[0] = t0;
 
-		for (int i = 0; i < argc; i++)
-			m_newargv[i + 1] = argv[i];
-
 		char* t1 = (char*)"--start_demo_name=Graphics Server";
-		m_newargv[argc + 1] = t1;
+		char portArg[1024];
+		sprintf(portArg, "--port=%d", port);
+		
+		m_newargv[1] = t1;
+		m_newargv[2] = portArg;
+		bool useInProcessMemory = false;
 		m_data2 = btCreateInProcessExampleBrowser(newargc, m_newargv, useInProcessMemory);
 		SharedMemoryInterface* shMem = btGetSharedMemoryInterface(m_data2);
 		
@@ -429,10 +431,139 @@ public:
 };
 
 
-B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessGraphicsServerAndConnectSharedMemory(int argc, char* argv[])
+class InProcessGraphicsServerSharedMemoryMainThread : public PhysicsClientSharedMemory
 {
-	InProcessGraphicsServerSharedMemory* cl = new InProcessGraphicsServerSharedMemory(argc, argv, 0);
+	
+	btInProcessExampleBrowserMainThreadInternalData* m_data2;
+	char** m_newargv;
+	SharedMemoryCommand m_command;
+
+	GraphicsSharedMemoryBlock* m_testBlock1;
+	SharedMemoryInterface* m_sharedMemory;
+	b3Clock m_clock;
+
+public:
+	InProcessGraphicsServerSharedMemoryMainThread(int port)
+	{
+		int newargc = 3;
+		m_newargv = (char**)malloc(sizeof(void*) * newargc);
+		char* t0 = (char*)"--unused";
+		m_newargv[0] = t0;
+
+		
+		char* t1 = (char*)"--start_demo_name=Graphics Server";
+		m_newargv[1] = t1;
+		char portArg[1024];
+		sprintf(portArg, "--port=%d", port);
+		m_newargv[2] = portArg;
+
+		bool useInProcessMemory = false;
+		m_data2 = btCreateInProcessExampleBrowserMainThread(newargc, m_newargv, useInProcessMemory);
+		SharedMemoryInterface* shMem = btGetSharedMemoryInterfaceMainThread(m_data2);
+
+		setSharedMemoryInterface(shMem);
+		///////////////////
+
+#ifdef _WIN32
+		m_sharedMemory = new Win32SharedMemoryServer();
+#else
+		m_sharedMemory = new PosixSharedMemory();
+#endif
+
+		/// server always has to create and initialize shared memory
+		bool allowCreation = false;
+		m_testBlock1 = (GraphicsSharedMemoryBlock*)m_sharedMemory->allocateSharedMemory(
+			GRAPHICS_SHARED_MEMORY_KEY, GRAPHICS_SHARED_MEMORY_SIZE, allowCreation);
+		m_clock.reset();
+	}
+
+	virtual ~InProcessGraphicsServerSharedMemoryMainThread()
+	{
+		m_sharedMemory->releaseSharedMemory(GRAPHICS_SHARED_MEMORY_KEY, GRAPHICS_SHARED_MEMORY_SIZE);
+		delete m_sharedMemory;
+
+		setSharedMemoryInterface(0);
+		btShutDownExampleBrowserMainThread(m_data2);
+		free(m_newargv);
+	}
+	virtual bool canSubmitCommand() const
+	{
+		btUpdateInProcessExampleBrowserMainThread(m_data2);
+		if (m_testBlock1)
+		{
+			if (m_testBlock1->m_magicId != GRAPHICS_SHARED_MEMORY_MAGIC_NUMBER)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	virtual struct SharedMemoryCommand* getAvailableSharedMemoryCommand()
+	{
+		return &m_command;
+	}
+
+	virtual bool submitClientCommand(const struct SharedMemoryCommand& command)
+	{
+		switch (command.m_type)
+		{
+		default:
+		{
+		}
+		}
+		return true;
+	}
+
+	// return non-null if there is a status, nullptr otherwise
+	virtual const struct SharedMemoryStatus* processServerStatus()
+	{
+		{
+			if (btIsExampleBrowserMainThreadTerminated(m_data2))
+			{
+				PhysicsClientSharedMemory::disconnectSharedMemory();
+			}
+		}
+		{
+			unsigned long int ms = m_clock.getTimeMilliseconds();
+			if (ms > 2)
+			{
+				B3_PROFILE("m_clock.reset()");
+
+				btUpdateInProcessExampleBrowserMainThread(m_data2);
+				m_clock.reset();
+			}
+		}
+		{
+			b3Clock::usleep(0);
+		}
+		const SharedMemoryStatus* stat = 0;
+
+		{
+			stat = PhysicsClientSharedMemory::processServerStatus();
+		}
+
+		return stat;
+	}
+
+};
+
+
+
+B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessGraphicsServerAndConnectSharedMemory(int port)
+{
+	InProcessGraphicsServerSharedMemory* cl = new InProcessGraphicsServerSharedMemory(port);
 	cl->setSharedMemoryKey(SHARED_MEMORY_KEY + 1);
 	cl->connect();
 	return (b3PhysicsClientHandle)cl;
 }
+
+B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessGraphicsServerAndConnectMainThreadSharedMemory(int port)
+{
+	InProcessGraphicsServerSharedMemoryMainThread* cl = new InProcessGraphicsServerSharedMemoryMainThread(port);
+	cl->setSharedMemoryKey(SHARED_MEMORY_KEY + 1);
+	cl->connect();
+	return (b3PhysicsClientHandle)cl;
+}
+
+

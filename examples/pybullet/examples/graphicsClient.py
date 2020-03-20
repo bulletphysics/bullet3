@@ -12,7 +12,4 @@ gravId = p.addUserDebugParameter("gravity",0,10,0)
 while p.isConnected():
   p.stepSimulation()
 
-  grav = p.readUserDebugParameter(gravId)
-  #print("grav=",grav)
-  time.sleep(1./240.)
 

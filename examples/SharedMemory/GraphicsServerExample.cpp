@@ -158,8 +158,8 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 
 		socket.Listen("localhost", args->m_port);
 
-		//socket.SetReceiveTimeout(1, 0);
-		//socket.SetNonblocking();
+		socket.SetReceiveTimeout(100, 100);// (1, 0);
+		
 
 		int curNumErr = 0;
 
