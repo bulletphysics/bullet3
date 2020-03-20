@@ -464,11 +464,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			}
 			case eCONNECT_GRAPHICS_SERVER:
 			{
-#ifdef __APPLE__
-				sm = b3CreateInProcessGraphicsServerAndConnectMainThreadSharedMemory(argc, argv);
-#else
 				sm = b3CreateInProcessGraphicsServerAndConnectSharedMemory(argc, argv);
-#endif
 				break;
 			}
 			case eCONNECT_SHARED_MEMORY_SERVER:

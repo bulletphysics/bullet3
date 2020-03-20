@@ -436,12 +436,3 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessGraphicsServerAndConnectSha
 	cl->connect();
 	return (b3PhysicsClientHandle)cl;
 }
-#if 0
-B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessGraphicsServerAndConnectMainThreadSharedMemory(int argc, char* argv[]);
-{
-	InProcessGraphicsServerSharedMemory* cl = new InProcessGraphicsServerSharedMemory(argc, argv, 0);
-	cl->setSharedMemoryKey(SHARED_MEMORY_KEY + 1);
-	cl->connect();
-	return (b3PhysicsClientHandle)cl;
-}
-#endif

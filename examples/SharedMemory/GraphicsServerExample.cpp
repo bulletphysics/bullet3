@@ -12,7 +12,7 @@
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "SharedMemoryPublic.h"
 #include "../MultiThreading/b3ThreadSupportInterface.h"
-#include "Utils/b3Clock.h"
+#include "../Utils/b3Clock.h"
 
 #ifdef BT_ENABLE_CLSOCKET
 
