@@ -2637,6 +2637,7 @@ void btSoftBody::initializeFaceTree()
 		}
 	}
 	m_fdbvt.m_root = buildTreeBottomUp(leafNodes, adj);
+    updateFaceTree(false, true);
 	if (m_fdbvnt)
 		delete m_fdbvnt;
 	m_fdbvnt = copyToDbvnt(m_fdbvt.m_root);
