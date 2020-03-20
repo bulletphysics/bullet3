@@ -483,6 +483,17 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				break;
 			}
 
+			case eCONNECT_GRAPHICS_SERVER_TCP:
+			{
+#ifdef BT_ENABLE_CLSOCKET
+				sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnectTCP(hostName, tcpPort);
+#else
+				PyErr_SetString(SpamError, "TCP is not enabled in this pybullet build");
+				return NULL;
+#endif//BT_ENABLE_CLSOCKET
+				break;
+			}
+
 			
 			case eCONNECT_DIRECT:
 			{
@@ -12583,6 +12594,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "SHARED_MEMORY_GUI", eCONNECT_SHARED_MEMORY_GUI);  // user read
 	PyModule_AddIntConstant(m, "GRAPHICS_CLIENT", eCONNECT_SHARED_MEMORY_GUI);  // user read
 	PyModule_AddIntConstant(m, "GRAPHICS_SERVER", eCONNECT_GRAPHICS_SERVER);  // user read
+	PyModule_AddIntConstant(m, "GRAPHICS_SERVER_TCP", eCONNECT_GRAPHICS_SERVER_TCP);  // user read
 	
 
 	

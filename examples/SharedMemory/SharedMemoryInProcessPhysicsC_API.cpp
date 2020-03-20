@@ -152,10 +152,16 @@ class InProcessPhysicsClientExistingExampleBrowser : public PhysicsClientSharedM
 	SharedMemoryInterface* m_sharedMem;
 	b3Clock m_clock;
 	unsigned long long int m_prevTime;
+	struct GUIHelperInterface* m_guiHelper;
 
 public:
-	InProcessPhysicsClientExistingExampleBrowser(struct GUIHelperInterface* guiHelper, bool useInProcessMemory, bool skipGraphicsUpdate)
+	InProcessPhysicsClientExistingExampleBrowser(struct GUIHelperInterface* guiHelper, bool useInProcessMemory, bool skipGraphicsUpdate, bool ownsGuiHelper)
 	{
+		if (ownsGuiHelper)
+		{
+			m_guiHelper = guiHelper;
+		}
+		
 		m_sharedMem = 0;
 		CommonExampleOptions options(guiHelper);
 
@@ -179,6 +185,7 @@ public:
 		//s_instancingRenderer->removeAllInstances();
 		delete m_physicsServerExample;
 		delete m_sharedMem;
+		delete m_guiHelper;
 	}
 
 	// return non-null if there is a status, nullptr otherwise
@@ -257,7 +264,7 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingEx
 	bool useInprocessMemory = true;
 	bool skipGraphicsUpdate = false;
 
-	InProcessPhysicsClientExistingExampleBrowser* cl = new InProcessPhysicsClientExistingExampleBrowser(guiHelper, useInprocessMemory, skipGraphicsUpdate);
+	InProcessPhysicsClientExistingExampleBrowser* cl = new InProcessPhysicsClientExistingExampleBrowser(guiHelper, useInprocessMemory, skipGraphicsUpdate, false);
 
 	cl->connect();
 	return (b3PhysicsClientHandle)cl;
@@ -277,7 +284,7 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingEx
 	}
 	bool useInprocessMemory = false;
 	bool skipGraphicsUpdate = true;
-	InProcessPhysicsClientExistingExampleBrowser* cl = new InProcessPhysicsClientExistingExampleBrowser(guiHelper, useInprocessMemory, skipGraphicsUpdate);
+	InProcessPhysicsClientExistingExampleBrowser* cl = new InProcessPhysicsClientExistingExampleBrowser(guiHelper, useInprocessMemory, skipGraphicsUpdate, false);
 
 	cl->setSharedMemoryKey(sharedMemoryKey + 1);
 	cl->connect();
@@ -290,13 +297,15 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingEx
 {
 	gSharedMemoryKey = sharedMemoryKey;
 	GUIHelperInterface* guiHelper = (GUIHelperInterface*)guiHelperPtr;
+	bool ownsGuiHelper = false;
 	if (!guiHelper)
 	{
 		guiHelper = new RemoteGUIHelper();
+		ownsGuiHelper = true;
 	}
 	bool useInprocessMemory = false;
 	bool skipGraphicsUpdate = false;
-	InProcessPhysicsClientExistingExampleBrowser* cl = new InProcessPhysicsClientExistingExampleBrowser(guiHelper, useInprocessMemory, skipGraphicsUpdate);
+	InProcessPhysicsClientExistingExampleBrowser* cl = new InProcessPhysicsClientExistingExampleBrowser(guiHelper, useInprocessMemory, skipGraphicsUpdate, ownsGuiHelper);
 
 	cl->setSharedMemoryKey(sharedMemoryKey + 1);
 	cl->connect();
@@ -304,6 +313,25 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingEx
 	gSharedMemoryKey = SHARED_MEMORY_KEY;
 	return (b3PhysicsClientHandle)cl;
 }
+
+#include "RemoteGuiHelperTCP.h"
+
+B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnectTCP(const char* hostName, int port)
+{
+	bool ownsGuiHelper = true;
+	GUIHelperInterface* guiHelper = new RemoteGUIHelperTCP(hostName, port);
+	
+	bool useInprocessMemory = true;
+	bool skipGraphicsUpdate = false;
+	InProcessPhysicsClientExistingExampleBrowser* cl = new InProcessPhysicsClientExistingExampleBrowser(guiHelper, useInprocessMemory, skipGraphicsUpdate, ownsGuiHelper);
+
+	//cl->setSharedMemoryKey(sharedMemoryKey + 1);
+	cl->connect();
+	//backward compatiblity
+	gSharedMemoryKey = SHARED_MEMORY_KEY;
+	return (b3PhysicsClientHandle)cl;
+}
+
 
 
 //backward compatiblity
