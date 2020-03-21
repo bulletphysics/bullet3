@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,27 +7,23 @@ using System;
 
 [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
 
-
-public class NewBehaviourScript : MonoBehaviour {
-
-      
+public class NewBehaviourScript : MonoBehaviour
+{
     Text text;
     IntPtr sharedAPI;
     IntPtr pybullet;
     int m_cubeUid;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization.
+    void Start ()
+    {
         text = GetComponent<Text>();
-
 
         pybullet = NativeMethods.b3ConnectSharedMemory(NativeConstants.SHARED_MEMORY_KEY);
         if (NativeMethods.b3CanSubmitCommand(pybullet)==0)
         {
             pybullet = NativeMethods.b3ConnectPhysicsDirect();
         }
-
-        
 
         IntPtr cmd = NativeMethods.b3InitResetSimulationCommand(pybullet);
         IntPtr status = NativeMethods.b3SubmitClientCommandAndWaitStatus(pybullet, cmd);
@@ -46,14 +42,13 @@ public class NewBehaviourScript : MonoBehaviour {
             status = NativeMethods.b3SubmitClientCommandAndWaitStatus(pybullet, cmd);
         }
 
-        
         cmd = NativeMethods.b3LoadUrdfCommandInit(pybullet, "cube.urdf");
         NativeMethods.b3LoadUrdfCommandSetStartPosition(cmd, 0, 20, 0);
         Quaternion q = Quaternion.Euler(35, 0, 0);
         NativeMethods.b3LoadUrdfCommandSetStartOrientation(cmd, q.x, q.y, q.z, q.w);
         status = NativeMethods.b3SubmitClientCommandAndWaitStatus(pybullet, cmd);
         m_cubeUid = NativeMethods.b3GetStatusBodyIndex(status);
-        
+
         EnumSharedMemoryServerStatus statusType = (EnumSharedMemoryServerStatus)NativeMethods.b3GetStatusType(status);
         if (statusType == (EnumSharedMemoryServerStatus)EnumSharedMemoryServerStatus.CMD_URDF_LOADING_COMPLETED)
         {
@@ -86,31 +81,32 @@ public class NewBehaviourScript : MonoBehaviour {
                     }
                 }
             }
+
             if (numBodies > 0)
             {
-
                 b3BodyInfo info=new b3BodyInfo();
-                NativeMethods.b3GetBodyInfo(pybullet, 0, ref  info );
+                NativeMethods.b3GetBodyInfo(pybullet, 0, ref  info);
 
                 text.text = info.m_baseName;
             }
-            
-
         }
-        
     }
+
     public struct MyPos
     {
         public double x, y, z;
         public double qx, qy, qz, qw;
     }
-    // Update is called once per frame
-    void Update () {
+
+    // Update is called once per frame.
+    void Update ()
+    {
         if (pybullet != IntPtr.Zero)
         {
             IntPtr cmd = NativeMethods.b3InitStepSimulationCommand(pybullet);
             IntPtr status = NativeMethods.b3SubmitClientCommandAndWaitStatus(pybullet, cmd);
         }
+
         if (m_cubeUid>=0)
         {
             IntPtr cmd_handle =
@@ -137,7 +133,7 @@ public class NewBehaviourScript : MonoBehaviour {
                 //Debug.Log("objUid=" + objUid.ToString());
                 //Debug.Log("numDofQ=" + numDofQ.ToString());
                 //Debug.Log("numDofU=" + numDofU.ToString());
-                
+
                 MyPos mpos = (MyPos)Marshal.PtrToStructure(actualStateQ, typeof(MyPos));
                 //Debug.Log("pos=(" + mpos.x.ToString()+","+ mpos.y.ToString()+ "," + mpos.z.ToString()+")");
                 //Debug.Log("orn=(" + mpos.qx.ToString() + "," + mpos.qy.ToString() + "," + mpos.qz.ToString() + mpos.qw.ToString() + ")");
@@ -146,16 +142,11 @@ public class NewBehaviourScript : MonoBehaviour {
                 Vector3 dimensions = new Vector3(1, 1, 1);
                 CjLib.DebugUtil.DrawBox(pos, orn, dimensions, Color.black);
             }
-
-
         }
-        
-        {
-            CjLib.DebugUtil.DrawLine(new Vector3(-1, 0, 0), new Vector3(1, 0, 0), Color.red);
-            CjLib.DebugUtil.DrawLine(new Vector3(0, -1, 0), new Vector3(0, 1, 0), Color.green);
-            CjLib.DebugUtil.DrawLine(new Vector3(0, 0, -1), new Vector3(0, 0, 1), Color.blue);
-        }
-        
+
+        CjLib.DebugUtil.DrawLine(new Vector3(-1, 0, 0), new Vector3(1, 0, 0), Color.red);
+        CjLib.DebugUtil.DrawLine(new Vector3(0, -1, 0), new Vector3(0, 1, 0), Color.green);
+        CjLib.DebugUtil.DrawLine(new Vector3(0, 0, -1), new Vector3(0, 0, 1), Color.blue);
     }
 
     void OnDestroy()
@@ -164,6 +155,5 @@ public class NewBehaviourScript : MonoBehaviour {
         {
             NativeMethods.b3DisconnectSharedMemory(pybullet);
         }
-       
     }
 }

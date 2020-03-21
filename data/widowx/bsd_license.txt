@@ -15,8 +15,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   <version>0.0.2</version>
   <description>The widowx_arm_description package</description>
 
-	<maintainer email="jmrapado@robotnik.es">Jose Rapado García</maintainer>
-	<maintainer email="rnavarro@robotnik.es">Román Navarro</maintainer>
+	<maintainer email="jmrapado@robotnik.es">Jose Rapado Garcï¿½a</maintainer>
+	<maintainer email="rnavarro@robotnik.es">Romï¿½n Navarro</maintainer>
 	<maintainer email="cvillar@robotnik.es">Carlos Villar</maintainer>
-
- 
