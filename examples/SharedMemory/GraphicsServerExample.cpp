@@ -507,9 +507,10 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 			args->m_cs->unlock();
 
 		} while (cachedSharedParam != eTCPRequestTerminate);
-		
+#ifdef BT_ENABLE_CLSOCKET	
 		socket.Close();
 		socket.Shutdown(CSimpleSocket::Both);
+#endif
 	}
 	else
 	{

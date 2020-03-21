@@ -130,7 +130,7 @@ struct RemoteGUIHelperTCPInternalData
 
 		int rBytes = m_tcpSocket.Receive(maxLen);
 		if (rBytes <= 0)
-			return false;
+			return 0;
 
 		//append to tmp buffer
 		//recBytes
