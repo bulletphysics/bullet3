@@ -22,7 +22,7 @@ static unsigned int b3DeserializeInt3(const unsigned char* input)
 	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];
 	return tmp;
 }
-static bool gVerboseNetworkMessagesClient3 = false;
+static bool gVerboseNetworkMessagesClient3 = true;
 
 const char* cmd2txt[]=
 {
@@ -388,7 +388,7 @@ void RemoteGUIHelperTCP::createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWor
 
 int RemoteGUIHelperTCP::uploadData(const unsigned char* data, int sizeInBytes, int slot)
 {
-	int chunkSize = GRAPHICS_SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
+	int chunkSize = 1024;// GRAPHICS_SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
 	int remainingBytes = sizeInBytes;
 	int offset = 0;
 	
@@ -400,15 +400,25 @@ int RemoteGUIHelperTCP::uploadData(const unsigned char* data, int sizeInBytes, i
 	cmd->m_uploadDataCommand.m_dataSlot = slot;
 	m_data->submitClientCommand(*cmd);
 
+	
+
+
 	const GraphicsSharedMemoryStatus* status = 0;
 	while ((status = m_data->processServerStatus()) == 0)
 	{
 	}
 
+	while (remainingBytes > 0)
+	{
+		int curBytes = btMin(remainingBytes, chunkSize);
+		m_data->m_tcpSocket.Send((const uint8*)data+offset, curBytes);
+		if (gVerboseNetworkMessagesClient3)
+			printf("sending %d bytes\n", curBytes);
+		remainingBytes -= curBytes;
+		offset += curBytes;
+	}
 	if (gVerboseNetworkMessagesClient3)
-		printf("sending %d bytes\n", sizeInBytes);
-	m_data->m_tcpSocket.Send((const uint8*)data, sizeInBytes);
-
+		printf("send all bytes!\n");
 
 	status = 0;
 	while ((status = m_data->processServerStatus()) == 0)

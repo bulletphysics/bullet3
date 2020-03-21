@@ -25,7 +25,7 @@
 #include "GraphicsSharedMemoryCommands.h"
 
 
-bool gVerboseNetworkMessagesServer = false;
+bool gVerboseNetworkMessagesServer = true;
 
 void MySerializeInt(unsigned int sz, unsigned char* output)
 {
@@ -314,30 +314,43 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 									{
 										int slot = cmdPtr->m_uploadDataCommand.m_dataSlot;
 
+										int numBytes = cmdPtr->m_uploadDataCommand.m_numBytes;
+
+
 										submitStatus(pClient, serverStatus, buffer);
+
+										//now receive numBytes 
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_UPLOAD_DATA receiving data\n");
-										if (pClient->Receive(cmdPtr->m_uploadDataCommand.m_numBytes))
+										int received = 0;
+										int offset = 0;
+										slots[slot].resize(numBytes);
+										while (received < numBytes)
 										{
-
-											//heuristic to detect disconnected clients
-											CSimpleSocket::CSocketError err = pClient->GetSocketError();
-
-											if (err != CSimpleSocket::SocketSuccess || !pClient->IsSocketValid())
+											if (pClient->Receive(cmdPtr->m_uploadDataCommand.m_numBytes))
 											{
-												curNumErr++;
-												printf("TCP Connection error = %d, curNumErr = %d\n", (int)err, curNumErr);
-											}
-											char* msg2 = (char*)pClient->GetData();
-											int numBytesRec2 = pClient->GetBytesReceived();
-											if (gVerboseNetworkMessagesServer)
-												printf("received %d bytes\n", numBytesRec2);
-											slots[slot].resize(numBytesRec2);
-											for (int i = 0; i < numBytesRec2; i++)
-											{
-												slots[slot][i] = msg2[i];
+												//heuristic to detect disconnected clients
+												CSimpleSocket::CSocketError err = pClient->GetSocketError();
+												if (err != CSimpleSocket::SocketSuccess || !pClient->IsSocketValid())
+												{
+													curNumErr++;
+													printf("TCP Connection error = %d, curNumErr = %d\n", (int)err, curNumErr);
+												}
+												char* msg2 = (char*)pClient->GetData();
+												int numBytesRec2 = pClient->GetBytesReceived();
+												if (gVerboseNetworkMessagesServer)
+													printf("received %d bytes (total=%d)\n", numBytesRec2, received);
+												
+												for (int i = 0; i < numBytesRec2; i++)
+												{
+													slots[slot][i+ offset] = msg2[i];
+												}
+												offset += numBytesRec2;
+												received += numBytesRec2;
 											}
 										}
+										if (gVerboseNetworkMessagesServer)
+											printf("received all bytes!\n");
 										serverStatus.m_type = GFX_CMD_CLIENT_COMMAND_COMPLETED;
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_UPLOAD_DATA\n");
