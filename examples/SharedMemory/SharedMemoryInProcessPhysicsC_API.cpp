@@ -314,6 +314,8 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingEx
 	return (b3PhysicsClientHandle)cl;
 }
 
+#ifdef BT_ENABLE_CLSOCKET
+
 #include "RemoteGUIHelperTCP.h"
 
 B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnectTCP(const char* hostName, int port)
@@ -566,4 +568,4 @@ B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessGraphicsServerAndConnectMai
 	return (b3PhysicsClientHandle)cl;
 }
 
-
+#endif

@@ -22,7 +22,7 @@ static unsigned int b3DeserializeInt3(const unsigned char* input)
 	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];
 	return tmp;
 }
-static bool gVerboseNetworkMessagesClient3 = true;
+static bool gVerboseNetworkMessagesClient3 = false;
 
 const char* cmd2txt[]=
 {
@@ -197,16 +197,17 @@ struct RemoteGUIHelperTCPInternalData
 			return true;
 
 		m_tcpSocket.Initialize();
-
+    
 		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), m_port);
 		if (m_isConnected)
 		{
 			m_tcpSocket.SetSendTimeout(m_timeOutInSeconds, 0);
 			m_tcpSocket.SetReceiveTimeout(m_timeOutInSeconds, 0);
+			m_tcpSocket.SetNonblocking();
 		}
 		int key = GRAPHICS_SHARED_MEMORY_MAGIC_NUMBER;
 		m_tcpSocket.Send((uint8*)&key, 4);
-
+    
 		return m_isConnected;
 	
 	}

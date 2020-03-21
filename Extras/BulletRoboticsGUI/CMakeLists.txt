@@ -113,6 +113,7 @@ SET(BulletRoboticsGUI_SRCS ${BulletRoboticsGUI_INCLUDES}
 	../../examples/SharedMemory/GraphicsServerExample.cpp
 	../../examples/SharedMemory/GraphicsClientExample.cpp
 	../../examples/SharedMemory/RemoteGUIHelper.cpp
+	../../examples/SharedMemory/RemoteGUIHelperTCP.cpp
 	../../examples/SharedMemory/GraphicsServerExample.h
 	../../examples/SharedMemory/GraphicsClientExample.h
 	../../examples/SharedMemory/RemoteGUIHelper.h
