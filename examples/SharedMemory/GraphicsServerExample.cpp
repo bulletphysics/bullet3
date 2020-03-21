@@ -158,8 +158,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 
 		socket.Listen("localhost", args->m_port);
 
-		socket.SetReceiveTimeout(100, 100);// (1, 0);
-		socket.SetSendTimeout(100, 100);
+		
 
 		int curNumErr = 0;
 
@@ -179,6 +178,9 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 
 				if ((pClient = socket.Accept()) != NULL)
 				{
+					socket.SetReceiveTimeout(60, 0);// (1, 0);
+					socket.SetSendTimeout(60, 0);
+
 					b3AlignedObjectArray<char> bytesReceived;
 
 					int clientPort = socket.GetClientPort();
@@ -264,33 +266,18 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 
 								receivedData = true;
 
-								GraphicsSharedMemoryCommand cmd;
+								
 
 								GraphicsSharedMemoryCommand* cmdPtr = 0;
 
 								int type = *(int*)&bytesReceived[0];
 
-								//performance test
-								if (numBytesRec == sizeof(int))
+								
+								if (numBytesRec == sizeof(GraphicsSharedMemoryCommand))
 								{
-									cmdPtr = &cmd;
-									cmd.m_type = *(int*)&bytesReceived[0];
+									cmdPtr = (GraphicsSharedMemoryCommand*)&bytesReceived[0];
 								}
-								else
-								{
-									if (numBytesRec == sizeof(GraphicsSharedMemoryCommand))
-									{
-										cmdPtr = (GraphicsSharedMemoryCommand*)&bytesReceived[0];
-									}
-									else
-									{
-										if (numBytesRec == 36)
-										{
-											cmdPtr = &cmd;
-											memcpy(&cmd, &bytesReceived[0], numBytesRec);
-										}
-									}
-								}
+								
 								if (cmdPtr)
 								{
 									GraphicsSharedMemoryStatus serverStatus;
