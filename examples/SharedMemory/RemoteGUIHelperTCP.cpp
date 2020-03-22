@@ -129,7 +129,7 @@ struct RemoteGUIHelperTCPInternalData
 
 		int rBytes = m_tcpSocket.Receive(maxLen);
 		if (rBytes <= 0)
-			return false;
+			return 0;
 
 		//append to tmp buffer
 		//recBytes
@@ -196,12 +196,13 @@ struct RemoteGUIHelperTCPInternalData
 			return true;
 
 		m_tcpSocket.Initialize();
-
+    
 		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), m_port);
 		if (m_isConnected)
 		{
 			m_tcpSocket.SetSendTimeout(m_timeOutInSeconds, 0);
 			m_tcpSocket.SetReceiveTimeout(m_timeOutInSeconds, 0);
+			
 		}
 		int key = GRAPHICS_SHARED_MEMORY_MAGIC_NUMBER;
 		m_tcpSocket.Send((uint8*)&key, 4);

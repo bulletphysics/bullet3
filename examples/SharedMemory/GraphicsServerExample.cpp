@@ -52,7 +52,7 @@ void submitStatus(CActiveSocket* pClient, GraphicsSharedMemoryStatus& serverStat
 
 	if (gVerboseNetworkMessagesServer)
 	{
-		//printf("buffer.size = %d\n", buffer.size());
+		printf("buffer.size = %d\n", buffer.size());
 		printf("serverStatus packed size = %d\n", sz);
 	}
 
@@ -63,7 +63,8 @@ void submitStatus(CActiveSocket* pClient, GraphicsSharedMemoryStatus& serverStat
 		packetData[i + curPos] = statBytes[i];
 	}
 	curPos += sizeof(GraphicsSharedMemoryStatus);
-
+	if (gVerboseNetworkMessagesServer)
+   	 printf("serverStatus.m_numDataStreamBytes=%d\n", serverStatus.m_numDataStreamBytes);
 	for (int i = 0; i < serverStatus.m_numDataStreamBytes; i++)
 	{
 		packetData[i + curPos] = buffer[i];
@@ -199,6 +200,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 
 		do
 		{
+		  
 			{
 				b3Clock::usleep(0);
 			}
@@ -238,15 +240,18 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 					//----------------------------------------------------------------------
 					// Receive request from the client.
 					//----------------------------------------------------------------------
+					
 					while (cachedSharedParam != eTCPRequestTerminate)
 					{
-						//printf("try receive\n");
+						
 						bool receivedData = false;
 
 						int maxLen = 4 + sizeof(GraphicsSharedMemoryCommand) + GRAPHICS_SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
-
+          
+            
 						if (pClient->Receive(maxLen))
 						{
+						  
 							//heuristic to detect disconnected clients
 							CSimpleSocket::CSocketError err = pClient->GetSocketError();
 
@@ -258,14 +263,16 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 
 								if (curNumErr > 100)
 								{
-									printf("TCP Connection error = %d, curNumErr = %d\n", (int)err, curNumErr);
-									break;
+									///printf("TCP Connection error = %d, curNumErr = %d\n", (int)err, curNumErr);
+									
 								}
 							}
 
 							curNumErr = 0;
 							char* msg2 = (char*)pClient->GetData();
 							int numBytesRec2 = pClient->GetBytesReceived();
+							if (gVerboseNetworkMessagesServer)
+							  printf("numBytesRec2=%d\n", numBytesRec2);
 							if (numBytesRec2 < 0)
 							{
 								numBytesRec2 = 0;
@@ -377,7 +384,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 												if (err != CSimpleSocket::SocketSuccess || !pClient->IsSocketValid())
 												{
 													curNumErr++;
-													printf("TCP Connection error = %d, curNumErr = %d\n", (int)err, curNumErr);
+													//printf("TCP Connection error = %d, curNumErr = %d\n", (int)err, curNumErr);
 												}
 												char* msg2 = (char*)pClient->GetData();
 												int numBytesRec2 = pClient->GetBytesReceived();
@@ -535,7 +542,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 									{
 										submitStatus(pClient, args->m_serverStatus, buffer);
 									}
-
+                         
 									bytesReceived.clear();
 								}
 								else
@@ -566,9 +573,10 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 			args->m_cs->unlock();
 
 		} while (cachedSharedParam != eTCPRequestTerminate);
-		
+#ifdef BT_ENABLE_CLSOCKET	
 		socket.Close();
 		socket.Shutdown(CSimpleSocket::Both);
+#endif
 	}
 	else
 	{

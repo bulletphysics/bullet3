@@ -129,7 +129,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/SharedMemory/GraphicsClientExample.cpp"]\
 +["examples/SharedMemory/GraphicsServerExample.cpp"]\
 +["examples/SharedMemory/RemoteGUIHelper.cpp"]\
-+["examples/SharedMemory/RemoteGuiHelperTCP.cpp"]\
++["examples/SharedMemory/RemoteGUIHelperTCP.cpp"]\
 +["examples/SharedMemory/PhysicsServerExample.cpp"]\
 +["examples/SharedMemory/PhysicsServerExampleBullet2.cpp"]\
 +["examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp"]\
