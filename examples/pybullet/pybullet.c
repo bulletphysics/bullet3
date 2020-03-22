@@ -438,6 +438,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 		}
 		switch (method)
 		{
+	
 			case eCONNECT_GUI:
 			{
 #ifdef __APPLE__
@@ -461,6 +462,20 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 #endif
 				break;
 			}
+			case eCONNECT_GRAPHICS_SERVER_MAIN_THREAD:
+			{
+				sm = b3CreateInProcessGraphicsServerAndConnectMainThreadSharedMemory(tcpPort);
+				break;
+			}
+			case eCONNECT_GRAPHICS_SERVER:
+			{
+#ifdef __APPLE__
+				sm = b3CreateInProcessGraphicsServerAndConnectMainThreadSharedMemory(tcpPort);
+#else
+				sm = b3CreateInProcessGraphicsServerAndConnectSharedMemory(tcpPort);
+#endif
+				break;
+			}
 			case eCONNECT_SHARED_MEMORY_SERVER:
 			{
 				sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect3(0, key);
@@ -470,6 +485,17 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			case eCONNECT_SHARED_MEMORY_GUI:
 			{
 				sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect4(0, key);
+				break;
+			}
+
+			case eCONNECT_GRAPHICS_SERVER_TCP:
+			{
+#ifdef BT_ENABLE_CLSOCKET
+				sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnectTCP(hostName, tcpPort);
+#else
+				PyErr_SetString(SpamError, "TCP is not enabled in this pybullet build");
+				return NULL;
+#endif//BT_ENABLE_CLSOCKET
 				break;
 			}
 
@@ -576,34 +602,37 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				sPhysicsClientsGUI[freeIndex] = method;
 				sNumPhysicsClients++;
 
-				command = b3InitSyncBodyInfoCommand(sm);
-				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-				statusType = b3GetStatusType(statusHandle);
-
-				if (statusType != CMD_SYNC_BODY_INFO_COMPLETED)
+				if (method != eCONNECT_GRAPHICS_SERVER && method != eCONNECT_GRAPHICS_SERVER_MAIN_THREAD)
 				{
-					printf("Connection terminated, couldn't get body info\n");
-					b3DisconnectSharedMemory(sm);
-					sm = 0;
-					sPhysicsClients1[freeIndex] = 0;
-					sPhysicsClientsGUI[freeIndex] = 0;
-					sNumPhysicsClients++;
-					return PyInt_FromLong(-1);
-				}
+					command = b3InitSyncBodyInfoCommand(sm);
+					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+					statusType = b3GetStatusType(statusHandle);
 
-				command = b3InitSyncUserDataCommand(sm);
-				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-				statusType = b3GetStatusType(statusHandle);
+					if (statusType != CMD_SYNC_BODY_INFO_COMPLETED)
+					{
+						printf("Connection terminated, couldn't get body info\n");
+						b3DisconnectSharedMemory(sm);
+						sm = 0;
+						sPhysicsClients1[freeIndex] = 0;
+						sPhysicsClientsGUI[freeIndex] = 0;
+						sNumPhysicsClients++;
+						return PyInt_FromLong(-1);
+					}
 
-				if (statusType != CMD_SYNC_USER_DATA_COMPLETED)
-				{
-					printf("Connection terminated, couldn't get user data\n");
-					b3DisconnectSharedMemory(sm);
-					sm = 0;
-					sPhysicsClients1[freeIndex] = 0;
-					sPhysicsClientsGUI[freeIndex] = 0;
-					sNumPhysicsClients++;
-					return PyInt_FromLong(-1);
+					command = b3InitSyncUserDataCommand(sm);
+					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+					statusType = b3GetStatusType(statusHandle);
+
+					if (statusType != CMD_SYNC_USER_DATA_COMPLETED)
+					{
+						printf("Connection terminated, couldn't get user data\n");
+						b3DisconnectSharedMemory(sm);
+						sm = 0;
+						sPhysicsClients1[freeIndex] = 0;
+						sPhysicsClientsGUI[freeIndex] = 0;
+						sNumPhysicsClients++;
+						return PyInt_FromLong(-1);
+					}
 				}
 			}
 		}
@@ -12568,6 +12597,12 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "GUI_MAIN_THREAD", eCONNECT_GUI_MAIN_THREAD);            // user read
 	PyModule_AddIntConstant(m, "SHARED_MEMORY_SERVER", eCONNECT_SHARED_MEMORY_SERVER);  // user read
 	PyModule_AddIntConstant(m, "SHARED_MEMORY_GUI", eCONNECT_SHARED_MEMORY_GUI);  // user read
+	PyModule_AddIntConstant(m, "GRAPHICS_CLIENT", eCONNECT_SHARED_MEMORY_GUI);  // user read
+	PyModule_AddIntConstant(m, "GRAPHICS_SERVER", eCONNECT_GRAPHICS_SERVER);  // user read
+	PyModule_AddIntConstant(m, "GRAPHICS_SERVER_TCP", eCONNECT_GRAPHICS_SERVER_TCP);  // user read
+	PyModule_AddIntConstant(m, "GRAPHICS_SERVER_MAIN_THREAD", eCONNECT_GRAPHICS_SERVER_MAIN_THREAD);  // user read
+	
+	
 
 	
 #ifdef BT_ENABLE_DART

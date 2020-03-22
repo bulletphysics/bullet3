@@ -1,18 +1,16 @@
-#ifndef REMOTE_HELPER_H
-#define REMOTE_HELPER_H
+#ifndef REMOTE_HELPER_TCP_H
+#define REMOTE_HELPER_TCP_H
 
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 
-///a RemoteGUIHelper will connect to an existing graphics server through shared memory
-struct RemoteGUIHelper : public GUIHelperInterface
+///a RemoteGUIHelper will connect to an existing graphics server over TCP
+struct RemoteGUIHelperTCP : public GUIHelperInterface
 {
-	struct RemoteGUIHelperInternalData* m_data;
+	struct RemoteGUIHelperTCPInternalData* m_data;
 
-	RemoteGUIHelper();
+	RemoteGUIHelperTCP(const char* hostName, int port);
 
-	virtual ~RemoteGUIHelper();
-
-	bool isConnected() const;
+	virtual ~RemoteGUIHelperTCP();
 
 	virtual void setVisualizerFlag(int flag, int enable);
 
@@ -74,4 +72,4 @@ struct RemoteGUIHelper : public GUIHelperInterface
 	int uploadData(const unsigned char* data, int sizeInBytes, int slot);
 };
 
-#endif  //REMOTE_HELPER_H
+#endif  //REMOTE_HELPER_TCP_H

@@ -1,12 +1,12 @@
-#include "RemoteGUIHelper.h"
+#include "RemoteGUIHelperTCP.h"
 
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "Bullet3Common/b3Logging.h"
 #include "GraphicsSharedMemoryCommands.h"
-#include "PosixSharedMemory.h"
-#include "Win32SharedMemory.h"
+
 #include "GraphicsSharedMemoryBlock.h"
+
 #include "Bullet3Common/b3Scalar.h"
 #include "LinearMath/btMinMax.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
@@ -14,34 +14,65 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
 
-struct RemoteGUIHelperInternalData
+#include "ActiveSocket.h"
+#include <string>
+static unsigned int b3DeserializeInt3(const unsigned char* input)
+{
+	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];
+	return tmp;
+}
+static bool gVerboseNetworkMessagesClient3 = false;
+
+const char* cmd2txt[]=
+{
+	"GFX_CMD_INVALID",
+	"GFX_CMD_0",
+	"GFX_CMD_SET_VISUALIZER_FLAG",
+	"GFX_CMD_UPLOAD_DATA",
+	"GFX_CMD_REGISTER_TEXTURE",
+	"GFX_CMD_REGISTER_GRAPHICS_SHAPE",
+	"GFX_CMD_REGISTER_GRAPHICS_INSTANCE",
+	"GFX_CMD_SYNCHRONIZE_TRANSFORMS",
+	"GFX_CMD_REMOVE_ALL_GRAPHICS_INSTANCES",
+	"GFX_CMD_REMOVE_SINGLE_GRAPHICS_INSTANCE",
+	"GFX_CMD_CHANGE_RGBA_COLOR",
+	"GFX_CMD_GET_CAMERA_INFO",
+	//don't go beyond this command!
+	"GFX_CMD_MAX_CLIENT_COMMANDS",
+};
+
+
+struct RemoteGUIHelperTCPInternalData
 {
 	//	GUIHelperInterface* m_guiHelper;
 	bool m_waitingForServer;
-	GraphicsSharedMemoryBlock* m_testBlock1;
-	SharedMemoryInterface* m_sharedMemory;
+	std::string m_hostName;
+	int m_port;
+	
 	GraphicsSharedMemoryStatus m_lastServerStatus;
-	int m_sharedMemoryKey;
+	CActiveSocket m_tcpSocket;
 	bool m_isConnected;
+	b3AlignedObjectArray<unsigned char> m_tempBuffer;
+	GraphicsSharedMemoryStatus m_lastStatus;
+	GraphicsSharedMemoryCommand m_command;
+	double m_timeOutInSeconds;
+	b3AlignedObjectArray<char> m_stream;
 
-	RemoteGUIHelperInternalData()
+	RemoteGUIHelperTCPInternalData(const char* hostName, int port)
 		: m_waitingForServer(false),
-		  m_testBlock1(0)
+		m_hostName(hostName),
+		m_port(port),
+		m_timeOutInSeconds(60.)
 	{
-#ifdef _WIN32
-		m_sharedMemory = new Win32SharedMemoryClient();
-#else
-		m_sharedMemory = new PosixSharedMemory();
-#endif
-		m_sharedMemoryKey = GRAPHICS_SHARED_MEMORY_KEY;
 		m_isConnected = false;
 		connect();
+		
 	}
 
-	virtual ~RemoteGUIHelperInternalData()
+	virtual ~RemoteGUIHelperTCPInternalData()
 	{
 		disconnect();
-		delete m_sharedMemory;
+		
 	}
 
 	virtual bool isConnected()
@@ -53,14 +84,7 @@ struct RemoteGUIHelperInternalData
 	{
 		if (m_isConnected && !m_waitingForServer)
 		{
-			if (m_testBlock1->m_magicId == GRAPHICS_SHARED_MEMORY_MAGIC_NUMBER)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return true;
 		}
 		return false;
 	}
@@ -68,29 +92,27 @@ struct RemoteGUIHelperInternalData
 	struct GraphicsSharedMemoryCommand* getAvailableSharedMemoryCommand()
 	{
 		static int sequence = 0;
-		if (m_testBlock1)
-		{
-			m_testBlock1->m_clientCommands[0].m_sequenceNumber = sequence++;
-			return &m_testBlock1->m_clientCommands[0];
-		}
-		return 0;
+		m_command.m_sequenceNumber = sequence++;
+		return &m_command;
 	}
 
 	bool submitClientCommand(const GraphicsSharedMemoryCommand& command)
 	{
+		if (gVerboseNetworkMessagesClient3)
+			printf("submitClientCommand: %d %s\n", command.m_type, cmd2txt[command.m_type]);
 		/// at the moment we allow a maximum of 1 outstanding command, so we check for this
 		// once the server processed the command and returns a status, we clear the flag
 		// "m_data->m_waitingForServer" and allow submitting the next command
 		btAssert(!m_waitingForServer);
 		if (!m_waitingForServer)
 		{
+			int sz = 0;
+			unsigned char* data = 0;
+			m_tempBuffer.clear();
+			sz = sizeof(GraphicsSharedMemoryCommand);
+			data = (unsigned char*)&command;
 			//printf("submit command of type %d\n", command.m_type);
-
-			if (&m_testBlock1->m_clientCommands[0] != &command)
-			{
-				m_testBlock1->m_clientCommands[0] = command;
-			}
-			m_testBlock1->m_numClientCommands++;
+			m_tcpSocket.Send((const uint8*)data, sz);
 			m_waitingForServer = true;
 			return true;
 		}
@@ -99,131 +121,120 @@ struct RemoteGUIHelperInternalData
 
 	const GraphicsSharedMemoryStatus* processServerStatus()
 	{
-		// SharedMemoryStatus* stat = 0;
 
-		if (!m_testBlock1)
-		{
-			m_lastServerStatus.m_type = GFX_CMD_SHARED_MEMORY_NOT_INITIALIZED;
-			return &m_lastServerStatus;
-		}
+		bool hasStatus = false;
 
-		if (!m_waitingForServer)
-		{
+		//int serviceResult = enet_host_service(m_client, &m_event, 0);
+		int maxLen = 4 + sizeof(GraphicsSharedMemoryStatus) + GRAPHICS_SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
+
+		int rBytes = m_tcpSocket.Receive(maxLen);
+		if (rBytes <= 0)
 			return 0;
+
+		//append to tmp buffer
+		//recBytes
+		
+		unsigned char* d2 = (unsigned char*)m_tcpSocket.GetData();
+
+		int curSize = m_tempBuffer.size();
+		m_tempBuffer.resize(curSize + rBytes);
+		for (int i = 0; i < rBytes; i++)
+		{
+			m_tempBuffer[curSize + i] = d2[i];
 		}
 
-		if (m_testBlock1->m_magicId != GRAPHICS_SHARED_MEMORY_MAGIC_NUMBER)
+		int packetSizeInBytes = -1;
+
+		if (m_tempBuffer.size() >= 4)
 		{
-			m_lastServerStatus.m_type = GFX_CMD_SHARED_MEMORY_NOT_INITIALIZED;
-			return &m_lastServerStatus;
+			packetSizeInBytes = b3DeserializeInt3(&m_tempBuffer[0]);
 		}
 
-		if (m_testBlock1->m_numServerCommands >
-			m_testBlock1->m_numProcessedServerCommands)
+		if (m_tempBuffer.size() == packetSizeInBytes)
 		{
-			B3_PROFILE("processServerCMD");
-			b3Assert(m_testBlock1->m_numServerCommands ==
-					 m_testBlock1->m_numProcessedServerCommands + 1);
-
-			const GraphicsSharedMemoryStatus& serverCmd = m_testBlock1->m_serverCommands[0];
-
-			m_lastServerStatus = serverCmd;
-
-			//       EnumSharedMemoryServerStatus s = (EnumSharedMemoryServerStatus)serverCmd.m_type;
-			// consume the command
-			switch (serverCmd.m_type)
+			unsigned char* data = &m_tempBuffer[0];
+			if (gVerboseNetworkMessagesClient3)
 			{
-				case GFX_CMD_CLIENT_COMMAND_COMPLETED:
-				{
-					B3_PROFILE("CMD_CLIENT_COMMAND_COMPLETED");
-
-					break;
-				}
-				default:
-				{
-				}
+				printf("A packet of length %d bytes received\n", m_tempBuffer.size());
 			}
 
-			m_testBlock1->m_numProcessedServerCommands++;
-			// we don't have more than 1 command outstanding (in total, either server or client)
-			b3Assert(m_testBlock1->m_numProcessedServerCommands ==
-					 m_testBlock1->m_numServerCommands);
-
-			if (m_testBlock1->m_numServerCommands ==
-				m_testBlock1->m_numProcessedServerCommands)
+			hasStatus = true;
+			GraphicsSharedMemoryStatus* statPtr = (GraphicsSharedMemoryStatus*)&data[4];
+#if 0
+			if (statPtr->m_type == CMD_STEP_FORWARD_SIMULATION_COMPLETED)
 			{
-				m_waitingForServer = false;
+				GraphicsSharedMemoryStatus dummy;
+				dummy.m_type = CMD_STEP_FORWARD_SIMULATION_COMPLETED;
+				m_lastStatus = dummy;
+				m_stream.resize(0);
 			}
 			else
+#endif
 			{
-				m_waitingForServer = true;
+				m_lastStatus = *statPtr;
+				int streamOffsetInBytes = 4 + sizeof(GraphicsSharedMemoryStatus);
+				int numStreamBytes = packetSizeInBytes - streamOffsetInBytes;
+				m_stream.resize(numStreamBytes);
+				for (int i = 0; i < numStreamBytes; i++)
+				{
+					m_stream[i] = data[i + streamOffsetInBytes];
+				}
 			}
-
-			return &m_lastServerStatus;
+			m_tempBuffer.clear();
+			m_waitingForServer = false;
+			if (gVerboseNetworkMessagesClient3)
+				printf("processServerStatus: %d\n", m_lastStatus.m_type);
+			return &m_lastStatus;
 		}
+
 		return 0;
 	}
 
 	bool connect()
 	{
-		/// server always has to create and initialize shared memory
-		bool allowCreation = false;
-		m_testBlock1 = (GraphicsSharedMemoryBlock*)m_sharedMemory->allocateSharedMemory(
-			m_sharedMemoryKey, GRAPHICS_SHARED_MEMORY_SIZE, allowCreation);
+		if (m_isConnected)
+			return true;
 
-		if (m_testBlock1)
+		m_tcpSocket.Initialize();
+    
+		m_isConnected = m_tcpSocket.Open(m_hostName.c_str(), m_port);
+		if (m_isConnected)
 		{
-			if (m_testBlock1->m_magicId != GRAPHICS_SHARED_MEMORY_MAGIC_NUMBER)
-			{
-				b3Error("Error connecting to shared memory: please start server before client\n");
-				m_sharedMemory->releaseSharedMemory(m_sharedMemoryKey,
-													GRAPHICS_SHARED_MEMORY_SIZE);
-				m_testBlock1 = 0;
-				return false;
-			}
-			else
-			{
-				m_isConnected = true;
-			}
+			m_tcpSocket.SetSendTimeout(m_timeOutInSeconds, 0);
+			m_tcpSocket.SetReceiveTimeout(m_timeOutInSeconds, 0);
+			
 		}
-		else
-		{
-			b3Warning("Cannot connect to shared memory");
-			return false;
-		}
-		return true;
+		int key = GRAPHICS_SHARED_MEMORY_MAGIC_NUMBER;
+		m_tcpSocket.Send((uint8*)&key, 4);
+		m_tcpSocket.SetBlocking();
+		return m_isConnected;
+	
 	}
 
 	void disconnect()
 	{
-		if (m_isConnected && m_sharedMemory)
-		{
-			m_sharedMemory->releaseSharedMemory(m_sharedMemoryKey, GRAPHICS_SHARED_MEMORY_SIZE);
-		}
+		const char msg[16] = "disconnect";
+		m_tcpSocket.Send((const uint8*)msg, 10);
+		m_tcpSocket.Close();
 		m_isConnected = false;
 	}
 };
 
-RemoteGUIHelper::RemoteGUIHelper()
+RemoteGUIHelperTCP::RemoteGUIHelperTCP(const char* hostName, int port)
 {
-	m_data = new RemoteGUIHelperInternalData;
+	m_data = new RemoteGUIHelperTCPInternalData(hostName, port);
 	if (m_data->canSubmitCommand())
 	{
 		removeAllGraphicsInstances();
 	}
 }
 
-RemoteGUIHelper::~RemoteGUIHelper()
+RemoteGUIHelperTCP::~RemoteGUIHelperTCP()
 {
 	delete m_data;
 }
 
-bool RemoteGUIHelper::isConnected() const
-{
-	return m_data->isConnected();
-}
-
-void RemoteGUIHelper::setVisualizerFlag(int flag, int enable)
+void RemoteGUIHelperTCP::setVisualizerFlag(int flag, int enable)
 {
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
@@ -240,12 +251,12 @@ void RemoteGUIHelper::setVisualizerFlag(int flag, int enable)
 	}
 }
 
-void RemoteGUIHelper::createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color)
+void RemoteGUIHelperTCP::createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color)
 {
-	printf("createRigidBodyGraphicsObject\n");
+	printf("todo: createRigidBodyGraphicsObject\n");
 }
 
-bool RemoteGUIHelper::getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3], float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float camTarget[3]) const
+bool RemoteGUIHelperTCP::getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3], float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float camTarget[3]) const
 {
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
@@ -284,7 +295,7 @@ bool RemoteGUIHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 	return false;
 }
 
-void RemoteGUIHelper::createCollisionObjectGraphicsObject(btCollisionObject* body, const btVector3& color)
+void RemoteGUIHelperTCP::createCollisionObjectGraphicsObject(btCollisionObject* body, const btVector3& color)
 {
 	if (body->getUserIndex() < 0)
 	{
@@ -305,16 +316,16 @@ void RemoteGUIHelper::createCollisionObjectGraphicsObject(btCollisionObject* bod
 	}
 }
 
-void RemoteGUIHelper::createCollisionShapeGraphicsObject(btCollisionShape* collisionShape)
+void RemoteGUIHelperTCP::createCollisionShapeGraphicsObject(btCollisionShape* collisionShape)
 {
-	printf("createCollisionShapeGraphicsObject\n");
+	printf("todo; createCollisionShapeGraphicsObject\n");
 }
 
-void RemoteGUIHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld)
+void RemoteGUIHelperTCP::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld)
 {
 }
 
-void RemoteGUIHelper::syncPhysicsToGraphics2(const btDiscreteDynamicsWorld* rbWorld)
+void RemoteGUIHelperTCP::syncPhysicsToGraphics2(const btDiscreteDynamicsWorld* rbWorld)
 {
 	b3AlignedObjectArray<GUISyncPosition> updatedPositions;
 
@@ -350,7 +361,7 @@ void RemoteGUIHelper::syncPhysicsToGraphics2(const btDiscreteDynamicsWorld* rbWo
 	}
 }
 
-void RemoteGUIHelper::syncPhysicsToGraphics2(const GUISyncPosition* positions, int numPositions)
+void RemoteGUIHelperTCP::syncPhysicsToGraphics2(const GUISyncPosition* positions, int numPositions)
 {
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
@@ -367,50 +378,56 @@ void RemoteGUIHelper::syncPhysicsToGraphics2(const GUISyncPosition* positions, i
 	}
 }
 
-void RemoteGUIHelper::render(const btDiscreteDynamicsWorld* rbWorld)
+void RemoteGUIHelperTCP::render(const btDiscreteDynamicsWorld* rbWorld)
 {
 }
 
-void RemoteGUIHelper::createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld)
+void RemoteGUIHelperTCP::createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld)
 {
 }
 
-int RemoteGUIHelper::uploadData(const unsigned char* data, int sizeInBytes, int slot)
+int RemoteGUIHelperTCP::uploadData(const unsigned char* data, int sizeInBytes, int slot)
 {
-	int chunkSize = GRAPHICS_SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
+	int chunkSize = 1024;// GRAPHICS_SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
 	int remainingBytes = sizeInBytes;
 	int offset = 0;
-	while (remainingBytes)
+	
+	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
+	cmd->m_updateFlags = 0;
+	cmd->m_type = GFX_CMD_UPLOAD_DATA;
+	cmd->m_uploadDataCommand.m_numBytes = sizeInBytes;
+	cmd->m_uploadDataCommand.m_dataOffset = offset;
+	cmd->m_uploadDataCommand.m_dataSlot = slot;
+	m_data->submitClientCommand(*cmd);
+
+	
+
+
+	const GraphicsSharedMemoryStatus* status = 0;
+	while ((status = m_data->processServerStatus()) == 0)
 	{
-		btAssert(remainingBytes >= 0);
+	}
+
+	while (remainingBytes > 0)
+	{
 		int curBytes = btMin(remainingBytes, chunkSize);
-		GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
-		if (cmd)
-		{
-			for (int i = 0; i < curBytes; i++)
-			{
-				m_data->m_testBlock1->m_bulletStreamData[i] = data[i + offset];
-			}
+		m_data->m_tcpSocket.Send((const uint8*)data+offset, curBytes);
+		if (gVerboseNetworkMessagesClient3)
+			printf("sending %d bytes\n", curBytes);
+		remainingBytes -= curBytes;
+		offset += curBytes;
+	}
+	if (gVerboseNetworkMessagesClient3)
+		printf("send all bytes!\n");
 
-			cmd->m_updateFlags = 0;
-			cmd->m_type = GFX_CMD_UPLOAD_DATA;
-			cmd->m_uploadDataCommand.m_numBytes = curBytes;
-			cmd->m_uploadDataCommand.m_dataOffset = offset;
-			cmd->m_uploadDataCommand.m_dataSlot = slot;
-			m_data->submitClientCommand(*cmd);
-
-			const GraphicsSharedMemoryStatus* status = 0;
-			while ((status = m_data->processServerStatus()) == 0)
-			{
-			}
-			offset += curBytes;
-			remainingBytes -= curBytes;
-		}
+	status = 0;
+	while ((status = m_data->processServerStatus()) == 0)
+	{
 	}
 	return 0;
 }
 
-int RemoteGUIHelper::registerTexture(const unsigned char* texels, int width, int height)
+int RemoteGUIHelperTCP::registerTexture(const unsigned char* texels, int width, int height)
 {
 	int textureId = -1;
 
@@ -439,7 +456,7 @@ int RemoteGUIHelper::registerTexture(const unsigned char* texels, int width, int
 	return textureId;
 }
 
-int RemoteGUIHelper::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId)
+int RemoteGUIHelperTCP::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId)
 {
 	int shapeId = -1;
 
@@ -469,7 +486,7 @@ int RemoteGUIHelper::registerGraphicsShape(const float* vertices, int numvertice
 	return shapeId;
 }
 
-int RemoteGUIHelper::registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
+int RemoteGUIHelperTCP::registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
 {
 	int graphicsInstanceId = -1;
 
@@ -499,7 +516,7 @@ int RemoteGUIHelper::registerGraphicsInstance(int shapeIndex, const float* posit
 	return graphicsInstanceId;
 }
 
-void RemoteGUIHelper::removeAllGraphicsInstances()
+void RemoteGUIHelperTCP::removeAllGraphicsInstances()
 {
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
@@ -514,7 +531,7 @@ void RemoteGUIHelper::removeAllGraphicsInstances()
 	}
 }
 
-void RemoteGUIHelper::removeGraphicsInstance(int graphicsUid)
+void RemoteGUIHelperTCP::removeGraphicsInstance(int graphicsUid)
 {
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
@@ -529,7 +546,7 @@ void RemoteGUIHelper::removeGraphicsInstance(int graphicsUid)
 		}
 	}
 }
-void RemoteGUIHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4])
+void RemoteGUIHelperTCP::changeRGBAColor(int instanceUid, const double rgbaColor[4])
 {
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
@@ -548,27 +565,27 @@ void RemoteGUIHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4]
 		}
 	}
 }
-Common2dCanvasInterface* RemoteGUIHelper::get2dCanvasInterface()
+Common2dCanvasInterface* RemoteGUIHelperTCP::get2dCanvasInterface()
 {
 	return 0;
 }
 
-CommonParameterInterface* RemoteGUIHelper::getParameterInterface()
+CommonParameterInterface* RemoteGUIHelperTCP::getParameterInterface()
 {
 	return 0;
 }
 
-CommonRenderInterface* RemoteGUIHelper::getRenderInterface()
+CommonRenderInterface* RemoteGUIHelperTCP::getRenderInterface()
 {
 	return 0;
 }
 
-CommonGraphicsApp* RemoteGUIHelper::getAppInterface()
+CommonGraphicsApp* RemoteGUIHelperTCP::getAppInterface()
 {
 	return 0;
 }
 
-void RemoteGUIHelper::setUpAxis(int axis)
+void RemoteGUIHelperTCP::setUpAxis(int axis)
 {
 	GraphicsSharedMemoryCommand* cmd = m_data->getAvailableSharedMemoryCommand();
 	if (cmd)
@@ -583,11 +600,11 @@ void RemoteGUIHelper::setUpAxis(int axis)
 		}
 	}
 }
-void RemoteGUIHelper::resetCamera(float camDist, float yaw, float pitch, float camPosX, float camPosY, float camPosZ)
+void RemoteGUIHelperTCP::resetCamera(float camDist, float yaw, float pitch, float camPosX, float camPosY, float camPosZ)
 {
 }
 
-void RemoteGUIHelper::copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],
+void RemoteGUIHelperTCP::copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],
 										  unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
 										  float* depthBuffer, int depthBufferSizeInPixels,
 										  int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
@@ -598,33 +615,33 @@ void RemoteGUIHelper::copyCameraImageData(const float viewMatrix[16], const floa
 		*numPixelsCopied = 0;
 }
 
-void RemoteGUIHelper::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
+void RemoteGUIHelperTCP::setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16])
 {
 }
 
-void RemoteGUIHelper::setProjectiveTexture(bool useProjectiveTexture)
+void RemoteGUIHelperTCP::setProjectiveTexture(bool useProjectiveTexture)
 {
 }
 
-void RemoteGUIHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld)
+void RemoteGUIHelperTCP::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld)
 {
 }
 
-void RemoteGUIHelper::drawText3D(const char* txt, float posX, float posZY, float posZ, float size)
+void RemoteGUIHelperTCP::drawText3D(const char* txt, float posX, float posZY, float posZ, float size)
 {
 }
 
-void RemoteGUIHelper::drawText3D(const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
+void RemoteGUIHelperTCP::drawText3D(const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
 {
 }
 
-int RemoteGUIHelper::addUserDebugLine(const double debugLineFromXYZ[3], const double debugLineToXYZ[3], const double debugLineColorRGB[3], double lineWidth, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid)
+int RemoteGUIHelperTCP::addUserDebugLine(const double debugLineFromXYZ[3], const double debugLineToXYZ[3], const double debugLineColorRGB[3], double lineWidth, double lifeTime, int trackingVisualShapeIndex, int replaceItemUid)
 {
 	return -1;
 }
-void RemoteGUIHelper::removeUserDebugItem(int debugItemUniqueId)
+void RemoteGUIHelperTCP::removeUserDebugItem(int debugItemUniqueId)
 {
 }
-void RemoteGUIHelper::removeAllUserDebugItems()
+void RemoteGUIHelperTCP::removeAllUserDebugItems()
 {
 }

@@ -8,9 +8,10 @@
 
 class PhysicsClientSharedMemory : public PhysicsClient
 {
-	struct PhysicsClientSharedMemoryInternalData* m_data;
+	
 
 protected:
+	struct PhysicsClientSharedMemoryInternalData* m_data;
 	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
 	void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
 	void resetData();

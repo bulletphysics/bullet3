@@ -61,7 +61,7 @@ public:
 	static tVector RotMatToEuler(const tMatrix& mat);
 	static tQuaternion RotMatToQuaternion(const tMatrix& mat);
 	static void EulerToAxisAngle(const tVector& euler, tVector& out_axis, double& out_theta);
-	static tVector AxisAngleToEuler(const tVector& axis, double theta);
+	
 	static tMatrix DirToRotMat(const tVector& dir, const tVector& up);
 
 	static void DeltaRot(const tVector& axis0, double theta0, const tVector& axis1, double theta1,
@@ -69,7 +69,7 @@ public:
 	static tMatrix DeltaRot(const tMatrix& R0, const tMatrix& R1);
 
 	static tQuaternion EulerToQuaternion(const tVector& euler);
-	static tVector QuaternionToEuler(const tQuaternion& q);
+	
 	static tQuaternion AxisAngleToQuaternion(const tVector& axis, double theta);
 	static void QuaternionToAxisAngle(const tQuaternion& q, tVector& out_axis, double& out_theta);
 	static tMatrix BuildQuaternionDiffMat(const tQuaternion& q);
