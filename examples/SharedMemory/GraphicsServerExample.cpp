@@ -25,7 +25,7 @@
 #include "GraphicsSharedMemoryCommands.h"
 
 
-bool gVerboseNetworkMessagesServer = true;
+bool gVerboseNetworkMessagesServer = false;
 
 void MySerializeInt(unsigned int sz, unsigned char* output)
 {
@@ -85,11 +85,46 @@ struct TCPArgs
 {
 	TCPArgs()
 		: m_cs(0),
-		m_port(6667)
+		m_port(6667),
+		m_numClientCommands(0),
+		m_numServerCommands(0),
+		m_cmdPtr(0)
 	{
+		m_dataSlots.resize(10);
 	}
+	
+	void submitCommand()
+	{
+		m_cs->lock();
+		m_serverStatus.m_type = GFX_CMD_CLIENT_COMMAND_FAILED;
+		m_serverStatus.m_numDataStreamBytes = 0;
+		btAssert(m_numServerCommands == m_numClientCommands);
+		m_numClientCommands++;
+		m_cs->unlock();
+	}
+	void processCommand()
+	{
+		m_cs->lock();
+		btAssert(m_numServerCommands == (m_numClientCommands - 1));
+		m_numServerCommands++;
+		m_cs->unlock();
+	}
+	bool isCommandOutstanding()
+	{
+		m_cs->lock();
+		bool result = m_numClientCommands > m_numServerCommands;
+		m_cs->unlock();
+		return result;
+	}
+
+
 	b3CriticalSection* m_cs;
 	int m_port;
+	b3AlignedObjectArray< b3AlignedObjectArray<unsigned char> > m_dataSlots;
+	int m_numClientCommands;
+	int m_numServerCommands;
+	GraphicsSharedMemoryCommand* m_cmdPtr;
+	GraphicsSharedMemoryStatus m_serverStatus;
 };
 
 struct TCPThreadLocalStorage
@@ -133,13 +168,11 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 		b3Clock clock;
 		double timeOutInSeconds = 10;
 
-		RemoteGUIHelper guiHelper;
-		bool isPhysicsClientConnected = guiHelper.isConnected();
+		
+		bool isPhysicsClientConnected = true;
 		bool exitRequested = false;
 
-		b3AlignedObjectArray< b3AlignedObjectArray<char> > slots;
-		int maxSlots = 10;
-		slots.resize(maxSlots);
+		
 		if (!isPhysicsClientConnected)
 		{
 			printf("TCP thread error connecting to shared memory. Machine needs a reboot?\n");
@@ -158,7 +191,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 
 		socket.Listen("localhost", args->m_port);
 
-		
+		socket.SetBlocking();
 
 		int curNumErr = 0;
 
@@ -267,34 +300,39 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 								receivedData = true;
 
 								
-
-								GraphicsSharedMemoryCommand* cmdPtr = 0;
+								args->m_cmdPtr = 0;
+								
 
 								int type = *(int*)&bytesReceived[0];
 
 								
 								if (numBytesRec == sizeof(GraphicsSharedMemoryCommand))
 								{
-									cmdPtr = (GraphicsSharedMemoryCommand*)&bytesReceived[0];
+									args->m_cmdPtr = (GraphicsSharedMemoryCommand*)&bytesReceived[0];
 								}
 								
-								if (cmdPtr)
+								if (args->m_cmdPtr)
 								{
-									GraphicsSharedMemoryStatus serverStatus;
-									serverStatus.m_type = GFX_CMD_CLIENT_COMMAND_FAILED;
-									serverStatus.m_numDataStreamBytes = 0;
+									
 									b3AlignedObjectArray<char> buffer;
 									buffer.resize(GRAPHICS_SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 									bool hasStatus = true;
 									if (gVerboseNetworkMessagesServer)
 										printf("processing command:");
-									switch (cmdPtr->m_type)
+									switch (args->m_cmdPtr->m_type)
 									{
 									case GFX_CMD_0:
 									{
-										int axis = cmdPtr->m_upAxisYCommand.m_enableUpAxisY ? 1 : 2;
-										guiHelper.setUpAxis(axis);
-										serverStatus.m_type = GFX_CMD_CLIENT_COMMAND_COMPLETED;
+										int axis = args->m_cmdPtr->m_upAxisYCommand.m_enableUpAxisY ? 1 : 2;
+										args->submitCommand();
+										while (args->isCommandOutstanding())
+										{
+											clock.usleep(0);
+										}
+										bool done = false;
+										//guiHelper.setUpAxis(axis);
+
+										
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_0\n");
 										break;
@@ -302,32 +340,37 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 
 									case GFX_CMD_SET_VISUALIZER_FLAG:
 									{
-										guiHelper.setVisualizerFlag(
-											cmdPtr->m_visualizerFlagCommand.m_visualizerFlag,
-											cmdPtr->m_visualizerFlagCommand.m_enable);
-										serverStatus.m_type = GFX_CMD_CLIENT_COMMAND_COMPLETED;
+										args->submitCommand();
+										while (args->isCommandOutstanding())
+										{
+											clock.usleep(0);
+										}
+										//guiHelper.setVisualizerFlag(
+										//	args->m_cmdPtr->m_visualizerFlagCommand.m_visualizerFlag,
+										//	args->m_cmdPtr->m_visualizerFlagCommand.m_enable);
+										//serverStatus.m_type = GFX_CMD_CLIENT_COMMAND_COMPLETED;
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_SET_VISUALIZER_FLAG\n");
 										break;
 									}
 									case GFX_CMD_UPLOAD_DATA:
 									{
-										int slot = cmdPtr->m_uploadDataCommand.m_dataSlot;
+										int slot = args->m_cmdPtr->m_uploadDataCommand.m_dataSlot;
 
-										int numBytes = cmdPtr->m_uploadDataCommand.m_numBytes;
+										int numBytes = args->m_cmdPtr->m_uploadDataCommand.m_numBytes;
 
 
-										submitStatus(pClient, serverStatus, buffer);
+										submitStatus(pClient, args->m_serverStatus, buffer);
 
 										//now receive numBytes 
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_UPLOAD_DATA receiving data\n");
 										int received = 0;
 										int offset = 0;
-										slots[slot].resize(numBytes);
+										args->m_dataSlots[slot].resize(numBytes);
 										while (received < numBytes)
 										{
-											if (pClient->Receive(cmdPtr->m_uploadDataCommand.m_numBytes))
+											if (pClient->Receive(args->m_cmdPtr->m_uploadDataCommand.m_numBytes))
 											{
 												//heuristic to detect disconnected clients
 												CSimpleSocket::CSocketError err = pClient->GetSocketError();
@@ -343,7 +386,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 												
 												for (int i = 0; i < numBytesRec2; i++)
 												{
-													slots[slot][i+ offset] = msg2[i];
+													args->m_dataSlots[slot][i+ offset] = msg2[i];
 												}
 												offset += numBytesRec2;
 												received += numBytesRec2;
@@ -351,89 +394,105 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 										}
 										if (gVerboseNetworkMessagesServer)
 											printf("received all bytes!\n");
-										serverStatus.m_type = GFX_CMD_CLIENT_COMMAND_COMPLETED;
+										args->m_serverStatus.m_type = GFX_CMD_CLIENT_COMMAND_COMPLETED;
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_UPLOAD_DATA\n");
 										break;
 									}
 									case GFX_CMD_REGISTER_TEXTURE:
 									{
-										const unsigned char* texels = (const unsigned char*)&slots[0][0];
-										serverStatus.m_registerTextureStatus.m_textureId = guiHelper.registerTexture(texels, cmdPtr->m_registerTextureCommand.m_width,
-											cmdPtr->m_registerTextureCommand.m_height);
-										serverStatus.m_type = GFX_CMD_REGISTER_TEXTURE_COMPLETED;
+										args->submitCommand();
+										while (args->isCommandOutstanding())
+										{
+											clock.usleep(0);
+										}
+										//const unsigned char* texels = (const unsigned char*)&args->m_dataSlots[0][0];
+										//args->m_serverStatus.m_registerTextureStatus.m_textureId = guiHelper.registerTexture(texels, args->m_cmdPtr->m_registerTextureCommand.m_width,
+										//	args->m_cmdPtr->m_registerTextureCommand.m_height);
+										//serverStatus.m_type = GFX_CMD_REGISTER_TEXTURE_COMPLETED;
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_REGISTER_TEXTURE\n");
 										break;
 									}
 									case GFX_CMD_REGISTER_GRAPHICS_SHAPE:
 									{
-										const float* vertices = (const float*)&slots[0][0];
-										const int* indices = (const int*)&slots[1][0];
-
-										serverStatus.m_registerGraphicsShapeStatus.m_shapeId = guiHelper.registerGraphicsShape(vertices, cmdPtr->m_registerGraphicsShapeCommand.m_numVertices, indices,
-											cmdPtr->m_registerGraphicsShapeCommand.m_numIndices, cmdPtr->m_registerGraphicsShapeCommand.m_primitiveType,
-											cmdPtr->m_registerGraphicsShapeCommand.m_textureId);
-										serverStatus.m_type = GFX_CMD_REGISTER_GRAPHICS_SHAPE_COMPLETED;
+										args->submitCommand();
+										while (args->isCommandOutstanding())
+										{
+											clock.usleep(0);
+										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_REGISTER_GRAPHICS_SHAPE\n");
 										break;
 									}
 									case GFX_CMD_REGISTER_GRAPHICS_INSTANCE:
 									{
-										serverStatus.m_registerGraphicsInstanceStatus.m_graphicsInstanceId =
-											guiHelper.registerGraphicsInstance(
-												cmdPtr->m_registerGraphicsInstanceCommand.m_shapeIndex,
-												cmdPtr->m_registerGraphicsInstanceCommand.m_position,
-												cmdPtr->m_registerGraphicsInstanceCommand.m_quaternion,
-												cmdPtr->m_registerGraphicsInstanceCommand.m_color,
-												cmdPtr->m_registerGraphicsInstanceCommand.m_scaling);
-										serverStatus.m_type = GFX_CMD_REGISTER_GRAPHICS_INSTANCE_COMPLETED;
+										args->submitCommand();
+										while (args->isCommandOutstanding())
+										{
+											clock.usleep(0);
+										}
+
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_REGISTER_GRAPHICS_INSTANCE\n");
 										break;
 									}
 									case GFX_CMD_SYNCHRONIZE_TRANSFORMS:
 									{
-										const GUISyncPosition* positions = (const GUISyncPosition*)&slots[0][0];
-										guiHelper.syncPhysicsToGraphics2(positions, cmdPtr->m_syncTransformsCommand.m_numPositions);
-										serverStatus.m_type = GFX_CMD_CLIENT_COMMAND_COMPLETED;
+										args->submitCommand();
+										while (args->isCommandOutstanding())
+										{
+											clock.usleep(0);
+										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_SYNCHRONIZE_TRANSFORMS\n");
 										break;
 									}
 									case GFX_CMD_REMOVE_ALL_GRAPHICS_INSTANCES:
 									{
-										guiHelper.removeAllGraphicsInstances();
-										serverStatus.m_type = GFX_CMD_CLIENT_COMMAND_COMPLETED;
+										args->submitCommand();
+										while (args->isCommandOutstanding())
+										{
+											clock.usleep(0);
+										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_REMOVE_ALL_GRAPHICS_INSTANCES\n");
 										break;
 									}
 									case GFX_CMD_REMOVE_SINGLE_GRAPHICS_INSTANCE:
 									{
-										guiHelper.removeGraphicsInstance(cmdPtr->m_removeGraphicsInstanceCommand.m_graphicsUid);
-										serverStatus.m_type = GFX_CMD_CLIENT_COMMAND_COMPLETED;
+										args->submitCommand();
+										while (args->isCommandOutstanding())
+										{
+											clock.usleep(0);
+										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_REMOVE_SINGLE_GRAPHICS_INSTANCE\n");
 										break;
 									}
 									case GFX_CMD_CHANGE_RGBA_COLOR:
 									{
-										guiHelper.changeRGBAColor(cmdPtr->m_changeRGBAColorCommand.m_graphicsUid,
-											cmdPtr->m_changeRGBAColorCommand.m_rgbaColor);
-										serverStatus.m_type = GFX_CMD_CLIENT_COMMAND_COMPLETED;
+										args->submitCommand();
+										while (args->isCommandOutstanding())
+										{
+											clock.usleep(0);
+										}
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_CHANGE_RGBA_COLOR\n");
 										break;
 									}
 									case GFX_CMD_GET_CAMERA_INFO:
 									{
+										args->submitCommand();
+										while (args->isCommandOutstanding())
+										{
+											clock.usleep(0);
+										}
 										//bool RemoteGUIHelper::getCameraInfo(int* width, int* height, 
 										//	float viewMatrix[16], float projectionMatrix[16], 
 										//	float camUp[3], float camForward[3], float hor[3], float vert[3], 
 										//	float* yaw, float* pitch, float* camDist, float camTarget[3]) const
-
+#if 0
 										guiHelper.getCameraInfo(&serverStatus.m_getCameraInfoStatus.width,
 											&serverStatus.m_getCameraInfoStatus.height,
 											serverStatus.m_getCameraInfoStatus.viewMatrix,
@@ -447,6 +506,7 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 											&serverStatus.m_getCameraInfoStatus.camDist,
 											serverStatus.m_getCameraInfoStatus.camTarget);
 										serverStatus.m_type = GFX_CMD_GET_CAMERA_INFO_COMPLETED;
+#endif
 										if (gVerboseNetworkMessagesServer)
 											printf("GFX_CMD_GET_CAMERA_INFO\n");
 										break;
@@ -469,11 +529,11 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 									if (gVerboseNetworkMessagesServer)
 									{
 										//printf("buffer.size = %d\n", buffer.size());
-										printf("serverStatus.m_numDataStreamBytes = %d\n", serverStatus.m_numDataStreamBytes);
+										printf("serverStatus.m_numDataStreamBytes = %d\n", args->m_serverStatus.m_numDataStreamBytes);
 									}
 									if (hasStatus)
 									{
-										submitStatus(pClient, serverStatus, buffer);
+										submitStatus(pClient, args->m_serverStatus, buffer);
 									}
 
 									bytesReceived.clear();
@@ -498,7 +558,6 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 			}
 
 #endif //BT_ENABLE_CLSOCKET
-
 
 
 			///////////////////////////////
@@ -566,12 +625,8 @@ class GraphicsServerExample : public CommonExampleInterface
 {
 	CommonGraphicsApp* m_app;
 	GUIHelperInterface* m_guiHelper;
-	SharedMemoryInterface* m_sharedMemory;
-	int m_sharedMemoryKey;
+	
 	bool m_verboseOutput;
-	bool m_areConnected[MAX_GRAPHICS_SHARED_MEMORY_BLOCKS];
-	GraphicsSharedMemoryBlock* m_testBlocks[MAX_GRAPHICS_SHARED_MEMORY_BLOCKS];
-	b3AlignedObjectArray< b3AlignedObjectArray<unsigned char> > m_dataSlots;
 
 	float m_x;
 	float m_y;
@@ -588,27 +643,9 @@ public:
 		  m_z(0)
 	{
 		m_verboseOutput = true;
-		m_sharedMemoryKey = GRAPHICS_SHARED_MEMORY_KEY;
+		
 		m_app = guiHelper->getAppInterface();
 		m_app->setUpAxis(2);
-
-		
-
-		for (int i = 0; i < MAX_GRAPHICS_SHARED_MEMORY_BLOCKS; i++)
-		{
-			m_areConnected[i] = false;
-		}
-
-#ifdef _WIN32
-		m_sharedMemory = new Win32SharedMemoryServer();
-#else
-		m_sharedMemory = new PosixSharedMemory();
-#endif
-
-
-		connectSharedMemory(m_guiHelper, m_sharedMemoryKey);
-
-
 
 		m_threadSupport = createTCPThreadSupport(1);
 		m_args.m_cs = m_threadSupport->createCriticalSection();
@@ -653,7 +690,6 @@ public:
 		delete m_threadSupport;
 		m_threadSupport = 0;
 
-		disconnectSharedMemory();
 	}
 
 	virtual void initPhysics()
@@ -663,20 +699,11 @@ public:
 	{
 	}
 	
-	GraphicsSharedMemoryStatus& createServerStatus(int statusType, int sequenceNumber, int timeStamp, int blockIndex)
-	{
-		GraphicsSharedMemoryStatus& serverCmd = m_testBlocks[blockIndex]->m_serverCommands[0];
-		serverCmd.m_type = statusType;
-		serverCmd.m_sequenceNumber = sequenceNumber;
-		serverCmd.m_timeStamp = timeStamp;
-		return serverCmd;
-	}
 	void submitServerStatus(GraphicsSharedMemoryStatus& status, int blockIndex)
 	{
-		m_testBlocks[blockIndex]->m_numServerCommands++;
 	}
 
-	bool processCommand(const struct GraphicsSharedMemoryCommand& clientCmd, struct GraphicsSharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+	bool processCommand(const struct GraphicsSharedMemoryCommand& clientCmd, struct GraphicsSharedMemoryStatus& serverStatusOut)
 	{
 		//printf("processed command of type:%d\n", clientCmd.m_type);
 		B3_PROFILE("processCommand");
@@ -687,6 +714,8 @@ public:
 				//either Y or Z can be up axis
 				int upAxis = (clientCmd.m_upAxisYCommand.m_enableUpAxisY) ? 1 : 2;
 				m_guiHelper->setUpAxis(upAxis);
+				serverStatusOut.m_type = GFX_CMD_CLIENT_COMMAND_COMPLETED;
+				m_args.processCommand();
 				break;
 			}
 			case GFX_CMD_SET_VISUALIZER_FLAG:
@@ -698,12 +727,14 @@ public:
 
 					this->m_guiHelper->setVisualizerFlag(clientCmd.m_visualizerFlagCommand.m_visualizerFlag, clientCmd.m_visualizerFlagCommand.m_enable);
 				}
+				m_args.processCommand();
 				break;
 
 			}
 
 			case GFX_CMD_UPLOAD_DATA:
 			{
+#if 0
 				//printf("uploadData command: curSize=%d, offset=%d, slot=%d", clientCmd.m_uploadDataCommand.m_numBytes, clientCmd.m_uploadDataCommand.m_dataOffset, clientCmd.m_uploadDataCommand.m_dataSlot);
 				int dataSlot = clientCmd.m_uploadDataCommand.m_dataSlot;
 				int dataOffset = clientCmd.m_uploadDataCommand.m_dataOffset;
@@ -714,21 +745,25 @@ public:
 				{
 					m_dataSlots[dataSlot][dataOffset + i] = bufferServerToClient[i];
 				}
+#endif
 				break;
 			}
 			case GFX_CMD_REGISTER_TEXTURE:
 			{
+				
 				int dataSlot = 0;
-				int sizeData = m_dataSlots[dataSlot].size();
+				int sizeData = m_args.m_dataSlots[dataSlot].size();
 				btAssert(sizeData > 0);
 				serverStatusOut.m_type = GFX_CMD_REGISTER_TEXTURE_FAILED;
 				if (sizeData)
 				{
-					unsigned char* texels = &m_dataSlots[dataSlot][0];
+					unsigned char* texels = &m_args.m_dataSlots[dataSlot][0];
 					int textureId = this->m_guiHelper->registerTexture(texels, clientCmd.m_registerTextureCommand.m_width, clientCmd.m_registerTextureCommand.m_height);
 					serverStatusOut.m_type = GFX_CMD_REGISTER_TEXTURE_COMPLETED;
 					serverStatusOut.m_registerTextureStatus.m_textureId = textureId;
 				}
+				
+				m_args.processCommand();
 				break;
 			}
 
@@ -737,8 +772,8 @@ public:
 				int verticesSlot = 0;
 				int indicesSlot = 1;
 				serverStatusOut.m_type = GFX_CMD_REGISTER_GRAPHICS_SHAPE_FAILED;
-				const float* vertices = (const float*)&m_dataSlots[verticesSlot][0];
-				const int* indices = (const int*)&m_dataSlots[indicesSlot][0];
+				const float* vertices = (const float*)&m_args.m_dataSlots[verticesSlot][0];
+				const int* indices = (const int*)&m_args.m_dataSlots[indicesSlot][0];
 				int numVertices = clientCmd.m_registerGraphicsShapeCommand.m_numVertices;
 				int numIndices = clientCmd.m_registerGraphicsShapeCommand.m_numIndices;
 				int primitiveType = clientCmd.m_registerGraphicsShapeCommand.m_primitiveType;
@@ -746,6 +781,7 @@ public:
 				int shapeId = this->m_guiHelper->registerGraphicsShape(vertices, numVertices, indices, numIndices, primitiveType, textureId);
 				serverStatusOut.m_registerGraphicsShapeStatus.m_shapeId = shapeId;
 				serverStatusOut.m_type = GFX_CMD_REGISTER_GRAPHICS_SHAPE_COMPLETED;
+				m_args.processCommand();
 				break;
 			}
 
@@ -758,31 +794,35 @@ public:
 					clientCmd.m_registerGraphicsInstanceCommand.m_scaling);
 				serverStatusOut.m_registerGraphicsInstanceStatus.m_graphicsInstanceId = graphicsInstanceId;
 				serverStatusOut.m_type = GFX_CMD_REGISTER_GRAPHICS_INSTANCE_COMPLETED;
-
+				m_args.processCommand();
 				break;
 			}
 			case GFX_CMD_SYNCHRONIZE_TRANSFORMS:
 			{
-				GUISyncPosition* positions = (GUISyncPosition*)bufferServerToClient;
+				GUISyncPosition* positions = (GUISyncPosition*)&m_args.m_dataSlots[0][0];
 				for (int i = 0; i < clientCmd.m_syncTransformsCommand.m_numPositions; i++)
 				{
 					m_app->m_renderer->writeSingleInstanceTransformToCPU(positions[i].m_pos, positions[i].m_orn, positions[i].m_graphicsInstanceId);
 				}
+				m_args.processCommand();
 				break;
 			}
 			case GFX_CMD_REMOVE_ALL_GRAPHICS_INSTANCES:
 			{
 				m_guiHelper->removeAllGraphicsInstances();
+				m_args.processCommand();
 				break;
 			}
 			case GFX_CMD_REMOVE_SINGLE_GRAPHICS_INSTANCE:
 			{
 				m_app->m_renderer->removeGraphicsInstance(clientCmd.m_removeGraphicsInstanceCommand.m_graphicsUid);
+				m_args.processCommand();
 				break;
 			}
 			case GFX_CMD_CHANGE_RGBA_COLOR:
 			{
 				m_guiHelper->changeRGBAColor(clientCmd.m_changeRGBAColorCommand.m_graphicsUid, clientCmd.m_changeRGBAColorCommand.m_rgbaColor);
+				m_args.processCommand();
 				break;
 			}
 			case GFX_CMD_GET_CAMERA_INFO:
@@ -805,6 +845,7 @@ public:
 				{
 					serverStatusOut.m_type = GFX_CMD_GET_CAMERA_INFO_COMPLETED;
 				}
+				m_args.processCommand();
 
 				break;
 			}
@@ -818,32 +859,17 @@ public:
 
 	void processClientCommands()
 	{
-		B3_PROFILE("processClientCommands");
-		for (int block = 0; block < MAX_GRAPHICS_SHARED_MEMORY_BLOCKS; block++)
+		int timeStamp = 0;
+		bool hasStatus = false;
+		if (m_args.isCommandOutstanding())
 		{
-			if (m_areConnected[block] && m_testBlocks[block])
-			{
-				///we ignore overflow of integer for now
-				if (m_testBlocks[block]->m_numClientCommands > m_testBlocks[block]->m_numProcessedClientCommands)
-				{
-					//BT_PROFILE("processClientCommand");
-
-					//until we implement a proper ring buffer, we assume always maximum of 1 outstanding commands
-					btAssert(m_testBlocks[block]->m_numClientCommands == m_testBlocks[block]->m_numProcessedClientCommands + 1);
-
-					const GraphicsSharedMemoryCommand& clientCmd = m_testBlocks[block]->m_clientCommands[0];
-
-					m_testBlocks[block]->m_numProcessedClientCommands++;
-					//todo, timeStamp
-					int timeStamp = 0;
-					GraphicsSharedMemoryStatus& serverStatusOut = createServerStatus(GFX_CMD_CLIENT_COMMAND_FAILED, clientCmd.m_sequenceNumber, timeStamp, block);
-					bool hasStatus = processCommand(clientCmd, serverStatusOut, &m_testBlocks[block]->m_bulletStreamData[0], GRAPHICS_SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
-					if (hasStatus)
-					{
-						submitServerStatus(serverStatusOut, block);
-					}
-				}
-			}
+			processCommand(*m_args.m_cmdPtr, m_args.m_serverStatus);
+		}
+		//serverStatusOut.m_type = GFX_CMD_CLIENT_COMMAND_FAILED;
+		//bool hasStatus = processCommand(clientCmd, serverStatusOut);
+		if (hasStatus)
+		{
+			//submitServerStatus(serverStatusOut);
 		}
 	}
 
@@ -907,106 +933,14 @@ public:
 		}
 	}
 	
-	bool connectSharedMemory(struct GUIHelperInterface* guiHelper, int sharedMemoryKey);
-	void disconnectSharedMemory(bool deInitializeSharedMemory=true);
+	
 };
 
 
 
-bool GraphicsServerExample::connectSharedMemory(struct GUIHelperInterface* guiHelper, int sharedMemoryKey)
-{
-	
-	bool allowCreation = true;
-	bool allConnected = false;
-	int numConnected = 0;
 
-	int counter = 0;
-	for (int block = 0; block < MAX_GRAPHICS_SHARED_MEMORY_BLOCKS; block++)
-	{
-		if (m_areConnected[block])
-		{
-			allConnected = true;
-			numConnected++;
-			b3Warning("connectSharedMemory, while already connected");
-			continue;
-		}
-		do
-		{
-			m_testBlocks[block] = (GraphicsSharedMemoryBlock*)m_sharedMemory->allocateSharedMemory(m_sharedMemoryKey + block, GRAPHICS_SHARED_MEMORY_SIZE, allowCreation);
-			if (m_testBlocks[block])
-			{
-				int magicId = m_testBlocks[block]->m_magicId;
-				if (m_verboseOutput)
-				{
-					b3Printf("magicId = %d\n", magicId);
-				}
 
-				if (m_testBlocks[block]->m_magicId != GRAPHICS_SHARED_MEMORY_MAGIC_NUMBER)
-				{
-					InitSharedMemoryBlock(m_testBlocks[block]);
-					if (m_verboseOutput)
-					{
-						b3Printf("Created and initialized shared memory block\n");
-					}
-					m_areConnected[block] = true;
-					numConnected++;
-				}
-				else
-				{
-					m_sharedMemory->releaseSharedMemory(m_sharedMemoryKey + block, GRAPHICS_SHARED_MEMORY_SIZE);
-					m_testBlocks[block] = 0;
-					m_areConnected[block] = false;
-				}
-			}
-			else
-			{
-				//b3Error("Cannot connect to shared memory");
-				m_areConnected[block] = false;
-			}
-		} while (counter++ < 10 && !m_areConnected[block]);
-		if (!m_areConnected[block])
-		{
-			b3Error("Server cannot connect to shared memory.\n");
-		}
-	}
 
-	allConnected = (numConnected == MAX_GRAPHICS_SHARED_MEMORY_BLOCKS);
-
-	return allConnected;
-}
-
-void GraphicsServerExample::disconnectSharedMemory(bool deInitializeSharedMemory)
-{
-	//m_data->m_commandProcessor->deleteDynamicsWorld();
-
-	
-	if (m_verboseOutput)
-	{
-		b3Printf("releaseSharedMemory1\n");
-	}
-	for (int block = 0; block < MAX_GRAPHICS_SHARED_MEMORY_BLOCKS; block++)
-	{
-		if (m_testBlocks[block])
-		{
-			if (m_verboseOutput)
-			{
-				b3Printf("m_testBlock1\n");
-			}
-			if (deInitializeSharedMemory)
-			{
-				m_testBlocks[block]->m_magicId = 0;
-				if (m_verboseOutput)
-				{
-					b3Printf("De-initialized shared memory, magic id = %d\n", m_testBlocks[block]->m_magicId);
-				}
-			}
-			btAssert(m_sharedMemory);
-			m_sharedMemory->releaseSharedMemory(m_sharedMemoryKey + block, GRAPHICS_SHARED_MEMORY_SIZE);
-		}
-		m_testBlocks[block] = 0;
-		m_areConnected[block] = false;
-	}
-}
 
 CommonExampleInterface* GraphicsServerCreateFuncBullet(struct CommonExampleOptions& options)
 {

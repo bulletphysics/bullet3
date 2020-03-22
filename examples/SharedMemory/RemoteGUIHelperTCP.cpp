@@ -4,8 +4,7 @@
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "Bullet3Common/b3Logging.h"
 #include "GraphicsSharedMemoryCommands.h"
-#include "PosixSharedMemory.h"
-#include "Win32SharedMemory.h"
+
 #include "GraphicsSharedMemoryBlock.h"
 
 #include "Bullet3Common/b3Scalar.h"
@@ -22,7 +21,7 @@ static unsigned int b3DeserializeInt3(const unsigned char* input)
 	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];
 	return tmp;
 }
-static bool gVerboseNetworkMessagesClient3 = true;
+static bool gVerboseNetworkMessagesClient3 = false;
 
 const char* cmd2txt[]=
 {
@@ -206,7 +205,7 @@ struct RemoteGUIHelperTCPInternalData
 		}
 		int key = GRAPHICS_SHARED_MEMORY_MAGIC_NUMBER;
 		m_tcpSocket.Send((uint8*)&key, 4);
-
+		m_tcpSocket.SetBlocking();
 		return m_isConnected;
 	
 	}
