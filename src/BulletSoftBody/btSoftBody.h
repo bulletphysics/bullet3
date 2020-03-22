@@ -166,8 +166,8 @@ public:
 			SDF_RD = 0x0004,   ///SDF based rigid vs deformable
 
 			SVSmask = 0x00f0,  ///Rigid versus soft mask
-			VF_SS = 0x00100,    ///Vertex vs face soft vs soft handling
-			CL_SS = 0x00200,    ///Cluster vs cluster soft vs soft handling
+			VF_SS = 0x0010,    ///Vertex vs face soft vs soft handling
+			CL_SS = 0x0020,    ///Cluster vs cluster soft vs soft handling
 			CL_SELF = 0x0040,  ///Cluster soft body self collision
 			VF_DD = 0x0080,    ///Vertex vs face soft vs soft handling
 
