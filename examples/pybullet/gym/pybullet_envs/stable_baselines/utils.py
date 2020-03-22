@@ -6,8 +6,6 @@ import gym
 import numpy as np
 from gym.wrappers import TimeLimit
 
-from stable_baselines.common.evaluation import evaluate_policy
-
 
 class TimeFeatureWrapper(gym.Wrapper):
     """
@@ -25,7 +23,7 @@ class TimeFeatureWrapper(gym.Wrapper):
         assert isinstance(env.observation_space, gym.spaces.Box)
         # Add a time feature to the observation
         low, high = env.observation_space.low, env.observation_space.high
-        low, high= np.concatenate((low, [0])), np.concatenate((high, [1.]))
+        low, high = np.concatenate((low, [0])), np.concatenate((high, [1.]))
         env.observation_space = gym.spaces.Box(low=low, high=high, dtype=np.float32)
 
         super(TimeFeatureWrapper, self).__init__(env)
@@ -59,56 +57,3 @@ class TimeFeatureWrapper(gym.Wrapper):
             time_feature = 1.0
         # Optionnaly: concatenate [time_feature, time_feature ** 2]
         return np.concatenate((obs, [time_feature]))
-
-
-class EvalCallback(object):
-    """
-    Callback for evaluating an agent.
-
-    :param eval_env: (gym.Env) The environment used for initialization
-    :param n_eval_episodes: (int) The number of episodes to test the agent
-    :param eval_freq: (int) Evaluate the agent every eval_freq call of the callback.
-    :param deterministic: (bool)
-    :param best_model_save_path: (str)
-    :param verbose: (int)
-    """
-    def __init__(self, eval_env, n_eval_episodes=5, eval_freq=10000,
-                 deterministic=True, best_model_save_path=None, verbose=1):
-        super(EvalCallback, self).__init__()
-        self.n_eval_episodes = n_eval_episodes
-        self.eval_freq = eval_freq
-        self.best_mean_reward = -np.inf
-        self.deterministic = deterministic
-        self.eval_env = eval_env
-        self.verbose = verbose
-        self.model, self.num_timesteps = None, 0
-        self.best_model_save_path = best_model_save_path
-        self.n_calls = 0
-
-    def __call__(self, locals_, globals_):
-        """
-        :param locals_: (dict)
-        :param globals_: (dict)
-        :return: (bool)
-        """
-        self.n_calls += 1
-        self.model = locals_['self']
-        self.num_timesteps = self.model.num_timesteps
-
-        if self.n_calls % self.eval_freq == 0:
-            episode_rewards, _ = evaluate_policy(self.model, self.eval_env, n_eval_episodes=self.n_eval_episodes,
-                                                 deterministic=self.deterministic, return_episode_rewards=True)
-
-
-            mean_reward, std_reward = np.mean(episode_rewards), np.std(episode_rewards)
-            if self.verbose > 0:
-                print("Eval num_timesteps={}, "
-                      "episode_reward={:.2f} +/- {:.2f}".format(self.num_timesteps, mean_reward, std_reward))
-
-            if mean_reward > self.best_mean_reward:
-                if self.best_model_save_path is not None:
-                    print("Saving best model")
-                    self.model.save(self.best_model_save_path)
-                self.best_mean_reward = mean_reward
-
-        return True

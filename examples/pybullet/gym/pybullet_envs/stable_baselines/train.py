@@ -12,8 +12,10 @@ import gym
 import numpy as np
 from stable_baselines import SAC, TD3
 from stable_baselines.common.noise import NormalActionNoise
+from stable_baselines.common.callbacks import EvalCallback, CheckpointCallback
+from stable_baselines.common.vec_env import DummyVecEnv
 
-from pybullet_envs.stable_baselines.utils import TimeFeatureWrapper, EvalCallback
+from pybullet_envs.stable_baselines.utils import TimeFeatureWrapper
 
 
 if __name__ == '__main__':
@@ -23,6 +25,8 @@ if __name__ == '__main__':
     parser.add_argument('--env', type=str, default='HalfCheetahBulletEnv-v0', help='environment ID')
     parser.add_argument('-n', '--n-timesteps', help='Number of training timesteps', default=int(1e6),
                         type=int)
+    parser.add_argument('--save-freq', help='Save the model every n steps (if negative, no checkpoint)',
+                    default=-1, type=int)
     args = parser.parse_args()
 
     env_id = args.env
@@ -32,9 +36,15 @@ if __name__ == '__main__':
     # Instantiate and wrap the environment
     env = TimeFeatureWrapper(gym.make(env_id))
 
-    # Create the evaluation environment and callback
-    eval_env = TimeFeatureWrapper(gym.make(env_id))
-    callback = EvalCallback(eval_env, best_model_save_path=save_path + '_best')
+    # Create the evaluation environment and callbacks
+    eval_env = DummyVecEnv([lambda: TimeFeatureWrapper(gym.make(env_id))])
+
+    callbacks = [EvalCallback(eval_env, best_model_save_path=save_path)]
+
+    # Save a checkpoint every n steps
+    if args.save_freq > 0:
+        callbacks.append(CheckpointCallback(save_freq=args.save_freq, save_path=save_path,
+                                            name_prefix='rl_model'))
 
     algo = {
         'sac': SAC,
@@ -55,7 +65,10 @@ if __name__ == '__main__':
     }[args.algo]
 
     model = algo('MlpPolicy', env, verbose=1, **hyperparams)
-    model.learn(n_timesteps, callback=callback)
+    try:
+        model.learn(n_timesteps, callback=callbacks)
+    except KeyboardInterrupt:
+        pass
 
     print("Saving to {}.zip".format(save_path))
     model.save(save_path)
