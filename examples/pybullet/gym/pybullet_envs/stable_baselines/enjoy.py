@@ -4,17 +4,16 @@
 # You can run it using: python -m pybullet_envs.stable_baselines.enjoy --algo td3 --env HalfCheetahBulletEnv-v0
 # Author: Antonin RAFFIN
 # MIT License
+import os
+import time
 import argparse
 import multiprocessing
-import time
+
 import gym
 import numpy as np
 import pybullet_envs
 
 from stable_baselines import SAC, TD3
-
-from stable_baselines.common.evaluation import evaluate_policy
-
 from pybullet_envs.stable_baselines.utils import TimeFeatureWrapper
 
 
@@ -26,7 +25,9 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--n-episodes', help='Number of episodes', default=5,
                         type=int)
     parser.add_argument('--no-render', action='store_true', default=False,
-                    help='Do not render the environment')
+                        help='Do not render the environment')
+    parser.add_argument('--load-best', action='store_true', default=False,
+                        help='Load best model instead of last model if available')
     args = parser.parse_args()
 
     env_id = args.env
@@ -44,6 +45,13 @@ if __name__ == '__main__':
 
     # We assume that the saved model is in the same folder
     save_path = '{}_{}.zip'.format(args.algo, env_id)
+
+    if not os.path.isfile(save_path) or args.load_best:
+        print("Loading best model")
+        # Try to load best model
+        save_path = os.path.join('{}_{}'.format(args.algo, env_id), 'best_model.zip')
+
+
     # Load the saved model
     model = algo.load(save_path, env=env)
 
@@ -63,7 +71,7 @@ if __name__ == '__main__':
                 episode_length += 1
                 if not args.no_render:
                     env.render(mode='human')
-                    dt = 1./240.
+                    dt = 1. / 240.
                     time.sleep(dt)
             episode_rewards.append(episode_reward)
             episode_lengths.append(episode_length)
