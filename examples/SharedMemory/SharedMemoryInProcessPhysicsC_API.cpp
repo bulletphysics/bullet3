@@ -157,6 +157,7 @@ class InProcessPhysicsClientExistingExampleBrowser : public PhysicsClientSharedM
 public:
 	InProcessPhysicsClientExistingExampleBrowser(struct GUIHelperInterface* guiHelper, bool useInProcessMemory, bool skipGraphicsUpdate, bool ownsGuiHelper)
 	{
+		m_guiHelper = 0;
 		if (ownsGuiHelper)
 		{
 			m_guiHelper = guiHelper;
