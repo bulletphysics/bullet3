@@ -218,8 +218,7 @@ void btSoftBody::initDefaults()
 	m_windVelocity = btVector3(0, 0, 0);
 	m_restLengthScale = btScalar(1.0);
 	m_dampingCoefficient = 1.0;
-	m_sleepingThreshold = .8;
-	m_useFaceContact = true;
+	m_sleepingThreshold = .4;
 	m_useSelfCollision = false;
 	m_usePostCollisionDamping = false;
 	m_collisionFlags = 0;
@@ -4042,14 +4041,14 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
                 docollideNode.stamargin = basemargin;
                 m_ndbvt.collideTV(m_ndbvt.m_root, volume, docollideNode);
                 
-                if (this->m_useFaceContact)
+                if (((pcoWrap->getCollisionObject()->getInternalType() == CO_RIGID_BODY) && (m_cfg.collisions & fCollision::SDF_RDF)) || ((pcoWrap->getCollisionObject()->getInternalType() == CO_FEATHERSTONE_LINK) && (m_cfg.collisions & fCollision::SDF_MDF)))
                 {
                     btSoftColliders::CollideSDF_RDF docollideFace;
                     docollideFace.psb = this;
                     docollideFace.m_colObj1Wrap = pcoWrap;
                     docollideFace.m_rigidBody = prb1;
-		 	docollideFace.dynmargin = basemargin + timemargin;
-			docollideFace.stamargin = basemargin;
+					docollideFace.dynmargin = basemargin + timemargin;
+					docollideFace.stamargin = basemargin;
                     m_fdbvt.collideTV(m_fdbvt.m_root, volume, docollideFace);
                 }
             }

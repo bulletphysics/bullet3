@@ -214,6 +214,7 @@ void VolumetricDeformable::initPhysics()
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 0.5;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
 		psb->m_sleepingThreshold = 0;
         btSoftBodyHelpers::generateBoundaryFaces(psb);
         

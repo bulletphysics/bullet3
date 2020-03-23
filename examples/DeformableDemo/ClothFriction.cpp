@@ -144,7 +144,7 @@ void ClothFriction::initPhysics()
                                                          10,10,
                                                          0, true);
         
-        psb->getCollisionShape()->setMargin(0.005);
+        psb->getCollisionShape()->setMargin(0.05);
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
         psb->setSpringStiffness(10);
@@ -172,7 +172,7 @@ void ClothFriction::initPhysics()
                                                           btVector3(+s, h, +s),
                                                           5,5,
                                                           0, true);
-        psb2->getCollisionShape()->setMargin(0.005);
+        psb2->getCollisionShape()->setMargin(0.05);
         psb2->generateBendingConstraints(2);
         psb2->setTotalMass(1);
         psb2->setSpringStiffness(10);

@@ -7482,8 +7482,8 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 		serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[6] =
 			body->m_rootLocalInertialFrame.getRotation()[3];
 
-    btVector3 center_of_mass(sb->getCenterOfMass());
-		btTransform tr = sb->getWorldTransform();
+    	btVector3 center_of_mass(sb->getCenterOfMass());
+		btTransform tr = sb->getRigidTransform();
 		//base position in world space, cartesian
 		stateDetails->m_actualStateQ[0] = center_of_mass[0];
 		stateDetails->m_actualStateQ[1] = center_of_mass[1];
@@ -8415,7 +8415,6 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 					if (use_bending_spring)
 					{
 						psb->generateBendingConstraints(2);
-                        psb->generateBendingConstraints(2);
 					}
 				}
 				btSoftBody::Material* pm = psb->appendMaterial();
@@ -8424,6 +8423,8 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				// turn on the collision flag for deformable
 				// collision between deformable and rigid
 				psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+				// turn on face contact only for multibodies
+				psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
 				// collion between deformable and deformable and self-collision
 				psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
 				psb->setCollisionFlags(0);

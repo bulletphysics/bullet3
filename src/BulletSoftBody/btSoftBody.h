@@ -163,14 +163,17 @@ public:
 			RVSmask = 0x000f,  ///Rigid versus soft mask
 			SDF_RS = 0x0001,   ///SDF based rigid vs soft
 			CL_RS = 0x0002,    ///Cluster vs convex rigid vs soft
-            SDF_RD = 0x0003,   ///DF based rigid vs deformable
-            SDF_RDF = 0x0004,   ///DF based rigid vs deformable faces
+			SDF_RD = 0x0004,   ///SDF based rigid vs deformable
 
-			SVSmask = 0x00F0,  ///Rigid versus soft mask
+			SVSmask = 0x00f0,  ///Rigid versus soft mask
 			VF_SS = 0x0010,    ///Vertex vs face soft vs soft handling
 			CL_SS = 0x0020,    ///Cluster vs cluster soft vs soft handling
 			CL_SELF = 0x0040,  ///Cluster soft body self collision
-            VF_DD = 0x0050,    ///Vertex vs face soft vs soft handling
+			VF_DD = 0x0080,    ///Vertex vs face soft vs soft handling
+
+			RVDFmask = 0x0f00, /// Rigid versus deformable face mask
+			SDF_RDF = 0x0100,  /// SDF based Rigid vs. deformable face
+			SDF_MDF = 0x0200,  /// SDF based Multibody vs. deformable face
 			/* presets	*/
 			Default = SDF_RS,
 			END
@@ -806,7 +809,6 @@ public:
 	btScalar m_dampingCoefficient;     // Damping Coefficient
 	btScalar m_sleepingThreshold;
 	btScalar m_maxSpeedSquared;
-	bool m_useFaceContact;
 	btAlignedObjectArray<btVector3> m_quads; // quadrature points for collision detection
 	btScalar repulsionStiffness;
     btAlignedObjectArray<btVector3> m_X;   // initial positions
@@ -818,8 +820,6 @@ public:
 	bool m_usePostCollisionDamping;
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
-
-	btTransform m_worldTransform;
 
 	btVector3 m_windVelocity;
 
@@ -851,11 +851,6 @@ public:
     void setDampingCoefficient(btScalar damping_coeff)
     {
         m_dampingCoefficient = damping_coeff;
-    }
-    
-    void setUseFaceContact(bool useFaceContact)
-    {
-        m_useFaceContact = false;
     }
 
 	///@todo: avoid internal softbody shape hack and move collision code to collision library
