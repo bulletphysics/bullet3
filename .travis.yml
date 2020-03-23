@@ -1,6 +1,14 @@
 language: cpp
 matrix:
   include:
+    - name: Static checks (clang-format)
+      os: linux
+      addons:
+        apt:
+          packages:
+            - clang-format
+      env:
+        - STATIC_CHECKS=yes
     - os: linux
       compiler: gcc
       env:
@@ -50,7 +58,9 @@ before_install:
       docker run -itd -v $TRAVIS_BUILD_DIR:$TRAVIS_BUILD_DIR --env-file .ci/docker/env.list --name bullet-docker "$DOCKER_FILE";
     fi
 script:
-  - if [ -n "$DOCKER_FILE" ]; then
+  - if [[ $STATIC_CHECKS == yes ]]; then
+      '.ci/format.sh';
+    elif [ -n "$DOCKER_FILE" ]; then
       docker exec bullet-docker /bin/sh -c "cd $TRAVIS_BUILD_DIR && ./.ci/script.sh";
     else
       '.ci/script.sh';
