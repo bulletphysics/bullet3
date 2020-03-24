@@ -21,7 +21,7 @@ static unsigned int b3DeserializeInt3(const unsigned char* input)
 	unsigned int tmp = (input[3] << 24) + (input[2] << 16) + (input[1] << 8) + input[0];
 	return tmp;
 }
-static bool gVerboseNetworkMessagesClient3 = false;
+static bool gVerboseNetworkMessagesClient3 = true;//false;
 
 const char* cmd2txt[]=
 {

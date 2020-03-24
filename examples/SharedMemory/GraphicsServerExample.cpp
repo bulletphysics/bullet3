@@ -25,7 +25,7 @@
 #include "GraphicsSharedMemoryCommands.h"
 
 
-bool gVerboseNetworkMessagesServer = false;
+bool gVerboseNetworkMessagesServer = true;
 
 void MySerializeInt(unsigned int sz, unsigned char* output)
 {
