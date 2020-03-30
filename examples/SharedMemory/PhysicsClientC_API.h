@@ -332,7 +332,8 @@ extern "C"
 
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient);
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitPhysicsParamCommand2(b3SharedMemoryCommandHandle commandHandle);
-	B3_SHARED_API int b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx, double gravy, double gravz, int body);
+	B3_SHARED_API int b3PhysicsParamSetGravityBody(b3SharedMemoryCommandHandle commandHandle, double gravx, double gravy, double gravz, int body);
+	B3_SHARED_API int b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx, double gravy, double gravz);
 	B3_SHARED_API int b3PhysicsParamSetTimeStep(b3SharedMemoryCommandHandle commandHandle, double timeStep);
 	B3_SHARED_API int b3PhysicsParamSetDefaultContactERP(b3SharedMemoryCommandHandle commandHandle, double defaultContactERP);
 	B3_SHARED_API int b3PhysicsParamSetDefaultNonContactERP(b3SharedMemoryCommandHandle commandHandle, double defaultNonContactERP);

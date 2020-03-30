@@ -3540,7 +3540,7 @@ static PyObject* pybullet_setGravity(PyObject* self, PyObject* args, PyObject* k
 
 		command = b3InitPhysicsParamCommand(sm);
 
-		ret = b3PhysicsParamSetGravity(command, gravX, gravY, gravZ, body);
+		ret = b3PhysicsParamSetGravityBody(command, gravX, gravY, gravZ, body);
 		// ret = b3PhysicsParamSetTimeStep(command,  timeStep);
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		// ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);

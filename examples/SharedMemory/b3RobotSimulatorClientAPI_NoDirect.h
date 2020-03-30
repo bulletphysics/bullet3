@@ -776,7 +776,8 @@ public:
 
 	void setInternalSimFlags(int flags);
 
-	void setGravity(const btVector3 &gravityAcceleration, int body);
+	void setGravityBody(const btVector3 &gravityAcceleration, int body);
+	void setGravity(const btVector3 &gravityAcceleration);
 
 	void setTimeStep(double timeStepInSeconds);
 	void setNumSimulationSubSteps(int numSubSteps);

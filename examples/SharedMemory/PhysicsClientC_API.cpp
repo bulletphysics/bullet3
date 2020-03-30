@@ -641,7 +641,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitPhysicsParamCommand2(b3SharedMem
 	return (b3SharedMemoryCommandHandle)command;
 }
 
-B3_SHARED_API int b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx, double gravy, double gravz, int body)
+B3_SHARED_API int b3PhysicsParamSetGravityBody(b3SharedMemoryCommandHandle commandHandle, double gravx, double gravy, double gravz, int body)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
@@ -649,6 +649,18 @@ B3_SHARED_API int b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHa
 	command->m_physSimParamArgs.m_gravityAcceleration[1] = gravy;
 	command->m_physSimParamArgs.m_gravityAcceleration[2] = gravz;
 	command->m_physSimParamArgs.m_body = body;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_GRAVITY;
+	return 0;
+}
+
+B3_SHARED_API int b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx, double gravy, double gravz)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_gravityAcceleration[0] = gravx;
+	command->m_physSimParamArgs.m_gravityAcceleration[1] = gravy;
+	command->m_physSimParamArgs.m_gravityAcceleration[2] = gravz;
+	command->m_physSimParamArgs.m_body = -1;
 	command->m_updateFlags |= SIM_PARAM_UPDATE_GRAVITY;
 	return 0;
 }
