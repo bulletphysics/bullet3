@@ -184,6 +184,8 @@ extern "C"
 #define ZTELL64(filefunc, filestream) (call_ztell64((&(filefunc)), (filestream)))
 #define ZSEEK64(filefunc, filestream, pos, mode) (call_zseek64((&(filefunc)), (filestream), (pos), (mode)))
 
+extern void* ZEXPORT mem_simple_create_file(zlib_filefunc_def* api, void* buffer, size_t buf_len);
+extern void ZEXPORT mem_simple_destroy_file(void* handle_ptr);
 #ifdef __cplusplus
 }
 #endif

@@ -4,6 +4,8 @@ import time
 p.connect(p.GUI)
 fileIO = p.loadPlugin("fileIOPlugin")
 if (fileIO >= 0):
+  #we can have a zipfile (pickup.zip) inside a zipfile (pickup2.zip)
+  p.executePluginCommand(fileIO, "pickup2.zip", [p.AddFileIOAction, p.ZipFileIO])
   p.executePluginCommand(fileIO, "pickup.zip", [p.AddFileIOAction, p.ZipFileIO])
   objs = p.loadSDF("pickup/model.sdf")
   dobot = objs[0]
