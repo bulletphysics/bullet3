@@ -9537,34 +9537,53 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 		btVector3 grav(clientCmd.m_physSimParamArgs.m_gravityAcceleration[0],
 					   clientCmd.m_physSimParamArgs.m_gravityAcceleration[1],
 					   clientCmd.m_physSimParamArgs.m_gravityAcceleration[2]);
-		this->m_data->m_dynamicsWorld->setGravity(grav);
-#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-		btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
-		if (softWorld)
-		{
-			softWorld->getWorldInfo().m_gravity = grav;
-		}
-		btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
-		if (deformWorld)
-		{
-			deformWorld->getWorldInfo().m_gravity = grav;
-			for (int i = 0; i < m_data->m_lf.size(); ++i)
-			{
-				btDeformableLagrangianForce* force = m_data->m_lf[i];
-				if (force->getForceType() == BT_GRAVITY_FORCE)
-				{
-					btDeformableGravityForce* gforce = (btDeformableGravityForce*)force;
-					gforce->m_gravity = grav;
-				}
-			}
+		if (clientCmd.m_physSimParamArgs.m_body < 0) {
+			this->m_data->m_dynamicsWorld->setGravity(grav);
 
-		}
+
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+			btSoftMultiBodyDynamicsWorld* softWorld = getSoftWorld();
+			if (softWorld)
+			{
+				softWorld->getWorldInfo().m_gravity = grav;
+			}
+			btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+			if (deformWorld)
+			{
+				deformWorld->getWorldInfo().m_gravity = grav;
+				for (int i = 0; i < m_data->m_lf.size(); ++i)
+				{
+					btDeformableLagrangianForce* force = m_data->m_lf[i];
+					if (force->getForceType() == BT_GRAVITY_FORCE)
+					{
+						btDeformableGravityForce* gforce = (btDeformableGravityForce*)force;
+						gforce->m_gravity = grav;
+					}
+				}
+
+			}
 		
 
 #endif
-		if (m_data->m_verboseOutput)
-		{
-			b3Printf("Updated Gravity: %f,%f,%f", grav[0], grav[1], grav[2]);
+			if (m_data->m_verboseOutput)
+			{
+				b3Printf("Updated Gravity: %f,%f,%f", grav[0], grav[1], grav[2]);
+			}
+		} else {
+            InternalBodyData* body = m_data->m_bodyHandles.getHandle(clientCmd.m_physSimParamArgs.m_body);
+
+            if (body && body->m_multiBody) {
+                btMultiBody* mb = body->m_multiBody;
+                mb->setGravity(grav);
+            } else if (body && body->m_rigidBody) {
+                btRigidBody* rb = body->m_rigidBody;
+                rb->setGravity(grav);
+            }
+
+			if (m_data->m_verboseOutput)
+			{
+				b3Printf("Updated Gravity of body: %f,%f,%f", grav[0], grav[1], grav[2]);
+			}
 		}
 	}
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS)

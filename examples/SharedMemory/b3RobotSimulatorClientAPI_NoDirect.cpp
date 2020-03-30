@@ -129,7 +129,7 @@ void b3RobotSimulatorClientAPI_NoDirect::stepSimulation()
 	}
 }
 
-void b3RobotSimulatorClientAPI_NoDirect::setGravity(const btVector3& gravityAcceleration)
+void b3RobotSimulatorClientAPI_NoDirect::setGravity(const btVector3& gravityAcceleration, int body)
 {
 	if (!isConnected())
 	{
@@ -140,7 +140,7 @@ void b3RobotSimulatorClientAPI_NoDirect::setGravity(const btVector3& gravityAcce
 
 	b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(m_data->m_physicsClientHandle);
 	b3SharedMemoryStatusHandle statusHandle;
-	b3PhysicsParamSetGravity(command, gravityAcceleration[0], gravityAcceleration[1], gravityAcceleration[2]);
+	b3PhysicsParamSetGravity(command, gravityAcceleration[0], gravityAcceleration[1], gravityAcceleration[2], body);
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 	//	btAssert(b3GetStatusType(statusHandle) == CMD_CLIENT_COMMAND_COMPLETED);
 }
