@@ -72,6 +72,7 @@ struct InMemoryFileIO : public CommonFileIOInterface
 	{
 		for (int i=0;i<m_fileCache.size();i++)
 		{
+			b3HashString name = m_fileCache.getKeyAtIndex(i);
 			InMemoryFile** memPtr = m_fileCache.getAtIndex(i);
 			if (memPtr && *memPtr)
 			{
@@ -80,6 +81,7 @@ struct InMemoryFileIO : public CommonFileIOInterface
 				m_numFrees++;
 				delete (mem);
 				m_numFrees++;
+				m_fileCache.remove(name);
 			}
 		}
 	}
@@ -319,6 +321,7 @@ struct WrapperFileIO : public CommonFileIOInterface
 		{
 			removeFileIOInterface(i);
 		}
+		m_cachedFiles.clearCache();
 	}
 
 	int addFileIOInterface(CommonFileIOInterface* fileIO)
