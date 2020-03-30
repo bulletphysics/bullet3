@@ -125,7 +125,8 @@ btMultiBody::btMultiBody(int n_links,
 	  m_posVarCnt(0),
 	  m_useRK4(false),
 	  m_useGlobalVelocities(false),
-	  m_internalNeedsJointFeedback(false)
+	  m_internalNeedsJointFeedback(false),
+	  m_gravity(-1.01, -1.01, -1.01)
 {
 	m_cachedInertiaTopLeft.setValue(0, 0, 0, 0, 0, 0, 0, 0, 0);
 	m_cachedInertiaTopRight.setValue(0, 0, 0, 0, 0, 0, 0, 0, 0);
