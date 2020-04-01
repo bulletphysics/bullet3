@@ -12097,7 +12097,8 @@ static PyMethodDef SpamMethods[] = {
 
 	{"createSoftBodyAnchor", (PyCFunction)pybullet_createSoftBodyAnchor, METH_VARARGS | METH_KEYWORDS,
 	 "Create an anchor (attachment) between a soft body and a rigid or multi body."},
-
+	{"getSoftBodyData", (PyCFunction)pybullet_getSoftBodyData, METH_VARARGS | METH_KEYWORDS,
+	 "Get soft body nodes."},
 #endif
 	{"loadBullet", (PyCFunction)pybullet_loadBullet, METH_VARARGS | METH_KEYWORDS,
 	 "Load a world from a .bullet file."},
