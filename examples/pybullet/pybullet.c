@@ -2227,6 +2227,9 @@ static PyObject* pybullet_getSoftBodyData(PyObject* self, PyObject* args, PyObje
 
 #ifdef PYBULLET_USE_NUMPY
             npy_intp dims[1] = {data.m_numNodes};
+			pyX = PyArray_SimpleNew(1, dims, NPY_FLOAT32);
+            pyY = PyArray_SimpleNew(1, dims, NPY_FLOAT32);
+            pyZ = PyArray_SimpleNew(1, dims, NPY_FLOAT32);
             memcpy(PyArray_DATA(pyX), data.m_x, data.m_numNodes * sizeof(float));
             memcpy(PyArray_DATA(pyY), data.m_y, data.m_numNodes * sizeof(float));
             memcpy(PyArray_DATA(pyZ), data.m_z, data.m_numNodes * sizeof(float));

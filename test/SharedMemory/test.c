@@ -43,6 +43,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 	int sensorJointIndexLeft = -1;
 	int sensorJointIndexRight = -1;
 	const char* urdfFileName = "r2d2.urdf";
+	const char* objFileName = "bunny.obj";
 	const char* sdfFileName = "kuka_iiwa/model.sdf";
 	double gravx = 0, gravy = 0, gravz = -9.8;
 	double timeStep = 1. / 60.;
@@ -287,6 +288,34 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitResetSimulationCommand(sm));
 				ASSERT_EQ(b3GetStatusType(statusHandle), CMD_RESET_SIMULATION_COMPLETED);
 			}
+		}
+
+		{
+			b3SharedMemoryStatusHandle statusHandle;
+			int statusType;
+			b3SharedMemoryCommandHandle command = b3LoadSoftBodyCommandInit(sm, objFileName);
+
+			//setting the initial position, orientation and other arguments are optional
+			startPosX = 2;
+			startPosY = 0;
+			startPosZ = 1;
+			b3LoadSoftBodySetStartPosition(command, startPosX, startPosY, startPosZ);
+			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			statusType = b3GetStatusType(statusHandle);
+			ASSERT_EQ(statusType, CMD_LOAD_SOFT_BODY_COMPLETED);
+			bodyIndex = b3GetStatusBodyIndex(statusHandle);
+		}
+
+		{   
+			int statusType;
+			struct b3SoftBodyData data;
+			b3SharedMemoryStatusHandle statusHandle;
+			b3SharedMemoryCommandHandle command = b3GetSoftBodyDataCommand(sm, bodyIndex);
+			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			statusType = b3GetStatusType(statusHandle);
+			ASSERT_EQ(statusType, CMD_SOFTBODY_DATA_COMPLETED);
+			b3GetSoftBodyData(statusHandle, &data);
+			ASSERT_EQ(data.m_numNodes, 453);
 		}
 	}
 	else
