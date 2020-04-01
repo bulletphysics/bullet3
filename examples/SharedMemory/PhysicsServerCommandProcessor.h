@@ -5,6 +5,7 @@
 #include "LinearMath/btVector3.h"
 
 #include "PhysicsCommandProcessorInterface.h"
+#include "../Importers/ImportURDFDemo/UrdfParser.h"
 
 struct SharedMemLines
 {
@@ -104,6 +105,7 @@ protected:
 	bool loadMjcf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags);
 
 	bool processImportedObjects(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags, class URDFImporterInterface& u2b);
+	bool processDeformable(const UrdfDeformable& deformable, const btVector3& pos, const btQuaternion& orn, int* bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes, btScalar scale, bool useSelfCollision);
 
 	bool supportsJointMotor(class btMultiBody* body, int linkIndex);
 
