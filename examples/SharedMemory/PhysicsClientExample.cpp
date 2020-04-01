@@ -655,7 +655,7 @@ void PhysicsClientExample::createButtons()
 					if (m_numMotors < MAX_NUM_MOTORS)
 					{
 						char motorName[1024];
-						sprintf(motorName, "%s q", info.m_jointName);
+						snprintf(motorName, sizeof(motorName), "%s q", info.m_jointName);
 						// MyMotorInfo2* motorInfo = &m_motorTargetVelocities[m_numMotors];
 						MyMotorInfo2* motorInfo = &m_motorTargetPositions[m_numMotors];
 						motorInfo->m_velTarget = 0.f;
