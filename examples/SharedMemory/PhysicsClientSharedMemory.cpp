@@ -1474,6 +1474,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
                           }
                           break;
 			}
+			case CMD_SOFTBODY_DATA_FAILED:
+			{
+				b3Warning("getSoftBodyData failed");
+				break;
+			}
+			case CMD_SOFTBODY_DATA_COMPLETED:
+			{
+				break;
+			}
 			case CMD_SYNC_USER_DATA_FAILED:
 			{
 				b3Warning("Synchronizing user data failed.");

@@ -441,6 +441,22 @@ B3_SHARED_API int b3LoadSoftBodyUseFaceContact(b3SharedMemoryCommandHandle comma
     return 0;
 }
 
+B3_SHARED_API int b3GetSoftBodyData(b3SharedMemoryStatusHandle statusHandle, struct b3SoftBodyData* data)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	b3Assert(status);
+	b3Assert(status->m_type == CMD_SOFTBODY_DATA_COMPLETED);
+	if (status && status->m_type == CMD_SOFTBODY_DATA_COMPLETED)
+	{
+        data->m_numNodes = status->m_sendSoftBodyData.m_numNodes;
+        data->m_x = status->m_sendSoftBodyData.m_x;
+        data->m_y = status->m_sendSoftBodyData.m_y;
+        data->m_z = status->m_sendSoftBodyData.m_z;
+		return 1;
+	}
+	return 0;
+}
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
@@ -3339,6 +3355,25 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitCreateSoftBodyAnchorConstraintCo
 	command->m_userConstraintArguments.m_childFrame[6] = 1.;
 
 	return (b3SharedMemoryCommandHandle)command;
+}
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3GetSoftBodyDataCommand(b3PhysicsClientHandle physClient, int bodyId)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_GET_SOFTBODY_DATA;
+
+        command->m_softBodyDataArguments.m_bodyId = bodyId;
+
+		return (b3SharedMemoryCommandHandle)command;
+    }
+	return 0;
 }
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyUniqueId, int parentJointIndex, int childBodyUniqueId, int childJointIndex, struct b3JointInfo* info)

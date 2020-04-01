@@ -1107,6 +1107,19 @@ struct b3SendMeshDataArgs
 	int m_numVerticesRemaining;
 };
 
+struct SoftBodyDataArgs
+{
+    int m_bodyId;
+};
+
+struct SendSoftBodyData
+{
+	int m_numNodes;
+    float m_x[10000];
+    float m_y[10000];
+    float m_z[10000];
+};
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -1168,6 +1181,7 @@ struct SharedMemoryCommand
 		struct UserDataRequestArgs m_removeUserDataRequestArgs;
 		struct b3CollisionFilterArgs m_collisionFilterArgs;
 		struct b3RequestMeshDataArgs m_requestMeshDataArgs;
+		struct SoftBodyDataArgs m_softBodyDataArguments;
 	};
 };
 
@@ -1244,6 +1258,7 @@ struct SharedMemoryStatus
 		struct UserDataRequestArgs m_removeUserDataResponseArgs;
 		struct b3ForwardDynamicsAnalyticsArgs m_forwardDynamicsAnalyticsArgs;
 		struct b3SendMeshDataArgs m_sendMeshDataArgs;
+		struct SendSoftBodyData m_sendSoftBodyData;
 	};
 };
 

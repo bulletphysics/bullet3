@@ -44,6 +44,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_SAVE_BULLET,
 	CMD_LOAD_MJCF,
 	CMD_LOAD_SOFT_BODY,
+	CMD_GET_SOFTBODY_DATA,
 	CMD_SEND_BULLET_DATA_STREAM,
 	CMD_CREATE_BOX_COLLISION_SHAPE,
 	CMD_CREATE_RIGID_BODY,
@@ -219,7 +220,8 @@ enum EnumSharedMemoryServerStatus
 	CMD_COLLISION_SHAPE_INFO_FAILED,
 	CMD_LOAD_SOFT_BODY_FAILED,
 	CMD_LOAD_SOFT_BODY_COMPLETED,
-
+	CMD_SOFTBODY_DATA_FAILED,
+	CMD_SOFTBODY_DATA_COMPLETED,
 	CMD_SYNC_USER_DATA_COMPLETED,
 	CMD_SYNC_USER_DATA_FAILED,
 	CMD_REQUEST_USER_DATA_COMPLETED,
@@ -442,6 +444,14 @@ struct b3CameraImageData
 	const unsigned char* m_rgbColorData;  //3*m_pixelWidth*m_pixelHeight bytes
 	const float* m_depthValues;           //m_pixelWidth*m_pixelHeight floats
 	const int* m_segmentationMaskValues;  //m_pixelWidth*m_pixelHeight ints
+};
+
+struct b3SoftBodyData
+{
+	int m_numNodes;
+	const float* m_x; // m_numNodes floats
+	const float* m_y; // m_numNodes floats
+	const float* m_z; // m_numNodes floats
 };
 
 struct b3MeshVertex

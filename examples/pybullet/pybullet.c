@@ -2186,6 +2186,71 @@ static PyObject* pybullet_createSoftBodyAnchor(PyObject* self, PyObject* args, P
 	return NULL;
 }
 
+static PyObject* pybullet_getSoftBodyData(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+    int bodyId = -1;
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = {"bodyId", "physicsClientId", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &bodyId, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	struct b3SoftBodyData data;
+	b3SharedMemoryCommandHandle command;
+
+	if (b3CanSubmitCommand(sm))
+	{
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+        b3SharedMemoryCommandHandle command = b3GetSoftBodyDataCommand(sm, bodyId);
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_SOFTBODY_DATA_COMPLETED)
+		{
+			PyObject* pyResultList;
+            PyObject* pyX;
+            PyObject* pyY;
+            PyObject* pyZ;
+            pyResultList = PyTuple_New(3);
+            b3GetSoftBodyData(statusHandle, &data);
+
+#ifdef PYBULLET_USE_NUMPY
+            npy_intp dims[1] = {data.m_numNodes};
+            memcpy(PyArray_DATA(pyX), data.m_x, data.m_numNodes * sizeof(float));
+            memcpy(PyArray_DATA(pyY), data.m_y, data.m_numNodes * sizeof(float));
+            memcpy(PyArray_DATA(pyZ), data.m_z, data.m_numNodes * sizeof(float));
+#else   //PYBULLET_USE_NUMPY
+            pyX = PyTuple_New(data.m_numNodes);
+            pyY = PyTuple_New(data.m_numNodes);
+            pyZ = PyTuple_New(data.m_numNodes);
+            for (int i = 0; i < data.m_numNodes; i++)
+            {
+                PyTuple_SetItem(pyX, i, PyFloat_FromDouble(data.m_x[i]));
+                PyTuple_SetItem(pyY, i, PyFloat_FromDouble(data.m_y[i]));
+                PyTuple_SetItem(pyZ, i, PyFloat_FromDouble(data.m_z[i]));
+            }
+#endif  //PYBULLET_USE_NUMPY
+			PyTuple_SetItem(pyResultList, 0, pyX);
+			PyTuple_SetItem(pyResultList, 1, pyY);
+			PyTuple_SetItem(pyResultList, 2, pyZ);
+			return pyResultList;
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 
 #endif
 

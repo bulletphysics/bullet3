@@ -9268,6 +9268,27 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 	return hasStatus;
 }
 
+bool PhysicsServerCommandProcessor::processRequestSoftBodyDataCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	serverStatusOut.m_type = CMD_SOFTBODY_DATA_FAILED;
+	const SoftBodyDataArgs& softBodyDataArgs = clientCmd.m_softBodyDataArguments;
+
+    InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(softBodyDataArgs.m_bodyId);
+    btSoftBody* psb = bodyHandle->m_softBody;
+    serverStatusOut.m_sendSoftBodyData.m_numNodes = psb->m_nodes.size();
+    // printf("cloth node 0 pos: (%f, %f, %f)\n", psb->m_nodes[0].m_x.x(), psb->m_nodes[0].m_x.y(), psb->m_nodes[0].m_x.z());
+    for (int i = 0; i < psb->m_nodes.size() && i < 10000; i++)
+    {
+        serverStatusOut.m_sendSoftBodyData.m_x[i] = psb->m_nodes[i].m_x.x();
+        serverStatusOut.m_sendSoftBodyData.m_y[i] = psb->m_nodes[i].m_x.y();
+        serverStatusOut.m_sendSoftBodyData.m_z[i] = psb->m_nodes[i].m_x.z();
+    }
+
+	bool hasStatus = true;
+	serverStatusOut.m_type = CMD_SOFTBODY_DATA_COMPLETED;
+	return hasStatus;
+}
+
 bool PhysicsServerCommandProcessor::processSetAdditionalSearchPathCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -13103,6 +13124,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 		case CMD_LOAD_SOFT_BODY:
 		{
 			hasStatus = processLoadSoftBodyCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
+		case CMD_GET_SOFTBODY_DATA:
+		{
+			hasStatus = processRequestSoftBodyDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
 		case CMD_CREATE_SENSOR:
