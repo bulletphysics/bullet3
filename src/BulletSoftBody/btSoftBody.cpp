@@ -2602,7 +2602,7 @@ void btSoftBody::initializeFaceTree()
 	for (int i = 0; i < m_faces.size(); ++i)
 	{
 		Face& f = m_faces[i];
-		ATTRIBUTE_ALIGNED16(btDbvtVolume) vol = VolumeOf(f, m_sst.radmrg);
+		ATTRIBUTE_ALIGNED16(btDbvtVolume) vol = VolumeOf(f, 0);
 		btDbvtNode* node = new (btAlignedAlloc(sizeof(btDbvtNode), 16)) btDbvtNode();
 		node->parent = NULL;
 		node->data = &f;
@@ -2638,10 +2638,10 @@ void btSoftBody::initializeFaceTree()
 		}
 	}
 	m_fdbvt.m_root = buildTreeBottomUp(leafNodes, adj);
-    updateFaceTree(false, true);
 	if (m_fdbvnt)
 		delete m_fdbvnt;
 	m_fdbvnt = copyToDbvnt(m_fdbvt.m_root);
+	updateFaceTree(false, false);
 	rebuildNodeTree();
 }
 
@@ -2654,7 +2654,7 @@ void btSoftBody::rebuildNodeTree()
 	for (int i = 0; i < m_nodes.size(); ++i)
 	{
 		Node& n = m_nodes[i];
-		ATTRIBUTE_ALIGNED16(btDbvtVolume) vol = btDbvtVolume::FromCR(n.m_x, m_sst.radmrg);
+		ATTRIBUTE_ALIGNED16(btDbvtVolume) vol = btDbvtVolume::FromCR(n.m_x, 0);
 		btDbvtNode* node = new (btAlignedAlloc(sizeof(btDbvtNode), 16)) btDbvtNode();
 		node->parent = NULL;
 		node->data = &n;
