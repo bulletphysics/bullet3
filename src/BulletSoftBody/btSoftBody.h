@@ -1173,7 +1173,7 @@ public:
 	static psolver_t getSolver(ePSolver::_ solver);
 	static vsolver_t getSolver(eVSolver::_ solver);
 	void geometricCollisionHandler(btSoftBody* psb);
-#define SAFE_EPSILON SIMD_EPSILON*10.0
+#define SAFE_EPSILON SIMD_EPSILON*100.0
 	void updateNode(btDbvtNode* node, bool use_velocity, bool margin)
 	{
 		if (node->isleaf())
@@ -1307,7 +1307,7 @@ public:
 			bool face_constrained = false, node_constrained = node->m_constrained;
 			for (int i = 0; i < 3; ++i)
 				face_constrained |= face->m_n[i]->m_constrained;
-			btScalar I_tilde = 2.0*I /(1.0+w.length2());
+			btScalar I_tilde = .5 *I /(1.0+w.length2());
 			
 			// double the impulse if node or face is constrained.
 			if (face_constrained || node_constrained)
@@ -1331,7 +1331,7 @@ public:
 				btScalar vt_new = btMax(btScalar(1) - mu * delta_vn / (vt_norm + SIMD_EPSILON), btScalar(0))*vt_norm;
 				I = 0.5 * mass * (vt_norm-vt_new);
 				vt.safeNormalize();
-				I_tilde = 2.0*I /(1.0+w.length2());
+				I_tilde = .5 *I /(1.0+w.length2());
 				// double the impulse if node or face is constrained.
 				if (face_constrained || node_constrained)
 					I_tilde *= 2.0;

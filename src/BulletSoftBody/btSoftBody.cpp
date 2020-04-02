@@ -4139,7 +4139,7 @@ void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
                     if (psb->useSelfCollision())
                     {
                         btSoftColliders::CollideFF_DD docollide;
-                        docollide.mrg = getCollisionShape()->getMargin()*2.0;
+                        docollide.mrg = getCollisionShape()->getMargin();
                         docollide.psb[0] = this;
                         docollide.psb[1] = psb;
                         if (this->m_tetras.size() > 0)
@@ -4196,7 +4196,7 @@ void btSoftBody::geometricCollisionHandler(btSoftBody* psb)
 			if (psb->useSelfCollision())
 			{
 				btSoftColliders::CollideCCD docollide;
-				docollide.mrg = 1e-6;
+				docollide.mrg = SAFE_EPSILON;
 				docollide.psb[0] = this;
 				docollide.psb[1] = psb;
                 docollide.dt = psb->m_sst.sdt;

@@ -63,7 +63,7 @@ m_deformableBodySolver(deformableBodySolver), m_solverCallback(0)
 	m_implicit = false;
 	m_lineSearch = false;
 	m_selfCollision = true;
-	m_ccdIterations = 3;
+	m_ccdIterations = 5;
 	m_solverDeformableBodyIslandCallback = new DeformableBodyInplaceSolverIslandCallback(constraintSolver, dispatcher);
 }
 
