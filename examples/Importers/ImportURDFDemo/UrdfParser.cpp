@@ -1167,20 +1167,17 @@ bool UrdfParser::parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config,
 	XMLElement* spring_xml = config->FirstChildElement("spring");
 	if (spring_xml)
 	{
-		XMLElement* elastic_stiffness = spring_xml->FirstChildElement("elastic_stiffness");
-		XMLElement* damping_stiffness = spring_xml->FirstChildElement("damping_stiffness");
-		XMLElement* bending_stiffness = spring_xml->FirstChildElement("bending_stiffness");
-		if (!elastic_stiffness || !damping_stiffness)
+		if (!spring_xml->Attribute("elastic_stiffness") || !spring_xml->Attribute("damping_stiffness"))
 		{
-			logger->reportError("srping element expect elastic and damping stiffness");
+			logger->reportError("spring element expect elastic and damping stiffness");
 			return false;
 		}
 
-		deformable.m_springCoefficients.elastic_stiffness = urdfLexicalCast<double>(elastic_stiffness->GetText());
-		deformable.m_springCoefficients.damping_stiffness = urdfLexicalCast<double>(damping_stiffness->GetText());
+		deformable.m_springCoefficients.elastic_stiffness = urdfLexicalCast<double>(spring_xml->Attribute("elastic_stiffness"));
+		deformable.m_springCoefficients.damping_stiffness = urdfLexicalCast<double>(spring_xml->Attribute("damping_stiffness"));
 
-		if (bending_stiffness)
-			deformable.m_springCoefficients.bending_stiffness = urdfLexicalCast<double>(bending_stiffness->GetText());
+		if (spring_xml->Attribute("bending_stiffness"))
+			deformable.m_springCoefficients.bending_stiffness = urdfLexicalCast<double>(spring_xml->Attribute("bending_stiffness"));
 	}
 
 	XMLElement* corotated_xml = config->FirstChildElement("corotated");
@@ -1212,7 +1209,19 @@ bool UrdfParser::parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config,
 		logger->reportError("expected a filename for visual geometry");
 		return false;
 	}
-	deformable.m_visualFileName = vis_xml->Attribute("filename");
+	std::string fn = vis_xml->Attribute("filename");
+	deformable.m_visualFileName = fn;
+
+	int out_type(0);
+	bool success = UrdfFindMeshFile(m_fileIO,
+									model.m_sourceFile, fn, sourceFileLocation(vis_xml),
+									&deformable.m_visualFileName, &out_type);
+
+	if (!success)
+	{
+		// warning already printed
+		return false;
+	}
 
 	XMLElement* col_xml = config->FirstChildElement("collision");
 	if (col_xml)
@@ -1222,7 +1231,16 @@ bool UrdfParser::parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config,
 			logger->reportError("expected a filename for collision geoemtry");
 			return false;
 		}
-		deformable.m_simFileName = col_xml->Attribute("filename");
+		fn = vis_xml->Attribute("filename");
+		success = UrdfFindMeshFile(m_fileIO,
+								   model.m_sourceFile, fn, sourceFileLocation(vis_xml),
+								   &deformable.m_simFileName, &out_type);
+
+		if (!success)
+		{
+			// warning already printed
+			return false;
+		}
 	}
 
 	ParseUserData(config, deformable.m_userData, logger);

@@ -8517,6 +8517,10 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			std::string object_name(std::string(relativeFileName).substr(pos + 1, strlen(relativeFileName) - 5 - pos));
 			bodyHandle->m_bodyName = object_name;
 		}
+		b3Notification notification;
+		notification.m_notificationType = BODY_ADDED;
+		notification.m_bodyArgs.m_bodyUniqueId = *bodyUniqueId;
+		m_data->m_pluginManager.addNotification(notification);
 	}
 	return true;
 }
@@ -8577,11 +8581,6 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 		InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 		strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());
 		serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
-
-		b3Notification notification;
-		notification.m_notificationType = BODY_ADDED;
-		notification.m_bodyArgs.m_bodyUniqueId = bodyUniqueId;
-		m_data->m_pluginManager.addNotification(notification);
 #endif
 	}
 	return hasStatus;
