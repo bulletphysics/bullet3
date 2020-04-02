@@ -400,14 +400,14 @@ public:
 		return m_urdf2Model;
 	}
 
-  const UrdfDeformable& getDeformable() const{
-    return m_urdf2Model.m_deformable;
-  }
+	const UrdfDeformable& getDeformable() const
+	{
+		return m_urdf2Model.m_deformable;
+	}
 
 	bool mergeFixedLinks(UrdfModel& model, UrdfLink* link, ErrorLogger* logger, bool forceFixedBase, int level);
 	bool printTree(UrdfLink* link, ErrorLogger* logger, int level);
 	bool recreateModel(UrdfModel& model, UrdfLink* link, ErrorLogger* logger);
-	
 
 	std::string sourceFileLocation(tinyxml2::XMLElement* e);
 
