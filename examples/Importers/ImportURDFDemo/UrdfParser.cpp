@@ -1100,18 +1100,18 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 
 bool UrdfParser::parseLameCoefficients(LameCoefficients& lameCoefficients, tinyxml2::XMLElement* config, ErrorLogger* logger)
 {
-	XMLElement* mu = config->FirstChildElement("mu");
-	XMLElement* lambda = config->FirstChildElement("lambda");
-	XMLElement* damping = config->FirstChildElement("damping");
+	const char* mu = config->Attribute("mu");
+	const char* lambda = config->Attribute("lambda");
+	const char* damping = config->Attribute("damping");
 	if (!mu || !lambda)
 	{
 		logger->reportError("expected mu lambda for LameCoefficients.");
 		return false;
 	}
-	lameCoefficients.mu = urdfLexicalCast<double>(mu->GetText());
-	lameCoefficients.lambda = urdfLexicalCast<double>(lambda->GetText());
+	lameCoefficients.mu = urdfLexicalCast<double>(mu);
+	lameCoefficients.lambda = urdfLexicalCast<double>(lambda);
 	if (damping)
-		lameCoefficients.damping = urdfLexicalCast<double>(damping->GetText());
+		lameCoefficients.damping = urdfLexicalCast<double>(damping);
 	else
 		lameCoefficients.damping = 0;
 	return true;
