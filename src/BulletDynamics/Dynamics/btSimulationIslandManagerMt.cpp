@@ -171,6 +171,7 @@ void btSimulationIslandManagerMt::initIslandPools()
 
 btSimulationIslandManagerMt::Island* btSimulationIslandManagerMt::getIsland(int id)
 {
+	btAssert(id < m_lookupIslandFromId.size());
 	Island* island = m_lookupIslandFromId[id];
 	if (island == NULL)
 	{
