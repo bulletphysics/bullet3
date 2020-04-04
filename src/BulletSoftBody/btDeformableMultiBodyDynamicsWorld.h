@@ -49,7 +49,6 @@ class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
     int m_ccdIterations;
     bool m_implicit;
     bool m_lineSearch;
-    bool m_selfCollision;
     DeformableBodyInplaceSolverIslandCallback* m_solverDeformableBodyIslandCallback;
     
     typedef void (*btSolverCallback)(btScalar time, btDeformableMultiBodyDynamicsWorld* world);
@@ -141,6 +140,8 @@ public:
     void setDrawFlags(int f) { m_drawFlags = f; }
     
     void setupConstraints();
+    
+    void performDeformableCollisionDetection();
     
     void solveMultiBodyConstraints();
     

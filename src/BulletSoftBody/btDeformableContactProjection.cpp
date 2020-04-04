@@ -184,24 +184,6 @@ void btDeformableContactProjection::setConstraints(const btContactSolverInfo& in
 				m_faceRigidConstraints[i].push_back(constraint);
 			}
 		}
-// skip deformable constraints as they are done separately now
-#if 0
-		// set Deformable Face vs. Deformable Node constraint
-		for (int j = 0; j < psb->m_faceNodeContacts.size(); ++j)
-		{
-			const btSoftBody::DeformableFaceNodeContact& contact = psb->m_faceNodeContacts[j];
-
-			btDeformableFaceNodeContactConstraint constraint(contact, infoGlobal);
-			btVector3 va = constraint.getVa();
-			btVector3 vb = constraint.getVb();
-			const btVector3 vr = vb - va;
-			const btScalar dn = btDot(vr, contact.m_normal);
-			if (dn > -SIMD_EPSILON)
-			{
-				m_deformableConstraints[i].push_back(constraint);
-			}
-		}
-#endif
 	}
 }
 

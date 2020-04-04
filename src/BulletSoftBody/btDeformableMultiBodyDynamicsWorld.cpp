@@ -22,7 +22,6 @@ Call internalStepSimulation multiple times, to achieve 240Hz (4 steps of 60Hz).
 2. Detect discrete collisions between rigid and deformable bodies at position x_{n+1}^* = x_n + dt * v_{n+1}^*.
 
 3a. Solve all constraints, including LCP. Contact, position correction due to numerical drift, friction, and anchors for deformable.
-    TODO: add option for positional drift correction (using vel_target += erp * pos_error/dt
 
 3b. 5 Newton steps (multiple step). Conjugent Gradient solves linear system. Deformable Damping: Then velocities of deformable bodies v_{n+1} are solved in
         M(v_{n+1} - v_{n+1}^*) = damping_force * dt / mass,
@@ -62,7 +61,6 @@ m_deformableBodySolver(deformableBodySolver), m_solverCallback(0)
 	m_internalTime = 0.0;
 	m_implicit = false;
 	m_lineSearch = false;
-	m_selfCollision = true;
 	m_ccdIterations = 5;
 	m_solverDeformableBodyIslandCallback = new DeformableBodyInplaceSolverIslandCallback(constraintSolver, dispatcher);
 }
@@ -80,19 +78,15 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
         (*m_internalPreTickCallback)(this, timeStep);
     }
     reinitialize(timeStep);
+    
     // add gravity to velocity of rigid and multi bodys
     applyRigidBodyGravity(timeStep);
     
     ///apply gravity and explicit force to velocity, predict motion
     predictUnconstraintMotion(timeStep);
     
-    ///perform collision detection
+    ///perform collision detection that involves rigid/multi bodies
     btMultiBodyDynamicsWorld::performDiscreteCollisionDetection();
-    
-    if (m_selfCollision)
-    {
-        softBodySelfCollision();
-    }
     
     btMultiBodyDynamicsWorld::calculateSimulationIslands();
     
@@ -102,6 +96,8 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
     solveConstraints(timeStep);
     
     afterSolverCallbacks(timeStep);
+
+	performDeformableCollisionDetection();
 
     applyRepulsionForce(timeStep);
 
@@ -115,6 +111,27 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
     updateActivationState(timeStep);
     // End solver-wise simulation step
     // ///////////////////////////////
+}
+
+void btDeformableMultiBodyDynamicsWorld::performDeformableCollisionDetection()
+{
+	for (int i = 0; i < m_softBodies.size(); ++i)
+	{
+		m_softBodies[i]->m_softSoftCollision = true;
+	}
+	
+	for (int i = 0; i < m_softBodies.size(); ++i)
+	{
+		for (int j = i; j < m_softBodies.size(); ++j)
+		{
+			m_softBodies[i]->defaultCollisionHandler(m_softBodies[j]);
+		}
+	}
+	
+	for (int i = 0; i < m_softBodies.size(); ++i)
+	{
+		m_softBodies[i]->m_softSoftCollision = false;
+	}
 }
 
 void btDeformableMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)

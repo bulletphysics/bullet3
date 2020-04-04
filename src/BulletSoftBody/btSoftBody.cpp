@@ -222,6 +222,7 @@ void btSoftBody::initDefaults()
 	m_useSelfCollision = false;
 	m_usePostCollisionDamping = false;
 	m_collisionFlags = 0;
+	m_softSoftCollision = false;
 }
 
 //
@@ -3050,6 +3051,9 @@ void btSoftBody::updateArea(bool averageArea)
 	{
 		Face& f = m_faces[i];
 		f.m_ra = AreaOf(f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x);
+        f.m_rl[0] = (f.m_n[0]->m_x - f.m_n[1]->m_x).safeNorm();
+        f.m_rl[1] = (f.m_n[0]->m_x - f.m_n[2]->m_x).safeNorm();
+        f.m_rl[2] = (f.m_n[1]->m_x - f.m_n[2]->m_x).safeNorm();
 	}
 
 	/* Node area		*/
@@ -4044,7 +4048,7 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
                 docollideNode.dynmargin = basemargin + timemargin;
                 docollideNode.stamargin = basemargin;
                 m_ndbvt.collideTV(m_ndbvt.m_root, volume, docollideNode);
-                
+				
                 if (((pcoWrap->getCollisionObject()->getInternalType() == CO_RIGID_BODY) && (m_cfg.collisions & fCollision::SDF_RDF)) || ((pcoWrap->getCollisionObject()->getInternalType() == CO_FEATHERSTONE_LINK) && (m_cfg.collisions & fCollision::SDF_MDF)))
                 {
                     btSoftColliders::CollideSDF_RDF docollideFace;
@@ -4104,6 +4108,8 @@ void btSoftBody::defaultCollisionHandler(btSoftBody* psb)
 		break;
         case fCollision::VF_DD:
         {
+            if (!psb->m_softSoftCollision)
+                return;
             if (psb->isActive() || this->isActive())
             {
                 if (this != psb)

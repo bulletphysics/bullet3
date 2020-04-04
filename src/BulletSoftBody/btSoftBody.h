@@ -817,6 +817,7 @@ public:
 	btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
 	btAlignedObjectArray<btScalar> m_z; // vertical distance used in extrapolation
 	bool m_useSelfCollision;
+	bool m_softSoftCollision;
 	bool m_usePostCollisionDamping;
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
@@ -1270,7 +1271,6 @@ public:
 			indices.resize(m_faceNodeContacts.size());
 			for (int i = 0; i < m_faceNodeContacts.size(); ++i)
 				indices[i] = i;
-//			static unsigned long seed = 243703;
 #define NEXTRAND (seed = (1664525L * seed + 1013904223L) & 0xffffffff)
 			int i, ni;
 
@@ -1338,11 +1338,11 @@ public:
 				if (!face_constrained)
 				{
 					for (int j = 0; j < 3; ++j)
-						face->m_n[j]->m_v += w[j]*vt*I_tilde*node->m_im;
+						face->m_n[j]->m_v += w[j] * vt * I_tilde * (face->m_n[j])->m_im;
 				}
 				if (!node_constrained)
 				{
-					node->m_v -= I_tilde*node->m_im*vt;
+					node->m_v -= I_tilde * node->m_im * vt;
 				}
 			}
 		}
