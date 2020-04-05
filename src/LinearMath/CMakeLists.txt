@@ -10,6 +10,7 @@ SET(LinearMath_SRCS
 	btGeometryUtil.cpp
 	btPolarDecomposition.cpp
 	btQuickprof.cpp
+	btReducedVector.cpp
 	btSerializer.cpp
 	btSerializer64.cpp
 	btThreads.cpp
@@ -40,6 +41,7 @@ SET(LinearMath_HDRS
 	btQuadWord.h
 	btQuaternion.h
 	btQuickprof.h
+	btReducedVector.h
 	btRandom.h
 	btScalar.h
 	btSerializer.h

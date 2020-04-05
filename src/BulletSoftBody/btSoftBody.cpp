@@ -3051,9 +3051,6 @@ void btSoftBody::updateArea(bool averageArea)
 	{
 		Face& f = m_faces[i];
 		f.m_ra = AreaOf(f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x);
-        f.m_rl[0] = (f.m_n[0]->m_x - f.m_n[1]->m_x).safeNorm();
-        f.m_rl[1] = (f.m_n[0]->m_x - f.m_n[2]->m_x).safeNorm();
-        f.m_rl[2] = (f.m_n[1]->m_x - f.m_n[2]->m_x).safeNorm();
 	}
 
 	/* Node area		*/

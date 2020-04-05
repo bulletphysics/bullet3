@@ -109,7 +109,7 @@ btScalar btDeformableContactProjection::solveSplitImpulse(const btContactSolverI
 }
 
 void btDeformableContactProjection::setConstraints(const btContactSolverInfo& infoGlobal)
-{
+{  
 	BT_PROFILE("setConstraints");
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{

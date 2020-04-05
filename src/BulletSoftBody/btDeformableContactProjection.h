@@ -21,6 +21,8 @@
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
 #include "btDeformableContactConstraint.h"
 #include "LinearMath/btHashMap.h"
+#include "LinearMath/btReducedVector.h"
+#include "LinearMath/btModifiedGramSchmidt.h"
 #include <vector>
 class btDeformableContactProjection
 {
