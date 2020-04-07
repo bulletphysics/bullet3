@@ -8563,7 +8563,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 
 	int bodyUniqueId = -1;
 	bool completedOk = processDeformable(deformable, initialPos, initialOrn, &bodyUniqueId, bufferServerToClient, bufferSizeInBytes, scale, use_self_collision);
-	if (completedOk && bodyUniqueId > 0)
+	if (completedOk && bodyUniqueId >= 0)
 	{
 		m_data->m_guiHelper->autogenerateGraphicsObjects(m_data->m_dynamicsWorld);
 		serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_COMPLETED;
