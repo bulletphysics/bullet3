@@ -724,6 +724,15 @@ public:
 	/* SolverState	*/
 	struct SolverState
 	{
+		//if you add new variables, always initialize them!
+		SolverState()
+			:sdt(0),
+			isdt(0),
+			velmrg(0),
+			radmrg(0),
+			updmrg(0)
+		{
+		}
 		btScalar sdt;     // dt*timescale
 		btScalar isdt;    // 1/sdt
 		btScalar velmrg;  // velocity margin
@@ -810,7 +819,7 @@ public:
 	btScalar m_sleepingThreshold;
 	btScalar m_maxSpeedSquared;
 	btAlignedObjectArray<btVector3> m_quads; // quadrature points for collision detection
-	btScalar repulsionStiffness;
+	btScalar m_repulsionStiffness;
     btAlignedObjectArray<btVector3> m_X;   // initial positions
 
 	btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
@@ -1301,7 +1310,7 @@ public:
 			btScalar I = 0;
 			btScalar mass = node->m_im == 0 ? 0 : btScalar(1)/node->m_im;
 			if (applySpringForce)
-				I = -btMin(repulsionStiffness * timeStep * d, mass * (OVERLAP_REDUCTION_FACTOR * d / timeStep - vn));
+				I = -btMin(m_repulsionStiffness * timeStep * d, mass * (OVERLAP_REDUCTION_FACTOR * d / timeStep - vn));
 			if (vn < 0)
 				I += 0.5 * mass * vn;
 			bool face_constrained = false, node_constrained = node->m_constrained;

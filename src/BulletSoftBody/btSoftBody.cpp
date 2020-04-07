@@ -222,6 +222,9 @@ void btSoftBody::initDefaults()
 	m_useSelfCollision = false;
 	m_usePostCollisionDamping = false;
 	m_collisionFlags = 0;
+	m_maxSpeedSquared = 0;
+	m_repulsionStiffness = 0.5;
+	m_fdbvnt = 0;
 }
 
 //
@@ -3423,7 +3426,7 @@ void btSoftBody::setSpringStiffness(btScalar k)
     {
         m_links[i].Feature::m_material->m_kLST = k;
     }
-    repulsionStiffness = k;
+    m_repulsionStiffness = k;
 }
 
 void btSoftBody::initializeDmInverse()
