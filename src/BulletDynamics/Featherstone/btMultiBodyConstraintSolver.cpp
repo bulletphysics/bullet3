@@ -30,10 +30,12 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 	btScalar leastSquaredResidual = btSequentialImpulseConstraintSolver::solveSingleIteration(iteration, bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
 
 	//solve featherstone non-contact constraints
-
+	btScalar nonContactResidual = 0;
 	//printf("m_multiBodyNonContactConstraints = %d\n",m_multiBodyNonContactConstraints.size());
 	for (int i = 0; i < infoGlobal.m_numNonContactInnerIterations; ++i)
 	{
+		// reset the nonContactResdual to 0 at start of each inner iteration
+		nonContactResidual = 0;
 		for (int j = 0; j < m_multiBodyNonContactConstraints.size(); j++)
 		{
 			int index = iteration & 1 ? j : m_multiBodyNonContactConstraints.size() - 1 - j;
@@ -41,7 +43,7 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 			btMultiBodySolverConstraint& constraint = m_multiBodyNonContactConstraints[index];
 
 			btScalar residual = resolveSingleConstraintRowGeneric(constraint);
-			leastSquaredResidual = btMax(leastSquaredResidual, residual * residual);
+			nonContactResidual = btMax(nonContactResidual, residual * residual);
 
 			if (constraint.m_multiBodyA)
 				constraint.m_multiBodyA->setPosUpdated(false);
@@ -49,6 +51,7 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 				constraint.m_multiBodyB->setPosUpdated(false);
 		}
 	}
+	leastSquaredResidual = btMax(leastSquaredResidual, nonContactResidual);
 
 	//solve featherstone normal contact
 	for (int j0 = 0; j0 < m_multiBodyNormalContactConstraints.size(); j0++)
