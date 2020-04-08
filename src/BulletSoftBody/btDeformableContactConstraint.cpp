@@ -464,9 +464,9 @@ void btDeformableFaceRigidContactConstraint::applyImpulse(const btVector3& impul
 	btVector3 dv1 = im1 * (m01 * (v0-v1) + m12 * (v2-v1));
 	btVector3 dv2 = im2 * (m12 * (v1-v2) + m02 * (v0-v2));
 #endif
-	v0 += dv0;
-	v1 += dv1;
-	v2 += dv2;
+//    v0 += dv0;
+//    v1 += dv1;
+//    v2 += dv2;
 }
 
 void btDeformableFaceRigidContactConstraint::applySplitImpulse(const btVector3& impulse)

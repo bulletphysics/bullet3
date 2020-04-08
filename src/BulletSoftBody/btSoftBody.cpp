@@ -4020,7 +4020,6 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
 		break;
         case fCollision::SDF_RD:
         {
-            
             btRigidBody* prb1 = (btRigidBody*)btRigidBody::upcast(pcoWrap->getCollisionObject());
             if (pcoWrap->getCollisionObject()->isActive() || this->isActive())
             {

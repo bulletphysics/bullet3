@@ -10,6 +10,18 @@
 #include "btMatrix3x3.h"
 #include "btAlignedObjectArray.h"
 #include <stdio.h>
+#include <vector>
+#include <algorithm>
+struct TwoInts
+{
+    int a,b;
+};
+inline bool operator<(const TwoInts& A, const TwoInts& B)
+{
+    return A.b < B.b;
+}
+
+
 // A helper vector type used for CG projections
 class btReducedVector
 {
@@ -22,12 +34,16 @@ public:
 	{
 		m_indices.resize(0);
 		m_vecs.resize(0);
+        m_indices.clear();
+        m_vecs.clear();
 	}
 	
     btReducedVector(int sz): m_sz(sz)
     {
         m_indices.resize(0);
         m_vecs.resize(0);
+        m_indices.clear();
+        m_vecs.clear();
     }
     
     btReducedVector(int sz, const btAlignedObjectArray<int>& indices, const btAlignedObjectArray<btVector3>& vecs): m_sz(sz), m_indices(indices), m_vecs(vecs)
@@ -40,6 +56,8 @@ public:
         btAlignedObjectArray<btVector3> old_vecs(m_vecs);
         m_indices.resize(0);
         m_vecs.resize(0);
+        m_indices.clear();
+        m_vecs.clear();
         for (int i = 0; i < old_indices.size(); ++i)
         {
             if (old_vecs[i].length2() > SIMD_EPSILON)
@@ -171,6 +189,7 @@ public:
 		{
 			return *this;
 		}
+        m_sz = other.m_sz;
 		m_indices.copyFromArray(other.m_indices);
 		m_vecs.copyFromArray(other.m_vecs);
 		return *this;
@@ -189,7 +208,18 @@ public:
             if (j < other.m_indices.size() && other.m_indices[j] == m_indices[i])
             {
                 ret += m_vecs[i].dot(other.m_vecs[j]);
+//                ++j;
             }
+        }
+        return ret;
+    }
+    
+    btScalar dot(const btAlignedObjectArray<btVector3>& other) const
+    {
+        btScalar ret = 0;
+        for (int i = 0; i < m_indices.size(); ++i)
+        {
+            ret += m_vecs[i].dot(other[m_indices[i]]);
         }
         return ret;
     }
@@ -221,6 +251,29 @@ public:
             printf("%d: (%f, %f, %f)/", m_indices[i], m_vecs[i][0],m_vecs[i][1],m_vecs[i][2]);
         }
         printf("\n");
+    }
+    
+    
+    void sort()
+    {
+        std::vector<TwoInts> tuples;
+        for (int i = 0; i < m_indices.size(); ++i)
+        {
+            TwoInts ti;
+            ti.a = i;
+            ti.b = m_indices[i];
+            tuples.push_back(ti);
+        }
+        std::sort(tuples.begin(), tuples.end());
+        btAlignedObjectArray<int> new_indices;
+        btAlignedObjectArray<btVector3> new_vecs;
+        for (int i = 0; i < tuples.size(); ++i)
+        {
+            new_indices.push_back(tuples[i].b);
+            new_vecs.push_back(m_vecs[tuples[i].a]);
+        }
+        m_indices = new_indices;
+        m_vecs = new_vecs;
     }
 };
 

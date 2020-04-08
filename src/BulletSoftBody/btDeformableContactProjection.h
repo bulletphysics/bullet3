@@ -29,23 +29,14 @@ class btDeformableContactProjection
 public:
     typedef btAlignedObjectArray<btVector3> TVStack;
     btAlignedObjectArray<btSoftBody *>& m_softBodies;
-    
-//    // map from node index to static constraint
-//    btHashMap<btHashInt, btDeformableStaticConstraint> m_staticConstraints;
-//    // map from node index to node rigid constraint
-//    btHashMap<btHashInt, btAlignedObjectArray<btDeformableNodeRigidContactConstraint> > m_nodeRigidConstraints;
-//    // map from node index to face rigid constraint
-//    btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceRigidContactConstraint*> > m_faceRigidConstraints;
-//    // map from node index to deformable constraint
-//    btHashMap<btHashInt, btAlignedObjectArray<btDeformableFaceNodeContactConstraint*> > m_deformableConstraints;
-//    // map from node index to node anchor constraint
-//    btHashMap<btHashInt, btDeformableNodeAnchorConstraint> m_nodeAnchorConstraints;
 	
     // all constraints involving face
     btAlignedObjectArray<btDeformableContactConstraint*> m_allFaceConstraints;
     
     // map from node index to projection directions
-    btHashMap<btHashInt, btAlignedObjectArray<btVector3> > m_projectionsDict;
+//    btHashMap<btHashInt, btAlignedObjectArray<btVector3> > m_projectionsDict;
+    
+    btAlignedObjectArray<btReducedVector> m_projections;
 	
 	// map from node index to static constraint
 	btAlignedObjectArray<btAlignedObjectArray<btDeformableStaticConstraint> > m_staticConstraints;

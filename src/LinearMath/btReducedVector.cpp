@@ -6,24 +6,29 @@
 //
 #include <stdio.h>
 #include "btReducedVector.h"
+#include <cmath>
 
 // returns the projection of this onto other
 btReducedVector btReducedVector::proj(const btReducedVector& other) const
 {
     btReducedVector ret(m_sz);
     btScalar other_length2 = other.length2();
-    if (other_length2 == 0)
+    if (other_length2 < SIMD_EPSILON)
     {
         return ret;
     }
-    return other*(this->dot(other) / other_length2);
+    return other*(this->dot(other))/other_length2;
 }
 
 void btReducedVector::normalize()
 {
     if (this->length2() < SIMD_EPSILON)
+    {
+        m_indices.clear();
+        m_vecs.clear();
         return;
-    *this /= btSqrt(this->length2());
+    }
+    *this /= std::sqrt(this->length2());
 }
 
 bool btReducedVector::testAdd() const
@@ -119,6 +124,9 @@ bool btReducedVector::testDot() const
     btReducedVector rv2(sz, id2, v2);
     btScalar ans = 58;
     bool ret = (ans == rv2.dot(rv1) && ans == rv1.dot(rv2));
+    ans = 14+16+9+16+81;
+    ret &= (ans==rv2.dot(rv2));
+    
     if (!ret)
         printf("btReducedVector testDot failed\n");
     return ret;

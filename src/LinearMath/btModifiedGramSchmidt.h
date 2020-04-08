@@ -10,7 +10,7 @@
 
 #include "btReducedVector.h"
 #include "btAlignedObjectArray.h"
-
+#include <iostream>
 template<class TV>
 class btModifiedGramSchmidt
 {
@@ -28,22 +28,33 @@ public:
         m_out.resize(m_in.size());
         for (int i = 0; i < m_in.size(); ++i)
         {
+//            printf("========= starting %d ==========\n", i);
             TV v(m_in[i]);
-            v.print();
+//            v.print();
             for (int j = 0; j < i; ++j)
             {
                 v = v - v.proj(m_out[j]);
-                v.print();
+//                v.print();
             }
             v.normalize();
-            v.print();
             m_out[i] = v;
-            printf("===========\n");
+//            v.print();
         }
     }
     
     void test()
     {
+        std::cout << SIMD_EPSILON << std::endl;
+        printf("=======inputs=========\n");
+        for (int i = 0; i < m_out.size(); ++i)
+        {
+            m_in[i].print();
+        }
+        printf("=======output=========\n");
+        for (int i = 0; i < m_out.size(); ++i)
+        {
+            m_out[i].print();
+        }
         btScalar eps = SIMD_EPSILON;
         for (int i = 0; i < m_out.size(); ++i)
         {
@@ -51,7 +62,7 @@ public:
             {
                 if (i == j)
                 {
-                    if (std::abs(1-m_out[i].dot(m_out[j])) > eps && std::abs(m_out[i].dot(m_out[j])) > eps)
+                    if (std::abs(1.0-m_out[i].dot(m_out[j])) > eps)// && std::abs(m_out[i].dot(m_out[j])) > eps)
                     {
                         printf("vec[%d] is not unit, norm squared = %f\n", i,m_out[i].dot(m_out[j]));
                     }
