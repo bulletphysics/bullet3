@@ -24,6 +24,17 @@
 #include "LinearMath/btReducedVector.h"
 #include "LinearMath/btModifiedGramSchmidt.h"
 #include <vector>
+
+struct LagrangeMultiplier
+{
+    int m_num_constraints;        // Number of constraints
+    int m_num_nodes;              // Number of nodes in these constraints
+    btScalar m_weights[3];        // weights of the nodes involved, same size as m_num_nodes
+    btVector3 m_dirs[3];          // Constraint directions, same size of m_num_constraints;
+    int m_indices[3];             // indices of the nodes involved, same size as m_num_nodes;
+};
+
+
 class btDeformableContactProjection
 {
 public:
@@ -37,7 +48,8 @@ public:
 //    btHashMap<btHashInt, btAlignedObjectArray<btVector3> > m_projectionsDict;
     
     btAlignedObjectArray<btReducedVector> m_projections;
-	
+    btAlignedObjectArray<LagrangeMultiplier> m_lagrangeMultipliers;
+    
 	// map from node index to static constraint
 	btAlignedObjectArray<btAlignedObjectArray<btDeformableStaticConstraint> > m_staticConstraints;
 	// map from node index to node rigid constraint
@@ -79,5 +91,7 @@ public:
     virtual void reinitialize(bool nodeUpdated);
     
     virtual void splitImpulseSetup(const btContactSolverInfo& infoGlobal);
+    
+    virtual void setLagrangeMultiplier();
 };
 #endif /* btDeformableContactProjection_h */

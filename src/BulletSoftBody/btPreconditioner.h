@@ -68,8 +68,8 @@ public:
     virtual void operator()(const TVStack& x, TVStack& b)
     {
         btAssert(b.size() == x.size());
-        btAssert(m_inv_mass.size() == x.size());
-        for (int i = 0; i < b.size(); ++i)
+        btAssert(m_inv_mass.size() <= x.size());
+        for (int i = 0; i < m_inv_mass.size(); ++i)
         {
             b[i] = x[i] * m_inv_mass[i];
         }

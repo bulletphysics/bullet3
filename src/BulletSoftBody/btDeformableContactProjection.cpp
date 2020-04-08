@@ -17,7 +17,6 @@
 #include "btDeformableMultiBodyDynamicsWorld.h"
 #include <algorithm>
 #include <cmath>
-static btDeformableFaceRigidContactConstraint* pFaceConstraint;
 btScalar btDeformableContactProjection::update(btCollisionObject** deformableBodies,int numDeformableBodies, const btContactSolverInfo& infoGlobal)
 {
 	btScalar residualSquare = 0;
@@ -199,14 +198,6 @@ void btDeformableContactProjection::project(TVStack& x)
     {
         x[p.m_indices[i]] -= p.m_vecs[i];
     }
-//    if (pFaceConstraint)
-//    {
-//        btVector3 bary = pFaceConstraint->getContact()->m_bary;
-//        btVector3 p(0,0,0);
-//        for (int k = 0; k < 3; ++k)
-//            p += bary[k]*x[pFaceConstraint->m_face->m_n[k]->index];
-//        printf("p = %f %f %f \n", p[0], p[1], p[2]);
-//    }
 }
 
 //void btDeformableContactProjection::project(TVStack& x)
@@ -318,8 +309,6 @@ void btDeformableContactProjection::setProjection()
 			btVector3 bary = m_faceRigidConstraints[i][j].getContact()->m_bary;
 			if (m_faceRigidConstraints[i][j].m_static)
 			{
-				if (!pFaceConstraint)
-					pFaceConstraint = &m_faceRigidConstraints[i][j];
 				for (int l = 0; l < 3; ++l)
 				{
 					face->m_n[l]->m_constrained = true;
@@ -351,6 +340,94 @@ void btDeformableContactProjection::setProjection()
     btModifiedGramSchmidt<btReducedVector> mgs(m_projections);
     mgs.solve();
     m_projections = mgs.m_out;
+}
+
+void btDeformableContactProjection::setLagrangeMultiplier()
+{
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodies[i];
+        if (!psb->isActive())
+        {
+            continue;
+        }
+        for (int j = 0; j < m_staticConstraints[i].size(); ++j)
+        {
+            int index = m_staticConstraints[i][j].m_node->index;
+            m_staticConstraints[i][j].m_node->m_constrained = true;
+            LagrangeMultiplier lm;
+            lm.m_num_nodes = 1;
+            lm.m_indices[0] = index;
+            lm.m_weights[0] = 1.0;
+            lm.m_num_constraints = 3;
+            lm.m_dirs[0] = btVector3(1,0,0);
+            lm.m_dirs[1] = btVector3(0,1,0);
+            lm.m_dirs[2] = btVector3(0,0,1);
+            m_lagrangeMultipliers.push_back(lm);
+        }
+        for (int j = 0; j < m_nodeAnchorConstraints[i].size(); ++j)
+        {
+            int index = m_nodeAnchorConstraints[i][j].m_anchor->m_node->index;
+            m_nodeAnchorConstraints[i][j].m_anchor->m_node->m_constrained = true;
+            LagrangeMultiplier lm;
+            lm.m_num_nodes = 1;
+            lm.m_indices[0] = index;
+            lm.m_weights[0] = 1.0;
+            lm.m_num_constraints = 3;
+            lm.m_dirs[0] = btVector3(1,0,0);
+            lm.m_dirs[1] = btVector3(0,1,0);
+            lm.m_dirs[2] = btVector3(0,0,1);
+            m_lagrangeMultipliers.push_back(lm);
+        }
+        for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
+        {
+            int index = m_nodeRigidConstraints[i][j].m_node->index;
+            m_nodeRigidConstraints[i][j].m_node->m_constrained = true;
+            LagrangeMultiplier lm;
+            lm.m_num_nodes = 1;
+            lm.m_indices[0] = index;
+            lm.m_weights[0] = 1.0;
+            if (m_nodeRigidConstraints[i][j].m_static)
+            {
+                lm.m_num_constraints = 3;
+                lm.m_dirs[0] = btVector3(1,0,0);
+                lm.m_dirs[1] = btVector3(0,1,0);
+                lm.m_dirs[2] = btVector3(0,0,1);
+            }
+            else
+            {
+                lm.m_num_constraints = 1;
+                lm.m_dirs[0] = m_nodeRigidConstraints[i][j].m_normal;
+            }
+            m_lagrangeMultipliers.push_back(lm);
+        }
+        for (int j = 0; j < m_faceRigidConstraints[i].size(); ++j)
+        {
+            const btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
+			
+            btVector3 bary = m_faceRigidConstraints[i][j].getContact()->m_bary;
+			LagrangeMultiplier lm;
+			lm.m_num_nodes = 3;
+			for (int k = 0; k<3; ++k)
+			{
+				face->m_n[k]->m_constrained = true;
+				lm.m_indices[k] = face->m_n[k]->index;
+				lm.m_weights[k] = bary[k];
+			}
+            if (m_faceRigidConstraints[i][j].m_static)
+            {
+				lm.m_num_constraints = 3;
+				lm.m_dirs[0] = btVector3(1,0,0);
+				lm.m_dirs[1] = btVector3(0,1,0);
+				lm.m_dirs[2] = btVector3(0,0,1);
+			}
+			else
+			{
+				lm.m_num_constraints = 1;
+				lm.m_dirs[0] = m_faceRigidConstraints[i][j].m_normal;
+			}
+		}
+	}
 }
 
 //void btDeformableContactProjection::setProjection()
@@ -551,7 +628,7 @@ void btDeformableContactProjection::reinitialize(bool nodeUpdated)
 	}
 //    m_projectionsDict.clear();
     m_projections.clear();
-	pFaceConstraint = 0;
+    m_lagrangeMultipliers.clear();
 }
 
 

@@ -130,6 +130,20 @@ public:
 
     // Calculate the total potential energy in the system
     btScalar totalEnergy(btScalar dt);
+    
+    void addLagrangeMultiplier(const TVStack& vec, TVStack& extended_vec)
+    {
+        extended_vec.resize(vec.size() + m_projection.m_lagrangeMultipliers.size());
+        for (int i = 0; i < vec.size(); ++i)
+        {
+            extended_vec[i] = vec[i];
+        }
+        int offset = vec.size();
+        for (int i = 0; i < m_projection.m_lagrangeMultipliers.size(); ++i)
+        {
+            extended_vec[offset + i] = btVector3(0,0,0);
+        }
+    }
 };
 
 #endif /* btBackwardEulerObjective_h */

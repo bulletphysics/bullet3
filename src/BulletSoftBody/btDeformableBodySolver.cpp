@@ -42,7 +42,15 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
     {
         m_objective->computeResidual(solverdt, m_residual);
         m_objective->applyDynamicFriction(m_residual);
-        computeStep(m_dv, m_residual);
+//        computeStep(m_dv, m_residual);
+        TVStack rhs, x;
+        m_objective->addLagrangeMultiplier(m_residual, rhs);
+        m_objective->addLagrangeMultiplier(m_dv, x);
+        computeStep(x, rhs);
+        for (int i = 0; i<m_dv.size(); ++i)
+        {
+            m_dv[i] = x[i];
+        }
         updateVelocity();
     }
     else

@@ -404,7 +404,8 @@ void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
     solveContactConstraints();
     
     // set up the directions in which the velocity does not change in the momentum solve
-    m_deformableBodySolver->m_objective->m_projection.setProjection();
+//    m_deformableBodySolver->m_objective->m_projection.setProjection();
+    m_deformableBodySolver->m_objective->m_projection.setLagrangeMultiplier();
     
     // for explicit scheme, m_backupVelocity = v_{n+1}^*
     // for implicit scheme, m_backupVelocity = v_n
