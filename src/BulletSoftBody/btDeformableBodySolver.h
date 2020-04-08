@@ -22,7 +22,8 @@
 #include "btDeformableMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.h"
-
+#include "btConjugateResidual.h"
+#include "btConjugateGradient.h"
 struct btCollisionObjectWrapper;
 class btDeformableBackwardEulerObjective;
 class btDeformableMultiBodyDynamicsWorld;
@@ -40,6 +41,7 @@ protected:
     TVStack m_backupVelocity;       // backed up v, equals v_n for implicit, equals v_{n+1}^* for explicit
     btScalar m_dt;                  // dt
     btConjugateGradient<btDeformableBackwardEulerObjective> m_cg;  // CG solver
+    btConjugateResidual<btDeformableBackwardEulerObjective> m_cr;  // CR solver
     bool m_implicit;                // use implicit scheme if true, explicit scheme if false
     int m_maxNewtonIterations;      // max number of newton iterations
     btScalar m_newtonTolerance;     // stop newton iterations if f(x) < m_newtonTolerance

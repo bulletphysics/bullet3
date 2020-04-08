@@ -22,6 +22,7 @@ static const int kMaxConjugateGradientIterations = 50;
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(kMaxConjugateGradientIterations)
+, m_cr(kMaxConjugateGradientIterations)
 , m_maxNewtonIterations(5)
 , m_newtonTolerance(1e-4)
 , m_lineSearch(false)
@@ -200,7 +201,7 @@ void btDeformableBodySolver::updateDv(btScalar scale)
 
 void btDeformableBodySolver::computeStep(TVStack& ddv, const TVStack& residual)
 {
-    m_cg.solve(*m_objective, ddv, residual);
+    m_cr.solve(*m_objective, ddv, residual);
 }
 
 void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt)

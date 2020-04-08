@@ -15,7 +15,7 @@
 
 #ifndef BT_BACKWARD_EULER_OBJECTIVE_H
 #define BT_BACKWARD_EULER_OBJECTIVE_H
-#include "btConjugateGradient.h"
+//#include "btConjugateGradient.h"
 #include "btDeformableLagrangianForce.h"
 #include "btDeformableMassSpringForce.h"
 #include "btDeformableGravityForce.h"
