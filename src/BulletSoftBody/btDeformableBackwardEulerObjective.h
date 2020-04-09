@@ -141,7 +141,29 @@ public:
         int offset = vec.size();
         for (int i = 0; i < m_projection.m_lagrangeMultipliers.size(); ++i)
         {
-            extended_vec[offset + i] = btVector3(0,0,0);
+            extended_vec[offset + i].setZero();
+        }
+    }
+    
+    void addLagrangeMultiplierRHS(const TVStack& residual, const TVStack& m_dv, TVStack& extended_residual)
+    {
+        extended_residual.resize(residual.size() + m_projection.m_lagrangeMultipliers.size());
+        for (int i = 0; i < residual.size(); ++i)
+        {
+            extended_residual[i] = residual[i];
+        }
+        int offset = residual.size();
+        for (int i = 0; i < m_projection.m_lagrangeMultipliers.size(); ++i)
+        {
+            const LagrangeMultiplier& lm = m_projection.m_lagrangeMultipliers[i];
+            extended_residual[offset + i].setZero();
+            for (int d = 0; d < lm.m_num_constraints; ++d)
+            {
+                for (int n = 0; n < lm.m_num_nodes; ++n)
+                {
+                    extended_residual[offset + i][d] += lm.m_weights[n] * m_dv[lm.m_indices[n]].dot(lm.m_dirs[d]);
+                }
+            }
         }
     }
 };

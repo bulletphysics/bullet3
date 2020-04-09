@@ -79,9 +79,6 @@ public:
     // update and solve the constraints
     virtual btScalar update(btCollisionObject** deformableBodies,int numDeformableBodies, const btContactSolverInfo& infoGlobal);
     
-    // solve the position error using split impulse
-    virtual btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal);
-    
     // Add constraints to m_constraints. In addition, the constraints that each vertex own are recorded in m_constraintsDict.
     virtual void setConstraints(const btContactSolverInfo& infoGlobal);
     
@@ -93,5 +90,7 @@ public:
     virtual void splitImpulseSetup(const btContactSolverInfo& infoGlobal);
     
     virtual void setLagrangeMultiplier();
+    
+    void checkConstraints(const TVStack& x);
 };
 #endif /* btDeformableContactProjection_h */

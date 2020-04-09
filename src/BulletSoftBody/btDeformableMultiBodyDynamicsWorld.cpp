@@ -330,8 +330,6 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
                 }
             }
             node.m_x  =  node.m_x + timeStep * node.m_v;
-            node.m_v -= node.m_vsplit;
-            node.m_vsplit.setZero();
             node.m_q = node.m_x;
             node.m_vn = node.m_v;
         }

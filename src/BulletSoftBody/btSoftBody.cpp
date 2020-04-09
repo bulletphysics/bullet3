@@ -4043,7 +4043,7 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
                 docollideNode.m_rigidBody = prb1;
                 docollideNode.dynmargin = basemargin + timemargin;
                 docollideNode.stamargin = basemargin;
-                m_ndbvt.collideTV(m_ndbvt.m_root, volume, docollideNode);
+//                m_ndbvt.collideTV(m_ndbvt.m_root, volume, docollideNode);
 				
                 if (((pcoWrap->getCollisionObject()->getInternalType() == CO_RIGID_BODY) && (m_cfg.collisions & fCollision::SDF_RDF)) || ((pcoWrap->getCollisionObject()->getInternalType() == CO_FEATHERSTONE_LINK) && (m_cfg.collisions & fCollision::SDF_MDF)))
                 {

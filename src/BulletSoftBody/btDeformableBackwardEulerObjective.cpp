@@ -86,32 +86,26 @@ void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) 
         b[i].setZero();
     }
     // add in the lagrange multiplier terms
-    // C * \lambda
+    
     for (int c = 0; c < m_projection.m_lagrangeMultipliers.size(); ++c)
     {
+        // C * lambda
         const LagrangeMultiplier& lm = m_projection.m_lagrangeMultipliers[c];
         for (int i = 0; i < lm.m_num_nodes; ++i)
         {
             for (int j = 0; j < lm.m_num_constraints; ++j)
             {
                 b[lm.m_indices[i]] += x[offset+c][j] * lm.m_weights[i] * lm.m_dirs[j];
-                assert(x[offset+c][j] == x[offset+c][j]);
-                assert(b[lm.m_indices[i]] == b[lm.m_indices[i]]);
             }
         }
+        // C^T * x
         for (int d = 0; d < lm.m_num_constraints; ++d)
         {
             for (int i = 0; i < lm.m_num_nodes; ++i)
             {
                 b[offset+c][d] += lm.m_weights[i] * x[lm.m_indices[i]].dot(lm.m_dirs[d]);
-                assert(b[offset+c][d] == b[offset+c][d]);
             }
         }
-    }
-    
-    for (int i = 0; i < b.size(); ++i)
-    {
-        assert(b[i] == b[i]);
     }
 }
 
@@ -167,7 +161,7 @@ void btDeformableBackwardEulerObjective::computeResidual(btScalar dt, TVStack &r
             m_lf[i]->addScaledDampingForce(dt, residual);
         }
     }
-    m_projection.project(residual);
+//    m_projection.project(residual);
 }
 
 btScalar btDeformableBackwardEulerObjective::computeNorm(const TVStack& residual) const

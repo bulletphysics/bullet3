@@ -77,37 +77,6 @@ void btDeformableContactProjection::splitImpulseSetup(const btContactSolverInfo&
 	}
 }
 
-btScalar btDeformableContactProjection::solveSplitImpulse(const btContactSolverInfo& infoGlobal)
-{
-	btScalar residualSquare = 0;
-	for (int i = 0; i < m_softBodies.size(); ++i)
-	{
-		// node constraints
-		for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
-		{
-			btDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[i][j];
-			btScalar localResidualSquare = constraint.solveSplitImpulse(infoGlobal);
-			residualSquare = btMax(residualSquare, localResidualSquare);
-		}
-		// anchor constraints
-		for (int j = 0; j < m_nodeAnchorConstraints[i].size(); ++j)
-		{
-			btDeformableNodeAnchorConstraint& constraint = m_nodeAnchorConstraints[i][j];
-			btScalar localResidualSquare = constraint.solveSplitImpulse(infoGlobal);
-			residualSquare = btMax(residualSquare, localResidualSquare);
-		}
-		// face constraints
-		for (int j = 0; j < m_faceRigidConstraints[i].size(); ++j)
-		{
-			btDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[i][j];
-			btScalar localResidualSquare = constraint.solveSplitImpulse(infoGlobal);
-			residualSquare = btMax(residualSquare, localResidualSquare);
-		}
-
-	}
-	return residualSquare;
-}
-
 void btDeformableContactProjection::setConstraints(const btContactSolverInfo& infoGlobal)
 {  
 	BT_PROFILE("setConstraints");
@@ -342,6 +311,26 @@ void btDeformableContactProjection::setProjection()
     m_projections = mgs.m_out;
 }
 
+void btDeformableContactProjection::checkConstraints(const TVStack& x)
+{
+    for (int i = 0; i < m_lagrangeMultipliers.size(); ++i)
+    {
+        btVector3 d(0,0,0);
+        const LagrangeMultiplier& lm = m_lagrangeMultipliers[i];
+        for (int j = 0; j < lm.m_num_constraints; ++j)
+        {
+            for (int k = 0; k < lm.m_num_nodes; ++k)
+            {
+                d[j] += lm.m_weights[k] * x[lm.m_indices[k]].dot(lm.m_dirs[j]);
+            }
+        }
+//        if (d.safeNorm() > 1e-5)
+//        {
+//            exit(1);
+//        }
+    }
+}
+
 void btDeformableContactProjection::setLagrangeMultiplier()
 {
     for (int i = 0; i < m_softBodies.size(); ++i)
@@ -426,6 +415,7 @@ void btDeformableContactProjection::setLagrangeMultiplier()
 				lm.m_num_constraints = 1;
 				lm.m_dirs[0] = m_faceRigidConstraints[i][j].m_normal;
 			}
+            m_lagrangeMultipliers.push_back(lm);
 		}
 	}
 }

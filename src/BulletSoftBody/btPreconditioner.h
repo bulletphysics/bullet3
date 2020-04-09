@@ -73,6 +73,10 @@ public:
         {
             b[i] = x[i] * m_inv_mass[i];
         }
+        for (int i = m_inv_mass.size(); i < b.size(); ++i)
+        {
+            b[i] = x[i] / (240*240);
+        }
     }
 };
 

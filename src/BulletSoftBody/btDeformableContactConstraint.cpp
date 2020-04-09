@@ -289,37 +289,6 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
     }
     return residualSquare;
 }
-
-btScalar btDeformableRigidContactConstraint::solveSplitImpulse(const btContactSolverInfo& infoGlobal)
-{
-    const btSoftBody::sCti& cti = m_contact->m_cti;
-    const btScalar dn = m_penetration;
-    if (dn != 0)
-    {
-        const btVector3 impulse = (m_contact->m_c0 * (cti.m_normal * dn / infoGlobal.m_timeStep));
-        // one iteration of the position impulse corrects all the position error at this timestep
-        m_penetration -= dn;
-        // apply impulse to deformable nodes involved and change their position
-        applySplitImpulse(impulse);
-        // apply impulse to the rigid/multibodies involved and change their position
-        if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
-        {
-            btRigidBody* rigidCol = 0;
-            rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
-            if (rigidCol)
-            {
-                rigidCol->applyPushImpulse(impulse, m_contact->m_c1);
-            }
-        }
-        else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
-        {
-            // todo xuchenhan@
-        }
-        return (m_penetration/infoGlobal.m_timeStep) * (m_penetration/infoGlobal.m_timeStep);
-    }
-    return 0;
-}
-
 /* ================   Node vs. Rigid   =================== */
 btDeformableNodeRigidContactConstraint::btDeformableNodeRigidContactConstraint(const btSoftBody::DeformableNodeRigidContact& contact, const btContactSolverInfo& infoGlobal)
     : m_node(contact.m_node)
@@ -350,13 +319,6 @@ void btDeformableNodeRigidContactConstraint::applyImpulse(const btVector3& impul
     btVector3 dv = impulse * contact->m_c2;
     contact->m_node->m_v -= dv;
 }
-
-void btDeformableNodeRigidContactConstraint::applySplitImpulse(const btVector3& impulse)
-{
-    const btSoftBody::DeformableNodeRigidContact* contact = getContact();
-    btVector3 dv = impulse * contact->m_c2;
-    contact->m_node->m_vsplit -= dv;
-};
 
 /* ================   Face vs. Rigid   =================== */
 btDeformableFaceRigidContactConstraint::btDeformableFaceRigidContactConstraint(const btSoftBody::DeformableFaceRigidContact& contact, const btContactSolverInfo& infoGlobal)
@@ -467,26 +429,6 @@ void btDeformableFaceRigidContactConstraint::applyImpulse(const btVector3& impul
 //    v0 += dv0;
 //    v1 += dv1;
 //    v2 += dv2;
-}
-
-void btDeformableFaceRigidContactConstraint::applySplitImpulse(const btVector3& impulse)
-{
-    const btSoftBody::DeformableFaceRigidContact* contact = getContact();
-    btVector3 dv = impulse * contact->m_c2;
-    btSoftBody::Face* face = contact->m_face;
-
-    btVector3& v0 = face->m_n[0]->m_vsplit;
-    btVector3& v1 = face->m_n[1]->m_vsplit;
-    btVector3& v2 = face->m_n[2]->m_vsplit;
-    const btScalar& im0 = face->m_n[0]->m_im;
-    const btScalar& im1 = face->m_n[1]->m_im;
-    const btScalar& im2 = face->m_n[2]->m_im;
-    if (im0 > 0)
-        v0 -= dv * contact->m_weights[0];
-    if (im1 > 0)
-        v1 -= dv * contact->m_weights[1];
-    if (im2 > 0)
-        v2 -= dv * contact->m_weights[2];
 }
 
 /* ================   Face vs. Node   =================== */

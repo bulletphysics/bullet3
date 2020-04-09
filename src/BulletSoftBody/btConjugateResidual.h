@@ -35,7 +35,7 @@ public:
     btConjugateResidual(const int max_it_in)
     : max_iterations(max_it_in)
     {
-        tolerance_squared = 1e-5;
+        tolerance_squared = 1e-2;
     }
     
     virtual ~btConjugateResidual(){}
@@ -71,11 +71,6 @@ public:
         for (int k = 1; k <= max_iterations; k++) {
             // z = M^(-1) * Ap
             A.precondition(temp_p, z);
-//            for (int i = 0; i < r.size(); ++i)
-//            {
-//                printf("temp_p = %f %f %f\n", temp_p[i][0], temp_p[i][1], temp_p[i][2]);
-//                printf("z = %f %f %f\n", z[i][0], z[i][1], z[i][2]);
-//            }
             // alpha = r^T * A * r / (Ap)^T * M^-1 * Ap)
             btScalar alpha = r_dot_Ar / dot(temp_p, z);
             //  x += alpha * p;

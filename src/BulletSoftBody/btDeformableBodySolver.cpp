@@ -18,7 +18,7 @@
 #include "btDeformableBodySolver.h"
 #include "btSoftBodyInternals.h"
 #include "LinearMath/btQuickprof.h"
-static const int kMaxConjugateGradientIterations = 50;
+static const int kMaxConjugateGradientIterations = 10;
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(kMaxConjugateGradientIterations)
@@ -44,13 +44,15 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
         m_objective->applyDynamicFriction(m_residual);
 //        computeStep(m_dv, m_residual);
         TVStack rhs, x;
-        m_objective->addLagrangeMultiplier(m_residual, rhs);
+        m_objective->addLagrangeMultiplierRHS(m_residual, m_dv, rhs);
         m_objective->addLagrangeMultiplier(m_dv, x);
         computeStep(x, rhs);
         for (int i = 0; i<m_dv.size(); ++i)
         {
             m_dv[i] = x[i];
         }
+        m_objective->m_projection.checkConstraints(x);
+        
         updateVelocity();
     }
     else
@@ -209,7 +211,7 @@ void btDeformableBodySolver::updateDv(btScalar scale)
 
 void btDeformableBodySolver::computeStep(TVStack& ddv, const TVStack& residual)
 {
-    m_cr.solve(*m_objective, ddv, residual);
+    m_cr.solve(*m_objective, ddv, residual, true);
 }
 
 void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt)
@@ -249,12 +251,6 @@ btScalar btDeformableBodySolver::solveContactConstraints(btCollisionObject** def
     BT_PROFILE("solveContactConstraints");
     btScalar maxSquaredResidual = m_objective->m_projection.update(deformableBodies,numDeformableBodies, infoGlobal);
     return maxSquaredResidual;
-}
-
-btScalar btDeformableBodySolver::solveSplitImpulse(const btContactSolverInfo& infoGlobal)
-{
-    BT_PROFILE("solveSplitImpulse");
-    return m_objective->m_projection.solveSplitImpulse(infoGlobal);
 }
 
 void btDeformableBodySolver::splitImpulseSetup(const btContactSolverInfo& infoGlobal)
@@ -344,7 +340,7 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
             }
             else
                 m_dv[counter] =  psb->m_nodes[j].m_v - m_backupVelocity[counter];
-            psb->m_nodes[j].m_v = m_backupVelocity[counter] + psb->m_nodes[j].m_vsplit;
+            psb->m_nodes[j].m_v = m_backupVelocity[counter];
             ++counter;
         }
     }

@@ -63,14 +63,10 @@ public:
     // update soft body normals
     virtual void updateSoftBodies();
     
+    virtual btScalar solveContactConstraints(btCollisionObject** deformableBodies,int numDeformableBodies, const btContactSolverInfo& infoGlobal);
+    
     // solve the momentum equation
     virtual void solveDeformableConstraints(btScalar solverdt);
-    
-    // solve the contact between deformable and rigid as well as among deformables
-    btScalar solveContactConstraints(btCollisionObject** deformableBodies,int numDeformableBodies, const btContactSolverInfo& infoGlobal);
-    
-    // solve the position error  between deformable and rigid as well as among deformables;
-    btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal);
     
     // set up the position error in split impulse
     void splitImpulseSetup(const btContactSolverInfo& infoGlobal);
