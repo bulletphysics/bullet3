@@ -1300,6 +1300,14 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
         }
         else if (reading_tets)
         {
+			int d;
+			ss >> d;
+			if (d != 4)
+			{
+				printf("Load deformable failed: Only Tetrahedra are supported in VTK file.\n");
+				fs.close();
+				return 0;
+			}
             ss.ignore(128, ' '); // ignore "4"
             Index tet;
             tet.resize(4);
