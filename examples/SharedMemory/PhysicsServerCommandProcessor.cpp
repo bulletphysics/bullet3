@@ -8281,6 +8281,11 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 					if (softWorld)
 					{
 						psb = btSoftBodyHelpers::CreateFromTriMesh(softWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
+						if (!psb)
+						{
+							printf("Load deformable failed\n");
+							return false;
+						}
 					}
 				}
 				{
@@ -8288,6 +8293,11 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 					if (deformWorld)
 					{
 						psb = btSoftBodyHelpers::CreateFromTriMesh(deformWorld->getWorldInfo(), &vertices[0], &indices[0], numTris);
+						if (!psb)
+						{
+							printf("Load deformable failed\n");
+							return false;
+						}
 					}
 				}
 			}
@@ -8312,6 +8322,11 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		if (deformWorld)
 		{
 			psb = btSoftBodyHelpers::CreateFromVtkFile(deformWorld->getWorldInfo(), out_found_sim_filename.c_str());
+			if (!psb)
+			{
+				printf("Load deformable failed\n");
+				return false;
+			}
 			btScalar corotated_mu(0.), corotated_lambda(0.);
 			corotated_mu = deformable.m_corotatedCoefficients.mu;
 			corotated_lambda = deformable.m_corotatedCoefficients.lambda;
