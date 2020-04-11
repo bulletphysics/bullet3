@@ -18,7 +18,7 @@
 #include "btDeformableBodySolver.h"
 #include "btSoftBodyInternals.h"
 #include "LinearMath/btQuickprof.h"
-static const int kMaxConjugateGradientIterations = 10;
+static const int kMaxConjugateGradientIterations = 50;
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(kMaxConjugateGradientIterations)
@@ -49,10 +49,9 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
         computeStep(x, rhs);
         for (int i = 0; i<m_dv.size(); ++i)
         {
-            m_dv[i] = x[i];
+                m_dv[i] = x[i];
         }
-        m_objective->m_projection.checkConstraints(x);
-        
+//        m_objective->m_projection.checkConstraints(x);
         updateVelocity();
     }
     else
@@ -339,7 +338,9 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
                 m_backupVelocity[counter] = psb->m_nodes[j].m_vn;
             }
             else
+            {
                 m_dv[counter] =  psb->m_nodes[j].m_v - m_backupVelocity[counter];
+            }
             psb->m_nodes[j].m_v = m_backupVelocity[counter];
             ++counter;
         }

@@ -1761,7 +1761,7 @@ struct btSoftColliders
                 if (ms > 0)
                 {
                     // resolve contact at x_n
-                    psb->checkDeformableFaceContact(m_colObj1Wrap, f, contact_point, bary, m, c.m_cti, /*predict = */ false);
+//                    psb->checkDeformableFaceContact(m_colObj1Wrap, f, contact_point, bary, m, c.m_cti, /*predict = */ false);
                     btSoftBody::sCti& cti = c.m_cti;
                     c.m_contactPoint = contact_point;
                     c.m_bary = bary;

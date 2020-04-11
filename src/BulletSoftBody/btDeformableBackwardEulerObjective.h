@@ -161,6 +161,7 @@ public:
             {
                 for (int n = 0; n < lm.m_num_nodes; ++n)
                 {
+                    btScalar diff = lm.m_weights[n] * m_dv[lm.m_indices[n]].dot(lm.m_dirs[d]);
                     extended_residual[offset + i][d] += lm.m_weights[n] * m_dv[lm.m_indices[n]].dot(lm.m_dirs[d]);
                 }
             }

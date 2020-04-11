@@ -46,7 +46,6 @@ protected:
     int m_maxNewtonIterations;      // max number of newton iterations
     btScalar m_newtonTolerance;     // stop newton iterations if f(x) < m_newtonTolerance
     bool m_lineSearch;              // If true, use newton's method with line search under implicit scheme
-    
 public:
     // handles data related to objective function
     btDeformableBackwardEulerObjective* m_objective;

@@ -1309,14 +1309,14 @@ public:
 			btScalar I_tilde = .5 *I /(1.0+w.length2());
 			
 			// double the impulse if node or face is constrained.
-			if (face_constrained || node_constrained)
-				I_tilde *= 2.0;
-			if (!face_constrained)
+            if (face_constrained || node_constrained)
+                I_tilde *= 2.0;
+            if (!face_constrained)
 			{
 				for (int j = 0; j < 3; ++j)
 					face->m_n[j]->m_v += w[j]*n*I_tilde*node->m_im;
 			}
-			if (!node_constrained)
+            if (!node_constrained)
 			{
 				node->m_v -= I_tilde*node->m_im*n;
 			}
@@ -1331,15 +1331,15 @@ public:
 				I = 0.5 * mass * (vt_norm-vt_new);
 				vt.safeNormalize();
 				I_tilde = .5 *I /(1.0+w.length2());
-				// double the impulse if node or face is constrained.
-				if (face_constrained || node_constrained)
-					I_tilde *= 2.0;
-				if (!face_constrained)
+//                 double the impulse if node or face is constrained.
+                if (face_constrained || node_constrained)
+                    I_tilde *= 2.0;
+                if (!face_constrained)
 				{
 					for (int j = 0; j < 3; ++j)
 						face->m_n[j]->m_v += w[j] * vt * I_tilde * (face->m_n[j])->m_im;
 				}
-				if (!node_constrained)
+                if (!node_constrained)
 				{
 					node->m_v -= I_tilde * node->m_im * vt;
 				}

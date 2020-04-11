@@ -86,7 +86,7 @@ btScalar btDeformableNodeAnchorConstraint::solveConstraint(const btContactSolver
     btVector3 vb = getVb();
     btVector3 vr = (vb - va);
     // + (m_anchor->m_node->m_x - cti.m_colObj->getWorldTransform() * m_anchor->m_local) * 10.0
-    const btScalar dn = btDot(vr, cti.m_normal);
+    const btScalar dn = btDot(vr, vr);
     // dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
     btScalar residualSquare = dn*dn;
     btVector3 impulse = m_anchor->m_c0 * vr;
@@ -287,6 +287,11 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
             }
         }
     }
+//    va = getVa();
+//    vb = getVb();
+//    vr = vb - va;
+//    btScalar dn1 = btDot(vr, cti.m_normal) / 150;
+//    m_penetration += dn1;
     return residualSquare;
 }
 /* ================   Node vs. Rigid   =================== */

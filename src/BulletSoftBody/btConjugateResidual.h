@@ -20,6 +20,7 @@
 #include <limits>
 #include <LinearMath/btAlignedObjectArray.h>
 #include <LinearMath/btVector3.h>
+#include <LinearMath/btScalar.h>
 #include "LinearMath/btQuickprof.h"
 template <class MatrixX>
 class btConjugateResidual
@@ -35,7 +36,7 @@ public:
     btConjugateResidual(const int max_it_in)
     : max_iterations(max_it_in)
     {
-        tolerance_squared = 1e-2;
+        tolerance_squared = 1e-6;
     }
     
     virtual ~btConjugateResidual(){}
@@ -52,12 +53,12 @@ public:
         // z = M^(-1) * r
         A.precondition(r, z);  // borrow z to store preconditioned r
         r = z;
-        btScalar r_dot_r = dot(r,r);
-        if (r_dot_r <= tolerance_squared) {
+        btScalar residual_norm = norm(r);
+        if (residual_norm <= tolerance_squared) {
             if (verbose)
             {
                 std::cout << "Iteration = 0" << std::endl;
-                std::cout << "Two norm of the residual = " << r_dot_r << std::endl;
+                std::cout << "Two norm of the residual = " << residual_norm << std::endl;
             }
             return 0;
         }
@@ -77,7 +78,7 @@ public:
             multAndAddTo(alpha, p, x);
             //  r -= alpha * z;
             multAndAddTo(-alpha, z, r);
-            if (dot(r,r) < tolerance_squared) {
+            if (norm(r) < tolerance_squared) {
                 if (verbose)
                 {
                     std::cout << "ConjugateResidual iterations " << k << std::endl;
@@ -133,6 +134,19 @@ public:
     btScalar squaredNorm(const TVStack& a)
     {
         return dot(a,a);
+    }
+    
+    btScalar norm(const TVStack& a)
+    {
+        btScalar ret = 0;
+        for (int i = 0; i < a.size(); ++i)
+        {
+            for (int d = 0; d < 3; ++d)
+            {
+                ret = btMax(ret, btFabs(a[i][d]));
+            }
+        }
+        return ret;
     }
     
     btScalar dot(const TVStack& a, const TVStack& b)

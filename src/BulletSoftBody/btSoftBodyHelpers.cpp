@@ -1300,13 +1300,21 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
         }
         else if (reading_tets)
         {
-            ss.ignore(128, ' '); // ignore "4"
+            int d;
+            ss >> d;
+            if (d != 4)
+            {
+                printf("Only Tetrahedra are supported in vtk file\n");
+                return 0;
+            }
             Index tet;
             tet.resize(4);
             for (size_t i = 0; i < 4; i++)
             {
                 ss >> tet[i];
+                printf("%d ", tet[i]);
             }
+            printf("\n");
             indices[indices_count++] = tet;
         }
     }

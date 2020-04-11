@@ -324,10 +324,7 @@ void btDeformableContactProjection::checkConstraints(const TVStack& x)
                 d[j] += lm.m_weights[k] * x[lm.m_indices[k]].dot(lm.m_dirs[j]);
             }
         }
-//        if (d.safeNorm() > 1e-5)
-//        {
-//            exit(1);
-//        }
+        printf("d = %f, %f, %f\n",d[0],d[1],d[2]);
     }
 }
 
