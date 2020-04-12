@@ -54,6 +54,9 @@ public:
     // add damping df
     virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df) = 0;
     
+    // build diagonal of A matrix
+    virtual void buildDampingForceDifferentialDiagonal(btScalar scale, TVStack& diagA) = 0;
+    
     // add elastic df
     virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df) = 0;
     

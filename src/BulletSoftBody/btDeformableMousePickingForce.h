@@ -89,6 +89,8 @@ public:
         }
     }
     
+    virtual void buildDampingForceDifferentialDiagonal(btScalar scale, TVStack& diagA){}
+    
     virtual double totalElasticEnergy(btScalar dt)
     {
         double energy = 0;

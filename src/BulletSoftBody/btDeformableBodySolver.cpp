@@ -18,7 +18,7 @@
 #include "btDeformableBodySolver.h"
 #include "btSoftBodyInternals.h"
 #include "LinearMath/btQuickprof.h"
-static const int kMaxConjugateGradientIterations = 50;
+static const int kMaxConjugateGradientIterations = 5;
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(kMaxConjugateGradientIterations)
@@ -46,12 +46,13 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
         TVStack rhs, x;
         m_objective->addLagrangeMultiplierRHS(m_residual, m_dv, rhs);
         m_objective->addLagrangeMultiplier(m_dv, x);
+        m_objective->m_preconditioner->reinitialize(true);
         computeStep(x, rhs);
         for (int i = 0; i<m_dv.size(); ++i)
         {
                 m_dv[i] = x[i];
         }
-//        m_objective->m_projection.checkConstraints(x);
+//        m_objective->m_projection.enforceConstraints(x);
         updateVelocity();
     }
     else
