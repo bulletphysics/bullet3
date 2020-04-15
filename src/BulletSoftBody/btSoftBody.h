@@ -724,6 +724,15 @@ public:
 	/* SolverState	*/
 	struct SolverState
 	{
+		//if you add new variables, always initialize them!
+		SolverState()
+			:sdt(0),
+			isdt(0),
+			velmrg(0),
+			radmrg(0),
+			updmrg(0)
+		{
+		}
 		btScalar sdt;     // dt*timescale
 		btScalar isdt;    // 1/sdt
 		btScalar velmrg;  // velocity margin
@@ -810,7 +819,7 @@ public:
 	btScalar m_sleepingThreshold;
 	btScalar m_maxSpeedSquared;
 	btAlignedObjectArray<btVector3> m_quads; // quadrature points for collision detection
-	btScalar repulsionStiffness;
+	btScalar m_repulsionStiffness;
     btAlignedObjectArray<btVector3> m_X;   // initial positions
 
 	btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
@@ -1173,7 +1182,7 @@ public:
 	static psolver_t getSolver(ePSolver::_ solver);
 	static vsolver_t getSolver(eVSolver::_ solver);
 	void geometricCollisionHandler(btSoftBody* psb);
-#define SAFE_EPSILON SIMD_EPSILON*10.0
+#define SAFE_EPSILON SIMD_EPSILON*100.0
 	void updateNode(btDbvtNode* node, bool use_velocity, bool margin)
 	{
 		if (node->isleaf())
@@ -1301,13 +1310,13 @@ public:
 			btScalar I = 0;
 			btScalar mass = node->m_im == 0 ? 0 : btScalar(1)/node->m_im;
 			if (applySpringForce)
-				I = -btMin(repulsionStiffness * timeStep * d, mass * (OVERLAP_REDUCTION_FACTOR * d / timeStep - vn));
+				I = -btMin(m_repulsionStiffness * timeStep * d, mass * (OVERLAP_REDUCTION_FACTOR * d / timeStep - vn));
 			if (vn < 0)
 				I += 0.5 * mass * vn;
 			bool face_constrained = false, node_constrained = node->m_constrained;
 			for (int i = 0; i < 3; ++i)
 				face_constrained |= face->m_n[i]->m_constrained;
-			btScalar I_tilde = 2.0*I /(1.0+w.length2());
+			btScalar I_tilde = .5 *I /(1.0+w.length2());
 			
 			// double the impulse if node or face is constrained.
 			if (face_constrained || node_constrained)
@@ -1331,7 +1340,7 @@ public:
 				btScalar vt_new = btMax(btScalar(1) - mu * delta_vn / (vt_norm + SIMD_EPSILON), btScalar(0))*vt_norm;
 				I = 0.5 * mass * (vt_norm-vt_new);
 				vt.safeNormalize();
-				I_tilde = 2.0*I /(1.0+w.length2());
+				I_tilde = .5 *I /(1.0+w.length2());
 				// double the impulse if node or face is constrained.
 				if (face_constrained || node_constrained)
 					I_tilde *= 2.0;

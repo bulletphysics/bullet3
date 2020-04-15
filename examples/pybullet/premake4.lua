@@ -16,9 +16,21 @@ project ("pybullet")
 		end
 		
 		includedirs {"../../src", "../../examples",
-		"../../examples/ThirdPartyLibs"}
-		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
+		"../../examples/ThirdPartyLibs",
+		"../../Extras/VHACD/inc", "../../Extras/VHACD/public",
+		}
+		defines {"BT_ENABLE_VHACD"}
 		
+		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
+		files 
+		{
+			"../../Extras/VHACD/test/src/main_vhacd.cpp",
+			"../../Extras/VHACD/src/VHACD.cpp",
+			"../../Extras/VHACD/src/vhacdICHull.cpp",
+			"../../Extras/VHACD/src/vhacdManifoldMesh.cpp",
+			"../../Extras/VHACD/src/vhacdMesh.cpp",
+			"../../Extras/VHACD/src/vhacdVolume.cpp",
+		}
 		
 		
 	hasCL = findOpenCL("clew")
@@ -180,8 +192,29 @@ if not _OPTIONS["no-enet"] then
 			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp",
 			"../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.h",
 		}
-			
-			
+		
+	defines {"B3_ENABLE_FILEIO_PLUGIN", "B3_USE_ZIPFILE_FILEIO"}	
+  files {
+  	"../../examples/SharedMemory/plugins/fileIOPlugin/fileIOPlugin.cpp",
+  	"../../examples/ThirdPartyLibs/minizip/ioapi.c",
+    "../../examples/ThirdPartyLibs/minizip/unzip.c",
+    "../../examples/ThirdPartyLibs/minizip/zip.c",
+    "../../examples/ThirdPartyLibs/zlib/adler32.c",
+    "../../examples/ThirdPartyLibs/zlib/compress.c",
+    "../../examples/ThirdPartyLibs/zlib/crc32.c",
+    "../../examples/ThirdPartyLibs/zlib/deflate.c",
+    "../../examples/ThirdPartyLibs/zlib/gzclose.c",
+    "../../examples/ThirdPartyLibs/zlib/gzlib.c",
+    "../../examples/ThirdPartyLibs/zlib/gzread.c",
+    "../../examples/ThirdPartyLibs/zlib/gzwrite.c",
+    "../../examples/ThirdPartyLibs/zlib/infback.c",
+    "../../examples/ThirdPartyLibs/zlib/inffast.c",
+    "../../examples/ThirdPartyLibs/zlib/inflate.c",
+    "../../examples/ThirdPartyLibs/zlib/inftrees.c",
+    "../../examples/ThirdPartyLibs/zlib/trees.c",
+    "../../examples/ThirdPartyLibs/zlib/uncompr.c",
+    "../../examples/ThirdPartyLibs/zlib/zutil.c",
+  }
 
 	if _OPTIONS["enable_stable_pd"] then
 		defines {"STATIC_LINK_SPD_PLUGIN"}

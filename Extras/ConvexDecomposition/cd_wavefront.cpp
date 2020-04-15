@@ -437,7 +437,7 @@ const char **InPlaceParser::GetArglist(char *line, int &count)  // convert sourc
 {
 	const char **ret = 0;
 
-	const char *argv[MAXARGS];
+	static const char *argv[MAXARGS];
 	int argc = 0;
 
 	char *foo = line;

@@ -50,8 +50,8 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-        float internalTimeStep = 1. / 480.f;
-        m_dynamicsWorld->stepSimulation(deltaTime, 8, internalTimeStep);
+        float internalTimeStep = 1. / 240.f;
+        m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
     void addCloth(btVector3 origin);
@@ -114,12 +114,13 @@ void DeformableSelfCollision::initPhysics()
         btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
         btRigidBody* body = new btRigidBody(rbInfo);
-        body->setFriction(40);
+        body->setFriction(4);
         
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
     }
-    addCloth(btVector3(0, -0.4, 0));
+    addCloth(btVector3(0, -0.1, 0));
+    addCloth(btVector3(0, 1, 0));
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
@@ -134,29 +135,29 @@ void DeformableSelfCollision::addCloth(btVector3 origin)
                                                      btVector3(+s, h, -2*s),
                                                      btVector3(-s, h, +2*s),
                                                      btVector3(+s, h, +2*s),
-                                                     20,40,
+                                                     15,30,
 //                                                     4,4,
                                                      0, true, 0.0);
 
     
-    psb->getCollisionShape()->setMargin(0.0075);
-    psb->generateBendingConstraints(3);
+    psb->getCollisionShape()->setMargin(0.02);
+    psb->generateBendingConstraints(2);
     psb->setTotalMass(.5);
     psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
     psb->m_cfg.kCHR = 1; // collision hardness with rigid body
     psb->m_cfg.kDF = 0.1;
-    psb->rotate(btQuaternion(0, SIMD_PI / 2, 0));
+    psb->rotate(btQuaternion(0, SIMD_PI / 4, 0));
     btTransform clothTransform;
     clothTransform.setIdentity();
-    clothTransform.setOrigin(btVector3(0,0.2,0));
+    clothTransform.setOrigin(btVector3(0,0.2,0)+origin);
     psb->transform(clothTransform);
     psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
     psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
     getDeformableDynamicsWorld()->addSoftBody(psb);
     psb->setSelfCollision(true);
     
-    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(1.5,0.1, true);
-    psb->setSpringStiffness(1);
+    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(2,0.1, true);
+    psb->setSpringStiffness(2);
     getDeformableDynamicsWorld()->addForce(psb, mass_spring);
     m_forces.push_back(mass_spring);
     btVector3 gravity = btVector3(0, -9.8, 0);

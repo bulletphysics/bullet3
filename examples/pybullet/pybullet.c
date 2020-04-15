@@ -30,9 +30,18 @@
 #if defined(__APPLE__) && (!defined(B3_NO_PYTHON_FRAMEWORK))
 #include <Python/Python.h>
 #else
+#ifdef _WIN32
+	#ifdef _DEBUG
+		#define BT_REMOVED_DEBUG
+		//always use the release build of Python
+		#undef _DEBUG
+	#endif //_DEBUG
+#endif
 #include <Python.h>
 #endif
-
+#ifdef BT_REMOVED_DEBUG
+	#define _DEBUG
+#endif
 #include "../Importers/ImportURDFDemo/urdfStringSplit.h"
 
 #ifdef B3_DUMP_PYTHON_VERSION
