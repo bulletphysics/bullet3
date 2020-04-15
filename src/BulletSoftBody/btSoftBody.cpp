@@ -29,6 +29,10 @@ subject to the following restrictions:
 static inline btDbvtNode* buildTreeBottomUp(btAlignedObjectArray<btDbvtNode*>& leafNodes, btAlignedObjectArray<btAlignedObjectArray<int> >& adj)
 {
 	int N = leafNodes.size();
+	if (N == 0)
+	{
+		return NULL;
+	}
 	while (N > 1)
 	{
 		btAlignedObjectArray<bool> marked;

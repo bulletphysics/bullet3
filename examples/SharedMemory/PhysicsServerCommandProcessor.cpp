@@ -5986,7 +5986,8 @@ struct BatchRayCaster
 			int linkIndex = -1;
 
 			const btRigidBody* body = btRigidBody::upcast(rayResultCallback.m_collisionObject);
-			if (body)
+			const btSoftBody* softBody = btSoftBody::upcast(rayResultCallback.m_collisionObject);
+			if (body || softBody)
 			{
 				objectUniqueId = rayResultCallback.m_collisionObject->getUserIndex2();
 			}
@@ -8443,6 +8444,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			psb->setCollisionFlags(0);
 			psb->setTotalMass(deformable.m_mass);
 			psb->setSelfCollision(useSelfCollision);
+			psb->initializeFaceTree();
 		}
 #endif  //SKIP_DEFORMABLE_BODY
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
@@ -8485,6 +8487,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		*bodyUniqueId = m_data->m_bodyHandles.allocHandle();
 		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(*bodyUniqueId);
 		bodyHandle->m_softBody = psb;
+		psb->setUserIndex2(*bodyUniqueId);
 
 		b3VisualShapeData visualShape;
 
