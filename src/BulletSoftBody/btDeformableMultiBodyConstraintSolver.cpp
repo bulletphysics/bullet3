@@ -40,7 +40,6 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
             
             if (m_leastSquaresResidual <= infoGlobal.m_leastSquaresResidualThreshold || (iteration >= (maxIterations - 1)))
             {
-#define VERBOSE_RESIDUAL_PRINTF 1
 #ifdef VERBOSE_RESIDUAL_PRINTF
                 printf("residual = %f at iteration #%d\n", m_leastSquaresResidual, iteration);
 #endif

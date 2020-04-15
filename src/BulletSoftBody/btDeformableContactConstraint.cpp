@@ -212,7 +212,7 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
     btVector3 va = getVa();
     btVector3 vb = getVb();
     btVector3 vr = vb - va;
-    const btScalar dn = btDot(vr, cti.m_normal) + m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
+    btScalar dn = btDot(vr, cti.m_normal) + m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
     // dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
     btScalar residualSquare = dn*dn;
     btVector3 impulse = m_contact->m_c0 * (vr + m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep * cti.m_normal) ;

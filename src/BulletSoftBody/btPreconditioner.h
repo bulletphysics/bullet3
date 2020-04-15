@@ -121,7 +121,7 @@ public:
             }
         }
         m_inv_S.resize(m_projections.m_lagrangeMultipliers.size());
-        printf("S.size() = %d \n", m_inv_S.size());
+//        printf("S.size() = %d \n", m_inv_S.size());
         buildDiagonalS(m_inv_A, m_inv_S);
         for (int i = 0; i < m_inv_S.size(); ++i)
         {
@@ -178,7 +178,8 @@ public:
             }
         }
     }
-    
+#define USE_FULL_PRECONDITIONER
+#ifndef USE_FULL_PRECONDITIONER
     virtual void operator()(const TVStack& x, TVStack& b)
     {
         btAssert(b.size() == x.size());
@@ -192,6 +193,96 @@ public:
             b[i+offset] = x[i+offset] * m_inv_S[i];
         }
     }
+#else
+    virtual void operator()(const TVStack& x, TVStack& b)
+    {
+        btAssert(b.size() == x.size());
+        int offset = m_inv_A.size();
+
+        for (int i = 0; i < m_inv_A.size(); ++i)
+        {
+            b[i] = x[i] * m_inv_A[i];
+        }
+
+        for (int i = 0; i < m_inv_S.size(); ++i)
+        {
+            b[i+offset].setZero();
+        }
+
+        for (int c = 0; c < m_projections.m_lagrangeMultipliers.size(); ++c)
+        {
+            const LagrangeMultiplier& lm = m_projections.m_lagrangeMultipliers[c];
+            // C * x
+            for (int d = 0; d < lm.m_num_constraints; ++d)
+            {
+                for (int i = 0; i < lm.m_num_nodes; ++i)
+                {
+                    b[offset+c][d] += lm.m_weights[i] * b[lm.m_indices[i]].dot(lm.m_dirs[d]);
+                }
+            }
+        }
+
+        for (int i = 0; i < m_inv_S.size(); ++i)
+        {
+            b[i+offset] = b[i+offset] * m_inv_S[i];
+        }
+
+        for (int i = 0; i < m_inv_A.size(); ++i)
+        {
+            b[i].setZero();
+        }
+
+        for (int c = 0; c < m_projections.m_lagrangeMultipliers.size(); ++c)
+        {
+            // C^T * lambda
+            const LagrangeMultiplier& lm = m_projections.m_lagrangeMultipliers[c];
+            for (int i = 0; i < lm.m_num_nodes; ++i)
+            {
+                for (int j = 0; j < lm.m_num_constraints; ++j)
+                {
+                    b[lm.m_indices[i]] += b[offset+c][j] * lm.m_weights[i] * lm.m_dirs[j];
+                }
+            }
+        }
+
+        for (int i = 0; i < m_inv_A.size(); ++i)
+        {
+            b[i] = (x[i] - b[i]) * m_inv_A[i];
+        }
+
+        TVStack t;
+        t.resize(b.size());
+        for (int i = 0; i < m_inv_S.size(); ++i)
+        {
+            t[i+offset] = x[i+offset] * m_inv_S[i];
+        }
+        for (int i = 0; i < m_inv_A.size(); ++i)
+        {
+            t[i].setZero();
+        }
+        for (int c = 0; c < m_projections.m_lagrangeMultipliers.size(); ++c)
+        {
+            // C^T * lambda
+            const LagrangeMultiplier& lm = m_projections.m_lagrangeMultipliers[c];
+            for (int i = 0; i < lm.m_num_nodes; ++i)
+            {
+                for (int j = 0; j < lm.m_num_constraints; ++j)
+                {
+                    t[lm.m_indices[i]] += t[offset+c][j] * lm.m_weights[i] * lm.m_dirs[j];
+                }
+            }
+        }
+        for (int i = 0; i < m_inv_A.size(); ++i)
+        {
+            b[i] += t[i] * m_inv_A[i];
+        }
+
+        for (int i = 0; i < m_inv_S.size(); ++i)
+        {
+            b[i+offset] -= x[i+offset] * m_inv_S[i];
+        }
+    }
+#endif
 };
 
 #endif /* BT_PRECONDITIONER_H */

@@ -26,21 +26,21 @@ template <class MatrixX>
 class btConjugateResidual
 {
     typedef btAlignedObjectArray<btVector3> TVStack;
-    TVStack r,p,z,temp_p, temp_r;
+    TVStack r,p,z,temp_p, temp_r, best_x;
     // temp_r = A*r
     // temp_p = A*p
     // z = M^(-1) * temp_p = M^(-1) * A * p
     int max_iterations;
-    btScalar tolerance_squared;
+    btScalar tolerance_squared, best_r;
     int count;
     int total_it;
 public:
     btConjugateResidual(const int max_it_in)
-    : max_iterations(1000)
+    : max_iterations(max_it_in)
     {
         count = 0;
         total_it = 0;
-        tolerance_squared = 1e-3;
+        tolerance_squared = 1e-2;
     }
     
     virtual ~btConjugateResidual(){}
@@ -88,18 +88,24 @@ public:
             multAndAddTo(alpha, p, x);
             //  r -= alpha * z;
             multAndAddTo(-alpha, z, r);
-            if (norm(r) < tolerance_squared) {
-                if (verbose)
-                {
-                    std::cout << "ConjugateResidual iterations " << k << std::endl;
-                }
-                return k;
-            }
-            else
+            btScalar norm_r = norm(r);
+            if (norm_r < best_r)
             {
-                if (verbose)
+                best_x = x;
+                best_r = norm_r;
+                if (norm_r < tolerance_squared) {
+                    if (verbose)
+                    {
+                        std::cout << "ConjugateResidual iterations " << k << std::endl;
+                    }
+                    return k;
+                }
+                else
                 {
-                    std::cout << "ConjugateResidual iterations " << k << " has residual "<< norm(r) << std::endl;
+                    if (verbose)
+                    {
+                        std::cout << "ConjugateResidual iterations " << k << " has residual "<< norm_r << std::endl;
+                    }
                 }
             }
             // temp_r = A * r;
@@ -116,6 +122,7 @@ public:
         {
             std::cout << "ConjugateResidual max iterations reached " << max_iterations << std::endl;
         }
+        x = best_x;
         return max_iterations;
     }
     
@@ -126,6 +133,8 @@ public:
         z.resize(b.size());
         temp_p.resize(b.size());
         temp_r.resize(b.size());
+        best_x.resize(b.size());
+        best_r = SIMD_INFINITY;
     }
     
     TVStack sub(const TVStack& a, const TVStack& b)
