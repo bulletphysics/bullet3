@@ -2920,10 +2920,11 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
             return false;
         contact_point = results.witnesses[0];
         getBarycentric(contact_point, f.m_n[0]->m_q, f.m_n[1]->m_q, f.m_n[2]->m_q, bary);
+        btVector3 curr = BaryEval(f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
         nrm = results.normal;
         cti.m_colObj = colObjWrap->getCollisionObject();
         cti.m_normal = nrm;
-        cti.m_offset = dst + csh->getMargin();
+        cti.m_offset = dst + (curr - contact_point).dot(nrm);
     }
     return (dst < 0);
 }
