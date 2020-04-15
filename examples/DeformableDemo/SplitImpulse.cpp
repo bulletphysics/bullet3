@@ -167,6 +167,7 @@ void SplitImpulse::initPhysics()
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 0.1;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         
         btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(30,1, true);

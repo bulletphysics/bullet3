@@ -199,6 +199,7 @@ void DeformableMultibody::initPhysics()
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
         psb->setCollisionFlags(0);
         getDeformableDynamicsWorld()->addSoftBody(psb);
