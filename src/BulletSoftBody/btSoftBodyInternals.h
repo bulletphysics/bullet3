@@ -1664,7 +1664,6 @@ struct btSoftColliders
                     const btScalar ms = ima + imb;
                     if (ms > 0)
                     {
-                        n.m_constrained = true;
                         // resolve contact at x_n
                         psb->checkDeformableContact(m_colObj1Wrap, n.m_x, m, c.m_cti, /*predict = */ false);
                         btSoftBody::sCti& cti = c.m_cti;
@@ -1745,8 +1744,6 @@ struct btSoftColliders
             btSoftBody::Node* n0 = f.m_n[0];
             btSoftBody::Node* n1 = f.m_n[1];
             btSoftBody::Node* n2 = f.m_n[2];
-            if (n0->m_constrained && n1->m_constrained && n2->m_constrained)
-                return;
             const btScalar m = (n0->m_im > 0 && n1->m_im > 0 && n2->m_im > 0 )? dynmargin : stamargin;
             btSoftBody::DeformableFaceRigidContact c;
             btVector3 contact_point;

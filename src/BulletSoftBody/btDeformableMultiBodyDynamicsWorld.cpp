@@ -261,10 +261,7 @@ void btDeformableMultiBodyDynamicsWorld::performGeometricCollisions(btScalar tim
 		{
 			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
-				if (!psb->m_nodes[j].m_constrained)
-				{
-					psb->m_nodes[j].m_v *= psb->m_dampingCoefficient;
-				}
+                psb->m_nodes[j].m_v *= psb->m_dampingCoefficient;
 			}
 		}
 	}

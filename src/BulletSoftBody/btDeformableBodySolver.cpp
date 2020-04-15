@@ -431,7 +431,7 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
             n.m_v *= max_v;
         }
         n.m_q = n.m_x + n.m_v * dt;
-        n.m_constrained = false;
+        n.m_penetration = 0;
     }
 
     /* Nodes                */

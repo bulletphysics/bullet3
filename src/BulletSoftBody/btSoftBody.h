@@ -268,7 +268,7 @@ public:
 		btScalar m_im;       // 1/mass
 		btScalar m_area;     // Area
 		btDbvtNode* m_leaf;  // Leaf data
-		bool m_constrained;   // constrained node
+		btScalar m_penetration;   // depth of penetration
 		int m_battach : 1;   // Attached
         int index;
 	};
@@ -1303,20 +1303,20 @@ public:
 				I = -btMin(repulsionStiffness * timeStep * d, mass * (OVERLAP_REDUCTION_FACTOR * d / timeStep - vn));
 			if (vn < 0)
 				I += 0.5 * mass * vn;
-			bool face_constrained = false, node_constrained = node->m_constrained;
+			btScalar face_penetration = 0, node_penetration = node->m_penetration;
 			for (int i = 0; i < 3; ++i)
-				face_constrained |= face->m_n[i]->m_constrained;
+				face_penetration =  btMax(face_penetration, face->m_n[i]->m_penetration);
 			btScalar I_tilde = .5 *I /(1.0+w.length2());
 			
 			// double the impulse if node or face is constrained.
-            if (face_constrained || node_constrained)
-                I_tilde *= 2.0;
-            if (!face_constrained)
+//            if (face_penetration > 0 || node_penetration > 0)
+//                I_tilde *= 2.0;
+            if (face_penetration <= node_penetration)
 			{
 				for (int j = 0; j < 3; ++j)
 					face->m_n[j]->m_v += w[j]*n*I_tilde*node->m_im;
 			}
-            if (!node_constrained)
+            if (face_penetration >= node_penetration)
 			{
 				node->m_v -= I_tilde*node->m_im*n;
 			}
@@ -1332,14 +1332,14 @@ public:
 				vt.safeNormalize();
 				I_tilde = .5 *I /(1.0+w.length2());
 //                 double the impulse if node or face is constrained.
-                if (face_constrained || node_constrained)
-                    I_tilde *= 2.0;
-                if (!face_constrained)
+//                if (face_penetration > 0 || node_penetration > 0)
+//                    I_tilde *= 2.0;
+                if (face_penetration <= node_penetration)
 				{
 					for (int j = 0; j < 3; ++j)
 						face->m_n[j]->m_v += w[j] * vt * I_tilde * (face->m_n[j])->m_im;
 				}
-                if (!node_constrained)
+                if (face_penetration >= node_penetration)
 				{
 					node->m_v -= I_tilde * node->m_im * vt;
 				}
