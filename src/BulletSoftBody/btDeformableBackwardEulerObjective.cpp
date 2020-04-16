@@ -23,13 +23,15 @@ btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAligned
 , m_backupVelocity(backup_v)
 , m_implicit(false)
 {
-//    m_preconditioner = new MassPreconditioner(m_softBodies);
-    m_preconditioner = new DiagonalPreconditioner(m_softBodies, m_projection, m_lf, m_dt, m_implicit);
+    m_massPreconditioner = new MassPreconditioner(m_softBodies);
+    m_KKTPreconditioner = new KKTPreconditioner(m_softBodies, m_projection, m_lf, m_dt, m_implicit);
+    m_preconditioner = m_KKTPreconditioner;
 }
 
 btDeformableBackwardEulerObjective::~btDeformableBackwardEulerObjective()
 {
-    delete m_preconditioner;
+    delete m_KKTPreconditioner;
+    delete m_massPreconditioner;
 }
 
 void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated, btScalar dt)

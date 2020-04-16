@@ -26,6 +26,7 @@ btDeformableBodySolver::btDeformableBodySolver()
 , m_maxNewtonIterations(5)
 , m_newtonTolerance(1e-4)
 , m_lineSearch(false)
+, m_useProjection(false)
 {
     m_objective = new btDeformableBackwardEulerObjective(m_softBodies, m_backupVelocity);
 }
@@ -42,15 +43,21 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
     {
         m_objective->computeResidual(solverdt, m_residual);
         m_objective->applyDynamicFriction(m_residual);
-//        computeStep(m_dv, m_residual);
-        TVStack rhs, x;
-        m_objective->addLagrangeMultiplierRHS(m_residual, m_dv, rhs);
-        m_objective->addLagrangeMultiplier(m_dv, x);
-        m_objective->m_preconditioner->reinitialize(true);
-        computeStep(x, rhs);
-        for (int i = 0; i<m_dv.size(); ++i)
+        if (m_useProjection)
         {
-                m_dv[i] = x[i];
+            computeStep(m_dv, m_residual);
+        }
+        else
+        {
+            TVStack rhs, x;
+            m_objective->addLagrangeMultiplierRHS(m_residual, m_dv, rhs);
+            m_objective->addLagrangeMultiplier(m_dv, x);
+            m_objective->m_preconditioner->reinitialize(true);
+            computeStep(x, rhs);
+            for (int i = 0; i<m_dv.size(); ++i)
+            {
+                    m_dv[i] = x[i];
+            }
         }
         updateVelocity();
     }
@@ -73,7 +80,7 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
                     ++counter;
                 }
             }
-            
+
             m_objective->computeResidual(solverdt, m_residual);
             if (m_objective->computeNorm(m_residual) < m_newtonTolerance && i > 0)
             {
@@ -210,7 +217,10 @@ void btDeformableBodySolver::updateDv(btScalar scale)
 
 void btDeformableBodySolver::computeStep(TVStack& ddv, const TVStack& residual)
 {
-    m_cr.solve(*m_objective, ddv, residual, false);
+    if (m_useProjection)
+        m_cg.solve(*m_objective, ddv, residual, false);
+    else
+        m_cr.solve(*m_objective, ddv, residual, false);
 }
 
 void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt)

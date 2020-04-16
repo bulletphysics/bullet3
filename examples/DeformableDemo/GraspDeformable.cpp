@@ -363,10 +363,10 @@ void GraspDeformable::initPhysics()
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
-        psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
+//        psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
 //        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(.0,0.0, true));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(10,0.05, true));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(10,1, true));
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
     }
     

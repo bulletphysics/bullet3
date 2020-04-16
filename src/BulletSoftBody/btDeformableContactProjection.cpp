@@ -142,7 +142,7 @@ void btDeformableContactProjection::setConstraints(const btContactSolverInfo& in
 			{
 				continue;
 			}
-			btDeformableFaceRigidContactConstraint constraint(contact, infoGlobal);
+			btDeformableFaceRigidContactConstraint constraint(contact, infoGlobal, m_useStrainLimiting);
 			btVector3 va = constraint.getVa();
 			btVector3 vb = constraint.getVb();
 			const btVector3 vr = vb - va;
@@ -158,6 +158,42 @@ void btDeformableContactProjection::setConstraints(const btContactSolverInfo& in
 
 void btDeformableContactProjection::project(TVStack& x)
 {
+#ifndef USE_MGS
+    const int dim = 3;
+    for (int index = 0; index < m_projectionsDict.size(); ++index)
+    {
+        btAlignedObjectArray<btVector3>& projectionDirs = *m_projectionsDict.getAtIndex(index);
+        size_t i = m_projectionsDict.getKeyAtIndex(index).getUid1();
+        if (projectionDirs.size() >= dim)
+        {
+            // static node
+            x[i].setZero();
+            continue;
+        }
+        else if (projectionDirs.size() == 2)
+        {
+            btVector3 dir0 = projectionDirs[0];
+            btVector3 dir1 = projectionDirs[1];
+            btVector3 free_dir = btCross(dir0, dir1);
+            if (free_dir.safeNorm() < SIMD_EPSILON)
+            {
+                x[i] -= x[i].dot(dir0) * dir0;
+                x[i] -= x[i].dot(dir1) * dir1;
+            }
+            else
+            {
+                free_dir.normalize();
+                x[i] = x[i].dot(free_dir) * free_dir;
+            }
+        }
+        else
+        {
+            btAssert(projectionDirs.size() == 1);
+            btVector3 dir0 = projectionDirs[0];
+            x[i] -= x[i].dot(dir0) * dir0;
+        }
+    }
+#else
     btReducedVector p(x.size());
     for (int i = 0; i < m_projections.size(); ++i)
     {
@@ -167,48 +203,138 @@ void btDeformableContactProjection::project(TVStack& x)
     {
         x[p.m_indices[i]] -= p.m_vecs[i];
     }
+#endif
 }
-
-//void btDeformableContactProjection::project(TVStack& x)
-//{
-//    const int dim = 3;
-//    for (int index = 0; index < m_projectionsDict.size(); ++index)
-//    {
-//        btAlignedObjectArray<btVector3>& projectionDirs = *m_projectionsDict.getAtIndex(index);
-//        size_t i = m_projectionsDict.getKeyAtIndex(index).getUid1();
-//        if (projectionDirs.size() >= dim)
-//        {
-//            // static node
-//            x[i].setZero();
-//            continue;
-//        }
-//        else if (projectionDirs.size() == 2)
-//        {
-//            btVector3 dir0 = projectionDirs[0];
-//            btVector3 dir1 = projectionDirs[1];
-//            btVector3 free_dir = btCross(dir0, dir1);
-//            if (free_dir.safeNorm() < SIMD_EPSILON)
-//            {
-//                x[i] -= x[i].dot(dir0) * dir0;
-//                x[i] -= x[i].dot(dir1) * dir1;
-//            }
-//            else
-//            {
-//                free_dir.normalize();
-//                x[i] = x[i].dot(free_dir) * free_dir;
-//            }
-//        }
-//        else
-//        {
-//            btAssert(projectionDirs.size() == 1);
-//            btVector3 dir0 = projectionDirs[0];
-//            x[i] -= x[i].dot(dir0) * dir0;
-//        }
-//    }
-//}
 
 void btDeformableContactProjection::setProjection()
 {
+#ifndef USE_MGS
+    BT_PROFILE("btDeformableContactProjection::setProjection");
+    btAlignedObjectArray<btVector3> units;
+    units.push_back(btVector3(1,0,0));
+    units.push_back(btVector3(0,1,0));
+    units.push_back(btVector3(0,0,1));
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodies[i];
+        if (!psb->isActive())
+        {
+            continue;
+        }
+        for (int j = 0; j < m_staticConstraints[i].size(); ++j)
+        {
+            int index = m_staticConstraints[i][j].m_node->index;
+            m_staticConstraints[i][j].m_node->m_penetration = SIMD_INFINITY;
+            if (m_projectionsDict.find(index) == NULL)
+            {
+                m_projectionsDict.insert(index, units);
+            }
+            else
+            {
+                btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
+                for (int k = 0; k < 3; ++k)
+                {
+                    projections.push_back(units[k]);
+                }
+            }
+        }
+        for (int j = 0; j < m_nodeAnchorConstraints[i].size(); ++j)
+        {
+            int index = m_nodeAnchorConstraints[i][j].m_anchor->m_node->index;
+            m_nodeAnchorConstraints[i][j].m_anchor->m_node->m_penetration = SIMD_INFINITY;
+            if (m_projectionsDict.find(index) == NULL)
+            {
+                m_projectionsDict.insert(index, units);
+            }
+            else
+            {
+                btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
+                for (int k = 0; k < 3; ++k)
+                {
+                    projections.push_back(units[k]);
+                }
+            }
+        }
+        for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
+        {
+            int index = m_nodeRigidConstraints[i][j].m_node->index;
+            m_nodeRigidConstraints[i][j].m_node->m_penetration = -m_nodeRigidConstraints[i][j].getContact()->m_cti.m_offset;
+            if (m_nodeRigidConstraints[i][j].m_static)
+            {
+                if (m_projectionsDict.find(index) == NULL)
+                {
+                    m_projectionsDict.insert(index, units);
+                }
+                else
+                {
+                    btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
+                    for (int k = 0; k < 3; ++k)
+                    {
+                        projections.push_back(units[k]);
+                    }
+                }
+            }
+            else
+            {
+                if (m_projectionsDict.find(index) == NULL)
+                {
+                    btAlignedObjectArray<btVector3> projections;
+                    projections.push_back(m_nodeRigidConstraints[i][j].m_normal);
+                    m_projectionsDict.insert(index, projections);
+                }
+                else
+                {
+                    btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
+                    projections.push_back(m_nodeRigidConstraints[i][j].m_normal);
+                }
+            }
+        }
+        for (int j = 0; j < m_faceRigidConstraints[i].size(); ++j)
+        {
+            const btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
+            btScalar penetration = -m_faceRigidConstraints[i][j].getContact()->m_cti.m_offset;
+            for (int k = 0; k < 3; ++k)
+            {
+                face->m_n[k]->m_penetration = btMax(face->m_n[k]->m_penetration, penetration);
+            }
+            for (int k = 0; k < 3; ++k)
+            {
+                btSoftBody::Node* node = face->m_n[k];
+                node->m_penetration = true;
+                int index = node->index;
+                if (m_faceRigidConstraints[i][j].m_static)
+                {
+                    if (m_projectionsDict.find(index) == NULL)
+                    {
+                        m_projectionsDict.insert(index, units);
+                    }
+                    else
+                    {
+                        btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
+                        for (int k = 0; k < 3; ++k)
+                        {
+                            projections.push_back(units[k]);
+                        }
+                    }
+                }
+                else
+                {
+                    if (m_projectionsDict.find(index) == NULL)
+                    {
+                        btAlignedObjectArray<btVector3> projections;
+                        projections.push_back(m_faceRigidConstraints[i][j].m_normal);
+                        m_projectionsDict.insert(index, projections);
+                    }
+                    else
+                    {
+                        btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
+                        projections.push_back(m_faceRigidConstraints[i][j].m_normal);
+                    }
+                }
+            }
+        }
+    }
+#else
     int dof = 0;
     for (int i = 0; i < m_softBodies.size(); ++i)
     {
@@ -277,11 +403,15 @@ void btDeformableContactProjection::setProjection()
             const btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
 			btVector3 bary = m_faceRigidConstraints[i][j].getContact()->m_bary;
             btScalar penetration = -m_faceRigidConstraints[i][j].getContact()->m_cti.m_offset;
+            for (int k = 0; k < 3; ++k)
+            {
+                face->m_n[k]->m_penetration = btMax(face->m_n[k]->m_penetration, penetration);
+            }
 			if (m_faceRigidConstraints[i][j].m_static)
 			{
 				for (int l = 0; l < 3; ++l)
 				{
-					face->m_n[l]->m_penetration = penetration;
+					
 					btReducedVector rv(dof);
 					for (int k = 0; k < 3; ++k)
 					{
@@ -310,6 +440,7 @@ void btDeformableContactProjection::setProjection()
     btModifiedGramSchmidt<btReducedVector> mgs(m_projections);
     mgs.solve();
     m_projections = mgs.m_out;
+#endif
 }
 
 void btDeformableContactProjection::checkConstraints(const TVStack& x)
@@ -398,7 +529,7 @@ void btDeformableContactProjection::setLagrangeMultiplier()
 			lm.m_num_nodes = 3;
 			for (int k = 0; k<3; ++k)
 			{
-				face->m_n[k]->m_penetration = penetration;
+				face->m_n[k]->m_penetration = btMax(face->m_n[k]->m_penetration, penetration);
 				lm.m_indices[k] = face->m_n[k]->index;
 				lm.m_weights[k] = bary[k];
 			}
@@ -419,131 +550,7 @@ void btDeformableContactProjection::setLagrangeMultiplier()
 	}
 }
 
-//void btDeformableContactProjection::setProjection()
-//{
-//    BT_PROFILE("btDeformableContactProjection::setProjection");
-//    btAlignedObjectArray<btVector3> units;
-//    units.push_back(btVector3(1,0,0));
-//    units.push_back(btVector3(0,1,0));
-//    units.push_back(btVector3(0,0,1));
-//    for (int i = 0; i < m_softBodies.size(); ++i)
-//    {
-//        btSoftBody* psb = m_softBodies[i];
-//        if (!psb->isActive())
-//        {
-//            continue;
-//        }
-//        for (int j = 0; j < m_staticConstraints[i].size(); ++j)
-//        {
-//            int index = m_staticConstraints[i][j].m_node->index;
-//            m_staticConstraints[i][j].m_node->m_constrained = true;
-//            if (m_projectionsDict.find(index) == NULL)
-//            {
-//                m_projectionsDict.insert(index, units);
-//            }
-//            else
-//            {
-//                btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
-//                for (int k = 0; k < 3; ++k)
-//                {
-//                    projections.push_back(units[k]);
-//                }
-//            }
-//        }
-//        for (int j = 0; j < m_nodeAnchorConstraints[i].size(); ++j)
-//        {
-//            int index = m_nodeAnchorConstraints[i][j].m_anchor->m_node->index;
-//            m_nodeAnchorConstraints[i][j].m_anchor->m_node->m_constrained = true;
-//            if (m_projectionsDict.find(index) == NULL)
-//            {
-//                m_projectionsDict.insert(index, units);
-//            }
-//            else
-//            {
-//                btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
-//                for (int k = 0; k < 3; ++k)
-//                {
-//                    projections.push_back(units[k]);
-//                }
-//            }
-//        }
-//        for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
-//        {
-//            int index = m_nodeRigidConstraints[i][j].m_node->index;
-//            m_nodeRigidConstraints[i][j].m_node->m_constrained = true;
-//            if (m_nodeRigidConstraints[i][j].m_static)
-//            {
-//                if (m_projectionsDict.find(index) == NULL)
-//                {
-//                    m_projectionsDict.insert(index, units);
-//                }
-//                else
-//                {
-//                    btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
-//                    for (int k = 0; k < 3; ++k)
-//                    {
-//                        projections.push_back(units[k]);
-//                    }
-//                }
-//            }
-//            else
-//            {
-//                if (m_projectionsDict.find(index) == NULL)
-//                {
-//                    btAlignedObjectArray<btVector3> projections;
-//                    projections.push_back(m_nodeRigidConstraints[i][j].m_normal);
-//                    m_projectionsDict.insert(index, projections);
-//                }
-//                else
-//                {
-//                    btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
-//                    projections.push_back(m_nodeRigidConstraints[i][j].m_normal);
-//                }
-//            }
-//        }
-//        for (int j = 0; j < m_faceRigidConstraints[i].size(); ++j)
-//        {
-//            const btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
-//            for (int k = 0; k < 3; ++k)
-//            {
-//                btSoftBody::Node* node = face->m_n[k];
-//                node->m_constrained = true;
-//                int index = node->index;
-//                if (m_faceRigidConstraints[i][j].m_static)
-//                {
-//                    if (m_projectionsDict.find(index) == NULL)
-//                    {
-//                        m_projectionsDict.insert(index, units);
-//                    }
-//                    else
-//                    {
-//                        btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
-//                        for (int k = 0; k < 3; ++k)
-//                        {
-//                            projections.push_back(units[k]);
-//                        }
-//                    }
-//                }
-//                else
-//                {
-//                    if (m_projectionsDict.find(index) == NULL)
-//                    {
-//                        btAlignedObjectArray<btVector3> projections;
-//                        projections.push_back(m_faceRigidConstraints[i][j].m_normal);
-//                        m_projectionsDict.insert(index, projections);
-//                    }
-//                    else
-//                    {
-//                        btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
-//                        projections.push_back(m_faceRigidConstraints[i][j].m_normal);
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-
+//
 void btDeformableContactProjection::applyDynamicFriction(TVStack& f)
 {
 	for (int i = 0; i < m_softBodies.size(); ++i)
@@ -615,8 +622,11 @@ void btDeformableContactProjection::reinitialize(bool nodeUpdated)
 		m_faceRigidConstraints[i].clear();
 		m_deformableConstraints[i].clear();
 	}
-//    m_projectionsDict.clear();
+#ifndef USE_MGS
+    m_projectionsDict.clear();
+#else
     m_projections.clear();
+#endif
     m_lagrangeMultipliers.clear();
 }
 

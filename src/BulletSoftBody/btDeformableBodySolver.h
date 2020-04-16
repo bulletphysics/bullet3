@@ -49,6 +49,7 @@ protected:
 public:
     // handles data related to objective function
     btDeformableBackwardEulerObjective* m_objective;
+    bool m_useProjection;
     
     btDeformableBodySolver();
     

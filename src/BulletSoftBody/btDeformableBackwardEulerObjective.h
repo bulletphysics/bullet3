@@ -40,6 +40,8 @@ public:
     const TVStack& m_backupVelocity;
     btAlignedObjectArray<btSoftBody::Node* > m_nodes;
     bool m_implicit;
+    MassPreconditioner* m_massPreconditioner;
+    KKTPreconditioner* m_KKTPreconditioner;
 
     btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody *>& softBodies, const TVStack& backup_v);
     

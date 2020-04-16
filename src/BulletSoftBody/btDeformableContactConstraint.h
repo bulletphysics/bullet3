@@ -204,9 +204,10 @@ class btDeformableFaceRigidContactConstraint : public btDeformableRigidContactCo
 {
 public:
     const btSoftBody::Face* m_face;
-    btDeformableFaceRigidContactConstraint(const btSoftBody::DeformableFaceRigidContact& contact, const btContactSolverInfo& infoGlobal);
+    bool m_useStrainLimiting;
+    btDeformableFaceRigidContactConstraint(const btSoftBody::DeformableFaceRigidContact& contact, const btContactSolverInfo& infoGlobal, bool useStrainLimiting);
     btDeformableFaceRigidContactConstraint(const btDeformableFaceRigidContactConstraint& other);
-	btDeformableFaceRigidContactConstraint(){}
+    btDeformableFaceRigidContactConstraint(): m_useStrainLimiting(false) {}
     virtual ~btDeformableFaceRigidContactConstraint()
     {
     }

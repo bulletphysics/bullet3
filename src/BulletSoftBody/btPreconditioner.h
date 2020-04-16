@@ -81,7 +81,7 @@ public:
 };
 
 
-class DiagonalPreconditioner : public Preconditioner
+class KKTPreconditioner : public Preconditioner
 {
     const btAlignedObjectArray<btSoftBody *>& m_softBodies;
     const btDeformableContactProjection& m_projections;
@@ -90,7 +90,7 @@ class DiagonalPreconditioner : public Preconditioner
     const btScalar& m_dt;
     const bool& m_implicit;
 public:
-    DiagonalPreconditioner(const btAlignedObjectArray<btSoftBody *>& softBodies, const btDeformableContactProjection& projections, const btAlignedObjectArray<btDeformableLagrangianForce*>& lf, const btScalar& dt, const bool& implicit)
+    KKTPreconditioner(const btAlignedObjectArray<btSoftBody *>& softBodies, const btDeformableContactProjection& projections, const btAlignedObjectArray<btDeformableLagrangianForce*>& lf, const btScalar& dt, const bool& implicit)
     : m_softBodies(softBodies)
     , m_projections(projections)
     , m_lf(lf)

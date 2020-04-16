@@ -43,11 +43,13 @@ public:
 	
     // all constraints involving face
     btAlignedObjectArray<btDeformableContactConstraint*> m_allFaceConstraints;
-    
+#ifndef USE_MGS
     // map from node index to projection directions
-//    btHashMap<btHashInt, btAlignedObjectArray<btVector3> > m_projectionsDict;
-    
+    btHashMap<btHashInt, btAlignedObjectArray<btVector3> > m_projectionsDict;
+#else
     btAlignedObjectArray<btReducedVector> m_projections;
+#endif
+    
     btAlignedObjectArray<LagrangeMultiplier> m_lagrangeMultipliers;
     
 	// map from node index to static constraint
@@ -60,6 +62,8 @@ public:
 	btAlignedObjectArray<btAlignedObjectArray<btDeformableFaceNodeContactConstraint> > m_deformableConstraints;
 	// map from node index to node anchor constraint
 	btAlignedObjectArray<btAlignedObjectArray<btDeformableNodeAnchorConstraint> > m_nodeAnchorConstraints;
+    
+    bool m_useStrainLimiting;
     
     btDeformableContactProjection(btAlignedObjectArray<btSoftBody *>& softBodies)
     : m_softBodies(softBodies)

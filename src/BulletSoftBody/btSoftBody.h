@@ -163,7 +163,7 @@ public:
 			RVSmask = 0x000f,  ///Rigid versus soft mask
 			SDF_RS = 0x0001,   ///SDF based rigid vs soft
 			CL_RS = 0x0002,    ///Cluster vs convex rigid vs soft
-			SDF_RD = 0x0004,   ///SDF based rigid vs deformable
+			SDF_RD = 0x0004,   ///rigid vs deformable
 
 			SVSmask = 0x00f0,  ///Rigid versus soft mask
 			VF_SS = 0x0010,    ///Vertex vs face soft vs soft handling
@@ -172,8 +172,9 @@ public:
 			VF_DD = 0x0080,    ///Vertex vs face soft vs soft handling
 
 			RVDFmask = 0x0f00, /// Rigid versus deformable face mask
-			SDF_RDF = 0x0100,  /// SDF based Rigid vs. deformable face
-			SDF_MDF = 0x0200,  /// SDF based Multibody vs. deformable face
+			SDF_RDF = 0x0100,  /// GJK based Rigid vs. deformable face
+			SDF_MDF = 0x0200,  /// GJK based Multibody vs. deformable face
+            SDF_RDN = 0x0400,  /// SDF based Rigid vs. deformable node
 			/* presets	*/
 			Default = SDF_RS,
 			END
@@ -817,7 +818,6 @@ public:
 	btAlignedObjectArray<btScalar> m_z; // vertical distance used in extrapolation
 	bool m_useSelfCollision;
 	bool m_softSoftCollision;
-	bool m_usePostCollisionDamping;
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
 
@@ -1308,9 +1308,9 @@ public:
 				face_penetration =  btMax(face_penetration, face->m_n[i]->m_penetration);
 			btScalar I_tilde = .5 *I /(1.0+w.length2());
 			
-			// double the impulse if node or face is constrained.
-//            if (face_penetration > 0 || node_penetration > 0)
-//                I_tilde *= 2.0;
+//             double the impulse if node or face is constrained.
+            if (face_penetration > 0 || node_penetration > 0)
+                I_tilde *= 2.0;
             if (face_penetration <= node_penetration)
 			{
 				for (int j = 0; j < 3; ++j)

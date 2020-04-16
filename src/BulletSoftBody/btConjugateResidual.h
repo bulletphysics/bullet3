@@ -32,14 +32,10 @@ class btConjugateResidual
     // z = M^(-1) * temp_p = M^(-1) * A * p
     int max_iterations;
     btScalar tolerance_squared, best_r;
-    int count;
-    int total_it;
 public:
     btConjugateResidual(const int max_it_in)
     : max_iterations(max_it_in)
     {
-        count = 0;
-        total_it = 0;
         tolerance_squared = 1e-2;
     }
     
@@ -48,11 +44,6 @@ public:
     // return the number of iterations taken
     int solve(MatrixX& A, TVStack& x, const TVStack& b, bool verbose = false)
     {
-        ++count;
-        if (count == 1000)
-        {
-            printf("total_it = %d", total_it);
-        }
         BT_PROFILE("CRSolve");
         btAssert(x.size() == b.size());
         reinitialize(b);
@@ -79,7 +70,6 @@ public:
         temp_r = temp_p;
         r_dot_Ar = dot(r, temp_r);
         for (int k = 1; k <= max_iterations; k++) {
-            ++total_it;
             // z = M^(-1) * Ap
             A.precondition(temp_p, z);
             // alpha = r^T * A * r / (Ap)^T * M^-1 * Ap)

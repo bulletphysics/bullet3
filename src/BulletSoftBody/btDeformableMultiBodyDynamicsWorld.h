@@ -49,6 +49,7 @@ class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
     int m_ccdIterations;
     bool m_implicit;
     bool m_lineSearch;
+    bool m_useProjection;
     DeformableBodyInplaceSolverIslandCallback* m_solverDeformableBodyIslandCallback;
     
     typedef void (*btSolverCallback)(btScalar time, btDeformableMultiBodyDynamicsWorld* world);

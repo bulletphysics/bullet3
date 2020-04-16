@@ -157,7 +157,7 @@ void DeformableSelfCollision::addCloth(btVector3 origin)
     getDeformableDynamicsWorld()->addSoftBody(psb);
     psb->setSelfCollision(true);
     
-    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(2,0.02, true);
+    btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(2,0.2, true);
     psb->setSpringStiffness(4);
     getDeformableDynamicsWorld()->addForce(psb, mass_spring);
     m_forces.push_back(mass_spring);

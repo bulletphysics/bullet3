@@ -141,7 +141,8 @@ btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btS
     m_total_normal_dv.setZero();
     m_total_tangent_dv.setZero();
     // The magnitude of penetration is the depth of penetration.
-    m_penetration = btMin(btScalar(0),c.m_cti.m_offset);
+    m_penetration = c.m_cti.m_offset;
+//	m_penetration = btMin(btScalar(0),c.m_cti.m_offset);
 }
 
 btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btDeformableRigidContactConstraint& other)
@@ -326,14 +327,16 @@ void btDeformableNodeRigidContactConstraint::applyImpulse(const btVector3& impul
 }
 
 /* ================   Face vs. Rigid   =================== */
-btDeformableFaceRigidContactConstraint::btDeformableFaceRigidContactConstraint(const btSoftBody::DeformableFaceRigidContact& contact, const btContactSolverInfo& infoGlobal)
+btDeformableFaceRigidContactConstraint::btDeformableFaceRigidContactConstraint(const btSoftBody::DeformableFaceRigidContact& contact, const btContactSolverInfo& infoGlobal, bool useStrainLimiting)
 : m_face(contact.m_face)
+, m_useStrainLimiting(useStrainLimiting)
 , btDeformableRigidContactConstraint(contact, infoGlobal)
 {
 }
 
 btDeformableFaceRigidContactConstraint::btDeformableFaceRigidContactConstraint(const btDeformableFaceRigidContactConstraint& other)
 : m_face(other.m_face)
+, m_useStrainLimiting(other.m_useStrainLimiting)
 , btDeformableRigidContactConstraint(other)
 {
 }
@@ -380,60 +383,62 @@ void btDeformableFaceRigidContactConstraint::applyImpulse(const btVector3& impul
         v1 -= dv * contact->m_weights[1];
     if (im2 > 0)
         v2 -= dv * contact->m_weights[2];
-
-	btScalar relaxation = 1./btScalar(m_infoGlobal->m_numIterations);
-	btScalar m01 = (relaxation/(im0 + im1));
-	btScalar m02 = (relaxation/(im0 + im2));
-	btScalar m12 = (relaxation/(im1 + im2));
-	#ifdef USE_STRAIN_RATE_LIMITING
-	// apply strain limiting to prevent the new velocity to change the current length of the edge by more than 1%.
-	btScalar p = 0.01;
-	btVector3& x0 = face->m_n[0]->m_x;
-	btVector3& x1 = face->m_n[1]->m_x;
-	btVector3& x2 = face->m_n[2]->m_x;
-	const btVector3 x_diff[3] = {x1-x0, x2-x0, x2-x1};
-	const btVector3 v_diff[3] = {v1-v0, v2-v0, v2-v1};
-	btVector3 u[3];
-	btScalar x_diff_dot_u, dn[3];
-	btScalar dt = m_infoGlobal->m_timeStep;
-	for (int i = 0; i < 3; ++i)
+	if (m_useStrainLimiting)
 	{
-		btScalar x_diff_norm = x_diff[i].safeNorm();
-		btScalar x_diff_norm_new = (x_diff[i] + v_diff[i] * dt).safeNorm();
-		btScalar strainRate = x_diff_norm_new/x_diff_norm;
-		u[i] = v_diff[i];
-		u[i].safeNormalize();
-		if (x_diff_norm == 0 || (1-p <= strainRate && strainRate <= 1+p))
+		btScalar relaxation = 1./btScalar(m_infoGlobal->m_numIterations);
+		btScalar m01 = (relaxation/(im0 + im1));
+		btScalar m02 = (relaxation/(im0 + im2));
+		btScalar m12 = (relaxation/(im1 + im2));
+		#ifdef USE_STRAIN_RATE_LIMITING
+		// apply strain limiting to prevent the new velocity to change the current length of the edge by more than 1%.
+		btScalar p = 0.01;
+		btVector3& x0 = face->m_n[0]->m_x;
+		btVector3& x1 = face->m_n[1]->m_x;
+		btVector3& x2 = face->m_n[2]->m_x;
+		const btVector3 x_diff[3] = {x1-x0, x2-x0, x2-x1};
+		const btVector3 v_diff[3] = {v1-v0, v2-v0, v2-v1};
+		btVector3 u[3];
+		btScalar x_diff_dot_u, dn[3];
+		btScalar dt = m_infoGlobal->m_timeStep;
+		for (int i = 0; i < 3; ++i)
 		{
-			dn[i] = 0;
-			continue;
+			btScalar x_diff_norm = x_diff[i].safeNorm();
+			btScalar x_diff_norm_new = (x_diff[i] + v_diff[i] * dt).safeNorm();
+			btScalar strainRate = x_diff_norm_new/x_diff_norm;
+			u[i] = v_diff[i];
+			u[i].safeNormalize();
+			if (x_diff_norm == 0 || (1-p <= strainRate && strainRate <= 1+p))
+			{
+				dn[i] = 0;
+				continue;
+			}
+			x_diff_dot_u = btDot(x_diff[i], u[i]);
+			btScalar s;
+			if (1-p > strainRate)
+			{
+				s = 1/dt * (-x_diff_dot_u - btSqrt(x_diff_dot_u*x_diff_dot_u + (p*p-2*p) * x_diff_norm * x_diff_norm));
+			}
+			else
+			{
+				s = 1/dt * (-x_diff_dot_u + btSqrt(x_diff_dot_u*x_diff_dot_u + (p*p+2*p) * x_diff_norm * x_diff_norm));
+			}
+			//		x_diff_norm_new = (x_diff[i] + s * u[i] * dt).safeNorm();
+			//		strainRate = x_diff_norm_new/x_diff_norm;
+			dn[i] = s - v_diff[i].safeNorm();
 		}
-		x_diff_dot_u = btDot(x_diff[i], u[i]);
-		btScalar s;
-		if (1-p > strainRate)
-		{
-			s = 1/dt * (-x_diff_dot_u - btSqrt(x_diff_dot_u*x_diff_dot_u + (p*p-2*p) * x_diff_norm * x_diff_norm));
-		}
-		else
-		{
-			s = 1/dt * (-x_diff_dot_u + btSqrt(x_diff_dot_u*x_diff_dot_u + (p*p+2*p) * x_diff_norm * x_diff_norm));
-		}
-		//		x_diff_norm_new = (x_diff[i] + s * u[i] * dt).safeNorm();
-		//		strainRate = x_diff_norm_new/x_diff_norm;
-		dn[i] = s - v_diff[i].safeNorm();
+		btVector3 dv0 = im0 * (m01 * u[0]*(-dn[0]) + m02 * u[1]*-(dn[1]));
+		btVector3 dv1 = im1 * (m01 * u[0]*(dn[0]) + m12 * u[2]*(-dn[2]));
+		btVector3 dv2 = im2 * (m12 * u[2]*(dn[2]) + m02 * u[1]*(dn[1]));
+	#else
+		// apply strain limiting to prevent undamped modes
+		btVector3 dv0 = im0 * (m01 * (v1-v0) + m02 * (v2-v0));
+		btVector3 dv1 = im1 * (m01 * (v0-v1) + m12 * (v2-v1));
+		btVector3 dv2 = im2 * (m12 * (v1-v2) + m02 * (v0-v2));
+	#endif
+		v0 += dv0;
+		v1 += dv1;
+		v2 += dv2;
 	}
-	btVector3 dv0 = im0 * (m01 * u[0]*(-dn[0]) + m02 * u[1]*-(dn[1]));
-	btVector3 dv1 = im1 * (m01 * u[0]*(dn[0]) + m12 * u[2]*(-dn[2]));
-	btVector3 dv2 = im2 * (m12 * u[2]*(dn[2]) + m02 * u[1]*(dn[1]));
-#else
-	// apply strain limiting to prevent undamped modes
-	btVector3 dv0 = im0 * (m01 * (v1-v0) + m02 * (v2-v0));
-	btVector3 dv1 = im1 * (m01 * (v0-v1) + m12 * (v2-v1));
-	btVector3 dv2 = im2 * (m12 * (v1-v2) + m02 * (v0-v2));
-#endif
-//    v0 += dv0;
-//    v1 += dv1;
-//    v2 += dv2;
 }
 
 /* ================   Face vs. Node   =================== */

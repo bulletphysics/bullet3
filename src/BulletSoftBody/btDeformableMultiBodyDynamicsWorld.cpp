@@ -61,6 +61,7 @@ m_deformableBodySolver(deformableBodySolver), m_solverCallback(0)
 	m_internalTime = 0.0;
 	m_implicit = false;
 	m_lineSearch = false;
+    m_useProjection = true;
 	m_ccdIterations = 5;
 	m_solverDeformableBodyIslandCallback = new DeformableBodyInplaceSolverIslandCallback(constraintSolver, dispatcher);
 }
@@ -253,18 +254,6 @@ void btDeformableMultiBodyDynamicsWorld::performGeometricCollisions(btScalar tim
 			}
 		}
 	}
-
-	for (int i = 0; i < m_softBodies.size(); ++i)
-	{
-		btSoftBody* psb = m_softBodies[i];
-		if (psb->isActive() && psb->m_usePostCollisionDamping)
-		{
-			for (int j = 0; j < psb->m_nodes.size(); ++j)
-			{
-                psb->m_nodes[j].m_v *= psb->m_dampingCoefficient;
-			}
-		}
-	}
 }
 
 void btDeformableMultiBodyDynamicsWorld::softBodySelfCollision()
@@ -399,9 +388,11 @@ void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
     solveContactConstraints();
     
     // set up the directions in which the velocity does not change in the momentum solve
-//    m_deformableBodySolver->m_objective->m_projection.setProjection();
-    m_deformableBodySolver->m_objective->m_projection.setLagrangeMultiplier();
-    
+    if (m_useProjection)
+        m_deformableBodySolver->m_objective->m_projection.setProjection();
+    else
+        m_deformableBodySolver->m_objective->m_projection.setLagrangeMultiplier();
+
     // for explicit scheme, m_backupVelocity = v_{n+1}^*
     // for implicit scheme, m_backupVelocity = v_n
     // Here, set dv = v_{n+1} - v_n for nodes in contact
@@ -538,6 +529,17 @@ void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
     dispatchInfo.m_stepCount = 0;
     dispatchInfo.m_debugDraw = btMultiBodyDynamicsWorld::getDebugDrawer();
     btMultiBodyDynamicsWorld::getSolverInfo().m_timeStep = timeStep;
+    if (m_useProjection)
+    {
+        m_deformableBodySolver->m_useProjection = true;
+//        m_deformableBodySolver->m_objective->m_projection.m_useStrainLimiting = true;
+        m_deformableBodySolver->m_objective->m_preconditioner =  m_deformableBodySolver->m_objective->m_massPreconditioner;
+    }
+    else
+    {
+        m_deformableBodySolver->m_objective->m_preconditioner =  m_deformableBodySolver->m_objective->m_KKTPreconditioner;
+    }
+        
 }
 
 

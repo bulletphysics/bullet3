@@ -220,7 +220,6 @@ void btSoftBody::initDefaults()
 	m_dampingCoefficient = 1.0;
 	m_sleepingThreshold = .4;
 	m_useSelfCollision = false;
-	m_usePostCollisionDamping = false;
 	m_collisionFlags = 0;
 	m_softSoftCollision = false;
 }
@@ -4052,8 +4051,6 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
             if (pcoWrap->getCollisionObject()->isActive() || this->isActive())
             {
                 const btTransform wtr = pcoWrap->getWorldTransform();
-//                const btTransform ctr = pcoWrap->getWorldTransform();
-//                const btScalar timemargin = (wtr.getOrigin() - ctr.getOrigin()).length();
                 const btScalar timemargin = 0;
                 const btScalar basemargin = getCollisionShape()->getMargin();
                 btVector3 mins;
@@ -4065,14 +4062,17 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
                                                       maxs);
                 volume = btDbvtVolume::FromMM(mins, maxs);
                 volume.Expand(btVector3(basemargin, basemargin, basemargin));
-                btSoftColliders::CollideSDF_RD docollideNode;
-                docollideNode.psb = this;
-                docollideNode.m_colObj1Wrap = pcoWrap;
-                docollideNode.m_rigidBody = prb1;
-                docollideNode.dynmargin = basemargin + timemargin;
-                docollideNode.stamargin = basemargin;
-//                m_ndbvt.collideTV(m_ndbvt.m_root, volume, docollideNode);
-				
+				if (m_cfg.collisions & fCollision::SDF_RDN)
+				{
+					btSoftColliders::CollideSDF_RD docollideNode;
+					docollideNode.psb = this;
+					docollideNode.m_colObj1Wrap = pcoWrap;
+					docollideNode.m_rigidBody = prb1;
+					docollideNode.dynmargin = basemargin + timemargin;
+					docollideNode.stamargin = basemargin;
+					m_ndbvt.collideTV(m_ndbvt.m_root, volume, docollideNode);
+				}
+
                 if (((pcoWrap->getCollisionObject()->getInternalType() == CO_RIGID_BODY) && (m_cfg.collisions & fCollision::SDF_RDF)) || ((pcoWrap->getCollisionObject()->getInternalType() == CO_FEATHERSTONE_LINK) && (m_cfg.collisions & fCollision::SDF_MDF)))
                 {
                     btSoftColliders::CollideSDF_RDF docollideFace;
