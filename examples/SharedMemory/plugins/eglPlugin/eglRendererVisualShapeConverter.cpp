@@ -1350,9 +1350,6 @@ void EGLRendererVisualShapeConverter::copyCameraImageDataGL(
 			m_data->m_instancingRenderer->updateCamera(m_data->m_upAxis);
 
 			m_data->m_instancingRenderer->renderScene();
-			m_data->m_instancingRenderer->drawLine(b3MakeVector3(0, 0, 0), b3MakeVector3(1, 0, 0), b3MakeVector3(1, 0, 0), 3);
-			m_data->m_instancingRenderer->drawLine(b3MakeVector3(0, 0, 0), b3MakeVector3(0, 1, 0), b3MakeVector3(0, 1, 0), 3);
-			m_data->m_instancingRenderer->drawLine(b3MakeVector3(0, 0, 0), b3MakeVector3(0, 0, 1), b3MakeVector3(0, 0, 1), 3);
 
 			int numBytesPerPixel = 4;  //RGBA
 
