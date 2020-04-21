@@ -444,7 +444,12 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 					break;
 				}
 				case UrdfGeometry::FILE_STL:
-					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str(), fileIO);
+
+					char relativeFileName[1024];
+					if (fileIO->findResourcePath(visual->m_geometry.m_meshFileName.c_str(), relativeFileName, 1024))
+					{
+						glmesh = LoadMeshFromSTL(relativeFileName, fileIO);
+					}
 					break;
 				case UrdfGeometry::FILE_COLLADA:
 				{

@@ -4979,22 +4979,81 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 				{
 					urdfColObj.m_geometry.m_meshFileType = out_type;
 
-					if (out_type == UrdfGeometry::FILE_STL)
+					if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags & GEOM_FORCE_CONCAVE_TRIMESH)
 					{
-						CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
-						glmesh = LoadMeshFromSTL(relativeFileName, fileIO);
-					}
-					if (out_type == UrdfGeometry::FILE_OBJ)
-					{
-						//create a convex hull for each shape, and store it in a btCompoundShape
+						CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
+						if (out_type == UrdfGeometry::FILE_STL)
+						{
+							CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
+							glmesh = LoadMeshFromSTL(relativeFileName, fileIO);
+						}
 
-						if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags & GEOM_FORCE_CONCAVE_TRIMESH)
+						if (out_type == UrdfGeometry::FILE_OBJ)
 						{
 							CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
 							glmesh = LoadMeshFromObj(relativeFileName, pathPrefix, fileIO);
 						}
-						else
+						if (glmesh)
 						{
+							if (compound == 0)
+							{
+								compound = worldImporter->createCompoundShape();
+							}
+
+							btTriangleMesh* meshInterface = new btTriangleMesh();
+							m_data->m_meshInterfaces.push_back(meshInterface);
+
+							for (int i = 0; i < glmesh->m_numIndices / 3; i++)
+							{
+								float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(i * 3)).xyzw;
+								float* v1 = glmesh->m_vertices->at(glmesh->m_indices->at(i * 3 + 1)).xyzw;
+								float* v2 = glmesh->m_vertices->at(glmesh->m_indices->at(i * 3 + 2)).xyzw;
+								meshInterface->addTriangle(
+									btVector3(v0[0], v0[1], v0[2])* meshScale,
+									btVector3(v1[0], v1[1], v1[2])* meshScale,
+									btVector3(v2[0], v2[1], v2[2])* meshScale);
+							}
+
+							btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface, true, true);
+							compound->addChildShape(childTransform, trimesh);
+						}
+					}
+					else
+					{
+						if (out_type == UrdfGeometry::FILE_STL)
+						{
+							CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
+							glmesh = LoadMeshFromSTL(relativeFileName, fileIO);
+
+							B3_PROFILE("createConvexHullFromShapes");
+							if (compound == 0)
+							{
+								compound = worldImporter->createCompoundShape();
+							}
+							btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
+							convexHull->setMargin(m_data->m_defaultCollisionMargin);
+							for (int vv = 0; vv < glmesh->m_numvertices; vv++)
+							{
+								btVector3 pt(
+									glmesh->m_vertices->at(vv).xyzw[0],
+									glmesh->m_vertices->at(vv).xyzw[1],
+									glmesh->m_vertices->at(vv).xyzw[2]);
+								convexHull->addPoint(pt * meshScale, false);
+							}
+							if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags & GEOM_INITIALIZE_SAT_FEATURES)
+							{
+								convexHull->initializePolyhedralFeatures();
+							}
+
+							convexHull->recalcLocalAabb();
+							convexHull->optimizeConvexHull();
+
+							compound->addChildShape(childTransform, convexHull);
+						}
+						if (out_type == UrdfGeometry::FILE_OBJ)
+						{
+							//create a convex hull for each shape, and store it in a btCompoundShape
+
 							std::vector<tinyobj::shape_t> shapes;
 							tinyobj::attrib_t attribute;
 							std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), "", fileIO);
@@ -5019,19 +5078,19 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 								{
 									btVector3 pt;
 									pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 0],
-												attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 1],
-												attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 2]);
+										attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 1],
+										attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 2]);
 
 									convexHull->addPoint(pt * meshScale, false);
 
 									pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 0],
-												attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 1],
-												attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 2]);
+										attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 1],
+										attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 2]);
 									convexHull->addPoint(pt * meshScale, false);
 
 									pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 0],
-												attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 1],
-												attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 2]);
+										attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 1],
+										attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 2]);
 									convexHull->addPoint(pt * meshScale, false);
 								}
 
@@ -5041,7 +5100,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 								}
 								convexHull->recalcLocalAabb();
 								convexHull->optimizeConvexHull();
-								
+
 								compound->addChildShape(childTransform, convexHull);
 							}
 						}
@@ -5205,6 +5264,7 @@ static void gatherVertices(const btTransform& trans, const btCollisionShape* col
 		}
 		default:
 		{
+			printf("?\n");
 		}
 	}
 }
