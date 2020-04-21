@@ -1098,6 +1098,155 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 	return true;
 }
 
+bool UrdfParser::parseLameCoefficients(LameCoefficients& lameCoefficients, tinyxml2::XMLElement* config, ErrorLogger* logger)
+{
+	const char* mu = config->Attribute("mu");
+	const char* lambda = config->Attribute("lambda");
+	const char* damping = config->Attribute("damping");
+	if (!mu || !lambda)
+	{
+		logger->reportError("expected mu lambda for LameCoefficients.");
+		return false;
+	}
+	lameCoefficients.mu = urdfLexicalCast<double>(mu);
+	lameCoefficients.lambda = urdfLexicalCast<double>(lambda);
+	if (damping)
+		lameCoefficients.damping = urdfLexicalCast<double>(damping);
+	else
+		lameCoefficients.damping = 0;
+	return true;
+}
+
+bool UrdfParser::parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config, ErrorLogger* logger)
+{
+	UrdfDeformable& deformable = model.m_deformable;
+	const char* deformableName = config->Attribute("name");
+	if (!deformableName)
+	{
+		logger->reportError("Deformable with no name");
+		return false;
+	}
+	deformable.m_name = deformableName;
+
+	XMLElement* i = config->FirstChildElement("inertial");
+	if (!i)
+	{
+		logger->reportError("expected an inertial element");
+	}
+	UrdfInertia inertia;
+	if (!parseInertia(inertia, i, logger))
+	{
+		logger->reportError("Could not parse inertial element for deformable:");
+		logger->reportError(deformable.m_name.c_str());
+		return false;
+	}
+	deformable.m_mass = inertia.m_mass;
+
+	XMLElement* collisionMargin_xml = config->FirstChildElement("collision_margin");
+	if (collisionMargin_xml)
+	{
+		if (!collisionMargin_xml->Attribute("value"))
+		{
+			logger->reportError("collision_margin element must have value attribute");
+			return false;
+		}
+		deformable.m_collisionMargin = urdfLexicalCast<double>(collisionMargin_xml->Attribute("value"));
+	}
+
+	XMLElement* friction_xml = config->FirstChildElement("friction");
+	if (friction_xml)
+	{
+		if (!friction_xml->Attribute("value"))
+		{
+			logger->reportError("friction element must have value attribute");
+			return false;
+		}
+		deformable.m_friction = urdfLexicalCast<double>(friction_xml->Attribute("value"));
+	}
+
+	XMLElement* spring_xml = config->FirstChildElement("spring");
+	if (spring_xml)
+	{
+		if (!spring_xml->Attribute("elastic_stiffness") || !spring_xml->Attribute("damping_stiffness"))
+		{
+			logger->reportError("spring element expect elastic and damping stiffness");
+			return false;
+		}
+
+		deformable.m_springCoefficients.elastic_stiffness = urdfLexicalCast<double>(spring_xml->Attribute("elastic_stiffness"));
+		deformable.m_springCoefficients.damping_stiffness = urdfLexicalCast<double>(spring_xml->Attribute("damping_stiffness"));
+
+		if (spring_xml->Attribute("bending_stiffness"))
+			deformable.m_springCoefficients.bending_stiffness = urdfLexicalCast<double>(spring_xml->Attribute("bending_stiffness"));
+	}
+
+	XMLElement* corotated_xml = config->FirstChildElement("corotated");
+	if (corotated_xml)
+	{
+		if (!parseLameCoefficients(deformable.m_corotatedCoefficients, corotated_xml, logger))
+		{
+			return false;
+		}
+	}
+
+	XMLElement* neohookean_xml = config->FirstChildElement("neohookean");
+	if (neohookean_xml)
+	{
+		if (!parseLameCoefficients(deformable.m_neohookeanCoefficients, neohookean_xml, logger))
+		{
+			return false;
+		}
+	}
+
+	XMLElement* vis_xml = config->FirstChildElement("visual");
+	if (!vis_xml)
+	{
+		logger->reportError("expected an visual element");
+		return false;
+	}
+	if (!vis_xml->Attribute("filename"))
+	{
+		logger->reportError("expected a filename for visual geometry");
+		return false;
+	}
+	std::string fn = vis_xml->Attribute("filename");
+	deformable.m_visualFileName = fn;
+
+	int out_type(0);
+	bool success = UrdfFindMeshFile(m_fileIO,
+									model.m_sourceFile, fn, sourceFileLocation(vis_xml),
+									&deformable.m_visualFileName, &out_type);
+
+	if (!success)
+	{
+		// warning already printed
+		return false;
+	}
+
+	XMLElement* col_xml = config->FirstChildElement("collision");
+	if (col_xml)
+	{
+		if (!col_xml->Attribute("filename"))
+		{
+			logger->reportError("expected a filename for collision geoemtry");
+			return false;
+		}
+		fn = vis_xml->Attribute("filename");
+		success = UrdfFindMeshFile(m_fileIO,
+								   model.m_sourceFile, fn, sourceFileLocation(vis_xml),
+								   &deformable.m_simFileName, &out_type);
+
+		if (!success)
+		{
+			// warning already printed
+			return false;
+		}
+	}
+
+	ParseUserData(config, deformable.m_userData, logger);
+	return true;
+}
+
 bool UrdfParser::parseJointLimits(UrdfJoint& joint, XMLElement* config, ErrorLogger* logger)
 {
 	joint.m_lowerLimit = 0.f;
@@ -1898,6 +2047,8 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 	}
 	m_urdf2Model.m_name = name;
 
+	ParseUserData(robot_xml, m_urdf2Model.m_userData, logger);
+
 	// Get all Material elements
 	for (XMLElement* material_xml = robot_xml->FirstChildElement("material"); material_xml; material_xml = material_xml->NextSiblingElement("material"))
 	{
@@ -1920,6 +2071,11 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 	//	char msg[1024];
 	//	sprintf(msg,"Num materials=%d", m_model.m_materials.size());
 	//	logger->printMessage(msg);
+
+
+  XMLElement* deformable_xml = robot_xml->FirstChildElement("deformable");
+  if(deformable_xml)
+    return parseDeformable(m_urdf2Model, deformable_xml, logger);
 
 	for (XMLElement* link_xml = robot_xml->FirstChildElement("link"); link_xml; link_xml = link_xml->NextSiblingElement("link"))
 	{
@@ -2039,8 +2195,6 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 			}
 		}
 	}
-
-	ParseUserData(robot_xml, m_urdf2Model.m_userData, logger);
 
 	if (m_urdf2Model.m_links.size() == 0)
 	{

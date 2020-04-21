@@ -141,7 +141,12 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 				if (eglGetError() == EGL_SUCCESS && initialized == EGL_TRUE)
 				{
 					m_data->egl_display = display;
+					break;
 				}
+			}
+			else
+			{
+				fprintf(stderr, "GetDisplay %d failed with error: %x\n", i, eglGetError());
 			}
 		}
 	}
@@ -165,6 +170,10 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 			{
 				m_data->egl_display = display;
 			}
+		}
+		else
+		{
+			fprintf(stderr, "GetDisplay %d failed with error: %x\n", m_data->m_renderDevice, eglGetError());
 		}
 	}
 

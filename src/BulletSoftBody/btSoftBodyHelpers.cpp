@@ -1300,13 +1300,15 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
         }
         else if (reading_tets)
         {
-            int d;
-            ss >> d;
-            if (d != 4)
-            {
-                printf("Only Tetrahedra are supported in vtk file\n");
-                return 0;
-            }
+			int d;
+			ss >> d;
+			if (d != 4)
+			{
+				printf("Load deformable failed: Only Tetrahedra are supported in VTK file.\n");
+				fs.close();
+				return 0;
+			}
+            ss.ignore(128, ' '); // ignore "4"
             Index tet;
             tet.resize(4);
             for (size_t i = 0; i < 4; i++)
@@ -1597,7 +1599,13 @@ void btSoftBodyHelpers::extrapolateBarycentricWeights(btSoftBody* psb)
             {
                 new_min_bary_weight = btMin(new_min_bary_weight, bary[k]);
             }
-            if (new_min_bary_weight > min_bary_weight)
+
+            // p is out of the current best triangle, we found a traingle that's better
+            bool better_than_closest_outisde = (new_min_bary_weight > min_bary_weight && min_bary_weight<0.);
+            // p is inside of the current best triangle, we found a triangle that's better
+            bool better_than_best_inside = (new_min_bary_weight>=0 &&  min_bary_weight>=0 && btFabs(dist)<btFabs(optimal_dist));
+
+            if (better_than_closest_outisde || better_than_best_inside)
             {
                 btAlignedObjectArray<const btSoftBody::Node*> parents;
                 parents.push_back(f.m_n[0]);
@@ -1607,11 +1615,6 @@ void btSoftBodyHelpers::extrapolateBarycentricWeights(btSoftBody* psb)
                 optimal_bary = bary;
                 optimal_dist = dist;
                 min_bary_weight = new_min_bary_weight;
-                // stop searching if the projected p is inside the triangle at hand
-                if (bary[0]>=0. && bary[1]>=0. && bary[2]>=0.)
-                {
-                    break;
-                }
             }
         }
         psb->m_renderNodesInterpolationWeights[i] = optimal_bary;

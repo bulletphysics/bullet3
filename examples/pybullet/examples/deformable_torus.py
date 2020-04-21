@@ -12,6 +12,9 @@ planeId = p.loadURDF("plane.urdf", [0,0,-2])
 boxId = p.loadURDF("cube.urdf", [0,3,2],useMaximalCoordinates = True)
 
 bunnyId = p.loadSoftBody("torus.vtk", useNeoHookean = 1, NeoHookeanMu = 60, NeoHookeanLambda = 200, NeoHookeanDamping = 0.01, useSelfCollision = 1, frictionCoeff = 0.5)
+
+bunny2 = p.loadURDF("torus_deform.urdf", [0,1,0], flags=p.URDF_USE_SELF_COLLISION)
+
 p.setPhysicsEngineParameter(sparseSdfVoxelSize=0.25)
 p.setRealTimeSimulation(1)
 
