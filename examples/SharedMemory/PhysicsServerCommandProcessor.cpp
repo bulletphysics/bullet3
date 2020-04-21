@@ -5274,6 +5274,7 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 	BT_PROFILE("CMD_REQUEST_MESH_DATA");
 	serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_FAILED;
 	serverStatusOut.m_numDataStreamBytes = 0;
+	int sizeInBytes = 0;
 
 	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_requestMeshDataArgs.m_bodyUniqueId);
 	if (bodyHandle)
@@ -5321,6 +5322,7 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 			{
 				verticesOut[i] = vertices[i];
 			}
+			sizeInBytes = verticesCopied * sizeof(btVector3);
 			serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
 			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
 			serverStatusOut.m_sendMeshDataArgs.m_startingVertex = clientCmd.m_requestMeshDataArgs.m_startingVertex;
@@ -5352,7 +5354,7 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 					verticesOut[i] = n.m_x;
 				}
 			}
-
+			sizeInBytes = verticesCopied * sizeof(btVector3);
 			serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
 			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
 			serverStatusOut.m_sendMeshDataArgs.m_startingVertex = clientCmd.m_requestMeshDataArgs.m_startingVertex;
@@ -5361,7 +5363,7 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 #endif  //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	}
 
-	serverStatusOut.m_numDataStreamBytes = 0;
+	serverStatusOut.m_numDataStreamBytes = sizeInBytes;
 
 	return hasStatus;
 }
@@ -6176,6 +6178,7 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 	BatchRayCaster batchRayCaster(m_data->m_threadPool, m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo*)bufferServerToClient, totalRays);
 	batchRayCaster.castRays(numThreads);
 
+	serverStatusOut.m_numDataStreamBytes = totalRays * sizeof(b3RayData);
 	serverStatusOut.m_raycastHits.m_numRaycastHits = totalRays;
 	serverStatusOut.m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED;
 	return hasStatus;
@@ -6278,11 +6281,14 @@ bool PhysicsServerCommandProcessor::processSyncBodyInfoCommand(const struct Shar
 	int usz = m_data->m_userConstraints.size();
 	int* constraintUid = bodyUids + actualNumBodies;
 	serverStatusOut.m_sdfLoadedArgs.m_numUserConstraints = usz;
+	
 	for (int i = 0; i < usz; i++)
 	{
 		int key = m_data->m_userConstraints.getKeyAtIndex(i).getUid1();
 		constraintUid[i] = key;
 	}
+
+	serverStatusOut.m_numDataStreamBytes = sizeof(int) * (actualNumBodies + usz);
 
 	serverStatusOut.m_type = CMD_SYNC_BODY_INFO_COMPLETED;
 	return hasStatus;
@@ -6312,14 +6318,17 @@ bool PhysicsServerCommandProcessor::processSyncUserDataCommand(const struct Shar
 			}
 		}
 	}
+	int sizeInBytes = sizeof(int) * userDataHandles.size();
 	if (userDataHandles.size())
 	{
-		memcpy(bufferServerToClient, &userDataHandles[0], sizeof(int) * userDataHandles.size());
+		memcpy(bufferServerToClient, &userDataHandles[0], sizeInBytes);
 	}
 	// Only clear the client-side cache when a full sync is requested
 	serverStatusOut.m_syncUserDataArgs.m_clearCachedUserDataEntries = clientCmd.m_syncUserDataRequestArgs.m_numRequestedBodies == 0;
 	serverStatusOut.m_syncUserDataArgs.m_numUserDataIdentifiers = userDataHandles.size();
+	serverStatusOut.m_numDataStreamBytes = sizeInBytes;
 	serverStatusOut.m_type = CMD_SYNC_USER_DATA_COMPLETED;
+	
 	return hasStatus;
 }
 
@@ -6349,6 +6358,7 @@ bool PhysicsServerCommandProcessor::processRequestUserDataCommand(const struct S
 	{
 		memcpy(bufferServerToClient, &userData->m_bytes[0], userData->m_bytes.size());
 	}
+	serverStatusOut.m_numDataStreamBytes = userData->m_bytes.size();
 	return hasStatus;
 }
 
@@ -10329,7 +10339,7 @@ bool PhysicsServerCommandProcessor::processRequestAabbOverlapCommand(const struc
 			overlapStorage[i].m_objectUniqueId = m_data->m_cachedOverlappingObjects.m_bodyUniqueIds[i];
 			overlapStorage[i].m_linkIndex = m_data->m_cachedOverlappingObjects.m_links[i];
 		}
-
+		serverCmd.m_numDataStreamBytes = numOverlap * totalBytesPerObject;
 		serverCmd.m_type = CMD_REQUEST_AABB_OVERLAP_COMPLETED;
 
 		//int m_startingOverlappingObjectIndex;
@@ -10726,6 +10736,7 @@ bool PhysicsServerCommandProcessor::processCalculateMassMatrixCommand(const stru
 								sharedBuf[element] = massMatrix(i, j);
 							}
 						}
+						serverCmd.m_numDataStreamBytes = sizeInBytes;
 						serverCmd.m_type = CMD_CALCULATED_MASS_MATRIX_COMPLETED;
 					}
 				}
@@ -12434,6 +12445,7 @@ bool PhysicsServerCommandProcessor::processRequestCollisionShapeInfoCommand(cons
 				{
 					//extract shape info from base collider
 					int numConvertedCollisionShapes = extractCollisionShapes(bodyHandle->m_multiBody->getBaseCollider()->getCollisionShape(), childTrans, collisionShapeStoragePtr, maxNumColObjects);
+					serverCmd.m_numDataStreamBytes = numConvertedCollisionShapes*sizeof(b3CollisionShapeData);
 					serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes = numConvertedCollisionShapes;
 					serverCmd.m_type = CMD_COLLISION_SHAPE_INFO_COMPLETED;
 				}
@@ -12443,6 +12455,7 @@ bool PhysicsServerCommandProcessor::processRequestCollisionShapeInfoCommand(cons
 				if (linkIndex >= 0 && linkIndex < bodyHandle->m_multiBody->getNumLinks() && bodyHandle->m_multiBody->getLinkCollider(linkIndex))
 				{
 					int numConvertedCollisionShapes = extractCollisionShapes(bodyHandle->m_multiBody->getLinkCollider(linkIndex)->getCollisionShape(), childTrans, collisionShapeStoragePtr, maxNumColObjects);
+					serverCmd.m_numDataStreamBytes = numConvertedCollisionShapes * sizeof(b3CollisionShapeData);
 					serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes = numConvertedCollisionShapes;
 					serverCmd.m_type = CMD_COLLISION_SHAPE_INFO_COMPLETED;
 				}
