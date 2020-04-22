@@ -67,9 +67,6 @@ public:
     
     // solve the momentum equation
     virtual void solveDeformableConstraints(btScalar solverdt);
-    
-    // set up the position error in split impulse
-    void splitImpulseSetup(const btContactSolverInfo& infoGlobal);
 
     // resize/clear data structures
     void reinitialize(const btAlignedObjectArray<btSoftBody *>& softBodies, btScalar dt);

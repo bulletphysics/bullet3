@@ -315,7 +315,7 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
                     node.m_v[c] = -clampDeltaV;
                 }
             }
-            node.m_x  =  node.m_x + timeStep * node.m_v;
+            node.m_x  =  node.m_x + timeStep * (node.m_v + node.m_splitv);
             node.m_q = node.m_x;
             node.m_vn = node.m_v;
         }

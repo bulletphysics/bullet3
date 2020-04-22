@@ -262,11 +262,6 @@ btScalar btDeformableBodySolver::solveContactConstraints(btCollisionObject** def
     return maxSquaredResidual;
 }
 
-void btDeformableBodySolver::splitImpulseSetup(const btContactSolverInfo& infoGlobal)
-{
-     m_objective->m_projection.splitImpulseSetup(infoGlobal);
-}
-
 void btDeformableBodySolver::updateVelocity()
 {
     int counter = 0;
@@ -286,7 +281,7 @@ void btDeformableBodySolver::updateVelocity()
             {
                 m_dv[counter].setZero();
             }
-            psb->m_nodes[j].m_v = m_backupVelocity[counter]+m_dv[counter];
+            psb->m_nodes[j].m_v = m_backupVelocity[counter] + m_dv[counter] - psb->m_nodes[j].m_splitv;
             psb->m_maxSpeedSquared = btMax(psb->m_maxSpeedSquared, psb->m_nodes[j].m_v.length2());
             ++counter;
         }
@@ -349,7 +344,7 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
             }
             else
             {
-                m_dv[counter] =  psb->m_nodes[j].m_v - m_backupVelocity[counter];
+                m_dv[counter] =  psb->m_nodes[j].m_v + psb->m_nodes[j].m_splitv - m_backupVelocity[counter];
             }
             psb->m_nodes[j].m_v = m_backupVelocity[counter];
             ++counter;
@@ -441,6 +436,7 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
             n.m_v *= max_v;
         }
         n.m_q = n.m_x + n.m_v * dt;
+        n.m_splitv.setZero();
         n.m_penetration = 0;
     }
 

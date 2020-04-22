@@ -21,7 +21,7 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 {
     {
         ///this is a special step to resolve penetrations (just for contacts)
-        solveGroupCacheFriendlySplitImpulseIterations(bodies, numBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
+        solveGroupCacheFriendlySplitImpulseIterations(bodies, numBodies, deformableBodies, numDeformableBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
 
         int maxIterations = m_maxOverrideNumSolverIterations > infoGlobal.m_numIterations ? m_maxOverrideNumSolverIterations : infoGlobal.m_numIterations;
         for (int iteration = 0; iteration < maxIterations; iteration++)
@@ -105,14 +105,13 @@ void btDeformableMultiBodyConstraintSolver::solverBodyWriteBack(const btContactS
     }
 }
 
-void btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
+void btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** bodies, int numBodies, btCollisionObject** deformableBodies,int numDeformableBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer)
 {
     BT_PROFILE("solveGroupCacheFriendlySplitImpulseIterations");
     int iteration;
     if (infoGlobal.m_splitImpulse)
     {
         {
-//            m_deformableSolver->splitImpulseSetup(infoGlobal);
             for (iteration = 0; iteration < infoGlobal.m_numIterations; iteration++)
             {
                 btScalar leastSquaresResidual = 0.f;
@@ -128,7 +127,8 @@ void btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlySplitImpulseI
                     }
                     // solve the position correction between deformable and rigid/multibody
 //                    btScalar residual = m_deformableSolver->solveSplitImpulse(infoGlobal);
-//                    leastSquaresResidual = btMax(leastSquaresResidual, residual * residual);
+                    btScalar residual = m_deformableSolver->m_objective->m_projection.solveSplitImpulse(deformableBodies, numDeformableBodies, infoGlobal);
+                    leastSquaresResidual = btMax(leastSquaresResidual, residual * residual);
                 }
                 if (leastSquaresResidual <= infoGlobal.m_leastSquaresResidualThreshold || iteration >= (infoGlobal.m_numIterations - 1))
                 {
