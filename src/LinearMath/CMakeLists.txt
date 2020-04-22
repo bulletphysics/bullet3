@@ -35,6 +35,7 @@ SET(LinearMath_HDRS
 	btMatrix3x3.h
 	btImplicitQRSVD.h
 	btMinMax.h
+	btModifiedGramSchmidt.h
 	btMotionState.h
 	btPolarDecomposition.h
 	btPoolAllocator.h

@@ -44,6 +44,7 @@ SET(BulletSoftBody_HDRS
 	
 	btCGProjection.h
 	btConjugateGradient.h
+	btConjugateResidual.h
 	btDeformableGravityForce.h
 	btDeformableMassSpringForce.h
 	btDeformableCorotatedForce.h
