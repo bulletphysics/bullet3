@@ -57,7 +57,7 @@ public:
     
     void Ctor_RbUpStack(int count)
     {
-        float mass = 0.2;
+        float mass = .2;
         
         btCompoundShape* cylinderCompound = new btCompoundShape;
         btCollisionShape* cylinderShape = new btCylinderShapeX(btVector3(2, .5, .5));
@@ -72,8 +72,8 @@ public:
         
         btCollisionShape* shape[] = {
             new btBoxShape(btVector3(1, 1, 1)),
-//            new btSphereShape(0.75),
-//            cylinderCompound
+            new btSphereShape(0.75),
+            cylinderCompound
         };
 //        static const int nshapes = sizeof(shape) / sizeof(shape[0]);
 //        for (int i = 0; i < count; ++i)
@@ -167,7 +167,7 @@ void DeformableRigid::initPhysics()
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setOrigin(btVector3(0, -32, 0));
+        groundTransform.setOrigin(btVector3(0, -42, 0));
         groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.));
         //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
         btScalar mass(0.);
@@ -190,6 +190,7 @@ void DeformableRigid::initPhysics()
     }
     
     // create a piece of cloth
+    if(1)
     {
         bool onGround = false;
         const btScalar s = 4;
@@ -200,8 +201,8 @@ void DeformableRigid::initPhysics()
                                                          btVector3(-s, h, +s),
                                                          btVector3(+s, h, +s),
 //                                                         3,3,
-                                                          20,20,
-                                                          1 + 2 + 4 + 8, true);
+                                                         20,20,
+                                                         1 + 2 + 4 + 8, true);
 //                                                          0, true);
 
         if (onGround)
@@ -218,12 +219,12 @@ void DeformableRigid::initPhysics()
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = .4;
+        psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         
-        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(30,1, true);
+        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(15,0.5, true);
         getDeformableDynamicsWorld()->addForce(psb, mass_spring);
         m_forces.push_back(mass_spring);
         
@@ -231,8 +232,8 @@ void DeformableRigid::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
         // add a few rigid bodies
-        Ctor_RbUpStack(1);
     }
+    Ctor_RbUpStack(10);
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
