@@ -1,6 +1,8 @@
 import pybullet as p
 import time
 import math
+import pybullet_data
+
 
 
 def getRayFromTo(mouseX, mouseY):
@@ -36,6 +38,7 @@ def getRayFromTo(mouseX, mouseY):
 cid = p.connect(p.GUI)
 if (cid < 0):
   p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.setPhysicsEngineParameter(numSolverIterations=10)
 p.setTimeStep(1. / 120.)
 logId = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "visualShapeBench.json")

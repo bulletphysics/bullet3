@@ -147,11 +147,12 @@ void ClothFriction::initPhysics()
         psb->getCollisionShape()->setMargin(0.05);
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
-        psb->setSpringStiffness(10);
+        psb->setSpringStiffness(100);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 3;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         
@@ -175,16 +176,17 @@ void ClothFriction::initPhysics()
         psb2->getCollisionShape()->setMargin(0.05);
         psb2->generateBendingConstraints(2);
         psb2->setTotalMass(1);
-        psb2->setSpringStiffness(10);
+        psb2->setSpringStiffness(100);
         psb2->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb2->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb2->m_cfg.kDF = 20;
+        psb2->m_cfg.kDF = 1;
         psb2->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        psb2->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         psb2->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
         psb->translate(btVector3(0,0,0));
         getDeformableDynamicsWorld()->addSoftBody(psb2);
         
-        btDeformableMassSpringForce* mass_spring2 = new btDeformableMassSpringForce(10,1, true);
+        btDeformableMassSpringForce* mass_spring2 = new btDeformableMassSpringForce(10,.1, true);
         getDeformableDynamicsWorld()->addForce(psb2, mass_spring2);
         m_forces.push_back(mass_spring2);
         

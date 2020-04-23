@@ -163,7 +163,7 @@ public:
 			RVSmask = 0x000f,  ///Rigid versus soft mask
 			SDF_RS = 0x0001,   ///SDF based rigid vs soft
 			CL_RS = 0x0002,    ///Cluster vs convex rigid vs soft
-			SDF_RD = 0x0004,   ///SDF based rigid vs deformable
+			SDF_RD = 0x0004,   ///rigid vs deformable
 
 			SVSmask = 0x00f0,  ///Rigid versus soft mask
 			VF_SS = 0x0010,    ///Vertex vs face soft vs soft handling
@@ -172,8 +172,9 @@ public:
 			VF_DD = 0x0080,    ///Vertex vs face soft vs soft handling
 
 			RVDFmask = 0x0f00, /// Rigid versus deformable face mask
-			SDF_RDF = 0x0100,  /// SDF based Rigid vs. deformable face
-			SDF_MDF = 0x0200,  /// SDF based Multibody vs. deformable face
+			SDF_RDF = 0x0100,  /// GJK based Rigid vs. deformable face
+			SDF_MDF = 0x0200,  /// GJK based Multibody vs. deformable face
+            SDF_RDN = 0x0400,  /// SDF based Rigid vs. deformable node
 			/* presets	*/
 			Default = SDF_RS,
 			END
@@ -262,14 +263,13 @@ public:
 		btVector3 m_x;       // Position
 		btVector3 m_q;       // Previous step position/Test position
 		btVector3 m_v;       // Velocity
-        btVector3 m_vsplit;  // Temporary Velocity in addintion to velocity used in split impulse
         btVector3 m_vn;      // Previous step velocity
 		btVector3 m_f;       // Force accumulator
 		btVector3 m_n;       // Normal
 		btScalar m_im;       // 1/mass
 		btScalar m_area;     // Area
 		btDbvtNode* m_leaf;  // Leaf data
-		bool m_constrained;   // constrained node
+		btScalar m_penetration;   // depth of penetration
 		int m_battach : 1;   // Attached
         int index;
 	};
@@ -826,7 +826,7 @@ public:
 	btAlignedObjectArray<btAlignedObjectArray<const btSoftBody::Node*> > m_renderNodesParents;
 	btAlignedObjectArray<btScalar> m_z; // vertical distance used in extrapolation
 	bool m_useSelfCollision;
-	bool m_usePostCollisionDamping;
+	bool m_softSoftCollision;
 
 	btAlignedObjectArray<bool> m_clusterConnectivity;  //cluster connectivity, for self-collision
 
@@ -1279,7 +1279,6 @@ public:
 			indices.resize(m_faceNodeContacts.size());
 			for (int i = 0; i < m_faceNodeContacts.size(); ++i)
 				indices[i] = i;
-//			static unsigned long seed = 243703;
 #define NEXTRAND (seed = (1664525L * seed + 1013904223L) & 0xffffffff)
 			int i, ni;
 
@@ -1313,20 +1312,20 @@ public:
 				I = -btMin(m_repulsionStiffness * timeStep * d, mass * (OVERLAP_REDUCTION_FACTOR * d / timeStep - vn));
 			if (vn < 0)
 				I += 0.5 * mass * vn;
-			bool face_constrained = false, node_constrained = node->m_constrained;
+			btScalar face_penetration = 0, node_penetration = node->m_penetration;
 			for (int i = 0; i < 3; ++i)
-				face_constrained |= face->m_n[i]->m_constrained;
+				face_penetration =  btMax(face_penetration, face->m_n[i]->m_penetration);
 			btScalar I_tilde = .5 *I /(1.0+w.length2());
 			
-			// double the impulse if node or face is constrained.
-			if (face_constrained || node_constrained)
-				I_tilde *= 2.0;
-			if (!face_constrained)
+//             double the impulse if node or face is constrained.
+            if (face_penetration > 0 || node_penetration > 0)
+                I_tilde *= 2.0;
+            if (face_penetration <= node_penetration)
 			{
 				for (int j = 0; j < 3; ++j)
 					face->m_n[j]->m_v += w[j]*n*I_tilde*node->m_im;
 			}
-			if (!node_constrained)
+            if (face_penetration >= node_penetration)
 			{
 				node->m_v -= I_tilde*node->m_im*n;
 			}
@@ -1341,17 +1340,17 @@ public:
 				I = 0.5 * mass * (vt_norm-vt_new);
 				vt.safeNormalize();
 				I_tilde = .5 *I /(1.0+w.length2());
-				// double the impulse if node or face is constrained.
-				if (face_constrained || node_constrained)
-					I_tilde *= 2.0;
-				if (!face_constrained)
+//                 double the impulse if node or face is constrained.
+//                if (face_penetration > 0 || node_penetration > 0)
+//                    I_tilde *= 2.0;
+                if (face_penetration <= node_penetration)
 				{
 					for (int j = 0; j < 3; ++j)
-						face->m_n[j]->m_v += w[j]*vt*I_tilde*node->m_im;
+						face->m_n[j]->m_v += w[j] * vt * I_tilde * (face->m_n[j])->m_im;
 				}
-				if (!node_constrained)
+                if (face_penetration >= node_penetration)
 				{
-					node->m_v -= I_tilde*node->m_im*vt;
+					node->m_v -= I_tilde * node->m_im * vt;
 				}
 			}
 		}

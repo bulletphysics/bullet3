@@ -1,6 +1,7 @@
 import pybullet as p
 import time
 import math
+import pybullet_data
 
 useGui = True
 
@@ -8,6 +9,7 @@ if (useGui):
   p.connect(p.GUI)
 else:
   p.connect(p.DIRECT)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
 #p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
