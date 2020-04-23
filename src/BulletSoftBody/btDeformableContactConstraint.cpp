@@ -142,6 +142,7 @@ btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btS
     m_total_tangent_dv.setZero();
     // The magnitude of penetration is the depth of penetration.
     m_penetration = c.m_cti.m_offset;
+	m_total_split_impulse = 0;
 //	m_penetration = btMin(btScalar(0),c.m_cti.m_offset);
 }
 
@@ -149,6 +150,7 @@ btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btD
 : m_contact(other.m_contact)
 , btDeformableContactConstraint(other)
 , m_penetration(other.m_penetration)
+, m_total_split_impulse(other.m_total_split_impulse)
 {
     m_total_normal_dv = other.m_total_normal_dv;
     m_total_tangent_dv = other.m_total_tangent_dv;
@@ -219,7 +221,11 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
 		dn += m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
 	}
     // dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
-    btScalar residualSquare = dn*dn;
+	if (dn > 0)
+	{
+		return 0;
+	}
+	btScalar residualSquare = dn*dn;
     btVector3 impulse = m_contact->m_c0 * vr;
 	if (!infoGlobal.m_splitImpulse)
 	{
@@ -265,8 +271,6 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
     impulse = impulse_normal + impulse_tangent;
     // apply impulse to deformable nodes involved and change their velocities
     applyImpulse(impulse);
-	if (residualSquare < 1e-7)
-		return residualSquare;
     // apply impulse to the rigid/multibodies involved and change their velocities
     if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
     {
@@ -301,12 +305,23 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
 
 btScalar btDeformableRigidContactConstraint::solveSplitImpulse(const btContactSolverInfo& infoGlobal)
 {
+	btScalar MAX_PENETRATION_CORRECTION = 0.1;
 	const btSoftBody::sCti& cti = m_contact->m_cti;
 	btVector3 vb = getSplitVb();
 	btScalar p = m_penetration;
 	btScalar dn = btDot(vb, cti.m_normal) + p * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
 	if (dn > 0)
 		return 0;
+	if (m_total_split_impulse + dn > MAX_PENETRATION_CORRECTION)
+	{
+		dn = MAX_PENETRATION_CORRECTION - m_total_split_impulse;
+	}
+	if (m_total_split_impulse + dn < -MAX_PENETRATION_CORRECTION)
+	{
+		dn = -MAX_PENETRATION_CORRECTION - m_total_split_impulse;
+	}
+	m_total_split_impulse += dn;
+
 	btScalar residualSquare = dn*dn;
 	const btVector3 impulse = 1.0/m_contact->m_c2 * (cti.m_normal * dn);
 	applySplitImpulse(impulse);

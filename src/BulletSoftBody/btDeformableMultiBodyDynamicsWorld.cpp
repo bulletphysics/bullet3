@@ -61,7 +61,7 @@ m_deformableBodySolver(deformableBodySolver), m_solverCallback(0)
 	m_internalTime = 0.0;
 	m_implicit = false;
 	m_lineSearch = false;
-    m_useProjection = true;
+	m_useProjection = false;
 	m_ccdIterations = 5;
 	m_solverDeformableBodyIslandCallback = new DeformableBodyInplaceSolverIslandCallback(constraintSolver, dispatcher);
 }
@@ -537,6 +537,7 @@ void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
     }
     else
     {
+        m_deformableBodySolver->m_useProjection = false;
         m_deformableBodySolver->m_objective->m_preconditioner =  m_deformableBodySolver->m_objective->m_KKTPreconditioner;
     }
         

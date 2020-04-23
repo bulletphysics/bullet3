@@ -36,7 +36,7 @@ public:
     btConjugateResidual(const int max_it_in)
     : max_iterations(max_it_in)
     {
-        tolerance_squared = 1e-2;
+        tolerance_squared = 1e-5;
     }
     
     virtual ~btConjugateResidual(){}
@@ -55,11 +55,6 @@ public:
         r = z;
         btScalar residual_norm = norm(r);
         if (residual_norm <= tolerance_squared) {
-            if (verbose)
-            {
-                std::cout << "Iteration = 0" << std::endl;
-                std::cout << "Two norm of the residual = " << residual_norm << std::endl;
-            }
             return 0;
         }
         p = r;
@@ -84,18 +79,7 @@ public:
                 best_x = x;
                 best_r = norm_r;
                 if (norm_r < tolerance_squared) {
-                    if (verbose)
-                    {
-                        std::cout << "ConjugateResidual iterations " << k << std::endl;
-                    }
                     return k;
-                }
-                else
-                {
-                    if (verbose)
-                    {
-                        std::cout << "ConjugateResidual iterations " << k << " has residual "<< norm_r << std::endl;
-                    }
                 }
             }
             // temp_r = A * r;
@@ -110,7 +94,7 @@ public:
         }
         if (verbose)
         {
-            std::cout << "ConjugateResidual max iterations reached " << max_iterations << std::endl;
+            std::cout << "ConjugateResidual max iterations reached, residual = " << best_r << std::endl;
         }
         x = best_x;
         return max_iterations;
