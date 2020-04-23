@@ -8,12 +8,15 @@
 import serial
 import time
 import pybullet as p
+import pybullet_data
 
 #first try to connect to shared memory (VR), if it fails use local GUI
 c = p.connect(p.SHARED_MEMORY)
 if (c < 0):
   c = p.connect(p.GUI)
 #p.resetSimulation()
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.setGravity(0, 0, -10)
 print(c)
 if (c < 0):
