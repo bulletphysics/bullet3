@@ -8,12 +8,14 @@
 import serial
 import time
 import pybullet as p
+import pybullet_data
 
 #first try to connect to shared memory (VR), if it fails use local GUI
 c = p.connect(p.SHARED_MEMORY)
 if (c < 0):
   c = p.connect(p.GUI)
 
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.setInternalSimFlags(0)  #don't load default robot assets etc
 p.resetSimulation()
 
