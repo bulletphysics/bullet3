@@ -1,11 +1,15 @@
 import pybullet as p
 import time
+import pybullet_data
+
 #p.connect(p.UDP,"192.168.86.100")
 
 cid = p.connect(p.SHARED_MEMORY)
 if (cid < 0):
   p.connect(p.GUI)
 p.resetSimulation()
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 meshScale = [.1, .1, .01]
 shift = [0, 0, 0]
