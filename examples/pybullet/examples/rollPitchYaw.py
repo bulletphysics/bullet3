@@ -1,9 +1,12 @@
 import pybullet as p
 import time
+import pybullet_data
 
 cid = p.connect(p.SHARED_MEMORY)
 if (cid < 0):
   p.connect(p.GUI)
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 q = p.loadURDF("quadruped/quadruped.urdf", useFixedBase=True)
 rollId = p.addUserDebugParameter("roll", -1.5, 1.5, 0)
 pitchId = p.addUserDebugParameter("pitch", -1.5, 1.5, 0)
