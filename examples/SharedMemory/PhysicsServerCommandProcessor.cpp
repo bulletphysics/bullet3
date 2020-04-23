@@ -7708,9 +7708,18 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 						pt.m_linkIndexB = linkIndexB;
 						for (int j = 0; j < 3; j++)
 						{
-							pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
-							pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
-							pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+							if (swap)
+							{
+								pt.m_contactNormalOnBInWS[j] = -srcPt.m_normalWorldOnB[j];
+								pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnB()[j];
+								pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnA()[j]; 
+							}
+							else
+							{
+								pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
+								pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
+								pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+							}
 						}
 						pt.m_normalForce = srcPt.getAppliedImpulse() / m_data->m_physicsDeltaTime;
 						pt.m_linearFrictionForce1 = srcPt.m_appliedImpulseLateral1 / m_data->m_physicsDeltaTime;
