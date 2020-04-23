@@ -1,8 +1,11 @@
 import pybullet as p
 import time
+import pybullet_data
 
 #by default, PyBullet runs at 240Hz
 p.connect(p.GUI, options="--mp4=\"test.mp4\" --mp4fps=240")
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
 p.loadURDF("plane.urdf")
 
