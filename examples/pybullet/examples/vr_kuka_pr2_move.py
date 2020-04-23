@@ -1,7 +1,11 @@
 #python script with hardcoded values, assumes that you run the vr_kuka_setup.py first
 
 import pybullet as p
+import pybullet_data
+
 p.connect(p.SHARED_MEMORY)
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 pr2_gripper = 2
 pr2_cid = 1
