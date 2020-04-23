@@ -1,10 +1,11 @@
 import pybullet as p
 import time
 import math
-
+import pybullet_data
 cid = p.connect(p.SHARED_MEMORY)
 if (cid < 0):
   p.connect(p.GUI, options="--minGraphicsUpdateTimeMs=16000")
+p.setAdditionalSearchPath(pybullet_data.getDataPath())  
 
 p.setPhysicsEngineParameter(numSolverIterations=4, minimumSolverIslandSize=1024)
 p.setTimeStep(1. / 120.)
