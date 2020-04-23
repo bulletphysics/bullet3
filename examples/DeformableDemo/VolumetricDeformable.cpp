@@ -27,7 +27,7 @@
 #include "../Utils/b3ResourcePath.h"
 
 ///The VolumetricDeformable shows the contact between volumetric deformable objects and rigid objects.
-static btScalar E = 100;
+static btScalar E = 25;
 static btScalar nu = 0.3;
 static btScalar damping = 0.01;
 
@@ -68,8 +68,8 @@ public:
 		m_neohookean->setYoungsModulus(E);
 		m_neohookean->setDamping(damping);
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 600.f;
-        m_dynamicsWorld->stepSimulation(deltaTime, 10, internalTimeStep);
+        float internalTimeStep = 1. / 480.f;
+        m_dynamicsWorld->stepSimulation(deltaTime, 8, internalTimeStep);
     }
     
     void createStaticBox(const btVector3& halfEdge, const btVector3& translation)
@@ -100,7 +100,7 @@ public:
     
     void Ctor_RbUpStack(int count)
     {
-        float mass = 1;
+        float mass = 0.2;
         
         btCompoundShape* cylinderCompound = new btCompoundShape;
         btCollisionShape* cylinderShape = new btCylinderShapeX(btVector3(2, .5, .5));
@@ -209,11 +209,12 @@ void VolumetricDeformable::initPhysics()
         psb->scale(btVector3(2, 2, 2));
         psb->translate(btVector3(0, 5, 0));
         psb->getCollisionShape()->setMargin(0.25);
-        psb->setTotalMass(1);
+        psb->setTotalMass(0.5);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 0.5;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
 		psb->m_sleepingThreshold = 0;
         btSoftBodyHelpers::generateBoundaryFaces(psb);
@@ -222,7 +223,7 @@ void VolumetricDeformable::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
         
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(30,100,0.01);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(500,2000,0.01);
 		m_neohookean = neohookean;
         getDeformableDynamicsWorld()->addForce(psb, neohookean);
         m_forces.push_back(neohookean);
@@ -237,21 +238,21 @@ void VolumetricDeformable::initPhysics()
 	{
 		SliderParams slider("Young's Modulus", &E);
 		slider.m_minVal = 0;
-		slider.m_maxVal = 200;
+		slider.m_maxVal = 50;
 		if (m_guiHelper->getParameterInterface())
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
 	{
 		SliderParams slider("Poisson Ratio", &nu);
-		slider.m_minVal = 0.1;
-		slider.m_maxVal = 0.4;
+		slider.m_minVal = 0.05;
+		slider.m_maxVal = 0.40;
 		if (m_guiHelper->getParameterInterface())
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
 	{
 		SliderParams slider("Damping", &damping);
 		slider.m_minVal = 0.01;
-		slider.m_maxVal = 0.2;
+		slider.m_maxVal = 0.02;
 		if (m_guiHelper->getParameterInterface())
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}

@@ -1440,6 +1440,10 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 		{
 			color.setValue(1, 1, 1, 1);
 		}
+		if (sb)
+		{
+			color.setValue(72. / 256., 133. / 256., 237. / 256., 1);
+		}
 		createCollisionObjectGraphicsObject(colObj, color);
 		if (sb)
 		{

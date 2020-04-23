@@ -181,12 +181,12 @@ register(
     reward_threshold=18.0,
 )
 
-register(
-    id='StrikerBulletEnv-v0',
-    entry_point='pybullet_envs.gym_manipulator_envs:StrikerBulletEnv',
-    max_episode_steps=100,
-    reward_threshold=18.0,
-)
+#register(
+#    id='StrikerBulletEnv-v0',
+#    entry_point='pybullet_envs.gym_manipulator_envs:StrikerBulletEnv',
+#    max_episode_steps=100,
+#    reward_threshold=18.0,
+#)
 
 register(id='Walker2DBulletEnv-v0',
          entry_point='pybullet_envs.gym_locomotion_envs:Walker2DBulletEnv',

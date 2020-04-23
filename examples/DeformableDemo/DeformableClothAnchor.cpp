@@ -134,7 +134,7 @@ void DeformableClothAnchor::initPhysics()
     {
         const btScalar s = 4;
         const btScalar h = 6;
-        const int r = 9;
+        const int r = 8;
         btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -s),
                                                          btVector3(+s, h, -s),
                                                          btVector3(-s, h, +s),
@@ -146,6 +146,7 @@ void DeformableClothAnchor::initPhysics()
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         
         btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(100,1, true);
@@ -159,7 +160,7 @@ void DeformableClothAnchor::initPhysics()
         btTransform startTransform;
         startTransform.setIdentity();
         startTransform.setOrigin(btVector3(0, h, -(s + 3.5)));
-        btRigidBody* body = createRigidBody(2, startTransform, new btBoxShape(btVector3(s, 1, 3)));
+        btRigidBody* body = createRigidBody(1, startTransform, new btBoxShape(btVector3(s, 1, 3)));
         psb->appendDeformableAnchor(0, body);
         psb->appendDeformableAnchor(r - 1, body);
     }

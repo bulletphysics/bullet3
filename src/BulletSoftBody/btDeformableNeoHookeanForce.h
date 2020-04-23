@@ -313,6 +313,8 @@ public:
         }
     }
     
+    virtual void buildDampingForceDifferentialDiagonal(btScalar scale, TVStack& diagA){}
+    
     virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
     {
         int numNodes = getNumNodes();

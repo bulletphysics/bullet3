@@ -219,7 +219,7 @@ void GraspDeformable::initPhysics()
         for (int i = 0; i < numLinks; i++)
         {
             int mbLinkIndex = i;
-            float maxMotorImpulse = 1.f;
+            double maxMotorImpulse = 1;
 
             if (supportsJointMotor(mbC, mbLinkIndex))
             {
@@ -252,13 +252,13 @@ void GraspDeformable::initPhysics()
     
     //create a ground
     {
-        btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(150.), btScalar(25.), btScalar(150.)));
+        btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(10.), btScalar(5.), btScalar(10.)));
 
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setOrigin(btVector3(0, -25-.6, 0));
+        groundTransform.setOrigin(btVector3(0, -5.3, 0));
         groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0));
         //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
         btScalar mass(0.);
@@ -274,47 +274,49 @@ void GraspDeformable::initPhysics()
         btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
         btRigidBody* body = new btRigidBody(rbInfo);
-        body->setFriction(0.1);
+        body->setFriction(0.5);
 
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body,1,1+2);
     }
 
     // create a soft block
-	if (1)
+	if (0)
 	{
 		char absolute_path[1024];
 		b3BulletDefaultFileIO fileio;
 //        fileio.findResourcePath("ditto.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("banana.vtk", absolute_path, 1024);
-//                fileio.findResourcePath("ball.vtk", absolute_path, 1024);
+                fileio.findResourcePath("ball.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("deformable_crumpled_napkin_sim.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("single_tet.vtk", absolute_path, 1024);
-                fileio.findResourcePath("tube.vtk", absolute_path, 1024);
+//                fileio.findResourcePath("tube.vtk", absolute_path, 1024);
 //                fileio.findResourcePath("torus.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("paper_roll.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("bread.vtk", absolute_path, 1024);
 		//        fileio.findResourcePath("boot.vtk", absolute_path, 1024);
-		//        btSoftBody* psb = btSoftBodyHelpers::CreateFromTetGenData(getDeformableDynamicsWorld()->getWorldInfo(),
-		//                                                                  TetraCube::getElements(),
-		//                                                                  0,
-		//                                                                  TetraCube::getNodes(),
-		//                                                                  false, true, true);
-		btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), absolute_path);
+                btSoftBody* psb = btSoftBodyHelpers::CreateFromTetGenData(getDeformableDynamicsWorld()->getWorldInfo(),
+                                                                          TetraCube::getElements(),
+                                                                          0,
+                                                                          TetraCube::getNodes(),
+                                                                          false, true, true);
+                btSoftBodyHelpers::generateBoundaryFaces(psb);
+//        btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), absolute_path);
 
 //        psb->scale(btVector3(30, 30, 30)); // for banana
 //        psb->scale(btVector3(.7, .7, .7));
-//        psb->scale(btVector3(2, 2, 2));
-        psb->scale(btVector3(.3, .3, .3));  // for tube, torus, boot
+        psb->scale(btVector3(.2, .2, .2));
+//        psb->scale(btVector3(.3, .3, .3));  // for tube, torus, boot
 //        psb->scale(btVector3(.1, .1, .1));  // for ditto
 //        psb->translate(btVector3(.25, 10, 0.4));
         psb->getCollisionShape()->setMargin(0.0005);
         psb->setMaxStress(50);
-        psb->setTotalMass(.01);
+        psb->setTotalMass(.1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
         getDeformableDynamicsWorld()->addSoftBody(psb);
 
@@ -322,23 +324,23 @@ void GraspDeformable::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
 
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(2,8,.02);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(20,80,.01);
         getDeformableDynamicsWorld()->addForce(psb, neohookean);
         m_forces.push_back(neohookean);
     }
     getDeformableDynamicsWorld()->setImplicit(false);
 
     // create a piece of cloth
-    if(0)
+    if(1)
     {
         bool onGround = false;
-        const btScalar s = .1;
-        const btScalar h = 1;
+        const btScalar s = .5;
+        const btScalar h = .1;
         btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -s),
                                                          btVector3(+s, h, -s),
                                                          btVector3(-s, h, +s),
                                                          btVector3(+s, h, +s),
-                                                         20,20,
+                                                         10,10,
                                                                   0, true);
 
         if (onGround)
@@ -350,19 +352,21 @@ void GraspDeformable::initPhysics()
                                                  2,2,
                                                  0, true);
 
-        psb->getCollisionShape()->setMargin(0.005);
+        psb->getCollisionShape()->setMargin(0.01);
         psb->generateBendingConstraints(2);
-        psb->setTotalMass(.01);
+        psb->setTotalMass(1);
         psb->setSpringStiffness(10);
         psb->setDampingCoefficient(0.05);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 1;
+        psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
+//        psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
         getDeformableDynamicsWorld()->addSoftBody(psb);
 //        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(.0,0.0, true));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(1,0.05, false));
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(10,1, true));
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
     }
     
@@ -377,8 +381,8 @@ void GraspDeformable::initPhysics()
     
     {
         SliderParams slider("Closing velocity", &sGripperClosingTargetVelocity);
-        slider.m_minVal = -.3;
-        slider.m_maxVal = .3;
+        slider.m_minVal = -.5;
+        slider.m_maxVal = .5;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
     

@@ -115,7 +115,7 @@ struct CommonDeformableBodyBase : public CommonMultiBodyBase
 					m_pickedSoftBody = psb;
 					psb->setActivationState(DISABLE_DEACTIVATION);
 					const btSoftBody::Face& f = psb->m_faces[face_id];
-					btDeformableMousePickingForce* mouse_force = new btDeformableMousePickingForce(100, 0.2, f, m_hitPos, m_maxPickingForce);
+					btDeformableMousePickingForce* mouse_force = new btDeformableMousePickingForce(100, 0, f, m_hitPos, m_maxPickingForce);
 					m_mouseForce = mouse_force;
 					getDeformableDynamicsWorld()->addForce(psb, mouse_force);
 				}
