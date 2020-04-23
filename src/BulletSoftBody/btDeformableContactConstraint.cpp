@@ -143,7 +143,7 @@ btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btS
     // The magnitude of penetration is the depth of penetration.
     m_penetration = c.m_cti.m_offset;
 	m_total_split_impulse = 0;
-//	m_penetration = btMin(btScalar(0),c.m_cti.m_offset);
+	m_binding = false;
 }
 
 btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btDeformableRigidContactConstraint& other)
@@ -151,6 +151,7 @@ btDeformableRigidContactConstraint::btDeformableRigidContactConstraint(const btD
 , btDeformableContactConstraint(other)
 , m_penetration(other.m_penetration)
 , m_total_split_impulse(other.m_total_split_impulse)
+, m_binding(other.m_binding)
 {
     m_total_normal_dv = other.m_total_normal_dv;
     m_total_tangent_dv = other.m_total_tangent_dv;
@@ -221,18 +222,22 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
 		dn += m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
 	}
     // dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
-	if (dn > 0)
-	{
-		return 0;
-	}
-	btScalar residualSquare = dn*dn;
     btVector3 impulse = m_contact->m_c0 * vr;
 	if (!infoGlobal.m_splitImpulse)
 	{
 		impulse += m_contact->m_c0 * (m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep * cti.m_normal);
 	}
-    const btVector3 impulse_normal = m_contact->m_c0 * (cti.m_normal * dn);
+    btVector3 impulse_normal = m_contact->m_c0 * (cti.m_normal * dn);
     btVector3 impulse_tangent = impulse - impulse_normal;
+	if (dn > 0)
+	{
+		dn = 0;
+		impulse_normal.setZero();
+		m_binding = false;
+		return 0;
+	}
+	m_binding = true;
+	btScalar residualSquare = dn*dn;
     btVector3 old_total_tangent_dv = m_total_tangent_dv;
     // m_c2 is the inverse mass of the deformable node/face
     m_total_normal_dv -= impulse_normal * m_contact->m_c2;
@@ -242,7 +247,7 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
     {
         // separating in the normal direction
         m_static = false;
-        m_total_tangent_dv = btVector3(0,0,0);
+//        m_total_tangent_dv = btVector3(0,0,0);
         impulse_tangent.setZero();
     }
     else
@@ -311,7 +316,9 @@ btScalar btDeformableRigidContactConstraint::solveSplitImpulse(const btContactSo
 	btScalar p = m_penetration;
 	btScalar dn = btDot(vb, cti.m_normal) + p * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
 	if (dn > 0)
+	{
 		return 0;
+	}
 	if (m_total_split_impulse + dn > MAX_PENETRATION_CORRECTION)
 	{
 		dn = MAX_PENETRATION_CORRECTION - m_total_split_impulse;

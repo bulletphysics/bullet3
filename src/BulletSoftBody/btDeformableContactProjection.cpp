@@ -504,6 +504,10 @@ void btDeformableContactProjection::setLagrangeMultiplier()
         }
         for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
         {
+            if (!m_nodeRigidConstraints[i][j].m_binding)
+            {
+                continue;
+            }
             int index = m_nodeRigidConstraints[i][j].m_node->index;
             m_nodeRigidConstraints[i][j].m_node->m_penetration = -m_nodeRigidConstraints[i][j].getContact()->m_cti.m_offset;
             LagrangeMultiplier lm;
@@ -526,6 +530,10 @@ void btDeformableContactProjection::setLagrangeMultiplier()
         }
         for (int j = 0; j < m_faceRigidConstraints[i].size(); ++j)
         {
+            if (!m_faceRigidConstraints[i][j].m_binding)
+            {
+                continue;
+            }
             const btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
 			
             btVector3 bary = m_faceRigidConstraints[i][j].getContact()->m_bary;

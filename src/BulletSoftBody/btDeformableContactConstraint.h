@@ -149,6 +149,7 @@ public:
     btVector3 m_total_tangent_dv;
     btScalar m_penetration;
     btScalar m_total_split_impulse;
+    bool m_binding;
     const btSoftBody::DeformableRigidContact* m_contact;
 	
     btDeformableRigidContactConstraint(const btSoftBody::DeformableRigidContact& c, const btContactSolverInfo& infoGlobal);
