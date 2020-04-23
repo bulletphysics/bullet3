@@ -43,7 +43,7 @@ class BulletSim():
 
     print(self.connection_mode, optionstring, *self.argv)
     cid = pybullet.connect(self.connection_mode, options=optionstring, *self.argv)
-    p.setAdditionalSearchPath(pybullet_data.getDataPath())
+    pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
     if cid < 0:
       raise ValueError
     print("connected")
