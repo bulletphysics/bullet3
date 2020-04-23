@@ -1,6 +1,8 @@
 import pybullet as p
 import math, time
 import difflib, sys
+import pybullet_data
+
 
 numSteps = 500
 numSteps2 = 30
@@ -8,6 +10,7 @@ p.connect(p.GUI, options="--width=1024 --height=768")
 numObjects = 50
 verbose = 0
 
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 logId = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "saveRestoreTimings.log")
 
 
