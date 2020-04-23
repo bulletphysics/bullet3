@@ -375,7 +375,6 @@ egl_renderer_sources = \
 +["src/LinearMath/btConvexHull.cpp"]\
 +["src/LinearMath/btConvexHullComputer.cpp"] \
 +["src/LinearMath/btGeometryUtil.cpp"]\
-+["src/LinearMath/btReducedVector.cpp"]\
 +["src/LinearMath/btQuickprof.cpp"] \
 +["src/LinearMath/btThreads.cpp"] \
 +["src/Bullet3Common/b3AlignedAllocator.cpp"] \
