@@ -23,6 +23,7 @@ enum GripperGraspExampleOptions
 	eONE_MOTOR_GRASP = 4,
 	eGRASP_SOFT_BODY = 8,
 	eSOFTBODY_MULTIBODY_COUPLING = 16,
+	eGRASP_DEFORMABLE_CLOTH = 32,
 };
 
 class CommonExampleInterface* GripperGraspExampleCreateFunc(struct CommonExampleOptions& options);

@@ -55,6 +55,7 @@ enum UrdfGeomTypes
 	URDF_GEOM_PLANE,
 	URDF_GEOM_CAPSULE,  //non-standard URDF
 	URDF_GEOM_CDF,      //signed-distance-field, non-standard URDF
+	URDF_GEOM_HEIGHTFIELD,   //heightfield, non-standard URDF
 	URDF_GEOM_UNKNOWN,
 };
 
@@ -81,6 +82,7 @@ struct UrdfGeometry
 		FILE_OBJ = 3,
 		FILE_CDF = 4,
 		MEMORY_VERTICES = 5,
+	        FILE_VTK = 6,
 
 	};
 	int m_meshFileType;
@@ -125,6 +127,8 @@ struct UrdfShape
 struct UrdfVisual : UrdfShape
 {
 	std::string m_materialName;
+	// Maps user data keys to user data values.
+	btHashMap<btHashString, std::string> m_userData;
 };
 
 struct UrdfCollision : UrdfShape
@@ -158,6 +162,8 @@ struct UrdfLink
 	URDFLinkContactInfo m_contactInfo;
 
 	SDFAudioSource m_audioSource;
+	// Maps user data keys to user data values.
+	btHashMap<btHashString, std::string> m_userData;
 
 	UrdfLink()
 		: m_parentLink(0),
@@ -194,6 +200,45 @@ struct UrdfJoint
 	}
 };
 
+
+struct SpringCoeffcients{
+    double elastic_stiffness;
+    double damping_stiffness;
+    double bending_stiffness;
+    SpringCoeffcients():
+      elastic_stiffness(0.),
+      damping_stiffness(0.),
+      bending_stiffness(0.){}
+};
+
+struct LameCoefficients
+{
+	double mu;
+	double lambda;
+	double damping;
+	LameCoefficients() : mu(0.), lambda(0.), damping(0.) {}
+};
+
+struct UrdfDeformable
+{
+	std::string m_name;
+	double m_mass;
+	double m_collisionMargin;
+	double m_friction;
+
+	SpringCoeffcients m_springCoefficients;
+	LameCoefficients m_corotatedCoefficients;
+	LameCoefficients m_neohookeanCoefficients;
+
+	std::string m_visualFileName;
+	std::string m_simFileName;
+	btHashMap<btHashString, std::string> m_userData;
+
+	UrdfDeformable() : m_mass(1.), m_collisionMargin(0.02), m_friction(1.), m_visualFileName(""), m_simFileName("")
+	{
+	}
+};
+
 struct UrdfModel
 {
 	std::string m_name;
@@ -202,6 +247,9 @@ struct UrdfModel
 	btHashMap<btHashString, UrdfMaterial*> m_materials;
 	btHashMap<btHashString, UrdfLink*> m_links;
 	btHashMap<btHashString, UrdfJoint*> m_joints;
+	UrdfDeformable m_deformable;
+	// Maps user data keys to user data values.
+	btHashMap<btHashString, std::string> m_userData;
 
 	btArray<UrdfLink*> m_rootLinks;
 	bool m_overrideFixedBase;
@@ -275,6 +323,9 @@ protected:
 	bool parseJoint(UrdfJoint& joint, tinyxml2::XMLElement* config, ErrorLogger* logger);
 	bool parseLink(UrdfModel& model, UrdfLink& link, tinyxml2::XMLElement* config, ErrorLogger* logger);
 	bool parseSensor(UrdfModel& model, UrdfLink& link, UrdfJoint& joint, tinyxml2::XMLElement* config, ErrorLogger* logger);
+  bool parseLameCoefficients(LameCoefficients& lameCoefficients, tinyxml2::XMLElement* config, ErrorLogger* logger);
+	bool parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config, ErrorLogger* logger);
+
 
 public:
 	UrdfParser(struct CommonFileIOInterface* fileIO);
@@ -348,6 +399,15 @@ public:
 		}
 		return m_urdf2Model;
 	}
+
+	const UrdfDeformable& getDeformable() const
+	{
+		return m_urdf2Model.m_deformable;
+	}
+
+	bool mergeFixedLinks(UrdfModel& model, UrdfLink* link, ErrorLogger* logger, bool forceFixedBase, int level);
+	bool printTree(UrdfLink* link, ErrorLogger* logger, int level);
+	bool recreateModel(UrdfModel& model, UrdfLink* link, ErrorLogger* logger);
 
 	std::string sourceFileLocation(tinyxml2::XMLElement* e);
 

@@ -25,7 +25,7 @@
 #endif  // _OPENMP
 
 #include "../public/VHACD.h"
-#include "btConvexHullComputer.h"
+#include "LinearMath/btConvexHullComputer.h"
 #include "vhacdICHull.h"
 #include "vhacdMesh.h"
 #include "vhacdSArray.h"

@@ -8,8 +8,8 @@ struct GLInstanceGraphicsShape;
 int b3IsFileCachingEnabled();
 void b3EnableFileCaching(int enable);
 
-
 std::string LoadFromCachedOrFromObj(
+	tinyobj::attrib_t& attribute,
 	std::vector<tinyobj::shape_t>& shapes,  // [output]
 	const char* filename,
 	const char* mtl_basepath,

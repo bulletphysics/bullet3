@@ -1,7 +1,10 @@
 import pybullet as p
 import time
 
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.setGravity(0, 0, -10)
 p.setPhysicsEngineParameter(enableSAT=1)
 p.loadURDF("cube_concave.urdf", [0, 0, -25],

@@ -20,7 +20,7 @@ from __future__ import print_function
 import collections
 import os
 
-import tensorflow as tf
+import tf.compat.v1 as tf
 
 from pybullet_envs.minitaur.agents.tools import streaming_mean
 

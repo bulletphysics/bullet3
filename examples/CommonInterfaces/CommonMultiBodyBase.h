@@ -456,6 +456,7 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 
 		return false;
 	}
+    
 	virtual void removePickingConstraint()
 	{
 		if (m_pickedConstraint)

@@ -50,6 +50,11 @@ struct btTimings
 
 			m_firstTiming = false;
 
+			if (startTime > endTime)
+			{
+				endTime = startTime;
+			}
+
 			unsigned long long int startTimeDiv1000 = startTime / 1000;
 			unsigned long long int endTimeDiv1000 = endTime / 1000;
 
@@ -62,10 +67,7 @@ struct btTimings
 
 #else
 
-			if (startTime > endTime)
-			{
-				endTime = startTime;
-			}
+			
 			unsigned int startTimeRem1000 = startTime % 1000;
 			unsigned int endTimeRem1000 = endTime % 1000;
 

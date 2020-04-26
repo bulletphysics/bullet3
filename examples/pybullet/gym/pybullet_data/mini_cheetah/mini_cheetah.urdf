@@ -1,0 +1,480 @@
+<?xml version="1.0" ?>
+<robot name="mini_cheetah" xmlns:xacro="http://ros.org/wiki/xacro">
+    <link name="body">
+        <inertial>
+            <mass value="3.3"/>
+            <origin xyz="0.0 0.0 0.0"/>
+            <inertia ixx="0.011253" ixy="0" ixz="0" iyy="0.036203" iyz="0" izz="0.042673"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_body.obj"/>
+            </geometry>
+            <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_body.obj"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </collision>
+    </link>
+
+    <!--!!!!!!!!!!!! Front Right Leg !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+    <joint name="torso_to_abduct_fr_j" type="continuous">
+        <axis xyz="1 0 0"/>
+        <origin rpy="0 0 0" xyz="0.19 -0.049 0.0"/>
+        <parent link="body"/>
+        <child link="abduct_fr"/>
+    </joint>
+    <link name="abduct_fr">
+        <inertial>
+            <mass value="0.54"/>
+            <origin xyz="0.0 0.036 0."/>
+            <inertia ixx="0.000381" ixy="0.000058" ixz="0.00000045" 
+                iyy="0.000560" iyz="0.00000095" izz="0.000444"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_abad.obj"/>
+            </geometry>
+            <origin rpy="3.141592 0.0 1.5708" xyz="-0.055 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_abad.obj"/>
+            </geometry>
+            <origin rpy="3.141592 0 1.5708" xyz="-0.055 0 0"/>
+        </collision>
+    </link>
+
+    <joint name="abduct_fr_to_thigh_fr_j" type="continuous">
+        <axis xyz="0 -1 0"/>
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 -0.062 0.00"/>
+        <parent link="abduct_fr"/>
+        <child link="thigh_fr"/>
+    </joint>
+    <link name="thigh_fr">
+        <inertial>
+            <mass value="0.634"/>
+            <origin xyz="0.0 0.016 -0.02"/>
+            <inertia ixx="0.001983" ixy="0.000245" ixz="0.000013" 
+                iyy="0.002103" iyz="0.0000015" izz="0.000408"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_upper_link.obj"/>
+            </geometry>
+            <origin rpy="0.0 -1.5708 0.0" xyz="0.0 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_upper_link.obj"/>
+            </geometry>
+            <origin rpy="0 -1.5708 0" xyz="0 0 0"/>
+        </collision>
+    </link>
+
+    <joint name="thigh_fr_to_knee_fr_j" type="continuous">
+        <axis xyz="0 -1 0"/>
+        <origin rpy="0.0 0 0.0" xyz="0.0 0.0 -0.209"/>
+        <parent link="thigh_fr"/>
+        <child link="shank_fr"/>
+    </joint>
+    <link name="shank_fr">
+        <inertial>
+            <mass value="0.064"/>
+            <origin xyz="0.0 0.0 -0.209"/>
+            <inertia ixx="0.000245" ixy="0" ixz="0.0" iyy="0.000248" iyz="0" izz="0.000006"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_lower_link.obj"/>
+            </geometry>
+            <origin rpy="0.0 3.141592 0.0" xyz="0.0 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_lower_link.obj"/>
+            </geometry>
+            <origin rpy="0 3.141592 0" xyz="0 0 0"/>
+        </collision>
+    </link>
+    <link name="toe_fr">
+    <contact>
+      <friction_anchor/>
+      <stiffness value="30000.0"/>
+      <damping value="1000.0"/>
+      <spinning_friction value="0.3"/>
+      <lateral_friction value="3.0"/>
+    </contact>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+      <material name="darkgray"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.15"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
+    </inertial>
+  </link>
+  <joint name="toe_fr_joint" type="fixed">
+    <parent link="shank_fr"/>
+    <child link="toe_fr"/>
+    <origin xyz="0 0 -0.18"/>
+    <dynamics damping="0.0" friction="0.0"/>
+  </joint>
+
+ 
+<!--!!!!!!!!!!!! Front Left Leg !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+    <joint name="torso_to_abduct_fl_j" type="continuous">
+        <axis xyz="1 0 0"/>
+        <origin rpy="0 0 0" xyz="0.19 0.049 0.0"/>
+        <parent link="body"/>
+        <child link="abduct_fl"/>
+    </joint>
+    <link name="abduct_fl">
+        <inertial>
+            <mass value="0.54"/>
+            <origin xyz="0.0 0.036 0."/>
+            <inertia ixx="0.000381" ixy="0.000058" ixz="0.00000045" 
+                iyy="0.000560" iyz="0.00000095" izz="0.000444"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_abad.obj"/>
+            </geometry>
+            <origin rpy="0. 0. -1.5708" xyz="-0.055 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_abad.obj"/>
+            </geometry>
+            <origin rpy="0 0 -1.5708" xyz="-0.055 0 0"/>
+        </collision>
+    </link>
+
+    <joint name="abduct_fl_to_thigh_fl_j" type="continuous">
+        <axis xyz="0 -1 0"/>
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.062 0.00"/>
+        <parent link="abduct_fl"/>
+        <child link="thigh_fl"/>
+    </joint>
+    <link name="thigh_fl">
+        <inertial>
+            <mass value="0.634"/>
+            <origin xyz="0.0 0.016 -0.02"/>
+            <inertia ixx="0.001983" ixy="0.000245" ixz="0.000013" 
+                iyy="0.002103" iyz="0.0000015" izz="0.000408"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_upper_link.obj"/>
+            </geometry>
+            <origin rpy="0.0 -1.5708 0.0" xyz="0.0 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_upper_link.obj"/>
+            </geometry>
+            <origin rpy="0 -1.5708 0" xyz="0 0 0"/>
+        </collision>
+    </link>
+
+    <joint name="thigh_fl_to_knee_fl_j" type="continuous">
+        <axis xyz="0 -1 0"/>
+        <origin rpy="0.0 0 0.0" xyz="0.0 0.0 -0.209"/>
+        <parent link="thigh_fl"/>
+        <child link="shank_fl"/>
+    </joint>
+    <link name="shank_fl">
+        <inertial>
+            <mass value="0.064"/>
+            <origin xyz="0.0 0.0 -0.209"/>
+            <inertia ixx="0.000245" ixy="0" ixz="0.0" iyy="0.000248" iyz="0" izz="0.000006"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_lower_link.obj"/>
+            </geometry>
+            <origin rpy="0.0 3.141592 0.0" xyz="0.0 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_lower_link.obj"/>
+            </geometry>
+            <origin rpy="0 3.141592 0" xyz="0 0 0"/>
+        </collision>
+    </link>
+    <link name="toe_fl">
+      <contact>
+      <friction_anchor/>
+      <stiffness value="30000.0"/>
+      <damping value="1000.0"/>
+      <spinning_friction value="0.3"/>
+      <lateral_friction value="3.0"/>
+    </contact>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+      <material name="darkgray"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.15"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
+    </inertial>
+  </link>
+  <joint name="toe_fl_joint" type="fixed">
+    <parent link="shank_fl"/>
+    <child link="toe_fl"/>
+    <origin xyz="0 0 -0.18"/>
+    <dynamics damping="0.0" friction="0.0"/>
+  </joint>
+
+
+<!--!!!!!!!!!!!! Hind Right Leg !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+    <joint name="torso_to_abduct_hr_j" type="continuous">
+        <axis xyz="1 0 0"/>
+        <origin rpy="0 0 0" xyz="-0.19 -0.049 0.0"/>
+        <parent link="body"/>
+        <child link="abduct_hr"/>
+    </joint>
+    <link name="abduct_hr">
+        <inertial>
+            <mass value="0.54"/>
+            <origin xyz="0.0 0.036 0."/>
+            <inertia ixx="0.000381" ixy="0.000058" ixz="0.00000045" 
+                iyy="0.000560" iyz="0.00000095" izz="0.000444"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_abad.obj"/>
+            </geometry>
+            <origin rpy="0.0 0.0 1.5708" xyz="0.055 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_abad.obj"/>
+            </geometry>
+            <origin rpy="0 0 1.5708" xyz="0.055 0 0"/>
+        </collision>
+    </link>
+
+    <joint name="abduct_hr_to_thigh_hr_j" type="continuous">
+        <axis xyz="0 -1 0"/>
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 -0.062 0.00"/>
+        <parent link="abduct_hr"/>
+        <child link="thigh_hr"/>
+    </joint>
+    <link name="thigh_hr">
+        <inertial>
+            <mass value="0.634"/>
+            <origin xyz="0.0 0.016 -0.02"/>
+            <inertia ixx="0.001983" ixy="0.000245" ixz="0.000013" 
+                iyy="0.002103" iyz="0.0000015" izz="0.000408"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_upper_link.obj"/>
+            </geometry>
+            <origin rpy="0.0 -1.5708 0.0" xyz="0.0 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_upper_link.obj"/>
+            </geometry>
+            <origin rpy="0 -1.5708 0" xyz="0 0 0"/>
+        </collision>
+    </link>
+
+    <joint name="thigh_hr_to_knee_hr_j" type="continuous">
+        <axis xyz="0 -1 0"/>
+        <origin rpy="0.0 0 0.0" xyz="0.0 0.0 -0.209"/>
+        <parent link="thigh_hr"/>
+        <child link="shank_hr"/>
+    </joint>
+    <link name="shank_hr">
+        <inertial>
+            <mass value="0.064"/>
+            <origin xyz="0.0 0.0 -0.209"/>
+            <inertia ixx="0.000245" ixy="0" ixz="0.0" iyy="0.000248" iyz="0" izz="0.000006"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_lower_link.obj"/>
+            </geometry>
+            <origin rpy="0.0 3.141592 0.0" xyz="0.0 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_lower_link.obj"/>
+            </geometry>
+            <origin rpy="0 3.141592 0" xyz="0 0 0"/>
+        </collision>
+    </link>
+     <link name="toe_hr">
+      <contact>
+      <friction_anchor/>
+      <stiffness value="30000.0"/>
+      <damping value="1000.0"/>
+      <spinning_friction value="0.3"/>
+      <lateral_friction value="3.0"/>
+    </contact>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+      <material name="darkgray"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.15"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
+    </inertial>
+  </link>
+  <joint name="toe_hr_joint" type="fixed">
+    <parent link="shank_hr"/>
+    <child link="toe_hr"/>
+    <origin xyz="0 0 -0.18"/>
+    <dynamics damping="0.0" friction="0.0"/>
+  </joint>
+
+
+<!--!!!!!!!!!!!! Hind Left Leg !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+    <joint name="torso_to_abduct_hl_j" type="continuous">
+        <axis xyz="1 0 0"/>
+        <origin rpy="0 0 0" xyz="-0.19 0.049 0.0"/>
+        <parent link="body"/>
+        <child link="abduct_hl"/>
+    </joint>
+    <link name="abduct_hl">
+        <inertial>
+            <mass value="0.54"/>
+            <origin xyz="0.0 0.036 0."/>
+            <inertia ixx="0.000381" ixy="0.000058" ixz="0.00000045" 
+                iyy="0.000560" iyz="0.00000095" izz="0.000444"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_abad.obj"/>
+            </geometry>
+            <origin rpy="3.141592 0.0 -1.5708" xyz="0.055 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_abad.obj"/>
+            </geometry>
+            <origin rpy="3.141592 0 -1.5708" xyz="0.055 0 0"/>
+        </collision>
+    </link>
+
+    <joint name="abduct_hl_to_thigh_hl_j" type="continuous">
+        <axis xyz="0 -1 0"/>
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.062 0.00"/>
+        <parent link="abduct_hl"/>
+        <child link="thigh_hl"/>
+    </joint>
+    <link name="thigh_hl">
+        <inertial>
+            <mass value="0.634"/>
+            <origin xyz="0.0 0.016 -0.02"/>
+            <inertia ixx="0.001983" ixy="0.000245" ixz="0.000013" 
+                iyy="0.002103" iyz="0.0000015" izz="0.000408"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_upper_link.obj"/>
+            </geometry>
+            <origin rpy="0.0 -1.5708 0.0" xyz="0.0 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_upper_link.obj"/>
+            </geometry>
+            <origin rpy="0 -1.5708 0" xyz="0 0 0"/>
+        </collision>
+    </link>
+
+    <joint name="thigh_hl_to_knee_hl_j" type="continuous">
+        <axis xyz="0 -1 0"/>
+        <origin rpy="0.0 0 0.0" xyz="0.0 0.0 -0.209"/>
+        <parent link="thigh_hl"/>
+        <child link="shank_hl"/>
+    </joint>
+    <link name="shank_hl">
+        <inertial>
+            <mass value="0.064"/>
+            <origin xyz="0.0 0.0 -0.209"/>
+            <inertia ixx="0.000245" ixy="0" ixz="0.0" iyy="0.000248" iyz="0" izz="0.000006"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="meshes/mini_lower_link.obj"/>
+            </geometry>
+            <origin rpy="0.0 3.141592 0.0" xyz="0.0 0.0 0.0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="meshes/mini_lower_link.obj"/>
+            </geometry>
+            <origin rpy="0 3.141592 0" xyz="0 0 0"/>
+        </collision>
+    </link>
+    <link name="toe_hl">
+      <contact>
+      <friction_anchor/>
+      <stiffness value="30000.0"/>
+      <damping value="1000.0"/>
+      <spinning_friction value="0.3"/>
+      <lateral_friction value="3.0"/>
+    </contact>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+      <material name="darkgray"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.15"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
+    </inertial>
+  </link>
+  <joint name="toe_hl_joint" type="fixed">
+    <parent link="shank_hl"/>
+    <child link="toe_hl"/>
+    <origin xyz="0 0 -0.18"/>
+    <dynamics damping="0.0" friction="0.0"/>
+  </joint>
+
+
+
+</robot>

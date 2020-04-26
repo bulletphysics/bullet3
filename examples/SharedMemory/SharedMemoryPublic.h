@@ -7,7 +7,15 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201904030
+#define SHARED_MEMORY_MAGIC_NUMBER 202002030
+//#define SHARED_MEMORY_MAGIC_NUMBER 202001230
+//#define SHARED_MEMORY_MAGIC_NUMBER 201911280
+//#define SHARED_MEMORY_MAGIC_NUMBER 201911180
+//#define SHARED_MEMORY_MAGIC_NUMBER 201909030
+//#define SHARED_MEMORY_MAGIC_NUMBER 201908110
+//#define SHARED_MEMORY_MAGIC_NUMBER 201908050
+//#define SHARED_MEMORY_MAGIC_NUMBER 2019060190
+//#define SHARED_MEMORY_MAGIC_NUMBER 201904030
 //#define SHARED_MEMORY_MAGIC_NUMBER 201902120
 //#define SHARED_MEMORY_MAGIC_NUMBER 201811260
 //#define SHARED_MEMORY_MAGIC_NUMBER 201810250
@@ -101,7 +109,8 @@ enum EnumSharedMemoryClientCommand
 	CMD_ADD_USER_DATA,
 	CMD_REMOVE_USER_DATA,
 	CMD_COLLISION_FILTER,
-	
+	CMD_REQUEST_MESH_DATA,
+
 	//don't go beyond this command!
 	CMD_MAX_CLIENT_COMMANDS,
 };
@@ -221,6 +230,9 @@ enum EnumSharedMemoryServerStatus
 	CMD_REMOVE_USER_DATA_FAILED,
 	CMD_REMOVE_STATE_COMPLETED,
 	CMD_REMOVE_STATE_FAILED,
+
+	CMD_REQUEST_MESH_DATA_COMPLETED,
+	CMD_REQUEST_MESH_DATA_FAILED,
 	//don't go beyond 'CMD_MAX_SERVER_COMMANDS!
 	CMD_MAX_SERVER_COMMANDS
 };
@@ -299,6 +311,23 @@ struct b3UserDataValue
 	const char* m_data1;
 };
 
+enum EnumUserConstraintFlags
+{
+	USER_CONSTRAINT_ADD_CONSTRAINT = 1,
+	USER_CONSTRAINT_REMOVE_CONSTRAINT = 2,
+	USER_CONSTRAINT_CHANGE_CONSTRAINT = 4,
+	USER_CONSTRAINT_CHANGE_PIVOT_IN_B = 8,
+	USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B = 16,
+	USER_CONSTRAINT_CHANGE_MAX_FORCE = 32,
+	USER_CONSTRAINT_REQUEST_INFO = 64,
+	USER_CONSTRAINT_CHANGE_GEAR_RATIO = 128,
+	USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK = 256,
+	USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET = 512,
+	USER_CONSTRAINT_CHANGE_ERP = 1024,
+	USER_CONSTRAINT_REQUEST_STATE = 2048,
+	USER_CONSTRAINT_ADD_SOFT_BODY_ANCHOR = 4096,
+};
+
 struct b3UserConstraint
 {
 	int m_parentBodyIndex;
@@ -333,6 +362,13 @@ enum DynamicsActivationState
 	eActivationStateDisableWakeup = 32,
 };
 
+enum b3BodyType
+{
+	BT_RIGID_BODY = 1,
+	BT_MULTI_BODY = 2,
+	BT_SOFT_BODY = 3,
+};
+
 struct b3DynamicsInfo
 {
 	double m_mass;
@@ -346,11 +382,13 @@ struct b3DynamicsInfo
 	double m_contactStiffness;
 	double m_contactDamping;
 	int m_activationState;
+	int m_bodyType;
 	double m_angularDamping;
 	double m_linearDamping;
 	double m_ccdSweptSphereRadius;
 	double m_contactProcessingThreshold;
 	int m_frictionAnchor;
+	double m_collisionMargin;
 };
 
 // copied from btMultiBodyLink.h
@@ -406,6 +444,23 @@ struct b3CameraImageData
 	const int* m_segmentationMaskValues;  //m_pixelWidth*m_pixelHeight ints
 };
 
+struct b3MeshVertex
+{
+	double x, y, z, w;
+};
+
+
+enum eMeshDataEnum
+{
+	B3_MESH_DATA_COLLISIONSHAPEINDEX=1,
+};
+
+struct b3MeshData
+{
+	int m_numVertices;
+	struct b3MeshVertex* m_vertices;
+};
+
 struct b3OpenGLVisualizerCameraInfo
 {
 	int m_width;
@@ -448,6 +503,7 @@ enum b3VREventType
 
 #define MAX_SDF_BODIES 512
 #define MAX_USER_DATA_KEY_LENGTH 256
+#define MAX_REQUESTED_BODIES_LENGTH 256
 
 enum b3VRButtonInfo
 {
@@ -533,6 +589,14 @@ enum b3NotificationType
 	VISUAL_SHAPE_CHANGED = 6,
 	TRANSFORM_CHANGED = 7,
 	SIMULATION_STEPPED = 8,
+	SOFTBODY_CHANGED = 9,
+};
+
+enum b3ResetSimulationFlags
+{
+	RESET_USE_DEFORMABLE_WORLD=1,
+	RESET_USE_DISCRETE_DYNAMICS_WORLD=2,
+	RESET_USE_SIMPLE_BROADPHASE=4,
 };
 
 struct b3BodyNotificationArgs
@@ -571,6 +635,12 @@ struct b3TransformChangeNotificationArgs
 	double m_localScaling[3];
 };
 
+struct b3SoftBodyChangeNotificationArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+};
+
 struct b3Notification
 {
 	int m_notificationType;
@@ -580,6 +650,7 @@ struct b3Notification
 		struct b3LinkNotificationArgs m_linkArgs;
 		struct b3VisualShapeNotificationArgs m_visualShapeArgs;
 		struct b3TransformChangeNotificationArgs m_transformChangeArgs;
+		struct b3SoftBodyChangeNotificationArgs m_softBodyChangeArgs;
 	};
 };
 
@@ -748,6 +819,7 @@ enum
 	CONTROL_MODE_TORQUE,
 	CONTROL_MODE_POSITION_VELOCITY_PD,
 	CONTROL_MODE_PD,  // The standard PD control implemented as soft constraint.
+	CONTROL_MODE_STABLE_PD,
 };
 
 ///flags for b3ApplyExternalTorque and b3ApplyExternalForce
@@ -829,11 +901,15 @@ enum eCONNECT_METHOD
 	eCONNECT_MUJOCO = 11,
 	eCONNECT_GRPC = 12,
 	eCONNECT_PHYSX=13,
+	eCONNECT_SHARED_MEMORY_GUI=14,
+	eCONNECT_GRAPHICS_SERVER = 15,
+	eCONNECT_GRAPHICS_SERVER_TCP = 16,
+	eCONNECT_GRAPHICS_SERVER_MAIN_THREAD=17
 };
 
 enum eURDF_Flags
 {
-	URDF_USE_INERTIA_FROM_FILE = 2,  //sync with URDF2Bullet.h 'ConvertURDFFlags'
+	URDF_USE_INERTIA_FROM_FILE = 2,  //sync with URDFJointTypes.h 'ConvertURDFFlags'
 	URDF_USE_SELF_COLLISION = 8,     //see CUF_USE_SELF_COLLISION
 	URDF_USE_SELF_COLLISION_EXCLUDE_PARENT = 16,
 	URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS = 32,
@@ -849,7 +925,11 @@ enum eURDF_Flags
 	URDF_USE_MATERIAL_COLORS_FROM_MTL = 32768,
 	URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL = 65536,
 	URDF_MAINTAIN_LINK_ORDER = 131072,
-	URDF_ENABLE_WAKEUP = 262144,
+	URDF_ENABLE_WAKEUP = 1 << 18,
+	URDF_MERGE_FIXED_LINKS = 1 << 19,
+	URDF_IGNORE_VISUAL_SHAPES = 1 << 20,
+	URDF_IGNORE_COLLISION_SHAPES = 1 << 21,
+	URDF_PRINT_URDF_INFO = 1 << 22,
 };
 
 enum eUrdfGeomTypes  //sync with UrdfParser UrdfGeomTypes
@@ -860,6 +940,8 @@ enum eUrdfGeomTypes  //sync with UrdfParser UrdfGeomTypes
 	GEOM_MESH,
 	GEOM_PLANE,
 	GEOM_CAPSULE,  //non-standard URDF?
+	GEOM_SDF,      //signed-distance-field, non-standard URDF
+	GEOM_HEIGHTFIELD,
 	GEOM_UNKNOWN,
 };
 
@@ -867,6 +949,7 @@ enum eUrdfCollisionFlags
 {
 	GEOM_FORCE_CONCAVE_TRIMESH = 1,
 	GEOM_CONCAVE_INTERNAL_EDGE = 2,
+	GEOM_INITIALIZE_SAT_FEATURES = URDF_INITIALIZE_SAT_FEATURES,
 };
 
 enum eUrdfVisualFlags
@@ -907,6 +990,8 @@ struct b3PhysicsSimulationParameters
 	double m_gravityAcceleration[3];
 	int m_numSimulationSubSteps;
 	int m_numSolverIterations;
+	double m_warmStartingFactor;
+	double m_articulatedWarmStartingFactor;
 	int m_useRealTimeSimulation;
 	int m_useSplitImpulse;
 	double m_splitImpulsePenetrationThreshold;
@@ -930,6 +1015,8 @@ struct b3PhysicsSimulationParameters
 	int m_constraintSolverType;
 	int m_minimumSolverIslandSize;
 	int m_reportSolverAnalytics;
+	double m_sparseSdfVoxelSize;
+	int m_numNonContactInnerIterations;
 };
 
 

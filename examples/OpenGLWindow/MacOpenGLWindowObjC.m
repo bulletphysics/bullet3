@@ -1,8 +1,11 @@
 #ifndef B3_USE_GLFW
+#define __OBJC2__ 1
+#include <Foundation/NSExtensionContext.h>
 
 #include "MacOpenGLWindowObjC.h"
 
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
+
 #import <Cocoa/Cocoa.h>
 #include "OpenGLInclude.h"
 
@@ -407,6 +410,8 @@ int Mac_createWindow(struct MacOpenGLWindowInternalData* m_internalData,struct M
  
     // OpenGL init!
     [m_internalData->m_myview MakeContext : ci->m_openglVersion];
+	
+    [m_internalData->m_myview drawRect: frame];
     
     // https://developer.apple.com/library/mac/#documentation/GraphicsAnimation/Conceptual/HighResolutionOSX/CapturingScreenContents/CapturingScreenContents.html#//apple_ref/doc/uid/TP40012302-CH10-SW1
     //support HighResolutionOSX for Retina Macbook

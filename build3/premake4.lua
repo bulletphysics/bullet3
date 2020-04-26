@@ -56,6 +56,13 @@
 
 	newoption
 	{
+		trigger = "enable_stable_pd",
+		description = "Enable Stable PD control in PyBullet"
+	}
+
+
+	newoption
+	{
 		trigger = "enable_static_vr_plugin",
 		description = "Statically link vr plugin (in examples/SharedMemory/plugins/vrSyncPlugin)"
 	}
@@ -330,6 +337,12 @@ end
 		trigger = "double",
 		description = "Double precision version of Bullet"
 	}
+
+	newoption
+	{
+		trigger = "clamp-velocities",
+		description = "Limit maximum velocities to reduce FP exception risk"
+	}
 	
 	newoption
 	{
@@ -352,6 +365,9 @@ end
 	end
 	if _OPTIONS["double"] then
 		defines {"BT_USE_DOUBLE_PRECISION"}
+	end
+	if _OPTIONS["clamp-velocities"] then
+		defines {"BT_CLAMP_VELOCITY_TO=9999"}
 	end
 
 	configurations {"Release", "Debug"}

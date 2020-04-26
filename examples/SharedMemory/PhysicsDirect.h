@@ -22,6 +22,8 @@ protected:
 
 	bool processVisualShapeData(const struct SharedMemoryCommand& orgCommand);
 
+  bool processMeshData(const struct SharedMemoryCommand& orgCommand);
+
 	void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
 
 	void processAddUserData(const struct SharedMemoryStatus& serverCmd);
@@ -31,6 +33,8 @@ protected:
 	void resetData();
 
 	void removeCachedBody(int bodyUniqueId);
+
+	void clearCachedBodies();
 
 public:
 	PhysicsDirect(class PhysicsCommandProcessorInterface* physSdk, bool passSdkOwnership);
@@ -95,6 +99,8 @@ public:
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
 
 	virtual void getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo);
+
+	virtual void getCachedMeshData(struct b3MeshData* meshData);
 
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
 

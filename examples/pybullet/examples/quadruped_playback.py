@@ -9,6 +9,7 @@ import sys
 import os, fnmatch
 import argparse
 from time import sleep
+import pybullet_data
 
 
 def readLogFile(filename, verbose=True):
@@ -56,6 +57,7 @@ def readLogFile(filename, verbose=True):
 
 clid = p.connect(p.SHARED_MEMORY)
 
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 log = readLogFile("LOG00076.TXT")
 
 recordNum = len(log)

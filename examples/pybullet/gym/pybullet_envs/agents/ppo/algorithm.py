@@ -23,7 +23,10 @@ from __future__ import print_function
 
 import functools
 
-import tensorflow as tf
+try:
+  import tensorflow.compat.v1 as tf
+except Exception:
+  import tensorflow as tf
 
 from . import memory
 from . import normalize

@@ -7,7 +7,6 @@
 #include "CommonGUIHelperInterface.h"
 #include "CommonRenderInterface.h"
 #include "CommonCameraInterface.h"
-
 #include "CommonGraphicsAppInterface.h"
 #include "CommonWindowInterface.h"
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"

@@ -17,6 +17,8 @@
 #include "our_gl.h"
 #include "tgaimage.h"
 
+using namespace TinyRender;
+
 struct DepthShader : public IShader
 {
 	Model* m_model;
@@ -156,8 +158,11 @@ struct Shader : public IShader
 		float index_x = b3Max(float(0.0), b3Min(float(m_width - 1), p[0]));
 		float index_y = b3Max(float(0.0), b3Min(float(m_height - 1), p[1]));
 		int idx = int(index_x) + int(index_y) * m_width;                       // index in the shadowbuffer array
-		float shadow = 0.8 + 0.2 * (m_shadowBuffer->at(idx) < -depth + 0.05);  // magic coeff to avoid z-fighting
-
+		float shadow = 1.0;
+		if (m_shadowBuffer && idx >=0 && idx <m_shadowBuffer->size())
+		{
+			shadow = 0.8 + 0.2 * (m_shadowBuffer->at(idx) < -depth + 0.05);  // magic coeff to avoid z-fighting
+		}
 		Vec3f bn = (varying_nrm * bar).normalize();
 		Vec2f uv = varying_uv * bar;
 
@@ -174,7 +179,13 @@ struct Shader : public IShader
 
 		for (int i = 0; i < 3; ++i)
 		{
-			color[i] = b3Min(int(m_ambient_coefficient * color[i] + shadow * (m_diffuse_coefficient * diffuse + m_specular_coefficient * specular) * color[i] * m_light_color[i]), 255);
+			int orgColor = 0;
+			float floatColor = (m_ambient_coefficient * color[i] + shadow * (m_diffuse_coefficient * diffuse + m_specular_coefficient * specular) * color[i] * m_light_color[i]);
+			if (floatColor==floatColor)
+			{
+				orgColor=int(floatColor);
+			}
+			color[i] = b3Min(orgColor, 255);
 		}
 
 		return false;
@@ -396,7 +407,7 @@ void TinyRenderObjectData::createCube(float halfExtentsX, float halfExtentsY, fl
 	{
 		m_model->addVertex(halfExtentsX * cube_vertices_textured[i * 9],
 						   halfExtentsY * cube_vertices_textured[i * 9 + 1],
-						   halfExtentsY * cube_vertices_textured[i * 9 + 2],
+						   halfExtentsZ * cube_vertices_textured[i * 9 + 2],
 						   cube_vertices_textured[i * 9 + 4],
 						   cube_vertices_textured[i * 9 + 5],
 						   cube_vertices_textured[i * 9 + 6],

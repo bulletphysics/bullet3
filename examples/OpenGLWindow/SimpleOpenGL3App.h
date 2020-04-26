@@ -14,6 +14,7 @@ struct SimpleOpenGL3App : public CommonGraphicsApp
 	class GLPrimitiveRenderer* m_primRenderer;
 	class GLInstancingRenderer* m_instancingRenderer;
 	virtual void setBackgroundColor(float red, float green, float blue);
+	virtual void setMp4Fps(int fps);
 
 	SimpleOpenGL3App(const char* title, int width, int height, bool allowRetina = true, int windowType = 0, int renderDevice = -1, int maxNumObjectCapacity = 128 * 1024, int maxShapeCapacityInBytes = 128 * 1024 * 1024);
 

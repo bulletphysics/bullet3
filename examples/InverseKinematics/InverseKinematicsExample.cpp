@@ -7,7 +7,6 @@
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
-#include "../OpenGLWindow/OpenGLInclude.h"
 
 #include "BussIK/Node.h"
 #include "BussIK/Tree.h"
@@ -72,18 +71,22 @@ void Reset(Tree& tree, Jacobian* m_ikJacobian)
 
 // Update target positions
 
-void UpdateTargets(double T2, Tree& treeY)
+void UpdateTargets(double T, Tree& treeY)
 {
-	double T = T2 / 5.;
-	targetaa[0].Set(0.6 * b3Sin(0), 0.6 * b3Cos(0), 0.5 + 0.4 * b3Sin(3 * T));
+	targetaa[0].Set(2.0f + 1.5*sin(3 * T) * 2, -0.5 + 1.0f + 0.2*sin(7 * T) * 2, 0.3f + 0.7*sin(5 * T) * 2);
+	targetaa[1].Set(0.5f + 0.4*sin(4 * T) * 2, -0.5 + 0.9f + 0.3*sin(4 * T) * 2, -0.2f + 1.0*sin(3 * T) * 2);
+	targetaa[2].Set(-0.5f + 0.8*sin(6 * T) * 2, -0.5 + 1.1f + 0.2*sin(7 * T) * 2, 0.3f + 0.5*sin(8 * T) * 2);
+	targetaa[3].Set(-1.6f + 0.8*sin(4 * T) * 2, -0.5 + 0.8f + 0.3*sin(4 * T) * 2, -0.2f + 0.3*sin(3 * T) * 2);
+
 }
 
-// Does a single update (on one kind of tree)
+// Does a single update (on one kind of m_ikTree)
 void DoUpdateStep(double Tstep, Tree& treeY, Jacobian* jacob, int ikMethod)
 {
+	B3_PROFILE("IK_DoUpdateStep");
 	if (SleepCounter == 0)
 	{
-		T += Tstep;
+		T += Tstep*0.1;
 		UpdateTargets(T, treeY);
 	}
 
@@ -96,7 +99,7 @@ void DoUpdateStep(double Tstep, Tree& treeY, Jacobian* jacob, int ikMethod)
 		jacob->SetJendActive();
 	}
 	jacob->ComputeJacobian(targetaa);  // Set up Jacobian and deltaS vectors
-
+	MatrixRmn AugMat;
 	// Calculate the change in theta values
 	switch (ikMethod)
 	{
@@ -104,7 +107,7 @@ void DoUpdateStep(double Tstep, Tree& treeY, Jacobian* jacob, int ikMethod)
 			jacob->CalcDeltaThetasTranspose();  // Jacobian transpose method
 			break;
 		case IK_DLS:
-			jacob->CalcDeltaThetasDLS();  // Damped least squares method
+			jacob->CalcDeltaThetasDLS(AugMat);  // Damped least squares method
 			break;
 		case IK_DLS_SVD:
 			jacob->CalcDeltaThetasDLSwithSVD();
@@ -142,7 +145,7 @@ class InverseKinematicsExample : public CommonExampleInterface
 	Jacobian* m_ikJacobian;
 
 	b3AlignedObjectArray<int> m_movingInstances;
-	int m_targetInstance;
+	b3AlignedObjectArray<int> m_targetInstances;
 	enum
 	{
 		numCubesX = 20,
@@ -152,10 +155,9 @@ class InverseKinematicsExample : public CommonExampleInterface
 public:
 	InverseKinematicsExample(CommonGraphicsApp* app, int option)
 		: m_app(app),
-		  m_ikMethod(option),
-		  m_targetInstance(-1)
+		  m_ikMethod(option)		  
 	{
-		m_app->setUpAxis(2);
+		m_app->setUpAxis(1);
 
 		{
 			b3Vector3 extents = b3MakeVector3(100, 100, 100);
@@ -166,7 +168,7 @@ public:
 
 			b3Vector4 color0 = b3MakeVector4(0.4, 0.4, 0.4, 1);
 			b3Vector4 color1 = b3MakeVector4(0.6, 0.6, 0.6, 1);
-			m_app->registerGrid(xres, yres, color0, color1);
+			//m_app->registerGrid(xres, yres, color0, color1);
 		}
 
 		///create some graphics proxy for the tracking target
@@ -177,8 +179,11 @@ public:
 			pos[app->getUpAxis()] = 1;
 			b3Quaternion orn(0, 0, 0, 1);
 			b3Vector4 color = b3MakeVector4(1., 0.3, 0.3, 1);
-			b3Vector3 scaling = b3MakeVector3(.02, .02, .02);
-			m_targetInstance = m_app->m_renderer->registerGraphicsInstance(sphereId, pos, orn, color, scaling);
+			b3Vector3 scaling = b3MakeVector3(.1, .1, .1);
+			m_targetInstances.push_back(m_app->m_renderer->registerGraphicsInstance(sphereId, pos, orn, color, scaling));
+			m_targetInstances.push_back(m_app->m_renderer->registerGraphicsInstance(sphereId, pos, orn, color, scaling));
+			m_targetInstances.push_back(m_app->m_renderer->registerGraphicsInstance(sphereId, pos, orn, color, scaling));
+			m_targetInstances.push_back(m_app->m_renderer->registerGraphicsInstance(sphereId, pos, orn, color, scaling));
 		}
 		m_app->m_renderer->writeTransforms();
 	}
@@ -215,17 +220,16 @@ public:
 		act.setRotation(rot);
 		act.setOrigin(b3MakeVector3(node->r.x, node->r.y, node->r.z));
 	}
-	void MyDrawTree(Node* node, const b3Transform& tr)
+	void MyDrawTree(Node* node, const b3Transform& tr, const b3Transform& parentTr)
 	{
-		b3Vector3 lineColor = b3MakeVector3(0, 0, 0);
+		
 		int lineWidth = 2;
 		if (node != 0)
 		{
-			//	glPushMatrix();
 			b3Vector3 pos = b3MakeVector3(tr.getOrigin().x, tr.getOrigin().y, tr.getOrigin().z);
-			b3Vector3 color = b3MakeVector3(0, 1, 0);
+			b3Vector3 color1 = b3MakeVector3(0, 1, 0);
 			int pointSize = 10;
-			m_app->m_renderer->drawPoint(pos, color, pointSize);
+			m_app->m_renderer->drawPoint(pos, color1, pointSize);
 
 			m_app->m_renderer->drawLine(pos, pos + 0.05 * tr.getBasis().getColumn(0), b3MakeVector3(1, 0, 0), lineWidth);
 			m_app->m_renderer->drawLine(pos, pos + 0.05 * tr.getBasis().getColumn(1), b3MakeVector3(0, 1, 0), lineWidth);
@@ -236,25 +240,28 @@ public:
 
 			m_app->m_renderer->drawLine(pos, pos + 0.1 * axisWorld, b3MakeVector3(.2, 0.2, 0.7), 5);
 
-			//node->DrawNode(node == root);	// Recursively draw node and update ModelView matrix
-			if (node->left)
-			{
-				b3Transform act;
-				getLocalTransform(node->left, act);
-
-				b3Transform trl = tr * act;
-				m_app->m_renderer->drawLine(tr.getOrigin(), trl.getOrigin(), lineColor, lineWidth);
-				MyDrawTree(node->left, trl);  // Draw tree of children recursively
-			}
-			//	glPopMatrix();
 			if (node->right)
 			{
 				b3Transform act;
 				getLocalTransform(node->right, act);
 				b3Transform trr = tr * act;
-				m_app->m_renderer->drawLine(tr.getOrigin(), trr.getOrigin(), lineColor, lineWidth);
-				MyDrawTree(node->right, trr);  // Draw right siblings recursively
+				b3Transform ptrr = parentTr * act;
+				b3Vector3 lineColor = b3MakeVector3(0, 1, 0);
+				m_app->m_renderer->drawLine(tr.getOrigin(), ptrr.getOrigin(), lineColor, lineWidth);
+				MyDrawTree(node->right, ptrr, parentTr);  // Draw right siblings recursively
 			}
+
+			//node->DrawNode(node == root);	// Recursively draw node and update ModelView matrix
+			if (node->left)
+			{
+				b3Transform act;
+				getLocalTransform(node->left, act);
+				b3Vector3 lineColor = b3MakeVector3(1, 0, 0);
+				b3Transform trl = tr * act;
+				m_app->m_renderer->drawLine(tr.getOrigin(), trl.getOrigin(), lineColor, lineWidth);
+				MyDrawTree(node->left, trl, tr);  // Draw m_ikTree of children recursively
+			}
+			
 		}
 	}
 	virtual void stepSimulation(float deltaTime)
@@ -265,12 +272,15 @@ public:
 	{
 		b3Transform act;
 		getLocalTransform(m_ikTree.GetRoot(), act);
-		MyDrawTree(m_ikTree.GetRoot(), act);
+		MyDrawTree(m_ikTree.GetRoot(), act, b3Transform::getIdentity());
 
-		b3Vector3 pos = b3MakeVector3(targetaa[0].x, targetaa[0].y, targetaa[0].z);
-		b3Quaternion orn(0, 0, 0, 1);
+		for (int i = 0; i < m_targetInstances.size(); i++)
+		{
+			b3Vector3 pos = b3MakeVector3(targetaa[i].x, targetaa[i].y, targetaa[i].z);
+			b3Quaternion orn(0, 0, 0, 1);
 
-		m_app->m_renderer->writeSingleInstanceTransformToCPU(pos, orn, m_targetInstance);
+			m_app->m_renderer->writeSingleInstanceTransformToCPU(pos, orn, m_targetInstances[i]);
+		}
 		m_app->m_renderer->writeTransforms();
 		m_app->m_renderer->renderScene();
 	}
@@ -309,40 +319,117 @@ public:
 
 void InverseKinematicsExample::BuildKukaIIWAShape()
 {
-	//const VectorR3& unitx = VectorR3::UnitX;
+	m_ikNodes.resize(29);
+	const VectorR3& unitx = VectorR3::UnitX;
 	const VectorR3& unity = VectorR3::UnitY;
 	const VectorR3& unitz = VectorR3::UnitZ;
 	const VectorR3 unit1(sqrt(14.0) / 8.0, 1.0 / 8.0, 7.0 / 8.0);
 	const VectorR3& zero = VectorR3::Zero;
+	VectorR3 p0(0.0f, -1.5f, 0.0f);
+	VectorR3 p1(0.0f, -1.0f, 0.0f);
+	VectorR3 p2(0.0f, -0.5f, 0.0f);
+	VectorR3 p3(0.5f*Root2Inv, -0.5 + 0.5*Root2Inv, 0.0f);
+	VectorR3 p4(0.5f*Root2Inv + 0.5f*HalfRoot3, -0.5 + 0.5*Root2Inv + 0.5f*0.5, 0.0f);
+	VectorR3 p5(0.5f*Root2Inv + 1.0f*HalfRoot3, -0.5 + 0.5*Root2Inv + 1.0f*0.5, 0.0f);
+	VectorR3 p6(0.5f*Root2Inv + 1.5f*HalfRoot3, -0.5 + 0.5*Root2Inv + 1.5f*0.5, 0.0f);
+	VectorR3 p7(0.5f*Root2Inv + 0.5f*HalfRoot3, -0.5 + 0.5*Root2Inv + 0.5f*HalfRoot3, 0.0f);
+	VectorR3 p8(0.5f*Root2Inv + 1.0f*HalfRoot3, -0.5 + 0.5*Root2Inv + 1.0f*HalfRoot3, 0.0f);
+	VectorR3 p9(0.5f*Root2Inv + 1.5f*HalfRoot3, -0.5 + 0.5*Root2Inv + 1.5f*HalfRoot3, 0.0f);
+	VectorR3 p10(-0.5f*Root2Inv, -0.5 + 0.5*Root2Inv, 0.0f);
+	VectorR3 p11(-0.5f*Root2Inv - 0.5f*HalfRoot3, -0.5 + 0.5*Root2Inv + 0.5f*HalfRoot3, 0.0f);
+	VectorR3 p12(-0.5f*Root2Inv - 1.0f*HalfRoot3, -0.5 + 0.5*Root2Inv + 1.0f*HalfRoot3, 0.0f);
+	VectorR3 p13(-0.5f*Root2Inv - 1.5f*HalfRoot3, -0.5 + 0.5*Root2Inv + 1.5f*HalfRoot3, 0.0f);
+	VectorR3 p14(-0.5f*Root2Inv - 0.5f*HalfRoot3, -0.5 + 0.5*Root2Inv + 0.5f*0.5, 0.0f);
+	VectorR3 p15(-0.5f*Root2Inv - 1.0f*HalfRoot3, -0.5 + 0.5*Root2Inv + 1.0f*0.5, 0.0f);
+	VectorR3 p16(-0.5f*Root2Inv - 1.5f*HalfRoot3, -0.5 + 0.5*Root2Inv + 1.5f*0.5, 0.0f);
 
-	float minTheta = -4 * PI;
-	float maxTheta = 4 * PI;
-
-	m_ikNodes.resize(8);  //7DOF+additional endeffector
-
-	m_ikNodes[0] = new Node(VectorR3(0.100000, 0.000000, 0.087500), unitz, 0.08, JOINT, -1e30, 1e30, RADIAN(0.));
+	m_ikNodes[0] = new Node(p0, unit1, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
 	m_ikTree.InsertRoot(m_ikNodes[0]);
 
-	m_ikNodes[1] = new Node(VectorR3(0.100000, -0.000000, 0.290000), unity, 0.08, JOINT, -0.5, 0.4, RADIAN(0.));
+	m_ikNodes[1] = new Node(p1, unitx, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
 	m_ikTree.InsertLeftChild(m_ikNodes[0], m_ikNodes[1]);
 
-	m_ikNodes[2] = new Node(VectorR3(0.100000, -0.000000, 0.494500), unitz, 0.08, JOINT, minTheta, maxTheta, RADIAN(0.));
+	m_ikNodes[2] = new Node(p1, unitz, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
 	m_ikTree.InsertLeftChild(m_ikNodes[1], m_ikNodes[2]);
 
-	m_ikNodes[3] = new Node(VectorR3(0.100000, 0.000000, 0.710000), -unity, 0.08, JOINT, minTheta, maxTheta, RADIAN(0.));
+	m_ikNodes[3] = new Node(p2, unitz, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
 	m_ikTree.InsertLeftChild(m_ikNodes[2], m_ikNodes[3]);
 
-	m_ikNodes[4] = new Node(VectorR3(0.100000, 0.000000, 0.894500), unitz, 0.08, JOINT, minTheta, maxTheta, RADIAN(0.));
-	m_ikTree.InsertLeftChild(m_ikNodes[3], m_ikNodes[4]);
+	m_ikNodes[4] = new Node(p2, unitz, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertRightSibling(m_ikNodes[3], m_ikNodes[4]);
 
-	m_ikNodes[5] = new Node(VectorR3(0.100000, 0.000000, 1.110000), unity, 0.08, JOINT, minTheta, maxTheta, RADIAN(0.));
-	m_ikTree.InsertLeftChild(m_ikNodes[4], m_ikNodes[5]);
+	m_ikNodes[5] = new Node(p3, unity, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[3], m_ikNodes[5]);
 
-	m_ikNodes[6] = new Node(VectorR3(0.100000, 0.000000, 1.191000), unitz, 0.08, JOINT, minTheta, maxTheta, RADIAN(0.));
-	m_ikTree.InsertLeftChild(m_ikNodes[5], m_ikNodes[6]);
+	m_ikNodes[6] = new Node(p3, unity, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertRightSibling(m_ikNodes[5], m_ikNodes[6]);
 
-	m_ikNodes[7] = new Node(VectorR3(0.100000, 0.000000, 1.20000), zero, 0.08, EFFECTOR);
-	m_ikTree.InsertLeftChild(m_ikNodes[6], m_ikNodes[7]);
+	m_ikNodes[7] = new Node(p3, unitx, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[5], m_ikNodes[7]);
+
+	m_ikNodes[8] = new Node(p4, unitz, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[7], m_ikNodes[8]);
+
+	m_ikNodes[9] = new Node(p5, unitx, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[8], m_ikNodes[9]);
+
+	m_ikNodes[10] = new Node(p5, unity, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[9], m_ikNodes[10]);
+
+	m_ikNodes[11] = new Node(p6, zero, 0.08, EFFECTOR);
+	m_ikTree.InsertLeftChild(m_ikNodes[10], m_ikNodes[11]);
+
+	m_ikNodes[12] = new Node(p3, unitx, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[6], m_ikNodes[12]);
+
+	m_ikNodes[13] = new Node(p7, unitz, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[12], m_ikNodes[13]);
+
+	m_ikNodes[14] = new Node(p8, unitx, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[13], m_ikNodes[14]);
+
+	m_ikNodes[15] = new Node(p8, unity, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[14], m_ikNodes[15]);
+
+	m_ikNodes[16] = new Node(p9, zero, 0.08, EFFECTOR);
+	m_ikTree.InsertLeftChild(m_ikNodes[15], m_ikNodes[16]);
+
+	m_ikNodes[17] = new Node(p10, unity, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[4], m_ikNodes[17]);
+
+	m_ikNodes[18] = new Node(p10, unitx, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[17], m_ikNodes[18]);
+
+	m_ikNodes[19] = new Node(p10, unity, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertRightSibling(m_ikNodes[17], m_ikNodes[19]);
+
+	m_ikNodes[20] = new Node(p11, unitz, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[18], m_ikNodes[20]);
+
+	m_ikNodes[21] = new Node(p12, unitx, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[20], m_ikNodes[21]);
+
+	m_ikNodes[22] = new Node(p12, unity, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[21], m_ikNodes[22]);
+
+	m_ikNodes[23] = new Node(p13, zero, 0.08, EFFECTOR);
+	m_ikTree.InsertLeftChild(m_ikNodes[22], m_ikNodes[23]);
+
+	m_ikNodes[24] = new Node(p10, unitx, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[19], m_ikNodes[24]);
+
+	m_ikNodes[25] = new Node(p14, unitz, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[24], m_ikNodes[25]);
+
+	m_ikNodes[26] = new Node(p15, unitx, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[25], m_ikNodes[26]);
+
+	m_ikNodes[27] = new Node(p15, unity, 0.08, JOINT, RADIAN(-180.), RADIAN(180.), RADIAN(30.));
+	m_ikTree.InsertLeftChild(m_ikNodes[26], m_ikNodes[27]);
+
+	m_ikNodes[28] = new Node(p16, zero, 0.08, EFFECTOR);
+	m_ikTree.InsertLeftChild(m_ikNodes[27], m_ikNodes[28]);
+
 }
 
 class CommonExampleInterface* InverseKinematicsExampleCreateFunc(struct CommonExampleOptions& options)

@@ -22,7 +22,7 @@ subject to the following restrictions:
 
 void SampleThreadFunc(void* userPtr, void* lsMemory);
 void* SamplelsMemoryFunc();
-
+void SamplelsMemoryReleaseFunc(void* ptr);
 #include <stdio.h>
 //#include "BulletMultiThreaded/PlatformDefinitions.h"
 
@@ -34,6 +34,7 @@ b3ThreadSupportInterface* createThreadSupport(int numThreads)
 	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("testThreads",
 																  SampleThreadFunc,
 																  SamplelsMemoryFunc,
+SamplelsMemoryReleaseFunc,
 																  numThreads);
 	b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport(constructionInfo);
 
@@ -98,6 +99,13 @@ void* SamplelsMemoryFunc()
 	//don't create local store memory, just return 0
 	return new SampleThreadLocalStorage;
 }
+
+void SamplelsMemoryReleaseFunc(void* ptr)
+{
+        SampleThreadLocalStorage* p = (SampleThreadLocalStorage*)ptr;
+        delete p;
+}
+
 
 int main(int argc, char** argv)
 {

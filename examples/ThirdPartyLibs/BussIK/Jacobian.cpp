@@ -84,10 +84,10 @@ Jacobian::Jacobian(Tree* tree)
 	Reset();
 }
 
-Jacobian::Jacobian(bool useAngularJacobian, int nDof)
+Jacobian::Jacobian(bool useAngularJacobian, int nDof, int numEndEffectors)
 {
 	m_tree = 0;
-	m_nEffector = 1;
+	m_nEffector = numEndEffectors;
 
 	if (useAngularJacobian)
 	{
@@ -243,7 +243,7 @@ void Jacobian::UpdateThetaDot()
 	m_tree->Compute();
 }
 
-void Jacobian::CalcDeltaThetas()
+void Jacobian::CalcDeltaThetas(MatrixRmn& AugMat)
 {
 	switch (CurrentUpdateMode)
 	{
@@ -257,7 +257,7 @@ void Jacobian::CalcDeltaThetas()
 			CalcDeltaThetasPseudoinverse();
 			break;
 		case JACOB_DLS:
-			CalcDeltaThetasDLS();
+			CalcDeltaThetasDLS(AugMat);
 			break;
 		case JACOB_SDLS:
 			CalcDeltaThetasSDLS();
@@ -327,7 +327,7 @@ void Jacobian::CalcDeltaThetasPseudoinverse()
 	}
 }
 
-void Jacobian::CalcDeltaThetasDLSwithNullspace(const VectorRn& desiredV)
+void Jacobian::CalcDeltaThetasDLSwithNullspace(const VectorRn& desiredV, MatrixRmn& AugMat)
 {
 	const MatrixRmn& J = ActiveJacobian();
 
@@ -341,7 +341,7 @@ void Jacobian::CalcDeltaThetasDLSwithNullspace(const VectorRn& desiredV)
 	// J.MultiplyTranspose( dTextra, dTheta );
 
 	// Use these two lines for the traditional DLS method
-	U.Solve(dS, &dT1);
+	U.Solve(dS, &dT1, AugMat);
 	J.MultiplyTranspose(dT1, dTheta);
 
 	// Compute JInv in damped least square form
@@ -379,7 +379,7 @@ void Jacobian::CalcDeltaThetasDLSwithNullspace(const VectorRn& desiredV)
 	}
 }
 
-void Jacobian::CalcDeltaThetasDLS()
+void Jacobian::CalcDeltaThetasDLS(MatrixRmn& AugMat)
 {
 	const MatrixRmn& J = ActiveJacobian();
 
@@ -393,7 +393,7 @@ void Jacobian::CalcDeltaThetasDLS()
 	// J.MultiplyTranspose( dTextra, dTheta );
 
 	// Use these two lines for the traditional DLS method
-	U.Solve(dS, &dT1);
+	U.Solve(dS, &dT1, AugMat);
 	J.MultiplyTranspose(dT1, dTheta);
 
 	// Scale back to not exceed maximum angle changes
@@ -404,7 +404,7 @@ void Jacobian::CalcDeltaThetasDLS()
 	}
 }
 
-void Jacobian::CalcDeltaThetasDLS2(const VectorRn& dVec)
+void Jacobian::CalcDeltaThetasDLS2(const VectorRn& dVec, MatrixRmn& AugMat)
 {
 	const MatrixRmn& J = ActiveJacobian();
 
@@ -414,7 +414,7 @@ void Jacobian::CalcDeltaThetasDLS2(const VectorRn& dVec)
 
 	dT1.SetLength(J.GetNumColumns());
 	J.MultiplyTranspose(dS, dT1);
-	U.Solve(dT1, &dTheta);
+	U.Solve(dT1, &dTheta, AugMat);
 
 	// Scale back to not exceed maximum angle changes
 	double maxChange = dTheta.MaxAbs();
@@ -472,8 +472,8 @@ void Jacobian::CalcDeltaThetasSDLS()
 	// Calculate response vector dTheta that is the SDLS solution.
 	//	Delta target values are the dS values
 	int nRows = J.GetNumRows();
-	// TODO: Modify it to work with multiple end effectors.
-	int numEndEffectors = 1;
+	
+	int numEndEffectors = m_tree->GetNumEffector();
 	int nCols = J.GetNumColumns();
 	dTheta.SetZero();
 

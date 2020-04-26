@@ -52,10 +52,10 @@ class PyBulletDeepMimicEnv(Env):
       motionPath = pybullet_data.getDataPath() + "/" + motion_file[0]
       #motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_backflip.txt"
       self._mocapData.Load(motionPath)
-      timeStep = 1. / 600.
+      timeStep = 1. / 240.
       useFixedBase = False
       self._humanoid = humanoid_stable_pd.HumanoidStablePD(self._pybullet_client, self._mocapData,
-                                                           timeStep, useFixedBase)
+                                                           timeStep, useFixedBase, self._arg_parser)
       self._isInitialized = True
 
       self._pybullet_client.setTimeStep(timeStep)
@@ -240,7 +240,7 @@ class PyBulletDeepMimicEnv(Env):
     #print("action=",)
     #for a in action:
     #  print(a)
-    np.savetxt("pb_action.csv", action, delimiter=",")
+    #np.savetxt("pb_action.csv", action, delimiter=",")
     self.desiredPose = self._humanoid.convertActionToPose(action)
     #we need the target root positon and orientation to be zero, to be compatible with deep mimic
     self.desiredPose[0] = 0
@@ -252,7 +252,7 @@ class PyBulletDeepMimicEnv(Env):
     self.desiredPose[6] = 0
     target_pose = np.array(self.desiredPose)
 
-    np.savetxt("pb_target_pose.csv", target_pose, delimiter=",")
+    #np.savetxt("pb_target_pose.csv", target_pose, delimiter=",")
 
     #print("set_action: desiredPose=", self.desiredPose)
 
@@ -283,10 +283,16 @@ class PyBulletDeepMimicEnv(Env):
         ]
 
         if self._useStablePD:
-          taus = self._humanoid.computePDForces(self.desiredPose,
+          usePythonStablePD = False
+          if usePythonStablePD:
+            taus = self._humanoid.computePDForces(self.desiredPose,
                                                 desiredVelocities=None,
                                                 maxForces=maxForces)
-          self._humanoid.applyPDForces(taus)
+            #taus = [0]*43
+            self._humanoid.applyPDForces(taus)
+          else:
+            self._humanoid.computeAndApplyPDForces(self.desiredPose,
+                                                maxForces=maxForces)
         else:
           self._humanoid.setJointMotors(self.desiredPose, maxForces=maxForces)
 

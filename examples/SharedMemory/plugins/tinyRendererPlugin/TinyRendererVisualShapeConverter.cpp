@@ -444,7 +444,12 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 					break;
 				}
 				case UrdfGeometry::FILE_STL:
-					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str(), fileIO);
+
+					char relativeFileName[1024];
+					if (fileIO->findResourcePath(visual->m_geometry.m_meshFileName.c_str(), relativeFileName, 1024))
+					{
+						glmesh = LoadMeshFromSTL(relativeFileName, fileIO);
+					}
 					break;
 				case UrdfGeometry::FILE_COLLADA:
 				{
@@ -825,6 +830,64 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 		}
 	}
 
+	return uniqueId;
+}
+
+int TinyRendererVisualShapeConverter::addVisualShape(
+	b3VisualShapeData* visualShape, struct CommonFileIOInterface* fileIO)
+{
+	int uniqueId = m_data->m_uidGenerator++;
+	visualShape->m_openglTextureId = -1;
+	visualShape->m_tinyRendererTextureId = -1;
+	visualShape->m_textureUniqueId = -1;
+	b3ImportMeshData meshData;
+	if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(
+			visualShape->m_meshAssetFileName, meshData, fileIO))
+	{
+		if (m_data->m_flags & URDF_USE_MATERIAL_COLORS_FROM_MTL)
+		{
+			if (meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR)
+			{
+				visualShape->m_rgbaColor[0] = meshData.m_rgbaColor[0];
+				visualShape->m_rgbaColor[1] = meshData.m_rgbaColor[1];
+				visualShape->m_rgbaColor[2] = meshData.m_rgbaColor[2];
+
+				if (m_data->m_flags & URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
+				{
+					visualShape->m_rgbaColor[3] = meshData.m_rgbaColor[3];
+				}
+				else
+				{
+					visualShape->m_rgbaColor[3] = 1;
+				}
+			}
+		}
+
+		MyTexture2 texture;
+		if (meshData.m_textureImage1)
+		{
+			texture.m_width = meshData.m_textureWidth;
+			texture.m_height = meshData.m_textureHeight;
+			texture.textureData1 = meshData.m_textureImage1;
+			texture.m_isCached = meshData.m_isCached;
+
+			visualShape->m_tinyRendererTextureId = m_data->m_textures.size();
+			m_data->m_textures.push_back(texture);
+		}
+		// meshData.m_gfxShape is allocated by a helper function used to create visualShape,
+		// but is not needed in this use case here
+		delete meshData.m_gfxShape;
+	}
+
+	btAlignedObjectArray<b3VisualShapeData>* shapes =
+		m_data->m_visualShapesMap[visualShape->m_objectUniqueId];
+	if (!shapes)
+	{
+		m_data->m_visualShapesMap.insert(visualShape->m_objectUniqueId,
+										 btAlignedObjectArray<b3VisualShapeData>());
+		shapes = m_data->m_visualShapesMap[visualShape->m_objectUniqueId];
+	}
+	shapes->push_back(*visualShape);
 	return uniqueId;
 }
 

@@ -17,6 +17,8 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual int getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData);
 
+	virtual int addVisualShape(b3VisualShapeData* visualShape, struct CommonFileIOInterface* fileIO) { return -1; }
+
 	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4]);
 
 	virtual void changeShapeTexture(int objectUniqueId, int linkIndex, int shapeIndex, int textureUniqueId);

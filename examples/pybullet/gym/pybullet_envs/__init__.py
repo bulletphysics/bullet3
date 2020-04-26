@@ -12,10 +12,17 @@ def register(id, *args, **kvargs):
 # ------------bullet-------------
 
 register(
-    id='HumanoidDeepMimicBulletEnv-v1',
-    entry_point='pybullet_envs.deep_mimic:HumanoidDeepMimicGymEnv',
-    max_episode_steps=1000,
-    reward_threshold=20000.0,
+    id='HumanoidDeepMimicBackflipBulletEnv-v1',
+    entry_point='pybullet_envs.deep_mimic.gym_env:HumanoidDeepMimicBackflipBulletEnv',
+    max_episode_steps=2000,
+    reward_threshold=2000.0,
+)
+
+register(
+    id='HumanoidDeepMimicWalkBulletEnv-v1',
+    entry_point='pybullet_envs.deep_mimic.gym_env:HumanoidDeepMimicWalkBulletEnv',
+    max_episode_steps=2000,
+    reward_threshold=2000.0,
 )
 
 register(
@@ -24,6 +31,14 @@ register(
     max_episode_steps=200,
     reward_threshold=190.0,
 )
+
+register(
+    id='CartPoleContinuousBulletEnv-v0',
+    entry_point='pybullet_envs.bullet:CartPoleContinuousBulletEnv',
+    max_episode_steps=200,
+    reward_threshold=190.0,
+)
+
 
 register(
     id='MinitaurBulletEnv-v0',
@@ -166,12 +181,12 @@ register(
     reward_threshold=18.0,
 )
 
-register(
-    id='StrikerBulletEnv-v0',
-    entry_point='pybullet_envs.gym_manipulator_envs:StrikerBulletEnv',
-    max_episode_steps=100,
-    reward_threshold=18.0,
-)
+#register(
+#    id='StrikerBulletEnv-v0',
+#    entry_point='pybullet_envs.gym_manipulator_envs:StrikerBulletEnv',
+#    max_episode_steps=100,
+#    reward_threshold=18.0,
+#)
 
 register(id='Walker2DBulletEnv-v0',
          entry_point='pybullet_envs.gym_locomotion_envs:Walker2DBulletEnv',

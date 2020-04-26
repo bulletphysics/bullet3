@@ -141,6 +141,7 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 
 					if (pol)
 					{
+						int baseIndex = vertexPositions.size();
 						for (int v = 0; v < pol->m_vertices.size(); v++)
 						{
 							vertexPositions.push_back(pol->m_vertices[v]);
@@ -152,9 +153,9 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 						{
 							for (int ii = 2; ii < pol->m_faces[f].m_indices.size(); ii++)
 							{
-								indicesOut.push_back(pol->m_faces[f].m_indices[0]);
-								indicesOut.push_back(pol->m_faces[f].m_indices[ii - 1]);
-								indicesOut.push_back(pol->m_faces[f].m_indices[ii]);
+								indicesOut.push_back(baseIndex+pol->m_faces[f].m_indices[0]);
+								indicesOut.push_back(baseIndex + pol->m_faces[f].m_indices[ii - 1]);
+								indicesOut.push_back(baseIndex + pol->m_faces[f].m_indices[ii]);
 							}
 						}
 					}

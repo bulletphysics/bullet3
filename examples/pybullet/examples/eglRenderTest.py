@@ -2,9 +2,10 @@ import pybullet as p
 import time
 import pkgutil
 egl = pkgutil.get_loader('eglRenderer')
+import pybullet_data
 
 p.connect(p.DIRECT)
-
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 plugin = p.loadPlugin(egl.get_filename(), "_eglRendererPlugin")
 print("plugin=", plugin)
 

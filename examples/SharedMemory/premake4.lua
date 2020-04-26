@@ -34,6 +34,15 @@ myfiles =
 	"PhysicsServer.cpp",
 	"PhysicsServer.h",
 	"PhysicsClientC_API.cpp",
+	"GraphicsClientExample.cpp",
+	"GraphicsClientExample.h",
+	"GraphicsServerExample.cpp",
+	"GraphicsServerExample.h",
+	"GraphicsSharedMemoryBlock.h",
+	"GraphicsSharedMemoryCommands.h",
+	"GraphicsSharedMemoryPublic.h",
+	"RemoteGUIHelper.cpp",
+	"RemoteGUIHelper.h",
 	"SharedMemoryCommands.h",
 	"SharedMemoryPublic.h",
 	"PhysicsServer.cpp",
@@ -63,8 +72,6 @@ myfiles =
 	"plugins/collisionFilterPlugin/collisionFilterPlugin.cpp",
 	"plugins/pdControlPlugin/pdControlPlugin.cpp",
 	"plugins/pdControlPlugin/pdControlPlugin.h",
-	"../OpenGLWindow/SimpleCamera.cpp",
-	"../OpenGLWindow/SimpleCamera.h",
 	"../Importers/ImportURDFDemo/ConvertRigidBodies2MultiBody.h",
 	"../Importers/ImportURDFDemo/MultiBodyCreationInterface.h",
 	"../Importers/ImportURDFDemo/MyMultiBodyCreator.cpp",
@@ -106,6 +113,8 @@ myfiles =
 
 files {
 	myfiles,
+	"../OpenGLWindow/SimpleCamera.cpp",
+	"../OpenGLWindow/SimpleCamera.h",
 	"main.cpp",
 }
 

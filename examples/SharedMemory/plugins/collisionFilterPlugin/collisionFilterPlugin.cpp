@@ -25,7 +25,7 @@ struct b3CustomCollisionFilter
 		int obB = ((m_objectUniqueIdB & 0xf) << 8);
 		int linkA = ((m_linkIndexA & 0xff) << 16);
 		int linkB = ((m_linkIndexB & 0xff) << 24);
-		int key = obA + obB + linkA + linkB;
+		long long int key = obA + obB + linkA + linkB;
 		// Thomas Wang's hash
 		key += ~(key << 15);
 		key ^= (key >> 10);
@@ -33,7 +33,7 @@ struct b3CustomCollisionFilter
 		key ^= (key >> 6);
 		key += ~(key << 11);
 		key ^= (key >> 16);
-		return key;
+		return (int) key;
 	}
 	bool equals(const b3CustomCollisionFilter& other) const
 	{

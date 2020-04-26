@@ -338,6 +338,109 @@ B3_SHARED_API int b3LoadSoftBodySetStartOrientation(b3SharedMemoryCommandHandle 
 	return 0;
 }
 
+B3_SHARED_API int b3LoadSoftBodyUpdateSimMesh(b3SharedMemoryCommandHandle commandHandle, const char* filename)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+    b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+    int len = strlen(filename);
+    if (len < MAX_FILENAME_LENGTH)
+    {
+        strcpy(command->m_loadSoftBodyArguments.m_simFileName, filename);
+    }
+    else
+    {
+        command->m_loadSoftBodyArguments.m_simFileName[0] = 0;
+    }
+    command->m_updateFlags |= LOAD_SOFT_BODY_SIM_MESH;
+    return 0;
+
+}
+
+B3_SHARED_API int b3LoadSoftBodyAddCorotatedForce(b3SharedMemoryCommandHandle commandHandle, double corotatedMu, double corotatedLambda)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_corotatedMu = corotatedMu;
+        command->m_loadSoftBodyArguments.m_corotatedLambda = corotatedLambda;
+	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_COROTATED_FORCE;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodyAddNeoHookeanForce(b3SharedMemoryCommandHandle commandHandle, double NeoHookeanMu, double NeoHookeanLambda, double NeoHookeanDamping)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_NeoHookeanMu = NeoHookeanMu;
+        command->m_loadSoftBodyArguments.m_NeoHookeanLambda = NeoHookeanLambda;
+        command->m_loadSoftBodyArguments.m_NeoHookeanDamping = NeoHookeanDamping;
+	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_NEOHOOKEAN_FORCE;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodyAddMassSpringForce(b3SharedMemoryCommandHandle commandHandle, double springElasticStiffness , double springDampingStiffness)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_springElasticStiffness = springElasticStiffness;
+        command->m_loadSoftBodyArguments.m_springDampingStiffness = springDampingStiffness;
+	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodyAddGravityForce(b3SharedMemoryCommandHandle commandHandle, double gravityX, double gravityY, double gravityZ)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_GRAVITY_FORCE;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodySetCollisionHardness(b3SharedMemoryCommandHandle commandHandle, double collisionHardness)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_collisionHardness = collisionHardness;
+	command->m_updateFlags |= LOAD_SOFT_BODY_SET_COLLISION_HARDNESS;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodySetSelfCollision(b3SharedMemoryCommandHandle commandHandle, int useSelfCollision)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_useSelfCollision = useSelfCollision;
+	command->m_updateFlags |= LOAD_SOFT_BODY_USE_SELF_COLLISION;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodySetFrictionCoefficient(b3SharedMemoryCommandHandle commandHandle, double frictionCoefficient)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+        command->m_loadSoftBodyArguments.m_frictionCoeff = frictionCoefficient;
+	command->m_updateFlags |= LOAD_SOFT_BODY_SET_FRICTION_COEFFICIENT;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodyUseBendingSprings(b3SharedMemoryCommandHandle commandHandle, int useBendingSprings, double bendingStiffness)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+    command->m_loadSoftBodyArguments.m_useBendingSprings = useBendingSprings;
+    command->m_loadSoftBodyArguments.m_springBendingStiffness = bendingStiffness;
+	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_BENDING_SPRINGS;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodyUseFaceContact(b3SharedMemoryCommandHandle commandHandle, int useFaceContact)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+    b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+    command->m_loadSoftBodyArguments.m_useFaceContact = useFaceContact;
+    command->m_updateFlags |= LOAD_SOFT_BODY_USE_FACE_CONTACT;
+    return 0;
+}
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
@@ -668,6 +771,32 @@ B3_SHARED_API int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHand
 	return 0;
 }
 
+B3_SHARED_API int b3PhysicsParamSetNumNonContactInnerIterations(b3SharedMemoryCommandHandle commandHandle, int numNonContactInnerIterations)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+    b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+    command->m_physSimParamArgs.m_numNonContactInnerIterations = numNonContactInnerIterations;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_NUM_NONCONTACT_INNER_ITERATIONS;
+    return 0;
+}
+
+B3_SHARED_API int b3PhysicsParamSetWarmStartingFactor(b3SharedMemoryCommandHandle commandHandle, double warmStartingFactor)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_warmStartingFactor = warmStartingFactor;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_WARM_STARTING_FACTOR;
+	return 0;
+}
+
+B3_SHARED_API int b3PhysicsParamSetArticulatedWarmStartingFactor(b3SharedMemoryCommandHandle commandHandle, double warmStartingFactor)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_articulatedWarmStartingFactor = warmStartingFactor;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_ARTICULATED_WARM_STARTING_FACTOR;
+	return 0;
+}
 B3_SHARED_API int b3PhysicsParamSetSolverResidualThreshold(b3SharedMemoryCommandHandle commandHandle, double solverResidualThreshold)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
@@ -794,6 +923,15 @@ B3_SHARED_API int b3PhysicsParamSetDefaultFrictionCFM(b3SharedMemoryCommandHandl
 	return 0;
 }
 
+B3_SHARED_API int b3PhysicsParameterSetSparseSdfVoxelSize(b3SharedMemoryCommandHandle commandHandle, double sparseSdfVoxelSize)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_updateFlags |= SIM_PARAM_UPDATE_SPARSE_SDF;
+	command->m_physSimParamArgs.m_sparseSdfVoxelSize = sparseSdfVoxelSize;
+	return 0;
+}
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3InitStepSimulationCommand(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
@@ -831,6 +969,19 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitResetSimulationCommand2(b3Shared
 	return (b3SharedMemoryCommandHandle)command;
 }
 
+B3_SHARED_API int b3InitResetSimulationSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	btAssert(command->m_type == CMD_RESET_SIMULATION);
+	if (command->m_type == CMD_RESET_SIMULATION)
+	{
+		command->m_updateFlags = flags;
+	}
+	return 0;
+}
+
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3JointControlCommandInit(b3PhysicsClientHandle physClient, int controlMode)
 {
 	return b3JointControlCommandInit2(physClient, 0, controlMode);
@@ -856,7 +1007,17 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3JointControlCommandInit2Internal(b3S
 	for (int i = 0; i < MAX_DEGREE_OF_FREEDOM; i++)
 	{
 		command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[i] = 0;
+
 	}
+	for (int i = 0; i < 7; i++)
+	{
+		command->m_sendDesiredStateCommandArgument.m_desiredStateQ[i] = 0;
+		command->m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 0;
+		command->m_sendDesiredStateCommandArgument.m_Kp[i] = 0;
+		command->m_sendDesiredStateCommandArgument.m_Kd[i] = 0;
+		command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 0;
+	}
+	command->m_sendDesiredStateCommandArgument.m_desiredStateQ[3] = 1;
 	return (b3SharedMemoryCommandHandle)command;
 }
 
@@ -1210,6 +1371,46 @@ B3_SHARED_API int b3CreateCollisionShapeAddSphere(b3SharedMemoryCommandHandle co
 	return -1;
 }
 
+B3_SHARED_API b3SharedMemoryCommandHandle b3GetMeshDataCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	if (cl)
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_REQUEST_MESH_DATA;
+		command->m_updateFlags = 0;
+		command->m_requestMeshDataArgs.m_startingVertex = 0;
+		command->m_requestMeshDataArgs.m_bodyUniqueId = bodyUniqueId;
+		command->m_requestMeshDataArgs.m_linkIndex = linkIndex;
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+
+B3_SHARED_API void b3GetMeshDataSetCollisionShapeIndex(b3SharedMemoryCommandHandle commandHandle, int shapeIndex)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_MESH_DATA);
+	if (command->m_type == CMD_REQUEST_MESH_DATA)
+	{
+		command->m_updateFlags = B3_MESH_DATA_COLLISIONSHAPEINDEX;
+		command->m_requestMeshDataArgs.m_collisionShapeIndex = shapeIndex;
+	}
+}
+
+B3_SHARED_API void b3GetMeshData(b3PhysicsClientHandle physClient, struct b3MeshData* meshData)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	if (cl)
+	{
+		cl->getCachedMeshData(meshData);
+	}
+}
+
 B3_SHARED_API int b3CreateVisualShapeAddSphere(b3SharedMemoryCommandHandle commandHandle, double radius)
 {
 	return b3CreateCollisionShapeAddSphere(commandHandle, radius);
@@ -1258,6 +1459,7 @@ B3_SHARED_API int b3CreateCollisionShapeAddCapsule(b3SharedMemoryCommandHandle c
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasFromTo = 0;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_capsuleRadius = radius;
 			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_capsuleHeight = height;
 			command->m_createUserShapeArgs.m_numUserShapes++;
@@ -1270,6 +1472,68 @@ B3_SHARED_API int b3CreateCollisionShapeAddCapsule(b3SharedMemoryCommandHandle c
 B3_SHARED_API int b3CreateVisualShapeAddCapsule(b3SharedMemoryCommandHandle commandHandle, double radius, double height)
 {
 	return b3CreateCollisionShapeAddCapsule(commandHandle, radius, height);
+}
+
+B3_SHARED_API int b3CreateCollisionShapeAddHeightfield(b3SharedMemoryCommandHandle commandHandle, const char* fileName, const double meshScale[/*3*/], double textureScaling)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE))
+	{
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
+		if (shapeIndex < MAX_COMPOUND_COLLISION_SHAPES)
+		{
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_HEIGHTFIELD;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			strcpy(command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileName, fileName);
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[0] = meshScale[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_heightfieldTextureScaling = textureScaling;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numHeightfieldRows = -1;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numHeightfieldColumns = -1;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_replaceHeightfieldIndex = -1;
+
+			command->m_createUserShapeArgs.m_numUserShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+
+B3_SHARED_API int b3CreateCollisionShapeAddHeightfield2(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, const double meshScale[/*3*/], double textureScaling, float* heightfieldData, int numHeightfieldRows, int numHeightfieldColumns, int replaceHeightfieldIndex)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE) || (command->m_type == CMD_CREATE_VISUAL_SHAPE))
+	{
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
+		if (shapeIndex < MAX_COMPOUND_COLLISION_SHAPES)
+		{
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_HEIGHTFIELD;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileName[0] = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[0] = meshScale[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_heightfieldTextureScaling = textureScaling;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numHeightfieldRows = numHeightfieldRows;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_numHeightfieldColumns = numHeightfieldColumns;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_replaceHeightfieldIndex = replaceHeightfieldIndex;
+			cl->uploadBulletFileToSharedMemory((const char*)heightfieldData, numHeightfieldRows*numHeightfieldColumns* sizeof(float));
+			command->m_createUserShapeArgs.m_numUserShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
 }
 
 B3_SHARED_API int b3CreateCollisionShapeAddCylinder(b3SharedMemoryCommandHandle commandHandle, double radius, double height)
@@ -2929,6 +3193,7 @@ B3_SHARED_API int b3ChangeDynamicsInfoSetLinearDamping(b3SharedMemoryCommandHand
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
 	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = -1;
 	command->m_changeDynamicsInfoArgs.m_linearDamping = linearDamping;
 	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING;
 	return 0;
@@ -2939,6 +3204,7 @@ B3_SHARED_API int b3ChangeDynamicsInfoSetAngularDamping(b3SharedMemoryCommandHan
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
 	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = -1;
 	command->m_changeDynamicsInfoArgs.m_angularDamping = angularDamping;
 	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING;
 	return 0;
@@ -3012,6 +3278,19 @@ B3_SHARED_API int b3ChangeDynamicsInfoSetMaxJointVelocity(b3SharedMemoryCommandH
 	return 0;
 }
 
+B3_SHARED_API int b3ChangeDynamicsInfoSetCollisionMargin(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double collisionMargin)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = -1;
+	command->m_changeDynamicsInfoArgs.m_collisionMargin = collisionMargin;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN;
+	return 0;
+}
+
+
+
 
 
 B3_SHARED_API int b3ChangeDynamicsInfoSetActivationState(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int activationState)
@@ -3023,6 +3302,30 @@ B3_SHARED_API int b3ChangeDynamicsInfoSetActivationState(b3SharedMemoryCommandHa
 	command->m_changeDynamicsInfoArgs.m_activationState = activationState;
 	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE;
 	return 0;
+}
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitCreateSoftBodyAnchorConstraintCommand(b3PhysicsClientHandle physClient, int softBodyUniqueId, int nodeIndex, int bodyUniqueId, int linkIndex, const double bodyFramePosition[3])
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_USER_CONSTRAINT;
+	command->m_updateFlags = USER_CONSTRAINT_ADD_SOFT_BODY_ANCHOR;
+	command->m_userConstraintArguments.m_parentBodyIndex = softBodyUniqueId;
+	command->m_userConstraintArguments.m_parentJointIndex = nodeIndex;
+	command->m_userConstraintArguments.m_childBodyIndex = bodyUniqueId;
+	command->m_userConstraintArguments.m_childJointIndex = linkIndex;
+	command->m_userConstraintArguments.m_childFrame[0] = bodyFramePosition[0];
+	command->m_userConstraintArguments.m_childFrame[1] = bodyFramePosition[1];
+	command->m_userConstraintArguments.m_childFrame[2] = bodyFramePosition[2];
+	command->m_userConstraintArguments.m_childFrame[3] = 0.;
+	command->m_userConstraintArguments.m_childFrame[4] = 0.;
+	command->m_userConstraintArguments.m_childFrame[5] = 0.;
+	command->m_userConstraintArguments.m_childFrame[6] = 1.;
+
+	return (b3SharedMemoryCommandHandle)command;
 }
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyUniqueId, int parentJointIndex, int childBodyUniqueId, int childJointIndex, struct b3JointInfo* info)
@@ -3446,8 +3749,19 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitSyncUserDataCommand(b3PhysicsCli
 	b3Assert(command);
 
 	command->m_type = CMD_SYNC_USER_DATA;
+	command->m_syncUserDataRequestArgs.m_numRequestedBodies = 0;
 	return (b3SharedMemoryCommandHandle)command;
 }
+
+B3_SHARED_API void b3AddBodyToSyncUserDataRequest(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_SYNC_USER_DATA);
+
+	command->m_syncUserDataRequestArgs.m_requestedBodyIds[command->m_syncUserDataRequestArgs.m_numRequestedBodies++] = bodyUniqueId;
+}
+
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3InitAddUserDataCommand(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int visualShapeIndex, const char* key, UserDataValueType valueType, int valueLength, const void* valueData)
 {
@@ -3756,6 +4070,20 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitUserDebugDrawRemoveAll(b3Physics
 	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
 	return (b3SharedMemoryCommandHandle)command;
 }
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitUserRemoveAllParameters(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_USER_DEBUG_DRAW;
+	command->m_updateFlags = USER_DEBUG_REMOVE_ALL_PARAMETERS;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
 
 B3_SHARED_API int b3GetDebugItemUniqueId(b3SharedMemoryStatusHandle statusHandle)
 {
@@ -4078,7 +4406,7 @@ B3_SHARED_API void b3ComputeProjectionMatrix(float left, float right, float bott
 
 B3_SHARED_API void b3ComputeProjectionMatrixFOV(float fov, float aspect, float nearVal, float farVal, float projectionMatrix[16])
 {
-	float yScale = 1.0 / tan((3.141592538 / 180.0) * fov / 2);
+	float yScale = 1.0 / tan((B3_PI / 180.0) * fov / 2);
 	float xScale = yScale / aspect;
 
 	projectionMatrix[0 * 4 + 0] = xScale;
@@ -4716,7 +5044,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateJacobianCommandInit(b3Physi
 	command->m_calculateJacobianArguments.m_localPosition[1] = localPosition[1];
 	command->m_calculateJacobianArguments.m_localPosition[2] = localPosition[2];
 
-	int numDofs = cl->getNumDofs(bodyUniqueId);
+	int numDofs = b3ComputeDofCount(physClient, bodyUniqueId);
 	for (int i = 0; i < numDofs; i++)
 	{
 		command->m_calculateJacobianArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
@@ -4877,28 +5205,51 @@ B3_SHARED_API void b3CalculateInverseKinematicsAddTargetPurePosition(b3SharedMem
 	b3Assert(command);
 	b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
 	command->m_updateFlags |= IK_HAS_TARGET_POSITION;
-	command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex = endEffectorLinkIndex;
-
-	command->m_calculateInverseKinematicsArguments.m_targetPosition[0] = targetPosition[0];
-	command->m_calculateInverseKinematicsArguments.m_targetPosition[1] = targetPosition[1];
-	command->m_calculateInverseKinematicsArguments.m_targetPosition[2] = targetPosition[2];
+	command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndices[0] = endEffectorLinkIndex;
+	command->m_calculateInverseKinematicsArguments.m_targetPositions[0] = targetPosition[0];
+	command->m_calculateInverseKinematicsArguments.m_targetPositions[1] = targetPosition[1];
+	command->m_calculateInverseKinematicsArguments.m_targetPositions[2] = targetPosition[2];
+	command->m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices = 1;
 
 	command->m_calculateInverseKinematicsArguments.m_targetOrientation[0] = 0;
 	command->m_calculateInverseKinematicsArguments.m_targetOrientation[1] = 0;
 	command->m_calculateInverseKinematicsArguments.m_targetOrientation[2] = 0;
 	command->m_calculateInverseKinematicsArguments.m_targetOrientation[3] = 1;
 }
+
+B3_SHARED_API void b3CalculateInverseKinematicsAddTargetsPurePosition(b3SharedMemoryCommandHandle commandHandle, int numEndEffectorLinkIndices, const int* endEffectorIndices, const double* targetPositions)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
+	command->m_updateFlags |= IK_HAS_TARGET_POSITION;
+	command->m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices = numEndEffectorLinkIndices;
+
+	for (int i = 0; i < numEndEffectorLinkIndices; i++)
+	{
+		command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndices[i] = endEffectorIndices[i];
+		command->m_calculateInverseKinematicsArguments.m_targetPositions[i * 3 + 0] = targetPositions[i * 3 + 0];
+		command->m_calculateInverseKinematicsArguments.m_targetPositions[i * 3 + 1] = targetPositions[i * 3 + 1];
+		command->m_calculateInverseKinematicsArguments.m_targetPositions[i * 3 + 2] = targetPositions[i * 3 + 2];
+	}
+	command->m_calculateInverseKinematicsArguments.m_targetOrientation[0] = 0;
+	command->m_calculateInverseKinematicsArguments.m_targetOrientation[1] = 0;
+	command->m_calculateInverseKinematicsArguments.m_targetOrientation[2] = 0;
+	command->m_calculateInverseKinematicsArguments.m_targetOrientation[3] = 1;
+}
+
 B3_SHARED_API void b3CalculateInverseKinematicsAddTargetPositionWithOrientation(b3SharedMemoryCommandHandle commandHandle, int endEffectorLinkIndex, const double targetPosition[3], const double targetOrientation[4])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command);
 	b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
 	command->m_updateFlags |= IK_HAS_TARGET_POSITION + IK_HAS_TARGET_ORIENTATION;
-	command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex = endEffectorLinkIndex;
+	command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndices[0] = endEffectorLinkIndex;
+	command->m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices = 1;
 
-	command->m_calculateInverseKinematicsArguments.m_targetPosition[0] = targetPosition[0];
-	command->m_calculateInverseKinematicsArguments.m_targetPosition[1] = targetPosition[1];
-	command->m_calculateInverseKinematicsArguments.m_targetPosition[2] = targetPosition[2];
+	command->m_calculateInverseKinematicsArguments.m_targetPositions[0] = targetPosition[0];
+	command->m_calculateInverseKinematicsArguments.m_targetPositions[1] = targetPosition[1];
+	command->m_calculateInverseKinematicsArguments.m_targetPositions[2] = targetPosition[2];
 
 	command->m_calculateInverseKinematicsArguments.m_targetOrientation[0] = targetOrientation[0];
 	command->m_calculateInverseKinematicsArguments.m_targetOrientation[1] = targetOrientation[1];
@@ -4912,11 +5263,12 @@ B3_SHARED_API void b3CalculateInverseKinematicsPosWithNullSpaceVel(b3SharedMemor
 	b3Assert(command);
 	b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
 	command->m_updateFlags |= IK_HAS_TARGET_POSITION + IK_HAS_NULL_SPACE_VELOCITY;
-	command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex = endEffectorLinkIndex;
+	command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndices[0] = endEffectorLinkIndex;
+	command->m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices = 1;
 
-	command->m_calculateInverseKinematicsArguments.m_targetPosition[0] = targetPosition[0];
-	command->m_calculateInverseKinematicsArguments.m_targetPosition[1] = targetPosition[1];
-	command->m_calculateInverseKinematicsArguments.m_targetPosition[2] = targetPosition[2];
+	command->m_calculateInverseKinematicsArguments.m_targetPositions[0] = targetPosition[0];
+	command->m_calculateInverseKinematicsArguments.m_targetPositions[1] = targetPosition[1];
+	command->m_calculateInverseKinematicsArguments.m_targetPositions[2] = targetPosition[2];
 
 	for (int i = 0; i < numDof; ++i)
 	{
@@ -4933,11 +5285,12 @@ B3_SHARED_API void b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(b3SharedMe
 	b3Assert(command);
 	b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
 	command->m_updateFlags |= IK_HAS_TARGET_POSITION + IK_HAS_TARGET_ORIENTATION + IK_HAS_NULL_SPACE_VELOCITY;
-	command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex = endEffectorLinkIndex;
+	command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndices[0] = endEffectorLinkIndex;
+	command->m_calculateInverseKinematicsArguments.m_numEndEffectorLinkIndices = 1;
 
-	command->m_calculateInverseKinematicsArguments.m_targetPosition[0] = targetPosition[0];
-	command->m_calculateInverseKinematicsArguments.m_targetPosition[1] = targetPosition[1];
-	command->m_calculateInverseKinematicsArguments.m_targetPosition[2] = targetPosition[2];
+	command->m_calculateInverseKinematicsArguments.m_targetPositions[0] = targetPosition[0];
+	command->m_calculateInverseKinematicsArguments.m_targetPositions[1] = targetPosition[1];
+	command->m_calculateInverseKinematicsArguments.m_targetPositions[2] = targetPosition[2];
 
 	command->m_calculateInverseKinematicsArguments.m_targetOrientation[0] = targetOrientation[0];
 	command->m_calculateInverseKinematicsArguments.m_targetOrientation[1] = targetOrientation[1];
@@ -5187,20 +5540,19 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3ProfileTimingCommandInit(b3PhysicsCl
 	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
 
-	int len = strlen(name);
-	if (len >= 0 && len < (MAX_FILENAME_LENGTH + 1))
+	int len = name ? strlen(name) : 0;
+	command->m_type = CMD_PROFILE_TIMING;
+	if (len > 0 && len < (MAX_FILENAME_LENGTH + 1))
 	{
-		command->m_type = CMD_PROFILE_TIMING;
+		
 		strcpy(command->m_profile.m_name, name);
 		command->m_profile.m_name[len] = 0;
 	}
 	else
 	{
-		const char* invalid = "InvalidProfileTimingName";
-		int len = strlen(invalid);
-		strcpy(command->m_profile.m_name, invalid);
-		command->m_profile.m_name[len] = 0;
+		command->m_profile.m_name[0] = 0;
 	}
+	command->m_profile.m_type = -1;
 	command->m_profile.m_durationInMicroSeconds = 0;
 	return (b3SharedMemoryCommandHandle)command;
 }
@@ -5229,6 +5581,18 @@ B3_SHARED_API void b3SetProfileTimingDuractionInMicroSeconds(b3SharedMemoryComma
 		command->m_profile.m_durationInMicroSeconds = duration;
 	}
 }
+
+B3_SHARED_API void b3SetProfileTimingType(b3SharedMemoryCommandHandle commandHandle, int type)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_PROFILE_TIMING);
+	if (command->m_type == CMD_PROFILE_TIMING)
+	{
+		command->m_profile.m_type = type;
+	}
+}
+
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3StateLoggingCommandInit(b3PhysicsClientHandle physClient)
 {
@@ -5433,6 +5797,58 @@ B3_SHARED_API void b3ConfigureOpenGLVisualizerSetVisualizationFlags(b3SharedMemo
 		command->m_configureOpenGLVisualizerArguments.m_setEnabled = enabled;
 	}
 }
+
+B3_SHARED_API void b3ConfigureOpenGLVisualizerSetLightPosition(b3SharedMemoryCommandHandle commandHandle, const float lightPosition[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+	if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+	{
+		command->m_updateFlags |= COV_SET_LIGHT_POSITION;
+		command->m_configureOpenGLVisualizerArguments.m_lightPosition[0] = lightPosition[0];
+		command->m_configureOpenGLVisualizerArguments.m_lightPosition[1] = lightPosition[1];
+		command->m_configureOpenGLVisualizerArguments.m_lightPosition[2] = lightPosition[2];
+	}
+}
+
+B3_SHARED_API void b3ConfigureOpenGLVisualizerSetShadowMapResolution(b3SharedMemoryCommandHandle commandHandle, int shadowMapResolution)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+	if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+	{
+		command->m_updateFlags |= COV_SET_SHADOWMAP_RESOLUTION;
+		command->m_configureOpenGLVisualizerArguments.m_shadowMapResolution = shadowMapResolution;
+	}
+}
+
+B3_SHARED_API void b3ConfigureOpenGLVisualizerSetShadowMapWorldSize(b3SharedMemoryCommandHandle commandHandle, int shadowMapWorldSize)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+	if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+	{
+		command->m_updateFlags |= COV_SET_SHADOWMAP_WORLD_SIZE;
+		command->m_configureOpenGLVisualizerArguments.m_shadowMapWorldSize = shadowMapWorldSize;
+	}
+}
+
+
+B3_SHARED_API void b3ConfigureOpenGLVisualizerSetRemoteSyncTransformInterval(b3SharedMemoryCommandHandle commandHandle, double remoteSyncTransformInterval)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+	if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+	{
+		command->m_updateFlags |= COV_SET_REMOTE_SYNC_TRANSFORM_INTERVAL;
+		command->m_configureOpenGLVisualizerArguments.m_remoteSyncTransformInterval = remoteSyncTransformInterval;
+	}
+}
+
 
 B3_SHARED_API void b3ConfigureOpenGLVisualizerSetViewMatrix(b3SharedMemoryCommandHandle commandHandle, float cameraDistance, float cameraPitch, float cameraYaw, const float cameraTargetPosition[3])
 {
@@ -5673,5 +6089,49 @@ B3_SHARED_API void b3GetAxisDifferenceQuaternion(const double startQuat[/*4*/], 
 
 }
 
+#ifdef BT_ENABLE_VHACD
+#include "VHACD.h"
+#include <string>
+
+int main_vhacd_ext(const std::string& fileNameIn, const std::string& fileNameOut, const std::string& fileNameLog, VHACD::IVHACD::Parameters& paramsVHACD);
+
+B3_SHARED_API void b3VHACD(const char* fileNameInput, const char* fileNameOutput, const char* fileNameLogging,
+	double concavity, double alpha, double beta, double gamma, double minVolumePerCH, int resolution,
+	int maxNumVerticesPerCH, int depth, int planeDownsampling, int convexhullDownsampling,
+	int pca, int mode, int convexhullApproximation)
+{
+	std::string fileNameIn(fileNameInput);
+	std::string fileNameOut(fileNameOutput);
+	std::string fileNameLog(fileNameLogging);
+	VHACD::IVHACD::Parameters params;
+	if (concavity >= 0)
+		params.m_concavity = concavity;
+	if (alpha >= 0)
+		params.m_alpha = alpha;
+	if (beta >= 0)
+		params.m_beta = beta;
+	if (gamma >= 0)
+		params.m_gamma = gamma;
+	if (minVolumePerCH >= 0)
+		params.m_minVolumePerCH = minVolumePerCH;
+	if (resolution >= 0)
+		params.m_resolution = (unsigned int)resolution;
+	if (maxNumVerticesPerCH >= 0)
+		params.m_maxNumVerticesPerCH = (unsigned int)maxNumVerticesPerCH;
+	if (depth >= 0)
+		params.m_depth = depth;
+	if (planeDownsampling >= 0)
+		params.m_planeDownsampling = planeDownsampling;
+	if (convexhullDownsampling >= 0)
+		params.m_convexhullDownsampling = convexhullDownsampling;
+	if (pca >= 0)
+		params.m_pca = pca;
+	if (mode >= 0)
+		params.m_mode = mode;
+	if (convexhullApproximation >= 0)
+		params.m_convexhullApproximation = convexhullApproximation;
+	main_vhacd_ext(fileNameIn, fileNameOut, fileNameLog, params);
+}
+#endif
 
 

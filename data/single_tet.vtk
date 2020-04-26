@@ -1,0 +1,15 @@
+# vtk DataFile Version 2.0
+ball_, Created by Gmsh
+ASCII
+DATASET UNSTRUCTURED_GRID
+POINTS 4 double
+0 0 0
+1 0 0
+0 1 0
+0 0 1
+
+CELLS 1 1
+4 0 1 2 3
+
+CELL_TYPES 1
+10

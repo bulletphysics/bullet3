@@ -194,6 +194,37 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 	if (xml_string.length())
 	{
 			result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase, (m_data->m_flags & CUF_PARSE_SENSORS));
+
+			if (m_data->m_flags & CUF_IGNORE_VISUAL_SHAPES)
+			{
+				for (int i=0; i < m_data->m_urdfParser.getModel().m_links.size(); i++)
+				{
+					UrdfLink* linkPtr = *m_data->m_urdfParser.getModel().m_links.getAtIndex(i);
+					linkPtr->m_visualArray.clear();
+				}
+			}
+			if (m_data->m_flags & CUF_IGNORE_COLLISION_SHAPES)
+			{
+				for (int i=0; i < m_data->m_urdfParser.getModel().m_links.size(); i++)
+				{
+					UrdfLink* linkPtr = *m_data->m_urdfParser.getModel().m_links.getAtIndex(i);
+					linkPtr->m_collisionArray.clear();
+				}
+			}
+			if (m_data->m_urdfParser.getModel().m_rootLinks.size())
+			{
+				if (m_data->m_flags & CUF_MERGE_FIXED_LINKS)
+				{
+					m_data->m_urdfParser.mergeFixedLinks(m_data->m_urdfParser.getModel(), m_data->m_urdfParser.getModel().m_rootLinks[0], &loggie, forceFixedBase, 0);
+					m_data->m_urdfParser.getModel().m_links.clear();
+					m_data->m_urdfParser.getModel().m_joints.clear();
+					m_data->m_urdfParser.recreateModel(m_data->m_urdfParser.getModel(), m_data->m_urdfParser.getModel().m_rootLinks[0], &loggie);
+				}
+				if (m_data->m_flags & CUF_PRINT_URDF_INFO)
+				{
+					m_data->m_urdfParser.printTree(m_data->m_urdfParser.getModel().m_rootLinks[0], &loggie, 0);
+				}
+			}
 	}
 
 	return result;
@@ -509,7 +540,7 @@ bool BulletURDFImporter::getRootTransformInWorld(btTransform& rootTransformInWor
 	return true;
 }
 
-static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale, int flags)
+static btCollisionShape* createConvexHullFromShapes(const tinyobj::attrib_t& attribute, std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale, int flags)
 {
 	B3_PROFILE("createConvexHullFromShapes");
 	btCompoundShape* compound = new btCompoundShape();
@@ -528,20 +559,20 @@ static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t
 		for (int f = 0; f < faceCount; f += 3)
 		{
 			btVector3 pt;
-			pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
-						shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
-						shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
+			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 0],
+						attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 1],
+						attribute.vertices[3 * shape.mesh.indices[f + 0].vertex_index + 2]);
 
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
-						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
-						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
+			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 0],
+						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 1],
+						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
-						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
-						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
+			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 0],
+						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 1],
+						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 		}
 
@@ -557,8 +588,6 @@ static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t
 
 	return compound;
 }
-
-
 
 int BulletURDFImporter::getUrdfFromCollisionShape(const btCollisionShape* collisionShape, UrdfCollision& collision) const
 {
@@ -718,10 +747,10 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 					else
 					{
 						std::vector<tinyobj::shape_t> shapes;
-						std::string err = tinyobj::LoadObj(shapes, collision->m_geometry.m_meshFileName.c_str(),"",m_data->m_fileIO);
+						tinyobj::attrib_t attribute;
+						std::string err = tinyobj::LoadObj(attribute, shapes, collision->m_geometry.m_meshFileName.c_str(), "", m_data->m_fileIO);
 						//create a convex hull for each shape, and store it in a btCompoundShape
-
-						shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale, m_data->m_flags);
+						shape = createConvexHullFromShapes(attribute, shapes, collision->m_geometry.m_meshScale, m_data->m_flags);
 						m_data->m_bulletCollisionShape2UrdfCollision.insert(shape, *collision);
 						return shape;
 					}
@@ -1499,4 +1528,13 @@ class btCompoundShape* BulletURDFImporter::convertLinkCollisionShapes(int linkIn
 	}
 
 	return compoundShape;
+}
+
+const struct UrdfModel* BulletURDFImporter::getUrdfModel() const {
+	return &m_data->m_urdfParser.getModel();
+};
+
+const struct UrdfDeformable& BulletURDFImporter::getDeformableModel() const
+{
+	return m_data->m_urdfParser.getDeformable();
 }

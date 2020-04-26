@@ -26,7 +26,11 @@ from __future__ import print_function
 import os
 
 import gym
-import tensorflow as tf
+from gym import wrappers
+try:
+  import tensorflow.compat.v1 as tf
+except Exception:
+  import tensorflow as tf
 
 from . import tools
 from . import utility

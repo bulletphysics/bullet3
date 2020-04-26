@@ -42,6 +42,7 @@ matrix:
     - os: osx
       compiler: clang
       env:
+        - COMPILER=clang++
         - BUILD_NAME=OSX_CLANG
 before_install:
   - if [ -n "$DOCKER_FILE" ]; then

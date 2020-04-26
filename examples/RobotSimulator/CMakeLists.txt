@@ -15,6 +15,15 @@ RobotSimulatorMain.cpp
 	MinitaurSetup.cpp
 	MinitaurSetup.h
 	../../examples/ExampleBrowser/InProcessExampleBrowser.cpp
+	../SharedMemory/GraphicsServerExample.cpp
+	../SharedMemory/GraphicsClientExample.cpp
+	../SharedMemory/RemoteGUIHelper.cpp
+        ../SharedMemory/RemoteGUIHelperTCP.cpp
+	../SharedMemory/GraphicsServerExample.h
+	../SharedMemory/GraphicsClientExample.h
+	../SharedMemory/RemoteGUIHelper.h
+	../SharedMemory/GraphicsSharedMemoryCommands.h
+	../SharedMemory/GraphicsSharedMemoryPublic.h
 	../../examples/SharedMemory/PhysicsServerExample.cpp
 	../../examples/SharedMemory/PhysicsServerExampleBullet2.cpp
 	../../examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp		
@@ -24,6 +33,7 @@ RobotSimulatorMain.cpp
 
 IF(BUILD_CLSOCKET)
  ADD_DEFINITIONS(-DBT_ENABLE_CLSOCKET)
+ ADD_DEFINITIONS(${OSDEF})
 ENDIF(BUILD_CLSOCKET)
 
 

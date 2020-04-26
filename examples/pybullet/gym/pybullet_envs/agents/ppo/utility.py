@@ -21,7 +21,10 @@ import collections
 import math
 import re
 
-import tensorflow as tf
+try:
+  import tensorflow.compat.v1 as tf
+except Exception:
+  import tensorflow as tf
 from tensorflow.python.client import device_lib
 
 

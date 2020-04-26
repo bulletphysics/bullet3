@@ -1,7 +1,7 @@
 #ifndef SHARED_MEMORY_BLOCK_H
 #define SHARED_MEMORY_BLOCK_H
 
-#define SHARED_MEMORY_MAX_COMMANDS 4
+#define SHARED_MEMORY_MAX_COMMANDS 1
 
 #include "SharedMemoryCommands.h"
 
@@ -17,10 +17,7 @@ struct SharedMemoryBlock
 	int m_numServerCommands;
 	int m_numProcessedServerCommands;
 
-	//m_bulletStreamDataClientToServer is a way for the client to create collision shapes, rigid bodies and constraints
-	//the Bullet data structures are more general purpose than the capabilities of a URDF file.
-	char m_bulletStreamDataClientToServer[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];
-
+	
 	//m_bulletStreamDataServerToClient is used to send (debug) data from server to client, for
 	//example to provide all details of a multibody including joint/link names, after loading a URDF file.
 	char m_bulletStreamDataServerToClientRefactor[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];

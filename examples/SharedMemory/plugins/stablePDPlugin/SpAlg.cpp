@@ -1,9 +1,6 @@
 #include "SpAlg.h"
 #include <iostream>
 
-const int cSpAlg::gSpVecSize;
-const int cSpAlg::gSVTransRows;
-const int cSpAlg::gSVTransCols;
 
 cSpAlg::tSpVec cSpAlg::ConvertCoordM(const tSpVec& m0, const tVector& origin0, const tVector& origin1)
 {

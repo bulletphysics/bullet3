@@ -1,6 +1,5 @@
 #ifndef GUI_HELPER_INTERFACE_H
 #define GUI_HELPER_INTERFACE_H
-
 class btRigidBody;
 class btVector3;
 class btCollisionObject;
@@ -10,6 +9,13 @@ struct Common2dCanvasInterface;
 struct CommonParameterInterface;
 struct CommonRenderInterface;
 struct CommonGraphicsApp;
+
+struct GUISyncPosition
+{
+	int m_graphicsInstanceId;
+	float m_pos[4];
+	float m_orn[4];
+};
 
 typedef void (*VisualizerFlagCallback)(int flag, bool enable);
 
@@ -25,7 +31,9 @@ struct GUIHelperInterface
 	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape) = 0;
 
 	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld) = 0;
-
+	virtual void syncPhysicsToGraphics2(const btDiscreteDynamicsWorld* rbWorld) {}
+	virtual void syncPhysicsToGraphics2(const GUISyncPosition* positions, int numPositions) {}
+	
 	virtual void render(const btDiscreteDynamicsWorld* rbWorld) = 0;
 
 	virtual void createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld) = 0;
@@ -35,10 +43,11 @@ struct GUIHelperInterface
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) = 0;
 	virtual void removeAllGraphicsInstances() = 0;
 	virtual void removeGraphicsInstance(int graphicsUid) {}
+	virtual void changeInstanceFlags(int instanceUid, int flags) {}
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]) {}
 	virtual void changeSpecularColor(int instanceUid, const double specularColor[3]) {}
 	virtual void changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height) {}
-
+	virtual void updateShape(int shapeIndex, float* vertices) {}
 	virtual int getShapeIndexFromInstance(int instanceUid) { return -1; }
 	virtual void replaceTexture(int shapeIndex, int textureUid) {}
 	virtual void removeTexture(int textureUid) {}
@@ -105,16 +114,23 @@ struct GUIHelperInterface
 
 	virtual void removeUserDebugItem(int debugItemUniqueId){};
 	virtual void removeAllUserDebugItems(){};
+	virtual void removeAllUserParameters() {};
+	
 	virtual void setVisualizerFlagCallback(VisualizerFlagCallback callback) {}
 
 	//empty name stops dumping video
 	virtual void dumpFramesToVideo(const char* mp4FileName){};
+	virtual void drawDebugDrawerLines(){}
+	virtual void clearLines(){}
 };
 
 ///the DummyGUIHelper does nothing, so we can test the examples without GUI/graphics (in 'console mode')
 struct DummyGUIHelper : public GUIHelperInterface
 {
-	DummyGUIHelper() {}
+	DummyGUIHelper() 
+	{
+
+	}
 	virtual ~DummyGUIHelper() {}
 
 	virtual void createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color) {}

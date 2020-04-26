@@ -423,6 +423,9 @@ typedef voidp unzFile;
 	extern int ZEXPORT unzSetOffset64(unzFile file, ZPOS64_T pos);
 	extern int ZEXPORT unzSetOffset(unzFile file, uLong pos);
 
+	ZEXTERN voidpf ZEXPORT unzDetach OF((unzFile* file));
+	ZEXTERN unzFile ZEXPORT unzAttach OF((voidpf stream, zlib_filefunc_def*));
+
 #ifdef __cplusplus
 }
 #endif
