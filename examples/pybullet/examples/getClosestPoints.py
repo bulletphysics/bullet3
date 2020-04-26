@@ -1,6 +1,9 @@
 import pybullet as p
 import time
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 useCollisionShapeQuery = True
 p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
 geom = p.createCollisionShape(p.GEOM_SPHERE, radius=0.1)

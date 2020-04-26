@@ -1,6 +1,9 @@
 import pybullet as p
 import time
 import math
+import pybullet_data
+
+
 
 
 def drawInertiaBox(parentUid, parentLinkIndex, color):
@@ -128,6 +131,7 @@ if (physId < 0):
   p.connect(p.GUI)
 #p.resetSimulation()
 
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 angle = 0  # pick in range 0..0.2 radians
 orn = p.getQuaternionFromEuler([0, angle, 0])
 p.loadURDF("plane.urdf", [0, 0, 0], orn)

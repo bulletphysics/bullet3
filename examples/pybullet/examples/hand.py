@@ -8,12 +8,16 @@
 import serial
 import time
 import pybullet as p
+import pybullet_data
+
 
 #first try to connect to shared memory (VR), if it fails use local GUI
 c = p.connect(p.SHARED_MEMORY)
 print(c)
 if (c < 0):
   p.connect(p.GUI)
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())  
 
 #load the MuJoCo MJCF hand
 objects = p.loadMJCF("MPL/MPL.xml")

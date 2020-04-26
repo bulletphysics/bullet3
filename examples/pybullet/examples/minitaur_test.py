@@ -9,6 +9,9 @@ from minitaur_evaluate import *
 import time
 import math
 import numpy as np
+import pybullet_data
+
+
 
 
 def main(unused_args):
@@ -16,7 +19,7 @@ def main(unused_args):
   c = p.connect(p.SHARED_MEMORY)
   if (c < 0):
     c = p.connect(p.GUI)
-
+  p.setAdditionalSearchPath(pybullet_data.getDataPath())
   params = [
       0.1903581461951056, 0.0006732219568880068, 0.05018085615283363, 3.219916795483583,
       6.2406418167980595, 4.189869754607539

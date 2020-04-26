@@ -43,7 +43,10 @@ def readLogFile(filename, verbose=True):
 
 
 #clid = p.connect(p.SHARED_MEMORY)
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.loadSDF("kuka_iiwa/kuka_with_gripper.sdf")
 p.loadURDF("tray/tray.urdf", [0, 0, 0])
 p.loadURDF("block.urdf", [0, 0, 2])

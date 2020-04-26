@@ -1,7 +1,9 @@
 import pybullet as p
 import time
+import pybullet_data
 
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 fileIO = p.loadPlugin("fileIOPlugin")
 if (fileIO >= 0):
   #we can have a zipfile (pickup.zip) inside a zipfile (pickup2.zip)

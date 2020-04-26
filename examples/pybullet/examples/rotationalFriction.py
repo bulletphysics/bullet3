@@ -3,7 +3,10 @@ import pybullet as p
 import pybullet_data as pd
 useMaximalCoordinatesA = True
 useMaximalCoordinatesB = True
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.setAdditionalSearchPath(pd.getDataPath())
 cube=p.loadURDF("cube_rotate.urdf",useMaximalCoordinates=useMaximalCoordinatesA)
 p.loadURDF("sphere2.urdf",[0,0,2],useMaximalCoordinates=useMaximalCoordinatesB)
