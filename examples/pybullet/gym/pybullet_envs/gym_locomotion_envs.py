@@ -23,6 +23,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
                                                   frame_skip=4)
     return self.stadium_scene
 
+
   def reset(self):
     if (self.stateId >= 0):
       #print("restoreState self.stateId:",self.stateId)
@@ -125,9 +126,10 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
     return state, sum(self.rewards), bool(done), {}
 
   def camera_adjust(self):
-    x, y, z = self.robot.body_xyz
-    self.camera_x = 0.98 * self.camera_x + (1 - 0.98) * x
-    self.camera.move_and_look_at(self.camera_x, y - 2.0, 1.4, x, y, 1.0)
+    x, y, z = self.robot.body_real_xyz
+
+    self.camera_x = x
+    self.camera.move_and_look_at(self.camera_x, y , 1.4, x, y, 1.0)
 
 
 class HopperBulletEnv(WalkerBaseBulletEnv):

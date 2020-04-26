@@ -6048,8 +6048,14 @@ struct BatchRayCaster
 			int linkIndex = -1;
 
 			const btRigidBody* body = btRigidBody::upcast(rayResultCallback.m_collisionObject);
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 			const btSoftBody* softBody = btSoftBody::upcast(rayResultCallback.m_collisionObject);
-			if (body || softBody)
+			if (softBody)
+			{
+				objectUniqueId = rayResultCallback.m_collisionObject->getUserIndex2();
+			}
+#endif //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+			if (body)
 			{
 				objectUniqueId = rayResultCallback.m_collisionObject->getUserIndex2();
 			}
@@ -8310,8 +8316,10 @@ void constructUrdfDeformable(const struct SharedMemoryCommand& clientCmd, UrdfDe
 #endif
 }
 
+
 bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& deformable, const btVector3& pos, const btQuaternion& orn, int* bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes, btScalar scale, bool useSelfCollision)
 {
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	btSoftBody* psb = NULL;
 	CommonFileIOInterface* fileIO(m_data->m_pluginManager.getFileIOInterface());
 	char relativeFileName[1024];
@@ -8619,8 +8627,10 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		notification.m_bodyArgs.m_bodyUniqueId = *bodyUniqueId;
 		m_data->m_pluginManager.addNotification(notification);
 	}
+#endif
 	return true;
 }
+
 
 bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
@@ -8678,9 +8688,11 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 		InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 		strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());
 		serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
-#endif
+
 	}
+#endif
 	return hasStatus;
+
 }
 
 bool PhysicsServerCommandProcessor::processCreateSensorCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
