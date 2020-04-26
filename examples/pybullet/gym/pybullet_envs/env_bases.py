@@ -26,7 +26,7 @@ class MJCFBaseBulletEnv(gym.Env):
     self.scene = None
     self.physicsClientId = -1
     self.ownsPhysicsClient = 0
-    self.camera = Camera()
+    self.camera = Camera(self)
     self.isRender = render
     self.robot = robot
     self.seed()
@@ -160,11 +160,12 @@ class MJCFBaseBulletEnv(gym.Env):
 
 class Camera:
 
-  def __init__(self):
+  def __init__(self, env):
+    self.env = env
     pass
 
   def move_and_look_at(self, i, j, k, x, y, z):
     lookat = [x, y, z]
     distance = 10
     yaw = 10
-    self._p.resetDebugVisualizerCamera(distance, yaw, -20, lookat)
+    self.env._p.resetDebugVisualizerCamera(distance, yaw, -20, lookat)
