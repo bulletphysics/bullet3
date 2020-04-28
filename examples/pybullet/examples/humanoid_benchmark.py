@@ -1,6 +1,9 @@
 import pybullet as p
 import time
+import pybullet_data
+
 p.connect(p.DIRECT)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.setGravity(0, 0, -10)
 p.setPhysicsEngineParameter(numSolverIterations=5)
 p.setPhysicsEngineParameter(fixedTimeStep=1. / 240.)

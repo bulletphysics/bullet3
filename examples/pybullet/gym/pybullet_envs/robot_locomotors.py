@@ -44,6 +44,7 @@ class WalkerBase(MJCFBasedRobot):
     parts_xyz = np.array([p.pose().xyz() for p in self.parts.values()]).flatten()
     self.body_xyz = (parts_xyz[0::3].mean(), parts_xyz[1::3].mean(), body_pose.xyz()[2]
                     )  # torso z is more informative than mean z
+    self.body_real_xyz = body_pose.xyz()
     self.body_rpy = body_pose.rpy()
     z = self.body_xyz[2]
     if self.initial_z == None:

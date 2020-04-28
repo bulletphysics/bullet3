@@ -3,10 +3,13 @@
 
 import pybullet as p
 import time
+import pybullet_data
 
 cid = p.connect(p.SHARED_MEMORY)
 if (cid < 0):
   cid = p.connect(p.GUI)
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 restitutionId = p.addUserDebugParameter("restitution", 0, 1, 1)
 restitutionVelocityThresholdId = p.addUserDebugParameter("res. vel. threshold", 0, 3, 0.2)
 

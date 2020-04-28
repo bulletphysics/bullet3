@@ -2,6 +2,9 @@ import pybullet as p
 from time import sleep
 
 physicsClient = p.connect(p.GUI)
+import pybullet_data
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.resetSimulation(p.RESET_USE_DEFORMABLE_WORLD)
 
 gravZ=-10

@@ -1,6 +1,9 @@
 import pybullet as p
 import time
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 planeId = p.loadURDF("plane.urdf", useMaximalCoordinates=False)
 cubeId = p.loadURDF("cube_collisionfilter.urdf", [0, 0, 3], useMaximalCoordinates=False)
 

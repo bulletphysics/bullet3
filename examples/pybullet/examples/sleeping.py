@@ -4,7 +4,10 @@ useMaximalCoordinates = False
 
 flags = p.URDF_ENABLE_SLEEPING
 
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
 
 p.loadURDF("plane100.urdf", flags=flags, useMaximalCoordinates=useMaximalCoordinates)

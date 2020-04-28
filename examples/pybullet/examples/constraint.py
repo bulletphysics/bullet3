@@ -2,7 +2,9 @@ import pybullet as p
 import time
 import math
 
+import pybullet_data
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 p.loadURDF("plane.urdf")
 cubeId = p.loadURDF("cube_small.urdf", 0, 0, 1)

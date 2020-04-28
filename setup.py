@@ -375,7 +375,6 @@ egl_renderer_sources = \
 +["src/LinearMath/btConvexHull.cpp"]\
 +["src/LinearMath/btConvexHullComputer.cpp"] \
 +["src/LinearMath/btGeometryUtil.cpp"]\
-+["src/LinearMath/btReducedVector.cpp"]\
 +["src/LinearMath/btQuickprof.cpp"] \
 +["src/LinearMath/btThreads.cpp"] \
 +["src/Bullet3Common/b3AlignedAllocator.cpp"] \
@@ -502,7 +501,7 @@ if 'BT_USE_EGL' in EGL_CXX_FLAGS:
 
 setup(
     name='pybullet',
-    version='2.7.3',
+    version='2.7.4',
     description=
     'Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
     long_description=
