@@ -168,6 +168,31 @@ public:
             }
         }
     }
+
+	void calculateContactForce(const TVStack& dv, const TVStack& rhs, TVStack& f)
+	{
+		size_t counter = 0;
+		for (int i = 0; i < m_softBodies.size(); ++i)
+		{
+			btSoftBody* psb = m_softBodies[i];
+			for (int j = 0; j < psb->m_nodes.size(); ++j)
+			{
+				const btSoftBody::Node& node = psb->m_nodes[j];
+				f[counter] = (node.m_im == 0) ? btVector3(0,0,0) : dv[counter] / node.m_im;
+				++counter;
+			}
+		}
+		for (int i = 0; i < m_lf.size(); ++i)
+		{
+			// add damping matrix
+			m_lf[i]->addScaledDampingForceDifferential(-m_dt, dv, f);
+		}
+		counter = 0;
+		for (; counter < f.size(); ++counter)
+		{
+			f[counter] = rhs[counter] - f[counter];
+		}
+	}
 };
 
 #endif /* btBackwardEulerObjective_h */
