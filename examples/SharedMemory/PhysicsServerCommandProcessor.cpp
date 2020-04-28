@@ -12469,7 +12469,7 @@ bool PhysicsServerCommandProcessor::processRequestCollisionShapeInfoCommand(cons
 				{
 					//extract shape info from base collider
 					int numConvertedCollisionShapes = extractCollisionShapes(bodyHandle->m_multiBody->getBaseCollider()->getCollisionShape(), childTrans, collisionShapeStoragePtr, maxNumColObjects);
-					serverCmd.m_numDataStreamBytes = numConvertedCollisionShapes*sizeof(b3CollisionShapeData);
+					serverCmd.m_numDataStreamBytes = numConvertedCollisionShapes * sizeof(b3CollisionShapeData);
 					serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes = numConvertedCollisionShapes;
 					serverCmd.m_type = CMD_COLLISION_SHAPE_INFO_COMPLETED;
 				}
@@ -12702,6 +12702,17 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR)
 					{
 						m_data->m_guiHelper->changeSpecularColor(graphicsIndex, clientCmd.m_updateVisualShapeDataArguments.m_specularColor);
+					}
+				}
+				else if (bodyHandle->m_softBody)
+				{
+					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR)
+					{
+						if (m_data->m_pluginManager.getRenderInterface())
+						{
+							m_data->m_pluginManager.getRenderInterface()->changeRGBAColor(bodyUniqueId, linkIndex,
+																						  clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+						}
 					}
 				}
 			}
