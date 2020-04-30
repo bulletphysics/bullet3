@@ -271,7 +271,8 @@ public:
 		btDbvtNode* m_leaf;  // Leaf data
 		btScalar m_penetration;   // depth of penetration
 		int m_battach : 1;   // Attached
-        int index;
+		int index;
+		btVector3 m_splitv;  // velocity associated with split impulse
 	};
 	/* Link			*/
 	ATTRIBUTE_ALIGNED16(struct)
@@ -296,7 +297,7 @@ public:
 		btDbvtNode* m_leaf;  // Leaf data
         btVector4 m_pcontact; // barycentric weights of the persistent contact
         btVector3 m_n0, m_n1, m_vn;
-        int m_index;
+		int m_index;
 	};
 	/* Tetra		*/
 	struct Tetra : Feature

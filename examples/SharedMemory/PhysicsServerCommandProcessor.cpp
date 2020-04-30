@@ -8312,6 +8312,10 @@ void constructUrdfDeformable(const struct SharedMemoryCommand& clientCmd, UrdfDe
 	{
 		deformable.m_friction = loadSoftBodyArgs.m_frictionCoeff;
 	}
+	if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SET_REPULSION_STIFFNESS)
+	{
+		deformable.m_repulsionStiffness = loadSoftBodyArgs.m_repulsionStiffness;
+	}
 
 #endif
 }
@@ -8531,6 +8535,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			psb->setCollisionFlags(0);
 			psb->setTotalMass(deformable.m_mass);
 			psb->setSelfCollision(useSelfCollision);
+			psb->setSpringStiffness(deformable.m_repulsionStiffness);
 			psb->initializeFaceTree();
 		}
 #endif  //SKIP_DEFORMABLE_BODY

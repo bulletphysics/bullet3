@@ -59,6 +59,7 @@ SET(BulletSoftBody_HDRS
 	btDeformableContactProjection.h
 	btDeformableMultiBodyDynamicsWorld.h
 	btDeformableContactConstraint.h
+	btKrylovSolver.h
 	poly34.h
 
 	btSoftBodySolverVertexBuffer.h

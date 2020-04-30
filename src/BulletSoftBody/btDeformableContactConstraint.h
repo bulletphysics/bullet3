@@ -148,6 +148,8 @@ public:
     btVector3 m_total_normal_dv;
     btVector3 m_total_tangent_dv;
     btScalar m_penetration;
+    btScalar m_total_split_impulse;
+    bool m_binding;
     const btSoftBody::DeformableRigidContact* m_contact;
 	
     btDeformableRigidContactConstraint(const btSoftBody::DeformableRigidContact& c, const btContactSolverInfo& infoGlobal);
@@ -160,12 +162,19 @@ public:
     // object A is the rigid/multi body, and object B is the deformable node/face
     virtual btVector3 getVa() const;
     
+    // get the split impulse velocity of the deformable face at the contact point
+    virtual btVector3 getSplitVb() const = 0;
+    
     virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal);
     
     virtual void setPenetrationScale(btScalar scale)
     {
         m_penetration *= scale;
     }
+    
+    btScalar solveSplitImpulse(const btContactSolverInfo& infoGlobal);
+    
+    virtual void applySplitImpulse(const btVector3& impulse) = 0;
 };
 
 //
@@ -186,6 +195,9 @@ public:
     // get the velocity of the deformable node in contact
     virtual btVector3 getVb() const;
     
+    // get the split impulse velocity of the deformable face at the contact point
+    virtual btVector3 getSplitVb() const;
+    
     // get the velocity change of the input soft body node in the constraint
     virtual btVector3 getDv(const btSoftBody::Node*) const;
     
@@ -196,6 +208,8 @@ public:
     }
     
     virtual void applyImpulse(const btVector3& impulse);
+    
+    virtual void applySplitImpulse(const btVector3& impulse);
 };
 
 //
@@ -215,9 +229,12 @@ public:
     // get the velocity of the deformable face at the contact point
     virtual btVector3 getVb() const;
     
+    // get the split impulse velocity of the deformable face at the contact point
+    virtual btVector3 getSplitVb() const;
+    
     // get the velocity change of the input soft body node in the constraint
     virtual btVector3 getDv(const btSoftBody::Node*) const;
-    
+
     // cast the contact to the desired type
     const btSoftBody::DeformableFaceRigidContact* getContact() const
     {
@@ -225,6 +242,8 @@ public:
     }
     
     virtual void applyImpulse(const btVector3& impulse);
+    
+    virtual void applySplitImpulse(const btVector3& impulse);
 };
 
 //
