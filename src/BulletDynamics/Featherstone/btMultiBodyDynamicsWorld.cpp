@@ -579,6 +579,7 @@ void btMultiBodyDynamicsWorld::integrateMultiBodyTransforms(btScalar timeStep)
 		for (int b = 0; b < m_multiBodies.size(); b++)
 		{
 			btMultiBody* bod = m_multiBodies[b];
+            bod->addSplitV();
 			bool isSleeping = false;
 			if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
 			{
@@ -615,6 +616,7 @@ void btMultiBodyDynamicsWorld::integrateMultiBodyTransforms(btScalar timeStep)
 			{
 				bod->clearVelocities();
 			}
+            bod->substractSplitV();
 		}
 }
 

@@ -165,6 +165,9 @@ public:
     // get the split impulse velocity of the deformable face at the contact point
     virtual btVector3 getSplitVb() const = 0;
     
+    // get the split impulse velocity of the rigid/multibdoy at the contaft
+    virtual btVector3 getSplitVa() const;
+    
     virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal);
     
     virtual void setPenetrationScale(btScalar scale)

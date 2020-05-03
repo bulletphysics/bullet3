@@ -24,6 +24,7 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
         solveGroupCacheFriendlySplitImpulseIterations(bodies, numBodies, deformableBodies, numDeformableBodies, manifoldPtr, numManifolds, constraints, numConstraints, infoGlobal, debugDrawer);
 
         int maxIterations = m_maxOverrideNumSolverIterations > infoGlobal.m_numIterations ? m_maxOverrideNumSolverIterations : infoGlobal.m_numIterations;
+        maxIterations = 150;
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
             // rigid bodies are solved using solver body velocity, but rigid/deformable contact directly uses the velocity of the actual rigid body. So we have to do the following: Solve one iteration of the rigid/rigid contact, get the updated velocity in the solver body and update the velocity of the underlying rigid body. Then solve the rigid/deformable contact. Finally, grab the (once again) updated rigid velocity and update the velocity of the wrapping solver body
@@ -113,7 +114,8 @@ void btDeformableMultiBodyConstraintSolver::solveGroupCacheFriendlySplitImpulseI
     if (infoGlobal.m_splitImpulse)
     {
         {
-            for (iteration = 0; iteration < infoGlobal.m_numIterations; iteration++)
+            for (iteration = 0; iteration < 150; iteration++)
+//                for (iteration = 0; iteration < infoGlobal.m_numIterations; iteration++)
             {
                 btScalar leastSquaresResidual = 0.f;
                 {
