@@ -12709,6 +12709,8 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 						m_data->m_guiHelper->changeSpecularColor(graphicsIndex, clientCmd.m_updateVisualShapeDataArguments.m_specularColor);
 					}
 				}
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+
 				else if (bodyHandle->m_softBody)
 				{
 					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR)
@@ -12720,6 +12722,7 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 						}
 					}
 				}
+#endif
 			}
 		}
 	}
