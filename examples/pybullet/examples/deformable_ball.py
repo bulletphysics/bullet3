@@ -1,7 +1,9 @@
 import pybullet as p
 from time import sleep
+import pybullet_data
 
 physicsClient = p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 p.resetSimulation(p.RESET_USE_DEFORMABLE_WORLD)
 

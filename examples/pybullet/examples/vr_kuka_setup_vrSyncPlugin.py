@@ -1,11 +1,15 @@
 import pybullet as p
 import time
 #p.connect(p.UDP,"192.168.86.100")
+import pybullet_data
+
 
 cid = p.connect(p.SHARED_MEMORY)
 if (cid < 0):
   p.connect(p.GUI)
 p.resetSimulation()
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 #disable rendering during loading makes it much faster
 p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
 objects = [

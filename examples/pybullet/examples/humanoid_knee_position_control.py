@@ -1,5 +1,8 @@
 import pybullet as p
 import time
+import pybullet_data
+
+
 
 cid = p.connect(p.SHARED_MEMORY)
 if (cid < 0):
@@ -10,6 +13,8 @@ p.resetSimulation()
 useRealTime = 0
 
 p.setRealTimeSimulation(useRealTime)
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 p.setGravity(0, 0, -10)
 

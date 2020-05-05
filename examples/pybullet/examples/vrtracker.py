@@ -4,6 +4,8 @@
 # Line width can be changed
 
 import pybullet as p
+import pybullet_data
+
 
 CONTROLLER_ID = 0
 POSITION = 1
@@ -16,6 +18,7 @@ print(c)
 if (c < 0):
   p.connect(p.GUI)
 
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.setInternalSimFlags(0)  #don't load default robot assets etc
 p.resetSimulation()
 p.loadURDF("plane.urdf")

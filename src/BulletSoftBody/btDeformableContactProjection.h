@@ -91,7 +91,7 @@ public:
     
     virtual void reinitialize(bool nodeUpdated);
     
-    virtual void splitImpulseSetup(const btContactSolverInfo& infoGlobal);
+	btScalar solveSplitImpulse(btCollisionObject** deformableBodies,int numDeformableBodies, const btContactSolverInfo& infoGlobal);
     
     virtual void setLagrangeMultiplier();
     

@@ -8312,6 +8312,10 @@ void constructUrdfDeformable(const struct SharedMemoryCommand& clientCmd, UrdfDe
 	{
 		deformable.m_friction = loadSoftBodyArgs.m_frictionCoeff;
 	}
+	if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SET_REPULSION_STIFFNESS)
+	{
+		deformable.m_repulsionStiffness = loadSoftBodyArgs.m_repulsionStiffness;
+	}
 
 #endif
 }
@@ -8531,6 +8535,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			psb->setCollisionFlags(0);
 			psb->setTotalMass(deformable.m_mass);
 			psb->setSelfCollision(useSelfCollision);
+			psb->setSpringStiffness(deformable.m_repulsionStiffness);
 			psb->initializeFaceTree();
 		}
 #endif  //SKIP_DEFORMABLE_BODY
@@ -12469,7 +12474,7 @@ bool PhysicsServerCommandProcessor::processRequestCollisionShapeInfoCommand(cons
 				{
 					//extract shape info from base collider
 					int numConvertedCollisionShapes = extractCollisionShapes(bodyHandle->m_multiBody->getBaseCollider()->getCollisionShape(), childTrans, collisionShapeStoragePtr, maxNumColObjects);
-					serverCmd.m_numDataStreamBytes = numConvertedCollisionShapes*sizeof(b3CollisionShapeData);
+					serverCmd.m_numDataStreamBytes = numConvertedCollisionShapes * sizeof(b3CollisionShapeData);
 					serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes = numConvertedCollisionShapes;
 					serverCmd.m_type = CMD_COLLISION_SHAPE_INFO_COMPLETED;
 				}
@@ -12702,6 +12707,17 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR)
 					{
 						m_data->m_guiHelper->changeSpecularColor(graphicsIndex, clientCmd.m_updateVisualShapeDataArguments.m_specularColor);
+					}
+				}
+				else if (bodyHandle->m_softBody)
+				{
+					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR)
+					{
+						if (m_data->m_pluginManager.getRenderInterface())
+						{
+							m_data->m_pluginManager.getRenderInterface()->changeRGBAColor(bodyUniqueId, linkIndex,
+																						  clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+						}
 					}
 				}
 			}

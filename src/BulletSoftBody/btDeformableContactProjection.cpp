@@ -58,23 +58,27 @@ btScalar btDeformableContactProjection::update(btCollisionObject** deformableBod
 	return residualSquare;
 }
 
-void btDeformableContactProjection::splitImpulseSetup(const btContactSolverInfo& infoGlobal)
+btScalar btDeformableContactProjection::solveSplitImpulse(btCollisionObject** deformableBodies,int numDeformableBodies, const btContactSolverInfo& infoGlobal)
 {
-	for (int i = 0; i < m_softBodies.size(); ++i)
-	{
-		// node constraints
-		for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
-		{
-			btDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[i][j];
-			constraint.setPenetrationScale(infoGlobal.m_deformable_erp);
-		}
-		// face constraints
-		for (int j = 0; j < m_faceRigidConstraints[i].size(); ++j)
-		{
-			btDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[i][j];
-			constraint.setPenetrationScale(infoGlobal.m_deformable_erp);
-		}
-	}
+    btScalar residualSquare = 0;
+    for (int i = 0; i < numDeformableBodies; ++i)
+    {
+        for (int j = 0; j < m_softBodies.size(); ++j)
+        {
+            btCollisionObject* psb = m_softBodies[j];
+            if (psb != deformableBodies[i])
+            {
+                continue;
+            }
+            for (int k = 0; k < m_faceRigidConstraints[j].size(); ++k)
+            {
+                btDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[j][k];
+                btScalar localResidualSquare = constraint.solveSplitImpulse(infoGlobal);
+                residualSquare = btMax(residualSquare, localResidualSquare);
+            }
+        }
+    }
+    return residualSquare;
 }
 
 void btDeformableContactProjection::setConstraints(const btContactSolverInfo& infoGlobal)
@@ -143,15 +147,16 @@ void btDeformableContactProjection::setConstraints(const btContactSolverInfo& in
 				continue;
 			}
 			btDeformableFaceRigidContactConstraint constraint(contact, infoGlobal, m_useStrainLimiting);
-			btVector3 va = constraint.getVa();
-			btVector3 vb = constraint.getVb();
-			const btVector3 vr = vb - va;
-			const btSoftBody::sCti& cti = contact.m_cti;
-			const btScalar dn = btDot(vr, cti.m_normal);
-			if (dn < SIMD_EPSILON)
-			{
-				m_faceRigidConstraints[i].push_back(constraint);
-			}
+            m_faceRigidConstraints[i].push_back(constraint);
+            //            btVector3 va = constraint.getVa();
+            //            btVector3 vb = constraint.getVb();
+            //            const btVector3 vr = vb - va;
+            //            const btSoftBody::sCti& cti = contact.m_cti;
+            //            const btScalar dn = btDot(vr, cti.m_normal);
+            //            if (dn < SIMD_EPSILON)
+            //            {
+            //                m_faceRigidConstraints[i].push_back(constraint);
+            //            }
 		}
 	}
 }
@@ -499,6 +504,10 @@ void btDeformableContactProjection::setLagrangeMultiplier()
         }
         for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
         {
+            if (!m_nodeRigidConstraints[i][j].m_binding)
+            {
+                continue;
+            }
             int index = m_nodeRigidConstraints[i][j].m_node->index;
             m_nodeRigidConstraints[i][j].m_node->m_penetration = -m_nodeRigidConstraints[i][j].getContact()->m_cti.m_offset;
             LagrangeMultiplier lm;
@@ -521,6 +530,10 @@ void btDeformableContactProjection::setLagrangeMultiplier()
         }
         for (int j = 0; j < m_faceRigidConstraints[i].size(); ++j)
         {
+            if (!m_faceRigidConstraints[i][j].m_binding)
+            {
+                continue;
+            }
             const btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
 			
             btVector3 bary = m_faceRigidConstraints[i][j].getContact()->m_bary;

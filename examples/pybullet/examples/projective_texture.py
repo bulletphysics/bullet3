@@ -2,9 +2,11 @@ import pybullet as p
 from time import sleep
 import matplotlib.pyplot as plt
 import numpy as np
+import pybullet_data
 
 physicsClient = p.connect(p.GUI)
 
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.setGravity(0, 0, 0)
 bearStartPos1 = [-3.3, 0, 0]
 bearStartOrientation1 = p.getQuaternionFromEuler([0, 0, 0])

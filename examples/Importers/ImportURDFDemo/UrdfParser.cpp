@@ -1163,6 +1163,17 @@ bool UrdfParser::parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config,
 		}
 		deformable.m_friction = urdfLexicalCast<double>(friction_xml->Attribute("value"));
 	}
+	
+	XMLElement* repulsion_xml = config->FirstChildElement("repulsion_stiffness");
+	if (repulsion_xml)
+	{
+		if (!repulsion_xml->Attribute("value"))
+		{
+			logger->reportError("repulsion_stiffness element must have value attribute");
+			return false;
+		}
+		deformable.m_repulsionStiffness = urdfLexicalCast<double>(repulsion_xml->Attribute("value"));
+	}
 
 	XMLElement* spring_xml = config->FirstChildElement("spring");
 	if (spring_xml)
