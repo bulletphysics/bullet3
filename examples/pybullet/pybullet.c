@@ -6980,7 +6980,27 @@ static PyObject* pybullet_getDebugVisualizerCamera(PyObject* self, PyObject* arg
 	int hasCamInfo;
 	b3SharedMemoryStatusHandle statusHandle;
 	struct b3OpenGLVisualizerCameraInfo camera;
-	PyObject* pyCameraList = 0;
+        int i;
+        camera.m_width=0;
+        camera.m_height=0;
+        camera.m_dist=0;
+        camera.m_yaw=0;
+        camera.m_pitch=0;
+
+        for (i=0;i<16;i++)
+        {
+          camera.m_viewMatrix[i]=0;
+          camera.m_projectionMatrix[i]=0;
+        }
+        for (i=0;i<3;i++)
+        {
+          camera.m_camUp[i]=0;
+          camera.m_camForward[i]=0;
+          camera.m_horizontal[i]=0;
+          camera.m_vertical[i]=0;
+          camera.m_target[i]=0;
+        }
+        PyObject* pyCameraList = 0;
 
 	sm = getPhysicsClient(physicsClientId);
 	if (sm == 0)
@@ -6993,7 +7013,7 @@ static PyObject* pybullet_getDebugVisualizerCamera(PyObject* self, PyObject* arg
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 
 	hasCamInfo = b3GetStatusOpenGLVisualizerCamera(statusHandle, &camera);
-	if (hasCamInfo)
+	if (1)
 	{
 		PyObject* item = 0;
 		pyCameraList = PyTuple_New(12);
