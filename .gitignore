@@ -33,3 +33,6 @@ CTestTestFile.cmake
 
 # Apple Finder metadata
 *.DS_Store
+
+# vim temp files
+*.swp
