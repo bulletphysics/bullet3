@@ -110,7 +110,7 @@ bool btBulletWorldImporter::convertAllObjects(bParse::btBulletFile* bulletFile2)
 	for (i = 0; i < bulletFile2->m_collisionShapes.size(); i++)
 	{
 		btCollisionShapeData* shapeData = (btCollisionShapeData*)bulletFile2->m_collisionShapes[i];
-		btCollisionShape* shape = convertCollisionShape(shapeData);
+		btCollisionShape* shape = convertCollisionShape(shapeData, bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION);
 		if (shape)
 		{
 			//		printf("shapeMap.insert(%x,%x)\n",shapeData,shape);

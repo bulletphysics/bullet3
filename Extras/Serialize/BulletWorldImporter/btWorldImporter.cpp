@@ -139,7 +139,7 @@ void btWorldImporter::deleteAllData()
 	m_doubleVertexArrays.clear();
 }
 
-btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* shapeData)
+btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* shapeData, bool isDouble)
 {
 	btCollisionShape* shape = 0;
 
@@ -161,7 +161,7 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 			btScaledTriangleMeshShapeData* scaledMesh = (btScaledTriangleMeshShapeData*)shapeData;
 			btCollisionShapeData* colShapeData = (btCollisionShapeData*)&scaledMesh->m_trimeshShapeData;
 			colShapeData->m_shapeType = TRIANGLE_MESH_SHAPE_PROXYTYPE;
-			btCollisionShape* childShape = convertCollisionShape(colShapeData);
+			btCollisionShape* childShape = convertCollisionShape(colShapeData, isDouble);
 			btBvhTriangleMeshShape* meshShape = (btBvhTriangleMeshShape*)childShape;
 			btVector3 localScaling;
 			localScaling.deSerializeFloat(scaledMesh->m_localScaling);
@@ -235,12 +235,23 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 		case MULTI_SPHERE_SHAPE_PROXYTYPE:
 		case CONVEX_HULL_SHAPE_PROXYTYPE:
 		{
-			btConvexInternalShapeData* bsd = (btConvexInternalShapeData*)shapeData;
 			btVector3 implicitShapeDimensions;
-			implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
 			btVector3 localScaling;
-			localScaling.deSerializeFloat(bsd->m_localScaling);
-			btVector3 margin(bsd->m_collisionMargin, bsd->m_collisionMargin, bsd->m_collisionMargin);
+			btVector3 margin;
+			if(isDouble)
+			{
+				btConvexInternalShapeDoubleData* bsd = (btConvexInternalShapeDoubleData*)shapeData;
+				implicitShapeDimensions.deSerializeDouble(bsd->m_implicitShapeDimensions);
+				localScaling.deSerializeDouble(bsd->m_localScaling);
+				margin = btVector3(bsd->m_collisionMargin, bsd->m_collisionMargin, bsd->m_collisionMargin);
+			}
+			else
+			{
+				btConvexInternalShapeFloatData* bsd = (btConvexInternalShapeFloatData*)shapeData;
+				implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
+				localScaling.deSerializeFloat(bsd->m_localScaling);
+				margin = btVector3(bsd->m_collisionMargin, bsd->m_collisionMargin, bsd->m_collisionMargin);
+			}
 			switch (shapeData->m_shapeType)
 			{
 				case BOX_SHAPE_PROXYTYPE:
@@ -376,10 +387,7 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 
 			if (shape)
 			{
-				shape->setMargin(bsd->m_collisionMargin);
-
-				btVector3 localScaling;
-				localScaling.deSerializeFloat(bsd->m_localScaling);
+				shape->setMargin(margin.x());
 				shape->setLocalScaling(localScaling);
 			}
 			break;
@@ -456,7 +464,7 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 			{
 				btCollisionShapeData* cd = compoundData->m_childShapePtr[i].m_childShape;
 
-				btCollisionShape* childShape = convertCollisionShape(cd);
+				btCollisionShape* childShape = convertCollisionShape(cd, isDouble);
 				if (childShape)
 				{
 					btTransform localTransform;
