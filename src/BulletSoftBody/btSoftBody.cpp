@@ -1046,10 +1046,14 @@ btTransform btSoftBody::getRigidTransform()
     btVector3 t = getCenterOfMass();
     btMatrix3x3 S;
     S.setZero();
-    // get rotation that minimizes L2 difference: \sum_i || RX_i + t - x_i ||
+    // Get rotation that minimizes L2 difference: \sum_i || RX_i + t - x_i ||
+    // It's important to make sure that S has the correct signs.
+    // SVD is only unique up to the ordering of singular values.
+    // SVD will manipulate U and V to ensure the ordering of singular values. If all three singular
+    // vaues are negative, SVD will permute colums of U to make two of them positive.
     for (int i = 0; i < m_nodes.size(); ++i)
     {
-        S += OuterProduct(m_X[i], t-m_nodes[i].m_x);
+        S -= OuterProduct(m_X[i], t-m_nodes[i].m_x);
     }
     btVector3 sigma;
     btMatrix3x3 U,V;
