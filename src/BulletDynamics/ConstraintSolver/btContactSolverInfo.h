@@ -83,7 +83,7 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_numIterations = 10;
 		m_erp = btScalar(0.2);
 		m_erp2 = btScalar(0.2);
-		m_deformable_erp = btScalar(0.1);
+		m_deformable_erp = btScalar(0.01);
 		m_globalCfm = btScalar(0.);
 		m_frictionERP = btScalar(0.2);  //positional friction 'anchors' are disabled by default
 		m_frictionCFM = btScalar(0.);
