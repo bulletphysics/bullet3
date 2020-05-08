@@ -2943,8 +2943,8 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
         btVector3 guess(0,0,0);
         const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
         btGjkEpaSolver2::SignedDistance(&triangle, triangle_transform, csh, wtr, guess, results);
-        dst = results.distance-csh->getMargin();
-        dst -= margin;
+        dst = results.distance-2.0*csh->getMargin();
+        dst -= 2.0*margin;
         if (dst >= 0)
             return false;
         wtr = colObjWrap->getWorldTransform();

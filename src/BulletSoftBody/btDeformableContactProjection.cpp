@@ -126,15 +126,7 @@ void btDeformableContactProjection::setConstraints(const btContactSolverInfo& in
 				continue;
 			}
 			btDeformableNodeRigidContactConstraint constraint(contact, infoGlobal);
-			btVector3 va = constraint.getVa();
-			btVector3 vb = constraint.getVb();
-			const btVector3 vr = vb - va;
-			const btSoftBody::sCti& cti = contact.m_cti;
-			const btScalar dn = btDot(vr, cti.m_normal);
-			if (dn < SIMD_EPSILON)
-			{
-				m_nodeRigidConstraints[i].push_back(constraint);
-			}
+			m_nodeRigidConstraints[i].push_back(constraint);
 		}
 		
 		// set Deformable Face vs. Rigid constraint
