@@ -6468,11 +6468,12 @@ static PyObject* pybullet_rayTestObsolete(PyObject* self, PyObject* args, PyObje
 	double from[3];
 	double to[3];
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"rayFromPosition", "rayToPosition", "physicsClientId", NULL};
+	static char* kwlist[] = {"rayFromPosition", "rayToPosition", "collisionFilterMask", "physicsClientId", NULL};
 	int physicsClientId = 0;
+	int collisionFilterMask = -1;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|i", kwlist,
-									 &rayFromObj, &rayToObj, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|ii", kwlist,
+									 &rayFromObj, &rayToObj, &collisionFilterMask, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -6485,8 +6486,15 @@ static PyObject* pybullet_rayTestObsolete(PyObject* self, PyObject* args, PyObje
 	pybullet_internalSetVectord(rayFromObj, from);
 	pybullet_internalSetVectord(rayToObj, to);
 
+	
 	commandHandle = b3CreateRaycastCommandInit(sm, from[0], from[1], from[2],
 											   to[0], to[1], to[2]);
+
+
+	if (collisionFilterMask >= 0)
+	{
+		b3RaycastBatchSetCollisionFilterMask(commandHandle, collisionFilterMask);
+	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
@@ -6550,17 +6558,19 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 	PyObject* rayFromObjList = 0;
 	PyObject* rayToObjList = 0;
 	int numThreads = 1;
+	int reportHitNumber = -1;
 	b3PhysicsClientHandle sm = 0;
 	int sizeFrom = 0;
 	int sizeTo = 0;
 	int parentObjectUniqueId = -1;
 	int parentLinkIndex = -1;
+	int collisionFilterMask = -1;
 
-	static char* kwlist[] = {"rayFromPositions", "rayToPositions", "numThreads", "parentObjectUniqueId", "parentLinkIndex", "physicsClientId", NULL};
+	static char* kwlist[] = {"rayFromPositions", "rayToPositions", "numThreads", "parentObjectUniqueId", "parentLinkIndex", "reportHitNumber", "collisionFilterMask","physicsClientId", NULL};
 	int physicsClientId = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|iiii", kwlist,
-									 &rayFromObjList, &rayToObjList, &numThreads, &parentObjectUniqueId, &parentLinkIndex, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|iiiiii", kwlist,
+									 &rayFromObjList, &rayToObjList, &numThreads, &parentObjectUniqueId, &parentLinkIndex, &reportHitNumber, &collisionFilterMask , &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -6648,7 +6658,14 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 	{
 		b3RaycastBatchSetParentObject(commandHandle, parentObjectUniqueId, parentLinkIndex);
 	}
-
+	if (reportHitNumber >= 0)
+	{
+		b3RaycastBatchSetReportHitNumber(commandHandle, reportHitNumber);
+	}
+	if (collisionFilterMask >= 0)
+	{
+		b3RaycastBatchSetCollisionFilterMask(commandHandle, collisionFilterMask);
+	}
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType == CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED)
@@ -12769,6 +12786,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "URDF_IGNORE_VISUAL_SHAPES", URDF_IGNORE_VISUAL_SHAPES);
 	PyModule_AddIntConstant(m, "URDF_IGNORE_COLLISION_SHAPES",URDF_IGNORE_COLLISION_SHAPES);
 	PyModule_AddIntConstant(m, "URDF_PRINT_URDF_INFO", URDF_PRINT_URDF_INFO);
+	PyModule_AddIntConstant(m, "URDF_GOOGLEY_UNDEFINED_COLORS", URDF_GOOGLEY_UNDEFINED_COLORS);
 
 	PyModule_AddIntConstant(m, "ACTIVATION_STATE_ENABLE_SLEEPING", eActivationStateEnableSleeping);
 	PyModule_AddIntConstant(m, "ACTIVATION_STATE_DISABLE_SLEEPING", eActivationStateDisableSleeping);

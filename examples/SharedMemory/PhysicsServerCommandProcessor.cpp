@@ -4993,30 +4993,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 							CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
 							glmesh = LoadMeshFromObj(relativeFileName, pathPrefix, fileIO);
 						}
-						if (glmesh)
-						{
-							if (compound == 0)
-							{
-								compound = worldImporter->createCompoundShape();
-							}
-
-							btTriangleMesh* meshInterface = new btTriangleMesh();
-							m_data->m_meshInterfaces.push_back(meshInterface);
-
-							for (int i = 0; i < glmesh->m_numIndices / 3; i++)
-							{
-								float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(i * 3)).xyzw;
-								float* v1 = glmesh->m_vertices->at(glmesh->m_indices->at(i * 3 + 1)).xyzw;
-								float* v2 = glmesh->m_vertices->at(glmesh->m_indices->at(i * 3 + 2)).xyzw;
-								meshInterface->addTriangle(
-									btVector3(v0[0], v0[1], v0[2])* meshScale,
-									btVector3(v1[0], v1[1], v1[2])* meshScale,
-									btVector3(v2[0], v2[1], v2[2])* meshScale);
-							}
-
-							btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface, true, true);
-							compound->addChildShape(childTransform, trimesh);
-						}
+						//btBvhTriangleMeshShape is created below
 					}
 					else
 					{
@@ -5049,6 +5026,8 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 							convexHull->optimizeConvexHull();
 
 							compound->addChildShape(childTransform, convexHull);
+							delete glmesh;
+							glmesh = 0;
 						}
 						if (out_type == UrdfGeometry::FILE_OBJ)
 						{
@@ -5955,6 +5934,53 @@ struct CastSyncInfo
 };
 #endif  // __cplusplus >= 201103L
 
+
+
+
+struct FilteredClosestRayResultCallback : public btCollisionWorld::ClosestRayResultCallback
+{
+	FilteredClosestRayResultCallback(const btVector3& rayFromWorld, const btVector3& rayToWorld, int collisionFilterMask)
+		: btCollisionWorld::ClosestRayResultCallback(rayFromWorld, rayToWorld),
+		m_collisionFilterMask(collisionFilterMask)
+	{
+	}
+
+	int m_collisionFilterMask;
+
+	virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)
+	{
+		if (m_collisionFilterMask >= 0)
+		{
+			bool collides = (rayResult.m_collisionObject->getBroadphaseHandle()->m_collisionFilterGroup & m_collisionFilterMask) != 0;
+			if (!collides)
+				return m_closestHitFraction;
+		}
+		return btCollisionWorld::ClosestRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
+	}
+};
+
+struct FilteredAllHitsRayResultCallback: public btCollisionWorld::AllHitsRayResultCallback
+{
+	FilteredAllHitsRayResultCallback(const btVector3& rayFromWorld, const btVector3& rayToWorld, int collisionFilterMask)
+		: btCollisionWorld::AllHitsRayResultCallback(rayFromWorld, rayToWorld),
+		m_collisionFilterMask(collisionFilterMask)
+	{
+	}
+
+	int m_collisionFilterMask;
+
+	virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)
+	{
+		if (m_collisionFilterMask >= 0)
+		{
+			bool collides = (rayResult.m_collisionObject->getBroadphaseHandle()->m_collisionFilterGroup & m_collisionFilterMask) != 0;
+			if (!collides)
+				return m_closestHitFraction;
+		}
+		return btCollisionWorld::AllHitsRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
+	}
+};
+
 struct BatchRayCaster
 {
 	b3ThreadPool* m_threadPool;
@@ -5963,9 +5989,12 @@ struct BatchRayCaster
 	const b3RayData* m_rayInputBuffer;
 	b3RayHitInfo* m_hitInfoOutputBuffer;
 	int m_numRays;
+	int m_reportHitNumber;
+	int m_collisionFilterMask;
 
-	BatchRayCaster(b3ThreadPool* threadPool, const btCollisionWorld* world, const b3RayData* rayInputBuffer, b3RayHitInfo* hitInfoOutputBuffer, int numRays)
-		: m_threadPool(threadPool), m_world(world), m_rayInputBuffer(rayInputBuffer), m_hitInfoOutputBuffer(hitInfoOutputBuffer), m_numRays(numRays)
+	BatchRayCaster(b3ThreadPool* threadPool, const btCollisionWorld* world, const b3RayData* rayInputBuffer, b3RayHitInfo* hitInfoOutputBuffer, int numRays, int reportHitNumber, int collisionFilterMask)
+		: m_threadPool(threadPool), m_world(world), m_rayInputBuffer(rayInputBuffer), m_hitInfoOutputBuffer(hitInfoOutputBuffer), m_numRays(numRays), m_reportHitNumber(reportHitNumber),
+		m_collisionFilterMask(collisionFilterMask)
 	{
 		m_syncInfo = new CastSyncInfo;
 	}
@@ -6022,6 +6051,10 @@ struct BatchRayCaster
 	{
 		for (int i = 0; i < m_numRays; i++)
 		{
+			if (i == 17)
+			{
+				printf("!\n");
+			}
 			processRay(i);
 		}
 	}
@@ -6034,10 +6067,26 @@ struct BatchRayCaster
 		btVector3 rayFromWorld(from[0], from[1], from[2]);
 		btVector3 rayToWorld(to[0], to[1], to[2]);
 
-		btCollisionWorld::ClosestRayResultCallback rayResultCallback(rayFromWorld, rayToWorld);
+		FilteredClosestRayResultCallback rayResultCallback(rayFromWorld, rayToWorld, m_collisionFilterMask);
 		rayResultCallback.m_flags |= btTriangleRaycastCallback::kF_UseGjkConvexCastRaytest;
-
-		m_world->rayTest(rayFromWorld, rayToWorld, rayResultCallback);
+		if (m_reportHitNumber >= 0)
+		{
+			//compute all hits, and select the m_reportHitNumber, if available
+			FilteredAllHitsRayResultCallback allResultsCallback(rayFromWorld, rayToWorld, m_collisionFilterMask);
+			allResultsCallback.m_flags |= btTriangleRaycastCallback::kF_UseGjkConvexCastRaytest;
+			m_world->rayTest(rayFromWorld, rayToWorld, allResultsCallback);
+			if (allResultsCallback.m_collisionObjects.size() > m_reportHitNumber)
+			{
+				rayResultCallback.m_collisionObject = allResultsCallback.m_collisionObjects[m_reportHitNumber];
+				rayResultCallback.m_closestHitFraction = allResultsCallback.m_hitFractions[m_reportHitNumber];
+				rayResultCallback.m_hitNormalWorld = allResultsCallback.m_hitNormalWorld[m_reportHitNumber];
+				rayResultCallback.m_hitPointWorld = allResultsCallback.m_hitPointWorld[m_reportHitNumber];
+			}
+		}
+		else
+		{
+			m_world->rayTest(rayFromWorld, rayToWorld, rayResultCallback);
+		}
 
 		b3RayHitInfo& hit = m_hitInfoOutputBuffer[ray];
 		if (rayResultCallback.hasHit())
@@ -6114,6 +6163,8 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 	const int numStreamingRays = clientCmd.m_requestRaycastIntersections.m_numStreamingRays;
 	const int totalRays = numCommandRays + numStreamingRays;
 	int numThreads = clientCmd.m_requestRaycastIntersections.m_numThreads;
+	int reportHitNumber = clientCmd.m_requestRaycastIntersections.m_reportHitNumber;
+	int collisionFilterMask = clientCmd.m_requestRaycastIntersections.m_collisionFilterMask;
 	if (numThreads == 0)
 	{
 		// When 0 is specified, Bullet can decide how many threads to use.
@@ -6182,7 +6233,7 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 		}
 	}
 
-	BatchRayCaster batchRayCaster(m_data->m_threadPool, m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo*)bufferServerToClient, totalRays);
+	BatchRayCaster batchRayCaster(m_data->m_threadPool, m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo*)bufferServerToClient, totalRays, reportHitNumber, collisionFilterMask);
 	batchRayCaster.castRays(numThreads);
 
 	serverStatusOut.m_numDataStreamBytes = totalRays * sizeof(b3RayData);
