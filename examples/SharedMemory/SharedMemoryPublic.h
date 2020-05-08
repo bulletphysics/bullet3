@@ -931,6 +931,7 @@ enum eURDF_Flags
 	URDF_IGNORE_VISUAL_SHAPES = 1 << 20,
 	URDF_IGNORE_COLLISION_SHAPES = 1 << 21,
 	URDF_PRINT_URDF_INFO = 1 << 22,
+	URDF_GOOGLEY_UNDEFINED_COLORS = 1 << 23,
 };
 
 enum eUrdfGeomTypes  //sync with UrdfParser UrdfGeomTypes
