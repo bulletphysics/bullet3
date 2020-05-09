@@ -5961,13 +5961,15 @@ struct FilteredClosestRayResultCallback : public btCollisionWorld::ClosestRayRes
 
 struct FilteredAllHitsRayResultCallback: public btCollisionWorld::AllHitsRayResultCallback
 {
-	FilteredAllHitsRayResultCallback(const btVector3& rayFromWorld, const btVector3& rayToWorld, int collisionFilterMask)
+	FilteredAllHitsRayResultCallback(const btVector3& rayFromWorld, const btVector3& rayToWorld, int collisionFilterMask, btScalar fractionEpsilon)
 		: btCollisionWorld::AllHitsRayResultCallback(rayFromWorld, rayToWorld),
-		m_collisionFilterMask(collisionFilterMask)
+		m_collisionFilterMask(collisionFilterMask),
+		m_fractionEpsilon(fractionEpsilon)
 	{
 	}
 
 	int m_collisionFilterMask;
+	btScalar m_fractionEpsilon;
 
 	virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)
 	{
@@ -5977,6 +5979,25 @@ struct FilteredAllHitsRayResultCallback: public btCollisionWorld::AllHitsRayResu
 			if (!collides)
 				return m_closestHitFraction;
 		}
+		//remove duplicate hits:
+		//same collision object, link index and hit fraction
+		bool isDuplicate = false;
+
+		for (int i = 0; i < m_collisionObjects.size(); i++)
+		{
+			if (m_collisionObjects[i] == rayResult.m_collisionObject)
+			{
+				btScalar diffFraction = m_hitFractions[i]-rayResult.m_hitFraction;
+				if (btEqual(diffFraction, m_fractionEpsilon))
+				{
+					isDuplicate = true;
+					break;
+				}
+			}
+		}
+		if (isDuplicate)
+			return m_closestHitFraction;
+
 		return btCollisionWorld::AllHitsRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
 	}
 };
@@ -5991,10 +6012,12 @@ struct BatchRayCaster
 	int m_numRays;
 	int m_reportHitNumber;
 	int m_collisionFilterMask;
+	btScalar m_fractionEpsilon;
 
-	BatchRayCaster(b3ThreadPool* threadPool, const btCollisionWorld* world, const b3RayData* rayInputBuffer, b3RayHitInfo* hitInfoOutputBuffer, int numRays, int reportHitNumber, int collisionFilterMask)
+	BatchRayCaster(b3ThreadPool* threadPool, const btCollisionWorld* world, const b3RayData* rayInputBuffer, b3RayHitInfo* hitInfoOutputBuffer, int numRays, int reportHitNumber, int collisionFilterMask, btScalar fractionEpsilon)
 		: m_threadPool(threadPool), m_world(world), m_rayInputBuffer(rayInputBuffer), m_hitInfoOutputBuffer(hitInfoOutputBuffer), m_numRays(numRays), m_reportHitNumber(reportHitNumber),
-		m_collisionFilterMask(collisionFilterMask)
+		m_collisionFilterMask(collisionFilterMask),
+		m_fractionEpsilon(fractionEpsilon)
 	{
 		m_syncInfo = new CastSyncInfo;
 	}
@@ -6051,10 +6074,6 @@ struct BatchRayCaster
 	{
 		for (int i = 0; i < m_numRays; i++)
 		{
-			if (i == 17)
-			{
-				printf("!\n");
-			}
 			processRay(i);
 		}
 	}
@@ -6072,7 +6091,7 @@ struct BatchRayCaster
 		if (m_reportHitNumber >= 0)
 		{
 			//compute all hits, and select the m_reportHitNumber, if available
-			FilteredAllHitsRayResultCallback allResultsCallback(rayFromWorld, rayToWorld, m_collisionFilterMask);
+			FilteredAllHitsRayResultCallback allResultsCallback(rayFromWorld, rayToWorld, m_collisionFilterMask, m_fractionEpsilon);
 			allResultsCallback.m_flags |= btTriangleRaycastCallback::kF_UseGjkConvexCastRaytest;
 			m_world->rayTest(rayFromWorld, rayToWorld, allResultsCallback);
 			if (allResultsCallback.m_collisionObjects.size() > m_reportHitNumber)
@@ -6165,6 +6184,7 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 	int numThreads = clientCmd.m_requestRaycastIntersections.m_numThreads;
 	int reportHitNumber = clientCmd.m_requestRaycastIntersections.m_reportHitNumber;
 	int collisionFilterMask = clientCmd.m_requestRaycastIntersections.m_collisionFilterMask;
+	btScalar fractionEpsilon = clientCmd.m_requestRaycastIntersections.m_fractionEpsilon;
 	if (numThreads == 0)
 	{
 		// When 0 is specified, Bullet can decide how many threads to use.
@@ -6233,7 +6253,7 @@ bool PhysicsServerCommandProcessor::processRequestRaycastIntersectionsCommand(co
 		}
 	}
 
-	BatchRayCaster batchRayCaster(m_data->m_threadPool, m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo*)bufferServerToClient, totalRays, reportHitNumber, collisionFilterMask);
+	BatchRayCaster batchRayCaster(m_data->m_threadPool, m_data->m_dynamicsWorld, &rays[0], (b3RayHitInfo*)bufferServerToClient, totalRays, reportHitNumber, collisionFilterMask, fractionEpsilon);
 	batchRayCaster.castRays(numThreads);
 
 	serverStatusOut.m_numDataStreamBytes = totalRays * sizeof(b3RayData);
