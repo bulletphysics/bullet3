@@ -1242,9 +1242,9 @@ bool UrdfParser::parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config,
 			logger->reportError("expected a filename for collision geoemtry");
 			return false;
 		}
-		fn = vis_xml->Attribute("filename");
+		fn = col_xml->Attribute("filename");
 		success = UrdfFindMeshFile(m_fileIO,
-								   model.m_sourceFile, fn, sourceFileLocation(vis_xml),
+								   model.m_sourceFile, fn, sourceFileLocation(col_xml),
 								   &deformable.m_simFileName, &out_type);
 
 		if (!success)
