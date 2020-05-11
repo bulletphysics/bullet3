@@ -3330,17 +3330,32 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 			}
 		}
 
-	const UrdfModel* urdfModel = u2b.getUrdfModel();
-	if (urdfModel) {
-		addUserData(urdfModel->m_userData, bodyUniqueId);
-		for (int linkIndex = 0; linkIndex < urdfModel->m_links.size(); ++linkIndex) {
-			const UrdfLink* link = *urdfModel->m_links.getAtIndex(linkIndex);
-			addUserData(link->m_userData, bodyUniqueId, linkIndex - 1);
-			for (int visualShapeIndex = 0; visualShapeIndex < link->m_visualArray.size(); ++visualShapeIndex) {
-				addUserData(link->m_visualArray.at(visualShapeIndex).m_userData, bodyUniqueId, linkIndex - 1, visualShapeIndex);
+		// Because the link order between UrdfModel and MultiBody may be different,
+		// create a mapping from link name to link index in order to apply the user
+		// data to the correct link in the MultiBody.
+		btHashMap<btHashString, int> linkNameToIndexMap;
+		if (bodyHandle->m_multiBody) {
+			btMultiBody* mb = bodyHandle->m_multiBody;
+			linkNameToIndexMap.insert(mb->getBaseName(), -1);
+			for (int linkIndex = 0; linkIndex < mb->getNumLinks(); ++linkIndex) {
+				linkNameToIndexMap.insert(mb->getLink(linkIndex).m_linkName, linkIndex);
 			}
 		}
-	}
+
+		const UrdfModel* urdfModel = u2b.getUrdfModel();
+		if (urdfModel) {
+			addUserData(urdfModel->m_userData, bodyUniqueId);
+			for (int i = 0; i < urdfModel->m_links.size(); ++i) {
+				const UrdfLink* link = *urdfModel->m_links.getAtIndex(i);
+				int* linkIndex = linkNameToIndexMap.find(link->m_name.c_str());
+				if (linkIndex) {
+					addUserData(link->m_userData, bodyUniqueId, *linkIndex);
+					for (int visualShapeIndex = 0; visualShapeIndex < link->m_visualArray.size(); ++visualShapeIndex) {
+						addUserData(link->m_visualArray.at(visualShapeIndex).m_userData, bodyUniqueId, *linkIndex, visualShapeIndex);
+					}
+				}
+			}
+		}
 
 		b3Notification notification;
 		notification.m_notificationType = BODY_ADDED;
