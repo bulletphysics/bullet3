@@ -8362,6 +8362,7 @@ void constructUrdfDeformable(const struct SharedMemoryCommand& clientCmd, UrdfDe
 #ifndef SKIP_DEFORMABLE_BODY
 	deformable.m_springCoefficients.elastic_stiffness = loadSoftBodyArgs.m_springElasticStiffness;
 	deformable.m_springCoefficients.damping_stiffness = loadSoftBodyArgs.m_springDampingStiffness;
+	deformable.m_springCoefficients.damp_all_directions = loadSoftBodyArgs.m_dampAllDirections;
 	if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_BENDING_SPRINGS)
 	{
 		deformable.m_springCoefficients.bending_stiffness = loadSoftBodyArgs.m_springBendingStiffness;
@@ -8472,7 +8473,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			btDeformableLagrangianForce* springForce =
 				new btDeformableMassSpringForce(deformable.m_springCoefficients.elastic_stiffness,
 												deformable.m_springCoefficients.damping_stiffness,
-												true, deformable.m_springCoefficients.bending_stiffness);
+												deformable.m_springCoefficients.damp_all_directions, deformable.m_springCoefficients.bending_stiffness);
 			deformWorld->addForce(psb, springForce);
 			m_data->m_lf.push_back(springForce);
 		}

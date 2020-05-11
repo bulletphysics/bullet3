@@ -532,6 +532,7 @@ struct LoadSoftBodyArgs
     double m_initialOrientation[4];
     double m_springElasticStiffness;
     double m_springDampingStiffness;
+	int m_dampAllDirections;
     double m_springBendingStiffness;
     double m_corotatedMu;
     double m_corotatedLambda;

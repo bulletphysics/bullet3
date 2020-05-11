@@ -205,10 +205,12 @@ struct SpringCoeffcients{
     double elastic_stiffness;
     double damping_stiffness;
     double bending_stiffness;
+	int damp_all_directions;
     SpringCoeffcients():
-      elastic_stiffness(0.),
-      damping_stiffness(0.),
-      bending_stiffness(0.){}
+	elastic_stiffness(0.),
+	damping_stiffness(0.),
+	bending_stiffness(0.),
+	damp_all_directions(0){}
 };
 
 struct LameCoefficients
