@@ -267,7 +267,7 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
     btVector3 va = getVa();
     btVector3 vb = getVb();
     btVector3 vr = vb - va;
-    btScalar dn = btDot(vr, cti.m_normal) + m_total_normal_dv.dot(cti.m_normal) * infoGlobal.deformable_cfm;
+    btScalar dn = btDot(vr, cti.m_normal) + m_total_normal_dv.dot(cti.m_normal) * infoGlobal.m_deformable_cfm;
     if (m_penetration > 0)
     {
         dn += m_penetration / infoGlobal.m_timeStep;
@@ -277,7 +277,7 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
         dn += m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
     }
     // dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
-    btVector3 impulse = m_contact->m_c0 * (vr + m_total_normal_dv * infoGlobal.deformable_cfm + ((m_penetration > 0) ? m_penetration / infoGlobal.m_timeStep * cti.m_normal : btVector3(0,0,0)));
+    btVector3 impulse = m_contact->m_c0 * (vr + m_total_normal_dv * infoGlobal.m_deformable_cfm + ((m_penetration > 0) ? m_penetration / infoGlobal.m_timeStep * cti.m_normal : btVector3(0,0,0)));
     if (!infoGlobal.m_splitImpulse)
     {
         impulse += m_contact->m_c0 * (m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep * cti.m_normal);
@@ -362,7 +362,7 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
 
 btScalar btDeformableRigidContactConstraint::solveSplitImpulse(const btContactSolverInfo& infoGlobal)
 {
-	btScalar MAX_PENETRATION_CORRECTION = 0.01;
+	btScalar MAX_PENETRATION_CORRECTION = 0.1;
 	const btSoftBody::sCti& cti = m_contact->m_cti;
 	btVector3 vb = getSplitVb();
 	btVector3 va = getSplitVa();
