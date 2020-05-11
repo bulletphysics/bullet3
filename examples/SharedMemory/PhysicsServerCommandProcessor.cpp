@@ -1605,6 +1605,7 @@ struct PhysicsServerCommandProcessorInternalData
 	CommandLogPlayback* m_logPlayback;
 	int m_logPlaybackUid;
 
+	// dt used to step simulation
 	btScalar m_physicsDeltaTime;
 	btScalar m_numSimulationSubSteps;
 	btScalar m_simulationTimestamp;
@@ -9021,7 +9022,7 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	int numSteps = 0;
 	if (m_data->m_numSimulationSubSteps > 0)
 	{
-		numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, m_data->m_numSimulationSubSteps, m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps);
+		numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled * m_data->m_numSimulationSubSteps, m_data->m_numSimulationSubSteps, m_data->m_physicsDeltaTime);
 		m_data->m_simulationTimestamp += deltaTimeScaled;
 	}
 	else
@@ -9901,6 +9902,17 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_NUM_SIMULATION_SUB_STEPS)
 	{
+		// Update m_physicsDeltaTime to reflect change in m_numSimulationSubSteps.
+		if (clientCmd.m_physSimParamArgs.m_numSimulationSubSteps > 0)
+		{
+			// If had already been substepping, recover the original dt.
+			if (m_data->m_numSimulationSubSteps > 0)
+			{
+				m_data->m_physicsDeltaTime *= m_data->m_numSimulationSubSteps;
+			}
+			m_data->m_physicsDeltaTime /= (1.f * clientCmd.m_physSimParamArgs.m_numSimulationSubSteps);
+		}
+		// Update m_numSimulationSubSteps.
 		m_data->m_numSimulationSubSteps = clientCmd.m_physSimParamArgs.m_numSimulationSubSteps;
 	}
 
@@ -13943,17 +13955,9 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec, const
 	if ((m_data->m_useRealTimeSimulation) && m_data->m_guiHelper)
 	{
 		int maxSteps = m_data->m_numSimulationSubSteps + 3;
-		if (m_data->m_numSimulationSubSteps)
-		{
-			gSubStep = m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps;
-		}
-		else
-		{
-			gSubStep = m_data->m_physicsDeltaTime;
-		}
 
 		btScalar deltaTimeScaled = dtInSec * simTimeScalingFactor;
-		int numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, maxSteps, gSubStep);
+		int numSteps = m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, maxSteps, m_data->m_physicsDeltaTime);
 		m_data->m_simulationTimestamp += deltaTimeScaled;
 		gDroppedSimulationSteps += numSteps > maxSteps ? numSteps - maxSteps : 0;
 
