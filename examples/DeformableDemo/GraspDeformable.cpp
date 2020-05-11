@@ -355,7 +355,7 @@ void GraspDeformable::initPhysics()
                                                  2,2,
                                                  0, true);
 
-        psb->getCollisionShape()->setMargin(0.003);
+        psb->getCollisionShape()->setMargin(0.001);
         psb->generateBendingConstraints(2);
         psb->setTotalMass(0.01);
         psb->setSpringStiffness(10);

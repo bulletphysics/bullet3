@@ -143,7 +143,7 @@ void DeformableContact::initPhysics()
                                                          20,20,
                                                          1 + 2 + 4 + 8, true);
         
-        psb->getCollisionShape()->setMargin(0.1);
+        psb->getCollisionShape()->setMargin(0.05);
         psb->generateBendingConstraints(2);
         psb->setSpringStiffness(10);
         psb->setTotalMass(1);
@@ -172,7 +172,7 @@ void DeformableContact::initPhysics()
                                                           btVector3(+s, h, +s),
                                                           10,10,
                                                           0, true);
-        psb2->getCollisionShape()->setMargin(0.1);
+        psb2->getCollisionShape()->setMargin(0.05);
         psb2->generateBendingConstraints(2);
         psb2->setSpringStiffness(10);
         psb2->setTotalMass(1);

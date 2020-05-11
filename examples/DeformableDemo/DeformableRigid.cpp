@@ -256,7 +256,7 @@ void DeformableRigid::initPhysics()
                                                  2,2,
                                                  0, true);
         
-        psb->getCollisionShape()->setMargin(0.5);
+        psb->getCollisionShape()->setMargin(0.05);
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
