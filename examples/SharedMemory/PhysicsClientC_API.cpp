@@ -3650,6 +3650,11 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CreateRaycastCommandInit(b3PhysicsCl
 	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayToPosition[0] = rayToWorldX;
 	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayToPosition[1] = rayToWorldY;
 	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayToPosition[2] = rayToWorldZ;
+	command->m_requestRaycastIntersections.m_reportHitNumber = -1;
+	command->m_requestRaycastIntersections.m_collisionFilterMask = -1;
+	command->m_requestRaycastIntersections.m_fractionEpsilon = B3_EPSILON;
+	
+	
 
 	return (b3SharedMemoryCommandHandle)command;
 }
@@ -3668,6 +3673,10 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CreateRaycastBatchCommandInit(b3Phys
 	command->m_requestRaycastIntersections.m_numThreads = 1;
 	command->m_requestRaycastIntersections.m_parentObjectUniqueId = -1;
 	command->m_requestRaycastIntersections.m_parentLinkIndex=-1;
+	command->m_requestRaycastIntersections.m_reportHitNumber = -1;
+	command->m_requestRaycastIntersections.m_collisionFilterMask = -1;
+	command->m_requestRaycastIntersections.m_fractionEpsilon = B3_EPSILON;
+	
 	return (b3SharedMemoryCommandHandle)command;
 }
 
@@ -3724,6 +3733,29 @@ B3_SHARED_API void b3RaycastBatchSetParentObject(b3SharedMemoryCommandHandle com
 	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
 	command->m_requestRaycastIntersections.m_parentObjectUniqueId = parentObjectUniqueId;
 	command->m_requestRaycastIntersections.m_parentLinkIndex = parentLinkIndex;
+}
+
+B3_SHARED_API void b3RaycastBatchSetReportHitNumber(b3SharedMemoryCommandHandle commandHandle, int reportHitNumber)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
+	command->m_requestRaycastIntersections.m_reportHitNumber= reportHitNumber;
+}
+B3_SHARED_API void b3RaycastBatchSetCollisionFilterMask(b3SharedMemoryCommandHandle commandHandle, int collisionFilterMask)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
+	command->m_requestRaycastIntersections.m_collisionFilterMask = collisionFilterMask;
+}
+
+B3_SHARED_API void b3RaycastBatchSetFractionEpsilon(b3SharedMemoryCommandHandle commandHandle, double fractionEpsilon)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
+	command->m_requestRaycastIntersections.m_fractionEpsilon = fractionEpsilon;
 }
 
 

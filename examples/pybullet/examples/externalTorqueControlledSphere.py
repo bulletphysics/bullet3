@@ -1,10 +1,8 @@
 import pybullet as p
 import pybullet_data
 import time
-import pybullet_data
 
 p.connect(p.GUI)
-p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.loadSDF("stadium.sdf")
 p.setGravity(0, 0, -10)

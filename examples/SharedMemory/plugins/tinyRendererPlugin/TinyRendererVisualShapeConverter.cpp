@@ -646,7 +646,7 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 	delete glmesh;
 }
 
-static btVector4 sColors[4] =
+static btVector4 sGoogleyColors[4] =
 	{
 		btVector4(60. / 256., 186. / 256., 84. / 256., 1),
 		btVector4(244. / 256., 194. / 256., 13. / 256., 1),
@@ -705,7 +705,7 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 				colorIndex = 0;
 			colorIndex &= 3;
 			btVector4 color;
-			color = sColors[colorIndex];
+			color = (m_data->m_flags & URDF_GOOGLEY_UNDEFINED_COLORS) ? sGoogleyColors[colorIndex] : btVector4(1, 1, 1, 1);
 			float rgbaColor[4] = {(float)color[0], (float)color[1], (float)color[2], (float)color[3]};
 			//if (colObj->getCollisionShape()->getShapeType()==STATIC_PLANE_PROXYTYPE)
 			//{

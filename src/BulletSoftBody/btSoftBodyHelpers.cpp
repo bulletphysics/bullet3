@@ -1420,31 +1420,70 @@ void btSoftBodyHelpers::generateBoundaryFaces(btSoftBody* psb)
     }
 }
 
+//Write the surface mesh to an obj file.
 void btSoftBodyHelpers::writeObj(const char* filename, const btSoftBody* psb)
 {
-    std::ofstream fs;
-    fs.open(filename);
-    btAssert(fs);
-    for (int i = 0; i < psb->m_nodes.size(); ++i)
-    {
-        fs << "v";
-        for (int d = 0; d < 3; d++)
-        {
-             fs << " " << psb->m_nodes[i].m_x[d];
-        }
-        fs << "\n";
-    }
-    
-    for (int i = 0; i < psb->m_faces.size(); ++i)
-    {
-        fs << "f";
-        for (int n = 0; n < 3; n++)
-        {
-            fs << " " << psb->m_faces[i].m_n[n]->index + 1;
-        }
-        fs << "\n";
-    }
-    fs.close();
+	std::ofstream fs;
+	fs.open(filename);
+	btAssert(fs);
+
+	if (psb->m_tetras.size() > 0)
+	{
+        // For tetrahedron mesh, we need to re-index the surface mesh for it to be in obj file/ 
+		std::map<int, int> dict;
+		for (int i = 0; i < psb->m_faces.size(); i++)
+		{
+			for (int d = 0; d < 3; d++)
+			{
+				int index = psb->m_faces[i].m_n[d]->index;
+				if (dict.find(index) == dict.end())
+				{
+					int dict_size = dict.size();
+					dict[index] = dict_size;
+					fs << "v";
+					for (int k = 0; k < 3; k++)
+					{
+						fs << " " << psb->m_nodes[index].m_x[k];
+					}
+					fs << "\n";
+				}
+			}
+		}
+                // Write surface mesh.
+		for (int i = 0; i < psb->m_faces.size(); ++i)
+		{
+			fs << "f";
+			for (int n = 0; n < 3; n++)
+			{
+				fs << " " << dict[psb->m_faces[i].m_n[n]->index] + 1;
+			}
+			fs << "\n";
+		}
+	}
+	else
+	{
+          // For trimesh, directly write out all the nodes and faces.xs
+		for (int i = 0; i < psb->m_nodes.size(); ++i)
+		{
+			fs << "v";
+			for (int d = 0; d < 3; d++)
+			{
+				fs << " " << psb->m_nodes[i].m_x[d];
+			}
+			fs << "\n";
+		}
+
+		for (int i = 0; i < psb->m_faces.size(); ++i)
+		{
+			fs << "f";
+			for (int n = 0; n < 3; n++)
+			{
+				fs << " " << psb->m_faces[i].m_n[n]->index + 1;
+			}
+			fs << "\n";
+		}
+	}
+	fs.close();
 }
 
 void btSoftBodyHelpers::duplicateFaces(const char* filename, const btSoftBody* psb)

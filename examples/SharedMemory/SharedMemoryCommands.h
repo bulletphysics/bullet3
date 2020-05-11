@@ -304,6 +304,9 @@ struct RequestRaycastIntersections
 	//optional m_parentObjectUniqueId (-1 for unused)
 	int m_parentObjectUniqueId;
 	int m_parentLinkIndex;
+	int m_reportHitNumber;
+	int m_collisionFilterMask;
+	double m_fractionEpsilon;
 	//streaming ray data stored in shared memory streaming part. (size m_numStreamingRays )
 };
 
