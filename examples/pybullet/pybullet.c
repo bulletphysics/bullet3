@@ -1527,7 +1527,7 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 
 			if (b3GetDynamicsInfo(status_handle, &info))
 			{
-				int numFields = 12;
+				int numFields = 17;
 				PyObject* pyDynamicsInfo = PyTuple_New(numFields);
 				PyTuple_SetItem(pyDynamicsInfo, 0, PyFloat_FromDouble(info.m_mass));
 				PyTuple_SetItem(pyDynamicsInfo, 1, PyFloat_FromDouble(info.m_lateralFrictionCoeff));
@@ -1561,6 +1561,14 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 				PyTuple_SetItem(pyDynamicsInfo, 9, PyFloat_FromDouble(info.m_contactStiffness));
 				PyTuple_SetItem(pyDynamicsInfo, 10, PyInt_FromLong(info.m_bodyType));
 				PyTuple_SetItem(pyDynamicsInfo, 11, PyFloat_FromDouble(info.m_collisionMargin));
+
+				PyTuple_SetItem(pyDynamicsInfo, 12, PyFloat_FromDouble(info.m_angularDamping));
+				PyTuple_SetItem(pyDynamicsInfo, 13, PyFloat_FromDouble(info.m_linearDamping));
+				PyTuple_SetItem(pyDynamicsInfo, 14, PyFloat_FromDouble(info.m_ccdSweptSphereRadius));
+				PyTuple_SetItem(pyDynamicsInfo, 15, PyFloat_FromDouble(info.m_contactProcessingThreshold));
+				PyTuple_SetItem(pyDynamicsInfo, 16, PyInt_FromLong(info.m_frictionAnchor));
+
+
 				return pyDynamicsInfo;
 			}
 		}
@@ -1603,14 +1611,42 @@ static PyObject* pybullet_getPhysicsEngineParameters(PyObject* self, PyObject* a
 		b3GetStatusPhysicsSimulationParameters(statusHandle, &params);
 
 		//for now, return a subset, expose more/all on request
-		val = Py_BuildValue("{s:d,s:i,s:i,s:i,s:d,s:d,s:d}",
+		val = Py_BuildValue("{s:d,s:i,s:i,s:i,s:d,s:d,s:d,s:d,s:d,s:d,s:i,s:d,s:d,s:i,s:d,s:i,s:i,s:d,s:d,s:d,s:d,s:d,s:i,s:i,s:d,s:i,s:d,s:d,s:i,s:i,s:i,s:i,s:d,s:i}",
 							"fixedTimeStep", params.m_deltaTime,
 							"numSubSteps", params.m_numSimulationSubSteps,
 							"numSolverIterations", params.m_numSolverIterations,
 							"useRealTimeSimulation", params.m_useRealTimeSimulation,
 							"gravityAccelerationX", params.m_gravityAcceleration[0],
 							"gravityAccelerationY", params.m_gravityAcceleration[1],
-							"gravityAccelerationZ", params.m_gravityAcceleration[2]);
+							"gravityAccelerationZ", params.m_gravityAcceleration[2],
+							"simulationTimestamp", params.m_simulationTimestamp,
+							"warmStartingFactor", params.m_warmStartingFactor,
+							"articulatedWarmStartingFactor", params.m_articulatedWarmStartingFactor,
+							"useSplitImpulse", params.m_useSplitImpulse,
+							"splitImpulsePenetrationThreshold", params.m_splitImpulsePenetrationThreshold,
+							"contactBreakingThreshold", params.m_contactBreakingThreshold,
+							"internalSimFlags", params.m_internalSimFlags,
+							"defaultContactERP", params.m_defaultContactERP,
+							"collisionFilterMode", params.m_collisionFilterMode,
+							"enableFileCaching", params.m_enableFileCaching,
+							"restitutionVelocityThreshold", params.m_restitutionVelocityThreshold,
+							"defaultNonContactERP", params.m_defaultNonContactERP,
+							"frictionERP", params.m_frictionERP,
+							"defaultGlobalCFM", params.m_defaultGlobalCFM,
+							"frictionCFM", params.m_frictionCFM,
+							"enableConeFriction", params.m_enableConeFriction,
+							"deterministicOverlappingPairs", params.m_deterministicOverlappingPairs,
+							"allowedCcdPenetration", params.m_allowedCcdPenetration,
+							"jointFeedbackMode", params.m_jointFeedbackMode,
+							"solverResidualThreshold", params.m_solverResidualThreshold,
+							"contactSlop", params.m_contactSlop,
+							"enableSAT", params.m_enableSAT,
+							"constraintSolverType", params.m_constraintSolverType,
+							"minimumSolverIslandSize", params.m_minimumSolverIslandSize,
+							"reportSolverAnalytics", params.m_reportSolverAnalytics,
+							"sparseSdfVoxelSize", params.m_sparseSdfVoxelSize,
+							"numNonContactInnerIterations", params.m_numNonContactInnerIterations);
+
 		return val;
 	}
 	//"fixedTimeStep", "numSolverIterations", "useSplitImpulse", "splitImpulsePenetrationThreshold", "numSubSteps", "collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "enableFileCaching","restitutionVelocityThreshold", "erp", "contactERP", "frictionERP",
