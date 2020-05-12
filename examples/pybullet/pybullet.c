@@ -2124,8 +2124,9 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 		}
 		if (useMassSpring)
 		{
-			b3LoadSoftBodyAddMassSpringForce(command, springElasticStiffness, springDampingStiffness, springDampingAllDirections);
+			b3LoadSoftBodyAddMassSpringForce(command, springElasticStiffness, springDampingStiffness);
 			b3LoadSoftBodyUseBendingSprings(command, useBendingSprings, springBendingStiffness);
+                        b3LoadSoftBodyUseAllDirectionDampingSprings(command, springDampingAllDirections);
 		}
 		if (useNeoHookean)
 		{
