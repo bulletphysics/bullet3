@@ -8368,6 +8368,11 @@ void constructUrdfDeformable(const struct SharedMemoryCommand& clientCmd, UrdfDe
 		deformable.m_springCoefficients.bending_stiffness = loadSoftBodyArgs.m_springBendingStiffness;
 	}
 
+	if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SET_DAMPING_SPRING_MODE)
+	{
+		deformable.m_springCoefficients.damp_all_directions = loadSoftBodyArgs.m_dampAllDirections;
+	}
+
 	if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_ADD_COROTATED_FORCE)
 	{
 		deformable.m_corotatedCoefficients.mu = loadSoftBodyArgs.m_corotatedMu;
