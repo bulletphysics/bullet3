@@ -623,7 +623,7 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 			btScalar height = collision->m_geometry.m_capsuleHeight;
 			btCapsuleShapeZ* capsuleShape = new btCapsuleShapeZ(radius, height);
 			shape = capsuleShape;
- 			shape->setMargin(gUrdfDefaultCollisionMargin);
+			shape->setMargin(gUrdfDefaultCollisionMargin);
 			break;
 		}
 
@@ -636,7 +636,7 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 				btVector3 halfExtents(cylRadius, cylRadius, cylHalfLength);
 				btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
 				shape = cylZShape;
-                                shape->setMargin(gUrdfDefaultCollisionMargin);
+				shape->setMargin(gUrdfDefaultCollisionMargin);
 			}
 			else
 			{
