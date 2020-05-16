@@ -991,6 +991,7 @@ struct b3PhysicsSimulationParameters
 	double m_simulationTimestamp;  // user logging timestamp of simulation.
 	double m_gravityAcceleration[3];
 	int m_numSimulationSubSteps;
+	double m_fixedTimeStep;
 	int m_numSolverIterations;
 	double m_warmStartingFactor;
 	double m_articulatedWarmStartingFactor;
