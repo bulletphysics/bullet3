@@ -636,6 +636,7 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 				btVector3 halfExtents(cylRadius, cylRadius, cylHalfLength);
 				btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
 				shape = cylZShape;
+				shape->setMargin(gUrdfDefaultCollisionMargin);
 			}
 			else
 			{
