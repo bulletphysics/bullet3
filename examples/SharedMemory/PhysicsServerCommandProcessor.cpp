@@ -10032,6 +10032,20 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 	{
 		btMultiBody* mb = body->m_multiBody;
 
+		if (clientCmd.m_updateFlags & INIT_POSE_HAS_SCALING)
+		{
+			btVector3 scaling(clientCmd.m_initPoseArgs.m_scaling[0], clientCmd.m_initPoseArgs.m_scaling[1], clientCmd.m_initPoseArgs.m_scaling[2]);
+			
+			mb->getBaseCollider()->getCollisionShape()->setLocalScaling(scaling);
+			//refresh broadphase
+			m_data->m_dynamicsWorld->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(
+				mb->getBaseCollider()->getBroadphaseHandle(),
+				m_data->m_dynamicsWorld->getDispatcher());
+			//also visuals
+			int graphicsIndex = mb->getBaseCollider()->getUserIndex();
+			m_data->m_guiHelper->changeScaling(graphicsIndex, clientCmd.m_initPoseArgs.m_scaling);
+		}
+
 		if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_LINEAR_VELOCITY)
 		{
 			mb->setBaseVel(baseLinVel);

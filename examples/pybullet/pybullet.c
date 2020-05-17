@@ -4891,6 +4891,67 @@ static PyObject* pybullet_resetBasePositionAndOrientation(PyObject* self,
 	return Py_None;
 }
 
+static PyObject* pybullet_changeScaling(PyObject* self,
+	PyObject* args, PyObject* keywds)
+{
+	{
+		int bodyUniqueId;
+		PyObject* scalingObj;
+		double scaling[3];
+		
+		b3PhysicsClientHandle sm = 0;
+
+		int physicsClientId = 0;
+		static char* kwlist[] = { "bodyUniqueId", "scaling", "physicsClientId", NULL };
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iO|i", kwlist, &bodyUniqueId, &scalingObj, &physicsClientId))
+		{
+			return NULL;
+		}
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0)
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+
+		{
+			b3SharedMemoryCommandHandle commandHandle;
+			b3SharedMemoryStatusHandle statusHandle;
+
+			{
+				PyObject* seq;
+				int len, i;
+				seq = PySequence_Fast(scalingObj, "expected a sequence");
+				len = PySequence_Size(scalingObj);
+				if (len == 3)
+				{
+					for (i = 0; i < 3; i++)
+					{
+						scaling[i] = pybullet_internalGetFloatFromSequence(seq, i);
+					}
+				}
+				else
+				{
+					PyErr_SetString(SpamError, "scaling needs a 3 coordinates [x,y,z].");
+					Py_DECREF(seq);
+					return NULL;
+				}
+				Py_DECREF(seq);
+			}
+
+
+
+			commandHandle = b3CreatePoseCommandInit(sm, bodyUniqueId);
+			b3CreatePoseCommandSetBaseScaling(commandHandle, scaling);
+
+			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		}
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
 // Get the a single joint info for a specific bodyUniqueId
 //
 // Args:
@@ -12218,6 +12279,12 @@ static PyMethodDef SpamMethods[] = {
 	 "Reset the world position and orientation of the base of the object "
 	 "instantaneously, not through physics simulation. (x,y,z) position vector "
 	 "and (x,y,z,w) quaternion orientation."},
+	
+	{ "unsupportedChangeScaling",
+	 (PyCFunction)pybullet_changeScaling, METH_VARARGS | METH_KEYWORDS,
+	 "Change the scaling of the base of an object."	 
+	 "Warning: unsupported rudimentary feature that has many limitations."
+	 },
 
 	{"getBaseVelocity", (PyCFunction)pybullet_getBaseVelocity,
 	 METH_VARARGS | METH_KEYWORDS,

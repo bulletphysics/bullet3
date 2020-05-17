@@ -215,6 +215,7 @@ enum EnumInitPoseFlags
 	INIT_POSE_HAS_BASE_LINEAR_VELOCITY = 8,
 	INIT_POSE_HAS_BASE_ANGULAR_VELOCITY = 16,
 	INIT_POSE_HAS_JOINT_VELOCITY = 32,
+	INIT_POSE_HAS_SCALING=64,
 };
 
 ///InitPoseArgs is mainly to initialize (teleport) the robot in a particular position
@@ -228,6 +229,7 @@ struct InitPoseArgs
 	double m_initialStateQ[MAX_DEGREE_OF_FREEDOM];
 	int m_hasInitialStateQdot[MAX_DEGREE_OF_FREEDOM];
 	double m_initialStateQdot[MAX_DEGREE_OF_FREEDOM];
+	double m_scaling[3];
 };
 
 struct RequestDebugLinesArgs
