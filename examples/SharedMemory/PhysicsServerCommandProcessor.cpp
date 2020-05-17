@@ -8048,7 +8048,9 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 
 					cb.m_bodyUniqueIdA = bodyUniqueIdA;
 					cb.m_bodyUniqueIdB = bodyUniqueIdB;
-					cb.m_deltaTime = m_data->m_physicsDeltaTime;
+					cb.m_deltaTime = m_data->m_numSimulationSubSteps>0 ? 
+						m_data->m_physicsDeltaTime/ m_data->m_numSimulationSubSteps : 
+						m_data->m_physicsDeltaTime;
 
 					for (int i = 0; i < setA.size(); i++)
 					{
@@ -11604,6 +11606,10 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 
 	if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT)
 	{
+		btScalar fixedTimeSubStep = m_data->m_numSimulationSubSteps > 0 ?
+			m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps :
+			m_data->m_physicsDeltaTime;
+
 		serverCmd.m_type = CMD_CHANGE_USER_CONSTRAINT_FAILED;
 		int userConstraintUidChange = clientCmd.m_userConstraintArguments.m_userConstraintUniqueId;
 		InteralUserConstraintData* userConstraintPtr = m_data->m_userConstraints.find(userConstraintUidChange);
@@ -11636,7 +11642,8 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 				}
 				if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_MAX_FORCE)
 				{
-					btScalar maxImp = clientCmd.m_userConstraintArguments.m_maxAppliedForce * m_data->m_physicsDeltaTime;
+					btScalar maxImp = clientCmd.m_userConstraintArguments.m_maxAppliedForce * fixedTimeSubStep;
+
 					userConstraintPtr->m_userConstraintData.m_maxAppliedForce = clientCmd.m_userConstraintArguments.m_maxAppliedForce;
 					userConstraintPtr->m_mbConstraint->setMaxAppliedImpulse(maxImp);
 				}
@@ -11667,7 +11674,7 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 			{
 				if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_MAX_FORCE)
 				{
-					btScalar maxImp = clientCmd.m_userConstraintArguments.m_maxAppliedForce * m_data->m_physicsDeltaTime;
+					btScalar maxImp = clientCmd.m_userConstraintArguments.m_maxAppliedForce * fixedTimeSubStep;
 					userConstraintPtr->m_userConstraintData.m_maxAppliedForce = clientCmd.m_userConstraintArguments.m_maxAppliedForce;
 					//userConstraintPtr->m_rbConstraint->setMaxAppliedImpulse(maxImp);
 				}
