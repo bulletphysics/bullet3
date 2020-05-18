@@ -38,6 +38,7 @@ struct RemoteGUIHelper : public GUIHelperInterface
 	virtual void removeAllGraphicsInstances();
 	virtual void removeGraphicsInstance(int graphicsUid);
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]);
+	virtual void changeScaling(int instanceUid, const double scaling[3]);
 
 	virtual Common2dCanvasInterface* get2dCanvasInterface();
 

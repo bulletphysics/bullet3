@@ -128,6 +128,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperRemoveTexture,
 	eGUIHelperSetVisualizerFlagCheckRenderedFrame,
 	eGUIHelperUpdateShape,
+	eGUIHelperChangeGraphicsInstanceScaling,
 	eGUIUserDebugRemoveAllParameters,
 };
 
@@ -1032,6 +1033,19 @@ public:
 		m_rgbaColor[3] = rgbaColor[3];
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIHelperChangeGraphicsInstanceRGBAColor);
+		workerThreadWait();
+	}
+
+	int m_graphicsInstanceChangeScaling;
+	double m_baseScaling[3];
+	virtual void changeScaling(int instanceUid, const double scaling[3])
+	{
+		m_graphicsInstanceChangeScaling = instanceUid;
+		m_baseScaling[0] = scaling[0];
+		m_baseScaling[1] = scaling[1];
+		m_baseScaling[2] = scaling[2];
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIHelperChangeGraphicsInstanceScaling);
 		workerThreadWait();
 	}
 
@@ -2181,6 +2195,16 @@ void PhysicsServerExample::updateGraphics()
 			m_multiThreadedHelper->mainThreadRelease();
 			break;
 		}
+
+		case eGUIHelperChangeGraphicsInstanceScaling:
+		{
+			B3_PROFILE("eGUIHelperChangeGraphicsInstanceScaling");
+
+			m_multiThreadedHelper->m_childGuiHelper->changeScaling(m_multiThreadedHelper->m_graphicsInstanceChangeScaling, m_multiThreadedHelper->m_baseScaling);
+			m_multiThreadedHelper->mainThreadRelease();
+			break;
+		}
+
 		case eGUIHelperChangeGraphicsInstanceSpecularColor:
 		{
 			B3_PROFILE("eGUIHelperChangeGraphicsInstanceSpecularColor");

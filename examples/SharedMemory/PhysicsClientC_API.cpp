@@ -2240,6 +2240,22 @@ B3_SHARED_API int b3CreatePoseCommandSetBasePosition(b3SharedMemoryCommandHandle
 	return 0;
 }
 
+B3_SHARED_API int b3CreatePoseCommandSetBaseScaling(b3SharedMemoryCommandHandle commandHandle, double scaling[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_INIT_POSE);
+	command->m_updateFlags |= INIT_POSE_HAS_SCALING;
+	
+	command->m_initPoseArgs.m_scaling[0] = scaling[0];
+	command->m_initPoseArgs.m_scaling[1] = scaling[1];
+	command->m_initPoseArgs.m_scaling[2] = scaling[2];
+
+	return 0;
+}
+
+
+
 B3_SHARED_API int b3CreatePoseCommandSetBaseOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX, double startOrnY, double startOrnZ, double startOrnW)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
