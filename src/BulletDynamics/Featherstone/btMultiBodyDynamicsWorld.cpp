@@ -579,7 +579,6 @@ void btMultiBodyDynamicsWorld::integrateMultiBodyTransforms(btScalar timeStep)
 		for (int b = 0; b < m_multiBodies.size(); b++)
 		{
 			btMultiBody* bod = m_multiBodies[b];
-            bod->addSplitV();
 			bool isSleeping = false;
 			if (bod->getBaseCollider() && bod->getBaseCollider()->getActivationState() == ISLAND_SLEEPING)
 			{
@@ -593,6 +592,7 @@ void btMultiBodyDynamicsWorld::integrateMultiBodyTransforms(btScalar timeStep)
 
 			if (!isSleeping)
 			{
+				bod->addSplitV();
 				int nLinks = bod->getNumLinks();
 
 				///base + num m_links
@@ -611,12 +611,12 @@ void btMultiBodyDynamicsWorld::integrateMultiBodyTransforms(btScalar timeStep)
 				m_scratch_world_to_local.resize(nLinks + 1);
 				m_scratch_local_origin.resize(nLinks + 1);
                 bod->updateCollisionObjectWorldTransforms(m_scratch_world_to_local, m_scratch_local_origin);
+				bod->substractSplitV();
 			}
 			else
 			{
 				bod->clearVelocities();
 			}
-            bod->substractSplitV();
 		}
 }
 
