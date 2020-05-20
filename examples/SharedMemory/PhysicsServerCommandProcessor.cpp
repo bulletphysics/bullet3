@@ -5322,10 +5322,12 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 			int maxNumVertices = bufferSizeInBytes / totalBytesPerVertex - 1;
 			int numVerticesRemaining = numVertices - clientCmd.m_requestMeshDataArgs.m_startingVertex;
 			int verticesCopied = btMin(maxNumVertices, numVerticesRemaining);
-			for (int i = 0; i < verticesCopied; ++i)
+			
+			if (verticesCopied > 0)
 			{
-				verticesOut[i] = vertices[i];
+				memcpy(verticesOut, &vertices[0], sizeof(btVector3) * verticesCopied);
 			}
+			
 			sizeInBytes = verticesCopied * sizeof(btVector3);
 			serverStatusOut.m_type = CMD_REQUEST_MESH_DATA_COMPLETED;
 			serverStatusOut.m_sendMeshDataArgs.m_numVerticesCopied = verticesCopied;
