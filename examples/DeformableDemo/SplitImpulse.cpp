@@ -160,7 +160,7 @@ void SplitImpulse::initPhysics()
 //                                                          0, true);
 
         
-        psb->getCollisionShape()->setMargin(0.15);
+        psb->getCollisionShape()->setMargin(0.015);
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects

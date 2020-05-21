@@ -532,12 +532,13 @@ void btDeformableMultiBodyDynamicsWorld::reinitialize(btScalar timeStep)
     if (m_useProjection)
     {
         m_deformableBodySolver->m_useProjection = true;
-//        m_deformableBodySolver->m_objective->m_projection.m_useStrainLimiting = true;
+        m_deformableBodySolver->m_objective->m_projection.m_useStrainLimiting = true;
         m_deformableBodySolver->m_objective->m_preconditioner =  m_deformableBodySolver->m_objective->m_massPreconditioner;
     }
     else
     {
         m_deformableBodySolver->m_useProjection = false;
+        m_deformableBodySolver->m_objective->m_projection.m_useStrainLimiting = false;
         m_deformableBodySolver->m_objective->m_preconditioner =  m_deformableBodySolver->m_objective->m_KKTPreconditioner;
     }
         

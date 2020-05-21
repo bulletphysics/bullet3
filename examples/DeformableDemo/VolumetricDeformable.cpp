@@ -208,7 +208,7 @@ void VolumetricDeformable::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(psb);
         psb->scale(btVector3(2, 2, 2));
         psb->translate(btVector3(0, 5, 0));
-        psb->getCollisionShape()->setMargin(0.25);
+        psb->getCollisionShape()->setMargin(0.025);
         psb->setTotalMass(0.5);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body

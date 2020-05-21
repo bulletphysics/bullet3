@@ -41,7 +41,7 @@ public:
     
     void resetCamera()
     {
-        float dist = 1.0;
+        float dist = 2.0;
         float pitch = -8;
         float yaw = 100;
         float targetPos[3] = {0, -1.0, 0};
@@ -93,7 +93,7 @@ void DeformableSelfCollision::initPhysics()
     {
         ///create a ground
         btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(150.), btScalar(2.5), btScalar(150.)));
-        
+        groundShape->setMargin(0.0001);
         m_collisionShapes.push_back(groundShape);
         
         btTransform groundTransform;
@@ -128,7 +128,7 @@ void DeformableSelfCollision::initPhysics()
 void DeformableSelfCollision::addCloth(btVector3 origin)
 // create a piece of cloth
 {
-    const btScalar s = 0.3;
+    const btScalar s = 0.6;
     const btScalar h = 0;
     
     btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -2*s),
@@ -140,7 +140,7 @@ void DeformableSelfCollision::addCloth(btVector3 origin)
                                                      0, true, 0.0);
 
     
-    psb->getCollisionShape()->setMargin(0.01);
+    psb->getCollisionShape()->setMargin(0.02);
     psb->generateBendingConstraints(2);
     psb->setTotalMass(.5);
     psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects

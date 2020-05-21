@@ -15,7 +15,7 @@ planeId = p.loadURDF("plane.urdf", [0,0,-2],planeOrn)
 
 boxId = p.loadURDF("cube.urdf", [0,1,2],useMaximalCoordinates = True)
 
-clothId = p.loadSoftBody("cloth_z_up.obj", basePosition = [0,0,2], scale = 0.5, mass = 1., useNeoHookean = 0, useBendingSprings=1,useMassSpring=1, springElasticStiffness=40, springDampingStiffness=.1, useSelfCollision = 0, frictionCoeff = .5, useFaceContact=1)
+clothId = p.loadSoftBody("cloth_z_up.obj", basePosition = [0,0,2], scale = 0.5, mass = 1., useNeoHookean = 0, useBendingSprings=1,useMassSpring=1, springElasticStiffness=40, springDampingStiffness=.1, springDampingAllDirections = 1, useSelfCollision = 0, frictionCoeff = .5, useFaceContact=1)
 
 
 p.createSoftBodyAnchor(clothId  ,0,-1,-1)

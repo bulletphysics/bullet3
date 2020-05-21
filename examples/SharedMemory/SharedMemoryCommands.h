@@ -514,6 +514,7 @@ enum EnumLoadSoftBodyUpdateFlags
 	LOAD_SOFT_BODY_USE_FACE_CONTACT = 1<<14,
 	LOAD_SOFT_BODY_SIM_MESH = 1<<15,
 	LOAD_SOFT_BODY_SET_REPULSION_STIFFNESS = 1<<16,
+	LOAD_SOFT_BODY_SET_DAMPING_SPRING_MODE = 1<<17,
 };
 
 enum EnumSimParamInternalSimFlags
@@ -534,6 +535,7 @@ struct LoadSoftBodyArgs
     double m_initialOrientation[4];
     double m_springElasticStiffness;
     double m_springDampingStiffness;
+	int m_dampAllDirections;
     double m_springBendingStiffness;
     double m_corotatedMu;
     double m_corotatedLambda;

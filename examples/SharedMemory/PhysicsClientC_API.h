@@ -657,6 +657,7 @@ extern "C"
 	B3_SHARED_API int b3LoadSoftBodyUseFaceContact(b3SharedMemoryCommandHandle commandHandle, int useFaceContact);
 	B3_SHARED_API int b3LoadSoftBodySetFrictionCoefficient(b3SharedMemoryCommandHandle commandHandle, double frictionCoefficient);
 	B3_SHARED_API int b3LoadSoftBodyUseBendingSprings(b3SharedMemoryCommandHandle commandHandle, int useBendingSprings, double bendingStiffness);
+    B3_SHARED_API int b3LoadSoftBodyUseAllDirectionDampingSprings(b3SharedMemoryCommandHandle commandHandle, int useAllDirectionDamping);
 	
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitCreateSoftBodyAnchorConstraintCommand(b3PhysicsClientHandle physClient, int softBodyUniqueId, int nodeIndex, int bodyUniqueId, int linkIndex, const double bodyFramePosition[3]);
 
