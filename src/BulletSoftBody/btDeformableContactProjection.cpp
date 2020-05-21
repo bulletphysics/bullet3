@@ -221,7 +221,7 @@ void btDeformableContactProjection::setProjection()
         for (int j = 0; j < m_staticConstraints[i].size(); ++j)
         {
             int index = m_staticConstraints[i][j].m_node->index;
-            m_staticConstraints[i][j].m_node->m_penetration = SIMD_INFINITY;
+            m_staticConstraints[i][j].m_node->m_constrained = true;
             if (m_projectionsDict.find(index) == NULL)
             {
                 m_projectionsDict.insert(index, units);
@@ -238,7 +238,7 @@ void btDeformableContactProjection::setProjection()
         for (int j = 0; j < m_nodeAnchorConstraints[i].size(); ++j)
         {
             int index = m_nodeAnchorConstraints[i][j].m_anchor->m_node->index;
-            m_nodeAnchorConstraints[i][j].m_anchor->m_node->m_penetration = SIMD_INFINITY;
+            m_nodeAnchorConstraints[i][j].m_anchor->m_node->m_constrained = true;
             if (m_projectionsDict.find(index) == NULL)
             {
                 m_projectionsDict.insert(index, units);
@@ -255,7 +255,7 @@ void btDeformableContactProjection::setProjection()
         for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
         {
             int index = m_nodeRigidConstraints[i][j].m_node->index;
-            m_nodeRigidConstraints[i][j].m_node->m_penetration = -m_nodeRigidConstraints[i][j].getContact()->m_cti.m_offset;
+			m_nodeRigidConstraints[i][j].m_node->m_constrained = true;
             if (m_nodeRigidConstraints[i][j].m_static)
             {
                 if (m_projectionsDict.find(index) == NULL)
@@ -289,15 +289,16 @@ void btDeformableContactProjection::setProjection()
         for (int j = 0; j < m_faceRigidConstraints[i].size(); ++j)
         {
             const btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
-            btScalar penetration = -m_faceRigidConstraints[i][j].getContact()->m_cti.m_offset;
-            for (int k = 0; k < 3; ++k)
-            {
-                face->m_n[k]->m_penetration = btMax(face->m_n[k]->m_penetration, penetration);
-            }
+            if (m_faceRigidConstraints[i][j].m_binding)
+			{
+				for (int k = 0; k < 3; ++k)
+				{
+					face->m_n[k]->m_constrained = true;
+				}
+			}
             for (int k = 0; k < 3; ++k)
             {
                 btSoftBody::Node* node = face->m_n[k];
-                node->m_penetration = true;
                 int index = node->index;
                 if (m_faceRigidConstraints[i][j].m_static)
                 {
@@ -469,7 +470,7 @@ void btDeformableContactProjection::setLagrangeMultiplier()
         for (int j = 0; j < m_staticConstraints[i].size(); ++j)
         {
             int index = m_staticConstraints[i][j].m_node->index;
-            m_staticConstraints[i][j].m_node->m_penetration = SIMD_INFINITY;
+            m_staticConstraints[i][j].m_node->m_constrained = true;
             LagrangeMultiplier lm;
             lm.m_num_nodes = 1;
             lm.m_indices[0] = index;
@@ -483,7 +484,7 @@ void btDeformableContactProjection::setLagrangeMultiplier()
         for (int j = 0; j < m_nodeAnchorConstraints[i].size(); ++j)
         {
             int index = m_nodeAnchorConstraints[i][j].m_anchor->m_node->index;
-            m_nodeAnchorConstraints[i][j].m_anchor->m_node->m_penetration = SIMD_INFINITY;
+            m_nodeAnchorConstraints[i][j].m_anchor->m_node->m_constrained = true;
             LagrangeMultiplier lm;
             lm.m_num_nodes = 1;
             lm.m_indices[0] = index;
@@ -501,7 +502,7 @@ void btDeformableContactProjection::setLagrangeMultiplier()
                 continue;
             }
             int index = m_nodeRigidConstraints[i][j].m_node->index;
-            m_nodeRigidConstraints[i][j].m_node->m_penetration = -m_nodeRigidConstraints[i][j].getContact()->m_cti.m_offset;
+			m_nodeRigidConstraints[i][j].m_node->m_constrained = true;
             LagrangeMultiplier lm;
             lm.m_num_nodes = 1;
             lm.m_indices[0] = index;
@@ -529,12 +530,11 @@ void btDeformableContactProjection::setLagrangeMultiplier()
             const btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
 			
             btVector3 bary = m_faceRigidConstraints[i][j].getContact()->m_bary;
-            btScalar penetration = -m_faceRigidConstraints[i][j].getContact()->m_cti.m_offset;
 			LagrangeMultiplier lm;
 			lm.m_num_nodes = 3;
 			for (int k = 0; k<3; ++k)
 			{
-				face->m_n[k]->m_penetration = btMax(face->m_n[k]->m_penetration, penetration);
+				face->m_n[k]->m_constrained = true;
 				lm.m_indices[k] = face->m_n[k]->index;
 				lm.m_weights[k] = bary[k];
 			}
