@@ -77,7 +77,7 @@ public:
 
 	virtual bool hasDeferredRemoval() = 0;
 
-        virtual btOverlappingPairCallback* getInternalGhostPairCallback() = 0;
+	virtual btOverlappingPairCallback* getInternalGhostPairCallback() = 0;
 	virtual void setInternalGhostPairCallback(btOverlappingPairCallback* ghostPairCallback) = 0;
 
 	virtual void sortOverlappingPairs(btDispatcher* dispatcher) = 0;
@@ -246,10 +246,10 @@ private:
 		return false;
 	}
 
-        virtual btOverlappingPairCallback* getInternalGhostPairCallback()
-        {
-            return m_ghostPairCallback;
-        }
+	virtual btOverlappingPairCallback* getInternalGhostPairCallback()
+	{
+		return m_ghostPairCallback;
+	}
 	virtual void setInternalGhostPairCallback(btOverlappingPairCallback * ghostPairCallback)
 	{
 		m_ghostPairCallback = ghostPairCallback;
@@ -346,10 +346,10 @@ public:
 		return m_hasDeferredRemoval;
 	}
 
-        virtual btOverlappingPairCallback* getInternalGhostPairCallback()
-        {
-            return m_ghostPairCallback;
-        }
+	virtual btOverlappingPairCallback* getInternalGhostPairCallback()
+	{
+		return m_ghostPairCallback;
+	}
 	virtual void setInternalGhostPairCallback(btOverlappingPairCallback* ghostPairCallback)
 	{
 		m_ghostPairCallback = ghostPairCallback;
@@ -416,10 +416,10 @@ public:
 		return true;
 	}
 
-        virtual btOverlappingPairCallback* getInternalGhostPairCallback()
-        {
-            return 0;
-        }
+	virtual btOverlappingPairCallback* getInternalGhostPairCallback()
+	{
+		return 0;
+	}
 	virtual void setInternalGhostPairCallback(btOverlappingPairCallback* /* ghostPairCallback */)
 	{
 	}
