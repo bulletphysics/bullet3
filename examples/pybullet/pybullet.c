@@ -6529,12 +6529,13 @@ static PyObject* pybullet_rayTestObsolete(PyObject* self, PyObject* args, PyObje
 	double from[3];
 	double to[3];
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"rayFromPosition", "rayToPosition", "collisionFilterMask", "physicsClientId", NULL};
+	int reportHitNumber = -1;
+	static char* kwlist[] = {"rayFromPosition", "rayToPosition", "collisionFilterMask", "reportHitNumber", "physicsClientId", NULL};
 	int physicsClientId = 0;
 	int collisionFilterMask = -1;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|ii", kwlist,
-									 &rayFromObj, &rayToObj, &collisionFilterMask, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|iii", kwlist,
+									 &rayFromObj, &rayToObj, &collisionFilterMask, &reportHitNumber, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -6556,7 +6557,10 @@ static PyObject* pybullet_rayTestObsolete(PyObject* self, PyObject* args, PyObje
 	{
 		b3RaycastBatchSetCollisionFilterMask(commandHandle, collisionFilterMask);
 	}
-
+	if (reportHitNumber >= 0)
+	{
+		b3RaycastBatchSetReportHitNumber(commandHandle, reportHitNumber);
+	}
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType == CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED)
