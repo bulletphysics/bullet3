@@ -821,6 +821,7 @@ public:
 	btScalar m_maxSpeedSquared;
 	btAlignedObjectArray<btVector3> m_quads; // quadrature points for collision detection
 	btScalar m_repulsionStiffness;
+	btScalar m_gravityFactor;
     btAlignedObjectArray<btVector3> m_X;   // initial positions
 
 	btAlignedObjectArray<btVector4> m_renderNodesInterpolationWeights;
@@ -1168,6 +1169,7 @@ public:
 	void applyClusters(bool drift);
 	void dampClusters();
     void setSpringStiffness(btScalar k);
+	void setGravityFactor(btScalar gravFactor);
     void initializeDmInverse();
     void updateDeformation();
     void advanceDeformation();

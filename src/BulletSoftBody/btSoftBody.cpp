@@ -228,6 +228,7 @@ void btSoftBody::initDefaults()
 	m_softSoftCollision = false;
 	m_maxSpeedSquared = 0;
 	m_repulsionStiffness = 0.5;
+	m_gravityFactor = 1;
 	m_fdbvnt = 0;
 }
 
@@ -3424,6 +3425,11 @@ void btSoftBody::setSpringStiffness(btScalar k)
         m_links[i].Feature::m_material->m_kLST = k;
     }
     m_repulsionStiffness = k;
+}
+
+void btSoftBody::setGravityFactor(btScalar gravFactor)
+{
+	m_gravityFactor = gravFactor;
 }
 
 void btSoftBody::initializeDmInverse()
