@@ -8421,7 +8421,10 @@ void constructUrdfDeformable(const struct SharedMemoryCommand& clientCmd, UrdfDe
 	{
 		deformable.m_repulsionStiffness = loadSoftBodyArgs.m_repulsionStiffness;
 	}
-
+	if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SET_GRAVITY_FACTOR)
+	{
+		deformable.m_gravFactor = loadSoftBodyArgs.m_gravFactor;
+	}
 #endif
 }
 
@@ -8634,7 +8637,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			// turn on the collision flag for deformable
 			// collision between deformable and rigid
 			psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-			// turn on face contact only for multibodies
+			// turn on face contact for multibodies
 			psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
 			// collion between deformable and deformable and self-collision
 			psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
@@ -8642,6 +8645,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			psb->setTotalMass(deformable.m_mass);
 			psb->setSelfCollision(useSelfCollision);
 			psb->setSpringStiffness(deformable.m_repulsionStiffness);
+			psb->setGravityFactor(deformable.m_gravFactor);
 			psb->initializeFaceTree();
 		}
 #endif  //SKIP_DEFORMABLE_BODY
