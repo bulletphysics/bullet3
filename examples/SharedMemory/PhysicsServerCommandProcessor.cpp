@@ -8639,6 +8639,8 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
 			// turn on face contact for multibodies
 			psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
+			/// turn on face contact for rigid body
+			psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
 			// collion between deformable and deformable and self-collision
 			psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
 			psb->setCollisionFlags(0);
