@@ -1603,14 +1603,15 @@ static PyObject* pybullet_getPhysicsEngineParameters(PyObject* self, PyObject* a
 		b3GetStatusPhysicsSimulationParameters(statusHandle, &params);
 
 		//for now, return a subset, expose more/all on request
-		val = Py_BuildValue("{s:d,s:i,s:i,s:i,s:d,s:d,s:d}",
+		val = Py_BuildValue("{s:d,s:i,s:i,s:i,s:d,s:d,s:d, s:i}",
 							"fixedTimeStep", params.m_deltaTime,
 							"numSubSteps", params.m_numSimulationSubSteps,
 							"numSolverIterations", params.m_numSolverIterations,
 							"useRealTimeSimulation", params.m_useRealTimeSimulation,
 							"gravityAccelerationX", params.m_gravityAcceleration[0],
 							"gravityAccelerationY", params.m_gravityAcceleration[1],
-							"gravityAccelerationZ", params.m_gravityAcceleration[2]);
+							"gravityAccelerationZ", params.m_gravityAcceleration[2],
+							"numNonContactInnerIterations", params.m_numNonContactInnerIterations);
 		return val;
 	}
 	//"fixedTimeStep", "numSolverIterations", "useSplitImpulse", "splitImpulsePenetrationThreshold", "numSubSteps", "collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "enableFileCaching","restitutionVelocityThreshold", "erp", "contactERP", "frictionERP",
