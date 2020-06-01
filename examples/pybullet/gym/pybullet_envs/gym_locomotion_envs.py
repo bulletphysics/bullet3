@@ -165,8 +165,11 @@ class AntBulletEnv(WalkerBaseBulletEnv):
 
 class HumanoidBulletEnv(WalkerBaseBulletEnv):
 
-  def __init__(self, robot=Humanoid(), render=False):
-    self.robot = robot
+  def __init__(self, robot=None, render=False):
+    if robot is None:
+      self.robot = Humanoid()
+    else:
+      self.robot = robot
     WalkerBaseBulletEnv.__init__(self, self.robot, render)
     self.electricity_cost = 4.25 * WalkerBaseBulletEnv.electricity_cost
     self.stall_torque_cost = 4.25 * WalkerBaseBulletEnv.stall_torque_cost
