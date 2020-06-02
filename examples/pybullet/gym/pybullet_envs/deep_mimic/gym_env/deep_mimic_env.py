@@ -93,6 +93,9 @@ class HumanoidDeepBulletEnv(gym.Env):
     
     self.viewer = None
     self._configure()
+    
+    # Query the policy at 30Hz
+    self.policy_query_30 = True
 
   def _configure(self, display=None):
     self.display = display
@@ -110,7 +113,15 @@ class HumanoidDeepBulletEnv(gym.Env):
     #step sim
     self._internal_env.update(self._time_step)
     
-
+    if self.policy_query_30:
+      # Step simulation until a new action is required
+      while not self._internal_env.need_new_action(agent_id):
+        self._p.stepSimulation()
+        self._internal_env.t += self._time_step
+          # print("t:", self._internal_env.t)
+    # print("next update time:", self._internal_env.needs_update_time)
+    # print("Performing update")
+        
     #record state
     self.state = self._internal_env.record_state(agent_id)
     
