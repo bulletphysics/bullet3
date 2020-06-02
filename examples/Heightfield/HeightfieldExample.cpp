@@ -540,7 +540,7 @@ getRawHeightfieldData
             if (slot>=0)
             {
                 char* lineChar;
-                while (lineChar = fileIO.readLine(slot, lineBuffer, MYLINELENGTH))
+                while ((lineChar = fileIO.readLine(slot, lineBuffer, MYLINELENGTH)) != NULL)
                 {
                     rows=0;
                     char** values = urdfStrSplit(lineChar, ",");
@@ -548,7 +548,7 @@ getRawHeightfieldData
                     {
                         int index = 0;
                         char* value;
-                        while (value = values[index++])
+                        while ((value = values[index++]) != NULL)
                         {
                             std::string strval(value);
                             double v;
