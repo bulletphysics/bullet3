@@ -182,25 +182,7 @@ class KukaCamGymEnv(gym.Env):
   def render(self, mode='human', close=False):
     if mode != "rgb_array":
       return np.array([])
-    base_pos, orn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
-    view_matrix = self._p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=base_pos,
-                                                            distance=self._cam_dist,
-                                                            yaw=self._cam_yaw,
-                                                            pitch=self._cam_pitch,
-                                                            roll=0,
-                                                            upAxisIndex=2)
-    proj_matrix = self._p.computeProjectionMatrixFOV(fov=60,
-                                                     aspect=float(RENDER_WIDTH) / RENDER_HEIGHT,
-                                                     nearVal=0.1,
-                                                     farVal=100.0)
-    (_, _, px, _, _) = self._p.getCameraImage(width=RENDER_WIDTH,
-                                              height=RENDER_HEIGHT,
-                                              viewMatrix=view_matrix,
-                                              projectionMatrix=proj_matrix,
-                                              renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
-    rgb_array = np.array(px)
-    rgb_array = rgb_array[:, :, :3]
-    return rgb_array
+    return self.getExtendedObservation()
 
   def _termination(self):
     #print (self._kuka.endEffectorPos[2])
