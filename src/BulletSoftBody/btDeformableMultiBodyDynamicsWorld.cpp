@@ -17,18 +17,18 @@
 
 /*
 A single step of the deformable body simulation contains the following main components:
-Call internalStepSimulation multiple times, to achieve 240Hz (4 steps of 60Hz).
-1. Deformable maintaintenance of rest lengths and volume preservation. Forces only depend on position: Update velocity to a temporary state v_{n+1}^* = v_n + explicit_force * dt / mass, where explicit forces include gravity and elastic forces.
+Call internalStepSimulation multiple times, to achieve 240Hz (4 steps within 60Hz).
+1. Deformable maintaintenance of rest lengths and volume preservation. Forces only depend on position: Update velocity to a temporary state v_{n+1}^* = v_n + explicit_force * dt / mass, where explicit forces include gravity and elastic forces. 
 2. Detect discrete collisions between rigid and deformable bodies at position x_{n+1}^* = x_n + dt * v_{n+1}^*.
-
 3a. Solve all constraints, including LCP. Contact, position correction due to numerical drift, friction, and anchors for deformable.
-
-3b. 5 Newton steps (multiple step). Conjugent Gradient solves linear system. Deformable Damping: Then velocities of deformable bodies v_{n+1} are solved in
-        M(v_{n+1} - v_{n+1}^*) = damping_force * dt / mass,
-   by a conjugate gradient solver, where the damping force is implicit and depends on v_{n+1}.
-   Make sure contact constraints are not violated in step b by performing velocity projections as in the paper by Baraff and Witkin https://www.cs.cmu.edu/~baraff/papers/sig98.pdf. Dynamic frictions are treated as a force and added to the rhs of the CG solve, whereas static frictions are treated as constraints similar to contact.
-4. Position is updated via x_{n+1} = x_n + dt * v_{n+1}.
-
+3b. Solve momentum equation for the deformable objects:
+        M(v_{n+1}^** - v_{n+1}^*) = damping_force * dt,
+   where the damping force is implicit and depends on v_{n+1}.
+   Make sure constraints in 3a are not violated in 3b by either
+    i) performing velocity projections as in the paper by Baraff and Witkin https://www.cs.cmu.edu/~baraff/papers/sig98.pdf. Dynamic frictions are treated as a force and added to the rhs of the CG solve, whereas static frictions are treated as constraints similar to contact, or
+    ii) introducing lagrange multipliers into the system and solve the indefinite system with Conjugate Residual as in https://www.researchgate.net/publication/331752789_Efficient_and_Accurate_Collision_Response_for_Elastically_Deformable_Models
+4. Perform collision detection for deformable vs. deformable objects and resolve them with two-phase Gauss-Seidel solve as in https://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf to get final velocity v_{n+1}
+5. Position is updated via x_{n+1} = x_n + dt * v_{n+1}.
 
 The algorithm also closely resembles the one in http://physbam.stanford.edu/~fedkiw/papers/stanford2008-03.pdf
  */
