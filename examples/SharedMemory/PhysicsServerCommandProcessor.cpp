@@ -11022,7 +11022,10 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 
 				btVector3 forceWorld = isLinkFrame ? forceLocal : sb->getWorldTransform().getBasis() * forceLocal;
 				btVector3 relPosWorld = isLinkFrame ? positionLocal : sb->getWorldTransform().getBasis() * positionLocal;
-				sb->addForce(forceWorld, link);
+				if (link >= 0 && link < sb->m_nodes.size())
+				{
+					sb->addForce(forceWorld, link);
+				}
 			}
 		}
 	}
