@@ -11005,6 +11005,26 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 				rb->applyTorque(torqueWorld);
 			}
 		}
+
+		if (body && body->m_softBody)
+		{
+			btSoftBody* sb = body->m_softBody;
+			int link = clientCmd.m_externalForceArguments.m_linkIds[i];
+			if ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_FORCE) != 0)
+			{
+				btVector3 forceLocal(clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 0],
+					clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 1],
+					clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 2]);
+				btVector3 positionLocal(
+					clientCmd.m_externalForceArguments.m_positions[i * 3 + 0],
+					clientCmd.m_externalForceArguments.m_positions[i * 3 + 1],
+					clientCmd.m_externalForceArguments.m_positions[i * 3 + 2]);
+
+				btVector3 forceWorld = isLinkFrame ? forceLocal : sb->getWorldTransform().getBasis() * forceLocal;
+				btVector3 relPosWorld = isLinkFrame ? positionLocal : sb->getWorldTransform().getBasis() * positionLocal;
+				sb->addForce(forceWorld, link);
+			}
+		}
 	}
 
 	SharedMemoryStatus& serverCmd = serverStatusOut;
