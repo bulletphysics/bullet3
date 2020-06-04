@@ -245,7 +245,6 @@ public:
                     }
                 }
 #endif
-//                btVector3 force_on_node0 = P * (tetra.m_Dm_inverse.transpose()*grad_N_hat_1st_col);
                 btMatrix3x3 force_on_node123 = P * tetra.m_Dm_inverse.transpose();
                 btVector3 force_on_node0 = force_on_node123 * grad_N_hat_1st_col;
                 

@@ -149,7 +149,7 @@ public:
     // used in line search
     btScalar kineticEnergy();
     
-    // unused functions
+    // unused functions but required by API
     virtual void optimize(btAlignedObjectArray<btSoftBody *> &softBodies, bool forceUpdate = false){}
     virtual void solveConstraints(btScalar dt){}
     virtual bool checkInitialized(){return true;}

@@ -14,6 +14,8 @@
  */
 
 #include "btDeformableContactConstraint.h"
+
+
 /* ================   Deformable Node Anchor   =================== */
 btDeformableNodeAnchorConstraint::btDeformableNodeAnchorConstraint(const btSoftBody::DeformableNodeRigidAnchor& a, const btContactSolverInfo& infoGlobal)
 : m_anchor(&a)
@@ -362,7 +364,6 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
 
 btScalar btDeformableRigidContactConstraint::solveSplitImpulse(const btContactSolverInfo& infoGlobal)
 {
-	btScalar MAX_PENETRATION_CORRECTION = 0.1;
 	const btSoftBody::sCti& cti = m_contact->m_cti;
 	btVector3 vb = getSplitVb();
 	btVector3 va = getSplitVa();

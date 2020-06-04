@@ -51,6 +51,7 @@ public:
     
     virtual void addScaledDampingForce(btScalar scale, TVStack& force)
     {
+        // TODO
     }
     
     virtual void addScaledElasticForce(btScalar scale, TVStack& force)
@@ -108,10 +109,12 @@ public:
     
     virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
     {
+        // TODO
     }
     
     virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
     {
+        // TODO
     }
     
     virtual void buildDampingForceDifferentialDiagonal(btScalar scale, TVStack& diagA){}

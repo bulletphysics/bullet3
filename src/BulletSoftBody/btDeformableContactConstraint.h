@@ -16,7 +16,7 @@
 #ifndef BT_DEFORMABLE_CONTACT_CONSTRAINT_H
 #define BT_DEFORMABLE_CONTACT_CONSTRAINT_H
 #include "btSoftBody.h"
-
+#define MAX_PENETRATION_CORRECTION 0.1f // maximum amount of penetration correction in split impulse
 // btDeformableContactConstraint is an abstract class specifying the method that each type of contact constraint needs to implement
 class btDeformableContactConstraint
 {

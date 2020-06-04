@@ -587,7 +587,6 @@ static SIMD_FORCE_INLINE bool continuousCollisionDetection(const btSoftBody::Fac
     {
         num_roots = SolveP3(roots, a2/a3, a1/a3, a0/a3);
     }
-//    std::sort(roots, roots+num_roots);
     if (num_roots > 1)
     {
         if (roots[0] > roots[1])

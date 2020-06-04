@@ -35,9 +35,6 @@ btDeformableMultiBodyConstraintSolver : public btMultiBodyConstraintSolver
     btDeformableBodySolver* m_deformableSolver;
     
 protected:
-    // override the iterations method to include deformable/multibody contact
-//    virtual btScalar solveGroupCacheFriendlyIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
-    
     // write the velocity of the the solver body to the underlying rigid body
     void solverBodyWriteBack(const btContactSolverInfo& infoGlobal);
 
@@ -46,6 +43,7 @@ protected:
     
     virtual void solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** bodies, int numBodies, btCollisionObject** deformableBodies,int numDeformableBodies, btPersistentManifold** manifoldPtr, int numManifolds, btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal, btIDebugDraw* debugDrawer);
     
+    // override the iterations method to include deformable/multibody contact
     virtual btScalar solveDeformableGroupIterations(btCollisionObject** bodies,int numBodies,btCollisionObject** deformableBodies,int numDeformableBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
 public:
     BT_DECLARE_ALIGNED_ALLOCATOR();
