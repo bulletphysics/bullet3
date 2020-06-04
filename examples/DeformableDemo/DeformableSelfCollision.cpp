@@ -80,14 +80,10 @@ void DeformableSelfCollision::initPhysics()
     m_solver = sol;
     
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
-    //    deformableBodySolver->setWorld(getDeformableDynamicsWorld());
-    //    m_dynamicsWorld->getSolverInfo().m_singleAxisDeformableThreshold = 0.f;//faster but lower quality
     btVector3 gravity = btVector3(0, -9.8, 0);
     m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
     getDeformableDynamicsWorld()->getWorldInfo().m_sparsesdf.setDefaultVoxelsz(0.25);
-    
-    //    getDeformableDynamicsWorld()->before_solver_callbacks.push_back(dynamics);
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
     
     {

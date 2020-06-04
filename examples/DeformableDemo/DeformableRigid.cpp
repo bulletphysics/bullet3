@@ -53,48 +53,6 @@ public:
         //use a smaller internal timestep, there are stability issues
         float internalTimeStep = 1. / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
-        
-//
-//        btCollisionShape* boxShape = new btBoxShape(btVector3(1, 1, 1));
-//        boxShape->setMargin(1e-3);
-//        if (0)
-//        {
-//        btVector3 p(0.99,1.01,0.99);
-//        for (int i = 0; i < 40; ++i)
-//        {
-//            p[1] -= 0.001;
-//            btScalar margin(.000001);
-//            btTransform trans;
-//            trans.setIdentity();
-//            btGjkEpaSolver2::sResults results;
-//            const btConvexShape* csh = static_cast<const btConvexShape*>(boxShape);
-//            btScalar d = btGjkEpaSolver2::SignedDistance(p, margin, csh, trans, results);
-//            printf("d = %f\n", d);
-//            printf("----\n");
-//        }
-//        }
-//
-//        btVector3 p(.991,1.01,.99);
-//        for (int i = 0; i < 40; ++i)
-//        {
-//            p[1] -= 0.001;
-//            btScalar margin(.006);
-//            btTransform trans;
-//            trans.setIdentity();
-//            btScalar dst;
-//            btGjkEpaSolver2::sResults results;
-//            btTransform point_transform;
-//            point_transform.setIdentity();
-//            point_transform.setOrigin(p);
-//            btSphereShape sphere(margin);
-//            btVector3 guess(0,0,0);
-//            const btConvexShape* csh = static_cast<const btConvexShape*>(boxShape);
-//            btGjkEpaSolver2::SignedDistance(&sphere, point_transform, csh, trans, guess, results);
-//            dst = results.distance-csh->getMargin();
-//            dst -= margin;
-//            printf("d = %f\n", dst);
-//             printf("----\n");
-//        }
     }
     
     void Ctor_RbUpStack(int count)
