@@ -310,9 +310,16 @@ struct InteralUserConstraintData
 
 	b3UserConstraint m_userConstraintData;
 
+	int m_sbHandle;
+	int m_sbNodeIndex;
+	btScalar m_sbNodeMass;
+
 	InteralUserConstraintData()
 		: m_rbConstraint(0),
-		  m_mbConstraint(0)
+		  m_mbConstraint(0),
+		  m_sbHandle(-1),
+		  m_sbNodeIndex(-1),
+		  m_sbNodeMass(-1)
 	{
 	}
 };
@@ -11226,8 +11233,13 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 					if (bodyUniqueId<=0)
 					{
 						//fixed anchor (mass = 0)
+						InteralUserConstraintData userConstraintData;
+						userConstraintData.m_sbHandle = clientCmd.m_userConstraintArguments.m_parentBodyIndex;
+						userConstraintData.m_sbNodeIndex = nodeIndex;
+						userConstraintData.m_sbNodeMass = sbodyHandle->m_softBody->getMass(nodeIndex);
 						sbodyHandle->m_softBody->setMass(nodeIndex,0.0);
 						int uid = m_data->m_userConstraintUIDGenerator++;
+						m_data->m_userConstraints.insert(uid, userConstraintData);
 						serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
 						serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
 					} else
@@ -11278,6 +11290,10 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 						}
 						int uid = m_data->m_userConstraintUIDGenerator++;
 						serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+						InteralUserConstraintData userConstraintData;
+						userConstraintData.m_sbHandle = clientCmd.m_userConstraintArguments.m_parentBodyIndex;
+						userConstraintData.m_sbNodeIndex = nodeIndex;
+						m_data->m_userConstraints.insert(uid, userConstraintData);
 						serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
 
 					}
@@ -11739,6 +11755,24 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 				m_data->m_dynamicsWorld->removeConstraint(userConstraintPtr->m_rbConstraint);
 				delete userConstraintPtr->m_rbConstraint;
 				m_data->m_userConstraints.remove(userConstraintUidRemove);
+			}
+			if (userConstraintPtr->m_sbHandle >= 0)
+			{
+				InternalBodyHandle* sbodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_parentBodyIndex);
+				if (sbodyHandle)
+				{
+					if (sbodyHandle->m_softBody)
+					{
+						if (userConstraintPtr->m_sbNodeMass >= 0)
+						{
+							sbodyHandle->m_softBody->setMass(userConstraintPtr->m_sbNodeIndex, userConstraintPtr->m_sbNodeMass);
+						}
+						else
+						{
+							sbodyHandle->m_softBody->removeAnchor(userConstraintPtr->m_sbNodeIndex);
+						}
+					}
+				}
 			}
 			serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = userConstraintUidRemove;
 			serverCmd.m_type = CMD_REMOVE_USER_CONSTRAINT_COMPLETED;
