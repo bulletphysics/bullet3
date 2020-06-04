@@ -178,7 +178,7 @@ public:
             }
         }
     }
-#define USE_FULL_PRECONDITIONER
+//#define USE_FULL_PRECONDITIONER
 #ifndef USE_FULL_PRECONDITIONER
     virtual void operator()(const TVStack& x, TVStack& b)
     {

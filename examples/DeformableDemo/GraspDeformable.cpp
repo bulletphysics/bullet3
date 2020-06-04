@@ -198,6 +198,9 @@ void GraspDeformable::initPhysics()
     btVector3 gravity = btVector3(0, -9.81, 0);
 	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.1;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0;
+    getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 150;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
     m_maxPickingForce = 0.001;
     // build a gripper
@@ -253,7 +256,7 @@ void GraspDeformable::initPhysics()
     //create a ground
     {
         btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(10.), btScalar(5.), btScalar(10.)));
-
+        groundShape->setMargin(0.001);
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
@@ -352,17 +355,17 @@ void GraspDeformable::initPhysics()
                                                  2,2,
                                                  0, true);
 
-        psb->getCollisionShape()->setMargin(0.003);
+        psb->getCollisionShape()->setMargin(0.001);
         psb->generateBendingConstraints(2);
-        psb->setTotalMass(0.005);
+        psb->setTotalMass(0.01);
         psb->setSpringStiffness(10);
         psb->setDampingCoefficient(0.05);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 1;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(0.05,0.005, true));
         getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity*0.1));

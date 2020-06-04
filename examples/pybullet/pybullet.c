@@ -1603,14 +1603,15 @@ static PyObject* pybullet_getPhysicsEngineParameters(PyObject* self, PyObject* a
 		b3GetStatusPhysicsSimulationParameters(statusHandle, &params);
 
 		//for now, return a subset, expose more/all on request
-		val = Py_BuildValue("{s:d,s:i,s:i,s:i,s:d,s:d,s:d}",
+		val = Py_BuildValue("{s:d,s:i,s:i,s:i,s:d,s:d,s:d, s:i}",
 							"fixedTimeStep", params.m_deltaTime,
 							"numSubSteps", params.m_numSimulationSubSteps,
 							"numSolverIterations", params.m_numSolverIterations,
 							"useRealTimeSimulation", params.m_useRealTimeSimulation,
 							"gravityAccelerationX", params.m_gravityAcceleration[0],
 							"gravityAccelerationY", params.m_gravityAcceleration[1],
-							"gravityAccelerationZ", params.m_gravityAcceleration[2]);
+							"gravityAccelerationZ", params.m_gravityAcceleration[2],
+							"numNonContactInnerIterations", params.m_numNonContactInnerIterations);
 		return val;
 	}
 	//"fixedTimeStep", "numSolverIterations", "useSplitImpulse", "splitImpulsePenetrationThreshold", "numSubSteps", "collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "enableFileCaching","restitutionVelocityThreshold", "erp", "contactERP", "frictionERP",
@@ -1649,6 +1650,7 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 
 	double warmStartingFactor = -1;
 	double sparseSdfVoxelSize = -1;
+	int numNonContactInnerIterations = -1;
 
 	int physicsClientId = 0;
 
@@ -1678,11 +1680,12 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 							 "reportSolverAnalytics",
 							 "warmStartingFactor",
 							 "sparseSdfVoxelSize",
+							 "numNonContactInnerIterations",
 							 "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiididdiidiiddi", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidiiddddiididdiidiiddii", kwlist, &fixedTimeStep, &numSolverIterations, &useSplitImpulse, &splitImpulsePenetrationThreshold, &numSubSteps,
 									 &collisionFilterMode, &contactBreakingThreshold, &maxNumCmdPer1ms, &enableFileCaching, &restitutionVelocityThreshold, &erp, &contactERP, &frictionERP, &enableConeFriction, &deterministicOverlappingPairs, &allowedCcdPenetration, &jointFeedbackMode, &solverResidualThreshold, &contactSlop, &enableSAT, &constraintSolverType, &globalCFM, &minimumSolverIslandSize, 
-									&reportSolverAnalytics, &warmStartingFactor, &sparseSdfVoxelSize, &physicsClientId))
+									&reportSolverAnalytics, &warmStartingFactor, &sparseSdfVoxelSize, &numNonContactInnerIterations, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1810,6 +1813,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		if (sparseSdfVoxelSize >= 0)
 		{
 			b3PhysicsParameterSetSparseSdfVoxelSize(command, sparseSdfVoxelSize);
+		}
+		if (numNonContactInnerIterations >= 1)
+		{
+			b3PhysicsParamSetNumNonContactInnerIterations(command, numNonContactInnerIterations);
 		}
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	}
@@ -2038,7 +2045,7 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 	int physicsClientId = 0;
 	int flags = 0;
 
-	static char* kwlist[] = {"fileName", "basePosition", "baseOrientation", "scale", "mass", "collisionMargin", "useMassSpring", "useBendingSprings", "useNeoHookean", "springElasticStiffness", "springDampingStiffness", "springBendingStiffness", "NeoHookeanMu", "NeoHookeanLambda", "NeoHookeanDamping", "frictionCoeff", "useFaceContact", "useSelfCollision", "repulsionStiffness", "physicsClientId", NULL};
+	static char* kwlist[] = {"fileName", "basePosition", "baseOrientation", "scale", "mass", "collisionMargin", "useMassSpring", "useBendingSprings", "useNeoHookean", "springElasticStiffness", "springDampingStiffness", "springDampingAllDirections", "springBendingStiffness", "NeoHookeanMu", "NeoHookeanLambda", "NeoHookeanDamping", "frictionCoeff", "useFaceContact", "useSelfCollision", "repulsionStiffness", "physicsClientId", NULL};
 
 	int bodyUniqueId = -1;
 	const char* fileName = "";
@@ -2050,6 +2057,7 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 	int useNeoHookean = 0;
 	double springElasticStiffness = 1;
 	double springDampingStiffness = 0.1;
+	int springDampingAllDirections = 0;
 	double springBendingStiffness = 0.1;
 	double NeoHookeanMu = 1;
 	double NeoHookeanLambda = 1;
@@ -2068,7 +2076,7 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 	PyObject* basePosObj = 0;
 	PyObject* baseOrnObj = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOdddiiidddddddiidi", kwlist, &fileName, &basePosObj, &baseOrnObj, &scale, &mass, &collisionMargin, &useMassSpring, &useBendingSprings, &useNeoHookean, &springElasticStiffness, &springDampingStiffness, &springBendingStiffness, &NeoHookeanMu, &NeoHookeanLambda, &NeoHookeanDamping, &frictionCoeff, &useFaceContact, &useSelfCollision, &repulsionStiffness, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOdddiiiddidddddiidi", kwlist, &fileName, &basePosObj, &baseOrnObj, &scale, &mass, &collisionMargin, &useMassSpring, &useBendingSprings, &useNeoHookean, &springElasticStiffness, &springDampingStiffness, &springDampingAllDirections, &springBendingStiffness, &NeoHookeanMu, &NeoHookeanLambda, &NeoHookeanDamping, &frictionCoeff, &useFaceContact, &useSelfCollision, &repulsionStiffness, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -2125,6 +2133,7 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 		{
 			b3LoadSoftBodyAddMassSpringForce(command, springElasticStiffness, springDampingStiffness);
 			b3LoadSoftBodyUseBendingSprings(command, useBendingSprings, springBendingStiffness);
+                        b3LoadSoftBodyUseAllDirectionDampingSprings(command, springDampingAllDirections);
 		}
 		if (useNeoHookean)
 		{

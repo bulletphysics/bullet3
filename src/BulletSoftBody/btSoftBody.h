@@ -269,7 +269,7 @@ public:
 		btScalar m_im;       // 1/mass
 		btScalar m_area;     // Area
 		btDbvtNode* m_leaf;  // Leaf data
-		btScalar m_penetration;   // depth of penetration
+		int m_constrained;   // depth of penetration
 		int m_battach : 1;   // Attached
 		int index;
 		btVector3 m_splitv;  // velocity associated with split impulse
@@ -1314,20 +1314,22 @@ public:
 				I = -btMin(m_repulsionStiffness * timeStep * d, mass * (OVERLAP_REDUCTION_FACTOR * d / timeStep - vn));
 			if (vn < 0)
 				I += 0.5 * mass * vn;
-			btScalar face_penetration = 0, node_penetration = node->m_penetration;
+			int face_penetration = 0, node_penetration = node->m_constrained;
 			for (int i = 0; i < 3; ++i)
-				face_penetration =  btMax(face_penetration, face->m_n[i]->m_penetration);
+				face_penetration |=  face->m_n[i]->m_constrained;
 			btScalar I_tilde = .5 *I /(1.0+w.length2());
 			
 //             double the impulse if node or face is constrained.
             if (face_penetration > 0 || node_penetration > 0)
-                I_tilde *= 2.0;
-            if (face_penetration <= node_penetration)
+			{
+				I_tilde *= 2.0;
+			}
+            if (face_penetration <= 0)
 			{
 				for (int j = 0; j < 3; ++j)
 					face->m_n[j]->m_v += w[j]*n*I_tilde*node->m_im;
 			}
-            if (face_penetration >= node_penetration)
+            if (node_penetration <= 0)
 			{
 				node->m_v -= I_tilde*node->m_im*n;
 			}
@@ -1345,12 +1347,12 @@ public:
 //                 double the impulse if node or face is constrained.
 //                if (face_penetration > 0 || node_penetration > 0)
 //                    I_tilde *= 2.0;
-                if (face_penetration <= node_penetration)
+                if (face_penetration <= 0)
 				{
 					for (int j = 0; j < 3; ++j)
 						face->m_n[j]->m_v += w[j] * vt * I_tilde * (face->m_n[j])->m_im;
 				}
-                if (face_penetration >= node_penetration)
+                if (node_penetration <= 0)
 				{
 					node->m_v -= I_tilde * node->m_im * vt;
 				}

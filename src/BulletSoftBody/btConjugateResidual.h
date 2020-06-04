@@ -29,7 +29,7 @@ class btConjugateResidual : public btKrylovSolver<MatrixX>
     btScalar best_r;
 public:
     btConjugateResidual(const int max_it_in)
-    : Base(max_it_in, 1e-8)
+    : Base(max_it_in, 1e-4)
     {
     }
     

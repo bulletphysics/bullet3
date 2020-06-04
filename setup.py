@@ -501,7 +501,7 @@ if 'BT_USE_EGL' in EGL_CXX_FLAGS:
 
 setup(
     name='pybullet',
-    version='2.7.8',
+    version='2.8.0',
     description=
     'Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
     long_description=

@@ -210,34 +210,87 @@ btVector3 btDeformableRigidContactConstraint::getVa() const
     return va;
 }
 
+btVector3 btDeformableRigidContactConstraint::getSplitVa() const
+{
+    const btSoftBody::sCti& cti = m_contact->m_cti;
+    btVector3 va(0, 0, 0);
+    if (cti.m_colObj->hasContactResponse())
+    {
+        btRigidBody* rigidCol = 0;
+        btMultiBodyLinkCollider* multibodyLinkCol = 0;
+        
+        // grab the velocity of the rigid body
+        if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+        {
+            rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
+            va = rigidCol ? (rigidCol->getPushVelocityInLocalPoint(m_contact->m_c1)) : btVector3(0, 0, 0);
+        }
+        else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+        {
+            multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
+            if (multibodyLinkCol)
+            {
+                const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
+                const btScalar* J_n = &m_contact->jacobianData_normal.m_jacobians[0];
+                const btScalar* J_t1 = &m_contact->jacobianData_t1.m_jacobians[0];
+                const btScalar* J_t2 = &m_contact->jacobianData_t2.m_jacobians[0];
+                const btScalar* local_split_v = multibodyLinkCol->m_multiBody->getSplitVelocityVector();
+                // add in the normal component of the va
+                btScalar vel = 0.0;
+                for (int k = 0; k < ndof; ++k)
+                {
+                    vel += local_split_v[k] * J_n[k];
+                }
+                va = cti.m_normal * vel;
+                // add in the tangential components of the va
+                vel = 0.0;
+                for (int k = 0; k < ndof; ++k)
+                {
+                    vel += local_split_v[k] * J_t1[k];
+                }
+                va += m_contact->t1 * vel;
+                vel = 0.0;
+                for (int k = 0; k < ndof; ++k)
+                {
+                    vel += local_split_v[k] * J_t2[k];
+                }
+                va += m_contact->t2 * vel;
+            }
+        }
+    }
+    return va;
+}
+
 btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
 {
     const btSoftBody::sCti& cti = m_contact->m_cti;
     btVector3 va = getVa();
     btVector3 vb = getVb();
     btVector3 vr = vb - va;
-	btScalar dn = btDot(vr, cti.m_normal);
-	if (!infoGlobal.m_splitImpulse)
-	{
-		dn += m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
-	}
+    btScalar dn = btDot(vr, cti.m_normal) + m_total_normal_dv.dot(cti.m_normal) * infoGlobal.m_deformable_cfm;
+    if (m_penetration > 0)
+    {
+        dn += m_penetration / infoGlobal.m_timeStep;
+    }
+    if (!infoGlobal.m_splitImpulse)
+    {
+        dn += m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
+    }
     // dn is the normal component of velocity diffrerence. Approximates the residual. // todo xuchenhan@: this prob needs to be scaled by dt
-    btVector3 impulse = m_contact->m_c0 * vr;
-	if (!infoGlobal.m_splitImpulse)
-	{
-		impulse += m_contact->m_c0 * (m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep * cti.m_normal);
-	}
+    btVector3 impulse = m_contact->m_c0 * (vr + m_total_normal_dv * infoGlobal.m_deformable_cfm + ((m_penetration > 0) ? m_penetration / infoGlobal.m_timeStep * cti.m_normal : btVector3(0,0,0)));
+    if (!infoGlobal.m_splitImpulse)
+    {
+        impulse += m_contact->m_c0 * (m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep * cti.m_normal);
+    }
     btVector3 impulse_normal = m_contact->m_c0 * (cti.m_normal * dn);
     btVector3 impulse_tangent = impulse - impulse_normal;
-	if (dn > 0)
-	{
-		dn = 0;
-		impulse_normal.setZero();
-		m_binding = false;
-		return 0;
-	}
-	m_binding = true;
-	btScalar residualSquare = dn*dn;
+    if (dn > 0)
+    {
+        m_binding = false;
+        return 0;
+    }
+    m_binding = true;
+    btScalar residualSquare = dn*dn;
     btVector3 old_total_tangent_dv = m_total_tangent_dv;
     // m_c2 is the inverse mass of the deformable node/face
     m_total_normal_dv -= impulse_normal * m_contact->m_c2;
@@ -312,8 +365,14 @@ btScalar btDeformableRigidContactConstraint::solveSplitImpulse(const btContactSo
 	btScalar MAX_PENETRATION_CORRECTION = 0.1;
 	const btSoftBody::sCti& cti = m_contact->m_cti;
 	btVector3 vb = getSplitVb();
+	btVector3 va = getSplitVa();
 	btScalar p = m_penetration;
-	btScalar dn = btDot(vb, cti.m_normal) + p * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
+	if (p > 0)
+	{
+		return 0;
+	}
+	btVector3 vr = vb - va;
+	btScalar dn = btDot(vr, cti.m_normal) + p * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
 	if (dn > 0)
 	{
 		return 0;
@@ -329,8 +388,30 @@ btScalar btDeformableRigidContactConstraint::solveSplitImpulse(const btContactSo
 	m_total_split_impulse += dn;
 
 	btScalar residualSquare = dn*dn;
-	const btVector3 impulse = 1.0/m_contact->m_c2 * (cti.m_normal * dn);
+	const btVector3 impulse = m_contact->m_c0 * (cti.m_normal * dn);
 	applySplitImpulse(impulse);
+    
+    // apply split impulse to the rigid/multibodies involved and change their velocities
+    if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+    {
+        btRigidBody* rigidCol = 0;
+        rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
+        if (rigidCol)
+        {
+            rigidCol->applyPushImpulse(impulse, m_contact->m_c1);
+        }
+    }
+    else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+    {
+        btMultiBodyLinkCollider* multibodyLinkCol = 0;
+        multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
+        if (multibodyLinkCol)
+        {
+            const btScalar* deltaV_normal = &m_contact->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
+            // apply normal component of the impulse
+            multibodyLinkCol->m_multiBody->applyDeltaSplitVeeMultiDof(deltaV_normal, impulse.dot(cti.m_normal));
+        }
+    }
 	return residualSquare;
 }
 /* ================   Node vs. Rigid   =================== */

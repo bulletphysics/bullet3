@@ -381,8 +381,8 @@ B3_SHARED_API int b3LoadSoftBodyAddMassSpringForce(b3SharedMemoryCommandHandle c
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
 	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
-        command->m_loadSoftBodyArguments.m_springElasticStiffness = springElasticStiffness;
-        command->m_loadSoftBodyArguments.m_springDampingStiffness = springDampingStiffness;
+	command->m_loadSoftBodyArguments.m_springElasticStiffness = springElasticStiffness;
+	command->m_loadSoftBodyArguments.m_springDampingStiffness = springDampingStiffness;
 	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE;
 	return 0;
 }
@@ -438,6 +438,15 @@ B3_SHARED_API int b3LoadSoftBodyUseBendingSprings(b3SharedMemoryCommandHandle co
     command->m_loadSoftBodyArguments.m_useBendingSprings = useBendingSprings;
     command->m_loadSoftBodyArguments.m_springBendingStiffness = bendingStiffness;
 	command->m_updateFlags |= LOAD_SOFT_BODY_ADD_BENDING_SPRINGS;
+	return 0;
+}
+
+B3_SHARED_API int b3LoadSoftBodyUseAllDirectionDampingSprings(b3SharedMemoryCommandHandle commandHandle, int allDirectionDamping)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+	command->m_loadSoftBodyArguments.m_dampAllDirections = allDirectionDamping;
+	command->m_updateFlags |= LOAD_SOFT_BODY_SET_DAMPING_SPRING_MODE;
 	return 0;
 }
 
