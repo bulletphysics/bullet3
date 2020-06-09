@@ -1855,7 +1855,6 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 {
 	// temporary space
 	int num_links = getNumLinks();
-	int m_dofCount = getNumDofs();
 	scratch_v.resize(3 * num_links + 3);  //(num_links + base) offsets + (num_links + base) normals_lin + (num_links + base) normals_ang
 	scratch_m.resize(num_links + 1);
 

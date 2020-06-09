@@ -542,6 +542,25 @@ public:
 
 	void setNumLinks(int numLinks)  //careful: when changing the number of m_links, make sure to re-initialize or update existing m_links
 	{
+		int oldNumLinks = m_links.size();
+
+		if (oldNumLinks > numLinks)  //when decreasing the number of links, also decrease the dof counter
+		{
+			if (numLinks == 0)
+			{
+				m_dofCount = 0;
+				m_posVarCnt = 0;
+			}
+			else
+			{
+				for (int i = numLinks; i < oldNumLinks; ++i)
+				{
+					m_dofCount -= m_links[i].m_dofCount;
+					m_posVarCnt -= m_links[i].m_posVarCount;
+				}
+			}
+		}
+
 		m_links.resize(numLinks);
 	}
 
