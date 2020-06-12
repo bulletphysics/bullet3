@@ -58,8 +58,6 @@ public:
 	btAlignedObjectArray<btAlignedObjectArray<btDeformableNodeRigidContactConstraint> > m_nodeRigidConstraints;
 	// map from node index to face rigid constraint
 	btAlignedObjectArray<btAlignedObjectArray<btDeformableFaceRigidContactConstraint> > m_faceRigidConstraints;
-	// map from node index to deformable constraint
-	btAlignedObjectArray<btAlignedObjectArray<btDeformableFaceNodeContactConstraint> > m_deformableConstraints;
 	// map from node index to node anchor constraint
 	btAlignedObjectArray<btAlignedObjectArray<btDeformableNodeAnchorConstraint> > m_nodeAnchorConstraints;
     

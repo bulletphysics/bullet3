@@ -248,41 +248,4 @@ public:
     
     virtual void applySplitImpulse(const btVector3& impulse);
 };
-
-//
-// Constraint between  deformable objects faces and deformable objects nodes
-class btDeformableFaceNodeContactConstraint : public btDeformableContactConstraint
-{
-public:
-    btSoftBody::Node* m_node;
-    btSoftBody::Face* m_face;
-    const btSoftBody::DeformableFaceNodeContact* m_contact;
-    btVector3 m_total_normal_dv;
-    btVector3 m_total_tangent_dv;
-    
-    btDeformableFaceNodeContactConstraint(const btSoftBody::DeformableFaceNodeContact& contact, const btContactSolverInfo& infoGlobal);
-	btDeformableFaceNodeContactConstraint(){}
-    virtual ~btDeformableFaceNodeContactConstraint(){}
-    
-    virtual btScalar solveConstraint(const btContactSolverInfo& infoGlobal);
-    
-    // get the velocity of the object A in the contact
-    virtual btVector3 getVa() const;
-    
-    // get the velocity of the object B in the contact
-    virtual btVector3 getVb() const;
-    
-    // get the velocity change of the input soft body node in the constraint
-    virtual btVector3 getDv(const btSoftBody::Node*) const;
-    
-    // cast the contact to the desired type
-    const btSoftBody::DeformableFaceNodeContact* getContact() const
-    {
-        return static_cast<const btSoftBody::DeformableFaceNodeContact*>(m_contact);
-    }
-    
-    virtual void applyImpulse(const btVector3& impulse);
-
-    virtual void setPenetrationScale(btScalar scale){}
-};
 #endif /* BT_DEFORMABLE_CONTACT_CONSTRAINT_H */

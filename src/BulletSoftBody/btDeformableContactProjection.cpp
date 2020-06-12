@@ -47,12 +47,6 @@ btScalar btDeformableContactProjection::update(btCollisionObject** deformableBod
 				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
 				residualSquare = btMax(residualSquare, localResidualSquare);
 			}
-			for (int k = 0; k < m_deformableConstraints[j].size(); ++k)
-			{
-				btDeformableFaceNodeContactConstraint& constraint = m_deformableConstraints[j][k];
-				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
-				residualSquare = btMax(residualSquare, localResidualSquare);
-			}
 		}
 	}
 	return residualSquare;
@@ -140,15 +134,6 @@ void btDeformableContactProjection::setConstraints(const btContactSolverInfo& in
 			}
 			btDeformableFaceRigidContactConstraint constraint(contact, infoGlobal, m_useStrainLimiting);
             m_faceRigidConstraints[i].push_back(constraint);
-            //            btVector3 va = constraint.getVa();
-            //            btVector3 vb = constraint.getVb();
-            //            const btVector3 vr = vb - va;
-            //            const btSoftBody::sCti& cti = contact.m_cti;
-            //            const btScalar dn = btDot(vr, cti.m_normal);
-            //            if (dn < SIMD_EPSILON)
-            //            {
-            //                m_faceRigidConstraints[i].push_back(constraint);
-            //            }
 		}
 	}
 }
@@ -584,26 +569,6 @@ void btDeformableContactProjection::applyDynamicFriction(TVStack& f)
 				}
 			}
 		}
-		for (int j = 0; j < m_deformableConstraints[i].size(); ++j)
-		{
-			const btDeformableFaceNodeContactConstraint& constraint = m_deformableConstraints[i][j];
-			const btSoftBody::Face* face = constraint.getContact()->m_face;
-			const btSoftBody::Node* node = constraint.getContact()->m_node;
-			if (node->m_im != 0)
-			{
-				int index = node->index;
-				f[index] += constraint.getDv(node)* (1./node->m_im);
-			}
-			for (int k = 0; k < 3; ++k)
-			{
-				const btSoftBody::Node* node = face->m_n[k];
-				if (node->m_im != 0)
-				{
-					int index = node->index;
-					f[index] += constraint.getDv(node)* (1./node->m_im);
-				}
-			}
-		}
 	}
 }
 
@@ -616,8 +581,6 @@ void btDeformableContactProjection::reinitialize(bool nodeUpdated)
 		m_nodeAnchorConstraints.resize(N);
 		m_nodeRigidConstraints.resize(N);
 		m_faceRigidConstraints.resize(N);
-		m_deformableConstraints.resize(N);
-		
 	}
 	for (int i = 0 ; i < N; ++i)
 	{
@@ -625,7 +588,6 @@ void btDeformableContactProjection::reinitialize(bool nodeUpdated)
 		m_nodeAnchorConstraints[i].clear();
 		m_nodeRigidConstraints[i].clear();
 		m_faceRigidConstraints[i].clear();
-		m_deformableConstraints[i].clear();
 	}
 #ifndef USE_MGS
     m_projectionsDict.clear();
