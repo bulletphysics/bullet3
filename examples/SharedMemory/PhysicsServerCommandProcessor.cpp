@@ -11012,6 +11012,7 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 			}
 		}
 
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		if (body && body->m_softBody)
 		{
 			btSoftBody* sb = body->m_softBody;
@@ -11034,6 +11035,8 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 				}
 			}
 		}
+#endif
+
 	}
 
 	SharedMemoryStatus& serverCmd = serverStatusOut;
