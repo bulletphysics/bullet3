@@ -515,6 +515,7 @@ enum EnumLoadSoftBodyUpdateFlags
 	LOAD_SOFT_BODY_SIM_MESH = 1<<15,
 	LOAD_SOFT_BODY_SET_REPULSION_STIFFNESS = 1<<16,
 	LOAD_SOFT_BODY_SET_DAMPING_SPRING_MODE = 1<<17,
+	LOAD_SOFT_BODY_SET_GRAVITY_FACTOR = 1<<18,
 };
 
 enum EnumSimParamInternalSimFlags
@@ -549,6 +550,7 @@ struct LoadSoftBodyArgs
     int m_useFaceContact;
     char m_simFileName[MAX_FILENAME_LENGTH];
 	double m_repulsionStiffness;
+	double m_gravFactor;
 };
 
 struct b3LoadSoftBodyResultArgs
