@@ -18,12 +18,12 @@
 #include "btDeformableBodySolver.h"
 #include "btSoftBodyInternals.h"
 #include "LinearMath/btQuickprof.h"
-static const int kMaxConjugateGradientIterations = 300;
+static const int kMaxConjugateGradientIterations = 3000;
 btDeformableBodySolver::btDeformableBodySolver()
 : m_numNodes(0)
 , m_cg(kMaxConjugateGradientIterations)
 , m_cr(kMaxConjugateGradientIterations)
-, m_maxNewtonIterations(5)
+, m_maxNewtonIterations(1)
 , m_newtonTolerance(1e-4)
 , m_lineSearch(false)
 , m_useProjection(false)
@@ -281,7 +281,14 @@ void btDeformableBodySolver::updateVelocity()
             {
                 m_dv[counter].setZero();
             }
-            psb->m_nodes[j].m_v = m_backupVelocity[counter] + m_dv[counter] - psb->m_nodes[j].m_splitv;
+            if (m_implicit)
+            {
+                psb->m_nodes[j].m_v = m_backupVelocity[counter] + m_dv[counter];
+            }
+            else
+            {
+                psb->m_nodes[j].m_v = m_backupVelocity[counter] + m_dv[counter] - psb->m_nodes[j].m_splitv;
+            }
             psb->m_maxSpeedSquared = btMax(psb->m_maxSpeedSquared, psb->m_nodes[j].m_v.length2());
             ++counter;
         }
@@ -301,7 +308,7 @@ void btDeformableBodySolver::updateTempPosition()
         }
         for (int j = 0; j < psb->m_nodes.size(); ++j)
         {
-            psb->m_nodes[j].m_q = psb->m_nodes[j].m_x + m_dt * psb->m_nodes[j].m_v;
+            psb->m_nodes[j].m_q = psb->m_nodes[j].m_x + m_dt * (psb->m_nodes[j].m_v + psb->m_nodes[j].m_splitv);
             ++counter;
         }
         psb->updateDeformation();
@@ -336,8 +343,9 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
         {
             if (implicit)
             {
-                if ((psb->m_nodes[j].m_v - m_backupVelocity[counter]).norm() < SIMD_EPSILON)
-                    m_dv[counter] = psb->m_nodes[j].m_v - m_backupVelocity[counter];
+                // setting the initial guess for newton, need m_dv = v_{n+1} - v_n for dofs that are in constraint.
+                if (psb->m_nodes[j].m_v == m_backupVelocity[counter])
+                    m_dv[counter].setZero();
                 else
                     m_dv[counter] = psb->m_nodes[j].m_v - psb->m_nodes[j].m_vn;
                 m_backupVelocity[counter] = psb->m_nodes[j].m_vn;

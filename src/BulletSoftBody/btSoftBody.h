@@ -311,6 +311,7 @@ public:
         btMatrix3x3 m_Dm_inverse; // rest Dm^-1
         btMatrix3x3 m_F;
         btScalar m_element_measure;
+        btVector4 m_P_inv[3]; // first three columns of P_inv matrix
 	};
     
     /*  TetraScratch  */
@@ -320,6 +321,7 @@ public:
         btScalar m_trace;               // trace of F^T * F
         btScalar m_J;                   // det(F)
         btMatrix3x3 m_cofF;             // cofactor of F
+        btMatrix3x3 m_corotation;       // corotatio of the tetra
     };
     
 	/* RContact		*/

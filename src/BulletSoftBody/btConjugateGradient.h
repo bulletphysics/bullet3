@@ -36,6 +36,11 @@ public:
         BT_PROFILE("CGSolve");
         btAssert(x.size() == b.size());
         reinitialize(b);
+        temp = b;
+        A.project(temp);
+        p = temp;
+        A.precondition(p,z);
+        btScalar d0 = this->dot(z,temp);
         // r = b - A * x --with assigned dof zeroed out
         A.multiply(x, temp);
         r = this->sub(b, temp);
@@ -44,7 +49,7 @@ public:
         A.precondition(r, z);
         A.project(z);
         btScalar r_dot_z = this->dot(z,r);
-        if (r_dot_z <= Base::m_tolerance) {
+        if (r_dot_z <= Base::m_tolerance*d0) {
             if (verbose)
             {
                 std::cout << "Iteration = 0" << std::endl;
@@ -58,7 +63,7 @@ public:
             // temp = A*p
             A.multiply(p, temp);
             A.project(temp);
-            if (this->dot(p,temp) < SIMD_EPSILON)
+            if (this->dot(p,temp) < 0)
             {
                 if (verbose)
                     std::cout << "Encountered negative direction in CG!" << std::endl;
@@ -78,7 +83,7 @@ public:
             A.precondition(r, z);
             r_dot_z = r_dot_z_new;
             r_dot_z_new = this->dot(r,z);
-            if (r_dot_z_new < Base::m_tolerance) {
+            if (r_dot_z_new < Base::m_tolerance * d0) {
                 if (verbose)
                 {
                     std::cout << "ConjugateGradient iterations " << k << std::endl;
@@ -91,7 +96,7 @@ public:
         }
         if (verbose)
         {
-            std::cout << "ConjugateGradient max iterations reached " << Base::m_maxIterations << std::endl;
+            std::cout << "ConjugateGradient max iterations reached " << Base::m_maxIterations << " error = " << r_dot_z_new << std::endl;
         }
         return Base::m_maxIterations;
     }

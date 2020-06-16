@@ -38,13 +38,13 @@ struct TetraCube
 
 class VolumetricDeformable : public CommonDeformableBodyBase
 {
-	btDeformableNeoHookeanForce* m_neohookean;
+	btDeformableLinearElasticityForce* m_linearElasticity;
 
 public:
 	VolumetricDeformable(struct GUIHelperInterface* helper)
 		: CommonDeformableBodyBase(helper)
 	{
-        m_neohookean = 0;
+        m_linearElasticity = 0;
 	}
 	virtual ~VolumetricDeformable()
 	{
@@ -64,12 +64,12 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-		m_neohookean->setPoissonRatio(nu);
-		m_neohookean->setYoungsModulus(E);
-		m_neohookean->setDamping(damping);
+		m_linearElasticity->setPoissonRatio(nu);
+		m_linearElasticity->setYoungsModulus(E);
+		m_linearElasticity->setDamping(damping);
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 480.f;
-        m_dynamicsWorld->stepSimulation(deltaTime, 8, internalTimeStep);
+        float internalTimeStep = 1. / 240.f;
+        m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
     void createStaticBox(const btVector3& halfEdge, const btVector3& translation)
@@ -208,14 +208,14 @@ void VolumetricDeformable::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(psb);
         psb->scale(btVector3(2, 2, 2));
         psb->translate(btVector3(0, 5, 0));
-        psb->getCollisionShape()->setMargin(0.025);
+        psb->getCollisionShape()->setMargin(0.1);
         psb->setTotalMass(0.5);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 0.5;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
-        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
+//        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
 		psb->m_sleepingThreshold = 0;
         btSoftBodyHelpers::generateBoundaryFaces(psb);
         
@@ -223,14 +223,14 @@ void VolumetricDeformable::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
         
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(500,2000,0.01);
-		m_neohookean = neohookean;
-        getDeformableDynamicsWorld()->addForce(psb, neohookean);
-        m_forces.push_back(neohookean);
-        
+        btDeformableLinearElasticityForce* linearElasticity = new btDeformableLinearElasticityForce(1000,1000,0.01);
+		m_linearElasticity = linearElasticity;
+        getDeformableDynamicsWorld()->addForce(psb, linearElasticity);
+        m_forces.push_back(linearElasticity);
     }
-    getDeformableDynamicsWorld()->setImplicit(false);
+    getDeformableDynamicsWorld()->setImplicit(true);
     getDeformableDynamicsWorld()->setLineSearch(false);
+    getDeformableDynamicsWorld()->setUseProjection(true);
     // add a few rigid bodies
     Ctor_RbUpStack(4);
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
@@ -251,7 +251,7 @@ void VolumetricDeformable::initPhysics()
 	}
 	{
 		SliderParams slider("Damping", &damping);
-		slider.m_minVal = 0.01;
+		slider.m_minVal = 0.001;
 		slider.m_maxVal = 0.02;
 		if (m_guiHelper->getParameterInterface())
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);

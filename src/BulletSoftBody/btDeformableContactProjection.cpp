@@ -175,7 +175,6 @@ void btDeformableContactProjection::project(TVStack& x)
             if (free_dir.safeNorm() < SIMD_EPSILON)
             {
                 x[i] -= x[i].dot(dir0) * dir0;
-                x[i] -= x[i].dot(dir1) * dir1;
             }
             else
             {
@@ -309,9 +308,9 @@ void btDeformableContactProjection::setProjection()
                     else
                     {
                         btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
-                        for (int k = 0; k < 3; ++k)
+                        for (int l = 0; l < 3; ++l)
                         {
-                            projections.push_back(units[k]);
+                            projections.push_back(units[l]);
                         }
                     }
                 }
