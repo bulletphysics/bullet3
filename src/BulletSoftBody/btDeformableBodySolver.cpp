@@ -63,6 +63,8 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
     }
     else
     {
+        // Lagrange Multiplier not supported for implicit solve yet.
+        btAssert(m_useProjection == true)
         for (int i = 0; i < m_maxNewtonIterations; ++i)
         {
             updateState();

@@ -40,14 +40,17 @@ public:
     
     virtual void addScaledDampingForce(btScalar scale, TVStack& force)
     {
+        // Gravity force does not require damping
     }
     
     virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
     {
+        // Gravity force does not depend on dv
     }
     
     virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
     {
+        // Gravity force does not require damping
     }
     
     virtual void buildDampingForceDifferentialDiagonal(btScalar scale, TVStack& diagA){}

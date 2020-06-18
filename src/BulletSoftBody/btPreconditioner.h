@@ -114,18 +114,15 @@ public:
         buildDiagonalA(m_inv_A);
         for (int i = 0; i < m_inv_A.size(); ++i)
         {
-//            printf("A[%d] = %f, %f, %f \n", i, m_inv_A[i][0], m_inv_A[i][1], m_inv_A[i][2]);
             for (int d = 0; d < 3; ++d)
             {
                 m_inv_A[i][d] = (m_inv_A[i][d] == 0) ? 0.0 : 1.0/ m_inv_A[i][d];
             }
         }
         m_inv_S.resize(m_projections.m_lagrangeMultipliers.size());
-//        printf("S.size() = %d \n", m_inv_S.size());
         buildDiagonalS(m_inv_A, m_inv_S);
         for (int i = 0; i < m_inv_S.size(); ++i)
         {
-//            printf("S[%d] = %f, %f, %f \n", i, m_inv_S[i][0], m_inv_S[i][1], m_inv_S[i][2]);
             for (int d = 0; d < 3; ++d)
             {
                 m_inv_S[i][d] = (m_inv_S[i][d] == 0) ? 0.0 : 1.0/ m_inv_S[i][d];
@@ -148,7 +145,7 @@ public:
         }
         if (m_implicit)
         {
-            printf("implicit not implemented\n");
+            printf("Lagrange Multiplier for implicit time-stepping scheme is not implemented\n");
             btAssert(false);
         }
         for (int i = 0; i < m_lf.size(); ++i)

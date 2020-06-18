@@ -1486,49 +1486,6 @@ void btSoftBodyHelpers::writeObj(const char* filename, const btSoftBody* psb)
 	fs.close();
 }
 
-void btSoftBodyHelpers::duplicateFaces(const char* filename, const btSoftBody* psb)
-{
-    std::ifstream fs_read;
-    fs_read.open(filename);
-    std::string line;
-    btVector3 pos;
-    btAlignedObjectArray<btAlignedObjectArray<int> > additional_faces;
-    while (std::getline(fs_read, line))
-    {
-        std::stringstream ss(line);
-        if (line[0] == 'v')
-        {
-        }
-        else if (line[0] == 'f')
-        {
-            ss.ignore();
-            int id0, id1, id2;
-            ss >> id0;
-            ss >> id1;
-            ss >> id2;
-            btAlignedObjectArray<int> new_face;
-            new_face.push_back(id1);
-            new_face.push_back(id0);
-            new_face.push_back(id2);
-            additional_faces.push_back(new_face);
-        }
-    }
-    fs_read.close();
-
-    std::ofstream fs_write;
-    fs_write.open(filename, std::ios_base::app);
-    for (int i = 0; i < additional_faces.size(); ++i)
-    {
-        fs_write << "f";
-        for (int n = 0; n < 3; n++)
-        {
-            fs_write << " " << additional_faces[i][n];
-        }
-        fs_write << "\n";
-    }
-    fs_write.close();
-}
-
 // Given a simplex with vertices a,b,c,d, find the barycentric weights of p in this simplex
 void btSoftBodyHelpers::getBarycentricWeights(const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& d, const btVector3& p, btVector4& bary)
 {

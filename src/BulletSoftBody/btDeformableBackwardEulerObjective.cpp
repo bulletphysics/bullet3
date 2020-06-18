@@ -50,7 +50,6 @@ void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated, btScalar
         m_lf[i]->reinitialize(nodeUpdated);
     }
     m_projection.reinitialize(nodeUpdated);
-//    m_preconditioner->reinitialize(nodeUpdated);
 }
 
 void btDeformableBackwardEulerObjective::setDt(btScalar dt)
@@ -164,7 +163,6 @@ void btDeformableBackwardEulerObjective::computeResidual(btScalar dt, TVStack &r
             m_lf[i]->addScaledDampingForce(dt, residual);
         }
     }
-//    m_projection.project(residual);
 }
 
 btScalar btDeformableBackwardEulerObjective::computeNorm(const TVStack& residual) const
@@ -224,4 +222,87 @@ void btDeformableBackwardEulerObjective::setConstraints(const btContactSolverInf
 void btDeformableBackwardEulerObjective::applyDynamicFriction(TVStack& r)
 {
      m_projection.applyDynamicFriction(r);
+}
+
+void btDeformableBackwardEulerObjective::updateId()
+{
+    size_t node_id = 0;
+    size_t face_id = 0;
+    m_nodes.clear();
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodies[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            psb->m_nodes[j].index = node_id;
+            m_nodes.push_back(&psb->m_nodes[j]);
+            ++node_id;
+        }
+        for (int j = 0; j < psb->m_faces.size(); ++j)
+        {
+            psb->m_faces[j].m_index = face_id;
+            ++face_id;
+        }
+    }
+}
+
+void btDeformableBackwardEulerObjective::addLagrangeMultiplier(const TVStack& vec, TVStack& extended_vec)
+{
+    extended_vec.resize(vec.size() + m_projection.m_lagrangeMultipliers.size());
+    for (int i = 0; i < vec.size(); ++i)
+    {
+        extended_vec[i] = vec[i];
+    }
+    int offset = vec.size();
+    for (int i = 0; i < m_projection.m_lagrangeMultipliers.size(); ++i)
+    {
+        extended_vec[offset + i].setZero();
+    }
+}
+
+void btDeformableBackwardEulerObjective::addLagrangeMultiplierRHS(const TVStack& residual, const TVStack& m_dv, TVStack& extended_residual)
+{
+    extended_residual.resize(residual.size() + m_projection.m_lagrangeMultipliers.size());
+    for (int i = 0; i < residual.size(); ++i)
+    {
+        extended_residual[i] = residual[i];
+    }
+    int offset = residual.size();
+    for (int i = 0; i < m_projection.m_lagrangeMultipliers.size(); ++i)
+    {
+        const LagrangeMultiplier& lm = m_projection.m_lagrangeMultipliers[i];
+        extended_residual[offset + i].setZero();
+        for (int d = 0; d < lm.m_num_constraints; ++d)
+        {
+            for (int n = 0; n < lm.m_num_nodes; ++n)
+            {
+                extended_residual[offset + i][d] += lm.m_weights[n] * m_dv[lm.m_indices[n]].dot(lm.m_dirs[d]);
+            }
+        }
+    }
+}
+
+void btDeformableBackwardEulerObjective::calculateContactForce(const TVStack& dv, const TVStack& rhs, TVStack& f)
+{
+    size_t counter = 0;
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodies[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            const btSoftBody::Node& node = psb->m_nodes[j];
+            f[counter] = (node.m_im == 0) ? btVector3(0,0,0) : dv[counter] / node.m_im;
+            ++counter;
+        }
+    }
+    for (int i = 0; i < m_lf.size(); ++i)
+    {
+        // add damping matrix
+        m_lf[i]->addScaledDampingForceDifferential(-m_dt, dv, f);
+    }
+    counter = 0;
+    for (; counter < f.size(); ++counter)
+    {
+        f[counter] = rhs[counter] - f[counter];
+    }
 }
