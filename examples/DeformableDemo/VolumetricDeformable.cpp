@@ -27,9 +27,10 @@
 #include "../Utils/b3ResourcePath.h"
 
 ///The VolumetricDeformable shows the contact between volumetric deformable objects and rigid objects.
-static btScalar E = 25;
+static btScalar E = 50;
 static btScalar nu = 0.3;
-static btScalar damping = 0.01;
+static btScalar damping_alpha = 0.1;
+static btScalar damping_beta = 0.01;
 
 struct TetraCube
 {
@@ -66,9 +67,9 @@ public:
     {
 		m_linearElasticity->setPoissonRatio(nu);
 		m_linearElasticity->setYoungsModulus(E);
-		m_linearElasticity->setDamping(damping);
+		m_linearElasticity->setDamping(damping_alpha, damping_beta);
         //use a smaller internal timestep, there are stability issues
-        float internalTimeStep = 1. / 240.f;
+        float internalTimeStep = 1. / 240;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
@@ -187,7 +188,7 @@ void VolumetricDeformable::initPhysics()
         btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
         btRigidBody* body = new btRigidBody(rbInfo);
-        body->setFriction(0.5);
+        body->setFriction(1);
 
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body);
@@ -212,7 +213,7 @@ void VolumetricDeformable::initPhysics()
         psb->setTotalMass(0.5);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-		psb->m_cfg.kDF = 0.5;
+		psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
 		psb->m_sleepingThreshold = 0;
@@ -253,12 +254,19 @@ void VolumetricDeformable::initPhysics()
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
 	{
-		SliderParams slider("Damping", &damping);
-		slider.m_minVal = 0.001;
-		slider.m_maxVal = 0.01;
+		SliderParams slider("Mass Damping", &damping_alpha);
+		slider.m_minVal = 0;
+		slider.m_maxVal = 1;
 		if (m_guiHelper->getParameterInterface())
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
+    {
+        SliderParams slider("Stiffness Damping", &damping_beta);
+        slider.m_minVal = 0;
+        slider.m_maxVal = 0.1;
+        if (m_guiHelper->getParameterInterface())
+            m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+    }
 }
 
 void VolumetricDeformable::exitPhysics()

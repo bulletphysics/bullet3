@@ -3525,10 +3525,10 @@ void btSoftBody::updateDeformation()
         s.m_trace = C[0].getX() + C[1].getY() + C[2].getZ();
         s.m_cofF = t.m_F.adjoint().transpose();
 		
-		btVector3 a = t.m_n[0]->m_x;
-		btVector3 b = t.m_n[1]->m_x;
-		btVector3 c = t.m_n[2]->m_x;
-		btVector3 d = t.m_n[3]->m_x;
+		btVector3 a = t.m_n[0]->m_q;
+		btVector3 b = t.m_n[1]->m_q;
+		btVector3 c = t.m_n[2]->m_q;
+		btVector3 d = t.m_n[3]->m_q;
 		btVector4 q1(a[0], b[0], c[0], d[0]);
 		btVector4 q2(a[1], b[1], c[1], d[1]);
 		btVector4 q3(a[2], b[2], c[2], d[2]);

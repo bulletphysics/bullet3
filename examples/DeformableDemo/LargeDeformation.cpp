@@ -29,7 +29,8 @@
 ///The LargeDeformation shows the contact between volumetric deformable objects and rigid objects.
 static btScalar E = 25;
 static btScalar nu = 0.3;
-static btScalar damping = 0.01;
+static btScalar damping_alpha = 0.01;
+static btScalar damping_beta = 0.01;
 
 struct TetraCube
 {
@@ -66,7 +67,7 @@ public:
     {
 		m_linearElasticity->setPoissonRatio(nu);
 		m_linearElasticity->setYoungsModulus(E);
-		m_linearElasticity->setDamping(damping);
+		m_linearElasticity->setDamping(damping_alpha, damping_beta);
         float internalTimeStep = 1. / 60.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
     }
@@ -164,12 +165,19 @@ void LargeDeformation::initPhysics()
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
 	{
-		SliderParams slider("Damping", &damping);
+		SliderParams slider("Mass Damping", &damping_alpha);
 		slider.m_minVal = 0.001;
 		slider.m_maxVal = 0.01;
 		if (m_guiHelper->getParameterInterface())
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
+    {
+        SliderParams slider("Stiffness Damping", &damping_beta);
+        slider.m_minVal = 0.001;
+        slider.m_maxVal = 0.01;
+        if (m_guiHelper->getParameterInterface())
+            m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+    }
 }
 
 void LargeDeformation::exitPhysics()

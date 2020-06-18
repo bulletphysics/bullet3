@@ -18,26 +18,21 @@
 
 #include "btDeformableLagrangianForce.h"
 #include "LinearMath/btQuickprof.h"
-#define TETRA_FLAT_THRESHOLD 0.6
+#define TETRA_FLAT_THRESHOLD 0.01
 class btDeformableLinearElasticityForce : public btDeformableLagrangianForce
 {
 public:
     typedef btAlignedObjectArray<btVector3> TVStack;
     btScalar m_mu, m_lambda;
     btScalar m_E, m_nu;  // Young's modulus and Poisson ratio
-    btScalar m_mu_damp, m_lambda_damp;
-    btDeformableLinearElasticityForce(): m_mu(1), m_lambda(1)
+    btScalar m_damping_alpha, m_damping_beta;
+    btDeformableLinearElasticityForce(): m_mu(1), m_lambda(1), m_damping_alpha(0.01), m_damping_beta(0.01)
     {
-        btScalar damping = 0.05;
-        m_mu_damp = damping * m_mu;
-        m_lambda_damp = damping * m_lambda;
 		updateYoungsModulusAndPoissonRatio();
     }
     
-    btDeformableLinearElasticityForce(btScalar mu, btScalar lambda, btScalar damping = 0.05): m_mu(mu), m_lambda(lambda)
+    btDeformableLinearElasticityForce(btScalar mu, btScalar lambda, btScalar damping_alpha = 0.01, btScalar damping_beta = 0.01): m_mu(mu), m_lambda(lambda), m_damping_alpha(damping_alpha), m_damping_beta(damping_beta)
     {
-        m_mu_damp = damping * m_mu;
-        m_lambda_damp = damping * m_lambda;
 		updateYoungsModulusAndPoissonRatio();
     }
     
@@ -69,10 +64,10 @@ public:
         updateLameParameters();
     }
     
-    void setDamping(btScalar damping)
+    void setDamping(btScalar damping_alpha, btScalar damping_beta)
     {
-        m_mu_damp = damping * m_mu;
-        m_lambda_damp = damping * m_lambda;
+        m_damping_alpha = damping_alpha;
+        m_damping_beta = damping_beta;
     }
 
     void setLameParameters(btScalar mu, btScalar lambda)
@@ -96,8 +91,10 @@ public:
     // The damping matrix is calculated using the time n state as described in https://www.math.ucla.edu/~jteran/papers/GSSJT15.pdf to allow line search
     virtual void addScaledDampingForce(btScalar scale, TVStack& force)
     {
-        if (m_mu_damp == 0 && m_lambda_damp == 0)
+        if (m_damping_alpha == 0 && m_damping_beta == 0)
             return;
+        btScalar mu_damp = m_damping_beta * m_mu;
+        btScalar lambda_damp = m_damping_beta * m_lambda;
         int numNodes = getNumNodes();
         btAssert(numNodes <= force.size());
         btVector3 grad_N_hat_1st_col = btVector3(-1,-1,-1);
@@ -127,7 +124,7 @@ public:
                 }
                 btMatrix3x3 I;
                 I.setIdentity();
-                btMatrix3x3 dP = (dF + dF.transpose()) * m_mu_damp + I * ((dF[0][0]+dF[1][1]+dF[2][2]) * m_lambda_damp);
+                btMatrix3x3 dP = (dF + dF.transpose()) * mu_damp + I * ((dF[0][0]+dF[1][1]+dF[2][2]) * lambda_damp);
                 btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
                 if (!close_to_flat)
                 {
@@ -140,6 +137,15 @@ public:
                 force[id1] -= scale1 * df_on_node123.getColumn(0);
                 force[id2] -= scale1 * df_on_node123.getColumn(1);
                 force[id3] -= scale1 * df_on_node123.getColumn(2);
+            }
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                const btSoftBody::Node& node = psb->m_nodes[j];
+                size_t id = node.index;
+                if (node.m_im > 0)
+                {
+                    force[id] -= scale * node.m_v / node.m_im * m_damping_alpha;
+                }
             }
         }
     }
@@ -280,8 +286,10 @@ public:
     // The damping matrix is calculated using the time n state as described in https://www.math.ucla.edu/~jteran/papers/GSSJT15.pdf to allow line search
     virtual void addScaledDampingForceDifferential(btScalar scale, const TVStack& dv, TVStack& df)
     {
-        if (m_mu_damp == 0 && m_lambda_damp == 0)
+        if (m_damping_alpha == 0 && m_damping_beta == 0)
             return;
+        btScalar mu_damp = m_damping_beta * m_mu;
+        btScalar lambda_damp = m_damping_beta * m_lambda;
         int numNodes = getNumNodes();
         btAssert(numNodes <= df.size());
         btVector3 grad_N_hat_1st_col = btVector3(-1,-1,-1);
@@ -311,7 +319,7 @@ public:
                 }
                 btMatrix3x3 I;
                 I.setIdentity();
-                btMatrix3x3 dP = (dF + dF.transpose()) * m_mu_damp + I * ((dF[0][0]+dF[1][1]+dF[2][2]) * m_lambda_damp);
+                btMatrix3x3 dP = (dF + dF.transpose()) * mu_damp + I * ((dF[0][0]+dF[1][1]+dF[2][2]) * lambda_damp);
                 btMatrix3x3 df_on_node123 = dP * tetra.m_Dm_inverse.transpose();
                 if (!close_to_flat)
                 {
@@ -325,6 +333,15 @@ public:
                 df[id1] -= scale1 * df_on_node123.getColumn(0);
                 df[id2] -= scale1 * df_on_node123.getColumn(1);
                 df[id3] -= scale1 * df_on_node123.getColumn(2);
+            }
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                const btSoftBody::Node& node = psb->m_nodes[j];
+                size_t id = node.index;
+                if (node.m_im > 0)
+                {
+                    df[id] -= scale * dv[id] / node.m_im * m_damping_alpha;
+                }
             }
         }
     }
@@ -390,8 +407,10 @@ public:
     // This function calculates the dP = dQ/dF * dF
     void firstPiolaDampingDifferential(const btSoftBody::TetraScratch& s, const btMatrix3x3& dF,  btMatrix3x3& dP)
     {
+        btScalar mu_damp = m_damping_beta * m_mu;
+        btScalar lambda_damp = m_damping_beta * m_lambda;
         btScalar trace = (dF[0][0] + dF[1][1] + dF[2][2]);
-        dP = (dF + dF.transpose()) * m_mu_damp +  btMatrix3x3::getIdentity()  * m_lambda_damp * trace;
+        dP = (dF + dF.transpose()) * mu_damp +  btMatrix3x3::getIdentity()  * lambda_damp * trace;
     }
     
     virtual btDeformableLagrangianForceType getForceType()

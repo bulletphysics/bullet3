@@ -33,6 +33,7 @@ public:
     // return the number of iterations taken
     int solve(MatrixX& A, TVStack& x, const TVStack& b, bool verbose = false)
     {
+        verbose = true;
         BT_PROFILE("CGSolve");
         btAssert(x.size() == b.size());
         reinitialize(b);
@@ -41,6 +42,7 @@ public:
         p = temp;
         A.precondition(p,z);
         btScalar d0 = this->dot(z,temp);
+        d0 = btMin(btScalar(1), d0);
         // r = b - A * x --with assigned dof zeroed out
         A.multiply(x, temp);
         r = this->sub(b, temp);
