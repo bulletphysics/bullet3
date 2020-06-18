@@ -438,12 +438,19 @@ void btDeformableBodySolver::predictDeformableMotion(btSoftBody* psb, btScalar d
         // apply drag
         n.m_v *= (1 - psb->m_cfg.drag);
         // scale velocity back
-        if (n.m_v.norm() > max_v)
-        {
-            n.m_v.safeNormalize();
-            n.m_v *= max_v;
-        }
-        n.m_q = n.m_x + n.m_v * dt;
+		if (m_implicit)
+		{
+			n.m_q = n.m_x;
+		}
+		else
+		{
+			if (n.m_v.norm() > max_v)
+			{
+				n.m_v.safeNormalize();
+				n.m_v *= max_v;
+			}
+			n.m_q = n.m_x + n.m_v * dt;
+		}
         n.m_splitv.setZero();
         n.m_constrained = false;
     }

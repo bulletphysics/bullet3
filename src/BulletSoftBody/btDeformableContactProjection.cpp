@@ -70,6 +70,12 @@ btScalar btDeformableContactProjection::solveSplitImpulse(btCollisionObject** de
             {
                 continue;
             }
+            for (int k = 0; k < m_nodeRigidConstraints[j].size(); ++k)
+            {
+                btDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[j][k];
+                btScalar localResidualSquare = constraint.solveSplitImpulse(infoGlobal);
+                residualSquare = btMax(residualSquare, localResidualSquare);
+            }
             for (int k = 0; k < m_faceRigidConstraints[j].size(); ++k)
             {
                 btDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[j][k];
@@ -140,15 +146,6 @@ void btDeformableContactProjection::setConstraints(const btContactSolverInfo& in
 			}
 			btDeformableFaceRigidContactConstraint constraint(contact, infoGlobal, m_useStrainLimiting);
             m_faceRigidConstraints[i].push_back(constraint);
-            //            btVector3 va = constraint.getVa();
-            //            btVector3 vb = constraint.getVb();
-            //            const btVector3 vr = vb - va;
-            //            const btSoftBody::sCti& cti = contact.m_cti;
-            //            const btScalar dn = btDot(vr, cti.m_normal);
-            //            if (dn < SIMD_EPSILON)
-            //            {
-            //                m_faceRigidConstraints[i].push_back(constraint);
-            //            }
 		}
 	}
 }
@@ -255,33 +252,36 @@ void btDeformableContactProjection::setProjection()
         {
             int index = m_nodeRigidConstraints[i][j].m_node->index;
 			m_nodeRigidConstraints[i][j].m_node->m_constrained = true;
-            if (m_nodeRigidConstraints[i][j].m_static)
+            if (m_nodeRigidConstraints[i][j].m_binding)
             {
-                if (m_projectionsDict.find(index) == NULL)
+                if (m_nodeRigidConstraints[i][j].m_static)
                 {
-                    m_projectionsDict.insert(index, units);
-                }
-                else
-                {
-                    btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
-                    for (int k = 0; k < 3; ++k)
+                    if (m_projectionsDict.find(index) == NULL)
                     {
-                        projections.push_back(units[k]);
+                        m_projectionsDict.insert(index, units);
+                    }
+                    else
+                    {
+                        btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
+                        for (int k = 0; k < 3; ++k)
+                        {
+                            projections.push_back(units[k]);
+                        }
                     }
                 }
-            }
-            else
-            {
-                if (m_projectionsDict.find(index) == NULL)
-                {
-                    btAlignedObjectArray<btVector3> projections;
-                    projections.push_back(m_nodeRigidConstraints[i][j].m_normal);
-                    m_projectionsDict.insert(index, projections);
-                }
                 else
                 {
-                    btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
-                    projections.push_back(m_nodeRigidConstraints[i][j].m_normal);
+                    if (m_projectionsDict.find(index) == NULL)
+                    {
+                        btAlignedObjectArray<btVector3> projections;
+                        projections.push_back(m_nodeRigidConstraints[i][j].m_normal);
+                        m_projectionsDict.insert(index, projections);
+                    }
+                    else
+                    {
+                        btAlignedObjectArray<btVector3>& projections = *m_projectionsDict[index];
+                        projections.push_back(m_nodeRigidConstraints[i][j].m_normal);
+                    }
                 }
             }
         }

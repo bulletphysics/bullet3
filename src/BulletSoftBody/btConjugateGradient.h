@@ -49,7 +49,7 @@ public:
         A.precondition(r, z);
         A.project(z);
         btScalar r_dot_z = this->dot(z,r);
-        if (r_dot_z <= Base::m_tolerance*d0) {
+        if (r_dot_z <= Base::m_tolerance * d0) {
             if (verbose)
             {
                 std::cout << "Iteration = 0" << std::endl;
@@ -86,7 +86,7 @@ public:
             if (r_dot_z_new < Base::m_tolerance * d0) {
                 if (verbose)
                 {
-                    std::cout << "ConjugateGradient iterations " << k << std::endl;
+                    std::cout << "ConjugateGradient iterations " << k << " residual = " << r_dot_z_new << std::endl;
                 }
                 return k;
             }
