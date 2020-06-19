@@ -11008,6 +11008,7 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 			}
 		}
 
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		if (body && body->m_softBody)
 		{
 			btSoftBody* sb = body->m_softBody;
@@ -11030,6 +11031,8 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 				}
 			}
 		}
+#endif
+
 	}
 
 	SharedMemoryStatus& serverCmd = serverStatusOut;
@@ -11782,6 +11785,8 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 				delete userConstraintPtr->m_rbConstraint;
 				m_data->m_userConstraints.remove(userConstraintUidRemove);
 			}
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+
 			if (userConstraintPtr->m_sbHandle >= 0)
 			{
 				InternalBodyHandle* sbodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_parentBodyIndex);
@@ -11800,6 +11805,7 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 					}
 				}
 			}
+#endif
 			serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = userConstraintUidRemove;
 			serverCmd.m_type = CMD_REMOVE_USER_CONSTRAINT_COMPLETED;
 		}
