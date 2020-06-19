@@ -1142,9 +1142,7 @@ static inline bool lineIntersectsTriangle(const btVector3& rayStart, const btVec
 	if (dir_norm < SIMD_EPSILON)
 		return false;
 	dir.normalize();
-
 	btScalar t;
-
 	bool ret = rayIntersectsTriangle(rayStart, dir, p1, p2, p3, t);
 
 	if (ret)

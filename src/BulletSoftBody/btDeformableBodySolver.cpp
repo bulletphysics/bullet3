@@ -396,7 +396,6 @@ void btDeformableBodySolver::predictMotion(btScalar solverdt)
 		}
 	}
 	m_objective->applyExplicitForce(m_residual);
-
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
 		btSoftBody* psb = m_softBodies[i];

@@ -2778,7 +2778,6 @@ bool btSoftBody::checkDeformableContact(const btCollisionObjectWrapper* colObjWr
 	{
 		cti.m_colObj = colObjWrap->getCollisionObject();
 		cti.m_normal = wtr.getBasis() * nrm;
-		cti.m_normal.normalize();
 		cti.m_offset = dst;
 	}
 	if (dst < 0)

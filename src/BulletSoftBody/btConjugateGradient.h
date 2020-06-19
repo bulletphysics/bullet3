@@ -34,7 +34,6 @@ public:
 	// return the number of iterations taken
 	int solve(MatrixX& A, TVStack& x, const TVStack& b, bool verbose = false)
 	{
-		verbose = true;
 		BT_PROFILE("CGSolve");
 		btAssert(x.size() == b.size());
 		reinitialize(b);
