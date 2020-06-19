@@ -19,7 +19,7 @@ class PhysicsServerCommandProcessor : public CommandProcessorInterface
 {
 	struct PhysicsServerCommandProcessorInternalData* m_data;
 
-	void resetSimulation(int flags=0);
+	void resetSimulation(int flags = 0);
 	void createThreadPool();
 
 	class btDeformableMultiBodyDynamicsWorld* getDeformableWorld();
@@ -120,7 +120,7 @@ public:
 
 	void createJointMotors(class btMultiBody* body);
 
-	virtual void createEmptyDynamicsWorld(int flags=0);
+	virtual void createEmptyDynamicsWorld(int flags = 0);
 	virtual void deleteDynamicsWorld();
 
 	virtual bool connect()
