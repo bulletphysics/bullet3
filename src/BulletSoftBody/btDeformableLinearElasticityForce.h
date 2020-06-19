@@ -18,6 +18,7 @@
 
 #include "btDeformableLagrangianForce.h"
 #include "LinearMath/btQuickprof.h"
+#include "btSoftBodyInternals.h"
 #define TETRA_FLAT_THRESHOLD 0.01
 class btDeformableLinearElasticityForce : public btDeformableLagrangianForce
 {
@@ -411,6 +412,46 @@ public:
         btScalar lambda_damp = m_damping_beta * m_lambda;
         btScalar trace = (dF[0][0] + dF[1][1] + dF[2][2]);
         dP = (dF + dF.transpose()) * mu_damp +  btMatrix3x3::getIdentity()  * lambda_damp * trace;
+    }
+    
+    virtual void addScaledHessian(btScalar scale)
+    {
+        btVector3 grad_N_hat_1st_col = btVector3(-1,-1,-1);
+        for (int i = 0; i < m_softBodies.size(); ++i)
+        {
+            btSoftBody* psb = m_softBodies[i];
+            if (!psb->isActive())
+            {
+                continue;
+            }
+            for (int j = 0; j < psb->m_tetras.size(); ++j)
+            {
+                btSoftBody::Tetra& tetra = psb->m_tetras[j];
+                btMatrix3x3 P;
+                firstPiola(psb->m_tetraScratches[j],P); // make sure scratch is evaluated at x_n + dt * vn
+                btMatrix3x3 force_on_node123 = psb->m_tetraScratches[j].m_corotation * P * tetra.m_Dm_inverse.transpose();
+                btVector3 force_on_node0 = force_on_node123 * grad_N_hat_1st_col;
+                btSoftBody::Node* node0 = tetra.m_n[0];
+                btSoftBody::Node* node1 = tetra.m_n[1];
+                btSoftBody::Node* node2 = tetra.m_n[2];
+                btSoftBody::Node* node3 = tetra.m_n[3];
+                btScalar scale1 = scale * (scale + m_damping_beta) * tetra.m_element_measure; // stiff and stiffness-damping terms;
+                node0->m_effectiveMass += OuterProduct(force_on_node0,force_on_node0) * scale1;
+                node1->m_effectiveMass += OuterProduct(force_on_node123.getColumn(0),force_on_node123.getColumn(0)) * scale1;
+                node2->m_effectiveMass +=  OuterProduct(force_on_node123.getColumn(1),force_on_node123.getColumn(1)) * scale1;
+                node3->m_effectiveMass += OuterProduct(force_on_node123.getColumn(2),force_on_node123.getColumn(2)) * scale1;
+            }
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                btSoftBody::Node& node = psb->m_nodes[j];
+                if (node.m_im > 0)
+                {
+                    btMatrix3x3 I;
+                    I.setIdentity();
+                    node.m_effectiveMass +=  I * (scale * (1.0/node.m_im) * m_damping_alpha);
+                }
+            }
+        }
     }
     
     virtual btDeformableLagrangianForceType getForceType()

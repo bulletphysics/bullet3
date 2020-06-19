@@ -49,6 +49,17 @@ void btDeformableBackwardEulerObjective::reinitialize(bool nodeUpdated, btScalar
     {
         m_lf[i]->reinitialize(nodeUpdated);
     }
+    btMatrix3x3 I;
+    I.setIdentity();
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodies[i];
+        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        {
+            if (psb->m_nodes[j].m_im > 0)
+                psb->m_nodes[j].m_effectiveMass = I * (1.0 / psb->m_nodes[j].m_im);
+        }
+    }
     m_projection.reinitialize(nodeUpdated);
 //    m_preconditioner->reinitialize(nodeUpdated);
 }
@@ -136,10 +147,23 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
             counter += psb->m_nodes.size();
             continue;
         }
-        for (int j = 0; j < psb->m_nodes.size(); ++j)
+        if (m_implicit)
         {
-            btScalar one_over_mass = (psb->m_nodes[j].m_im == 0) ? 0 : psb->m_nodes[j].m_im;
-            psb->m_nodes[j].m_v += one_over_mass * force[counter++];
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                if (psb->m_nodes[j].m_im != 0)
+                {
+                    psb->m_nodes[j].m_v += psb->m_nodes[j].m_effectiveMass_inv * force[counter++];
+                }
+            }
+        }
+        else
+        {
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                btScalar one_over_mass = (psb->m_nodes[j].m_im == 0) ? 0 : psb->m_nodes[j].m_im;
+                psb->m_nodes[j].m_v += one_over_mass * force[counter++];
+            }
         }
     }
     if (setZero)
@@ -193,10 +217,56 @@ void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
     {
         m_softBodies[i]->advanceDeformation();
     }
-    
-    for (int i = 0; i < m_lf.size(); ++i)
+    if (m_implicit)
     {
-        m_lf[i]->addScaledExplicitForce(m_dt, force);
+        // apply forces except gravity force
+        btVector3 gravity;
+        for (int i = 0; i < m_lf.size(); ++i)
+        {
+            if (m_lf[i]->getForceType() == BT_GRAVITY_FORCE)
+            {
+                gravity = dynamic_cast<btDeformableGravityForce*>(m_lf[i])->m_gravity;
+            }
+            else
+            {
+                m_lf[i]->addScaledExplicitForce(m_dt, force);
+            }
+        }
+        for (int i = 0; i < m_lf.size(); ++i)
+        {
+            m_lf[i]->addScaledHessian(m_dt);
+        }
+        for (int i = 0; i < m_softBodies.size(); ++i)
+        {
+            btSoftBody* psb = m_softBodies[i];
+            if (psb->isActive())
+            {
+                for (int j = 0; j < psb->m_nodes.size(); ++j)
+                {
+                    // add gravity explicitly
+                    psb->m_nodes[j].m_v += m_dt * psb->m_gravityFactor * gravity;
+                }
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < m_lf.size(); ++i)
+        {
+            m_lf[i]->addScaledExplicitForce(m_dt, force);
+        }
+    }
+    // calculate inverse mass matrix for all nodes
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+        btSoftBody* psb = m_softBodies[i];
+        if (psb->isActive())
+        {
+            for (int j = 0; j < psb->m_nodes.size(); ++j)
+            {
+                psb->m_nodes[j].m_effectiveMass_inv = psb->m_nodes[j].m_effectiveMass.inverse();
+            }
+        }
     }
     applyForce(force, true);
 }

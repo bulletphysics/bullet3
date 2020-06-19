@@ -66,6 +66,8 @@ public:
     // add all damping forces 
     virtual void addScaledDampingForce(btScalar scale, TVStack& force) = 0;
     
+    virtual void addScaledHessian(btScalar scale){}
+    
     virtual btDeformableLagrangianForceType getForceType() = 0;
     
     virtual void reinitialize(bool nodeUpdated)

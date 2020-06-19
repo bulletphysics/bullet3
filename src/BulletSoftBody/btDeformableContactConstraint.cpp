@@ -286,15 +286,14 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
     btVector3 impulse_tangent = impulse - impulse_normal;
     if (dn > 0)
     {
-        m_binding = false;
         return 0;
     }
     m_binding = true;
     btScalar residualSquare = dn*dn;
     btVector3 old_total_tangent_dv = m_total_tangent_dv;
-    // m_c2 is the inverse mass of the deformable node/face
-    m_total_normal_dv -= impulse_normal * m_contact->m_c2;
-    m_total_tangent_dv -= impulse_tangent * m_contact->m_c2;
+    // m_c5 is the inverse mass of the deformable node/face
+    m_total_normal_dv -= m_contact->m_c5 * impulse_normal;
+    m_total_tangent_dv -= m_contact->m_c5 * impulse_tangent;
 
     if (m_total_normal_dv.dot(cti.m_normal) < 0)
     {
@@ -317,7 +316,8 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
             {
                 m_total_tangent_dv = m_total_tangent_dv.normalized() * m_total_normal_dv.safeNorm() * m_contact->m_c3;
             }
-            impulse_tangent = -btScalar(1)/m_contact->m_c2 * (m_total_tangent_dv - old_total_tangent_dv);
+//            impulse_tangent = -btScalar(1)/m_contact->m_c2 * (m_total_tangent_dv - old_total_tangent_dv);
+            impulse_tangent = m_contact->m_c5.inverse() * (old_total_tangent_dv - m_total_tangent_dv);
         }
         else
         {
@@ -445,14 +445,14 @@ btVector3 btDeformableNodeRigidContactConstraint::getDv(const btSoftBody::Node* 
 void btDeformableNodeRigidContactConstraint::applyImpulse(const btVector3& impulse)
 {
     const btSoftBody::DeformableNodeRigidContact* contact = getContact();
-    btVector3 dv = impulse * contact->m_c2;
+    btVector3 dv = contact->m_c5 * impulse;
     contact->m_node->m_v -= dv;
 }
 
 void btDeformableNodeRigidContactConstraint::applySplitImpulse(const btVector3& impulse)
 {
 	const btSoftBody::DeformableNodeRigidContact* contact = getContact();
-	btVector3 dv = impulse * contact->m_c2;
+    btVector3 dv = contact->m_c5 * impulse;
 	contact->m_node->m_splitv -= dv;
 }
 

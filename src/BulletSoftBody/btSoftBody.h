@@ -273,6 +273,8 @@ public:
 		int m_battach : 1;   // Attached
 		int index;
 		btVector3 m_splitv;  // velocity associated with split impulse
+        btMatrix3x3 m_effectiveMass; // effective mass in contact
+        btMatrix3x3 m_effectiveMass_inv; // inverse of effective mass
 	};
 	/* Link			*/
 	ATTRIBUTE_ALIGNED16(struct)
@@ -352,6 +354,7 @@ public:
         btScalar m_c2;     // inverse mass of node/face
         btScalar m_c3;     // Friction
         btScalar m_c4;     // Hardness
+        btMatrix3x3 m_c5;   // inverse effective mass
         
         // jacobians and unit impulse responses for multibody
         btMultiBodyJacobianData jacobianData_normal;
