@@ -1,16 +1,14 @@
-project "BulletSoftBody"
-
+	project "BulletSoftBody"
+		
 	kind "StaticLib"
-
-	includedirs
-{
-	"..",
-}
-if
-	os.is("Linux") then
-		buildoptions{"-fPIC"} end
-		files
-	{
+	
+	includedirs {
+		"..",
+	}
+    if os.is("Linux") then
+        buildoptions{"-fPIC"}
+    end
+	files {
 		"**.cpp",
-			"**.h"
+		"**.h"
 	}
