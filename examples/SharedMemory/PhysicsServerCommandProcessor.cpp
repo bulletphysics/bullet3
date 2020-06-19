@@ -1655,7 +1655,9 @@ struct PhysicsServerCommandProcessorInternalData
 
 
 #ifndef SKIP_DEFORMABLE_BODY
-	
+	btSoftBody* m_pickedSoftBody;
+	btDeformableMousePickingForce* m_mouseForce;
+	btScalar m_maxPickingForce;
 	btDeformableBodySolver* m_deformablebodySolver;
     btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
 #endif
@@ -1685,6 +1687,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	//data for picking objects
 	class btRigidBody* m_pickedBody;
+	
 	int m_savedActivationState;
 	class btTypedConstraint* m_pickedConstraint;
 	class btMultiBodyPoint2Point* m_pickingMultiBodyPoint2Point;
@@ -1727,6 +1730,9 @@ struct PhysicsServerCommandProcessorInternalData
 		  m_solver(0),
 		  m_collisionConfiguration(0),
 #ifndef SKIP_DEFORMABLE_BODY
+		  m_pickedSoftBody(0),
+		  m_mouseForce(0),
+		  m_maxPickingForce(0.3),
 		  m_deformablebodySolver(0),
 #endif
 		  m_dynamicsWorld(0),
@@ -8428,7 +8434,10 @@ void constructUrdfDeformable(const struct SharedMemoryCommand& clientCmd, UrdfDe
 	{
 		deformable.m_repulsionStiffness = loadSoftBodyArgs.m_repulsionStiffness;
 	}
-
+	if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_SET_GRAVITY_FACTOR)
+	{
+		deformable.m_gravFactor = loadSoftBodyArgs.m_gravFactor;
+	}
 #endif
 }
 
@@ -8641,14 +8650,17 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			// turn on the collision flag for deformable
 			// collision between deformable and rigid
 			psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
-			// turn on face contact only for multibodies
+			// turn on face contact for multibodies
 			psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
+			/// turn on face contact for rigid body
+			psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
 			// collion between deformable and deformable and self-collision
 			psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
 			psb->setCollisionFlags(0);
 			psb->setTotalMass(deformable.m_mass);
 			psb->setSelfCollision(useSelfCollision);
 			psb->setSpringStiffness(deformable.m_repulsionStiffness);
+			psb->setGravityFactor(deformable.m_gravFactor);
 			psb->initializeFaceTree();
 		}
 #endif  //SKIP_DEFORMABLE_BODY
@@ -10949,7 +10961,7 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 					int link = clientCmd.m_externalForceArguments.m_linkIds[i];
 
 					btVector3 forceWorld = isLinkFrame ? mb->getLink(link).m_cachedWorldTransform.getBasis() * tmpForce : tmpForce;
-					btVector3 relPosWorld = isLinkFrame ? mb->getLink(link).m_cachedWorldTransform.getBasis() * tmpPosition : tmpPosition - mb->getBaseWorldTransform().getOrigin();
+					btVector3 relPosWorld = isLinkFrame ? mb->getLink(link).m_cachedWorldTransform.getBasis() * tmpPosition : tmpPosition - mb->getLink(link).m_cachedWorldTransform.getOrigin();
 					mb->addLinkForce(link, forceWorld);
 					mb->addLinkTorque(link, relPosWorld.cross(forceWorld));
 					//b3Printf("apply link force of %f,%f,%f at %f,%f,%f\n", forceWorld[0],forceWorld[1],forceWorld[2], positionLocal[0],positionLocal[1],positionLocal[2]);
@@ -13775,10 +13787,15 @@ void PhysicsServerCommandProcessor::physicsDebugDraw(int debugDrawFlags)
 	}
 }
 
+
+
 struct MyResultCallback : public btCollisionWorld::ClosestRayResultCallback
 {
+	int m_faceId;
+
 	MyResultCallback(const btVector3& rayFromWorld, const btVector3& rayToWorld)
-		: btCollisionWorld::ClosestRayResultCallback(rayFromWorld, rayToWorld)
+		: btCollisionWorld::ClosestRayResultCallback(rayFromWorld, rayToWorld),
+		m_faceId(-1)
 	{
 	}
 
@@ -13786,7 +13803,36 @@ struct MyResultCallback : public btCollisionWorld::ClosestRayResultCallback
 	{
 		return true;
 	}
+
+	virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)
+	{
+		//caller already does the filter on the m_closestHitFraction
+		btAssert(rayResult.m_hitFraction <= m_closestHitFraction);
+
+		m_closestHitFraction = rayResult.m_hitFraction;
+		m_collisionObject = rayResult.m_collisionObject;
+		if (rayResult.m_localShapeInfo)
+		{
+			m_faceId = rayResult.m_localShapeInfo->m_triangleIndex;
+		}
+		else
+		{
+			m_faceId = -1;
+		}
+		if (normalInWorldSpace)
+		{
+			m_hitNormalWorld = rayResult.m_hitNormalLocal;
+		}
+		else
+		{
+			///need to transform normal into worldspace
+			m_hitNormalWorld = m_collisionObject->getWorldTransform().getBasis() * rayResult.m_hitNormalLocal;
+		}
+		m_hitPointWorld.setInterpolate3(m_rayFromWorld, m_rayToWorld, rayResult.m_hitFraction);
+		return rayResult.m_hitFraction;
+	}
 };
+
 
 bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
 {
@@ -13843,6 +13889,31 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 				world->addMultiBodyConstraint(p2p);
 				m_data->m_pickingMultiBodyPoint2Point = p2p;
 			}
+			else
+			{
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+				//deformable/soft body?
+				btSoftBody* psb = (btSoftBody*)btSoftBody::upcast(rayCallback.m_collisionObject);
+				if (psb)
+				{
+					btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+					if (deformWorld)
+					{
+						int face_id = rayCallback.m_faceId;
+						if (face_id >= 0 && face_id < psb->m_faces.size())
+						{
+							m_data->m_pickedSoftBody = psb;
+							psb->setActivationState(DISABLE_DEACTIVATION);
+							const btSoftBody::Face& f = psb->m_faces[face_id];
+							btDeformableMousePickingForce* mouse_force = new btDeformableMousePickingForce(100, 0, f, pickPos, m_data->m_maxPickingForce);
+							m_data->m_mouseForce = mouse_force;
+
+							deformWorld->addForce(psb, mouse_force);
+						}
+					}
+				}
+#endif
+			}
 		}
 
 		//					pickObject(pickPos, rayCallback.m_collisionObject);
@@ -13886,6 +13957,21 @@ bool PhysicsServerCommandProcessor::movePickedBody(const btVector3& rayFromWorld
 		m_data->m_pickingMultiBodyPoint2Point->setPivotInB(newPivotB);
 	}
 
+#ifndef SKIP_DEFORMABLE_BODY
+	if (m_data->m_pickedSoftBody)
+	{
+		if (m_data->m_pickedSoftBody && m_data->m_mouseForce)
+		{
+			btVector3 newPivot;
+			btVector3 dir = rayToWorld - rayFromWorld;
+			dir.normalize();
+			dir *= m_data->m_oldPickingDist;
+			newPivot = rayFromWorld + dir;
+			m_data->m_mouseForce->setMousePos(newPivot);
+		}
+	}
+#endif
+
 	return false;
 }
 
@@ -13907,6 +13993,20 @@ void PhysicsServerCommandProcessor::removePickingConstraint()
 		delete m_data->m_pickingMultiBodyPoint2Point;
 		m_data->m_pickingMultiBodyPoint2Point = 0;
 	}
+
+
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	//deformable/soft body?
+	btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+	if (deformWorld && m_data->m_mouseForce)
+	{
+		deformWorld->removeForce(m_data->m_pickedSoftBody, m_data->m_mouseForce);
+		delete m_data->m_mouseForce;
+		m_data->m_mouseForce = 0;
+		m_data->m_pickedSoftBody = 0;
+	}
+#endif
+
 }
 
 void PhysicsServerCommandProcessor::enableCommandLogging(bool enable, const char* fileName)
