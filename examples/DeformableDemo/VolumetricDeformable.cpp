@@ -230,8 +230,8 @@ void VolumetricDeformable::initPhysics()
     getDeformableDynamicsWorld()->setImplicit(true);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(true);
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.1;
-    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(20);
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
     getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
@@ -242,7 +242,7 @@ void VolumetricDeformable::initPhysics()
 	{
 		SliderParams slider("Young's Modulus", &E);
 		slider.m_minVal = 0;
-		slider.m_maxVal = 200;
+		slider.m_maxVal = 2000;
 		if (m_guiHelper->getParameterInterface())
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}

@@ -27,9 +27,9 @@
 #include "../Utils/b3ResourcePath.h"
 
 ///The LargeDeformation shows the contact between volumetric deformable objects and rigid objects.
-static btScalar E = 25;
+static btScalar E = 50;
 static btScalar nu = 0.3;
-static btScalar damping_alpha = 0.01;
+static btScalar damping_alpha = 0.1;
 static btScalar damping_beta = 0.01;
 
 struct TetraCube
@@ -119,7 +119,7 @@ void LargeDeformation::initPhysics()
         psb->scale(btVector3(2, 2, 2));
         psb->translate(btVector3(0, 5, 0));
         psb->getCollisionShape()->setMargin(0.1);
-        psb->setTotalMass(0.1);
+        psb->setTotalMass(0.5);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
 		psb->m_cfg.kDF = 0.5;
@@ -150,34 +150,62 @@ void LargeDeformation::initPhysics()
     // add a few rigid bodies
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 	
-	{
-		SliderParams slider("Young's Modulus", &E);
-		slider.m_minVal = 0;
-		slider.m_maxVal = 200;
-		if (m_guiHelper->getParameterInterface())
-			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
-	}
-	{
-		SliderParams slider("Poisson Ratio", &nu);
-		slider.m_minVal = 0.05;
-		slider.m_maxVal = 0.40;
-		if (m_guiHelper->getParameterInterface())
-			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
-	}
-	{
-		SliderParams slider("Mass Damping", &damping_alpha);
-		slider.m_minVal = 0.001;
-		slider.m_maxVal = 0.01;
-		if (m_guiHelper->getParameterInterface())
-			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
-	}
     {
-        SliderParams slider("Stiffness Damping", &damping_beta);
-        slider.m_minVal = 0.001;
-        slider.m_maxVal = 0.01;
+        SliderParams slider("Young's Modulus", &E);
+        slider.m_minVal = 0;
+        slider.m_maxVal = 2000;
         if (m_guiHelper->getParameterInterface())
             m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
+    {
+        SliderParams slider("Poisson Ratio", &nu);
+        slider.m_minVal = 0.05;
+        slider.m_maxVal = 0.49;
+        if (m_guiHelper->getParameterInterface())
+            m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+    }
+    {
+        SliderParams slider("Mass Damping", &damping_alpha);
+        slider.m_minVal = 0;
+        slider.m_maxVal = 1;
+        if (m_guiHelper->getParameterInterface())
+            m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+    }
+    {
+        SliderParams slider("Stiffness Damping", &damping_beta);
+        slider.m_minVal = 0;
+        slider.m_maxVal = 0.1;
+        if (m_guiHelper->getParameterInterface())
+            m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+    }
+//	{
+//		SliderParams slider("Young's Modulus", &E);
+//		slider.m_minVal = 0;
+//		slider.m_maxVal = 200;
+//		if (m_guiHelper->getParameterInterface())
+//			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+//	}
+//	{
+//		SliderParams slider("Poisson Ratio", &nu);
+//		slider.m_minVal = 0.05;
+//		slider.m_maxVal = 0.40;
+//		if (m_guiHelper->getParameterInterface())
+//			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+//	}
+//	{
+//		SliderParams slider("Mass Damping", &damping_alpha);
+//		slider.m_minVal = 0.001;
+//		slider.m_maxVal = 0.01;
+//		if (m_guiHelper->getParameterInterface())
+//			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+//	}
+//    {
+//        SliderParams slider("Stiffness Damping", &damping_beta);
+//        slider.m_minVal = 0.001;
+//        slider.m_maxVal = 0.01;
+//        if (m_guiHelper->getParameterInterface())
+//            m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+//    }
 }
 
 void LargeDeformation::exitPhysics()
