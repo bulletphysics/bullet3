@@ -226,7 +226,7 @@ void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
 			}
 			else
 			{
-				m_lf[i]->addScaledExplicitForce(m_dt, force);
+				m_lf[i]->addScaledForces(m_dt, force);
 			}
 		}
 		for (int i = 0; i < m_lf.size(); ++i)
