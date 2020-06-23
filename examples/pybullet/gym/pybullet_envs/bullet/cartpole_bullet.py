@@ -17,7 +17,7 @@ import time
 import subprocess
 import pybullet as p2
 import pybullet_data
-import pybullet_utils.bullet_client as bc
+from pybullet_utils import bullet_client as bc
 from pkg_resources import parse_version
 
 logger = logging.getLogger(__name__)

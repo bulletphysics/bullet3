@@ -1,6 +1,6 @@
 #rudimentary MuJoCo mjcf to ROS URDF converter using the UrdfEditor
 
-import pybullet_utils.bullet_client as bc
+from pybullet_utils import bullet_client as bc
 import pybullet_data as pd
 
 import pybullet_utils.urdfEditor as ed
