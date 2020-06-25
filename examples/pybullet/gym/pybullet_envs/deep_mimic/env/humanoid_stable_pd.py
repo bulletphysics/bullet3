@@ -739,7 +739,7 @@ class HumanoidStablePD(object):
     vel_w = 0.05
     end_eff_w = 0.15
     root_w = 0.2
-    com_w = 0  #0.1
+    com_w = 0.1  # 0
 
     total_w = pose_w + vel_w + end_eff_w + root_w + com_w
     pose_w /= total_w
