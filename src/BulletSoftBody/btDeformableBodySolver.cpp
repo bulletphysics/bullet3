@@ -384,14 +384,17 @@ bool btDeformableBodySolver::updateNodes()
 void btDeformableBodySolver::predictMotion(btScalar solverdt)
 {
 	// apply explicit forces to velocity
-	for (int i = 0; i < m_softBodies.size(); ++i)
+	if (m_implicit)
 	{
-		btSoftBody* psb = m_softBodies[i];
-		if (psb->isActive())
+		for (int i = 0; i < m_softBodies.size(); ++i)
 		{
-			for (int j = 0; j < psb->m_nodes.size(); ++j)
+			btSoftBody* psb = m_softBodies[i];
+			if (psb->isActive())
 			{
-				psb->m_nodes[j].m_q = psb->m_nodes[j].m_x + psb->m_nodes[j].m_v * solverdt;
+				for (int j = 0; j < psb->m_nodes.size(); ++j)
+				{
+					psb->m_nodes[j].m_q = psb->m_nodes[j].m_x + psb->m_nodes[j].m_v * solverdt;
+				}
 			}
 		}
 	}
