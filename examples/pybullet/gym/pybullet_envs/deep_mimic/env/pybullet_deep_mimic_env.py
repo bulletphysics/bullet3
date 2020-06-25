@@ -10,16 +10,26 @@ import pybullet_data
 import pybullet as p1
 import random
 
+from enum import Enum
+
+class InitializationStrategy(Enum):
+  """Set how the environment is initialized."""
+  START = 0
+  RANDOM = 1  # random state initialization (RSI)
+
 
 class PyBulletDeepMimicEnv(Env):
 
-  def __init__(self, arg_parser=None, enable_draw=False, pybullet_client=None):
+  def __init__(self, arg_parser=None, enable_draw=False, pybullet_client=None,
+               init_strategy=InitializationStrategy.RANDOM):
     super().__init__(arg_parser, enable_draw)
     self._num_agents = 1
     self._pybullet_client = pybullet_client
     self._isInitialized = False
     self._useStablePD = True
     self._arg_parser = arg_parser
+    self._init_strategy = init_strategy
+    print("Initialization strategy: {:s}".format(init_strategy))
     self.reset()
 
   def reset(self):
@@ -77,9 +87,14 @@ class PyBulletDeepMimicEnv(Env):
           time.sleep(timeStep)
     #print("numframes = ", self._humanoid._mocap_data.NumFrames())
     #startTime = random.randint(0,self._humanoid._mocap_data.NumFrames()-2)
-    rnrange = 1000
-    rn = random.randint(0, rnrange)
-    startTime = float(rn) / rnrange * self._humanoid.getCycleTime()
+    
+    if self._init_strategy == InitializationStrategy.RANDOM:
+      rnrange = 1000
+      rn = random.randint(0, rnrange)
+      startTime = float(rn) / rnrange * self._humanoid.getCycleTime()
+    elif self._init_strategy == InitializationStrategy.START:
+      startTime = 0
+    
     self.t = startTime
 
     self._humanoid.setSimTime(startTime)
