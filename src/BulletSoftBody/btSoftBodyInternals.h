@@ -1012,12 +1012,16 @@ static inline btMatrix3x3 ImpulseMatrix(btScalar dt,
 
 //
 static inline btMatrix3x3 ImpulseMatrix(btScalar dt,
-										const btMatrix3x3& effective_mass,
+										const btMatrix3x3& effective_mass_inv,
 										btScalar imb,
 										const btMatrix3x3& iwi,
 										const btVector3& r)
 {
-	return (Diagonal(1 / dt) * Add(effective_mass, MassMatrix(imb, iwi, r)).inverse());
+	return (Diagonal(1 / dt) * Add(effective_mass_inv, MassMatrix(imb, iwi, r)).inverse());
+	//    btMatrix3x3 iimb = MassMatrix(imb, iwi, r);
+	//    if (iimb.determinant() == 0)
+	//        return effective_mass_inv.inverse();
+	//    return effective_mass_inv.inverse() *  Add(effective_mass_inv.inverse(), iimb.inverse()).inverse() * iimb.inverse();
 }
 
 //

@@ -46,6 +46,9 @@ public:
 		: CommonDeformableBodyBase(helper)
 	{
         m_linearElasticity = 0;
+		m_pickingForceElasticStiffness = 100;
+		m_pickingForceDampingStiffness = 0;
+		m_maxPickingForce = 1e10; // allow large picking force with implicit scheme.
 	}
 	virtual ~VolumetricDeformable()
 	{
