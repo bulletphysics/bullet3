@@ -222,7 +222,7 @@ void btDeformableBackwardEulerObjective::applyExplicitForce(TVStack& force)
 		{
 			if (m_lf[i]->getForceType() == BT_GRAVITY_FORCE)
 			{
-				gravity = dynamic_cast<btDeformableGravityForce*>(m_lf[i])->m_gravity;
+				gravity = static_cast<btDeformableGravityForce*>(m_lf[i])->m_gravity;
 			}
 			else
 			{
