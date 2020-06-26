@@ -290,6 +290,7 @@ btScalar btDeformableRigidContactConstraint::solveConstraint(const btContactSolv
 	if (m_total_normal_dv.dot(cti.m_normal) < 0)
 	{
 		// separating in the normal direction
+		m_binding = false;
 		m_static = false;
 		impulse_tangent.setZero();
 	}
