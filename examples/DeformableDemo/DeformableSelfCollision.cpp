@@ -31,6 +31,7 @@ public:
     DeformableSelfCollision(struct GUIHelperInterface* helper)
     : CommonDeformableBodyBase(helper)
     {
+        m_maxPickingForce = 0.004;
     }
     virtual ~DeformableSelfCollision()
     {
