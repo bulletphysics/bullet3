@@ -13,7 +13,7 @@ from pybullet_envs.minitaur.envs import minitaur_stand_gym_env
 def StandUpExample():
   """An example that the minitaur stands up."""
   steps = 1000
-  environment = minitaur_stand_gym_env.MinitaurStandGymEnv(render=True,
+  environment = minitaur_stand_gym_env.MinitaurStandGymBulletEnv(render=True,
                                                            motor_velocity_limit=np.inf)
   action = [0.5]
   _, _, done, _ = environment.step(action)

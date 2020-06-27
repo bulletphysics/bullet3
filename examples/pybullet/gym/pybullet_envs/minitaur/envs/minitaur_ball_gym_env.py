@@ -22,7 +22,7 @@ INIT_BALL_DISTANCE = 5.0
 ACTION_EPS = 0.01
 
 
-class MinitaurBallGymEnv(minitaur_gym_env.MinitaurGymEnv):
+class MinitaurBallGymBulletEnv(minitaur_gym_env.MinitaurGymEnv):
   """The gym environment for the minitaur and a ball.
 
   It simulates a minitaur (a quadruped robot) and a ball. The state space
@@ -52,7 +52,7 @@ class MinitaurBallGymEnv(minitaur_gym_env.MinitaurGymEnv):
         that its walking gait is clearer to visualize.
       render: Whether to render the simulation.
     """
-    super(MinitaurBallGymEnv, self).__init__(urdf_root=urdf_root,
+    super(MinitaurBallGymBulletEnv, self).__init__(urdf_root=urdf_root,
                                              self_collision_enabled=self_collision_enabled,
                                              pd_control_enabled=pd_control_enabled,
                                              leg_model_enabled=leg_model_enabled,
@@ -66,7 +66,7 @@ class MinitaurBallGymEnv(minitaur_gym_env.MinitaurGymEnv):
 
   def reset(self):
     self._ball_id = 0
-    super(MinitaurBallGymEnv, self).reset()
+    super(MinitaurBallGymBulletEnv, self).reset()
     self._init_ball_theta = random.uniform(-INIT_BALL_ANGLE, INIT_BALL_ANGLE)
     self._init_ball_distance = INIT_BALL_DISTANCE
     self._ball_pos = [

@@ -21,7 +21,7 @@ STEP_PERIOD = 1.0 / 3.0  # Three steps per second.
 STEP_AMPLITUDE = 0.75
 
 
-class MinitaurAlternatingLegsEnv(minitaur_gym_env.MinitaurGymEnv):
+class MinitaurAlternatingLegsBulletEnv(minitaur_gym_env.MinitaurGymEnv):
   """The gym environment for the minitaur.
 
   It simulates the locomotion of a minitaur, a quadruped robot. The state space
@@ -78,7 +78,7 @@ class MinitaurAlternatingLegsEnv(minitaur_gym_env.MinitaurGymEnv):
     # _swing_offset and _extension_offset is to mimick the bent legs.
     self._swing_offset = np.zeros(NUM_LEGS)
     self._extension_offset = np.zeros(NUM_LEGS)
-    super(MinitaurAlternatingLegsEnv,
+    super(MinitaurAlternatingLegsBulletEnv,
           self).__init__(urdf_version=urdf_version,
                          accurate_motor_model_enabled=True,
                          motor_overheat_protection=True,
@@ -118,7 +118,8 @@ class MinitaurAlternatingLegsEnv(minitaur_gym_env.MinitaurGymEnv):
         INIT_EXTENSION_POS + self._extension_offset[3]
     ]
     initial_motor_angles = self._convert_from_leg_model(init_pose)
-    super(MinitaurAlternatingLegsEnv, self).reset(initial_motor_angles=initial_motor_angles,
+    super(MinitaurAlternatingLegsBulletEnv, self).reset(
+        initial_motor_angles=initial_motor_angles,
                                                   reset_duration=0.5)
     return self._get_observation()
 

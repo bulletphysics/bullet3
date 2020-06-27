@@ -73,8 +73,8 @@ def hand_tuned_balance_example(log_path=None):
   steps = 1000
   episodes = 5
 
-  randomizer = randomizer_lib.MinitaurAlternatingLegsEnvRandomizer()
-  environment = minitaur_alternating_legs_env.MinitaurAlternatingLegsEnv(
+  randomizer = randomizer_lib.MinitaurAlternatingLegsBulletEnvRandomizer()
+  environment = minitaur_alternating_legs_env.MinitaurAlternatingLegsBulletEnv(
       urdf_version=minitaur_gym_env.DERPY_V0_URDF_VERSION,
       render=True,
       num_steps_to_log=steps,
