@@ -11,7 +11,7 @@ NUM_LEGS = 4
 NUM_MOTORS = 2 * NUM_LEGS
 
 
-class MinitaurTrottingBulletEnv(minitaur_gym_env.MinitaurGymEnv):
+class MinitaurTrottingEnv(minitaur_gym_env.MinitaurGymEnv):
   """The trotting gym environment for the minitaur.
 
   In this env, Minitaur performs a trotting style locomotion specified by
@@ -109,7 +109,7 @@ class MinitaurTrottingBulletEnv(minitaur_gym_env.MinitaurGymEnv):
     self._swing_amplitude = swing_amplitude
     self._use_signal_in_observation = use_signal_in_observation
     self._use_angle_in_observation = use_angle_in_observation
-    super(MinitaurTrottingBulletEnv,
+    super(MinitaurTrottingEnv,
           self).__init__(urdf_version=urdf_version,
                          accurate_motor_model_enabled=accurate_motor_model_enabled,
                          motor_overheat_protection=True,
@@ -141,8 +141,7 @@ class MinitaurTrottingBulletEnv(minitaur_gym_env.MinitaurGymEnv):
     # [swing leg 1, swing leg 2, swing leg 3, swing leg 4,
     #  extension leg 1, extension leg 2, extension leg 3, extension leg 4]
     initial_motor_angles = self._convert_from_leg_model(self._init_pose)
-    super(MinitaurTrottingBulletEnv, self).reset(
-      initial_motor_angles=initial_motor_angles,
+    super(MinitaurTrottingEnv, self).reset(initial_motor_angles=initial_motor_angles,
                                            reset_duration=0.5)
     return self._get_observation()
 

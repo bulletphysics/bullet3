@@ -10,7 +10,7 @@ import minitaur_ball_gym_env
 
 def FollowBallManualPolicy():
   """An example of a minitaur following a ball."""
-  env = minitaur_ball_gym_env.MinitaurBallGymBulletEnv(render=True,
+  env = minitaur_ball_gym_env.MinitaurBallGymEnv(render=True,
                                                  pd_control_enabled=True,
                                                  on_rack=False)
   observation = env.reset()

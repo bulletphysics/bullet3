@@ -24,7 +24,7 @@ MinitaurPose = collections.namedtuple(
     "extension_angle_4")
 
 
-class MinitaurReactiveBulletEnv(minitaur_gym_env.MinitaurGymEnv):
+class MinitaurReactiveEnv(minitaur_gym_env.MinitaurGymEnv):
   """The gym environment for the minitaur.
 
   It simulates the locomotion of a minitaur, a quadruped robot. The state space
@@ -92,7 +92,7 @@ class MinitaurReactiveBulletEnv(minitaur_gym_env.MinitaurGymEnv):
     """
     self._use_angle_in_observation = use_angle_in_observation
 
-    super(MinitaurReactiveBulletEnv,
+    super(MinitaurReactiveEnv,
           self).__init__(urdf_version=urdf_version,
                          energy_weight=energy_weight,
                          accurate_motor_model_enabled=accurate_motor_model_enabled,
@@ -132,8 +132,7 @@ class MinitaurReactiveBulletEnv(minitaur_gym_env.MinitaurGymEnv):
                              extension_angle_4=INIT_EXTENSION_POS)
     # TODO(b/73734502): Refactor input of _convert_from_leg_model to namedtuple.
     initial_motor_angles = self._convert_from_leg_model(list(init_pose))
-    super(MinitaurReactiveBulletEnv, self).reset(
-        initial_motor_angles=initial_motor_angles,
+    super(MinitaurReactiveEnv, self).reset(initial_motor_angles=initial_motor_angles,
                                            reset_duration=0.5)
     return self._get_observation()
 

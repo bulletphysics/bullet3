@@ -20,7 +20,7 @@ RANGE_OF_LEG_MOTION = 0.7
 LIMIT_FALLEN = 0.7
 
 
-class MinitaurStandGymBulletEnv(minitaur_gym_env.MinitaurGymEnv):
+class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
   """The gym environment for the minitaur and a ball.
 
   It simulates the standing up behavior of a minitaur, a quadruped robot. The
@@ -50,7 +50,7 @@ class MinitaurStandGymBulletEnv(minitaur_gym_env.MinitaurGymEnv):
       pd_control_enabled: Whether to use PD controller for each motor.
       render: Whether to render the simulation.
     """
-    super(MinitaurStandGymBulletEnv, self).__init__(urdf_root=urdf_root,
+    super(MinitaurStandGymEnv, self).__init__(urdf_root=urdf_root,
                                               action_repeat=action_repeat,
                                               observation_noise_stdev=observation_noise_stdev,
                                               self_collision_enabled=self_collision_enabled,
@@ -103,7 +103,7 @@ class MinitaurStandGymBulletEnv(minitaur_gym_env.MinitaurGymEnv):
     # returning the current state and reward.
     if self._env_step_counter < 1:
       return self._stand_up()
-    return super(MinitaurStandGymBulletEnv, self).step(action)
+    return super(MinitaurStandGymEnv, self).step(action)
 
   def _reward(self):
     """Reward function for standing up pose.

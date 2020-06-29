@@ -23,7 +23,7 @@ DERPY_V0_URDF_VERSION = minitaur_gym_env.DERPY_V0_URDF_VERSION
 RAINBOW_DASH_V0_URDF_VERSION = minitaur_gym_env.RAINBOW_DASH_V0_URDF_VERSION
 
 
-class MinitaurFourLegStandBulletEnv(minitaur_gym_env.MinitaurGymEnv):
+class MinitaurFourLegStandEnv(minitaur_gym_env.MinitaurGymEnv):
   """The gym environment for the minitaur.
 
   It simulates the a minitaur standing with four legs. The state space
@@ -98,7 +98,7 @@ class MinitaurFourLegStandBulletEnv(minitaur_gym_env.MinitaurGymEnv):
     self._extension_offset = np.zeros(NUM_LEGS)
     self._use_angular_velocity_in_observation = use_motor_angle_in_observation
     self._use_motor_angle_in_observation = use_motor_angle_in_observation
-    super(MinitaurFourLegStandBulletEnv,
+    super(MinitaurFourLegStandEnv,
           self).__init__(urdf_version=urdf_version,
                          control_time_step=control_time_step,
                          action_repeat=action_repeat,
@@ -144,8 +144,7 @@ class MinitaurFourLegStandBulletEnv(minitaur_gym_env.MinitaurGymEnv):
     ]
     initial_motor_angles = self._convert_from_leg_model(init_pose)
     self._pybullet_client.resetBasePositionAndOrientation(0, [0, 0, 0], [0, 0, 0, 1])
-    super(MinitaurFourLegStandBulletEnv, self).reset(
-      initial_motor_angles=initial_motor_angles,
+    super(MinitaurFourLegStandEnv, self).reset(initial_motor_angles=initial_motor_angles,
                                                reset_duration=0.5)
     return self._get_observation()
 

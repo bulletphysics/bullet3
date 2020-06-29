@@ -1,4 +1,4 @@
-"""Runs a random policy for the random object KukaDiverseObjectBulletEnv.
+"""Runs a random policy for the random object KukaDiverseObjectEnv.
 """
 
 import os, inspect
@@ -9,7 +9,7 @@ parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 
 import gym
-from pybullet_envs.bullet.kuka_diverse_object_gym_env import KukaDiverseObjectBulletEnv
+from pybullet_envs.bullet.kuka_diverse_object_gym_env import KukaDiverseObjectEnv
 from gym import spaces
 
 
@@ -37,7 +37,7 @@ class ContinuousDownwardBiasPolicy(object):
 
 def main():
 
-  env = KukaDiverseObjectBulletEnv(renders=True, isDiscrete=False)
+  env = KukaDiverseObjectEnv(renders=True, isDiscrete=False)
   policy = ContinuousDownwardBiasPolicy()
 
   while True:

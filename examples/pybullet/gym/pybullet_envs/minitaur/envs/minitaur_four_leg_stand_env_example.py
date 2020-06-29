@@ -22,7 +22,7 @@ def feed_forward_only_control_example(log_path=None):
   steps = 1000
   episodes = 1
 
-  environment = minitaur_four_leg_stand_env.MinitaurFourLegStandBulletEnv(
+  environment = minitaur_four_leg_stand_env.MinitaurFourLegStandEnv(
       on_rack=False,
       log_path=log_path,
       urdf_version=minitaur_four_leg_stand_env.RAINBOW_DASH_V0_URDF_VERSION,

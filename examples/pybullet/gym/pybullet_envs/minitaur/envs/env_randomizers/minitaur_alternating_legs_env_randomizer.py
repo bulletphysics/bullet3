@@ -20,15 +20,15 @@ BATTERY_VOLTAGE_RANGE = (14.8, 16.8)
 MOTOR_VISCOUS_DAMPING_RANGE = (0, 0.01)
 
 
-class MinitaurAlternatingLegsBulletEnvRandomizer(env_randomizer_base.EnvRandomizerBase):
+class MinitaurAlternatingLegsEnvRandomizer(env_randomizer_base.EnvRandomizerBase):
   """A randomizer that changes the minitaur_gym_alternating_leg_env."""
 
   def __init__(self,
                perturb_swing_bound=0.1,
                perturb_extension_bound=0.1,
                perturb_desired_pitch_bound=0.01):
-    super(MinitaurAlternatingLegsBulletEnvRandomizer, self).__init__()
-    se.perturb_swing_bound = perturb_swing_bound
+    super(MinitaurAlternatingLegsEnvRandomizer, self).__init__()
+    self.perturb_swing_bound = perturb_swing_bound
     self.perturb_extension_bound = perturb_extension_bound
     self.perturb_desired_pitch_bound = perturb_desired_pitch_bound
 

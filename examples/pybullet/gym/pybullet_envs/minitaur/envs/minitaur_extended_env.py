@@ -8,10 +8,10 @@ the experimental branch.
 from gym import spaces
 import numpy as np
 
-from pybullet_envs.minitaur.envs.minitaur_reactive_env import MinitaurReactiveBulletEnv
+from pybullet_envs.minitaur.envs.minitaur_reactive_env import MinitaurReactiveEnv
 
 
-class MinitaurExtendedBulletEnv(MinitaurReactiveBulletEnv):
+class MinitaurExtendedEnv(MinitaurReactiveEnv):
   """The 'extended' environment for Markovian property.
 
   This class implements to include prior actions and observations to the
@@ -72,7 +72,7 @@ class MinitaurExtendedBulletEnv(MinitaurReactiveBulletEnv):
     self._past_actions = np.zeros((self.MAX_BUFFER_SIZE, self.ACTION_DIM))
     self._counter = 0
 
-    super(MinitaurExtendedBulletEnv, self).__init__(**kwargs)
+    super(MinitaurExtendedEnv, self).__init__(**kwargs)
     self.action_space = spaces.Box(-1.0, 1.0, self.action_space.shape)
     self.observation_space = spaces.Box(-np.inf, np.inf,
                                         self._get_observation().shape)
@@ -82,8 +82,7 @@ class MinitaurExtendedBulletEnv(MinitaurReactiveBulletEnv):
 
   def _get_observation(self):
     """Maybe concatenate motor velocity and torque into observations."""
-    parent_observation = super(MinitaurExtendedBulletEnv,
-                               self)._get_observation()
+    parent_observation = super(MinitaurExtendedEnv, self)._get_observation()
     parent_observation = np.array(parent_observation)
     # Base class might require this.
     self._observation = parent_observation
@@ -143,7 +142,7 @@ class MinitaurExtendedBulletEnv(MinitaurReactiveBulletEnv):
     self._past_actions = np.zeros((self.MAX_BUFFER_SIZE, self.ACTION_DIM))
     self._counter = 0
 
-    return np.array(super(MinitaurExtendedBulletEnv, self).reset())
+    return np.array(super(MinitaurExtendedEnv, self).reset())
 
   def step(self, action):
     """Step function wrapper can be used to add shaping terms to the reward.
@@ -163,7 +162,7 @@ class MinitaurExtendedBulletEnv(MinitaurReactiveBulletEnv):
     self._past_actions[self._counter] = action
     self._counter += 1
 
-    next_obs, _, done, info = super(MinitaurExtendedBulletEnv, self).step(action)
+    next_obs, _, done, info = super(MinitaurExtendedEnv, self).step(action)
 
     reward = self.reward()
     info.update(base_reward=reward)
@@ -172,7 +171,7 @@ class MinitaurExtendedBulletEnv(MinitaurReactiveBulletEnv):
 
   def terminate(self):
     """The helper function to terminate the environment."""
-    super(MinitaurExtendedBulletEnv, self)._close()
+    super(MinitaurExtendedEnv, self)._close()
 
   def _termination(self):
     """Determines whether the env is terminated or not.

@@ -14,7 +14,7 @@ from pkg_resources import parse_version
 import gym
 
 
-class KukaDiverseObjectBulletEnv(KukaGymEnv):
+class KukaDiverseObjectEnv(KukaGymEnv):
   """Class for Kuka environment with diverse objects.
 
   In each episode some objects are chosen from a set of 1000 diverse objects.
@@ -36,7 +36,7 @@ class KukaDiverseObjectBulletEnv(KukaGymEnv):
                height=48,
                numObjects=5,
                isTest=False):
-    """Initializes the KukaDiverseObjectBulletEnv.
+    """Initializes the KukaDiverseObjectEnv.
 
     Args:
       urdfRoot: The diretory from which to load environment URDF's.
