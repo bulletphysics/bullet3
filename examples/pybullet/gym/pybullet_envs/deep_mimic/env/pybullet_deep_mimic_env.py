@@ -21,6 +21,7 @@ class InitializationStrategy(Enum):
 class PyBulletDeepMimicEnv(Env):
 
   def __init__(self, arg_parser=None, enable_draw=False, pybullet_client=None,
+               time_step=1./240,
                init_strategy=InitializationStrategy.RANDOM):
     super().__init__(arg_parser, enable_draw)
     self._num_agents = 1
@@ -28,6 +29,7 @@ class PyBulletDeepMimicEnv(Env):
     self._isInitialized = False
     self._useStablePD = True
     self._arg_parser = arg_parser
+    self.timeStep = time_step
     self._init_strategy = init_strategy
     print("Initialization strategy: {:s}".format(init_strategy))
     self.reset()
@@ -62,7 +64,7 @@ class PyBulletDeepMimicEnv(Env):
       motionPath = pybullet_data.getDataPath() + "/" + motion_file[0]
       #motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_backflip.txt"
       self._mocapData.Load(motionPath)
-      timeStep = 1. / 240.
+      timeStep = self.timeStep
       useFixedBase = False
       self._humanoid = humanoid_stable_pd.HumanoidStablePD(self._pybullet_client, self._mocapData,
                                                            timeStep, useFixedBase, self._arg_parser)
@@ -278,6 +280,7 @@ class PyBulletDeepMimicEnv(Env):
     #print("pybullet_deep_mimic_env:update timeStep=",timeStep," t=",self.t)
     self._pybullet_client.setTimeStep(timeStep)
     self._humanoid._timeStep = timeStep
+    self.timeStep = timeStep
 
     for i in range(1):
       self.t += timeStep
@@ -329,7 +332,7 @@ class PyBulletDeepMimicEnv(Env):
 
   def check_valid_episode(self):
     #could check if limbs exceed velocity threshold
-    return true
+    return True
 
   def getKeyboardEvents(self):
     return self._pybullet_client.getKeyboardEvents()
