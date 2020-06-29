@@ -1011,6 +1011,20 @@ static inline btMatrix3x3 ImpulseMatrix(btScalar dt,
 }
 
 //
+static inline btMatrix3x3 ImpulseMatrix(btScalar dt,
+										const btMatrix3x3& effective_mass_inv,
+										btScalar imb,
+										const btMatrix3x3& iwi,
+										const btVector3& r)
+{
+	return (Diagonal(1 / dt) * Add(effective_mass_inv, MassMatrix(imb, iwi, r)).inverse());
+	//    btMatrix3x3 iimb = MassMatrix(imb, iwi, r);
+	//    if (iimb.determinant() == 0)
+	//        return effective_mass_inv.inverse();
+	//    return effective_mass_inv.inverse() *  Add(effective_mass_inv.inverse(), iimb.inverse()).inverse() * iimb.inverse();
+}
+
+//
 static inline btMatrix3x3 ImpulseMatrix(btScalar ima, const btMatrix3x3& iia, const btVector3& ra,
 										btScalar imb, const btMatrix3x3& iib, const btVector3& rb)
 {
@@ -1132,9 +1146,7 @@ static inline bool lineIntersectsTriangle(const btVector3& rayStart, const btVec
 	if (dir_norm < SIMD_EPSILON)
 		return false;
 	dir.normalize();
-
 	btScalar t;
-
 	bool ret = rayIntersectsTriangle(rayStart, dir, p1, p2, p3, t);
 
 	if (ret)
@@ -1682,7 +1694,9 @@ struct btSoftColliders
 							const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
 							const btVector3 ra = n.m_x - wtr.getOrigin();
 
-							c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
+							c.m_c0 = ImpulseMatrix(1, n.m_effectiveMass_inv, imb, iwi, ra);
+							c.m_c5 = n.m_effectiveMass_inv;
+							//                            c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
 							c.m_c1 = ra;
 						}
 						else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
@@ -1710,7 +1724,7 @@ struct btSoftColliders
 												t1.getX(), t1.getY(), t1.getZ(),
 												t2.getX(), t2.getY(), t2.getZ());  // world frame to local frame
 								const int ndof = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
-								btMatrix3x3 local_impulse_matrix = (Diagonal(n.m_im) + OuterProduct(J_n, J_t1, J_t2, u_n, u_t1, u_t2, ndof)).inverse();
+								btMatrix3x3 local_impulse_matrix = (n.m_effectiveMass_inv + OuterProduct(J_n, J_t1, J_t2, u_n, u_t1, u_t2, ndof)).inverse();
 								c.m_c0 = rot.transpose() * local_impulse_matrix * rot;
 								c.jacobianData_normal = jacobianData_normal;
 								c.jacobianData_t1 = jacobianData_t1;
@@ -1776,6 +1790,7 @@ struct btSoftColliders
 					c.m_c2 = ima;
 					c.m_c3 = fc;
 					c.m_c4 = m_colObj1Wrap->getCollisionObject()->isStaticOrKinematicObject() ? psb->m_cfg.kKHR : psb->m_cfg.kCHR;
+					c.m_c5 = Diagonal(ima);
 					if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
 					{
 						const btTransform& wtr = m_rigidBody ? m_rigidBody->getWorldTransform() : m_colObj1Wrap->getCollisionObject()->getWorldTransform();

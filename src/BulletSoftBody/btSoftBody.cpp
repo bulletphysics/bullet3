@@ -900,6 +900,7 @@ void btSoftBody::setVelocity(const btVector3& velocity)
 		if (n.m_im > 0)
 		{
 			n.m_v = velocity;
+			n.m_vn = velocity;
 		}
 	}
 }
@@ -2772,6 +2773,7 @@ bool btSoftBody::checkDeformableContact(const btCollisionObjectWrapper* colObjWr
 			shp,
 			nrm,
 			margin);
+
 	if (!predict)
 	{
 		cti.m_colObj = colObjWrap->getCollisionObject();
@@ -3462,11 +3464,46 @@ void btSoftBody::initializeDmInverse()
 					   c1.getZ(), c2.getZ(), c3.getZ());
 		t.m_element_measure = Dm.determinant() * unit_simplex_measure;
 		t.m_Dm_inverse = Dm.inverse();
+
+		// calculate the first three columns of P^{-1}
+		btVector3 a = t.m_n[0]->m_x;
+		btVector3 b = t.m_n[1]->m_x;
+		btVector3 c = t.m_n[2]->m_x;
+		btVector3 d = t.m_n[3]->m_x;
+
+		btScalar det = 1 / (a[0] * b[1] * c[2] - a[0] * b[1] * d[2] - a[0] * b[2] * c[1] + a[0] * b[2] * d[1] + a[0] * c[1] * d[2] - a[0] * c[2] * d[1] + a[1] * (-b[0] * c[2] + b[0] * d[2] + b[2] * c[0] - b[2] * d[0] - c[0] * d[2] + c[2] * d[0]) + a[2] * (b[0] * c[1] - b[0] * d[1] + b[1] * (d[0] - c[0]) + c[0] * d[1] - c[1] * d[0]) - b[0] * c[1] * d[2] + b[0] * c[2] * d[1] + b[1] * c[0] * d[2] - b[1] * c[2] * d[0] - b[2] * c[0] * d[1] + b[2] * c[1] * d[0]);
+
+		btScalar P11 = -b[2] * c[1] + d[2] * c[1] + b[1] * c[2] + b[2] * d[1] - c[2] * d[1] - b[1] * d[2];
+		btScalar P12 = b[2] * c[0] - d[2] * c[0] - b[0] * c[2] - b[2] * d[0] + c[2] * d[0] + b[0] * d[2];
+		btScalar P13 = -b[1] * c[0] + d[1] * c[0] + b[0] * c[1] + b[1] * d[0] - c[1] * d[0] - b[0] * d[1];
+		btScalar P21 = a[2] * c[1] - d[2] * c[1] - a[1] * c[2] - a[2] * d[1] + c[2] * d[1] + a[1] * d[2];
+		btScalar P22 = -a[2] * c[0] + d[2] * c[0] + a[0] * c[2] + a[2] * d[0] - c[2] * d[0] - a[0] * d[2];
+		btScalar P23 = a[1] * c[0] - d[1] * c[0] - a[0] * c[1] - a[1] * d[0] + c[1] * d[0] + a[0] * d[1];
+		btScalar P31 = -a[2] * b[1] + d[2] * b[1] + a[1] * b[2] + a[2] * d[1] - b[2] * d[1] - a[1] * d[2];
+		btScalar P32 = a[2] * b[0] - d[2] * b[0] - a[0] * b[2] - a[2] * d[0] + b[2] * d[0] + a[0] * d[2];
+		btScalar P33 = -a[1] * b[0] + d[1] * b[0] + a[0] * b[1] + a[1] * d[0] - b[1] * d[0] - a[0] * d[1];
+		btScalar P41 = a[2] * b[1] - c[2] * b[1] - a[1] * b[2] - a[2] * c[1] + b[2] * c[1] + a[1] * c[2];
+		btScalar P42 = -a[2] * b[0] + c[2] * b[0] + a[0] * b[2] + a[2] * c[0] - b[2] * c[0] - a[0] * c[2];
+		btScalar P43 = a[1] * b[0] - c[1] * b[0] - a[0] * b[1] - a[1] * c[0] + b[1] * c[0] + a[0] * c[1];
+
+		btVector4 p1(P11 * det, P21 * det, P31 * det, P41 * det);
+		btVector4 p2(P12 * det, P22 * det, P32 * det, P42 * det);
+		btVector4 p3(P13 * det, P23 * det, P33 * det, P43 * det);
+
+		t.m_P_inv[0] = p1;
+		t.m_P_inv[1] = p2;
+		t.m_P_inv[2] = p3;
 	}
+}
+
+static btScalar Dot4(const btVector4& a, const btVector4& b)
+{
+	return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
 }
 
 void btSoftBody::updateDeformation()
 {
+	btQuaternion q;
 	for (int i = 0; i < m_tetras.size(); ++i)
 	{
 		btSoftBody::Tetra& t = m_tetras[i];
@@ -3484,6 +3521,21 @@ void btSoftBody::updateDeformation()
 		btMatrix3x3 C = t.m_F.transpose() * t.m_F;
 		s.m_trace = C[0].getX() + C[1].getY() + C[2].getZ();
 		s.m_cofF = t.m_F.adjoint().transpose();
+
+		btVector3 a = t.m_n[0]->m_q;
+		btVector3 b = t.m_n[1]->m_q;
+		btVector3 c = t.m_n[2]->m_q;
+		btVector3 d = t.m_n[3]->m_q;
+		btVector4 q1(a[0], b[0], c[0], d[0]);
+		btVector4 q2(a[1], b[1], c[1], d[1]);
+		btVector4 q3(a[2], b[2], c[2], d[2]);
+		btMatrix3x3 B(Dot4(q1, t.m_P_inv[0]), Dot4(q1, t.m_P_inv[1]), Dot4(q1, t.m_P_inv[2]),
+					  Dot4(q2, t.m_P_inv[0]), Dot4(q2, t.m_P_inv[1]), Dot4(q2, t.m_P_inv[2]),
+					  Dot4(q3, t.m_P_inv[0]), Dot4(q3, t.m_P_inv[1]), Dot4(q3, t.m_P_inv[2]));
+		q.setRotation(btVector3(0, 0, 1), 0);
+		B.extractRotation(q, 0.01);  // precision of the rotation is not very important for visual correctness.
+		btMatrix3x3 Q(q);
+		s.m_corotation = Q;
 	}
 }
 
