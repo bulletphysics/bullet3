@@ -33,12 +33,14 @@ class HumanoidDeepBulletEnv(gym.Env):
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
   def __init__(self, renders=False, arg_file='', test_mode=False,
+               time_step=1./240,
                rescale_actions=True,
                rescale_observations=True):
     """    
     Args:
       test_mode (bool): in test mode, the `reset()` method will always set the mocap clip time
       to 0.
+      time_step (float): physics time step.
     """
     self._arg_parser = ArgParser()
     Logger.print2("===========================================================")
@@ -50,7 +52,7 @@ class HumanoidDeepBulletEnv(gym.Env):
     assert succ, Logger.print2('Failed to load args from: ' + arg_file)
 
     self._p: Optional[BulletClient] = None
-    self._time_step = 1./240.
+    self._time_step = time_step
     self._internal_env: Optional[PyBulletDeepMimicEnv] = None
     self._renders = renders
     self._discrete_actions = False
@@ -177,6 +179,7 @@ class HumanoidDeepBulletEnv(gym.Env):
       else:
         init_strat = InitializationStrategy.RANDOM
       self._internal_env = PyBulletDeepMimicEnv(self._arg_parser, self._renders,
+                                                time_step=self._time_step,
                                                 init_strategy=init_strat)
 
     self._internal_env.reset()
