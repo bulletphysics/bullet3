@@ -128,7 +128,24 @@ public:
 
 	virtual void addScaledElasticForceDifferential(btScalar scale, const TVStack& dx, TVStack& df)
 	{
-		//TODO
+		btScalar scaled_stiffness = scale * m_elasticStiffness;
+		for (int i = 0; i < 3; ++i)
+		{
+			btVector3 dir = (m_face.m_n[i]->m_q - m_mouse_pos);
+			btScalar dir_norm = dir.norm();
+			btVector3 dir_normalized = (dir_norm > SIMD_EPSILON) ? dir.normalized() : btVector3(0, 0, 0);
+			int id = m_face.m_n[i]->index;
+			btVector3 dx_diff = dx[id];
+			btScalar r = 0;  // rest length is 0 for picking spring
+			btVector3 scaled_df = btVector3(0, 0, 0);
+			if (dir_norm > SIMD_EPSILON)
+			{
+				scaled_df -= scaled_stiffness * dir_normalized.dot(dx_diff) * dir_normalized;
+				scaled_df += scaled_stiffness * dir_normalized.dot(dx_diff) * ((dir_norm - r) / dir_norm) * dir_normalized;
+				scaled_df -= scaled_stiffness * ((dir_norm - r) / dir_norm) * dx_diff;
+			}
+			df[id] += scaled_df;
+		}
 	}
 
 	void setMousePos(const btVector3& p)

@@ -21,11 +21,13 @@ struct CommonDeformableBodyBase : public CommonMultiBodyBase
 	btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 	btSoftBody* m_pickedSoftBody;
 	btDeformableMousePickingForce* m_mouseForce;
-	btScalar m_maxPickingForce;
+	btScalar m_pickingForceElasticStiffness, m_pickingForceDampingStiffness, m_maxPickingForce;
 	CommonDeformableBodyBase(GUIHelperInterface* helper)
 	: CommonMultiBodyBase(helper),
 	m_pickedSoftBody(0),
 	m_mouseForce(0),
+	m_pickingForceElasticStiffness(100),
+	m_pickingForceDampingStiffness(0.0),
 	m_maxPickingForce(0.3)
 	{
 	}
@@ -115,7 +117,7 @@ struct CommonDeformableBodyBase : public CommonMultiBodyBase
 					m_pickedSoftBody = psb;
 					psb->setActivationState(DISABLE_DEACTIVATION);
 					const btSoftBody::Face& f = psb->m_faces[face_id];
-					btDeformableMousePickingForce* mouse_force = new btDeformableMousePickingForce(100, 0, f, m_hitPos, m_maxPickingForce);
+					btDeformableMousePickingForce* mouse_force = new btDeformableMousePickingForce(m_pickingForceElasticStiffness, m_pickingForceDampingStiffness, f, m_hitPos, m_maxPickingForce);
 					m_mouseForce = mouse_force;
 					getDeformableDynamicsWorld()->addForce(psb, mouse_force);
 				}
