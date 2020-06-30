@@ -272,7 +272,9 @@ public:
 		int m_constrained;   // depth of penetration
 		int m_battach : 1;   // Attached
 		int index;
-		btVector3 m_splitv;  // velocity associated with split impulse
+		btVector3 m_splitv;               // velocity associated with split impulse
+		btMatrix3x3 m_effectiveMass;      // effective mass in contact
+		btMatrix3x3 m_effectiveMass_inv;  // inverse of effective mass
 	};
 	/* Link			*/
 	ATTRIBUTE_ALIGNED16(struct)
@@ -311,15 +313,17 @@ public:
 		btMatrix3x3 m_Dm_inverse;  // rest Dm^-1
 		btMatrix3x3 m_F;
 		btScalar m_element_measure;
+		btVector4 m_P_inv[3];  // first three columns of P_inv matrix
 	};
 
 	/*  TetraScratch  */
 	struct TetraScratch
 	{
-		btMatrix3x3 m_F;     // deformation gradient F
-		btScalar m_trace;    // trace of F^T * F
-		btScalar m_J;        // det(F)
-		btMatrix3x3 m_cofF;  // cofactor of F
+		btMatrix3x3 m_F;           // deformation gradient F
+		btScalar m_trace;          // trace of F^T * F
+		btScalar m_J;              // det(F)
+		btMatrix3x3 m_cofF;        // cofactor of F
+		btMatrix3x3 m_corotation;  // corotatio of the tetra
 	};
 
 	/* RContact		*/
@@ -350,6 +354,7 @@ public:
 		btScalar m_c2;     // inverse mass of node/face
 		btScalar m_c3;     // Friction
 		btScalar m_c4;     // Hardness
+		btMatrix3x3 m_c5;  // inverse effective mass
 
 		// jacobians and unit impulse responses for multibody
 		btMultiBodyJacobianData jacobianData_normal;
@@ -1323,7 +1328,7 @@ public:
 			int face_penetration = 0, node_penetration = node->m_constrained;
 			for (int i = 0; i < 3; ++i)
 				face_penetration |= face->m_n[i]->m_constrained;
-			btScalar I_tilde = .5 * I / (1.0 + w.length2());
+			btScalar I_tilde = 2.0 * I / (1.0 + w.length2());
 
 			//             double the impulse if node or face is constrained.
 			if (face_penetration > 0 || node_penetration > 0)
@@ -1349,10 +1354,10 @@ public:
 				btScalar vt_new = btMax(btScalar(1) - mu * delta_vn / (vt_norm + SIMD_EPSILON), btScalar(0)) * vt_norm;
 				I = 0.5 * mass * (vt_norm - vt_new);
 				vt.safeNormalize();
-				I_tilde = .5 * I / (1.0 + w.length2());
+				I_tilde = 2.0 * I / (1.0 + w.length2());
 				//                 double the impulse if node or face is constrained.
-				//                if (face_penetration > 0 || node_penetration > 0)
-				//                    I_tilde *= 2.0;
+				if (face_penetration > 0 || node_penetration > 0)
+					I_tilde *= 2.0;
 				if (face_penetration <= 0)
 				{
 					for (int j = 0; j < 3; ++j)

@@ -162,6 +162,11 @@ public:
 		m_lineSearch = lineSearch;
 	}
 
+	void setUseProjection(bool useProjection)
+	{
+		m_useProjection = useProjection;
+	}
+
 	void applyRepulsionForce(btScalar timeStep);
 
 	void performGeometricCollisions(btScalar timeStep);
