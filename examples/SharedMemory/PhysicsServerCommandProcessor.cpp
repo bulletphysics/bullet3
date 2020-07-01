@@ -10197,6 +10197,7 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 		scratch_m.resize(nLinks + 1);
 
 		mb->updateCollisionObjectWorldTransforms(scratch_q, scratch_m);
+		m_data->m_dynamicsWorld->updateAabbs();
 	}
 
 	if (body && body->m_rigidBody)
