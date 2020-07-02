@@ -11789,7 +11789,7 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 
 			if (userConstraintPtr->m_sbHandle >= 0)
 			{
-				InternalBodyHandle* sbodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_parentBodyIndex);
+				InternalBodyHandle* sbodyHandle = m_data->m_bodyHandles.getHandle(userConstraintPtr->m_sbHandle);
 				if (sbodyHandle)
 				{
 					if (sbodyHandle->m_softBody)
