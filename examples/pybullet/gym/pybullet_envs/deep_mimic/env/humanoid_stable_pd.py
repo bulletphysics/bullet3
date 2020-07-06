@@ -21,7 +21,7 @@ jointFrictionForce = 0
 class HumanoidStablePD(object):
 
   def __init__( self, pybullet_client, mocap_data, timeStep, 
-                useFixedBase=True, arg_parser=None):
+                useFixedBase=True, arg_parser=None, useComReward=True):
     self._pybullet_client = pybullet_client
     self._mocap_data = mocap_data
     self._arg_parser = arg_parser
@@ -149,7 +149,7 @@ class HumanoidStablePD(object):
       self._totalDofs += dof
     self.setSimTime(0)
 
-    self._useComReward = True
+    self._useComReward = useComReward
 
     self.resetPose()
 
@@ -790,8 +790,9 @@ class HumanoidStablePD(object):
     #tMatrix kin_origin_trans = kin_char.BuildOriginTrans();
     #
     #tVector com0_world = sim_char.CalcCOM();
-    comSim, comSimVel = self.computeCOMposVel(self._sim_model)
-    comKin, comKinVel = self.computeCOMposVel(self._kin_model)
+    if self._useComReward:
+      comSim, comSimVel = self.computeCOMposVel(self._sim_model)
+      comKin, comKinVel = self.computeCOMposVel(self._kin_model)
     #tVector com_vel0_world = sim_char.CalcCOMVel();
     #tVector com1_world;
     #tVector com_vel1_world;
@@ -967,7 +968,6 @@ class HumanoidStablePD(object):
   def computeCOMposVel(self, uid: int):
     """Compute center-of-mass position and velocity."""
     pb = self._pybullet_client
-    root_pos, _ = pb.getBasePositionAndOrientation(uid)
     num_joints = 15
     jointIndices = range(num_joints)
     link_states = pb.getLinkStates(uid, jointIndices, computeLinkVelocity=1)
