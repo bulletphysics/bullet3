@@ -925,7 +925,8 @@ class HumanoidStablePD(object):
     root_err = root_pos_err + 0.1 * root_rot_err + 0.01 * root_vel_err + 0.001 * root_ang_vel_err
 
     # COM error in initial code -> COM velocities
-    com_err = 0.1 * np.sum(np.square(comKinVel - comSimVel))
+    if self._useComReward:
+      com_err = 0.1 * np.sum(np.square(comKinVel - comSimVel))
     # com_err = 0.1 * np.sum(np.square(comKin - comSim))
     #com_err = 0.1 * (com_vel1_world - com_vel0_world).squaredNorm()
 
