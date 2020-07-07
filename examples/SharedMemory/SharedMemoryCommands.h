@@ -783,7 +783,7 @@ struct CalculateInverseKinematicsArgs
 	//	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
 	double m_targetPositions[MAX_DEGREE_OF_FREEDOM*3];
 	int m_numEndEffectorLinkIndices;
-	double m_targetOrientation[4];  //orientation represented as quaternion, x,y,z,w
+	double m_targetOrientation[MAX_DEGREE_OF_FREEDOM*4];  //orientation represented as quaternion, x,y,z,w
 	int m_endEffectorLinkIndices[MAX_DEGREE_OF_FREEDOM];
 	double m_lowerLimit[MAX_DEGREE_OF_FREEDOM];
 	double m_upperLimit[MAX_DEGREE_OF_FREEDOM];
