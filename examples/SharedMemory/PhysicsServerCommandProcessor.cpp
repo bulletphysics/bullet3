@@ -14,6 +14,9 @@
 #include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
 #include "BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodySphericalJointMotor.h"
+#include "BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h"
+
+
 #include "../Utils/b3BulletDefaultFileIO.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
@@ -9308,6 +9311,74 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 		{
 			if (linkIndex >= 0 && linkIndex < mb->getNumLinks())
 			{
+
+				if ((clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMIT_MAX_FORCE) ||
+					(clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMITS))
+				{
+
+					btMultiBodyJointLimitConstraint* limC = 0;
+
+					int numConstraints = m_data->m_dynamicsWorld->getNumMultiBodyConstraints();
+					for (int c = 0; c < numConstraints; c++)
+					{
+						btMultiBodyConstraint* mbc = m_data->m_dynamicsWorld->getMultiBodyConstraint(c);
+						if (mbc->getConstraintType() == MULTIBODY_CONSTRAINT_LIMIT)
+						{
+							if (((mbc->getMultiBodyA() == mb) && (mbc->getLinkA() == linkIndex))
+								||
+								((mbc->getMultiBodyB() == mb) && ((mbc->getLinkB() == linkIndex)))
+								)
+							{
+								limC = (btMultiBodyJointLimitConstraint*)mbc;
+							}
+						}
+					}
+
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMITS)
+					{
+						//find a joint limit
+						btScalar prevUpper = mb->getLink(linkIndex).m_jointUpperLimit;
+						btScalar prevLower = mb->getLink(linkIndex).m_jointLowerLimit;
+						btScalar lower = clientCmd.m_changeDynamicsInfoArgs.m_jointLowerLimit;
+						btScalar upper = clientCmd.m_changeDynamicsInfoArgs.m_jointUpperLimit;
+						bool enableLimit = lower <= upper;
+
+						if (enableLimit)
+						{
+							if (limC == 0)
+							{
+								limC = new btMultiBodyJointLimitConstraint(mb, linkIndex, lower, upper);
+								m_data->m_dynamicsWorld->addMultiBodyConstraint(limC);
+							}
+							else
+							{
+								limC->setLowerBound(lower);
+								limC->setUpperBound(upper);
+							}
+						}
+						else
+						{
+							if (limC)
+							{
+								m_data->m_dynamicsWorld->removeMultiBodyConstraint(limC);
+								delete limC;
+								limC = 0;
+							}
+						}
+					}
+
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMIT_MAX_FORCE)
+					{
+						btScalar fixedTimeSubStep = m_data->m_numSimulationSubSteps > 0 ? m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps : m_data->m_physicsDeltaTime;
+						btScalar maxImpulse = clientCmd.m_changeDynamicsInfoArgs.m_jointLimitForce * fixedTimeSubStep;
+						if (limC)
+						{
+							//convert from force to impulse
+							limC->setMaxAppliedImpulse(maxImpulse);
+						}
+					}
+				}
+
 				if (mb->getLinkCollider(linkIndex))
 				{
 					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
