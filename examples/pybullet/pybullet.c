@@ -1371,11 +1371,15 @@ static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyO
 	PyObject* anisotropicFrictionObj = 0;
 	double maxJointVelocity = -1;
 	
+	double jointLowerLimit = 1;
+	double jointUpperLimit = -1;
+	double jointLimitForce = -1;
+
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "lateralFriction", "spinningFriction", "rollingFriction", "restitution", "linearDamping", "angularDamping", "contactStiffness", "contactDamping", "frictionAnchor", "localInertiaDiagonal", "ccdSweptSphereRadius", "contactProcessingThreshold", "activationState", "jointDamping", "anisotropicFriction", "maxJointVelocity",  "collisionMargin", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|dddddddddiOddidOddi", kwlist, &bodyUniqueId, &linkIndex, &mass, &lateralFriction, &spinningFriction, &rollingFriction, &restitution, &linearDamping, &angularDamping, &contactStiffness, &contactDamping, &frictionAnchor, &localInertiaDiagonalObj, &ccdSweptSphereRadius, &contactProcessingThreshold, &activationState, &jointDamping, &anisotropicFrictionObj, &maxJointVelocity, &collisionMargin , &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "lateralFriction", "spinningFriction", "rollingFriction", "restitution", "linearDamping", "angularDamping", "contactStiffness", "contactDamping", "frictionAnchor", "localInertiaDiagonal", "ccdSweptSphereRadius", "contactProcessingThreshold", "activationState", "jointDamping", "anisotropicFriction", "maxJointVelocity",  "collisionMargin", "jointLowerLimit","jointUpperLimit", "jointLimitForce",  "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|dddddddddiOddidOdddddi", kwlist, &bodyUniqueId, &linkIndex, &mass, &lateralFriction, &spinningFriction, &rollingFriction, &restitution, &linearDamping, &angularDamping, &contactStiffness, &contactDamping, &frictionAnchor, &localInertiaDiagonalObj, &ccdSweptSphereRadius, &contactProcessingThreshold, &activationState, &jointDamping, &anisotropicFrictionObj, &maxJointVelocity, &collisionMargin , &jointLowerLimit , &jointUpperLimit , &jointLimitForce , &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1396,6 +1400,16 @@ static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyO
 	{
 		b3SharedMemoryCommandHandle command = b3InitChangeDynamicsInfo(sm);
 		b3SharedMemoryStatusHandle statusHandle;
+
+		if (jointLimitForce >= 0)
+		{
+			b3ChangeDynamicsInfoSetJointLimitForce(command, bodyUniqueId, linkIndex, jointLimitForce);
+		}
+
+		if (jointLowerLimit <= jointUpperLimit)
+		{
+			b3ChangeDynamicsInfoSetJointLimit(command, bodyUniqueId, linkIndex, jointLowerLimit, jointUpperLimit);
+		}
 
 		if (mass >= 0)
 		{
