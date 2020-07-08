@@ -1383,13 +1383,6 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 				getDebugDrawer()->drawCylinder(radius, halfHeight, upAxis, worldTransform, color);
 				break;
 			}
-			case BOX_2D_SHAPE_PROXYTYPE:
-			{
-				const btBox2dShape* Box2dShape = static_cast<const btBox2dShape*>(shape);
-				btVector3 halfExtents = Box2dShape->getHalfExtentsWithMargin();
-				getDebugDrawer()->drawRectangle(-halfExtents, halfExtents, worldTransform, color);
-				break;
-			}
 
 			case STATIC_PLANE_PROXYTYPE:
 			{
@@ -1513,7 +1506,7 @@ void btCollisionWorld::debugDrawWorld()
 				btCollisionObject* colObj = m_collisionObjects[i];
 				if ((colObj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT) == 0)
 				{
-					if (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe)
+					if (getDebugDrawer() && (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe))
 					{
 						btVector3 color(btScalar(0.4), btScalar(0.4), btScalar(0.4));
 
@@ -1544,7 +1537,7 @@ void btCollisionWorld::debugDrawWorld()
 
 						debugDrawObject(colObj->getWorldTransform(), colObj->getCollisionShape(), color);
 					}
-					if (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb)
+					if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
 					{
 						btVector3 minAabb, maxAabb;
 						btVector3 colorvec = defaultColors.m_aabb;
