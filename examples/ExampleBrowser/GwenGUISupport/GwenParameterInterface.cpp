@@ -51,7 +51,7 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 		  m_showValue(true)
 
 	{
-		memcpy(m_variableName, varName, strlen(varName) + 1);
+		strncpy(m_variableName, varName, sizeof(m_variableName));
 	}
 
 	void SliderMoved(Gwen::Controls::Base* pControl)
@@ -85,7 +85,7 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 		if (m_showValue)
 		{
 			char txt[1024];
-			sprintf(txt, "%s : %.3f", m_variableName, val);
+			snprintf(txt, sizeof(txt), "%s : %.3f", m_variableName, val);
 			m_label->SetText(txt);
 		}
 	}
@@ -231,7 +231,7 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 	}
 	pSlider->SetValue(*params.m_paramValuePointer);  //dimensions[i] );
 	char labelName[1024];
-	sprintf(labelName, "%s", params.m_name);  //axisNames[0]);
+	snprintf(labelName, sizeof(labelName), "%s", params.m_name);  //axisNames[0]);
 	MySliderEventHandler<btScalar>* handler = new MySliderEventHandler<btScalar>(labelName, label, pSlider, params.m_paramValuePointer, params.m_callback, params.m_userPointer);
 	handler->m_showValue = params.m_showValues;
 	m_paramInternalData->m_sliderEventHandlers.push_back(handler);

@@ -11,10 +11,14 @@ extern "C"
 
 	///think more about naming. The b3ConnectPhysicsLoopback
 	B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnect(int argc, char* argv[]);
-	B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectSharedMemory(int argc, char* argv[]);
-
 	B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThread(int argc, char* argv[]);
+
+	B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectSharedMemory(int argc, char* argv[]);
 	B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThreadSharedMemory(int argc, char* argv[]);
+
+	B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessGraphicsServerAndConnectSharedMemory(int port);
+	B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessGraphicsServerAndConnectMainThreadSharedMemory(int port);
+	
 
 	B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(void* guiHelperPtr);
 	//create a shared memory physics server, with a DummyGUIHelper (no graphics)
@@ -23,7 +27,9 @@ extern "C"
 	B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect3(void* guiHelperPtr, int sharedMemoryKey);
 	//create a shared memory physics server, with a RemoteGUIHelper (connect to remote graphics server) and allow to set shared memory key
 	B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect4(void* guiHelperPtr, int sharedMemoryKey);
-	
+#ifdef BT_ENABLE_CLSOCKET
+	B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnectTCP(const char* hostName, int port);
+#endif	
 	///ignore the following APIs, they are for internal use for example browser
 	void b3InProcessRenderSceneInternal(b3PhysicsClientHandle clientHandle);
 	void b3InProcessDebugDrawInternal(b3PhysicsClientHandle clientHandle, int debugDrawMode);

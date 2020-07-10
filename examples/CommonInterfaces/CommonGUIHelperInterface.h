@@ -45,6 +45,7 @@ struct GUIHelperInterface
 	virtual void removeGraphicsInstance(int graphicsUid) {}
 	virtual void changeInstanceFlags(int instanceUid, int flags) {}
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]) {}
+	virtual void changeScaling(int instanceUid, const double scaling[3]) {}
 	virtual void changeSpecularColor(int instanceUid, const double specularColor[3]) {}
 	virtual void changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height) {}
 	virtual void updateShape(int shapeIndex, float* vertices) {}
@@ -114,6 +115,8 @@ struct GUIHelperInterface
 
 	virtual void removeUserDebugItem(int debugItemUniqueId){};
 	virtual void removeAllUserDebugItems(){};
+	virtual void removeAllUserParameters() {};
+	
 	virtual void setVisualizerFlagCallback(VisualizerFlagCallback callback) {}
 
 	//empty name stops dumping video
@@ -149,6 +152,7 @@ struct DummyGUIHelper : public GUIHelperInterface
 	virtual void removeAllGraphicsInstances() {}
 	virtual void removeGraphicsInstance(int graphicsUid) {}
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]) {}
+	virtual void changeScaling(int instanceUid, const double scaling[3]) {}
 
 	virtual Common2dCanvasInterface* get2dCanvasInterface()
 	{

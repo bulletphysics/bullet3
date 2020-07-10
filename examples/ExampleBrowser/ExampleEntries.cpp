@@ -52,6 +52,8 @@
 #include "../DeformableDemo/PinchFriction.h"
 #include "../DeformableDemo/DeformableMultibody.h"
 #include "../DeformableDemo/VolumetricDeformable.h"
+#include "../DeformableDemo/LargeDeformation.h"
+#include "../DeformableDemo/Collide.h"
 #include "../DeformableDemo/GraspDeformable.h"
 #include "../DeformableDemo/DeformableContact.h"
 #include "../DeformableDemo/DeformableClothAnchor.h"
@@ -202,6 +204,8 @@ static ExampleEntry gDefaultExamples[] =
         ExampleEntry(1, "Grasp Deformable Cube", "Grasping test", PinchCreateFunc),
         ExampleEntry(1, "Grasp Deformable with Motor", "Grasping test", GraspDeformableCreateFunc),
         ExampleEntry(1, "Volumetric Deformable Objects", "Volumetric Deformable test", VolumetricDeformableCreateFunc),
+		ExampleEntry(1, "Extreme Deformation", "Recovery from extreme deformation", LargeDeformationCreateFunc),
+		ExampleEntry(1, "Colliding Test", "Volumetric deformable collide with rigid box", CollideCreateFunc),
         ExampleEntry(1, "Rigid Cloth Anchor", "Deformable Rigid body Anchor test", DeformableClothAnchorCreateFunc),
         ExampleEntry(1, "Multibody Cloth Anchor", "Deformable Multibody Anchor test", MultibodyClothAnchorCreateFunc),
         ExampleEntry(1, "Deformable-MultiBody Contact", "MultiBody and Deformable contact", DeformableMultibodyCreateFunc),
@@ -303,6 +307,7 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Rolling friction", "Experiment on multibody rolling friction", R2D2GraspExampleCreateFunc, eROBOTIC_LEARN_ROLLING_FRICTION),
 		ExampleEntry(1, "Gripper Grasp", "Grasp experiment with a gripper to improve contact model", GripperGraspExampleCreateFunc, eGRIPPER_GRASP),
 		ExampleEntry(1, "Two Point Grasp", "Grasp experiment with two point contact to test rolling friction", GripperGraspExampleCreateFunc, eTWO_POINT_GRASP),
+		ExampleEntry(1, "Grasp Deformable Cloth", "Grasp experiment with deformable cloth", GripperGraspExampleCreateFunc, eGRASP_DEFORMABLE_CLOTH),
 		ExampleEntry(1, "One Motor Gripper Grasp", "Grasp experiment with a gripper with one motor to test slider constraint for closed loop structure", GripperGraspExampleCreateFunc, eONE_MOTOR_GRASP),
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		ExampleEntry(1, "Grasp Soft Body", "Grasp soft body experiment", GripperGraspExampleCreateFunc, eGRASP_SOFT_BODY),

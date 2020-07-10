@@ -17,6 +17,8 @@
 #include "our_gl.h"
 #include "tgaimage.h"
 
+using namespace TinyRender;
+
 struct DepthShader : public IShader
 {
 	Model* m_model;

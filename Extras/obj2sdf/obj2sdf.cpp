@@ -16,6 +16,8 @@
 #include "Bullet3Common/b3HashMap.h"
 #include "../Utils/b3BulletDefaultFileIO.h"
 
+using tinyobj::index_t;
+
 struct ShapeContainer
 {
 	std::string m_matName;
@@ -24,8 +26,7 @@ struct ShapeContainer
 	std::vector<float> positions;
 	std::vector<float> normals;
 	std::vector<float> texcoords;
-	std::vector<unsigned int> indices;
-
+	std::vector<index_t> indices;
 	b3AlignedObjectArray<int> m_shapeIndices;
 };
 
@@ -141,9 +142,14 @@ int main(int argc, char* argv[])
 					continue;
 				}
 
-				shapeC->indices.push_back(shape.mesh.indices[face].vertex_index + curPositions);
-				shapeC->indices.push_back(shape.mesh.indices[face + 1].vertex_index + curPositions);
-				shapeC->indices.push_back(shape.mesh.indices[face + 2].vertex_index + curPositions);
+				index_t index;
+				for (int ii = 0; ii < 3; ii++)
+				{
+					index.vertex_index = shape.mesh.indices[face + ii].vertex_index + curPositions;
+					index.normal_index = shape.mesh.indices[face + ii].normal_index + curNormals;
+					index.texcoord_index = shape.mesh.indices[face + ii].texcoord_index + curTexcoords;
+					shapeC->indices.push_back(index);
+				}
 			}
 		}
 	}
@@ -237,9 +243,9 @@ int main(int argc, char* argv[])
 					continue;
 				}
 				fprintf(f, "f %d/%d/%d %d/%d/%d %d/%d/%d\n",
-						shapeCon->indices[face] + 1, shapeCon->indices[face] + 1, shapeCon->indices[face] + 1,
-						shapeCon->indices[face + 1] + 1, shapeCon->indices[face + 1] + 1, shapeCon->indices[face + 1] + 1,
-						shapeCon->indices[face + 2] + 1, shapeCon->indices[face + 2] + 1, shapeCon->indices[face + 2] + 1);
+						shapeCon->indices[face].vertex_index + 1, shapeCon->indices[face].texcoord_index + 1, shapeCon->indices[face].normal_index + 1,
+						shapeCon->indices[face + 1].vertex_index + 1, shapeCon->indices[face + 1].texcoord_index + 1, shapeCon->indices[face + 1].normal_index + 1,
+						shapeCon->indices[face + 2].vertex_index + 1, shapeCon->indices[face + 2].texcoord_index + 1, shapeCon->indices[face + 2].normal_index + 1);
 			}
 			fclose(f);
 
@@ -376,11 +382,11 @@ int main(int argc, char* argv[])
 					continue;
 				}
 				fprintf(f, "f %d/%d/%d %d/%d/%d %d/%d/%d\n",
-						shape.mesh.indices[face].vertex_index + 1, shape.mesh.indices[face].vertex_index + 1, shape.mesh.indices[face].vertex_index + 1,
-						shape.mesh.indices[face + 1].vertex_index + 1, shape.mesh.indices[face + 1].vertex_index + 1, shape.mesh.indices[face + 1].vertex_index + 1,
-						shape.mesh.indices[face + 2].vertex_index + 1, shape.mesh.indices[face + 2].vertex_index + 1, shape.mesh.indices[face + 2].vertex_index + 1);
+                                        shape.mesh.indices[face].vertex_index + 1,     shape.mesh.indices[face].texcoord_index + 1,     shape.mesh.indices[face].normal_index + 1,
+                                        shape.mesh.indices[face + 1].vertex_index + 1, shape.mesh.indices[face + 1].texcoord_index + 1, shape.mesh.indices[face + 1].normal_index + 1,
+                                        shape.mesh.indices[face + 2].vertex_index + 1, shape.mesh.indices[face + 2].texcoord_index + 1, shape.mesh.indices[face + 2].normal_index + 1);
 			}
-			fclose(f);
+                        fclose(f);
 
 			float kdRed = mat.diffuse[0];
 			float kdGreen = mat.diffuse[1];

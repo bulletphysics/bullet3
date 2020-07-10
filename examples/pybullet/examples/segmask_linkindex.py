@@ -1,5 +1,8 @@
 import pybullet as p
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 r2d2 = p.loadURDF("r2d2.urdf", [0, 0, 1])
 for l in range(p.getNumJoints(r2d2)):
   print(p.getJointInfo(r2d2, l))

@@ -128,6 +128,8 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperRemoveTexture,
 	eGUIHelperSetVisualizerFlagCheckRenderedFrame,
 	eGUIHelperUpdateShape,
+	eGUIHelperChangeGraphicsInstanceScaling,
+	eGUIUserDebugRemoveAllParameters,
 };
 
 #include <stdio.h>
@@ -493,6 +495,13 @@ struct UserDebugParameter
 	btScalar m_value;
 	int m_itemUniqueId;
 };
+
+static void UserButtonToggle(int buttonId, bool buttonState, void* userPointer)
+{
+	UserDebugParameter* param = (UserDebugParameter*)userPointer;
+	param->m_value += 1;
+}
+
 
 struct UserDebugText
 {
@@ -1027,6 +1036,19 @@ public:
 		workerThreadWait();
 	}
 
+	int m_graphicsInstanceChangeScaling;
+	double m_baseScaling[3];
+	virtual void changeScaling(int instanceUid, const double scaling[3])
+	{
+		m_graphicsInstanceChangeScaling = instanceUid;
+		m_baseScaling[0] = scaling[0];
+		m_baseScaling[1] = scaling[1];
+		m_baseScaling[2] = scaling[2];
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIHelperChangeGraphicsInstanceScaling);
+		workerThreadWait();
+	}
+
 	double m_specularColor[3];
 	int m_graphicsInstanceChangeSpecular;
 	virtual void changeSpecularColor(int instanceUid, const double specularColor[3])
@@ -1327,6 +1349,16 @@ public:
 		m_cs->setSharedParam(1, eGUIUserDebugRemoveAllItems);
 		workerThreadWait();
 	}
+
+	virtual void removeAllUserParameters()
+	{
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIUserDebugRemoveAllParameters);
+		workerThreadWait();
+	}
+
+	
+
 
 	const char* m_mp4FileName;
 	virtual void dumpFramesToVideo(const char* mp4FileName)
@@ -2163,6 +2195,16 @@ void PhysicsServerExample::updateGraphics()
 			m_multiThreadedHelper->mainThreadRelease();
 			break;
 		}
+
+		case eGUIHelperChangeGraphicsInstanceScaling:
+		{
+			B3_PROFILE("eGUIHelperChangeGraphicsInstanceScaling");
+
+			m_multiThreadedHelper->m_childGuiHelper->changeScaling(m_multiThreadedHelper->m_graphicsInstanceChangeScaling, m_multiThreadedHelper->m_baseScaling);
+			m_multiThreadedHelper->mainThreadRelease();
+			break;
+		}
+
 		case eGUIHelperChangeGraphicsInstanceSpecularColor:
 		{
 			B3_PROFILE("eGUIHelperChangeGraphicsInstanceSpecularColor");
@@ -2359,6 +2401,7 @@ void PhysicsServerExample::updateGraphics()
 			UserDebugParameter* param = new UserDebugParameter(m_multiThreadedHelper->m_tmpParam);
 			m_multiThreadedHelper->m_userDebugParams.push_back(param);
 
+			if (param->m_rangeMin<= param->m_rangeMax)
 			{
 				SliderParams slider(param->m_text, &param->m_value);
 				slider.m_minVal = param->m_rangeMin;
@@ -2366,6 +2409,19 @@ void PhysicsServerExample::updateGraphics()
 
 				if (m_multiThreadedHelper->m_childGuiHelper->getParameterInterface())
 					m_multiThreadedHelper->m_childGuiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+			}
+			else
+			{
+				int buttonId = -1;
+				bool isTrigger = false;
+				ButtonParams button(param->m_text, buttonId, isTrigger);
+				button.m_callback = UserButtonToggle;
+				button.m_userPointer = param;
+				button.m_initialState = false;
+				
+				//create a button
+				if (m_multiThreadedHelper->m_childGuiHelper->getParameterInterface())
+					m_multiThreadedHelper->m_childGuiHelper->getParameterInterface()->registerButtonParameter(button);
 			}
 
 			m_multiThreadedHelper->m_userDebugParamUid = (*m_multiThreadedHelper->m_userDebugParams[m_multiThreadedHelper->m_userDebugParams.size() - 1]).m_itemUniqueId;
@@ -2424,10 +2480,23 @@ void PhysicsServerExample::updateGraphics()
 			m_multiThreadedHelper->mainThreadRelease();
 			break;
 		}
+		case eGUIUserDebugRemoveAllParameters:
+		{
+			B3_PROFILE("eGUIUserDebugRemoveAllParameters");
+			if (m_multiThreadedHelper->m_childGuiHelper->getParameterInterface())
+				m_multiThreadedHelper->m_childGuiHelper->getParameterInterface()->removeAllParameters();
+			for (int i = 0; i < m_multiThreadedHelper->m_userDebugParams.size(); i++)
+			{
+				delete m_multiThreadedHelper->m_userDebugParams[i];
+			}
+			m_multiThreadedHelper->m_userDebugParams.clear();
+			m_multiThreadedHelper->mainThreadRelease();
+			break;
+		}
+
 		case eGUIUserDebugRemoveAllItems:
 		{
 			B3_PROFILE("eGUIUserDebugRemoveAllItems");
-
 			m_multiThreadedHelper->m_userDebugLines.clear();
 			m_multiThreadedHelper->m_userDebugText.clear();
 			m_multiThreadedHelper->m_uidGenerator = 0;

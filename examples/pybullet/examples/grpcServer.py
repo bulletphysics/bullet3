@@ -4,7 +4,10 @@ import time
 useDirect = False
 usePort = True
 
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 id = p.loadPlugin("grpcPlugin")
 #dynamically loading the plugin
 #id = p.loadPlugin("E:/develop/bullet3/bin/pybullet_grpcPlugin_vs2010_x64_debug.dll", postFix="_grpcPlugin")

@@ -17,8 +17,12 @@ img = np.random.rand(200, 320)
 #img = [tandard_normal((50,100))
 image = plt.imshow(img, interpolation='none', animated=True, label="blah")
 ax = plt.gca()
+import pybullet_data
+
 
 pybullet.connect(pybullet.DIRECT)
+
+pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 egl = pkgutil.get_loader('eglRenderer')
 if (egl):

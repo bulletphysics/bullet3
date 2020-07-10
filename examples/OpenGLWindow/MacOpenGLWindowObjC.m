@@ -1,8 +1,11 @@
 #ifndef B3_USE_GLFW
+#define __OBJC2__ 1
+#include <Foundation/NSExtensionContext.h>
 
 #include "MacOpenGLWindowObjC.h"
 
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
+
 #import <Cocoa/Cocoa.h>
 #include "OpenGLInclude.h"
 
@@ -187,7 +190,7 @@ void dumpInfo(void)
 	
 	[m_context setView: self];
 	[m_context makeCurrentContext];
-	
+	[m_context update];
 	// Draw
 	//display();
 	
@@ -237,13 +240,14 @@ void dumpInfo(void)
 	m_context = [[NSOpenGLContext alloc] initWithFormat: fmt shareContext: nil];
 	[fmt release];
 	[m_context makeCurrentContext];
-    
+	[m_context update];
 	//checkError("makeCurrentContext");
 }
 
 -(void) MakeCurrent
 {
-    [m_context makeCurrentContext];
+	[m_context makeCurrentContext];
+	[m_context update];
 }
 -(void)windowWillClose:(NSNotification *)note
 {
@@ -1174,7 +1178,7 @@ int Mac_fileOpenDialog(char* filename, int maxNameLength)
     NSInteger zIntResult = [zOpenPanel runModal];
     
     [foo makeCurrentContext];
-    
+    [foo update];
     if (zIntResult == NSFileHandlingPanelCancelButton) {
         NSLog(@"readUsingOpenPanel cancelled");
         return 0;

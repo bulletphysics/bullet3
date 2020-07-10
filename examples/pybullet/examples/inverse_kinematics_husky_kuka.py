@@ -3,8 +3,11 @@ import time
 import math
 from datetime import datetime
 from datetime import datetime
+import pybullet_data
 
 clid = p.connect(p.SHARED_MEMORY)
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 if (clid < 0):
   p.connect(p.GUI)
 p.loadURDF("plane.urdf", [0, 0, -0.3])

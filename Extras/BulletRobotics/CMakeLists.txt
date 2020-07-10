@@ -222,13 +222,6 @@ IF(BUILD_ENET)
 ENDIF(BUILD_ENET)
 
 IF(BUILD_CLSOCKET)
-  set(BulletRobotics_CLSOCKET_INCLUDES 
-    ../../examples/SharedMemory/PhysicsClientTCP.h
-    ../../examples/SharedMemory/PhysicsClientTCP_C_API.h
-    ../../examples/ThirdPartyLibs/clsocket/src/SimpleSocket.h
-    ../../examples/ThirdPartyLibs/clsocket/src/ActiveSocket.h
-    ../../examples/ThirdPartyLibs/clsocket/src/PassiveSocket.h
-  )
   set(BulletRobotics_CLSOCKET_SRCS
     ../../examples/SharedMemory/PhysicsClientTCP.cpp
     ../../examples/SharedMemory/PhysicsClientTCP_C_API.cpp
@@ -237,13 +230,8 @@ IF(BUILD_CLSOCKET)
     ../../examples/ThirdPartyLibs/clsocket/src/PassiveSocket.cpp
   )
 
-  set(BulletRobotics_INCLUDES
-    ${BulletRobotics_INCLUDES}
-    ${BulletRobotics_CLSOCKET_INCLUDES}
-  )
   set(BulletRobotics_SRCS
     ${BulletRobotics_SRCS}
-    ${BulletRobotics_CLSOCKET_INCLUDES}
     ${BulletRobotics_CLSOCKET_SRCS}
   )
 ENDIF()
@@ -260,25 +248,12 @@ IF (BUILD_SHARED_LIBS)
 	TARGET_LINK_LIBRARIES(BulletRobotics BulletInverseDynamicsUtils BulletWorldImporter BulletFileLoader BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamics LinearMath Bullet3Common)
 ENDIF (BUILD_SHARED_LIBS)
 
-IF (INSTALL_EXTRA_LIBS)
-	INSTALL(FILES
-      ../../examples/SharedMemory/PhysicsClientC_API.h
-      ../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.h
-      ../../examples/SharedMemory/PhysicsClientSharedMemory2_C_API.h
-      ../../examples/SharedMemory/PhysicsDirectC_API.h
-      ../../examples/SharedMemory/PhysicsClientUDP_C_API.h
-      ../../examples/SharedMemory/PhysicsClientTCP_C_API.h
-      ../../examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.h
-      ../../examples/SharedMemory/SharedMemoryPublic.h
-      ../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoGUI.h
-      ../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.h
-		DESTINATION include/bullet
-  )
   
-  INSTALL(FILES
-    ${BulletRobotics_INCLUDES}
-    DESTINATION include/bullet_robotics
-  )
+
+INSTALL (
+    DIRECTORY ${CMAKE_SOURCE_DIR}/examples/
+    DESTINATION include/bullet
+    FILES_MATCHING PATTERN "*.h*")
 
 	INSTALL(TARGETS
 		BulletRobotics
@@ -301,5 +276,4 @@ IF(NOT MSVC)
       ${PKGCONFIG_INSTALL_PREFIX}
     )
 ENDIF(NOT MSVC)
-ENDIF (INSTALL_EXTRA_LIBS)
 

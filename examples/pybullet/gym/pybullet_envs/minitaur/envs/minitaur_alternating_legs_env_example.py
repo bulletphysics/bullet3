@@ -10,7 +10,7 @@ os.sys.path.insert(0, parentdir)
 
 import os
 import numpy as np
-import tensorflow as tf
+import tf.compat.v1 as tf
 from pybullet_envs.minitaur.envs import minitaur_alternating_legs_env
 from pybullet_envs.minitaur.envs import minitaur_gym_env
 from pybullet_envs.minitaur.envs.env_randomizers import minitaur_alternating_legs_env_randomizer as randomizer_lib

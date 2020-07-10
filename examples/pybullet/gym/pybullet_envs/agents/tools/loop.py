@@ -20,7 +20,10 @@ from __future__ import print_function
 import collections
 import os
 
-import tensorflow as tf
+try:
+  import tensorflow.compat.v1 as tf
+except Exception:
+  import tensorflow as tf
 
 from . import streaming_mean
 

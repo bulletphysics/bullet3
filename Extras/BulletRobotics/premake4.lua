@@ -71,7 +71,9 @@ if not _OPTIONS["no-enet"] then
                 links {"clsocket"}
 
                 files {
+			"../../examples/SharedMemory/RemoteGUIHelperTCP.cpp",
                         "../../examples/SharedMemory/PhysicsClientTCP.cpp",
+			"../../examples/SharedMemory/GraphicsServerExample.cpp",
                         "../../examples/SharedMemory/PhysicsClientTCP.h",
                         "../../examples/SharedMemory/PhysicsClientTCP_C_API.cpp",
                         "../../examples/SharedMemory/PhysicsClientTCP_C_API.h",

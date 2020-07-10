@@ -2,8 +2,8 @@
 #define BULLET_URDF_IMPORTER_H
 
 #include "URDFImporterInterface.h"
-
 #include "UrdfRenderingInterface.h"
+#include "UrdfParser.h"
 
 struct BulletURDFTexture
 {
@@ -74,6 +74,8 @@ public:
 
 	///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
 
+	virtual const struct UrdfModel* getUrdfModel() const;
+
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const;
 
 	virtual int getCollisionGroupAndMask(int linkIndex, int& colGroup, int& colMask) const;
@@ -89,6 +91,7 @@ public:
 
 	virtual void setEnableTinyRenderer(bool enable);
 	void convertURDFToVisualShapeInternal(const struct UrdfVisual* visual, const char* urdfPathPrefix, const class btTransform& visualTransform, btAlignedObjectArray<struct GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<struct BulletURDFTexture>& texturesOut, struct b3ImportMeshData& meshData) const;
+	const struct UrdfDeformable& getDeformableModel() const;
 };
 
 #endif  //BULLET_URDF_IMPORTER_H

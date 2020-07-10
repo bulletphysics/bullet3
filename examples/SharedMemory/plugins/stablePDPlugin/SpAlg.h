@@ -2,14 +2,16 @@
 
 #include "MathUtil.h"
 
+#define gSpVecSize 6
+#define gSVTransRows 3
+#define gSVTransCols 4
+
+
 // spatial algebra util
 class cSpAlg
 {
 public:
-	const static int gSpVecSize = 6;
-	const static int gSVTransRows = 3;
-	const static int gSVTransCols = 4;
-
+	
 
 	typedef Eigen::Matrix<double, gSVTransRows, gSVTransCols> tSpTrans;
 	typedef Eigen::Matrix<double, gSpVecSize, 1> tSpVec;

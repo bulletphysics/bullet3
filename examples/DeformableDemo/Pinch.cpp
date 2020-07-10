@@ -22,7 +22,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include <stdio.h>  //printf debugging
 
-#include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../CommonInterfaces/CommonDeformableBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
 ///The Pinch shows the frictional contact between kinematic rigid objects with deformable objects
@@ -32,12 +32,11 @@ struct TetraCube
 #include "../SoftDemo/cube.inl"
 };
 
-class Pinch : public CommonRigidBodyBase
+class Pinch : public CommonDeformableBodyBase
 {
-    btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 public:
 	Pinch(struct GUIHelperInterface* helper)
-		: CommonRigidBodyBase(helper)
+		: CommonDeformableBodyBase(helper)
 	{
 	}
 	virtual ~Pinch()
@@ -81,19 +80,9 @@ public:
         }
     }
     
-    virtual const btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld() const
-    {
-        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
-    }
-    
-    virtual btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld()
-    {
-        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
-    }
-    
     virtual void renderScene()
     {
-        CommonRigidBodyBase::renderScene();
+        CommonDeformableBodyBase::renderScene();
         btDeformableMultiBodyDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
@@ -231,7 +220,7 @@ void Pinch::initPhysics()
     btVector3 gravity = btVector3(0, -10, 0);
 	m_dynamicsWorld->setGravity(gravity);
     getDeformableDynamicsWorld()->getWorldInfo().m_gravity = gravity;
-    
+	getDeformableDynamicsWorld()->getWorldInfo().m_sparsesdf.setDefaultVoxelsz(0.25);
     getDeformableDynamicsWorld()->setSolverCallback(dynamics);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
@@ -307,24 +296,25 @@ void Pinch::initPhysics()
         
         psb->scale(btVector3(2, 2, 2));
         psb->translate(btVector3(0, 4, 0));
-        psb->getCollisionShape()->setMargin(0.1);
+        psb->getCollisionShape()->setMargin(0.01);
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 2;
+        psb->m_cfg.kDF = .5;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         btSoftBodyHelpers::generateBoundaryFaces(psb);
-        
-        btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(1,0.05);
-        getDeformableDynamicsWorld()->addForce(psb, mass_spring);
-        m_forces.push_back(mass_spring);
         
         btDeformableGravityForce* gravity_force =  new btDeformableGravityForce(gravity);
         getDeformableDynamicsWorld()->addForce(psb, gravity_force);
         m_forces.push_back(gravity_force);
         
-        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(.2,1);
+        btDeformableNeoHookeanForce* neohookean = new btDeformableNeoHookeanForce(8,3, 0.02);
+        neohookean->setPoissonRatio(0.3);
+        neohookean->setYoungsModulus(25);
+        neohookean->setDamping(0.01);
+        psb->m_cfg.drag = 0.001;
         getDeformableDynamicsWorld()->addForce(psb, neohookean);
         m_forces.push_back(neohookean);
         // add a grippers
@@ -337,7 +327,7 @@ void Pinch::initPhysics()
 void Pinch::exitPhysics()
 {
 	//cleanup in the reverse order of creation/initialization
-
+    removePickingConstraint();
 	//remove the rigidbodies from the dynamics world and delete them
 	int i;
 	for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)

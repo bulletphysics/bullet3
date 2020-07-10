@@ -77,6 +77,28 @@ static bool parseVector3(btVector3& vec3, const std::string& vector_str, ErrorLo
 	return true;
 }
 
+// Parses user data from an xml element and stores it in a hashmap. User data is
+// expected to reside in a <user-data> tag that is nested inside a <bullet> tag.
+// Example:
+// <bullet>
+//   <user-data key="label">...</user-data>
+// </bullet>
+static void ParseUserData(const XMLElement* element, btHashMap<btHashString,
+	std::string>& user_data, ErrorLogger* logger) {
+	// Parse any custom Bullet-specific info.
+	for (const XMLElement* bullet_xml = element->FirstChildElement("bullet");
+			bullet_xml; bullet_xml = bullet_xml->NextSiblingElement("bullet")) {
+		for (const XMLElement* user_data_xml = bullet_xml->FirstChildElement("user-data");
+				user_data_xml; user_data_xml = user_data_xml->NextSiblingElement("user-data")) {
+			const char* key_attr = user_data_xml->Attribute("key");
+			if (!key_attr) {
+				logger->reportError("User data tag must have a key attribute.");
+			}
+			user_data.insert(key_attr, user_data_xml->GetText());
+		}
+	}
+}
+
 bool UrdfParser::parseMaterial(UrdfMaterial& material, XMLElement* config, ErrorLogger* logger)
 {
 	if (!config->Attribute("name"))
@@ -732,6 +754,7 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, XMLElement* c
 			}
 		}
 	}
+	ParseUserData(config, visual.m_userData, logger);
 
 	return true;
 }
@@ -1071,6 +1094,178 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, XMLElement* config,
 			return false;
 		}
 	}
+	ParseUserData(config, link.m_userData, logger);
+	return true;
+}
+
+bool UrdfParser::parseLameCoefficients(LameCoefficients& lameCoefficients, tinyxml2::XMLElement* config, ErrorLogger* logger)
+{
+	const char* mu = config->Attribute("mu");
+	const char* lambda = config->Attribute("lambda");
+	const char* damping = config->Attribute("damping");
+	if (!mu || !lambda)
+	{
+		logger->reportError("expected mu lambda for LameCoefficients.");
+		return false;
+	}
+	lameCoefficients.mu = urdfLexicalCast<double>(mu);
+	lameCoefficients.lambda = urdfLexicalCast<double>(lambda);
+	if (damping)
+		lameCoefficients.damping = urdfLexicalCast<double>(damping);
+	else
+		lameCoefficients.damping = 0;
+	return true;
+}
+
+bool UrdfParser::parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config, ErrorLogger* logger)
+{
+	UrdfDeformable& deformable = model.m_deformable;
+	const char* deformableName = config->Attribute("name");
+	if (!deformableName)
+	{
+		logger->reportError("Deformable with no name");
+		return false;
+	}
+	deformable.m_name = deformableName;
+
+	XMLElement* i = config->FirstChildElement("inertial");
+	if (!i)
+	{
+		logger->reportError("expected an inertial element");
+	}
+	UrdfInertia inertia;
+	if (!parseInertia(inertia, i, logger))
+	{
+		logger->reportError("Could not parse inertial element for deformable:");
+		logger->reportError(deformable.m_name.c_str());
+		return false;
+	}
+	deformable.m_mass = inertia.m_mass;
+
+	XMLElement* collisionMargin_xml = config->FirstChildElement("collision_margin");
+	if (collisionMargin_xml)
+	{
+		if (!collisionMargin_xml->Attribute("value"))
+		{
+			logger->reportError("collision_margin element must have value attribute");
+			return false;
+		}
+		deformable.m_collisionMargin = urdfLexicalCast<double>(collisionMargin_xml->Attribute("value"));
+	}
+
+	XMLElement* friction_xml = config->FirstChildElement("friction");
+	if (friction_xml)
+	{
+		if (!friction_xml->Attribute("value"))
+		{
+			logger->reportError("friction element must have value attribute");
+			return false;
+		}
+		deformable.m_friction = urdfLexicalCast<double>(friction_xml->Attribute("value"));
+	}
+	
+	XMLElement* repulsion_xml = config->FirstChildElement("repulsion_stiffness");
+	if (repulsion_xml)
+	{
+		if (!repulsion_xml->Attribute("value"))
+		{
+			logger->reportError("repulsion_stiffness element must have value attribute");
+			return false;
+		}
+		deformable.m_repulsionStiffness = urdfLexicalCast<double>(repulsion_xml->Attribute("value"));
+	}
+	
+	XMLElement* grav_xml = config->FirstChildElement("gravity_factor");
+	if (grav_xml)
+	{
+		if (!grav_xml->Attribute("value"))
+		{
+			logger->reportError("gravity_factor element must have value attribute");
+			return false;
+		}
+		deformable.m_gravFactor = urdfLexicalCast<double>(grav_xml->Attribute("value"));
+	}
+
+	XMLElement* spring_xml = config->FirstChildElement("spring");
+	if (spring_xml)
+	{
+		if (!spring_xml->Attribute("elastic_stiffness") || !spring_xml->Attribute("damping_stiffness"))
+		{
+			logger->reportError("spring element expect elastic and damping stiffness");
+			return false;
+		}
+
+		deformable.m_springCoefficients.elastic_stiffness = urdfLexicalCast<double>(spring_xml->Attribute("elastic_stiffness"));
+		deformable.m_springCoefficients.damping_stiffness = urdfLexicalCast<double>(spring_xml->Attribute("damping_stiffness"));
+
+		if (spring_xml->Attribute("bending_stiffness"))
+			deformable.m_springCoefficients.bending_stiffness = urdfLexicalCast<double>(spring_xml->Attribute("bending_stiffness"));
+	}
+
+	XMLElement* corotated_xml = config->FirstChildElement("corotated");
+	if (corotated_xml)
+	{
+		if (!parseLameCoefficients(deformable.m_corotatedCoefficients, corotated_xml, logger))
+		{
+			return false;
+		}
+	}
+
+	XMLElement* neohookean_xml = config->FirstChildElement("neohookean");
+	if (neohookean_xml)
+	{
+		if (!parseLameCoefficients(deformable.m_neohookeanCoefficients, neohookean_xml, logger))
+		{
+			return false;
+		}
+	}
+
+	XMLElement* vis_xml = config->FirstChildElement("visual");
+	if (!vis_xml)
+	{
+		logger->reportError("expected an visual element");
+		return false;
+	}
+	if (!vis_xml->Attribute("filename"))
+	{
+		logger->reportError("expected a filename for visual geometry");
+		return false;
+	}
+	std::string fn = vis_xml->Attribute("filename");
+	deformable.m_visualFileName = fn;
+
+	int out_type(0);
+	bool success = UrdfFindMeshFile(m_fileIO,
+									model.m_sourceFile, fn, sourceFileLocation(vis_xml),
+									&deformable.m_visualFileName, &out_type);
+
+	if (!success)
+	{
+		// warning already printed
+		return false;
+	}
+
+	XMLElement* col_xml = config->FirstChildElement("collision");
+	if (col_xml)
+	{
+		if (!col_xml->Attribute("filename"))
+		{
+			logger->reportError("expected a filename for collision geoemtry");
+			return false;
+		}
+		fn = vis_xml->Attribute("filename");
+		success = UrdfFindMeshFile(m_fileIO,
+								   model.m_sourceFile, fn, sourceFileLocation(vis_xml),
+								   &deformable.m_simFileName, &out_type);
+
+		if (!success)
+		{
+			// warning already printed
+			return false;
+		}
+	}
+
+	ParseUserData(config, deformable.m_userData, logger);
 	return true;
 }
 
@@ -1520,6 +1715,238 @@ bool UrdfParser::parseSensor(UrdfModel& model, UrdfLink& link, UrdfJoint& joint,
 	return true;
 }
 
+static void CalculatePrincipalAxisTransform(btScalar* masses, const btTransform* transforms, btMatrix3x3* inertiasIn, btTransform& principal, btVector3& inertiaOut)
+{
+	int n = 2;
+
+	btScalar totalMass = 0;
+	btVector3 center(0, 0, 0);
+	int k;
+
+	for (k = 0; k < n; k++)
+	{
+		btAssert(masses[k] > 0);
+		center += transforms[k].getOrigin() * masses[k];
+		totalMass += masses[k];
+	}
+
+	btAssert(totalMass > 0);
+
+	center /= totalMass;
+	principal.setOrigin(center);
+
+	btMatrix3x3 tensor(0, 0, 0, 0, 0, 0, 0, 0, 0);
+	for (k = 0; k < n; k++)
+	{
+		
+
+		const btTransform& t = transforms[k];
+		btVector3 o = t.getOrigin() - center;
+
+		//compute inertia tensor in coordinate system of parent
+		btMatrix3x3 j = t.getBasis().transpose();
+		j *= inertiasIn[k];
+		j = t.getBasis() * j;
+
+		//add inertia tensor
+		tensor[0] += j[0];
+		tensor[1] += j[1];
+		tensor[2] += j[2];
+
+		//compute inertia tensor of pointmass at o
+		btScalar o2 = o.length2();
+		j[0].setValue(o2, 0, 0);
+		j[1].setValue(0, o2, 0);
+		j[2].setValue(0, 0, o2);
+		j[0] += o * -o.x();
+		j[1] += o * -o.y();
+		j[2] += o * -o.z();
+
+		//add inertia tensor of pointmass
+		tensor[0] += masses[k] * j[0];
+		tensor[1] += masses[k] * j[1];
+		tensor[2] += masses[k] * j[2];
+	}
+
+	tensor.diagonalize(principal.getBasis(), btScalar(0.00001), 20);
+	inertiaOut.setValue(tensor[0][0], tensor[1][1], tensor[2][2]);
+}
+
+bool UrdfParser::mergeFixedLinks(UrdfModel& model, UrdfLink* link, ErrorLogger* logger, bool forceFixedBase, int level)
+{
+	for (int l = 0; l < level; l++)
+	{
+		printf("\t");
+	}
+	printf("processing %s\n", link->m_name.c_str());
+	
+	for (int i = 0; i < link->m_childJoints.size();)
+	{
+		if (link->m_childJoints[i]->m_type == URDFFixedJoint)
+		{
+			UrdfLink* childLink = link->m_childLinks[i];
+			UrdfJoint* childJoint = link->m_childJoints[i];
+			for (int l = 0; l < level+1; l++)
+			{
+				printf("\t");
+			}
+			//mergeChildLink
+			printf("merge %s into %s!\n", childLink->m_name.c_str(), link->m_name.c_str());
+			for (int c = 0; c < childLink->m_collisionArray.size(); c++)
+			{
+				UrdfCollision col = childLink->m_collisionArray[c];
+				col.m_linkLocalFrame = childJoint->m_parentLinkToJointTransform * col.m_linkLocalFrame;
+				link->m_collisionArray.push_back(col);
+			}
+
+			for (int c = 0; c < childLink->m_visualArray.size(); c++)
+			{
+				UrdfVisual viz = childLink->m_visualArray[c];
+				viz.m_linkLocalFrame = childJoint->m_parentLinkToJointTransform * viz.m_linkLocalFrame;
+				link->m_visualArray.push_back(viz);
+			}
+
+			if (!link->m_inertia.m_hasLinkLocalFrame)
+			{
+				link->m_inertia.m_linkLocalFrame.setIdentity();
+			}
+			if (!childLink->m_inertia.m_hasLinkLocalFrame)
+			{
+				childLink->m_inertia.m_linkLocalFrame.setIdentity();
+			}
+			//for a 'forceFixedBase' don't merge
+			bool isStaticBase = false;
+			if (forceFixedBase && link->m_parentJoint == 0)
+				isStaticBase = true;
+			if (link->m_inertia.m_mass==0 && link->m_parentJoint == 0)
+				isStaticBase = true;
+
+			//skip the mass and inertia merge for a fixed base link
+			if (!isStaticBase)
+			{
+				btScalar masses[2] = { (btScalar)link->m_inertia.m_mass, (btScalar)childLink->m_inertia.m_mass };
+				btTransform transforms[2] = { link->m_inertia.m_linkLocalFrame, childJoint->m_parentLinkToJointTransform * childLink->m_inertia.m_linkLocalFrame };
+				btMatrix3x3 inertiaLink(
+					link->m_inertia.m_ixx, link->m_inertia.m_ixy, link->m_inertia.m_ixz,
+					link->m_inertia.m_ixy, link->m_inertia.m_iyy, link->m_inertia.m_iyz,
+					link->m_inertia.m_ixz, link->m_inertia.m_iyz, link->m_inertia.m_izz);
+				btMatrix3x3 inertiaChild(
+					childLink->m_inertia.m_ixx, childLink->m_inertia.m_ixy, childLink->m_inertia.m_ixz,
+					childLink->m_inertia.m_ixy, childLink->m_inertia.m_iyy, childLink->m_inertia.m_iyz,
+					childLink->m_inertia.m_ixz, childLink->m_inertia.m_iyz, childLink->m_inertia.m_izz);
+				btMatrix3x3 inertiasIn[2] = { inertiaLink, inertiaChild };
+				btVector3 inertiaOut;
+				btTransform principal;
+				CalculatePrincipalAxisTransform(masses, transforms, inertiasIn, principal, inertiaOut);
+				link->m_inertia.m_hasLinkLocalFrame = true;
+				link->m_inertia.m_linkLocalFrame.setIdentity();
+				//link->m_inertia.m_linkLocalFrame = principal;
+				link->m_inertia.m_linkLocalFrame.setOrigin(principal.getOrigin());
+				
+				link->m_inertia.m_ixx = inertiaOut[0];
+				link->m_inertia.m_ixy = 0;
+				link->m_inertia.m_ixz = 0;
+				link->m_inertia.m_iyy = inertiaOut[1];
+				link->m_inertia.m_iyz = 0;
+				link->m_inertia.m_izz = inertiaOut[2];
+				link->m_inertia.m_mass += childLink->m_inertia.m_mass;
+			}
+			link->m_childJoints.removeAtIndex(i);
+			link->m_childLinks.removeAtIndex(i);
+
+			for (int g = 0; g < childLink->m_childJoints.size(); g++)
+			{
+				UrdfLink* grandChildLink = childLink->m_childLinks[g];
+				UrdfJoint* grandChildJoint = childLink->m_childJoints[g];
+				for (int l = 0; l < level+2; l++)
+				{
+					printf("\t");
+				}
+				printf("relink %s from %s to %s!\n", grandChildLink->m_name.c_str(), childLink->m_name.c_str(), link->m_name.c_str());
+				
+				grandChildJoint->m_parentLinkName = link->m_name;
+				grandChildJoint->m_parentLinkToJointTransform =
+					childJoint->m_parentLinkToJointTransform * grandChildJoint->m_parentLinkToJointTransform;
+				
+				grandChildLink->m_parentLink = link;
+				grandChildLink->m_parentJoint->m_parentLinkName = link->m_name;
+
+				link->m_childJoints.push_back(grandChildJoint);
+				link->m_childLinks.push_back(grandChildLink);
+			}
+			model.m_links.remove(childLink->m_name.c_str());
+			model.m_joints.remove(childJoint->m_name.c_str());
+			
+		}
+		else
+		{
+			//keep this link and recurse
+			mergeFixedLinks(model, link->m_childLinks[i], logger, forceFixedBase, level+1);
+			i++;
+		}
+	}
+	return true;
+}
+
+
+const std::string sJointNames[]={"unused",
+	"URDFRevoluteJoint",
+	"URDFPrismaticJoint",
+	"URDFContinuousJoint",
+	"URDFFloatingJoint",
+	"URDFPlanarJoint",
+	"URDFFixedJoint",
+	"URDFSphericalJoint",
+};
+
+bool UrdfParser::printTree(UrdfLink* link, ErrorLogger* logger, int level)
+{
+	printf("\n");
+	for (int l = 0; l < level; l++)
+	{
+		printf("\t");
+	}
+	printf("%s (mass=%f) ", link->m_name.c_str(), link->m_inertia.m_mass);
+	if (link->m_parentJoint)
+	{
+		printf("(joint %s, joint type=%s\n", link->m_parentJoint->m_name.c_str(), sJointNames[link->m_parentJoint->m_type].c_str());
+	}
+	else
+	{
+		printf("\n");
+	}
+	
+	for (int i = 0; i<link->m_childJoints.size(); i++)
+	{
+		printTree(link->m_childLinks[i], logger, level + 1);
+		btAssert(link->m_childJoints[i]->m_parentLinkName == link->m_name);
+	}
+	return true;
+}
+
+bool UrdfParser::recreateModel(UrdfModel& model, UrdfLink* link, ErrorLogger* logger)
+{
+	if (!link->m_parentJoint)
+	{
+		link->m_linkIndex = model.m_links.size();
+		model.m_links.insert(link->m_name.c_str(), link);
+	}
+	for (int i = 0; i < link->m_childJoints.size(); i++)
+	{
+		link->m_childLinks[i]->m_linkIndex = model.m_links.size();
+		const char* childName = link->m_childLinks[i]->m_name.c_str();
+		UrdfLink* childLink = link->m_childLinks[i];
+		model.m_links.insert(childName, childLink);
+		const char* jointName = link->m_childLinks[i]->m_parentJoint->m_name.c_str();
+		UrdfJoint* joint = link->m_childLinks[i]->m_parentJoint;
+		model.m_joints.insert(jointName, joint);
+	}
+	for (int i = 0; i < link->m_childJoints.size(); i++)
+	{
+		recreateModel(model, link->m_childLinks[i], logger);
+	}
+	return true;
+}
 bool UrdfParser::initTreeAndRoot(UrdfModel& model, ErrorLogger* logger)
 {
 	// every link has children links and joints, but no parents, so we create a
@@ -1605,6 +2032,9 @@ bool UrdfParser::initTreeAndRoot(UrdfModel& model, ErrorLogger* logger)
 		logger->reportError("URDF without root link found");
 		return false;
 	}
+
+
+
 	return true;
 }
 
@@ -1639,6 +2069,8 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 	}
 	m_urdf2Model.m_name = name;
 
+	ParseUserData(robot_xml, m_urdf2Model.m_userData, logger);
+
 	// Get all Material elements
 	for (XMLElement* material_xml = robot_xml->FirstChildElement("material"); material_xml; material_xml = material_xml->NextSiblingElement("material"))
 	{
@@ -1661,6 +2093,11 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 	//	char msg[1024];
 	//	sprintf(msg,"Num materials=%d", m_model.m_materials.size());
 	//	logger->printMessage(msg);
+
+
+  XMLElement* deformable_xml = robot_xml->FirstChildElement("deformable");
+  if(deformable_xml)
+    return parseDeformable(m_urdf2Model, deformable_xml, logger);
 
 	for (XMLElement* link_xml = robot_xml->FirstChildElement("link"); link_xml; link_xml = link_xml->NextSiblingElement("link"))
 	{

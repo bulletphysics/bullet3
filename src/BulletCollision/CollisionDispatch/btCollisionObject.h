@@ -251,6 +251,16 @@ public:
 		m_checkCollideWith = m_objectsWithoutCollisionCheck.size() > 0;
 	}
 
+        int getNumObjectsWithoutCollision() const
+	{
+		return m_objectsWithoutCollisionCheck.size();
+	}
+
+	const btCollisionObject* getObjectWithoutCollision(int index)
+	{
+		return m_objectsWithoutCollisionCheck[index];
+	}
+
 	virtual bool checkCollideWithOverride(const btCollisionObject* co) const
 	{
 		int index = m_objectsWithoutCollisionCheck.findLinearSearch(co);

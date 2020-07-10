@@ -1,7 +1,9 @@
 import pybullet as p
 import time
+import pybullet_data
 
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 #p.setPhysicsEngineParameter(constraintSolverType=p.CONSTRAINT_SOLVER_LCP_PGS, globalCFM = 0.0001)
 p.setPhysicsEngineParameter(constraintSolverType=p.CONSTRAINT_SOLVER_LCP_DANTZIG,
                             globalCFM=0.000001)

@@ -9,12 +9,12 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 
   def __init__(self, robot, render=False):
     # print("WalkerBase::__init__ start")
-    MJCFBaseBulletEnv.__init__(self, robot, render)
-
     self.camera_x = 0
     self.walk_target_x = 1e3  # kilometer away
     self.walk_target_y = 0
     self.stateId = -1
+    MJCFBaseBulletEnv.__init__(self, robot, render)
+
 
   def create_single_player_scene(self, bullet_client):
     self.stadium_scene = SinglePlayerStadiumScene(bullet_client,
@@ -22,6 +22,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
                                                   timestep=0.0165 / 4,
                                                   frame_skip=4)
     return self.stadium_scene
+
 
   def reset(self):
     if (self.stateId >= 0):
@@ -125,9 +126,10 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
     return state, sum(self.rewards), bool(done), {}
 
   def camera_adjust(self):
-    x, y, z = self.body_xyz
-    self.camera_x = 0.98 * self.camera_x + (1 - 0.98) * x
-    self.camera.move_and_look_at(self.camera_x, y - 2.0, 1.4, x, y, 1.0)
+    x, y, z = self.robot.body_real_xyz
+
+    self.camera_x = x
+    self.camera.move_and_look_at(self.camera_x, y , 1.4, x, y, 1.0)
 
 
 class HopperBulletEnv(WalkerBaseBulletEnv):
@@ -163,8 +165,11 @@ class AntBulletEnv(WalkerBaseBulletEnv):
 
 class HumanoidBulletEnv(WalkerBaseBulletEnv):
 
-  def __init__(self, robot=Humanoid(), render=False):
-    self.robot = robot
+  def __init__(self, robot=None, render=False):
+    if robot is None:
+      self.robot = Humanoid()
+    else:
+      self.robot = robot
     WalkerBaseBulletEnv.__init__(self, self.robot, render)
     self.electricity_cost = 4.25 * WalkerBaseBulletEnv.electricity_cost
     self.stall_torque_cost = 4.25 * WalkerBaseBulletEnv.stall_torque_cost

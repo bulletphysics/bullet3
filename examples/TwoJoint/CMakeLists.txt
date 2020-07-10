@@ -35,6 +35,7 @@ SET(RobotSimulator_SRCS
 		../SharedMemory/GraphicsServerExample.cpp
 		../SharedMemory/GraphicsClientExample.cpp
 		../SharedMemory/RemoteGUIHelper.cpp
+		../SharedMemory/RemoteGUIHelperTCP.cpp
 		../SharedMemory/GraphicsServerExample.h
 		../SharedMemory/GraphicsClientExample.h
 		../SharedMemory/RemoteGUIHelper.h

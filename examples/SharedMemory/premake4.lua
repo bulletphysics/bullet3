@@ -72,8 +72,6 @@ myfiles =
 	"plugins/collisionFilterPlugin/collisionFilterPlugin.cpp",
 	"plugins/pdControlPlugin/pdControlPlugin.cpp",
 	"plugins/pdControlPlugin/pdControlPlugin.h",
-	"../OpenGLWindow/SimpleCamera.cpp",
-	"../OpenGLWindow/SimpleCamera.h",
 	"../Importers/ImportURDFDemo/ConvertRigidBodies2MultiBody.h",
 	"../Importers/ImportURDFDemo/MultiBodyCreationInterface.h",
 	"../Importers/ImportURDFDemo/MyMultiBodyCreator.cpp",
@@ -115,6 +113,8 @@ myfiles =
 
 files {
 	myfiles,
+	"../OpenGLWindow/SimpleCamera.cpp",
+	"../OpenGLWindow/SimpleCamera.h",
 	"main.cpp",
 }
 

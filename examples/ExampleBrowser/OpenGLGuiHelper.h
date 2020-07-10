@@ -29,6 +29,7 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	virtual void removeGraphicsInstance(int graphicsUid);
 	virtual void changeInstanceFlags(int instanceUid, int flags);
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]);
+	virtual void changeScaling(int instanceUid, const double scaling[3]);
 	virtual void changeSpecularColor(int instanceUid, const double specularColor[3]);
 	virtual void changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height);
 	virtual void removeTexture(int textureUid);

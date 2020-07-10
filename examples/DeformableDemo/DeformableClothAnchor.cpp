@@ -21,16 +21,15 @@
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include <stdio.h>  //printf debugging
 
-#include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../CommonInterfaces/CommonDeformableBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
 ///The DeformableClothAnchor shows contact between deformable objects and rigid objects.
-class DeformableClothAnchor : public CommonRigidBodyBase
+class DeformableClothAnchor : public CommonDeformableBodyBase
 {
-    btAlignedObjectArray<btDeformableLagrangianForce*> m_forces;
 public:
     DeformableClothAnchor(struct GUIHelperInterface* helper)
-    : CommonRigidBodyBase(helper)
+    : CommonDeformableBodyBase(helper)
     {
     }
     virtual ~DeformableClothAnchor()
@@ -55,24 +54,10 @@ public:
         float internalTimeStep = 1. / 240.f;
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
-    
-    virtual const btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld() const
-    {
-        ///just make it a btSoftRigidDynamicsWorld please
-        ///or we will add type checking
-        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
-    }
-    
-    virtual btDeformableMultiBodyDynamicsWorld* getDeformableDynamicsWorld()
-    {
-        ///just make it a btSoftRigidDynamicsWorld please
-        ///or we will add type checking
-        return (btDeformableMultiBodyDynamicsWorld*)m_dynamicsWorld;
-    }
-    
+
     virtual void renderScene()
     {
-        CommonRigidBodyBase::renderScene();
+        CommonDeformableBodyBase::renderScene();
         btDeformableMultiBodyDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
@@ -149,7 +134,7 @@ void DeformableClothAnchor::initPhysics()
     {
         const btScalar s = 4;
         const btScalar h = 6;
-        const int r = 9;
+        const int r = 8;
         btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -s),
                                                          btVector3(+s, h, -s),
                                                          btVector3(-s, h, +s),
@@ -161,6 +146,7 @@ void DeformableClothAnchor::initPhysics()
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 2;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+        psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         getDeformableDynamicsWorld()->addSoftBody(psb);
         
         btDeformableMassSpringForce* mass_spring = new btDeformableMassSpringForce(100,1, true);
@@ -174,7 +160,7 @@ void DeformableClothAnchor::initPhysics()
         btTransform startTransform;
         startTransform.setIdentity();
         startTransform.setOrigin(btVector3(0, h, -(s + 3.5)));
-        btRigidBody* body = createRigidBody(2, startTransform, new btBoxShape(btVector3(s, 1, 3)));
+        btRigidBody* body = createRigidBody(1, startTransform, new btBoxShape(btVector3(s, 1, 3)));
         psb->appendDeformableAnchor(0, body);
         psb->appendDeformableAnchor(r - 1, body);
     }
@@ -186,7 +172,7 @@ void DeformableClothAnchor::initPhysics()
 void DeformableClothAnchor::exitPhysics()
 {
     //cleanup in the reverse order of creation/initialization
-    
+    removePickingConstraint();
     //remove the rigidbodies from the dynamics world and delete them
     int i;
     for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)

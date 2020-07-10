@@ -292,11 +292,6 @@ void cMathUtil::EulerToAxisAngle(const tVector& euler, tVector& out_axis, double
 	}
 }
 
-tVector cMathUtil::AxisAngleToEuler(const tVector& axis, double theta)
-{
-	tQuaternion q = AxisAngleToQuaternion(axis, theta);
-	return QuaternionToEuler(q);
-}
 
 tMatrix cMathUtil::DirToRotMat(const tVector& dir, const tVector& up)
 {
@@ -342,29 +337,6 @@ tQuaternion cMathUtil::EulerToQuaternion(const tVector& euler)
 	return AxisAngleToQuaternion(axis, theta);
 }
 
-tVector cMathUtil::QuaternionToEuler(const tQuaternion& q)
-{
-	double sinr = 2.0 * (q.w() * q.x() + q.y() * q.z());
-	double cosr = 1.0 - 2.0 * (q.x() * q.x() + q.y() * q.y());
-	double x = std::atan2(sinr, cosr);
-
-	double sinp = 2.0 * (q.w() * q.y() - q.z() * q.x());
-	double y = 0;
-	if (fabs(sinp) >= 1)
-	{
-		y = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
-	}
-	else
-	{
-		y = asin(sinp);
-	}
-
-	double siny = 2.0 * (q.w() * q.z() + q.x() * q.y());
-	double cosy = 1.0 - 2.0 * (q.y() * q.y() + q.z() * q.z());
-	double z = std::atan2(siny, cosy);
-
-	return tVector(x, y, z, 0);
-}
 
 tQuaternion cMathUtil::AxisAngleToQuaternion(const tVector& axis, double theta)
 {
@@ -746,7 +718,7 @@ void cMathUtil::ButterworthFilter(double dt, double cutoff, Eigen::VectorXd& out
 	int n = static_cast<int>(out_x.size());
 
 	double wc = std::tan(cutoff * M_PI / sampling_rate);
-	double k1 = std::sqrt(2) * wc;
+	double k1 = std::sqrt(2.0) * wc;
 	double k2 = wc * wc;
 	double a = k2 / (1 + k1 + k2);
 	double b = 2 * a;

@@ -1,5 +1,8 @@
 import pybullet as p
-p.connect(p.DIRECT)
+import pybullet_data
+
+p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 hinge = p.loadURDF("hinge.urdf")
 print("mass of linkA = 1kg, linkB = 1kg, total mass = 2kg")
 

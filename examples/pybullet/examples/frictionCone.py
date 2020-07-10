@@ -2,7 +2,10 @@ import pybullet as p
 import time
 import math
 
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 useMaximalCoordinates = False
 
 p.setGravity(0, 0, -10)

@@ -370,6 +370,33 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			}
 		end
 
+if not _OPTIONS["no-clsocket"] then
+
+                includedirs {"../../examples/ThirdPartyLibs/clsocket/src"}
+
+                 if os.is("Windows") then
+                        defines { "WIN32" }
+                        links {"Ws2_32","Winmm"}
+                 end
+                if os.is("Linux") then
+                        defines {"_LINUX"}
+                end
+                if os.is("MacOSX") then
+                        defines {"_DARWIN"}
+                end
+
+                links {"clsocket"}
+
+                files {
+                        "../../examples/SharedMemory/PhysicsClientTCP.cpp",
+                        "../../examples/SharedMemory/PhysicsClientTCP.h",
+                        "../../examples/SharedMemory/PhysicsClientTCP_C_API.cpp",
+                        "../../examples/SharedMemory/PhysicsClientTCP_C_API.h",
+                }
+                defines {"BT_ENABLE_CLSOCKET"}
+        end
+
+
 		files {
 			"test.c",
 			"../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp",
@@ -380,6 +407,8 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"../../examples/SharedMemory/IKTrajectoryHelper.cpp",
 			"../../examples/SharedMemory/IKTrajectoryHelper.h",
 			"../../examples/SharedMemory/RemoteGUIHelper.cpp",
+			"../../examples/SharedMemory/RemoteGUIHelperTCP.cpp",
+			"../../examples/SharedMemory/GraphicsServerExample.cpp",
 			"../../examples/ExampleBrowser/InProcessExampleBrowser.cpp",
 			"../../examples/SharedMemory/InProcessMemory.cpp",
 			"../../examples/SharedMemory/PhysicsClient.cpp",
@@ -413,8 +442,6 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"../../examples/TinyRenderer/tgaimage.cpp",
 			"../../examples/TinyRenderer/our_gl.cpp",
 			"../../examples/TinyRenderer/TinyRenderer.cpp",
-			"../../examples/Utils/b3ResourcePath.cpp",
-			"../../examples/Utils/b3ResourcePath.h",
 			"../../examples/Utils/RobotLoggingUtil.cpp",
 			"../../examples/Utils/RobotLoggingUtil.h",
 			"../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp",

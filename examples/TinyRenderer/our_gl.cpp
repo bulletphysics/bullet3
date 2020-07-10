@@ -4,6 +4,8 @@
 #include "our_gl.h"
 #include "Bullet3Common/b3MinMax.h"
 
+namespace TinyRender
+{
 IShader::~IShader() {}
 
 Matrix viewport(int x, int y, int w, int h)
@@ -204,4 +206,5 @@ void triangle(mat<4, 3, float> &clipc, IShader &shader, TGAImage &image, float *
 			}
 		}
 	}
+}
 }

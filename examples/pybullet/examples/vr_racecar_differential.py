@@ -4,11 +4,13 @@ CONTROLLER_ID = 0
 POSITION = 1
 ORIENTATION = 2
 BUTTONS = 6
+import pybullet_data
 
 cid = p.connect(p.SHARED_MEMORY)
 if (cid < 0):
   p.connect(p.GUI)
 
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.resetSimulation()
 p.setGravity(0, 0, -10)
 useRealTimeSim = 1

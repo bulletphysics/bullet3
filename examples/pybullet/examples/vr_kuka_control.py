@@ -3,8 +3,12 @@
 import pybullet as p
 import math
 # import numpy as np
+import pybullet_data
+
 
 p.connect(p.SHARED_MEMORY)
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 kuka = 3
 kuka_gripper = 7
