@@ -3236,15 +3236,15 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 #ifdef B3_ENABLE_TINY_AUDIO
 				{
 					SDFAudioSource audioSource;
-					int urdfLinkIndex = creation.m_mb2urdfLink[link];
+					int urdfLinkIndex = creation.m_mb2urdfLink[i];
 					if (u2b.getLinkAudioSource(urdfLinkIndex, audioSource))
 					{
-						int flags = mb->getLink(link).m_collider->getCollisionFlags();
+						int flags = mb->getLink(i).m_collider->getCollisionFlags();
 						mb->getLink(i).m_collider->setCollisionFlags(flags | btCollisionObject::CF_HAS_COLLISION_SOUND_TRIGGER);
 						audioSource.m_userIndex = m_data->m_soundEngine.loadWavFile(audioSource.m_uri.c_str());
 						if (audioSource.m_userIndex >= 0)
 						{
-							bodyHandle->m_audioSources.insert(link, audioSource);
+							bodyHandle->m_audioSources.insert(i, audioSource);
 						}
 					}
 				}
