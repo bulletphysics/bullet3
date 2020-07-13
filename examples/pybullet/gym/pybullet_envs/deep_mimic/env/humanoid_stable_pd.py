@@ -1,6 +1,7 @@
 from pybullet_utils import pd_controller_stable
 from pybullet_envs.deep_mimic.env import humanoid_pose_interpolator
 import math
+import numpy as np
 
 chest = 1
 neck = 2
@@ -20,7 +21,7 @@ jointFrictionForce = 0
 class HumanoidStablePD(object):
 
   def __init__( self, pybullet_client, mocap_data, timeStep, 
-                useFixedBase=True, arg_parser=None):
+                useFixedBase=True, arg_parser=None, useComReward=True):
     self._pybullet_client = pybullet_client
     self._mocap_data = mocap_data
     self._arg_parser = arg_parser
@@ -147,6 +148,8 @@ class HumanoidStablePD(object):
     for dof in self._jointDofCounts:
       self._totalDofs += dof
     self.setSimTime(0)
+
+    self._useComReward = useComReward
 
     self.resetPose()
 
@@ -357,6 +360,7 @@ class HumanoidStablePD(object):
                                                            )
 
   def computePDForces(self, desiredPositions, desiredVelocities, maxForces):
+    """Compute torques from the PD controller."""
     if desiredVelocities == None:
       desiredVelocities = [0] * self._totalDofs
 
@@ -371,6 +375,7 @@ class HumanoidStablePD(object):
     return taus
 
   def applyPDForces(self, taus):
+    """Apply pre-computed torques."""
     dofIndex = 7
     scaling = 1
     useArray = True
@@ -733,13 +738,19 @@ class HumanoidStablePD(object):
     return angle * angle
 
   def getReward(self, pose):
+    """Compute and return the pose-based reward."""
     #from DeepMimic double cSceneImitate::CalcRewardImitate
     #todo: compensate for ground height in some parts, once we move to non-flat terrain
+    # not values from the paper, but from the published code.
     pose_w = 0.5
     vel_w = 0.05
     end_eff_w = 0.15
+    # does not exist in paper
     root_w = 0.2
-    com_w = 0  #0.1
+    if self._useComReward:
+      com_w = 0.1
+    else:
+      com_w = 0
 
     total_w = pose_w + vel_w + end_eff_w + root_w + com_w
     pose_w /= total_w
@@ -753,7 +764,7 @@ class HumanoidStablePD(object):
     end_eff_scale = 40
     root_scale = 5
     com_scale = 10
-    err_scale = 1
+    err_scale = 1  # error scale
 
     reward = 0
 
@@ -779,6 +790,9 @@ class HumanoidStablePD(object):
     #tMatrix kin_origin_trans = kin_char.BuildOriginTrans();
     #
     #tVector com0_world = sim_char.CalcCOM();
+    if self._useComReward:
+      comSim, comSimVel = self.computeCOMposVel(self._sim_model)
+      comKin, comKinVel = self.computeCOMposVel(self._kin_model)
     #tVector com_vel0_world = sim_char.CalcCOMVel();
     #tVector com1_world;
     #tVector com_vel1_world;
@@ -910,6 +924,10 @@ class HumanoidStablePD(object):
 
     root_err = root_pos_err + 0.1 * root_rot_err + 0.01 * root_vel_err + 0.001 * root_ang_vel_err
 
+    # COM error in initial code -> COM velocities
+    if self._useComReward:
+      com_err = 0.1 * np.sum(np.square(comKinVel - comSimVel))
+    # com_err = 0.1 * np.sum(np.square(comKin - comSim))
     #com_err = 0.1 * (com_vel1_world - com_vel0_world).squaredNorm()
 
     #print("pose_err=",pose_err)
@@ -929,5 +947,40 @@ class HumanoidStablePD(object):
     #print("end_eff_reward=",end_eff_reward)
     #print("root_reward=",root_reward)
     #print("com_reward=",com_reward)
-
+    
+    info_rew = dict(
+      pose_reward=pose_reward,
+      vel_reward=vel_reward,
+      end_eff_reward=end_eff_reward,
+      root_reward=root_reward,
+      com_reward=com_reward
+    )
+    
+    info_errs = dict(
+      pose_err=pose_err,
+      vel_err=vel_err,
+      end_eff_err=end_eff_err,
+      root_err=root_err,
+      com_err=com_err
+    )
+    
     return reward
+
+  def computeCOMposVel(self, uid: int):
+    """Compute center-of-mass position and velocity."""
+    pb = self._pybullet_client
+    num_joints = 15
+    jointIndices = range(num_joints)
+    link_states = pb.getLinkStates(uid, jointIndices, computeLinkVelocity=1)
+    link_pos = np.array([s[0] for s in link_states])
+    link_vel = np.array([s[-2] for s in link_states])
+    tot_mass = 0.
+    masses = []
+    for j in jointIndices:
+      mass_, *_ = pb.getDynamicsInfo(uid, j)
+      masses.append(mass_)
+      tot_mass += mass_
+    masses = np.asarray(masses)[:, None]
+    com_pos = np.sum(masses * link_pos, axis=0) / tot_mass
+    com_vel = np.sum(masses * link_vel, axis=0) / tot_mass
+    return com_pos, com_vel
