@@ -21,7 +21,7 @@ jointFrictionForce = 0
 class HumanoidStablePD(object):
 
   def __init__( self, pybullet_client, mocap_data, timeStep, 
-                useFixedBase=True, arg_parser=None, useComReward=True):
+                useFixedBase=True, arg_parser=None, useComReward=False):
     self._pybullet_client = pybullet_client
     self._mocap_data = mocap_data
     self._arg_parser = arg_parser
