@@ -2,7 +2,10 @@ import pybullet as p
 import time
 #you can visualize the timings using Google Chrome, visit about://tracing 
 #and load the json file
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 t = time.time() + 3.1
 

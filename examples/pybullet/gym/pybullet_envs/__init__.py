@@ -229,4 +229,10 @@ register(id='HumanoidFlagrunHarderBulletEnv-v0',
 
 def getList():
   btenvs = ['- ' + spec.id for spec in gym.envs.registry.all() if spec.id.find('Bullet') >= 0]
+  btenvs.extend([
+        '- MinitaurExtendedEnv-v0', '- MinitaurReactiveEnv-v0',
+        '- MinitaurBallGymEnv-v0', '- MinitaurTrottingEnv-v0',
+        '- MinitaurStandGymEnv-v0', '- MinitaurAlternatingLegsEnv-v0',
+        '- MinitaurFourLegStandEnv-v0', '- KukaDiverseObjectGrasping-v0'
+    ])
   return btenvs

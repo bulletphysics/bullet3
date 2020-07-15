@@ -1,8 +1,10 @@
 import pybullet as p
 import time
 import math
+import pybullet_data
 
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 #don't create a ground plane, to allow for gaps etc
 p.resetSimulation()
 #p.createCollisionShape(p.GEOM_PLANE)

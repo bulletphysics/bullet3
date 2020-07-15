@@ -388,6 +388,14 @@ void OpenGLGuiHelper::changeInstanceFlags(int instanceUid, int flags)
 		m_data->m_glApp->m_renderer->writeSingleInstanceFlagsToCPU(  flags, instanceUid);
 	}
 }
+void OpenGLGuiHelper::changeScaling(int instanceUid, const double scaling[3])
+{
+	if (instanceUid >= 0)
+	{
+		m_data->m_glApp->m_renderer->writeSingleInstanceScaleToCPU(scaling, instanceUid);
+	};
+}
+
 void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4])
 {
 	if (instanceUid >= 0)

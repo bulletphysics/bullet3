@@ -10,7 +10,7 @@ from gym.utils import seeding
 import numpy as np
 import time
 import pybullet
-import pybullet_utils.bullet_client as bc
+from pybullet_utils import bullet_client as bc
 from . import racecar
 import random
 import pybullet_data

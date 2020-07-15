@@ -45,12 +45,13 @@ def demo_run():
     obs = env.reset()
 
     while 1:
+      if (gui):
+        time.sleep(1. / 60)
+
       a = pi.act(obs)
       obs, r, done, _ = env.step(a)
       score += r
       frame += 1
-      if (gui):
-        time.sleep(1. / 60)
 
       still_open = env.render("human")
 

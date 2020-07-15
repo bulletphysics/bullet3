@@ -1,6 +1,9 @@
 import pybullet as p
 import time
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 planeUidA = p.loadURDF("plane_transparent.urdf", [0, 0, 0])
 planeUid = p.loadURDF("plane_transparent.urdf", [0, 0, -1])
 

@@ -4,7 +4,10 @@ import math
 from datetime import datetime
 from time import sleep
 
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.loadURDF("plane.urdf", [0, 0, -0.3])
 kukaId = p.loadURDF("kuka_iiwa/model.urdf", [0, 0, 0])
 p.resetBasePositionAndOrientation(kukaId, [0, 0, 0], [0, 0, 0, 1])

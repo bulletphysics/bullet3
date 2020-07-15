@@ -284,6 +284,11 @@ public:
     {
         return &m_deltaV[0];
     }
+    
+    const btScalar *getSplitVelocityVector() const
+    {
+        return &m_splitV[0];
+    }
 	/*    btScalar * getVelocityVector() 
 	{ 
 		return &real_buf[0]; 
@@ -403,6 +408,26 @@ public:
 			m_deltaV[dof] += delta_vee[dof] * multiplier;
 		}
 	}
+    void applyDeltaSplitVeeMultiDof(const btScalar *delta_vee, btScalar multiplier)
+    {
+        for (int dof = 0; dof < 6 + getNumDofs(); ++dof)
+        {
+            m_splitV[dof] += delta_vee[dof] * multiplier;
+        }
+    }
+    void addSplitV()
+    {
+        applyDeltaVeeMultiDof(&m_splitV[0], 1);
+    }
+    void substractSplitV()
+    {
+        applyDeltaVeeMultiDof(&m_splitV[0], -1);
+        
+        for (int dof = 0; dof < 6 + getNumDofs(); ++dof)
+        {
+            m_splitV[dof] = 0.f;
+        }
+    }
 	void processDeltaVeeMultiDof2()
 	{
 		applyDeltaVeeMultiDof(&m_deltaV[0], 1);
@@ -717,6 +742,7 @@ private:
 	//  offset         size         array
 	//   0              num_links+1  rot_from_parent
 	//
+    btAlignedObjectArray<btScalar> m_splitV;
 	btAlignedObjectArray<btScalar> m_deltaV;
 	btAlignedObjectArray<btScalar> m_realBuf;
 	btAlignedObjectArray<btVector3> m_vectorBuf;

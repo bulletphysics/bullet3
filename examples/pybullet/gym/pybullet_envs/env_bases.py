@@ -26,7 +26,7 @@ class MJCFBaseBulletEnv(gym.Env):
     self.scene = None
     self.physicsClientId = -1
     self.ownsPhysicsClient = 0
-    self.camera = Camera()
+    self.camera = Camera(self)
     self.isRender = render
     self.robot = robot
     self.seed()
@@ -88,16 +88,23 @@ class MJCFBaseBulletEnv(gym.Env):
     self.potential = self.robot.calc_potential()
     return s
 
+  def camera_adjust(self):
+    pass
+
   def render(self, mode='human', close=False):
+  
     if mode == "human":
       self.isRender = True
+    if self.physicsClientId>=0:
+      self.camera_adjust()
+
     if mode != "rgb_array":
       return np.array([])
 
     base_pos = [0, 0, 0]
     if (hasattr(self, 'robot')):
-      if (hasattr(self.robot, 'body_xyz')):
-        base_pos = self.robot.body_xyz
+      if (hasattr(self.robot, 'body_real_xyz')):
+        base_pos = self.robot.body_real_xyz
     if (self.physicsClientId>=0):
       view_matrix = self._p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=base_pos,
                                                             distance=self._cam_dist,
@@ -115,15 +122,8 @@ class MJCFBaseBulletEnv(gym.Env):
                                               viewMatrix=view_matrix,
                                               projectionMatrix=proj_matrix,
                                               renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
-      try:
-        # Keep the previous orientation of the camera set by the user.
-        con_mode = self._p.getConnectionInfo()['connectionMethod']
-        if con_mode==self._p.SHARED_MEMORY or con_mode == self._p.GUI:
-          [yaw, pitch, dist] = self._p.getDebugVisualizerCamera()[8:11]
-          self._p.resetDebugVisualizerCamera(dist, yaw, pitch, base_pos)
-      except:
-        pass
 
+      self._p.configureDebugVisualizer(self._p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
     else:
       px = np.array([[[255,255,255,255]]*self._render_width]*self._render_height, dtype=np.uint8)
     rgb_array = np.array(px, dtype=np.uint8)
@@ -160,11 +160,15 @@ class MJCFBaseBulletEnv(gym.Env):
 
 class Camera:
 
-  def __init__(self):
+  def __init__(self, env):
+    self.env = env
     pass
 
   def move_and_look_at(self, i, j, k, x, y, z):
     lookat = [x, y, z]
-    distance = 10
-    yaw = 10
-    self._p.resetDebugVisualizerCamera(distance, yaw, -20, lookat)
+    camInfo = self.env._p.getDebugVisualizerCamera()
+    
+    distance = camInfo[10]
+    pitch = camInfo[9]
+    yaw = camInfo[8]
+    self.env._p.resetDebugVisualizerCamera(distance, yaw, pitch, lookat)

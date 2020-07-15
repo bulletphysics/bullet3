@@ -2,10 +2,13 @@ import pybullet as p
 import time
 import math
 from datetime import datetime
+import pybullet_data
 
 clid = p.connect(p.SHARED_MEMORY)
 if (clid < 0):
   p.connect(p.GUI)
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.loadURDF("plane.urdf", [0, 0, -1.3])
 p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
 sawyerId = p.loadURDF("pole.urdf", [0, 0, 0])

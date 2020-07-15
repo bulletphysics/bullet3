@@ -636,6 +636,7 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 				btVector3 halfExtents(cylRadius, cylRadius, cylHalfLength);
 				btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
 				shape = cylZShape;
+				shape->setMargin(gUrdfDefaultCollisionMargin);
 			}
 			else
 			{
@@ -1283,45 +1284,40 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 
 			convertURDFToVisualShapeInternal(&vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures,meshData);
 
-			if (m_data->m_flags&CUF_USE_MATERIAL_COLORS_FROM_MTL)
+			bool mtlOverridesUrdfColor = false;
+			if ((meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR) &&
+					(meshData.m_flags & B3_IMPORT_MESH_HAS_SPECULAR_COLOR))
 			{
-				if ((meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR) &&
-						(meshData.m_flags & B3_IMPORT_MESH_HAS_SPECULAR_COLOR))
+				mtlOverridesUrdfColor = (m_data->m_flags & CUF_USE_MATERIAL_COLORS_FROM_MTL) != 0;
+				UrdfMaterialColor matCol;
+				if (m_data->m_flags&CUF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
 				{
-					UrdfMaterialColor matCol;
-
-					if (m_data->m_flags&CUF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
-					{
-						matCol.m_rgbaColor.setValue(meshData.m_rgbaColor[0],
-									meshData.m_rgbaColor[1],
-									meshData.m_rgbaColor[2],
-									meshData.m_rgbaColor[3]);
-					} else
-					{
-						matCol.m_rgbaColor.setValue(meshData.m_rgbaColor[0],
-									meshData.m_rgbaColor[1],
-									meshData.m_rgbaColor[2],
-									1);
-					}
-
-					matCol.m_specularColor.setValue(meshData.m_specularColor[0],
-						meshData.m_specularColor[1],
-						meshData.m_specularColor[2]);
-					m_data->m_linkColors.insert(linkIndex, matCol);
-				}
-			} else
-			{
-				if (matPtr)
+					matCol.m_rgbaColor.setValue(meshData.m_rgbaColor[0],
+								meshData.m_rgbaColor[1],
+								meshData.m_rgbaColor[2],
+								meshData.m_rgbaColor[3]);
+				} else
 				{
-					UrdfMaterial* const mat = *matPtr;
-					//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
-					UrdfMaterialColor matCol;
-					matCol.m_rgbaColor = mat->m_matColor.m_rgbaColor;
-					matCol.m_specularColor = mat->m_matColor.m_specularColor;
-					m_data->m_linkColors.insert(linkIndex, matCol);
+					matCol.m_rgbaColor.setValue(meshData.m_rgbaColor[0],
+								meshData.m_rgbaColor[1],
+								meshData.m_rgbaColor[2],
+								1);
 				}
+
+				matCol.m_specularColor.setValue(meshData.m_specularColor[0],
+					meshData.m_specularColor[1],
+					meshData.m_specularColor[2]);
+				m_data->m_linkColors.insert(linkIndex, matCol);
 			}
-
+			if (matPtr && !mtlOverridesUrdfColor)
+			{
+				UrdfMaterial* const mat = *matPtr;
+				//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
+				UrdfMaterialColor matCol;
+				matCol.m_rgbaColor = mat->m_matColor.m_rgbaColor;
+				matCol.m_specularColor = mat->m_matColor.m_specularColor;
+				m_data->m_linkColors.insert(linkIndex, matCol);
+			}
 		}
 	}
 	if (vertices.size() && indices.size())

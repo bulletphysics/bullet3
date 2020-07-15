@@ -167,6 +167,8 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION = 32768,
 	CHANGE_DYNAMICS_INFO_SET_MAX_JOINT_VELOCITY = 1<<16,	
 	CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN = 1 << 17,
+	CHANGE_DYNAMICS_INFO_SET_JOINT_LIMITS = 1 << 18,
+	CHANGE_DYNAMICS_INFO_SET_JOINT_LIMIT_MAX_FORCE = 1 << 19,
 };
 
 struct ChangeDynamicsInfoArgs
@@ -192,6 +194,10 @@ struct ChangeDynamicsInfoArgs
 	double m_anisotropicFriction[3];
 	double m_maxJointVelocity;
 	double m_collisionMargin;
+	
+	double m_jointLowerLimit;
+	double m_jointUpperLimit;
+	double m_jointLimitForce;
 };
 
 struct GetDynamicsInfoArgs
@@ -215,6 +221,7 @@ enum EnumInitPoseFlags
 	INIT_POSE_HAS_BASE_LINEAR_VELOCITY = 8,
 	INIT_POSE_HAS_BASE_ANGULAR_VELOCITY = 16,
 	INIT_POSE_HAS_JOINT_VELOCITY = 32,
+	INIT_POSE_HAS_SCALING=64,
 };
 
 ///InitPoseArgs is mainly to initialize (teleport) the robot in a particular position
@@ -228,6 +235,7 @@ struct InitPoseArgs
 	double m_initialStateQ[MAX_DEGREE_OF_FREEDOM];
 	int m_hasInitialStateQdot[MAX_DEGREE_OF_FREEDOM];
 	double m_initialStateQdot[MAX_DEGREE_OF_FREEDOM];
+	double m_scaling[3];
 };
 
 struct RequestDebugLinesArgs
@@ -304,6 +312,9 @@ struct RequestRaycastIntersections
 	//optional m_parentObjectUniqueId (-1 for unused)
 	int m_parentObjectUniqueId;
 	int m_parentLinkIndex;
+	int m_reportHitNumber;
+	int m_collisionFilterMask;
+	double m_fractionEpsilon;
 	//streaming ray data stored in shared memory streaming part. (size m_numStreamingRays )
 };
 
@@ -497,17 +508,20 @@ enum EnumLoadSoftBodyUpdateFlags
 	LOAD_SOFT_BODY_UPDATE_MASS = 1<<2,
 	LOAD_SOFT_BODY_UPDATE_COLLISION_MARGIN = 1<<3,
 	LOAD_SOFT_BODY_INITIAL_POSITION = 1<<4,
-        LOAD_SOFT_BODY_INITIAL_ORIENTATION = 1<<5,
-        LOAD_SOFT_BODY_ADD_COROTATED_FORCE = 1<<6,
-        LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE = 1<<7,
-        LOAD_SOFT_BODY_ADD_GRAVITY_FORCE = 1<<8,
-        LOAD_SOFT_BODY_SET_COLLISION_HARDNESS = 1<<9,
-        LOAD_SOFT_BODY_SET_FRICTION_COEFFICIENT = 1<<10,
-        LOAD_SOFT_BODY_ADD_BENDING_SPRINGS = 1<<11,
-        LOAD_SOFT_BODY_ADD_NEOHOOKEAN_FORCE = 1<<12,
-        LOAD_SOFT_BODY_USE_SELF_COLLISION = 1<<13,
-    LOAD_SOFT_BODY_USE_FACE_CONTACT = 1<<14,
-    LOAD_SOFT_BODY_SIM_MESH = 1<<15,
+	LOAD_SOFT_BODY_INITIAL_ORIENTATION = 1<<5,
+	LOAD_SOFT_BODY_ADD_COROTATED_FORCE = 1<<6,
+	LOAD_SOFT_BODY_ADD_MASS_SPRING_FORCE = 1<<7,
+	LOAD_SOFT_BODY_ADD_GRAVITY_FORCE = 1<<8,
+	LOAD_SOFT_BODY_SET_COLLISION_HARDNESS = 1<<9,
+	LOAD_SOFT_BODY_SET_FRICTION_COEFFICIENT = 1<<10,
+	LOAD_SOFT_BODY_ADD_BENDING_SPRINGS = 1<<11,
+	LOAD_SOFT_BODY_ADD_NEOHOOKEAN_FORCE = 1<<12,
+	LOAD_SOFT_BODY_USE_SELF_COLLISION = 1<<13,
+	LOAD_SOFT_BODY_USE_FACE_CONTACT = 1<<14,
+	LOAD_SOFT_BODY_SIM_MESH = 1<<15,
+	LOAD_SOFT_BODY_SET_REPULSION_STIFFNESS = 1<<16,
+	LOAD_SOFT_BODY_SET_DAMPING_SPRING_MODE = 1<<17,
+	LOAD_SOFT_BODY_SET_GRAVITY_FACTOR = 1<<18,
 };
 
 enum EnumSimParamInternalSimFlags
@@ -528,6 +542,7 @@ struct LoadSoftBodyArgs
     double m_initialOrientation[4];
     double m_springElasticStiffness;
     double m_springDampingStiffness;
+	int m_dampAllDirections;
     double m_springBendingStiffness;
     double m_corotatedMu;
     double m_corotatedLambda;
@@ -540,6 +555,8 @@ struct LoadSoftBodyArgs
     double m_NeoHookeanDamping;
     int m_useFaceContact;
     char m_simFileName[MAX_FILENAME_LENGTH];
+	double m_repulsionStiffness;
+	double m_gravFactor;
 };
 
 struct b3LoadSoftBodyResultArgs
@@ -772,7 +789,7 @@ struct CalculateInverseKinematicsArgs
 	//	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
 	double m_targetPositions[MAX_DEGREE_OF_FREEDOM*3];
 	int m_numEndEffectorLinkIndices;
-	double m_targetOrientation[4];  //orientation represented as quaternion, x,y,z,w
+	double m_targetOrientation[MAX_DEGREE_OF_FREEDOM*4];  //orientation represented as quaternion, x,y,z,w
 	int m_endEffectorLinkIndices[MAX_DEGREE_OF_FREEDOM];
 	double m_lowerLimit[MAX_DEGREE_OF_FREEDOM];
 	double m_upperLimit[MAX_DEGREE_OF_FREEDOM];

@@ -1,5 +1,8 @@
 import pybullet as p
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 useMaximalCoordinates = False
 p.loadURDF("plane.urdf", useMaximalCoordinates=useMaximalCoordinates)
 #p.loadURDF("sphere2.urdf",[0,0,1])

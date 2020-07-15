@@ -1,6 +1,9 @@
 import pybullet as p
 import time
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 p.resetSimulation()
 timinglog = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "loadingBenchVR.json")

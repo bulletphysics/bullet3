@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pybullet
 import time
+import pybullet_data
 
 plt.ion()
 
@@ -16,6 +17,8 @@ ax = plt.gca()
 
 #pybullet.connect(pybullet.GUI)
 pybullet.connect(pybullet.DIRECT)
+
+pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
 pybullet.loadURDF("plane.urdf", [0, 0, -1])
 pybullet.loadURDF("r2d2.urdf")
 

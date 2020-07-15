@@ -160,12 +160,12 @@ void SplitImpulse::initPhysics()
 //                                                          0, true);
 
         
-        psb->getCollisionShape()->setMargin(0.15);
+        psb->getCollisionShape()->setMargin(0.015);
         psb->generateBendingConstraints(2);
         psb->setTotalMass(1);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-        psb->m_cfg.kDF = 0.1;
+        psb->m_cfg.kDF = 1;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
         getDeformableDynamicsWorld()->addSoftBody(psb);

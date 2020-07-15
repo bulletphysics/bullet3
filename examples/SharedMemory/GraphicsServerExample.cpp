@@ -488,6 +488,18 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 											printf("GFX_CMD_CHANGE_RGBA_COLOR\n");
 										break;
 									}
+									case GFX_CMD_CHANGE_SCALING:
+									{
+										args->submitCommand();
+										while (args->isCommandOutstanding())
+										{
+											clock.usleep(0);
+										}
+										if (gVerboseNetworkMessagesServer)
+											printf("GFX_CMD_CHANGE_SCALING\n");
+										break;
+									}
+
 									case GFX_CMD_GET_CAMERA_INFO:
 									{
 										args->submitCommand();
@@ -833,6 +845,14 @@ public:
 				m_args.processCommand();
 				break;
 			}
+
+			case GFX_CMD_CHANGE_SCALING:
+			{
+				m_guiHelper->changeScaling(clientCmd.m_changeScalingCommand.m_graphicsUid, clientCmd.m_changeScalingCommand.m_scaling);
+				m_args.processCommand();
+				break;
+			}
+
 			case GFX_CMD_GET_CAMERA_INFO:
 			{
 				serverStatusOut.m_type = GFX_CMD_GET_CAMERA_INFO_FAILED;

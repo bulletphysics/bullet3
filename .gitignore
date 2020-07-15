@@ -35,3 +35,6 @@ CTestTestFile.cmake
 *.DS_Store
 examples/pybullet/gym/pybullet.cpython-37m-x86_64-linux-gnu.so
 examples/pybullet/gym/eglRenderer.cpython-37m-x86_64-linux-gnu.so
+
+# vim temp files
+*.swp

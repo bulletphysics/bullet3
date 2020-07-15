@@ -1,12 +1,15 @@
 import pybullet as p
 import json
 import time
+import pybullet_data
+
 
 useGUI = True
 if useGUI:
   p.connect(p.GUI)
 else:
   p.connect(p.DIRECT)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 useZUp = False
 useYUp = not useZUp

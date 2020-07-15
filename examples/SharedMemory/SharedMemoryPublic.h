@@ -7,7 +7,11 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-#define SHARED_MEMORY_MAGIC_NUMBER 202002030
+
+
+#define SHARED_MEMORY_MAGIC_NUMBER 202007060
+//#define SHARED_MEMORY_MAGIC_NUMBER 202005070
+//#define SHARED_MEMORY_MAGIC_NUMBER 202002030
 //#define SHARED_MEMORY_MAGIC_NUMBER 202001230
 //#define SHARED_MEMORY_MAGIC_NUMBER 201911280
 //#define SHARED_MEMORY_MAGIC_NUMBER 201911180
@@ -940,6 +944,7 @@ enum eURDF_Flags
 	URDF_IGNORE_VISUAL_SHAPES = 1 << 20,
 	URDF_IGNORE_COLLISION_SHAPES = 1 << 21,
 	URDF_PRINT_URDF_INFO = 1 << 22,
+	URDF_GOOGLEY_UNDEFINED_COLORS = 1 << 23,
 };
 
 enum eUrdfGeomTypes  //sync with UrdfParser UrdfGeomTypes

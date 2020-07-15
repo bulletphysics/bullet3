@@ -265,7 +265,7 @@ void PinchFriction::initPhysics()
         
         psb->scale(btVector3(2, 2, 1));
         psb->translate(btVector3(0, 2.1, 2.2));
-        psb->getCollisionShape()->setMargin(0.05);
+        psb->getCollisionShape()->setMargin(0.025);
         psb->setSpringStiffness(10);
         psb->setTotalMass(.6);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
@@ -296,7 +296,7 @@ void PinchFriction::initPhysics()
         
         psb2->scale(btVector3(2, 2, 1));
         psb2->translate(btVector3(0, 2.1, -2.2));
-        psb2->getCollisionShape()->setMargin(0.05);
+        psb2->getCollisionShape()->setMargin(0.025);
         psb2->setTotalMass(.6);
         psb2->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb2->m_cfg.kCHR = 1; // collision hardness with rigid body
@@ -327,7 +327,7 @@ void PinchFriction::initPhysics()
         
         psb3->scale(btVector3(2, 2, 1));
         psb3->translate(btVector3(0, 2.1, 0));
-        psb3->getCollisionShape()->setMargin(0.05);
+        psb3->getCollisionShape()->setMargin(0.025);
         psb3->setTotalMass(.6);
         psb3->setSpringStiffness(10);
         psb3->m_cfg.kKHR = 1; // collision hardness with kinematic objects
