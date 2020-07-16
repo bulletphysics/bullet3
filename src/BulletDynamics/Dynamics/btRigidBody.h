@@ -356,12 +356,12 @@ public:
         }
     }
     
-    btVector3 getPushVelocity()
+    btVector3 getPushVelocity() const
     {
         return m_pushVelocity;
     }
     
-    btVector3 getTurnVelocity()
+    btVector3 getTurnVelocity() const
     {
         return m_turnVelocity;
     }
