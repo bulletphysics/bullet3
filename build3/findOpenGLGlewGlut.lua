@@ -44,6 +44,22 @@
 	end
 
 
+	function initX11()
+		if os.is("Linux") then
+			if _OPTIONS["enable_system_x11"] and (os.isdir("/usr/include") and os.isfile("/usr/include/X11/X.h")) then
+				links{"X11","pthread"}
+			else
+				print("No X11/X.h found, using dynamic loading of X11")
+				includedirs {
+                                        projectRootDir .. "examples/ThirdPartyLibs/optionalX11"
+                                }
+				defines {"DYNAMIC_LOAD_X11_FUNCTIONS"}	
+				links {"dl","pthread"}
+			end
+		end
+	end
+
+
 	function initGlew()
 		configuration {}
 		if os.is("Windows") then
@@ -63,8 +79,9 @@
 
 		if os.is("Linux") then
 			configuration{"Linux"}
+			initX11()
 				if  _OPTIONS["enable_system_glx"] then --# and (os.isdir("/usr/include") and os.isfile("/usr/include/GL/glx.h")) then
-                                	links{"X11","pthread"}
+                                	links{"pthread"}
 					print("Using system GL/glx.h")
                         	else
 					print("Using glad_glx")
@@ -84,20 +101,5 @@
 
 		end
 		configuration{}
-	end
-
-	function initX11()
-		if os.is("Linux") then
-			if _OPTIONS["enable_system_x11"] and (os.isdir("/usr/include") and os.isfile("/usr/include/X11/X.h")) then
-				links{"X11","pthread"}
-			else
-				print("No X11/X.h found, using dynamic loading of X11")
-				includedirs {
-                                        projectRootDir .. "examples/ThirdPartyLibs/optionalX11"
-                                }
-				defines {"DYNAMIC_LOAD_X11_FUNCTIONS"}	
-				links {"dl","pthread"}
-			end
-		end
 	end
 
