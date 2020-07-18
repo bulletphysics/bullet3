@@ -2038,6 +2038,12 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 	if (m_data->m_threadPool)
 		delete m_data->m_threadPool;
 
+	for (int i = 0; i < m_data->m_savedStates.size(); i++)
+	{
+		delete m_data->m_savedStates[i].m_bulletFile;
+		delete m_data->m_savedStates[i].m_serializer;
+	}
+	
 	delete m_data;
 }
 
