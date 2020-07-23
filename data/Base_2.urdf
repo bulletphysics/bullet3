@@ -1,4 +1,8 @@
 <?xml version="1.0"?>
+<!--https://valerolab.org/-->
+<!--
+Code used for PID control of an inverted pendulum actuated by strings.
+-->
 <robot name="myfirst">
   <material name="blue">
     <color rgba="0 0 0.8 1"/>

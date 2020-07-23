@@ -1,3 +1,9 @@
+"""
+https://valerolab.org/
+
+PID control of an inverted pendulum actuated by strings.
+"""
+
 import pybullet as p
 import time
 import math as m
