@@ -59,6 +59,22 @@
 	end
 
 
+	function initX11()
+		if os.is("Linux") then
+			if _OPTIONS["enable_system_x11"] and (os.isdir("/usr/include") and os.isfile("/usr/include/X11/X.h")) then
+				links{"X11","pthread"}
+			else
+				print("No X11/X.h found, using dynamic loading of X11")
+				includedirs {
+                                        projectRootDir .. "examples/ThirdPartyLibs/optionalX11"
+                                }
+				defines {"DYNAMIC_LOAD_X11_FUNCTIONS"}	
+				links {"dl","pthread"}
+			end
+		end
+	end
+
+
 	function initGlew()
 		configuration {}
 		if os.is("Windows") then
