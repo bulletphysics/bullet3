@@ -2,10 +2,15 @@ import pybullet as p
 import time
 import pybullet_data
 
+#Once the video is recorded, you can extract all individual frames using ffmpeg
+#mkdir frames
+#ffmpeg -i test.mp4 "frames/out-%03d.png"
+
 #by default, PyBullet runs at 240Hz
-p.connect(p.GUI, options="--mp4=\"test.mp4\" --mp4fps=240")
+p.connect(p.GUI, options="--width=1920 --height=1080 --mp4=\"test.mp4\" --mp4fps=240")
 
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
+p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
 p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
 p.loadURDF("plane.urdf")
 

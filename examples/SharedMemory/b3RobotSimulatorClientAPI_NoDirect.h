@@ -471,12 +471,23 @@ struct b3RobotSimulatorCreateCollisionShapeArgs
 	btVector3 m_meshScale;
 	btVector3 m_planeNormal;
 	int m_flags;
+
+	double m_heightfieldTextureScaling;
+	btAlignedObjectArray<float> m_heightfieldData;
+	int m_numHeightfieldRows;
+	int m_numHeightfieldColumns;
+	int m_replaceHeightfieldIndex;
+
 	b3RobotSimulatorCreateCollisionShapeArgs()
 		: m_shapeType(-1),
 		  m_radius(0.5),
 		  m_height(1),
 		  m_fileName(NULL),
-		  m_flags(0)
+		  m_flags(0),
+		  m_heightfieldTextureScaling(1),
+		  m_numHeightfieldRows(0),
+		  m_numHeightfieldColumns(0),
+		  m_replaceHeightfieldIndex(-1)
 	{
 		m_halfExtents.m_floats[0] = 1;
 		m_halfExtents.m_floats[1] = 1;
