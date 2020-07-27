@@ -589,8 +589,10 @@ class HumanoidStablePD(object):
     headingOrn = self._pybullet_client.getQuaternionFromAxisAngle([0, 1, 0], -heading)
     return headingOrn
 
-  def buildOriginTrans(self):
-    rootPos, rootOrn = self._pybullet_client.getBasePositionAndOrientation(self._sim_model)
+  def buildOriginTrans(self, model=None):
+    if model is None:
+      model = self._sim_model
+    rootPos, rootOrn = self._pybullet_client.getBasePositionAndOrientation(model)
 
     #print("rootPos=",rootPos, " rootOrn=",rootOrn)
     invRootPos = [-rootPos[0], 0, -rootPos[2]]
@@ -774,6 +776,10 @@ class HumanoidStablePD(object):
     root_err = 0
     com_err = 0
     heading_err = 0
+    
+    # necessary to transform the end-effector rewards
+    simRootTransPos, simRootTransOrn = self.buildOriginTrans(self._sim_model)
+    kinRootTransPos, kinRootTransOrn = self.buildOriginTrans(self._kin_model)
 
     #create a mimic reward, comparing the dynamics humanoid with a kinematic one
 
@@ -893,7 +899,22 @@ class HumanoidStablePD(object):
           linkStateSim = self._pybullet_client.getLinkState(self._sim_model, j)
           linkStateKin = self._pybullet_client.getLinkState(self._kin_model, j)
         linkPosSim = linkStateSim[0]
+        linkOrnSim = linkStateSim[1]
         linkPosKin = linkStateKin[0]
+        linkOrnKin = linkStateKin[1]
+        
+        # important: change the reference frames of the link pos/orn
+        # to models' local reference frames, compare in this coord system
+        # this replicates functionality in original code
+        linkPosSim, linkOrnSim = self._pybullet_client.multiplyTransforms(
+          simRootTransPos, simRootTransOrn,
+          linkPosSim, linkOrnSim
+        )
+        linkPosKin, linkOrnKin = self._pybullet_client.multiplyTransforms(
+          kinRootTransPos, kinRootTransOrn,
+          linkPosKin, linkOrnKin
+        )
+        
         linkPosDiff = [
             linkPosSim[0] - linkPosKin[0], linkPosSim[1] - linkPosKin[1],
             linkPosSim[2] - linkPosKin[2]
