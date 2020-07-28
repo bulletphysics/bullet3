@@ -763,7 +763,7 @@ class HumanoidStablePD(object):
 
     pose_scale = 2
     vel_scale = 0.1
-    end_eff_scale = 40
+    end_eff_scale = 10
     root_scale = 5
     com_scale = 10
     err_scale = 1  # error scale
@@ -924,8 +924,8 @@ class HumanoidStablePD(object):
         end_eff_err += curr_end_err
         num_end_effs += 1
 
-    if (num_end_effs > 0):
-      end_eff_err /= num_end_effs
+    # if (num_end_effs > 0):
+    #   end_eff_err /= num_end_effs
 
     #double root_ground_h0 = mGround->SampleHeight(sim_char.GetRootPos())
     #double root_ground_h1 = kin_char.GetOriginPos()[1]
