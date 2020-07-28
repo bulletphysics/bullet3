@@ -28,18 +28,23 @@ logger = logging.getLogger(__name__)
 
 
 class HumanoidDeepBulletEnv(gym.Env):
-  """Base Gym environment for DeepMimic."""
+  """Base Gym environment for the DeepMimic motion imitation tasks."""
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
   def __init__(self, renders=False, arg_file='', test_mode=False,
                time_step=1./240,
                rescale_actions=True,
-               rescale_observations=True):
-    """    
+               rescale_observations=True,
+               use_com_reward=False):
+    """Instantiate a DeepMimic motion imitation environment.
+    
     Args:
-      test_mode (bool): in test mode, the `reset()` method will always set the mocap clip time
-      to 0.
+      test_mode (bool): in test mode, the `reset()` method will always set the mocap clip time to 0
+        at the beginning of every episode.
       time_step (float): physics time step.
+      rescale_actions (bool): rescale the actions using the bounds on the action space.
+      rescale_observations (bool): rescale the observations using the bounds on the observation space.
+      use_com_reward (bool): whether to use the center-of-mass reward.
     """
     self._arg_parser = ArgParser()
     Logger.print2("===========================================================")
@@ -60,6 +65,7 @@ class HumanoidDeepBulletEnv(gym.Env):
     self._render_width = 640
     self._rescale_actions = rescale_actions
     self._rescale_observations = rescale_observations
+    self._use_com_reward = use_com_reward
     self.agent_id = -1
 
     self._numSteps = None
@@ -179,7 +185,8 @@ class HumanoidDeepBulletEnv(gym.Env):
         init_strat = InitializationStrategy.RANDOM
       self._internal_env = PyBulletDeepMimicEnv(self._arg_parser, self._renders,
                                                 time_step=self._time_step,
-                                                init_strategy=init_strat)
+                                                init_strategy=init_strat,
+                                                use_com_reward=self._use_com_reward)
 
     self._internal_env.reset()
     self._p = self._internal_env._pybullet_client
