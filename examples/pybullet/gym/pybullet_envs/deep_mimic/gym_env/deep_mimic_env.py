@@ -61,8 +61,8 @@ class HumanoidDeepBulletEnv(gym.Env):
     self._renders = renders
     self._discrete_actions = False
     self._arg_file = arg_file
-    self._render_height = 400
-    self._render_width = 640
+    self._render_height = 480
+    self._render_width = 854
     self._rescale_actions = rescale_actions
     self._rescale_observations = rescale_observations
     self._use_com_reward = use_com_reward
@@ -174,6 +174,9 @@ class HumanoidDeepBulletEnv(gym.Env):
     done = self._internal_env.is_episode_end()
     
     info = {}
+    # get the reward info
+    info['reward'] = self._internal_env._humanoid._info_rew
+    
     return state, reward, done, info
 
   def reset(self):
@@ -222,14 +225,15 @@ class HumanoidDeepBulletEnv(gym.Env):
 
     self._cam_dist = 3
     self._cam_pitch = 0.3
-    self._cam_yaw = 0
+    self._cam_yaw = 0.1
+    self._cam_roll = 0
     if (not self._p == None):
       view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
         cameraTargetPosition=base_pos,
         distance=self._cam_dist,
         yaw=self._cam_yaw,
         pitch=self._cam_pitch,
-        roll=0,
+        roll=self._cam_roll,
         upAxisIndex=1)
       proj_matrix = self._p.computeProjectionMatrixFOV(fov=60,
              aspect=float(self._render_width) / self._render_height,

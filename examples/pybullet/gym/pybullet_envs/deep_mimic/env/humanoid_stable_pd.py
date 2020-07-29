@@ -985,6 +985,10 @@ class HumanoidStablePD(object):
       com_err=com_err
     )
     
+    # store reward/err info for safe keeping
+    self._info_rew = info_rew
+    self._info_err = info_errs
+    
     return reward
 
   def computeCOMposVel(self, uid: int):
