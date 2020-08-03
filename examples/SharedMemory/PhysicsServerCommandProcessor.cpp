@@ -5995,12 +5995,9 @@ struct FilteredClosestRayResultCallback : public btCollisionWorld::ClosestRayRes
 
 	virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)
 	{
-		if (m_collisionFilterMask >= 0)
-		{
-			bool collides = (rayResult.m_collisionObject->getBroadphaseHandle()->m_collisionFilterGroup & m_collisionFilterMask) != 0;
-			if (!collides)
-				return m_closestHitFraction;
-		}
+		bool collides = (rayResult.m_collisionObject->getBroadphaseHandle()->m_collisionFilterGroup & m_collisionFilterMask) != 0;
+		if (!collides)
+			return m_closestHitFraction;
 		return btCollisionWorld::ClosestRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
 	}
 };
@@ -6019,12 +6016,9 @@ struct FilteredAllHitsRayResultCallback : public btCollisionWorld::AllHitsRayRes
 
 	virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)
 	{
-		if (m_collisionFilterMask >= 0)
-		{
-			bool collides = (rayResult.m_collisionObject->getBroadphaseHandle()->m_collisionFilterGroup & m_collisionFilterMask) != 0;
-			if (!collides)
-				return m_closestHitFraction;
-		}
+		bool collides = (rayResult.m_collisionObject->getBroadphaseHandle()->m_collisionFilterGroup & m_collisionFilterMask) != 0;
+		if (!collides)
+			return m_closestHitFraction;
 		//remove duplicate hits:
 		//same collision object, link index and hit fraction
 		bool isDuplicate = false;

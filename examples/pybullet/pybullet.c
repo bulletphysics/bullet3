@@ -6576,10 +6576,8 @@ static PyObject* pybullet_rayTestObsolete(PyObject* self, PyObject* args, PyObje
 											   to[0], to[1], to[2]);
 
 
-	if (collisionFilterMask >= 0)
-	{
-		b3RaycastBatchSetCollisionFilterMask(commandHandle, collisionFilterMask);
-	}
+	b3RaycastBatchSetCollisionFilterMask(commandHandle, collisionFilterMask);
+	
 	if (reportHitNumber >= 0)
 	{
 		b3RaycastBatchSetReportHitNumber(commandHandle, reportHitNumber);
@@ -6751,10 +6749,8 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 	{
 		b3RaycastBatchSetReportHitNumber(commandHandle, reportHitNumber);
 	}
-	if (collisionFilterMask >= 0)
-	{
-		b3RaycastBatchSetCollisionFilterMask(commandHandle, collisionFilterMask);
-	}
+	b3RaycastBatchSetCollisionFilterMask(commandHandle, collisionFilterMask);
+
 	if (fractionEpsilon >= 0)
 	{
 		b3RaycastBatchSetFractionEpsilon(commandHandle, fractionEpsilon);
