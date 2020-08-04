@@ -14,7 +14,7 @@ planeId = p.loadURDF("plane.urdf", [0,0,-2],planeOrn)
 
 boxId = p.loadURDF("cube.urdf", [0,3,2],useMaximalCoordinates = True)
 
-ballId = p.loadSoftBody("ball.vtk", basePosition = [0,0,-1], scale = 0.5, mass = 0.1, useNeoHookean = 1, NeoHookeanMu = 20, NeoHookeanLambda = 20, NeoHookeanDamping = 0.001, useSelfCollision = 1, frictionCoeff = .5, collisionMargin = 0.006)
+ballId = p.loadSoftBody("ball.vtk", basePosition = [0,0,-1], scale = 0.5, mass = 4, useNeoHookean = 1, NeoHookeanMu = 400, NeoHookeanLambda = 600, NeoHookeanDamping = 0.001, useSelfCollision = 1, frictionCoeff = .5, collisionMargin = 0.001)
 p.setTimeStep(0.001)
 p.setPhysicsEngineParameter(sparseSdfVoxelSize=0.25)
 p.setRealTimeSimulation(1)
