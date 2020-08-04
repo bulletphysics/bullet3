@@ -6,7 +6,10 @@ from pdControllerStable import PDControllerStable
 import time
 
 useMaximalCoordinates = False
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 pole = p.loadURDF("cartpole.urdf", [0, 0, 0], useMaximalCoordinates=useMaximalCoordinates)
 pole2 = p.loadURDF("cartpole.urdf", [0, 1, 0], useMaximalCoordinates=useMaximalCoordinates)
 pole3 = p.loadURDF("cartpole.urdf", [0, 2, 0], useMaximalCoordinates=useMaximalCoordinates)

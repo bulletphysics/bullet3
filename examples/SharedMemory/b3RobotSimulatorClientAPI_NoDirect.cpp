@@ -89,6 +89,19 @@ void b3RobotSimulatorClientAPI_NoDirect::resetSimulation()
 		m_data->m_physicsClientHandle, b3InitResetSimulationCommand(m_data->m_physicsClientHandle));
 }
 
+void b3RobotSimulatorClientAPI_NoDirect::resetSimulation(int flag)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+	b3SharedMemoryStatusHandle statusHandle;
+	b3SharedMemoryCommandHandle command = b3InitResetSimulationCommand(m_data->m_physicsClientHandle);
+	b3InitResetSimulationSetFlags(command, flag);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+}
+
 bool b3RobotSimulatorClientAPI_NoDirect::canSubmitCommand() const
 {
 	if (!isConnected())
@@ -265,6 +278,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::loadMJCF(const std::string& fileName, b
 	b3SharedMemoryCommandHandle command;
 
 	command = b3LoadMJCFCommandInit(m_data->m_physicsClientHandle, fileName.c_str());
+	b3LoadMJCFCommandSetFlags(command, URDF_USE_IMPLICIT_CYLINDER);
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType != CMD_MJCF_LOADING_COMPLETED)
@@ -451,7 +465,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::getBasePositionAndOrientation(int bodyU
 	return true;
 }
 
-bool b3RobotSimulatorClientAPI_NoDirect::resetBasePositionAndOrientation(int bodyUniqueId, btVector3& basePosition, btQuaternion& baseOrientation)
+bool b3RobotSimulatorClientAPI_NoDirect::resetBasePositionAndOrientation(int bodyUniqueId, const btVector3& basePosition, const btQuaternion& baseOrientation)
 {
 	if (!isConnected())
 	{
@@ -607,7 +621,7 @@ int b3RobotSimulatorClientAPI_NoDirect::createConstraint(int parentBodyIndex, in
 	return -1;
 }
 
-int b3RobotSimulatorClientAPI_NoDirect::changeConstraint(int constraintId, b3JointInfo* jointInfo)
+int b3RobotSimulatorClientAPI_NoDirect::changeConstraint(int constraintId, b3RobotUserConstraint* jointInfo)
 {
 	if (!isConnected())
 	{
@@ -616,16 +630,35 @@ int b3RobotSimulatorClientAPI_NoDirect::changeConstraint(int constraintId, b3Joi
 	}
 	b3SharedMemoryCommandHandle commandHandle = b3InitChangeUserConstraintCommand(m_data->m_physicsClientHandle, constraintId);
 
-	if (jointInfo->m_flags & eJointChangeMaxForce)
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_MAX_FORCE)
 	{
-		b3InitChangeUserConstraintSetMaxForce(commandHandle, jointInfo->m_jointMaxForce);
+		b3InitChangeUserConstraintSetMaxForce(commandHandle, jointInfo->m_maxAppliedForce);
 	}
 
-	if (jointInfo->m_flags & eJointChangeChildFramePosition)
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_GEAR_RATIO)
+	{
+		b3InitChangeUserConstraintSetGearRatio(commandHandle, jointInfo->m_gearRatio);
+	}
+
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_ERP)
+	{
+		b3InitChangeUserConstraintSetERP(commandHandle, jointInfo->m_erp);
+	}
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK)
+	{
+		b3InitChangeUserConstraintSetGearAuxLink(commandHandle, jointInfo->m_gearAuxLink);
+	}
+
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET)
+	{
+		b3InitChangeUserConstraintSetRelativePositionTarget(commandHandle, jointInfo->m_relativePositionTarget);
+	}
+	
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_PIVOT_IN_B)
 	{
 		b3InitChangeUserConstraintSetPivotInB(commandHandle, &jointInfo->m_childFrame[0]);
 	}
-	if (jointInfo->m_flags & eJointChangeChildFrameOrientation)
+	if (jointInfo->m_userUpdateFlags & USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B)
 	{
 		b3InitChangeUserConstraintSetFrameInB(commandHandle, &jointInfo->m_childFrame[3]);
 	}
@@ -956,6 +989,45 @@ bool b3RobotSimulatorClientAPI_NoDirect::calculateInverseKinematics(const struct
 	return result;
 }
 
+int b3RobotSimulatorClientAPI_NoDirect::computeDofCount(int bodyUniqueId) const
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return 0;
+	}
+	return b3ComputeDofCount(m_data->m_physicsClientHandle, bodyUniqueId);
+}
+
+int b3RobotSimulatorClientAPI_NoDirect::calculateMassMatrix(int bodyUniqueId, const double* jointPositions, int numJointPositions, double* massMatrix, int flags)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return 0;
+	}
+
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle commandHandle =
+		b3CalculateMassMatrixCommandInit(m_data->m_physicsClientHandle, bodyUniqueId, jointPositions, numJointPositions);
+	b3CalculateMassMatrixSetFlags(commandHandle, flags);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType == CMD_CALCULATED_MASS_MATRIX_COMPLETED)
+	{
+		int dofCount;
+		b3GetStatusMassMatrix(m_data->m_physicsClientHandle, statusHandle, &dofCount, NULL);
+		if (dofCount)
+		{
+			b3GetStatusMassMatrix(m_data->m_physicsClientHandle, statusHandle, NULL, massMatrix);
+			return dofCount;
+		}
+	}
+	
+	return 0;
+}
+
 bool b3RobotSimulatorClientAPI_NoDirect::getBodyJacobian(int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositions, const double* jointVelocities, const double* jointAccelerations, double* linearJacobian, double* angularJacobian)
 {
 	if (!isConnected())
@@ -1118,7 +1190,7 @@ void b3RobotSimulatorClientAPI_NoDirect::resetDebugVisualizerCamera(double camer
 	}
 }
 
-void b3RobotSimulatorClientAPI_NoDirect::submitProfileTiming(const std::string& profileName, int durationInMicroSeconds)
+void b3RobotSimulatorClientAPI_NoDirect::submitProfileTiming(const std::string& profileName)
 {
 	if (!isConnected())
 	{
@@ -1127,10 +1199,16 @@ void b3RobotSimulatorClientAPI_NoDirect::submitProfileTiming(const std::string& 
 	}
 
 	b3SharedMemoryCommandHandle commandHandle = b3ProfileTimingCommandInit(m_data->m_physicsClientHandle, profileName.c_str());
-	if (durationInMicroSeconds >= 0)
+
+	if (profileName.length())
 	{
-		b3SetProfileTimingDuractionInMicroSeconds(commandHandle, durationInMicroSeconds);
+		b3SetProfileTimingType(commandHandle, 0);
 	}
+	else
+	{
+		b3SetProfileTimingType(commandHandle, 1);
+	}
+
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 }
 
@@ -1148,6 +1226,35 @@ void b3RobotSimulatorClientAPI_NoDirect::loadSoftBody(const std::string& fileNam
 	b3LoadSoftBodySetScale(command, args.m_scale);
 	b3LoadSoftBodySetMass(command, args.m_mass);
 	b3LoadSoftBodySetCollisionMargin(command, args.m_collisionMargin);
+	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+}
+
+void b3RobotSimulatorClientAPI_NoDirect::loadDeformableBody(const std::string& fileName, const struct b3RobotSimulatorLoadDeformableBodyArgs& args)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+
+	b3SharedMemoryCommandHandle command = b3LoadSoftBodyCommandInit(m_data->m_physicsClientHandle, fileName.c_str());
+	b3LoadSoftBodySetStartPosition(command, args.m_startPosition[0], args.m_startPosition[1], args.m_startPosition[2]);
+	b3LoadSoftBodySetStartOrientation(command, args.m_startOrientation[0], args.m_startOrientation[1], args.m_startOrientation[2], args.m_startOrientation[3]);
+	b3LoadSoftBodySetScale(command, args.m_scale);
+	b3LoadSoftBodySetMass(command, args.m_mass);
+	b3LoadSoftBodySetCollisionMargin(command, args.m_collisionMargin);
+	if (args.m_NeoHookeanMu > 0)
+	{
+		b3LoadSoftBodyAddNeoHookeanForce(command, args.m_NeoHookeanMu, args.m_NeoHookeanLambda, args.m_NeoHookeanDamping);
+	}
+	if (args.m_springElasticStiffness > 0)
+	{
+		b3LoadSoftBodyAddMassSpringForce(command, args.m_springElasticStiffness, args.m_springDampingStiffness);
+	}
+	b3LoadSoftBodySetSelfCollision(command, args.m_useSelfCollision);
+	b3LoadSoftBodyUseFaceContact(command, args.m_useFaceContact);
+	b3LoadSoftBodySetFrictionCoefficient(command, args.m_frictionCoeff);
+	b3LoadSoftBodyUseBendingSprings(command, args.m_useBendingSprings, args.m_springBendingStiffness);
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 }
 
@@ -1436,7 +1543,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::changeDynamics(int bodyUniqueId, int li
 	return true;
 }
 
-int b3RobotSimulatorClientAPI_NoDirect::addUserDebugParameter(char* paramName, double rangeMin, double rangeMax, double startValue)
+int b3RobotSimulatorClientAPI_NoDirect::addUserDebugParameter(const char* paramName, double rangeMin, double rangeMax, double startValue)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0)
@@ -1508,7 +1615,7 @@ bool b3RobotSimulatorClientAPI_NoDirect::removeUserDebugItem(int itemUniqueId)
 	return true;
 }
 
-int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(char* text, double* textPosition, struct b3RobotSimulatorAddUserDebugTextArgs& args)
+int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(const char* text, double* textPosition, struct b3RobotSimulatorAddUserDebugTextArgs& args)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
 	if (sm == 0)
@@ -1544,7 +1651,7 @@ int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(char* text, double* tex
 	return -1;
 }
 
-int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(char* text, btVector3& textPosition, struct b3RobotSimulatorAddUserDebugTextArgs& args)
+int b3RobotSimulatorClientAPI_NoDirect::addUserDebugText(const char* text, btVector3& textPosition, struct b3RobotSimulatorAddUserDebugTextArgs& args)
 {
 	double dposXYZ[3];
 	dposXYZ[0] = textPosition.x();
@@ -2101,6 +2208,68 @@ bool b3RobotSimulatorClientAPI_NoDirect::getAABB(int bodyUniqueId, int linkIndex
 	return status;
 }
 
+
+int b3RobotSimulatorClientAPI_NoDirect::createVisualShape(int shapeType, struct b3RobotSimulatorCreateVisualShapeArgs& args)
+{
+	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+	if (sm == 0)
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+	b3SharedMemoryCommandHandle command;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	int shapeIndex = -1;
+
+	command = b3CreateVisualShapeCommandInit(sm);
+
+	if (shapeType == GEOM_SPHERE && args.m_radius > 0)
+	{
+		shapeIndex = b3CreateVisualShapeAddSphere(command, args.m_radius);
+	}
+	if (shapeType == GEOM_BOX)
+	{
+		double halfExtents[3];
+		scalarToDouble3(args.m_halfExtents, halfExtents);
+		shapeIndex = b3CreateVisualShapeAddBox(command, halfExtents);
+	}
+	if (shapeType == GEOM_CAPSULE && args.m_radius > 0 && args.m_height >= 0)
+	{
+		shapeIndex = b3CreateVisualShapeAddCapsule(command, args.m_radius, args.m_height);
+	}
+	if (shapeType == GEOM_CYLINDER && args.m_radius > 0 && args.m_height >= 0)
+	{
+		shapeIndex = b3CreateVisualShapeAddCylinder(command, args.m_radius, args.m_height);
+	}
+	if (shapeType == GEOM_MESH && args.m_fileName)
+	{
+		double meshScale[3];
+		scalarToDouble3(args.m_meshScale, meshScale);
+		shapeIndex = b3CreateVisualShapeAddMesh(command, args.m_fileName, meshScale);
+	}
+	if (shapeType == GEOM_PLANE)
+	{
+		double planeConstant = 0;
+		double planeNormal[3];
+		scalarToDouble3(args.m_planeNormal, planeNormal);
+		shapeIndex = b3CreateVisualShapeAddPlane(command, planeNormal, planeConstant);
+	}
+	if (shapeIndex >= 0 && args.m_flags)
+	{
+		b3CreateVisualSetFlag(command, shapeIndex, args.m_flags);
+	}
+
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType == CMD_CREATE_VISUAL_SHAPE_COMPLETED)
+	{
+		int uid = b3GetStatusVisualShapeUniqueId(statusHandle);
+		return uid;
+	}
+	return -1;
+}
+
 int b3RobotSimulatorClientAPI_NoDirect::createCollisionShape(int shapeType, struct b3RobotSimulatorCreateCollisionShapeArgs& args)
 {
 	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
@@ -2140,6 +2309,29 @@ int b3RobotSimulatorClientAPI_NoDirect::createCollisionShape(int shapeType, stru
 		scalarToDouble3(args.m_meshScale, meshScale);
 		shapeIndex = b3CreateCollisionShapeAddMesh(command, args.m_fileName, meshScale);
 	}
+	if (shapeType == GEOM_HEIGHTFIELD)
+	{
+		double meshScale[3];
+		scalarToDouble3(args.m_meshScale, meshScale);
+		if (args.m_fileName)
+		{
+			shapeIndex = b3CreateCollisionShapeAddHeightfield(command, args.m_fileName, meshScale, args.m_heightfieldTextureScaling);
+		}
+		else
+		{
+			if (args.m_heightfieldData.size() && args.m_numHeightfieldRows>0 && args.m_numHeightfieldColumns>0)
+			{
+				shapeIndex = b3CreateCollisionShapeAddHeightfield2(sm, command, meshScale, args.m_heightfieldTextureScaling,
+					&args.m_heightfieldData[0],
+					args.m_numHeightfieldRows,
+					args.m_numHeightfieldColumns,
+					args.m_replaceHeightfieldIndex);
+			}
+		}
+		
+
+	}
+
 	if (shapeType == GEOM_PLANE)
 	{
 		double planeConstant = 0;
@@ -2375,6 +2567,27 @@ void b3RobotSimulatorClientAPI_NoDirect::restoreStateFromMemory(int stateId)
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	statusType = b3GetStatusType(statusHandle);
+}
+
+void b3RobotSimulatorClientAPI_NoDirect::removeState(int stateUniqueId)
+{
+	b3PhysicsClientHandle sm = m_data->m_physicsClientHandle;
+	if (sm == 0)
+	{
+		b3Warning("Not connected");
+		return;
+	}
+
+	if (stateUniqueId >= 0)
+	{
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+		if (b3CanSubmitCommand(sm))
+		{
+			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitRemoveStateCommand(sm, stateUniqueId));
+			statusType = b3GetStatusType(statusHandle);
+		}
+	}
 }
 
 bool b3RobotSimulatorClientAPI_NoDirect::getVisualShapeData(int bodyUniqueId, b3VisualShapeInformation& visualShapeInfo)

@@ -1,7 +1,7 @@
 import pybullet_data as pd
 import pybullet_utils as pu
 import pybullet
-import pybullet_utils.bullet_client as bc
+from pybullet_utils import bullet_client as bc
 import time
 
 p = bc.BulletClient(connection_mode=pybullet.GUI)

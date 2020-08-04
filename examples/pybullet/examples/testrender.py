@@ -11,8 +11,11 @@ img = [[1, 2, 3] * 50] * 100  #np.random.rand(200, 320)
 #img = [tandard_normal((50,100))
 image = plt.imshow(img, interpolation='none', animated=True, label="blah")
 ax = plt.gca()
+import pybullet_data
 
 pybullet.connect(pybullet.DIRECT)
+
+pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 #pybullet.loadPlugin("eglRendererPlugin")
 pybullet.loadURDF("plane.urdf", [0, 0, -1])

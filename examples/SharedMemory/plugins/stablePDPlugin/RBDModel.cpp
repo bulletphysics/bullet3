@@ -1,7 +1,7 @@
 #include "RBDModel.h"
 #include "RBDUtil.h"
 #include "KinTree.h"
-
+#include "LinearMath/btQuickprof.h"
 cRBDModel::cRBDModel()
 {
 }
@@ -19,7 +19,7 @@ void cRBDModel::Init(const Eigen::MatrixXd& joint_mat, const Eigen::MatrixXd& bo
 
 	int num_dofs = GetNumDof();
 	int num_joints = GetNumJoints();
-	const int svs = cSpAlg::gSpVecSize;
+	const int svs = gSpVecSize;
 
 	mPose = Eigen::VectorXd::Zero(num_dofs);
 	mVel = Eigen::VectorXd::Zero(num_dofs);
@@ -27,7 +27,7 @@ void cRBDModel::Init(const Eigen::MatrixXd& joint_mat, const Eigen::MatrixXd& bo
 	tMatrix trans_mat;
 	InitJointSubspaceArr();
 	mChildParentMatArr = Eigen::MatrixXd::Zero(num_joints * trans_mat.rows(), trans_mat.cols());
-	mSpWorldJointTransArr = Eigen::MatrixXd::Zero(num_joints * cSpAlg::gSVTransRows, cSpAlg::gSVTransCols);
+	mSpWorldJointTransArr = Eigen::MatrixXd::Zero(num_joints * gSVTransRows, gSVTransCols);
 	mMassMat = Eigen::MatrixXd::Zero(num_dofs, num_dofs);
 	mBiasForce = Eigen::VectorXd::Zero(num_dofs);
 	mInertiaBuffer = Eigen::MatrixXd::Zero(num_joints * svs, svs);
@@ -38,11 +38,26 @@ void cRBDModel::Update(const Eigen::VectorXd& pose, const Eigen::VectorXd& vel)
 	SetPose(pose);
 	SetVel(vel);
 
-	UpdateJointSubspaceArr();
-	UpdateChildParentMatArr();
-	UpdateSpWorldTrans();
-	UpdateMassMat();
-	UpdateBiasForce();
+	{
+		BT_PROFILE("rbdModel::UpdateJointSubspaceArr");
+		UpdateJointSubspaceArr();
+	}
+	{
+		BT_PROFILE("rbdModel::UpdateChildParentMatArr");
+		UpdateChildParentMatArr();
+	}
+	{
+		BT_PROFILE("rbdModel::UpdateSpWorldTrans");
+		UpdateSpWorldTrans();
+	}
+	{
+		BT_PROFILE("UpdateMassMat");
+		UpdateMassMat();
+	}
+	{
+		BT_PROFILE("UpdateBiasForce");
+		UpdateBiasForce();
+	}
 }
 
 int cRBDModel::GetNumDof() const
@@ -191,7 +206,7 @@ void cRBDModel::InitJointSubspaceArr()
 {
 	int num_dofs = GetNumDof();
 	int num_joints = GetNumJoints();
-	mJointSubspaceArr = Eigen::MatrixXd(cSpAlg::gSpVecSize, num_dofs);
+	mJointSubspaceArr = Eigen::MatrixXd(gSpVecSize, num_dofs);
 	for (int j = 0; j < num_joints; ++j)
 	{
 		int offset = cKinTree::GetParamOffset(mJointMat, j);

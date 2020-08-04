@@ -14,7 +14,7 @@ from gym import spaces
 from gym.utils import seeding
 import numpy as np
 import pybullet
-from pybullet_envs.minitaur.envs import bullet_client
+from pybullet_utils import bullet_client as bc
 import pybullet_data
 from pybullet_envs.minitaur.envs import minitaur
 from pybullet_envs.minitaur.envs import minitaur_derpy
@@ -223,9 +223,9 @@ class MinitaurGymEnv(gym.Env):
     self._env_randomizers = convert_to_list(env_randomizer) if env_randomizer else []
     self._episode_proto = minitaur_logging_pb2.MinitaurEpisode()
     if self._is_render:
-      self._pybullet_client = bullet_client.BulletClient(connection_mode=pybullet.GUI)
+      self._pybullet_client = bc.BulletClient(connection_mode=pybullet.GUI)
     else:
-      self._pybullet_client = bullet_client.BulletClient()
+      self._pybullet_client = bc.BulletClient()
     if self._urdf_version is None:
       self._urdf_version = DEFAULT_URDF_VERSION
     self._pybullet_client.setPhysicsEngineParameter(enableConeFriction=0)

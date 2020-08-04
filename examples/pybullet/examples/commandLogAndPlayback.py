@@ -1,7 +1,9 @@
 import pybullet as p
 import time
+import pybullet_data
 
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 logId = p.startStateLogging(p.STATE_LOGGING_ALL_COMMANDS, "commandLog.bin")
 p.loadURDF("plane.urdf")
 p.loadURDF("r2d2.urdf", [0, 0, 1])

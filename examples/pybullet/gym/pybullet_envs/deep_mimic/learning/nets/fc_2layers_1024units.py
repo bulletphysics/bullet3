@@ -1,4 +1,8 @@
-import tensorflow as tf
+try:
+  import tensorflow.compat.v1 as tf
+except Exception:
+  import tensorflow as tf
+
 import pybullet_envs.deep_mimic.learning.tf_util as TFUtil
 
 NAME = "fc_2layers_1024units"

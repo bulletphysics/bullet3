@@ -40,7 +40,27 @@ distribution.
 #include <cstdlib>
 #include <cstring>
 #endif
+
+
+#ifdef __GNUC__
 #include <stdint.h>
+typedef int32_t xml_Int32a_t;
+typedef int64_t xml_Int64a_t;
+typedef uint32_t xml_Uint32a_t;
+typedef uint64_t xml_Uint64a_t;
+#elif defined(_MSC_VER)
+typedef __int32 xml_Int32a_t;
+typedef __int64 xml_Int64a_t;
+typedef unsigned __int32 xml_Uint32a_t;
+typedef unsigned __int64 xml_Uint64a_t;
+#else
+typedef int xml_Int32a_t;
+typedef long long int xml_Int64a_t;
+typedef unsigned int xml_Uint32a_t;
+typedef unsigned long long int xml_Uint64a_t;
+#endif
+
+
 
 /*
    TODO: intern strings instead of allocation.
@@ -678,7 +698,7 @@ public:
 	static void ToStr(bool v, char* buffer, int bufferSize);
 	static void ToStr(float v, char* buffer, int bufferSize);
 	static void ToStr(double v, char* buffer, int bufferSize);
-	static void ToStr(int64_t v, char* buffer, int bufferSize);
+	static void ToStr(xml_Int64a_t v, char* buffer, int bufferSize);
 
 	// converts strings to primitive types
 	static bool ToInt(const char* str, int* value);
@@ -686,7 +706,7 @@ public:
 	static bool ToBool(const char* str, bool* value);
 	static bool ToFloat(const char* str, float* value);
 	static bool ToDouble(const char* str, double* value);
-	static bool ToInt64(const char* str, int64_t* value);
+	static bool ToInt64(const char* str, xml_Int64a_t* value);
 
 	// Changes what is serialized for a boolean value.
 	// Default to "true" and "false". Shouldn't be changed
@@ -1260,9 +1280,9 @@ public:
 		return i;
 	}
 
-	int64_t Int64Value() const
+	xml_Int64a_t Int64Value() const
 	{
-		int64_t i = 0;
+		xml_Int64a_t i = 0;
 		QueryInt64Value(&i);
 		return i;
 	}
@@ -1304,7 +1324,7 @@ public:
 	/// See QueryIntValue
 	XMLError QueryUnsignedValue(unsigned int* value) const;
 	/// See QueryIntValue
-	XMLError QueryInt64Value(int64_t* value) const;
+	XMLError QueryInt64Value(xml_Int64a_t* value) const;
 	/// See QueryIntValue
 	XMLError QueryBoolValue(bool* value) const;
 	/// See QueryIntValue
@@ -1319,7 +1339,7 @@ public:
 	/// Set the attribute to value.
 	void SetAttribute(unsigned value);
 	/// Set the attribute to value.
-	void SetAttribute(int64_t value);
+	void SetAttribute(xml_Int64a_t value);
 	/// Set the attribute to value.
 	void SetAttribute(bool value);
 	/// Set the attribute to value.
@@ -1414,7 +1434,7 @@ public:
 	/// See IntAttribute()
 	unsigned UnsignedAttribute(const char* name, unsigned defaultValue = 0) const;
 	/// See IntAttribute()
-	int64_t Int64Attribute(const char* name, int64_t defaultValue = 0) const;
+	xml_Int64a_t Int64Attribute(const char* name, xml_Int64a_t defaultValue = 0) const;
 	/// See IntAttribute()
 	bool BoolAttribute(const char* name, bool defaultValue = false) const;
 	/// See IntAttribute()
@@ -1457,7 +1477,7 @@ public:
 	}
 
 	/// See QueryIntAttribute()
-	XMLError QueryInt64Attribute(const char* name, int64_t* value) const
+	XMLError QueryInt64Attribute(const char* name, xml_Int64a_t* value) const
 	{
 		const XMLAttribute* a = FindAttribute(name);
 		if (!a)
@@ -1537,7 +1557,7 @@ public:
 		return QueryUnsignedAttribute(name, value);
 	}
 
-	int QueryAttribute(const char* name, int64_t* value) const
+	int QueryAttribute(const char* name, xml_Int64a_t* value) const
 	{
 		return QueryInt64Attribute(name, value);
 	}
@@ -1577,7 +1597,7 @@ public:
 	}
 
 	/// Sets the named attribute to value.
-	void SetAttribute(const char* name, int64_t value)
+	void SetAttribute(const char* name, xml_Int64a_t value)
 	{
 		XMLAttribute* a = FindOrCreateAttribute(name);
 		a->SetAttribute(value);
@@ -1685,7 +1705,7 @@ public:
 	/// Convenience method for setting text inside an element. See SetText() for important limitations.
 	void SetText(unsigned value);
 	/// Convenience method for setting text inside an element. See SetText() for important limitations.
-	void SetText(int64_t value);
+	void SetText(xml_Int64a_t value);
 	/// Convenience method for setting text inside an element. See SetText() for important limitations.
 	void SetText(bool value);
 	/// Convenience method for setting text inside an element. See SetText() for important limitations.
@@ -1723,7 +1743,7 @@ public:
 	/// See QueryIntText()
 	XMLError QueryUnsignedText(unsigned* uval) const;
 	/// See QueryIntText()
-	XMLError QueryInt64Text(int64_t* uval) const;
+	XMLError QueryInt64Text(xml_Int64a_t* uval) const;
 	/// See QueryIntText()
 	XMLError QueryBoolText(bool* bval) const;
 	/// See QueryIntText()
@@ -1736,7 +1756,7 @@ public:
 	/// See QueryIntText()
 	unsigned UnsignedText(unsigned defaultValue = 0) const;
 	/// See QueryIntText()
-	int64_t Int64Text(int64_t defaultValue = 0) const;
+	xml_Int64a_t Int64Text(xml_Int64a_t defaultValue = 0) const;
 	/// See QueryIntText()
 	bool BoolText(bool defaultValue = false) const;
 	/// See QueryIntText()
@@ -2392,7 +2412,7 @@ public:
 	void PushAttribute(const char* name, const char* value);
 	void PushAttribute(const char* name, int value);
 	void PushAttribute(const char* name, unsigned value);
-	void PushAttribute(const char* name, int64_t value);
+	void PushAttribute(const char* name, xml_Int64a_t value);
 	void PushAttribute(const char* name, bool value);
 	void PushAttribute(const char* name, double value);
 	/// If streaming, close the Element.
@@ -2405,7 +2425,7 @@ public:
 	/// Add a text node from an unsigned.
 	void PushText(unsigned value);
 	/// Add a text node from an unsigned.
-	void PushText(int64_t value);
+	void PushText(xml_Int64a_t value);
 	/// Add a text node from a bool.
 	void PushText(bool value);
 	/// Add a text node from a float.

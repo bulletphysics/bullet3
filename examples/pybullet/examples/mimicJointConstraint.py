@@ -3,7 +3,10 @@
 
 import pybullet as p
 import time
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.loadURDF("plane.urdf", 0, 0, -2)
 wheelA = p.loadURDF("differential/diff_ring.urdf", [0, 0, 0])
 for i in range(p.getNumJoints(wheelA)):

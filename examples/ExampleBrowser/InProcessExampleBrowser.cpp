@@ -30,6 +30,8 @@ void ExampleBrowserMemoryReleaseFunc(void* ptr);
 
 #include "../SharedMemory/PhysicsServerExample.h"
 #include "../SharedMemory/PhysicsServerExampleBullet2.h"
+#include "../SharedMemory/GraphicsServerExample.h"
+
 
 #include "../SharedMemory/PhysicsClientExample.h"
 
@@ -122,6 +124,7 @@ static ExampleEntryPhysicsServer gDefaultExamplesPhysicsServer[] =
 								  PhysicsServerCreateFuncBullet2, PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
 		ExampleEntryPhysicsServer(1, "Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
 								  PhysicsServerCreateFuncBullet2, PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
+		ExampleEntryPhysicsServer(1, "Graphics Server", "Create a graphics server", GraphicsServerCreateFuncBullet),
 
 };
 

@@ -70,25 +70,6 @@ std::istream& safeGetline(std::istream& is, std::string& t)
 	}
 }
 #endif
-struct vertex_index
-{
-	int v_idx, vt_idx, vn_idx, dummy;
-};
-struct MyIndices
-{
-	int m_offset;
-	int m_numIndices;
-};
-
-// for std::map
-static inline bool operator<(const vertex_index& a, const vertex_index& b)
-{
-	if (a.v_idx != b.v_idx) return (a.v_idx < b.v_idx);
-	if (a.vn_idx != b.vn_idx) return (a.vn_idx < b.vn_idx);
-	if (a.vt_idx != b.vt_idx) return (a.vt_idx < b.vt_idx);
-
-	return false;
-}
 
 static inline bool isSpace(const char c)
 {
@@ -101,25 +82,33 @@ static inline bool isNewLine(const char c)
 }
 
 // Make index zero-base, and also support relative index.
-static inline int fixIndex(int idx, int n)
+static inline bool fixIndex(int idx, int n, int* ret)
 {
-	int i;
+	if (!ret)
+	{
+		return false;
+	}
 
 	if (idx > 0)
 	{
-		i = idx - 1;
+		(*ret) = idx - 1;
+		return true;
 	}
-	else if (idx == 0)
-	{
-		i = 0;
-	}
-	else
-	{  // negative value = relative
-		i = n + idx;
-	}
-	return i;
-}
 
+	if (idx == 0)
+	{
+		// zero is not allowed according to the spec.
+		return false;
+	}
+
+	if (idx < 0)
+	{
+		(*ret) = n + idx;  // negative value = relative
+		return true;
+	}
+
+	return false;  // never reach here.
+}
 static inline std::string parseString(const char*& token)
 {
 	std::string s;
@@ -156,170 +145,184 @@ static inline void parseFloat3(
 	z = parseFloat(token);
 }
 
-// Parse triples: i, i/j/k, i//k, i/j
-static vertex_index parseTriple(
-	const char*& token,
-	int vsize,
-	int vnsize,
-	int vtsize)
+// Parse triples with index offsets: i, i/j/k, i//k, i/j
+static bool parseTriple(const char** token, int vsize, int vnsize, int vtsize,
+						vertex_index_t* ret)
 {
-	vertex_index vi;
-	vi.vn_idx = -1;
-	vi.vt_idx = -1;
-	vi.v_idx = -1;
-
-	vi.v_idx = fixIndex(atoi(token), vsize);
-	token += strcspn(token, "/ \t\r");
-	if (token[0] != '/')
-	{
-		return vi;
-	}
-	token++;
-
-	// i//k
-	if (token[0] == '/')
-	{
-		token++;
-		vi.vn_idx = fixIndex(atoi(token), vnsize);
-		token += strcspn(token, "/ \t\r");
-		return vi;
-	}
-
-	// i/j/k or i/j
-	vi.vt_idx = fixIndex(atoi(token), vtsize);
-	token += strcspn(token, "/ \t\r");
-	if (token[0] != '/')
-	{
-		return vi;
-	}
-
-	// i/j/k
-	token++;  // skip '/'
-	vi.vn_idx = fixIndex(atoi(token), vnsize);
-	token += strcspn(token, "/ \t\r");
-	return vi;
-}
-
-static unsigned int
-updateVertex(
-	std::map<vertex_index, unsigned int>& vertexCache,
-	std::vector<float>& positions,
-	std::vector<float>& normals,
-	std::vector<float>& texcoords,
-	const std::vector<float>& in_positions,
-	const std::vector<float>& in_normals,
-	const std::vector<float>& in_texcoords,
-	const vertex_index& i)
-{
-	const std::map<vertex_index, unsigned int>::iterator it = vertexCache.find(i);
-
-	if (it != vertexCache.end())
-	{
-		// found cache
-		return it->second;
-	}
-
-	assert(static_cast<int>(in_positions.size()) > (3 * i.v_idx + 2));
-
-	positions.push_back(in_positions[3 * i.v_idx + 0]);
-	positions.push_back(in_positions[3 * i.v_idx + 1]);
-	positions.push_back(in_positions[3 * i.v_idx + 2]);
-
-	if (i.vn_idx >= 0 && ((3 * i.vn_idx + 2) < in_normals.size()))
-	{
-		normals.push_back(in_normals[3 * i.vn_idx + 0]);
-		normals.push_back(in_normals[3 * i.vn_idx + 1]);
-		normals.push_back(in_normals[3 * i.vn_idx + 2]);
-	}
-
-	if (i.vt_idx >= 0)
-	{
-		int numTexCoords = in_texcoords.size();
-		int index0 = 2 * i.vt_idx + 0;
-		int index1 = 2 * i.vt_idx + 1;
-
-		if (index0 >= 0 && (index0) < numTexCoords)
-		{
-			texcoords.push_back(in_texcoords[index0]);
-		}
-		if (index1 >= 0 && (index1) < numTexCoords)
-		{
-			texcoords.push_back(in_texcoords[index1]);
-		}
-	}
-
-	unsigned int idx = positions.size() / 3 - 1;
-	vertexCache[i] = idx;
-
-	return idx;
-}
-
-static bool
-exportFaceGroupToShape(
-	shape_t& shape,
-	const std::vector<float>& in_positions,
-	const std::vector<float>& in_normals,
-	const std::vector<float>& in_texcoords,
-	const std::vector<MyIndices>& faceGroup,
-	const material_t material,
-	const std::string name,
-	std::vector<vertex_index>& allIndices)
-{
-	if (faceGroup.empty())
+	if (!ret)
 	{
 		return false;
 	}
 
+	vertex_index_t vi(-1);
+
+	if (!fixIndex(atoi((*token)), vsize, &(vi.v_idx)))
+	{
+		return false;
+	}
+
+	(*token) += strcspn((*token), "/ \t\r");
+	if ((*token)[0] != '/')
+	{
+		(*ret) = vi;
+		return true;
+	}
+	(*token)++;
+
+	// i//k
+	if ((*token)[0] == '/')
+	{
+		(*token)++;
+		if (!fixIndex(atoi((*token)), vnsize, &(vi.vn_idx)))
+		{
+			return false;
+		}
+		(*token) += strcspn((*token), "/ \t\r");
+		(*ret) = vi;
+		return true;
+	}
+
+	// i/j/k or i/j
+	if (!fixIndex(atoi((*token)), vtsize, &(vi.vt_idx)))
+	{
+		return false;
+	}
+
+	(*token) += strcspn((*token), "/ \t\r");
+	if ((*token)[0] != '/')
+	{
+		(*ret) = vi;
+		return true;
+	}
+
+	// i/j/k
+	(*token)++;  // skip '/'
+	if (!fixIndex(atoi((*token)), vnsize, &(vi.vn_idx)))
+	{
+		return false;
+	}
+	(*token) += strcspn((*token), "/ \t\r");
+
+	(*ret) = vi;
+
+	return true;
+}
+
+static bool exportFaceGroupToShape(shape_t* shape, const std::vector<face_t>& face_group,
+								   const material_t material, const std::string& name,
+								   const std::vector<float>& v)
+{
+	if (face_group.empty())
+	{
+		return false;
+	}
+
+	shape->name = name;
 	// Flattened version of vertex data
-	std::vector<float> positions;
-	std::vector<float> normals;
-	std::vector<float> texcoords;
-	std::map<vertex_index, unsigned int> vertexCache;
-	std::vector<unsigned int> indices;
 
 	// Flatten vertices and indices
-	for (size_t i = 0; i < faceGroup.size(); i++)
+	for (size_t i = 0; i < face_group.size(); i++)
 	{
-		const MyIndices& face = faceGroup[i];
+		const face_t& face = face_group[i];
+		size_t npolys = face.size();
 
-		vertex_index i0 = allIndices[face.m_offset];
-		vertex_index i1;
-		i1.vn_idx = -1;
-		i1.vt_idx = -1;
-		i1.v_idx = -1;
-		vertex_index i2 = allIndices[face.m_offset + 1];
-
-		size_t npolys = face.m_numIndices;  //.size();
-
+		if (npolys < 3)
 		{
-			// Polygon -> triangle fan conversion
-			for (size_t k = 2; k < npolys; k++)
+			// Face must have 3+ vertices.
+			continue;
+		}
+		vertex_index_t i0 = face[0];
+		vertex_index_t i1(-1);
+		vertex_index_t i2 = face[1];
+
+		face_t remainingFace = face;  // copy
+		size_t guess_vert = 0;
+		vertex_index_t ind[3];
+
+		// How many iterations can we do without decreasing the remaining
+		// vertices.
+		size_t remainingIterations = face.size();
+		size_t previousRemainingVertices = remainingFace.size();
+
+		while (remainingFace.size() > 3 && remainingIterations > 0)
+		{
+			npolys = remainingFace.size();
+			if (guess_vert >= npolys)
 			{
-				i1 = i2;
-				i2 = allIndices[face.m_offset + k];
+				guess_vert -= npolys;
+			}
 
-				unsigned int v0 = updateVertex(vertexCache, positions, normals, texcoords, in_positions, in_normals, in_texcoords, i0);
-				unsigned int v1 = updateVertex(vertexCache, positions, normals, texcoords, in_positions, in_normals, in_texcoords, i1);
-				unsigned int v2 = updateVertex(vertexCache, positions, normals, texcoords, in_positions, in_normals, in_texcoords, i2);
+			if (previousRemainingVertices != npolys)
+			{
+				// The number of remaining vertices decreased. Reset counters.
+				previousRemainingVertices = npolys;
+				remainingIterations = npolys;
+			}
+			else
+			{
+				// We didn't consume a vertex on previous iteration, reduce the
+				// available iterations.
+				remainingIterations--;
+			}
 
-				indices.push_back(v0);
-				indices.push_back(v1);
-				indices.push_back(v2);
+			for (size_t k = 0; k < 3; k++)
+			{
+				ind[k] = remainingFace[(guess_vert + k) % npolys];
+				size_t vi = size_t(ind[k].v_idx);
+			}
+			// this triangle is an ear
+			{
+				index_t idx0, idx1, idx2;
+				idx0.vertex_index = ind[0].v_idx;
+				idx0.normal_index = ind[0].vn_idx;
+				idx0.texcoord_index = ind[0].vt_idx;
+				idx1.vertex_index = ind[1].v_idx;
+				idx1.normal_index = ind[1].vn_idx;
+				idx1.texcoord_index = ind[1].vt_idx;
+				idx2.vertex_index = ind[2].v_idx;
+				idx2.normal_index = ind[2].vn_idx;
+				idx2.texcoord_index = ind[2].vt_idx;
+
+				shape->mesh.indices.push_back(idx0);
+				shape->mesh.indices.push_back(idx1);
+				shape->mesh.indices.push_back(idx2);
+			}
+
+			// remove v1 from the list
+			size_t removed_vert_index = (guess_vert + 1) % npolys;
+			while (removed_vert_index + 1 < npolys)
+			{
+				remainingFace[removed_vert_index] =
+					remainingFace[removed_vert_index + 1];
+				removed_vert_index += 1;
+			}
+			remainingFace.pop_back();
+		}
+
+		if (remainingFace.size() == 3)
+		{
+			i0 = remainingFace[0];
+			i1 = remainingFace[1];
+			i2 = remainingFace[2];
+			{
+				index_t idx0, idx1, idx2;
+				idx0.vertex_index = i0.v_idx;
+				idx0.normal_index = i0.vn_idx;
+				idx0.texcoord_index = i0.vt_idx;
+				idx1.vertex_index = i1.v_idx;
+				idx1.normal_index = i1.vn_idx;
+				idx1.texcoord_index = i1.vt_idx;
+				idx2.vertex_index = i2.v_idx;
+				idx2.normal_index = i2.vn_idx;
+				idx2.texcoord_index = i2.vt_idx;
+
+				shape->mesh.indices.push_back(idx0);
+				shape->mesh.indices.push_back(idx1);
+				shape->mesh.indices.push_back(idx2);
 			}
 		}
 	}
-
-	//
-	// Construct shape.
-	//
-	shape.name = name;
-	shape.mesh.positions.swap(positions);
-	shape.mesh.normals.swap(normals);
-	shape.mesh.texcoords.swap(texcoords);
-	shape.mesh.indices.swap(indices);
-
-	shape.material = material;
-
+	shape->material = material;
 	return true;
 }
 
@@ -329,7 +332,6 @@ void InitMaterial(material_t& material)
 	material.ambient_texname = "";
 	material.diffuse_texname = "";
 	material.specular_texname = "";
-	material.normal_texname = "";
 	for (int i = 0; i < 3; i++)
 	{
 		material.ambient[i] = 0.f;
@@ -369,8 +371,8 @@ std::string LoadMtl(
 		return err.str();
 	}
 #else
-	int fileHandle = fileIO->fileOpen(filepath.c_str(),"r");
-	if (fileHandle<0)
+	int fileHandle = fileIO->fileOpen(filepath.c_str(), "r");
+	if (fileHandle < 0)
 	{
 		err << "Cannot open file [" << filepath << "]" << std::endl;
 		return err.str();
@@ -396,7 +398,7 @@ std::string LoadMtl(
 		line = fileIO->readLine(fileHandle, tmpBuf, 1024);
 		if (line)
 		{
-			linebuf=line;
+			linebuf = line;
 		}
 #endif
 
@@ -420,7 +422,7 @@ std::string LoadMtl(
 		// Skip leading space.
 		const char* token = linebuf.c_str();
 		token += strspn(token, " \t");
-		
+
 		assert(token);
 		if (token[0] == '\0') continue;  // empty line
 
@@ -574,12 +576,13 @@ std::string LoadMtl(
 		}
 	}
 #ifndef USE_STREAM
-	while (line);
+	while (line)
+		;
 #endif
 	// flush last material.
 	material_map.insert(std::pair<std::string, material_t>(material.name, material));
 
-	if (fileHandle>=0)
+	if (fileHandle >= 0)
 	{
 		fileIO->fileClose(fileHandle);
 	}
@@ -588,11 +591,16 @@ std::string LoadMtl(
 
 std::string
 LoadObj(
+	attrib_t& attrib,
 	std::vector<shape_t>& shapes,
 	const char* filename,
 	const char* mtl_basepath,
 	CommonFileIOInterface* fileIO)
 {
+	attrib.vertices.clear();
+	attrib.normals.clear();
+	attrib.texcoords.clear();
+	shapes.clear();
 	std::string tmp = filename;
 	if (!mtl_basepath)
 	{
@@ -604,13 +612,6 @@ LoadObj(
 		mtl_basepath = tmp.c_str();
 		//fprintf(stderr, "MTL PATH '%s' orig '%s'\n", mtl_basepath, filename);
 	}
-
-	shapes.resize(0);
-	std::vector<vertex_index> allIndices;
-	allIndices.reserve(1024 * 1024);
-
-	MyIndices face;
-
 	std::stringstream err;
 #ifdef USE_STREAM
 	std::ifstream ifs(filename);
@@ -620,8 +621,8 @@ LoadObj(
 		return err.str();
 	}
 #else
-	int fileHandle = fileIO->fileOpen(filename,"r");
-	if (fileHandle<0)
+	int fileHandle = fileIO->fileOpen(filename, "r");
+	if (fileHandle < 0)
 	{
 		err << "Cannot open file [" << filename << "]" << std::endl;
 		return err.str();
@@ -629,16 +630,15 @@ LoadObj(
 #endif
 
 	std::vector<float> v;
-	v.reserve(1024 * 1024);
 	std::vector<float> vn;
-	vn.reserve(1024 * 1024);
 	std::vector<float> vt;
-	vt.reserve(1024 * 1024);
-	//std::vector<std::vector<vertex_index> > faceGroup;
-	std::vector<MyIndices> faceGroup;
-	faceGroup.reserve(1024 * 1024);
 	std::string name;
 
+	int greatest_v_idx = -1;
+	int greatest_vn_idx = -1;
+	int greatest_vt_idx = -1;
+
+	std::vector<face_t> faceGroup;
 	// material
 	std::map<std::string, material_t> material_map;
 	material_t material;
@@ -664,10 +664,9 @@ LoadObj(
 		line = fileIO->readLine(fileHandle, tmpBuf, 1024);
 		if (line)
 		{
-			linebuf=line;
+			linebuf = line;
 		}
 #endif
-
 		// Trim newline '\r\n' or '\r'
 		if (linebuf.size() > 0)
 		{
@@ -734,23 +733,34 @@ LoadObj(
 			token += 2;
 			token += strspn(token, " \t");
 
-			face.m_offset = allIndices.size();
-			face.m_numIndices = 0;
+			face_t face;
+
+			face.reserve(3);
 
 			while (!isNewLine(token[0]))
 			{
-				vertex_index vi = parseTriple(token, v.size() / 3, vn.size() / 3, vt.size() / 2);
-				allIndices.push_back(vi);
-				face.m_numIndices++;
-				int n = strspn(token, " \t\r");
+				vertex_index_t vi;
+				if (!parseTriple(&token, static_cast<int>(v.size() / 3),
+								 static_cast<int>(vn.size() / 3),
+								 static_cast<int>(vt.size() / 2), &vi))
+				{
+					err << "Failed parse `f' line(e.g. zero value for face index.";
+					return err.str();
+				}
+
+				greatest_v_idx = greatest_v_idx > vi.v_idx ? greatest_v_idx : vi.v_idx;
+				greatest_vn_idx =
+					greatest_vn_idx > vi.vn_idx ? greatest_vn_idx : vi.vn_idx;
+				greatest_vt_idx =
+					greatest_vt_idx > vi.vt_idx ? greatest_vt_idx : vi.vt_idx;
+
+				face.push_back(vi);
+				size_t n = strspn(token, " \t\r");
 				token += n;
 			}
-
 			faceGroup.push_back(face);
-
 			continue;
 		}
-
 		// use mtl
 		if ((0 == strncmp(token, "usemtl", 6)) && isSpace((token[6])))
 		{
@@ -777,10 +787,10 @@ LoadObj(
 			token += 7;
 			sscanf(token, "%s", namebuf);
 
-			std::string err_mtl = LoadMtl(material_map, namebuf, mtl_basepath,fileIO);
+			std::string err_mtl = LoadMtl(material_map, namebuf, mtl_basepath, fileIO);
 			if (!err_mtl.empty())
 			{
-				//faceGroup.resize(0);  // for safety
+				//face_group.resize(0);  // for safety
 				//return err_mtl;
 			}
 			continue;
@@ -791,7 +801,7 @@ LoadObj(
 		{
 			// flush previous face group.
 			shape_t shape;
-			bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name, allIndices);
+			bool ret = exportFaceGroupToShape(&shape, faceGroup, material, name, v);
 			if (ret)
 			{
 				shapes.push_back(shape);
@@ -827,7 +837,7 @@ LoadObj(
 		{
 			// flush previous face group.
 			shape_t shape;
-			bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name, allIndices);
+			bool ret = exportFaceGroupToShape(&shape, faceGroup, material, name, v);
 			if (ret)
 			{
 				shapes.push_back(shape);
@@ -847,18 +857,23 @@ LoadObj(
 		// Ignore unknown command.
 	}
 #ifndef USE_STREAM
-	while (line);
+	while (line)
+		;
 #endif
 
 	shape_t shape;
-	bool ret = exportFaceGroupToShape(shape, v, vn, vt, faceGroup, material, name, allIndices);
+	bool ret = exportFaceGroupToShape(&shape, faceGroup, material, name, v);
 	if (ret)
 	{
 		shapes.push_back(shape);
 	}
 	faceGroup.resize(0);  // for safety
 
-	if (fileHandle>=0)
+	attrib.vertices.swap(v);
+	attrib.normals.swap(vn);
+	attrib.texcoords.swap(vt);
+
+	if (fileHandle >= 0)
 	{
 		fileIO->fileClose(fileHandle);
 	}

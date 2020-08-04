@@ -1,0 +1,100 @@
+<?xml version="1.0" ?>
+<robot name="cube">
+  <bullet>
+    <user-data key="userDataInRobot">
+      Inside the robot tag. Expected identifier: linkIndex: -1, visualShapeIndex: -1
+    </user-data>
+  </bullet>
+  <link name="baseLink">
+    <bullet>
+      <user-data key="userDataInBaseLink">
+        Inside the base link. Expected identifier: linkIndex: -1, visualShapeIndex: -1
+      </user-data>
+    </bullet>
+    <bullet>
+      <user-data key="secondBulletTagInBaseLink1">
+        Second bullet tag inside the base link. Expected identifier: linkIndex: -1, visualShapeIndex: -1
+      </user-data>
+      <user-data key="secondBulletTagInBaseLink2">
+        Second bullet tag inside the base link. Expected identifier: linkIndex: -1, visualShapeIndex: -1
+      </user-data>
+    </bullet>
+    <contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <contact_cfm value="0.0"/>
+      <contact_erp value="1.0"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value="1.0"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <bullet>
+        <user-data key="userDataInVisualShape">
+          This is user data inside the visual shape. Expected identifier: linkIndex: -1, visualShapeIndex: 0
+        </user-data>
+      </bullet>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+				<mesh filename="cube.obj" scale="1 1 1"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="childLink">
+    <bullet>
+      <user-data key="userDataInChildLink">
+        Inside the robot tag. Expected identifier: linkIndex: 0, visualShapeIndex: -1
+      </user-data>
+    </bullet>
+    <contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <contact_cfm value="0.0"/>
+      <contact_erp value="1.0"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value="1.0"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <bullet>
+        <user-data key="userDataInVisualShape2">
+          This is user data inside the visual shape. Expected identifier: linkIndex: 0, visualShapeIndex: 0
+        </user-data>
+      </bullet>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+				<mesh filename="cube.obj" scale="1 1 1"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="1 1 1"/>
+      </geometry>
+    </collision>
+    </link>
+      <joint name="joint" type="fixed">
+      <parent link="baseLink"/>
+      <child link="childLink"/>
+      <dynamics damping="1.0" friction="0.0001"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <axis xyz="0 0 0"/>
+    </joint>
+</robot>
+

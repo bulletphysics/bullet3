@@ -29,7 +29,7 @@ class MinitaurSimulatorExample : public CommonExampleInterface
 	
 	double m_time;
 	
-	double m_gravityAccelerationZ;
+	btScalar m_gravityAccelerationZ;
 	
 	MinitaurSetup m_minitaur;
 	int m_minitaurUid;

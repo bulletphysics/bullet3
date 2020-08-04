@@ -1,5 +1,6 @@
 /bin
 /build3/gmake
+/build3/vs2010
 /build_cmake/
 
 *.pyc
@@ -18,3 +19,20 @@ pip-selfcheck.json
 /build
 /dist
 *.eggs
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestFile.cmake
+
+# Visual Studio build files
+*.vcxproj
+*.vcxproj.filters
+*.sln
+
+# Apple Finder metadata
+*.DS_Store
+
+# vim temp files
+*.swp

@@ -5,6 +5,7 @@ from pybullet_utils import bullet_client
 
 PLANE_PATH = "plane.urdf"
 ROBOT_PATH = "r2d2.urdf"
+OBJECT_WITH_USER_DATA_PATH = "user_data_test_object.urdf"
 
 
 class TestUserDataMethods(unittest.TestCase):
@@ -24,6 +25,29 @@ class TestUserDataMethods(unittest.TestCase):
   def tearDown(self):
     self.client.resetSimulation()
     del self.client
+
+  def testLoadingUserDataFromURDF(self):
+    body_id = self.client.loadURDF(OBJECT_WITH_USER_DATA_PATH)
+    self.client.syncUserData(body_id)
+    num_user_data = self.client.getNumUserData(body_id)
+
+    self.assertEqual(num_user_data, 7)
+    expected_user_data_infos = {
+        0 : (b"userDataInRobot", 0, -1, -1),
+        1:( b"userDataInBaseLink", 0, -1, -1),
+        2:( b"secondBulletTagInBaseLink1", 0, -1, -1),
+        3:( b"secondBulletTagInBaseLink2", 0, -1, -1),
+        4:( b"userDataInVisualShape", 0, -1, 0),
+        5:( b"userDataInChildLink", 0, 0, -1),
+        6:( b"userDataInVisualShape2", 0, 0, 0),
+    }
+    for user_data_index in range(num_user_data):
+      info = self.client.getUserDataInfo(body_id, user_data_index)
+      self.assertEqual(info[1:], expected_user_data_infos[info[0]])
+      user_data_val = self.client.getUserData(info[0])
+      self.assertIn(
+          b"Expected identifier: linkIndex: %i, visualShapeIndex: %i" %
+          (info[3], info[4]), user_data_val)
 
   def testAddUserData(self):
     plane_id = self.client.loadURDF(PLANE_PATH)

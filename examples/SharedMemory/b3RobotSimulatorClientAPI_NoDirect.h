@@ -89,6 +89,64 @@ struct b3RobotSimulatorLoadSoftBodyArgs
 	}
 };
 
+
+struct b3RobotSimulatorLoadDeformableBodyArgs
+{
+	btVector3 m_startPosition;
+	btQuaternion m_startOrientation;
+	double m_scale;
+	double m_mass;
+	double m_collisionMargin;
+	double m_springElasticStiffness;
+	double m_springDampingStiffness;
+	double m_springBendingStiffness;
+	double m_NeoHookeanMu;
+	double m_NeoHookeanLambda;
+	double m_NeoHookeanDamping;
+	bool m_useSelfCollision;
+	bool m_useFaceContact;
+	bool m_useBendingSprings;
+	double m_frictionCoeff;
+
+	b3RobotSimulatorLoadDeformableBodyArgs(const btVector3 &startPos, const btQuaternion &startOrn, const double &scale, const double &mass, const double &collisionMargin)
+	: m_startPosition(startPos),
+	m_startOrientation(startOrn),
+	m_scale(scale),
+	m_mass(mass),
+	m_collisionMargin(collisionMargin),
+	m_springElasticStiffness(-1),
+	m_springDampingStiffness(-1),
+	m_springBendingStiffness(-1),
+	m_NeoHookeanMu(-1),
+	m_NeoHookeanDamping(-1),
+	m_useSelfCollision(false),
+	m_useFaceContact(false),
+	m_useBendingSprings(false),
+	m_frictionCoeff(0)
+	{
+	}
+
+	b3RobotSimulatorLoadDeformableBodyArgs(const btVector3 &startPos, const btQuaternion &startOrn)
+	{
+		b3RobotSimulatorLoadSoftBodyArgs(startPos, startOrn, 1.0, 1.0, 0.02);
+	}
+
+	b3RobotSimulatorLoadDeformableBodyArgs()
+	{
+		b3RobotSimulatorLoadSoftBodyArgs(btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1));
+	}
+
+	b3RobotSimulatorLoadDeformableBodyArgs(double scale, double mass, double collisionMargin)
+	: m_startPosition(btVector3(0, 0, 0)),
+	m_startOrientation(btQuaternion(0, 0, 0, 1)),
+	m_scale(scale),
+	m_mass(mass),
+	m_collisionMargin(collisionMargin)
+	{
+	}
+};
+
+
 struct b3RobotSimulatorLoadFileResults
 {
 	btAlignedObjectArray<int> m_uniqueObjectIds;
@@ -413,12 +471,55 @@ struct b3RobotSimulatorCreateCollisionShapeArgs
 	btVector3 m_meshScale;
 	btVector3 m_planeNormal;
 	int m_flags;
+
+	double m_heightfieldTextureScaling;
+	btAlignedObjectArray<float> m_heightfieldData;
+	int m_numHeightfieldRows;
+	int m_numHeightfieldColumns;
+	int m_replaceHeightfieldIndex;
+
 	b3RobotSimulatorCreateCollisionShapeArgs()
 		: m_shapeType(-1),
 		  m_radius(0.5),
 		  m_height(1),
 		  m_fileName(NULL),
-		  m_flags(0)
+		  m_flags(0),
+		  m_heightfieldTextureScaling(1),
+		  m_numHeightfieldRows(0),
+		  m_numHeightfieldColumns(0),
+		  m_replaceHeightfieldIndex(-1)
+	{
+		m_halfExtents.m_floats[0] = 1;
+		m_halfExtents.m_floats[1] = 1;
+		m_halfExtents.m_floats[2] = 1;
+
+		m_meshScale.m_floats[0] = 1;
+		m_meshScale.m_floats[1] = 1;
+		m_meshScale.m_floats[2] = 1;
+
+		m_planeNormal.m_floats[0] = 0;
+		m_planeNormal.m_floats[1] = 0;
+		m_planeNormal.m_floats[2] = 1;
+	}
+};
+
+
+struct b3RobotSimulatorCreateVisualShapeArgs
+{
+	int m_shapeType;
+	double m_radius;
+	btVector3 m_halfExtents;
+	double m_height;
+	char* m_fileName;
+	btVector3 m_meshScale;
+	btVector3 m_planeNormal;
+	int m_flags;
+	b3RobotSimulatorCreateVisualShapeArgs()
+		: m_shapeType(-1),
+		m_radius(0.5),
+		m_height(1),
+		m_fileName(NULL),
+		m_flags(0)
 	{
 		m_halfExtents.m_floats[0] = 1;
 		m_halfExtents.m_floats[1] = 1;
@@ -465,6 +566,100 @@ struct b3RobotSimulatorCreateMultiBodyArgs
 		m_baseOrientation.setValue(0, 0, 0, 1);
 		m_baseInertialFramePosition.setValue(0, 0, 0);
 		m_baseInertialFrameOrientation.setValue(0, 0, 0, 1);
+	}
+};
+
+
+struct b3RobotUserConstraint : public b3UserConstraint
+{
+	int m_userUpdateFlags;//see EnumUserConstraintFlags
+
+	void setErp(double erp)
+	{
+		m_erp = erp;
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_ERP;
+	}
+	
+	void setMaxAppliedForce(double maxForce)
+	{
+		m_maxAppliedForce = maxForce;
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_MAX_FORCE;
+	}
+	
+	void setGearRatio(double gearRatio)
+	{
+		m_gearRatio = gearRatio;
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_GEAR_RATIO;
+	}
+
+	void setGearAuxLink(int link)
+	{
+		m_gearAuxLink = link;
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK;
+	}
+
+	void setRelativePositionTarget(double target)
+	{
+		m_relativePositionTarget = target;
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET;
+	}
+
+	void setChildPivot(double pivot[3])
+	{
+		m_childFrame[0] = pivot[0];
+		m_childFrame[1] = pivot[1];
+		m_childFrame[2] = pivot[2];
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_PIVOT_IN_B;
+	}
+
+	void setChildFrameOrientation(double orn[4])
+	{
+		m_childFrame[3] = orn[0];
+		m_childFrame[4] = orn[1];
+		m_childFrame[5] = orn[2];
+		m_childFrame[6] = orn[3];
+		m_userUpdateFlags |= USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B;
+	}
+
+	b3RobotUserConstraint()
+		:m_userUpdateFlags(0)
+	{
+		m_parentBodyIndex = -1;
+		m_parentJointIndex = -1;
+		m_childBodyIndex = -1;
+		m_childJointIndex = -1;
+		//position
+		m_parentFrame[0] = 0;
+		m_parentFrame[1] = 0;
+		m_parentFrame[2] = 0;
+		//orientation quaternion [x,y,z,w]
+		m_parentFrame[3] = 0;
+		m_parentFrame[4] = 0;
+		m_parentFrame[5] = 0;
+		m_parentFrame[6] = 1;
+
+		//position
+		m_childFrame[0] = 0;
+		m_childFrame[1] = 0;
+		m_childFrame[2] = 0;
+		//orientation quaternion [x,y,z,w]
+		m_childFrame[3] = 0;
+		m_childFrame[4] = 0;
+		m_childFrame[5] = 0;
+		m_childFrame[6] = 1;
+
+		m_jointAxis[0] = 0;
+		m_jointAxis[1] = 0;
+		m_jointAxis[2] = 1;
+
+		m_jointType = eFixedType;
+
+		m_maxAppliedForce = 500;
+		m_userConstraintUniqueId = -1;
+		m_gearRatio = -1;
+		m_gearAuxLink = -1;
+		m_relativePositionTarget = 0;
+		m_erp = 0;
 	}
 };
 
@@ -534,6 +729,8 @@ public:
 	void syncBodies();
 
 	void resetSimulation();
+    
+	void resetSimulation(int flag);
 
 	btQuaternion getQuaternionFromEuler(const btVector3 &rollPitchYaw);
 	btVector3 getEulerFromQuaternion(const btQuaternion &quat);
@@ -553,7 +750,7 @@ public:
 	bool getBodyInfo(int bodyUniqueId, struct b3BodyInfo *bodyInfo);
 
 	bool getBasePositionAndOrientation(int bodyUniqueId, btVector3 &basePosition, btQuaternion &baseOrientation) const;
-	bool resetBasePositionAndOrientation(int bodyUniqueId, btVector3 &basePosition, btQuaternion &baseOrientation);
+	bool resetBasePositionAndOrientation(int bodyUniqueId, const btVector3 &basePosition, const btQuaternion &baseOrientation);
 
 	bool getBaseVelocity(int bodyUniqueId, btVector3 &baseLinearVelocity, btVector3 &baseAngularVelocity) const;
 	bool resetBaseVelocity(int bodyUniqueId, const btVector3 &linearVelocity, const btVector3 &angularVelocity) const;
@@ -564,7 +761,7 @@ public:
 
 	int createConstraint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo *jointInfo);
 
-	int changeConstraint(int constraintId, b3JointInfo *jointInfo);
+	int changeConstraint(int constraintId, b3RobotUserConstraint*jointInfo);
 
 	void removeConstraint(int constraintId);
 
@@ -597,8 +794,12 @@ public:
 	void setNumSolverIterations(int numIterations);
 	void setContactBreakingThreshold(double threshold);
 
+	int computeDofCount(int bodyUniqueId) const;
+	
 	bool calculateInverseKinematics(const struct b3RobotSimulatorInverseKinematicArgs &args, struct b3RobotSimulatorInverseKinematicsResults &results);
 
+	int calculateMassMatrix(int bodyUniqueId, const double* jointPositions, int numJointPositions, double* massMatrix, int flags);
+	
 	bool getBodyJacobian(int bodyUniqueId, int linkIndex, const double *localPosition, const double *jointPositions, const double *jointVelocities, const double *jointAccelerations, double *linearJacobian, double *angularJacobian);
 
 	void configureDebugVisualizer(enum b3ConfigureDebugVisualizerEnum flag, int enable);
@@ -610,7 +811,7 @@ public:
 	void getVREvents(b3VREventsData *vrEventsData, int deviceTypeFilter);
 	void getKeyboardEvents(b3KeyboardEventsData *keyboardEventsData);
 
-	void submitProfileTiming(const std::string &profileName, int durationInMicroSeconds = 1);
+	void submitProfileTiming(const std::string &profileName);
 
 	// JFC: added these 24 methods
 
@@ -632,15 +833,15 @@ public:
 
 	bool changeDynamics(int bodyUniqueId, int linkIndex, struct b3RobotSimulatorChangeDynamicsArgs &args);
 
-	int addUserDebugParameter(char *paramName, double rangeMin, double rangeMax, double startValue);
+	int addUserDebugParameter(const char *paramName, double rangeMin, double rangeMax, double startValue);
 
 	double readUserDebugParameter(int itemUniqueId);
 
 	bool removeUserDebugItem(int itemUniqueId);
 
-	int addUserDebugText(char *text, double *textPosition, struct b3RobotSimulatorAddUserDebugTextArgs &args);
+	int addUserDebugText(const char *text, double *textPosition, struct b3RobotSimulatorAddUserDebugTextArgs &args);
 
-	int addUserDebugText(char *text, btVector3 &textPosition, struct b3RobotSimulatorAddUserDebugTextArgs &args);
+	int addUserDebugText(const char *text, btVector3 &textPosition, struct b3RobotSimulatorAddUserDebugTextArgs &args);
 
 	int addUserDebugLine(double *fromXYZ, double *toXYZ, struct b3RobotSimulatorAddUserDebugLineArgs &args);
 
@@ -676,6 +877,8 @@ public:
 
 	bool getAABB(int bodyUniqueId, int linkIndex, btVector3 &aabbMin, btVector3 &aabbMax);
 
+	int createVisualShape(int shapeType, struct b3RobotSimulatorCreateVisualShapeArgs& args);
+
 	int createCollisionShape(int shapeType, struct b3RobotSimulatorCreateCollisionShapeArgs &args);
 
 	int createMultiBody(struct b3RobotSimulatorCreateMultiBodyArgs &args);
@@ -685,6 +888,8 @@ public:
 	int getConstraintUniqueId(int serialIndex);
 
 	void loadSoftBody(const std::string &fileName, const struct b3RobotSimulatorLoadSoftBodyArgs &args);
+    
+	void loadDeformableBody(const std::string &fileName, const struct b3RobotSimulatorLoadDeformableBodyArgs &args);
 
 	virtual void setGuiHelper(struct GUIHelperInterface *guiHelper);
 	virtual struct GUIHelperInterface *getGuiHelper();
@@ -695,6 +900,7 @@ public:
 
 	int saveStateToMemory();
 	void restoreStateFromMemory(int stateId);
+	void removeState(int stateUniqueId);
 
 	int getAPIVersion() const
 	{

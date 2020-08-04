@@ -50,7 +50,7 @@ def parallelCCompile(self,
     newcc_args = cc_args
     if _platform == "darwin":
       if src.endswith('.cpp'):
-        newcc_args = cc_args + ["-stdlib=libc++"]
+        newcc_args = cc_args + ["-mmacosx-version-min=10.7", "-stdlib=libc++"]
     self._compile(obj, src, ext, newcc_args, extra_postargs, pp_opts)
 
   # convert to list, imap is evaluated on-demand
@@ -79,6 +79,7 @@ CXX_FLAGS += '-DB3_ENABLE_FILEIO_PLUGIN '
 CXX_FLAGS += '-DB3_USE_ZIPFILE_FILEIO '
 CXX_FLAGS += '-DBT_THREADSAFE=1 '
 CXX_FLAGS += '-DSTATIC_LINK_SPD_PLUGIN '
+CXX_FLAGS += '-DBT_ENABLE_VHACD '
 
 EGL_CXX_FLAGS = ''
 
@@ -100,6 +101,14 @@ else:
   include_dirs += NP_DIRS
 
 sources = ["examples/pybullet/pybullet.c"]\
++["examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/KinTree.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/MathUtil.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/RBDModel.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp"]\
++["examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp"]\
 +["src/btLinearMathAll.cpp"]\
 +["src/btBulletCollisionAll.cpp"]\
 +["src/btBulletDynamicsAll.cpp"]\
@@ -117,6 +126,10 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/SharedMemory/InProcessMemory.cpp"]\
 +["examples/SharedMemory/PhysicsClient.cpp"]\
 +["examples/SharedMemory/PhysicsServer.cpp"]\
++["examples/SharedMemory/GraphicsClientExample.cpp"]\
++["examples/SharedMemory/GraphicsServerExample.cpp"]\
++["examples/SharedMemory/RemoteGUIHelper.cpp"]\
++["examples/SharedMemory/RemoteGUIHelperTCP.cpp"]\
 +["examples/SharedMemory/PhysicsServerExample.cpp"]\
 +["examples/SharedMemory/PhysicsServerExampleBullet2.cpp"]\
 +["examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp"]\
@@ -131,13 +144,6 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/SharedMemory/PosixSharedMemory.cpp"]\
 +["examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp"]\
 +["examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/KinTree.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/MathUtil.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/RBDModel.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp"]\
-+["examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp"]\
 +["examples/SharedMemory/PhysicsClientUDP.cpp"]\
 +["examples/SharedMemory/PhysicsClientUDP_C_API.cpp"]\
 +["examples/SharedMemory/PhysicsClientTCP.cpp"]\
@@ -148,7 +154,6 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/Utils/ChromeTraceUtil.cpp"]\
 +["examples/Utils/b3Clock.cpp"]\
 +["examples/Utils/b3Quickprof.cpp"]\
-+["examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp"]\
 +["examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp"]\
 +["examples/ThirdPartyLibs/stb_image/stb_image.cpp"]\
 +["examples/ThirdPartyLibs/stb_image/stb_image_write.cpp"]\
@@ -245,6 +250,13 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletSoftBody/btSoftBodyConcaveCollisionAlgorithm.cpp"]\
 +["src/BulletSoftBody/btSoftMultiBodyDynamicsWorld.cpp"]\
 +["src/BulletSoftBody/btSoftSoftCollisionAlgorithm.cpp"]\
++["src/BulletSoftBody/btDeformableBackwardEulerObjective.cpp"]\
++["src/BulletSoftBody/btDeformableBodySolver.cpp"]\
++["src/BulletSoftBody/btDeformableContactProjection.cpp"]\
++["src/BulletSoftBody/btDeformableContactConstraint.cpp"]\
++["src/BulletSoftBody/btDeformableMultiBodyConstraintSolver.cpp"]\
++["src/BulletSoftBody/btDeformableMultiBodyDynamicsWorld.cpp"]\
++["src/BulletSoftBody/poly34.cpp"]\
 +["src/BulletInverseDynamics/IDMath.cpp"]\
 +["src/BulletInverseDynamics/MultiBodyTree.cpp"]\
 +["src/BulletInverseDynamics/details/MultiBodyTreeImpl.cpp"]\
@@ -322,7 +334,12 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/ThirdPartyLibs/Gwen/Platforms/Null.cpp"]\
 +["examples/ThirdPartyLibs/Gwen/Platforms/Windows.cpp"]\
 +["examples/ThirdPartyLibs/Gwen/Renderers/OpenGL_DebugFont.cpp"]\
-
++["Extras/VHACD/test/src/main_vhacd.cpp"] \
++["Extras/VHACD/src/VHACD.cpp"] \
++["Extras/VHACD/src/vhacdICHull.cpp"] \
++["Extras/VHACD/src/vhacdManifoldMesh.cpp"] \
++["Extras/VHACD/src/vhacdMesh.cpp"] \
++["Extras/VHACD/src/vhacdVolume.cpp"]
 
 
 egl_renderer_sources = \
@@ -410,7 +427,7 @@ elif _platform == "win32":
   +["examples/ThirdPartyLibs/glad/gl.c"]
 elif _platform == "darwin":
   print("darwin!")
-  os.environ['LDFLAGS'] = '-framework Cocoa -stdlib=libc++ -framework OpenGL'
+  os.environ['LDFLAGS'] = '-framework Cocoa -mmacosx-version-min=10.7 -stdlib=libc++ -framework OpenGL'
   CXX_FLAGS += '-DB3_NO_PYTHON_FRAMEWORK '
   CXX_FLAGS += '-DHAS_SOCKLEN_T '
   CXX_FLAGS += '-D_DARWIN '
@@ -463,7 +480,8 @@ pybullet_ext = Extension(
     extra_compile_args=CXX_FLAGS.split(),
     include_dirs=include_dirs + [
         "src", "examples/ThirdPartyLibs", "examples/ThirdPartyLibs/glad",
-        "examples/ThirdPartyLibs/enet/include", "examples/ThirdPartyLibs/clsocket/src"
+        "examples/ThirdPartyLibs/enet/include", "examples/ThirdPartyLibs/clsocket/src",
+        "Extras/VHACD/inc", "Extras/VHACD/public",
     ])
 extensions.append(pybullet_ext)
 
@@ -483,7 +501,7 @@ if 'BT_USE_EGL' in EGL_CXX_FLAGS:
 
 setup(
     name='pybullet',
-    version='2.5.0',
+    version='2.8.5',
     description=
     'Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
     long_description=
@@ -505,7 +523,8 @@ setup(
         'Operating System :: MacOS', 'Intended Audience :: Science/Research',
         "Programming Language :: Python", 'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4', 'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6', 'Topic :: Games/Entertainment :: Simulation',
+        'Programming Language :: Python :: 3.6', 'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8', 'Topic :: Games/Entertainment :: Simulation',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'Framework :: Robot Framework'
     ],

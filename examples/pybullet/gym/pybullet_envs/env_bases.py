@@ -1,10 +1,17 @@
 import gym, gym.spaces, gym.utils, gym.utils.seeding
 import numpy as np
 import pybullet
+import os
+
 from pybullet_utils import bullet_client
 
 from pkg_resources import parse_version
 
+try:
+  if os.environ["PYBULLET_EGL"]:
+    import pkgutil
+except:
+  pass
 
 class MJCFBaseBulletEnv(gym.Env):
   """
@@ -19,7 +26,7 @@ class MJCFBaseBulletEnv(gym.Env):
     self.scene = None
     self.physicsClientId = -1
     self.ownsPhysicsClient = 0
-    self.camera = Camera()
+    self.camera = Camera(self)
     self.isRender = render
     self.robot = robot
     self.seed()
@@ -31,6 +38,7 @@ class MJCFBaseBulletEnv(gym.Env):
 
     self.action_space = robot.action_space
     self.observation_space = robot.observation_space
+    #self.reset()
 
   def configure(self, args):
     self.robot.args = args
@@ -48,7 +56,20 @@ class MJCFBaseBulletEnv(gym.Env):
         self._p = bullet_client.BulletClient(connection_mode=pybullet.GUI)
       else:
         self._p = bullet_client.BulletClient()
-
+      self._p.resetSimulation()
+      self._p.setPhysicsEngineParameter(deterministicOverlappingPairs=1)
+      #optionally enable EGL for faster headless rendering
+      try:
+        if os.environ["PYBULLET_EGL"]:
+          con_mode = self._p.getConnectionInfo()['connectionMethod']
+          if con_mode==self._p.DIRECT:
+            egl = pkgutil.get_loader('eglRenderer')
+            if (egl):
+              self._p.loadPlugin(egl.get_filename(), "_eglRendererPlugin")
+            else:
+              self._p.loadPlugin("eglRendererPlugin")
+      except:
+        pass
       self.physicsClientId = self._p._client
       self._p.configureDebugVisualizer(pybullet.COV_ENABLE_GUI, 0)
 
@@ -67,34 +88,45 @@ class MJCFBaseBulletEnv(gym.Env):
     self.potential = self.robot.calc_potential()
     return s
 
+  def camera_adjust(self):
+    pass
+
   def render(self, mode='human', close=False):
+  
     if mode == "human":
       self.isRender = True
+    if self.physicsClientId>=0:
+      self.camera_adjust()
+
     if mode != "rgb_array":
       return np.array([])
 
     base_pos = [0, 0, 0]
     if (hasattr(self, 'robot')):
-      if (hasattr(self.robot, 'body_xyz')):
-        base_pos = self.robot.body_xyz
-
-    view_matrix = self._p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=base_pos,
+      if (hasattr(self.robot, 'body_real_xyz')):
+        base_pos = self.robot.body_real_xyz
+    if (self.physicsClientId>=0):
+      view_matrix = self._p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=base_pos,
                                                             distance=self._cam_dist,
                                                             yaw=self._cam_yaw,
                                                             pitch=self._cam_pitch,
                                                             roll=0,
                                                             upAxisIndex=2)
-    proj_matrix = self._p.computeProjectionMatrixFOV(fov=60,
+      proj_matrix = self._p.computeProjectionMatrixFOV(fov=60,
                                                      aspect=float(self._render_width) /
                                                      self._render_height,
                                                      nearVal=0.1,
                                                      farVal=100.0)
-    (_, _, px, _, _) = self._p.getCameraImage(width=self._render_width,
+      (_, _, px, _, _) = self._p.getCameraImage(width=self._render_width,
                                               height=self._render_height,
                                               viewMatrix=view_matrix,
                                               projectionMatrix=proj_matrix,
                                               renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
-    rgb_array = np.array(px)
+
+      self._p.configureDebugVisualizer(self._p.COV_ENABLE_SINGLE_STEP_RENDERING,1)
+    else:
+      px = np.array([[[255,255,255,255]]*self._render_width]*self._render_height, dtype=np.uint8)
+    rgb_array = np.array(px, dtype=np.uint8)
     rgb_array = np.reshape(np.array(px), (self._render_height, self._render_width, -1))
     rgb_array = rgb_array[:, :, :3]
     return rgb_array
@@ -128,11 +160,15 @@ class MJCFBaseBulletEnv(gym.Env):
 
 class Camera:
 
-  def __init__(self):
+  def __init__(self, env):
+    self.env = env
     pass
 
   def move_and_look_at(self, i, j, k, x, y, z):
     lookat = [x, y, z]
-    distance = 10
-    yaw = 10
-    self._p.resetDebugVisualizerCamera(distance, yaw, -20, lookat)
+    camInfo = self.env._p.getDebugVisualizerCamera()
+    
+    distance = camInfo[10]
+    pitch = camInfo[9]
+    yaw = camInfo[8]
+    self.env._p.resetDebugVisualizerCamera(distance, yaw, pitch, lookat)

@@ -117,7 +117,7 @@ public:
 	MatrixRmn& AddToDiagonal(const VectorRn& dVec);
 
 	// Solving systems of linear equations
-	void Solve(const VectorRn& b, VectorRn* x) const;  // Solves the equation   (*this)*x = b;    Uses row operations.  Assumes *this is invertible.
+	void Solve(const VectorRn& b, VectorRn* x, MatrixRmn& AugMat) const;  // Solves the equation   (*this)*x = b;    Uses row operations.  Assumes *this is invertible.
 
 	// Row Echelon Form and Reduced Row Echelon Form routines
 	// Row echelon form here allows non-negative entries (instead of 1's) in the positions of lead variables.
@@ -150,13 +150,6 @@ private:
 	double* x;       // Array of vector entries - stored in column order
 	long AllocSize;  // Allocated size of the x array
 
-	static MatrixRmn WorkMatrix;  // Temporary work matrix
-	static MatrixRmn& GetWorkMatrix() { return WorkMatrix; }
-	static MatrixRmn& GetWorkMatrix(long numRows, long numCols)
-	{
-		WorkMatrix.SetSize(numRows, numCols);
-		return WorkMatrix;
-	}
 
 	// Internal helper routines for SVD calculations
 	static void CalcBidiagonal(MatrixRmn& U, MatrixRmn& V, VectorRn& w, VectorRn& superDiag);

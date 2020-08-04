@@ -25,7 +25,10 @@ import traceback
 import gym
 import gym.spaces
 import numpy as np
-import tensorflow as tf
+try:
+  import tensorflow.compat.v1 as tf
+except Exception:
+  import tensorflow as tf
 
 
 class AutoReset(object):

@@ -13,7 +13,7 @@ parentdir = os.path.dirname(os.path.dirname(os.path.dirname(currentdir)))
 print("parentdir=", parentdir)
 os.sys.path.insert(0, parentdir)
 
-import tensorflow as tf
+import tf.compat.v1 as tf
 from pybullet_envs.minitaur.agents.scripts import utility
 import pybullet_data
 from pybullet_envs.minitaur.envs import simple_ppo_agent

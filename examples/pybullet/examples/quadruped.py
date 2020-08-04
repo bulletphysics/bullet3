@@ -1,6 +1,9 @@
 import pybullet as p
 import time
 import math
+import pybullet_data
+
+
 
 
 def drawInertiaBox(parentUid, parentLinkIndex, color):
@@ -104,7 +107,7 @@ def drawInertiaBox(parentUid, parentLinkIndex, color):
 
 toeConstraint = True
 useMaximalCoordinates = False
-useRealTime = 1
+useRealTime = 0
 
 #the fixedTimeStep and numSolverIterations are the most important parameters to trade-off quality versus performance
 fixedTimeStep = 1. / 100
@@ -123,11 +126,12 @@ kp = 1
 kd = .5
 maxKneeForce = 1000
 
-physId = p.connect(p.SHARED_MEMORY)
+physId = p.connect(p.SHARED_MEMORY_GUI)
 if (physId < 0):
   p.connect(p.GUI)
 #p.resetSimulation()
 
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 angle = 0  # pick in range 0..0.2 radians
 orn = p.getQuaternionFromEuler([0, angle, 0])
 p.loadURDF("plane.urdf", [0, 0, 0], orn)

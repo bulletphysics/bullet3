@@ -15,6 +15,7 @@ subject to the following restrictions:
 
 #include "btWorldImporter.h"
 #include "btBulletDynamicsCommon.h"
+#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #ifdef USE_GIMPACT
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #endif
@@ -1780,6 +1781,19 @@ btScaledBvhTriangleMeshShape* btWorldImporter::createScaledTrangleMeshShape(btBv
 btMultiSphereShape* btWorldImporter::createMultiSphereShape(const btVector3* positions, const btScalar* radi, int numSpheres)
 {
 	btMultiSphereShape* shape = new btMultiSphereShape(positions, radi, numSpheres);
+	m_allocatedCollisionShapes.push_back(shape);
+	return shape;
+}
+
+class btHeightfieldTerrainShape* btWorldImporter::createHeightfieldShape(int heightStickWidth, int heightStickLength,
+	const void* heightfieldData, btScalar heightScale,
+	btScalar minHeight, btScalar maxHeight,
+	int upAxis, int heightDataType,
+	bool flipQuadEdges)
+{
+
+	btHeightfieldTerrainShape* shape = new btHeightfieldTerrainShape(heightStickWidth, heightStickLength,
+			heightfieldData, heightScale, minHeight, maxHeight, upAxis, PHY_ScalarType(heightDataType), flipQuadEdges);
 	m_allocatedCollisionShapes.push_back(shape);
 	return shape;
 }

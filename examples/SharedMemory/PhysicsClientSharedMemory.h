@@ -8,13 +8,15 @@
 
 class PhysicsClientSharedMemory : public PhysicsClient
 {
-	struct PhysicsClientSharedMemoryInternalData* m_data;
+	
 
 protected:
+	struct PhysicsClientSharedMemoryInternalData* m_data;
 	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
 	void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
 	void resetData();
 	void removeCachedBody(int bodyUniqueId);
+	void clearCachedBodies();
 	virtual void renderSceneInternal(){};
 
 public:
@@ -75,6 +77,8 @@ public:
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
 
 	virtual void getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo);
+
+	virtual void getCachedMeshData(struct b3MeshData* meshData);
 
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
 

@@ -164,7 +164,7 @@ int b3SoundEngine::loadWavFile(const char* fileName)
 	}
 	char resourcePath[1024];
 
-	if (b3ResourcePath::findResourcePath(fileName, resourcePath, 1024))
+	if (b3ResourcePath::findResourcePath(fileName, resourcePath, 1024, 0))
 	{
 		b3ReadWavFile* wavFile = new b3ReadWavFile();
 		wavFile->getWavInfo(resourcePath);

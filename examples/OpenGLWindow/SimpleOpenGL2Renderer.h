@@ -26,7 +26,8 @@ public:
 
 	virtual void setLightPosition(const float lightPos[3]);
 	virtual void setLightPosition(const double lightPos[3]);
-
+	virtual void setShadowMapResolution(int shadowMapResolution) {}
+	virtual void setShadowMapWorldSize(float worldSize) {}
 	virtual void resize(int width, int height);
 
 	virtual void removeAllInstances();
@@ -39,7 +40,7 @@ public:
 	virtual void writeSingleInstanceScaleToCPU(const double* scale, int srcIndex);
 	virtual void writeSingleInstanceSpecularColorToCPU(const double* specular, int srcIndex) {}
 	virtual void writeSingleInstanceSpecularColorToCPU(const float* specular, int srcIndex) {}
-
+	virtual void writeSingleInstanceFlagsToCPU(int flags, int srcIndex) {}
 	virtual void getCameraViewMatrix(float viewMat[16]) const;
 	virtual void getCameraProjectionMatrix(float projMat[16]) const;
 	virtual void drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float color[4], int textureIndex = -1, int vertexLayout = 0)

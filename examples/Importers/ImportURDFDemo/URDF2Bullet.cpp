@@ -21,12 +21,12 @@
 //static int bodyCollisionFilterMask=btBroadphaseProxy::AllFilter&(~btBroadphaseProxy::CharacterFilter);
 static bool enableConstraints = true;
 
-static btVector4 colors[4] =
-	{
-		btVector4(1, 0, 0, 1),
-		btVector4(0, 1, 0, 1),
-		btVector4(0, 1, 1, 1),
-		btVector4(1, 1, 0, 1),
+static btVector4 gGoogleyColors[4] =
+{
+		btVector4(60. / 256., 186. / 256., 84. / 256., 1),
+		btVector4(244. / 256., 194. / 256., 13. / 256., 1),
+		btVector4(219. / 256., 50. / 256., 54. / 256., 1),
+		btVector4(72. / 256., 133. / 256., 237. / 256., 1),
 };
 
 static btVector4 selectColor2()
@@ -36,7 +36,7 @@ static btVector4 selectColor2()
 	sMutex.lock();
 #endif
 	static int curColor = 0;
-	btVector4 color = colors[curColor];
+	btVector4 color = gGoogleyColors[curColor];
 	curColor++;
 	curColor &= 3;
 #ifdef BT_THREADSAFE
@@ -303,7 +303,8 @@ btTransform ConvertURDF2BulletInternal(
 	if (compoundShape)
 	{
 		UrdfMaterialColor matColor;
-		btVector4 color2 = selectColor2();
+		
+		btVector4 color2 = (flags & CUF_GOOGLEY_UNDEFINED_COLORS) ? selectColor2() : btVector4(1, 1, 1, 1);
 		btVector3 specular(0.5, 0.5, 0.5);
 		if (u2b.getLinkColor2(urdfLinkIndex, matColor))
 		{
@@ -612,6 +613,11 @@ btTransform ConvertURDF2BulletInternal(
 					}
 				}
 
+				if (compoundShape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE)
+				{
+					col->setCollisionFlags(col->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+				}
+
 				btTransform tr;
 				tr.setIdentity();
 				tr = linkTransformInWorldSpace;
@@ -637,7 +643,7 @@ btTransform ConvertURDF2BulletInternal(
 				}
 				world1->addCollisionObject(col, collisionFilterGroup, collisionFilterMask);
 
-				btVector4 color2 = selectColor2();  //(0.0,0.0,0.5);
+				btVector4 color2 = (flags & CUF_GOOGLEY_UNDEFINED_COLORS) ? selectColor2() : btVector4(1, 1, 1, 1);
 				btVector3 specularColor(1, 1, 1);
 				UrdfMaterialColor matCol;
 				if (u2b.getLinkColor2(urdfLinkIndex, matCol))
@@ -660,6 +666,27 @@ btTransform ConvertURDF2BulletInternal(
 
 				if (mbLinkIndex >= 0)  //???? double-check +/- 1
 				{
+					//if the base is static and all joints in the chain between this link and the base are fixed, 
+					//then this link is static too (doesn't merge islands)
+					if (cache.m_bulletMultiBody->getBaseMass() == 0)
+					{
+						bool allJointsFixed = true;
+						int testLinkIndex = mbLinkIndex;
+						do
+						{
+							if (cache.m_bulletMultiBody->getLink(testLinkIndex).m_jointType != btMultibodyLink::eFixed)
+							{
+								allJointsFixed = false;
+								break;
+							}
+							testLinkIndex = cache.m_bulletMultiBody->getLink(testLinkIndex).m_parent;
+						} while (testLinkIndex> 0);
+						if (allJointsFixed)
+						{
+							col->setCollisionFlags(col->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
+						}
+
+					}
 					cache.m_bulletMultiBody->getLink(mbLinkIndex).m_collider = col;
 					if (flags & CUF_USE_SELF_COLLISION_INCLUDE_PARENT)
 					{
@@ -678,7 +705,7 @@ btTransform ConvertURDF2BulletInternal(
 						//&& cache.m_bulletMultiBody->getNumDofs()==0)
 						{
 							//col->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
-							col->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+							col->setCollisionFlags(col->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
 						}
 					}
 

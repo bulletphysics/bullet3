@@ -2,6 +2,7 @@
 #include "b3SoundSource.h"
 #include "Bullet3Common/b3Logging.h"
 #include "b3WriteWavFile.h"
+#include <math.h>
 
 template <class T>
 inline const T& MyMin(const T& a, const T& b)

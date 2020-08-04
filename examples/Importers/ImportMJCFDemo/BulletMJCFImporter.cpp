@@ -724,7 +724,14 @@ struct BulletMJCFImporterInternalData
 		}
 
 		{
-			geom.m_localMaterial.m_matColor.m_rgbaColor = sGoogleColors[linkIndex & 3];
+			if (m_flags & CUF_GOOGLEY_UNDEFINED_COLORS)
+			{
+				geom.m_localMaterial.m_matColor.m_rgbaColor = sGoogleColors[linkIndex & 3];
+			}
+			else
+			{
+				geom.m_localMaterial.m_matColor.m_rgbaColor.setValue(1, 1, 1, 1);
+			}
 			geom.m_localMaterial.m_matColor.m_specularColor.setValue(1, 1, 1);
 			geom.m_hasLocalMaterial = true;
 		}
@@ -796,7 +803,7 @@ struct BulletMJCFImporterInternalData
 					bool lastThree = false;
 					parseVector3(size, sizeStr, logger, lastThree);
 				}
-				geom.m_boxSize = size;
+				geom.m_boxSize = 2*size;
 				handledGeomType = true;
 			}
 			if (geomType == "box")
@@ -809,7 +816,7 @@ struct BulletMJCFImporterInternalData
 					parseVector3(size, sizeStr, logger, lastThree);
 				}
 				geom.m_type = URDF_GEOM_BOX;
-				geom.m_boxSize = size;
+				geom.m_boxSize = 2*size;
 				handledGeomType = true;
 			}
 
@@ -1012,7 +1019,7 @@ struct BulletMJCFImporterInternalData
 				}
 				case URDF_GEOM_BOX:
 				{
-					totalVolume += 8. * col->m_geometry.m_boxSize[0] *
+					totalVolume += col->m_geometry.m_boxSize[0] *
 								   col->m_geometry.m_boxSize[1] *
 								   col->m_geometry.m_boxSize[2];
 					break;
@@ -1597,7 +1604,8 @@ bool BulletMJCFImporter::getLinkColor2(int linkIndex, struct UrdfMaterialColor& 
 
 	if (!hasLinkColor)
 	{
-		matCol.m_rgbaColor = sGoogleColors[linkIndex & 3];
+		
+		matCol.m_rgbaColor = (m_data->m_flags & CUF_GOOGLEY_UNDEFINED_COLORS) ? sGoogleColors[linkIndex & 3] : btVector4(1,1,1,1);
 		matCol.m_specularColor.setValue(1, 1, 1);
 		hasLinkColor = true;
 	}
@@ -1890,7 +1898,7 @@ void BulletMJCFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 
 		case URDF_GEOM_BOX:
 		{
-			btVector3 extents = visual->m_geometry.m_boxSize;
+			btVector3 extents = 0.5*visual->m_geometry.m_boxSize;
 			btBoxShape* boxShape = new btBoxShape(extents * 0.5f);
 			//btConvexShape* boxShape = new btConeShapeX(extents[2]*0.5,extents[0]*0.5);
 			convexColShape = boxShape;
@@ -2265,7 +2273,7 @@ int BulletMJCFImporter::getBodyUniqueId() const
 	return m_data->m_activeBodyUniqueId;
 }
 
-static btCollisionShape* MjcfCreateConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale, btScalar collisionMargin)
+static btCollisionShape* MjcfCreateConvexHullFromShapes(const tinyobj::attrib_t& attribute, std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale, btScalar collisionMargin)
 {
 	btCompoundShape* compound = new btCompoundShape();
 	compound->setMargin(collisionMargin);
@@ -2278,25 +2286,26 @@ static btCollisionShape* MjcfCreateConvexHullFromShapes(std::vector<tinyobj::sha
 		btConvexHullShape* convexHull = new btConvexHullShape();
 		convexHull->setMargin(collisionMargin);
 		tinyobj::shape_t& shape = shapes[s];
+
 		int faceCount = shape.mesh.indices.size();
 
 		for (int f = 0; f < faceCount; f += 3)
 		{
 			btVector3 pt;
-			pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
-						shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
-						shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
+			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f].vertex_index + 0],
+						attribute.vertices[3 * shape.mesh.indices[f].vertex_index + 1],
+						attribute.vertices[3 * shape.mesh.indices[f].vertex_index + 2]);
 
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
-						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
-						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
+			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 0],
+						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 1],
+						attribute.vertices[3 * shape.mesh.indices[f + 1].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 
-			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
-						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
-						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
+			pt.setValue(attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 0],
+						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 1],
+						attribute.vertices[3 * shape.mesh.indices[f + 2].vertex_index + 2]);
 			convexHull->addPoint(pt * geomScale, false);
 		}
 
@@ -2335,7 +2344,7 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 				}
 				case URDF_GEOM_BOX:
 				{
-					childShape = new btBoxShape(col->m_geometry.m_boxSize);
+					childShape = new btBoxShape(0.5*col->m_geometry.m_boxSize);
 					break;
 				}
 				case URDF_GEOM_CYLINDER:
@@ -2391,10 +2400,11 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 							else
 							{
 								std::vector<tinyobj::shape_t> shapes;
-								std::string err = tinyobj::LoadObj(shapes, col->m_geometry.m_meshFileName.c_str(),"",m_data->m_fileIO);
+								tinyobj::attrib_t attribute;
+								std::string err = tinyobj::LoadObj(attribute, shapes, col->m_geometry.m_meshFileName.c_str(), "", m_data->m_fileIO);
 								//create a convex hull for each shape, and store it in a btCompoundShape
 
-								childShape = MjcfCreateConvexHullFromShapes(shapes, col->m_geometry.m_meshScale, m_data->m_globalDefaults.m_defaultCollisionMargin);
+								childShape = MjcfCreateConvexHullFromShapes(attribute, shapes, col->m_geometry.m_meshScale, m_data->m_globalDefaults.m_defaultCollisionMargin);
 							}
 							break;
 						}
@@ -2521,6 +2531,9 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 				case URDF_GEOM_UNKNOWN:
 				{
 					break;
+				}
+				default:
+				{
 				}
 
 			}  // switch geom

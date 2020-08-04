@@ -1,6 +1,9 @@
 import pybullet as p
 import time
+import pybullet_data
+
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 planeUidA = p.loadURDF("plane_transparent.urdf", [0, 0, 0])
 planeUid = p.loadURDF("plane_transparent.urdf", [0, 0, -1])
 
@@ -34,7 +37,7 @@ for i in range(100000):
   start = time.time()
   p.getCameraImage(300, 300, renderer=p.ER_BULLET_HARDWARE_OPENGL)
   end = time.time()
-  print("rendering duraction")
+  print("rendering duration")
   print(end - start)
 p.stopStateLogging(logId)
 #p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)

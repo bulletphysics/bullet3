@@ -62,8 +62,15 @@ class PDControllerStableMultiDof(object):
     qIndex = 7
     qdotIndex = 7
     zeroAccelerations = [0, 0, 0, 0, 0, 0, 0]
+    useArray = True
+    if useArray:
+      jointStates = self._pb.getJointStatesMultiDof(bodyUniqueId,jointIndices)
+    
     for i in range(numJoints):
-      js = self._pb.getJointStateMultiDof(bodyUniqueId, jointIndices[i])
+      if useArray:
+        js = jointStates[i]
+      else:
+        js = self._pb.getJointStateMultiDof(bodyUniqueId, jointIndices[i])
 
       jointPos = js[0]
       jointVel = js[1]
@@ -153,8 +160,6 @@ class PDControllerStableMultiDof(object):
     if useNumpySolver:
       qddot = np.linalg.solve(A, b)
     else:
-      dofCount = len(b)
-      print(dofCount)
       qddot = self._pb.ldltSolve(bodyUniqueId, jointPositions=q1, b=b.tolist(), kd=kds, t=timeStep)
 
     tau = p + d - Kd.dot(qddot) * timeStep
@@ -227,6 +232,6 @@ class PDControllerStable(object):
     qddot = np.linalg.solve(A, b)
     tau = p + d - Kd.dot(qddot) * timeStep
     maxF = np.array(maxForces)
-    forces = np.clip(tau, -maxF, maxF)
+    tau = np.clip(tau, -maxF, maxF)
     #print("c=",c)
     return tau

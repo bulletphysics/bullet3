@@ -1,5 +1,9 @@
 import pybullet as p
+import pybullet_data
+
 p.connect(p.SHARED_MEMORY)
+
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 objects = [
     p.loadURDF("plane.urdf", 0.000000, 0.000000, -.300000, 0.000000, 0.000000, 0.000000, 1.000000)
 ]

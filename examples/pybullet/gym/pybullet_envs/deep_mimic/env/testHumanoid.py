@@ -47,7 +47,7 @@ def isKeyTriggered(keys, key):
 
 animating = False
 singleStep = False
-
+humanoid.resetPose()
 t = 0
 while (1):
 
@@ -66,7 +66,7 @@ while (1):
     #print("t=",t)
     for i in range(1):
 
-      print("t=", t)
+      #print("t=", t)
       humanoid.setSimTime(t)
 
       humanoid.computePose(humanoid._frameFraction)
@@ -75,9 +75,11 @@ while (1):
       #humanoid.resetPose()
 
       desiredPose = humanoid.computePose(humanoid._frameFraction)
+      
       #desiredPose = desiredPose.GetPose()
       #curPose = HumanoidPoseInterpolator()
       #curPose.reset()
+      
       s = humanoid.getState()
       #np.savetxt("pb_record_state_s.csv", s, delimiter=",")
       maxForces = [
@@ -85,10 +87,14 @@ while (1):
           90, 90, 100, 100, 100, 100, 60, 200, 200, 200, 200, 150, 90, 90, 90, 90, 100, 100, 100,
           100, 60
       ]
-      taus = humanoid.computePDForces(desiredPose, desiredVelocities=None, maxForces=maxForces)
-
-      #print("taus=",taus)
-      humanoid.applyPDForces(taus)
+      
+      usePythonStablePD = False
+      if usePythonStablePD:
+        taus = humanoid.computePDForces(desiredPose, desiredVelocities=None, maxForces=maxForces)
+        #Print("taus=",taus)
+        humanoid.applyPDForces(taus)
+      else:
+        humanoid.computeAndApplyPDForces(desiredPose,maxForces=maxForces)
 
       pybullet_client.stepSimulation()
       t += 1. / 600.

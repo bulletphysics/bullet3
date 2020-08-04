@@ -9,24 +9,72 @@ struct ZipFileIO : public CommonFileIOInterface
 
 	unzFile	m_fileHandles[B3_ZIP_FILEIO_MAX_FILES ];
 	int m_numFileHandles;
-
+	unzFile m_zipfile;
+	voidpf m_stream;
+	unz_global_info m_global_info;
+	bool m_memoryFile;
+	b3AlignedObjectArray<char> m_buffer;
+	
 	ZipFileIO(int fileIOType, const char* zipfileName, CommonFileIOInterface* wrapperFileIO)
 		:CommonFileIOInterface(fileIOType,0),
 		m_zipfileName(zipfileName),
-		m_numFileHandles(0)
+		m_numFileHandles(0),
+		m_stream(0),
+		m_memoryFile(false)
 	{
 		m_pathPrefix = m_zipfileName.c_str();
 		for (int i=0;i<B3_ZIP_FILEIO_MAX_FILES ;i++)
 		{
 			m_fileHandles[i]=0;
 		}
+		m_zipfile = unzOpen(m_zipfileName.c_str());
+
+		if (m_zipfile == 0)
+		{
+			int fileIO = wrapperFileIO->fileOpen(m_zipfileName.c_str(), "rb");
+			if (fileIO >= 0)
+			{
+				int stream_size = wrapperFileIO->getFileSize(fileIO);
+				m_buffer.resize(stream_size);
+				int read_bytes = wrapperFileIO->fileRead(fileIO, &m_buffer[0], stream_size);
+				b3Assert(read_bytes == stream_size);
+				if (read_bytes != stream_size)
+				{
+					printf("Error: mismatch reading file %s, expected %d bytes, read %d\n", m_zipfileName.c_str(), stream_size, read_bytes);
+				}
+				zlib_filefunc_def api;  // callbacks for in-mem file
+				
+				m_stream = mem_simple_create_file(&api, &m_buffer[0], stream_size);
+
+				m_zipfile = unzAttach(m_stream, &api);
+				m_memoryFile = true;
+				wrapperFileIO->fileClose(fileIO);
+			}
+		}
 	}
 
+	
 		
 	static bool FileIOPluginFindFile(void* userPtr, const char* orgFileName, char* relativeFileName, int maxRelativeFileNameMaxLen)
 	{
 		ZipFileIO* fileIo = (ZipFileIO*) userPtr;
 		return fileIo->findFile(orgFileName, relativeFileName, maxRelativeFileNameMaxLen);
+	}
+
+	void closeZipFile()
+	{
+		if (m_zipfile)
+		{
+			if (m_memoryFile)
+			{
+				unzDetach(&m_zipfile);
+			}
+			else
+			{
+				unzClose(m_zipfile);
+			}
+		}
+		m_zipfile = 0;
 	}
 
 	virtual ~ZipFileIO()
@@ -35,8 +83,14 @@ struct ZipFileIO : public CommonFileIOInterface
 		{
 			fileClose(i);
 		}
+		closeZipFile();
+		if (m_stream)
+		{
+			mem_simple_destroy_file(m_stream);
+		}
 	}
 
+	
 	virtual int fileOpen(const char* fileName, const char* mode)
 	{
 		
@@ -52,10 +106,8 @@ struct ZipFileIO : public CommonFileIOInterface
 		}
 		if (slot>=0)
 		{
-			unzFile zipfile;
-			unz_global_info m_global_info;
-			zipfile = unzOpen(m_zipfileName.c_str());
-			if (zipfile == NULL)
+			
+			if (m_zipfile == NULL)
 			{
 				printf("%s: not found\n", m_zipfileName.c_str());
 				slot = -1;
@@ -63,48 +115,41 @@ struct ZipFileIO : public CommonFileIOInterface
 			{
 				
 				int result = 0;
-				result = unzGetGlobalInfo(zipfile, &m_global_info );
+				result = unzGetGlobalInfo(m_zipfile, &m_global_info );
 				if (result != UNZ_OK)
 				{
 					printf("could not read file global info from %s\n", m_zipfileName.c_str());
-					unzClose(zipfile);
-					zipfile = 0;
 					slot = -1;
 				}
 			}
 			if (slot >=0)
 			{
-				int result = unzLocateFile(zipfile, fileName, 0);
+				int result = unzLocateFile(m_zipfile, fileName, 0);
 				if (result == UNZ_OK)
 				{
 					unz_file_info info;
-					result = unzGetCurrentFileInfo(zipfile, &info, NULL, 0, NULL, 0, NULL, 0);
+					result = unzGetCurrentFileInfo(m_zipfile, &info, NULL, 0, NULL, 0, NULL, 0);
 					if (result != UNZ_OK)
 					{
 						printf("unzGetCurrentFileInfo() != UNZ_OK (%d)\n", result);
 						slot=-1;
-						unzClose(zipfile);
-						zipfile = 0;
 					}
 					else
 					{
-						result = unzOpenCurrentFile(zipfile);
+						result = unzOpenCurrentFile(m_zipfile);
 						if (result == UNZ_OK)
 						{
 							printf("zipFile::fileOpen %s in mode %s in fileHandle %d\n", fileName, mode, slot);
-							m_fileHandles[slot] = zipfile;
+							m_fileHandles[slot] = m_zipfile;
 						} else
 						{
 							slot=-1;
-							unzClose(zipfile);
-							zipfile = 0;
 						}
 					}
 				} else
 				{
 					slot=-1;
-					unzClose(zipfile);
-					zipfile = 0;
+					
 				}
 			}
 		}
@@ -147,7 +192,6 @@ struct ZipFileIO : public CommonFileIOInterface
 			if (f)
 			{
 				printf("zipFile::fileClose slot %d\n", fileHandle);
-				unzClose(f);
 				m_fileHandles[fileHandle]=0;
 			}
 		}

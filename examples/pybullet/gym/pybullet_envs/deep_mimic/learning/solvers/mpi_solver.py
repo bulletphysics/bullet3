@@ -1,5 +1,9 @@
 from mpi4py import MPI
-import tensorflow as tf
+try:
+  import tensorflow.compat.v1 as tf
+except Exception:
+  import tensorflow as tf
+  
 import numpy as np
 import pybullet_envs.deep_mimic.learning.tf_util as TFUtil
 import pybullet_utils.math_util as MathUtil

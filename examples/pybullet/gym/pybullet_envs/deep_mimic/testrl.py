@@ -1,3 +1,4 @@
+import time
 import os
 import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -17,15 +18,26 @@ import random
 
 update_timestep = 1. / 240.
 animating = True
-
+step = False
+total_reward = 0
+steps = 0
 
 def update_world(world, time_elapsed):
   timeStep = update_timestep
   world.update(timeStep)
   reward = world.env.calc_reward(agent_id=0)
+  global total_reward
+  total_reward += reward
+  global steps
+  steps+=1
+  
   #print("reward=",reward)
+  #print("steps=",steps)
   end_episode = world.env.is_episode_end()
-  if (end_episode):
+  if (end_episode or steps>= 1000):
+    print("total_reward=",total_reward)
+    total_reward=0
+    steps = 0
     world.end_episode()
     world.reset()
   return
@@ -36,6 +48,8 @@ def build_arg_parser(args):
   arg_parser.load_args(args)
 
   arg_file = arg_parser.parse_string('arg_file', '')
+  if arg_file == '':
+    arg_file = "run_humanoid3d_backflip_args.txt"
   if (arg_file != ''):
     path = pybullet_data.getDataPath() + "/args/" + arg_file
     succ = arg_parser.load_file(path)
@@ -82,11 +96,15 @@ if __name__ == '__main__':
 
   world = build_world(args, True)
   while (world.env._pybullet_client.isConnected()):
+
     timeStep = update_timestep
+    time.sleep(timeStep)
     keys = world.env.getKeyboardEvents()
 
     if world.env.isKeyTriggered(keys, ' '):
       animating = not animating
-    if (animating):
+    if world.env.isKeyTriggered(keys, 'i'):
+      step = True
+    if (animating or step):
       update_world(world, timeStep)
-      #animating=False
+      step = False

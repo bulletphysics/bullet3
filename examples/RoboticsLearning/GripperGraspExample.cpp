@@ -313,6 +313,102 @@ public:
 
 					for (int i = 0; i < 8; i++)
 					{
+					b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+					controlArgs.m_maxTorqueValue = 0.0;
+					m_robotSim.setJointMotorControl(m_gripperIndex, i, controlArgs);
+					}
+				}
+			}
+			{
+				b3RobotSimulatorLoadUrdfFileArgs args;
+				args.m_startPosition.setValue(0, 0, -0.2);
+				args.m_startOrientation.setEulerZYX(0, 0, 0);
+				m_robotSim.loadURDF("plane.urdf", args);
+				}
+				m_robotSim.setGravity(btVector3(0, 0, -10));
+				b3RobotSimulatorLoadSoftBodyArgs args(0.1, 1, 0.02);
+				args.m_startPosition.setValue(0, 0, 5);
+				args.m_startOrientation.setValue(1, 0, 0, 1);
+				m_robotSim.loadSoftBody("bunny.obj", args);
+
+				b3JointInfo revoluteJoint1;
+				revoluteJoint1.m_parentFrame[0] = -0.055;
+				revoluteJoint1.m_parentFrame[1] = 0;
+				revoluteJoint1.m_parentFrame[2] = 0.02;
+				revoluteJoint1.m_parentFrame[3] = 0;
+				revoluteJoint1.m_parentFrame[4] = 0;
+				revoluteJoint1.m_parentFrame[5] = 0;
+				revoluteJoint1.m_parentFrame[6] = 1.0;
+				revoluteJoint1.m_childFrame[0] = 0;
+				revoluteJoint1.m_childFrame[1] = 0;
+				revoluteJoint1.m_childFrame[2] = 0;
+				revoluteJoint1.m_childFrame[3] = 0;
+				revoluteJoint1.m_childFrame[4] = 0;
+				revoluteJoint1.m_childFrame[5] = 0;
+				revoluteJoint1.m_childFrame[6] = 1.0;
+				revoluteJoint1.m_jointAxis[0] = 1.0;
+				revoluteJoint1.m_jointAxis[1] = 0.0;
+				revoluteJoint1.m_jointAxis[2] = 0.0;
+				revoluteJoint1.m_jointType = ePoint2PointType;
+				b3JointInfo revoluteJoint2;
+				revoluteJoint2.m_parentFrame[0] = 0.055;
+				revoluteJoint2.m_parentFrame[1] = 0;
+				revoluteJoint2.m_parentFrame[2] = 0.02;
+				revoluteJoint2.m_parentFrame[3] = 0;
+				revoluteJoint2.m_parentFrame[4] = 0;
+				revoluteJoint2.m_parentFrame[5] = 0;
+				revoluteJoint2.m_parentFrame[6] = 1.0;
+				revoluteJoint2.m_childFrame[0] = 0;
+				revoluteJoint2.m_childFrame[1] = 0;
+				revoluteJoint2.m_childFrame[2] = 0;
+				revoluteJoint2.m_childFrame[3] = 0;
+				revoluteJoint2.m_childFrame[4] = 0;
+				revoluteJoint2.m_childFrame[5] = 0;
+				revoluteJoint2.m_childFrame[6] = 1.0;
+				revoluteJoint2.m_jointAxis[0] = 1.0;
+				revoluteJoint2.m_jointAxis[1] = 0.0;
+				revoluteJoint2.m_jointAxis[2] = 0.0;
+				revoluteJoint2.m_jointType = ePoint2PointType;
+				m_robotSim.createConstraint(0, 2, 0, 4, &revoluteJoint1);
+				m_robotSim.createConstraint(0, 3, 0, 6, &revoluteJoint2);
+			}
+
+			if ((m_options & eGRASP_DEFORMABLE_CLOTH) != 0)
+			{
+				m_robotSim.resetSimulation(RESET_USE_DEFORMABLE_WORLD);
+			{
+				SliderParams slider("Vertical velocity", &sGripperVerticalVelocity);
+				slider.m_minVal = -2;
+				slider.m_maxVal = 2;
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+			}
+
+			{
+				SliderParams slider("Closing velocity", &sGripperClosingTargetVelocity);
+				slider.m_minVal = -1;
+				slider.m_maxVal = 1;
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+			}
+
+			{
+				b3RobotSimulatorLoadFileResults results;
+				m_robotSim.loadSDF("gripper/wsg50_one_motor_gripper_new.sdf", results);
+
+				if (results.m_uniqueObjectIds.size() == 1)
+				{
+					m_gripperIndex = results.m_uniqueObjectIds[0];
+					int numJoints = m_robotSim.getNumJoints(m_gripperIndex);
+					b3Printf("numJoints = %d", numJoints);
+
+					for (int i = 0; i < numJoints; i++)
+					{
+						b3JointInfo jointInfo;
+						m_robotSim.getJointInfo(m_gripperIndex, i, &jointInfo);
+						b3Printf("joint[%d].m_jointName=%s", i, jointInfo.m_jointName);
+					}
+
+					for (int i = 0; i < 8; i++)
+					{
 						b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
 						controlArgs.m_maxTorqueValue = 0.0;
 						m_robotSim.setJointMotorControl(m_gripperIndex, i, controlArgs);
@@ -326,10 +422,19 @@ public:
 				m_robotSim.loadURDF("plane.urdf", args);
 			}
 			m_robotSim.setGravity(btVector3(0, 0, -10));
-			b3RobotSimulatorLoadSoftBodyArgs args(0.1, 1, 0.02);
-			args.m_startPosition.setValue(0, 0, 5);
-			args.m_startOrientation.setValue(1, 0, 0, 1);
-			m_robotSim.loadSoftBody("bunny.obj", args);
+
+			m_robotSim.setGravity(btVector3(0, 0, -10));
+			b3RobotSimulatorLoadDeformableBodyArgs args(2, .01, 0.006);
+			args.m_springElasticStiffness = 1;
+			args.m_springDampingStiffness = .01;
+			args.m_springBendingStiffness = .1;
+			args.m_frictionCoeff = 10;
+			args.m_useSelfCollision = false;
+			args.m_useFaceContact = true;
+			args.m_useBendingSprings = true;
+			args.m_startPosition.setValue(0, 0, 0);
+			args.m_startOrientation.setValue(0, 0, 1, 1);
+			m_robotSim.loadDeformableBody("flat_napkin.obj", args);
 
 			b3JointInfo revoluteJoint1;
 			revoluteJoint1.m_parentFrame[0] = -0.055;
@@ -371,7 +476,8 @@ public:
 			revoluteJoint2.m_jointType = ePoint2PointType;
 			m_robotSim.createConstraint(0, 2, 0, 4, &revoluteJoint1);
 			m_robotSim.createConstraint(0, 3, 0, 6, &revoluteJoint2);
-		}
+			m_robotSim.setNumSimulationSubSteps(2);
+        }
 
 		if ((m_options & eSOFTBODY_MULTIBODY_COUPLING) != 0)
 		{
@@ -453,6 +559,21 @@ public:
 			int fingerJointIndices[2] = {0, 1};
 			double fingerTargetVelocities[2] = {sGripperVerticalVelocity, sGripperClosingTargetVelocity};
 			double maxTorqueValues[2] = {50.0, 10.0};
+			for (int i = 0; i < 2; i++)
+			{
+				b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+				controlArgs.m_targetVelocity = fingerTargetVelocities[i];
+				controlArgs.m_maxTorqueValue = maxTorqueValues[i];
+				controlArgs.m_kd = 1.;
+				m_robotSim.setJointMotorControl(m_gripperIndex, fingerJointIndices[i], controlArgs);
+			}
+		}
+        
+		if ((m_options & eGRASP_DEFORMABLE_CLOTH) != 0)
+		{
+			int fingerJointIndices[2] = {0, 1};
+			double fingerTargetVelocities[2] = {sGripperVerticalVelocity, sGripperClosingTargetVelocity};
+			double maxTorqueValues[2] = {250.0, 50.0};
 			for (int i = 0; i < 2; i++)
 			{
 				b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);

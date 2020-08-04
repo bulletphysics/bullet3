@@ -2,8 +2,10 @@ import pybullet as p
 import time
 
 useMaximalCoordinates = 0
+import pybullet_data
 
 p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 #p.loadSDF("stadium.sdf",useMaximalCoordinates=useMaximalCoordinates)
 monastryId = concaveEnv = p.createCollisionShape(p.GEOM_MESH,
                                                  fileName="samurai_monastry.obj",

@@ -122,7 +122,7 @@ class MinitaurExtendedEnv(MinitaurReactiveEnv):
     leg_model = []
     if self._include_leg_model:
       raw_motor_angles = self.minitaur.GetMotorAngles()
-      leg_model = self._convert_to_leg_model(raw_motor_angles)
+      leg_model = self.convert_to_leg_model(raw_motor_angles)
 
     observation_list = (
         [parent_observation] + history_states + history_actions +
@@ -185,7 +185,7 @@ class MinitaurExtendedEnv(MinitaurReactiveEnv):
     if self._never_terminate:
       return False
 
-    leg_model = self._convert_to_leg_model(self.minitaur.GetMotorAngles())
+    leg_model = self.convert_to_leg_model(self.minitaur.GetMotorAngles())
     swing0 = leg_model[0]
     swing1 = leg_model[2]
     maximum_swing_angle = 0.8
