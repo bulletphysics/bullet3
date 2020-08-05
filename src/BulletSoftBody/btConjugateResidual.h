@@ -30,7 +30,7 @@ class btConjugateResidual : public btKrylovSolver<MatrixX>
 
 public:
 	btConjugateResidual(const int max_it_in)
-		: Base(max_it_in, 1e-4)
+		: Base(max_it_in, 1e-8)
 	{
 	}
 
@@ -39,6 +39,7 @@ public:
 	// return the number of iterations taken
 	int solve(MatrixX& A, TVStack& x, const TVStack& b, bool verbose = false)
 	{
+        verbose = true;
 		BT_PROFILE("CRSolve");
 		btAssert(x.size() == b.size());
 		reinitialize(b);

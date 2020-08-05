@@ -452,7 +452,8 @@ void btDeformableContactProjection::checkConstraints(const TVStack& x)
 				d[j] += lm.m_weights[k] * x[lm.m_indices[k]].dot(lm.m_dirs[j]);
 			}
 		}
-		printf("d = %f, %f, %f\n", d[0], d[1], d[2]);
+//		printf("d = %f, %f, %f\n", d[0], d[1], d[2]);
+//        printf("val = %f, %f, %f\n", lm.m_vals[0], lm.m_vals[1], lm.m_vals[2]);
 	}
 }
 
@@ -525,11 +526,22 @@ void btDeformableContactProjection::setLagrangeMultiplier()
 			{
 				continue;
 			}
-			const btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
+            btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
 
 			btVector3 bary = m_faceRigidConstraints[i][j].getContact()->m_bary;
 			LagrangeMultiplier lm;
 			lm.m_num_nodes = 3;
+            lm.m_vals[0] = lm.m_vals[1] = lm.m_vals[2] = 0;
+            
+            btVector3 face_vel = btVector3(0,0,0);
+            btVector3 backup_face_vel = btVector3(0,0,0);
+            for(int kk = 0; kk<3; kk++){
+                face_vel += (face->m_n[kk]->m_v + face->m_n[kk]->m_splitv)* bary[kk];
+                backup_face_vel += m_backupVelocity[face->m_n[kk]->index] * bary[kk];
+            }
+            
+            btVector3 dvel = face_vel - backup_face_vel;
+            
 			for (int k = 0; k < 3; ++k)
 			{
 				face->m_n[k]->m_constrained = true;
@@ -538,15 +550,21 @@ void btDeformableContactProjection::setLagrangeMultiplier()
 			}
 			if (m_faceRigidConstraints[i][j].m_static)
 			{
+                face->m_pcontact[3] = 1;
 				lm.m_num_constraints = 3;
 				lm.m_dirs[0] = btVector3(1, 0, 0);
 				lm.m_dirs[1] = btVector3(0, 1, 0);
 				lm.m_dirs[2] = btVector3(0, 0, 1);
+                lm.m_vals[0] = dvel[0];
+                lm.m_vals[1] = dvel[1];
+                lm.m_vals[2] = dvel[2];
 			}
 			else
 			{
+                face->m_pcontact[3] = 0;
 				lm.m_num_constraints = 1;
 				lm.m_dirs[0] = m_faceRigidConstraints[i][j].m_normal;
+                lm.m_vals[0] = dvel.dot(m_faceRigidConstraints[i][j].m_normal);
 			}
 			m_lagrangeMultipliers.push_back(lm);
 		}

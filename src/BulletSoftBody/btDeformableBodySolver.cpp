@@ -32,6 +32,17 @@ btDeformableBodySolver::~btDeformableBodySolver()
 
 void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
 {
+//    std::cout <<"before solve deformable constraints "<<std::endl;
+    btSoftBody* psb = m_softBodies[0];
+    for(int i = 0; i<psb->m_faces.size(); i++){
+//        std::cout<<"face "<<i<<": ";
+        const btSoftBody::Face& face =psb->m_faces[i];
+        btVector3 vel = btVector3(0,0,0);
+        for(int j = 0; j<3; j++){
+            vel+= face.m_n[j]->m_v* face.m_pcontact[j];
+        }
+//        std::cout<<vel[0]<<" "<<vel[1]<<" "<<vel[2]<<std::endl;
+    }
 	BT_PROFILE("solveDeformableConstraints");
 	if (!m_implicit)
 	{
@@ -48,12 +59,25 @@ void btDeformableBodySolver::solveDeformableConstraints(btScalar solverdt)
 			m_objective->addLagrangeMultiplier(m_dv, x);
 			m_objective->m_preconditioner->reinitialize(true);
 			computeStep(x, rhs);
+            m_objective->m_projection.checkConstraints(x);
 			for (int i = 0; i < m_dv.size(); ++i)
 			{
 				m_dv[i] = x[i];
 			}
 		}
 		updateVelocity();
+        
+//        std::cout <<"after solve deformable constraints "<<std::endl;
+        btSoftBody* psb = m_softBodies[0];
+        for(int i = 0; i<psb->m_faces.size(); i++){
+//            std::cout<<"face "<<i<<": ";
+            const btSoftBody::Face& face =psb->m_faces[i];
+            btVector3 vel = btVector3(0,0,0);
+            for(int j = 0; j<3; j++){
+                vel+=face.m_n[j]->m_v* face.m_pcontact[j];
+            }
+//            std::cout<<vel[0]<<" "<<vel[1]<<" "<<vel[2]<<std::endl;
+        }
 	}
 	else
 	{
@@ -283,6 +307,10 @@ void btDeformableBodySolver::updateVelocity()
 			else
 			{
 				psb->m_nodes[j].m_v = m_backupVelocity[counter] + m_dv[counter] - psb->m_nodes[j].m_splitv;
+//                std::cout<<"node "<<j<<", back up vel "<< m_backupVelocity[counter][0] <<" "<< m_backupVelocity[counter][1]<<" "<<m_backupVelocity[counter][2]<<std::endl;
+//                std::cout<<" , dv: "<< m_dv[counter][0]<<" "<< m_dv[counter][1]<<" "<< m_dv[counter][2]<<" "<<std::endl;
+//                std::cout<<", split v: "<<psb->m_nodes[j].m_splitv[0]<<" "<<psb->m_nodes[j].m_splitv[1]<<" "<<psb->m_nodes[j].m_splitv[2]<<" "<<std::endl;
+                
 			}
 			psb->m_maxSpeedSquared = btMax(psb->m_maxSpeedSquared, psb->m_nodes[j].m_v.length2());
 			++counter;
@@ -349,7 +377,7 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
 			{
 				m_dv[counter] = psb->m_nodes[j].m_v + psb->m_nodes[j].m_splitv - m_backupVelocity[counter];
 			}
-			psb->m_nodes[j].m_v = m_backupVelocity[counter];
+//			psb->m_nodes[j].m_v = m_backupVelocity[counter];
 			++counter;
 		}
 	}

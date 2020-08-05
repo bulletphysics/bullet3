@@ -401,6 +401,7 @@ void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
 
 	// At this point, dv should be golden for nodes in contact
 	// proceed to solve deformable momentum equation
+    
 	m_deformableBodySolver->solveDeformableConstraints(timeStep);
 }
 

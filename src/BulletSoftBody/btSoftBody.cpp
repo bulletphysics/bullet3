@@ -2818,46 +2818,10 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 	btTransform wtr = (predict) ? (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform() * (*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
 								: colObjWrap->getWorldTransform();
 	btScalar dst;
+    btGjkEpaSolver2::sResults results;
 
-	//#define USE_QUADRATURE 1
-	//#define CACHE_PREV_COLLISION
-
-	// use the contact position of the previous collision
-#ifdef CACHE_PREV_COLLISION
-	if (f.m_pcontact[3] != 0)
-	{
-		for (int i = 0; i < 3; ++i)
-			bary[i] = f.m_pcontact[i];
-		contact_point = BaryEval(f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
-		dst = m_worldInfo->m_sparsesdf.Evaluate(
-			wtr.invXform(contact_point),
-			shp,
-			nrm,
-			margin);
-		nrm = wtr.getBasis() * nrm;
-		cti.m_colObj = colObjWrap->getCollisionObject();
-		// use cached contact point
-	}
-	else
-	{
-		btGjkEpaSolver2::sResults results;
-		btTransform triangle_transform;
-		triangle_transform.setIdentity();
-		triangle_transform.setOrigin(f.m_n[0]->m_x);
-		btTriangleShape triangle(btVector3(0, 0, 0), f.m_n[1]->m_x - f.m_n[0]->m_x, f.m_n[2]->m_x - f.m_n[0]->m_x);
-		btVector3 guess(0, 0, 0);
-		const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
-		btGjkEpaSolver2::SignedDistance(&triangle, triangle_transform, csh, wtr, guess, results);
-		dst = results.distance - margin;
-		contact_point = results.witnesses[0];
-		getBarycentric(contact_point, f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
-		nrm = results.normal;
-		cti.m_colObj = colObjWrap->getCollisionObject();
-		for (int i = 0; i < 3; ++i)
-			f.m_pcontact[i] = bary[i];
-	}
-	return (dst < 0);
-#endif
+//	#define USE_QUADRATURE 1
+#define CACHE_PREV_COLLISION
 
 	// use collision quadrature point
 #ifdef USE_QUADRATURE
@@ -2895,7 +2859,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 		return (dst < 0);
 	}
 #endif
-	btGjkEpaSolver2::sResults results;
+
 	btTransform triangle_transform;
 	triangle_transform.setIdentity();
 	triangle_transform.setOrigin(f.m_n[0]->m_q);
@@ -2906,13 +2870,65 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 	dst = results.distance - 2.0 * csh->getMargin() - margin;  // margin padding so that the distance = the actual distance between face and rigid - margin of rigid - margin of deformable
 	if (dst >= 0)
 		return false;
+
+    // use the contact position of the previous collision
+    #ifdef CACHE_PREV_COLLISION
+        if (f.m_pcontact[3] != 0)
+        {
+            for (int i = 0; i < 3; ++i)
+                bary[i] = f.m_pcontact[i];
+            contact_point = BaryEval(f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
+            const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
+            btGjkEpaSolver2::SignedDistance(contact_point, margin, csh, wtr,results);
+            cti.m_colObj = colObjWrap->getCollisionObject();
+//            std::cout<<"****** distance1 "<<results.distance<<std::endl;
+//            std::cout<<"normal "<<results.normal[0]<<" "<<results.normal[1]<<" "<<results.normal[2]<<std::endl;
+//            std::cout<<"point is at "<<contact_point[0]<<" "<<contact_point[1]<<" "<<contact_point[2]<<std::endl;
+//            std::cout<<"three vertices: "<<std::endl;
+//            std::cout<<f.m_n[0]->m_x[0]<<" "<<f.m_n[0]->m_x[1]<<" "<<f.m_n[0]->m_x[2]<<" "<<std::endl;
+//            std::cout<<f.m_n[1]->m_x[0]<<" "<<f.m_n[1]->m_x[1]<<" "<<f.m_n[1]->m_x[2]<<" "<<std::endl;
+//            std::cout<<f.m_n[2]->m_x[0]<<" "<<f.m_n[2]->m_x[1]<<" "<<f.m_n[2]->m_x[2]<<" "<<std::endl;
+            dst = results.distance;
+            cti.m_normal = results.normal;
+            cti.m_offset = dst;
+            
+            
+            // use face contact to redo collision detection
+            wtr = colObjWrap->getWorldTransform();
+            btTriangleShape triangle2(btVector3(0, 0, 0), f.m_n[1]->m_x - f.m_n[0]->m_x, f.m_n[2]->m_x - f.m_n[0]->m_x);
+            triangle_transform.setOrigin(f.m_n[0]->m_x);
+            btGjkEpaSolver2::SignedDistance(&triangle2, triangle_transform, csh, wtr, guess, results);
+            
+            dst = results.distance - csh->getMargin() - margin;
+            
+//            std::cout<<"contact point 1 "<<results.witnesses[0][0]<< " "<<results.witnesses[0][1]<< " "<<results.witnesses[0][2]<< " "<<std::endl;
+//            std::cout<<"contact point 2 "<<results.witnesses[1][0]<< " "<<results.witnesses[1][1]<< " "<<results.witnesses[1][2]<< " "<<std::endl;
+//            std::cout<<"result distance  "<<results.distance<<std::endl;
+//            std::cout<< csh->getMargin() <<" "<<margin<<std::endl;
+//            std::cout<<"****** distance 2"<<dst<<std::endl;
+//            std::cout<<"normal "<< results.normal[0]<< " "<<results.normal[1]<< " "<<results.normal[2]<<std::endl;
+            return true;
+        }
+    #endif
+    
+    //
 	wtr = colObjWrap->getWorldTransform();
 	btTriangleShape triangle2(btVector3(0, 0, 0), f.m_n[1]->m_x - f.m_n[0]->m_x, f.m_n[2]->m_x - f.m_n[0]->m_x);
 	triangle_transform.setOrigin(f.m_n[0]->m_x);
 	btGjkEpaSolver2::SignedDistance(&triangle2, triangle_transform, csh, wtr, guess, results);
 	contact_point = results.witnesses[0];
 	getBarycentric(contact_point, f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
+    
+    for (int i = 0; i < 3; ++i)
+       f.m_pcontact[i] = bary[i];
+    
 	dst = results.distance - csh->getMargin() - margin;
+    
+//    std::cout<<"contact point 1 "<<contact_point[0]<< " "<<contact_point[1]<< " "<<contact_point[2]<< " "<<std::endl;
+//    std::cout<<"contact point 2 "<<results.witnesses[1][0]<< " "<<results.witnesses[1][1]<< " "<<results.witnesses[1][2]<< " "<<std::endl;
+//    std::cout<<"result distance  "<<results.distance<<std::endl;
+//    std::cout<< csh->getMargin() <<" "<<margin<<std::endl;
+//    std::cout<<"distance "<<dst<<std::endl;
 	cti.m_colObj = colObjWrap->getCollisionObject();
 	cti.m_normal = results.normal;
 	cti.m_offset = dst;

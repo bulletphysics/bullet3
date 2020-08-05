@@ -35,6 +35,9 @@
 #include "../CommonInterfaces/CommonFileIOInterface.h"
 #include "Bullet3Common/b3FileUtils.h"
 
+#include "../ThirdPartyLibs/Wavefront/tiny_obj_loader.h"
+#include "../src/LinearMath/btScalar.h"
+
 ///The GraspDeformable shows grasping a volumetric deformable objects with multibody gripper with moter constraints.
 static btScalar sGripperVerticalVelocity = 0.f;
 static btScalar sGripperClosingTargetVelocity = 0.f;
@@ -73,7 +76,7 @@ public:
 
 	void resetCamera()
 	{
-        float dist = 0.3;
+        float dist = 0.2;
         float pitch = -45;
         float yaw = 100;
         float targetPos[3] = {0, -0.1, 0};
@@ -256,12 +259,12 @@ void GraspDeformable::initPhysics()
     //create a ground
     {
         btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(10.), btScalar(5.), btScalar(10.)));
-        groundShape->setMargin(0.001);
+        groundShape->setMargin(0.003);
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setOrigin(btVector3(0, -5.1, 0));
+        groundTransform.setOrigin(btVector3(0, -5, 0));
         groundTransform.setRotation(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0));
         //We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
         btScalar mass(0.);
@@ -338,12 +341,12 @@ void GraspDeformable::initPhysics()
     {
         bool onGround = false;
         const btScalar s = .05;
-        const btScalar h = -0.02;
+        const btScalar h = 0.01;
         btSoftBody* psb = btSoftBodyHelpers::CreatePatch(getDeformableDynamicsWorld()->getWorldInfo(), btVector3(-s, h, -s),
                                                          btVector3(+s, h, -s),
                                                          btVector3(-s, h, +s),
                                                          btVector3(+s, h, +s),
-                                                         10,10,
+                                                         2,2,
                                                                   0, true);
 
         if (onGround)
@@ -356,19 +359,109 @@ void GraspDeformable::initPhysics()
                                                  0, true);
 
         psb->getCollisionShape()->setMargin(0.001);
+
+        
         psb->generateBendingConstraints(2);
-        psb->setTotalMass(0.01);
-        psb->setSpringStiffness(10);
-        psb->setDampingCoefficient(0.05);
+        psb->setTotalMass(0.02);
+
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
         psb->m_cfg.kDF = 1;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
+        
         getDeformableDynamicsWorld()->addSoftBody(psb);
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableMassSpringForce(0.05,0.005, true));
-        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity*0.1));
+        
+        btScalar elastic_stiffness = 0.2;
+        btScalar damping_stiffness = 0.01;
+        bool not_damp_all_directions = true;
+        btScalar bending_stiffness = 0.2;
+        psb->setSpringStiffness(elastic_stiffness);
+        btDeformableLagrangianForce* springForce =
+        new btDeformableMassSpringForce(elastic_stiffness,
+                                        damping_stiffness, not_damp_all_directions,bending_stiffness);
+        getDeformableDynamicsWorld()->addForce(psb, springForce);
+        getDeformableDynamicsWorld()->addForce(psb, new btDeformableGravityForce(gravity));
+    }
+    
+    if(0){
+        
+              btSoftBody* psb = NULL;
+              
+              std::vector<tinyobj::shape_t> shapes;
+              tinyobj::attrib_t attribute;
+              char absolute_path[1024];
+              b3BulletDefaultFileIO fileio;
+              fileio.findResourcePath("dang_sticky_rice_chips_full_sim.obj", absolute_path, 1024);
+              std::string err = tinyobj::LoadObj(attribute, shapes, absolute_path, "", &fileio);
+              if (!shapes.empty())
+              {
+                  const tinyobj::shape_t& shape = shapes[0];
+                  btAlignedObjectArray<btScalar> vertices;
+                  btAlignedObjectArray<int> indices;
+                  for (int i = 0; i < attribute.vertices.size(); i++)
+                  {
+                      vertices.push_back(attribute.vertices[i]);
+                  }
+                  for (int i = 0; i < shape.mesh.indices.size(); i++)
+                  {
+                      indices.push_back(shape.mesh.indices[i].vertex_index);
+                  }
+                  int numTris = shape.mesh.indices.size() / 3;
+                  if (numTris > 0)
+                  {
+                      psb = btSoftBodyHelpers::CreateFromTriMesh(   getDeformableDynamicsWorld()->getWorldInfo(), &vertices[0], &indices[0], numTris);
+                      
+                      btAssert(psb!=nullptr);
+                  }
+                  btScalar elastic_stiffness = 0.2;
+                  btScalar damping_stiffness = 0.01;
+                  bool not_damp_all_directions = true;
+                  btScalar bending_stiffness = 0.2;
+                  btDeformableLagrangianForce* springForce =
+                  new btDeformableMassSpringForce(elastic_stiffness,
+                                                  damping_stiffness, not_damp_all_directions,bending_stiffness);
+                  psb->generateBendingConstraints(3);
+                  getDeformableDynamicsWorld()->addForce(psb, springForce);
+                  m_forces.push_back(springForce);
+                  
+                  btVector3 gravity =getDeformableDynamicsWorld()->getGravity();
+                  btDeformableLagrangianForce* gravityForce = new btDeformableGravityForce(gravity *0.2);
+                  getDeformableDynamicsWorld()->addForce(psb, gravityForce);
+                  m_forces.push_back(gravityForce);
+                  
+                  btScalar friction = 1;
+                  psb->m_cfg.kDF = friction;
+                  
+                  // turn on the collision flag for deformable
+                  // collision between deformable and rigid
+                  psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
+                  // turn on face contact for multibodies
+                  psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_MDF;
+                  /// turn on face contact for rigid body
+                  psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDF;
+                  // collion between deformable and deformable and self-collision
+                  psb->m_cfg.collisions |= btSoftBody::fCollision::VF_DD;
+                  psb->setCollisionFlags(0);
+                  
+                  psb->setTotalMass(0.02);
+                  psb->setSelfCollision(false);
+                  btScalar repulsionStiffness = 0.2;
+                  psb->setSpringStiffness(repulsionStiffness);
+                  psb->initializeFaceTree();
+              }
+              //        psb->scale(btVector3(1, 1, 1));
+              psb->rotate(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.5));
+//              psb->translate(tr);
+              
+              psb->getCollisionShape()->setMargin(0.005);
+              psb->getCollisionShape()->setUserPointer(psb);
+              
+              psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
+              psb->m_cfg.kCHR = 1; // collision hardness with rigid body
+              getDeformableDynamicsWorld()->addSoftBody(psb);
+          
     }
     
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
