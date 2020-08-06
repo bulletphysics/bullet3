@@ -4540,7 +4540,7 @@ static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY
 			if (slot >= 0)
 			{
 				char* lineChar;
-				while (lineChar = fileIO.readLine(slot, &lineBuffer[0], MYLINELENGTH))
+				while ((lineChar = fileIO.readLine(slot, &lineBuffer[0], MYLINELENGTH)) != NULL)
 				{
 					rows = 0;
 					std::string line(lineChar);
