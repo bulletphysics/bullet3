@@ -15,7 +15,7 @@ import pybullet_data
 
 pybullet.connect(pybullet.DIRECT)
 
-p.setAdditionalSearchPath(pybullet_data.getDataPath())
+pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 #pybullet.loadPlugin("eglRendererPlugin")
 pybullet.loadURDF("plane.urdf", [0, 0, -1])
