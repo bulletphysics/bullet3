@@ -494,6 +494,9 @@ void btDeformableContactProjection::setLagrangeMultiplier()
 			lm.m_dirs[2] = btVector3(0, 0, 1);
 			m_lagrangeMultipliers.push_back(lm);
 		}
+        
+        
+        if( m_faceRigidConstraints[i].size()==0){
 		for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
 		{
 			if (!m_nodeRigidConstraints[i][j].m_binding)
@@ -519,7 +522,9 @@ void btDeformableContactProjection::setLagrangeMultiplier()
 				lm.m_dirs[0] = m_nodeRigidConstraints[i][j].m_normal;
 			}
 			m_lagrangeMultipliers.push_back(lm);
-		}
+        }            
+        }
+        
 		for (int j = 0; j < m_faceRigidConstraints[i].size(); ++j)
 		{
 			if (!m_faceRigidConstraints[i][j].m_binding)

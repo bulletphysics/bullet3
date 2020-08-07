@@ -1686,6 +1686,7 @@ struct btSoftColliders
 						c.m_c2 = ima;
 						c.m_c3 = fc;
 						c.m_c4 = m_colObj1Wrap->getCollisionObject()->isStaticOrKinematicObject() ? psb->m_cfg.kKHR : psb->m_cfg.kCHR;
+                        c.m_c5 = n.m_effectiveMass_inv;
 
 						if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
 						{
@@ -1695,7 +1696,6 @@ struct btSoftColliders
 							const btVector3 ra = n.m_x - wtr.getOrigin();
 
 							c.m_c0 = ImpulseMatrix(1, n.m_effectiveMass_inv, imb, iwi, ra);
-							c.m_c5 = n.m_effectiveMass_inv;
 							//                            c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
 							c.m_c1 = ra;
 						}

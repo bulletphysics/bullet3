@@ -205,9 +205,9 @@ void GraspDeformable::initPhysics()
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_cfm = 0;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 150;
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-    m_maxPickingForce = 0.001;
+    m_maxPickingForce =100;
     // build a gripper
-    if(1)
+    if(0)
     {
         bool damping = true;
         bool gyro = false;
@@ -257,9 +257,10 @@ void GraspDeformable::initPhysics()
     }
     
     //create a ground
+    if(0)
     {
         btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(10.), btScalar(5.), btScalar(10.)));
-        groundShape->setMargin(0.003);
+        groundShape->setMargin(0.001);
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
@@ -284,6 +285,22 @@ void GraspDeformable::initPhysics()
 
         //add the ground to the dynamics world
         m_dynamicsWorld->addRigidBody(body,1,1+2);
+    }
+    
+    if(1)
+    {
+             bool gyro = false;
+             bool canSleep = false;
+             bool selfCollide = true;
+             btVector3 linkHalfExtents(10, 5, 10);
+             btVector3 baseHalfExtents(10, 5, 10);
+             btVector3 basepos(0, -5, 0);
+             btMultiBody* mbC = createFeatherstoneMultiBody(getDeformableDynamicsWorld(), basepos, linkHalfExtents, baseHalfExtents, false);
+             
+             mbC->setCanSleep(canSleep);
+             mbC->setHasSelfCollision(selfCollide);
+             mbC->setUseGyroTerm(gyro);
+         addColliders(mbC, getDeformableDynamicsWorld(), baseHalfExtents, linkHalfExtents);
     }
 
     // create a soft block
@@ -453,7 +470,7 @@ void GraspDeformable::initPhysics()
               }
               //        psb->scale(btVector3(1, 1, 1));
               psb->rotate(btQuaternion(btVector3(1, 0, 0), SIMD_PI * 0.5));
-//              psb->translate(tr);
+              psb->translate(btVector3(0,1,0));
               
               psb->getCollisionShape()->setMargin(0.005);
               psb->getCollisionShape()->setUserPointer(psb);
