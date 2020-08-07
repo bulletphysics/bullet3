@@ -86,7 +86,8 @@ void btDeformableBackwardEulerObjective::multiply(const TVStack& x, TVStack& b) 
 	{
 		// add damping matrix
 		m_lf[i]->addScaledDampingForceDifferential(-m_dt, x, b);
-		if (m_implicit)
+        // Always integrate picking force implicitly for stability.
+        if (m_implicit || m_lf[i]->getForceType() == BT_MOUSE_PICKING_FORCE)
 		{
 			m_lf[i]->addScaledElasticForceDifferential(-m_dt * m_dt, x, b);
 		}
@@ -176,7 +177,8 @@ void btDeformableBackwardEulerObjective::computeResidual(btScalar dt, TVStack& r
 	// add implicit force
 	for (int i = 0; i < m_lf.size(); ++i)
 	{
-		if (m_implicit)
+        // Always integrate picking force implicitly for stability.
+		if (m_implicit || m_lf[i]->getForceType() == BT_MOUSE_PICKING_FORCE)
 		{
 			m_lf[i]->addScaledForces(dt, residual);
 		}
