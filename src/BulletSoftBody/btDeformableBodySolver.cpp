@@ -377,7 +377,7 @@ void btDeformableBodySolver::setupDeformableSolve(bool implicit)
 			{
 				m_dv[counter] = psb->m_nodes[j].m_v + psb->m_nodes[j].m_splitv - m_backupVelocity[counter];
 			}
-//			psb->m_nodes[j].m_v = m_backupVelocity[counter];
+			psb->m_nodes[j].m_v = m_backupVelocity[counter];
 			++counter;
 		}
 	}
