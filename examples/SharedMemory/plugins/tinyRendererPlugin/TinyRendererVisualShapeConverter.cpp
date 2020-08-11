@@ -66,6 +66,8 @@ struct TinyRendererVisualShapeConverterInternalData
 	// Maps bodyUniqueId to a list of visual shapes belonging to the body.
 	btHashMap<btHashInt, btAlignedObjectArray<b3VisualShapeData> > m_visualShapesMap;
 
+	btAlignedObjectArray<unsigned char> m_checkeredTexels;
+
 	int m_uidGenerator;
 	int m_upAxis;
 	int m_swWidth;
@@ -560,10 +562,61 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 		}  // case mesh
 
 		case URDF_GEOM_PLANE:
-			// TODO: plane in tiny renderer
-			// TODO: export visualShapeOut for external render
-			break;
+		{
+			glmesh = new GLInstanceGraphicsShape;
+			//		int index = 0;
+			glmesh->m_indices = new b3AlignedObjectArray<int>();
+			glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+			glmesh->m_indices->push_back(0);
+			glmesh->m_indices->push_back(1);
+			glmesh->m_indices->push_back(2);
+			glmesh->m_indices->push_back(0);
+			glmesh->m_indices->push_back(2);
+			glmesh->m_indices->push_back(3);
+			glmesh->m_scaling[0] = 1;
+			glmesh->m_scaling[1] = 1;
+			glmesh->m_scaling[2] = 1;
+			glmesh->m_scaling[3] = 1;
 
+			btScalar planeConst = 0;
+			btVector3 planeNormal = visual->m_geometry.m_planeNormal;
+			btVector3 planeOrigin = planeNormal * planeConst;
+			btVector3 vec0, vec1;
+			btPlaneSpace1(planeNormal, vec0, vec1);
+
+			btScalar vecLen = 128;
+			btVector3 verts[4];
+
+			verts[0] = planeOrigin + vec0 * vecLen + vec1 * vecLen;
+			verts[1] = planeOrigin - vec0 * vecLen + vec1 * vecLen;
+			verts[2] = planeOrigin - vec0 * vecLen - vec1 * vecLen;
+			verts[3] = planeOrigin + vec0 * vecLen - vec1 * vecLen;
+
+			GLInstanceVertex vtx;
+			vtx.xyzw[0] = verts[0][0]; vtx.xyzw[1] = verts[0][1]; vtx.xyzw[2] = 0; vtx.xyzw[3] = 0;
+			vtx.normal[0] = 0; vtx.normal[1] = 0; vtx.normal[2] = 1;
+			vtx.uv[0] = vecLen; vtx.uv[1] = vecLen;
+			glmesh->m_vertices->push_back(vtx);
+
+			vtx.xyzw[0] = verts[1][0]; vtx.xyzw[1] = verts[1][1]; vtx.xyzw[2] = 0; vtx.xyzw[3] = 0;
+			vtx.normal[0] = 0; vtx.normal[1] = 0; vtx.normal[2] = 1;
+			vtx.uv[0] = 0; vtx.uv[1] = vecLen;
+			glmesh->m_vertices->push_back(vtx);
+
+			vtx.xyzw[0] = verts[2][0]; vtx.xyzw[1] = verts[2][1]; vtx.xyzw[2] = 0; vtx.xyzw[3] = 0;
+			vtx.normal[0] = 0; vtx.normal[1] = 0; vtx.normal[2] = 1;
+			vtx.uv[0] = 0; vtx.uv[1] = 0;
+			glmesh->m_vertices->push_back(vtx);
+
+			vtx.xyzw[0] = verts[3][0]; vtx.xyzw[1] = verts[3][1]; vtx.xyzw[2] = 0; vtx.xyzw[3] = 0;
+			vtx.normal[0] = 0; vtx.normal[1] = 0; vtx.normal[2] = 1;
+			vtx.uv[0] = vecLen; vtx.uv[1] = 0;
+			glmesh->m_vertices->push_back(vtx);
+
+			glmesh->m_numIndices = glmesh->m_indices->size();
+			glmesh->m_numvertices = glmesh->m_vertices->size();
+			break;
+		}
 		default:
 		{
 			b3Warning("TinyRenderer: unknown visual geometry type %i\n", visual->m_geometry.m_type);
@@ -783,6 +836,45 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 			{
 				B3_PROFILE("convertURDFToVisualShape");
 				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape, fileIO, m_data->m_flags);
+				if ((vis->m_geometry.m_type == URDF_GEOM_PLANE) || (vis->m_geometry.m_type == URDF_GEOM_SPHERE))
+				{
+					int texWidth = 1024;
+					int texHeight = 1024;
+					if (m_data->m_checkeredTexels.size() == 0)
+					{
+
+						int red = 173;
+						int green = 199;
+						int blue = 255;
+						//create a textured surface
+						
+						m_data->m_checkeredTexels.resize(texWidth * texHeight * 3);
+						for (int i = 0; i < texWidth * texHeight * 3; i++)
+							m_data->m_checkeredTexels[i] = 255;
+
+						for (int i = 0; i < texWidth; i++)
+						{
+							for (int j = 0; j < texHeight; j++)
+							{
+								int a = i < texWidth / 2 ? 1 : 0;
+								int b = j < texWidth / 2 ? 1 : 0;
+
+								if (a == b)
+								{
+									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 0] = red;
+									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 1] = green;
+									m_data->m_checkeredTexels[(i + j * texWidth) * 3 + 2] = blue;
+								}
+							}
+						}
+					}
+					MyTexture2 texData;
+					texData.m_width = texWidth;
+					texData.m_height = texHeight;
+					texData.textureData1 = &m_data->m_checkeredTexels[0];
+					texData.m_isCached = true;
+					textures.push_back(texData);
+				}
 			}
 
 			rgbaColor[0] = visualShape.m_rgbaColor[0];
