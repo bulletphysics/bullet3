@@ -93,6 +93,7 @@ bool btExtractJointBodyFromTempLinks(btAlignedObjectArray<TempLink>& links, Eige
 					collisionShape = compound->getChildShape(0);
 				}
 			}
+			
 			switch (collisionShape->getShapeType())
 			{
 			case BOX_SHAPE_PROXYTYPE:
@@ -102,6 +103,7 @@ bool btExtractJointBodyFromTempLinks(btAlignedObjectArray<TempLink>& links, Eige
 				param0 = box->getHalfExtentsWithMargin()[0] * 2;
 				param1 = box->getHalfExtentsWithMargin()[1] * 2;
 				param2 = box->getHalfExtentsWithMargin()[2] * 2;
+				
 				break;
 			}
 			case SPHERE_SHAPE_PROXYTYPE:
@@ -124,7 +126,20 @@ bool btExtractJointBodyFromTempLinks(btAlignedObjectArray<TempLink>& links, Eige
 			}
 			default:
 			{
-				btAssert(0);
+				//approximate by its box
+				btTransform identity;
+				identity.setIdentity();
+				btVector3 aabbMin, aabbMax;
+				collisionShape->getAabb(identity, aabbMin, aabbMax);
+				btVector3 halfExtents = (aabbMax - aabbMin) * btScalar(0.5);
+				btScalar margin = collisionShape->getMargin();
+				btScalar lx = btScalar(2.) * (halfExtents.x() + margin);
+				btScalar ly = btScalar(2.) * (halfExtents.y() + margin);
+				btScalar lz = btScalar(2.) * (halfExtents.z() + margin);
+				param0 = lx;
+				param1 = ly;
+				param2 = lz;
+				shapeType = cShape::eShapeBox;
 			}
 			}
 		}
