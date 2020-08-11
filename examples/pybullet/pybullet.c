@@ -6667,11 +6667,44 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 		return NULL;
 	}
 
+	if (!rayFromObjList || !rayToObjList)
+	{
+		PyErr_SetString(SpamError, "rayFromPositions and rayToPositions must be not None.");
+		return NULL;
+	}
+
 	commandHandle = b3CreateRaycastBatchCommandInit(sm);
 	b3RaycastBatchSetNumThreads(commandHandle, numThreads);
 
-	if (rayFromObjList)
+
+	int raysAdded = 0;
+#ifdef PYBULLET_USE_NUMPY
+	// Faster approach if both inputs can be converted into ndarray.
+	if (PyArray_Check(rayFromObjList) && PyArray_Check(rayToObjList)) {
+		b3PushProfileTiming(sm, "extractPythonFromToNumpy");
+		PyArrayObject* rayFromPyArrayObj = (PyArrayObject*)PyArray_FROMANY(rayFromObjList, NPY_DOUBLE, 1, 2, NPY_ARRAY_CARRAY_RO);
+		PyArrayObject* rayToPyArrayObj = (PyArrayObject*)PyArray_FROMANY(rayToObjList, NPY_DOUBLE, 1, 2, NPY_ARRAY_CARRAY_RO);
+
+		// If there is error, this will fall back to default method and error messages will be reported there.
+		if (rayFromPyArrayObj && rayToPyArrayObj
+			&& PyArray_SAMESHAPE(rayFromPyArrayObj, rayToPyArrayObj)
+			&& PyArray_DIMS(rayFromPyArrayObj)[PyArray_NDIM(rayFromPyArrayObj) - 1] == 3)
+		{
+			int len = (PyArray_NDIM(rayFromPyArrayObj) == 2) ? PyArray_DIMS(rayFromPyArrayObj)[0] : 1;
+			if (len <= MAX_RAY_INTERSECTION_BATCH_SIZE_STREAMING)
+			{
+				b3RaycastBatchAddRays(sm, commandHandle, PyArray_DATA(rayFromPyArrayObj), PyArray_DATA(rayToPyArrayObj), len);
+				raysAdded = 1;
+			}
+		}
+		if (rayFromPyArrayObj) Py_DECREF(rayFromPyArrayObj);
+		if (rayToPyArrayObj) Py_DECREF(rayToPyArrayObj);
+		b3PopProfileTiming(sm);
+	}
+#endif
+	if (!raysAdded)
 	{
+		// go back to default method.
 		PyObject* seqRayFromObj = PySequence_Fast(rayFromObjList, "expected a sequence of rayFrom positions");
 		PyObject* seqRayToObj = PySequence_Fast(rayToObjList, "expected a sequence of 'rayTo' positions");
 
