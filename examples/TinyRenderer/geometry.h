@@ -315,8 +315,10 @@ template <size_t DimRows,size_t DimCols,class T> std::ostream& operator<<(std::o
 /////////////////////////////////////////////////////////////////////////////////
 
 typedef vec<2, float> Vec2f;
+typedef vec<2, double> Vec2d;
 typedef vec<2, int> Vec2i;
 typedef vec<3, float> Vec3f;
+typedef vec<3, double> Vec3d;
 typedef vec<3, int> Vec3i;
 typedef vec<4, float> Vec4f;
 typedef mat<4, 4, float> Matrix;

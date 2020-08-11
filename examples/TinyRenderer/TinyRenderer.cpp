@@ -167,11 +167,11 @@ struct Shader : public IShader
 		Vec2f uv = varying_uv * bar;
 
 		Vec3f reflection_direction = (bn * (bn * m_light_dir_local * 2.f) - m_light_dir_local).normalize();
-                float specular = std::pow(b3Max(reflection_direction.z, 0.f),
-                                          m_model->specular(uv));
-                float diffuse = b3Max(0.f, bn * m_light_dir_local);
+        float specular = std::pow(b3Max(reflection_direction.z, 0.f),
+                                    m_model->specular(uv));
+        float diffuse = b3Max(0.f, bn * m_light_dir_local);
 
-                color = m_model->diffuse(uv);
+        color = m_model->diffuse(uv);
 		color[0] *= m_colorRGBA[0];
 		color[1] *= m_colorRGBA[1];
 		color[2] *= m_colorRGBA[2];
