@@ -2818,7 +2818,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 	btTransform wtr = (predict) ? (colObjWrap->m_preTransform != NULL ? tmpCollisionObj->getInterpolationWorldTransform() * (*colObjWrap->m_preTransform) : tmpCollisionObj->getInterpolationWorldTransform())
 								: colObjWrap->getWorldTransform();
 	btScalar dst;
-    btGjkEpaSolver2::sResults results;
+	btGjkEpaSolver2::sResults results;
 
 //	#define USE_QUADRATURE 1
 #define CACHE_PREV_COLLISION
@@ -2860,7 +2860,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 	}
 #endif
 
-    // collision detection using x*
+	// collision detection using x*
 	btTransform triangle_transform;
 	triangle_transform.setIdentity();
 	triangle_transform.setOrigin(f.m_n[0]->m_q);
@@ -2872,42 +2872,42 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 	if (dst >= 0)
 		return false;
 
-    // Use consistent barycenter to recalculate distance.
-    #ifdef CACHE_PREV_COLLISION
-        if (f.m_pcontact[3] != 0)
-        {
-            for (int i = 0; i < 3; ++i)
-                bary[i] = f.m_pcontact[i];
-            contact_point = BaryEval(f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
-            const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
-            btGjkEpaSolver2::SignedDistance(contact_point, margin, csh, wtr,results);
-            cti.m_colObj = colObjWrap->getCollisionObject();
-            dst = results.distance;
-            cti.m_normal = results.normal;
-            cti.m_offset = dst;
-        
-            //point-convex CD
-            wtr = colObjWrap->getWorldTransform();
-            btTriangleShape triangle2(btVector3(0, 0, 0), f.m_n[1]->m_x - f.m_n[0]->m_x, f.m_n[2]->m_x - f.m_n[0]->m_x);
-            triangle_transform.setOrigin(f.m_n[0]->m_x);
-            btGjkEpaSolver2::SignedDistance(&triangle2, triangle_transform, csh, wtr, guess, results);
-            
-            dst = results.distance - csh->getMargin() - margin;
-            return true;
-        }
-    #endif
-    
-    // Use triangle-convex CD.
+// Use consistent barycenter to recalculate distance.
+#ifdef CACHE_PREV_COLLISION
+	if (f.m_pcontact[3] != 0)
+	{
+		for (int i = 0; i < 3; ++i)
+			bary[i] = f.m_pcontact[i];
+		contact_point = BaryEval(f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
+		const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
+		btGjkEpaSolver2::SignedDistance(contact_point, margin, csh, wtr, results);
+		cti.m_colObj = colObjWrap->getCollisionObject();
+		dst = results.distance;
+		cti.m_normal = results.normal;
+		cti.m_offset = dst;
+
+		//point-convex CD
+		wtr = colObjWrap->getWorldTransform();
+		btTriangleShape triangle2(btVector3(0, 0, 0), f.m_n[1]->m_x - f.m_n[0]->m_x, f.m_n[2]->m_x - f.m_n[0]->m_x);
+		triangle_transform.setOrigin(f.m_n[0]->m_x);
+		btGjkEpaSolver2::SignedDistance(&triangle2, triangle_transform, csh, wtr, guess, results);
+
+		dst = results.distance - csh->getMargin() - margin;
+		return true;
+	}
+#endif
+
+	// Use triangle-convex CD.
 	wtr = colObjWrap->getWorldTransform();
 	btTriangleShape triangle2(btVector3(0, 0, 0), f.m_n[1]->m_x - f.m_n[0]->m_x, f.m_n[2]->m_x - f.m_n[0]->m_x);
 	triangle_transform.setOrigin(f.m_n[0]->m_x);
 	btGjkEpaSolver2::SignedDistance(&triangle2, triangle_transform, csh, wtr, guess, results);
 	contact_point = results.witnesses[0];
 	getBarycentric(contact_point, f.m_n[0]->m_x, f.m_n[1]->m_x, f.m_n[2]->m_x, bary);
-    
-    for (int i = 0; i < 3; ++i)
-       f.m_pcontact[i] = bary[i];
-    
+
+	for (int i = 0; i < 3; ++i)
+		f.m_pcontact[i] = bary[i];
+
 	dst = results.distance - csh->getMargin() - margin;
 	cti.m_colObj = colObjWrap->getCollisionObject();
 	cti.m_normal = results.normal;
