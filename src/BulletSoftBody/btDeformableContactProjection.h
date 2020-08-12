@@ -32,7 +32,6 @@ struct LagrangeMultiplier
 	btScalar m_weights[3];  // weights of the nodes involved, same size as m_num_nodes
 	btVector3 m_dirs[3];    // Constraint directions, same size of m_num_constraints;
 	int m_indices[3];       // indices of the nodes involved, same size as m_num_nodes;
-    btScalar m_vals[3];
 };
 
 class btDeformableContactProjection
@@ -40,7 +39,6 @@ class btDeformableContactProjection
 public:
 	typedef btAlignedObjectArray<btVector3> TVStack;
 	btAlignedObjectArray<btSoftBody*>& m_softBodies;
-    const TVStack& m_backupVelocity;
 
 	// all constraints involving face
 	btAlignedObjectArray<btDeformableContactConstraint*> m_allFaceConstraints;
@@ -66,8 +64,8 @@ public:
 
 	bool m_useStrainLimiting;
 
-	btDeformableContactProjection(btAlignedObjectArray<btSoftBody*>& softBodies, const TVStack& backupVelocity)
-		: m_softBodies(softBodies), m_backupVelocity(backupVelocity)
+	btDeformableContactProjection(btAlignedObjectArray<btSoftBody*>& softBodies)
+		: m_softBodies(softBodies)
 	{
 	}
 

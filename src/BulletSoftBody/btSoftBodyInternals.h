@@ -1766,7 +1766,6 @@ struct btSoftColliders
 			btVector3 bary;
 			if (psb->checkDeformableFaceContact(m_colObj1Wrap, f, contact_point, bary, m, c.m_cti, true))
 			{
-//				f.m_pcontact[3] = 1;
 				btScalar ima = n0->m_im + n1->m_im + n2->m_im;
 				const btScalar imb = m_rigidBody ? m_rigidBody->getInvMass() : 0.f;
 				// todo: collision between multibody and fixed deformable face will be missed.
@@ -1839,11 +1838,8 @@ struct btSoftColliders
 					psb->m_faceRigidContacts.push_back(c);
 				}
 			}
-			else
-			{
-				f.m_pcontact[3] = 0;
-			}
-            //always mark caching contact as false
+            // Set caching barycenters to be false after collision detection.
+            // Only turn on when contact is static.
             f.m_pcontact[3] = 0;
 		}
 		btSoftBody* psb;

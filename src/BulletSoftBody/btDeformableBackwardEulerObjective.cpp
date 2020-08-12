@@ -18,7 +18,7 @@
 #include "LinearMath/btQuickprof.h"
 
 btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAlignedObjectArray<btSoftBody*>& softBodies, const TVStack& backup_v)
-	: m_softBodies(softBodies), m_projection(softBodies, backup_v), m_backupVelocity(backup_v), m_implicit(false)
+	: m_softBodies(softBodies), m_projection(softBodies), m_backupVelocity(backup_v), m_implicit(false)
 {
 	m_massPreconditioner = new MassPreconditioner(m_softBodies);
 	m_KKTPreconditioner = new KKTPreconditioner(m_softBodies, m_projection, m_lf, m_dt, m_implicit);

@@ -2860,6 +2860,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 	}
 #endif
 
+    // collision detection using x*
 	btTransform triangle_transform;
 	triangle_transform.setIdentity();
 	triangle_transform.setOrigin(f.m_n[0]->m_q);
@@ -2871,7 +2872,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 	if (dst >= 0)
 		return false;
 
-    // use the contact position of the previous collision
+    // Use consistent barycenter to recalculate distance.
     #ifdef CACHE_PREV_COLLISION
         if (f.m_pcontact[3] != 0)
         {
@@ -2881,37 +2882,22 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
             const btConvexShape* csh = static_cast<const btConvexShape*>(shp);
             btGjkEpaSolver2::SignedDistance(contact_point, margin, csh, wtr,results);
             cti.m_colObj = colObjWrap->getCollisionObject();
-//            std::cout<<"****** distance1 "<<results.distance<<std::endl;
-//            std::cout<<"normal "<<results.normal[0]<<" "<<results.normal[1]<<" "<<results.normal[2]<<std::endl;
-//            std::cout<<"point is at "<<contact_point[0]<<" "<<contact_point[1]<<" "<<contact_point[2]<<std::endl;
-//            std::cout<<"three vertices: "<<std::endl;
-//            std::cout<<f.m_n[0]->m_x[0]<<" "<<f.m_n[0]->m_x[1]<<" "<<f.m_n[0]->m_x[2]<<" "<<std::endl;
-//            std::cout<<f.m_n[1]->m_x[0]<<" "<<f.m_n[1]->m_x[1]<<" "<<f.m_n[1]->m_x[2]<<" "<<std::endl;
-//            std::cout<<f.m_n[2]->m_x[0]<<" "<<f.m_n[2]->m_x[1]<<" "<<f.m_n[2]->m_x[2]<<" "<<std::endl;
             dst = results.distance;
             cti.m_normal = results.normal;
             cti.m_offset = dst;
-            
-            
-            // use face contact to redo collision detection
+        
+            //point-convex CD
             wtr = colObjWrap->getWorldTransform();
             btTriangleShape triangle2(btVector3(0, 0, 0), f.m_n[1]->m_x - f.m_n[0]->m_x, f.m_n[2]->m_x - f.m_n[0]->m_x);
             triangle_transform.setOrigin(f.m_n[0]->m_x);
             btGjkEpaSolver2::SignedDistance(&triangle2, triangle_transform, csh, wtr, guess, results);
             
             dst = results.distance - csh->getMargin() - margin;
-            
-//            std::cout<<"contact point 1 "<<results.witnesses[0][0]<< " "<<results.witnesses[0][1]<< " "<<results.witnesses[0][2]<< " "<<std::endl;
-//            std::cout<<"contact point 2 "<<results.witnesses[1][0]<< " "<<results.witnesses[1][1]<< " "<<results.witnesses[1][2]<< " "<<std::endl;
-//            std::cout<<"result distance  "<<results.distance<<std::endl;
-//            std::cout<< csh->getMargin() <<" "<<margin<<std::endl;
-//            std::cout<<"****** distance 2"<<dst<<std::endl;
-//            std::cout<<"normal "<< results.normal[0]<< " "<<results.normal[1]<< " "<<results.normal[2]<<std::endl;
             return true;
         }
     #endif
     
-    //
+    // Use triangle-convex CD.
 	wtr = colObjWrap->getWorldTransform();
 	btTriangleShape triangle2(btVector3(0, 0, 0), f.m_n[1]->m_x - f.m_n[0]->m_x, f.m_n[2]->m_x - f.m_n[0]->m_x);
 	triangle_transform.setOrigin(f.m_n[0]->m_x);
@@ -2923,18 +2909,12 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
        f.m_pcontact[i] = bary[i];
     
 	dst = results.distance - csh->getMargin() - margin;
-    
-//    std::cout<<"contact point 1 "<<contact_point[0]<< " "<<contact_point[1]<< " "<<contact_point[2]<< " "<<std::endl;
-//    std::cout<<"contact point 2 "<<results.witnesses[1][0]<< " "<<results.witnesses[1][1]<< " "<<results.witnesses[1][2]<< " "<<std::endl;
-//    std::cout<<"result distance  "<<results.distance<<std::endl;
-//    std::cout<< csh->getMargin() <<" "<<margin<<std::endl;
-//    std::cout<<"distance "<<dst<<std::endl;
 	cti.m_colObj = colObjWrap->getCollisionObject();
 	cti.m_normal = results.normal;
 	cti.m_offset = dst;
 	return true;
 }
-//
+
 void btSoftBody::updateNormals()
 {
 	const btVector3 zv(0, 0, 0);
