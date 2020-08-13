@@ -2521,6 +2521,17 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 				}
 			}
 		}
+
+		//delete textures
+		for (int i = 0; i < textures.size(); i++)
+		{
+			B3_PROFILE("free textureData");
+			if (!textures[i].m_isCached)
+			{
+				free(textures[i].textureData1);
+			}
+		}
+
 		return graphicsIndex;
 	}
 
