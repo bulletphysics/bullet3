@@ -836,7 +836,7 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 			{
 				B3_PROFILE("convertURDFToVisualShape");
 				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape, fileIO, m_data->m_flags);
-				if ((vis->m_geometry.m_type == URDF_GEOM_PLANE) || (vis->m_geometry.m_type == URDF_GEOM_SPHERE))
+				if (vis->m_geometry.m_type == URDF_GEOM_PLANE)
 				{
 					int texWidth = 1024;
 					int texHeight = 1024;
