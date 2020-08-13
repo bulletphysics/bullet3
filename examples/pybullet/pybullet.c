@@ -8053,7 +8053,7 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 									 &bodyUniqueIdA, &bodyUniqueIdB, &distanceThreshold, &linkIndexA, &linkIndexB,
 									 &collisionShapeA, &collisionShapeB,
 									 &collisionShapePositionAObj, &collisionShapePositionBObj,
-									 &collisionShapeOrientationA, &collisionShapeOrientationBObj,
+									 &collisionShapeOrientationAObj, &collisionShapeOrientationBObj,
 									 &physicsClientId))
 		return NULL;
 
