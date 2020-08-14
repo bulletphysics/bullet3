@@ -27,7 +27,7 @@ message MinitaurStateAction {
   bool info_valid = 6;
   // The time stamp of this step. It is computed since the reset of the
   // environment.
-  google.protobuf.Timestamp time = 1;
+  robotics.messages.Timestamp time = 1;
   // The position of the base of the minitaur.
   robotics.messages.Vector3d base_position = 2;
   // The orientation of the base of the minitaur. It is represented as (roll,
