@@ -11958,8 +11958,8 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 						if (dofCount)
 						{
 							int byteSizeDofCount = sizeof(double) * dofCount;
-							double* linearJacobian = (double*)malloc(3 * byteSizeDofCount);
-							double* angularJacobian = (double*)malloc(3 * byteSizeDofCount);
+							linearJacobian = (double*)malloc(3 * byteSizeDofCount);
+							angularJacobian = (double*)malloc(3 * byteSizeDofCount);
 							b3GetStatusJacobian(statusHandle,
 												NULL,
 												linearJacobian,
