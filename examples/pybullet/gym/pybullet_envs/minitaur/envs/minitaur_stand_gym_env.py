@@ -167,7 +167,7 @@ class MinitaurStandGymEnv(minitaur_gym_env.MinitaurGymEnv):
     # Use the one dimensional action to rotate both bottom legs.
     action_delta = [0, 0, -action, action, 0, 0, action, -action]
     action_all_legs = map(add, action_all_legs, action_delta)
-    return action_all_legs
+    return list(action_all_legs)
 
   def _policy_flip(self, time_step, orientation):
     """Hand coded policy to make the minitaur stand up to its two legs.
