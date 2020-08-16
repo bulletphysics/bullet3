@@ -11054,7 +11054,7 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 
 				if (clientCmd.m_externalForceArguments.m_linkIds[i] == -1)
 				{
-					btVector3 torqueWorld = isLinkFrame ? torqueLocal : mb->getBaseWorldTransform().getBasis() * torqueLocal;
+					btVector3 torqueWorld = isLinkFrame ? mb->getBaseWorldTransform().getBasis() * torqueLocal : torqueLocal;
 					mb->addBaseTorque(torqueWorld);
 					//b3Printf("apply base torque of %f,%f,%f\n", torqueWorld[0],torqueWorld[1],torqueWorld[2]);
 				}
