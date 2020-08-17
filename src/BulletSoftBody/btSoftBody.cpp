@@ -2821,7 +2821,7 @@ bool btSoftBody::checkDeformableFaceContact(const btCollisionObjectWrapper* colO
 	btGjkEpaSolver2::sResults results;
 
 //	#define USE_QUADRATURE 1
-#define CACHE_PREV_COLLISION
+//#define CACHE_PREV_COLLISION
 
 	// use collision quadrature point
 #ifdef USE_QUADRATURE
