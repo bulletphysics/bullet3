@@ -1096,6 +1096,7 @@ public:
 
 	virtual void resetCamera(float camDist, float yaw, float pitch, float camPosX, float camPosY, float camPosZ)
 	{
+		m_cs->lock();
 		m_resetCameraCamDist = camDist;
 		m_resetCameraYaw = yaw;
 		m_resetCameraPitch = pitch;
@@ -1104,6 +1105,7 @@ public:
 		m_resetCameraCamPosZ = camPosZ;
 		m_cs->setSharedParam(1, eGUIHelperResetCamera);
 		workerThreadWait();
+		//m_childGuiHelper->resetCamera(camDist, yaw, pitch, camPosX, camPosY, camPosZ);
 	}
 
 	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3], float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float camTarget[3]) const
@@ -1439,7 +1441,7 @@ public:
 		float pitch = -35;
 		float yaw = 50;
 		float targetPos[3] = {0, 0, 0};  //-3,2.8,-2.5};
-		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
+		m_multiThreadedHelper->m_childGuiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 
 	virtual bool wantsTermination();
@@ -2385,6 +2387,7 @@ void PhysicsServerExample::updateGraphics()
 				m_multiThreadedHelper->m_resetCameraCamPosY,
 				m_multiThreadedHelper->m_resetCameraCamPosZ);
 			m_multiThreadedHelper->mainThreadRelease();
+			break;
 		}
 
 		case eGUIHelperAutogenerateGraphicsObjects:
