@@ -6594,33 +6594,36 @@ bool PhysicsServerCommandProcessor::processCollisionFilterCommand(const struct S
 		if (clientCmd.m_updateFlags & B3_COLLISION_FILTER_GROUP_MASK)
 		{
 			InternalBodyData* body = m_data->m_bodyHandles.getHandle(clientCmd.m_collisionFilterArgs.m_bodyUniqueIdA);
-			btCollisionObject* colObj = 0;
-			if (body->m_multiBody)
+			if (body)
 			{
-				if (clientCmd.m_collisionFilterArgs.m_linkIndexA == -1)
+				btCollisionObject* colObj = 0;
+				if (body->m_multiBody)
 				{
-					colObj = body->m_multiBody->getBaseCollider();
+					if (clientCmd.m_collisionFilterArgs.m_linkIndexA == -1)
+					{
+						colObj = body->m_multiBody->getBaseCollider();
+					}
+					else
+					{
+						if (clientCmd.m_collisionFilterArgs.m_linkIndexA >= 0 && clientCmd.m_collisionFilterArgs.m_linkIndexA < body->m_multiBody->getNumLinks())
+						{
+							colObj = body->m_multiBody->getLinkCollider(clientCmd.m_collisionFilterArgs.m_linkIndexA);
+						}
+					}
 				}
 				else
 				{
-					if (clientCmd.m_collisionFilterArgs.m_linkIndexA >= 0 && clientCmd.m_collisionFilterArgs.m_linkIndexA < body->m_multiBody->getNumLinks())
+					if (body->m_rigidBody)
 					{
-						colObj = body->m_multiBody->getLinkCollider(clientCmd.m_collisionFilterArgs.m_linkIndexA);
+						colObj = body->m_rigidBody;
 					}
 				}
-			}
-			else
-			{
-				if (body->m_rigidBody)
+				if (colObj)
 				{
-					colObj = body->m_rigidBody;
+					colObj->getBroadphaseHandle()->m_collisionFilterGroup = clientCmd.m_collisionFilterArgs.m_collisionFilterGroup;
+					colObj->getBroadphaseHandle()->m_collisionFilterMask = clientCmd.m_collisionFilterArgs.m_collisionFilterMask;
+					m_data->m_dynamicsWorld->refreshBroadphaseProxy(colObj);
 				}
-			}
-			if (colObj)
-			{
-				colObj->getBroadphaseHandle()->m_collisionFilterGroup = clientCmd.m_collisionFilterArgs.m_collisionFilterGroup;
-				colObj->getBroadphaseHandle()->m_collisionFilterMask = clientCmd.m_collisionFilterArgs.m_collisionFilterMask;
-				m_data->m_dynamicsWorld->refreshBroadphaseProxy(colObj);
 			}
 		}
 	}

@@ -452,7 +452,8 @@ void btDeformableContactProjection::checkConstraints(const TVStack& x)
 				d[j] += lm.m_weights[k] * x[lm.m_indices[k]].dot(lm.m_dirs[j]);
 			}
 		}
-		printf("d = %f, %f, %f\n", d[0], d[1], d[2]);
+		//		printf("d = %f, %f, %f\n", d[0], d[1], d[2]);
+		//        printf("val = %f, %f, %f\n", lm.m_vals[0], lm.m_vals[1], lm.m_vals[2]);
 	}
 }
 
@@ -493,6 +494,7 @@ void btDeformableContactProjection::setLagrangeMultiplier()
 			lm.m_dirs[2] = btVector3(0, 0, 1);
 			m_lagrangeMultipliers.push_back(lm);
 		}
+
 		for (int j = 0; j < m_nodeRigidConstraints[i].size(); ++j)
 		{
 			if (!m_nodeRigidConstraints[i][j].m_binding)
@@ -519,17 +521,19 @@ void btDeformableContactProjection::setLagrangeMultiplier()
 			}
 			m_lagrangeMultipliers.push_back(lm);
 		}
+
 		for (int j = 0; j < m_faceRigidConstraints[i].size(); ++j)
 		{
 			if (!m_faceRigidConstraints[i][j].m_binding)
 			{
 				continue;
 			}
-			const btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
+			btSoftBody::Face* face = m_faceRigidConstraints[i][j].m_face;
 
 			btVector3 bary = m_faceRigidConstraints[i][j].getContact()->m_bary;
 			LagrangeMultiplier lm;
 			lm.m_num_nodes = 3;
+
 			for (int k = 0; k < 3; ++k)
 			{
 				face->m_n[k]->m_constrained = true;
@@ -538,6 +542,7 @@ void btDeformableContactProjection::setLagrangeMultiplier()
 			}
 			if (m_faceRigidConstraints[i][j].m_static)
 			{
+				face->m_pcontact[3] = 1;
 				lm.m_num_constraints = 3;
 				lm.m_dirs[0] = btVector3(1, 0, 0);
 				lm.m_dirs[1] = btVector3(0, 1, 0);
@@ -545,6 +550,7 @@ void btDeformableContactProjection::setLagrangeMultiplier()
 			}
 			else
 			{
+				face->m_pcontact[3] = 0;
 				lm.m_num_constraints = 1;
 				lm.m_dirs[0] = m_faceRigidConstraints[i][j].m_normal;
 			}
