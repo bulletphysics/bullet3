@@ -566,8 +566,10 @@ void X11OpenGLWindow::enableOpenGL()
 	//Access pthreads as a workaround for a bug in Linux/Ubuntu
 	//See https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-319/+bug/1248642
 
+#if !defined(__NetBSD__)
 	int i = pthread_getconcurrency();
 	printf("pthread_getconcurrency()=%d\n", i);
+#endif
 
 	//    const GLubyte* ext = glGetString(GL_EXTENSIONS);
 	//    printf("GL_EXTENSIONS=%s\n", ext);
