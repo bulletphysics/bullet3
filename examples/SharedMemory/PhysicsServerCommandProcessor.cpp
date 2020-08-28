@@ -16,7 +16,6 @@
 #include "BulletDynamics/Featherstone/btMultiBodySphericalJointMotor.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h"
 
-
 #include "../Utils/b3BulletDefaultFileIO.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
@@ -1656,6 +1655,8 @@ struct PhysicsServerCommandProcessorInternalData
 	btScalar m_maxPickingForce;
 	btDeformableBodySolver* m_deformablebodySolver;
 	btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
+	int m_softBody_index = 0;
+	std::map<int, int> m_softBodies;
 #endif
 
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
@@ -2043,7 +2044,7 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 		delete m_data->m_savedStates[i].m_bulletFile;
 		delete m_data->m_savedStates[i].m_serializer;
 	}
-	
+
 	delete m_data;
 }
 
@@ -7360,7 +7361,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 							}
 						}
 					}  //fi
-					//break;
+					   //break;
 				}
 			}
 		}  //if (body && body->m_rigidBody)
@@ -8767,6 +8768,16 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		notification.m_notificationType = BODY_ADDED;
 		notification.m_bodyArgs.m_bodyUniqueId = *bodyUniqueId;
 		m_data->m_pluginManager.addNotification(notification);
+
+		for (int i = 0; i < m_data->m_lf.size(); i++)
+		{
+			if (m_data->m_lf[i]->m_softBody_index < 0)
+			{
+				m_data->m_lf[i]->m_softBody_index = m_data->m_softBody_index;
+				m_data->m_softBodies[*bodyUniqueId] = m_data->m_softBody_index;
+			}
+		}
+		m_data->m_softBody_index++;
 	}
 #endif
 	return true;
@@ -9325,11 +9336,9 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 		{
 			if (linkIndex >= 0 && linkIndex < mb->getNumLinks())
 			{
-
 				if ((clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMIT_MAX_FORCE) ||
 					(clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMITS))
 				{
-
 					btMultiBodyJointLimitConstraint* limC = 0;
 
 					int numConstraints = m_data->m_dynamicsWorld->getNumMultiBodyConstraints();
@@ -9338,10 +9347,8 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 						btMultiBodyConstraint* mbc = m_data->m_dynamicsWorld->getMultiBodyConstraint(c);
 						if (mbc->getConstraintType() == MULTIBODY_CONSTRAINT_LIMIT)
 						{
-							if (((mbc->getMultiBodyA() == mb) && (mbc->getLinkA() == linkIndex))
-								||
-								((mbc->getMultiBodyB() == mb) && ((mbc->getLinkB() == linkIndex)))
-								)
+							if (((mbc->getMultiBodyA() == mb) && (mbc->getLinkA() == linkIndex)) ||
+								((mbc->getMultiBodyB() == mb) && ((mbc->getLinkB() == linkIndex))))
 							{
 								limC = (btMultiBodyJointLimitConstraint*)mbc;
 							}
@@ -9597,6 +9604,52 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 		btSoftBody* psb = body->m_softBody;
 		if (psb)
 		{
+			int soft_index = m_data->m_softBodies.at(bodyUniqueId);
+			btDeformableLagrangianForce* force;
+			for (int i = 0; i < m_data->m_lf.size(); i++)
+			{
+				force = m_data->m_lf[i];
+				if (force->m_softBody_index == soft_index)
+				{
+					if (force->getForceType() == BT_MASSSPRING_FORCE)
+					{
+						btDeformableMassSpringForce* massSpringForce = (btDeformableMassSpringForce*)force;
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPRING_ELASTIC_STIFFNESS)
+						{
+							massSpringForce->m_elasticStiffness = clientCmd.m_changeDynamicsInfoArgs.m_springElasticStiffness;
+						}
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPRING_DAMPING_STIFFNESS)
+						{
+							massSpringForce->m_dampingStiffness = clientCmd.m_changeDynamicsInfoArgs.m_springDampingStiffness;
+						}
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPRING_DAMPING_ALL_DIRECTIONS)
+						{
+							massSpringForce->m_momentum_conserving = clientCmd.m_changeDynamicsInfoArgs.m_springDampingAllDirections;
+						}
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPRING_BENDING_STIFFNESS)
+						{
+							massSpringForce->m_bendingStiffness = clientCmd.m_changeDynamicsInfoArgs.m_springBendingStiffness;
+						}
+					}
+					if (force->getForceType() == BT_NEOHOOKEAN_FORCE)
+					{
+						btDeformableNeoHookeanForce* neoHookeanForce = (btDeformableNeoHookeanForce*)force;
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_NEOHOOKEAN_MU)
+						{
+							neoHookeanForce->m_mu = clientCmd.m_changeDynamicsInfoArgs.m_NeoHookeanMu;
+						}
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_NEOHOOKEAN_LAMBDA)
+						{
+							neoHookeanForce->m_lambda = clientCmd.m_changeDynamicsInfoArgs.m_NeoHookeanLambda;
+						}
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_NEOHOOKEAN_DAMPING)
+						{
+							neoHookeanForce->setDamping(clientCmd.m_changeDynamicsInfoArgs.m_NeoHookeanDamping);
+						}
+					}
+					psb->forceActivationState(ACTIVE_TAG);
+				}
+			}
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
 			{
 				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableSleeping)
@@ -9790,9 +9843,34 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 	else if (body && body->m_softBody)
 	{
 		SharedMemoryStatus& serverCmd = serverStatusOut;
+		btSoftBody* psb = body->m_softBody;
 		serverCmd.m_type = CMD_GET_DYNAMICS_INFO_COMPLETED;
 		serverCmd.m_dynamicsInfo.m_bodyType = BT_SOFT_BODY;
+		serverCmd.m_dynamicsInfo.m_mass = psb->getTotalMass();
 		serverCmd.m_dynamicsInfo.m_collisionMargin = 0;
+		int soft_index = m_data->m_softBodies.at(bodyUniqueId);
+		for (int i = 0; i < m_data->m_lf.size(); i++)
+		{
+			btDeformableLagrangianForce* force = m_data->m_lf[i];
+			if (force->m_softBody_index == soft_index)
+			{
+				if (force->getForceType() == BT_MASSSPRING_FORCE)
+				{
+					btDeformableMassSpringForce* massSpringForce = (btDeformableMassSpringForce*)force;
+					serverCmd.m_dynamicsInfo.m_springElasticStiffness = massSpringForce->m_elasticStiffness;
+					serverCmd.m_dynamicsInfo.m_springDampingStiffness = massSpringForce->m_dampingStiffness;
+					serverCmd.m_dynamicsInfo.m_springBendingStiffness = massSpringForce->m_bendingStiffness;
+					serverCmd.m_dynamicsInfo.m_springDampingAllDirections = massSpringForce->m_momentum_conserving==0 ? 1 : 0;
+				}
+				if (force->getForceType() == BT_NEOHOOKEAN_FORCE)
+				{
+					btDeformableNeoHookeanForce* neoHookeanForce = (btDeformableNeoHookeanForce*)force;
+					serverCmd.m_dynamicsInfo.m_NeoHookeanMu = neoHookeanForce->m_mu;
+					serverCmd.m_dynamicsInfo.m_NeoHookeanLambda = neoHookeanForce->m_lambda;
+					serverCmd.m_dynamicsInfo.m_NeoHookeanDamping = neoHookeanForce->m_damping;
+				}
+			}
+		}
 	}
 #endif
 	return hasStatus;
@@ -11121,7 +11199,6 @@ bool PhysicsServerCommandProcessor::processApplyExternalForceCommand(const struc
 			}
 		}
 #endif
-
 	}
 
 	SharedMemoryStatus& serverCmd = serverStatusOut;

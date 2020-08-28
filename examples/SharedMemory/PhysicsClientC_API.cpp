@@ -3358,9 +3358,75 @@ B3_SHARED_API int b3ChangeDynamicsInfoSetCollisionMargin(b3SharedMemoryCommandHa
 	return 0;
 }
 
+B3_SHARED_API int b3ChangeDynamiceInfoSetSpringElasticStiffness(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double springElasticStiffness)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_springElasticStiffness = springElasticStiffness;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_SPRING_ELASTIC_STIFFNESS;
+	return 0;
+}
 
+B3_SHARED_API int b3ChangeDynamiceInfoSetSpringDampingStiffness(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double springDampingStiffness)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_springDampingStiffness = springDampingStiffness;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_SPRING_DAMPING_STIFFNESS;
+	return 0;
+}
 
+B3_SHARED_API int b3ChangeDynamiceInfoSetspringDampingAllDirections(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int springDampingAllDirections)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_springDampingAllDirections = springDampingAllDirections;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_SPRING_DAMPING_ALL_DIRECTIONS;
+	return 0;
+}
 
+B3_SHARED_API int b3ChangeDynamiceInfoSetSpringBendingStiffness(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double springBendingStiffness)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_springBendingStiffness = springBendingStiffness;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_SPRING_BENDING_STIFFNESS;
+	return 0;
+}
+
+B3_SHARED_API int b3ChangeDynamiceInfoSetNeoHookeanMu(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double NeoHookeanMu)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_NeoHookeanMu = NeoHookeanMu;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_NEOHOOKEAN_MU;
+	return 0;
+}
+
+B3_SHARED_API int b3ChangeDynamiceInfoSstNepHookeanLambda(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double NeoHookeanLambda)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_NeoHookeanLambda = NeoHookeanLambda;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_NEOHOOKEAN_LAMBDA;
+	return 0;
+}
+
+B3_SHARED_API int b3ChangeDynamiceInfoSetNeoHookeanDamping(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double NeoHookeanDamping)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_NeoHookeanDamping = NeoHookeanDamping;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_NEOHOOKEAN_DAMPING;
+	return 0;
+}
 
 B3_SHARED_API int b3ChangeDynamicsInfoSetActivationState(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int activationState)
 {

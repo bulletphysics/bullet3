@@ -172,6 +172,14 @@ extern "C"
 	B3_SHARED_API int b3ChangeDynamicsInfoSetActivationState(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int activationState);
 	B3_SHARED_API int b3ChangeDynamicsInfoSetMaxJointVelocity(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double maxJointVelocity);
 	B3_SHARED_API int b3ChangeDynamicsInfoSetCollisionMargin(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double collisionMargin);
+
+	B3_SHARED_API int b3ChangeDynamiceInfoSetSpringElasticStiffness(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double springElasticStiffness);
+	B3_SHARED_API int b3ChangeDynamiceInfoSetSpringDampingStiffness(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double springDampingStiffness);
+	B3_SHARED_API int b3ChangeDynamiceInfoSetspringDampingAllDirections(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int springDampingAllDirections);
+	B3_SHARED_API int b3ChangeDynamiceInfoSetSpringBendingStiffness(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double springBendingStiffness);
+	B3_SHARED_API int b3ChangeDynamiceInfoSetNeoHookeanMu(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double NeoHookeanMu);
+	B3_SHARED_API int b3ChangeDynamiceInfoSstNepHookeanLambda(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double NeoHookeanLambda);
+	B3_SHARED_API int b3ChangeDynamiceInfoSetNeoHookeanDamping(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double NeoHookeanDamping);
 	
 	
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyUniqueId, int parentJointIndex, int childBodyUniqueId, int childJointIndex, struct b3JointInfo* info);

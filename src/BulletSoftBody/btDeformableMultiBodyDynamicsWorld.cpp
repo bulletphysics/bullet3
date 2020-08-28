@@ -682,8 +682,12 @@ void btDeformableMultiBodyDynamicsWorld::afterSolverCallbacks(btScalar timeStep)
 void btDeformableMultiBodyDynamicsWorld::addForce(btSoftBody* psb, btDeformableLagrangianForce* force)
 {
 	btAlignedObjectArray<btDeformableLagrangianForce*>& forces = m_deformableBodySolver->m_objective->m_lf;
+	force->addSoftBody(psb);
+	force->setIndices(m_deformableBodySolver->m_objective->getIndices());
+	forces.push_back(force);
+	/*
 	bool added = false;
-	for (int i = 0; i < forces.size(); ++i)
+	for (int i = 0; i < forces.size(); i++)
 	{
 		if (forces[i]->getForceType() == force->getForceType())
 		{
@@ -691,13 +695,14 @@ void btDeformableMultiBodyDynamicsWorld::addForce(btSoftBody* psb, btDeformableL
 			added = true;
 			break;
 		}
+		if (!added)
+		{
+			force->addSoftBody(psb);
+			force->setIndices(m_deformableBodySolver->m_objective->getIndices());
+			forces.push_back(force);
+		}
 	}
-	if (!added)
-	{
-		force->addSoftBody(psb);
-		force->setIndices(m_deformableBodySolver->m_objective->getIndices());
-		forces.push_back(force);
-	}
+	*/
 }
 
 void btDeformableMultiBodyDynamicsWorld::removeForce(btSoftBody* psb, btDeformableLagrangianForce* force)
