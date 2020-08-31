@@ -9,7 +9,7 @@ if [[ "$TRAVIS_OS_NAME" == "linux" && "$CXX" = "g++" ]]; then
   $SUDO apt-get install -y python3-pip
   $SUDO pip3 install -U wheel
   $SUDO pip3 install -U setuptools
-  $SUDO python3 setup.py install
+  python3 setup.py install --user
   python3 examples/pybullet/unittests/unittests.py --verbose
   python3 examples/pybullet/unittests/userDataTest.py --verbose
   python3 examples/pybullet/unittests/saveRestoreStateTest.py --verbose
