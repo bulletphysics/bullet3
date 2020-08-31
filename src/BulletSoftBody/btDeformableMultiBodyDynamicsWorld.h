@@ -133,6 +133,8 @@ public:
 
 	void removeForce(btSoftBody* psb, btDeformableLagrangianForce* force);
 
+	void removeSoftBodyForce(btSoftBody* psb);
+
 	void removeSoftBody(btSoftBody* body);
 
 	void removeCollisionObject(btCollisionObject* collisionObject);

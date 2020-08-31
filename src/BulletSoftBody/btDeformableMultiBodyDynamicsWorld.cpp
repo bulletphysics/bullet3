@@ -718,8 +718,18 @@ void btDeformableMultiBodyDynamicsWorld::removeForce(btSoftBody* psb, btDeformab
 		forces.removeAtIndex(removed_index);
 }
 
+void btDeformableMultiBodyDynamicsWorld::removeSoftBodyForce(btSoftBody* psb)
+{
+	btAlignedObjectArray<btDeformableLagrangianForce*>& forces = m_deformableBodySolver->m_objective->m_lf;
+	for (int i = 0; i < forces.size(); ++i)
+	{
+		forces[i]->removeSoftBody(psb);
+	}
+}
+
 void btDeformableMultiBodyDynamicsWorld::removeSoftBody(btSoftBody* body)
 {
+	removeSoftBodyForce(body);
 	m_softBodies.remove(body);
 	btCollisionWorld::removeCollisionObject(body);
 	// force a reinitialize so that node indices get updated.

@@ -222,7 +222,7 @@ void btSoftBody::initDefaults()
 	m_windVelocity = btVector3(0, 0, 0);
 	m_restLengthScale = btScalar(1.0);
 	m_dampingCoefficient = 1.0;
-	m_sleepingThreshold = .4;
+	m_sleepingThreshold = .04;
 	m_useSelfCollision = false;
 	m_collisionFlags = 0;
 	m_softSoftCollision = false;
