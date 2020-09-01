@@ -8068,6 +8068,21 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 
 						virtual btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
 						{
+							const btCollisionObject* colObj = (btCollisionObject*)colObj0Wrap->getCollisionObject();
+							const btMultiBodyLinkCollider* mbl = btMultiBodyLinkCollider::upcast(colObj);
+							int bodyUniqueId = -1;
+							if (mbl)
+							{
+								bodyUniqueId = mbl->m_multiBody->getUserIndex2();
+							}
+							else
+							{
+								bodyUniqueId = colObj->getUserIndex2();
+							}
+
+							
+							bool isSwapped = m_bodyUniqueIdA != bodyUniqueId;
+							
 							if (cp.m_distance1 <= m_closestDistanceThreshold)
 							{
 								b3ContactPointData pt;
@@ -8080,9 +8095,18 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 								pt.m_linkIndexB = m_linkIndexB;
 								for (int j = 0; j < 3; j++)
 								{
-									pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
-									pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
-									pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+									if (isSwapped)
+									{
+										pt.m_contactNormalOnBInWS[j] = -srcPt.m_normalWorldOnB[j];
+										pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnB()[j];
+										pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnA()[j];
+									}
+									else
+									{
+										pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
+										pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
+										pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+									}
 								}
 								pt.m_normalForce = srcPt.getAppliedImpulse() / m_deltaTime;
 								pt.m_linearFrictionForce1 = srcPt.m_appliedImpulseLateral1 / m_deltaTime;
