@@ -6594,33 +6594,36 @@ bool PhysicsServerCommandProcessor::processCollisionFilterCommand(const struct S
 		if (clientCmd.m_updateFlags & B3_COLLISION_FILTER_GROUP_MASK)
 		{
 			InternalBodyData* body = m_data->m_bodyHandles.getHandle(clientCmd.m_collisionFilterArgs.m_bodyUniqueIdA);
-			btCollisionObject* colObj = 0;
-			if (body->m_multiBody)
+			if (body)
 			{
-				if (clientCmd.m_collisionFilterArgs.m_linkIndexA == -1)
+				btCollisionObject* colObj = 0;
+				if (body->m_multiBody)
 				{
-					colObj = body->m_multiBody->getBaseCollider();
+					if (clientCmd.m_collisionFilterArgs.m_linkIndexA == -1)
+					{
+						colObj = body->m_multiBody->getBaseCollider();
+					}
+					else
+					{
+						if (clientCmd.m_collisionFilterArgs.m_linkIndexA >= 0 && clientCmd.m_collisionFilterArgs.m_linkIndexA < body->m_multiBody->getNumLinks())
+						{
+							colObj = body->m_multiBody->getLinkCollider(clientCmd.m_collisionFilterArgs.m_linkIndexA);
+						}
+					}
 				}
 				else
 				{
-					if (clientCmd.m_collisionFilterArgs.m_linkIndexA >= 0 && clientCmd.m_collisionFilterArgs.m_linkIndexA < body->m_multiBody->getNumLinks())
+					if (body->m_rigidBody)
 					{
-						colObj = body->m_multiBody->getLinkCollider(clientCmd.m_collisionFilterArgs.m_linkIndexA);
+						colObj = body->m_rigidBody;
 					}
 				}
-			}
-			else
-			{
-				if (body->m_rigidBody)
+				if (colObj)
 				{
-					colObj = body->m_rigidBody;
+					colObj->getBroadphaseHandle()->m_collisionFilterGroup = clientCmd.m_collisionFilterArgs.m_collisionFilterGroup;
+					colObj->getBroadphaseHandle()->m_collisionFilterMask = clientCmd.m_collisionFilterArgs.m_collisionFilterMask;
+					m_data->m_dynamicsWorld->refreshBroadphaseProxy(colObj);
 				}
-			}
-			if (colObj)
-			{
-				colObj->getBroadphaseHandle()->m_collisionFilterGroup = clientCmd.m_collisionFilterArgs.m_collisionFilterGroup;
-				colObj->getBroadphaseHandle()->m_collisionFilterMask = clientCmd.m_collisionFilterArgs.m_collisionFilterMask;
-				m_data->m_dynamicsWorld->refreshBroadphaseProxy(colObj);
 			}
 		}
 	}
@@ -8065,6 +8068,21 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 
 						virtual btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
 						{
+							const btCollisionObject* colObj = (btCollisionObject*)colObj0Wrap->getCollisionObject();
+							const btMultiBodyLinkCollider* mbl = btMultiBodyLinkCollider::upcast(colObj);
+							int bodyUniqueId = -1;
+							if (mbl)
+							{
+								bodyUniqueId = mbl->m_multiBody->getUserIndex2();
+							}
+							else
+							{
+								bodyUniqueId = colObj->getUserIndex2();
+							}
+
+							
+							bool isSwapped = m_bodyUniqueIdA != bodyUniqueId;
+							
 							if (cp.m_distance1 <= m_closestDistanceThreshold)
 							{
 								b3ContactPointData pt;
@@ -8077,9 +8095,18 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 								pt.m_linkIndexB = m_linkIndexB;
 								for (int j = 0; j < 3; j++)
 								{
-									pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
-									pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
-									pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+									if (isSwapped)
+									{
+										pt.m_contactNormalOnBInWS[j] = -srcPt.m_normalWorldOnB[j];
+										pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnB()[j];
+										pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnA()[j];
+									}
+									else
+									{
+										pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
+										pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
+										pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+									}
 								}
 								pt.m_normalForce = srcPt.getAppliedImpulse() / m_deltaTime;
 								pt.m_linearFrictionForce1 = srcPt.m_appliedImpulseLateral1 / m_deltaTime;
