@@ -3477,7 +3477,7 @@ bool RtApiAsio ::probeDeviceOpen(unsigned int device, StreamMode mode, unsigned 
 	{
 		// Standard method failed. This can happen with strict/misbehaving drivers that return valid buffer size ranges
 		// but only accept the preferred buffer size as parameter for ASIOCreateBuffers. eg. Creatives ASIO driver
-		// in that case, let's be naïve and try that instead
+		// in that case, let's be naÃ¯ve and try that instead
 		*bufferSize = preferSize;
 		stream_.bufferSize = *bufferSize;
 		result = ASIOCreateBuffers(handle->bufferInfos, nChannels, stream_.bufferSize, &asioCallbacks);
