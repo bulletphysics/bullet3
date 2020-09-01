@@ -339,10 +339,7 @@ IF(BUILD_PYBULLET)
 	    set(EXACT_PYTHON_VERSION_FLAG EXACT REQUIRED)
 	ENDIF(EXACT_PYTHON_VERSION)
 	# first find the python interpreter
-	FIND_PACKAGE(PythonInterp ${PYTHON_VERSION_PYBULLET} ${EXACT_PYTHON_VERSION_FLAG})
-	# python library should exactly match that of the interpreter
-	# the following can result in fatal error if you don't have the right python configuration
-	FIND_PACKAGE(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+	FIND_PACKAGE(Python ${PYTHON_VERSION_PYBULLET} ${EXACT_PYTHON_VERSION_FLAG})
 ENDIF(BUILD_PYBULLET)
 
 OPTION(BUILD_ENET "Set when you want to build apps with enet UDP networking support" ON)
