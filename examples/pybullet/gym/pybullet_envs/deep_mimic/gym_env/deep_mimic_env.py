@@ -73,6 +73,12 @@ class HumanoidDeepBulletEnv(gym.Env):
     if self.test_mode:
         print("Environment running in TEST mode")
 
+    # cam options
+    self._cam_dist = 3
+    self._cam_pitch = 0.3
+    self._cam_yaw = 0.1
+    self._cam_roll = 0
+
     self.reset()
 
     # Query the policy at 30Hz
@@ -172,6 +178,8 @@ class HumanoidDeepBulletEnv(gym.Env):
 
     # Record done
     done = self._internal_env.is_episode_end()
+
+    self.camera_update()
     
     info = {}
     # get the reward info
@@ -202,6 +210,8 @@ class HumanoidDeepBulletEnv(gym.Env):
     # Record state
     self.state = self._internal_env.record_state(agent_id)
 
+    self.camera_update()
+
     # return state as ndarray
     state = np.array(self.state)
     if self._rescale_observations:
@@ -223,10 +233,6 @@ class HumanoidDeepBulletEnv(gym.Env):
     rpy = self._p.getEulerFromQuaternion(orn)  # rpy, in radians
     rpy = 180 / np.pi * np.asarray(rpy)  # convert rpy in degrees
 
-    self._cam_dist = 3
-    self._cam_pitch = 0.3
-    self._cam_yaw = 0.1
-    self._cam_roll = 0
     if (not self._p == None):
       view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
         cameraTargetPosition=base_pos,
@@ -245,12 +251,6 @@ class HumanoidDeepBulletEnv(gym.Env):
           renderer=self._p.ER_BULLET_HARDWARE_OPENGL,
           viewMatrix=view_matrix,
           projectionMatrix=proj_matrix)
-      # self._p.resetDebugVisualizerCamera(
-      #   cameraDistance=2 * self._cam_dist,
-      #   cameraYaw=self._cam_yaw,
-      #   cameraPitch=self._cam_pitch,
-      #   cameraTargetPosition=base_pos
-      # )
     else:
       px = np.array([[[255,255,255,255]]*self._render_width]*self._render_height, dtype=np.uint8)
     rgb_array = np.array(px, dtype=np.uint8)
@@ -264,6 +264,21 @@ class HumanoidDeepBulletEnv(gym.Env):
   def close(self):
     
     pass
+
+  def camera_update(self):
+    """Update the debug visualizer camera."""
+    # update camera
+    human = self._internal_env._humanoid
+    base_pos, base_orn = self._p.getBasePositionAndOrientation(
+        human._sim_model)
+    debug_caminfo = self._p.getDebugVisualizerCamera()
+    (yaw, pitch, cur_dist) = debug_caminfo[8:11]
+    self._cam_dist = cur_dist
+    self._p.resetDebugVisualizerCamera(
+        cameraDistance=self._cam_dist,
+        cameraYaw=yaw,
+        cameraPitch=pitch,
+        cameraTargetPosition=base_pos)
 
 class HumanoidDeepMimicBackflipBulletEnv(HumanoidDeepBulletEnv):
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
