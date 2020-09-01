@@ -239,7 +239,10 @@ void btDeformableBodySolver::reinitialize(const btAlignedObjectArray<btSoftBody*
 		m_residual[i].setZero();
 	}
 
-	m_dt = dt;
+	if (dt > 0)
+	{
+		m_dt = dt;
+	}
 	m_objective->reinitialize(nodeUpdated, dt);
 	updateSoftBodies();
 }
