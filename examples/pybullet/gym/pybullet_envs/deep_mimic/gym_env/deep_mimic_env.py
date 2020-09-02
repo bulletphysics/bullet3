@@ -23,7 +23,6 @@ from pybullet_envs.deep_mimic.env.pybullet_deep_mimic_env import PyBulletDeepMim
 from pybullet_utils.arg_parser import ArgParser
 from pybullet_utils.logger import Logger
 
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -51,9 +50,9 @@ class HumanoidDeepBulletEnv(gym.Env):
       Logger.print2(arg_file)
     assert succ, Logger.print2('Failed to load args from: ' + arg_file)
 
-    self._p: Optional[BulletClient] = None
+    self._p = None
     self._time_step = time_step
-    self._internal_env: Optional[PyBulletDeepMimicEnv] = None
+    self._internal_env = None
     self._renders = renders
     self._discrete_actions = False
     self._arg_file = arg_file
