@@ -104,8 +104,6 @@ btMultiBody::btMultiBody(int n_links,
       m_baseQuat_interpolate(0, 0, 0, 1),
 	  m_baseMass(mass),
 	  m_baseInertia(inertia),
-
-	  m_fixedBase(fixedBase),
 	  m_awake(true),
 	  m_canSleep(canSleep),
 	  m_canWakeup(true),
@@ -127,6 +125,8 @@ btMultiBody::btMultiBody(int n_links,
 	  m_useGlobalVelocities(false),
 	  m_internalNeedsJointFeedback(false)
 {
+  setFixedBase(fixedBase);
+
 	m_cachedInertiaTopLeft.setValue(0, 0, 0, 0, 0, 0, 0, 0, 0);
 	m_cachedInertiaTopRight.setValue(0, 0, 0, 0, 0, 0, 0, 0, 0);
 	m_cachedInertiaLowerLeft.setValue(0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -798,7 +798,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	//create the vector of spatial velocity of the base by transforming global-coor linear and angular velocities into base-local coordinates
 	spatVel[0].setVector(rot_from_parent[0] * base_omega, rot_from_parent[0] * base_vel);
 
-	if (m_fixedBase)
+	if (m_base_dynamic_type != DYNAMIC_OBJECT)
 	{
 		zeroAccSpatFrc[0].setZero();
 	}
@@ -1049,7 +1049,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	// Second 'upward' loop
 	// (part of TreeForwardDynamics in Mirtich)
 
-	if (m_fixedBase)
+	if (m_base_dynamic_type != DYNAMIC_OBJECT)
 	{
 		spatAcc[0].setZero();
 	}
@@ -1434,7 +1434,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 
 	// Fill in zero_acc
 	// -- set to force/torque on the base, zero otherwise
-	if (m_fixedBase)
+	if (m_base_dynamic_type != DYNAMIC_OBJECT)
 	{
 		zeroAccSpatFrc[0].setZero();
 	}
@@ -1496,7 +1496,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	// Second 'upward' loop
 	// (part of TreeForwardDynamics in Mirtich)
 
-	if (m_fixedBase)
+	if (m_base_dynamic_type != DYNAMIC_OBJECT)
 	{
 		spatAcc[0].setZero();
 	}

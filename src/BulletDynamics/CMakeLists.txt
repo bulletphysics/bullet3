@@ -83,6 +83,7 @@ SET(Dynamics_HDRS
 	Dynamics/btDynamicsWorld.h
 	Dynamics/btSimpleDynamicsWorld.h
 	Dynamics/btRigidBody.h
+	Dynamics/btObjectDynamicTypes.h
 )
 SET(Vehicle_HDRS
 	Vehicle/btRaycastVehicle.h

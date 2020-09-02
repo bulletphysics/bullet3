@@ -583,7 +583,7 @@ public:
 	virtual ~MultithreadedDebugDrawer()
 	{
 	}
-	virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
+	virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override
 	{
 		{
 			ColorWidth cw;
@@ -617,25 +617,25 @@ public:
 		}
 	}
 
-	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
+	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) override
 	{
 		drawLine(PointOnB, PointOnB + normalOnB * distance, color);
 		btVector3 ncolor(0, 0, 0);
 		drawLine(PointOnB, PointOnB + normalOnB * 0.01, ncolor);
 	}
 
-	virtual void reportErrorWarning(const char* warningString)
+	virtual void reportErrorWarning(const char* warningString) override
 	{
 	}
-	virtual void draw3dText(const btVector3& location, const char* textString)
+	virtual void draw3dText(const btVector3& location, const char* textString) override
 	{
 	}
-	virtual void setDebugMode(int debugMode)
+	virtual void setDebugMode(int debugMode) override
 	{
 		m_debugMode = debugMode;
 	}
 
-	virtual int getDebugMode() const
+	virtual int getDebugMode() const override
 	{
 		return m_debugMode;
 	}
@@ -646,7 +646,7 @@ public:
 		m_sortedIndices.clear();
 		m_sortedLines.clear();
 	}
-	virtual void flushLines()
+	virtual void flushLines() override
 	{
 	}
 };
@@ -672,15 +672,15 @@ public:
 			m_csGUI->unlock();
 		}
 	}
-        virtual void clearLines()
-        {
-			m_csGUI->lock();
-			if (m_debugDraw)
-			{
-				m_debugDraw->clearLines();
-			}
-			m_csGUI->unlock();
+	virtual void clearLines()
+	{
+		m_csGUI->lock();
+		if (m_debugDraw)
+		{
+			m_debugDraw->clearLines();
 		}
+		m_csGUI->unlock();
+	}
         
 	GUIHelperInterface* m_childGuiHelper;
 
