@@ -98,10 +98,7 @@ void BasicExample::initPhysics()
 						btScalar(2 + .2 * k),
 						btScalar(0.2 * j)));
 
-					if((i+j)%2)
-						createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), STATIC_OBJECT);
-					else
-						createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), DYNAMIC_OBJECT);
+					createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), DYNAMIC_OBJECT);
 				}
 			}
 		}
