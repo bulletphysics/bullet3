@@ -1801,7 +1801,7 @@ class btHeightfieldTerrainShape* btWorldImporter::createHeightfieldShape(int hei
 btRigidBody& btWorldImporter::getFixedBody()
 {
 	static btRigidBody s_fixed(0, 0, 0);
-	s_fixed.setMassProps(btScalar(0.), btVector3(btScalar(0.), btScalar(0.), btScalar(0.)));
+	s_fixed.setMassProps(btScalar(0.), btVector3(btScalar(0.), btScalar(0.), btScalar(0.)), STATIC_OBJECT);
 	return s_fixed;
 }
 

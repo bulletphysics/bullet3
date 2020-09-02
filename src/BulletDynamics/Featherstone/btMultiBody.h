@@ -29,6 +29,7 @@
 #include "LinearMath/btQuaternion.h"
 #include "LinearMath/btMatrix3x3.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "BulletDynamics/Dynamics/btObjectDynamicTypes.h"
 
 ///serialization data, don't change them if you are not familiar with the details of the serialization mechanisms
 #ifdef BT_USE_DOUBLE_PRECISION
@@ -522,12 +523,15 @@ public:
 
 	bool hasFixedBase() const
 	{
-		return m_fixedBase;
+		return m_base_dynamic_type == STATIC_OBJECT;
 	}
 
 	void setFixedBase(bool fixedBase)
 	{
-		m_fixedBase = fixedBase;
+		if(fixedBase)
+			m_base_dynamic_type = STATIC_OBJECT;
+		else
+			m_base_dynamic_type = DYNAMIC_OBJECT;
 	}
 
 	int getCompanionId() const
@@ -748,7 +752,7 @@ private:
 	btMatrix3x3 m_cachedInertiaLowerRight;
 	bool m_cachedInertiaValid;
 
-	bool m_fixedBase;
+	ObjectDynamicTypes m_base_dynamic_type;
 
 	// Sleep parameters.
 	bool m_awake;

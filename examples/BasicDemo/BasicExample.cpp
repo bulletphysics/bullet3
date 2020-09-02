@@ -69,7 +69,7 @@ void BasicExample::initPhysics()
 
 	{
 		btScalar mass(0.);
-		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
+		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1), STATIC_OBJECT);
 	}
 
 	{
@@ -87,13 +87,6 @@ void BasicExample::initPhysics()
 
 		btScalar mass(1.f);
 
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
-		btVector3 localInertia(0, 0, 0);
-		if (isDynamic)
-			colShape->calculateLocalInertia(mass, localInertia);
-
 		for (int k = 0; k < ARRAY_SIZE_Y; k++)
 		{
 			for (int i = 0; i < ARRAY_SIZE_X; i++)
@@ -105,7 +98,10 @@ void BasicExample::initPhysics()
 						btScalar(2 + .2 * k),
 						btScalar(0.2 * j)));
 
-					createRigidBody(mass, startTransform, colShape);
+					if((i+j)%2)
+						createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), STATIC_OBJECT);
+					else
+						createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), DYNAMIC_OBJECT);
 				}
 			}
 		}

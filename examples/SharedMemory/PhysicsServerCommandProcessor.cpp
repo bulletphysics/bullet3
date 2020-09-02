@@ -4540,7 +4540,7 @@ static unsigned char* MyGetRawHeightfieldData(CommonFileIOInterface& fileIO, PHY
 			if (slot >= 0)
 			{
 				char* lineChar;
-				while (lineChar = fileIO.readLine(slot, &lineBuffer[0], MYLINELENGTH))
+				while ((lineChar = fileIO.readLine(slot, &lineBuffer[0], MYLINELENGTH)))
 				{
 					rows = 0;
 					std::string line(lineChar);
@@ -9545,14 +9545,14 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 				{
 					rb->getCollisionShape()->calculateLocalInertia(mass, localInertia);
 				}
-				rb->setMassProps(mass, localInertia);
+				rb->setMassProps(mass, localInertia, DYNAMIC_OBJECT);
 			}
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
 			{
 				btScalar orgMass = rb->getInvMass();
 				if (orgMass > 0)
 				{
-					rb->setMassProps(mass, newLocalInertiaDiagonal);
+					rb->setMassProps(mass, newLocalInertiaDiagonal, DYNAMIC_OBJECT);
 				}
 			}
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION)

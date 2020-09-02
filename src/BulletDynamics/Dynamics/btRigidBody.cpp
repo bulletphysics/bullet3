@@ -85,7 +85,7 @@ void btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	setCollisionShape(constructionInfo.m_collisionShape);
 	m_debugBodyId = uniqueId++;
 
-	setMassProps(constructionInfo.m_mass, constructionInfo.m_localInertia);
+	setMassProps(constructionInfo.m_mass, constructionInfo.m_localInertia, constructionInfo.m_object_dynamic_type);
 	updateInertiaTensor();
 
 	m_rigidbodyFlags = BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY;
@@ -223,8 +223,9 @@ void btRigidBody::proceedToTransform(const btTransform& newTrans)
 	setCenterOfMassTransform(newTrans);
 }
 
-void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
+void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia, ObjectDynamicTypes object_dynamic_type)
 {
+	// If mass is zero, the object is considered static with infinite mass.
 	if (mass == btScalar(0.))
 	{
 		m_collisionFlags |= btCollisionObject::CF_STATIC_OBJECT;
@@ -235,6 +236,8 @@ void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia)
 		m_collisionFlags &= (~btCollisionObject::CF_STATIC_OBJECT);
 		m_inverseMass = btScalar(1.0) / mass;
 	}
+	// If object is explicitly specified, as static or kinematic, the mass information is kept, and we set the collision flags.
+	m_collisionFlags |= object_dynamic_type;
 
 	//Fg = m * a
 	m_gravity = mass * m_gravity_acceleration;
