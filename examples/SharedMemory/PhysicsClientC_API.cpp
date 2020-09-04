@@ -3701,6 +3701,8 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CreateRaycastCommandInit(b3PhysicsCl
 	command->m_requestRaycastIntersections.m_numCommandRays = 1;
 	command->m_requestRaycastIntersections.m_numStreamingRays = 0;
 	command->m_requestRaycastIntersections.m_numThreads = 1;
+	command->m_requestRaycastIntersections.m_parentObjectUniqueId = -1;
+	command->m_requestRaycastIntersections.m_parentLinkIndex=-1;
 
 	command->m_requestRaycastIntersections.m_numCommandRays = 1;
 	command->m_requestRaycastIntersections.m_fromToRays[0].m_rayFromPosition[0] = rayFromWorldX;
