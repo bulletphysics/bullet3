@@ -1292,6 +1292,8 @@ int EGLRendererVisualShapeConverter::convertVisualShapes(
 				double scaling[3] = { 1, 1, 1 };
 				int graphicsIndex = m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0], scaling);
 				
+				visuals->graphicsIndex = graphicsIndex;  //used to index m_publicGraphicsInstances
+
 				int segmentationMask = bodyUniqueId + ((linkIndex + 1) << 24);
 				{
 					if (graphicsIndex >= 0)
@@ -1772,6 +1774,8 @@ void EGLRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsR
 						  startPixelIndex, widthPtr, heightPtr, numPixelsCopied);
 }
 
+// collisionObjectUniqueId is actually orgGraphicsUniqueId
+// it indexes m_swRenderInstances
 void EGLRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqueId)
 {
 	EGLRendererObjectArray** ptrptr = m_data->m_swRenderInstances[collisionObjectUniqueId];
@@ -1780,6 +1784,16 @@ void EGLRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqu
 		EGLRendererObjectArray* ptr = *ptrptr;
 		if (ptr)
 		{
+			// recover data from swRenderInstance and use to index m_visualShapes
+			int bodyUniqueId = ptr->m_objectUniqueId;
+			int linkIndex = ptr->m_linkIndex;
+			for (int i = 0; i < m_data->m_visualShapes.size(); i++)
+			{
+				if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId && m_data->m_visualShapes[i].m_linkIndex == linkIndex)
+				{
+					m_data->m_visualShapes.removeAtIndex(i);
+				}
+			}
 			for (int i = 0; i < ptr->m_graphicsInstanceIds.size(); i++)
 			{
 				m_data->m_instancingRenderer->removeGraphicsInstance(ptr->m_graphicsInstanceIds[i]);

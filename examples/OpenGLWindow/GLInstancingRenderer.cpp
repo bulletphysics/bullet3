@@ -196,6 +196,13 @@ struct InternalTextureHandle
 	int m_width;
 	int m_height;
 	int m_enableFiltering;
+
+        InternalTextureHandle()
+                : m_width(-1),
+                  m_height(-1),
+                  m_enableFiltering(-1)
+        {
+        }
 };
 
 struct b3PublicGraphicsInstanceData
@@ -206,6 +213,12 @@ struct b3PublicGraphicsInstanceData
 	GLfloat m_orientation[4];
 	GLfloat m_color[4];
 	GLfloat m_scale[4];
+
+        b3PublicGraphicsInstanceData()
+                : m_shapeIndex(-1),
+                  m_internalInstanceIndex(-1)
+        {
+        }
 
 	void clear()
 	{
@@ -900,6 +913,7 @@ void GLInstancingRenderer::removeGraphicsInstance(int instanceUid)
 	}
 }
 
+// returns m_publicGraphicsInstances index == newUid == m_swRenderInstances[]->graphicsIndex (in eglRendererVisualShapeConverter)
 int GLInstancingRenderer::registerGraphicsInstanceInternal(int newUid, const float* position, const float* quaternion, const float* color, const float* scaling)
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(newUid);
