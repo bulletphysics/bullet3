@@ -2159,7 +2159,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 #endif  //OLD_SHADOWMAP_INIT
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 			float l_ClampColor[] = {1.0, 1.0, 1.0, 1.0};
 			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, l_ClampColor);
@@ -2351,7 +2351,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 
 					if (m_data->m_textureHandles[gfxObj->m_textureIndex].m_enableFiltering)
 					{
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 					}
 					else
@@ -2483,7 +2483,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 								glUniform3f(regularLightDirIn, gLightDir[0], gLightDir[1], gLightDir[2]);
 
 								glUniform1i(uniform_texture_diffuse, 0);
-
+								glEnable(GL_MULTISAMPLE);
 								if (gfxObj->m_flags & B3_INSTANCE_TRANSPARANCY)
 								{
 									int instanceId = transparentInstances[i].m_instanceId;
@@ -2724,6 +2724,7 @@ void GLInstancingRenderer::enableShadowMap()
 void GLInstancingRenderer::clearZBuffer()
 {
 	glClear(GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_MULTISAMPLE);
 }
 
 int GLInstancingRenderer::getMaxShapeCapacity() const
