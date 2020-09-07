@@ -5927,6 +5927,19 @@ B3_SHARED_API void b3ConfigureOpenGLVisualizerSetShadowMapResolution(b3SharedMem
 	}
 }
 
+B3_SHARED_API void b3ConfigureOpenGLVisualizerSetShadowMapIntensity(b3SharedMemoryCommandHandle commandHandle, double shadowMapIntensity)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+	if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+	{
+		command->m_updateFlags |= COV_SET_SHADOWMAP_INTENSITY;
+		command->m_configureOpenGLVisualizerArguments.m_shadowMapIntensity = shadowMapIntensity;
+	}
+}
+
+
 B3_SHARED_API void b3ConfigureOpenGLVisualizerSetShadowMapWorldSize(b3SharedMemoryCommandHandle commandHandle, int shadowMapWorldSize)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;

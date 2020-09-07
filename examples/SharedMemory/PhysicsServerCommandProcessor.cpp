@@ -10688,6 +10688,13 @@ bool PhysicsServerCommandProcessor::processConfigureOpenGLVisualizerCommand(cons
 		{
 			m_data->m_guiHelper->getRenderInterface()->setShadowMapResolution(clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapResolution);
 		}
+
+		if (clientCmd.m_updateFlags & COV_SET_SHADOWMAP_INTENSITY)
+		{
+			m_data->m_guiHelper->getRenderInterface()->setShadowMapIntensity(clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapIntensity);
+		}
+
+
 		if (clientCmd.m_updateFlags & COV_SET_SHADOWMAP_WORLD_SIZE)
 		{
 			float worldSize = clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapWorldSize;

@@ -228,7 +228,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	b3Vector3 m_lightPos;
 	b3Vector3 m_lightSpecularIntensity;
-
+	float m_shadowmapIntensity;
 	GLuint m_defaultTexturehandle;
 	b3AlignedObjectArray<InternalTextureHandle> m_textureHandles;
 
@@ -257,6 +257,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		
 		m_lightPos = b3MakeVector3(-50, 30, 40);
 		m_lightSpecularIntensity.setValue(1, 1, 1);
+		m_shadowmapIntensity = 0.3;
 
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i = 0; i < 16; i++)
@@ -317,6 +318,8 @@ static GLint useShadow_MVP = 0;
 static GLint useShadow_lightPosIn = 0;
 static GLint useShadow_cameraPositionIn = 0;
 static GLint useShadow_materialShininessIn = 0;
+static GLint useShadow_shadowmapIntensityIn = 0;
+
 
 static GLint useShadow_ProjectionMatrix = 0;
 static GLint useShadow_DepthBiasModelViewMatrix = 0;
@@ -1299,6 +1302,8 @@ void GLInstancingRenderer::InitShaders()
 	useShadow_lightPosIn = glGetUniformLocation(useShadowMapInstancingShader, "lightPosIn");
 	useShadow_cameraPositionIn = glGetUniformLocation(useShadowMapInstancingShader, "cameraPositionIn");
 	useShadow_materialShininessIn = glGetUniformLocation(useShadowMapInstancingShader, "materialShininessIn");
+	useShadow_shadowmapIntensityIn = glGetUniformLocation(useShadowMapInstancingShader, "shadowmapIntensityIn");
+	
 
 	createShadowMapInstancingShader = gltLoadShaderPair(createShadowMapInstancingVertexShader, createShadowMapInstancingFragmentShader);
 	glLinkProgram(createShadowMapInstancingShader);
@@ -1475,6 +1480,12 @@ void GLInstancingRenderer::setLightPosition(const float lightPos[3])
 	m_data->m_lightPos[2] = lightPos[2];
 }
 
+void GLInstancingRenderer::setShadowMapIntensity(double shadowMapIntensity)
+{
+	m_data->m_shadowmapIntensity = shadowMapIntensity;
+}
+
+
 void GLInstancingRenderer::setShadowMapResolution(int shadowMapResolution)
 {
 	m_data->m_shadowMapWidth = shadowMapResolution;
@@ -1612,6 +1623,10 @@ void GLInstancingRenderer::renderScene()
 		if (useShadowMap)
 		{
 			renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
+
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
+			glGenerateMipmap(GL_TEXTURE_2D);
 
 			if (m_planeReflectionShapeIndex >= 0)
 			{
@@ -2159,7 +2174,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 #endif  //OLD_SHADOWMAP_INIT
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 			float l_ClampColor[] = {1.0, 1.0, 1.0, 1.0};
 			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, l_ClampColor);
@@ -2183,7 +2198,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 		//	return;
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);  // Cull back-facing triangles -> draw only front-facing triangles
-
+		glGenerateMipmap(GL_TEXTURE_2D);
 		b3Assert(glGetError() == GL_NO_ERROR);
 	}
 	else
@@ -2511,6 +2526,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 							{
 								glUseProgram(createShadowMapInstancingShader);
 								glUniformMatrix4fv(createShadow_depthMVP, 1, false, &depthMVP[0][0]);
+								glEnable(GL_MULTISAMPLE);
 								glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 								break;
 							}
@@ -2561,12 +2577,15 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 								m_data->m_activeCamera->getCameraPosition(camPos);
 								glUniform3f(useShadow_cameraPositionIn, camPos[0], camPos[1], camPos[2]);
 								glUniform1f(useShadow_materialShininessIn, gfxObj->m_materialShinyNess);
-
+								glUniform1f(useShadow_shadowmapIntensityIn, m_data->m_shadowmapIntensity);
+								
+								
 								glUniformMatrix4fv(useShadow_DepthBiasModelViewMatrix, 1, false, &depthBiasMVP[0][0]);
 								glActiveTexture(GL_TEXTURE1);
 								glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
-								glUniform1i(useShadow_shadowMap, 1);
 
+								glUniform1i(useShadow_shadowMap, 1);
+								glEnable(GL_MULTISAMPLE);
 								//sort transparent objects
 
 								//gfxObj->m_instanceOffset

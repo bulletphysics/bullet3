@@ -19,6 +19,7 @@ uniform vec3 lightPosIn;
 uniform vec3 cameraPositionIn;
 uniform mat4 ViewMatrixInverse;
 uniform float materialShininessIn;
+uniform float shadowmapIntensityIn;
 uniform vec3 lightSpecularIntensityIn;
 uniform vec3 materialSpecularColorIn;
 
@@ -69,6 +70,7 @@ out vec3 lightPos,normal,ambient;
 out vec4 vertexPos;
 out vec3 cameraPosition;
 out float materialShininess;
+out float shadowmapIntensity;
 out vec3 lightSpecularIntensity;
 out vec3 materialSpecularColor;
 
@@ -85,6 +87,8 @@ void main(void)
 	lightPos = lightPosIn;
 	cameraPosition = cameraPositionIn;
 	materialShininess = materialShininessIn;
+	
+	shadowmapIntensity = shadowmapIntensityIn;
 	lightSpecularIntensity = lightSpecularIntensityIn;
 	materialSpecularColor = materialSpecularColorIn;
 	

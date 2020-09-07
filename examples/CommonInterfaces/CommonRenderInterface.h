@@ -57,6 +57,8 @@ struct CommonRenderInterface
 	virtual void setLightPosition(const float lightPos[3]) = 0;
 	virtual void setLightPosition(const double lightPos[3]) = 0;
 	virtual void setShadowMapResolution(int shadowMapResolution) = 0;
+	virtual void setShadowMapIntensity(double shadowMapIntensity) = 0;
+	
 	virtual void setShadowMapWorldSize(float worldSize) = 0;
 	
 	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]){};

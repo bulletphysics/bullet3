@@ -7229,15 +7229,16 @@ static PyObject* pybullet_configureDebugVisualizer(PyObject* self, PyObject* arg
 	int flag = -1;
 	int enable = -1;
 	int shadowMapResolution = -1;
+	double shadowMapIntensity = -1;
 	int shadowMapWorldSize = -1;
 	int physicsClientId = 0;
 	double remoteSyncTransformInterval = -1;
 	PyObject* pyLightPosition = 0;
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"flag", "enable", "lightPosition", "shadowMapResolution", "shadowMapWorldSize", "remoteSyncTransformInterval", "physicsClientId", NULL};
+	static char* kwlist[] = {"flag", "enable", "lightPosition", "shadowMapResolution", "shadowMapWorldSize", "remoteSyncTransformInterval", "shadowMapIntensity", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiOiidi", kwlist,
-									 &flag, &enable, &pyLightPosition, &shadowMapResolution, &shadowMapWorldSize, &remoteSyncTransformInterval, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiOiiddi", kwlist,
+									 &flag, &enable, &pyLightPosition, &shadowMapResolution, &shadowMapWorldSize, &remoteSyncTransformInterval, &shadowMapIntensity,  &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -7261,6 +7262,12 @@ static PyObject* pybullet_configureDebugVisualizer(PyObject* self, PyObject* arg
 				b3ConfigureOpenGLVisualizerSetLightPosition(commandHandle, lightPosition);
 			}
 		}
+		if (shadowMapIntensity >= 0)
+		{
+			b3ConfigureOpenGLVisualizerSetShadowMapIntensity(commandHandle, shadowMapIntensity);
+		}
+
+
 		if (shadowMapResolution > 0)
 		{
 			b3ConfigureOpenGLVisualizerSetShadowMapResolution(commandHandle, shadowMapResolution);
