@@ -19,6 +19,7 @@ in vec3 lightPos,cameraPosition, normal,ambient;
 in vec4 ShadowCoord;
 in vec4 vertexPos;
 in float materialShininess;
+in float shadowmapIntensity;
 in vec3 lightSpecularIntensity;
 in vec3 materialSpecularColor;
 
@@ -69,7 +70,7 @@ void main(void)
 	if (intensity<0.5)
 		visibility = 0;
 
-	intensity = 0.7*intensity  + 0.3*intensity*visibility;
+	intensity = (1.0-shadowmapIntensity)*intensity  + shadowmapIntensity*intensity*visibility;
 	
 	cf = intensity*(vec3(1.0,1.0,1.0)-ambient)+ambient+specularReflection*visibility;
 	color  = vec4(ct * cf, fragment.color.w);

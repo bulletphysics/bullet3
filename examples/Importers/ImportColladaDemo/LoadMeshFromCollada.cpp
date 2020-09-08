@@ -64,7 +64,7 @@ struct TokenIntArray
 };
 
 template <typename AddToken>
-void tokenize(const std::string& str, AddToken& tokenAdder, const std::string& delimiters = " ")
+void tokenize(const std::string& str, AddToken& tokenAdder, const std::string& delimiters = " \n")
 {
 	std::string::size_type pos, lastPos = 0;
 	while (true)
@@ -104,6 +104,7 @@ void readFloatArray(XMLElement* source, btAlignedObjectArray<float>& floatArray,
 		array->QueryIntAttribute("count", &numVals);
 		TokenFloatArray adder(floatArray);
 		floatArray.reserve(numVals);
+		std::string txt = array->GetText();
 		tokenize(array->GetText(), adder);
 		assert(floatArray.size() == numVals);
 	}
@@ -266,7 +267,8 @@ void readLibraryGeometries(XMLDocument& doc, btAlignedObjectArray<GLInstanceGrap
 				btAlignedObjectArray<int> curIndices;
 				curIndices.reserve(numIndices * indexStride);
 				TokenIntArray adder(curIndices);
-				tokenize(primitive->FirstChildElement("p")->GetText(), adder);
+				std::string txt = primitive->FirstChildElement("p")->GetText();
+				tokenize(txt, adder);
 				assert(curIndices.size() == numIndices * indexStride);
 				int indexOffset = vertexPositions.size();
 

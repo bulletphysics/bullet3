@@ -27,6 +27,7 @@ public:
 	virtual void setLightPosition(const float lightPos[3]);
 	virtual void setLightPosition(const double lightPos[3]);
 	virtual void setShadowMapResolution(int shadowMapResolution) {}
+	virtual void setShadowMapIntensity(double shadowMapIntensity) {}
 	virtual void setShadowMapWorldSize(float worldSize) {}
 	virtual void resize(int width, int height);
 
