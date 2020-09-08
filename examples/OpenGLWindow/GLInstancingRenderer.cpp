@@ -1624,10 +1624,6 @@ void GLInstancingRenderer::renderScene()
 		{
 			renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
 
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
-			glGenerateMipmap(GL_TEXTURE_2D);
-
 			if (m_planeReflectionShapeIndex >= 0)
 			{
 				/* Don't update color or depth. */
@@ -2361,12 +2357,21 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 				if (gfxObj->m_flags & B3_INSTANCE_TEXTURE)
 				{
 					curBindTexture = m_data->m_textureHandles[gfxObj->m_textureIndex].m_glTexture;
-
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+					glBindTexture(GL_TEXTURE_2D, curBindTexture);
 
 					if (m_data->m_textureHandles[gfxObj->m_textureIndex].m_enableFiltering)
 					{
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+						if (renderMode == B3_CREATE_SHADOWMAP_RENDERMODE)
+						{
+							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+						}
+						else
+						{
+							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+							
+						}
+						
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 					}
 					else
@@ -2378,13 +2383,12 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 				else
 				{
 					curBindTexture = m_data->m_defaultTexturehandle;
+					glBindTexture(GL_TEXTURE_2D, curBindTexture);
 				}
 
 				//disable lazy evaluation, it just leads to bugs
 				//if (lastBindTexture != curBindTexture)
-				{
-					glBindTexture(GL_TEXTURE_2D, curBindTexture);
-				}
+				
 				//lastBindTexture = curBindTexture;
 
 				b3Assert(glGetError() == GL_NO_ERROR);
