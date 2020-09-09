@@ -13,6 +13,7 @@
 #include "../MultiThreading/b3ThreadSupportInterface.h"
 #include "SharedMemoryPublic.h"
 //#define BT_ENABLE_VR
+#define SYNC_CAMERA_USING_GUI_CS
 #ifdef BT_ENABLE_VR
 #include "../RenderingExamples/TinyVRGui.h"
 #endif  //BT_ENABLE_VR
@@ -740,18 +741,19 @@ public:
 
 	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* app, GUIHelperInterface* guiHelper, int skipGraphicsUpdate)
 		:  //m_app(app),
-		  m_cs(0),
-		  m_cs2(0),
-		  m_cs3(0),
-		  m_csGUI(0),
-		  m_debugDraw(0),
-		  m_uidGenerator(0),
-		  m_texels(0),
-		  m_shapeIndex(-1),
-		  m_textureId(-1),
-		  m_instanceId(-1),
-		  m_skipGraphicsUpdate(skipGraphicsUpdate)
+		m_cs(0),
+		m_cs2(0),
+		m_cs3(0),
+		m_csGUI(0),
+		m_debugDraw(0),
+		m_uidGenerator(0),
+		m_texels(0),
+		m_shapeIndex(-1),
+		m_textureId(-1),
+		m_instanceId(-1),
+		m_skipGraphicsUpdate(skipGraphicsUpdate)
 	{
+		m_cameraUpdated = 0;
 		m_childGuiHelper = guiHelper;
 	}
 
@@ -805,6 +807,12 @@ public:
 	{
 		return m_cs3;
 	}
+	
+	b3CriticalSection* getCriticalSectionGUI()
+	{
+		return m_csGUI;
+	}
+	
 	btRigidBody* m_body;
 	btVector3 m_color3;
 	virtual void createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color)
@@ -1087,6 +1095,8 @@ public:
 	{
 		m_childGuiHelper->setUpAxis(axis);
 	}
+	
+	bool  m_cameraUpdated;
 	float m_resetCameraCamDist;
 	float m_resetCameraYaw;
 	float m_resetCameraPitch;
@@ -1096,16 +1106,22 @@ public:
 
 	virtual void resetCamera(float camDist, float yaw, float pitch, float camPosX, float camPosY, float camPosZ)
 	{
-		m_cs->lock();
+		m_csGUI->lock();
+		m_cameraUpdated = true;
 		m_resetCameraCamDist = camDist;
 		m_resetCameraYaw = yaw;
 		m_resetCameraPitch = pitch;
 		m_resetCameraCamPosX = camPosX;
 		m_resetCameraCamPosY = camPosY;
 		m_resetCameraCamPosZ = camPosZ;
+
+#ifdef SYNC_CAMERA_USING_GUI_CS
+		m_csGUI->unlock();
+#else
 		m_cs->setSharedParam(1, eGUIHelperResetCamera);
 		workerThreadWait();
-		//m_childGuiHelper->resetCamera(camDist, yaw, pitch, camPosX, camPosY, camPosZ);
+		m_childGuiHelper->resetCamera(camDist, yaw, pitch, camPosX, camPosY, camPosZ);
+#endif //SYNC_CAMERA_USING_GUI_CS
 	}
 
 	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3], float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float camTarget[3]) const
@@ -1948,6 +1964,21 @@ void PhysicsServerExample::updateGraphics()
 {
 	//check if any graphics related tasks are requested
 
+#ifdef SYNC_CAMERA_USING_GUI_CS
+	m_multiThreadedHelper->getCriticalSectionGUI()->lock();
+	if (m_multiThreadedHelper->m_cameraUpdated)
+	{
+		m_multiThreadedHelper->m_cameraUpdated = false;
+		m_multiThreadedHelper->m_childGuiHelper->resetCamera(
+			m_multiThreadedHelper->m_resetCameraCamDist,
+			m_multiThreadedHelper->m_resetCameraYaw,
+			m_multiThreadedHelper->m_resetCameraPitch,
+			m_multiThreadedHelper->m_resetCameraCamPosX,
+			m_multiThreadedHelper->m_resetCameraCamPosY,
+			m_multiThreadedHelper->m_resetCameraCamPosZ);
+	}
+	m_multiThreadedHelper->getCriticalSectionGUI()->unlock();
+#endif
 	switch (m_multiThreadedHelper->getCriticalSection()->getSharedParam(1))
 	{
 		case eGUIHelperCreateCollisionShapeGraphicsObject:
@@ -2586,6 +2617,7 @@ void PhysicsServerExample::stepSimulation(float deltaTime)
 		}
 	}
 	updateGraphics();
+
 
 	{
 		if (m_multiThreadedHelper->m_childGuiHelper->getRenderInterface())
