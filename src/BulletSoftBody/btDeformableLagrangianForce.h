@@ -38,6 +38,7 @@ static inline double randomDouble(double low, double high)
 class btDeformableLagrangianForce
 {
 public:
+	int m_softBody_index = -1;
 	typedef btAlignedObjectArray<btVector3> TVStack;
 	btAlignedObjectArray<btSoftBody*> m_softBodies;
 	const btAlignedObjectArray<btSoftBody::Node*>* m_nodes;

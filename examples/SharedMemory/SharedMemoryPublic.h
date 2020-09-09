@@ -7,8 +7,6 @@
 //Please don't replace an existing magic number:
 //instead, only ADD a new one at the top, comment-out previous one
 
-
-
 #define SHARED_MEMORY_MAGIC_NUMBER 202007060
 //#define SHARED_MEMORY_MAGIC_NUMBER 202005070
 //#define SHARED_MEMORY_MAGIC_NUMBER 202002030
@@ -393,6 +391,14 @@ struct b3DynamicsInfo
 	double m_contactProcessingThreshold;
 	int m_frictionAnchor;
 	double m_collisionMargin;
+
+	double m_springElasticStiffness;
+	double m_springDampingStiffness;
+	int m_springDampingAllDirections;
+	double m_springBendingStiffness;
+	double m_NeoHookeanMu;
+	double m_NeoHookeanLambda;
+	double m_NeoHookeanDamping;
 };
 
 // copied from btMultiBodyLink.h
@@ -453,10 +459,9 @@ struct b3MeshVertex
 	double x, y, z, w;
 };
 
-
 enum eMeshDataEnum
 {
-	B3_MESH_DATA_COLLISIONSHAPEINDEX=1,
+	B3_MESH_DATA_COLLISIONSHAPEINDEX = 1,
 };
 
 struct b3MeshData
@@ -598,9 +603,9 @@ enum b3NotificationType
 
 enum b3ResetSimulationFlags
 {
-	RESET_USE_DEFORMABLE_WORLD=1,
-	RESET_USE_DISCRETE_DYNAMICS_WORLD=2,
-	RESET_USE_SIMPLE_BROADPHASE=4,
+	RESET_USE_DEFORMABLE_WORLD = 1,
+	RESET_USE_DISCRETE_DYNAMICS_WORLD = 2,
+	RESET_USE_SIMPLE_BROADPHASE = 4,
 };
 
 struct b3BodyNotificationArgs
@@ -904,11 +909,11 @@ enum eCONNECT_METHOD
 	eCONNECT_DART = 10,
 	eCONNECT_MUJOCO = 11,
 	eCONNECT_GRPC = 12,
-	eCONNECT_PHYSX=13,
-	eCONNECT_SHARED_MEMORY_GUI=14,
+	eCONNECT_PHYSX = 13,
+	eCONNECT_SHARED_MEMORY_GUI = 14,
 	eCONNECT_GRAPHICS_SERVER = 15,
 	eCONNECT_GRAPHICS_SERVER_TCP = 16,
-	eCONNECT_GRAPHICS_SERVER_MAIN_THREAD=17
+	eCONNECT_GRAPHICS_SERVER_MAIN_THREAD = 17
 };
 
 enum eURDF_Flags
@@ -1024,7 +1029,6 @@ struct b3PhysicsSimulationParameters
 	int m_numNonContactInnerIterations;
 };
 
-
 enum eConstraintSolverTypes
 {
 	eConstraintSolverLCP_SI = 1,
@@ -1056,10 +1060,9 @@ struct b3ForwardDynamicsAnalyticsArgs
 
 enum eFileIOActions
 {
-	eAddFileIOAction = 1024,//avoid collision with eFileIOTypes
+	eAddFileIOAction = 1024,  //avoid collision with eFileIOTypes
 	eRemoveFileIOAction,
 };
-
 
 enum eFileIOTypes
 {
@@ -1069,11 +1072,9 @@ enum eFileIOTypes
 	eInMemoryFileIO,
 };
 
-
 //limits for vertices/indices in PyBullet::createCollisionShape
 //Make sure the data fits in SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE
 //(numVertices*sizeof(double)*3 + numIndices*sizeof(int)) < SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE
-
 
 #ifdef __APPLE__
 #define B3_MAX_NUM_VERTICES 8192
@@ -1082,6 +1083,5 @@ enum eFileIOTypes
 #define B3_MAX_NUM_VERTICES 131072
 #define B3_MAX_NUM_INDICES 524288
 #endif
-
 
 #endif  //SHARED_MEMORY_PUBLIC_H

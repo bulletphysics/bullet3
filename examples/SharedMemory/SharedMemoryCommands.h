@@ -169,6 +169,13 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN = 1 << 17,
 	CHANGE_DYNAMICS_INFO_SET_JOINT_LIMITS = 1 << 18,
 	CHANGE_DYNAMICS_INFO_SET_JOINT_LIMIT_MAX_FORCE = 1 << 19,
+	CHANGE_DYNAMICS_INFO_SET_SPRING_ELASTIC_STIFFNESS = 1 << 20,
+	CHANGE_DYNAMICS_INFO_SET_SPRING_DAMPING_STIFFNESS = 1 << 21,
+	CHANGE_DYNAMICS_INFO_SET_SPRING_DAMPING_ALL_DIRECTIONS = 1 << 22,
+	CHANGE_DYNAMICS_INFO_SET_SPRING_BENDING_STIFFNESS = 1 << 23,
+	CHANGE_DYNAMICS_INFO_SET_NEOHOOKEAN_MU = 1 << 24,
+	CHANGE_DYNAMICS_INFO_SET_NEOHOOKEAN_LAMBDA = 1 << 25,
+	CHANGE_DYNAMICS_INFO_SET_NEOHOOKEAN_DAMPING = 1 << 26,
 };
 
 struct ChangeDynamicsInfoArgs
@@ -198,6 +205,14 @@ struct ChangeDynamicsInfoArgs
 	double m_jointLowerLimit;
 	double m_jointUpperLimit;
 	double m_jointLimitForce;
+
+	double m_springElasticStiffness;
+	double m_springDampingStiffness;
+	int m_springDampingAllDirections;
+	double m_springBendingStiffness;
+	double m_NeoHookeanMu;
+	double m_NeoHookeanLambda;
+	double m_NeoHookeanDamping;
 };
 
 struct GetDynamicsInfoArgs

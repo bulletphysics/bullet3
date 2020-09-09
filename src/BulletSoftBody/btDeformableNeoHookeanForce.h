@@ -26,19 +26,19 @@ public:
 	typedef btAlignedObjectArray<btVector3> TVStack;
 	btScalar m_mu, m_lambda;  // Lame Parameters
 	btScalar m_E, m_nu;       // Young's modulus and Poisson ratio
+	btScalar m_damping;
 	btScalar m_mu_damp, m_lambda_damp;
-	btDeformableNeoHookeanForce() : m_mu(1), m_lambda(1)
+	btDeformableNeoHookeanForce() : m_mu(1), m_lambda(1), m_damping(0.05)
 	{
-		btScalar damping = 0.05;
-		m_mu_damp = damping * m_mu;
-		m_lambda_damp = damping * m_lambda;
+		m_mu_damp = m_damping * m_mu;
+		m_lambda_damp = m_damping * m_lambda;
 		updateYoungsModulusAndPoissonRatio();
 	}
 
-	btDeformableNeoHookeanForce(btScalar mu, btScalar lambda, btScalar damping = 0.05) : m_mu(mu), m_lambda(lambda)
+	btDeformableNeoHookeanForce(btScalar mu, btScalar lambda, btScalar damping = 0.05) : m_mu(mu), m_lambda(lambda), m_damping(damping)
 	{
-		m_mu_damp = damping * m_mu;
-		m_lambda_damp = damping * m_lambda;
+		m_mu_damp = m_damping * m_mu;
+		m_lambda_damp = m_damping * m_lambda;
 		updateYoungsModulusAndPoissonRatio();
 	}
 
@@ -72,6 +72,7 @@ public:
 
 	void setDamping(btScalar damping)
 	{
+		m_damping = damping;
 		m_mu_damp = damping * m_mu;
 		m_lambda_damp = damping * m_lambda;
 	}

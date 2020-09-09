@@ -20,12 +20,11 @@
 
 class btDeformableMassSpringForce : public btDeformableLagrangianForce
 {
+public:
 	// If true, the damping force will be in the direction of the spring
 	// If false, the damping force will be in the direction of the velocity
 	bool m_momentum_conserving;
 	btScalar m_elasticStiffness, m_dampingStiffness, m_bendingStiffness;
-
-public:
 	typedef btAlignedObjectArray<btVector3> TVStack;
 	btDeformableMassSpringForce() : m_momentum_conserving(false), m_elasticStiffness(1), m_dampingStiffness(0.05)
 	{
