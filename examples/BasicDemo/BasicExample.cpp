@@ -24,6 +24,7 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include <iostream>
 
 struct BasicExample : public CommonRigidBodyBase
 {
@@ -34,6 +35,8 @@ struct BasicExample : public CommonRigidBodyBase
 	virtual ~BasicExample() {}
 	virtual void initPhysics();
 	virtual void renderScene();
+	virtual void stepSimulation(float deltaTime);
+	void animate(float deltaTime);
 	void resetCamera()
 	{
 		float dist = 4;
@@ -42,6 +45,8 @@ struct BasicExample : public CommonRigidBodyBase
 		float targetPos[3] = {0, 0, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
+	btRigidBody* m_kinematicBody;
+	btScalar m_kinematicVelocity;
 };
 
 void BasicExample::initPhysics()
@@ -102,7 +107,14 @@ void BasicExample::initPhysics()
 				}
 			}
 		}
+		startTransform.setOrigin(btVector3(
+			btScalar(-0.5),
+			btScalar(0.1),
+			btScalar(0.5)));
+		m_kinematicBody = createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), KINEMATIC_OBJECT);
 	}
+
+	m_kinematicVelocity = 1.0;
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
@@ -110,6 +122,26 @@ void BasicExample::initPhysics()
 void BasicExample::renderScene()
 {
 	CommonRigidBodyBase::renderScene();
+}
+
+void BasicExample::stepSimulation(float deltaTime)
+{
+	animate(deltaTime);
+	CommonRigidBodyBase::stepSimulation(deltaTime); 
+}
+
+void BasicExample::animate(float deltaTime)
+{
+	btTransform currentTransform = m_kinematicBody->getCenterOfMassTransform();
+	btVector3 currentOrigin = currentTransform.getOrigin();
+	if((m_kinematicVelocity > 0.0 && currentOrigin.x() >= 1.5) || (m_kinematicVelocity < 0.0 && currentOrigin.x() <= -0.5))
+	{
+		m_kinematicVelocity *= -1.0;
+	}
+	currentOrigin.setX(currentOrigin.x() + m_kinematicVelocity * deltaTime);
+	currentTransform.setOrigin(currentOrigin);
+	m_kinematicBody->setCenterOfMassTransform(currentTransform);
+	m_kinematicBody->getMotionState()->setWorldTransform(currentTransform);
 }
 
 CommonExampleInterface* BasicExampleCreateFunc(CommonExampleOptions& options)

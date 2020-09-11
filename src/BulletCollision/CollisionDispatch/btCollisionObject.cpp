@@ -71,7 +71,7 @@ void btCollisionObject::forceActivationState(int newState) const
 
 void btCollisionObject::activate(bool forceActivation) const
 {
-	if (forceActivation || !(m_collisionFlags & (CF_STATIC_OBJECT)))
+	if (forceActivation || !(m_collisionFlags & (CF_STATIC_OBJECT | CF_KINEMATIC_OBJECT)))
 	{
 		setActivationState(ACTIVE_TAG);
 		m_deactivationTime = btScalar(0.);
