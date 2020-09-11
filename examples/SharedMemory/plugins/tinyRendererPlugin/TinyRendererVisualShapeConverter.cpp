@@ -980,6 +980,17 @@ int TinyRendererVisualShapeConverter::addVisualShape(
 		shapes = m_data->m_visualShapesMap[visualShape->m_objectUniqueId];
 	}
 	shapes->push_back(*visualShape);
+
+	TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[uniqueId];
+	if (visualsPtr == 0)
+	{
+		m_data->m_swRenderInstances.insert(uniqueId, new TinyRendererObjectArray);
+	}
+	visualsPtr = m_data->m_swRenderInstances[uniqueId];
+	TinyRendererObjectArray* visuals = *visualsPtr;
+	visuals->m_objectUniqueId = visualShape->m_objectUniqueId;
+	TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer, m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, visuals->m_objectUniqueId, -1);
+	visuals->m_renderObjects.push_back(tinyObj);
 	return uniqueId;
 }
 

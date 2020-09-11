@@ -8770,8 +8770,9 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		visualShape.m_textureUniqueId = -1;
 		visualShape.m_openglTextureId = -1;
 
-		m_data->m_pluginManager.getRenderInterface()->addVisualShape(&visualShape, fileIO);
-
+		int visualShapeIndex = m_data->m_pluginManager.getRenderInterface()->addVisualShape(&visualShape, fileIO);
+		psb->setUserIndex3(visualShapeIndex);
+        
 		if (!deformable.m_name.empty())
 		{
 			bodyHandle->m_bodyName = deformable.m_name;
