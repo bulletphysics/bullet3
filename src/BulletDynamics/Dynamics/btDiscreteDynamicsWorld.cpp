@@ -854,7 +854,7 @@ void btDiscreteDynamicsWorld::createPredictiveContactsInternal(btRigidBody** bod
 		btRigidBody* body = bodies[i];
 		body->setHitFraction(1.f);
 
-		if (body->isActive() && (!body->isStaticOrKinematicObject()))
+		if (body->isActive() && (!body->isStaticObject()))
 		{
 			body->predictIntegratedTransform(timeStep, predictedTrans);
 

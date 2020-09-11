@@ -36,3 +36,7 @@ CTestTestFile.cmake
 
 # vim temp files
 *.swp
+
+# Bullet runtime files
+0_Bullet3Demo.txt
+*.bullet
