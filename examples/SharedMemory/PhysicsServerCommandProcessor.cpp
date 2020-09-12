@@ -265,6 +265,8 @@ struct InternalBodyData
 	btRigidBody* m_rigidBody;
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	btSoftBody* m_softBody;
+	struct GLInstanceGraphicsShape* m_softBodyGfxShape;
+	
 #endif
 	int m_testData;
 	std::string m_bodyName;
@@ -291,6 +293,7 @@ struct InternalBodyData
 		m_rigidBody = 0;
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		m_softBody = 0;
+		m_softBodyGfxShape = 0;
 #endif
 		m_testData = 0;
 		m_bodyName = "";
@@ -2575,7 +2578,16 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		if (m_data->m_pluginManager.getRenderInterface())
 		{
 			CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
-			int visualShapeUniqueid = m_data->m_pluginManager.getRenderInterface()->convertVisualShapes(linkIndex, pathPrefix, localInertiaFrame, &link, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId, fileIO);
+			int visualShapeUniqueid = m_data->m_pluginManager.getRenderInterface()->convertVisualShapes(
+				linkIndex, 
+				pathPrefix, 
+				localInertiaFrame, 
+				&link, 
+				&model, 
+				colObj->getBroadphaseHandle()->getUid(), 
+				bodyUniqueId, 
+				fileIO);
+
 			colObj->setUserIndex3(visualShapeUniqueid);
 		}
 	}
@@ -4089,6 +4101,43 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 					{
 						const btCollisionObject* colObj = m_data->m_dynamicsWorld->getCollisionObjectArray()[i];
 						m_data->m_pluginManager.getRenderInterface()->syncTransform(colObj->getUserIndex3(), colObj->getWorldTransform(), colObj->getCollisionShape()->getLocalScaling());
+
+						const btCollisionShape* collisionShape = colObj->getCollisionShape();
+						if (collisionShape->getShapeType() == SOFTBODY_SHAPE_PROXYTYPE)
+						{
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+							const btSoftBody* psb = (const btSoftBody*)colObj;
+							if (psb->getUserIndex3() >= 0)
+							{
+
+								btAlignedObjectArray<btVector3> vertices;
+								if (psb->m_renderNodes.size() == 0)
+								{
+
+									vertices.resize(psb->m_faces.size() * 3);
+
+									for (int i = 0; i < psb->m_faces.size(); i++)  // Foreach face
+									{
+										for (int k = 0; k < 3; k++)  // Foreach vertex on a face
+										{
+											int currentIndex = i * 3 + k;
+											vertices[currentIndex] = psb->m_faces[i].m_n[k]->m_x;
+										}
+									}
+								}
+								else
+								{
+									vertices.resize(psb->m_renderNodes.size());
+
+									for (int i = 0; i < psb->m_renderNodes.size(); i++)  // Foreach face
+									{
+										vertices[i] = psb->m_renderNodes[i].m_x;
+									}
+								}
+								m_data->m_pluginManager.getRenderInterface()->updateShape(psb->getUserIndex3(), &vertices[0], vertices.size());
+							}
+#endif //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+						}
 					}
 
 					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES) != 0)
@@ -5375,23 +5424,33 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 		{
 			btSoftBody* psb = bodyHandle->m_softBody;
 
-			bool separateRenderMesh = (psb->m_renderNodes.size() != 0);
+			int flags = 0;
+			if (clientCmd.m_updateFlags & B3_MESH_DATA_FLAGS)
+			{
+				flags = clientCmd.m_requestMeshDataArgs.m_flags;
+			}
+
+			bool separateRenderMesh = false;
+			if ((flags & B3_MESH_DATA_SIMULATION_MESH) == 0)
+			{
+				separateRenderMesh = (psb->m_renderNodes.size() != 0);
+			}
 			int numVertices = separateRenderMesh ? psb->m_renderNodes.size() : psb->m_nodes.size();
 			int maxNumVertices = bufferSizeInBytes / totalBytesPerVertex - 1;
 			int numVerticesRemaining = numVertices - clientCmd.m_requestMeshDataArgs.m_startingVertex;
 			int verticesCopied = btMin(maxNumVertices, numVerticesRemaining);
-
 			for (int i = 0; i < verticesCopied; ++i)
 			{
 				if (separateRenderMesh)
 				{
-					const btSoftBody::Node& n = psb->m_renderNodes[i + clientCmd.m_requestMeshDataArgs.m_startingVertex];
-					verticesOut[i] = n.m_x;
+					
+					const btSoftBody::RenderNode& n = psb->m_renderNodes[i + clientCmd.m_requestMeshDataArgs.m_startingVertex];
+					verticesOut[i].setValue(n.m_x.x(), n.m_x.y(), n.m_x.z());
 				}
 				else
 				{
 					const btSoftBody::Node& n = psb->m_nodes[i + clientCmd.m_requestMeshDataArgs.m_startingVertex];
-					verticesOut[i] = n.m_x;
+					verticesOut[i].setValue(n.m_x.x(), n.m_x.y(), n.m_x.z());
 				}
 			}
 			sizeInBytes = verticesCopied * sizeof(btVector3);
@@ -8609,63 +8668,103 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		}
 #endif
 	}
+	b3ImportMeshData meshData;
+
 	if (psb != NULL)
 	{
-#ifndef SKIP_DEFORMABLE_BODY
-		btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
-		if (deformWorld)
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+		// load render mesh
+		if ((out_found_sim_filename != out_found_filename) || ((out_sim_type == UrdfGeometry::FILE_OBJ)))
 		{
 			// load render mesh
-			if (out_found_sim_filename != out_found_filename)
+			if (1)
 			{
-				// load render mesh
+
+				float rgbaColor[4] = { 1,1,1,1 };
+
+				if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(
+					out_found_filename.c_str(), meshData, fileIO))
 				{
-					tinyobj::attrib_t attribute;
-					std::vector<tinyobj::shape_t> shapes;
 
-					std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
-
-					for (int s = 0; s < (int)shapes.size(); s++)
+					for (int v = 0; v < meshData.m_gfxShape->m_numvertices; v++)
 					{
-						tinyobj::shape_t& shape = shapes[s];
-						int faceCount = shape.mesh.indices.size();
-						int vertexCount = attribute.vertices.size() / 3;
-						for (int v = 0; v < vertexCount; v++)
-						{
-							btSoftBody::Node n;
-							n.m_x = btVector3(attribute.vertices[3 * v], attribute.vertices[3 * v + 1], attribute.vertices[3 * v + 2]);
-							psb->m_renderNodes.push_back(n);
-						}
-						for (int f = 0; f < faceCount; f += 3)
-						{
-							if (f < 0 && f >= int(shape.mesh.indices.size()))
-							{
-								continue;
-							}
-							tinyobj::index_t v_0 = shape.mesh.indices[f];
-							tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
-							tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
-							btSoftBody::Face ff;
-							ff.m_n[0] = &psb->m_renderNodes[v_0.vertex_index];
-							ff.m_n[1] = &psb->m_renderNodes[v_1.vertex_index];
-							ff.m_n[2] = &psb->m_renderNodes[v_2.vertex_index];
-							psb->m_renderFaces.push_back(ff);
-						}
+						btSoftBody::RenderNode n;
+						n.m_x.setValue(
+							meshData.m_gfxShape->m_vertices->at(v).xyzw[0],
+							meshData.m_gfxShape->m_vertices->at(v).xyzw[1],
+							meshData.m_gfxShape->m_vertices->at(v).xyzw[2]);
+						n.m_uv1.setValue(meshData.m_gfxShape->m_vertices->at(v).uv[0],
+							meshData.m_gfxShape->m_vertices->at(v).uv[1],
+							0.);
+						n.m_normal.setValue(meshData.m_gfxShape->m_vertices->at(v).normal[0],
+							meshData.m_gfxShape->m_vertices->at(v).normal[1],
+							meshData.m_gfxShape->m_vertices->at(v).normal[2]);
+						psb->m_renderNodes.push_back(n);
 					}
-				}
-				if (out_sim_type == UrdfGeometry::FILE_VTK)
-				{
-					btSoftBodyHelpers::interpolateBarycentricWeights(psb);
-				}
-				else if (out_sim_type == UrdfGeometry::FILE_OBJ)
-				{
-					btSoftBodyHelpers::extrapolateBarycentricWeights(psb);
+					for (int f = 0; f < meshData.m_gfxShape->m_numIndices; f += 3)
+					{
+						btSoftBody::RenderFace ff;
+						ff.m_n[0] = &psb->m_renderNodes[meshData.m_gfxShape->m_indices->at(f + 0)];
+						ff.m_n[1] = &psb->m_renderNodes[meshData.m_gfxShape->m_indices->at(f + 1)];
+						ff.m_n[2] = &psb->m_renderNodes[meshData.m_gfxShape->m_indices->at(f + 2)];
+						psb->m_renderFaces.push_back(ff);
+					}
 				}
 			}
 			else
 			{
-				psb->m_renderNodes.resize(0);
+				tinyobj::attrib_t attribute;
+				std::vector<tinyobj::shape_t> shapes;
+
+				std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
+
+				for (int s = 0; s < (int)shapes.size(); s++)
+				{
+					tinyobj::shape_t& shape = shapes[s];
+					int faceCount = shape.mesh.indices.size();
+					int vertexCount = attribute.vertices.size() / 3;
+					for (int v = 0; v < vertexCount; v++)
+					{
+						btSoftBody::RenderNode n;
+						n.m_x = btVector3(attribute.vertices[3 * v], attribute.vertices[3 * v + 1], attribute.vertices[3 * v + 2]);
+						psb->m_renderNodes.push_back(n);
+					}
+					for (int f = 0; f < faceCount; f += 3)
+					{
+						if (f < 0 && f >= int(shape.mesh.indices.size()))
+						{
+							continue;
+						}
+						tinyobj::index_t v_0 = shape.mesh.indices[f];
+						tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
+						tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
+						btSoftBody::RenderFace ff;
+						ff.m_n[0] = &psb->m_renderNodes[v_0.vertex_index];
+						ff.m_n[1] = &psb->m_renderNodes[v_1.vertex_index];
+						ff.m_n[2] = &psb->m_renderNodes[v_2.vertex_index];
+						psb->m_renderFaces.push_back(ff);
+					}
+				}
 			}
+			if (out_sim_type == UrdfGeometry::FILE_VTK)
+			{
+				btSoftBodyHelpers::interpolateBarycentricWeights(psb);
+			}
+			else if (out_sim_type == UrdfGeometry::FILE_OBJ)
+			{
+				btSoftBodyHelpers::extrapolateBarycentricWeights(psb);
+			}
+		}
+		else
+		{
+			psb->m_renderNodes.resize(0);
+		}
+#endif
+#ifndef SKIP_DEFORMABLE_BODY
+		btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+		if (deformWorld)
+		{
+			
 			btVector3 gravity = m_data->m_dynamicsWorld->getGravity();
 			btDeformableLagrangianForce* gravityForce = new btDeformableGravityForce(gravity);
 			deformWorld->addForce(psb, gravityForce);
@@ -8735,10 +8834,32 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 				softWorld->addSoftBody(psb);
 			}
 		}
-		m_data->m_guiHelper->createCollisionShapeGraphicsObject(psb->getCollisionShape());
+		
+		if (meshData.m_gfxShape)
+		{
+			int texUid = m_data->m_guiHelper->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
+			int shapeUid = m_data->m_guiHelper->registerGraphicsShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0], meshData.m_gfxShape->m_numvertices, &meshData.m_gfxShape->m_indices->at(0), meshData.m_gfxShape->m_numIndices, B3_GL_TRIANGLES, texUid);
+			psb->getCollisionShape()->setUserIndex(shapeUid);
+			float position[4] = { 0,0,0,0 };
+			float orientation [4] = { 0,0,0,1 };
+			float color[4] = { 1,1,1,1 };
+			float scaling[4] = { 1,1,1,1 };
+ 			int instanceUid = m_data->m_guiHelper->registerGraphicsInstance(shapeUid, position, orientation, color, scaling);
+			psb->setUserIndex(instanceUid);
+			delete meshData.m_gfxShape;
+		}
+		else
+		{
+			m_data->m_guiHelper->createCollisionShapeGraphicsObject(psb->getCollisionShape());
+		}
+
+
 		*bodyUniqueId = m_data->m_bodyHandles.allocHandle();
 		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(*bodyUniqueId);
 		bodyHandle->m_softBody = psb;
+		if (meshData.m_gfxShape)
+			bodyHandle->m_softBodyGfxShape = meshData.m_gfxShape;
+
 		psb->setUserIndex2(*bodyUniqueId);
 
 		b3VisualShapeData visualShape;
@@ -8770,7 +8891,33 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		visualShape.m_textureUniqueId = -1;
 		visualShape.m_openglTextureId = -1;
 
-		m_data->m_pluginManager.getRenderInterface()->addVisualShape(&visualShape, fileIO);
+		int softBodyGraphicsShapeUid = m_data->m_pluginManager.getRenderInterface()->addVisualShape(&visualShape, fileIO, psb->getBroadphaseHandle()->getUid(),
+			*bodyUniqueId,-1);
+		psb->setUserIndex3(softBodyGraphicsShapeUid);
+		btAlignedObjectArray<btVector3> vertices;
+		
+
+		if (psb->m_renderNodes.size() == 0)
+		{
+			vertices.resize(psb->m_faces.size() * 3);
+			for (int i = 0; i < psb->m_faces.size(); i++)  // Foreach face
+			{
+				for (int k = 0; k < 3; k++)  // Foreach vertex on a face
+				{
+					int currentIndex = i * 3 + k;
+					vertices[currentIndex] = psb->m_faces[i].m_n[k]->m_x;
+				}
+			}
+		}
+		else
+		{
+			vertices.resize(psb->m_renderNodes.size());
+			for (int i = 0; i < psb->m_renderNodes.size(); i++)  // Foreach face
+			{
+				vertices[i] = psb->m_renderNodes[i].m_x;
+			}
+		}
+		m_data->m_pluginManager.getRenderInterface()->updateShape(psb->getUserIndex3(), &vertices[0], vertices.size());
 
 		if (!deformable.m_name.empty())
 		{
@@ -11384,7 +11531,7 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 				if (nodeIndex >= 0 && nodeIndex < sbodyHandle->m_softBody->m_nodes.size())
 				{
 					int bodyUniqueId = clientCmd.m_userConstraintArguments.m_childBodyIndex;
-					if (bodyUniqueId <= 0)
+					if (bodyUniqueId < 0)
 					{
 						//fixed anchor (mass = 0)
 						InteralUserConstraintData userConstraintData;
@@ -13026,6 +13173,20 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 																						  clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 						}
 					}
+
+					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_FLAGS)
+					{
+						if (m_data->m_pluginManager.getRenderInterface())
+						{
+							m_data->m_pluginManager.getRenderInterface()->changeInstanceFlags(bodyUniqueId, linkIndex, 
+								clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, 
+								clientCmd.m_updateVisualShapeDataArguments.m_flags);
+						}
+						int graphicsIndex = bodyHandle->m_softBody->getUserIndex();
+						m_data->m_guiHelper->changeInstanceFlags(graphicsIndex, 
+							clientCmd.m_updateVisualShapeDataArguments.m_flags);
+					}
+
 				}
 #endif
 			}

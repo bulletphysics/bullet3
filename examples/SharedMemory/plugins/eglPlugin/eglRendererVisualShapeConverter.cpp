@@ -78,12 +78,16 @@ struct EGLRendererObjectArray
 	int m_linkIndex;
 	btTransform m_worldTransform;
 	btVector3 m_localScaling;
+	b3ImportMeshData m_meshData;
+	int graphicsIndex;
 
 	EGLRendererObjectArray()
 	{
 		m_worldTransform.setIdentity();
 		m_localScaling.setValue(1, 1, 1);
+		graphicsIndex = -1;
 	}
+
 };
 
 //#define START_WIDTH 2560
@@ -173,7 +177,7 @@ struct EGLRendererVisualShapeConverterInternalData
 	float m_mouseXpos;
 	float m_mouseYpos;
 	bool m_mouseInitialized;
-	int m_graphicsUniqueIdGenerator;
+	
 
 	EGLRendererVisualShapeConverterInternalData()
 		: m_upAxis(2),
@@ -201,8 +205,7 @@ struct EGLRendererVisualShapeConverterInternalData
 		m_mouseMoveMultiplier(0.4f),
 		m_mouseXpos(0.f),
 		m_mouseYpos(0.f),
-		m_mouseInitialized(false),
-		m_graphicsUniqueIdGenerator(15)
+		m_mouseInitialized(false)
 	{
 		m_depthBuffer.resize(m_swWidth * m_swHeight);
 		m_shadowBuffer.resize(m_swWidth * m_swHeight);
@@ -905,27 +908,156 @@ static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfP
 }
 
 static btVector4 sColors[4] =
-	{
+{
 		btVector4(60. / 256., 186. / 256., 84. / 256., 1),
 		btVector4(244. / 256., 194. / 256., 13. / 256., 1),
 		btVector4(219. / 256., 50. / 256., 54. / 256., 1),
 		btVector4(72. / 256., 133. / 256., 237. / 256., 1),
-
-		//btVector4(1,1,0,1),
 };
 
+int EGLRendererVisualShapeConverter::addVisualShape(struct b3VisualShapeData* visualShape, struct CommonFileIOInterface* fileIO, int orgGraphicsUniqueId,
+	int bodyUniqueId, int linkIndex)
+{
+	int uniqueId = orgGraphicsUniqueId;
+	visualShape->m_openglTextureId = -1;
+	visualShape->m_tinyRendererTextureId = -1;
+	visualShape->m_textureUniqueId = -1;
+	b3ImportMeshData meshData;
+	float rgbaColor[4] = { 1,1,1,1 };
+
+	EGLRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[uniqueId];
+	if (visualsPtr == 0)
+	{
+		m_data->m_swRenderInstances.insert(uniqueId, new EGLRendererObjectArray);
+	}
+	visualsPtr = m_data->m_swRenderInstances[uniqueId];
+	if (visualsPtr)
+	{
+		EGLRendererObjectArray* visuals = *visualsPtr;
+
+
+		if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(
+			visualShape->m_meshAssetFileName, meshData, fileIO))
+		{
+			if (m_data->m_flags & URDF_USE_MATERIAL_COLORS_FROM_MTL)
+			{
+				if (meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR)
+				{
+					visualShape->m_rgbaColor[0] = meshData.m_rgbaColor[0];
+					visualShape->m_rgbaColor[1] = meshData.m_rgbaColor[1];
+					visualShape->m_rgbaColor[2] = meshData.m_rgbaColor[2];
+
+					if (m_data->m_flags & URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
+					{
+						visualShape->m_rgbaColor[3] = meshData.m_rgbaColor[3];
+					}
+					else
+					{
+						visualShape->m_rgbaColor[3] = 1;
+					}
+					for (int i = 0; i < 4; i++)
+					{
+						rgbaColor[i] = meshData.m_rgbaColor[i];
+					}
+				}
+			}
+
+			MyTexture3 texture;
+			if (meshData.m_textureImage1)
+			{
+				texture.m_width = meshData.m_textureWidth;
+				texture.m_height = meshData.m_textureHeight;
+				texture.textureData1 = meshData.m_textureImage1;
+				texture.m_isCached = meshData.m_isCached;
+
+				visualShape->m_tinyRendererTextureId = m_data->m_textures.size();
+				m_data->m_textures.push_back(texture);
+			}
+			// meshData.m_gfxShape is allocated by a helper function used to create visualShape,
+			// but is not needed in this use case here
+
+		}
+
+		//////////////
+
+		if (meshData.m_gfxShape)
+		{
+			B3_PROFILE("m_instancingRenderer register");
+
+			// register mesh to m_instancingRenderer too.
+
+			int shapeIndex = m_data->m_instancingRenderer->registerShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
+				meshData.m_gfxShape->m_numvertices, &meshData.m_gfxShape->m_indices->at(0), meshData.m_gfxShape->m_numIndices, B3_GL_TRIANGLES,
+				visualShape->m_tinyRendererTextureId);
+
+			double scaling[3] = { 1, 1, 1 };
+			int graphicsIndex = m_data->m_instancingRenderer->registerGraphicsInstance(
+				shapeIndex,
+				&visualShape->m_localVisualFrame[0],
+				&visualShape->m_localVisualFrame[3],
+				&visualShape->m_rgbaColor[0], scaling);
+
+			int segmentationMask = visualShape->m_objectUniqueId + ((visualShape->m_linkIndex + 1) << 24);
+			{
+				if (graphicsIndex >= 0)
+				{
+					//visuals->m_graphicsInstanceIds.push_back(graphicsIndex);
+
+					if (m_data->m_graphicsIndexToSegmentationMask.size() < (graphicsIndex + 1))
+					{
+						m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex + 1);
+					}
+					m_data->m_graphicsIndexToSegmentationMask[graphicsIndex] = segmentationMask;
+				}
+			}
+
+			m_data->m_instancingRenderer->writeTransforms();
+			visuals->m_meshData = meshData;
+			visuals->m_objectUniqueId = bodyUniqueId;
+			visuals->m_linkIndex = linkIndex;
+			visuals->graphicsIndex = graphicsIndex;
+			m_data->m_visualShapes.push_back(*visualShape);// meshData.m_gfxShape);
+		}
+	}
+	return uniqueId;
+}
+
+void EGLRendererVisualShapeConverter::updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices)
+{
+	EGLRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[shapeUniqueId];
+	if (visualsPtr)
+	{
+		EGLRendererObjectArray* visuals = *visualsPtr;
+		btAssert(visuals->graphicsIndex >= 0);
+
+		if (visuals->graphicsIndex >= 0)
+		{
+			btAssert(visuals->m_meshData.m_gfxShape->m_numvertices == numVertices);
+			if (visuals->m_meshData.m_gfxShape->m_numvertices == numVertices)
+			{
+				for (int i = 0; i < numVertices; i++)
+				{
+					visuals->m_meshData.m_gfxShape->m_vertices->at(i).xyzw[0] = vertices[i][0];
+					visuals->m_meshData.m_gfxShape->m_vertices->at(i).xyzw[1] = vertices[i][1];
+					visuals->m_meshData.m_gfxShape->m_vertices->at(i).xyzw[2] = vertices[i][2];
+				}
+			}
+			m_data->m_instancingRenderer->updateShape(visuals->graphicsIndex, &visuals->m_meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
+				visuals->m_meshData.m_gfxShape->m_vertices->size());
+		}
+	}
+}
+
+
 // If you are getting segfaults in this function it may be ecause you are
-// compliling the plugin with differently from pybullet, try complining the
+// compliling the plugin with differently from pybullet, try compiling the
 // plugin with distutils too.
 int EGLRendererVisualShapeConverter::convertVisualShapes(
 	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
 	const UrdfLink* linkPtr, const UrdfModel* model,
 	int orgGraphicsUniqueId, int bodyUniqueId, struct  CommonFileIOInterface* fileIO)
 {
-	if (orgGraphicsUniqueId< 0)
-	{
-		orgGraphicsUniqueId  = m_data->m_graphicsUniqueIdGenerator++;
-	}
+	btAssert(orgGraphicsUniqueId >= 0);
 	btAssert(linkPtr);  // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
 	{
@@ -1196,6 +1328,19 @@ int EGLRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int s
 	return 0;
 }
 
+void EGLRendererVisualShapeConverter::changeInstanceFlags(int bodyUniqueId, int linkIndex, int shapeIndex, int flags)
+{
+	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
+	{
+		EGLRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
+		if (ptrptr && *ptrptr)
+		{
+			EGLRendererObjectArray* visuals = *ptrptr;
+			m_data->m_instancingRenderer->writeSingleInstanceFlagsToCPU(flags, visuals->graphicsIndex);
+		}
+	}
+}
+
 void EGLRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4])
 {
 	//int start = -1;
@@ -1220,7 +1365,7 @@ void EGLRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int link
 			EGLRendererObjectArray* visuals = *ptrptr;
 			if ((bodyUniqueId == visuals->m_objectUniqueId) && (linkIndex == visuals->m_linkIndex))
 			{
-				
+				m_data->m_instancingRenderer->writeSingleInstanceColorToCPU(rgbaColor, visuals->graphicsIndex);
 			}
 		}
 	}
@@ -1241,6 +1386,7 @@ void EGLRendererVisualShapeConverter::resetCamera(float camDist, float yaw, floa
 	m_data->m_camera.setCameraTargetPosition(camPosX, camPosY, camPosZ);
 	m_data->m_camera.setAspectRatio((float)m_data->m_swWidth / (float)m_data->m_swHeight);
 	m_data->m_camera.update();
+	
 }
 
 void EGLRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
@@ -1579,10 +1725,11 @@ void EGLRendererVisualShapeConverter::resetAll()
 			EGLRendererObjectArray* ptr = *ptrptr;
 			if (ptr)
 			{
-				
+				delete ptr->m_meshData.m_gfxShape;
 			}
 			delete ptr;
 		}
+
 	}
 
 	for (int i = 0; i < m_data->m_textures.size(); i++)
