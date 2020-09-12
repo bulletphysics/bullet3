@@ -35,7 +35,7 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	virtual void removeTexture(int textureUid);
 	virtual int getShapeIndexFromInstance(int instanceUid);
 	virtual void replaceTexture(int shapeIndex, int textureUid);
-	virtual void updateShape(int shapeIndex, float* vertices);
+	virtual void updateShape(int shapeIndex, float* vertices, int numVertices);
 
 	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape);
 

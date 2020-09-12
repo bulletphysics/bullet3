@@ -53,7 +53,7 @@ public:
 	virtual void removeAllInstances();
 	virtual void removeGraphicsInstance(int instanceUid);
 
-	virtual void updateShape(int shapeIndex, const float* vertices);
+	virtual void updateShape(int shapeIndex, const float* vertices, int numVertices);
 
 	///vertices must be in the format x,y,z, nx,ny,nz, u,v
 	virtual int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType = B3_GL_TRIANGLES, int textureIndex = -1);

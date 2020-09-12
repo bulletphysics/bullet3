@@ -1110,7 +1110,7 @@ void HeightfieldExample::stepSimulation(float deltaTime)
 		m_heightfieldShape->processAllTriangles(&col, aabbMin, aabbMax);
 		if (gfxVertices.size() && indices.size())
 		{
-			m_guiHelper->getRenderInterface()->updateShape(m_heightfieldShape->getUserIndex(), &gfxVertices[0].xyzw[0]);
+			m_guiHelper->getRenderInterface()->updateShape(m_heightfieldShape->getUserIndex(), &gfxVertices[0].xyzw[0], gfxVertices.size());
 		}
 	}
 

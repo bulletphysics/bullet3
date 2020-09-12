@@ -53,6 +53,7 @@ struct TinyRenderObjectData
 	int m_userIndex;
 	int m_objectIndex;
 	int m_linkIndex;
+	bool m_doubleSided;
 };
 
 class TinyRenderer

@@ -434,7 +434,7 @@ public:
 			args.m_useBendingSprings = true;
 			args.m_startPosition.setValue(0, 0, 0);
 			args.m_startOrientation.setValue(0, 0, 1, 1);
-			m_robotSim.loadDeformableBody("flat_napkin.obj", args);
+			//m_robotSim.loadDeformableBody("flat_napkin.obj", args);
 
 			b3JointInfo revoluteJoint1;
 			revoluteJoint1.m_parentFrame[0] = -0.055;

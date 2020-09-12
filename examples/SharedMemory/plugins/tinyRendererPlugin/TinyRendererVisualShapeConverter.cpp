@@ -68,7 +68,7 @@ struct TinyRendererVisualShapeConverterInternalData
 
 	btAlignedObjectArray<unsigned char> m_checkeredTexels;
 
-	int m_uidGenerator;
+	
 	int m_upAxis;
 	int m_swWidth;
 	int m_swHeight;
@@ -94,8 +94,7 @@ struct TinyRendererVisualShapeConverterInternalData
 	SimpleCamera m_camera;
 
 	TinyRendererVisualShapeConverterInternalData()
-		: m_uidGenerator(1),
-			m_upAxis(2),
+		: m_upAxis(2),
 		  m_swWidth(START_WIDTH),
 		  m_swHeight(START_HEIGHT),
 		  m_rgbColorBuffer(START_WIDTH, START_HEIGHT, TGAImage::RGB),
@@ -711,11 +710,12 @@ static btVector4 sGoogleyColors[4] =
 
 int  TinyRendererVisualShapeConverter::convertVisualShapes(
 	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, 
-	const UrdfLink* linkPtr, const UrdfModel* model, int unused, 
+	const UrdfLink* linkPtr, const UrdfModel* model, int orgGraphicsUniqueId,
 	int bodyUniqueId, struct CommonFileIOInterface* fileIO)
 
 {
-	int uniqueId = m_data->m_uidGenerator++;
+	int uniqueId = orgGraphicsUniqueId; 
+	btAssert(orgGraphicsUniqueId >= 0);
 	btAssert(linkPtr);  // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
 	{
@@ -926,13 +926,17 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 }
 
 int TinyRendererVisualShapeConverter::addVisualShape(
-	b3VisualShapeData* visualShape, struct CommonFileIOInterface* fileIO)
+	b3VisualShapeData* visualShape, struct CommonFileIOInterface* fileIO, int orgGraphicsUniqueId,
+	int bodyUniqueId, int linkIndex)
 {
-	int uniqueId = m_data->m_uidGenerator++;
+	int uniqueId = orgGraphicsUniqueId;
 	visualShape->m_openglTextureId = -1;
 	visualShape->m_tinyRendererTextureId = -1;
 	visualShape->m_textureUniqueId = -1;
+	
 	b3ImportMeshData meshData;
+	float rgbaColor[4] = { 1,1,1,1 };
+
 	if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(
 			visualShape->m_meshAssetFileName, meshData, fileIO))
 	{
@@ -952,6 +956,10 @@ int TinyRendererVisualShapeConverter::addVisualShape(
 				{
 					visualShape->m_rgbaColor[3] = 1;
 				}
+				for (int i = 0; i < 4; i++)
+				{
+					rgbaColor[i] = meshData.m_rgbaColor[i];
+				}
 			}
 		}
 
@@ -968,7 +976,7 @@ int TinyRendererVisualShapeConverter::addVisualShape(
 		}
 		// meshData.m_gfxShape is allocated by a helper function used to create visualShape,
 		// but is not needed in this use case here
-		delete meshData.m_gfxShape;
+		
 	}
 
 	btAlignedObjectArray<b3VisualShapeData>* shapes =
@@ -979,8 +987,85 @@ int TinyRendererVisualShapeConverter::addVisualShape(
 										 btAlignedObjectArray<b3VisualShapeData>());
 		shapes = m_data->m_visualShapesMap[visualShape->m_objectUniqueId];
 	}
+
+
+	
+
+
+	//////////////
+
+	if (meshData.m_gfxShape)
+	{
+
+		if (meshData.m_gfxShape->m_numvertices && meshData.m_gfxShape->m_numIndices)
+		{
+			TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer, m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, -1, -1);
+			//those are primary soft bodies, possibly cloth, make them double-sided by default
+			tinyObj->m_doubleSided = true;
+			
+			{
+				B3_PROFILE("registerMeshShape");
+
+
+				tinyObj->registerMeshShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
+					meshData.m_gfxShape->m_numvertices,
+					&meshData.m_gfxShape->m_indices->at(0),
+					meshData.m_gfxShape->m_numIndices,
+					rgbaColor,
+					meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
+			}
+
+			TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[uniqueId];
+			if (visualsPtr == 0)
+			{
+				m_data->m_swRenderInstances.insert(uniqueId, new TinyRendererObjectArray);
+			}
+			visualsPtr = m_data->m_swRenderInstances[uniqueId];
+
+			if (visualsPtr && *visualsPtr)
+			{
+				TinyRendererObjectArray* visuals = *visualsPtr;
+				if (visuals)
+				{
+					visuals->m_linkIndex = linkIndex;
+					visuals->m_objectUniqueId = bodyUniqueId;
+					visuals->m_renderObjects.push_back(tinyObj);
+				}
+			}
+		}
+		delete meshData.m_gfxShape;
+	}
+
+
+
 	shapes->push_back(*visualShape);
 	return uniqueId;
+}
+
+void TinyRendererVisualShapeConverter::updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices)
+{
+	TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[shapeUniqueId];
+	if (visualsPtr != 0)
+	{
+		
+		TinyRendererObjectArray* visuals = *visualsPtr;
+		if (visuals->m_renderObjects.size() == 1)
+		{
+			TinyRenderObjectData* renderObj = visuals->m_renderObjects[0];
+			
+			if (renderObj->m_model->nverts() == numVertices)
+			{
+				TinyRender::Vec3f* verts = renderObj->m_model->readWriteVertices();
+				//just do a sync
+				for (int i = 0; i < numVertices; i++)
+				{
+					verts[i].x = vertices[i][0];
+					verts[i].y = vertices[i][1];
+					verts[i].z = vertices[i][2];
+				}
+			}
+		}
+	}
 }
 
 int TinyRendererVisualShapeConverter::getNumVisualShapes(int bodyUniqueId)
@@ -1006,6 +1091,37 @@ int TinyRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int 
 	}
 	*shapeData = shapes->at(shapeIndex);
 	return 1;
+}
+
+void TinyRendererVisualShapeConverter::changeInstanceFlags(int bodyUniqueId, int linkIndex, int shapeIndex, int flags)
+{
+	bool doubleSided = (flags & 4) != 0;
+	btAlignedObjectArray<b3VisualShapeData>* shapes = m_data->m_visualShapesMap[bodyUniqueId];
+	if (!shapes)
+	{
+		return;
+	}
+	int start = -1;
+	
+	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
+	{
+		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
+		if (ptrptr && *ptrptr)
+		{
+			TinyRendererObjectArray* visuals = *ptrptr;
+			if ((bodyUniqueId == visuals->m_objectUniqueId) && (linkIndex == visuals->m_linkIndex))
+			{
+				for (int q = 0; q < visuals->m_renderObjects.size(); q++)
+				{
+					if (shapeIndex < 0 || q == shapeIndex)
+					{
+						visuals->m_renderObjects[q]->m_doubleSided = doubleSided;
+					}
+				}
+			}
+		}
+	}
+
 }
 
 void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4])
@@ -1376,6 +1492,8 @@ void TinyRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniq
 
 void TinyRendererVisualShapeConverter::resetAll()
 {
+	
+
 	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
 	{
 		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);

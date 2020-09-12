@@ -11,15 +11,20 @@ struct TinyRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual ~TinyRendererVisualShapeConverter();
 
-	virtual int convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int unused, int bodyUniqueId, struct CommonFileIOInterface* fileIO);
+	virtual int convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int orgGraphicsUniqueId, int bodyUniqueId, struct CommonFileIOInterface* fileIO);
 
-	virtual int addVisualShape(struct b3VisualShapeData* visualShape, struct CommonFileIOInterface* fileIO);
+	virtual int addVisualShape(struct b3VisualShapeData* visualShape, struct CommonFileIOInterface* fileIO, int orgGraphicsUniqueId,
+		int bodyUniqueId, int linkIndex);
+
+	virtual void updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices);
 
 	virtual int getNumVisualShapes(int bodyUniqueId);
 
 	virtual int getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData);
 
 	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4]);
+
+	virtual void changeInstanceFlags(int bodyUniqueId, int linkIndex, int shapeIndex, int flags);
 
 	virtual void changeShapeTexture(int objectUniqueId, int linkIndex, int shapeIndex, int textureUniqueId);
 

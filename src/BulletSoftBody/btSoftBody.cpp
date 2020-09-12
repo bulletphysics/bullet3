@@ -3799,7 +3799,7 @@ void btSoftBody::interpolateRenderMesh()
 			const Node* p2 = m_renderNodesParents[i][2];
 			btVector3 normal = btCross(p1->m_x - p0->m_x, p2->m_x - p0->m_x);
 			btVector3 unit_normal = normal.normalized();
-			Node& n = m_renderNodes[i];
+			RenderNode& n = m_renderNodes[i];
 			n.m_x.setZero();
 			for (int j = 0; j < 3; ++j)
 			{
@@ -3812,7 +3812,7 @@ void btSoftBody::interpolateRenderMesh()
 	{
 		for (int i = 0; i < m_renderNodes.size(); ++i)
 		{
-			Node& n = m_renderNodes[i];
+			RenderNode& n = m_renderNodes[i];
 			n.m_x.setZero();
 			for (int j = 0; j < 4; ++j)
 			{

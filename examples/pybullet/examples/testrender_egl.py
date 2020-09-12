@@ -1,3 +1,4 @@
+
 #using the eglRendererPlugin (hardware OpenGL acceleration)
 #using EGL on Linux and default OpenGL window on Win32.
 
@@ -26,9 +27,10 @@ pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 egl = pkgutil.get_loader('eglRenderer')
 if (egl):
-  pybullet.loadPlugin(egl.get_filename(), "_eglRendererPlugin")
+  pluginId = pybullet.loadPlugin(egl.get_filename(), "_eglRendererPlugin")
 else:
-  pybullet.loadPlugin("eglRendererPlugin")
+  pluginId = pybullet.loadPlugin("eglRendererPlugin")
+print("pluginId=",pluginId)
 pybullet.loadURDF("plane.urdf", [0, 0, -1])
 pybullet.loadURDF("r2d2.urdf")
 
@@ -67,14 +69,14 @@ while (1):
                                       lightDirection=[1, 1, 1],
                                       renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
     stop = time.time()
-    print("renderImage %f" % (stop - start))
+    #print("renderImage %f" % (stop - start))
 
     w = img_arr[0]  #width of the image, in pixels
     h = img_arr[1]  #height of the image, in pixels
     rgb = img_arr[2]  #color data RGB
     dep = img_arr[3]  #depth data
 
-    print('width = %d height = %d' % (w, h))
+    #print('width = %d height = %d' % (w, h))
 
     #note that sending the data to matplotlib is really slow
 

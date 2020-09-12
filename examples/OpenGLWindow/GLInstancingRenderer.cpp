@@ -1104,10 +1104,13 @@ void GLInstancingRenderer::activateTexture(int textureIndex)
 	}
 }
 
-void GLInstancingRenderer::updateShape(int shapeIndex, const float* vertices)
+void GLInstancingRenderer::updateShape(int shapeIndex, const float* vertices, int numVertices)
 {
 	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
 	int numvertices = gfxObj->m_numVertices;
+	b3Assert(numvertices == numVertices);
+	if (numvertices != numVertices)
+		return;
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
 	int vertexStrideInBytes = 9 * sizeof(float);
