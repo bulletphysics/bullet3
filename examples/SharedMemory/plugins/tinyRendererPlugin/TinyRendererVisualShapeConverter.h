@@ -14,7 +14,7 @@ struct TinyRendererVisualShapeConverter : public UrdfRenderingInterface
 	virtual int convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int orgGraphicsUniqueId, int bodyUniqueId, struct CommonFileIOInterface* fileIO);
 
 	//returns a shapeUniqueId
-	virtual int registerShapeAndInstance(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex);
+	virtual int registerShapeAndInstance(const b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex);
 
 	virtual void updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices);
 
