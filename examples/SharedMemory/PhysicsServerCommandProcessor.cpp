@@ -8845,24 +8845,24 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		visualShape.m_linkIndex = -1;
 		visualShape.m_visualGeometryType = URDF_GEOM_MESH;
 		//dimensions just contains the scale
-		visualShape.m_dimensions[0] = scale;
-		visualShape.m_dimensions[1] = scale;
-		visualShape.m_dimensions[2] = scale;
+		visualShape.m_dimensions[0] = 1;
+		visualShape.m_dimensions[1] = 1;
+		visualShape.m_dimensions[2] = 1;
 		//filename
 		strncpy(visualShape.m_meshAssetFileName, relativeFileName, VISUAL_SHAPE_MAX_PATH_LEN);
 		visualShape.m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN - 1] = 0;
 		//position and orientation
-		visualShape.m_localVisualFrame[0] = pos[0];
-		visualShape.m_localVisualFrame[1] = pos[1];
-		visualShape.m_localVisualFrame[2] = pos[2];
-		visualShape.m_localVisualFrame[3] = orn[0];
-		visualShape.m_localVisualFrame[4] = orn[1];
-		visualShape.m_localVisualFrame[5] = orn[2];
-		visualShape.m_localVisualFrame[6] = orn[3];
+		visualShape.m_localVisualFrame[0] = 0;
+		visualShape.m_localVisualFrame[1] = 0;
+		visualShape.m_localVisualFrame[2] = 0;
+		visualShape.m_localVisualFrame[3] = 0;
+		visualShape.m_localVisualFrame[4] = 0;
+		visualShape.m_localVisualFrame[5] = 0;
+		visualShape.m_localVisualFrame[6] = 1;
 		//color and ids to be set by the renderer
-		visualShape.m_rgbaColor[0] = 0;
-		visualShape.m_rgbaColor[1] = 0;
-		visualShape.m_rgbaColor[2] = 0;
+		visualShape.m_rgbaColor[0] = 1;
+		visualShape.m_rgbaColor[1] = 1;
+		visualShape.m_rgbaColor[2] = 1;
 		visualShape.m_rgbaColor[3] = 1;
 		visualShape.m_tinyRendererTextureId = -1;
 		visualShape.m_textureUniqueId = -1;
@@ -8870,12 +8870,16 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 
 		if (meshData.m_gfxShape)
 		{
-			int texUid1 = m_data->m_guiHelper->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
+			int texUid1 = -1;
+			if (meshData.m_textureHeight > 0 && meshData.m_textureWidth > 0 && meshData.m_textureImage1)
+			{
+				texUid1 = m_data->m_guiHelper->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
+			}
 			visualShape.m_openglTextureId = texUid1;
 			int shapeUid1 = m_data->m_guiHelper->registerGraphicsShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0], meshData.m_gfxShape->m_numvertices, &meshData.m_gfxShape->m_indices->at(0), meshData.m_gfxShape->m_numIndices, B3_GL_TRIANGLES, texUid1);
 			psb->getCollisionShape()->setUserIndex(shapeUid1);
-			float position[4] = { 0,0,0,0 };
-			float orientation [4] = { 0,0,0,1 };
+			float position[4] = { 0,0,0,1 };
+			float orientation[4] = { 0,0,0,1 };
 			float color[4] = { 1,1,1,1 };
 			float scaling[4] = { 1,1,1,1 };
  			int instanceUid = m_data->m_guiHelper->registerGraphicsInstance(shapeUid1, position, orientation, color, scaling);
