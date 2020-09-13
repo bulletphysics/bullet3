@@ -915,10 +915,10 @@ static btVector4 sColors[4] =
 		btVector4(72. / 256., 133. / 256., 237. / 256., 1),
 };
 
-int EGLRendererVisualShapeConverter::registerShapeAndInstance(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)
+int EGLRendererVisualShapeConverter::registerShapeAndInstance(const b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)
 {
 	int uniqueId = orgGraphicsUniqueId;
-	float rgbaColor[4] = { 1,1,1,1 };
+	float rgbaColor[4] = { visualShape.m_rgbaColor[0],visualShape.m_rgbaColor[1],visualShape.m_rgbaColor[2],visualShape.m_rgbaColor[3] };
 
 	EGLRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[uniqueId];
 	if (visualsPtr == 0)
@@ -945,16 +945,15 @@ int EGLRendererVisualShapeConverter::registerShapeAndInstance(const float* verti
 		int shapeIndex = m_data->m_instancingRenderer->registerShape(&vertices[0],
 			numvertices, &indices[0], numIndices, B3_GL_TRIANGLES, innerTexId);
 
-		double scaling[3] = { 1, 1, 1 };
-		double color[4] = { 1,1,1,1 };
-		double position[4] = { 0,0,0,1 };
-		double orn[4] = { 0,0,0,1 };
+		double scaling[3] = { visualShape.m_dimensions[0], visualShape.m_dimensions[1],visualShape.m_dimensions[2] };
+		double position[4] = { visualShape.m_localVisualFrame[0],visualShape.m_localVisualFrame[1],visualShape.m_localVisualFrame[2],1 };
+		double orn[4] = { visualShape.m_localVisualFrame[3],visualShape.m_localVisualFrame[4],visualShape.m_localVisualFrame[5],visualShape.m_localVisualFrame[6]};
 		
 		int graphicsIndex = m_data->m_instancingRenderer->registerGraphicsInstance(
 			shapeIndex,
 			position,
 			orn,
-			color, 
+			visualShape.m_rgbaColor,
 			scaling);
 
 		int segmentationMask = bodyUniqueId + ((linkIndex + 1) << 24);
@@ -980,6 +979,8 @@ int EGLRendererVisualShapeConverter::registerShapeAndInstance(const float* verti
 			visuals->m_vertices[v] = orgVertices[v];
 		}
 	}
+
+	m_data->m_visualShapes.push_back(visualShape);
 	return uniqueId;
 }
 

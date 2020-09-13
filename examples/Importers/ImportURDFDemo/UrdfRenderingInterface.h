@@ -18,7 +18,7 @@ struct UrdfRenderingInterface
 	///use the visualShapeUniqueId as a unique identifier to synchronize the world transform and to remove the visual shape.
 	virtual int convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int visualShapeUniqueId, int bodyUniqueId, struct CommonFileIOInterface* fileIO) = 0;
 
-	virtual int registerShapeAndInstance(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)=0;
+	virtual int registerShapeAndInstance(const struct b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)=0;
 
 	virtual void updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices) = 0;
 

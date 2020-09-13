@@ -2,8 +2,8 @@
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -68,7 +68,7 @@ struct TinyRendererVisualShapeConverterInternalData
 
 	btAlignedObjectArray<unsigned char> m_checkeredTexels;
 
-	
+
 	int m_upAxis;
 	int m_swWidth;
 	int m_swHeight;
@@ -95,23 +95,23 @@ struct TinyRendererVisualShapeConverterInternalData
 
 	TinyRendererVisualShapeConverterInternalData()
 		: m_upAxis(2),
-		  m_swWidth(START_WIDTH),
-		  m_swHeight(START_HEIGHT),
-		  m_rgbColorBuffer(START_WIDTH, START_HEIGHT, TGAImage::RGB),
-		  m_lightDirection(btVector3(-5, 200, -40)),
-		  m_hasLightDirection(false),
-		  m_lightColor(btVector3(1.0, 1.0, 1.0)),
-		  m_hasLightColor(false),
-		  m_lightDistance(2.0),
-		  m_hasLightDistance(false),
-		  m_lightAmbientCoeff(0.6),
-		  m_hasLightAmbientCoeff(false),
-		  m_lightDiffuseCoeff(0.35),
-		  m_hasLightDiffuseCoeff(false),
-		  m_lightSpecularCoeff(0.05),
-		  m_hasLightSpecularCoeff(false),
-		  m_hasShadow(false),
-		  m_flags(0)
+		m_swWidth(START_WIDTH),
+		m_swHeight(START_HEIGHT),
+		m_rgbColorBuffer(START_WIDTH, START_HEIGHT, TGAImage::RGB),
+		m_lightDirection(btVector3(-5, 200, -40)),
+		m_hasLightDirection(false),
+		m_lightColor(btVector3(1.0, 1.0, 1.0)),
+		m_hasLightColor(false),
+		m_lightDistance(2.0),
+		m_hasLightDistance(false),
+		m_lightAmbientCoeff(0.6),
+		m_hasLightAmbientCoeff(false),
+		m_lightDiffuseCoeff(0.35),
+		m_hasLightDiffuseCoeff(false),
+		m_lightSpecularCoeff(0.05),
+		m_hasLightSpecularCoeff(false),
+		m_hasShadow(false),
+		m_flags(0)
 	{
 		m_depthBuffer.resize(m_swWidth * m_swHeight);
 		m_shadowBuffer.resize(m_swWidth * m_swHeight);
@@ -130,7 +130,7 @@ TinyRendererVisualShapeConverter::TinyRendererVisualShapeConverter()
 	float dist = 1.5;
 	float pitch = -10;
 	float yaw = -80;
-	float targetPos[3] = {0, 0, 0};
+	float targetPos[3] = { 0, 0, 0 };
 	m_data->m_camera.setCameraUpAxis(m_data->m_upAxis);
 	resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 }
@@ -208,418 +208,419 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 
 	switch (visual->m_geometry.m_type)
 	{
-		case URDF_GEOM_CYLINDER:
-		case URDF_GEOM_CAPSULE:
+	case URDF_GEOM_CYLINDER:
+	case URDF_GEOM_CAPSULE:
+	{
+		btVector3 p1 = visual->m_geometry.m_capsuleFrom;
+		btVector3 p2 = visual->m_geometry.m_capsuleTo;
+		btTransform tr;
+		tr.setIdentity();
+		btScalar rad, len;
+		btVector3 center(0, 0, 0);
+		btVector3 axis(0, 0, 1);
+		btAlignedObjectArray<btVector3> vertices;
+		int numSteps = 32;
+
+		if (visual->m_geometry.m_hasFromTo)
 		{
-			btVector3 p1 = visual->m_geometry.m_capsuleFrom;
-			btVector3 p2 = visual->m_geometry.m_capsuleTo;
-			btTransform tr;
-			tr.setIdentity();
-			btScalar rad, len;
-			btVector3 center(0, 0, 0);
-			btVector3 axis(0, 0, 1);
-			btAlignedObjectArray<btVector3> vertices;
-			int numSteps = 32;
+			btVector3 v = p2 - p1;
+			btVector3 dir = v.normalized();
+			tr = visual->m_linkLocalFrame;
+			len = v.length();
+			rad = visual->m_geometry.m_capsuleRadius;
+			btVector3 ax1, ax2;
+			btPlaneSpace1(dir, ax1, ax2);
 
-			if (visual->m_geometry.m_hasFromTo)
+			for (int i = 0; i < numSteps; i++)
 			{
-				btVector3 v = p2 - p1;
-				btVector3 dir = v.normalized();
-				tr = visual->m_linkLocalFrame;
-				len = v.length();
-				rad = visual->m_geometry.m_capsuleRadius;
-				btVector3 ax1, ax2;
-				btPlaneSpace1(dir, ax1, ax2);
-
-				for (int i = 0; i < numSteps; i++)
 				{
-					{
-						btVector3 vert = p1 + ax1 * rad * btSin(SIMD_2_PI * (float(i) / numSteps)) + ax2 * rad * btCos(SIMD_2_PI * (float(i) / numSteps));
-						vertices.push_back(vert);
-					}
-					{
-						btVector3 vert = p2 + ax1 * rad * btSin(SIMD_2_PI * (float(i) / numSteps)) + ax2 * rad * btCos(SIMD_2_PI * (float(i) / numSteps));
-						vertices.push_back(vert);
-					}
-				}
-				if (visual->m_geometry.m_type == URDF_GEOM_CAPSULE)
-				{
-					btVector3 pole1 = p1 - dir * rad;
-					btVector3 pole2 = p2 + dir * rad;
-					vertices.push_back(pole1);
-					vertices.push_back(pole2);
-				}
-			}
-			else
-			{
-				//assume a capsule along the Z-axis, centered at the origin
-				tr = visual->m_linkLocalFrame;
-				len = visual->m_geometry.m_capsuleHeight;
-				rad = visual->m_geometry.m_capsuleRadius;
-				for (int i = 0; i < numSteps; i++)
-				{
-					btVector3 vert(rad * btSin(SIMD_2_PI * (float(i) / numSteps)), rad * btCos(SIMD_2_PI * (float(i) / numSteps)), len / 2.);
-					vertices.push_back(vert);
-					vert[2] = -len / 2.;
+					btVector3 vert = p1 + ax1 * rad * btSin(SIMD_2_PI * (float(i) / numSteps)) + ax2 * rad * btCos(SIMD_2_PI * (float(i) / numSteps));
 					vertices.push_back(vert);
 				}
-				if (visual->m_geometry.m_type == URDF_GEOM_CAPSULE)
 				{
-					btVector3 pole1(0, 0, +len / 2. + rad);
-					btVector3 pole2(0, 0, -len / 2. - rad);
-					vertices.push_back(pole1);
-					vertices.push_back(pole2);
+					btVector3 vert = p2 + ax1 * rad * btSin(SIMD_2_PI * (float(i) / numSteps)) + ax2 * rad * btCos(SIMD_2_PI * (float(i) / numSteps));
+					vertices.push_back(vert);
 				}
 			}
-			visualShapeOut.m_localVisualFrame[0] = tr.getOrigin()[0];
-			visualShapeOut.m_localVisualFrame[1] = tr.getOrigin()[1];
-			visualShapeOut.m_localVisualFrame[2] = tr.getOrigin()[2];
-			visualShapeOut.m_localVisualFrame[3] = tr.getRotation()[0];
-			visualShapeOut.m_localVisualFrame[4] = tr.getRotation()[1];
-			visualShapeOut.m_localVisualFrame[5] = tr.getRotation()[2];
-			visualShapeOut.m_localVisualFrame[6] = tr.getRotation()[3];
-			visualShapeOut.m_dimensions[0] = len;
-			visualShapeOut.m_dimensions[1] = rad;
-
-			btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
-			//btCapsuleShape* cylZShape = new btCapsuleShape(rad,len);//btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
-
-			cylZShape->setMargin(0.001);
-			convexColShape = cylZShape;
-			break;
+			if (visual->m_geometry.m_type == URDF_GEOM_CAPSULE)
+			{
+				btVector3 pole1 = p1 - dir * rad;
+				btVector3 pole2 = p2 + dir * rad;
+				vertices.push_back(pole1);
+				vertices.push_back(pole2);
+			}
 		}
-		case URDF_GEOM_BOX:
+		else
 		{
-			visualShapeOut.m_dimensions[0] = visual->m_geometry.m_boxSize[0];
-			visualShapeOut.m_dimensions[1] = visual->m_geometry.m_boxSize[1];
-			visualShapeOut.m_dimensions[2] = visual->m_geometry.m_boxSize[2];
+			//assume a capsule along the Z-axis, centered at the origin
+			tr = visual->m_linkLocalFrame;
+			len = visual->m_geometry.m_capsuleHeight;
+			rad = visual->m_geometry.m_capsuleRadius;
+			for (int i = 0; i < numSteps; i++)
+			{
+				btVector3 vert(rad * btSin(SIMD_2_PI * (float(i) / numSteps)), rad * btCos(SIMD_2_PI * (float(i) / numSteps)), len / 2.);
+				vertices.push_back(vert);
+				vert[2] = -len / 2.;
+				vertices.push_back(vert);
+			}
+			if (visual->m_geometry.m_type == URDF_GEOM_CAPSULE)
+			{
+				btVector3 pole1(0, 0, +len / 2. + rad);
+				btVector3 pole2(0, 0, -len / 2. - rad);
+				vertices.push_back(pole1);
+				vertices.push_back(pole2);
+			}
+		}
+		visualShapeOut.m_localVisualFrame[0] = tr.getOrigin()[0];
+		visualShapeOut.m_localVisualFrame[1] = tr.getOrigin()[1];
+		visualShapeOut.m_localVisualFrame[2] = tr.getOrigin()[2];
+		visualShapeOut.m_localVisualFrame[3] = tr.getRotation()[0];
+		visualShapeOut.m_localVisualFrame[4] = tr.getRotation()[1];
+		visualShapeOut.m_localVisualFrame[5] = tr.getRotation()[2];
+		visualShapeOut.m_localVisualFrame[6] = tr.getRotation()[3];
+		visualShapeOut.m_dimensions[0] = len;
+		visualShapeOut.m_dimensions[1] = rad;
 
-			btVector3 extents = visual->m_geometry.m_boxSize;
+		btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+		//btCapsuleShape* cylZShape = new btCapsuleShape(rad,len);//btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
 
-			
-			int strideInBytes = 9 * sizeof(float);
-			int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
-			int numIndices = sizeof(cube_indices) / sizeof(int);
+		cylZShape->setMargin(0.001);
+		convexColShape = cylZShape;
+		break;
+	}
+	case URDF_GEOM_BOX:
+	{
+		visualShapeOut.m_dimensions[0] = visual->m_geometry.m_boxSize[0];
+		visualShapeOut.m_dimensions[1] = visual->m_geometry.m_boxSize[1];
+		visualShapeOut.m_dimensions[2] = visual->m_geometry.m_boxSize[2];
 
+		btVector3 extents = visual->m_geometry.m_boxSize;
+
+
+		int strideInBytes = 9 * sizeof(float);
+		int numVertices = sizeof(cube_vertices_textured) / strideInBytes;
+		int numIndices = sizeof(cube_indices) / sizeof(int);
+
+		glmesh = new GLInstanceGraphicsShape;
+		//		int index = 0;
+		glmesh->m_indices = new b3AlignedObjectArray<int>();
+		glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+
+		glmesh->m_indices->resize(numIndices);
+		for (int k = 0; k < numIndices; k++)
+		{
+			glmesh->m_indices->at(k) = cube_indices[k];
+		}
+		glmesh->m_vertices->resize(numVertices);
+
+		btScalar halfExtentsX = extents[0] * 0.5;
+		btScalar halfExtentsY = extents[1] * 0.5;
+		btScalar halfExtentsZ = extents[2] * 0.5;
+		GLInstanceVertex* verts = &glmesh->m_vertices->at(0);
+		btScalar textureScaling = 1;
+
+		for (int i = 0; i < numVertices; i++)
+		{
+
+			verts[i].xyzw[0] = halfExtentsX * cube_vertices_textured[i * 9];
+			verts[i].xyzw[1] = halfExtentsY * cube_vertices_textured[i * 9 + 1];
+			verts[i].xyzw[2] = halfExtentsZ * cube_vertices_textured[i * 9 + 2];
+			verts[i].xyzw[3] = cube_vertices_textured[i * 9 + 3];
+			verts[i].normal[0] = cube_vertices_textured[i * 9 + 4];
+			verts[i].normal[1] = cube_vertices_textured[i * 9 + 5];
+			verts[i].normal[2] = cube_vertices_textured[i * 9 + 6];
+			verts[i].uv[0] = cube_vertices_textured[i * 9 + 7] * textureScaling;
+			verts[i].uv[1] = cube_vertices_textured[i * 9 + 8] * textureScaling;
+		}
+
+		glmesh->m_numIndices = numIndices;
+		glmesh->m_numvertices = numVertices;
+
+
+		break;
+	}
+	case URDF_GEOM_SPHERE:
+	{
+		visualShapeOut.m_dimensions[0] = visual->m_geometry.m_sphereRadius;
+
+		btScalar radius = visual->m_geometry.m_sphereRadius;
+		btSphereShape* sphereShape = new btSphereShape(radius);
+		convexColShape = sphereShape;
+		convexColShape->setMargin(0.001);
+		break;
+	}
+	case URDF_GEOM_MESH:
+	{
+		strncpy(visualShapeOut.m_meshAssetFileName, visual->m_geometry.m_meshFileName.c_str(), VISUAL_SHAPE_MAX_PATH_LEN);
+		visualShapeOut.m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN - 1] = 0;
+
+		visualShapeOut.m_dimensions[0] = visual->m_geometry.m_meshScale[0];
+		visualShapeOut.m_dimensions[1] = visual->m_geometry.m_meshScale[1];
+		visualShapeOut.m_dimensions[2] = visual->m_geometry.m_meshScale[2];
+
+		switch (visual->m_geometry.m_meshFileType)
+		{
+		case UrdfGeometry::MEMORY_VERTICES:
+		{
 			glmesh = new GLInstanceGraphicsShape;
 			//		int index = 0;
 			glmesh->m_indices = new b3AlignedObjectArray<int>();
 			glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+			glmesh->m_vertices->resize(visual->m_geometry.m_vertices.size());
+			glmesh->m_indices->resize(visual->m_geometry.m_indices.size());
 
-			glmesh->m_indices->resize(numIndices);
-			for (int k = 0; k < numIndices; k++)
+			for (int i = 0; i < visual->m_geometry.m_vertices.size(); i++)
 			{
-				glmesh->m_indices->at(k) = cube_indices[k];
-			}
-			glmesh->m_vertices->resize(numVertices);
-
-			btScalar halfExtentsX = extents[0] * 0.5;
-			btScalar halfExtentsY = extents[1] * 0.5;
-			btScalar halfExtentsZ = extents[2] * 0.5;
-			GLInstanceVertex* verts = &glmesh->m_vertices->at(0);
-			btScalar textureScaling = 1;
-
-			for (int i = 0; i < numVertices; i++)
-			{
-
-				verts[i].xyzw[0] = halfExtentsX * cube_vertices_textured[i * 9];
-				verts[i].xyzw[1] = halfExtentsY * cube_vertices_textured[i * 9 + 1];
-				verts[i].xyzw[2] = halfExtentsZ * cube_vertices_textured[i * 9 + 2];
-				verts[i].xyzw[3] = cube_vertices_textured[i * 9 + 3];
-				verts[i].normal[0] = cube_vertices_textured[i * 9 + 4];
-				verts[i].normal[1] = cube_vertices_textured[i * 9 + 5];
-				verts[i].normal[2] = cube_vertices_textured[i * 9 + 6];
-				verts[i].uv[0] = cube_vertices_textured[i * 9 + 7] * textureScaling;
-				verts[i].uv[1] = cube_vertices_textured[i * 9 + 8] * textureScaling;
-			}
-
-			glmesh->m_numIndices = numIndices;
-			glmesh->m_numvertices = numVertices;
-
-			
-			break;
-		}
-		case URDF_GEOM_SPHERE:
-		{
-			visualShapeOut.m_dimensions[0] = visual->m_geometry.m_sphereRadius;
-
-			btScalar radius = visual->m_geometry.m_sphereRadius;
-			btSphereShape* sphereShape = new btSphereShape(radius);
-			convexColShape = sphereShape;
-			convexColShape->setMargin(0.001);
-			break;
-		}
-		case URDF_GEOM_MESH:
-		{
-			strncpy(visualShapeOut.m_meshAssetFileName, visual->m_geometry.m_meshFileName.c_str(), VISUAL_SHAPE_MAX_PATH_LEN);
-			visualShapeOut.m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN - 1] = 0;
-
-			visualShapeOut.m_dimensions[0] = visual->m_geometry.m_meshScale[0];
-			visualShapeOut.m_dimensions[1] = visual->m_geometry.m_meshScale[1];
-			visualShapeOut.m_dimensions[2] = visual->m_geometry.m_meshScale[2];
-
-			switch (visual->m_geometry.m_meshFileType)
-			{
-				case UrdfGeometry::MEMORY_VERTICES:
+				glmesh->m_vertices->at(i).xyzw[0] = visual->m_geometry.m_vertices[i].x();
+				glmesh->m_vertices->at(i).xyzw[1] = visual->m_geometry.m_vertices[i].y();
+				glmesh->m_vertices->at(i).xyzw[2] = visual->m_geometry.m_vertices[i].z();
+				glmesh->m_vertices->at(i).xyzw[3] = 1;
+				btVector3 normal(visual->m_geometry.m_vertices[i]);
+				if (visual->m_geometry.m_normals.size() == visual->m_geometry.m_vertices.size())
 				{
-					glmesh = new GLInstanceGraphicsShape;
-					//		int index = 0;
-					glmesh->m_indices = new b3AlignedObjectArray<int>();
-					glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
-					glmesh->m_vertices->resize(visual->m_geometry.m_vertices.size());
-					glmesh->m_indices->resize(visual->m_geometry.m_indices.size());
+					normal = visual->m_geometry.m_normals[i];
+				}
+				else
+				{
+					normal.safeNormalize();
+				}
 
-					for (int i = 0; i < visual->m_geometry.m_vertices.size(); i++)
+				btVector3 uv(0.5, 0.5, 0);
+				if (visual->m_geometry.m_uvs.size() == visual->m_geometry.m_vertices.size())
+				{
+					uv = visual->m_geometry.m_uvs[i];
+				}
+				glmesh->m_vertices->at(i).normal[0] = normal[0];
+				glmesh->m_vertices->at(i).normal[1] = normal[1];
+				glmesh->m_vertices->at(i).normal[2] = normal[2];
+				glmesh->m_vertices->at(i).uv[0] = uv[0];
+				glmesh->m_vertices->at(i).uv[1] = uv[1];
+
+			}
+			for (int i = 0; i < visual->m_geometry.m_indices.size(); i++)
+			{
+				glmesh->m_indices->at(i) = visual->m_geometry.m_indices[i];
+
+			}
+			glmesh->m_numIndices = visual->m_geometry.m_indices.size();
+			glmesh->m_numvertices = visual->m_geometry.m_vertices.size();
+
+			break;
+		}
+		case UrdfGeometry::FILE_OBJ:
+		{
+			//glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
+			b3ImportMeshData meshData;
+
+			if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData, fileIO))
+			{
+				if (flags & URDF_USE_MATERIAL_COLORS_FROM_MTL)
+				{
+					if (meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR)
 					{
-						glmesh->m_vertices->at(i).xyzw[0] = visual->m_geometry.m_vertices[i].x();
-						glmesh->m_vertices->at(i).xyzw[1] = visual->m_geometry.m_vertices[i].y();
-						glmesh->m_vertices->at(i).xyzw[2] = visual->m_geometry.m_vertices[i].z();
-						glmesh->m_vertices->at(i).xyzw[3] = 1;
-						btVector3 normal(visual->m_geometry.m_vertices[i]);
-						if (visual->m_geometry.m_normals.size() == visual->m_geometry.m_vertices.size())
+						visualShapeOut.m_rgbaColor[0] = meshData.m_rgbaColor[0];
+						visualShapeOut.m_rgbaColor[1] = meshData.m_rgbaColor[1];
+						visualShapeOut.m_rgbaColor[2] = meshData.m_rgbaColor[2];
+
+						if (flags & URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
 						{
-							normal = visual->m_geometry.m_normals[i];
+							visualShapeOut.m_rgbaColor[3] = meshData.m_rgbaColor[3];
 						}
 						else
 						{
-							normal.safeNormalize();
+							visualShapeOut.m_rgbaColor[3] = 1;
 						}
-
-						btVector3 uv(0.5, 0.5, 0);
-						if (visual->m_geometry.m_uvs.size() == visual->m_geometry.m_vertices.size())
-						{
-							uv = visual->m_geometry.m_uvs[i];
-						}
-						glmesh->m_vertices->at(i).normal[0] = normal[0];
-						glmesh->m_vertices->at(i).normal[1] = normal[1];
-						glmesh->m_vertices->at(i).normal[2] = normal[2];
-						glmesh->m_vertices->at(i).uv[0] = uv[0];
-						glmesh->m_vertices->at(i).uv[1] = uv[1];
-
 					}
-					for (int i = 0; i < visual->m_geometry.m_indices.size(); i++)
-					{
-						glmesh->m_indices->at(i) = visual->m_geometry.m_indices[i];
-
-					}
-					glmesh->m_numIndices = visual->m_geometry.m_indices.size();
-					glmesh->m_numvertices = visual->m_geometry.m_vertices.size();
-
-					break;
 				}
-				case UrdfGeometry::FILE_OBJ:
+				if (meshData.m_textureImage1)
 				{
-					//glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
-					b3ImportMeshData meshData;
-
-					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData, fileIO))
-					{
-						if (flags&URDF_USE_MATERIAL_COLORS_FROM_MTL)
-						{
-							if (meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR)
-							{
-								visualShapeOut.m_rgbaColor[0] = meshData.m_rgbaColor[0];
-								visualShapeOut.m_rgbaColor[1] = meshData.m_rgbaColor[1];
-								visualShapeOut.m_rgbaColor[2] = meshData.m_rgbaColor[2];
-								
-								if (flags&URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
-								{
-									visualShapeOut.m_rgbaColor[3] = meshData.m_rgbaColor[3];
-								} else
-								{
-									visualShapeOut.m_rgbaColor[3] = 1;
-								}
-							}
-						}
-						if (meshData.m_textureImage1)
-						{
-							MyTexture2 texData;
-							texData.m_width = meshData.m_textureWidth;
-							texData.m_height = meshData.m_textureHeight;
-							texData.textureData1 = meshData.m_textureImage1;
-							texData.m_isCached = meshData.m_isCached;
-							texturesOut.push_back(texData);
-						}
-						glmesh = meshData.m_gfxShape;
-					}
-					break;
+					MyTexture2 texData;
+					texData.m_width = meshData.m_textureWidth;
+					texData.m_height = meshData.m_textureHeight;
+					texData.textureData1 = meshData.m_textureImage1;
+					texData.m_isCached = meshData.m_isCached;
+					texturesOut.push_back(texData);
 				}
-				case UrdfGeometry::FILE_STL:
-
-					char relativeFileName[1024];
-					if (fileIO->findResourcePath(visual->m_geometry.m_meshFileName.c_str(), relativeFileName, 1024))
-					{
-						glmesh = LoadMeshFromSTL(relativeFileName, fileIO);
-					}
-					break;
-				case UrdfGeometry::FILE_COLLADA:
-				{
-					btAlignedObjectArray<GLInstanceGraphicsShape> visualShapes;
-					btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
-					btTransform upAxisTrans;
-					upAxisTrans.setIdentity();
-					float unitMeterScaling = 1;
-					int upAxis = 2;
-
-					LoadMeshFromCollada(visual->m_geometry.m_meshFileName.c_str(),
-										visualShapes,
-										visualShapeInstances,
-										upAxisTrans,
-										unitMeterScaling,
-										upAxis,
-										fileIO);
-
-					glmesh = new GLInstanceGraphicsShape;
-					//		int index = 0;
-					glmesh->m_indices = new b3AlignedObjectArray<int>();
-					glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
-
-					for (int i = 0; i < visualShapeInstances.size(); i++)
-					{
-						ColladaGraphicsInstance* instance = &visualShapeInstances[i];
-						GLInstanceGraphicsShape* gfxShape = &visualShapes[instance->m_shapeIndex];
-
-						b3AlignedObjectArray<GLInstanceVertex> verts;
-						verts.resize(gfxShape->m_vertices->size());
-
-						int baseIndex = glmesh->m_vertices->size();
-
-						for (int i = 0; i < gfxShape->m_vertices->size(); i++)
-						{
-							verts[i].normal[0] = gfxShape->m_vertices->at(i).normal[0];
-							verts[i].normal[1] = gfxShape->m_vertices->at(i).normal[1];
-							verts[i].normal[2] = gfxShape->m_vertices->at(i).normal[2];
-							verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
-							verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
-							verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
-							verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
-							verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
-							verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
-						}
-
-						int curNumIndices = glmesh->m_indices->size();
-						int additionalIndices = gfxShape->m_indices->size();
-						glmesh->m_indices->resize(curNumIndices + additionalIndices);
-						for (int k = 0; k < additionalIndices; k++)
-						{
-							glmesh->m_indices->at(curNumIndices + k) = gfxShape->m_indices->at(k) + baseIndex;
-						}
-
-						//compensate upAxisTrans and unitMeterScaling here
-						btMatrix4x4 upAxisMat;
-						upAxisMat.setIdentity();
-						//								upAxisMat.setPureRotation(upAxisTrans.getRotation());
-						btMatrix4x4 unitMeterScalingMat;
-						unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling, unitMeterScaling, unitMeterScaling));
-						btMatrix4x4 worldMat = unitMeterScalingMat * upAxisMat * instance->m_worldTransform;
-						//btMatrix4x4 worldMat = instance->m_worldTransform;
-						int curNumVertices = glmesh->m_vertices->size();
-						int additionalVertices = verts.size();
-						glmesh->m_vertices->reserve(curNumVertices + additionalVertices);
-
-						for (int v = 0; v < verts.size(); v++)
-						{
-							btVector3 pos(verts[v].xyzw[0], verts[v].xyzw[1], verts[v].xyzw[2]);
-							pos = worldMat * pos;
-							verts[v].xyzw[0] = float(pos[0]);
-							verts[v].xyzw[1] = float(pos[1]);
-							verts[v].xyzw[2] = float(pos[2]);
-							glmesh->m_vertices->push_back(verts[v]);
-						}
-					}
-					glmesh->m_numIndices = glmesh->m_indices->size();
-					glmesh->m_numvertices = glmesh->m_vertices->size();
-					//glmesh = LoadMeshFromCollada(visual->m_geometry.m_meshFileName.c_str());
-					break;
-				}
-
-				default:
-					{
-						// should never get here (findExistingMeshFile returns false if it doesn't recognize extension)
-						btAssert(0);
-					}
-			}
-
-			if (glmesh && glmesh->m_vertices && (glmesh->m_numvertices > 0))
-			{
-				//apply the geometry scaling
-				for (int i = 0; i < glmesh->m_vertices->size(); i++)
-				{
-					glmesh->m_vertices->at(i).xyzw[0] *= visual->m_geometry.m_meshScale[0];
-					glmesh->m_vertices->at(i).xyzw[1] *= visual->m_geometry.m_meshScale[1];
-					glmesh->m_vertices->at(i).xyzw[2] *= visual->m_geometry.m_meshScale[2];
-				}
-			}
-			else
-			{
-				if (visual->m_geometry.m_meshFileType !=UrdfGeometry::MEMORY_VERTICES)
-				{
-					b3Warning("issue extracting mesh from COLLADA/STL file %s\n", visual->m_geometry.m_meshFileName.c_str());
-				}
+				glmesh = meshData.m_gfxShape;
 			}
 			break;
-		}  // case mesh
+		}
+		case UrdfGeometry::FILE_STL:
 
-		case URDF_GEOM_PLANE:
+			char relativeFileName[1024];
+			if (fileIO->findResourcePath(visual->m_geometry.m_meshFileName.c_str(), relativeFileName, 1024))
+			{
+				glmesh = LoadMeshFromSTL(relativeFileName, fileIO);
+			}
+			break;
+		case UrdfGeometry::FILE_COLLADA:
 		{
+			btAlignedObjectArray<GLInstanceGraphicsShape> visualShapes;
+			btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
+			btTransform upAxisTrans;
+			upAxisTrans.setIdentity();
+			float unitMeterScaling = 1;
+			int upAxis = 2;
+
+			LoadMeshFromCollada(visual->m_geometry.m_meshFileName.c_str(),
+				visualShapes,
+				visualShapeInstances,
+				upAxisTrans,
+				unitMeterScaling,
+				upAxis,
+				fileIO);
+
 			glmesh = new GLInstanceGraphicsShape;
 			//		int index = 0;
 			glmesh->m_indices = new b3AlignedObjectArray<int>();
 			glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
-			glmesh->m_indices->push_back(0);
-			glmesh->m_indices->push_back(1);
-			glmesh->m_indices->push_back(2);
-			glmesh->m_indices->push_back(0);
-			glmesh->m_indices->push_back(2);
-			glmesh->m_indices->push_back(3);
-			glmesh->m_scaling[0] = 1;
-			glmesh->m_scaling[1] = 1;
-			glmesh->m_scaling[2] = 1;
-			glmesh->m_scaling[3] = 1;
 
-			btScalar planeConst = 0;
-			btVector3 planeNormal = visual->m_geometry.m_planeNormal;
-			btVector3 planeOrigin = planeNormal * planeConst;
-			btVector3 vec0, vec1;
-			btPlaneSpace1(planeNormal, vec0, vec1);
+			for (int i = 0; i < visualShapeInstances.size(); i++)
+			{
+				ColladaGraphicsInstance* instance = &visualShapeInstances[i];
+				GLInstanceGraphicsShape* gfxShape = &visualShapes[instance->m_shapeIndex];
 
-			btScalar vecLen = 128;
-			btVector3 verts[4];
+				b3AlignedObjectArray<GLInstanceVertex> verts;
+				verts.resize(gfxShape->m_vertices->size());
 
-			verts[0] = planeOrigin + vec0 * vecLen + vec1 * vecLen;
-			verts[1] = planeOrigin - vec0 * vecLen + vec1 * vecLen;
-			verts[2] = planeOrigin - vec0 * vecLen - vec1 * vecLen;
-			verts[3] = planeOrigin + vec0 * vecLen - vec1 * vecLen;
+				int baseIndex = glmesh->m_vertices->size();
 
-			GLInstanceVertex vtx;
-			vtx.xyzw[0] = verts[0][0]; vtx.xyzw[1] = verts[0][1]; vtx.xyzw[2] = 0; vtx.xyzw[3] = 0;
-			vtx.normal[0] = 0; vtx.normal[1] = 0; vtx.normal[2] = 1;
-			vtx.uv[0] = vecLen; vtx.uv[1] = vecLen;
-			glmesh->m_vertices->push_back(vtx);
+				for (int i = 0; i < gfxShape->m_vertices->size(); i++)
+				{
+					verts[i].normal[0] = gfxShape->m_vertices->at(i).normal[0];
+					verts[i].normal[1] = gfxShape->m_vertices->at(i).normal[1];
+					verts[i].normal[2] = gfxShape->m_vertices->at(i).normal[2];
+					verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
+					verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
+					verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
+					verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
+					verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
+					verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
+				}
 
-			vtx.xyzw[0] = verts[1][0]; vtx.xyzw[1] = verts[1][1]; vtx.xyzw[2] = 0; vtx.xyzw[3] = 0;
-			vtx.normal[0] = 0; vtx.normal[1] = 0; vtx.normal[2] = 1;
-			vtx.uv[0] = 0; vtx.uv[1] = vecLen;
-			glmesh->m_vertices->push_back(vtx);
+				int curNumIndices = glmesh->m_indices->size();
+				int additionalIndices = gfxShape->m_indices->size();
+				glmesh->m_indices->resize(curNumIndices + additionalIndices);
+				for (int k = 0; k < additionalIndices; k++)
+				{
+					glmesh->m_indices->at(curNumIndices + k) = gfxShape->m_indices->at(k) + baseIndex;
+				}
 
-			vtx.xyzw[0] = verts[2][0]; vtx.xyzw[1] = verts[2][1]; vtx.xyzw[2] = 0; vtx.xyzw[3] = 0;
-			vtx.normal[0] = 0; vtx.normal[1] = 0; vtx.normal[2] = 1;
-			vtx.uv[0] = 0; vtx.uv[1] = 0;
-			glmesh->m_vertices->push_back(vtx);
+				//compensate upAxisTrans and unitMeterScaling here
+				btMatrix4x4 upAxisMat;
+				upAxisMat.setIdentity();
+				//								upAxisMat.setPureRotation(upAxisTrans.getRotation());
+				btMatrix4x4 unitMeterScalingMat;
+				unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling, unitMeterScaling, unitMeterScaling));
+				btMatrix4x4 worldMat = unitMeterScalingMat * upAxisMat * instance->m_worldTransform;
+				//btMatrix4x4 worldMat = instance->m_worldTransform;
+				int curNumVertices = glmesh->m_vertices->size();
+				int additionalVertices = verts.size();
+				glmesh->m_vertices->reserve(curNumVertices + additionalVertices);
 
-			vtx.xyzw[0] = verts[3][0]; vtx.xyzw[1] = verts[3][1]; vtx.xyzw[2] = 0; vtx.xyzw[3] = 0;
-			vtx.normal[0] = 0; vtx.normal[1] = 0; vtx.normal[2] = 1;
-			vtx.uv[0] = vecLen; vtx.uv[1] = 0;
-			glmesh->m_vertices->push_back(vtx);
-
+				for (int v = 0; v < verts.size(); v++)
+				{
+					btVector3 pos(verts[v].xyzw[0], verts[v].xyzw[1], verts[v].xyzw[2]);
+					pos = worldMat * pos;
+					verts[v].xyzw[0] = float(pos[0]);
+					verts[v].xyzw[1] = float(pos[1]);
+					verts[v].xyzw[2] = float(pos[2]);
+					glmesh->m_vertices->push_back(verts[v]);
+				}
+			}
 			glmesh->m_numIndices = glmesh->m_indices->size();
 			glmesh->m_numvertices = glmesh->m_vertices->size();
+			//glmesh = LoadMeshFromCollada(visual->m_geometry.m_meshFileName.c_str());
 			break;
 		}
+
 		default:
 		{
-			b3Warning("TinyRenderer: unknown visual geometry type %i\n", visual->m_geometry.m_type);
+			// should never get here (findExistingMeshFile returns false if it doesn't recognize extension)
+			btAssert(0);
 		}
+		}
+
+		if (glmesh && glmesh->m_vertices && (glmesh->m_numvertices > 0))
+		{
+			//apply the geometry scaling
+			for (int i = 0; i < glmesh->m_vertices->size(); i++)
+			{
+				glmesh->m_vertices->at(i).xyzw[0] *= visual->m_geometry.m_meshScale[0];
+				glmesh->m_vertices->at(i).xyzw[1] *= visual->m_geometry.m_meshScale[1];
+				glmesh->m_vertices->at(i).xyzw[2] *= visual->m_geometry.m_meshScale[2];
+			}
+		}
+		else
+		{
+			if (visual->m_geometry.m_meshFileType != UrdfGeometry::MEMORY_VERTICES)
+			{
+				b3Warning("issue extracting mesh from COLLADA/STL file %s\n", visual->m_geometry.m_meshFileName.c_str());
+			}
+		}
+		break;
+	}  // case mesh
+
+	case URDF_GEOM_PLANE:
+	{
+		glmesh = new GLInstanceGraphicsShape;
+		//		int index = 0;
+		glmesh->m_indices = new b3AlignedObjectArray<int>();
+		glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+		glmesh->m_indices->push_back(0);
+		glmesh->m_indices->push_back(1);
+		glmesh->m_indices->push_back(2);
+		glmesh->m_indices->push_back(0);
+		glmesh->m_indices->push_back(2);
+		glmesh->m_indices->push_back(3);
+		glmesh->m_scaling[0] = 1;
+		glmesh->m_scaling[1] = 1;
+		glmesh->m_scaling[2] = 1;
+		glmesh->m_scaling[3] = 1;
+
+		btScalar planeConst = 0;
+		btVector3 planeNormal = visual->m_geometry.m_planeNormal;
+		btVector3 planeOrigin = planeNormal * planeConst;
+		btVector3 vec0, vec1;
+		btPlaneSpace1(planeNormal, vec0, vec1);
+
+		btScalar vecLen = 128;
+		btVector3 verts[4];
+
+		verts[0] = planeOrigin + vec0 * vecLen + vec1 * vecLen;
+		verts[1] = planeOrigin - vec0 * vecLen + vec1 * vecLen;
+		verts[2] = planeOrigin - vec0 * vecLen - vec1 * vecLen;
+		verts[3] = planeOrigin + vec0 * vecLen - vec1 * vecLen;
+
+		GLInstanceVertex vtx;
+		vtx.xyzw[0] = verts[0][0]; vtx.xyzw[1] = verts[0][1]; vtx.xyzw[2] = 0; vtx.xyzw[3] = 0;
+		vtx.normal[0] = 0; vtx.normal[1] = 0; vtx.normal[2] = 1;
+		vtx.uv[0] = vecLen; vtx.uv[1] = vecLen;
+		glmesh->m_vertices->push_back(vtx);
+
+		vtx.xyzw[0] = verts[1][0]; vtx.xyzw[1] = verts[1][1]; vtx.xyzw[2] = 0; vtx.xyzw[3] = 0;
+		vtx.normal[0] = 0; vtx.normal[1] = 0; vtx.normal[2] = 1;
+		vtx.uv[0] = 0; vtx.uv[1] = vecLen;
+		glmesh->m_vertices->push_back(vtx);
+
+		vtx.xyzw[0] = verts[2][0]; vtx.xyzw[1] = verts[2][1]; vtx.xyzw[2] = 0; vtx.xyzw[3] = 0;
+		vtx.normal[0] = 0; vtx.normal[1] = 0; vtx.normal[2] = 1;
+		vtx.uv[0] = 0; vtx.uv[1] = 0;
+		glmesh->m_vertices->push_back(vtx);
+
+		vtx.xyzw[0] = verts[3][0]; vtx.xyzw[1] = verts[3][1]; vtx.xyzw[2] = 0; vtx.xyzw[3] = 0;
+		vtx.normal[0] = 0; vtx.normal[1] = 0; vtx.normal[2] = 1;
+		vtx.uv[0] = vecLen; vtx.uv[1] = 0;
+		glmesh->m_vertices->push_back(vtx);
+
+		glmesh->m_numIndices = glmesh->m_indices->size();
+		glmesh->m_numvertices = glmesh->m_vertices->size();
+		break;
+	}
+	default:
+	{
+		b3Warning("TinyRenderer: unknown visual geometry type %i\n", visual->m_geometry.m_type);
+	}
 	}
 
 	//if we have a convex, tesselate into localVertices/localIndices
@@ -699,22 +700,22 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 }
 
 static btVector4 sGoogleyColors[4] =
-	{
-		btVector4(60. / 256., 186. / 256., 84. / 256., 1),
-		btVector4(244. / 256., 194. / 256., 13. / 256., 1),
-		btVector4(219. / 256., 50. / 256., 54. / 256., 1),
-		btVector4(72. / 256., 133. / 256., 237. / 256., 1),
+{
+	btVector4(60. / 256., 186. / 256., 84. / 256., 1),
+	btVector4(244. / 256., 194. / 256., 13. / 256., 1),
+	btVector4(219. / 256., 50. / 256., 54. / 256., 1),
+	btVector4(72. / 256., 133. / 256., 237. / 256., 1),
 
-		//btVector4(1,1,0,1),
+	//btVector4(1,1,0,1),
 };
 
 int  TinyRendererVisualShapeConverter::convertVisualShapes(
-	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, 
+	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
 	const UrdfLink* linkPtr, const UrdfModel* model, int orgGraphicsUniqueId,
 	int bodyUniqueId, struct CommonFileIOInterface* fileIO)
 
 {
-	int uniqueId = orgGraphicsUniqueId; 
+	int uniqueId = orgGraphicsUniqueId;
 	btAssert(orgGraphicsUniqueId >= 0);
 	btAssert(linkPtr);  // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
@@ -759,7 +760,7 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 			colorIndex &= 3;
 			btVector4 color;
 			color = (m_data->m_flags & URDF_GOOGLEY_UNDEFINED_COLORS) ? sGoogleyColors[colorIndex] : btVector4(1, 1, 1, 1);
-			float rgbaColor[4] = {(float)color[0], (float)color[1], (float)color[2], (float)color[3]};
+			float rgbaColor[4] = { (float)color[0], (float)color[1], (float)color[2], (float)color[3] };
 			//if (colObj->getCollisionShape()->getShapeType()==STATIC_PLANE_PROXYTYPE)
 			//{
 			//	color.setValue(1,1,1,1);
@@ -847,7 +848,7 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 						int green = 199;
 						int blue = 255;
 						//create a textured surface
-						
+
 						m_data->m_checkeredTexels.resize(texWidth * texHeight * 3);
 						for (int i = 0; i < texWidth * texHeight * 3; i++)
 							m_data->m_checkeredTexels[i] = 255;
@@ -881,7 +882,7 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 			rgbaColor[1] = visualShape.m_rgbaColor[1];
 			rgbaColor[2] = visualShape.m_rgbaColor[2];
 			rgbaColor[3] = visualShape.m_rgbaColor[3];
-			
+
 			if (vertices.size() && indices.size())
 			{
 				TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer, m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId, linkIndex);
@@ -901,7 +902,7 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 					B3_PROFILE("registerMeshShape");
 
 					tinyObj->registerMeshShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(), rgbaColor,
-											   textureImage1, textureWidth, textureHeight);
+						textureImage1, textureWidth, textureHeight);
 				}
 				visuals->m_renderObjects.push_back(tinyObj);
 			}
@@ -925,25 +926,27 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 	return uniqueId;
 }
 
-int TinyRendererVisualShapeConverter::registerShapeAndInstance(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)
+int TinyRendererVisualShapeConverter::registerShapeAndInstance( const b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)
 {
-	btAlignedObjectArray<b3VisualShapeData>* shapes =
+	btAlignedObjectArray<b3VisualShapeData>* shapes1 =
 		m_data->m_visualShapesMap[bodyUniqueId];
-	if (!shapes)
+	if (!shapes1)
 	{
 		m_data->m_visualShapesMap.insert(bodyUniqueId,
 			btAlignedObjectArray<b3VisualShapeData>());
-		shapes = m_data->m_visualShapesMap[bodyUniqueId];
+		shapes1 = m_data->m_visualShapesMap[bodyUniqueId];
 	}
 	if (numvertices && numIndices)
 	{
 		TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer, m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId, linkIndex);
 		//those are primary soft bodies, possibly cloth, make them double-sided by default
 		tinyObj->m_doubleSided = true;
+
+		float rgbaColor[4] = { visualShape.m_rgbaColor[0],visualShape.m_rgbaColor[1],visualShape.m_rgbaColor[2],visualShape.m_rgbaColor[3] };
 		{
 			B3_PROFILE("registerMeshShape");
 
-			float rgbaColor[4] = { 1,1,1,1 };
+
 			tinyObj->registerMeshShape(vertices,
 				numvertices,
 				indices,
@@ -968,8 +971,11 @@ int TinyRendererVisualShapeConverter::registerShapeAndInstance(const float* vert
 				visuals->m_objectUniqueId = bodyUniqueId;
 				visuals->m_renderObjects.push_back(tinyObj);
 			}
+			
+			shapes1->push_back(visualShape);
 		}
 	}
+
 	return orgGraphicsUniqueId;
 }
 
@@ -978,12 +984,12 @@ void TinyRendererVisualShapeConverter::updateShape(int shapeUniqueId, const btVe
 	TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[shapeUniqueId];
 	if (visualsPtr != 0)
 	{
-		
+
 		TinyRendererObjectArray* visuals = *visualsPtr;
 		if (visuals->m_renderObjects.size() == 1)
 		{
 			TinyRenderObjectData* renderObj = visuals->m_renderObjects[0];
-			
+
 			if (renderObj->m_model->nverts() == numVertices)
 			{
 				TinyRender::Vec3f* verts = renderObj->m_model->readWriteVertices();
@@ -1033,7 +1039,7 @@ void TinyRendererVisualShapeConverter::changeInstanceFlags(int bodyUniqueId, int
 		return;
 	}
 	int start = -1;
-	
+
 	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
 	{
 		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
@@ -1079,7 +1085,7 @@ void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int lin
 		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
 		if (ptrptr && *ptrptr)
 		{
-			float rgba[4] = {(float)rgbaColor[0], (float)rgbaColor[1], (float)rgbaColor[2], (float)rgbaColor[3]};
+			float rgba[4] = { (float)rgbaColor[0], (float)rgbaColor[1], (float)rgbaColor[2], (float)rgbaColor[3] };
 			TinyRendererObjectArray* visuals = *ptrptr;
 			if ((bodyUniqueId == visuals->m_objectUniqueId) && (linkIndex == visuals->m_linkIndex))
 			{
@@ -1176,15 +1182,15 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 	{
 		switch (m_data->m_upAxis)
 		{
-			case 1:
-				lightDirWorld = btVector3(-50.f, 100, 30);
-				break;
-			case 2:
-				lightDirWorld = btVector3(-50.f, 30, 100);
-				break;
-			default:
-			{
-			}
+		case 1:
+			lightDirWorld = btVector3(-50.f, 100, 30);
+			break;
+		case 2:
+			lightDirWorld = btVector3(-50.f, 30, 100);
+			break;
+		default:
+		{
+		}
 		};
 	}
 
@@ -1332,9 +1338,9 @@ void TinyRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 }
 
 void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels,
-														   float* depthBuffer, int depthBufferSizeInPixels,
-														   int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,
-														   int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
+	float* depthBuffer, int depthBufferSizeInPixels,
+	int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,
+	int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
 {
 	int w = m_data->m_rgbColorBuffer.get_width();
 	int h = m_data->m_rgbColorBuffer.get_height();
@@ -1423,7 +1429,7 @@ void TinyRendererVisualShapeConverter::removeVisualShape(int shapeUniqueId)
 
 void TinyRendererVisualShapeConverter::resetAll()
 {
-	
+
 
 	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
 	{
@@ -1474,12 +1480,13 @@ void TinyRendererVisualShapeConverter::changeShapeTexture(int bodyUniqueId, int 
 
 					if ((shapeIndex < 0) || (shapeIndex == v))
 					{
-						if (textureUniqueId>=0)
+						if (textureUniqueId >= 0)
 						{
 							renderObj->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData1, m_data->m_textures[textureUniqueId].m_width, m_data->m_textures[textureUniqueId].m_height);
-						} else
+						}
+						else
 						{
-							renderObj->m_model->setDiffuseTextureFromData(0,0,0);
+							renderObj->m_model->setDiffuseTextureFromData(0, 0, 0);
 						}
 					}
 				}
@@ -1508,14 +1515,14 @@ int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename, stru
 	{
 		b3AlignedObjectArray<char> buffer;
 		buffer.reserve(1024);
-		int fileId = fileIO->fileOpen(filename,"rb");
-		if (fileId>=0)
+		int fileId = fileIO->fileOpen(filename, "rb");
+		if (fileId >= 0)
 		{
 			int size = fileIO->getFileSize(fileId);
-			if (size>0)
+			if (size > 0)
 			{
 				buffer.resize(size);
-				int actual = fileIO->fileRead(fileId,&buffer[0],size);
+				int actual = fileIO->fileRead(fileId, &buffer[0], size);
 				if (actual != size)
 				{
 					b3Warning("image filesize mismatch!\n");
@@ -1528,7 +1535,8 @@ int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename, stru
 		{
 			image = stbi_load_from_memory((const unsigned char*)&buffer[0], buffer.size(), &width, &height, &n, 3);
 		}
-	} else
+	}
+	else
 	{
 		image = stbi_load(filename, &width, &height, &n, 3);
 	}
