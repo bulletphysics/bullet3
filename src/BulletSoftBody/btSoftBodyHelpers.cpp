@@ -1296,6 +1296,7 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
 			position.setY(p);
 			ss >> p;
 			position.setZ(p);
+			//printf("v %f %f %f\n", position.getX(), position.getY(), position.getZ());
 			X[x_count++] = position;
 		}
 		else if (reading_tets)
@@ -1314,9 +1315,9 @@ btSoftBody* btSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo,
 			for (size_t i = 0; i < 4; i++)
 			{
 				ss >> tet[i];
-				printf("%d ", tet[i]);
+				//printf("%d ", tet[i]);
 			}
-			printf("\n");
+			//printf("\n");
 			indices[indices_count++] = tet;
 		}
 	}
@@ -1416,6 +1417,7 @@ void btSoftBodyHelpers::generateBoundaryFaces(btSoftBody* psb)
 	{
 		std::vector<int> f = it->second;
 		psb->appendFace(f[0], f[1], f[2]);
+		//printf("f %d %d %d\n", f[0] + 1, f[1] + 1, f[2] + 1);
 	}
 }
 

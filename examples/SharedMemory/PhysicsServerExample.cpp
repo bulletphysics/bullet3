@@ -132,6 +132,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperChangeGraphicsInstanceScaling,
 	eGUIUserDebugRemoveAllParameters,
 	eGUIHelperResetCamera,
+	eGUIHelperChangeGraphicsInstanceFlags,
 };
 
 #include <stdio.h>
@@ -1044,6 +1045,21 @@ public:
 		m_cs->setSharedParam(1, eGUIHelperChangeGraphicsInstanceRGBAColor);
 		workerThreadWait();
 	}
+
+	
+	int m_graphicsInstanceFlagsInstanceUid;
+	int m_graphicsInstanceFlags;
+	virtual void changeInstanceFlags(int instanceUid, int flags)
+	{
+		m_graphicsInstanceFlagsInstanceUid = instanceUid;
+		m_graphicsInstanceFlags = flags;
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIHelperChangeGraphicsInstanceFlags);
+		workerThreadWait();
+	}
+
+	
+
 
 	int m_graphicsInstanceChangeScaling;
 	double m_baseScaling[3];
@@ -2240,6 +2256,13 @@ void PhysicsServerExample::updateGraphics()
 			B3_PROFILE("eGUIHelperChangeGraphicsInstanceRGBAColor");
 
 			m_multiThreadedHelper->m_childGuiHelper->changeRGBAColor(m_multiThreadedHelper->m_graphicsInstanceChangeColor, m_multiThreadedHelper->m_rgbaColor);
+			m_multiThreadedHelper->mainThreadRelease();
+			break;
+		}
+
+		case eGUIHelperChangeGraphicsInstanceFlags:
+		{
+			m_multiThreadedHelper->m_childGuiHelper->changeInstanceFlags(m_multiThreadedHelper->m_graphicsInstanceFlagsInstanceUid, m_multiThreadedHelper->m_graphicsInstanceFlags);
 			m_multiThreadedHelper->mainThreadRelease();
 			break;
 		}
