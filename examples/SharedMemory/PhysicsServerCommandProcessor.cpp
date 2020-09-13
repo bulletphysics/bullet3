@@ -13109,17 +13109,16 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 				if (m_data->m_pluginManager.getRenderInterface())
 				{
 					m_data->m_pluginManager.getRenderInterface()->changeShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId,
-																					 clientCmd.m_updateVisualShapeDataArguments.m_jointIndex,
-																					 clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex,
-																					 texHandle->m_tinyRendererTextureId);
+					 clientCmd.m_updateVisualShapeDataArguments.m_jointIndex,
+					 clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex,
+					 texHandle->m_tinyRendererTextureId);
 				}
 			}
 			else
 			{
 				m_data->m_pluginManager.getRenderInterface()->changeShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId,
-																				 clientCmd.m_updateVisualShapeDataArguments.m_jointIndex,
-																				 clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex,
-																				 -1);
+				clientCmd.m_updateVisualShapeDataArguments.m_jointIndex,
+				clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex,-1);
 			}
 		}
 	}
@@ -13233,14 +13232,27 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 
 				else if (bodyHandle->m_softBody)
 				{
+					int graphicsIndex = bodyHandle->m_softBody->getUserIndex();
+					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_TEXTURE)
+                                        {
+						int shapeIndex = m_data->m_guiHelper->getShapeIndexFromInstance(graphicsIndex);
+                                                if (texHandle)
+                                                {
+                                                         m_data->m_guiHelper->replaceTexture(shapeIndex, texHandle->m_openglTextureId);
+                                                }
+                                                else
+                                                {
+                                                         m_data->m_guiHelper->replaceTexture(shapeIndex, -1);
+                                                }
+                                        }
+
 					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR)
 					{
 						if (m_data->m_pluginManager.getRenderInterface())
 						{
 							m_data->m_pluginManager.getRenderInterface()->changeRGBAColor(bodyUniqueId, linkIndex,
-																						  clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+							  clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 						}
-						int graphicsIndex = bodyHandle->m_softBody->getUserIndex();
 						m_data->m_guiHelper->changeRGBAColor(graphicsIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 					}
 
@@ -13252,7 +13264,6 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 								clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, 
 								clientCmd.m_updateVisualShapeDataArguments.m_flags);
 						}
-						int graphicsIndex = bodyHandle->m_softBody->getUserIndex();
 						m_data->m_guiHelper->changeInstanceFlags(graphicsIndex, 
 							clientCmd.m_updateVisualShapeDataArguments.m_flags);
 					}

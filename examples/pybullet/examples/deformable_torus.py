@@ -10,7 +10,7 @@ p.resetSimulation(p.RESET_USE_DEFORMABLE_WORLD)
 p.resetDebugVisualizerCamera(3,-420,-30,[0.3,0.9,-2])
 p.setGravity(0, 0, -10)
 
-tex = p.loadTexture("checker_blue.png")
+tex = p.loadTexture("uvmap.png")
 planeId = p.loadURDF("plane.urdf", [0,0,-2])
 
 boxId = p.loadURDF("cube.urdf", [0,3,2],useMaximalCoordinates = True)
