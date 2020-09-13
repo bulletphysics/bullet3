@@ -637,10 +637,13 @@ void SimpleOpenGL2Renderer::drawPoint(const double* position, const double color
 {
 }
 
-void SimpleOpenGL2Renderer::updateShape(int shapeIndex, const float* vertices)
+void SimpleOpenGL2Renderer::updateShape(int shapeIndex, const float* vertices, int numVertices)
 {
 	SimpleGL2Shape* shape = m_data->m_shapes[shapeIndex];
 	int numvertices = shape->m_vertices.size();
+	b3Assert(numVertices = numvertices);
+	if (numVertices != numvertices)
+		return;
 
 	for (int i = 0; i < numvertices; i++)
 	{

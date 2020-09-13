@@ -313,6 +313,13 @@ void OpenGLGuiHelper::createCollisionObjectGraphicsObject(btCollisionObject* bod
 			btVector3 localScaling(1, 1, 1);
 			int graphicsInstanceId = m_data->m_glApp->m_renderer->registerGraphicsInstance(graphicsShapeId, startTransform.getOrigin(), startTransform.getRotation(), color, localScaling);
 			body->setUserIndex(graphicsInstanceId);
+
+			btSoftBody* sb = btSoftBody::upcast(body);
+			if (sb)
+			{
+				int graphicsInstanceId = body->getUserIndex();
+				changeInstanceFlags(graphicsInstanceId, B3_INSTANCE_DOUBLE_SIDED);
+			}
 		}
 	}
 }
@@ -560,8 +567,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 		computeSoftBodyVertices(collisionShape, gfxVertices, indices);
 		if (gfxVertices.size() && indices.size())
 		{
-			int shapeId = registerGraphicsShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES,
-												m_data->m_checkedTexture);
+			int shapeId = registerGraphicsShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES,m_data->m_checkedTexture);
 
 			b3Assert(shapeId >= 0);
 			collisionShape->setUserIndex(shapeId);
@@ -1051,10 +1057,33 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 			btCollisionShape* collisionShape = colObj->getCollisionShape();
 			if (collisionShape->getShapeType() == SOFTBODY_SHAPE_PROXYTYPE && collisionShape->getUserIndex() >= 0)
 			{
+				const btSoftBody* psb = (const btSoftBody*)colObj;
 				btAlignedObjectArray<GLInstanceVertex> gfxVertices;
-				btAlignedObjectArray<int> indices;
-				computeSoftBodyVertices(collisionShape, gfxVertices, indices);
-				m_data->m_glApp->m_renderer->updateShape(collisionShape->getUserIndex(), &gfxVertices[0].xyzw[0]);
+				
+				if (psb->m_renderNodes.size() > 0)
+				{
+					
+					gfxVertices.resize(psb->m_renderNodes.size());
+					for (int i = 0; i < psb->m_renderNodes.size(); i++)  // Foreach face
+					{
+						gfxVertices[i].xyzw[0] = psb->m_renderNodes[i].m_x[0];
+						gfxVertices[i].xyzw[1] = psb->m_renderNodes[i].m_x[1];
+						gfxVertices[i].xyzw[2] = psb->m_renderNodes[i].m_x[2];
+						gfxVertices[i].xyzw[3] = psb->m_renderNodes[i].m_x[3];
+						gfxVertices[i].uv[0] = psb->m_renderNodes[i].m_uv1[0];
+						gfxVertices[i].uv[1] = psb->m_renderNodes[i].m_uv1[1];
+						//gfxVertices[i].normal[0] = psb->m_renderNodes[i].
+						gfxVertices[i].normal[0] = psb->m_renderNodes[i].m_normal[0];
+						gfxVertices[i].normal[1] = psb->m_renderNodes[i].m_normal[1];
+						gfxVertices[i].normal[2] = psb->m_renderNodes[i].m_normal[2];
+					}
+				}
+				else
+				{
+					btAlignedObjectArray<int> indices;
+					computeSoftBodyVertices(collisionShape, gfxVertices, indices);
+				}
+				m_data->m_glApp->m_renderer->updateShape(collisionShape->getUserIndex(), &gfxVertices[0].xyzw[0], gfxVertices.size());
 				continue;
 			}
 			btVector3 pos = colObj->getWorldTransform().getOrigin();
@@ -1449,11 +1478,7 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 			color.setValue(1, 1, 1, 1);
 		}
 		createCollisionObjectGraphicsObject(colObj, color);
-		if (sb)
-		{
-			int graphicsInstanceId = colObj->getUserIndex();
-			changeInstanceFlags(graphicsInstanceId, B3_INSTANCE_DOUBLE_SIDED);
-		}
+		
 	}
 }
 
@@ -1511,14 +1536,14 @@ void OpenGLGuiHelper::computeSoftBodyVertices(btCollisionShape* collisionShape,
 			}
 			for (int j = 0; j < 2; j++)
 			{
-				gfxVertices[currentIndex].uv[j] = 0.5;  //we don't have UV info...
+				gfxVertices[currentIndex].uv[j] = psb->m_faces[i].m_n[k]->m_x[j];
 			}
 			indices.push_back(currentIndex);
 		}
 	}
 }
 
-void OpenGLGuiHelper::updateShape(int shapeIndex, float* vertices)
+void OpenGLGuiHelper::updateShape(int shapeIndex, float* vertices, int numVertices)
 {
-	m_data->m_glApp->m_renderer->updateShape(shapeIndex, vertices);
+	m_data->m_glApp->m_renderer->updateShape(shapeIndex, vertices, numVertices);
 }

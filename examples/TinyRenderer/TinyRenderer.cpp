@@ -200,7 +200,8 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	  m_segmentationMaskBufferPtr(0),
 	  m_userData(0),
 	  m_userIndex(-1),
-	  m_objectIndex(-1)
+	  m_objectIndex(-1),
+	  m_doubleSided(false)
 {
 	Vec3f eye(1, 1, 3);
 	Vec3f center(0, 0, 0);
@@ -223,7 +224,8 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	  m_userData(0),
 	  m_userIndex(-1),
 	  m_objectIndex(objectIndex),
-	  m_linkIndex(linkIndex)
+	  m_linkIndex(linkIndex),
+	  m_doubleSided(false)
 {
 	Vec3f eye(1, 1, 3);
 	Vec3f center(0, 0, 0);
@@ -241,10 +243,12 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	: m_model(0),
 	  m_rgbColorBuffer(rgbColorBuffer),
 	  m_depthBuffer(depthBuffer),
+	  m_shadowBuffer(0),
 	  m_segmentationMaskBufferPtr(0),
 	  m_userData(0),
 	  m_userIndex(-1),
-	  m_objectIndex(-1)
+	  m_objectIndex(-1),
+	m_doubleSided(false)
 {
 	Vec3f eye(1, 1, 3);
 	Vec3f center(0, 0, 0);
@@ -262,10 +266,12 @@ TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer, b3AlignedOb
 	: m_model(0),
 	  m_rgbColorBuffer(rgbColorBuffer),
 	  m_depthBuffer(depthBuffer),
+	  m_shadowBuffer(0),
 	  m_segmentationMaskBufferPtr(segmentationMaskBuffer),
 	  m_userData(0),
 	  m_userIndex(-1),
-	  m_objectIndex(objectIndex)
+	  m_objectIndex(objectIndex),
+	m_doubleSided(false)
 {
 	Vec3f eye(1, 1, 3);
 	Vec3f center(0, 0, 0);
@@ -558,13 +564,16 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 					shader.vertex(i, j);
 				}
 
-				// backface culling
-				btVector3 v0(shader.world_tri.col(0)[0], shader.world_tri.col(0)[1], shader.world_tri.col(0)[2]);
-				btVector3 v1(shader.world_tri.col(1)[0], shader.world_tri.col(1)[1], shader.world_tri.col(1)[2]);
-				btVector3 v2(shader.world_tri.col(2)[0], shader.world_tri.col(2)[1], shader.world_tri.col(2)[2]);
-				btVector3 N = (v1 - v0).cross(v2 - v0);
-				if ((v0 - P).dot(N) >= 0)
-					continue;
+				if (!renderData.m_doubleSided)
+				{
+					// backface culling
+					btVector3 v0(shader.world_tri.col(0)[0], shader.world_tri.col(0)[1], shader.world_tri.col(0)[2]);
+					btVector3 v1(shader.world_tri.col(1)[0], shader.world_tri.col(1)[1], shader.world_tri.col(1)[2]);
+					btVector3 v2(shader.world_tri.col(2)[0], shader.world_tri.col(2)[1], shader.world_tri.col(2)[2]);
+					btVector3 N = (v1 - v0).cross(v2 - v0);
+					if ((v0 - P).dot(N) >= 0)
+						continue;
+				}
 
 				mat<4, 3, float> stackTris[3];
 
