@@ -937,7 +937,7 @@ int TinyRendererVisualShapeConverter::registerShapeAndInstance(const float* vert
 	}
 	if (numvertices && numIndices)
 	{
-		TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer, m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, -1, -1);
+		TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer, m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId, linkIndex);
 		//those are primary soft bodies, possibly cloth, make them double-sided by default
 		tinyObj->m_doubleSided = true;
 		{

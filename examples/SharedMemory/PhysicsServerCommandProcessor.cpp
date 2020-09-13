@@ -8851,21 +8851,23 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
  			int instanceUid = m_data->m_guiHelper->registerGraphicsInstance(shapeUid1, position, orientation, color, scaling);
 			psb->setUserIndex(instanceUid);
 			
-			int texUid2 = m_data->m_pluginManager.getRenderInterface()->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
-			int linkIndex = -1;
-			int softBodyGraphicsShapeUid = m_data->m_pluginManager.getRenderInterface()->registerShapeAndInstance(
-				&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
-				meshData.m_gfxShape->m_numvertices,
-				&meshData.m_gfxShape->m_indices->at(0),
-				meshData.m_gfxShape->m_numIndices,
-				B3_GL_TRIANGLES,
-				texUid2,
-				psb->getBroadphaseHandle()->getUid(),
-				*bodyUniqueId,
-				linkIndex);
+			if (m_data->m_enableTinyRenderer)
+			{
+				int texUid2 = m_data->m_pluginManager.getRenderInterface()->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
+				int linkIndex = -1;
+				int softBodyGraphicsShapeUid = m_data->m_pluginManager.getRenderInterface()->registerShapeAndInstance(
+					&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
+					meshData.m_gfxShape->m_numvertices,
+					&meshData.m_gfxShape->m_indices->at(0),
+					meshData.m_gfxShape->m_numIndices,
+					B3_GL_TRIANGLES,
+					texUid2,
+					psb->getBroadphaseHandle()->getUid(),
+					*bodyUniqueId,
+					linkIndex);
 
-			psb->setUserIndex3(softBodyGraphicsShapeUid);
-			
+				psb->setUserIndex3(softBodyGraphicsShapeUid);
+			}
 			delete meshData.m_gfxShape;
 			meshData.m_gfxShape = 0;
 		}
@@ -8892,7 +8894,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 					}
 					for (int j = 0; j < 2; j++)
 					{
-						gfxVertices[currentIndex].uv[j] = psb->m_faces[i].m_n[k]->m_x[j];
+						gfxVertices[currentIndex].uv[j] = btFabs(btFabs(10. * psb->m_faces[i].m_n[k]->m_x[j]));
 					}
 					indices.push_back(currentIndex);
 				}
@@ -8929,16 +8931,18 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 				int shapeId = m_data->m_guiHelper->registerGraphicsShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, texId);
 				b3Assert(shapeId >= 0);
 				psb->getCollisionShape()->setUserIndex(shapeId);
+				if (m_data->m_enableTinyRenderer)
+				{
 
-
-				int texUid2 = m_data->m_pluginManager.getRenderInterface()->registerTexture(&texels[0], texWidth, texHeight);
-				int linkIndex = -1;
-				int softBodyGraphicsShapeUid = m_data->m_pluginManager.getRenderInterface()->registerShapeAndInstance(
-					&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, texUid2,
-					psb->getBroadphaseHandle()->getUid(),
-					*bodyUniqueId,
-					linkIndex);
-				psb->setUserIndex3(softBodyGraphicsShapeUid);
+					int texUid2 = m_data->m_pluginManager.getRenderInterface()->registerTexture(&texels[0], texWidth, texHeight);
+					int linkIndex = -1;
+					int softBodyGraphicsShapeUid = m_data->m_pluginManager.getRenderInterface()->registerShapeAndInstance(
+						&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, texUid2,
+						psb->getBroadphaseHandle()->getUid(),
+						*bodyUniqueId,
+						linkIndex);
+					psb->setUserIndex3(softBodyGraphicsShapeUid);
+				}
 			}
 		}
 		
@@ -8965,7 +8969,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 					}
 					for (int j = 0; j < 2; j++)
 					{
-						psb->m_renderNodes[currentIndex].m_uv1[j] = psb->m_faces[i].m_n[k]->m_x[j];
+						psb->m_renderNodes[currentIndex].m_uv1[j] = btFabs(10*psb->m_faces[i].m_n[k]->m_x[j]);
 					}
 					psb->m_renderNodes[currentIndex].m_uv1[2] = 0;
 					vertices[currentIndex] = psb->m_faces[i].m_n[k]->m_x;
@@ -13236,6 +13240,8 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 							m_data->m_pluginManager.getRenderInterface()->changeRGBAColor(bodyUniqueId, linkIndex,
 																						  clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 						}
+						int graphicsIndex = bodyHandle->m_softBody->getUserIndex();
+						m_data->m_guiHelper->changeRGBAColor(graphicsIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 					}
 
 					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_FLAGS)
