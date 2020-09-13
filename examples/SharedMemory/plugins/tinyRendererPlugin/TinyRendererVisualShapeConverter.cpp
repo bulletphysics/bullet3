@@ -925,121 +925,52 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 	return uniqueId;
 }
 
-int TinyRendererVisualShapeConverter::addVisualShape(
-	b3VisualShapeData* visualShape, struct CommonFileIOInterface* fileIO, int orgGraphicsUniqueId,
-	int bodyUniqueId, int linkIndex)
+int TinyRendererVisualShapeConverter::registerShapeAndInstance(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)
 {
-	int uniqueId = orgGraphicsUniqueId;
-	visualShape->m_openglTextureId = -1;
-	visualShape->m_tinyRendererTextureId = -1;
-	visualShape->m_textureUniqueId = -1;
-	
-	b3ImportMeshData meshData;
-	float rgbaColor[4] = { 1,1,1,1 };
-
-	if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(
-			visualShape->m_meshAssetFileName, meshData, fileIO))
-	{
-		if (m_data->m_flags & URDF_USE_MATERIAL_COLORS_FROM_MTL)
-		{
-			if (meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR)
-			{
-				visualShape->m_rgbaColor[0] = meshData.m_rgbaColor[0];
-				visualShape->m_rgbaColor[1] = meshData.m_rgbaColor[1];
-				visualShape->m_rgbaColor[2] = meshData.m_rgbaColor[2];
-
-				if (m_data->m_flags & URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
-				{
-					visualShape->m_rgbaColor[3] = meshData.m_rgbaColor[3];
-				}
-				else
-				{
-					visualShape->m_rgbaColor[3] = 1;
-				}
-				for (int i = 0; i < 4; i++)
-				{
-					rgbaColor[i] = meshData.m_rgbaColor[i];
-				}
-			}
-		}
-
-		MyTexture2 texture;
-		if (meshData.m_textureImage1)
-		{
-			texture.m_width = meshData.m_textureWidth;
-			texture.m_height = meshData.m_textureHeight;
-			texture.textureData1 = meshData.m_textureImage1;
-			texture.m_isCached = meshData.m_isCached;
-
-			visualShape->m_tinyRendererTextureId = m_data->m_textures.size();
-			m_data->m_textures.push_back(texture);
-		}
-		// meshData.m_gfxShape is allocated by a helper function used to create visualShape,
-		// but is not needed in this use case here
-		
-	}
-
 	btAlignedObjectArray<b3VisualShapeData>* shapes =
-		m_data->m_visualShapesMap[visualShape->m_objectUniqueId];
+		m_data->m_visualShapesMap[bodyUniqueId];
 	if (!shapes)
 	{
-		m_data->m_visualShapesMap.insert(visualShape->m_objectUniqueId,
-										 btAlignedObjectArray<b3VisualShapeData>());
-		shapes = m_data->m_visualShapesMap[visualShape->m_objectUniqueId];
+		m_data->m_visualShapesMap.insert(bodyUniqueId,
+			btAlignedObjectArray<b3VisualShapeData>());
+		shapes = m_data->m_visualShapesMap[bodyUniqueId];
 	}
-
-
-	
-
-
-	//////////////
-
-	if (meshData.m_gfxShape)
+	if (numvertices && numIndices)
 	{
-
-		if (meshData.m_gfxShape->m_numvertices && meshData.m_gfxShape->m_numIndices)
+		TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer, m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, -1, -1);
+		//those are primary soft bodies, possibly cloth, make them double-sided by default
+		tinyObj->m_doubleSided = true;
 		{
-			TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer, m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, -1, -1);
-			//those are primary soft bodies, possibly cloth, make them double-sided by default
-			tinyObj->m_doubleSided = true;
-			
+			B3_PROFILE("registerMeshShape");
+
+			float rgbaColor[4] = { 1,1,1,1 };
+			tinyObj->registerMeshShape(vertices,
+				numvertices,
+				indices,
+				numIndices,
+				rgbaColor,
+				m_data->m_textures[textureId].textureData1, m_data->m_textures[textureId].m_width, m_data->m_textures[textureId].m_height);
+		}
+
+		TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[orgGraphicsUniqueId];
+		if (visualsPtr == 0)
+		{
+			m_data->m_swRenderInstances.insert(orgGraphicsUniqueId, new TinyRendererObjectArray);
+		}
+		visualsPtr = m_data->m_swRenderInstances[orgGraphicsUniqueId];
+
+		if (visualsPtr && *visualsPtr)
+		{
+			TinyRendererObjectArray* visuals = *visualsPtr;
+			if (visuals)
 			{
-				B3_PROFILE("registerMeshShape");
-
-
-				tinyObj->registerMeshShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
-					meshData.m_gfxShape->m_numvertices,
-					&meshData.m_gfxShape->m_indices->at(0),
-					meshData.m_gfxShape->m_numIndices,
-					rgbaColor,
-					meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
-			}
-
-			TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[uniqueId];
-			if (visualsPtr == 0)
-			{
-				m_data->m_swRenderInstances.insert(uniqueId, new TinyRendererObjectArray);
-			}
-			visualsPtr = m_data->m_swRenderInstances[uniqueId];
-
-			if (visualsPtr && *visualsPtr)
-			{
-				TinyRendererObjectArray* visuals = *visualsPtr;
-				if (visuals)
-				{
-					visuals->m_linkIndex = linkIndex;
-					visuals->m_objectUniqueId = bodyUniqueId;
-					visuals->m_renderObjects.push_back(tinyObj);
-				}
+				visuals->m_linkIndex = linkIndex;
+				visuals->m_objectUniqueId = bodyUniqueId;
+				visuals->m_renderObjects.push_back(tinyObj);
 			}
 		}
-		delete meshData.m_gfxShape;
 	}
-
-
-
-	shapes->push_back(*visualShape);
-	return uniqueId;
+	return orgGraphicsUniqueId;
 }
 
 void TinyRendererVisualShapeConverter::updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices)
@@ -1206,9 +1137,9 @@ void TinyRendererVisualShapeConverter::render()
 	render(viewMat, projMat);
 }
 
-void TinyRendererVisualShapeConverter::syncTransform(int collisionObjectUniqueId, const btTransform& worldTransform, const btVector3& localScaling)
+void TinyRendererVisualShapeConverter::syncTransform(int shapeUniqueId, const btTransform& worldTransform, const btVector3& localScaling)
 {
-	TinyRendererObjectArray** renderObjPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+	TinyRendererObjectArray** renderObjPtr = m_data->m_swRenderInstances[shapeUniqueId];
 	if (renderObjPtr)
 	{
 		TinyRendererObjectArray* renderObj = *renderObjPtr;
@@ -1471,9 +1402,9 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
 	}
 }
 
-void TinyRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqueId)
+void TinyRendererVisualShapeConverter::removeVisualShape(int shapeUniqueId)
 {
-	TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances[collisionObjectUniqueId];
+	TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances[shapeUniqueId];
 	if (ptrptr && *ptrptr)
 	{
 		TinyRendererObjectArray* ptr = *ptrptr;
@@ -1486,7 +1417,7 @@ void TinyRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniq
 			}
 		}
 		delete ptr;
-		m_data->m_swRenderInstances.remove(collisionObjectUniqueId);
+		m_data->m_swRenderInstances.remove(shapeUniqueId);
 	}
 }
 
@@ -1523,7 +1454,7 @@ void TinyRendererVisualShapeConverter::resetAll()
 	m_data->m_visualShapesMap.clear();
 }
 
-void TinyRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
+void TinyRendererVisualShapeConverter::changeShapeTexture(int bodyUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
 	btAssert(textureUniqueId < m_data->m_textures.size());
 	if (textureUniqueId >= -1 && textureUniqueId < m_data->m_textures.size())
@@ -1535,7 +1466,7 @@ void TinyRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, in
 				continue;  //can this ever happen?
 			TinyRendererObjectArray* visualArray = *visualArrayPtr;
 
-			if (visualArray->m_objectUniqueId == objectUniqueId && visualArray->m_linkIndex == jointIndex)
+			if (visualArray->m_objectUniqueId == bodyUniqueId && visualArray->m_linkIndex == jointIndex)
 			{
 				for (int v = 0; v < visualArray->m_renderObjects.size(); v++)
 				{
@@ -1563,7 +1494,7 @@ int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int
 	texData.m_width = width;
 	texData.m_height = height;
 	texData.textureData1 = texels;
-	texData.m_isCached = false;
+	texData.m_isCached = true;
 	m_data->m_textures.push_back(texData);
 	return m_data->m_textures.size() - 1;
 }
@@ -1604,7 +1535,13 @@ int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename, stru
 
 	if (image && (width >= 0) && (height >= 0))
 	{
-		return registerTexture(image, width, height);
+		MyTexture2 texData;
+		texData.m_width = width;
+		texData.m_height = height;
+		texData.textureData1 = image;
+		texData.m_isCached = false;
+		m_data->m_textures.push_back(texData);
+		return m_data->m_textures.size() - 1;
 	}
 	return -1;
 }

@@ -25,4 +25,5 @@ p.setPhysicsEngineParameter(sparseSdfVoxelSize=0.25)
 p.setRealTimeSimulation(1)
 
 while p.isConnected():
+  p.getCameraImage(320,200)
   p.setGravity(0,0,-10)

@@ -265,7 +265,6 @@ struct InternalBodyData
 	btRigidBody* m_rigidBody;
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	btSoftBody* m_softBody;
-	struct GLInstanceGraphicsShape* m_softBodyGfxShape;
 	
 #endif
 	int m_testData;
@@ -293,7 +292,7 @@ struct InternalBodyData
 		m_rigidBody = 0;
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		m_softBody = 0;
-		m_softBodyGfxShape = 0;
+		
 #endif
 		m_testData = 0;
 		m_bodyName = "";
@@ -8835,79 +8834,144 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			}
 		}
 		
+		*bodyUniqueId = m_data->m_bodyHandles.allocHandle();
+		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(*bodyUniqueId);
+		bodyHandle->m_softBody = psb;
+		psb->setUserIndex2(*bodyUniqueId);
+
 		if (meshData.m_gfxShape)
 		{
-			int texUid = m_data->m_guiHelper->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
-			int shapeUid = m_data->m_guiHelper->registerGraphicsShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0], meshData.m_gfxShape->m_numvertices, &meshData.m_gfxShape->m_indices->at(0), meshData.m_gfxShape->m_numIndices, B3_GL_TRIANGLES, texUid);
-			psb->getCollisionShape()->setUserIndex(shapeUid);
+			int texUid1 = m_data->m_guiHelper->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
+			int shapeUid1 = m_data->m_guiHelper->registerGraphicsShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0], meshData.m_gfxShape->m_numvertices, &meshData.m_gfxShape->m_indices->at(0), meshData.m_gfxShape->m_numIndices, B3_GL_TRIANGLES, texUid1);
+			psb->getCollisionShape()->setUserIndex(shapeUid1);
 			float position[4] = { 0,0,0,0 };
 			float orientation [4] = { 0,0,0,1 };
 			float color[4] = { 1,1,1,1 };
 			float scaling[4] = { 1,1,1,1 };
- 			int instanceUid = m_data->m_guiHelper->registerGraphicsInstance(shapeUid, position, orientation, color, scaling);
+ 			int instanceUid = m_data->m_guiHelper->registerGraphicsInstance(shapeUid1, position, orientation, color, scaling);
 			psb->setUserIndex(instanceUid);
+			
+			int texUid2 = m_data->m_pluginManager.getRenderInterface()->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
+			int linkIndex = -1;
+			int softBodyGraphicsShapeUid = m_data->m_pluginManager.getRenderInterface()->registerShapeAndInstance(
+				&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
+				meshData.m_gfxShape->m_numvertices,
+				&meshData.m_gfxShape->m_indices->at(0),
+				meshData.m_gfxShape->m_numIndices,
+				B3_GL_TRIANGLES,
+				texUid2,
+				psb->getBroadphaseHandle()->getUid(),
+				*bodyUniqueId,
+				linkIndex);
+
+			psb->setUserIndex3(softBodyGraphicsShapeUid);
+			
 			delete meshData.m_gfxShape;
+			meshData.m_gfxShape = 0;
 		}
 		else
 		{
-			m_data->m_guiHelper->createCollisionShapeGraphicsObject(psb->getCollisionShape());
-		}
+			//m_data->m_guiHelper->createCollisionShapeGraphicsObject(psb->getCollisionShape());
 
-
-		*bodyUniqueId = m_data->m_bodyHandles.allocHandle();
-		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(*bodyUniqueId);
-		bodyHandle->m_softBody = psb;
-		if (meshData.m_gfxShape)
-			bodyHandle->m_softBodyGfxShape = meshData.m_gfxShape;
-
-		psb->setUserIndex2(*bodyUniqueId);
-
-		b3VisualShapeData visualShape;
-
-		visualShape.m_objectUniqueId = *bodyUniqueId;
-		visualShape.m_linkIndex = -1;
-		visualShape.m_visualGeometryType = URDF_GEOM_MESH;
-		//dimensions just contains the scale
-		visualShape.m_dimensions[0] = scale;
-		visualShape.m_dimensions[1] = scale;
-		visualShape.m_dimensions[2] = scale;
-		//filename
-		strncpy(visualShape.m_meshAssetFileName, relativeFileName, VISUAL_SHAPE_MAX_PATH_LEN);
-		visualShape.m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN - 1] = 0;
-		//position and orientation
-		visualShape.m_localVisualFrame[0] = pos[0];
-		visualShape.m_localVisualFrame[1] = pos[1];
-		visualShape.m_localVisualFrame[2] = pos[2];
-		visualShape.m_localVisualFrame[3] = orn[0];
-		visualShape.m_localVisualFrame[4] = orn[1];
-		visualShape.m_localVisualFrame[5] = orn[2];
-		visualShape.m_localVisualFrame[6] = orn[3];
-		//color and ids to be set by the renderer
-		visualShape.m_rgbaColor[0] = 0;
-		visualShape.m_rgbaColor[1] = 0;
-		visualShape.m_rgbaColor[2] = 0;
-		visualShape.m_rgbaColor[3] = 1;
-		visualShape.m_tinyRendererTextureId = -1;
-		visualShape.m_textureUniqueId = -1;
-		visualShape.m_openglTextureId = -1;
-
-		int softBodyGraphicsShapeUid = m_data->m_pluginManager.getRenderInterface()->addVisualShape(&visualShape, fileIO, psb->getBroadphaseHandle()->getUid(),
-			*bodyUniqueId,-1);
-		psb->setUserIndex3(softBodyGraphicsShapeUid);
-		btAlignedObjectArray<btVector3> vertices;
-		
-
-		if (psb->m_renderNodes.size() == 0)
-		{
-			vertices.resize(psb->m_faces.size() * 3);
+			btAlignedObjectArray<GLInstanceVertex> gfxVertices;
+			btAlignedObjectArray<int> indices;
+			int strideInBytes = 9 * sizeof(float);
+			gfxVertices.resize(psb->m_faces.size() * 3);
 			for (int i = 0; i < psb->m_faces.size(); i++)  // Foreach face
 			{
 				for (int k = 0; k < 3; k++)  // Foreach vertex on a face
 				{
 					int currentIndex = i * 3 + k;
+					for (int j = 0; j < 3; j++)
+					{
+						gfxVertices[currentIndex].xyzw[j] = psb->m_faces[i].m_n[k]->m_x[j];
+					}
+					for (int j = 0; j < 3; j++)
+					{
+						gfxVertices[currentIndex].normal[j] = psb->m_faces[i].m_n[k]->m_n[j];
+					}
+					for (int j = 0; j < 2; j++)
+					{
+						gfxVertices[currentIndex].uv[j] = psb->m_faces[i].m_n[k]->m_x[j];
+					}
+					indices.push_back(currentIndex);
+				}
+			}
+			if (gfxVertices.size() && indices.size())
+			{
+				int red = 173;
+				int green = 199;
+				int blue = 255;
+
+				int texWidth = 256;
+				int texHeight = 256;
+				btAlignedObjectArray<unsigned char> texels;
+				texels.resize(texWidth* texHeight * 3);
+				for (int i = 0; i < texWidth * texHeight * 3; i++)
+					texels[i] = 255;
+				for (int i = 0; i < texWidth; i++)
+				{
+					for (int j = 0; j < texHeight; j++)
+					{
+						int a = i < texWidth / 2 ? 1 : 0;
+						int b = j < texWidth / 2 ? 1 : 0;
+
+						if (a == b)
+						{
+							texels[(i + j * texWidth) * 3 + 0] = red;
+							texels[(i + j * texWidth) * 3 + 1] = green;
+							texels[(i + j * texWidth) * 3 + 2] = blue;
+						}
+					}
+				}
+
+				int texId = m_data->m_guiHelper->registerTexture(&texels[0], texWidth, texHeight);
+				int shapeId = m_data->m_guiHelper->registerGraphicsShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, texId);
+				b3Assert(shapeId >= 0);
+				psb->getCollisionShape()->setUserIndex(shapeId);
+
+
+				int texUid2 = m_data->m_pluginManager.getRenderInterface()->registerTexture(&texels[0], texWidth, texHeight);
+				int linkIndex = -1;
+				int softBodyGraphicsShapeUid = m_data->m_pluginManager.getRenderInterface()->registerShapeAndInstance(
+					&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, texUid2,
+					psb->getBroadphaseHandle()->getUid(),
+					*bodyUniqueId,
+					linkIndex);
+				psb->setUserIndex3(softBodyGraphicsShapeUid);
+			}
+		}
+		
+
+
+		btAlignedObjectArray<btVector3> vertices;
+		if (psb->m_renderNodes.size() == 0)
+		{
+			psb->m_renderNodes.resize(psb->m_faces.size()*3);
+			vertices.resize(psb->m_faces.size() * 3);
+			for (int i = 0; i < psb->m_faces.size(); i++)  // Foreach face
+			{
+				
+				for (int k = 0; k < 3; k++)  // Foreach vertex on a face
+				{
+					int currentIndex = i * 3 + k;
+					for (int j = 0; j < 3; j++)
+					{
+						psb->m_renderNodes[currentIndex].m_x[j] = psb->m_faces[i].m_n[k]->m_x[j];
+					}
+					for (int j = 0; j < 3; j++)
+					{
+						psb->m_renderNodes[currentIndex].m_normal[j] = psb->m_faces[i].m_n[k]->m_n[j];
+					}
+					for (int j = 0; j < 2; j++)
+					{
+						psb->m_renderNodes[currentIndex].m_uv1[j] = psb->m_faces[i].m_n[k]->m_x[j];
+					}
+					psb->m_renderNodes[currentIndex].m_uv1[2] = 0;
 					vertices[currentIndex] = psb->m_faces[i].m_n[k]->m_x;
 				}
 			}
+			btSoftBodyHelpers::extrapolateBarycentricWeights(psb);
 		}
 		else
 		{

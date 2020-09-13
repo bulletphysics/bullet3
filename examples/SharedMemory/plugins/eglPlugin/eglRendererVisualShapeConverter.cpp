@@ -68,6 +68,7 @@ struct MyTexture3
 	int m_width;
 	int m_height;
 	bool m_isCached;
+	int m_innerTexUid;
 };
 
 struct EGLRendererObjectArray
@@ -78,9 +79,8 @@ struct EGLRendererObjectArray
 	int m_linkIndex;
 	btTransform m_worldTransform;
 	btVector3 m_localScaling;
-	b3ImportMeshData m_meshData;
+	b3AlignedObjectArray<GLInstanceVertex> m_vertices;
 	int graphicsIndex;
-
 	EGLRendererObjectArray()
 	{
 		m_worldTransform.setIdentity();
@@ -915,14 +915,9 @@ static btVector4 sColors[4] =
 		btVector4(72. / 256., 133. / 256., 237. / 256., 1),
 };
 
-int EGLRendererVisualShapeConverter::addVisualShape(struct b3VisualShapeData* visualShape, struct CommonFileIOInterface* fileIO, int orgGraphicsUniqueId,
-	int bodyUniqueId, int linkIndex)
+int EGLRendererVisualShapeConverter::registerShapeAndInstance(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)
 {
 	int uniqueId = orgGraphicsUniqueId;
-	visualShape->m_openglTextureId = -1;
-	visualShape->m_tinyRendererTextureId = -1;
-	visualShape->m_textureUniqueId = -1;
-	b3ImportMeshData meshData;
 	float rgbaColor[4] = { 1,1,1,1 };
 
 	EGLRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[uniqueId];
@@ -935,92 +930,60 @@ int EGLRendererVisualShapeConverter::addVisualShape(struct b3VisualShapeData* vi
 	{
 		EGLRendererObjectArray* visuals = *visualsPtr;
 
-
-		if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(
-			visualShape->m_meshAssetFileName, meshData, fileIO))
-		{
-			if (m_data->m_flags & URDF_USE_MATERIAL_COLORS_FROM_MTL)
-			{
-				if (meshData.m_flags & B3_IMPORT_MESH_HAS_RGBA_COLOR)
-				{
-					visualShape->m_rgbaColor[0] = meshData.m_rgbaColor[0];
-					visualShape->m_rgbaColor[1] = meshData.m_rgbaColor[1];
-					visualShape->m_rgbaColor[2] = meshData.m_rgbaColor[2];
-
-					if (m_data->m_flags & URDF_USE_MATERIAL_TRANSPARANCY_FROM_MTL)
-					{
-						visualShape->m_rgbaColor[3] = meshData.m_rgbaColor[3];
-					}
-					else
-					{
-						visualShape->m_rgbaColor[3] = 1;
-					}
-					for (int i = 0; i < 4; i++)
-					{
-						rgbaColor[i] = meshData.m_rgbaColor[i];
-					}
-				}
-			}
-
-			MyTexture3 texture;
-			if (meshData.m_textureImage1)
-			{
-				texture.m_width = meshData.m_textureWidth;
-				texture.m_height = meshData.m_textureHeight;
-				texture.textureData1 = meshData.m_textureImage1;
-				texture.m_isCached = meshData.m_isCached;
-
-				visualShape->m_tinyRendererTextureId = m_data->m_textures.size();
-				m_data->m_textures.push_back(texture);
-			}
-			// meshData.m_gfxShape is allocated by a helper function used to create visualShape,
-			// but is not needed in this use case here
-
-		}
-
 		//////////////
 
-		if (meshData.m_gfxShape)
+		B3_PROFILE("m_instancingRenderer register");
+
+		// register mesh to m_instancingRenderer too.
+
+		int innerTexId = -1;
+		if (textureId >= 0 && textureId < m_data->m_textures.size())
 		{
-			B3_PROFILE("m_instancingRenderer register");
+			innerTexId = m_data->m_textures[textureId].m_innerTexUid;
+		}
+		
+		int shapeIndex = m_data->m_instancingRenderer->registerShape(&vertices[0],
+			numvertices, &indices[0], numIndices, B3_GL_TRIANGLES, innerTexId);
 
-			// register mesh to m_instancingRenderer too.
+		double scaling[3] = { 1, 1, 1 };
+		double color[4] = { 1,1,1,1 };
+		double position[4] = { 0,0,0,1 };
+		double orn[4] = { 0,0,0,1 };
+		
+		int graphicsIndex = m_data->m_instancingRenderer->registerGraphicsInstance(
+			shapeIndex,
+			position,
+			orn,
+			color, 
+			scaling);
 
-			int shapeIndex = m_data->m_instancingRenderer->registerShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
-				meshData.m_gfxShape->m_numvertices, &meshData.m_gfxShape->m_indices->at(0), meshData.m_gfxShape->m_numIndices, B3_GL_TRIANGLES,
-				visualShape->m_tinyRendererTextureId);
-
-			double scaling[3] = { 1, 1, 1 };
-			int graphicsIndex = m_data->m_instancingRenderer->registerGraphicsInstance(
-				shapeIndex,
-				&visualShape->m_localVisualFrame[0],
-				&visualShape->m_localVisualFrame[3],
-				&visualShape->m_rgbaColor[0], scaling);
-
-			int segmentationMask = visualShape->m_objectUniqueId + ((visualShape->m_linkIndex + 1) << 24);
+		int segmentationMask = bodyUniqueId + ((linkIndex + 1) << 24);
+		{
+			if (graphicsIndex >= 0)
 			{
-				if (graphicsIndex >= 0)
+				//visuals->m_graphicsInstanceIds.push_back(graphicsIndex);
+
+				if (m_data->m_graphicsIndexToSegmentationMask.size() < (graphicsIndex + 1))
 				{
-					//visuals->m_graphicsInstanceIds.push_back(graphicsIndex);
-
-					if (m_data->m_graphicsIndexToSegmentationMask.size() < (graphicsIndex + 1))
-					{
-						m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex + 1);
-					}
-					m_data->m_graphicsIndexToSegmentationMask[graphicsIndex] = segmentationMask;
+					m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex + 1);
 				}
+				m_data->m_graphicsIndexToSegmentationMask[graphicsIndex] = segmentationMask;
 			}
+		}
 
-			m_data->m_instancingRenderer->writeTransforms();
-			visuals->m_meshData = meshData;
-			visuals->m_objectUniqueId = bodyUniqueId;
-			visuals->m_linkIndex = linkIndex;
-			visuals->graphicsIndex = graphicsIndex;
-			m_data->m_visualShapes.push_back(*visualShape);// meshData.m_gfxShape);
+		m_data->m_instancingRenderer->writeTransforms();
+		GLInstanceVertex* orgVertices = (GLInstanceVertex*)vertices;
+		visuals->graphicsIndex = graphicsIndex;
+		visuals->m_vertices.resize(numvertices);
+		for (int v = 0; v < numvertices; v++)
+		{
+			visuals->m_vertices[v] = orgVertices[v];
 		}
 	}
 	return uniqueId;
 }
+
+
 
 void EGLRendererVisualShapeConverter::updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices)
 {
@@ -1032,18 +995,18 @@ void EGLRendererVisualShapeConverter::updateShape(int shapeUniqueId, const btVec
 
 		if (visuals->graphicsIndex >= 0)
 		{
-			btAssert(visuals->m_meshData.m_gfxShape->m_numvertices == numVertices);
-			if (visuals->m_meshData.m_gfxShape->m_numvertices == numVertices)
+			btAssert(visuals->m_vertices.size() == numVertices);
+			if (visuals->m_vertices.size() == numVertices)
 			{
 				for (int i = 0; i < numVertices; i++)
 				{
-					visuals->m_meshData.m_gfxShape->m_vertices->at(i).xyzw[0] = vertices[i][0];
-					visuals->m_meshData.m_gfxShape->m_vertices->at(i).xyzw[1] = vertices[i][1];
-					visuals->m_meshData.m_gfxShape->m_vertices->at(i).xyzw[2] = vertices[i][2];
+					visuals->m_vertices[i].xyzw[0] = vertices[i][0];
+					visuals->m_vertices[i].xyzw[1] = vertices[i][1];
+					visuals->m_vertices[i].xyzw[2] = vertices[i][2];
 				}
 			}
-			m_data->m_instancingRenderer->updateShape(visuals->graphicsIndex, &visuals->m_meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
-				visuals->m_meshData.m_gfxShape->m_vertices->size());
+			m_data->m_instancingRenderer->updateShape(visuals->graphicsIndex, &visuals->m_vertices[0].xyzw[0],
+				visuals->m_vertices.size());
 		}
 	}
 }
@@ -1723,10 +1686,7 @@ void EGLRendererVisualShapeConverter::resetAll()
 		if (ptrptr && *ptrptr)
 		{
 			EGLRendererObjectArray* ptr = *ptrptr;
-			if (ptr)
-			{
-				delete ptr->m_meshData.m_gfxShape;
-			}
+			
 			delete ptr;
 		}
 
@@ -1757,6 +1717,18 @@ void EGLRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int
 }
 
 int EGLRendererVisualShapeConverter::registerTexture(unsigned char* texels, int width, int height)
+{
+	MyTexture3 texData;
+	texData.m_width = width;
+	texData.m_height = height;
+	texData.textureData1 = texels;
+	texData.m_isCached = true;
+	texData.m_innerTexUid = m_data->m_instancingRenderer->registerTexture(texels, width, height);
+	m_data->m_textures.push_back(texData);
+	return m_data->m_textures.size() - 1;
+}
+
+int EGLRendererVisualShapeConverter::registerTextureInternal(unsigned char* texels, int width, int height)
 {
 	MyTexture3 texData;
 	texData.m_width = width;
@@ -1804,7 +1776,7 @@ int EGLRendererVisualShapeConverter::loadTextureFile(const char* filename, struc
 
 	if (image && (width >= 0) && (height >= 0))
 	{
-		return registerTexture(image, width, height);
+		return registerTextureInternal(image, width, height);
 	}
 	return -1;
 }
