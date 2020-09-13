@@ -7,7 +7,7 @@ physicsClient = p.connect(p.GUI)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 p.resetSimulation(p.RESET_USE_DEFORMABLE_WORLD)
-
+p.resetDebugVisualizerCamera(3,-420,-30,[0.3,0.9,-2])
 p.setGravity(0, 0, -10)
 
 tex = p.loadTexture("checker_blue.png")
