@@ -1787,7 +1787,8 @@ void EGLRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqu
 			// recover data from swRenderInstance and use to index m_visualShapes
 			int bodyUniqueId = ptr->m_objectUniqueId;
 			int linkIndex = ptr->m_linkIndex;
-			for (int i = 0; i < m_data->m_visualShapes.size(); i++)
+			// backwards iteration seems safer here, is it needed?
+			for (int i = m_data->m_visualShapes.size()-1; i >= 0 ; i--)
 			{
 				if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId && m_data->m_visualShapes[i].m_linkIndex == linkIndex)
 				{
