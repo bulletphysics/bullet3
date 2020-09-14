@@ -1186,6 +1186,12 @@ bool UrdfParser::parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config,
 		deformable.m_gravFactor = urdfLexicalCast<double>(grav_xml->Attribute("value"));
 	}
 
+	XMLElement* cache_barycenter = config->FirstChildElement("cache_barycenter");
+	if (cache_barycenter)
+	{
+		deformable.m_cache_barycenter = true;
+	}
+
 	XMLElement* spring_xml = config->FirstChildElement("spring");
 	if (spring_xml)
 	{
@@ -1199,7 +1205,12 @@ bool UrdfParser::parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config,
 		deformable.m_springCoefficients.damping_stiffness = urdfLexicalCast<double>(spring_xml->Attribute("damping_stiffness"));
 
 		if (spring_xml->Attribute("bending_stiffness"))
+		{
 			deformable.m_springCoefficients.bending_stiffness = urdfLexicalCast<double>(spring_xml->Attribute("bending_stiffness"));
+
+			if (spring_xml->Attribute("bending_stride"))
+				deformable.m_springCoefficients.bending_stride = urdfLexicalCast<int>(spring_xml->Attribute("bending_stride"));
+		}
 	}
 
 	XMLElement* corotated_xml = config->FirstChildElement("corotated");

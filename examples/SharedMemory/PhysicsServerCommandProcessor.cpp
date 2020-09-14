@@ -8783,7 +8783,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			psb->m_cfg.kDF = deformable.m_friction;
 			if (deformable.m_springCoefficients.bending_stiffness)
 			{
-				psb->generateBendingConstraints(2);
+				psb->generateBendingConstraints(deformable.m_springCoefficients.bending_stride);
 			}
 			btSoftBody::Material* pm = psb->appendMaterial();
 			pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
@@ -8802,6 +8802,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 			psb->setSelfCollision(useSelfCollision);
 			psb->setSpringStiffness(deformable.m_repulsionStiffness);
 			psb->setGravityFactor(deformable.m_gravFactor);
+			psb->setCacheBarycenter(deformable.m_cache_barycenter);
 			psb->initializeFaceTree();
 		}
 #endif  //SKIP_DEFORMABLE_BODY
