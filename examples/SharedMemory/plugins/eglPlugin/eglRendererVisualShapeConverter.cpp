@@ -918,7 +918,7 @@ static btVector4 sColors[4] =
 int EGLRendererVisualShapeConverter::registerShapeAndInstance(const b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)
 {
 	int uniqueId = orgGraphicsUniqueId;
-	float rgbaColor[4] = { visualShape.m_rgbaColor[0],visualShape.m_rgbaColor[1],visualShape.m_rgbaColor[2],visualShape.m_rgbaColor[3] };
+	float rgbaColor[4] = { (float)visualShape.m_rgbaColor[0],(float)visualShape.m_rgbaColor[1], (float)visualShape.m_rgbaColor[2],(float)visualShape.m_rgbaColor[3] };
 
 	EGLRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[uniqueId];
 	if (visualsPtr == 0)
