@@ -942,7 +942,7 @@ int TinyRendererVisualShapeConverter::registerShapeAndInstance( const b3VisualSh
 		//those are primary soft bodies, possibly cloth, make them double-sided by default
 		tinyObj->m_doubleSided = true;
 
-		float rgbaColor[4] = { visualShape.m_rgbaColor[0],visualShape.m_rgbaColor[1],visualShape.m_rgbaColor[2],visualShape.m_rgbaColor[3] };
+		float rgbaColor[4] = { (float)visualShape.m_rgbaColor[0],(float)visualShape.m_rgbaColor[1],(float)visualShape.m_rgbaColor[2],(float)visualShape.m_rgbaColor[3] };
 		{
 			B3_PROFILE("registerMeshShape");
 
