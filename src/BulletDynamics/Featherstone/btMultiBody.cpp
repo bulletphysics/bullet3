@@ -673,6 +673,12 @@ btScalar *btMultiBody::getJointTorqueMultiDof(int i)
 	return &m_links[i].m_jointTorque[0];
 }
 
+void btMultiBody::setLinkDynamicType(const int i, ObjectDynamicTypes type)
+{
+	m_links[i].m_dynamic_type = type;
+	getLinkCollider(i)->setCollisionFlags(getLinkCollider(i)->getCollisionFlags() | type);
+}
+
 inline btMatrix3x3 outerProduct(const btVector3 &v0, const btVector3 &v1)  //renamed it from vecMulVecTranspose (http://en.wikipedia.org/wiki/Outer_product); maybe it should be moved to btVector3 like dot and cross?
 {
 	btVector3 row0 = btVector3(
@@ -798,7 +804,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	//create the vector of spatial velocity of the base by transforming global-coor linear and angular velocities into base-local coordinates
 	spatVel[0].setVector(rot_from_parent[0] * base_omega, rot_from_parent[0] * base_vel);
 
-	if (m_base_dynamic_type != DYNAMIC_OBJECT)
+	if (IsBaseStaticOrKinematic())
 	{
 		zeroAccSpatFrc[0].setZero();
 	}
@@ -874,31 +880,53 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 
 		// calculate zhat_i^A
 		//
-		//external forces
-		btVector3 linkAppliedForce = isConstraintPass ? m_links[i].m_appliedConstraintForce : m_links[i].m_appliedForce;
-		btVector3 linkAppliedTorque = isConstraintPass ? m_links[i].m_appliedConstraintTorque : m_links[i].m_appliedTorque;
+		if (IsLinkStaticOrKinematic(i))
+		{
+			zeroAccSpatFrc[i].setZero();
+		}
+		else{
+			//external forces
+			btVector3 linkAppliedForce = isConstraintPass ? m_links[i].m_appliedConstraintForce : m_links[i].m_appliedForce;
+			btVector3 linkAppliedTorque = isConstraintPass ? m_links[i].m_appliedConstraintTorque : m_links[i].m_appliedTorque;
 
-		zeroAccSpatFrc[i + 1].setVector(-(rot_from_world[i + 1] * linkAppliedTorque), -(rot_from_world[i + 1] * linkAppliedForce));
+			zeroAccSpatFrc[i + 1].setVector(-(rot_from_world[i + 1] * linkAppliedTorque), -(rot_from_world[i + 1] * linkAppliedForce));
 
 #if 0	
-		{
+			{
 
-			b3Printf("stepVelocitiesMultiDof zeroAccSpatFrc[%d] linear:%f,%f,%f, angular:%f,%f,%f",
-			i+1,
-			zeroAccSpatFrc[i+1].m_topVec[0],
-			zeroAccSpatFrc[i+1].m_topVec[1],
-			zeroAccSpatFrc[i+1].m_topVec[2],
+				b3Printf("stepVelocitiesMultiDof zeroAccSpatFrc[%d] linear:%f,%f,%f, angular:%f,%f,%f",
+				i+1,
+				zeroAccSpatFrc[i+1].m_topVec[0],
+				zeroAccSpatFrc[i+1].m_topVec[1],
+				zeroAccSpatFrc[i+1].m_topVec[2],
 
-			zeroAccSpatFrc[i+1].m_bottomVec[0],
-			zeroAccSpatFrc[i+1].m_bottomVec[1],
-			zeroAccSpatFrc[i+1].m_bottomVec[2]);
-		}
+				zeroAccSpatFrc[i+1].m_bottomVec[0],
+				zeroAccSpatFrc[i+1].m_bottomVec[1],
+				zeroAccSpatFrc[i+1].m_bottomVec[2]);
+			}
 #endif
-		//
-		//adding damping terms (only)
-		btScalar linDampMult = 1., angDampMult = 1.;
-		zeroAccSpatFrc[i + 1].addVector(angDampMult * m_links[i].m_inertiaLocal * spatVel[i + 1].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[i + 1].getAngular().safeNorm()),
-										linDampMult * m_links[i].m_mass * spatVel[i + 1].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[i + 1].getLinear().safeNorm()));
+			//
+			//adding damping terms (only)
+			btScalar linDampMult = 1., angDampMult = 1.;
+			zeroAccSpatFrc[i + 1].addVector(angDampMult * m_links[i].m_inertiaLocal * spatVel[i + 1].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[i + 1].getAngular().safeNorm()),
+											linDampMult * m_links[i].m_mass * spatVel[i + 1].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[i + 1].getLinear().safeNorm()));
+			//p += vhat x Ihat vhat - done in a simpler way
+			if (m_useGyroTerm)
+				zeroAccSpatFrc[i + 1].addAngular(spatVel[i + 1].getAngular().cross(m_links[i].m_inertiaLocal * spatVel[i + 1].getAngular()));
+			//
+			zeroAccSpatFrc[i + 1].addLinear(m_links[i].m_mass * spatVel[i + 1].getAngular().cross(spatVel[i + 1].getLinear()));
+			//
+			//btVector3 temp = m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear());
+			////clamp parent's omega
+			//btScalar parOmegaMod = temp.length();
+			//btScalar parOmegaModMax = 1000;
+			//if(parOmegaMod > parOmegaModMax)
+			//	temp *= parOmegaModMax / parOmegaMod;
+			//zeroAccSpatFrc[i+1].addLinear(temp);
+			//printf("|zeroAccSpatFrc[%d]| = %.4f\n", i+1, temp.length());
+			//temp = spatCoriolisAcc[i].getLinear();
+			//printf("|spatCoriolisAcc[%d]| = %.4f\n", i+1, temp.length());
+		}
 
 		// calculate Ihat_i^A
 		//init the spatial AB inertia (it has the simple form thanks to choosing local body frames origins at their COMs)
@@ -911,22 +939,6 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 									 btMatrix3x3(m_links[i].m_inertiaLocal[0], 0, 0,
 												 0, m_links[i].m_inertiaLocal[1], 0,
 												 0, 0, m_links[i].m_inertiaLocal[2]));
-		//
-		//p += vhat x Ihat vhat - done in a simpler way
-		if (m_useGyroTerm)
-			zeroAccSpatFrc[i + 1].addAngular(spatVel[i + 1].getAngular().cross(m_links[i].m_inertiaLocal * spatVel[i + 1].getAngular()));
-		//
-		zeroAccSpatFrc[i + 1].addLinear(m_links[i].m_mass * spatVel[i + 1].getAngular().cross(spatVel[i + 1].getLinear()));
-		//btVector3 temp = m_links[i].m_mass * spatVel[i+1].getAngular().cross(spatVel[i+1].getLinear());
-		////clamp parent's omega
-		//btScalar parOmegaMod = temp.length();
-		//btScalar parOmegaModMax = 1000;
-		//if(parOmegaMod > parOmegaModMax)
-		//	temp *= parOmegaModMax / parOmegaMod;
-		//zeroAccSpatFrc[i+1].addLinear(temp);
-		//printf("|zeroAccSpatFrc[%d]| = %.4f\n", i+1, temp.length());
-		//temp = spatCoriolisAcc[i].getLinear();
-		//printf("|spatCoriolisAcc[%d]| = %.4f\n", i+1, temp.length());
 
 		//printf("w[%d] = [%.4f %.4f %.4f]\n", i, vel_top_angular[i+1].x(), vel_top_angular[i+1].y(), vel_top_angular[i+1].z());
 		//printf("v[%d] = [%.4f %.4f %.4f]\n", i, vel_bottom_linear[i+1].x(), vel_bottom_linear[i+1].y(), vel_bottom_linear[i+1].z());
@@ -937,6 +949,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	// (part of TreeForwardDynamics in Mirtich.)
 	for (int i = num_links - 1; i >= 0; --i)
 	{
+		if(IsLinkStaticOrKinematic(i))
+			continue;
 		const int parent = m_links[i].m_parent;
 		fromParent.m_rotMat = rot_from_parent[i + 1];
 		fromParent.m_trnVec = m_links[i].m_cachedRVector;
@@ -1049,7 +1063,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	// Second 'upward' loop
 	// (part of TreeForwardDynamics in Mirtich)
 
-	if (m_base_dynamic_type != DYNAMIC_OBJECT)
+	if (IsBaseStaticOrKinematic())
 	{
 		spatAcc[0].setZero();
 	}
@@ -1083,21 +1097,23 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 
 		fromParent.transform(spatAcc[parent + 1], spatAcc[i + 1]);
 
-		for (int dof = 0; dof < m_links[i].m_dofCount; ++dof)
+		if(!IsLinkStaticOrKinematic(i))
 		{
-			const btSpatialForceVector &hDof = h[m_links[i].m_dofOffset + dof];
-			//
-			Y_minus_hT_a[dof] = Y[m_links[i].m_dofOffset + dof] - spatAcc[i + 1].dot(hDof);
+			for (int dof = 0; dof < m_links[i].m_dofCount; ++dof)
+			{
+				const btSpatialForceVector &hDof = h[m_links[i].m_dofOffset + dof];
+				//
+				Y_minus_hT_a[dof] = Y[m_links[i].m_dofOffset + dof] - spatAcc[i + 1].dot(hDof);
+			}
+			btScalar *invDi = &invD[m_links[i].m_dofOffset * m_links[i].m_dofOffset];
+			//D^{-1} * (Y - h^{T}*apar)
+			mulMatrix(invDi, Y_minus_hT_a, m_links[i].m_dofCount, m_links[i].m_dofCount, m_links[i].m_dofCount, 1, &joint_accel[m_links[i].m_dofOffset]);
+
+			spatAcc[i + 1] += spatCoriolisAcc[i];
+
+			for (int dof = 0; dof < m_links[i].m_dofCount; ++dof)
+				spatAcc[i + 1] += m_links[i].m_axes[dof] * joint_accel[m_links[i].m_dofOffset + dof];
 		}
-
-		btScalar *invDi = &invD[m_links[i].m_dofOffset * m_links[i].m_dofOffset];
-		//D^{-1} * (Y - h^{T}*apar)
-		mulMatrix(invDi, Y_minus_hT_a, m_links[i].m_dofCount, m_links[i].m_dofCount, m_links[i].m_dofCount, 1, &joint_accel[m_links[i].m_dofOffset]);
-
-		spatAcc[i + 1] += spatCoriolisAcc[i];
-
-		for (int dof = 0; dof < m_links[i].m_dofCount; ++dof)
-			spatAcc[i + 1] += m_links[i].m_axes[dof] * joint_accel[m_links[i].m_dofOffset + dof];
 
 		if (m_links[i].m_jointFeedback)
 		{
@@ -1434,7 +1450,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 
 	// Fill in zero_acc
 	// -- set to force/torque on the base, zero otherwise
-	if (m_base_dynamic_type != DYNAMIC_OBJECT)
+	if (IsBaseStaticOrKinematic())
 	{
 		zeroAccSpatFrc[0].setZero();
 	}
@@ -1453,6 +1469,8 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	// (part of TreeForwardDynamics in Mirtich.)
 	for (int i = num_links - 1; i >= 0; --i)
 	{
+		if(IsLinkStaticOrKinematic(i))
+			continue;
 		const int parent = m_links[i].m_parent;
 		fromParent.m_rotMat = rot_from_parent[i + 1];
 		fromParent.m_trnVec = m_links[i].m_cachedRVector;
@@ -1509,6 +1527,8 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	// now do the loop over the m_links
 	for (int i = 0; i < num_links; ++i)
 	{
+		if(IsLinkStaticOrKinematic(i))
+			continue;
 		const int parent = m_links[i].m_parent;
 		fromParent.m_rotMat = rot_from_parent[i + 1];
 		fromParent.m_trnVec = m_links[i].m_cachedRVector;

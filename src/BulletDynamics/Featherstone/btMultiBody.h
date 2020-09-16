@@ -526,6 +526,11 @@ public:
 		return m_base_dynamic_type == STATIC_OBJECT;
 	}
 
+	bool IsBaseStaticOrKinematic() const
+	{
+		return m_base_dynamic_type == STATIC_OBJECT || m_base_dynamic_type == KINEMATIC_OBJECT;
+	}
+
 	void setFixedBase(bool fixedBase)
 	{
 		if(fixedBase)
@@ -682,6 +687,12 @@ public:
 		btVector3 &top_out,         // top part of output vector
 		btVector3 &bottom_out);      // bottom part of output vector
 
+	void setLinkDynamicType(const int i, ObjectDynamicTypes type);
+
+	bool IsLinkStaticOrKinematic(const int i) const
+	{
+		return m_links[i].m_dynamic_type == STATIC_OBJECT || m_links[i].m_dynamic_type == KINEMATIC_OBJECT;
+	}
 
 
 private:
