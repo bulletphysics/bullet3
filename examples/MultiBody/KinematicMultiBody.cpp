@@ -156,7 +156,7 @@ void KinematicMultiBody::initPhysics()
 	bool selfCollide = true;
 	btVector3 linkHalfExtents(0.05, 0.37, 0.1);
 
-	mbC = createFeatherstoneMultiBody(m_dynamicsWorld, numLinks, btVector3(-0.4f, 3.f, 0.f), linkHalfExtents, g_floatingBase);
+	mbC = createFeatherstoneMultiBody(m_dynamicsWorld, numLinks, btVector3(-0.4f, 2.f, 0.f), linkHalfExtents, g_floatingBase);
 	//mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
 
 	mbC->setCanSleep(canSleep);
@@ -366,20 +366,24 @@ void KinematicMultiBody::animate(float deltaTime)
 	static float time = 0.0;
 	time += deltaTime;
 	int kinematic_id = 0;
-	double joint_pos = 0.3;
+	double joint_pos = 3.1415926 / 2.0;
 	double joint_vel = 0.0;
-	float linkMass = 0.f;
-	btVector3 linkInertiaDiag(0.f, 0.f, 0.f);
-	btVector3 hingeJointAxis(1, 0, 0);
-	btVector3 linkHalfExtents(0.05, 0.37, 0.1);
-	btVector3 parentComToCurrentCom(0, -linkHalfExtents[1] * 2.f, 0);                      //par body's COM to cur body's COM offset
-	btVector3 currentPivotToCurrentCom(0, -linkHalfExtents[1], 0);                         //cur body's COM to cur body's PIV offset
-	btVector3 parentComToCurrentPivot = parentComToCurrentCom - currentPivotToCurrentCom;  //par body's COM to cur body's PIV offset
-	joint_pos = 1.0 * sin(time * 3.0 - 1.55);
-	mbC->setupFixed(kinematic_id, linkMass, linkInertiaDiag, kinematic_id - 1, btQuaternion(sin(joint_pos/2.0), 0.f, 0.f, cos(joint_pos/2.0)), parentComToCurrentPivot, currentPivotToCurrentCom, true);
-	mbC->finalizeMultiDof();
-	//mbC->setJointPosMultiDof(kinematic_id, &joint_pos);
-	//mbC->setJointVelMultiDof(kinematic_id, &joint_vel);
+	//float linkMass = 0.f;
+	//btVector3 linkInertiaDiag(0.f, 0.f, 0.f);
+	//btVector3 hingeJointAxis(1, 0, 0);
+	//btVector3 linkHalfExtents(0.05, 0.37, 0.1);
+	//btVector3 parentComToCurrentCom(0, -linkHalfExtents[1] * 2.f, 0);                      //par body's COM to cur body's COM offset
+	//btVector3 currentPivotToCurrentCom(0, -linkHalfExtents[1], 0);                         //cur body's COM to cur body's PIV offset
+	//btVector3 parentComToCurrentPivot = parentComToCurrentCom - currentPivotToCurrentCom;  //par body's COM to cur body's PIV offset
+	//joint_pos = 1.0 * sin(time * 3.0 - 1.55);
+	//mbC->setupFixed(kinematic_id, linkMass, linkInertiaDiag, kinematic_id - 1, btQuaternion(sin(joint_pos/2.0), 0.f, 0.f, cos(joint_pos/2.0)), parentComToCurrentPivot, currentPivotToCurrentCom, true);
+	//mbC->finalizeMultiDof();
+	for(kinematic_id = 0; kinematic_id < 5; kinematic_id++) {
+		joint_pos = 1.0 * sin(time * 3.0 - 0.3);
+		mbC->setLinkDynamicType(kinematic_id, KINEMATIC_OBJECT);
+		mbC->setJointPosMultiDof(kinematic_id, &joint_pos);
+		mbC->setJointVelMultiDof(kinematic_id, &joint_vel);
+	}
 }
 
 class CommonExampleInterface* KinematicMultiBodyCreateFunc(struct CommonExampleOptions& options)

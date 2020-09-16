@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "LinearMath/btQuaternion.h"
 #include "LinearMath/btVector3.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "BulletDynamics/Dynamics/btObjectDynamicTypes.h"
 
 enum btMultiBodyLinkFlags
 {
@@ -151,6 +152,8 @@ struct btMultibodyLink
 	btScalar m_jointMaxForce;     //todo: implement this internally. It is unused for now, it is set by a URDF loader.
 	btScalar m_jointMaxVelocity;  //todo: implement this internally. It is unused for now, it is set by a URDF loader.
 
+	ObjectDynamicTypes m_dynamic_type;
+
 	// ctor: set some sensible defaults
 	btMultibodyLink()
 		: m_mass(1),
@@ -172,7 +175,8 @@ struct btMultibodyLink
 		  m_jointLowerLimit(0),
 		  m_jointUpperLimit(0),
 		  m_jointMaxForce(0),
-		  m_jointMaxVelocity(0)
+		  m_jointMaxVelocity(0),
+			m_dynamic_type(DYNAMIC_OBJECT)
 	{
 		m_inertiaLocal.setValue(1, 1, 1);
 		setAxisTop(0, 0., 0., 0.);
