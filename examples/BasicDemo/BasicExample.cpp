@@ -107,6 +107,7 @@ void BasicExample::initPhysics()
 				}
 			}
 		}
+
 		startTransform.setOrigin(btVector3(
 			btScalar(-0.5),
 			btScalar(0.1),
@@ -114,7 +115,7 @@ void BasicExample::initPhysics()
 		m_kinematicBody = createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), KINEMATIC_OBJECT);
 	}
 
-	m_kinematicVelocity = 1.0;
+	m_kinematicVelocity = 0.1;
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
@@ -132,6 +133,7 @@ void BasicExample::stepSimulation(float deltaTime)
 
 void BasicExample::animate(float deltaTime)
 {
+	deltaTime = 1./60.;
 	btTransform currentTransform = m_kinematicBody->getCenterOfMassTransform();
 	btVector3 currentOrigin = currentTransform.getOrigin();
 	if((m_kinematicVelocity > 0.0 && currentOrigin.x() >= 1.5) || (m_kinematicVelocity < 0.0 && currentOrigin.x() <= -0.5))
