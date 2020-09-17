@@ -1710,6 +1710,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	double m_remoteSyncTransformTime;
 	double m_remoteSyncTransformInterval;
+	bool m_useAlternativeDeformableIndexing;
 
 	PhysicsServerCommandProcessorInternalData(PhysicsCommandProcessorInterface* proc)
 		: m_pluginManager(proc),
@@ -1752,7 +1753,8 @@ struct PhysicsServerCommandProcessorInternalData
 		  m_threadPool(0),
 		  m_defaultCollisionMargin(0.001),
 		  m_remoteSyncTransformTime(1. / 30.),
-		  m_remoteSyncTransformInterval(1. / 30.)
+		  m_remoteSyncTransformInterval(1. / 30.),
+		m_useAlternativeDeformableIndexing(false)
 	{
 		{
 			//register static plugins:
@@ -8684,7 +8686,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		if ((out_found_sim_filename != out_found_filename) || ((out_sim_type == UrdfGeometry::FILE_OBJ)))
 		{
 			// load render mesh
-			if (1)
+			if (!m_data->m_useAlternativeDeformableIndexing)
 			{
 
 				float rgbaColor[4] = { 1,1,1,1 };
@@ -10182,6 +10184,8 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	{
 		//these flags are for internal/temporary/easter-egg/experimental demo purposes, use at own risk
 		gInternalSimFlags = clientCmd.m_physSimParamArgs.m_internalSimFlags;
+		m_data->m_useAlternativeDeformableIndexing =
+				(clientCmd.m_physSimParamArgs.m_internalSimFlags & eDeformableAlternativeIndexing) != 0;
 	}
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_GRAVITY)

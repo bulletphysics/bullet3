@@ -996,6 +996,12 @@ struct b3PluginArguments
 	double m_floats[B3_MAX_PLUGIN_ARG_SIZE];
 };
 
+enum eInternalSimFlags
+{
+	eVRTinyGUI = 1<<1,
+	eDeformableAlternativeIndexing = 1<<2,
+};
+
 struct b3PhysicsSimulationParameters
 {
 	double m_deltaTime;
