@@ -9306,6 +9306,17 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					}
 				}
 			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
+			{
+				int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
+				mb->setBaseDynamicType((ObjectDynamicTypes) dynamicType);
+
+				bool isDynamic = dynamicType == eDynamic;
+				int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+				int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+				m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
+				m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
+			}
 		}
 		else
 		{
@@ -9448,6 +9459,17 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 				{
 					mb->getLinkCollider(linkIndex)->setAnisotropicFriction(anisotropicFriction);
 				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
+				{
+					int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
+					mb->setLinkDynamicType(linkIndex, (ObjectDynamicTypes) dynamicType);
+
+					bool isDynamic = dynamicType == eDynamic;
+					int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+					int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+					m_data->m_dynamicsWorld->removeCollisionObject(mb->getLinkCollider(linkIndex));
+					m_data->m_dynamicsWorld->addCollisionObject(mb->getLinkCollider(linkIndex), collisionFilterGroup, collisionFilterMask);
+				}
 			}
 		}
 	}
@@ -9574,6 +9596,17 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN)
 			{
 				rb->getCollisionShape()->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
+			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
+			{
+				int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
+				rb->setDynamicType((ObjectDynamicTypes) dynamicType);
+				// wenlongl: Not sure if I should enable this part. Need to be tested.
+				//bool isDynamic = dynamicType == eDynamic;
+				//int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+				//int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+				//m_data->m_dynamicsWorld->removeCollisionObject(rb);
+				//m_data->m_dynamicsWorld->addCollisionObject(rb, collisionFilterGroup, collisionFilterMask);
 			}
 		}
 	}

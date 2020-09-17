@@ -526,17 +526,19 @@ public:
 		return m_base_dynamic_type == STATIC_OBJECT;
 	}
 
-	bool IsBaseStaticOrKinematic() const
+	bool isBaseStaticOrKinematic() const
 	{
 		return m_base_dynamic_type == STATIC_OBJECT || m_base_dynamic_type == KINEMATIC_OBJECT;
 	}
 
+	void setBaseDynamicType(ObjectDynamicTypes dynamicType);
+
 	void setFixedBase(bool fixedBase)
 	{
 		if(fixedBase)
-			m_base_dynamic_type = STATIC_OBJECT;
+			setBaseDynamicType(STATIC_OBJECT);
 		else
-			m_base_dynamic_type = DYNAMIC_OBJECT;
+			setBaseDynamicType(DYNAMIC_OBJECT);
 	}
 
 	int getCompanionId() const
@@ -689,9 +691,16 @@ public:
 
 	void setLinkDynamicType(const int i, ObjectDynamicTypes type);
 
-	bool IsLinkStaticOrKinematic(const int i) const
+	bool isLinkStaticOrKinematic(const int i) const
 	{
-		return m_links[i].m_dynamic_type == STATIC_OBJECT || m_links[i].m_dynamic_type == KINEMATIC_OBJECT;
+		if(i == -1)
+		{
+			return isBaseStaticOrKinematic();
+		}
+		else
+		{
+			return m_links[i].m_dynamic_type == STATIC_OBJECT || m_links[i].m_dynamic_type == KINEMATIC_OBJECT;
+		}
 	}
 
 
