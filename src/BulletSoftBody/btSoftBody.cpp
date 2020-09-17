@@ -229,6 +229,7 @@ void btSoftBody::initDefaults()
 	m_maxSpeedSquared = 0;
 	m_repulsionStiffness = 0.5;
 	m_gravityFactor = 1;
+	m_cacheBarycenter = false;
 	m_fdbvnt = 0;
 }
 
