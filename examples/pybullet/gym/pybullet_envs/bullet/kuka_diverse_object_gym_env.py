@@ -102,6 +102,9 @@ class KukaDiverseObjectEnv(KukaGymEnv):
       self.action_space = spaces.Box(low=-1, high=1, shape=(3,))  # dx, dy, da
       if self._removeHeightHack:
         self.action_space = spaces.Box(low=-1, high=1, shape=(4,))  # dx, dy, dz, da
+    self.observation_space = spaces.Box(low=0, high=255, shape=(self._height,
+                                                                self._width,
+                                                                3))
     self.viewer = None
 
   def reset(self):

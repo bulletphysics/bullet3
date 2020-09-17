@@ -370,7 +370,10 @@ enum EnumUpdateVisualShapeData
 	CMD_UPDATE_VISUAL_SHAPE_TEXTURE = 1,
 	CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR = 2,
 	CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR = 4,
+	CMD_UPDATE_VISUAL_SHAPE_FLAGS = 8,
 };
+
+
 
 struct UpdateVisualShapeDataArgs
 {
@@ -380,6 +383,7 @@ struct UpdateVisualShapeDataArgs
 	int m_textureUniqueId;
 	double m_rgbaColor[4];
 	double m_specularColor[3];
+	int m_flags;
 };
 
 struct LoadTextureArgs
@@ -946,6 +950,7 @@ enum InternalOpenGLVisualizerUpdateFlags
 	COV_SET_SHADOWMAP_RESOLUTION = 8,
 	COV_SET_SHADOWMAP_WORLD_SIZE = 16,
 	COV_SET_REMOTE_SYNC_TRANSFORM_INTERVAL = 32,
+	COV_SET_SHADOWMAP_INTENSITY = 64,
 };
 
 struct ConfigureOpenGLVisualizerRequest
@@ -960,6 +965,7 @@ struct ConfigureOpenGLVisualizerRequest
 	double m_remoteSyncTransformInterval;
 	int m_setFlag;
 	int m_setEnabled;
+	double m_shadowMapIntensity;
 };
 
 enum
@@ -1118,6 +1124,7 @@ struct b3RequestMeshDataArgs
 	int m_linkIndex;
 	int m_startingVertex;
 	int m_collisionShapeIndex;
+	int m_flags;
 };
 
 struct b3SendMeshDataArgs

@@ -45,10 +45,17 @@ public:
 	~Model();
 	int nverts();
 	int nfaces();
+	
 	Vec3f normal(int iface, int nthvert);
 	Vec3f normal(Vec2f uv);
 	Vec3f vert(int i);
 	Vec3f vert(int iface, int nthvert);
+	Vec3f* readWriteVertices() 
+	{
+		if (verts_.size() == 0)
+			return 0;
+		return &verts_[0];
+	}
 	Vec2f uv(int iface, int nthvert);
 	TGAColor diffuse(Vec2f uv);
 	float specular(Vec2f uv);

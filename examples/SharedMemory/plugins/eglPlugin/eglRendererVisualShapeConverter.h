@@ -17,9 +17,13 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual int getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData);
 
-	virtual int addVisualShape(b3VisualShapeData* visualShape, struct CommonFileIOInterface* fileIO) { return -1; }
+	virtual int registerShapeAndInstance(const b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex);
+
+	virtual void updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices);
 
 	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4]);
+
+	virtual void changeInstanceFlags(int bodyUniqueId, int linkIndex, int shapeIndex, int flags);
 
 	virtual void changeShapeTexture(int objectUniqueId, int linkIndex, int shapeIndex, int textureUniqueId);
 
@@ -52,6 +56,8 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual int loadTextureFile(const char* filename, struct CommonFileIOInterface* fileIO);
 	virtual int registerTexture(unsigned char* texels, int width, int height);
+	virtual int registerTextureInternal(unsigned char* texels, int width, int height);
+	
 
 	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]);
 	virtual void setProjectiveTexture(bool useProjectiveTexture);

@@ -6,6 +6,7 @@ struct UrdfLink;
 struct UrdfModel;
 ///btTransform is a position and 3x3 matrix, as defined in Bullet/src/LinearMath/btTransform
 class btTransform;
+class btVector3;
 
 ///UrdfRenderingInterface is a simple rendering interface, mainly for URDF-based robots.
 ///There is an implementation in
@@ -17,10 +18,9 @@ struct UrdfRenderingInterface
 	///use the visualShapeUniqueId as a unique identifier to synchronize the world transform and to remove the visual shape.
 	virtual int convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int visualShapeUniqueId, int bodyUniqueId, struct CommonFileIOInterface* fileIO) = 0;
 
-	///Given b3VisualShapeData, add render information (texture, rgbaColor etc) to the visualShape
-	///and visualShape to internal renderer.
-	///Returns a visualShapeUniqueId as a unique identifier to synchronize the world transform and to remove the visual shape.
-	virtual int addVisualShape(struct b3VisualShapeData* visualShape, struct CommonFileIOInterface* fileIO) = 0;
+	virtual int registerShapeAndInstance(const struct b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)=0;
+
+	virtual void updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices) = 0;
 
 	///remove a visual shapes, based on the shape unique id (shapeUid)
 	virtual void removeVisualShape(int collisionObjectUid) = 0;
@@ -36,6 +36,9 @@ struct UrdfRenderingInterface
 
 	///change the RGBA color for some visual shape.
 	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4]) = 0;
+
+	//change the instance flags, double-sided rendering
+	virtual void changeInstanceFlags(int bodyUniqueId, int linkIndex, int shapeIndex, int flags) = 0;
 
 	///select a given texture for some visual shape.
 	virtual void changeShapeTexture(int objectUniqueId, int linkIndex, int shapeIndex, int textureUniqueId) = 0;

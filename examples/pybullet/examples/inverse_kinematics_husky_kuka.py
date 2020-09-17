@@ -7,9 +7,10 @@ import pybullet_data
 
 clid = p.connect(p.SHARED_MEMORY)
 
-p.setAdditionalSearchPath(pybullet_data.getDataPath())
+
 if (clid < 0):
   p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.loadURDF("plane.urdf", [0, 0, -0.3])
 husky = p.loadURDF("husky/husky.urdf", [0.290388, 0.329902, -0.310270],
                    [0.002328, -0.000984, 0.996491, 0.083659])

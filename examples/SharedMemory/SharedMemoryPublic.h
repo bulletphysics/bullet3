@@ -455,9 +455,17 @@ struct b3MeshVertex
 };
 
 
+enum eMeshDataFlags
+{
+	B3_MESH_DATA_SIMULATION_MESH=1,
+	B3_MESH_DATA_SIMULATION_INDICES,
+	B3_MESH_DATA_GRAPHICS_INDICES,
+};
+
 enum eMeshDataEnum
 {
 	B3_MESH_DATA_COLLISIONSHAPEINDEX=1,
+	B3_MESH_DATA_FLAGS=2,
 };
 
 struct b3MeshData
@@ -989,6 +997,12 @@ struct b3PluginArguments
 	double m_floats[B3_MAX_PLUGIN_ARG_SIZE];
 };
 
+enum eInternalSimFlags
+{
+	eVRTinyGUI = 1<<1,
+	eDeformableAlternativeIndexing = 1<<2,
+};
+
 struct b3PhysicsSimulationParameters
 {
 	double m_deltaTime;
@@ -1077,6 +1091,10 @@ enum eFileIOTypes
 	eInMemoryFileIO,
 };
 
+enum eEnumUpdateVisualShapeFlags
+{
+	eVISUAL_SHAPE_DOUBLE_SIDED = 4,//see B3_INSTANCE_DOUBLE_SIDED
+};
 
 //limits for vertices/indices in PyBullet::createCollisionShape
 //Make sure the data fits in SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE

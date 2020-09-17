@@ -265,6 +265,7 @@ struct InternalBodyData
 	btRigidBody* m_rigidBody;
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	btSoftBody* m_softBody;
+	
 #endif
 	int m_testData;
 	std::string m_bodyName;
@@ -291,6 +292,7 @@ struct InternalBodyData
 		m_rigidBody = 0;
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		m_softBody = 0;
+		
 #endif
 		m_testData = 0;
 		m_bodyName = "";
@@ -1638,6 +1640,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
 	btAlignedObjectArray<const unsigned char*> m_heightfieldDatas;
 	btAlignedObjectArray<int> m_allocatedTextures;
+	btAlignedObjectArray<unsigned char*> m_allocatedTexturesRequireFree;
 	btHashMap<btHashPtr, UrdfCollision> m_bulletCollisionShape2UrdfCollision;
 	btAlignedObjectArray<btStridingMeshInterface*> m_meshInterfaces;
 
@@ -1707,6 +1710,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	double m_remoteSyncTransformTime;
 	double m_remoteSyncTransformInterval;
+	bool m_useAlternativeDeformableIndexing;
 
 	PhysicsServerCommandProcessorInternalData(PhysicsCommandProcessorInterface* proc)
 		: m_pluginManager(proc),
@@ -1749,7 +1753,8 @@ struct PhysicsServerCommandProcessorInternalData
 		  m_threadPool(0),
 		  m_defaultCollisionMargin(0.001),
 		  m_remoteSyncTransformTime(1. / 30.),
-		  m_remoteSyncTransformInterval(1. / 30.)
+		  m_remoteSyncTransformInterval(1. / 30.),
+		m_useAlternativeDeformableIndexing(false)
 	{
 		{
 			//register static plugins:
@@ -2521,6 +2526,17 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 				}
 			}
 		}
+
+		//delete textures
+		for (int i = 0; i < textures.size(); i++)
+		{
+			B3_PROFILE("free textureData");
+			if (!textures[i].m_isCached)
+			{
+				m_data->m_allocatedTexturesRequireFree.push_back(textures[i].textureData1);
+			}
+		}
+
 		return graphicsIndex;
 	}
 
@@ -2564,7 +2580,16 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		if (m_data->m_pluginManager.getRenderInterface())
 		{
 			CommonFileIOInterface* fileIO = m_data->m_pluginManager.getFileIOInterface();
-			int visualShapeUniqueid = m_data->m_pluginManager.getRenderInterface()->convertVisualShapes(linkIndex, pathPrefix, localInertiaFrame, &link, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId, fileIO);
+			int visualShapeUniqueid = m_data->m_pluginManager.getRenderInterface()->convertVisualShapes(
+				linkIndex, 
+				pathPrefix, 
+				localInertiaFrame, 
+				&link, 
+				&model, 
+				colObj->getBroadphaseHandle()->getUid(), 
+				bodyUniqueId, 
+				fileIO);
+
 			colObj->setUserIndex3(visualShapeUniqueid);
 		}
 	}
@@ -2956,8 +2981,15 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 			m_data->m_guiHelper->removeTexture(texId);
 		}
 	}
+
+	for (int i = 0; i < m_data->m_allocatedTexturesRequireFree.size(); i++)
+	{
+		//we can't free them right away, due to caching based on memory pointer in PhysicsServerExample
+		free(m_data->m_allocatedTexturesRequireFree[i]);
+	}
 	m_data->m_heightfieldDatas.clear();
 	m_data->m_allocatedTextures.clear();
+	m_data->m_allocatedTexturesRequireFree.clear();
 	m_data->m_meshInterfaces.clear();
 	m_data->m_collisionShapes.clear();
 	m_data->m_bulletCollisionShape2UrdfCollision.clear();
@@ -4078,6 +4110,43 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 					{
 						const btCollisionObject* colObj = m_data->m_dynamicsWorld->getCollisionObjectArray()[i];
 						m_data->m_pluginManager.getRenderInterface()->syncTransform(colObj->getUserIndex3(), colObj->getWorldTransform(), colObj->getCollisionShape()->getLocalScaling());
+
+						const btCollisionShape* collisionShape = colObj->getCollisionShape();
+						if (collisionShape->getShapeType() == SOFTBODY_SHAPE_PROXYTYPE)
+						{
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+							const btSoftBody* psb = (const btSoftBody*)colObj;
+							if (psb->getUserIndex3() >= 0)
+							{
+
+								btAlignedObjectArray<btVector3> vertices;
+								if (psb->m_renderNodes.size() == 0)
+								{
+
+									vertices.resize(psb->m_faces.size() * 3);
+
+									for (int i = 0; i < psb->m_faces.size(); i++)  // Foreach face
+									{
+										for (int k = 0; k < 3; k++)  // Foreach vertex on a face
+										{
+											int currentIndex = i * 3 + k;
+											vertices[currentIndex] = psb->m_faces[i].m_n[k]->m_x;
+										}
+									}
+								}
+								else
+								{
+									vertices.resize(psb->m_renderNodes.size());
+
+									for (int i = 0; i < psb->m_renderNodes.size(); i++)  // Foreach face
+									{
+										vertices[i] = psb->m_renderNodes[i].m_x;
+									}
+								}
+								m_data->m_pluginManager.getRenderInterface()->updateShape(psb->getUserIndex3(), &vertices[0], vertices.size());
+							}
+#endif //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+						}
 					}
 
 					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES) != 0)
@@ -5364,23 +5433,33 @@ bool PhysicsServerCommandProcessor::processRequestMeshDataCommand(const struct S
 		{
 			btSoftBody* psb = bodyHandle->m_softBody;
 
-			bool separateRenderMesh = (psb->m_renderNodes.size() != 0);
+			int flags = 0;
+			if (clientCmd.m_updateFlags & B3_MESH_DATA_FLAGS)
+			{
+				flags = clientCmd.m_requestMeshDataArgs.m_flags;
+			}
+
+			bool separateRenderMesh = false;
+			if ((flags & B3_MESH_DATA_SIMULATION_MESH) == 0)
+			{
+				separateRenderMesh = (psb->m_renderNodes.size() != 0);
+			}
 			int numVertices = separateRenderMesh ? psb->m_renderNodes.size() : psb->m_nodes.size();
 			int maxNumVertices = bufferSizeInBytes / totalBytesPerVertex - 1;
 			int numVerticesRemaining = numVertices - clientCmd.m_requestMeshDataArgs.m_startingVertex;
 			int verticesCopied = btMin(maxNumVertices, numVerticesRemaining);
-
 			for (int i = 0; i < verticesCopied; ++i)
 			{
 				if (separateRenderMesh)
 				{
-					const btSoftBody::Node& n = psb->m_renderNodes[i + clientCmd.m_requestMeshDataArgs.m_startingVertex];
-					verticesOut[i] = n.m_x;
+					
+					const btSoftBody::RenderNode& n = psb->m_renderNodes[i + clientCmd.m_requestMeshDataArgs.m_startingVertex];
+					verticesOut[i].setValue(n.m_x.x(), n.m_x.y(), n.m_x.z());
 				}
 				else
 				{
 					const btSoftBody::Node& n = psb->m_nodes[i + clientCmd.m_requestMeshDataArgs.m_startingVertex];
-					verticesOut[i] = n.m_x;
+					verticesOut[i].setValue(n.m_x.x(), n.m_x.y(), n.m_x.z());
 				}
 			}
 			sizeInBytes = verticesCopied * sizeof(btVector3);
@@ -6583,33 +6662,36 @@ bool PhysicsServerCommandProcessor::processCollisionFilterCommand(const struct S
 		if (clientCmd.m_updateFlags & B3_COLLISION_FILTER_GROUP_MASK)
 		{
 			InternalBodyData* body = m_data->m_bodyHandles.getHandle(clientCmd.m_collisionFilterArgs.m_bodyUniqueIdA);
-			btCollisionObject* colObj = 0;
-			if (body->m_multiBody)
+			if (body)
 			{
-				if (clientCmd.m_collisionFilterArgs.m_linkIndexA == -1)
+				btCollisionObject* colObj = 0;
+				if (body->m_multiBody)
 				{
-					colObj = body->m_multiBody->getBaseCollider();
+					if (clientCmd.m_collisionFilterArgs.m_linkIndexA == -1)
+					{
+						colObj = body->m_multiBody->getBaseCollider();
+					}
+					else
+					{
+						if (clientCmd.m_collisionFilterArgs.m_linkIndexA >= 0 && clientCmd.m_collisionFilterArgs.m_linkIndexA < body->m_multiBody->getNumLinks())
+						{
+							colObj = body->m_multiBody->getLinkCollider(clientCmd.m_collisionFilterArgs.m_linkIndexA);
+						}
+					}
 				}
 				else
 				{
-					if (clientCmd.m_collisionFilterArgs.m_linkIndexA >= 0 && clientCmd.m_collisionFilterArgs.m_linkIndexA < body->m_multiBody->getNumLinks())
+					if (body->m_rigidBody)
 					{
-						colObj = body->m_multiBody->getLinkCollider(clientCmd.m_collisionFilterArgs.m_linkIndexA);
+						colObj = body->m_rigidBody;
 					}
 				}
-			}
-			else
-			{
-				if (body->m_rigidBody)
+				if (colObj)
 				{
-					colObj = body->m_rigidBody;
+					colObj->getBroadphaseHandle()->m_collisionFilterGroup = clientCmd.m_collisionFilterArgs.m_collisionFilterGroup;
+					colObj->getBroadphaseHandle()->m_collisionFilterMask = clientCmd.m_collisionFilterArgs.m_collisionFilterMask;
+					m_data->m_dynamicsWorld->refreshBroadphaseProxy(colObj);
 				}
-			}
-			if (colObj)
-			{
-				colObj->getBroadphaseHandle()->m_collisionFilterGroup = clientCmd.m_collisionFilterArgs.m_collisionFilterGroup;
-				colObj->getBroadphaseHandle()->m_collisionFilterMask = clientCmd.m_collisionFilterArgs.m_collisionFilterMask;
-				m_data->m_dynamicsWorld->refreshBroadphaseProxy(colObj);
 			}
 		}
 	}
@@ -8054,6 +8136,21 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 
 						virtual btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
 						{
+							const btCollisionObject* colObj = (btCollisionObject*)colObj0Wrap->getCollisionObject();
+							const btMultiBodyLinkCollider* mbl = btMultiBodyLinkCollider::upcast(colObj);
+							int bodyUniqueId = -1;
+							if (mbl)
+							{
+								bodyUniqueId = mbl->m_multiBody->getUserIndex2();
+							}
+							else
+							{
+								bodyUniqueId = colObj->getUserIndex2();
+							}
+
+							
+							bool isSwapped = m_bodyUniqueIdA != bodyUniqueId;
+							
 							if (cp.m_distance1 <= m_closestDistanceThreshold)
 							{
 								b3ContactPointData pt;
@@ -8066,9 +8163,18 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 								pt.m_linkIndexB = m_linkIndexB;
 								for (int j = 0; j < 3; j++)
 								{
-									pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
-									pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
-									pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+									if (isSwapped)
+									{
+										pt.m_contactNormalOnBInWS[j] = -srcPt.m_normalWorldOnB[j];
+										pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnB()[j];
+										pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnA()[j];
+									}
+									else
+									{
+										pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
+										pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
+										pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+									}
 								}
 								pt.m_normalForce = srcPt.getAppliedImpulse() / m_deltaTime;
 								pt.m_linearFrictionForce1 = srcPt.m_appliedImpulseLateral1 / m_deltaTime;
@@ -8571,63 +8677,103 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		}
 #endif
 	}
+	b3ImportMeshData meshData;
+
 	if (psb != NULL)
 	{
-#ifndef SKIP_DEFORMABLE_BODY
-		btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
-		if (deformWorld)
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+		// load render mesh
+		if ((out_found_sim_filename != out_found_filename) || ((out_sim_type == UrdfGeometry::FILE_OBJ)))
 		{
 			// load render mesh
-			if (out_found_sim_filename != out_found_filename)
+			if (!m_data->m_useAlternativeDeformableIndexing)
 			{
-				// load render mesh
+
+				float rgbaColor[4] = { 1,1,1,1 };
+
+				if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(
+					out_found_filename.c_str(), meshData, fileIO))
 				{
-					tinyobj::attrib_t attribute;
-					std::vector<tinyobj::shape_t> shapes;
 
-					std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
-
-					for (int s = 0; s < (int)shapes.size(); s++)
+					for (int v = 0; v < meshData.m_gfxShape->m_numvertices; v++)
 					{
-						tinyobj::shape_t& shape = shapes[s];
-						int faceCount = shape.mesh.indices.size();
-						int vertexCount = attribute.vertices.size() / 3;
-						for (int v = 0; v < vertexCount; v++)
-						{
-							btSoftBody::Node n;
-							n.m_x = btVector3(attribute.vertices[3 * v], attribute.vertices[3 * v + 1], attribute.vertices[3 * v + 2]);
-							psb->m_renderNodes.push_back(n);
-						}
-						for (int f = 0; f < faceCount; f += 3)
-						{
-							if (f < 0 && f >= int(shape.mesh.indices.size()))
-							{
-								continue;
-							}
-							tinyobj::index_t v_0 = shape.mesh.indices[f];
-							tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
-							tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
-							btSoftBody::Face ff;
-							ff.m_n[0] = &psb->m_renderNodes[v_0.vertex_index];
-							ff.m_n[1] = &psb->m_renderNodes[v_1.vertex_index];
-							ff.m_n[2] = &psb->m_renderNodes[v_2.vertex_index];
-							psb->m_renderFaces.push_back(ff);
-						}
+						btSoftBody::RenderNode n;
+						n.m_x.setValue(
+							meshData.m_gfxShape->m_vertices->at(v).xyzw[0],
+							meshData.m_gfxShape->m_vertices->at(v).xyzw[1],
+							meshData.m_gfxShape->m_vertices->at(v).xyzw[2]);
+						n.m_uv1.setValue(meshData.m_gfxShape->m_vertices->at(v).uv[0],
+							meshData.m_gfxShape->m_vertices->at(v).uv[1],
+							0.);
+						n.m_normal.setValue(meshData.m_gfxShape->m_vertices->at(v).normal[0],
+							meshData.m_gfxShape->m_vertices->at(v).normal[1],
+							meshData.m_gfxShape->m_vertices->at(v).normal[2]);
+						psb->m_renderNodes.push_back(n);
 					}
-				}
-				if (out_sim_type == UrdfGeometry::FILE_VTK)
-				{
-					btSoftBodyHelpers::interpolateBarycentricWeights(psb);
-				}
-				else if (out_sim_type == UrdfGeometry::FILE_OBJ)
-				{
-					btSoftBodyHelpers::extrapolateBarycentricWeights(psb);
+					for (int f = 0; f < meshData.m_gfxShape->m_numIndices; f += 3)
+					{
+						btSoftBody::RenderFace ff;
+						ff.m_n[0] = &psb->m_renderNodes[meshData.m_gfxShape->m_indices->at(f + 0)];
+						ff.m_n[1] = &psb->m_renderNodes[meshData.m_gfxShape->m_indices->at(f + 1)];
+						ff.m_n[2] = &psb->m_renderNodes[meshData.m_gfxShape->m_indices->at(f + 2)];
+						psb->m_renderFaces.push_back(ff);
+					}
 				}
 			}
 			else
 			{
-				psb->m_renderNodes.resize(0);
+				tinyobj::attrib_t attribute;
+				std::vector<tinyobj::shape_t> shapes;
+
+				std::string err = tinyobj::LoadObj(attribute, shapes, out_found_filename.c_str(), pathPrefix, m_data->m_pluginManager.getFileIOInterface());
+
+				for (int s = 0; s < (int)shapes.size(); s++)
+				{
+					tinyobj::shape_t& shape = shapes[s];
+					int faceCount = shape.mesh.indices.size();
+					int vertexCount = attribute.vertices.size() / 3;
+					for (int v = 0; v < vertexCount; v++)
+					{
+						btSoftBody::RenderNode n;
+						n.m_x = btVector3(attribute.vertices[3 * v], attribute.vertices[3 * v + 1], attribute.vertices[3 * v + 2]);
+						psb->m_renderNodes.push_back(n);
+					}
+					for (int f = 0; f < faceCount; f += 3)
+					{
+						if (f < 0 && f >= int(shape.mesh.indices.size()))
+						{
+							continue;
+						}
+						tinyobj::index_t v_0 = shape.mesh.indices[f];
+						tinyobj::index_t v_1 = shape.mesh.indices[f + 1];
+						tinyobj::index_t v_2 = shape.mesh.indices[f + 2];
+						btSoftBody::RenderFace ff;
+						ff.m_n[0] = &psb->m_renderNodes[v_0.vertex_index];
+						ff.m_n[1] = &psb->m_renderNodes[v_1.vertex_index];
+						ff.m_n[2] = &psb->m_renderNodes[v_2.vertex_index];
+						psb->m_renderFaces.push_back(ff);
+					}
+				}
 			}
+			if (out_sim_type == UrdfGeometry::FILE_VTK)
+			{
+				btSoftBodyHelpers::interpolateBarycentricWeights(psb);
+			}
+			else if (out_sim_type == UrdfGeometry::FILE_OBJ)
+			{
+				btSoftBodyHelpers::extrapolateBarycentricWeights(psb);
+			}
+		}
+		else
+		{
+			psb->m_renderNodes.resize(0);
+		}
+#endif
+#ifndef SKIP_DEFORMABLE_BODY
+		btDeformableMultiBodyDynamicsWorld* deformWorld = getDeformableWorld();
+		if (deformWorld)
+		{
+			
 			btVector3 gravity = m_data->m_dynamicsWorld->getGravity();
 			btDeformableLagrangianForce* gravityForce = new btDeformableGravityForce(gravity);
 			deformWorld->addForce(psb, gravityForce);
@@ -8697,7 +8843,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 				softWorld->addSoftBody(psb);
 			}
 		}
-		m_data->m_guiHelper->createCollisionShapeGraphicsObject(psb->getCollisionShape());
+		
 		*bodyUniqueId = m_data->m_bodyHandles.allocHandle();
 		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(*bodyUniqueId);
 		bodyHandle->m_softBody = psb;
@@ -8709,30 +8855,186 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		visualShape.m_linkIndex = -1;
 		visualShape.m_visualGeometryType = URDF_GEOM_MESH;
 		//dimensions just contains the scale
-		visualShape.m_dimensions[0] = scale;
-		visualShape.m_dimensions[1] = scale;
-		visualShape.m_dimensions[2] = scale;
+		visualShape.m_dimensions[0] = 1;
+		visualShape.m_dimensions[1] = 1;
+		visualShape.m_dimensions[2] = 1;
 		//filename
 		strncpy(visualShape.m_meshAssetFileName, relativeFileName, VISUAL_SHAPE_MAX_PATH_LEN);
 		visualShape.m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN - 1] = 0;
 		//position and orientation
-		visualShape.m_localVisualFrame[0] = pos[0];
-		visualShape.m_localVisualFrame[1] = pos[1];
-		visualShape.m_localVisualFrame[2] = pos[2];
-		visualShape.m_localVisualFrame[3] = orn[0];
-		visualShape.m_localVisualFrame[4] = orn[1];
-		visualShape.m_localVisualFrame[5] = orn[2];
-		visualShape.m_localVisualFrame[6] = orn[3];
+		visualShape.m_localVisualFrame[0] = 0;
+		visualShape.m_localVisualFrame[1] = 0;
+		visualShape.m_localVisualFrame[2] = 0;
+		visualShape.m_localVisualFrame[3] = 0;
+		visualShape.m_localVisualFrame[4] = 0;
+		visualShape.m_localVisualFrame[5] = 0;
+		visualShape.m_localVisualFrame[6] = 1;
 		//color and ids to be set by the renderer
-		visualShape.m_rgbaColor[0] = 0;
-		visualShape.m_rgbaColor[1] = 0;
-		visualShape.m_rgbaColor[2] = 0;
+		visualShape.m_rgbaColor[0] = 1;
+		visualShape.m_rgbaColor[1] = 1;
+		visualShape.m_rgbaColor[2] = 1;
 		visualShape.m_rgbaColor[3] = 1;
 		visualShape.m_tinyRendererTextureId = -1;
 		visualShape.m_textureUniqueId = -1;
 		visualShape.m_openglTextureId = -1;
 
-		m_data->m_pluginManager.getRenderInterface()->addVisualShape(&visualShape, fileIO);
+		if (meshData.m_gfxShape)
+		{
+			int texUid1 = -1;
+			if (meshData.m_textureHeight > 0 && meshData.m_textureWidth > 0 && meshData.m_textureImage1)
+			{
+				texUid1 = m_data->m_guiHelper->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
+			}
+			visualShape.m_openglTextureId = texUid1;
+			int shapeUid1 = m_data->m_guiHelper->registerGraphicsShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0], meshData.m_gfxShape->m_numvertices, &meshData.m_gfxShape->m_indices->at(0), meshData.m_gfxShape->m_numIndices, B3_GL_TRIANGLES, texUid1);
+			psb->getCollisionShape()->setUserIndex(shapeUid1);
+			float position[4] = { 0,0,0,1 };
+			float orientation[4] = { 0,0,0,1 };
+			float color[4] = { 1,1,1,1 };
+			float scaling[4] = { 1,1,1,1 };
+ 			int instanceUid = m_data->m_guiHelper->registerGraphicsInstance(shapeUid1, position, orientation, color, scaling);
+			psb->setUserIndex(instanceUid);
+			
+			if (m_data->m_enableTinyRenderer)
+			{
+				int texUid2 = m_data->m_pluginManager.getRenderInterface()->registerTexture(meshData.m_textureImage1, meshData.m_textureWidth, meshData.m_textureHeight);
+				visualShape.m_tinyRendererTextureId = texUid2;
+				int linkIndex = -1;
+				int softBodyGraphicsShapeUid = m_data->m_pluginManager.getRenderInterface()->registerShapeAndInstance(
+					visualShape,
+					&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
+					meshData.m_gfxShape->m_numvertices,
+					&meshData.m_gfxShape->m_indices->at(0),
+					meshData.m_gfxShape->m_numIndices,
+					B3_GL_TRIANGLES,
+					texUid2,
+					psb->getBroadphaseHandle()->getUid(),
+					*bodyUniqueId,
+					linkIndex);
+
+				psb->setUserIndex3(softBodyGraphicsShapeUid);
+			}
+			delete meshData.m_gfxShape;
+			meshData.m_gfxShape = 0;
+		}
+		else
+		{
+			//m_data->m_guiHelper->createCollisionShapeGraphicsObject(psb->getCollisionShape());
+
+			btAlignedObjectArray<GLInstanceVertex> gfxVertices;
+			btAlignedObjectArray<int> indices;
+			int strideInBytes = 9 * sizeof(float);
+			gfxVertices.resize(psb->m_faces.size() * 3);
+			for (int i = 0; i < psb->m_faces.size(); i++)  // Foreach face
+			{
+				for (int k = 0; k < 3; k++)  // Foreach vertex on a face
+				{
+					int currentIndex = i * 3 + k;
+					for (int j = 0; j < 3; j++)
+					{
+						gfxVertices[currentIndex].xyzw[j] = psb->m_faces[i].m_n[k]->m_x[j];
+					}
+					for (int j = 0; j < 3; j++)
+					{
+						gfxVertices[currentIndex].normal[j] = psb->m_faces[i].m_n[k]->m_n[j];
+					}
+					for (int j = 0; j < 2; j++)
+					{
+						gfxVertices[currentIndex].uv[j] = btFabs(btFabs(10. * psb->m_faces[i].m_n[k]->m_x[j]));
+					}
+					indices.push_back(currentIndex);
+				}
+			}
+			if (gfxVertices.size() && indices.size())
+			{
+				int red = 173;
+				int green = 199;
+				int blue = 255;
+
+				int texWidth = 256;
+				int texHeight = 256;
+				btAlignedObjectArray<unsigned char> texels;
+				texels.resize(texWidth* texHeight * 3);
+				for (int i = 0; i < texWidth * texHeight * 3; i++)
+					texels[i] = 255;
+				for (int i = 0; i < texWidth; i++)
+				{
+					for (int j = 0; j < texHeight; j++)
+					{
+						int a = i < texWidth / 2 ? 1 : 0;
+						int b = j < texWidth / 2 ? 1 : 0;
+
+						if (a == b)
+						{
+							texels[(i + j * texWidth) * 3 + 0] = red;
+							texels[(i + j * texWidth) * 3 + 1] = green;
+							texels[(i + j * texWidth) * 3 + 2] = blue;
+						}
+					}
+				}
+
+				int texId = m_data->m_guiHelper->registerTexture(&texels[0], texWidth, texHeight);
+				visualShape.m_openglTextureId = texId;
+				int shapeId = m_data->m_guiHelper->registerGraphicsShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, texId);
+				b3Assert(shapeId >= 0);
+				psb->getCollisionShape()->setUserIndex(shapeId);
+				if (m_data->m_enableTinyRenderer)
+				{
+
+					int texUid2 = m_data->m_pluginManager.getRenderInterface()->registerTexture(&texels[0], texWidth, texHeight);
+					visualShape.m_tinyRendererTextureId = texUid2;
+					int linkIndex = -1;
+					int softBodyGraphicsShapeUid = m_data->m_pluginManager.getRenderInterface()->registerShapeAndInstance(
+						visualShape,
+						&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, texUid2,
+						psb->getBroadphaseHandle()->getUid(),
+						*bodyUniqueId,
+						linkIndex);
+					psb->setUserIndex3(softBodyGraphicsShapeUid);
+				}
+			}
+		}
+		
+
+
+		btAlignedObjectArray<btVector3> vertices;
+		if (psb->m_renderNodes.size() == 0)
+		{
+			psb->m_renderNodes.resize(psb->m_faces.size()*3);
+			vertices.resize(psb->m_faces.size() * 3);
+			for (int i = 0; i < psb->m_faces.size(); i++)  // Foreach face
+			{
+				
+				for (int k = 0; k < 3; k++)  // Foreach vertex on a face
+				{
+					int currentIndex = i * 3 + k;
+					for (int j = 0; j < 3; j++)
+					{
+						psb->m_renderNodes[currentIndex].m_x[j] = psb->m_faces[i].m_n[k]->m_x[j];
+					}
+					for (int j = 0; j < 3; j++)
+					{
+						psb->m_renderNodes[currentIndex].m_normal[j] = psb->m_faces[i].m_n[k]->m_n[j];
+					}
+					for (int j = 0; j < 2; j++)
+					{
+						psb->m_renderNodes[currentIndex].m_uv1[j] = btFabs(10*psb->m_faces[i].m_n[k]->m_x[j]);
+					}
+					psb->m_renderNodes[currentIndex].m_uv1[2] = 0;
+					vertices[currentIndex] = psb->m_faces[i].m_n[k]->m_x;
+				}
+			}
+			btSoftBodyHelpers::extrapolateBarycentricWeights(psb);
+		}
+		else
+		{
+			vertices.resize(psb->m_renderNodes.size());
+			for (int i = 0; i < psb->m_renderNodes.size(); i++)  // Foreach face
+			{
+				vertices[i] = psb->m_renderNodes[i].m_x;
+			}
+		}
+		m_data->m_pluginManager.getRenderInterface()->updateShape(psb->getUserIndex3(), &vertices[0], vertices.size());
 
 		if (!deformable.m_name.empty())
 		{
@@ -9157,489 +9459,489 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 								  clientCmd.m_changeDynamicsInfoArgs.m_anisotropicFriction[1],
 								  clientCmd.m_changeDynamicsInfoArgs.m_anisotropicFriction[2]);
 
-	btAssert(bodyUniqueId >= 0);
-
-	InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-
-	if (body && body->m_multiBody)
+	if (bodyUniqueId >= 0)
 	{
-		btMultiBody* mb = body->m_multiBody;
+		InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 
-		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
+		if (body && body->m_multiBody)
 		{
-			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateWakeUp)
-			{
-				mb->wakeUp();
-			}
-			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateSleep)
-			{
-				mb->goToSleep();
-			}
-			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableSleeping)
-			{
-				mb->setCanSleep(true);
-			}
-			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateDisableSleeping)
-			{
-				mb->setCanSleep(false);
-			}
-			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableWakeup)
-			{
-				mb->setCanWakeup(true);
-			}
-			if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateDisableWakeup)
-			{
-				mb->setCanWakeup(false);
-			}
-		}
+			btMultiBody* mb = body->m_multiBody;
 
-		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
-		{
-			mb->setLinearDamping(clientCmd.m_changeDynamicsInfoArgs.m_linearDamping);
-		}
-		if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING)
-		{
-			mb->setAngularDamping(clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
-		}
-
-		if (linkIndex == -1)
-		{
-			if (mb->getBaseCollider())
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
 			{
-				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateWakeUp)
 				{
-					mb->getBaseCollider()->setRestitution(restitution);
+					mb->wakeUp();
 				}
-
-				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateSleep)
 				{
-					mb->getBaseCollider()->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+					mb->goToSleep();
 				}
-				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableSleeping)
 				{
-					mb->getBaseCollider()->setFriction(lateralFriction);
+					mb->setCanSleep(true);
 				}
-				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateDisableSleeping)
 				{
-					mb->getBaseCollider()->setSpinningFriction(spinningFriction);
+					mb->setCanSleep(false);
 				}
-				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableWakeup)
 				{
-					mb->getBaseCollider()->setRollingFriction(rollingFriction);
+					mb->setCanWakeup(true);
 				}
-
-				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
+				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateDisableWakeup)
 				{
-					if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
-					{
-						mb->getBaseCollider()->setCollisionFlags(mb->getBaseCollider()->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
-					}
-					else
-					{
-						mb->getBaseCollider()->setCollisionFlags(mb->getBaseCollider()->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
-					}
+					mb->setCanWakeup(false);
 				}
 			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
-			{
-				mb->setBaseMass(mass);
-				if (mb->getBaseCollider() && mb->getBaseCollider()->getCollisionShape())
-				{
-					btVector3 localInertia;
-					mb->getBaseCollider()->getCollisionShape()->calculateLocalInertia(mass, localInertia);
-					mb->setBaseInertia(localInertia);
-				}
 
-				//handle switch from static/fixedBase to dynamic and vise-versa
-				if (mass > 0)
-				{
-					bool isDynamic = true;
-					if (mb->hasFixedBase())
-					{
-						int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
-						int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
-
-						m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
-						int oldFlags = mb->getBaseCollider()->getCollisionFlags();
-						mb->getBaseCollider()->setCollisionFlags(oldFlags & ~btCollisionObject::CF_STATIC_OBJECT);
-						mb->setFixedBase(false);
-						m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
-					}
-				}
-				else
-				{
-					if (!mb->hasFixedBase())
-					{
-						bool isDynamic = false;
-						int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
-						int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
-						int oldFlags = mb->getBaseCollider()->getCollisionFlags();
-						mb->getBaseCollider()->setCollisionFlags(oldFlags | btCollisionObject::CF_STATIC_OBJECT);
-						m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
-						mb->setFixedBase(true);
-						m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
-					}
-				}
-			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
 			{
-				mb->setBaseInertia(newLocalInertiaDiagonal);
+				mb->setLinearDamping(clientCmd.m_changeDynamicsInfoArgs.m_linearDamping);
 			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION)
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING)
 			{
-				mb->getBaseCollider()->setAnisotropicFriction(anisotropicFriction);
+				mb->setAngularDamping(clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
 			}
 
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MAX_JOINT_VELOCITY)
+			if (linkIndex == -1)
 			{
-				mb->setMaxCoordinateVelocity(clientCmd.m_changeDynamicsInfoArgs.m_maxJointVelocity);
-			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN)
-			{
-				mb->getBaseCollider()->getCollisionShape()->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
-				if (mb->getBaseCollider()->getCollisionShape()->isCompound())
-				{
-					btCompoundShape* compound = (btCompoundShape*)mb->getBaseCollider()->getCollisionShape();
-					for (int s = 0; s < compound->getNumChildShapes(); s++)
-					{
-						compound->getChildShape(s)->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
-					}
-				}
-			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
-			{
-				int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
-				mb->setBaseDynamicType((ObjectDynamicTypes) dynamicType);
-
-				bool isDynamic = dynamicType == eDynamic;
-				int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
-				int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
-				m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
-				m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
-			}
-		}
-		else
-		{
-			if (linkIndex >= 0 && linkIndex < mb->getNumLinks())
-			{
-
-				if ((clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMIT_MAX_FORCE) ||
-					(clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMITS))
-				{
-
-					btMultiBodyJointLimitConstraint* limC = 0;
-
-					int numConstraints = m_data->m_dynamicsWorld->getNumMultiBodyConstraints();
-					for (int c = 0; c < numConstraints; c++)
-					{
-						btMultiBodyConstraint* mbc = m_data->m_dynamicsWorld->getMultiBodyConstraint(c);
-						if (mbc->getConstraintType() == MULTIBODY_CONSTRAINT_LIMIT)
-						{
-							if (((mbc->getMultiBodyA() == mb) && (mbc->getLinkA() == linkIndex))
-								||
-								((mbc->getMultiBodyB() == mb) && ((mbc->getLinkB() == linkIndex)))
-								)
-							{
-								limC = (btMultiBodyJointLimitConstraint*)mbc;
-							}
-						}
-					}
-
-					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMITS)
-					{
-						//find a joint limit
-						btScalar prevUpper = mb->getLink(linkIndex).m_jointUpperLimit;
-						btScalar prevLower = mb->getLink(linkIndex).m_jointLowerLimit;
-						btScalar lower = clientCmd.m_changeDynamicsInfoArgs.m_jointLowerLimit;
-						btScalar upper = clientCmd.m_changeDynamicsInfoArgs.m_jointUpperLimit;
-						bool enableLimit = lower <= upper;
-
-						if (enableLimit)
-						{
-							if (limC == 0)
-							{
-								limC = new btMultiBodyJointLimitConstraint(mb, linkIndex, lower, upper);
-								m_data->m_dynamicsWorld->addMultiBodyConstraint(limC);
-							}
-							else
-							{
-								limC->setLowerBound(lower);
-								limC->setUpperBound(upper);
-							}
-							mb->getLink(linkIndex).m_jointLowerLimit = lower;
-							mb->getLink(linkIndex).m_jointUpperLimit = upper;
-						}
-						else
-						{
-							if (limC)
-							{
-								m_data->m_dynamicsWorld->removeMultiBodyConstraint(limC);
-								delete limC;
-								limC = 0;
-							}
-							mb->getLink(linkIndex).m_jointLowerLimit = 1;
-							mb->getLink(linkIndex).m_jointUpperLimit = -1;
-						}
-					}
-
-					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMIT_MAX_FORCE)
-					{
-						btScalar fixedTimeSubStep = m_data->m_numSimulationSubSteps > 0 ? m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps : m_data->m_physicsDeltaTime;
-						btScalar maxImpulse = clientCmd.m_changeDynamicsInfoArgs.m_jointLimitForce * fixedTimeSubStep;
-						if (limC)
-						{
-							//convert from force to impulse
-							limC->setMaxAppliedImpulse(maxImpulse);
-						}
-					}
-				}
-
-				if (mb->getLinkCollider(linkIndex))
+				if (mb->getBaseCollider())
 				{
 					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
 					{
-						mb->getLinkCollider(linkIndex)->setRestitution(restitution);
+						mb->getBaseCollider()->setRestitution(restitution);
+					}
+
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+					{
+						mb->getBaseCollider()->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+					}
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
+					{
+						mb->getBaseCollider()->setFriction(lateralFriction);
 					}
 					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
 					{
-						mb->getLinkCollider(linkIndex)->setSpinningFriction(spinningFriction);
+						mb->getBaseCollider()->setSpinningFriction(spinningFriction);
 					}
 					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
 					{
-						mb->getLinkCollider(linkIndex)->setRollingFriction(rollingFriction);
+						mb->getBaseCollider()->setRollingFriction(rollingFriction);
 					}
 
 					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
 					{
 						if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
 						{
-							mb->getLinkCollider(linkIndex)->setCollisionFlags(mb->getLinkCollider(linkIndex)->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+							mb->getBaseCollider()->setCollisionFlags(mb->getBaseCollider()->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
 						}
 						else
 						{
-							mb->getLinkCollider(linkIndex)->setCollisionFlags(mb->getLinkCollider(linkIndex)->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+							mb->getBaseCollider()->setCollisionFlags(mb->getBaseCollider()->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
 						}
 					}
-
-					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
-					{
-						mb->getLinkCollider(linkIndex)->setFriction(lateralFriction);
-					}
-
-					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
-					{
-						mb->getLinkCollider(linkIndex)->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
-					}
-					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN)
-					{
-						mb->getLinkCollider(linkIndex)->getCollisionShape()->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
-					}
 				}
-
-				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_DAMPING)
-				{
-					mb->getLink(linkIndex).m_jointDamping = clientCmd.m_changeDynamicsInfoArgs.m_jointDamping;
-				}
-
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
 				{
-					mb->getLink(linkIndex).m_mass = mass;
-					if (mb->getLinkCollider(linkIndex) && mb->getLinkCollider(linkIndex)->getCollisionShape())
+					mb->setBaseMass(mass);
+					if (mb->getBaseCollider() && mb->getBaseCollider()->getCollisionShape())
 					{
 						btVector3 localInertia;
-						mb->getLinkCollider(linkIndex)->getCollisionShape()->calculateLocalInertia(mass, localInertia);
-						mb->getLink(linkIndex).m_inertiaLocal = localInertia;
+						mb->getBaseCollider()->getCollisionShape()->calculateLocalInertia(mass, localInertia);
+						mb->setBaseInertia(localInertia);
+					}
+
+					//handle switch from static/fixedBase to dynamic and vise-versa
+					if (mass > 0)
+					{
+						bool isDynamic = true;
+						if (mb->hasFixedBase())
+						{
+							int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+							int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+
+							m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
+							int oldFlags = mb->getBaseCollider()->getCollisionFlags();
+							mb->getBaseCollider()->setCollisionFlags(oldFlags & ~btCollisionObject::CF_STATIC_OBJECT);
+							mb->setFixedBase(false);
+							m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
+						}
+					}
+					else
+					{
+						if (!mb->hasFixedBase())
+						{
+							bool isDynamic = false;
+							int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+							int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+							int oldFlags = mb->getBaseCollider()->getCollisionFlags();
+							mb->getBaseCollider()->setCollisionFlags(oldFlags | btCollisionObject::CF_STATIC_OBJECT);
+							m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
+							mb->setFixedBase(true);
+							m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
+						}
 					}
 				}
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
 				{
-					mb->getLink(linkIndex).m_inertiaLocal = newLocalInertiaDiagonal;
+					mb->setBaseInertia(newLocalInertiaDiagonal);
 				}
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION)
 				{
-					mb->getLinkCollider(linkIndex)->setAnisotropicFriction(anisotropicFriction);
+					mb->getBaseCollider()->setAnisotropicFriction(anisotropicFriction);
+				}
+
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MAX_JOINT_VELOCITY)
+				{
+					mb->setMaxCoordinateVelocity(clientCmd.m_changeDynamicsInfoArgs.m_maxJointVelocity);
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN)
+				{
+					mb->getBaseCollider()->getCollisionShape()->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
+					if (mb->getBaseCollider()->getCollisionShape()->isCompound())
+					{
+						btCompoundShape* compound = (btCompoundShape*)mb->getBaseCollider()->getCollisionShape();
+						for (int s = 0; s < compound->getNumChildShapes(); s++)
+						{
+							compound->getChildShape(s)->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
+						}
+					}
 				}
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
 				{
 					int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
-					mb->setLinkDynamicType(linkIndex, (ObjectDynamicTypes) dynamicType);
+					mb->setBaseDynamicType((ObjectDynamicTypes) dynamicType);
 
 					bool isDynamic = dynamicType == eDynamic;
 					int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
 					int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
-					m_data->m_dynamicsWorld->removeCollisionObject(mb->getLinkCollider(linkIndex));
-					m_data->m_dynamicsWorld->addCollisionObject(mb->getLinkCollider(linkIndex), collisionFilterGroup, collisionFilterMask);
+					m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
+					m_data->m_dynamicsWorld->addCollisionObject(mb->getBaseCollider(), collisionFilterGroup, collisionFilterMask);
 				}
-			}
-		}
-	}
-	else
-	{
-		btRigidBody* rb = 0;
-		if (body && body->m_rigidBody)
-		{
-			if (linkIndex == -1)
-			{
-				rb = body->m_rigidBody;
 			}
 			else
 			{
-				if (linkIndex >= 0 && linkIndex < body->m_rigidBodyJoints.size())
+				if (linkIndex >= 0 && linkIndex < mb->getNumLinks())
 				{
-					btRigidBody* parentRb = &body->m_rigidBodyJoints[linkIndex]->getRigidBodyA();
-					btRigidBody* childRb = &body->m_rigidBodyJoints[linkIndex]->getRigidBodyB();
-					rb = childRb;
+
+					if ((clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMIT_MAX_FORCE) ||
+						(clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMITS))
+					{
+
+						btMultiBodyJointLimitConstraint* limC = 0;
+
+						int numConstraints = m_data->m_dynamicsWorld->getNumMultiBodyConstraints();
+						for (int c = 0; c < numConstraints; c++)
+						{
+							btMultiBodyConstraint* mbc = m_data->m_dynamicsWorld->getMultiBodyConstraint(c);
+							if (mbc->getConstraintType() == MULTIBODY_CONSTRAINT_LIMIT)
+							{
+								if (((mbc->getMultiBodyA() == mb) && (mbc->getLinkA() == linkIndex))
+									||
+									((mbc->getMultiBodyB() == mb) && ((mbc->getLinkB() == linkIndex)))
+									)
+								{
+									limC = (btMultiBodyJointLimitConstraint*)mbc;
+								}
+							}
+						}
+
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMITS)
+						{
+							//find a joint limit
+							btScalar prevUpper = mb->getLink(linkIndex).m_jointUpperLimit;
+							btScalar prevLower = mb->getLink(linkIndex).m_jointLowerLimit;
+							btScalar lower = clientCmd.m_changeDynamicsInfoArgs.m_jointLowerLimit;
+							btScalar upper = clientCmd.m_changeDynamicsInfoArgs.m_jointUpperLimit;
+							bool enableLimit = lower <= upper;
+
+							if (enableLimit)
+							{
+								if (limC == 0)
+								{
+									limC = new btMultiBodyJointLimitConstraint(mb, linkIndex, lower, upper);
+									m_data->m_dynamicsWorld->addMultiBodyConstraint(limC);
+								}
+								else
+								{
+									limC->setLowerBound(lower);
+									limC->setUpperBound(upper);
+								}
+								mb->getLink(linkIndex).m_jointLowerLimit = lower;
+								mb->getLink(linkIndex).m_jointUpperLimit = upper;
+							}
+							else
+							{
+								if (limC)
+								{
+									m_data->m_dynamicsWorld->removeMultiBodyConstraint(limC);
+									delete limC;
+									limC = 0;
+								}
+								mb->getLink(linkIndex).m_jointLowerLimit = 1;
+								mb->getLink(linkIndex).m_jointUpperLimit = -1;
+							}
+						}
+
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMIT_MAX_FORCE)
+						{
+							btScalar fixedTimeSubStep = m_data->m_numSimulationSubSteps > 0 ? m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps : m_data->m_physicsDeltaTime;
+							btScalar maxImpulse = clientCmd.m_changeDynamicsInfoArgs.m_jointLimitForce * fixedTimeSubStep;
+							if (limC)
+							{
+								//convert from force to impulse
+								limC->setMaxAppliedImpulse(maxImpulse);
+							}
+						}
+					}
+
+					if (mb->getLinkCollider(linkIndex))
+					{
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
+						{
+							mb->getLinkCollider(linkIndex)->setRestitution(restitution);
+						}
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
+						{
+							mb->getLinkCollider(linkIndex)->setSpinningFriction(spinningFriction);
+						}
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
+						{
+							mb->getLinkCollider(linkIndex)->setRollingFriction(rollingFriction);
+						}
+
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
+						{
+							if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
+							{
+								mb->getLinkCollider(linkIndex)->setCollisionFlags(mb->getLinkCollider(linkIndex)->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+							}
+							else
+							{
+								mb->getLinkCollider(linkIndex)->setCollisionFlags(mb->getLinkCollider(linkIndex)->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+							}
+						}
+
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
+						{
+							mb->getLinkCollider(linkIndex)->setFriction(lateralFriction);
+						}
+
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+						{
+							mb->getLinkCollider(linkIndex)->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+						}
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN)
+						{
+							mb->getLinkCollider(linkIndex)->getCollisionShape()->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
+						}
+					}
+
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_DAMPING)
+					{
+						mb->getLink(linkIndex).m_jointDamping = clientCmd.m_changeDynamicsInfoArgs.m_jointDamping;
+					}
+
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
+					{
+						mb->getLink(linkIndex).m_mass = mass;
+						if (mb->getLinkCollider(linkIndex) && mb->getLinkCollider(linkIndex)->getCollisionShape())
+						{
+							btVector3 localInertia;
+							mb->getLinkCollider(linkIndex)->getCollisionShape()->calculateLocalInertia(mass, localInertia);
+							mb->getLink(linkIndex).m_inertiaLocal = localInertia;
+						}
+					}
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
+					{
+						mb->getLink(linkIndex).m_inertiaLocal = newLocalInertiaDiagonal;
+					}
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION)
+					{
+						mb->getLinkCollider(linkIndex)->setAnisotropicFriction(anisotropicFriction);
+					}
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
+					{
+						int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
+						mb->setLinkDynamicType(linkIndex, (ObjectDynamicTypes) dynamicType);
+
+						bool isDynamic = dynamicType == eDynamic;
+						int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+						int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+						m_data->m_dynamicsWorld->removeCollisionObject(mb->getLinkCollider(linkIndex));
+						m_data->m_dynamicsWorld->addCollisionObject(mb->getLinkCollider(linkIndex), collisionFilterGroup, collisionFilterMask);
+					}
 				}
 			}
 		}
-
-		if (rb)
+		else
 		{
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
+			btRigidBody* rb = 0;
+			if (body && body->m_rigidBody)
 			{
-				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableSleeping)
+				if (linkIndex == -1)
 				{
-					rb->forceActivationState(ACTIVE_TAG);
-				}
-				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateDisableSleeping)
-				{
-					rb->forceActivationState(DISABLE_DEACTIVATION);
-				}
-				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateWakeUp)
-				{
-					rb->forceActivationState(ACTIVE_TAG);
-					rb->setDeactivationTime(0.0);
-				}
-				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateSleep)
-				{
-					rb->forceActivationState(ISLAND_SLEEPING);
-				}
-			}
-
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
-			{
-				btScalar angDamping = rb->getAngularDamping();
-				rb->setDamping(clientCmd.m_changeDynamicsInfoArgs.m_linearDamping, angDamping);
-			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING)
-			{
-				btScalar linDamping = rb->getLinearDamping();
-				rb->setDamping(linDamping, clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
-			}
-
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
-			{
-				rb->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
-			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
-			{
-				rb->setRestitution(restitution);
-			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
-			{
-				rb->setFriction(lateralFriction);
-			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
-			{
-				rb->setSpinningFriction(spinningFriction);
-			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
-			{
-				rb->setRollingFriction(rollingFriction);
-			}
-
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
-			{
-				if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
-				{
-					rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+					rb = body->m_rigidBody;
 				}
 				else
 				{
-					rb->setCollisionFlags(rb->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+					if (linkIndex >= 0 && linkIndex < body->m_rigidBodyJoints.size())
+					{
+						btRigidBody* parentRb = &body->m_rigidBodyJoints[linkIndex]->getRigidBodyA();
+						btRigidBody* childRb = &body->m_rigidBodyJoints[linkIndex]->getRigidBodyB();
+						rb = childRb;
+					}
 				}
 			}
 
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
+			if (rb)
 			{
-				btVector3 localInertia;
-				if (rb->getCollisionShape())
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
 				{
-					rb->getCollisionShape()->calculateLocalInertia(mass, localInertia);
+					if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableSleeping)
+					{
+						rb->forceActivationState(ACTIVE_TAG);
+					}
+					if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateDisableSleeping)
+					{
+						rb->forceActivationState(DISABLE_DEACTIVATION);
+					}
+					if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateWakeUp)
+					{
+						rb->forceActivationState(ACTIVE_TAG);
+						rb->setDeactivationTime(0.0);
+					}
+					if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateSleep)
+					{
+						rb->forceActivationState(ISLAND_SLEEPING);
+					}
 				}
-				rb->setMassProps(mass, localInertia, DYNAMIC_OBJECT);
-			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
-			{
-				btScalar orgMass = rb->getInvMass();
-				if (orgMass > 0)
+
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
 				{
-					rb->setMassProps(mass, newLocalInertiaDiagonal, DYNAMIC_OBJECT);
+					btScalar angDamping = rb->getAngularDamping();
+					rb->setDamping(clientCmd.m_changeDynamicsInfoArgs.m_linearDamping, angDamping);
 				}
-			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION)
-			{
-				rb->setAnisotropicFriction(anisotropicFriction);
-			}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING)
+				{
+					btScalar linDamping = rb->getLinearDamping();
+					rb->setDamping(linDamping, clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
+				}
 
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD)
-			{
-				rb->setContactProcessingThreshold(clientCmd.m_changeDynamicsInfoArgs.m_contactProcessingThreshold);
-			}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+				{
+					rb->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
+				{
+					rb->setRestitution(restitution);
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
+				{
+					rb->setFriction(lateralFriction);
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
+				{
+					rb->setSpinningFriction(spinningFriction);
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
+				{
+					rb->setRollingFriction(rollingFriction);
+				}
 
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CCD_SWEPT_SPHERE_RADIUS)
-			{
-				rb->setCcdSweptSphereRadius(clientCmd.m_changeDynamicsInfoArgs.m_ccdSweptSphereRadius);
-				//for a given sphere radius, use a motion threshold of half the radius, before the ccd algorithm is enabled
-				rb->setCcdMotionThreshold(clientCmd.m_changeDynamicsInfoArgs.m_ccdSweptSphereRadius / 2.);
-			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN)
-			{
-				rb->getCollisionShape()->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
-			}
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
-			{
-				int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
-				rb->setDynamicType((ObjectDynamicTypes) dynamicType);
-				// wenlongl: Not sure if I should enable this part. Need to be tested.
-				//bool isDynamic = dynamicType == eDynamic;
-				//int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
-				//int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
-				//m_data->m_dynamicsWorld->removeCollisionObject(rb);
-				//m_data->m_dynamicsWorld->addCollisionObject(rb, collisionFilterGroup, collisionFilterMask);
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
+				{
+					if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
+					{
+						rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+					}
+					else
+					{
+						rb->setCollisionFlags(rb->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+					}
+				}
+
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
+				{
+					btVector3 localInertia;
+					if (rb->getCollisionShape())
+					{
+						rb->getCollisionShape()->calculateLocalInertia(mass, localInertia);
+					}
+					rb->setMassProps(mass, localInertia);
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
+				{
+					btScalar orgMass = rb->getInvMass();
+					if (orgMass > 0)
+					{
+						rb->setMassProps(mass, newLocalInertiaDiagonal);
+					}
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION)
+				{
+					rb->setAnisotropicFriction(anisotropicFriction);
+				}
+
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD)
+				{
+					rb->setContactProcessingThreshold(clientCmd.m_changeDynamicsInfoArgs.m_contactProcessingThreshold);
+				}
+
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CCD_SWEPT_SPHERE_RADIUS)
+				{
+					rb->setCcdSweptSphereRadius(clientCmd.m_changeDynamicsInfoArgs.m_ccdSweptSphereRadius);
+					//for a given sphere radius, use a motion threshold of half the radius, before the ccd algorithm is enabled
+					rb->setCcdMotionThreshold(clientCmd.m_changeDynamicsInfoArgs.m_ccdSweptSphereRadius / 2.);
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN)
+				{
+					rb->getCollisionShape()->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
+				{
+					int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
+					rb->setDynamicType((ObjectDynamicTypes) dynamicType);
+					// wenlongl: Not sure if I should enable this part. Need to be tested.
+					//bool isDynamic = dynamicType == eDynamic;
+					//int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+					//int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+					//m_data->m_dynamicsWorld->removeCollisionObject(rb);
+					//m_data->m_dynamicsWorld->addCollisionObject(rb, collisionFilterGroup, collisionFilterMask);
+				}
 			}
 		}
-	}
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-	if (body && body->m_softBody)
-	{
-		btSoftBody* psb = body->m_softBody;
-		if (psb)
+		if (body && body->m_softBody)
 		{
-			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
+			btSoftBody* psb = body->m_softBody;
+			if (psb)
 			{
-				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableSleeping)
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ACTIVATION_STATE)
 				{
-					psb->forceActivationState(ACTIVE_TAG);
-				}
-				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateDisableSleeping)
-				{
-					psb->forceActivationState(DISABLE_DEACTIVATION);
-				}
-				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateWakeUp)
-				{
-					psb->forceActivationState(ACTIVE_TAG);
-					psb->setDeactivationTime(0.0);
-				}
-				if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateSleep)
-				{
-					psb->forceActivationState(ISLAND_SLEEPING);
+					if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateEnableSleeping)
+					{
+						psb->forceActivationState(ACTIVE_TAG);
+					}
+					if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateDisableSleeping)
+					{
+						psb->forceActivationState(DISABLE_DEACTIVATION);
+					}
+					if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateWakeUp)
+					{
+						psb->forceActivationState(ACTIVE_TAG);
+						psb->setDeactivationTime(0.0);
+					}
+					if (clientCmd.m_changeDynamicsInfoArgs.m_activationState & eActivationStateSleep)
+					{
+						psb->forceActivationState(ISLAND_SLEEPING);
+					}
 				}
 			}
 		}
-	}
 #endif
-
+	}
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
 
@@ -9915,6 +10217,8 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 	{
 		//these flags are for internal/temporary/easter-egg/experimental demo purposes, use at own risk
 		gInternalSimFlags = clientCmd.m_physSimParamArgs.m_internalSimFlags;
+		m_data->m_useAlternativeDeformableIndexing =
+				(clientCmd.m_physSimParamArgs.m_internalSimFlags & eDeformableAlternativeIndexing) != 0;
 	}
 
 	if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_GRAVITY)
@@ -10683,6 +10987,13 @@ bool PhysicsServerCommandProcessor::processConfigureOpenGLVisualizerCommand(cons
 		{
 			m_data->m_guiHelper->getRenderInterface()->setShadowMapResolution(clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapResolution);
 		}
+
+		if (clientCmd.m_updateFlags & COV_SET_SHADOWMAP_INTENSITY)
+		{
+			m_data->m_guiHelper->getRenderInterface()->setShadowMapIntensity(clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapIntensity);
+		}
+
+
 		if (clientCmd.m_updateFlags & COV_SET_SHADOWMAP_WORLD_SIZE)
 		{
 			float worldSize = clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapWorldSize;
@@ -11372,7 +11683,7 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 				if (nodeIndex >= 0 && nodeIndex < sbodyHandle->m_softBody->m_nodes.size())
 				{
 					int bodyUniqueId = clientCmd.m_userConstraintArguments.m_childBodyIndex;
-					if (bodyUniqueId <= 0)
+					if (bodyUniqueId < 0)
 					{
 						//fixed anchor (mass = 0)
 						InteralUserConstraintData userConstraintData;
@@ -12882,17 +13193,16 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 				if (m_data->m_pluginManager.getRenderInterface())
 				{
 					m_data->m_pluginManager.getRenderInterface()->changeShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId,
-																					 clientCmd.m_updateVisualShapeDataArguments.m_jointIndex,
-																					 clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex,
-																					 texHandle->m_tinyRendererTextureId);
+					 clientCmd.m_updateVisualShapeDataArguments.m_jointIndex,
+					 clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex,
+					 texHandle->m_tinyRendererTextureId);
 				}
 			}
 			else
 			{
 				m_data->m_pluginManager.getRenderInterface()->changeShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId,
-																				 clientCmd.m_updateVisualShapeDataArguments.m_jointIndex,
-																				 clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex,
-																				 -1);
+				clientCmd.m_updateVisualShapeDataArguments.m_jointIndex,
+				clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex,-1);
 			}
 		}
 	}
@@ -13006,14 +13316,42 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 
 				else if (bodyHandle->m_softBody)
 				{
+					int graphicsIndex = bodyHandle->m_softBody->getUserIndex();
+					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_TEXTURE)
+                                        {
+						int shapeIndex = m_data->m_guiHelper->getShapeIndexFromInstance(graphicsIndex);
+                                                if (texHandle)
+                                                {
+                                                         m_data->m_guiHelper->replaceTexture(shapeIndex, texHandle->m_openglTextureId);
+                                                }
+                                                else
+                                                {
+                                                         m_data->m_guiHelper->replaceTexture(shapeIndex, -1);
+                                                }
+                                        }
+
 					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR)
 					{
 						if (m_data->m_pluginManager.getRenderInterface())
 						{
 							m_data->m_pluginManager.getRenderInterface()->changeRGBAColor(bodyUniqueId, linkIndex,
-																						  clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+							  clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 						}
+						m_data->m_guiHelper->changeRGBAColor(graphicsIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 					}
+
+					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_FLAGS)
+					{
+						if (m_data->m_pluginManager.getRenderInterface())
+						{
+							m_data->m_pluginManager.getRenderInterface()->changeInstanceFlags(bodyUniqueId, linkIndex, 
+								clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, 
+								clientCmd.m_updateVisualShapeDataArguments.m_flags);
+						}
+						m_data->m_guiHelper->changeInstanceFlags(graphicsIndex, 
+							clientCmd.m_updateVisualShapeDataArguments.m_flags);
+					}
+
 				}
 #endif
 			}
@@ -13122,7 +13460,7 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 				if (imageData)
 				{
 					texH->m_openglTextureId = m_data->m_guiHelper->registerTexture(imageData, width, height);
-					free(imageData);
+					m_data->m_allocatedTexturesRequireFree.push_back(imageData);
 				}
 				else
 				{

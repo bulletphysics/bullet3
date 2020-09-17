@@ -61,19 +61,25 @@ Matrix lookat(Vec3f eye, Vec3f center, Vec3f up)
 	return ModelView;
 }
 
-Vec3f barycentric(Vec2f A, Vec2f B, Vec2f C, Vec2f P)
+Vec3d barycentric(Vec2f A1, Vec2f B1, Vec2f C1, Vec2f P1)
 {
-	Vec3f s[2];
+
+	Vec2d A(A1.x, A1.y);
+	Vec2d B(B1.x, B1.y);
+	Vec2d C(C1.x, C1.y);
+	Vec2d P(P1.x, P1.y);;
+
+	Vec3d s[2];
 	for (int i = 2; i--;)
 	{
 		s[i][0] = C[i] - A[i];
 		s[i][1] = B[i] - A[i];
 		s[i][2] = A[i] - P[i];
 	}
-	Vec3f u = cross(s[0], s[1]);
+	Vec3d u = cross(s[0], s[1]);
 	if (std::abs(u[2]) > 1e-2)  // dont forget that u[2] is integer. If it is zero then triangle ABC is degenerate
-		return Vec3f(1.f - (u.x + u.y) / u.z, u.y / u.z, u.x / u.z);
-	return Vec3f(-1, 1, 1);  // in this case generate negative coordinates, it will be thrown away by the rasterizator
+		return Vec3d(1. - (u.x + u.y) / u.z, u.y / u.z, u.x / u.z);
+	return Vec3d(-1., 1., 1.);  // in this case generate negative coordinates, it will be thrown away by the rasterizator
 }
 
 void triangleClipped(mat<4, 3, float> &clipc, mat<4, 3, float> &orgClipc, IShader &shader, TGAImage &image, float *zbuffer, const Matrix &viewPortMatrix)
@@ -119,25 +125,28 @@ void triangleClipped(mat<4, 3, float> &clipc, mat<4, 3, float> &orgClipc, IShade
 	{
 		for (P.y = bboxmin.y; P.y <= bboxmax.y; P.y++)
 		{
-			float frag_depth = 0;
+			double frag_depth = 0;
 			{
-				Vec3f bc_screen = barycentric(pts2[0], pts2[1], pts2[2], P);
-				Vec3f bc_clip = Vec3f(bc_screen.x / screenSpacePts[0][3], bc_screen.y / screenSpacePts[1][3], bc_screen.z / screenSpacePts[2][3]);
+				Vec3d bc_screen = barycentric(pts2[0], pts2[1], pts2[2], P);
+				Vec3d bc_clip = Vec3d(bc_screen.x / screenSpacePts[0][3], bc_screen.y / screenSpacePts[1][3], bc_screen.z / screenSpacePts[2][3]);
 				bc_clip = bc_clip / (bc_clip.x + bc_clip.y + bc_clip.z);
-				frag_depth = -1 * (clipc[2] * bc_clip);
+				Vec3d clipd(clipc[2].x, clipc[2].y, clipc[2].z);
+				frag_depth = -1. * (clipd * bc_clip);
 
 				if (bc_screen.x < 0 || bc_screen.y < 0 || bc_screen.z < 0 ||
 					zbuffer[P.x + P.y * image.get_width()] > frag_depth)
 					continue;
 			}
 
-			Vec3f bc_screen2 = barycentric(orgPts2[0], orgPts2[1], orgPts2[2], P);
-			Vec3f bc_clip2 = Vec3f(bc_screen2.x / orgScreenSpacePts[0][3], bc_screen2.y / orgScreenSpacePts[1][3], bc_screen2.z / orgScreenSpacePts[2][3]);
+			Vec3d bc_screen2 = barycentric(orgPts2[0], orgPts2[1], orgPts2[2], P);
+			Vec3d bc_clip2 = Vec3d(bc_screen2.x / orgScreenSpacePts[0][3], bc_screen2.y / orgScreenSpacePts[1][3], bc_screen2.z / orgScreenSpacePts[2][3]);
 			bc_clip2 = bc_clip2 / (bc_clip2.x + bc_clip2.y + bc_clip2.z);
-			float frag_depth2 = -1 * (orgClipc[2] * bc_clip2);
+			Vec3d orgClipd(orgClipc[2].x, orgClipc[2].y, orgClipc[2].z);
+			double frag_depth2 = -1. * (orgClipd * bc_clip2);
 
-			bool discard = shader.fragment(bc_clip2, color);
-
+			Vec3f bc_clip2f(bc_clip2.x, bc_clip2.y, bc_clip2.z);
+			bool discard = shader.fragment(bc_clip2f, color);
+			
 			if (!discard)
 			{
 				zbuffer[P.x + P.y * image.get_width()] = frag_depth;
@@ -182,14 +191,16 @@ void triangle(mat<4, 3, float> &clipc, IShader &shader, TGAImage &image, float *
 	{
 		for (P.y = bboxmin.y; P.y <= bboxmax.y; P.y++)
 		{
-			Vec3f bc_screen = barycentric(pts2[0], pts2[1], pts2[2], P);
-			Vec3f bc_clip = Vec3f(bc_screen.x / pts[0][3], bc_screen.y / pts[1][3], bc_screen.z / pts[2][3]);
+			Vec3d bc_screen = barycentric(pts2[0], pts2[1], pts2[2], P);
+			Vec3d bc_clip = Vec3d(bc_screen.x / pts[0][3], bc_screen.y / pts[1][3], bc_screen.z / pts[2][3]);
 			bc_clip = bc_clip / (bc_clip.x + bc_clip.y + bc_clip.z);
-			float frag_depth = -1 * (clipc[2] * bc_clip);
+			Vec3d clipd(clipc[2].x, clipc[2].y, clipc[2].z);
+			double frag_depth = -1. * (clipd * bc_clip);
 			if (bc_screen.x < 0 || bc_screen.y < 0 || bc_screen.z < 0 ||
 				zbuffer[P.x + P.y * image.get_width()] > frag_depth)
 				continue;
-			bool discard = shader.fragment(bc_clip, color);
+			Vec3f bc_clipf(bc_clip.x, bc_clip.y, bc_clip.z);
+			bool discard = shader.fragment(bc_clipf, color);
 			if (frag_depth < -shader.m_farPlane)
 				discard = true;
 			if (frag_depth > shader.m_nearPlane)

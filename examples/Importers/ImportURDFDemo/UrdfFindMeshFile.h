@@ -55,56 +55,46 @@ static bool UrdfFindMeshFile(
 		return false;
 	}
 
+	std::string drop_it_file = "file://";
 	std::string drop_it_pack = "package://";
 	std::string drop_it_model = "model://";
+	if (fn.substr(0, drop_it_file.length()) == drop_it_file)
+		fn = fn.substr(drop_it_file.length());
 	if (fn.substr(0, drop_it_pack.length()) == drop_it_pack)
 		fn = fn.substr(drop_it_pack.length());
 	else if (fn.substr(0, drop_it_model.length()) == drop_it_model)
 		fn = fn.substr(drop_it_model.length());
 
 	std::list<std::string> shorter;
-	shorter.push_back("../..");
-	shorter.push_back("..");
-	shorter.push_back(".");
+	shorter.push_back("../../");
+	shorter.push_back("../");
+	shorter.push_back("./");
 	int cnt = urdf_path.size();
 	for (int i = 0; i < cnt; ++i)
 	{
 		if (urdf_path[i] == '/' || urdf_path[i] == '\\')
 		{
-			shorter.push_back(urdf_path.substr(0, i));
+			shorter.push_back(urdf_path.substr(0, i) + "/");
 		}
 	}
+	shorter.push_back("");  // no prefix
 	shorter.reverse();
 
 	std::string existing_file;
 
-	
-	
+	for (std::list<std::string>::iterator x = shorter.begin(); x != shorter.end(); ++x)
 	{
-		for (std::list<std::string>::iterator x = shorter.begin(); x != shorter.end(); ++x)
-		{
-			std::string attempt = *x + "/" + fn;
-			int f = fileIO->fileOpen(attempt.c_str(), "rb");
-			if (f<0)
-			{
-				//b3Printf("%s: tried '%s'", error_message_prefix.c_str(), attempt.c_str());
-				continue;
-			}
-			fileIO->fileClose(f);
-			existing_file = attempt;
-			//b3Printf("%s: found '%s'", error_message_prefix.c_str(), attempt.c_str());
-			break;
-		}
-	}
-	if (existing_file.empty())
-	{
-		std::string attempt = fn;
+		std::string attempt = *x + fn;
 		int f = fileIO->fileOpen(attempt.c_str(), "rb");
-		if (f>=0)
+		if (f<0)
 		{
-			existing_file = attempt;
-			fileIO->fileClose(f);
+			//b3Printf("%s: tried '%s'", error_message_prefix.c_str(), attempt.c_str());
+			continue;
 		}
+		fileIO->fileClose(f);
+		existing_file = attempt;
+		//b3Printf("%s: found '%s'", error_message_prefix.c_str(), attempt.c_str());
+		break;
 	}
 
 	if (existing_file.empty())

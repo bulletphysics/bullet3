@@ -12,12 +12,6 @@ matrix:
         - BUILD_NAME=TRUSTY_CLANG
         - SUDO=sudo
     - os: linux
-      compiler: gcc
-      env:
-        - BUILD_NAME=XENIAL_GCC
-        - DOCKER_FILE="ubuntu-xenial"
-      services: docker
-    - os: linux
       compiler: clang
       env:
         - BUILD_NAME=XENIAL_CLANG

@@ -2,7 +2,7 @@
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "Bullet3Common/b3Transform.h"
-
+#include "Utils/b3BulletDefaultFileIO.h"
 #include "assert.h"
 #include <stdio.h>
 
@@ -56,6 +56,7 @@ void MyKeyboardCallback(int keycode, int state)
 		sOldKeyboardCB(keycode, state);
 }
 #include "TinyRenderer.h"
+float color2[4] = { 1,0,0,1 };
 
 int main(int argc, char* argv[])
 {
@@ -85,8 +86,10 @@ int main(int argc, char* argv[])
 
 	TinyRenderObjectData renderData(rgbColorBuffer, depthBuffer);  //, "african_head/african_head.obj");//floor.obj");
 
-	//renderData.loadModel("african_head/african_head.obj");
-	renderData.loadModel("floor.obj");
+	b3BulletDefaultFileIO fileIO;
+	//renderData.loadModel("african_head/african_head.obj", &fileIO);
+	
+	renderData.loadModel("floor.obj",&fileIO);
 
 	//renderData.createCube(1,1,1);
 
@@ -105,10 +108,10 @@ int main(int argc, char* argv[])
 
 	b3Vector3 pos = b3MakeVector3(0, 0, 0);
 	b3Quaternion orn(0, 0, 0, 1);
-	b3Vector3 color = b3MakeVector3(1, 0, 0);
+	
 	b3Vector3 scaling = b3MakeVector3(1, 1, 1);
-	app->m_renderer->registerGraphicsInstance(cubeIndex, pos, orn, color, scaling);
-	app->m_renderer->writeTransforms();
+	//app->m_renderer->registerGraphicsInstance(cubeIndex, pos, orn, color, scaling);
+	//app->m_renderer->writeTransforms();
 
 	do
 	{
@@ -153,7 +156,7 @@ int main(int argc, char* argv[])
 		tr.setIdentity();
 		static float posUp = 0.f;
 		// posUp += 0.001;
-		b3Vector3 org = b3MakeVector3(0, posUp, 0);
+		b3Vector3 org = b3MakeVector3(0, 0, posUp);
 		tr.setOrigin(org);
 		tr.getOpenGLMatrix(modelMat);
 
@@ -167,6 +170,7 @@ int main(int argc, char* argv[])
 		}
 
 		//render the object
+		renderData.m_model->setColorRGBA(color2);
 		TinyRenderer::renderObject(renderData);
 
 #if 1
@@ -214,8 +218,8 @@ int main(int argc, char* argv[])
 		app->drawGrid();
 		char bla[1024];
 		sprintf(bla, "Simple test frame %d", frameCount);
-
-		app->drawText(bla, 10, 10);
+		float colorRGBA[4] = { 1,1,1,1 };
+		app->drawText(bla, 10, 10,1, colorRGBA);
 		app->swapBuffer();
 	} while (!app->m_window->requestedExit());
 

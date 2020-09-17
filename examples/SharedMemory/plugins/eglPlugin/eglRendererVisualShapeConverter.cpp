@@ -68,6 +68,7 @@ struct MyTexture3
 	int m_width;
 	int m_height;
 	bool m_isCached;
+	int m_innerTexUid;
 };
 
 struct EGLRendererObjectArray
@@ -78,12 +79,15 @@ struct EGLRendererObjectArray
 	int m_linkIndex;
 	btTransform m_worldTransform;
 	btVector3 m_localScaling;
-
+	b3AlignedObjectArray<GLInstanceVertex> m_vertices;
+	int graphicsIndex;
 	EGLRendererObjectArray()
 	{
 		m_worldTransform.setIdentity();
 		m_localScaling.setValue(1, 1, 1);
+		graphicsIndex = -1;
 	}
+
 };
 
 //#define START_WIDTH 2560
@@ -173,7 +177,7 @@ struct EGLRendererVisualShapeConverterInternalData
 	float m_mouseXpos;
 	float m_mouseYpos;
 	bool m_mouseInitialized;
-	int m_graphicsUniqueIdGenerator;
+	
 
 	EGLRendererVisualShapeConverterInternalData()
 		: m_upAxis(2),
@@ -201,8 +205,7 @@ struct EGLRendererVisualShapeConverterInternalData
 		m_mouseMoveMultiplier(0.4f),
 		m_mouseXpos(0.f),
 		m_mouseYpos(0.f),
-		m_mouseInitialized(false),
-		m_graphicsUniqueIdGenerator(15)
+		m_mouseInitialized(false)
 	{
 		m_depthBuffer.resize(m_swWidth * m_swHeight);
 		m_shadowBuffer.resize(m_swWidth * m_swHeight);
@@ -905,27 +908,120 @@ static void convertURDFToVisualShape2(const UrdfShape* visual, const char* urdfP
 }
 
 static btVector4 sColors[4] =
-	{
+{
 		btVector4(60. / 256., 186. / 256., 84. / 256., 1),
 		btVector4(244. / 256., 194. / 256., 13. / 256., 1),
 		btVector4(219. / 256., 50. / 256., 54. / 256., 1),
 		btVector4(72. / 256., 133. / 256., 237. / 256., 1),
-
-		//btVector4(1,1,0,1),
 };
 
+int EGLRendererVisualShapeConverter::registerShapeAndInstance(const b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)
+{
+	int uniqueId = orgGraphicsUniqueId;
+	float rgbaColor[4] = { (float)visualShape.m_rgbaColor[0],(float)visualShape.m_rgbaColor[1], (float)visualShape.m_rgbaColor[2],(float)visualShape.m_rgbaColor[3] };
+
+	EGLRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[uniqueId];
+	if (visualsPtr == 0)
+	{
+		m_data->m_swRenderInstances.insert(uniqueId, new EGLRendererObjectArray);
+	}
+	visualsPtr = m_data->m_swRenderInstances[uniqueId];
+	if (visualsPtr)
+	{
+		EGLRendererObjectArray* visuals = *visualsPtr;
+
+		//////////////
+
+		B3_PROFILE("m_instancingRenderer register");
+
+		// register mesh to m_instancingRenderer too.
+
+		int innerTexId = -1;
+		if (textureId >= 0 && textureId < m_data->m_textures.size())
+		{
+			innerTexId = m_data->m_textures[textureId].m_innerTexUid;
+		}
+		
+		int shapeIndex = m_data->m_instancingRenderer->registerShape(&vertices[0],
+			numvertices, &indices[0], numIndices, B3_GL_TRIANGLES, innerTexId);
+
+		double scaling[3] = { visualShape.m_dimensions[0], visualShape.m_dimensions[1],visualShape.m_dimensions[2] };
+		double position[4] = { visualShape.m_localVisualFrame[0],visualShape.m_localVisualFrame[1],visualShape.m_localVisualFrame[2],1 };
+		double orn[4] = { visualShape.m_localVisualFrame[3],visualShape.m_localVisualFrame[4],visualShape.m_localVisualFrame[5],visualShape.m_localVisualFrame[6]};
+		
+		int graphicsIndex = m_data->m_instancingRenderer->registerGraphicsInstance(
+			shapeIndex,
+			position,
+			orn,
+			visualShape.m_rgbaColor,
+			scaling);
+
+		int segmentationMask = bodyUniqueId + ((linkIndex + 1) << 24);
+		{
+			if (graphicsIndex >= 0)
+			{
+				//visuals->m_graphicsInstanceIds.push_back(graphicsIndex);
+
+				if (m_data->m_graphicsIndexToSegmentationMask.size() < (graphicsIndex + 1))
+				{
+					m_data->m_graphicsIndexToSegmentationMask.resize(graphicsIndex + 1);
+				}
+				m_data->m_graphicsIndexToSegmentationMask[graphicsIndex] = segmentationMask;
+			}
+		}
+
+		m_data->m_instancingRenderer->writeTransforms();
+		GLInstanceVertex* orgVertices = (GLInstanceVertex*)vertices;
+		visuals->graphicsIndex = graphicsIndex;
+		visuals->m_vertices.resize(numvertices);
+		for (int v = 0; v < numvertices; v++)
+		{
+			visuals->m_vertices[v] = orgVertices[v];
+		}
+	}
+
+	m_data->m_visualShapes.push_back(visualShape);
+	return uniqueId;
+}
+
+
+
+void EGLRendererVisualShapeConverter::updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices)
+{
+	EGLRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[shapeUniqueId];
+	if (visualsPtr)
+	{
+		EGLRendererObjectArray* visuals = *visualsPtr;
+		btAssert(visuals->graphicsIndex >= 0);
+
+		if (visuals->graphicsIndex >= 0)
+		{
+			btAssert(visuals->m_vertices.size() == numVertices);
+			if (visuals->m_vertices.size() == numVertices)
+			{
+				for (int i = 0; i < numVertices; i++)
+				{
+					visuals->m_vertices[i].xyzw[0] = vertices[i][0];
+					visuals->m_vertices[i].xyzw[1] = vertices[i][1];
+					visuals->m_vertices[i].xyzw[2] = vertices[i][2];
+				}
+			}
+			m_data->m_instancingRenderer->updateShape(visuals->graphicsIndex, &visuals->m_vertices[0].xyzw[0],
+				visuals->m_vertices.size());
+		}
+	}
+}
+
+
 // If you are getting segfaults in this function it may be ecause you are
-// compliling the plugin with differently from pybullet, try complining the
+// compliling the plugin with differently from pybullet, try compiling the
 // plugin with distutils too.
 int EGLRendererVisualShapeConverter::convertVisualShapes(
 	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
 	const UrdfLink* linkPtr, const UrdfModel* model,
 	int orgGraphicsUniqueId, int bodyUniqueId, struct  CommonFileIOInterface* fileIO)
 {
-	if (orgGraphicsUniqueId< 0)
-	{
-		orgGraphicsUniqueId  = m_data->m_graphicsUniqueIdGenerator++;
-	}
+	btAssert(orgGraphicsUniqueId >= 0);
 	btAssert(linkPtr);  // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
 	{
@@ -1196,6 +1292,19 @@ int EGLRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int s
 	return 0;
 }
 
+void EGLRendererVisualShapeConverter::changeInstanceFlags(int bodyUniqueId, int linkIndex, int shapeIndex, int flags)
+{
+	for (int i = 0; i < m_data->m_swRenderInstances.size(); i++)
+	{
+		EGLRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
+		if (ptrptr && *ptrptr)
+		{
+			EGLRendererObjectArray* visuals = *ptrptr;
+			m_data->m_instancingRenderer->writeSingleInstanceFlagsToCPU(flags, visuals->graphicsIndex);
+		}
+	}
+}
+
 void EGLRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4])
 {
 	//int start = -1;
@@ -1220,7 +1329,7 @@ void EGLRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int link
 			EGLRendererObjectArray* visuals = *ptrptr;
 			if ((bodyUniqueId == visuals->m_objectUniqueId) && (linkIndex == visuals->m_linkIndex))
 			{
-				
+				m_data->m_instancingRenderer->writeSingleInstanceColorToCPU(rgbaColor, visuals->graphicsIndex);
 			}
 		}
 	}
@@ -1241,6 +1350,7 @@ void EGLRendererVisualShapeConverter::resetCamera(float camDist, float yaw, floa
 	m_data->m_camera.setCameraTargetPosition(camPosX, camPosY, camPosZ);
 	m_data->m_camera.setAspectRatio((float)m_data->m_swWidth / (float)m_data->m_swHeight);
 	m_data->m_camera.update();
+	
 }
 
 void EGLRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
@@ -1577,12 +1687,10 @@ void EGLRendererVisualShapeConverter::resetAll()
 		if (ptrptr && *ptrptr)
 		{
 			EGLRendererObjectArray* ptr = *ptrptr;
-			if (ptr)
-			{
-				
-			}
+			
 			delete ptr;
 		}
+
 	}
 
 	for (int i = 0; i < m_data->m_textures.size(); i++)
@@ -1610,6 +1718,18 @@ void EGLRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int
 }
 
 int EGLRendererVisualShapeConverter::registerTexture(unsigned char* texels, int width, int height)
+{
+	MyTexture3 texData;
+	texData.m_width = width;
+	texData.m_height = height;
+	texData.textureData1 = texels;
+	texData.m_isCached = true;
+	texData.m_innerTexUid = m_data->m_instancingRenderer->registerTexture(texels, width, height);
+	m_data->m_textures.push_back(texData);
+	return m_data->m_textures.size() - 1;
+}
+
+int EGLRendererVisualShapeConverter::registerTextureInternal(unsigned char* texels, int width, int height)
 {
 	MyTexture3 texData;
 	texData.m_width = width;
@@ -1657,7 +1777,7 @@ int EGLRendererVisualShapeConverter::loadTextureFile(const char* filename, struc
 
 	if (image && (width >= 0) && (height >= 0))
 	{
-		return registerTexture(image, width, height);
+		return registerTextureInternal(image, width, height);
 	}
 	return -1;
 }

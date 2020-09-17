@@ -11,9 +11,14 @@ struct TinyRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual ~TinyRendererVisualShapeConverter();
 
-	virtual int convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int unused, int bodyUniqueId, struct CommonFileIOInterface* fileIO);
+	virtual int convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int orgGraphicsUniqueId, int bodyUniqueId, struct CommonFileIOInterface* fileIO);
 
-	virtual int addVisualShape(struct b3VisualShapeData* visualShape, struct CommonFileIOInterface* fileIO);
+	//returns a shapeUniqueId
+	virtual int registerShapeAndInstance(const b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex);
+
+	virtual void updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices);
+
+	virtual void removeVisualShape(int shapeUniqueId);
 
 	virtual int getNumVisualShapes(int bodyUniqueId);
 
@@ -21,9 +26,9 @@ struct TinyRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4]);
 
-	virtual void changeShapeTexture(int objectUniqueId, int linkIndex, int shapeIndex, int textureUniqueId);
+	virtual void changeInstanceFlags(int bodyUniqueId, int linkIndex, int shapeIndex, int flags);
 
-	virtual void removeVisualShape(int shapeUid);
+	virtual void changeShapeTexture(int bodyUniqueId, int linkIndex, int shapeIndex, int textureUniqueId);
 
 	virtual void setUpAxis(int axis);
 
@@ -52,7 +57,7 @@ struct TinyRendererVisualShapeConverter : public UrdfRenderingInterface
 	virtual int loadTextureFile(const char* filename, struct CommonFileIOInterface* fileIO);
 	virtual int registerTexture(unsigned char* texels, int width, int height);
 
-	virtual void syncTransform(int shapeUid, const class btTransform& worldTransform, const class btVector3& localScaling);
+	virtual void syncTransform(int shapeUniqueId, const class btTransform& worldTransform, const class btVector3& localScaling);
 };
 
 #endif  //TINY_RENDERER_VISUAL_SHAPE_CONVERTER_H

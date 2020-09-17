@@ -5,3 +5,4 @@ from pybullet_envs.minitaur.envs.minitaur_reactive_env import MinitaurReactiveEn
 from pybullet_envs.minitaur.envs.minitaur_stand_gym_env import MinitaurStandGymEnv
 from pybullet_envs.minitaur.envs.minitaur_trotting_env import MinitaurTrottingEnv
 from pybullet_envs.minitaur.envs.minitaur_four_leg_stand_env import MinitaurFourLegStandEnv
+from pybullet_envs.minitaur.envs.minitaur_extended_env import MinitaurExtendedEnv, MinitaurReactiveEnv

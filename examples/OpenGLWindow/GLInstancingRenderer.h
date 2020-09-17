@@ -53,7 +53,7 @@ public:
 	virtual void removeAllInstances();
 	virtual void removeGraphicsInstance(int instanceUid);
 
-	virtual void updateShape(int shapeIndex, const float* vertices);
+	virtual void updateShape(int shapeIndex, const float* vertices, int numVertices);
 
 	///vertices must be in the format x,y,z, nx,ny,nz, u,v
 	virtual int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType = B3_GL_TRIANGLES, int textureIndex = -1);
@@ -122,6 +122,7 @@ public:
 	virtual void setLightPosition(const float lightPos[3]);
 	virtual void setLightPosition(const double lightPos[3]);
 	virtual void setShadowMapResolution(int shadowMapResolution);
+	virtual void setShadowMapIntensity(double shadowMapIntensity);
 	virtual void setShadowMapWorldSize(float worldSize);
 	void setLightSpecularIntensity(const float lightSpecularIntensity[3]);
 	virtual void setProjectiveTextureMatrices(const float viewMatrix[16], const float projectionMatrix[16]);

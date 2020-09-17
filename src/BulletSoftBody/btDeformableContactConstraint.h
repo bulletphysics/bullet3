@@ -216,7 +216,7 @@ public:
 class btDeformableFaceRigidContactConstraint : public btDeformableRigidContactConstraint
 {
 public:
-	const btSoftBody::Face* m_face;
+	btSoftBody::Face* m_face;
 	bool m_useStrainLimiting;
 	btDeformableFaceRigidContactConstraint(const btSoftBody::DeformableFaceRigidContact& contact, const btContactSolverInfo& infoGlobal, bool useStrainLimiting);
 	btDeformableFaceRigidContactConstraint(const btDeformableFaceRigidContactConstraint& other);
