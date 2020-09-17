@@ -673,10 +673,33 @@ btScalar *btMultiBody::getJointTorqueMultiDof(int i)
 	return &m_links[i].m_jointTorque[0];
 }
 
+void btMultiBody::setBaseDynamicType(ObjectDynamicTypes dynamicType)
+{
+	m_base_dynamic_type = dynamicType;
+	if(getBaseCollider())
+	{
+		int oldFlags = getBaseCollider()->getCollisionFlags();
+		oldFlags &= ~(STATIC_OBJECT | KINEMATIC_OBJECT);
+		getBaseCollider()->setCollisionFlags(oldFlags | dynamicType);
+	}
+}
+
 void btMultiBody::setLinkDynamicType(const int i, ObjectDynamicTypes type)
 {
-	m_links[i].m_dynamic_type = type;
-	getLinkCollider(i)->setCollisionFlags(getLinkCollider(i)->getCollisionFlags() | type);
+	if(i == -1)
+	{
+		setBaseDynamicType(type);
+	}
+	else
+	{
+		m_links[i].m_dynamic_type = type;
+		if(getLinkCollider(i))
+		{
+			int oldFlags = getLinkCollider(i)->getCollisionFlags();
+			oldFlags &= ~(STATIC_OBJECT | KINEMATIC_OBJECT);
+			getLinkCollider(i)->setCollisionFlags(oldFlags | type);
+		}
+	}
 }
 
 inline btMatrix3x3 outerProduct(const btVector3 &v0, const btVector3 &v1)  //renamed it from vecMulVecTranspose (http://en.wikipedia.org/wiki/Outer_product); maybe it should be moved to btVector3 like dot and cross?
@@ -804,7 +827,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	//create the vector of spatial velocity of the base by transforming global-coor linear and angular velocities into base-local coordinates
 	spatVel[0].setVector(rot_from_parent[0] * base_omega, rot_from_parent[0] * base_vel);
 
-	if (IsBaseStaticOrKinematic())
+	if (isBaseStaticOrKinematic())
 	{
 		zeroAccSpatFrc[0].setZero();
 	}
@@ -880,7 +903,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 
 		// calculate zhat_i^A
 		//
-		if (IsLinkStaticOrKinematic(i))
+		if (isLinkStaticOrKinematic(i))
 		{
 			zeroAccSpatFrc[i].setZero();
 		}
@@ -949,7 +972,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	// (part of TreeForwardDynamics in Mirtich.)
 	for (int i = num_links - 1; i >= 0; --i)
 	{
-		if(IsLinkStaticOrKinematic(i))
+		if(isLinkStaticOrKinematic(i))
 			continue;
 		const int parent = m_links[i].m_parent;
 		fromParent.m_rotMat = rot_from_parent[i + 1];
@@ -1063,7 +1086,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	// Second 'upward' loop
 	// (part of TreeForwardDynamics in Mirtich)
 
-	if (IsBaseStaticOrKinematic())
+	if (isBaseStaticOrKinematic())
 	{
 		spatAcc[0].setZero();
 	}
@@ -1097,7 +1120,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 
 		fromParent.transform(spatAcc[parent + 1], spatAcc[i + 1]);
 
-		if(!IsLinkStaticOrKinematic(i))
+		if(!isLinkStaticOrKinematic(i))
 		{
 			for (int dof = 0; dof < m_links[i].m_dofCount; ++dof)
 			{
@@ -1450,7 +1473,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 
 	// Fill in zero_acc
 	// -- set to force/torque on the base, zero otherwise
-	if (IsBaseStaticOrKinematic())
+	if (isBaseStaticOrKinematic())
 	{
 		zeroAccSpatFrc[0].setZero();
 	}
@@ -1469,7 +1492,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	// (part of TreeForwardDynamics in Mirtich.)
 	for (int i = num_links - 1; i >= 0; --i)
 	{
-		if(IsLinkStaticOrKinematic(i))
+		if(isLinkStaticOrKinematic(i))
 			continue;
 		const int parent = m_links[i].m_parent;
 		fromParent.m_rotMat = rot_from_parent[i + 1];
@@ -1514,7 +1537,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	// Second 'upward' loop
 	// (part of TreeForwardDynamics in Mirtich)
 
-	if (m_base_dynamic_type != DYNAMIC_OBJECT)
+	if (isBaseStaticOrKinematic())
 	{
 		spatAcc[0].setZero();
 	}
@@ -1527,7 +1550,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	// now do the loop over the m_links
 	for (int i = 0; i < num_links; ++i)
 	{
-		if(IsLinkStaticOrKinematic(i))
+		if(isLinkStaticOrKinematic(i))
 			continue;
 		const int parent = m_links[i].m_parent;
 		fromParent.m_rotMat = rot_from_parent[i + 1];

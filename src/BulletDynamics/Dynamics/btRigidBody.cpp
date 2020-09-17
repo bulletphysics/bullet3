@@ -236,8 +236,12 @@ void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia, ObjectDy
 		m_collisionFlags &= (~btCollisionObject::CF_STATIC_OBJECT);
 		m_inverseMass = btScalar(1.0) / mass;
 	}
-	// If object is explicitly specified, as static or kinematic, the mass information is kept, and we set the collision flags.
-	m_collisionFlags |= object_dynamic_type;
+	// If object is explicitly specified as static or kinematic, the mass information is kept, and we set the collision flags.
+	if(object_dynamic_type == STATIC_OBJECT || object_dynamic_type == KINEMATIC_OBJECT) 
+	{
+		m_collisionFlags &= ~(STATIC_OBJECT | KINEMATIC_OBJECT);
+		m_collisionFlags |= object_dynamic_type;
+	}
 
 	//Fg = m * a
 	m_gravity = mass * m_gravity_acceleration;
@@ -247,6 +251,15 @@ void btRigidBody::setMassProps(btScalar mass, const btVector3& inertia, ObjectDy
 							   inertia.z() != btScalar(0.0) ? btScalar(1.0) / inertia.z() : btScalar(0.0));
 
 	m_invMass = m_linearFactor * m_inverseMass;
+}
+
+void btRigidBody::setDynamicType(ObjectDynamicTypes object_dynamic_type)
+{
+	// If mass is zero, the object cannot be set to be dynamic.
+	if (m_inverseMass == btScalar(0.) && object_dynamic_type == DYNAMIC_OBJECT)
+		return;
+	m_collisionFlags &= ~(STATIC_OBJECT | KINEMATIC_OBJECT);
+	m_collisionFlags |= object_dynamic_type;
 }
 
 void btRigidBody::updateInertiaTensor()

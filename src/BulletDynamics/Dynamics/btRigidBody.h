@@ -254,6 +254,8 @@ public:
 
 	void setMassProps(btScalar mass, const btVector3& inertia, ObjectDynamicTypes object_dynamic_type);
 
+	void setDynamicType(ObjectDynamicTypes object_dynamic_type);
+
 	const btVector3& getLinearFactor() const
 	{
 		return m_linearFactor;

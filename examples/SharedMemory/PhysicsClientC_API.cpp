@@ -3219,6 +3219,17 @@ B3_SHARED_API int b3ChangeDynamicsInfoSetJointLimitForce(b3SharedMemoryCommandHa
 	return 0;
 }
 
+B3_SHARED_API int b3ChangeDynamicsInfoSetDynamicType(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, int dynamicType)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	b3Assert(dynamicType == eDynamic || dynamicType == eStatic || dynamicType == eKinematic);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_dynamicType = dynamicType;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE;
+	return 0;
+}
 
 
 

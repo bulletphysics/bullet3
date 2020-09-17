@@ -173,6 +173,7 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_COLLISION_MARGIN = 1 << 17,
 	CHANGE_DYNAMICS_INFO_SET_JOINT_LIMITS = 1 << 18,
 	CHANGE_DYNAMICS_INFO_SET_JOINT_LIMIT_MAX_FORCE = 1 << 19,
+	CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE = 1 << 20,
 };
 
 struct ChangeDynamicsInfoArgs
@@ -202,6 +203,8 @@ struct ChangeDynamicsInfoArgs
 	double m_jointLowerLimit;
 	double m_jointUpperLimit;
 	double m_jointLimitForce;
+	
+	int m_dynamicType;
 };
 
 struct GetDynamicsInfoArgs
