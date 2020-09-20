@@ -20,7 +20,7 @@ struct UrdfRenderingInterface
 
 	virtual int registerShapeAndInstance(const struct b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex)=0;
 
-	virtual void updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices) = 0;
+	virtual void updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices, const btVector3* normals, int numNormals) = 0;
 
 	///remove a visual shapes, based on the shape unique id (shapeUid)
 	virtual void removeVisualShape(int collisionObjectUid) = 0;

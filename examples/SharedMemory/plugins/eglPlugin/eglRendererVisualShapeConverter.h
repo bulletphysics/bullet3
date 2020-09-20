@@ -19,7 +19,7 @@ struct EGLRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual int registerShapeAndInstance(const b3VisualShapeData& visualShape, const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType, int textureId, int orgGraphicsUniqueId, int bodyUniqueId, int linkIndex);
 
-	virtual void updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices);
+	virtual void updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices, const btVector3* normals, int numNormals);
 
 	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4]);
 

@@ -2590,6 +2590,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 				bodyUniqueId, 
 				fileIO);
 
+			colObj->getCollisionShape()->setUserIndex2(visualShapeUniqueid);
 			colObj->setUserIndex3(visualShapeUniqueid);
 		}
 	}
@@ -4109,7 +4110,8 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 					for (int i = 0; i < m_data->m_dynamicsWorld->getNumCollisionObjects(); i++)
 					{
 						const btCollisionObject* colObj = m_data->m_dynamicsWorld->getCollisionObjectArray()[i];
-						m_data->m_pluginManager.getRenderInterface()->syncTransform(colObj->getUserIndex3(), colObj->getWorldTransform(), colObj->getCollisionShape()->getLocalScaling());
+						btVector3 localScaling(1, 1, 1);
+						m_data->m_pluginManager.getRenderInterface()->syncTransform(colObj->getUserIndex3(), colObj->getWorldTransform(), localScaling);
 
 						const btCollisionShape* collisionShape = colObj->getCollisionShape();
 						if (collisionShape->getShapeType() == SOFTBODY_SHAPE_PROXYTYPE)
@@ -4120,10 +4122,12 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 							{
 
 								btAlignedObjectArray<btVector3> vertices;
+								btAlignedObjectArray<btVector3> normals;
 								if (psb->m_renderNodes.size() == 0)
 								{
 
 									vertices.resize(psb->m_faces.size() * 3);
+									normals.resize(psb->m_faces.size() * 3);
 
 									for (int i = 0; i < psb->m_faces.size(); i++)  // Foreach face
 									{
@@ -4131,6 +4135,7 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 										{
 											int currentIndex = i * 3 + k;
 											vertices[currentIndex] = psb->m_faces[i].m_n[k]->m_x;
+											normals[currentIndex] = psb->m_faces[i].m_n[k]->m_n;
 										}
 									}
 								}
@@ -4143,7 +4148,7 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 										vertices[i] = psb->m_renderNodes[i].m_x;
 									}
 								}
-								m_data->m_pluginManager.getRenderInterface()->updateShape(psb->getUserIndex3(), &vertices[0], vertices.size());
+								m_data->m_pluginManager.getRenderInterface()->updateShape(psb->getUserIndex3(), &vertices[0], vertices.size(), &normals[0],normals.size());
 							}
 #endif //SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 						}
@@ -4695,8 +4700,11 @@ class MyTriangleCollector4 : public btTriangleCallback
 public:
 	btAlignedObjectArray<GLInstanceVertex>* m_pVerticesOut;
 	btAlignedObjectArray<int>* m_pIndicesOut;
+	btVector3 m_aabbMin, m_aabbMax;
+	btScalar m_textureScaling;
 
-	MyTriangleCollector4()
+	MyTriangleCollector4(const btVector3& aabbMin, const btVector3& aabbMax)
+		:m_aabbMin(aabbMin), m_aabbMax(aabbMax), m_textureScaling(1)
 	{
 		m_pVerticesOut = 0;
 		m_pIndicesOut = 0;
@@ -4708,7 +4716,7 @@ public:
 		{
 			GLInstanceVertex v;
 			v.xyzw[3] = 0;
-			v.uv[0] = v.uv[1] = 0.5f;
+
 			btVector3 normal = (tris[0] - tris[1]).cross(tris[0] - tris[2]);
 			normal.safeNormalize();
 			for (int l = 0; l < 3; l++)
@@ -4716,12 +4724,17 @@ public:
 				v.xyzw[l] = tris[k][l];
 				v.normal[l] = normal[l];
 			}
+
+			btVector3 extents = m_aabbMax - m_aabbMin;
+
+			v.uv[0] = (1. - ((v.xyzw[0] - m_aabbMin[0]) / (m_aabbMax[0] - m_aabbMin[0]))) * m_textureScaling;
+			v.uv[1] = (1. - (v.xyzw[1] - m_aabbMin[1]) / (m_aabbMax[1] - m_aabbMin[1])) * m_textureScaling;
+
 			m_pIndicesOut->push_back(m_pVerticesOut->size());
 			m_pVerticesOut->push_back(v);
 		}
 	}
 };
-
 bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -4886,20 +4899,33 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 							btAlignedObjectArray<int> indices;
 							int strideInBytes = 9 * sizeof(float);
 
-							MyTriangleCollector4 col;
+							btVector3 aabbMin, aabbMax;
+							btTransform tr;
+							tr.setIdentity();
+							terrainShape->getAabb(tr, aabbMin, aabbMax);
+							MyTriangleCollector4 col(aabbMin, aabbMax);
 							col.m_pVerticesOut = &gfxVertices;
 							col.m_pIndicesOut = &indices;
-							btVector3 aabbMin, aabbMax;
-							for (int k = 0; k < 3; k++)
-							{
-								aabbMin[k] = -BT_LARGE_FLOAT;
-								aabbMax[k] = BT_LARGE_FLOAT;
-							}
+							
 							terrainShape->processAllTriangles(&col, aabbMin, aabbMax);
 							if (gfxVertices.size() && indices.size())
 							{
-								m_data->m_guiHelper->updateShape(terrainShape->getUserIndex(), &gfxVertices[0].xyzw[0]);
+								m_data->m_guiHelper->updateShape(terrainShape->getUserIndex(), &gfxVertices[0].xyzw[0], gfxVertices.size());
 							}
+
+							btAlignedObjectArray<btVector3> vts;
+							btAlignedObjectArray<btVector3> normals;
+							vts.resize(gfxVertices.size());
+							normals.resize(gfxVertices.size());
+
+							for (int v = 0; v < gfxVertices.size(); v++)
+							{
+								vts[v].setValue(gfxVertices[v].xyzw[0], gfxVertices[v].xyzw[1], gfxVertices[v].xyzw[2]);
+								normals[v].setValue(gfxVertices[v].normal[0], gfxVertices[v].normal[1], gfxVertices[v].normal[2]);
+							}
+
+							m_data->m_pluginManager.getRenderInterface()->updateShape(terrainShape->getUserIndex2(), &vts[0], vts.size(), &normals[0], normals.size());
+
 
 							terrainShape->clearAccelerator();
 							terrainShape->buildAccelerator();
@@ -4915,6 +4941,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 							}
 							serverStatusOut.m_createUserShapeResultArgs.m_userShapeUniqueId = collisionShapeUid;
 							delete worldImporter;
+							
 							serverStatusOut.m_type = CMD_CREATE_COLLISION_SHAPE_COMPLETED;
 						}
 
@@ -4940,8 +4967,8 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 																									minHeight, maxHeight,
 																									upAxis, scalarType, flipQuadEdges);
 						m_data->m_collisionShapes.push_back(heightfieldShape);
-
-						heightfieldShape->setUserValue3(clientCmd.m_createUserShapeArgs.m_shapes[i].m_heightfieldTextureScaling);
+						double textureScaling = clientCmd.m_createUserShapeArgs.m_shapes[i].m_heightfieldTextureScaling;
+						heightfieldShape->setUserValue3(textureScaling);
 						shape = heightfieldShape;
 						if (upAxis == 2)
 							heightfieldShape->setFlipTriangleWinding(true);
@@ -4961,6 +4988,43 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 							btGenerateInternalEdgeInfo(heightfieldShape, triangleInfoMap);
 						}
 						this->m_data->m_heightfieldDatas.push_back(heightfieldData);
+
+
+						btAlignedObjectArray<GLInstanceVertex> gfxVertices;
+						btAlignedObjectArray<int> indices;
+						int strideInBytes = 9 * sizeof(float);
+
+						btTransform tr;
+						tr.setIdentity();
+						btVector3 aabbMin, aabbMax;
+						heightfieldShape->getAabb(tr, aabbMin, aabbMax);
+
+						MyTriangleCollector4 col(aabbMin, aabbMax);
+						col.m_pVerticesOut = &gfxVertices;
+						col.m_pIndicesOut = &indices;
+						
+
+						heightfieldShape->processAllTriangles(&col, aabbMin, aabbMax);
+						if (gfxVertices.size() && indices.size())
+						{
+
+							urdfColObj.m_geometry.m_type = URDF_GEOM_HEIGHTFIELD;
+							urdfColObj.m_geometry.m_meshFileType = UrdfGeometry::MEMORY_VERTICES;
+							urdfColObj.m_geometry.m_normals.resize(gfxVertices.size());
+							urdfColObj.m_geometry.m_vertices.resize(gfxVertices.size());
+							urdfColObj.m_geometry.m_uvs.resize(gfxVertices.size());
+							for (int v = 0; v < gfxVertices.size(); v++)
+							{
+								urdfColObj.m_geometry.m_vertices[v].setValue(gfxVertices[v].xyzw[0], gfxVertices[v].xyzw[1], gfxVertices[v].xyzw[2]);
+								urdfColObj.m_geometry.m_uvs[v].setValue(gfxVertices[v].uv[0], gfxVertices[v].uv[1], 0);
+								urdfColObj.m_geometry.m_normals[v].setValue(gfxVertices[v].normal[0], gfxVertices[v].normal[1], gfxVertices[v].normal[2]);
+							}
+							urdfColObj.m_geometry.m_indices.resize(indices.size());
+							for (int ii = 0; ii < indices.size(); ii++)
+							{
+								urdfColObj.m_geometry.m_indices[ii] = indices[ii];
+							}
+						}
 					}
 				}
 				break;
@@ -8998,10 +9062,13 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 
 
 		btAlignedObjectArray<btVector3> vertices;
+		btAlignedObjectArray<btVector3> normals;
 		if (psb->m_renderNodes.size() == 0)
 		{
 			psb->m_renderNodes.resize(psb->m_faces.size()*3);
 			vertices.resize(psb->m_faces.size() * 3);
+			normals.resize(psb->m_faces.size() * 3);
+
 			for (int i = 0; i < psb->m_faces.size(); i++)  // Foreach face
 			{
 				
@@ -9022,6 +9089,7 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 					}
 					psb->m_renderNodes[currentIndex].m_uv1[2] = 0;
 					vertices[currentIndex] = psb->m_faces[i].m_n[k]->m_x;
+					normals[currentIndex] = psb->m_faces[i].m_n[k]->m_n;
 				}
 			}
 			btSoftBodyHelpers::extrapolateBarycentricWeights(psb);
@@ -9029,12 +9097,14 @@ bool PhysicsServerCommandProcessor::processDeformable(const UrdfDeformable& defo
 		else
 		{
 			vertices.resize(psb->m_renderNodes.size());
+			normals.resize(psb->m_renderNodes.size());
 			for (int i = 0; i < psb->m_renderNodes.size(); i++)  // Foreach face
 			{
 				vertices[i] = psb->m_renderNodes[i].m_x;
+				normals[i] = psb->m_renderNodes[i].m_normal;
 			}
 		}
-		m_data->m_pluginManager.getRenderInterface()->updateShape(psb->getUserIndex3(), &vertices[0], vertices.size());
+		m_data->m_pluginManager.getRenderInterface()->updateShape(psb->getUserIndex3(), &vertices[0], vertices.size(), &normals[0], normals.size());
 
 		if (!deformable.m_name.empty())
 		{
