@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cstdlib>
 
 #include "OpenGLInclude.h"
 
@@ -114,17 +115,40 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 		exit(EXIT_FAILURE);
 	};
 
-	// Query EGL Devices
-	const int max_devices = 32;
-	EGLDeviceEXT egl_devices[max_devices];
-	EGLint num_devices = 0;
-	EGLint egl_error = eglGetError();
-	if (!eglQueryDevicesEXT(max_devices, egl_devices, &num_devices) ||
-		egl_error != EGL_SUCCESS)
-	{
-		printf("eglQueryDevicesEXT Failed.\n");
-		m_data->egl_display = EGL_NO_DISPLAY;
-	}
+        // Query EGL Devices
+        const int max_devices = 32;
+        EGLDeviceEXT egl_devices[max_devices];
+        EGLint num_devices = 0;
+        EGLint egl_error = eglGetError();
+        if (!eglQueryDevicesEXT(max_devices, egl_devices, &num_devices) ||
+            egl_error != EGL_SUCCESS)
+        {
+                printf("eglQueryDevicesEXT Failed.\n");
+                m_data->egl_display = EGL_NO_DISPLAY;
+        } else
+        {
+                // default case, should always happen (for future compatibility)
+                if (m_data->m_renderDevice == -1)
+                {
+                        // check env variable
+                        const char* env_p = std::getenv("EGL_VISIBLE_DEVICE");
+
+                        // variable is set
+                        if(env_p != NULL)
+                        {
+                                m_data->m_renderDevice = std::atoi(env_p);
+                                fprintf(stderr, "EGL device choice: %d of %d (from EGL_VISIBLE_DEVICE)\n", m_data->m_renderDevice, num_devices);
+
+            } else {
+                fprintf(stderr, "EGL device choice: %d of %d.\n", m_data->m_renderDevice, num_devices);
+            } // else leave with -1
+
+                } else
+                {
+                        fprintf(stderr, "EGL device choice: %d of %d.\n", m_data->m_renderDevice, num_devices);
+                }
+        }
+
 	// Query EGL Screens
 	if (m_data->m_renderDevice == -1)
 	{
@@ -225,13 +249,20 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 		exit(EXIT_FAILURE);
 	}
 
-	m_data->egl_context = eglCreateContext(
-		m_data->egl_display, m_data->egl_config, EGL_NO_CONTEXT, NULL);
-	if (!m_data->egl_context)
-	{
-		fprintf(stderr, "Unable to create EGL context (eglError: %d)\n", eglGetError());
-		exit(EXIT_FAILURE);
-	}
+        EGLint requestedMajor = 3;
+        EGLint requestedMinor = 3;
+        EGLint contextAttribList[] = {EGL_CONTEXT_MAJOR_VERSION,
+                                      requestedMajor,
+                                      EGL_CONTEXT_MINOR_VERSION,
+                                      requestedMinor,
+                                      EGL_NONE};
+        m_data->egl_context = eglCreateContext(
+            m_data->egl_display, m_data->egl_config, EGL_NO_CONTEXT, contextAttribList);
+        if (!m_data->egl_context)
+        {
+                fprintf(stderr, "Unable to create EGL context (eglError: %d)\n", eglGetError());
+                exit(EXIT_FAILURE);
+        }
 
 	m_data->success =
 		eglMakeCurrent(m_data->egl_display, m_data->egl_surface, m_data->egl_surface,

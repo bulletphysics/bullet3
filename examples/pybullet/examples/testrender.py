@@ -19,7 +19,7 @@ pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
 
 #pybullet.loadPlugin("eglRendererPlugin")
 pybullet.loadURDF("plane.urdf", [0, 0, -1])
-pybullet.loadURDF("r2d2.urdf")
+r2d2 = pybullet.loadURDF("r2d2.urdf")
 
 pybullet.setGravity(0, 0, -10)
 camTargetPos = [0, 0, 0]
@@ -78,6 +78,8 @@ while (1):
     #plt.show()
     plt.pause(0.01)
 
+  pybullet.removeBody(r2d2)
+  r2d2 = pybullet.loadURDF("r2d2.urdf")
 main_stop = time.time()
 
 print("Total time %f" % (main_stop - main_start))
