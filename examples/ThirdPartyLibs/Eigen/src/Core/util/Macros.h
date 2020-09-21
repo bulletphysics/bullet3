@@ -35,7 +35,6 @@
   #define EIGEN_COMP_CLANG 0
 #endif
 
-
 /// \internal EIGEN_COMP_LLVM set to 1 if the compiler backend is llvm
 #if defined(__llvm__)
   #define EIGEN_COMP_LLVM 1
@@ -108,16 +107,29 @@
   #define EIGEN_COMP_ARM 0
 #endif
 
-/// \internal EIGEN_COMP_ARM set to 1 if the compiler is ARM Compiler
+/// \internal EIGEN_COMP_EMSCRIPTEN set to 1 if the compiler is Emscripten Compiler
 #if defined(__EMSCRIPTEN__)
   #define EIGEN_COMP_EMSCRIPTEN 1
 #else
   #define EIGEN_COMP_EMSCRIPTEN 0
 #endif
 
+/// \internal EIGEN_COMP_LCC set to 1 if the compiler is LCC (Local (or Little) C Compiler)
+#if defined(__LCC__) && !(defined(__e2k__))
+  #define EIGEN_COMP_LCC 1
+#else
+  #define EIGEN_COMP_LCC 0
+#endif
+
+/// \internal EIGEN_COMP_LCC_E2K set to 1 if the compiler is LCC (MCST eLbrus C Compiler)
+#if defined(__LCC__) && defined(__e2k__)
+  #define EIGEN_COMP_LCC_E2K 1
+#else
+  #define EIGEN_COMP_LCC_E2K 0
+#endif
 
 /// \internal EIGEN_GNUC_STRICT set to 1 if the compiler is really GCC and not a compatible compiler (e.g., ICC, clang, mingw, etc.)
-#if EIGEN_COMP_GNUC && !(EIGEN_COMP_CLANG || EIGEN_COMP_ICC || EIGEN_COMP_MINGW || EIGEN_COMP_PGI || EIGEN_COMP_IBM || EIGEN_COMP_ARM || EIGEN_COMP_EMSCRIPTEN)
+#if EIGEN_COMP_GNUC && !(EIGEN_COMP_CLANG || EIGEN_COMP_ICC || EIGEN_COMP_MINGW || EIGEN_COMP_PGI || EIGEN_COMP_IBM || EIGEN_COMP_ARM || EIGEN_COMP_EMSCRIPTEN || EIGEN_COMP_LCC || EIGEN_COMP_LCC_E2K)
   #define EIGEN_COMP_GNUC_STRICT 1
 #else
   #define EIGEN_COMP_GNUC_STRICT 0
@@ -210,6 +222,12 @@
   #define EIGEN_ARCH_PPC 0
 #endif
 
+/// \internal EIGEN_ARCH_E2K set to 1 if the architecture is E2K (MCST Elbrus 2000)
+#if defined(__e2k__)
+  #define EIGEN_ARCH_E2K 1
+#else
+  #define EIGEN_ARCH_E2K 0
+#endif
 
 
 // Operating system identification, EIGEN_OS_*
@@ -312,7 +330,6 @@
 #else
   #define EIGEN_OS_SOLARIS 0
 #endif
-
 
 
 #if EIGEN_GNUC_AT_MOST(4,3) && !EIGEN_COMP_CLANG
@@ -736,7 +753,7 @@ namespace Eigen {
   // certain common platform (compiler+architecture combinations) to avoid these problems.
   // Only static alignment is really problematic (relies on nonstandard compiler extensions),
   // try to keep heap alignment even when we have to disable static alignment.
-  #if EIGEN_COMP_GNUC && !(EIGEN_ARCH_i386_OR_x86_64 || EIGEN_ARCH_ARM_OR_ARM64 || EIGEN_ARCH_PPC || EIGEN_ARCH_IA64)
+  #if EIGEN_COMP_GNUC && !(EIGEN_ARCH_i386_OR_x86_64 || EIGEN_ARCH_ARM_OR_ARM64 || EIGEN_ARCH_PPC || EIGEN_ARCH_IA64 || EIGEN_ARCH_E2K)
   #define EIGEN_GCC_AND_ARCH_DOESNT_WANT_STACK_ALIGNMENT 1
   #elif EIGEN_ARCH_ARM_OR_ARM64 && EIGEN_COMP_GNUC_STRICT && EIGEN_GNUC_AT_MOST(4, 6)
   // Old versions of GCC on ARM, at least 4.4, were once seen to have buggy static alignment support.
