@@ -169,7 +169,7 @@ project "App_BulletExampleBrowser"
 		"../Collision/*",
 		"../RoboticsLearning/*",
 		"../Collision/Internal/*",
-		"../Benchmarks/*",
+		"../Benchmarks/BenchmarkDemo.cpp",
 		"../MultiThreadedDemo/*",
 		"../Heightfield/HeightfieldExample.*",
 		"../CommonInterfaces/*.h",
