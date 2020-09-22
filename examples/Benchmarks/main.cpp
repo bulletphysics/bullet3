@@ -162,7 +162,7 @@ int main(int argc, char** argv)
 
 	for (auto& b : BENCHMARKS)
 	{
-		benchmark::RegisterBenchmark(b.name, run, b.id, start, steps)->Unit(benchmark::kMillisecond);
+		benchmark::RegisterBenchmark(b.name, &run, b.id, start, steps)->Unit(benchmark::kMillisecond);
 	}
 	benchmark::Initialize(&argc, argv);
 	benchmark::RunSpecifiedBenchmarks();
