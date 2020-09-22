@@ -560,7 +560,41 @@ static void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPa
 		}
 		break;
 	}  // case mesh
+	case URDF_GEOM_HEIGHTFIELD:
+	{
+		glmesh = new GLInstanceGraphicsShape;
+		glmesh->m_scaling[0] = 1;
+		glmesh->m_scaling[1] = 1;
+		glmesh->m_scaling[2] = 1;
+		glmesh->m_scaling[3] = 1;
+		//		int index = 0;
+		glmesh->m_indices = new b3AlignedObjectArray<int>();
+		glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+		glmesh->m_indices->reserve(visual->m_geometry.m_indices.size());
+		for (int i = 0; i < visual->m_geometry.m_indices.size(); i++)
+		{
+			glmesh->m_indices->push_back(visual->m_geometry.m_indices[i]);
+		}
+		glmesh->m_vertices->reserve(visual->m_geometry.m_vertices.size());
+		for (int v = 0; v < visual->m_geometry.m_vertices.size(); v++)
+		{
+			GLInstanceVertex vtx;
+			vtx.xyzw[0] = visual->m_geometry.m_vertices[v].x();
+			vtx.xyzw[1] = visual->m_geometry.m_vertices[v].y();
+			vtx.xyzw[2] = visual->m_geometry.m_vertices[v].z();
+			vtx.xyzw[3] = 1;
+			vtx.uv[0] = visual->m_geometry.m_uvs[v].x();
+			vtx.uv[1] = visual->m_geometry.m_uvs[v].y();
+			vtx.normal[0] = visual->m_geometry.m_normals[v].x();
+			vtx.normal[1] = visual->m_geometry.m_normals[v].y();
+			vtx.normal[2] = visual->m_geometry.m_normals[v].z();
+			glmesh->m_vertices->push_back(vtx);
+		}
 
+		glmesh->m_numIndices = glmesh->m_indices->size();
+		glmesh->m_numvertices = glmesh->m_vertices->size();
+		break;
+	}
 	case URDF_GEOM_PLANE:
 	{
 		glmesh = new GLInstanceGraphicsShape;
@@ -837,7 +871,7 @@ int  TinyRendererVisualShapeConverter::convertVisualShapes(
 			{
 				B3_PROFILE("convertURDFToVisualShape");
 				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse() * childTrans, vertices, indices, textures, visualShape, fileIO, m_data->m_flags);
-				if (vis->m_geometry.m_type == URDF_GEOM_PLANE)
+				if ((vis->m_geometry.m_type == URDF_GEOM_PLANE) || (vis->m_geometry.m_type == URDF_GEOM_HEIGHTFIELD))
 				{
 					int texWidth = 1024;
 					int texHeight = 1024;
@@ -979,7 +1013,7 @@ int TinyRendererVisualShapeConverter::registerShapeAndInstance( const b3VisualSh
 	return orgGraphicsUniqueId;
 }
 
-void TinyRendererVisualShapeConverter::updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices)
+void TinyRendererVisualShapeConverter::updateShape(int shapeUniqueId, const btVector3* vertices, int numVertices, const btVector3* normals, int numNormals)
 {
 	TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[shapeUniqueId];
 	if (visualsPtr != 0)
@@ -996,9 +1030,21 @@ void TinyRendererVisualShapeConverter::updateShape(int shapeUniqueId, const btVe
 				//just do a sync
 				for (int i = 0; i < numVertices; i++)
 				{
-					verts[i].x = vertices[i][0];
-					verts[i].y = vertices[i][1];
-					verts[i].z = vertices[i][2];
+					const btVector3& vtx = vertices[i];
+					verts[i].x = vtx.x();
+					verts[i].y = vtx.y();
+					verts[i].z = vtx.z();
+				}
+				if (renderObj->m_model->nnormals() == numNormals)
+				{
+					TinyRender::Vec3f* norms = renderObj->m_model->readWriteNormals();
+					for (int i = 0; i < numNormals; i++)
+					{
+						const btVector3& normal = normals[i];
+						norms[i].x = normal.x();
+						norms[i].y = normal.y();
+						norms[i].z = normal.z();
+					}
 				}
 			}
 		}

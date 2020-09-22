@@ -515,23 +515,26 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, in
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
-	int srcIndex = pg->m_internalInstanceIndex;
-
-	int shapeIndex = pg->m_shapeIndex;
-	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
-	if (color[3] < 1)
+	if (pg)
 	{
-		gfxObj->m_flags |= B3_INSTANCE_TRANSPARANCY;
-	}
-	else
-	{
-		gfxObj->m_flags &= ~B3_INSTANCE_TRANSPARANCY;
-	}
+		int srcIndex = pg->m_internalInstanceIndex;
 
-	m_data->m_instance_colors_ptr[srcIndex * 4 + 0] = float(color[0]);
-	m_data->m_instance_colors_ptr[srcIndex * 4 + 1] = float(color[1]);
-	m_data->m_instance_colors_ptr[srcIndex * 4 + 2] = float(color[2]);
-	m_data->m_instance_colors_ptr[srcIndex * 4 + 3] = float(color[3]);
+		int shapeIndex = pg->m_shapeIndex;
+		b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
+		if (color[3] < 1)
+		{
+			gfxObj->m_flags |= B3_INSTANCE_TRANSPARANCY;
+		}
+		else
+		{
+			gfxObj->m_flags &= ~B3_INSTANCE_TRANSPARANCY;
+		}
+
+		m_data->m_instance_colors_ptr[srcIndex * 4 + 0] = float(color[0]);
+		m_data->m_instance_colors_ptr[srcIndex * 4 + 1] = float(color[1]);
+		m_data->m_instance_colors_ptr[srcIndex * 4 + 2] = float(color[2]);
+		m_data->m_instance_colors_ptr[srcIndex * 4 + 3] = float(color[3]);
+	}
 }
 
 void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int srcIndex2)

@@ -898,12 +898,12 @@ public:
 
 	int m_updateShapeIndex;
 	float* m_updateShapeVertices;
-
-	virtual void updateShape(int shapeIndex, float* vertices)
+	int m_updateNumShapeVertices;
+	virtual void updateShape(int shapeIndex, float* vertices, int numVertices)
 	{
 		m_updateShapeIndex = shapeIndex;
 		m_updateShapeVertices = vertices;
-		
+		m_updateNumShapeVertices = numVertices;
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIHelperUpdateShape);
 		workerThreadWait();
@@ -2040,7 +2040,7 @@ void PhysicsServerExample::updateGraphics()
 		case eGUIHelperUpdateShape:
 		{
 			B3_PROFILE("eGUIHelperUpdateShape");
-			m_multiThreadedHelper->m_childGuiHelper->updateShape(m_multiThreadedHelper->m_updateShapeIndex, m_multiThreadedHelper->m_updateShapeVertices);
+			m_multiThreadedHelper->m_childGuiHelper->updateShape(m_multiThreadedHelper->m_updateShapeIndex, m_multiThreadedHelper->m_updateShapeVertices, m_multiThreadedHelper->m_updateNumShapeVertices);
 			m_multiThreadedHelper->mainThreadRelease();
 			break;
 		}
