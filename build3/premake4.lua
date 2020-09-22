@@ -259,6 +259,12 @@
 
 	newoption
 	{
+		trigger = "benchmarks",
+		description = "Build benchmarks"
+	}
+
+	newoption
+	{
 		trigger = "no-clsocket",
 		description = "Disable clsocket and clsocket tests (used for optional TCP networking in pybullet and shared memory C-API)"
 	}
@@ -599,6 +605,10 @@ end
 			include "../examples/InverseDynamics"
 			include "../examples/ExtendedTutorials"
 			include "../examples/MultiThreading"
+		end
+
+		if _OPTIONS["benchmarks"] then
+			include "../examples/Benchmarks"
 		end
 
 		if not _OPTIONS["no-test"] then
