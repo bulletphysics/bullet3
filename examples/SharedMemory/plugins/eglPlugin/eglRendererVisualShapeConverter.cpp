@@ -1292,8 +1292,6 @@ int EGLRendererVisualShapeConverter::convertVisualShapes(
 				double scaling[3] = { 1, 1, 1 };
 				int graphicsIndex = m_data->m_instancingRenderer->registerGraphicsInstance(shapeIndex, &visualShape.m_localVisualFrame[0], &visualShape.m_localVisualFrame[3], &visualShape.m_rgbaColor[0], scaling);
 				
-				visuals->graphicsIndex = graphicsIndex;  //used to index m_publicGraphicsInstances
-
 				int segmentationMask = bodyUniqueId + ((linkIndex + 1) << 24);
 				{
 					if (graphicsIndex >= 0)
