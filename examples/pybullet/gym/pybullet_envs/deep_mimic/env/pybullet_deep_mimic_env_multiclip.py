@@ -28,7 +28,7 @@ class PyBulletDeepMimicEnvMultiClip(Env):
         self._num_agents = 1
         self._pybullet_client = pybullet_client
         self._isInitialized = False
-        self._useStablePD = True
+        #self._useStablePD = True
         self._arg_parser = arg_parser
         self.timeStep = time_step
         self._init_strategy = init_strategy
@@ -64,7 +64,7 @@ class PyBulletDeepMimicEnvMultiClip(Env):
             print("motion_file=", motion_file[0])
 
             motionPath = pybullet_data.getDataPath() + "/" + motion_file[0]
-            # motionPath = pybullet_data.getDataPath()+"/motions/humanoid3d_backflip.txt"
+
             self._mocapData.Load(motionPath)
             self._n_clips = self._mocapData.getNumClips()
             timeStep = self.timeStep
@@ -76,22 +76,7 @@ class PyBulletDeepMimicEnvMultiClip(Env):
             self._pybullet_client.setTimeStep(timeStep)
             self._pybullet_client.setPhysicsEngineParameter(numSubSteps=1)
 
-            selfCheck = False
-            if (selfCheck):
-                curTime = 0
-                while self._pybullet_client.isConnected():
-                    self._humanoid.setSimTime(curTime)
-                    state = self._humanoid.getState()
-                    # print("state=",state)
-                    # pose = self._humanoid.computePose(self._humanoid._frameFraction)  this would need an id
-                    for i in range(10):
-                        curTime += timeStep
-                        # taus = self._humanoid.computePDForces(pose)
-                        # self._humanoid.applyPDForces(taus)
-                        # self._pybullet_client.stepSimulation()
-                    time.sleep(timeStep)
         # print("numframes = ", self._humanoid._mocap_data.NumFrames())
-        # startTime = random.randint(0,self._humanoid._mocap_data.NumFrames()-2)
 
         if self._init_strategy == InitializationStrategy.RANDOM:
             rnrange = 1000
@@ -106,7 +91,6 @@ class PyBulletDeepMimicEnvMultiClip(Env):
 
         self._humanoid.resetPose()
         # this clears the contact points. Todo: add API to explicitly clear all contact points?
-        # self._pybullet_client.stepSimulation()
         self._humanoid.resetPose()
         self.needs_update_time = self.t - 1  # force update
 
@@ -139,12 +123,6 @@ class PyBulletDeepMimicEnvMultiClip(Env):
         return 197
 
     def build_state_norm_groups(self, agent_id):
-        # if (mEnablePhaseInput)
-        # {
-        # int phase_group = gNormGroupNone;
-        # int phase_offset = GetStatePhaseOffset();
-        # int phase_size = GetStatePhaseSize();
-        # out_groups.segment(phase_offset, phase_size) = phase_group * Eigen::VectorXi::Ones(phase_size);
         groups = [0] * self.get_state_size(agent_id)
         groups[0] = -1
         return groups
@@ -179,7 +157,6 @@ class PyBulletDeepMimicEnvMultiClip(Env):
         return np.array([])
 
     def build_action_offset(self, agent_id):
-        out_offset = [0] * self.get_action_size(agent_id)
         out_offset = [
             0.0000000000, 0.0000000000, 0.0000000000, -0.200000000, 0.0000000000, 0.0000000000,
             0.0000000000, -0.200000000, 0.0000000000, 0.0000000000, 0.00000000, -0.2000000, 1.57000000,
@@ -193,7 +170,6 @@ class PyBulletDeepMimicEnvMultiClip(Env):
         return np.array(out_offset)
 
     def build_action_scale(self, agent_id):
-        out_scale = [1] * self.get_action_size(agent_id)
         # see cCtCtrlUtil::BuildOffsetScalePDPrismatic and
         # see cCtCtrlUtil::BuildOffsetScalePDSpherical
         out_scale = [
@@ -210,7 +186,6 @@ class PyBulletDeepMimicEnvMultiClip(Env):
 
     def build_action_bound_min(self, agent_id):
         # see cCtCtrlUtil::BuildBoundsPDSpherical
-        out_scale = [-1] * self.get_action_size(agent_id)
         out_scale = [
             -4.79999999999, -1.00000000000, -1.00000000000, -1.00000000000, -4.00000000000,
             -1.00000000000, -1.00000000000, -1.00000000000, -7.77999999999, -1.00000000000,
@@ -224,7 +199,6 @@ class PyBulletDeepMimicEnvMultiClip(Env):
         return out_scale
 
     def build_action_bound_max(self, agent_id):
-        out_scale = [1] * self.get_action_size(agent_id)
         out_scale = [
             4.799999999, 1.000000000, 1.000000000, 1.000000000, 4.000000000, 1.000000000, 1.000000000,
             1.000000000, 8.779999999, 1.000000000, 1.0000000, 1.0000000, 4.7100000, 6.2800000,
@@ -245,7 +219,6 @@ class PyBulletDeepMimicEnvMultiClip(Env):
 
     def record_state(self, agent_id):
         state = self._humanoid.getState()
-
         return np.array(state)
 
     def record_goal(self, agent_id):
@@ -263,8 +236,7 @@ class PyBulletDeepMimicEnvMultiClip(Env):
         # print("action=",)
         # for a in action:
         #  print(a)
-        # np.savetxt("pb_action.csv", action, delimiter=",")
-        self.desiredPose = {} # TODO: is this necessary???
+        self.desiredPose = {}
         for i in range(self._n_clips):
             self.desiredPose[i] = self._humanoid.convertActionToPose(action, i)
             # we need the target root positon and orientation to be zero, to be compatible with deep mimic
@@ -277,8 +249,6 @@ class PyBulletDeepMimicEnvMultiClip(Env):
             self.desiredPose[i][6] = 0
             target_pose = np.array(self.desiredPose[i])
 
-        # np.savetxt("pb_target_pose.csv", target_pose, delimiter=",")
-
         # print("set_action: desiredPose=", self.desiredPose)
 
     def log_val(self, agent_id, val):
@@ -290,40 +260,25 @@ class PyBulletDeepMimicEnvMultiClip(Env):
         self._humanoid._timeStep = timeStep
         self.timeStep = timeStep
 
-        for j in range(1):
-            self.t += timeStep
-            self._humanoid.setSimTime(self.t)
+        self.t += timeStep
+        self._humanoid.setSimTime(self.t)
 
-            if self.desiredPose:
-                for i in range(self._n_clips):
-                    kinPose = self._humanoid.computePose(self._humanoid._frameFraction, i)
-                    self._humanoid.initializePose(self._humanoid._poseInterpolators[i],
-                                                  self._humanoid._kin_models[i],
-                                                  initBase=True)
-                # pos,orn=self._pybullet_client.getBasePositionAndOrientation(self._humanoid._sim_model)
-                # self._pybullet_client.resetBasePositionAndOrientation(self._humanoid._kin_model, [pos[0]+3,pos[1],pos[2]],orn)
-                # print("desiredPositions=",self.desiredPose[i])
-                maxForces = [
-                    0, 0, 0, 0, 0, 0, 0, 200, 200, 200, 200, 50, 50, 50, 50, 200, 200, 200, 200, 150, 90,
-                    90, 90, 90, 100, 100, 100, 100, 60, 200, 200, 200, 200, 150, 90, 90, 90, 90, 100, 100,
-                    100, 100, 60
-                ]
+        if self.desiredPose:
+            for i in range(self._n_clips):
+                kinPose = self._humanoid.computePose(self._humanoid._frameFraction, i)
+                self._humanoid.initializePose(self._humanoid._poseInterpolators[i],
+                                              self._humanoid._kin_models[i],
+                                              initBase=True)
+            # print("desiredPositions=",self.desiredPose[i])
+            maxForces = [
+                0, 0, 0, 0, 0, 0, 0, 200, 200, 200, 200, 50, 50, 50, 50, 200, 200, 200, 200, 150, 90,
+                90, 90, 90, 100, 100, 100, 100, 60, 200, 200, 200, 200, 150, 90, 90, 90, 90, 100, 100,
+                100, 100, 60
+            ]
 
-                if self._useStablePD:
-                    usePythonStablePD = False
-                    if usePythonStablePD:
-                        taus = self._humanoid.computePDForces(self.desiredPose[0], # TODO: check if correct
-                                                              desiredVelocities=None,
-                                                              maxForces=maxForces)
-                        # taus = [0]*43
-                        self._humanoid.applyPDForces(taus)
-                    else:
-                        self._humanoid.computeAndApplyPDForces(self.desiredPose[0],
-                                                               maxForces=maxForces)
-                else:
-                    self._humanoid.setJointMotors(self.desiredPose[0], maxForces=maxForces, i=0)
+            self._humanoid.computeAndApplyPDForces(self.desiredPose[0], maxForces=maxForces) # TODO check if this should be inside the for loop
 
-                self._pybullet_client.stepSimulation()
+            self._pybullet_client.stepSimulation()
 
     def set_sample_count(self, count):
         return

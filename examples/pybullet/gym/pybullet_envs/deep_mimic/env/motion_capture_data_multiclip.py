@@ -26,6 +26,7 @@ class MotionCaptureDataMultiClip(object):
             files = [path]
         else:
             files = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
+            files.sort()
         for i in range(len(files)):
             with open(files[i], 'r') as f:
                 self._names.append(files[i].split('/')[-1])
@@ -34,14 +35,19 @@ class MotionCaptureDataMultiClip(object):
                 self._num_frames_min = min(t, self._num_frames_min)
                 self._num_frames_max = max(t, self._num_frames_max)
         self._num_clips = len(self._motion_data)
-        downsample = False
-        if downsample:
+        self._downsample = True
+        if self._downsample:
             self.downsampleClips()
+            self._num_frames_max = self._num_frames_min
         else:
             self.upsampleClips()
+            self._num_frames_min = self._num_frames_max
 
     def getNumFrames(self):
-        return self._num_frames_min
+        if self._downsample:
+            return self._num_frames_min
+        else:
+            return self._num_frames_max
 
     def getKeyFrameDuration(self, id=0):
         return self._motion_data[id]['Frames'][0][0]
@@ -87,7 +93,7 @@ class MotionCaptureDataMultiClip(object):
     def upsampleClips(self):
         print("Max number of frames: ", self._num_frames_max)
         for i in range(self._num_clips):
-            print("Uspsampling clip number: ", i)
+            #print("Uspsampling clip number: ", i)
             keyframe_duration = self.getKeyFrameDuration(i)
             old_times = np.arange(0, len(self._motion_data[i]['Frames']) * keyframe_duration, keyframe_duration)
             while len(old_times) < self._num_frames_max:
@@ -98,24 +104,23 @@ class MotionCaptureDataMultiClip(object):
             #s = json.dumps(self._motion_data[i])
             #with open("output/{}".format(self._names[i]), 'w') as f:
             #    f.writelines(s)
-        self._num_frames_min = self._num_frames_max
 
 
     def slerpSingleClip(self, clip, key_times):
-        print("Number of initial frames: ", len(key_times))
-        dict_clip = self.extractQuaternions(clip)
-        dict_clip = np.asarray(dict_clip)
-        t = dict_clip[:, 0]
-        root_pos = dict_clip[:, 1]
-        key_rots = dict_clip[:, 2]
+        #print("Number of initial frames: ", len(key_times))
+        org_clip = self.quatlist_to_quatlists(clip)
+        org_clip = np.asarray(org_clip)
+        t = org_clip[:, 0]
+        root_pos = org_clip[:, 1]
+        key_rots = org_clip[:, 2]
         n_frames = len(key_rots)
         assert len(key_times) == n_frames
         needed_frames = self._num_frames_max - n_frames
-        print("Needed frames: ", needed_frames)
+        #print("Needed frames: ", needed_frames)
         inter_times = self.calc_inter_times(key_times)
         inter_times = sorted(random.sample(inter_times, min(len(inter_times), needed_frames)))
-        print("Number of frames to interpolate: ", len(inter_times))
-        print("Number of rots: ", len(key_rots[0]))
+        #print("Number of frames to interpolate: ", len(inter_times))
+        #print("Number of rots: ", len(key_rots[0]))
         inter_joint = []
         for i in range(len(key_rots[0])):
             quats = [rot[i] for rot in key_rots]
@@ -145,11 +150,11 @@ class MotionCaptureDataMultiClip(object):
         ord_keys = sorted(new_dict.keys())
         ord_rots = [new_dict[k] for k in ord_keys]
         ord_root_pos = [new_rp_dict[k] for k in ord_keys]
-        new_clip = self.insertClip(t, ord_root_pos, ord_rots)
+        new_clip = self.quatlists_to_quatlist(t, ord_root_pos, ord_rots)
 
         return np.array(ord_keys), new_clip
 
-    def extractQuaternions(self, clip):
+    def quatlist_to_quatlists(self, clip):
         new_clips = []
         for c in clip:
             t = c[0]
@@ -213,9 +218,9 @@ class MotionCaptureDataMultiClip(object):
             inter_root_pos.append(((np.array(root_pos[up_index]) + np.array(root_pos[low_index]))/2).tolist())
         return inter_root_pos
 
-    def insertClip(self, t, ord_root_pos, ord_rots):
+    def quatlists_to_quatlist(self, t, ord_root_pos, ord_rots):
         delta_t = t[0]
-        new_quats = self.insertQuaternions(ord_rots)
+        new_quats = self.merge_quaternions(ord_rots)
         a = []
         for i in range(len(ord_root_pos)):
             rot = new_quats[i]
@@ -227,7 +232,7 @@ class MotionCaptureDataMultiClip(object):
             ])
         return a
 
-    def insertQuaternions(self, rotations):
+    def merge_quaternions(self, rotations):
         quats = []
         for rot in rotations:
             rots = []
