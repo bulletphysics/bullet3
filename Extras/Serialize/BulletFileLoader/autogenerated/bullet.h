@@ -760,7 +760,6 @@ typedef struct bInvalidHandle {
         int m_restingContactRestitutionThreshold;
         int m_minimumSolverBatchSize;
         int m_splitImpulse;
-        char m_padding[4];
     };
 
 

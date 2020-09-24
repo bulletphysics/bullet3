@@ -6,6 +6,7 @@ import time
 p.connect(p.GUI)
 p.setAdditionalSearchPath(pd.getDataPath())
 
+p.setPhysicsEngineParameter(enableConeFriction=0)
 plane = p.loadURDF("plane.urdf")
 p.setGravity(0, 0, -9.8)
 p.setTimeStep(1. / 500)
