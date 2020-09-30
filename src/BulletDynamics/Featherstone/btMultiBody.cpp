@@ -1914,16 +1914,16 @@ void btMultiBody::fillConstraintJacobianMultiDof(int link,
 	//scratch_r.resize(m_dofCount);
 	//btScalar *results = m_dofCount > 0 ? &scratch_r[0] : 0;
 
-    scratch_r1.resize(m_dofCount+num_links);
-    btScalar * results = m_dofCount > 0 ? &scratch_r1[0] : 0;
-    btScalar* links = num_links? &scratch_r1[m_dofCount] : 0;
-    int numLinksChildToRoot=0;
-    int l = link;
-    while (l != -1)
-    {
-        links[numLinksChildToRoot++]=l;
-        l = m_links[l].m_parent;
-    }
+	scratch_r1.resize(m_dofCount+num_links);
+	btScalar * results = m_dofCount > 0 ? &scratch_r1[0] : 0;
+	btScalar* links = num_links? &scratch_r1[m_dofCount] : 0;
+	int numLinksChildToRoot=0;
+	int l = link;
+	while (l != -1)
+	{
+		links[numLinksChildToRoot++]=l;
+		l = m_links[l].m_parent;
+	}
     
 	btMatrix3x3 *rot_from_world = &scratch_m[0];
 

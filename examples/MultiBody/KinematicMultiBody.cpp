@@ -365,21 +365,10 @@ void KinematicMultiBody::animate(float deltaTime)
 {
 	static float time = 0.0;
 	time += deltaTime;
-	int kinematic_id = 0;
-	double joint_pos = 3.1415926 / 2.0;
-	double joint_vel = 0.0;
-	//float linkMass = 0.f;
-	//btVector3 linkInertiaDiag(0.f, 0.f, 0.f);
-	//btVector3 hingeJointAxis(1, 0, 0);
-	//btVector3 linkHalfExtents(0.05, 0.37, 0.1);
-	//btVector3 parentComToCurrentCom(0, -linkHalfExtents[1] * 2.f, 0);                      //par body's COM to cur body's COM offset
-	//btVector3 currentPivotToCurrentCom(0, -linkHalfExtents[1], 0);                         //cur body's COM to cur body's PIV offset
-	//btVector3 parentComToCurrentPivot = parentComToCurrentCom - currentPivotToCurrentCom;  //par body's COM to cur body's PIV offset
-	//joint_pos = 1.0 * sin(time * 3.0 - 1.55);
-	//mbC->setupFixed(kinematic_id, linkMass, linkInertiaDiag, kinematic_id - 1, btQuaternion(sin(joint_pos/2.0), 0.f, 0.f, cos(joint_pos/2.0)), parentComToCurrentPivot, currentPivotToCurrentCom, true);
-	//mbC->finalizeMultiDof();
-	for(kinematic_id = 0; kinematic_id < 5; kinematic_id++) {
-		joint_pos = 1.0 * sin(time * 3.0 - 0.3);
+	for (int kinematic_id = 0; kinematic_id < 3; kinematic_id++) {
+	  double old_joint_pos = mbC->getJointPos(kinematic_id);
+		double joint_pos = 1.0 * sin(time * 3.0 - 0.3);
+		double joint_vel = (joint_pos - old_joint_pos) / deltaTime;
 		mbC->setLinkDynamicType(kinematic_id, KINEMATIC_OBJECT);
 		mbC->setJointPosMultiDof(kinematic_id, &joint_pos);
 		mbC->setJointVelMultiDof(kinematic_id, &joint_vel);
