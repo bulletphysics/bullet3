@@ -24,6 +24,7 @@
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 
 #include <math.h>
+#include <iostream>
 
 class KinematicMultiBody : public CommonMultiBodyBase
 {
@@ -57,17 +58,7 @@ static bool g_firstInit = true;
 static float scaling = 0.4f;
 static float friction = 1.;
 static int g_constraintSolverType = 0;
-#define ARRAY_SIZE_X 5
-#define ARRAY_SIZE_Y 5
-#define ARRAY_SIZE_Z 5
-
-//maximum number of objects (and allow user to shoot additional boxes)
-#define MAX_PROXIES (ARRAY_SIZE_X * ARRAY_SIZE_Y * ARRAY_SIZE_Z + 1024)
-
-#define START_POS_X -5
-//#define START_POS_Y 12
-#define START_POS_Y 2
-#define START_POS_Z -3
+static int g_numLinks = 2;
 
 KinematicMultiBody::KinematicMultiBody(GUIHelperInterface* helper)
 	: CommonMultiBodyBase(helper)
@@ -149,14 +140,13 @@ void KinematicMultiBody::initPhysics()
 
 	bool damping = true;
 	bool gyro = true;
-	int numLinks = 5;
 	bool spherical = false;  //set it ot false -to use 1DoF hinges instead of 3DoF sphericals
 	bool multibodyOnly = false;
 	bool canSleep = false;
 	bool selfCollide = true;
 	btVector3 linkHalfExtents(0.05, 0.37, 0.1);
 
-	mbC = createFeatherstoneMultiBody(m_dynamicsWorld, numLinks, btVector3(-0.4f, 2.f, 0.f), linkHalfExtents, g_floatingBase);
+	mbC = createFeatherstoneMultiBody(m_dynamicsWorld, g_numLinks, btVector3(-0.4f, 2.f, 0.f), linkHalfExtents, g_floatingBase);
 	//mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
 
 	mbC->setCanSleep(canSleep);
@@ -174,7 +164,7 @@ void KinematicMultiBody::initPhysics()
 		mbC->setAngularDamping(0.9f);
 	}
 	//////////////////////////////////////////////
-	if (numLinks > 0)
+	if (g_numLinks > 0)
 	{
 		btScalar q0 = 45.f * SIMD_PI / 180.f;
 		if (!spherical)
@@ -365,10 +355,13 @@ void KinematicMultiBody::animate(float deltaTime)
 {
 	static float time = 0.0;
 	time += deltaTime;
-	for (int kinematic_id = 0; kinematic_id < 3; kinematic_id++) {
+	for (int kinematic_id = 0; kinematic_id < g_numLinks - 2; kinematic_id++) {
 	  double old_joint_pos = mbC->getJointPos(kinematic_id);
+	  //double old_joint_vel = mbC->getJointVel(kinematic_id);
+		//std::cout << "current: " << old_joint_pos << " " << old_joint_vel << std::endl;
 		double joint_pos = 1.0 * sin(time * 3.0 - 0.3);
 		double joint_vel = (joint_pos - old_joint_pos) / deltaTime;
+		//std::cout << "set to: " << joint_pos << " " << joint_vel << std::endl;
 		mbC->setLinkDynamicType(kinematic_id, KINEMATIC_OBJECT);
 		mbC->setJointPosMultiDof(kinematic_id, &joint_pos);
 		mbC->setJointVelMultiDof(kinematic_id, &joint_vel);
