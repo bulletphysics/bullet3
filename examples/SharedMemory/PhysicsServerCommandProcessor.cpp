@@ -9555,9 +9555,9 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					//handle switch from static/fixedBase to dynamic and vise-versa
 					if (mass > 0)
 					{
-						bool isDynamic = true;
 						if (mb->hasFixedBase())
 						{
+							bool isDynamic = true;
 							int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
 							int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
@@ -9613,7 +9613,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
 					mb->setBaseDynamicType((ObjectDynamicTypes) dynamicType);
 
-					bool isDynamic = dynamicType == eDynamic;
+					bool isDynamic = dynamicType == eDynamic || dynamicType == eKinematic;
 					int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
 					int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 					m_data->m_dynamicsWorld->removeCollisionObject(mb->getBaseCollider());
@@ -9766,7 +9766,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 						int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
 						mb->setLinkDynamicType(linkIndex, (ObjectDynamicTypes) dynamicType);
 
-						bool isDynamic = dynamicType == eDynamic;
+						bool isDynamic = dynamicType == eDynamic || dynamicType == eKinematic;
 						int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
 						int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 						m_data->m_dynamicsWorld->removeCollisionObject(mb->getLinkCollider(linkIndex));
@@ -9904,7 +9904,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
 					rb->setDynamicType((ObjectDynamicTypes) dynamicType);
 					// wenlongl: Not sure if I should enable this part. Need to be tested.
-					//bool isDynamic = dynamicType == eDynamic;
+					//bool isDynamic = dynamicType == eDynamic || dynamicType == eKinematic;
 					//int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
 					//int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 					//m_data->m_dynamicsWorld->removeCollisionObject(rb);

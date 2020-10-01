@@ -552,7 +552,8 @@ void btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 			body->setActivationState(ISLAND_SLEEPING);
 		}
 
-		bool isDynamic = !(body->isStaticObject() || body->isKinematicObject());
+		bool isDynamic = !body->isStaticObject();
+		//isDynamic = true;
 		int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
 		int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
