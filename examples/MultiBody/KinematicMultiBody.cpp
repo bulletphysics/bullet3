@@ -58,7 +58,7 @@ static bool g_firstInit = true;
 static float scaling = 0.4f;
 static float friction = 1.;
 static int g_constraintSolverType = 0;
-static int g_numLinks = 2;
+static int g_numLinks = 5;
 
 KinematicMultiBody::KinematicMultiBody(GUIHelperInterface* helper)
 	: CommonMultiBodyBase(helper)
