@@ -45,8 +45,10 @@ struct BasicExample : public CommonRigidBodyBase
 		float targetPos[3] = {0, 0, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
-	btRigidBody* m_kinematicBody;
-	btScalar m_kinematicVelocity;
+	btRigidBody* m_kinematicBody1;
+	btRigidBody* m_kinematicBody2;
+	btScalar m_kinematicVelocity1;
+	btScalar m_kinematicVelocity2;
 };
 
 void BasicExample::initPhysics()
@@ -112,10 +114,17 @@ void BasicExample::initPhysics()
 			btScalar(-0.5),
 			btScalar(0.1),
 			btScalar(0.5)));
-		m_kinematicBody = createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), KINEMATIC_OBJECT);
+		m_kinematicBody1 = createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), KINEMATIC_OBJECT);
+
+		startTransform.setOrigin(btVector3(
+			btScalar(1.5),
+			btScalar(0.1),
+			btScalar(0.5)));
+		m_kinematicBody2 = createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), KINEMATIC_OBJECT);
 	}
 
-	m_kinematicVelocity = 0.1;
+	m_kinematicVelocity1 = 1.0;
+	m_kinematicVelocity2 = 0.1;
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
@@ -131,19 +140,25 @@ void BasicExample::stepSimulation(float deltaTime)
 	CommonRigidBodyBase::stepSimulation(deltaTime); 
 }
 
+void backAndForthMovement(btRigidBody* kinematicBody, btScalar& kinematicVelocity, float deltaTime)
+{
+	btTransform currentTransform = kinematicBody->getCenterOfMassTransform();
+	btVector3 currentOrigin = currentTransform.getOrigin();
+	if((kinematicVelocity > 0.0 && currentOrigin.x() >= 1.5) || (kinematicVelocity < 0.0 && currentOrigin.x() <= -0.5))
+	{
+		kinematicVelocity *= -1.0;
+	}
+	currentOrigin.setX(currentOrigin.x() + kinematicVelocity * deltaTime);
+	currentTransform.setOrigin(currentOrigin);
+	kinematicBody->setCenterOfMassTransform(currentTransform);
+	kinematicBody->getMotionState()->setWorldTransform(currentTransform);
+}
+
 void BasicExample::animate(float deltaTime)
 {
 	deltaTime = 1./60.;
-	btTransform currentTransform = m_kinematicBody->getCenterOfMassTransform();
-	btVector3 currentOrigin = currentTransform.getOrigin();
-	if((m_kinematicVelocity > 0.0 && currentOrigin.x() >= 1.5) || (m_kinematicVelocity < 0.0 && currentOrigin.x() <= -0.5))
-	{
-		m_kinematicVelocity *= -1.0;
-	}
-	currentOrigin.setX(currentOrigin.x() + m_kinematicVelocity * deltaTime);
-	currentTransform.setOrigin(currentOrigin);
-	m_kinematicBody->setCenterOfMassTransform(currentTransform);
-	m_kinematicBody->getMotionState()->setWorldTransform(currentTransform);
+	backAndForthMovement(m_kinematicBody1, m_kinematicVelocity1, deltaTime);
+	backAndForthMovement(m_kinematicBody2, m_kinematicVelocity2, deltaTime);
 }
 
 CommonExampleInterface* BasicExampleCreateFunc(CommonExampleOptions& options)
