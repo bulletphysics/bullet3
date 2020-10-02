@@ -1616,13 +1616,6 @@ struct PhysicsServerCommandProcessorInternalData
 
 	btScalar m_physicsDeltaTime;
 	btScalar m_numSimulationSubSteps;
-
-	btScalar getDeltaTimeSubStep() const
-	{
-		btScalar deltaTimeSubStep = m_numSimulationSubSteps > 0 ? m_physicsDeltaTime / m_numSimulationSubSteps : m_physicsDeltaTime;
-		return deltaTimeSubStep;
-	}
-
 	btScalar m_simulationTimestamp;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
 	b3HashMap<btHashPtr, btInverseDynamics::MultiBodyTree*> m_inverseDynamicsBodies;
@@ -6967,10 +6960,10 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 									//disable velocity clamp in velocity mode
 									motor->setRhsClamp(SIMD_INFINITY);
 
-									btScalar maxImp = 1000000.f * m_data->getDeltaTimeSubStep();
+									btScalar maxImp = 1000000.f * m_data->m_physicsDeltaTime;
 									if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] & SIM_DESIRED_STATE_HAS_MAX_FORCE) != 0)
 									{
-										maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] * m_data->getDeltaTimeSubStep();
+										maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] * m_data->m_physicsDeltaTime;
 									}
 									motor->setMaxAppliedImpulse(maxImp);
 								}
@@ -7050,10 +7043,10 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 									}
 									motor->setPositionTarget(desiredPosition, kp);
 
-									btScalar maxImp = 1000000.f * m_data->getDeltaTimeSubStep();
+									btScalar maxImp = 1000000.f * m_data->m_physicsDeltaTime;
 
 									if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_MAX_FORCE) != 0)
-										maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex] * m_data->getDeltaTimeSubStep();
+										maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex] * m_data->m_physicsDeltaTime;
 
 									motor->setMaxAppliedImpulse(maxImp);
 								}
@@ -7118,10 +7111,10 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 									//}
 									motor->setPositionTarget(desiredPosition, kp);
 
-									btScalar maxImp = 1000000.f * m_data->getDeltaTimeSubStep();
+									btScalar maxImp = 1000000.f * m_data->m_physicsDeltaTime;
 
 									if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_MAX_FORCE) != 0)
-										maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex] * m_data->getDeltaTimeSubStep();
+										maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex] * m_data->m_physicsDeltaTime;
 
 									motor->setMaxAppliedImpulse(maxImp);
 								}
@@ -7232,7 +7225,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 					Eigen::MatrixXd M = rbdModel->GetMassMat();
 					//rbdModel->UpdateBiasForce();
 					const Eigen::VectorXd& C = rbdModel->GetBiasForce();
-					M.diagonal() += m_data->getDeltaTimeSubStep() * mKd;
+					M.diagonal() += m_data->m_physicsDeltaTime * mKd;
 
 					Eigen::VectorXd pose_inc;
 
@@ -7634,7 +7627,7 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 					if (motor)
 					{
 						btScalar impulse = motor->getAppliedImpulse(d);
-						btScalar force = impulse / m_data->getDeltaTimeSubStep();
+						btScalar force = impulse / m_data->m_physicsDeltaTime;
 						stateDetails->m_jointMotorForceMultiDof[totalDegreeOfFreedomU] = force;
 					}
 				}
@@ -7646,7 +7639,7 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 
 						if (motor && m_data->m_physicsDeltaTime > btScalar(0))
 						{
-							btScalar force = motor->getAppliedImpulse(0) / m_data->getDeltaTimeSubStep();
+							btScalar force = motor->getAppliedImpulse(0) / m_data->m_physicsDeltaTime;
 							stateDetails->m_jointMotorForceMultiDof[totalDegreeOfFreedomU] = force;
 						}
 					}
@@ -7684,7 +7677,7 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 
 				if (motor && m_data->m_physicsDeltaTime > btScalar(0))
 				{
-					btScalar force = motor->getAppliedImpulse(0) / m_data->getDeltaTimeSubStep();
+					btScalar force = motor->getAppliedImpulse(0) / m_data->m_physicsDeltaTime;
 					stateDetails->m_jointMotorForce[l] =
 						force;
 					//if (force>0)
@@ -7985,9 +7978,9 @@ bool PhysicsServerCommandProcessor::processRequestContactpointInformationCommand
 								pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
 							}
 						}
-						pt.m_normalForce = srcPt.getAppliedImpulse() / m_data->getDeltaTimeSubStep();
-						pt.m_linearFrictionForce1 = srcPt.m_appliedImpulseLateral1 / m_data->getDeltaTimeSubStep();
-						pt.m_linearFrictionForce2 = srcPt.m_appliedImpulseLateral2 / m_data->getDeltaTimeSubStep();
+						pt.m_normalForce = srcPt.getAppliedImpulse() / m_data->m_physicsDeltaTime;
+						pt.m_linearFrictionForce1 = srcPt.m_appliedImpulseLateral1 / m_data->m_physicsDeltaTime;
+						pt.m_linearFrictionForce2 = srcPt.m_appliedImpulseLateral2 / m_data->m_physicsDeltaTime;
 						for (int j = 0; j < 3; j++)
 						{
 							pt.m_linearFrictionDirection1[j] = srcPt.m_lateralFrictionDir1[j];
