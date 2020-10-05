@@ -76,7 +76,7 @@ void BasicExample::initPhysics()
 
 	{
 		btScalar mass(0.);
-		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1), STATIC_OBJECT);
+		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1), btCollisionObject::CF_STATIC_OBJECT);
 	}
 
 	{
@@ -105,7 +105,7 @@ void BasicExample::initPhysics()
 						btScalar(2 + .2 * k),
 						btScalar(0.2 * j)));
 
-					createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), DYNAMIC_OBJECT);
+					createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), btCollisionObject::CF_DYNAMIC_OBJECT);
 				}
 			}
 		}
@@ -114,13 +114,13 @@ void BasicExample::initPhysics()
 			btScalar(-0.5),
 			btScalar(0.1),
 			btScalar(0.5)));
-		m_kinematicBody1 = createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), KINEMATIC_OBJECT);
+		m_kinematicBody1 = createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), btCollisionObject::CF_KINEMATIC_OBJECT);
 
 		startTransform.setOrigin(btVector3(
 			btScalar(1.5),
 			btScalar(0.1),
 			btScalar(0.5)));
-		m_kinematicBody2 = createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), KINEMATIC_OBJECT);
+		m_kinematicBody2 = createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), btCollisionObject::CF_KINEMATIC_OBJECT);
 	}
 
 	m_kinematicVelocity1 = 1.0;

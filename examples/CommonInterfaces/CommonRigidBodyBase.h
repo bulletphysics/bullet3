@@ -404,7 +404,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 		delete ms;
 	}
 
-	btRigidBody* createRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, const btVector4& color = btVector4(1, 0, 0, 1), ObjectDynamicTypes object_dynamic_type = DYNAMIC_OBJECT)
+	btRigidBody* createRigidBody(float mass, const btTransform& startTransform, btCollisionShape* shape, const btVector4& color = btVector4(1, 0, 0, 1), int dynamic_type = btCollisionObject::CF_DYNAMIC_OBJECT)
 	{
 		btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
@@ -413,7 +413,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 			shape->calculateLocalInertia(mass, localInertia);
 		else {
 		  // if mass is zero, this body has to be static.
-		  object_dynamic_type = STATIC_OBJECT;
+		  dynamic_type = btCollisionObject::CF_STATIC_OBJECT;
 		}
 
 			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -422,7 +422,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 #ifdef USE_MOTIONSTATE
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 
-		btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia, object_dynamic_type);
+		btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia, dynamic_type);
 
 		btRigidBody* body = new btRigidBody(cInfo);
 		//body->setContactProcessingThreshold(m_defaultContactProcessingThreshold);

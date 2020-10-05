@@ -20,7 +20,6 @@ subject to the following restrictions:
 #include "LinearMath/btTransform.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-#include "BulletDynamics/Dynamics/btObjectDynamicTypes.h"
 
 class btCollisionShape;
 class btMotionState;
@@ -110,7 +109,7 @@ public:
 	struct btRigidBodyConstructionInfo
 	{
 		btScalar m_mass;
-		ObjectDynamicTypes m_object_dynamic_type;
+		int m_dynamic_type;
 
 		///When a motionState is provided, the rigid body will initialize its world transform from the motion state
 		///In this case, m_startWorldTransform is ignored.
@@ -143,8 +142,8 @@ public:
 		btScalar m_additionalAngularDampingThresholdSqr;
 		btScalar m_additionalAngularDampingFactor;
 
-		btRigidBodyConstructionInfo(btScalar mass, btMotionState* motionState, btCollisionShape* collisionShape, const btVector3& localInertia = btVector3(0, 0, 0), ObjectDynamicTypes object_dynamic_type = DYNAMIC_OBJECT) : m_mass(mass),
-																																									   m_object_dynamic_type(object_dynamic_type),
+		btRigidBodyConstructionInfo(btScalar mass, btMotionState* motionState, btCollisionShape* collisionShape, const btVector3& localInertia = btVector3(0, 0, 0), int dynamic_type = btCollisionObject::CF_DYNAMIC_OBJECT) : m_mass(mass),
+																																									   m_dynamic_type(dynamic_type),
 																																									   m_motionState(motionState),
 																																									   m_collisionShape(collisionShape),
 																																									   m_localInertia(localInertia),
@@ -252,9 +251,9 @@ public:
 		return m_collisionShape;
 	}
 
-	void setMassProps(btScalar mass, const btVector3& inertia, ObjectDynamicTypes object_dynamic_type);
+	void setMassProps(btScalar mass, const btVector3& inertia, int dynamic_type);
 
-	void setDynamicType(ObjectDynamicTypes object_dynamic_type);
+	void setDynamicType(int dynamic_type);
 
 	const btVector3& getLinearFactor() const
 	{

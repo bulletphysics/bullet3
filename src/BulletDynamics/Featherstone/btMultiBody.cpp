@@ -673,18 +673,18 @@ btScalar *btMultiBody::getJointTorqueMultiDof(int i)
 	return &m_links[i].m_jointTorque[0];
 }
 
-void btMultiBody::setBaseDynamicType(ObjectDynamicTypes dynamicType)
+void btMultiBody::setBaseDynamicType(int dynamicType)
 {
 	m_base_dynamic_type = dynamicType;
 	if(getBaseCollider())
 	{
 		int oldFlags = getBaseCollider()->getCollisionFlags();
-		oldFlags &= ~(STATIC_OBJECT | KINEMATIC_OBJECT);
+		oldFlags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
 		getBaseCollider()->setCollisionFlags(oldFlags | dynamicType);
 	}
 }
 
-void btMultiBody::setLinkDynamicType(const int i, ObjectDynamicTypes type)
+void btMultiBody::setLinkDynamicType(const int i, int type)
 {
 	if(i == -1)
 	{
@@ -696,7 +696,7 @@ void btMultiBody::setLinkDynamicType(const int i, ObjectDynamicTypes type)
 		if(getLinkCollider(i))
 		{
 			int oldFlags = getLinkCollider(i)->getCollisionFlags();
-			oldFlags &= ~(STATIC_OBJECT | KINEMATIC_OBJECT);
+			oldFlags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
 			getLinkCollider(i)->setCollisionFlags(oldFlags | type);
 		}
 	}

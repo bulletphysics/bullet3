@@ -9716,7 +9716,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
 				{
 					int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
-					mb->setBaseDynamicType((ObjectDynamicTypes) dynamicType);
+					mb->setBaseDynamicType(dynamicType);
 
 					bool isDynamic = dynamicType == eDynamic || dynamicType == eKinematic;
 					int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
@@ -9873,7 +9873,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
 					{
 						int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
-						mb->setLinkDynamicType(linkIndex, (ObjectDynamicTypes) dynamicType);
+						mb->setLinkDynamicType(linkIndex, dynamicType);
 
 						bool isDynamic = dynamicType == eDynamic || dynamicType == eKinematic;
 						int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
@@ -9978,14 +9978,14 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					{
 						rb->getCollisionShape()->calculateLocalInertia(mass, localInertia);
 					}
-					rb->setMassProps(mass, localInertia, DYNAMIC_OBJECT);
+					rb->setMassProps(mass, localInertia, btCollisionObject::CF_DYNAMIC_OBJECT);
 				}
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
 				{
 					btScalar orgMass = rb->getInvMass();
 					if (orgMass > 0)
 					{
-						rb->setMassProps(mass, newLocalInertiaDiagonal, DYNAMIC_OBJECT);
+						rb->setMassProps(mass, newLocalInertiaDiagonal, btCollisionObject::CF_DYNAMIC_OBJECT);
 					}
 				}
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION)
@@ -10011,7 +10011,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
 			{
 				int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
-				rb->setDynamicType((ObjectDynamicTypes) dynamicType);
+				rb->setDynamicType(dynamicType);
 				// wenlongl: Not sure if I should enable this part. Need to be tested.
 				//bool isDynamic = dynamicType == eDynamic || dynamicType == eKinematic;
 				//int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
