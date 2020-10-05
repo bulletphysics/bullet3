@@ -673,14 +673,41 @@ btScalar *btMultiBody::getJointTorqueMultiDof(int i)
 	return &m_links[i].m_jointTorque[0];
 }
 
+bool btMultiBody::hasFixedBase() const
+{
+	if(const btMultiBodyLinkCollider * baseCollider = getBaseCollider())
+	{
+		return baseCollider->isStaticObject();
+	}
+	else 
+	{
+		return m_base_dynamic_type == btCollisionObject::CF_STATIC_OBJECT;
+	}
+}
+
+bool btMultiBody::isBaseStaticOrKinematic() const
+{
+	if(const btMultiBodyLinkCollider * baseCollider = getBaseCollider())
+	{
+		return baseCollider->isStaticOrKinematicObject();
+	}
+	else 
+	{
+		return m_base_dynamic_type == btCollisionObject::CF_STATIC_OBJECT || m_base_dynamic_type == btCollisionObject::CF_KINEMATIC_OBJECT;
+	}
+}
+
 void btMultiBody::setBaseDynamicType(int dynamicType)
 {
-	m_base_dynamic_type = dynamicType;
 	if(getBaseCollider())
 	{
 		int oldFlags = getBaseCollider()->getCollisionFlags();
 		oldFlags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
 		getBaseCollider()->setCollisionFlags(oldFlags | dynamicType);
+	}
+	else 
+	{
+		m_base_dynamic_type = dynamicType;
 	}
 }
 
@@ -690,15 +717,9 @@ void btMultiBody::setLinkDynamicType(const int i, int type)
 	{
 		setBaseDynamicType(type);
 	}
-	else
+	else if (i >= 0 && i < getNumLinks())
 	{
-		m_links[i].m_dynamic_type = type;
-		if(getLinkCollider(i))
-		{
-			int oldFlags = getLinkCollider(i)->getCollisionFlags();
-			oldFlags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
-			getLinkCollider(i)->setCollisionFlags(oldFlags | type);
-		}
+		m_links[i].setDynamicType(type);
 	}
 }
 
