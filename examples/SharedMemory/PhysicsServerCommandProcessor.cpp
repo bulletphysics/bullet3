@@ -9663,6 +9663,11 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					mb->getBaseCollider()->setAnisotropicFriction(anisotropicFriction);
 				}
 
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD)
+				{
+					mb->getBaseCollider()->setContactProcessingThreshold(clientCmd.m_changeDynamicsInfoArgs.m_contactProcessingThreshold);
+				}
+
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MAX_JOINT_VELOCITY)
 				{
 					mb->setMaxCoordinateVelocity(clientCmd.m_changeDynamicsInfoArgs.m_maxJointVelocity);
@@ -9821,6 +9826,11 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					{
 						mb->getLinkCollider(linkIndex)->setAnisotropicFriction(anisotropicFriction);
 					}
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD)
+					{
+						mb->getLinkCollider(linkIndex)->setContactProcessingThreshold(clientCmd.m_changeDynamicsInfoArgs.m_contactProcessingThreshold);
+					}
+
 				}
 			}
 		}
