@@ -362,7 +362,7 @@ void KinematicMultiBody::animate(float deltaTime)
 		double joint_pos = 1.0 * sin(time * 3.0 - 0.3);
 		double joint_vel = (joint_pos - old_joint_pos) / deltaTime;
 		//std::cout << "set to: " << joint_pos << " " << joint_vel << std::endl;
-		mbC->setLinkDynamicType(kinematic_id, KINEMATIC_OBJECT);
+		mbC->setLinkDynamicType(kinematic_id, btCollisionObject::CF_KINEMATIC_OBJECT);
 		mbC->setJointPosMultiDof(kinematic_id, &joint_pos);
 		mbC->setJointVelMultiDof(kinematic_id, &joint_vel);
 	}

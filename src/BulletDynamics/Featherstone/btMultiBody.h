@@ -29,7 +29,6 @@
 #include "LinearMath/btQuaternion.h"
 #include "LinearMath/btMatrix3x3.h"
 #include "LinearMath/btAlignedObjectArray.h"
-#include "BulletDynamics/Dynamics/btObjectDynamicTypes.h"
 
 ///serialization data, don't change them if you are not familiar with the details of the serialization mechanisms
 #ifdef BT_USE_DOUBLE_PRECISION
@@ -523,22 +522,22 @@ public:
 
 	bool hasFixedBase() const
 	{
-		return m_base_dynamic_type == STATIC_OBJECT;
+		return m_base_dynamic_type == btCollisionObject::CF_STATIC_OBJECT;
 	}
 
 	bool isBaseStaticOrKinematic() const
 	{
-		return m_base_dynamic_type == STATIC_OBJECT || m_base_dynamic_type == KINEMATIC_OBJECT;
+		return m_base_dynamic_type == btCollisionObject::CF_STATIC_OBJECT || m_base_dynamic_type == btCollisionObject::CF_KINEMATIC_OBJECT;
 	}
 
-	void setBaseDynamicType(ObjectDynamicTypes dynamicType);
+	void setBaseDynamicType(int dynamicType);
 
 	void setFixedBase(bool fixedBase)
 	{
 		if(fixedBase)
-			setBaseDynamicType(STATIC_OBJECT);
+			setBaseDynamicType(btCollisionObject::CF_STATIC_OBJECT);
 		else
-			setBaseDynamicType(DYNAMIC_OBJECT);
+			setBaseDynamicType(btCollisionObject::CF_DYNAMIC_OBJECT);
 	}
 
 	int getCompanionId() const
@@ -689,7 +688,7 @@ public:
 		btVector3 &top_out,         // top part of output vector
 		btVector3 &bottom_out);      // bottom part of output vector
 
-	void setLinkDynamicType(const int i, ObjectDynamicTypes type);
+	void setLinkDynamicType(const int i, int type);
 
 	bool isLinkStaticOrKinematic(const int i) const
 	{
@@ -699,7 +698,7 @@ public:
 		}
 		else
 		{
-			return m_links[i].m_dynamic_type == STATIC_OBJECT || m_links[i].m_dynamic_type == KINEMATIC_OBJECT;
+			return m_links[i].m_dynamic_type == btCollisionObject::CF_STATIC_OBJECT || m_links[i].m_dynamic_type == btCollisionObject::CF_KINEMATIC_OBJECT;
 		}
 	}
 
@@ -772,7 +771,7 @@ private:
 	btMatrix3x3 m_cachedInertiaLowerRight;
 	bool m_cachedInertiaValid;
 
-	ObjectDynamicTypes m_base_dynamic_type;
+	int m_base_dynamic_type;
 
 	// Sleep parameters.
 	bool m_awake;
