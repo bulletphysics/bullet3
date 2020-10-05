@@ -46,6 +46,7 @@ enum btMultiBodyLinkFlags
 
 struct btMultibodyLink
 {
+public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	btScalar m_mass;           // mass of link
@@ -151,8 +152,11 @@ struct btMultibodyLink
 	btScalar m_jointMaxForce;     //todo: implement this internally. It is unused for now, it is set by a URDF loader.
 	btScalar m_jointMaxVelocity;  //todo: implement this internally. It is unused for now, it is set by a URDF loader.
 
+private:
+	// Record the dynamic type of the link if it does not have an associated collision object.
 	int m_dynamic_type;
 
+public:
 	// ctor: set some sensible defaults
 	btMultibodyLink()
 		: m_mass(1),
@@ -298,6 +302,9 @@ struct btMultibodyLink
             }
         }
     }
+	
+	bool isStaticOrKinematic() const;
+	void setDynamicType(int dynamicType);
 };
 
 #endif  //BT_MULTIBODY_LINK_H
