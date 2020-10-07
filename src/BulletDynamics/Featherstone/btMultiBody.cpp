@@ -1707,59 +1707,91 @@ void btMultiBody::predictPositionsMultiDof(btScalar dt)
     // Finally we can update m_jointPos for each of the m_links
     for (int i = 0; i < num_links; ++i)
     {
-        btScalar *pJointPos;
-        pJointPos = &m_links[i].m_jointPos_interpolate[0];
-        
-        btScalar *pJointVel = getJointVelMultiDof(i);
-        
-        switch (m_links[i].m_jointType)
-        {
-            case btMultibodyLink::ePrismatic:
-            case btMultibodyLink::eRevolute:
+        btScalar *pJointPos = &m_links[i].m_jointPos_interpolate[0];
+            
+        if(m_links[i].isStaticOrKinematic())
+				{
+            switch (m_links[i].m_jointType)
             {
-                //reset to current pos
-                pJointPos[0] = m_links[i].m_jointPos[0];
-                btScalar jointVel = pJointVel[0];
-                pJointPos[0] += dt * jointVel;
-                break;
-            }
-            case btMultibodyLink::eSpherical:
+                case btMultibodyLink::ePrismatic:
+                case btMultibodyLink::eRevolute:
+                {
+                    pJointPos[0] = m_links[i].m_jointPos[0];
+                    break;
+                }
+                case btMultibodyLink::eSpherical:
+                {
+                    for (int j = 0; j < 4; ++j)
+                    {
+                        pJointPos[j] = m_links[i].m_jointPos[j];
+                    }
+                    break;
+                }
+                case btMultibodyLink::ePlanar:
+                {
+                    for (int j = 0; j < 3; ++j)
+                    {
+                        pJointPos[j] = m_links[i].m_jointPos[j];
+                    }
+                    break;
+                }
+                default:
+								    break;
+						}
+				}
+				else
+				{
+            btScalar *pJointVel = getJointVelMultiDof(i);
+            
+            switch (m_links[i].m_jointType)
             {
-                //reset to current pos
+                case btMultibodyLink::ePrismatic:
+                case btMultibodyLink::eRevolute:
+                {
+                    //reset to current pos
+                    pJointPos[0] = m_links[i].m_jointPos[0];
+                    btScalar jointVel = pJointVel[0];
+                    pJointPos[0] += dt * jointVel;
+                    break;
+                }
+                case btMultibodyLink::eSpherical:
+                {
+                    //reset to current pos
 
-                for (int j = 0; j < 4; ++j)
-                {
-                    pJointPos[j] = m_links[i].m_jointPos[j];
+                    for (int j = 0; j < 4; ++j)
+                    {
+                        pJointPos[j] = m_links[i].m_jointPos[j];
+                    }
+                    
+                    btVector3 jointVel;
+                    jointVel.setValue(pJointVel[0], pJointVel[1], pJointVel[2]);
+                    btQuaternion jointOri;
+                    jointOri.setValue(pJointPos[0], pJointPos[1], pJointPos[2], pJointPos[3]);
+                    pQuatUpdateFun(jointVel, jointOri, false, dt);
+                    pJointPos[0] = jointOri.x();
+                    pJointPos[1] = jointOri.y();
+                    pJointPos[2] = jointOri.z();
+                    pJointPos[3] = jointOri.w();
+                    break;
                 }
-                
-                btVector3 jointVel;
-                jointVel.setValue(pJointVel[0], pJointVel[1], pJointVel[2]);
-                btQuaternion jointOri;
-                jointOri.setValue(pJointPos[0], pJointPos[1], pJointPos[2], pJointPos[3]);
-                pQuatUpdateFun(jointVel, jointOri, false, dt);
-                pJointPos[0] = jointOri.x();
-                pJointPos[1] = jointOri.y();
-                pJointPos[2] = jointOri.z();
-                pJointPos[3] = jointOri.w();
-                break;
-            }
-            case btMultibodyLink::ePlanar:
-            {
-                for (int j = 0; j < 3; ++j)
+                case btMultibodyLink::ePlanar:
                 {
-                    pJointPos[j] = m_links[i].m_jointPos[j];
+                    for (int j = 0; j < 3; ++j)
+                    {
+                        pJointPos[j] = m_links[i].m_jointPos[j];
+                    }
+                    pJointPos[0] += dt * getJointVelMultiDof(i)[0];
+                    
+                    btVector3 q0_coors_qd1qd2 = getJointVelMultiDof(i)[1] * m_links[i].getAxisBottom(1) + getJointVelMultiDof(i)[2] * m_links[i].getAxisBottom(2);
+                    btVector3 no_q0_coors_qd1qd2 = quatRotate(btQuaternion(m_links[i].getAxisTop(0), pJointPos[0]), q0_coors_qd1qd2);
+                    pJointPos[1] += m_links[i].getAxisBottom(1).dot(no_q0_coors_qd1qd2) * dt;
+                    pJointPos[2] += m_links[i].getAxisBottom(2).dot(no_q0_coors_qd1qd2) * dt;
+                    break;
                 }
-                pJointPos[0] += dt * getJointVelMultiDof(i)[0];
-                
-                btVector3 q0_coors_qd1qd2 = getJointVelMultiDof(i)[1] * m_links[i].getAxisBottom(1) + getJointVelMultiDof(i)[2] * m_links[i].getAxisBottom(2);
-                btVector3 no_q0_coors_qd1qd2 = quatRotate(btQuaternion(m_links[i].getAxisTop(0), pJointPos[0]), q0_coors_qd1qd2);
-                pJointPos[1] += m_links[i].getAxisBottom(1).dot(no_q0_coors_qd1qd2) * dt;
-                pJointPos[2] += m_links[i].getAxisBottom(2).dot(no_q0_coors_qd1qd2) * dt;
-                break;
-            }
-            default:
-            {
-            }
+                default:
+                {
+                }
+						}
         }
         
         m_links[i].updateInterpolationCacheMultiDof();
@@ -1854,48 +1886,51 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd
 	// Finally we can update m_jointPos for each of the m_links
 	for (int i = 0; i < num_links; ++i)
 	{
-        btScalar *pJointPos;
-        pJointPos= (pq ? pq : &m_links[i].m_jointPos[0]);
-        
-		btScalar *pJointVel = (pqd ? pqd : getJointVelMultiDof(i));
-
-		switch (m_links[i].m_jointType)
+		if(!m_links[i].isStaticOrKinematic())
 		{
-			case btMultibodyLink::ePrismatic:
-			case btMultibodyLink::eRevolute:
-			{
-                //reset to current pos
-				btScalar jointVel = pJointVel[0];
-				pJointPos[0] += dt * jointVel;
-				break;
-			}
-			case btMultibodyLink::eSpherical:
-			{
-                //reset to current pos
-				btVector3 jointVel;
-				jointVel.setValue(pJointVel[0], pJointVel[1], pJointVel[2]);
-				btQuaternion jointOri;
-				jointOri.setValue(pJointPos[0], pJointPos[1], pJointPos[2], pJointPos[3]);
-				pQuatUpdateFun(jointVel, jointOri, false, dt);
-				pJointPos[0] = jointOri.x();
-				pJointPos[1] = jointOri.y();
-				pJointPos[2] = jointOri.z();
-				pJointPos[3] = jointOri.w();
-				break;
-			}
-			case btMultibodyLink::ePlanar:
-			{
-				pJointPos[0] += dt * getJointVelMultiDof(i)[0];
+			btScalar *pJointPos;
+			pJointPos= (pq ? pq : &m_links[i].m_jointPos[0]);
+		
+			btScalar *pJointVel = (pqd ? pqd : getJointVelMultiDof(i));
 
-				btVector3 q0_coors_qd1qd2 = getJointVelMultiDof(i)[1] * m_links[i].getAxisBottom(1) + getJointVelMultiDof(i)[2] * m_links[i].getAxisBottom(2);
-				btVector3 no_q0_coors_qd1qd2 = quatRotate(btQuaternion(m_links[i].getAxisTop(0), pJointPos[0]), q0_coors_qd1qd2);
-				pJointPos[1] += m_links[i].getAxisBottom(1).dot(no_q0_coors_qd1qd2) * dt;
-				pJointPos[2] += m_links[i].getAxisBottom(2).dot(no_q0_coors_qd1qd2) * dt;
-
-				break;
-			}
-			default:
+			switch (m_links[i].m_jointType)
 			{
+				case btMultibodyLink::ePrismatic:
+				case btMultibodyLink::eRevolute:
+				{
+    	            //reset to current pos
+					btScalar jointVel = pJointVel[0];
+					pJointPos[0] += dt * jointVel;
+					break;
+				}
+				case btMultibodyLink::eSpherical:
+				{
+    	            //reset to current pos
+					btVector3 jointVel;
+					jointVel.setValue(pJointVel[0], pJointVel[1], pJointVel[2]);
+					btQuaternion jointOri;
+					jointOri.setValue(pJointPos[0], pJointPos[1], pJointPos[2], pJointPos[3]);
+					pQuatUpdateFun(jointVel, jointOri, false, dt);
+					pJointPos[0] = jointOri.x();
+					pJointPos[1] = jointOri.y();
+					pJointPos[2] = jointOri.z();
+					pJointPos[3] = jointOri.w();
+					break;
+				}
+				case btMultibodyLink::ePlanar:
+				{
+					pJointPos[0] += dt * getJointVelMultiDof(i)[0];
+
+					btVector3 q0_coors_qd1qd2 = getJointVelMultiDof(i)[1] * m_links[i].getAxisBottom(1) + getJointVelMultiDof(i)[2] * m_links[i].getAxisBottom(2);
+					btVector3 no_q0_coors_qd1qd2 = quatRotate(btQuaternion(m_links[i].getAxisTop(0), pJointPos[0]), q0_coors_qd1qd2);
+					pJointPos[1] += m_links[i].getAxisBottom(1).dot(no_q0_coors_qd1qd2) * dt;
+					pJointPos[2] += m_links[i].getAxisBottom(2).dot(no_q0_coors_qd1qd2) * dt;
+
+					break;
+				}
+				default:
+				{
+				}
 			}
 		}
 
