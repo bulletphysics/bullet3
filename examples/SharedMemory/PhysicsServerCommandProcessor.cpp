@@ -5759,6 +5759,8 @@ bool PhysicsServerCommandProcessor::processCustomCommand(const struct SharedMemo
 	serverCmd.m_type = CMD_CUSTOM_COMMAND_FAILED;
 	serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes = 0;
 	serverCmd.m_customCommandResultArgs.m_returnDataType = -1;
+	serverCmd.m_customCommandResultArgs.m_returnDataStart = 0;
+	
 	serverCmd.m_customCommandResultArgs.m_pluginUniqueId = -1;
 
 	if (clientCmd.m_updateFlags & CMD_CUSTOM_COMMAND_LOAD_PLUGIN)
@@ -5783,36 +5785,20 @@ bool PhysicsServerCommandProcessor::processCustomCommand(const struct SharedMemo
 		m_data->m_pluginManager.unloadPlugin(clientCmd.m_customCommandArgs.m_pluginUniqueId);
 		serverCmd.m_type = CMD_CUSTOM_COMMAND_COMPLETED;
 	}
-	if (clientCmd.m_updateFlags & CMD_CUSTOM_COMMAND_STREAM_RETURN_DATA)
-	{
-		serverCmd.m_type = CMD_CUSTOM_COMMAND_STREAM_RETURN_DATA_FAILED;
-		const b3UserDataValue* returnData = m_data->m_pluginManager.getReturnData(clientCmd.m_customCommandArgs.m_pluginUniqueId);
-		if (returnData)
-		{
-			int startBytes = clientCmd.m_customCommandArgs.m_startingReturnBytes;
-			if (startBytes >= 0 && startBytes < returnData->m_length)
-			{
-				int totalRemain = returnData->m_length - startBytes;
-				int numBytes = totalRemain <= bufferSizeInBytes ? totalRemain : bufferSizeInBytes;
-				serverStatusOut.m_numDataStreamBytes = numBytes;
-				for (int i = 0; i < numBytes; i++)
-				{
-					bufferServerToClient[i] = returnData->m_data1[i + startBytes];
-				}
-				serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes = returnData->m_length;
-				serverCmd.m_customCommandResultArgs.m_returnDataType = returnData->m_type;
-				serverCmd.m_type = CMD_CUSTOM_COMMAND_STREAM_RETURN_DATA_COMPLETED;
-			}
-		}
-	}
+	
 	if (clientCmd.m_updateFlags & CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND)
 	{
-		int result = m_data->m_pluginManager.executePluginCommand(clientCmd.m_customCommandArgs.m_pluginUniqueId, &clientCmd.m_customCommandArgs.m_arguments);
-		serverCmd.m_customCommandResultArgs.m_executeCommandResult = result;
+		int startBytes = clientCmd.m_customCommandArgs.m_startingReturnBytes;
+		if (startBytes == 0)
+		{
+			int result = m_data->m_pluginManager.executePluginCommand(clientCmd.m_customCommandArgs.m_pluginUniqueId, &clientCmd.m_customCommandArgs.m_arguments);
+			serverCmd.m_customCommandResultArgs.m_executeCommandResult = result;
+		}
 		const b3UserDataValue* returnData = m_data->m_pluginManager.getReturnData(clientCmd.m_customCommandArgs.m_pluginUniqueId);
 		if (returnData)
 		{
-			int numBytes = returnData->m_length <= bufferSizeInBytes ? returnData->m_length : bufferSizeInBytes;
+			int totalRemain = returnData->m_length - startBytes;
+			int numBytes = totalRemain <= bufferSizeInBytes ? totalRemain : bufferSizeInBytes;
 			serverStatusOut.m_numDataStreamBytes = numBytes;
 			for (int i = 0; i < numBytes; i++)
 			{
@@ -5820,6 +5806,7 @@ bool PhysicsServerCommandProcessor::processCustomCommand(const struct SharedMemo
 			}
 			serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes = returnData->m_length;
 			serverCmd.m_customCommandResultArgs.m_returnDataType = returnData->m_type;
+			serverCmd.m_customCommandResultArgs.m_returnDataStart = startBytes;
 		}
 		else
 		{

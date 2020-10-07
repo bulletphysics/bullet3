@@ -3069,7 +3069,7 @@ B3_SHARED_API void b3CustomCommandExecutePluginCommand(b3SharedMemoryCommandHand
 	{
 		command->m_updateFlags |= CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND;
 		command->m_customCommandArgs.m_pluginUniqueId = pluginUniqueId;
-
+		command->m_customCommandArgs.m_startingReturnBytes = 0;
 		command->m_customCommandArgs.m_arguments.m_numInts = 0;
 		command->m_customCommandArgs.m_arguments.m_numFloats = 0;
 		command->m_customCommandArgs.m_arguments.m_text[0] = 0;
