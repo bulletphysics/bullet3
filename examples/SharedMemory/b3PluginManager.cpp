@@ -51,6 +51,7 @@ struct b3Plugin
 	PFN_GET_FILEIO_INTERFACE m_getFileIOFunc;
 
 	void* m_userPointer;
+	b3UserDataValue* m_returnData;
 
 	b3Plugin()
 		: m_pluginHandle(0),
@@ -67,7 +68,8 @@ struct b3Plugin
 		  m_getRendererFunc(0),
 		  m_getCollisionFunc(0),
 		  m_getFileIOFunc(0),
-		  m_userPointer(0)
+		  m_userPointer(0),
+		  m_returnData(0)
 	{
 	}
 	void clear()
@@ -88,6 +90,7 @@ struct b3Plugin
 		m_getCollisionFunc = 0;
 		m_getFileIOFunc = 0;
 		m_userPointer = 0;
+		m_returnData = 0;
 		m_isInitialized = false;
 	}
 };
@@ -331,6 +334,7 @@ void b3PluginManager::unloadPlugin(int pluginUniqueId)
 		{
 			plugin->m_exitFunc(&context);
 			plugin->m_userPointer = 0;
+			plugin->m_returnData = 0;
 			plugin->m_isInitialized = false;
 		}
 		m_data->m_pluginMap.remove(plugin->m_pluginPath.c_str());
@@ -451,6 +455,7 @@ int b3PluginManager::executePluginCommand(int pluginUniqueId, const b3PluginArgu
 		context.m_rpcCommandProcessorInterface = m_data->m_rpcCommandProcessorInterface;
 		result = plugin->m_executeCommandFunc(&context, arguments);
 		plugin->m_userPointer = context.m_userPointer;
+		plugin->m_returnData = context.m_returnData;
 	}
 	return result;
 }
@@ -478,6 +483,7 @@ int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath,  b3Plugi
 	pluginHandle->m_pluginHandle = 0;
 	pluginHandle->m_pluginPath = pluginPath;
 	pluginHandle->m_userPointer = 0;
+	pluginHandle->m_returnData = 0;
 
 	if (pluginHandle->m_processNotificationsFunc)
 	{
@@ -490,11 +496,13 @@ int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath,  b3Plugi
 	{
 		b3PluginContext context = {0};
 		context.m_userPointer = 0;
+		context.m_returnData = 0;
 		context.m_physClient = (b3PhysicsClientHandle)m_data->m_physicsDirect;
 		context.m_rpcCommandProcessorInterface = m_data->m_rpcCommandProcessorInterface;
 		int result = pluginHandle->m_initFunc(&context);
 		pluginHandle->m_isInitialized = true;
 		pluginHandle->m_userPointer = context.m_userPointer;
+		pluginHandle->m_returnData = 0;
 	}
 	return pluginUniqueId;
 }
@@ -568,4 +576,14 @@ struct b3PluginCollisionInterface* b3PluginManager::getCollisionInterface()
 		}
 	}
 	return collisionInterface;
+}
+
+const struct b3UserDataValue* b3PluginManager::getReturnData(int pluginUniqueId)
+{
+	b3PluginHandle* plugin = m_data->m_plugins.getHandle(pluginUniqueId);
+	if (plugin)
+	{
+		return plugin->m_returnData;
+	}
+	return 0;
 }

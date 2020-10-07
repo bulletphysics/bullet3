@@ -69,6 +69,9 @@ struct PhysicsClientSharedMemoryInternalData
 	btHashMap<btHashInt, SharedMemoryUserData> m_userDataMap;
 	btHashMap<SharedMemoryUserDataHashKey, int> m_userDataHandleLookup;
 
+	btAlignedObjectArray<char> m_cachedReturnData;
+	b3UserDataValue m_cachedReturnDataValue;
+
 	SharedMemoryStatus m_tempBackupServerStatus;
 
 	SharedMemoryStatus m_lastServerStatus;
@@ -1350,8 +1353,22 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 				b3Warning("Request getCollisionInfo failed");
 				break;
 			}
+			
 			case CMD_CUSTOM_COMMAND_COMPLETED:
 			{
+
+				m_data->m_cachedReturnData.resize(serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes);
+				m_data->m_cachedReturnDataValue.m_length = serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes;
+
+				if (serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes)
+				{
+					m_data->m_cachedReturnDataValue.m_type = serverCmd.m_customCommandResultArgs.m_returnDataType;
+					m_data->m_cachedReturnDataValue.m_data1 = &m_data->m_cachedReturnData[0];
+					for (int i = 0; i < serverCmd.m_numDataStreamBytes; i++)
+					{
+						m_data->m_cachedReturnData[i + serverCmd.m_customCommandResultArgs.m_returnDataStart] = m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[i];
+					}
+				}
 				break;
 			}
 			case CMD_CALCULATED_JACOBIAN_COMPLETED:
@@ -1664,6 +1681,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			m_data->m_lastServerStatus = m_data->m_tempBackupServerStatus;
 		}
 
+		
 		if (serverCmd.m_type == CMD_REMOVE_USER_DATA_COMPLETED)
 		{
 			B3_PROFILE("CMD_REMOVE_USER_DATA_COMPLETED");
@@ -1851,6 +1869,23 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			return 0;
 		}
 
+		if (serverCmd.m_type == CMD_CUSTOM_COMMAND_COMPLETED)
+		{
+			int totalReceived = (serverCmd.m_numDataStreamBytes + serverCmd.m_customCommandResultArgs.m_returnDataStart);
+			int remaining = serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes - totalReceived;
+			
+			if (remaining > 0)
+			{
+				// continue requesting return data
+				SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
+				command.m_type = CMD_CUSTOM_COMMAND;
+				command.m_customCommandArgs.m_startingReturnBytes =
+					totalReceived;
+				submitClientCommand(command);
+				return 0;
+			}
+		}
+
 		return &m_data->m_lastServerStatus;
 	}
 	else
@@ -2006,6 +2041,16 @@ void PhysicsClientSharedMemory::getCachedMassMatrix(int dofCountCheck, double* m
 	}
 }
 
+bool PhysicsClientSharedMemory::getCachedReturnData(b3UserDataValue* returnData)
+{
+	if (m_data->m_cachedReturnDataValue.m_length)
+	{
+		*returnData = m_data->m_cachedReturnDataValue;
+		return true;
+	}
+	return false;
+
+}
 void PhysicsClientSharedMemory::getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo)
 {
 	visualShapesInfo->m_numVisualShapes = m_data->m_cachedVisualShapes.size();

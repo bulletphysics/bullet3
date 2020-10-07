@@ -227,6 +227,10 @@ void PhysicsLoopBack::getCachedMassMatrix(int dofCountCheck, double* massMatrix)
 {
 	m_data->m_physicsClient->getCachedMassMatrix(dofCountCheck, massMatrix);
 }
+bool PhysicsLoopBack::getCachedReturnData(struct b3UserDataValue* returnData)
+{
+	return m_data->m_physicsClient->getCachedReturnData(returnData);
+}
 
 void PhysicsLoopBack::setTimeOut(double timeOutInSeconds)
 {

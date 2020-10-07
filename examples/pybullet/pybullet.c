@@ -11215,6 +11215,7 @@ static PyObject* pybullet_executePluginCommand(PyObject* self,
 	b3SharedMemoryCommandHandle command = 0;
 	b3SharedMemoryStatusHandle statusHandle = 0;
 	int statusType = -1;
+	int statusResult = -1;
 	PyObject* intArgs = 0;
 	PyObject* floatArgs = 0;
 
@@ -11263,8 +11264,34 @@ static PyObject* pybullet_executePluginCommand(PyObject* self,
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-	statusType = b3GetStatusPluginCommandResult(statusHandle);
-	return PyInt_FromLong(statusType);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType == CMD_CUSTOM_COMMAND_COMPLETED)
+	{
+		statusResult = b3GetStatusPluginCommandResult(statusHandle);
+		struct b3UserDataValue dv;
+		if (b3GetStatusPluginCommandReturnData(sm, &dv))
+		{
+			assert(dv.m_length>0);
+			PyObject* pylist;
+			PyObject* pydata;
+			int i;
+			//return type
+			//user data type
+			//bytes
+			pylist = PyTuple_New(3);
+			PyTuple_SetItem(pylist, 0, PyInt_FromLong(statusResult));
+			PyTuple_SetItem(pylist, 1, PyInt_FromLong(dv.m_type));
+			pydata = PyTuple_New(dv.m_length);
+			for (i = 0; i < dv.m_length; i++)
+			{
+				PyTuple_SetItem(pydata, i, PyInt_FromLong(dv.m_data1[i]));
+			}
+			PyTuple_SetItem(pylist, 2, pydata);
+			return pylist;
+		}
+		return PyInt_FromLong(statusResult);
+	}
+	return PyInt_FromLong(-1);
 }
 
 
