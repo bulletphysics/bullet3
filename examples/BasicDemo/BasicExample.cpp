@@ -24,7 +24,6 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
-#include <iostream>
 
 struct BasicExample : public CommonRigidBodyBase
 {
