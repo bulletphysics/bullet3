@@ -23,64 +23,64 @@ int main(int argc, char** argv)
 {
 	///-----includes_end-----
 
-	int i;
-	///-----initialization_start-----
-
-	///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
-
-	///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
-	btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
-
-	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-
-	btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-
-	dynamicsWorld->setGravity(btVector3(0, -10, 0));
-
-	///-----initialization_end-----
-
-	//keep track of the shapes, we release memory at exit.
-	//make sure to re-use collision shapes among rigid bodies whenever possible!
-	btAlignedObjectArray<btCollisionShape*> collisionShapes;
-
   ///create a few basic rigid bodies
-
-  //the ground is a cube of side 100 at position y = -50.
-  {
-    btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
-
-    collisionShapes.push_back(groundShape);
-
-    btTransform groundTransform;
-    groundTransform.setIdentity();
-    groundTransform.setOrigin(btVector3(0, -50, 0));
-
-    btScalar mass(0.);
-
-    //rigidbody is dynamic if and only if mass is non zero, otherwise static
-    bool isDynamic = (mass != 0.f);
-
-    btVector3 localInertia(0, 0, 0);
-    if (isDynamic)
-      groundShape->calculateLocalInertia(mass, localInertia);
-
-    //using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
-    btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
-    btRigidBody* body = new btRigidBody(rbInfo);
-
-    //add the body to the dynamics world
-    dynamicsWorld->addRigidBody(body);
-  }
 
   // Here's the start of the loop where we resimulate and evaluate determinism
   constexpr int numReps = 10;
   for (int k = 0; k < numReps; k++) {
+
+    int i;
+    ///-----initialization_start-----
+
+    ///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
+    btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+
+    ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+    btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+
+    ///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
+    btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
+
+    ///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
+    btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+
+    btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+
+    dynamicsWorld->setGravity(btVector3(0, -10, 0));
+
+    ///-----initialization_end-----
+
+    //keep track of the shapes, we release memory at exit.
+    //make sure to re-use collision shapes among rigid bodies whenever possible!
+    btAlignedObjectArray<btCollisionShape*> collisionShapes;
+    
+    //the ground is a cube of side 100 at position y = -50.
+    {
+      btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
+
+      collisionShapes.push_back(groundShape);
+
+      btTransform groundTransform;
+      groundTransform.setIdentity();
+      groundTransform.setOrigin(btVector3(0, -50, 0));
+
+      btScalar mass(0.);
+
+      //rigidbody is dynamic if and only if mass is non zero, otherwise static
+      bool isDynamic = (mass != 0.f);
+
+      btVector3 localInertia(0, 0, 0);
+      if (isDynamic)
+        groundShape->calculateLocalInertia(mass, localInertia);
+
+      //using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
+      btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+      btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
+      btRigidBody* body = new btRigidBody(rbInfo);
+
+      //add the body to the dynamics world
+      dynamicsWorld->addRigidBody(body);
+    }
 
     assert(dynamicsWorld->getNumCollisionObjects() == 1); // we don't recreate the ground; it persists across reps
 
@@ -161,8 +161,8 @@ int main(int argc, char** argv)
 
     ///-----cleanup_start-----
 
-    //remove the rigidbodies from the dynamics world and delete them, except for the ground plane
-    for (i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 1; i--)
+    //remove the rigidbodies from the dynamics world and delete them
+    for (i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
     {
       btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
       btRigidBody* body = btRigidBody::upcast(obj);
@@ -174,31 +174,32 @@ int main(int argc, char** argv)
       delete obj;
     }
 
-    // Let's not delete the shapes until after all the reps
+    //delete collision shapes
+    for (int j = 0; j < collisionShapes.size(); j++)
+    {
+      btCollisionShape* shape = collisionShapes[j];
+      collisionShapes[j] = 0;
+      delete shape;
+    }
+
+
+    //delete dynamics world
+    delete dynamicsWorld;
+
+    //delete solver
+    delete solver;
+
+    //delete broadphase
+    delete overlappingPairCache;
+
+    //delete dispatcher
+    delete dispatcher;
+
+    delete collisionConfiguration;
+
+    //next line is optional: it will be cleared by the destructor when the array goes out of scope
+    collisionShapes.clear();    
   }
 
-  //delete collision shapes
-  for (int j = 0; j < collisionShapes.size(); j++)
-  {
-    btCollisionShape* shape = collisionShapes[j];
-    collisionShapes[j] = 0;
-    delete shape;
-  }
 
-	//delete dynamics world
-	delete dynamicsWorld;
-
-	//delete solver
-	delete solver;
-
-	//delete broadphase
-	delete overlappingPairCache;
-
-	//delete dispatcher
-	delete dispatcher;
-
-	delete collisionConfiguration;
-
-	//next line is optional: it will be cleared by the destructor when the array goes out of scope
-	collisionShapes.clear();
 }
