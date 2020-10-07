@@ -1356,6 +1356,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			
 			case CMD_CUSTOM_COMMAND_COMPLETED:
 			{
+
 				m_data->m_cachedReturnData.resize(serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes);
 				m_data->m_cachedReturnDataValue.m_length = serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes;
 
@@ -1365,7 +1366,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 					m_data->m_cachedReturnDataValue.m_data1 = &m_data->m_cachedReturnData[0];
 					for (int i = 0; i < serverCmd.m_numDataStreamBytes; i++)
 					{
-						m_data->m_cachedReturnData[i] = m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[i];
+						m_data->m_cachedReturnData[i + serverCmd.m_customCommandResultArgs.m_returnDataStart] = m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[i];
 					}
 				}
 				break;
@@ -1680,6 +1681,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 			m_data->m_lastServerStatus = m_data->m_tempBackupServerStatus;
 		}
 
+		
 		if (serverCmd.m_type == CMD_REMOVE_USER_DATA_COMPLETED)
 		{
 			B3_PROFILE("CMD_REMOVE_USER_DATA_COMPLETED");
@@ -1865,6 +1867,23 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 				serverCmd.m_sendDebugLinesArgs.m_startingLineIndex;
 			submitClientCommand(command);
 			return 0;
+		}
+
+		if (serverCmd.m_type == CMD_CUSTOM_COMMAND_COMPLETED)
+		{
+			int totalReceived = (serverCmd.m_numDataStreamBytes + serverCmd.m_customCommandResultArgs.m_returnDataStart);
+			int remaining = serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes - totalReceived;
+			
+			if (remaining > 0)
+			{
+				// continue requesting return data
+				SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
+				command.m_type = CMD_CUSTOM_COMMAND;
+				command.m_customCommandArgs.m_startingReturnBytes =
+					totalReceived;
+				submitClientCommand(command);
+				return 0;
+			}
 		}
 
 		return &m_data->m_lastServerStatus;

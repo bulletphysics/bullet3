@@ -1312,18 +1312,6 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		}
 		case CMD_CUSTOM_COMMAND_COMPLETED:
 		{
-			m_data->m_cachedReturnData.resize(serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes);
-			m_data->m_cachedReturnDataValue.m_length = serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes;
-
-			if (serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes)
-			{
-				m_data->m_cachedReturnDataValue.m_type = serverCmd.m_customCommandResultArgs.m_returnDataType;
-				m_data->m_cachedReturnDataValue.m_data1 = &m_data->m_cachedReturnData[0];
-				for (int i = 0; i < serverCmd.m_numDataStreamBytes; i++)
-				{
-					m_data->m_cachedReturnData[i] = m_data->m_bulletStreamDataServerToClient[i];
-				}
-			}
 			break;
 		}
 		default:
@@ -1333,8 +1321,84 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 
 	};
 }
+
+
+bool PhysicsDirect::processCustomCommand(const struct SharedMemoryCommand& orgCommand)
+{
+	SharedMemoryCommand command = orgCommand;
+
+	const SharedMemoryStatus& serverCmd = m_data->m_serverStatus;
+
+	int remaining = 0;
+	do
+	{
+		bool hasStatus = m_data->m_commandProcessor->processCommand(command, m_data->m_serverStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+
+		b3Clock clock;
+		double startTime = clock.getTimeInSeconds();
+		double timeOutInSeconds = m_data->m_timeOutInSeconds;
+
+		while ((!hasStatus) && (clock.getTimeInSeconds() - startTime < timeOutInSeconds))
+		{
+			const SharedMemoryStatus* stat = processServerStatus();
+			if (stat)
+			{
+				hasStatus = true;
+			}
+		}
+
+		m_data->m_hasStatus = hasStatus;
+
+		if (hasStatus)
+		{
+			
+			if (m_data->m_verboseOutput)
+			{
+				b3Printf("Success receiving %d return data\n",
+					serverCmd.m_numDataStreamBytes);
+			}
+
+			
+			btAssert(m_data->m_serverStatus.m_type == CMD_CUSTOM_COMMAND_COMPLETED);
+
+			if (m_data->m_serverStatus.m_type == CMD_CUSTOM_COMMAND_COMPLETED)
+			{
+				m_data->m_cachedReturnData.resize(serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes);
+				m_data->m_cachedReturnDataValue.m_length = serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes;
+
+				if (serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes)
+				{
+					m_data->m_cachedReturnDataValue.m_type = serverCmd.m_customCommandResultArgs.m_returnDataType;
+					m_data->m_cachedReturnDataValue.m_data1 = &m_data->m_cachedReturnData[0];
+					for (int i = 0; i < serverCmd.m_numDataStreamBytes; i++)
+					{
+						m_data->m_cachedReturnData[i+ serverCmd.m_customCommandResultArgs.m_returnDataStart] = m_data->m_bulletStreamDataServerToClient[i];
+					}
+				}
+				int totalReceived = serverCmd.m_numDataStreamBytes + serverCmd.m_customCommandResultArgs.m_returnDataStart;
+				remaining = serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes - totalReceived;
+
+				if (remaining > 0)
+				{
+					m_data->m_hasStatus = false;
+					command.m_type = CMD_CUSTOM_COMMAND;
+					command.m_customCommandArgs.m_startingReturnBytes =
+						totalReceived;
+				}
+			}
+		}
+
+	} while (remaining > 0);
+
+	return m_data->m_hasStatus;
+}
+
 bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& command)
 {
+	if (command.m_type == CMD_CUSTOM_COMMAND)
+	{
+		return processCustomCommand(command);
+	}
 	if (command.m_type == CMD_REQUEST_DEBUG_LINES)
 	{
 		return processDebugLines(command);

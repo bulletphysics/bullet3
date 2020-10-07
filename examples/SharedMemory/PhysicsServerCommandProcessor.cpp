@@ -5802,7 +5802,7 @@ bool PhysicsServerCommandProcessor::processCustomCommand(const struct SharedMemo
 			serverStatusOut.m_numDataStreamBytes = numBytes;
 			for (int i = 0; i < numBytes; i++)
 			{
-				bufferServerToClient[i] = returnData->m_data1[i];
+				bufferServerToClient[i] = returnData->m_data1[i+ startBytes];
 			}
 			serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes = returnData->m_length;
 			serverCmd.m_customCommandResultArgs.m_returnDataType = returnData->m_type;

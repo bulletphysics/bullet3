@@ -22,11 +22,13 @@ protected:
 
 	bool processVisualShapeData(const struct SharedMemoryCommand& orgCommand);
 
-  bool processMeshData(const struct SharedMemoryCommand& orgCommand);
+	bool processMeshData(const struct SharedMemoryCommand& orgCommand);
 
 	void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
 
 	void processAddUserData(const struct SharedMemoryStatus& serverCmd);
+
+	bool processCustomCommand(const struct SharedMemoryCommand& orgCommand);
 
 	void postProcessStatus(const struct SharedMemoryStatus& serverCmd);
 
