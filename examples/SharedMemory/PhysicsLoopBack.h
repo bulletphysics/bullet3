@@ -88,6 +88,8 @@ public:
 
 	virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix);
 
+	virtual bool getCachedReturnData(struct b3UserDataValue* returnData);
+
 	virtual void setTimeOut(double timeOutInSeconds);
 	virtual double getTimeOut() const;
 

@@ -132,12 +132,16 @@ struct b3CustomCommand
 	b3PluginArguments m_arguments;
 	char m_pluginPath[MAX_FILENAME_LENGTH];
 	char m_postFix[MAX_FILENAME_LENGTH];
+	int m_startingReturnBytes;
 };
 
 struct b3CustomCommandResultArgs
 {
 	int m_pluginUniqueId;
 	int m_executeCommandResult;
+	int m_returnDataType;
+	int m_returnDataSizeInBytes;
+	int m_returnDataStart;
 };
 
 struct BulletDataStreamArgs
