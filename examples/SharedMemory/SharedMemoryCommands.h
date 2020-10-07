@@ -124,6 +124,7 @@ enum CustomCommandEnum
 	CMD_CUSTOM_COMMAND_UNLOAD_PLUGIN = 2,
 	CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND = 4,
 	CMD_CUSTOM_COMMAND_LOAD_PLUGIN_POSTFIX = 8,
+	CMD_CUSTOM_COMMAND_STREAM_RETURN_DATA = 16,
 };
 
 struct b3CustomCommand
@@ -132,12 +133,15 @@ struct b3CustomCommand
 	b3PluginArguments m_arguments;
 	char m_pluginPath[MAX_FILENAME_LENGTH];
 	char m_postFix[MAX_FILENAME_LENGTH];
+	int m_startingReturnBytes;
 };
 
 struct b3CustomCommandResultArgs
 {
 	int m_pluginUniqueId;
 	int m_executeCommandResult;
+	int m_returnDataType;
+	int m_returnDataSizeInBytes;
 };
 
 struct BulletDataStreamArgs

@@ -79,6 +79,10 @@ struct PhysicsDirectInternalData
 	btHashMap<btHashInt, SharedMemoryUserData> m_userDataMap;
 	btHashMap<SharedMemoryUserDataHashKey, int> m_userDataHandleLookup;
 
+	btAlignedObjectArray<char> m_cachedReturnData;
+	b3UserDataValue m_cachedReturnDataValue;
+
+
 	PhysicsCommandProcessorInterface* m_commandProcessor;
 	bool m_ownsCommandProcessor;
 	double m_timeOutInSeconds;
@@ -1113,10 +1117,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			b3Warning("Request mesh data failed");
 			break;
 		}
-		case CMD_CUSTOM_COMMAND_COMPLETED:
-		{
-			break;
-		}
+		
 		case CMD_CUSTOM_COMMAND_FAILED:
 		{
 			b3Warning("custom plugin command failed");
@@ -1309,10 +1310,27 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		{
 			break;
 		}
+		case CMD_CUSTOM_COMMAND_COMPLETED:
+		{
+			m_data->m_cachedReturnData.resize(serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes);
+			m_data->m_cachedReturnDataValue.m_length = serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes;
+
+			if (serverCmd.m_customCommandResultArgs.m_returnDataSizeInBytes)
+			{
+				m_data->m_cachedReturnDataValue.m_type = serverCmd.m_customCommandResultArgs.m_returnDataType;
+				m_data->m_cachedReturnDataValue.m_data1 = &m_data->m_cachedReturnData[0];
+				for (int i = 0; i < serverCmd.m_numDataStreamBytes; i++)
+				{
+					m_data->m_cachedReturnData[i] = m_data->m_bulletStreamDataServerToClient[i];
+				}
+			}
+			break;
+		}
 		default:
 		{
 			//b3Warning("Unknown server status type");
 		}
+
 	};
 }
 bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& command)
@@ -1649,6 +1667,16 @@ void PhysicsDirect::getCachedMassMatrix(int dofCountCheck, double* massMatrix)
 			massMatrix[i] = m_data->m_cachedMassMatrix[i];
 		}
 	}
+}
+
+bool PhysicsDirect::getCachedReturnData(b3UserDataValue* returnData)
+{
+	if (m_data->m_cachedReturnDataValue.m_length)
+	{
+		*returnData = m_data->m_cachedReturnDataValue;
+		return true;
+	}
+	return false;
 }
 
 void PhysicsDirect::setTimeOut(double timeOutInSeconds)

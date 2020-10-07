@@ -112,6 +112,8 @@ public:
 
 	virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix);
 
+	virtual bool getCachedReturnData(b3UserDataValue* returnData);
+
 	//the following APIs are for internal use for visualization:
 	virtual bool connect(struct GUIHelperInterface* guiHelper);
 	virtual void renderScene();

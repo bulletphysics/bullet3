@@ -70,6 +70,8 @@ public:
 
 	void selectCollisionPlugin(int pluginUniqueId);
 	struct b3PluginCollisionInterface* getCollisionInterface();
+
+	const struct b3UserDataValue* getReturnData(int pluginUniqueId);
 };
 
 #endif  //B3_PLUGIN_MANAGER_H

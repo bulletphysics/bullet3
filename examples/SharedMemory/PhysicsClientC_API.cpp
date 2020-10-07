@@ -3024,6 +3024,16 @@ B3_SHARED_API int b3GetStatusPluginCommandResult(b3SharedMemoryStatusHandle stat
 	return statusUniqueId;
 }
 
+B3_SHARED_API int b3GetStatusPluginCommandReturnData(b3PhysicsClientHandle physClient, struct b3UserDataValue* valueOut)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	if (cl)
+	{
+		return cl->getCachedReturnData(valueOut);
+	}
+	return false;
+}
+
 B3_SHARED_API int b3GetStatusPluginUniqueId(b3SharedMemoryStatusHandle statusHandle)
 {
 	int statusUniqueId = -1;
