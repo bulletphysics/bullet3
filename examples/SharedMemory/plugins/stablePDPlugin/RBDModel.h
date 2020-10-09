@@ -10,7 +10,7 @@ class cRBDModel
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	cRBDModel();
-	~cRBDModel();
+	virtual ~cRBDModel();
 
 	virtual void Init(const Eigen::MatrixXd& joint_mat, const Eigen::MatrixXd& body_defs, const tVector& gravity);
 	virtual void Update(const Eigen::VectorXd& pose, const Eigen::VectorXd& vel);
