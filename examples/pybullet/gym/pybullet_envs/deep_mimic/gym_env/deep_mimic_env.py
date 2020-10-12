@@ -169,9 +169,9 @@ class HumanoidDeepBulletEnv(gym.Env):
 
     # Record state
     self.state = self._internal_env.record_state(agent_id)
+    state = self.state
     
     if self._rescale_observations:
-      state = np.array(self.state)
       mean = -self._state_offset
       std = 1./self._state_scale
       state = (state - mean) / (std + 1e-8)
@@ -181,9 +181,11 @@ class HumanoidDeepBulletEnv(gym.Env):
 
     self.camera_update()
     
-    info = {}
     # get the reward info
-    info['reward'] = self._internal_env._humanoid._info_rew
+    info = {
+      'reward': self._internal_env._humanoid._info_rew,
+      'error': self._internal_env._humanoid._info_err
+    }
     
     return state, reward, done, info
 

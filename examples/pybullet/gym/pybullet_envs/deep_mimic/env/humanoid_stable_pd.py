@@ -33,6 +33,8 @@ class HumanoidStablePD(object):
         useFixedBase=useFixedBase,
         flags=flags)
 
+    self._num_joints = self._pybullet_client.getNumJoints(self._sim_model)
+
     #self._pybullet_client.setCollisionFilterGroupMask(self._sim_model,-1,collisionFilterGroup=0,collisionFilterMask=0)
     #for j in range (self._pybullet_client.getNumJoints(self._sim_model)):
     #  self._pybullet_client.setCollisionFilterGroupMask(self._sim_model,j,collisionFilterGroup=0,collisionFilterMask=0)
@@ -46,7 +48,7 @@ class HumanoidStablePD(object):
         flags=self._pybullet_client.URDF_MAINTAIN_LINK_ORDER)
 
     self._pybullet_client.changeDynamics(self._sim_model, -1, lateralFriction=0.9)
-    for j in range(self._pybullet_client.getNumJoints(self._sim_model)):
+    for j in range(self._num_joints):
       self._pybullet_client.changeDynamics(self._sim_model, j, lateralFriction=0.9)
 
     self._pybullet_client.changeDynamics(self._sim_model, -1, linearDamping=0, angularDamping=0)
@@ -150,7 +152,15 @@ class HumanoidStablePD(object):
     self.setSimTime(0)
 
     self._useComReward = useComReward
-
+    
+    masses = []
+    for j in range(self._num_joints):
+      di = self._pybullet_client.getDynamicsInfo(self._sim_model, j)
+      mass_ = di[0]
+      masses.append(mass_)
+    self.masses = np.array(masses)
+    self.total_mass = np.sum(self.masses)
+    
     self.resetPose()
 
   def resetPose(self):
@@ -796,9 +806,6 @@ class HumanoidStablePD(object):
     #tMatrix kin_origin_trans = kin_char.BuildOriginTrans();
     #
     #tVector com0_world = sim_char.CalcCOM();
-    if self._useComReward:
-      comSim, comSimVel = self.computeCOMposVel(self._sim_model)
-      comKin, comKinVel = self.computeCOMposVel(self._kin_model)
     #tVector com_vel0_world = sim_char.CalcCOMVel();
     #tVector com1_world;
     #tVector com_vel1_world;
@@ -849,7 +856,6 @@ class HumanoidStablePD(object):
       jointIndices = range(num_joints)
       simJointStates = self._pybullet_client.getJointStatesMultiDof(self._sim_model, jointIndices)
       kinJointStates = self._pybullet_client.getJointStatesMultiDof(self._kin_model, jointIndices)
-    if useArray:
       linkStatesSim = self._pybullet_client.getLinkStates(self._sim_model, jointIndices)
       linkStatesKin = self._pybullet_client.getLinkStates(self._kin_model, jointIndices)
     for j in range(num_joints):
@@ -947,9 +953,9 @@ class HumanoidStablePD(object):
 
     # COM error in initial code -> COM velocities
     if self._useComReward:
-      com_err = 0.1 * np.sum(np.square(comKinVel - comSimVel))
-    # com_err = 0.1 * np.sum(np.square(comKin - comSim))
-    #com_err = 0.1 * (com_vel1_world - com_vel0_world).squaredNorm()
+      comSim, comSimVel = self.computeCOMposVel(self._sim_model)
+      comKin, comKinVel = self.computeCOMposVel(self._kin_model)
+      com_err = 0.1 * np.linalg.norm(comKinVel - comSimVel) ** 2
 
     #print("pose_err=",pose_err)
     #print("vel_err=",vel_err)
@@ -974,7 +980,8 @@ class HumanoidStablePD(object):
       vel_reward=vel_reward,
       end_eff_reward=end_eff_reward,
       root_reward=root_reward,
-      com_reward=com_reward
+      com_reward=com_reward,
+      imitation_reward=reward
     )
     
     info_errs = dict(
@@ -994,18 +1001,13 @@ class HumanoidStablePD(object):
   def computeCOMposVel(self, uid: int):
     """Compute center-of-mass position and velocity."""
     pb = self._pybullet_client
-    num_joints = 15
-    jointIndices = range(num_joints)
+    jointIndices = range(self._num_joints)
     link_states = pb.getLinkStates(uid, jointIndices, computeLinkVelocity=1)
     link_pos = np.array([s[0] for s in link_states])
     link_vel = np.array([s[-2] for s in link_states])
-    tot_mass = 0.
-    masses = []
-    for j in jointIndices:
-      mass_, *_ = pb.getDynamicsInfo(uid, j)
-      masses.append(mass_)
-      tot_mass += mass_
-    masses = np.asarray(masses)[:, None]
-    com_pos = np.sum(masses * link_pos, axis=0) / tot_mass
-    com_vel = np.sum(masses * link_vel, axis=0) / tot_mass
-    return com_pos, com_vel
+    
+    masses = self.masses[:, None]
+    
+    comPos = np.sum(masses * link_pos, axis=0) / self.total_mass
+    comVel = np.sum(masses * link_vel, axis=0) / self.total_mass
+    return comPos, comVel
