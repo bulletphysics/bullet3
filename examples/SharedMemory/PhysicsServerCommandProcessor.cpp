@@ -10007,6 +10007,17 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 				{
 					rb->getCollisionShape()->setMargin(clientCmd.m_changeDynamicsInfoArgs.m_collisionMargin);
 				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
+				{
+					int dynamicType = clientCmd.m_changeDynamicsInfoArgs.m_dynamicType;
+					rb->setDynamicType(dynamicType);
+					// wenlongl: Not sure if I should enable this part. Need to be tested.
+					//bool isDynamic = dynamicType == eDynamic || dynamicType == eKinematic;
+					//int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+					//int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+					//m_data->m_dynamicsWorld->removeCollisionObject(rb);
+					//m_data->m_dynamicsWorld->addCollisionObject(rb, collisionFilterGroup, collisionFilterMask);
+				}
 			}
 			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_DYNAMIC_TYPE)
 			{
