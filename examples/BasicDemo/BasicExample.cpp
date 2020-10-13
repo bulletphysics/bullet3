@@ -34,8 +34,6 @@ struct BasicExample : public CommonRigidBodyBase
 	virtual ~BasicExample() {}
 	virtual void initPhysics();
 	virtual void renderScene();
-	virtual void stepSimulation(float deltaTime);
-	void animate(float deltaTime);
 	void resetCamera()
 	{
 		float dist = 4;
@@ -44,10 +42,6 @@ struct BasicExample : public CommonRigidBodyBase
 		float targetPos[3] = {0, 0, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
-	btRigidBody* m_kinematicBody1;
-	btRigidBody* m_kinematicBody2;
-	btScalar m_kinematicVelocity1;
-	btScalar m_kinematicVelocity2;
 };
 
 void BasicExample::initPhysics()
@@ -75,7 +69,7 @@ void BasicExample::initPhysics()
 
 	{
 		btScalar mass(0.);
-		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1), btCollisionObject::CF_STATIC_OBJECT);
+		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
 	{
@@ -93,6 +87,13 @@ void BasicExample::initPhysics()
 
 		btScalar mass(1.f);
 
+		//rigidbody is dynamic if and only if mass is non zero, otherwise static
+		bool isDynamic = (mass != 0.f);
+
+		btVector3 localInertia(0, 0, 0);
+		if (isDynamic)
+			colShape->calculateLocalInertia(mass, localInertia);
+
 		for (int k = 0; k < ARRAY_SIZE_Y; k++)
 		{
 			for (int i = 0; i < ARRAY_SIZE_X; i++)
@@ -104,26 +105,11 @@ void BasicExample::initPhysics()
 						btScalar(2 + .2 * k),
 						btScalar(0.2 * j)));
 
-					createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), btCollisionObject::CF_DYNAMIC_OBJECT);
+					createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1));
 				}
 			}
 		}
-
-		startTransform.setOrigin(btVector3(
-			btScalar(-0.5),
-			btScalar(0.1),
-			btScalar(0.5)));
-		m_kinematicBody1 = createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), btCollisionObject::CF_KINEMATIC_OBJECT);
-
-		startTransform.setOrigin(btVector3(
-			btScalar(1.5),
-			btScalar(0.1),
-			btScalar(0.5)));
-		m_kinematicBody2 = createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1), btCollisionObject::CF_KINEMATIC_OBJECT);
 	}
-
-	m_kinematicVelocity1 = 1.0;
-	m_kinematicVelocity2 = 0.1;
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
@@ -131,33 +117,6 @@ void BasicExample::initPhysics()
 void BasicExample::renderScene()
 {
 	CommonRigidBodyBase::renderScene();
-}
-
-void BasicExample::stepSimulation(float deltaTime)
-{
-	animate(deltaTime);
-	CommonRigidBodyBase::stepSimulation(deltaTime); 
-}
-
-void backAndForthMovement(btRigidBody* kinematicBody, btScalar& kinematicVelocity, float deltaTime)
-{
-	btTransform currentTransform = kinematicBody->getCenterOfMassTransform();
-	btVector3 currentOrigin = currentTransform.getOrigin();
-	if((kinematicVelocity > 0.0 && currentOrigin.x() >= 1.5) || (kinematicVelocity < 0.0 && currentOrigin.x() <= -0.5))
-	{
-		kinematicVelocity *= -1.0;
-	}
-	currentOrigin.setX(currentOrigin.x() + kinematicVelocity * deltaTime);
-	currentTransform.setOrigin(currentOrigin);
-	kinematicBody->setCenterOfMassTransform(currentTransform);
-	kinematicBody->getMotionState()->setWorldTransform(currentTransform);
-}
-
-void BasicExample::animate(float deltaTime)
-{
-	deltaTime = 1./60.;
-	backAndForthMovement(m_kinematicBody1, m_kinematicVelocity1, deltaTime);
-	backAndForthMovement(m_kinematicBody2, m_kinematicVelocity2, deltaTime);
 }
 
 CommonExampleInterface* BasicExampleCreateFunc(CommonExampleOptions& options)
