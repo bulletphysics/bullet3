@@ -251,7 +251,7 @@ public:
 		return m_collisionShape;
 	}
 
-	void setMassProps(btScalar mass, const btVector3& inertia, int dynamic_type);
+	void setMassProps(btScalar mass, const btVector3& inertia, int dynamic_type = btCollisionObject::CF_DYNAMIC_OBJECT);
 
 	void setDynamicType(int dynamic_type);
 

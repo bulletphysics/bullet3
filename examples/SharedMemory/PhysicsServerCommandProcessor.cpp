@@ -9978,14 +9978,14 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					{
 						rb->getCollisionShape()->calculateLocalInertia(mass, localInertia);
 					}
-					rb->setMassProps(mass, localInertia, btCollisionObject::CF_DYNAMIC_OBJECT);
+					rb->setMassProps(mass, localInertia);
 				}
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
 				{
 					btScalar orgMass = rb->getInvMass();
 					if (orgMass > 0)
 					{
-						rb->setMassProps(mass, newLocalInertiaDiagonal, btCollisionObject::CF_DYNAMIC_OBJECT);
+						rb->setMassProps(mass, newLocalInertiaDiagonal);
 					}
 				}
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANISOTROPIC_FRICTION)
