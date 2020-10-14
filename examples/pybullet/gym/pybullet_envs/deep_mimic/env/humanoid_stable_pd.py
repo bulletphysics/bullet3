@@ -826,8 +826,8 @@ class HumanoidStablePD(object):
         0.10416, 0.0625, 0.0416, 0.0625, 0.0416, 0.0000
     ]
 
-    num_end_effs = 0
-    num_joints = 15
+    num_end_effs = len(self._end_effectors)
+    num_joints = self._num_joints
 
     root_rot_w = mJointWeights[root_id]
     rootPosSim, rootOrnSim = self._pybullet_client.getBasePositionAndOrientation(self._sim_model)
@@ -928,7 +928,6 @@ class HumanoidStablePD(object):
         curr_end_err = linkPosDiff[0] * linkPosDiff[0] + linkPosDiff[1] * linkPosDiff[
             1] + linkPosDiff[2] * linkPosDiff[2]
         end_eff_err += curr_end_err
-        num_end_effs += 1
 
     # if (num_end_effs > 0):
     #   end_eff_err /= num_end_effs
@@ -980,7 +979,6 @@ class HumanoidStablePD(object):
       vel_reward=vel_reward,
       end_eff_reward=end_eff_reward,
       root_reward=root_reward,
-      com_reward=com_reward,
       imitation_reward=reward
     )
     
@@ -989,8 +987,11 @@ class HumanoidStablePD(object):
       vel_err=vel_err,
       end_eff_err=end_eff_err,
       root_err=root_err,
-      com_err=com_err
     )
+    
+    if self._useComReward:
+      info_rew['com_reward'] = com_reward
+      info_errs['com_err'] = com_err
     
     # store reward/err info for safe keeping
     self._info_rew = info_rew
@@ -1004,7 +1005,7 @@ class HumanoidStablePD(object):
     jointIndices = range(self._num_joints)
     link_states = pb.getLinkStates(uid, jointIndices, computeLinkVelocity=1)
     link_pos = np.array([s[0] for s in link_states])
-    link_vel = np.array([s[-2] for s in link_states])
+    link_vel = np.array([s[6] for s in link_states])
     
     masses = self.masses[:, None]
     

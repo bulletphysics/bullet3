@@ -193,6 +193,7 @@ class PyBulletDeepMimicEnv(Env):
     return np.array(out_offset)
 
   def build_action_scale(self, agent_id):
+    """Action scale. Actually equal to 2 / (high - low)."""
     out_scale = [1] * self.get_action_size(agent_id)
     #see cCtCtrlUtil::BuildOffsetScalePDPrismatic and
     #see cCtCtrlUtil::BuildOffsetScalePDSpherical

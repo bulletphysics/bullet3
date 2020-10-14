@@ -103,29 +103,20 @@ class HumanoidDeepBulletEnv(gym.Env):
     
     action_dim = ctrl_size - root_size
     
-    action_bound_min = np.array([
-        -4.79999999999, -1.00000000000, -1.00000000000, -1.00000000000, -4.00000000000,
-        -1.00000000000, -1.00000000000, -1.00000000000, -7.77999999999, -1.00000000000,
-        -1.000000000, -1.000000000, -7.850000000, -6.280000000, -1.000000000, -1.000000000,
-        -1.000000000, -12.56000000, -1.000000000, -1.000000000, -1.000000000, -4.710000000,
-        -7.779999999, -1.000000000, -1.000000000, -1.000000000, -7.850000000, -6.280000000,
-        -1.000000000, -1.000000000, -1.000000000, -8.460000000, -1.000000000, -1.000000000,
-        -1.000000000, -4.710000000
-    ])
-    
     #print("len(action_bound_min)=",len(action_bound_min))
-    action_bound_max = np.array([
-        4.799999999, 1.000000000, 1.000000000, 1.000000000, 4.000000000, 1.000000000, 1.000000000,
-        1.000000000, 8.779999999, 1.000000000, 1.0000000, 1.0000000, 4.7100000, 6.2800000,
-        1.0000000, 1.0000000, 1.0000000, 12.560000, 1.0000000, 1.0000000, 1.0000000, 7.8500000,
-        8.7799999, 1.0000000, 1.0000000, 1.0000000, 4.7100000, 6.2800000, 1.0000000, 1.0000000,
-        1.0000000, 10.100000, 1.0000000, 1.0000000, 1.0000000, 7.8500000
-    ])
+    action_bound_min = np.array(self._internal_env.build_action_bound_min(-1))
     #print("len(action_bound_max)=",len(action_bound_max))
-    
+    action_bound_max = np.array(self._internal_env.build_action_bound_max(-1))
+    if self._rescale_actions:
+      action_bound_min = self.scale_action(action_bound_min)
+      action_bound_max = self.scale_action(action_bound_max)    
     self.action_space = spaces.Box(action_bound_min, action_bound_max)
+
     observation_min = np.array([0.0]+[-100.0]+[-4.0]*105+[-500.0]*90)
     observation_max = np.array([1.0]+[100.0]+[4.0]*105+[500.0]*90)
+    if self._rescale_observations:
+      observation_min = self.scale_observation(observation_min)
+      observation_max = self.scale_observation(observation_max)
     state_size = 197
     self.observation_space = spaces.Box(observation_min, observation_max, dtype=np.float32)
 
@@ -134,6 +125,20 @@ class HumanoidDeepBulletEnv(gym.Env):
     self.viewer = None
     self._configure()
     
+  def scale_action(self, action):
+    mean = -self._action_offset
+    std = 1./self._action_scale
+    return (action - mean) / (std + 1e-8)
+
+  def scale_observation(self, state):
+    mean = -self._state_offset
+    std = 1./self._state_scale
+    return (state - mean) / (std + 1e-8)
+
+  def unscale_action(self, scaled_action):
+    mean = -self._action_offset
+    std = 1./self._action_scale
+    return scaled_action * std + mean
 
   def _configure(self, display=None):
     self.display = display
@@ -147,9 +152,7 @@ class HumanoidDeepBulletEnv(gym.Env):
 
     if self._rescale_actions:
       # Rescale the action
-      mean = -self._action_offset
-      std = 1./self._action_scale
-      action = action * std + mean
+      action = self.unscale_action(action)
 
     # Record reward
     reward = self._internal_env.calc_reward(agent_id)
