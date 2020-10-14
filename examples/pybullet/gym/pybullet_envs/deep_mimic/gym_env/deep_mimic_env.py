@@ -127,7 +127,7 @@ class HumanoidDeepBulletEnv(gym.Env):
     observation_min = np.array([0.0]+[-100.0]+[-4.0]*105+[-500.0]*90)
     observation_max = np.array([1.0]+[100.0]+[4.0]*105+[500.0]*90)
     state_size = 197
-    self.observation_space = spaces.Box(observation_min, observation_min, dtype=np.float32)
+    self.observation_space = spaces.Box(observation_min, observation_max, dtype=np.float32)
 
     self.seed()
     
