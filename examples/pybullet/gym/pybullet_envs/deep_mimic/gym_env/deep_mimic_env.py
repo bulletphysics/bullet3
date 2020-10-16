@@ -14,10 +14,7 @@ from gym import spaces
 from gym.utils import seeding
 import numpy as np
 import time
-import subprocess
-import pybullet as p2
 import pybullet_data
-from pybullet_utils import bullet_client as bc
 from pkg_resources import parse_version
 from pybullet_envs.deep_mimic.env.pybullet_deep_mimic_env import PyBulletDeepMimicEnv, InitializationStrategy
 from pybullet_utils.arg_parser import ArgParser
@@ -71,7 +68,7 @@ class HumanoidDeepBulletEnv(gym.Env):
     self._numSteps = None
     self.test_mode = test_mode
     if self.test_mode:
-        print("Environment running in TEST mode")
+      print("Environment running in TEST mode")
 
     # cam options
     self._cam_dist = 3
@@ -97,19 +94,15 @@ class HumanoidDeepBulletEnv(gym.Env):
         np.finfo(np.float32).max
     ])
 
-    
     ctrl_size = 43  #numDof
     root_size = 7 # root
-    
     action_dim = ctrl_size - root_size
     
-    #print("len(action_bound_min)=",len(action_bound_min))
     action_bound_min = np.array(self._internal_env.build_action_bound_min(-1))
-    #print("len(action_bound_max)=",len(action_bound_max))
     action_bound_max = np.array(self._internal_env.build_action_bound_max(-1))
     if self._rescale_actions:
       action_bound_min = self.scale_action(action_bound_min)
-      action_bound_max = self.scale_action(action_bound_max)    
+      action_bound_max = self.scale_action(action_bound_max)
     self.action_space = spaces.Box(action_bound_min, action_bound_max)
 
     observation_min = np.array([0.0]+[-100.0]+[-4.0]*105+[-500.0]*90)
@@ -126,9 +119,10 @@ class HumanoidDeepBulletEnv(gym.Env):
     self._configure()
     
   def scale_action(self, action):
+    """Offset the action and scale it."""
     mean = -self._action_offset
     std = 1./self._action_scale
-    return (action - mean) / (std + 1e-8)
+    return (action - mean) / std
 
   def scale_observation(self, state):
     mean = -self._state_offset
@@ -156,6 +150,7 @@ class HumanoidDeepBulletEnv(gym.Env):
 
     # Record reward
     reward = self._internal_env.calc_reward(agent_id)
+    # print(f"mean {action.mean():<5.3f} | std {action.std():<5.3f} | min {action.min():.3f} max {action.max():.3f}")
 
     # Apply control action
     self._internal_env.set_action(agent_id, action)
@@ -164,7 +159,7 @@ class HumanoidDeepBulletEnv(gym.Env):
 
     # step sim
     for i in range(self._num_env_steps):
-        self._internal_env.update(self._time_step)
+      self._internal_env.update(self._time_step)
 
     elapsed_time = self._internal_env.t - start_time
 
@@ -175,9 +170,7 @@ class HumanoidDeepBulletEnv(gym.Env):
     state = self.state
     
     if self._rescale_observations:
-      mean = -self._state_offset
-      std = 1./self._state_scale
-      state = (state - mean) / (std + 1e-8)
+      state = self.scale_observation(state)
 
     # Record done
     done = self._internal_env.is_episode_end()
@@ -220,9 +213,7 @@ class HumanoidDeepBulletEnv(gym.Env):
     # return state as ndarray
     state = np.array(self.state)
     if self._rescale_observations:
-      mean = -self._state_offset
-      std = 1./self._state_scale
-      state = (state - mean) / (std + 1e-8)
+      state = self.scale_observation(state)
     return state
 
   def render(self, mode='human', close=False):
