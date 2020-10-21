@@ -9992,6 +9992,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 				{
 					rb->setAnisotropicFriction(anisotropicFriction);
 				}
+
 				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_PROCESSING_THRESHOLD)
 				{
 					rb->setContactProcessingThreshold(clientCmd.m_changeDynamicsInfoArgs.m_contactProcessingThreshold);

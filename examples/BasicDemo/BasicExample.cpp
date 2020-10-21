@@ -105,7 +105,7 @@ void BasicExample::initPhysics()
 						btScalar(2 + .2 * k),
 						btScalar(0.2 * j)));
 
-					createRigidBody(mass, startTransform, colShape, btVector4(1, 0, 0, 1));
+					createRigidBody(mass, startTransform, colShape);
 				}
 			}
 		}
