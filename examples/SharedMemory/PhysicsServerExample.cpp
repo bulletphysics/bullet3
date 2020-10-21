@@ -672,15 +672,15 @@ public:
 			m_csGUI->unlock();
 		}
 	}
-    virtual void clearLines()
-    {
-        m_csGUI->lock();
-        if (m_debugDraw)
+        virtual void clearLines()
         {
-            m_debugDraw->clearLines();
-        }
-        m_csGUI->unlock();
-    }
+			m_csGUI->lock();
+			if (m_debugDraw)
+			{
+				m_debugDraw->clearLines();
+			}
+			m_csGUI->unlock();
+		}
         
 	GUIHelperInterface* m_childGuiHelper;
 
