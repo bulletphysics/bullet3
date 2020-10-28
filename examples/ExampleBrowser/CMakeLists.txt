@@ -386,6 +386,7 @@ SET(BulletExampleBrowser_SRCS
   ../MultiBody/KinematicMultiBody.cpp
   ../MultiBody/KinematicMultiBody.h
   ../RigidBody/RigidBodySoftContact.cpp
+  ../RigidBody/KinematicRigidBodyExample.cpp
   ../Constraints/TestHingeTorque.cpp
   ../Constraints/TestHingeTorque.h
   ../Constraints/ConstraintDemo.cpp
