@@ -35,6 +35,7 @@
 #include "../MultiBody/InvertedPendulumPDControl.h"
 
 #include "../RigidBody/RigidBodySoftContact.h"
+#include "../RigidBody/KinematicRigidBodyExample.h"
 #include "../VoronoiFracture/VoronoiFractureDemo.h"
 #include "../SoftDemo/SoftDemo.h"
 #include "../Constraints/ConstraintDemo.h"
@@ -145,6 +146,7 @@ static ExampleEntry gDefaultExamples[] =
 		ExampleEntry(1, "Gyroscopic", "Show the Dzhanibekov effect using various settings of the gyroscopic term. You can select the gyroscopic term computation using btRigidBody::setFlags, with arguments BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT (using explicit integration, which adds energy and can lead to explosions), BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD, BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY. If you don't set any of these flags, there is no gyroscopic term used.", GyroscopicCreateFunc),
 
 		ExampleEntry(1, "Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.", RigidBodySoftContactCreateFunc),
+    ExampleEntry(1, "Kinematic Body", "Let the user set the transform, the physics engine computes the velocity for one-way contact and friction interaction.", KinematicRigidBodyExampleCreateFunc),
 
 		ExampleEntry(0, "MultiBody"),
 		ExampleEntry(1, "MultiDof", "Create a basic btMultiBody with 3-DOF spherical joints (mobilizers). The demo uses a fixed base or a floating base at restart.", MultiDofCreateFunc),
