@@ -10,6 +10,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #include <windows.h>
+#include <cstring>
 
 typedef HMODULE B3_DYNLIB_HANDLE;
 
@@ -102,11 +103,11 @@ struct b3Plugin
 
 	static const char* GetMapKey(const char* path, const char* postFix)
 	{
-		if (path != nullptr && strlen(path) > 0)
+		if (path != 0 && strlen(path) > 0)
 		{
 			return path;
 		}
-		else if (postFix != nullptr && strlen(postFix) > 0)
+		else if (postFix != 0 && strlen(postFix) > 0)
 		{
 			return postFix;
 		}
