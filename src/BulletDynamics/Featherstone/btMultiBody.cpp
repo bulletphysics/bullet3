@@ -104,6 +104,7 @@ btMultiBody::btMultiBody(int n_links,
       m_baseQuat_interpolate(0, 0, 0, 1),
 	  m_baseMass(mass),
 	  m_baseInertia(inertia),
+	  m_fixedBase(fixedBase),
 	  m_awake(true),
 	  m_canSleep(canSleep),
 	  m_canWakeup(true),
@@ -125,8 +126,6 @@ btMultiBody::btMultiBody(int n_links,
 	  m_useGlobalVelocities(false),
 	  m_internalNeedsJointFeedback(false)
 {
-  setFixedBase(fixedBase);
-
 	m_cachedInertiaTopLeft.setValue(0, 0, 0, 0, 0, 0, 0, 0, 0);
 	m_cachedInertiaTopRight.setValue(0, 0, 0, 0, 0, 0, 0, 0, 0);
 	m_cachedInertiaLowerLeft.setValue(0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -675,40 +674,19 @@ btScalar *btMultiBody::getJointTorqueMultiDof(int i)
 
 bool btMultiBody::hasFixedBase() const
 {
-  if(const btMultiBodyLinkCollider * baseCollider = getBaseCollider())
-	{
-		return baseCollider->isStaticObject();
-	}
-	else
-	{
-		return m_base_dynamic_type == btCollisionObject::CF_STATIC_OBJECT;
-	}
+	return m_fixedBase || getBaseCollider()->isStaticObject();
 }
 
 bool btMultiBody::isBaseStaticOrKinematic() const
 {
-  if(const btMultiBodyLinkCollider * baseCollider = getBaseCollider())
-	{
-		return baseCollider->isStaticOrKinematicObject();
-	}
-	else
-	{
-		return m_base_dynamic_type == btCollisionObject::CF_STATIC_OBJECT || m_base_dynamic_type == btCollisionObject::CF_KINEMATIC_OBJECT;
-	}
+return m_fixedBase || getBaseCollider()->isStaticOrKinematicObject();
 }
 
 void btMultiBody::setBaseDynamicType(int dynamicType)
 {
-  if(getBaseCollider())
-	{
-		int oldFlags = getBaseCollider()->getCollisionFlags();
-		oldFlags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
-		getBaseCollider()->setCollisionFlags(oldFlags | dynamicType);
-	}
-	else
-	{
-		m_base_dynamic_type = dynamicType;
-	}
+	int oldFlags = getBaseCollider()->getCollisionFlags();
+	oldFlags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
+	getBaseCollider()->setCollisionFlags(oldFlags | dynamicType);
 }
 
 void btMultiBody::setLinkDynamicType(const int i, int type)

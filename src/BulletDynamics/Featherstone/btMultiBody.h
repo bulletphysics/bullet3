@@ -525,7 +525,8 @@ public:
 	void setBaseDynamicType(int dynamicType);
 	void setFixedBase(bool fixedBase)
 	{
-		if(fixedBase)
+		m_fixedBase = fixedBase;
+		if(m_fixedBase)
 			setBaseDynamicType(btCollisionObject::CF_STATIC_OBJECT);
 		else
 			setBaseDynamicType(btCollisionObject::CF_DYNAMIC_OBJECT);
@@ -762,8 +763,7 @@ private:
 	btMatrix3x3 m_cachedInertiaLowerRight;
 	bool m_cachedInertiaValid;
 
-  // Record the dynamic type of the base link if it does not have an associated collision object.
-	int m_base_dynamic_type;
+	bool m_fixedBase;
 
 	// Sleep parameters.
 	bool m_awake;

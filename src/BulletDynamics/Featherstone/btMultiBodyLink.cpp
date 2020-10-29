@@ -18,22 +18,12 @@ subject to the following restrictions:
 
 bool btMultibodyLink::isStaticOrKinematic() const
 {
-	if(m_collider)
-		return m_collider->isStaticOrKinematicObject();
-	else
-		return m_dynamic_type == btCollisionObject::CF_STATIC_OBJECT || m_dynamic_type == btCollisionObject::CF_KINEMATIC_OBJECT;
+	return m_collider->isStaticOrKinematicObject();
 }
 
 void btMultibodyLink::setDynamicType(int dynamicType)
 {
-	if(m_collider)
-	{
-		int oldFlags = m_collider->getCollisionFlags();
-		oldFlags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
-		m_collider->setCollisionFlags(oldFlags | dynamicType);
-	}
-	else
-	{
-		m_dynamic_type = dynamicType;
-	}
+	int oldFlags = m_collider->getCollisionFlags();
+	oldFlags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
+	m_collider->setCollisionFlags(oldFlags | dynamicType);
 }
