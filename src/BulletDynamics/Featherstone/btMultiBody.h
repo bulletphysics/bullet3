@@ -520,14 +520,15 @@ public:
 	void goToSleep();
 	void checkMotionAndSleepIfRequired(btScalar timestep);
 
-	bool hasFixedBase() const
-	{
-		return m_fixedBase;
-	}
-
+	bool hasFixedBase() const;
+	bool isBaseStaticOrKinematic() const;
+	void setBaseDynamicType(int dynamicType);
 	void setFixedBase(bool fixedBase)
 	{
-		m_fixedBase = fixedBase;
+		if(fixedBase)
+			setBaseDynamicType(btCollisionObject::CF_STATIC_OBJECT);
+		else
+			setBaseDynamicType(btCollisionObject::CF_DYNAMIC_OBJECT);
 	}
 
 	int getCompanionId() const
@@ -678,6 +679,19 @@ public:
 		btVector3 &top_out,         // top part of output vector
 		btVector3 &bottom_out);      // bottom part of output vector
 
+	void setLinkDynamicType(const int i, int type);
+
+	bool isLinkStaticOrKinematic(const int i) const
+	{
+		if(i == -1)
+		{
+			return isBaseStaticOrKinematic();
+		}
+		else
+		{
+			return m_links[i].isStaticOrKinematic();
+		}
+	}
 
 
 private:
@@ -748,7 +762,8 @@ private:
 	btMatrix3x3 m_cachedInertiaLowerRight;
 	bool m_cachedInertiaValid;
 
-	bool m_fixedBase;
+  // Record the dynamic type of the base link if it does not have an associated collision object.
+	int m_base_dynamic_type;
 
 	// Sleep parameters.
 	bool m_awake;
