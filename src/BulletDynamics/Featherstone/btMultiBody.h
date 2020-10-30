@@ -210,7 +210,13 @@ public:
 	void setBasePos(const btVector3 &pos)
 	{
 		m_basePos = pos;
-        m_basePos_interpolate = pos;
+		if(!isBaseKinematic())
+			m_basePos_interpolate = pos;
+	}
+
+	void setInterpolateBasePos(const btVector3 &pos)
+	{
+		m_basePos_interpolate = pos;
 	}
 
 	void setBaseWorldTransform(const btTransform &tr)
@@ -227,23 +233,47 @@ public:
 		return tr;
 	}
 
+	void setInterpolateBaseWorldTransform(const btTransform &tr)
+	{
+		setInterpolateBasePos(tr.getOrigin());
+		setInterpolateWorldToBaseRot(tr.getRotation().inverse());
+	}
+
+	btTransform getInterpolateBaseWorldTransform() const
+	{
+		btTransform tr;
+		tr.setOrigin(getInterpolateBasePos());
+		tr.setRotation(getInterpolateWorldToBaseRot().inverse());
+		return tr;
+	}
+
 	void setBaseVel(const btVector3 &vel)
 	{
 		m_realBuf[3] = vel[0];
 		m_realBuf[4] = vel[1];
 		m_realBuf[5] = vel[2];
 	}
+
 	void setWorldToBaseRot(const btQuaternion &rot)
 	{
 		m_baseQuat = rot;  //m_baseQuat asumed to ba alias!?
-        m_baseQuat_interpolate = rot;
+		if(!isBaseKinematic())
+			m_baseQuat_interpolate = rot;
 	}
+
+	void setInterpolateWorldToBaseRot(const btQuaternion &rot)
+	{
+		m_baseQuat_interpolate = rot;
+	}
+
 	void setBaseOmega(const btVector3 &omega)
 	{
 		m_realBuf[0] = omega[0];
 		m_realBuf[1] = omega[1];
 		m_realBuf[2] = omega[2];
 	}
+
+	void saveKinematicState(btScalar timeStep);
 
 	//
 	// get/set pos/vel for child m_links (i = 0 to num_links-1)
@@ -520,14 +550,22 @@ public:
 	void goToSleep();
 	void checkMotionAndSleepIfRequired(btScalar timestep);
 
-	bool hasFixedBase() const
-	{
-		return m_fixedBase;
-	}
+	bool hasFixedBase() const;
+
+	bool isBaseKinematic() const;
+
+	bool isBaseStaticOrKinematic() const;
+
+	// set the dynamic type in the base's collision flags.
+	void setBaseDynamicType(int dynamicType);
 
 	void setFixedBase(bool fixedBase)
 	{
 		m_fixedBase = fixedBase;
+		if(m_fixedBase)
+			setBaseDynamicType(btCollisionObject::CF_STATIC_OBJECT);
+		else
+			setBaseDynamicType(btCollisionObject::CF_DYNAMIC_OBJECT);
 	}
 
 	int getCompanionId() const
