@@ -10,7 +10,8 @@
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #include <windows.h>
-#include <cstring>
+#include <string.h>
+
 
 typedef HMODULE B3_DYNLIB_HANDLE;
 
