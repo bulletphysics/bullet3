@@ -166,14 +166,23 @@ TGAColor Model::diffuse(Vec2f uvf)
 		//		bool repeat = true;
 		//		if (repeat)
 		{
-            uvf[0] = std::modf(uvf[0], &val);
-            uvf[1] = std::modf(uvf[1], &val);
-        }
-        Vec2i uv(uvf[0] * diffusemap_.get_width(), uvf[1] * diffusemap_.get_height());
+			uvf[0] = std::modf(uvf[0], &val);
+			if (uvf[0] < 0) 
+			{
+				uvf[0] = uvf[0] + 1;
+			}
+			uvf[1] = std::modf(uvf[1], &val);
+			if (uvf[1] < 0) 
+			{
+				uvf[1] = uvf[1] + 1;
+			}
+		}
+        	Vec2i uv(uvf[0] * diffusemap_.get_width(), uvf[1] * diffusemap_.get_height());
 		return diffusemap_.get(uv[0], uv[1]);
 	}
 	return TGAColor(255, 255, 255, 255);
 }
+	
 
 Vec3f Model::normal(Vec2f uvf)
 {
