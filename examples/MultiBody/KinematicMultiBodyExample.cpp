@@ -37,8 +37,6 @@ void kinematicPreTickCallback(btDynamicsWorld* world, btScalar deltaTime)
 	btVector3 angularVelocity(0, 0.1, 0);
 	btTransformUtil::integrateTransform(groundBody->getBaseWorldTransform(), linearVelocity, angularVelocity, deltaTime, predictedTrans);
 	groundBody->setBaseWorldTransform(predictedTrans);
-	//groundBody->setBaseVel(linearVelocity);
-	//groundBody->setBaseOmega(angularVelocity);
 }
 
 struct KinematicMultiBodyExample : public CommonMultiBodyBase
@@ -113,8 +111,6 @@ void KinematicMultiBodyExample::initPhysics()
 		m_groundBody = new btMultiBody(numLinks, baseMass, baseInertiaDiag, !floating, canSleep);
 		m_groundBody->setBasePos(startTransform.getOrigin());
 		m_groundBody->setWorldToBaseRot(startTransform.getRotation());
-		// btVector3 vel(0, 0, 0);
-		//	m_groundBody->setBaseVel(vel);
 		m_groundBody->finalizeMultiDof();
 		m_dynamicsWorld->addMultiBody(m_groundBody);
 
@@ -128,19 +124,12 @@ void KinematicMultiBodyExample::initPhysics()
 		m_groundBody->setBaseCollider(col);
 		m_groundBody->setBaseDynamicType(btCollisionObject::CF_KINEMATIC_OBJECT);
 
-		//btVector3 color(0.0, 0.0, 0.5);
-		//m_guiHelper->createCollisionObjectGraphicsObject(col, color);
-		//m_groundBody->forceActivationState(DISABLE_DEACTIVATION);
-		//m_groundBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT | btCollisionObject::CF_STATIC_OBJECT);
-		
 	}
 	m_dynamicsWorld->setInternalTickCallback(kinematicPreTickCallback, m_groundBody, true);
 
-	if (1)
 	{
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
-
 		btBoxShape* colShape = createBoxShape(btVector3(.1, .1, .1));
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
