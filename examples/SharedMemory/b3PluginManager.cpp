@@ -6,12 +6,11 @@
 #include "PhysicsDirect.h"
 #include "plugins/b3PluginContext.h"
 #include "../Utils/b3BulletDefaultFileIO.h"
+#include <string.h>
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #include <windows.h>
-#include <string.h>
-
 
 typedef HMODULE B3_DYNLIB_HANDLE;
 
