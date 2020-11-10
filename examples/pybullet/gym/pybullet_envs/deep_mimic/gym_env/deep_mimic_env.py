@@ -101,20 +101,20 @@ class HumanoidDeepBulletEnv(gym.Env):
     root_size = 7 # root
     action_dim = ctrl_size - root_size
     
-    action_bound_min = np.array(self._internal_env.build_action_bound_min(-1))
-    action_bound_max = np.array(self._internal_env.build_action_bound_max(-1))
+    action_bound_min = np.array(self._internal_env.build_action_bound_min(-1), dtype=np.float32)
+    action_bound_max = np.array(self._internal_env.build_action_bound_max(-1), dtype=np.float32)
     if self._rescale_actions:
       action_bound_min = self.scale_action(action_bound_min)
       action_bound_max = self.scale_action(action_bound_max)
     self.action_space = spaces.Box(action_bound_min, action_bound_max)
 
-    observation_min = np.array([0.0]+[-100.0]+[-4.0]*105+[-500.0]*90)
-    observation_max = np.array([1.0]+[100.0]+[4.0]*105+[500.0]*90)
+    observation_min = np.array([0.0]+[-100.0]+[-4.0]*105+[-500.0]*90, dtype=np.float32)
+    observation_max = np.array([1.0]+[ 100.0]+[ 4.0]*105+[ 500.0]*90, dtype=np.float32)
     if self._rescale_observations:
       observation_min = self.scale_observation(observation_min)
       observation_max = self.scale_observation(observation_max)
     state_size = 197
-    self.observation_space = spaces.Box(observation_min, observation_max, dtype=np.float32)
+    self.observation_space = spaces.Box(observation_min, observation_max)
 
     self.seed()
     
