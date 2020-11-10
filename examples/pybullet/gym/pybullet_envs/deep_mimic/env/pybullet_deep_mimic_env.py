@@ -99,6 +99,8 @@ class PyBulletDeepMimicEnv(Env):
       startTime = float(rn) / rnrange * self._humanoid.getCycleTime()
     elif self._init_strategy == InitializationStrategy.START:
       startTime = 0
+    else:
+      raise NotImplementedError(f"Unknown initialization strategy {self._init_strategy}.")
     
     self.t = startTime
 

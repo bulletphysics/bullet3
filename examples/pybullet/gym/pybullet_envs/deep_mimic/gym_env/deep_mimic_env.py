@@ -28,7 +28,10 @@ class HumanoidDeepBulletEnv(gym.Env):
   """Base Gym environment for the DeepMimic motion imitation tasks."""
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
-  def __init__(self, renders=False, arg_file='', test_mode=False,
+  def __init__(self,
+               renders=False,
+               arg_file='',
+               test_mode=False,
                time_step=1./240,
                rescale_actions=True,
                rescale_observations=True,
@@ -216,7 +219,7 @@ class HumanoidDeepBulletEnv(gym.Env):
       state = self.scale_observation(state)
     return state
 
-  def render(self, mode='human', close=False):
+  def render(self, mode='human', close=False, use_dual_view=False):
     if mode == "human":
       self._renders = True
     if mode != "rgb_array":
@@ -237,22 +240,53 @@ class HumanoidDeepBulletEnv(gym.Env):
         pitch=self._cam_pitch,
         roll=self._cam_roll,
         upAxisIndex=1)
+      width = self._render_width
+      height = self._render_height
+      if use_dual_view:
+        width = width // 2
       proj_matrix = self._p.computeProjectionMatrixFOV(fov=60,
-             aspect=float(self._render_width) / self._render_height,
+             aspect=float(width) / height,
              nearVal=0.1,
              farVal=100.0)
       (_, _, px, _, _) = self._p.getCameraImage(
-          width=self._render_width,
+          width=width,
           height=self._render_height,
-          renderer=self._p.ER_BULLET_HARDWARE_OPENGL,
           viewMatrix=view_matrix,
-          projectionMatrix=proj_matrix)
+          projectionMatrix=proj_matrix,
+          renderer=self._p.ER_BULLET_HARDWARE_OPENGL,
+          shadow=1)
+      if use_dual_view:
+        px2 = self._get_camera_kin_char(width, height, proj_matrix)
+        px = np.concatenate([px, px2], axis=1)
     else:
       px = np.array([[[255,255,255,255]]*self._render_width]*self._render_height, dtype=np.uint8)
     rgb_array = np.array(px, dtype=np.uint8)
     rgb_array = np.reshape(np.array(px), (self._render_height, self._render_width, -1))
     rgb_array = rgb_array[:, :, :3]
     return rgb_array
+
+  def _get_camera_kin_char(self, width, height, proj_matrix):
+    """Define a view matrix focusing on the kinematic character, and get camera image."""
+    human = self._internal_env._humanoid
+    kin_char_pos = self._p.getBasePositionAndOrientation(human._kin_model)[0]
+    kin_char_pos = np.asarray(kin_char_pos)
+    kin_char_pos[1] += 0.3
+    view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
+      cameraTargetPosition=kin_char_pos,
+      distance=self._cam_dist,
+      yaw=self._cam_yaw,
+      pitch=self._cam_pitch,
+      roll=self._cam_roll,
+      upAxisIndex=1)
+    _, _, px, _, _ = self._p.getCameraImage(
+      width=width,
+      height=height,
+      viewMatrix=view_matrix,
+      projectionMatrix=proj_matrix,
+      renderer=self._p.ER_BULLET_HARDWARE_OPENGL,
+      shadow=1
+      )
+    return px
 
   def configure(self, args):
     pass
@@ -268,32 +302,33 @@ class HumanoidDeepBulletEnv(gym.Env):
     base_pos, base_orn = self._p.getBasePositionAndOrientation(
         human._sim_model)
     debug_caminfo = self._p.getDebugVisualizerCamera()
-    (yaw, pitch, cur_dist) = debug_caminfo[8:11]
+    (dbg_yaw, dbg_pitch, cur_dist) = debug_caminfo[8:11]
+    w, h = debug_caminfo[:2]
     self._cam_dist = cur_dist
+    if w > 0 and h > 0:
+      self._cam_yaw = dbg_yaw
+      self._cam_pitch = dbg_pitch
     self._p.resetDebugVisualizerCamera(
         cameraDistance=self._cam_dist,
-        cameraYaw=yaw,
-        cameraPitch=pitch,
+        cameraYaw=dbg_yaw,
+        cameraPitch=dbg_pitch,
         cameraTargetPosition=base_pos)
 
 class HumanoidDeepMimicBackflipBulletEnv(HumanoidDeepBulletEnv):
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
-  def __init__(self, renders=False):
+  def __init__(self, renders=False, test_mode=False, use_com_reward=False):
     # start the bullet physics server
-    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="run_humanoid3d_backflip_args.txt")
+    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="run_humanoid3d_backflip_args.txt",
+                                   test_mode=test_mode,
+                                   use_com_reward=use_com_reward)
 
 
 class HumanoidDeepMimicWalkBulletEnv(HumanoidDeepBulletEnv):
   metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
 
-  def __init__(self, renders=False):
+  def __init__(self, renders=False, test_mode=False, use_com_reward=False):
     # start the bullet physics server
-    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="run_humanoid3d_walk_args.txt")
-
-class CartPoleContinuousBulletEnv5(HumanoidDeepBulletEnv):
-  metadata = {'render.modes': ['human', 'rgb_array'], 'video.frames_per_second': 50}
-
-  def __init__(self, renders=False):
-    # start the bullet physics server
-    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="")
+    HumanoidDeepBulletEnv.__init__(self, renders, arg_file="run_humanoid3d_walk_args.txt",
+                                   test_mode=test_mode,
+                                   use_com_reward=use_com_reward)
