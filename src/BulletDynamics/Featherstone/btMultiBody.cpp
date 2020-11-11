@@ -675,12 +675,12 @@ btScalar *btMultiBody::getJointTorqueMultiDof(int i)
 
 bool btMultiBody::hasFixedBase() const
 {
-	return m_fixedBase || getBaseCollider()->isStaticObject();
+	return m_fixedBase || (getBaseCollider() && getBaseCollider()->isStaticObject());
 }
 
 bool btMultiBody::isBaseStaticOrKinematic() const
 {
-	return m_fixedBase || getBaseCollider()->isStaticOrKinematicObject();
+	return m_fixedBase || (getBaseCollider() && getBaseCollider()->isStaticOrKinematicObject());
 }
 
 bool btMultiBody::isBaseKinematic() const
@@ -690,9 +690,11 @@ bool btMultiBody::isBaseKinematic() const
 
 void btMultiBody::setBaseDynamicType(int dynamicType)
 {
-	int oldFlags = getBaseCollider()->getCollisionFlags();
-	oldFlags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
-	getBaseCollider()->setCollisionFlags(oldFlags | dynamicType);
+	if(getBaseCollider()) {
+		int oldFlags = getBaseCollider()->getCollisionFlags();
+		oldFlags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
+		getBaseCollider()->setCollisionFlags(oldFlags | dynamicType);
+	}
 }
 
 inline btMatrix3x3 outerProduct(const btVector3 &v0, const btVector3 &v1)  //renamed it from vecMulVecTranspose (http://en.wikipedia.org/wiki/Outer_product); maybe it should be moved to btVector3 like dot and cross?
@@ -2336,6 +2338,5 @@ void btMultiBody::saveKinematicState(btScalar timeStep)
 		setBaseVel(linearVelocity);
 		setBaseOmega(angularVelocity);
 		setInterpolateBaseWorldTransform(getBaseWorldTransform());
-		printf("angular = %f %f %f\n",angularVelocity.getX(),angularVelocity.getY(),angularVelocity.getZ());
 	}
 }
