@@ -94,7 +94,7 @@ void KinematicMultiBodyExample::initPhysics()
 
 	{
 		bool floating = false;
-		int numLinks = 1;
+		int numLinks = 0;
 		bool canSleep = false;
 		btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
 		float baseMass = 1.f;
