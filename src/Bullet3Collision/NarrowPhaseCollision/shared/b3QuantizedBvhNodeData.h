@@ -39,7 +39,7 @@ inline int b3GetEscapeIndex(const b3QuantizedBvhNodeData* rootNode)
 	return -rootNode->m_escapeIndexOrTriangleIndex;
 }
 
-inline void b3QuantizeWithClamp(unsigned short* out, b3Float4ConstArg point2, int isMax, b3Float4ConstArg bvhAabbMin, b3Float4ConstArg bvhAabbMax, b3Float4ConstArg bvhQuantization)
+inline void b3QuantizeWithClamp(unsigned short* out, b3Float4ConstArg point2, bool isMax, b3Float4ConstArg bvhAabbMin, b3Float4ConstArg bvhAabbMax, b3Float4ConstArg bvhQuantization)
 {
 	b3Float4 clampedPoint = b3MaxFloat4(point2, bvhAabbMin);
 	clampedPoint = b3MinFloat4(clampedPoint, bvhAabbMax);

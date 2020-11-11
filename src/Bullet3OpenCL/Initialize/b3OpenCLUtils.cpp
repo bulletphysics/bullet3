@@ -592,7 +592,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 	char deviceName[256];
 	char driverVersion[256];
 	const char* strippedName;
-	int fileUpToDate = 0;
+	bool fileUpToDate = false;
 #ifdef _WIN32
 	int binaryFileValid = 0;
 #endif
@@ -684,7 +684,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 					}
 					if ((modtimeSrc.dwHighDateTime < modtimeBinary.dwHighDateTime) || ((modtimeSrc.dwHighDateTime == modtimeBinary.dwHighDateTime) && (modtimeSrc.dwLowDateTime <= modtimeBinary.dwLowDateTime)))
 					{
-						fileUpToDate = 1;
+						fileUpToDate = true;
 					}
 					else
 					{

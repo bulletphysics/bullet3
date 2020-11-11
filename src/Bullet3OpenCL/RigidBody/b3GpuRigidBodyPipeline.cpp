@@ -507,29 +507,26 @@ void b3GpuRigidBodyPipeline::setupGpuAabbsFull()
 
 	if (gCalcWorldSpaceAabbOnCpu)
 	{
-		if (numBodies)
+		if (gUseDbvt)
 		{
-			if (gUseDbvt)
+			m_data->m_allAabbsCPU.resize(numBodies);
+			m_data->m_narrowphase->readbackAllBodiesToCpu();
+			for (int i = 0; i < numBodies; i++)
 			{
-				m_data->m_allAabbsCPU.resize(numBodies);
-				m_data->m_narrowphase->readbackAllBodiesToCpu();
-				for (int i = 0; i < numBodies; i++)
-				{
-					b3ComputeWorldAabb(i, m_data->m_narrowphase->getBodiesCpu(), m_data->m_narrowphase->getCollidablesCpu(), m_data->m_narrowphase->getLocalSpaceAabbsCpu(), &m_data->m_allAabbsCPU[0]);
-				}
-				m_data->m_allAabbsGPU->copyFromHost(m_data->m_allAabbsCPU);
+				b3ComputeWorldAabb(i, m_data->m_narrowphase->getBodiesCpu(), m_data->m_narrowphase->getCollidablesCpu(), m_data->m_narrowphase->getLocalSpaceAabbsCpu(), &m_data->m_allAabbsCPU[0]);
 			}
-			else
+			m_data->m_allAabbsGPU->copyFromHost(m_data->m_allAabbsCPU);
+		}
+		else
+		{
+			m_data->m_broadphaseSap->getAllAabbsCPU().resize(numBodies);
+			m_data->m_narrowphase->readbackAllBodiesToCpu();
+			for (int i = 0; i < numBodies; i++)
 			{
-				m_data->m_broadphaseSap->getAllAabbsCPU().resize(numBodies);
-				m_data->m_narrowphase->readbackAllBodiesToCpu();
-				for (int i = 0; i < numBodies; i++)
-				{
-					b3ComputeWorldAabb(i, m_data->m_narrowphase->getBodiesCpu(), m_data->m_narrowphase->getCollidablesCpu(), m_data->m_narrowphase->getLocalSpaceAabbsCpu(), &m_data->m_broadphaseSap->getAllAabbsCPU()[0]);
-				}
-				m_data->m_broadphaseSap->getAllAabbsGPU().copyFromHost(m_data->m_broadphaseSap->getAllAabbsCPU());
-				//m_data->m_broadphaseSap->writeAabbsToGpu();
+				b3ComputeWorldAabb(i, m_data->m_narrowphase->getBodiesCpu(), m_data->m_narrowphase->getCollidablesCpu(), m_data->m_narrowphase->getLocalSpaceAabbsCpu(), &m_data->m_broadphaseSap->getAllAabbsCPU()[0]);
 			}
+			m_data->m_broadphaseSap->getAllAabbsGPU().copyFromHost(m_data->m_broadphaseSap->getAllAabbsCPU());
+			//m_data->m_broadphaseSap->writeAabbsToGpu();
 		}
 	}
 	else
@@ -624,8 +621,7 @@ int b3GpuRigidBodyPipeline::registerPhysicsInstance(float mass, const float* pos
 	}
 
 	bool writeToGpu = false;
-	int bodyIndex = m_data->m_narrowphase->getNumRigidBodies();
-	bodyIndex = m_data->m_narrowphase->registerRigidBody(collidableIndex, mass, position, orientation, &aabbMin.getX(), &aabbMax.getX(), writeToGpu);
+	int bodyIndex = m_data->m_narrowphase->registerRigidBody(collidableIndex, mass, position, orientation, &aabbMin.getX(), &aabbMax.getX(), writeToGpu);
 
 	if (bodyIndex >= 0)
 	{

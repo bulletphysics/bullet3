@@ -62,7 +62,7 @@ inline void GrahamScanConvexHull2D(btAlignedObjectArray<GrahamVector3>& original
 
 	if (originalPoints.size() <= 1)
 	{
-		for (int i = 0; i < originalPoints.size(); i++)
+		if (originalPoints.size() == 1)
 			hull.push_back(originalPoints[0]);
 		return;
 	}

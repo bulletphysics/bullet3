@@ -1183,12 +1183,12 @@ void btDiscreteDynamicsWorld::debugDrawConstraint(btTypedConstraint* constraint)
 				//const btScalar length = btScalar(5);
 				const btScalar length = dbgDrawSize;
 				static int nSegments = 8 * 4;
-				btScalar fAngleInRadians = btScalar(2. * 3.1415926) * (btScalar)(nSegments - 1) / btScalar(nSegments);
+				btScalar fAngleInRadians = btScalar(2. * 3.14159265) * (btScalar)(nSegments - 1) / btScalar(nSegments);
 				btVector3 pPrev = pCT->GetPointForAngle(fAngleInRadians, length);
 				pPrev = tr * pPrev;
 				for (int i = 0; i < nSegments; i++)
 				{
-					fAngleInRadians = btScalar(2. * 3.1415926) * (btScalar)i / btScalar(nSegments);
+					fAngleInRadians = btScalar(2. * 3.14159265) * (btScalar)i / btScalar(nSegments);
 					btVector3 pCur = pCT->GetPointForAngle(fAngleInRadians, length);
 					pCur = tr * pCur;
 					getDebugDrawer()->drawLine(pPrev, pCur, btVector3(0, 0, 0));

@@ -1850,7 +1850,6 @@ __kernel void processCompoundPairsKernel(__global const b3Int4* gpuCompoundPairs
 			return;
 		}
 
-		int hasSeparatingAxis = 5;
 
 		//	int numFacesA = convexShapes[shapeIndexA].m_numFaces;
 		float dmin = FLT_MAX;
@@ -1865,7 +1864,7 @@ __kernel void processCompoundPairsKernel(__global const b3Int4* gpuCompoundPairs
 		//		bool sepA = findSeparatingAxis(	convexShapes[shapeIndexA], convexShapes[shapeIndexB],posA,ornA,posB,ornB,DeltaC2,vertices,uniqueEdges,faces,indices,&sepNormal,&dmin);
 		bool sepA = findSeparatingAxis(convexShapes[shapeIndexA], convexShapes[shapeIndexB], posA, ornA, posB, ornB, vertices, uniqueEdges, faces, indices, vertices, uniqueEdges, faces, indices, sepNormal);  //,&dmin);
 
-		hasSeparatingAxis = 4;
+		int hasSeparatingAxis = 5;
 		if (!sepA)
 		{
 			hasSeparatingAxis = 0;
@@ -3484,7 +3483,7 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT(b3OpenCLArray<b3Int4>* p
 	{
 		//now perform the tree query on GPU
 
-		if (treeNodesGPU->size() && treeNodesGPU->size())
+		if (treeNodesGPU->size() && subTreesGPU->size())
 		{
 			if (bvhTraversalKernelGPU)
 			{
@@ -3778,43 +3777,40 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT(b3OpenCLArray<b3Int4>* p
 
 	if (numConcavePairs)
 	{
-		if (numConcavePairs)
+		B3_PROFILE("findConcaveSphereContactsKernel");
+		nContacts = m_totalContactsOut.at(0);
+		//				printf("nContacts1 = %d\n",nContacts);
+		b3BufferInfoCL bInfo[] = {
+			b3BufferInfoCL(triangleConvexPairsOut.getBufferCL()),
+			b3BufferInfoCL(bodyBuf->getBufferCL(), true),
+			b3BufferInfoCL(gpuCollidables.getBufferCL(), true),
+			b3BufferInfoCL(convexData.getBufferCL(), true),
+			b3BufferInfoCL(gpuVertices.getBufferCL(), true),
+			b3BufferInfoCL(gpuUniqueEdges.getBufferCL(), true),
+			b3BufferInfoCL(gpuFaces.getBufferCL(), true),
+			b3BufferInfoCL(gpuIndices.getBufferCL(), true),
+			b3BufferInfoCL(clAabbsWorldSpace.getBufferCL(), true),
+			b3BufferInfoCL(contactOut->getBufferCL()),
+			b3BufferInfoCL(m_totalContactsOut.getBufferCL())};
+
+		b3LauncherCL launcher(m_queue, m_findConcaveSphereContactsKernel, "m_findConcaveSphereContactsKernel");
+		launcher.setBuffers(bInfo, sizeof(bInfo) / sizeof(b3BufferInfoCL));
+
+		launcher.setConst(numConcavePairs);
+		launcher.setConst(maxContactCapacity);
+
+		int num = numConcavePairs;
+		launcher.launch1D(num);
+		clFinish(m_queue);
+		nContacts = m_totalContactsOut.at(0);
+		//printf("nContacts (after findConcaveSphereContactsKernel) = %d\n",nContacts);
+
+		//printf("nContacts2 = %d\n",nContacts);
+
+		if (nContacts >= maxContactCapacity)
 		{
-			B3_PROFILE("findConcaveSphereContactsKernel");
-			nContacts = m_totalContactsOut.at(0);
-			//				printf("nContacts1 = %d\n",nContacts);
-			b3BufferInfoCL bInfo[] = {
-				b3BufferInfoCL(triangleConvexPairsOut.getBufferCL()),
-				b3BufferInfoCL(bodyBuf->getBufferCL(), true),
-				b3BufferInfoCL(gpuCollidables.getBufferCL(), true),
-				b3BufferInfoCL(convexData.getBufferCL(), true),
-				b3BufferInfoCL(gpuVertices.getBufferCL(), true),
-				b3BufferInfoCL(gpuUniqueEdges.getBufferCL(), true),
-				b3BufferInfoCL(gpuFaces.getBufferCL(), true),
-				b3BufferInfoCL(gpuIndices.getBufferCL(), true),
-				b3BufferInfoCL(clAabbsWorldSpace.getBufferCL(), true),
-				b3BufferInfoCL(contactOut->getBufferCL()),
-				b3BufferInfoCL(m_totalContactsOut.getBufferCL())};
-
-			b3LauncherCL launcher(m_queue, m_findConcaveSphereContactsKernel, "m_findConcaveSphereContactsKernel");
-			launcher.setBuffers(bInfo, sizeof(bInfo) / sizeof(b3BufferInfoCL));
-
-			launcher.setConst(numConcavePairs);
-			launcher.setConst(maxContactCapacity);
-
-			int num = numConcavePairs;
-			launcher.launch1D(num);
-			clFinish(m_queue);
-			nContacts = m_totalContactsOut.at(0);
-			//printf("nContacts (after findConcaveSphereContactsKernel) = %d\n",nContacts);
-
-			//printf("nContacts2 = %d\n",nContacts);
-
-			if (nContacts >= maxContactCapacity)
-			{
-				b3Error("Error: contacts exceeds capacity (%d/%d)\n", nContacts, maxContactCapacity);
-				nContacts = maxContactCapacity;
-			}
+			b3Error("Error: contacts exceeds capacity (%d/%d)\n", nContacts, maxContactCapacity);
+			nContacts = maxContactCapacity;
 		}
 	}
 

@@ -710,7 +710,6 @@ void btAdjustInternalEdgeContacts(btManifoldPoint& cp, const btCollisionObjectWr
 		if (len < triangleInfoMapPtr->m_edgeDistanceThreshold)
 			if (bestedge == 1)
 			{
-				isNearEdge = true;
 #ifdef BT_INTERNAL_EDGE_DEBUG_DRAW
 				btDebugDrawLine(tr * nearest, tr * (nearest + tri_normal * 10), white);
 #endif  //BT_INTERNAL_EDGE_DEBUG_DRAW

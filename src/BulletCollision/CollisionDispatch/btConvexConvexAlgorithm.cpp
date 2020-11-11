@@ -454,7 +454,6 @@ void btConvexConvexAlgorithm ::processCollision(const btCollisionObjectWrapper* 
 				virtual void setShapeIdentifiersB(int partId1, int index1) {}
 				virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorldOrg, btScalar depthOrg)
 				{
-					m_reportedDistance = depthOrg;
 					m_reportedNormalOnWorld = normalOnBInWorld;
 
 					btVector3 adjustedPointB = pointInWorldOrg - normalOnBInWorld * m_marginOnB;

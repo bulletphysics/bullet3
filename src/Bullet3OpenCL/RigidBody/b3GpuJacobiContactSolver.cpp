@@ -246,7 +246,7 @@ static inline void solveFriction(b3GpuConstraint4& cs,
 	b3Vector3 angVelA = angVelARO + dAngVelA;
 	b3Vector3 angVelB = angVelBRO + dAngVelB;
 
-	if (cs.m_fJacCoeffInv[0] == 0 && cs.m_fJacCoeffInv[0] == 0) return;
+	if (cs.m_fJacCoeffInv[0] == 0 && cs.m_fJacCoeffInv[1] == 0) return;
 	const b3Vector3& center = (const b3Vector3&)cs.m_center;
 
 	b3Vector3 n = -(const b3Vector3&)cs.m_linear;
