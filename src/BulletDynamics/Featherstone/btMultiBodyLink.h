@@ -295,6 +295,9 @@ struct btMultibodyLink
             }
         }
     }
+
+    bool isStaticOrKinematic() const;
+    void setDynamicType(int dynamicType);
 };
 
 #endif  //BT_MULTIBODY_LINK_H
