@@ -61,8 +61,8 @@ class HumanoidDeepBulletEnv(gym.Env):
     self._renders = renders
     self._discrete_actions = False
     self._arg_file = arg_file
-    self._render_height = 480
-    self._render_width = 854
+    self._render_height = 540
+    self._render_width = 960
     self._rescale_actions = rescale_actions
     self._rescale_observations = rescale_observations
     self._use_com_reward = use_com_reward
