@@ -127,6 +127,7 @@ public:
 
 	enum CollisionFlags
 	{
+		CF_DYNAMIC_OBJECT = 0,
 		CF_STATIC_OBJECT = 1,
 		CF_KINEMATIC_OBJECT = 2,
 		CF_NO_CONTACT_RESPONSE = 4,

@@ -7655,7 +7655,7 @@ bool PhysicsServerCommandProcessor::processRequestActualStateCommand(const struc
 			}
 			for (int d = 0; d < mb->getLink(l).m_dofCount; d++)
 			{
-				stateDetails->m_jointMotorForce[totalDegreeOfFreedomU] = 0;
+				stateDetails->m_jointMotorForceMultiDof[totalDegreeOfFreedomU] = 0;
 
 				if (mb->getLink(l).m_jointType == btMultibodyLink::eSpherical)
 				{
