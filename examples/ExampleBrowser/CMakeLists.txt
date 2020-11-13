@@ -350,7 +350,8 @@ SET(BulletExampleBrowser_SRCS
   ../MultiBody/TestJointTorqueSetup.h
   ../MultiBody/InvertedPendulumPDControl.cpp
   ../MultiBody/InvertedPendulumPDControl.h
- ../MultiBody/MultiBodyConstraintFeedback.cpp
+  ../MultiBody/MultiBodyConstraintFeedback.cpp
+  ../MultiBody/KinematicMultiBodyExample.cpp
   ../SoftDemo/SoftDemo.cpp
   ../SoftDemo/SoftDemo.h
   ../DeformableDemo/DeformableContact.cpp

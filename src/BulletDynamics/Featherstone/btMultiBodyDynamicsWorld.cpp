@@ -869,6 +869,18 @@ void btMultiBodyDynamicsWorld::serializeMultiBodies(btSerializer* serializer)
 		}
 	}
 }
+
+void btMultiBodyDynamicsWorld::saveKinematicState(btScalar timeStep)
+{
+	btDiscreteDynamicsWorld::saveKinematicState(timeStep);
+	for(int i = 0; i < m_multiBodies.size(); i++)
+	{
+		btMultiBody* body = m_multiBodies[i];
+		if(body->isBaseKinematic())
+			body->saveKinematicState(timeStep);
+	}
+}
+
 //
 //void btMultiBodyDynamicsWorld::setSplitIslands(bool split)
 //{
