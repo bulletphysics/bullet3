@@ -196,6 +196,7 @@ project "App_BulletExampleBrowser"
 		"../MultiBody/MultiBodySoftContact.cpp",
 		"../MultiBody/MultiBodyConstraintFeedback.cpp",
 		"../MultiBody/InvertedPendulumPDControl.cpp",
+		"../MultiBody/KinematicMultiBodyExample.cpp",
 		"../RigidBody/RigidBodySoftContact.cpp",
 		"../RigidBody/KinematicRigidBodyExample.cpp",
 		"../ThirdPartyLibs/stb_image/stb_image.cpp",

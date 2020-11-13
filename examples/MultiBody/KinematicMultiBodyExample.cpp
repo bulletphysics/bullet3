@@ -38,7 +38,7 @@ void kinematicPreTickCallback(btDynamicsWorld* world, btScalar deltaTime)
 	btTransformUtil::integrateTransform(groundBody->getBaseWorldTransform(), linearVelocity, angularVelocity, deltaTime, predictedTrans);
 	groundBody->setBaseWorldTransform(predictedTrans);
 
-  static float time = 0.0;
+	static float time = 0.0;
 	time += deltaTime;
 	double old_joint_pos = groundBody->getJointPos(0);
 	double joint_pos = 0.5 * sin(time * 3.0 - 0.3);
