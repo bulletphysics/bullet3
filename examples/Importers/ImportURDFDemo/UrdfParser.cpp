@@ -1517,8 +1517,9 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, XMLElement* config, ErrorLogger* l
 			XMLElement* axis_xml = config->FirstChildElement("axis");
 			if (!axis_xml)
 			{
-				logger->reportWarning("urdfdom: no axis elemement for Joint, defaulting to (1,0,0) axis");
-				logger->reportWarning(joint.m_name.c_str());
+				std::string msg("urdfdom: no axis element for Joint, defaulting to (1,0,0) axis");
+				msg = msg + " " + joint.m_name + "\n";
+				logger->reportWarning(msg.c_str());
 				joint.m_localJointAxis.setValue(1, 0, 0);
 			}
 			else
@@ -1584,8 +1585,9 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, XMLElement* config, ErrorLogger* l
 			XMLElement* axis_xml = config->FirstChildElement("axis");
 			if (!axis_xml)
 			{
-				logger->reportWarning("urdfdom: no axis elemement for Joint, defaulting to (1,0,0) axis");
-				logger->reportWarning(joint.m_name.c_str());
+				std::string msg("urdfdom: no axis element for Joint, defaulting to (1,0,0) axis");
+				msg = msg + " " + joint.m_name + "\n";
+				logger->reportWarning(msg.c_str());
 				joint.m_localJointAxis.setValue(1, 0, 0);
 			}
 			else
