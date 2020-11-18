@@ -37,6 +37,14 @@ void kinematicPreTickCallback(btDynamicsWorld* world, btScalar deltaTime)
 	btVector3 angularVelocity(0, 0.1, 0);
 	btTransformUtil::integrateTransform(groundBody->getBaseWorldTransform(), linearVelocity, angularVelocity, deltaTime, predictedTrans);
 	groundBody->setBaseWorldTransform(predictedTrans);
+
+	static float time = 0.0;
+	time += deltaTime;
+	double old_joint_pos = groundBody->getJointPos(0);
+	double joint_pos = 0.5 * sin(time * 3.0 - 0.3);
+	double joint_vel = (joint_pos - old_joint_pos) / deltaTime;
+	groundBody->setJointPosMultiDof(0, &joint_pos);
+	groundBody->setJointVelMultiDof(0, &joint_vel);
 }
 
 struct KinematicMultiBodyExample : public CommonMultiBodyBase
@@ -79,30 +87,32 @@ void KinematicMultiBodyExample::initPhysics()
 	if (m_dynamicsWorld->getDebugDrawer())
 		m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints);
 
-	///create a few basic rigid bodies
-	btScalar halfExtentsX = 10.0;
-	btScalar halfExtentsY = 0.1;
-	btScalar halfExtentsZ = 10.0;
-
+	///create a kinematic multibody
 	btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10.), btScalar(0.1), btScalar(10.)));
-	btTransform groundTransform;
-	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0, -halfExtentsY, 0));
 	m_collisionShapes.push_back(groundShape);
 
-
+	btBoxShape* secondLevelShape = createBoxShape(btVector3(btScalar(0.5), btScalar(0.1), btScalar(0.5)));
+	m_collisionShapes.push_back(secondLevelShape);
 
 	{
 		bool floating = false;
-		int numLinks = 0;
+		int numLinks = 1;
 		bool canSleep = false;
 		btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
 		float baseMass = 1.f;
+		btVector3 secondLevelInertiaDiag(0.f, 0.f, 0.f);
+		float secondLevelMass = 0.1f;
 
 		if (baseMass)
 		{
 			btCollisionShape* pTempBox = new btBoxShape(btVector3(10, 10, 10));
 			pTempBox->calculateLocalInertia(baseMass, baseInertiaDiag);
+			delete pTempBox;
+		}
+		if (secondLevelMass)
+		{
+			btCollisionShape* pTempBox = new btBoxShape(btVector3(0.5, 0.5, 0.5));
+			pTempBox->calculateLocalInertia(secondLevelMass, secondLevelInertiaDiag);
 			delete pTempBox;
 		}
 		btTransform startTransform;
@@ -111,19 +121,30 @@ void KinematicMultiBodyExample::initPhysics()
 		m_groundBody = new btMultiBody(numLinks, baseMass, baseInertiaDiag, !floating, canSleep);
 		m_groundBody->setBasePos(startTransform.getOrigin());
 		m_groundBody->setWorldToBaseRot(startTransform.getRotation());
+
+		//init the child link - second level.
+		btVector3 hingeJointAxis(0, 1, 0);
+		m_groundBody->setupRevolute(0, secondLevelMass, secondLevelInertiaDiag, -1, btQuaternion(0.f, 0.f, 0.f, 1.f), hingeJointAxis, btVector3(0, 0.5, 0), btVector3(0, 0, 0), true);
+
 		m_groundBody->finalizeMultiDof();
 		m_dynamicsWorld->addMultiBody(m_groundBody);
 
+		// add collision geometries
+		bool isDynamic = false; // Kinematic is not treated as dynamic here.
+		int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+		int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
 		btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(m_groundBody, -1);
 		col->setCollisionShape(groundShape);
-		bool isDynamic = (baseMass > 0 && floating);
-		int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
-		int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 		m_dynamicsWorld->addCollisionObject(col, collisionFilterGroup, collisionFilterMask);  //, 2,1+2);
 		m_groundBody->setBaseCollider(col);
 		m_groundBody->setBaseDynamicType(btCollisionObject::CF_KINEMATIC_OBJECT);
 
+		btMultiBodyLinkCollider* secondLevelCol = new btMultiBodyLinkCollider(m_groundBody, 0);
+		secondLevelCol->setCollisionShape(secondLevelShape);
+		m_dynamicsWorld->addCollisionObject(secondLevelCol, collisionFilterGroup, collisionFilterMask);
+		m_groundBody->getLink(0).m_collider = secondLevelCol;
+		m_groundBody->setLinkDynamicType(0, btCollisionObject::CF_KINEMATIC_OBJECT);
 	}
 	m_dynamicsWorld->setInternalTickCallback(kinematicPreTickCallback, m_groundBody, true);
 
