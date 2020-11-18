@@ -30,7 +30,6 @@
 #include "BulletDynamics/Featherstone/btMultiBodyGearConstraint.cpp"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraint.cpp"
 #include "BulletDynamics/Featherstone/btMultiBodyFixedConstraint.cpp"
-#include "BulletDynamics/Featherstone/btMultiBodyLink.cpp"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.cpp"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.cpp"
 #include "BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.cpp"

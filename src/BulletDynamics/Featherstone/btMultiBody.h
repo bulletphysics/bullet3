@@ -716,30 +716,9 @@ public:
 		btVector3 &top_out,         // top part of output vector
 		btVector3 &bottom_out);      // bottom part of output vector
 
-	void setLinkDynamicType(const int i, int type)
-  {
-  	if(i == -1)
-  	{
-  		setBaseDynamicType(type);
-  	}
-  	else if (i >= 0 && i < getNumLinks())
-  	{
-  		m_links[i].setDynamicType(type);
-  	}
-  }
+	void setLinkDynamicType(const int i, int type);
 
-	bool isLinkStaticOrKinematic(const int i) const
-	{
-		if(i == -1)
-		{
-			return isBaseStaticOrKinematic();
-		}
-		else
-		{
-			return m_links[i].isStaticOrKinematic();
-		}
-	}
-
+	bool isLinkStaticOrKinematic(const int i) const;
 
 private:
 	btMultiBody(const btMultiBody &);     // not implemented
