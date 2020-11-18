@@ -1690,8 +1690,8 @@ void btMultiBody::predictPositionsMultiDof(btScalar dt)
         btScalar *pJointPos;
         pJointPos = &m_links[i].m_jointPos_interpolate[0];
         
-        if(m_links[i].isStaticOrKinematic()) 
-				{
+        if (m_links[i].m_collider && m_links[i].m_collider->isStaticOrKinematic()) 
+		{
             switch (m_links[i].m_jointType) 
 						{
                 case btMultibodyLink::ePrismatic:
@@ -1873,7 +1873,7 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd
 	// Finally we can update m_jointPos for each of the m_links
 	for (int i = 0; i < num_links; ++i)
 	{
-		if(!m_links[i].isStaticOrKinematic())
+		if (!(m_links[i].m_collider && m_links[i].m_collider->isStaticOrKinematic()))
 		{
 			btScalar *pJointPos;
 			pJointPos= (pq ? pq : &m_links[i].m_jointPos[0]);
@@ -2389,4 +2389,33 @@ void btMultiBody::saveKinematicState(btScalar timeStep)
 		setBaseOmega(angularVelocity);
 		setInterpolateBaseWorldTransform(getBaseWorldTransform());
 	}
+}
+
+void btMultiBody::setLinkDynamicType(const int i, int type)
+{
+	if (i == -1)
+	{
+		setBaseDynamicType(type);
+	}
+	else if (i >= 0 && i < getNumLinks())
+	{
+		if (m_links[i].m_collider)
+		{
+			m_links[i].m_collider->setDynamicType(type);
+		}
+	}
+}
+
+bool btMultiBody::isLinkStaticOrKinematic(const int i) const
+{
+	if (i == -1)
+	{
+		return isBaseStaticOrKinematic();
+	}
+	else
+	{
+		if (m_links[i].m_collider)
+			return m_links[i].m_collider->isStaticOrKinematic();
+	}
+	return false;
 }
