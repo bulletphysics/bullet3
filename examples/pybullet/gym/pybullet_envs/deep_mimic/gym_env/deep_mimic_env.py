@@ -219,7 +219,14 @@ class HumanoidDeepBulletEnv(gym.Env):
       state = self.scale_observation(state)
     return state
 
-  def render(self, mode='human', close=False, use_dual_view=False):
+  def render(self, mode='human', use_dual_view=False):
+    """Render RGB image.
+    
+    Args:
+      mode: either 'human' or 'rgb_array'
+      use_dual_view: split the camera view in two, one focuses on the kin char,
+        the other on the sim char.
+    """
     if mode == "human":
       self._renders = True
     if mode != "rgb_array":
