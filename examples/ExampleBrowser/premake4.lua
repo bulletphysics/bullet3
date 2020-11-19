@@ -193,7 +193,6 @@ project "App_BulletExampleBrowser"
 		"../MultiBody/SerialChains.cpp",
 		"../MultiBody/TestJointTorqueSetup.cpp",
 		"../MultiBody/Pendulum.cpp",
-                "../MultiBody/KinematicMultiBodyExample.cpp",
 		"../MultiBody/MultiBodySoftContact.cpp",
 		"../MultiBody/MultiBodyConstraintFeedback.cpp",
 		"../MultiBody/InvertedPendulumPDControl.cpp",
