@@ -720,6 +720,8 @@ public:
 
 	bool isLinkStaticOrKinematic(const int i) const;
 
+	bool isLinkAndAllAncestorsStaticOrKinematic(const int i) const;
+
 private:
 	btMultiBody(const btMultiBody &);     // not implemented
 	void operator=(const btMultiBody &);  // not implemented
