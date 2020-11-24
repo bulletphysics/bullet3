@@ -403,9 +403,13 @@ void btGeneric6DofSpring2Constraint::calculateAngleInfo()
 			btAssert(false);
 	}
 
-	m_calculatedAxis[0].normalize();
-	m_calculatedAxis[1].normalize();
-	m_calculatedAxis[2].normalize();
+    	for (int ii=0; ii<3; ++ii) {
+        	// This is to prevent triggering btAssert in zero length normalization
+        	// in debug build
+        	if (!m_calculatedAxis[ii].fuzzyZero()) {
+            		m_calculatedAxis[ii].normalize();
+        	}
+    	}
 }
 
 void btGeneric6DofSpring2Constraint::calculateTransforms()
