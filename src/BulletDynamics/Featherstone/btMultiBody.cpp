@@ -898,7 +898,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 
 		// calculate zhat_i^A
 		//
-		if (isLinkStaticOrKinematic(i))
+		if (isLinkAndAllAncestorsStaticOrKinematic(i))
 		{
 			zeroAccSpatFrc[i].setZero();
 		}
@@ -967,7 +967,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	// (part of TreeForwardDynamics in Mirtich.)
 	for (int i = num_links - 1; i >= 0; --i)
 	{
-		if(isLinkStaticOrKinematic(i))
+		if(isLinkAndAllAncestorsStaticOrKinematic(i))
 			continue;
 		const int parent = m_links[i].m_parent;
 		fromParent.m_rotMat = rot_from_parent[i + 1];
@@ -2418,4 +2418,15 @@ bool btMultiBody::isLinkStaticOrKinematic(const int i) const
 			return m_links[i].m_collider->isStaticOrKinematic();
 	}
 	return false;
+}
+
+bool btMultiBody::isLinkAndAllAncestorsStaticOrKinematic(const int i) const
+{
+	int link = i;
+	while (link != -1) {
+		if (!isLinkStaticOrKinematic(link))
+			return false;
+		link = m_links[link].m_parent;
+	}
+	return isBaseStaticOrKinematic();
 }
