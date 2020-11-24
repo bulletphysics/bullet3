@@ -720,7 +720,11 @@ public:
 
 	bool isLinkStaticOrKinematic(const int i) const;
 
+	bool isLinkKinematic(const int i) const;
+
 	bool isLinkAndAllAncestorsStaticOrKinematic(const int i) const;
+
+	bool isLinkAndAllAncestorsKinematic(const int i) const;
 
 private:
 	btMultiBody(const btMultiBody &);     // not implemented

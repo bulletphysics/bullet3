@@ -135,6 +135,11 @@ public:
 		return isStaticOrKinematicObject();
 	}
 
+	bool isKinematic() const
+	{
+		return isKinematicObject();
+	}
+
 	void setDynamicType(int dynamicType)
 	{
 		int oldFlags = getCollisionFlags();
