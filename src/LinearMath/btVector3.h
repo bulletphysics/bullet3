@@ -287,7 +287,7 @@ public:
 	{
 		if (!fuzzyZero())
 		{
-            return normalize();
+			return normalize();
 		}
 		else
 		{
