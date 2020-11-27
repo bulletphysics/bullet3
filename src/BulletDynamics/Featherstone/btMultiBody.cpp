@@ -898,7 +898,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 
 		// calculate zhat_i^A
 		//
-		if (isLinkAndAllAncestorsStaticOrKinematic(i))
+		if (isLinkAndAllAncestorsKinematic(i))
 		{
 			zeroAccSpatFrc[i].setZero();
 		}
@@ -967,7 +967,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	// (part of TreeForwardDynamics in Mirtich.)
 	for (int i = num_links - 1; i >= 0; --i)
 	{
-		if(isLinkAndAllAncestorsStaticOrKinematic(i))
+		if(isLinkAndAllAncestorsKinematic(i))
 			continue;
 		const int parent = m_links[i].m_parent;
 		fromParent.m_rotMat = rot_from_parent[i + 1];
@@ -1115,7 +1115,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 
 		fromParent.transform(spatAcc[parent + 1], spatAcc[i + 1]);
 
-		if(!isLinkStaticOrKinematic(i))
+		if(!isLinkAndAllAncestorsKinematic(i))
 		{
 			for (int dof = 0; dof < m_links[i].m_dofCount; ++dof)
 			{
@@ -1487,7 +1487,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	// (part of TreeForwardDynamics in Mirtich.)
 	for (int i = num_links - 1; i >= 0; --i)
 	{
-		if(isLinkStaticOrKinematic(i))
+		if(isLinkAndAllAncestorsKinematic(i))
 			continue;
 		const int parent = m_links[i].m_parent;
 		fromParent.m_rotMat = rot_from_parent[i + 1];
@@ -1545,7 +1545,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	// now do the loop over the m_links
 	for (int i = 0; i < num_links; ++i)
 	{
-		if(isLinkStaticOrKinematic(i))
+		if(isLinkAndAllAncestorsKinematic(i))
 			continue;
 		const int parent = m_links[i].m_parent;
 		fromParent.m_rotMat = rot_from_parent[i + 1];
@@ -2420,6 +2420,20 @@ bool btMultiBody::isLinkStaticOrKinematic(const int i) const
 	return false;
 }
 
+bool btMultiBody::isLinkKinematic(const int i) const
+{
+	if (i == -1)
+	{
+		return isBaseKinematic();
+	}
+	else
+	{
+		if (m_links[i].m_collider)
+			return m_links[i].m_collider->isKinematic();
+	}
+	return false;
+}
+
 bool btMultiBody::isLinkAndAllAncestorsStaticOrKinematic(const int i) const
 {
 	int link = i;
@@ -2429,4 +2443,15 @@ bool btMultiBody::isLinkAndAllAncestorsStaticOrKinematic(const int i) const
 		link = m_links[link].m_parent;
 	}
 	return isBaseStaticOrKinematic();
+}
+
+bool btMultiBody::isLinkAndAllAncestorsKinematic(const int i) const
+{
+	int link = i;
+	while (link != -1) {
+		if (!isLinkKinematic(link))
+			return false;
+		link = m_links[link].m_parent;
+	}
+	return isBaseKinematic();
 }
