@@ -9735,10 +9735,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 							btMultiBodyConstraint* mbc = m_data->m_dynamicsWorld->getMultiBodyConstraint(c);
 							if (mbc->getConstraintType() == MULTIBODY_CONSTRAINT_LIMIT)
 							{
-								if (((mbc->getMultiBodyA() == mb) && (mbc->getLinkA() == linkIndex))
-									||
-									((mbc->getMultiBodyB() == mb) && ((mbc->getLinkB() == linkIndex)))
-									)
+								if ((mbc->getMultiBodyA() == mb) && (mbc->getLinkA() == linkIndex))
 								{
 									limC = (btMultiBodyJointLimitConstraint*)mbc;
 								}
