@@ -70,6 +70,7 @@ struct RemoteGUIHelperTCP : public GUIHelperInterface
 	virtual void removeAllUserDebugItems();
 
 	int uploadData(const unsigned char* data, int sizeInBytes, int slot);
+	virtual bool isRemoteVisualizer() { return true; }
 };
 
 #endif  //REMOTE_HELPER_TCP_H

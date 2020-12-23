@@ -123,6 +123,7 @@ struct GUIHelperInterface
 	virtual void dumpFramesToVideo(const char* mp4FileName){};
 	virtual void drawDebugDrawerLines(){}
 	virtual void clearLines(){}
+	virtual bool isRemoteVisualizer() { return false; }
 };
 
 ///the DummyGUIHelper does nothing, so we can test the examples without GUI/graphics (in 'console mode')
