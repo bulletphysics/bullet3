@@ -403,6 +403,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 
 		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|is", kwlist1, &method, &key, &options))
 		{
+			PyErr_Clear();
 			int port = -1;
 			if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|sis", kwlist2, &method, &hostName, &port, &options))
 			{
