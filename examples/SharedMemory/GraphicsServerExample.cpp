@@ -347,6 +347,11 @@ void TCPThreadFunc(void* userPtr, void* lsMemory)
 
 									case GFX_CMD_SET_VISUALIZER_FLAG:
 									{
+										//disable single step rendering for GraphicsServer
+										if (args->m_cmdPtr->m_visualizerFlagCommand.m_visualizerFlag == COV_ENABLE_SINGLE_STEP_RENDERING)
+										{
+											args->m_cmdPtr->m_visualizerFlagCommand.m_visualizerFlag = 0;
+										}
 										args->submitCommand();
 										while (args->isCommandOutstanding())
 										{
@@ -740,7 +745,8 @@ public:
 			}
 			case GFX_CMD_SET_VISUALIZER_FLAG:
 			{
-				if (clientCmd.m_visualizerFlagCommand.m_visualizerFlag != COV_ENABLE_RENDERING)
+				if ((clientCmd.m_visualizerFlagCommand.m_visualizerFlag != COV_ENABLE_RENDERING) &&
+					(clientCmd.m_visualizerFlagCommand.m_visualizerFlag != COV_ENABLE_SINGLE_STEP_RENDERING))
 				{
 					//printf("clientCmd.m_visualizerFlag.m_visualizerFlag: %d, clientCmd.m_visualizerFlag.m_enable %d\n",
 					//	clientCmd.m_visualizerFlagCommand.m_visualizerFlag, clientCmd.m_visualizerFlagCommand.m_enable);
