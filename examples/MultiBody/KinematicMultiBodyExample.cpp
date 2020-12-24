@@ -37,6 +37,8 @@ void kinematicPreTickCallback(btDynamicsWorld* world, btScalar deltaTime)
 	btVector3 angularVelocity(0, 0.1, 0);
 	btTransformUtil::integrateTransform(groundBody->getBaseWorldTransform(), linearVelocity, angularVelocity, deltaTime, predictedTrans);
 	groundBody->setBaseWorldTransform(predictedTrans);
+	groundBody->setBaseVel(linearVelocity);
+	groundBody->setBaseOmega(angularVelocity);
 
 	static float time = 0.0;
 	time += deltaTime;
