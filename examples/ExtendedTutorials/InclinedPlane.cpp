@@ -71,6 +71,10 @@ void onBoxRestitutionChanged(float restitution, void* userPtr);
 
 void onSphereFrictionChanged(float friction, void* userPtr);
 
+void onSphereRollingFrictionChanged(float friction, void* userPtr);
+
+void onSphereSpinningFrictionChanged(float friction, void* userPtr);
+
 void onSphereRestitutionChanged(float restitution, void* userPtr);
 
 void onRampInclinationChanged(float inclination, void* userPtr);
@@ -140,16 +144,16 @@ void InclinedPlaneExample::initPhysics()
 		slider.m_minVal = 0;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
-		slider.m_callback = onSphereRestitutionChanged;
+		slider.m_callback = onSphereRollingFrictionChanged;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
 
-	{  // create slider to change the sphere rolling friction
-		SliderParams slider("Sphere Spinning", &gSphereSpinningFriction);
+	{  // create slider to change the sphere spinning friction
+		SliderParams slider("Sphere Spinning Friction", &gSphereSpinningFriction);
 		slider.m_minVal = 0;
 		slider.m_maxVal = 2;
 		slider.m_clampToNotches = false;
-		slider.m_callback = onSphereRestitutionChanged;
+		slider.m_callback = onSphereSpinningFrictionChanged;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
 
@@ -158,6 +162,7 @@ void InclinedPlaneExample::initPhysics()
 		slider.m_minVal = 0;
 		slider.m_maxVal = 1;
 		slider.m_clampToNotches = false;
+		slider.m_callback = onSphereRestitutionChanged;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
 
@@ -336,6 +341,25 @@ void onSphereFrictionChanged(float friction, void*)
 		//b3Printf("Friction of sphere changed to %f",friction );
 	}
 }
+
+void onSphereRollingFrictionChanged(float friction, void*)
+{
+	if (gSphere)
+	{
+		gSphere->setRollingFriction(friction);
+		//b3Printf("Rolling friction of sphere changed to %f",friction );
+	}
+}
+
+void onSphereSpinningFrictionChanged(float friction, void*)
+{
+	if (gSphere)
+	{
+		gSphere->setSpinningFriction(friction);
+		//b3Printf("Spinning friction of sphere changed to %f",friction );
+	}
+}
+
 
 void onSphereRestitutionChanged(float restitution, void*)
 {
