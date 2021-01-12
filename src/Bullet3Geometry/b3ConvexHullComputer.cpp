@@ -865,6 +865,14 @@ b3ConvexHullInternal::Int128 b3ConvexHullInternal::Int128::mul(btInt64_t a, btIn
 			: "cc");
 	return result;
 
+#elif defined(USE_ARM_64_ASM)
+	__asm__("smulh %1, %2, %0"
+			: "=r"(result.high)
+			: "r"(a), "r"(b)
+			: "cc");
+	result.low = a * b;
+	return result;
+
 #else
 	bool negative = a < 0;
 	if (negative)
@@ -890,6 +898,13 @@ b3ConvexHullInternal::Int128 b3ConvexHullInternal::Int128::mul(btUint64_t a, btU
 			: "=a"(result.low), "=d"(result.high)
 			: "0"(a), [b] "r"(b)
 			: "cc");
+
+#elif defined(USE_ARM_64_ASM)
+	__asm__("umulh %1, %2, %0"
+			: "=r"(result.high)
+			: "r"(a), "r"(b)
+			: "cc");
+	result.low = a * b;
 
 #else
 	DMul<btUint64_t, btUint32_t>::mul(a, b, result.low, result.high);
