@@ -1,4 +1,4 @@
-//#include "D:/dev/visual leak detector/include/vld.h"
+#include "D:/dev/visual leak detector/include/vld.h"
 
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include "../SharedMemory/PhysicsDirectC_API.h"
@@ -11642,6 +11642,8 @@ static PyObject* pybullet_calculateInverseKinematics2(PyObject* self,
 					free(upperLimits);
 					free(jointRanges);
 					free(restPoses);
+					free(positions);
+					free(indices);
 					return NULL;
 				}
 				else
@@ -11762,12 +11764,16 @@ static PyObject* pybullet_calculateInverseKinematics2(PyObject* self,
 					}
 
 					free(ikOutPutJointPos);
+					free(positions);
+					free(indices);
 					return pylist;
 				}
 				else
 				{
 					PyErr_SetString(SpamError,
 						"Error in calculateInverseKinematics");
+					free(positions);
+					free(indices);
 					return NULL;
 				}
 			}
@@ -11775,8 +11781,13 @@ static PyObject* pybullet_calculateInverseKinematics2(PyObject* self,
 			{
 				PyErr_SetString(SpamError,
 					"calculateInverseKinematics couldn't extract position vector3");
+				free(positions);
+				free(indices);
 				return NULL;
 			}
+
+			free(positions);
+			free(indices);
 		}
 	}
 
