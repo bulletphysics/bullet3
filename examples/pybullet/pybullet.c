@@ -1,4 +1,4 @@
-#include "D:/dev/visual leak detector/include/vld.h"
+//#include "D:/dev/visual leak detector/include/vld.h"
 
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include "../SharedMemory/PhysicsDirectC_API.h"
