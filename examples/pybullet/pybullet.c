@@ -403,6 +403,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 
 		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|is", kwlist1, &method, &key, &options))
 		{
+			PyErr_Clear();
 			int port = -1;
 			if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|sis", kwlist2, &method, &hostName, &port, &options))
 			{
@@ -11641,6 +11642,8 @@ static PyObject* pybullet_calculateInverseKinematics2(PyObject* self,
 					free(upperLimits);
 					free(jointRanges);
 					free(restPoses);
+					free(positions);
+					free(indices);
 					return NULL;
 				}
 				else
@@ -11761,12 +11764,16 @@ static PyObject* pybullet_calculateInverseKinematics2(PyObject* self,
 					}
 
 					free(ikOutPutJointPos);
+					free(positions);
+					free(indices);
 					return pylist;
 				}
 				else
 				{
 					PyErr_SetString(SpamError,
 						"Error in calculateInverseKinematics");
+					free(positions);
+					free(indices);
 					return NULL;
 				}
 			}
@@ -11774,8 +11781,13 @@ static PyObject* pybullet_calculateInverseKinematics2(PyObject* self,
 			{
 				PyErr_SetString(SpamError,
 					"calculateInverseKinematics couldn't extract position vector3");
+				free(positions);
+				free(indices);
 				return NULL;
 			}
+
+			free(positions);
+			free(indices);
 		}
 	}
 
