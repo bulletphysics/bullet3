@@ -1057,6 +1057,7 @@ struct b3CreateMultiBodyArgs
 	int m_flags;
 	int m_numBatchObjects;
 
+	const char* m_linkNames[MAX_CREATE_MULTI_BODY_LINKS];
 };
 
 struct b3CreateMultiBodyResultArgs
