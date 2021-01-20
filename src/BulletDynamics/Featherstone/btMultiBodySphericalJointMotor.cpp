@@ -26,10 +26,11 @@ btMultiBodySphericalJointMotor::btMultiBodySphericalJointMotor(btMultiBody* body
 	: btMultiBodyConstraint(body, body, link, body->getLink(link).m_parent, 3, true, MULTIBODY_CONSTRAINT_SPHERICAL_MOTOR),
 	m_desiredVelocity(0, 0, 0),
 	m_desiredPosition(0,0,0,1),
-	m_kd(1.),
-	m_kp(0.2),
+	m_kd(1., 1., 1.),
+	m_kp(0.2, 0.2, 0.2),
 	m_erp(1),
-	m_rhsClamp(SIMD_INFINITY)
+	m_rhsClamp(SIMD_INFINITY),
+	m_maxAppliedImpulseMultiDof(maxMotorImpulse, maxMotorImpulse, maxMotorImpulse)
 {
 
 	m_maxAppliedImpulse = maxMotorImpulse;
@@ -152,12 +153,12 @@ btQuaternion relRot = currentQuat.inverse() * desiredQuat;
 				case btMultibodyLink::eSpherical:
 				{
 					btVector3 constraintNormalAng = frameAworld.getColumn(row % 3);
-					posError = m_kp*angleDiff[row % 3];
+					posError = m_kp[row % 3]*angleDiff[row % 3];
 					fillMultiBodyConstraint(constraintRow, data, 0, 0, constraintNormalAng,
 						btVector3(0,0,0), dummy, dummy,
 						posError,
 						infoGlobal,
-						-m_maxAppliedImpulse, m_maxAppliedImpulse, true);
+						-m_maxAppliedImpulseMultiDof[row % 3], m_maxAppliedImpulseMultiDof[row % 3], true);
 					constraintRow.m_orgConstraint = this;
 					constraintRow.m_orgDofIndex = row;
 					break;

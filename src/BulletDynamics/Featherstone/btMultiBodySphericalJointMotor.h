@@ -26,10 +26,11 @@ class btMultiBodySphericalJointMotor : public btMultiBodyConstraint
 protected:
 	btVector3 m_desiredVelocity;
 	btQuaternion m_desiredPosition;
-	btScalar m_kd;
-	btScalar m_kp;
+	btVector3 m_kd;
+	btVector3 m_kp;
 	btScalar m_erp;
 	btScalar m_rhsClamp;  //maximum error
+	btVector3 m_maxAppliedImpulseMultiDof;
 
 public:
 	btMultiBodySphericalJointMotor(btMultiBody* body, int link, btScalar maxMotorImpulse);
@@ -44,13 +45,13 @@ public:
 									  btMultiBodyJacobianData& data,
 									  const btContactSolverInfo& infoGlobal);
 
-	virtual void setVelocityTarget(const btVector3& velTarget, btScalar kd = 1.f)
+	virtual void setVelocityTarget(const btVector3& velTarget, const btVector3& kd = btVector3(0.1, 0.1, 0.1))
 	{
 		m_desiredVelocity = velTarget;
 		m_kd = kd;
 	}
 
-	virtual void setPositionTarget(const btQuaternion& posTarget, btScalar kp = 1.f)
+	virtual void setPositionTarget(const btQuaternion& posTarget, const btVector3& kp = btVector3(1.f, 1.f, 1.f))
 	{
 		m_desiredPosition = posTarget;
 		m_kp = kp;
@@ -68,6 +69,17 @@ public:
 	{
 		m_rhsClamp = rhsClamp;
 	}
+
+	btScalar getMaxAppliedImpulseMultiDof(int i) const
+	{
+		return m_maxAppliedImpulseMultiDof[i];
+	}
+
+	void setMaxAppliedImpulseMultiDof(const btVector3& maxImp)
+	{
+		m_maxAppliedImpulseMultiDof = maxImp;
+	}
+
 	virtual void debugDraw(class btIDebugDraw* drawer)
 	{
 		//todo(erwincoumans)
