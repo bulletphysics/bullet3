@@ -7153,8 +7153,8 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 									motor->setRhsClamp(clientCmd.m_sendDesiredStateCommandArgument.m_rhsClamp[velIndex]);
 								}
 								bool hasDesiredPosOrVel = false;
-								btScalar kp = 0.f;
-								btScalar kd = 0.f;
+								btVector3 kp(0, 0, 0);
+								btVector3 kd(0, 0, 0);
 								btVector3 desiredVelocity(0, 0, 0);
 								if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[velIndex] & SIM_DESIRED_STATE_HAS_QDOT) != 0)
 								{
@@ -7163,7 +7163,7 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex + 0],
 										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex + 1],
 										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex + 2]);
-									kd = 0.1;
+									kd.setValue(0.1, 0.1, 0.1);
 								}
 								btQuaternion desiredPosition(0, 0, 0, 1);
 								if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[posIndex] & SIM_DESIRED_STATE_HAS_Q) != 0)
@@ -7174,19 +7174,25 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex + 1],
 										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex + 2],
 										clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex + 3]);
-									kp = 0.1;
+									kp.setValue(0.1, 0.1, 0.1);
 								}
 
 								if (hasDesiredPosOrVel)
 								{
 									if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[velIndex] & SIM_DESIRED_STATE_HAS_KP) != 0)
 									{
-										kp = clientCmd.m_sendDesiredStateCommandArgument.m_Kp[velIndex];
+										kp.setValue(
+											clientCmd.m_sendDesiredStateCommandArgument.m_Kp[velIndex + 0],
+											clientCmd.m_sendDesiredStateCommandArgument.m_Kp[velIndex + 1],
+											clientCmd.m_sendDesiredStateCommandArgument.m_Kp[velIndex + 2]);
 									}
 
 									if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[velIndex] & SIM_DESIRED_STATE_HAS_KD) != 0)
 									{
-										kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex];
+										kd.setValue(
+											clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex + 0],
+											clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex + 1],
+											clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex + 2]);
 									}
 
 									motor->setVelocityTarget(desiredVelocity, kd);
@@ -7200,12 +7206,16 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 									//}
 									motor->setPositionTarget(desiredPosition, kp);
 
-									btScalar maxImp = 1000000.f * m_data->m_physicsDeltaTime;
+									btVector3 maxImp(1000000.f * m_data->m_physicsDeltaTime, 1000000.f * m_data->m_physicsDeltaTime, 1000000.f * m_data->m_physicsDeltaTime);
 
-									if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_MAX_FORCE) != 0)
-										maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex] * m_data->m_physicsDeltaTime;
+									if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_MAX_FORCE) != 0) {
+										maxImp.setValue(
+											clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex + 0] * m_data->m_physicsDeltaTime,
+											clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex + 1] * m_data->m_physicsDeltaTime,
+											clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex + 2] * m_data->m_physicsDeltaTime);
+									}
 
-									motor->setMaxAppliedImpulse(maxImp);
+									motor->setMaxAppliedImpulseMultiDof(maxImp);
 								}
 								numMotors++;
 							}

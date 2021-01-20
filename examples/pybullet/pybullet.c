@@ -2882,8 +2882,8 @@ static PyObject* pybullet_setJointMotorControlMultiDofArray(PyObject* self, PyOb
 		}
 
 		numControlledDofs = jointIndicesObj ? PySequence_Size(jointIndicesObj) : 0;
-		numKps = kpsObj? PySequence_Size(kpsObj) : 0;
-		numKds = kdsObj ? PySequence_Size(kdsObj):0;
+		numKps = kpsObj ? PySequence_Size(kpsObj) : 0;
+		numKds = kdsObj ? PySequence_Size(kdsObj) : 0;
 		numTargetPositionObjs = targetPositionsObj?PySequence_Size(targetPositionsObj):0;
 		numTargetVelocityobjs = targetVelocitiesObj?PySequence_Size(targetVelocitiesObj):0;
 		numForceObj = forcesObj?PySequence_Size(forcesObj):0;
@@ -3217,15 +3217,19 @@ static PyObject* pybullet_setJointMotorControlMultiDof(PyObject* self, PyObject*
 	PyObject* targetVelocityObj = 0;
 	PyObject* targetForceObj = 0;
 
-	double kp = 0.1;
-	double kd = 1.0;
+	double kpArray[3] = {0.1, 0.1, 0.1};
+	int kpSize = 0;
+	PyObject* kpObj = 0;
+	double kdArray[3] = {1.0, 1.0, 1.0};
+	int kdSize = 0;
+	PyObject* kdObj = 0;
 	double maxVelocity = -1;
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
 	static char* kwlist[] = {"bodyUniqueId", "jointIndex", "controlMode", "targetPosition", "targetVelocity", "force", "positionGain", "velocityGain", "maxVelocity", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|OOOdddi", kwlist, &bodyUniqueId, &jointIndex, &controlMode,
-									 &targetPositionObj, &targetVelocityObj, &targetForceObj, &kp, &kd, &maxVelocity, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|OOOOOdi", kwlist, &bodyUniqueId, &jointIndex, &controlMode,
+									 &targetPositionObj, &targetVelocityObj, &targetForceObj, &kpObj, &kdObj, &maxVelocity, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -3311,6 +3315,56 @@ static PyObject* pybullet_setJointMotorControlMultiDof(PyObject* self, PyObject*
 		}
 	}
 
+	if (kpObj)
+	{
+		int i = 0;
+		PyObject* kpSeq = 0;
+		kpSeq = PySequence_Fast(kpObj, "expected a force sequence");
+		kpSize = PySequence_Size(kpObj);
+
+		if (kpSize < 0)
+		{
+			kpSize = 0;
+		}
+		if (kpSize > 3)
+		{
+			kpSize = 3;
+		}
+		if (kpSeq)
+		{
+			for (i = 0; i < kpSize; i++)
+			{
+				kpArray[i] = pybullet_internalGetFloatFromSequence(kpSeq, i);
+			}
+			Py_DECREF(kpSeq);
+		}
+	}
+
+	if (kdObj)
+	{
+		int i = 0;
+		PyObject* kdSeq = 0;
+		kdSeq = PySequence_Fast(kdObj, "expected a force sequence");
+		kdSize = PySequence_Size(kdObj);
+
+		if (kdSize < 0)
+		{
+			kdSize = 0;
+		}
+		if (kdSize > 3)
+		{
+			kdSize = 3;
+		}
+		if (kdSeq)
+		{
+			for (i = 0; i < kdSize; i++)
+			{
+				kdArray[i] = pybullet_internalGetFloatFromSequence(kdSeq, i);
+			}
+			Py_DECREF(kdSeq);
+		}
+	}
+
 	//if (targetPositionSize == 0 && targetVelocitySize == 0)
 	//{
 
@@ -3383,7 +3437,11 @@ static PyObject* pybullet_setJointMotorControlMultiDof(PyObject* self, PyObject*
 					//printf("Warning: targetPosition array size doesn't match joint position size  (got %d, expected %d).",targetPositionSize, info.m_qSize);
 				}
 
-				b3JointControlSetKp(commandHandle, info.m_uIndex, kp);
+				if (info.m_uSize == kpSize || kpSize == 1)
+				{
+					b3JointControlSetKpMultiDof(commandHandle, info.m_uIndex,
+																kpArray, kpSize);
+				}
 				if (info.m_uSize == targetVelocitySize)
 				{
 					b3JointControlSetDesiredVelocityMultiDof(commandHandle, info.m_uIndex,
@@ -3393,7 +3451,11 @@ static PyObject* pybullet_setJointMotorControlMultiDof(PyObject* self, PyObject*
 				{
 					//printf("Warning: targetVelocity array size doesn't match joint dimentions (got %d, expected %d).", targetVelocitySize, info.m_uSize);
 				}
-				b3JointControlSetKd(commandHandle, info.m_uIndex, kd);
+				if (info.m_uSize == kdSize || kdSize == 1)
+				{
+					b3JointControlSetKdMultiDof(commandHandle, info.m_uIndex,
+																kdArray, kdSize);
+				}
 				if (info.m_uSize == targetForceSize || targetForceSize == 1)
 				{
 					b3JointControlSetDesiredForceTorqueMultiDof(commandHandle, info.m_uIndex,
