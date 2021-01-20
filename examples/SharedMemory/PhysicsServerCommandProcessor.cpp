@@ -2233,7 +2233,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 	virtual std::string getLinkName(int linkIndex) const
 	{
 		// Allow user overrides on default-created link names.
-		if(m_createBodyArgs.m_linkNames[linkIndex] != nullptr
+		if(m_createBodyArgs.m_linkNames[linkIndex] != 0
 				&& strlen(m_createBodyArgs.m_linkNames[linkIndex]) > 0){
 			return std::string(m_createBodyArgs.m_linkNames[linkIndex]);
 		}
@@ -2315,7 +2315,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 	virtual std::string getJointName(int linkIndex) const
 	{
 		// Allow user overrides on default-created joint names.
-		if(m_createBodyArgs.m_linkNames[linkIndex] != nullptr
+		if(m_createBodyArgs.m_linkNames[linkIndex] != 0
 				&& strlen(m_createBodyArgs.m_linkNames[linkIndex]) > 0){
 			return std::string(m_createBodyArgs.m_linkNames[linkIndex]);
 		}
