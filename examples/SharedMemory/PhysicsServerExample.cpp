@@ -2156,8 +2156,8 @@ void PhysicsServerExample::updateGraphics()
 
 			m_multiThreadedHelper->m_childGuiHelper->setVisualizerFlag(m_multiThreadedHelper->m_visualizerFlag, m_multiThreadedHelper->m_visualizerEnable);
 
-			//postpone the release until an actual frame is rendered
-			if (flag == COV_ENABLE_SINGLE_STEP_RENDERING)
+			//postpone the release until an actual frame is rendered, unless it is a remote visualizer
+			if ((!m_multiThreadedHelper->m_childGuiHelper->isRemoteVisualizer()) && flag == COV_ENABLE_SINGLE_STEP_RENDERING)
 			{
 				m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperSetVisualizerFlagCheckRenderedFrame);
 			}
