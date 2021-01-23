@@ -61,11 +61,12 @@ IF (BUILD_SHARED_LIBS)
                                 BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
                                 ${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
                  )
-  			ELSE(APPLE)
+				ELSE(APPLE)
+                 FIND_PACKAGE(Threads)
                  TARGET_LINK_LIBRARIES(
                                 BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
                                 BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
-                                pthread ${DL}
+                                ${CMAKE_THREAD_LIBS_INIT} ${DL}
                         )
         ENDIF(APPLE)
 	ENDIF(WIN32)
@@ -116,7 +117,8 @@ ELSE(WIN32)
 		ADD_DEFINITIONS("-DGLEW_STATIC")
 		ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
 		INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad )
-		LINK_LIBRARIES( pthread ${DL})
+		FIND_PACKAGE(Threads)
+		LINK_LIBRARIES( ${CMAKE_THREAD_LIBS_INIT} ${DL} )
 	ENDIF(APPLE)
 ENDIF(WIN32)
 
