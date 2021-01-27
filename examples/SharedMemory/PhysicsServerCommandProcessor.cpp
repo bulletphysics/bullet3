@@ -7156,6 +7156,15 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 									}
 
 									motor->setMaxAppliedImpulseMultiDof(maxImp);
+
+									btVector3 damping(1.f, 1.f, 1.f);
+									if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_DAMPING) != 0) {
+										damping.setValue(
+											clientCmd.m_sendDesiredStateCommandArgument.m_damping[velIndex + 0],
+											clientCmd.m_sendDesiredStateCommandArgument.m_damping[velIndex + 1],
+											clientCmd.m_sendDesiredStateCommandArgument.m_damping[velIndex + 2]);
+									}
+									motor->setDamping(damping);
 								}
 								numMotors++;
 							}

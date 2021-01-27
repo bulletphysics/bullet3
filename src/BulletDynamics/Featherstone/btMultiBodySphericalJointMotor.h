@@ -31,6 +31,7 @@ protected:
 	btScalar m_erp;
 	btScalar m_rhsClamp;  //maximum error
 	btVector3 m_maxAppliedImpulseMultiDof;
+	btVector3 m_damping;
 
 public:
 	btMultiBodySphericalJointMotor(btMultiBody* body, int link, btScalar maxMotorImpulse);
@@ -78,6 +79,16 @@ public:
 	void setMaxAppliedImpulseMultiDof(const btVector3& maxImp)
 	{
 		m_maxAppliedImpulseMultiDof = maxImp;
+	}
+
+	btScalar getDamping(int i) const
+	{
+		return m_damping[i];
+	}
+
+	void setDamping(const btVector3& damping)
+	{
+		m_damping = damping;
 	}
 
 	virtual void debugDraw(class btIDebugDraw* drawer)
