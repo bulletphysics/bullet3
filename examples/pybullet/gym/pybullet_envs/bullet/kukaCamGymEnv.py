@@ -52,11 +52,6 @@ class KukaCamGymEnv(gym.Env):
     #timinglog = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "kukaTimings.json")
     self.seed()
     self.reset()
-    observationDim = len(self.getExtendedObservation())
-    #print("observationDim")
-    #print(observationDim)
-
-    observation_high = np.array([np.finfo(np.float32).max] * observationDim)
     if (self._isDiscrete):
       self.action_space = spaces.Discrete(7)
     else:
