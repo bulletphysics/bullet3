@@ -1040,6 +1040,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3JointControlCommandInit2Internal(b3S
 	{
 		command->m_sendDesiredStateCommandArgument.m_desiredStateQ[i] = 0;
 		command->m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 0;
+		command->m_sendDesiredStateCommandArgument.m_use_multi_dof_params[i] = false;
 		command->m_sendDesiredStateCommandArgument.m_Kp[i] = 0;
 		command->m_sendDesiredStateCommandArgument.m_Kd[i] = 0;
 		command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 0;
@@ -1100,6 +1101,7 @@ B3_SHARED_API int b3JointControlSetKpMultiDof(b3SharedMemoryCommandHandle comman
 		for (int dof = 0; dof < dofCount; dof++)
 		{
 			command->m_sendDesiredStateCommandArgument.m_Kp[dofIndex + dof] = kps[dof];
+			command->m_sendDesiredStateCommandArgument.m_use_multi_dof_params[dofIndex + dof] = true;
 			command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KP;
 			command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex + dof] |= SIM_DESIRED_STATE_HAS_KP;
 		}
@@ -1129,6 +1131,7 @@ B3_SHARED_API int b3JointControlSetKdMultiDof(b3SharedMemoryCommandHandle comman
 		for (int dof = 0; dof < dofCount; dof++)
 		{
 			command->m_sendDesiredStateCommandArgument.m_Kd[dofIndex + dof] = kds[dof];
+			command->m_sendDesiredStateCommandArgument.m_use_multi_dof_params[dofIndex + dof] = true;
 			command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KD;
 			command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex + dof] |= SIM_DESIRED_STATE_HAS_KD;
 		}
@@ -1203,6 +1206,7 @@ B3_SHARED_API int b3JointControlSetDampingMultiDof(b3SharedMemoryCommandHandle c
 		for (int dof = 0; dof < dofCount; dof++)
 		{
 			command->m_sendDesiredStateCommandArgument.m_damping[dofIndex+dof] = damping[dof];
+			command->m_sendDesiredStateCommandArgument.m_use_multi_dof_params[dofIndex + dof] = true;
 			command->m_updateFlags |= SIM_DESIRED_STATE_HAS_DAMPING;
 			command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex + dof] |= SIM_DESIRED_STATE_HAS_DAMPING;
 		}

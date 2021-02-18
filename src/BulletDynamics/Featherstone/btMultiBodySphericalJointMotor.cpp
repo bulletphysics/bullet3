@@ -26,6 +26,7 @@ btMultiBodySphericalJointMotor::btMultiBodySphericalJointMotor(btMultiBody* body
 	: btMultiBodyConstraint(body, body, link, body->getLink(link).m_parent, 3, true, MULTIBODY_CONSTRAINT_SPHERICAL_MOTOR),
 	m_desiredVelocity(0, 0, 0),
 	m_desiredPosition(0,0,0,1),
+	m_use_multi_dof_params(false),
 	m_kd(1., 1., 1.),
 	m_kp(0.2, 0.2, 0.2),
 	m_erp(1),
@@ -141,7 +142,8 @@ btQuaternion relRot = currentQuat.inverse() * desiredQuat;
 		btScalar currentVelocity = m_bodyA->getJointVelMultiDof(m_linkA)[dof];
 		btScalar desiredVelocity = this->m_desiredVelocity[row];
 		
-		btScalar velocityError = (desiredVelocity - currentVelocity) * m_kd[row % 3];
+		double kd = m_use_multi_dof_params ? m_kd[row % 3] : m_kd[0];
+		btScalar velocityError = (desiredVelocity - currentVelocity) * kd;
 
 		btMatrix3x3 frameAworld;
 		frameAworld.setIdentity();
@@ -154,12 +156,14 @@ btQuaternion relRot = currentQuat.inverse() * desiredQuat;
 				case btMultibodyLink::eSpherical:
 				{
 					btVector3 constraintNormalAng = frameAworld.getColumn(row % 3);
-					posError = m_kp[row % 3]*angleDiff[row % 3];
+					double kp = m_use_multi_dof_params ? m_kp[row % 3] : m_kp[0];
+					posError = kp*angleDiff[row % 3];
+					double max_applied_impulse = m_use_multi_dof_params ? m_maxAppliedImpulseMultiDof[row % 3] : m_maxAppliedImpulse;
 					fillMultiBodyConstraint(constraintRow, data, 0, 0, constraintNormalAng,
 						btVector3(0,0,0), dummy, dummy,
 						posError + velocityError,
 						infoGlobal,
-						-m_maxAppliedImpulseMultiDof[row % 3], m_maxAppliedImpulseMultiDof[row % 3], true,
+						-max_applied_impulse, max_applied_impulse, true,
 						1.0, false, 0, 0,
 						m_damping[row % 3]);
 					constraintRow.m_orgConstraint = this;
