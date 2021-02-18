@@ -7195,17 +7195,6 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 											clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex + 2]);
 									}
 
-									motor->setVelocityTarget(desiredVelocity, kd);
-									//todo: instead of clamping, combine the motor and limit
-									//and combine handling of limit force and motor force.
-
-									//clamp position
-									//if (mb->getLink(link).m_jointLowerLimit <= mb->getLink(link).m_jointUpperLimit)
-									//{
-									//	btClamp(desiredPosition, mb->getLink(link).m_jointLowerLimit, mb->getLink(link).m_jointUpperLimit);
-									//}
-									motor->setPositionTarget(desiredPosition, kp);
-
 									btVector3 maxImp(1000000.f * m_data->m_physicsDeltaTime, 1000000.f * m_data->m_physicsDeltaTime, 1000000.f * m_data->m_physicsDeltaTime);
 
 									if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_MAX_FORCE) != 0) {
@@ -7215,7 +7204,24 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 											clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex + 2] * m_data->m_physicsDeltaTime);
 									}
 
-									motor->setMaxAppliedImpulseMultiDof(maxImp);
+									if(!clientCmd.m_sendDesiredStateCommandArgument.m_use_multi_dof_params[velIndex]) {
+										motor->setVelocityTarget(desiredVelocity, kd[0]);
+										//todo: instead of clamping, combine the motor and limit
+										//and combine handling of limit force and motor force.
+
+										//clamp position
+										//if (mb->getLink(link).m_jointLowerLimit <= mb->getLink(link).m_jointUpperLimit)
+										//{
+										//	btClamp(desiredPosition, mb->getLink(link).m_jointLowerLimit, mb->getLink(link).m_jointUpperLimit);
+										//}
+										motor->setPositionTarget(desiredPosition, kp[0]);
+										motor->setMaxAppliedImpulse(maxImp[0]);
+									}
+									else {
+										motor->setVelocityTargetMultiDof(desiredVelocity, kd);
+										motor->setPositionTargetMultiDof(desiredPosition, kp);
+										motor->setMaxAppliedImpulseMultiDof(maxImp);
+									}
 
 									btVector3 damping(1.f, 1.f, 1.f);
 									if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_DAMPING) != 0) {
