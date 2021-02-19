@@ -2864,8 +2864,8 @@ static PyObject* pybullet_setJointMotorControlMultiDofArray(PyObject* self, PyOb
 		}
 
 		numControlledDofs = jointIndicesObj ? PySequence_Size(jointIndicesObj) : 0;
-		numKps = kpsObj ? PySequence_Size(kpsObj) : 0;
-		numKds = kdsObj ? PySequence_Size(kdsObj) : 0;
+		numKps = kpsObj? PySequence_Size(kpsObj) : 0;
+		numKds = kdsObj ? PySequence_Size(kdsObj):0;
 		numTargetPositionObjs = targetPositionsObj?PySequence_Size(targetPositionsObj):0;
 		numTargetVelocityobjs = targetVelocitiesObj?PySequence_Size(targetVelocitiesObj):0;
 		numForceObj = forcesObj?PySequence_Size(forcesObj):0;
@@ -3213,10 +3213,15 @@ static PyObject* pybullet_setJointMotorControlMultiDof(PyObject* self, PyObject*
 
 	int physicsClientId = 0;
 	static char* kwlist[] = {"bodyUniqueId", "jointIndex", "controlMode", "targetPosition", "targetVelocity", "force", "positionGain", "velocityGain", "maxVelocity", "damping", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|OOOOOOOdi", kwlist, &bodyUniqueId, &jointIndex, &controlMode,
-									 &targetPositionObj, &targetVelocityObj, &targetForceObj, &kpObj, &kdObj, &maxVelocity, &dampingObj, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|OOOdddi", kwlist, &bodyUniqueId, &jointIndex, &controlMode,
+								 	&targetPositionObj, &targetVelocityObj, &targetForceObj, &kpArray[0], &kdArray[0], &maxVelocity, &physicsClientId))
 	{
-		return NULL;
+		PyErr_Clear();
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|OOOOOOOdi", kwlist, &bodyUniqueId, &jointIndex, &controlMode,
+										 &targetPositionObj, &targetVelocityObj, &targetForceObj, &kpObj, &kdObj, &maxVelocity, &dampingObj, &physicsClientId))
+		{
+			return NULL;
+		}
 	}
 	sm = getPhysicsClient(physicsClientId);
 	if (sm == 0)
