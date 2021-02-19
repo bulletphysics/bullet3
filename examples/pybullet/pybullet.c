@@ -3457,6 +3457,10 @@ static PyObject* pybullet_setJointMotorControlMultiDof(PyObject* self, PyObject*
 					b3JointControlSetKpMultiDof(commandHandle, info.m_uIndex,
 																kpArray, kpSize);
 				}
+				else if (kpSize == 0)
+				{
+					b3JointControlSetKp(commandHandle, info.m_uIndex, kpArray[0]);
+				}
 				if (info.m_uSize == targetVelocitySize)
 				{
 					b3JointControlSetDesiredVelocityMultiDof(commandHandle, info.m_uIndex,
@@ -3470,6 +3474,10 @@ static PyObject* pybullet_setJointMotorControlMultiDof(PyObject* self, PyObject*
 				{
 					b3JointControlSetKdMultiDof(commandHandle, info.m_uIndex,
 																kdArray, kdSize);
+				}
+				else if (kdSize == 0)
+				{
+					b3JointControlSetKd(commandHandle, info.m_uIndex, kdArray[0]);
 				}
 				if (info.m_uSize == targetForceSize || targetForceSize == 1)
 				{
