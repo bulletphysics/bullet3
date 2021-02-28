@@ -349,27 +349,32 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 
 			if (m_flipQuadEdges || (m_useDiamondSubdivision && !((j + x) & 1)) || (m_useZigzagSubdivision && !(j & 1)))
 			{
-				//first triangle
 				getVertex(x, j, vertices[indices[0]]);
 				getVertex(x, j + 1, vertices[indices[1]]);
 				getVertex(x + 1, j + 1, vertices[indices[2]]);
 				callback->processTriangle(vertices, 2 * x, j);
-				//second triangle
-				//  getVertex(x,j,vertices[0]);//already got this vertex before, thanks to Danny Chapman
-				getVertex(x + 1, j + 1, vertices[indices[1]]);
+			
+				// already set: getVertex(x, j, vertices[indices[0]])
+
+				// equivalent to: getVertex(x + 1, j + 1, vertices[indices[1]]);
+				vertices[indices[1]] = vertices[indices[2]];
+
 				getVertex(x + 1, j, vertices[indices[2]]);
+				
 				callback->processTriangle(vertices, 2 * x+1, j);
 			}
 			else
 			{
-				//first triangle
 				getVertex(x, j, vertices[indices[0]]);
 				getVertex(x, j + 1, vertices[indices[1]]);
 				getVertex(x + 1, j, vertices[indices[2]]);
 				callback->processTriangle(vertices, 2 * x, j);
-				//second triangle
-				getVertex(x + 1, j, vertices[indices[0]]);
-				//getVertex(x,j+1,vertices[1]);
+
+				// already set: getVertex(x, j + 1, vertices[indices[1]]);
+
+				// equivalent to: getVertex(x + 1, j, vertices[indices[0]]);
+				vertices[indices[0]] = vertices[indices[2]];
+
 				getVertex(x + 1, j + 1, vertices[indices[2]]);
 				callback->processTriangle(vertices, 2 * x+1, j);
 			}
