@@ -7,6 +7,9 @@ INCLUDE_DIRECTORIES(
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
 )
+ADD_DEFINITIONS(-DSTATIC_LINK_SPD_PLUGIN)
+
+
 
 SET(BulletRobotics_INCLUDES
   ../../examples/CommonInterfaces/Common2dCanvasInterface.h
@@ -156,7 +159,25 @@ SET(BulletRobotics_SRCS ${BulletRobotics_INCLUDES}
 		../../examples/MultiThreading/b3PosixThreadSupport.cpp
 		../../examples/MultiThreading/b3Win32ThreadSupport.cpp
 		../../examples/MultiThreading/b3ThreadSupportInterface.cpp
+
+
 )
+
+IF(ENABLE_VHACD)
+ADD_DEFINITIONS(-DBT_ENABLE_VHACD)
+SET(BulletRobotics_SRCS ${BulletRobotics_SRCS}
+  ../../Extras/VHACD/test/src/main_vhacd.cpp
+  ../../Extras/VHACD/src/VHACD.cpp
+  ../../Extras/VHACD/src/vhacdICHull.cpp
+  ../../Extras/VHACD/src/vhacdManifoldMesh.cpp
+  ../../Extras/VHACD/src/vhacdMesh.cpp
+  ../../Extras/VHACD/src/vhacdVolume.cpp
+)
+INCLUDE_DIRECTORIES( 
+  ../../Extras/VHACD/inc
+  ../../Extras/VHACD/public
+)
+ENDIF(ENABLE_VHACD)
 
 IF(BUILD_CLSOCKET)
  ADD_DEFINITIONS(-DBT_ENABLE_CLSOCKET)

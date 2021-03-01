@@ -1411,7 +1411,7 @@ void btMultiBody::solveImatrix(const btSpatialForceVector &rhs, btSpatialMotionV
 	}
 }
 
-void btMultiBody::mulMatrix(btScalar *pA, btScalar *pB, int rowsA, int colsA, int rowsB, int colsB, btScalar *pC) const
+void btMultiBody::mulMatrix(const btScalar *pA, const btScalar *pB, int rowsA, int colsA, int rowsB, int colsB, btScalar *pC) const
 {
 	for (int row = 0; row < rowsA; row++)
 	{
