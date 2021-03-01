@@ -1132,6 +1132,7 @@ bool UrdfParser::parseDeformable(UrdfModel& model, tinyxml2::XMLElement* config,
 	if (!i)
 	{
 		logger->reportError("expected an inertial element");
+		return false;
 	}
 	UrdfInertia inertia;
 	if (!parseInertia(inertia, i, logger))
