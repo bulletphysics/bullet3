@@ -149,7 +149,7 @@ Vec3f Model::vert(int iface, int nthvert)
 void Model::load_texture(std::string filename, const char *suffix, TGAImage &img)
 {
 	std::string texfile(filename);
-	size_t dot = texfile.find_last_of(".");
+	size_t dot = texfile.find_last_of('.');
 	if (dot != std::string::npos)
 	{
 		texfile = texfile.substr(0, dot) + std::string(suffix);
