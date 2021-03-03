@@ -18,12 +18,57 @@ subject to the following restrictions:
 #include "LinearMath/btTransformUtil.h"
 
 btHeightfieldTerrainShape::btHeightfieldTerrainShape(
+	int heightStickWidth, int heightStickLength,
+	const float* heightfieldData, btScalar minHeight, btScalar maxHeight,
+	int upAxis, bool flipQuadEdges)
+	: m_userValue3(0), m_triangleInfoMap(0)
+{
+	initialize(heightStickWidth, heightStickLength, heightfieldData,
+			   /*heightScale=*/1, minHeight, maxHeight, upAxis, PHY_FLOAT,
+			   flipQuadEdges);
+}
+
+btHeightfieldTerrainShape::btHeightfieldTerrainShape(
+	int heightStickWidth, int heightStickLength, const double* heightfieldData,
+	btScalar minHeight, btScalar maxHeight, int upAxis, bool flipQuadEdges)
+	: m_userValue3(0), m_triangleInfoMap(0)
+{
+	initialize(heightStickWidth, heightStickLength, heightfieldData,
+			   /*heightScale=*/1, minHeight, maxHeight, upAxis, PHY_DOUBLE,
+			   flipQuadEdges);
+}
+
+btHeightfieldTerrainShape::btHeightfieldTerrainShape(
+	int heightStickWidth, int heightStickLength, const short* heightfieldData, btScalar heightScale,
+	btScalar minHeight, btScalar maxHeight, int upAxis, bool flipQuadEdges)
+	: m_userValue3(0), m_triangleInfoMap(0)
+{
+	initialize(heightStickWidth, heightStickLength, heightfieldData,
+			   heightScale, minHeight, maxHeight, upAxis, PHY_SHORT,
+			   flipQuadEdges);
+}
+
+btHeightfieldTerrainShape::btHeightfieldTerrainShape(
+	int heightStickWidth, int heightStickLength, const unsigned char* heightfieldData, btScalar heightScale,
+	btScalar minHeight, btScalar maxHeight, int upAxis, bool flipQuadEdges)
+	: m_userValue3(0), m_triangleInfoMap(0)
+{
+	initialize(heightStickWidth, heightStickLength, heightfieldData,
+			   heightScale, minHeight, maxHeight, upAxis, PHY_UCHAR,
+			   flipQuadEdges);
+}
+
+btHeightfieldTerrainShape::btHeightfieldTerrainShape(
 	int heightStickWidth, int heightStickLength, const void* heightfieldData,
 	btScalar heightScale, btScalar minHeight, btScalar maxHeight, int upAxis,
 	PHY_ScalarType hdt, bool flipQuadEdges)
 	:m_userValue3(0),
 	m_triangleInfoMap(0)
 {
+	// legacy constructor: Assumes PHY_FLOAT means btScalar.
+#ifdef BT_USE_DOUBLE_PRECISION
+	if (hdt == PHY_FLOAT) hdt = PHY_DOUBLE;
+#endif
 	initialize(heightStickWidth, heightStickLength, heightfieldData,
 			   heightScale, minHeight, maxHeight, upAxis, hdt,
 			   flipQuadEdges);
@@ -33,9 +78,12 @@ btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int h
 	:	m_userValue3(0),
 	m_triangleInfoMap(0)
 {
-	// legacy constructor: support only float or unsigned char,
-	// 	and min height is zero
+	// legacy constructor: support only btScalar or unsigned char data,
+	// and min height is zero.
 	PHY_ScalarType hdt = (useFloatData) ? PHY_FLOAT : PHY_UCHAR;
+#ifdef BT_USE_DOUBLE_PRECISION
+	if (hdt == PHY_FLOAT) hdt = PHY_DOUBLE;
+#endif
 	btScalar minHeight = 0.0f;
 
 	// previously, height = uchar * maxHeight / 65535.
@@ -59,7 +107,7 @@ void btHeightfieldTerrainShape::initialize(
 	// btAssert(heightScale) -- do we care?  Trust caller here
 	btAssert(minHeight <= maxHeight);                                    // && "bad min/max height");
 	btAssert(upAxis >= 0 && upAxis < 3);                                 // && "bad upAxis--should be in range [0,2]");
-	btAssert(hdt != PHY_UCHAR || hdt != PHY_FLOAT || hdt != PHY_SHORT);  // && "Bad height data type enum");
+	btAssert(hdt != PHY_UCHAR || hdt != PHY_FLOAT || hdt != PHY_DOUBLE || hdt != PHY_SHORT);  // && "Bad height data type enum");
 
 	// initialize member variables
 	m_shapeType = TERRAIN_SHAPE_PROXYTYPE;
@@ -149,6 +197,12 @@ btHeightfieldTerrainShape::getRawHeightFieldValue(int x, int y) const
 		case PHY_FLOAT:
 		{
 			val = m_heightfieldDataFloat[(y * m_heightStickWidth) + x];
+			break;
+		}
+
+		case PHY_DOUBLE:
+		{
+			val = m_heightfieldDataDouble[(y * m_heightStickWidth) + x];
 			break;
 		}
 
