@@ -75,6 +75,14 @@ btHeightfieldTerrainShape : public btConcaveShape
 public:
 	struct Range
 	{
+		Range() {}
+		Range(btScalar min, btScalar max) : min(min), max(max) {}
+
+		bool overlaps(const Range& other) const
+		{
+			return !(min > other.max || max < other.min);
+		}
+
 		btScalar min;
 		btScalar max;
 	};

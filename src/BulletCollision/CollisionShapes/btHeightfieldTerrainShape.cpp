@@ -232,19 +232,6 @@ getQuantized(
 	return (int)(x + 0.5);
 }
 
-static btHeightfieldTerrainShape::Range makeRange(btScalar min, btScalar max)
-{
-	btHeightfieldTerrainShape::Range result;
-	result.min = min;
-	result.max = max;
-	return result;
-}
-
-static bool rangesHaveOverlap(const btHeightfieldTerrainShape::Range& a, const btHeightfieldTerrainShape::Range& b)
-{
-	return !(a.min > b.max || a.max < b.min);
-}
-
 // Equivalent to std::minmax({a, b, c}).
 // Performs at most 3 comparisons.
 static btHeightfieldTerrainShape::Range minmaxRange(btScalar a, btScalar b, btScalar c)
@@ -252,20 +239,20 @@ static btHeightfieldTerrainShape::Range minmaxRange(btScalar a, btScalar b, btSc
 	if (a > b)
 	{
 		if (b > c)
-			return makeRange(c, a);
+			return btHeightfieldTerrainShape::Range(c, a);
 		else if (a > c)
-			return makeRange(b, a);
+			return btHeightfieldTerrainShape::Range(b, a);
 		else
-			return makeRange(b, c);
+			return btHeightfieldTerrainShape::Range(b, c);
 	}
 	else
 	{
 		if (a > c)
-			return makeRange(c, b);
+			return btHeightfieldTerrainShape::Range(c, b);
 		else if (b > c)
-			return makeRange(a, b);
+			return btHeightfieldTerrainShape::Range(a, b);
 		else
-			return makeRange(a, c);
+			return btHeightfieldTerrainShape::Range(a, c);
 	}
 }
 
@@ -372,7 +359,7 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 
 	// TODO If m_vboundsGrid is available, use it to determine if we really need to process this area
 	
-	const Range aabbUpRange = makeRange(aabbMin[m_upAxis], aabbMax[m_upAxis]);
+	const Range aabbUpRange(aabbMin[m_upAxis], aabbMax[m_upAxis]);
 	for (int j = startJ; j < endJ; j++)
 	{
 		for (int x = startX; x < endX; x++)
@@ -394,7 +381,7 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 				// Skip triangle processing if the triangle is out-of-AABB.
 				Range upRange = minmaxRange(vertices[0][m_upAxis], vertices[1][m_upAxis], vertices[2][m_upAxis]);
 
-				if (rangesHaveOverlap(upRange, aabbUpRange))
+				if (upRange.overlaps(aabbUpRange))
 					callback->processTriangle(vertices, 2 * x, j);
 			
 				// already set: getVertex(x, j, vertices[indices[0]])
@@ -406,7 +393,7 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 				upRange.min = btMin(upRange.min, vertices[indices[2]][m_upAxis]);
 				upRange.max = btMax(upRange.max, vertices[indices[2]][m_upAxis]);
 
-				if (rangesHaveOverlap(upRange, aabbUpRange))
+				if (upRange.overlaps(aabbUpRange))
 					callback->processTriangle(vertices, 2 * x + 1, j);
 			}
 			else
@@ -418,7 +405,7 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 				// Skip triangle processing if the triangle is out-of-AABB.
 				Range upRange = minmaxRange(vertices[0][m_upAxis], vertices[1][m_upAxis], vertices[2][m_upAxis]);
 
-				if (rangesHaveOverlap(upRange, aabbUpRange))
+				if (upRange.overlaps(aabbUpRange))
 					callback->processTriangle(vertices, 2 * x, j);
 
 				// already set: getVertex(x, j + 1, vertices[indices[1]]);
@@ -430,7 +417,7 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 				upRange.min = btMin(upRange.min, vertices[indices[2]][m_upAxis]);
 				upRange.max = btMax(upRange.max, vertices[indices[2]][m_upAxis]);
 
-				if (rangesHaveOverlap(upRange, aabbUpRange))
+				if (upRange.overlaps(aabbUpRange))
 					callback->processTriangle(vertices, 2 * x + 1, j);
 			}
 		}
