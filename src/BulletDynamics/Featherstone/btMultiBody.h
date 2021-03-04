@@ -745,7 +745,7 @@ private:
 		}
 	}
 
-	void mulMatrix(btScalar * pA, btScalar * pB, int rowsA, int colsA, int rowsB, int colsB, btScalar *pC) const;
+	void mulMatrix(const btScalar *pA, const btScalar *pB, int rowsA, int colsA, int rowsB, int colsB, btScalar *pC) const;
 
 private:
 	btMultiBodyLinkCollider *m_baseCollider;  //can be NULL

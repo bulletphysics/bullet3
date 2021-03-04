@@ -7,6 +7,9 @@ INCLUDE_DIRECTORIES(
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
 )
+ADD_DEFINITIONS(-DSTATIC_LINK_SPD_PLUGIN)
+
+
 
 SET(BulletRobotics_INCLUDES
   ../../examples/CommonInterfaces/Common2dCanvasInterface.h
@@ -94,69 +97,102 @@ SET(BulletRobotics_INCLUDES
 )
 
 SET(BulletRobotics_SRCS ${BulletRobotics_INCLUDES}
-    ../../examples/OpenGLWindow/SimpleCamera.cpp
+	../../examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp
+	../../examples/SharedMemory/plugins/stablePDPlugin/SpAlg.h
+	../../examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp
+	../../examples/SharedMemory/plugins/stablePDPlugin/Shape.h
+	../../examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp
+	../../examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.h
+	../../examples/SharedMemory/plugins/stablePDPlugin/RBDModel.cpp
+	../../examples/SharedMemory/plugins/stablePDPlugin/RBDModel.h
+	../../examples/SharedMemory/plugins/stablePDPlugin/MathUtil.cpp
+	../../examples/SharedMemory/plugins/stablePDPlugin/MathUtil.h
+	../../examples/SharedMemory/plugins/stablePDPlugin/KinTree.cpp
+	../../examples/SharedMemory/plugins/stablePDPlugin/KinTree.h
+	../../examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.cpp
+	../../examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.h
+	
+	../../examples/OpenGLWindow/SimpleCamera.cpp
 
-		../../examples/TinyRenderer/geometry.cpp
-		../../examples/TinyRenderer/model.cpp
-		../../examples/TinyRenderer/tgaimage.cpp
-		../../examples/TinyRenderer/our_gl.cpp
-		../../examples/TinyRenderer/TinyRenderer.cpp
+	../../examples/TinyRenderer/geometry.cpp
+	../../examples/TinyRenderer/model.cpp
+	../../examples/TinyRenderer/tgaimage.cpp
+	../../examples/TinyRenderer/our_gl.cpp
+	../../examples/TinyRenderer/TinyRenderer.cpp
 
-    ../../examples/SharedMemory/plugins/collisionFilterPlugin/collisionFilterPlugin.cpp
-		../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp
-		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoGUI.cpp
-		../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp
-		../../examples/SharedMemory/IKTrajectoryHelper.cpp
-		../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
-		../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
-		../../examples/SharedMemory/InProcessMemory.cpp
-		../../examples/SharedMemory/PhysicsClient.cpp
-		../../examples/SharedMemory/PhysicsServer.cpp
-		../../examples/SharedMemory/PhysicsServerSharedMemory.cpp
-		../../examples/SharedMemory/PhysicsDirect.cpp
-		../../examples/SharedMemory/PhysicsDirectC_API.cpp
-		../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp
-		../../examples/SharedMemory/b3PluginManager.cpp
-		../../examples/SharedMemory/PhysicsClientSharedMemory.cpp
-		../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.cpp
-		../../examples/SharedMemory/PhysicsClientC_API.cpp
-		../../examples/SharedMemory/Win32SharedMemory.cpp
-		../../examples/SharedMemory/PosixSharedMemory.cpp
+	../../examples/SharedMemory/plugins/collisionFilterPlugin/collisionFilterPlugin.cpp
+	../../examples/SharedMemory/plugins/pdControlPlugin/pdControlPlugin.cpp
+	../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoGUI.cpp
+	../../examples/SharedMemory/b3RobotSimulatorClientAPI_NoDirect.cpp
+	../../examples/SharedMemory/IKTrajectoryHelper.cpp
+	../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
+	../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
+	../../examples/SharedMemory/InProcessMemory.cpp
+	../../examples/SharedMemory/PhysicsClient.cpp
+	../../examples/SharedMemory/PhysicsServer.cpp
+	../../examples/SharedMemory/PhysicsServerSharedMemory.cpp
+	../../examples/SharedMemory/PhysicsDirect.cpp
+	../../examples/SharedMemory/PhysicsDirectC_API.cpp
+	../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp
+	../../examples/SharedMemory/b3PluginManager.cpp
+	../../examples/SharedMemory/PhysicsClientSharedMemory.cpp
+	../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.cpp
+	../../examples/SharedMemory/PhysicsClientC_API.cpp
+	../../examples/SharedMemory/Win32SharedMemory.cpp
+	../../examples/SharedMemory/PosixSharedMemory.cpp
 
-		../../examples/Utils/b3ResourcePath.cpp
-		../../examples/Utils/RobotLoggingUtil.cpp
-		../../examples/Utils/b3Clock.cpp
-		../../examples/Utils/b3ResourcePath.cpp
-		../../examples/Utils/ChromeTraceUtil.cpp
+	../../examples/Utils/b3ResourcePath.cpp
+	../../examples/Utils/RobotLoggingUtil.cpp
+	../../examples/Utils/b3Clock.cpp
+	../../examples/Utils/b3ResourcePath.cpp
+	../../examples/Utils/ChromeTraceUtil.cpp
 
-		../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp
-		../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
-		../../examples/ThirdPartyLibs/stb_image/stb_image.cpp
-		../../examples/ThirdPartyLibs/BussIK/Jacobian.cpp
-		../../examples/ThirdPartyLibs/BussIK/LinearR2.cpp
-		../../examples/ThirdPartyLibs/BussIK/LinearR3.cpp
-		../../examples/ThirdPartyLibs/BussIK/LinearR4.cpp
-		../../examples/ThirdPartyLibs/BussIK/MatrixRmn.cpp
-		../../examples/ThirdPartyLibs/BussIK/Misc.cpp
-		../../examples/ThirdPartyLibs/BussIK/Node.cpp
-		../../examples/ThirdPartyLibs/BussIK/Tree.cpp
-		../../examples/ThirdPartyLibs/BussIK/VectorRn.cpp
+	../../examples/ThirdPartyLibs/tinyxml2/tinyxml2.cpp
+	../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
+	../../examples/ThirdPartyLibs/stb_image/stb_image.cpp
+	../../examples/ThirdPartyLibs/BussIK/Jacobian.cpp
+	../../examples/ThirdPartyLibs/BussIK/LinearR2.cpp
+	../../examples/ThirdPartyLibs/BussIK/LinearR3.cpp
+	../../examples/ThirdPartyLibs/BussIK/LinearR4.cpp
+	../../examples/ThirdPartyLibs/BussIK/MatrixRmn.cpp
+	../../examples/ThirdPartyLibs/BussIK/Misc.cpp
+	../../examples/ThirdPartyLibs/BussIK/Node.cpp
+	../../examples/ThirdPartyLibs/BussIK/Tree.cpp
+	../../examples/ThirdPartyLibs/BussIK/VectorRn.cpp
 
-		../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp
-		../../examples/Importers/ImportObjDemo/LoadMeshFromObj.cpp
-		../../examples/Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
-		../../examples/Importers/ImportMJCFDemo/BulletMJCFImporter.cpp
-		../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp
-		../../examples/Importers/ImportURDFDemo/MyMultiBodyCreator.cpp
-		../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp
-		../../examples/Importers/ImportURDFDemo/UrdfParser.cpp
-		../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp
-		../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp 
+	../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp
+	../../examples/Importers/ImportObjDemo/LoadMeshFromObj.cpp
+	../../examples/Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
+	../../examples/Importers/ImportMJCFDemo/BulletMJCFImporter.cpp
+	../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp
+	../../examples/Importers/ImportURDFDemo/MyMultiBodyCreator.cpp
+	../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp
+	../../examples/Importers/ImportURDFDemo/UrdfParser.cpp
+	../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp
+	../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp 
 
-		../../examples/MultiThreading/b3PosixThreadSupport.cpp
-		../../examples/MultiThreading/b3Win32ThreadSupport.cpp
-		../../examples/MultiThreading/b3ThreadSupportInterface.cpp
+	../../examples/MultiThreading/b3PosixThreadSupport.cpp
+	../../examples/MultiThreading/b3Win32ThreadSupport.cpp
+	../../examples/MultiThreading/b3ThreadSupportInterface.cpp
+
+
 )
+
+IF(ENABLE_VHACD)
+ADD_DEFINITIONS(-DBT_ENABLE_VHACD)
+SET(BulletRobotics_SRCS ${BulletRobotics_SRCS}
+  ../../Extras/VHACD/test/src/main_vhacd.cpp
+  ../../Extras/VHACD/src/VHACD.cpp
+  ../../Extras/VHACD/src/vhacdICHull.cpp
+  ../../Extras/VHACD/src/vhacdManifoldMesh.cpp
+  ../../Extras/VHACD/src/vhacdMesh.cpp
+  ../../Extras/VHACD/src/vhacdVolume.cpp
+)
+INCLUDE_DIRECTORIES( 
+  ../../Extras/VHACD/inc
+  ../../Extras/VHACD/public
+)
+ENDIF(ENABLE_VHACD)
 
 IF(BUILD_CLSOCKET)
  ADD_DEFINITIONS(-DBT_ENABLE_CLSOCKET)
