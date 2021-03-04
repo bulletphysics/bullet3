@@ -397,6 +397,15 @@ void GLInstancingRenderer::removeAllInstances()
 	m_graphicsInstances.clear();
 	m_data->m_publicGraphicsInstances.exitHandles();
 	m_data->m_publicGraphicsInstances.initHandles();
+
+	for (int i=0;i<m_data->m_textureHandles.size();i++)
+	{
+		InternalTextureHandle& h = m_data->m_textureHandles[i];
+		glDeleteTextures(1, &h.m_glTexture);
+	}
+
+	m_data->m_textureHandles.clear();
+
 }
 
 GLInstancingRenderer::~GLInstancingRenderer()
