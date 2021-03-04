@@ -136,7 +136,7 @@ std::string base64_decode(std::string const& encoded_string, bool remove_linebre
        std::string copy(encoded_string);
 
        size_t pos=0;
-       while ((pos = copy.find("\n", pos)) != std::string::npos) {
+       while ((pos = copy.find('\n', pos)) != std::string::npos) {
            copy.erase(pos, 1);
        }
 

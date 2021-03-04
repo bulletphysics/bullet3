@@ -2,11 +2,6 @@ language: cpp
 matrix:
   include:
     - os: linux
-      compiler: gcc
-      env:
-        - BUILD_NAME=TRUSTY_GCC
-        - SUDO=sudo
-    - os: linux
       compiler: clang
       env:
         - BUILD_NAME=TRUSTY_CLANG
