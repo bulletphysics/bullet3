@@ -120,8 +120,9 @@ IF (WIN32)
                 ${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
         )
 ELSE(WIN32)
-			 IF(APPLE)
-			        LINK_LIBRARIES(  pthread dl )
+	FIND_PACKAGE(Threads)
+	LINK_LIBRARIES( ${CMAKE_THREAD_LIBS_INIT} ${DL} )
+	IF(APPLE)
 			        ADD_EXECUTABLE(App_PhysicsServer_SharedMemory
 			                ${SharedMemory_SRCS}
 			                ../MultiThreading/b3PosixThreadSupport.cpp
@@ -129,8 +130,7 @@ ELSE(WIN32)
 			                main.cpp
 			        )
 
-        ELSE(APPLE)
-                                LINK_LIBRARIES(  pthread ${DL} )
+	ELSE(APPLE)
 			        ADD_EXECUTABLE(App_PhysicsServer_SharedMemory
 			                ${SharedMemory_SRCS}
 			                ../MultiThreading/b3PosixThreadSupport.cpp
@@ -180,8 +180,9 @@ IF (WIN32)
 			          ${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
         )
 ELSE(WIN32)
+	FIND_PACKAGE(Threads)
+	LINK_LIBRARIES( ${CMAKE_THREAD_LIBS_INIT} ${DL} )
 			 IF(APPLE)
-			        LINK_LIBRARIES(  pthread dl )
 			        FIND_LIBRARY(COCOA NAMES Cocoa)
               MESSAGE(${COCOA})
               LINK_LIBRARIES(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
@@ -197,7 +198,6 @@ ELSE(WIN32)
 			        )
 
         ELSE(APPLE)
-				LINK_LIBRARIES(  pthread ${DL} )
          			ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
               ADD_DEFINITIONS("-DGLEW_STATIC")
               ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
@@ -393,9 +393,10 @@ ELSE(WIN32 OR APPLE)
                -std=c++11
        )
 
+       FIND_PACKAGE(Threads)
        target_link_libraries(App_PhysicsServer_SharedMemory_VR PRIVATE
                openvr_api
-               pthread
+               ${CMAKE_THREAD_LIBS_INIT}
                ${DL}
                Bullet3Common
                BulletWorldImporter

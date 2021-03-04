@@ -1,0 +1,27 @@
+IO for uncompress .zip files using zlib
+   Version 1.1, February 14h, 2010
+   part of the MiniZip project - ( http://www.winimage.com/zLibDll/minizip.html )
+         Copyright (C) 1998-2010 Gilles Vollant (minizip) ( http://www.winimage.com/zLibDll/minizip.html )
+         Modifications of Unzip for Zip64
+         Copyright (C) 2007-2008 Even Rouault
+         Modifications for Zip64 support on both zip and unzip
+         Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
+         For more info read MiniZip_info.txt
+  ------------------------------------------------------------------------------------
+  Decryption code comes from crypt.c by Info-ZIP but has been greatly reduced in terms of
+  compatibility with older software. The following is from the original crypt.c.
+  Code woven in by Terry Thorsen 1/2003.
+  Copyright (c) 1990-2000 Info-ZIP.  All rights reserved.
+  See the accompanying file LICENSE, version 2000-Apr-09 or later
+  (the contents of which are also included in zip.h) for terms of use.
+  If, for some reason, all these files are missing, the Info-ZIP license
+  also may be found at:  ftp://ftp.info-zip.org/pub/infozip/license.html
+        crypt.c (full version) by Info-ZIP.      Last revised:  [see crypt.h]
+  The encryption/decryption parts of this source code (as opposed to the
+  non-echoing password parts) were originally written in Europe.  The
+  whole source package can be freely distributed, including from the USA.
+  (Prior to January 2000, re-export from the US was a violation of US law.)
+        This encryption code is a direct transcription of the algorithm from
+  Roger Schlafly, described by Phil Katz in the file appnote.txt.  This
+  file (appnote.txt) is distributed with the PKZIP program (even in the
+  version without encryption capabilities).

@@ -17,7 +17,8 @@ IF (BULLET_BUILD_RBDL_COMPARE_TEST)
         LINK_LIBRARIES( BulletDynamics BulletCollision  Bullet3Common LinearMath gtest rbdl_urdfreader rbdl)
     ENDIF (MSVC)
     IF (NOT WIN32)
-    	LINK_LIBRARIES(	pthread	)
+        FIND_PACKAGE(Threads)
+        LINK_LIBRARIES( ${CMAKE_THREAD_LIBS_INIT} )
     ENDIF()
     
     
@@ -81,7 +82,8 @@ LINK_LIBRARIES(
  BulletInverseDynamicsUtils BulletInverseDynamics Bullet3Common LinearMath gtest 
 )
 IF (NOT WIN32)
-	LINK_LIBRARIES(		pthread	)
+	FIND_PACKAGE(Threads)
+	LINK_LIBRARIES( ${CMAKE_THREAD_LIBS_INIT} )
 ENDIF()
 
 
@@ -113,7 +115,8 @@ LINK_LIBRARIES(
 BulletDynamics BulletCollision  BulletInverseDynamicsUtils BulletInverseDynamics Bullet3Common LinearMath gtest 
 )
 IF (NOT WIN32)
-        LINK_LIBRARIES(         pthread )
+	FIND_PACKAGE(Threads)
+	LINK_LIBRARIES( ${CMAKE_THREAD_LIBS_INIT} )
 ENDIF()
 
 
@@ -176,7 +179,8 @@ LINK_LIBRARIES(
  BulletInverseDynamicsUtils BulletInverseDynamics Bullet3Common LinearMath gtest 
 )
 IF (NOT WIN32)
-        LINK_LIBRARIES(         pthread )
+	FIND_PACKAGE(Threads)
+	LINK_LIBRARIES( ${CMAKE_THREAD_LIBS_INIT} )
 ENDIF()
 
 
