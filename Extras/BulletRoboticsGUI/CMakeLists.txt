@@ -94,21 +94,6 @@ SET(BulletRoboticsGUI_INCLUDES
 )
 
 SET(BulletRoboticsGUI_SRCS ${BulletRoboticsGUI_INCLUDES}
-
-	../../examples/SharedMemory/plugins/stablePDPlugin/SpAlg.cpp
-  ../../examples/SharedMemory/plugins/stablePDPlugin/SpAlg.h
-  ../../examples/SharedMemory/plugins/stablePDPlugin/Shape.cpp
-  ../../examples/SharedMemory/plugins/stablePDPlugin/Shape.h
-  ../../examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.cpp
-  ../../examples/SharedMemory/plugins/stablePDPlugin/RBDUtil.h
-  ../../examples/SharedMemory/plugins/stablePDPlugin/RBDModel.cpp
-  ../../examples/SharedMemory/plugins/stablePDPlugin/RBDModel.h
-  ../../examples/SharedMemory/plugins/stablePDPlugin/MathUtil.cpp
-  ../../examples/SharedMemory/plugins/stablePDPlugin/MathUtil.h
-  ../../examples/SharedMemory/plugins/stablePDPlugin/KinTree.cpp
-  ../../examples/SharedMemory/plugins/stablePDPlugin/KinTree.h
-  ../../examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.cpp
-  ../../examples/SharedMemory/plugins/stablePDPlugin/BulletConversion.h
 	../../examples/ExampleBrowser/InProcessExampleBrowser.cpp
 	../../examples/SharedMemory/GraphicsServerExample.cpp
 	../../examples/SharedMemory/GraphicsClientExample.cpp
