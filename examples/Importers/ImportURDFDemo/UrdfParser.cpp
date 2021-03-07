@@ -94,7 +94,8 @@ static void ParseUserData(const XMLElement* element, btHashMap<btHashString,
 			if (!key_attr) {
 				logger->reportError("User data tag must have a key attribute.");
 			}
-			user_data.insert(key_attr, user_data_xml->GetText());
+			const char* text = user_data_xml->GetText();
+			user_data.insert(key_attr, text ? text : "");
 		}
 	}
 }
