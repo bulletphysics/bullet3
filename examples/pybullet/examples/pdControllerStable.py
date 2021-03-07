@@ -70,43 +70,34 @@ class PDControllerStableMultiDof(object):
     Kp = np.diagflat(kps)
     Kd = np.diagflat(kds)
 
-    p = Kp.dot(qError)
+    # Compute -Kp(q + qdot - qdes)
+    p_term = Kp.dot(qError - qdot*timeStep)
+    # Compute -Kd(qdot - qdotdes)
+    d_term = Kd.dot(qdoterr)
 
-    #np.savetxt("pb_qError.csv", qError, delimiter=",")
-    #np.savetxt("pb_p.csv", p, delimiter=",")
-
-    d = Kd.dot(qdoterr)
-
-    #np.savetxt("pb_d.csv", d, delimiter=",")
-    #np.savetxt("pbqdoterr.csv", qdoterr, delimiter=",")
-
-    M1 = self._pb.calculateMassMatrix(bodyUniqueId, q1, flags=1)
-
-    M2 = np.array(M1)
-    #np.savetxt("M2.csv", M2, delimiter=",")
-
-    M = (M2 + Kd * timeStep)
-
-    #np.savetxt("pbM_tKd.csv",M, delimiter=",")
-
-    c1 = self._pb.calculateInverseDynamics(bodyUniqueId, q1, qdot1, zeroAccelerations, flags=1)
-
-    c = np.array(c1)
-    #np.savetxt("pbC.csv",c, delimiter=",")
-    A = M
-    #p = [0]*43
-    b = p + d - c
-    #np.savetxt("pb_acc.csv",b, delimiter=",")
-    qddot = np.linalg.solve(A, b)
-    tau = p + d - Kd.dot(qddot) * timeStep
-    #print("len(tau)=",len(tau))
+    # Compute Inertia matrix M(q)
+    M = self._pb.calculateMassMatrix(bodyUniqueId, q1, flags=1)
+    M = np.array(M)
+    # Given: M(q) * qddot + C(q, qdot) = T_ext + T_int
+    # Compute Coriolis and External (Gravitational) terms G = C - T_ext
+    G = self._pb.calculateInverseDynamics(bodyUniqueId, q1, qdot1, zeroAccelerations, flags=1)
+    G = np.array(G)
+    # Obtain estimated generalized accelerations, considering Coriolis and Gravitational forces, and stable PD actions
+    qddot = np.linalg.solve(a=(M + Kd * timeStep),
+                            b=p_term + d_term - G)
+    # Compute control generalized forces (T_int)
+    tau = p_term + d_term - Kd.dot(qddot) * timeStep
+    # Clip generalized forces to actuator limits
     maxF = np.array(maxForces)
-    forces = np.clip(tau, -maxF, maxF)
-    return forces
+    generalized_forces = np.clip(tau, -maxF, maxF)
+    return generalized_forces
 
 
 class PDControllerStable(object):
-
+  """
+  Implementation based on: Tan, J., Liu, K., & Turk, G. (2011). "Stable proportional-derivative controllers"
+  DOI: 10.1109/MCG.2011.30
+  """
   def __init__(self, pb):
     self._pb = pb
 
@@ -121,28 +112,36 @@ class PDControllerStable(object):
       q1.append(jointStates[i][0])
       qdot1.append(jointStates[i][1])
       zeroAccelerations.append(0)
+
     q = np.array(q1)
     qdot = np.array(qdot1)
     qdes = np.array(desiredPositions)
     qdotdes = np.array(desiredVelocities)
+
     qError = qdes - q
     qdotError = qdotdes - qdot
+
     Kp = np.diagflat(kps)
     Kd = np.diagflat(kds)
-    p = Kp.dot(qError)
-    d = Kd.dot(qdotError)
-    forces = p + d
 
-    M1 = self._pb.calculateMassMatrix(bodyUniqueId, q1)
-    M2 = np.array(M1)
-    M = (M2 + Kd * timeStep)
-    c1 = self._pb.calculateInverseDynamics(bodyUniqueId, q1, qdot1, zeroAccelerations)
-    c = np.array(c1)
-    A = M
-    b = -c + p + d
-    qddot = np.linalg.solve(A, b)
-    tau = p + d - Kd.dot(qddot) * timeStep
+    # Compute -Kp(q + qdot - qdes)
+    p_term = Kp.dot(qError - qdot*timeStep)
+    # Compute -Kd(qdot - qdotdes)
+    d_term = Kd.dot(qdotError)
+
+    # Compute Inertia matrix M(q)
+    M = self._pb.calculateMassMatrix(bodyUniqueId, q1)
+    M = np.array(M)
+    # Given: M(q) * qddot + C(q, qdot) = T_ext + T_int
+    # Compute Coriolis and External (Gravitational) terms G = C - T_ext
+    G = self._pb.calculateInverseDynamics(bodyUniqueId, q1, qdot1, zeroAccelerations)
+    G = np.array(G)
+    # Obtain estimated generalized accelerations, considering Coriolis and Gravitational forces, and stable PD actions
+    qddot = np.linalg.solve(a=(M + Kd * timeStep),
+                            b=(-G + p_term + d_term))
+    # Compute control generalized forces (T_int)
+    tau = p_term + d_term - (Kd.dot(qddot) * timeStep)
+    # Clip generalized forces to actuator limits
     maxF = np.array(maxForces)
-    forces = np.clip(tau, -maxF, maxF)
-    #print("c=",c)
-    return tau
+    generalized_forces = np.clip(tau, -maxF, maxF)
+    return generalized_forces
