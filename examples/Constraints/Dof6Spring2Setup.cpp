@@ -52,6 +52,13 @@ btScalar inline degree2rad(btScalar degree){
     return degree / 180.0f * SIMD_PI;
 }
 
+btScalar inline degreeDiff(const btVector3& a1, const btVector3& a2)
+{
+    btVector3 d1 = btVector3(rad2degree(a1[0]), rad2degree(a1[1]), rad2degree(a1[2]));
+    btVector3 d2 = btVector3(rad2degree(a2[0]), rad2degree(a2[1]), rad2degree(a2[2]));
+    return (d1 - d2).norm();
+}
+
 void getEulerValFromDof(btVector3& eulerVal, const btScalar* q)
 {
     btQuaternion qt(q[0], q[1], q[2], q[3]);
@@ -307,9 +314,17 @@ void Dof6Spring2Setup::stepSimulation(float deltaTime)
 
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
-////  multibody pendulum
+////  multibody skeleton
 ////
 /////////////////////////////////////////////////////////////
+#define WIRE_FRAME 1
+
+enum CollisionTypes
+{
+    NOTHING  = 0,        //< Collide with nothing
+    BONE_BODY = 1 << 1,
+    TARGET_BODY = 1 << 2
+};
 
 static btScalar radius(0.05);
 
@@ -342,6 +357,7 @@ public:
     }
     void addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents);
     void applyStiffTorque(btMultiBody* pMultiBody, float deltaTime);
+    static void OnInternalTickCallback(btDynamicsWorld* world, btScalar timeStep);
 };
 
 Skeleton::Skeleton(struct GUIHelperInterface* helper)
@@ -363,20 +379,24 @@ void Skeleton::initPhysics()
 
     m_guiHelper->setUpAxis(upAxis);
 
+    // set btDefaultCollisionConfiguration, dispatcher, solver and other things
     this->createEmptyDynamicsWorld();
+
+    bool isPreTick = false;
+    m_dynamicsWorld->setInternalTickCallback(OnInternalTickCallback, this, isPreTick);
+
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
     if (m_dynamicsWorld->getDebugDrawer())
     {
-        m_dynamicsWorld->getDebugDrawer()->setDebugMode(
-                //btIDebugDraw::DBG_DrawConstraints
-                +btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints + btIDebugDraw::DBG_DrawAabb);  //+btIDebugDraw::DBG_DrawConstraintLimits);
+        int mode = btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints + btIDebugDraw::DBG_DrawAabb;
+        m_dynamicsWorld->getDebugDrawer()->setDebugMode(mode);  //+btIDebugDraw::DBG_DrawConstraintLimits);
     }
 
     m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 
-    bool floating = false;
-    bool damping = false;
-    bool gyro = false;
+    const bool floating = false;
+    const bool damping = false;   // disable bullet internal damp
+    const bool gyro = false;
 
     bool canSleep = false;
     bool selfCollide = false;
@@ -435,11 +455,6 @@ void Skeleton::initPhysics()
         pMultiBody->setLinearDamping(0.f);
         pMultiBody->setAngularDamping(0.f);
     }
-    else
-    {
-        pMultiBody->setLinearDamping(0.1f);
-        pMultiBody->setAngularDamping(0.9f);
-    }
 
     // set init pose
     if (m_numLinks > 0)
@@ -466,8 +481,10 @@ void Skeleton::initPhysics()
     // adjust balance rot, ks and damp
     btScalar angle = -23.57817848 * SIMD_PI / 180.f;
     m_balanceRot[0] = btQuaternion(btVector3(1, 0, 0).normalized(), angle);
-    m_jointDamp[0] = 0.1;
-    m_jointDamp[1] = 0.1;
+    for ( int i = 0; i < m_jointDamp.size(); i++ )
+    {
+        m_jointDamp[i] = 0.1;
+    }
 
     addColliders(pMultiBody, world, baseHalfExtents, linkHalfExtents);
 
@@ -476,8 +493,7 @@ void Skeleton::initPhysics()
     /////////////////////////////////////////////////////////////////
     {
         btVector3 halfExtents(.4, .4, .4);
-        btBoxShape* colShape = new btBoxShape(halfExtents);
-        //btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+        btCollisionShape* colShape = new btBoxShape(halfExtents);
 
         /// Create Dynamic Objects
         btTransform startTransform;
@@ -498,12 +514,16 @@ void Skeleton::initPhysics()
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
         m_collider = new btRigidBody(rbInfo);
 
-        m_dynamicsWorld->addRigidBody(m_collider);
-//        btVector4 color(0, 1, 0, 1);
-//        m_guiHelper->createCollisionObjectGraphicsObject(colShape, color);
-    }
+        // set collision group and mask, only collide with objects with mask is true where it collide with bones
+        m_dynamicsWorld->addRigidBody(m_collider, TARGET_BODY, BONE_BODY);
 
-    m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+        if (!WIRE_FRAME)
+        {
+            m_guiHelper->createCollisionShapeGraphicsObject(colShape);
+            btVector4 color(1, 0, 0, 1);
+            m_guiHelper->createCollisionObjectGraphicsObject(dynamic_cast<btCollisionObject*>(m_collider), color);
+        }
+    }
 }
 
 void Skeleton::addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents)
@@ -528,15 +548,9 @@ void Skeleton::addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* p
         btVector3 posr = local_origin[i + 1];
         btScalar quat[4] = {-world_to_local[i + 1].x(), -world_to_local[i + 1].y(), -world_to_local[i + 1].z(), world_to_local[i + 1].w()};
 
-//        btCollisionShape* shape = new btSphereShape(radius);
         btCollisionShape* shape = new btBoxShape(linkHalfExtents);
-//        m_guiHelper->createCollisionShapeGraphicsObject(shape);
         btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(pMultiBody, i);
         col->setCollisionShape(shape);
-
-        bool isDynamic = 1;
-        int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
-        int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
         btTransform tr;
         tr.setIdentity();
@@ -544,9 +558,16 @@ void Skeleton::addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* p
         tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
         col->setWorldTransform(tr);
 
-        pWorld->addCollisionObject(col, collisionFilterGroup, collisionFilterMask);  //,2,1+2);
-//        btVector4 color(1, 0, 0, 1);
-//        m_guiHelper->createCollisionObjectGraphicsObject(col, color);
+        // set collision group and mask, only collide with objects with mask is true where it collide with collider
+        pWorld->addCollisionObject(col, BONE_BODY, TARGET_BODY);  //,2,1+2);
+
+        if (!WIRE_FRAME)
+        {
+            m_guiHelper->createCollisionShapeGraphicsObject(shape);
+            btVector4 color(0, 1, 0, 1);
+            m_guiHelper->createCollisionObjectGraphicsObject(col, color);
+        }
+
         pMultiBody->getLink(i).m_collider = col;
     }
 }
@@ -570,6 +591,60 @@ void Skeleton::applyStiffTorque(btMultiBody* pMultiBody, float deltaTime){
 
             btScalar angle_force = stiff_force[d] - _kd * pMultiBody->getJointVelMultiDof(i)[d];
             pMultiBody->addJointTorqueMultiDof(i, d, angle_force);
+        }
+    }
+}
+
+void Skeleton::OnInternalTickCallback(btDynamicsWorld* world, btScalar timeStep)
+{
+    Skeleton* demo = static_cast<Skeleton*>(world->getWorldUserInfo());
+    int numManifolds = world->getDispatcher()->getNumManifolds();
+    for (int i = 0; i < numManifolds; i++)
+    {
+        btPersistentManifold* contactManifold = world->getDispatcher()->getManifoldByIndexInternal(i);
+        const btCollisionObject* obA = contactManifold->getBody0();
+        const btCollisionObject* obB = contactManifold->getBody1();
+
+        // only detect collision between bones and collider
+        if (
+                (!(obA->getBroadphaseHandle()->m_collisionFilterGroup & BONE_BODY)
+                    && !(obB->getBroadphaseHandle()->m_collisionFilterGroup | BONE_BODY))
+                ||
+                (!(obA->getBroadphaseHandle()->m_collisionFilterGroup & TARGET_BODY)
+                 && !(obB->getBroadphaseHandle()->m_collisionFilterGroup | TARGET_BODY))
+        )
+            continue;
+
+        int numContacts = contactManifold->getNumContacts();
+        for (int j = 0; j < numContacts; j++)
+        {
+            btManifoldPoint& pt = contactManifold->getContactPoint(j);
+            printf("step : %d, collision impulse: %f\n", demo->m_step, pt.getAppliedImpulse());
+
+            btVector3 ptOnBone, normalOnBone;
+            // if obA is bone
+            if ( obA->getBroadphaseHandle()->m_collisionFilterGroup ){
+                ptOnBone = pt.getPositionWorldOnA();
+                normalOnBone = pt.m_normalWorldOnB;
+            }
+            else{
+                ptOnBone = pt.getPositionWorldOnB();
+                normalOnBone = -pt.m_normalWorldOnB;
+            }
+            normalOnBone.normalize();
+            printf("ptA: %f, %f, %f\n", ptOnBone.getX(), ptOnBone.getY(), ptOnBone.getZ());
+            printf("normal: %f, %f, %f\n", normalOnBone.getX(), normalOnBone.getY(), normalOnBone.getZ());
+
+//            btVector3 to = ptOnBone + normalOnBone * (pt.getAppliedImpulse() + 1e-2) * 10;
+            btVector3 to = ptOnBone + normalOnBone;
+            btVector4 color(1, 0, 0, 1);
+            if (demo->m_guiHelper->getRenderInterface())
+            {
+                if (WIRE_FRAME)
+                {
+                    demo->m_guiHelper->getRenderInterface()->drawLine(ptOnBone, to, color, btScalar(1));
+                }
+            }
         }
     }
 }
@@ -625,10 +700,14 @@ void Skeleton::stepSimulation(float deltaTime)
 
 //    m_dynamicsWorld->stepSimulation(deltaTime);
     m_dynamicsWorld->stepSimulation(deltaTime, 2, btScalar(1.0) / 48);
+    if ( WIRE_FRAME ) {
+        m_dynamicsWorld->debugDrawWorld();
+    }
 
     m_time += deltaTime;
     m_step += 1;
 }
+
 
 class CommonExampleInterface* Dof6Spring2CreateFunc(CommonExampleOptions& options)
 {
