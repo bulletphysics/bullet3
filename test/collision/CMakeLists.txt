@@ -25,10 +25,13 @@ ENDIF()
 		../../src/BulletCollision/CollisionShapes/btSphereShape.cpp
 		../../src/BulletCollision/CollisionShapes/btMultiSphereShape.cpp
 		../../src/BulletCollision/CollisionShapes/btPolyhedralConvexShape.cpp
+		../../src/BulletCollision/CollisionShapes/btConcaveShape.cpp
 		../../src/BulletCollision/CollisionShapes/btConvexShape.cpp
 		../../src/BulletCollision/CollisionShapes/btConvexInternalShape.cpp
 		../../src/BulletCollision/CollisionShapes/btCollisionShape.cpp
 		../../src/BulletCollision/CollisionShapes/btConvexPolyhedron.cpp
+		../../src/BulletCollision/CollisionShapes/btHeightfieldTerrainShape.cpp
+		../../src/BulletCollision/CollisionShapes/btTriangleCallback.cpp
 	)
 
 ADD_TEST(Test_Collision_PASS Test_Collision)

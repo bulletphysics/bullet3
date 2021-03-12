@@ -232,6 +232,30 @@ getQuantized(
 	return (int)(x + 0.5);
 }
 
+// Equivalent to std::minmax({a, b, c}).
+// Performs at most 3 comparisons.
+static btHeightfieldTerrainShape::Range minmaxRange(btScalar a, btScalar b, btScalar c)
+{
+	if (a > b)
+	{
+		if (b > c)
+			return btHeightfieldTerrainShape::Range(c, a);
+		else if (a > c)
+			return btHeightfieldTerrainShape::Range(b, a);
+		else
+			return btHeightfieldTerrainShape::Range(b, c);
+	}
+	else
+	{
+		if (a > c)
+			return btHeightfieldTerrainShape::Range(c, b);
+		else if (b > c)
+			return btHeightfieldTerrainShape::Range(a, b);
+		else
+			return btHeightfieldTerrainShape::Range(a, c);
+	}
+}
+
 /// given input vector, return quantized version
 /**
   This routine is basically determining the gridpoint indices for a given
@@ -334,7 +358,8 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 	}
 
 	// TODO If m_vboundsGrid is available, use it to determine if we really need to process this area
-
+	
+	const Range aabbUpRange(aabbMin[m_upAxis], aabbMax[m_upAxis]);
 	for (int j = startJ; j < endJ; j++)
 	{
 		for (int x = startX; x < endX; x++)
@@ -349,29 +374,51 @@ void btHeightfieldTerrainShape::processAllTriangles(btTriangleCallback* callback
 
 			if (m_flipQuadEdges || (m_useDiamondSubdivision && !((j + x) & 1)) || (m_useZigzagSubdivision && !(j & 1)))
 			{
-				//first triangle
 				getVertex(x, j, vertices[indices[0]]);
 				getVertex(x, j + 1, vertices[indices[1]]);
 				getVertex(x + 1, j + 1, vertices[indices[2]]);
-				callback->processTriangle(vertices, 2 * x, j);
-				//second triangle
-				//  getVertex(x,j,vertices[0]);//already got this vertex before, thanks to Danny Chapman
-				getVertex(x + 1, j + 1, vertices[indices[1]]);
+
+				// Skip triangle processing if the triangle is out-of-AABB.
+				Range upRange = minmaxRange(vertices[0][m_upAxis], vertices[1][m_upAxis], vertices[2][m_upAxis]);
+
+				if (upRange.overlaps(aabbUpRange))
+					callback->processTriangle(vertices, 2 * x, j);
+			
+				// already set: getVertex(x, j, vertices[indices[0]])
+
+				// equivalent to: getVertex(x + 1, j + 1, vertices[indices[1]]);
+				vertices[indices[1]] = vertices[indices[2]];
+
 				getVertex(x + 1, j, vertices[indices[2]]);
-				callback->processTriangle(vertices, 2 * x+1, j);
+				upRange.min = btMin(upRange.min, vertices[indices[2]][m_upAxis]);
+				upRange.max = btMax(upRange.max, vertices[indices[2]][m_upAxis]);
+
+				if (upRange.overlaps(aabbUpRange))
+					callback->processTriangle(vertices, 2 * x + 1, j);
 			}
 			else
 			{
-				//first triangle
 				getVertex(x, j, vertices[indices[0]]);
 				getVertex(x, j + 1, vertices[indices[1]]);
 				getVertex(x + 1, j, vertices[indices[2]]);
-				callback->processTriangle(vertices, 2 * x, j);
-				//second triangle
-				getVertex(x + 1, j, vertices[indices[0]]);
-				//getVertex(x,j+1,vertices[1]);
+
+				// Skip triangle processing if the triangle is out-of-AABB.
+				Range upRange = minmaxRange(vertices[0][m_upAxis], vertices[1][m_upAxis], vertices[2][m_upAxis]);
+
+				if (upRange.overlaps(aabbUpRange))
+					callback->processTriangle(vertices, 2 * x, j);
+
+				// already set: getVertex(x, j + 1, vertices[indices[1]]);
+
+				// equivalent to: getVertex(x + 1, j, vertices[indices[0]]);
+				vertices[indices[0]] = vertices[indices[2]];
+
 				getVertex(x + 1, j + 1, vertices[indices[2]]);
-				callback->processTriangle(vertices, 2 * x+1, j);
+				upRange.min = btMin(upRange.min, vertices[indices[2]][m_upAxis]);
+				upRange.max = btMax(upRange.max, vertices[indices[2]][m_upAxis]);
+
+				if (upRange.overlaps(aabbUpRange))
+					callback->processTriangle(vertices, 2 * x + 1, j);
 			}
 		}
 	}
