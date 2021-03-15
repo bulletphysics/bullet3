@@ -317,7 +317,11 @@ void Dof6Spring2Setup::stepSimulation(float deltaTime)
 ////  multibody skeleton
 ////
 /////////////////////////////////////////////////////////////
-#define WIRE_FRAME 1
+#define WIRE_FRAME 0
+
+char mfileName[1024];
+
+const btVector3 zeroTransOffset(0.0, 0.0, 0.0);
 
 enum CollisionTypes
 {
@@ -333,14 +337,15 @@ struct Skeleton : public CommonMultiBodyBase
     btMultiBody* m_multiBody;
     btRigidBody* m_collider;
 
+    int m_solverType;
     btScalar m_time;
     int m_nextSec;
     int m_step;
     int m_numLinks;
-    btAlignedObjectArray<bool> m_useKs;
     btAlignedObjectArray<btQuaternion> m_balanceRot;
     btAlignedObjectArray<btScalar> m_Ks;
     btAlignedObjectArray<btScalar> m_jointDamp;
+    btAlignedObjectArray<btQuaternion> m_prevJointRot;
 
 public:
     Skeleton(struct GUIHelperInterface* helper);
@@ -356,7 +361,7 @@ public:
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     void addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents);
-    void applyStiffTorque(btMultiBody* pMultiBody, float deltaTime);
+    void applyTorque(float deltaTime);
     static void OnInternalTickCallback(btDynamicsWorld* world, btScalar timeStep);
 };
 
@@ -366,7 +371,8 @@ Skeleton::Skeleton(struct GUIHelperInterface* helper)
     m_time = btScalar(0.0);
     m_nextSec = floor(m_time) + 1;
     m_step = 0;
-    m_numLinks = 2;
+    m_numLinks = 4;
+    m_solverType = 0;
 }
 
 Skeleton::~Skeleton()
@@ -380,7 +386,7 @@ void Skeleton::initPhysics()
     m_guiHelper->setUpAxis(upAxis);
 
     // set btDefaultCollisionConfiguration, dispatcher, solver and other things
-    this->createEmptyDynamicsWorld();
+    this->createEmptyDynamicsWorld(m_solverType);
 
     bool isPreTick = false;
     m_dynamicsWorld->setInternalTickCallback(OnInternalTickCallback, this, isPreTick);
@@ -450,41 +456,43 @@ void Skeleton::initPhysics()
     pMultiBody->setCanSleep(canSleep);
     pMultiBody->setHasSelfCollision(selfCollide);
     pMultiBody->setUseGyroTerm(gyro);
-    if (!damping)
+    if (damping)
     {
-        pMultiBody->setLinearDamping(0.f);
-        pMultiBody->setAngularDamping(0.f);
+        pMultiBody->setLinearDamping(0.1f);
+        pMultiBody->setAngularDamping(0.9f);
     }
 
     // set init pose
     if (m_numLinks > 0)
     {
         btScalar angle = -23.57817848 * SIMD_PI / 180.f * 2;
+//        btScalar angle = 0.0;
         btQuaternion quat0(btVector3(1, 0, 0).normalized(), angle);
         quat0.normalize();
         pMultiBody->setJointPosMultiDof(0, quat0);
     }
 
-    // set if use ks
-    m_useKs.resize(pMultiBody->getNumLinks());
+    // init default params
     m_Ks.resize(pMultiBody->getNumLinks());
     m_balanceRot.resize(pMultiBody->getNumLinks());
     m_jointDamp.resize(pMultiBody->getNumLinks());
+    m_prevJointRot.resize(pMultiBody->getNumLinks());
     for (int i = 0; i < m_numLinks; i++)
     {
-        m_useKs[i] = true;
-        m_Ks[i] = 1;
+        m_Ks[i] = 0.1;
         m_balanceRot[i] = btQuaternion(0.0, 0.0, 0.0, 1.0);
-        m_jointDamp[0] = 0.0;
+        m_jointDamp[i] = 0.0;
+        m_prevJointRot[i] = btQuaternion(0.0, 0.0, 0.0, 1.0);
     }
 
+    // set per joint damp
+    m_jointDamp[0] = 1.0;
+    m_jointDamp[1] = 0.0;
+    m_jointDamp[2] = 0.0;
+    m_jointDamp[3] = 0.0;
     // adjust balance rot, ks and damp
     btScalar angle = -23.57817848 * SIMD_PI / 180.f;
     m_balanceRot[0] = btQuaternion(btVector3(1, 0, 0).normalized(), angle);
-    for ( int i = 0; i < m_jointDamp.size(); i++ )
-    {
-        m_jointDamp[i] = 0.1;
-    }
 
     addColliders(pMultiBody, world, baseHalfExtents, linkHalfExtents);
 
@@ -513,6 +521,7 @@ void Skeleton::initPhysics()
         btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
         m_collider = new btRigidBody(rbInfo);
+        m_collider->setRestitution(0.0);
 
         // set collision group and mask, only collide with objects with mask is true where it collide with bones
         m_dynamicsWorld->addRigidBody(m_collider, TARGET_BODY, BONE_BODY);
@@ -558,6 +567,8 @@ void Skeleton::addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* p
         tr.setRotation(btQuaternion(quat[0], quat[1], quat[2], quat[3]));
         col->setWorldTransform(tr);
 
+        col->setRestitution(0.0);
+
         // set collision group and mask, only collide with objects with mask is true where it collide with collider
         pWorld->addCollisionObject(col, BONE_BODY, TARGET_BODY);  //,2,1+2);
 
@@ -572,25 +583,48 @@ void Skeleton::addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* p
     }
 }
 
-void Skeleton::applyStiffTorque(btMultiBody* pMultiBody, float deltaTime){
-    for (int i = 0; i < pMultiBody->getNumLinks(); ++i) {
-        btVector3 stiff_force(0.0, 0.0, 0.0);
-        if (m_useKs[i])
-        {
-            btScalar _ks = adjustKs(m_Ks[i], pMultiBody->getLink(i).m_mass, deltaTime);
+void Skeleton::applyTorque(float deltaTime){
+//    printf("step: %d\n", m_step);
+    for (int i = 0; i < m_multiBody->getNumLinks(); ++i) {
+        btVector3 force(0.0, 0.0, 0.0);
+        btScalar* q = m_multiBody->getJointPosMultiDof(i);
+        btQuaternion curr_q = btQuaternion(q[0], q[1], q[2], q[3]);
 
-            btScalar* q = pMultiBody->getJointPosMultiDof(i);
-            btQuaternion qt(q[0], q[1], q[2], q[3]);
-            btQuaternion delta = m_balanceRot[i] * qt.inverse();
-            delta.getEulerZYX(stiff_force[2], stiff_force[1], stiff_force[0]);
-            stiff_force *= _ks;
+        // stiff force
+        if (m_Ks[i] > 0.0)
+        {
+            btScalar _ks = m_Ks[i];
+            // TODO ?
+//            _ks = adjustKs(m_Ks[i], m_multiBody->getLink(i).m_mass, deltaTime);
+            btQuaternion deltaPos = m_balanceRot[i] * curr_q.inverse();
+            btVector3 stiff_force(0.0, 0.0, 0.0);
+            deltaPos.getEulerZYX(stiff_force[2], stiff_force[1], stiff_force[0]);
+            force += stiff_force * _ks;
         }
 
-        for (int d = 0; d < pMultiBody->getLink(i).m_dofCount; d++) {
-            btScalar _kd = adjustKd(m_jointDamp[i], pMultiBody->getLink(i).m_mass, deltaTime);
+        // damp force
+        if (m_jointDamp[i] > 0.0) {
+            btScalar _kd = m_jointDamp[i];
+            // TOOD ?
+//            btScalar _kd = adjustKd(m_jointDamp[i], m_multiBody->getLink(i).m_mass, deltaTime);
+            // TODO set rigid body deactive if the speed is very small for a some frames
+            btQuaternion vel = m_prevJointRot[i] * curr_q.inverse();
+            btVector3 damp_force(0.0, 0.0, 0.0);
+            vel.getEulerZYX(damp_force[2], damp_force[1], damp_force[0]);
+            // TODO here we only consider the omega, linear speed need to be considered too, omega * bone_length
+            if ( damp_force[0] < 1e-6 && damp_force[1] < 1e-6 && damp_force[2] < 1e-6 )
+            {
+                //printf("damp too small: %f, %f, %f\n", damp_force[0], damp_force[1], damp_force[2]);
+                if ( _kd > 1 )
+                    _kd = 0.9;
+            }
+            damp_force *= _kd;
+            force += damp_force;
+        }
 
-            btScalar angle_force = stiff_force[d] - _kd * pMultiBody->getJointVelMultiDof(i)[d];
-            pMultiBody->addJointTorqueMultiDof(i, d, angle_force);
+        // apply the torque
+        for (int d = 0; d < m_multiBody->getLink(i).m_dofCount; d++) {
+            m_multiBody->addJointTorqueMultiDof(i, d, force[d]);
         }
     }
 }
@@ -649,48 +683,42 @@ void Skeleton::OnInternalTickCallback(btDynamicsWorld* world, btScalar timeStep)
     }
 }
 
-void Skeleton::stepSimulation(float deltaTime)
-{
-    if ( fabs(m_time - m_nextSec) < 1e-3 )
-    {
-        printf("step: %d, time: %d sec\n", m_step, m_nextSec - 1);
-
-        for (int i = 0; i < m_multiBody->getNumLinks(); ++i)
-        {
-            btVector3 anglePos(0.0, 0.0, 0.0);
-            getEulerValFromDof(anglePos, m_multiBody->getJointPosMultiDof(i));
-            printf("anglePos : %f,\t%f,\t%f\n", rad2degree(anglePos[0]), rad2degree(anglePos[1]), rad2degree(anglePos[2]));
-
-            btVector3 angleVel(0.0, 0.0, 0.0);
-            getEulerValFromDof(angleVel, m_multiBody->getJointVelMultiDof(i));
-            printf("angleVel : %f,\t%f,\t%f\n", rad2degree(angleVel[0]), rad2degree(angleVel[1]), rad2degree(angleVel[2]));
+void Skeleton::stepSimulation(float deltaTime) {
+    if (m_step == 0) {
+        for (int i = 0; i < m_multiBody->getNumLinks(); ++i) {
+            btScalar* q = m_multiBody->getJointPosMultiDof(i);
+            m_prevJointRot[i] = btQuaternion(q[0], q[1], q[2], q[3]);
         }
-
-        m_nextSec += 1;
     }
 
-//    m_multiBody->addJointTorque(0, -2.0);
-    applyStiffTorque(m_multiBody, deltaTime);
+//    if (fabs(m_time - m_nextSec) < deltaTime) {
+//        printf("step: %d, time: %d sec\n", m_step, m_nextSec - 1);
+//        m_nextSec += 1;
+//    }
 
-    {
-        btScalar amp = 0.5f;
-        btScalar T = 10.0f;
-        btScalar phase =  SIMD_PI / 2.0;
-        m_multiBody->setBasePos(btVector3(0.0, cosOffset(amp, T, phase, m_time), 0.0));
-//        m_multiBody->setBaseVel(btVector3(0.0, amp * sin(m_time / T * SIMD_2_PI + phase) * SIMD_2_PI / T, 0.0));
+    // calculate and apply the impulse, the damp use the difference between prev pos and curr pos
+    applyTorque(deltaTime);
+
+    // update prev pos after using it to calculate the damping force before stepSimulation change the pos
+    for (int i = 0; i < m_multiBody->getNumLinks(); ++i) {
+        btScalar* q = m_multiBody->getJointPosMultiDof(i);
+        m_prevJointRot[i] = btQuaternion(q[0], q[1], q[2], q[3]);
     }
 
-    {
-        /// use spring impulse to drive collider
-//        const btVector3 currPos = m_collider->getWorldTransform().getOrigin();
-//        const btVector3 currVel = m_collider->getLinearVelocity();
-//        btVector3 impulse = getSpringImpulse(1.0, 0.0, 1.0, currPos, btVector3(0, -1.5, 0), currVel, deltaTime);
-//        m_collider->applyCentralImpulse(impulse);
+    // TODO change to constraint btMultiBodyConstraint cause
+//    {
+//        // move the base of the chain does not apply torque on the multibody chains
+//        btScalar amp = 0.5f;
+//        btScalar T = 10.0f;
+//        btScalar phase =  SIMD_PI / 2.0;
+//        m_multiBody->setBasePos(btVector3(0.0, cosOffset(amp, T, phase, m_time), 0.0));
+//    }
 
-        /// use cos function to drive
+    {
+        // use cos function to drive m_collider
         btTransform tr;
         tr.setIdentity();
-        btScalar amp = 0.8f;
+        btScalar amp = 1.8f;
         btScalar T = 10.0f;
         btScalar phase = SIMD_PI;
         tr.setOrigin(btVector3(0.0, -1.5, cosOffset(amp, T, phase, m_time)));
@@ -698,6 +726,15 @@ void Skeleton::stepSimulation(float deltaTime)
         m_collider->setWorldTransform(tr);
     }
 
+    // capture the frames
+//    if (m_step > 500 && m_step < 550)
+//    {
+//        const char* gPngFileName = "multibody";
+//        sprintf(mfileName, "%s_%d.png", gPngFileName, m_step);
+//        this->m_guiHelper->getAppInterface()->dumpNextFrameToPng(mfileName);
+//    }
+
+    // step and update positions
 //    m_dynamicsWorld->stepSimulation(deltaTime);
     m_dynamicsWorld->stepSimulation(deltaTime, 2, btScalar(1.0) / 48);
     if ( WIRE_FRAME ) {

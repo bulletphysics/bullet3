@@ -6,6 +6,12 @@
 
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
+
+#include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
+#include "BulletDynamics/MLCPSolvers/btLemkeSolver.h"
+#include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
+#include "BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.h"
+
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 
@@ -95,7 +101,7 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 	{
 	}
 
-	virtual void createEmptyDynamicsWorld()
+	virtual void createEmptyDynamicsWorld(int solverType = 0)
 	{
 		///collision configuration contains default setup for memory, collision setup
 		m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -111,7 +117,29 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 
 		m_broadphase = new btDbvtBroadphase(m_pairCache);  //btSimpleBroadphase();
 
-		m_solver = new btMultiBodyConstraintSolver;
+		btMLCPSolverInterface* mlcp;
+		switch (solverType)
+		{
+			case 0:
+				m_solver = new btMultiBodyConstraintSolver;
+				b3Printf("Constraint Solver: Sequential Impulse");
+				break;
+			case 1:
+				mlcp = new btSolveProjectedGaussSeidel();
+				m_solver = new btMultiBodyMLCPConstraintSolver(mlcp);
+				b3Printf("Constraint Solver: MLCP + PGS");
+				break;
+			case 2:
+				mlcp = new btDantzigSolver();
+				m_solver = new btMultiBodyMLCPConstraintSolver(mlcp);
+				b3Printf("Constraint Solver: MLCP + Dantzig");
+				break;
+			case 3:
+				mlcp = new btLemkeSolver();
+				m_solver = new btMultiBodyMLCPConstraintSolver(mlcp);
+				b3Printf("Constraint Solver: MLCP + Lemke");
+				break;
+		}
 
 		m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
 

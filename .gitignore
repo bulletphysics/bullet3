@@ -37,4 +37,6 @@ CTestTestFile.cmake
 # vim temp files
 *.swp
 .idea/
+docs/
 cmake-build-debug/
+
