@@ -486,10 +486,10 @@ void Skeleton::initPhysics()
     }
 
     // set per joint damp
-    m_jointDamp[0] = 1.0;
-    m_jointDamp[1] = 0.0;
-    m_jointDamp[2] = 0.0;
-    m_jointDamp[3] = 0.0;
+    m_jointDamp[0] = 0.7;
+    m_jointDamp[1] = 0.1;
+    m_jointDamp[2] = 0.1;
+    m_jointDamp[3] = 0.1;
     // adjust balance rot, ks and damp
     btScalar angle = -23.57817848 * SIMD_PI / 180.f;
     m_balanceRot[0] = btQuaternion(btVector3(1, 0, 0).normalized(), angle);
@@ -596,22 +596,18 @@ void Skeleton::applyTorque(float deltaTime){
             btScalar _ks = m_Ks[i];
             // TODO ?
 //            _ks = adjustKs(m_Ks[i], m_multiBody->getLink(i).m_mass, deltaTime);
-            btQuaternion deltaPos = m_balanceRot[i] * curr_q.inverse();
-            btVector3 stiff_force(0.0, 0.0, 0.0);
-            deltaPos.getEulerZYX(stiff_force[2], stiff_force[1], stiff_force[0]);
-            force += stiff_force * _ks;
+            btVector3 delta(m_balanceRot[i][0] - curr_q[0],m_balanceRot[i][1] - curr_q[1], m_balanceRot[i][2] - curr_q[2]);
+            force += delta * _ks;
         }
 
         // damp force
         if (m_jointDamp[i] > 0.0) {
             btScalar _kd = m_jointDamp[i];
-            // TOOD ?
+            // TODO ?
 //            btScalar _kd = adjustKd(m_jointDamp[i], m_multiBody->getLink(i).m_mass, deltaTime);
             // TODO set rigid body deactive if the speed is very small for a some frames
-            btQuaternion vel = m_prevJointRot[i] * curr_q.inverse();
-            btVector3 damp_force(0.0, 0.0, 0.0);
-            vel.getEulerZYX(damp_force[2], damp_force[1], damp_force[0]);
             // TODO here we only consider the omega, linear speed need to be considered too, omega * bone_length
+            btVector3 damp_force(m_prevJointRot[i][0] - curr_q[0],m_prevJointRot[i][1] - curr_q[1], m_prevJointRot[i][2] - curr_q[2]);
             if ( damp_force[0] < 1e-6 && damp_force[1] < 1e-6 && damp_force[2] < 1e-6 )
             {
                 //printf("damp too small: %f, %f, %f\n", damp_force[0], damp_force[1], damp_force[2]);
@@ -719,7 +715,7 @@ void Skeleton::stepSimulation(float deltaTime) {
         btTransform tr;
         tr.setIdentity();
         btScalar amp = 1.8f;
-        btScalar T = 10.0f;
+        btScalar T = 100.0f;
         btScalar phase = SIMD_PI;
         tr.setOrigin(btVector3(0.0, -1.5, cosOffset(amp, T, phase, m_time)));
         tr.setRotation(btQuaternion(0.0, 0.0, 0.0, 1.0));
