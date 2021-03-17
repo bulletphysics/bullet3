@@ -69,6 +69,10 @@ btScalar cosOffset(btScalar amp, btScalar T, btScalar phase, btScalar time){
     return amp * cos(time / T * SIMD_2_PI + phase);
 }
 
+btScalar sinOffset(btScalar amp, btScalar T, btScalar phase, btScalar time){
+    return amp * sin(time / T * SIMD_2_PI + phase);
+}
+
 btScalar adjustKs(btScalar ks, btScalar mass, btScalar deltaTime)
 {
     btScalar r = ks;
@@ -342,6 +346,8 @@ struct Skeleton : public CommonMultiBodyBase
     int m_nextSec;
     int m_step;
     int m_numLinks;
+    btVector3 m_prevBasePos;
+    btVector3 m_prevBaseVel;
     btAlignedObjectArray<btQuaternion> m_balanceRot;
     btAlignedObjectArray<btScalar> m_Ks;
     btAlignedObjectArray<btScalar> m_jointDamp;
@@ -373,6 +379,8 @@ Skeleton::Skeleton(struct GUIHelperInterface* helper)
     m_step = 0;
     m_numLinks = 4;
     m_solverType = 0;
+    m_prevBasePos = btVector3(0.0, 0.0, 0.0);
+    m_prevBaseVel = btVector3(0.0, 0.0, 0.0);
 }
 
 Skeleton::~Skeleton()
@@ -403,9 +411,14 @@ void Skeleton::initPhysics()
     const bool floating = false;
     const bool damping = false;   // disable bullet internal damp
     const bool gyro = false;
+    const bool canSleep = false;
+    const bool selfCollide = false;
 
-    bool canSleep = false;
-    bool selfCollide = false;
+    btVector3 basePos = btVector3(0.0, 0.0, 0.0);
+
+    /////////////////////////////////////////////////////////////////
+    // construct the skeleton
+    /////////////////////////////////////////////////////////////////
     btVector3 linkHalfExtents(0.05, 0.5, 0.1);
     btVector3 baseHalfExtents(0.0, 0.0, 0.0);
 
@@ -418,9 +431,9 @@ void Skeleton::initPhysics()
     // set base position
     btQuaternion baseOriQuat(0.f, 0.f, 0.f, 1.f);
     pMultiBody->setWorldToBaseRot(baseOriQuat);
-    btVector3 basePosition(0, 0, 0);
-    pMultiBody->setBasePos(basePosition);
+    pMultiBody->setBasePos(basePos);
 
+    m_prevBasePos = basePos;
     m_multiBody = pMultiBody;
 
     //y-axis assumed up
@@ -487,9 +500,9 @@ void Skeleton::initPhysics()
 
     // set per joint damp
     m_jointDamp[0] = 0.7;
-    m_jointDamp[1] = 0.1;
-    m_jointDamp[2] = 0.1;
-    m_jointDamp[3] = 0.1;
+    m_jointDamp[1] = 0.3;
+    m_jointDamp[2] = 0.3;
+    m_jointDamp[3] = 0.3;
     // adjust balance rot, ks and damp
     btScalar angle = -23.57817848 * SIMD_PI / 180.f;
     m_balanceRot[0] = btQuaternion(btVector3(1, 0, 0).normalized(), angle);
@@ -606,15 +619,26 @@ void Skeleton::applyTorque(float deltaTime){
             // TODO ?
 //            btScalar _kd = adjustKd(m_jointDamp[i], m_multiBody->getLink(i).m_mass, deltaTime);
             // TODO set rigid body deactive if the speed is very small for a some frames
-            // TODO here we only consider the omega, linear speed need to be considered too, omega * bone_length
             btVector3 damp_force(m_prevJointRot[i][0] - curr_q[0],m_prevJointRot[i][1] - curr_q[1], m_prevJointRot[i][2] - curr_q[2]);
-            if ( damp_force[0] < 1e-6 && damp_force[1] < 1e-6 && damp_force[2] < 1e-6 )
-            {
-                //printf("damp too small: %f, %f, %f\n", damp_force[0], damp_force[1], damp_force[2]);
-                if ( _kd > 1 )
-                    _kd = 0.9;
+            if (!damp_force.fuzzyZero()) {
+                damp_force = damp_force.normalized();
+                btQuaternion vel = m_prevJointRot[i] * curr_q.inverse();
+                btScalar theta = vel.getAngle() / deltaTime;
+                // TODO here we only consider the omega, mass and length need to be considered
+                damp_force *= theta;
+                // TODO if the omega is big, we need large damp, consider adding the omega * omega
+                if (damp_force.length() > 0.3)
+                {
+                    printf("damp force %f is too big\n", damp_force.length());
+                    damp_force = damp_force.normalized() * 0.3;
+                }
+                if (fabs(damp_force[0]) < 1e-5 && fabs(damp_force[1]) < 1e-5 && fabs(damp_force[2]) < 1e-5) {
+                    //printf("damp too small: %f, %f, %f\n", damp_force[0], damp_force[1], damp_force[2]);
+                    if (_kd > 1)
+                        _kd = 0.9;
+                }
+                damp_force *= _kd;
             }
-            damp_force *= _kd;
             force += damp_force;
         }
 
@@ -695,20 +719,34 @@ void Skeleton::stepSimulation(float deltaTime) {
     // calculate and apply the impulse, the damp use the difference between prev pos and curr pos
     applyTorque(deltaTime);
 
+    // TODO need to consider the base bone rotate.
+
+    // btMultiBodyFixedConstraint does not work as we like, cause it is not totally fixed to the body.
+    // move the base of the chain does not apply torque on the multibody chains
+    btScalar amp = 0.5f;
+    btScalar T = 50.0f;
+    btScalar phase =  SIMD_PI / 2.0;
+    btVector3 currBasePos = btVector3(0.0, cosOffset(amp, T, phase, m_time), 0.0);
+    m_multiBody->setBasePos(currBasePos);
+
+    btVector3 currBaseVel = (currBasePos - m_prevBasePos) / deltaTime;
+    //  the drag force only affect the first bone
+    for (int i = 0; i < 1; ++i) {
+        btVector3 orient = m_multiBody->getLink(i).m_dVector;
+        orient = m_multiBody->localDirToWorld(i, orient);
+        btVector3 torque = btCross(orient, -(currBaseVel - m_prevBaseVel) / deltaTime * m_multiBody->getLink(i).m_mass) / deltaTime;
+        // TODO at the beginning, the force is too big. but at the next Cycle, it is small. NEED to check and fix.
+        torque *= 1;
+        m_multiBody->addLinkTorque(i, torque);
+    }
+    m_prevBasePos = currBasePos;
+    m_prevBaseVel = currBaseVel;
+
     // update prev pos after using it to calculate the damping force before stepSimulation change the pos
     for (int i = 0; i < m_multiBody->getNumLinks(); ++i) {
         btScalar* q = m_multiBody->getJointPosMultiDof(i);
         m_prevJointRot[i] = btQuaternion(q[0], q[1], q[2], q[3]);
     }
-
-    // TODO change to constraint btMultiBodyConstraint cause
-//    {
-//        // move the base of the chain does not apply torque on the multibody chains
-//        btScalar amp = 0.5f;
-//        btScalar T = 10.0f;
-//        btScalar phase =  SIMD_PI / 2.0;
-//        m_multiBody->setBasePos(btVector3(0.0, cosOffset(amp, T, phase, m_time), 0.0));
-//    }
 
     {
         // use cos function to drive m_collider
