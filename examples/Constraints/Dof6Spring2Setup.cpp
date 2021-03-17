@@ -10,6 +10,12 @@
 #include "BulletDynamics/MLCPSolvers/btLemkeSolver.h"
 #include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
 
+#include "../Utils/b3ResourcePath.h"
+#include "Bullet3Common/b3FileUtils.h"
+#include "../Importers/ImportObjDemo/LoadMeshFromObj.h"
+#include "../OpenGLWindow/GLInstanceGraphicsShape.h"
+#include "../Utils/b3BulletDefaultFileIO.h"
+
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h"
 
 #ifndef M_PI
@@ -512,39 +518,112 @@ void Skeleton::initPhysics()
     /////////////////////////////////////////////////////////////////
     // construct the box
     /////////////////////////////////////////////////////////////////
+//    {
+//        btVector3 halfExtents(.4, .4, .4);
+//        btCollisionShape* colShape = new btBoxShape(halfExtents);
+//
+//        /// Create Dynamic Objects
+//        btTransform startTransform;
+//        startTransform.setIdentity();
+//        startTransform.setOrigin(btVector3(0.0, -1.5, -2.0));
+//
+//        btScalar mass(0.f);
+//
+//        //rigidbody is dynamic if and only if mass is non zero, otherwise static
+//        bool isDynamic = (mass != 0.f);
+//
+//        btVector3 localInertia(0, 0, 0);
+//        if (isDynamic)
+//            colShape->calculateLocalInertia(mass, localInertia);
+//
+//        //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+//        btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+//        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+//        m_collider = new btRigidBody(rbInfo);
+//        m_collider->setRestitution(0.0);
+//
+//        // set collision group and mask, only collide with objects with mask is true where it collide with bones
+//        m_dynamicsWorld->addRigidBody(m_collider, TARGET_BODY, BONE_BODY);
+//
+//        if (!WIRE_FRAME)
+//        {
+//            m_guiHelper->createCollisionShapeGraphicsObject(colShape);
+//            btVector4 color(1, 0, 0, 1);
+//            m_guiHelper->createCollisionObjectGraphicsObject(dynamic_cast<btCollisionObject*>(m_collider), color);
+//        }
+//    }
+
+    /////////////////////////////////////////////////////////////////
+    // load triangles from obj file
+    /////////////////////////////////////////////////////////////////
     {
-        btVector3 halfExtents(.4, .4, .4);
-        btCollisionShape* colShape = new btBoxShape(halfExtents);
+        const char* fileName = "teddy.obj";  //sphere8.obj";//sponza_closed.obj";//sphere8.obj";
+        char relativeFileName[1024];
+        if (b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024,0))
+        {
+            char pathPrefix[1024];
+            b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+        }
+
+        b3BulletDefaultFileIO fileIO;
+        GLInstanceGraphicsShape* glmesh = LoadMeshFromObj(relativeFileName, "",&fileIO);
+        if (!glmesh){
+            printf("fail to load file &s\n", fileName);
+            return;
+        }
+        else {
+            printf("[INFO] Obj loaded: Extracted %d verticed from obj file [%s]\n", glmesh->m_numvertices, fileName);
+        }
+
+        btAlignedObjectArray<btVector3> convertedVerts;
+        convertedVerts.reserve(glmesh->m_numvertices);
+        for (int i=0; i<glmesh->m_numvertices; i++)
+        {
+            convertedVerts.push_back(btVector3(
+                    glmesh->m_vertices->at(i).xyzw[0],
+                    glmesh->m_vertices->at(i).xyzw[1],
+                    glmesh->m_vertices->at(i).xyzw[2]));
+        }
+        btTriangleMesh* meshInterface = new btTriangleMesh();
+        for (int i=0; i<glmesh->m_numIndices/3; i++)
+        {
+            const btVector3& v0 = convertedVerts[glmesh->m_indices->at(i*3)];
+            const btVector3& v1 = convertedVerts[glmesh->m_indices->at(i*3+1)];
+            const btVector3& v2 = convertedVerts[glmesh->m_indices->at(i*3+2)];
+            meshInterface->addTriangle(v0,v1,v2);
+        }
+        btCollisionShape* shape = new btBvhTriangleMeshShape(meshInterface, true, true);
+
+        float scaling[4] = {0.03, 0.03, 0.03, 1};
+        btVector3 localScaling(scaling[0], scaling[1], scaling[2]);
+        shape->setLocalScaling(localScaling);
 
         /// Create Dynamic Objects
-        btTransform startTransform;
-        startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(0.0, -1.5, -2.0));
-
         btScalar mass(0.f);
-
-        //rigidbody is dynamic if and only if mass is non zero, otherwise static
         bool isDynamic = (mass != 0.f);
-
         btVector3 localInertia(0, 0, 0);
         if (isDynamic)
-            colShape->calculateLocalInertia(mass, localInertia);
+            shape->calculateLocalInertia(mass, localInertia);
 
-        //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-        btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
-        m_collider = new btRigidBody(rbInfo);
-        m_collider->setRestitution(0.0);
+        btVector3 startPos(0.0, -1.5, -2.0);
+        btTransform startTransform;
+        startTransform.setIdentity();
+        startTransform.setOrigin(startPos);
+        m_collider = createRigidBody(mass, startTransform, shape);
 
-        // set collision group and mask, only collide with objects with mask is true where it collide with bones
-        m_dynamicsWorld->addRigidBody(m_collider, TARGET_BODY, BONE_BODY);
-
-        if (!WIRE_FRAME)
-        {
-            m_guiHelper->createCollisionShapeGraphicsObject(colShape);
-            btVector4 color(1, 0, 0, 1);
-            m_guiHelper->createCollisionObjectGraphicsObject(dynamic_cast<btCollisionObject*>(m_collider), color);
-        }
+        int shapeId = m_guiHelper->registerGraphicsShape(&glmesh->m_vertices->at(0).xyzw[0],
+                                                         glmesh->m_numvertices,
+                                                         &glmesh->m_indices->at(0),
+                                                         glmesh->m_numIndices,
+                                                         B3_GL_TRIANGLES, -1);
+        shape->setUserIndex(shapeId);
+        float color[4] = {1, 0, 0, 1};
+        float orn[4] = {0, 0, 0, 1};
+        float pos[4] = {float(startPos[0]), float(startPos[1]), float(startPos[2]), 0.0};
+        int renderInstance = m_guiHelper->registerGraphicsInstance(shapeId, pos, orn, color, scaling);
+        m_collider->setUserIndex(renderInstance);
+        m_collider->getBroadphaseHandle()->m_collisionFilterGroup = TARGET_BODY;
+        m_collider->getBroadphaseHandle()->m_collisionFilterMask = BONE_BODY;
     }
 }
 
