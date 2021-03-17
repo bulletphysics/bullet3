@@ -2730,10 +2730,13 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 #endif
 	}
 
+	
+
 	if ((0 == m_data->m_dynamicsWorld) && (0 == (flags & RESET_USE_DISCRETE_DYNAMICS_WORLD)))
 	{
 
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+		m_data->m_solver = new btMultiBodyConstraintSolver;
 		m_data->m_dynamicsWorld = new btSoftMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
 #else
 #ifdef USE_DISCRETE_DYNAMICS_WORLD
