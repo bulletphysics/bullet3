@@ -161,7 +161,7 @@ btQuaternion relRot = currentQuat.inverse() * desiredQuat;
 					double max_applied_impulse = m_use_multi_dof_params ? m_maxAppliedImpulseMultiDof[row % 3] : m_maxAppliedImpulse;
 					fillMultiBodyConstraint(constraintRow, data, 0, 0, constraintNormalAng,
 						btVector3(0,0,0), dummy, dummy,
-						posError + velocityError,
+						posError,
 						infoGlobal,
 						-max_applied_impulse, max_applied_impulse, true,
 						1.0, false, 0, 0,
