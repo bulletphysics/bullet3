@@ -1197,6 +1197,19 @@ B3_SHARED_API int b3JointControlSetDesiredForceTorqueMultiDof(b3SharedMemoryComm
 	return 0;
 }
 
+B3_SHARED_API int b3JointControlSetDamping(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	if ((dofIndex >= 0) && (dofIndex < MAX_DEGREE_OF_FREEDOM))
+	{
+		command->m_sendDesiredStateCommandArgument.m_damping[dofIndex] = value;
+		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_DAMPING;
+		command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_DAMPING;
+	}
+	return 0;
+}
+
 B3_SHARED_API int b3JointControlSetDampingMultiDof(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double* damping, int dofCount)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
