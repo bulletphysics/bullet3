@@ -3235,8 +3235,7 @@ static PyObject* pybullet_setJointMotorControlMultiDof(PyObject* self, PyObject*
 								 	&targetPositionObj, &targetVelocityObj, &targetForceObj, &kpArray[0], &kdArray[0], &maxVelocity, &dampingArray[0], &physicsClientId))
 	{
 		PyErr_Clear();
-		static char* kwlist2[] = {"bodyUniqueId", "jointIndex", "controlMode", "targetPosition", "targetVelocity", "force", "positionGain", "velocityGain", "maxVelocity", "damping", "physicsClientId", NULL};
-		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|OOOOOdOi", kwlist2, &bodyUniqueId, &jointIndex, &controlMode,
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|OOOOOdOi", kwlist, &bodyUniqueId, &jointIndex, &controlMode,
 										 &targetPositionObj, &targetVelocityObj, &targetForceObj, &kpObj, &kdObj, &maxVelocity, &dampingObj, &physicsClientId))
 		{
 			return NULL;
