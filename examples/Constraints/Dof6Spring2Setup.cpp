@@ -103,7 +103,7 @@ public:
     float m_tup;
     float m_tdown;
 
-    gravityGenerator(float gravity = -0.1, int tup = 5, int tdown = 5) : m_gravity(gravity),
+    gravityGenerator(float gravity = -0.1, int tup = 10, int tdown = 10) : m_gravity(gravity),
         m_tup(tup), m_tdown(tdown)
     {
         m_step = 0;
@@ -159,12 +159,13 @@ struct Skeleton : public CommonMultiBodyBase
     btScalar m_time;
     int m_step;
     int m_numLinks;
-    btVector3 m_prevBasePos;
     btVector3 m_prevBaseVel;
+    btTransform m_prevBaseTrans;
     btAlignedObjectArray<btQuaternion> m_balanceRot;
     btAlignedObjectArray<btScalar> m_Ks;
     gravityGenerator m_g;
     btScalar m_linearDragEffect;
+    btScalar m_centrifugalDragEffect;
 
 public:
     Skeleton(struct GUIHelperInterface* helper);
@@ -180,10 +181,11 @@ public:
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     void addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents);
-    btVector3 translateBase(btScalar time);
+    btTransform transformBase(btScalar time);
     void moveCollider(btScalar time);
     void applySpringForce(float deltaTime);
-    void applyBaseLinearDragForce(float deltaTime, int m_step, const btVector3& currBasePos);
+    void applyBaseLinearDragForce(float deltaTime, int m_step, const btTransform& trans);
+    void applyBaseCentrifugalForce(float deltaTime, int m_step, const btTransform& trans);
     static void OnInternalTickCallback(btDynamicsWorld* world, btScalar timeStep);
 };
 
@@ -192,12 +194,13 @@ Skeleton::Skeleton(struct GUIHelperInterface* helper)
 {
     m_time = btScalar(0.0);
     m_step = 0;
-    m_numLinks = 4;
+    m_numLinks = 8;
     m_solverType = 0;
-    m_prevBasePos = btVector3(0.0, 0.0, 0.0);
     m_prevBaseVel = btVector3(0.0, 0.0, 0.0);
+    m_prevBaseTrans.setIdentity();
     m_g.m_gravity = -0.08;
     m_linearDragEffect = btScalar(25.0);
+    m_centrifugalDragEffect = btScalar(0.3);
 }
 
 Skeleton::~Skeleton()
@@ -229,8 +232,6 @@ void Skeleton::initPhysics()
     const bool canSleep = false;
     const bool selfCollide = false;
 
-    btVector3 basePos = btVector3(0.0, 0.0, 0.0);
-
     /////////////////////////////////////////////////////////////////
     // construct the skeleton
     /////////////////////////////////////////////////////////////////
@@ -244,11 +245,13 @@ void Skeleton::initPhysics()
     //pMultiBody->useRK4Integration(true);
 
     // set base position
-    btQuaternion baseOriQuat(0.f, 0.f, 0.f, 1.f);
-    pMultiBody->setWorldToBaseRot(baseOriQuat);
+    btQuaternion baseQ(0.f, 0.f, 0.f, 1.f);
+    pMultiBody->setWorldToBaseRot(baseQ);
+    btVector3 basePos = btVector3(0.0, 0.0, 0.0);
     pMultiBody->setBasePos(basePos);
 
-    m_prevBasePos = basePos;
+    m_prevBaseTrans.setOrigin(basePos);
+    m_prevBaseTrans.setRotation(baseQ);
     m_multiBody = pMultiBody;
 
     //y-axis assumed up
@@ -435,15 +438,26 @@ void Skeleton::addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* p
     }
 }
 
-btVector3 Skeleton::translateBase(btScalar time){
+btTransform Skeleton::transformBase(btScalar time){
+    btTransform trans;
+    trans.setIdentity();
+
     // btMultiBodyFixedConstraint does not work as we like, cause it is not totally fixed to the body.
     // move the base of the chain does not apply torque on the multibody chains
     btScalar amp = 0.5f;
     btScalar T = 50.0f;
     btScalar phase =  SIMD_PI / 2.0;
-    btVector3 currBasePos = btVector3(0.0, cosOffset(amp, T, phase, time), 0.0);
-    m_multiBody->setBasePos(currBasePos);
-    return currBasePos;
+    btVector3 basePos = btVector3(0.0, cosOffset(amp, T, phase, time), 0.0);
+    trans.setOrigin(basePos);
+
+    btScalar cycle = 50.0f;
+    btScalar omega = SIMD_2_PI / cycle;
+    btQuaternion q;
+    q.setRotation(btVector3(0, 1, 0), time * omega);
+    trans.setRotation(q);
+
+    m_multiBody->setBaseWorldTransform(trans);
+    return trans;
 }
 
 void Skeleton::moveCollider(btScalar time){
@@ -480,38 +494,78 @@ void Skeleton::applySpringForce(float deltaTime){
     }
 }
 
-void Skeleton::applyBaseLinearDragForce(float deltaTime, int m_step, const btVector3& currBasePos)
+void Skeleton::applyBaseLinearDragForce(float deltaTime, int m_step, const btTransform& trans)
 {
-    if (m_step < 1) return;
+    btVector3 currBaseVel;
 
-    btVector3 currBaseVel = (currBasePos - m_prevBasePos) / deltaTime;
-    btVector3 currBaseAcc = (currBaseVel - m_prevBaseVel) / deltaTime;
-    //  the drag force only affect the first bone
-    for (int i = 0; i < m_numLinks; ++i) {
-        btVector3 orient = m_multiBody->getLink(i).m_dVector;
-        orient = m_multiBody->localDirToWorld(i, orient);
-        btVector3 torque = btCross(orient, -currBaseAcc * m_multiBody->getLink(i).m_mass / (i + 1));
-        // TODO at the beginning, the force is too big. but at the next Cycle, it is small. NEED to check and fix.
-        torque *= m_linearDragEffect;
-        if (torque.length() > MAX_DRAG_FORCE) {
-            printf("drag force %f is too large\n", torque.length());
-            torque = torque.normalized() * MAX_DRAG_FORCE;
-        }
-        // TODO addlink is different from addJointTorqueMultiDof, and the later looks better in animation.
+    if ( m_step == 1 )
+        m_prevBaseVel = (trans.getOrigin() - m_prevBaseTrans.getOrigin()) / deltaTime;
+
+    if ( m_step > 1 ) {
+        currBaseVel = (trans.getOrigin() - m_prevBaseTrans.getOrigin()) / deltaTime;
+        btVector3 currBaseAcc = (currBaseVel - m_prevBaseVel) / deltaTime;
+        for (int i = 0; i < m_numLinks; ++i) {
+            btVector3 orient = m_multiBody->getLink(i).m_dVector;
+            orient = m_multiBody->localDirToWorld(i, orient);
+            btVector3 torque = btCross(orient, -currBaseAcc * m_multiBody->getLink(i).m_mass / (i + 1));
+            // TODO at the beginning, the force is too big. but at the next Cycle, it is small. NEED to check and fix.
+            torque *= m_linearDragEffect;
+            if (torque.length() > MAX_DRAG_FORCE) {
+                printf("drag force %f is too large\n", torque.length());
+                torque = torque.normalized() * MAX_DRAG_FORCE;
+            }
+            // TODO addlink is different from addJointTorqueMultiDof, and the later looks better in animation.
 //        m_multiBody->addLinkTorque(i, torque);
-        for (int d = 0; d < m_multiBody->getLink(i).m_dofCount; d++) {
-            m_multiBody->addJointTorqueMultiDof(i, d, torque[d]);
+            for (int d = 0; d < m_multiBody->getLink(i).m_dofCount; d++) {
+                m_multiBody->addJointTorqueMultiDof(i, d, torque[d]);
+            }
+        }
+        m_prevBaseVel = currBaseVel;
+    }
+}
+
+void Skeleton::applyBaseCentrifugalForce(float deltaTime, int m_step, const btTransform& trans)
+{
+    if ( m_step > 0 ) {
+        btVector3 basePos = trans.getOrigin();
+        /*
+         * NOTE : do not use btTransform, cause btTransform will cause rotation axis flip at some degree when
+         * using trans.getRotation()
+         * ref : https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=1942
+         */
+        btMatrix3x3 deltaTrans = trans.getBasis() * m_prevBaseTrans.getBasis().transpose();
+        btQuaternion q;
+        deltaTrans.getRotation(q);
+        btVector3 axis = q.getAxis();
+        float omega = q.getAngle() / deltaTime;
+        btVector3 omega_v = omega * axis;
+
+        for (int i = 0; i < m_numLinks; ++i) {
+            btVector3 r = m_multiBody->getLink(i).m_cachedWorldTransform.getOrigin();
+            r = r - basePos;
+            btVector3 c_force = -m_multiBody->getLink(i).m_mass * btCross(omega_v, btCross(omega_v, r));
+            c_force *= m_centrifugalDragEffect / pow((i + 1), 3.5) ;
+            m_multiBody->addLinkForce(i, c_force);
         }
     }
-    m_prevBasePos = currBasePos;
-    m_prevBaseVel = currBaseVel;
 }
 
 void Skeleton::OnInternalTickCallback(btDynamicsWorld* world, btScalar timeStep)
 {
     Skeleton* demo = static_cast<Skeleton*>(world->getWorldUserInfo());
-    int numManifolds = world->getDispatcher()->getNumManifolds();
 
+    // draw center of the link
+    if (WIRE_FRAME)
+    {
+        btVector4 color(1, 0, 0, 1);
+        btVector3 base = demo->m_multiBody->getBasePos();
+        for ( int i = 0; i < demo->m_multiBody->getNumLinks(); i++ ){
+            btVector3 c = demo->m_multiBody->getLink(i).m_cachedWorldTransform.getOrigin();
+            demo->m_guiHelper->getRenderInterface()->drawPoint(c, color, btScalar(5));
+        }
+    }
+
+    int numManifolds = world->getDispatcher()->getNumManifolds();
     bool has_collision = false;
     for (int i = 0; i < numManifolds; i++)
     {
@@ -575,14 +629,14 @@ void Skeleton::stepSimulation(float deltaTime) {
     float g = m_g.getGVal();
     m_dynamicsWorld->setGravity(btVector3(0, g, 0));
 
-    btVector3 currBasePos = translateBase(m_time);
-
     // calculate and apply the impulse, the damp use the difference between prev pos and curr pos
     applySpringForce(deltaTime);
 
-    applyBaseLinearDragForce(deltaTime, m_step, currBasePos);
-
-    // TODO add drag force from the base bone rotation
+    // calculate the drag force
+    btTransform trans = transformBase(m_time);  // in the beginning, m_time == 0
+    applyBaseLinearDragForce(deltaTime, m_step, trans);
+    applyBaseCentrifugalForce(deltaTime, m_step, trans);
+    m_prevBaseTrans = trans;
 
     moveCollider(m_time);
 
