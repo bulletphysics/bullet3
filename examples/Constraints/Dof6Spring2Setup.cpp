@@ -342,6 +342,68 @@ enum CollisionTypes
 
 static btScalar radius(0.05);
 
+#define MAX_DRAG_FORCE 0.5f
+#define MAX_SPRING_FORCE 0.5f
+
+class gravityGenerator
+{
+private:
+    int m_status;
+    int m_step;
+    float m_curr_g;
+
+public:
+    float m_gravity;
+    float m_tup;
+    float m_tdown;
+
+    gravityGenerator(float gravity = -0.1, int tup = 5, int tdown = 5) : m_gravity(gravity),
+        m_tup(tup), m_tdown(tdown)
+    {
+        m_step = 0;
+        m_status = 0;
+        m_curr_g = 0;
+    }
+
+    float getGVal()
+    {
+        float g = 0.0f;
+        if ( m_status  == 1 ){
+            g = m_gravity * m_step / m_tup;
+            if ( m_step < m_tup )
+                m_step += 1;
+        } else if ( m_status == -1){
+            float g = m_curr_g * ( 1.0 - m_step / m_tdown );
+            if ( m_step < m_tdown )
+                m_step += 1;
+            else{
+                m_status = 0;
+            }
+        }
+
+        if ( m_status != -1 )
+            m_curr_g = g;
+
+        return g;
+    }
+
+    void startGravity()
+    {
+        if ( m_status == 0 || m_status == -1) {
+            m_step = 0;
+        }
+        m_status = 1;
+    }
+
+    void stopGravity()
+    {
+        if ( m_status == 0 || m_status == -1 )
+            return;
+        m_status = -1;
+        m_step = 0;
+    }
+};
+
 struct Skeleton : public CommonMultiBodyBase
 {
     btMultiBody* m_multiBody;
@@ -356,8 +418,9 @@ struct Skeleton : public CommonMultiBodyBase
     btVector3 m_prevBaseVel;
     btAlignedObjectArray<btQuaternion> m_balanceRot;
     btAlignedObjectArray<btScalar> m_Ks;
-    btAlignedObjectArray<btScalar> m_jointDamp;
+//    btAlignedObjectArray<btScalar> m_jointDamp;
     btAlignedObjectArray<btQuaternion> m_prevJointRot;
+    gravityGenerator m_g;
 
 public:
     Skeleton(struct GUIHelperInterface* helper);
@@ -387,6 +450,7 @@ Skeleton::Skeleton(struct GUIHelperInterface* helper)
     m_solverType = 0;
     m_prevBasePos = btVector3(0.0, 0.0, 0.0);
     m_prevBaseVel = btVector3(0.0, 0.0, 0.0);
+    m_g.m_gravity = -0.08;
 }
 
 Skeleton::~Skeleton()
@@ -412,10 +476,8 @@ void Skeleton::initPhysics()
         m_dynamicsWorld->getDebugDrawer()->setDebugMode(mode);  //+btIDebugDraw::DBG_DrawConstraintLimits);
     }
 
-    m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
-
     const bool floating = false;
-    const bool damping = false;   // disable bullet internal damp
+    const bool damping = true;   // disable bullet internal damp
     const bool gyro = false;
     const bool canSleep = false;
     const bool selfCollide = false;
@@ -477,8 +539,9 @@ void Skeleton::initPhysics()
     pMultiBody->setUseGyroTerm(gyro);
     if (damping)
     {
-        pMultiBody->setLinearDamping(0.1f);
-        pMultiBody->setAngularDamping(0.9f);
+        // TODO set linear and angular damp for each joint
+        pMultiBody->setLinearDamping(0.05f);
+        pMultiBody->setAngularDamping(0.7f);
     }
 
     // set init pose
@@ -494,21 +557,15 @@ void Skeleton::initPhysics()
     // init default params
     m_Ks.resize(pMultiBody->getNumLinks());
     m_balanceRot.resize(pMultiBody->getNumLinks());
-    m_jointDamp.resize(pMultiBody->getNumLinks());
+//    m_jointDamp.resize(pMultiBody->getNumLinks());
     m_prevJointRot.resize(pMultiBody->getNumLinks());
     for (int i = 0; i < m_numLinks; i++)
     {
-        m_Ks[i] = 0.1;
         m_balanceRot[i] = btQuaternion(0.0, 0.0, 0.0, 1.0);
-        m_jointDamp[i] = 0.0;
-        m_prevJointRot[i] = btQuaternion(0.0, 0.0, 0.0, 1.0);
+//        m_jointDamp[i] = 0.7;
+        m_Ks[i] = 0.3;
     }
 
-    // set per joint damp
-    m_jointDamp[0] = 0.7;
-    m_jointDamp[1] = 0.3;
-    m_jointDamp[2] = 0.3;
-    m_jointDamp[3] = 0.3;
     // adjust balance rot, ks and damp
     btScalar angle = -23.57817848 * SIMD_PI / 180.f;
     m_balanceRot[0] = btQuaternion(btVector3(1, 0, 0).normalized(), angle);
@@ -688,38 +745,43 @@ void Skeleton::applyTorque(float deltaTime){
             btScalar _ks = m_Ks[i];
             // TODO ?
 //            _ks = adjustKs(m_Ks[i], m_multiBody->getLink(i).m_mass, deltaTime);
-            btVector3 delta(m_balanceRot[i][0] - curr_q[0],m_balanceRot[i][1] - curr_q[1], m_balanceRot[i][2] - curr_q[2]);
-            force += delta * _ks;
+            btVector3 spring(m_balanceRot[i][0] - curr_q[0],m_balanceRot[i][1] - curr_q[1], m_balanceRot[i][2] - curr_q[2]);
+            spring *= _ks;
+            if (spring.length() > MAX_SPRING_FORCE) {
+                printf("spring force %f is too large\n", spring.length());
+                spring = spring.normalized() * MAX_SPRING_FORCE;
+            }
+            force += spring;
         }
 
         // damp force
-        if (m_jointDamp[i] > 0.0) {
-            btScalar _kd = m_jointDamp[i];
-            // TODO ?
-//            btScalar _kd = adjustKd(m_jointDamp[i], m_multiBody->getLink(i).m_mass, deltaTime);
-            // TODO set rigid body deactive if the speed is very small for a some frames
-            btVector3 damp_force(m_prevJointRot[i][0] - curr_q[0],m_prevJointRot[i][1] - curr_q[1], m_prevJointRot[i][2] - curr_q[2]);
-            if (!damp_force.fuzzyZero()) {
-                damp_force = damp_force.normalized();
-                btQuaternion vel = m_prevJointRot[i] * curr_q.inverse();
-                btScalar theta = vel.getAngle() / deltaTime;
-                // TODO here we only consider the omega, mass and length need to be considered
-                damp_force *= theta;
-                // TODO if the omega is big, we need large damp, consider adding the omega * omega
-                if (damp_force.length() > 0.3)
-                {
-                    printf("damp force %f is too big\n", damp_force.length());
-                    damp_force = damp_force.normalized() * 0.3;
-                }
-                if (fabs(damp_force[0]) < 1e-5 && fabs(damp_force[1]) < 1e-5 && fabs(damp_force[2]) < 1e-5) {
-                    //printf("damp too small: %f, %f, %f\n", damp_force[0], damp_force[1], damp_force[2]);
-                    if (_kd > 1)
-                        _kd = 0.9;
-                }
-                damp_force *= _kd;
-            }
-            force += damp_force;
-        }
+//        if (m_jointDamp[i] > 0.0) {
+//            btScalar _kd = m_jointDamp[i];
+////             TODO ?
+////            btScalar _kd = adjustKd(m_jointDamp[i], m_multiBody->getLink(i).m_mass, deltaTime);
+////             TODO set rigid body deactive if the speed is very small for a some frames
+//            btVector3 damp_force(m_prevJointRot[i][0] - curr_q[0],m_prevJointRot[i][1] - curr_q[1], m_prevJointRot[i][2] - curr_q[2]);
+//            if (!damp_force.fuzzyZero()) {
+//                damp_force = damp_force.normalized();
+//                btQuaternion vel = m_prevJointRot[i] * curr_q.inverse();
+//                btScalar theta = vel.getAngle() / deltaTime;
+//                // TODO here we only consider the omega, mass and length need to be considered
+//                damp_force *= theta;
+//                // TODO if the omega is big, we need large damp, consider adding the omega * omega
+//                if (damp_force.length() > 0.2)
+//                {
+//                    printf("damp force %f is too big\n", damp_force.length());
+//                    damp_force = damp_force.normalized() * 0.2;
+//                }
+//                if (fabs(damp_force[0]) < 1e-5 && fabs(damp_force[1]) < 1e-5 && fabs(damp_force[2]) < 1e-5) {
+//                    //printf("damp too small: %f, %f, %f\n", damp_force[0], damp_force[1], damp_force[2]);
+//                    if (_kd > 1)
+//                        _kd = 0.9;
+//                }
+//                damp_force *= _kd;
+//            }
+//            force += damp_force;
+//        }
 
         // apply the torque
         for (int d = 0; d < m_multiBody->getLink(i).m_dofCount; d++) {
@@ -732,6 +794,8 @@ void Skeleton::OnInternalTickCallback(btDynamicsWorld* world, btScalar timeStep)
 {
     Skeleton* demo = static_cast<Skeleton*>(world->getWorldUserInfo());
     int numManifolds = world->getDispatcher()->getNumManifolds();
+
+    bool has_collision = false;
     for (int i = 0; i < numManifolds; i++)
     {
         btPersistentManifold* contactManifold = world->getDispatcher()->getManifoldByIndexInternal(i);
@@ -751,6 +815,9 @@ void Skeleton::OnInternalTickCallback(btDynamicsWorld* world, btScalar timeStep)
         int numContacts = contactManifold->getNumContacts();
         for (int j = 0; j < numContacts; j++)
         {
+            // when there is no collision, set gravity to go downside
+            has_collision = true;
+
             btManifoldPoint& pt = contactManifold->getContactPoint(j);
             printf("step : %d, collision impulse: %f\n", demo->m_step, pt.getAppliedImpulse());
 
@@ -780,9 +847,17 @@ void Skeleton::OnInternalTickCallback(btDynamicsWorld* world, btScalar timeStep)
             }
         }
     }
+
+    if ( has_collision )
+        demo->m_g.startGravity();
+    else
+        demo->m_g.stopGravity(); // when there is no collision, set gravity to zero
 }
 
 void Skeleton::stepSimulation(float deltaTime) {
+    float g = m_g.getGVal();
+    m_dynamicsWorld->setGravity(btVector3(0, g, 0));
+
     if (m_step == 0) {
         for (int i = 0; i < m_multiBody->getNumLinks(); ++i) {
             btScalar* q = m_multiBody->getJointPosMultiDof(i);
@@ -809,14 +884,28 @@ void Skeleton::stepSimulation(float deltaTime) {
     m_multiBody->setBasePos(currBasePos);
 
     btVector3 currBaseVel = (currBasePos - m_prevBasePos) / deltaTime;
-    //  the drag force only affect the first bone
-    for (int i = 0; i < 1; ++i) {
-        btVector3 orient = m_multiBody->getLink(i).m_dVector;
-        orient = m_multiBody->localDirToWorld(i, orient);
-        btVector3 torque = btCross(orient, -(currBaseVel - m_prevBaseVel) / deltaTime * m_multiBody->getLink(i).m_mass) / deltaTime;
-        // TODO at the beginning, the force is too big. but at the next Cycle, it is small. NEED to check and fix.
-        torque *= 1;
-        m_multiBody->addLinkTorque(i, torque);
+    // drag force
+    if (m_step > 1)
+    {
+        btScalar ka = 25.0;
+        btVector3 currBaseAcc = (currBaseVel - m_prevBaseVel) / deltaTime;
+        //  the drag force only affect the first bone
+        for (int i = 0; i < m_numLinks; ++i) {
+            btVector3 orient = m_multiBody->getLink(i).m_dVector;
+            orient = m_multiBody->localDirToWorld(i, orient);
+            btVector3 torque = btCross(orient, -currBaseAcc * m_multiBody->getLink(i).m_mass / (i + 1));
+            // TODO at the beginning, the force is too big. but at the next Cycle, it is small. NEED to check and fix.
+            torque *= ka;
+            if (torque.length() > MAX_DRAG_FORCE) {
+                printf("drag force %f is too large\n", torque.length());
+                torque = torque.normalized() * MAX_DRAG_FORCE;
+            }
+            // TODO addlink is different from addJointTorqueMultiDof, and the later looks better in animation.
+//        m_multiBody->addLinkTorque(i, torque);
+            for (int d = 0; d < m_multiBody->getLink(i).m_dofCount; d++) {
+                m_multiBody->addJointTorqueMultiDof(i, d, torque[d]);
+            }
+        }
     }
     m_prevBasePos = currBasePos;
     m_prevBaseVel = currBaseVel;
