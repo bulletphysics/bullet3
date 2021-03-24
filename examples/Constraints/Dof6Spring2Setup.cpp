@@ -315,47 +315,7 @@ void Skeleton::initPhysics()
 
     addColliders(pMultiBody, world, baseHalfExtents, linkHalfExtents);
 
-    /////////////////////////////////////////////////////////////////
-    // construct the box
-    /////////////////////////////////////////////////////////////////
-//    {
-//        btVector3 halfExtents(.4, .4, .4);
-//        btCollisionShape* colShape = new btBoxShape(halfExtents);
-//
-//        /// Create Dynamic Objects
-//        btTransform startTransform;
-//        startTransform.setIdentity();
-//        startTransform.setOrigin(btVector3(0.0, -1.5, -2.0));
-//
-//        btScalar mass(0.f);
-//
-//        //rigidbody is dynamic if and only if mass is non zero, otherwise static
-//        bool isDynamic = (mass != 0.f);
-//
-//        btVector3 localInertia(0, 0, 0);
-//        if (isDynamic)
-//            colShape->calculateLocalInertia(mass, localInertia);
-//
-//        //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-//        btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-//        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
-//        m_collider = new btRigidBody(rbInfo);
-//        m_collider->setRestitution(0.0);
-//
-//        // set collision group and mask, only collide with objects with mask is true where it collide with bones
-//        m_dynamicsWorld->addRigidBody(m_collider, TARGET_BODY, BONE_BODY);
-//
-//        if (!WIRE_FRAME)
-//        {
-//            m_guiHelper->createCollisionShapeGraphicsObject(colShape);
-//            btVector4 color(1, 0, 0, 1);
-//            m_guiHelper->createCollisionObjectGraphicsObject(dynamic_cast<btCollisionObject*>(m_collider), color);
-//        }
-//    }
-
-    /////////////////////////////////////////////////////////////////
     // load triangles from obj file
-    /////////////////////////////////////////////////////////////////
     {
         const char* fileName = "teddy.obj";  //sphere8.obj";//sponza_closed.obj";//sphere8.obj";
         char relativeFileName[1024];
