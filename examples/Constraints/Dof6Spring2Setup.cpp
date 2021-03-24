@@ -164,6 +164,7 @@ struct Skeleton : public CommonMultiBodyBase
     btAlignedObjectArray<btQuaternion> m_balanceRot;
     btAlignedObjectArray<btScalar> m_Ks;
     gravityGenerator m_g;
+    btScalar m_linearDragEffect;
 
 public:
     Skeleton(struct GUIHelperInterface* helper);
@@ -179,7 +180,10 @@ public:
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     void addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents);
-    void applyTorque(float deltaTime);
+    btVector3 translateBase(btScalar time);
+    void moveCollider(btScalar time);
+    void applySpringForce(float deltaTime);
+    void applyBaseLinearDragForce(float deltaTime, int m_step, const btVector3& currBasePos);
     static void OnInternalTickCallback(btDynamicsWorld* world, btScalar timeStep);
 };
 
@@ -193,6 +197,7 @@ Skeleton::Skeleton(struct GUIHelperInterface* helper)
     m_prevBasePos = btVector3(0.0, 0.0, 0.0);
     m_prevBaseVel = btVector3(0.0, 0.0, 0.0);
     m_g.m_gravity = -0.08;
+    m_linearDragEffect = btScalar(25.0);
 }
 
 Skeleton::~Skeleton()
@@ -470,16 +475,34 @@ void Skeleton::addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* p
     }
 }
 
-void Skeleton::applyTorque(float deltaTime){
-//    printf("step: %d\n", m_step);
-    for (int i = 0; i < m_multiBody->getNumLinks(); ++i) {
-        btVector3 force(0.0, 0.0, 0.0);
-        btScalar* q = m_multiBody->getJointPosMultiDof(i);
-        btQuaternion curr_q = btQuaternion(q[0], q[1], q[2], q[3]);
+btVector3 Skeleton::translateBase(btScalar time){
+    // btMultiBodyFixedConstraint does not work as we like, cause it is not totally fixed to the body.
+    // move the base of the chain does not apply torque on the multibody chains
+    btScalar amp = 0.5f;
+    btScalar T = 50.0f;
+    btScalar phase =  SIMD_PI / 2.0;
+    btVector3 currBasePos = btVector3(0.0, cosOffset(amp, T, phase, time), 0.0);
+    m_multiBody->setBasePos(currBasePos);
+    return currBasePos;
+}
 
-        // stiff force
+void Skeleton::moveCollider(btScalar time){
+    btTransform tr;
+    tr.setIdentity();
+    btScalar amp = 1.8f;
+    btScalar T = 100.0f;
+    btScalar phase = SIMD_PI;
+    tr.setOrigin(btVector3(0.0, -1.5, cosOffset(amp, T, phase, time)));
+    tr.setRotation(btQuaternion(0.0, 0.0, 0.0, 1.0));
+    m_collider->setWorldTransform(tr);
+}
+
+void Skeleton::applySpringForce(float deltaTime){
+    for (int i = 0; i < m_multiBody->getNumLinks(); ++i) {
         if (m_Ks[i] > 0.0)
         {
+            btScalar* q = m_multiBody->getJointPosMultiDof(i);
+            btQuaternion curr_q = btQuaternion(q[0], q[1], q[2], q[3]);
             btScalar _ks = m_Ks[i];
             // TODO ?
 //            _ks = adjustKs(m_Ks[i], m_multiBody->getLink(i).m_mass, deltaTime);
@@ -489,14 +512,39 @@ void Skeleton::applyTorque(float deltaTime){
                 printf("spring force %f is too large\n", spring.length());
                 spring = spring.normalized() * MAX_SPRING_FORCE;
             }
-            force += spring;
-        }
-
-        // apply the torque
-        for (int d = 0; d < m_multiBody->getLink(i).m_dofCount; d++) {
-            m_multiBody->addJointTorqueMultiDof(i, d, force[d]);
+            // apply the torque
+            for (int d = 0; d < m_multiBody->getLink(i).m_dofCount; d++) {
+                m_multiBody->addJointTorqueMultiDof(i, d, spring[d]);
+            }
         }
     }
+}
+
+void Skeleton::applyBaseLinearDragForce(float deltaTime, int m_step, const btVector3& currBasePos)
+{
+    if (m_step < 1) return;
+
+    btVector3 currBaseVel = (currBasePos - m_prevBasePos) / deltaTime;
+    btVector3 currBaseAcc = (currBaseVel - m_prevBaseVel) / deltaTime;
+    //  the drag force only affect the first bone
+    for (int i = 0; i < m_numLinks; ++i) {
+        btVector3 orient = m_multiBody->getLink(i).m_dVector;
+        orient = m_multiBody->localDirToWorld(i, orient);
+        btVector3 torque = btCross(orient, -currBaseAcc * m_multiBody->getLink(i).m_mass / (i + 1));
+        // TODO at the beginning, the force is too big. but at the next Cycle, it is small. NEED to check and fix.
+        torque *= m_linearDragEffect;
+        if (torque.length() > MAX_DRAG_FORCE) {
+            printf("drag force %f is too large\n", torque.length());
+            torque = torque.normalized() * MAX_DRAG_FORCE;
+        }
+        // TODO addlink is different from addJointTorqueMultiDof, and the later looks better in animation.
+//        m_multiBody->addLinkTorque(i, torque);
+        for (int d = 0; d < m_multiBody->getLink(i).m_dofCount; d++) {
+            m_multiBody->addJointTorqueMultiDof(i, d, torque[d]);
+        }
+    }
+    m_prevBasePos = currBasePos;
+    m_prevBaseVel = currBaseVel;
 }
 
 void Skeleton::OnInternalTickCallback(btDynamicsWorld* world, btScalar timeStep)
@@ -567,57 +615,16 @@ void Skeleton::stepSimulation(float deltaTime) {
     float g = m_g.getGVal();
     m_dynamicsWorld->setGravity(btVector3(0, g, 0));
 
+    btVector3 currBasePos = translateBase(m_time);
+
     // calculate and apply the impulse, the damp use the difference between prev pos and curr pos
-    applyTorque(deltaTime);
+    applySpringForce(deltaTime);
 
-    // TODO need to consider the base bone rotate.
+    applyBaseLinearDragForce(deltaTime, m_step, currBasePos);
 
-    // btMultiBodyFixedConstraint does not work as we like, cause it is not totally fixed to the body.
-    // move the base of the chain does not apply torque on the multibody chains
-    btScalar amp = 0.5f;
-    btScalar T = 50.0f;
-    btScalar phase =  SIMD_PI / 2.0;
-    btVector3 currBasePos = btVector3(0.0, cosOffset(amp, T, phase, m_time), 0.0);
-    m_multiBody->setBasePos(currBasePos);
+    // TODO add drag force from the base bone rotation
 
-    btVector3 currBaseVel = (currBasePos - m_prevBasePos) / deltaTime;
-    // drag force
-    if (m_step > 1)
-    {
-        btScalar ka = 25.0;
-        btVector3 currBaseAcc = (currBaseVel - m_prevBaseVel) / deltaTime;
-        //  the drag force only affect the first bone
-        for (int i = 0; i < m_numLinks; ++i) {
-            btVector3 orient = m_multiBody->getLink(i).m_dVector;
-            orient = m_multiBody->localDirToWorld(i, orient);
-            btVector3 torque = btCross(orient, -currBaseAcc * m_multiBody->getLink(i).m_mass / (i + 1));
-            // TODO at the beginning, the force is too big. but at the next Cycle, it is small. NEED to check and fix.
-            torque *= ka;
-            if (torque.length() > MAX_DRAG_FORCE) {
-                printf("drag force %f is too large\n", torque.length());
-                torque = torque.normalized() * MAX_DRAG_FORCE;
-            }
-            // TODO addlink is different from addJointTorqueMultiDof, and the later looks better in animation.
-//        m_multiBody->addLinkTorque(i, torque);
-            for (int d = 0; d < m_multiBody->getLink(i).m_dofCount; d++) {
-                m_multiBody->addJointTorqueMultiDof(i, d, torque[d]);
-            }
-        }
-    }
-    m_prevBasePos = currBasePos;
-    m_prevBaseVel = currBaseVel;
-
-    {
-        // use cos function to drive m_collider
-        btTransform tr;
-        tr.setIdentity();
-        btScalar amp = 1.8f;
-        btScalar T = 100.0f;
-        btScalar phase = SIMD_PI;
-        tr.setOrigin(btVector3(0.0, -1.5, cosOffset(amp, T, phase, m_time)));
-        tr.setRotation(btQuaternion(0.0, 0.0, 0.0, 1.0));
-        m_collider->setWorldTransform(tr);
-    }
+    moveCollider(m_time);
 
     // capture the frames
 //    {
