@@ -166,6 +166,8 @@ struct Skeleton : public CommonMultiBodyBase
     gravityGenerator m_g;
     btScalar m_linearDragEffect;
     btScalar m_centrifugalDragEffect;
+    float m_angle;
+    bool m_clockwise;
 
 public:
     Skeleton(struct GUIHelperInterface* helper);
@@ -181,7 +183,7 @@ public:
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     void addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* pWorld, const btVector3& baseHalfExtents, const btVector3& linkHalfExtents);
-    btTransform transformBase(btScalar time);
+    btTransform transformBase(btScalar time, btScalar deltaTime);
     void moveCollider(btScalar time);
     void applySpringForce(float deltaTime);
     void applyBaseLinearDragForce(float deltaTime, int m_step, const btTransform& trans);
@@ -201,6 +203,8 @@ Skeleton::Skeleton(struct GUIHelperInterface* helper)
     m_g.m_gravity = -0.08;
     m_linearDragEffect = btScalar(25.0);
     m_centrifugalDragEffect = btScalar(0.3);
+    m_angle = 0.0;
+    m_clockwise = true;
 }
 
 Skeleton::~Skeleton()
@@ -294,27 +298,32 @@ void Skeleton::initPhysics()
         pMultiBody->setAngularDamping(0.7f);
     }
 
-    // set init pose
-    if (m_numLinks > 0)
+    // set init pose and balance angle
+    btScalar angle_damp = 0.4;
+    btScalar angle = -23.57817848 * SIMD_PI / 180.f * 2;
+    for ( int i = 0; i < m_numLinks; i++ )
     {
-        btScalar angle = -23.57817848 * SIMD_PI / 180.f * 2;
-        btQuaternion quat0(btVector3(1, 0, 0).normalized(), angle);
-        quat0.normalize();
-        pMultiBody->setJointPosMultiDof(0, quat0);
+        btQuaternion q(btVector3(1, 0, 0).normalized(), angle);
+        pMultiBody->setJointPosMultiDof(i, q);
+        angle *= angle_damp;
+    }
+
+    m_balanceRot.resize(pMultiBody->getNumLinks());
+//        m_balanceRot[0] = btQuaternion(btVector3(1, 0, 0).normalized(), angle);
+    angle = -23.57817848 * SIMD_PI / 180.f * 2;
+    for ( int i = 0; i < m_numLinks; i++ )
+    {
+        btQuaternion q(btVector3(1, 0, 0).normalized(), angle);
+        m_balanceRot[i] = q;
+        angle *= angle_damp;
     }
 
     // init default params
     m_Ks.resize(pMultiBody->getNumLinks());
-    m_balanceRot.resize(pMultiBody->getNumLinks());
     for (int i = 0; i < m_numLinks; i++)
     {
-        m_balanceRot[i] = btQuaternion(0.0, 0.0, 0.0, 1.0);
         m_Ks[i] = 0.3;
     }
-
-    // adjust balance rot, ks and damp
-    btScalar angle = -23.57817848 * SIMD_PI / 180.f;
-    m_balanceRot[0] = btQuaternion(btVector3(1, 0, 0).normalized(), angle);
 
     addColliders(pMultiBody, world, baseHalfExtents, linkHalfExtents);
 
@@ -438,7 +447,7 @@ void Skeleton::addColliders(btMultiBody* pMultiBody, btMultiBodyDynamicsWorld* p
     }
 }
 
-btTransform Skeleton::transformBase(btScalar time){
+btTransform Skeleton::transformBase(btScalar time, btScalar deltaTime){
     btTransform trans;
     trans.setIdentity();
 
@@ -447,14 +456,28 @@ btTransform Skeleton::transformBase(btScalar time){
     btScalar amp = 0.5f;
     btScalar T = 50.0f;
     btScalar phase =  SIMD_PI / 2.0;
-    btVector3 basePos = btVector3(0.0, cosOffset(amp, T, phase, time), 0.0);
+    btVector3 basePos = btVector3(cosOffset(amp, T, phase, time), 0, 0);
     trans.setOrigin(basePos);
 
-    btScalar cycle = 50.0f;
-    btScalar omega = SIMD_2_PI / cycle;
-    btQuaternion q;
-    q.setRotation(btVector3(0, 1, 0), time * omega);
-    trans.setRotation(q);
+//    btScalar cycle = 50.0f;
+//    btScalar omega = SIMD_2_PI / cycle;
+//    if ( m_angle > (SIMD_PI / 4.0) )
+//    {
+//        m_clockwise = false;
+//    }
+//    if ( m_angle < (-SIMD_PI / 4.0) )
+//    {
+//        m_clockwise = true;
+//    }
+//    omega *= m_clockwise ? 1 : -1;
+//    m_angle += omega * deltaTime;
+//    btQuaternion q;
+//    q.setRotation(btVector3(0, 1, 0), m_angle);
+//    trans.setRotation(q);
+//
+//    btScalar radius = 1.0;
+//    btVector3 basePos = btVector3(radius * sin(m_angle), 0, radius * cos(m_angle));
+//    trans.setOrigin(basePos);
 
     m_multiBody->setBaseWorldTransform(trans);
     return trans;
@@ -633,7 +656,7 @@ void Skeleton::stepSimulation(float deltaTime) {
     applySpringForce(deltaTime);
 
     // calculate the drag force
-    btTransform trans = transformBase(m_time);  // in the beginning, m_time == 0
+    btTransform trans = transformBase(m_time, deltaTime);  // in the beginning, m_time == 0
     applyBaseLinearDragForce(deltaTime, m_step, trans);
     applyBaseCentrifugalForce(deltaTime, m_step, trans);
     m_prevBaseTrans = trans;
