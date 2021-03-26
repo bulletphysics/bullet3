@@ -2250,6 +2250,11 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 	///pure virtual interfaces, precondition is a valid linkIndex (you can assert/terminate if the linkIndex is out of range)
 	virtual std::string getLinkName(int linkIndex) const
 	{
+		// Allow user overrides on default-created link names.
+		if(m_createBodyArgs.m_linkNames[linkIndex] != 0
+				&& strlen(m_createBodyArgs.m_linkNames[linkIndex]) > 0){
+			return std::string(m_createBodyArgs.m_linkNames[linkIndex]);
+		}
 		std::string linkName = "link";
 		char numstr[21];  // enough to hold all numbers up to 64-bits
 		sprintf(numstr, "%d", linkIndex);
@@ -2327,6 +2332,11 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 
 	virtual std::string getJointName(int linkIndex) const
 	{
+		// Allow user overrides on default-created joint names.
+		if(m_createBodyArgs.m_linkNames[linkIndex] != 0
+				&& strlen(m_createBodyArgs.m_linkNames[linkIndex]) > 0){
+			return std::string(m_createBodyArgs.m_linkNames[linkIndex]);
+		}
 		std::string jointName = "joint";
 		char numstr[21];  // enough to hold all numbers up to 64-bits
 		sprintf(numstr, "%d", linkIndex);
