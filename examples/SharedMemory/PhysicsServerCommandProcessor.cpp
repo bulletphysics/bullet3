@@ -10785,6 +10785,12 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 		scratch_m.resize(nLinks + 1);
 
 		mb->updateCollisionObjectWorldTransforms(scratch_q, scratch_m);
+		
+		m_data->m_dynamicsWorld->updateSingleAabb(mb->getBaseCollider());
+		for (int i=0;i<mb->getNumLinks();i++)
+		{
+			m_data->m_dynamicsWorld->updateSingleAabb(mb->getLinkCollider(i));
+		}
 	}
 
 	if (body && body->m_rigidBody)
@@ -10809,6 +10815,7 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 			body->m_rigidBody->getWorldTransform().setRotation(baseOrn);
 			body->m_rigidBody->setAngularVelocity(baseAngVel);
 		}
+		m_data->m_dynamicsWorld->updateSingleAabb(body->m_rigidBody);
 	}
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	if (body && body->m_softBody)
@@ -10835,6 +10842,7 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 			}
 			body->m_softBody->transformTo(tr);
 		}
+		m_data->m_dynamicsWorld->updateSingleAabb(body->m_softBody);
 	}
 #endif
 	syncPhysicsToGraphics2();
