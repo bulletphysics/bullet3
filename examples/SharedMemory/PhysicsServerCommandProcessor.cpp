@@ -12,10 +12,15 @@
 #include "../Importers/ImportMeshUtility/b3ImportMeshUtility.h"
 #include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
 #include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
+#include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
+
 #include "BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodySphericalJointMotor.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h"
 
+//#define USE_DISCRETE_DYNAMICS_WORLD
+//#define SKIP_DEFORMABLE_BODY
+//#define SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 
 #include "../Utils/b3BulletDefaultFileIO.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
@@ -1626,7 +1631,11 @@ struct PhysicsServerCommandProcessorInternalData
 
 	b3AlignedObjectArray<SaveWorldObjectData> m_saveWorldBodyData;
 
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+	btAlignedObjectArray<btWorldImporter*> m_worldImporters;
+#else
 	btAlignedObjectArray<btMultiBodyWorldImporter*> m_worldImporters;
+#endif
 
 	btAlignedObjectArray<std::string*> m_strings;
 
@@ -1641,8 +1650,12 @@ struct PhysicsServerCommandProcessorInternalData
 	btHashedOverlappingPairCache* m_pairCache;
 	btBroadphaseInterface* m_broadphase;
 	btCollisionDispatcher* m_dispatcher;
-
+	
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+	btSequentialImpulseConstraintSolver* m_solver;
+#else
 	btMultiBodyConstraintSolver* m_solver;
+#endif
 
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
@@ -1654,7 +1667,12 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<btDeformableLagrangianForce*> m_lf;
 #endif
 
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+	btDiscreteDynamicsWorld* m_dynamicsWorld;
+#else
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
+#endif
+	
 
 	int m_constraintSolverType;
 	SharedMemoryDebugDrawer* m_remoteDebugDrawer;
@@ -2722,20 +2740,35 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 #endif
 	}
 
+	
+
 	if ((0 == m_data->m_dynamicsWorld) && (0 == (flags & RESET_USE_DISCRETE_DYNAMICS_WORLD)))
 	{
-		m_data->m_solver = new btMultiBodyConstraintSolver;
+
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+		m_data->m_solver = new btMultiBodyConstraintSolver;
 		m_data->m_dynamicsWorld = new btSoftMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
 #else
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+		m_data->m_solver = new btSequentialImpulseConstraintSolver;
+		m_data->m_dynamicsWorld = new btDiscreteDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
+#else
+		m_data->m_solver = new btMultiBodyConstraintSolver;
 		m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
+		#endif 
 #endif
 	}
 
 	if (0 == m_data->m_dynamicsWorld)
 	{
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+		m_data->m_solver = new btSequentialImpulseConstraintSolver;
+		m_data->m_dynamicsWorld = new btDiscreteDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
+#else
+
 		m_data->m_solver = new btMultiBodyConstraintSolver;
 		m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
+#endif
 	}
 
 	//Workaround: in a VR application, where we avoid synchronizing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
@@ -2870,13 +2903,14 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 			constraints.push_back(constraint);
 			m_data->m_dynamicsWorld->removeConstraint(constraint);
 		}
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 		for (i = m_data->m_dynamicsWorld->getNumMultiBodyConstraints() - 1; i >= 0; i--)
 		{
 			btMultiBodyConstraint* mbconstraint = m_data->m_dynamicsWorld->getMultiBodyConstraint(i);
 			mbconstraints.push_back(mbconstraint);
 			m_data->m_dynamicsWorld->removeMultiBodyConstraint(mbconstraint);
 		}
-
+#endif
 		for (i = m_data->m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 		{
 			btCollisionObject* obj = m_data->m_dynamicsWorld->getCollisionObjectArray()[i];
@@ -2888,12 +2922,14 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 			m_data->m_dynamicsWorld->removeCollisionObject(obj);
 			delete obj;
 		}
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 		for (i = m_data->m_dynamicsWorld->getNumMultibodies() - 1; i >= 0; i--)
 		{
 			btMultiBody* mb = m_data->m_dynamicsWorld->getMultiBody(i);
 			m_data->m_dynamicsWorld->removeMultiBody(mb);
 			delete mb;
 		}
+#endif
 #ifndef SKIP_DEFORMABLE_BODY
 		for (int j = 0; j < m_data->m_lf.size(); j++)
 		{
@@ -3062,14 +3098,18 @@ void PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 			//motor->setRhsClamp(gRhsClamp);
 			//motor->setMaxAppliedImpulse(0);
 			mb->getLink(mbLinkIndex).m_userPtr = motor;
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 			m_data->m_dynamicsWorld->addMultiBodyConstraint(motor);
+#endif
 			motor->finalizeMultiDof();
 		}
 		if (mb->getLink(mbLinkIndex).m_jointType == btMultibodyLink::eSpherical)
 		{
 			btMultiBodySphericalJointMotor* motor = new btMultiBodySphericalJointMotor(mb, mbLinkIndex, 1000 * maxMotorImpulse);
 			mb->getLink(mbLinkIndex).m_userPtr = motor;
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 			m_data->m_dynamicsWorld->addMultiBodyConstraint(motor);
+#endif 
 			motor->finalizeMultiDof();
 		}
 	}
@@ -3176,11 +3216,15 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 				}
 			}
 			UrdfVisualShapeCache* cachedVisualShapesPtr = m_data->m_cachedVUrdfisualShapes[fileName];
+
 			ConvertURDF2Bullet(u2b, creation, rootTrans, m_data->m_dynamicsWorld, useMultiBody, u2b.getPathPrefix(), flags, cachedVisualShapesPtr);
+
 		}
 		else
 		{
+
 			ConvertURDF2Bullet(u2b, creation, rootTrans, m_data->m_dynamicsWorld, useMultiBody, u2b.getPathPrefix(), flags);
+
 		}
 
 		mb = creation.getBulletMultiBody();
@@ -3798,9 +3842,10 @@ bool PhysicsServerCommandProcessor::processStateLoggingCommand(const struct Shar
 				}
 			}
 		}
-
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 		if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_GENERIC_ROBOT)
 		{
+
 			std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
 
 			int loggerUid = m_data->m_stateLoggersUniqueId++;
@@ -3858,6 +3903,7 @@ bool PhysicsServerCommandProcessor::processStateLoggingCommand(const struct Shar
 			serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
 			serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
 		}
+#endif
 		if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_VR_CONTROLLERS)
 		{
 			std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
@@ -4743,7 +4789,11 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 	bool hasStatus = true;
 	serverStatusOut.m_type = CMD_CREATE_COLLISION_SHAPE_FAILED;
 
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+	btWorldImporter* worldImporter = new btWorldImporter(m_data->m_dynamicsWorld);
+#else
 	btMultiBodyWorldImporter* worldImporter = new btMultiBodyWorldImporter(m_data->m_dynamicsWorld);
+#endif
 
 	btCollisionShape* shape = 0;
 	b3AlignedObjectArray<UrdfCollision> urdfCollisionObjects;
@@ -9454,6 +9504,7 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 		b3Printf("Step simulation request");
 		b3Printf("CMD_STEP_FORWARD_SIMULATION clientCmd = %d\n", clientCmd.m_sequenceNumber);
 	}
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 	///todo(erwincoumans) move this damping inside Bullet
 	for (int i = 0; i < m_data->m_dynamicsWorld->getNumMultibodies(); i++)
 	{
@@ -9468,7 +9519,7 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 			}
 		}
 	}
-
+	#endif
 	btScalar deltaTimeScaled = m_data->m_physicsDeltaTime * simTimeScalingFactor;
 
 	int numSteps = 0;
@@ -9493,8 +9544,9 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	serverCmd.m_forwardDynamicsAnalyticsArgs.m_numSteps = numSteps;
 
 	btAlignedObjectArray<btSolverAnalyticsData> islandAnalyticsData;
-
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 	m_data->m_dynamicsWorld->getAnalyticsData(islandAnalyticsData);
+#endif 
 	serverCmd.m_forwardDynamicsAnalyticsArgs.m_numIslands = islandAnalyticsData.size();
 	int numIslands = btMin(islandAnalyticsData.size(), MAX_ISLANDS_ANALYTICS);
 
@@ -9565,7 +9617,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 	if (bodyUniqueId >= 0)
 	{
 		InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 		if (body && body->m_multiBody)
 		{
 			btMultiBody* mb = body->m_multiBody;
@@ -9751,6 +9803,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 								}
 							}
 						}
+						
 
 						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_JOINT_LIMITS)
 						{
@@ -9885,6 +9938,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			}
 		}
 		else
+#endif
 		{
 			btRigidBody* rb = 0;
 			if (body && body->m_rigidBody)
@@ -10411,7 +10465,11 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 
 			btConstraintSolver* oldSolver = m_data->m_dynamicsWorld->getConstraintSolver();
 
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+			btSequentialImpulseConstraintSolver* newSolver = 0;
+#else
 			btMultiBodyConstraintSolver* newSolver = 0;
+#endif
 
 			switch (clientCmd.m_physSimParamArgs.m_constraintSolverType)
 			{
@@ -10424,7 +10482,12 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 				case eConstraintSolverLCP_PGS:
 				{
 					btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel();
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+					newSolver = new btMLCPSolver(mlcp);
+#else
 					newSolver = new btMultiBodyMLCPConstraintSolver(mlcp);
+#endif
+
 					b3Printf("PyBullet: Constraint Solver: MLCP + PGS\n");
 					break;
 				}
@@ -10448,7 +10511,11 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 			{
 				delete oldSolver;
 
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+				m_data->m_dynamicsWorld->setConstraintSolver(newSolver);
+#else
 				m_data->m_dynamicsWorld->setMultiBodyConstraintSolver(newSolver);
+#endif
 				m_data->m_solver = newSolver;
 				printf("switched solver\n");
 			}
@@ -10728,6 +10795,12 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 		scratch_m.resize(nLinks + 1);
 
 		mb->updateCollisionObjectWorldTransforms(scratch_q, scratch_m);
+		
+		m_data->m_dynamicsWorld->updateSingleAabb(mb->getBaseCollider());
+		for (int i=0;i<mb->getNumLinks();i++)
+		{
+			m_data->m_dynamicsWorld->updateSingleAabb(mb->getLinkCollider(i));
+		}
 	}
 
 	if (body && body->m_rigidBody)
@@ -10752,6 +10825,7 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 			body->m_rigidBody->getWorldTransform().setRotation(baseOrn);
 			body->m_rigidBody->setAngularVelocity(baseAngVel);
 		}
+		m_data->m_dynamicsWorld->updateSingleAabb(body->m_rigidBody);
 	}
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	if (body && body->m_softBody)
@@ -10778,6 +10852,7 @@ bool PhysicsServerCommandProcessor::processInitPoseCommand(const struct SharedMe
 			}
 			body->m_softBody->transformTo(tr);
 		}
+		m_data->m_dynamicsWorld->updateSingleAabb(body->m_softBody);
 	}
 #endif
 	syncPhysicsToGraphics2();
@@ -10850,7 +10925,11 @@ bool PhysicsServerCommandProcessor::processCreateRigidBodyCommand(const struct S
 		shapeType = clientCmd.m_createBoxShapeArguments.m_collisionShapeType;
 	}
 
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+	btWorldImporter* worldImporter = new btWorldImporter(m_data->m_dynamicsWorld);
+#else
 	btMultiBodyWorldImporter* worldImporter = new btMultiBodyWorldImporter(m_data->m_dynamicsWorld);
+#endif
 	m_data->m_worldImporters.push_back(worldImporter);
 
 	btCollisionShape* shape = 0;
@@ -11595,6 +11674,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 		if (bodyHandle)
 		{
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 			if (bodyHandle->m_multiBody)
 			{
 				serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
@@ -11664,6 +11744,7 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				bodyHandle->m_multiBody = 0;
 				serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
 			}
+#endif
 			if (bodyHandle->m_rigidBody)
 			{
 				if (m_data->m_pluginManager.getRenderInterface())
@@ -11741,7 +11822,11 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 
 				for (int i = 0; i < m_data->m_worldImporters.size(); i++)
 				{
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+					btWorldImporter* importer = m_data->m_worldImporters[i];
+#else
 					btMultiBodyWorldImporter* importer = m_data->m_worldImporters[i];
+#endif
 					for (int c = 0; c < importer->getNumCollisionShapes(); c++)
 					{
 						if (importer->getCollisionShapeByIndex(c) == handle->m_collisionShape)
@@ -11757,7 +11842,11 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				}
 				if (foundIndex >= 0)
 				{
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+					btWorldImporter* importer = m_data->m_worldImporters[foundIndex];
+#else
 					btMultiBodyWorldImporter* importer = m_data->m_worldImporters[foundIndex];
+#endif
 					m_data->m_worldImporters.removeAtIndex(foundIndex);
 					importer->deleteAllData();
 					delete importer;
@@ -11911,6 +12000,7 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 	{
 		btScalar defaultMaxForce = 500.0;
 		InternalBodyData* parentBody = m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_parentBodyIndex);
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 		if (parentBody && parentBody->m_multiBody)
 		{
 			if ((clientCmd.m_userConstraintArguments.m_parentJointIndex >= -1) && clientCmd.m_userConstraintArguments.m_parentJointIndex < parentBody->m_multiBody->getNumLinks())
@@ -12064,6 +12154,7 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 			}
 		}
 		else
+#endif
 		{
 			InternalBodyData* childBody = clientCmd.m_userConstraintArguments.m_childBodyIndex >= 0 ? m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_childBodyIndex) : 0;
 
@@ -12311,12 +12402,14 @@ bool PhysicsServerCommandProcessor::processCreateUserConstraintCommand(const str
 		InteralUserConstraintData* userConstraintPtr = m_data->m_userConstraints.find(userConstraintUidRemove);
 		if (userConstraintPtr)
 		{
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 			if (userConstraintPtr->m_mbConstraint)
 			{
 				m_data->m_dynamicsWorld->removeMultiBodyConstraint(userConstraintPtr->m_mbConstraint);
 				delete userConstraintPtr->m_mbConstraint;
 				m_data->m_userConstraints.remove(userConstraintUidRemove);
 			}
+#endif//USE_DISCRETE_DYNAMICS_WORLD
 			if (userConstraintPtr->m_rbConstraint)
 			{
 				m_data->m_dynamicsWorld->removeConstraint(userConstraintPtr->m_rbConstraint);
@@ -13664,12 +13757,14 @@ bool PhysicsServerCommandProcessor::processRemoveStateCommand(const struct Share
 
 bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
+
 	BT_PROFILE("CMD_RESTORE_STATE");
 	bool hasStatus = true;
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_RESTORE_STATE_FAILED;
-
+#ifndef USE_DISCRETE_DYNAMICS_WORLD	
 	btMultiBodyWorldImporter* importer = new btMultiBodyWorldImporter(m_data->m_dynamicsWorld);
+	
 	importer->setImporterFlags(eRESTORE_EXISTING_OBJECTS);
 
 	bool ok = false;
@@ -13737,7 +13832,7 @@ bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct Shar
 	{
 		serverCmd.m_type = CMD_RESTORE_STATE_COMPLETED;
 	}
-
+#endif
 	return hasStatus;
 }
 
@@ -13749,6 +13844,7 @@ bool PhysicsServerCommandProcessor::processLoadBulletCommand(const struct Shared
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_BULLET_LOADING_FAILED;
 
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 	//btBulletWorldImporter* importer = new btBulletWorldImporter(m_data->m_dynamicsWorld);
 	btMultiBodyWorldImporter* importer = new btMultiBodyWorldImporter(m_data->m_dynamicsWorld);
 
@@ -13827,6 +13923,7 @@ bool PhysicsServerCommandProcessor::processLoadBulletCommand(const struct Shared
 			m_data->m_guiHelper->autogenerateGraphicsObjects(m_data->m_dynamicsWorld);
 		}
 	}
+#endif
 	return hasStatus;
 }
 
