@@ -445,9 +445,6 @@ struct SendDesiredStateArgs
 	int m_bodyUniqueId;
 	int m_controlMode;
 
-	//used for multi dof joints, e.g. spherical joint, to set parameters separately for different DOF; default to be false.
-	double m_use_multi_dof_params[MAX_DEGREE_OF_FREEDOM];
-
 	//PD parameters in case m_controlMode == CONTROL_MODE_POSITION_VELOCITY_PD
 	double m_Kp[MAX_DEGREE_OF_FREEDOM];  //indexed by degree of freedom, 6 for base, and then the dofs for each link
 	double m_Kd[MAX_DEGREE_OF_FREEDOM];  //indexed by degree of freedom, 6 for base, and then the dofs for each link
@@ -481,6 +478,8 @@ enum EnumSimDesiredStateUpdateFlags
 	SIM_DESIRED_STATE_HAS_MAX_FORCE = 16,
 	SIM_DESIRED_STATE_HAS_RHS_CLAMP = 32,
 	SIM_DESIRED_STATE_HAS_DAMPING = 64,
+	SIM_DESIRED_STATE_USE_MULTI_DOF = 128, //used for multi dof joints, e.g. spherical joint, to set parameters separately for different DOF.
+
 };
 
 enum EnumSimParamUpdateFlags

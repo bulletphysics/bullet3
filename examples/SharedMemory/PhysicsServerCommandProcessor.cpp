@@ -7144,7 +7144,8 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 											clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex + 2] * m_data->m_physicsDeltaTime);
 									}
 
-									if(!clientCmd.m_sendDesiredStateCommandArgument.m_use_multi_dof_params[velIndex]) {
+									if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[velIndex] & SIM_DESIRED_STATE_USE_MULTI_DOF) == 0)
+									{
 										motor->setVelocityTarget(desiredVelocity, kd[0]);
 										//todo: instead of clamping, combine the motor and limit
 										//and combine handling of limit force and motor force.
