@@ -384,6 +384,8 @@ extern "C"
 
 	B3_SHARED_API int b3GetStatusForwardDynamicsAnalyticsData(b3SharedMemoryStatusHandle statusHandle, struct b3ForwardDynamicsAnalyticsArgs* analyticsData);
 
+	B3_SHARED_API b3SharedMemoryCommandHandle b3InitDiscreteCollisionDetectionCommand(b3PhysicsClientHandle physClient);
+	B3_SHARED_API b3SharedMemoryCommandHandle b3InitDiscreteCollisionDetectionCommand2(b3SharedMemoryCommandHandle commandHandle);
 
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitResetSimulationCommand(b3PhysicsClientHandle physClient);
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitResetSimulationCommand2(b3SharedMemoryCommandHandle commandHandle);

@@ -977,6 +977,24 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3InitStepSimulationCommand2(b3SharedM
 	return (b3SharedMemoryCommandHandle)command;
 }
 
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitDiscreteCollisionDetectionCommand(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	return b3InitDiscreteCollisionDetectionCommand2((b3SharedMemoryCommandHandle)command);
+}
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3InitDiscreteCollisionDetectionCommand2(b3SharedMemoryCommandHandle commandHandle)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	command->m_type = CMD_DISCRETE_COLLISION_DETECTION;
+	command->m_updateFlags = 0;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3InitResetSimulationCommand(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;

@@ -390,6 +390,51 @@ static PyObject* pybullet_stepSimulation(PyObject* self, PyObject* args, PyObjec
 	return Py_None;
 }
 
+// Perform a discrete collision detection without stepping the simulation
+static PyObject* pybullet_performDiscreteCollisionDetection(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	static char* kwlist[] = {"physicsClientId", NULL};
+	b3PhysicsClientHandle sm = 0;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	else
+	{
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+
+		if (b3CanSubmitCommand(sm))
+		{
+			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitDiscreteCollisionDetectionCommand(sm));
+			statusType = b3GetStatusType(statusHandle);
+
+			if (statusType == CMD_DISCRETE_COLLISION_DETECTION_COMPLETED)
+			{
+				Py_INCREF(Py_None);
+				return Py_None;
+			}
+
+			else 
+			{
+				PyErr_SetString(SpamError, "Could not complete discrete collision detection.");
+				return NULL;
+			}
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int freeIndex = -1;
@@ -12266,6 +12311,10 @@ static PyMethodDef SpamMethods[] = {
 	{"stepSimulation", (PyCFunction)pybullet_stepSimulation, METH_VARARGS | METH_KEYWORDS,
 	 "stepSimulation(physicsClientId=0)\n"
 	 "Step the simulation using forward dynamics."},
+
+	{"discreteCollision", (PyCFunction)pybullet_performDiscreteCollisionDetection, METH_VARARGS | METH_KEYWORDS,
+	 "discreteCollision(physicsClientId=0)\n"
+	 "Perform a discrete collision detection without stepping the simulation."},
 
 	{"setGravity", (PyCFunction)pybullet_setGravity, METH_VARARGS | METH_KEYWORDS,
 	 "setGravity(gravX, gravY, gravZ, physicsClientId=0)\n"

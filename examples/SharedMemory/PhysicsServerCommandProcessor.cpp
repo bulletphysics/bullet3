@@ -9571,6 +9571,28 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 	return hasStatus;
 }
 
+
+bool PhysicsServerCommandProcessor::processDiscreteCollisionCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+
+	BT_PROFILE("CMD_DISCRETE_COLLISION_DETECTION");
+
+	if (m_data->m_verboseOutput)
+	{
+		b3Printf("Discrete Collision Detection request");
+		b3Printf("CMD_DISCRETE_COLLISION_DETECTION clientCmd = %d\n", clientCmd.m_sequenceNumber);
+	}
+
+	m_data->m_dynamicsWorld->performDiscreteCollisionDetection();
+
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+
+	serverCmd.m_type = CMD_DISCRETE_COLLISION_DETECTION_COMPLETED;
+	return hasStatus;
+}
+
+
 bool PhysicsServerCommandProcessor::processRequestInternalDataCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -14141,7 +14163,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processForwardDynamicsCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
-
+		case CMD_DISCRETE_COLLISION_DETECTION:
+		{
+			hasStatus = processDiscreteCollisionCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
 		case CMD_REQUEST_INTERNAL_DATA:
 		{
 			hasStatus = processRequestInternalDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
