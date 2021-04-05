@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package robotics.messages;
+
+option cc_enable_arenas = true;
+
+// A four-dimensional double precision vector.
+message Vector4d {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+  double w = 4;
+}
+
+// A four-dimensional single precision vector.
+message Vector4f {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+  float w = 4;
+}
+
+// A four-dimensional integer vector.
+message Vector4i {
+  int64 x = 1;
+  int64 y = 2;
+  int64 z = 3;
+  int64 w = 4;
+}
+
+// A three-dimensional double precision vector.
+message Vector3d {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+}
+
+// A three-dimensional single precision vector.
+message Vector3f {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+// A three-dimensional integer vector.
+message Vector3i {
+  int64 x = 1;
+  int64 y = 2;
+  int64 z = 3;
+}
+
+// A two-dimensional double precision vector.
+message Vector2d {
+  double x = 1;
+  double y = 2;
+}
+
+// A two-dimensional single precision vector.
+message Vector2f {
+  float x = 1;
+  float y = 2;
+}
+
+// A two-dimensional integer vector.
+message Vector2i {
+  int64 x = 1;
+  int64 y = 2;
+}
+
+// Double precision vector of arbitrary size.
+message Vectord {
+  repeated double data = 1 [packed = true];
+}
+
+// Single precision vector of arbitrary size.
+message Vectorf {
+  repeated float data = 1 [packed = true];
+}
+
+// Integer vector of arbitrary size.
+message Vectori {
+  repeated int64 data = 1 [packed = true];
+}
+

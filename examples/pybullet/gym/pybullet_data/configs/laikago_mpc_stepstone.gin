@@ -1,0 +1,142 @@
+#-*-Python-*-
+
+# NOTE: Should be run with >=10CPU for decent performance.
+
+import pybullet_envs.minitaur.agents.baseline_controller.torque_stance_leg_controller
+import pybullet_envs.minitaur.envs_v2.env_loader
+import pybullet_envs.minitaur.envs_v2.env_wrappers.mpc_locomotion_wrapper
+import pybullet_envs.minitaur.envs_v2.env_wrappers.observation_dictionary_to_array_wrapper
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_config
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_env
+import pybullet_envs.minitaur.envs_v2.scenes.random_stepstone_scene
+import pybullet_envs.minitaur.envs_v2.sensors.imu_sensor
+import pybullet_envs.minitaur.envs_v2.sensors.last_action_sensor
+import pybullet_envs.minitaur.envs_v2.sensors.toe_position_sensor
+import pybullet_envs.minitaur.envs_v2.tasks.simple_locomotion_task
+import pybullet_envs.minitaur.envs_v2.tasks.terminal_conditions
+import pybullet_envs.minitaur.envs_v2.utilities.noise_generators
+import pybullet_envs.minitaur.robots.hybrid_motor_model
+import pybullet_envs.minitaur.robots.laikago_v2
+import pybullet_envs.minitaur.robots.robot_config
+
+
+# Configure the dynamic robot
+
+SIM_TIME_STEP = 0.001
+NUM_ACTION_REPEAT = 4 # Control frequency will be 100 Hz
+
+
+########################################
+# Configure the sensors
+########################################
+imu_sensor.IMUSensor.channels = [
+    %imu_sensor.IMUChannel.ROLL,
+    %imu_sensor.IMUChannel.PITCH,
+    %imu_sensor.IMUChannel.ROLL_RATE,
+    %imu_sensor.IMUChannel.PITCH_RATE
+]
+
+imu_sensor.IMUSensor.lower_bound = [-6.28318548203, -6.28318548203, -6283.18554688, -6283.18554688]
+imu_sensor.IMUSensor.upper_bound = [6.28318548203, 6.28318548203, 6283.18554688, 6283.18554688]
+
+# Add noise to the IMU sensor and toe position sensor
+# IMUNoise/noise_generators.NormalNoise.scale = (0.025, 0.025, 0.1, 0.1)
+# TOENoise/noise_generators.NormalNoise.scale = (0.0025, 0.0025, 0.005, 0.0025, 0.0025, 0.005, 0.0025, 0.0025, 0.005, 0.0025, 0.0025, 0.005)
+# imu_sensor.IMUSensor.noise_generator = @IMUNoise/noise_generators.NormalNoise()
+# toe_position_sensor.ToePositionSensor.noise_generator = @TOENoise/noise_generators.NormalNoise()
+
+
+sensors = [@imu_sensor.IMUSensor(), @last_action_sensor.LastActionSensor(), @toe_position_sensor.ToePositionSensor()]
+laikago_v2.Laikago.sensors = %sensors
+
+
+########################################
+# Specify the motor model and its parameters
+########################################
+LAIKAGO_MOTOR_ANGLE_UPPER_LIMITS = 6.28318548203
+LAIKAGO_MOTOR_ANGLE_LOWER_LIMITS = -6.28318548203
+laikago/robot_config.MotorLimits.angle_lower_limits = %LAIKAGO_MOTOR_ANGLE_LOWER_LIMITS
+laikago/robot_config.MotorLimits.angle_upper_limits = %LAIKAGO_MOTOR_ANGLE_UPPER_LIMITS
+laikago/robot_config.MotorLimits.torque_lower_limits = -30
+laikago/robot_config.MotorLimits.torque_upper_limits = 30
+laikago_v2.Laikago.motor_limits = @laikago/robot_config.MotorLimits()
+laikago_v2.Laikago.motor_control_mode = %robot_config.MotorControlMode.HYBRID
+laikago_v2.Laikago.motor_model_class = @hybrid_motor_model.HybridMotorModel
+locomotion_gym_env.LocomotionGymEnv.robot_class = @laikago_v2.Laikago
+hybrid_motor_model.HybridMotorModel.kp = 250
+hybrid_motor_model.HybridMotorModel.kd = (0.3, 2.0, 2.0, 0.3, 2.0, 2.0, 0.3, 2.0, 2.0, 0.3, 2.0, 2.0)
+
+
+########################################
+# Setup the terrain randomization and simulation parameters
+########################################
+
+locomotion_gym_config.LocomotionGymConfig.simulation_parameters = @locomotion_gym_config.SimulationParameters()
+locomotion_gym_env.LocomotionGymEnv.robot_class = @laikago_v2.Laikago
+locomotion_gym_env.LocomotionGymEnv.task = @simple_locomotion_task.SimpleForwardTask()
+locomotion_gym_env.LocomotionGymEnv.gym_config = @locomotion_gym_config.LocomotionGymConfig()
+locomotion_gym_env.LocomotionGymEnv.scene = @random_stepstone_scene.RandomStepstoneScene()
+locomotion_gym_config.SimulationParameters.sim_time_step_s = %SIM_TIME_STEP
+locomotion_gym_config.SimulationParameters.num_action_repeat = %NUM_ACTION_REPEAT
+
+random_stepstone_scene.RandomStepstoneScene.random_seed = 13
+random_stepstone_scene.RandomStepstoneScene.gap_length_lower_bound = 0.07
+random_stepstone_scene.RandomStepstoneScene.gap_length_upper_bound = 0.15
+random_stepstone_scene.RandomStepstoneScene.stone_width = 0.6
+
+########################################
+# Setup the task and terminal condition parameters
+########################################
+terminal_conditions.maxstep_terminal_condition.max_step = 2000
+terminal_conditions.default_terminal_condition_for_laikago_v2.max_roll = 0.25
+terminal_conditions.default_terminal_condition_for_laikago_v2.max_pitch = 1.0
+terminal_conditions.default_terminal_condition_for_laikago_v2.min_height = 0.15
+terminal_conditions.default_terminal_condition_for_laikago_v2.enforce_foot_contacts = True
+
+# Setup the terminal condition
+terminal_conditions.logical_any_terminal_condition.conditions = [
+    @terminal_conditions.default_terminal_condition_for_laikago_v2,
+    @terminal_conditions.maxstep_terminal_condition,
+    ]
+
+    simple_locomotion_task.SimpleForwardTask.terminal_condition = @terminal_conditions.logical_any_terminal_condition
+simple_locomotion_task.SimpleForwardTask.clip_velocity = 0.0015
+
+time_ordered_buffer.TimeOrderedBuffer.error_on_duplicate_timestamp = False
+time_ordered_buffer.TimeOrderedBuffer.replace_value_on_duplicate_timestamp = True
+time_ordered_buffer.TimeOrderedBuffer.error_on_timestamp_reversal = False
+
+
+observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrapper.observation_excluded = ('frontCam', 'rearCam')
+
+env_loader.load.wrapper_classes = [
+    @mpc_locomotion_wrapper.MPCLocomotionWrapper,
+    @observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrapper,
+]
+
+########################################
+# Configure the MPC-related parameters
+########################################
+torque_stance_leg_controller.TorqueStanceLegController.qp_weights = (5, 5, 0.2, 0, 0, 10, 0.5, 0.5, 0.2, 0.2, 0.2, 0.1, 0)
+torque_stance_leg_controller.TorqueStanceLegController.body_inertia = (0.183375, 0, 0, 0, 0.6267, 0, 0, 0, 0.636175)
+torque_stance_leg_controller.TorqueStanceLegController.friction_coeffs = (0.45, 0.45, 0.45, 0.45)
+
+########################################
+# Configure the foothold wrapper parameters and action space
+########################################
+mpc_locomotion_wrapper.MPCLocomotionWrapper.foot_friction_coeff = 1.0
+mpc_locomotion_wrapper.MPCLocomotionWrapper.locomotion_gait = %mpc_locomotion_wrapper.Gait.TROT
+mpc_locomotion_wrapper.MPCLocomotionWrapper.control_frequency=20
+mpc_locomotion_wrapper.MPCLocomotionWrapper.target_horizontal_com_velocity_heuristic = @mpc_locomotion_wrapper.InverseRaibertTargetHorizontalComVelocityHeuristic()
+mpc_locomotion_wrapper.InverseRaibertTargetHorizontalComVelocityHeuristic.gains = (-0.25, -0.1)
+
+mpc_locomotion_wrapper.MPCLocomotionWrapper.swing_target_action_range = ((-0.05, -0.05, -0.03), (0.1, 0.05, 0.03))
+mpc_locomotion_wrapper.MPCLocomotionWrapper.pitch_action_range = (-0.2, 0.2)
+mpc_locomotion_wrapper.MPCLocomotionWrapper.roll_action_range = (-0.05, 0.05)
+mpc_locomotion_wrapper.MPCLocomotionWrapper.base_velocity_action_range = ((-0.05, -0.05), (0.05, 0.05))
+mpc_locomotion_wrapper.MPCLocomotionWrapper.base_twist_action_range = (-0.2, 0.2)
+mpc_locomotion_wrapper.MPCLocomotionWrapper.base_height_action_range = (0.42, 0.48)
+mpc_locomotion_wrapper.MPCLocomotionWrapper.swing_clearance_action_range = (0.05, 0.1)
+
+imu_based_com_velocity_estimator.IMUBasedCOMVelocityEstimator.use_sensor_interface = False
+

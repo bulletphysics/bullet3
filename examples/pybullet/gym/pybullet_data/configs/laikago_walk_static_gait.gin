@@ -1,0 +1,65 @@
+import pybullet_envs.minitaur.envs_v2.env_loader
+import pybullet_envs.minitaur.envs_v2.env_wrappers.simple_openloop
+import pybullet_envs.minitaur.envs_v2.env_wrappers.trajectory_generator_wrapper_env
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_config
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_env
+import pybullet_envs.minitaur.envs_v2.scenes.simple_scene
+import pybullet_envs.minitaur.envs_v2.sensors.imu_sensor
+import pybullet_envs.minitaur.envs_v2.sensors.motor_angle_sensor
+import pybullet_envs.minitaur.envs_v2.tasks.simple_locomotion_task
+import pybullet_envs.minitaur.robots.hybrid_motor_model
+import pybullet_envs.minitaur.robots.laikago_v2
+import pybullet_envs.minitaur.robots.robot_config
+
+
+# Specify the gym env parameters
+SIM_TIME_STEP = 0.001
+NUM_ACTION_REPEAT = 4
+locomotion_gym_config.SimulationParameters.sim_time_step_s = %SIM_TIME_STEP
+locomotion_gym_config.SimulationParameters.num_action_repeat = %NUM_ACTION_REPEAT
+locomotion_gym_config.SimulationParameters.enable_rendering = False
+locomotion_gym_config.LocomotionGymConfig.simulation_parameters = @locomotion_gym_config.SimulationParameters()
+locomotion_gym_env.LocomotionGymEnv.gym_config = @locomotion_gym_config.LocomotionGymConfig()
+
+# Specify the world.
+URDF_ROOT = ""
+scene_base.SceneBase.data_root = %URDF_ROOT
+locomotion_gym_env.LocomotionGymEnv.scene = @simple_scene.SimpleScene()
+
+# Specify the task.
+locomotion_gym_env.LocomotionGymEnv.task = @simple_locomotion_task.SimpleForwardTask()
+
+# Specify the sensors. Sensors determine the observation space.
+# Sensors can either be mounted on robots (see below), or passed to envs
+# i.e. like ambient sensors, or provided by tasks (task specific measures).
+imu_sensor.IMUSensor.channels = [
+    %imu_sensor.IMUChannel.ROLL,
+    %imu_sensor.IMUChannel.PITCH,
+    %imu_sensor.IMUChannel.ROLL_RATE,
+    %imu_sensor.IMUChannel.PITCH_RATE,
+]
+
+imu_sensor.IMUSensor.lower_bound = [-6.28318548203, -6.28318548203,
+                                       -6283.18554688, -6283.18554688]
+imu_sensor.IMUSensor.upper_bound = [6.28318548203, 6.28318548203,
+                                       6283.18554688, 6283.18554688]
+
+# We use the default confirugration for MotorAngleSensor, which reads limits from the robot.
+SENSORS = [@imu_sensor.IMUSensor(), @motor_angle_sensor.MotorAngleSensor()]
+
+# Specify the motor limits, and motor control mode.
+LAIKAGO_MOTOR_ANGLE_UPPER_LIMITS = 6.28318548203
+LAIKAGO_MOTOR_ANGLE_LOWER_LIMITS = -6.28318548203
+laikago/robot_config.MotorLimits.angle_lower_limits = %LAIKAGO_MOTOR_ANGLE_LOWER_LIMITS
+laikago/robot_config.MotorLimits.angle_upper_limits = %LAIKAGO_MOTOR_ANGLE_UPPER_LIMITS
+laikago_v2.Laikago.motor_limits = @laikago/robot_config.MotorLimits()
+laikago_v2.Laikago.motor_control_mode = %robot_config.MotorControlMode.POSITION
+laikago_v2.Laikago.motor_model_class = @hybrid_motor_model.HybridMotorModel
+locomotion_gym_env.LocomotionGymEnv.robot_class = @laikago_v2.Laikago
+
+# Specify the motor model parameters. Notice that we don't need to specify the control mode or motor limits here.
+hybrid_motor_model.HybridMotorModel.kp = 2400
+hybrid_motor_model.HybridMotorModel.kd = 5
+
+# Finally, mount sensors specified above to the Laikago.
+laikago_v2.Laikago.sensors = %SENSORS

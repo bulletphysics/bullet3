@@ -1,0 +1,6 @@
+import pybullet_envs.minitaur.envs_v2.env_loader
+import pybullet_envs.minitaur.envs_v2.env_wrappers.pmtg_wrapper_env
+
+pmtg_wrapper_env.PmtgWrapperEnv.action_filter_enable = True
+
+env_loader.load.wrapper_classes = [@pmtg_wrapper_env.PmtgWrapperEnv]

@@ -1,0 +1,4 @@
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_env
+import pybullet_envs.minitaur.envs_v2.tasks.simple_locomotion_task
+
+locomotion_gym_env.LocomotionGymEnv.task = @simple_locomotion_task.SimpleForwardTask()
