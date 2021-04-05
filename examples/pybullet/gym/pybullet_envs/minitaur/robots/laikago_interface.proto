@@ -1,0 +1,181 @@
+syntax = "proto3";
+
+package minitaur_fluxworks.control;
+
+import "timestamp.proto";
+import "vector.proto";
+
+// A general motor command.
+message MotorCommand {
+  // The unique motor id.
+  uint32 motor_id = 1;
+
+  // The motor angle.
+  float position = 2;
+
+  float position_gain = 3;
+
+  // The motor velocity.
+  float velocity = 4;
+  float velocity_gain = 5;
+
+  // The feed forward torque.
+  float torque = 6;
+}
+
+// LED command for the foot.
+message Led {
+  uint32 leg_id = 1;
+  uint32 r = 2;
+  uint32 g = 3;
+  uint32 b = 4;
+}
+
+// The message type for Laikago's motor command.
+message LaikagoCommand {
+  google.protobuf.Timestamp timestamp = 1;
+  enum ControlMode {
+    CONTROL_MODE_UNSPECIFIED = 0;
+    CONTROL_MODE_POSITION = 1;
+    CONTROL_MODE_TORQUE = 2;
+    CONTROL_MODE_HYBRID = 3;
+  }
+  ControlMode control_mode = 2;
+  repeated MotorCommand motor_command = 3;
+  repeated Led led = 4;
+}
+
+// Empty message just to request a state from the control server.
+message LaikagoStateRequest {}
+
+message Imu {
+  robotics.messages.Vector4f quaternion = 1;
+
+  // The unit is rad/s
+  robotics.messages.Vector3f gyroscope = 2;
+
+  // The unit is m/s^2
+  robotics.messages.Vector3f acceleration = 3;
+
+  // The unit is rad
+  robotics.messages.Vector3f rpy = 4;
+
+  // The IMU temperature.
+  float temperature = 5;
+}
+
+message MotorState {
+  uint32 motor_id = 1;
+  uint32 mode = 2;
+
+  float position = 3;
+  // Position/Velocity gains cannot be read from the motor. We just save the
+  // last used value.
+  float position_gain = 4;
+  float velocity = 5;
+  float velocity_gain = 6;
+  float torque = 7;
+  float temperature = 8;
+}
+
+message ContactState {
+  uint32 leg_id = 1;
+
+  // Contact force is measured in one dimension for Laikago.
+  float force = 2;
+
+  // The contact force measurement direction.
+  robotics.messages.Vector3f axis = 3;
+}
+
+// The message type for Laikago's low level state.
+message LaikagoState {
+  google.protobuf.Timestamp timestamp = 1;
+  uint32 control_level = 2;
+  Imu imu = 3;
+  repeated MotorState motor_state = 4;
+  repeated ContactState contact_state = 5;
+  // The microcontroller_time is millis.
+  uint32 microcontroller_time_millis = 6;
+  bytes wireless_remote = 7;
+  uint32 crc = 8;
+}
+
+message LaikagoCommandState {
+  LaikagoCommand command = 1;
+  LaikagoState state = 2;
+}
+
+// The optional gRPC interface for Laikago control.
+service LaikagoControlGrpcInterface {
+  // Sends the low level control command and receives a state.
+  rpc SendCommand(LaikagoCommand) returns (LaikagoState) {}
+
+  // Receives a robot state without sending motor commands.
+  rpc GetState(LaikagoStateRequest) returns (LaikagoState) {}
+}
+
+// Reserved for Laikago's high level command.
+message LaikagoHighLevelCommand {
+  google.protobuf.Timestamp timestamp = 1;
+  uint32 control_level = 2;
+
+  // 1 for standing and 2 for walking.
+  uint32 control_mode = 3;
+
+  // The normalized speed tuple (x, y, \omega_z)
+  robotics.messages.Vector3f walk_speed = 4;
+
+  float body_height = 5;
+  float foot_clearance_height = 6;
+
+  // The target roll, pitch, yaw of the body in the stand mode.
+  robotics.messages.Vector3f rpy = 7;
+}
+
+// Reserved for Laikago's high level status.
+message LaikagoHighLevelState {
+  google.protobuf.Timestamp timestamp = 1;
+  uint32 control_level = 2;
+
+  // 1 for standing and 2 for walking.
+  uint32 control_mode = 3;
+  Imu imu = 4;
+
+  // The normalized speed tuple (x, y, \omega_z)
+  robotics.messages.Vector3f walk_speed = 5;
+
+  // In stand mode.
+  float body_height = 8;
+  float up_down_speed = 9;
+
+  // The com position estimation. Will drift in x-y plane.
+  robotics.messages.Vector3f com_position = 10;
+  repeated robotics.messages.Vector3f foot_position_to_com = 11;
+  repeated robotics.messages.Vector3f foot_velocity_to_com = 12;
+  repeated ContactState contact_state = 13;
+  // The microcontroller_time is millis.
+  uint32 microcontroller_time_millis = 14;
+  // Bytes 4-7: slider_lx (side step speed); Bytes 8-11: slider_rx (twisting
+  // speed); Bytes 12-15: -slider_ry. Bytes 16-19: (slider_r + 1) / 2; Bytes
+  // 20-23: -slider_ly (forward/backward speed). Each float number (4 bytes) are
+  // packed using big endian convention.
+  bytes wireless_remote = 15;
+  uint32 crc = 16;
+}
+
+message LaikagoHighLevelStateRequest {}
+
+message LaikagoHighLevelCommandState {
+  LaikagoHighLevelCommand command = 1;
+  LaikagoHighLevelState state = 2;
+}
+
+// The optional gRPC interface for Laikago control.
+service LaikagoHighLevelControlGrpcInterface {
+  // Sends the high level control command and receives a state.
+  rpc SendCommand(LaikagoHighLevelCommand) returns (LaikagoHighLevelState) {}
+
+  // Requests a state without sending commands.
+  rpc GetState(LaikagoHighLevelStateRequest) returns (LaikagoHighLevelState) {}
+}

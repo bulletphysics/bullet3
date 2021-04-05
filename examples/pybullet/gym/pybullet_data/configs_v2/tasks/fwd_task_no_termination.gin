@@ -1,0 +1,11 @@
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_env
+import pybullet_envs.minitaur.envs_v2.tasks.simple_locomotion_task
+import pybullet_envs.minitaur.envs_v2.tasks.terminal_conditions
+
+terminal_conditions.maxstep_terminal_condition.max_step = 1500
+# Setup the terminal condition to not to terminate early when the robot falls.
+terminal_conditions.logical_any_terminal_condition.conditions = [
+    @terminal_conditions.maxstep_terminal_condition,
+    ]
+simple_locomotion_task.SimpleForwardTask.terminal_condition = @terminal_conditions.logical_any_terminal_condition
+locomotion_gym_env.LocomotionGymEnv.task = @simple_locomotion_task.SimpleForwardTask()

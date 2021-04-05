@@ -1,0 +1,12 @@
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_env
+import pybullet_envs.minitaur.envs_v2.tasks.simple_locomotion_task
+import pybullet_envs.minitaur.envs_v2.tasks.terminal_conditions
+
+terminal_conditions.maxstep_terminal_condition.max_step = 1500
+simple_locomotion_task.SimpleForwardTask.terminal_condition = @terminal_conditions.default_terminal_condition_for_laikago_v2
+
+simple_locomotion_task.SimpleForwardTask.divide_with_dt = True
+simple_locomotion_task.SimpleForwardTask.clip_velocity = 0.4
+simple_locomotion_task.SimpleForwardTask.energy_penalty_coef = 0
+
+locomotion_gym_env.LocomotionGymEnv.task = @simple_locomotion_task.SimpleForwardTask()

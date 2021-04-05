@@ -1,0 +1,18 @@
+import pybullet_envs.minitaur.envs_v2.env_loader
+import pybullet_envs.minitaur.envs_v2.env_wrappers.observation_dictionary_to_array_wrapper
+import pybullet_envs.minitaur.envs_v2.env_wrappers.pmtg_wrapper_env
+
+pmtg_wrapper_env.PmtgWrapperEnv.action_filter_enable = True
+pmtg_wrapper_env.PmtgWrapperEnv.action_filter_enable = 1
+pmtg_wrapper_env.PmtgWrapperEnv.intensity_upper_bound = 1.0
+pmtg_wrapper_env.PmtgWrapperEnv.max_delta_time = 4.0
+pmtg_wrapper_env.PmtgWrapperEnv.min_delta_time = 2.0
+pmtg_wrapper_env.PmtgWrapperEnv.residual_range = 0.35
+pmtg_wrapper_env.PmtgWrapperEnv.integrator_coupling_mode = "all coupled"
+pmtg_wrapper_env.PmtgWrapperEnv.walk_height_coupling_mode = "all coupled"
+pmtg_wrapper_env.PmtgWrapperEnv.variable_swing_stance_ratio = 1
+pmtg_wrapper_env.PmtgWrapperEnv.init_gait = "walk"
+
+env_loader.load.wrapper_classes = [
+    @pmtg_wrapper_env.PmtgWrapperEnv,
+    @observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrapper]
