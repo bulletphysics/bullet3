@@ -459,7 +459,7 @@ hh = setup_py_dir + "/" + datadir
 for root, dirs, files in os.walk(hh):
   for fn in files:
     ext = os.path.splitext(fn)[1][1:]
-    if ext and ext in 'yaml index meta data-00000-of-00001 png gif jpg urdf sdf obj txt mtl dae off stl STL xml '.split(
+    if ext and ext in 'yaml index meta data-00000-of-00001 png gif jpg urdf sdf obj txt mtl dae off stl STL xml gin npy '.split(
     ):
       fn = root + "/" + fn
       need_files.append(fn[1 + len(hh):])
