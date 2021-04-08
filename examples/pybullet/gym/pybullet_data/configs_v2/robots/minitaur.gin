@@ -1,0 +1,31 @@
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_config
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_env
+import pybullet_envs.minitaur.robots.minitaur_motor_model_v2
+import pybullet_envs.minitaur.robots.minitaur_v2
+
+URDF_ROOT = "robotics/reinforcement_learning/minitaur/robots/data/urdf/"
+
+UPPER_BOUND = 6.28318548203
+LOWER_BOUND = -6.28318548203
+SIM_TIME_STEP = 0.001
+NUM_ACTION_REPEAT = 6
+NUM_MOTORS = 8
+NOISY_READING = True
+
+locomotion_gym_config.SimulationParameters.sim_time_step_s = %SIM_TIME_STEP
+locomotion_gym_config.SimulationParameters.num_action_repeat = %NUM_ACTION_REPEAT
+locomotion_gym_config.SimulationParameters.enable_rendering = False
+locomotion_gym_config.LocomotionGymConfig.simulation_parameters = @locomotion_gym_config.SimulationParameters()
+locomotion_gym_env.LocomotionGymEnv.gym_config = @locomotion_gym_config.LocomotionGymConfig()
+
+minitaur_v2.Minitaur.motor_control_mode = %robot_config.MotorControlMode.POSITION
+minitaur_v2.Minitaur.motor_limits = @robot_config.MotorLimits()
+minitaur_v2.Minitaur.motor_model_class = @minitaur_motor_model_v2.MinitaurMotorModel
+minitaur_motor_model_v2.MinitaurMotorModel.pd_latency = 0.003
+minitaur_motor_model_v2.MinitaurMotorModel.kp = 1.0
+minitaur_motor_model_v2.MinitaurMotorModel.kd = 0.015
+
+locomotion_gym_env.LocomotionGymEnv.robot_class = @minitaur_v2.Minitaur
+
+robot_config.MotorLimits.angle_lower_limits = %LOWER_BOUND
+robot_config.MotorLimits.angle_upper_limits = %UPPER_BOUND

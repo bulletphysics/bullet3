@@ -1,0 +1,3 @@
+import pybullet_envs.minitaur.envs_v2.scenes.stair_scene
+# Specify the scene (overwrite the setting from laikago_reactive.gin)
+locomotion_gym_env.LocomotionGymEnv.scene = @stair_scene.StairScene()

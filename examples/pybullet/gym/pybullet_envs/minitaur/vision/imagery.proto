@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package robotics.reinforcement_learning.minitaur.vision;
+
+import "google/protobuf/timestamp.proto";
+
+// The basic image protobuf. Used for RPC/IPC transmission.
+message Image {
+  // The buffer that contains the actual image data.
+  bytes content = 1;
+
+  // The image storage format. Can be raw or compressed types.
+  enum ImageFormat {
+    IMAGE_FORMAT_UNSPECIFIED = 0;
+
+    // An 32-bit gray-scale image/matrix with row-major (height, width) memroy
+    // layout. Each pixel is a 32-bit floating-point number.
+    IMAGE_FORMAT_GRAY_HW_32F = 1;
+
+    // An 8-bit BGRA raw image format, with HWC memory layout (e.g. the image is
+    // stored as a row-major matrix (height, width) of pixels, with each pixel
+    // an uint8[num_color_channels] packed array. This is the same format as
+    // CV_8UC4.
+    IMAGE_FORMAT_BGRA_HWC_8U = 2;
+
+    // The 16-bit grayscale images with row-major memory layout. This is the
+    // default depth format for intel RealSense cameras. Each pixel is a 16 bit
+    // unsigned integer.
+    IMAGE_FORMAT_GRAY_HW_16U = 3;
+
+    // An 8-bit RGB raw image format, with HWC memory layout. This is the
+    // default color format for intel RealSense cameras.
+    IMAGE_FORMAT_RGB_HWC_8U = 4;
+
+    // TODO(tingnan): Add supports for different image formats like I420 or
+    // JPEG.
+  }
+
+  ImageFormat image_format = 2;
+
+  // The UTC time at which the image is taken.
+  google.protobuf.Timestamp timestamp = 3;
+
+  // Image width and height in pixels. Critical for decoding raw images and
+  // optional for compressed JPEG/PNGs which already embed these information.
+  int32 width_px = 4;
+  int32 height_px = 5;
+}
+
+// A captured frame from camera can combine multiple images from different
+// streams, IR, depth, VGA.
+message CameraFrame {
+  map<string, Image> images = 1;
+  string camera_id = 2;
+}
+
+// Get the latest raw image from camera.
+message GetFrameRequest {
+  // TODO: Also enable camera id in this proto.
+}
+
+// Stacked frames. The imagery service can decide how many frames to transmit
+// for each GetFrameRequest.
+message CameraFrameCollection {
+  repeated CameraFrame frames = 1;
+}
+
+// The capture session start/stop request.
+message CaptureRequest {
+  string run_id = 1;
+  string logging_path = 2;
+}

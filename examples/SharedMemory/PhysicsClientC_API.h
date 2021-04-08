@@ -484,7 +484,9 @@ extern "C"
 	B3_SHARED_API int b3JointControlSetDesiredPositionMultiDof(b3SharedMemoryCommandHandle commandHandle, int qIndex, const double* position, int dofCount);
 
 	B3_SHARED_API int b3JointControlSetKp(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value);
+	B3_SHARED_API int b3JointControlSetKpMultiDof(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double* kps, int dofCount);
 	B3_SHARED_API int b3JointControlSetKd(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value);
+	B3_SHARED_API int b3JointControlSetKdMultiDof(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double* kds, int dofCount);
 	B3_SHARED_API int b3JointControlSetMaximumVelocity(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double maximumVelocity);
 
 	///Only use when controlMode is CONTROL_MODE_VELOCITY
@@ -494,6 +496,8 @@ extern "C"
 
 	B3_SHARED_API int b3JointControlSetMaximumForce(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value);
 	B3_SHARED_API int b3JointControlSetDesiredForceTorqueMultiDof(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double* forces, int dofCount);
+	B3_SHARED_API int b3JointControlSetDamping(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value);
+	B3_SHARED_API int b3JointControlSetDampingMultiDof(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double* damping, int dofCount);
 	
 	///Only use if when controlMode is CONTROL_MODE_TORQUE,
 	B3_SHARED_API int b3JointControlSetDesiredForceTorque(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value);

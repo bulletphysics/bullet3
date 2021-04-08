@@ -1,0 +1,9 @@
+import pybullet_data as pd
+
+include pd.getDataPath()+'/configs_v2/robots/mini_cheetah.gin'
+include pd.getDataPath()+'/configs_v2/sensors/imu.gin'
+
+#include 'robotics/reinforcement_learning/minitaur/envs_v2/configs_v2/robots/mini_cheetah.gin'
+#include 'robotics/reinforcement_learning/minitaur/envs_v2/configs_v2/sensors/imu.gin'
+
+mini_cheetah.MiniCheetah.sensors = [@robot_sensors.IMUSensor()]

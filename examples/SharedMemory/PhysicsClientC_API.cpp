@@ -1056,6 +1056,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3JointControlCommandInit2Internal(b3S
 		command->m_sendDesiredStateCommandArgument.m_Kp[i] = 0;
 		command->m_sendDesiredStateCommandArgument.m_Kd[i] = 0;
 		command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 0;
+		command->m_sendDesiredStateCommandArgument.m_damping[i] = 0;
 	}
 	command->m_sendDesiredStateCommandArgument.m_desiredStateQ[3] = 1;
 	return (b3SharedMemoryCommandHandle)command;
@@ -1103,6 +1104,22 @@ B3_SHARED_API int b3JointControlSetKp(b3SharedMemoryCommandHandle commandHandle,
 	return 0;
 }
 
+B3_SHARED_API int b3JointControlSetKpMultiDof(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double* kps, int dofCount)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	if ((dofIndex >= 0) && (dofIndex < MAX_DEGREE_OF_FREEDOM ) && dofCount >= 0 && dofCount <= 4)
+	{
+		for (int dof = 0; dof < dofCount; dof++)
+		{
+			command->m_sendDesiredStateCommandArgument.m_Kp[dofIndex + dof] = kps[dof];
+			command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KP;
+			command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex + dof] |= SIM_DESIRED_STATE_HAS_KP;
+		}
+	}
+	return 0;
+}
+
 B3_SHARED_API int b3JointControlSetKd(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
@@ -1112,6 +1129,22 @@ B3_SHARED_API int b3JointControlSetKd(b3SharedMemoryCommandHandle commandHandle,
 		command->m_sendDesiredStateCommandArgument.m_Kd[dofIndex] = value;
 		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KD;
 		command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_KD;
+	}
+	return 0;
+}
+
+B3_SHARED_API int b3JointControlSetKdMultiDof(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double* kds, int dofCount)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	if ((dofIndex >= 0) && (dofIndex < MAX_DEGREE_OF_FREEDOM ) && dofCount >= 0 && dofCount <= 4)
+	{
+		for (int dof = 0; dof < dofCount; dof++)
+		{
+			command->m_sendDesiredStateCommandArgument.m_Kd[dofIndex + dof] = kds[dof];
+			command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KD;
+			command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex + dof] |= SIM_DESIRED_STATE_HAS_KD;
+		}
 	}
 	return 0;
 }
@@ -1169,6 +1202,35 @@ B3_SHARED_API int b3JointControlSetDesiredForceTorqueMultiDof(b3SharedMemoryComm
 			command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex+dof] = forces[dof];
 			command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
 			command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex + dof] |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
+		}
+	}
+	return 0;
+}
+
+B3_SHARED_API int b3JointControlSetDamping(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	if ((dofIndex >= 0) && (dofIndex < MAX_DEGREE_OF_FREEDOM))
+	{
+		command->m_sendDesiredStateCommandArgument.m_damping[dofIndex] = value;
+		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_DAMPING;
+		command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_DAMPING;
+	}
+	return 0;
+}
+
+B3_SHARED_API int b3JointControlSetDampingMultiDof(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double* damping, int dofCount)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	if ((dofIndex >= 0) && (dofIndex < MAX_DEGREE_OF_FREEDOM ) && dofCount >= 0 && dofCount <= 4)
+	{
+		for (int dof = 0; dof < dofCount; dof++)
+		{
+			command->m_sendDesiredStateCommandArgument.m_damping[dofIndex+dof] = damping[dof];
+			command->m_updateFlags |= SIM_DESIRED_STATE_HAS_DAMPING;
+			command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex + dof] |= SIM_DESIRED_STATE_HAS_DAMPING;
 		}
 	}
 	return 0;
