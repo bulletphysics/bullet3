@@ -702,6 +702,16 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 				}
 				break;
 			}
+			case CMD_PERFORM_COLLISION_DETECTION_COMPLETED:
+			{
+				B3_PROFILE("CMD_PERFORM_COLLISION_DETECTION_COMPLETED");
+
+				if (m_data->m_verboseOutput)
+				{
+					b3Printf("Server completed performing collision detection");
+				}
+				break;
+			}
 			case CMD_URDF_LOADING_FAILED:
 			{
 				B3_PROFILE("CMD_URDF_LOADING_FAILED");

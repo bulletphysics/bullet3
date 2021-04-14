@@ -1,0 +1,10 @@
+import pybullet_envs.minitaur.envs_v2.env_loader
+import pybullet_envs.minitaur.envs_v2.env_wrappers.observation_dictionary_to_array_wrapper
+import pybullet_envs.minitaur.envs_v2.env_wrappers.pmtg_wrapper_env
+
+pmtg_wrapper_env.PmtgWrapperEnv.action_filter_enable = True
+pmtg_wrapper_env.PmtgWrapperEnv.action_filter_high_cut = 0.5
+
+env_loader.load.wrapper_classes = [
+    @pmtg_wrapper_env.PmtgWrapperEnv,
+    @observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrapper]

@@ -1,0 +1,8 @@
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_env
+import pybullet_envs.minitaur.envs_v2.tasks.simple_locomotion_task
+
+locomotion_gym_env.LocomotionGymEnv.task = @simple_locomotion_task.SimpleForwardTask()
+
+simple_locomotion_task.SimpleForwardTask.energy_penalty_coef = 0.002
+simple_locomotion_task.SimpleForwardTask.min_com_height = 0.3
+simple_locomotion_task.SimpleForwardTask.clip_velocity = 0.002

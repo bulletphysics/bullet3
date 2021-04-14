@@ -465,6 +465,8 @@ struct SendDesiredStateArgs
 	//or the maximum applied force/torque for the PD/motor/constraint to reach the desired velocity in CONTROL_MODE_VELOCITY and CONTROL_MODE_POSITION_VELOCITY_PD mode
 	//indexed by degree of freedom, 6 dof base, and then dofs for each link
 	double m_desiredStateForceTorque[MAX_DEGREE_OF_FREEDOM];
+
+	double m_damping[MAX_DEGREE_OF_FREEDOM];
 };
 
 enum EnumSimDesiredStateUpdateFlags
@@ -475,6 +477,7 @@ enum EnumSimDesiredStateUpdateFlags
 	SIM_DESIRED_STATE_HAS_KP = 8,
 	SIM_DESIRED_STATE_HAS_MAX_FORCE = 16,
 	SIM_DESIRED_STATE_HAS_RHS_CLAMP = 32,
+	SIM_DESIRED_STATE_HAS_DAMPING = 64,
 };
 
 enum EnumSimParamUpdateFlags
@@ -1057,6 +1060,7 @@ struct b3CreateMultiBodyArgs
 	int m_flags;
 	int m_numBatchObjects;
 
+	const char* m_linkNames[MAX_CREATE_MULTI_BODY_LINKS];
 };
 
 struct b3CreateMultiBodyResultArgs

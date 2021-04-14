@@ -55,7 +55,7 @@ public:
         m_dynamicsWorld->stepSimulation(deltaTime, 4, internalTimeStep);
     }
     
-    void addCloth(btVector3 origin);
+    void addCloth(const btVector3& origin);
     
     virtual void renderScene()
     {
@@ -126,7 +126,7 @@ void DeformableSelfCollision::initPhysics()
     getDeformableDynamicsWorld()->setLineSearch(false);
     m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
-void DeformableSelfCollision::addCloth(btVector3 origin)
+void DeformableSelfCollision::addCloth(const btVector3& origin)
 // create a piece of cloth
 {
     const btScalar s = 0.6;

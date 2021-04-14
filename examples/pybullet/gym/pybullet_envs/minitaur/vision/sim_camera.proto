@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package robotics.reinforcement_learning.minitaur.vision;
+
+import "robotics/messages/vector.proto";
+
+// The camera calibration parameters.
+message CameraIntrinsics {
+  // The focal length along x (width) and y (height) directions, in pixels.
+  robotics.messages.Vector2d focal_length_px = 1;
+
+  // The principal point offsets along x and y, in pixels.
+  robotics.messages.Vector2d principal_point_px = 2;
+
+  // TODO(tingnan): Add skew and distortion parameters.
+}
+
+// The Simulated camera configuratrion.
+message SimulatedCameraConfig {
+  CameraIntrinsics camera_intrinsics = 1;
+
+  // We can specify arbitrary resolutions in simulation. The image dimension is
+  // conventionally represented using width/height instead of x/y.
+  int32 image_width_px = 2;
+  int32 image_height_px = 3;
+}
