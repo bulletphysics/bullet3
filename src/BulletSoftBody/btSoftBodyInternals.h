@@ -1285,7 +1285,7 @@ static inline btScalar AreaOf(const btVector3& x0,
 	const btVector3 a = x1 - x0;
 	const btVector3 b = x2 - x0;
 	const btVector3 cr = btCross(a, b);
-	const btScalar area = cr.length();
+	const btScalar area = cr.length() / 2.;
 	return (area);
 }
 
