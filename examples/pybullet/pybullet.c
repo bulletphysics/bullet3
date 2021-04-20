@@ -1354,9 +1354,10 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* key
 	PyObject* pylist = 0;
 	int physicsClientId = 0;
 	int flags = -1;
+	int useMultiBody = -1;
 
-	static char* kwlist[] = {"mjcfFileName", "flags", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist, &mjcfFileName, &flags, &physicsClientId))
+	static char* kwlist[] = {"mjcfFileName", "flags", "useMultiBody", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|iii", kwlist, &mjcfFileName, &flags, &useMultiBody, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1372,6 +1373,11 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* key
 	{
 		b3LoadMJCFCommandSetFlags(command, flags);
 	}
+	if (useMultiBody>=0)
+	{
+		b3LoadMJCFCommandSetUseMultiBody(command, useMultiBody);
+	}
+
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType != CMD_MJCF_LOADING_COMPLETED)
@@ -1379,7 +1385,7 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* key
 		PyErr_SetString(SpamError, "Couldn't load .mjcf file.");
 		return NULL;
 	}
-
+	
 	numBodies =
 		b3GetStatusBodyIndices(statusHandle, bodyIndicesOut, MAX_SDF_BODIES);
 	if (numBodies > MAX_SDF_BODIES)
@@ -1430,11 +1436,14 @@ static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyO
 	double jointUpperLimit = -1;
 	double jointLimitForce = -1;
 
+	double sleepThreshold = -1;
+	
+
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "lateralFriction", "spinningFriction", "rollingFriction", "restitution", "linearDamping", "angularDamping", "contactStiffness", "contactDamping", "frictionAnchor", "localInertiaDiagonal", "ccdSweptSphereRadius", "contactProcessingThreshold", "activationState", "jointDamping", "anisotropicFriction", "maxJointVelocity",  "collisionMargin", "jointLowerLimit","jointUpperLimit", "jointLimitForce",  "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|dddddddddiOddidOdddddi", kwlist, &bodyUniqueId, &linkIndex, &mass, &lateralFriction, &spinningFriction, &rollingFriction, &restitution, &linearDamping, &angularDamping, &contactStiffness, &contactDamping, &frictionAnchor, &localInertiaDiagonalObj, &ccdSweptSphereRadius, &contactProcessingThreshold, &activationState, &jointDamping, &anisotropicFrictionObj, &maxJointVelocity, &collisionMargin , &jointLowerLimit , &jointUpperLimit , &jointLimitForce , &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "lateralFriction", "spinningFriction", "rollingFriction", "restitution", "linearDamping", "angularDamping", "contactStiffness", "contactDamping", "frictionAnchor", "localInertiaDiagonal", "ccdSweptSphereRadius", "contactProcessingThreshold", "activationState", "jointDamping", "anisotropicFriction", "maxJointVelocity",  "collisionMargin", "jointLowerLimit","jointUpperLimit", "jointLimitForce", "sleepThreshold", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|dddddddddiOddidOddddddi", kwlist, &bodyUniqueId, &linkIndex, &mass, &lateralFriction, &spinningFriction, &rollingFriction, &restitution, &linearDamping, &angularDamping, &contactStiffness, &contactDamping, &frictionAnchor, &localInertiaDiagonalObj, &ccdSweptSphereRadius, &contactProcessingThreshold, &activationState, &jointDamping, &anisotropicFrictionObj, &maxJointVelocity, &collisionMargin , &jointLowerLimit , &jointUpperLimit , &jointLimitForce , &sleepThreshold,  &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1459,6 +1468,10 @@ static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyO
 		if (jointLimitForce >= 0)
 		{
 			b3ChangeDynamicsInfoSetJointLimitForce(command, bodyUniqueId, linkIndex, jointLimitForce);
+		}
+		if (sleepThreshold >=0)
+		{
+			b3ChangeDynamicsInfoSetSleepThreshold(command, bodyUniqueId, sleepThreshold);
 		}
 
 		if (jointLowerLimit <= jointUpperLimit)

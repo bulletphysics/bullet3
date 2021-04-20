@@ -156,7 +156,8 @@ extern "C"
 	B3_SHARED_API int b3ChangeDynamicsInfoSetJointLimit(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double jointLowerLimit, double jointUpperLimit);
 	B3_SHARED_API int b3ChangeDynamicsInfoSetJointLimitForce(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double jointLimitForce);
 	B3_SHARED_API int b3ChangeDynamicsInfoSetDynamicType(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, int dynamicType);
-	
+
+	B3_SHARED_API int b3ChangeDynamicsInfoSetSleepThreshold(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, double sleepThreshold);
 	
 	B3_SHARED_API int b3ChangeDynamicsInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction);
 	B3_SHARED_API int b3ChangeDynamicsInfoSetSpinningFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double friction);
@@ -415,6 +416,8 @@ extern "C"
 	B3_SHARED_API b3SharedMemoryCommandHandle b3LoadMJCFCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
 	B3_SHARED_API b3SharedMemoryCommandHandle b3LoadMJCFCommandInit2(b3SharedMemoryCommandHandle commandHandle, const char* fileName);
 	B3_SHARED_API void b3LoadMJCFCommandSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags);
+	B3_SHARED_API void b3LoadMJCFCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody);
+	
 
 	///compute the forces to achieve an acceleration, given a state q and qdot using inverse dynamics
 	B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseDynamicsCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId,
