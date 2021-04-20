@@ -14602,7 +14602,12 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 			{
 				m_data->m_pickedBody = body;
 				m_data->m_savedActivationState = body->getActivationState();
+				if (m_data->m_savedActivationState==ISLAND_SLEEPING)
+				{
+					m_data->m_savedActivationState = ACTIVE_TAG;
+				}
 				m_data->m_pickedBody->setActivationState(DISABLE_DEACTIVATION);
+				m_data->m_pickedBody->setDeactivationTime(0);
 				//printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
 				btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
 				btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
