@@ -9751,6 +9751,11 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 				mb->setAngularDamping(clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
 			}
 
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SLEEP_THRESHOLD)
+			{
+				mb->setSleepThreshold(clientCmd.m_changeDynamicsInfoArgs.m_sleepThreshold);
+			}
+
 			if (linkIndex == -1)
 			{
 				if (mb->getBaseCollider())
@@ -10035,6 +10040,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			btRigidBody* rb = 0;
 			if (body && body->m_rigidBody)
 			{
+
 				if (linkIndex == -1)
 				{
 					rb = body->m_rigidBody;
@@ -10170,6 +10176,13 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 						m_data->m_dynamicsWorld->addCollisionObject(rb, collisionFilterGroup, collisionFilterMask);
 					}
 				}
+
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SLEEP_THRESHOLD)
+				{
+					btScalar threshold2 = btSqrt(clientCmd.m_changeDynamicsInfoArgs.m_sleepThreshold);
+					rb->setSleepingThresholds(threshold2,threshold2);
+				}
+
 			}
 		}
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
