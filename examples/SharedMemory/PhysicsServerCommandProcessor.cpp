@@ -2771,6 +2771,9 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 #endif
 	}
 
+	 //may help improve run-time performance for many sleeping objects
+	m_data->m_dynamicsWorld->setForceUpdateAllAabbs(false);
+
 	//Workaround: in a VR application, where we avoid synchronizing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
 	m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(128 * 1024);
 
@@ -9761,6 +9764,11 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 				mb->setAngularDamping(clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
 			}
 
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SLEEP_THRESHOLD)
+			{
+				mb->setSleepThreshold(clientCmd.m_changeDynamicsInfoArgs.m_sleepThreshold);
+			}
+
 			if (linkIndex == -1)
 			{
 				if (mb->getBaseCollider())
@@ -10045,6 +10053,7 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 			btRigidBody* rb = 0;
 			if (body && body->m_rigidBody)
 			{
+
 				if (linkIndex == -1)
 				{
 					rb = body->m_rigidBody;
@@ -10180,6 +10189,13 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 						m_data->m_dynamicsWorld->addCollisionObject(rb, collisionFilterGroup, collisionFilterMask);
 					}
 				}
+
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SLEEP_THRESHOLD)
+				{
+					btScalar threshold2 = btSqrt(clientCmd.m_changeDynamicsInfoArgs.m_sleepThreshold);
+					rb->setSleepingThresholds(threshold2,threshold2);
+				}
+
 			}
 		}
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
@@ -10373,6 +10389,12 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 		serverCmd.m_dynamicsInfo.m_bodyType = BT_RIGID_BODY;
 
 		btRigidBody* rb = body->m_rigidBody;
+
+
+		serverCmd.m_dynamicsInfo.m_localInertialDiagonal[0] = rb->getLocalInertia()[0];
+		serverCmd.m_dynamicsInfo.m_localInertialDiagonal[1] = rb->getLocalInertia()[1];
+		serverCmd.m_dynamicsInfo.m_localInertialDiagonal[2] = rb->getLocalInertia()[2];
+
 		serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = rb->getFriction();
 		serverCmd.m_dynamicsInfo.m_rollingFrictionCoeff = rb->getRollingFriction();
 		serverCmd.m_dynamicsInfo.m_spinningFrictionCoeff = rb->getSpinningFriction();
@@ -14612,7 +14634,12 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 			{
 				m_data->m_pickedBody = body;
 				m_data->m_savedActivationState = body->getActivationState();
+				if (m_data->m_savedActivationState==ISLAND_SLEEPING)
+				{
+					m_data->m_savedActivationState = ACTIVE_TAG;
+				}
 				m_data->m_pickedBody->setActivationState(DISABLE_DEACTIVATION);
+				m_data->m_pickedBody->setDeactivationTime(0);
 				//printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
 				btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
 				btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
