@@ -2771,6 +2771,9 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld(int flags)
 #endif
 	}
 
+	 //may help improve run-time performance for many sleeping objects
+	m_data->m_dynamicsWorld->setForceUpdateAllAabbs(false);
+
 	//Workaround: in a VR application, where we avoid synchronizing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
 	m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(128 * 1024);
 
