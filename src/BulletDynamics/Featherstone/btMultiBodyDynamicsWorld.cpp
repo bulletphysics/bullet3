@@ -139,7 +139,7 @@ void btMultiBodyDynamicsWorld::updateActivationState(btScalar timeStep)
 				{
                     if (body->hasFixedBase())
 					{
-                        col->setActivationState(ISLAND_SLEEPING);
+                        col->setActivationState(FIXED_BASE_MULTI_BODY);
                     } else
 					{
                         col->setActivationState(WANTS_DEACTIVATION);

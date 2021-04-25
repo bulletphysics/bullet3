@@ -545,7 +545,10 @@ public:
 	{
 		m_canWakeup = canWakeup;
 	}
-	bool isAwake() const { return m_awake; }
+	bool isAwake() const 
+	{ 
+		return m_awake; 
+	}
 	void wakeUp();
 	void goToSleep();
 	void checkMotionAndSleepIfRequired(btScalar timestep);
