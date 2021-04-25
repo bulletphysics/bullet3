@@ -56,7 +56,7 @@ class MinitaurEnvRandomizer(env_randomizer_base.EnvRandomizerBase):
     leg_masses_upper_bound = np.array(leg_masses) * (1.0 + self._minitaur_leg_mass_err_range[1])
     randomized_leg_masses = [
         np.random.uniform(leg_masses_lower_bound[i], leg_masses_upper_bound[i])
-        for i in xrange(len(leg_masses))
+        for i in range(len(leg_masses))
     ]
     minitaur.SetLegMasses(randomized_leg_masses)
 

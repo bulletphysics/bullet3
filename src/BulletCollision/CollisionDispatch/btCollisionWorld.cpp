@@ -1294,9 +1294,7 @@ public:
 			btVector3 normalColor(1, 1, 0);
 			m_debugDrawer->drawLine(center, center + normal, normalColor);
 		}
-		m_debugDrawer->drawLine(wv0, wv1, m_color);
-		m_debugDrawer->drawLine(wv1, wv2, m_color);
-		m_debugDrawer->drawLine(wv2, wv0, m_color);
+		m_debugDrawer->drawTriangle(wv0, wv1, wv2, m_color, 1.0);
 	}
 };
 

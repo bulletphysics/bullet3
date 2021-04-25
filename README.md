@@ -7,8 +7,11 @@ This is the official C++ source code repository of the Bullet Physics SDK: real-
 
 ![PyBullet](https://pybullet.org/wordpress/wp-content/uploads/2019/03/cropped-pybullet.png)
 
+## Issues ##
+The Issue tracker was flooded with support questions and is closed until it is cleaned up. Use the [PyBullet forums](http://pybullet.org) to discuss with others.
+
 ## PyBullet ##
-New in Bullet 2.85: pybullet Python bindings, improved support for robotics and VR. Use pip install pybullet and checkout the [PyBullet Quickstart Guide](https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA/edit#heading=h.2ye70wns7io3).
+It is highly recommended to use PyBullet Python bindings for improved support for robotics, reinforcement learning and VR. Use pip install pybullet and checkout the [PyBullet Quickstart Guide](https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA/edit#heading=h.2ye70wns7io3).
 
 Installation is simple:
 ```
@@ -63,7 +66,7 @@ You can download and install Bullet using the [vcpkg](https://github.com/Microso
     cd vcpkg
     ./bootstrap-vcpkg.sh
     ./vcpkg integrate install
-    vcpkg install bullet3
+    ./vcpkg install bullet3
 
 The Bullet port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
 
@@ -91,9 +94,9 @@ p.connect(p.SHARED_MEMORY) #or (p.TCP, "localhost", 6667) or (p.UDP, "192.168.86
 Make sure cmake is installed (sudo apt-get install cmake, brew install cmake, or https://cmake.org)
 
 In a terminal type:
-
-	./build_cmake_pybullet_double.sh
-
+```
+./build_cmake_pybullet_double.sh
+```
 This script will invoke cmake and build in the build_cmake directory. You can find pybullet in Bullet/examples/pybullet.
 The BulletExampleBrowser binary will be in Bullet/examples/ExampleBrowser.
 
@@ -101,15 +104,15 @@ You can also build Bullet using premake. There are premake executables in the bu
 Depending on your system (Linux 32bit, 64bit or Mac OSX) use one of the following lines
 Using premake:
 ```
-	cd build3
-	./premake4_linux --double gmake
-	./premake4_linux64 --double gmake
-	./premake4_osx --double --enable_pybullet gmake
+cd build3
+./premake4_linux --double gmake
+./premake4_linux64 --double gmake
+./premake4_osx --double --enable_pybullet gmake
 ```
 Then
 ```
-	cd gmake
-	make
+cd gmake
+make
 ```
 
 Note that on Linux, you need to use cmake to build pybullet, since the compiler has issues of mixing shared and static libraries.
@@ -117,9 +120,9 @@ Note that on Linux, you need to use cmake to build pybullet, since the compiler 
 **Mac OSX Xcode**
 	
 Click on build3/xcode4.command or in a terminal window execute
-	
-	./premake_osx xcode4
-
+```	
+./premake_osx xcode4
+```
 ## Usage
 
 The App_ExampleBrowser executables will be located in the bin folder.
