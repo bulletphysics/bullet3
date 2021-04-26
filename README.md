@@ -24,11 +24,11 @@ python3 -m pybullet_envs.deep_mimic.testrl --arg_file run_humanoid3d_backflip_ar
 If you use PyBullet in your research, please cite it like this:
 
 ```
-@MISC{coumans2019,
+@MISC{coumans2021,
 author =   {Erwin Coumans and Yunfei Bai},
 title =    {PyBullet, a Python module for physics simulation for games, robotics and machine learning},
 howpublished = {\url{http://pybullet.org}},
-year = {2016--2019}
+year = {2016--2021}
 }
 ```
 
