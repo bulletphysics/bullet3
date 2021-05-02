@@ -13,6 +13,12 @@
 #include "PhysicsDirectC_API.h"
 #include "PhysicsClientC_API.h"
 #include "PhysicsServerSharedMemory.h"
+#include <stdio.h>
+#ifdef _WIN32
+#define safe_printf _snprintf
+#else
+#define safe_printf snprintf
+#endif
 struct MyMotorInfo2
 {
 	btScalar m_velTarget;
@@ -655,7 +661,7 @@ void PhysicsClientExample::createButtons()
 					if (m_numMotors < MAX_NUM_MOTORS)
 					{
 						char motorName[1026];
-						snprintf(motorName, sizeof(motorName), "%s q", info.m_jointName);
+						safe_printf(motorName, sizeof(motorName), "%s q", info.m_jointName);
 						// MyMotorInfo2* motorInfo = &m_motorTargetVelocities[m_numMotors];
 						MyMotorInfo2* motorInfo = &m_motorTargetPositions[m_numMotors];
 						motorInfo->m_velTarget = 0.f;

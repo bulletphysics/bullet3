@@ -199,7 +199,15 @@ btScalar tmpUrdfScaling = 2;
 btTransform ConvertURDF2BulletInternal(
 	const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation,
 	URDF2BulletCachedData& cache, int urdfLinkIndex,
-	const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,
+	const btTransform& parentTransformInWorldSpace, 
+	
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+	btDiscreteDynamicsWorld* world1,
+#else
+	btMultiBodyDynamicsWorld* world1,
+#endif
+
+
 	bool createMultiBody, const char* pathPrefix,
 	int flags, UrdfVisualShapeCache* cachedLinkGraphicsShapesIn, UrdfVisualShapeCache* cachedLinkGraphicsShapesOut, bool recursive)
 {
@@ -505,6 +513,7 @@ btTransform ConvertURDF2BulletInternal(
 					creation.addLinkMapping(urdfLinkIndex, mbLinkIndex);
 					if (createMultiBody)
 					{
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 						cache.m_bulletMultiBody->setupRevolute(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
 															   parentRotToThis, quatRotate(offsetInB.getRotation(), 
 																   jointAxisInJointSpace), 
@@ -519,8 +528,10 @@ btTransform ConvertURDF2BulletInternal(
 							btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(cache.m_bulletMultiBody, mbLinkIndex, jointLowerLimit, jointUpperLimit);
 							world1->addMultiBodyConstraint(con);
 						}
+#endif
 					}
 					else
+
 					{
 						btGeneric6DofSpring2Constraint* dof6 = 0;
 						if (jointType == URDFRevoluteJoint && jointLowerLimit <= jointUpperLimit)
@@ -560,6 +571,7 @@ btTransform ConvertURDF2BulletInternal(
 
 					if (createMultiBody)
 					{
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 						cache.m_bulletMultiBody->setupPrismatic(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
 																parentRotToThis, quatRotate(offsetInB.getRotation(), jointAxisInJointSpace), offsetInA.getOrigin(),  //parent2joint.getOrigin(),
 																-offsetInB.getOrigin(),
@@ -574,6 +586,7 @@ btTransform ConvertURDF2BulletInternal(
 							world1->addMultiBodyConstraint(con);
 						}
 						//printf("joint lower limit=%d, upper limit = %f\n", jointLowerLimit, jointUpperLimit);
+#endif
 					}
 					else
 					{
@@ -775,10 +788,18 @@ bool MyIntCompareFunc(childParentIndex a, childParentIndex b)
 }
 
 
+	
+
+
 void ConvertURDF2Bullet(
 	const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation,
 	const btTransform& rootTransformInWorldSpace,
+
+#ifdef USE_DISCRETE_DYNAMICS_WORLD
+	btDiscreteDynamicsWorld* world1,
+#else
 	btMultiBodyDynamicsWorld* world1,
+#endif
 	bool createMultiBody, const char* pathPrefix, int flags, UrdfVisualShapeCache* cachedLinkGraphicsShapes)
 {
 	URDF2BulletCachedData cache;
@@ -829,7 +850,7 @@ void ConvertURDF2Bullet(
 	{
 		*cachedLinkGraphicsShapes = cachedLinkGraphicsShapesOut;
 	}
-
+#ifndef USE_DISCRETE_DYNAMICS_WORLD
 	if (world1 && cache.m_bulletMultiBody)
 	{
 		B3_PROFILE("Post process");
@@ -855,4 +876,5 @@ void ConvertURDF2Bullet(
 
 		world1->addMultiBody(mb);
 	}
+	#endif
 }

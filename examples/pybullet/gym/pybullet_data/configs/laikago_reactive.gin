@@ -1,0 +1,133 @@
+#-*-Python-*-
+
+# NOTE: Should be run with >=10CPU for decent performance.
+
+import pybullet_envs.minitaur.envs_v2.env_loader
+import pybullet_envs.minitaur.envs_v2.env_wrappers.observation_dictionary_to_array_wrapper
+import pybullet_envs.minitaur.envs_v2.env_wrappers.simple_openloop
+import pybullet_envs.minitaur.envs_v2.env_wrappers.trajectory_generator_wrapper_env
+
+
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_env
+import pybullet_envs.minitaur.envs_v2.scenes.simple_scene
+import pybullet_envs.minitaur.envs_v2.tasks.simple_locomotion_task
+import pybullet_envs.minitaur.robots.laikago
+
+URDF_ROOT = "urdf/"
+ABDUCTION_P_GAIN = 220.0
+ABDUCTION_D_GAIN = 0.3
+HIP_P_GAIN = 220.0
+HIP_D_GAIN = 2.0
+KNEE_P_GAIN = 220.0
+KNEE_D_GAIN = 2.0
+
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_config
+import pybullet_envs.minitaur.envs_v2.sensors.robot_sensors
+
+UPPER_BOUND = 6.28318548203
+LOWER_BOUND = -6.28318548203
+SIM_TIME_STEP = 0.001
+NUM_ACTION_REPEAT = 2
+NUM_MOTORS = 12
+NOISY_READING = True
+
+locomotion_gym_config.SimulationParameters.sim_time_step_s = %SIM_TIME_STEP
+locomotion_gym_config.SimulationParameters.num_action_repeat = %NUM_ACTION_REPEAT
+locomotion_gym_config.SimulationParameters.enable_rendering = False
+locomotion_gym_config.LocomotionGymConfig.simulation_parameters = @locomotion_gym_config.SimulationParameters()
+
+robot_sensors.IMUSensor.channels = ["R", "P", "dR", "dP"]
+robot_sensors.IMUSensor.noisy_reading = %NOISY_READING
+robot_sensors.IMUSensor.lower_bound = [-6.28318548203, -6.28318548203,
+                                       -6283.18554688, -6283.18554688]
+robot_sensors.IMUSensor.upper_bound = [6.28318548203, 6.28318548203,
+                                       6283.18554688, 6283.18554688]
+
+robot_sensors.MotorAngleSensor.num_motors = %NUM_MOTORS
+robot_sensors.MotorAngleSensor.noisy_reading = %NOISY_READING
+robot_sensors.MotorAngleSensor.lower_bound = -6.28318548203
+robot_sensors.MotorAngleSensor.upper_bound = 6.28318548203
+
+sensors = [@robot_sensors.IMUSensor(), @robot_sensors.MotorAngleSensor()]
+
+Act0/locomotion_gym_config.ScalarField.name = "motor_angle_0"
+Act0/locomotion_gym_config.ScalarField.upper_bound = %UPPER_BOUND
+Act0/locomotion_gym_config.ScalarField.lower_bound = %LOWER_BOUND
+Act1/locomotion_gym_config.ScalarField.name = "motor_angle_1"
+Act1/locomotion_gym_config.ScalarField.upper_bound = %UPPER_BOUND
+Act1/locomotion_gym_config.ScalarField.lower_bound = %LOWER_BOUND
+Act2/locomotion_gym_config.ScalarField.name = "motor_angle_2"
+Act2/locomotion_gym_config.ScalarField.upper_bound = %UPPER_BOUND
+Act2/locomotion_gym_config.ScalarField.lower_bound = %LOWER_BOUND
+Act3/locomotion_gym_config.ScalarField.name = "motor_angle_3"
+Act3/locomotion_gym_config.ScalarField.upper_bound = %UPPER_BOUND
+Act3/locomotion_gym_config.ScalarField.lower_bound = %LOWER_BOUND
+Act4/locomotion_gym_config.ScalarField.name = "motor_angle_4"
+Act4/locomotion_gym_config.ScalarField.upper_bound = %UPPER_BOUND
+Act4/locomotion_gym_config.ScalarField.lower_bound = %LOWER_BOUND
+Act5/locomotion_gym_config.ScalarField.name = "motor_angle_5"
+Act5/locomotion_gym_config.ScalarField.upper_bound = %UPPER_BOUND
+Act5/locomotion_gym_config.ScalarField.lower_bound = %LOWER_BOUND
+Act6/locomotion_gym_config.ScalarField.name = "motor_angle_6"
+Act6/locomotion_gym_config.ScalarField.upper_bound = %UPPER_BOUND
+Act6/locomotion_gym_config.ScalarField.lower_bound = %LOWER_BOUND
+Act7/locomotion_gym_config.ScalarField.name = "motor_angle_7"
+Act7/locomotion_gym_config.ScalarField.upper_bound = %UPPER_BOUND
+Act7/locomotion_gym_config.ScalarField.lower_bound = %LOWER_BOUND
+Act8/locomotion_gym_config.ScalarField.name = "motor_angle_8"
+Act8/locomotion_gym_config.ScalarField.upper_bound = %UPPER_BOUND
+Act8/locomotion_gym_config.ScalarField.lower_bound = %LOWER_BOUND
+Act9/locomotion_gym_config.ScalarField.name = "motor_angle_9"
+Act9/locomotion_gym_config.ScalarField.upper_bound = %UPPER_BOUND
+Act9/locomotion_gym_config.ScalarField.lower_bound = %LOWER_BOUND
+Act10/locomotion_gym_config.ScalarField.name = "motor_angle_10"
+Act10/locomotion_gym_config.ScalarField.upper_bound = %UPPER_BOUND
+Act10/locomotion_gym_config.ScalarField.lower_bound = %LOWER_BOUND
+Act11/locomotion_gym_config.ScalarField.name = "motor_angle_11"
+Act11/locomotion_gym_config.ScalarField.upper_bound = %UPPER_BOUND
+Act11/locomotion_gym_config.ScalarField.lower_bound = %LOWER_BOUND
+
+
+locomotion_gym_config.LocomotionGymConfig.actions = [
+    @Act0/locomotion_gym_config.ScalarField(),
+    @Act1/locomotion_gym_config.ScalarField(),
+    @Act2/locomotion_gym_config.ScalarField(),
+    @Act3/locomotion_gym_config.ScalarField(),
+    @Act4/locomotion_gym_config.ScalarField(),
+    @Act5/locomotion_gym_config.ScalarField(),
+    @Act6/locomotion_gym_config.ScalarField(),
+    @Act7/locomotion_gym_config.ScalarField(),
+    @Act8/locomotion_gym_config.ScalarField(),
+    @Act9/locomotion_gym_config.ScalarField(),
+    @Act10/locomotion_gym_config.ScalarField(),
+    @Act11/locomotion_gym_config.ScalarField()]
+
+
+
+laikago.Laikago.urdf_root = %URDF_ROOT
+laikago.Laikago.time_step = %SIM_TIME_STEP
+laikago.Laikago.action_repeat = %NUM_ACTION_REPEAT
+laikago.Laikago.self_collision_enabled = False
+laikago.Laikago.control_latency = 0.002
+laikago.Laikago.pd_latency = 0.0
+laikago.Laikago.motor_kp = [%ABDUCTION_P_GAIN, %HIP_P_GAIN, %KNEE_P_GAIN,
+                            %ABDUCTION_P_GAIN, %HIP_P_GAIN, %KNEE_P_GAIN,
+                            %ABDUCTION_P_GAIN, %HIP_P_GAIN, %KNEE_P_GAIN,
+                            %ABDUCTION_P_GAIN, %HIP_P_GAIN, %KNEE_P_GAIN]
+laikago.Laikago.motor_kd = [%ABDUCTION_D_GAIN, %HIP_D_GAIN, %KNEE_D_GAIN,
+                            %ABDUCTION_D_GAIN, %HIP_D_GAIN, %KNEE_D_GAIN,
+                            %ABDUCTION_D_GAIN, %HIP_D_GAIN, %KNEE_D_GAIN,
+                            %ABDUCTION_D_GAIN, %HIP_D_GAIN, %KNEE_D_GAIN]
+laikago.Laikago.sensors = %sensors
+
+locomotion_gym_env.LocomotionGymEnv.gym_config = @locomotion_gym_config.LocomotionGymConfig()
+locomotion_gym_env.LocomotionGymEnv.robot_class = @laikago.Laikago
+locomotion_gym_env.LocomotionGymEnv.scene = @simple_scene.SimpleScene()
+locomotion_gym_env.LocomotionGymEnv.task = @simple_locomotion_task.SimpleForwardTask()
+
+
+
+trajectory_generator_wrapper_env.TrajectoryGeneratorWrapperEnv.trajectory_generator = @simple_openloop.LaikagoPoseOffsetGenerator()
+env_loader.load.wrapper_classes = [
+    @observation_dictionary_to_array_wrapper.ObservationDictionaryToArrayWrapper,
+    @trajectory_generator_wrapper_env.TrajectoryGeneratorWrapperEnv]

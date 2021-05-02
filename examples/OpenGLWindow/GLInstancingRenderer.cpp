@@ -397,6 +397,16 @@ void GLInstancingRenderer::removeAllInstances()
 	m_graphicsInstances.clear();
 	m_data->m_publicGraphicsInstances.exitHandles();
 	m_data->m_publicGraphicsInstances.initHandles();
+
+#if 0
+	//todo: cannot release ALL textures, since some handles are still kept, and it would cause a crash
+	for (int i=0;i<m_data->m_textureHandles.size();i++)
+	{
+		InternalTextureHandle& h = m_data->m_textureHandles[i];
+		glDeleteTextures(1, &h.m_glTexture);
+	}
+	m_data->m_textureHandles.clear();
+#endif
 }
 
 GLInstancingRenderer::~GLInstancingRenderer()

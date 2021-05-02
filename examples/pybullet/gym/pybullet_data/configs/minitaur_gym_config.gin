@@ -1,0 +1,48 @@
+#-*-Python-*-
+
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_config
+import pybullet_envs.minitaur.envs_v2.sensors.imu_sensor
+import pybullet_envs.minitaur.envs_v2.sensors.motor_angle_sensor
+import pybullet_envs.minitaur.robots.minitaur_motor_model_v2
+import pybullet_envs.minitaur.robots.minitaur_v2
+import pybullet_envs.minitaur.robots.robot_config
+
+
+UPPER_BOUND = 1.0
+LOWER_BOUND = -1.0
+SIM_TIME_STEP = 0.001
+NUM_ACTION_REPEAT = 20
+NUM_MOTORS = 8
+NOISY_READING = True
+SENSOR_LATENCY = 0.02
+
+locomotion_gym_config.SimulationParameters.sim_time_step_s = %SIM_TIME_STEP
+locomotion_gym_config.SimulationParameters.num_action_repeat = %NUM_ACTION_REPEAT
+locomotion_gym_config.SimulationParameters.enable_rendering = False
+locomotion_gym_config.LocomotionGymConfig.simulation_parameters = @locomotion_gym_config.SimulationParameters()
+
+robot_config.MotorLimits.angle_lower_limits = %LOWER_BOUND
+robot_config.MotorLimits.angle_upper_limits = %UPPER_BOUND
+
+minitaur_v2.Minitaur.motor_control_mode = %robot_config.MotorControlMode.POSITION
+minitaur_v2.Minitaur.motor_limits = @robot_config.MotorLimits()
+minitaur_v2.Minitaur.motor_model_class = @minitaur_motor_model_v2.MinitaurMotorModel
+minitaur_motor_model_v2.MinitaurMotorModel.pd_latency = 0.003
+minitaur_motor_model_v2.MinitaurMotorModel.kp = 1.0
+minitaur_motor_model_v2.MinitaurMotorModel.kd = 0.015
+
+imu_sensor.IMUSensor.channels = [
+    %imu_sensor.IMUChannel.ROLL,
+    %imu_sensor.IMUChannel.PITCH,
+    %imu_sensor.IMUChannel.ROLL_RATE,
+    %imu_sensor.IMUChannel.PITCH_RATE
+]
+imu_sensor.IMUSensor.lower_bound = [-6.28318548203, -6.28318548203,
+                                    -6283.18554688, -6283.18554688]
+imu_sensor.IMUSensor.upper_bound = [6.28318548203, 6.28318548203,
+                                    6283.18554688, 6283.18554688]
+
+motor_angle_sensor.MotorAngleSensor.sensor_latency = %SENSOR_LATENCY
+motor_angle_sensor.MotorAngleSensor.lower_bound = -6.28318548203
+motor_angle_sensor.MotorAngleSensor.upper_bound = 6.28318548203
+minitaur_v2.Minitaur.sensors = [@imu_sensor.IMUSensor(), @motor_angle_sensor.MotorAngleSensor()]

@@ -1,0 +1,80 @@
+import pybullet_envs.minitaur.envs_v2.env_loader
+import pybullet_envs.minitaur.envs_v2.env_wrappers.observation_dictionary_to_array_wrapper
+import pybullet_envs.minitaur.envs_v2.env_wrappers.simple_openloop
+import pybullet_envs.minitaur.envs_v2.env_wrappers.trajectory_generator_wrapper_env
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_config
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_env
+import pybullet_envs.minitaur.envs_v2.locomotion_gym_env
+import pybullet_envs.minitaur.envs_v2.scenes.simple_scene
+import pybullet_envs.minitaur.envs_v2.sensors.accelerometer_sensor
+import pybullet_envs.minitaur.envs_v2.sensors.imu_sensor
+import pybullet_envs.minitaur.envs_v2.sensors.motor_angle_sensor
+import pybullet_envs.minitaur.envs_v2.tasks.simple_locomotion_task
+import pybullet_envs.minitaur.envs_v2.tasks.terminal_conditions
+import pybullet_envs.minitaur.robots.hybrid_motor_model
+import pybullet_envs.minitaur.robots.laikago_v2
+import pybullet_envs.minitaur.robots.time_ordered_buffer
+
+
+# Specify the gym env parameters
+SIM_TIME_STEP = 0.001
+NUM_ACTION_REPEAT = 2
+
+locomotion_gym_config.SimulationParameters.sim_time_step_s = %SIM_TIME_STEP
+locomotion_gym_config.SimulationParameters.num_action_repeat = %NUM_ACTION_REPEAT
+locomotion_gym_config.SimulationParameters.enable_rendering = False
+locomotion_gym_config.LocomotionGymConfig.simulation_parameters = @locomotion_gym_config.SimulationParameters()
+locomotion_gym_env.LocomotionGymEnv.gym_config = @locomotion_gym_config.LocomotionGymConfig()
+
+
+# Specify the robot
+locomotion_gym_env.LocomotionGymEnv.robot_class = @laikago_v2.Laikago
+LAIKAGO_MOTOR_ANGLE_UPPER_LIMITS = 6.28318548203
+LAIKAGO_MOTOR_ANGLE_LOWER_LIMITS = -6.28318548203
+laikago/robot_config.MotorLimits.angle_lower_limits = %LAIKAGO_MOTOR_ANGLE_LOWER_LIMITS
+laikago/robot_config.MotorLimits.angle_upper_limits = %LAIKAGO_MOTOR_ANGLE_UPPER_LIMITS
+laikago_v2.Laikago.motor_limits = @laikago/robot_config.MotorLimits()
+laikago_v2.Laikago.motor_control_mode = %robot_config.MotorControlMode.POSITION
+
+# Specify the motor model parameters. Notice that we don't need to specify the control mode
+# and motor limits here, as they will be passed from the robot interface.
+hybrid_motor_model.HybridMotorModel.kp = 220
+hybrid_motor_model.HybridMotorModel.kd = (0.3, 2.0, 2.0, 0.3, 2.0, 2.0, 0.3, 2.0, 2.0, 0.3, 2.0, 2.0)
+
+# This will make sure the hybrid motor model does not throw error during reset, when the timestamp is alwasy zero.
+time_ordered_buffer.TimeOrderedBuffer.error_on_duplicate_timestamp = False
+time_ordered_buffer.TimeOrderedBuffer.replace_value_on_duplicate_timestamp = True
+
+# Add the sensors
+laikago_v2.Laikago.sensors = [@imu_sensor.IMUSensor(), @motor_angle_sensor.MotorAngleSensor(), @accelerometer_sensor.AccelerometerSensor()]
+imu_sensor.IMUSensor.channels = [
+    %imu_sensor.IMUChannel.ROLL,
+    %imu_sensor.IMUChannel.PITCH,
+    %imu_sensor.IMUChannel.ROLL_RATE,
+    %imu_sensor.IMUChannel.PITCH_RATE,
+]
+
+imu_sensor.IMUSensor.lower_bound = [-6.28318548203, -6.28318548203,
+                                       -6283.18554688, -6283.18554688]
+imu_sensor.IMUSensor.upper_bound = [6.28318548203, 6.28318548203,
+                                       6283.18554688, 6283.18554688]
+
+# Specify the scene
+locomotion_gym_env.LocomotionGymEnv.scene = @simple_scene.SimpleScene()
+simple_scene.SimpleScene.data_root = "third_party/bullet/data"
+
+# Specify the task.
+locomotion_gym_env.LocomotionGymEnv.task = @simple_locomotion_task.SimpleForwardTask()
+simple_locomotion_task.SimpleForwardTask.terminal_condition = @terminal_conditions.default_terminal_condition_for_laikago
+
+accelerometer_sensor.AccelerometerSensor.lower_bound = [-50.0, -50.0, -50.0]
+accelerometer_sensor.AccelerometerSensor.upper_bound = [50.0, 50.0, 50.0]
+accelerometer_sensor.AccelerometerSensor.sensor_latency = 0.01
+imu_sensor.IMUSensor.sensor_latency = 0.1
+
+
+# Define the wrappers needed
+env_loader.load.wrapper_classes = [
+    @trajectory_generator_wrapper_env.TrajectoryGeneratorWrapperEnv,
+]
+trajectory_generator_wrapper_env.TrajectoryGeneratorWrapperEnv.trajectory_generator = @simple_openloop.LaikagoPoseOffsetGenerator()

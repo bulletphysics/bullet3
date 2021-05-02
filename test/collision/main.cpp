@@ -20,15 +20,20 @@ subject to the following restrictions:
 ///Todo: the test needs proper coverage and using a convex hull point cloud
 ///Also the GJK, EPA and MPR should be improved, both quality and performance
 
+#include <vector>
+
 #include <gtest/gtest.h>
 
 #include "SphereSphereCollision.h"
+#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
 
 #include "BulletCollision/NarrowPhaseCollision/btComputeGjkEpaPenetration.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkEpa3.h"
 #include "BulletCollision/NarrowPhaseCollision/btMprPenetration.h"
+
+namespace {
 
 btVector3 MyBulletShapeSupportFunc(const void* shapeAptr, const btVector3& dir, bool includeMargin)
 {
@@ -248,6 +253,48 @@ TEST(BulletCollisionTest, AnalyticSphereSphereDistance)
 {
 	testSphereSphereDistance(SSTM_ANALYTIC, 0.00001);
 }
+
+class TriangleCollector : public btTriangleCallback
+{
+public:
+	std::vector<btVector3> *triangles;
+
+	explicit TriangleCollector(std::vector<btVector3>* triangles) : triangles(triangles) {}
+	virtual ~TriangleCollector() {}
+
+	virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex)
+	{
+		triangles->push_back(*triangle);
+	}
+};
+
+TEST(BulletCollisionTest, Heightfield_ProcessAllTriangles_FiltersByUpAxis)
+{
+	// A flat 2x2 heightfield.
+	const btScalar heightFieldData[] = {
+		10.0, 10.0,
+		10.0, 10.0,
+	};
+	btHeightfieldTerrainShape shape(
+		/*heightStickWidth=*/2, /*heightStickLength=*/2,
+		&heightFieldData[0], /*heightScale=*/1,
+		/*minHeight=*/-10.0, /*maxHeight=*/10.0,
+		/*upAxis=*/2, PHY_FLOAT, /*flipQuadEdges=*/false);
+
+	std::vector<btVector3> triangles;
+	TriangleCollector collector(&triangles);
+
+	// AABB overlaps with the heightfield on upAxis.
+	shape.processAllTriangles(&collector, btVector3(0, 0, 0), btVector3(20, 20, 20));
+	EXPECT_EQ(triangles.size(), 2);
+
+	// AABB does not overlap with the heightfield on upAxis.
+	triangles.clear();
+	shape.processAllTriangles(&collector, btVector3(0, 0, 0), btVector3(20, 20, 5));
+	EXPECT_EQ(triangles.size(), 0);
+}
+
+}  // namespace
 
 int main(int argc, char** argv)
 {

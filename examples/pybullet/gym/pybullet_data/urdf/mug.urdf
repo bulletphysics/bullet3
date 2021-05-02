@@ -1,0 +1,28 @@
+<robot name="mug">
+    <link name="base_link">
+        <contact>
+            <lateral_friction value="1.0"/>
+        </contact>
+        <inertial>
+            <origin xyz="0 0 0"/>
+            <mass value="1"/>
+            <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="mug.obj"/>
+            </geometry>
+      <material name="mug">
+        <color rgba="1 0.2 0.2 1"/>
+        <specular rgb="1 1 1"/>
+      </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="mug_col.obj"/>
+            </geometry>
+        </collision>
+    </link>
+</robot>

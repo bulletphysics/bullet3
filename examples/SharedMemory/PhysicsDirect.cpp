@@ -1166,6 +1166,10 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		{
 			break;
 		}
+		case CMD_PERFORM_COLLISION_DETECTION_COMPLETED:
+		{
+			break;
+		}
 		case CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED:
 		{
 			break;

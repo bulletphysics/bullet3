@@ -1,0 +1,86 @@
+// A set of protocol buffer definitions for representing 'Worlds' for
+// used by simulation engines.
+syntax = "proto3";
+
+package robotics.messages;
+option cc_enable_arenas = true;
+
+
+// A single precision quaternion.
+message QQuaternionf {
+  // The x-component.
+  float x = 1;
+  // The y-component.
+  float y = 2;
+  // The z-component.
+  float z = 3;
+  // The w-component.
+  float w = 4;
+}
+
+
+
+
+// A three-dimensional single precision vector.
+message VVector3f {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+
+
+message Labels {
+  map<string, string> label = 1;
+}
+
+// A general bounding box is specified by its center, dimensions and
+// orientation. If the orientation field is not specified, then the bounding box
+// is aligned with the axes of the world coordinate system.
+message GeneralBox3f {
+  VVector3f center = 1;
+  VVector3f dimensions = 2;
+  QQuaternionf orientation = 3;
+}
+
+// An object is specified by its label, bounding box, and a path to an obj
+// file containing its mesh. Not all to be specified.
+message Object {
+  string id = 1;
+  string label = 2;
+  GeneralBox3f bounding_box = 3;
+  string mesh_path = 4;
+}
+
+message Polygon3f {
+  repeated VVector3f vertex = 1;
+}
+
+// A region is specified by its label, spatial extent, and a path to an obj
+// file containing its mesh. Not all to be specified.
+message Region {
+  string id = 1;
+  string label = 2;
+  oneof spatial_extent {
+    GeneralBox3f bounding_box = 3;
+    Polygon3f polygon = 5;
+  }
+  string mesh_path = 6;
+}
+
+// A world consist of a mesh, and potentially a set of object and regions.
+message WorldAsset {
+  // A set of labels for objects. This the space of all object labels.
+  Labels object_labels = 1;
+  repeated Object objects = 2;
+
+  // A set of labels for regions. This the space of all region labels.
+  Labels region_labels = 3;
+  repeated Region regions = 4;
+
+  // A path to a mesh (as obj file) containing the geometry of the world.
+  string mesh_path = 5;
+
+  // A path to a mesh (as obj file) containing the semantic labels of the world.
+  string segmentation_mesh_path = 6;
+}
