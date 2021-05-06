@@ -137,12 +137,20 @@ static const char* pybullet_internalGetCStringFromSequence(PyObject* seq, int in
 	if (PyList_Check(seq))
 	{
 		item = PyList_GET_ITEM(seq, index);
+#if PY_MAJOR_VERSION >= 3
 		v = PyUnicode_AsUTF8(item);
+#else
+		v = PyBytes_AsString(item);
+#endif
 	}
 	else
 	{
 		item = PyTuple_GET_ITEM(seq, index);
+#if PY_MAJOR_VERSION >= 3
 		v = PyUnicode_AsUTF8(item);
+#else
+		v = PyBytes_AsString(item);
+#endif
 	}
 	return v;
 }
