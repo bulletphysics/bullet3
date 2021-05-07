@@ -137,12 +137,20 @@ static const char* pybullet_internalGetCStringFromSequence(PyObject* seq, int in
 	if (PyList_Check(seq))
 	{
 		item = PyList_GET_ITEM(seq, index);
+#if PY_MAJOR_VERSION >= 3
 		v = PyUnicode_AsUTF8(item);
+#else
+		v = PyBytes_AsString(item);
+#endif
 	}
 	else
 	{
 		item = PyTuple_GET_ITEM(seq, index);
+#if PY_MAJOR_VERSION >= 3
 		v = PyUnicode_AsUTF8(item);
+#else
+		v = PyBytes_AsString(item);
+#endif
 	}
 	return v;
 }
@@ -7442,11 +7450,12 @@ static PyObject* pybullet_configureDebugVisualizer(PyObject* self, PyObject* arg
 	int physicsClientId = 0;
 	double remoteSyncTransformInterval = -1;
 	PyObject* pyLightPosition = 0;
+	PyObject* pyRgbBackground = 0;
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"flag", "enable", "lightPosition", "shadowMapResolution", "shadowMapWorldSize", "remoteSyncTransformInterval", "shadowMapIntensity", "physicsClientId", NULL};
+	static char* kwlist[] = {"flag", "enable", "lightPosition", "shadowMapResolution", "shadowMapWorldSize", "remoteSyncTransformInterval", "shadowMapIntensity", "rgbBackground", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiOiiddi", kwlist,
-									 &flag, &enable, &pyLightPosition, &shadowMapResolution, &shadowMapWorldSize, &remoteSyncTransformInterval, &shadowMapIntensity,  &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiOiiddOi", kwlist,
+									 &flag, &enable, &pyLightPosition, &shadowMapResolution, &shadowMapWorldSize, &remoteSyncTransformInterval, &shadowMapIntensity,  &pyRgbBackground, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -7468,6 +7477,14 @@ static PyObject* pybullet_configureDebugVisualizer(PyObject* self, PyObject* arg
 			if (pybullet_internalSetVector(pyLightPosition, lightPosition))
 			{
 				b3ConfigureOpenGLVisualizerSetLightPosition(commandHandle, lightPosition);
+			}
+		}
+		if (pyRgbBackground)
+		{
+			float rgbBackground[3];
+			if (pybullet_internalSetVector(pyRgbBackground, rgbBackground))
+			{
+				b3ConfigureOpenGLVisualizerSetLightRgbBackground(commandHandle, rgbBackground);
 			}
 		}
 		if (shadowMapIntensity >= 0)

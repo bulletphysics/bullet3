@@ -36,7 +36,7 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	virtual int getShapeIndexFromInstance(int instanceUid);
 	virtual void replaceTexture(int shapeIndex, int textureUid);
 	virtual void updateShape(int shapeIndex, float* vertices, int numVertices);
-
+	virtual void setBackgroundColor(const double rgbBackground[3]);
 	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape);
 
 	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld);
