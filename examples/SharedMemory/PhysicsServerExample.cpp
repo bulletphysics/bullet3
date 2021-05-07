@@ -725,7 +725,9 @@ public:
 
 		if (m_skipGraphicsUpdate)
 		{
+			this->m_csGUI->lock();
 			getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
+			this->m_csGUI->unlock();
 			m_cs->unlock();
 			return;
 		}
@@ -735,9 +737,18 @@ public:
 		m_cs3->lock();
 		m_cs3->unlock();
 
-		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
+
+		m_csGUI->lock();
+		unsigned int cachedSharedParam = m_cs->getSharedParam(1);
+		m_csGUI->unlock();
+
+		
+		while (cachedSharedParam != eGUIHelperIdle)
 		{
 			b3Clock::usleep(0);
+			m_csGUI->lock();
+			cachedSharedParam = m_cs->getSharedParam(1);
+			m_csGUI->unlock();
 		}
 	}
 
@@ -2006,7 +2017,12 @@ void PhysicsServerExample::updateGraphics()
 	}
 	m_multiThreadedHelper->getCriticalSectionGUI()->unlock();
 #endif
-	switch (m_multiThreadedHelper->getCriticalSection()->getSharedParam(1))
+
+	m_multiThreadedHelper->getCriticalSectionGUI()->lock();
+	unsigned int cachedSharedParam = m_multiThreadedHelper->getCriticalSection()->getSharedParam(1);
+	m_multiThreadedHelper->getCriticalSectionGUI()->unlock();
+
+	switch (cachedSharedParam)
 	{
 		case eGUIHelperCreateCollisionShapeGraphicsObject:
 		{
