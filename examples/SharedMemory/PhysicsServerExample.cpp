@@ -133,6 +133,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIUserDebugRemoveAllParameters,
 	eGUIHelperResetCamera,
 	eGUIHelperChangeGraphicsInstanceFlags,
+	eGUIHelperSetRgbBackground,
 };
 
 #include <stdio.h>
@@ -1088,7 +1089,18 @@ public:
 		workerThreadWait();
 	}
 
-	
+	double m_rgbBackground[3];
+	virtual void setBackgroundColor(const double rgbBackground[3])
+	{
+		m_cs->lock();
+		m_rgbBackground[0] = rgbBackground[0];
+		m_rgbBackground[1] = rgbBackground[1];
+		m_rgbBackground[2] = rgbBackground[2];
+		
+		setSharedParam(1, eGUIHelperSetRgbBackground);
+		workerThreadWait();
+		
+	}
 
 
 	int m_graphicsInstanceChangeScaling;
@@ -2308,6 +2320,13 @@ void PhysicsServerExample::updateGraphics()
 		case eGUIHelperChangeGraphicsInstanceFlags:
 		{
 			m_multiThreadedHelper->m_childGuiHelper->changeInstanceFlags(m_multiThreadedHelper->m_graphicsInstanceFlagsInstanceUid, m_multiThreadedHelper->m_graphicsInstanceFlags);
+			m_multiThreadedHelper->mainThreadRelease();
+			break;
+		}
+
+		case eGUIHelperSetRgbBackground:
+		{
+			m_multiThreadedHelper->m_childGuiHelper->setBackgroundColor(m_multiThreadedHelper->m_rgbBackground);
 			m_multiThreadedHelper->mainThreadRelease();
 			break;
 		}
