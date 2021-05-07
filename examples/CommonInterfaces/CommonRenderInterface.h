@@ -56,6 +56,8 @@ struct CommonRenderInterface
 
 	virtual void setLightPosition(const float lightPos[3]) = 0;
 	virtual void setLightPosition(const double lightPos[3]) = 0;
+	virtual void setBackgroundColor(const double rgbBackground[3]) = 0;
+	
 	virtual void setShadowMapResolution(int shadowMapResolution) = 0;
 	virtual void setShadowMapIntensity(double shadowMapIntensity) = 0;
 	

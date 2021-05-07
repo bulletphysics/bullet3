@@ -6064,6 +6064,21 @@ B3_SHARED_API void b3ConfigureOpenGLVisualizerSetLightPosition(b3SharedMemoryCom
 	}
 }
 
+B3_SHARED_API void b3ConfigureOpenGLVisualizerSetLightRgbBackground(b3SharedMemoryCommandHandle commandHandle, const float rgbBackground[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+	if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+	{
+		command->m_updateFlags |= COV_SET_RGB_BACKGROUND;
+		command->m_configureOpenGLVisualizerArguments.m_rgbBackground[0] = rgbBackground[0];
+		command->m_configureOpenGLVisualizerArguments.m_rgbBackground[1] = rgbBackground[1];
+		command->m_configureOpenGLVisualizerArguments.m_rgbBackground[2] = rgbBackground[2];
+	}
+}
+
+
 B3_SHARED_API void b3ConfigureOpenGLVisualizerSetShadowMapResolution(b3SharedMemoryCommandHandle commandHandle, int shadowMapResolution)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;

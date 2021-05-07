@@ -236,11 +236,17 @@ OpenGLGuiHelper::OpenGLGuiHelper(CommonGraphicsApp* glApp, bool useOpenGL2)
 	m_data->m_debugDraw = 0;
 }
 
-OpenGLGuiHelper::~OpenGLGuiHelper()
+
+	OpenGLGuiHelper::~OpenGLGuiHelper()
 {
 	delete m_data->m_debugDraw;
 
 	delete m_data;
+}
+
+void OpenGLGuiHelper::setBackgroundColor(const double rgbBackground[3])
+{
+	this->getRenderInterface()->setBackgroundColor(rgbBackground);
 }
 
 struct CommonRenderInterface* OpenGLGuiHelper::getRenderInterface()

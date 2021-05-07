@@ -962,6 +962,7 @@ enum InternalOpenGLVisualizerUpdateFlags
 	COV_SET_SHADOWMAP_WORLD_SIZE = 16,
 	COV_SET_REMOTE_SYNC_TRANSFORM_INTERVAL = 32,
 	COV_SET_SHADOWMAP_INTENSITY = 64,
+	COV_SET_RGB_BACKGROUND = 128,
 };
 
 struct ConfigureOpenGLVisualizerRequest
@@ -977,6 +978,7 @@ struct ConfigureOpenGLVisualizerRequest
 	int m_setFlag;
 	int m_setEnabled;
 	double m_shadowMapIntensity;
+	double m_rgbBackground[3];
 };
 
 enum

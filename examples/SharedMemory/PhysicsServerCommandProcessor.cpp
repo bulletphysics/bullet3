@@ -11305,6 +11305,10 @@ bool PhysicsServerCommandProcessor::processConfigureOpenGLVisualizerCommand(cons
 		{
 			m_data->m_guiHelper->getRenderInterface()->setLightPosition(clientCmd.m_configureOpenGLVisualizerArguments.m_lightPosition);
 		}
+		if (clientCmd.m_updateFlags & COV_SET_RGB_BACKGROUND)
+		{
+			m_data->m_guiHelper->setBackgroundColor(clientCmd.m_configureOpenGLVisualizerArguments.m_rgbBackground);
+		}
 		if (clientCmd.m_updateFlags & COV_SET_SHADOWMAP_RESOLUTION)
 		{
 			m_data->m_guiHelper->getRenderInterface()->setShadowMapResolution(clientCmd.m_configureOpenGLVisualizerArguments.m_shadowMapResolution);
