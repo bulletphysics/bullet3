@@ -1940,6 +1940,10 @@ struct btSoftColliders
 					c.m_face = face;
 					c.m_bary = w;
 					c.m_friction = psb[0]->m_cfg.kDF * psb[1]->m_cfg.kDF;
+					// Initialize unused fields.
+					c.m_weights = btVector3(0, 0, 0);
+					c.m_imf = 0;
+					c.m_c0 = 0;
 					psb[0]->m_faceNodeContacts.push_back(c);
 				}
 			}
@@ -2011,6 +2015,10 @@ struct btSoftColliders
 				c.m_face = face;
 				c.m_bary = bary;
 				c.m_friction = psb[0]->m_cfg.kDF * psb[1]->m_cfg.kDF;
+				// Initialize unused fields.
+				c.m_weights = btVector3(0, 0, 0);
+				c.m_imf = 0;
+				c.m_c0 = 0;
 				psb[0]->m_faceNodeContacts.push_back(c);
 			}
 		}
@@ -2037,6 +2045,11 @@ struct btSoftColliders
 				c.m_face = face;
 				c.m_bary = bary;
 				c.m_friction = psb[0]->m_cfg.kDF * psb[1]->m_cfg.kDF;
+				// Initialize unused fields.
+				c.m_weights = btVector3(0, 0, 0);
+				c.m_margin = mrg;
+				c.m_imf = 0;
+				c.m_c0 = 0;
 				psb[0]->m_faceNodeContacts.push_back(c);
 			}
 		}
@@ -2096,6 +2109,11 @@ struct btSoftColliders
 					c.m_face = face;
 					c.m_bary = bary;
 					c.m_friction = psb[0]->m_cfg.kDF * psb[1]->m_cfg.kDF;
+					// Initialize unused fields.
+					c.m_weights = btVector3(0, 0, 0);
+					c.m_margin = mrg;
+					c.m_imf = 0;
+					c.m_c0 = 0;
 					psb[0]->m_faceNodeContacts.push_back(c);
 				}
 			}
