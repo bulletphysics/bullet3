@@ -14,6 +14,7 @@ subject to the following restrictions:
 */
 
 #include "btAlignedAllocator.h"
+#include <string.h>
 
 #ifdef BT_DEBUG_MEMORY_ALLOCATIONS
 int gNumAlignedAllocs = 0;
@@ -23,7 +24,9 @@ int gTotalBytesAlignedAllocs = 0;  //detect memory leaks
 
 static void *btAllocDefault(size_t size)
 {
-	return malloc(size);
+  char* data = (char*) malloc(size);
+  memset(data,0,size);//keep msan happy
+  return data;
 }
 
 static void btFreeDefault(void *ptr)
@@ -73,6 +76,8 @@ static inline void *btAlignedAllocDefault(size_t size, int alignment)
 	{
 		ret = (void *)(real);
 	}
+  //keep msan happy
+  memset((char*) ret, 0, size);
 	return (ret);
 }
 

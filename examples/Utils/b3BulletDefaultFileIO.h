@@ -6,6 +6,8 @@
 #include "b3ResourcePath.h"
 
 #include <stdio.h>
+#include <string.h>
+
 #define B3_FILEIO_MAX_FILES 1024
 
 struct b3BulletDefaultFileIO : public CommonFileIOInterface
@@ -155,6 +157,7 @@ struct b3BulletDefaultFileIO : public CommonFileIOInterface
 			FILE* f = m_fileHandles[fileHandle];
 			if (f)
 			{
+                                memset(destBuffer, 0, numBytes);
 				char* txt = ::fgets(destBuffer, numBytes, m_fileHandles[fileHandle]);
 				for (int i=0;i<numBytes;i++)
 				{
