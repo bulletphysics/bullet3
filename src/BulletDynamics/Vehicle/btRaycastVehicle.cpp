@@ -609,13 +609,10 @@ void btRaycastVehicle::updateFriction(btScalar timeStep)
 	{
 		for (int wheel = 0; wheel < getNumWheels(); wheel++)
 		{
-			if (m_sideImpulse[wheel] != btScalar(0.))
+			if (m_wheelInfo[wheel].m_skidInfo < btScalar(1.))
 			{
-				if (m_wheelInfo[wheel].m_skidInfo < btScalar(1.))
-				{
-					m_forwardImpulse[wheel] *= m_wheelInfo[wheel].m_skidInfo;
-					m_sideImpulse[wheel] *= m_wheelInfo[wheel].m_skidInfo;
-				}
+				m_forwardImpulse[wheel] *= m_wheelInfo[wheel].m_skidInfo;
+				m_sideImpulse[wheel] *= m_wheelInfo[wheel].m_skidInfo;
 			}
 		}
 	}
