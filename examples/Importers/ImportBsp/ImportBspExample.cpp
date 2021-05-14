@@ -170,7 +170,9 @@ void BspDemo::initPhysics(const char* bspfilename)
 		{
 			//how to detect file size?
 			memoryBuffer = malloc(size + 1);
-			fread(memoryBuffer, 1, size, file);
+			size_t r = fread(memoryBuffer, 1, size, file);
+			if(r != size)
+				printf("Warning: tried to read %d but only got %d for file %s\n", size, r, bspfilename);
 			bspLoader.loadBSPFile(memoryBuffer);
 
 			BspToBulletConverter bsp2bullet(this);
