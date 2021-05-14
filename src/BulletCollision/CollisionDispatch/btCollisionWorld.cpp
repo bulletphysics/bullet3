@@ -1140,6 +1140,7 @@ struct btBridgedManifoldResult : public btManifoldResult
 		: btManifoldResult(obj0Wrap, obj1Wrap),
 		  m_resultCallback(resultCallback)
 	{
+		m_closestPointDistanceThreshold = resultCallback.m_closestDistanceThreshold;
 	}
 
 	virtual void addContactPoint(const btVector3& normalOnBInWorld, const btVector3& pointInWorld, btScalar depth)
