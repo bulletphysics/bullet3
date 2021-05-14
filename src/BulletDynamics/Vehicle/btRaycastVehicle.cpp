@@ -110,9 +110,9 @@ void btRaycastVehicle::updateWheelTransform(int wheelIndex, bool interpolatedTra
 	btMatrix3x3 rotatingMat(rotatingOrn);
 
 	btMatrix3x3 basis2;
-	basis2[0][m_indexRightAxis] = -right[0];
-	basis2[1][m_indexRightAxis] = -right[1];
-	basis2[2][m_indexRightAxis] = -right[2];
+	basis2[0][m_indexRightAxis] = right[0];
+	basis2[1][m_indexRightAxis] = right[1];
+	basis2[2][m_indexRightAxis] = right[2];
 
 	basis2[0][m_indexUpAxis] = up[0];
 	basis2[1][m_indexUpAxis] = up[1];
@@ -522,7 +522,7 @@ void btRaycastVehicle::updateFriction(btScalar timeStep)
 				const btTransform& wheelTrans = getWheelTransformWS(i);
 
 				btMatrix3x3 wheelBasis0 = wheelTrans.getBasis();
-				m_axle[i] = -btVector3(
+				m_axle[i] = btVector3(
 					wheelBasis0[0][m_indexRightAxis],
 					wheelBasis0[1][m_indexRightAxis],
 					wheelBasis0[2][m_indexRightAxis]);
