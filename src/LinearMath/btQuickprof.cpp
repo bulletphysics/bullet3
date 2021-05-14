@@ -715,7 +715,7 @@ void btLeaveProfileZoneDefault()
 // clang-format off
 #if defined(_WIN32) && (defined(__MINGW32__) || defined(__MINGW64__))
   #define BT_HAVE_TLS 1
-#elif __APPLE__ && !TARGET_OS_IPHONE
+#elif defined(__APPLE__) && !TARGET_OS_IPHONE
   // TODO: Modern versions of iOS support TLS now with updated version checking.
   #define BT_HAVE_TLS 1
 #elif __linux__
