@@ -58,6 +58,7 @@ SET(Bullet3Collision_HDRS
 )
 
 ADD_LIBRARY(Bullet3Collision ${Bullet3Collision_SRCS} ${Bullet3Collision_HDRS})
+target_include_directories(Bullet3Collision PUBLIC ${BULLET_PHYSICS_SOURCE_DIR}/src)
 if (BUILD_SHARED_LIBS)
   target_link_libraries(Bullet3Collision Bullet3Geometry)
 endif ()
