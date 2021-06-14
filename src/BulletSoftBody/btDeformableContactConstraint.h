@@ -150,9 +150,7 @@ public:
 
 	btDeformableRigidContactConstraint(const btSoftBody::DeformableRigidContact& c, const btContactSolverInfo& infoGlobal);
 	btDeformableRigidContactConstraint(const btDeformableRigidContactConstraint& other);
-	btDeformableRigidContactConstraint() : m_binding(false)
-	{
-	}
+	btDeformableRigidContactConstraint() : m_binding(false) {}
 	virtual ~btDeformableRigidContactConstraint()
 	{
 	}
