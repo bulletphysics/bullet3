@@ -1487,6 +1487,46 @@ void btSoftBodyHelpers::writeObj(const char* filename, const btSoftBody* psb)
 	fs.close();
 }
 
+// read in binary files
+void btSoftBodyHelpers::readBinary(btAlignedObjectArray<btScalar>& vec, unsigned int& size, const char* file)
+{
+	std::ifstream f_in(file, std::ios::in | std::ios::binary);
+	// first get size
+	f_in.read((char*)&size, sizeof(uint32_t));
+
+	// read data
+	vec.resize(size);
+	double temp;
+	for (int i = 0; i < size; i++) {
+		f_in.read((char*)&temp, sizeof(double));
+		vec[i] = btScalar(temp);
+	}
+  f_in.close();
+}
+
+void btSoftBodyHelpers::readBinaryMat(btAlignedObjectArray<btAlignedObjectArray<btScalar> >& mat, const unsigned int n_row, const unsigned int n_col, const char* file)
+{
+	std::ifstream f_in(file, std::ios::in | std::ios::binary);
+	// first get size
+	unsigned int v_size;
+	f_in.read((char*)&v_size, sizeof(uint32_t));
+	btAssert(v_size == n_row * n_col);
+
+	// read data
+	mat.resize(n_col);
+	for (int i = 0; i < n_col; ++i) 
+	{
+		mat[i].resize(n_row);
+		for (int j = 0; j < n_row; ++j)
+		{
+			double temp;
+			f_in.read((char*)&temp, sizeof(double));
+			mat[i][j] = btScalar(temp);
+		}
+	}
+  f_in.close();
+}
+
 void btSoftBodyHelpers::duplicateFaces(const char* filename, const btSoftBody* psb)
 {
 	std::ifstream fs_read;

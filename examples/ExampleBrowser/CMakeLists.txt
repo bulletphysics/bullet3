@@ -388,6 +388,8 @@ SET(BulletExampleBrowser_SRCS
   ../MultiBody/MultiDofDemo.h
   ../RigidBody/RigidBodySoftContact.cpp
   ../RigidBody/KinematicRigidBodyExample.cpp
+	../ReducedDeformableDemo/BasicTest.cpp
+	../ReducedDeformableDemo/BasicTest.h
   ../Constraints/TestHingeTorque.cpp
   ../Constraints/TestHingeTorque.h
   ../Constraints/ConstraintDemo.cpp

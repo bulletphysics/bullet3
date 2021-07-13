@@ -72,6 +72,7 @@
 #include "../RoboticsLearning/R2D2GraspExample.h"
 #include "../RoboticsLearning/KukaGraspExample.h"
 #include "../RoboticsLearning/GripperGraspExample.h"
+#include "../ReducedDeformableDemo/BasicTest.h"
 #include "../InverseKinematics/InverseKinematicsExample.h"
 
 #ifdef B3_ENABLE_TINY_AUDIO
@@ -214,6 +215,10 @@ static ExampleEntry gDefaultExamples[] =
         ExampleEntry(1, "Multibody Cloth Anchor", "Deformable Multibody Anchor test", MultibodyClothAnchorCreateFunc),
         ExampleEntry(1, "Deformable-MultiBody Contact", "MultiBody and Deformable contact", DeformableMultibodyCreateFunc),
         // ExampleEntry(1, "MultiBody Baseline", "MultiBody Baseline", MultiBodyBaselineCreateFunc),
+		
+		ExampleEntry(0, "Reduced Deformabe Body"),
+		ExampleEntry(1, "BasicRD", "Simple dynamics test for the reduced deformable objects", ReducedBasicTestCreateFunc),
+		// ExampleEntry(1, "Simple Reduced Deformable Test", "Simple dynamics test for the reduced deformable objects", ReducedBasicTestCreateFunc),
         
 #ifdef INCLUDE_CLOTH_DEMOS
 		ExampleEntry(0, "Soft Body"),
