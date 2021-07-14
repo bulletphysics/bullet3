@@ -37,42 +37,90 @@ static btScalar COLLIDING_VELOCITY = 0;
 
 class BasicTest : public CommonDeformableBodyBase
 {
+    typedef btAlignedObjectArray<btSoftBody::Node> tNodeArray;
+
     // btDeformableLinearElasticityForce* m_linearElasticity;
     btDeformableMassSpringForce* m_massSpring;
 
-    btAlignedObjectArray<btScalar> m_eigenvalues, m_Kr, m_Mr;
-    btAlignedObjectArray<btAlignedObjectArray<btScalar> > m_modes;	// each inner array is a mode, outer array size = n_modes
-    unsigned int m_numModes;
+    unsigned int m_nReduced;
+    unsigned int m_nFull;
     bool first_step;
+    btScalar sim_time = 0;
+
+    // compute reduced degree of freedoms
+    void mapToReducedDofs(const btAlignedObjectArray<btAlignedObjectArray<btScalar> >& modes, 
+                          const btAlignedObjectArray<btScalar>& full_mass, 
+                          const tNodeArray& full_nodes, 
+                          btAlignedObjectArray<btScalar>& reduced_dof, 
+                          btAlignedObjectArray<btScalar>& reduced_vel)
+    {
+      btAssert(reduced_dof.size() == m_nReduced);
+      for (int j = 0; j < 1; ++j)
+        for (int i = 0; i < m_nFull; ++i)
+          for (int k = 0; k < 3; ++k)
+          {
+            int idx_f = 3 * i + k;
+            reduced_dof[j] = modes[j][idx_f] * full_mass[idx_f] * full_nodes[i].m_x[k];
+            reduced_vel[j] = modes[j][idx_f] * full_mass[idx_f] * full_nodes[i].m_v[k];
+          }
+    }
+    
+    // compute full degree of freedoms
+    void mapToFullDofs(const btAlignedObjectArray<btScalar>& m_x0,
+                       const btAlignedObjectArray<btAlignedObjectArray<btScalar> >& modes,
+                       const btAlignedObjectArray<btScalar>& reduced_dof, 
+                       const btAlignedObjectArray<btScalar>& reduced_vel, 
+                       tNodeArray& full_nodes)
+    {
+      btAssert(full_nodes.size() == m_nFull);
+      for (int j = 0; j < 1; ++j)
+        for (int i = 0; i < m_nFull; ++i)
+          for (int k = 0; k < 3; ++k)
+          {
+            int idx_f = 3 * i + k;
+            full_nodes[i].m_x[k] = m_x0[idx_f] + modes[j][idx_f] * reduced_dof[j];
+            full_nodes[i].m_v[k] = m_x0[idx_f] + modes[j][idx_f] * reduced_vel[j];
+          }
+    }
+
+    // get deformed shape
+    void getDeformedShape(btSoftBody* psb, const int mode_n, const btScalar scale = 1)
+    {
+      for (int i = 0; i < psb->m_nodes.size(); ++i)
+        for (int k = 0; k < 3; ++k)
+          psb->m_nodes[i].m_x[k] += psb->m_modes[mode_n][3 * i + k] * scale;
+    }
 
 public:
-	BasicTest(struct GUIHelperInterface* helper)
-		: CommonDeformableBodyBase(helper), m_numModes(0)
-	{
+    BasicTest(struct GUIHelperInterface* helper)
+        : CommonDeformableBodyBase(helper)
+    {
         // m_linearElasticity = 0;
-        m_massSpring = 0;
+        m_massSpring = nullptr;
+        m_nReduced = 0;
+        m_nFull = 0;
         first_step = true;
-	}
-	virtual ~BasicTest()
-	{
-	}
-	void initPhysics();
+    }
+    virtual ~BasicTest()
+    {
+    }
+    void initPhysics();
 
-	void exitPhysics();
+    void exitPhysics();
 
     // TODO: disable pick force, non-interactive for now.
     bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld) {
         return false;
     } 
 
-	void resetCamera()
-	{
+    void resetCamera()
+    {
         float dist = 20;
         float pitch = 0;
         float yaw = 90;
         float targetPos[3] = {0, 3, 0};
-		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
-	}
+        m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
+    }
     
     void Ctor_RbUpStack()
     {
@@ -87,24 +135,27 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-        // TODO: remove this. very hacky way of adding initial deformation
-        btSoftBody* psb = static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0];
-        if (first_step && !psb->m_bUpdateRtCst) {
-            // save rest length
-            btAlignedObjectArray<btScalar> rest_length;
+      // TODO: remove this. very hacky way of adding initial deformation
+      btSoftBody* psb = static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0];
+      if (first_step && !psb->m_bUpdateRtCst) {
+        getDeformedShape(psb, 0);
 
-            // assign initial displacement (perturb each nodes by mode 1)
-            for (int i = 0; i < psb->m_nodes.size(); ++i)
-            {
-                for (int k = 0; k < 3; ++k)
-                {
-                    psb->m_nodes[i].m_x[k] += m_modes[0][3 * i + k];
-                }
-            }
-            first_step = false;
-        }
-        float internalTimeStep = 1. / 60.f;
-        m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
+        first_step = false;
+      }
+
+      // compute reduced dofs
+      psb->m_reducedNodes.resize(m_nReduced);
+      psb->m_reducedVelocity.resize(m_nReduced);
+      mapToReducedDofs(psb->m_modes, psb->m_M, psb->m_nodes, psb->m_reducedNodes, psb->m_reducedVelocity);
+      
+      sim_time += deltaTime;
+      psb->m_reducedNodes[1] = sin(psb->m_eigenvalues[1] * sim_time);
+
+      float internalTimeStep = 1. / 60.f;
+      m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
+
+      // map reduced dof back to full
+      mapToFullDofs(psb->m_x0, psb->m_modes, psb->m_reducedNodes, psb->m_reducedVelocity, psb->m_nodes);
     }
     
     virtual void renderScene()
@@ -125,46 +176,91 @@ public:
 
 void BasicTest::initPhysics()
 {
-	m_guiHelper->setUpAxis(1);
+    m_guiHelper->setUpAxis(1);
 
-	///collision configuration contains default setup for memory, collision setup
+    ///collision configuration contains default setup for memory, collision setup
     m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
+    ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+    m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
-	m_broadphase = new btDbvtBroadphase();
+    m_broadphase = new btDbvtBroadphase();
     btDeformableBodySolver* deformableBodySolver = new btDeformableBodySolver();
 
-	btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
+    btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
     sol->setDeformableSolver(deformableBodySolver);
-	m_solver = sol;
+    m_solver = sol;
 
-	m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
+    m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
     btVector3 gravity = btVector3(0, 0, 0);
     m_dynamicsWorld->setGravity(gravity);
-	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+    m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
     // create volumetric soft body
     {        
         std::string filename("../../../examples/SoftDemo/mesh.vtk");
         btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
+        m_nFull = psb->m_nodes.size();
 
         // read in eigenmodes, stiffness and mass matrices
         unsigned int buffer_n_modes = 0;
 
+        // TODO: save all modes, but only use the selected ones here
+
         std::string eigenvalues_file("../../../examples/SoftDemo/eigenvalues.bin");
-        btSoftBodyHelpers::readBinary(m_eigenvalues, buffer_n_modes, eigenvalues_file.c_str());
-        m_numModes = buffer_n_modes;
+        btSoftBodyHelpers::readBinary(psb->m_eigenvalues, buffer_n_modes, eigenvalues_file.c_str());
+        m_nReduced = buffer_n_modes;
 
         std::string Kr_file("../../../examples/SoftDemo/K_r_diag_mat.bin");
-        btSoftBodyHelpers::readBinary(m_Kr, buffer_n_modes, Kr_file.c_str());
+        btSoftBodyHelpers::readBinary(psb->m_Kr, buffer_n_modes, Kr_file.c_str());
 
         std::string Mr_file("../../../examples/SoftDemo/M_r_diag_mat.bin");
-        btSoftBodyHelpers::readBinary(m_Mr, buffer_n_modes, Mr_file.c_str());
+        btSoftBodyHelpers::readBinary(psb->m_Mr, buffer_n_modes, Mr_file.c_str());
 
         std::string modes_file("../../../examples/SoftDemo/modes.bin");
-        btSoftBodyHelpers::readBinaryMat(m_modes, 3 * psb->m_nodes.size(), buffer_n_modes, modes_file.c_str());	// default to 3D
+        btSoftBodyHelpers::readBinaryMat(psb->m_modes, 3 * psb->m_nodes.size(), buffer_n_modes, modes_file.c_str());	// default to 3D
+
+        std::string M_file("../../../examples/SoftDemo/M_diag_mat.bin");
+        btSoftBodyHelpers::readBinary(psb->m_M, buffer_n_modes, M_file.c_str());
+
+        // get rest position
+        psb->m_x0.resize(3 * psb->m_nodes.size());
+        for (int i = 0; i < psb->m_nodes.size(); ++i)
+          for (int k = 0; k < 3; ++k)
+            psb->m_x0[3 * i + k] = psb->m_nodes[i].m_x[k];
+
+        // btAlignedObjectArray<btAlignedObjectArray<btScalar> > M_red;
+        // M_red.resize(m_nReduced);
+        // for (int i = 0; i < m_nReduced; ++i) {
+        //   M_red.resize(m_nReduced);
+        // }
+
+        // for (int i = 0; i < m_nFull; ++i) {
+        //   for (int j = 0; j < m_nReduced; ++j) {
+        //     for (int k = 0; k < m_nFull; ++k) {
+        //       for (int l = 0; l < m_nReduced; ++l) {
+        //         btScalar tmp = psb->m_modes[i][j] * psb->m_M[i] * psb->m_modes[k][l];
+        //         std::cout << tmp << '\n';
+        //       }
+        //     }
+        //   }
+        // }
+
+        // std::ofstream outfile1("before_map.txt");
+        // for (int i = 0; i < psb->m_nodes.size(); ++i) {
+        //   for (int k = 0; k < 3; ++k)
+        //     outfile1 << psb->m_nodes[i].m_x[k] << '\n';
+        // }
+        // outfile1.close();
+
+        // mapToFullDofs(psb->m_modes, psb->m_reducedNodes, psb->m_reducedVelocity, psb->m_nodes);
+
+        // std::ofstream outfile2("after_map.txt");
+        // for (int i = 0; i < psb->m_nodes.size(); ++i) {
+        //   for (int k = 0; k < 3; ++k)
+        //     outfile2 << psb->m_nodes[i].m_x[k] << '\n';
+        // }
+        // outfile2.close();
 
         getDeformableDynamicsWorld()->addSoftBody(psb);
         psb->scale(btVector3(2, 2, 2));
@@ -173,23 +269,23 @@ void BasicTest::initPhysics()
         psb->setTotalMass(0.5);
         psb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         psb->m_cfg.kCHR = 1; // collision hardness with rigid body
-		psb->m_cfg.kDF = 0;
+        psb->m_cfg.kDF = 0;
         psb->m_cfg.collisions = btSoftBody::fCollision::SDF_RD;
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
-		psb->m_sleepingThreshold = 0;
+        psb->m_sleepingThreshold = 0;
         btSoftBodyHelpers::generateBoundaryFaces(psb);
         
         psb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
 
         // btDeformableLinearElasticityForce* linearElasticity = new btDeformableLinearElasticityForce(100,100,0.01);
-		// m_linearElasticity = linearElasticity;
+        // m_linearElasticity = linearElasticity;
         
         m_massSpring = new btDeformableMassSpringForce(10.0, 0.0); //TODO: this stiffness needs to match the modes
 
         getDeformableDynamicsWorld()->addForce(psb, m_massSpring);
         m_forces.push_back(m_massSpring);
     }
-    getDeformableDynamicsWorld()->setReducedModelFlag(true);
+    getDeformableDynamicsWorld()->setReducedModelFlag(false);
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(true);
@@ -200,8 +296,8 @@ void BasicTest::initPhysics()
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies
     // Ctor_RbUpStack();        // TODO: no rigid body for now
-	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
-	
+    m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+    
     // {
     //     SliderParams slider("Young's Modulus", &E);
     //     slider.m_minVal = 0;
@@ -234,21 +330,21 @@ void BasicTest::initPhysics()
 
 void BasicTest::exitPhysics()
 {
-	//cleanup in the reverse order of creation/initialization
+    //cleanup in the reverse order of creation/initialization
     removePickingConstraint();
-	//remove the rigidbodies from the dynamics world and delete them
-	int i;
-	for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
-	{
-		btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody* body = btRigidBody::upcast(obj);
-		if (body && body->getMotionState())
-		{
-			delete body->getMotionState();
-		}
-		m_dynamicsWorld->removeCollisionObject(obj);
-		delete obj;
-	}
+    //remove the rigidbodies from the dynamics world and delete them
+    int i;
+    for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
+    {
+        btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+        btRigidBody* body = btRigidBody::upcast(obj);
+        if (body && body->getMotionState())
+        {
+            delete body->getMotionState();
+        }
+        m_dynamicsWorld->removeCollisionObject(obj);
+        delete obj;
+    }
     // delete forces
     for (int j = 0; j < m_forces.size(); j++)
     {
@@ -257,30 +353,30 @@ void BasicTest::exitPhysics()
     }
     m_forces.clear();
     
-	//delete collision shapes
-	for (int j = 0; j < m_collisionShapes.size(); j++)
-	{
-		btCollisionShape* shape = m_collisionShapes[j];
-		delete shape;
-	}
-	m_collisionShapes.clear();
+    //delete collision shapes
+    for (int j = 0; j < m_collisionShapes.size(); j++)
+    {
+        btCollisionShape* shape = m_collisionShapes[j];
+        delete shape;
+    }
+    m_collisionShapes.clear();
 
-	delete m_dynamicsWorld;
+    delete m_dynamicsWorld;
 
-	delete m_solver;
+    delete m_solver;
 
-	delete m_broadphase;
+    delete m_broadphase;
 
-	delete m_dispatcher;
+    delete m_dispatcher;
 
-	delete m_collisionConfiguration;
+    delete m_collisionConfiguration;
 }
 
 
 
 class CommonExampleInterface* ReducedBasicTestCreateFunc(struct CommonExampleOptions& options)
 {
-	return new BasicTest(options.m_guiHelper);
+    return new BasicTest(options.m_guiHelper);
 }
 
 

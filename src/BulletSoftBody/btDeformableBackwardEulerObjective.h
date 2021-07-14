@@ -40,6 +40,7 @@ public:
 	const TVStack& m_backupVelocity;
 	btAlignedObjectArray<btSoftBody::Node*> m_nodes;
 	bool m_implicit;
+	bool m_reducedModel;
 	MassPreconditioner* m_massPreconditioner;
 	KKTPreconditioner* m_KKTPreconditioner;
 
@@ -128,6 +129,16 @@ public:
 	void setImplicit(bool implicit)
 	{
 		m_implicit = implicit;
+	}
+
+	void setReducedModel(bool reduced_model)
+	{
+		m_reducedModel = reduced_model;
+	}
+
+	bool getReducedModelFlag() const
+	{
+		return m_reducedModel;
 	}
 
 	// Calculate the total potential energy in the system

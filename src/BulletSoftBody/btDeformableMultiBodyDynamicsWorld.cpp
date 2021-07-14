@@ -72,6 +72,12 @@ btDeformableMultiBodyDynamicsWorld::~btDeformableMultiBodyDynamicsWorld()
 	delete m_solverDeformableBodyIslandCallback;
 }
 
+void btDeformableMultiBodyDynamicsWorld::setReducedModelFlag(bool reduced_model)
+{
+	m_reducedModel = reduced_model;
+	m_deformableBodySolver->m_objective->setReducedModel(reduced_model);
+}
+
 void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
 	BT_PROFILE("internalSingleStepSimulation");
@@ -300,25 +306,33 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
 		btSoftBody* psb = m_softBodies[i];
-		for (int j = 0; j < psb->m_nodes.size(); ++j)
+		if (m_reducedModel)
 		{
-			btSoftBody::Node& node = psb->m_nodes[j];
-			btScalar maxDisplacement = psb->getWorldInfo()->m_maxDisplacement;
-			btScalar clampDeltaV = maxDisplacement / timeStep;
-			for (int c = 0; c < 3; c++)
+			for (int r = 0; r < psb->m_reducedNodes.size(); ++r)
+				psb->m_reducedNodes[r] += timeStep * psb->m_reducedVelocity[r];
+		}
+		else
+		{
+			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
-				if (node.m_v[c] > clampDeltaV)
+				btSoftBody::Node& node = psb->m_nodes[j];
+				btScalar maxDisplacement = psb->getWorldInfo()->m_maxDisplacement;
+				btScalar clampDeltaV = maxDisplacement / timeStep;
+				for (int c = 0; c < 3; c++)
 				{
-					node.m_v[c] = clampDeltaV;
+					if (node.m_v[c] > clampDeltaV)
+					{
+						node.m_v[c] = clampDeltaV;
+					}
+					if (node.m_v[c] < -clampDeltaV)
+					{
+						node.m_v[c] = -clampDeltaV;
+					}
 				}
-				if (node.m_v[c] < -clampDeltaV)
-				{
-					node.m_v[c] = -clampDeltaV;
-				}
+				node.m_x = node.m_x + timeStep * (node.m_v + node.m_splitv);
+				node.m_q = node.m_x;
+				node.m_vn = node.m_v;
 			}
-			node.m_x = node.m_x + timeStep * (node.m_v + node.m_splitv);
-			node.m_q = node.m_x;
-			node.m_vn = node.m_v;
 		}
 		// enforce anchor constraints
 		for (int j = 0; j < psb->m_deformableAnchors.size(); ++j)

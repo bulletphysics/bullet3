@@ -23,6 +23,7 @@ btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAligned
 	m_massPreconditioner = new MassPreconditioner(m_softBodies);
 	m_KKTPreconditioner = new KKTPreconditioner(m_softBodies, m_projection, m_lf, m_dt, m_implicit);
 	m_preconditioner = m_KKTPreconditioner;
+	m_reducedModel = false;
 }
 
 btDeformableBackwardEulerObjective::~btDeformableBackwardEulerObjective()
@@ -147,20 +148,51 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 		}
 		if (m_implicit)
 		{
-			for (int j = 0; j < psb->m_nodes.size(); ++j)
+			if (m_reducedModel)
 			{
-				if (psb->m_nodes[j].m_im != 0)
+				// for (int j = 0; j < psb->m_reducedNodes.size(); ++j)	// TODO: reduced soft body
+				// {
+				// 	if (psb->m_nodes[j].m_im != 0)
+				// 	{
+				// 		psb->m_nodes[j].m_v += psb->m_nodes[j].m_effectiveMass_inv * force[counter++];
+				// 	}
+				// }
+			}
+			else 
+			{
+				for (int j = 0; j < psb->m_nodes.size(); ++j)
 				{
-					psb->m_nodes[j].m_v += psb->m_nodes[j].m_effectiveMass_inv * force[counter++];
+					if (psb->m_nodes[j].m_im != 0)
+					{
+						psb->m_nodes[j].m_v += psb->m_nodes[j].m_effectiveMass_inv * force[counter++];
+					}
 				}
 			}
 		}
 		else
 		{
-			for (int j = 0; j < psb->m_nodes.size(); ++j)
+			if (m_reducedModel)
 			{
-				btScalar one_over_mass = (psb->m_nodes[j].m_im == 0) ? 0 : psb->m_nodes[j].m_im;
-				psb->m_nodes[j].m_v += one_over_mass * force[counter++];
+				// // get reduced force
+				// btAlignedObjectArray<btScalar> reduced_force;
+				// reduced_force.resize(psb->m_reducedNodes.size());
+				// for (int r = 0; r < psb->m_reducedNodes.size(); ++r)
+				// 	reduced_force[r] = psb->m_Kr[r] * psb->m_reducedNodes[r];
+
+				// // update reduced velocity
+				// for (int r = 0; r < psb->m_reducedNodes.size(); ++r)	// TODO: reduced soft body
+				// {
+				// 	btScalar mass_inv = (psb->m_Mr[r] == 0) ? 0 : 1.0 / psb->m_Mr[r];
+				// 	psb->m_reducedVelocity[r] += m_dt * mass_inv * reduced_force[r];
+				// }
+			}
+			else
+			{
+				for (int j = 0; j < psb->m_nodes.size(); ++j)
+				{
+					btScalar one_over_mass = (psb->m_nodes[j].m_im == 0) ? 0 : psb->m_nodes[j].m_im;
+					psb->m_nodes[j].m_v += one_over_mass * force[counter++];
+				}
 			}
 		}
 	}
