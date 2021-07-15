@@ -1488,40 +1488,57 @@ void btSoftBodyHelpers::writeObj(const char* filename, const btSoftBody* psb)
 }
 
 // read in binary files
-void btSoftBodyHelpers::readBinary(btAlignedObjectArray<btScalar>& vec, unsigned int& size, const char* file)
+void btSoftBodyHelpers::readBinary(btAlignedObjectArray<btScalar>& vec, 
+																	 const unsigned int n_start, 				// starting index
+																	 const unsigned int n_modes, 				// #entries read
+																	 const unsigned int n_full,					// array size
+																	 const char* file)
 {
 	std::ifstream f_in(file, std::ios::in | std::ios::binary);
 	// first get size
+	unsigned int size;
 	f_in.read((char*)&size, sizeof(uint32_t));
+	btAssert(size == n_full);
 
 	// read data
-	vec.resize(size);
+	vec.resize(n_modes);
 	double temp;
-	for (int i = 0; i < size; i++) {
+	for (unsigned int i = 0; i < n_start + n_modes; ++i)
+	{
 		f_in.read((char*)&temp, sizeof(double));
-		vec[i] = btScalar(temp);
+		if (i >= n_start) 
+			vec[i - n_start] = btScalar(temp);
 	}
   f_in.close();
 }
 
-void btSoftBodyHelpers::readBinaryMat(btAlignedObjectArray<btAlignedObjectArray<btScalar> >& mat, const unsigned int n_row, const unsigned int n_col, const char* file)
+void btSoftBodyHelpers::readBinaryMat(btAlignedObjectArray<btAlignedObjectArray<btScalar> >& mat, 
+																			const unsigned int n_start, 		// starting mode index
+																			const unsigned int n_modes, 		// #modes, outer array size
+																			const unsigned int n_full, 			// inner array size
+																			const char* file)
 {
 	std::ifstream f_in(file, std::ios::in | std::ios::binary);
 	// first get size
 	unsigned int v_size;
 	f_in.read((char*)&v_size, sizeof(uint32_t));
-	btAssert(v_size == n_row * n_col);
+	btAssert(v_size == n_full * n_full);
 
 	// read data
-	mat.resize(n_col);
-	for (int i = 0; i < n_col; ++i) 
+	mat.resize(n_modes);
+	for (int i = 0; i < n_start + n_modes; ++i) 
 	{
-		mat[i].resize(n_row);
-		for (int j = 0; j < n_row; ++j)
+		for (int j = 0; j < n_full; ++j)
 		{
 			double temp;
 			f_in.read((char*)&temp, sizeof(double));
-			mat[i][j] = btScalar(temp);
+
+			if (i >= n_start)
+			{
+				if (mat[i - n_start].size() != n_full)
+					mat[i - n_start].resize(n_full);
+				mat[i - n_start][j] = btScalar(temp);
+			}
 		}
 	}
   f_in.close();

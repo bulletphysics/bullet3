@@ -855,7 +855,7 @@ public:
 
 	btScalar m_restLengthScale;
 
-	btAlignedObjectArray<btScalar> m_reducedNodes;				 // Reduced degree of freedom
+	btAlignedObjectArray<btScalar> m_reducedDofs;				 // Reduced degree of freedom
 	btAlignedObjectArray<btScalar> m_reducedVelocity;		   // Reduced velocity array
 	btAlignedObjectArray<btScalar> m_x0;									 // Rest position
 	btAlignedObjectArray<btScalar> m_eigenvalues;		// eigenvalues of the reduce deformable model

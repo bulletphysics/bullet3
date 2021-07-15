@@ -308,8 +308,8 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 		btSoftBody* psb = m_softBodies[i];
 		if (m_reducedModel)
 		{
-			for (int r = 0; r < psb->m_reducedNodes.size(); ++r)
-				psb->m_reducedNodes[r] += timeStep * psb->m_reducedVelocity[r];
+			for (int r = 0; r < psb->m_reducedDofs.size(); ++r)
+				psb->m_reducedDofs[r] += timeStep * psb->m_reducedVelocity[r];
 		}
 		else
 		{

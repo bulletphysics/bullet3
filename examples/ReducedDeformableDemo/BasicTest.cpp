@@ -42,45 +42,53 @@ class BasicTest : public CommonDeformableBodyBase
     // btDeformableLinearElasticityForce* m_linearElasticity;
     btDeformableMassSpringForce* m_massSpring;
 
-    unsigned int m_nReduced;
+    static const unsigned int m_startMode = 6;  // actual mode# should +1
+    static const unsigned int m_nReduced = 1;
+    static const unsigned int selected_mode = 0;
     unsigned int m_nFull;
+    btScalar sim_time;
     bool first_step;
-    btScalar sim_time = 0;
 
     // compute reduced degree of freedoms
-    void mapToReducedDofs(const btAlignedObjectArray<btAlignedObjectArray<btScalar> >& modes, 
-                          const btAlignedObjectArray<btScalar>& full_mass, 
-                          const tNodeArray& full_nodes, 
-                          btAlignedObjectArray<btScalar>& reduced_dof, 
-                          btAlignedObjectArray<btScalar>& reduced_vel)
+    void mapToReducedDofs(btSoftBody* psb)
     {
-      btAssert(reduced_dof.size() == m_nReduced);
-      for (int j = 0; j < 1; ++j)
-        for (int i = 0; i < m_nFull; ++i)
-          for (int k = 0; k < 3; ++k)
-          {
-            int idx_f = 3 * i + k;
-            reduced_dof[j] = modes[j][idx_f] * full_mass[idx_f] * full_nodes[i].m_x[k];
-            reduced_vel[j] = modes[j][idx_f] * full_mass[idx_f] * full_nodes[i].m_v[k];
-          }
+      btAssert(psb->m_reducedDofs.size() == m_nReduced);
+      for (int j = 0; j < m_nReduced; ++j) {
+        if (j == selected_mode)
+          psb->m_reducedDofs[j] = sin(psb->m_eigenvalues[j] * sim_time);
+        else
+          psb->m_reducedDofs[j] = 0;
+      }
+      // for (int j = 0; j < m_nReduced; ++j) 
+      // {
+      //   // if (j != selected_mode)
+      //   //   continue;
+      //   for (int i = 0; i < m_nFull; ++i)
+      //     for (int k = 0; k < 3; ++k)
+      //     {
+      //       int idx_f = 3 * i + k;
+      //       psb->m_reducedNodes[j] = psb->m_modes[j][idx_f] * (psb->m_nodes[i].m_x[k] - psb->m_x0[idx_f]);
+      //       psb->m_reducedVelocity[j] = psb->m_modes[j][idx_f] * psb->m_nodes[i].m_v[k];
+      //     }
+      // }
     }
     
     // compute full degree of freedoms
-    void mapToFullDofs(const btAlignedObjectArray<btScalar>& m_x0,
-                       const btAlignedObjectArray<btAlignedObjectArray<btScalar> >& modes,
-                       const btAlignedObjectArray<btScalar>& reduced_dof, 
-                       const btAlignedObjectArray<btScalar>& reduced_vel, 
-                       tNodeArray& full_nodes)
+    void mapToFullDofs(btSoftBody* psb)
     {
-      btAssert(full_nodes.size() == m_nFull);
-      for (int j = 0; j < 1; ++j)
+      btAssert(psb->m_nodes.size() == m_nFull);
+      for (int j = 0; j < m_nReduced; ++j) 
+      {
+        // if (j != selected_mode)
+        //   continue;
         for (int i = 0; i < m_nFull; ++i)
           for (int k = 0; k < 3; ++k)
           {
             int idx_f = 3 * i + k;
-            full_nodes[i].m_x[k] = m_x0[idx_f] + modes[j][idx_f] * reduced_dof[j];
-            full_nodes[i].m_v[k] = m_x0[idx_f] + modes[j][idx_f] * reduced_vel[j];
+            psb->m_nodes[i].m_x[k] = psb->m_x0[idx_f] + psb->m_modes[j][idx_f] * psb->m_reducedDofs[j];
+            psb->m_nodes[i].m_v[k] = psb->m_modes[j][idx_f] * psb->m_reducedVelocity[j];
           }
+      }
     }
 
     // get deformed shape
@@ -97,8 +105,8 @@ public:
     {
         // m_linearElasticity = 0;
         m_massSpring = nullptr;
-        m_nReduced = 0;
         m_nFull = 0;
+        sim_time = 0;
         first_step = true;
     }
     virtual ~BasicTest()
@@ -135,27 +143,31 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-      // TODO: remove this. very hacky way of adding initial deformation
       btSoftBody* psb = static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0];
-      if (first_step && !psb->m_bUpdateRtCst) {
+      
+      // TODO: remove this. very hacky way of adding initial deformation
+      if (first_step && !psb->m_bUpdateRtCst) 
+      {
         getDeformedShape(psb, 0);
-
         first_step = false;
       }
 
       // compute reduced dofs
-      psb->m_reducedNodes.resize(m_nReduced);
+      psb->m_reducedDofs.resize(m_nReduced);
       psb->m_reducedVelocity.resize(m_nReduced);
-      mapToReducedDofs(psb->m_modes, psb->m_M, psb->m_nodes, psb->m_reducedNodes, psb->m_reducedVelocity);
-      
       sim_time += deltaTime;
-      psb->m_reducedNodes[1] = sin(psb->m_eigenvalues[1] * sim_time);
-
+      // std::cout << psb->m_eigenvalues[0] << "\t" << sim_time << "\t" << deltaTime  << "\t" << sin(psb->m_eigenvalues[0] * sim_time) << "\n";
+      mapToReducedDofs(psb);
+      
       float internalTimeStep = 1. / 60.f;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
 
+      // for (int i = 0; i < m_nReduced; ++i)
+      //   std::cout << psb->m_reducedDofs[i] << "\t";
+      // std::cout << "\n";
+
       // map reduced dof back to full
-      mapToFullDofs(psb->m_x0, psb->m_modes, psb->m_reducedNodes, psb->m_reducedVelocity, psb->m_nodes);
+      mapToFullDofs(psb);
     }
     
     virtual void renderScene()
@@ -203,25 +215,23 @@ void BasicTest::initPhysics()
         m_nFull = psb->m_nodes.size();
 
         // read in eigenmodes, stiffness and mass matrices
-        unsigned int buffer_n_modes = 0;
-
-        // TODO: save all modes, but only use the selected ones here
-
         std::string eigenvalues_file("../../../examples/SoftDemo/eigenvalues.bin");
-        btSoftBodyHelpers::readBinary(psb->m_eigenvalues, buffer_n_modes, eigenvalues_file.c_str());
-        m_nReduced = buffer_n_modes;
+        btSoftBodyHelpers::readBinary(psb->m_eigenvalues, m_startMode, m_nReduced, 3 * m_nFull, eigenvalues_file.c_str());
 
         std::string Kr_file("../../../examples/SoftDemo/K_r_diag_mat.bin");
-        btSoftBodyHelpers::readBinary(psb->m_Kr, buffer_n_modes, Kr_file.c_str());
+        btSoftBodyHelpers::readBinary(psb->m_Kr, m_startMode, m_nReduced, 3 * m_nFull, Kr_file.c_str());
 
         std::string Mr_file("../../../examples/SoftDemo/M_r_diag_mat.bin");
-        btSoftBodyHelpers::readBinary(psb->m_Mr, buffer_n_modes, Mr_file.c_str());
+        btSoftBodyHelpers::readBinary(psb->m_Mr, m_startMode, m_nReduced, 3 * m_nFull, Mr_file.c_str());
 
         std::string modes_file("../../../examples/SoftDemo/modes.bin");
-        btSoftBodyHelpers::readBinaryMat(psb->m_modes, 3 * psb->m_nodes.size(), buffer_n_modes, modes_file.c_str());	// default to 3D
+        btSoftBodyHelpers::readBinaryMat(psb->m_modes, m_startMode, m_nReduced, 3 * m_nFull, modes_file.c_str());	// default to 3D
 
-        std::string M_file("../../../examples/SoftDemo/M_diag_mat.bin");
-        btSoftBodyHelpers::readBinary(psb->m_M, buffer_n_modes, M_file.c_str());
+        // for (int i = 0; i < 3*m_nFull; ++i)
+        //   std::cout << psb->m_modes[0][i] << '\n';
+
+        // std::string M_file("../../../examples/SoftDemo/M_diag_mat.bin");
+        // btSoftBodyHelpers::readBinary(psb->m_M, buffer_n_modes, M_file.c_str());
 
         // get rest position
         psb->m_x0.resize(3 * psb->m_nodes.size());

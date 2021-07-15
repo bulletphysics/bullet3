@@ -145,9 +145,9 @@ struct btSoftBodyHelpers
 	static btSoftBody* CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file);
 
 	// read in a binary vector
-	static void readBinary(btAlignedObjectArray<btScalar>& vec, unsigned int& size, const char* file);
+	static void readBinary(btAlignedObjectArray<btScalar>& vec, const unsigned int n_start, const unsigned int n_modes, const unsigned int n_full, const char* file);
 	// read in a binary matrix (must provide matrix size)
-	static void readBinaryMat(btAlignedObjectArray<btAlignedObjectArray<btScalar> >& mat, const unsigned int n_row, const unsigned int n_col, const char* file);
+	static void readBinaryMat(btAlignedObjectArray<btAlignedObjectArray<btScalar> >& mat, const unsigned int n_start, const unsigned int n_modes, const unsigned int n_full, const char* file);
 
 	static void writeObj(const char* file, const btSoftBody* psb);
 

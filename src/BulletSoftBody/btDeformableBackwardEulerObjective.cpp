@@ -173,7 +173,7 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 		{
 			if (m_reducedModel)
 			{
-				// // get reduced force
+				// get reduced force
 				// btAlignedObjectArray<btScalar> reduced_force;
 				// reduced_force.resize(psb->m_reducedNodes.size());
 				// for (int r = 0; r < psb->m_reducedNodes.size(); ++r)
@@ -183,8 +183,13 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 				// for (int r = 0; r < psb->m_reducedNodes.size(); ++r)	// TODO: reduced soft body
 				// {
 				// 	btScalar mass_inv = (psb->m_Mr[r] == 0) ? 0 : 1.0 / psb->m_Mr[r];
-				// 	psb->m_reducedVelocity[r] += m_dt * mass_inv * reduced_force[r];
+				// 	// btScalar delta_v = m_dt * mass_inv * reduced_force[r];
+				// 	btScalar delta_v = 1.0;
+					
+				// 	psb->m_reducedVelocity[r] += delta_v;
+				// 	std::cout << psb->m_reducedVelocity[r] << "\t";
 				// }
+				// std::cout << "\n";
 			}
 			else
 			{
