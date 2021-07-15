@@ -109,7 +109,7 @@ cd build3
 ./premake4_linux64 --double gmake
 ./premake4_osx --double --enable_pybullet gmake
 ```
-Then
+**Then**
 ```
 cd gmake
 make
@@ -142,3 +142,5 @@ You can use mouse picking to grab objects. When holding the ALT or CONTROL key, 
 Press F1 to create a series of screenshots. Hit ESCAPE to exit the demo app.
 
 Check out the docs folder and the Bullet physics forums for further information.
+## Changelog
+Replaced 112 "Then" into more of the Bold one
