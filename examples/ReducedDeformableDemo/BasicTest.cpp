@@ -53,24 +53,16 @@ class BasicTest : public CommonDeformableBodyBase
     void mapToReducedDofs(btSoftBody* psb)
     {
       btAssert(psb->m_reducedDofs.size() == m_nReduced);
-      for (int j = 0; j < m_nReduced; ++j) {
-        if (j == selected_mode)
-          psb->m_reducedDofs[j] = sin(psb->m_eigenvalues[j] * sim_time);
-        else
-          psb->m_reducedDofs[j] = 0;
+      for (int j = 0; j < m_nReduced; ++j) 
+      {
+        for (int i = 0; i < m_nFull; ++i)
+          for (int k = 0; k < 3; ++k)
+          {
+            int idx_f = 3 * i + k;
+            psb->m_reducedDofs[j] = psb->m_modes[j][idx_f] * (psb->m_nodes[i].m_x[k] - psb->m_x0[idx_f]);
+            // psb->m_reducedVelocity[j] = psb->m_modes[j][idx_f] * psb->m_nodes[i].m_v[k];
+          }
       }
-      // for (int j = 0; j < m_nReduced; ++j) 
-      // {
-      //   // if (j != selected_mode)
-      //   //   continue;
-      //   for (int i = 0; i < m_nFull; ++i)
-      //     for (int k = 0; k < 3; ++k)
-      //     {
-      //       int idx_f = 3 * i + k;
-      //       psb->m_reducedNodes[j] = psb->m_modes[j][idx_f] * (psb->m_nodes[i].m_x[k] - psb->m_x0[idx_f]);
-      //       psb->m_reducedVelocity[j] = psb->m_modes[j][idx_f] * psb->m_nodes[i].m_v[k];
-      //     }
-      // }
     }
     
     // compute full degree of freedoms
@@ -79,14 +71,12 @@ class BasicTest : public CommonDeformableBodyBase
       btAssert(psb->m_nodes.size() == m_nFull);
       for (int j = 0; j < m_nReduced; ++j) 
       {
-        // if (j != selected_mode)
-        //   continue;
         for (int i = 0; i < m_nFull; ++i)
           for (int k = 0; k < 3; ++k)
           {
             int idx_f = 3 * i + k;
             psb->m_nodes[i].m_x[k] = psb->m_x0[idx_f] + psb->m_modes[j][idx_f] * psb->m_reducedDofs[j];
-            psb->m_nodes[i].m_v[k] = psb->m_modes[j][idx_f] * psb->m_reducedVelocity[j];
+            // psb->m_nodes[i].m_v[k] = psb->m_modes[j][idx_f] * psb->m_reducedVelocity[j];
           }
       }
     }
@@ -150,6 +140,7 @@ public:
       {
         getDeformedShape(psb, 0);
         first_step = false;
+        mapToReducedDofs(psb);
       }
 
       // compute reduced dofs
@@ -157,10 +148,10 @@ public:
       psb->m_reducedVelocity.resize(m_nReduced);
       sim_time += deltaTime;
       // std::cout << psb->m_eigenvalues[0] << "\t" << sim_time << "\t" << deltaTime  << "\t" << sin(psb->m_eigenvalues[0] * sim_time) << "\n";
-      mapToReducedDofs(psb);
       
-      float internalTimeStep = 1. / 60.f;
-      m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
+      // float internalTimeStep = 1. / 60.f;
+      float internalTimeStep = 1;
+      m_dynamicsWorld->stepSimulation(1, 1, internalTimeStep);
 
       // for (int i = 0; i < m_nReduced; ++i)
       //   std::cout << psb->m_reducedDofs[i] << "\t";
@@ -213,6 +204,7 @@ void BasicTest::initPhysics()
         std::string filename("../../../examples/SoftDemo/mesh.vtk");
         btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
         m_nFull = psb->m_nodes.size();
+        psb->m_reducedModel = true;
 
         // read in eigenmodes, stiffness and mass matrices
         std::string eigenvalues_file("../../../examples/SoftDemo/eigenvalues.bin");
@@ -295,7 +287,6 @@ void BasicTest::initPhysics()
         getDeformableDynamicsWorld()->addForce(psb, m_massSpring);
         m_forces.push_back(m_massSpring);
     }
-    getDeformableDynamicsWorld()->setReducedModelFlag(false);
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(true);

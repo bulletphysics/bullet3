@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 				else
 				{
 					clock.reset();
-					exampleBrowser->update(1.0);
+					exampleBrowser->update(deltaTimeInSeconds);
 				}
 			} while (!exampleBrowser->requestedExit() && !interrupted);
 		}

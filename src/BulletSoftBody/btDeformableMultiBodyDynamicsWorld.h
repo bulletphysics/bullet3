@@ -48,7 +48,6 @@ class btDeformableMultiBodyDynamicsWorld : public btMultiBodyDynamicsWorld
 	btScalar m_internalTime;
 	int m_ccdIterations;
 	bool m_implicit;
-	bool m_reducedModel;
 	bool m_lineSearch;
 	bool m_useProjection;
 	DeformableBodyInplaceSolverIslandCallback* m_solverDeformableBodyIslandCallback;
@@ -154,8 +153,6 @@ public:
 	void sortConstraints();
 
 	void softBodySelfCollision();
-
-	void setReducedModelFlag(bool reduced_model);
 
 	void setImplicit(bool implicit)
 	{

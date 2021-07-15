@@ -23,7 +23,6 @@ btDeformableBackwardEulerObjective::btDeformableBackwardEulerObjective(btAligned
 	m_massPreconditioner = new MassPreconditioner(m_softBodies);
 	m_KKTPreconditioner = new KKTPreconditioner(m_softBodies, m_projection, m_lf, m_dt, m_implicit);
 	m_preconditioner = m_KKTPreconditioner;
-	m_reducedModel = false;
 }
 
 btDeformableBackwardEulerObjective::~btDeformableBackwardEulerObjective()
@@ -137,6 +136,8 @@ void btDeformableBackwardEulerObjective::updateVelocity(const TVStack& dv)
 
 void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero)
 {
+	static btScalar sim_time = 0;
+
 	size_t counter = 0;
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
@@ -148,7 +149,7 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 		}
 		if (m_implicit)
 		{
-			if (m_reducedModel)
+			if (psb->m_reducedModel)
 			{
 				// for (int j = 0; j < psb->m_reducedNodes.size(); ++j)	// TODO: reduced soft body
 				// {
@@ -171,25 +172,30 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 		}
 		else
 		{
-			if (m_reducedModel)
+			if (psb->m_reducedModel)
 			{
 				// get reduced force
-				// btAlignedObjectArray<btScalar> reduced_force;
-				// reduced_force.resize(psb->m_reducedNodes.size());
-				// for (int r = 0; r < psb->m_reducedNodes.size(); ++r)
-				// 	reduced_force[r] = psb->m_Kr[r] * psb->m_reducedNodes[r];
+				btAlignedObjectArray<btScalar> reduced_force;
+				reduced_force.resize(psb->m_reducedDofs.size());
+				for (int r = 0; r < psb->m_reducedDofs.size(); ++r)
+					reduced_force[r] = psb->m_Kr[r] * psb->m_reducedDofs[r];
 
-				// // update reduced velocity
-				// for (int r = 0; r < psb->m_reducedNodes.size(); ++r)	// TODO: reduced soft body
-				// {
-				// 	btScalar mass_inv = (psb->m_Mr[r] == 0) ? 0 : 1.0 / psb->m_Mr[r];
-				// 	// btScalar delta_v = m_dt * mass_inv * reduced_force[r];
-				// 	btScalar delta_v = 1.0;
+				// update reduced velocity
+				for (int r = 0; r < psb->m_reducedDofs.size(); ++r)	// TODO: reduced soft body
+				{
+					btScalar mass_inv = (psb->m_Mr[r] == 0) ? 0 : 1.0 / psb->m_Mr[r];
+					// btScalar delta_v = m_dt * mass_inv * reduced_force[r];
 					
-				// 	psb->m_reducedVelocity[r] += delta_v;
-				// 	std::cout << psb->m_reducedVelocity[r] << "\t";
-				// }
-				// std::cout << "\n";
+					sim_time += m_dt;
+					// btScalar delta_v = 1;
+					// btScalar delta_v = 0.02 * cos(psb->m_eigenvalues[r] * sim_time);
+					btScalar delta_v = 0.02 * cos(psb->m_eigenvalues[r] * sim_time);
+					
+					// psb->m_reducedVelocity[r] = sin(psb->m_eigenvalues[r] * sim_time);
+					psb->m_reducedVelocity[r] -= delta_v;
+					
+					// std::cout << sim_time << "\t" << psb->m_reducedDofs[r] << "\t" << psb->m_reducedVelocity[r] << "\t" << delta_v << "\n";
+				}
 			}
 			else
 			{

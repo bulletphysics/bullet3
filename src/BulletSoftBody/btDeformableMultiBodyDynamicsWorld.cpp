@@ -72,12 +72,6 @@ btDeformableMultiBodyDynamicsWorld::~btDeformableMultiBodyDynamicsWorld()
 	delete m_solverDeformableBodyIslandCallback;
 }
 
-void btDeformableMultiBodyDynamicsWorld::setReducedModelFlag(bool reduced_model)
-{
-	m_reducedModel = reduced_model;
-	m_deformableBodySolver->m_objective->setReducedModel(reduced_model);
-}
-
 void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar timeStep)
 {
 	BT_PROFILE("internalSingleStepSimulation");
@@ -306,10 +300,10 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
 		btSoftBody* psb = m_softBodies[i];
-		if (m_reducedModel)
+		if (psb->m_reducedModel)
 		{
 			for (int r = 0; r < psb->m_reducedDofs.size(); ++r)
-				psb->m_reducedDofs[r] += timeStep * psb->m_reducedVelocity[r];
+				psb->m_reducedDofs[r] = timeStep * psb->m_reducedVelocity[r];
 		}
 		else
 		{
