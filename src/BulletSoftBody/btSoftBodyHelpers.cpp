@@ -1512,11 +1512,43 @@ void btSoftBodyHelpers::readBinary(btAlignedObjectArray<btScalar>& vec,
   f_in.close();
 }
 
-void btSoftBodyHelpers::readBinaryMat(btAlignedObjectArray<btAlignedObjectArray<btScalar> >& mat, 
+void btSoftBodyHelpers::readBinaryMat(btSoftBody::tDenseMatrix& mat, 
 																			const unsigned int n_start, 		// starting mode index
 																			const unsigned int n_modes, 		// #modes, outer array size
 																			const unsigned int n_full, 			// inner array size
 																			const char* file)
+{
+	std::ifstream f_in(file, std::ios::in | std::ios::binary);
+	// first get size
+	unsigned int v_size;
+	f_in.read((char*)&v_size, sizeof(uint32_t));
+	btAssert(v_size == n_full * n_full);
+
+	// read data
+	mat.resize(n_modes);
+	for (int i = 0; i < n_start + n_modes; ++i) 
+	{
+		for (int j = 0; j < n_full; ++j)
+		{
+			double temp;
+			f_in.read((char*)&temp, sizeof(double));
+
+			if (i >= n_start && j >= n_start && i < n_start + n_modes && j < n_start + n_modes)
+			{
+				if (mat[i - n_start].size() != n_modes)
+					mat[i - n_start].resize(n_modes);
+				mat[i - n_start][j - n_start] = btScalar(temp);
+			}
+		}
+	}
+  f_in.close();
+}
+
+void btSoftBodyHelpers::readBinaryModes(btSoftBody::tDenseMatrix& mat, 
+																				const unsigned int n_start, 		// starting mode index
+																				const unsigned int n_modes, 		// #modes, outer array size
+																				const unsigned int n_full, 			// inner array size
+																				const char* file)
 {
 	std::ifstream f_in(file, std::ios::in | std::ios::binary);
 	// first get size

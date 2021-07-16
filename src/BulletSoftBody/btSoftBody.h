@@ -798,6 +798,7 @@ public:
 	typedef btAlignedObjectArray<Material*> tMaterialArray;
 	typedef btAlignedObjectArray<Joint*> tJointArray;
 	typedef btAlignedObjectArray<btSoftBody*> tSoftBodyArray;
+	typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > tDenseMatrix;
 
 	//
 	// Fields
@@ -860,7 +861,9 @@ public:
 	btAlignedObjectArray<btScalar> m_reducedVelocity;		   // Reduced velocity array
 	btAlignedObjectArray<btScalar> m_x0;									 // Rest position
 	btAlignedObjectArray<btScalar> m_eigenvalues;		// eigenvalues of the reduce deformable model
-	btAlignedObjectArray<btAlignedObjectArray<btScalar> > m_modes;	// modes of the reduced deformable model. Each inner array is a mode, outer array size = n_modes
+	tDenseMatrix m_modes;														// modes of the reduced deformable model. Each inner array is a mode, outer array size = n_modes
+	tDenseMatrix m_KrDense;													// reduced stiffness matrix (dense)
+	tDenseMatrix m_MrDense;													// reduced mass matrix (dense)
 	btAlignedObjectArray<btScalar> m_Kr;	// reduced stiffness matrix
 	btAlignedObjectArray<btScalar> m_Mr;	// reduced mass matrix //TODO: do we need this?
 	btAlignedObjectArray<btScalar> m_M;		// full mass matrix //TODO: maybe don't need this?

@@ -93,7 +93,6 @@ public:
     BasicTest(struct GUIHelperInterface* helper)
         : CommonDeformableBodyBase(helper)
     {
-        // m_linearElasticity = 0;
         m_massSpring = nullptr;
         m_nFull = 0;
         sim_time = 0;
@@ -138,9 +137,10 @@ public:
       // TODO: remove this. very hacky way of adding initial deformation
       if (first_step && !psb->m_bUpdateRtCst) 
       {
-        getDeformedShape(psb, 0);
+        getDeformedShape(psb, 0, 100);
         first_step = false;
         mapToReducedDofs(psb);
+        // std::cout << psb->m_reducedDofs[0] << "\n";
       }
 
       // compute reduced dofs
@@ -149,13 +149,10 @@ public:
       sim_time += deltaTime;
       // std::cout << psb->m_eigenvalues[0] << "\t" << sim_time << "\t" << deltaTime  << "\t" << sin(psb->m_eigenvalues[0] * sim_time) << "\n";
       
-      // float internalTimeStep = 1. / 60.f;
-      float internalTimeStep = 1;
-      m_dynamicsWorld->stepSimulation(1, 1, internalTimeStep);
-
-      // for (int i = 0; i < m_nReduced; ++i)
-      //   std::cout << psb->m_reducedDofs[i] << "\t";
-      // std::cout << "\n";
+      float internalTimeStep = 1. / 60.f;
+      m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
+      // float internalTimeStep = 1;
+      // m_dynamicsWorld->stepSimulation(1, 1, internalTimeStep);
 
       // map reduced dof back to full
       mapToFullDofs(psb);
@@ -217,7 +214,13 @@ void BasicTest::initPhysics()
         btSoftBodyHelpers::readBinary(psb->m_Mr, m_startMode, m_nReduced, 3 * m_nFull, Mr_file.c_str());
 
         std::string modes_file("../../../examples/SoftDemo/modes.bin");
-        btSoftBodyHelpers::readBinaryMat(psb->m_modes, m_startMode, m_nReduced, 3 * m_nFull, modes_file.c_str());	// default to 3D
+        btSoftBodyHelpers::readBinaryModes(psb->m_modes, m_startMode, m_nReduced, 3 * m_nFull, modes_file.c_str());	// default to 3D
+
+        // std::string Kr_dense_file("../../../examples/SoftDemo/Kr_dense.bin");
+        // btSoftBodyHelpers::readBinaryMat(psb->m_KrDense, m_startMode, m_nReduced, 3 * m_nFull, Kr_dense_file.c_str());
+        
+        // std::string Mr_dense_file("../../../examples/SoftDemo/Mr_dense.bin");
+        // btSoftBodyHelpers::readBinaryMat(psb->m_MrDense, m_startMode, m_nReduced, 3 * m_nFull, Mr_dense_file.c_str());
 
         // for (int i = 0; i < 3*m_nFull; ++i)
         //   std::cout << psb->m_modes[0][i] << '\n';

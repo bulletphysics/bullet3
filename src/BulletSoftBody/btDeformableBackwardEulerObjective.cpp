@@ -177,24 +177,25 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 				// get reduced force
 				btAlignedObjectArray<btScalar> reduced_force;
 				reduced_force.resize(psb->m_reducedDofs.size());
-				for (int r = 0; r < psb->m_reducedDofs.size(); ++r)
-					reduced_force[r] = psb->m_Kr[r] * psb->m_reducedDofs[r];
+				for (int r = 0; r < psb->m_reducedDofs.size(); ++r) {
+					reduced_force[r] = 100 * psb->m_Kr[r] * psb->m_reducedDofs[r]; //TODO: increase stiffness
+					// std::cout << psb->m_Kr[r] << "\t" << psb->m_reducedDofs[r] << "\n";
+				}
 
 				// update reduced velocity
-				for (int r = 0; r < psb->m_reducedDofs.size(); ++r)	// TODO: reduced soft body
+				for (int r = 0; r < psb->m_reducedDofs.size(); ++r)
 				{
 					btScalar mass_inv = (psb->m_Mr[r] == 0) ? 0 : 1.0 / psb->m_Mr[r];
-					// btScalar delta_v = m_dt * mass_inv * reduced_force[r];
+					btScalar delta_v = m_dt * mass_inv * reduced_force[r];
 					
 					sim_time += m_dt;
 					// btScalar delta_v = 1;
-					// btScalar delta_v = 0.02 * cos(psb->m_eigenvalues[r] * sim_time);
-					btScalar delta_v = 0.02 * cos(psb->m_eigenvalues[r] * sim_time);
+					// btScalar delta_v = 0.005 * cos(psb->m_eigenvalues[r] * sim_time);
 					
 					// psb->m_reducedVelocity[r] = sin(psb->m_eigenvalues[r] * sim_time);
 					psb->m_reducedVelocity[r] -= delta_v;
 					
-					// std::cout << sim_time << "\t" << psb->m_reducedDofs[r] << "\t" << psb->m_reducedVelocity[r] << "\t" << delta_v << "\n";
+					// std::cout << sim_time << "\t" << psb->m_reducedDofs[r] << "\t" << psb->m_reducedVelocity[r] << "\t" << delta_v << "\t" << reduced_force[r] << "\n";
 				}
 			}
 			else
