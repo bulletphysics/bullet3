@@ -40,10 +40,10 @@ class BasicTest : public CommonDeformableBodyBase
     typedef btAlignedObjectArray<btSoftBody::Node> tNodeArray;
 
     // btDeformableLinearElasticityForce* m_linearElasticity;
-    btDeformableMassSpringForce* m_massSpring;
+    // btDeformableMassSpringForce* m_massSpring;
 
     static const unsigned int m_startMode = 6;  // actual mode# should +1
-    static const unsigned int m_nReduced = 1;
+    static const unsigned int m_nReduced = 2;
     static const unsigned int selected_mode = 0;
     unsigned int m_nFull;
     btScalar sim_time;
@@ -55,13 +55,10 @@ class BasicTest : public CommonDeformableBodyBase
       btAssert(psb->m_reducedDofs.size() == m_nReduced);
       for (int j = 0; j < m_nReduced; ++j) 
       {
+        psb->m_reducedDofs[j] = 0;
         for (int i = 0; i < m_nFull; ++i)
           for (int k = 0; k < 3; ++k)
-          {
-            int idx_f = 3 * i + k;
-            psb->m_reducedDofs[j] = psb->m_modes[j][idx_f] * (psb->m_nodes[i].m_x[k] - psb->m_x0[idx_f]);
-            // psb->m_reducedVelocity[j] = psb->m_modes[j][idx_f] * psb->m_nodes[i].m_v[k];
-          }
+            psb->m_reducedDofs[j] += psb->m_modes[j][3 * i + k] * (psb->m_nodes[i].m_x[k] - psb->m_x0[3 * i + k]);
       }
     }
     
@@ -69,16 +66,21 @@ class BasicTest : public CommonDeformableBodyBase
     void mapToFullDofs(btSoftBody* psb)
     {
       btAssert(psb->m_nodes.size() == m_nFull);
-      for (int j = 0; j < m_nReduced; ++j) 
+      btAlignedObjectArray<btVector3> delta_x;
+      delta_x.resize(m_nFull);
+      for (int i = 0; i < m_nFull; ++i)
       {
-        for (int i = 0; i < m_nFull; ++i)
-          for (int k = 0; k < 3; ++k)
-          {
-            int idx_f = 3 * i + k;
-            psb->m_nodes[i].m_x[k] = psb->m_x0[idx_f] + psb->m_modes[j][idx_f] * psb->m_reducedDofs[j];
-            // psb->m_nodes[i].m_v[k] = psb->m_modes[j][idx_f] * psb->m_reducedVelocity[j];
-          }
+        for (int k = 0; k < 3; ++k)
+        {
+          // compute displacement
+          delta_x[i][k] = 0;
+          for (int j = 0; j < m_nReduced; ++j)   
+            delta_x[i][k] += psb->m_modes[j][3 * i + k] * psb->m_reducedDofs[j];
+          // get new coordinates
+          psb->m_nodes[i].m_x[k] = psb->m_x0[3 * i + k] + delta_x[i][k];
+        }
       }
+      
     }
 
     // get deformed shape
@@ -93,7 +95,6 @@ public:
     BasicTest(struct GUIHelperInterface* helper)
         : CommonDeformableBodyBase(helper)
     {
-        m_massSpring = nullptr;
         m_nFull = 0;
         sim_time = 0;
         first_step = true;
@@ -137,7 +138,7 @@ public:
       // TODO: remove this. very hacky way of adding initial deformation
       if (first_step && !psb->m_bUpdateRtCst) 
       {
-        getDeformedShape(psb, 0, 100);
+        // getDeformedShape(psb, 0, 0.5);
         first_step = false;
         mapToReducedDofs(psb);
         // std::cout << psb->m_reducedDofs[0] << "\n";
@@ -192,7 +193,7 @@ void BasicTest::initPhysics()
     m_solver = sol;
 
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
-    btVector3 gravity = btVector3(0, 0, 0);
+    btVector3 gravity = btVector3(0, -10, 0);
     m_dynamicsWorld->setGravity(gravity);
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
@@ -216,56 +217,18 @@ void BasicTest::initPhysics()
         std::string modes_file("../../../examples/SoftDemo/modes.bin");
         btSoftBodyHelpers::readBinaryModes(psb->m_modes, m_startMode, m_nReduced, 3 * m_nFull, modes_file.c_str());	// default to 3D
 
-        // std::string Kr_dense_file("../../../examples/SoftDemo/Kr_dense.bin");
-        // btSoftBodyHelpers::readBinaryMat(psb->m_KrDense, m_startMode, m_nReduced, 3 * m_nFull, Kr_dense_file.c_str());
-        
-        // std::string Mr_dense_file("../../../examples/SoftDemo/Mr_dense.bin");
-        // btSoftBodyHelpers::readBinaryMat(psb->m_MrDense, m_startMode, m_nReduced, 3 * m_nFull, Mr_dense_file.c_str());
-
-        // for (int i = 0; i < 3*m_nFull; ++i)
-        //   std::cout << psb->m_modes[0][i] << '\n';
-
-        // std::string M_file("../../../examples/SoftDemo/M_diag_mat.bin");
-        // btSoftBodyHelpers::readBinary(psb->m_M, buffer_n_modes, M_file.c_str());
-
         // get rest position
         psb->m_x0.resize(3 * psb->m_nodes.size());
         for (int i = 0; i < psb->m_nodes.size(); ++i)
           for (int k = 0; k < 3; ++k)
             psb->m_x0[3 * i + k] = psb->m_nodes[i].m_x[k];
 
-        // btAlignedObjectArray<btAlignedObjectArray<btScalar> > M_red;
-        // M_red.resize(m_nReduced);
-        // for (int i = 0; i < m_nReduced; ++i) {
-        //   M_red.resize(m_nReduced);
-        // }
-
-        // for (int i = 0; i < m_nFull; ++i) {
-        //   for (int j = 0; j < m_nReduced; ++j) {
-        //     for (int k = 0; k < m_nFull; ++k) {
-        //       for (int l = 0; l < m_nReduced; ++l) {
-        //         btScalar tmp = psb->m_modes[i][j] * psb->m_M[i] * psb->m_modes[k][l];
-        //         std::cout << tmp << '\n';
-        //       }
-        //     }
-        //   }
-        // }
-
-        // std::ofstream outfile1("before_map.txt");
-        // for (int i = 0; i < psb->m_nodes.size(); ++i) {
-        //   for (int k = 0; k < 3; ++k)
-        //     outfile1 << psb->m_nodes[i].m_x[k] << '\n';
-        // }
-        // outfile1.close();
-
-        // mapToFullDofs(psb->m_modes, psb->m_reducedNodes, psb->m_reducedVelocity, psb->m_nodes);
-
-        // std::ofstream outfile2("after_map.txt");
-        // for (int i = 0; i < psb->m_nodes.size(); ++i) {
-        //   for (int k = 0; k < 3; ++k)
-        //     outfile2 << psb->m_nodes[i].m_x[k] << '\n';
-        // }
-        // outfile2.close();
+        std::ofstream outfile1("before_map.txt");
+        for (int i = 0; i < psb->m_nodes.size(); ++i) {
+          for (int k = 0; k < 3; ++k)
+            outfile1 << psb->m_nodes[i].m_x[k] << '\n';
+        }
+        outfile1.close();
 
         getDeformableDynamicsWorld()->addSoftBody(psb);
         psb->scale(btVector3(2, 2, 2));
@@ -281,14 +244,10 @@ void BasicTest::initPhysics()
         btSoftBodyHelpers::generateBoundaryFaces(psb);
         
         psb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
-
-        // btDeformableLinearElasticityForce* linearElasticity = new btDeformableLinearElasticityForce(100,100,0.01);
-        // m_linearElasticity = linearElasticity;
         
-        m_massSpring = new btDeformableMassSpringForce(10.0, 0.0); //TODO: this stiffness needs to match the modes
-
-        getDeformableDynamicsWorld()->addForce(psb, m_massSpring);
-        m_forces.push_back(m_massSpring);
+        btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
+        getDeformableDynamicsWorld()->addForce(psb, gravity_force);
+        m_forces.push_back(gravity_force);
     }
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);

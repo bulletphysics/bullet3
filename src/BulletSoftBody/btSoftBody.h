@@ -867,7 +867,6 @@ public:
 	btAlignedObjectArray<btScalar> m_Kr;	// reduced stiffness matrix
 	btAlignedObjectArray<btScalar> m_Mr;	// reduced mass matrix //TODO: do we need this?
 	btAlignedObjectArray<btScalar> m_M;		// full mass matrix //TODO: maybe don't need this?
-
 	//
 	// Api
 	//
