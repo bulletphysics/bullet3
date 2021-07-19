@@ -223,13 +223,6 @@ void BasicTest::initPhysics()
           for (int k = 0; k < 3; ++k)
             psb->m_x0[3 * i + k] = psb->m_nodes[i].m_x[k];
 
-        std::ofstream outfile1("before_map.txt");
-        for (int i = 0; i < psb->m_nodes.size(); ++i) {
-          for (int k = 0; k < 3; ++k)
-            outfile1 << psb->m_nodes[i].m_x[k] << '\n';
-        }
-        outfile1.close();
-
         getDeformableDynamicsWorld()->addSoftBody(psb);
         psb->scale(btVector3(2, 2, 2));
         psb->translate(btVector3(0, 7, 0));
@@ -242,6 +235,13 @@ void BasicTest::initPhysics()
         psb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
         psb->m_sleepingThreshold = 0;
         btSoftBodyHelpers::generateBoundaryFaces(psb);
+
+        std::string M_file("../../../examples/SoftDemo/M_diag_mat.bin");
+        btAlignedObjectArray<btScalar> mass_array;
+        btSoftBodyHelpers::readBinary(mass_array, 0, 3 * m_nFull, 3 * m_nFull, M_file.c_str());
+        // assign mass to nodes
+        for (int i = 0; i < psb->m_nodes.size(); ++i)
+          psb->m_nodes[i].m_im = mass_array[3 * i];   // here we use m_im as the actual mass not the mass inverse
         
         psb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         

@@ -168,7 +168,6 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 		{
 			if (psb->m_reducedModel)
 			{
-				btScalar scale = 100;
 				// get reduced force
 				btAlignedObjectArray<btScalar> reduced_force;
 				reduced_force.resize(psb->m_reducedDofs.size(), 0);
@@ -181,10 +180,8 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 					// 		reduced_force[r] += scale * psb->m_modes[r][3 * i + k] * force[i][k];
 
 					// std::cout << reduced_force[r] << '\t';
-					
-					//TODO: increase stiffness
-					// reduced_force[r] += scale * psb->m_Kr[r] * psb->m_reducedDofs[r];
-					reduced_force[r] += scale * psb->m_Kr[r] * (psb->m_reducedDofs[r] + 0.1 * psb->m_reducedVelocity[r]);
+
+					reduced_force[r] +=  psb->m_Kr[r] * (psb->m_reducedDofs[r] + 0.1 * psb->m_reducedVelocity[r]);
 					// std::cout << reduced_force[r] << '\n';
 					// std::cout << psb->m_Kr[r] << "\t" << psb->m_reducedDofs[r] << "\n";
 				}
@@ -192,14 +189,14 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 
 				// apply impulses to reduced deformable objects
 				static btScalar sim_time = 0;
-				static btScalar target_vel = 5;
+				static btScalar target_vel = 20;
 				static bool apply_impulse = true;
 				if (psb->m_reducedModel && apply_impulse && sim_time > 1)
 				{
 					sim_time += m_dt;
 					apply_impulse = false;
 
-					btScalar f_imp = (target_vel - psb->m_nodes[0].m_v[1]) / m_dt;// TODO: need full mass?
+					btScalar f_imp = psb->m_nodes[i].m_im * (target_vel - psb->m_nodes[0].m_v[1]) / m_dt;
 					for (int i = 0; i < psb->m_reducedDofs.size(); ++i)
 					{
 						reduced_force[i] += psb->m_modes[i][0 * 3 + 1] * f_imp;
