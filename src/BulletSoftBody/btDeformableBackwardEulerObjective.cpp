@@ -173,6 +173,7 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 				btAlignedObjectArray<btScalar> reduced_force;
 				reduced_force.resize(psb->m_reducedDofs.size(), 0);
 
+				// add internal force (elastic force & damping force)
 				for (int r = 0; r < psb->m_reducedDofs.size(); ++r) {
 					// map all force to reduced
 					// for (int i = 0; i < force.size(); ++i)
@@ -180,23 +181,25 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 					// 		reduced_force[r] += scale * psb->m_modes[r][3 * i + k] * force[i][k];
 
 					// std::cout << reduced_force[r] << '\t';
-
-					// add internal force
-					reduced_force[r] += scale * psb->m_Kr[r] * psb->m_reducedDofs[r]; //TODO: increase stiffness
+					
+					//TODO: increase stiffness
+					// reduced_force[r] += scale * psb->m_Kr[r] * psb->m_reducedDofs[r];
+					reduced_force[r] += scale * psb->m_Kr[r] * (psb->m_reducedDofs[r] + 0.1 * psb->m_reducedVelocity[r]);
 					// std::cout << reduced_force[r] << '\n';
 					// std::cout << psb->m_Kr[r] << "\t" << psb->m_reducedDofs[r] << "\n";
 				}
 
 
 				// apply impulses to reduced deformable objects
-				static btScalar time_remain = 0.1;
-				static btScalar target_vel = 1;
-				if (psb->m_reducedModel && time_remain > 0)
+				static btScalar sim_time = 0;
+				static btScalar target_vel = 5;
+				static bool apply_impulse = true;
+				if (psb->m_reducedModel && apply_impulse && sim_time > 1)
 				{
-					btScalar dt = (m_dt < time_remain) ? m_dt : time_remain;
-					time_remain -= m_dt;
+					sim_time += m_dt;
+					apply_impulse = false;
 
-					btScalar f_imp = (target_vel - psb->m_nodes[0].m_v[1]) / dt;// TODO: need full mass?
+					btScalar f_imp = (target_vel - psb->m_nodes[0].m_v[1]) / m_dt;// TODO: need full mass?
 					for (int i = 0; i < psb->m_reducedDofs.size(); ++i)
 					{
 						reduced_force[i] += psb->m_modes[i][0 * 3 + 1] * f_imp;
