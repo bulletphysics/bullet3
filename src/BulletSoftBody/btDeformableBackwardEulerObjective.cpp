@@ -193,7 +193,6 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 				static bool apply_impulse = true;
 				if (psb->m_reducedModel && apply_impulse && sim_time > 1)
 				{
-					sim_time += m_dt;
 					apply_impulse = false;
 
 					btScalar f_imp = psb->m_nodes[i].m_im * (target_vel - psb->m_nodes[0].m_v[1]) / m_dt;
