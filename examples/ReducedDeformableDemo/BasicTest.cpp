@@ -15,8 +15,8 @@
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
-#include "BulletSoftBody/btSoftBody.h"
-#include "BulletSoftBody/btSoftBodyHelpers.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBody.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodyHelpers.h"
 #include "BulletSoftBody/btDeformableBodySolver.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
@@ -200,22 +200,22 @@ void BasicTest::initPhysics()
     // create volumetric soft body
     {        
         std::string filename("../../../examples/SoftDemo/mesh.vtk");
-        btSoftBody* psb = btSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
+        btReducedSoftBody* psb = btReducedSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
         m_nFull = psb->m_nodes.size();
         psb->m_reducedModel = true;
 
         // read in eigenmodes, stiffness and mass matrices
         std::string eigenvalues_file("../../../examples/SoftDemo/eigenvalues.bin");
-        btSoftBodyHelpers::readBinary(psb->m_eigenvalues, m_startMode, m_nReduced, 3 * m_nFull, eigenvalues_file.c_str());
+        btReducedSoftBodyHelpers::readBinary(psb->m_eigenvalues, m_startMode, m_nReduced, 3 * m_nFull, eigenvalues_file.c_str());
 
         std::string Kr_file("../../../examples/SoftDemo/K_r_diag_mat.bin");
-        btSoftBodyHelpers::readBinary(psb->m_Kr, m_startMode, m_nReduced, 3 * m_nFull, Kr_file.c_str());
+        btReducedSoftBodyHelpers::readBinary(psb->m_Kr, m_startMode, m_nReduced, 3 * m_nFull, Kr_file.c_str());
 
         std::string Mr_file("../../../examples/SoftDemo/M_r_diag_mat.bin");
-        btSoftBodyHelpers::readBinary(psb->m_Mr, m_startMode, m_nReduced, 3 * m_nFull, Mr_file.c_str());
+        btReducedSoftBodyHelpers::readBinary(psb->m_Mr, m_startMode, m_nReduced, 3 * m_nFull, Mr_file.c_str());
 
         std::string modes_file("../../../examples/SoftDemo/modes.bin");
-        btSoftBodyHelpers::readBinaryModes(psb->m_modes, m_startMode, m_nReduced, 3 * m_nFull, modes_file.c_str());	// default to 3D
+        btReducedSoftBodyHelpers::readBinaryModes(psb->m_modes, m_startMode, m_nReduced, 3 * m_nFull, modes_file.c_str());	// default to 3D
 
         // get rest position
         psb->m_x0.resize(3 * psb->m_nodes.size());
@@ -238,7 +238,7 @@ void BasicTest::initPhysics()
 
         std::string M_file("../../../examples/SoftDemo/M_diag_mat.bin");
         btAlignedObjectArray<btScalar> mass_array;
-        btSoftBodyHelpers::readBinary(mass_array, 0, 3 * m_nFull, 3 * m_nFull, M_file.c_str());
+        btReducedSoftBodyHelpers::readBinary(mass_array, 0, 3 * m_nFull, 3 * m_nFull, M_file.c_str());
         // assign mass to nodes
         for (int i = 0; i < psb->m_nodes.size(); ++i)
           psb->m_nodes[i].m_im = mass_array[3 * i];   // here we use m_im as the actual mass not the mass inverse

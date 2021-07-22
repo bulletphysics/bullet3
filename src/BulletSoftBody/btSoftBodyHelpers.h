@@ -144,13 +144,6 @@ struct btSoftBodyHelpers
 											bool bfacesfromtetras);
 	static btSoftBody* CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file);
 
-	// read in a binary vector
-	static void readBinary(btAlignedObjectArray<btScalar>& vec, const unsigned int n_start, const unsigned int n_modes, const unsigned int n_full, const char* file);
-	// read in a binary matrix
-	static void readBinaryMat(btSoftBody::tDenseMatrix& mat, const unsigned int n_start, const unsigned int n_modes, const unsigned int n_full, const char* file);
-	// read in modes file
-	static void readBinaryModes(btSoftBody::tDenseMatrix& mat, const unsigned int n_start, const unsigned int n_modes, const unsigned int n_full, const char* file);
-
 	static void writeObj(const char* file, const btSoftBody* psb);
 
 	static void getBarycentricWeights(const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& d, const btVector3& p, btVector4& bary);

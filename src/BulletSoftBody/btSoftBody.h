@@ -856,6 +856,7 @@ public:
 
 	btScalar m_restLengthScale;
 
+	// TODO: delete
 	bool m_reducedModel;																	 // Reduced deformable model flag
 	btAlignedObjectArray<btScalar> m_reducedDofs;				   // Reduced degree of freedom
 	btAlignedObjectArray<btScalar> m_reducedVelocity;		   // Reduced velocity array
