@@ -27,7 +27,7 @@ SET(BulletSoftBody_SRCS
 
 	BulletReducedSoftBody/btReducedSoftBody.cpp
 	BulletReducedSoftBody/btReducedSoftBodyHelpers.cpp
-	BulletReducedSoftBody/btReduceSoftBodySolver.cpp
+	BulletReducedSoftBody/btReducedSoftBodySolver.cpp
 )
 
 
@@ -70,7 +70,7 @@ SET(BulletSoftBody_HDRS
 
 	BulletReducedSoftBody/btReducedSoftBody.h
 	BulletReducedSoftBody/btReducedSoftBodyHelpers.h
-	BulletReducedSoftBody/btReduceSoftBodySolver.h
+	BulletReducedSoftBody/btReducedSoftBodySolver.h
 )
 
 

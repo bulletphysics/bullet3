@@ -35,7 +35,7 @@ class btReducedSoftBody : public btSoftBody
 	tDenseArray m_Mr;	// reduced mass matrix //TODO: do we need this?
   
   // full space
-  TVStack m_x0;									 // Rest position
+  tDenseArray m_x0;									 // Rest position
 
   // rigid frame
 

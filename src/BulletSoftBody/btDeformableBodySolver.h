@@ -24,8 +24,8 @@
 #include "btConjugateResidual.h"
 #include "btConjugateGradient.h"
 struct btCollisionObjectWrapper;
-class btDeformableBackwardEulerObjective;
-class btDeformableMultiBodyDynamicsWorld;
+// class btDeformableBackwardEulerObjective;
+// class btDeformableMultiBodyDynamicsWorld;
 
 class btDeformableBodySolver : public btSoftBodySolver
 {
@@ -149,6 +149,55 @@ public:
 	// 1/2 * dv^T * M * dv
 	// used in line search
 	btScalar kineticEnergy();
+
+	// add explicit force to the velocity in the objective class
+	virtual void applyExplicitForce();
+
+	// execute position/velocity update and apply anchor constraints in the integrateTransforms from the Dynamics world
+	virtual void applyTransforms(btScalar timeStep);
+
+	virtual void setStrainLimiting(bool opt)
+	{
+		m_objective->m_projection.m_useStrainLimiting = opt;
+	}
+
+	virtual void setPreconditioner(int opt)
+	{
+		switch (opt)
+		{
+			case btDeformableBackwardEulerObjective::Mass_preconditioner:
+				m_objective->m_preconditioner = m_objective->m_massPreconditioner;
+				break;
+
+			case btDeformableBackwardEulerObjective::KKT_preconditioner:
+				m_objective->m_preconditioner = m_objective->m_KKTPreconditioner;
+				break;
+			
+			default:
+				btAssert(false);
+				break;
+		}
+	}
+
+	virtual btAlignedObjectArray<btDeformableLagrangianForce*>* getLagrangianForceArray()
+	{
+		return &(m_objective->m_lf);
+	}
+
+	virtual const btAlignedObjectArray<btSoftBody::Node*>* getIndices()
+	{
+		return m_objective->getIndices();
+	}
+
+	virtual void setProjection()
+	{
+		m_objective->m_projection.setProjection();
+	}
+
+	virtual void setLagrangeMultiplier()
+	{
+		m_objective->m_projection.setLagrangeMultiplier();
+	}
 
 	// unused functions
 	virtual void optimize(btAlignedObjectArray<btSoftBody*>& softBodies, bool forceUpdate = false) {}

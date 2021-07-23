@@ -855,7 +855,7 @@ public:
 	btVector3 m_windVelocity;
 
 	btScalar m_restLengthScale;
-
+	
 	//
 	// Api
 	//

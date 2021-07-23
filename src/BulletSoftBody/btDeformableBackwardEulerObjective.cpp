@@ -149,76 +149,20 @@ void btDeformableBackwardEulerObjective::applyForce(TVStack& force, bool setZero
 		}
 		if (m_implicit)
 		{
-			if (psb->m_reducedModel)
+			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
-				// TODO: reduced soft body
-			}
-			else 
-			{
-				for (int j = 0; j < psb->m_nodes.size(); ++j)
+				if (psb->m_nodes[j].m_im != 0)
 				{
-					if (psb->m_nodes[j].m_im != 0)
-					{
-						psb->m_nodes[j].m_v += psb->m_nodes[j].m_effectiveMass_inv * force[counter++];
-					}
+					psb->m_nodes[j].m_v += psb->m_nodes[j].m_effectiveMass_inv * force[counter++];
 				}
 			}
 		}
 		else
 		{
-			if (psb->m_reducedModel)
+			for (int j = 0; j < psb->m_nodes.size(); ++j)
 			{
-				// get reduced force
-				btAlignedObjectArray<btScalar> reduced_force;
-				reduced_force.resize(psb->m_reducedDofs.size(), 0);
-
-				// add internal force (elastic force & damping force)
-				for (int r = 0; r < psb->m_reducedDofs.size(); ++r) {
-					// map all force to reduced
-					// for (int i = 0; i < force.size(); ++i)
-					// 	for (int k = 0; k < 3; ++k)
-					// 		reduced_force[r] += scale * psb->m_modes[r][3 * i + k] * force[i][k];
-
-					// std::cout << reduced_force[r] << '\t';
-
-					reduced_force[r] +=  psb->m_Kr[r] * (psb->m_reducedDofs[r] + 0.1 * psb->m_reducedVelocity[r]);
-					// std::cout << reduced_force[r] << '\n';
-					// std::cout << psb->m_Kr[r] << "\t" << psb->m_reducedDofs[r] << "\n";
-				}
-
-
-				// apply impulses to reduced deformable objects
-				static btScalar sim_time = 0;
-				static btScalar target_vel = 20;
-				static bool apply_impulse = true;
-				if (psb->m_reducedModel && apply_impulse && sim_time > 1)
-				{
-					apply_impulse = false;
-
-					btScalar f_imp = psb->m_nodes[i].m_im * (target_vel - psb->m_nodes[0].m_v[1]) / m_dt;
-					for (int i = 0; i < psb->m_reducedDofs.size(); ++i)
-					{
-						reduced_force[i] += psb->m_modes[i][0 * 3 + 1] * f_imp;
-					}
-				}
-
-				// update reduced velocity
-				for (int r = 0; r < psb->m_reducedDofs.size(); ++r)
-				{
-					btScalar mass_inv = (psb->m_Mr[r] == 0) ? 0 : 1.0 / psb->m_Mr[r];
-					btScalar delta_v = m_dt * mass_inv * reduced_force[r];
-					
-					sim_time += m_dt;
-					psb->m_reducedVelocity[r] -= delta_v;
-				}
-			}
-			else
-			{
-				for (int j = 0; j < psb->m_nodes.size(); ++j)
-				{
-					btScalar one_over_mass = (psb->m_nodes[j].m_im == 0) ? 0 : psb->m_nodes[j].m_im;
-					psb->m_nodes[j].m_v += one_over_mass * force[counter++];
-				}
+				btScalar one_over_mass = (psb->m_nodes[j].m_im == 0) ? 0 : psb->m_nodes[j].m_im;
+				psb->m_nodes[j].m_v += one_over_mass * force[counter++];
 			}
 		}
 	}

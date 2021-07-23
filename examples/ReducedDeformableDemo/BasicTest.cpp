@@ -17,7 +17,7 @@
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
 #include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBody.h"
 #include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodyHelpers.h"
-#include "BulletSoftBody/btDeformableBodySolver.h"
+#include "BulletSoftBody/BulletReducedSoftBody/btReducedSoftBodySolver.h"
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
@@ -133,7 +133,7 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-      btReducedSoftBody* rsb = static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0];
+      btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
       
       // TODO: remove this. very hacky way of adding initial deformation
       if (first_step && !rsb->m_bUpdateRtCst) 
@@ -186,13 +186,13 @@ void BasicTest::initPhysics()
     m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
 
     m_broadphase = new btDbvtBroadphase();
-    btDeformableBodySolver* deformableBodySolver = new btDeformableBodySolver();
+    btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
 
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
-    sol->setDeformableSolver(deformableBodySolver);
+    sol->setDeformableSolver(reducedSoftBodySolver);
     m_solver = sol;
 
-    m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, deformableBodySolver);
+    m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, reducedSoftBodySolver);
     btVector3 gravity = btVector3(0, -10, 0);
     m_dynamicsWorld->setGravity(gravity);
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);

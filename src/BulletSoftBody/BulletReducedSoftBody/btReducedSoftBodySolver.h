@@ -1,20 +1,18 @@
 #ifndef BT_REDUCED_SOFT_BODY_SOLVER_H
 #define BT_REDUCED_SOFT_BODY_SOLVER_H
 
-#include "btSoftBodySolver.h"
-#include "btDeformableMultiBodyDynamicsWorld.h"
+#include "btReducedSoftBody.h"
+#include "../btDeformableBodySolver.h"
 
-class btReducedSoftBodySolver : public btSoftBodySolver
+class btReducedSoftBody;
+
+class btReducedSoftBodySolver : public btDeformableBodySolver
 {
-  typedef btAlignedObjectArray<btReduceSoftBody*> btReducedSoftBodyArray;
-  typedef btAlignedObjectArray<btVector3> TVStack;
-
  protected:
-  btReducedSoftBodyArray m_reducedSoftBodies;
-  btScalar m_dt;
+  void applyForce();
 
  public:
-  btReducedSoftBodySolver() : m_dt(0) {}
+  btReducedSoftBodySolver() {}
   ~btReducedSoftBodySolver() {}
 
   virtual SolverTypes getSolverType() const
@@ -22,9 +20,13 @@ class btReducedSoftBodySolver : public btSoftBodySolver
     return REDUCED_DEFORMABLE_SOLVER;
   }
 
-  virtual void predictMotion(btScalar solver_dt);
+  // virtual void predictMotion(btScalar solver_dt);
 
-  virtual void solveConstraints(btScalar solver_dt);
+  // virtual void solveConstraints(btScalar solver_dt);
+
+  virtual void applyExplicitForce();
+
+  virtual void applyTransforms(btScalar timeStep);
 
 };
 

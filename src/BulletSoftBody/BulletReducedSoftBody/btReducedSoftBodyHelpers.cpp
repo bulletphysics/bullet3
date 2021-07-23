@@ -112,7 +112,7 @@ btReducedSoftBody* btReducedSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldIn
 }
 
 // read in binary files
-void btReducedSoftBodyHelpers::readBinary(btSoftBody::tDenseArray>& vec, 
+void btReducedSoftBodyHelpers::readBinary(btReducedSoftBody::tDenseArray& vec, 
 																	 const unsigned int n_start, 				// starting index
 																	 const unsigned int n_modes, 				// #entries read
 																	 const unsigned int n_full,					// array size
@@ -136,7 +136,7 @@ void btReducedSoftBodyHelpers::readBinary(btSoftBody::tDenseArray>& vec,
   f_in.close();
 }
 
-void btReducedSoftBodyHelpers::readBinaryMat(btSoftBody::tDenseMatrix& mat, 
+void btReducedSoftBodyHelpers::readBinaryMat(btReducedSoftBody::tDenseMatrix& mat, 
 																			const unsigned int n_start, 		// starting mode index
 																			const unsigned int n_modes, 		// #modes, outer array size
 																			const unsigned int n_full, 			// inner array size
@@ -168,7 +168,7 @@ void btReducedSoftBodyHelpers::readBinaryMat(btSoftBody::tDenseMatrix& mat,
   f_in.close();
 }
 
-void btReducedSoftBodyHelpers::readBinaryModes(btSoftBody::tDenseMatrix& mat, 
+void btReducedSoftBodyHelpers::readBinaryModes(btReducedSoftBody::tDenseMatrix& mat, 
 																				const unsigned int n_start, 		// starting mode index
 																				const unsigned int n_modes, 		// #modes, outer array size
 																				const unsigned int n_full, 			// inner array size
