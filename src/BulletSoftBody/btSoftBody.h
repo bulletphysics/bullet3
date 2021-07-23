@@ -856,15 +856,6 @@ public:
 
 	btScalar m_restLengthScale;
 
-	// TODO: delete
-	bool m_reducedModel;																	 // Reduced deformable model flag
-	btAlignedObjectArray<btScalar> m_reducedDofs;				   // Reduced degree of freedom
-	btAlignedObjectArray<btScalar> m_reducedVelocity;		   // Reduced velocity array
-	btAlignedObjectArray<btScalar> m_x0;									 // Rest position
-	btAlignedObjectArray<btScalar> m_eigenvalues;		// eigenvalues of the reduce deformable model
-	tDenseMatrix m_modes;														// modes of the reduced deformable model. Each inner array is a mode, outer array size = n_modes
-	btAlignedObjectArray<btScalar> m_Kr;	// reduced stiffness matrix
-	btAlignedObjectArray<btScalar> m_Mr;	// reduced mass matrix //TODO: do we need this?
 	//
 	// Api
 	//

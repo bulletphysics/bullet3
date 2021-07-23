@@ -112,7 +112,7 @@ btReducedSoftBody* btReducedSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldIn
 }
 
 // read in binary files
-void btReducedSoftBodyHelpers::readBinary(btAlignedObjectArray<btScalar>& vec, 
+void btReducedSoftBodyHelpers::readBinary(btSoftBody::tDenseArray>& vec, 
 																	 const unsigned int n_start, 				// starting index
 																	 const unsigned int n_modes, 				// #entries read
 																	 const unsigned int n_full,					// array size
