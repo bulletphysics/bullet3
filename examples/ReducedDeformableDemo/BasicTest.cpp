@@ -68,6 +68,8 @@ class BasicTest : public CommonDeformableBodyBase
       btAssert(rsb->m_nodes.size() == m_nFull);
       btAlignedObjectArray<btVector3> delta_x;
       delta_x.resize(m_nFull);
+      btVector3 origin = rsb->getWorldTransform().getOrigin();
+
       for (int i = 0; i < m_nFull; ++i)
       {
         for (int k = 0; k < 3; ++k)
@@ -77,7 +79,7 @@ class BasicTest : public CommonDeformableBodyBase
           for (int j = 0; j < m_nReduced; ++j)   
             delta_x[i][k] += rsb->m_modes[j][3 * i + k] * rsb->m_reducedDofs[j];
           // get new coordinates
-          rsb->m_nodes[i].m_x[k] = rsb->m_x0[3 * i + k] + delta_x[i][k];
+          rsb->m_nodes[i].m_x[k] = rsb->m_x0[3 * i + k] + delta_x[i][k] + origin[k]; //TODO: assume the initial origin is at (0,0,0)
         }
       }
       
@@ -240,8 +242,13 @@ void BasicTest::initPhysics()
         btAlignedObjectArray<btScalar> mass_array;
         btReducedSoftBodyHelpers::readBinary(mass_array, 0, 3 * m_nFull, 3 * m_nFull, M_file.c_str());
         // assign mass to nodes
+        btScalar mass = 0;
         for (int i = 0; i < rsb->m_nodes.size(); ++i)
+        {
           rsb->m_nodes[i].m_im = mass_array[3 * i];   // here we use m_im as the actual mass not the mass inverse
+          mass += mass_array[3 * i];
+        }
+        rsb->setMass(mass);
         
         rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         

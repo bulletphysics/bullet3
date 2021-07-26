@@ -512,7 +512,6 @@ void btDeformableBodySolver::applyExplicitForce()
 
 void btDeformableBodySolver::applyTransforms(btScalar timeStep)
 {
-	std::cout << "called base\n";
 	for (int i = 0; i < m_softBodies.size(); ++i)
 	{
 		btSoftBody* psb = m_softBodies[i];

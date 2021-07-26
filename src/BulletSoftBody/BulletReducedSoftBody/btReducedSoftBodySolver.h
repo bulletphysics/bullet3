@@ -24,6 +24,8 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
 
   // virtual void solveConstraints(btScalar solver_dt);
 
+  virtual void predictMotion(btScalar solverdt);
+
   virtual void applyExplicitForce();
 
   virtual void applyTransforms(btScalar timeStep);
