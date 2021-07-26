@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 
-btReducedSoftBody* btReducedSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file)
+btReducedSoftBody* btReducedSoftBodyHelpers::createFromVtkFile(btSoftBodyWorldInfo& worldInfo, const char* vtk_file)
 {
 	std::ifstream fs;
 	fs.open(vtk_file);
@@ -108,7 +108,43 @@ btReducedSoftBody* btReducedSoftBodyHelpers::CreateFromVtkFile(btSoftBodyWorldIn
 	printf("Tetras: %u\r\n", rsb->m_tetras.size());
 
 	fs.close();
+
+	// get rest position
+	rsb->m_x0.resize(3 * rsb->m_nodes.size());
+	for (int i = 0; i < rsb->m_nodes.size(); ++i)
+		for (int k = 0; k < 3; ++k)
+			rsb->m_x0[3 * i + k] = rsb->m_nodes[i].m_x[k];
+
 	return rsb;
+}
+
+void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftBody* rsb, const char* file_path)
+{
+	// read in eigenmodes, stiffness and mass matrices
+	std::string eigenvalues_file = std::string(file_path) + "eigenvalues.bin";
+	btReducedSoftBodyHelpers::readBinary(rsb->m_eigenvalues, rsb->m_startMode, rsb->m_nReduced, 3 * rsb->m_nFull, eigenvalues_file.c_str());
+
+	std::string Kr_file = std::string(file_path) + "K_r_diag_mat.bin";
+	btReducedSoftBodyHelpers::readBinary(rsb->m_Kr, rsb->m_startMode, rsb->m_nReduced, 3 * rsb->m_nFull, Kr_file.c_str());
+
+	std::string Mr_file = std::string(file_path) + "M_r_diag_mat.bin";
+	btReducedSoftBodyHelpers::readBinary(rsb->m_Mr, rsb->m_startMode, rsb->m_nReduced, 3 * rsb->m_nFull, Mr_file.c_str());
+
+	std::string modes_file = std::string(file_path) + "modes.bin";
+	btReducedSoftBodyHelpers::readBinaryModes(rsb->m_modes, rsb->m_startMode, rsb->m_nReduced, 3 * rsb->m_nFull, modes_file.c_str());	// default to 3D
+
+	std::string M_file = std::string(file_path) + "M_diag_mat.bin";
+	btAlignedObjectArray<btScalar> mass_array;
+	btReducedSoftBodyHelpers::readBinary(mass_array, 0, 3 * rsb->m_nFull, 3 * rsb->m_nFull, M_file.c_str());
+	// assign mass to nodes
+	btScalar mass = 0;
+	for (int i = 0; i < rsb->m_nodes.size(); ++i)
+	{
+		rsb->m_nodalMass[i] = mass_array[3 * i];
+		rsb->m_nodes[i].m_im = mass_array[3 * i] > 0 ? mass_array[3 * i] : 0;
+		mass += mass_array[3 * i];
+	}
+	rsb->setMass(mass);
 }
 
 // read in binary files

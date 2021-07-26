@@ -14,8 +14,15 @@ class btReducedSoftBody : public btSoftBody
   //
 
  protected:
-  //
-
+  // rigid frame
+  btScalar m_mass;          // total mass of the rigid frame
+  btScalar m_inverseMass;   // inverse of the total mass of the rigid frame
+  btVector3 m_linearVelocity;
+	btVector3 m_angularVelocity;
+	btVector3 m_linearFactor;
+	btVector3 m_angularFactor;
+	btVector3 m_invInertiaLocal;
+  btMatrix3x3 m_invInertiaTensorWorld;
 
  public:
   //
@@ -32,25 +39,19 @@ class btReducedSoftBody : public btSoftBody
   bool m_reducedModel;																	 // Reduced deformable model flag
 
   // reduced space
+  int m_startMode;
+  int m_nReduced;
+  int m_nFull;
 	tDenseMatrix m_modes;														// modes of the reduced deformable model. Each inner array is a mode, outer array size = n_modes
 	tDenseArray m_reducedDofs;				   // Reduced degree of freedom
 	tDenseArray m_reducedVelocity;		   // Reduced velocity array
 	tDenseArray m_eigenvalues;		// eigenvalues of the reduce deformable model
 	tDenseArray m_Kr;	// reduced stiffness matrix
 	tDenseArray m_Mr;	// reduced mass matrix //TODO: do we need this?
-
-  // rigid frame
-  btScalar m_mass;
-  btScalar m_inverseMass;
-  btVector3 m_linearVelocity;
-	btVector3 m_angularVelocity;
-	btVector3 m_linearFactor;
-	btVector3 m_angularFactor;
-	btVector3 m_invInertiaLocal;
-  btMatrix3x3 m_invInertiaTensorWorld;
   
   // full space
   tDenseArray m_x0;									 // Rest position
+  tDenseArray m_nodalMass;           // Mass on each node
 
   //
   // Api
@@ -58,9 +59,22 @@ class btReducedSoftBody : public btSoftBody
   btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m);
   ~btReducedSoftBody() {}
 
+  void setReducedModes(int start_mode, int num_modes, int full_size);
+
   void setMass(btScalar m);
 
   void predictIntegratedTransform(btScalar step, btTransform& predictedTransform);
+
+  //
+  // reduced dof related
+  //
+
+  // compute reduced degree of freedoms
+  void updateReducedDofs();
+
+  // compute full degree of freedoms
+  void updateFullDofs();
+
 
   // rigid motion related
 

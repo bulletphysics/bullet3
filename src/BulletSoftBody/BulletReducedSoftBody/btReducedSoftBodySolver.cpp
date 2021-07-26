@@ -43,37 +43,37 @@ void btReducedSoftBodySolver::applyForce()
     static btScalar sim_time = 0;
     static btScalar target_vel = 5;
     static int apply_impulse = 0;
-    if (rsb->m_reducedModel && apply_impulse < 4 && sim_time > 1)
+    if (rsb->m_reducedModel && apply_impulse < 4)
     {
       btScalar f_imp = 0;
       btVector3 imp(0, 0, 0);
       if (sim_time > 1 && apply_impulse == 0) 
       {
-        f_imp = rsb->m_nodes[i].m_im * (target_vel - rsb->m_nodes[0].m_v[1]) / m_dt;
+        f_imp = rsb->m_nodalMass[0] * (target_vel - rsb->m_nodes[0].m_v[1]) / m_dt;
         imp[1] = f_imp;
         apply_impulse++;
-        std::cout << "hit" << "\n";
+        std::cout << "hit" << f_imp << "\n";
       }
       if (sim_time > 2 && apply_impulse == 1) 
       {
-        f_imp = - 1.2 * rsb->m_nodes[i].m_im * (target_vel - rsb->m_nodes[0].m_v[1]) / m_dt;
+        f_imp = - 1.2 * rsb->m_nodalMass[0] * (target_vel - rsb->m_nodes[0].m_v[1]) / m_dt;
         imp[1] = f_imp;
         apply_impulse++;
-        std::cout << "hit2" << "\n";
+        std::cout << "hit2" << f_imp << "\n";
       }
       if (sim_time > 3 && apply_impulse == 2) 
       {
-        f_imp = 1 * rsb->m_nodes[i].m_im * (target_vel - rsb->m_nodes[0].m_v[0]) / m_dt;
+        f_imp = 1 * rsb->m_nodalMass[0] * (target_vel - rsb->m_nodes[0].m_v[0]) / m_dt;
         imp[2] = f_imp;
         apply_impulse++;
-        std::cout << "hit3" << "\n";
+        std::cout << "hit3" << f_imp << "\n";
       }
       if (sim_time > 4 && apply_impulse == 3) 
       {
-        f_imp = -1.1 * rsb->m_nodes[i].m_im * (target_vel - rsb->m_nodes[0].m_v[0]) / m_dt;
+        f_imp = -1.1 * rsb->m_nodalMass[0] * (target_vel - rsb->m_nodes[0].m_v[0]) / m_dt;
         imp[2] = f_imp;
         apply_impulse++;
-        std::cout << "hit4" << "\n";
+        std::cout << "hit4" << f_imp << "\n";
       }
       for (int i = 0; i < rsb->m_reducedDofs.size(); ++i)
       {

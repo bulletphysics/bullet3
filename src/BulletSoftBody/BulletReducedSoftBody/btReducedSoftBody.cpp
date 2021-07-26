@@ -1,11 +1,15 @@
 #include "btReducedSoftBody.h"
 #include "LinearMath/btTransformUtil.h"
+#include <iostream>
 
 btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m)
  : btSoftBody(worldInfo, node_count, x, m)
 {
-  // model flag
+  // reduced deformable
   m_reducedModel = true;
+  m_startMode = 0;
+  m_nReduced = 0;
+  m_nFull = 0;
 
   // rigid motion
   m_linearVelocity.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
@@ -17,6 +21,16 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
   m_inverseMass = 0.0;
 }
 
+void btReducedSoftBody::setReducedModes(int start_mode, int num_modes, int full_size)
+{
+  m_startMode = start_mode;
+  m_nReduced = num_modes;
+  m_nFull = full_size;
+  m_reducedDofs.resize(m_nReduced, 0);
+  m_reducedVelocity.resize(m_nReduced, 0);
+  m_nodalMass.resize(full_size, 0);
+}
+
 void btReducedSoftBody::setMass(btScalar m)
 {
   m_mass = m;
@@ -26,6 +40,42 @@ void btReducedSoftBody::setMass(btScalar m)
 void btReducedSoftBody::predictIntegratedTransform(btScalar timeStep, btTransform& predictedTransform)
 {
 	btTransformUtil::integrateTransform(m_worldTransform, m_linearVelocity, m_angularVelocity, timeStep, predictedTransform);
+}
+
+
+void btReducedSoftBody::updateReducedDofs()
+{
+  btAssert(m_reducedDofs.size() == m_nReduced);
+  for (int j = 0; j < m_nReduced; ++j) 
+  {
+    m_reducedDofs[j] = 0;
+    for (int i = 0; i < m_nFull; ++i)
+      for (int k = 0; k < 3; ++k)
+        m_reducedDofs[j] += m_modes[j][3 * i + k] * (m_nodes[i].m_x[k] - m_x0[3 * i + k]);
+  }
+}
+
+void btReducedSoftBody::updateFullDofs()
+{
+  btAssert(m_nodes.size() == m_nFull);
+  btAlignedObjectArray<btVector3> delta_x;
+  delta_x.resize(m_nFull);
+  btVector3 origin = getWorldTransform().getOrigin();
+
+  for (int i = 0; i < m_nFull; ++i)
+  {
+    for (int k = 0; k < 3; ++k)
+    {
+      // compute displacement
+      delta_x[i][k] = 0;
+      for (int j = 0; j < m_nReduced; ++j) 
+      {
+        delta_x[i][k] += m_modes[j][3 * i + k] * m_reducedDofs[j];
+      }
+      // get new coordinates
+      m_nodes[i].m_x[k] = m_x0[3 * i + k] + delta_x[i][k] + origin[k]; //TODO: assume the initial origin is at (0,0,0)
+    }
+  }
 }
 
 void btReducedSoftBody::proceedToTransform(const btTransform& newTrans)

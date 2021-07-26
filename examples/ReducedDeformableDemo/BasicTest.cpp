@@ -37,53 +37,8 @@ static btScalar COLLIDING_VELOCITY = 0;
 
 class BasicTest : public CommonDeformableBodyBase
 {
-    typedef btAlignedObjectArray<btSoftBody::Node> tNodeArray;
-
-    // btDeformableLinearElasticityForce* m_linearElasticity;
-    // btDeformableMassSpringForce* m_massSpring;
-
-    static const unsigned int m_startMode = 6;  // actual mode# should +1
-    static const unsigned int m_nReduced = 2;
-    static const unsigned int selected_mode = 0;
-    unsigned int m_nFull;
     btScalar sim_time;
     bool first_step;
-
-    // compute reduced degree of freedoms
-    void mapToReducedDofs(btReducedSoftBody* rsb)
-    {
-      btAssert(rsb->m_reducedDofs.size() == m_nReduced);
-      for (int j = 0; j < m_nReduced; ++j) 
-      {
-        rsb->m_reducedDofs[j] = 0;
-        for (int i = 0; i < m_nFull; ++i)
-          for (int k = 0; k < 3; ++k)
-            rsb->m_reducedDofs[j] += rsb->m_modes[j][3 * i + k] * (rsb->m_nodes[i].m_x[k] - rsb->m_x0[3 * i + k]);
-      }
-    }
-    
-    // compute full degree of freedoms
-    void mapToFullDofs(btReducedSoftBody* rsb)
-    {
-      btAssert(rsb->m_nodes.size() == m_nFull);
-      btAlignedObjectArray<btVector3> delta_x;
-      delta_x.resize(m_nFull);
-      btVector3 origin = rsb->getWorldTransform().getOrigin();
-
-      for (int i = 0; i < m_nFull; ++i)
-      {
-        for (int k = 0; k < 3; ++k)
-        {
-          // compute displacement
-          delta_x[i][k] = 0;
-          for (int j = 0; j < m_nReduced; ++j)   
-            delta_x[i][k] += rsb->m_modes[j][3 * i + k] * rsb->m_reducedDofs[j];
-          // get new coordinates
-          rsb->m_nodes[i].m_x[k] = rsb->m_x0[3 * i + k] + delta_x[i][k] + origin[k]; //TODO: assume the initial origin is at (0,0,0)
-        }
-      }
-      
-    }
 
     // get deformed shape
     void getDeformedShape(btReducedSoftBody* rsb, const int mode_n, const btScalar scale = 1)
@@ -97,7 +52,6 @@ public:
     BasicTest(struct GUIHelperInterface* helper)
         : CommonDeformableBodyBase(helper)
     {
-        m_nFull = 0;
         sim_time = 0;
         first_step = true;
     }
@@ -142,13 +96,11 @@ public:
       {
         // getDeformedShape(rsb, 0, 0.5);
         first_step = false;
-        mapToReducedDofs(rsb);
+        rsb->updateReducedDofs();
         // std::cout << rsb->m_reducedDofs[0] << "\n";
       }
 
       // compute reduced dofs
-      rsb->m_reducedDofs.resize(m_nReduced);
-      rsb->m_reducedVelocity.resize(m_nReduced);
       sim_time += deltaTime;
       // std::cout << rsb->m_eigenvalues[0] << "\t" << sim_time << "\t" << deltaTime  << "\t" << sin(rsb->m_eigenvalues[0] * sim_time) << "\n";
       
@@ -158,7 +110,7 @@ public:
       // m_dynamicsWorld->stepSimulation(1, 1, internalTimeStep);
 
       // map reduced dof back to full
-      mapToFullDofs(rsb);
+      rsb->updateFullDofs();
     }
     
     virtual void renderScene()
@@ -200,30 +152,13 @@ void BasicTest::initPhysics()
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
     // create volumetric soft body
-    {        
-        std::string filename("../../../examples/SoftDemo/mesh.vtk");
-        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::CreateFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
-        m_nFull = rsb->m_nodes.size();
-        rsb->m_reducedModel = true;
-
-        // read in eigenmodes, stiffness and mass matrices
-        std::string eigenvalues_file("../../../examples/SoftDemo/eigenvalues.bin");
-        btReducedSoftBodyHelpers::readBinary(rsb->m_eigenvalues, m_startMode, m_nReduced, 3 * m_nFull, eigenvalues_file.c_str());
-
-        std::string Kr_file("../../../examples/SoftDemo/K_r_diag_mat.bin");
-        btReducedSoftBodyHelpers::readBinary(rsb->m_Kr, m_startMode, m_nReduced, 3 * m_nFull, Kr_file.c_str());
-
-        std::string Mr_file("../../../examples/SoftDemo/M_r_diag_mat.bin");
-        btReducedSoftBodyHelpers::readBinary(rsb->m_Mr, m_startMode, m_nReduced, 3 * m_nFull, Mr_file.c_str());
-
-        std::string modes_file("../../../examples/SoftDemo/modes.bin");
-        btReducedSoftBodyHelpers::readBinaryModes(rsb->m_modes, m_startMode, m_nReduced, 3 * m_nFull, modes_file.c_str());	// default to 3D
-
-        // get rest position
-        rsb->m_x0.resize(3 * rsb->m_nodes.size());
-        for (int i = 0; i < rsb->m_nodes.size(); ++i)
-          for (int k = 0; k < 3; ++k)
-            rsb->m_x0[3 * i + k] = rsb->m_nodes[i].m_x[k];
+    {   
+        std::string filepath("../../../examples/SoftDemo/");
+        std::string filename = filepath + "mesh.vtk";
+        btReducedSoftBody* rsb = btReducedSoftBodyHelpers::createFromVtkFile(getDeformableDynamicsWorld()->getWorldInfo(), filename.c_str());
+        
+        rsb->setReducedModes(6, 2, rsb->m_nodes.size());
+        btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->scale(btVector3(2, 2, 2));
@@ -237,18 +172,6 @@ void BasicTest::initPhysics()
         rsb->m_cfg.collisions |= btSoftBody::fCollision::SDF_RDN;
         rsb->m_sleepingThreshold = 0;
         btSoftBodyHelpers::generateBoundaryFaces(rsb);
-
-        std::string M_file("../../../examples/SoftDemo/M_diag_mat.bin");
-        btAlignedObjectArray<btScalar> mass_array;
-        btReducedSoftBodyHelpers::readBinary(mass_array, 0, 3 * m_nFull, 3 * m_nFull, M_file.c_str());
-        // assign mass to nodes
-        btScalar mass = 0;
-        for (int i = 0; i < rsb->m_nodes.size(); ++i)
-        {
-          rsb->m_nodes[i].m_im = mass_array[3 * i];   // here we use m_im as the actual mass not the mass inverse
-          mass += mass_array[3 * i];
-        }
-        rsb->setMass(mass);
         
         rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         
