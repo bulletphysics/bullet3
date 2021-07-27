@@ -27,12 +27,12 @@
 #include "../Utils/b3ResourcePath.h"
 
 ///The BasicTest shows the contact between volumetric deformable objects and rigid objects.
-static btScalar E = 50;
-static btScalar nu = 0.3;
+// static btScalar E = 50;
+// static btScalar nu = 0.3;
 // static btScalar damping_alpha = 0.1;
 // static btScalar damping_beta = 0.01;
-static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0;
+// static btScalar damping_alpha = 0.0;
+// static btScalar damping_beta = 0.0;
 static btScalar COLLIDING_VELOCITY = 0;
 
 class BasicTest : public CommonDeformableBodyBase
@@ -69,7 +69,7 @@ public:
 
     void resetCamera()
     {
-        float dist = 20;
+        float dist = 10;
         float pitch = 0;
         float yaw = 90;
         float targetPos[3] = {0, 3, 0};
@@ -89,28 +89,17 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-      btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
-      
       // TODO: remove this. very hacky way of adding initial deformation
+      btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
       if (first_step && !rsb->m_bUpdateRtCst) 
       {
         // getDeformedShape(rsb, 0, 0.5);
         first_step = false;
         rsb->updateReducedDofs();
-        // std::cout << rsb->m_reducedDofs[0] << "\n";
       }
-
-      // compute reduced dofs
-      sim_time += deltaTime;
-      // std::cout << rsb->m_eigenvalues[0] << "\t" << sim_time << "\t" << deltaTime  << "\t" << sin(rsb->m_eigenvalues[0] * sim_time) << "\n";
       
       float internalTimeStep = 1. / 60.f;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
-      // float internalTimeStep = 1;
-      // m_dynamicsWorld->stepSimulation(1, 1, internalTimeStep);
-
-      // map reduced dof back to full
-      rsb->updateFullDofs();
     }
     
     virtual void renderScene()
@@ -161,10 +150,10 @@ void BasicTest::initPhysics()
         btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        rsb->scale(btVector3(2, 2, 2));
-        rsb->translate(btVector3(0, 7, 0));
+        // rsb->scale(btVector3(1, 1, 1));
+        // rsb->translate(btVector3(0, 0, 0));
         rsb->getCollisionShape()->setMargin(0.1);
-        rsb->setTotalMass(0.5);
+        // rsb->setTotalMass(0.5);
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
         rsb->m_cfg.kDF = 0;

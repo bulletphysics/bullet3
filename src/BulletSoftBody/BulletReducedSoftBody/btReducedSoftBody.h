@@ -50,18 +50,19 @@ class btReducedSoftBody : public btSoftBody
 	tDenseArray m_Mr;	// reduced mass matrix //TODO: do we need this?
   
   // full space
-  tDenseArray m_x0;									 // Rest position
+  TVStack m_x0;					     				 // Rest position
   tDenseArray m_nodalMass;           // Mass on each node
 
   //
   // Api
   //
   btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_count, const btVector3* x, const btScalar* m);
+
   ~btReducedSoftBody() {}
 
   void setReducedModes(int start_mode, int num_modes, int full_size);
 
-  void setMass(btScalar m);
+  void setMass(const tDenseArray& mass_array);
 
   void predictIntegratedTransform(btScalar step, btTransform& predictedTransform);
 
@@ -75,9 +76,9 @@ class btReducedSoftBody : public btSoftBody
   // compute full degree of freedoms
   void updateFullDofs();
 
-
+  //
   // rigid motion related
-
+  //
   void applyCentralImpulse(const btVector3& impulse);
 
 	void applyTorqueImpulse(const btVector3& torque);

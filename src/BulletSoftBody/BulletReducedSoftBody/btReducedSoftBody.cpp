@@ -31,10 +31,19 @@ void btReducedSoftBody::setReducedModes(int start_mode, int num_modes, int full_
   m_nodalMass.resize(full_size, 0);
 }
 
-void btReducedSoftBody::setMass(btScalar m)
+void btReducedSoftBody::setMass(const tDenseArray& mass_array)
 {
-  m_mass = m;
-  m_inverseMass = m > 0 ? 1.0 / m : 0;
+  // nodal mass
+  btScalar total_mass = 0;
+	for (int i = 0; i < m_nFull; ++i)
+	{
+		m_nodalMass[i] = mass_array[3 * i];
+		m_nodes[i].m_im = mass_array[3 * i] > 0 ? mass_array[3 * i] : 0;
+		total_mass += mass_array[3 * i];
+	}
+  // total rigid body mass
+  m_mass = total_mass;
+  m_inverseMass = total_mass > 0 ? 1.0 / total_mass : 0;
 }
 
 void btReducedSoftBody::predictIntegratedTransform(btScalar timeStep, btTransform& predictedTransform)
@@ -51,7 +60,7 @@ void btReducedSoftBody::updateReducedDofs()
     m_reducedDofs[j] = 0;
     for (int i = 0; i < m_nFull; ++i)
       for (int k = 0; k < 3; ++k)
-        m_reducedDofs[j] += m_modes[j][3 * i + k] * (m_nodes[i].m_x[k] - m_x0[3 * i + k]);
+        m_reducedDofs[j] += m_modes[j][3 * i + k] * (m_nodes[i].m_x[k] - m_x0[i][k]);
   }
 }
 
@@ -61,6 +70,7 @@ void btReducedSoftBody::updateFullDofs()
   btAlignedObjectArray<btVector3> delta_x;
   delta_x.resize(m_nFull);
   btVector3 origin = getWorldTransform().getOrigin();
+  btMatrix3x3 rotation = getWorldTransform().getBasis();
 
   for (int i = 0; i < m_nFull; ++i)
   {
@@ -72,9 +82,9 @@ void btReducedSoftBody::updateFullDofs()
       {
         delta_x[i][k] += m_modes[j][3 * i + k] * m_reducedDofs[j];
       }
-      // get new coordinates
-      m_nodes[i].m_x[k] = m_x0[3 * i + k] + delta_x[i][k] + origin[k]; //TODO: assume the initial origin is at (0,0,0)
     }
+    // get new coordinates
+    m_nodes[i].m_x = rotation * (m_x0[i] + delta_x[i]) + origin; //TODO: assume the initial origin is at (0,0,0)
   }
 }
 

@@ -41,7 +41,7 @@ void btReducedSoftBodySolver::applyForce()
 
     // apply impulses to reduced deformable objects
     static btScalar sim_time = 0;
-    static btScalar target_vel = 5;
+    static btScalar target_vel = 1;
     static int apply_impulse = 0;
     if (rsb->m_reducedModel && apply_impulse < 4)
     {
@@ -114,5 +114,8 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
     rsb->predictIntegratedTransform(timeStep, rsb->getInterpolationWorldTransform());
 
     rsb->proceedToTransform(rsb->getInterpolationWorldTransform());
+
+    // map reduced dof back to full space
+    rsb->updateFullDofs();
   }
 }
