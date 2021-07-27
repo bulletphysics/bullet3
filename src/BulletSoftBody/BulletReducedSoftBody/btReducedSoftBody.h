@@ -11,7 +11,9 @@
 class btReducedSoftBody : public btSoftBody
 {
  private:
-  //
+  // scaling factors
+  btScalar m_rhoScale;         // mass density scale
+  btScalar m_ksScale;          // stiffness scale
 
  protected:
   // rigid frame
@@ -62,7 +64,17 @@ class btReducedSoftBody : public btSoftBody
 
   void setReducedModes(int start_mode, int num_modes, int full_size);
 
-  void setMass(const tDenseArray& mass_array);
+  void setMassProps(const tDenseArray& mass_array);
+
+  void setInertiaProps(const btVector3& inertia);
+
+  void setRigidVelocity(const btVector3& v);
+
+  void setRigidAngularVelocity(const btVector3& omega);
+
+  void setStiffnessScale(const btScalar ks);
+
+  void updateInertiaTensor();
 
   void predictIntegratedTransform(btScalar step, btTransform& predictedTransform);
 
@@ -85,15 +97,21 @@ class btReducedSoftBody : public btSoftBody
 
   // apply impulse to the rigid frame
 	void applyImpulse(const btVector3& impulse, const btVector3& rel_pos);
-  
+
   // apply impulse to nodes in the full space
   void applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt, tDenseArray& reduced_force);
+
+  // apply reduced force
+  void applyReducedInternalForce(tDenseArray& reduced_force, const btScalar damping_alpha, const btScalar damping_beta);
 
   void proceedToTransform(const btTransform& newTrans);
 
   void setCenterOfMassTransform(const btTransform& xform);
 
-  void updateInertiaTensor();
+  btScalar getTotalMass() const
+  {
+    return m_mass;
+  }
 
   const btVector3& getLinearVelocity() const
 	{

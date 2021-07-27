@@ -9,20 +9,21 @@ class btReducedSoftBody;
 class btReducedSoftBodySolver : public btDeformableBodySolver
 {
  protected:
+  btScalar m_dampingAlpha;
+  btScalar m_dampingBeta;
+
   void applyForce();
 
  public:
-  btReducedSoftBodySolver() {}
+  btReducedSoftBodySolver();
   ~btReducedSoftBodySolver() {}
+
+  void setDamping(btScalar alpha, btScalar beta);
 
   virtual SolverTypes getSolverType() const
   {
     return REDUCED_DEFORMABLE_SOLVER;
   }
-
-  // virtual void predictMotion(btScalar solver_dt);
-
-  // virtual void solveConstraints(btScalar solver_dt);
 
   virtual void predictMotion(btScalar solverdt);
 

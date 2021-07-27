@@ -1,6 +1,18 @@
 #include "btReducedSoftBodySolver.h"
 #include "../btDeformableMultiBodyDynamicsWorld.h"
 
+btReducedSoftBodySolver::btReducedSoftBodySolver()
+{
+  m_dampingAlpha = 0;
+  m_dampingBeta = 0;
+}
+
+void btReducedSoftBodySolver::setDamping(btScalar alpha, btScalar beta)
+{
+  m_dampingAlpha = alpha;
+  m_dampingBeta = beta;
+}
+
 void btReducedSoftBodySolver::predictMotion(btScalar solverdt)
 {
   applyForce();
@@ -25,15 +37,7 @@ void btReducedSoftBodySolver::applyForce()
     reduced_force.resize(rsb->m_reducedDofs.size(), 0);
 
     // add internal force (elastic force & damping force)
-    for (int r = 0; r < rsb->m_reducedDofs.size(); ++r) 
-    {
-      // map all force to reduced
-      // for (int i = 0; i < force.size(); ++i)
-      // 	for (int k = 0; k < 3; ++k)
-      // 		reduced_force[r] += scale * rsb->m_modes[r][3 * i + k] * force[i][k];
-
-      reduced_force[r] += rsb->m_Kr[r] * (rsb->m_reducedDofs[r] + 0.1 * rsb->m_reducedVelocity[r]);
-    }
+    rsb->applyReducedInternalForce(reduced_force, m_dampingAlpha, m_dampingBeta);
 
     // apply impulses to reduced deformable objects
     static btScalar sim_time = 0;
@@ -42,22 +46,22 @@ void btReducedSoftBodySolver::applyForce()
     {
       if (sim_time > 1 && apply_impulse == 0) 
       {
-        rsb->applyFullSpaceImpulse(btVector3(0, 1, 0), 0, m_dt, reduced_force);
+        rsb->applyFullSpaceImpulse(btVector3(0, 1, 0), 0, 2.0 * m_dt, reduced_force);
         apply_impulse++;
       }
       if (sim_time > 2 && apply_impulse == 1) 
       {
-        rsb->applyFullSpaceImpulse(btVector3(0, -1, 0), 0, m_dt, reduced_force);
+        rsb->applyFullSpaceImpulse(btVector3(0, -1.2, 0), 0, 2.0 * m_dt, reduced_force);
         apply_impulse++;
       }
       if (sim_time > 3 && apply_impulse == 2) 
       {
-        rsb->applyFullSpaceImpulse(btVector3(1, 0, 0), 0, m_dt, reduced_force);
+        rsb->applyFullSpaceImpulse(btVector3(1.1, 0, 0), 0, 2.0 * m_dt, reduced_force);
         apply_impulse++;
       }
       if (sim_time > 4 && apply_impulse == 3) 
       {
-        rsb->applyFullSpaceImpulse(btVector3(-1, 0, 0), 0, m_dt, reduced_force);
+        rsb->applyFullSpaceImpulse(btVector3(-1, 0, 0), 0, 2.0 * m_dt, reduced_force);
         apply_impulse++;
       }
     }

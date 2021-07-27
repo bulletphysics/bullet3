@@ -136,7 +136,12 @@ void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftB
 	std::string M_file = std::string(file_path) + "M_diag_mat.bin";
 	btAlignedObjectArray<btScalar> mass_array;
 	btReducedSoftBodyHelpers::readBinary(mass_array, 0, 3 * rsb->m_nFull, 3 * rsb->m_nFull, M_file.c_str());
-	rsb->setMass(mass_array);
+	rsb->setMassProps(mass_array);
+	
+	// calculate the inertia tensor in the local frame 
+  btVector3 inertia(0, 0, 0);
+	calculateLocalInertia(inertia, rsb->getTotalMass(), btVector3(4, 1, 0.5), btVector3(0, 0, 0));
+	rsb->setInertiaProps(inertia);
 }
 
 // read in binary files
@@ -226,4 +231,15 @@ void btReducedSoftBodyHelpers::readBinaryModes(btReducedSoftBody::tDenseMatrix& 
 		}
 	}
   f_in.close();
+}
+
+void btReducedSoftBodyHelpers::calculateLocalInertia(btVector3& inertia, const btScalar mass, const btVector3& half_extents, const btVector3& margin)
+{
+	btScalar lx = btScalar(2.) * (half_extents[0] + margin[0]);
+	btScalar ly = btScalar(2.) * (half_extents[1] + margin[1]);
+	btScalar lz = btScalar(2.) * (half_extents[2] + margin[2]);
+
+	inertia.setValue(mass / (btScalar(12.0)) * (ly * ly + lz * lz),
+								   mass / (btScalar(12.0)) * (lx * lx + lz * lz),
+								   mass / (btScalar(12.0)) * (lx * lx + ly * ly));
 }

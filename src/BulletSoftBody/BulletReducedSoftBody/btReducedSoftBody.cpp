@@ -1,4 +1,5 @@
 #include "btReducedSoftBody.h"
+#include "btReducedSoftBodyHelpers.h"
 #include "LinearMath/btTransformUtil.h"
 #include <iostream>
 
@@ -11,12 +12,15 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
   m_nReduced = 0;
   m_nFull = 0;
 
+  m_ksScale = 1.0;
+  m_rhoScale = 1.0;
+
   // rigid motion
   m_linearVelocity.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
 	m_angularVelocity.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
 	m_angularFactor.setValue(1, 1, 1);
 	m_linearFactor.setValue(1, 1, 1);
-  m_invInertiaLocal.setValue(1, 1, 1); //TODO: get correct inertia through shape
+  m_invInertiaLocal.setValue(1, 1, 1);
   m_mass = 0.0;
   m_inverseMass = 0.0;
 }
@@ -31,7 +35,7 @@ void btReducedSoftBody::setReducedModes(int start_mode, int num_modes, int full_
   m_nodalMass.resize(full_size, 0);
 }
 
-void btReducedSoftBody::setMass(const tDenseArray& mass_array)
+void btReducedSoftBody::setMassProps(const tDenseArray& mass_array)
 {
   // nodal mass
   btScalar total_mass = 0;
@@ -44,6 +48,34 @@ void btReducedSoftBody::setMass(const tDenseArray& mass_array)
   // total rigid body mass
   m_mass = total_mass;
   m_inverseMass = total_mass > 0 ? 1.0 / total_mass : 0;
+}
+
+void btReducedSoftBody::setInertiaProps(const btVector3& inertia)
+{
+  // TODO: only support box shape now
+  // set local intertia
+  m_invInertiaLocal.setValue(
+                inertia.x() != btScalar(0.0) ? btScalar(1.0) / inertia.x() : btScalar(0.0),
+							  inertia.y() != btScalar(0.0) ? btScalar(1.0) / inertia.y() : btScalar(0.0),
+							  inertia.z() != btScalar(0.0) ? btScalar(1.0) / inertia.z() : btScalar(0.0));
+
+  // update world inertia tensor
+  updateInertiaTensor();
+}
+
+void btReducedSoftBody::setRigidVelocity(const btVector3& v)
+{
+  m_linearVelocity = v;
+}
+
+void btReducedSoftBody::setRigidAngularVelocity(const btVector3& omega)
+{
+  m_angularVelocity = omega;
+}
+
+void btReducedSoftBody::setStiffnessScale(const btScalar ks)
+{
+  m_ksScale = ks;
 }
 
 void btReducedSoftBody::predictIntegratedTransform(btScalar timeStep, btTransform& predictedTransform)
@@ -155,4 +187,12 @@ void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& target_vel, int n
   }
   // impulse causes rigid motion
   applyImpulse(impulse, m_nodes[n_node].m_x);
+}
+
+void btReducedSoftBody::applyReducedInternalForce(tDenseArray& reduced_force, const btScalar damping_alpha, const btScalar damping_beta)
+{
+  for (int r = 0; r < m_nReduced; ++r) 
+  {
+    reduced_force[r] += m_ksScale * m_Kr[r] * (m_reducedDofs[r] + damping_beta * m_reducedVelocity[r]);
+  }
 }
