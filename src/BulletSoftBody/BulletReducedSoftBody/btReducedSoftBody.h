@@ -83,7 +83,11 @@ class btReducedSoftBody : public btSoftBody
 
 	void applyTorqueImpulse(const btVector3& torque);
 
+  // apply impulse to the rigid frame
 	void applyImpulse(const btVector3& impulse, const btVector3& rel_pos);
+  
+  // apply impulse to nodes in the full space
+  void applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt, tDenseArray& reduced_force);
 
   void proceedToTransform(const btTransform& newTrans);
 

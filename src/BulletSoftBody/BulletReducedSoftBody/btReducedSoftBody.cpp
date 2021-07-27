@@ -141,3 +141,18 @@ void btReducedSoftBody::applyImpulse(const btVector3& impulse, const btVector3& 
     }
   }
 }
+
+void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt, tDenseArray& reduced_force)
+{
+  // impulse leads to the deformation in the reduced space
+  btVector3 impulse = m_nodalMass[n_node] / dt * (target_vel - m_nodes[n_node].m_v);
+  for (int i = 0; i < m_nReduced; ++i)
+  {
+    for (int k = 0; k < 3; ++k)
+    {
+      reduced_force[i] += m_modes[i][3 * n_node + k] * impulse[k];
+    }
+  }
+  // impulse causes rigid motion
+  applyImpulse(impulse, m_nodes[n_node].m_x);
+}
