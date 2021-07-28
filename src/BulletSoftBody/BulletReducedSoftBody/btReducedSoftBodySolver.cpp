@@ -40,29 +40,32 @@ void btReducedSoftBodySolver::applyForce()
     // apply impulses to reduced deformable objects
     static btScalar sim_time = 0;
     static int apply_impulse = 0;
-    if (rsb->m_reducedModel && apply_impulse < 4)
-    {
-      if (sim_time > 1 && apply_impulse == 0) 
-      {
-        rsb->applyFullSpaceImpulse(btVector3(0, 1, 0), 0, 2.0 * m_dt, reduced_force);
-        apply_impulse++;
-      }
-      if (sim_time > 2 && apply_impulse == 1) 
-      {
-        rsb->applyFullSpaceImpulse(btVector3(0, -1.2, 0), 0, m_dt, reduced_force);
-        apply_impulse++;
-      }
-      if (sim_time > 3 && apply_impulse == 2) 
-      {
-        rsb->applyFullSpaceImpulse(btVector3(1.1, 0, 0), 0, m_dt, reduced_force);
-        apply_impulse++;
-      }
-      if (sim_time > 4 && apply_impulse == 3) 
-      {
-        rsb->applyFullSpaceImpulse(btVector3(-1, 0, 0), 0, 2.0 * m_dt, reduced_force);
-        apply_impulse++;
-      }
-    }
+    // if (rsb->m_reducedModel && apply_impulse < 4)
+    // {
+    //   if (sim_time > 1 && apply_impulse == 0) 
+    //   {
+    //     rsb->applyFullSpaceImpulse(btVector3(0, 1, 0), 0, 2.0 * m_dt, reduced_force);
+    //     apply_impulse++;
+    //   }
+    //   if (sim_time > 2 && apply_impulse == 1) 
+    //   {
+    //     rsb->applyFullSpaceImpulse(btVector3(0, -1.2, 0), 0, m_dt, reduced_force);
+    //     apply_impulse++;
+    //   }
+    //   if (sim_time > 3 && apply_impulse == 2) 
+    //   {
+    //     rsb->applyFullSpaceImpulse(btVector3(1.1, 0, 0), 0, m_dt, reduced_force);
+    //     apply_impulse++;
+    //   }
+    //   if (sim_time > 4 && apply_impulse == 3) 
+    //   {
+    //     rsb->applyFullSpaceImpulse(btVector3(-1, 0, 0), 0, 2.0 * m_dt, reduced_force);
+    //     apply_impulse++;
+    //   }
+    // }
+
+    // apply fixed contraints
+    rsb->applyFixedContraints(m_dt, reduced_force);
 
     // update reduced velocity
     for (int r = 0; r < rsb->m_reducedDofs.size(); ++r)

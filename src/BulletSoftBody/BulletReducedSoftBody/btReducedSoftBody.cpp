@@ -83,6 +83,15 @@ void btReducedSoftBody::setMassScale(const btScalar rho)
   m_rhoScale = rho;
 }
 
+void btReducedSoftBody::setFixedNodes()
+{
+  for (int i = 0; i < m_nFull; ++i)
+  {
+    if (abs(m_nodes[i].m_x[2] - (-2)) < 1e-3)
+      m_fixedNodes.push_back(i);
+  }
+}
+
 void btReducedSoftBody::predictIntegratedTransform(btScalar timeStep, btTransform& predictedTransform)
 {
 	btTransformUtil::integrateTransform(m_worldTransform, m_linearVelocity, m_angularVelocity, timeStep, predictedTransform);
@@ -221,7 +230,14 @@ void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& target_vel, int n
 
 void btReducedSoftBody::applyRigidGravity(const btVector3& gravity, btScalar dt)
 {
+  // update rigid frame velocity
   m_linearVelocity += dt * gravity;
+
+  // update nodal velocity
+  for (int i = 0; i < m_nFull; ++i)
+  {
+    m_nodes[i].m_v = m_nodes[i].m_v + dt * gravity;
+  }
 }
 
 void btReducedSoftBody::applyReducedInternalForce(tDenseArray& reduced_force, const btScalar damping_alpha, const btScalar damping_beta)
@@ -229,5 +245,15 @@ void btReducedSoftBody::applyReducedInternalForce(tDenseArray& reduced_force, co
   for (int r = 0; r < m_nReduced; ++r) 
   {
     reduced_force[r] += m_ksScale * m_Kr[r] * (m_reducedDofs[r] + damping_beta * m_reducedVelocity[r]);
+  }
+}
+
+void btReducedSoftBody::applyFixedContraints(btScalar dt, tDenseArray& reduced_force)
+{
+  for (int n = 0; n < m_fixedNodes.size(); ++n)
+  {
+    // std::cout << reduced_force[0] << "\t" << reduced_force[1] << "\n";
+    applyFullSpaceImpulse(btVector3(0, 0, 0), m_fixedNodes[n], dt, reduced_force);
+    // std::cout << reduced_force[0] << "\t" << reduced_force[1] << "\n";
   }
 }

@@ -54,6 +54,7 @@ class btReducedSoftBody : public btSoftBody
   // full space
   TVStack m_x0;					     				 // Rest position
   tDenseArray m_nodalMass;           // Mass on each node
+  btAlignedObjectArray<int> m_fixedNodes; // index of the fixed nodes
 
   //
   // Api
@@ -75,6 +76,8 @@ class btReducedSoftBody : public btSoftBody
   void setStiffnessScale(const btScalar ks);
 
   void setMassScale(const btScalar rho);
+
+  void setFixedNodes();
 
   virtual void translate(const btVector3& trs);
 
@@ -106,6 +109,9 @@ class btReducedSoftBody : public btSoftBody
 
   // apply impulse to nodes in the full space
   void applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt, tDenseArray& reduced_force);
+
+  // apply fixed contraints to the nodes
+  void applyFixedContraints(btScalar dt, tDenseArray& reduced_force);
 
   // apply gravity to the rigid frame
   void applyRigidGravity(const btVector3& gravity, btScalar dt);
