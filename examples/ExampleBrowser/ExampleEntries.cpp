@@ -73,6 +73,7 @@
 #include "../RoboticsLearning/KukaGraspExample.h"
 #include "../RoboticsLearning/GripperGraspExample.h"
 #include "../ReducedDeformableDemo/BasicTest.h"
+#include "../ReducedDeformableDemo/ModeVisualizer.h"
 #include "../InverseKinematics/InverseKinematicsExample.h"
 
 #ifdef B3_ENABLE_TINY_AUDIO
@@ -217,6 +218,7 @@ static ExampleEntry gDefaultExamples[] =
         // ExampleEntry(1, "MultiBody Baseline", "MultiBody Baseline", MultiBodyBaselineCreateFunc),
 		
 		ExampleEntry(0, "Reduced Deformabe Body"),
+		ExampleEntry(1, "Mode Visualizer", "Visualizer the modes for reduced deformable objects", ReducedModeVisualizerCreateFunc),
 		ExampleEntry(1, "BasicRD", "Simple dynamics test for the reduced deformable objects", ReducedBasicTestCreateFunc),
 		// ExampleEntry(1, "Simple Reduced Deformable Test", "Simple dynamics test for the reduced deformable objects", ReducedBasicTestCreateFunc),
         
