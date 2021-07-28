@@ -1006,7 +1006,7 @@ public:
 	/* Transform															*/
 	void transform(const btTransform& trs);
 	/* Translate															*/
-	void translate(const btVector3& trs);
+	virtual void translate(const btVector3& trs);
 	/* Rotate															*/
 	void rotate(const btQuaternion& rot);
 	/* Scale																*/

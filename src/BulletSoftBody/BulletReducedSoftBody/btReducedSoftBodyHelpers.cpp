@@ -109,11 +109,6 @@ btReducedSoftBody* btReducedSoftBodyHelpers::createFromVtkFile(btSoftBodyWorldIn
 
 	fs.close();
 
-	// get rest position
-	rsb->m_x0.resize(rsb->m_nodes.size());
-	for (int i = 0; i < rsb->m_nodes.size(); ++i)
-		rsb->m_x0[i] = rsb->m_nodes[i].m_x;
-
 	return rsb;
 }
 
@@ -132,6 +127,9 @@ void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftB
 	std::string modes_file = std::string(file_path) + "modes.bin";
 	btReducedSoftBodyHelpers::readBinaryModes(rsb->m_modes, rsb->m_startMode, rsb->m_nReduced, 3 * rsb->m_nFull, modes_file.c_str());	// default to 3D
 
+	// get rest position
+	rsb->updateRestNodalPositions();
+	
 	// read in full nodal mass
 	std::string M_file = std::string(file_path) + "M_diag_mat.bin";
 	btAlignedObjectArray<btScalar> mass_array;

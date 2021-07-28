@@ -95,7 +95,7 @@ public:
       btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
       if (first_step /* && !rsb->m_bUpdateRtCst*/) 
       {
-        getDeformedShape(rsb, 0, 0.5);
+        // getDeformedShape(rsb, 0, 0.5);
         first_step = false;
         rsb->updateReducedDofs();
       }
@@ -133,13 +133,14 @@ void BasicTest::initPhysics()
     m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
     reducedSoftBodySolver->setDamping(damping_alpha, damping_beta);
+    btVector3 gravity = btVector3(0, 0, 0);
+    reducedSoftBodySolver->setGravity(gravity);
 
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
     sol->setDeformableSolver(reducedSoftBodySolver);
     m_solver = sol;
 
     m_dynamicsWorld = new btDeformableMultiBodyDynamicsWorld(m_dispatcher, m_broadphase, sol, m_collisionConfiguration, reducedSoftBodySolver);
-    btVector3 gravity = btVector3(0, -10, 0);
     m_dynamicsWorld->setGravity(gravity);
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
@@ -153,9 +154,9 @@ void BasicTest::initPhysics()
         btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(rsb, filepath.c_str());
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
-        // rsb->scale(btVector3(1, 1, 1));
-        // rsb->translate(btVector3(0, 0, 0));
         rsb->getCollisionShape()->setMargin(0.1);
+        // rsb->scale(btVector3(1, 1, 1));
+        rsb->translate(btVector3(0, 2, 0));  //TODO: add back translate and scale
         // rsb->setTotalMass(0.5);
         rsb->setStiffnessScale(1);
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects

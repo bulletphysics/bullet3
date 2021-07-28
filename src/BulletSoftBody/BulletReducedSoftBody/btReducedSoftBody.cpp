@@ -83,7 +83,6 @@ void btReducedSoftBody::predictIntegratedTransform(btScalar timeStep, btTransfor
 	btTransformUtil::integrateTransform(m_worldTransform, m_linearVelocity, m_angularVelocity, timeStep, predictedTransform);
 }
 
-
 void btReducedSoftBody::updateReducedDofs()
 {
   btAssert(m_reducedDofs.size() == m_nReduced);
@@ -91,8 +90,13 @@ void btReducedSoftBody::updateReducedDofs()
   {
     m_reducedDofs[j] = 0;
     for (int i = 0; i < m_nFull; ++i)
+    {
       for (int k = 0; k < 3; ++k)
+      {
+        // std::cout << m_nodes[i].m_x[k] - m_x0[i][k] << "\n";
         m_reducedDofs[j] += m_modes[j][3 * i + k] * (m_nodes[i].m_x[k] - m_x0[i][k]);
+      }
+    }
   }
 }
 
@@ -141,6 +145,26 @@ void btReducedSoftBody::setCenterOfMassTransform(const btTransform& xform)
 	updateInertiaTensor();
 }
 
+void btReducedSoftBody::translate(const btVector3& trs)
+{
+  // translate mesh
+	btSoftBody::translate(trs);
+  updateRestNodalPositions();
+  // for (int i = 0; i < m_nFull; ++i)
+  //   for (int k = 0; k < 3; ++k)
+  //     std::cout << m_nodes[i].m_x[k] << "\t" << m_x0[i][k] << "\n";
+  
+  // update rigid frame
+  // m_worldTransform.setOrigin(trs);
+}
+
+void btReducedSoftBody::updateRestNodalPositions()
+{
+  m_x0.resize(m_nFull);
+	for (int i = 0; i < m_nFull; ++i)
+		m_x0[i] = m_nodes[i].m_x;
+}
+
 void btReducedSoftBody::updateInertiaTensor()
 {
 	m_invInertiaTensorWorld = m_worldTransform.getBasis().scaled(m_invInertiaLocal) * m_worldTransform.getBasis().transpose();
@@ -187,6 +211,11 @@ void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& target_vel, int n
   }
   // impulse causes rigid motion
   applyImpulse(impulse, m_nodes[n_node].m_x);
+}
+
+void btReducedSoftBody::applyRigidGravity(const btVector3& gravity, btScalar dt)
+{
+  m_linearVelocity += dt * gravity;
 }
 
 void btReducedSoftBody::applyReducedInternalForce(tDenseArray& reduced_force, const btScalar damping_alpha, const btScalar damping_beta)

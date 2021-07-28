@@ -13,17 +13,14 @@ void btReducedSoftBodySolver::setDamping(btScalar alpha, btScalar beta)
   m_dampingBeta = beta;
 }
 
+void btReducedSoftBodySolver::setGravity(const btVector3& gravity)
+{
+  m_gravity = gravity;
+}
+
 void btReducedSoftBodySolver::predictMotion(btScalar solverdt)
 {
-  applyForce();
-  
-  // apply rigid motion
-  for (int i = 0; i < m_softBodies.size(); ++i)
-  {
-    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
-
-    // rsb->predictIntegratedTransform(solverdt, rsb->getInterpolationWorldTransform());
-  }
+  applyExplicitForce();
 }
 
 void btReducedSoftBodySolver::applyForce()
@@ -51,12 +48,12 @@ void btReducedSoftBodySolver::applyForce()
       }
       if (sim_time > 2 && apply_impulse == 1) 
       {
-        rsb->applyFullSpaceImpulse(btVector3(0, -1.2, 0), 0, 2.0 * m_dt, reduced_force);
+        rsb->applyFullSpaceImpulse(btVector3(0, -1.2, 0), 0, m_dt, reduced_force);
         apply_impulse++;
       }
       if (sim_time > 3 && apply_impulse == 2) 
       {
-        rsb->applyFullSpaceImpulse(btVector3(1.1, 0, 0), 0, 2.0 * m_dt, reduced_force);
+        rsb->applyFullSpaceImpulse(btVector3(1.1, 0, 0), 0, m_dt, reduced_force);
         apply_impulse++;
       }
       if (sim_time > 4 && apply_impulse == 3) 
@@ -80,6 +77,14 @@ void btReducedSoftBodySolver::applyForce()
 
 void btReducedSoftBodySolver::applyExplicitForce()
 {
+  // apply gravity to the rigid frame
+  for (int i = 0; i < m_softBodies.size(); ++i)
+  {
+    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    rsb->applyRigidGravity(m_gravity, m_dt);
+  }
+
+  // apply internal forces and impulses
   applyForce();
 }
 

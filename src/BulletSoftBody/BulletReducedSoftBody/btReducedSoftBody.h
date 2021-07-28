@@ -19,7 +19,6 @@ class btReducedSoftBody : public btSoftBody
   // rigid frame
   btScalar m_mass;          // total mass of the rigid frame
   btScalar m_inverseMass;   // inverse of the total mass of the rigid frame
-  btVector3 m_linearVelocity;
 	btVector3 m_angularVelocity;
 	btVector3 m_linearFactor;
 	btVector3 m_angularFactor;
@@ -34,6 +33,7 @@ class btReducedSoftBody : public btSoftBody
   typedef btAlignedObjectArray<btScalar> tDenseArray;
   typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > tDenseMatrix;
 
+  btVector3 m_linearVelocity;
   //
   //  Fields
   //
@@ -74,6 +74,10 @@ class btReducedSoftBody : public btSoftBody
 
   void setStiffnessScale(const btScalar ks);
 
+  virtual void translate(const btVector3& trs);
+
+  void updateRestNodalPositions();
+
   void updateInertiaTensor();
 
   void predictIntegratedTransform(btScalar step, btTransform& predictedTransform);
@@ -100,6 +104,9 @@ class btReducedSoftBody : public btSoftBody
 
   // apply impulse to nodes in the full space
   void applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt, tDenseArray& reduced_force);
+
+  // apply gravity to the rigid frame
+  void applyRigidGravity(const btVector3& gravity, btScalar dt);
 
   // apply reduced force
   void applyReducedInternalForce(tDenseArray& reduced_force, const btScalar damping_alpha, const btScalar damping_beta);
