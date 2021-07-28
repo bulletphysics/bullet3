@@ -74,6 +74,8 @@ class btReducedSoftBody : public btSoftBody
 
   void setStiffnessScale(const btScalar ks);
 
+  void setMassScale(const btScalar rho);
+
   virtual void translate(const btVector3& trs);
 
   void updateRestNodalPositions();

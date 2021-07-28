@@ -5,6 +5,7 @@ btReducedSoftBodySolver::btReducedSoftBodySolver()
 {
   m_dampingAlpha = 0;
   m_dampingBeta = 0;
+  m_gravity = btVector3(0, 0, 0);
 }
 
 void btReducedSoftBodySolver::setDamping(btScalar alpha, btScalar beta)

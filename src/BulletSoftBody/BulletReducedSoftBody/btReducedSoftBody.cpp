@@ -41,9 +41,9 @@ void btReducedSoftBody::setMassProps(const tDenseArray& mass_array)
   btScalar total_mass = 0;
 	for (int i = 0; i < m_nFull; ++i)
 	{
-		m_nodalMass[i] = mass_array[3 * i];
-		m_nodes[i].m_im = mass_array[3 * i] > 0 ? mass_array[3 * i] : 0;
-		total_mass += mass_array[3 * i];
+		m_nodalMass[i] = m_rhoScale * mass_array[3 * i];
+		m_nodes[i].m_im = mass_array[3 * i] > 0 ? 1.0 / (m_rhoScale * mass_array[3 * i]) : 0;
+		total_mass += m_rhoScale * mass_array[3 * i];
 	}
   // total rigid body mass
   m_mass = total_mass;
@@ -76,6 +76,11 @@ void btReducedSoftBody::setRigidAngularVelocity(const btVector3& omega)
 void btReducedSoftBody::setStiffnessScale(const btScalar ks)
 {
   m_ksScale = ks;
+}
+
+void btReducedSoftBody::setMassScale(const btScalar rho)
+{
+  m_rhoScale = rho;
 }
 
 void btReducedSoftBody::predictIntegratedTransform(btScalar timeStep, btTransform& predictedTransform)
@@ -155,7 +160,8 @@ void btReducedSoftBody::translate(const btVector3& trs)
   //     std::cout << m_nodes[i].m_x[k] << "\t" << m_x0[i][k] << "\n";
   
   // update rigid frame
-  // m_worldTransform.setOrigin(trs);
+  m_worldTransform.setOrigin(trs);
+  updateInertiaTensor();
 }
 
 void btReducedSoftBody::updateRestNodalPositions()

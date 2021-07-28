@@ -156,7 +156,7 @@ void BasicTest::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
         // rsb->scale(btVector3(1, 1, 1));
-        rsb->translate(btVector3(0, 2, 0));  //TODO: add back translate and scale
+        // rsb->translate(btVector3(0, 2, 0));  //TODO: add back translate and scale
         // rsb->setTotalMass(0.5);
         rsb->setStiffnessScale(1);
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
