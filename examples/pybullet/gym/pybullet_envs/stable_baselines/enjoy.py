@@ -1,6 +1,6 @@
-# Code adapted from https://github.com/araffin/rl-baselines-zoo
-# it requires stable-baselines to be installed
-# Colab Notebook: https://colab.research.google.com/drive/1nZkHO4QTYfAksm9ZTaZ5vXyC7szZxC3F
+# Code adapted from https://github.com/DLR-RM/rl-baselines3-zoo
+# it requires stable-baselines3 to be installed
+# Colab Notebook: https://colab.research.google.com/github/Stable-Baselines-Team/rl-colab-notebooks/blob/sb3/pybullet.ipynb
 # You can run it using: python -m pybullet_envs.stable_baselines.enjoy --algo td3 --env HalfCheetahBulletEnv-v0
 # Author: Antonin RAFFIN
 # MIT License
