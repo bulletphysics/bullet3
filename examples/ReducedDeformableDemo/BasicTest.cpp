@@ -108,13 +108,18 @@ public:
     {
         CommonDeformableBodyBase::renderScene();
         btDeformableMultiBodyDynamicsWorld* deformableWorld = getDeformableDynamicsWorld();
+        // int flag = 0;
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
             btSoftBody* rsb = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
             {
                 btSoftBodyHelpers::DrawFrame(rsb, deformableWorld->getDebugDrawer());
+                // btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), flag);
                 btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.2, btVector3(1, 1, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 2, 0), 0.2, btVector3(1, 1, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 4, 0), 0.2, btVector3(1, 1, 1));
             }
         }
     }
@@ -156,10 +161,10 @@ void BasicTest::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
         // rsb->scale(btVector3(1, 1, 1));
-        // rsb->translate(btVector3(0, 2, 0));  //TODO: add back translate and scale
+        rsb->translate(btVector3(0, 4, 0));  //TODO: add back translate and scale
         // rsb->setTotalMass(0.5);
         rsb->setStiffnessScale(1);
-        rsb->setFixedNodes();
+        // rsb->setFixedNodes();
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
         rsb->m_cfg.kDF = 0;
@@ -170,7 +175,7 @@ void BasicTest::initPhysics()
         
         // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
-        // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
+        rsb->setRigidAngularVelocity(btVector3(10, 0, 0));
         
         // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
         // getDeformableDynamicsWorld()->addForce(rsb, gravity_force);

@@ -65,15 +65,13 @@ void btReducedSoftBodySolver::applyForce()
     // }
 
     // apply fixed contraints
-    rsb->applyFixedContraints(m_dt, reduced_force);
+    // rsb->applyFixedContraints(m_dt, reduced_force); //TODO: solver iteratively with other constraints
 
     // update reduced velocity
     for (int r = 0; r < rsb->m_reducedDofs.size(); ++r)
     {
       btScalar mass_inv = (rsb->m_Mr[r] == 0) ? 0 : 1.0 / rsb->m_Mr[r];
       btScalar delta_v = m_dt * mass_inv * reduced_force[r];
-      
-      sim_time += m_dt;
       rsb->m_reducedVelocity[r] -= delta_v;
     }
   }
@@ -102,9 +100,12 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
       rsb->m_reducedDofs[r] += timeStep * rsb->m_reducedVelocity[r];
 
     // rigid motion
-    rsb->predictIntegratedTransform(timeStep, rsb->getInterpolationWorldTransform());
-
-    rsb->proceedToTransform(rsb->getInterpolationWorldTransform());
+    btTransform predictedTrans;
+    rsb->predictIntegratedTransform(timeStep, predictedTrans);
+    // std::cout << predictedTrans.getOrigin()[0] << '\t' << predictedTrans.getOrigin()[1] << '\t' << predictedTrans.getOrigin()[2] << '\n';
+    rsb->proceedToTransform(predictedTrans);
+    // std::cout << rsb->getWorldTransform().getOrigin()[0] << '\t' << rsb->getWorldTransform().getOrigin()[1] << '\t' << rsb->getWorldTransform().getOrigin()[2] << '\n';
+    // std::cout << "----------\n";
 
     // map reduced dof back to full space
     rsb->updateFullDofs();

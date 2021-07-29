@@ -23,7 +23,9 @@ class btReducedSoftBody : public btSoftBody
 	btVector3 m_linearFactor;
 	btVector3 m_angularFactor;
 	btVector3 m_invInertiaLocal;
+  btTransform m_rigidTransformWorld;
   btMatrix3x3 m_invInertiaTensorWorld;
+  btVector3 m_initialOrigin;  // initial center of mass (original of the m_rigidTransformWorld)
 
  public:
   //
@@ -128,6 +130,11 @@ class btReducedSoftBody : public btSoftBody
     return m_mass;
   }
 
+  btTransform& getWorldTransform()
+	{
+		return m_rigidTransformWorld;
+	}
+
   const btVector3& getLinearVelocity() const
 	{
 		return m_linearVelocity;
@@ -139,7 +146,7 @@ class btReducedSoftBody : public btSoftBody
 
   const btVector3& getOrigin() const
   {
-    return m_worldTransform.getOrigin();
+    return m_rigidTransformWorld.getOrigin();
   }
 
   #if defined(BT_CLAMP_VELOCITY_TO) && BT_CLAMP_VELOCITY_TO > 0
