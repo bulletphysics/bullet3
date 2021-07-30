@@ -85,7 +85,7 @@ public:
 	void backupVelocity();
 
 	// set m_dv and m_backupVelocity to desired value to prepare for momentum solve
-	void setupDeformableSolve(bool implicit);
+	virtual void setupDeformableSolve(bool implicit);
 
 	// set the current velocity to that backed up in m_backupVelocity
 	void revertVelocity();
@@ -199,9 +199,11 @@ public:
 		m_objective->m_projection.setLagrangeMultiplier();
 	}
 
+	virtual void solveConstraints(btScalar timeStep) {}
+
 	// unused functions
 	virtual void optimize(btAlignedObjectArray<btSoftBody*>& softBodies, bool forceUpdate = false) {}
-	virtual void solveConstraints(btScalar dt) {}
+	// virtual void solveConstraints(btScalar dt) {}
 	virtual bool checkInitialized() { return true; }
 	virtual void copyBackToSoftBodies(bool bMove = true) {}
 };

@@ -34,7 +34,9 @@ void btReducedSoftBody::setReducedModes(int start_mode, int num_modes, int full_
   m_nFull = full_size;
   m_reducedDofs.resize(m_nReduced, 0);
   m_reducedVelocity.resize(m_nReduced, 0);
+  m_reducedForce.resize(m_nReduced, 0);
   m_nodalMass.resize(full_size, 0);
+  endOfTimeStepZeroing();
 }
 
 void btReducedSoftBody::setMassProps(const tDenseArray& mass_array)
@@ -95,12 +97,20 @@ void btReducedSoftBody::setFixedNodes()
   m_fixedNodes.push_back(0);
 }
 
+void btReducedSoftBody::endOfTimeStepZeroing()
+{
+  for (int i = 0; i < m_nReduced; ++i)
+  {
+    m_reducedForce[i] = 0;
+  }
+}
+
 void btReducedSoftBody::predictIntegratedTransform(btScalar timeStep, btTransform& predictedTransform)
 {
 	btTransformUtil::integrateTransform(m_rigidTransformWorld, m_linearVelocity, m_angularVelocity, timeStep, predictedTransform);
 }
 
-void btReducedSoftBody::updateReducedDofs()
+void btReducedSoftBody::mapToReducedDofs()
 {
   btAssert(m_reducedDofs.size() == m_nReduced);
   for (int j = 0; j < m_nReduced; ++j) 
@@ -117,7 +127,23 @@ void btReducedSoftBody::updateReducedDofs()
   }
 }
 
-void btReducedSoftBody::updateFullDofs()
+void btReducedSoftBody::updateReducedDofs(btScalar solverdt)
+{
+  for (int r = 0; r < m_nReduced; ++r)
+  { 
+    m_reducedDofs[r] += solverdt * m_reducedVelocity[r];
+  }
+}
+
+void btReducedSoftBody::updateFullDofs(btScalar solverdt)
+{
+  for (int i = 0; i < m_nFull; ++i)
+  {
+    m_nodes[i].m_x += solverdt * m_nodes[i].m_v;
+  }
+}
+
+void btReducedSoftBody::mapToFullDofs()
 {
   btAssert(m_nodes.size() == m_nFull);
   TVStack delta_x;
@@ -138,6 +164,51 @@ void btReducedSoftBody::updateFullDofs()
     }
     // get new coordinates
     m_nodes[i].m_x = rotation * (m_x0[i] - m_initialOrigin + delta_x[i]) + origin; //TODO: assume the initial origin is at (0,0,0)
+  }
+}
+
+void btReducedSoftBody::updateReducedVelocity(btScalar solverdt)
+{
+  // update reduced velocity
+  for (int r = 0; r < m_nReduced; ++r)
+  {
+    btScalar mass_inv = (m_Mr[r] == 0) ? 0 : 1.0 / m_Mr[r]; // TODO: this might be redundant, because Mr is identity
+    btScalar delta_v = solverdt * mass_inv * m_reducedForce[r];
+    m_reducedVelocity[r] -= delta_v; //! check this
+  }
+}
+
+void btReducedSoftBody::updateFullVelocity(btScalar solverdt)
+{
+  TVStack v_from_reduced;
+  v_from_reduced.resize(m_nFull);
+  // btVector3 current_com = m_rigidTransformWorld.getOrigin() - m_initialOrigin;  
+  for (int i = 0; i < m_nFull; ++i)
+  {
+    btVector3 r = m_nodes[i].m_x - m_rigidTransformWorld.getOrigin();
+
+    // compute velocity contributed by the reduced velocity
+    for (int k = 0; k < 3; ++k)
+    {
+      v_from_reduced[i][k] = 0;
+      for (int r = 0; r < m_nReduced; ++r)
+      {
+        v_from_reduced[i][k] += m_modes[r][3 * i + k] * m_reducedVelocity[r];
+      }
+    }
+
+    // get new velocity
+    m_nodes[i].m_v = m_angularVelocity.cross(r) + 
+                     m_rigidTransformWorld.getBasis() * v_from_reduced[i] +
+                     m_linearVelocity;
+  }
+}
+
+void btReducedSoftBody::updateMeshNodePositions(btScalar solverdt)
+{
+  for (int i = 0; i < m_nFull; ++i)
+  {
+    m_nodes[i].m_x = solverdt * m_nodes[i].m_v;
   }
 }
 
@@ -215,19 +286,29 @@ void btReducedSoftBody::applyImpulse(const btVector3& impulse, const btVector3& 
   }
 }
 
-void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt, tDenseArray& reduced_force)
+void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt)
 {
+  // zero the reduced force vector
+  endOfTimeStepZeroing();
+
   // impulse leads to the deformation in the reduced space
   btVector3 impulse = m_nodalMass[n_node] / dt * (target_vel - m_nodes[n_node].m_v);
   for (int i = 0; i < m_nReduced; ++i)
   {
     for (int k = 0; k < 3; ++k)
     {
-      reduced_force[i] += m_modes[i][3 * n_node + k] * impulse[k];
+      m_reducedForce[i] = m_modes[i][3 * n_node + k] * impulse[k];
     }
   }
+
   // impulse causes rigid motion
   applyImpulse(impulse, m_nodes[n_node].m_x);
+
+  // apply impulse to the reduced velocity
+  updateReducedVelocity(dt);
+
+  // apply impulse force, update velocity
+  updateFullVelocity(dt);
 }
 
 void btReducedSoftBody::applyRigidGravity(const btVector3& gravity, btScalar dt)
@@ -235,27 +316,27 @@ void btReducedSoftBody::applyRigidGravity(const btVector3& gravity, btScalar dt)
   // update rigid frame velocity
   m_linearVelocity += dt * gravity;
 
-  // update nodal velocity
-  for (int i = 0; i < m_nFull; ++i)
-  {
-    m_nodes[i].m_v = m_nodes[i].m_v + dt * gravity;
-  }
+  // // update nodal velocity
+  // for (int i = 0; i < m_nFull; ++i)
+  // {
+  //   m_nodes[i].m_v += dt * gravity;
+  // }
 }
 
-void btReducedSoftBody::applyReducedInternalForce(tDenseArray& reduced_force, const btScalar damping_alpha, const btScalar damping_beta)
+void btReducedSoftBody::applyReducedInternalForce(const btScalar damping_alpha, const btScalar damping_beta)
 {
   for (int r = 0; r < m_nReduced; ++r) 
   {
-    reduced_force[r] += m_ksScale * m_Kr[r] * (m_reducedDofs[r] + damping_beta * m_reducedVelocity[r]);
+    m_reducedForce[r] += m_ksScale * m_Kr[r] * (m_reducedDofs[r] + damping_beta * m_reducedVelocity[r]);
   }
 }
 
-void btReducedSoftBody::applyFixedContraints(btScalar dt, tDenseArray& reduced_force)
+void btReducedSoftBody::applyFixedContraints(btScalar dt)
 {
   for (int n = 0; n < m_fixedNodes.size(); ++n)
   {
     // std::cout << reduced_force[0] << "\t" << reduced_force[1] << "\n";
-    applyFullSpaceImpulse(btVector3(0, 0, 0), m_fixedNodes[n], dt, reduced_force);
+    applyFullSpaceImpulse(btVector3(0, 0, 0), m_fixedNodes[n], dt);
     // std::cout << reduced_force[0] << "\t" << reduced_force[1] << "\n";
   }
 }

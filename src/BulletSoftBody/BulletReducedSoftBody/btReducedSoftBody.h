@@ -49,6 +49,7 @@ class btReducedSoftBody : public btSoftBody
 	tDenseMatrix m_modes;														// modes of the reduced deformable model. Each inner array is a mode, outer array size = n_modes
 	tDenseArray m_reducedDofs;				   // Reduced degree of freedom
 	tDenseArray m_reducedVelocity;		   // Reduced velocity array
+  tDenseArray m_reducedForce;          // reduced force
 	tDenseArray m_eigenvalues;		// eigenvalues of the reduce deformable model
 	tDenseArray m_Kr;	// reduced stiffness matrix
 	tDenseArray m_Mr;	// reduced mass matrix //TODO: do we need this?
@@ -89,15 +90,32 @@ class btReducedSoftBody : public btSoftBody
 
   void predictIntegratedTransform(btScalar step, btTransform& predictedTransform);
 
+  void endOfTimeStepZeroing();
+
   //
   // reduced dof related
   //
 
   // compute reduced degree of freedoms
-  void updateReducedDofs();
+  void updateReducedDofs(btScalar solverdt);
+
+  // map to reduced degree of freedoms
+  void mapToReducedDofs();
 
   // compute full degree of freedoms
-  void updateFullDofs();
+  void updateFullDofs(btScalar solverdt);
+
+  // map to full degree of freedoms
+  void mapToFullDofs();
+
+  // compute reduced velocity update
+  void updateReducedVelocity(btScalar solverdt);
+
+  // compute full space velocity from the reduced velocity
+  void updateFullVelocity(btScalar solverdt);
+
+  // update the full space mesh positions
+  void updateMeshNodePositions(btScalar solverdt);
 
   //
   // rigid motion related
@@ -110,16 +128,16 @@ class btReducedSoftBody : public btSoftBody
 	void applyImpulse(const btVector3& impulse, const btVector3& rel_pos);
 
   // apply impulse to nodes in the full space
-  void applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt, tDenseArray& reduced_force);
+  void applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt);
 
   // apply fixed contraints to the nodes
-  void applyFixedContraints(btScalar dt, tDenseArray& reduced_force);
+  void applyFixedContraints(btScalar dt);
 
   // apply gravity to the rigid frame
   void applyRigidGravity(const btVector3& gravity, btScalar dt);
 
   // apply reduced force
-  void applyReducedInternalForce(tDenseArray& reduced_force, const btScalar damping_alpha, const btScalar damping_beta);
+  void applyReducedInternalForce(const btScalar damping_alpha, const btScalar damping_beta);
 
   void proceedToTransform(const btTransform& newTrans);
 

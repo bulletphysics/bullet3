@@ -302,30 +302,33 @@ void btDeformableMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 
 void btDeformableMultiBodyDynamicsWorld::solveConstraints(btScalar timeStep)
 {
-	BT_PROFILE("btDeformableMultiBodyDynamicsWorld::solveConstraints");
-	// save v_{n+1}^* velocity after explicit forces
-	m_deformableBodySolver->backupVelocity();
+	// BT_PROFILE("btDeformableMultiBodyDynamicsWorld::solveConstraints");
+	// // save v_{n+1}^* velocity after explicit forces
+	// m_deformableBodySolver->backupVelocity();
 
-	// set up constraints among multibodies and between multibodies and deformable bodies
-	setupConstraints();
+	// // set up constraints among multibodies and between multibodies and deformable bodies
+	// setupConstraints();
 
-	// solve contact constraints
-	solveContactConstraints();
+	// // solve contact constraints
+	// solveContactConstraints();
 
-	// set up the directions in which the velocity does not change in the momentum solve
-	if (m_useProjection)
-		m_deformableBodySolver->setProjection();
-	else
-		m_deformableBodySolver->setLagrangeMultiplier();
+	// // set up the directions in which the velocity does not change in the momentum solve
+	// if (m_useProjection)
+	// 	m_deformableBodySolver->setProjection();
+	// else
+	// 	m_deformableBodySolver->setLagrangeMultiplier();
 
-	// for explicit scheme, m_backupVelocity = v_{n+1}^*
-	// for implicit scheme, m_backupVelocity = v_n
-	// Here, set dv = v_{n+1} - v_n for nodes in contact
-	m_deformableBodySolver->setupDeformableSolve(m_implicit);
+	// // for explicit scheme, m_backupVelocity = v_{n+1}^*
+	// // for implicit scheme, m_backupVelocity = v_n
+	// // Here, set dv = v_{n+1} - v_n for nodes in contact
+	// m_deformableBodySolver->setupDeformableSolve(m_implicit);
 
-	// At this point, dv should be golden for nodes in contact
-	// proceed to solve deformable momentum equation
-	m_deformableBodySolver->solveDeformableConstraints(timeStep);
+	// // At this point, dv should be golden for nodes in contact
+	// // proceed to solve deformable momentum equation
+	// m_deformableBodySolver->solveDeformableConstraints(timeStep);
+	
+	// TODO: need better design
+	m_deformableBodySolver->solveConstraints(timeStep);
 }
 
 void btDeformableMultiBodyDynamicsWorld::setupConstraints()

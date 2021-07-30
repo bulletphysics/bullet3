@@ -14,7 +14,9 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
 
   btVector3 m_gravity;
 
-  void applyForce();
+  void predictReduceDeformableMotion(btScalar solverdt);
+
+  void applyExplicitForce(btScalar solverdt);
 
  public:
   btReducedSoftBodySolver();
@@ -31,10 +33,17 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
 
   virtual void predictMotion(btScalar solverdt);
 
-  virtual void applyExplicitForce();
-
   virtual void applyTransforms(btScalar timeStep);
 
+  virtual void solveConstraints(btScalar timeStep);
+
+  // virtual void setProjection() {}
+
+  // virtual void setLagrangeMultiplier() {}
+
+  // virtual void setupDeformableSolve(bool implicit);
+
+  // virtual void solveDeformableConstraints(btScalar solverdt);
 };
 
 #endif // BT_REDUCED_SOFT_BODY_DYNAMICS_WORLD_H

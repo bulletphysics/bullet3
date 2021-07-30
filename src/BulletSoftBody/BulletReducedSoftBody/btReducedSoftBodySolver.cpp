@@ -21,73 +21,40 @@ void btReducedSoftBodySolver::setGravity(const btVector3& gravity)
 
 void btReducedSoftBodySolver::predictMotion(btScalar solverdt)
 {
-  applyExplicitForce();
+  applyExplicitForce(solverdt);
+
+  // predict new mesh location
+  predictReduceDeformableMotion(solverdt);
 }
 
-void btReducedSoftBodySolver::applyForce()
+void btReducedSoftBodySolver::predictReduceDeformableMotion(btScalar solverdt)
 {
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
-    // get reduced force
-    btAlignedObjectArray<btScalar> reduced_force;
-    reduced_force.resize(rsb->m_reducedDofs.size(), 0);
+    rsb->updateReducedVelocity(solverdt);
+
+    // map reduced velocity to full space velocity
+    rsb->updateFullVelocity(solverdt);
+
+    // update mesh nodal position
+    // rsb->updateMeshNodePositions(solverdt);
+  }
+}
+
+void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
+{
+  for (int i = 0; i < m_softBodies.size(); ++i)
+  {
+    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+
+    // apply gravity to the rigid frame
+    rsb->applyRigidGravity(m_gravity, solverdt);
 
     // add internal force (elastic force & damping force)
-    rsb->applyReducedInternalForce(reduced_force, m_dampingAlpha, m_dampingBeta);
-
-    // apply impulses to reduced deformable objects
-    static btScalar sim_time = 0;
-    static int apply_impulse = 0;
-    // if (rsb->m_reducedModel && apply_impulse < 4)
-    // {
-    //   if (sim_time > 1 && apply_impulse == 0) 
-    //   {
-    //     rsb->applyFullSpaceImpulse(btVector3(0, 1, 0), 0, 2.0 * m_dt, reduced_force);
-    //     apply_impulse++;
-    //   }
-    //   if (sim_time > 2 && apply_impulse == 1) 
-    //   {
-    //     rsb->applyFullSpaceImpulse(btVector3(0, -1.2, 0), 0, m_dt, reduced_force);
-    //     apply_impulse++;
-    //   }
-    //   if (sim_time > 3 && apply_impulse == 2) 
-    //   {
-    //     rsb->applyFullSpaceImpulse(btVector3(1.1, 0, 0), 0, m_dt, reduced_force);
-    //     apply_impulse++;
-    //   }
-    //   if (sim_time > 4 && apply_impulse == 3) 
-    //   {
-    //     rsb->applyFullSpaceImpulse(btVector3(-1, 0, 0), 0, 2.0 * m_dt, reduced_force);
-    //     apply_impulse++;
-    //   }
-    // }
-
-    // apply fixed contraints
-    // rsb->applyFixedContraints(m_dt, reduced_force); //TODO: solver iteratively with other constraints
-
-    // update reduced velocity
-    for (int r = 0; r < rsb->m_reducedDofs.size(); ++r)
-    {
-      btScalar mass_inv = (rsb->m_Mr[r] == 0) ? 0 : 1.0 / rsb->m_Mr[r];
-      btScalar delta_v = m_dt * mass_inv * reduced_force[r];
-      rsb->m_reducedVelocity[r] -= delta_v;
-    }
+    rsb->applyReducedInternalForce(m_dampingAlpha, m_dampingBeta);
   }
-}
-
-void btReducedSoftBodySolver::applyExplicitForce()
-{
-  // apply gravity to the rigid frame
-  for (int i = 0; i < m_softBodies.size(); ++i)
-  {
-    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
-    rsb->applyRigidGravity(m_gravity, m_dt);
-  }
-
-  // apply internal forces and impulses
-  applyForce();
 }
 
 void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
@@ -96,18 +63,28 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
   {
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
-    for (int r = 0; r < rsb->m_reducedDofs.size(); ++r)
-      rsb->m_reducedDofs[r] += timeStep * rsb->m_reducedVelocity[r];
+    // update reduced dofs for the next time step
+    rsb->updateReducedDofs(timeStep);
 
     // rigid motion
     btTransform predictedTrans;
     rsb->predictIntegratedTransform(timeStep, predictedTrans);
-    // std::cout << predictedTrans.getOrigin()[0] << '\t' << predictedTrans.getOrigin()[1] << '\t' << predictedTrans.getOrigin()[2] << '\n';
     rsb->proceedToTransform(predictedTrans);
-    // std::cout << rsb->getWorldTransform().getOrigin()[0] << '\t' << rsb->getWorldTransform().getOrigin()[1] << '\t' << rsb->getWorldTransform().getOrigin()[2] << '\n';
-    // std::cout << "----------\n";
 
-    // map reduced dof back to full space
-    rsb->updateFullDofs();
+    // update mesh nodal positions for the next time step
+    rsb->updateFullDofs(timeStep);
+
+    // end of time step clean up
+    rsb->endOfTimeStepZeroing();
   }
+}
+
+void btReducedSoftBodySolver::solveConstraints(btScalar timeStep)
+{
+  // for (int i = 0; i < m_softBodies.size(); ++i)
+  // {
+  //   btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+
+  //   rsb->applyFixedContraints(timeStep);
+  // }
 }
