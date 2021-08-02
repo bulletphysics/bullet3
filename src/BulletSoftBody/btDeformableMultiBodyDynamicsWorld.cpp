@@ -87,23 +87,23 @@ void btDeformableMultiBodyDynamicsWorld::internalSingleStepSimulation(btScalar t
 	///apply gravity and explicit force to velocity, predict motion
 	predictUnconstraintMotion(timeStep);
 
-	///perform collision detection that involves rigid/multi bodies
-	btMultiBodyDynamicsWorld::performDiscreteCollisionDetection();
+	// ///perform collision detection that involves rigid/multi bodies
+	// btMultiBodyDynamicsWorld::performDiscreteCollisionDetection();
 
-	btMultiBodyDynamicsWorld::calculateSimulationIslands();
+	// btMultiBodyDynamicsWorld::calculateSimulationIslands();
 
-	beforeSolverCallbacks(timeStep);
+	// beforeSolverCallbacks(timeStep);
 
-	///solve contact constraints and then deformable bodies momemtum equation
+	// ///solve contact constraints and then deformable bodies momemtum equation
 	solveConstraints(timeStep);
 
-	afterSolverCallbacks(timeStep);
+	// afterSolverCallbacks(timeStep);
 
-	performDeformableCollisionDetection();
+	// performDeformableCollisionDetection();
 
-	applyRepulsionForce(timeStep);
+	// applyRepulsionForce(timeStep);
 
-	performGeometricCollisions(timeStep);
+	// performGeometricCollisions(timeStep);
 
 	integrateTransforms(timeStep);
 

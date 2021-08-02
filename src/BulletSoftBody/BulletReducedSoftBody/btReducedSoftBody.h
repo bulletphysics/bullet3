@@ -10,10 +10,24 @@
 // Reduced deformable body is a simplified deformable object embedded in a rigid frame.
 class btReducedSoftBody : public btSoftBody
 {
+ public:
+  //
+  //  Typedefs
+  //
+  typedef btAlignedObjectArray<btVector3> TVStack;
+  typedef btAlignedObjectArray<btScalar> tDenseArray;
+  typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > tDenseMatrix;
+
  private:
   // scaling factors
   btScalar m_rhoScale;         // mass density scale
   btScalar m_ksScale;          // stiffness scale
+
+  // projection matrix
+  TVStack m_projPA;        // Eqn. 4.11 from Rahul Sheth's thesis
+  TVStack m_projCq;
+
+  TVStack m_localMomentArm; // Sq + x0
 
  protected:
   // rigid frame
@@ -28,12 +42,6 @@ class btReducedSoftBody : public btSoftBody
   btVector3 m_initialOrigin;  // initial center of mass (original of the m_rigidTransformWorld)
 
  public:
-  //
-  //  Typedefs
-  //
-  typedef btAlignedObjectArray<btVector3> TVStack;
-  typedef btAlignedObjectArray<btScalar> tDenseArray;
-  typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > tDenseMatrix;
 
   btVector3 m_linearVelocity;
   //
@@ -66,6 +74,11 @@ class btReducedSoftBody : public btSoftBody
 
   ~btReducedSoftBody() {}
 
+  //
+  // initializing helpers
+  //
+  void internalInitialization();
+
   void setReducedModes(int start_mode, int num_modes, int full_size);
 
   void setMassProps(const tDenseArray& mass_array);
@@ -82,40 +95,39 @@ class btReducedSoftBody : public btSoftBody
 
   void setFixedNodes();
 
+  //
+  // various internal updates
+  //
   virtual void translate(const btVector3& trs);
 
   void updateRestNodalPositions();
 
   void updateInertiaTensor();
 
+  void updateLocalMomentArm();
+
   void predictIntegratedTransform(btScalar step, btTransform& predictedTransform);
+
+  // update the external force projection matrix 
+  void updateExternalForceProjectMatrix(bool initialized);
 
   void endOfTimeStepZeroing();
 
   //
-  // reduced dof related
+  // position and velocity update related
   //
 
   // compute reduced degree of freedoms
   void updateReducedDofs(btScalar solverdt);
 
-  // map to reduced degree of freedoms
-  void mapToReducedDofs();
-
-  // compute full degree of freedoms
-  void updateFullDofs(btScalar solverdt);
+  // compute reduced velocity update
+  void updateReducedVelocity(btScalar solverdt);
 
   // map to full degree of freedoms
   void mapToFullDofs();
 
-  // compute reduced velocity update
-  void updateReducedVelocity(btScalar solverdt);
-
   // compute full space velocity from the reduced velocity
-  void updateFullVelocity(btScalar solverdt);
-
-  // update the full space mesh positions
-  void updateMeshNodePositions(btScalar solverdt);
+  void mapToFullVelocity(btScalar solverdt);
 
   //
   // rigid motion related
@@ -124,11 +136,22 @@ class btReducedSoftBody : public btSoftBody
 
 	void applyTorqueImpulse(const btVector3& torque);
 
+  void proceedToTransform(const btTransform& newTrans);
+
+  void setCenterOfMassTransform(const btTransform& xform);
+
+  //
+  // force related
+  //
+
   // apply impulse to the rigid frame
-	void applyImpulse(const btVector3& impulse, const btVector3& rel_pos);
+	void applyRigidImpulse(const btVector3& impulse, const btVector3& rel_pos);
 
   // apply impulse to nodes in the full space
   void applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt);
+
+  // apply nodal external force in the full space
+  void applyFullSpaceNodalForce(const btVector3& f_ext, int n_node);
 
   // apply fixed contraints to the nodes
   void applyFixedContraints(btScalar dt);
@@ -139,10 +162,9 @@ class btReducedSoftBody : public btSoftBody
   // apply reduced force
   void applyReducedInternalForce(const btScalar damping_alpha, const btScalar damping_beta);
 
-  void proceedToTransform(const btTransform& newTrans);
-
-  void setCenterOfMassTransform(const btTransform& xform);
-
+  //
+  // accessors
+  //
   btScalar getTotalMass() const
   {
     return m_mass;

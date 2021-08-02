@@ -126,9 +126,6 @@ void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftB
 
 	std::string modes_file = std::string(file_path) + "modes.bin";
 	btReducedSoftBodyHelpers::readBinaryModes(rsb->m_modes, rsb->m_startMode, rsb->m_nReduced, 3 * rsb->m_nFull, modes_file.c_str());	// default to 3D
-
-	// get rest position
-	rsb->updateRestNodalPositions();
 	
 	// read in full nodal mass
 	std::string M_file = std::string(file_path) + "M_diag_mat.bin";
@@ -140,6 +137,9 @@ void btReducedSoftBodyHelpers::readReducedDeformableInfoFromFiles(btReducedSoftB
   btVector3 inertia(0, 0, 0);
 	calculateLocalInertia(inertia, rsb->getTotalMass(), btVector3(4, 1, 0.5), btVector3(0, 0, 0));
 	rsb->setInertiaProps(inertia);
+
+	// other internal initialization
+	rsb->internalInitialization();
 }
 
 // read in binary files

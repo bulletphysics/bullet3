@@ -35,7 +35,7 @@ static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.01;
 static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
-static int num_modes = 2;
+static int num_modes = 1;
 
 class BasicTest : public CommonDeformableBodyBase
 {
@@ -45,9 +45,15 @@ class BasicTest : public CommonDeformableBodyBase
     // get deformed shape
     void getDeformedShape(btReducedSoftBody* rsb, const int mode_n, const btScalar scale = 1)
     {
-      for (int i = 0; i < rsb->m_nodes.size(); ++i)
-        for (int k = 0; k < 3; ++k)
-          rsb->m_nodes[i].m_x[k] += rsb->m_modes[mode_n][3 * i + k] * scale;
+      // for (int i = 0; i < rsb->m_nodes.size(); ++i)
+      //   for (int k = 0; k < 3; ++k)
+      //     rsb->m_nodes[i].m_x[k] += rsb->m_modes[mode_n][3 * i + k] * scale;
+
+      rsb->m_reducedDofs[mode_n] = scale;
+      rsb->mapToFullDofs();
+      std::cout << "-----------\n";
+      std::cout << rsb->m_nodes[0].m_x[0] << '\t' << rsb->m_nodes[0].m_x[1] << '\t' << rsb->m_nodes[0].m_x[2] << '\n';
+      std::cout << "-----------\n";
     }
 
 public:
@@ -92,13 +98,13 @@ public:
     void stepSimulation(float deltaTime)
     {
       // TODO: remove this. very hacky way of adding initial deformation
-      btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
-      if (first_step /* && !rsb->m_bUpdateRtCst*/) 
-      {
-        getDeformedShape(rsb, 0, 0.5);
-        first_step = false;
-        rsb->mapToReducedDofs();
-      }
+      // btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
+      // if (first_step /* && !rsb->m_bUpdateRtCst*/) 
+      // {
+      //   getDeformedShape(rsb, 0, 1);
+      //   first_step = false;
+      //   // rsb->mapToReducedDofs();
+      // }
       
       float internalTimeStep = 1. / 60.f;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
@@ -175,7 +181,7 @@ void BasicTest::initPhysics()
         
         // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
-        // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
+        rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
         
         // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
         // getDeformableDynamicsWorld()->addForce(rsb, gravity_force);

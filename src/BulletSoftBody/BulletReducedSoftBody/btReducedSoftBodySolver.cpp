@@ -5,6 +5,7 @@ btReducedSoftBodySolver::btReducedSoftBodySolver()
 {
   m_dampingAlpha = 0;
   m_dampingBeta = 0;
+  m_simTime = 0;
   m_gravity = btVector3(0, 0, 0);
 }
 
@@ -33,18 +34,25 @@ void btReducedSoftBodySolver::predictReduceDeformableMotion(btScalar solverdt)
   {
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
+    // rigid motion
+    btTransform predictedTrans;
+    rsb->predictIntegratedTransform(solverdt, predictedTrans);
+    rsb->proceedToTransform(predictedTrans);
+
+    // apply fixed constraints
+    rsb->applyFixedContraints(solverdt);
+
+    // update reduced velocity and dofs
     rsb->updateReducedVelocity(solverdt);
 
-    // map reduced velocity to full space velocity
-    rsb->updateFullVelocity(solverdt);
-
-    // update mesh nodal position
+    // TODO: update mesh nodal position. need it for collision
     // rsb->updateMeshNodePositions(solverdt);
   }
 }
 
 void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
 {
+  static bool applied = false;
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
@@ -54,6 +62,13 @@ void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
 
     // add internal force (elastic force & damping force)
     rsb->applyReducedInternalForce(m_dampingAlpha, m_dampingBeta);
+
+    // apply external force or impulses
+    if (!applied && m_simTime > 2)
+    {
+      rsb->applyFullSpaceImpulse(btVector3(0, -5, 0), 0, solverdt);
+      applied = true;
+    }
   }
 }
 
@@ -72,19 +87,21 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
     rsb->proceedToTransform(predictedTrans);
 
     // update mesh nodal positions for the next time step
-    rsb->updateFullDofs(timeStep);
+    rsb->mapToFullDofs();
 
-    // end of time step clean up
+    // end of time step clean up and update
+    rsb->updateExternalForceProjectMatrix(true);
     rsb->endOfTimeStepZeroing();
   }
+  m_simTime += timeStep;
 }
 
 void btReducedSoftBodySolver::solveConstraints(btScalar timeStep)
 {
-  // for (int i = 0; i < m_softBodies.size(); ++i)
-  // {
-  //   btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+  for (int i = 0; i < m_softBodies.size(); ++i)
+  {
+    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
-  //   rsb->applyFixedContraints(timeStep);
-  // }
+    rsb->applyFixedContraints(timeStep);
+  }
 }
