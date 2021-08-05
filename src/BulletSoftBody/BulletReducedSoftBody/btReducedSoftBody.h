@@ -2,6 +2,7 @@
 #define BT_REDUCED_SOFT_BODY_H
 
 #include "../btSoftBody.h"
+#include "../btSoftBodyInternals.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btMatrix3x3.h"

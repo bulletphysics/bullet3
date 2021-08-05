@@ -118,7 +118,7 @@ public:
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
-            btSoftBody* rsb = static_cast<btReducedSoftBody*>(deformableWorld->getSoftBodyArray()[i]);
+            btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(deformableWorld->getSoftBodyArray()[i]);
             {
                 btSoftBodyHelpers::DrawFrame(rsb, deformableWorld->getDebugDrawer());
                 // btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), flag);
@@ -132,8 +132,11 @@ public:
                 deformableWorld->getDebugDrawer()->drawLine(origin, line_x, btVector3(1, 0, 0));
                 deformableWorld->getDebugDrawer()->drawLine(origin, line_y, btVector3(0, 1, 0));
                 deformableWorld->getDebugDrawer()->drawLine(origin, line_z, btVector3(0, 0, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[0].m_x, 0.2, btVector3(1, 0, 0));
 
+                for (int p = 0; p < rsb->m_fixedNodes.size(); ++p)
+                {
+                    deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_fixedNodes[p]].m_x, 0.2, btVector3(1, 0, 0));
+                }
                 deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.1, btVector3(1, 1, 1));
                 deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 2, 0), 0.1, btVector3(1, 1, 1));
                 deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 4, 0), 0.1, btVector3(1, 1, 1));

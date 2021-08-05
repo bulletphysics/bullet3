@@ -123,6 +123,9 @@ void btReducedSoftBody::setFixedNodes()
   //     m_fixedNodes.push_back(i);
   // }
   m_fixedNodes.push_back(0);
+  m_fixedNodes.push_back(1);
+  m_fixedNodes.push_back(2);
+  m_fixedNodes.push_back(3);
 }
 
 void btReducedSoftBody::internalInitialization()
@@ -351,30 +354,20 @@ void btReducedSoftBody::applyRigidImpulse(const btVector3& impulse, const btVect
 void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt)
 {
   // TODO: get correct impulse using the impulse factor
-  // btVector3 ri = m_rigidTransformWorld.getBasis() * m_localMomentArm[n_node];
   btVector3 ri = m_interpolationWorldTransform.getBasis() * m_localMomentArm[n_node];
   // std::cout << ri[0] << '\t' << ri[1] << '\t' << ri[2] << '\n';
-  
-  btMatrix3x3 ri_skew(0,    -ri[2], ri[1],
-                      ri[2], 0,    -ri[0],
-                     -ri[1], ri[0], 0);
+  btMatrix3x3 ri_skew = Cross(ri);
 
   // calcualte impulse factor
   btScalar inv_mass = m_nodalMass[n_node] > btScalar(0) ? btScalar(1) / m_mass : btScalar(0);
-  btMatrix3x3 impulse_factor(inv_mass, 0, 0,
-                             0, inv_mass, 0,
-                             0, 0, inv_mass);
-  // impulse_factor -= ri_skew.scaled(m_invInertiaLocal) * ri_skew;
+  btMatrix3x3 impulse_factor = Diagonal(inv_mass);
   btMatrix3x3 m_interpolateInvInertiaTensorWorld = m_interpolationWorldTransform.getBasis().scaled(m_invInertiaLocal) * m_interpolationWorldTransform.getBasis().transpose();
   impulse_factor -= ri_skew * m_interpolateInvInertiaTensorWorld * ri_skew;
 
-  // impulse_factor -= ri_skew * m_invInertiaTensorWorld * ri_skew;
-
   // get impulse
-  btVector3 dv = target_vel - m_nodes[n_node].m_v;
   // std::cout << dv[0] << '\t' << dv[1] << '\t' << dv[2] << '\n';
   // std::cout << m_nodes[n_node].m_v[0] << '\t' << m_nodes[n_node].m_v[1] << '\t' << m_nodes[n_node].m_v[2] << '\n';
-  btVector3 impulse = impulse_factor.inverse() * dv;
+  btVector3 impulse = impulse_factor.inverse() * (target_vel - m_nodes[n_node].m_v);
   // std::cout << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
   // std::cout << "----------\n";
 
@@ -382,10 +375,6 @@ void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& target_vel, int n
   // applyFullSpaceNodalForce(impulse / dt, n_node);
 
   // impulse causes rigid motion
-  // applyRigidImpulse(impulse, m_worldTransform.getOrigin());
-  // std::cout << m_nodes[n_node].m_x[0] << '\t' << m_nodes[n_node].m_x[1] << '\t' << m_nodes[n_node].m_x[2] << '\n';
-
-  // applyRigidImpulse(impulse, m_nodes[n_node].m_x);
   applyRigidImpulse(impulse, ri);
 }
 
@@ -431,13 +420,26 @@ void btReducedSoftBody::applyReducedInternalForce(const btScalar damping_alpha, 
 
 void btReducedSoftBody::applyFixedContraints(btScalar dt)
 {
-  for (int n = 0; n < m_fixedNodes.size(); ++n)
+  for (int iter = 0; iter < 100; ++iter)
   {
-    // std::cout << m_reducedForce[0] << "\t" << m_reducedForce[1] << "\n";
-    applyFullSpaceImpulse(btVector3(0, 0, 0), m_fixedNodes[n], dt);
+    btVector3 vel_error(0, 0, 0);
+    for (int n = 0; n < m_fixedNodes.size(); ++n)
+    { 
+      // apply impulse
+      applyFullSpaceImpulse(btVector3(0, 0, 0), m_fixedNodes[n], dt);
 
-    // mapToFullVelocity(getInterpolationWorldTransform());
-    // std::cout << "after" << m_nodes[0].m_v[0] << '\t' << m_nodes[0].m_v[0] << '\t' << m_nodes[0].m_v[0] << '\n';
-    // std::cout << m_reducedForce[0] << "\t" << m_reducedForce[1] << "\n";
+      // update full space velocity
+      mapToFullVelocity(getInterpolationWorldTransform());
+
+      // update velocity error
+      vel_error += m_nodes[n].m_v;
+    }
+    // btScalar error = vel_error.norm() / m_fixedNodes.size();
+    // // std::cout << iter << '\t' << error << '\n';
+    // if (error < 1e-3)
+    // {
+    //   std::cout << "converge!\n";
+    //   break;
+    // }
   }
 }
