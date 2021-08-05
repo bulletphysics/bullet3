@@ -34,16 +34,20 @@ void btReducedSoftBodySolver::predictReduceDeformableMotion(btScalar solverdt)
   {
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
-    // rigid motion
-    btTransform predictedTrans;
-    rsb->predictIntegratedTransform(solverdt, predictedTrans);
-    rsb->proceedToTransform(predictedTrans);
+    // apply damping
+    rsb->applyDamping(solverdt);
 
-    // apply fixed constraints
-    rsb->applyFixedContraints(solverdt);
+    // rigid motion
+    rsb->predictIntegratedTransform(solverdt, rsb->getInterpolationWorldTransform());
 
     // update reduced velocity and dofs
-    rsb->updateReducedVelocity(solverdt);
+    // rsb->updateReducedVelocity(solverdt); // TODO: add back
+
+    // predict full space velocity (needed for constraints)
+    rsb->mapToFullVelocity(rsb->getInterpolationWorldTransform());
+
+    // apply fixed constraints
+    // rsb->applyFixedContraints(solverdt);
 
     // TODO: update mesh nodal position. need it for collision
     // rsb->updateMeshNodePositions(solverdt);
@@ -61,14 +65,14 @@ void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
     rsb->applyRigidGravity(m_gravity, solverdt);
 
     // add internal force (elastic force & damping force)
-    rsb->applyReducedInternalForce(m_dampingAlpha, m_dampingBeta);
+    // rsb->applyReducedInternalForce(m_dampingAlpha, m_dampingBeta); // TODO: add back
 
     // apply external force or impulses
-    if (!applied && m_simTime > 2)
-    {
-      rsb->applyFullSpaceImpulse(btVector3(0, -5, 0), 0, solverdt);
-      applied = true;
-    }
+    // if (!applied && m_simTime > 2)
+    // {
+    //   rsb->applyFullSpaceImpulse(btVector3(0, -5, 0), 0, solverdt);
+    //   applied = true;
+    // }
   }
 }
 
@@ -79,15 +83,15 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
     // update reduced dofs for the next time step
-    rsb->updateReducedDofs(timeStep);
+    // rsb->updateReducedDofs(timeStep); // TODO: add back
 
     // rigid motion
-    btTransform predictedTrans;
-    rsb->predictIntegratedTransform(timeStep, predictedTrans);
-    rsb->proceedToTransform(predictedTrans);
+    // btTransform predictedTrans;
+    // rsb->predictIntegratedTransform(timeStep, predictedTrans);
+    rsb->proceedToTransform(rsb->getInterpolationWorldTransform());
 
     // update mesh nodal positions for the next time step
-    rsb->mapToFullDofs();
+    rsb->mapToFullDofs(rsb->getRigidTransform());
 
     // end of time step clean up and update
     rsb->updateExternalForceProjectMatrix(true);

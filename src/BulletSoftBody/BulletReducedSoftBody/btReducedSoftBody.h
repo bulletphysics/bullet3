@@ -33,7 +33,10 @@ class btReducedSoftBody : public btSoftBody
   // rigid frame
   btScalar m_mass;          // total mass of the rigid frame
   btScalar m_inverseMass;   // inverse of the total mass of the rigid frame
+  btVector3 m_linearVelocity;
 	btVector3 m_angularVelocity;
+  btScalar m_linearDamping;    // linear damping coefficient
+  btScalar m_angularDamping;    // angular damping coefficient
 	btVector3 m_linearFactor;
 	btVector3 m_angularFactor;
 	btVector3 m_invInertiaLocal;
@@ -43,7 +46,6 @@ class btReducedSoftBody : public btSoftBody
 
  public:
 
-  btVector3 m_linearVelocity;
   //
   //  Fields
   //
@@ -124,14 +126,16 @@ class btReducedSoftBody : public btSoftBody
   void updateReducedVelocity(btScalar solverdt);
 
   // map to full degree of freedoms
-  void mapToFullDofs();
+  void mapToFullDofs(const btTransform& ref_trans);
 
   // compute full space velocity from the reduced velocity
-  void mapToFullVelocity(btScalar solverdt);
+  void mapToFullVelocity(const btTransform& ref_trans);
 
   //
   // rigid motion related
   //
+  void applyDamping(btScalar timeStep);
+
   void applyCentralImpulse(const btVector3& impulse);
 
 	void applyTorqueImpulse(const btVector3& torque);
@@ -170,7 +174,7 @@ class btReducedSoftBody : public btSoftBody
     return m_mass;
   }
 
-  btTransform& getWorldTransform()
+  btTransform& getRigidTransform()
 	{
 		return m_rigidTransformWorld;
 	}
@@ -183,11 +187,6 @@ class btReducedSoftBody : public btSoftBody
 	{
 		return m_angularVelocity;
 	}
-
-  const btVector3& getOrigin() const
-  {
-    return m_rigidTransformWorld.getOrigin();
-  }
 
   #if defined(BT_CLAMP_VELOCITY_TO) && BT_CLAMP_VELOCITY_TO > 0
   void clampVelocity(btVector3& v) const {

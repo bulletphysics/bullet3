@@ -35,7 +35,7 @@ static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.01;
 static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
-static int num_modes = 1;
+static int num_modes = 2;
 
 class BasicTest : public CommonDeformableBodyBase
 {
@@ -50,7 +50,7 @@ class BasicTest : public CommonDeformableBodyBase
       //     rsb->m_nodes[i].m_x[k] += rsb->m_modes[mode_n][3 * i + k] * scale;
 
       rsb->m_reducedDofs[mode_n] = scale;
-      rsb->mapToFullDofs();
+      rsb->mapToFullDofs(rsb->getWorldTransform());
       std::cout << "-----------\n";
       std::cout << rsb->m_nodes[0].m_x[0] << '\t' << rsb->m_nodes[0].m_x[1] << '\t' << rsb->m_nodes[0].m_x[2] << '\n';
       std::cout << "-----------\n";
@@ -118,14 +118,25 @@ public:
         
         for (int i = 0; i < deformableWorld->getSoftBodyArray().size(); i++)
         {
-            btSoftBody* rsb = (btSoftBody*)deformableWorld->getSoftBodyArray()[i];
+            btSoftBody* rsb = static_cast<btReducedSoftBody*>(deformableWorld->getSoftBodyArray()[i]);
             {
                 btSoftBodyHelpers::DrawFrame(rsb, deformableWorld->getDebugDrawer());
                 // btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), flag);
-                btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags());
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.2, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 2, 0), 0.2, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 4, 0), 0.2, btVector3(1, 1, 1));
+                btSoftBodyHelpers::Draw(rsb, deformableWorld->getDebugDrawer(), deformableWorld->getDrawFlags()); 
+
+                btVector3 origin = rsb->getRigidTransform().getOrigin();
+                btVector3 line_x = rsb->getRigidTransform().getBasis() * 2 * btVector3(1, 0, 0) + origin;
+                btVector3 line_y = rsb->getRigidTransform().getBasis() * 2 * btVector3(0, 1, 0) + origin;
+                btVector3 line_z = rsb->getRigidTransform().getBasis() * 2 * btVector3(0, 0, 1) + origin;
+
+                deformableWorld->getDebugDrawer()->drawLine(origin, line_x, btVector3(1, 0, 0));
+                deformableWorld->getDebugDrawer()->drawLine(origin, line_y, btVector3(0, 1, 0));
+                deformableWorld->getDebugDrawer()->drawLine(origin, line_z, btVector3(0, 0, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[0].m_x, 0.2, btVector3(1, 0, 0));
+
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.1, btVector3(1, 1, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 2, 0), 0.1, btVector3(1, 1, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 4, 0), 0.1, btVector3(1, 1, 1));
             }
         }
     }
@@ -144,7 +155,7 @@ void BasicTest::initPhysics()
     m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
     reducedSoftBodySolver->setDamping(damping_alpha, damping_beta);
-    btVector3 gravity = btVector3(0, 0, 0);
+    btVector3 gravity = btVector3(0, -10, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
@@ -181,7 +192,7 @@ void BasicTest::initPhysics()
         
         // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
         // rsb->setRigidVelocity(btVector3(0, 1, 0));
-        rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
+        // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
         
         // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
         // getDeformableDynamicsWorld()->addForce(rsb, gravity_force);

@@ -21,8 +21,12 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
 	m_angularFactor.setValue(1, 1, 1);
 	m_linearFactor.setValue(1, 1, 1);
   m_invInertiaLocal.setValue(1, 1, 1);
+  // m_invInertiaLocal.setZero();
   m_mass = 0.0;
   m_inverseMass = 0.0;
+
+  m_linearDamping = 0;
+  m_angularDamping = 0;
 
   m_rigidTransformWorld.setIdentity();
 }
@@ -62,6 +66,30 @@ void btReducedSoftBody::setInertiaProps(const btVector3& inertia)
                 inertia.x() != btScalar(0.0) ? btScalar(1.0) / inertia.x() : btScalar(0.0),
 							  inertia.y() != btScalar(0.0) ? btScalar(1.0) / inertia.y() : btScalar(0.0),
 							  inertia.z() != btScalar(0.0) ? btScalar(1.0) / inertia.z() : btScalar(0.0));
+  
+  // // CoM
+  // btVector3 x_com(0,0,0);
+  // for (int i = 0; i < m_nFull; ++i)
+  // {
+  //   x_com += m_nodalMass[i] * m_nodes[i].m_x;
+  // }
+  // x_com /= m_mass;
+
+  // btMatrix3x3 inertia_temp;
+  // inertia_temp.setZero();
+  // for (int i = 0; i < m_nFull; ++i)
+  // {
+  //   btVector3 ri = m_nodes[i].m_x - x_com;
+  //   for (int a = 0; a < 3; ++a)
+  //   {
+  //     for (int b = 0; b < 3; ++b)
+  //     {
+  //       inertia_temp[a][b] += m_nodalMass[i] * ri[a] * ri[b];
+  //     }
+  //   }
+  // }
+  // m_invInertiaLocal = inertia_temp.inverse();
+
 
   // update world inertia tensor
   updateInertiaTensor();
@@ -187,10 +215,15 @@ void btReducedSoftBody::updateReducedDofs(btScalar solverdt)
   }
 }
 
-void btReducedSoftBody::mapToFullDofs()
+void btReducedSoftBody::mapToFullDofs(const btTransform& ref_trans)
 {
-  btVector3 origin = m_rigidTransformWorld.getOrigin();
-  btMatrix3x3 rotation = m_rigidTransformWorld.getBasis();
+  // btVector3 origin = m_rigidTransformWorld.getOrigin();
+  // btMatrix3x3 rotation = m_rigidTransformWorld.getBasis();
+  // btVector3 origin = m_interpolationWorldTransform.getOrigin();
+  // btMatrix3x3 rotation = m_interpolationWorldTransform.getBasis();
+  btVector3 origin = ref_trans.getOrigin();
+  btMatrix3x3 rotation = ref_trans.getBasis();
+  
 
   for (int i = 0; i < m_nFull; ++i)
   {
@@ -209,14 +242,13 @@ void btReducedSoftBody::updateReducedVelocity(btScalar solverdt)
   }
 }
 
-void btReducedSoftBody::mapToFullVelocity(btScalar solverdt)
+void btReducedSoftBody::mapToFullVelocity(const btTransform& ref_trans)
 {
   TVStack v_from_reduced;
   v_from_reduced.resize(m_nFull);
-  // btVector3 current_com = m_rigidTransformWorld.getOrigin() - m_initialOrigin;  
   for (int i = 0; i < m_nFull; ++i)
   {
-    btVector3 r_com = m_nodes[i].m_x - m_rigidTransformWorld.getOrigin();
+    btVector3 r_com = ref_trans.getBasis() * m_localMomentArm[i];
 
     // compute velocity contributed by the reduced velocity
     for (int k = 0; k < 3; ++k)
@@ -230,10 +262,9 @@ void btReducedSoftBody::mapToFullVelocity(btScalar solverdt)
 
     // get new velocity
     m_nodes[i].m_v = m_angularVelocity.cross(r_com) + 
-                     m_rigidTransformWorld.getBasis() * v_from_reduced[i] +
+                     ref_trans.getBasis() * v_from_reduced[i] +
                      m_linearVelocity;
   }
-  std::cout << m_nodes[0].m_v[0] << '\t' << m_nodes[0].m_v[1] << '\t' << m_nodes[0].m_v[2] << '\n';
 }
 
 void btReducedSoftBody::proceedToTransform(const btTransform& newTrans)
@@ -251,7 +282,7 @@ void btReducedSoftBody::setCenterOfMassTransform(const btTransform& xform)
 	{
 		m_interpolationWorldTransform = xform;
 	}
-	m_interpolationLinearVelocity = getLinearVelocity();
+	m_interpolationLinearVelocity = getLinearVelocity();    // TODO: check where these are used?
 	m_interpolationAngularVelocity = getAngularVelocity();
 	m_rigidTransformWorld = xform;
 	updateInertiaTensor();
@@ -280,6 +311,13 @@ void btReducedSoftBody::updateRestNodalPositions()
 void btReducedSoftBody::updateInertiaTensor()
 {
 	m_invInertiaTensorWorld = m_rigidTransformWorld.getBasis().scaled(m_invInertiaLocal) * m_rigidTransformWorld.getBasis().transpose();
+	// m_invInertiaTensorWorld = m_rigidTransformWorld.getBasis() * m_invInertiaLocal * m_rigidTransformWorld.getBasis().transpose();
+}
+
+void btReducedSoftBody::applyDamping(btScalar timeStep)
+{
+  m_linearVelocity *= btScalar(1) - m_linearDamping;
+  m_angularDamping *= btScalar(1) - m_angularDamping;
 }
 
 void btReducedSoftBody::applyCentralImpulse(const btVector3& impulse)
@@ -313,7 +351,10 @@ void btReducedSoftBody::applyRigidImpulse(const btVector3& impulse, const btVect
 void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt)
 {
   // TODO: get correct impulse using the impulse factor
-  btVector3 ri = m_localMomentArm[n_node];
+  // btVector3 ri = m_rigidTransformWorld.getBasis() * m_localMomentArm[n_node];
+  btVector3 ri = m_interpolationWorldTransform.getBasis() * m_localMomentArm[n_node];
+  // std::cout << ri[0] << '\t' << ri[1] << '\t' << ri[2] << '\n';
+  
   btMatrix3x3 ri_skew(0,    -ri[2], ri[1],
                       ri[2], 0,    -ri[0],
                      -ri[1], ri[0], 0);
@@ -323,22 +364,35 @@ void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& target_vel, int n
   btMatrix3x3 impulse_factor(inv_mass, 0, 0,
                              0, inv_mass, 0,
                              0, 0, inv_mass);
-  impulse_factor -= ri_skew.scaled(m_invInertiaLocal) * ri_skew;
+  // impulse_factor -= ri_skew.scaled(m_invInertiaLocal) * ri_skew;
+  btMatrix3x3 m_interpolateInvInertiaTensorWorld = m_interpolationWorldTransform.getBasis().scaled(m_invInertiaLocal) * m_interpolationWorldTransform.getBasis().transpose();
+  impulse_factor -= ri_skew * m_interpolateInvInertiaTensorWorld * ri_skew;
+
+  // impulse_factor -= ri_skew * m_invInertiaTensorWorld * ri_skew;
 
   // get impulse
-  btVector3 impulse = impulse_factor * (target_vel - m_nodes[n_node].m_v);
+  btVector3 dv = target_vel - m_nodes[n_node].m_v;
+  // std::cout << dv[0] << '\t' << dv[1] << '\t' << dv[2] << '\n';
+  // std::cout << m_nodes[n_node].m_v[0] << '\t' << m_nodes[n_node].m_v[1] << '\t' << m_nodes[n_node].m_v[2] << '\n';
+  btVector3 impulse = impulse_factor.inverse() * dv;
+  // std::cout << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
+  // std::cout << "----------\n";
 
   // apply impulse force
-  applyFullSpaceNodalForce(impulse / dt, n_node);
+  // applyFullSpaceNodalForce(impulse / dt, n_node);
 
   // impulse causes rigid motion
-  applyRigidImpulse(impulse, m_nodes[n_node].m_x);
+  // applyRigidImpulse(impulse, m_worldTransform.getOrigin());
+  // std::cout << m_nodes[n_node].m_x[0] << '\t' << m_nodes[n_node].m_x[1] << '\t' << m_nodes[n_node].m_x[2] << '\n';
+
+  // applyRigidImpulse(impulse, m_nodes[n_node].m_x);
+  applyRigidImpulse(impulse, ri);
 }
 
 void btReducedSoftBody::applyFullSpaceNodalForce(const btVector3& f_ext, int n_node)
 {
   // f_local = R^-1 * f_ext
-  btVector3 f_local = m_worldTransform.getBasis().transpose() * f_ext;
+  btVector3 f_local = m_rigidTransformWorld.getBasis().transpose() * f_ext;
 
   // f_scaled = localInvInertia * (r_k x f_local)
   btVector3 rk_cross_f_local = m_localMomentArm[n_node].cross(f_local);
@@ -347,6 +401,7 @@ void btReducedSoftBody::applyFullSpaceNodalForce(const btVector3& f_ext, int n_n
   {
     f_scaled[k] = m_invInertiaLocal[k] * rk_cross_f_local[k];
   }
+  // f_scaled = m_invInertiaLocal * rk_cross_f_local;
 
   // f_ext_r = [S^T * P]_{n_node} * f_local
   for (int r = 0; r < m_nReduced; ++r)
@@ -378,8 +433,11 @@ void btReducedSoftBody::applyFixedContraints(btScalar dt)
 {
   for (int n = 0; n < m_fixedNodes.size(); ++n)
   {
-    // std::cout << reduced_force[0] << "\t" << reduced_force[1] << "\n";
+    // std::cout << m_reducedForce[0] << "\t" << m_reducedForce[1] << "\n";
     applyFullSpaceImpulse(btVector3(0, 0, 0), m_fixedNodes[n], dt);
-    // std::cout << reduced_force[0] << "\t" << reduced_force[1] << "\n";
+
+    // mapToFullVelocity(getInterpolationWorldTransform());
+    // std::cout << "after" << m_nodes[0].m_v[0] << '\t' << m_nodes[0].m_v[0] << '\t' << m_nodes[0].m_v[0] << '\n';
+    // std::cout << m_reducedForce[0] << "\t" << m_reducedForce[1] << "\n";
   }
 }
