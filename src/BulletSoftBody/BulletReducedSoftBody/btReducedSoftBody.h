@@ -16,7 +16,7 @@ class btReducedSoftBody : public btSoftBody
   //  Typedefs
   //
   typedef btAlignedObjectArray<btVector3> TVStack;
-  typedef btAlignedObjectArray<btMatrix3x3> tBlockDiagMatrix;
+  // typedef btAlignedObjectArray<btMatrix3x3> tBlockDiagMatrix;
   typedef btAlignedObjectArray<btScalar> tDenseArray;
   typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > tDenseMatrix;
 

@@ -32,10 +32,10 @@
 // static btScalar damping_alpha = 0.1;
 // static btScalar damping_beta = 0.01;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.01;
+static btScalar damping_beta = 0.0;
 static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
-static int num_modes = 2;
+static int num_modes = 1;
 
 class BasicTest : public CommonDeformableBodyBase
 {
@@ -107,6 +107,7 @@ public:
       // }
       
       float internalTimeStep = 1. / 60.f;
+    //   float internalTimeStep = 1e-4;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
     }
     
@@ -136,6 +137,7 @@ public:
                 for (int p = 0; p < rsb->m_fixedNodes.size(); ++p)
                 {
                     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_fixedNodes[p]].m_x, 0.2, btVector3(1, 0, 0));
+                    // std::cout << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[0] << "\t" << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[1] << "\t" << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[2] << "\n";
                 }
                 deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.1, btVector3(1, 1, 1));
                 deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 2, 0), 0.1, btVector3(1, 1, 1));
