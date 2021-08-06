@@ -16,6 +16,7 @@ class btReducedSoftBody : public btSoftBody
   //  Typedefs
   //
   typedef btAlignedObjectArray<btVector3> TVStack;
+  typedef btAlignedObjectArray<btMatrix3x3> tBlockDiagMatrix;
   typedef btAlignedObjectArray<btScalar> tDenseArray;
   typedef btAlignedObjectArray<btAlignedObjectArray<btScalar> > tDenseMatrix;
 
@@ -25,8 +26,10 @@ class btReducedSoftBody : public btSoftBody
   btScalar m_ksScale;          // stiffness scale
 
   // projection matrix
-  TVStack m_projPA;        // Eqn. 4.11 from Rahul Sheth's thesis
-  TVStack m_projCq;
+  tDenseMatrix m_projPA;        // Eqn. 4.11 from Rahul Sheth's thesis
+  tDenseMatrix m_projCq;
+  tDenseArray m_STP;
+  tDenseArray m_MrInvSTP;
 
   TVStack m_localMomentArm; // Sq + x0
 
@@ -35,12 +38,12 @@ class btReducedSoftBody : public btSoftBody
   btScalar m_mass;          // total mass of the rigid frame
   btScalar m_inverseMass;   // inverse of the total mass of the rigid frame
   btVector3 m_linearVelocity;
-	btVector3 m_angularVelocity;
+  btVector3 m_angularVelocity;
   btScalar m_linearDamping;    // linear damping coefficient
   btScalar m_angularDamping;    // angular damping coefficient
-	btVector3 m_linearFactor;
-	btVector3 m_angularFactor;
-	btVector3 m_invInertiaLocal;
+  btVector3 m_linearFactor;
+  btVector3 m_angularFactor;
+  btVector3 m_invInertiaLocal;
   btTransform m_rigidTransformWorld;
   btMatrix3x3 m_invInertiaTensorWorld;
   btVector3 m_initialOrigin;  // initial center of mass (original of the m_rigidTransformWorld)
@@ -57,13 +60,13 @@ class btReducedSoftBody : public btSoftBody
   int m_startMode;
   int m_nReduced;
   int m_nFull;
-	tDenseMatrix m_modes;														// modes of the reduced deformable model. Each inner array is a mode, outer array size = n_modes
-	tDenseArray m_reducedDofs;				   // Reduced degree of freedom
-	tDenseArray m_reducedVelocity;		   // Reduced velocity array
+  tDenseMatrix m_modes;														// modes of the reduced deformable model. Each inner array is a mode, outer array size = n_modes
+  tDenseArray m_reducedDofs;				   // Reduced degree of freedom
+  tDenseArray m_reducedVelocity;		   // Reduced velocity array
   tDenseArray m_reducedForce;          // reduced force
-	tDenseArray m_eigenvalues;		// eigenvalues of the reduce deformable model
-	tDenseArray m_Kr;	// reduced stiffness matrix
-	tDenseArray m_Mr;	// reduced mass matrix //TODO: do we need this?
+  tDenseArray m_eigenvalues;		// eigenvalues of the reduce deformable model
+  tDenseArray m_Kr;	// reduced stiffness matrix
+  tDenseArray m_Mr;	// reduced mass matrix //TODO: do we need this?
   
   // full space
   TVStack m_x0;					     				 // Rest position
@@ -139,7 +142,7 @@ class btReducedSoftBody : public btSoftBody
 
   void applyCentralImpulse(const btVector3& impulse);
 
-	void applyTorqueImpulse(const btVector3& torque);
+  void applyTorqueImpulse(const btVector3& torque);
 
   void proceedToTransform(const btTransform& newTrans);
 
@@ -153,7 +156,7 @@ class btReducedSoftBody : public btSoftBody
 	void applyRigidImpulse(const btVector3& impulse, const btVector3& rel_pos);
 
   // apply impulse to nodes in the full space
-  void applyFullSpaceImpulse(const btVector3& target_vel, int n_node, btScalar dt);
+  void applyFullSpaceImpulse(const btVector3& impulse, const btVector3& rel_pos, int n_node, btScalar dt);
 
   // apply nodal external force in the full space
   void applyFullSpaceNodalForce(const btVector3& f_ext, int n_node);
@@ -166,6 +169,12 @@ class btReducedSoftBody : public btSoftBody
 
   // apply reduced force
   void applyReducedInternalForce(const btScalar damping_alpha, const btScalar damping_beta);
+
+  // apply velocity constraint
+  void applyVelocityConstraint(const btVector3& target_vel, int n_node, btScalar dt);
+
+  // apply position constraint
+  void applyPositionConstraint(const btVector3& target_pos, int n_node, btScalar dt);
 
   //
   // accessors

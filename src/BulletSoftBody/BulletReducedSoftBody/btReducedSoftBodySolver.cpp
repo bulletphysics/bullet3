@@ -40,8 +40,11 @@ void btReducedSoftBodySolver::predictReduceDeformableMotion(btScalar solverdt)
     // rigid motion
     rsb->predictIntegratedTransform(solverdt, rsb->getInterpolationWorldTransform());
 
+    std::cout << "reduced_dofs: " << rsb->m_reducedDofs[0] << '\t' << rsb->m_reducedDofs[1] << '\n';
+    std::cout << "reduced_vels: " << rsb->m_reducedVelocity[0] << '\t' << rsb->m_reducedVelocity[1] << '\n';
+
     // update reduced velocity and dofs
-    // rsb->updateReducedVelocity(solverdt); // TODO: add back
+    rsb->updateReducedVelocity(solverdt); // TODO: add back
 
     // predict full space velocity (needed for constraints)
     rsb->mapToFullVelocity(rsb->getInterpolationWorldTransform());
@@ -65,7 +68,7 @@ void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
     rsb->applyRigidGravity(m_gravity, solverdt);
 
     // add internal force (elastic force & damping force)
-    // rsb->applyReducedInternalForce(m_dampingAlpha, m_dampingBeta); // TODO: add back
+    rsb->applyReducedInternalForce(m_dampingAlpha, m_dampingBeta);
 
     // apply external force or impulses
     // if (!applied && m_simTime > 2)
@@ -83,7 +86,7 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
     // update reduced dofs for the next time step
-    // rsb->updateReducedDofs(timeStep); // TODO: add back
+    rsb->updateReducedDofs(timeStep); // TODO: add back
 
     // rigid motion
     // btTransform predictedTrans;
@@ -107,5 +110,7 @@ void btReducedSoftBodySolver::solveConstraints(btScalar timeStep)
     btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
     rsb->applyFixedContraints(timeStep);
+
+//    std::cout << rsb->m_reducedForce[0] << '\t' << rsb->m_reducedForce[1] << '\n';
   }
 }
