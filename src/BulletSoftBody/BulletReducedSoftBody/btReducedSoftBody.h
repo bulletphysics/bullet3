@@ -46,6 +46,7 @@ class btReducedSoftBody : public btSoftBody
   btVector3 m_invInertiaLocal;
   btTransform m_rigidTransformWorld;
   btMatrix3x3 m_invInertiaTensorWorld;
+  btMatrix3x3 m_interpolateInvInertiaTensorWorld;
   btVector3 m_initialOrigin;  // initial center of mass (original of the m_rigidTransformWorld)
 
  public:
@@ -62,6 +63,7 @@ class btReducedSoftBody : public btSoftBody
   int m_nFull;
   tDenseMatrix m_modes;														// modes of the reduced deformable model. Each inner array is a mode, outer array size = n_modes
   tDenseArray m_reducedDofs;				   // Reduced degree of freedom
+  tDenseArray m_reducedDofsBuffer;     // Reduced degree of freedom at t^n
   tDenseArray m_reducedVelocity;		   // Reduced velocity array
   tDenseArray m_reducedForceExternal;          // reduced external force
   tDenseArray m_reducedForceInternal;          // reduced internal force

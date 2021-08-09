@@ -28,6 +28,7 @@ SET(BulletSoftBody_SRCS
 	BulletReducedSoftBody/btReducedSoftBody.cpp
 	BulletReducedSoftBody/btReducedSoftBodyHelpers.cpp
 	BulletReducedSoftBody/btReducedSoftBodySolver.cpp
+	# BulletReducedSoftBody/
 )
 
 
