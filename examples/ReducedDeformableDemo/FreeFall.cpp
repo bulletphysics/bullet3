@@ -11,7 +11,7 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "BasicTest.h"
+#include "FreeFall.h"
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 #include "BulletSoftBody/btDeformableMultiBodyDynamicsWorld.h"
@@ -35,33 +35,14 @@ static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
 static int num_modes = 4;
 
-class BasicTest : public CommonDeformableBodyBase
+class FreeFall : public CommonDeformableBodyBase
 {
-    btScalar sim_time;
-    bool first_step;
-
-    // get deformed shape
-    void getDeformedShape(btReducedSoftBody* rsb, const int mode_n, const btScalar scale = 1)
-    {
-      // for (int i = 0; i < rsb->m_nodes.size(); ++i)
-      //   for (int k = 0; k < 3; ++k)
-      //     rsb->m_nodes[i].m_x[k] += rsb->m_modes[mode_n][3 * i + k] * scale;
-
-      rsb->m_reducedDofs[mode_n] = scale;
-      rsb->mapToFullDofs(rsb->getWorldTransform());
-      std::cout << "-----------\n";
-      std::cout << rsb->m_nodes[0].m_x[0] << '\t' << rsb->m_nodes[0].m_x[1] << '\t' << rsb->m_nodes[0].m_x[2] << '\n';
-      std::cout << "-----------\n";
-    }
-
 public:
-    BasicTest(struct GUIHelperInterface* helper)
+    FreeFall(struct GUIHelperInterface* helper)
         : CommonDeformableBodyBase(helper)
     {
-        sim_time = 0;
-        first_step = true;
     }
-    virtual ~BasicTest()
+    virtual ~FreeFall()
     {
     }
     void initPhysics();
@@ -76,9 +57,9 @@ public:
     void resetCamera()
     {
         float dist = 10;
-        float pitch = 0;
-        float yaw = 90;
-        float targetPos[3] = {0, 3, 0};
+        float pitch = -30;
+        float yaw = 60;
+        float targetPos[3] = {0, 6, 0};
         m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
     }
     
@@ -95,17 +76,7 @@ public:
     
     void stepSimulation(float deltaTime)
     {
-      // TODO: remove this. very hacky way of adding initial deformation
-      // btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
-      // if (first_step /* && !rsb->m_bUpdateRtCst*/) 
-      // {
-      //   getDeformedShape(rsb, 0, 1);
-      //   first_step = false;
-      //   // rsb->mapToReducedDofs();
-      // }
-      
       float internalTimeStep = 1. / 60.f;
-    //   float internalTimeStep = 1e-3;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
     }
     
@@ -138,14 +109,14 @@ public:
                     // std::cout << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[0] << "\t" << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[1] << "\t" << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[2] << "\n";
                 }
                 deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.1, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 2, 0), 0.1, btVector3(1, 1, 1));
-                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 4, 0), 0.1, btVector3(1, 1, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 5, 0), 0.1, btVector3(1, 1, 1));
+                deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 10, 0), 0.1, btVector3(1, 1, 1));
             }
         }
     }
 };
 
-void BasicTest::initPhysics()
+void FreeFall::initPhysics()
 {
     m_guiHelper->setUpAxis(1);
 
@@ -180,17 +151,14 @@ void BasicTest::initPhysics()
 
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
-        // rsb->scale(btVector3(1, 1, 1));  //TODO: add back scale
-        rsb->translate(btVector3(0, 4, 0));
+        // rsb->scale(btVector3(1, 1, 1));
+        rsb->translate(btVector3(0, 5, 0));  //TODO: add back translate and scale
         // rsb->setTotalMass(0.5);
         rsb->setStiffnessScale(0.5);
         
-        // set fixed nodes
-        rsb->setFixedNodes(0);
-        rsb->setFixedNodes(1);
-        rsb->setFixedNodes(2);
-        rsb->setFixedNodes(3);
-        
+        // no fixed nodes
+        // rsb->setFixedNodes(0);
+
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body
         rsb->m_cfg.kDF = 0;
@@ -207,6 +175,20 @@ void BasicTest::initPhysics()
         // getDeformableDynamicsWorld()->addForce(rsb, gravity_force);
         // m_forces.push_back(gravity_force);
     }
+    // create a static rigid box as the ground
+    {
+        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
+        m_collisionShapes.push_back(groundShape);
+
+        btTransform groundTransform;
+        groundTransform.setIdentity();
+        groundTransform.setOrigin(btVector3(0, -50, 0));
+        {
+            btScalar mass(0.);
+            createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));
+        }
+    }
+
     getDeformableDynamicsWorld()->setImplicit(false);
     getDeformableDynamicsWorld()->setLineSearch(false);
     getDeformableDynamicsWorld()->setUseProjection(true);
@@ -249,7 +231,7 @@ void BasicTest::initPhysics()
     // }
 }
 
-void BasicTest::exitPhysics()
+void FreeFall::exitPhysics()
 {
     //cleanup in the reverse order of creation/initialization
     removePickingConstraint();
@@ -295,9 +277,9 @@ void BasicTest::exitPhysics()
 
 
 
-class CommonExampleInterface* ReducedBasicTestCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface* ReducedFreeFallCreateFunc(struct CommonExampleOptions& options)
 {
-    return new BasicTest(options.m_guiHelper);
+    return new FreeFall(options.m_guiHelper);
 }
 
 

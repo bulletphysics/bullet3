@@ -106,7 +106,7 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
 
 void btReducedSoftBodySolver::solveConstraints(btScalar timeStep)
 {
-  for (int iter = 0; iter < 100; ++iter)
+  for (int iter = 0; iter < 100; ++iter)  // TODO: add a fllag for this.
   {
     for (int i = 0; i < m_softBodies.size(); ++i)
     {

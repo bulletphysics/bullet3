@@ -392,6 +392,8 @@ SET(BulletExampleBrowser_SRCS
 	../ReducedDeformableDemo/BasicTest.h
 	../ReducedDeformableDemo/ModeVisualizer.cpp
 	../ReducedDeformableDemo/ModeVisualizer.h
+	../ReducedDeformableDemo/FreeFall.cpp
+	../ReducedDeformableDemo/FreeFall.h
   ../Constraints/TestHingeTorque.cpp
   ../Constraints/TestHingeTorque.h
   ../Constraints/ConstraintDemo.cpp

@@ -119,20 +119,9 @@ void btReducedSoftBody::setMassScale(const btScalar rho)
   m_rhoScale = rho;
 }
 
-void btReducedSoftBody::setFixedNodes()
+void btReducedSoftBody::setFixedNodes(const int n_node)
 {
-  // for (int i = 0; i < m_nFull; ++i)
-  // {
-  //   if (abs(m_nodes[i].m_x[2] - (-2)) < 1e-3)
-  //     m_fixedNodes.push_back(i);
-  // }
-  m_fixedNodes.push_back(0);
-  // m_fixedNodes.push_back(1);
-  m_fixedNodes.push_back(2);
-  // m_fixedNodes.push_back(3);
-
-  // m_fixedNodes.push_back(15);
-  // m_fixedNodes.push_back(18);
+  m_fixedNodes.push_back(n_node);
 }
 
 void btReducedSoftBody::internalInitialization()
@@ -459,6 +448,9 @@ void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& impulse, const bt
 
   // update reduced dofs
   updateReducedDofs(dt);
+
+  // internal force
+  // applyReducedInternalForce(0, 0.01); // TODO: this should be necessary, but no obvious effects. Check again.
 
   // update local moment arm
   updateLocalMomentArm();

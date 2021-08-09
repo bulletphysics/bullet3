@@ -102,7 +102,7 @@ class btReducedSoftBody : public btSoftBody
 
   void setMassScale(const btScalar rho);
 
-  void setFixedNodes();
+  void setFixedNodes(const int n_node);
 
   //
   // various internal updates
