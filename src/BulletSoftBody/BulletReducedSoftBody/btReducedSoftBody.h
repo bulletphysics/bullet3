@@ -63,7 +63,8 @@ class btReducedSoftBody : public btSoftBody
   tDenseMatrix m_modes;														// modes of the reduced deformable model. Each inner array is a mode, outer array size = n_modes
   tDenseArray m_reducedDofs;				   // Reduced degree of freedom
   tDenseArray m_reducedVelocity;		   // Reduced velocity array
-  tDenseArray m_reducedForce;          // reduced force
+  tDenseArray m_reducedForceExternal;          // reduced external force
+  tDenseArray m_reducedForceInternal;          // reduced internal force
   tDenseArray m_eigenvalues;		// eigenvalues of the reduce deformable model
   tDenseArray m_Kr;	// reduced stiffness matrix
   tDenseArray m_Mr;	// reduced mass matrix //TODO: do we need this?
@@ -112,7 +113,7 @@ class btReducedSoftBody : public btSoftBody
 
   void updateLocalMomentArm();
 
-  void predictIntegratedTransform(btScalar step, btTransform& predictedTransform);
+  void predictIntegratedTransform(btScalar dt, btTransform& predictedTransform);
 
   // update the external force projection matrix 
   void updateExternalForceProjectMatrix(bool initialized);
@@ -144,9 +145,7 @@ class btReducedSoftBody : public btSoftBody
 
   void applyTorqueImpulse(const btVector3& torque);
 
-  void proceedToTransform(const btTransform& newTrans);
-
-  void setCenterOfMassTransform(const btTransform& xform);
+  void proceedToTransform(btScalar dt, bool end_of_time_step);
 
   //
   // force related

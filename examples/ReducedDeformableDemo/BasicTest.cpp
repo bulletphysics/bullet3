@@ -106,8 +106,8 @@ public:
       //   // rsb->mapToReducedDofs();
       // }
       
-      float internalTimeStep = 1. / 60.f;
-    //   float internalTimeStep = 1e-4;
+    //   float internalTimeStep = 1. / 60.f;
+      float internalTimeStep = 1e-3;
       m_dynamicsWorld->stepSimulation(deltaTime, 1, internalTimeStep);
     }
     
@@ -185,7 +185,7 @@ void BasicTest::initPhysics()
         // rsb->scale(btVector3(1, 1, 1));
         rsb->translate(btVector3(0, 4, 0));  //TODO: add back translate and scale
         // rsb->setTotalMass(0.5);
-        rsb->setStiffnessScale(1);
+        rsb->setStiffnessScale(100);
         rsb->setFixedNodes();
         rsb->m_cfg.kKHR = 1; // collision hardness with kinematic objects
         rsb->m_cfg.kCHR = 1; // collision hardness with rigid body

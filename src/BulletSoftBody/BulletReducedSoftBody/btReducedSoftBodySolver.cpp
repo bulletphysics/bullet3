@@ -98,7 +98,8 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
     // rigid motion
     // btTransform predictedTrans;
     // rsb->predictIntegratedTransform(timeStep, predictedTrans);
-    rsb->proceedToTransform(rsb->getInterpolationWorldTransform());
+    // rsb->proceedToTransform(rsb->getInterpolationWorldTransform());
+    rsb->proceedToTransform(timeStep, true);
 
     // update mesh nodal positions for the next time step
     rsb->mapToFullDofs(rsb->getRigidTransform());
