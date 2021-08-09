@@ -40,11 +40,8 @@ void btReducedSoftBodySolver::predictReduceDeformableMotion(btScalar solverdt)
     // rigid motion
     rsb->predictIntegratedTransform(solverdt, rsb->getInterpolationWorldTransform());
 
-    // std::cout << "reduced_dofs: " << rsb->m_reducedDofs[0] << '\t' << rsb->m_reducedDofs[1] << '\n';
-    // std::cout << "reduced_vels: " << rsb->m_reducedVelocity[0] << '\t' << rsb->m_reducedVelocity[1] << '\n';
-
     // update reduced velocity and dofs
-    rsb->updateReducedVelocity(solverdt); // TODO: add back
+    rsb->updateReducedVelocity(solverdt);
 
     // update reduced dofs
     rsb->updateReducedDofs(solverdt);
@@ -96,17 +93,12 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
     // rsb->updateReducedDofs(timeStep); // TODO: add back
 
     // rigid motion
-    // btTransform predictedTrans;
-    // rsb->predictIntegratedTransform(timeStep, predictedTrans);
-    // rsb->proceedToTransform(rsb->getInterpolationWorldTransform());
     rsb->proceedToTransform(timeStep, true);
 
     // update mesh nodal positions for the next time step
     rsb->mapToFullDofs(rsb->getRigidTransform());
 
     // end of time step clean up and update
-    // rsb->updateLocalMomentArm();
-    // rsb->updateExternalForceProjectMatrix(true);
     rsb->endOfTimeStepZeroing();
   }
   m_simTime += timeStep;
@@ -114,12 +106,13 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
 
 void btReducedSoftBodySolver::solveConstraints(btScalar timeStep)
 {
-  for (int i = 0; i < m_softBodies.size(); ++i)
+  for (int iter = 0; iter < 100; ++iter)
   {
-    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+    for (int i = 0; i < m_softBodies.size(); ++i)
+    {
+      btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
 
-    rsb->applyFixedContraints(timeStep);
-
-//    std::cout << rsb->m_reducedForce[0] << '\t' << rsb->m_reducedForce[1] << '\n';
+      rsb->applyFixedContraints(timeStep);
+    }
   }
 }

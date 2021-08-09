@@ -29,13 +29,11 @@
 ///The BasicTest shows the contact between volumetric deformable objects and rigid objects.
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
-// static btScalar damping_alpha = 0.1;
-// static btScalar damping_beta = 0.01;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.0;
+static btScalar damping_beta = 0.01;
 static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
-static int num_modes = 1;
+static int num_modes = 4;
 
 class BasicTest : public CommonDeformableBodyBase
 {
