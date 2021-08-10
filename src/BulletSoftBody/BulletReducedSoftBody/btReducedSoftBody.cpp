@@ -122,6 +122,7 @@ void btReducedSoftBody::setMassScale(const btScalar rho)
 void btReducedSoftBody::setFixedNodes(const int n_node)
 {
   m_fixedNodes.push_back(n_node);
+  m_nodes[n_node].m_im = 0;   // set inverse mass to be zero for the constraint solver.
 }
 
 void btReducedSoftBody::internalInitialization()
@@ -235,7 +236,7 @@ void btReducedSoftBody::updateReducedDofs(btScalar solverdt)
   }
 }
 
-void btReducedSoftBody::mapToFullDofs(const btTransform& ref_trans)
+void btReducedSoftBody::mapToFullPosition(const btTransform& ref_trans)
 {
   btVector3 origin = ref_trans.getOrigin();
   btMatrix3x3 rotation = ref_trans.getBasis();

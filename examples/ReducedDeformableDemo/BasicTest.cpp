@@ -48,7 +48,7 @@ class BasicTest : public CommonDeformableBodyBase
       //     rsb->m_nodes[i].m_x[k] += rsb->m_modes[mode_n][3 * i + k] * scale;
 
       rsb->m_reducedDofs[mode_n] = scale;
-      rsb->mapToFullDofs(rsb->getWorldTransform());
+      rsb->mapToFullPosition(rsb->getWorldTransform());
       std::cout << "-----------\n";
       std::cout << rsb->m_nodes[0].m_x[0] << '\t' << rsb->m_nodes[0].m_x[1] << '\t' << rsb->m_nodes[0].m_x[2] << '\n';
       std::cout << "-----------\n";

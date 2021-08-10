@@ -36,7 +36,11 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
 
   virtual void applyTransforms(btScalar timeStep);
 
-  virtual void solveConstraints(btScalar timeStep);
+  // set up contact constraints
+	virtual void setConstraints(const btContactSolverInfo& infoGlobal);
+
+  // solve all constraints (fixed and contact)
+  virtual void solveDeformableConstraints(btScalar solverdt);
 
   // virtual void setProjection() {}
 
@@ -44,7 +48,6 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
 
   // virtual void setupDeformableSolve(bool implicit);
 
-  // virtual void solveDeformableConstraints(btScalar solverdt);
 };
 
 #endif // BT_REDUCED_SOFT_BODY_DYNAMICS_WORLD_H

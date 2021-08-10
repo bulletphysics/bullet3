@@ -72,7 +72,7 @@ public:
 	void reinitialize(const btAlignedObjectArray<btSoftBody*>& softBodies, btScalar dt);
 
 	// set up contact constraints
-	void setConstraints(const btContactSolverInfo& infoGlobal);
+	virtual void setConstraints(const btContactSolverInfo& infoGlobal);
 
 	// add in elastic forces and gravity to obtain v_{n+1}^* and calls predictDeformableMotion
 	virtual void predictMotion(btScalar solverdt);
@@ -199,11 +199,9 @@ public:
 		m_objective->m_projection.setLagrangeMultiplier();
 	}
 
-	virtual void solveConstraints(btScalar timeStep) {}
-
 	// unused functions
 	virtual void optimize(btAlignedObjectArray<btSoftBody*>& softBodies, bool forceUpdate = false) {}
-	// virtual void solveConstraints(btScalar dt) {}
+	virtual void solveConstraints(btScalar dt) {}
 	virtual bool checkInitialized() { return true; }
 	virtual void copyBackToSoftBodies(bool bMove = true) {}
 };

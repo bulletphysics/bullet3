@@ -76,6 +76,8 @@ class btReducedSoftBody : public btSoftBody
   tDenseArray m_nodalMass;           // Mass on each node
   btAlignedObjectArray<int> m_fixedNodes; // index of the fixed nodes
 
+  btAlignedObjectArray<int> m_contactNodesList;
+
   //
   // Api
   //
@@ -133,7 +135,7 @@ class btReducedSoftBody : public btSoftBody
   void updateReducedVelocity(btScalar solverdt);
 
   // map to full degree of freedoms
-  void mapToFullDofs(const btTransform& ref_trans);
+  void mapToFullPosition(const btTransform& ref_trans);
 
   // compute full space velocity from the reduced velocity
   void mapToFullVelocity(const btTransform& ref_trans);
