@@ -26,6 +26,8 @@ void btReducedSoftBodySolver::predictMotion(btScalar solverdt)
 
   // predict new mesh location
   predictReduceDeformableMotion(solverdt);
+
+  //TODO: check if there is anything missed from btDeformableBodySolver::predictDeformableMotion
 }
 
 void btReducedSoftBodySolver::predictReduceDeformableMotion(btScalar solverdt)
@@ -75,6 +77,13 @@ void btReducedSoftBodySolver::predictReduceDeformableMotion(btScalar solverdt)
 
     // update bounding box
     rsb->updateBounds();
+
+    // update tree
+    rsb->updateNodeTree(true, true);
+    if (!rsb->m_fdbvt.empty())
+    {
+      rsb->updateFaceTree(true, true);
+    }
 
     // std::cout << "bounds\n";
     // std::cout << rsb->m_bounds[0][0] << '\t' << rsb->m_bounds[0][1] << '\t' << rsb->m_bounds[0][2] << '\n';

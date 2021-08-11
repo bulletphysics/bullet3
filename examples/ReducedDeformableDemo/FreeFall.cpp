@@ -183,7 +183,7 @@ void FreeFall::initPhysics()
     }
     // create a static rigid box as the ground
     {
-        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(5.), btScalar(5.), btScalar(0.5)));
+        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(3.), btScalar(3.), btScalar(0.1)));
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
