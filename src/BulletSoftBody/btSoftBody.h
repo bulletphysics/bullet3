@@ -855,6 +855,8 @@ public:
 	btVector3 m_windVelocity;
 
 	btScalar m_restLengthScale;
+
+	bool m_reducedModel;	// Reduced deformable model flag
 	
 	//
 	// Api
@@ -1096,6 +1098,13 @@ public:
 	void updateDeactivation(btScalar timeStep);
 	void setZeroVelocity();
 	bool wantsSleeping();
+
+	virtual btMatrix3x3 getImpulseFactor(int n_node)
+	{
+		btMatrix3x3 tmp;
+		tmp.setIdentity();
+		return tmp;
+	}
 
 	//
 	// Functionality to deal with new accelerated solvers.

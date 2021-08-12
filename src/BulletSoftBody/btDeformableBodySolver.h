@@ -69,7 +69,7 @@ public:
 	virtual void solveDeformableConstraints(btScalar solverdt);
 
 	// resize/clear data structures
-	void reinitialize(const btAlignedObjectArray<btSoftBody*>& softBodies, btScalar dt);
+	virtual void reinitialize(const btAlignedObjectArray<btSoftBody*>& softBodies, btScalar dt);
 
 	// set up contact constraints
 	virtual void setConstraints(const btContactSolverInfo& infoGlobal);

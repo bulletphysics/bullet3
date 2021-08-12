@@ -1,8 +1,9 @@
 #ifndef BT_REDUCED_SOFT_BODY_SOLVER_H
 #define BT_REDUCED_SOFT_BODY_SOLVER_H
 
-#include "btReducedSoftBody.h"
 #include "../btDeformableBodySolver.h"
+#include "btReducedSoftBody.h"
+#include "btReducedDeformableContactConstraint.h"
 
 class btReducedSoftBody;
 
@@ -20,6 +21,10 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
   void applyExplicitForce(btScalar solverdt);
 
  public:
+  btAlignedObjectArray<btAlignedObjectArray<btReducedDeformableStaticConstraint> > m_staticConstraints;
+  btAlignedObjectArray<btAlignedObjectArray<btReducedDeformableNodeRigidContactConstraint> > m_nodeRigidConstraints;
+  btAlignedObjectArray<btAlignedObjectArray<btReducedDeformableFaceRigidContactConstraint> > m_faceRigidConstraints;
+  
   btReducedSoftBodySolver();
   ~btReducedSoftBodySolver() {}
 
@@ -32,6 +37,9 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
     return REDUCED_DEFORMABLE_SOLVER;
   }
 
+  // resize/clear data structures
+	virtual void reinitialize(const btAlignedObjectArray<btSoftBody*>& bodies, btScalar dt);
+
   virtual void predictMotion(btScalar solverdt);
 
   virtual void applyTransforms(btScalar timeStep);
@@ -40,7 +48,7 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
 	virtual void setConstraints(const btContactSolverInfo& infoGlobal);
 
   // solve all constraints (fixed and contact)
-  virtual void solveDeformableConstraints(btScalar solverdt);
+  virtual btScalar solveContactConstraints(btCollisionObject** deformableBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal);
 
   // virtual void setProjection() {}
 

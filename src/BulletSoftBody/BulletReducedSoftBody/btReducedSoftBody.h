@@ -54,8 +54,6 @@ class btReducedSoftBody : public btSoftBody
   //
   //  Fields
   //
-  
-  bool m_reducedModel;																	 // Reduced deformable model flag
 
   // reduced space
   int m_startMode;
@@ -172,6 +170,9 @@ class btReducedSoftBody : public btSoftBody
 
   // apply reduced force
   void applyReducedInternalForce(const btScalar damping_alpha, const btScalar damping_beta);
+
+  // calculate the impulse factor
+  virtual btMatrix3x3 getImpulseFactor(int n_node);
 
   // apply velocity constraint
   void applyVelocityConstraint(const btVector3& target_vel, int n_node, btScalar dt);

@@ -359,7 +359,7 @@ void btReducedSoftBody::applyRigidImpulse(const btVector3& impulse, const btVect
   }
 }
 
-void btReducedSoftBody::applyVelocityConstraint(const btVector3& target_vel, int n_node, btScalar dt)
+btMatrix3x3 btReducedSoftBody::getImpulseFactor(int n_node)
 {
   // relative position
   btMatrix3x3 rotation = m_interpolationWorldTransform.getBasis();
@@ -416,17 +416,26 @@ void btReducedSoftBody::applyVelocityConstraint(const btVector3& target_vel, int
 
   btMatrix3x3 K2 = RSARinv + ri_skew * m_interpolateInvInertiaTensorWorld * sum_multiply_A * rotation.transpose();
 
-  // get impulse
-  btMatrix3x3 impulse_factor = K1 + K2;
-  btVector3 impulse = impulse_factor.inverse() * (target_vel - m_nodes[n_node].m_v);
-  btScalar impulse_magnitude = impulse.norm();
-  
-  if (impulse_magnitude < 5e-7)
-  {
-    impulse.setZero();
-    impulse_magnitude = 0;
-  }
+  return K1 + K2;
+}
 
+void btReducedSoftBody::applyVelocityConstraint(const btVector3& target_vel, int n_node, btScalar dt)
+{
+  // get impulse
+  btMatrix3x3 impulse_factor = getImpulseFactor(n_node);
+  btVector3 impulse = impulse_factor.inverse() * (target_vel - m_nodes[n_node].m_v);
+  // btScalar impulse_magnitude = impulse.norm();
+  
+  // if (impulse_magnitude < 5e-7)
+  // {
+  //   impulse.setZero();
+  //   impulse_magnitude = 0;
+  // }
+
+  // relative position
+  btMatrix3x3 rotation = m_interpolationWorldTransform.getBasis();
+  btVector3 ri = rotation * m_localMomentArm[n_node];
+  
   // apply full space impulse
   applyFullSpaceImpulse(impulse, ri, n_node, dt);
 }

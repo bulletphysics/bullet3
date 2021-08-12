@@ -1691,12 +1691,20 @@ struct btSoftColliders
 						if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
 						{
 							const btTransform& wtr = m_rigidBody ? m_rigidBody->getWorldTransform() : m_colObj1Wrap->getCollisionObject()->getWorldTransform();
-							static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
-							const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
 							const btVector3 ra = n.m_x - wtr.getOrigin();
 
-							c.m_c0 = ImpulseMatrix(1, n.m_effectiveMass_inv, imb, iwi, ra);
-							//                            c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
+							if (psb->m_reducedModel)
+							{
+								c.m_c0 = (psb->getImpulseFactor(n.index)).inverse();
+							}
+							else
+							{
+								static const btMatrix3x3 iwiStatic(0, 0, 0, 0, 0, 0, 0, 0, 0);
+								const btMatrix3x3& iwi = m_rigidBody ? m_rigidBody->getInvInertiaTensorWorld() : iwiStatic;
+
+								c.m_c0 = ImpulseMatrix(1, n.m_effectiveMass_inv, imb, iwi, ra);
+								//                            c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
+							}
 							c.m_c1 = ra;
 						}
 						else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
