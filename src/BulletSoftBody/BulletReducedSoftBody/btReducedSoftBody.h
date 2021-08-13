@@ -174,6 +174,9 @@ class btReducedSoftBody : public btSoftBody
   // calculate the impulse factor
   virtual btMatrix3x3 getImpulseFactor(int n_node);
 
+  // get relative position from a node to the CoM of the rigid frame
+  btVector3 getRelativePos(int n_node);
+
   // apply velocity constraint
   void applyVelocityConstraint(const btVector3& target_vel, int n_node, btScalar dt);
 

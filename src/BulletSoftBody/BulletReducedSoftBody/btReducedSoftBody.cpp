@@ -359,6 +359,13 @@ void btReducedSoftBody::applyRigidImpulse(const btVector3& impulse, const btVect
   }
 }
 
+btVector3 btReducedSoftBody::getRelativePos(int n_node)
+{
+  btMatrix3x3 rotation = m_interpolationWorldTransform.getBasis();
+  btVector3 ri = rotation * m_localMomentArm[n_node];
+  return ri;
+}
+
 btMatrix3x3 btReducedSoftBody::getImpulseFactor(int n_node)
 {
   // relative position

@@ -5,10 +5,32 @@
 btReducedDeformableStaticConstraint::btReducedDeformableStaticConstraint(
   btReducedSoftBody* rsb, 
   btSoftBody::Node* node,
+	const btVector3& ri,
   const btContactSolverInfo& infoGlobal,
 	btScalar dt)
-  : m_rsb(rsb), m_dt(dt), btDeformableStaticConstraint(node, infoGlobal)
-{}
+  : m_rsb(rsb), m_ri(ri), m_dt(dt), btDeformableStaticConstraint(node, infoGlobal)
+{
+	// get impulse
+  m_impulseFactor = rsb->getImpulseFactor(m_node->index);
+}
+
+btScalar btReducedDeformableStaticConstraint::solveConstraint(const btContactSolverInfo& infoGlobal)
+{
+	// target velocity of fixed constraint is 0
+  btVector3 impulse = -(m_impulseFactor.inverse() * m_node->m_v);
+  
+  // apply full space impulse
+	applyImpulse(impulse);
+
+	return 0;
+}
+  
+// this calls reduced deformable body's applyFullSpaceImpulse
+void btReducedDeformableStaticConstraint::applyImpulse(const btVector3& impulse)
+{
+	m_rsb->applyFullSpaceImpulse(impulse, m_ri, m_node->index, m_dt);
+}
+
 
 // ================= base contact constraints ===================
 btReducedDeformableRigidContactConstraint::btReducedDeformableRigidContactConstraint(

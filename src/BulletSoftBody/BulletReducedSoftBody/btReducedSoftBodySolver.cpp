@@ -200,7 +200,7 @@ void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlob
 		{
 			if (rsb->m_nodes[j].m_im == 0)
 			{
-				btReducedDeformableStaticConstraint static_constraint(rsb, &rsb->m_nodes[rsb->m_fixedNodes[j]], infoGlobal, m_dt);
+				btReducedDeformableStaticConstraint static_constraint(rsb, &rsb->m_nodes[rsb->m_fixedNodes[j]], rsb->getRelativePos(rsb->m_fixedNodes[j]), infoGlobal, m_dt);
 				m_staticConstraints[i].push_back(static_constraint);
 			}
 		}
@@ -240,6 +240,19 @@ void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlob
 btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** deformableBodies, int numDeformableBodies, const btContactSolverInfo& infoGlobal)
 {
   btScalar residualSquare = 0;
+
+  // handle fixed constraint
+  for (int i = 0; i < m_softBodies.size(); ++i)
+  {
+    for (int k = 0; k < m_staticConstraints[i].size(); ++k)
+    {
+      btReducedDeformableStaticConstraint& constraint = m_staticConstraints[i][k];
+      btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
+      residualSquare = btMax(residualSquare, localResidualSquare);
+    }
+  }
+
+  // handle contact constraint
 	for (int i = 0; i < numDeformableBodies; ++i)
 	{
 		for (int j = 0; j < m_softBodies.size(); ++j)
@@ -249,6 +262,8 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
 			{
 				continue;
 			}
+
+      // node vs rigid contact
 			for (int k = 0; k < m_nodeRigidConstraints[j].size(); ++k)
 			{
 				btReducedDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[j][k];
