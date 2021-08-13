@@ -134,7 +134,6 @@ void FreeFall::initPhysics()
 
     m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
-    reducedSoftBodySolver->setDamping(damping_alpha, damping_beta);
     btVector3 gravity = btVector3(0, 0, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
@@ -161,6 +160,7 @@ void FreeFall::initPhysics()
         rsb->translate(btVector3(0, 0.1, 0));  //TODO: add back translate and scale
         // rsb->setTotalMass(0.5);
         rsb->setStiffnessScale(0.5);
+        rsb->setDamping(damping_alpha, damping_beta);
         
         // no fixed nodes
         // rsb->setFixedNodes(0);

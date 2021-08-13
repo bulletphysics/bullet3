@@ -157,7 +157,6 @@ void BasicTest::initPhysics()
 
     m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
-    reducedSoftBodySolver->setDamping(damping_alpha, damping_beta);
     btVector3 gravity = btVector3(0, -10, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
@@ -183,7 +182,8 @@ void BasicTest::initPhysics()
         // rsb->scale(btVector3(1, 1, 1));  //TODO: add back scale
         rsb->translate(btVector3(0, 4, 0));
         // rsb->setTotalMass(0.5);
-        rsb->setStiffnessScale(0.5);
+        rsb->setStiffnessScale(10);
+        rsb->setDamping(damping_alpha, damping_beta);
         
         // set fixed nodes
         rsb->setFixedNodes(0);

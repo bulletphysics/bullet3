@@ -10,7 +10,6 @@ class btReducedSoftBody;
 class btReducedSoftBodySolver : public btDeformableBodySolver
 {
  protected:
-  btScalar m_simTime;
   btScalar m_dampingAlpha;
   btScalar m_dampingBeta;
 
@@ -27,8 +26,6 @@ class btReducedSoftBodySolver : public btDeformableBodySolver
   
   btReducedSoftBodySolver();
   ~btReducedSoftBodySolver() {}
-
-  void setDamping(btScalar alpha, btScalar beta);
 
   void setGravity(const btVector3& gravity);
 

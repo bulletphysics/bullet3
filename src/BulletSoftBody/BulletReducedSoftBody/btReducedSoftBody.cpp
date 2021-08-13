@@ -29,6 +29,10 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
   m_linearDamping = 0;
   m_angularDamping = 0;
 
+  // Rayleigh damping
+  m_dampingAlpha = 0;
+  m_dampingBeta = 0;
+
   m_rigidTransformWorld.setIdentity();
 }
 
@@ -40,6 +44,7 @@ void btReducedSoftBody::setReducedModes(int start_mode, int num_modes, int full_
   m_reducedDofs.resize(m_nReduced, 0);
   m_reducedDofsBuffer.resize(m_nReduced, 0);
   m_reducedVelocity.resize(m_nReduced, 0);
+  m_reducedVelocityBuffer.resize(m_nReduced, 0);
   m_reducedForceInternal.resize(m_nReduced, 0);
   m_reducedForceExternal.resize(m_nReduced, 0);
   m_nodalMass.resize(full_size, 0);
@@ -123,6 +128,12 @@ void btReducedSoftBody::setFixedNodes(const int n_node)
 {
   m_fixedNodes.push_back(n_node);
   m_nodes[n_node].m_im = 0;   // set inverse mass to be zero for the constraint solver.
+}
+
+void btReducedSoftBody::setDamping(const btScalar alpha, const btScalar beta)
+{
+  m_dampingAlpha = alpha;
+  m_dampingBeta = beta;
 }
 
 void btReducedSoftBody::internalInitialization()
@@ -219,6 +230,7 @@ void btReducedSoftBody::endOfTimeStepZeroing()
     m_reducedForceInternal[i] = 0;
     m_reducedForceExternal[i] = 0;
     m_reducedDofsBuffer[i] = m_reducedDofs[i];
+    m_reducedVelocityBuffer[i] = m_reducedVelocity[i];
   }
   // std::cout << "zeroed!\n";
 }
@@ -255,8 +267,7 @@ void btReducedSoftBody::updateReducedVelocity(btScalar solverdt)
   {
     btScalar mass_inv = (m_Mr[r] == 0) ? 0 : 1.0 / m_Mr[r]; // TODO: this might be redundant, because Mr is identity
     btScalar delta_v = solverdt * mass_inv * (m_reducedForceInternal[r] + m_reducedForceExternal[r]);
-    // std::cout << mass_inv << '\t' << delta_v << '\t' << m_reducedForce[r] << '\n';
-    m_reducedVelocity[r] += delta_v;
+    m_reducedVelocity[r] = m_reducedVelocityBuffer[r] + delta_v;
   }
 }
 
@@ -287,15 +298,15 @@ void btReducedSoftBody::mapToFullVelocity(const btTransform& ref_trans)
 
 void btReducedSoftBody::proceedToTransform(btScalar dt, bool end_of_time_step)
 {
+  // else
+  // {
+    btTransformUtil::integrateTransform(m_rigidTransformWorld, m_linearVelocity, m_angularVelocity, dt, m_interpolationWorldTransform);
+    m_interpolateInvInertiaTensorWorld = m_interpolationWorldTransform.getBasis().scaled(m_invInertiaLocal) * m_interpolationWorldTransform.getBasis().transpose();
+  // }
   if (end_of_time_step)
   {
     m_rigidTransformWorld = m_interpolationWorldTransform;
     m_invInertiaTensorWorld = m_interpolateInvInertiaTensorWorld;
-  }
-  else
-  {
-    btTransformUtil::integrateTransform(m_rigidTransformWorld, m_linearVelocity, m_angularVelocity, dt, m_interpolationWorldTransform);
-    m_interpolateInvInertiaTensorWorld = m_interpolationWorldTransform.getBasis().scaled(m_invInertiaLocal) * m_interpolationWorldTransform.getBasis().transpose();
   }
 }
 
@@ -460,18 +471,21 @@ void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& impulse, const bt
   // apply impulse force
   applyFullSpaceNodalForce(impulse / dt, n_node);
 
+  // update reduced internal force
+  applyReducedInternalForce(m_reducedDofs, m_reducedVelocity);
+
   // update reduced velocity
   updateReducedVelocity(dt); // TODO: add back
 
-  // update reduced dofs
-  updateReducedDofs(dt);
+  // // update reduced dofs
+  // updateReducedDofs(dt);
 
-  // internal force
-  // applyReducedInternalForce(0, 0.01); // TODO: this should be necessary, but no obvious effects. Check again.
+  // // internal force
+  // // applyReducedInternalForce(0, 0.01); // TODO: this should be necessary, but no obvious effects. Check again.
 
-  // update local moment arm
-  updateLocalMomentArm();
-  updateExternalForceProjectMatrix(true);
+  // // update local moment arm
+  // updateLocalMomentArm();
+  // updateExternalForceProjectMatrix(true);
 
   // impulse causes rigid motion
   applyRigidImpulse(impulse, rel_pos);
@@ -503,11 +517,11 @@ void btReducedSoftBody::applyRigidGravity(const btVector3& gravity, btScalar dt)
   m_linearVelocity += dt * gravity;
 }
 
-void btReducedSoftBody::applyReducedInternalForce(const btScalar damping_alpha, const btScalar damping_beta)
+void btReducedSoftBody::applyReducedInternalForce(const tDenseArray& reduce_dofs, const tDenseArray& reduce_vel)
 {
   for (int r = 0; r < m_nReduced; ++r) 
   {
-    m_reducedForceInternal[r] = - m_ksScale * m_Kr[r] * (m_reducedDofs[r] + damping_beta * m_reducedVelocity[r]);
+    m_reducedForceInternal[r] = - m_ksScale * m_Kr[r] * (reduce_dofs[r] + m_dampingBeta * reduce_vel[r]);
   }
 }
 

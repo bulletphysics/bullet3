@@ -49,6 +49,10 @@ class btReducedSoftBody : public btSoftBody
   btMatrix3x3 m_interpolateInvInertiaTensorWorld;
   btVector3 m_initialOrigin;  // initial center of mass (original of the m_rigidTransformWorld)
 
+  // damping
+  btScalar m_dampingAlpha;
+  btScalar m_dampingBeta;
+
  public:
 
   //
@@ -63,6 +67,7 @@ class btReducedSoftBody : public btSoftBody
   tDenseArray m_reducedDofs;				   // Reduced degree of freedom
   tDenseArray m_reducedDofsBuffer;     // Reduced degree of freedom at t^n
   tDenseArray m_reducedVelocity;		   // Reduced velocity array
+  tDenseArray m_reducedVelocityBuffer; // Reduced velocity array at t^n
   tDenseArray m_reducedForceExternal;          // reduced external force
   tDenseArray m_reducedForceInternal;          // reduced internal force
   tDenseArray m_eigenvalues;		// eigenvalues of the reduce deformable model
@@ -103,6 +108,8 @@ class btReducedSoftBody : public btSoftBody
   void setMassScale(const btScalar rho);
 
   void setFixedNodes(const int n_node);
+
+  void setDamping(const btScalar alpha, const btScalar beta);
 
   //
   // various internal updates
@@ -169,7 +176,7 @@ class btReducedSoftBody : public btSoftBody
   void applyRigidGravity(const btVector3& gravity, btScalar dt);
 
   // apply reduced force
-  void applyReducedInternalForce(const btScalar damping_alpha, const btScalar damping_beta);
+  void applyReducedInternalForce(const tDenseArray& reduce_dofs, const tDenseArray& reduce_vel);
 
   // calculate the impulse factor
   virtual btMatrix3x3 getImpulseFactor(int n_node);

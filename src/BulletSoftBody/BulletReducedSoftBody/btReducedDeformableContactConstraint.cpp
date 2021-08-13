@@ -22,7 +22,13 @@ btScalar btReducedDeformableStaticConstraint::solveConstraint(const btContactSol
   // apply full space impulse
 	applyImpulse(impulse);
 
-	return 0;
+	// get residual //TODO: only calculate the velocity of the given node
+	m_rsb->mapToFullVelocity(m_rsb->getInterpolationWorldTransform());
+
+	// calculate residual
+	btScalar residualSquare = btDot(m_node->m_v, m_node->m_v);
+
+	return residualSquare;
 }
   
 // this calls reduced deformable body's applyFullSpaceImpulse
