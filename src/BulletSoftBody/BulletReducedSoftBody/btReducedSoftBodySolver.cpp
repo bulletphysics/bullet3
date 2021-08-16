@@ -130,10 +130,11 @@ void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
     rsb->applyRigidGravity(m_gravity, solverdt);
 
     // add internal force (elastic force & damping force)
-    rsb->applyReducedInternalForce(rsb->m_reducedDofsBuffer, rsb->m_reducedVelocityBuffer);
+    rsb->applyReducedElasticForce(rsb->m_reducedDofsBuffer);
+    // rsb->applyReducedDampingForce(rsb->m_reducedVelocityBuffer);
 
     // get reduced velocity at time^* 
-    rsb->updateReducedVelocity(solverdt);
+    rsb->updateReducedVelocity(solverdt, true);
 
     // apply damping (no need at this point)
     // rsb->applyDamping(solverdt);
@@ -165,6 +166,8 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
     // end of time step clean up and update
     rsb->endOfTimeStepZeroing();
   }
+
+  // exit(100);
 }
 
 void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlobal)
@@ -236,30 +239,30 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
   }
 
   // handle contact constraint
-	for (int i = 0; i < numDeformableBodies; ++i)
-	{
-		for (int j = 0; j < m_softBodies.size(); ++j)
-		{
-			btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
-			if (rsb != deformableBodies[i])
-			{
-				continue;
-			}
+	// for (int i = 0; i < numDeformableBodies; ++i)
+	// {
+	// 	for (int j = 0; j < m_softBodies.size(); ++j)
+	// 	{
+	// 		btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+	// 		if (rsb != deformableBodies[i])
+	// 		{
+	// 			continue;
+	// 		}
 
-      // node vs rigid contact
-			for (int k = 0; k < m_nodeRigidConstraints[j].size(); ++k)
-			{
-				btReducedDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[j][k];
-				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
-				residualSquare = btMax(residualSquare, localResidualSquare);
-			}
-			// for (int k = 0; k < m_faceRigidConstraints[j].size(); ++k)
-			// {
-			// 	btReducedDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[j][k];
-			// 	btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
-			// 	residualSquare = btMax(residualSquare, localResidualSquare);
-			// }
-		}
-	}
+  //     // node vs rigid contact
+	// 		for (int k = 0; k < m_nodeRigidConstraints[j].size(); ++k)
+	// 		{
+	// 			btReducedDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[j][k];
+	// 			btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
+	// 			residualSquare = btMax(residualSquare, localResidualSquare);
+	// 		}
+	// 		// for (int k = 0; k < m_faceRigidConstraints[j].size(); ++k)
+	// 		// {
+	// 		// 	btReducedDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[j][k];
+	// 		// 	btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
+	// 		// 	residualSquare = btMax(residualSquare, localResidualSquare);
+	// 		// }
+	// 	}
+	// }
 	return residualSquare;
 }

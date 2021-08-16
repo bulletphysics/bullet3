@@ -33,7 +33,7 @@ static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.01;
 static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
-static int num_modes = 4;
+static int num_modes = 1;
 
 class BasicTest : public CommonDeformableBodyBase
 {
@@ -182,7 +182,7 @@ void BasicTest::initPhysics()
         // rsb->scale(btVector3(1, 1, 1));  //TODO: add back scale
         rsb->translate(btVector3(0, 4, 0));
         // rsb->setTotalMass(0.5);
-        rsb->setStiffnessScale(10);
+        rsb->setStiffnessScale(100);
         rsb->setDamping(damping_alpha, damping_beta);
         
         // set fixed nodes
@@ -212,7 +212,7 @@ void BasicTest::initPhysics()
     getDeformableDynamicsWorld()->setUseProjection(true);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-3;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-6;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies

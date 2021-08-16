@@ -69,7 +69,8 @@ class btReducedSoftBody : public btSoftBody
   tDenseArray m_reducedVelocity;		   // Reduced velocity array
   tDenseArray m_reducedVelocityBuffer; // Reduced velocity array at t^n
   tDenseArray m_reducedForceExternal;          // reduced external force
-  tDenseArray m_reducedForceInternal;          // reduced internal force
+  tDenseArray m_reducedForceElastic;           // reduced internal elastic force
+  tDenseArray m_reducedForceDamping;           // reduced internal damping force
   tDenseArray m_eigenvalues;		// eigenvalues of the reduce deformable model
   tDenseArray m_Kr;	// reduced stiffness matrix
   tDenseArray m_Mr;	// reduced mass matrix //TODO: do we need this?
@@ -137,7 +138,7 @@ class btReducedSoftBody : public btSoftBody
   void updateReducedDofs(btScalar solverdt);
 
   // compute reduced velocity update
-  void updateReducedVelocity(btScalar solverdt);
+  void updateReducedVelocity(btScalar solverdt, bool explicit_force = false);
 
   // map to full degree of freedoms
   void mapToFullPosition(const btTransform& ref_trans);
@@ -175,8 +176,11 @@ class btReducedSoftBody : public btSoftBody
   // apply gravity to the rigid frame
   void applyRigidGravity(const btVector3& gravity, btScalar dt);
 
-  // apply reduced force
-  void applyReducedInternalForce(const tDenseArray& reduce_dofs, const tDenseArray& reduce_vel);
+  // apply reduced elastic force
+  void applyReducedElasticForce(const tDenseArray& reduce_dofs);
+
+  // apply reduced damping force
+  void applyReducedDampingForce(const tDenseArray& reduce_vel);
 
   // calculate the impulse factor
   virtual btMatrix3x3 getImpulseFactor(int n_node);

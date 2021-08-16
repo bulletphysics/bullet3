@@ -37,6 +37,11 @@ btScalar btDeformableMultiBodyConstraintSolver::solveDeformableGroupIterations(b
 			// solver body velocity <- rigid body velocity
 			writeToSolverBody(bodies, numBodies, infoGlobal);
 
+			std::cout << "iter: " << iteration << "\tres: " << m_leastSquaresResidual << '\n';
+			std::cout << "------------------\n";
+			// std::cout << infoGlobal.m_leastSquaresResidualThreshold << '\n';
+			// std::cout << maxIterations << '\n';
+
 			if (m_leastSquaresResidual <= infoGlobal.m_leastSquaresResidualThreshold || (iteration >= (maxIterations - 1)))
 			{
 #ifdef VERBOSE_RESIDUAL_PRINTF

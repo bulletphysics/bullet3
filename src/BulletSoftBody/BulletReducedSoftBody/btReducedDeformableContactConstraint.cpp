@@ -20,7 +20,10 @@ btScalar btReducedDeformableStaticConstraint::solveConstraint(const btContactSol
   btVector3 impulse = -(m_impulseFactor.inverse() * m_node->m_v);
   
   // apply full space impulse
-	applyImpulse(impulse);
+	std::cout << "node: " << m_node->index << " impulse: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
+	std::cout << "impulse norm: " << impulse.norm() << "\n";
+
+	m_rsb->applyFullSpaceImpulse(impulse, m_ri, m_node->index, m_dt);
 
 	// get residual //TODO: only calculate the velocity of the given node
 	m_rsb->mapToFullVelocity(m_rsb->getInterpolationWorldTransform());
