@@ -33,7 +33,7 @@ static btScalar damping_alpha = 0.0;
 static btScalar damping_beta = 0.01;
 static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
-static int num_modes = 4;
+static int num_modes = 1;
 
 class FreeFall : public CommonDeformableBodyBase
 {
@@ -183,12 +183,12 @@ void FreeFall::initPhysics()
     }
     // create a static rigid box as the ground
     {
-        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(3.), btScalar(3.), btScalar(0.1)));
+        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(3.), btScalar(3.), btScalar(3.)));
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        groundTransform.setOrigin(btVector3(0, 0, 5));
+        groundTransform.setOrigin(btVector3(0, 0, 6));
         {
             btScalar mass(0.);
             createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));

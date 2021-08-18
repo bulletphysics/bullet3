@@ -95,11 +95,11 @@ void btReducedSoftBodySolver::predictReduceDeformableMotion(btScalar solverdt)
     rsb->predictIntegratedTransform(solverdt, rsb->getInterpolationWorldTransform());
 
     // update reduced dofs at time^*
-    rsb->updateReducedDofs(solverdt);
+    // rsb->updateReducedDofs(solverdt);
 
     // update local moment arm at time^*
-    rsb->updateLocalMomentArm();
-    rsb->updateExternalForceProjectMatrix(true);
+    // rsb->updateLocalMomentArm();
+    // rsb->updateExternalForceProjectMatrix(true);
 
     // predict full space velocity at time^* (needed for constraints)
     rsb->mapToFullVelocity(rsb->getInterpolationWorldTransform());
@@ -131,7 +131,7 @@ void btReducedSoftBodySolver::applyExplicitForce(btScalar solverdt)
 
     // add internal force (elastic force & damping force)
     rsb->applyReducedElasticForce(rsb->m_reducedDofsBuffer);
-    // rsb->applyReducedDampingForce(rsb->m_reducedVelocityBuffer);
+    rsb->applyReducedDampingForce(rsb->m_reducedVelocityBuffer);
 
     // get reduced velocity at time^* 
     rsb->updateReducedVelocity(solverdt, true);
@@ -167,7 +167,9 @@ void btReducedSoftBodySolver::applyTransforms(btScalar timeStep)
     rsb->endOfTimeStepZeroing();
   }
 
-  // exit(100);
+  // static int count = 0;
+  // if (count > 0) exit(100);
+  // count++;
 }
 
 void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlobal)
@@ -192,22 +194,22 @@ void btReducedSoftBodySolver::setConstraints(const btContactSolverInfo& infoGlob
 		}
     btAssert(rsb->m_fixedNodes.size() == m_staticConstraints[i].size());
 
-    // set Deformable Node vs. Rigid constraint //TODO: add back contact
-		// for (int j = 0; j < rsb->m_nodeRigidContacts.size(); ++j)
-		// {
-		// 	const btSoftBody::DeformableNodeRigidContact& contact = rsb->m_nodeRigidContacts[j];
-		// 	// skip fixed points
-		// 	if (contact.m_node->m_im == 0)
-		// 	{
-		// 		continue;
-		// 	}
-		// 	btReducedDeformableNodeRigidContactConstraint constraint(rsb, contact, infoGlobal, m_dt);
-		// 	m_nodeRigidConstraints[i].push_back(constraint);
-    //   rsb->m_contactNodesList.push_back(contact.m_node->index);
-		// }
-    // std::cout << "#contact nodes: " << m_nodeRigidConstraints[i].size() << "\n";
+    // set Deformable Node vs. Rigid constraint
+		for (int j = 0; j < rsb->m_nodeRigidContacts.size(); ++j)
+		{
+			const btSoftBody::DeformableNodeRigidContact& contact = rsb->m_nodeRigidContacts[j];
+			// skip fixed points
+			if (contact.m_node->m_im == 0)
+			{
+				continue;
+			}
+			btReducedDeformableNodeRigidContactConstraint constraint(rsb, contact, infoGlobal, m_dt);
+			m_nodeRigidConstraints[i].push_back(constraint);
+      rsb->m_contactNodesList.push_back(contact.m_node->index);
+		}
+    std::cout << "#contact nodes: " << m_nodeRigidConstraints[i].size() << "\n";
 
-    // set Deformable Face vs. Rigid constraint
+    // // set Deformable Face vs. Rigid constraint
 		// for (int j = 0; j < rsb->m_faceRigidContacts.size(); ++j)
 		// {
 		// 	const btSoftBody::DeformableFaceRigidContact& contact = rsb->m_faceRigidContacts[j];
@@ -230,39 +232,56 @@ btScalar btReducedSoftBodySolver::solveContactConstraints(btCollisionObject** de
   // handle fixed constraint
   for (int i = 0; i < m_softBodies.size(); ++i)
   {
+    btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+
+    btAlignedObjectArray<btScalar> residual;
+    residual.resize(m_staticConstraints[i].size(), 0);
+
     for (int k = 0; k < m_staticConstraints[i].size(); ++k)
     {
       btReducedDeformableStaticConstraint& constraint = m_staticConstraints[i][k];
       btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
       residualSquare = btMax(residualSquare, localResidualSquare);
+
+      btVector3 error;
+      error.setZero();
+      std::cout << "fixed_nodes: ";
+      for (int p = 0; p < rsb->m_fixedNodes.size(); ++p)
+      {
+        std::cout << rsb->m_nodes[rsb->m_fixedNodes[p]].m_v.norm() << '\t';
+        error += rsb->m_nodes[rsb->m_fixedNodes[p]].m_v;
+      }
+      std::cout << '\n';
+      std::cout << "norm: " << error.norm() << "\n";
     }
+
   }
 
   // handle contact constraint
-	// for (int i = 0; i < numDeformableBodies; ++i)
-	// {
-	// 	for (int j = 0; j < m_softBodies.size(); ++j)
-	// 	{
-	// 		btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
-	// 		if (rsb != deformableBodies[i])
-	// 		{
-	// 			continue;
-	// 		}
+	for (int i = 0; i < numDeformableBodies; ++i)
+	{
+		for (int j = 0; j < m_softBodies.size(); ++j)
+		{
+			btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(m_softBodies[i]);
+			if (rsb != deformableBodies[i])
+			{
+				continue;
+			}
 
-  //     // node vs rigid contact
-	// 		for (int k = 0; k < m_nodeRigidConstraints[j].size(); ++k)
-	// 		{
-	// 			btReducedDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[j][k];
-	// 			btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
-	// 			residualSquare = btMax(residualSquare, localResidualSquare);
-	// 		}
-	// 		// for (int k = 0; k < m_faceRigidConstraints[j].size(); ++k)
-	// 		// {
-	// 		// 	btReducedDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[j][k];
-	// 		// 	btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
-	// 		// 	residualSquare = btMax(residualSquare, localResidualSquare);
-	// 		// }
-	// 	}
-	// }
+      // node vs rigid contact
+			for (int k = 0; k < m_nodeRigidConstraints[j].size(); ++k)
+			{
+				btReducedDeformableNodeRigidContactConstraint& constraint = m_nodeRigidConstraints[j][k];
+				btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
+				residualSquare = btMax(residualSquare, localResidualSquare);
+			}
+			// for (int k = 0; k < m_faceRigidConstraints[j].size(); ++k)
+			// {
+			// 	btReducedDeformableFaceRigidContactConstraint& constraint = m_faceRigidConstraints[j][k];
+			// 	btScalar localResidualSquare = constraint.solveConstraint(infoGlobal);
+			// 	residualSquare = btMax(residualSquare, localResidualSquare);
+			// }
+		}
+	}
 	return residualSquare;
 }

@@ -21,7 +21,7 @@ btScalar btReducedDeformableStaticConstraint::solveConstraint(const btContactSol
   
   // apply full space impulse
 	std::cout << "node: " << m_node->index << " impulse: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
-	std::cout << "impulse norm: " << impulse.norm() << "\n";
+	// std::cout << "impulse norm: " << impulse.norm() << "\n";
 
 	m_rsb->applyFullSpaceImpulse(impulse, m_ri, m_node->index, m_dt);
 
@@ -56,97 +56,113 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	btVector3 va = getVa();
 	btVector3 vb = getVb();
 	btVector3 vr = vb - va;
-	btScalar dn = btDot(vr, cti.m_normal) + m_total_normal_dv.dot(cti.m_normal) * infoGlobal.m_deformable_cfm;
-	if (m_penetration > 0)
-	{
-		dn += m_penetration / infoGlobal.m_timeStep;
-	}
-	if (!infoGlobal.m_splitImpulse)
-	{
-		dn += m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
-	}
+	btScalar dn = btDot(vr, cti.m_normal);
+	// btScalar dn = btDot(vr, cti.m_normal) + m_total_normal_dv.dot(cti.m_normal) * infoGlobal.m_deformable_cfm;
+	// if (m_penetration > 0)
+	// {
+	// 	dn += m_penetration / infoGlobal.m_timeStep;
+	// }
+	// if (!infoGlobal.m_splitImpulse)
+	// {
+	// 	dn += m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
+	// }
 	// dn is the normal component of velocity diffrerence. Approximates the residual.
-	btVector3 impulse = m_contact->m_c0 * (vr + m_total_normal_dv * infoGlobal.m_deformable_cfm + ((m_penetration > 0) ? m_penetration / infoGlobal.m_timeStep * cti.m_normal : btVector3(0, 0, 0)));
-	if (!infoGlobal.m_splitImpulse)
-	{
-		impulse += m_contact->m_c0 * (m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep * cti.m_normal);
-	}
-	btVector3 impulse_normal = m_contact->m_c0 * (cti.m_normal * dn);
-	btVector3 impulse_tangent = impulse - impulse_normal;
-	if (dn > 0)
-	{
-		return 0;
-	}
-	m_binding = true;
-	btScalar residualSquare = dn * dn;
-	btVector3 old_total_tangent_dv = m_total_tangent_dv;
-	// m_c5 is the inverse mass of the deformable node/face
-	m_total_normal_dv -= m_contact->m_c5 * impulse_normal;
-	m_total_tangent_dv -= m_contact->m_c5 * impulse_tangent;
+	btVector3 vr_tangent = vr - dn * cti.m_normal;
+	btVector3 delta_vr = vr_tangent - vr;
 
-	if (m_total_normal_dv.dot(cti.m_normal) < 0)
-	{
-		// separating in the normal direction
-		m_binding = false;
-		m_static = false;
-		impulse_tangent.setZero();
-	}
-	else
-	{
-		if (m_total_normal_dv.norm() * m_contact->m_c3 < m_total_tangent_dv.norm())
-		{
-			// dynamic friction
-			// with dynamic friction, the impulse are still applied to the two objects colliding, however, it does not pose a constraint in the cg solve, hence the change to dv merely serves to update velocity in the contact iterations.
-			m_static = false;
-			if (m_total_tangent_dv.safeNorm() < SIMD_EPSILON)
-			{
-				m_total_tangent_dv = btVector3(0, 0, 0);
-			}
-			else
-			{
-				m_total_tangent_dv = m_total_tangent_dv.normalized() * m_total_normal_dv.safeNorm() * m_contact->m_c3;
-			}
-			//            impulse_tangent = -btScalar(1)/m_contact->m_c2 * (m_total_tangent_dv - old_total_tangent_dv);
-			impulse_tangent = m_contact->m_c5.inverse() * (old_total_tangent_dv - m_total_tangent_dv);
-		}
-		else
-		{
-			// static friction
-			m_static = true;
-		}
-	}
-	impulse = impulse_normal + impulse_tangent;
+
+	btScalar residualSquare = dn * dn;
+	btVector3 impulse = (m_contact->m_c0 * delta_vr);
+	// btVector3 impulse_normal = m_contact->m_c0 * (cti.m_normal * dn);
+	// btVector3 impulse_tangent = impulse - impulse_normal;
+	std::cout << "impulse normal: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
+	if (dn > 0)
+		return 0;
+	// btVector3 impulse = m_contact->m_c0 * (vr + m_total_normal_dv * infoGlobal.m_deformable_cfm + ((m_penetration > 0) ? m_penetration / infoGlobal.m_timeStep * cti.m_normal : btVector3(0, 0, 0)));
+	// if (!infoGlobal.m_splitImpulse)
+	// {
+	// 	impulse += m_contact->m_c0 * (m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep * cti.m_normal);
+	// }
+	// btVector3 impulse_normal = m_contact->m_c0 * (cti.m_normal * dn);
+	// btVector3 impulse_tangent = impulse - impulse_normal;
+	// if (dn > 0)
+	// {
+	// 	return 0;
+	// }
+	// m_binding = true;
+	// btScalar residualSquare = dn * dn;
+	// btVector3 old_total_tangent_dv = m_total_tangent_dv;
+	// // m_c5 is the inverse mass of the deformable node/face
+	// m_total_normal_dv -= m_contact->m_c5 * impulse_normal;
+	// m_total_tangent_dv -= m_contact->m_c5 * impulse_tangent;
+
+	// if (m_total_normal_dv.dot(cti.m_normal) < 0)
+	// {
+	// 	// separating in the normal direction
+	// 	m_binding = false;
+	// 	m_static = false;
+	// 	impulse_tangent.setZero();
+	// }
+	// else
+	// {
+	// 	if (m_total_normal_dv.norm() * m_contact->m_c3 < m_total_tangent_dv.norm())
+	// 	{
+	// 		// dynamic friction
+	// 		// with dynamic friction, the impulse are still applied to the two objects colliding, however, it does not pose a constraint in the cg solve, hence the change to dv merely serves to update velocity in the contact iterations.
+	// 		m_static = false;
+	// 		if (m_total_tangent_dv.safeNorm() < SIMD_EPSILON)
+	// 		{
+	// 			m_total_tangent_dv = btVector3(0, 0, 0);
+	// 		}
+	// 		else
+	// 		{
+	// 			m_total_tangent_dv = m_total_tangent_dv.normalized() * m_total_normal_dv.safeNorm() * m_contact->m_c3;
+	// 		}
+	// 		//            impulse_tangent = -btScalar(1)/m_contact->m_c2 * (m_total_tangent_dv - old_total_tangent_dv);
+	// 		impulse_tangent = m_contact->m_c5.inverse() * (old_total_tangent_dv - m_total_tangent_dv);
+	// 	}
+	// 	else
+	// 	{
+	// 		// static friction
+	// 		m_static = true;
+	// 	}
+	// }
+	// impulse = impulse_normal + impulse_tangent;
 	// apply impulse to deformable nodes involved and change their velocities
-	applyImpulse(impulse); // TODO: apply impulse?
+	// impulse = btVector3(0, 0, -1e-2);
+	// impulse_normal = btVector3(0, 0, 0);
+	// impulse_tangent = btVector3(0, 0, 0);
+	applyImpulse(impulse);
+	// applyImpulse(impulse); // TODO: apply impulse?
 	// apply impulse to the rigid/multibodies involved and change their velocities
-	if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
-	{
-		btRigidBody* rigidCol = 0;
-		rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
-		if (rigidCol)
-		{
-			rigidCol->applyImpulse(impulse, m_contact->m_c1);
-		}
-	}
-	else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
-	{
-		btMultiBodyLinkCollider* multibodyLinkCol = 0;
-		multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
-		if (multibodyLinkCol)
-		{
-			const btScalar* deltaV_normal = &m_contact->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
-			// apply normal component of the impulse
-			multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_normal, impulse.dot(cti.m_normal));
-			if (impulse_tangent.norm() > SIMD_EPSILON)
-			{
-				// apply tangential component of the impulse
-				const btScalar* deltaV_t1 = &m_contact->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
-				multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t1, impulse.dot(m_contact->t1));
-				const btScalar* deltaV_t2 = &m_contact->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
-				multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t2, impulse.dot(m_contact->t2));
-			}
-		}
-	}
+	// if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
+	// {
+	// 	btRigidBody* rigidCol = 0;
+	// 	rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
+	// 	if (rigidCol)
+	// 	{
+	// 		rigidCol->applyImpulse(impulse, m_contact->m_c1);
+	// 	}
+	// }
+	// else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
+	// {
+	// 	btMultiBodyLinkCollider* multibodyLinkCol = 0;
+	// 	multibodyLinkCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(cti.m_colObj);
+	// 	if (multibodyLinkCol)
+	// 	{
+	// 		const btScalar* deltaV_normal = &m_contact->jacobianData_normal.m_deltaVelocitiesUnitImpulse[0];
+	// 		// apply normal component of the impulse
+	// 		multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_normal, impulse.dot(cti.m_normal));
+	// 		if (impulse_tangent.norm() > SIMD_EPSILON)
+	// 		{
+	// 			// apply tangential component of the impulse
+	// 			const btScalar* deltaV_t1 = &m_contact->jacobianData_t1.m_deltaVelocitiesUnitImpulse[0];
+	// 			multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t1, impulse.dot(m_contact->t1));
+	// 			const btScalar* deltaV_t2 = &m_contact->jacobianData_t2.m_deltaVelocitiesUnitImpulse[0];
+	// 			multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof2(deltaV_t2, impulse.dot(m_contact->t2));
+	// 		}
+	// 	}
+	// }
 	return residualSquare;
 }
 
@@ -176,7 +192,10 @@ btVector3 btReducedDeformableNodeRigidContactConstraint::getDv(const btSoftBody:
 
 void btReducedDeformableNodeRigidContactConstraint::applyImpulse(const btVector3& impulse)
 {
+	std::cout << "impulse applied: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
   m_rsb->applyFullSpaceImpulse(impulse, m_contact->m_c1, m_node->index, m_dt);
+	m_rsb->mapToFullVelocity(m_rsb->getInterpolationWorldTransform());
+	std::cout << "node: " << m_node->index << " vel: " << m_node->m_v[0] << '\t' << m_node->m_v[1] << '\t' << m_node->m_v[2] << '\n';
 }
 
 // ================= face vs rigid constraints ===================

@@ -278,11 +278,12 @@ void btReducedSoftBody::updateReducedVelocity(btScalar solverdt, bool explicit_f
       delta_v = solverdt * mass_inv * (m_reducedForceDamping[r] + m_reducedForceExternal[r]);
     }
     // delta_v = solverdt * mass_inv * (m_reducedForceElastic[r] + m_reducedForceDamping[r] + m_reducedForceExternal[r]);
-    std::cout << "delta_v: " << delta_v << '\n';
+    // std::cout << "delta_v: " << delta_v << '\n';
     // m_reducedVelocity[r] = m_reducedVelocityBuffer[r] + delta_v;
     m_reducedVelocity[r] += delta_v;
   }
-  std::cout << "force: " << m_reducedForceElastic[0] << '\t' << m_reducedForceExternal[0] << '\n';
+  // std::cout << "reduce_vel: " << m_reducedVelocity[0] << '\n';
+  // std::cout << "force: " << m_reducedForceElastic[0] << '\t' << m_reducedForceDamping[0] << '\t' << m_reducedForceExternal[0] << '\n';
 }
 
 void btReducedSoftBody::mapToFullVelocity(const btTransform& ref_trans)
@@ -448,6 +449,7 @@ btMatrix3x3 btReducedSoftBody::getImpulseFactor(int n_node)
 
   btMatrix3x3 K2 = RSARinv + ri_skew * m_interpolateInvInertiaTensorWorld * sum_multiply_A * rotation.transpose();
 
+  // return K1;  //TODO: change back
   return K1 + K2;
 }
 

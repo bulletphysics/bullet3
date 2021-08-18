@@ -30,7 +30,7 @@
 // static btScalar E = 50;
 // static btScalar nu = 0.3;
 static btScalar damping_alpha = 0.0;
-static btScalar damping_beta = 0.01;
+static btScalar damping_beta = 0.0;
 static btScalar COLLIDING_VELOCITY = 0;
 static int start_mode = 6;
 static int num_modes = 1;
@@ -48,7 +48,8 @@ class BasicTest : public CommonDeformableBodyBase
       //     rsb->m_nodes[i].m_x[k] += rsb->m_modes[mode_n][3 * i + k] * scale;
 
       rsb->m_reducedDofs[mode_n] = scale;
-      rsb->mapToFullPosition(rsb->getWorldTransform());
+      rsb->m_reducedDofsBuffer[mode_n] = scale;
+      rsb->mapToFullPosition(rsb->getRigidTransform());
       std::cout << "-----------\n";
       std::cout << rsb->m_nodes[0].m_x[0] << '\t' << rsb->m_nodes[0].m_x[1] << '\t' << rsb->m_nodes[0].m_x[2] << '\n';
       std::cout << "-----------\n";
@@ -96,13 +97,13 @@ public:
     void stepSimulation(float deltaTime)
     {
       // TODO: remove this. very hacky way of adding initial deformation
-      // btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
-      // if (first_step /* && !rsb->m_bUpdateRtCst*/) 
-      // {
-      //   getDeformedShape(rsb, 0, 1);
-      //   first_step = false;
-      //   // rsb->mapToReducedDofs();
-      // }
+    //   btReducedSoftBody* rsb = static_cast<btReducedSoftBody*>(static_cast<btDeformableMultiBodyDynamicsWorld*>(m_dynamicsWorld)->getSoftBodyArray()[0]);
+    //   if (first_step /* && !rsb->m_bUpdateRtCst*/) 
+    //   {
+    //     getDeformedShape(rsb, 0, 1);
+    //     first_step = false;
+    //     // rsb->mapToReducedDofs();
+    //   }
       
       float internalTimeStep = 1. / 60.f;
     //   float internalTimeStep = 1e-3;
@@ -182,7 +183,7 @@ void BasicTest::initPhysics()
         // rsb->scale(btVector3(1, 1, 1));  //TODO: add back scale
         rsb->translate(btVector3(0, 4, 0));
         // rsb->setTotalMass(0.5);
-        rsb->setStiffnessScale(100);
+        rsb->setStiffnessScale(20);
         rsb->setDamping(damping_alpha, damping_beta);
         
         // set fixed nodes
@@ -212,7 +213,7 @@ void BasicTest::initPhysics()
     getDeformableDynamicsWorld()->setUseProjection(true);
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_erp = 0.3;
     getDeformableDynamicsWorld()->getSolverInfo().m_deformable_maxErrorReduction = btScalar(200);
-    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 1e-6;
+    getDeformableDynamicsWorld()->getSolverInfo().m_leastSquaresResidualThreshold = 0;
     getDeformableDynamicsWorld()->getSolverInfo().m_splitImpulse = true;
     getDeformableDynamicsWorld()->getSolverInfo().m_numIterations = 100;
     // add a few rigid bodies
