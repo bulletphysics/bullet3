@@ -77,7 +77,10 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	// btVector3 impulse_tangent = impulse - impulse_normal;
 	std::cout << "impulse normal: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
 	if (dn > 0)
+	{
+		std::cout << "skip\n";
 		return 0;
+	}
 	// btVector3 impulse = m_contact->m_c0 * (vr + m_total_normal_dv * infoGlobal.m_deformable_cfm + ((m_penetration > 0) ? m_penetration / infoGlobal.m_timeStep * cti.m_normal : btVector3(0, 0, 0)));
 	// if (!infoGlobal.m_splitImpulse)
 	// {
@@ -129,7 +132,7 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
 	// }
 	// impulse = impulse_normal + impulse_tangent;
 	// apply impulse to deformable nodes involved and change their velocities
-	// impulse = btVector3(0, 0, -1e-2);
+	// impulse = btVector3(0, 10, 0);
 	// impulse_normal = btVector3(0, 0, 0);
 	// impulse_tangent = btVector3(0, 0, 0);
 	applyImpulse(impulse);

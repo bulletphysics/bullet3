@@ -1696,6 +1696,7 @@ struct btSoftColliders
 							if (psb->m_reducedModel)
 							{
 								c.m_c0 = (psb->getImpulseFactor(n.index)).inverse();
+								c.m_c1 = n.m_x - psb->getRigidTransform().getOrigin();
 							}
 							else
 							{
@@ -1704,8 +1705,8 @@ struct btSoftColliders
 
 								c.m_c0 = ImpulseMatrix(1, n.m_effectiveMass_inv, imb, iwi, ra);
 								//                            c.m_c0 = ImpulseMatrix(1, ima, imb, iwi, ra);
+								c.m_c1 = ra;
 							}
-							c.m_c1 = ra;
 						}
 						else if (cti.m_colObj->getInternalType() == btCollisionObject::CO_FEATHERSTONE_LINK)
 						{
