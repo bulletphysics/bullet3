@@ -4246,7 +4246,7 @@ void btSoftBody::geometricCollisionHandler(btSoftBody* psb)
 			btSoftColliders::CollideCCD docollide;
 			/* common                    */
 			docollide.mrg = SAFE_EPSILON;  // for rounding error instead of actual margin
-			docollide.dt = psb->m_sst.sd;
+			docollide.dt = psb->m_sst.sdt;
 			/* psb0 nodes vs psb1 faces    */
 			if (psb->m_tetras.size() > 0)
 				docollide.useFaceNormal = true;
