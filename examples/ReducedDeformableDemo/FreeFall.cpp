@@ -108,11 +108,15 @@ public:
                     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_fixedNodes[p]].m_x, 0.2, btVector3(1, 0, 0));
                     // std::cout << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[0] << "\t" << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[1] << "\t" << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[2] << "\n";
                 }
+                // static int num = 0;
                 for (int p = 0; p < rsb->m_nodeRigidContacts.size(); ++p)
                 {
                     deformableWorld->getDebugDrawer()->drawSphere(rsb->m_nodes[rsb->m_contactNodesList[p]].m_x, 0.2, btVector3(0, 1, 0));
-                    // std::cout << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[0] << "\t" << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[1] << "\t" << rsb->m_nodes[rsb->m_fixedNodes[p]].m_x[2] << "\n";
+                    // std::cout << rsb->m_nodes[rsb->m_contactNodesList[p]].m_x[0] << "\t" << rsb->m_nodes[rsb->m_contactNodesList[p]].m_x[1] << "\t" << rsb->m_nodes[rsb->m_contactNodesList[p]].m_x[2] << "\n";
+                    // std::cout << rsb->m_contactNodesList[p] << "\n";
+                    // num++;
                 }
+                // if(num > 0) exit(100);
 
                 deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 0, 0), 0.1, btVector3(1, 1, 1));
                 deformableWorld->getDebugDrawer()->drawSphere(btVector3(0, 5, 0), 0.1, btVector3(1, 1, 1));
@@ -134,7 +138,7 @@ void FreeFall::initPhysics()
 
     m_broadphase = new btDbvtBroadphase();
     btReducedSoftBodySolver* reducedSoftBodySolver = new btReducedSoftBodySolver();
-    btVector3 gravity = btVector3(0, 0, 0);
+    btVector3 gravity = btVector3(0, -10, 0);
     reducedSoftBodySolver->setGravity(gravity);
 
     btDeformableMultiBodyConstraintSolver* sol = new btDeformableMultiBodyConstraintSolver();
@@ -157,10 +161,11 @@ void FreeFall::initPhysics()
         getDeformableDynamicsWorld()->addSoftBody(rsb);
         rsb->getCollisionShape()->setMargin(0.1);
         // rsb->scale(btVector3(1, 1, 1));
-        rsb->translate(btVector3(0, 0, 0));  //TODO: add back translate and scale
+        rsb->translate(btVector3(0, 10, 0));  //TODO: add back translate and scale
         // rsb->setTotalMass(0.5);
         rsb->setStiffnessScale(0.5);
         rsb->setDamping(damping_alpha, damping_beta);
+        // rsb->setFriction(200);
         
         // no fixed nodes
         // rsb->setFixedNodes(0);
@@ -174,7 +179,7 @@ void FreeFall::initPhysics()
         btSoftBodyHelpers::generateBoundaryFaces(rsb);
         
         // rsb->setVelocity(btVector3(0, -COLLIDING_VELOCITY, 0));
-        rsb->setRigidVelocity(btVector3(0, 0, 1));
+        // rsb->setRigidVelocity(btVector3(0, 0, 0));
         // rsb->setRigidAngularVelocity(btVector3(1, 0, 0));
         
         // btDeformableGravityForce* gravity_force = new btDeformableGravityForce(gravity);
@@ -183,14 +188,14 @@ void FreeFall::initPhysics()
     }
     // create a static rigid box as the ground
     {
-        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(3), btScalar(3), btScalar(3)));
-        // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
+        btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50), btScalar(50), btScalar(50)));
+        // btBoxShape* groundShape = createBoxShape(btVector3(btScalar(3), btScalar(3), btScalar(3)));
         m_collisionShapes.push_back(groundShape);
 
         btTransform groundTransform;
         groundTransform.setIdentity();
-        // groundTransform.setOrigin(btVector3(0, -50, 0));
-        groundTransform.setOrigin(btVector3(0, 0, 6));
+        groundTransform.setOrigin(btVector3(0, -50, 0));
+        // groundTransform.setOrigin(btVector3(0, 0, 6));
         {
             btScalar mass(0.);
             createRigidBody(mass, groundTransform, groundShape, btVector4(0,0,0,0));

@@ -17,8 +17,8 @@ btReducedSoftBody::btReducedSoftBody(btSoftBodyWorldInfo* worldInfo, int node_co
   m_rhoScale = 1.0;
 
   // rigid motion
-  m_linearVelocity.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
-	m_angularVelocity.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
+  m_linearVelocity.setZero();
+	m_angularVelocity.setZero();
 	m_angularFactor.setValue(1, 1, 1);
 	m_linearFactor.setValue(1, 1, 1);
   m_invInertiaLocal.setValue(1, 1, 1);
@@ -259,6 +259,7 @@ void btReducedSoftBody::mapToFullPosition(const btTransform& ref_trans)
   for (int i = 0; i < m_nFull; ++i)
   {
     m_nodes[i].m_x = rotation * m_localMomentArm[i] + origin;
+    m_nodes[i].m_q = m_nodes[i].m_x;
   }
 }
 
@@ -449,8 +450,8 @@ btMatrix3x3 btReducedSoftBody::getImpulseFactor(int n_node)
 
   btMatrix3x3 K2 = RSARinv + ri_skew * m_interpolateInvInertiaTensorWorld * sum_multiply_A * rotation.transpose();
 
-  // return K1;  //TODO: change back
-  return K1 + K2;
+  return K1;  //TODO: change back
+  // return K1 + K2;
 }
 
 void btReducedSoftBody::applyVelocityConstraint(const btVector3& target_vel, int n_node, btScalar dt)
@@ -484,14 +485,14 @@ void btReducedSoftBody::applyPositionConstraint(const btVector3& target_pos, int
 
 void btReducedSoftBody::applyFullSpaceImpulse(const btVector3& impulse, const btVector3& rel_pos, int n_node, btScalar dt)
 {
-  // apply impulse force
-  applyFullSpaceNodalForce(impulse / dt, n_node);
+  // // apply impulse force
+  // applyFullSpaceNodalForce(impulse / dt, n_node);
 
-  // update reduced internal force
-  applyReducedDampingForce(m_reducedVelocity);
+  // // update reduced internal force
+  // applyReducedDampingForce(m_reducedVelocity);
 
-  // update reduced velocity
-  updateReducedVelocity(dt); // TODO: add back
+  // // update reduced velocity
+  // updateReducedVelocity(dt); // TODO: add back
 
   // // update reduced dofs
   // updateReducedDofs(dt);

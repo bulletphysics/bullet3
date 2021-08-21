@@ -55,86 +55,66 @@ btScalar btReducedDeformableRigidContactConstraint::solveConstraint(const btCont
   const btSoftBody::sCti& cti = m_contact->m_cti;
 	btVector3 va = getVa();
 	btVector3 vb = getVb();
-	btVector3 vr = vb - va;
-	btScalar dn = btDot(vr, cti.m_normal);
-	// btScalar dn = btDot(vr, cti.m_normal) + m_total_normal_dv.dot(cti.m_normal) * infoGlobal.m_deformable_cfm;
-	// if (m_penetration > 0)
+
+	// btVector3 normal(0, 1, 0);
+	
+	// for (int p = 0; p < m_rsb->m_nFull; ++p)
 	// {
-	// 	dn += m_penetration / infoGlobal.m_timeStep;
+	// 	for (int k = 0; k < 3; ++k)
+	// 	{
+	// 		std::cout << m_rsb->m_nodes[p].m_x[k] << '\t';
+	// 	}
+	// 	std::cout << '\n';
 	// }
+
+	// get relative velocity and magnitude
+	btVector3 v_rel = vb - va;
+	btScalar v_rel_normal = btDot(v_rel, cti.m_normal);
+	if (m_penetration > 0)
+	{
+		std::cout << "penetrate!!!!\n";
+		v_rel_normal += m_penetration / infoGlobal.m_timeStep;		// add penetration correction vel
+	}
 	// if (!infoGlobal.m_splitImpulse)
 	// {
 	// 	dn += m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep;
 	// }
-	// dn is the normal component of velocity diffrerence. Approximates the residual.
-	btVector3 vr_tangent = vr - dn * cti.m_normal;
-	btVector3 delta_vr = vr_tangent - vr;
-
-
-	btScalar residualSquare = dn * dn;
-	btVector3 impulse = (m_contact->m_c0 * delta_vr);
-	// btVector3 impulse_normal = m_contact->m_c0 * (cti.m_normal * dn);
-	// btVector3 impulse_tangent = impulse - impulse_normal;
-	std::cout << "impulse normal: " << impulse[0] << '\t' << impulse[1] << '\t' << impulse[2] << '\n';
-	if (dn > 0)
+	
+	// if it's separating, no need to do anything
+	if (v_rel_normal > 0)
 	{
-		std::cout << "skip\n";
 		return 0;
 	}
-	// btVector3 impulse = m_contact->m_c0 * (vr + m_total_normal_dv * infoGlobal.m_deformable_cfm + ((m_penetration > 0) ? m_penetration / infoGlobal.m_timeStep * cti.m_normal : btVector3(0, 0, 0)));
-	// if (!infoGlobal.m_splitImpulse)
-	// {
-	// 	impulse += m_contact->m_c0 * (m_penetration * infoGlobal.m_deformable_erp / infoGlobal.m_timeStep * cti.m_normal);
-	// }
-	// btVector3 impulse_normal = m_contact->m_c0 * (cti.m_normal * dn);
-	// btVector3 impulse_tangent = impulse - impulse_normal;
-	// if (dn > 0)
-	// {
-	// 	return 0;
-	// }
-	// m_binding = true;
-	// btScalar residualSquare = dn * dn;
-	// btVector3 old_total_tangent_dv = m_total_tangent_dv;
-	// // m_c5 is the inverse mass of the deformable node/face
-	// m_total_normal_dv -= m_contact->m_c5 * impulse_normal;
-	// m_total_tangent_dv -= m_contact->m_c5 * impulse_tangent;
+	btScalar residualSquare = v_rel_normal * v_rel_normal;	// get residual
 
-	// if (m_total_normal_dv.dot(cti.m_normal) < 0)
-	// {
-	// 	// separating in the normal direction
-	// 	m_binding = false;
-	// 	m_static = false;
-	// 	impulse_tangent.setZero();
-	// }
-	// else
-	// {
-	// 	if (m_total_normal_dv.norm() * m_contact->m_c3 < m_total_tangent_dv.norm())
-	// 	{
-	// 		// dynamic friction
-	// 		// with dynamic friction, the impulse are still applied to the two objects colliding, however, it does not pose a constraint in the cg solve, hence the change to dv merely serves to update velocity in the contact iterations.
-	// 		m_static = false;
-	// 		if (m_total_tangent_dv.safeNorm() < SIMD_EPSILON)
-	// 		{
-	// 			m_total_tangent_dv = btVector3(0, 0, 0);
-	// 		}
-	// 		else
-	// 		{
-	// 			m_total_tangent_dv = m_total_tangent_dv.normalized() * m_total_normal_dv.safeNorm() * m_contact->m_c3;
-	// 		}
-	// 		//            impulse_tangent = -btScalar(1)/m_contact->m_c2 * (m_total_tangent_dv - old_total_tangent_dv);
-	// 		impulse_tangent = m_contact->m_c5.inverse() * (old_total_tangent_dv - m_total_tangent_dv);
-	// 	}
-	// 	else
-	// 	{
-	// 		// static friction
-	// 		m_static = true;
-	// 	}
-	// }
-	// impulse = impulse_normal + impulse_tangent;
-	// apply impulse to deformable nodes involved and change their velocities
-	// impulse = btVector3(0, 10, 0);
-	// impulse_normal = btVector3(0, 0, 0);
-	// impulse_tangent = btVector3(0, 0, 0);
+	// compute the tangential relative vel
+	btVector3 v_rel_tangent = v_rel - v_rel_normal * cti.m_normal;
+
+	// friction correction
+	btScalar delta_v_rel_normal = v_rel_normal;
+	btScalar delta_v_rel_tangent = m_contact->m_c3 * v_rel_normal;
+	// btScalar delta_v_rel_tangent = 0.3 * v_rel_normal;
+
+	btVector3 impulse_tangent(0, 0, 0);
+	if (v_rel_tangent.norm() < delta_v_rel_tangent)
+	{
+		// the object should be static
+		impulse_tangent = m_contact->m_c0 * (-v_rel_tangent);
+	}
+	else
+	{
+		// apply friction
+		impulse_tangent = m_contact->m_c0 * (-v_rel_tangent.safeNormalize() * delta_v_rel_tangent);
+		std::cout << "friction called\n";
+	}
+
+	// get total impulse
+	btVector3 impulse_normal = m_contact->m_c0 * (cti.m_normal * (-v_rel_normal));
+	// btVector3 impulse = impulse_normal + impulse_tangent;
+	btVector3 impulse = impulse_normal.dot(cti.m_normal) * cti.m_normal;
+
+	std::cout << "impulse direct: " << impulse[0] / cti.m_normal[0] << '\t' << impulse[1] / cti.m_normal[1]<< '\t' << impulse[2] / cti.m_normal[2] << '\n';
+
 	applyImpulse(impulse);
 	// applyImpulse(impulse); // TODO: apply impulse?
 	// apply impulse to the rigid/multibodies involved and change their velocities
@@ -199,6 +179,7 @@ void btReducedDeformableNodeRigidContactConstraint::applyImpulse(const btVector3
   m_rsb->applyFullSpaceImpulse(impulse, m_contact->m_c1, m_node->index, m_dt);
 	m_rsb->mapToFullVelocity(m_rsb->getInterpolationWorldTransform());
 	std::cout << "node: " << m_node->index << " vel: " << m_node->m_v[0] << '\t' << m_node->m_v[1] << '\t' << m_node->m_v[2] << '\n';
+	// std::cout << "node: " << m_node->index << " m_x: " << m_node->m_x[0] << '\t' << m_node->m_x[1] << '\t' << m_node->m_x[2] << '\n';
 }
 
 // ================= face vs rigid constraints ===================
