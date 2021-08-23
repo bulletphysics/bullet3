@@ -4095,7 +4095,7 @@ void btSoftBody::defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap
 		case fCollision::SDF_RD:
 		{
 			btRigidBody* prb1 = (btRigidBody*)btRigidBody::upcast(pcoWrap->getCollisionObject());
-			if (pcoWrap->getCollisionObject()->isActive() || this->isActive())
+			if (this->isActive())
 			{
 				const btTransform wtr = pcoWrap->getWorldTransform();
 				const btScalar timemargin = 0;
